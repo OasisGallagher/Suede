@@ -1,0 +1,415 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="internal">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="internal\base">
+      <UniqueIdentifier>{a5ee88c7-9643-440a-be06-26cdb17cb76a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\sprites">
+      <UniqueIdentifier>{4d538f95-b8fe-4e72-a8b3-49cb0475678b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\world">
+      <UniqueIdentifier>{4ee632eb-cd89-478a-8f7d-9bcbe89b17e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\base\include">
+      <UniqueIdentifier>{dcfe6761-fb80-4dea-84d8-59811f7dd10c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\base\src">
+      <UniqueIdentifier>{52d8432e-7729-4213-8e65-8c50124f13f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\world\include">
+      <UniqueIdentifier>{725c1364-19e7-49a7-850c-f7bd48aea61a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\world\src">
+      <UniqueIdentifier>{9a204d23-73c2-48ff-8ee8-cefb02aec656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\sprites\include">
+      <UniqueIdentifier>{b1a88a82-1fde-408b-9747-4053423be3b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\sprites\src">
+      <UniqueIdentifier>{f5de384c-d5da-45b8-b5d7-4fac3d034669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{619209de-ca24-4479-bfa3-b62bea17bc96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\memory">
+      <UniqueIdentifier>{fc15332d-324b-4971-b038-f578c3f65300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\memory\include">
+      <UniqueIdentifier>{99f53d4c-e122-4dc3-bc37-7d08cc4b26c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\memory\src">
+      <UniqueIdentifier>{267d6009-824e-4f16-8945-732e57717d21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{10fefdc2-0492-4bd2-862a-c3098401f3c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{4aae930e-eae0-47a3-a4f7-02c3154fb368}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\include">
+      <UniqueIdentifier>{e71f9d77-60d2-426b-b7a3-9702344cffc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\src">
+      <UniqueIdentifier>{ed49453a-275e-471e-856f-37319a2b5cad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\misc">
+      <UniqueIdentifier>{33b6bd70-8c14-40e8-b7c5-0add8e276c5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\misc\include">
+      <UniqueIdentifier>{38e2e4a4-6275-4764-96bb-692789d21da0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\misc\src">
+      <UniqueIdentifier>{abcc09ba-35f3-4516-ac04-29b4179b0997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\resources">
+      <UniqueIdentifier>{1e2bdf59-d78f-4654-b3ce-8427ad2560b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\resources\include">
+      <UniqueIdentifier>{30a5b204-e898-4a74-b2e5-a476af77f598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\resources\src">
+      <UniqueIdentifier>{42cc0c14-fe15-4a0b-b7a9-37dfc6dbcd3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\containers">
+      <UniqueIdentifier>{c61e2ee9-b018-4ec7-9d3a-aa1d9f88e54c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\containers\include">
+      <UniqueIdentifier>{6dc14b40-8a49-4eca-aed4-d387ec066d36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\math">
+      <UniqueIdentifier>{f1bdc2f9-e8e0-45ed-b249-4740a52424f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{3ec7b2f0-2a0c-49cc-a4d2-a54f46e2bc63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\file">
+      <UniqueIdentifier>{3ea0054a-968f-468a-b53d-118a628758ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\file\include">
+      <UniqueIdentifier>{d5ad271e-d5ff-456a-9344-fa70b52dba23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\file\src">
+      <UniqueIdentifier>{34e3ab19-2b40-4e6e-a324-fb78cb77a9df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\containers\src">
+      <UniqueIdentifier>{1e57a109-0bf2-4ecc-9612-7917ae76c1bd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\camera.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\material.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\object.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\renderer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shader.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\skybox.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\sprite.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\surface.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\texture.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\world.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\materialinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\objectinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\rendererinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\shaderinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\surfaceinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\textureinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\worldinternal.h">
+      <Filter>internal\world\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sprites\camerainternal.h">
+      <Filter>internal\sprites\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sprites\skyboxinternal.h">
+      <Filter>internal\sprites\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sprites\spriteinternal.h">
+      <Filter>internal\sprites\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\renderstate.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\memory\factory.h">
+      <Filter>internal\memory\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\debug.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\mathf.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\path.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\string.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\defines.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\memory\memory.h">
+      <Filter>internal\memory\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\resources\resources.h">
+      <Filter>internal\resources\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\misc\ptrmap.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\framebuffer.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\posteffect.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\light.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\matrix4x4.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\quaternion.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\vector2.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\vector3.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math\vector4.h">
+      <Filter>include\math</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sprites\lightinternal.h">
+      <Filter>internal\sprites\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\environment.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\environmentinternal.h">
+      <Filter>internal\world\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\glsldefines.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\variables.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphics.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\screen.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\timef.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\misc\graphicsinternal.h">
+      <Filter>internal\misc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\misc\screeninternal.h">
+      <Filter>internal\misc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\misc\timefinternal.h">
+      <Filter>internal\misc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\logger.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\misc\loggerinternal.h">
+      <Filter>internal\misc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\shadercompiler.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\textloader.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\misc\idcreater.h">
+      <Filter>internal\misc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\animation.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\animationinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\imagecodec.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\modelimporter.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\containers\variant.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\containers\sortedvector.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\particlesystem.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\sprites\particlesysteminternal.h">
+      <Filter>internal\sprites\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\vertexarrayobject.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\containers\freelist.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="internal\base\objectinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\materialinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\shaderinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\surfaceinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\textureinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\worldinternal.cpp">
+      <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sprites\camerainternal.cpp">
+      <Filter>internal\sprites\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sprites\skyboxinternal.cpp">
+      <Filter>internal\sprites\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sprites\spriteinternal.cpp">
+      <Filter>internal\sprites\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\memory\factory.cpp">
+      <Filter>internal\memory\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\debug.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\memory\memory.cpp">
+      <Filter>internal\memory\src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\path.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\resources\resources.cpp">
+      <Filter>internal\resources\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\framebuffer.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\matrix4x4.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\quaternion.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector2.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector3.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector4.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\rendererinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\renderstate.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sprites\lightinternal.cpp">
+      <Filter>internal\sprites\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\environmentinternal.cpp">
+      <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\string.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\misc\graphicsinternal.cpp">
+      <Filter>internal\misc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\misc\screeninternal.cpp">
+      <Filter>internal\misc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\misc\timefinternal.cpp">
+      <Filter>internal\misc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\misc\loggerinternal.cpp">
+      <Filter>internal\misc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\shadercompiler.cpp">
+      <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\textloader.cpp">
+      <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\animationinternal.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\imagecodec.cpp">
+      <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\modelimporter.cpp">
+      <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\containers\variant.cpp">
+      <Filter>internal\containers\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\sprites\particlesysteminternal.cpp">
+      <Filter>internal\sprites\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\vertexarrayobject.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
