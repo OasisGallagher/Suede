@@ -130,6 +130,9 @@ private:
 	void EmitParticles(unsigned count);
 
 	void SortParticles();
+
+	void SortParticlesByDepth(const glm::vec3& ref);
+
 	void UpdateParticles();
 	void UpdateAttributes();
 

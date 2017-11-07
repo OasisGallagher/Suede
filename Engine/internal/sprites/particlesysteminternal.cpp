@@ -2,6 +2,7 @@
 #include "tools/mathf.h"
 #include "particlesysteminternal.h"
 #include "internal/misc/timefinternal.h"
+#include "internal/world/worldinternal.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/surfaceinternal.h"
@@ -48,6 +49,36 @@ void ParticleSystemInternal::Update() {
 }
 
 void ParticleSystemInternal::SortParticles() {
+	std::vector<Sprite> cameras;
+	if (worldInstance->GetSprites(ObjectTypeCamera, cameras)) {
+		SortParticlesByDepth(cameras.front()->GetPosition());
+	}
+}
+
+void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {
+	unsigned count = particles_.size();
+	for (int i = 1; i < count; ++i) {
+		glm::vec4 ck = colors_[i];
+		glm::vec4 pk = positions_[i];
+		glm::vec3 vk(ref.x - pk.x, ref.y - pk.y, ref.z - pk.z);
+		float distSquared = glm::dot(vk, vk);
+
+		int j = i - 1;
+		for (; j >= 0; --j) {
+			const glm::vec4& current = positions_[j];
+			glm::vec3 vc(ref.x - current.x, ref.y - current.y, ref.z - current.z);
+
+			if (glm::dot(vc, vc) >= distSquared) {
+				break;
+			}
+		}
+
+		std::vector<glm::vec4>::iterator pc = colors_.begin(), pp = positions_.begin();
+		std::copy_backward(pc + (j + 1), pc + i, pc + (i + 1));
+		std::copy_backward(pp + (j + 1), pp + i, pp + (i + 1));
+		colors_[j + 1] = ck;
+		positions_[j + 1] = pk;
+	}
 }
 
 void ParticleSystemInternal::UpdateParticles() {
