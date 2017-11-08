@@ -154,11 +154,11 @@ void Game::createScene() {
 	particleSystem->SetDuration(5);
 	particleSystem->SetLooping(true);
 
-	//Sprite sprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
-	//sprite->SetParent(camera);
-	//light->SetParent(camera);
-	//sprite->SetPosition(glm::vec3(0, 0, -70));
-	//sprite->SetEulerAngles(glm::vec3(270, 180, 180));
+	Sprite sprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
+	sprite->SetParent(camera);
+	light->SetParent(camera);
+	sprite->SetPosition(glm::vec3(0, 0, -70));
+	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
 
 	/* Mesh.
 	Mesh mesh = dynamic_ptr_cast<Mesh>(world->Create("Mesh"));
@@ -174,10 +174,10 @@ void Game::createScene() {
 	mesh->SetTriangles(3, 0, 0);
 	surface->AddMesh(mesh);
 	*/
-	/*
-	sprite->LoadModel("models/boblampclean.md5mesh");
-	sprite->GetAnimation()->SetWrapMode(AnimationWrapModePingPong);
-	*/
+	
+	sprite->LoadModel("models/test_sphere.fbx");
+	//sprite->GetAnimation()->SetWrapMode(AnimationWrapModePingPong);
+	
 	//sprite->GetAnimation()->Play("");
 	//Surface surface = sprite->GetSurface();
 
