@@ -24,8 +24,6 @@ Suede::Suede(QWidget *parent)
 
 	connect(actions[0], SIGNAL(triggered()), this, SLOT(screenCapture()));
 	connect(actions[1], SIGNAL(triggered()), qApp, SLOT(quit()));
-
-	timer_ = startTimer(2000);
 }
 
 Suede::~Suede() {
@@ -37,10 +35,20 @@ void Suede::setupUI() {
 	QWidget* cw = takeCentralWidget();
 	cw->deleteLater();
 
+	dockWidgets_[ChildWindowGame] = ui.game;
+	dockWidgets_[ChildWindowConsole] = ui.console;
+	dockWidgets_[ChildWindowInspector] = ui.inspector;
+	dockWidgets_[ChildWindowHierarchy] = ui.hierarchy;
+
 	addDockWidget(Qt::LeftDockWidgetArea, ui.inspector);
 	addDockWidget(Qt::RightDockWidgetArea, ui.game);
 	addDockWidget(Qt::RightDockWidgetArea, ui.console, Qt::Vertical);
 	addDockWidget(Qt::RightDockWidgetArea, ui.hierarchy, Qt::Horizontal);
+
+	menuBar()->hide();
+	for (int i = ChildWindowGame + 1; i < ChildWindowCount; ++i) {
+		showChildWindow((ChildWindow)i, false);
+	}
 
 	Game::get()->setView(ui.gameWidget);
 	Console::get()->setView(ui.consoleWidget);
@@ -48,19 +56,50 @@ void Suede::setupUI() {
 	Hierarchy::get()->setView(ui.hierarchyWidget);
 }
 
-void Suede::timerEvent(QTimerEvent *event) {
-	if (event->timerId() != timer_) { return; }
-	std::vector<Sprite> sprites;
-	Hierarchy::get()->update(Engine::get()->world()->GetRootSprite());
-	killTimer(timer_);
+void Suede::showChildWindow(ChildWindow window, bool show) {
+	Q_ASSERT(window > 0 && window < ChildWindowCount);
+	dockWidgets_[window]->setVisible(show);
+}
+
+bool Suede::childWindowVisible(ChildWindow window) {
+	Q_ASSERT(window > 0 && window < ChildWindowCount);
+	return dockWidgets_[window]->isVisible();
 }
 
 void Suede::keyPressEvent(QKeyEvent* event) {
 	switch (event->key()) {
 		case Qt::Key_Escape:
-			qApp->quit();
+			onEscapePressed();
+			break;
+
+		case Qt::Key_0:
+		case Qt::Key_1:
+		case Qt::Key_2:
+		case Qt::Key_3:
+		case Qt::Key_4:
+		case Qt::Key_5:
+		case Qt::Key_6:
+		case Qt::Key_7:
+		case Qt::Key_8:
+		case Qt::Key_9:
+			onNumberPressed(event);
 			break;
 	}
+}
+
+void Suede::onNumberPressed(QKeyEvent* event) {
+	if ((event->modifiers() & Qt::ControlModifier) == 0) {
+		return;
+	}
+
+	int index = event->key() - Qt::Key_0;
+	if (index > 0 && index < ChildWindowCount) {
+		showChildWindow((ChildWindow)index, !childWindowVisible((ChildWindow)index));
+	}
+}
+
+void Suede::onEscapePressed() {
+	qApp->quit();
 }
 
 void Suede::screenCapture() {
@@ -88,6 +127,10 @@ void Suede::screenCapture() {
 }
 
 void Suede::OnEngineLogMessage(int type, const char* message) {
+	if (!childWindowVisible(ChildWindowConsole)) {
+		return;
+	}
+
 	switch (type) {
 		case 0:
 			Console::get()->addMessage(Console::Debug, message);

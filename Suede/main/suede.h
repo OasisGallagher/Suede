@@ -15,10 +15,26 @@ public:
 	Suede(QWidget *parent = 0);
 	~Suede();
 
+public:
+	enum ChildWindow {
+		ChildWindowGame = 1,
+		ChildWindowConsole,
+		ChildWindowInspector,
+		ChildWindowHierarchy,
+
+		ChildWindowCount,
+	};
+
+public:
+	bool childWindowVisible(ChildWindow window);
+	void showChildWindow(ChildWindow window, bool show);
+
 protected:
 	// TODO: update hierarchy.
-	virtual void timerEvent(QTimerEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
+
+	void onNumberPressed(QKeyEvent* event);
+
 	virtual void OnEngineLogMessage(int level, const char* message);
 
 private slots:
@@ -26,8 +42,9 @@ private slots:
 
 private:
 	void setupUI();
+	void onEscapePressed();
 
 private:
-	int timer_;
 	Ui::Suede ui;
+	QDockWidget* dockWidgets_[ChildWindowCount];
 };

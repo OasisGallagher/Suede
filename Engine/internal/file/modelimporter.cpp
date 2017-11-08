@@ -106,7 +106,8 @@ void ModelImporter::ImportTextures(MaterialTextures* textures) {
 void ModelImporter::ImportTexture(const aiMaterial* mat, Texture& dest, int textureType) {
 	aiString dpath;
 	std::string prefix = "textures/";
-	if (mat->GetTextureCount((aiTextureType)textureType) > 0 && mat->GetTexture((aiTextureType)textureType, 0, &dpath) == AI_SUCCESS) {
+	int texCount = mat->GetTextureCount((aiTextureType)textureType);
+	if (texCount > 0 && mat->GetTexture((aiTextureType)textureType, 0, &dpath) == AI_SUCCESS) {
 		Texture2D texture = CREATE_OBJECT(Texture2D);
 		if (texture->Load(prefix + dpath.data)) {
 			dest = texture;
