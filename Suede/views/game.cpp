@@ -115,7 +115,7 @@ void Game::createScene() {
 	camera->SetClearType(ClearTypeColor);
 	camera->SetClearColor(glm::vec3(0));
 
-	Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
+	/*Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
 	std::string faces[] = {
 		"textures/lake_skybox/right.jpg",
 		"textures/lake_skybox/left.jpg",
@@ -126,6 +126,7 @@ void Game::createScene() {
 	};
 
 	skybox->Load(faces);
+	*/
 	//camera->SetSkybox(skybox);
 
 	RenderTexture renderTexture = dsp_cast<RenderTexture>(world->Create(ObjectTypeRenderTexture));
@@ -133,7 +134,7 @@ void Game::createScene() {
 	//camera->SetRenderTexture(renderTexture);
 	//camera->SetClearColor(glm::vec3(0.0f, 0.0f, 0.4f));
 
-	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(world->Create(ObjectTypeParticleSystem));
+	/*ParticleSystem particleSystem = dsp_cast<ParticleSystem>(world->Create(ObjectTypeParticleSystem));
 	particleSystem->SetPosition(glm::vec3(0, 20, -50));
 
 	SphereParticleEmitter emitter = dsp_cast<SphereParticleEmitter>(world->Create(ObjectTypeSphereParticleEmitter));
@@ -152,7 +153,7 @@ void Game::createScene() {
 
 	particleSystem->SetMaxParticles(1000);
 	particleSystem->SetDuration(5);
-	particleSystem->SetLooping(true);
+	particleSystem->SetLooping(true);*/
 
 	Sprite sprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
 	sprite->SetParent(camera);

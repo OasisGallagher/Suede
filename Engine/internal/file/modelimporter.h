@@ -36,6 +36,8 @@ private:
 	void ImportMeshAttributes(const aiMesh* aimesh, int nm, SurfaceAttribute& attribute);
 	void ImportSurfaceAttributes(Surface surface, SurfaceAttribute& attribute, MaterialTextures* textures);
 
+	void ImportHierarchy();
+
 	struct MeshSize {
 		unsigned vertexCount = 0;
 		unsigned indexCount = 0;

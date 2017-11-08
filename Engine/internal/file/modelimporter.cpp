@@ -2,6 +2,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include <assimp/scene.h>
+#include <assimp/cimport.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
@@ -45,6 +46,8 @@ bool ModelImporter::Import(const std::string& path, int mask) {
 		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
 
 	std::string fpath = Path::GetResourceRootDirectory() + path;
+	bool exist = true;
+	importer.SetPropertyInteger("AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS", 0, &exist);
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 
 	AssertX(scene != nullptr, "failed to read file " + fpath + ": " + importer.GetErrorString());
