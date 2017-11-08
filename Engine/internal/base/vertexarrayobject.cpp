@@ -39,7 +39,7 @@ void VertexArrayObject::SetBuffer(int index, GLenum target, size_t size, const v
 	UnbindBuffer(index);
 }
 
-void VertexArrayObject::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, unsigned offset) {
+void VertexArrayObject::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, unsigned offset, int divisor) {
 	BindBuffer(index);
 	glEnableVertexAttribArray(location);
 
@@ -48,6 +48,10 @@ void VertexArrayObject::SetVertexDataSource(int index, int location, int size, G
 	}
 	else {
 		glVertexAttribPointer(location, size, type, normalized, stride, (void*)(size_t)offset);
+	}
+
+	if (divisor > 0) {
+		glVertexAttribDivisor(location, divisor);
 	}
 
 	UnbindBuffer(index);
@@ -61,12 +65,13 @@ unsigned VertexArrayObject::GetBufferNativePointer(int index) {
 void VertexArrayObject::UpdateBuffer(int index, int offset, size_t size, const void* data) {
 	Assert(index >= 0 && index < bufferCount_);
 	GLuint vbo = vbos_[index];
-	const VBOAttribute& attr = attributes_[index];
+	VBOAttribute& attr = attributes_[index];
 
 	BindBuffer(index);
-	
+
 	glBufferData(attr.target, attr.size, nullptr, attr.usage); 
 	glBufferSubData(attr.target, offset, size, data);
+
 	UnbindBuffer(index);
 }
 

@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "tools/debug.h"
 #include "animationinternal.h"
 #include "internal/misc/timefinternal.h"
@@ -85,26 +85,26 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 	node = nullptr;
 }
 
-AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectTypeAnimationClip), wrapper_(Mathf::Min) {
+AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectTypeAnimationClip), wrapper_(Math::Min) {
 }
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
 	switch (wrapMode_ = value) {
 	case AnimationWrapModeLoop:
-		wrapper_ = Mathf::Repeat;
+		wrapper_ = Math::Repeat;
 		break;
 	case AnimationWrapModePingPong:
-		wrapper_ = Mathf::PingPong;
+		wrapper_ = Math::PingPong;
 		break;
 	case AnimationWrapModeOnce:
 	case AnimationWrapModeClampForever:
-		wrapper_ = Mathf::Min;
+		wrapper_ = Math::Min;
 		break;
 	}
 }
 
 void AnimationClipInternal::SetTicksPerSecond(float value) {
-	if (Mathf::Approximately(value)) {
+	if (Math::Approximately(value)) {
 		value = DEFAULT_TICKS_PER_SECOND;
 	}
 
@@ -268,7 +268,7 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 	key.time = time;
 
 	Keys::iterator pos = keys->find(key);
-	if (pos != keys->end() && Mathf::Approximately(pos->time, time)) {
+	if (pos != keys->end() && Math::Approximately(pos->time, time)) {
 		return;
 	}
 
@@ -285,7 +285,7 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 			Keys::iterator prev = pos;
 			--prev;
 
-			float t = Mathf::Clamp01((time - prev->time) / (pos->time - prev->time));
+			float t = Math::Clamp01((time - prev->time) / (pos->time - prev->time));
 			LerpVariant(key.value, prev->value, pos->value, t);
 		}
 	}
@@ -372,7 +372,7 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 	float deltaTime = keyframes_[next]->GetTime() - keyframes_[index]->GetTime();
 	float factor = (time - keyframes_[index]->GetTime()) / deltaTime;
 
-	factor = Mathf::Clamp01(factor);
+	factor = Math::Clamp01(factor);
 	frame = keyframes_[index]->Lerp(keyframes_[next], factor);
 }
 
@@ -386,7 +386,7 @@ AnimationFrame AnimationFrameInternal::Lerp(AnimationFrame other, float factor) 
 		AssertX(lhs.id == rhs.id, "attribute id mismatch");
 		AssertX(lhs.value.GetType() == rhs.value.GetType(), "attribute type mismatch");
 
-		ans->SetTime(Mathf::Lerp(time_, other->GetTime(), factor));
+		ans->SetTime(Math::Lerp(time_, other->GetTime(), factor));
 		LerpAttribute(ans, lhs, rhs, factor);
 	}
 
@@ -479,13 +479,13 @@ static void LerpVariant(Variant& variant, Variant& lhs, Variant& rhs, float fact
 
 	switch (type) {
 		case VariantTypeFloat:
-			variant.SetFloat(Mathf::Lerp(lhs.GetFloat(), rhs.GetFloat(), factor));
+			variant.SetFloat(Math::Lerp(lhs.GetFloat(), rhs.GetFloat(), factor));
 			break;
 		case VariantTypeVector3:
-			variant.SetVector3(Mathf::Lerp(lhs.GetVector3(), rhs.GetVector3(), factor));
+			variant.SetVector3(Math::Lerp(lhs.GetVector3(), rhs.GetVector3(), factor));
 			break;
 		case VariantTypeQuaternion:
-			variant.SetQuaternion(Mathf::Lerp(lhs.GetQuaternion(), rhs.GetQuaternion(), factor));
+			variant.SetQuaternion(Math::Lerp(lhs.GetQuaternion(), rhs.GetQuaternion(), factor));
 			break;
 		default:
 			AssertX(false, "can not lerp attribute type " + std::to_string(type));

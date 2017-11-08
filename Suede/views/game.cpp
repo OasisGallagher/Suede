@@ -112,8 +112,8 @@ void Game::createScene() {
 
 	camera->SetPosition(glm::vec3(0, 25, 0));
 
-	camera->SetClearType(ClearTypeSkybox);
-	//camera->SetClearColor(glm::vec3(0, 0, 0.4f));
+	camera->SetClearType(ClearTypeColor);
+	camera->SetClearColor(glm::vec3(0));
 
 	Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
 	std::string faces[] = {
@@ -126,7 +126,7 @@ void Game::createScene() {
 	};
 
 	skybox->Load(faces);
-	camera->SetSkybox(skybox);
+	//camera->SetSkybox(skybox);
 
 	RenderTexture renderTexture = dsp_cast<RenderTexture>(world->Create(ObjectTypeRenderTexture));
 	renderTexture->Load(RenderTextureFormatRgba, canvas_->width(), canvas_->height());
@@ -138,17 +138,18 @@ void Game::createScene() {
 
 	SphereParticleEmitter emitter = dsp_cast<SphereParticleEmitter>(world->Create(ObjectTypeSphereParticleEmitter));
 	emitter->SetRadius(5);
-	emitter->SetRate(2000);
+	emitter->SetRate(200);
 	emitter->SetStartColor(glm::vec4(1, 1, 1, 0.5f));
 	emitter->SetStartDuration(2);
 	emitter->SetStartSize(1);
-	emitter->SetStartVelocity(glm::vec3(0));
+	emitter->SetStartVelocity(glm::vec3(0, 1, 0));
 	ParticleBurst burst = { 4, 3, 20 };
 	particleSystem->SetEmitter(emitter);
 
-	particleSystem->SetGravityScale(0);
-
 	ParticleAnimator animator = dsp_cast<ParticleAnimator>(world->Create(ObjectTypeParticleAnimator));
+	animator->SetGravityScale(0.2f);
+	particleSystem->SetParticleAnimator(animator);
+
 	particleSystem->SetMaxParticles(1000);
 	particleSystem->SetDuration(5);
 	particleSystem->SetLooping(true);

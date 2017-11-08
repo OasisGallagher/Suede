@@ -1,6 +1,6 @@
 #pragma once
 #include "tools/debug.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "internal/memory/memory.h"
 
 template <class T>

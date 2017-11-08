@@ -39,6 +39,11 @@ struct BlendAttribute {
 	float weights[Quality];
 };
 
+struct UserAttribute {
+	int divisor;
+	std::vector<glm::vec4> data;
+};
+
 struct SurfaceAttribute {
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
@@ -47,9 +52,9 @@ struct SurfaceAttribute {
 	std::vector<BlendAttribute> blendAttrs;
 	std::vector<unsigned> indexes;
 
-	std::vector<glm::vec4> user0;
-	std::vector<glm::vec4> user1;
-	std::vector<glm::vec4> user2;
+	UserAttribute user0;
+	UserAttribute user1;
+	UserAttribute user2;
 };
 
 class ENGINE_EXPORT ISurface : virtual public IObject {

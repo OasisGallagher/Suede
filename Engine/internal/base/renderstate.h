@@ -75,14 +75,3 @@ private:
 	int oldSrc_, oldDest_;
 	int src_, dest_;
 };
-
-class VertexAttribDivisorState : public RenderState {
-public:
-	virtual void Initialize(int parameter0, int parameter1);
-
-	virtual void Bind();
-	virtual void Unbind();
-
-private:
-	int index_, value_;
-};

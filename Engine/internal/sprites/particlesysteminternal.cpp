@@ -1,5 +1,5 @@
 #include "variables.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "particlesysteminternal.h"
 #include "internal/misc/timefinternal.h"
 #include "internal/world/worldinternal.h"
@@ -9,21 +9,21 @@
 #include "internal/base/materialinternal.h"
 #include "internal/base/rendererinternal.h"
 
-static const int quadIndexes[] = { 0, 1, 2, 3 };
-static const glm::vec3 quadVertices[] = {
+static const int kQuadIndexes[] = { 0, 1, 2, 3 };
+static const glm::vec3 kQuadVertices[] = {
 	glm::vec3(-0.5f, -0.5f, 0.f),
 	glm::vec3(0.5f, -0.5f, 0.f),
 	glm::vec3(-0.5f,  0.5f, 0.f),
 	glm::vec3(0.5f,  0.5f, 0.f),
 };
+static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 
 #define MAX_PARTICLE_COUNT	1000
-#define GRAVITATIONAL_ACCELERATION	9.8f
 
 ParticleSystemInternal::ParticleSystemInternal()
 	: SpriteInternal(ObjectTypeParticleSystem), duration_(3)
-	, looping_(false), startDelay_(0), time_(0), gravityScale_(1)
-	, maxParticles_(MAX_PARTICLE_COUNT), particles_(MAX_PARTICLE_COUNT) {
+	, looping_(false), startDelay_(0), time_(0), maxParticles_(MAX_PARTICLE_COUNT)
+	, particles_(MAX_PARTICLE_COUNT) {
 	InitializeSurface();
 	InitializeRenderer();
 }
@@ -35,6 +35,7 @@ void ParticleSystemInternal::SetMaxParticles(unsigned value) {
 	if (maxParticles_ != value) {
 		maxParticles_ = value;
 		particles_.reallocate(value);
+		InitializeSurface();
 	}
 }
 
@@ -48,7 +49,7 @@ void ParticleSystemInternal::Update() {
 	time_ += timeInstance->GetDeltaTime();
 }
 
-void ParticleSystemInternal::SortParticles() {
+void ParticleSystemInternal::SortBuffers() {
 	std::vector<Sprite> cameras;
 	if (worldInstance->GetSprites(ObjectTypeCamera, cameras)) {
 		SortParticlesByDepth(cameras.front()->GetPosition());
@@ -85,23 +86,21 @@ void ParticleSystemInternal::UpdateParticles() {
 	size_t count = particles_.size();
 	if (count != 0) {
 		UpdateAttributes();
-		SortParticles();
-
-		count = particles_.size();
-		Surface surface = GetSurface();
-		surface->UpdateUserBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
-		surface->UpdateUserBuffer(1, count * sizeof(glm::vec4), &positions_[0]);
+		UpdateBuffers();
+		SortBuffers();
+		UpdateSurface();
 	}
+}
+
+void ParticleSystemInternal::UpdateSurface() {
+	unsigned count = particles_.size();
+	Surface surface = GetSurface();
+	surface->UpdateUserBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
+	surface->UpdateUserBuffer(1, count * sizeof(glm::vec4), &positions_[0]);
 }
 
 void ParticleSystemInternal::UpdateAttributes() {
 	float deltaTime = timeInstance->GetDeltaTime();
-
-	unsigned index = 0;
-	unsigned count = Mathf::NextPowerOfTwo(particles_.size());
-
-	if (colors_.size() < count) { colors_.resize(count); }
-	if (positions_.size() < count) { positions_.resize(count); }
 
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
@@ -109,25 +108,36 @@ void ParticleSystemInternal::UpdateAttributes() {
 		if ((particle->life -= deltaTime) <= 0) {
 			particles_.push(particle);
 		}
-		else {
-			particle->position += particle->velocity * deltaTime;
-			particle->velocity -= GRAVITATIONAL_ACCELERATION * gravityScale_ * deltaTime;
-
-			colors_[index] = particle->color;
-			positions_[index++] = glm::vec4(particle->position, particle->size);
+		else if (particleAnimator_) {
+			particleAnimator_->Update(*particle);
 		}
 	}
 }
 
+void ParticleSystemInternal::UpdateBuffers() {
+	unsigned index = 0;
+	unsigned count = Math::NextPowerOfTwo(particles_.size());
+
+	if (colors_.size() < count) { colors_.resize(count); }
+	if (positions_.size() < count) { positions_.resize(count); }
+
+	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
+		Particle* particle = *ite;
+
+		colors_[index] = particle->color;
+		positions_[index++] = glm::vec4(particle->position, particle->size);
+	}
+}
+
 void ParticleSystemInternal::UpdateEmitter() {
-	unsigned maxCount = Mathf::Max(0, int(GetMaxParticles() - GetParticlesCount()));
+	unsigned maxCount = Math::Max(0, int(GetMaxParticles() - GetParticlesCount()));
 	if (maxCount == 0) {
 		return;
 	}
 
 	unsigned count = 0;
 	emitter_->Emit(nullptr, count);
-	count = Mathf::Min(count, maxCount);
+	count = Math::Min(count, maxCount);
 
 	if (count != 0) {
 		EmitParticles(count);
@@ -135,7 +145,7 @@ void ParticleSystemInternal::UpdateEmitter() {
 }
 
 void ParticleSystemInternal::EmitParticles(unsigned count) {
-	unsigned size = Mathf::NextPowerOfTwo(count);
+	unsigned size = Math::NextPowerOfTwo(count);
 	if (size > buffer_.size()) {
 		buffer_.resize(size);
 	}
@@ -160,18 +170,20 @@ void ParticleSystemInternal::InitializeSurface() {
 	mesh->GetMaterialTextures().albedo = albedo;
 
 	SurfaceAttribute attribute;
-	attribute.indexes.assign(quadIndexes, quadIndexes + CountOf(quadIndexes));
+	attribute.indexes.assign(kQuadIndexes, kQuadIndexes + CountOf(kQuadIndexes));
 	// vertices.
-	attribute.positions.assign(quadVertices, quadVertices + CountOf(quadVertices));
+	attribute.positions.assign(kQuadVertices, kQuadVertices + CountOf(kQuadVertices));
 
 	// colors.
-	attribute.user0.resize(maxParticles_);
+	attribute.user0.divisor = 1;
+	attribute.user0.data.resize(maxParticles_);
 
 	// positions.
-	attribute.user1.resize(maxParticles_);
+	attribute.user1.divisor = 1;
+	attribute.user1.data.resize(maxParticles_);
 
 	surface->SetAttribute(attribute);
-	mesh->SetTriangles(CountOf(quadVertices), 0, 0);
+	mesh->SetTriangles(CountOf(kQuadVertices), 0, 0);
 
 	surface->AddMesh(mesh);
 	SetSurface(surface);
@@ -225,7 +237,7 @@ unsigned ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	float nextTime = time_ + timeInstance->GetDeltaTime();
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
-			ans = Mathf::Random(bursts_[i].min, bursts_[i].max);
+			ans = Math::Random(bursts_[i].min, bursts_[i].max);
 		}
 	}
 
@@ -235,6 +247,8 @@ unsigned ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	return ans;
 }
 
-void ParticleAnimatorInternal::Animate(Particle& particle) {
-
+void ParticleAnimatorInternal::Update(Particle& particle) {
+	float deltaTime = timeInstance->GetDeltaTime();
+	particle.position += particle.velocity * deltaTime;
+	particle.velocity += kGravitationalAcceleration * gravityScale_ * deltaTime;
 }

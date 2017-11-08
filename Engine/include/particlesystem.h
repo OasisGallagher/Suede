@@ -64,7 +64,10 @@ public:
 	virtual void SetRandomForce(const glm::vec3& value) = 0;
 	virtual glm::vec3 GetRandomForce() = 0;
 
-	virtual void Animate(Particle& particle) = 0;
+	virtual void SetGravityScale(float value) = 0;
+	virtual float GetGravityScale() = 0;
+
+	virtual void Update(Particle& particle) = 0;
 };
 
 class ENGINE_EXPORT IParticleSystem : virtual public ISprite {
@@ -77,10 +80,6 @@ public:
 
 	virtual void SetStartDelay(float value) = 0;
 	virtual float GetStartDelay() = 0;
-
-	virtual void SetGravityScale(float value) = 0;
-
-	virtual float GetGravityScale() = 0;
 
 	virtual void SetMaxParticles(unsigned value) = 0;
 	virtual unsigned GetMaxParticles() = 0;

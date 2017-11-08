@@ -7,7 +7,7 @@
 
 #include "tools/path.h"
 #include "tools/debug.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "modelimporter.h"
 #include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
@@ -198,7 +198,7 @@ void ModelImporter::ImportBoneAttributes(const aiMesh* aimesh, int nm, Surface s
 			unsigned vertexID = baseVertex + aimesh->mBones[i]->mWeights[j].mVertexId;
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {
-				if (Mathf::Approximately(attribute.blendAttrs[vertexID].weights[k])) {
+				if (Math::Approximately(attribute.blendAttrs[vertexID].weights[k])) {
 					attribute.blendAttrs[vertexID].indexes[k] = index;
 					attribute.blendAttrs[vertexID].weights[k] = weight;
 					break;

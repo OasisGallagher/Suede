@@ -59,7 +59,6 @@ void RendererInternal::SetRenderState(RenderStateType type, int parameter0, int 
 	states_[type] = state;
 }
 
-
 GLenum RendererInternal::PrimaryTypeToGLEnum(PrimaryType type) {
 	if (type == PrimaryTypeTriangle) { return GL_TRIANGLES; }
 	return GL_TRIANGLE_STRIP;
@@ -152,11 +151,5 @@ void ParticleRendererInternal::DrawCall(Mesh mesh) {
 	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
 
 	GLenum mode = PrimaryTypeToGLEnum(mesh->GetPrimaryType());
-	// TODO: 
-	
-	glVertexAttribDivisor(0, 0); // particles vertices : always reuse the same 4 vertices -> 0
-	glVertexAttribDivisor(6, 1); // positions : one per quad (its center)                 -> 1
-	glVertexAttribDivisor(7, 1); // color : one per quad                                  -> 1
-	
 	glDrawElementsInstancedBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned)* baseIndex), particleCount_, baseVertex);
 }

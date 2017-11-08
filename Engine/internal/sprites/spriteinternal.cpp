@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "tools/string.h"
 #include "internal/file/modelimporter.h"
 #include "internal/world/worldinternal.h"
@@ -108,7 +108,7 @@ void SpriteInternal::SetPosition(const glm::vec3& value) {
 }
 
 void SpriteInternal::SetRotation(const glm::quat& value) {
-	if (Mathf::Approximately(glm::dot(worldRotation_, value), 0)) { return; }
+	if (Math::Approximately(glm::dot(worldRotation_, value), 0)) { return; }
 	worldRotation_ = value;
 	ClearDirty(WorldRotation);
 	SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
@@ -169,7 +169,7 @@ glm::quat SpriteInternal::GetRotation() {
 	if (!IsDirty(WorldRotation)) { return worldRotation_; }
 
 	if (!IsDirty(WorldEulerAngles)) {
-		worldRotation_ = glm::quat(Mathf::Radians(worldEulerAngles_));
+		worldRotation_ = glm::quat(Math::Radians(worldEulerAngles_));
 	}
 	else {
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
@@ -179,7 +179,7 @@ glm::quat SpriteInternal::GetRotation() {
 		}
 		else {
 			Assert(!IsDirty(LocalEulerAngles));
-			localRotation = localRotation_ = glm::quat(Mathf::Radians(localEulerAngles_));
+			localRotation = localRotation_ = glm::quat(Math::Radians(localEulerAngles_));
 			ClearDirty(LocalRotation);
 		}
 
@@ -211,7 +211,7 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 		}
 		else {
 			Assert(!IsDirty(LocalEulerAngles));
-			localRotation = localRotation_ = glm::quat(Mathf::Radians(localEulerAngles_));
+			localRotation = localRotation_ = glm::quat(Math::Radians(localEulerAngles_));
 			ClearDirty(LocalRotation);
 		}
 
@@ -223,7 +223,7 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 		ClearDirty(WorldRotation);
 	}
 
-	worldEulerAngles_ = Mathf::Degrees(glm::eulerAngles(worldRotation));
+	worldEulerAngles_ = Math::Degrees(glm::eulerAngles(worldRotation));
 
 	ClearDirty(WorldEulerAngles);
 
@@ -245,7 +245,7 @@ void SpriteInternal::SetLocalPosition(const glm::vec3& value) {
 }
 
 void SpriteInternal::SetLocalRotation(const glm::quat& value) {
-	if (Mathf::Approximately(glm::dot(localRotation_, value), 0)) { return; }
+	if (Math::Approximately(glm::dot(localRotation_, value), 0)) { return; }
 	localRotation_ = value;
 	ClearDirty(LocalRotation);
 	SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
@@ -294,7 +294,7 @@ glm::quat SpriteInternal::GetLocalRotation() {
 	if (!IsDirty(LocalRotation)) { return localRotation_; }
 
 	if (!IsDirty(LocalEulerAngles)) {
-		localRotation_ = glm::quat(Mathf::Radians(localEulerAngles_));
+		localRotation_ = glm::quat(Math::Radians(localEulerAngles_));
 	}
 	else {
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
@@ -304,7 +304,7 @@ glm::quat SpriteInternal::GetLocalRotation() {
 		}
 		else {
 			Assert(!IsDirty(WorldEulerAngles));
-			worldRotation = worldRotation_ = glm::quat(Mathf::Radians(worldEulerAngles_));
+			worldRotation = worldRotation_ = glm::quat(Math::Radians(worldEulerAngles_));
 			ClearDirty(WorldRotation);
 		}
 
@@ -336,7 +336,7 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 		}
 		else {
 			Assert(!IsDirty(WorldEulerAngles));
-			worldRotation = worldRotation_ = glm::quat(Mathf::Radians(worldEulerAngles_));
+			worldRotation = worldRotation_ = glm::quat(Math::Radians(worldEulerAngles_));
 			ClearDirty(WorldRotation);
 		}
 
@@ -349,7 +349,7 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 	}
 
 	glm::vec3 angles = glm::eulerAngles(localRotation);
-	localEulerAngles_ = Mathf::Degrees(angles);
+	localEulerAngles_ = Math::Degrees(angles);
 
 	ClearDirty(LocalEulerAngles);
 

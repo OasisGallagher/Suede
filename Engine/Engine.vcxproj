@@ -218,7 +218,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\sprite.h" />
     <ClInclude Include="include\surface.h" />
     <ClInclude Include="include\texture.h" />
-    <ClInclude Include="include\timef.h" />
+    <ClInclude Include="include\time2.h" />
     <ClInclude Include="include\variables.h" />
     <ClInclude Include="include\world.h" />
     <ClInclude Include="internal\base\animationinternal.h" />
@@ -256,7 +256,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
     <ClInclude Include="tools\debug.h" />
-    <ClInclude Include="tools\mathf.h" />
+    <ClInclude Include="tools\math2.h" />
     <ClInclude Include="tools\path.h" />
     <ClInclude Include="tools\string.h" />
   </ItemGroup>

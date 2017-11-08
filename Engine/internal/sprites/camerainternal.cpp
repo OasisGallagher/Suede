@@ -4,7 +4,7 @@
 #include "camera.h"
 #include "variables.h"
 #include "tools/debug.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "internal/memory/factory.h"
 #include "internal/file/imagecodec.h"
 #include "internal/base/framebuffer.h"
@@ -45,28 +45,28 @@ glm::vec3 CameraInternal::GetClearColor() {
 }
 
 void CameraInternal::SetAspect(float value) {
-	if (!Mathf::Approximately(aspect_, value)) {
+	if (!Math::Approximately(aspect_, value)) {
 		aspect_ = value;
 		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 	}
 }
 
 void CameraInternal::SetNearClipPlane(float value) {
-	if (!Mathf::Approximately(near_, value)) {
+	if (!Math::Approximately(near_, value)) {
 		near_ = value;
 		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 	}
 }
 
 void CameraInternal::SetFarClipPlane(float value) {
-	if (!Mathf::Approximately(far_, value)) {
+	if (!Math::Approximately(far_, value)) {
 		far_ = value;
 		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 	}
 }
 
 void CameraInternal::SetFieldOfView(float value) {
-	if (!Mathf::Approximately(near_, value)) {
+	if (!Math::Approximately(near_, value)) {
 		near_ = value;
 		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 	}
@@ -229,7 +229,7 @@ void CameraInternal::OnContextSizeChanged(int w, int h) {
 	fbRenderTexture2_->Resize(w, h);
 
 	float aspect = (float)w / h;
-	if (!Mathf::Approximately(aspect, GetAspect())) {
+	if (!Math::Approximately(aspect, GetAspect())) {
 		SetAspect(aspect);
 	}
 }

@@ -2,7 +2,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "tools/debug.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "objectinternal.h"
 
 unsigned ObjectInternal::ObjectIDContainer[ObjectTypeCount];
@@ -14,10 +14,10 @@ ObjectInternal::ObjectInternal(ObjectType type) {
 
 unsigned ObjectInternal::EncodeInstanceID(ObjectType type) {
 	Assert(ObjectIDContainer[type] < std::numeric_limits<unsigned>::max());
-	return Mathf::MakeDword(++ObjectIDContainer[type], type);
+	return Math::MakeDword(++ObjectIDContainer[type], type);
 }
 
 void ObjectInternal::DecodeInstanceID(unsigned value, ObjectType* type, unsigned* id) {
-	if (type != nullptr) { *type = (ObjectType)Mathf::Highword(value); }
-	if (id != nullptr) { *id = Mathf::Loword(value); }
+	if (type != nullptr) { *type = (ObjectType)Math::Highword(value); }
+	if (id != nullptr) { *id = Math::Loword(value); }
 }

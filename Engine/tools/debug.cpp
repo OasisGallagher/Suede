@@ -7,7 +7,7 @@
 
 #include "debug.h"
 #include "engine.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "tools/string.h"
 
 int Debug::length_ = 0;

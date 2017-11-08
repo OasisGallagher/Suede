@@ -1,5 +1,5 @@
 #include "variables.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "tools/string.h"
 #include "materialinternal.h"
 
@@ -31,7 +31,7 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 
 void MaterialInternal::SetFloat(const std::string& name, float value) {
 	Uniform* u = GetUniform(name, VariantTypeFloat);
-	if (u != nullptr && !Mathf::Approximately(u->value.GetFloat(), value)) {
+	if (u != nullptr && !Math::Approximately(u->value.GetFloat(), value)) {
 		glProgramUniform1f(shader_->GetNativePointer(), u->location, value);
 	}
 }

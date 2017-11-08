@@ -1,4 +1,4 @@
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "worldinternal.h"
 #include "internal/memory/factory.h"
 #include "internal/sprites/spriteinternal.h"
@@ -18,7 +18,7 @@ bool WorldInternal::LightComparer::operator()(const Light & lhs, const Light & r
 		return lli > rli;
 	}
 
-	return Mathf::Luminance(lhs->GetColor()) > Mathf::Luminance(rhs->GetColor());
+	return Math::Luminance(lhs->GetColor()) > Math::Luminance(rhs->GetColor());
 }
 
 bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera& rhs) const {

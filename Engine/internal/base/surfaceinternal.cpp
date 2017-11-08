@@ -1,4 +1,4 @@
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "surfaceinternal.h"
 #include "internal/base/materialinternal.h"
 
@@ -70,19 +70,19 @@ void SurfaceInternal::UpdateGLBuffers(const SurfaceAttribute& attribute) {
 		vao_.SetBuffer(VBOIndexes, GL_ELEMENT_ARRAY_BUFFER, attribute.indexes, GL_STATIC_DRAW);
 	}
 
-	if (!attribute.user0.empty()) {
-		vao_.SetBuffer(VBOUser0, GL_ARRAY_BUFFER, attribute.user0, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(VBOUser0, VertexAttributeIndexUser0, 4, GL_FLOAT, false, 0, 0);
+	if (!attribute.user0.data.empty()) {
+		vao_.SetBuffer(VBOUser0, GL_ARRAY_BUFFER, attribute.user0.data, GL_STATIC_DRAW);
+		vao_.SetVertexDataSource(VBOUser0, VertexAttributeIndexUser0, 4, GL_FLOAT, false, 0, 0, attribute.user0.divisor);
 	}
 
-	if (!attribute.user1.empty()) {
-		vao_.SetBuffer(VBOUser1, GL_ARRAY_BUFFER, attribute.user1, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(VBOUser1, VertexAttributeIndexUser1, 4, GL_FLOAT, false, 0, 0);
+	if (!attribute.user1.data.empty()) {
+		vao_.SetBuffer(VBOUser1, GL_ARRAY_BUFFER, attribute.user1.data, GL_STATIC_DRAW);
+		vao_.SetVertexDataSource(VBOUser1, VertexAttributeIndexUser1, 4, GL_FLOAT, false, 0, 0, attribute.user1.divisor);
 	}
 
-	if (!attribute.user2.empty()) {
-		vao_.SetBuffer(VBOUser2, GL_ARRAY_BUFFER, attribute.user2, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(VBOUser2, VertexAttributeIndexUser2, 4, GL_FLOAT, false, 0, 0);
+	if (!attribute.user2.data.empty()) {
+		vao_.SetBuffer(VBOUser2, GL_ARRAY_BUFFER, attribute.user2.data, GL_STATIC_DRAW);
+		vao_.SetVertexDataSource(VBOUser2, VertexAttributeIndexUser2, 4, GL_FLOAT, false, 0, 0, attribute.user2.divisor);
 	}
 }
 

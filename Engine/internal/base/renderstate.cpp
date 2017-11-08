@@ -100,18 +100,6 @@ void BlendState::Bind() {
 	glBlendFunc(RenderParamterToGLEnum(src_), RenderParamterToGLEnum(dest_));
 }
 
-void VertexAttribDivisorState::Initialize(int parameter0, int parameter1) {
-	index_ = parameter0;
-	value_ = parameter1;
-}
-
-void VertexAttribDivisorState::Bind() {
-	glVertexAttribDivisor(index_, value_);
-}
-
-void VertexAttribDivisorState::Unbind() {
-}
-
 void BlendState::Unbind() {
 	Enable(GL_BLEND, oldEnabled_);
 	glBlendFunc(oldSrc_, oldDest_);

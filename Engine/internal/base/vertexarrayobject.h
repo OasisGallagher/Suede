@@ -10,11 +10,11 @@ public:
 	void SetBuffer(int index, GLenum target, size_t size, const void* data, GLenum usage);
 
 	template <class Container>
-	void SetBuffer(int index, GLenum target, const Container& cont, GLenum usage) {
+	void SetBuffer(int index, GLenum target, const Container& cont, GLenum usage, int divisor = 0) {
 		SetBuffer(index, target, cont.size() * sizeof(cont[0]), &cont[0], usage);
 	}
 	
-	void SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, unsigned offset);
+	void SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, unsigned offset, int divisor = 0);
 
 	void BindBuffer(int index);
 	void UnbindBuffer(int index);

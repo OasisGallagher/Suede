@@ -172,9 +172,6 @@
     <ClInclude Include="tools\debug.h">
       <Filter>tools\include</Filter>
     </ClInclude>
-    <ClInclude Include="tools\mathf.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
     <ClInclude Include="tools\path.h">
       <Filter>tools\include</Filter>
     </ClInclude>
@@ -238,9 +235,6 @@
     <ClInclude Include="include\screen.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\timef.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\misc\graphicsinternal.h">
       <Filter>internal\misc\include</Filter>
     </ClInclude>
@@ -294,6 +288,12 @@
     </ClInclude>
     <ClInclude Include="internal\containers\freelist.h">
       <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\time2.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\math2.h">
+      <Filter>tools\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 #include <vector>
 
 #include "shader.h"
-#include "tools/mathf.h"
+#include "tools/math2.h"
 #include "particlesystem.h"
 #include "internal/containers/freelist.h"
 #include "internal/sprites/spriteinternal.h"
@@ -62,7 +62,7 @@ public:
 	virtual void SetRadius(float value) { radius_ = value; }
 	virtual float GetRadius() { return radius_; }
 
-	virtual glm::vec3 GetStartPosition() { return Mathf::RandomInsideSphere(radius_); }
+	virtual glm::vec3 GetStartPosition() { return Math::RandomInsideSphere(radius_); }
 
 private:
 	float radius_;
@@ -72,7 +72,7 @@ class ParticleAnimatorInternal : public IParticleAnimator, public ObjectInternal
 	DEFINE_FACTORY_METHOD(ParticleAnimator)
 
 public:
-	ParticleAnimatorInternal() : ObjectInternal(ObjectTypeParticleAnimator) {}
+	ParticleAnimatorInternal() : ObjectInternal(ObjectTypeParticleAnimator), gravityScale_(1) {}
 public:
 	virtual void SetForce(const glm::vec3& value) { force_ = value; }
 	virtual glm::vec3 GetForce() { return force_; }
@@ -80,9 +80,14 @@ public:
 	virtual void SetRandomForce(const glm::vec3& value) { randomForce_ = value; }
 	virtual glm::vec3 GetRandomForce() { return randomForce_; }
 
-	virtual void Animate(Particle& particle);
+	virtual void SetGravityScale(float value) { gravityScale_ = value; }
+	virtual float GetGravityScale() { return gravityScale_; }
+
+	virtual void Update(Particle& particle);
 
 private:
+	float gravityScale_;
+
 	glm::vec3 force_;
 	glm::vec3 randomForce_;
 };
@@ -107,9 +112,6 @@ public:
 	virtual void SetStartDelay(float value) { startDelay_ = value; }
 	virtual float GetStartDelay() { return startDelay_; }
 
-	virtual void SetGravityScale(float value) { gravityScale_ = value; }
-	virtual float GetGravityScale() { return gravityScale_; }
-
 	virtual unsigned GetParticlesCount();
 
 	virtual void SetEmitter(ParticleEmitter value) { emitter_ = value; }
@@ -129,12 +131,16 @@ private:
 
 	void EmitParticles(unsigned count);
 
-	void SortParticles();
+	void SortBuffers();
 
 	void SortParticlesByDepth(const glm::vec3& ref);
 
 	void UpdateParticles();
+
+	void UpdateSurface();
+
 	void UpdateAttributes();
+	void UpdateBuffers();
 
 private:
 	bool looping_;
@@ -142,7 +148,6 @@ private:
 	float time_;
 	float duration_;
 	float startDelay_;
-	float gravityScale_;
 
 	ParticleEmitter emitter_;
 	ParticleAnimator particleAnimator_;
