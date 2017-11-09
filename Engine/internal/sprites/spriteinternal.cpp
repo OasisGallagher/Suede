@@ -4,7 +4,7 @@
 
 #include "tools/math2.h"
 #include "tools/string.h"
-#include "internal/file/modelimporter.h"
+#include "internal/file/assetimporter.h"
 #include "internal/world/worldinternal.h"
 #include "internal/sprites/spriteinternal.h"
 
@@ -18,7 +18,7 @@ SpriteInternal::SpriteInternal(ObjectType spriteType)
 }
 
 bool SpriteInternal::LoadModel(const std::string & path) {
-	ModelImporter importer;
+	AssetImporter importer;
 	if (!importer.Import(path)) {
 		return false;
 	}

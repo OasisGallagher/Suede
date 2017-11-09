@@ -1,13 +1,13 @@
 #include "graphicsinternal.h"
 #include "internal/memory/memory.h"
-#include "internal/file/modelimporter.h"
+#include "internal/file/assetimporter.h"
 #include "internal/world/worldinternal.h"
 
 Graphics graphicsInstance(Memory::Create<GraphicsInternal>());
 
 void GraphicsInternal::Blit(RenderTexture src, RenderTexture dest, Renderer renderer) {
-	ModelImporter importer;
-	importer.Import("buildin/models/quad.obj", ModelImporter::MaskNone);
+	AssetImporter importer;
+	importer.Import("buildin/models/quad.obj", AssetImporter::MaskNone);
 	Surface surface = importer.GetSurface();
 
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {

@@ -32,6 +32,14 @@ void String::Split(const std::string& text, char sep, std::vector<std::string>& 
 	} while (true);
 }
 
+bool String::StartsWith(const std::string & str, const std::string & prefix) {
+	return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+}
+
+bool String::EndsWith(const std::string &str, const std::string &suffix) {
+	return (str.length() >= suffix.length()) && (0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix));
+}
+
 std::string String::Trim(const std::string& text) {
 	const char* whitespaces = " \t";
 	size_t left = text.find_first_not_of(whitespaces);

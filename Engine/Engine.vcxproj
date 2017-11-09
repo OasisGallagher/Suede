@@ -167,7 +167,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\containers\variant.cpp" />
     <ClCompile Include="internal\file\imagecodec.cpp" />
     <ClCompile Include="internal\file\shadercompiler.cpp" />
-    <ClCompile Include="internal\file\modelimporter.cpp" />
+    <ClCompile Include="internal\file\assetimporter.cpp" />
     <ClCompile Include="internal\file\textloader.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\memory\memory.cpp" />
@@ -237,7 +237,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\containers\variant.h" />
     <ClInclude Include="internal\file\imagecodec.h" />
     <ClInclude Include="internal\file\shadercompiler.h" />
-    <ClInclude Include="internal\file\modelimporter.h" />
+    <ClInclude Include="internal\file\assetimporter.h" />
     <ClInclude Include="internal\file\textloader.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\memory\memory.h" />

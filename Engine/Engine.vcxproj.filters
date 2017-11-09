@@ -268,9 +268,6 @@
     <ClInclude Include="internal\file\imagecodec.h">
       <Filter>internal\file\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\file\modelimporter.h">
-      <Filter>internal\file\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\containers\variant.h">
       <Filter>internal\containers\include</Filter>
     </ClInclude>
@@ -294,6 +291,9 @@
     </ClInclude>
     <ClInclude Include="tools\math2.h">
       <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\assetimporter.h">
+      <Filter>internal\file\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -399,9 +399,6 @@
     <ClCompile Include="internal\file\imagecodec.cpp">
       <Filter>internal\file\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\file\modelimporter.cpp">
-      <Filter>internal\file\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\containers\variant.cpp">
       <Filter>internal\containers\src</Filter>
     </ClCompile>
@@ -410,6 +407,9 @@
     </ClCompile>
     <ClCompile Include="internal\base\vertexarrayobject.cpp">
       <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\assetimporter.cpp">
+      <Filter>internal\file\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
