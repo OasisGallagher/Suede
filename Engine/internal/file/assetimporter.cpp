@@ -57,7 +57,7 @@ static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
 static const int DEFAULT_ALBEDO = 0xffffff;
 
 Sprite AssetImporter::Import(const std::string& path) {
-	Sprite sprite = CREATE_OBJECT(Sprite);
+	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
 	ImportTo(sprite, path);
 	return sprite;
 }
@@ -85,7 +85,8 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 		}
 	}
 
-	ReadHierarchy(sprite, scene_->mRootNode, surfaces, materials);
+	ReadNodeTo(sprite, scene_->mRootNode, surfaces, materials);
+	ReadChildren(sprite, scene_->mRootNode, surfaces, materials);
 
 	Memory::ReleaseArray(surfaces);
 	Memory::ReleaseArray(materials);
@@ -115,7 +116,7 @@ Surface AssetImporter::ImportSurface(const std::string& path) {
 
 void AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
 	unsigned flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
-		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace;
+		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
 
 	if (String::EndsWith(path, ".fbx")) {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
@@ -140,8 +141,16 @@ void AssetImporter::Clear() {
 
 Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, Surface* surfaces, Material* materials) {
 	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
-	sprite->SetName(node->mName.C_Str());
 	sprite->SetParent(parent);
+
+	ReadNodeTo(sprite, node, surfaces, materials);
+	ReadChildren(sprite, node, surfaces, materials);
+
+	return sprite;
+}
+
+void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials) {
+	sprite->SetName(node->mName.C_Str());
 
 	glm::vec3 translation, scale;
 	glm::quat rotation;
@@ -155,9 +164,13 @@ Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, Surface* surfac
 
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		sprite->AddSurface(surfaces[node->mMeshes[i]]);
-		
+
 		if (!renderer) {
-			renderer = dsp_cast<SurfaceRenderer>(worldInstance->Create(ObjectTypeSurfaceRenderer));
+			ObjectType type = (scene_->mNumAnimations > 0) ? ObjectTypeSkinnedSurfaceRenderer : ObjectTypeSurfaceRenderer;
+			renderer = dsp_cast<Renderer>(worldInstance->Create(type));
+			if (type == ObjectTypeSkinnedSurfaceRenderer) {
+				dsp_cast<SkinnedSurfaceRenderer>(renderer)->SetSkeleton(skeleton_);
+			}
 		}
 
 		unsigned materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
@@ -167,12 +180,12 @@ Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, Surface* surfac
 	}
 
 	sprite->SetRenderer(renderer);
+}
 
+void AssetImporter::ReadChildren(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
 		ReadHierarchy(sprite, node->mChildren[i], surfaces, materials);
 	}
-
-	return sprite;
 }
 
 bool AssetImporter::ReadSurfaces(Surface* surfaces) {

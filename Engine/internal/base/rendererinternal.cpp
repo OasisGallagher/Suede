@@ -10,13 +10,14 @@ RendererInternal::~RendererInternal() {
 }
 
 void RendererInternal::RenderSprite(Sprite sprite) {
-	Material material = GetMaterial(0);
+	for (int i = 0; i < GetMaterialCount(); ++i) {
+		Material material = GetMaterial(i);
+		material->SetFloat(Variables::time, timeInstance->GetRealTimeSinceStartup());
+		material->SetFloat(Variables::deltaTime, timeInstance->GetDeltaTime());
 
-	material->SetFloat(Variables::time, timeInstance->GetRealTimeSinceStartup());
-	material->SetFloat(Variables::deltaTime, timeInstance->GetDeltaTime());
-
-	glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
-	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
+		glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
+		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
+	}
 
 	for (int i = 0; i < sprite->GetSurfaceCount(); ++i) {
 		RenderSurface(sprite->GetSurface(i));

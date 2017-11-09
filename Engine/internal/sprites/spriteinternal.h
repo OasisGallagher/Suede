@@ -92,8 +92,9 @@ private:
 private:
 	void SetDiry(int bits);
 	bool IsDirty(int bits) { return (dirtyFlag_ & bits) != 0; }
-	void ClearDirty(int bits);
+	void ClearDirty(int bits){ dirtyFlag_ &= ~bits; }
 
+	Sprite FindDirectChild(const std::string& name);
 	const char* SpriteTypeToString(ObjectType type);
 
 private:

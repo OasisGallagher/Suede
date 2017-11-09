@@ -27,6 +27,9 @@ private:
 
 	Sprite ReadHierarchy(Sprite parent, aiNode* node, Surface* surfaces, Material* materials);
 
+	void ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials);
+	void ReadChildren(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials);
+
 	bool ReadSurfaces(Surface* surfaces);
 	bool ReadSurface(Surface surface, int index);
 	void ReadSurfaceAttributes(Surface surface, int index, SurfaceAttribute& attribute);

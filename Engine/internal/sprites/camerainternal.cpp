@@ -288,8 +288,11 @@ void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light 
 			continue;
 		}
 
-		Material material = directionalLightShadowRenderer_->GetMaterial(0);
-		material->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * sprite->GetLocalToWorldMatrix());
+		for (int i = 0; i < directionalLightShadowRenderer_->GetMaterialCount(); ++i) {
+			Material material = directionalLightShadowRenderer_->GetMaterial(i);
+			material->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * sprite->GetLocalToWorldMatrix());
+		}
+
 		RenderSprite(sprite, directionalLightShadowRenderer_);
 	}
 

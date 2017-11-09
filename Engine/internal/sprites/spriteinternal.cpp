@@ -63,13 +63,19 @@ void SpriteInternal::SetParent(Sprite value) {
 }
 
 Sprite SpriteInternal::FindChild(const std::string& path) {
-	for (int i = 0; i < children_.size(); ++i) {
-		if (children_[i]->GetName() == path) {
-			return children_[i];
+	const char* back = path.c_str(), *fwd = back;
+
+	SpriteInternal* current = this;
+	for (; (fwd = strchr(back, '/')) != nullptr; back = fwd + 1) {
+		Sprite child = current->FindDirectChild(std::string(back, fwd));
+		if (!child) {
+			return nullptr;
 		}
+
+		current = dynamic_cast<SpriteInternal*>(child.get());
 	}
 
-	return nullptr;
+	return current->FindDirectChild(back);
 }
 
 void SpriteInternal::Update() {
@@ -409,20 +415,20 @@ glm::vec3 SpriteInternal::GetForward() {
 }
 
 void SpriteInternal::SetDiry(int bits) {
-	if (name_ == "Teddy_Bear" && (bits & LocalPosition)) {
-		int x = 3;
-	}
 	dirtyFlag_ |= bits;
 	Assert(!(IsDirty(LocalScale) && IsDirty(WorldScale)));
 	Assert(!(IsDirty(LocalPosition) && IsDirty(WorldPosition)));
 	Assert(!(IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles)));
 }
 
-void SpriteInternal::ClearDirty(int bits) {
-	if (name_ == "Teddy_Bear" && (bits & LocalPosition)) {
-		int x = 3;
+Sprite SpriteInternal::FindDirectChild(const std::string& name) {
+	for (int i = 0; i < children_.size(); ++i) {
+		if (name == children_[i]->GetName()) {
+			return children_[i];
+		}
 	}
-	dirtyFlag_ &= ~bits;
+
+	return nullptr;
 }
 
 const char* SpriteInternal::SpriteTypeToString(ObjectType type) {

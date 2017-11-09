@@ -126,9 +126,8 @@ void Game::createScene() {
 	};
 
 	skybox->Load(faces);
-	
 	camera->SetSkybox(skybox);
-
+	
 	RenderTexture renderTexture = dsp_cast<RenderTexture>(world->Create(ObjectTypeRenderTexture));
 	renderTexture->Load(RenderTextureFormatRgba, canvas_->width(), canvas_->height());
 	//camera->SetRenderTexture(renderTexture);

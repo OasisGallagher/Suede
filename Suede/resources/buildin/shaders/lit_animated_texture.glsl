@@ -39,6 +39,7 @@ out vec4 c_fragColor;
 in vec2 texCoord;
 in vec3 worldPos;
 in vec3 normal;
+in mat4 o_matrix;
 
 uniform sampler2D c_mainTexture;
 #include "buildin/shaders/include/light_fragment.inc"
