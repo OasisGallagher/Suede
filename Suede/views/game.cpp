@@ -112,10 +112,10 @@ void Game::createScene() {
 
 	camera->SetPosition(glm::vec3(0, 25, 0));
 
-	camera->SetClearType(ClearTypeColor);
+	camera->SetClearType(ClearTypeSkybox);
 	camera->SetClearColor(glm::vec3(0));
 
-	/*Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
+	Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
 	std::string faces[] = {
 		"textures/lake_skybox/right.jpg",
 		"textures/lake_skybox/left.jpg",
@@ -126,8 +126,8 @@ void Game::createScene() {
 	};
 
 	skybox->Load(faces);
-	*/
-	//camera->SetSkybox(skybox);
+	
+	camera->SetSkybox(skybox);
 
 	RenderTexture renderTexture = dsp_cast<RenderTexture>(world->Create(ObjectTypeRenderTexture));
 	renderTexture->Load(RenderTextureFormatRgba, canvas_->width(), canvas_->height());
@@ -155,11 +155,17 @@ void Game::createScene() {
 	particleSystem->SetDuration(5);
 	particleSystem->SetLooping(true);*/
 
-	Sprite sprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
+	Sprite sprite = world->Import("models/boblampclean.md5mesh");
 	sprite->SetParent(camera);
 	light->SetParent(camera);
+
 	sprite->SetPosition(glm::vec3(0, 0, -70));
 	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
+// 	sprite->SetPosition(glm::vec3(0, -20, -150));
+// 	sprite->SetEulerAngles(glm::vec3(0));
+
+	sprite->GetAnimation()->SetWrapMode(AnimationWrapModePingPong);
+	sprite->GetAnimation()->Play("");
 
 	/* Mesh.
 	Mesh mesh = dynamic_ptr_cast<Mesh>(world->Create("Mesh"));
@@ -176,7 +182,7 @@ void Game::createScene() {
 	surface->AddMesh(mesh);
 	*/
 	
-	sprite->LoadModel("models/test_sphere.fbx");
+	//sprite->LoadModel("models/test_sphere.fbx");
 	//sprite->GetAnimation()->SetWrapMode(AnimationWrapModePingPong);
 	
 	//sprite->GetAnimation()->Play("");

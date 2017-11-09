@@ -5,9 +5,9 @@
 #include "object.h"
 #include "material.h"
 
-enum PrimaryType {
-	PrimaryTypeTriangle,
-	PrimaryTypeTriangleStripe,
+enum MeshTopology {
+	MeshTopologyTriangles,
+	MeshTopologyTriangleStripes,
 };
 
 struct MaterialTextures {
@@ -18,8 +18,8 @@ struct MaterialTextures {
 
 class IMesh : virtual public IObject {
 public:
-	virtual void SetPrimaryType(PrimaryType value) = 0;
-	virtual PrimaryType GetPrimaryType() = 0;
+	virtual void SetTopology(MeshTopology value) = 0;
+	virtual MeshTopology GetTopology() = 0;
 
 	virtual void SetMaterialTextures(const MaterialTextures& value) = 0;
 	virtual MaterialTextures& GetMaterialTextures() = 0;

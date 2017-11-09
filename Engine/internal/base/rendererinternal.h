@@ -22,23 +22,16 @@ public:
 	virtual int GetRenderQueue() { return queue_; }
 	virtual void SetRenderQueue(int value) { queue_ = value; }
 
-	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1);
-
 protected:
 	virtual void DrawCall(Mesh mesh);
 
-	GLenum PrimaryTypeToGLEnum(PrimaryType type);
+	GLenum TopologyToGLEnum(MeshTopology topology);
 
 private:
-	void DrawSurface(Surface surface);
 	void DrawMesh(Mesh mesh, Material material);
-
-	void BindRenderStates();
-	void UnbindRenderStates();
 
 private:
 	int queue_;
-	RenderState* states_[RenderStateCount];
 	std::vector<Material> materials_;
 };
 
@@ -71,6 +64,7 @@ public:
 
 public:
 	virtual void RenderSprite(Sprite sprite);
+	virtual void AddMaterial(Material material);
 
 protected:
 	virtual void DrawCall(Mesh mesh);

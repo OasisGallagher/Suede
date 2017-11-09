@@ -9,6 +9,8 @@ public:
 	virtual void Update() = 0;
 	virtual Object Create(ObjectType type) = 0;
 
+	virtual Sprite Import(const std::string& path) = 0;
+
 	virtual Sprite GetRootSprite() = 0;
 	virtual Sprite GetSprite(unsigned id) = 0;
 	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites) = 0;

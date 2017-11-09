@@ -14,20 +14,7 @@ SpriteInternal::SpriteInternal() : SpriteInternal(ObjectTypeSprite) {
 SpriteInternal::SpriteInternal(ObjectType spriteType)
 	: ObjectInternal(spriteType), dirtyFlag_(0), localScale_(1), worldScale_(1), active_(true) {
 	AssertX(spriteType >= ObjectTypeSprite && spriteType < ObjectTypeCount, "invalid sprite type " + std::to_string(spriteType));
-	name_ = String::Format("%s (%u)", SpriteTypeToString(GetType()), GetInstanceID());
-}
-
-bool SpriteInternal::LoadModel(const std::string & path) {
-	AssetImporter importer;
-	if (!importer.Import(path)) {
-		return false;
-	}
-
-	SetSurface(importer.GetSurface());
-	SetAnimation(importer.GetAnimation());
-	SetRenderer(importer.GetRenderer());
-
-	return true;
+	name_ = SpriteTypeToString(GetType());
 }
 
 void SpriteInternal::AddChild(Sprite child) {
@@ -75,6 +62,16 @@ void SpriteInternal::SetParent(Sprite value) {
 	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 }
 
+Sprite SpriteInternal::FindChild(const std::string& path) {
+	for (int i = 0; i < children_.size(); ++i) {
+		if (children_[i]->GetName() == path) {
+			return children_[i];
+		}
+	}
+
+	return nullptr;
+}
+
 void SpriteInternal::Update() {
 	if (animation_) {
 		animation_->Update();
@@ -82,11 +79,13 @@ void SpriteInternal::Update() {
 }
 
 void SpriteInternal::SetScale(const glm::vec3& value) {
+	ClearDirty(WorldScale);
+
 	if (worldScale_ == value) { return; }
 
 	worldScale_ = value;
-	ClearDirty(WorldScale);
 	SetDiry(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
+
 	for (int i = 0; i < GetChildCount(); ++i) {
 		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
 		si->GetLocalScale();
@@ -95,11 +94,12 @@ void SpriteInternal::SetScale(const glm::vec3& value) {
 }
 
 void SpriteInternal::SetPosition(const glm::vec3& value) {
+	ClearDirty(WorldPosition);
 	if (worldPosition_ == value) { return; }
 
 	worldPosition_ = value;
-	ClearDirty(WorldPosition);
 	SetDiry(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+
 	for (int i = 0; i < GetChildCount(); ++i) {
 		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
 		si->GetLocalPosition();
@@ -108,9 +108,11 @@ void SpriteInternal::SetPosition(const glm::vec3& value) {
 }
 
 void SpriteInternal::SetRotation(const glm::quat& value) {
+	ClearDirty(WorldRotation);
+
 	if (Math::Approximately(glm::dot(worldRotation_, value), 0)) { return; }
 	worldRotation_ = value;
-	ClearDirty(WorldRotation);
+
 	SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	for (int i = 0; i < GetChildCount(); ++i) {
 		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
@@ -121,9 +123,11 @@ void SpriteInternal::SetRotation(const glm::quat& value) {
 }
 
 void SpriteInternal::SetEulerAngles(const glm::vec3& value) {
+	ClearDirty(WorldEulerAngles);
+
 	if (worldEulerAngles_ == value) { return; }
 	worldEulerAngles_ = value;
-	ClearDirty(WorldEulerAngles);
+
 	SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	for (int i = 0; i < GetChildCount(); ++i) {
 		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
@@ -231,31 +235,35 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 }
 
 void SpriteInternal::SetLocalScale(const glm::vec3& value) {
-	if (localScale_ == value) { return; }
-	localScale_ = value;
 	ClearDirty(LocalScale);
-	SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+	if (localScale_ != value) {
+		localScale_ = value;
+		SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+	}
 }
 
 void SpriteInternal::SetLocalPosition(const glm::vec3& value) {
-	if (localPosition_ == value) { return; }
-	localPosition_ = value;
 	ClearDirty(LocalPosition);
-	SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+	if (localPosition_ != value) {
+		localPosition_ = value;
+		SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+	}
 }
 
 void SpriteInternal::SetLocalRotation(const glm::quat& value) {
-	if (Math::Approximately(glm::dot(localRotation_, value), 0)) { return; }
-	localRotation_ = value;
 	ClearDirty(LocalRotation);
-	SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+	if (!Math::Approximately(glm::dot(localRotation_, value), 0)) {
+		localRotation_ = value;
+		SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+	}
 }
 
 void SpriteInternal::SetLocalEulerAngles(const glm::vec3& value) {
-	if (localEulerAngles_ == value) { return; }
-	localEulerAngles_ = value;
 	ClearDirty(LocalEulerAngles);
-	SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
+	if (localEulerAngles_ == value) {
+		localEulerAngles_ = value;
+		SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
+	}
 }
 
 glm::vec3 SpriteInternal::GetLocalScale() {
@@ -401,10 +409,20 @@ glm::vec3 SpriteInternal::GetForward() {
 }
 
 void SpriteInternal::SetDiry(int bits) {
+	if (name_ == "Teddy_Bear" && (bits & LocalPosition)) {
+		int x = 3;
+	}
 	dirtyFlag_ |= bits;
 	Assert(!(IsDirty(LocalScale) && IsDirty(WorldScale)));
 	Assert(!(IsDirty(LocalPosition) && IsDirty(WorldPosition)));
 	Assert(!(IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles)));
+}
+
+void SpriteInternal::ClearDirty(int bits) {
+	if (name_ == "Teddy_Bear" && (bits & LocalPosition)) {
+		int x = 3;
+	}
+	dirtyFlag_ &= ~bits;
 }
 
 const char* SpriteInternal::SpriteTypeToString(ObjectType type) {

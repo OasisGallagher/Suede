@@ -3,7 +3,7 @@
 #include "internal/base/materialinternal.h"
 
 MeshInternal::MeshInternal() :ObjectInternal(ObjectTypeMesh), vertexCount_(0), baseVertex_(0), baseIndex_(0)
-	, primaryType_(PrimaryTypeTriangle) {
+	, meshTopology_(MeshTopologyTriangles) {
 }
 
 void MeshInternal::SetTriangles(unsigned vertexCount, unsigned baseVertex, unsigned baseIndex) {

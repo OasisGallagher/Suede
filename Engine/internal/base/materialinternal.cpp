@@ -1,4 +1,5 @@
 #include "variables.h"
+#include "renderstate.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "materialinternal.h"
@@ -7,6 +8,13 @@ MaterialInternal::MaterialInternal()
 	: ObjectInternal(ObjectTypeMaterial)
 	, textureUnitIndex_(0), maxTextureUnits_(0), oldProgram_(0) {
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits_);
+	std::fill(states_, states_ + RenderStateCount, nullptr);
+}
+
+MaterialInternal::~MaterialInternal() {
+	for (int i = 0; i < RenderStateCount; ++i) {
+		Memory::Release(states_[i]);
+	}
 }
 
 void MaterialInternal::SetShader(Shader value) {
@@ -20,6 +28,22 @@ void MaterialInternal::SetShader(Shader value) {
 	shader_->Link();
 
 	UpdateVariables();
+}
+
+void MaterialInternal::BindRenderStates() {
+	for (int i = 0; i < RenderStateCount; ++i) {
+		if (states_[i] != nullptr) {
+			states_[i]->Bind();
+		}
+	}
+}
+
+void MaterialInternal::UnbindRenderStates() {
+	for (int i = 0; i < RenderStateCount; ++i) {
+		if (states_[i] != nullptr) {
+			states_[i]->Unbind();
+		}
+	}
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
@@ -105,13 +129,17 @@ glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
 }
 
 void MaterialInternal::Bind() {
+	BindRenderStates();
 	BindTextures();
+
 	glGetIntegerv(GL_CURRENT_PROGRAM, &oldProgram_);
 	glUseProgram(shader_->GetNativePointer());
 }
 
 void MaterialInternal::Unbind() {
 	UnbindTextures();
+	UnbindRenderStates();
+
 	glUseProgram(oldProgram_);
 	oldProgram_ = 0;
 }
@@ -120,6 +148,34 @@ void MaterialInternal::Define(const std::string& name) {
 }
 
 void MaterialInternal::Undefine(const std::string& name) {
+}
+
+void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int parameter1) {
+	RenderState* state = nullptr;
+	switch (type) {
+		case Cull:
+			state = Memory::Create<CullState>();
+			break;
+		case DepthTest:
+			state = Memory::Create<DepthTestState>();
+			break;
+		case Blend:
+			state = Memory::Create<BlendState>();
+			break;
+		case DepthWrite:
+			state = Memory::Create<DepthWriteState>();
+			break;
+		case RasterizerDiscard:
+			state = Memory::Create<RasterizerDiscardState>();
+			break;
+		default:
+			Debug::LogError("invalid render capacity " + std::to_string(type));
+			break;
+	}
+
+	state->Initialize(parameter0, parameter1);
+	Memory::Release(states_[type]);
+	states_[type] = state;
 }
 
 MaterialInternal::Uniform* MaterialInternal::GetUniform(const std::string& name, VariantType type) {

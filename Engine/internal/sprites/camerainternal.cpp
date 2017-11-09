@@ -20,7 +20,7 @@
 
 CameraInternal::CameraInternal() 
 	: SpriteInternal(ObjectTypeCamera), clearType_(ClearTypeColor)
-	, depth_(0), aspect_(1.3f), near_(1.f), far_(100.f)
+	, depth_(0), aspect_(1.3f), near_(1.f), far_(1000.f)
 	, fieldOfView_(3.141592f / 3.f), projection_(glm::perspective(fieldOfView_, aspect_, near_, far_))
 	, pass_(RenderPassNone), fbRenderTexture_(nullptr), viewToShadowSpaceMatrix_(1) {
 	CreateFramebuffers();
@@ -185,11 +185,11 @@ void CameraInternal::CreateDepthRenderer() {
 
 	Material material = CREATE_OBJECT(Material);
 	material->SetShader(shader);
+	material->SetRenderState(Cull, Back);
+	material->SetRenderState(DepthWrite, On);
+	material->SetRenderState(DepthTest, LessEqual);
 
 	depthRenderer_->AddMaterial(material);
-	depthRenderer_->SetRenderState(Cull, Back);
-	depthRenderer_->SetRenderState(DepthWrite, On);
-	depthRenderer_->SetRenderState(DepthTest, LessEqual);
 }
 
 void CameraInternal::CreateShadowRenderer() {
@@ -199,11 +199,11 @@ void CameraInternal::CreateShadowRenderer() {
 
 	Material material = CREATE_OBJECT(Material);
 	material->SetShader(shader);
+	material->SetRenderState(Cull, Back);
+	material->SetRenderState(DepthWrite, On);
+	material->SetRenderState(DepthTest, LessEqual);
 
 	directionalLightShadowRenderer_->AddMaterial(material);
-	directionalLightShadowRenderer_->SetRenderState(Cull, Back);
-	directionalLightShadowRenderer_->SetRenderState(DepthWrite, On);
-	directionalLightShadowRenderer_->SetRenderState(DepthTest, LessEqual);
 }
 
 void CameraInternal::UpdateSkybox() {
@@ -381,7 +381,7 @@ void CameraInternal::OnPostRender() {
 }
 
 bool CameraInternal::IsRenderable(Sprite sprite) {
-	return sprite->GetActive() && sprite->GetSurface() && sprite->GetRenderer();
+	return sprite->GetActive() && sprite->GetSurfaceCount() > 0 && sprite->GetRenderer();
 }
 
 bool CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {

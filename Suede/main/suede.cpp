@@ -59,6 +59,10 @@ void Suede::setupUI() {
 void Suede::showChildWindow(int index, bool show) {
 	Q_ASSERT(index > 0 && index < ChildWindowCount);
 	dockWidgets_[index]->setVisible(show);
+
+	if (index == ChildWindowHierarchy && dockWidgets_[index]->isVisible()) {
+		Hierarchy::get()->update(Engine::get()->world()->GetRootSprite());
+	}
 }
 
 bool Suede::childWindowVisible(int index) {

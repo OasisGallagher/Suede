@@ -21,6 +21,8 @@ public:
 	virtual Sprite GetRootSprite() { return root_; }
 	virtual Object Create(ObjectType type);
 
+	virtual Sprite Import(const std::string& path);
+
 	virtual Sprite GetSprite(unsigned id);
 	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites);
 	virtual Environment GetEnvironment() { return environment_; }

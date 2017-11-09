@@ -1,5 +1,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
 #include <assimp/config.h>
@@ -15,11 +16,13 @@
 #include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
 #include "internal/base/shaderinternal.h"
+#include "internal/world/worldinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/surfaceinternal.h"
 #include "internal/base/materialinternal.h"
 #include "internal/base/rendererinternal.h"
 #include "internal/base/animationinternal.h"
+#include "internal/sprites/spriteinternal.h"
 
 static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
@@ -37,15 +40,82 @@ static glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quate
 	return answer;
 }
 
+static void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat) {
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::mat4 transformation;
+	AIMaterixToGLM(transformation, mat);
+	glm::decompose(transformation, scale, rotation, translation, skew, perspective);
+	rotation = glm::conjugate(rotation);
+}
+
 static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
 	answer = glm::vec3(vec.x, vec.y, vec.z);
 	return answer;
 }
 
-bool AssetImporter::Import(const std::string& path, int mask) {
+static const int DEFAULT_ALBEDO = 0xffffff;
+
+Sprite AssetImporter::Import(const std::string& path) {
+	Sprite sprite = CREATE_OBJECT(Sprite);
+	ImportTo(sprite, path);
+	return sprite;
+}
+
+bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
+	Assert(sprite);
+
 	Assimp::Importer importer;
-	unsigned flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices 
-		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
+	Initialize(path, importer);
+
+	Surface* surfaces = nullptr;
+	Material* materials = nullptr;
+
+	if (scene_->mNumMaterials > 0) {
+		materials = Memory::CreateArray<Material>(scene_->mNumMaterials);
+		if (!ReadMaterials(materials)) {
+			Debug::LogError("failed to load materials for " + path);
+		}
+	}
+
+	if (scene_->mNumMeshes > 0) {
+		surfaces = Memory::CreateArray<Surface>(scene_->mNumMeshes);
+		if (!ReadSurfaces(surfaces)) {
+			Debug::LogError("failed to load surfaces for " + path);
+		}
+	}
+
+	ReadHierarchy(sprite, scene_->mRootNode, surfaces, materials);
+
+	Memory::ReleaseArray(surfaces);
+	Memory::ReleaseArray(materials);
+
+	Animation animation;
+	if (ReadAnimation(animation)) {
+		sprite->SetAnimation(animation);
+	}
+
+	return true;
+}
+
+Surface AssetImporter::ImportSurface(const std::string& path) {
+	Assimp::Importer importer;
+	Initialize(path, importer);
+	if (scene_->mNumMeshes == 0) {
+		return nullptr;
+	}
+
+	Surface surface = CREATE_OBJECT(Surface);
+	if (!ReadSurface(surface, 0)) {
+		Debug::LogError("failed to load surface for " + path);
+	}
+
+	return surface;
+}
+
+void AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
+	unsigned flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
+		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace;
 
 	if (String::EndsWith(path, ".fbx")) {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
@@ -59,111 +129,95 @@ bool AssetImporter::Import(const std::string& path, int mask) {
 
 	path_ = fpath;
 	scene_ = scene;
-
-	if (!ImportSurface(surface_)) {
-		return false;
-	}
-
-	if ((mask & MaskImportAnimation) != 0 && !ImportAnimation(animation_)) {
-		return false;
-	}
-
-	if ((mask & MaskCreateRenderer) != 0) {
-		return InitRenderer(animation_, renderer_);
-	}
-
-	return true;
 }
 
 void AssetImporter::Clear() {
 	path_.clear();
 	scene_ = nullptr;
-	surface_.reset();
-	renderer_.reset();
 	skeleton_.reset();
 	animation_.reset();
 }
 
-bool AssetImporter::ImportSurface(Surface& surface) {
-	surface = CREATE_OBJECT(Surface);
+Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, Surface* surfaces, Material* materials) {
+	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
+	sprite->SetName(node->mName.C_Str());
+	sprite->SetParent(parent);
 
-	MaterialTextures* textures = Memory::CreateArray<MaterialTextures>(scene_->mNumMaterials);
-	ImportTextures(textures);
+	glm::vec3 translation, scale;
+	glm::quat rotation;
+	DecomposeAIMatrix(translation, rotation, scale, node->mTransformation);
 
-	SurfaceAttribute attribute;
-	ImportSurfaceAttributes(surface, attribute, textures);
-	surface->SetAttribute(attribute);
+	sprite->SetLocalScale(scale);
+	sprite->SetLocalRotation(rotation);
+	sprite->SetLocalPosition(translation);
 
-	Memory::ReleaseArray(textures);
+	Renderer renderer;
+
+	for (int i = 0; i < node->mNumMeshes; ++i) {
+		sprite->AddSurface(surfaces[node->mMeshes[i]]);
+		
+		if (!renderer) {
+			renderer = dsp_cast<SurfaceRenderer>(worldInstance->Create(ObjectTypeSurfaceRenderer));
+		}
+
+		unsigned materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
+		if (materialIndex < scene_->mNumMaterials) {
+			renderer->AddMaterial(materials[materialIndex]);
+		}
+	}
+
+	sprite->SetRenderer(renderer);
+
+	for (int i = 0; i < node->mNumChildren; ++i) {
+		ReadHierarchy(sprite, node->mChildren[i], surfaces, materials);
+	}
+
+	return sprite;
+}
+
+bool AssetImporter::ReadSurfaces(Surface* surfaces) {
+	for (int i = 0; i < scene_->mNumMeshes; ++i) {
+		Surface surface = CREATE_OBJECT(Surface);
+		ReadSurface(surface, i);
+		surfaces[i] = surface;
+	}
+
 	return true;
 }
 
-void AssetImporter::ImportTextures(MaterialTextures* textures) {
-	std::string dir = Path::GetDirectory(path_);
+bool AssetImporter::ReadSurface(Surface surface, int index) {
+	SurfaceAttribute attribute;
+	Mesh mesh = CREATE_OBJECT(Mesh);
+	mesh->SetTriangles(scene_->mMeshes[index]->mNumFaces * 3, 0, 0);
+	surface->AddMesh(mesh);
 
-	for (unsigned i = 0; i < scene_->mNumMaterials; ++i) {
-		const aiMaterial* mat = scene_->mMaterials[i];
+	ReadSurfaceAttributes(surface, index, attribute);
+	surface->SetAttribute(attribute);
 
-		ImportTexture(mat, textures[i].bump, aiTextureType_NORMALS);
-		ImportTexture(mat, textures[i].albedo, aiTextureType_DIFFUSE);
-		ImportTexture(mat, textures[i].specular, aiTextureType_SPECULAR);
-	}
+	return true;
 }
 
-void AssetImporter::ImportTexture(const aiMaterial* mat, Texture& dest, int textureType) {
-	aiString dpath;
-	std::string prefix = "textures/";
-	int texCount = mat->GetTextureCount((aiTextureType)textureType);
-	if (texCount > 0 && mat->GetTexture((aiTextureType)textureType, 0, &dpath) == AI_SUCCESS) {
-		Texture2D texture = CREATE_OBJECT(Texture2D);
-		if (texture->Load(prefix + dpath.data)) {
-			dest = texture;
-		}
-	}
-}
+void AssetImporter::ReadSurfaceAttributes(Surface surface, int index, SurfaceAttribute& attribute) {
+	int indexCount = scene_->mMeshes[index]->mNumFaces * 3;
+	int vertexCount = scene_->mMeshes[index]->mNumVertices;
+	attribute.positions.reserve(vertexCount);
+	attribute.normals.reserve(vertexCount);
+	attribute.texCoords.reserve(vertexCount);
+	attribute.tangents.reserve(vertexCount);
+	attribute.indexes.reserve(indexCount);
+	attribute.blendAttrs.resize(vertexCount);
 
-void AssetImporter::ImportSurfaceAttributes(Surface surface, SurfaceAttribute& attribute, MaterialTextures* textures) {
-	MeshSize size;
-	ImportMeshes(surface, textures, size);
-
-	attribute.positions.reserve(size.vertexCount);
-	attribute.normals.reserve(size.vertexCount);
-	attribute.texCoords.reserve(size.vertexCount);
-	attribute.tangents.reserve(size.vertexCount);
-	attribute.indexes.reserve(size.indexCount);
-	attribute.blendAttrs.resize(size.vertexCount);
-
-	for (int i = 0; i < size.vertexCount; ++i) {
+	for (int i = 0; i < vertexCount; ++i) {
 		memset(&attribute.blendAttrs[i], 0, sizeof(BlendAttribute));
 	}
 
-	for (unsigned i = 0; i < scene_->mNumMeshes; ++i) {
-		ImportMeshAttributes(scene_->mMeshes[i], i, attribute);
-		ImportBoneAttributes(scene_->mMeshes[i], i, surface, attribute);
-	}
+	ReadVertexAttributes(index, attribute);
+	ReadBoneAttributes(index, attribute);
 }
 
-void AssetImporter::ImportMeshes(Surface surface, MaterialTextures* textures, MeshSize& size) {
-	unsigned vertexCount = 0, indexCount = 0;
-	for (unsigned i = 0; i < scene_->mNumMeshes; ++i) {
-		Mesh mesh = CREATE_OBJECT(Mesh);
-		mesh->SetTriangles(scene_->mMeshes[i]->mNumFaces * 3, vertexCount, indexCount);
+void AssetImporter::ReadVertexAttributes(int index, SurfaceAttribute& attribute) {
+	const aiMesh* aimesh = scene_->mMeshes[index];
 
-		if (scene_->mMeshes[i]->mMaterialIndex < scene_->mNumMaterials) {
-			mesh->SetMaterialTextures(textures[scene_->mMeshes[i]->mMaterialIndex]);
-		}
-
-		vertexCount += scene_->mMeshes[i]->mNumVertices;
-		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
-
-		surface->AddMesh(mesh);
-	}
-
-	size.vertexCount = vertexCount;
-	size.indexCount = indexCount;
-}
-
-void AssetImporter::ImportMeshAttributes(const aiMesh* aimesh, int nm, SurfaceAttribute& attribute) {
 	const aiVector3D zero(0);
 	for (unsigned i = 0; i < aimesh->mNumVertices; ++i) {
 		const aiVector3D* pos = &aimesh->mVertices[i];
@@ -186,7 +240,8 @@ void AssetImporter::ImportMeshAttributes(const aiMesh* aimesh, int nm, SurfaceAt
 	}
 }
 
-void AssetImporter::ImportBoneAttributes(const aiMesh* aimesh, int nm, Surface surface, SurfaceAttribute& attribute) {
+void AssetImporter::ReadBoneAttributes(int index, SurfaceAttribute& attribute) {
+	const aiMesh* aimesh = scene_->mMeshes[index];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = CREATE_OBJECT(Skeleton); }
 		std::string name(aimesh->mBones[i]->mName.data);
@@ -201,9 +256,8 @@ void AssetImporter::ImportBoneAttributes(const aiMesh* aimesh, int nm, Surface s
 		}
 
 		for (int j = 0; j < aimesh->mBones[i]->mNumWeights; ++j) {
-			unsigned vertexCount, baseVertex, baseIndex;
-			surface->GetMesh(nm)->GetTriangles(vertexCount, baseVertex, baseIndex);
-			unsigned vertexID = baseVertex + aimesh->mBones[i]->mWeights[j].mVertexId;
+			unsigned vertexID = aimesh->mBones[i]->mWeights[j].mVertexId;
+
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {
 				if (Math::Approximately(attribute.blendAttrs[vertexID].weights[k])) {
@@ -216,7 +270,54 @@ void AssetImporter::ImportBoneAttributes(const aiMesh* aimesh, int nm, Surface s
 	}
 }
 
-bool AssetImporter::ImportAnimation(Animation& animation) {
+bool AssetImporter::ReadMaterials(Material* materials) {
+	for (int i = 0; i < scene_->mNumMaterials; ++i) {
+		Material material = CREATE_OBJECT(Material);
+		ReadMaterial(material, i);
+		materials[i] = material;
+	}
+
+	return true;
+}
+
+bool AssetImporter::ReadMaterial(Material material, int index) {
+	const aiMaterial* aiMat = scene_->mMaterials[index];
+
+	std::string shaderName = "lit_texture";
+	if (scene_->mNumAnimations != 0) {
+		shaderName = "lit_animated_texture";
+	}
+
+	material->SetRenderState(Cull, Off);
+	material->SetRenderState(DepthTest, LessEqual);
+
+	Shader shader = CREATE_OBJECT(Shader);
+	shader->Load("buildin/shaders/" + shaderName);
+	material->SetShader(shader);
+
+	// TODO: Test.
+	int texCount = aiMat->GetTextureCount(aiTextureType_DIFFUSE);
+	aiString dpath;
+	std::string prefix = "textures/";
+	bool hasDiffuseTexture = false;
+	Texture2D texture = CREATE_OBJECT(Texture2D);
+
+	if (texCount > 0 && aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &dpath) == AI_SUCCESS) {
+		if (texture->Load(prefix + dpath.data)) {
+			hasDiffuseTexture = true;
+		}
+	}
+
+	if (!hasDiffuseTexture) {
+		texture->Load(&DEFAULT_ALBEDO, 1, 1);
+	}
+
+	material->SetTexture(Variables::mainTexture, texture);
+
+	return true;
+}
+
+bool AssetImporter::ReadAnimation(Animation& animation) {
 	if (scene_->mNumAnimations == 0) {
 		return true;
 	}
@@ -236,7 +337,7 @@ bool AssetImporter::ImportAnimation(Animation& animation) {
 			defaultClipName = anim->mName.C_Str();
 		}
 
-		ImportAnimationClip(anim, clip);
+		ReadAnimationClip(anim, clip);
 		animation->AddClip(name, clip);
 	}
 
@@ -246,14 +347,14 @@ bool AssetImporter::ImportAnimation(Animation& animation) {
 	return true;
 }
 
-void AssetImporter::ImportAnimationClip(const aiAnimation* anim, AnimationClip clip) {
+void AssetImporter::ReadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapModeLoop);
-	ImportAnimationNode(anim, scene_->mRootNode, nullptr);
+	ReadAnimationNode(anim, scene_->mRootNode, nullptr);
 }
 
-void AssetImporter::ImportAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
+void AssetImporter::ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
@@ -289,7 +390,7 @@ void AssetImporter::ImportAnimationNode(const aiAnimation* anim, const aiNode* p
 	skeleton_->AddNode(pskNode, child);
 
 	for (int i = 0; i < paiNode->mNumChildren; ++i) {
-		ImportAnimationNode(anim, paiNode->mChildren[i], child);
+		ReadAnimationNode(anim, paiNode->mChildren[i], child);
 	}
 }
 
@@ -303,27 +404,16 @@ const aiNodeAnim* AssetImporter::FindChannel(const aiAnimation* anim, const char
 	return nullptr;
 }
 
-bool AssetImporter::InitRenderer(Animation animation, Renderer& renderer) {
+bool AssetImporter::InitRenderer(Renderer renderer) {
 	std::string shaderName = "lit_texture";
-	if (!animation) {
+	if (scene_->mNumAnimations == 0) {
 		renderer = CREATE_OBJECT(SurfaceRenderer);
 	}
 	else {
 		SkinnedSurfaceRenderer skinnedSurfaceRenderer;
 		renderer = skinnedSurfaceRenderer = CREATE_OBJECT(SkinnedSurfaceRenderer);
 		skinnedSurfaceRenderer->SetSkeleton(skeleton_);
-		shaderName = "lit_animated_texture";
 	}
-
-	renderer->SetRenderState(Cull, Off);
-	renderer->SetRenderState(DepthTest, LessEqual);
-
-	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/" + shaderName);
-
-	Material material = CREATE_OBJECT(Material);
-	material->SetShader(shader);
-	renderer->AddMaterial(material);
 
 	return true;
 }

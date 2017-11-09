@@ -18,12 +18,14 @@ enum VertexAttributeIndex {
 	VertexAttributeIndexUser2,
 };
 
+class RenderState;
+
 class MaterialInternal : public IMaterial, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Material)
 
 public:
 	MaterialInternal();
-	~MaterialInternal() {}
+	~MaterialInternal();
 
 public:
 	virtual void SetShader(Shader value);
@@ -34,6 +36,8 @@ public:
 
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
+
+	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1);
 
 	virtual void SetInt(const std::string& name, int value);
 	virtual void SetFloat(const std::string& name, float value);
@@ -46,6 +50,10 @@ public:
 	virtual Texture GetTexture(const std::string& name);
 	virtual glm::mat4 GetMatrix4(const std::string& name);
 	virtual glm::vec3 GetVector3(const std::string& name);
+
+private:
+	void BindRenderStates();
+	void UnbindRenderStates();
 
 private:
 	struct Uniform {
@@ -84,4 +92,5 @@ private:
 	int maxTextureUnits_;
 	int textureUnitIndex_;
 	UniformContainer uniforms_;
+	RenderState* states_[RenderStateCount];
 };

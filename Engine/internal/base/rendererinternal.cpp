@@ -1,16 +1,12 @@
 #include "variables.h"
-#include "renderstate.h"
+#include "tools/math2.h"
 #include "rendererinternal.h"
 #include "internal/misc/timefinternal.h"
 
-RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), queue_(RenderQueueGeometry) {
-	std::fill(states_, states_ + RenderStateCount, nullptr);
+RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), queue_(RenderQueueGeometry) {	
 }
 
 RendererInternal::~RendererInternal() {
-	for (int i = 0; i < RenderStateCount; ++i) {
-		Memory::Release(states_[i]);
-	}
 }
 
 void RendererInternal::RenderSprite(Sprite sprite) {
@@ -22,58 +18,30 @@ void RendererInternal::RenderSprite(Sprite sprite) {
 	glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
 	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
 
-	RenderSurface(sprite->GetSurface());
-}
-
-void RendererInternal::RenderSurface(Surface surface) {
-	BindRenderStates();
-	DrawSurface(surface);
-	UnbindRenderStates();
-}
-
-void RendererInternal::SetRenderState(RenderStateType type, int parameter0, int parameter1) {
-	RenderState* state = nullptr;
-	switch (type) {
-		case Cull:
-			state = Memory::Create<CullState>();
-			break;
-		case DepthTest:
-			state = Memory::Create<DepthTestState>();
-			break;
-		case Blend:
-			state = Memory::Create<BlendState>();
-			break;
-		case DepthWrite:
-			state = Memory::Create<DepthWriteState>();
-			break;
-		case RasterizerDiscard:
-			state = Memory::Create<RasterizerDiscardState>();
-			break;
-		default:
-			Debug::LogError("invalid render capacity " + std::to_string(type));
-			break;
+	for (int i = 0; i < sprite->GetSurfaceCount(); ++i) {
+		RenderSurface(sprite->GetSurface(i));
 	}
-
-	state->Initialize(parameter0, parameter1);
-	Memory::Release(states_[type]);
-	states_[type] = state;
 }
 
-GLenum RendererInternal::PrimaryTypeToGLEnum(PrimaryType type) {
-	if (type == PrimaryTypeTriangle) { return GL_TRIANGLES; }
+GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
+	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
 	return GL_TRIANGLE_STRIP;
 }
 
-void RendererInternal::DrawSurface(Surface surface) {
+void RendererInternal::RenderSurface(Surface surface) {
 	surface->Bind();
 
-	// TODO: batch mesh if their materials are identical.
-	for (int i = 0; i < surface->GetMeshCount(); ++i) {
-		Mesh mesh = surface->GetMesh(i);
+	// TODO: mesh count mismatch with material count.
+	if (surface->GetMeshCount() > GetMaterialCount()) {
+		Debug::LogWarning("mesh count mismatch with material count.");
+	}
 
-		for (int j = 0; j < GetMaterialCount(); ++j) {
-			DrawMesh(mesh, GetMaterial(j));
-		}
+	// TODO: batch mesh if their materials are identical.
+	for (int i = 0; i < GetMaterialCount(); ++i) {
+		Mesh mesh = surface->GetMesh(Math::Min(i, surface->GetMeshCount() - 1));
+		Material material = GetMaterial(i);
+
+		DrawMesh(mesh, material);
 	}
 
 	surface->Unbind();
@@ -103,24 +71,8 @@ void RendererInternal::DrawCall(Mesh mesh) {
 	unsigned vertexCount, baseVertex, baseIndex;
 	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
 
-	GLenum mode = PrimaryTypeToGLEnum(mesh->GetPrimaryType());
+	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
 	glDrawElementsBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned)* baseIndex), baseVertex);
-}
-
-void RendererInternal::BindRenderStates() {
-	for (int i = 0; i < RenderStateCount; ++i) {
-		if (states_[i] != nullptr) {
-			states_[i]->Bind();
-		}
-	}
-}
-
-void RendererInternal::UnbindRenderStates() {
-	for (int i = 0; i < RenderStateCount; ++i) {
-		if (states_[i] != nullptr) {
-			states_[i]->Unbind();
-		}
-	}
 }
 
 void SkinnedSurfaceRendererInternal::RenderSurface(Surface surface) {
@@ -134,7 +86,11 @@ void SkinnedSurfaceRendererInternal::RenderSurface(Surface surface) {
 ParticleRendererInternal::ParticleRendererInternal()
 	: RendererInternal(ObjectTypeParticleRenderer), particleCount_(0) {
 	SetRenderQueue(RenderQueueTransparent);
-	SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
+}
+
+void ParticleRendererInternal::AddMaterial(Material material) {
+	material->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
+	RendererInternal::AddMaterial(material);
 }
 
 void ParticleRendererInternal::RenderSprite(Sprite sprite) {
@@ -150,6 +106,6 @@ void ParticleRendererInternal::DrawCall(Mesh mesh) {
 	unsigned vertexCount, baseVertex, baseIndex;
 	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
 
-	GLenum mode = PrimaryTypeToGLEnum(mesh->GetPrimaryType());
+	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
 	glDrawElementsInstancedBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned)* baseIndex), particleCount_, baseVertex);
 }

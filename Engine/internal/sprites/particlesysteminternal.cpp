@@ -94,7 +94,7 @@ void ParticleSystemInternal::UpdateParticles() {
 
 void ParticleSystemInternal::UpdateSurface() {
 	unsigned count = particles_.size();
-	Surface surface = GetSurface();
+	Surface surface = GetSurface(0);
 	surface->UpdateUserBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
 	surface->UpdateUserBuffer(1, count * sizeof(glm::vec4), &positions_[0]);
 }
@@ -163,7 +163,7 @@ void ParticleSystemInternal::EmitParticles(unsigned count) {
 void ParticleSystemInternal::InitializeSurface() {
 	Mesh mesh = CREATE_OBJECT(Mesh);
 	Surface surface = CREATE_OBJECT(Surface);
-	mesh->SetPrimaryType(PrimaryTypeTriangleStripe);
+	mesh->SetTopology(MeshTopologyTriangles);
 
 	Texture2D albedo = CREATE_OBJECT(Texture2D);
 	albedo->Load("textures/snowflake.png");
@@ -186,7 +186,7 @@ void ParticleSystemInternal::InitializeSurface() {
 	mesh->SetTriangles(CountOf(kQuadVertices), 0, 0);
 
 	surface->AddMesh(mesh);
-	SetSurface(surface);
+	AddSurface(surface);
 }
 
 void ParticleSystemInternal::InitializeRenderer() {

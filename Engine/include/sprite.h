@@ -14,13 +14,13 @@ public:
 	virtual void SetActive(bool value) = 0;
 	virtual bool GetActive() = 0;
 
-	virtual bool LoadModel(const std::string& path) = 0;
-
 	virtual std::string GetName() = 0;
 	virtual void SetName(const std::string& value) = 0;
 
 	virtual void SetParent(Sprite value) = 0;
 	virtual Sprite GetParent() = 0;
+
+	virtual Sprite FindChild(const std::string& path) = 0;
 
 	virtual void AddChild(Sprite child) = 0;
 	virtual void RemoveChild(Sprite child) = 0;
@@ -63,8 +63,9 @@ public:
 	virtual void SetAnimation(Animation value) = 0;
 	virtual Animation GetAnimation() = 0;
 
-	virtual void SetSurface(Surface value) = 0;
-	virtual Surface GetSurface() = 0;
+	virtual void AddSurface(Surface value) = 0;
+	virtual int GetSurfaceCount() = 0;
+	virtual Surface GetSurface(int i) = 0;
 
 	virtual void SetRenderer(Renderer value) = 0;
 	virtual Renderer GetRenderer() = 0;

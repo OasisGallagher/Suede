@@ -16,8 +16,6 @@ public:
 	virtual void SetActive(bool value) { active_ = value; }
 	virtual bool GetActive() { return active_; }
 
-	virtual bool LoadModel(const std::string& path);
-
 	virtual std::string GetName() { return name_; }
 	virtual void SetName(const std::string& value) { name_ = value; }
 
@@ -26,6 +24,8 @@ public:
 
 	virtual void SetParent(Sprite value);
 	virtual Sprite GetParent() { return parent_.lock(); }
+
+	virtual Sprite FindChild(const std::string& path);
 
 	virtual int GetChildCount() { return (int)children_.size(); }
 	virtual Sprite GetChildAt(int i) { return children_[i]; }
@@ -65,8 +65,9 @@ public:
 	virtual void SetAnimation(Animation value) { animation_ = value; }
 	virtual Animation GetAnimation() { return animation_; }
 
-	virtual void SetSurface(Surface value){ surface_ = value; }
-	virtual Surface GetSurface() { return surface_; }
+	virtual void AddSurface(Surface value){ surfaces_.push_back(value); }
+	virtual int GetSurfaceCount() { return surfaces_.size(); }
+	virtual Surface GetSurface(int i) { return surfaces_[i]; }
 
 	virtual void SetRenderer(Renderer value) { renderer_ = value; }
 	virtual Renderer GetRenderer() { return renderer_; }
@@ -91,7 +92,7 @@ private:
 private:
 	void SetDiry(int bits);
 	bool IsDirty(int bits) { return (dirtyFlag_ & bits) != 0; }
-	void ClearDirty(int bits) { dirtyFlag_ &= ~bits; }
+	void ClearDirty(int bits);
 
 	const char* SpriteTypeToString(ObjectType type);
 
@@ -100,9 +101,9 @@ private:
 
 	std::string name_;
 
-	Surface surface_;
 	Renderer renderer_;
 	Animation animation_;
+	std::vector<Surface> surfaces_;
 
 	std::weak_ptr<Sprite::element_type> parent_;
 

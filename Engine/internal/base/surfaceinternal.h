@@ -16,14 +16,14 @@ public:
 	virtual void SetMaterialTextures(const MaterialTextures& value) { textures_ = value; }
 	virtual MaterialTextures& GetMaterialTextures() { return textures_; }
 
-	virtual void SetPrimaryType(PrimaryType value) { primaryType_ = value; }
-	virtual PrimaryType GetPrimaryType() { return primaryType_; }
+	virtual void SetTopology(MeshTopology value) { meshTopology_ = value; }
+	virtual MeshTopology GetTopology() { return meshTopology_; }
 
 	virtual void SetTriangles(unsigned vertexCount, unsigned baseVertex, unsigned baseIndex);
 	virtual void GetTriangles(unsigned& vertexCount, unsigned& baseVertex, unsigned& baseIndex);
 
 private:
-	PrimaryType primaryType_;
+	MeshTopology meshTopology_;
 	MaterialTextures textures_;
 
 	unsigned baseIndex_;

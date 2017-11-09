@@ -8,57 +8,45 @@ struct aiScene;
 struct aiMaterial;
 struct aiNodeAnim;
 struct aiAnimation;
+namespace Assimp {
+	class Importer;
+}
 
 class AssetImporter {
 public:
-	enum {
-		MaskNone = 0,
-		MaskImportAnimation = 1,
-		MaskCreateRenderer = 2,
-		MaskAll = -1,
-	};
+	Sprite Import(const std::string& path);
+	bool ImportTo(Sprite sprite, const std::string& path);
+	Surface ImportSurface(const std::string& path);
 
 public:
-	bool Import(const std::string& path, int mask = MaskAll);
-	
-public:
-	Surface GetSurface() { return surface_; }
-	Renderer GetRenderer() { return renderer_; }
 	Animation GetAnimation() { return animation_; }
 
 private:
 	void Clear();
+	void Initialize(const std::string& path, Assimp::Importer &importer);
 
-	bool ImportSurface(Surface& surface);
-	void ImportTextures(MaterialTextures* textures);
-	void ImportTexture(const aiMaterial* mat, Texture& dest, int textureType);
+	Sprite ReadHierarchy(Sprite parent, aiNode* node, Surface* surfaces, Material* materials);
 
-	void ImportMeshAttributes(const aiMesh* aimesh, int nm, SurfaceAttribute& attribute);
-	void ImportSurfaceAttributes(Surface surface, SurfaceAttribute& attribute, MaterialTextures* textures);
+	bool ReadSurfaces(Surface* surfaces);
+	bool ReadSurface(Surface surface, int index);
+	void ReadSurfaceAttributes(Surface surface, int index, SurfaceAttribute& attribute);
+	void ReadVertexAttributes(int index, SurfaceAttribute& attribute);
+	void ReadBoneAttributes(int index, SurfaceAttribute& attribute);
 
-	void ImportHierarchy();
+	bool ReadMaterials(Material* materials);
+	bool ReadMaterial(Material material, int index);
 
-	struct MeshSize {
-		unsigned vertexCount = 0;
-		unsigned indexCount = 0;
-	};
-
-	void ImportMeshes(Surface surface, MaterialTextures* textures, MeshSize& size);
-	void ImportBoneAttributes(const aiMesh* aimesh, int nm, Surface surface, SurfaceAttribute& attribute);
-
-	bool ImportAnimation(Animation& animation);
-	void ImportAnimationClip(const aiAnimation* anim, AnimationClip clip);
-	void ImportAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
+	bool ReadAnimation(Animation& animation);
+	void ReadAnimationClip(const aiAnimation* anim, AnimationClip clip);
+	void ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
 	const aiNodeAnim * FindChannel(const aiAnimation* anim, const char* name);
 
-	bool InitRenderer(Animation animation, Renderer& renderer);
+	bool InitRenderer(Renderer renderer);
 
 private:
 	Skeleton skeleton_;
 	std::string path_;
 	const aiScene* scene_;
 
-	Surface surface_;
-	Renderer renderer_;
 	Animation animation_;
 };

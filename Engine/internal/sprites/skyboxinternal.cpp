@@ -1,7 +1,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "variables.h"
 #include "internal/memory/factory.h"
+#include "internal/file/assetimporter.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/sprites/skyboxinternal.h"
@@ -10,9 +12,8 @@ SkyboxInternal::SkyboxInternal() : SpriteInternal(ObjectTypeSkybox) {
 }
 
 bool SkyboxInternal::Load(const std::string(&textures)[6]) {
-	if (!LoadModel("buildin/models/box.obj")) {
-		return false;
-	}
+	AssetImporter importer;
+	importer.ImportTo(dsp_cast<Sprite>(shared_from_this()), "buildin/models/box.obj");
 
 	TextureCube texture = CREATE_OBJECT(TextureCube);
 	if (!texture->Load(textures)) {
@@ -24,14 +25,14 @@ bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 		return false;
 	}
 
-	MaterialTextures& materialTextures = GetSurface()->GetMesh(0)->GetMaterialTextures();
-	materialTextures.albedo = texture;
-
-	Renderer renderer = GetRenderer();
+	// TODO: simple cube
+	Renderer renderer = FindChild("defaultobject")->GetRenderer();
+	Material material = renderer->GetMaterial(0);
 	renderer->SetRenderQueue(RenderQueueBackground);
-	renderer->SetRenderState(Cull, Front);
-	renderer->SetRenderState(DepthTest, LessEqual);
-	renderer->GetMaterial(0)->SetShader(shader);
-
+	material->SetRenderState(Cull, Front);
+	material->SetRenderState(DepthTest, LessEqual);
+	material->SetShader(shader);
+	material->SetTexture(Variables::mainTexture, texture);
+	
 	return true;
 }

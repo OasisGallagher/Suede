@@ -25,6 +25,7 @@ bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera&
 	return lhs->GetDepth() < rhs->GetDepth();
 }
 
+#include "internal/file/assetimporter.h"
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(Memory::Create<EnvironmentInternal>())
@@ -49,6 +50,11 @@ Object WorldInternal::Create(ObjectType type) {
 	}
 
 	return object;
+}
+
+Sprite WorldInternal::Import(const std::string& path) {
+	AssetImporter importer;
+	return importer.Import(path);
 }
 
 Sprite WorldInternal::GetSprite(unsigned id) {
