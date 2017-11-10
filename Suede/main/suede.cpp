@@ -50,6 +50,8 @@ void Suede::setupUI() {
 		showChildWindow(i, false);
 	}
 
+	showChildWindow(ChildWindowConsole, true);
+
 	Game::get()->setView(ui.gameWidget);
 	Console::get()->setView(ui.consoleWidget);
 	Inspector::get()->setView(ui.inspectorWidget);

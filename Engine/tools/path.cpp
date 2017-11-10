@@ -1,7 +1,7 @@
 #include "path.h"
 
 std::string Path::GetFileName(const std::string& path) {
-	unsigned slash = (unsigned)path.find_last_of("/");
+	size_t slash = path.find_last_of("\\/");
 	if (slash == std::string::npos) {
 		return path;
 	}

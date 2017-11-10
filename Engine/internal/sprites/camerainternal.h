@@ -65,6 +65,7 @@ public:
 	virtual Texture2D Capture();
 
 private:
+	void CreateRenderer();
 	void CreateFramebuffers();
 	void CreateDepthRenderer();
 	void CreateShadowRenderer();
@@ -110,8 +111,9 @@ private:
 	Framebuffer* fbRenderTexture2_;
 
 	// TODO: Common renderer.
-	Renderer depthRenderer_;
-	Renderer directionalLightShadowRenderer_;
+	Renderer renderer_;
+	Material depthMaterial_;
+	Material directionalLightShadowMaterial_;
 
 	RenderTexture renderTexture_;
 	RenderTexture renderTexture2_;

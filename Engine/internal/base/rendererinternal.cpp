@@ -10,7 +10,8 @@ RendererInternal::~RendererInternal() {
 }
 
 void RendererInternal::RenderSprite(Sprite sprite) {
-	for (int i = 0; i < GetMaterialCount(); ++i) {
+	int materialCount = GetMaterialCount();
+	for (int i = 0; i < materialCount; ++i) {
 		Material material = GetMaterial(i);
 		material->SetFloat(Variables::time, timeInstance->GetRealTimeSinceStartup());
 		material->SetFloat(Variables::deltaTime, timeInstance->GetDeltaTime());
@@ -19,9 +20,20 @@ void RendererInternal::RenderSprite(Sprite sprite) {
 		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
 	}
 
+	Assert(materialCount == 1 || materialCount == sprite->GetSurfaceCount());
+
+	// TODO: relationship between material and surface...
+	if (materialCount == 1) { GetMaterial(0)->Bind(); }
+
 	for (int i = 0; i < sprite->GetSurfaceCount(); ++i) {
+		if (materialCount > 1) { GetMaterial(i)->Bind(); }
+		
 		RenderSurface(sprite->GetSurface(i));
+
+		if (materialCount > 1) { GetMaterial(i)->Unbind(); }
 	}
+
+	if (materialCount == 1) { GetMaterial(0)->Unbind(); }
 }
 
 GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
@@ -32,19 +44,9 @@ GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
 void RendererInternal::RenderSurface(Surface surface) {
 	surface->Bind();
 
-	// TODO: mesh count mismatch with material count.
-	if (surface->GetMeshCount() > GetMaterialCount()) {
-		Debug::LogWarning("mesh count mismatch with material count.");
-	}
-
-	// TODO: batch mesh if their materials are identical.
-	for (int i = 0; i < GetMaterialCount(); ++i) {
-		Mesh mesh = surface->GetMesh(Math::Min(i, surface->GetMeshCount() - 1));
-		Material material = GetMaterial(i);
-
-		material->Bind();
+	for (int i = 0; i < surface->GetMeshCount(); ++i) {
+		Mesh mesh = surface->GetMesh(i);
 		DrawCall(mesh);
-		material->Unbind();
 	}
 
 	surface->Unbind();

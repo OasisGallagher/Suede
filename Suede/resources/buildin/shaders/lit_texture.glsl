@@ -30,12 +30,13 @@ in vec2 texCoord;
 in vec3 worldPos;
 in vec3 normal;
 
+uniform vec4 c_mainColor;
 uniform sampler2D c_mainTexture;
 
 #include "buildin/shaders/include/light_fragment.inc"
 
 void main() {
-	vec4 albedo = texture(c_mainTexture, texCoord);
+	vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 	float visibility = calculateShadowVisibility();
 	c_fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
 }

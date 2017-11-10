@@ -37,7 +37,7 @@ private:
 	void ReadBoneAttributes(int index, SurfaceAttribute& attribute);
 
 	struct MaterialAttribute {
-		MaterialAttribute() : twoSided(false), gloss(0) {}
+		MaterialAttribute() : twoSided(false), gloss(0), mainColor(1) {}
 
 		std::string name;
 

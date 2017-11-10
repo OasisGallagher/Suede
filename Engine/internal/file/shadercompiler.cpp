@@ -28,8 +28,9 @@ void ShaderCompiler::Clear() {
 
 bool ShaderCompiler::CompileShaderSource(const std::vector<std::string>& lines, const std::string& defines) {
 	globals_ = "#version " GLSL_VERSION "\n";
-	// TODO: constants.
-	globals_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
+
+	AddConstants();
+
 	globals_ += FormatDefines(defines);
 	ReadShaderSource(lines);
 
@@ -37,6 +38,10 @@ bool ShaderCompiler::CompileShaderSource(const std::vector<std::string>& lines, 
 	answer_[type_] = globals_ + source_;
 
 	return true;
+}
+
+void ShaderCompiler::AddConstants() {
+	globals_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
 }
 
 std::string ShaderCompiler::FormatDefines(const std::string& defines) {

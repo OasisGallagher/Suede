@@ -15,7 +15,10 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
+//#define SKYBOX
+//#define TEDDY_BEAR
 //#define POST_EFFECTS
+#define PARTICLE_SYSTEM
 
 Game* Game::get() {
 	static Game instance;
@@ -111,7 +114,7 @@ void Game::createScene() {
 	camera->AddPostEffect(grayscale_);
 #endif
 
-#ifdef SKY_BOX
+#ifdef SKYBOX
 	camera->SetClearType(ClearTypeSkybox);
 	Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
 	std::string faces[] = {
@@ -136,9 +139,9 @@ void Game::createScene() {
 	camera->SetRenderTexture(renderTexture);
 #endif
 
-#ifdef TEST_PARTICLE_SYSTEM
+#ifdef PARTICLE_SYSTEM
 	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(world->Create(ObjectTypeParticleSystem));
-	particleSystem->SetPosition(glm::vec3(0, 20, -50));
+	particleSystem->SetPosition(glm::vec3(-30, 20, -50));
 
 	SphereParticleEmitter emitter = dsp_cast<SphereParticleEmitter>(world->Create(ObjectTypeSphereParticleEmitter));
 	emitter->SetRadius(5);

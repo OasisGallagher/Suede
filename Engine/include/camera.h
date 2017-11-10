@@ -44,7 +44,6 @@ public:
 
 	virtual Texture2D Capture() = 0;
 
-	// TODO: internal method.
 	virtual void Render() = 0;
 };
 

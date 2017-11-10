@@ -1,6 +1,7 @@
 #include "tools/math2.h"
 #include "worldinternal.h"
 #include "internal/memory/factory.h"
+#include "internal/file/assetimporter.h"
 #include "internal/sprites/spriteinternal.h"
 #include "internal/world/environmentinternal.h"
 
@@ -25,7 +26,6 @@ bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera&
 	return lhs->GetDepth() < rhs->GetDepth();
 }
 
-#include "internal/file/assetimporter.h"
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(Memory::Create<EnvironmentInternal>())

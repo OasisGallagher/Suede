@@ -16,6 +16,10 @@ typedef std::shared_ptr<class ISprite> Sprite;
 class ENGINE_EXPORT IRenderer : virtual public IObject {
 public:
 	virtual void RenderSprite(Sprite sprite) = 0;
+
+	/**
+	 * Render surface with current bound material.
+	 */
 	virtual void RenderSurface(Surface surface) = 0;
 	
 	virtual void AddMaterial(Material material) = 0;

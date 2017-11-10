@@ -24,6 +24,7 @@ CameraInternal::CameraInternal()
 	, fieldOfView_(3.141592f / 3.f), projection_(glm::perspective(fieldOfView_, aspect_, near_, far_))
 	, pass_(RenderPassNone), fbRenderTexture_(nullptr), viewToShadowSpaceMatrix_(1) {
 	CreateFramebuffers();
+	CreateRenderer();
 	CreateDepthRenderer();
 	CreateShadowRenderer();
 	glClearDepth(1);
@@ -140,10 +141,15 @@ Texture2D CameraInternal::Capture() {
 	std::vector<unsigned char> data;
 	fb0_->ReadBuffer(data);
 
-	Texture2D tex = CREATE_OBJECT(Texture2D);
-	tex->Load(&data[0], fb0_->GetWidth(), fb0_->GetHeight());
+	Texture2D texture = CREATE_OBJECT(Texture2D);
+	texture->Load(&data[0], fb0_->GetWidth(), fb0_->GetHeight());
 
-	return tex;
+	return texture;
+}
+
+void CameraInternal::CreateRenderer() {
+	renderer_ = CREATE_OBJECT(SurfaceRenderer);
+	renderer_->AddMaterial(nullptr);
 }
 
 void CameraInternal::CreateFramebuffers() {
@@ -179,31 +185,25 @@ void CameraInternal::CreateFramebuffers() {
 }
 
 void CameraInternal::CreateDepthRenderer() {
-	depthRenderer_ = CREATE_OBJECT(SurfaceRenderer);
 	Shader shader = CREATE_OBJECT(Shader);
 	shader->Load("buildin/shaders/depth");
 
-	Material material = CREATE_OBJECT(Material);
-	material->SetShader(shader);
-	material->SetRenderState(Cull, Back);
-	material->SetRenderState(DepthWrite, On);
-	material->SetRenderState(DepthTest, LessEqual);
-
-	depthRenderer_->AddMaterial(material);
+	depthMaterial_ = CREATE_OBJECT(Material);
+	depthMaterial_->SetShader(shader);
+	depthMaterial_->SetRenderState(Cull, Back);
+	depthMaterial_->SetRenderState(DepthWrite, On);
+	depthMaterial_->SetRenderState(DepthTest, LessEqual);
 }
 
 void CameraInternal::CreateShadowRenderer() {
-	directionalLightShadowRenderer_ = CREATE_OBJECT(SurfaceRenderer);
 	Shader shader = CREATE_OBJECT(Shader);
 	shader->Load("buildin/shaders/directional_light_depth");
 
-	Material material = CREATE_OBJECT(Material);
-	material->SetShader(shader);
-	material->SetRenderState(Cull, Back);
-	material->SetRenderState(DepthWrite, On);
-	material->SetRenderState(DepthTest, LessEqual);
-
-	directionalLightShadowRenderer_->AddMaterial(material);
+	directionalLightShadowMaterial_ = CREATE_OBJECT(Material);
+	directionalLightShadowMaterial_->SetShader(shader);
+	directionalLightShadowMaterial_->SetRenderState(Cull, Back);
+	directionalLightShadowMaterial_->SetRenderState(DepthWrite, On);
+	directionalLightShadowMaterial_->SetRenderState(DepthTest, LessEqual);
 }
 
 void CameraInternal::UpdateSkybox() {
@@ -288,12 +288,9 @@ void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light 
 			continue;
 		}
 
-		for (int i = 0; i < directionalLightShadowRenderer_->GetMaterialCount(); ++i) {
-			Material material = directionalLightShadowRenderer_->GetMaterial(i);
-			material->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * sprite->GetLocalToWorldMatrix());
-		}
-
-		RenderSprite(sprite, directionalLightShadowRenderer_);
+		directionalLightShadowMaterial_->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * sprite->GetLocalToWorldMatrix());
+		renderer_->SetMaterial(0, directionalLightShadowMaterial_);
+		renderer_->RenderSprite(sprite);
 	}
 
 	glm::mat4 bias(
@@ -325,7 +322,8 @@ void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 			continue;
 		}
 
-		RenderSprite(sprite, depthRenderer_);
+		renderer_->SetMaterial(0, depthMaterial_);
+		renderer_->RenderSprite(sprite);
 	}
 
 	fbDepth_->Unbind();

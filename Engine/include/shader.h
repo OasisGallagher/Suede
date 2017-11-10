@@ -8,8 +8,6 @@ public:
 	virtual bool Load(const std::string& path) = 0;
 	virtual unsigned GetNativePointer() = 0;
 
-	// internal method.
-	// TODO: link must be called after glBindAttribLocation.
 	virtual bool Link() = 0;
 };
 

@@ -12,6 +12,8 @@ private:
 	std::string FormatDefines(const std::string& defines);
 	bool CompileShaderSource(const std::vector<std::string>& lines, const std::string& defines);
 
+	void AddConstants();
+
 	bool Preprocess(const std::string& line);
 	bool PreprocessInclude(const std::string& parameter);
 	bool PreprocessShader(const std::string& parameter);

@@ -15,12 +15,13 @@ void GraphicsInternal::Blit(RenderTexture src, RenderTexture dest, Material mate
 	}
 
 	Renderer renderer = CREATE_OBJECT(SurfaceRenderer);
-	renderer->AddMaterial(material);
 
 	material->SetRenderState(Cull, Off);
 	material->SetRenderState(DepthWrite, Off);
 	material->SetRenderState(DepthTest, Always);
 	material->SetTexture(Variables::mainTexture, src);
 
+	material->Bind();
 	renderer->RenderSurface(surface);
+	material->Unbind();
 }
