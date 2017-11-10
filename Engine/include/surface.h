@@ -10,19 +10,10 @@ enum MeshTopology {
 	MeshTopologyTriangleStripes,
 };
 
-struct MaterialTextures {
-	Texture bump;
-	Texture albedo;
-	Texture specular;
-};
-
 class IMesh : virtual public IObject {
 public:
 	virtual void SetTopology(MeshTopology value) = 0;
 	virtual MeshTopology GetTopology() = 0;
-
-	virtual void SetMaterialTextures(const MaterialTextures& value) = 0;
-	virtual MaterialTextures& GetMaterialTextures() = 0;
 
 	virtual void SetTriangles(unsigned vertexCount, unsigned baseVertex, unsigned baseIndex) = 0;
 	virtual void GetTriangles(unsigned& vertexCount, unsigned& baseVertex, unsigned& baseIndex) = 0;

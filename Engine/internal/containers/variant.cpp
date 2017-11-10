@@ -9,6 +9,7 @@ std::string Variant::TypeString(VariantType type) {
 		"float",
 		"mat4",
 		"vec3",
+		"vec4",
 		"sampler",
 		"quaternion",
 	};
@@ -39,6 +40,11 @@ glm::mat4 Variant::GetMatrix4() {
 glm::vec3 Variant::GetVector3() {
 	AssertX(type_ == VariantTypeVector3, "invalid uniform type.");
 	return vector3Value_;
+}
+
+glm::vec4 Variant::GetVector4() {
+	AssertX(type_ == VariantTypeVector4, "invalid uniform type.");
+	return vector4Value_;
 }
 
 glm::quat Variant::GetQuaternion() {
@@ -79,6 +85,11 @@ void Variant::SetMatrix4(const glm::mat4& value) {
 void Variant::SetVector3(const glm::vec3& value) {
 	type_ = VariantTypeVector3;
 	vector3Value_ = value;
+}
+
+void Variant::SetVector4(const glm::vec4& value) {
+	type_ = VariantTypeVector4;
+	vector4Value_ = value;
 }
 
 void Variant::SetQuaternion(const glm::quat& value) {

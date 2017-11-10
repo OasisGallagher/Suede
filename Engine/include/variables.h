@@ -28,10 +28,15 @@ namespace Variables {
 	DEFINE_VARIABLE(mainTexture);
 	DEFINE_VARIABLE(bumpTexture);
 	DEFINE_VARIABLE(specularTexture);
+	DEFINE_VARIABLE(emissiveTexture);
+	DEFINE_VARIABLE(lightmapTexture);
 
 	DEFINE_VARIABLE(shadowDepthTexture);
 
 	DEFINE_VARIABLE(gloss);
+	DEFINE_VARIABLE(mainColor);
+	DEFINE_VARIABLE(specularColor);
+	DEFINE_VARIABLE(emissiveColor);
 
 	DEFINE_VARIABLE(ambientLightColor);
 

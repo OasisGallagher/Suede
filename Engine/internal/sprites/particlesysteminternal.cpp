@@ -165,10 +165,6 @@ void ParticleSystemInternal::InitializeSurface() {
 	Surface surface = CREATE_OBJECT(Surface);
 	mesh->SetTopology(MeshTopologyTriangles);
 
-	Texture2D albedo = CREATE_OBJECT(Texture2D);
-	albedo->Load("textures/snowflake.png");
-	mesh->GetMaterialTextures().albedo = albedo;
-
 	SurfaceAttribute attribute;
 	attribute.indexes.assign(kQuadIndexes, kQuadIndexes + CountOf(kQuadIndexes));
 	// vertices.
@@ -196,6 +192,10 @@ void ParticleSystemInternal::InitializeRenderer() {
 	Shader shader = CREATE_OBJECT(Shader);
 	shader->Load("buildin/shaders/particle");
 	material->SetShader(shader);
+
+	Texture2D mainTexture = CREATE_OBJECT(Texture2D);
+	mainTexture->Load("textures/snowflake.png");
+	material->SetTexture(Variables::mainTexture, mainTexture);
 
 	renderer->AddMaterial(material);
 	SetRenderer(renderer);

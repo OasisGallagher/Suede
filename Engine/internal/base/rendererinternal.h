@@ -25,10 +25,8 @@ public:
 protected:
 	virtual void DrawCall(Mesh mesh);
 
+protected:
 	GLenum TopologyToGLEnum(MeshTopology topology);
-
-private:
-	void DrawMesh(Mesh mesh, Material material);
 
 private:
 	int queue_;

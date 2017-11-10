@@ -12,6 +12,7 @@ enum VariantType {
 	VariantTypeFloat,
 	VariantTypeMatrix4,
 	VariantTypeVector3,
+	VariantTypeVector4,
 	VariantTypeTexture,
 	VariantTypeQuaternion,
 };
@@ -29,6 +30,7 @@ public:
 	float GetFloat();
 	glm::mat4 GetMatrix4();
 	glm::vec3 GetVector3();
+	glm::vec4 GetVector4();
 	glm::quat GetQuaternion();
 	Texture GetTexture();
 	int GetTextureIndex();
@@ -40,6 +42,7 @@ public:
 	void SetFloat(float value);
 	void SetMatrix4(const glm::mat4& value);
 	void SetVector3(const glm::vec3& value);
+	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
 	void SetTexture(Texture value);
 	void SetTextureLocation(GLenum value);
@@ -51,6 +54,7 @@ private:
 		float floatValue_;
 		glm::mat4 mat4Value_;
 		glm::vec3 vector3Value_;
+		glm::vec4 vector4Value_;
 		int textureIndex_;
 		glm::quat quaternionValue_;
 	};

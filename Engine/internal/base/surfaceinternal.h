@@ -13,9 +13,6 @@ class MeshInternal : public IMesh, public ObjectInternal {
 public:
 	MeshInternal();
 
-	virtual void SetMaterialTextures(const MaterialTextures& value) { textures_ = value; }
-	virtual MaterialTextures& GetMaterialTextures() { return textures_; }
-
 	virtual void SetTopology(MeshTopology value) { meshTopology_ = value; }
 	virtual MeshTopology GetTopology() { return meshTopology_; }
 
@@ -24,7 +21,6 @@ public:
 
 private:
 	MeshTopology meshTopology_;
-	MaterialTextures textures_;
 
 	unsigned baseIndex_;
 	unsigned baseVertex_;

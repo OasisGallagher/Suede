@@ -42,30 +42,12 @@ void RendererInternal::RenderSurface(Surface surface) {
 		Mesh mesh = surface->GetMesh(Math::Min(i, surface->GetMeshCount() - 1));
 		Material material = GetMaterial(i);
 
-		DrawMesh(mesh, material);
+		material->Bind();
+		DrawCall(mesh);
+		material->Unbind();
 	}
 
 	surface->Unbind();
-}
-
-void RendererInternal::DrawMesh(Mesh mesh, Material material) {
-	MaterialTextures& textures = mesh->GetMaterialTextures();
-
-	if (textures.bump) {
-		material->SetTexture(Variables::bumpTexture, textures.bump);
-	}
-
-	if (textures.albedo) {
-		material->SetTexture(Variables::mainTexture, textures.albedo);
-	}
-
-	if (textures.specular) {
-		material->SetTexture(Variables::specularTexture, textures.specular);
-	}
-
-	material->Bind();
-	DrawCall(mesh);
-	material->Unbind();
 }
 
 void RendererInternal::DrawCall(Mesh mesh) {

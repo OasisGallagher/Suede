@@ -15,6 +15,8 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
+//#define POST_EFFECTS
+
 Game* Game::get() {
 	static Game instance;
 	return &instance;
@@ -102,19 +104,15 @@ void Game::createScene() {
 
 	Camera camera = dsp_cast<Camera>(world->Create(ObjectTypeCamera));
 	controller_->setCamera(camera);
-
-	//camera->AddPostEffect(inversion_);
-	//camera->AddPostEffect(grayscale_);
-	//camera->SetPosition(glm::vec3(0, 1, 5));
-
-	//glm::quat q(glm::lookAt(glm::vec3(0, 1, 5), glm::vec3(0), glm::vec3(0, 1, 0)));
-	//camera->SetRotation(q);
-
 	camera->SetPosition(glm::vec3(0, 25, 0));
 
-	camera->SetClearType(ClearTypeSkybox);
-	camera->SetClearColor(glm::vec3(0));
+#ifdef POST_EFFECTS
+	camera->AddPostEffect(inversion_);
+	camera->AddPostEffect(grayscale_);
+#endif
 
+#ifdef SKY_BOX
+	camera->SetClearType(ClearTypeSkybox);
 	Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
 	std::string faces[] = {
 		"textures/lake_skybox/right.jpg",
@@ -127,13 +125,19 @@ void Game::createScene() {
 
 	skybox->Load(faces);
 	camera->SetSkybox(skybox);
+#else
+	camera->SetClearType(ClearTypeColor);
+	camera->SetClearColor(glm::vec3(0));
+#endif
 	
+#ifdef RENDER_TEXTURE
 	RenderTexture renderTexture = dsp_cast<RenderTexture>(world->Create(ObjectTypeRenderTexture));
 	renderTexture->Load(RenderTextureFormatRgba, canvas_->width(), canvas_->height());
-	//camera->SetRenderTexture(renderTexture);
-	//camera->SetClearColor(glm::vec3(0.0f, 0.0f, 0.4f));
+	camera->SetRenderTexture(renderTexture);
+#endif
 
-	/*ParticleSystem particleSystem = dsp_cast<ParticleSystem>(world->Create(ObjectTypeParticleSystem));
+#ifdef TEST_PARTICLE_SYSTEM
+	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(world->Create(ObjectTypeParticleSystem));
 	particleSystem->SetPosition(glm::vec3(0, 20, -50));
 
 	SphereParticleEmitter emitter = dsp_cast<SphereParticleEmitter>(world->Create(ObjectTypeSphereParticleEmitter));
@@ -152,56 +156,45 @@ void Game::createScene() {
 
 	particleSystem->SetMaxParticles(1000);
 	particleSystem->SetDuration(5);
-	particleSystem->SetLooping(true);*/
+	particleSystem->SetLooping(true);
+#endif
 
+#ifdef TEDDY_BEAR
+	Sprite sprite = world->Import("models/teddy_bear.fbx");
+	sprite->SetPosition(glm::vec3(0, -20, -150));
+	sprite->SetEulerAngles(glm::vec3(0));
+#else
 	Sprite sprite = world->Import("models/boblampclean.md5mesh");
+	sprite->SetPosition(glm::vec3(0, 0, -70));
+	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
+#endif
+
 	sprite->SetParent(camera);
 	light->SetParent(camera);
 
-	sprite->SetPosition(glm::vec3(0, 0, -70));
-	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
-// 	sprite->SetPosition(glm::vec3(0, -20, -150));
-// 	sprite->SetEulerAngles(glm::vec3(0));
+	Animation animation = sprite->GetAnimation();
+	if (animation) {
+		animation->SetWrapMode(AnimationWrapModePingPong);
+		animation->Play("");
+	}
 
-	sprite->GetAnimation()->SetWrapMode(AnimationWrapModePingPong);
-	sprite->GetAnimation()->Play("");
+#ifdef BUMPED
+	Texture2D albedo = dsp_cast<Texture2D>(world->Create(ObjectTypeTexture2D));
+	albedo->Load("textures/room_uvmap.dds");
 
-	/* Mesh.
-	Mesh mesh = dynamic_ptr_cast<Mesh>(world->Create("Mesh"));
-	SurfaceAttribute attribute;
-	attribute.positions.push_back(glm::vec3(-1.0f, -1.0f, 0.0f));
-	attribute.positions.push_back(glm::vec3(1.0f, -1.0f, 0.0f));
-	attribute.positions.push_back(glm::vec3(0.0f, 1.0f, 0.0f));
-	attribute.indexes.push_back(0);
-	attribute.indexes.push_back(1);
-	attribute.indexes.push_back(2);
+	Texture2D bump = dsp_cast<Texture2D>(world->Create(ObjectTypeTexture2D));
+	bump->Load("textures/bump.bmp");
 
-	surface->SetAttribute(attribute);
-	mesh->SetTriangles(3, 0, 0);
-	surface->AddMesh(mesh);
-	*/
-	
-	//sprite->LoadModel("models/test_sphere.fbx");
-	//sprite->GetAnimation()->SetWrapMode(AnimationWrapModePingPong);
-	
-	//sprite->GetAnimation()->Play("");
-	//Surface surface = sprite->GetSurface();
+	MaterialTextures& textures = surface->GetMesh(0)->GetMaterialTextures();
+	textures.albedo = albedo;
+	textures.bump = bump;
 
-	//Texture2D albedo = dsp_cast<Texture2D>(world->Create(ObjectTypeTexture2D));
-	//albedo->Load("textures/room_uvmap.dds");
-
-	//Texture2D bump = dsp_cast<Texture2D>(world->Create(ObjectTypeTexture2D));
-	//bump->Load("textures/bump.bmp");
-
-	//MaterialTextures& textures = surface->GetMesh(0)->GetMaterialTextures();
-	//textures.albedo = albedo;
-	//textures.bump = bump;
-
-	/*Renderer renderer = sprite->GetRenderer();
+	Renderer renderer = sprite->GetRenderer();
 	renderer->SetRenderState(Cull, Off);
 	renderer->SetRenderState(DepthTest, LessEqual);
 
 	Shader shader = dsp_cast<Shader>(world->Create(ObjectTypeShader));
 	shader->Load("buildin/shaders/lit_texture");
-	renderer->GetMaterial(0)->SetShader(shader);*/
+	renderer->GetMaterial(0)->SetShader(shader);
+#endif
 }

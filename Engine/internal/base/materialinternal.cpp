@@ -47,6 +47,7 @@ void MaterialInternal::UnbindRenderStates() {
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeInt);
 	if (u != nullptr && u->value.GetInt() != value) {
 		glProgramUniform1i(shader_->GetNativePointer(), u->location, value);
@@ -54,6 +55,7 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 }
 
 void MaterialInternal::SetFloat(const std::string& name, float value) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeFloat);
 	if (u != nullptr && !Math::Approximately(u->value.GetFloat(), value)) {
 		glProgramUniform1f(shader_->GetNativePointer(), u->location, value);
@@ -61,6 +63,7 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 }
 
 void MaterialInternal::SetTexture(const std::string& name, Texture value) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeTexture);
 
 	if (u != nullptr && u->value.GetTexture() != value) {
@@ -70,13 +73,23 @@ void MaterialInternal::SetTexture(const std::string& name, Texture value) {
 }
 
 void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& value) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeVector3);
 	if (u != nullptr && u->value.GetVector3() != value) {
 		SetUniform(u, &value);
 	}
 }
 
+void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& value) {
+	AssertX(shader_, "invalid shader");
+	Uniform* u = GetUniform(name, VariantTypeVector4);
+	if (u != nullptr && u->value.GetVector4() != value) {
+		SetUniform(u, &value);
+	}
+}
+
 void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& value) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeMatrix4);
 	if (u != nullptr && u->value.GetMatrix4() != value) {
 		SetUniform(u, &value);
@@ -84,6 +97,7 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 }
 
 int MaterialInternal::GetInt(const std::string& name) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeInt);
 	if (u == nullptr) {
 		return 0;
@@ -93,6 +107,7 @@ int MaterialInternal::GetInt(const std::string& name) {
 }
 
 float MaterialInternal::GetFloat(const std::string& name) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeFloat);
 	if (u == nullptr) {
 		return 0.f;
@@ -102,6 +117,7 @@ float MaterialInternal::GetFloat(const std::string& name) {
 }
 
 Texture MaterialInternal::GetTexture(const std::string& name) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeTexture);
 	if (u == nullptr) {
 		return Texture();
@@ -111,6 +127,7 @@ Texture MaterialInternal::GetTexture(const std::string& name) {
 }
 
 glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeMatrix4);
 	if (u == nullptr) {
 		return glm::mat4(1);
@@ -120,12 +137,23 @@ glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
+	AssertX(shader_, "invalid shader");
 	Uniform* u = GetUniform(name, VariantTypeVector3);
 	if (u == nullptr) {
 		return glm::vec3(0);
 	}
 
 	return u->value.GetVector3();
+}
+
+glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
+	AssertX(shader_, "invalid shader");
+	Uniform* u = GetUniform(name, VariantTypeVector4);
+	if (u == nullptr) {
+		return glm::vec4(0, 0, 0, 1);
+	}
+
+	return u->value.GetVector4();
 }
 
 void MaterialInternal::Bind() {
@@ -341,6 +369,9 @@ void MaterialInternal::AddUniform(const char* name, GLenum type, GLuint location
 	}
 	else if (type == GL_FLOAT_VEC3) {
 		uniform->value.SetVector3(glm::vec3(0));
+	}
+	else if (type == GL_FLOAT_VEC4) {
+		uniform->value.SetVector4(glm::vec4(0, 0, 0, 1));
 	}
 	else if (IsSampler(type)) {
 		AssertX(textureUnitIndex_ < maxTextureUnits_, "too many textures.");

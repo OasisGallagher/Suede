@@ -36,15 +36,36 @@ private:
 	void ReadVertexAttributes(int index, SurfaceAttribute& attribute);
 	void ReadBoneAttributes(int index, SurfaceAttribute& attribute);
 
+	struct MaterialAttribute {
+		MaterialAttribute() : twoSided(false), gloss(0) {}
+
+		std::string name;
+
+		bool twoSided;
+		float gloss;
+
+		glm::vec4 mainColor;
+		glm::vec3 specularColor;
+		glm::vec3 emissiveColor;
+
+		Texture mainTexture;
+		Texture bumpTexture;
+		Texture specularTexture;
+		Texture emissiveTexture;
+		Texture lightmapTexture;
+	};
+
 	bool ReadMaterials(Material* materials);
-	bool ReadMaterial(Material material, int index);
+	bool ReadMaterial(Material material, const MaterialAttribute& attribute);
+	void ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material);
 
 	bool ReadAnimation(Animation& animation);
 	void ReadAnimationClip(const aiAnimation* anim, AnimationClip clip);
 	void ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
 	const aiNodeAnim * FindChannel(const aiAnimation* anim, const char* name);
 
-	bool InitRenderer(Renderer renderer);
+	Texture CreateTexture(const std::string& name);
+	Texture GetDefaultMainTexture();
 
 private:
 	Skeleton skeleton_;

@@ -54,8 +54,6 @@ static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
 	return answer;
 }
 
-static const int DEFAULT_ALBEDO = 0xffffff;
-
 Sprite AssetImporter::Import(const std::string& path) {
 	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
 	ImportTo(sprite, path);
@@ -285,49 +283,105 @@ void AssetImporter::ReadBoneAttributes(int index, SurfaceAttribute& attribute) {
 
 bool AssetImporter::ReadMaterials(Material* materials) {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
+		MaterialAttribute attribute;
+		ReadMaterialAttribute(attribute, scene_->mMaterials[i]);
+		
 		Material material = CREATE_OBJECT(Material);
-		ReadMaterial(material, i);
+		ReadMaterial(material, attribute);
+
 		materials[i] = material;
 	}
 
 	return true;
 }
 
-bool AssetImporter::ReadMaterial(Material material, int index) {
-	const aiMaterial* aiMat = scene_->mMaterials[index];
-
+bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& attribute) {
 	std::string shaderName = "lit_texture";
 	if (scene_->mNumAnimations != 0) {
 		shaderName = "lit_animated_texture";
 	}
 
-	material->SetRenderState(Cull, Off);
+	material->SetRenderState(Cull, attribute.twoSided ? Off : Back);
 	material->SetRenderState(DepthTest, LessEqual);
 
 	Shader shader = CREATE_OBJECT(Shader);
 	shader->Load("buildin/shaders/" + shaderName);
 	material->SetShader(shader);
 
-	// TODO: Test.
-	int texCount = aiMat->GetTextureCount(aiTextureType_DIFFUSE);
-	aiString dpath;
-	std::string prefix = "textures/";
-	bool hasDiffuseTexture = false;
-	Texture2D texture = CREATE_OBJECT(Texture2D);
+	material->SetFloat(Variables::gloss, attribute.gloss);
 
-	if (texCount > 0 && aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &dpath) == AI_SUCCESS) {
-		if (texture->Load(prefix + dpath.data)) {
-			hasDiffuseTexture = true;
-		}
-	}
+	material->SetVector4(Variables::mainColor, attribute.mainColor);
+	material->SetVector3(Variables::specularColor, attribute.specularColor);
+	material->SetVector3(Variables::emissiveColor, attribute.emissiveColor);
 
-	if (!hasDiffuseTexture) {
-		texture->Load(&DEFAULT_ALBEDO, 1, 1);
-	}
-
-	material->SetTexture(Variables::mainTexture, texture);
+	
+	material->SetTexture(Variables::mainTexture, attribute.mainTexture);
+	material->SetTexture(Variables::bumpTexture, attribute.bumpTexture);
+	material->SetTexture(Variables::specularTexture, attribute.specularTexture);
+	material->SetTexture(Variables::emissiveTexture, attribute.emissiveTexture);
+	material->SetTexture(Variables::lightmapTexture, attribute.lightmapTexture);
 
 	return true;
+}
+
+void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material) {
+	int aint;
+	float afloat;
+	aiString astring;
+	aiColor3D acolor;
+
+	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
+		attribute.name = Path::GetFileName(astring.C_Str());
+	}
+	
+	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
+		attribute.mainTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+	}
+
+	if (!attribute.mainTexture) {
+		attribute.mainTexture = GetDefaultMainTexture();
+	}
+
+	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
+		attribute.bumpTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+	}
+
+	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
+		attribute.specularTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+	}
+
+	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
+		attribute.lightmapTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+	}
+
+	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
+		attribute.emissiveTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+	}
+
+	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
+		if (Math::Approximately(afloat)) { afloat = 1; }
+		attribute.mainColor.a = afloat;
+	}
+
+	if (material->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) == AI_SUCCESS) {
+		attribute.mainColor = glm::vec4(acolor.r, acolor.g, acolor.b, attribute.mainColor.a);
+	}
+
+	if (material->Get(AI_MATKEY_COLOR_SPECULAR, acolor) == AI_SUCCESS) {
+		attribute.specularColor = glm::vec3(acolor.r, acolor.g, acolor.b);
+	}
+
+	if (material->Get(AI_MATKEY_COLOR_EMISSIVE, acolor) == AI_SUCCESS) {
+		attribute.emissiveColor = glm::vec3(acolor.r, acolor.g, acolor.b);
+	}
+
+	if (material->Get(AI_MATKEY_SHININESS, afloat) == AI_SUCCESS) {
+		attribute.gloss = afloat;
+	}
+
+	if (material->Get(AI_MATKEY_TWOSIDED, aint) == AI_SUCCESS) {
+		attribute.twoSided = !!aint;
+	}
 }
 
 bool AssetImporter::ReadAnimation(Animation& animation) {
@@ -417,16 +471,23 @@ const aiNodeAnim* AssetImporter::FindChannel(const aiAnimation* anim, const char
 	return nullptr;
 }
 
-bool AssetImporter::InitRenderer(Renderer renderer) {
-	std::string shaderName = "lit_texture";
-	if (scene_->mNumAnimations == 0) {
-		renderer = CREATE_OBJECT(SurfaceRenderer);
-	}
-	else {
-		SkinnedSurfaceRenderer skinnedSurfaceRenderer;
-		renderer = skinnedSurfaceRenderer = CREATE_OBJECT(SkinnedSurfaceRenderer);
-		skinnedSurfaceRenderer->SetSkeleton(skeleton_);
+Texture AssetImporter::CreateTexture(const std::string& name) {
+	Texture2D texture = CREATE_OBJECT(Texture2D);
+	if (!texture->Load("textures/" + name)) {
+		return nullptr;
 	}
 
-	return true;
+	return texture;
+}
+
+Texture AssetImporter::GetDefaultMainTexture() {
+	const int kDefaultColor = 0xffffff;
+	static Texture2D defaultMainTexture;
+
+	if (!defaultMainTexture) {
+		defaultMainTexture = CREATE_OBJECT(Texture2D);
+		defaultMainTexture->Load(&kDefaultColor, 1, 1);
+	}
+
+	return defaultMainTexture;
 }

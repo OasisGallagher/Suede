@@ -67,12 +67,14 @@ public:
 	virtual void SetTexture(const std::string& name, Texture value) = 0;
 	virtual void SetMatrix4(const std::string& name, const glm::mat4& value) = 0;
 	virtual void SetVector3(const std::string& name, const glm::vec3& value) = 0;
+	virtual void SetVector4(const std::string& name, const glm::vec4& value) = 0;
 
 	virtual int GetInt(const std::string& name) = 0;
 	virtual float GetFloat(const std::string& name) = 0;
 	virtual Texture GetTexture(const std::string& name) = 0;
 	virtual glm::mat4 GetMatrix4(const std::string& name) = 0;
 	virtual glm::vec3 GetVector3(const std::string& name) = 0;
+	virtual glm::vec4 GetVector4(const std::string& name) = 0;
 };
 
 typedef std::shared_ptr<IMaterial> Material;
