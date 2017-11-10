@@ -2,21 +2,13 @@
 #include <vector>
 #include "object.h"
 
-class ISkeleton;
-class IAnimation;
-class IAnimationClip;
-class IAnimationKeys;
-class IAnimationCurve;
-class IAnimationState;
-class IAnimationFrame;
-
-typedef std::shared_ptr<ISkeleton> Skeleton;
-typedef std::shared_ptr<IAnimation> Animation;
-typedef std::shared_ptr<IAnimationClip> AnimationClip;
-typedef std::shared_ptr<IAnimationKeys> AnimationKeys;
-typedef std::shared_ptr<IAnimationCurve> AnimationCurve;
-typedef std::shared_ptr<IAnimationState> AnimationState;
-typedef std::shared_ptr<IAnimationFrame> AnimationFrame;
+typedef std::shared_ptr<class ISkeleton> Skeleton;
+typedef std::shared_ptr<class IAnimation> Animation;
+typedef std::shared_ptr<class IAnimationClip> AnimationClip;
+typedef std::shared_ptr<class IAnimationKeys> AnimationKeys;
+typedef std::shared_ptr<class IAnimationCurve> AnimationCurve;
+typedef std::shared_ptr<class IAnimationState> AnimationState;
+typedef std::shared_ptr<class IAnimationFrame> AnimationFrame;
 
 struct SkeletonBone {
 	std::string name;

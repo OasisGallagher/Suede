@@ -18,7 +18,7 @@ public:
 	virtual void RenderSprite(Sprite sprite) = 0;
 
 	/**
-	 * Render surface with current bound material.
+	 * @brief Render surface with current bound material.
 	 */
 	virtual void RenderSurface(Surface surface) = 0;
 	

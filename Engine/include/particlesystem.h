@@ -16,13 +16,9 @@ struct Particle {
 	glm::vec3 position;
 };
 
-class IParticleEmitter;
-class ISphereParticleEmitter;
-class IParticleAnimator;
-
-typedef std::shared_ptr<IParticleEmitter> ParticleEmitter;
-typedef std::shared_ptr<ISphereParticleEmitter> SphereParticleEmitter;
-typedef std::shared_ptr<IParticleAnimator> ParticleAnimator;
+typedef std::shared_ptr<class IParticleEmitter> ParticleEmitter;
+typedef std::shared_ptr<class ISphereParticleEmitter> SphereParticleEmitter;
+typedef std::shared_ptr<class IParticleAnimator> ParticleAnimator;
 
 class IParticleEmitter : virtual public IObject {
 public:

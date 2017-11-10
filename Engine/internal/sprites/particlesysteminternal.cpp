@@ -3,6 +3,7 @@
 #include "particlesysteminternal.h"
 #include "internal/misc/timefinternal.h"
 #include "internal/world/worldinternal.h"
+#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/surfaceinternal.h"
@@ -189,8 +190,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	ParticleRenderer renderer = CREATE_OBJECT(ParticleRenderer);
 
 	Material material = CREATE_OBJECT(Material);
-	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/particle");
+	Shader shader = Resources::FindShader("buildin/shaders/particle");
 	material->SetShader(shader);
 
 	Texture2D mainTexture = CREATE_OBJECT(Texture2D);

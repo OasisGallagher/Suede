@@ -94,5 +94,6 @@ private:
 	int maxTextureUnits_;
 	int textureUnitIndex_;
 	UniformContainer uniforms_;
+	std::vector<Uniform*> textureUniforms_;
 	RenderState* states_[RenderStateCount];
 };

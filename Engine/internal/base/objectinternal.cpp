@@ -12,6 +12,10 @@ ObjectInternal::ObjectInternal(ObjectType type) {
 	type_ = type;
 }
 
+Object ObjectInternal::Clone() {
+	return Object();
+}
+
 unsigned ObjectInternal::EncodeInstanceID(ObjectType type) {
 	Assert(ObjectIDContainer[type] < std::numeric_limits<unsigned>::max());
 	return Math::MakeDword(++ObjectIDContainer[type], type);

@@ -4,6 +4,7 @@
 #include "variables.h"
 #include "internal/memory/factory.h"
 #include "internal/file/assetimporter.h"
+#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/sprites/skyboxinternal.h"
@@ -20,10 +21,7 @@ bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 		return false;
 	}
 
-	Shader shader = CREATE_OBJECT(Shader);
-	if (!shader->Load("buildin/shaders/skybox")) {
-		return false;
-	}
+	Shader shader = Resources::FindShader("buildin/shaders/skybox");
 
 	// TODO: simple cube
 	Renderer renderer = FindChild("defaultobject")->GetRenderer();

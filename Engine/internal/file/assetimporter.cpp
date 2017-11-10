@@ -15,6 +15,7 @@
 #include "assetimporter.h"
 #include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
+#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/world/worldinternal.h"
 #include "internal/base/textureinternal.h"
@@ -304,8 +305,7 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 	material->SetRenderState(Cull, attribute.twoSided ? Off : Back);
 	material->SetRenderState(DepthTest, LessEqual);
 
-	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/" + shaderName);
+	Shader shader = Resources::FindShader("buildin/shaders/" + shaderName);
 	material->SetShader(shader);
 
 	material->SetFloat(Variables::gloss, attribute.gloss);

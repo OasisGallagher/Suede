@@ -185,8 +185,7 @@ void CameraInternal::CreateFramebuffers() {
 }
 
 void CameraInternal::CreateDepthRenderer() {
-	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/depth");
+	Shader shader = Resources::FindShader("buildin/shaders/depth");
 
 	depthMaterial_ = CREATE_OBJECT(Material);
 	depthMaterial_->SetShader(shader);
@@ -196,8 +195,7 @@ void CameraInternal::CreateDepthRenderer() {
 }
 
 void CameraInternal::CreateShadowRenderer() {
-	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/directional_light_depth");
+	Shader shader = Resources::FindShader("buildin/shaders/directional_light_depth");
 
 	directionalLightShadowMaterial_ = CREATE_OBJECT(Material);
 	directionalLightShadowMaterial_->SetShader(shader);

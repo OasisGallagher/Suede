@@ -9,6 +9,7 @@ public:
 	virtual ~ObjectInternal() {}
 
 public:
+	virtual Object Clone();
 	virtual ObjectType GetType() { return type_; }
 	virtual unsigned GetInstanceID() { return id_; }
 

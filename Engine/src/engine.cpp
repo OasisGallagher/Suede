@@ -44,6 +44,8 @@ bool Engine::initialize() {
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 
+	worldInstance->Initialize();
+
 	return true;
 }
 

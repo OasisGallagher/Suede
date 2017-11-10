@@ -2,6 +2,7 @@
 #include "worldinternal.h"
 #include "internal/memory/factory.h"
 #include "internal/file/assetimporter.h"
+#include "internal/resources/resources.h"
 #include "internal/sprites/spriteinternal.h"
 #include "internal/world/environmentinternal.h"
 
@@ -31,6 +32,10 @@ WorldInternal::WorldInternal()
 	, environment_(Memory::Create<EnvironmentInternal>())
 	, root_(CREATE_OBJECT(Sprite)) {
 	root_->SetName("root");
+}
+
+void WorldInternal::Initialize() {
+	Resources::Initialize();
 }
 
 Object WorldInternal::Create(ObjectType type) {

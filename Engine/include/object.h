@@ -41,16 +41,17 @@ enum ObjectType {
 	ObjectTypeLights,
 };
 
+typedef std::shared_ptr<class IObject> Object;
+
 class ENGINE_EXPORT IObject : public std::enable_shared_from_this<IObject> {
 public:
 	virtual ~IObject() {}
 
 public:
+	virtual Object Clone() = 0;
 	virtual ObjectType GetType() = 0;
 	virtual unsigned GetInstanceID() = 0;
 };
-
-typedef std::shared_ptr<IObject> Object;
 
 /**
  * dynamic shared_ptr cast.

@@ -110,7 +110,7 @@ private:
 	Framebuffer* fbRenderTexture_;
 	Framebuffer* fbRenderTexture2_;
 
-	// TODO: Common renderer.
+	// TODO: Common material.
 	Renderer renderer_;
 	Material depthMaterial_;
 	Material directionalLightShadowMaterial_;

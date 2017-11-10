@@ -246,26 +246,23 @@ void MaterialInternal::UpdateVertexAttributes() {
 
 void MaterialInternal::UpdateFragmentAttributes() {
 	GLuint program = shader_->GetNativePointer();
-	// TODO: bind fragment output.
-	//glBindFragDataLocation(program, 0, Variables::fragColor);
 	glBindFragDataLocation(program, 0, Variables::depth);
+	glBindFragDataLocation(program, 0, Variables::fragColor);
 }
 
 void MaterialInternal::BindTextures() {
-	// TODO: traversal...
-	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
-		Uniform* uniform = ite->second;
-		if (uniform->value.GetType() == VariantTypeTexture && uniform->value.GetTexture()) {
+	for (int i = 0; i < textureUniforms_.size(); ++i) {
+		Uniform* uniform = textureUniforms_[i];
+		if (uniform->value.GetTexture()) {
 			uniform->value.GetTexture()->Bind(GL_TEXTURE0 + uniform->value.GetTextureIndex());
 		}
 	}
 }
 
 void MaterialInternal::UnbindTextures() {
-	// TODO: traversal...
-	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
-		Uniform* uniform = ite->second;
-		if (uniform->value.GetType() == VariantTypeTexture && uniform->value.GetTexture()) {
+	for (int i = 0; i < textureUniforms_.size(); ++i) {
+		Uniform* uniform = textureUniforms_[i];
+		if (uniform->value.GetTexture()) {
 			uniform->value.GetTexture()->Unbind();
 		}
 	}
@@ -376,6 +373,7 @@ void MaterialInternal::AddUniform(const char* name, GLenum type, GLuint location
 	else if (IsSampler(type)) {
 		AssertX(textureUnitIndex_ < maxTextureUnits_, "too many textures.");
 		uniform->value.SetTextureLocation(textureUnitIndex_++);
+		textureUniforms_.push_back(uniform);
 	}
 	else {
 		Debug::LogError(String::Format("undefined uniform type 0x%x.", type));

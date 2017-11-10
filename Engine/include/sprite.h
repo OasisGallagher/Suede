@@ -6,8 +6,7 @@
 #include "renderer.h"
 #include "animation.h"
 
-class ISprite;
-typedef std::shared_ptr<ISprite> Sprite;
+typedef std::shared_ptr<class ISprite> Sprite;
 
 class ENGINE_EXPORT ISprite : virtual public IObject {
 public:

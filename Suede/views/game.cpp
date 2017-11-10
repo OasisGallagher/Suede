@@ -17,7 +17,7 @@
 
 //#define SKYBOX
 //#define TEDDY_BEAR
-//#define POST_EFFECTS
+#define POST_EFFECTS
 #define PARTICLE_SYSTEM
 
 Game* Game::get() {
