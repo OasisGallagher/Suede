@@ -43,27 +43,17 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 
-	virtual void UpdateUserBuffer(unsigned i, size_t size, void* data);
+	virtual void UpdateInstanceBuffer(unsigned i, size_t size, void* data);
 
 private:
-	// TODO: dynamic vbo count...
-	enum {
-		VBOPositions,
-		VBOTexCoords,
-		VBONormals,
-		VBOTangents,
-		VBOBones,
-		VBOIndexes,
-		VBOUser0,
-		VBOUser1,
-		VBOUser2,
-		VBOCount,
-	};
-
 	void Destroy();
 	void UpdateGLBuffers(const SurfaceAttribute& attribute);
+	size_t CalculateVBOCount(const SurfaceAttribute& attribute);
 
 private:
+	unsigned indexBuffer_;
+	unsigned instanceBuffer_[2];
+
 	VertexArrayObject vao_;
 	std::vector<Mesh> meshes_;
 };

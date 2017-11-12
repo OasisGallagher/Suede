@@ -13,8 +13,11 @@ void TextureInternal::Bind(GLenum location) {
 }
 
 void TextureInternal::Unbind() {
-	glActiveTexture(location_);
-	UnbindTexture();
+	if (location_ != 0) {
+		glActiveTexture(location_);
+		UnbindTexture();
+		location_ = 0;
+	}
 }
 
 void TextureInternal::BindTexture() {

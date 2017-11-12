@@ -4,31 +4,37 @@
 
 VertexArrayObject::VertexArrayObject() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
-	, bufferCount_(0) {
+	, vboCount_(0) {
 }
 
 VertexArrayObject::~VertexArrayObject() {
-	Destroy();
+	DestroyVBOs();
+	if (vao_ != 0) {
+		glDeleteVertexArrays(1, &vao_);
+	}
 }
 
-void VertexArrayObject::Create(size_t n) {
-	Destroy();
-
+void VertexArrayObject::Initialize() {
+	AssertX(vao_ == 0, "vao aready initialized");
 	glGenVertexArrays(1, &vao_);
+}
+
+void VertexArrayObject::CreateVBOs(size_t n) {
+	DestroyVBOs();
+
 	Bind();
-	
+
 	vbos_ = Memory::CreateArray<GLuint>(n);
 	glGenBuffers(n, vbos_);
-
 	attributes_ = Memory::CreateArray<VBOAttribute>(n);
 
-	bufferCount_ = n;
+	vboCount_ = n;
 
 	Unbind();
 }
 
 void VertexArrayObject::SetBuffer(int index, GLenum target, size_t size, const void* data, GLenum usage) {
-	Assert(index >= 0 && index < bufferCount_);
+	Assert(index >= 0 && index < vboCount_);
 
 	attributes_[index].size = size;
 	attributes_[index].target = target;
@@ -58,12 +64,12 @@ void VertexArrayObject::SetVertexDataSource(int index, int location, int size, G
 }
 
 unsigned VertexArrayObject::GetBufferNativePointer(int index) {
-	Assert(index >= 0 && index < bufferCount_);
+	Assert(index >= 0 && index < vboCount_);
 	return vbos_[index];
 }
 
 void VertexArrayObject::UpdateBuffer(int index, int offset, size_t size, const void* data) {
-	Assert(index >= 0 && index < bufferCount_);
+	Assert(index >= 0 && index < vboCount_);
 	GLuint vbo = vbos_[index];
 	VBOAttribute& attr = attributes_[index];
 
@@ -75,15 +81,12 @@ void VertexArrayObject::UpdateBuffer(int index, int offset, size_t size, const v
 	UnbindBuffer(index);
 }
 
-void VertexArrayObject::Destroy() {
-	if (bufferCount_ == 0) {
+void VertexArrayObject::DestroyVBOs() {
+	if (vboCount_ == 0) {
 		return;
 	}
 
-	glDeleteVertexArrays(1, &vao_);
-	vao_ = 0;
-
-	glDeleteBuffers(bufferCount_, vbos_);
+	glDeleteBuffers(vboCount_, vbos_);
 	vbos_ = nullptr;
 
 	Memory::ReleaseArray(vbos_);
@@ -92,7 +95,7 @@ void VertexArrayObject::Destroy() {
 	Memory::ReleaseArray(attributes_);
 	attributes_ = nullptr;
 
-	bufferCount_ = 0;
+	vboCount_ = 0;
 }
 
 void VertexArrayObject::Bind() {

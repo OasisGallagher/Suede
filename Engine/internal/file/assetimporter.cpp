@@ -188,6 +188,7 @@ void AssetImporter::ReadChildren(Sprite sprite, aiNode* node, Surface* surfaces,
 }
 
 bool AssetImporter::ReadSurfaces(Surface* surfaces) {
+	AssertGL();
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		Surface surface = CREATE_OBJECT(Surface);
 		ReadSurface(surface, i);
@@ -198,6 +199,7 @@ bool AssetImporter::ReadSurfaces(Surface* surfaces) {
 }
 
 bool AssetImporter::ReadSurface(Surface surface, int index) {
+	AssertGL();
 	SurfaceAttribute attribute;
 	Mesh mesh = CREATE_OBJECT(Mesh);
 	mesh->SetTriangles(scene_->mMeshes[index]->mNumFaces * 3, 0, 0);

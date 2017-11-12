@@ -30,9 +30,12 @@ struct BlendAttribute {
 	float weights[Quality];
 };
 
-struct UserAttribute {
+struct InstanceAttribute {
 	int divisor;
-	std::vector<glm::vec4> data;
+	unsigned count;
+
+	InstanceAttribute(unsigned count = 0, int divisor = 0) 
+		: count(count), divisor(divisor) {}
 };
 
 struct SurfaceAttribute {
@@ -42,10 +45,9 @@ struct SurfaceAttribute {
 	std::vector<glm::vec3> tangents;
 	std::vector<BlendAttribute> blendAttrs;
 	std::vector<unsigned> indexes;
-
-	UserAttribute user0;
-	UserAttribute user1;
-	UserAttribute user2;
+	
+	InstanceAttribute color;
+	InstanceAttribute geometry;
 };
 
 class ENGINE_EXPORT ISurface : virtual public IObject {
@@ -55,7 +57,7 @@ public:
 	virtual int GetMeshCount() = 0;
 	virtual Mesh GetMesh(int index) = 0;
 
-	virtual void UpdateUserBuffer(unsigned i, size_t size, void* data) = 0;
+	virtual void UpdateInstanceBuffer(unsigned i, size_t size, void* data) = 0;
 
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;

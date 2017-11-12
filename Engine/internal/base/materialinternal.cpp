@@ -232,16 +232,15 @@ void MaterialInternal::UpdateVariables() {
 
 void MaterialInternal::UpdateVertexAttributes() {
 	GLuint program = shader_->GetNativePointer();
-	glBindAttribLocation(program, VertexAttributeIndexPosition, Variables::position);
-	glBindAttribLocation(program, VertexAttributeIndexTexCoord, Variables::texCoord);
-	glBindAttribLocation(program, VertexAttributeIndexNormal, Variables::normal);
-	glBindAttribLocation(program, VertexAttributeIndexTangent, Variables::tangent);
-	glBindAttribLocation(program, VertexAttributeIndexBoneIndexes, Variables::boneIndexes);
-	glBindAttribLocation(program, VertexAttributeIndexBoneWeights, Variables::boneWeights);
+	glBindAttribLocation(program, VertexAttribPosition, Variables::position);
+	glBindAttribLocation(program, VertexAttribTexCoord, Variables::texCoord);
+	glBindAttribLocation(program, VertexAttribNormal, Variables::normal);
+	glBindAttribLocation(program, VertexAttribTangent, Variables::tangent);
+	glBindAttribLocation(program, VertexAttribBoneIndexes, Variables::boneIndexes);
+	glBindAttribLocation(program, VertexAttribBoneWeights, Variables::boneWeights);
 
-	glBindAttribLocation(program, VertexAttributeIndexUser0, Variables::user0);
-	glBindAttribLocation(program, VertexAttributeIndexUser1, Variables::user1);
-	glBindAttribLocation(program, VertexAttributeIndexUser2, Variables::user2);
+	glBindAttribLocation(program, VertexAttribInstanceColor, Variables::instanceColor);
+	glBindAttribLocation(program, VertexAttribInstanceGeometry, Variables::instanceGeometry);
 }
 
 void MaterialInternal::UpdateFragmentAttributes() {
@@ -314,6 +313,7 @@ bool MaterialInternal::IsSampler(int type) {
 
 void MaterialInternal::AddAllUniforms() {
 	uniforms_.clear();
+	textureUniforms_.clear();
 
 	GLenum type;
 	GLuint location = 0;

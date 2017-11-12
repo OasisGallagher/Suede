@@ -16,8 +16,9 @@
 #include "scripts/cameracontroller.h"
 
 //#define SKYBOX
-//#define TEDDY_BEAR
-#define POST_EFFECTS
+//#define MODEL
+//#define POST_EFFECTS
+#define ANIMATION
 #define PARTICLE_SYSTEM
 
 Game* Game::get() {
@@ -162,23 +163,26 @@ void Game::createScene() {
 	particleSystem->SetLooping(true);
 #endif
 
-#ifdef TEDDY_BEAR
-	Sprite sprite = world->Import("models/teddy_bear.fbx");
+	Sprite sprite;
+#if defined(MODEL)
+	sprite = world->Import("models/teddy_bear.fbx");
 	sprite->SetPosition(glm::vec3(0, -20, -150));
 	sprite->SetEulerAngles(glm::vec3(0));
-#else
-	Sprite sprite = world->Import("models/boblampclean.md5mesh");
+#elif defined(ANIMATION)
+	sprite = world->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
 	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
 #endif
 
-	sprite->SetParent(camera);
-	light->SetParent(camera);
+	if (sprite) {
+		sprite->SetParent(camera);
+		light->SetParent(camera);
 
-	Animation animation = sprite->GetAnimation();
-	if (animation) {
-		animation->SetWrapMode(AnimationWrapModePingPong);
-		animation->Play("");
+		Animation animation = sprite->GetAnimation();
+		if (animation) {
+			animation->SetWrapMode(AnimationWrapModePingPong);
+			animation->Play("");
+		}
 	}
 
 #ifdef BUMPED

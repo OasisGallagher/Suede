@@ -5,17 +5,16 @@
 #include "internal/containers/variant.h"
 #include "internal/base/objectinternal.h"
 
-enum VertexAttributeIndex {
-	VertexAttributeIndexPosition,
-	VertexAttributeIndexTexCoord,
-	VertexAttributeIndexNormal,
-	VertexAttributeIndexTangent,
-	VertexAttributeIndexBoneIndexes,
-	VertexAttributeIndexBoneWeights,
+enum VertexAttrib {
+	VertexAttribPosition,
+	VertexAttribTexCoord,
+	VertexAttribNormal,
+	VertexAttribTangent,
+	VertexAttribBoneIndexes,
+	VertexAttribBoneWeights,
 
-	VertexAttributeIndexUser0,
-	VertexAttributeIndexUser1,
-	VertexAttributeIndexUser2,
+	VertexAttribInstanceColor,
+	VertexAttribInstanceGeometry,
 };
 
 class RenderState;

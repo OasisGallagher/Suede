@@ -10,13 +10,6 @@
 #include "internal/base/materialinternal.h"
 #include "internal/base/rendererinternal.h"
 
-static const int kQuadIndexes[] = { 0, 1, 2, 3 };
-static const glm::vec3 kQuadVertices[] = {
-	glm::vec3(-0.5f, -0.5f, 0.f),
-	glm::vec3(0.5f, -0.5f, 0.f),
-	glm::vec3(-0.5f,  0.5f, 0.f),
-	glm::vec3(0.5f,  0.5f, 0.f),
-};
 static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 
 #define MAX_PARTICLE_COUNT	1000
@@ -61,13 +54,13 @@ void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {
 	unsigned count = particles_.size();
 	for (int i = 1; i < count; ++i) {
 		glm::vec4 ck = colors_[i];
-		glm::vec4 pk = positions_[i];
+		glm::vec4 pk = geometries_[i];
 		glm::vec3 vk(ref.x - pk.x, ref.y - pk.y, ref.z - pk.z);
 		float distSquared = glm::dot(vk, vk);
 
 		int j = i - 1;
 		for (; j >= 0; --j) {
-			const glm::vec4& current = positions_[j];
+			const glm::vec4& current = geometries_[j];
 			glm::vec3 vc(ref.x - current.x, ref.y - current.y, ref.z - current.z);
 
 			if (glm::dot(vc, vc) >= distSquared) {
@@ -75,11 +68,11 @@ void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {
 			}
 		}
 
-		std::vector<glm::vec4>::iterator pc = colors_.begin(), pp = positions_.begin();
+		std::vector<glm::vec4>::iterator pc = colors_.begin(), pp = geometries_.begin();
 		std::copy_backward(pc + (j + 1), pc + i, pc + (i + 1));
 		std::copy_backward(pp + (j + 1), pp + i, pp + (i + 1));
 		colors_[j + 1] = ck;
-		positions_[j + 1] = pk;
+		geometries_[j + 1] = pk;
 	}
 }
 
@@ -96,8 +89,8 @@ void ParticleSystemInternal::UpdateParticles() {
 void ParticleSystemInternal::UpdateSurface() {
 	unsigned count = particles_.size();
 	Surface surface = GetSurface(0);
-	surface->UpdateUserBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
-	surface->UpdateUserBuffer(1, count * sizeof(glm::vec4), &positions_[0]);
+	surface->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
+	surface->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
 }
 
 void ParticleSystemInternal::UpdateAttributes() {
@@ -120,13 +113,13 @@ void ParticleSystemInternal::UpdateBuffers() {
 	unsigned count = Math::NextPowerOfTwo(particles_.size());
 
 	if (colors_.size() < count) { colors_.resize(count); }
-	if (positions_.size() < count) { positions_.resize(count); }
+	if (geometries_.size() < count) { geometries_.resize(count); }
 
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
 		Particle* particle = *ite;
 
 		colors_[index] = particle->color;
-		positions_[index++] = glm::vec4(particle->position, particle->size);
+		geometries_[index++] = glm::vec4(particle->position, particle->size);
 	}
 }
 
@@ -162,27 +155,9 @@ void ParticleSystemInternal::EmitParticles(unsigned count) {
 }
 
 void ParticleSystemInternal::InitializeSurface() {
-	Mesh mesh = CREATE_OBJECT(Mesh);
-	Surface surface = CREATE_OBJECT(Surface);
-	mesh->SetTopology(MeshTopologyTriangles);
-
-	SurfaceAttribute attribute;
-	attribute.indexes.assign(kQuadIndexes, kQuadIndexes + CountOf(kQuadIndexes));
-	// vertices.
-	attribute.positions.assign(kQuadVertices, kQuadVertices + CountOf(kQuadVertices));
-
-	// colors.
-	attribute.user0.divisor = 1;
-	attribute.user0.data.resize(maxParticles_);
-
-	// positions.
-	attribute.user1.divisor = 1;
-	attribute.user1.data.resize(maxParticles_);
-
-	surface->SetAttribute(attribute);
-	mesh->SetTriangles(CountOf(kQuadVertices), 0, 0);
-
-	surface->AddMesh(mesh);
+	InstanceAttribute color(maxParticles_, 1);
+	InstanceAttribute geometry(maxParticles_, 1);
+	Surface surface = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, color, geometry);
 	AddSurface(surface);
 }
 
