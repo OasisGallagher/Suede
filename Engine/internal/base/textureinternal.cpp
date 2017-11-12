@@ -46,12 +46,12 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	int width, height;
-	const void* data = ImageCodec::Decode(Path::GetResourceRootDirectory() + path, width, height);
-	if (data == nullptr) {
+	std::vector<unsigned char> data;
+	if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + path, data, width, height)) {
 		return false;
 	}
 
-	return Load(data, width, height);
+	return Load(&data[0], width, height);
 }
 
 bool Texture2DInternal::Load(const void* data, int width, int height) {
@@ -107,15 +107,14 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 
 	for (int i = 0; i < 6; ++i) {
 		int width, height;
-		const void* data = ImageCodec::Decode(Path::GetResourceRootDirectory() + textures[i], width, height);
-
-		if (data == nullptr) {
+		std::vector<unsigned char> data;
+		
+		if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + textures[i], data, width, height)) {
 			DestroyTexture();
 			return false;
 		}
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA,
-			width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

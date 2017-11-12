@@ -2,22 +2,27 @@
 #include "imagecodec.h"
 #include "tools/debug.h"
 
-const void* ImageCodec::Decode(const std::string& path, int& width, int& height) {
+bool ImageCodec::Decode(const std::string& path, std::vector<unsigned char>& data, int& width, int& height) {
 	Magick::Image image;
-	static Magick::Blob blob;
+	Magick::Blob blob;
 
 	try {
 		image.read(path.c_str());
 		image.write(&blob, "RGBA");
 		width = image.columns();
 		height = image.rows();
+
+		// TODO: copy data out ?
+		const unsigned char* bytes = (const unsigned char*)blob.data();
+		data.resize(blob.length());
+		std::copy(bytes, bytes + blob.length(), &data[0]);
 	}
 	catch (Magick::Error& err) {
 		Debug::LogError("failed to decode image " + path + ": " + err.what());
-		return nullptr;
+		return false;
 	}
 
-	return blob.data();
+	return true;
 }
 
 bool ImageCodec::Encode(int width, int height, std::vector<unsigned char>& data, const char* format) {

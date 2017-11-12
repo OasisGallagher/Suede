@@ -15,6 +15,7 @@ class WorldInternal : public ObjectInternal, public IWorld {
 
 public:
 	WorldInternal();
+	~WorldInternal() {}
 
 public:
 	virtual void Initialize();

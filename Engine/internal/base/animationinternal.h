@@ -72,6 +72,7 @@ private:
 	float duration_;
 	float ticksInSecond_;
 	float(*wrapper_)(float, float);
+	AnimationFrame frame_;
 	AnimationWrapMode wrapMode_;
 	std::weak_ptr<Animation::element_type> animation_;
 };
@@ -179,7 +180,7 @@ public:
 	virtual float GetTime() { return time_; }
 
 	virtual void Assign(AnimationFrame other);
-	virtual AnimationFrame Lerp(AnimationFrame other, float factor);
+	virtual void Lerp(AnimationFrame result, AnimationFrame other, float factor);
 
 	virtual void SetFloat(int id, float value);
 	virtual void SetVector3(int id, const glm::vec3& value);

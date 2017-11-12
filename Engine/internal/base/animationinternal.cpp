@@ -86,6 +86,7 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 }
 
 AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectTypeAnimationClip), wrapper_(Math::Min) {
+	frame_ = CREATE_OBJECT(AnimationFrame);
 }
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
@@ -124,12 +125,11 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 	bool lastFrame = true;
 	glm::mat4 transform = node->matrix;
 	if (node->curve) {
-		AnimationFrame frame;
-		lastFrame = node->curve->Sample(time, frame);
+		lastFrame = node->curve->Sample(time, frame_);
 
-		glm::quat rotation = frame->GetQuaternion(FrameKeyRotation);
-		glm::vec3 position = frame->GetVector3(FrameKeyPosition);
-		glm::vec3 scale = frame->GetVector3(FrameKeyScale);
+		glm::quat rotation = frame_->GetQuaternion(FrameKeyRotation);
+		glm::vec3 position = frame_->GetVector3(FrameKeyPosition);
+		glm::vec3 scale = frame_->GetVector3(FrameKeyScale);
 
 		glm::mat4 identity;
 		transform = glm::translate(identity, position) * glm::mat4(rotation) * glm::scale(identity, scale);
@@ -361,7 +361,6 @@ int AnimationCurveInternal::FindInterpolateIndex(float time) {
 
 void AnimationCurveInternal::SampleLastFrame(AnimationFrame& frame) {
 	if (!keyframes_.empty()) {
-		frame = CREATE_OBJECT(AnimationFrame);
 		frame->Assign(keyframes_.back());
 	}
 }
@@ -373,11 +372,10 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 	float factor = (time - keyframes_[index]->GetTime()) / deltaTime;
 
 	factor = Math::Clamp01(factor);
-	frame = keyframes_[index]->Lerp(keyframes_[next], factor);
+	keyframes_[index]->Lerp(frame, keyframes_[next], factor);
 }
 
-AnimationFrame AnimationFrameInternal::Lerp(AnimationFrame other, float factor) {
-	AnimationFrame ans = CREATE_OBJECT(AnimationFrame);
+void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
 	sorted_vector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
 	AssertX(attributes_.size() == otherAttributes.size(), "attribute count mismatch");
 
@@ -386,11 +384,9 @@ AnimationFrame AnimationFrameInternal::Lerp(AnimationFrame other, float factor) 
 		AssertX(lhs.id == rhs.id, "attribute id mismatch");
 		AssertX(lhs.value.GetType() == rhs.value.GetType(), "attribute type mismatch");
 
-		ans->SetTime(Math::Lerp(time_, other->GetTime(), factor));
-		LerpAttribute(ans, lhs, rhs, factor);
+		result->SetTime(Math::Lerp(time_, other->GetTime(), factor));
+		LerpAttribute(result, lhs, rhs, factor);
 	}
-
-	return ans;
 }
 
 void AnimationFrameInternal::Assign(AnimationFrame other) {

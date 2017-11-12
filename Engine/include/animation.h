@@ -97,7 +97,7 @@ public:
 	virtual float GetTime() = 0;
 
 	virtual void Assign(AnimationFrame other) = 0;
-	virtual AnimationFrame Lerp(AnimationFrame other, float factor) = 0;
+	virtual void Lerp(AnimationFrame result, AnimationFrame other, float factor) = 0;
 
 	virtual void SetFloat(int id, float value) = 0;
 	virtual void SetVector3(int id, const glm::vec3& value) = 0;

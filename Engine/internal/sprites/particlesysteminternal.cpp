@@ -88,9 +88,11 @@ void ParticleSystemInternal::UpdateParticles() {
 
 void ParticleSystemInternal::UpdateSurface() {
 	unsigned count = particles_.size();
-	Surface surface = GetSurface(0);
-	surface->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
-	surface->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
+	if (count > 0) {
+		Surface surface = GetSurface(0);
+		surface->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
+		surface->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
+	}
 }
 
 void ParticleSystemInternal::UpdateAttributes() {

@@ -316,7 +316,6 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 	material->SetVector3(Variables::specularColor, attribute.specularColor);
 	material->SetVector3(Variables::emissiveColor, attribute.emissiveColor);
 
-	
 	material->SetTexture(Variables::mainTexture, attribute.mainTexture);
 	material->SetTexture(Variables::bumpTexture, attribute.bumpTexture);
 	material->SetTexture(Variables::specularTexture, attribute.specularTexture);
