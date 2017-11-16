@@ -3,7 +3,7 @@
 
 #define ClockToSecond(clocks)	(float(clocks) / CLOCKS_PER_SEC)
 
-Time timeInstance(Memory::Create<TimeInternal>());
+Time timeInstance(MEMORY_CREATE(TimeInternal));
 
 TimeInternal::TimeInternal() :clocks_(0), frames_(0), deltaTime_(0) {
 }

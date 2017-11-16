@@ -24,9 +24,9 @@ void VertexArrayObject::CreateVBOs(size_t n) {
 
 	Bind();
 
-	vbos_ = Memory::CreateArray<GLuint>(n);
+	vbos_ = MEMORY_CREATE_ARRAY(GLuint, n);
 	glGenBuffers(n, vbos_);
-	attributes_ = Memory::CreateArray<VBOAttribute>(n);
+	attributes_ = MEMORY_CREATE_ARRAY(VBOAttribute, n);
 
 	vboCount_ = n;
 
@@ -87,12 +87,10 @@ void VertexArrayObject::DestroyVBOs() {
 	}
 
 	glDeleteBuffers(vboCount_, vbos_);
+	MEMORY_RELEASE_ARRAY(vbos_);
 	vbos_ = nullptr;
 
-	Memory::ReleaseArray(vbos_);
-	vbos_ = nullptr;
-
-	Memory::ReleaseArray(attributes_);
+	MEMORY_RELEASE_ARRAY(attributes_);
 	attributes_ = nullptr;
 
 	vboCount_ = 0;

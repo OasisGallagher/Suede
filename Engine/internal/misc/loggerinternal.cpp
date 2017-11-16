@@ -2,7 +2,7 @@
 #include "loggerinternal.h"
 #include "internal/memory/memory.h"
 
-Logger loggerInstance(Memory::Create<LoggerInternal>());
+Logger loggerInstance(MEMORY_CREATE(LoggerInternal));
 
 void LoggerInternal::Log(const std::string & message) {
 	Debug::Log(message);

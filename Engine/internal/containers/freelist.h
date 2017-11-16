@@ -58,11 +58,11 @@ public:
 	}
 
 	~free_list() {
-		Memory::ReleaseArray(memory_);
+		MEMORY_RELEASE_ARRAY(memory_);
 	}
 
 	void reallocate(size_t n) {
-		Memory::ReleaseArray(memory_);
+		MEMORY_RELEASE_ARRAY(memory_);
 		size_ = 0;
 		capacity_ = n;
 		allocate(n);
@@ -124,7 +124,7 @@ public:
 
 private:
 	void allocate(size_t size) {
-		memory_ = Memory::CreateArray<Block>(size);
+		memory_ = MEMORY_CREATE_ARRAY(Block, size);
 		for (size_t i = 0; i < size; ++i) {
 			if (i >= 1) {
 				memory_[i - 1].head.next = memory_ + i;

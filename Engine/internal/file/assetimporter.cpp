@@ -71,14 +71,14 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	Material* materials = nullptr;
 
 	if (scene_->mNumMaterials > 0) {
-		materials = Memory::CreateArray<Material>(scene_->mNumMaterials);
+		materials = MEMORY_CREATE_ARRAY(Material, scene_->mNumMaterials);
 		if (!ReadMaterials(materials)) {
 			Debug::LogError("failed to load materials for " + path);
 		}
 	}
 
 	if (scene_->mNumMeshes > 0) {
-		surfaces = Memory::CreateArray<Surface>(scene_->mNumMeshes);
+		surfaces = MEMORY_CREATE_ARRAY(Surface, scene_->mNumMeshes);
 		if (!ReadSurfaces(surfaces)) {
 			Debug::LogError("failed to load surfaces for " + path);
 		}
@@ -87,8 +87,8 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	ReadNodeTo(sprite, scene_->mRootNode, surfaces, materials);
 	ReadChildren(sprite, scene_->mRootNode, surfaces, materials);
 
-	Memory::ReleaseArray(surfaces);
-	Memory::ReleaseArray(materials);
+	MEMORY_RELEASE_ARRAY(surfaces);
+	MEMORY_RELEASE_ARRAY(materials);
 
 	Animation animation;
 	if (ReadAnimation(animation)) {

@@ -68,12 +68,12 @@ void Framebuffer0::Clear(int buffers) {
 	UnbindFramebuffer();
 }
 
-Framebuffer::Framebuffer() : depthRenderbuffer_(0){
+Framebuffer::Framebuffer() : depthRenderbuffer_(0), renderTextures_(nullptr), attachments_(nullptr) {
 }
 
 Framebuffer::~Framebuffer() {
-	Memory::ReleaseArray(renderTextures_);
-	Memory::ReleaseArray(attachments_);
+	MEMORY_RELEASE_ARRAY(renderTextures_);
+	MEMORY_RELEASE_ARRAY(attachments_);
 
 	if (depthRenderbuffer_ != 0) {
 		glDeleteRenderbuffers(1, &depthRenderbuffer_);
@@ -82,14 +82,16 @@ Framebuffer::~Framebuffer() {
 }
 
 void Framebuffer::Create(int width, int height) {
+	Assert(renderTextures_ == nullptr && attachments_ == nullptr);
+
 	Framebuffer0::Create(width, height);
 
 	attachedRenderTextureCount_ = 0;
 
 	glGenFramebuffers(1, &fbo_);
 	glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxRenderTextures_);
-	renderTextures_ = Memory::CreateArray<RenderTexture>(maxRenderTextures_);
-	attachments_ = Memory::CreateArray<GLenum>(maxRenderTextures_);
+	renderTextures_ = MEMORY_CREATE_ARRAY(RenderTexture, maxRenderTextures_);
+	attachments_ = MEMORY_CREATE_ARRAY(GLenum, maxRenderTextures_);
 }
 
 void Framebuffer::Bind() {

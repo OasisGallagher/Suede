@@ -7,7 +7,7 @@
 #include "internal/base/surfaceinternal.h"
 #include "internal/base/rendererinternal.h"
 
-Graphics graphicsInstance(Memory::Create<GraphicsInternal>());
+Graphics graphicsInstance(MEMORY_CREATE(GraphicsInternal));
 
 void GraphicsInternal::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	Surface surface = Resources::GetPrimitive(PrimitiveTypeQuad);

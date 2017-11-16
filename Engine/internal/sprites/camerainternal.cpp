@@ -31,10 +31,11 @@ CameraInternal::CameraInternal()
 }
 
 CameraInternal::~CameraInternal() {
-	Memory::Release(fb0_);
-	Memory::Release(fbDepth_);
-	Memory::Release(fbShadow_);
-	Memory::Release(fbRenderTexture_);
+	MEMORY_RELEASE(fb0_);
+	MEMORY_RELEASE(fbDepth_);
+	MEMORY_RELEASE(fbShadow_);
+	MEMORY_RELEASE(fbRenderTexture_);
+	MEMORY_RELEASE(fbRenderTexture2_);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -156,28 +157,28 @@ void CameraInternal::CreateFramebuffers() {
 	int w = screenInstance->GetContextWidth();
 	int h = screenInstance->GetContextHeight();
 
-	fb0_ = Memory::Create<Framebuffer0>();
+	fb0_ = MEMORY_CREATE(Framebuffer0);
 	fb0_->Create(w, h);
 
-	fbDepth_ = Memory::Create<Framebuffer>();
+	fbDepth_ = MEMORY_CREATE(Framebuffer);
 	fbDepth_->Create(w, h);
 	RenderTexture depthTexture = CREATE_OBJECT(RenderTexture);
 	depthTexture->Load(RenderTextureFormatDepth, w, h);
 	fbDepth_->SetDepthTexture(depthTexture);
 
-	fbShadow_ = Memory::Create<Framebuffer>();
+	fbShadow_ = MEMORY_CREATE(Framebuffer);
 	fbShadow_->Create(w, h);
 	RenderTexture shadowTexture = CREATE_OBJECT(RenderTexture);
 	shadowTexture->Load(RenderTextureFormatShadow, w, h);
 	fbShadow_->SetDepthTexture(shadowTexture);
 
-	fbRenderTexture_ = Memory::Create<Framebuffer>();
+	fbRenderTexture_ = MEMORY_CREATE(Framebuffer);
 	fbRenderTexture_->Create(w, h);
 	renderTexture_ = CREATE_OBJECT(RenderTexture);
 	renderTexture_->Load(RenderTextureFormatRgba, w, h);
 	fbRenderTexture_->SetRenderTexture(renderTexture_);
 	
-	fbRenderTexture2_ = Memory::Create<Framebuffer>();
+	fbRenderTexture2_ = MEMORY_CREATE(Framebuffer);
 	fbRenderTexture2_->Create(w, h);
 	renderTexture2_ = CREATE_OBJECT(RenderTexture);
 	renderTexture2_->Load(RenderTextureFormatRgba, w, h);

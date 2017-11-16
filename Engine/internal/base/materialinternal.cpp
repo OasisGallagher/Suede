@@ -13,7 +13,7 @@ MaterialInternal::MaterialInternal()
 
 MaterialInternal::~MaterialInternal() {
 	for (int i = 0; i < RenderStateCount; ++i) {
-		Memory::Release(states_[i]);
+		MEMORY_RELEASE(states_[i]);
 	}
 }
 
@@ -182,19 +182,19 @@ void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int 
 	RenderState* state = nullptr;
 	switch (type) {
 		case Cull:
-			state = Memory::Create<CullState>();
+			state = MEMORY_CREATE(CullState);
 			break;
 		case DepthTest:
-			state = Memory::Create<DepthTestState>();
+			state = MEMORY_CREATE(DepthTestState);
 			break;
 		case Blend:
-			state = Memory::Create<BlendState>();
+			state = MEMORY_CREATE(BlendState);
 			break;
 		case DepthWrite:
-			state = Memory::Create<DepthWriteState>();
+			state = MEMORY_CREATE(DepthWriteState);
 			break;
 		case RasterizerDiscard:
-			state = Memory::Create<RasterizerDiscardState>();
+			state = MEMORY_CREATE(RasterizerDiscardState);
 			break;
 		default:
 			Debug::LogError("invalid render capacity " + std::to_string(type));
@@ -202,7 +202,7 @@ void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int 
 	}
 
 	state->Initialize(parameter0, parameter1);
-	Memory::Release(states_[type]);
+	MEMORY_RELEASE(states_[type]);
 	states_[type] = state;
 }
 
@@ -323,7 +323,7 @@ void MaterialInternal::AddAllUniforms() {
 	glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
 	glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
-	char* name = Memory::CreateArray<char>(maxLength);
+	char* name = MEMORY_CREATE_ARRAY(char, maxLength);
 	for (int i = 0; i < count; ++i) {
 		glGetActiveUniform(program, i, maxLength, &length, &size, &type, name);
 
@@ -344,7 +344,7 @@ void MaterialInternal::AddAllUniforms() {
 		AddUniform(name, type, location, size);
 	}
 
-	Memory::ReleaseArray(name);
+	MEMORY_RELEASE_ARRAY(name);
 }
 
 void MaterialInternal::AddUniform(const char* name, GLenum type, GLuint location, GLint size) {

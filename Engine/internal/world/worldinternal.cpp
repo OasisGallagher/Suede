@@ -29,7 +29,7 @@ bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera&
 
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
-	, environment_(Memory::Create<EnvironmentInternal>())
+	, environment_(MEMORY_CREATE(EnvironmentInternal))
 	, root_(CREATE_OBJECT(Sprite)) {
 	root_->SetName("root");
 }

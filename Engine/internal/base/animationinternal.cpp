@@ -55,7 +55,7 @@ int SkeletonInternal::GetBoneIndex(const std::string& name) {
 }
 
 SkeletonNode* SkeletonInternal::CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) {
-	SkeletonNode* node = Memory::Create<SkeletonNode>();
+	SkeletonNode* node = MEMORY_CREATE(SkeletonNode);
 	node->name = name;
 	node->matrix = matrix;
 	node->curve = curve;
@@ -78,10 +78,10 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 	if (node == nullptr) { return; }
 	for (int i = 0; i < node->children.size(); ++i) {
 		DestroyNodeHierarchy(node->children[i]);
-		Memory::Release(node->children[i]);
+		MEMORY_RELEASE(node->children[i]);
 	}
 
-	Memory::Release(node);
+	MEMORY_RELEASE(node);
 	node = nullptr;
 }
 
@@ -159,7 +159,7 @@ AnimationKeysInternal::AnimationKeysInternal() :ObjectInternal(ObjectTypeAnimati
 
 AnimationKeysInternal::~AnimationKeysInternal() {
 	for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
-		Memory::Release(*ite);
+		MEMORY_RELEASE(*ite);
 	}
 }
 
@@ -242,7 +242,7 @@ void AnimationKeysInternal::InsertKey(int id, const Key& key) {
 
 	Keys* keys = container_[id];
 	if (container_[id] == nullptr) {
-		container_[id] = keys = Memory::Create<Keys>();
+		container_[id] = keys = MEMORY_CREATE(Keys);
 	}
 
 	keys->insert(key);
@@ -256,7 +256,7 @@ void AnimationKeysInternal::RemoveKey(const Key& key) {
 
 	keys->remove(key);
 	if (keys->empty()) {
-		Memory::Release(keys);
+		MEMORY_RELEASE(keys);
 		container_[key.id] = nullptr;
 	}
 }

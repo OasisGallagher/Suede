@@ -3,11 +3,11 @@
 #include "tools/debug.h"
 
 bool ImageCodec::Decode(const std::string& path, std::vector<unsigned char>& data, int& width, int& height) {
-	Magick::Image image;
-	Magick::Blob blob;
-
 	try {
-		image.read(path.c_str());
+		Magick::Image image;
+		Magick::Blob blob;
+
+		image.read(path);
 		image.write(&blob, "RGBA");
 		width = image.columns();
 		height = image.rows();
