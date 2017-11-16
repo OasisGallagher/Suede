@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <string>
 #include "defines.h"
 
@@ -41,7 +40,7 @@ enum ObjectType {
 	ObjectTypeLights,
 };
 
-typedef std::shared_ptr<class IObject> Object;
+DEFINE_OBJECT_PTR(Object);
 
 class ENGINE_EXPORT IObject : public std::enable_shared_from_this<IObject> {
 public:
@@ -56,9 +55,10 @@ public:
 /**
  * dynamic shared_ptr cast.
  */
-template<class T, class U>
-inline T dsp_cast(const std::shared_ptr<U>& ptr) {
-	typename T::element_type* p = dynamic_cast<typename T::element_type*>(ptr.get());
+template<class T, class Ptr>
+inline T dsp_cast(const Ptr& ptr) {
+	typedef typename T::element_type Element;
+	Element* p = dynamic_cast<Element*>(ptr.get());
 	if (p != nullptr) {
 		return T(ptr, p);
 	}

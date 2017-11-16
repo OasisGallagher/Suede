@@ -20,4 +20,4 @@ public:
 	virtual Environment GetEnvironment() = 0;
 };
 
-typedef std::shared_ptr<IWorld> World;
+DEFINE_OBJECT_PTR(World);

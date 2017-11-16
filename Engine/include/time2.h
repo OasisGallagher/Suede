@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "defines.h"
 
 class ENGINE_EXPORT ITime {
@@ -10,4 +9,4 @@ public:
 	virtual void Update() = 0;
 };
 
-typedef std::shared_ptr<ITime> Time;
+DEFINE_OBJECT_PTR(Time);

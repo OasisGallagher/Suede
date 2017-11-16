@@ -7,4 +7,4 @@ public:
 	virtual void Blit(RenderTexture src, RenderTexture dest, Material material) = 0;
 };
 
-typedef std::shared_ptr<IGraphics> Graphics;
+DEFINE_OBJECT_PTR(Graphics);

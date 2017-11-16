@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include "defines.h"
 
 class ENGINE_EXPORT IScreen {
@@ -10,4 +9,4 @@ public:
 	virtual void SetContentSize(int w, int h) = 0;
 };
 
-typedef std::shared_ptr<IScreen> Screen;
+DEFINE_OBJECT_PTR(Screen);

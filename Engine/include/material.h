@@ -77,4 +77,4 @@ public:
 	virtual glm::vec4 GetVector4(const std::string& name) = 0;
 };
 
-typedef std::shared_ptr<IMaterial> Material;
+DEFINE_OBJECT_PTR(Material);

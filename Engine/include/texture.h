@@ -40,7 +40,7 @@ public:
 	virtual bool Load(RenderTextureFormat format, int width, int height) = 0;
 };
 
-typedef std::shared_ptr<ITexture> Texture;
-typedef std::shared_ptr<ITexture2D> Texture2D;
-typedef std::shared_ptr<ITextureCube> TextureCube;
-typedef std::shared_ptr<IRenderTexture> RenderTexture;
+DEFINE_OBJECT_PTR(Texture);
+DEFINE_OBJECT_PTR(Texture2D);
+DEFINE_OBJECT_PTR(TextureCube);
+DEFINE_OBJECT_PTR(RenderTexture);

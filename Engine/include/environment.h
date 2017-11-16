@@ -10,4 +10,4 @@ public:
 	virtual glm::vec3 GetAmbientColor() = 0;
 };
 
-typedef std::shared_ptr<IEnvironment> Environment;
+DEFINE_OBJECT_PTR(Environment);

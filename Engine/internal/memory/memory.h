@@ -19,6 +19,8 @@
 #define MEMORY_RELEASE_ARRAY(pointer)	Memory::ReleaseArray(pointer)
 #endif
 
+#include <memory>
+
 class Memory {
 public:
 	template <class Ty>
@@ -42,3 +44,21 @@ public:
 	}
 };
 
+template <class T>
+struct Allocator {
+	typedef T value_type;
+	Allocator() {}
+	template <class U> Allocator(const Allocator<U>&) noexcept {}
+	T* allocate(std::size_t n) { return static_cast<T*>(::operator new(n * sizeof(T))); }
+	void deallocate(T* p, std::size_t n) { ::delete(p); }
+};
+
+template <class T, class U>
+bool operator == (const Allocator<T>&, const Allocator<U>&) {
+	return true;
+}
+
+template <class T, class U>
+bool operator != (const Allocator<T>&, const Allocator<U>&) {
+	return false;
+}

@@ -19,7 +19,7 @@ public:
 	virtual void GetTriangles(unsigned& vertexCount, unsigned& baseVertex, unsigned& baseIndex) = 0;
 };
 
-typedef std::shared_ptr<IMesh> Mesh;
+DEFINE_OBJECT_PTR(Mesh);
 
 struct BlendAttribute {
 	enum {
@@ -63,4 +63,4 @@ public:
 	virtual void Unbind() = 0;
 };
 
-typedef std::shared_ptr<ISurface> Surface;
+DEFINE_OBJECT_PTR(Surface);

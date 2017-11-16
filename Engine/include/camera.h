@@ -47,4 +47,4 @@ public:
 	virtual void Render() = 0;
 };
 
-typedef std::shared_ptr<ICamera> Camera;
+DEFINE_OBJECT_PTR(Camera);

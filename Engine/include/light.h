@@ -36,7 +36,7 @@ public:
 class IDirectionalLight : virtual public ILight {
 };
 
-typedef std::shared_ptr<ILight> Light;
-typedef std::shared_ptr<ISpotLight> SpotLight;
-typedef std::shared_ptr<IPointLight> PointLight;
-typedef std::shared_ptr<IDirectionalLight> DirectionalLight;
+DEFINE_OBJECT_PTR(Light);
+DEFINE_OBJECT_PTR(SpotLight);
+DEFINE_OBJECT_PTR(PointLight);
+DEFINE_OBJECT_PTR(DirectionalLight);

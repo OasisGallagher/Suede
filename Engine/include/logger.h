@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <string>
 #include "defines.h"
 
@@ -10,4 +9,4 @@ public:
 	virtual void LogError(const std::string& message) = 0;
 };
 
-typedef std::shared_ptr<ILogger> Logger;
+DEFINE_OBJECT_PTR(Logger);

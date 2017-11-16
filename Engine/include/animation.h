@@ -2,13 +2,13 @@
 #include <vector>
 #include "object.h"
 
-typedef std::shared_ptr<class ISkeleton> Skeleton;
-typedef std::shared_ptr<class IAnimation> Animation;
-typedef std::shared_ptr<class IAnimationClip> AnimationClip;
-typedef std::shared_ptr<class IAnimationKeys> AnimationKeys;
-typedef std::shared_ptr<class IAnimationCurve> AnimationCurve;
-typedef std::shared_ptr<class IAnimationState> AnimationState;
-typedef std::shared_ptr<class IAnimationFrame> AnimationFrame;
+DEFINE_OBJECT_PTR(Skeleton);
+DEFINE_OBJECT_PTR(Animation);
+DEFINE_OBJECT_PTR(AnimationClip);
+DEFINE_OBJECT_PTR(AnimationKeys);
+DEFINE_OBJECT_PTR(AnimationCurve);
+DEFINE_OBJECT_PTR(AnimationState);
+DEFINE_OBJECT_PTR(AnimationFrame);
 
 struct SkeletonBone {
 	std::string name;

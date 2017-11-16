@@ -11,7 +11,7 @@ enum RenderQueue {
 	RenderQueueTransparent = 4000,
 };
 
-typedef std::shared_ptr<class ISprite> Sprite;
+DEFINE_OBJECT_PTR(Sprite);
 
 class ENGINE_EXPORT IRenderer : virtual public IObject {
 public:
@@ -43,8 +43,7 @@ public:
 	virtual void SetSkeleton(Skeleton value) = 0;
 };
 
-typedef std::shared_ptr<IRenderer> Renderer;
-typedef std::shared_ptr<ISurfaceRenderer> SurfaceRenderer;
-typedef std::shared_ptr<IParticleRenderer> ParticleRenderer; 
-typedef std::shared_ptr<ISkinnedSurfaceRenderer> SkinnedSurfaceRenderer;
-
+DEFINE_OBJECT_PTR(Renderer);
+DEFINE_OBJECT_PTR(SurfaceRenderer);
+DEFINE_OBJECT_PTR(ParticleRenderer);
+DEFINE_OBJECT_PTR(SkinnedSurfaceRenderer);

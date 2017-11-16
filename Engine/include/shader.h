@@ -11,4 +11,4 @@ public:
 	virtual bool Link() = 0;
 };
 
-typedef std::shared_ptr<IShader> Shader;
+DEFINE_OBJECT_PTR(Shader);
