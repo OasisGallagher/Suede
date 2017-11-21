@@ -1,3 +1,5 @@
+#include <gl/glew.h>
+
 #include "surface.h"
 #include "renderer.h"
 #include "particlesystem.h"

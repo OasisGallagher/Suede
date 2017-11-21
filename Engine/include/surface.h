@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <gl/glew.h>
 
 #include "object.h"
 #include "material.h"

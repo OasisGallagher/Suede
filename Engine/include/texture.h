@@ -1,12 +1,11 @@
 #pragma once
 #include <vector>
-#include <gl/glew.h>
 
 #include "object.h"
 
 class ENGINE_EXPORT ITexture : virtual public IObject {
 public:
-	virtual void Bind(GLenum location) = 0;
+	virtual void Bind(unsigned location) = 0;
 	virtual void Unbind() = 0;
 	virtual unsigned GetNativePointer() = 0;
 

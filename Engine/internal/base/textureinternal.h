@@ -11,7 +11,7 @@ public:
 	}
 
 public:
-	virtual void Bind(GLenum location);
+	virtual void Bind(unsigned location);
 	virtual void Unbind();
 	virtual unsigned GetNativePointer() { return texture_; }
 	

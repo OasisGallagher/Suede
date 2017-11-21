@@ -5,7 +5,7 @@
 #include "textureinternal.h"
 #include "internal/file/imagecodec.h"
 
-void TextureInternal::Bind(GLenum location) {
+void TextureInternal::Bind(unsigned location) {
 	AssertX(glIsTexture(texture_), "invalid texture");
 	location_ = location;
 	glActiveTexture(location);
