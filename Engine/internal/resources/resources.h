@@ -1,6 +1,4 @@
 #pragma once
-#include <map>
-
 #include "shader.h"
 #include "surface.h"
 #include "material.h"

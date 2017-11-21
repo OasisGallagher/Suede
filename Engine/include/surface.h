@@ -30,11 +30,10 @@ struct BlendAttribute {
 };
 
 struct InstanceAttribute {
+	InstanceAttribute() : count(0) {}
+
 	int divisor;
 	unsigned count;
-
-	InstanceAttribute(unsigned count = 0, int divisor = 0) 
-		: count(count), divisor(divisor) {}
 };
 
 struct SurfaceAttribute {

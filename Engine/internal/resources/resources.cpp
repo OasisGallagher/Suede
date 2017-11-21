@@ -1,3 +1,5 @@
+#include <map>
+
 #include "resources.h"
 #include "tools/math2.h"
 #include "internal/memory/factory.h"
