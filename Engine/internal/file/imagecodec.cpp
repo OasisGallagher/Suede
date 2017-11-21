@@ -2,12 +2,6 @@
 #include "imagecodec.h"
 #include "tools/debug.h"
 
-#include <ft2build.h>
-#include <freetype/freetype.h>
-#include <freetype/ftglyph.h>
-#include <freetype/ftoutln.h>
-#include <freetype/fttrigon.h>
-
 bool ImageCodec::Decode(const std::string& path, std::vector<unsigned char>& data, int& width, int& height) {
 	try {
 		Magick::Image image;
