@@ -487,7 +487,7 @@ Texture AssetImporter::GetDefaultMainTexture() {
 
 	if (!defaultMainTexture) {
 		defaultMainTexture = CREATE_OBJECT(Texture2D);
-		defaultMainTexture->Load(&kDefaultColor, TextureFormatRgba, 1, 1);
+		defaultMainTexture->Load(&kDefaultColor, ColorFormatRgba, 1, 1);
 	}
 
 	return defaultMainTexture;

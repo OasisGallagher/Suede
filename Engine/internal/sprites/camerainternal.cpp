@@ -138,14 +138,21 @@ void CameraInternal::Render() {
 	pass_ = RenderPassNone;
 }
 
+#include "internal/base/fontinternal.h"
 Texture2D CameraInternal::Capture() {
+	FontInternal f;
+	f.Load("resources/fonts/ms_yh.ttf", 12);
+	f.Require("G1ИэМе");
+	return dsp_cast<Texture2D>(f.GetMaterial()->GetTexture(Variables::mainTexture));
+	/*
 	std::vector<unsigned char> data;
 	fb0_->ReadBuffer(data);
 
 	Texture2D texture = CREATE_OBJECT(Texture2D);
-	texture->Load(&data[0], TextureFormatRgba, fb0_->GetWidth(), fb0_->GetHeight());
+	texture->Load(&data[0], ColorFormatRgba, fb0_->GetWidth(), fb0_->GetHeight());
 
 	return texture;
+	*/
 }
 
 void CameraInternal::CreateRenderer() {

@@ -19,7 +19,7 @@ public:
 public:
 	virtual bool Load(const std::string& fname, int size);
 	virtual bool Require(const std::string& str);
-	virtual Material GetMaterial() { return material_; }
+	virtual Material GetMaterial();
 
 private:
 	typedef std::vector<unsigned char> Bytes;
@@ -36,7 +36,7 @@ private:
 	void Destroy();
 	bool Import(const std::string& fname, int size);
 	bool GetBitmapBits(wchar_t wch, FontBitmap* answer);
-	void CalculateAtlasSize(int& width, int& height);
+	void CalculateAtlasSize(int& width, int& height, int space);
 	void RebuildMaterial();
 
 private:

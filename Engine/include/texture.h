@@ -14,9 +14,10 @@ public:
 };
 
 enum ColorFormat {
-	TextureFormatRgb,
-	TextureFormatRgba,
-	TextureFormatLuminanceAlpha,
+	ColorFormatRgb,
+	ColorFormatRgba,
+	ColorFormatIntensity,
+	ColorFormatLuminanceAlpha,
 };
 
 class ENGINE_EXPORT ITexture2D : virtual public ITexture {

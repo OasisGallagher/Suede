@@ -4,10 +4,12 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
+#include "variables.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "fontinternal.h"
 #include "textureinternal.h"
+#include "materialinternal.h"
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectTypeFont) , materialDirty_(false), size_(10), 
@@ -31,10 +33,16 @@ bool FontInternal::Require(const std::string& str) {
 			FontBitmap* bitmap = bitmaps_[wstr[i]];
 			status = GetBitmapBits(wstr[i], bitmap) && status;
 			atlasData_.push_back(bitmap);
+			materialDirty_ = true;
 		}
 	}
 
 	return status;
+}
+
+Material FontInternal::GetMaterial() { 
+	if (materialDirty_) { RebuildMaterial(); }
+	return material_; 
 }
 
 bool FontInternal::Import(const std::string& fname, int size) {
@@ -44,13 +52,13 @@ bool FontInternal::Import(const std::string& fname, int size) {
 		return false;
 	}
 
-	FT_Face face;
-	if ((err = FT_New_Face(library_, fname.c_str(), 0, &face)) != 0) {
+	if ((err = FT_New_Face(library_, fname.c_str(), 0, &face_)) != 0) {
 		Debug::LogError(String::Format("failed to create font face for %s (%d)", fname.c_str(), err));
 		return false;
 	}
 
-	FT_Set_Char_Size(face, size << 6, size << 6, 96, 96);
+	FT_Select_Charmap(face_, FT_ENCODING_UNICODE);
+	FT_Set_Char_Size(face_, size << 6, size << 6, 96, 96);
 
 	fname_ = fname;
 	size_ = size;
@@ -98,18 +106,68 @@ bool FontInternal::GetBitmapBits(wchar_t wch, FontBitmap* answer) {
 	return true;
 }
 
+void FontInternal::CalculateAtlasSize(int& width, int& height, int space) {
+	int maxWidth = 0, maxHeight = 0;
+
+	for (int i = 0; i < atlasData_.size();) {
+		int count = Math::Min((int)atlasData_.size() - i, atlasColumns_);
+		int w = 0, h = 0;
+		for (int j = i; j < i + count; ++j) {
+			w += atlasData_[j]->width;
+			h = Math::Max(h, atlasData_[j]->height);
+		}
+
+		maxWidth = Math::Max(maxWidth, w);
+		maxHeight += h;
+		i += count;
+	}
+
+	width = maxWidth;
+	height = maxHeight;
+}
+
 void FontInternal::RebuildMaterial() {
 	int width, height;
-	CalculateAtlasSize(width, height);
+	int space = 2;
+	CalculateAtlasSize(width, height, space);
+
+	Bytes data(width * height);
+	int offset = 0;
+
+	for (int i = 0; i < atlasData_.size();) {
+		int count = Math::Min((int)atlasData_.size() - i, atlasColumns_);
+		int lineHeight = 0;
+		int lineOffset = offset;
+		int scannedWidth = 0;
+
+		for (int j = i; j < i + count; ++j) {
+			FontBitmap* bitmap = atlasData_[j];
+			for (int r = 0; r < bitmap->height; ++r) {
+				for (int c = 0; c < bitmap->width; ++c) {
+					unsigned char pixel = bitmap->data[r * width + c];
+					data[lineOffset + (width - scannedWidth) * r + c] = pixel;
+				}
+			}
+
+			lineOffset += bitmap->width + space;
+			scannedWidth += bitmap->width + space;
+			lineHeight = Math::Max(lineHeight, bitmap->height);
+		}
+
+		offset += (lineHeight + space) * width;
+
+		i += count;
+	}
 
 	Texture2D texture = CREATE_OBJECT(Texture2D);
-	for (int i = 0; i < atlasData_.size(); ++i) {
-		FontBitmap* bitmap = atlasData_[i];
-		for (int r = 0; r < bitmap->height; ++r) {
-			for (int c = 0; c < bitmap->width; ++c) {
-			}
-		}
+	texture->Load(&data[0], ColorFormatIntensity, width, height);
+	if (!material_) {
+		material_ = CREATE_OBJECT(Material);
 	}
+
+	material_->SetTexture(Variables::mainTexture, texture);
+
+	materialDirty_ = false;
 }
 
 void FontInternal::Destroy() {

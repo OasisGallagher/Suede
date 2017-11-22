@@ -51,7 +51,7 @@ bool Texture2DInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	return Load(&data[0], TextureFormatRgba, width, height);
+	return Load(&data[0], ColorFormatRgba, width, height);
 }
 
 bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, int height) {
@@ -95,13 +95,16 @@ bool Texture2DInternal::EncodeToJpg(std::vector<unsigned char>& data) {
 GLenum Texture2DInternal::ColorFormatToGLEnum(ColorFormat format) {
 	GLenum ans = GL_RGBA;
 	switch (format) {
-		case TextureFormatRgb:
+		case ColorFormatRgb:
 			ans = GL_RGB;
 			break;
-		case TextureFormatRgba:
+		case ColorFormatRgba:
 			ans = GL_RGBA;
 			break;
-		case TextureFormatLuminanceAlpha:
+		case  ColorFormatIntensity:
+			ans = GL_INTENSITY;
+			break;
+		case ColorFormatLuminanceAlpha:
 			ans = GL_LUMINANCE_ALPHA;
 			break;
 	}
