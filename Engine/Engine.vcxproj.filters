@@ -295,6 +295,12 @@
     <ClInclude Include="internal\file\assetimporter.h">
       <Filter>internal\file\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\font.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\fontinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -410,6 +416,9 @@
     </ClCompile>
     <ClCompile Include="internal\file\assetimporter.cpp">
       <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\fontinternal.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

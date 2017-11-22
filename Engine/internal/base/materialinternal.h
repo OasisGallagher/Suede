@@ -64,7 +64,7 @@ private:
 		Variant value;
 	};
 
-	typedef PtrMap<Uniform> UniformContainer;
+	typedef PtrMap<std::string, Uniform> UniformContainer;
 
 private:
 	bool IsSampler(int type);

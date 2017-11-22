@@ -18,8 +18,8 @@
 //#define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
-#define ANIMATION
-#define PARTICLE_SYSTEM
+//#define ANIMATION
+//#define PARTICLE_SYSTEM
 
 Game* Game::get() {
 	static Game instance;

@@ -253,7 +253,7 @@ void MaterialInternal::BindTextures() {
 	for (int i = 0; i < textureUniforms_.size(); ++i) {
 		Uniform* uniform = textureUniforms_[i];
 		if (uniform->value.GetTexture()) {
-			uniform->value.GetTexture()->Bind(GL_TEXTURE0 + uniform->value.GetTextureIndex());
+			uniform->value.GetTexture()->Bind(uniform->value.GetTextureIndex());
 		}
 	}
 }

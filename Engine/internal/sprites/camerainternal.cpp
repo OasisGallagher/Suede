@@ -143,7 +143,7 @@ Texture2D CameraInternal::Capture() {
 	fb0_->ReadBuffer(data);
 
 	Texture2D texture = CREATE_OBJECT(Texture2D);
-	texture->Load(&data[0], fb0_->GetWidth(), fb0_->GetHeight());
+	texture->Load(&data[0], TextureFormatRgba, fb0_->GetWidth(), fb0_->GetHeight());
 
 	return texture;
 }

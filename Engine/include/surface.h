@@ -30,7 +30,8 @@ struct BlendAttribute {
 };
 
 struct InstanceAttribute {
-	InstanceAttribute() : count(0) {}
+	InstanceAttribute(unsigned count = 0, int divisor = 0) 
+		: count(count), divisor(divisor) {}
 
 	int divisor;
 	unsigned count;

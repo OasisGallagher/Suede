@@ -5,6 +5,7 @@
 enum ObjectType {
 	ObjectTypeMesh,
 	ObjectTypeWorld,
+	ObjectTypeFont,
 	ObjectTypeShader,
 	ObjectTypeSurface,
 	ObjectTypeMaterial,

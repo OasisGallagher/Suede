@@ -36,8 +36,14 @@ bool String::StartsWith(const std::string & str, const std::string & prefix) {
 	return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
 }
 
-bool String::EndsWith(const std::string &str, const std::string &suffix) {
+bool String::EndsWith(const std::string& str, const std::string& suffix) {
 	return (str.length() >= suffix.length()) && (0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix));
+}
+
+std::wstring String::MultiBytesToWideString(const std::string& text) {
+	std::wstring ans(text.size() + 1, 0);
+	mbtowc(&ans[0], text.c_str(), text.length());
+	return ans;
 }
 
 std::string String::Trim(const std::string& text) {

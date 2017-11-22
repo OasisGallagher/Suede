@@ -45,7 +45,7 @@ void Suede::setupUI() {
 	addDockWidget(Qt::RightDockWidgetArea, ui.console, Qt::Vertical);
 	addDockWidget(Qt::RightDockWidgetArea, ui.hierarchy, Qt::Horizontal);
 
-	menuBar()->hide();
+	//menuBar()->hide();
 	for (int i = ChildWindowGame + 1; i < ChildWindowCount; ++i) {
 		showChildWindow(i, false);
 	}

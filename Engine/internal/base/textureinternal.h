@@ -11,7 +11,7 @@ public:
 	}
 
 public:
-	virtual void Bind(unsigned location);
+	virtual void Bind(unsigned index);
 	virtual void Unbind();
 	virtual unsigned GetNativePointer() { return texture_; }
 	
@@ -43,7 +43,7 @@ public:
 
 public:
 	virtual bool Load(const std::string& path);
-	virtual bool Load(const void* data, int width, int height);
+	virtual bool Load(const void* data, ColorFormat format, int width, int height);
 
 	virtual bool EncodeToPng(std::vector<unsigned char>& data);
 	virtual bool EncodeToJpg(std::vector<unsigned char>& data);
@@ -51,6 +51,9 @@ public:
 protected:
 	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
+
+private:
+	GLenum ColorFormatToGLEnum(ColorFormat format);
 };
 
 class TextureCubeInternal : public ITextureCube, public TextureInternal {

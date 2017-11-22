@@ -5,7 +5,7 @@
 
 class ENGINE_EXPORT ITexture : virtual public IObject {
 public:
-	virtual void Bind(unsigned location) = 0;
+	virtual void Bind(unsigned index) = 0;
 	virtual void Unbind() = 0;
 	virtual unsigned GetNativePointer() = 0;
 
@@ -13,10 +13,16 @@ public:
 	virtual int GetHeight() = 0;
 };
 
+enum ColorFormat {
+	TextureFormatRgb,
+	TextureFormatRgba,
+	TextureFormatLuminanceAlpha,
+};
+
 class ENGINE_EXPORT ITexture2D : virtual public ITexture {
 public:
 	virtual bool Load(const std::string& path) = 0;
-	virtual bool Load(const void* data, int width, int height) = 0;
+	virtual bool Load(const void* data, ColorFormat format, int width, int height) = 0;
 
 	virtual bool EncodeToPng(std::vector<unsigned char>& data) = 0;
 	virtual bool EncodeToJpg(std::vector<unsigned char>& data) = 0;

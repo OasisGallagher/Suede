@@ -9,7 +9,10 @@ public:
 	static void Split(const std::string& text, char sep, std::vector<std::string>& container);
 
 	static bool StartsWith(const std::string& str, const std::string& prefix);
-	static bool EndsWith(const std::string &str, const std::string &suffix);
+	static bool EndsWith(const std::string&str, const std::string& suffix);
+
+	static std::wstring MultiBytesToWideString(const std::string& text);
+
 private:
 	String();
 };

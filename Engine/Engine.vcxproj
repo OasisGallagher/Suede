@@ -155,6 +155,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\animationinternal.cpp" />
+    <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
@@ -199,6 +200,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\defines.h" />
     <ClInclude Include="include\engine.h" />
     <ClInclude Include="include\environment.h" />
+    <ClInclude Include="include\font.h" />
     <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\logger.h" />
@@ -222,6 +224,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\variables.h" />
     <ClInclude Include="include\world.h" />
     <ClInclude Include="internal\base\animationinternal.h" />
+    <ClInclude Include="internal\base\fontinternal.h" />
     <ClInclude Include="internal\base\framebuffer.h" />
     <ClInclude Include="internal\base\glsldefines.h" />
     <ClInclude Include="internal\base\materialinternal.h" />

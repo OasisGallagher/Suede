@@ -32,6 +32,8 @@ Engine* Engine::get() {
 }
 
 bool Engine::initialize() {
+	setlocale(LC_ALL, "");
+
 	glewExperimental = true;
 
 	if (glewInit() != GLEW_OK) {

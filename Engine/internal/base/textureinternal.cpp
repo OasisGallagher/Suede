@@ -5,10 +5,10 @@
 #include "textureinternal.h"
 #include "internal/file/imagecodec.h"
 
-void TextureInternal::Bind(unsigned location) {
+void TextureInternal::Bind(unsigned index) {
 	AssertX(glIsTexture(texture_), "invalid texture");
-	location_ = location;
-	glActiveTexture(location);
+	location_ = index + GL_TEXTURE0;
+	glActiveTexture(location_);
 	BindTexture();
 }
 
@@ -51,10 +51,10 @@ bool Texture2DInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	return Load(&data[0], width, height);
+	return Load(&data[0], TextureFormatRgba, width, height);
 }
 
-bool Texture2DInternal::Load(const void* data, int width, int height) {
+bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, int height) {
 	DestroyTexture();
 
 	width_ = width;
@@ -64,7 +64,8 @@ bool Texture2DInternal::Load(const void* data, int width, int height) {
 	
 	BindTexture();
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	GLenum glFormat = ColorFormatToGLEnum(format);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, glFormat, GL_UNSIGNED_BYTE, data);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -89,6 +90,23 @@ bool Texture2DInternal::EncodeToJpg(std::vector<unsigned char>& data) {
 	UnbindTexture();
 
 	return ImageCodec::Encode(GetWidth(), GetHeight(), data, "JPG");
+}
+
+GLenum Texture2DInternal::ColorFormatToGLEnum(ColorFormat format) {
+	GLenum ans = GL_RGBA;
+	switch (format) {
+		case TextureFormatRgb:
+			ans = GL_RGB;
+			break;
+		case TextureFormatRgba:
+			ans = GL_RGBA;
+			break;
+		case TextureFormatLuminanceAlpha:
+			ans = GL_LUMINANCE_ALPHA;
+			break;
+	}
+
+	return ans;
 }
 
 TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCube) {
