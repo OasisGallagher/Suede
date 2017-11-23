@@ -3,7 +3,7 @@
 #include <algorithm>
 
 template <class Ty, class Comp = std::less<Ty> > 
-class sorted_vector {
+class SortedVector {
 	typedef std::vector<Ty> container_type;
 
 public:

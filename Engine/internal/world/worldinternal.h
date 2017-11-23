@@ -26,7 +26,7 @@ public:
 
 	virtual Sprite Import(const std::string& path);
 
-	virtual Sprite GetSprite(unsigned id);
+	virtual Sprite GetSprite(uint id);
 	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites);
 	virtual Environment GetEnvironment() { return environment_; }
 
@@ -34,7 +34,7 @@ private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
 
-	typedef std::map<unsigned, Sprite> SpriteContainer;
+	typedef std::map<uint, Sprite> SpriteContainer;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
 

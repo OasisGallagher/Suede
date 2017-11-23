@@ -4,7 +4,7 @@
 #include "tools/math2.h"
 #include "tools/debug.h"
 
-bool ImageCodec::Decode(const std::string& path, Bytes& data, int& width, int& height) {
+bool ImageCodec::Decode(const std::string& path, std::vector<uchar>& data, int& width, int& height) {
 	try {
 		Magick::Image image;
 		Magick::Blob blob;
@@ -15,9 +15,9 @@ bool ImageCodec::Decode(const std::string& path, Bytes& data, int& width, int& h
 		height = image.rows();
 
 		// TODO: copy data out ?
-		const unsigned char* bytes = (const unsigned char*)blob.data();
+		const uchar* ptr = (const uchar*)blob.data();
 		data.resize(blob.length());
-		std::copy(bytes, bytes + blob.length(), &data[0]);
+		std::copy(ptr, ptr + blob.length(), &data[0]);
 	}
 	catch (Magick::Error& err) {
 		Debug::LogError("failed to decode image " + path + ": " + err.what());
@@ -27,7 +27,7 @@ bool ImageCodec::Decode(const std::string& path, Bytes& data, int& width, int& h
 	return true;
 }
 
-bool ImageCodec::Encode(int width, int height, Bytes& data, const char* format) {
+bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, const char* format) {
 	Magick::Image image;
 	try {
 		image.read(width, height, "RGBA", Magick::CharPixel, &data[0]);
@@ -36,7 +36,7 @@ bool ImageCodec::Encode(int width, int height, Bytes& data, const char* format) 
 		Magick::Blob blob;
 		image.magick(format);
 		image.write(&blob);
-		unsigned char* ptr = (unsigned char*)blob.data();
+		uchar* ptr = (uchar*)blob.data();
 		data.assign(ptr, ptr + blob.length());
 	}
 	catch (Magick::Error& err) {
@@ -53,7 +53,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int spa
 
 	// TODO: channel count.
 	atlas.data.resize(width * height * 2);
-	unsigned char* ptr = &atlas.data[0];
+	uchar* ptr = &atlas.data[0];
 	float top = space / (float)height;
 	ptr += space * width * 2 + space * 2;
 
@@ -108,13 +108,13 @@ int AtlasMaker::Calculate(int& width, int& height, const std::vector<Bitmap*>& b
 	return columnCount;
 }
 
-void AtlasMaker::PasteBitmap(unsigned char * ptr, const Bitmap * bitmap, int stride) {
+void AtlasMaker::PasteBitmap(uchar* ptr, const Bitmap * bitmap, int stride) {
 	for (int r = 0; r < bitmap->height; ++r) {
 		for (int c = 0; c < bitmap->width; ++c) {
-			unsigned char ch = bitmap->data[c + r * bitmap->width];
+			uchar uch = bitmap->data[c + r * bitmap->width];
 			// from left bottom.
 			int r2 = bitmap->height - r - 1;
-			ptr[2 * (c + r2 * stride)] = ptr[2 * (c + r2 * stride) + 1] = ch;
+			ptr[2 * (c + r2 * stride)] = ptr[2 * (c + r2 * stride) + 1] = uch;
 		}
 	}
 }

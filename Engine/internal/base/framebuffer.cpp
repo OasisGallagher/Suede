@@ -24,7 +24,7 @@ void Framebuffer0::Unbind() {
 	UnbindViewport();
 }
 
-void Framebuffer0::ReadBuffer(std::vector<unsigned char>& pixels) {
+void Framebuffer0::ReadBuffer(std::vector<uchar>& pixels) {
 	BindFramebuffer();
 	
 	int oldPackAlignment = 4;

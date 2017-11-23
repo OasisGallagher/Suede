@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "defines.h"
 #include "tools/debug.h"
 
 template<class CountofType, size_t sizeOfArray>
@@ -27,7 +28,7 @@ public:
 	static glm::vec3 Degrees(const glm::vec3& radians);
 	static glm::vec3 Radians(const glm::vec3& degrees);
 
-	static unsigned NextPowerOfTwo(unsigned x);
+	static uint NextPowerOfTwo(uint x);
 
 	template <class Ty>
 	static Ty Lerp(const Ty& from, const Ty& to, float t);
@@ -90,7 +91,7 @@ inline glm::vec3 Math::Radians(const glm::vec3 & degrees) {
 	return glm::vec3(Radians(degrees.x), Radians(degrees.y), Radians(degrees.z));
 }
 
-inline unsigned Math::NextPowerOfTwo(unsigned x) {
+inline uint Math::NextPowerOfTwo(uint x) {
 	x--;
 	x |= x >> 1;
 	x |= x >> 2;

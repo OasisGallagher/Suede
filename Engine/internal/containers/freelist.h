@@ -4,7 +4,7 @@
 #include "internal/memory/memory.h"
 
 template <class T>
-class free_list {
+class FreeList {
 	struct Head {
 		struct Block* prev;
 		struct Block* next;
@@ -52,12 +52,12 @@ public:
 	typedef free_list_iterator iterator;
 
 public:
-	free_list(size_t capacity) : free_(nullptr), busy_(nullptr), size_(0) {
+	FreeList(size_t capacity) : free_(nullptr), busy_(nullptr), size_(0) {
 		capacity_ = capacity;
 		allocate(capacity_);
 	}
 
-	~free_list() {
+	~FreeList() {
 		MEMORY_RELEASE_ARRAY(memory_);
 	}
 
@@ -74,7 +74,7 @@ public:
 	size_t size() const { return size_; }
 	size_t capacity() const { return capacity_; }
 
-	T* pop() {
+	T* spawn() {
 		AssertX(free_ != nullptr, "out of memory");
 
 		T* result = (T*)advance(free_, HeadSize);
@@ -96,7 +96,7 @@ public:
 		return result;
 	}
 
-	void push(T* ptr) {
+	void recycle(T* ptr) {
 		Block* block = (Block*)advance(ptr, -HeadSize);
 		if (busy_ == block) {
 			busy_ = busy_->head.next;

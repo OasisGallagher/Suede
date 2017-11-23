@@ -120,7 +120,7 @@ void Suede::screenCapture() {
 		return;
 	}
 
-	std::vector<unsigned char> data;
+	std::vector<uchar> data;
 	if (path.endsWith(".jpg") && !tex->EncodeToJpg(data)) {
 		return;
 	}

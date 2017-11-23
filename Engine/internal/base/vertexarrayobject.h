@@ -1,5 +1,7 @@
 #pragma once
+#include "defines.h"
 #include <gl/glew.h>
+
 class VertexArrayObject {
 public:
 	VertexArrayObject();
@@ -19,12 +21,12 @@ public:
 		SetBuffer(index, target, cont.size() * sizeof(Container::value_type), &cont[0], usage);
 	}
 	
-	void SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, unsigned offset, int divisor = 0);
+	void SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor = 0);
 
 	void BindBuffer(int index);
 	void UnbindBuffer(int index);
 
-	unsigned GetBufferNativePointer(int index);
+	uint GetBufferNativePointer(int index);
 	void UpdateBuffer(int index, int offset, size_t size, const void* ptr);
 
 	void Bind();

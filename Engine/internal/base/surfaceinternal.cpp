@@ -7,13 +7,13 @@ MeshInternal::MeshInternal() :ObjectInternal(ObjectTypeMesh)
 	, meshTopology_(MeshTopologyTriangles) {
 }
 
-void MeshInternal::SetTriangles(unsigned vertexCount, unsigned baseVertex, unsigned baseIndex) {
+void MeshInternal::SetTriangles(uint vertexCount, uint baseVertex, uint baseIndex) {
 	vertexCount_ = vertexCount;
 	baseVertex_ = baseVertex;
 	baseIndex_ = baseIndex;
 }
 
-void MeshInternal::GetTriangles(unsigned& vertexCount, unsigned& baseVertex, unsigned& baseIndex) {
+void MeshInternal::GetTriangles(uint& vertexCount, uint& baseVertex, uint& baseIndex) {
 	vertexCount = vertexCount_;
 	baseVertex = baseVertex_;
 	baseIndex = baseIndex_;
@@ -40,10 +40,10 @@ void SurfaceInternal::SetAttribute(const SurfaceAttribute& value) {
 }
 
 void SurfaceInternal::UpdateGLBuffers(const SurfaceAttribute& attribute) {
-	size_t vboCount = CalculateVBOCount(attribute);
+	int vboCount = CalculateVBOCount(attribute);
 	vao_.CreateVBOs(vboCount);
 
-	unsigned vboIndex = 0;
+	uint vboIndex = 0;
 
 	if (!attribute.positions.empty()) {
 		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
@@ -73,7 +73,7 @@ void SurfaceInternal::UpdateGLBuffers(const SurfaceAttribute& attribute) {
 		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.blendAttrs, GL_STATIC_DRAW);
 
 		vao_.SetVertexDataSource(vboIndex, VertexAttribBoneIndexes, 4, GL_INT, false, sizeof(BlendAttribute), 0);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribBoneWeights, 4, GL_FLOAT, false, sizeof(BlendAttribute), (sizeof(unsigned) * BlendAttribute::Quality));
+		vao_.SetVertexDataSource(vboIndex, VertexAttribBoneWeights, 4, GL_FLOAT, false, sizeof(BlendAttribute), (sizeof(uint) * BlendAttribute::Quality));
 		++vboIndex;
 	}
 
@@ -97,16 +97,16 @@ void SurfaceInternal::UpdateGLBuffers(const SurfaceAttribute& attribute) {
 	Assert(vboIndex == vboCount);
 }
 
-size_t SurfaceInternal::CalculateVBOCount(const SurfaceAttribute& attribute) {
-	size_t count = 0;
-	count += size_t(!attribute.positions.empty());
-	count += size_t(!attribute.normals.empty());
-	count += size_t(!attribute.texCoords.empty());
-	count += size_t(!attribute.tangents.empty());
-	count += size_t(!attribute.blendAttrs.empty());
-	count += size_t(!attribute.indexes.empty());
-	count += size_t(attribute.color.count != 0);
-	count += size_t(attribute.geometry.count != 0);
+int SurfaceInternal::CalculateVBOCount(const SurfaceAttribute& attribute) {
+	int count = 0;
+	count += int(!attribute.positions.empty());
+	count += int(!attribute.normals.empty());
+	count += int(!attribute.texCoords.empty());
+	count += int(!attribute.tangents.empty());
+	count += int(!attribute.blendAttrs.empty());
+	count += int(!attribute.indexes.empty());
+	count += int(attribute.color.count != 0);
+	count += int(attribute.geometry.count != 0);
 
 	return count;
 }
@@ -121,7 +121,7 @@ void SurfaceInternal::Unbind() {
 	vao_.UnbindBuffer(indexBuffer_);
 }
 
-void SurfaceInternal::UpdateInstanceBuffer(unsigned i, size_t size, void* data) {
+void SurfaceInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	AssertX(i < CountOf(instanceBuffer_), "index out of range");
 	vao_.UpdateBuffer(instanceBuffer_[i], 0, size, data);
 }

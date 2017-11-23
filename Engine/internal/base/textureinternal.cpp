@@ -5,7 +5,7 @@
 #include "textureinternal.h"
 #include "internal/file/image.h"
 
-void TextureInternal::Bind(unsigned index) {
+void TextureInternal::Bind(uint index) {
 	AssertX(glIsTexture(texture_), "invalid texture");
 	location_ = index + GL_TEXTURE0;
 	glActiveTexture(location_);
@@ -46,7 +46,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	int width, height;
-	Bytes data;
+	std::vector<uchar> data;
 	if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + path, data, width, height)) {
 		return false;
 	}
@@ -76,7 +76,7 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 	return true;
 }
 
-bool Texture2DInternal::EncodeToPng(std::vector<unsigned char>& data) {
+bool Texture2DInternal::EncodeToPng(std::vector<uchar>& data) {
 	BindTexture();
 	data.resize(4 * GetWidth() * GetHeight());
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
@@ -85,7 +85,7 @@ bool Texture2DInternal::EncodeToPng(std::vector<unsigned char>& data) {
 	return ImageCodec::Encode(GetWidth(), GetHeight(), data, "PNG");
 }
 
-bool Texture2DInternal::EncodeToJpg(std::vector<unsigned char>& data) {
+bool Texture2DInternal::EncodeToJpg(std::vector<uchar>& data) {
 	BindTexture();
 	data.resize(4 * GetWidth() * GetHeight());
 	glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
@@ -127,7 +127,7 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 
 	for (int i = 0; i < 6; ++i) {
 		int width, height;
-		Bytes data;
+		std::vector<uchar> data;
 		
 		if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + textures[i], data, width, height)) {
 			DestroyTexture();

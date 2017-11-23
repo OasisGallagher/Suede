@@ -5,7 +5,7 @@
 #include "tools/math2.h"
 #include "objectinternal.h"
 
-unsigned ObjectInternal::ObjectIDContainer[ObjectTypeCount];
+uint ObjectInternal::ObjectIDContainer[ObjectTypeCount];
 
 ObjectInternal::ObjectInternal(ObjectType type) {
 	id_ = EncodeInstanceID(type);
@@ -16,12 +16,12 @@ Object ObjectInternal::Clone() {
 	return Object();
 }
 
-unsigned ObjectInternal::EncodeInstanceID(ObjectType type) {
-	Assert(ObjectIDContainer[type] < std::numeric_limits<unsigned>::max());
+uint ObjectInternal::EncodeInstanceID(ObjectType type) {
+	Assert(ObjectIDContainer[type] < std::numeric_limits<uint>::max());
 	return Math::MakeDword(++ObjectIDContainer[type], type);
 }
 
-void ObjectInternal::DecodeInstanceID(unsigned value, ObjectType* type, unsigned* id) {
+void ObjectInternal::DecodeInstanceID(uint value, ObjectType* type, uint* id) {
 	if (type != nullptr) { *type = (ObjectType)Math::Highword(value); }
 	if (id != nullptr) { *id = Math::Loword(value); }
 }

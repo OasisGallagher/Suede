@@ -29,11 +29,9 @@ public:
 private:
 	struct Glyph {
 		Bitmap bitmap;
-		glm::vec2 lbTexCoord;
-		glm::vec2 rtTexCoord;
 	};
 
-	typedef PtrMap<unsigned, Glyph> GlyphContainer;
+	typedef PtrMap<uint, Glyph> GlyphContainer;
 
 private:
 	void Destroy();
@@ -44,10 +42,9 @@ private:
 
 private:
 	Material material_;
-	bool materialDirty_;
 
-	Atlas atlas_;
 	GlyphContainer glyphs_;
+	Atlas::CoordContainer coords_;
 	std::vector<Bitmap*> bitmaps_;
 
 	int size_;

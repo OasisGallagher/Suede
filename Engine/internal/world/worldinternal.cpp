@@ -62,7 +62,7 @@ Sprite WorldInternal::Import(const std::string& path) {
 	return importer.Import(path);
 }
 
-Sprite WorldInternal::GetSprite(unsigned id) {
+Sprite WorldInternal::GetSprite(uint id) {
 	SpriteContainer::iterator ite = sprites_.find(id);
 	if (ite == sprites_.end()) { return nullptr; }
 	return ite->second;

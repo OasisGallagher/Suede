@@ -45,7 +45,7 @@ void VertexArrayObject::SetBuffer(int index, GLenum target, size_t size, const v
 	UnbindBuffer(index);
 }
 
-void VertexArrayObject::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, unsigned offset, int divisor) {
+void VertexArrayObject::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
 	BindBuffer(index);
 	glEnableVertexAttribArray(location);
 
@@ -63,7 +63,7 @@ void VertexArrayObject::SetVertexDataSource(int index, int location, int size, G
 	UnbindBuffer(index);
 }
 
-unsigned VertexArrayObject::GetBufferNativePointer(int index) {
+uint VertexArrayObject::GetBufferNativePointer(int index) {
 	Assert(index >= 0 && index < vboCount_);
 	return vbos_[index];
 }

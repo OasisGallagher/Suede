@@ -53,11 +53,11 @@ void RendererInternal::RenderSurface(Surface surface) {
 }
 
 void RendererInternal::DrawCall(Mesh mesh) {
-	unsigned vertexCount, baseVertex, baseIndex;
+	uint vertexCount, baseVertex, baseIndex;
 	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
 
 	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
-	glDrawElementsBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned)* baseIndex), baseVertex);
+	glDrawElementsBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
 }
 
 void SkinnedSurfaceRendererInternal::RenderSurface(Surface surface) {
@@ -88,9 +88,9 @@ void ParticleRendererInternal::RenderSprite(Sprite sprite) {
 
 void ParticleRendererInternal::DrawCall(Mesh mesh) {
 	if (particleCount_ == 0) { return; }
-	unsigned vertexCount, baseVertex, baseIndex;
+	uint vertexCount, baseVertex, baseIndex;
 	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
 
 	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
-	glDrawElementsInstancedBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(unsigned)* baseIndex), particleCount_, baseVertex);
+	glDrawElementsInstancedBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), particleCount_, baseVertex);
 }

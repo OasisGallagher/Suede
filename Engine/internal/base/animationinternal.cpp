@@ -376,7 +376,7 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 }
 
 void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
-	sorted_vector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
+	SortedVector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
 	AssertX(attributes_.size() == otherAttributes.size(), "attribute count mismatch");
 
 	for (int i = 0; i < attributes_.size(); ++i) {

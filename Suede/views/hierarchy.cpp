@@ -38,14 +38,14 @@ Sprite Hierarchy::selectedSprite() {
 	QModelIndex index = tree_->selectionModel()->currentIndex();
 	if (!index.isValid()) { return nullptr; }
 
-	unsigned id = model_->itemFromIndex(index)->data().toUInt();
+	uint id = model_->itemFromIndex(index)->data().toUInt();
 	return Engine::get()->world()->GetSprite(id);
 }
 
 bool Hierarchy::selectedSprites(QList<Sprite>& sprites) {
 	QModelIndexList indexes = tree_->selectionModel()->selectedIndexes();
 	foreach(QModelIndex index, indexes) {
-		unsigned id = model_->itemFromIndex(index)->data().toUInt();
+		uint id = model_->itemFromIndex(index)->data().toUInt();
 		sprites.push_back(Engine::get()->world()->GetSprite(id));
 	}
 

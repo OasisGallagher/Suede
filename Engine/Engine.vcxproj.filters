@@ -187,9 +187,6 @@
     <ClInclude Include="internal\resources\resources.h">
       <Filter>internal\resources\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\misc\ptrmap.h">
-      <Filter>internal\containers\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\framebuffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
@@ -300,6 +297,9 @@
     </ClInclude>
     <ClInclude Include="internal\file\image.h">
       <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\containers\ptrmap.h">
+      <Filter>internal\containers\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

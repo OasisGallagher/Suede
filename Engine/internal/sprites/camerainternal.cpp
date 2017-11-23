@@ -145,7 +145,7 @@ Texture2D CameraInternal::Capture() {
 	f.Require("ıˆ²èÍ¼ÔÏAdb");
 	return dsp_cast<Texture2D>(f.GetMaterial()->GetTexture(Variables::mainTexture));
 	/*
-	std::vector<unsigned char> data;
+	std::vector<uchar> data;
 	fb0_->ReadBuffer(data);
 
 	Texture2D texture = CREATE_OBJECT(Texture2D);

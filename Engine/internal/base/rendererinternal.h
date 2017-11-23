@@ -70,5 +70,5 @@ protected:
 	virtual void DrawCall(Mesh mesh);
 
 private:
-	unsigned particleCount_;
+	uint particleCount_;
 };

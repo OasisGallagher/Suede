@@ -16,15 +16,15 @@ public:
 	virtual void SetTopology(MeshTopology value) { meshTopology_ = value; }
 	virtual MeshTopology GetTopology() { return meshTopology_; }
 
-	virtual void SetTriangles(unsigned vertexCount, unsigned baseVertex, unsigned baseIndex);
-	virtual void GetTriangles(unsigned& vertexCount, unsigned& baseVertex, unsigned& baseIndex);
+	virtual void SetTriangles(uint vertexCount, uint baseVertex, uint baseIndex);
+	virtual void GetTriangles(uint& vertexCount, uint& baseVertex, uint& baseIndex);
 
 private:
 	MeshTopology meshTopology_;
 
-	unsigned baseIndex_;
-	unsigned baseVertex_;
-	unsigned vertexCount_;
+	uint baseIndex_;
+	uint baseVertex_;
+	uint vertexCount_;
 };
 
 class SurfaceInternal : public ISurface, public ObjectInternal {
@@ -43,16 +43,16 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 
-	virtual void UpdateInstanceBuffer(unsigned i, size_t size, void* data);
+	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
 private:
 	void Destroy();
 	void UpdateGLBuffers(const SurfaceAttribute& attribute);
-	size_t CalculateVBOCount(const SurfaceAttribute& attribute);
+	int CalculateVBOCount(const SurfaceAttribute& attribute);
 
 private:
-	unsigned indexBuffer_;
-	unsigned instanceBuffer_[2];
+	uint indexBuffer_;
+	uint instanceBuffer_[2];
 
 	VertexArrayObject vao_;
 	std::vector<Mesh> meshes_;

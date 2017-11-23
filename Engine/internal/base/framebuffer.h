@@ -13,7 +13,7 @@ public:
 
 public:
 	virtual void Create(int width, int height);
-	virtual void ReadBuffer(std::vector<unsigned char>& data);
+	virtual void ReadBuffer(std::vector<uchar>& data);
 
 	virtual void Bind();
 	virtual void Unbind();
@@ -29,7 +29,7 @@ public:
 
 	void Clear(int buffers = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	unsigned GetNativePointer() { return fbo_; }
+	uint GetNativePointer() { return fbo_; }
 
 protected:
 	void BindFramebuffer();

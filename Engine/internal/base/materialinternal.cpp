@@ -471,16 +471,16 @@ GLuint MaterialInternal::GetSizeOfType(GLint type) {
 
 			// Unsigned ints
 		case GL_UNSIGNED_INT:
-			return sizeof(unsigned int);
+			return sizeof(uint);
 
 		case GL_UNSIGNED_INT_VEC2:
-			return sizeof(unsigned int) * 2;
+			return sizeof(uint) * 2;
 
 		case GL_UNSIGNED_INT_VEC3:
-			return sizeof(unsigned int) * 3;
+			return sizeof(uint) * 3;
 
 		case GL_UNSIGNED_INT_VEC4:
-			return sizeof(unsigned int) * 4;
+			return sizeof(uint) * 4;
 
 			// Float Matrices
 		case GL_FLOAT_MAT2:

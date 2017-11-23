@@ -18,3 +18,6 @@
 #define SUEDE_BEGIN_NAMESPACE
 #define SUEDE_END_NAMESPACE
 #endif
+
+typedef unsigned int uint;
+typedef unsigned char uchar;

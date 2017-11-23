@@ -10,8 +10,8 @@ class ParticleEmitterInternal : virtual public IParticleEmitter, public ObjectIn
 public:
 	ParticleEmitterInternal(ObjectType type);
 
-	virtual void SetRate(unsigned value) { rate_ = value; }
-	virtual unsigned GetRate() { return rate_; }
+	virtual void SetRate(uint value) { rate_ = value; }
+	virtual uint GetRate() { return rate_; }
 
 	virtual void SetStartDuration(float value) { startLife_ = value; }
 	virtual float GetStartDuration() { return startLife_; }
@@ -22,7 +22,7 @@ public:
 	virtual void SetStartVelocity(const glm::vec3& value) { startVelocity_ = value; }
 	virtual glm::vec3 GetStartVelocity() { return startVelocity_; }
 
-	virtual void Emit(Particle** particles, unsigned& count);
+	virtual void Emit(Particle** particles, uint& count);
 
 	virtual void SetStartColor(const glm::vec4& value) { startColor_ = value; }
 	virtual glm::vec4 GetStartColor() { return startColor_; }
@@ -37,11 +37,11 @@ protected:
 	virtual glm::vec3 GetStartPosition() { return glm::vec3(0); }
 
 private:
-	unsigned CalculateNextEmissionParticleCount();
-	void EmitParticles(Particle** particles, unsigned count);
+	uint CalculateNextEmissionParticleCount();
+	void EmitParticles(Particle** particles, uint count);
 
 private:
-	unsigned rate_;
+	uint rate_;
 	float time_;
 	float remainder_;
 	float startLife_;
@@ -100,8 +100,8 @@ public:
 	~ParticleSystemInternal();
 
 public:
-	virtual void SetMaxParticles(unsigned value);
-	virtual unsigned GetMaxParticles() { return maxParticles_; }
+	virtual void SetMaxParticles(uint value);
+	virtual uint GetMaxParticles() { return maxParticles_; }
 
 	virtual void SetDuration(float value) { duration_ = value; }
 	virtual float GetDuration() { return duration_; }
@@ -112,7 +112,7 @@ public:
 	virtual void SetStartDelay(float value) { startDelay_ = value; }
 	virtual float GetStartDelay() { return startDelay_; }
 
-	virtual unsigned GetParticlesCount();
+	virtual uint GetParticlesCount();
 
 	virtual void SetEmitter(ParticleEmitter value) { emitter_ = value; }
 	virtual ParticleEmitter GetEmitter() { return emitter_; }
@@ -129,7 +129,7 @@ private:
 
 	void UpdateEmitter();
 
-	void EmitParticles(unsigned count);
+	void EmitParticles(uint count);
 
 	void SortBuffers();
 
@@ -155,6 +155,6 @@ private:
 	std::vector<glm::vec4> colors_;
 	std::vector<glm::vec4> geometries_;
 	
-	free_list<Particle> particles_;
+	FreeList<Particle> particles_;
 	std::vector<Particle*> buffer_;
 };

@@ -99,7 +99,7 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 	FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
 	const FT_Bitmap& bitmap = bitmapGlyph->bitmap;
 
-	Bytes& data = answer->data;
+	std::vector<uchar>& data = answer->data;
 	size_t size = bitmap.width * bitmap.rows;
 	data.resize(size);
 	std::copy(bitmap.buffer, bitmap.buffer + size, &data[0]);
@@ -112,14 +112,13 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 }
 
 void FontInternal::RebuildMaterial() {
-	AtlasMaker::Make(atlas_, bitmaps_, 2);
+	Atlas atlas;
+	AtlasMaker::Make(atlas, bitmaps_, 2);
+
+	coords_ = atlas.coords;
 
 	Texture2D texture = CREATE_OBJECT(Texture2D);
-	texture->Load(&atlas_.data[0], ColorFormatLuminanceAlpha, atlas_.width, atlas_.height);
-
-	// release.
-	atlas_.data.swap(Bytes());
-	atlas_.width = atlas_.height = 0;
+	texture->Load(&atlas.data[0], ColorFormatLuminanceAlpha, atlas.width, atlas.height);
 
 	material_->SetTexture(Variables::mainTexture, texture);
 }

@@ -3,8 +3,8 @@
 
 struct ParticleBurst {
 	float time;
-	unsigned min;
-	unsigned max;
+	uint min;
+	uint max;
 };
 
 struct Particle {
@@ -22,10 +22,10 @@ SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator);
 
 class IParticleEmitter : virtual public IObject {
 public:
-	virtual void Emit(Particle** particles, unsigned& count) = 0;
+	virtual void Emit(Particle** particles, uint& count) = 0;
 
-	virtual void SetRate(unsigned value) = 0;
-	virtual unsigned GetRate() = 0;
+	virtual void SetRate(uint value) = 0;
+	virtual uint GetRate() = 0;
 
 	virtual void SetStartDuration(float value) = 0;
 	virtual float GetStartDuration() = 0;
@@ -77,10 +77,10 @@ public:
 	virtual void SetStartDelay(float value) = 0;
 	virtual float GetStartDelay() = 0;
 
-	virtual void SetMaxParticles(unsigned value) = 0;
-	virtual unsigned GetMaxParticles() = 0;
+	virtual void SetMaxParticles(uint value) = 0;
+	virtual uint GetMaxParticles() = 0;
 
-	virtual unsigned GetParticlesCount() = 0;
+	virtual uint GetParticlesCount() = 0;
 
 	virtual void SetEmitter(ParticleEmitter value) = 0;
 	virtual ParticleEmitter GetEmitter() = 0;

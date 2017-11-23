@@ -114,7 +114,7 @@ Surface AssetImporter::ImportSurface(const std::string& path) {
 }
 
 void AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
-	unsigned flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
+	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
 
 	if (String::EndsWith(path, ".fbx")) {
@@ -172,7 +172,7 @@ void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, M
 			}
 		}
 
-		unsigned materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
+		uint materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
 			renderer->AddMaterial(materials[materialIndex]);
 		}
@@ -233,9 +233,10 @@ void AssetImporter::ReadVertexAttributes(int index, SurfaceAttribute& attribute)
 	const aiMesh* aimesh = scene_->mMeshes[index];
 
 	const aiVector3D zero(0);
-	for (unsigned i = 0; i < aimesh->mNumVertices; ++i) {
+	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
 		const aiVector3D* pos = &aimesh->mVertices[i];
 		const aiVector3D* normal = &aimesh->mNormals[i];
+		// TODO: multiple texture coords?
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
 		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;
 
@@ -245,7 +246,7 @@ void AssetImporter::ReadVertexAttributes(int index, SurfaceAttribute& attribute)
 		attribute.tangents.push_back(glm::vec3(tangent->x, tangent->y, tangent->z));
 	}
 
-	for (unsigned i = 0; i < aimesh->mNumFaces; ++i) {
+	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
 		const aiFace& face = aimesh->mFaces[i];
 		AssertX(face.mNumIndices == 3, "invalid index count");
 		attribute.indexes.push_back(face.mIndices[0]);
@@ -270,7 +271,7 @@ void AssetImporter::ReadBoneAttributes(int index, SurfaceAttribute& attribute) {
 		}
 
 		for (int j = 0; j < aimesh->mBones[i]->mNumWeights; ++j) {
-			unsigned vertexID = aimesh->mBones[i]->mWeights[j].mVertexId;
+			uint vertexID = aimesh->mBones[i]->mWeights[j].mVertexId;
 
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {

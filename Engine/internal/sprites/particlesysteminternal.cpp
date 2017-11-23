@@ -25,7 +25,7 @@ ParticleSystemInternal::ParticleSystemInternal()
 ParticleSystemInternal::~ParticleSystemInternal() {
 }
 
-void ParticleSystemInternal::SetMaxParticles(unsigned value) {
+void ParticleSystemInternal::SetMaxParticles(uint value) {
 	if (maxParticles_ != value) {
 		maxParticles_ = value;
 		particles_.reallocate(value);
@@ -51,7 +51,7 @@ void ParticleSystemInternal::SortBuffers() {
 }
 
 void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {
-	unsigned count = particles_.size();
+	uint count = particles_.size();
 	for (int i = 1; i < count; ++i) {
 		glm::vec4 ck = colors_[i];
 		glm::vec4 pk = geometries_[i];
@@ -87,7 +87,7 @@ void ParticleSystemInternal::UpdateParticles() {
 }
 
 void ParticleSystemInternal::UpdateSurface() {
-	unsigned count = particles_.size();
+	uint count = particles_.size();
 	if (count > 0) {
 		Surface surface = GetSurface(0);
 		surface->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
@@ -98,11 +98,11 @@ void ParticleSystemInternal::UpdateSurface() {
 void ParticleSystemInternal::UpdateAttributes() {
 	float deltaTime = timeInstance->GetDeltaTime();
 
-	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
+	for (FreeList<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
 
 		if ((particle->life -= deltaTime) <= 0) {
-			particles_.push(particle);
+			particles_.recycle(particle);
 		}
 		else if (particleAnimator_) {
 			particleAnimator_->Update(*particle);
@@ -111,13 +111,13 @@ void ParticleSystemInternal::UpdateAttributes() {
 }
 
 void ParticleSystemInternal::UpdateBuffers() {
-	unsigned index = 0;
-	unsigned count = Math::NextPowerOfTwo(particles_.size());
+	uint index = 0;
+	uint count = Math::NextPowerOfTwo(particles_.size());
 
 	if (colors_.size() < count) { colors_.resize(count); }
 	if (geometries_.size() < count) { geometries_.resize(count); }
 
-	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
+	for (FreeList<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
 		Particle* particle = *ite;
 
 		colors_[index] = particle->color;
@@ -126,12 +126,12 @@ void ParticleSystemInternal::UpdateBuffers() {
 }
 
 void ParticleSystemInternal::UpdateEmitter() {
-	unsigned maxCount = Math::Max(0, int(GetMaxParticles() - GetParticlesCount()));
+	uint maxCount = Math::Max(0, int(GetMaxParticles() - GetParticlesCount()));
 	if (maxCount == 0) {
 		return;
 	}
 
-	unsigned count = 0;
+	uint count = 0;
 	emitter_->Emit(nullptr, count);
 	count = Math::Min(count, maxCount);
 
@@ -140,14 +140,14 @@ void ParticleSystemInternal::UpdateEmitter() {
 	}
 }
 
-void ParticleSystemInternal::EmitParticles(unsigned count) {
-	unsigned size = Math::NextPowerOfTwo(count);
+void ParticleSystemInternal::EmitParticles(uint count) {
+	uint size = Math::NextPowerOfTwo(count);
 	if (size > buffer_.size()) {
 		buffer_.resize(size);
 	}
 
 	for (int i = 0; i < count; ++i) {
-		buffer_[i] = particles_.pop();
+		buffer_[i] = particles_.spawn();
 	}
 
 	emitter_->Emit(&buffer_[0], count);
@@ -178,7 +178,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	SetRenderer(renderer);
 }
 
-unsigned ParticleSystemInternal::GetParticlesCount() {
+uint ParticleSystemInternal::GetParticlesCount() {
 	return particles_.size();
 }
 
@@ -186,7 +186,7 @@ ParticleEmitterInternal::ParticleEmitterInternal(ObjectType type) : ObjectIntern
 	, rate_(1), time_(-1), remainder_(0) {
 }
 
-void ParticleEmitterInternal::Emit(Particle** particles, unsigned& count) {
+void ParticleEmitterInternal::Emit(Particle** particles, uint& count) {
 	if (particles == nullptr) {
 		count = CalculateNextEmissionParticleCount();
 		return;
@@ -197,8 +197,8 @@ void ParticleEmitterInternal::Emit(Particle** particles, unsigned& count) {
 	EmitParticles(particles, count);
 }
 
-void ParticleEmitterInternal::EmitParticles(Particle** particles, unsigned count) {
-	for (unsigned i = 0; i < count; ++i) {
+void ParticleEmitterInternal::EmitParticles(Particle** particles, uint count) {
+	for (uint i = 0; i < count; ++i) {
 		Particle* item = particles[i];
 		item->life = GetStartDuration();
 		item->size = GetStartSize();
@@ -209,8 +209,8 @@ void ParticleEmitterInternal::EmitParticles(Particle** particles, unsigned count
 	}
 }
 
-unsigned ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
-	unsigned ans = rate_;
+uint ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
+	uint ans = rate_;
 	float nextTime = time_ + timeInstance->GetDeltaTime();
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
@@ -219,7 +219,7 @@ unsigned ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	}
 
 	remainder_ += ans * timeInstance->GetDeltaTime();
-	ans = (unsigned)remainder_;
+	ans = (uint)remainder_;
 	remainder_ -= ans;
 	return ans;
 }

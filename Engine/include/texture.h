@@ -5,9 +5,9 @@
 
 class SUEDE_API ITexture : virtual public IObject {
 public:
-	virtual void Bind(unsigned index) = 0;
+	virtual void Bind(uint index) = 0;
 	virtual void Unbind() = 0;
-	virtual unsigned GetNativePointer() = 0;
+	virtual uint GetNativePointer() = 0;
 
 	virtual int GetWidth() = 0;
 	virtual int GetHeight() = 0;
@@ -24,8 +24,8 @@ public:
 	virtual bool Load(const std::string& path) = 0;
 	virtual bool Load(const void* data, ColorFormat format, int width, int height) = 0;
 
-	virtual bool EncodeToPng(std::vector<unsigned char>& data) = 0;
-	virtual bool EncodeToJpg(std::vector<unsigned char>& data) = 0;
+	virtual bool EncodeToPng(std::vector<uchar>& data) = 0;
+	virtual bool EncodeToJpg(std::vector<uchar>& data) = 0;
 };
 
 class SUEDE_API ITextureCube : virtual public ITexture {

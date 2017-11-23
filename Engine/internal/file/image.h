@@ -6,31 +6,28 @@
 
 #include "texture.h"
 
-typedef unsigned char Channel;
-typedef std::vector<unsigned char> Bytes;
-
 struct Bitmap {
 	int id;
 
 	int width;
 	int height;
-	Bytes data;
+	std::vector<uchar> data;
 	ColorFormat format;
 };
 
 class ImageCodec {
 public:
-	static bool Decode(const std::string& path, Bytes& data, int& width, int& height);
-	static bool Encode(int width, int height, Bytes& data, const char* format);
+	static bool Decode(const std::string& path, std::vector<uchar>& data, int& width, int& height);
+	static bool Encode(int width, int height, std::vector<uchar>& data, const char* format);
 };
 
 struct Atlas {
 	int width;
 	int height;
 
-	Bytes data;
+	std::vector<uchar> data;
 
-	typedef std::map<unsigned, glm::vec4> CoordContainer;
+	typedef std::map<uint, glm::vec4> CoordContainer;
 	CoordContainer coords;
 };
 
@@ -40,5 +37,5 @@ public:
 
 private:
 	static int Calculate(int& width, int& height, const std::vector<Bitmap*>& bitmaps, int space);
-	static void PasteBitmap(unsigned char* ptr, const Bitmap* bitmap, int stride);
+	static void PasteBitmap(uchar* ptr, const Bitmap* bitmap, int stride);
 };

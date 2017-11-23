@@ -11,9 +11,9 @@ public:
 	}
 
 public:
-	virtual void Bind(unsigned index);
+	virtual void Bind(uint index);
 	virtual void Unbind();
-	virtual unsigned GetNativePointer() { return texture_; }
+	virtual uint GetNativePointer() { return texture_; }
 	
 	virtual int GetWidth() { return width_; }
 	virtual int GetHeight() { return height_; }
@@ -45,8 +45,8 @@ public:
 	virtual bool Load(const std::string& path);
 	virtual bool Load(const void* data, ColorFormat format, int width, int height);
 
-	virtual bool EncodeToPng(std::vector<unsigned char>& data);
-	virtual bool EncodeToJpg(std::vector<unsigned char>& data);
+	virtual bool EncodeToPng(std::vector<uchar>& data);
+	virtual bool EncodeToJpg(std::vector<uchar>& data);
 
 protected:
 	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }

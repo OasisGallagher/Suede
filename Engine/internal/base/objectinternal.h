@@ -11,19 +11,19 @@ public:
 public:
 	virtual Object Clone();
 	virtual ObjectType GetType() { return type_; }
-	virtual unsigned GetInstanceID() { return id_; }
+	virtual uint GetInstanceID() { return id_; }
 
 public:
-	static void DecodeInstanceID(unsigned value, ObjectType* type, unsigned* id);
+	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
 
 private:
-	static unsigned EncodeInstanceID(ObjectType type);
+	static uint EncodeInstanceID(ObjectType type);
 
 private:
-	unsigned id_;
+	uint id_;
 	ObjectType type_;
 
-	static unsigned ObjectIDContainer[ObjectTypeCount];
+	static uint ObjectIDContainer[ObjectTypeCount];
 };
 
 #define DEFINE_FACTORY_METHOD(name) \
