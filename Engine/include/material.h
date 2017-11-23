@@ -41,7 +41,7 @@ enum {
 	OneMinusDestAlpha,
 };
 
-class ENGINE_EXPORT IMaterial : virtual public IObject {
+class SUEDE_API IMaterial : virtual public IObject {
 public:
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
@@ -77,4 +77,4 @@ public:
 	virtual glm::vec4 GetVector4(const std::string& name) = 0;
 };
 
-DEFINE_OBJECT_PTR(Material);
+SUEDE_DEFINE_OBJECT_POINTER(Material);

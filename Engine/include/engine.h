@@ -19,7 +19,7 @@ public:
 	virtual void OnEngineLogMessage(int level, const char* message) = 0;
 };
 
-class ENGINE_EXPORT Engine {
+class SUEDE_API Engine {
 public:
 	Engine();
 

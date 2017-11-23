@@ -3,7 +3,7 @@
 
 #include "object.h"
 
-class ENGINE_EXPORT IShader : virtual public IObject {
+class SUEDE_API IShader : virtual public IObject {
 public:
 	virtual bool Load(const std::string& path) = 0;
 	virtual unsigned GetNativePointer() = 0;
@@ -11,4 +11,4 @@ public:
 	virtual bool Link() = 0;
 };
 
-DEFINE_OBJECT_PTR(Shader);
+SUEDE_DEFINE_OBJECT_POINTER(Shader);

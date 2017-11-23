@@ -11,7 +11,7 @@ enum ClearType {
 
 class PostEffect;
 
-class ENGINE_EXPORT ICamera : virtual public ISprite {
+class SUEDE_API ICamera : virtual public ISprite {
 public:
 	virtual void SetDepth(int value) = 0;
 	virtual int GetDepth() = 0;
@@ -47,4 +47,4 @@ public:
 	virtual void Render() = 0;
 };
 
-DEFINE_OBJECT_PTR(Camera);
+SUEDE_DEFINE_OBJECT_POINTER(Camera);

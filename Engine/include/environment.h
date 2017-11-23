@@ -1,7 +1,7 @@
 #pragma once
 #include "skybox.h"
 
-class ENGINE_EXPORT IEnvironment {
+class SUEDE_API IEnvironment {
 public:
 	virtual void SetSkybox(Skybox value) = 0;
 	virtual Skybox GetSkybox() = 0;
@@ -10,4 +10,4 @@ public:
 	virtual glm::vec3 GetAmbientColor() = 0;
 };
 
-DEFINE_OBJECT_PTR(Environment);
+SUEDE_DEFINE_OBJECT_POINTER(Environment);

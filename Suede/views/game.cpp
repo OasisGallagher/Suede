@@ -1,6 +1,7 @@
 #include <QWidget>
 
 #include "game.h"
+#include "font.h"
 #include "light.h"
 #include "skybox.h"
 #include "camera.h"
@@ -9,6 +10,7 @@
 #include "engine.h"
 #include "texture.h"
 #include "surface.h"
+#include "variables.h"
 #include "particlesystem.h"
 
 #include "scripts/grayscale.h"
@@ -20,6 +22,7 @@
 //#define POST_EFFECTS
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
+#define FONT
 
 Game* Game::get() {
 	static Game instance;
@@ -172,6 +175,18 @@ void Game::createScene() {
 	sprite = world->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
 	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
+#elif defined(FONT)
+	sprite = world->Import("buildin/models/quad.obj");
+	sprite->SetPosition(glm::vec3(0, 20, -20));
+	sprite->SetEulerAngles(glm::vec3(0, 180, 0));
+	Font font = dsp_cast<Font>(world->Create(ObjectTypeFont));
+	font->Load("fonts/ms_yh.ttf", 20);
+	font->Require("²è");
+	Sprite child = sprite->FindChild("Cube_Cube.001");
+	if (child) {
+		Texture texture = font->GetMaterial()->GetTexture(Variables::mainTexture);
+		child->GetRenderer()->GetMaterial(0)->SetTexture(Variables::mainTexture, texture);
+	}
 #endif
 
 	if (sprite) {

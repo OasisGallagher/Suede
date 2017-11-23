@@ -5,35 +5,43 @@
 #include <freetype/fttrigon.h>
 
 #include "variables.h"
+#include "tools/path.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "fontinternal.h"
+#include "shaderinternal.h"
 #include "textureinternal.h"
 #include "materialinternal.h"
+#include "internal/file/image.h"
 
 FontInternal::FontInternal() 
-	: ObjectInternal(ObjectTypeFont) , materialDirty_(false), size_(10), 
-	face_(nullptr), library_(nullptr), atlasColumns_(16), atlasColumnCurrent_(0) {
+	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
+	material_ = CREATE_OBJECT(Material);
+	Shader shader = CREATE_OBJECT(Shader);
+	shader->Load("buildin/shaders/lit_texture");
+	material_->SetShader(shader);
 }
 
 FontInternal::~FontInternal() {
 	Destroy();
 }
 
-bool FontInternal::Load(const std::string& fname, int size) {
+bool FontInternal::Load(const std::string& path, int size) {
 	Destroy();
-	return Import(fname, size);
+	return Import("resources/" + path, size);
 }
 
 bool FontInternal::Require(const std::string& str) {
 	std::wstring wstr = String::MultiBytesToWideString(str);
 	bool status = true;
 	for (int i = 0; i < wstr.length(); ++i) {
-		if (!bitmaps_.contains(wstr[i])) {
-			FontBitmap* bitmap = bitmaps_[wstr[i]];
+		if (!glyphs_.contains(wstr[i])) {
+			Bitmap* bitmap = &glyphs_[wstr[i]]->bitmap;
+			bitmap->id = wstr[i];
+
 			status = GetBitmapBits(wstr[i], bitmap) && status;
-			atlasData_.push_back(bitmap);
-			materialDirty_ = true;
+			bitmaps_.push_back(bitmap);
+			material_->SetTexture(Variables::mainTexture, nullptr);
 		}
 	}
 
@@ -41,33 +49,42 @@ bool FontInternal::Require(const std::string& str) {
 }
 
 Material FontInternal::GetMaterial() { 
-	if (materialDirty_) { RebuildMaterial(); }
+	if (!material_->GetTexture(Variables::mainTexture)) {
+		RebuildMaterial();
+	}
+
 	return material_; 
 }
 
-bool FontInternal::Import(const std::string& fname, int size) {
+bool FontInternal::Import(const std::string& path, int size) {
 	int err = 0;
 	if ((err = FT_Init_FreeType(&library_)) != 0) {
-		Debug::LogError(String::Format("failed to load font %s (%d)", fname.c_str(), err));
+		Debug::LogError(String::Format("failed to load font %s (%d)", path.c_str(), err));
 		return false;
 	}
 
-	if ((err = FT_New_Face(library_, fname.c_str(), 0, &face_)) != 0) {
-		Debug::LogError(String::Format("failed to create font face for %s (%d)", fname.c_str(), err));
+	if ((err = FT_New_Face(library_, path.c_str(), 0, &face_)) != 0) {
+		Debug::LogError(String::Format("failed to create font face for %s (%d)", path.c_str(), err));
 		return false;
 	}
 
 	FT_Select_Charmap(face_, FT_ENCODING_UNICODE);
 	FT_Set_Char_Size(face_, size << 6, size << 6, 96, 96);
-
-	fname_ = fname;
+	
+	fname_ = Path::GetFileName(path);
 	size_ = size;
 
 	return true;
 }
 
-bool FontInternal::GetBitmapBits(wchar_t wch, FontBitmap* answer) {
+bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 	int err = 0;
+
+	if ((err = FT_Load_Glyph(face_, FT_Get_Char_Index(face_, wch), FT_LOAD_DEFAULT) != 0)) {
+		Debug::LogError(String::Format("failed to load glyph for char %d (%d)", wch, err));
+		return false;
+	}
+
 	FT_Glyph glyph;
 	if ((err = FT_Get_Glyph(face_->glyph, &glyph)) != 0) {
 		Debug::LogError(String::Format("failed to get glyph for char %d (%d)", wch, err));
@@ -82,92 +99,29 @@ bool FontInternal::GetBitmapBits(wchar_t wch, FontBitmap* answer) {
 	FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
 	const FT_Bitmap& bitmap = bitmapGlyph->bitmap;
 
-	int width = Math::NextPowerOfTwo(bitmap.width);
-	int height = Math::NextPowerOfTwo(bitmap.rows);
 	Bytes& data = answer->data;
-	size_t size = width * height;
+	size_t size = bitmap.width * bitmap.rows;
 	data.resize(size);
 	std::copy(bitmap.buffer, bitmap.buffer + size, &data[0]);
-	/*
-	for (int i = 0; i < height; ++i) {
-		for (int j = 0; j < width; ++j) {
-			unsigned char value = bitmap.buffer[j + bitmap.width * i];
-			if (j < bitmap.width && i < bitmap.rows) {
-				value = bitmap.buffer[j + bitmap.width * i];
-			}
 
-			data[2 * (j + i * width)] = data[2 * (j + i * width) + 1] = value;
-		}
-	}
-	*/
-	answer->width = width;
-	answer->height = height;
+	answer->width = bitmap.width;
+	answer->height = bitmap.rows;
+	answer->format = ColorFormatLuminanceAlpha;
 
 	return true;
 }
 
-void FontInternal::CalculateAtlasSize(int& width, int& height, int space) {
-	int maxWidth = 0, maxHeight = 0;
-
-	for (int i = 0; i < atlasData_.size();) {
-		int count = Math::Min((int)atlasData_.size() - i, atlasColumns_);
-		int w = 0, h = 0;
-		for (int j = i; j < i + count; ++j) {
-			w += atlasData_[j]->width;
-			h = Math::Max(h, atlasData_[j]->height);
-		}
-
-		maxWidth = Math::Max(maxWidth, w);
-		maxHeight += h;
-		i += count;
-	}
-
-	width = maxWidth;
-	height = maxHeight;
-}
-
 void FontInternal::RebuildMaterial() {
-	int width, height;
-	int space = 2;
-	CalculateAtlasSize(width, height, space);
-
-	Bytes data(width * height);
-	int offset = 0;
-
-	for (int i = 0; i < atlasData_.size();) {
-		int count = Math::Min((int)atlasData_.size() - i, atlasColumns_);
-		int lineHeight = 0;
-		int lineOffset = offset;
-		int scannedWidth = 0;
-
-		for (int j = i; j < i + count; ++j) {
-			FontBitmap* bitmap = atlasData_[j];
-			for (int r = 0; r < bitmap->height; ++r) {
-				for (int c = 0; c < bitmap->width; ++c) {
-					unsigned char pixel = bitmap->data[r * width + c];
-					data[lineOffset + (width - scannedWidth) * r + c] = pixel;
-				}
-			}
-
-			lineOffset += bitmap->width + space;
-			scannedWidth += bitmap->width + space;
-			lineHeight = Math::Max(lineHeight, bitmap->height);
-		}
-
-		offset += (lineHeight + space) * width;
-
-		i += count;
-	}
+	AtlasMaker::Make(atlas_, bitmaps_, 2);
 
 	Texture2D texture = CREATE_OBJECT(Texture2D);
-	texture->Load(&data[0], ColorFormatIntensity, width, height);
-	if (!material_) {
-		material_ = CREATE_OBJECT(Material);
-	}
+	texture->Load(&atlas_.data[0], ColorFormatLuminanceAlpha, atlas_.width, atlas_.height);
+
+	// release.
+	atlas_.data.swap(Bytes());
+	atlas_.width = atlas_.height = 0;
 
 	material_->SetTexture(Variables::mainTexture, texture);
-
-	materialDirty_ = false;
 }
 
 void FontInternal::Destroy() {

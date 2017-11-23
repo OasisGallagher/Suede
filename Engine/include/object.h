@@ -41,9 +41,9 @@ enum ObjectType {
 	ObjectTypeLights,
 };
 
-DEFINE_OBJECT_PTR(Object);
+SUEDE_DEFINE_OBJECT_POINTER(Object);
 
-class ENGINE_EXPORT IObject : public std::enable_shared_from_this<IObject> {
+class SUEDE_API IObject : public std::enable_shared_from_this<IObject> {
 public:
 	virtual ~IObject() {}
 

@@ -86,8 +86,19 @@ void Debug::EndSample() {
 }
 
 void Debug::AssertGLImpl(const char* file, int line) {
-	GLenum err = glGetError(); 
-	if (err != GL_NO_ERROR) {
-		Break(String::Format("glError: 0x%04x.", err), file, line);
+	GLenum code = glGetError(); 
+#define CASE(macro)		case macro: err = #macro; break
+	if (code != GL_NO_ERROR) {
+		const char* err = "undefined error";
+		switch (code) {
+			CASE(GL_INVALID_ENUM);
+			CASE(GL_INVALID_VALUE);
+			CASE(GL_INVALID_OPERATION);
+			CASE(GL_STACK_OVERFLOW);
+			CASE(GL_STACK_UNDERFLOW);
+		}
+
+		Break(String::Format("glError: %s(0x%04x).", err, code), file, line);
 	}
+#undef CASE
 }

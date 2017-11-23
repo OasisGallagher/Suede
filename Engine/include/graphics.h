@@ -2,9 +2,9 @@
 #include "material.h"
 #include "renderer.h"
 
-class ENGINE_EXPORT IGraphics {
+class SUEDE_API IGraphics {
 public:
 	virtual void Blit(RenderTexture src, RenderTexture dest, Material material) = 0;
 };
 
-DEFINE_OBJECT_PTR(Graphics);
+SUEDE_DEFINE_OBJECT_POINTER(Graphics);

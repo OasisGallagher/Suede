@@ -1,7 +1,7 @@
 #pragma once
 #include "defines.h"
 
-class ENGINE_EXPORT IScreen {
+class SUEDE_API IScreen {
 public:
 	virtual int GetContextWidth() = 0;
 	virtual int GetContextHeight() = 0;
@@ -9,4 +9,4 @@ public:
 	virtual void SetContentSize(int w, int h) = 0;
 };
 
-DEFINE_OBJECT_PTR(Screen);
+SUEDE_DEFINE_OBJECT_POINTER(Screen);

@@ -2,6 +2,7 @@
 #include <QSplitter>
 #include <QKeyEvent>
 #include <QFileDialog>
+#include <QStandardPaths>
 
 #include "suede.h"
 
@@ -108,18 +109,29 @@ void Suede::screenCapture() {
 	Camera camera = dsp_cast<Camera>(sprites.front());
 
 	Texture2D tex = camera->Capture();
+
+	QString filter = "*.jpg;;*.png";
+	
+	// TODO: save to desktop...
+	QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+	QString path = QFileDialog::getSaveFileName(this, "", desktop, filter);
+	
+	if (path.isEmpty()) {
+		return;
+	}
+
 	std::vector<unsigned char> data;
-	if (!tex->EncodeToJpg(data)) {
+	if (path.endsWith(".jpg") && !tex->EncodeToJpg(data)) {
+		return;
+	}
+
+	if (path.endsWith(".png") && !tex->EncodeToPng(data)) {
 		return;
 	}
 
 	QImage image;
 	if (image.loadFromData(&data[0], data.size())) {
-		QString filter = "image(*.jpg)";
-		QString path = QFileDialog::getSaveFileName(this, "", "", filter);
-		if (!path.isEmpty()) {
-			image.save(path);
-		}
+		image.save(path);
 	}
 }
 

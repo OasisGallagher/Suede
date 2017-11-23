@@ -16,9 +16,9 @@ struct Particle {
 	glm::vec3 position;
 };
 
-DEFINE_OBJECT_PTR(ParticleEmitter);
-DEFINE_OBJECT_PTR(SphereParticleEmitter);
-DEFINE_OBJECT_PTR(ParticleAnimator);
+SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter);
+SUEDE_DEFINE_OBJECT_POINTER(SphereParticleEmitter);
+SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator);
 
 class IParticleEmitter : virtual public IObject {
 public:
@@ -66,7 +66,7 @@ public:
 	virtual void Update(Particle& particle) = 0;
 };
 
-class ENGINE_EXPORT IParticleSystem : virtual public ISprite {
+class SUEDE_API IParticleSystem : virtual public ISprite {
 public:
 	virtual void SetDuration(float value) = 0;
 	virtual float GetDuration() = 0;
@@ -89,4 +89,4 @@ public:
 	virtual ParticleAnimator GetParticleAnimator() = 0;
 };
 
-DEFINE_OBJECT_PTR(ParticleSystem);
+SUEDE_DEFINE_OBJECT_POINTER(ParticleSystem);

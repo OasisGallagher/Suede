@@ -18,7 +18,7 @@ public:
 	virtual void GetTriangles(unsigned& vertexCount, unsigned& baseVertex, unsigned& baseIndex) = 0;
 };
 
-DEFINE_OBJECT_PTR(Mesh);
+SUEDE_DEFINE_OBJECT_POINTER(Mesh);
 
 struct BlendAttribute {
 	enum {
@@ -49,7 +49,7 @@ struct SurfaceAttribute {
 	InstanceAttribute geometry;
 };
 
-class ENGINE_EXPORT ISurface : virtual public IObject {
+class SUEDE_API ISurface : virtual public IObject {
 public:
 	virtual void SetAttribute(const SurfaceAttribute& value) = 0;
 	virtual void AddMesh(Mesh mesh) = 0;
@@ -62,4 +62,4 @@ public:
 	virtual void Unbind() = 0;
 };
 
-DEFINE_OBJECT_PTR(Surface);
+SUEDE_DEFINE_OBJECT_POINTER(Surface);

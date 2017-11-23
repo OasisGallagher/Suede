@@ -103,7 +103,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;__EXPORT_ENGINE__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\Shared\glm-0.9.7.1;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -166,7 +166,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\vertexarrayobject.cpp" />
     <ClCompile Include="internal\containers\variant.cpp" />
-    <ClCompile Include="internal\file\imagecodec.cpp" />
+    <ClCompile Include="internal\file\image.cpp" />
     <ClCompile Include="internal\file\shadercompiler.cpp" />
     <ClCompile Include="internal\file\assetimporter.cpp" />
     <ClCompile Include="internal\file\textloader.cpp" />
@@ -238,7 +238,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\containers\freelist.h" />
     <ClInclude Include="internal\containers\sortedvector.h" />
     <ClInclude Include="internal\containers\variant.h" />
-    <ClInclude Include="internal\file\imagecodec.h" />
+    <ClInclude Include="internal\file\image.h" />
     <ClInclude Include="internal\file\shadercompiler.h" />
     <ClInclude Include="internal\file\assetimporter.h" />
     <ClInclude Include="internal\file\textloader.h" />

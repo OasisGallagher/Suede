@@ -4,7 +4,7 @@
 #include "object.h"
 #include "environment.h"
 
-class ENGINE_EXPORT IWorld : virtual public IObject {
+class SUEDE_API IWorld : virtual public IObject {
 public:
 	virtual void Initialize() = 0;
 
@@ -20,4 +20,4 @@ public:
 	virtual Environment GetEnvironment() = 0;
 };
 
-DEFINE_OBJECT_PTR(World);
+SUEDE_DEFINE_OBJECT_POINTER(World);

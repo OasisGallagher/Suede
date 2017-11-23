@@ -36,7 +36,7 @@ public:
 class IDirectionalLight : virtual public ILight {
 };
 
-DEFINE_OBJECT_PTR(Light);
-DEFINE_OBJECT_PTR(SpotLight);
-DEFINE_OBJECT_PTR(PointLight);
-DEFINE_OBJECT_PTR(DirectionalLight);
+SUEDE_DEFINE_OBJECT_POINTER(Light);
+SUEDE_DEFINE_OBJECT_POINTER(SpotLight);
+SUEDE_DEFINE_OBJECT_POINTER(PointLight);
+SUEDE_DEFINE_OBJECT_POINTER(DirectionalLight);

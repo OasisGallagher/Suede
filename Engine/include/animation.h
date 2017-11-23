@@ -2,13 +2,13 @@
 #include <vector>
 #include "object.h"
 
-DEFINE_OBJECT_PTR(Skeleton);
-DEFINE_OBJECT_PTR(Animation);
-DEFINE_OBJECT_PTR(AnimationClip);
-DEFINE_OBJECT_PTR(AnimationKeys);
-DEFINE_OBJECT_PTR(AnimationCurve);
-DEFINE_OBJECT_PTR(AnimationState);
-DEFINE_OBJECT_PTR(AnimationFrame);
+SUEDE_DEFINE_OBJECT_POINTER(Skeleton);
+SUEDE_DEFINE_OBJECT_POINTER(Animation);
+SUEDE_DEFINE_OBJECT_POINTER(AnimationClip);
+SUEDE_DEFINE_OBJECT_POINTER(AnimationKeys);
+SUEDE_DEFINE_OBJECT_POINTER(AnimationCurve);
+SUEDE_DEFINE_OBJECT_POINTER(AnimationState);
+SUEDE_DEFINE_OBJECT_POINTER(AnimationFrame);
 
 struct SkeletonBone {
 	std::string name;
@@ -48,7 +48,7 @@ enum AnimationWrapMode {
 	AnimationWrapModeClampForever,
 };
 
-class ENGINE_EXPORT IAnimationClip : virtual public IObject {
+class SUEDE_API IAnimationClip : virtual public IObject {
 public:
 	virtual void SetWrapMode(AnimationWrapMode value) = 0;
 	virtual AnimationWrapMode GetWrapMode() = 0;
@@ -68,10 +68,10 @@ public:
 	virtual bool Sample(float time) = 0;
 };
 
-class ENGINE_EXPORT IAnimationState : virtual public IObject {
+class SUEDE_API IAnimationState : virtual public IObject {
 };
 
-class ENGINE_EXPORT IAnimationKeys : virtual public IObject {
+class SUEDE_API IAnimationKeys : virtual public IObject {
 public:
 	virtual void AddFloat(int id, float time, float value) = 0;
 	virtual void AddVector3(int id, float time, const glm::vec3& value) = 0;
@@ -91,7 +91,7 @@ enum {
 	FrameKeyMaxCount = 8,
 };
 
-class ENGINE_EXPORT IAnimationFrame : virtual public IObject {
+class SUEDE_API IAnimationFrame : virtual public IObject {
 public:
 	virtual void SetTime(float value) = 0;
 	virtual float GetTime() = 0;
@@ -108,13 +108,13 @@ public:
 	virtual glm::quat GetQuaternion(int id) = 0;
 };
 
-class ENGINE_EXPORT IAnimationCurve : virtual public IObject {
+class SUEDE_API IAnimationCurve : virtual public IObject {
 public:
 	virtual void SetKeyframes(const std::vector<AnimationFrame>& value) = 0;
 	virtual bool Sample(float time, AnimationFrame& frame) = 0;
 };
 
-class ENGINE_EXPORT IAnimation : virtual public IObject {
+class SUEDE_API IAnimation : virtual public IObject {
 public:
 	virtual void AddClip(const std::string& name, AnimationClip value) = 0;
 	virtual AnimationClip GetClip(const std::string& name) = 0;

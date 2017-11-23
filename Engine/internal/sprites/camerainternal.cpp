@@ -5,8 +5,8 @@
 #include "variables.h"
 #include "tools/debug.h"
 #include "tools/math2.h"
+#include "internal/file/image.h"
 #include "internal/memory/factory.h"
-#include "internal/file/imagecodec.h"
 #include "internal/base/framebuffer.h"
 #include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
@@ -141,8 +141,8 @@ void CameraInternal::Render() {
 #include "internal/base/fontinternal.h"
 Texture2D CameraInternal::Capture() {
 	FontInternal f;
-	f.Load("resources/fonts/ms_yh.ttf", 12);
-	f.Require("G1ÈıÌå");
+	f.Load("fonts/ms_yh.ttf", 12);
+	f.Require("ıˆ²èÍ¼ÔÏAdb");
 	return dsp_cast<Texture2D>(f.GetMaterial()->GetTexture(Variables::mainTexture));
 	/*
 	std::vector<unsigned char> data;

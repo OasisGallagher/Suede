@@ -265,9 +265,6 @@
     <ClInclude Include="internal\base\animationinternal.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\file\imagecodec.h">
-      <Filter>internal\file\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\containers\variant.h">
       <Filter>internal\containers\include</Filter>
     </ClInclude>
@@ -300,6 +297,9 @@
     </ClInclude>
     <ClInclude Include="internal\base\fontinternal.h">
       <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\image.h">
+      <Filter>internal\file\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -402,9 +402,6 @@
     <ClCompile Include="internal\base\animationinternal.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\file\imagecodec.cpp">
-      <Filter>internal\file\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\containers\variant.cpp">
       <Filter>internal\containers\src</Filter>
     </ClCompile>
@@ -419,6 +416,9 @@
     </ClCompile>
     <ClCompile Include="internal\base\fontinternal.cpp">
       <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\image.cpp">
+      <Filter>internal\file\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

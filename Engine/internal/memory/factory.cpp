@@ -1,5 +1,6 @@
 #include "internal/memory/factory.h"
 
+#include "internal/base/fontinternal.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/surfaceinternal.h"
 #include "internal/base/textureinternal.h"
@@ -25,6 +26,7 @@ Factory::Factory() {
 
 	//ADD_FACTROY_METHOD(World);
 
+	ADD_FACTROY_METHOD(Font);
 	ADD_FACTROY_METHOD(Mesh);
 	ADD_FACTROY_METHOD(Camera);
 	ADD_FACTROY_METHOD(Shader);

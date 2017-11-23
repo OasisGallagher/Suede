@@ -38,6 +38,8 @@ public:
 		cont_.clear();
 	}
 
+	size_t size() const { return cont_.size(); }
+
 	iterator begin() { return cont_.begin(); }
 	iterator end() { return cont_.end(); }
 

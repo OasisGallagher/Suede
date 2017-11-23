@@ -3,7 +3,7 @@
 
 #include "object.h"
 
-class ENGINE_EXPORT ITexture : virtual public IObject {
+class SUEDE_API ITexture : virtual public IObject {
 public:
 	virtual void Bind(unsigned index) = 0;
 	virtual void Unbind() = 0;
@@ -16,11 +16,10 @@ public:
 enum ColorFormat {
 	ColorFormatRgb,
 	ColorFormatRgba,
-	ColorFormatIntensity,
 	ColorFormatLuminanceAlpha,
 };
 
-class ENGINE_EXPORT ITexture2D : virtual public ITexture {
+class SUEDE_API ITexture2D : virtual public ITexture {
 public:
 	virtual bool Load(const std::string& path) = 0;
 	virtual bool Load(const void* data, ColorFormat format, int width, int height) = 0;
@@ -29,7 +28,7 @@ public:
 	virtual bool EncodeToJpg(std::vector<unsigned char>& data) = 0;
 };
 
-class ENGINE_EXPORT ITextureCube : virtual public ITexture {
+class SUEDE_API ITextureCube : virtual public ITexture {
 public:
 	virtual bool Load(const std::string(&textures)[6]) = 0;
 };
@@ -41,12 +40,12 @@ enum RenderTextureFormat {
 	RenderTextureFormatShadow,
 };
 
-class ENGINE_EXPORT IRenderTexture : virtual public ITexture {
+class SUEDE_API IRenderTexture : virtual public ITexture {
 public:
 	virtual bool Load(RenderTextureFormat format, int width, int height) = 0;
 };
 
-DEFINE_OBJECT_PTR(Texture);
-DEFINE_OBJECT_PTR(Texture2D);
-DEFINE_OBJECT_PTR(TextureCube);
-DEFINE_OBJECT_PTR(RenderTexture);
+SUEDE_DEFINE_OBJECT_POINTER(Texture);
+SUEDE_DEFINE_OBJECT_POINTER(Texture2D);
+SUEDE_DEFINE_OBJECT_POINTER(TextureCube);
+SUEDE_DEFINE_OBJECT_POINTER(RenderTexture);

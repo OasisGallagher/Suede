@@ -6,9 +6,9 @@
 #include "renderer.h"
 #include "animation.h"
 
-DEFINE_OBJECT_PTR(Sprite);
+SUEDE_DEFINE_OBJECT_POINTER(Sprite);
 
-class ENGINE_EXPORT ISprite : virtual public IObject {
+class SUEDE_API ISprite : virtual public IObject {
 public:
 	virtual void SetActive(bool value) = 0;
 	virtual bool GetActive() = 0;

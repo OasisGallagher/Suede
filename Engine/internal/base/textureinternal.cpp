@@ -3,7 +3,7 @@
 #include "tools/path.h"
 #include "tools/debug.h"
 #include "textureinternal.h"
-#include "internal/file/imagecodec.h"
+#include "internal/file/image.h"
 
 void TextureInternal::Bind(unsigned index) {
 	AssertX(glIsTexture(texture_), "invalid texture");
@@ -46,7 +46,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	int width, height;
-	std::vector<unsigned char> data;
+	Bytes data;
 	if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + path, data, width, height)) {
 		return false;
 	}
@@ -66,6 +66,8 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 
 	GLenum glFormat = ColorFormatToGLEnum(format);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, glFormat, GL_UNSIGNED_BYTE, data);
+	AssertGL();
+
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -101,9 +103,6 @@ GLenum Texture2DInternal::ColorFormatToGLEnum(ColorFormat format) {
 		case ColorFormatRgba:
 			ans = GL_RGBA;
 			break;
-		case  ColorFormatIntensity:
-			ans = GL_INTENSITY;
-			break;
 		case ColorFormatLuminanceAlpha:
 			ans = GL_LUMINANCE_ALPHA;
 			break;
@@ -128,7 +127,7 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 
 	for (int i = 0; i < 6; ++i) {
 		int width, height;
-		std::vector<unsigned char> data;
+		Bytes data;
 		
 		if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + textures[i], data, width, height)) {
 			DestroyTexture();

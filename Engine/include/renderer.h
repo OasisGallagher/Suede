@@ -11,9 +11,9 @@ enum RenderQueue {
 	RenderQueueTransparent = 4000,
 };
 
-DEFINE_OBJECT_PTR(Sprite);
+SUEDE_DEFINE_OBJECT_POINTER(Sprite);
 
-class ENGINE_EXPORT IRenderer : virtual public IObject {
+class SUEDE_API IRenderer : virtual public IObject {
 public:
 	virtual void RenderSprite(Sprite sprite) = 0;
 
@@ -31,19 +31,19 @@ public:
 	virtual int GetRenderQueue() = 0;
 };
 
-class ENGINE_EXPORT ISurfaceRenderer : virtual public IRenderer {
+class SUEDE_API ISurfaceRenderer : virtual public IRenderer {
 
 };
 
-class ENGINE_EXPORT IParticleRenderer : virtual public IRenderer {
+class SUEDE_API IParticleRenderer : virtual public IRenderer {
 };
 
-class ENGINE_EXPORT ISkinnedSurfaceRenderer : virtual public IRenderer {
+class SUEDE_API ISkinnedSurfaceRenderer : virtual public IRenderer {
 public:
 	virtual void SetSkeleton(Skeleton value) = 0;
 };
 
-DEFINE_OBJECT_PTR(Renderer);
-DEFINE_OBJECT_PTR(SurfaceRenderer);
-DEFINE_OBJECT_PTR(ParticleRenderer);
-DEFINE_OBJECT_PTR(SkinnedSurfaceRenderer);
+SUEDE_DEFINE_OBJECT_POINTER(Renderer);
+SUEDE_DEFINE_OBJECT_POINTER(SurfaceRenderer);
+SUEDE_DEFINE_OBJECT_POINTER(ParticleRenderer);
+SUEDE_DEFINE_OBJECT_POINTER(SkinnedSurfaceRenderer);
