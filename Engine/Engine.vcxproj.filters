@@ -121,9 +121,6 @@
     <ClInclude Include="include\sprite.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\surface.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\texture.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -140,9 +137,6 @@
       <Filter>internal\base\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\shaderinternal.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\base\surfaceinternal.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\textureinternal.h">
@@ -301,6 +295,12 @@
     <ClInclude Include="internal\containers\ptrmap.h">
       <Filter>internal\containers\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\mesh.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\meshinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -310,9 +310,6 @@
       <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\shaderinternal.cpp">
-      <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\base\surfaceinternal.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\textureinternal.cpp">
@@ -419,6 +416,9 @@
     </ClCompile>
     <ClCompile Include="internal\file\image.cpp">
       <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\meshinternal.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

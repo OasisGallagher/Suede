@@ -10,6 +10,23 @@ RendererInternal::~RendererInternal() {
 }
 
 void RendererInternal::RenderSprite(Sprite sprite) {
+	UpdateMaterial(sprite);
+
+	Mesh mesh = sprite->GetMesh();
+	if (GetMaterialCount() == 1) {
+		RenderMesh(mesh, GetMaterial(0));
+	}
+	else {
+		RenderMesh(sprite->GetMesh());
+	}
+}
+
+GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
+	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
+	return GL_TRIANGLE_STRIP;
+}
+
+void RendererInternal::UpdateMaterial(Sprite sprite) {
 	int materialCount = GetMaterialCount();
 	for (int i = 0; i < materialCount; ++i) {
 		Material material = GetMaterial(i);
@@ -19,53 +36,58 @@ void RendererInternal::RenderSprite(Sprite sprite) {
 		glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
 		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
 	}
+}
 
-	Assert(materialCount == 1 || materialCount == sprite->GetSurfaceCount());
+void RendererInternal::RenderMesh(Mesh mesh) {
+	int subMeshCount = mesh->GetSubMeshCount();
+	int materialCount = GetMaterialCount();
 
-	// TODO: relationship between material and surface...
-	if (materialCount == 1) { GetMaterial(0)->Bind(); }
-
-	for (int i = 0; i < sprite->GetSurfaceCount(); ++i) {
-		if (materialCount > 1) { GetMaterial(i)->Bind(); }
-		
-		RenderSurface(sprite->GetSurface(i));
-
-		if (materialCount > 1) { GetMaterial(i)->Unbind(); }
+	Assert(materialCount == subMeshCount);
+	if (materialCount != subMeshCount) {
+		Debug::LogError("material count mismatch with sub mesh count");
+		return;
 	}
 
-	if (materialCount == 1) { GetMaterial(0)->Unbind(); }
-}
+	mesh->Bind();
 
-GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
-	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
-	return GL_TRIANGLE_STRIP;
-}
+	for (int i = 0; i < subMeshCount; ++i) {
+		GetMaterial(i)->Bind();
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		DrawCall(subMesh, mesh->GetTopology());
 
-void RendererInternal::RenderSurface(Surface surface) {
-	surface->Bind();
-
-	for (int i = 0; i < surface->GetMeshCount(); ++i) {
-		Mesh mesh = surface->GetMesh(i);
-		DrawCall(mesh);
+		GetMaterial(i)->Unbind();
 	}
 
-	surface->Unbind();
+	mesh->Unbind();
 }
 
-void RendererInternal::DrawCall(Mesh mesh) {
-	uint vertexCount, baseVertex, baseIndex;
-	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
+void RendererInternal::RenderMesh(Mesh mesh, Material material) {
+	mesh->Bind();
+	material->Bind();
 
-	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
-	glDrawElementsBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		DrawCall(subMesh, mesh->GetTopology());
+	}
+
+	mesh->Unbind();
+	material->Unbind();
 }
 
-void SkinnedSurfaceRendererInternal::RenderSurface(Surface surface) {
+void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
+	uint indexCount, baseVertex, baseIndex;
+	subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+
+	GLenum mode = TopologyToGLEnum(topology);
+	glDrawElementsBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
+}
+
+void SkinnedMeshRendererInternal::UpdateMaterial(Sprite sprite) {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
 		GetMaterial(i)->SetMatrix4(Variables::boneToRootSpaceMatrices, *skeleton_->GetBoneToRootSpaceMatrices());
 	}
 
-	RendererInternal::RenderSurface(surface);
+	RendererInternal::UpdateMaterial(sprite);
 }
 
 ParticleRendererInternal::ParticleRendererInternal()
@@ -86,11 +108,11 @@ void ParticleRendererInternal::RenderSprite(Sprite sprite) {
 	RendererInternal::RenderSprite(sprite);
 }
 
-void ParticleRendererInternal::DrawCall(Mesh mesh) {
+void ParticleRendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
 	if (particleCount_ == 0) { return; }
-	uint vertexCount, baseVertex, baseIndex;
-	mesh->GetTriangles(vertexCount, baseVertex, baseIndex);
+	uint indexCount, baseVertex, baseIndex;
+	subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
 
-	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
-	glDrawElementsInstancedBaseVertex(mode, vertexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), particleCount_, baseVertex);
+	GLenum mode = TopologyToGLEnum(topology);
+	glDrawElementsInstancedBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), particleCount_, baseVertex);
 }

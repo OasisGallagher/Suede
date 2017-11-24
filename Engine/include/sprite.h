@@ -1,8 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#include "object.h"
-#include "surface.h"
+#include "mesh.h"
 #include "renderer.h"
 #include "animation.h"
 
@@ -62,9 +61,8 @@ public:
 	virtual void SetAnimation(Animation value) = 0;
 	virtual Animation GetAnimation() = 0;
 
-	virtual void AddSurface(Surface value) = 0;
-	virtual int GetSurfaceCount() = 0;
-	virtual Surface GetSurface(int i) = 0;
+	virtual void SetMesh(Mesh value) = 0;
+	virtual Mesh GetMesh() = 0;
 
 	virtual void SetRenderer(Renderer value) = 0;
 	virtual Renderer GetRenderer() = 0;

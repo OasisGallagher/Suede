@@ -1,6 +1,6 @@
 #include <gl/glew.h>
 
-#include "surface.h"
+#include "mesh.h"
 #include "renderer.h"
 #include "particlesystem.h"
 #include "internal/base/objectinternal.h"
@@ -14,7 +14,7 @@ public:
 
 public:
 	virtual void RenderSprite(Sprite sprite);
-	virtual void RenderSurface(Surface surface);
+	virtual void RenderMesh(Mesh mesh, Material material);
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
 	virtual Material GetMaterial(int index) { return materials_[index]; }
@@ -25,31 +25,35 @@ public:
 	virtual void SetRenderQueue(int value) { queue_ = value; }
 
 protected:
-	virtual void DrawCall(Mesh mesh);
+	virtual void UpdateMaterial(Sprite sprite);
+	virtual void DrawCall(SubMesh subMesh, MeshTopology topology);
 
 protected:
 	GLenum TopologyToGLEnum(MeshTopology topology);
+
+private:
+	virtual void RenderMesh(Mesh mesh);
 
 private:
 	int queue_;
 	std::vector<Material> materials_;
 };
 
-class SurfaceRendererInternal : public ISurfaceRenderer, public RendererInternal {
-	DEFINE_FACTORY_METHOD(SurfaceRenderer)
+class MeshRendererInternal : public IMeshRenderer, public RendererInternal {
+	DEFINE_FACTORY_METHOD(MeshRenderer)
 
 public:
-	SurfaceRendererInternal() : RendererInternal(ObjectTypeSurfaceRenderer) {}
+	MeshRendererInternal() : RendererInternal(ObjectTypeMeshRenderer) {}
 };
 
-class SkinnedSurfaceRendererInternal : public ISkinnedSurfaceRenderer, public RendererInternal {
-	DEFINE_FACTORY_METHOD(SkinnedSurfaceRenderer)
+class SkinnedMeshRendererInternal : public ISkinnedMeshRenderer, public RendererInternal {
+	DEFINE_FACTORY_METHOD(SkinnedMeshRenderer)
 
 public:
-	SkinnedSurfaceRendererInternal() : RendererInternal(ObjectTypeSkinnedSurfaceRenderer) {}
+	SkinnedMeshRendererInternal() : RendererInternal(ObjectTypeSkinnedMeshRenderer) {}
 
 public:
-	virtual void RenderSurface(Surface surface);
+	virtual void UpdateMaterial(Sprite sprite);
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 
 private:
@@ -67,7 +71,7 @@ public:
 	virtual void AddMaterial(Material material);
 
 protected:
-	virtual void DrawCall(Mesh mesh);
+	virtual void DrawCall(SubMesh subMesh, MeshTopology topology);
 
 private:
 	uint particleCount_;

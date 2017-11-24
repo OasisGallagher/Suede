@@ -1,12 +1,12 @@
 #include "variables.h"
 #include "tools/math2.h"
 #include "particlesysteminternal.h"
+#include "internal/base/meshinternal.h"
 #include "internal/misc/timefinternal.h"
 #include "internal/world/worldinternal.h"
 #include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
-#include "internal/base/surfaceinternal.h"
 #include "internal/base/materialinternal.h"
 #include "internal/base/rendererinternal.h"
 
@@ -18,7 +18,7 @@ ParticleSystemInternal::ParticleSystemInternal()
 	: SpriteInternal(ObjectTypeParticleSystem), duration_(3)
 	, looping_(false), startDelay_(0), time_(0), maxParticles_(MAX_PARTICLE_COUNT)
 	, particles_(MAX_PARTICLE_COUNT) {
-	InitializeSurface();
+	InitializeMesh();
 	InitializeRenderer();
 }
 
@@ -29,7 +29,7 @@ void ParticleSystemInternal::SetMaxParticles(uint value) {
 	if (maxParticles_ != value) {
 		maxParticles_ = value;
 		particles_.reallocate(value);
-		InitializeSurface();
+		InitializeMesh();
 	}
 }
 
@@ -82,16 +82,16 @@ void ParticleSystemInternal::UpdateParticles() {
 		UpdateAttributes();
 		UpdateBuffers();
 		SortBuffers();
-		UpdateSurface();
+		UpdateMesh();
 	}
 }
 
-void ParticleSystemInternal::UpdateSurface() {
+void ParticleSystemInternal::UpdateMesh() {
 	uint count = particles_.size();
 	if (count > 0) {
-		Surface surface = GetSurface(0);
-		surface->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
-		surface->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
+		Mesh mesh = GetMesh();
+		mesh->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
+		mesh->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
 	}
 }
 
@@ -156,11 +156,11 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 	}
 }
 
-void ParticleSystemInternal::InitializeSurface() {
-	InstanceAttribute color(maxParticles_, 1);
-	InstanceAttribute geometry(maxParticles_, 1);
-	Surface surface = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, color, geometry);
-	AddSurface(surface);
+void ParticleSystemInternal::InitializeMesh() {
+	InstanceAttribute color{ maxParticles_, 1 };
+	InstanceAttribute geometry{ maxParticles_, 1 };
+	Mesh mesh = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, color, geometry);
+	SetMesh(mesh);
 }
 
 void ParticleSystemInternal::InitializeRenderer() {

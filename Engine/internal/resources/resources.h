@@ -1,6 +1,6 @@
 #pragma once
+#include "mesh.h"
 #include "shader.h"
-#include "surface.h"
 #include "material.h"
 
 enum PrimitiveType {
@@ -14,18 +14,18 @@ public:
 	static void Initialize();
 
 public:
-	static Surface GetPrimitive(PrimitiveType type);
-	static Surface CreatePrimitive(PrimitiveType type);
-	static Surface CreateInstancedPrimitive(PrimitiveType type, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	static Mesh GetPrimitive(PrimitiveType type);
+	static Mesh CreatePrimitive(PrimitiveType type);
+	static Mesh CreateInstancedPrimitive(PrimitiveType type, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
-	static void GetPrimitiveAttribute(PrimitiveType type, SurfaceAttribute& attribute);
+	static void GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& attribute);
 
 	static Shader FindShader(const std::string& path);
 	static Texture FindTexture(const std::string& path);
 	static Material FindMaterial(const std::string& name);
 
 private:
-	static void GetQuadSurfaceAttribute(SurfaceAttribute& attribute);
-	static void GetCubeSurfaceAttribute(SurfaceAttribute& attribute);
-	static Surface CreateSurface(SurfaceAttribute &attribute);
+	static void GetQuadMeshAttribute(MeshAttribute& attribute);
+	static void GetCubeMeshAttribute(MeshAttribute& attribute);
+	static Mesh CreateMesh(MeshAttribute &attribute);
 };

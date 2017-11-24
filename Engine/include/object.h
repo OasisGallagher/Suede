@@ -3,18 +3,18 @@
 #include "defines.h"
 
 enum ObjectType {
+	ObjectTypeFont,
 	ObjectTypeMesh,
 	ObjectTypeWorld,
-	ObjectTypeFont,
 	ObjectTypeShader,
-	ObjectTypeSurface,
+	ObjectTypeSubMesh,
 	ObjectTypeMaterial,
 	ObjectTypeTexture2D,
 	ObjectTypeTextureCube,
 	ObjectTypeRenderTexture,
-	ObjectTypeSurfaceRenderer,
+	ObjectTypeMeshRenderer,
 	ObjectTypeParticleRenderer,
-	ObjectTypeSkinnedSurfaceRenderer,
+	ObjectTypeSkinnedMeshRenderer,
 
 	ObjectTypeSkeleton,
 	ObjectTypeAnimation,

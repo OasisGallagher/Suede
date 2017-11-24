@@ -15,15 +15,17 @@
 #include "assetimporter.h"
 #include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
+#include "internal/base/meshinternal.h"
 #include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/world/worldinternal.h"
 #include "internal/base/textureinternal.h"
-#include "internal/base/surfaceinternal.h"
 #include "internal/base/materialinternal.h"
 #include "internal/base/rendererinternal.h"
 #include "internal/base/animationinternal.h"
 #include "internal/sprites/spriteinternal.h"
+
+// TODO: import jeep.fbx, lost texture.
 
 static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
@@ -67,8 +69,8 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	Assimp::Importer importer;
 	Initialize(path, importer);
 
-	Surface* surfaces = nullptr;
 	Material* materials = nullptr;
+	MeshAttribute* attributes = nullptr;
 
 	if (scene_->mNumMaterials > 0) {
 		materials = MEMORY_CREATE_ARRAY(Material, scene_->mNumMaterials);
@@ -78,16 +80,16 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	}
 
 	if (scene_->mNumMeshes > 0) {
-		surfaces = MEMORY_CREATE_ARRAY(Surface, scene_->mNumMeshes);
-		if (!ReadSurfaces(surfaces)) {
-			Debug::LogError("failed to load surfaces for " + path);
+		attributes = MEMORY_CREATE_ARRAY(MeshAttribute, scene_->mNumMeshes);
+		if (!ReadAttributes(attributes)) {
+			Debug::LogError("failed to load meshes for " + path);
 		}
 	}
 
-	ReadNodeTo(sprite, scene_->mRootNode, surfaces, materials);
-	ReadChildren(sprite, scene_->mRootNode, surfaces, materials);
+	ReadNodeTo(sprite, scene_->mRootNode, attributes, materials);
+	ReadChildren(sprite, scene_->mRootNode, attributes, materials);
 
-	MEMORY_RELEASE_ARRAY(surfaces);
+	MEMORY_RELEASE_ARRAY(attributes);
 	MEMORY_RELEASE_ARRAY(materials);
 
 	Animation animation;
@@ -96,21 +98,6 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	}
 
 	return true;
-}
-
-Surface AssetImporter::ImportSurface(const std::string& path) {
-	Assimp::Importer importer;
-	Initialize(path, importer);
-	if (scene_->mNumMeshes == 0) {
-		return nullptr;
-	}
-
-	Surface surface = CREATE_OBJECT(Surface);
-	if (!ReadSurface(surface, 0)) {
-		Debug::LogError("failed to load surface for " + path);
-	}
-
-	return surface;
 }
 
 void AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
@@ -138,17 +125,28 @@ void AssetImporter::Clear() {
 	animation_.reset();
 }
 
-Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, Surface* surfaces, Material* materials) {
+void AssetImporter::Merge(MeshAttribute& dest, const MeshAttribute& src) {
+#define MERGE_FIELD(field)	dest.field.insert(dest.field.end(), src.field.begin(), src.field.end())
+	MERGE_FIELD(positions);
+	MERGE_FIELD(normals);
+	MERGE_FIELD(texCoords);
+	MERGE_FIELD(tangents);
+	MERGE_FIELD(blendAttrs);
+	MERGE_FIELD(indexes);
+#undef MERGE_FIELD
+}
+
+Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
 	sprite->SetParent(parent);
 
-	ReadNodeTo(sprite, node, surfaces, materials);
-	ReadChildren(sprite, node, surfaces, materials);
+	ReadNodeTo(sprite, node, attributes, materials);
+	ReadChildren(sprite, node, attributes, materials);
 
 	return sprite;
 }
 
-void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials) {
+void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	sprite->SetName(node->mName.C_Str());
 
 	glm::vec3 translation, scale;
@@ -159,18 +157,35 @@ void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, M
 	sprite->SetLocalRotation(rotation);
 	sprite->SetLocalPosition(translation);
 
-	Renderer renderer;
+	if (node->mNumMeshes > 0) {
+		ReadComponents(sprite, node, attributes, materials);
+	}
+}
 
+void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
+	Renderer renderer = nullptr;
+	if (scene_->mNumAnimations == 0) {
+		renderer = CREATE_OBJECT(MeshRenderer);
+	}
+	else {
+		renderer = CREATE_OBJECT(SkinnedMeshRenderer);
+		dsp_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
+	}
+
+	MeshAttribute current;
+	current.color.count = current.color.divisor = 0;
+	current.geometry.count = current.geometry.divisor = 0;
+
+	Mesh mesh = CREATE_OBJECT(Mesh);
+	mesh->SetTopology(MeshTopologyTriangles);
+
+	SubMesh* subMeshes = MEMORY_CREATE_ARRAY(SubMesh, node->mNumMeshes);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
-		sprite->AddSurface(surfaces[node->mMeshes[i]]);
+		subMeshes[i] = CREATE_OBJECT(SubMesh);
+		subMeshes[i]->SetTriangles(attributes[i].indexes.size(), current.positions.size(), current.indexes.size());
+		mesh->AddSubMesh(subMeshes[i]);
 
-		if (!renderer) {
-			ObjectType type = (scene_->mNumAnimations > 0) ? ObjectTypeSkinnedSurfaceRenderer : ObjectTypeSurfaceRenderer;
-			renderer = dsp_cast<Renderer>(worldInstance->Create(type));
-			if (type == ObjectTypeSkinnedSurfaceRenderer) {
-				dsp_cast<SkinnedSurfaceRenderer>(renderer)->SetSkeleton(skeleton_);
-			}
-		}
+		Merge(current, attributes[i]);
 
 		uint materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
@@ -178,40 +193,28 @@ void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, M
 		}
 	}
 
+	MEMORY_RELEASE_ARRAY(subMeshes);
+	mesh->SetAttribute(current);
+
+	sprite->SetMesh(mesh);
 	sprite->SetRenderer(renderer);
 }
 
-void AssetImporter::ReadChildren(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials) {
+void AssetImporter::ReadChildren(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		ReadHierarchy(sprite, node->mChildren[i], surfaces, materials);
+		ReadHierarchy(sprite, node->mChildren[i], attributes, materials);
 	}
 }
 
-bool AssetImporter::ReadSurfaces(Surface* surfaces) {
-	AssertGL();
+bool AssetImporter::ReadAttributes(MeshAttribute* attributes) {
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
-		Surface surface = CREATE_OBJECT(Surface);
-		ReadSurface(surface, i);
-		surfaces[i] = surface;
+		ReadAttribute(attributes[i], i);
 	}
 
 	return true;
 }
 
-bool AssetImporter::ReadSurface(Surface surface, int index) {
-	AssertGL();
-	SurfaceAttribute attribute;
-	Mesh mesh = CREATE_OBJECT(Mesh);
-	mesh->SetTriangles(scene_->mMeshes[index]->mNumFaces * 3, 0, 0);
-	surface->AddMesh(mesh);
-
-	ReadSurfaceAttributes(surface, index, attribute);
-	surface->SetAttribute(attribute);
-
-	return true;
-}
-
-void AssetImporter::ReadSurfaceAttributes(Surface surface, int index, SurfaceAttribute& attribute) {
+bool AssetImporter::ReadAttribute(MeshAttribute& attribute, int index) {
 	int indexCount = scene_->mMeshes[index]->mNumFaces * 3;
 	int vertexCount = scene_->mMeshes[index]->mNumVertices;
 	attribute.positions.reserve(vertexCount);
@@ -225,11 +228,16 @@ void AssetImporter::ReadSurfaceAttributes(Surface surface, int index, SurfaceAtt
 		memset(&attribute.blendAttrs[i], 0, sizeof(BlendAttribute));
 	}
 
+	attribute.color.count = attribute.color.divisor = 0;
+	attribute.geometry.count = attribute.geometry.divisor = 0;
+
 	ReadVertexAttributes(index, attribute);
 	ReadBoneAttributes(index, attribute);
+
+	return true;
 }
 
-void AssetImporter::ReadVertexAttributes(int index, SurfaceAttribute& attribute) {
+void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[index];
 
 	const aiVector3D zero(0);
@@ -255,7 +263,7 @@ void AssetImporter::ReadVertexAttributes(int index, SurfaceAttribute& attribute)
 	}
 }
 
-void AssetImporter::ReadBoneAttributes(int index, SurfaceAttribute& attribute) {
+void AssetImporter::ReadBoneAttributes(int index, MeshAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[index];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = CREATE_OBJECT(Skeleton); }

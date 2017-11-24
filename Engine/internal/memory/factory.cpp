@@ -1,8 +1,8 @@
 #include "internal/memory/factory.h"
 
 #include "internal/base/fontinternal.h"
+#include "internal/base/meshinternal.h"
 #include "internal/base/shaderinternal.h"
-#include "internal/base/surfaceinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/rendererinternal.h"
 #include "internal/base/materialinternal.h"
@@ -27,15 +27,15 @@ Factory::Factory() {
 	//ADD_FACTROY_METHOD(World);
 
 	ADD_FACTROY_METHOD(Font);
-	ADD_FACTROY_METHOD(Mesh);
 	ADD_FACTROY_METHOD(Camera);
 	ADD_FACTROY_METHOD(Shader);
 	ADD_FACTROY_METHOD(Skybox);
 	ADD_FACTROY_METHOD(Sprite);
-	ADD_FACTROY_METHOD(Surface);
+	ADD_FACTROY_METHOD(Mesh);
+	ADD_FACTROY_METHOD(SubMesh);
 	ADD_FACTROY_METHOD(Material);
-	ADD_FACTROY_METHOD(SurfaceRenderer);
-	ADD_FACTROY_METHOD(SkinnedSurfaceRenderer);
+	ADD_FACTROY_METHOD(MeshRenderer);
+	ADD_FACTROY_METHOD(SkinnedMeshRenderer);
 	ADD_FACTROY_METHOD(Texture2D);
 	ADD_FACTROY_METHOD(TextureCube);
 	ADD_FACTROY_METHOD(RenderTexture);

@@ -20,7 +20,7 @@ SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter);
 SUEDE_DEFINE_OBJECT_POINTER(SphereParticleEmitter);
 SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator);
 
-class IParticleEmitter : virtual public IObject {
+class SUEDE_API IParticleEmitter : virtual public IObject {
 public:
 	virtual void Emit(Particle** particles, uint& count) = 0;
 
@@ -46,13 +46,13 @@ public:
 	virtual int GetBurstCount() = 0;
 };
 
-class ISphereParticleEmitter : virtual public IParticleEmitter {
+class SUEDE_API ISphereParticleEmitter : virtual public IParticleEmitter {
 public:
 	virtual void SetRadius(float value) = 0;
 	virtual float GetRadius() = 0;
 };
 
-class IParticleAnimator : virtual public IObject {
+class SUEDE_API IParticleAnimator : virtual public IObject {
 public:
 	virtual void SetForce(const glm::vec3& value) = 0;
 	virtual glm::vec3 GetForce() = 0;

@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/gtc/quaternion.hpp>
 
+#include "mesh.h"
 #include "sprite.h"
-#include "surface.h"
 #include "animation.h"
 #include "internal/base/objectinternal.h"
 
@@ -65,9 +65,8 @@ public:
 	virtual void SetAnimation(Animation value) { animation_ = value; }
 	virtual Animation GetAnimation() { return animation_; }
 
-	virtual void AddSurface(Surface value){ surfaces_.push_back(value); }
-	virtual int GetSurfaceCount() { return surfaces_.size(); }
-	virtual Surface GetSurface(int i) { return surfaces_[i]; }
+	virtual void SetMesh(Mesh value) { mesh_ = value; }
+	virtual Mesh GetMesh() { return mesh_; }
 
 	virtual void SetRenderer(Renderer value) { renderer_ = value; }
 	virtual Renderer GetRenderer() { return renderer_; }
@@ -102,9 +101,9 @@ private:
 
 	std::string name_;
 
+	Mesh mesh_;
 	Renderer renderer_;
 	Animation animation_;
-	std::vector<Surface> surfaces_;
 
 	std::weak_ptr<Sprite::element_type> parent_;
 

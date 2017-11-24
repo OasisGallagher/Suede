@@ -1,7 +1,6 @@
 #pragma once
 
-#include "object.h"
-#include "surface.h"
+#include "mesh.h"
 #include "material.h"
 #include "animation.h"
 
@@ -16,11 +15,7 @@ SUEDE_DEFINE_OBJECT_POINTER(Sprite);
 class SUEDE_API IRenderer : virtual public IObject {
 public:
 	virtual void RenderSprite(Sprite sprite) = 0;
-
-	/**
-	 * @brief Render surface with current bound material.
-	 */
-	virtual void RenderSurface(Surface surface) = 0;
+	virtual void RenderMesh(Mesh mesh, Material material) = 0;
 	
 	virtual void AddMaterial(Material material) = 0;
 	virtual Material GetMaterial(int index) = 0;
@@ -31,19 +26,19 @@ public:
 	virtual int GetRenderQueue() = 0;
 };
 
-class SUEDE_API ISurfaceRenderer : virtual public IRenderer {
+class SUEDE_API IMeshRenderer : virtual public IRenderer {
 
 };
 
 class SUEDE_API IParticleRenderer : virtual public IRenderer {
 };
 
-class SUEDE_API ISkinnedSurfaceRenderer : virtual public IRenderer {
+class SUEDE_API ISkinnedMeshRenderer : virtual public IRenderer {
 public:
 	virtual void SetSkeleton(Skeleton value) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Renderer);
-SUEDE_DEFINE_OBJECT_POINTER(SurfaceRenderer);
+SUEDE_DEFINE_OBJECT_POINTER(MeshRenderer);
 SUEDE_DEFINE_OBJECT_POINTER(ParticleRenderer);
-SUEDE_DEFINE_OBJECT_POINTER(SkinnedSurfaceRenderer);
+SUEDE_DEFINE_OBJECT_POINTER(SkinnedMeshRenderer);

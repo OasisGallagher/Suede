@@ -1,4 +1,6 @@
-#include "surface.h"
+#pragma once
+
+#include "mesh.h"
 #include "renderer.h"
 #include "animation.h"
 
@@ -16,25 +18,26 @@ class AssetImporter {
 public:
 	Sprite Import(const std::string& path);
 	bool ImportTo(Sprite sprite, const std::string& path);
-	Surface ImportSurface(const std::string& path);
 
 public:
 	Animation GetAnimation() { return animation_; }
 
 private:
 	void Clear();
+	void Merge(MeshAttribute& dest, const MeshAttribute& src);
 	void Initialize(const std::string& path, Assimp::Importer &importer);
 
-	Sprite ReadHierarchy(Sprite parent, aiNode* node, Surface* surfaces, Material* materials);
+	Sprite ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials);
 
-	void ReadNodeTo(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials);
-	void ReadChildren(Sprite sprite, aiNode* node, Surface* surfaces, Material* materials);
+	void ReadNodeTo(Sprite sprite, aiNode* node, MeshAttribute* attribute, Material* materials);
+	void ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials);
 
-	bool ReadSurfaces(Surface* surfaces);
-	bool ReadSurface(Surface surface, int index);
-	void ReadSurfaceAttributes(Surface surface, int index, SurfaceAttribute& attribute);
-	void ReadVertexAttributes(int index, SurfaceAttribute& attribute);
-	void ReadBoneAttributes(int index, SurfaceAttribute& attribute);
+	void ReadChildren(Sprite sprite, aiNode* node, MeshAttribute* attribute, Material* materials);
+
+	bool ReadAttributes(MeshAttribute* attribute);
+	bool ReadAttribute(MeshAttribute& attribute, int index);
+	void ReadVertexAttributes(int index, MeshAttribute& attribute);
+	void ReadBoneAttributes(int index, MeshAttribute& attribute);
 
 	struct MaterialAttribute {
 		MaterialAttribute() : twoSided(false), gloss(0), mainColor(1) {}

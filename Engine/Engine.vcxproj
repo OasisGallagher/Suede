@@ -162,7 +162,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\rendererinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
     <ClCompile Include="internal\base\shaderinternal.cpp" />
-    <ClCompile Include="internal\base\surfaceinternal.cpp" />
+    <ClCompile Include="internal\base\meshinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\vertexarrayobject.cpp" />
     <ClCompile Include="internal\containers\variant.cpp" />
@@ -218,7 +218,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skybox.h" />
     <ClInclude Include="include\sprite.h" />
-    <ClInclude Include="include\surface.h" />
+    <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\time2.h" />
     <ClInclude Include="include\variables.h" />
@@ -232,7 +232,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\rendererinternal.h" />
     <ClInclude Include="internal\base\renderstate.h" />
     <ClInclude Include="internal\base\shaderinternal.h" />
-    <ClInclude Include="internal\base\surfaceinternal.h" />
+    <ClInclude Include="internal\base\meshinternal.h" />
     <ClInclude Include="internal\base\textureinternal.h" />
     <ClInclude Include="internal\base\vertexarrayobject.h" />
     <ClInclude Include="internal\containers\freelist.h" />

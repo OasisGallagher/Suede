@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "font.h"
+#include "mesh.h"
 #include "light.h"
 #include "skybox.h"
 #include "camera.h"
@@ -9,7 +10,6 @@
 #include "skybox.h"
 #include "engine.h"
 #include "texture.h"
-#include "surface.h"
 #include "variables.h"
 #include "particlesystem.h"
 
@@ -20,9 +20,10 @@
 //#define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
 #define FONT
+//#define BUMPED
 
 Game* Game::get() {
 	static Game instance;
@@ -168,8 +169,8 @@ void Game::createScene() {
 
 	Sprite sprite;
 #if defined(MODEL)
-	sprite = world->Import("models/teddy_bear.fbx");
-	sprite->SetPosition(glm::vec3(0, -20, -150));
+	sprite = world->Import("models/jeep.fbx");
+	sprite->SetPosition(glm::vec3(0, 0, -50));
 	sprite->SetEulerAngles(glm::vec3(0));
 #elif defined(ANIMATION)
 	sprite = world->Import("models/boblampclean.md5mesh");
@@ -199,24 +200,4 @@ void Game::createScene() {
 			animation->Play("");
 		}
 	}
-
-#ifdef BUMPED
-	Texture2D albedo = dsp_cast<Texture2D>(world->Create(ObjectTypeTexture2D));
-	albedo->Load("textures/room_uvmap.dds");
-
-	Texture2D bump = dsp_cast<Texture2D>(world->Create(ObjectTypeTexture2D));
-	bump->Load("textures/bump.bmp");
-
-	MaterialTextures& textures = surface->GetMesh(0)->GetMaterialTextures();
-	textures.albedo = albedo;
-	textures.bump = bump;
-
-	Renderer renderer = sprite->GetRenderer();
-	renderer->SetRenderState(Cull, Off);
-	renderer->SetRenderState(DepthTest, LessEqual);
-
-	Shader shader = dsp_cast<Shader>(world->Create(ObjectTypeShader));
-	shader->Load("buildin/shaders/lit_texture");
-	renderer->GetMaterial(0)->SetShader(shader);
-#endif
 }

@@ -1,45 +1,44 @@
 #include "tools/math2.h"
-#include "surfaceinternal.h"
+#include "meshinternal.h"
 #include "internal/base/materialinternal.h"
 
-MeshInternal::MeshInternal() :ObjectInternal(ObjectTypeMesh)
-	, vertexCount_(0), baseVertex_(0), baseIndex_(0)
-	, meshTopology_(MeshTopologyTriangles) {
+SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh)
+	, indexCount_(0), baseVertex_(0), baseIndex_(0) {
 }
 
-void MeshInternal::SetTriangles(uint vertexCount, uint baseVertex, uint baseIndex) {
-	vertexCount_ = vertexCount;
+void SubMeshInternal::SetTriangles(uint indexCount, uint baseVertex, uint baseIndex) {
+	indexCount_ = indexCount;
 	baseVertex_ = baseVertex;
 	baseIndex_ = baseIndex;
 }
 
-void MeshInternal::GetTriangles(uint& vertexCount, uint& baseVertex, uint& baseIndex) {
-	vertexCount = vertexCount_;
+void SubMeshInternal::GetTriangles(uint& indexCount, uint& baseVertex, uint& baseIndex) {
+	indexCount = indexCount_;
 	baseVertex = baseVertex_;
 	baseIndex = baseIndex_;
 }
 
-SurfaceInternal::SurfaceInternal()
-	: ObjectInternal(ObjectTypeSurface), indexBuffer_(0) {
+MeshInternal::MeshInternal()
+	: ObjectInternal(ObjectTypeMesh), indexBuffer_(0), meshTopology_(MeshTopologyTriangles) {
 	memset(instanceBuffer_, 0, sizeof(instanceBuffer_));
 	vao_.Initialize();
 }
 
-SurfaceInternal::~SurfaceInternal() {
+MeshInternal::~MeshInternal() {
 	Destroy();
 }
 
-void SurfaceInternal::Destroy() {
-	meshes_.clear();
+void MeshInternal::Destroy() {
+	subMeshes_.clear();
 }
 
-void SurfaceInternal::SetAttribute(const SurfaceAttribute& value) {
+void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	vao_.Bind();
 	UpdateGLBuffers(value);
 	vao_.Unbind();
 }
 
-void SurfaceInternal::UpdateGLBuffers(const SurfaceAttribute& attribute) {
+void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
 	vao_.CreateVBOs(vboCount);
 
@@ -97,7 +96,7 @@ void SurfaceInternal::UpdateGLBuffers(const SurfaceAttribute& attribute) {
 	Assert(vboIndex == vboCount);
 }
 
-int SurfaceInternal::CalculateVBOCount(const SurfaceAttribute& attribute) {
+int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 	int count = 0;
 	count += int(!attribute.positions.empty());
 	count += int(!attribute.normals.empty());
@@ -111,17 +110,17 @@ int SurfaceInternal::CalculateVBOCount(const SurfaceAttribute& attribute) {
 	return count;
 }
 
-void SurfaceInternal::Bind() {
+void MeshInternal::Bind() {
 	vao_.Bind();
 	vao_.BindBuffer(indexBuffer_);
 }
 
-void SurfaceInternal::Unbind() {
+void MeshInternal::Unbind() {
 	vao_.Unbind();
 	vao_.UnbindBuffer(indexBuffer_);
 }
 
-void SurfaceInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
+void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	AssertX(i < CountOf(instanceBuffer_), "index out of range");
 	vao_.UpdateBuffer(instanceBuffer_[i], 0, size, data);
 }

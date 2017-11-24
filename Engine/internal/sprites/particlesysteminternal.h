@@ -124,7 +124,7 @@ public:
 	virtual void Update();
 
 private:
-	void InitializeSurface();
+	void InitializeMesh();
 	void InitializeRenderer();
 
 	void UpdateEmitter();
@@ -137,14 +137,14 @@ private:
 
 	void UpdateParticles();
 
-	void UpdateSurface();
+	void UpdateMesh();
 
 	void UpdateAttributes();
 	void UpdateBuffers();
 
 private:
 	bool looping_;
-	int maxParticles_;
+	uint maxParticles_;
 	float time_;
 	float duration_;
 	float startDelay_;

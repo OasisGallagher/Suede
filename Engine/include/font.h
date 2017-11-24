@@ -6,7 +6,7 @@
 
 SUEDE_DEFINE_OBJECT_POINTER(Font);
 
-class IFont : virtual public IObject {
+class SUEDE_API IFont : virtual public IObject {
 public:
 	virtual bool Load(const std::string& path, int size) = 0;
 	virtual bool Require(const std::string& str) = 0;

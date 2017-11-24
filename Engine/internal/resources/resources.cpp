@@ -4,8 +4,8 @@
 #include "tools/math2.h"
 #include "internal/memory/factory.h"
 #include "internal/base/glsldefines.h"
+#include "internal/base/meshinternal.h"
 #include "internal/base/shaderinternal.h"
-#include "internal/base/surfaceinternal.h"
 #include "internal/base/rendererinternal.h"
 
 typedef std::map<std::string, Shader> ShaderContainer;
@@ -17,13 +17,13 @@ static TextureContainer textures;
 typedef std::map<std::string, Material> MaterialContainer;
 static MaterialContainer materials;
 
-static Surface primitives[PrimitiveTypeCount];
+static Mesh primitives[PrimitiveTypeCount];
 
 void Resources::Initialize() {
 
 }
 
-Surface Resources::GetPrimitive(PrimitiveType type) {
+Mesh Resources::GetPrimitive(PrimitiveType type) {
 	if (primitives[type]) {
 		return primitives[type];
 	}
@@ -32,26 +32,26 @@ Surface Resources::GetPrimitive(PrimitiveType type) {
 	return primitives[type];
 }
 
-Surface Resources::CreatePrimitive(PrimitiveType type) {
-	SurfaceAttribute attribute;
+Mesh Resources::CreatePrimitive(PrimitiveType type) {
+	MeshAttribute attribute;
 	GetPrimitiveAttribute(type, attribute);
 
-	return CreateSurface(attribute);
+	return CreateMesh(attribute);
 }
 
-Surface Resources::CreateInstancedPrimitive(PrimitiveType type, const InstanceAttribute& color, const InstanceAttribute& geometry) {
-	SurfaceAttribute attribute;
+Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+	MeshAttribute attribute;
 	GetPrimitiveAttribute(type, attribute);
 	attribute.color = color;
 	attribute.geometry = geometry;
 
-	return CreateSurface(attribute);
+	return CreateMesh(attribute);
 }
 
-void Resources::GetPrimitiveAttribute(PrimitiveType type, SurfaceAttribute& attribute) {
+void Resources::GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& attribute) {
 	switch (type) {
 	case PrimitiveTypeQuad:
-		GetQuadSurfaceAttribute(attribute);
+		GetQuadMeshAttribute(attribute);
 		break;
 	case PrimitiveTypeCube:
 		break;
@@ -86,7 +86,7 @@ Material Resources::FindMaterial(const std::string& name) {
 	return nullptr;
 }
 
-void Resources::GetQuadSurfaceAttribute(SurfaceAttribute& attribute) {
+void Resources::GetQuadMeshAttribute(MeshAttribute& attribute) {
 	glm::vec3 vertices[] = {
 		glm::vec3(-1.f, -1.f, 0.f),
 		glm::vec3(1.f, -1.f, 0.f),
@@ -109,18 +109,18 @@ void Resources::GetQuadSurfaceAttribute(SurfaceAttribute& attribute) {
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 }
 
-void Resources::GetCubeSurfaceAttribute(SurfaceAttribute& attribute) {
+void Resources::GetCubeMeshAttribute(MeshAttribute& attribute) {
 
 }
 
-Surface Resources::CreateSurface(SurfaceAttribute &attribute) {
-	Surface surface = CREATE_OBJECT(Surface);
-	surface->SetAttribute(attribute);
-
+Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 	Mesh mesh = CREATE_OBJECT(Mesh);
+	mesh->SetAttribute(attribute);
 	mesh->SetTopology(MeshTopologyTriangleStripes);
-	mesh->SetTriangles(attribute.positions.size(), 0, 0);
 
-	surface->AddMesh(mesh);
-	return surface;
+	SubMesh subMesh = CREATE_OBJECT(SubMesh);
+	subMesh->SetTriangles(attribute.indexes.size(), 0, 0);
+
+	mesh->AddSubMesh(subMesh);
+	return mesh;
 }

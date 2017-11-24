@@ -107,18 +107,6 @@ void CameraInternal::Render() {
 	GetLights(forwardBase, forwardAdd);
 
 	RenderShadowPass(sprites, forwardBase);
-
-	//Renderer renderer = FactoryCreate(SurfaceRenderer);
-	//Material material = FactoryCreate(Material);
-	//Shader shader = FactoryCreate(Shader);
-	//shader->Load("buildin/shaders/blit");
-	//material->SetShader(shader);
-	//renderer->AddMaterial(material);
-
-	//fb0_->Bind();
-	//graphicsInstance->Blit(fbShadow_->GetDepthTexture(), nullptr, renderer);
-	//fb0_->Unbind();
-	//return;
 	
 	Framebuffer0* active = GetActiveFramebuffer();
 	active->Bind();
@@ -156,7 +144,7 @@ Texture2D CameraInternal::Capture() {
 }
 
 void CameraInternal::CreateRenderer() {
-	renderer_ = CREATE_OBJECT(SurfaceRenderer);
+	renderer_ = CREATE_OBJECT(MeshRenderer);
 	renderer_->AddMaterial(nullptr);
 }
 
@@ -388,7 +376,7 @@ void CameraInternal::OnPostRender() {
 }
 
 bool CameraInternal::IsRenderable(Sprite sprite) {
-	return sprite->GetActive() && sprite->GetSurfaceCount() > 0 && sprite->GetRenderer();
+	return sprite->GetActive() && sprite->GetMesh() && sprite->GetRenderer();
 }
 
 bool CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {
