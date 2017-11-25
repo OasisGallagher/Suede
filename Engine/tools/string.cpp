@@ -43,8 +43,13 @@ bool String::EndsWith(const std::string& str, const std::string& suffix) {
 std::wstring String::MultiBytesToWideString(const std::string& text) {
 	std::wstring ans(text.size() + 1, 0);
 	mbstowcs(&ans[0], text.c_str(), text.length());
-	// shrink size.
-	return ans.c_str();
+	size_t pos = ans.find((wchar_t)0);
+	
+	if (pos < ans.length()) {
+		ans.erase(pos);
+	}
+
+	return ans;
 }
 
 std::string String::Trim(const std::string& text) {

@@ -33,6 +33,7 @@ Factory::Factory() {
 	ADD_FACTROY_METHOD(Sprite);
 	ADD_FACTROY_METHOD(Mesh);
 	ADD_FACTROY_METHOD(SubMesh);
+	ADD_FACTROY_METHOD(TextMesh);
 	ADD_FACTROY_METHOD(Material);
 	ADD_FACTROY_METHOD(MeshRenderer);
 	ADD_FACTROY_METHOD(SkinnedMeshRenderer);

@@ -185,11 +185,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
     <ClCompile Include="src\engine.cpp" />
-    <ClCompile Include="src\math\matrix4x4.cpp" />
-    <ClCompile Include="src\math\quaternion.cpp" />
-    <ClCompile Include="src\math\vector2.cpp" />
-    <ClCompile Include="src\math\vector3.cpp" />
-    <ClCompile Include="src\math\vector4.cpp" />
     <ClCompile Include="tools\debug.cpp" />
     <ClCompile Include="tools\path.cpp" />
     <ClCompile Include="tools\string.cpp" />
@@ -205,11 +200,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\logger.h" />
     <ClInclude Include="include\material.h" />
-    <ClInclude Include="include\math\matrix4x4.h" />
-    <ClInclude Include="include\math\quaternion.h" />
-    <ClInclude Include="include\math\vector2.h" />
-    <ClInclude Include="include\math\vector3.h" />
-    <ClInclude Include="include\math\vector4.h" />
     <ClInclude Include="include\object.h" />
     <ClInclude Include="include\particlesystem.h" />
     <ClInclude Include="include\posteffect.h" />

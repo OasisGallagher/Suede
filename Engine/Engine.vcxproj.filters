@@ -80,12 +80,6 @@
     <Filter Include="internal\containers\include">
       <UniqueIdentifier>{6dc14b40-8a49-4eca-aed4-d387ec066d36}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\math">
-      <UniqueIdentifier>{f1bdc2f9-e8e0-45ed-b249-4740a52424f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\math">
-      <UniqueIdentifier>{3ec7b2f0-2a0c-49cc-a4d2-a54f46e2bc63}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\file">
       <UniqueIdentifier>{3ea0054a-968f-468a-b53d-118a628758ce}</UniqueIdentifier>
     </Filter>
@@ -189,21 +183,6 @@
     </ClInclude>
     <ClInclude Include="include\light.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\math\matrix4x4.h">
-      <Filter>include\math</Filter>
-    </ClInclude>
-    <ClInclude Include="include\math\quaternion.h">
-      <Filter>include\math</Filter>
-    </ClInclude>
-    <ClInclude Include="include\math\vector2.h">
-      <Filter>include\math</Filter>
-    </ClInclude>
-    <ClInclude Include="include\math\vector3.h">
-      <Filter>include\math</Filter>
-    </ClInclude>
-    <ClInclude Include="include\math\vector4.h">
-      <Filter>include\math</Filter>
     </ClInclude>
     <ClInclude Include="internal\sprites\lightinternal.h">
       <Filter>internal\sprites\include</Filter>
@@ -347,21 +326,6 @@
     </ClCompile>
     <ClCompile Include="internal\base\framebuffer.cpp">
       <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\matrix4x4.cpp">
-      <Filter>src\math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\quaternion.cpp">
-      <Filter>src\math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\vector2.cpp">
-      <Filter>src\math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\vector3.cpp">
-      <Filter>src\math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\vector4.cpp">
-      <Filter>src\math</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\rendererinternal.cpp">
       <Filter>internal\base\src</Filter>

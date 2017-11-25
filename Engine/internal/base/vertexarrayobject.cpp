@@ -5,18 +5,12 @@
 VertexArrayObject::VertexArrayObject() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
 	, vboCount_(0) {
+	glGenVertexArrays(1, &vao_);
 }
 
 VertexArrayObject::~VertexArrayObject() {
 	DestroyVBOs();
-	if (vao_ != 0) {
-		glDeleteVertexArrays(1, &vao_);
-	}
-}
-
-void VertexArrayObject::Initialize() {
-	AssertX(vao_ == 0, "vao aready initialized");
-	glGenVertexArrays(1, &vao_);
+	glDeleteVertexArrays(1, &vao_);
 }
 
 void VertexArrayObject::CreateVBOs(size_t n) {

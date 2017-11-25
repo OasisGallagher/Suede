@@ -159,7 +159,7 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute color{ maxParticles_, 1 };
 	InstanceAttribute geometry{ maxParticles_, 1 };
-	Mesh mesh = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, color, geometry);
+	Mesh mesh = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, 1, color, geometry);
 	SetMesh(mesh);
 }
 

@@ -27,7 +27,6 @@ public:
 };
 
 class SUEDE_API IMeshRenderer : virtual public IRenderer {
-
 };
 
 class SUEDE_API IParticleRenderer : virtual public IRenderer {
@@ -42,3 +41,4 @@ SUEDE_DEFINE_OBJECT_POINTER(Renderer);
 SUEDE_DEFINE_OBJECT_POINTER(MeshRenderer);
 SUEDE_DEFINE_OBJECT_POINTER(ParticleRenderer);
 SUEDE_DEFINE_OBJECT_POINTER(SkinnedMeshRenderer);
+

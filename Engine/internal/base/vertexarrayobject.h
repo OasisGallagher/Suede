@@ -8,7 +8,6 @@ public:
 	~VertexArrayObject();
 
 public:
-	void Initialize();
 	void CreateVBOs(size_t n);
 	void DestroyVBOs();
 

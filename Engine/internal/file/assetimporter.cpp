@@ -125,15 +125,15 @@ void AssetImporter::Clear() {
 	animation_.reset();
 }
 
-void AssetImporter::Merge(MeshAttribute& dest, const MeshAttribute& src) {
-#define MERGE_FIELD(field)	dest.field.insert(dest.field.end(), src.field.begin(), src.field.end())
-	MERGE_FIELD(positions);
-	MERGE_FIELD(normals);
-	MERGE_FIELD(texCoords);
-	MERGE_FIELD(tangents);
-	MERGE_FIELD(blendAttrs);
-	MERGE_FIELD(indexes);
-#undef MERGE_FIELD
+void AssetImporter::CombineAttribute(MeshAttribute& dest, const MeshAttribute& src) {
+#define COMBINE_FIELD(field)	dest.field.insert(dest.field.end(), src.field.begin(), src.field.end())
+	COMBINE_FIELD(positions);
+	COMBINE_FIELD(normals);
+	COMBINE_FIELD(texCoords);
+	COMBINE_FIELD(tangents);
+	COMBINE_FIELD(blendAttrs);
+	COMBINE_FIELD(indexes);
+#undef COMBINE_FIELD
 }
 
 Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
@@ -172,12 +172,11 @@ void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* a
 		dsp_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
-	MeshAttribute current;
+	MeshAttribute current{ MeshTopologyTriangles };
 	current.color.count = current.color.divisor = 0;
 	current.geometry.count = current.geometry.divisor = 0;
 
 	Mesh mesh = CREATE_OBJECT(Mesh);
-	mesh->SetTopology(MeshTopologyTriangles);
 
 	SubMesh* subMeshes = MEMORY_CREATE_ARRAY(SubMesh, node->mNumMeshes);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
@@ -185,7 +184,7 @@ void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* a
 		subMeshes[i]->SetTriangles(attributes[i].indexes.size(), current.positions.size(), current.indexes.size());
 		mesh->AddSubMesh(subMeshes[i]);
 
-		Merge(current, attributes[i]);
+		CombineAttribute(current, attributes[i]);
 
 		uint materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
@@ -228,6 +227,7 @@ bool AssetImporter::ReadAttribute(MeshAttribute& attribute, int index) {
 		memset(&attribute.blendAttrs[i], 0, sizeof(BlendAttribute));
 	}
 
+	attribute.topology = MeshTopologyTriangles;
 	attribute.color.count = attribute.color.divisor = 0;
 	attribute.geometry.count = attribute.geometry.divisor = 0;
 

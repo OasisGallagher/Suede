@@ -20,6 +20,10 @@ FontInternal::FontInternal()
 	Shader shader = CREATE_OBJECT(Shader);
 	shader->Load("buildin/shaders/lit_texture");
 	material_->SetShader(shader);
+
+	// set color for material instace, not shared.
+	material_->SetVector4(Variables::mainColor, glm::vec4(1));
+	material_->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
 }
 
 FontInternal::~FontInternal() {
@@ -31,29 +35,30 @@ bool FontInternal::Load(const std::string& path, int size) {
 	return Import("resources/" + path, size);
 }
 
-bool FontInternal::Require(const std::string& str) {
-	std::wstring wstr = String::MultiBytesToWideString(str);
+bool FontInternal::Require(const std::wstring& str) {
 	bool status = true;
-	for (int i = 0; i < wstr.length(); ++i) {
-		if (!glyphs_.contains(wstr[i])) {
-			Bitmap* bitmap = &glyphs_[wstr[i]]->bitmap;
-			bitmap->id = wstr[i];
+	for (int i = 0; i < str.length(); ++i) {
+		if (!glyphs_.contains(str[i])) {
+			Bitmap* bitmap = &glyphs_[str[i]]->bitmap;
+			bitmap->id = str[i];
 
-			status = GetBitmapBits(wstr[i], bitmap) && status;
+			status = GetBitmapBits(str[i], bitmap) && status;
 			bitmaps_.push_back(bitmap);
 			material_->SetTexture(Variables::mainTexture, nullptr);
 		}
 	}
 
-	return status;
-}
-
-Material FontInternal::GetMaterial() { 
+	// TODO: rebuild timing.
 	if (!material_->GetTexture(Variables::mainTexture)) {
 		RebuildMaterial();
 	}
 
-	return material_; 
+	return status;
+}
+
+glm::vec4 FontInternal::GetTexCoord(wchar_t wch) {
+	AssertX(coords_.find(wch) != coords_.end(), std::to_string(wch) + " does not included");
+	return coords_[wch];
 }
 
 bool FontInternal::Import(const std::string& path, int size) {

@@ -8,6 +8,7 @@ enum ObjectType {
 	ObjectTypeWorld,
 	ObjectTypeShader,
 	ObjectTypeSubMesh,
+	ObjectTypeTextMesh,
 	ObjectTypeMaterial,
 	ObjectTypeTexture2D,
 	ObjectTypeTextureCube,

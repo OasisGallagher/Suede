@@ -218,7 +218,7 @@ MaterialInternal::Uniform* MaterialInternal::GetUniform(const std::string& name,
 	}
 
 	if (ans->value.GetType() != type) {
-		Debug::LogError("uniform " + name + "does not defined as " + Variant::TypeString(type));
+		Debug::LogError("uniform " + name + " does not defined as " + Variant::TypeString(type));
 		return false;
 	}
 

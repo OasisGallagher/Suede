@@ -1,5 +1,7 @@
 #include "tools/math2.h"
+#include "tools/string.h"
 #include "meshinternal.h"
+#include "internal/resources/resources.h"
 #include "internal/base/materialinternal.h"
 
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh)
@@ -18,10 +20,12 @@ void SubMeshInternal::GetTriangles(uint& indexCount, uint& baseVertex, uint& bas
 	baseIndex = baseIndex_;
 }
 
-MeshInternal::MeshInternal()
-	: ObjectInternal(ObjectTypeMesh), indexBuffer_(0), meshTopology_(MeshTopologyTriangles) {
+MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
+}
+
+MeshInternal::MeshInternal(ObjectType type)
+	: ObjectInternal(type), indexBuffer_(0), topology_(MeshTopologyTriangles) {
 	memset(instanceBuffer_, 0, sizeof(instanceBuffer_));
-	vao_.Initialize();
 }
 
 MeshInternal::~MeshInternal() {
@@ -36,6 +40,8 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	vao_.Bind();
 	UpdateGLBuffers(value);
 	vao_.Unbind();
+
+	topology_ = value.topology;
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -123,4 +129,72 @@ void MeshInternal::Unbind() {
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	AssertX(i < CountOf(instanceBuffer_), "index out of range");
 	vao_.UpdateBuffer(instanceBuffer_[i], 0, size, data);
+}
+
+TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh) {
+}
+
+void TextMeshInternal::SetText(const std::string& value) {
+	if (text_ != value) {
+		text_ = value;
+		RebuildMesh();
+	}
+}
+
+void TextMeshInternal::SetFont(Font value) {
+	if (font_ != value) {
+		font_ = value;
+		RebuildMesh();
+	}
+}
+
+void TextMeshInternal::SetFontSize(uint value) {
+	if (size_ != value) {
+		size_ = value;
+		RebuildMesh();
+	}
+}
+
+void TextMeshInternal::RebuildMesh() {
+	if (text_.empty()) { return; }
+	std::wstring wtext = String::MultiBytesToWideString(text_);
+	font_->Require(wtext);
+
+	MeshAttribute attribute;
+	InitializeMeshAttribute(attribute, wtext);
+
+	SubMesh subMesh = CREATE_OBJECT(SubMesh);
+	uint indexCount = attribute.indexes.back() + 1;
+	subMesh->SetTriangles(indexCount, 0, 0);
+	AddSubMesh(subMesh);
+
+	SetAttribute(attribute);
+}
+
+void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext) {
+	const float quadScale = 1.f;
+	MeshAttribute quad;
+	Resources::GetPrimitiveAttribute(PrimitiveTypeQuad, quadScale, quad);
+	attribute.topology = quad.topology;
+
+	uint vc = quad.positions.size(), ic = quad.indexes.size();
+
+	for (int i = 0; i < wtext.length(); ++i) {
+		for (int j = 0; j < vc; ++j) {
+			glm::vec3 pos = quad.positions[j];
+			pos.x += i * quadScale;
+			attribute.positions.push_back(pos);
+			//attribute.texCoords.push_back(quad.texCoords[j]);
+		}
+		// lb, rb, lt, rt.
+		glm::vec4 coord = font_->GetTexCoord(wtext[i]);
+		attribute.texCoords.push_back(glm::vec2(coord.x, coord.y));
+		attribute.texCoords.push_back(glm::vec2(coord.z, coord.y));
+		attribute.texCoords.push_back(glm::vec2(coord.x, coord.w));
+		attribute.texCoords.push_back(glm::vec2(coord.z, coord.w));
+		
+		for (int j = 0; j < ic; ++j) {
+			attribute.indexes.push_back(ic * i + j);
+		}
+	}
 }

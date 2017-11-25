@@ -28,30 +28,30 @@ Mesh Resources::GetPrimitive(PrimitiveType type) {
 		return primitives[type];
 	}
 
-	primitives[type] = CreatePrimitive(type);
+	primitives[type] = CreatePrimitive(type, 1);
 	return primitives[type];
 }
 
-Mesh Resources::CreatePrimitive(PrimitiveType type) {
+Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) {
 	MeshAttribute attribute;
-	GetPrimitiveAttribute(type, attribute);
+	GetPrimitiveAttribute(type, scale, attribute);
 
 	return CreateMesh(attribute);
 }
 
-Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
 	MeshAttribute attribute;
-	GetPrimitiveAttribute(type, attribute);
+	GetPrimitiveAttribute(type, scale, attribute);
 	attribute.color = color;
 	attribute.geometry = geometry;
 
 	return CreateMesh(attribute);
 }
 
-void Resources::GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& attribute) {
+void Resources::GetPrimitiveAttribute(PrimitiveType type, float scale, MeshAttribute& attribute) {
 	switch (type) {
 	case PrimitiveTypeQuad:
-		GetQuadMeshAttribute(attribute);
+		GetQuadMeshAttribute(attribute, scale);
 		break;
 	case PrimitiveTypeCube:
 		break;
@@ -86,12 +86,14 @@ Material Resources::FindMaterial(const std::string& name) {
 	return nullptr;
 }
 
-void Resources::GetQuadMeshAttribute(MeshAttribute& attribute) {
+void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
+	attribute.topology = MeshTopologyTriangleStripes;
+
 	glm::vec3 vertices[] = {
-		glm::vec3(-1.f, -1.f, 0.f),
-		glm::vec3(1.f, -1.f, 0.f),
-		glm::vec3(-1.f,  1.f, 0.f),
-		glm::vec3(1.f,  1.f, 0.f),
+		glm::vec3(-0.5f * scale, -0.5f * scale, 0.f),
+		glm::vec3(0.5f * scale, -0.5f * scale, 0.f),
+		glm::vec3(-0.5f * scale,  0.5f * scale, 0.f),
+		glm::vec3(0.5f * scale,  0.5f * scale, 0.f),
 	};
 	attribute.positions.assign(vertices, vertices + CountOf(vertices));
 
@@ -109,14 +111,13 @@ void Resources::GetQuadMeshAttribute(MeshAttribute& attribute) {
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 }
 
-void Resources::GetCubeMeshAttribute(MeshAttribute& attribute) {
-
+void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
+	Assert(false);
 }
 
 Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 	Mesh mesh = CREATE_OBJECT(Mesh);
 	mesh->SetAttribute(attribute);
-	mesh->SetTopology(MeshTopologyTriangleStripes);
 
 	SubMesh subMesh = CREATE_OBJECT(SubMesh);
 	subMesh->SetTriangles(attribute.indexes.size(), 0, 0);

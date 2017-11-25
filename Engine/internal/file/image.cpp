@@ -54,28 +54,29 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int spa
 	// TODO: channel count.
 	atlas.data.resize(width * height * 2);
 	uchar* ptr = &atlas.data[0];
-	float top = space / (float)height;
-	ptr += space * width * 2 + space * 2;
+	int bottom = space;
+	ptr += space * width * 2;
 
 	for (int i = 0; i < bitmaps.size();) {
 		int count = Math::Min((int)bitmaps.size() - i, columnCount);
-		int rows = 0, offset = 0;
+		int rows = 0, offset = space * 2;
 
 		for (int j = i; j < i + count; ++j) {
 			const Bitmap* bitmap = bitmaps[j];
-			float bottom = top + bitmap->height / (float)height;
+			float top = (bottom + bitmap->height) / (float)height;
 
 			PasteBitmap(ptr + offset, bitmap, width);
 			float left = offset / ((float)width * 2);
 			float right = left + bitmap->width / (float)width;
-			atlas.coords[bitmap->id] = glm::vec4(left, bottom, right, top);
+			// order: left, bottom, right, top.
+			atlas.coords[bitmap->id] = glm::vec4(left, bottom / (float)height, right, top);
 
 			offset += (bitmap->width + space) * 2;
 			rows = Math::Max(rows, bitmap->height);
 		}
 
 		ptr += (rows + space) * width * 2;
-		top += (rows + space) / (float)height;
+		bottom += (rows + space);
 		i += count;
 	}
 

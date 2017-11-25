@@ -22,6 +22,8 @@ void RendererInternal::RenderSprite(Sprite sprite) {
 }
 
 GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
+	Assert(topology == MeshTopologyTriangles || topology == MeshTopologyTriangleStripes);
+
 	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
 	return GL_TRIANGLE_STRIP;
 }
