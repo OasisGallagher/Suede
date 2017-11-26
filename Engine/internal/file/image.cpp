@@ -4,7 +4,29 @@
 #include "tools/math2.h"
 #include "tools/debug.h"
 
-bool ImageCodec::Decode(const std::string& path, std::vector<uchar>& data, int& width, int& height) {
+bool ImageCodec::Decode(std::vector<uchar>& data, int& width, int& height, const void* compressedData, uint length) {
+	try {
+		Magick::Blob blob(compressedData, length);
+		Magick::Image image;
+		image.read(blob);
+		width = image.columns();
+		height = image.rows();
+		image.write(&blob, "RGBA");
+
+		// TODO: copy data out ?
+		const uchar* ptr = (const uchar*)blob.data();
+		data.resize(blob.length());
+		std::copy(ptr, ptr + blob.length(), &data[0]);
+	}
+	catch (Magick::Error& err) {
+		Debug::LogError(std::string("failed to decode compressed data: ") + err.what());
+		return false;
+	}
+
+	return true;
+}
+
+bool ImageCodec::Decode(std::vector<uchar>& data, int& width, int& height, const std::string& path) {
 	try {
 		Magick::Image image;
 		Magick::Blob blob;
@@ -36,6 +58,7 @@ bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, const c
 		Magick::Blob blob;
 		image.magick(format);
 		image.write(&blob);
+
 		uchar* ptr = (uchar*)blob.data();
 		data.assign(ptr, ptr + blob.length());
 	}

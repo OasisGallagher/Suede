@@ -6,10 +6,16 @@
 
 SUEDE_DEFINE_OBJECT_POINTER(Font);
 
+struct CharacterInfo {
+	uint width;
+	uint height;
+	glm::vec4 texCoord;
+};
+
 class SUEDE_API IFont : virtual public IObject {
 public:
 	virtual bool Load(const std::string& path, int size) = 0;
 	virtual bool Require(const std::wstring& str) = 0;
 	virtual Material GetMaterial() = 0;
-	virtual glm::vec4 GetTexCoord(wchar_t wch) = 0;
+	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info) = 0;
 };

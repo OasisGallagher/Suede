@@ -18,10 +18,10 @@ FontInternal::FontInternal()
 	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = CREATE_OBJECT(Material);
 	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/lit_texture");
+	shader->Load("buildin/shaders/unlit_texture");
 	material_->SetShader(shader);
 
-	// set color for material instace, not shared.
+	// TODO: set color for material instace, not shared.
 	material_->SetVector4(Variables::mainColor, glm::vec4(1));
 	material_->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
 }
@@ -56,9 +56,22 @@ bool FontInternal::Require(const std::wstring& str) {
 	return status;
 }
 
-glm::vec4 FontInternal::GetTexCoord(wchar_t wch) {
-	AssertX(coords_.find(wch) != coords_.end(), std::to_string(wch) + " does not included");
-	return coords_[wch];
+bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
+	Glyph* g;
+	Atlas::CoordContainer::iterator pos = coords_.find(wch);
+	if (pos == coords_.end() || !glyphs_.get(wch, g)) {
+		Debug::LogError(std::to_string(wch) + " does not included");
+		return false;
+	}
+
+	if (info != nullptr) {
+		info->width = g->bitmap.width;
+		info->height = g->bitmap.height;
+
+		info->texCoord = pos->second;
+	}
+
+	return true;
 }
 
 bool FontInternal::Import(const std::string& path, int size) {
@@ -105,12 +118,17 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 	const FT_Bitmap& bitmap = bitmapGlyph->bitmap;
 
 	std::vector<uchar>& data = answer->data;
-	size_t size = bitmap.width * bitmap.rows;
-	data.resize(size);
-	std::copy(bitmap.buffer, bitmap.buffer + size, &data[0]);
+	uint size = bitmap.width * bitmap.rows;
+	data.resize(Math::Max(size, 1u));
+	if (size != 0) {
+		std::copy(bitmap.buffer, bitmap.buffer + size, &data[0]);
+	}
+	else {
+		data[0] = 0;
+	}
 
-	answer->width = bitmap.width;
-	answer->height = bitmap.rows;
+	answer->width = Math::Max(1u, bitmap.width);
+	answer->height = Math::Max(1u, bitmap.rows);
 	answer->format = ColorFormatLuminanceAlpha;
 
 	return true;
@@ -118,7 +136,7 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 
 void FontInternal::RebuildMaterial() {
 	Atlas atlas;
-	AtlasMaker::Make(atlas, bitmaps_, 2);
+	AtlasMaker::Make(atlas, bitmaps_, 4);
 
 	coords_ = atlas.coords;
 

@@ -18,11 +18,11 @@
 #include "scripts/cameracontroller.h"
 
 //#define SKYBOX
-//#define MODEL
+#define MODEL
 //#define POST_EFFECTS
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 
 Game* Game::get() {
@@ -135,7 +135,7 @@ void Game::createScene() {
 	camera->SetSkybox(skybox);
 #else
 	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(0));
+	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
 #endif
 	
 #ifdef RENDER_TEXTURE
@@ -167,6 +167,34 @@ void Game::createScene() {
 	particleSystem->SetLooping(true);
 #endif
 
+#if defined(FONT)
+	Sprite fsprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
+	fsprite->SetPosition(glm::vec3(0, 20, -20));
+	fsprite->SetEulerAngles(glm::vec3(0, 0, 0));
+
+	Font font = dsp_cast<Font>(world->Create(ObjectTypeFont));
+	font->Load("fonts/ms_yh.ttf", 12);
+
+	TextMesh mesh = dsp_cast<TextMesh>(world->Create(ObjectTypeTextMesh));
+	mesh->SetFont(font);
+	mesh->SetText("落霞与孤鹜齐飞 秋水共长天一色");
+	
+	std::vector<uchar> data;
+	dsp_cast<Texture2D>(mesh->GetFont()->GetMaterial()->GetTexture("c_mainTexture"))->EncodeToJpg(data);
+	QImage image;
+	if (image.loadFromData(&data[0], data.size())) {
+		image.save("C:\\Users\\Gallagher\\Desktop\\1.jpg");
+	}
+	
+	mesh->SetFontSize(12);
+	fsprite->SetMesh(mesh);
+
+	Renderer renderer = dsp_cast<MeshRenderer>(world->Create(ObjectTypeMeshRenderer));
+	renderer->AddMaterial(font->GetMaterial());
+	fsprite->SetRenderer(renderer);
+#endif
+
+#if defined(MODEL) || defined(ANIMATION)
 	Sprite sprite;
 #if defined(MODEL)
 	sprite = world->Import("models/jeep.fbx");
@@ -176,36 +204,11 @@ void Game::createScene() {
 	sprite = world->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
 	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
-#elif defined(FONT)
-	sprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
-	sprite->SetPosition(glm::vec3(0, 20, -20));
-	sprite->SetEulerAngles(glm::vec3(0, 0, 0));
-
-	Font font = dsp_cast<Font>(world->Create(ObjectTypeFont));
-	font->Load("fonts/ms_yh.ttf", 12);
-
-	TextMesh mesh = dsp_cast<TextMesh>(world->Create(ObjectTypeTextMesh));
-	mesh->SetFont(font);
-	mesh->SetText("落霞与孤鹜齐飞秋水共长天一色");
-	/*
-	std::vector<uchar> data;
-	dsp_cast<Texture2D>(mesh->GetFont()->GetMaterial()->GetTexture("c_mainTexture"))->EncodeToJpg(data);
-	QImage image;
-	if (image.loadFromData(&data[0], data.size())) {
-		image.save("C:\\Users\\Gallagher\\Desktop\\1.jpg");
-	}
-	*/
-	mesh->SetFontSize(12);
-	sprite->SetMesh(mesh);
-
-	Renderer renderer = dsp_cast<MeshRenderer>(world->Create(ObjectTypeMeshRenderer));
-	renderer->AddMaterial(font->GetMaterial());
-	sprite->SetRenderer(renderer);
 #endif
 
 	if (sprite) {
-		sprite->SetParent(camera);
-		light->SetParent(camera);
+		//sprite->SetParent(camera);
+		//light->SetParent(camera);
 
 		Animation animation = sprite->GetAnimation();
 		if (animation) {
@@ -213,4 +216,6 @@ void Game::createScene() {
 			animation->Play("");
 		}
 	}
+
+#endif
 }

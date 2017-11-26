@@ -13,6 +13,7 @@
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "assetimporter.h"
+#include "internal/file/image.h"
 #include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
 #include "internal/base/meshinternal.h"
@@ -89,8 +90,8 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	ReadNodeTo(sprite, scene_->mRootNode, attributes, materials);
 	ReadChildren(sprite, scene_->mRootNode, attributes, materials);
 
-	MEMORY_RELEASE_ARRAY(attributes);
 	MEMORY_RELEASE_ARRAY(materials);
+	MEMORY_RELEASE_ARRAY(attributes);
 
 	Animation animation;
 	if (ReadAnimation(animation)) {
@@ -105,6 +106,7 @@ void AssetImporter::Initialize(const std::string& path, Assimp::Importer &import
 		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
 
 	if (String::EndsWith(path, ".fbx")) {
+		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
@@ -122,6 +124,7 @@ void AssetImporter::Clear() {
 	path_.clear();
 	scene_ = nullptr;
 	skeleton_.reset();
+	textures_.clear();
 	animation_.reset();
 }
 
@@ -308,7 +311,7 @@ bool AssetImporter::ReadMaterials(Material* materials) {
 }
 
 bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& attribute) {
-	std::string shaderName = "lit_texture";
+	std::string shaderName = "unlit_texture";
 	if (scene_->mNumAnimations != 0) {
 		shaderName = "lit_animated_texture";
 	}
@@ -345,7 +348,7 @@ void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMateri
 	}
 	
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
-		attribute.mainTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+		attribute.mainTexture = GetTexture(Path::GetFileName(astring.C_Str()));
 	}
 
 	if (!attribute.mainTexture) {
@@ -353,19 +356,19 @@ void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMateri
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
-		attribute.bumpTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+		attribute.bumpTexture = GetTexture(Path::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
-		attribute.specularTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+		attribute.specularTexture = GetTexture(Path::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
-		attribute.lightmapTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+		attribute.lightmapTexture = GetTexture(Path::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
-		attribute.emissiveTexture = CreateTexture(Path::GetFileName(astring.C_Str()));
+		attribute.emissiveTexture = GetTexture(Path::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
@@ -481,10 +484,52 @@ const aiNodeAnim* AssetImporter::FindChannel(const aiAnimation* anim, const char
 	return nullptr;
 }
 
-Texture AssetImporter::CreateTexture(const std::string& name) {
+Texture AssetImporter::GetTexture(const std::string& name) {
+	TextureContainer::iterator pos = textures_.find(name);
+	if (pos != textures_.end()) {
+		return pos->second;
+	}
+
+	Texture texture = nullptr;
+	if (String::StartsWith(name, "*")) {
+		texture = ReadEmbeddedTexture(String::ToInteger(name.substr(1)));
+	}
+	else {
+		texture = ReadExternalTexture(name);
+	}
+
+	textures_.insert(std::make_pair(name, texture));
+	return texture;
+}
+
+Texture AssetImporter::ReadExternalTexture(const std::string& name) {
 	Texture2D texture = CREATE_OBJECT(Texture2D);
 	if (!texture->Load("textures/" + name)) {
 		return nullptr;
+	}
+
+	return texture;
+}
+
+Texture AssetImporter::ReadEmbeddedTexture(uint index) {
+	if (index >= scene_->mNumTextures) {
+		Debug::LogError("embedded texture index out of range");
+		return nullptr;
+	}
+
+	Texture2D texture = CREATE_OBJECT(Texture2D);
+	aiTexture* aitex = scene_->mTextures[index];
+	if (aitex->mHeight == 0) {
+		int width, height;
+		std::vector<uchar> data;
+		if (!ImageCodec::Decode(data, width, height, aitex->pcData, aitex->mWidth)) {
+			return nullptr;
+		}
+
+		texture->Load(&data[0], ColorFormatRgba, width, height);
+	}
+	else {
+		texture->Load(aitex->pcData, ColorFormatArgb, aitex->mWidth, aitex->mHeight);
 	}
 
 	return texture;

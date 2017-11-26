@@ -161,6 +161,9 @@ void TextMeshInternal::RebuildMesh() {
 	font_->Require(wtext);
 
 	MeshAttribute attribute;
+	attribute.color.count = attribute.color.divisor = 0;
+	attribute.geometry.count = attribute.geometry.divisor = 0;
+
 	InitializeMeshAttribute(attribute, wtext);
 
 	SubMesh subMesh = CREATE_OBJECT(SubMesh);
@@ -172,29 +175,38 @@ void TextMeshInternal::RebuildMesh() {
 }
 
 void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext) {
-	const float quadScale = 1.f;
-	MeshAttribute quad;
-	Resources::GetPrimitiveAttribute(PrimitiveTypeQuad, quadScale, quad);
-	attribute.topology = quad.topology;
+	const uint space = 2;
+	const float scale = 0.08f;
 
-	uint vc = quad.positions.size(), ic = quad.indexes.size();
-
+	attribute.topology = MeshTopologyTriangles;
+	uint x = 0;
 	for (int i = 0; i < wtext.length(); ++i) {
-		for (int j = 0; j < vc; ++j) {
-			glm::vec3 pos = quad.positions[j];
-			pos.x += i * quadScale;
-			attribute.positions.push_back(pos);
-			//attribute.texCoords.push_back(quad.texCoords[j]);
+		CharacterInfo info;
+		if (!font_->GetCharacterInfo(wtext[i], &info)) {
+			continue;
 		}
+
 		// lb, rb, lt, rt.
-		glm::vec4 coord = font_->GetTexCoord(wtext[i]);
-		attribute.texCoords.push_back(glm::vec2(coord.x, coord.y));
-		attribute.texCoords.push_back(glm::vec2(coord.z, coord.y));
-		attribute.texCoords.push_back(glm::vec2(coord.x, coord.w));
-		attribute.texCoords.push_back(glm::vec2(coord.z, coord.w));
-		
-		for (int j = 0; j < ic; ++j) {
-			attribute.indexes.push_back(ic * i + j);
+		attribute.positions.push_back(scale * glm::vec3(x, info.height / -2.f, 0));
+		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / -2.f, 0));
+		attribute.positions.push_back(scale * glm::vec3(x, info.height / 2.f, 0));
+
+		attribute.positions.push_back(scale * glm::vec3(x, info.height / 2.f, 0));
+		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / -2.f, 0));
+		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / 2.f, 0));
+
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.x, info.texCoord.y));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.z, info.texCoord.y));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.x, info.texCoord.w));
+
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.x, info.texCoord.w));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.z, info.texCoord.y));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.z, info.texCoord.w));
+
+		x += info.width;
+		x += space;
+		for (int j = 0; j < 6; ++j) {
+			attribute.indexes.push_back(6 * i + j);
 		}
 	}
 }

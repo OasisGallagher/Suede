@@ -16,6 +16,7 @@ public:
 enum ColorFormat {
 	ColorFormatRgb,
 	ColorFormatRgba,
+	ColorFormatArgb,
 	ColorFormatLuminanceAlpha,
 };
 

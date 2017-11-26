@@ -53,7 +53,7 @@ protected:
 	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
 
 private:
-	GLenum ColorFormatToGLEnum(ColorFormat format);
+	void ColorFormatToGLEnum(ColorFormat format, GLenum (&parameters)[2]);
 };
 
 class TextureCubeInternal : public ITextureCube, public TextureInternal {

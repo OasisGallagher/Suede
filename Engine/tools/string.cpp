@@ -40,6 +40,10 @@ bool String::EndsWith(const std::string& str, const std::string& suffix) {
 	return (str.length() >= suffix.length()) && (0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix));
 }
 
+int String::ToInteger(const std::string& str) {
+	return std::stoi(str);
+}
+
 std::wstring String::MultiBytesToWideString(const std::string& text) {
 	std::wstring ans(text.size() + 1, 0);
 	mbstowcs(&ans[0], text.c_str(), text.length());

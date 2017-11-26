@@ -403,6 +403,7 @@
     <None Include="resources\buildin\shaders\lit_texture.glsl" />
     <None Include="resources\buildin\shaders\particle.glsl" />
     <None Include="resources\buildin\shaders\skybox.glsl" />
+    <None Include="resources\buildin\shaders\unlit_texture.glsl" />
     <None Include="resources\shaders\grayscale.glsl" />
     <None Include="resources\shaders\include\post_effect_vertex.inc" />
     <None Include="resources\shaders\inversion.glsl" />

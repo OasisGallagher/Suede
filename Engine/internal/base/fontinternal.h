@@ -25,7 +25,8 @@ public:
 	virtual bool Load(const std::string& path, int size);
 	virtual bool Require(const std::wstring& str);
 	virtual Material GetMaterial() { return material_; }
-	virtual glm::vec4 GetTexCoord(wchar_t wch);
+
+	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
 
 private:
 	struct Glyph {

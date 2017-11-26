@@ -11,6 +11,8 @@ public:
 	static bool StartsWith(const std::string& str, const std::string& prefix);
 	static bool EndsWith(const std::string&str, const std::string& suffix);
 
+	static int ToInteger(const std::string& str);
+
 	static std::wstring MultiBytesToWideString(const std::string& text);
 
 private:

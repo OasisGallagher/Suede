@@ -47,7 +47,7 @@ Texture2DInternal::~Texture2DInternal() {
 bool Texture2DInternal::Load(const std::string& path) {
 	int width, height;
 	std::vector<uchar> data;
-	if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + path, data, width, height)) {
+	if (!ImageCodec::Decode(data, width, height, Path::GetResourceRootDirectory() + path)) {
 		return false;
 	}
 
@@ -64,12 +64,14 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 	
 	BindTexture();
 
-	GLenum glFormat = ColorFormatToGLEnum(format);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, glFormat, GL_UNSIGNED_BYTE, data);
-	AssertGL();
+	GLenum glFormat[2];
+	ColorFormatToGLEnum(format, glFormat);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, glFormat[0], glFormat[1], data);
 
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	UnbindTexture();
 
@@ -94,21 +96,27 @@ bool Texture2DInternal::EncodeToJpg(std::vector<uchar>& data) {
 	return ImageCodec::Encode(GetWidth(), GetHeight(), data, "JPG");
 }
 
-GLenum Texture2DInternal::ColorFormatToGLEnum(ColorFormat format) {
-	GLenum ans = GL_RGBA;
+void Texture2DInternal::ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[2]) {
+	GLenum glFormat = GL_RGBA;
+	GLenum glType = GL_UNSIGNED_BYTE;
 	switch (format) {
 		case ColorFormatRgb:
-			ans = GL_RGB;
+			glFormat = GL_RGB;
 			break;
 		case ColorFormatRgba:
-			ans = GL_RGBA;
+			glFormat = GL_RGBA;
+			break;
+		case ColorFormatArgb:
+			glFormat = GL_BGRA;
+			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
 			break;
 		case ColorFormatLuminanceAlpha:
-			ans = GL_LUMINANCE_ALPHA;
+			glFormat = GL_LUMINANCE_ALPHA;
 			break;
 	}
 
-	return ans;
+	parameters[0] = glFormat;
+	parameters[1] = glType;
 }
 
 TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCube) {
@@ -129,7 +137,7 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 		int width, height;
 		std::vector<uchar> data;
 		
-		if (!ImageCodec::Decode(Path::GetResourceRootDirectory() + textures[i], data, width, height)) {
+		if (!ImageCodec::Decode(data, width, height, Path::GetResourceRootDirectory() + textures[i])) {
 			DestroyTexture();
 			return false;
 		}

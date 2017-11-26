@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include "mesh.h"
 #include "renderer.h"
 #include "animation.h"
@@ -67,13 +69,17 @@ private:
 	void ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
 	const aiNodeAnim * FindChannel(const aiAnimation* anim, const char* name);
 
-	Texture CreateTexture(const std::string& name);
+	Texture GetTexture(const std::string& name);
+	Texture ReadExternalTexture(const std::string& name);
+	Texture ReadEmbeddedTexture(uint index);
 	Texture GetDefaultMainTexture();
 
 private:
 	Skeleton skeleton_;
 	std::string path_;
 	const aiScene* scene_;
-
 	Animation animation_;
+
+	typedef std::map<std::string, Texture> TextureContainer;
+	TextureContainer textures_;
 };
