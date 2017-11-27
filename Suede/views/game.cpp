@@ -199,7 +199,7 @@ void Game::createScene() {
 #if defined(MODEL)
 	sprite = world->Import("models/jeep.fbx");
 	sprite->SetPosition(glm::vec3(0, 0, -50));
-	sprite->SetEulerAngles(glm::vec3(0));
+	sprite->SetEulerAngles(glm::vec3(0, 180, 0));
 #elif defined(ANIMATION)
 	sprite = world->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));

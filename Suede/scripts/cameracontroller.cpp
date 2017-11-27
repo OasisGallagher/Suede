@@ -82,10 +82,14 @@ void CameraController::moveCamera(const QPoint& mousePos) {
 }
 
 // TODO: bug when set firstTime to 'true'.
-bool firstTime = false;
+static bool firstTime = false;
 void CameraController::rotateAroundSprite(const QPoint& mousePos) {
 	Sprite selected = Hierarchy::get()->selectedSprite();
-	if (!selected || selected->GetPosition() == camera_->GetPosition()) { return; }
+	glm::vec3 position = selected ? selected->GetPosition() : glm::vec3(0);
+	if (position == camera_->GetPosition()) {
+		return;
+	}
+
 	if (firstTime) {
 		glm::vec3 dir;
 		float theta = 0.134259f, phi = -1.07115f;
@@ -93,17 +97,17 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos) {
 		dir.y = cosf(theta);
 		dir.z = sinf(theta) *sin(phi);
 
-		glm::vec3 pos = selected->GetPosition() + dir * 18.f;
+		glm::vec3 pos = position + dir * 18.f;
 		/*
 		glm::quat q;
 		q *= glm::angleAxis(delta.x() * 0.05f, glm::vec3(0, 1, 0));
 		q *= glm::angleAxis(delta.y() * 0.05f, glm::vec3(1, 0, 0));
 
-		glm::vec3 pos = q * dir + selected->GetPosition();
+		glm::vec3 pos = q * dir + position;
 		*/
 		camera_->SetPosition(pos);
 
-		glm::quat q = glm::quat(glm::lookAt(camera_->GetPosition(), selected->GetPosition(), camera_->GetUp()));
+		glm::quat q = glm::quat(glm::lookAt(camera_->GetPosition(), position, camera_->GetUp()));
 		q = glm::conjugate(q);
 		camera_->SetRotation(q);
 		firstTime = false;
@@ -113,7 +117,7 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos) {
 	QPoint delta = mousePos - lpos_;
 	lpos_ = mousePos;
 
-	glm::vec3 dir = camera_->GetPosition() - selected->GetPosition();
+	glm::vec3 dir = camera_->GetPosition() - position;
 #ifdef RAW
 	glm::vec3 dir2 = glm::normalize(dir);
 
@@ -130,18 +134,18 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos) {
 
 	Engine::get()->logger()->Log(std::string("theta ") + std::to_string(theta) + ", phi " + std::to_string(phi) + "(" + std::to_string(dir.x) + ", " + std::to_string(dir.y) + ", " + std::to_string(dir.z) + ")");
 
-	glm::vec3 pos = selected->GetPosition() + dir * len;
+	glm::vec3 pos = position + dir * len;
 #else
 	glm::quat q;
 	q *= glm::angleAxis(delta.y() * -0.005f, glm::vec3(1, 0, 0));
 	q *= glm::angleAxis(delta.x() * -0.005f, glm::vec3(0, 1, 0));
 
-	glm::vec3 pos = q * dir + selected->GetPosition();
+	glm::vec3 pos = q * dir + position;
 #endif
 
 	camera_->SetPosition(pos);
 
-	glm::quat rq = glm::quat(glm::lookAt(camera_->GetPosition(), selected->GetPosition(), camera_->GetUp()));
+	glm::quat rq = glm::quat(glm::lookAt(camera_->GetPosition(), position, camera_->GetUp()));
 	rq = glm::conjugate(rq);
 	camera_->SetRotation(rq);
 }

@@ -181,7 +181,7 @@ void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* a
 
 	SubMesh* subMeshes = MEMORY_CREATE_ARRAY(SubMesh, node->mNumMeshes);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
-		int meshIndex = node->mMeshes[i];
+		uint meshIndex = node->mMeshes[i];
 		subMeshes[i] = CREATE_OBJECT(SubMesh);
 		subMeshes[i]->SetTriangles(attributes[meshIndex].indexes.size(), current.positions.size(), current.indexes.size());
 		mesh->AddSubMesh(subMeshes[i]);
