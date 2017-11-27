@@ -26,8 +26,6 @@
 #include "internal/base/animationinternal.h"
 #include "internal/sprites/spriteinternal.h"
 
-// TODO: import jeep.fbx, lost texture.
-
 static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
 		mat.a1, mat.b1, mat.c1, mat.d1,
@@ -183,13 +181,14 @@ void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* a
 
 	SubMesh* subMeshes = MEMORY_CREATE_ARRAY(SubMesh, node->mNumMeshes);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
+		int meshIndex = node->mMeshes[i];
 		subMeshes[i] = CREATE_OBJECT(SubMesh);
-		subMeshes[i]->SetTriangles(attributes[i].indexes.size(), current.positions.size(), current.indexes.size());
+		subMeshes[i]->SetTriangles(attributes[meshIndex].indexes.size(), current.positions.size(), current.indexes.size());
 		mesh->AddSubMesh(subMeshes[i]);
 
-		CombineAttribute(current, attributes[i]);
+		CombineAttribute(current, attributes[meshIndex]);
 
-		uint materialIndex = scene_->mMeshes[node->mMeshes[i]]->mMaterialIndex;
+		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
 			renderer->AddMaterial(materials[materialIndex]);
 		}
