@@ -1,5 +1,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 #include "engine.h"
 #include "views/hierarchy.h"
@@ -15,6 +16,25 @@ void CameraController::setCamera(Camera value) {
 void CameraController::onMouseWheel(int delta) {
 	glm::vec3 fwd = camera_->GetForward();
 	camera_->SetPosition(camera_->GetPosition() + fwd * 0.005f * (float)delta);
+}
+
+void CameraController::onResize(const QSize& size) {
+	windowSize_ = size;
+}
+
+glm::vec3 CameraController::arcballVector(const QPoint& point) {
+	glm::vec3 P = glm::vec3(1.f * point.x() / windowSize_.width() * 2 - 1.0,
+		1.f * point.y() / windowSize_.height() * 2 - 1.0,
+		0);
+
+	P.y = -P.y;
+
+	float OP_squared = P.x * P.x + P.y * P.y;
+	if (OP_squared <= 1 * 1)
+		P.z = sqrt(1 * 1 - OP_squared);  // Pythagore
+	else
+		P = glm::normalize(P);  // nearest point
+	return P;
 }
 
 void CameraController::onMouseMove(const QPoint& pos) {
@@ -60,13 +80,56 @@ void CameraController::onMousePress(Qt::MouseButton button, const QPoint & pos) 
 	}
 }
 
+std::string toString(const glm::vec3& v) {
+	return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z);
+}
+
 void CameraController::rotateCamera(const QPoint& mousePos) {
-	QPoint delta = mousePos - rpos_;
-	rpos_ = mousePos;
-	glm::vec3 euler = camera_->GetEulerAngles();
-	euler.x += 0.05f * delta.y();
-	euler.y += 0.05f * delta.x();
-	camera_->SetEulerAngles(euler);
+// 	QPoint delta = mousePos - rpos_;
+// 	rpos_ = mousePos;
+// 	glm::vec3 euler = camera_->GetEulerAngles();
+// 	euler.x += 0.05f * delta.y();
+// 	euler.y += 0.05f * delta.x();
+// 	camera_->SetEulerAngles(euler);
+	if (rpos_ != mousePos) {
+		mousePos.setY(rpos_.y());
+		glm::vec3 va = arcballVector(rpos_);
+		glm::vec3 vb = arcballVector(mousePos);
+		float angle = acosf(glm::min(1.0f, glm::dot(va, vb)));
+		float sa = sinf(angle);
+
+		glm::vec3 axis_in_camera_coord = glm::cross(va, vb);
+
+		axis_in_camera_coord /= sa;
+
+		Engine::get()->logger()->Log(toString(axis_in_camera_coord));
+
+		angle /= 5.f;
+
+		float sd = glm::dot(axis_in_camera_coord, axis_in_camera_coord);
+
+		glm::quat q;
+		q.x = axis_in_camera_coord.x * sinf(angle);
+		q.y = axis_in_camera_coord.y * sinf(angle);
+		q.z = axis_in_camera_coord.z * sinf(angle);
+		q.w = cosf(angle);
+
+		//glm::mat3 camera2object = glm::inverse(glm::mat3(camera_->GetWorldToLocalMatrix()) * glm::mat3(mesh.object2world));
+		//glm::vec3 axis_in_object_coord = camera2object * axis_in_camera_coord;
+		//mesh.object2world = glm::rotate(mesh.object2world, glm::degrees(angle), axis_in_object_coord);
+		glm::mat4 mat = glm::rotate(camera_->GetLocalToWorldMatrix(), angle, camera_->GetUp()/*axis_in_object_coord*/);
+
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::vec3 translation;
+		glm::quat rotation;
+		glm::vec3 scale;
+		//rotation = glm::conjugate(rotation);
+		glm::decompose(mat, scale, rotation, translation, skew, perspective);
+		camera_->SetPosition(translation);
+		camera_->SetRotation(q * camera_->GetRotation());
+		rpos_ = mousePos;
+	}
 }
 
 void CameraController::moveCamera(const QPoint& mousePos) {

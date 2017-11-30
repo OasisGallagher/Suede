@@ -13,12 +13,12 @@
 #include "textureinternal.h"
 #include "materialinternal.h"
 #include "internal/file/image.h"
+#include "internal/resources/resources.h"
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = CREATE_OBJECT(Material);
-	Shader shader = CREATE_OBJECT(Shader);
-	shader->Load("buildin/shaders/unlit_texture");
+	Shader shader = Resources::FindShader("buildin/shaders/unlit_texture");
 	material_->SetShader(shader);
 
 	// TODO: set color for material instace, not shared.

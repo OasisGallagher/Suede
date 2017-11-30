@@ -10,11 +10,13 @@ public:
 public:
 	virtual float GetDeltaTime();
 	virtual float GetRealTimeSinceStartup();
-	virtual int GetFrameCount();
+
+	virtual uint GetFrameCount();
+
 	virtual void Update();
 
 private:
-	int frames_;
+	uint frames_;
 	clock_t clocks_;
 	float deltaTime_;
 };

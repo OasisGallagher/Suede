@@ -24,6 +24,6 @@ float TimeInternal::GetRealTimeSinceStartup() {
 	return ClockToSecond(clock());
 }
 
-int TimeInternal::GetFrameCount() {
+uint TimeInternal::GetFrameCount() {
 	return frames_;
 }

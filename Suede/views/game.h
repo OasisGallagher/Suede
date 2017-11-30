@@ -26,6 +26,7 @@ private:
 	void mousePressEvent(QMouseEvent* event);
 	void mouseReleaseEvent(QMouseEvent* event);
 	void mouseMoveEvent(QMouseEvent* event);
+	void resizeEvent(QResizeEvent* event);
 	void keyPressEvent(QKeyEvent* event);
 	void createScene();
 

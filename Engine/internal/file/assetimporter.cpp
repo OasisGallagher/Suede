@@ -247,6 +247,12 @@ void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 		const aiVector3D* pos = &aimesh->mVertices[i];
 		const aiVector3D* normal = &aimesh->mNormals[i];
 		// TODO: multiple texture coords?
+		for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
+			AssertX(!aimesh->HasTextureCoords(i), "multiple texture coordinates");
+		}
+
+		AssertX(aimesh->GetNumUVChannels() == 1, "multiple uv channels");
+
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
 		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;
 

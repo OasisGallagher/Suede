@@ -73,7 +73,7 @@ Shader Resources::FindShader(const std::string& path) {
 	return nullptr;
 }
 
-Texture Resources::FindTexture(const std::string & path) {
+Texture Resources::FindTexture(const std::string& path) {
 	return nullptr;
 }
 

@@ -70,6 +70,10 @@ bool Game::eventFilter(QObject* watched, QEvent* event) {
 	case QEvent::KeyRelease:
 		keyPressEvent((QKeyEvent*)event);
 		break;
+
+	case QEvent::Resize:
+		resizeEvent((QResizeEvent*)event);
+		break;
 	}
 
 	return false;
@@ -94,6 +98,10 @@ void Game::mouseMoveEvent(QMouseEvent *event) {
 void Game::keyPressEvent(QKeyEvent* event) {
 	switch (event->key()) {
 	}
+}
+
+void Game::resizeEvent(QResizeEvent* event) {
+	controller_->onResize(event->size());
 }
 
 void Game::update() {

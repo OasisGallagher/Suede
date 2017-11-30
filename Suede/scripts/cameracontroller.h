@@ -9,6 +9,8 @@ public:
 public:
 	void setCamera(Camera value);
 
+	void onResize(const QSize& size);
+
 	void onMouseWheel(int delta);
 	void onMouseMove(const QPoint& pos);
 
@@ -17,8 +19,9 @@ public:
 
 private:
 	void moveCamera(const QPoint& mousePos);
-	void rotateCamera(const QPoint& mousePos);
+	void rotateCamera(QPoint mousePos);
 	void rotateAroundSprite(const QPoint& mousePos);
+	glm::vec3 arcballVector(const QPoint& point);
 
 private:
 	Camera camera_;
@@ -26,6 +29,8 @@ private:
 	bool lpressed_;
 	bool mpressed_;
 	bool rpressed_;
+
+	QSize windowSize_;
 
 	QPoint lpos_;
 	QPoint mpos_;
