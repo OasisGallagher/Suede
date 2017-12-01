@@ -206,7 +206,7 @@ void Game::createScene() {
 	Sprite sprite;
 #if defined(MODEL)
 	sprite = world->Import("models/jeep.fbx");
-	sprite->SetPosition(glm::vec3(0, 0, -50));
+	sprite->SetPosition(glm::vec3(0, 0, -120));
 	sprite->SetEulerAngles(glm::vec3(0, 180, 0));
 #elif defined(ANIMATION)
 	sprite = world->Import("models/boblampclean.md5mesh");

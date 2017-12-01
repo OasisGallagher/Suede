@@ -21,7 +21,7 @@ private:
 	void moveCamera(const QPoint& mousePos);
 	void rotateCamera(QPoint mousePos);
 	void rotateAroundSprite(const QPoint& mousePos);
-	glm::vec3 arcballVector(const QPoint& point);
+	glm::vec3 arcBallVector(const QPoint& point);
 
 private:
 	Camera camera_;
@@ -30,7 +30,8 @@ private:
 	bool mpressed_;
 	bool rpressed_;
 
-	QSize windowSize_;
+	float width_;
+	float height_;
 
 	QPoint lpos_;
 	QPoint mpos_;

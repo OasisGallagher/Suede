@@ -19,19 +19,22 @@ void CameraController::onMouseWheel(int delta) {
 }
 
 void CameraController::onResize(const QSize& size) {
-	windowSize_ = size;
+	width_ = 1.f / ((size.width() - 1.f) * 0.5f);
+	height_ = 1.f / ((size.height() - 1.f) * 0.5f);
 }
 
-glm::vec3 CameraController::arcballVector(const QPoint& point) {
-	glm::vec3 P = glm::vec3(1.f * point.x() / windowSize_.width() * 2 - 1.0,
-		1.f * point.y() / windowSize_.height() * 2 - 1.0,
-		0);
+glm::vec3 CameraController::arcBallVector(const QPoint& point) {
+	//glm::vec3 P = glm::vec3(1.f * point.x() / windowSize_.width() * 2 - 1.0,
+	//	1.f * point.y() / windowSize_.height() * 2 - 1.0,
+	//	0);
+
+	auto P = glm::vec3(point.x() * width_ - 1.f, 1 - point.y() * height_, 0);
 
 	P.y = -P.y;
 
 	float OP_squared = P.x * P.x + P.y * P.y;
 	if (OP_squared <= 1 * 1)
-		P.z = sqrt(1 * 1 - OP_squared);  // Pythagore
+		P.z = sqrtf(1 * 1 - OP_squared);  // Pythagore
 	else
 		P = glm::normalize(P);  // nearest point
 	return P;
@@ -84,7 +87,7 @@ std::string toString(const glm::vec3& v) {
 	return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z);
 }
 
-void CameraController::rotateCamera(const QPoint& mousePos) {
+void CameraController::rotateCamera(QPoint mousePos) {
 // 	QPoint delta = mousePos - rpos_;
 // 	rpos_ = mousePos;
 // 	glm::vec3 euler = camera_->GetEulerAngles();
@@ -92,15 +95,18 @@ void CameraController::rotateCamera(const QPoint& mousePos) {
 // 	euler.y += 0.05f * delta.x();
 // 	camera_->SetEulerAngles(euler);
 	if (rpos_ != mousePos) {
-		mousePos.setY(rpos_.y());
-		glm::vec3 va = arcballVector(rpos_);
-		glm::vec3 vb = arcballVector(mousePos);
+		//mousePos.setY(rpos_.y());
+		glm::vec3 va = arcBallVector(rpos_);
+		glm::vec3 vb = arcBallVector(mousePos);
+		
+		Engine::get()->logger()->Log(toString(va) + ", " + toString(vb));
+
 		float angle = acosf(glm::min(1.0f, glm::dot(va, vb)));
 		float sa = sinf(angle);
 
 		glm::vec3 axis_in_camera_coord = glm::cross(va, vb);
-
-		axis_in_camera_coord /= sa;
+		
+		//axis_in_camera_coord /= sa;
 
 		Engine::get()->logger()->Log(toString(axis_in_camera_coord));
 
@@ -109,10 +115,10 @@ void CameraController::rotateCamera(const QPoint& mousePos) {
 		float sd = glm::dot(axis_in_camera_coord, axis_in_camera_coord);
 
 		glm::quat q;
-		q.x = axis_in_camera_coord.x * sinf(angle);
-		q.y = axis_in_camera_coord.y * sinf(angle);
-		q.z = axis_in_camera_coord.z * sinf(angle);
-		q.w = cosf(angle);
+		q.x = axis_in_camera_coord.x;// *sinf(angle);
+		q.y = axis_in_camera_coord.y;// *sinf(angle);
+		q.z = axis_in_camera_coord.z;// *sinf(angle);
+		q.w = glm::dot(va, vb);//cosf(angle);
 
 		//glm::mat3 camera2object = glm::inverse(glm::mat3(camera_->GetWorldToLocalMatrix()) * glm::mat3(mesh.object2world));
 		//glm::vec3 axis_in_object_coord = camera2object * axis_in_camera_coord;
@@ -126,8 +132,8 @@ void CameraController::rotateCamera(const QPoint& mousePos) {
 		glm::vec3 scale;
 		//rotation = glm::conjugate(rotation);
 		glm::decompose(mat, scale, rotation, translation, skew, perspective);
-		camera_->SetPosition(translation);
-		camera_->SetRotation(q * camera_->GetRotation());
+		//camera_->SetPosition(translation);
+		camera_->SetRotation(camera_->GetRotation() * q);
 		rpos_ = mousePos;
 	}
 }
