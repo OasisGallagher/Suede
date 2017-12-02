@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "tools/math2.h"
+#include "math2.h"
 #include "tools/string.h"
 #include "internal/file/assetimporter.h"
 #include "internal/world/worldinternal.h"
@@ -13,7 +13,10 @@ SpriteInternal::SpriteInternal() : SpriteInternal(ObjectTypeSprite) {
 
 SpriteInternal::SpriteInternal(ObjectType spriteType)
 	: ObjectInternal(spriteType), dirtyFlag_(0), localScale_(1), worldScale_(1), active_(true) {
-	AssertX(spriteType >= ObjectTypeSprite && spriteType < ObjectTypeCount, "invalid sprite type " + std::to_string(spriteType));
+	if (spriteType < ObjectTypeSprite || spriteType >= ObjectTypeCount) {
+		Debug::LogError("invalid sprite type %d.", spriteType);
+	}
+
 	name_ = SpriteTypeToString(GetType());
 }
 
@@ -145,7 +148,10 @@ void SpriteInternal::SetEulerAngles(const glm::vec3& value) {
 
 glm::vec3 SpriteInternal::GetScale() {
 	if (IsDirty(WorldScale)) {
-		Assert(!IsDirty(LocalScale));
+		if (IsDirty(LocalScale)) {
+			Debug::LogError("invalid state");
+		}
+
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
 		glm::vec3 scale = GetLocalScale();
 		if ((current = current->GetParent()) != worldInstance->GetRootSprite()) {
@@ -161,7 +167,10 @@ glm::vec3 SpriteInternal::GetScale() {
 
 glm::vec3 SpriteInternal::GetPosition() {
 	if (IsDirty(WorldPosition)) {
-		Assert(!IsDirty(LocalPosition));
+		if (IsDirty(LocalPosition)) {
+			Debug::LogError("invalid state");
+		}
+
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
 		glm::vec3 position = GetLocalPosition();
 		if ((current = current->GetParent()) != worldInstance->GetRootSprite()) {
@@ -188,7 +197,10 @@ glm::quat SpriteInternal::GetRotation() {
 			localRotation = GetLocalRotation();
 		}
 		else {
-			Assert(!IsDirty(LocalEulerAngles));
+			if (IsDirty(LocalEulerAngles)) {
+				Debug::LogError("invalid state");
+			}
+
 			localRotation = localRotation_ = glm::quat(Math::Radians(localEulerAngles_));
 			ClearDirty(LocalRotation);
 		}
@@ -220,7 +232,10 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 			localRotation = GetLocalRotation();
 		}
 		else {
-			Assert(!IsDirty(LocalEulerAngles));
+			if (IsDirty(LocalEulerAngles)) {
+				Debug::LogError("invalid state");
+			}
+
 			localRotation = localRotation_ = glm::quat(Math::Radians(localEulerAngles_));
 			ClearDirty(LocalRotation);
 		}
@@ -274,7 +289,10 @@ void SpriteInternal::SetLocalEulerAngles(const glm::vec3& value) {
 
 glm::vec3 SpriteInternal::GetLocalScale() {
 	if (IsDirty(LocalScale)) {
-		Assert(!IsDirty(WorldScale));
+		if (IsDirty(WorldScale)) {
+			Debug::LogError("invalid state");
+		}
+
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
 		glm::vec3 scale = GetScale();
 		if ((current = current->GetParent()) != worldInstance->GetRootSprite()) {
@@ -290,7 +308,10 @@ glm::vec3 SpriteInternal::GetLocalScale() {
 
 glm::vec3 SpriteInternal::GetLocalPosition() {
 	if (IsDirty(LocalPosition)) {
-		Assert(!IsDirty(WorldPosition));
+		if (IsDirty(WorldPosition)) {
+			Debug::LogError("invalid state");
+		}
+
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
 		glm::vec3 position = GetPosition();
 		if ((current = current->GetParent()) != worldInstance->GetRootSprite()) {
@@ -317,7 +338,10 @@ glm::quat SpriteInternal::GetLocalRotation() {
 			worldRotation = GetRotation();
 		}
 		else {
-			Assert(!IsDirty(WorldEulerAngles));
+			if (IsDirty(WorldEulerAngles)) {
+				Debug::LogError("invalid state");
+			}
+
 			worldRotation = worldRotation_ = glm::quat(Math::Radians(worldEulerAngles_));
 			ClearDirty(WorldRotation);
 		}
@@ -349,7 +373,10 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 			worldRotation = GetRotation();
 		}
 		else {
-			Assert(!IsDirty(WorldEulerAngles));
+			if (IsDirty(WorldEulerAngles)) {
+				Debug::LogError("invalid state");
+			}
+
 			worldRotation = worldRotation_ = glm::quat(Math::Radians(worldEulerAngles_));
 			ClearDirty(WorldRotation);
 		}
@@ -416,9 +443,17 @@ glm::vec3 SpriteInternal::GetForward() {
 
 void SpriteInternal::SetDiry(int bits) {
 	dirtyFlag_ |= bits;
-	Assert(!(IsDirty(LocalScale) && IsDirty(WorldScale)));
-	Assert(!(IsDirty(LocalPosition) && IsDirty(WorldPosition)));
-	Assert(!(IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles)));
+	if (IsDirty(LocalScale) && IsDirty(WorldScale)) {
+		Debug::LogError("invalid state");
+	}
+
+	if (IsDirty(LocalPosition) && IsDirty(WorldPosition)) {
+		Debug::LogError("invalid state");
+	}
+
+	if (IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles)) {
+		Debug::LogError("invalid state");
+	}
 }
 
 Sprite SpriteInternal::FindDirectChild(const std::string& name) {
@@ -456,7 +491,7 @@ const char* SpriteInternal::SpriteTypeToString(ObjectType type) {
 			name = "ParticleSystem";
 			break;
 		default:
-			AssertX(false, "Sprite name for " + std::to_string(type) + " does not exist");
+			Debug::LogError("sprite name for %d does not exist.", type);
 			break;
 	}
 

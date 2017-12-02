@@ -8,16 +8,16 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include "math2.h"
+#include "debug.h"
+#include "resources.h"
 #include "tools/path.h"
-#include "tools/debug.h"
-#include "tools/math2.h"
 #include "tools/string.h"
 #include "assetimporter.h"
 #include "internal/file/image.h"
 #include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
 #include "internal/base/meshinternal.h"
-#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/world/worldinternal.h"
 #include "internal/base/textureinternal.h"
@@ -63,10 +63,15 @@ Sprite AssetImporter::Import(const std::string& path) {
 }
 
 bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
-	Assert(sprite);
+	if (!sprite) {
+		Debug::LogError("invalid sprite");
+		return false;
+	}
 
 	Assimp::Importer importer;
-	Initialize(path, importer);
+	if (!Initialize(path, importer)) {
+		return false;
+	}
 
 	Material* materials = nullptr;
 	MeshAttribute* attributes = nullptr;
@@ -74,14 +79,14 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	if (scene_->mNumMaterials > 0) {
 		materials = MEMORY_CREATE_ARRAY(Material, scene_->mNumMaterials);
 		if (!ReadMaterials(materials)) {
-			Debug::LogError("failed to load materials for " + path);
+			Debug::LogError("failed to load materials for %s.", path.c_str());
 		}
 	}
 
 	if (scene_->mNumMeshes > 0) {
 		attributes = MEMORY_CREATE_ARRAY(MeshAttribute, scene_->mNumMeshes);
 		if (!ReadAttributes(attributes)) {
-			Debug::LogError("failed to load meshes for " + path);
+			Debug::LogError("failed to load meshes for %s.", path.c_str());
 		}
 	}
 
@@ -99,7 +104,7 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 	return true;
 }
 
-void AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
+bool AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
 
@@ -111,11 +116,17 @@ void AssetImporter::Initialize(const std::string& path, Assimp::Importer &import
 	std::string fpath = Path::GetResourceRootDirectory() + path;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
-	AssertX(scene != nullptr, "failed to read file " + fpath + ": " + importer.GetErrorString());
+	if (scene == nullptr) {
+		Debug::LogError("failed to read file %s: %s", fpath.c_str(), importer.GetErrorString());
+		return false;
+	}
+
 	Clear();
 
 	path_ = fpath;
 	scene_ = scene;
+
+	return true;
 }
 
 void AssetImporter::Clear() {
@@ -248,10 +259,15 @@ void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 		const aiVector3D* normal = &aimesh->mNormals[i];
 		// TODO: multiple texture coords?
 		for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
-			AssertX(!aimesh->HasTextureCoords(i), "multiple texture coordinates");
+			if (aimesh->HasTextureCoords(i)) {
+				Debug::LogError("multiple texture coordinates");
+			}
 		}
 
-		AssertX(aimesh->GetNumUVChannels() == 1, "multiple uv channels");
+		// TODO:
+		if (aimesh->GetNumUVChannels() != 1) {
+			Debug::LogError("multiple uv channels");
+		}
 
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
 		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;
@@ -264,7 +280,11 @@ void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 
 	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
 		const aiFace& face = aimesh->mFaces[i];
-		AssertX(face.mNumIndices == 3, "invalid index count");
+		if (face.mNumIndices != 3) {
+			Debug::LogError("invalid index count");
+			continue;
+		}
+
 		attribute.indexes.push_back(face.mIndices[0]);
 		attribute.indexes.push_back(face.mIndices[1]);
 		attribute.indexes.push_back(face.mIndices[2]);

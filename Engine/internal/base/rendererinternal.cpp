@@ -1,7 +1,8 @@
+#include "math2.h"
+#include "debug.h"
+#include "time2.h"
 #include "variables.h"
-#include "tools/math2.h"
 #include "rendererinternal.h"
-#include "internal/misc/timefinternal.h"
 
 RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), queue_(RenderQueueGeometry) {	
 }
@@ -22,7 +23,10 @@ void RendererInternal::RenderSprite(Sprite sprite) {
 }
 
 GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
-	Assert(topology == MeshTopologyTriangles || topology == MeshTopologyTriangleStripes);
+	if (topology != MeshTopologyTriangles && topology != MeshTopologyTriangleStripes) {
+		Debug::LogError("invalid mesh topology");
+		return 0;
+	}
 
 	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
 	return GL_TRIANGLE_STRIP;
@@ -32,8 +36,8 @@ void RendererInternal::UpdateMaterial(Sprite sprite) {
 	int materialCount = GetMaterialCount();
 	for (int i = 0; i < materialCount; ++i) {
 		Material material = GetMaterial(i);
-		material->SetFloat(Variables::time, timeInstance->GetRealTimeSinceStartup());
-		material->SetFloat(Variables::deltaTime, timeInstance->GetDeltaTime());
+		material->SetFloat(Variables::time, Time::GetRealTimeSinceStartup());
+		material->SetFloat(Variables::deltaTime, Time::GetDeltaTime());
 
 		glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
 		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
@@ -44,7 +48,6 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	int subMeshCount = mesh->GetSubMeshCount();
 	int materialCount = GetMaterialCount();
 
-	Assert(materialCount == subMeshCount);
 	if (materialCount != subMeshCount) {
 		Debug::LogError("material count mismatch with sub mesh count");
 		return;
@@ -104,7 +107,11 @@ void ParticleRendererInternal::AddMaterial(Material material) {
 
 void ParticleRendererInternal::RenderSprite(Sprite sprite) {
 	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(sprite);
-	AssertX(particleSystem, "invalid particle system");
+	if (!particleSystem) {
+		Debug::LogError("invalid particle system");
+		return;
+	}
+
 	particleCount_ = particleSystem->GetParticlesCount();
 
 	RendererInternal::RenderSprite(sprite);

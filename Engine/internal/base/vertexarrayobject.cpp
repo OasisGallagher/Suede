@@ -1,4 +1,4 @@
-#include "tools/debug.h"
+#include "debug.h"
 #include "vertexarrayobject.h"
 #include "internal/memory/memory.h"
 
@@ -27,8 +27,11 @@ void VertexArrayObject::CreateVBOs(size_t n) {
 	Unbind();
 }
 
-void VertexArrayObject::SetBuffer(int index, GLenum target, size_t size, const void* data, GLenum usage) {
-	Assert(index >= 0 && index < vboCount_);
+void VertexArrayObject::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return;
+	}
 
 	attributes_[index].size = size;
 	attributes_[index].target = target;
@@ -57,13 +60,21 @@ void VertexArrayObject::SetVertexDataSource(int index, int location, int size, G
 	UnbindBuffer(index);
 }
 
-uint VertexArrayObject::GetBufferNativePointer(int index) {
-	Assert(index >= 0 && index < vboCount_);
+uint VertexArrayObject::GetBufferNativePointer(uint index) {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return 0;
+	}
+
 	return vbos_[index];
 }
 
-void VertexArrayObject::UpdateBuffer(int index, int offset, size_t size, const void* data) {
-	Assert(index >= 0 && index < vboCount_);
+void VertexArrayObject::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return;
+	}
+
 	GLuint vbo = vbos_[index];
 	VBOAttribute& attr = attributes_[index];
 
@@ -91,7 +102,11 @@ void VertexArrayObject::DestroyVBOs() {
 }
 
 void VertexArrayObject::Bind() {
-	AssertX(vao_ != 0, "invalid vao");
+	if (vao_ == 0) {
+		Debug::LogError("invalid vao");
+		return;
+	}
+
 	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&oldVao_);
 	glBindVertexArray(vao_);
 }
@@ -116,6 +131,6 @@ void VertexArrayObject::UnbindBuffer(int index) {
 GLenum VertexArrayObject::GetBindingName(GLenum target) {
 	if (target == GL_ARRAY_BUFFER) { return GL_ARRAY_BUFFER_BINDING; }
 	if (target == GL_ELEMENT_ARRAY_BUFFER) { return GL_ELEMENT_ARRAY_BUFFER_BINDING; }
-	AssertX(false, "undefined target binding name");
+	Debug::LogError("undefined target binding name");
 	return 0;
 }

@@ -1,12 +1,16 @@
 #include <glm/glm.hpp>
 
+#include "debug.h"
 #include "tools/path.h"
-#include "tools/debug.h"
 #include "textureinternal.h"
 #include "internal/file/image.h"
 
 void TextureInternal::Bind(uint index) {
-	AssertX(glIsTexture(texture_), "invalid texture");
+	if (!glIsTexture(texture_)) {
+		Debug::LogError("invalid texture");
+		return;
+	}
+
 	location_ = index + GL_TEXTURE0;
 	glActiveTexture(location_);
 	BindTexture();
@@ -186,12 +190,12 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	return true;
 }
 
-void RenderTextureInternal::RenderTextureFormatToGLEnum(RenderTextureFormat renderTextureFormat, GLenum(&parameters)[3]) {
+void RenderTextureInternal::RenderTextureFormatToGLEnum(RenderTextureFormat input, GLenum(&parameters)[3]) {
 	GLenum internalFormat = GL_RGBA;
 	GLenum format = GL_RGBA;
 	GLenum type = GL_UNSIGNED_BYTE;
 
-	switch (renderTextureFormat) {
+	switch (input) {
 		case  RenderTextureFormatRgba:
 			internalFormat = GL_RGBA;
 			break;
@@ -205,7 +209,7 @@ void RenderTextureInternal::RenderTextureFormatToGLEnum(RenderTextureFormat rend
 			type = GL_FLOAT;
 			break;
 		default:
-			Debug::LogError("invalid render texture format: " + std::to_string(renderTextureFormat));
+			Debug::LogError("invalid render texture format: %d.", input);
 			break;
 	}
 

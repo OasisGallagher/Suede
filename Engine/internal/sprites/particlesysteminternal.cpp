@@ -1,10 +1,10 @@
+#include "math2.h"
+#include "time2.h"
 #include "variables.h"
-#include "tools/math2.h"
+#include "resources.h"
 #include "particlesysteminternal.h"
 #include "internal/base/meshinternal.h"
-#include "internal/misc/timefinternal.h"
 #include "internal/world/worldinternal.h"
-#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/materialinternal.h"
@@ -40,7 +40,7 @@ void ParticleSystemInternal::Update() {
 		UpdateEmitter();
 	}
 
-	time_ += timeInstance->GetDeltaTime();
+	time_ += Time::GetDeltaTime();
 }
 
 void ParticleSystemInternal::SortBuffers() {
@@ -96,7 +96,7 @@ void ParticleSystemInternal::UpdateMesh() {
 }
 
 void ParticleSystemInternal::UpdateAttributes() {
-	float deltaTime = timeInstance->GetDeltaTime();
+	float deltaTime = Time::GetDeltaTime();
 
 	for (FreeList<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
@@ -211,21 +211,21 @@ void ParticleEmitterInternal::EmitParticles(Particle** particles, uint count) {
 
 uint ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	uint ans = rate_;
-	float nextTime = time_ + timeInstance->GetDeltaTime();
+	float nextTime = time_ + Time::GetDeltaTime();
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
 			ans = Math::Random(bursts_[i].min, bursts_[i].max);
 		}
 	}
 
-	remainder_ += ans * timeInstance->GetDeltaTime();
+	remainder_ += ans * Time::GetDeltaTime();
 	ans = (uint)remainder_;
 	remainder_ -= ans;
 	return ans;
 }
 
 void ParticleAnimatorInternal::Update(Particle& particle) {
-	float deltaTime = timeInstance->GetDeltaTime();
+	float deltaTime = Time::GetDeltaTime();
 	particle.position += particle.velocity * deltaTime;
 	particle.velocity += kGravitationalAcceleration * gravityScale_ * deltaTime;
 }

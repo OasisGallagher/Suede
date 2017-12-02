@@ -1,6 +1,6 @@
 #pragma once
-#include "tools/debug.h"
-#include "tools/math2.h"
+#include "math2.h"
+#include "debug.h"
 #include "internal/memory/memory.h"
 
 template <class T>
@@ -75,7 +75,10 @@ public:
 	size_t capacity() const { return capacity_; }
 
 	T* spawn() {
-		AssertX(free_ != nullptr, "out of memory");
+		if (free_ == nullptr) {
+			Debug::LogError("out of memory");
+			return nullptr;
+		}
 
 		T* result = (T*)advance(free_, HeadSize);
 		Block* block = free_;

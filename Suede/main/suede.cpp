@@ -5,6 +5,7 @@
 #include <QStandardPaths>
 
 #include "suede.h"
+#include "engine.h"
 
 #include "views/game.h"
 #include "views/canvas.h"
@@ -12,11 +13,10 @@
 #include "views/inspector.h"
 #include "views/hierarchy.h"
 
-#include "camera.h"
-
 Suede::Suede(QWidget *parent)
 	: QMainWindow(parent) {
-	Engine::get()->setLogReceiver(this);
+
+	Debug::SetLogReceiver(this);
 
 	setupUI();
 
@@ -64,7 +64,7 @@ void Suede::showChildWindow(int index, bool show) {
 	dockWidgets_[index]->setVisible(show);
 
 	if (index == ChildWindowHierarchy && dockWidgets_[index]->isVisible()) {
-		Hierarchy::get()->update(Engine::get()->world()->GetRootSprite());
+		Hierarchy::get()->update(Engine::GetWorld()->GetRootSprite());
 	}
 }
 
@@ -102,7 +102,7 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 
 void Suede::screenCapture() {
 	std::vector<Sprite> sprites;
-	if (!Engine::get()->world()->GetSprites(ObjectTypeCamera, sprites)) {
+	if (!Engine::GetWorld()->GetSprites(ObjectTypeCamera, sprites)) {
 		return;
 	}
 
@@ -135,24 +135,23 @@ void Suede::screenCapture() {
 	}
 }
 
-void Suede::OnEngineLogMessage(int type, const char* message) {
+void Suede::OnLogMessage(LogLevel level, const char* message) {
 	if (!childWindowVisible(ChildWindowConsole)) {
 		return;
 	}
 
-	switch (type) {
-		case 0:
+	switch (level) {
+		case LogLevelDebug:
 			Console::get()->addMessage(Console::Debug, message);
 			break;
 
-		case 1:
+		case LogLevelWarning:
 			Console::get()->addMessage(Console::Warning, message);
 			break;
 
-		case 2:
-		case 3:
+		case LogLevelError:
 			Console::get()->addMessage(Console::Error, message);
-			if (type == 3) { qFatal(message); }
+			qFatal(message);
 			break;
 	}
 }

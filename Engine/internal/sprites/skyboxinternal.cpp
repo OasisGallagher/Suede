@@ -1,10 +1,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "resources.h"
 #include "variables.h"
 #include "internal/memory/factory.h"
 #include "internal/file/assetimporter.h"
-#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/sprites/skyboxinternal.h"

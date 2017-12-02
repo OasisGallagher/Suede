@@ -17,7 +17,7 @@ public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
 
 private:
-	static uint EncodeInstanceID(ObjectType type);
+	static uint CreateInstanceID(ObjectType type);
 
 private:
 	uint id_;

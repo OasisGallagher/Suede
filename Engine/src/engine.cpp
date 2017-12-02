@@ -1,13 +1,8 @@
 #include <gl/glew.h>
 
 #include "engine.h"
-#include "tools/debug.h"
 
-extern Time timeInstance;
 extern World worldInstance;
-extern Screen screenInstance;
-extern Logger loggerInstance;
-extern Graphics graphicsInstance;
 
 #ifndef _STDCALL
 #define _STDCALL __stdcall
@@ -23,21 +18,13 @@ static void _STDCALL GLDebugMessageCallback(
 	const GLvoid* userParam
 );
 
-Engine::Engine() {
-}
-
-Engine* Engine::get() {
-	static Engine instance;
-	return &instance;
-}
-
-bool Engine::initialize() {
+bool Engine::Initialize() {
 	setlocale(LC_ALL, "");
-
+	Math::Max(1, 2);
 	glewExperimental = true;
 
 	if (glewInit() != GLEW_OK) {
-		AssertX(false, "failed to initialize glew.");
+		Debug::LogError("failed to initialize glew.");
 		return false;
 	}
 
@@ -46,46 +33,26 @@ bool Engine::initialize() {
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 
-	worldInstance->Initialize();
+	Resources::Import();
 
 	return true;
 }
 
-void Engine::release() {
+void Engine::Release() {
 }
 
-void Engine::setLogReceiver(EngineLogReceiver* receiver) {
-	Debug::SetLogReceiver(receiver);
-}
-
-void Engine::resize(int w, int h) {
-	screen()->SetContentSize(w, h);
+void Engine::Resize(int w, int h) {
+	Screen::Set(w, h);
 	glViewport(0, 0, w, h);
 }
 
-World Engine::world() {
+World Engine::GetWorld() {
 	return worldInstance;
 }
 
-Time Engine::time() {
-	return timeInstance;
-}
-
-Logger Engine::logger() {
-	return loggerInstance;
-}
-
-Screen Engine::screen() {
-	return screenInstance;
-}
-
-Graphics Engine::graphics() {
-	return graphicsInstance;
-}
-
-void Engine::update() {
-	time()->Update();
-	world()->Update();
+void Engine::Update() {
+	Time::Update();
+	GetWorld()->Update();
 }
 
 static void _STDCALL GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const GLvoid* userParam) {
@@ -116,15 +83,13 @@ static void _STDCALL GLDebugMessageCallback(GLenum source, GLenum type, GLuint i
 
 	text += message;
 
-	AssertX(severity != GL_DEBUG_SEVERITY_HIGH_ARB, text);
-
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB) {
-		Debug::LogError(text);
+		Debug::LogError(text.c_str());
 	}
 	else if (severity == GL_DEBUG_SEVERITY_MEDIUM_ARB) {
-		Debug::LogWarning(text);
+		Debug::LogWarning(text.c_str());
 	}
 	else {
-		Debug::Log(text);
+		Debug::Log(text.c_str());
 	}
 }

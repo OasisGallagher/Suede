@@ -27,14 +27,14 @@ struct SkeletonNode {
 class ISkeleton : virtual public IObject {
 public:
 	virtual bool AddBone(const SkeletonBone& bone) = 0;
-	virtual SkeletonBone* GetBone(int index) = 0;
+	virtual SkeletonBone* GetBone(uint index) = 0;
 	virtual SkeletonBone* GetBone(const std::string& name) = 0;
 
 	virtual SkeletonNode* CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) = 0;
 	virtual void AddNode(SkeletonNode* parent, SkeletonNode* child) = 0;
 	virtual SkeletonNode* GetRootNode() = 0;
 	
-	virtual void SetBoneToRootSpaceMatrix(int index, const glm::mat4& value) = 0;
+	virtual void SetBoneToRootSpaceMatrix(uint index, const glm::mat4& value) = 0;
 	virtual glm::mat4* GetBoneToRootSpaceMatrices() = 0;
 
 	virtual int GetBoneIndex(const std::string& name) = 0;

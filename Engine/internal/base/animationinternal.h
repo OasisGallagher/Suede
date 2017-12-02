@@ -18,10 +18,10 @@ public:
 
 public:
 	virtual bool AddBone(const SkeletonBone& bone);
-	virtual SkeletonBone* GetBone(int index);
+	virtual SkeletonBone* GetBone(uint index);
 	virtual SkeletonBone* GetBone(const std::string& name);
 	
-	virtual void SetBoneToRootSpaceMatrix(int index, const glm::mat4& value);
+	virtual void SetBoneToRootSpaceMatrix(uint index, const glm::mat4& value);
 	virtual glm::mat4* GetBoneToRootSpaceMatrices() { return boneToRootSpaceMatrices_; }
 
 	virtual int GetBoneIndex(const std::string& name);
@@ -115,7 +115,7 @@ private:
 	typedef std::vector<Keys*> Container;
 
 private:
-	void InsertKey(int id, const Key& key);
+	void InsertKey(uint id, const Key& key);
 	void RemoveKey(const Key& key);
 
 	int SmoothKeys();

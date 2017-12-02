@@ -26,7 +26,7 @@ public:
 
 private:
 	void Clear();
-	void Initialize(const std::string& path, Assimp::Importer &importer);
+	bool Initialize(const std::string& path, Assimp::Importer &importer);
 	void CombineAttribute(MeshAttribute& dest, const MeshAttribute& src);
 
 	Sprite ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials);

@@ -1,6 +1,7 @@
+#include "debug.h"
+#include "math2.h"
 #include "variables.h"
 #include "renderstate.h"
-#include "tools/math2.h"
 #include "tools/string.h"
 #include "materialinternal.h"
 
@@ -47,7 +48,11 @@ void MaterialInternal::UnbindRenderStates() {
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeInt);
 	if (u != nullptr && u->value.GetInt() != value) {
 		glProgramUniform1i(shader_->GetNativePointer(), u->location, value);
@@ -55,7 +60,11 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 }
 
 void MaterialInternal::SetFloat(const std::string& name, float value) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeFloat);
 	if (u != nullptr && !Math::Approximately(u->value.GetFloat(), value)) {
 		glProgramUniform1f(shader_->GetNativePointer(), u->location, value);
@@ -63,7 +72,11 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 }
 
 void MaterialInternal::SetTexture(const std::string& name, Texture value) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeTexture);
 
 	if (u != nullptr && u->value.GetTexture() != value) {
@@ -73,7 +86,11 @@ void MaterialInternal::SetTexture(const std::string& name, Texture value) {
 }
 
 void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& value) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeVector3);
 	if (u != nullptr && u->value.GetVector3() != value) {
 		SetUniform(u, &value);
@@ -81,7 +98,11 @@ void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& valu
 }
 
 void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& value) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeVector4);
 	if (u != nullptr && u->value.GetVector4() != value) {
 		SetUniform(u, &value);
@@ -89,7 +110,11 @@ void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& valu
 }
 
 void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& value) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeMatrix4);
 	if (u != nullptr && u->value.GetMatrix4() != value) {
 		SetUniform(u, &value);
@@ -97,7 +122,11 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 }
 
 int MaterialInternal::GetInt(const std::string& name) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return 0;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeInt);
 	if (u == nullptr) {
 		return 0;
@@ -107,9 +136,14 @@ int MaterialInternal::GetInt(const std::string& name) {
 }
 
 float MaterialInternal::GetFloat(const std::string& name) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return 0;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeFloat);
 	if (u == nullptr) {
+		Debug::LogError("no property named %s.", name.c_str());
 		return 0.f;
 	}
 
@@ -117,9 +151,14 @@ float MaterialInternal::GetFloat(const std::string& name) {
 }
 
 Texture MaterialInternal::GetTexture(const std::string& name) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return nullptr;
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeTexture);
 	if (u == nullptr) {
+		Debug::LogError("no property named %s.", name.c_str());
 		return Texture();
 	}
 
@@ -127,9 +166,14 @@ Texture MaterialInternal::GetTexture(const std::string& name) {
 }
 
 glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return glm::mat4(1);
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeMatrix4);
 	if (u == nullptr) {
+		Debug::LogError("no property named %s.", name.c_str());
 		return glm::mat4(1);
 	}
 
@@ -137,9 +181,14 @@ glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return glm::vec3(0);
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeVector3);
 	if (u == nullptr) {
+		Debug::LogError("no property named %s.", name.c_str());
 		return glm::vec3(0);
 	}
 
@@ -147,9 +196,14 @@ glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
 }
 
 glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
-	AssertX(shader_, "invalid shader");
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return glm::vec4(0, 0, 0, 1);
+	}
+
 	Uniform* u = GetUniform(name, VariantTypeVector4);
 	if (u == nullptr) {
+		Debug::LogError("no property named %s.", name.c_str());
 		return glm::vec4(0, 0, 0, 1);
 	}
 
@@ -197,7 +251,7 @@ void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int 
 			state = MEMORY_CREATE(RasterizerDiscardState);
 			break;
 		default:
-			Debug::LogError("invalid render capacity " + std::to_string(type));
+			Debug::LogError("invalid render state %d.", type);
 			break;
 	}
 
@@ -211,14 +265,14 @@ MaterialInternal::Uniform* MaterialInternal::GetUniform(const std::string& name,
 	if (!uniforms_.get(name, ans)) {
 		static int variablePrefixLength = strlen(VARIABLE_PREFIX);
 		if (strncmp(name.c_str(), VARIABLE_PREFIX, variablePrefixLength) != 0) {
-			Debug::LogWarning("uniform " + name + " does not exist.");
+			Debug::LogWarning("property %s does not exist.", name.c_str());
 		}
 
 		return false;
 	}
 
 	if (ans->value.GetType() != type) {
-		Debug::LogError("uniform " + name + " does not defined as " + Variant::TypeString(type));
+		Debug::LogError("property %s does not defined as %s.", name.c_str(), Variant::TypeString(type).c_str());
 		return false;
 	}
 
@@ -371,12 +425,16 @@ void MaterialInternal::AddUniform(const char* name, GLenum type, GLuint location
 		uniform->value.SetVector4(glm::vec4(0, 0, 0, 1));
 	}
 	else if (IsSampler(type)) {
-		AssertX(textureUnitIndex_ < maxTextureUnits_, "too many textures.");
-		uniform->value.SetTextureLocation(textureUnitIndex_++);
-		textureUniforms_.push_back(uniform);
+		if (textureUnitIndex_ >= maxTextureUnits_) {
+			Debug::LogError("too many textures.");
+		}
+		else {
+			uniform->value.SetTextureLocation(textureUnitIndex_++);
+			textureUniforms_.push_back(uniform);
+		}
 	}
 	else {
-		Debug::LogError(String::Format("undefined uniform type 0x%x.", type));
+		Debug::LogError("undefined uniform type 0x%x.", type);
 	}
 }
 
@@ -413,7 +471,7 @@ GLuint MaterialInternal::GetUniformSize(GLint uniformType, GLint uniformSize,
 				return 4 * uniformMatrixStride;
 
 			default:
-				Debug::LogError("invalid uniformType " + std::to_string(uniformType) + ".");
+				Debug::LogError("invalid uniformType %d.", uniformType);
 				return 0;
 		}
 	}
@@ -539,7 +597,7 @@ GLuint MaterialInternal::GetSizeOfType(GLint type) {
 			return sizeof(double) * 12;
 
 		default:
-			Debug::LogError("invalid uniform type " + std::to_string(type) + ".");
+			Debug::LogError("invalid uniform type %d.", type);
 			return 0;
 	}
 

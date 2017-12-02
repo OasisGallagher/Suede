@@ -8,21 +8,21 @@ Canvas::Canvas(QWidget *parent)
 
 Canvas::~Canvas() {
 	killTimer(updateTimer_);
-	Engine::get()->release();
+	Engine::Release();
 }
 
 void Canvas::initializeGL() {
 	// TODO: make debug context.
-	Engine::get()->initialize();
+	Engine::Initialize();
 }
 
 void Canvas::resizeGL(int w, int h) {
-	Engine::get()->resize(w, h);
+	Engine::Resize(w, h);
 }
 
 void Canvas::paintGL() {
 	emit repaint();
-	Engine::get()->update();
+	Engine::Update();
 
 	//QMetaObject::invokeMethod(this, "updateGL", Qt::QueuedConnection);
 }

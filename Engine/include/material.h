@@ -53,13 +53,13 @@ public:
 	virtual void Undefine(const std::string& name) = 0;
 
 	/**
-	* @param Cull: Front, Back, Off
-	* @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always
-	* @param DepthWrite: On, Off
-	* @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
-	* @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
-	* @param RasterizerDiscard: On, Off
-	*/
+	 * @param Cull: Front, Back, Off
+	 * @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always
+	 * @param DepthWrite: On, Off
+	 * @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
+	 * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
+	 * @param RasterizerDiscard: On, Off
+	 */
 	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1 = 0) = 0;
 
 	virtual void SetInt(const std::string& name, int value) = 0;

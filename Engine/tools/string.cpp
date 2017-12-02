@@ -11,7 +11,9 @@ std::string String::Format(const char* format, ...) {
 	int n = vsnprintf(formatBuffer, formatBufferLength, format, ap);
 	va_end(ap);
 
-	AssertX(n >= 0 && n < formatBufferLength, "format error");
+	if (n < 0) {
+		Debug::LogError("format error");
+	}
 
 	return formatBuffer;
 }

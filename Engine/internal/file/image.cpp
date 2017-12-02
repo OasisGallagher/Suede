@@ -1,8 +1,8 @@
 #include <Magick++.h>
 
+#include "math2.h"
+#include "debug.h"
 #include "image.h"
-#include "tools/math2.h"
-#include "tools/debug.h"
 
 bool ImageCodec::Decode(std::vector<uchar>& data, int& width, int& height, const void* compressedData, uint length) {
 	try {
@@ -19,7 +19,7 @@ bool ImageCodec::Decode(std::vector<uchar>& data, int& width, int& height, const
 		std::copy(ptr, ptr + blob.length(), &data[0]);
 	}
 	catch (Magick::Error& err) {
-		Debug::LogError(std::string("failed to decode compressed data: ") + err.what());
+		Debug::LogError("failed to decode compressed data: %s.", err.what());
 		return false;
 	}
 
@@ -42,7 +42,7 @@ bool ImageCodec::Decode(std::vector<uchar>& data, int& width, int& height, const
 		std::copy(ptr, ptr + blob.length(), &data[0]);
 	}
 	catch (Magick::Error& err) {
-		Debug::LogError("failed to decode image " + path + ": " + err.what());
+		Debug::LogError("failed to decode image \"%s\": %s.", path.c_str(), err.what());
 		return false;
 	}
 
@@ -63,7 +63,7 @@ bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, const c
 		data.assign(ptr, ptr + blob.length());
 	}
 	catch (Magick::Error& err) {
-		Debug::LogError(std::string("failed to encode image: ") + err.what());
+		Debug::LogError("failed to encode image: %s.", err.what());
 		return false;
 	}
 

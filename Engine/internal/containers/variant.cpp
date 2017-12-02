@@ -1,5 +1,5 @@
+#include "debug.h"
 #include "variant.h"
-#include "tools/debug.h"
 
 std::string Variant::TypeString(VariantType type) {
 	static const char* variantTypeNames[]{
@@ -18,47 +18,82 @@ std::string Variant::TypeString(VariantType type) {
 }
 
 int Variant::GetInt() {
-	AssertX(type_ == VariantTypeInt, "invalid variant type.");
+	if (type_ != VariantTypeInt) {
+		Debug::LogError("invalid variant type.");
+		return 0;
+	}
+
 	return intValue_;
 }
 
 bool Variant::GetBool() {
-	AssertX(type_ == VariantTypeBool, "invalid uniform type.");
+	if (type_ != VariantTypeBool) {
+		Debug::LogError("invalid uniform type.");
+		return false;
+	}
+
 	return boolValue_;
 }
 
 float Variant::GetFloat() {
-	AssertX(type_ == VariantTypeFloat, "invalid uniform type.");
+	if (type_ != VariantTypeFloat) {
+		Debug::LogError("invalid uniform type.");
+		return 0;
+	}
+
 	return floatValue_;
 }
 
 glm::mat4 Variant::GetMatrix4() {
-	AssertX(type_ == VariantTypeMatrix4, "invalid uniform type.");
+	if (type_ != VariantTypeMatrix4) {
+		Debug::LogError("invalid uniform type.");
+		return glm::mat4(1);
+	}
+
 	return mat4Value_;
 }
 
 glm::vec3 Variant::GetVector3() {
-	AssertX(type_ == VariantTypeVector3, "invalid uniform type.");
+	if (type_ != VariantTypeVector3) {
+		Debug::LogError("invalid uniform type.");
+		return glm::vec3(0);
+	}
+
 	return vector3Value_;
 }
 
 glm::vec4 Variant::GetVector4() {
-	AssertX(type_ == VariantTypeVector4, "invalid uniform type.");
+	if (type_ != VariantTypeVector4) {
+		Debug::LogError("invalid uniform type.");
+		return glm::vec4(0, 0, 0, 1);
+	}
+
 	return vector4Value_;
 }
 
 glm::quat Variant::GetQuaternion() {
-	AssertX(type_ == VariantTypeQuaternion, "invalid uniform type.");
+	if (type_ != VariantTypeQuaternion) {
+		Debug::LogError("invalid uniform type.");
+		return glm::quat();
+	}
+
 	return quaternionValue_;
 }
 
 Texture Variant::GetTexture() {
-	AssertX(type_ == VariantTypeTexture, "invalid uniform type.");
+	if (type_ != VariantTypeTexture) {
+		Debug::LogError("invalid uniform type.");
+		return nullptr;
+	}
 	return texture_;
 }
 
 int Variant::GetTextureIndex() {
-	AssertX(type_ == VariantTypeTexture, "invalid uniform type.");
+	if (type_ != VariantTypeTexture) {
+		Debug::LogError("invalid uniform type.");
+		return 0;
+	}
+
 	return textureIndex_;
 }
 

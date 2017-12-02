@@ -3,9 +3,9 @@
 #include <map>
 #include <vector>
 
+#include "debug.h"
 #include "object.h"
 #include "memory.h"
-#include "tools/debug.h"
 
 class Factory {
 	typedef Object (*FactoryMethod)();
@@ -21,24 +21,41 @@ public:
 
 	static Object Create(const std::string& name) {
 		MapContainer::iterator pos = instance.methodDictionary_.find(name);
-		AssertX(pos != instance.methodDictionary_.end(), "no factroy method exists for: " + name);
+		if (pos == instance.methodDictionary_.end()) {
+			Debug::LogError("no factroy method exists for %s", name.c_str());
+			return nullptr;
+		}
+
 		return pos->second();
 	}
 
 	static Object Create(ObjectType type) {
-		AssertX(type >= 0 && type < ObjectTypeCount, "invalid object type " + std::to_string(type));
-		AssertX(instance.methodArray_[type] != nullptr, "no factroy method exists for type: " + std::to_string(type));
+		if (type < 0 || type >= ObjectTypeCount) {
+			Debug::LogError("invalid object type %d.", type);
+			return nullptr;
+		}
+
+		if (instance.methodArray_[type] == nullptr) {
+			Debug::LogError("no factroy method exists for type %d.", type);
+			return nullptr;
+		}
+
 		return instance.methodArray_[type]();
 	}
 
 private:
 	static void AddFactoryMethod(const std::string& name, FactoryMethod method) {
-		bool done = instance.methodDictionary_.insert(std::make_pair(name, method)).second;
-		AssertX(done, "failed to add factroy method for: " + name);
+		if (!instance.methodDictionary_.insert(std::make_pair(name, method)).second) {
+			Debug::LogError("failed to add factroy method for %s", name.c_str());
+		}
 	}
 
 	static void AddFactoryMethod(ObjectType type, FactoryMethod method) {
-		AssertX(instance.methodArray_[type] == nullptr, "method for type " + std::to_string(type) + " already exists.");
+		if (instance.methodArray_[type] != nullptr) {
+			Debug::LogError("method for type %d already exists.", type);
+			return;
+		}
+
 		instance.methodArray_[type] = method;
 	}
 
@@ -47,4 +64,7 @@ private:
 	FactoryMethod methodArray_[ObjectTypeCount];
 };
 
+/**
+ * @warning: Create non-sprite only! Call 'worldInstance->Create()' otherwise.
+ */
 #define CREATE_OBJECT(type)	Factory::Create<type ## Internal>()
