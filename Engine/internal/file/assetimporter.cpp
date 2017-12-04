@@ -336,7 +336,7 @@ bool AssetImporter::ReadMaterials(Material* materials) {
 }
 
 bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& attribute) {
-	std::string shaderName = "unlit_texture";
+	std::string shaderName = "lit_texture";
 	if (scene_->mNumAnimations != 0) {
 		shaderName = "lit_animated_texture";
 	}
@@ -377,7 +377,7 @@ void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMateri
 	}
 
 	if (!attribute.mainTexture) {
-		attribute.mainTexture = GetDefaultMainTexture();
+		attribute.mainTexture = Resources::GetWhiteTexture();
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
@@ -558,16 +558,4 @@ Texture AssetImporter::ReadEmbeddedTexture(uint index) {
 	}
 
 	return texture;
-}
-
-Texture AssetImporter::GetDefaultMainTexture() {
-	const int kDefaultColor = 0xffffff;
-	static Texture2D defaultMainTexture;
-
-	if (!defaultMainTexture) {
-		defaultMainTexture = NewTexture2D();
-		defaultMainTexture->Load(&kDefaultColor, ColorFormatRgba, 1, 1);
-	}
-
-	return defaultMainTexture;
 }

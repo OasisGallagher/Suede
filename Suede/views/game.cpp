@@ -18,11 +18,11 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define SKYBOX
+//#define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
-#define ANIMATION
-#define PARTICLE_SYSTEM
+//#define ANIMATION
+//#define PARTICLE_SYSTEM
 #define FONT
 //#define BUMPED
 
@@ -119,7 +119,7 @@ void Game::createScene() {
 
 	Camera camera = NewCamera();
 	controller_->setCamera(camera);
-	camera->SetPosition(glm::vec3(0, 0, 0));
+	camera->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
 	camera->AddPostEffect(inversion_);
@@ -176,8 +176,11 @@ void Game::createScene() {
 
 #if defined(FONT)
 	Sprite fsprite = NewSprite();
-	fsprite->SetPosition(glm::vec3(0, 5, -20));
+	fsprite->SetPosition(glm::vec3(-10, 20, -20));
 	fsprite->SetEulerAngles(glm::vec3(0, 0, 0));
+
+	Sprite fsprite2 = NewSprite();
+	fsprite2->SetPosition(glm::vec3(-10, 30, -20));
 
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
@@ -188,18 +191,28 @@ void Game::createScene() {
 	
 	mesh->SetFontSize(12);
 	fsprite->SetMesh(mesh);
+	fsprite2->SetMesh(mesh);
 
 	Renderer renderer = NewMeshRenderer();
-	renderer->AddMaterial(font->GetMaterial());
+	Material fontMaterial = dsp_cast<Material>(font->GetMaterial()->Clone());
+	fontMaterial->SetVector4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
+
+	Renderer renderer2 = NewMeshRenderer();
+	Material fontMaterial2 = dsp_cast<Material>(font->GetMaterial()->Clone());
+	fontMaterial2->SetVector4(Variables::mainColor, glm::vec4(1, 1, 0, 1));
+
+	renderer->AddMaterial(fontMaterial);
+	renderer2->AddMaterial(fontMaterial2);
+
 	fsprite->SetRenderer(renderer);
+	fsprite2->SetRenderer(renderer2);
 #endif
 
 #if defined(MODEL) || defined(ANIMATION)
 	Sprite sprite;
 #if defined(MODEL)
 	sprite = WorldInstance()->Import("models/jeep.fbx");
-	sprite->SetPosition(glm::vec3(0, -15, -120));
-	sprite->SetEulerAngles(glm::vec3(0, 180, 0));
+	sprite->SetPosition(glm::vec3(0, -20, -150));
 #elif defined(ANIMATION)
 	sprite = WorldInstance()->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
@@ -207,8 +220,8 @@ void Game::createScene() {
 #endif
 
 	if (sprite) {
-		//sprite->SetParent(camera);
-		//light->SetParent(camera);
+		sprite->SetParent(camera);
+		light->SetParent(camera);
 
 		Animation animation = sprite->GetAnimation();
 		if (animation) {

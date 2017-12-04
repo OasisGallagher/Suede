@@ -72,7 +72,6 @@ private:
 	Texture GetTexture(const std::string& name);
 	Texture ReadExternalTexture(const std::string& name);
 	Texture ReadEmbeddedTexture(uint index);
-	Texture GetDefaultMainTexture();
 
 private:
 	Skeleton skeleton_;

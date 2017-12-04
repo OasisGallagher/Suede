@@ -13,7 +13,8 @@ ObjectInternal::ObjectInternal(ObjectType type) {
 }
 
 Object ObjectInternal::Clone() {
-	return Object();
+	Debug::LogError("unable to clone.");
+	return nullptr;
 }
 
 uint ObjectInternal::CreateInstanceID(ObjectType type) {

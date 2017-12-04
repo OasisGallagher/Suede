@@ -5,6 +5,9 @@
 #include "tools/string.h"
 #include "materialinternal.h"
 
+// empty storage for clearing uniform.
+static float zeroBuffer[4 * 4];
+
 MaterialInternal::MaterialInternal()
 	: ObjectInternal(ObjectTypeMaterial)
 	, textureUnitIndex_(0), maxTextureUnits_(0), oldProgram_(0) {
@@ -18,10 +21,38 @@ MaterialInternal::~MaterialInternal() {
 	}
 }
 
+Object MaterialInternal::Clone() {
+	Material material = NewMaterial();
+	MaterialInternal* ptr = dynamic_cast<MaterialInternal*>(material.get());
+	ptr->shader_ = shader_;
+	ptr->oldProgram_ = 0;
+	ptr->maxTextureUnits_ = maxTextureUnits_;
+	ptr->textureUnitIndex_ = textureUnitIndex_;
+
+	ptr->textureUniforms_.resize(textureUniforms_.size());
+
+	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
+		Uniform* uniform = ptr->uniforms_[ite->first];
+		memcpy(uniform, ite->second, sizeof(Uniform));
+		std::vector<Uniform*>::iterator pos = std::find(textureUniforms_.begin(), textureUniforms_.end(), ite->second);
+		if (pos != textureUniforms_.end()) {
+			ptr->textureUniforms_[pos - textureUniforms_.begin()] = uniform;
+		}
+	}
+
+	for (int i = 0; i < RenderStateCount; ++i) {
+		if (states_[i] != nullptr) {
+			ptr->states_[i] = states_[i]->Clone();
+		}
+	}
+
+	return material;
+}
+
 void MaterialInternal::SetShader(Shader value) {
 	shader_ = value;
 	
-	UnbindTextures();
+	UnbindUniforms();
 
 	UpdateVertexAttributes();
 	UpdateFragmentAttributes();
@@ -55,6 +86,7 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 
 	Uniform* u = GetUniform(name, VariantTypeInt);
 	if (u != nullptr && u->value.GetInt() != value) {
+		u->value.SetInt(value);
 		glProgramUniform1i(shader_->GetNativePointer(), u->location, value);
 	}
 }
@@ -67,6 +99,7 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 
 	Uniform* u = GetUniform(name, VariantTypeFloat);
 	if (u != nullptr && !Math::Approximately(u->value.GetFloat(), value)) {
+		u->value.SetFloat(value);
 		glProgramUniform1f(shader_->GetNativePointer(), u->location, value);
 	}
 }
@@ -93,7 +126,7 @@ void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& valu
 
 	Uniform* u = GetUniform(name, VariantTypeVector3);
 	if (u != nullptr && u->value.GetVector3() != value) {
-		SetUniform(u, &value);
+		u->value.SetVector3(value);
 	}
 }
 
@@ -105,7 +138,7 @@ void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& valu
 
 	Uniform* u = GetUniform(name, VariantTypeVector4);
 	if (u != nullptr && u->value.GetVector4() != value) {
-		SetUniform(u, &value);
+		u->value.SetVector4(value);
 	}
 }
 
@@ -117,7 +150,7 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 
 	Uniform* u = GetUniform(name, VariantTypeMatrix4);
 	if (u != nullptr && u->value.GetMatrix4() != value) {
-		SetUniform(u, &value);
+		u->value.SetMatrix4(value);
 	}
 }
 
@@ -212,14 +245,14 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 
 void MaterialInternal::Bind() {
 	BindRenderStates();
-	BindTextures();
+	BindUniforms();
 
 	glGetIntegerv(GL_CURRENT_PROGRAM, &oldProgram_);
 	glUseProgram(shader_->GetNativePointer());
 }
 
 void MaterialInternal::Unbind() {
-	UnbindTextures();
+	UnbindUniforms();
 	UnbindRenderStates();
 
 	glUseProgram(oldProgram_);
@@ -303,7 +336,11 @@ void MaterialInternal::UpdateFragmentAttributes() {
 	glBindFragDataLocation(program, 0, Variables::fragColor);
 }
 
-void MaterialInternal::BindTextures() {
+void MaterialInternal::BindUniforms() {
+	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
+		SetUniform(ite->second, ite->second->value.GetData());
+	}
+
 	for (int i = 0; i < textureUniforms_.size(); ++i) {
 		Uniform* uniform = textureUniforms_[i];
 		if (uniform->value.GetTexture()) {
@@ -312,7 +349,11 @@ void MaterialInternal::BindTextures() {
 	}
 }
 
-void MaterialInternal::UnbindTextures() {
+void MaterialInternal::UnbindUniforms() {
+	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
+		SetUniform(ite->second, &zeroBuffer);
+	}
+
 	for (int i = 0; i < textureUniforms_.size(); ++i) {
 		Uniform* uniform = textureUniforms_[i];
 		if (uniform->value.GetTexture()) {
@@ -413,7 +454,7 @@ void MaterialInternal::AddUniform(const char* name, GLenum type, GLuint location
 		uniform->value.SetFloat(0);
 	}
 	else if (type == GL_FLOAT_MAT4) {
-		uniform->value.SetMatrix4(glm::mat4(1));
+		uniform->value.SetMatrix4(glm::mat4(0));
 	}
 	else if (type == GL_BOOL) {
 		uniform->value.SetBool(false);
@@ -429,7 +470,7 @@ void MaterialInternal::AddUniform(const char* name, GLenum type, GLuint location
 			Debug::LogError("too many textures.");
 		}
 		else {
-			uniform->value.SetTextureLocation(textureUnitIndex_++);
+			uniform->value.SetTextureIndex(textureUnitIndex_++);
 			textureUniforms_.push_back(uniform);
 		}
 	}
@@ -604,162 +645,131 @@ GLuint MaterialInternal::GetSizeOfType(GLint type) {
 	return 0;
 }
 
-void MaterialInternal::SetUniform(Uniform* u, const void* value) {
+void MaterialInternal::SetUniform(Uniform* u, const void* data) {
 	GLuint program = shader_->GetNativePointer();
+
+	if (IsSampler(u->type)) {
+		glProgramUniform1iv(program, u->location, u->size, (const GLint *)data);
+		return;
+	}
 
 	switch (u->type) {
 		// Floats
 		case GL_FLOAT:
-			glProgramUniform1fv(program, u->location, u->size, (const GLfloat *)value);
+			glProgramUniform1fv(program, u->location, u->size, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_VEC2:
-			glProgramUniform2fv(program, u->location, u->size, (const GLfloat *)value);
+			glProgramUniform2fv(program, u->location, u->size, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_VEC3:
-			glProgramUniform3fv(program, u->location, u->size, (const GLfloat *)value);
+			glProgramUniform3fv(program, u->location, u->size, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_VEC4:
-			glProgramUniform4fv(program, u->location, u->size, (const GLfloat *)value);
+			glProgramUniform4fv(program, u->location, u->size, (const GLfloat *)data);
 			break;
 
 			// Doubles
 		case GL_DOUBLE:
-			glProgramUniform1dv(program, u->location, u->size, (const GLdouble *)value);
+			glProgramUniform1dv(program, u->location, u->size, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_VEC2:
-			glProgramUniform2dv(program, u->location, u->size, (const GLdouble *)value);
+			glProgramUniform2dv(program, u->location, u->size, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_VEC3:
-			glProgramUniform3dv(program, u->location, u->size, (const GLdouble *)value);
+			glProgramUniform3dv(program, u->location, u->size, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_VEC4:
-			glProgramUniform4dv(program, u->location, u->size, (const GLdouble *)value);
+			glProgramUniform4dv(program, u->location, u->size, (const GLdouble *)data);
 			break;
 
-			// Samplers, Ints and Bools
-		case GL_SAMPLER_1D:
-		case GL_SAMPLER_2D:
-		case GL_SAMPLER_3D:
-		case GL_SAMPLER_CUBE:
-		case GL_SAMPLER_1D_SHADOW:
-		case GL_SAMPLER_2D_SHADOW:
-		case GL_SAMPLER_1D_ARRAY:
-		case GL_SAMPLER_2D_ARRAY:
-		case GL_SAMPLER_1D_ARRAY_SHADOW:
-		case GL_SAMPLER_2D_ARRAY_SHADOW:
-		case GL_SAMPLER_2D_MULTISAMPLE:
-		case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:
-		case GL_SAMPLER_CUBE_SHADOW:
-		case GL_SAMPLER_BUFFER:
-		case GL_SAMPLER_2D_RECT:
-		case GL_SAMPLER_2D_RECT_SHADOW:
-		case GL_INT_SAMPLER_1D:
-		case GL_INT_SAMPLER_2D:
-		case GL_INT_SAMPLER_3D:
-		case GL_INT_SAMPLER_CUBE:
-		case GL_INT_SAMPLER_1D_ARRAY:
-		case GL_INT_SAMPLER_2D_ARRAY:
-		case GL_INT_SAMPLER_2D_MULTISAMPLE:
-		case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
-		case GL_INT_SAMPLER_BUFFER:
-		case GL_INT_SAMPLER_2D_RECT:
-		case GL_UNSIGNED_INT_SAMPLER_1D:
-		case GL_UNSIGNED_INT_SAMPLER_2D:
-		case GL_UNSIGNED_INT_SAMPLER_3D:
-		case GL_UNSIGNED_INT_SAMPLER_CUBE:
-		case GL_UNSIGNED_INT_SAMPLER_1D_ARRAY:
-		case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY:
-		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE:
-		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:
-		case GL_UNSIGNED_INT_SAMPLER_BUFFER:
-		case GL_UNSIGNED_INT_SAMPLER_2D_RECT:
+			// Ints and Bools
 		case GL_BOOL:
 		case GL_INT:
-			glProgramUniform1iv(program, u->location, u->size, (const GLint *)value);
+			glProgramUniform1iv(program, u->location, u->size, (const GLint *)data);
 			break;
 		case GL_BOOL_VEC2:
 		case GL_INT_VEC2:
-			glProgramUniform2iv(program, u->location, u->size, (const GLint *)value);
+			glProgramUniform2iv(program, u->location, u->size, (const GLint *)data);
 			break;
 		case GL_BOOL_VEC3:
 		case GL_INT_VEC3:
-			glProgramUniform3iv(program, u->location, u->size, (const GLint *)value);
+			glProgramUniform3iv(program, u->location, u->size, (const GLint *)data);
 			break;
 		case GL_BOOL_VEC4:
 		case GL_INT_VEC4:
-			glProgramUniform4iv(program, u->location, u->size, (const GLint *)value);
+			glProgramUniform4iv(program, u->location, u->size, (const GLint *)data);
 			break;
 
 			// Unsigned ints
 		case GL_UNSIGNED_INT:
-			glProgramUniform1uiv(program, u->location, u->size, (const GLuint *)value);
+			glProgramUniform1uiv(program, u->location, u->size, (const GLuint *)data);
 			break;
 		case GL_UNSIGNED_INT_VEC2:
-			glProgramUniform2uiv(program, u->location, u->size, (const GLuint *)value);
+			glProgramUniform2uiv(program, u->location, u->size, (const GLuint *)data);
 			break;
 		case GL_UNSIGNED_INT_VEC3:
-			glProgramUniform3uiv(program, u->location, u->size, (const GLuint *)value);
+			glProgramUniform3uiv(program, u->location, u->size, (const GLuint *)data);
 			break;
 		case GL_UNSIGNED_INT_VEC4:
-			glProgramUniform4uiv(program, u->location, u->size, (const GLuint *)value);
+			glProgramUniform4uiv(program, u->location, u->size, (const GLuint *)data);
 			break;
 
 			// Float Matrices
 		case GL_FLOAT_MAT2:
-			glProgramUniformMatrix2fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix2fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT3:
-			glProgramUniformMatrix3fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix3fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT4:
-			glProgramUniformMatrix4fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix4fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT2x3:
-			glProgramUniformMatrix2x3fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix2x3fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT2x4:
-			glProgramUniformMatrix2x4fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix2x4fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT3x2:
-			glProgramUniformMatrix3x2fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix3x2fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT3x4:
-			glProgramUniformMatrix3x4fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix3x4fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT4x2:
-			glProgramUniformMatrix4x2fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix4x2fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 		case GL_FLOAT_MAT4x3:
-			glProgramUniformMatrix4x3fv(program, u->location, u->size, false, (const GLfloat *)value);
+			glProgramUniformMatrix4x3fv(program, u->location, u->size, false, (const GLfloat *)data);
 			break;
 
 			// Double Matrices
 		case GL_DOUBLE_MAT2:
-			glProgramUniformMatrix2dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix2dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT3:
-			glProgramUniformMatrix3dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix3dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT4:
-			glProgramUniformMatrix4dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix4dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT2x3:
-			glProgramUniformMatrix2x3dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix2x3dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT2x4:
-			glProgramUniformMatrix2x4dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix2x4dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT3x2:
-			glProgramUniformMatrix3x2dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix3x2dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT3x4:
-			glProgramUniformMatrix3x4dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix3x4dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT4x2:
-			glProgramUniformMatrix4x2dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix4x2dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 		case GL_DOUBLE_MAT4x3:
-			glProgramUniformMatrix4x3dv(program, u->location, u->size, false, (const GLdouble *)value);
+			glProgramUniformMatrix4x3dv(program, u->location, u->size, false, (const GLdouble *)data);
 			break;
 	}
 }

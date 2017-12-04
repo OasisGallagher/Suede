@@ -14,10 +14,28 @@ static TextureContainer textures;
 typedef std::map<std::string, Material> MaterialContainer;
 static MaterialContainer materials;
 
+Texture2D blackTexture, whiteTexture;
+
 static Mesh primitives[PrimitiveTypeCount];
 
 void Resources::Import() {
 
+}
+
+Texture2D Resources::GetBlackTexture() {
+	if (!blackTexture) {
+		blackTexture = CreateSolidTexture(0xff000000);
+	}
+
+	return blackTexture;
+}
+
+Texture2D Resources::GetWhiteTexture() {
+	if (!blackTexture) {
+		blackTexture = CreateSolidTexture(0xffffffff);
+	}
+
+	return blackTexture;
 }
 
 Mesh Resources::GetPrimitive(PrimitiveType type) {
@@ -121,4 +139,10 @@ Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 
 	mesh->AddSubMesh(subMesh);
 	return mesh;
+}
+
+Texture2D Resources::CreateSolidTexture(uint color) {
+	Texture2D texture = NewTexture2D();
+	texture->Load(&color, ColorFormatRgba, 1, 1);
+	return texture;
 }

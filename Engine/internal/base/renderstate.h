@@ -9,6 +9,7 @@ public:
 	virtual void Initialize(int parameter0, int parameter1) = 0;
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
+	virtual RenderState* Clone() = 0;
 
 protected:
 	void Enable(GLenum cap, GLboolean enable);
@@ -21,6 +22,7 @@ public:
 	virtual void Initialize(int parameter0, int);
 	virtual void Bind();
 	virtual void Unbind();
+	virtual RenderState* Clone();
 
 private:
 	int oldMode_;
@@ -33,6 +35,7 @@ public:
 	virtual void Initialize(int parameter0, int);
 	virtual void Bind();
 	virtual void Unbind();
+	virtual RenderState* Clone();
 
 private:
 	GLenum oldMode_;
@@ -45,6 +48,7 @@ public:
 	virtual void Initialize(int parameter0, int);
 	virtual void Bind();
 	virtual void Unbind();
+	virtual RenderState* Clone();
 
 private:
 	GLint oldMask_;
@@ -54,9 +58,9 @@ private:
 class RasterizerDiscardState : public RenderState {
 public:
 	virtual void Initialize(int parameter0, int);
-
 	virtual void Bind();
 	virtual void Unbind();
+	virtual RenderState* Clone();
 
 private:
 	GLboolean oldEnabled_;
@@ -66,9 +70,9 @@ private:
 class BlendState : public RenderState {
 public:
 	virtual void Initialize(int parameter0, int parameter1);
-
 	virtual void Bind();
 	virtual void Unbind();
+	virtual RenderState* Clone();
 
 private:
 	GLboolean oldEnabled_;

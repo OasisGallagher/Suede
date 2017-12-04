@@ -23,7 +23,7 @@ int Variant::GetInt() {
 		return 0;
 	}
 
-	return intValue_;
+	return data_.intValue;
 }
 
 bool Variant::GetBool() {
@@ -32,7 +32,7 @@ bool Variant::GetBool() {
 		return false;
 	}
 
-	return boolValue_;
+	return data_.boolValue;
 }
 
 float Variant::GetFloat() {
@@ -41,7 +41,7 @@ float Variant::GetFloat() {
 		return 0;
 	}
 
-	return floatValue_;
+	return data_.floatValue;
 }
 
 glm::mat4 Variant::GetMatrix4() {
@@ -50,7 +50,7 @@ glm::mat4 Variant::GetMatrix4() {
 		return glm::mat4(1);
 	}
 
-	return mat4Value_;
+	return data_.mat4Value;
 }
 
 glm::vec3 Variant::GetVector3() {
@@ -59,7 +59,7 @@ glm::vec3 Variant::GetVector3() {
 		return glm::vec3(0);
 	}
 
-	return vector3Value_;
+	return data_.vector3Value;
 }
 
 glm::vec4 Variant::GetVector4() {
@@ -68,7 +68,7 @@ glm::vec4 Variant::GetVector4() {
 		return glm::vec4(0, 0, 0, 1);
 	}
 
-	return vector4Value_;
+	return data_.vector4Value;
 }
 
 glm::quat Variant::GetQuaternion() {
@@ -77,7 +77,7 @@ glm::quat Variant::GetQuaternion() {
 		return glm::quat();
 	}
 
-	return quaternionValue_;
+	return data_.quaternionValue;
 }
 
 Texture Variant::GetTexture() {
@@ -94,42 +94,42 @@ int Variant::GetTextureIndex() {
 		return 0;
 	}
 
-	return textureIndex_;
+	return data_.textureIndex;
 }
 
 void Variant::SetInt(int value) {
 	type_ = VariantTypeInt;
-	intValue_ = value;
+	data_.intValue = value;
 }
 
 void Variant::SetBool(bool value) {
 	type_ = VariantTypeBool;
-	boolValue_ = value;
+	data_.boolValue = value;
 }
 
 void Variant::SetFloat(float value) {
 	type_ = VariantTypeFloat;
-	floatValue_ = value;
+	data_.floatValue = value;
 }
 
 void Variant::SetMatrix4(const glm::mat4& value) {
 	type_ = VariantTypeMatrix4;
-	mat4Value_ = value;
+	data_.mat4Value = value;
 }
 
 void Variant::SetVector3(const glm::vec3& value) {
 	type_ = VariantTypeVector3;
-	vector3Value_ = value;
+	data_.vector3Value = value;
 }
 
 void Variant::SetVector4(const glm::vec4& value) {
 	type_ = VariantTypeVector4;
-	vector4Value_ = value;
+	data_.vector4Value = value;
 }
 
 void Variant::SetQuaternion(const glm::quat& value) {
 	type_ = VariantTypeQuaternion;
-	quaternionValue_ = value;
+	data_.quaternionValue = value;
 }
 
 void Variant::SetTexture(Texture value) {
@@ -137,7 +137,7 @@ void Variant::SetTexture(Texture value) {
 	texture_ = value;
 }
 
-void Variant::SetTextureLocation(GLenum value) {
+void Variant::SetTextureIndex(GLenum value) {
 	type_ = VariantTypeTexture;
-	textureIndex_ = value;
+	data_.textureIndex = value;
 }

@@ -19,7 +19,9 @@ enum VariantType {
 
 class Variant {
 public:
-	Variant() :type_(VariantTypeNone) {}
+	Variant() :type_(VariantTypeNone) {
+		memset(&data_, 0, sizeof(data_));
+	}
 
 public:
 	static std::string TypeString(VariantType type);
@@ -45,19 +47,23 @@ public:
 	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
 	void SetTexture(Texture value);
-	void SetTextureLocation(GLenum value);
+	void SetTextureIndex(GLenum value);
+
+	const void* GetData() const { return &data_; }
 
 private:
-	union { // pod only.
-		int intValue_;
-		bool boolValue_;
-		float floatValue_;
-		glm::mat4 mat4Value_;
-		glm::vec3 vector3Value_;
-		glm::vec4 vector4Value_;
-		int textureIndex_;
-		glm::quat quaternionValue_;
-	};
+	union Data { // pod only.
+		Data() {}
+
+		int intValue;
+		bool boolValue;
+		float floatValue;
+		glm::mat4 mat4Value;
+		glm::vec3 vector3Value;
+		glm::vec4 vector4Value;
+		int textureIndex;
+		glm::quat quaternionValue;
+	} data_;
 
 	// non-pod data.
 	Texture texture_;

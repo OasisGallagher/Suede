@@ -1,6 +1,7 @@
 #include <cstdarg>
 #include "debug.h"
 #include "renderstate.h"
+#include "internal/memory/memory.h"
 
 void CullState::Initialize(int parameter0, int) {
 	if (!IsValidParamter(parameter0, 3,
@@ -27,6 +28,10 @@ void CullState::Unbind() {
 	glCullFace(oldMode_);
 }
 
+RenderState * CullState::Clone() {
+	return MEMORY_CLONE(CullState, this);
+}
+
 void DepthTestState::Initialize(int parameter0, int) {
 	if (!IsValidParamter(parameter0, 8,
 		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always)) {
@@ -50,6 +55,10 @@ void DepthTestState::Unbind() {
 	glDepthFunc(oldMode_);
 }
 
+RenderState * DepthTestState::Clone() {
+	return MEMORY_CLONE(DepthTestState, this);
+}
+
 void DepthWriteState::Initialize(int parameter0, int) {
 	if (!IsValidParamter(parameter0, 2,
 		On, Off)) {
@@ -69,6 +78,10 @@ void DepthWriteState::Unbind() {
 	glDepthMask(oldMask_);
 }
 
+RenderState * DepthWriteState::Clone() {
+	return MEMORY_CLONE(DepthWriteState, this);
+}
+
 void RasterizerDiscardState::Initialize(int parameter0, int) {
 	if (!IsValidParamter(parameter0, 2,
 		On, Off)) {
@@ -86,6 +99,10 @@ void RasterizerDiscardState::Bind() {
 
 void RasterizerDiscardState::Unbind() {
 	Enable(GL_RASTERIZER_DISCARD, oldEnabled_);
+}
+
+RenderState * RasterizerDiscardState::Clone() {
+	return MEMORY_CLONE(RasterizerDiscardState, this);
 }
 
 void BlendState::Initialize(int parameter0, int parameter1) {
@@ -117,6 +134,10 @@ void BlendState::Bind() {
 void BlendState::Unbind() {
 	Enable(GL_BLEND, oldEnabled_);
 	glBlendFunc(oldSrc_, oldDest_);
+}
+
+RenderState * BlendState::Clone() {
+	return MEMORY_CLONE(BlendState, this);
 }
 
 void RenderState::Enable(GLenum cap, GLboolean enable) {

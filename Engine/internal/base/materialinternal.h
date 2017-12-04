@@ -27,6 +27,7 @@ public:
 	~MaterialInternal();
 
 public:
+	virtual Object Clone();
 	virtual void SetShader(Shader value);
 	virtual Shader GetShader() { return shader_; }
 
@@ -76,19 +77,17 @@ private:
 	void AddAllUniforms();
 	void AddUniform(const char* name, GLenum type, GLuint location, GLint size);
 
-	void BindTextures();
-	void UnbindTextures();
+	void BindUniforms();
+	void UnbindUniforms();
 	
 	GLuint GetSizeOfType(GLint type);
 	GLuint GetUniformSize(GLint uniformType, GLint uniformSize, GLint uniformOffset, GLint uniformMatrixStride, GLint uniformArrayStride);
 
 	Uniform* GetUniform(const std::string& name, VariantType type);
-
-	void SetUniform(struct Uniform* u, const void* value);
+	void SetUniform(struct Uniform* u, const void* data);
 
 private:
 	Shader shader_;
-	Texture diffuse_;
 	int oldProgram_;
 	int maxTextureUnits_;
 	int textureUnitIndex_;
