@@ -1,7 +1,8 @@
-#include "tools/math2.h"
+#include "math2.h"
+#include "debug.h"
+#include "resources.h"
 #include "tools/string.h"
 #include "meshinternal.h"
-#include "internal/resources/resources.h"
 #include "internal/base/materialinternal.h"
 
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh)
@@ -98,8 +99,6 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 		vao_.SetVertexDataSource(vboIndex, VertexAttribInstanceGeometry, 4, GL_FLOAT, false, 0, 0, attribute.geometry.divisor);
 		instanceBuffer_[1] = vboIndex++;
 	}
-
-	Assert(vboIndex == vboCount);
 }
 
 int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
@@ -127,7 +126,11 @@ void MeshInternal::Unbind() {
 }
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
-	AssertX(i < CountOf(instanceBuffer_), "index out of range");
+	if (i >= CountOf(instanceBuffer_)) {
+		Debug::LogError("index out of range");
+		return;
+	}
+
 	vao_.UpdateBuffer(instanceBuffer_[i], 0, size, data);
 }
 

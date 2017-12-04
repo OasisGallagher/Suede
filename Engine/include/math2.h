@@ -4,7 +4,6 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "defines.h"
-#include "tools/debug.h"
 
 template<class CountofType, size_t sizeOfArray>
 inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
@@ -14,7 +13,7 @@ inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
 #define CountOf(array) (sizeof(*__countof_helper(array)) + 0)
 #define Padding(size) char __unused[size]
 
-class Math {
+class SUEDE_API Math {
 public:
 	static int MakeDword(int low, int high);
 	static int Loword(int dword);
@@ -112,7 +111,9 @@ inline glm::quat Math::Lerp(const glm::quat& from, const glm::quat& to, float t)
 	return glm::lerp(from, to, t);
 }
 
-inline float Math::Repeat(float t, float length) { return fmod(t, length); }
+inline float Math::Repeat(float t, float length) {
+	return fmod(t, length);
+}
 
 inline float Math::PingPong(float t, float length) {
 	float L = 2 * length;
@@ -123,13 +124,19 @@ inline float Math::PingPong(float t, float length) {
 
 template <class Ty>
 inline Ty Math::Random(Ty min, Ty max) {
-	Assert(min < max);
+	if (min > max) {
+		std::swap(min, max);
+	}
+
 	return min + (rand() % (max - min + 1));
 }
 
 template <>
 inline float Math::Random(float min, float max) {
-	Assert(min < max);
+	if (min > max) {
+		std::swap(min, max);
+	}
+
 	float random = ((float)rand()) / (float)RAND_MAX;
 	return (random * (max - min)) + min;
 }

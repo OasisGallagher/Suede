@@ -18,8 +18,6 @@ public:
 	~WorldInternal() {}
 
 public:
-	virtual void Initialize();
-
 	virtual void Update();
 	virtual Sprite GetRootSprite() { return root_; }
 	virtual Object Create(ObjectType type);

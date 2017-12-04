@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-#include "engine.h"
+#include "debug.h"
 #include "views/hierarchy.h"
 #include "cameracontroller.h"
 
@@ -87,7 +87,45 @@ std::string toString(const glm::vec3& v) {
 	return std::to_string(v.x) + ", " + std::to_string(v.y) + ", " + std::to_string(v.z);
 }
 
+glm::vec3 CameraController::sphereCoords(float x, float y) {
+	glm::vec3 pos = camera_->ScreenToWorldPoint(glm::vec3(x, y, 0));
+	glm::vec3 m = pos - camera_->GetPosition();
+	float radius = 5.f;
+
+	float t = sqrtf(radius * radius / glm::dot(m, m));
+
+	m = (camera_->GetPosition() + (m * t));
+	m = glm::normalize(m);
+
+	return m;
+}
+
 void CameraController::rotateCamera(QPoint mousePos) {
+	//if (!Hierarchy::get()->selectedSprite()) {
+	//	Debug::LogWarning("select a sprite first.");
+	//	return;
+	//}
+
+	glm::vec3 sc0 = sphereCoords(rpos_.x(), rpos_.y());
+	glm::vec3 sc1 = sphereCoords(mousePos.x(), mousePos.y());
+	if (sc0 == sc1) {
+		Debug::LogWarning("nothing rotated");
+		return;
+	}
+
+	float cos2a = glm::dot(sc0, sc1);
+	float sina = sqrtf((1.f - cos2a) * 0.5f);
+	float cosa = sqrtf((1.f + cos2a) * 0.5f);
+	glm::vec3 cross = glm::normalize(glm::cross(sc0, sc1)) * sina;
+	glm::quat q(cosa, cross);
+
+	glm::quat q2(glm::dot(sc0, sc1), glm::cross(sc0, sc1));
+
+	Sprite sprite = Hierarchy::get()->selectedSprite();
+	camera_->SetRotation(camera_->GetRotation() * q2);
+
+	rpos_ = mousePos;
+#if 0
 // 	QPoint delta = mousePos - rpos_;
 // 	rpos_ = mousePos;
 // 	glm::vec3 euler = camera_->GetEulerAngles();
@@ -99,7 +137,7 @@ void CameraController::rotateCamera(QPoint mousePos) {
 		glm::vec3 va = arcBallVector(rpos_);
 		glm::vec3 vb = arcBallVector(mousePos);
 		
-		Engine::get()->logger()->Log(toString(va) + ", " + toString(vb));
+		Engine::logger()->Log(toString(va) + ", " + toString(vb));
 
 		float angle = acosf(glm::min(1.0f, glm::dot(va, vb)));
 		float sa = sinf(angle);
@@ -108,7 +146,7 @@ void CameraController::rotateCamera(QPoint mousePos) {
 		
 		//axis_in_camera_coord /= sa;
 
-		Engine::get()->logger()->Log(toString(axis_in_camera_coord));
+		Engine::logger()->Log(toString(axis_in_camera_coord));
 
 		angle /= 5.f;
 
@@ -136,6 +174,7 @@ void CameraController::rotateCamera(QPoint mousePos) {
 		camera_->SetRotation(camera_->GetRotation() * q);
 		rpos_ = mousePos;
 	}
+#endif
 }
 
 void CameraController::moveCamera(const QPoint& mousePos) {
@@ -201,7 +240,7 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos) {
 	dir.y = cosf(theta);
 	dir.z = sinf(theta) *sinf(phi);
 
-	Engine::get()->logger()->Log(std::string("theta ") + std::to_string(theta) + ", phi " + std::to_string(phi) + "(" + std::to_string(dir.x) + ", " + std::to_string(dir.y) + ", " + std::to_string(dir.z) + ")");
+	Engine::logger()->Log(std::string("theta ") + std::to_string(theta) + ", phi " + std::to_string(phi) + "(" + std::to_string(dir.x) + ", " + std::to_string(dir.y) + ", " + std::to_string(dir.z) + ")");
 
 	glm::vec3 pos = position + dir * len;
 #else

@@ -1,11 +1,13 @@
 #include <cstdarg>
-#include "tools/debug.h"
+#include "debug.h"
 #include "renderstate.h"
 
 void CullState::Initialize(int parameter0, int) {
-	AssertX(IsValidParamter(parameter0, 3,
-		Front, Back, Off
-	), "invalid paramter for 'Cull'.");
+	if (!IsValidParamter(parameter0, 3,
+		Front, Back, Off)) {
+		Debug::LogError("invalid paramter for 'Cull'.");
+		return;
+	}
 
 	parameter_ = parameter0;
 }
@@ -26,9 +28,11 @@ void CullState::Unbind() {
 }
 
 void DepthTestState::Initialize(int parameter0, int) {
-	AssertX(IsValidParamter(parameter0, 8,
-		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always
-	), "invalid parameter0 for 'DepthTest'.");
+	if (!IsValidParamter(parameter0, 8,
+		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always)) {
+		Debug::LogError("invalid parameter0 for 'DepthTest'.");
+		return;
+	}
 
 	parameter_ = parameter0;
 }
@@ -47,9 +51,12 @@ void DepthTestState::Unbind() {
 }
 
 void DepthWriteState::Initialize(int parameter0, int) {
-	AssertX(IsValidParamter(parameter0, 2,
-		On, Off
-	), "invalid paramter for 'DepthWrite'.");
+	if (!IsValidParamter(parameter0, 2,
+		On, Off)) {
+		Debug::LogError("invalid paramter for 'DepthWrite'.");
+		return;
+	}
+
 	parameter_ = parameter0;
 }
 
@@ -63,9 +70,12 @@ void DepthWriteState::Unbind() {
 }
 
 void RasterizerDiscardState::Initialize(int parameter0, int) {
-	AssertX(IsValidParamter(parameter0, 2,
-		On, Off
-	), "invalid paramter for 'RasterizerDiscard'.");
+	if (!IsValidParamter(parameter0, 2,
+		On, Off)) {
+		Debug::LogError("invalid paramter for 'RasterizerDiscard'.");
+		return;
+	}
+
 	parameter_ = parameter0;
 }
 
@@ -79,13 +89,17 @@ void RasterizerDiscardState::Unbind() {
 }
 
 void BlendState::Initialize(int parameter0, int parameter1) {
-	AssertX(IsValidParamter(parameter0, 9,
-		Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
-	), "invalid paramter for 'Blend'.");
+	if (!IsValidParamter(parameter0, 9,
+		Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha)) {
+		Debug::LogError("invalid paramter for 'Blend'.");
+		return;
+	}
 
-	AssertX(IsValidParamter(parameter1, 9,
-		None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
-	), "invalid paramter for 'Blend'.");
+	if (!IsValidParamter(parameter1, 9,
+		None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha)) {
+		Debug::LogError("invalid paramter for 'Blend'.");
+		return;
+	}
 
 	src_ = parameter0;
 	dest_ = parameter1;
@@ -127,7 +141,7 @@ bool RenderState::IsValidParamter(int parameter0, int count, ...) {
 }
 
 GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
-	GLenum value = GL_NONE;
+	GLenum value = 0;
 	switch (parameter0) {
 		case Front:
 			value = GL_FRONT;
@@ -185,6 +199,9 @@ GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 			break;
 	}
 
-	AssertX(value != GL_NONE, "invalid render paramter " + std::to_string(parameter0));
+	if (value == 0) {
+		Debug::LogError("invalid render paramter %d.", parameter0);
+	}
+
 	return value;
 }

@@ -9,9 +9,9 @@ enum PrimitiveType {
 	PrimitiveTypeCount,
 };
 
-class Resources {
+class SUEDE_API Resources {
 public:
-	static void Initialize();
+	static void Import();
 
 public:
 	static Mesh GetPrimitive(PrimitiveType type);
@@ -28,4 +28,7 @@ private:
 	static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
 	static void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
 	static Mesh CreateMesh(MeshAttribute &attribute);
+
+private:
+	Resources();
 };

@@ -13,10 +13,10 @@ public:
 
 	size_t GetVBOCount() { return vboCount_; }
 
-	void SetBuffer(int index, GLenum target, size_t size, const void* data, GLenum usage);
+	void SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage);
 
 	template <class Container>
-	void SetBuffer(int index, GLenum target, const Container& cont, GLenum usage, int divisor = 0) {
+	void SetBuffer(uint index, GLenum target, const Container& cont, GLenum usage, int divisor = 0) {
 		SetBuffer(index, target, cont.size() * sizeof(Container::value_type), &cont[0], usage);
 	}
 	
@@ -25,8 +25,8 @@ public:
 	void BindBuffer(int index);
 	void UnbindBuffer(int index);
 
-	uint GetBufferNativePointer(int index);
-	void UpdateBuffer(int index, int offset, size_t size, const void* ptr);
+	uint GetBufferNativePointer(uint index);
+	void UpdateBuffer(uint index, int offset, size_t size, const void* ptr);
 
 	void Bind();
 	void Unbind();

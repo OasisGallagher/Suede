@@ -1,6 +1,6 @@
 #include "shaderinternal.h"
 
-#include "tools/debug.h"
+#include "debug.h"
 #include "tools/string.h"
 #include "internal/base/glsldefines.h"
 #include "internal/file/shadercompiler.h"
@@ -66,14 +66,14 @@ bool ShaderInternal::Link() {
 	glGetProgramiv(program_, GL_LINK_STATUS, &status);
 
 	if (status != GL_TRUE) {
-		Debug::LogError("failed to link shader " + shaderPath_);
+		Debug::LogError("failed to link shader %s.", shaderPath_.c_str());
 		return false;
 	}
 
 	glValidateProgram(program_);
 	glGetProgramiv(program_, GL_VALIDATE_STATUS, &status);
 	if (status != GL_TRUE) {
-		Debug::LogError("failed to validate shader " + shaderPath_);
+		Debug::LogError("failed to validate shader %s.", shaderPath_.c_str());
 		return false;
 	}
 
@@ -106,6 +106,6 @@ bool ShaderInternal::LoadSource(ShaderType shaderType, const char* source) {
 		return true;
 	}
 
-	AssertX(false, Description(shaderType).name + std::string(" ") + message);
+	Debug::LogError("%s %s.", Description(shaderType).name, message.c_str());
 	return false;
 }

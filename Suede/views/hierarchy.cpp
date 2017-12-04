@@ -3,7 +3,6 @@
 #include <QAbstractItemView>
 #include <QStandardItemModel>
 
-#include "sprite.h"
 #include "engine.h"
 #include "hierarchy.h"
 
@@ -39,14 +38,14 @@ Sprite Hierarchy::selectedSprite() {
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return Engine::get()->world()->GetSprite(id);
+	return Engine::GetWorld()->GetSprite(id);
 }
 
 bool Hierarchy::selectedSprites(QList<Sprite>& sprites) {
 	QModelIndexList indexes = tree_->selectionModel()->selectedIndexes();
 	foreach(QModelIndex index, indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		sprites.push_back(Engine::get()->world()->GetSprite(id));
+		sprites.push_back(Engine::GetWorld()->GetSprite(id));
 	}
 
 	return !sprites.empty();

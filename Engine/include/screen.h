@@ -1,12 +1,15 @@
 #pragma once
 #include "defines.h"
 
-class SUEDE_API IScreen {
+class SUEDE_API Screen {
 public:
-	virtual int GetContextWidth() = 0;
-	virtual int GetContextHeight() = 0;
+	static uint GetWidth();
+	static uint GetHeight();
 
-	virtual void SetContentSize(int w, int h) = 0;
+private:
+	friend class Engine;
+	static void Set(uint w, uint h);
+
+private:
+	Screen();
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Screen);

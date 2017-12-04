@@ -1,21 +1,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "math2.h"
 #include "light.h"
 #include "camera.h"
+#include "screen.h"
+#include "resources.h"
 #include "variables.h"
-#include "tools/debug.h"
-#include "tools/math2.h"
 #include "internal/file/image.h"
 #include "internal/memory/factory.h"
 #include "internal/base/framebuffer.h"
-#include "internal/resources/resources.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/world/worldinternal.h"
-#include "internal/misc/screeninternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/materialinternal.h"
 #include "internal/base/rendererinternal.h"
-#include "internal/misc/graphicsinternal.h"
 #include "internal/sprites/camerainternal.h"
 
 CameraInternal::CameraInternal() 
@@ -84,8 +82,8 @@ void CameraInternal::SetRenderTexture(RenderTexture value) {
 }
 
 void CameraInternal::Update() {
-	int w = screenInstance->GetContextWidth();
-	int h = screenInstance->GetContextHeight();
+	int w = Screen::GetWidth();
+	int h = Screen::GetHeight();
 
 	if (w != fb0_->GetWidth() || h != fb0_->GetHeight()) {
 		OnContextSizeChanged(w, h);
@@ -126,6 +124,18 @@ void CameraInternal::Render() {
 	pass_ = RenderPassNone;
 }
 
+glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
+	glm::ivec4 viewport;
+	glGetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
+	return glm::project(position, GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+}
+
+glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
+	glm::ivec4 viewport;
+	glGetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
+	return glm::unProject(position, GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+}
+
 Texture2D CameraInternal::Capture() {
 	std::vector<uchar> data;
 	fb0_->ReadBuffer(data);
@@ -142,8 +152,8 @@ void CameraInternal::CreateRenderer() {
 }
 
 void CameraInternal::CreateFramebuffers() {
-	int w = screenInstance->GetContextWidth();
-	int h = screenInstance->GetContextHeight();
+	int w = Screen::GetWidth();
+	int h = Screen::GetHeight();
 
 	fb0_ = MEMORY_CREATE(Framebuffer0);
 	fb0_->Create(w, h);
@@ -165,7 +175,7 @@ void CameraInternal::CreateFramebuffers() {
 	renderTexture_ = CREATE_OBJECT(RenderTexture);
 	renderTexture_->Load(RenderTextureFormatRgba, w, h);
 	fbRenderTexture_->SetRenderTexture(renderTexture_);
-	
+
 	fbRenderTexture2_ = MEMORY_CREATE(Framebuffer);
 	fbRenderTexture2_->Create(w, h);
 	renderTexture2_ = CREATE_OBJECT(RenderTexture);
@@ -260,7 +270,10 @@ void CameraInternal::RenderForwardBase(const std::vector<Sprite>& sprites, Light
 
 void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light light) {
 	pass_ = RenderPassShadow;
-	Assert(light->GetType() == ObjectTypeDirectionalLight);
+	if (light->GetType() != ObjectTypeDirectionalLight) {
+		Debug::LogError("invalid light type");
+		return;
+	}
 
 	fbShadow_->Bind();
 

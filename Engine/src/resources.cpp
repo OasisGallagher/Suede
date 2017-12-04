@@ -1,12 +1,5 @@
 #include <map>
-
-#include "resources.h"
-#include "tools/math2.h"
-#include "internal/memory/factory.h"
-#include "internal/base/glsldefines.h"
-#include "internal/base/meshinternal.h"
-#include "internal/base/shaderinternal.h"
-#include "internal/base/rendererinternal.h"
+#include "engine.h"
 
 typedef std::map<std::string, Shader> ShaderContainer;
 static ShaderContainer shaders;
@@ -19,7 +12,7 @@ static MaterialContainer materials;
 
 static Mesh primitives[PrimitiveTypeCount];
 
-void Resources::Initialize() {
+void Resources::Import() {
 
 }
 
@@ -64,7 +57,7 @@ Shader Resources::FindShader(const std::string& path) {
 		return ite->second;
 	}
 
-	Shader shader = CREATE_OBJECT(Shader);
+	Shader shader = New<Shader>();
 	shaders.insert(std::make_pair(path, shader));
 	if (shader->Load(path)) {
 		return shader;
@@ -112,14 +105,14 @@ void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 }
 
 void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
-	Assert(false);
+	throw "TODO";
 }
 
 Mesh Resources::CreateMesh(MeshAttribute &attribute) {
-	Mesh mesh = CREATE_OBJECT(Mesh);
+	Mesh mesh = New<Mesh>();
 	mesh->SetAttribute(attribute);
 
-	SubMesh subMesh = CREATE_OBJECT(SubMesh);
+	SubMesh subMesh = New<SubMesh>();
 	subMesh->SetTriangles(attribute.indexes.size(), 0, 0);
 
 	mesh->AddSubMesh(subMesh);

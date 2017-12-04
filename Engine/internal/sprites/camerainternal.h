@@ -60,6 +60,9 @@ public:
 
 	virtual const glm::mat4& GetProjectionMatrix() { return projection_; }
 
+	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position);
+	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
+
 public:
 	virtual void AddPostEffect(PostEffect* effect) { postEffects_.push_back(effect); }
 	virtual Texture2D Capture();

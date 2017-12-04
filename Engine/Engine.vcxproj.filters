@@ -56,24 +56,6 @@
     <Filter Include="tools\src">
       <UniqueIdentifier>{ed49453a-275e-471e-856f-37319a2b5cad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\misc">
-      <UniqueIdentifier>{33b6bd70-8c14-40e8-b7c5-0add8e276c5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\misc\include">
-      <UniqueIdentifier>{38e2e4a4-6275-4764-96bb-692789d21da0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\misc\src">
-      <UniqueIdentifier>{abcc09ba-35f3-4516-ac04-29b4179b0997}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\resources">
-      <UniqueIdentifier>{1e2bdf59-d78f-4654-b3ce-8427ad2560b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\resources\include">
-      <UniqueIdentifier>{30a5b204-e898-4a74-b2e5-a476af77f598}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\resources\src">
-      <UniqueIdentifier>{42cc0c14-fe15-4a0b-b7a9-37dfc6dbcd3d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\containers">
       <UniqueIdentifier>{c61e2ee9-b018-4ec7-9d3a-aa1d9f88e54c}</UniqueIdentifier>
     </Filter>
@@ -157,9 +139,6 @@
     <ClInclude Include="include\engine.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="tools\debug.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
     <ClInclude Include="tools\path.h">
       <Filter>tools\include</Filter>
     </ClInclude>
@@ -171,9 +150,6 @@
     </ClInclude>
     <ClInclude Include="internal\memory\memory.h">
       <Filter>internal\memory\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\resources\resources.h">
-      <Filter>internal\resources\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\framebuffer.h">
       <Filter>internal\base\include</Filter>
@@ -205,29 +181,11 @@
     <ClInclude Include="include\screen.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\misc\graphicsinternal.h">
-      <Filter>internal\misc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\misc\screeninternal.h">
-      <Filter>internal\misc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\misc\timefinternal.h">
-      <Filter>internal\misc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\logger.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\misc\loggerinternal.h">
-      <Filter>internal\misc\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\file\shadercompiler.h">
       <Filter>internal\file\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\file\textloader.h">
       <Filter>internal\file\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\misc\idcreater.h">
-      <Filter>internal\misc\include</Filter>
     </ClInclude>
     <ClInclude Include="include\animation.h">
       <Filter>include</Filter>
@@ -256,9 +214,6 @@
     <ClInclude Include="include\time2.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="tools\math2.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\file\assetimporter.h">
       <Filter>internal\file\include</Filter>
     </ClInclude>
@@ -279,6 +234,15 @@
     </ClInclude>
     <ClInclude Include="internal\base\meshinternal.h">
       <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\debug.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\resources.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\math2.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -312,17 +276,11 @@
     <ClCompile Include="src\engine.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="tools\debug.cpp">
-      <Filter>tools\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\memory\memory.cpp">
       <Filter>internal\memory\src</Filter>
     </ClCompile>
     <ClCompile Include="tools\path.cpp">
       <Filter>tools\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\resources\resources.cpp">
-      <Filter>internal\resources\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\framebuffer.cpp">
       <Filter>internal\base\src</Filter>
@@ -341,18 +299,6 @@
     </ClCompile>
     <ClCompile Include="tools\string.cpp">
       <Filter>tools\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\misc\graphicsinternal.cpp">
-      <Filter>internal\misc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\misc\screeninternal.cpp">
-      <Filter>internal\misc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\misc\timefinternal.cpp">
-      <Filter>internal\misc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\misc\loggerinternal.cpp">
-      <Filter>internal\misc\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\file\shadercompiler.cpp">
       <Filter>internal\file\src</Filter>
@@ -383,6 +329,21 @@
     </ClCompile>
     <ClCompile Include="internal\base\meshinternal.cpp">
       <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\debug.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphics.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\resources.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time2.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\screen.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,11 +1,11 @@
 #include <fstream>
+#include "debug.h"
 #include "textloader.h"
-#include "tools/debug.h"
 
 bool TextLoader::Load(const std::string& file, std::string& text) {
 	std::ifstream ifs(file, std::ios::in);
 	if (!ifs) {
-		Debug::LogError("failed to open file " + file + ".");
+		Debug::LogError("failed to open file %s.", file.c_str());
 		return false;
 	}
 
@@ -29,7 +29,7 @@ bool TextLoader::Load(const std::string& file, std::string& text) {
 bool TextLoader::Load(const std::string& file, std::vector<std::string>& lines) {
 	std::ifstream ifs(file, std::ios::in);
 	if (!ifs) {
-		Debug::LogError("failed to open file " + file + ".");
+		Debug::LogError("failed to open file %s.", file.c_str());
 		return false;
 	}
 

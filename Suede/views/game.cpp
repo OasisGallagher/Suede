@@ -1,25 +1,15 @@
 #include <QWidget>
 
 #include "game.h"
-#include "font.h"
-#include "mesh.h"
-#include "light.h"
-#include "skybox.h"
-#include "camera.h"
-#include "shader.h"
-#include "skybox.h"
 #include "engine.h"
-#include "texture.h"
-#include "variables.h"
-#include "particlesystem.h"
 
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define SKYBOX
+#define SKYBOX
 #define MODEL
-//#define POST_EFFECTS
+#define POST_EFFECTS
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -112,7 +102,7 @@ void Game::update() {
 }
 
 void Game::createScene() {
-	World world = Engine::get()->world();
+	World world = Engine::GetWorld();
 
 	world->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
 	DirectionalLight light = dsp_cast<DirectionalLight>(world->Create(ObjectTypeDirectionalLight));
@@ -120,7 +110,7 @@ void Game::createScene() {
 
 	Camera camera = dsp_cast<Camera>(world->Create(ObjectTypeCamera));
 	controller_->setCamera(camera);
-	camera->SetPosition(glm::vec3(0, 25, 0));
+	camera->SetPosition(glm::vec3(0, 0, 0));
 
 #ifdef POST_EFFECTS
 	camera->AddPostEffect(inversion_);
@@ -206,7 +196,7 @@ void Game::createScene() {
 	Sprite sprite;
 #if defined(MODEL)
 	sprite = world->Import("models/jeep.fbx");
-	sprite->SetPosition(glm::vec3(0, 0, -120));
+	sprite->SetPosition(glm::vec3(0, -15, -120));
 	sprite->SetEulerAngles(glm::vec3(0, 180, 0));
 #elif defined(ANIMATION)
 	sprite = world->Import("models/boblampclean.md5mesh");

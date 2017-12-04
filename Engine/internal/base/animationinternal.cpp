@@ -2,10 +2,10 @@
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "tools/math2.h"
-#include "tools/debug.h"
+#include "math2.h"
+#include "time2.h"
+#include "debug.h"
 #include "animationinternal.h"
-#include "internal/misc/timefinternal.h"
 
 #define DEFAULT_TICKS_PER_SECOND	25
 
@@ -17,7 +17,11 @@ bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 		return false;
 	}
 
-	Assert(current_ < C_MAX_BONE_COUNT);
+	if (current_ >= C_MAX_BONE_COUNT) {
+		Debug::LogError("too many bones");
+		return false;
+	}
+
 	bones_[current_] = bone;
 
 	boneMap_.insert(std::make_pair(bone.name, current_));
@@ -26,8 +30,12 @@ bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 	return true;
 }
 
-SkeletonBone* SkeletonInternal::GetBone(int index) {
-	Assert(index >= 0 && index < current_);
+SkeletonBone* SkeletonInternal::GetBone(uint index) {
+	if (index >= current_) {
+		Debug::LogError("index out of range");
+		return nullptr;
+	}
+
 	return bones_ + index;
 }
 
@@ -40,8 +48,12 @@ SkeletonBone* SkeletonInternal::GetBone(const std::string& name) {
 	return bones_ + pos->second;
 }
 
-void SkeletonInternal::SetBoneToRootSpaceMatrix(int index, const glm::mat4& value) {
-	Assert(index >= 0 && index < current_);
+void SkeletonInternal::SetBoneToRootSpaceMatrix(uint index, const glm::mat4& value) {
+	if (index >= current_) {
+		Debug::LogError("index out of range");
+		return;
+	}
+
 	boneToRootSpaceMatrices_[index] = value;
 }
 
@@ -237,8 +249,11 @@ int AnimationKeysInternal::SmoothKeys() {
 	return times.size();
 }
 
-void AnimationKeysInternal::InsertKey(int id, const Key& key) {
-	AssertX(id >= 0 && id < FrameKeyMaxCount, "id must be less than " + std::to_string(FrameKeyMaxCount));
+void AnimationKeysInternal::InsertKey(uint id, const Key& key) {
+	if (id >= FrameKeyMaxCount) {
+		Debug::LogError("id must be less than %d.",FrameKeyMaxCount);
+		return;
+	}
 
 	Keys* keys = container_[id];
 	if (container_[id] == nullptr) {
@@ -262,7 +277,10 @@ void AnimationKeysInternal::RemoveKey(const Key& key) {
 }
 
 void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
-	AssertX(!keys->empty(), "empty key container");
+	if (keys->empty()) {
+		Debug::LogError("empty key container");
+		return;
+	}
 
 	Keys::value_type key;
 	key.time = time;
@@ -316,7 +334,7 @@ void AnimationInternal::SetWrapMode(AnimationWrapMode value) {
 bool AnimationInternal::Play(const std::string& name) {
 	AnimationClip clip = GetClip(name);
 	if (!clip) {
-		Debug::LogWarning("can not find animation clip " + name);
+		Debug::LogWarning("can not find animation clip %s.", name.c_str());
 		return false;
 	}
 
@@ -330,7 +348,7 @@ bool AnimationInternal::Play(const std::string& name) {
 void AnimationInternal::Update() {
 	if (!playing_ || !current_) { return; }
 
-	time_ += timeInstance->GetDeltaTime();
+	time_ += Time::GetDeltaTime();
 	
 	if (current_->Sample(time_) && current_->GetWrapMode() == AnimationWrapModeOnce) {
 		current_->Sample(0);
@@ -377,12 +395,22 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 
 void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
 	SortedVector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
-	AssertX(attributes_.size() == otherAttributes.size(), "attribute count mismatch");
+	if (attributes_.size() != otherAttributes.size()) {
+		Debug::LogError("attribute count mismatch");
+		return;
+	}
 
 	for (int i = 0; i < attributes_.size(); ++i) {
 		Key& lhs = attributes_[i], &rhs = otherAttributes[i];
-		AssertX(lhs.id == rhs.id, "attribute id mismatch");
-		AssertX(lhs.value.GetType() == rhs.value.GetType(), "attribute type mismatch");
+		if (lhs.id != rhs.id) {
+			Debug::LogError("attribute id mismatch");
+			continue;
+		}
+
+		if (lhs.value.GetType() != rhs.value.GetType()) {
+			Debug::LogError("attribute type mismatch");
+			continue;
+		}
 
 		result->SetTime(Math::Lerp(time_, other->GetTime(), factor));
 		LerpAttribute(result, lhs, rhs, factor);
@@ -423,7 +451,7 @@ void AnimationFrameInternal::SetQuaternion(int id, const glm::quat& value) {
 float AnimationFrameInternal::GetFloat(int id) {
 	Key key{ id };
 	if (!attributes_.get(key)) {
-		Debug::LogError("Animation keyframe attribute for id " + std::to_string(id) + " does not exist");
+		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return 0;
 	}
 
@@ -434,7 +462,7 @@ float AnimationFrameInternal::GetFloat(int id) {
 glm::vec3 AnimationFrameInternal::GetVector3(int id) {
 	Key key{ id };
 	if (!attributes_.get(key)) {
-		Debug::LogError("Animation keyframe attribute for id " + std::to_string(id) + " does not exist");
+		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return glm::vec3(0);
 	}
 
@@ -444,7 +472,7 @@ glm::vec3 AnimationFrameInternal::GetVector3(int id) {
 glm::quat AnimationFrameInternal::GetQuaternion(int id) {
 	Key key{ id };
 	if (!attributes_.get(key)) {
-		Debug::LogError("Animation keyframe attribute for id " + std::to_string(id) + " does not exist");
+		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return glm::quat();
 	}
 
@@ -464,13 +492,17 @@ static void SetVariant(AnimationFrame frame, int id, Variant& value) {
 			frame->SetQuaternion(id, value.GetQuaternion());
 			break;
 		default:
-			AssertX(false, "can not set variant " + std::to_string(type));
+			Debug::LogError("can not set variant %d.", type);
 			break;
 	}
 }
 
 static void LerpVariant(Variant& variant, Variant& lhs, Variant& rhs, float factor) {
-	AssertX(lhs.GetType() == rhs.GetType(), "variant type mismatch");
+	if (lhs.GetType() != rhs.GetType()) {
+		Debug::LogError("variant type mismatch");
+		return;
+	}
+
 	VariantType type = lhs.GetType();
 
 	switch (type) {
@@ -484,7 +516,7 @@ static void LerpVariant(Variant& variant, Variant& lhs, Variant& rhs, float fact
 			variant.SetQuaternion(Math::Lerp(lhs.GetQuaternion(), rhs.GetQuaternion(), factor));
 			break;
 		default:
-			AssertX(false, "can not lerp attribute type " + std::to_string(type));
+			Debug::LogError("can not lerp attribute type %d.", type);
 			break;
 	}
 }

@@ -1,8 +1,8 @@
-#include "tools/math2.h"
+#include "math2.h"
+#include "resources.h"
 #include "worldinternal.h"
 #include "internal/memory/factory.h"
 #include "internal/file/assetimporter.h"
-#include "internal/resources/resources.h"
 #include "internal/sprites/spriteinternal.h"
 #include "internal/world/environmentinternal.h"
 
@@ -32,10 +32,6 @@ WorldInternal::WorldInternal()
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
 	, root_(CREATE_OBJECT(Sprite)) {
 	root_->SetName("root");
-}
-
-void WorldInternal::Initialize() {
-	Resources::Initialize();
 }
 
 Object WorldInternal::Create(ObjectType type) {
@@ -69,7 +65,11 @@ Sprite WorldInternal::GetSprite(uint id) {
 }
 
 bool WorldInternal::GetSprites(ObjectType type, std::vector<Sprite>& sprites) {
-	AssertX(type >= ObjectTypeSprite, "invalid sprite type");
+	if (type < ObjectTypeSprite) {
+		Debug::LogError("invalid sprite type");
+		return false;
+	}
+
 	if (type == ObjectTypeSprite) {
 		for (SpriteContainer::iterator ite = sprites_.begin(); ite != sprites_.end(); ++ite) {
 			sprites.push_back(ite->second);

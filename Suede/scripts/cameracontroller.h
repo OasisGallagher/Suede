@@ -23,6 +23,8 @@ private:
 	void rotateAroundSprite(const QPoint& mousePos);
 	glm::vec3 arcBallVector(const QPoint& point);
 
+	glm::vec3 sphereCoords(float x, float y);
+
 private:
 	Camera camera_;
 

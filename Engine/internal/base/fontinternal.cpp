@@ -4,16 +4,16 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
+#include "math2.h"
 #include "variables.h"
+#include "resources.h"
 #include "tools/path.h"
-#include "tools/math2.h"
 #include "tools/string.h"
 #include "fontinternal.h"
 #include "shaderinternal.h"
 #include "textureinternal.h"
 #include "materialinternal.h"
 #include "internal/file/image.h"
-#include "internal/resources/resources.h"
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
@@ -60,7 +60,7 @@ bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 	Glyph* g;
 	Atlas::CoordContainer::iterator pos = coords_.find(wch);
 	if (pos == coords_.end() || !glyphs_.get(wch, g)) {
-		Debug::LogError(std::to_string(wch) + " does not included");
+		Debug::LogError("%d does not included.", wch);
 		return false;
 	}
 
@@ -77,12 +77,12 @@ bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 bool FontInternal::Import(const std::string& path, int size) {
 	int err = 0;
 	if ((err = FT_Init_FreeType(&library_)) != 0) {
-		Debug::LogError(String::Format("failed to load font %s (%d)", path.c_str(), err));
+		Debug::LogError("failed to load font %s (%d)", path.c_str(), err);
 		return false;
 	}
 
 	if ((err = FT_New_Face(library_, path.c_str(), 0, &face_)) != 0) {
-		Debug::LogError(String::Format("failed to create font face for %s (%d)", path.c_str(), err));
+		Debug::LogError("failed to create font face for %s (%d)", path.c_str(), err);
 		return false;
 	}
 
@@ -99,13 +99,13 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 	int err = 0;
 
 	if ((err = FT_Load_Glyph(face_, FT_Get_Char_Index(face_, wch), FT_LOAD_DEFAULT) != 0)) {
-		Debug::LogError(String::Format("failed to load glyph for char %d (%d)", wch, err));
+		Debug::LogError("failed to load glyph for char %d (%d)", wch, err);
 		return false;
 	}
 
 	FT_Glyph glyph;
 	if ((err = FT_Get_Glyph(face_->glyph, &glyph)) != 0) {
-		Debug::LogError(String::Format("failed to get glyph for char %d (%d)", wch, err));
+		Debug::LogError("failed to get glyph for char %d (%d)", wch, err);
 		return false;
 	}
 

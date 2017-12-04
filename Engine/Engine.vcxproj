@@ -172,11 +172,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\file\textloader.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\memory\memory.cpp" />
-    <ClCompile Include="internal\misc\graphicsinternal.cpp" />
-    <ClCompile Include="internal\misc\loggerinternal.cpp" />
-    <ClCompile Include="internal\misc\screeninternal.cpp" />
-    <ClCompile Include="internal\misc\timefinternal.cpp" />
-    <ClCompile Include="internal\resources\resources.cpp" />
     <ClCompile Include="internal\sprites\camerainternal.cpp" />
     <ClCompile Include="internal\sprites\lightinternal.cpp" />
     <ClCompile Include="internal\sprites\particlesysteminternal.cpp" />
@@ -184,8 +179,12 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\sprites\spriteinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
+    <ClCompile Include="src\debug.cpp" />
     <ClCompile Include="src\engine.cpp" />
-    <ClCompile Include="tools\debug.cpp" />
+    <ClCompile Include="src\graphics.cpp" />
+    <ClCompile Include="src\resources.cpp" />
+    <ClCompile Include="src\screen.cpp" />
+    <ClCompile Include="src\time2.cpp" />
     <ClCompile Include="tools\path.cpp" />
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
@@ -198,12 +197,14 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\light.h" />
-    <ClInclude Include="include\logger.h" />
+    <ClInclude Include="include\debug.h" />
     <ClInclude Include="include\material.h" />
+    <ClInclude Include="include\math2.h" />
     <ClInclude Include="include\object.h" />
     <ClInclude Include="include\particlesystem.h" />
     <ClInclude Include="include\posteffect.h" />
     <ClInclude Include="include\renderer.h" />
+    <ClInclude Include="include\resources.h" />
     <ClInclude Include="include\screen.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\skybox.h" />
@@ -235,12 +236,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\file\textloader.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\memory\memory.h" />
-    <ClInclude Include="internal\misc\graphicsinternal.h" />
-    <ClInclude Include="internal\misc\idcreater.h" />
-    <ClInclude Include="internal\misc\loggerinternal.h" />
-    <ClInclude Include="internal\misc\screeninternal.h" />
-    <ClInclude Include="internal\misc\timefinternal.h" />
-    <ClInclude Include="internal\resources\resources.h" />
     <ClInclude Include="internal\sprites\camerainternal.h" />
     <ClInclude Include="internal\sprites\lightinternal.h" />
     <ClInclude Include="internal\sprites\particlesysteminternal.h" />
@@ -248,8 +243,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\sprites\spriteinternal.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
-    <ClInclude Include="tools\debug.h" />
-    <ClInclude Include="tools\math2.h" />
     <ClInclude Include="tools\path.h" />
     <ClInclude Include="tools\string.h" />
   </ItemGroup>

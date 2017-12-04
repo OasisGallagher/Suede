@@ -1,14 +1,17 @@
 #pragma once
 #include "defines.h"
 
-class SUEDE_API ITime {
+class SUEDE_API Time {
 public:
-	virtual float GetDeltaTime() = 0;
-	virtual float GetRealTimeSinceStartup() = 0;
+	static float GetDeltaTime();
+	static float GetRealTimeSinceStartup();
 
-	virtual uint GetFrameCount() = 0;
+	static uint GetFrameCount();
 
-	virtual void Update() = 0;
+private:
+	friend class Engine;
+	static void Update();
+
+private:
+	Time();
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Time);

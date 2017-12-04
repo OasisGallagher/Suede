@@ -61,13 +61,7 @@ public:
 
 public:
 	void SetDepthTexture(RenderTexture texture);
-
-#ifdef MRT
-	void AddRenderTexture(RenderTexture texture);
-	void RemoveRenderTexture(RenderTexture texture);
-#else
 	void SetRenderTexture(RenderTexture texture);
-#endif
 
 	void CreateDepthRenderBuffer();
 

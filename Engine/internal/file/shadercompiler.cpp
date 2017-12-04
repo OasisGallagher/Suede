@@ -2,7 +2,6 @@
 #include "textloader.h"
 #include "shadercompiler.h"
 #include "tools/path.h"
-#include "tools/debug.h"
 #include "tools/string.h"
 #include "internal/base/glsldefines.h"
 
@@ -34,7 +33,11 @@ bool ShaderCompiler::CompileShaderSource(const std::vector<std::string>& lines, 
 	globals_ += FormatDefines(defines);
 	ReadShaderSource(lines);
 
-	AssertX(type_ != ShaderTypeCount, "invalid shader file");
+	if (type_ == ShaderTypeCount) {
+		Debug::LogError("invalid shader file");
+		return false;
+	}
+
 	answer_[type_] = globals_ + source_;
 
 	return true;
@@ -104,7 +107,7 @@ ShaderType ShaderCompiler::ParseShaderType(const std::string& tag) {
 		}
 	}
 
-	AssertX(false, std::string("unkown shader tag ") + tag);
+	Debug::LogError("unkown shader tag %s.", tag.c_str());
 	return ShaderTypeCount;
 }
 
@@ -132,7 +135,7 @@ bool ShaderCompiler::PreprocessShader(const std::string& parameter) {
 		}
 		else {
 			if (!answer_[type_].empty()) {
-				Debug::LogError(std::string(ShaderInternal::Description(type_).name) + " already exists.");
+				Debug::LogError("%s already exists.", ShaderInternal::Description(type_).name);
 				return false;
 			}
 

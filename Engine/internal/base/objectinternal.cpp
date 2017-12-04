@@ -1,14 +1,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "tools/debug.h"
-#include "tools/math2.h"
+#include "math2.h"
+#include "debug.h"
 #include "objectinternal.h"
 
 uint ObjectInternal::ObjectIDContainer[ObjectTypeCount];
 
 ObjectInternal::ObjectInternal(ObjectType type) {
-	id_ = EncodeInstanceID(type);
+	id_ = CreateInstanceID(type);
 	type_ = type;
 }
 
@@ -16,8 +16,12 @@ Object ObjectInternal::Clone() {
 	return Object();
 }
 
-uint ObjectInternal::EncodeInstanceID(ObjectType type) {
-	Assert(ObjectIDContainer[type] < std::numeric_limits<uint>::max());
+uint ObjectInternal::CreateInstanceID(ObjectType type) {
+	if (ObjectIDContainer[type] >= std::numeric_limits<uint>::max()) {
+		Debug::LogError("too many objects with type %d.", type);
+		return 0;
+	}
+
 	return Math::MakeDword(++ObjectIDContainer[type], type);
 }
 

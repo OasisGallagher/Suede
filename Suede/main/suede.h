@@ -1,14 +1,15 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
-#include "engine.h"
+
+#include "debug.h"
 #include "ui_suede.h"
 
 class Canvas;
 class Console;
 class Hierarchy;
 
-class Suede : public QMainWindow, public EngineLogReceiver {
+class Suede : public QMainWindow, public ILogReceiver {
 	Q_OBJECT
 
 public:
@@ -32,7 +33,7 @@ public:
 protected:
 	// TODO: update hierarchy.
 	virtual void keyPressEvent(QKeyEvent *event);
-	virtual void OnEngineLogMessage(int level, const char* message);
+	virtual void OnLogMessage(LogLevel level, const char* message);
 
 private slots:
 	void screenCapture();
