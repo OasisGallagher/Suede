@@ -1,18 +1,29 @@
 #include <QWidget>
 
 #include "game.h"
+#include "font.h"
+#include "mesh.h"
+#include "light.h"
+#include "world.h"
+#include "skybox.h"
+#include "camera.h"
+#include "shader.h"
+#include "skybox.h"
 #include "engine.h"
+#include "texture.h"
+#include "variables.h"
+#include "particlesystem.h"
 
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-#define MODEL
-#define POST_EFFECTS
-//#define ANIMATION
-//#define PARTICLE_SYSTEM
-//#define FONT
+//#define MODEL
+//#define POST_EFFECTS
+#define ANIMATION
+#define PARTICLE_SYSTEM
+#define FONT
 //#define BUMPED
 
 Game* Game::get() {
@@ -102,13 +113,11 @@ void Game::update() {
 }
 
 void Game::createScene() {
-	World world = Engine::GetWorld();
-
-	world->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
-	DirectionalLight light = dsp_cast<DirectionalLight>(world->Create(ObjectTypeDirectionalLight));
+	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
+	DirectionalLight light = NewDirectionalLight();
 	light->SetColor(glm::vec3(0.7f));
 
-	Camera camera = dsp_cast<Camera>(world->Create(ObjectTypeCamera));
+	Camera camera = NewCamera();
 	controller_->setCamera(camera);
 	camera->SetPosition(glm::vec3(0, 0, 0));
 
@@ -119,7 +128,7 @@ void Game::createScene() {
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearTypeSkybox);
-	Skybox skybox = dsp_cast<Skybox>(world->Create(ObjectTypeSkybox));
+	Skybox skybox = NewSkybox();
 	std::string faces[] = {
 		"textures/lake_skybox/right.jpg",
 		"textures/lake_skybox/left.jpg",
@@ -137,16 +146,16 @@ void Game::createScene() {
 #endif
 	
 #ifdef RENDER_TEXTURE
-	RenderTexture renderTexture = dsp_cast<RenderTexture>(world->Create(ObjectTypeRenderTexture));
+	RenderTexture renderTexture = NewRenderTexture();
 	renderTexture->Load(RenderTextureFormatRgba, canvas_->width(), canvas_->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
 
 #ifdef PARTICLE_SYSTEM
-	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(world->Create(ObjectTypeParticleSystem));
+	ParticleSystem particleSystem = NewParticleSystem();
 	particleSystem->SetPosition(glm::vec3(-30, 20, -50));
 
-	SphereParticleEmitter emitter = dsp_cast<SphereParticleEmitter>(world->Create(ObjectTypeSphereParticleEmitter));
+	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
 	emitter->SetRate(200);
 	emitter->SetStartColor(glm::vec4(1, 1, 1, 0.5f));
@@ -156,7 +165,7 @@ void Game::createScene() {
 	ParticleBurst burst = { 4, 3, 20 };
 	particleSystem->SetEmitter(emitter);
 
-	ParticleAnimator animator = dsp_cast<ParticleAnimator>(world->Create(ObjectTypeParticleAnimator));
+	ParticleAnimator animator = NewParticleAnimator();
 	animator->SetGravityScale(0.2f);
 	particleSystem->SetParticleAnimator(animator);
 
@@ -166,28 +175,21 @@ void Game::createScene() {
 #endif
 
 #if defined(FONT)
-	Sprite fsprite = dsp_cast<Sprite>(world->Create(ObjectTypeSprite));
-	fsprite->SetPosition(glm::vec3(0, 20, -20));
+	Sprite fsprite = NewSprite();
+	fsprite->SetPosition(glm::vec3(0, 5, -20));
 	fsprite->SetEulerAngles(glm::vec3(0, 0, 0));
 
-	Font font = dsp_cast<Font>(world->Create(ObjectTypeFont));
+	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
-	TextMesh mesh = dsp_cast<TextMesh>(world->Create(ObjectTypeTextMesh));
+	TextMesh mesh = NewTextMesh();
 	mesh->SetFont(font);
 	mesh->SetText("落霞与孤鹜齐飞 秋水共长天一色");
-	
-	std::vector<uchar> data;
-	dsp_cast<Texture2D>(mesh->GetFont()->GetMaterial()->GetTexture("c_mainTexture"))->EncodeToJpg(data);
-	QImage image;
-	if (image.loadFromData(&data[0], data.size())) {
-		image.save("C:\\Users\\Gallagher\\Desktop\\1.jpg");
-	}
 	
 	mesh->SetFontSize(12);
 	fsprite->SetMesh(mesh);
 
-	Renderer renderer = dsp_cast<MeshRenderer>(world->Create(ObjectTypeMeshRenderer));
+	Renderer renderer = NewMeshRenderer();
 	renderer->AddMaterial(font->GetMaterial());
 	fsprite->SetRenderer(renderer);
 #endif
@@ -195,11 +197,11 @@ void Game::createScene() {
 #if defined(MODEL) || defined(ANIMATION)
 	Sprite sprite;
 #if defined(MODEL)
-	sprite = world->Import("models/jeep.fbx");
+	sprite = WorldInstance()->Import("models/jeep.fbx");
 	sprite->SetPosition(glm::vec3(0, -15, -120));
 	sprite->SetEulerAngles(glm::vec3(0, 180, 0));
 #elif defined(ANIMATION)
-	sprite = world->Import("models/boblampclean.md5mesh");
+	sprite = WorldInstance()->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
 	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
 #endif

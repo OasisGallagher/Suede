@@ -345,5 +345,8 @@
     <ClCompile Include="src\screen.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="internal\memory\creater.cpp">
+      <Filter>internal\memory\src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

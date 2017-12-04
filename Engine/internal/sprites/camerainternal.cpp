@@ -140,14 +140,14 @@ Texture2D CameraInternal::Capture() {
 	std::vector<uchar> data;
 	fb0_->ReadBuffer(data);
 
-	Texture2D texture = CREATE_OBJECT(Texture2D);
+	Texture2D texture = NewTexture2D();
 	texture->Load(&data[0], ColorFormatRgba, fb0_->GetWidth(), fb0_->GetHeight());
 
 	return texture;
 }
 
 void CameraInternal::CreateRenderer() {
-	renderer_ = CREATE_OBJECT(MeshRenderer);
+	renderer_ = NewMeshRenderer();
 	renderer_->AddMaterial(nullptr);
 }
 
@@ -160,25 +160,25 @@ void CameraInternal::CreateFramebuffers() {
 
 	fbDepth_ = MEMORY_CREATE(Framebuffer);
 	fbDepth_->Create(w, h);
-	RenderTexture depthTexture = CREATE_OBJECT(RenderTexture);
+	RenderTexture depthTexture = NewRenderTexture();
 	depthTexture->Load(RenderTextureFormatDepth, w, h);
 	fbDepth_->SetDepthTexture(depthTexture);
 
 	fbShadow_ = MEMORY_CREATE(Framebuffer);
 	fbShadow_->Create(w, h);
-	RenderTexture shadowTexture = CREATE_OBJECT(RenderTexture);
+	RenderTexture shadowTexture = NewRenderTexture();
 	shadowTexture->Load(RenderTextureFormatShadow, w, h);
 	fbShadow_->SetDepthTexture(shadowTexture);
 
 	fbRenderTexture_ = MEMORY_CREATE(Framebuffer);
 	fbRenderTexture_->Create(w, h);
-	renderTexture_ = CREATE_OBJECT(RenderTexture);
+	renderTexture_ = NewRenderTexture();
 	renderTexture_->Load(RenderTextureFormatRgba, w, h);
 	fbRenderTexture_->SetRenderTexture(renderTexture_);
 
 	fbRenderTexture2_ = MEMORY_CREATE(Framebuffer);
 	fbRenderTexture2_->Create(w, h);
-	renderTexture2_ = CREATE_OBJECT(RenderTexture);
+	renderTexture2_ = NewRenderTexture();
 	renderTexture2_->Load(RenderTextureFormatRgba, w, h);
 	fbRenderTexture2_->SetRenderTexture(renderTexture2_);
 }
@@ -186,7 +186,7 @@ void CameraInternal::CreateFramebuffers() {
 void CameraInternal::CreateDepthRenderer() {
 	Shader shader = Resources::FindShader("buildin/shaders/depth");
 
-	depthMaterial_ = CREATE_OBJECT(Material);
+	depthMaterial_ = NewMaterial();
 	depthMaterial_->SetShader(shader);
 	depthMaterial_->SetRenderState(Cull, Back);
 	depthMaterial_->SetRenderState(DepthWrite, On);
@@ -196,7 +196,7 @@ void CameraInternal::CreateDepthRenderer() {
 void CameraInternal::CreateShadowRenderer() {
 	Shader shader = Resources::FindShader("buildin/shaders/directional_light_depth");
 
-	directionalLightShadowMaterial_ = CREATE_OBJECT(Material);
+	directionalLightShadowMaterial_ = NewMaterial();
 	directionalLightShadowMaterial_->SetShader(shader);
 	directionalLightShadowMaterial_->SetRenderState(Cull, Back);
 	directionalLightShadowMaterial_->SetRenderState(DepthWrite, On);
@@ -207,7 +207,7 @@ void CameraInternal::UpdateSkybox() {
 	if (clearType_ != ClearTypeSkybox) { return; }
 	Skybox skybox = skybox_;
 	if (!skybox) {
-		skybox = worldInstance->GetEnvironment()->GetSkybox();
+		skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	}
 
 	if (!skybox) {
@@ -251,7 +251,7 @@ void CameraInternal::SetForwardBaseLightParameter(const std::vector<Sprite>& spr
 			Material material = renderer->GetMaterial(i);
 
 			material->SetVector3(Variables::cameraPosition, GetPosition());
-			material->SetVector3(Variables::ambientLightColor, worldInstance->GetEnvironment()->GetAmbientColor());
+			material->SetVector3(Variables::ambientLightColor, WorldInstance()->GetEnvironment()->GetAmbientColor());
 			material->SetVector3(Variables::lightColor, light->GetColor());
 			material->SetVector3(Variables::lightPosition, light->GetPosition());
 			material->SetVector3(Variables::lightDirection, light->GetRotation() * glm::vec3(0, 0, -1));
@@ -346,7 +346,7 @@ int CameraInternal::RenderTransparentPass(const std::vector<Sprite>& sprites, in
 
 void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Sprite> lights;
-	if (!worldInstance->GetSprites(ObjectTypeLights, lights)) {
+	if (!WorldInstance()->GetSprites(ObjectTypeLights, lights)) {
 		return;
 	}
 
@@ -387,7 +387,7 @@ bool CameraInternal::IsRenderable(Sprite sprite) {
 }
 
 bool CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {
-	worldInstance->GetSprites(ObjectTypeSprite, sprites);
+	WorldInstance()->GetSprites(ObjectTypeSprite, sprites);
 
 	// Sort sprites by render queue.
 	int p = 0;

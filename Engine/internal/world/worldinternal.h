@@ -8,8 +8,6 @@
 #include "environment.h"
 #include "internal/base/objectinternal.h"
 
-extern World worldInstance;
-
 class WorldInternal : public ObjectInternal, public IWorld {
 	DEFINE_FACTORY_METHOD(World)
 

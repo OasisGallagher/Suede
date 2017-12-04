@@ -57,7 +57,7 @@ static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
 }
 
 Sprite AssetImporter::Import(const std::string& path) {
-	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
+	Sprite sprite = NewSprite();
 	ImportTo(sprite, path);
 	return sprite;
 }
@@ -149,7 +149,7 @@ void AssetImporter::CombineAttribute(MeshAttribute& dest, const MeshAttribute& s
 }
 
 Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
-	Sprite sprite = dsp_cast<Sprite>(worldInstance->Create(ObjectTypeSprite));
+	Sprite sprite = NewSprite();
 	sprite->SetParent(parent);
 
 	ReadNodeTo(sprite, node, attributes, materials);
@@ -177,10 +177,10 @@ void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, MeshAttribute* attri
 void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	Renderer renderer = nullptr;
 	if (scene_->mNumAnimations == 0) {
-		renderer = CREATE_OBJECT(MeshRenderer);
+		renderer = NewMeshRenderer();
 	}
 	else {
-		renderer = CREATE_OBJECT(SkinnedMeshRenderer);
+		renderer = NewSkinnedMeshRenderer();
 		dsp_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
@@ -188,12 +188,12 @@ void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* a
 	current.color.count = current.color.divisor = 0;
 	current.geometry.count = current.geometry.divisor = 0;
 
-	Mesh mesh = CREATE_OBJECT(Mesh);
+	Mesh mesh = NewMesh();
 
 	SubMesh* subMeshes = MEMORY_CREATE_ARRAY(SubMesh, node->mNumMeshes);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];
-		subMeshes[i] = CREATE_OBJECT(SubMesh);
+		subMeshes[i] = NewSubMesh();
 		subMeshes[i]->SetTriangles(attributes[meshIndex].indexes.size(), current.positions.size(), current.indexes.size());
 		mesh->AddSubMesh(subMeshes[i]);
 
@@ -294,7 +294,7 @@ void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 void AssetImporter::ReadBoneAttributes(int index, MeshAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[index];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
-		if (!skeleton_) { skeleton_ = CREATE_OBJECT(Skeleton); }
+		if (!skeleton_) { skeleton_ = NewSkeleton(); }
 		std::string name(aimesh->mBones[i]->mName.data);
 
 		int index = skeleton_->GetBoneIndex(name);
@@ -326,7 +326,7 @@ bool AssetImporter::ReadMaterials(Material* materials) {
 		MaterialAttribute attribute;
 		ReadMaterialAttribute(attribute, scene_->mMaterials[i]);
 		
-		Material material = CREATE_OBJECT(Material);
+		Material material = NewMaterial();
 		ReadMaterial(material, attribute);
 
 		materials[i] = material;
@@ -427,7 +427,7 @@ bool AssetImporter::ReadAnimation(Animation& animation) {
 		return true;
 	}
 	
-	animation = CREATE_OBJECT(Animation);
+	animation = NewAnimation();
 
 	glm::mat4 rootTransform;
 	animation->SetRootTransform(AIMaterixToGLM(rootTransform, scene_->mRootNode->mTransformation.Inverse()));
@@ -437,7 +437,7 @@ bool AssetImporter::ReadAnimation(Animation& animation) {
 		aiAnimation* anim = scene_->mAnimations[i];
 		std::string name = anim->mName.C_Str();
 
-		AnimationClip clip = CREATE_OBJECT(AnimationClip);
+		AnimationClip clip = NewAnimationClip();
 		if (defaultClipName == nullptr) {
 			defaultClipName = anim->mName.C_Str();
 		}
@@ -463,7 +463,7 @@ void AssetImporter::ReadAnimationNode(const aiAnimation* anim, const aiNode* pai
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
-	AnimationKeys keys = CREATE_OBJECT(AnimationKeys);
+	AnimationKeys keys = NewAnimationKeys();
 	if (channel != nullptr) {
 		for (int i = 0; i < channel->mNumPositionKeys; ++i) {
 			const aiVectorKey& key = channel->mPositionKeys[i];
@@ -486,7 +486,7 @@ void AssetImporter::ReadAnimationNode(const aiAnimation* anim, const aiNode* pai
 		std::vector<AnimationFrame> keyframes;
 		keys->ToKeyframes(keyframes);
 
-		curve = CREATE_OBJECT(AnimationCurve);
+		curve = NewAnimationCurve();
 		curve->SetKeyframes(keyframes);
 	}
 
@@ -528,7 +528,7 @@ Texture AssetImporter::GetTexture(const std::string& name) {
 }
 
 Texture AssetImporter::ReadExternalTexture(const std::string& name) {
-	Texture2D texture = CREATE_OBJECT(Texture2D);
+	Texture2D texture = NewTexture2D();
 	if (!texture->Load("textures/" + name)) {
 		return nullptr;
 	}
@@ -542,7 +542,7 @@ Texture AssetImporter::ReadEmbeddedTexture(uint index) {
 		return nullptr;
 	}
 
-	Texture2D texture = CREATE_OBJECT(Texture2D);
+	Texture2D texture = NewTexture2D();
 	aiTexture* aitex = scene_->mTextures[index];
 	if (aitex->mHeight == 0) {
 		int width, height;
@@ -565,7 +565,7 @@ Texture AssetImporter::GetDefaultMainTexture() {
 	static Texture2D defaultMainTexture;
 
 	if (!defaultMainTexture) {
-		defaultMainTexture = CREATE_OBJECT(Texture2D);
+		defaultMainTexture = NewTexture2D();
 		defaultMainTexture->Load(&kDefaultColor, ColorFormatRgba, 1, 1);
 	}
 

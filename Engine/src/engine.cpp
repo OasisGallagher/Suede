@@ -1,8 +1,11 @@
 #include <gl/glew.h>
 
+#include "debug.h"
+#include "time2.h"
+#include "world.h"
 #include "engine.h"
-
-extern World worldInstance;
+#include "screen.h"
+#include "resources.h"
 
 #ifndef _STDCALL
 #define _STDCALL __stdcall
@@ -20,7 +23,6 @@ static void _STDCALL GLDebugMessageCallback(
 
 bool Engine::Initialize() {
 	setlocale(LC_ALL, "");
-	Math::Max(1, 2);
 	glewExperimental = true;
 
 	if (glewInit() != GLEW_OK) {
@@ -34,7 +36,6 @@ bool Engine::Initialize() {
 	}
 
 	Resources::Import();
-
 	return true;
 }
 
@@ -46,13 +47,9 @@ void Engine::Resize(int w, int h) {
 	glViewport(0, 0, w, h);
 }
 
-World Engine::GetWorld() {
-	return worldInstance;
-}
-
 void Engine::Update() {
 	Time::Update();
-	GetWorld()->Update();
+	WorldInstance()->Update();
 }
 
 static void _STDCALL GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const GLvoid* userParam) {

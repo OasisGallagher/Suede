@@ -6,6 +6,7 @@
 #include "animation.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Sprite);
+SUEDE_DECLARE_OBJECT_CREATER(Sprite);
 
 class SUEDE_API ISprite : virtual public IObject {
 public:

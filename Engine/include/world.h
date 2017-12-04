@@ -19,3 +19,5 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(World);
+
+SUEDE_API World WorldInstance();

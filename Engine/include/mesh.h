@@ -12,6 +12,7 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh);
+SUEDE_DECLARE_OBJECT_CREATER(SubMesh);
 
 struct BlendAttribute {
 	enum {
@@ -63,6 +64,7 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Mesh);
+SUEDE_DECLARE_OBJECT_CREATER(Mesh);
 
 class SUEDE_API ITextMesh : virtual public IMesh {
 public:
@@ -77,3 +79,4 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
+SUEDE_DECLARE_OBJECT_CREATER(TextMesh);

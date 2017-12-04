@@ -11,3 +11,4 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Environment);
+SUEDE_DECLARE_OBJECT_CREATER(Environment);

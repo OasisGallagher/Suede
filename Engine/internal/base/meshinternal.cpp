@@ -169,7 +169,7 @@ void TextMeshInternal::RebuildMesh() {
 
 	InitializeMeshAttribute(attribute, wtext);
 
-	SubMesh subMesh = CREATE_OBJECT(SubMesh);
+	SubMesh subMesh = NewSubMesh();
 	uint indexCount = attribute.indexes.back() + 1;
 	subMesh->SetTriangles(indexCount, 0, 0);
 	AddSubMesh(subMesh);

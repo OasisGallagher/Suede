@@ -1,5 +1,9 @@
 #include <map>
-#include "engine.h"
+#include "mesh.h"
+#include "math2.h"
+#include "shader.h"
+#include "material.h"
+#include "resources.h"
 
 typedef std::map<std::string, Shader> ShaderContainer;
 static ShaderContainer shaders;
@@ -57,7 +61,7 @@ Shader Resources::FindShader(const std::string& path) {
 		return ite->second;
 	}
 
-	Shader shader = New<Shader>();
+	Shader shader = NewShader();
 	shaders.insert(std::make_pair(path, shader));
 	if (shader->Load(path)) {
 		return shader;
@@ -109,10 +113,10 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 }
 
 Mesh Resources::CreateMesh(MeshAttribute &attribute) {
-	Mesh mesh = New<Mesh>();
+	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
 
-	SubMesh subMesh = New<SubMesh>();
+	SubMesh subMesh = NewSubMesh();
 	subMesh->SetTriangles(attribute.indexes.size(), 0, 0);
 
 	mesh->AddSubMesh(subMesh);

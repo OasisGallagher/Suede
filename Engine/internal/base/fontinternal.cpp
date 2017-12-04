@@ -17,7 +17,7 @@
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
-	material_ = CREATE_OBJECT(Material);
+	material_ = NewMaterial();
 	Shader shader = Resources::FindShader("buildin/shaders/unlit_texture");
 	material_->SetShader(shader);
 
@@ -140,7 +140,7 @@ void FontInternal::RebuildMaterial() {
 
 	coords_ = atlas.coords;
 
-	Texture2D texture = CREATE_OBJECT(Texture2D);
+	Texture2D texture = NewTexture2D();
 	texture->Load(&atlas.data[0], ColorFormatLuminanceAlpha, atlas.width, atlas.height);
 
 	material_->SetTexture(Variables::mainTexture, texture);

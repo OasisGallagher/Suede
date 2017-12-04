@@ -5,7 +5,9 @@
 #include <QStandardPaths>
 
 #include "suede.h"
+#include "world.h"
 #include "engine.h"
+#include "camera.h"
 
 #include "views/game.h"
 #include "views/canvas.h"
@@ -64,7 +66,7 @@ void Suede::showChildWindow(int index, bool show) {
 	dockWidgets_[index]->setVisible(show);
 
 	if (index == ChildWindowHierarchy && dockWidgets_[index]->isVisible()) {
-		Hierarchy::get()->update(Engine::GetWorld()->GetRootSprite());
+		Hierarchy::get()->update(WorldInstance()->GetRootSprite());
 	}
 }
 
@@ -102,7 +104,7 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 
 void Suede::screenCapture() {
 	std::vector<Sprite> sprites;
-	if (!Engine::GetWorld()->GetSprites(ObjectTypeCamera, sprites)) {
+	if (!WorldInstance()->GetSprites(ObjectTypeCamera, sprites)) {
 		return;
 	}
 

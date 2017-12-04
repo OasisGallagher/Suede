@@ -16,7 +16,7 @@ bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 	AssetImporter importer;
 	importer.ImportTo(dsp_cast<Sprite>(shared_from_this()), "buildin/models/box.obj");
 
-	TextureCube texture = CREATE_OBJECT(TextureCube);
+	TextureCube texture = NewTextureCube();
 	if (!texture->Load(textures)) {
 		return false;
 	}

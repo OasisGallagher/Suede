@@ -98,7 +98,7 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 }
 
 AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectTypeAnimationClip), wrapper_(Math::Min) {
-	frame_ = CREATE_OBJECT(AnimationFrame);
+	frame_ = NewAnimationFrame();
 }
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
@@ -217,7 +217,7 @@ void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<Animation
 			Key& key = (*ite)->at(i);
 
 			if (!keyframe) {
-				keyframe = CREATE_OBJECT(AnimationFrame);
+				keyframe = NewAnimationFrame();
 				keyframe->SetTime(key.time);
 				keyframes.push_back(keyframe);
 			}

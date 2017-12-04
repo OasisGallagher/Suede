@@ -170,6 +170,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\file\shadercompiler.cpp" />
     <ClCompile Include="internal\file\assetimporter.cpp" />
     <ClCompile Include="internal\file\textloader.cpp" />
+    <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\memory\memory.cpp" />
     <ClCompile Include="internal\sprites\camerainternal.cpp" />

@@ -45,7 +45,7 @@ void ParticleSystemInternal::Update() {
 
 void ParticleSystemInternal::SortBuffers() {
 	std::vector<Sprite> cameras;
-	if (worldInstance->GetSprites(ObjectTypeCamera, cameras)) {
+	if (WorldInstance()->GetSprites(ObjectTypeCamera, cameras)) {
 		SortParticlesByDepth(cameras.front()->GetPosition());
 	}
 }
@@ -164,13 +164,13 @@ void ParticleSystemInternal::InitializeMesh() {
 }
 
 void ParticleSystemInternal::InitializeRenderer() {
-	ParticleRenderer renderer = CREATE_OBJECT(ParticleRenderer);
+	ParticleRenderer renderer = NewParticleRenderer();
 
-	Material material = CREATE_OBJECT(Material);
+	Material material = NewMaterial();
 	Shader shader = Resources::FindShader("buildin/shaders/particle");
 	material->SetShader(shader);
 
-	Texture2D mainTexture = CREATE_OBJECT(Texture2D);
+	Texture2D mainTexture = NewTexture2D();
 	mainTexture->Load("textures/snowflake.png");
 	material->SetTexture(Variables::mainTexture, mainTexture);
 

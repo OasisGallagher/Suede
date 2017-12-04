@@ -36,6 +36,7 @@ Factory::Factory() {
 	ADD_FACTROY_METHOD(TextMesh);
 	ADD_FACTROY_METHOD(Material);
 	ADD_FACTROY_METHOD(MeshRenderer);
+	ADD_FACTROY_METHOD(ParticleRenderer);
 	ADD_FACTROY_METHOD(SkinnedMeshRenderer);
 	ADD_FACTROY_METHOD(Texture2D);
 	ADD_FACTROY_METHOD(TextureCube);

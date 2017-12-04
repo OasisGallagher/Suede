@@ -63,8 +63,3 @@ private:
 	MapContainer methodDictionary_;
 	FactoryMethod methodArray_[ObjectTypeCount];
 };
-
-/**
- * @warning: Create non-sprite only! Call 'worldInstance->Create()' otherwise.
- */
-#define CREATE_OBJECT(type)	Factory::Create<type ## Internal>()

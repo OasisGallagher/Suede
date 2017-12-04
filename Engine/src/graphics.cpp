@@ -1,8 +1,11 @@
-#include "engine.h"
+#include "mesh.h"
+#include "graphics.h"
+#include "resources.h"
+#include "variables.h"
 
 void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
-	Mesh mesh = Resources::GetPrimitive(PrimitiveTypeQuad);
-	Renderer renderer = New<MeshRenderer>();
+	static Mesh mesh = Resources::CreatePrimitive(PrimitiveTypeQuad, 2);
+	static Renderer renderer = NewMeshRenderer();
 
 	material->SetRenderState(Cull, Off);
 	material->SetRenderState(DepthWrite, Off);
