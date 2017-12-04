@@ -154,6 +154,7 @@ void FontInternal::Destroy() {
 
 	if (library_ != nullptr) {
 		FT_Done_FreeType(library_);
+		library_ = nullptr;
 	}
 
 	fname_.clear();
