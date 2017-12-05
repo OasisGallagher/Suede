@@ -21,9 +21,9 @@
 //#define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 
 Game* Game::get() {
@@ -216,7 +216,7 @@ void Game::createScene() {
 #elif defined(ANIMATION)
 	sprite = WorldInstance()->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
-	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
+	sprite->SetEulerAngles(glm::vec3(270, 0, 180));
 #endif
 
 	if (sprite) {

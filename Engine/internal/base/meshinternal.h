@@ -7,6 +7,18 @@
 #include "vertexarrayobject.h"
 #include "internal/base/objectinternal.h"
 
+enum VertexAttrib {
+	VertexAttribPosition,
+	VertexAttribTexCoord,
+	VertexAttribNormal,
+	VertexAttribTangent,
+	VertexAttribBoneIndexes,
+	VertexAttribBoneWeights,
+
+	VertexAttribInstanceColor,
+	VertexAttribInstanceGeometry,
+};
+
 class SubMeshInternal : public ISubMesh, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(SubMesh)
 

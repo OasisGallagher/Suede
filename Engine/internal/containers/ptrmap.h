@@ -38,6 +38,15 @@ public:
 		cont_.clear();
 	}
 
+	PtrMap<Key, Ty>& operator= (PtrMap<Key, Ty>& other) {
+		clear();
+		for (iterator ite = other.begin(); ite != other.end(); ++ite) {
+			*(operator[](ite->first)) = *ite->second;
+		}
+
+		return *this;
+	}
+
 	size_t size() const { return cont_.size(); }
 
 	iterator begin() { return cont_.begin(); }

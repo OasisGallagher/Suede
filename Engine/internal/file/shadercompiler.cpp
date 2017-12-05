@@ -102,7 +102,7 @@ void ShaderCompiler::CalculateDefinesPermutations(std::vector<std::string>& anws
 
 ShaderType ShaderCompiler::ParseShaderType(const std::string& tag) {
 	for (size_t i = 0; i < ShaderTypeCount; ++i) {
-		if (tag == ShaderInternal::Description((ShaderType)i).tag) {
+		if (tag == GetShaderDescription((ShaderType)i).tag) {
 			return (ShaderType)i;
 		}
 	}
@@ -135,7 +135,7 @@ bool ShaderCompiler::PreprocessShader(const std::string& parameter) {
 		}
 		else {
 			if (!answer_[type_].empty()) {
-				Debug::LogError("%s already exists.", ShaderInternal::Description(type_).name);
+				Debug::LogError("%s already exists.", GetShaderDescription(type_).name);
 				return false;
 			}
 

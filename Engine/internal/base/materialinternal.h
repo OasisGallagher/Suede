@@ -5,18 +5,6 @@
 #include "internal/containers/variant.h"
 #include "internal/base/objectinternal.h"
 
-enum VertexAttrib {
-	VertexAttribPosition,
-	VertexAttribTexCoord,
-	VertexAttribNormal,
-	VertexAttribTangent,
-	VertexAttribBoneIndexes,
-	VertexAttribBoneWeights,
-
-	VertexAttribInstanceColor,
-	VertexAttribInstanceGeometry,
-};
-
 class RenderState;
 
 class MaterialInternal : public IMaterial, public ObjectInternal {
@@ -54,44 +42,18 @@ public:
 	virtual glm::vec4 GetVector4(const std::string& name);
 
 private:
+	void BindProperties();
+	void UnbindProperties();
+
 	void BindRenderStates();
 	void UnbindRenderStates();
 
-private:
-	struct Uniform {
-		GLenum type;
-		union { GLuint offset, location; };
-		GLuint size;
-		Variant value;
-	};
-
-	typedef PtrMap<std::string, Uniform> UniformContainer;
-
-private:
-	bool IsSampler(int type);
-
-	void UpdateVariables();
-	void UpdateVertexAttributes();
-	void UpdateFragmentAttributes();
-	
-	void AddAllUniforms();
-	void AddUniform(const char* name, GLenum type, GLuint location, GLint size);
-
-	void BindUniforms();
-	void UnbindUniforms();
-	
-	GLuint GetSizeOfType(GLint type);
-	GLuint GetUniformSize(GLint uniformType, GLint uniformSize, GLint uniformOffset, GLint uniformMatrixStride, GLint uniformArrayStride);
-
-	Uniform* GetUniform(const std::string& name, VariantType type);
-	void SetUniform(struct Uniform* u, const void* data);
+	Variant* GetProperty(const std::string& name, VariantType type);
 
 private:
 	Shader shader_;
 	int oldProgram_;
-	int maxTextureUnits_;
-	int textureUnitIndex_;
-	UniformContainer uniforms_;
-	std::vector<Uniform*> textureUniforms_;
 	RenderState* states_[RenderStateCount];
+	typedef PtrMap<std::string, Variant> PropertyContainer;
+	PropertyContainer properties_;
 };
