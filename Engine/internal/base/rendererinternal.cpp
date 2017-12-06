@@ -89,7 +89,7 @@ void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Sprite sprite) {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
-		GetMaterial(i)->SetMatrix4(Variables::boneToRootSpaceMatrices, *skeleton_->GetBoneToRootSpaceMatrices());
+		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootSpaceMatrices, skeleton_->GetBoneToRootSpaceMatrices(), C_MAX_BONE_COUNT);
 	}
 
 	RendererInternal::UpdateMaterial(sprite);

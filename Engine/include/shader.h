@@ -9,6 +9,7 @@ enum ShaderPropertyType {
 	ShaderPropertyTypeBool,
 	ShaderPropertyTypeFloat,
 	ShaderPropertyTypeMatrix4,
+	ShaderPropertyTypeMatrix4Array,
 	ShaderPropertyTypeVector3,
 	ShaderPropertyTypeVector4,
 	ShaderPropertyTypeTexture,

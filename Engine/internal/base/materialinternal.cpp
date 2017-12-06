@@ -40,14 +40,14 @@ void MaterialInternal::SetShader(Shader value) {
 
 	shader_ = value;
 
-	std::vector<ShaderProperty> properties;
-	shader_->GetProperties(properties);
+	std::vector<ShaderProperty> container;
+	shader_->GetProperties(container);
 
 	properties_.clear();
 	int textureCount = 0;
-	for (int i = 0; i < properties.size(); ++i) {
-		Variant* var = properties_[properties[i].name];
-		switch (properties[i].type) {
+	for (int i = 0; i < container.size(); ++i) {
+		Variant* var = properties_[container[i].name];
+		switch (container[i].type) {
 			case ShaderPropertyTypeInt:
 				var->SetInt(0);
 			case ShaderPropertyTypeBool:
@@ -57,19 +57,22 @@ void MaterialInternal::SetShader(Shader value) {
 				var->SetFloat(0);
 				break;
 			case ShaderPropertyTypeMatrix4:
-				var->SetMatrix4(glm::mat4(0));
+				var->SetMatrix4(glm::mat4(1));
+				break;
+			case ShaderPropertyTypeMatrix4Array:
+				var->SetPodBuffer(nullptr, 0);
 				break;
 			case ShaderPropertyTypeVector3:
 				var->SetVector3(glm::vec3(0));
 				break;
 			case ShaderPropertyTypeVector4:
-				var->SetVector4(glm::vec4(0));
+				var->SetVector4(glm::vec4(0, 0, 0, 1));
 				break;
 			case ShaderPropertyTypeTexture:
 				var->SetTextureIndex(textureCount++);
 				break;
 			default:
-				Debug::LogError("invalid property type %d.", properties[i].type);
+				Debug::LogError("invalid property type %d.", container[i].type);
 				break;
 		}
 	}
@@ -161,6 +164,18 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 	Variant* var = GetProperty(name, VariantTypeMatrix4);
 	if (var != nullptr && var->GetMatrix4() != value) {
 		var->SetMatrix4(value);
+	}
+}
+
+void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
+	Variant* var = GetProperty(name, VariantTypePodBuffer);
+	if (var != nullptr) {
+		var->SetPodBuffer(ptr, count * sizeof(glm::mat4));
 	}
 }
 
@@ -315,7 +330,7 @@ Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type
 	}
 
 	if (ans->GetType() != type) {
-		Debug::LogError("property %s does not defined as %s.", name.c_str(), Variant::TypeString(type).c_str());
+		Debug::LogError("property %s does not defined as %s.", name.c_str(), Variant::TypeString(type));
 		return false;
 	}
 

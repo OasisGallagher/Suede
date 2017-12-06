@@ -194,7 +194,7 @@ void ShaderInternal::AddUniform(const char* name, GLenum type, GLuint location, 
 		uniform->type = ShaderPropertyTypeFloat;
 	}
 	else if (type == GL_FLOAT_MAT4) {
-		uniform->type = ShaderPropertyTypeMatrix4;
+		uniform->type = (size == 1) ? ShaderPropertyTypeMatrix4 : ShaderPropertyTypeMatrix4Array;
 	}
 	else if (type == GL_BOOL) {
 		uniform->type = ShaderPropertyTypeBool;
@@ -229,6 +229,7 @@ void ShaderInternal::SetUniform(Uniform* uniform, const void* data) {
 			glProgramUniform1fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
 			break;
 		case ShaderPropertyTypeMatrix4:
+		case ShaderPropertyTypeMatrix4Array:
 			glProgramUniformMatrix4fv(program_, uniform->location, uniform->size, false, (const GLfloat *)data);
 			break;
 		case ShaderPropertyTypeVector3:
@@ -237,11 +238,8 @@ void ShaderInternal::SetUniform(Uniform* uniform, const void* data) {
 		case ShaderPropertyTypeVector4:
 			glProgramUniform4fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
 			break;
-		case ShaderPropertyTypeTexture:
-			glProgramUniform1iv(program_, uniform->location, uniform->size, (const GLint*)data);
-			break;
 		default:
-			Debug::LogError("invalid uniform type %d.", uniform->type);
+			Debug::LogError("unable to set uniform (type 0x%x).", uniform->type);
 			break;
 	}
 }

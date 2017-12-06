@@ -14,17 +14,18 @@ enum VariantType {
 	VariantTypeVector3,
 	VariantTypeVector4,
 	VariantTypeTexture,
+	VariantTypePodBuffer,
 	VariantTypeQuaternion,
 };
 
 class Variant {
 public:
 	Variant() :type_(VariantTypeNone) {
-		memset(&data_, 0, sizeof(data_));
 	}
+	~Variant();
 
 public:
-	static std::string TypeString(VariantType type);
+	static const char* TypeString(VariantType type);
 
 public:
 	int GetInt();
@@ -34,6 +35,8 @@ public:
 	glm::vec3 GetVector3();
 	glm::vec4 GetVector4();
 	glm::quat GetQuaternion();
+	void* GetPodBuffer();
+	uint GetPodBufferSize();
 	Texture GetTexture();
 	int GetTextureIndex();
 
@@ -46,10 +49,14 @@ public:
 	void SetVector3(const glm::vec3& value);
 	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
+	void SetPodBuffer(const void* data, uint size);
 	void SetTexture(Texture value);
 	void SetTextureIndex(GLenum value);
 
-	const void* GetData() const { return &data_; }
+	const void* GetData() const;
+
+private:
+	bool SetType(VariantType type);
 
 private:
 	union Data { // pod only.
@@ -59,14 +66,18 @@ private:
 		bool boolValue;
 		float floatValue;
 		glm::mat4 mat4Value;
-		glm::vec3 vector3Value;
-		glm::vec4 vector4Value;
+		glm::vec3 vec3Value;
+		glm::vec4 vec4Value;
+		glm::quat quatValue;
 		int textureIndex;
-		glm::quat quaternionValue;
+		struct {
+			char* ptr;
+			uint size;
+		} podBuffer;
 	} data_;
 
 	// non-pod data.
 	Texture texture_;
-
+	
 	VariantType type_;
 };

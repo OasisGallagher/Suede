@@ -66,6 +66,7 @@ public:
 	virtual void SetFloat(const std::string& name, float value) = 0;
 	virtual void SetTexture(const std::string& name, Texture value) = 0;
 	virtual void SetMatrix4(const std::string& name, const glm::mat4& value) = 0;
+	virtual void SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) = 0;
 	virtual void SetVector3(const std::string& name, const glm::vec3& value) = 0;
 	virtual void SetVector4(const std::string& name, const glm::vec4& value) = 0;
 

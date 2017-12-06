@@ -18,7 +18,7 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define SKYBOX
+#define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
 #define ANIMATION
@@ -216,7 +216,7 @@ void Game::createScene() {
 #elif defined(ANIMATION)
 	sprite = WorldInstance()->Import("models/boblampclean.md5mesh");
 	sprite->SetPosition(glm::vec3(0, 0, -70));
-	sprite->SetEulerAngles(glm::vec3(270, 0, 180));
+	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
 #endif
 
 	if (sprite) {
