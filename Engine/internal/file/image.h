@@ -17,8 +17,11 @@ struct Bitmap {
 
 class ImageCodec {
 public:
-	static bool Decode(std::vector<uchar>& data, int& width, int& height, const std::string& path);
-	static bool Decode(std::vector<uchar>& data, int& width, int& height, const void* compressedData, uint length);
+	static void Initialize();
+	static void Release();
+
+	static bool Decode(Bitmap& bits, const std::string& path);
+	static bool Decode(Bitmap& bits, const void* compressedData, uint length);
 	static bool Encode(int width, int height, std::vector<uchar>& data, const char* format);
 };
 

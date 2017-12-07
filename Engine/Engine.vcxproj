@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\Shared\glm-0.9.7.1;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\Shared\glm-0.9.7.1;3rdparty\free-image-3.10.7\include;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -112,7 +112,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;CORE_DB_Magick++_.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;CORE_RL_Magick++_.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib

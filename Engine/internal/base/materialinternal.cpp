@@ -5,9 +5,6 @@
 #include "tools/string.h"
 #include "materialinternal.h"
 
-// empty storage for clearing uniform.
-static float zeroBuffer[4 * 4];
-
 MaterialInternal::MaterialInternal()
 	: ObjectInternal(ObjectTypeMaterial) , oldProgram_(0) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
@@ -353,10 +350,12 @@ void MaterialInternal::UnbindProperties() {
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		Variant* var = ite->second;
 		if (var->GetType() != VariantTypeTexture) {
-			shader_->SetProperty(ite->first, &zeroBuffer);
+			// need clear uniform ?
+			//shader_->SetProperty(ite->first, ???);
 		}
 		else if (var->GetTexture()) {
 			var->GetTexture()->Unbind();
 		}
 	}
 }
+

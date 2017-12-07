@@ -545,13 +545,12 @@ Texture AssetImporter::ReadEmbeddedTexture(uint index) {
 	Texture2D texture = NewTexture2D();
 	aiTexture* aitex = scene_->mTextures[index];
 	if (aitex->mHeight == 0) {
-		int width, height;
-		std::vector<uchar> data;
-		if (!ImageCodec::Decode(data, width, height, aitex->pcData, aitex->mWidth)) {
+		Bitmap bitmap;
+		if (!ImageCodec::Decode(bitmap, aitex->pcData, aitex->mWidth)) {
 			return nullptr;
 		}
 
-		texture->Load(&data[0], ColorFormatRgba, width, height);
+		texture->Load(&bitmap.data[0], bitmap.format, bitmap.width, bitmap.height);
 	}
 	else {
 		texture->Load(aitex->pcData, ColorFormatArgb, aitex->mWidth, aitex->mHeight);

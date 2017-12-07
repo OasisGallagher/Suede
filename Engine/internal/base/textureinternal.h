@@ -25,6 +25,7 @@ protected:
 	void BindTexture();
 	void UnbindTexture();
 	void DestroyTexture();
+	void ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[3]);
 
 protected:
 	int width_, height_;
@@ -51,9 +52,6 @@ public:
 protected:
 	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
-
-private:
-	void ColorFormatToGLEnum(ColorFormat format, GLenum (&parameters)[2]);
 };
 
 class TextureCubeInternal : public ITextureCube, public TextureInternal {

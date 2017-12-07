@@ -41,6 +41,35 @@ void TextureInternal::DestroyTexture() {
 	}
 }
 
+void TextureInternal::ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[3]) {
+	GLenum glInternalFormat = GL_RGBA, glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
+	switch (format) {
+		case ColorFormatRgb:
+			glFormat = GL_RGB;
+			glInternalFormat = GL_RGB;
+			break;
+		case ColorFormatBgr:
+			glFormat = GL_BGR;
+			glInternalFormat = GL_RGB;
+			break;
+		case ColorFormatRgba:
+			glFormat = GL_RGBA;
+			break;
+		case ColorFormatArgb:
+			glFormat = GL_BGRA;
+			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
+			break;
+		case ColorFormatLuminanceAlpha:
+			glInternalFormat = GL_RGB;
+			glFormat = GL_LUMINANCE_ALPHA;
+			break;
+	}
+
+	parameters[0] = glInternalFormat;
+	parameters[1] = glFormat;
+	parameters[2] = glType;
+}
+
 Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectTypeTexture2D) {
 }
 
@@ -49,13 +78,12 @@ Texture2DInternal::~Texture2DInternal() {
 }
 
 bool Texture2DInternal::Load(const std::string& path) {
-	int width, height;
-	std::vector<uchar> data;
-	if (!ImageCodec::Decode(data, width, height, Path::GetResourceRootDirectory() + path)) {
+	Bitmap bitmap;
+	if (!ImageCodec::Decode(bitmap, Path::GetResourceRootDirectory() + path)) {
 		return false;
 	}
 
-	return Load(&data[0], ColorFormatRgba, width, height);
+	return Load(&bitmap.data[0], bitmap.format, bitmap.width, bitmap.height);
 }
 
 bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, int height) {
@@ -68,9 +96,9 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 	
 	BindTexture();
 
-	GLenum glFormat[2];
+	GLenum glFormat[3];
 	ColorFormatToGLEnum(format, glFormat);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, glFormat[0], glFormat[1], data);
+	glTexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], data);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -100,29 +128,6 @@ bool Texture2DInternal::EncodeToJpg(std::vector<uchar>& data) {
 	return ImageCodec::Encode(GetWidth(), GetHeight(), data, "JPG");
 }
 
-void Texture2DInternal::ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[2]) {
-	GLenum glFormat = GL_RGBA;
-	GLenum glType = GL_UNSIGNED_BYTE;
-	switch (format) {
-		case ColorFormatRgb:
-			glFormat = GL_RGB;
-			break;
-		case ColorFormatRgba:
-			glFormat = GL_RGBA;
-			break;
-		case ColorFormatArgb:
-			glFormat = GL_BGRA;
-			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
-			break;
-		case ColorFormatLuminanceAlpha:
-			glFormat = GL_LUMINANCE_ALPHA;
-			break;
-	}
-
-	parameters[0] = glFormat;
-	parameters[1] = glType;
-}
-
 TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCube) {
 }
 
@@ -138,15 +143,15 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	BindTexture();
 
 	for (int i = 0; i < 6; ++i) {
-		int width, height;
-		std::vector<uchar> data;
-		
-		if (!ImageCodec::Decode(data, width, height, Path::GetResourceRootDirectory() + textures[i])) {
+		Bitmap bitmap;
+		if (!ImageCodec::Decode(bitmap, Path::GetResourceRootDirectory() + textures[i])) {
 			DestroyTexture();
 			return false;
 		}
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data[0]);
+		GLenum glFormat[3];
+		ColorFormatToGLEnum(bitmap.format, glFormat);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], bitmap.width, bitmap.height, 0, glFormat[1], glFormat[2], &bitmap.data[0]);
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
