@@ -15,14 +15,27 @@ struct Bitmap {
 	ColorFormat format;
 };
 
+enum ImageType {
+	ImageTypeJpg,
+	ImageTypePng,
+};
+
+enum BitsPerPixel {
+	BitsPerPixel24 = 24,
+	BitsPerPixel32 = 32,
+};
+
 class ImageCodec {
 public:
-	static void Initialize();
-	static void Release();
-
 	static bool Decode(Bitmap& bits, const std::string& path);
 	static bool Decode(Bitmap& bits, const void* compressedData, uint length);
-	static bool Encode(int width, int height, std::vector<uchar>& data, const char* format);
+	static bool Encode(int width, int height, std::vector<uchar>& data, BitsPerPixel bpp, ImageType type);
+
+	static void CopyBitsFrom(struct FIBITMAP* bitmap, int width, int height, BitsPerPixel bpp, const std::vector<uchar>& data);
+
+private:
+	static ColorFormat BppToColorFormat(uint bbp);
+	static bool CopyBitsTo(Bitmap &bits, struct FIBITMAP* bitmap);
 };
 
 struct Atlas {

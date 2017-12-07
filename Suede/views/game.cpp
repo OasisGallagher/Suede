@@ -18,10 +18,10 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define SKYBOX
-#define MODEL
+#define SKYBOX
+//#define MODEL
 //#define POST_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED

@@ -7,7 +7,7 @@
 
 class TextureInternal : virtual public ITexture, public ObjectInternal {
 public:
-	TextureInternal(ObjectType type) :ObjectInternal(type), texture_(0), width_(0), height_(0), location_(0) {
+	TextureInternal(ObjectType type) :ObjectInternal(type), texture_(0), width_(0), height_(0), location_(0), format_(0) {
 	}
 
 public:
@@ -26,11 +26,13 @@ protected:
 	void UnbindTexture();
 	void DestroyTexture();
 	void ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[3]);
+	uint GetFormatBitsPerPixel();
 
 protected:
 	int width_, height_;
 	GLint oldBindingTexture_;
 
+	GLenum format_;
 	GLuint texture_;
 	GLenum location_;
 };

@@ -18,6 +18,7 @@ enum ColorFormat {
 	ColorFormatBgr,
 	ColorFormatRgba,
 	ColorFormatArgb,
+	ColorFormatBgra,
 	ColorFormatLuminanceAlpha,
 };
 

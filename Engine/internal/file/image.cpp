@@ -1,52 +1,33 @@
-#include <Magick++.h>
 #include <FreeImage.h>
 
 #include "math2.h"
 #include "debug.h"
 #include "image.h"
 
-void ImageCodec::Initialize() {
-	FreeImage_Initialise();
-}
-
-void ImageCodec::Release() {
-	FreeImage_DeInitialise();
-}
-
 bool ImageCodec::Decode(Bitmap& bits, const void* compressedData, uint length) {
 	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)compressedData, length);
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
 	FIBITMAP* bitmap = nullptr;
-	if (FreeImage_FIFSupportsReading(fif)) {
-		bitmap = FreeImage_LoadFromMemory(fif, stream, 0);
+	if (!FreeImage_FIFSupportsReading(fif)) {
+		Debug::LogError("unsupported image format.");
+		FreeImage_CloseMemory(stream);
+		return false;
 	}
 
+	bitmap = FreeImage_LoadFromMemory(fif, stream, 0);
 	if (bitmap == nullptr) {
 		FreeImage_CloseMemory(stream);
-		Debug::LogError("failed to decode image.");
+		Debug::LogError("failed to load image.");
 		return false;
 	}
 
 	FreeImage_FlipVertical(bitmap);
-
-	uchar* data = FreeImage_GetBits(bitmap);
-	uint width = FreeImage_GetWidth(bitmap);
-	uint height = FreeImage_GetHeight(bitmap);
-	uint channels = FreeImage_GetLine(bitmap) / width;
-	uint count = width * height * channels;
-
-	bits.data.resize(count);
-
-	std::copy(data, data + count, &bits.data[0]);
+	bool status = CopyBitsTo(bits, bitmap);
 
 	FreeImage_Unload(bitmap);
 	FreeImage_CloseMemory(stream);
 
-	bits.width = width;
-	bits.height = height;
-	bits.format = ColorFormatBgr;
-
-	return true;
+	return status;
 }
 
 bool ImageCodec::Decode(Bitmap& bits, const std::string& path) {
@@ -55,113 +36,135 @@ bool ImageCodec::Decode(Bitmap& bits, const std::string& path) {
 		fif = FreeImage_GetFIFFromFilename(path.c_str());
 	}
 
-	FIBITMAP *bitmap = NULL;
-	if ((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsReading(fif)) {
-		bitmap = FreeImage_Load(fif, path.c_str());
+	if (fif == FIF_UNKNOWN || !FreeImage_FIFSupportsReading(fif)) {
+		Debug::LogError("unsupported image format \"%s\".", path.c_str());
+		return false;
 	}
 
-	uint bbp = FreeImage_GetBPP(bitmap);
-	if (FreeImage_GetBPP(bitmap) != 32) {
-		FIBITMAP* hOldImage = bitmap;
-		//hImage = FreeImage_ConvertTo32Bits(hOldImage);
-		//FreeImage_Unload(hOldImage);
+	FIBITMAP *bitmap = FreeImage_Load(fif, path.c_str());
+	if (bitmap == nullptr) {
+		Debug::LogError("failed to load image.");
+		return false;
+	}
+
+	uint bpp = FreeImage_GetBPP(bitmap);
+	if (bpp != 24 && bpp != 32) {
+		__debugbreak();
+	}
+
+	int w = FreeImage_GetPitch(bitmap) / bpp;
+	if (w != FreeImage_GetWidth(bitmap)) {
+		__debugbreak();
 	}
 
 	FreeImage_FlipVertical(bitmap);
 
+	bool status = CopyBitsTo(bits, bitmap);
+
+	FreeImage_Unload(bitmap);
+	return status;
+}
+
+bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, BitsPerPixel bpp, ImageType type) {
+	FIBITMAP* bitmap = FreeImage_Allocate(width, height, bpp);
+
+	CopyBitsFrom(bitmap, width, height, bpp, data);
+
+	FIMEMORY* stream = FreeImage_OpenMemory();
+
+	bool status = false;
+	if (FreeImage_SaveToMemory(type == ImageTypeJpg ? FIF_JPEG : FIF_PNG, bitmap, stream)) {
+		ulong bytes = 0;
+		uchar *buffer = nullptr;
+		FreeImage_AcquireMemory(stream, &buffer, &bytes);
+		data.assign(buffer, buffer + bytes);
+		status = true;
+	}
+	else {
+		Debug::LogError("failed to encode image.");
+	}
+
+	FreeImage_CloseMemory(stream);
+	FreeImage_Unload(bitmap);
+
+	return status;
+}
+
+void ImageCodec::CopyBitsFrom(struct FIBITMAP* bitmap, int width, int height, BitsPerPixel bpp, const std::vector<uchar>& data) {
+	uint srcStride = width * bpp / 8;
+	uint destStride = FreeImage_GetPitch(bitmap);
+	uchar* src = (uchar*)&data[0];
+	uchar* dest = FreeImage_GetBits(bitmap);
+	if (srcStride == destStride) {
+		memcpy(dest, src, srcStride * height);
+	}
+	else {
+		for (int i = 0; i < height; i++) {
+			memcpy(dest, src, srcStride);
+			src += srcStride;
+			dest += destStride;
+		}
+	}
+}
+
+bool ImageCodec::CopyBitsTo(Bitmap &bits, FIBITMAP* bitmap) {
 	uint width = FreeImage_GetWidth(bitmap);
 	uint height = FreeImage_GetHeight(bitmap);
-	uint channels = FreeImage_GetLine(bitmap) / width;
-	uint count = width * height * channels;
+	uint pitch = FreeImage_GetPitch(bitmap);
+	uint bpp = FreeImage_GetBPP(bitmap);
+
+	uint count = width * height * 3;
+	if (bpp != 8) {
+		count = width * height * bpp / 8;
+	}
 
 	bits.data.resize(count);
 
 	uchar* data = FreeImage_GetBits(bitmap);
-	std::copy(data, data + count, &bits.data[0]);
+	if (bpp != 8) {
+		std::copy(data, data + count, &bits.data[0]);
+	}
+	else {
+		RGBQUAD* palette = FreeImage_GetPalette(bitmap);
+		if (palette == nullptr) {
+			Debug::LogError("failed to get palette.");
+			return false;
+		}
 
-	FreeImage_Unload(bitmap);
+		for (int i = 0; i < height; ++i ) {  
+            for (int j = 0; j < width; ++j ) {  
+                int k = data[i * pitch + j];  
+				memcpy(&bits.data[(i * width + j) * 3], palette + k, 3 * sizeof(uchar));
+            }
+        }
+	}
 
 	bits.width = width;
 	bits.height = height;
-	bits.format = ColorFormatBgr;
+	bits.format = BppToColorFormat(bpp);
 
 	return true;
-	/*
-	try {
-		Magick::Image image;
-		Magick::Blob blob;
-
-		image.read(path);
-		image.write(&blob, "RGBA");
-		width = image.columns();
-		height = image.rows();
-
-		// TODO: copy data out ?
-		const uchar* ptr = (const uchar*)blob.data();
-		data.resize(blob.length());
-		std::copy(ptr, ptr + blob.length(), &data[0]);
-	}
-	catch (Magick::Error& err) {
-		Debug::LogError("failed to decode image \"%s\": %s.", path.c_str(), err.what());
-		return false;
-	}
-
-	return true;*/
 }
 
-bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, const char* format) {
-	const uint bpp = 24;
-	FIBITMAP* bitmap = FreeImage_Allocate(width, height, bpp);
-	for(int y =0 ;y<FreeImage_GetHeight(bitmap);y++)
-    {
-        BYTE *bits =FreeImage_GetScanLine(bitmap,y);
-        for(int x =0 ;x<FreeImage_GetWidth(bitmap);x++)
-        {
-            bits[0] = data[(y*width +x)*4+0];
-            bits[1] = data[(y*width +x)*4+1];
-            bits[2] = data[(y*width +x)*4+2];
-            ///bits[3] = 255;
-            bits += bpp / 8;
-        }
-    }
+ColorFormat ImageCodec::BppToColorFormat(uint bbp) {
+	switch (bbp) {
+		case 8:
+		case 24:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+			return ColorFormatBgr;
+#else
+			return ColorFormatRgb;
+#endif
+		case 32:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+			return ColorFormatBgra;
+#else
+			return ColorFormatRgba;
+#endif
+	}
 
-	FIMEMORY* stream = FreeImage_OpenMemory();
-
-	auto t = FreeImage_GetImageType(bitmap);
-	bool ok = !!FreeImage_SaveToMemory(FIF_JPEG, bitmap, stream);
-	
-	BYTE *mem_buffer = NULL;
-    DWORD size_in_bytes = 0;
-    FreeImage_AcquireMemory(stream, &mem_buffer, &size_in_bytes);
-
-	data.assign(mem_buffer, mem_buffer + size_in_bytes);
-
-	return true;
-// 
-// 	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)data.data(), data.size());
-// 	//FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
-// 	FIBITMAP* bitmap = nullptr;
-// 	if (FreeImage_FIFSupportsReading(FIF_RAW)) {
-// 		bitmap = FreeImage_LoadFromMemory(FIF_RAW, stream, 0);
-// 	}
-// 	Magick::Image image;
-// 	try {
-// 		image.read(width, height, "RGBA", Magick::CharPixel, &data[0]);
-// 		image.flip();
-// 
-// 		Magick::Blob blob;
-// 		image.magick(format);
-// 		image.write(&blob);
-// 
-// 		uchar* ptr = (uchar*)blob.data();
-// 		data.assign(ptr, ptr + blob.length());
-// 	}
-// 	catch (Magick::Error& err) {
-// 		Debug::LogError("failed to encode image: %s.", err.what());
-// 		return false;
-// 	}
-// 
-// 	return true;
+	Debug::LogError("invalid bbp number %d.", bbp);
+	return ColorFormatBgr;
 }
 
 bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int space) {

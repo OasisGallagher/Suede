@@ -27,14 +27,14 @@ void Framebuffer0::Unbind() {
 void Framebuffer0::ReadBuffer(std::vector<uchar>& pixels) {
 	BindFramebuffer();
 	
-	int oldPackAlignment = 4;
-	glGetIntegerv(GL_UNPACK_ALIGNMENT, &oldPackAlignment);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	//int oldPackAlignment = 4;
+	//glGetIntegerv(GL_UNPACK_ALIGNMENT, &oldPackAlignment);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	pixels.resize(4 * GetWidth() * GetHeight());
-	glReadPixels(0, 0, GetWidth(), GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, &pixels[0]);
+	pixels.resize(3 * GetWidth() * GetHeight());
+	glReadPixels(0, 0, GetWidth(), GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, &pixels[0]);
 	
-	glPixelStorei(GL_UNPACK_ALIGNMENT, oldPackAlignment);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, oldPackAlignment);
 	UnbindFramebuffer();
 }
 
