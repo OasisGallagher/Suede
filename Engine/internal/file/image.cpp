@@ -4,33 +4,33 @@
 #include "debug.h"
 #include "image.h"
 
-bool ImageCodec::Decode(Bitmap& bits, const void* compressedData, uint length) {
+bool ImageCodec::Decode(Bitmap& bitmap, const void* compressedData, uint length) {
 	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)compressedData, length);
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
-	FIBITMAP* bitmap = nullptr;
+	FIBITMAP* dib = nullptr;
 	if (!FreeImage_FIFSupportsReading(fif)) {
 		Debug::LogError("unsupported image format.");
 		FreeImage_CloseMemory(stream);
 		return false;
 	}
 
-	bitmap = FreeImage_LoadFromMemory(fif, stream, 0);
-	if (bitmap == nullptr) {
+	dib = FreeImage_LoadFromMemory(fif, stream, 0);
+	if (dib == nullptr) {
 		FreeImage_CloseMemory(stream);
 		Debug::LogError("failed to load image.");
 		return false;
 	}
 
-	FreeImage_FlipVertical(bitmap);
-	bool status = CopyBitsTo(bits, bitmap);
+	FreeImage_FlipVertical(dib);
+	bool status = CopyBitsTo(bitmap, dib);
 
-	FreeImage_Unload(bitmap);
+	FreeImage_Unload(dib);
 	FreeImage_CloseMemory(stream);
 
 	return status;
 }
 
-bool ImageCodec::Decode(Bitmap& bits, const std::string& path) {
+bool ImageCodec::Decode(Bitmap& bitmap, const std::string& path) {
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(path.c_str());
 	if (fif == FIF_UNKNOWN) {
 		fif = FreeImage_GetFIFFromFilename(path.c_str());
@@ -41,40 +41,45 @@ bool ImageCodec::Decode(Bitmap& bits, const std::string& path) {
 		return false;
 	}
 
-	FIBITMAP *bitmap = FreeImage_Load(fif, path.c_str());
-	if (bitmap == nullptr) {
-		Debug::LogError("failed to load image.");
+	FIBITMAP* dib = FreeImage_Load(fif, path.c_str());
+	if (dib == nullptr) {
+		Debug::LogError("failed to load image \"%s\".", path.c_str());
 		return false;
 	}
 
-	uint bpp = FreeImage_GetBPP(bitmap);
+	uint bpp = FreeImage_GetBPP(dib);
 	if (bpp != 24 && bpp != 32) {
 		__debugbreak();
 	}
 
-	int w = FreeImage_GetPitch(bitmap) / bpp * 8;
-	int width = FreeImage_GetWidth(bitmap);
+	int pitch = FreeImage_GetPitch(dib);
+	int w = FreeImage_GetPitch(dib) / bpp * 8;
+	int width = FreeImage_GetWidth(dib);
 	if (w != width) {
 		__debugbreak();
 	}
 
-	FreeImage_FlipVertical(bitmap);
+	FreeImage_FlipVertical(dib);
 
-	bool status = CopyBitsTo(bits, bitmap);
+	bool status = CopyBitsTo(bitmap, dib);
 
-	FreeImage_Unload(bitmap);
+	FreeImage_Unload(dib);
 	return status;
 }
 
-bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, BitsPerPixel bpp, ImageType type) {
-	FIBITMAP* bitmap = FreeImage_Allocate(width, height, bpp);
+bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, BppType bpp, ImageType type) {
+	FIBITMAP* dib = FreeImage_Allocate(width, height, bpp);
 
-	CopyBitsFrom(bitmap, width, height, bpp, data);
+	CopyBitsFrom(dib, width, height, bpp, data);
+
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+	SwapRedBlue(dib);
+#endif
 
 	FIMEMORY* stream = FreeImage_OpenMemory();
 
 	bool status = false;
-	if (FreeImage_SaveToMemory(type == ImageTypeJpg ? FIF_JPEG : FIF_PNG, bitmap, stream)) {
+	if (FreeImage_SaveToMemory(type == ImageTypeJpg ? FIF_JPEG : FIF_PNG, dib, stream)) {
 		ulong bytes = 0;
 		uchar *buffer = nullptr;
 		FreeImage_AcquireMemory(stream, &buffer, &bytes);
@@ -86,16 +91,16 @@ bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, BitsPer
 	}
 
 	FreeImage_CloseMemory(stream);
-	FreeImage_Unload(bitmap);
+	FreeImage_Unload(dib);
 
 	return status;
 }
 
-void ImageCodec::CopyBitsFrom(FIBITMAP* bitmap, int width, int height, BitsPerPixel bpp, const std::vector<uchar>& data) {
+void ImageCodec::CopyBitsFrom(FIBITMAP* dib, int width, int height, BppType bpp, const std::vector<uchar>& data) {
 	uint srcStride = width * bpp / 8;
-	uint destStride = FreeImage_GetPitch(bitmap);
+	uint destStride = FreeImage_GetPitch(dib);
 	const uchar* src = &data[0];
-	uchar* dest = FreeImage_GetBits(bitmap);
+	uchar* dest = FreeImage_GetBits(dib);
 	if (srcStride == destStride) {
 		memcpy(dest, src, srcStride * height);
 	}
@@ -108,39 +113,63 @@ void ImageCodec::CopyBitsFrom(FIBITMAP* bitmap, int width, int height, BitsPerPi
 	}
 }
 
-bool ImageCodec::CopyBitsTo(Bitmap &bits, FIBITMAP* bitmap) {
-	uint width = FreeImage_GetWidth(bitmap);
-	uint height = FreeImage_GetHeight(bitmap);
-	uint pitch = FreeImage_GetPitch(bitmap);
-	uint bpp = FreeImage_GetBPP(bitmap);
+bool ImageCodec::SwapRedBlue(FIBITMAP* dib) {
+	const unsigned bpp = FreeImage_GetBPP(dib) / 8;
+	if(bpp > 4 || bpp < 3) {
+		Debug::LogError("failed to swap red blue, invalid bpp.");
+		return false;
+	}
+	
+	uint height = FreeImage_GetHeight(dib);
+	uint pitch = FreeImage_GetPitch(dib);
+	uint lineSize = FreeImage_GetLine(dib);
+	
+	uchar* line = FreeImage_GetBits(dib);
+	for(int y = 0; y < height; ++y, line += pitch) {
+		for(BYTE* pixel = line; pixel < line + lineSize ; pixel += bpp) {
+			pixel[0] ^= pixel[2];
+			pixel[2] ^= pixel[0];
+			pixel[0] ^= pixel[2];
+		}
+	}
+	
+	return true;
+}
+
+bool ImageCodec::CopyBitsTo(Bitmap& bitmap, FIBITMAP* dib) {
+	uint width = FreeImage_GetWidth(dib);
+	uint height = FreeImage_GetHeight(dib);
+	uint pitch = FreeImage_GetPitch(dib);
+	uint bpp = FreeImage_GetBPP(dib);
 
 	uint count = pitch * height;
 
-	bits.data.resize(count);
+	bitmap.data.resize(count);
 
-	uchar* data = FreeImage_GetBits(bitmap);
+	uchar* data = FreeImage_GetBits(dib);
 	if (bpp != 8) {
-		std::copy(data, data + count, &bits.data[0]);
+		std::copy(data, data + count, &bitmap.data[0]);
 	}
 	else {
-		RGBQUAD* palette = FreeImage_GetPalette(bitmap);
+		RGBQUAD* palette = FreeImage_GetPalette(dib);
 		if (palette == nullptr) {
 			Debug::LogError("failed to get palette.");
 			return false;
 		}
 
+		uint lineSize = FreeImage_GetLine(dib);
 		for (int i = 0; i < height; ++i ) {  
-            for (int j = 0; j < width; ++j ) {  
+            for (int j = 0; j < lineSize; ++j ) {  
                 int k = data[i * pitch + j];  
-				memcpy(&bits.data[(i * width + j) * 3], palette + k, 3 * sizeof(uchar));
+				memcpy(&bitmap.data[(i * pitch + j) * 3], palette + k, 3 * sizeof(uchar));
             }
         }
 	}
 
-	bits.width = width;
-	bits.height = height;
-	bits.format = BppToColorFormat(bpp);
-	bits.alignment = 4;
+	bitmap.width = width;
+	bitmap.height = height;
+	bitmap.format = BppToColorFormat(bpp);
+	bitmap.alignment = 4;
 
 	return true;
 }

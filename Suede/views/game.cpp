@@ -21,8 +21,8 @@
 #define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
-#define ANIMATION
-//#define PARTICLE_SYSTEM
+//#define ANIMATION
+#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 
@@ -211,7 +211,7 @@ void Game::createScene() {
 #if defined(MODEL) || defined(ANIMATION)
 	Sprite sprite;
 #if defined(MODEL)
-	sprite = WorldInstance()->Import("models/jeep.fbx");
+	sprite = WorldInstance()->Import("models/teddy_bear.fbx");
 	sprite->SetPosition(glm::vec3(0, -20, -150));
 #elif defined(ANIMATION)
 	sprite = WorldInstance()->Import("models/boblampclean.md5mesh");

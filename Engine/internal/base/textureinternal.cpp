@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "tools/path.h"
 #include "textureinternal.h"
-#include "internal/file/image.h"
 
 void TextureInternal::Bind(uint index) {
 	if (!glIsTexture(texture_)) {
@@ -41,17 +40,17 @@ void TextureInternal::DestroyTexture() {
 	}
 }
 
-uint TextureInternal::GetFormatBitsPerPixel() {
-	switch (format_) {
-		case GL_RGB: return 3;
-		case GL_RGBA: return 4;
+BppType TextureInternal::GLTextureFormatToBpp(GLenum format) {
+	switch (format) {
+		case GL_RGB: return BppType24;
+		case GL_RGBA: return BppType32;
 	}
 
-	Debug::LogError("unknown internal format 0x%x.", format_);
-	return 3;
+	Debug::LogError("unknown internal format 0x%x.", format);
+	return BppType24;
 }
 
-void TextureInternal::ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[3]) {
+void TextureInternal::ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]) {
 	GLenum glInternalFormat = GL_RGBA, glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
 	switch (format) {
 		case ColorFormatRgb:
@@ -73,7 +72,6 @@ void TextureInternal::ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters
 			glFormat = GL_BGRA;
 			break;
 		case ColorFormatLuminanceAlpha:
-			glInternalFormat = GL_RGB;
 			glFormat = GL_LUMINANCE_ALPHA;
 			break;
 	}
@@ -111,7 +109,7 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 	BindTexture();
 
 	GLenum glFormat[3];
-	ColorFormatToGLEnum(format, glFormat);
+	ColorFormatToGLTextureFormat(format, glFormat);
 	glTexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], data);
 
 	format_ = glFormat[0];
@@ -128,20 +126,22 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 
 bool Texture2DInternal::EncodeToPng(std::vector<uchar>& data) {
 	BindTexture();
-	data.resize(GetFormatBitsPerPixel() * GetWidth() * GetHeight());
+	BppType bpp = GLTextureFormatToBpp(format_);
+	data.resize((bpp / 8) * GetWidth() * GetHeight());
 	glGetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &data[0]);
 	UnbindTexture();
 
-	return ImageCodec::Encode(GetWidth(), GetHeight(), data, BitsPerPixel32, ImageTypePng);
+	return ImageCodec::Encode(GetWidth(), GetHeight(), data, bpp, ImageTypePng);
 }
 
 bool Texture2DInternal::EncodeToJpg(std::vector<uchar>& data) {
 	BindTexture();
-	data.resize(GetFormatBitsPerPixel() * GetWidth() * GetHeight());
+	BppType bpp = GLTextureFormatToBpp(format_);
+	data.resize((bpp / 8) * GetWidth() * GetHeight());
 	glGetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &data[0]);
 	UnbindTexture();
 
-	return ImageCodec::Encode(GetWidth(), GetHeight(), data, BitsPerPixel24, ImageTypeJpg);
+	return ImageCodec::Encode(GetWidth(), GetHeight(), data, bpp, ImageTypeJpg);
 }
 
 TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCube) {
@@ -166,7 +166,7 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 		}
 
 		GLenum glFormat[3];
-		ColorFormatToGLEnum(bitmap.format, glFormat);
+		ColorFormatToGLTextureFormat(bitmap.format, glFormat);
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], bitmap.width, bitmap.height, 0, glFormat[1], glFormat[2], &bitmap.data[0]);
 		format_ = glFormat[0];
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

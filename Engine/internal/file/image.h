@@ -21,20 +21,21 @@ enum ImageType {
 	ImageTypePng,
 };
 
-enum BitsPerPixel {
-	BitsPerPixel24 = 24,
-	BitsPerPixel32 = 32,
+enum BppType {
+	BppType24 = 24,
+	BppType32 = 32,
 };
 
 class ImageCodec {
 public:
 	static bool Decode(Bitmap& bits, const std::string& path);
 	static bool Decode(Bitmap& bits, const void* compressedData, uint length);
-	static bool Encode(int width, int height, std::vector<uchar>& data, BitsPerPixel bpp, ImageType type);
+	static bool Encode(int width, int height, std::vector<uchar>& data, BppType bpp, ImageType type);
 
-	static void CopyBitsFrom(struct FIBITMAP* bitmap, int width, int height, BitsPerPixel bpp, const std::vector<uchar>& data);
+	static void CopyBitsFrom(struct FIBITMAP* bitmap, int width, int height, BppType bpp, const std::vector<uchar>& data);
 
 private:
+	static bool SwapRedBlue(FIBITMAP* dib);
 	static ColorFormat BppToColorFormat(uint bbp);
 	static bool CopyBitsTo(Bitmap &bits, struct FIBITMAP* bitmap);
 };

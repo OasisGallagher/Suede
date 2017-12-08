@@ -3,6 +3,7 @@
 #include <gl/glew.h>
 
 #include "texture.h"
+#include "internal/file/image.h"
 #include "internal/base/objectinternal.h"
 
 class TextureInternal : virtual public ITexture, public ObjectInternal {
@@ -25,8 +26,8 @@ protected:
 	void BindTexture();
 	void UnbindTexture();
 	void DestroyTexture();
-	void ColorFormatToGLEnum(ColorFormat format, GLenum(&parameters)[3]);
-	uint GetFormatBitsPerPixel();
+	BppType GLTextureFormatToBpp(GLenum format);
+	void ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]);
 
 protected:
 	int width_, height_;
