@@ -99,6 +99,7 @@ bool Texture2DInternal::Load(const std::string& path) {
 	return Load(&bitmap.data[0], bitmap.format, bitmap.width, bitmap.height);
 }
 
+// TODO: assume UNPACK_ALIGNMENT = 4.
 bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, int height) {
 	DestroyTexture();
 

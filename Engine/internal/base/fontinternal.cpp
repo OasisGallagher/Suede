@@ -130,6 +130,8 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 	answer->width = Math::Max(1u, bitmap.width);
 	answer->height = Math::Max(1u, bitmap.rows);
 	answer->format = ColorFormatLuminanceAlpha;
+	// TODO: alignment.
+	answer->alignment = 4;
 
 	return true;
 }

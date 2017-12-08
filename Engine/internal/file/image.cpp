@@ -52,8 +52,9 @@ bool ImageCodec::Decode(Bitmap& bits, const std::string& path) {
 		__debugbreak();
 	}
 
-	int w = FreeImage_GetPitch(bitmap) / bpp;
-	if (w != FreeImage_GetWidth(bitmap)) {
+	int w = FreeImage_GetPitch(bitmap) / bpp * 8;
+	int width = FreeImage_GetWidth(bitmap);
+	if (w != width) {
 		__debugbreak();
 	}
 
@@ -90,10 +91,10 @@ bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, BitsPer
 	return status;
 }
 
-void ImageCodec::CopyBitsFrom(struct FIBITMAP* bitmap, int width, int height, BitsPerPixel bpp, const std::vector<uchar>& data) {
+void ImageCodec::CopyBitsFrom(FIBITMAP* bitmap, int width, int height, BitsPerPixel bpp, const std::vector<uchar>& data) {
 	uint srcStride = width * bpp / 8;
 	uint destStride = FreeImage_GetPitch(bitmap);
-	uchar* src = (uchar*)&data[0];
+	const uchar* src = &data[0];
 	uchar* dest = FreeImage_GetBits(bitmap);
 	if (srcStride == destStride) {
 		memcpy(dest, src, srcStride * height);
@@ -113,10 +114,7 @@ bool ImageCodec::CopyBitsTo(Bitmap &bits, FIBITMAP* bitmap) {
 	uint pitch = FreeImage_GetPitch(bitmap);
 	uint bpp = FreeImage_GetBPP(bitmap);
 
-	uint count = width * height * 3;
-	if (bpp != 8) {
-		count = width * height * bpp / 8;
-	}
+	uint count = pitch * height;
 
 	bits.data.resize(count);
 
@@ -142,6 +140,7 @@ bool ImageCodec::CopyBitsTo(Bitmap &bits, FIBITMAP* bitmap) {
 	bits.width = width;
 	bits.height = height;
 	bits.format = BppToColorFormat(bpp);
+	bits.alignment = 4;
 
 	return true;
 }
@@ -167,9 +166,9 @@ ColorFormat ImageCodec::BppToColorFormat(uint bbp) {
 	return ColorFormatBgr;
 }
 
-bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int space) {
-	int width, height;
-	int columnCount = Calculate(width, height, bitmaps, space);
+bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint space) {
+	uint width, height;
+	uint columnCount = Calculate(width, height, bitmaps, space);
 
 	// TODO: channel count.
 	atlas.data.resize(width * height * 2);
@@ -178,8 +177,8 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int spa
 	ptr += space * width * 2;
 
 	for (int i = 0; i < bitmaps.size();) {
-		int count = Math::Min((int)bitmaps.size() - i, columnCount);
-		int rows = 0, offset = space * 2;
+		uint count = Math::Min((uint)bitmaps.size() - i, columnCount);
+		uint rows = 0, offset = space * 2;
 
 		for (int j = i; j < i + count; ++j) {
 			const Bitmap* bitmap = bitmaps[j];
@@ -206,13 +205,13 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int spa
 	return true;
 }
 
-int AtlasMaker::Calculate(int& width, int& height, const std::vector<Bitmap*>& bitmaps, int space) {
-	int columnCount = 16;
-	int maxWidth = 0, maxHeight = 0;
+uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<Bitmap*>& bitmaps, uint space) {
+	uint columnCount = 16;
+	uint maxWidth = 0, maxHeight = 0;
 
 	for (int i = 0; i < bitmaps.size();) {
-		int count = Math::Min((int)bitmaps.size() - i, columnCount);
-		int w = 0, h = 0;
+		uint count = Math::Min((uint)bitmaps.size() - i, columnCount);
+		uint w = 0, h = 0;
 		for (int j = i; j < i + count; ++j) {
 			w += bitmaps[j]->width + space;
 			h = Math::Max(h, bitmaps[j]->height);

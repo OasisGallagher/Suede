@@ -9,8 +9,9 @@
 struct Bitmap {
 	int id;
 
-	int width;
-	int height;
+	uint width;
+	uint height;
+	uint alignment;
 	std::vector<uchar> data;
 	ColorFormat format;
 };
@@ -50,9 +51,9 @@ struct Atlas {
 
 class AtlasMaker {
 public:
-	static bool Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, int space);
+	static bool Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint space);
 
 private:
-	static int Calculate(int& width, int& height, const std::vector<Bitmap*>& bitmaps, int space);
+	static uint Calculate(uint& width, uint& height, const std::vector<Bitmap*>& bitmaps, uint space);
 	static void PasteBitmap(uchar* ptr, const Bitmap* bitmap, int stride);
 };
