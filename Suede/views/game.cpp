@@ -21,9 +21,9 @@
 #define SKYBOX
 //#define MODEL
 //#define POST_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 #define PARTICLE_SYSTEM
-//#define FONT
+#define FONT
 //#define BUMPED
 
 Game* Game::get() {

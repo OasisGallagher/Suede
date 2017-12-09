@@ -55,6 +55,9 @@ public:
 protected:
 	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
+
+private:
+	bool EncodeTo(std::vector<uchar>& data, ImageType type);
 };
 
 class TextureCubeInternal : public ITextureCube, public TextureInternal {

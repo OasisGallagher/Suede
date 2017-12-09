@@ -39,11 +39,11 @@ bool FontInternal::Require(const std::wstring& str) {
 	bool status = true;
 	for (int i = 0; i < str.length(); ++i) {
 		if (!glyphs_.contains(str[i])) {
-			Bitmap* bitmap = &glyphs_[str[i]]->bitmap;
-			bitmap->id = str[i];
+			TexelMap* texelMap = &glyphs_[str[i]]->texelMap;
+			texelMap->id = str[i];
 
-			status = GetBitmapBits(str[i], bitmap) && status;
-			bitmaps_.push_back(bitmap);
+			status = GetBitmapBits(str[i], texelMap) && status;
+			texelMaps_.push_back(texelMap);
 			material_->SetTexture(Variables::mainTexture, nullptr);
 		}
 	}
@@ -65,8 +65,8 @@ bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 	}
 
 	if (info != nullptr) {
-		info->width = g->bitmap.width;
-		info->height = g->bitmap.height;
+		info->width = g->texelMap.width;
+		info->height = g->texelMap.height;
 
 		info->texCoord = pos->second;
 	}
@@ -95,7 +95,7 @@ bool FontInternal::Import(const std::string& path, int size) {
 	return true;
 }
 
-bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
+bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 	int err = 0;
 
 	if ((err = FT_Load_Glyph(face_, FT_Get_Char_Index(face_, wch), FT_LOAD_DEFAULT) != 0)) {
@@ -138,7 +138,7 @@ bool FontInternal::GetBitmapBits(wchar_t wch, Bitmap* answer) {
 
 void FontInternal::RebuildMaterial() {
 	Atlas atlas;
-	AtlasMaker::Make(atlas, bitmaps_, 4);
+	AtlasMaker::Make(atlas, texelMaps_, 4);
 
 	coords_ = atlas.coords;
 

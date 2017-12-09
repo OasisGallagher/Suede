@@ -4,93 +4,50 @@
 #include "debug.h"
 #include "image.h"
 
-bool ImageCodec::Decode(Bitmap& bitmap, const void* compressedData, uint length) {
+bool ImageCodec::Decode(TexelMap& texelMap, const void* compressedData, uint length) {
 	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)compressedData, length);
-	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
-	FIBITMAP* dib = nullptr;
-	if (!FreeImage_FIFSupportsReading(fif)) {
-		Debug::LogError("unsupported image format.");
-		FreeImage_CloseMemory(stream);
-		return false;
-	}
-
-	dib = FreeImage_LoadFromMemory(fif, stream, 0);
-	if (dib == nullptr) {
-		FreeImage_CloseMemory(stream);
-		Debug::LogError("failed to load image.");
-		return false;
-	}
-
-	FreeImage_FlipVertical(dib);
-	bool status = CopyBitsTo(bitmap, dib);
-
-	FreeImage_Unload(dib);
-	FreeImage_CloseMemory(stream);
-
-	return status;
-}
-
-bool ImageCodec::Decode(Bitmap& bitmap, const std::string& path) {
-	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(path.c_str());
-	if (fif == FIF_UNKNOWN) {
-		fif = FreeImage_GetFIFFromFilename(path.c_str());
-	}
-
-	if (fif == FIF_UNKNOWN || !FreeImage_FIFSupportsReading(fif)) {
-		Debug::LogError("unsupported image format \"%s\".", path.c_str());
-		return false;
-	}
-
-	FIBITMAP* dib = FreeImage_Load(fif, path.c_str());
-	if (dib == nullptr) {
-		Debug::LogError("failed to load image \"%s\".", path.c_str());
-		return false;
-	}
-
-	uint bpp = FreeImage_GetBPP(dib);
-	if (bpp != 24 && bpp != 32) {
-		__debugbreak();
-	}
-
-	int pitch = FreeImage_GetPitch(dib);
-	int w = FreeImage_GetPitch(dib) / bpp * 8;
-	int width = FreeImage_GetWidth(dib);
-	if (w != width) {
-		__debugbreak();
-	}
-
-	FreeImage_FlipVertical(dib);
-
-	bool status = CopyBitsTo(bitmap, dib);
-
-	FreeImage_Unload(dib);
-	return status;
-}
-
-bool ImageCodec::Encode(int width, int height, std::vector<uchar>& data, BppType bpp, ImageType type) {
-	FIBITMAP* dib = FreeImage_Allocate(width, height, bpp);
-
-	CopyBitsFrom(dib, width, height, bpp, data);
-
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-	SwapRedBlue(dib);
-#endif
-
-	FIMEMORY* stream = FreeImage_OpenMemory();
-
+	FIBITMAP* dib = LoadDibFromMemory(stream);
 	bool status = false;
-	if (FreeImage_SaveToMemory(type == ImageTypeJpg ? FIF_JPEG : FIF_PNG, dib, stream)) {
-		ulong bytes = 0;
-		uchar *buffer = nullptr;
-		FreeImage_AcquireMemory(stream, &buffer, &bytes);
-		data.assign(buffer, buffer + bytes);
-		status = true;
-	}
-	else {
-		Debug::LogError("failed to encode image.");
+
+	if (dib != nullptr) {
+		FreeImage_FlipVertical(dib);
+		status = CopyTexelsTo(texelMap, dib);
+		FreeImage_Unload(dib);
 	}
 
 	FreeImage_CloseMemory(stream);
+	return status;
+}
+
+bool ImageCodec::Decode(TexelMap& texelMap, const std::string& path) {
+	FIBITMAP* dib = LoadDibFromPath(path);
+	bool status = false;
+	if (dib != nullptr) {
+#ifdef _DEBUG
+		uint bpp = FreeImage_GetBPP(dib);
+		if (bpp != 24 && bpp != 32) {
+			__debugbreak();
+		}
+
+		int pitch = FreeImage_GetPitch(dib);
+		int w = FreeImage_GetPitch(dib) / bpp * 8;
+		int width = FreeImage_GetWidth(dib);
+		if (w != width) {
+			__debugbreak();
+		}
+#endif // _DEBUG
+
+		FreeImage_FlipVertical(dib);
+		status = CopyTexelsTo(texelMap, dib);
+		FreeImage_Unload(dib);
+	}
+
+	return status;
+}
+
+bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const TexelMap& texelMap) {
+	FIBITMAP* dib = LoadDibFromTexelMap(texelMap);
+	bool status = EncodeDibTo(data, type, dib);
 	FreeImage_Unload(dib);
 
 	return status;
@@ -136,7 +93,7 @@ bool ImageCodec::SwapRedBlue(FIBITMAP* dib) {
 	return true;
 }
 
-bool ImageCodec::CopyBitsTo(Bitmap& bitmap, FIBITMAP* dib) {
+bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 	uint width = FreeImage_GetWidth(dib);
 	uint height = FreeImage_GetHeight(dib);
 	uint pitch = FreeImage_GetPitch(dib);
@@ -144,11 +101,11 @@ bool ImageCodec::CopyBitsTo(Bitmap& bitmap, FIBITMAP* dib) {
 
 	uint count = pitch * height;
 
-	bitmap.data.resize(count);
+	texelMap.data.resize(count);
 
 	uchar* data = FreeImage_GetBits(dib);
 	if (bpp != 8) {
-		std::copy(data, data + count, &bitmap.data[0]);
+		std::copy(data, data + count, &texelMap.data[0]);
 	}
 	else {
 		RGBQUAD* palette = FreeImage_GetPalette(dib);
@@ -161,15 +118,15 @@ bool ImageCodec::CopyBitsTo(Bitmap& bitmap, FIBITMAP* dib) {
 		for (int i = 0; i < height; ++i ) {  
             for (int j = 0; j < lineSize; ++j ) {  
                 int k = data[i * pitch + j];  
-				memcpy(&bitmap.data[(i * pitch + j) * 3], palette + k, 3 * sizeof(uchar));
+				memcpy(&texelMap.data[(i * pitch + j) * 3], palette + k, 3 * sizeof(uchar));
             }
         }
 	}
 
-	bitmap.width = width;
-	bitmap.height = height;
-	bitmap.format = BppToColorFormat(bpp);
-	bitmap.alignment = 4;
+	texelMap.width = width;
+	texelMap.height = height;
+	texelMap.format = BppToColorFormat(bpp);
+	texelMap.alignment = 4;
 
 	return true;
 }
@@ -195,32 +152,106 @@ ColorFormat ImageCodec::BppToColorFormat(uint bbp) {
 	return ColorFormatBgr;
 }
 
-bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint space) {
-	uint width, height;
-	uint columnCount = Calculate(width, height, bitmaps, space);
+FIBITMAP* ImageCodec::LoadDibFromMemory(FIMEMORY* stream) {
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
+	if (!FreeImage_FIFSupportsReading(fif)) {
+		Debug::LogError("unsupported image format.");
+		return nullptr;
+	}
 
-	// TODO: channel count.
+
+	FIBITMAP* dib = FreeImage_LoadFromMemory(fif, stream, 0);
+	if (dib == nullptr) {
+		Debug::LogError("failed to load image.");
+		return nullptr;
+	}
+
+	return dib;
+}
+
+FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(path.c_str());
+	if (fif == FIF_UNKNOWN) {
+		fif = FreeImage_GetFIFFromFilename(path.c_str());
+	}
+
+	if (fif == FIF_UNKNOWN || !FreeImage_FIFSupportsReading(fif)) {
+		Debug::LogError("unsupported image format \"%s\".", path.c_str());
+		return nullptr;
+	}
+
+	FIBITMAP* dib = FreeImage_Load(fif, path.c_str());
+	if (dib == nullptr) {
+		Debug::LogError("failed to load image \"%s\".", path.c_str());
+		return nullptr;
+	}
+
+	return dib;
+}
+
+FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
+	if (texelMap.format != ColorFormatRgb && texelMap.format != ColorFormatRgba) {
+		Debug::LogError("invalid format %d.", texelMap.format);
+		return nullptr;
+	}
+
+	// TODO: 32 bbp jpg.
+	BppType bpp = texelMap.format == ColorFormatRgb ? BppType24 : BppType32;
+	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
+	CopyBitsFrom(dib, texelMap.width, texelMap.height, bpp, texelMap.data);
+
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+	SwapRedBlue(dib);
+#endif
+
+	return dib;
+}
+
+bool ImageCodec::EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP* dib) {
+	FIMEMORY* stream = FreeImage_OpenMemory();
+
+	bool status = false;
+	if (FreeImage_SaveToMemory(type == ImageTypeJpg ? FIF_JPEG : FIF_PNG, dib, stream)) {
+		ulong bytes = 0;
+		uchar *buffer = nullptr;
+		FreeImage_AcquireMemory(stream, &buffer, &bytes);
+		data.assign(buffer, buffer + bytes);
+		status = true;
+	}
+	else {
+		Debug::LogError("failed to encode image.");
+	}
+
+	FreeImage_CloseMemory(stream);
+	return status;
+}
+
+bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uint space) {
+	uint width, height;
+	uint columnCount = Calculate(width, height, texelMaps, space);
+
+	// TODO: channel count(2 means luminance and alpha).
 	atlas.data.resize(width * height * 2);
 	uchar* ptr = &atlas.data[0];
 	int bottom = space;
 	ptr += space * width * 2;
 
-	for (int i = 0; i < bitmaps.size();) {
-		uint count = Math::Min((uint)bitmaps.size() - i, columnCount);
+	for (int i = 0; i < texelMaps.size();) {
+		uint count = Math::Min((uint)texelMaps.size() - i, columnCount);
 		uint rows = 0, offset = space * 2;
 
 		for (int j = i; j < i + count; ++j) {
-			const Bitmap* bitmap = bitmaps[j];
-			float top = (bottom + bitmap->height) / (float)height;
+			const TexelMap* texelMap = texelMaps[j];
+			float top = (bottom + texelMap->height) / (float)height;
 
-			PasteBitmap(ptr + offset, bitmap, width);
+			PasteTexels(ptr + offset, texelMap, width);
 			float left = offset / ((float)width * 2);
-			float right = left + bitmap->width / (float)width;
+			float right = left + texelMap->width / (float)width;
 			// order: left, bottom, right, top.
-			atlas.coords[bitmap->id] = glm::vec4(left, bottom / (float)height, right, top);
+			atlas.coords[texelMap->id] = glm::vec4(left, bottom / (float)height, right, top);
 
-			offset += (bitmap->width + space) * 2;
-			rows = Math::Max(rows, bitmap->height);
+			offset += (texelMap->width + space) * 2;
+			rows = Math::Max(rows, texelMap->height);
 		}
 
 		ptr += (rows + space) * width * 2;
@@ -234,16 +265,16 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint sp
 	return true;
 }
 
-uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<Bitmap*>& bitmaps, uint space) {
+uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space) {
 	uint columnCount = 16;
 	uint maxWidth = 0, maxHeight = 0;
 
-	for (int i = 0; i < bitmaps.size();) {
-		uint count = Math::Min((uint)bitmaps.size() - i, columnCount);
+	for (int i = 0; i < texelMaps.size();) {
+		uint count = Math::Min((uint)texelMaps.size() - i, columnCount);
 		uint w = 0, h = 0;
 		for (int j = i; j < i + count; ++j) {
-			w += bitmaps[j]->width + space;
-			h = Math::Max(h, bitmaps[j]->height);
+			w += texelMaps[j]->width + space;
+			h = Math::Max(h, texelMaps[j]->height);
 		}
 
 		maxWidth = Math::Max(maxWidth, w);
@@ -257,12 +288,12 @@ uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<Bitmap*>
 	return columnCount;
 }
 
-void AtlasMaker::PasteBitmap(uchar* ptr, const Bitmap * bitmap, int stride) {
-	for (int r = 0; r < bitmap->height; ++r) {
-		for (int c = 0; c < bitmap->width; ++c) {
-			uchar uch = bitmap->data[c + r * bitmap->width];
+void AtlasMaker::PasteTexels(uchar* ptr, const TexelMap* texelMap, int stride) {
+	for (int r = 0; r < texelMap->height; ++r) {
+		for (int c = 0; c < texelMap->width; ++c) {
+			uchar uch = texelMap->data[c + r * texelMap->width];
 			// from left bottom.
-			int r2 = bitmap->height - r - 1;
+			int r2 = texelMap->height - r - 1;
 			ptr[2 * (c + r2 * stride)] = ptr[2 * (c + r2 * stride) + 1] = uch;
 		}
 	}

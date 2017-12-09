@@ -54,7 +54,7 @@ void MaterialInternal::SetShader(Shader value) {
 				var->SetFloat(0);
 				break;
 			case ShaderPropertyTypeMatrix4:
-				var->SetMatrix4(glm::mat4(1));
+				var->SetMatrix4(glm::mat4(0));
 				break;
 			case ShaderPropertyTypeMatrix4Array:
 				var->SetPodBuffer(nullptr, 0);
@@ -63,7 +63,7 @@ void MaterialInternal::SetShader(Shader value) {
 				var->SetVector3(glm::vec3(0));
 				break;
 			case ShaderPropertyTypeVector4:
-				var->SetVector4(glm::vec4(0, 0, 0, 1));
+				var->SetVector4(glm::vec4(0));
 				break;
 			case ShaderPropertyTypeTexture:
 				var->SetTextureIndex(textureCount++);

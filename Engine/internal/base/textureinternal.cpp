@@ -89,12 +89,12 @@ Texture2DInternal::~Texture2DInternal() {
 }
 
 bool Texture2DInternal::Load(const std::string& path) {
-	Bitmap bitmap;
-	if (!ImageCodec::Decode(bitmap, Path::GetResourceRootDirectory() + path)) {
+	TexelMap texelMap;
+	if (!ImageCodec::Decode(texelMap, Path::GetResourceRootDirectory() + path)) {
 		return false;
 	}
 
-	return Load(&bitmap.data[0], bitmap.format, bitmap.width, bitmap.height);
+	return Load(&texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
 }
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
@@ -125,23 +125,28 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 }
 
 bool Texture2DInternal::EncodeToPng(std::vector<uchar>& data) {
-	BindTexture();
-	BppType bpp = GLTextureFormatToBpp(format_);
-	data.resize((bpp / 8) * GetWidth() * GetHeight());
-	glGetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &data[0]);
-	UnbindTexture();
-
-	return ImageCodec::Encode(GetWidth(), GetHeight(), data, bpp, ImageTypePng);
+	return EncodeTo(data, ImageTypePng);
 }
 
 bool Texture2DInternal::EncodeToJpg(std::vector<uchar>& data) {
+	return EncodeTo(data, ImageTypeJpg);
+}
+
+bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	BindTexture();
+
+	TexelMap texelMap;
+	texelMap.width = GetWidth();
+	texelMap.height = GetHeight();
+	texelMap.alignment = 4;
 	BppType bpp = GLTextureFormatToBpp(format_);
-	data.resize((bpp / 8) * GetWidth() * GetHeight());
-	glGetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &data[0]);
+	texelMap.data.resize((bpp / 8) * GetWidth() * GetHeight());
+	glGetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
-	return ImageCodec::Encode(GetWidth(), GetHeight(), data, bpp, ImageTypeJpg);
+	texelMap.format = (bpp == BppType24) ? ColorFormatRgb : ColorFormatRgba;
+
+	return ImageCodec::Encode(data, type, texelMap);
 }
 
 TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCube) {
@@ -159,15 +164,15 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	BindTexture();
 
 	for (int i = 0; i < 6; ++i) {
-		Bitmap bitmap;
-		if (!ImageCodec::Decode(bitmap, Path::GetResourceRootDirectory() + textures[i])) {
+		TexelMap texelMap;
+		if (!ImageCodec::Decode(texelMap, Path::GetResourceRootDirectory() + textures[i])) {
 			DestroyTexture();
 			return false;
 		}
 
 		GLenum glFormat[3];
-		ColorFormatToGLTextureFormat(bitmap.format, glFormat);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], bitmap.width, bitmap.height, 0, glFormat[1], glFormat[2], &bitmap.data[0]);
+		ColorFormatToGLTextureFormat(texelMap.format, glFormat);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], texelMap.width, texelMap.height, 0, glFormat[1], glFormat[2], &texelMap.data[0]);
 		format_ = glFormat[0];
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

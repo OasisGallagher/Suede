@@ -122,6 +122,10 @@ void Suede::screenCapture() {
 		return;
 	}
 
+	sprites.clear();
+	WorldInstance()->GetSprites(ObjectTypeParticleSystem, sprites);
+	tex = dsp_cast<Texture2D>(sprites.front()->GetRenderer()->GetMaterial(0)->GetTexture("c_mainTexture"));
+
 	std::vector<uchar> data;
 	if (path.endsWith(".jpg") && !tex->EncodeToJpg(data)) {
 		return;

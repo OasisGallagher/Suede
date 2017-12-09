@@ -6,14 +6,14 @@
 
 #include "texture.h"
 
-struct Bitmap {
+struct TexelMap {
 	int id;
 
 	uint width;
 	uint height;
 	uint alignment;
-	std::vector<uchar> data;
 	ColorFormat format;
+	std::vector<uchar> data;
 };
 
 enum ImageType {
@@ -26,18 +26,27 @@ enum BppType {
 	BppType32 = 32,
 };
 
+struct FIBITMAP;
+struct FIMEMORY;
+
 class ImageCodec {
 public:
-	static bool Decode(Bitmap& bits, const std::string& path);
-	static bool Decode(Bitmap& bits, const void* compressedData, uint length);
-	static bool Encode(int width, int height, std::vector<uchar>& data, BppType bpp, ImageType type);
-
-	static void CopyBitsFrom(struct FIBITMAP* bitmap, int width, int height, BppType bpp, const std::vector<uchar>& data);
+	static bool Decode(TexelMap& bits, const std::string& path);
+	static bool Decode(TexelMap& bits, const void* compressedData, uint length);
+	static bool Encode(std::vector<uchar>& data, ImageType type, const TexelMap& texelMap);
 
 private:
-	static bool SwapRedBlue(FIBITMAP* dib);
+	static bool SwapRedBlue(struct FIBITMAP* dib);
 	static ColorFormat BppToColorFormat(uint bbp);
-	static bool CopyBitsTo(Bitmap &bits, struct FIBITMAP* bitmap);
+
+	static FIBITMAP* LoadDibFromMemory(FIMEMORY* stream);
+	static FIBITMAP* LoadDibFromPath(const std::string &path);
+	static FIBITMAP* LoadDibFromTexelMap(const TexelMap& texelMap);
+
+	static bool EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP* dib);
+
+	static bool CopyTexelsTo(TexelMap &bits, FIBITMAP* dib);
+	static void CopyBitsFrom(FIBITMAP* dib, int width, int height, BppType bpp, const std::vector<uchar>& data);
 };
 
 struct Atlas {
@@ -52,9 +61,9 @@ struct Atlas {
 
 class AtlasMaker {
 public:
-	static bool Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint space);
+	static bool Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uint space);
 
 private:
-	static uint Calculate(uint& width, uint& height, const std::vector<Bitmap*>& bitmaps, uint space);
-	static void PasteBitmap(uchar* ptr, const Bitmap* bitmap, int stride);
+	static uint Calculate(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space);
+	static void PasteTexels(uchar* ptr, const TexelMap* texelMap, int stride);
 };
