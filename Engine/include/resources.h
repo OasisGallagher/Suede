@@ -2,6 +2,7 @@
 #include "mesh.h"
 #include "shader.h"
 #include "material.h"
+#include "renderer.h"
 
 enum PrimitiveType {
 	PrimitiveTypeQuad,
@@ -16,6 +17,11 @@ public:
 public:
 	static Texture2D GetBlackTexture();
 	static Texture2D GetWhiteTexture();
+
+	/** TODO: GL.End() instead ?
+	 * @brief: Temporary mesh renderer.
+	 */
+	static MeshRenderer GetMeshRenderer();
 
 	static Mesh GetPrimitive(PrimitiveType type);
 	static Mesh CreatePrimitive(PrimitiveType type, float scale);

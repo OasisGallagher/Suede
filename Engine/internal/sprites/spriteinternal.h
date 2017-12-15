@@ -21,6 +21,7 @@ public:
 
 	virtual void AddChild(Sprite child);
 	virtual void RemoveChild(Sprite child);
+	virtual void RemoveChildAt(uint index);
 
 	virtual void SetParent(Sprite value);
 	virtual Sprite GetParent() { return parent_.lock(); }

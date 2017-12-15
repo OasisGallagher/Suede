@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "math2.h"
 #include "debug.h"
 #include "time2.h"
@@ -77,6 +79,20 @@ void RendererInternal::RenderMesh(Mesh mesh, Material material) {
 
 	mesh->Unbind();
 	material->Unbind();
+}
+
+void RendererInternal::RemoveMaterial(Material material) {
+	std::vector<Material>::iterator pos = std::remove(materials_.begin(), materials_.end(), material);
+	materials_.erase(pos, materials_.end());
+}
+
+void RendererInternal::RemoveMaterialAt(uint index) {
+	if (index >= materials_.size()) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	materials_.erase(materials_.begin() + index);
 }
 
 void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {

@@ -93,17 +93,17 @@ void Framebuffer::Create(int width, int height) {
 void Framebuffer::Bind() {
 	Framebuffer0::Bind();
 
-	int count = UpdateAttachments();
+	uint count = UpdateAttachments();
 	glDrawBuffers(count, attachments_);
 }
 
-int Framebuffer::UpdateAttachments() {
+uint Framebuffer::UpdateAttachments() {
 	if (attachedRenderTextureCount_ == 0) {
 		attachments_[0] = GL_NONE;
 		return 1;
 	}
 
-	int count = 0;
+	uint count = 0;
 	for (int i = 0; i < maxRenderTextures_; ++i) {
 		if (renderTextures_[i]) {
 			attachments_[count++] = GL_COLOR_ATTACHMENT0 + i;
@@ -129,6 +129,32 @@ void Framebuffer::CreateDepthRenderBuffer() {
 	UnbindFramebuffer();
 }
 
+RenderTexture Framebuffer::GetRenderTexture(uint index) {
+	if (index >= attachedRenderTextureCount_) {
+		Debug::LogError("index out of range");
+		return nullptr;
+	}
+
+	return renderTextures_[index];
+}
+
+void Framebuffer::SetRenderTexture(uint index, RenderTexture texture) {
+	BindFramebuffer();
+
+	if (!renderTextures_[index] && texture) {
+		++attachedRenderTextureCount_;
+	}
+	else if (renderTextures_[index] && !texture) {
+		--attachedRenderTextureCount_;
+	}
+
+	renderTextures_[index] = texture;
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, texture ? texture->GetNativePointer() : 0, 0);
+
+	UnbindFramebuffer();
+}
+
 void Framebuffer::SetDepthTexture(RenderTexture texture) {
 	BindFramebuffer();
 	depthTexture_ = texture;
@@ -141,41 +167,10 @@ void Framebuffer::SetDepthTexture(RenderTexture texture) {
 	UnbindFramebuffer();
 }
 
-int Framebuffer::GetRenderTextureCount() {
+uint Framebuffer::GetRenderTextureCount() {
 	return attachedRenderTextureCount_;
 }
 
 RenderTexture Framebuffer::GetDepthTexture() {
 	return depthTexture_;
-}
-
-void Framebuffer::SetRenderTexture(RenderTexture texture) {
-	BindFramebuffer();
-
-	renderTextures_[0] = texture;
-
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture ? texture->GetNativePointer() : 0, 0);
-
-	attachedRenderTextureCount_ = texture ? 1 : 0;
-	
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		Debug::LogError("failed to create framebuffer, 0x04x.", status);
-	}
-
-	UnbindFramebuffer();
-}
-
-RenderTexture Framebuffer::GetRenderTexture() {
-	return renderTextures_[0];
-}
-
-int Framebuffer::FindAttachmentIndex() {
-	for (int i = 0; i < maxRenderTextures_; ++i) {
-		if (!renderTextures_[i]) {
-			return i;
-		}
-	}
-
-	return -1;
 }

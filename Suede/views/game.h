@@ -3,7 +3,7 @@
 #include "window.h"
 
 class QWidget;
-class PostEffect;
+class ImageEffect;
 class CameraController;
 
 class Game : public Window {
@@ -36,7 +36,7 @@ private:
 private:
 	bool sceneCreated_;
 	QWidget* canvas_;
-	PostEffect* grayscale_;
-	PostEffect* inversion_;
+	ImageEffect* grayscale_;
+	ImageEffect* inversion_;
 	CameraController* controller_;
 };

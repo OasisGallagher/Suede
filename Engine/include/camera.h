@@ -9,7 +9,12 @@ enum ClearType {
 	ClearTypeSkybox,
 };
 
-class PostEffect;
+enum RenderPath {
+	RenderPathForward,
+	RenderPathDeferred,
+};
+
+class ImageEffect;
 
 class SUEDE_API ICamera : virtual public ISprite {
 public:
@@ -18,6 +23,9 @@ public:
 
 	virtual void SetClearType(ClearType value) = 0;
 	virtual ClearType GetClearType() = 0;
+
+	virtual void SetRenderPath(RenderPath value) = 0;
+	virtual RenderPath GetRenderPath() = 0;
 
 	virtual void SetSkybox(Skybox value) = 0;
 	virtual Skybox GetSkybox() = 0;
@@ -43,7 +51,7 @@ public:
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;
 
-	virtual void AddPostEffect(PostEffect* effect) = 0;
+	virtual void AddImageEffect(ImageEffect* effect) = 0;
 
 	virtual Texture2D Capture() = 0;
 

@@ -36,7 +36,6 @@ public:
 
 private:
 	static bool SwapRedBlue(FIBITMAP* dib);
-	static ColorFormat BppToColorFormat(uint bbp);
 	static bool CopyBitsTo(Bitmap &bits, struct FIBITMAP* bitmap);
 };
 

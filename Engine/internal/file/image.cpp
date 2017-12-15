@@ -4,6 +4,49 @@
 #include "debug.h"
 #include "image.h"
 
+static ColorFormat BppToColorFormat(uint bpp) {
+	switch (bpp) {
+		case 8:
+		case 24:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+			return ColorFormatBgr;
+#else
+			return ColorFormatRgb;
+#endif
+		case 32:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+			return ColorFormatBgra;
+#else
+			return ColorFormatRgba;
+#endif
+	}
+
+	Debug::LogError("invalid bbp number %d.", bpp);
+	return ColorFormatBgr;
+}
+
+static uint ColorFormatToBpp(ColorFormat format) {
+	switch (format) {
+		case ColorFormatRgb:
+		case ColorFormatBgr:
+			return 3 * 8;
+
+		case ColorFormatRgba:
+		case ColorFormatArgb:
+		case ColorFormatBgra:
+			return 4 * 8;
+
+		case ColorFormatLuminanceAlpha:
+			return 2 * 8;
+
+		default:
+			Debug::LogError("invalid color format %d.", format);
+			break;
+	}
+
+	return 8;
+}
+
 bool ImageCodec::Decode(Bitmap& bitmap, const void* compressedData, uint length) {
 	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)compressedData, length);
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
@@ -174,33 +217,16 @@ bool ImageCodec::CopyBitsTo(Bitmap& bitmap, FIBITMAP* dib) {
 	return true;
 }
 
-ColorFormat ImageCodec::BppToColorFormat(uint bbp) {
-	switch (bbp) {
-		case 8:
-		case 24:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-			return ColorFormatBgr;
-#else
-			return ColorFormatRgb;
-#endif
-		case 32:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-			return ColorFormatBgra;
-#else
-			return ColorFormatRgba;
-#endif
+bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint space) {
+	if (bitmaps.empty()) {
+		return false;
 	}
 
-	Debug::LogError("invalid bbp number %d.", bbp);
-	return ColorFormatBgr;
-}
-
-bool AtlasMaker::Make(Atlas& atlas, const std::vector<Bitmap*>& bitmaps, uint space) {
 	uint width, height;
 	uint columnCount = Calculate(width, height, bitmaps, space);
 
-	// TODO: channel count.
-	atlas.data.resize(width * height * 2);
+	uint bpp = ColorFormatToBpp(bitmaps.front()->format);
+	atlas.data.resize(width * height * (bpp / 8));
 	uchar* ptr = &atlas.data[0];
 	int bottom = space;
 	ptr += space * width * 2;

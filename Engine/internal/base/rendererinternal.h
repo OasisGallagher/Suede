@@ -17,12 +17,14 @@ public:
 	virtual void RenderMesh(Mesh mesh, Material material);
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
-	virtual Material GetMaterial(int index) { return materials_[index]; }
-	virtual void SetMaterial(int index, Material value) { materials_[index] = value; }
-	virtual int GetMaterialCount() { return materials_.size(); }
+	virtual Material GetMaterial(uint index) { return materials_[index]; }
+	virtual void SetMaterial(uint index, Material value) { materials_[index] = value; }
+	virtual void RemoveMaterial(Material material);
+	virtual void RemoveMaterialAt(uint index);
+	virtual uint GetMaterialCount() { return materials_.size(); }
 
-	virtual int GetRenderQueue() { return queue_; }
-	virtual void SetRenderQueue(int value) { queue_ = value; }
+	virtual uint GetRenderQueue() { return queue_; }
+	virtual void SetRenderQueue(uint value) { queue_ = value; }
 
 protected:
 	virtual void UpdateMaterial(Sprite sprite);
@@ -35,7 +37,7 @@ private:
 	virtual void RenderMesh(Mesh mesh);
 
 private:
-	int queue_;
+	uint queue_;
 	std::vector<Material> materials_;
 };
 

@@ -18,11 +18,11 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define SKYBOX
-//#define MODEL
-//#define POST_EFFECTS
+//#define SKYBOX
+#define MODEL
+#define POST_EFFECTS
 //#define ANIMATION
-#define PARTICLE_SYSTEM
+//#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 
@@ -122,8 +122,8 @@ void Game::createScene() {
 	camera->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
-	camera->AddPostEffect(inversion_);
-	camera->AddPostEffect(grayscale_);
+	//camera->AddImageEffect(inversion_);
+	camera->AddImageEffect(grayscale_);
 #endif
 
 #ifdef SKYBOX

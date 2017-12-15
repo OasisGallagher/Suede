@@ -23,6 +23,7 @@ public:
 
 	virtual void AddChild(Sprite child) = 0;
 	virtual void RemoveChild(Sprite child) = 0;
+	virtual void RemoveChildAt(uint index) = 0;
 
 	virtual int GetChildCount() = 0;
 	virtual Sprite GetChildAt(int i) = 0;

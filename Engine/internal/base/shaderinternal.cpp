@@ -144,7 +144,7 @@ void ShaderInternal::UpdateVertexAttributes() {
 
 void ShaderInternal::UpdateFragmentAttributes() {
 	glBindFragDataLocation(program_, 0, Variables::depth);
-	glBindFragDataLocation(program_, 0, Variables::fragColor);
+	//glBindFragDataLocation(program_, 0, Variables::fragColor);
 }
 
 void ShaderInternal::AddAllUniforms() {
