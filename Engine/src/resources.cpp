@@ -1,8 +1,5 @@
 #include <map>
-#include "mesh.h"
 #include "math2.h"
-#include "shader.h"
-#include "material.h"
 #include "resources.h"
 
 typedef std::map<std::string, Shader> ShaderContainer;
@@ -14,12 +11,21 @@ static TextureContainer textures;
 typedef std::map<std::string, Material> MaterialContainer;
 static MaterialContainer materials;
 
+static MeshRenderer meshRenderer;
+
 Texture2D blackTexture, whiteTexture;
 
 static Mesh primitives[PrimitiveTypeCount];
 
 void Resources::Import() {
+	if (!meshRenderer) {
+		meshRenderer = NewMeshRenderer();
+		meshRenderer->AddMaterial(nullptr);
+	}
+}
 
+MeshRenderer Resources::GetMeshRenderer() {
+	return meshRenderer;
 }
 
 Texture2D Resources::GetBlackTexture() {

@@ -154,9 +154,6 @@
     <ClInclude Include="internal\base\framebuffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\posteffect.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\light.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -242,6 +239,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\math2.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imageeffect.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

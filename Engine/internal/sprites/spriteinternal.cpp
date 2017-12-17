@@ -29,10 +29,21 @@ void SpriteInternal::AddChild(Sprite child) {
 
 void SpriteInternal::RemoveChild(Sprite child) {
 	std::vector<Sprite>::iterator pos = std::find(children_.begin(), children_.end(), child);
-	if(pos != children_.end()) {
+	if (pos != children_.end()) {
 		child->SetParent(WorldInstance()->GetRootSprite());
 		children_.erase(pos);
 	}
+}
+
+void SpriteInternal::RemoveChildAt(uint index) {
+	if (index >= children_.size()) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	Sprite child = children_[index];
+	child->SetParent(WorldInstance()->GetRootSprite());
+	children_.erase(children_.begin() + index);
 }
 
 void SpriteInternal::SetParent(Sprite value) {

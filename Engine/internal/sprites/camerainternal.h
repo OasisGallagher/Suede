@@ -3,7 +3,7 @@
 
 #include "camera.h"
 #include "skybox.h"
-#include "posteffect.h"
+#include "imageeffect.h"
 #include "internal/base/objectinternal.h"
 #include "internal/sprites/spriteinternal.h"
 
@@ -33,6 +33,9 @@ public:
 
 	virtual void SetClearType(ClearType value) { clearType_ = value; }
 	virtual ClearType GetClearType() { return clearType_; }
+
+	virtual void SetRenderPath(RenderPath value) { renderPath_ = value; }
+	virtual RenderPath GetRenderPath() { return renderPath_; }
 
 	virtual void SetSkybox(Skybox value) { skybox_ = value; }
 	virtual Skybox GetSkybox() { return skybox_; }
@@ -64,11 +67,10 @@ public:
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
 public:
-	virtual void AddPostEffect(PostEffect* effect) { postEffects_.push_back(effect); }
+	virtual void AddImageEffect(ImageEffect* effect) { imageEffects_.push_back(effect); }
 	virtual Texture2D Capture();
 
 private:
-	void CreateRenderer();
 	void CreateFramebuffers();
 	void CreateDepthRenderer();
 	void CreateShadowRenderer();
@@ -96,6 +98,8 @@ private:
 	void RenderForwardAdd(const std::vector<Sprite>& sprites, const std::vector<Light>& lights);
 
 	void OnPostRender();
+	void OnImageEffect();
+
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
 
 private:
@@ -107,6 +111,7 @@ private:
 	glm::mat4 projection_;
 	glm::mat4 viewToShadowSpaceMatrix_;
 
+	// TODO: Framebuffer count.
 	Framebuffer0* fb0_;
 	Framebuffer* fbDepth_;
 	Framebuffer* fbShadow_;
@@ -114,17 +119,18 @@ private:
 	Framebuffer* fbRenderTexture2_;
 
 	// TODO: Common material.
-	Renderer renderer_;
 	Material depthMaterial_;
 	Material directionalLightShadowMaterial_;
 
 	RenderTexture renderTexture_;
 	RenderTexture renderTexture2_;
 
-	std::vector<PostEffect*> postEffects_;
+	std::vector<ImageEffect*> imageEffects_;
 
 	RenderPass pass_;
 
 	Skybox skybox_;
+
 	ClearType clearType_;
+	RenderPath renderPath_;
 };

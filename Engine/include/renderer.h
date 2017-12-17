@@ -18,12 +18,14 @@ public:
 	virtual void RenderMesh(Mesh mesh, Material material) = 0;
 	
 	virtual void AddMaterial(Material material) = 0;
-	virtual Material GetMaterial(int index) = 0;
-	virtual void SetMaterial(int index, Material value) = 0;
-	virtual int GetMaterialCount() = 0;
+	virtual Material GetMaterial(uint index) = 0;
+	virtual void SetMaterial(uint index, Material value) = 0;
+	virtual void RemoveMaterial(Material material) = 0;
+	virtual void RemoveMaterialAt(uint index) = 0;
+	virtual uint GetMaterialCount() = 0;
 
-	virtual void SetRenderQueue(int value) = 0;
-	virtual int GetRenderQueue() = 0;
+	virtual void SetRenderQueue(uint value) = 0;
+	virtual uint GetRenderQueue() = 0;
 };
 
 class SUEDE_API IMeshRenderer : virtual public IRenderer {

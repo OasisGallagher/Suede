@@ -37,7 +37,6 @@ public:
 
 private:
 	static bool SwapRedBlue(struct FIBITMAP* dib);
-	static ColorFormat BppToColorFormat(uint bbp);
 
 	static FIBITMAP* LoadDibFromMemory(FIMEMORY* stream);
 	static FIBITMAP* LoadDibFromPath(const std::string &path);

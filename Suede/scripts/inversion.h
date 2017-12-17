@@ -1,8 +1,8 @@
 #pragma once
 #include "graphics.h"
-#include "posteffect.h"
+#include "imageeffect.h"
 
-class Inversion : public PostEffect {
+class Inversion : public ImageEffect {
 public:
 	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
 		World world = WorldInstance();

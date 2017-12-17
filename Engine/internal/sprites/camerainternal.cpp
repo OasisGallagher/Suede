@@ -22,7 +22,6 @@ CameraInternal::CameraInternal()
 	, fieldOfView_(3.141592f / 3.f), projection_(glm::perspective(fieldOfView_, aspect_, near_, far_))
 	, pass_(RenderPassNone), fbRenderTexture_(nullptr), viewToShadowSpaceMatrix_(1) {
 	CreateFramebuffers();
-	CreateRenderer();
 	CreateDepthRenderer();
 	CreateShadowRenderer();
 	glClearDepth(1);
@@ -74,10 +73,10 @@ void CameraInternal::SetFieldOfView(float value) {
 
 void CameraInternal::SetRenderTexture(RenderTexture value) {
 	if (value) {
-		fbRenderTexture_->SetRenderTexture(value);
+		fbRenderTexture_->SetRenderTexture(0, value);
 	}
 	else {
-		fbRenderTexture_->SetRenderTexture(renderTexture_);
+		fbRenderTexture_->SetRenderTexture(0, renderTexture_);
 	}
 }
 
@@ -98,7 +97,10 @@ void CameraInternal::Render() {
 		return;
 	}
 
-	//RenderDepthPass(sprites);
+	if (renderPath_ == RenderPathForward) {
+	}
+
+	RenderDepthPass(sprites);
 
 	Light forwardBase;
 	std::vector<Light> forwardAdd;
@@ -118,8 +120,9 @@ void CameraInternal::Render() {
 	}
 
 	OnPostRender();
-
 	active->Unbind();
+
+	OnImageEffect();
 
 	pass_ = RenderPassNone;
 }
@@ -146,11 +149,6 @@ Texture2D CameraInternal::Capture() {
 	return texture;
 }
 
-void CameraInternal::CreateRenderer() {
-	renderer_ = NewMeshRenderer();
-	renderer_->AddMaterial(nullptr);
-}
-
 void CameraInternal::CreateFramebuffers() {
 	int w = Screen::GetWidth();
 	int h = Screen::GetHeight();
@@ -174,13 +172,13 @@ void CameraInternal::CreateFramebuffers() {
 	fbRenderTexture_->Create(w, h);
 	renderTexture_ = NewRenderTexture();
 	renderTexture_->Load(RenderTextureFormatRgba, w, h);
-	fbRenderTexture_->SetRenderTexture(renderTexture_);
+	fbRenderTexture_->SetRenderTexture(0, renderTexture_);
 
 	fbRenderTexture2_ = MEMORY_CREATE(Framebuffer);
 	fbRenderTexture2_->Create(w, h);
 	renderTexture2_ = NewRenderTexture();
 	renderTexture2_->Load(RenderTextureFormatRgba, w, h);
-	fbRenderTexture2_->SetRenderTexture(renderTexture2_);
+	fbRenderTexture2_->SetRenderTexture(0, renderTexture2_);
 }
 
 void CameraInternal::CreateDepthRenderer() {
@@ -233,7 +231,7 @@ void CameraInternal::OnContextSizeChanged(int w, int h) {
 
 Framebuffer0* CameraInternal::GetActiveFramebuffer() {
 	Framebuffer0* active = nullptr;
-	if (fbRenderTexture_->GetRenderTexture() != renderTexture_ || !postEffects_.empty()) {
+	if (fbRenderTexture_->GetRenderTexture(0) != renderTexture_ || !imageEffects_.empty()) {
 		active = fbRenderTexture_;
 	}
 	else {
@@ -289,8 +287,8 @@ void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light 
 		}
 
 		directionalLightShadowMaterial_->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * sprite->GetLocalToWorldMatrix());
-		renderer_->SetMaterial(0, directionalLightShadowMaterial_);
-		renderer_->RenderSprite(sprite);
+		Resources::GetMeshRenderer()->SetMaterial(0, directionalLightShadowMaterial_);
+		Resources::GetMeshRenderer()->RenderSprite(sprite);
 	}
 
 	glm::mat4 bias(
@@ -322,8 +320,11 @@ void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 			continue;
 		}
 
-		renderer_->SetMaterial(0, depthMaterial_);
-		renderer_->RenderSprite(sprite);
+		glm::mat4 localToClipSpaceMatrix = projection_ * GetWorldToLocalMatrix() * sprite->GetLocalToWorldMatrix();
+		depthMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
+
+		Resources::GetMeshRenderer()->SetMaterial(0, depthMaterial_);
+		Resources::GetMeshRenderer()->RenderSprite(sprite);
 	}
 
 	fbDepth_->Unbind();
@@ -331,6 +332,7 @@ void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 
 int CameraInternal::RenderOpaquePass(const std::vector<Sprite>& sprites, int from) {
 	pass_ = RenderPassOpaque;
+	// TODO: sort.
 	for (int i = 0; i < sprites.size(); ++i) {
 		Sprite sprite = sprites[i];
 		RenderSprite(sprite, sprite->GetRenderer());
@@ -341,6 +343,7 @@ int CameraInternal::RenderOpaquePass(const std::vector<Sprite>& sprites, int fro
 
 int CameraInternal::RenderTransparentPass(const std::vector<Sprite>& sprites, int from) {
 	pass_ = RenderPassTransparent;
+	// TODO: sort.
 	return 0;
 }
 
@@ -357,22 +360,25 @@ void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAd
 }
 
 void CameraInternal::OnPostRender() {
-	if (postEffects_.empty()) { return; }
+}
+
+void CameraInternal::OnImageEffect() {
+	if (imageEffects_.empty()) { return; }
 
 	Framebuffer* framebuffers[] = { fbRenderTexture_, fbRenderTexture2_ };
-	RenderTexture textures[] = { fbRenderTexture_->GetRenderTexture(), renderTexture2_ };
+	RenderTexture textures[] = { fbRenderTexture_->GetRenderTexture(0), renderTexture2_ };
 
 	int index = 1;
-	for (int i = 0; i < postEffects_.size(); ++i) {
+	for (int i = 0; i < imageEffects_.size(); ++i) {
 		Framebuffer0* active = framebuffers[index];
 		
-		if (i + 1 == postEffects_.size()) {
+		if (i + 1 == imageEffects_.size()) {
 			active = fb0_;
 			textures[index].reset();
 		}
 
 		active->Bind();
-		postEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
+		imageEffects_[i]->OnRenderImage(fbDepth_->GetDepthTexture(), textures[index]);
 		active->Unbind();
 
 		index = 1 - index;
@@ -423,7 +429,7 @@ void CameraInternal::UpdateMaterial(Sprite sprite, Material material) {
 	glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
 	glm::mat4 worldToCameraSpaceMatrix = GetWorldToLocalMatrix();
 	glm::mat4 worldToClipSpaceMatrix = projection_ * worldToCameraSpaceMatrix;
-	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * sprite->GetLocalToWorldMatrix();
+	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldMatrix;
 	material->SetMatrix4(Variables::worldToClipSpaceMatrix, worldToClipSpaceMatrix);
 	material->SetMatrix4(Variables::worldToCameraSpaceMatrix, worldToCameraSpaceMatrix);
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);

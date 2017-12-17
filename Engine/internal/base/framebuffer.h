@@ -61,22 +61,16 @@ public:
 
 public:
 	void SetDepthTexture(RenderTexture texture);
-	void SetRenderTexture(RenderTexture texture);
-
 	void CreateDepthRenderBuffer();
 
-	int GetRenderTextureCount();
+	uint GetRenderTextureCount();
 	RenderTexture GetDepthTexture();
 
-#ifdef MRT
-	RenderTexture GetRenderTexture(int index);
-#else
-	RenderTexture GetRenderTexture();
-#endif
+	RenderTexture GetRenderTexture(uint index);
+	void SetRenderTexture(uint index, RenderTexture texture);
 
 private:
-	int UpdateAttachments();
-	int FindAttachmentIndex();
+	uint UpdateAttachments();
 
 private:
 	GLuint depthRenderbuffer_;
