@@ -4,6 +4,49 @@
 #include "debug.h"
 #include "image.h"
 
+static ColorFormat BppToColorFormat(uint bpp) {
+	switch (bpp) {
+	case 8:
+	case 24:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+		return ColorFormatBgr;
+#else
+		return ColorFormatRgb;
+#endif
+	case 32:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+		return ColorFormatBgra;
+#else
+		return ColorFormatRgba;
+#endif
+	}
+
+	Debug::LogError("invalid bbp number %d.", bpp);
+	return ColorFormatBgr;
+}
+
+static uint ColorFormatToBpp(ColorFormat format) {
+	switch (format) {
+	case ColorFormatRgb:
+	case ColorFormatBgr:
+		return 3 * 8;
+
+	case ColorFormatRgba:
+	case ColorFormatArgb:
+	case ColorFormatBgra:
+		return 4 * 8;
+
+	case ColorFormatLuminanceAlpha:
+		return 2 * 8;
+
+	default:
+		Debug::LogError("invalid color format %d.", format);
+		break;
+	}
+
+	return 8;
+}
+
 bool ImageCodec::Decode(TexelMap& texelMap, const void* compressedData, uint length) {
 	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)compressedData, length);
 	FIBITMAP* dib = LoadDibFromMemory(stream);
@@ -131,27 +174,6 @@ bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 	return true;
 }
 
-ColorFormat ImageCodec::BppToColorFormat(uint bbp) {
-	switch (bbp) {
-		case 8:
-		case 24:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-			return ColorFormatBgr;
-#else
-			return ColorFormatRgb;
-#endif
-		case 32:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-			return ColorFormatBgra;
-#else
-			return ColorFormatRgba;
-#endif
-	}
-
-	Debug::LogError("invalid bbp number %d.", bbp);
-	return ColorFormatBgr;
-}
-
 FIBITMAP* ImageCodec::LoadDibFromMemory(FIMEMORY* stream) {
 	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
 	if (!FreeImage_FIFSupportsReading(fif)) {
@@ -227,11 +249,16 @@ bool ImageCodec::EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP*
 }
 
 bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uint space) {
+	if (texelMaps.empty()) {
+		Debug::LogWarning("container is empty.");
+		return false;
+	}
+
 	uint width, height;
 	uint columnCount = Calculate(width, height, texelMaps, space);
 
-	// TODO: channel count(2 means luminance and alpha).
-	atlas.data.resize(width * height * 2);
+	uint bpp = ColorFormatToBpp(texelMaps.front()->format);
+	atlas.data.resize(width * height * (bpp / 8));
 	uchar* ptr = &atlas.data[0];
 	int bottom = space;
 	ptr += space * width * 2;
