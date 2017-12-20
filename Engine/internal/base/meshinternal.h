@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 #include "mesh.h"
 #include "vertexarrayobject.h"

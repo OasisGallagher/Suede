@@ -269,15 +269,15 @@ void MaterialInternal::Bind() {
 	BindRenderStates();
 	BindProperties();
 
-	glGetIntegerv(GL_CURRENT_PROGRAM, &oldProgram_);
-	glUseProgram(shader_->GetNativePointer());
+	GL::GetIntegerv(GL_CURRENT_PROGRAM, &oldProgram_);
+	GL::UseProgram(shader_->GetNativePointer());
 }
 
 void MaterialInternal::Unbind() {
 	UnbindProperties();
 	UnbindRenderStates();
 
-	glUseProgram(oldProgram_);
+	GL::UseProgram(oldProgram_);
 	oldProgram_ = 0;
 }
 

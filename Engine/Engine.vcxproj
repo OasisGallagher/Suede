@@ -246,6 +246,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\world\worldinternal.h" />
     <ClInclude Include="tools\path.h" />
     <ClInclude Include="tools\string.h" />
+    <ClInclude Include="wrappers\gl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

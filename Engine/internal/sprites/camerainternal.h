@@ -8,7 +8,7 @@
 #include "internal/sprites/spriteinternal.h"
 
 class Framebuffer;
-class Framebuffer0;
+class FramebufferBase;
 
 class CameraInternal : public ICamera, public SpriteInternal {
 	DEFINE_FACTORY_METHOD(Camera)
@@ -72,12 +72,18 @@ public:
 
 private:
 	void CreateFramebuffers();
-	void CreateDepthRenderer();
-	void CreateShadowRenderer();
+	void CreateDepthMaterial();
+	void CreateShadowMaterial();
+
+	void ForwardRender(const std::vector<Sprite>& sprites);
+	void DeferredRender(const std::vector<Sprite>& sprites);
 
 	void UpdateSkybox();
+	void SetUpFramebuffer1();
+	void CreateFramebuffer2();
+
 	void OnContextSizeChanged(int w, int h);
-	Framebuffer0* GetActiveFramebuffer();
+	FramebufferBase* GetActiveFramebuffer();
 
 	void RenderDepthPass(const std::vector<Sprite>& sprites);
 	void RenderShadowPass(const std::vector<Sprite>& sprites, Light light);
@@ -91,6 +97,7 @@ private:
 	void UpdateMaterial(Sprite sprite, Material material);
 
 	bool GetRenderableSprites(std::vector<Sprite>& sprites);
+	void SortRenderableSprites(std::vector<Sprite>& sprites);
 
 	void SetForwardBaseLightParameter(const std::vector<Sprite>& sprites, Light light);
 
@@ -98,7 +105,7 @@ private:
 	void RenderForwardAdd(const std::vector<Sprite>& sprites, const std::vector<Light>& lights);
 
 	void OnPostRender();
-	void OnImageEffect();
+	void OnImageEffects();
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
 
@@ -111,19 +118,18 @@ private:
 	glm::mat4 projection_;
 	glm::mat4 viewToShadowSpaceMatrix_;
 
-	// TODO: Framebuffer count.
-	Framebuffer0* fb0_;
-	Framebuffer* fbDepth_;
-	Framebuffer* fbShadow_;
-	Framebuffer* fbRenderTexture_;
-	Framebuffer* fbRenderTexture2_;
+	Framebuffer* fb1_;
+	Framebuffer* fb2_;
+
+	RenderTexture depthTexture_;
+	RenderTexture shadowTexture_;
+
+	RenderTexture renderTexture_;
+	RenderTexture renderTexture2_;
 
 	// TODO: Common material.
 	Material depthMaterial_;
 	Material directionalLightShadowMaterial_;
-
-	RenderTexture renderTexture_;
-	RenderTexture renderTexture2_;
 
 	std::vector<ImageEffect*> imageEffects_;
 

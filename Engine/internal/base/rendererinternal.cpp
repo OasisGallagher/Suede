@@ -68,7 +68,15 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	mesh->Unbind();
 }
 
+static void checkGLError() {
+	GLenum err = GL::GetError();
+	if (err != GL_NO_ERROR) {
+		__debugbreak();
+	}
+}
+
 void RendererInternal::RenderMesh(Mesh mesh, Material material) {
+	checkGLError();
 	mesh->Bind();
 	material->Bind();
 
@@ -100,7 +108,7 @@ void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
 	subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
 
 	GLenum mode = TopologyToGLEnum(topology);
-	glDrawElementsBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
+	GL::DrawElementsBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Sprite sprite) {
@@ -139,5 +147,5 @@ void ParticleRendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) 
 	subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
 
 	GLenum mode = TopologyToGLEnum(topology);
-	glDrawElementsInstancedBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), particleCount_, baseVertex);
+	GL::DrawElementsInstancedBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), particleCount_, baseVertex);
 }

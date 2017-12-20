@@ -41,6 +41,7 @@ enum RenderTextureFormat {
 	RenderTextureFormatRgbaHdr,
 	RenderTextureFormatDepth,
 	RenderTextureFormatShadow,
+	RenderTextureFormatDepthStencil,
 };
 
 class SUEDE_API IRenderTexture : virtual public ITexture {

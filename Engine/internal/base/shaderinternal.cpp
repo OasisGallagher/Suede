@@ -7,14 +7,14 @@
 #include "internal/file/shadercompiler.h"
 
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader), textureUnitCount_(0){
-	program_ = glCreateProgram();
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits_);
+	program_ = GL::CreateProgram();
+	GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits_);
 
 	std::fill(shaderObjs_, shaderObjs_ + ShaderTypeCount, 0);
 }
 
 ShaderInternal::~ShaderInternal() {
-	glDeleteProgram(program_);
+	GL::DeleteProgram(program_);
 	ClearIntermediateShaders();
 }
 
@@ -69,10 +69,10 @@ bool ShaderInternal::GetErrorMessage(GLuint shaderObj, std::string& answer) {
 	}
 
 	GLint length = 0, writen = 0;
-	glGetShaderiv(shaderObj, GL_INFO_LOG_LENGTH, &length);
+	GL::GetShaderiv(shaderObj, GL_INFO_LOG_LENGTH, &length);
 	if (length > 1) {
 		answer.resize(length);
-		glGetShaderInfoLog(shaderObj, length, &writen, &answer[0]);
+		GL::GetShaderInfoLog(shaderObj, length, &writen, &answer[0]);
 		return true;
 	}
 
@@ -80,18 +80,18 @@ bool ShaderInternal::GetErrorMessage(GLuint shaderObj, std::string& answer) {
 }
 
 bool ShaderInternal::Link() {
-	glLinkProgram(program_);
+	GL::LinkProgram(program_);
 	
 	GLint status = GL_FALSE;
-	glGetProgramiv(program_, GL_LINK_STATUS, &status);
+	GL::GetProgramiv(program_, GL_LINK_STATUS, &status);
 
 	if (status != GL_TRUE) {
 		Debug::LogError("failed to link shader %s.", path_.c_str());
 		return false;
 	}
 
-	glValidateProgram(program_);
-	glGetProgramiv(program_, GL_VALIDATE_STATUS, &status);
+	GL::ValidateProgram(program_);
+	GL::GetProgramiv(program_, GL_VALIDATE_STATUS, &status);
 	if (status != GL_TRUE) {
 		Debug::LogWarning("failed to validate shader %s.", path_.c_str());
 		//return false;
@@ -103,24 +103,24 @@ bool ShaderInternal::Link() {
 void ShaderInternal::ClearIntermediateShaders() {
 	for (int i = 0; i < ShaderTypeCount; ++i) {
 		if (shaderObjs_[i] != 0) {
-			glDeleteShader(shaderObjs_[i]);
+			GL::DeleteShader(shaderObjs_[i]);
 			shaderObjs_[i] = 0;
 		}
 	}
 }
 
 bool ShaderInternal::LoadSource(ShaderType shaderType, const char* source) {
-	GLuint shaderObj = glCreateShader(GetShaderDescription(shaderType).glShaderType);
+	GLuint shaderObj = GL::CreateShader(GetShaderDescription(shaderType).glShaderType);
 
-	glShaderSource(shaderObj, 1, &source, nullptr);
-	glCompileShader(shaderObj);
+	GL::ShaderSource(shaderObj, 1, &source, nullptr);
+	GL::CompileShader(shaderObj);
 
-	glAttachShader(program_, shaderObj);
+	GL::AttachShader(program_, shaderObj);
 	
 	std::string message;
 	if (!GetErrorMessage(shaderObj, message)) {
 		if (shaderObjs_[shaderType] != 0) {
-			glDeleteShader(shaderObjs_[shaderType]);
+			GL::DeleteShader(shaderObjs_[shaderType]);
 		}
 		shaderObjs_[shaderType] = shaderObj;
 		return true;
@@ -131,20 +131,20 @@ bool ShaderInternal::LoadSource(ShaderType shaderType, const char* source) {
 }
 
 void ShaderInternal::UpdateVertexAttributes() {
-	glBindAttribLocation(program_, VertexAttribPosition, Variables::position);
-	glBindAttribLocation(program_, VertexAttribTexCoord, Variables::texCoord);
-	glBindAttribLocation(program_, VertexAttribNormal, Variables::normal);
-	glBindAttribLocation(program_, VertexAttribTangent, Variables::tangent);
-	glBindAttribLocation(program_, VertexAttribBoneIndexes, Variables::boneIndexes);
-	glBindAttribLocation(program_, VertexAttribBoneWeights, Variables::boneWeights);
+	GL::BindAttribLocation(program_, VertexAttribPosition, Variables::position);
+	GL::BindAttribLocation(program_, VertexAttribTexCoord, Variables::texCoord);
+	GL::BindAttribLocation(program_, VertexAttribNormal, Variables::normal);
+	GL::BindAttribLocation(program_, VertexAttribTangent, Variables::tangent);
+	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, Variables::boneIndexes);
+	GL::BindAttribLocation(program_, VertexAttribBoneWeights, Variables::boneWeights);
 
-	glBindAttribLocation(program_, VertexAttribInstanceColor, Variables::instanceColor);
-	glBindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::instanceGeometry);
+	GL::BindAttribLocation(program_, VertexAttribInstanceColor, Variables::instanceColor);
+	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::instanceGeometry);
 }
 
 void ShaderInternal::UpdateFragmentAttributes() {
-	glBindFragDataLocation(program_, 0, Variables::depth);
-	//glBindFragDataLocation(program_, 0, Variables::fragColor);
+	//GL::BindFragDataLocation(program_, 0, Variables::depth);
+	//GL::BindFragDataLocation(program_, 0, Variables::fragColor);
 }
 
 void ShaderInternal::AddAllUniforms() {
@@ -155,14 +155,14 @@ void ShaderInternal::AddAllUniforms() {
 	GLuint location = 0;
 	GLint size, count, maxLength, length;
 
-	glGetProgramiv(program_, GL_ACTIVE_UNIFORMS, &count);
-	glGetProgramiv(program_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORMS, &count);
+	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
 	char* name = MEMORY_CREATE_ARRAY(char, maxLength);
 	for (int i = 0; i < count; ++i) {
-		glGetActiveUniform(program_, i, maxLength, &length, &size, &type, name);
+		GL::GetActiveUniform(program_, i, maxLength, &length, &size, &type, name);
 
-		location = glGetUniformLocation(program_, name);
+		location = GL::GetUniformLocation(program_, name);
 
 		// -1 indicates that is not an active uniform, although it may be present in a
 		// uniform block.
@@ -223,20 +223,20 @@ void ShaderInternal::SetUniform(Uniform* uniform, const void* data) {
 	switch (uniform->type) {
 		case ShaderPropertyTypeInt:
 		case ShaderPropertyTypeBool:
-			glProgramUniform1iv(program_, uniform->location, uniform->size, (const GLint *)data);
+			GL::ProgramUniform1iv(program_, uniform->location, uniform->size, (const GLint *)data);
 			break;
 		case ShaderPropertyTypeFloat:
-			glProgramUniform1fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
+			GL::ProgramUniform1fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
 			break;
 		case ShaderPropertyTypeMatrix4:
 		case ShaderPropertyTypeMatrix4Array:
-			glProgramUniformMatrix4fv(program_, uniform->location, uniform->size, false, (const GLfloat *)data);
+			GL::ProgramUniformMatrix4fv(program_, uniform->location, uniform->size, false, (const GLfloat *)data);
 			break;
 		case ShaderPropertyTypeVector3:
-			glProgramUniform3fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
+			GL::ProgramUniform3fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
 			break;
 		case ShaderPropertyTypeVector4:
-			glProgramUniform4fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
+			GL::ProgramUniform4fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
 			break;
 		default:
 			Debug::LogError("unable to set uniform (type 0x%x).", uniform->type);

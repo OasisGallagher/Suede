@@ -16,31 +16,119 @@
 #include "internal/base/rendererinternal.h"
 #include "internal/sprites/camerainternal.h"
 
+class GBuffer {
+public:
+	enum GTexture {
+		Vertex,
+		Color,
+		Normal,
+		GTextureCount,
+	};
+
+	enum GPass {
+		GeometryPass,
+		StencilPass,
+		LightPass,
+		FinalPass,
+	};
+
+public:
+	GBuffer() {
+		for (int i = 0; i < GTextureCount; ++i) {
+			colorAttachments_[i] = FramebufferAttachment0 + i;
+		}
+	}
+
+	~GBuffer() {}
+
+public:
+	bool Create(uint width, uint height) {
+		fb.Create(width, height);
+
+		for (int i = 0; i < GTextureCount; ++i) {
+			textures_[i] = NewRenderTexture();
+			textures_[i]->Load(RenderTextureFormatRgba, width, height);
+			fb.SetRenderTexture(FramebufferAttachment0 + i, textures_[i]);
+		}
+
+		depthTexture_ = NewRenderTexture();
+		depthTexture_->Load(RenderTextureFormatDepthStencil, width, height);
+		fb.SetDepthTexture(depthTexture_);
+
+		finalTexture_ = NewRenderTexture();
+		finalTexture_->Load(RenderTextureFormatRgba, width, height);
+		fb.SetRenderTexture(FramebufferAttachment0 + GTextureCount, finalTexture_);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+			Debug::LogError("failed to create gbuffer.");
+			return false;
+		}
+
+		return true;
+	}
+
+	void Clear() {
+		fb.Clear(FramebufferClearBitmaskColor, FramebufferAttachment0 + GTextureCount);
+	}
+
+	void Bind(GPass pass) {
+		switch (pass) {
+			case GeometryPass:
+				fb.BindWrite(GTextureCount, colorAttachments_);
+				break;
+			case StencilPass:
+				fb.BindWrite(FramebufferAttachmentNone);
+				break;
+			case LightPass:
+				fb.BindWrite(FramebufferAttachment0 + GTextureCount);
+				break;
+			case FinalPass:
+				Framebuffer0::Get()->BindWrite();
+				fb.BindRead(FramebufferAttachment0 + GTextureCount);
+				break;
+		}
+	}
+
+	RenderTexture GetRenderTexture(GTexture index) {
+		if (index >= GTextureCount) {
+			Debug::LogError("index out of range.");
+			return nullptr;
+		}
+
+		return textures_[index];
+	}
+
+private:
+	Framebuffer fb;
+	RenderTexture depthTexture_;
+	RenderTexture finalTexture_;
+	RenderTexture textures_[GTextureCount];
+
+	int colorAttachments_[GTextureCount];
+};
+
 CameraInternal::CameraInternal() 
 	: SpriteInternal(ObjectTypeCamera), clearType_(ClearTypeColor)
 	, depth_(0), aspect_(1.3f), near_(1.f), far_(1000.f)
 	, fieldOfView_(3.141592f / 3.f), projection_(glm::perspective(fieldOfView_, aspect_, near_, far_))
-	, pass_(RenderPassNone), fbRenderTexture_(nullptr), viewToShadowSpaceMatrix_(1) {
+	, pass_(RenderPassNone), renderPath_(RenderPathForward), fb1_(nullptr), fb2_(nullptr), viewToShadowSpaceMatrix_(1) {
 	CreateFramebuffers();
-	CreateDepthRenderer();
-	CreateShadowRenderer();
-	glClearDepth(1);
+	CreateDepthMaterial();
+	CreateShadowMaterial();
+	GL::ClearDepth(1);
 }
 
 CameraInternal::~CameraInternal() {
-	MEMORY_RELEASE(fb0_);
-	MEMORY_RELEASE(fbDepth_);
-	MEMORY_RELEASE(fbShadow_);
-	MEMORY_RELEASE(fbRenderTexture_);
-	MEMORY_RELEASE(fbRenderTexture2_);
+	MEMORY_RELEASE(fb1_);
+	MEMORY_RELEASE(fb2_);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
-	fb0_->SetClearColor(value);
+	Framebuffer0::Get()->SetClearColor(value);
 }
 
 glm::vec3 CameraInternal::GetClearColor() {
-	return fb0_->GetClearColor();
+	return Framebuffer0::Get()->GetClearColor();
 }
 
 void CameraInternal::SetAspect(float value) {
@@ -72,19 +160,16 @@ void CameraInternal::SetFieldOfView(float value) {
 }
 
 void CameraInternal::SetRenderTexture(RenderTexture value) {
-	if (value) {
-		fbRenderTexture_->SetRenderTexture(0, value);
-	}
-	else {
-		fbRenderTexture_->SetRenderTexture(0, renderTexture_);
-	}
+	fb1_->SetRenderTexture(FramebufferAttachment0, value);
 }
 
 void CameraInternal::Update() {
 	int w = Screen::GetWidth();
 	int h = Screen::GetHeight();
 
-	if (w != fb0_->GetWidth() || h != fb0_->GetHeight()) {
+	Framebuffer0* fb0 = Framebuffer0::Get();
+	if (w != fb0->GetViewportWidth() || h != fb0->GetViewportHeight()) {
+		fb0->SetViewport(w, h);
 		OnContextSizeChanged(w, h);
 	}
 
@@ -96,10 +181,25 @@ void CameraInternal::Render() {
 	if (!GetRenderableSprites(sprites)) {
 		return;
 	}
+	
+	FramebufferBase* active = GetActiveFramebuffer();
+	active->BindWrite();
 
 	if (renderPath_ == RenderPathForward) {
+		ForwardRender(sprites);
+	}
+	else {
+		DeferredRender(sprites);
 	}
 
+	OnPostRender();
+	active->Unbind();
+
+	OnImageEffects();
+	pass_ = RenderPassNone;
+}
+
+void CameraInternal::ForwardRender(const std::vector<Sprite>& sprites) {
 	RenderDepthPass(sprites);
 
 	Light forwardBase;
@@ -107,9 +207,8 @@ void CameraInternal::Render() {
 	GetLights(forwardBase, forwardAdd);
 
 	RenderShadowPass(sprites, forwardBase);
-	
-	Framebuffer0* active = GetActiveFramebuffer();
-	active->Bind();
+
+	fb1_->SetDepthTexture(nullptr);
 
 	if (forwardBase) {
 		RenderForwardBase(sprites, forwardBase);
@@ -118,33 +217,30 @@ void CameraInternal::Render() {
 	if (!forwardAdd.empty()) {
 		RenderForwardAdd(sprites, forwardAdd);
 	}
+}
 
-	OnPostRender();
-	active->Unbind();
+void CameraInternal::DeferredRender(const std::vector<Sprite>& sprites) {
 
-	OnImageEffect();
-
-	pass_ = RenderPassNone;
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
-	glGetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
+	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
 	return glm::project(position, GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
-	glGetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
+	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
 	return glm::unProject(position, GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 Texture2D CameraInternal::Capture() {
 	std::vector<uchar> data;
-	fb0_->ReadBuffer(data);
+	Framebuffer0::Get()->ReadBuffer(data);
 
 	Texture2D texture = NewTexture2D();
-	texture->Load(&data[0], ColorFormatRgb, fb0_->GetWidth(), fb0_->GetHeight());
+	texture->Load(&data[0], ColorFormatRgb, Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	return texture;
 }
@@ -153,35 +249,17 @@ void CameraInternal::CreateFramebuffers() {
 	int w = Screen::GetWidth();
 	int h = Screen::GetHeight();
 
-	fb0_ = MEMORY_CREATE(Framebuffer0);
-	fb0_->Create(w, h);
+	fb1_ = MEMORY_CREATE(Framebuffer);
+	fb1_->Create(w, h);
 
-	fbDepth_ = MEMORY_CREATE(Framebuffer);
-	fbDepth_->Create(w, h);
-	RenderTexture depthTexture = NewRenderTexture();
-	depthTexture->Load(RenderTextureFormatDepth, w, h);
-	fbDepth_->SetDepthTexture(depthTexture);
+	depthTexture_ = NewRenderTexture();
+	depthTexture_->Load(RenderTextureFormatDepth, w, h);
 
-	fbShadow_ = MEMORY_CREATE(Framebuffer);
-	fbShadow_->Create(w, h);
-	RenderTexture shadowTexture = NewRenderTexture();
-	shadowTexture->Load(RenderTextureFormatShadow, w, h);
-	fbShadow_->SetDepthTexture(shadowTexture);
-
-	fbRenderTexture_ = MEMORY_CREATE(Framebuffer);
-	fbRenderTexture_->Create(w, h);
-	renderTexture_ = NewRenderTexture();
-	renderTexture_->Load(RenderTextureFormatRgba, w, h);
-	fbRenderTexture_->SetRenderTexture(0, renderTexture_);
-
-	fbRenderTexture2_ = MEMORY_CREATE(Framebuffer);
-	fbRenderTexture2_->Create(w, h);
-	renderTexture2_ = NewRenderTexture();
-	renderTexture2_->Load(RenderTextureFormatRgba, w, h);
-	fbRenderTexture2_->SetRenderTexture(0, renderTexture2_);
+	shadowTexture_ = NewRenderTexture();
+	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
 }
 
-void CameraInternal::CreateDepthRenderer() {
+void CameraInternal::CreateDepthMaterial() {
 	Shader shader = Resources::FindShader("buildin/shaders/depth");
 
 	depthMaterial_ = NewMaterial();
@@ -191,7 +269,7 @@ void CameraInternal::CreateDepthRenderer() {
 	depthMaterial_->SetRenderState(DepthTest, LessEqual);
 }
 
-void CameraInternal::CreateShadowRenderer() {
+void CameraInternal::CreateShadowMaterial() {
 	Shader shader = Resources::FindShader("buildin/shaders/directional_light_depth");
 
 	directionalLightShadowMaterial_ = NewMaterial();
@@ -217,11 +295,11 @@ void CameraInternal::UpdateSkybox() {
 }
 
 void CameraInternal::OnContextSizeChanged(int w, int h) {
-	fb0_->Resize(w, h);
-	fbDepth_->Resize(w, h);
-	fbShadow_->Resize(w, h);
-	fbRenderTexture_->Resize(w, h);
-	fbRenderTexture2_->Resize(w, h);
+	fb1_->SetViewport(w, h);
+
+	if (fb2_ != nullptr) {
+		fb2_->SetViewport(w, h);
+	}
 
 	float aspect = (float)w / h;
 	if (!Math::Approximately(aspect, GetAspect())) {
@@ -229,16 +307,43 @@ void CameraInternal::OnContextSizeChanged(int w, int h) {
 	}
 }
 
-Framebuffer0* CameraInternal::GetActiveFramebuffer() {
-	Framebuffer0* active = nullptr;
-	if (fbRenderTexture_->GetRenderTexture(0) != renderTexture_ || !imageEffects_.empty()) {
-		active = fbRenderTexture_;
+FramebufferBase* CameraInternal::GetActiveFramebuffer() {
+	FramebufferBase* active = nullptr;
+
+	if (!imageEffects_.empty()) {
+		SetUpFramebuffer1();
+	}
+
+	if (fb1_->GetRenderTexture(FramebufferAttachment0)) {
+		active = fb1_;
 	}
 	else {
-		active = fb0_;
+		active = Framebuffer0::Get();
 	}
 
 	return active;
+}
+
+void CameraInternal::SetUpFramebuffer1() {
+	if (!fb1_->GetRenderTexture(FramebufferAttachment0)) {
+		if (!renderTexture_) {
+			renderTexture_ = NewRenderTexture();
+			renderTexture_->Load(RenderTextureFormatRgba, Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
+		}
+
+		fb1_->SetRenderTexture(FramebufferAttachment0, renderTexture_);
+	}
+}
+
+void CameraInternal::CreateFramebuffer2() {
+	if (fb2_ == nullptr) {
+		fb2_ = MEMORY_CREATE(Framebuffer);
+		fb2_->Create(fb1_->GetViewportWidth(), fb1_->GetViewportHeight());
+
+		renderTexture2_ = NewRenderTexture();
+		renderTexture2_->Load(RenderTextureFormatRgba, fb2_->GetViewportWidth(), fb2_->GetViewportHeight());
+		fb2_->SetRenderTexture(FramebufferAttachment0, renderTexture2_);
+	}
 }
 
 void CameraInternal::SetForwardBaseLightParameter(const std::vector<Sprite>& sprites, Light light) {
@@ -273,7 +378,8 @@ void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light 
 		return;
 	}
 
-	fbShadow_->Bind();
+	fb1_->SetDepthTexture(shadowTexture_);
+	fb1_->BindWrite(FramebufferAttachmentNone);
 
 	glm::vec3 lightPosition = light->GetRotation() * glm::vec3(0, 0, 1);
 	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
@@ -299,7 +405,7 @@ void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light 
 	);
 
 	viewToShadowSpaceMatrix_ = bias * shadowDepthMatrix;
-	fbShadow_->Unbind();
+	fb1_->Unbind();
 }
 
 void CameraInternal::RenderForwardAdd(const std::vector<Sprite>& sprites, const std::vector<Light>& lights) {
@@ -312,7 +418,10 @@ int CameraInternal::RenderBackgroundPass(const std::vector<Sprite>& sprites, int
 
 void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 	pass_ = RenderPassDepth;
-	fbDepth_->Bind();
+
+	fb1_->SetDepthTexture(depthTexture_);
+
+	fb1_->BindWrite(FramebufferAttachmentNone);
 
 	for (int i = 0; i < sprites.size(); ++i) {
 		Sprite sprite = sprites[i];
@@ -323,11 +432,12 @@ void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 		glm::mat4 localToClipSpaceMatrix = projection_ * GetWorldToLocalMatrix() * sprite->GetLocalToWorldMatrix();
 		depthMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 
+		// TODO: mesh renderer.
 		Resources::GetMeshRenderer()->SetMaterial(0, depthMaterial_);
 		Resources::GetMeshRenderer()->RenderSprite(sprite);
 	}
 
-	fbDepth_->Unbind();
+	fb1_->Unbind();
 }
 
 int CameraInternal::RenderOpaquePass(const std::vector<Sprite>& sprites, int from) {
@@ -362,29 +472,31 @@ void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAd
 void CameraInternal::OnPostRender() {
 }
 
-void CameraInternal::OnImageEffect() {
+void CameraInternal::OnImageEffects() {
 	if (imageEffects_.empty()) { return; }
 
-	Framebuffer* framebuffers[] = { fbRenderTexture_, fbRenderTexture2_ };
-	RenderTexture textures[] = { fbRenderTexture_->GetRenderTexture(0), renderTexture2_ };
+	CreateFramebuffer2();
+
+	FramebufferBase* framebuffers[] = { fb1_, fb2_ };
+	RenderTexture textures[] = { fb1_->GetRenderTexture(FramebufferAttachment0), renderTexture2_ };
 
 	int index = 1;
 	for (int i = 0; i < imageEffects_.size(); ++i) {
-		Framebuffer0* active = framebuffers[index];
+		FramebufferBase* active = framebuffers[index];
 		
 		if (i + 1 == imageEffects_.size()) {
-			active = fb0_;
+			active = Framebuffer0::Get();
 			textures[index].reset();
 		}
 
-		active->Bind();
-		imageEffects_[i]->OnRenderImage(fbDepth_->GetDepthTexture(), textures[index]);
-		active->Unbind();
+		active->BindWrite();
+		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
 
+		active->Unbind();
 		index = 1 - index;
 	}
 
-	fb0_->Unbind();
+	Framebuffer0::Get()->Unbind();
 }
 
 bool CameraInternal::IsRenderable(Sprite sprite) {
@@ -394,8 +506,11 @@ bool CameraInternal::IsRenderable(Sprite sprite) {
 
 bool CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {
 	WorldInstance()->GetSprites(ObjectTypeSprite, sprites);
+	SortRenderableSprites(sprites);
+	return !sprites.empty();
+}
 
-	// Sort sprites by render queue.
+void CameraInternal::SortRenderableSprites(std::vector<Sprite>& sprites) {
 	int p = 0;
 	for (int i = 0; i < sprites.size(); ++i) {
 		Sprite key = sprites[i];
@@ -414,7 +529,6 @@ bool CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {
 	}
 
 	sprites.erase(sprites.begin() + p, sprites.end());
-	return !sprites.empty();
 }
 
 void CameraInternal::RenderSprite(Sprite sprite, Renderer renderer) {
@@ -436,6 +550,6 @@ void CameraInternal::UpdateMaterial(Sprite sprite, Material material) {
 
 	if (pass_ >= RenderPassOpaque) {
 		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldMatrix);
-		material->SetTexture(Variables::shadowDepthTexture, fbShadow_->GetDepthTexture());
+		material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}
 }

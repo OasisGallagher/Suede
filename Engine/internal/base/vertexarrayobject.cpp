@@ -5,12 +5,12 @@
 VertexArrayObject::VertexArrayObject() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
 	, vboCount_(0) {
-	glGenVertexArrays(1, &vao_);
+	GL::GenVertexArrays(1, &vao_);
 }
 
 VertexArrayObject::~VertexArrayObject() {
 	DestroyVBOs();
-	glDeleteVertexArrays(1, &vao_);
+	GL::DeleteVertexArrays(1, &vao_);
 }
 
 void VertexArrayObject::CreateVBOs(size_t n) {
@@ -19,7 +19,7 @@ void VertexArrayObject::CreateVBOs(size_t n) {
 	Bind();
 
 	vbos_ = MEMORY_CREATE_ARRAY(GLuint, n);
-	glGenBuffers(n, vbos_);
+	GL::GenBuffers(n, vbos_);
 	attributes_ = MEMORY_CREATE_ARRAY(VBOAttribute, n);
 
 	vboCount_ = n;
@@ -38,23 +38,23 @@ void VertexArrayObject::SetBuffer(uint index, GLenum target, size_t size, const 
 	attributes_[index].usage = usage;
 
 	BindBuffer(index);
-	glBufferData(target, size, data, usage);
+	GL::BufferData(target, size, data, usage);
 	UnbindBuffer(index);
 }
 
 void VertexArrayObject::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
 	BindBuffer(index);
-	glEnableVertexAttribArray(location);
+	GL::EnableVertexAttribArray(location);
 
 	if (!normalized && (type == GL_BYTE || type == GL_UNSIGNED_BYTE || type == GL_INT || type == GL_UNSIGNED_INT || type == GL_SHORT || type == GL_UNSIGNED_SHORT)) {
-		glVertexAttribIPointer(location, size, type, stride, (void*)(size_t)offset);
+		GL::VertexAttribIPointer(location, size, type, stride, (void*)(size_t)offset);
 	}
 	else {
-		glVertexAttribPointer(location, size, type, normalized, stride, (void*)(size_t)offset);
+		GL::VertexAttribPointer(location, size, type, normalized, stride, (void*)(size_t)offset);
 	}
 
 	if (divisor > 0) {
-		glVertexAttribDivisor(location, divisor);
+		GL::VertexAttribDivisor(location, divisor);
 	}
 
 	UnbindBuffer(index);
@@ -80,8 +80,8 @@ void VertexArrayObject::UpdateBuffer(uint index, int offset, size_t size, const 
 
 	BindBuffer(index);
 
-	glBufferData(attr.target, attr.size, nullptr, attr.usage); 
-	glBufferSubData(attr.target, offset, size, data);
+	GL::BufferData(attr.target, attr.size, nullptr, attr.usage); 
+	GL::BufferSubData(attr.target, offset, size, data);
 
 	UnbindBuffer(index);
 }
@@ -91,7 +91,7 @@ void VertexArrayObject::DestroyVBOs() {
 		return;
 	}
 
-	glDeleteBuffers(vboCount_, vbos_);
+	GL::DeleteBuffers(vboCount_, vbos_);
 	MEMORY_RELEASE_ARRAY(vbos_);
 	vbos_ = nullptr;
 
@@ -107,24 +107,24 @@ void VertexArrayObject::Bind() {
 		return;
 	}
 
-	glGetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&oldVao_);
-	glBindVertexArray(vao_);
+	GL::GetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&oldVao_);
+	GL::BindVertexArray(vao_);
 }
 
 void VertexArrayObject::Unbind() {
-	glBindVertexArray(oldVao_);
+	GL::BindVertexArray(oldVao_);
 	oldVao_ = 0;
 }
 
 void VertexArrayObject::BindBuffer(int index) {
 	GLenum pname = GetBindingName(attributes_[index].target);
-	glGetIntegerv(pname, (GLint*)&oldBuffer_);
+	GL::GetIntegerv(pname, (GLint*)&oldBuffer_);
 
-	glBindBuffer(attributes_[index].target, vbos_[index]);
+	GL::BindBuffer(attributes_[index].target, vbos_[index]);
 }
 
 void VertexArrayObject::UnbindBuffer(int index) {
-	glBindBuffer(attributes_[index].target, oldBuffer_);
+	GL::BindBuffer(attributes_[index].target, oldBuffer_);
 	oldBuffer_ = 0;
 }
 

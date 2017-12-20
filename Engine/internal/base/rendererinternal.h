@@ -1,4 +1,4 @@
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 #include "mesh.h"
 #include "renderer.h"

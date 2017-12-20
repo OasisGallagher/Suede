@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 #include "shader.h"
 #include "internal/containers/ptrmap.h"

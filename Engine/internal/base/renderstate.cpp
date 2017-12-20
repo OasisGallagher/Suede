@@ -14,18 +14,18 @@ void CullState::Initialize(int parameter0, int) {
 }
 
 void CullState::Bind() {
-	oldEnabled_ = glIsEnabled(GL_CULL_FACE);
-	glGetIntegerv(GL_CULL_FACE_MODE, &oldMode_);
+	oldEnabled_ = GL::IsEnabled(GL_CULL_FACE);
+	GL::GetIntegerv(GL_CULL_FACE_MODE, &oldMode_);
 
 	Enable(GL_CULL_FACE, parameter_ != Off);
 	if (parameter_ != Off) {
-		glCullFace(RenderParamterToGLEnum(parameter_));
+		GL::CullFace(RenderParamterToGLEnum(parameter_));
 	}
 }
 
 void CullState::Unbind() {
 	Enable(GL_CULL_FACE, oldEnabled_);
-	glCullFace(oldMode_);
+	GL::CullFace(oldMode_);
 }
 
 RenderState * CullState::Clone() {
@@ -43,16 +43,16 @@ void DepthTestState::Initialize(int parameter0, int) {
 }
 
 void DepthTestState::Bind() {
-	oldEnabled_ = glIsEnabled(GL_DEPTH_TEST);
-	glGetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
+	oldEnabled_ = GL::IsEnabled(GL_DEPTH_TEST);
+	GL::GetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
 
 	Enable(GL_DEPTH_TEST, parameter_ != Always);
-	glDepthFunc(RenderParamterToGLEnum(parameter_));
+	GL::DepthFunc(RenderParamterToGLEnum(parameter_));
 }
 
 void DepthTestState::Unbind() {
 	Enable(GL_DEPTH_TEST, oldEnabled_);
-	glDepthFunc(oldMode_);
+	GL::DepthFunc(oldMode_);
 }
 
 RenderState * DepthTestState::Clone() {
@@ -70,12 +70,12 @@ void DepthWriteState::Initialize(int parameter0, int) {
 }
 
 void DepthWriteState::Bind() {
-	glGetIntegerv(GL_DEPTH_WRITEMASK, &oldMask_);
-	glDepthMask(parameter_ == On);
+	GL::GetIntegerv(GL_DEPTH_WRITEMASK, &oldMask_);
+	GL::DepthMask(parameter_ == On);
 }
 
 void DepthWriteState::Unbind() {
-	glDepthMask(oldMask_);
+	GL::DepthMask(oldMask_);
 }
 
 RenderState * DepthWriteState::Clone() {
@@ -93,7 +93,7 @@ void RasterizerDiscardState::Initialize(int parameter0, int) {
 }
 
 void RasterizerDiscardState::Bind() {
-	oldEnabled_ = glIsEnabled(GL_RASTERIZER_DISCARD);
+	oldEnabled_ = GL::IsEnabled(GL_RASTERIZER_DISCARD);
 	Enable(GL_RASTERIZER_DISCARD, parameter_ == On);
 }
 
@@ -112,7 +112,7 @@ void BlendState::Initialize(int parameter0, int parameter1) {
 		return;
 	}
 
-	if (!IsValidParamter(parameter1, 9,
+	if (parameter0 != Off && !IsValidParamter(parameter1, 9,
 		None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha)) {
 		Debug::LogError("invalid paramter for 'Blend'.");
 		return;
@@ -123,17 +123,19 @@ void BlendState::Initialize(int parameter0, int parameter1) {
 }
 
 void BlendState::Bind() {
-	oldEnabled_ = glIsEnabled(GL_BLEND);
-	glGetIntegerv(GL_BLEND_SRC, &oldSrc_);
-	glGetIntegerv(GL_BLEND_DST, &oldDest_);
+	oldEnabled_ = GL::IsEnabled(GL_BLEND);
+	GL::GetIntegerv(GL_BLEND_SRC, &oldSrc_);
+	GL::GetIntegerv(GL_BLEND_DST, &oldDest_);
 
 	Enable(GL_BLEND, src_ != Off);
-	glBlendFunc(RenderParamterToGLEnum(src_), RenderParamterToGLEnum(dest_));
+	if (src_ != Off) {
+		GL::BlendFunc(RenderParamterToGLEnum(src_), RenderParamterToGLEnum(dest_));
+	}
 }
 
 void BlendState::Unbind() {
 	Enable(GL_BLEND, oldEnabled_);
-	glBlendFunc(oldSrc_, oldDest_);
+	GL::BlendFunc(oldSrc_, oldDest_);
 }
 
 RenderState * BlendState::Clone() {
@@ -141,8 +143,8 @@ RenderState * BlendState::Clone() {
 }
 
 void RenderState::Enable(GLenum cap, GLboolean enable) {
-	if (enable) { glEnable(cap); }
-	else { glDisable(cap); }
+	if (enable) { GL::Enable(cap); }
+	else { GL::Disable(cap); }
 }
 
 bool RenderState::IsValidParamter(int parameter0, int count, ...) {

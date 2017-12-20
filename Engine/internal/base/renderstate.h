@@ -1,5 +1,5 @@
 #pragma once
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 #include "renderer.h"
 

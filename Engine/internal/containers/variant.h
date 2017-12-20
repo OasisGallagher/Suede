@@ -1,6 +1,6 @@
 #pragma once
-#include <gl/glew.h>
 #include <glm/glm.hpp>
+#include <wrappers/gl.h>
 #include <glm/gtc/quaternion.hpp>
 
 #include "texture.h"

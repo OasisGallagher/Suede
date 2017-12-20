@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 #include "texture.h"
 #include "internal/file/image.h"

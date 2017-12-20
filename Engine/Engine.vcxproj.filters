@@ -74,6 +74,12 @@
     <Filter Include="internal\containers\src">
       <UniqueIdentifier>{1e57a109-0bf2-4ecc-9612-7917ae76c1bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="wrappers">
+      <UniqueIdentifier>{58daa8e9-d251-40e8-ad29-6b00e01fbba7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wrappers\include">
+      <UniqueIdentifier>{926afe17-d09c-45e9-aacc-58dfc3e62096}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -243,6 +249,9 @@
     </ClInclude>
     <ClInclude Include="include\imageeffect.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="wrappers\gl.h">
+      <Filter>wrappers\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -5,37 +5,37 @@
 #include "textureinternal.h"
 
 void TextureInternal::Bind(uint index) {
-	if (!glIsTexture(texture_)) {
+	if (!GL::IsTexture(texture_)) {
 		Debug::LogError("invalid texture");
 		return;
 	}
 
 	location_ = index + GL_TEXTURE0;
-	glActiveTexture(location_);
+	GL::ActiveTexture(location_);
 	BindTexture();
 }
 
 void TextureInternal::Unbind() {
 	if (location_ != 0) {
-		glActiveTexture(location_);
+		GL::ActiveTexture(location_);
 		UnbindTexture();
 		location_ = 0;
 	}
 }
 
 void TextureInternal::BindTexture() {
-	glGetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
-	glBindTexture(GetGLTextureType(), texture_);
+	GL::GetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
+	GL::BindTexture(GetGLTextureType(), texture_);
 }
 
 void TextureInternal::UnbindTexture() {
-	glBindTexture(GetGLTextureType(), oldBindingTexture_);
+	GL::BindTexture(GetGLTextureType(), oldBindingTexture_);
 	oldBindingTexture_ = 0;
 }
 
 void TextureInternal::DestroyTexture() {
 	if (texture_ != 0) {
-		glDeleteTextures(1, &texture_);
+		GL::DeleteTextures(1, &texture_);
 		texture_ = 0;
 	}
 }
@@ -104,20 +104,20 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 	width_ = width;
 	height_ = height;
 
-	glGenTextures(1, &texture_);
+	GL::GenTextures(1, &texture_);
 	
 	BindTexture();
 
 	GLenum glFormat[3];
 	ColorFormatToGLTextureFormat(format, glFormat);
-	glTexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], data);
+	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], data);
 
 	format_ = glFormat[0];
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	UnbindTexture();
 
@@ -141,7 +141,7 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	texelMap.alignment = 4;
 	BppType bpp = GLTextureFormatToBpp(format_);
 	texelMap.data.resize((bpp / 8) * GetWidth() * GetHeight());
-	glGetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
+	GL::GetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
 	texelMap.format = (bpp == BppType24) ? ColorFormatRgb : ColorFormatRgba;
@@ -159,7 +159,7 @@ TextureCubeInternal::~TextureCubeInternal() {
 bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	DestroyTexture();
 
-	glGenTextures(1, &texture_);
+	GL::GenTextures(1, &texture_);
 
 	BindTexture();
 
@@ -172,13 +172,13 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 
 		GLenum glFormat[3];
 		ColorFormatToGLTextureFormat(texelMap.format, glFormat);
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], texelMap.width, texelMap.height, 0, glFormat[1], glFormat[2], &texelMap.data[0]);
+		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], texelMap.width, texelMap.height, 0, glFormat[1], glFormat[2], &texelMap.data[0]);
 		format_ = glFormat[0];
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 
 	UnbindTexture();
@@ -194,22 +194,22 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	width_ = width;
 	height_ = height;
 
-	glGenTextures(1, &texture_);
+	GL::GenTextures(1, &texture_);
 	BindTexture();
 
 	GLenum glFormat[3];
 	RenderTextureFormatToGLEnum(format, glFormat);
-	glTexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], nullptr);
+	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], nullptr);
 	format_ = glFormat[0];
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	if (format == RenderTextureFormatShadow) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 	}
 
 	UnbindTexture();
@@ -231,9 +231,14 @@ void RenderTextureInternal::RenderTextureFormatToGLEnum(RenderTextureFormat inpu
 			break;
 		case RenderTextureFormatDepth:
 		case RenderTextureFormatShadow:
-			internalFormat = GL_DEPTH_COMPONENT24;
+			internalFormat = GL_DEPTH_COMPONENT16;
 			format = GL_DEPTH_COMPONENT;
 			type = GL_FLOAT;
+			break;
+		case RenderTextureFormatDepthStencil:
+			internalFormat = GL_DEPTH32F_STENCIL8;
+			format = GL_DEPTH_STENCIL;
+			type = GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
 			break;
 		default:
 			Debug::LogError("invalid render texture format: %d.", input);

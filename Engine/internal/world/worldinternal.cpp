@@ -6,7 +6,7 @@
 #include "internal/sprites/spriteinternal.h"
 #include "internal/world/environmentinternal.h"
 
-World WorldInstance() {
+World& WorldInstance() {
 	static World instance = Factory::Create<WorldInternal>();
 	return instance;
 }

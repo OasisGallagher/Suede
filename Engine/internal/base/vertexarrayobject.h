@@ -1,6 +1,6 @@
 #pragma once
 #include "defines.h"
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 class VertexArrayObject {
 public:

@@ -1,4 +1,4 @@
-#include <gl/glew.h>
+#include <wrappers/gl.h>
 
 #include "debug.h"
 #include "time2.h"
@@ -31,8 +31,8 @@ bool Engine::Initialize() {
 	}
 
 	if (GLEW_ARB_debug_output) {
-		glDebugMessageCallbackARB(GLDebugMessageCallback, nullptr);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+		GL::DebugMessageCallback(GLDebugMessageCallback, nullptr);
+		GL::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
 
 	Resources::Import();
@@ -40,11 +40,12 @@ bool Engine::Initialize() {
 }
 
 void Engine::Release() {
+	WorldInstance().reset();
 }
 
 void Engine::Resize(int w, int h) {
 	Screen::Set(w, h);
-	glViewport(0, 0, w, h);
+	GL::Viewport(0, 0, w, h);
 }
 
 void Engine::Update() {

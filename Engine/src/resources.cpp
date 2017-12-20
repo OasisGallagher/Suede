@@ -130,6 +130,8 @@ void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 
 	int indexes[] = { 0, 1, 2, 3 };
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
+
+	attribute.color.count = attribute.geometry.count = 0;
 }
 
 void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
