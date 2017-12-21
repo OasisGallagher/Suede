@@ -7,6 +7,7 @@
 #include "resources.h"
 #include "variables.h"
 #include "internal/file/image.h"
+#include "internal/base/gbuffer.h"
 #include "internal/memory/factory.h"
 #include "internal/base/framebuffer.h"
 #include "internal/base/shaderinternal.h"
@@ -16,102 +17,10 @@
 #include "internal/base/rendererinternal.h"
 #include "internal/sprites/camerainternal.h"
 
-class GBuffer {
-public:
-	enum GTexture {
-		Vertex,
-		Color,
-		Normal,
-		GTextureCount,
-	};
-
-	enum GPass {
-		GeometryPass,
-		StencilPass,
-		LightPass,
-		FinalPass,
-	};
-
-public:
-	GBuffer() {
-		for (int i = 0; i < GTextureCount; ++i) {
-			colorAttachments_[i] = FramebufferAttachment0 + i;
-		}
-	}
-
-	~GBuffer() {}
-
-public:
-	bool Create(uint width, uint height) {
-		fb.Create(width, height);
-
-		for (int i = 0; i < GTextureCount; ++i) {
-			textures_[i] = NewRenderTexture();
-			textures_[i]->Load(RenderTextureFormatRgba, width, height);
-			fb.SetRenderTexture(FramebufferAttachment0 + i, textures_[i]);
-		}
-
-		depthTexture_ = NewRenderTexture();
-		depthTexture_->Load(RenderTextureFormatDepthStencil, width, height);
-		fb.SetDepthTexture(depthTexture_);
-
-		finalTexture_ = NewRenderTexture();
-		finalTexture_->Load(RenderTextureFormatRgba, width, height);
-		fb.SetRenderTexture(FramebufferAttachment0 + GTextureCount, finalTexture_);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			Debug::LogError("failed to create gbuffer.");
-			return false;
-		}
-
-		return true;
-	}
-
-	void Clear() {
-		fb.Clear(FramebufferClearBitmaskColor, FramebufferAttachment0 + GTextureCount);
-	}
-
-	void Bind(GPass pass) {
-		switch (pass) {
-			case GeometryPass:
-				fb.BindWrite(GTextureCount, colorAttachments_);
-				break;
-			case StencilPass:
-				fb.BindWrite(FramebufferAttachmentNone);
-				break;
-			case LightPass:
-				fb.BindWrite(FramebufferAttachment0 + GTextureCount);
-				break;
-			case FinalPass:
-				Framebuffer0::Get()->BindWrite();
-				fb.BindRead(FramebufferAttachment0 + GTextureCount);
-				break;
-		}
-	}
-
-	RenderTexture GetRenderTexture(GTexture index) {
-		if (index >= GTextureCount) {
-			Debug::LogError("index out of range.");
-			return nullptr;
-		}
-
-		return textures_[index];
-	}
-
-private:
-	Framebuffer fb;
-	RenderTexture depthTexture_;
-	RenderTexture finalTexture_;
-	RenderTexture textures_[GTextureCount];
-
-	int colorAttachments_[GTextureCount];
-};
-
 CameraInternal::CameraInternal() 
-	: SpriteInternal(ObjectTypeCamera), clearType_(ClearTypeColor)
-	, depth_(0), aspect_(1.3f), near_(1.f), far_(1000.f)
-	, fieldOfView_(3.141592f / 3.f), projection_(glm::perspective(fieldOfView_, aspect_, near_, far_))
-	, pass_(RenderPassNone), renderPath_(RenderPathForward), fb1_(nullptr), fb2_(nullptr), viewToShadowSpaceMatrix_(1) {
+	: SpriteInternal(ObjectTypeCamera)
+	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
+	InitializeVariables();
 	CreateFramebuffers();
 	CreateDepthMaterial();
 	CreateShadowMaterial();
@@ -121,6 +30,7 @@ CameraInternal::CameraInternal()
 CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(fb1_);
 	MEMORY_RELEASE(fb2_);
+	MEMORY_RELEASE(gbuffer_);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -220,7 +130,9 @@ void CameraInternal::ForwardRender(const std::vector<Sprite>& sprites) {
 }
 
 void CameraInternal::DeferredRender(const std::vector<Sprite>& sprites) {
-
+	if (gbuffer_ == nullptr) {
+		gbuffer_ = MEMORY_CREATE(GBuffer);
+	}
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
@@ -243,6 +155,19 @@ Texture2D CameraInternal::Capture() {
 	texture->Load(&data[0], ColorFormatRgb, Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	return texture;
+}
+
+void CameraInternal::InitializeVariables() {
+	depth_ = 0; 
+	aspect_ = 1.3f;
+	near_ = 1.f;
+	far_ = 1000.f;
+	fieldOfView_ = Math::Pi() / 3.f;
+	projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+
+	clearType_ = ClearTypeColor;
+	pass_ = RenderPassNone;
+	renderPath_ = RenderPathForward;
 }
 
 void CameraInternal::CreateFramebuffers() {
@@ -440,13 +365,33 @@ void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 	fb1_->Unbind();
 }
 
+Material deferredMaterial;
 int CameraInternal::RenderOpaquePass(const std::vector<Sprite>& sprites, int from) {
+	// TEST
+	if (gbuffer_ == nullptr) {
+		gbuffer_ = new GBuffer;
+		gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
+		deferredMaterial = NewMaterial();
+		Shader shader = NewShader();
+		shader->Load("buildin/shaders/gbuffer");
+		deferredMaterial->SetShader(shader);
+		deferredMaterial->SetRenderState(Cull, Back);
+		deferredMaterial->SetRenderState(DepthTest, LessEqual);
+		deferredMaterial->SetRenderState(DepthWrite, On);
+		deferredMaterial->SetRenderState(Blend, Off);
+	}
+
+	gbuffer_->Clear();
+	gbuffer_->Bind(GBuffer::GeometryPass);
+
 	pass_ = RenderPassOpaque;
 	// TODO: sort.
 	for (int i = 0; i < sprites.size(); ++i) {
 		Sprite sprite = sprites[i];
 		RenderSprite(sprite, sprite->GetRenderer());
 	}
+
+	gbuffer_->Unbind();
 
 	return 0;
 }
@@ -490,7 +435,7 @@ void CameraInternal::OnImageEffects() {
 		}
 
 		active->BindWrite();
-		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
+		imageEffects_[i]->OnRenderImage(gbuffer_->GetRenderTexture(GBuffer::Normal)/*textures[1 - index]*/, textures[index]);
 
 		active->Unbind();
 		index = 1 - index;
@@ -533,6 +478,7 @@ void CameraInternal::SortRenderableSprites(std::vector<Sprite>& sprites) {
 
 void CameraInternal::RenderSprite(Sprite sprite, Renderer renderer) {
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+		renderer->SetMaterial(0, deferredMaterial);
 		UpdateMaterial(sprite, renderer->GetMaterial(i));
 	}
 

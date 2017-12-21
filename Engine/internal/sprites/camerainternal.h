@@ -7,6 +7,7 @@
 #include "internal/base/objectinternal.h"
 #include "internal/sprites/spriteinternal.h"
 
+class GBuffer;
 class Framebuffer;
 class FramebufferBase;
 
@@ -71,6 +72,7 @@ public:
 	virtual Texture2D Capture();
 
 private:
+	void InitializeVariables();
 	void CreateFramebuffers();
 	void CreateDepthMaterial();
 	void CreateShadowMaterial();
@@ -117,6 +119,8 @@ private:
 	float fieldOfView_;
 	glm::mat4 projection_;
 	glm::mat4 viewToShadowSpaceMatrix_;
+
+	GBuffer* gbuffer_;
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;

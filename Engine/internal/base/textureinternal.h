@@ -87,5 +87,5 @@ public:
 protected:
 	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
-	void RenderTextureFormatToGLEnum(RenderTextureFormat input, GLenum (&parameters)[3]);
+	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum (&parameters)[3]);
 };

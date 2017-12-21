@@ -198,7 +198,7 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	BindTexture();
 
 	GLenum glFormat[3];
-	RenderTextureFormatToGLEnum(format, glFormat);
+	RenderTextureFormatToGLenum(format, glFormat);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], nullptr);
 	format_ = glFormat[0];
 
@@ -217,7 +217,7 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	return true;
 }
 
-void RenderTextureInternal::RenderTextureFormatToGLEnum(RenderTextureFormat input, GLenum(&parameters)[3]) {
+void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]) {
 	GLenum internalFormat = GL_RGBA;
 	GLenum format = GL_RGBA;
 	GLenum type = GL_UNSIGNED_BYTE;
@@ -226,8 +226,12 @@ void RenderTextureInternal::RenderTextureFormatToGLEnum(RenderTextureFormat inpu
 		case  RenderTextureFormatRgba:
 			internalFormat = GL_RGBA;
 			break;
+		case RenderTextureFormatRgbaSn:
+			internalFormat = GL_RGBA_SNORM;
+			break;
 		case RenderTextureFormatRgbaHdr:
 			internalFormat = GL_RGBA32F;
+			type = GL_FLOAT;
 			break;
 		case RenderTextureFormatDepth:
 		case RenderTextureFormatShadow:
