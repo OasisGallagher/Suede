@@ -8,9 +8,14 @@
 enum RenderStateType {
 	Cull,
 	Blend,
+	RasterizerDiscard,
+
 	DepthTest,
 	DepthWrite,
-	RasterizerDiscard,
+
+	StencilOp,
+	StencilTest,
+	StencilMask,
 
 	RenderStateCount,
 };
@@ -19,6 +24,8 @@ enum {
 	None,
 	Front,
 	Back,
+	FrontAndBack,
+
 	On,
 	Off,
 
@@ -39,6 +46,14 @@ enum {
 	OneMinusSrcAlpha,
 	DestAlpha,
 	OneMinusDestAlpha,
+
+	Keep,
+	Replace,
+	Incr,
+	IncrWrap,
+	Decr,
+	DecrWrap,
+	Invert,
 };
 
 class SUEDE_API IMaterial : virtual public IObject {
@@ -53,14 +68,22 @@ public:
 	virtual void Undefine(const std::string& name) = 0;
 
 	/**
-	 * @param Cull: Front, Back, Off
-	 * @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always
-	 * @param DepthWrite: On, Off
+	 * @param Cull: Front, Back, Off.
+	 * @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
+	 * @param DepthWrite: On, Off.
 	 * @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
-	 * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
+	 * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
+	 * @param StencilTest0: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
+	 * @param StencilTest1: [0x00, 0xFF].
+	 * @param StencilTest2: [0x00, 0xFF].
+	 * @param StencilMask0: Front, Back, FrontAndBack.
+	 * @param StencilMask1: [0x00, 0xFF].
+	 * @param StencilOp0: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
+	 * @param StencilOp1: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
+	 * @param StencilOp2: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
 	 * @param RasterizerDiscard: On, Off
 	 */
-	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1 = 0) = 0;
+	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1 = 0, int parameter2 = 0) = 0;
 
 	virtual void SetInt(const std::string& name, int value) = 0;
 	virtual void SetFloat(const std::string& name, float value) = 0;

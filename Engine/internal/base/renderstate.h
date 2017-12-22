@@ -6,7 +6,7 @@
 class RenderState {
 public:
 	virtual ~RenderState() {}
-	virtual void Initialize(int parameter0, int parameter1) = 0;
+	virtual void Initialize(int parameter0, int parameter1, int parameter2) = 0;
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
 	virtual RenderState* Clone() = 0;
@@ -19,7 +19,7 @@ protected:
 
 class CullState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int);
+	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
@@ -32,7 +32,7 @@ private:
 
 class DepthTestState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int);
+	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
@@ -45,7 +45,7 @@ private:
 
 class DepthWriteState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int);
+	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
@@ -55,9 +55,60 @@ private:
 	int parameter_;
 };
 
+class StencilTestState : public RenderState {
+public:
+	virtual void Initialize(int parameter0, int parameter1, int parameter2);
+	virtual void Bind();
+	virtual void Unbind();
+	virtual RenderState* Clone();
+
+private:
+	GLint oldRef_;
+	GLenum oldFunc_;
+	GLuint oldMask_;
+
+	GLboolean oldEnabled_;
+
+	int parameter0_;
+	int parameter1_;
+	int parameter2_;
+};
+
+class StencilMaskState : public RenderState {
+public:
+	virtual void Initialize(int parameter0, int parameter1, int);
+	virtual void Bind();
+	virtual void Unbind();
+	virtual RenderState* Clone();
+
+private:
+	GLuint oldBackMask_;
+	GLuint oldFrontMask_;
+
+	int parameter0_;
+	int parameter1_;
+};
+
+class StencilOpState : public RenderState {
+public:
+	virtual void Initialize(int parameter0, int parameter1, int parameter2);
+	virtual void Bind();
+	virtual void Unbind();
+	virtual RenderState* Clone();
+
+private:
+	GLenum oldSfail_;
+	GLenum oldDpfail_;
+	GLenum oldDppass_;
+
+	int parameter0_;
+	int parameter1_;
+	int parameter2_;
+};
+
 class RasterizerDiscardState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int);
+	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
@@ -69,7 +120,7 @@ private:
 
 class BlendState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int parameter1);
+	virtual void Initialize(int parameter0, int parameter1, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();

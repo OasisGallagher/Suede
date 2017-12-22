@@ -7,8 +7,7 @@ public:
 	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
 		World world = WorldInstance();
 
-		Shader shader = NewShader();
-		shader->Load("shaders/inversion");
+		Shader shader = Resources::FindShader("shaders/inversion");
 
 		Material material = NewMaterial();
 		material->SetShader(shader);

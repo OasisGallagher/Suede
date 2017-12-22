@@ -68,15 +68,7 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	mesh->Unbind();
 }
 
-static void checkGLError() {
-	GLenum err = GL::GetError();
-	if (err != GL_NO_ERROR) {
-		__debugbreak();
-	}
-}
-
 void RendererInternal::RenderMesh(Mesh mesh, Material material) {
-	checkGLError();
 	mesh->Bind();
 	material->Bind();
 

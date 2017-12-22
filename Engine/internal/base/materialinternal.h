@@ -25,7 +25,7 @@ public:
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
 
-	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1);
+	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1, int parameter2);
 
 	virtual void SetInt(const std::string& name, int value);
 	virtual void SetFloat(const std::string& name, float value);

@@ -16,11 +16,16 @@ class CameraInternal : public ICamera, public SpriteInternal {
 	
 	enum RenderPass {
 		RenderPassNone = -1,
-		RenderPassBackground,
-		RenderPassDepth,
-		RenderPassShadow,
-		RenderPassOpaque,
-		RenderPassTransparent,
+
+		RenderPassShadowDepth,
+
+		RenderPassForwardBackground,
+		RenderPassForwardDepth,
+		RenderPassForwardOpaque,
+		RenderPassForwardTransparent,
+
+		RenderPassDeferredGeometryPass,
+
 		RenderPassCount
 	};
 
@@ -37,6 +42,9 @@ public:
 
 	virtual void SetRenderPath(RenderPath value) { renderPath_ = value; }
 	virtual RenderPath GetRenderPath() { return renderPath_; }
+
+	virtual void SetDepthTextureMode(DepthTextureMode value) { depthTextureMode_ = value; }
+	virtual DepthTextureMode GetDepthTextureMode() { return depthTextureMode_; }
 
 	virtual void SetSkybox(Skybox value) { skybox_ = value; }
 	virtual Skybox GetSkybox() { return skybox_; }
@@ -77,8 +85,11 @@ private:
 	void CreateDepthMaterial();
 	void CreateShadowMaterial();
 
-	void ForwardRender(const std::vector<Sprite>& sprites);
-	void DeferredRender(const std::vector<Sprite>& sprites);
+	void ForwardRendering(const std::vector<Sprite>& sprites, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(const std::vector<Sprite>& sprites, Light forwardBase, const std::vector<Light>& forwardAdd);
+
+	void InitializeDeferredRender();
+	void RenderDeferredGeometryPass(const std::vector<Sprite>& sprites);
 
 	void UpdateSkybox();
 	void SetUpFramebuffer1();
@@ -87,11 +98,12 @@ private:
 	void OnContextSizeChanged(int w, int h);
 	FramebufferBase* GetActiveFramebuffer();
 
-	void RenderDepthPass(const std::vector<Sprite>& sprites);
-	void RenderShadowPass(const std::vector<Sprite>& sprites, Light light);
-	int RenderBackgroundPass(const std::vector<Sprite>& sprites, int from);
-	int RenderOpaquePass(const std::vector<Sprite>& sprites, int from);
-	int RenderTransparentPass(const std::vector<Sprite>& sprites, int from);
+	void ShadowDepthPass(const std::vector<Sprite>& sprites, Light light);
+
+	void ForwardDepthPass(const std::vector<Sprite>& sprites);
+	int ForwardBackgroundPass(const std::vector<Sprite>& sprites, int from);
+	int ForwardOpaquePass(const std::vector<Sprite>& sprites, int from);
+	int ForwardTransparentPass(const std::vector<Sprite>& sprites, int from);
 
 	bool IsRenderable(Sprite sprite);
 
@@ -133,6 +145,7 @@ private:
 
 	// TODO: Common material.
 	Material depthMaterial_;
+	Material deferredMaterial_;
 	Material directionalLightShadowMaterial_;
 
 	std::vector<ImageEffect*> imageEffects_;
@@ -143,4 +156,5 @@ private:
 
 	ClearType clearType_;
 	RenderPath renderPath_;
+	DepthTextureMode depthTextureMode_;
 };

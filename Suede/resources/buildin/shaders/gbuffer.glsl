@@ -7,40 +7,38 @@ in vec3 c_normal;
 uniform mat4 c_localToClipSpaceMatrix;
 uniform mat4 c_localToWorldSpaceMatrix;
 
-out PTN {
-	vec3 worldPos;
-	vec2 texCoord;
-	vec3 worldNormal;
-} outPtn;
+out VertOut {
+	out	vec3 worldPos;
+	out	vec2 texCoord;
+	out	vec3 worldNormal;
+} vo;
 
 void main() {
 	gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
-	outPtn.worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
-	outPtn.texCoord = c_texCoord;
-	outPtn.worldNormal = (c_localToWorldSpaceMatrix * vec4(c_normal, 0)).xyz;
+	vo.worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+	vo.texCoord = c_texCoord;
+
+	mat3 m = inverse(transpose(mat3(c_localToWorldSpaceMatrix)));
+	vo.worldNormal = m * c_normal;
 }
 
 #shader fragment
 
-in PTN {
-	vec3 worldPos;
-	vec2 texCoord;
-	vec3 worldNormal;
-} inPtn;
+in VertOut {
+	in	vec3 worldPos;
+	in	vec2 texCoord;
+	in	vec3 worldNormal;
+} fi;
 
-layout(location = 0) out vec4 worldPos;
-layout(location = 1) out vec4 color;
-layout(location = 2) out vec4 worldNormal;
+layout(location = 0) out vec3 worldPos;
+layout(location = 1) out vec3 albedo;
+layout(location = 2) out vec3 worldNormal;
 
 uniform sampler2D c_mainTexture;
 
 void main() {
-	/*
-	worldPos = inPtn.worldPos;
-	color = texture(c_mainTexture, inPtn.texCoord).rgb;
-	worldNormal = normalize(inPtn.worldNormal);
-	*/
-	color = vec4(1, 0, 0, 1);
-	worldNormal = vec4(1, 0, 0, 1);
-	worldPos = vec4(1, 1, 0, 1);
+	worldPos = fi.worldPos;
+	albedo = texture(c_mainTexture, fi.texCoord).rgb;
+	worldNormal = normalize(fi.worldNormal);
 }
+

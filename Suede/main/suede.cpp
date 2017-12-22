@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QtWinExtras/QtWin>
 
 #include "suede.h"
 #include "world.h"
@@ -30,6 +31,7 @@ Suede::Suede(QWidget *parent)
 }
 
 Suede::~Suede() {
+	Debug::SetLogReceiver(nullptr);
 }
 
 void Suede::setupUI() {
@@ -157,7 +159,7 @@ void Suede::OnLogMessage(LogLevel level, const char* message) {
 
 		case LogLevelError:
 			Console::get()->addMessage(Console::Error, message);
-			//qFatal(message);
+			__debugbreak();
 			break;
 	}
 }

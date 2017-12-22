@@ -15,11 +15,13 @@ enum FramebufferTarget {
 enum FramebufferClearBitmask {
 	FramebufferClearBitmaskColor = 1,
 	FramebufferClearBitmaskDepth = 2,
+	FramebufferClearBitmaskStencil = 4,
 
-	FramebufferClearBitmaskColorDepth = -1,
+	FramebufferClearBitmaskColorDepth = FramebufferClearBitmaskColor | FramebufferClearBitmaskDepth,
+	FramebufferClearBitmaskColorDepthStencil = FramebufferClearBitmaskColorDepth | FramebufferClearBitmaskStencil,
 };
 
-enum /*FramebufferAttachment*/ {
+enum FramebufferAttachment {
 	FramebufferAttachmentNone = -1,
 	FramebufferAttachment0, 
 	FramebufferAttachment1,
@@ -55,6 +57,8 @@ public:
 protected:
 	FramebufferBase();
 	virtual ~FramebufferBase() {}
+	
+	void ClearCurrent(FramebufferClearBitmask bitmask);
 
 	void BindFramebuffer(FramebufferTarget target = FramebufferTargetReadWrite);
 	void UnbindFramebuffer();
@@ -92,33 +96,16 @@ public:
 public:
 	void Create(int width, int height);
 
-	/**
-	 * @param attachment: FramebufferAttachment
-	 */
-	void BindRead(int attachment);
+	void BindRead(FramebufferAttachment attachment);
 
 	virtual void BindWrite();
 	virtual void Clear(FramebufferClearBitmask bitmask);
 
-	/**
-	 * @param attachment: FramebufferAttachment
-	 */
-	virtual void Clear(FramebufferClearBitmask bitmask, int attachment) { Clear(bitmask, 1, &attachment); }
+	void ClearAttachment(FramebufferClearBitmask bitmask, FramebufferAttachment attachment) { ClearAttachments(bitmask, 1, &attachment); }
+	void ClearAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments);
 
-	/**
-	 * @param attachments: FramebufferAttachment
-	 */
-	virtual void Clear(FramebufferClearBitmask bitmask, uint n, int* attachments);
-
-	/**
-	 * @param attachment: FramebufferAttachment
-	 */
-	void BindWrite(int attachment) { BindWrite(1, &attachment); }
-
-	/**
-	 * @param attachments: FramebufferAttachment
-	 */
-	void BindWrite(uint n, int* attachments);
+	void BindWriteAttachment(FramebufferAttachment attachment) { BindWriteAttachments(1, &attachment); }
+	void BindWriteAttachments(uint n, FramebufferAttachment* attachments);
 
 public:
 	void SetDepthTexture(RenderTexture texture);
@@ -127,21 +114,17 @@ public:
 	uint GetRenderTextureCount();
 	RenderTexture GetDepthTexture();
 
-	/**
-	 * @param attachment: FramebufferAttachment
-	 */
-	RenderTexture GetRenderTexture(int attachment);
-
-	/**
-	 * @param attachment: FramebufferAttachment
-	 */
-	void SetRenderTexture(int attachment, RenderTexture texture);
+	RenderTexture GetRenderTexture(FramebufferAttachment attachment);
+	void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
 
 private:
 	uint ToGLColorAttachments();
-	uint ToGLColorAttachments(uint n, int* buffers);
+	uint ToGLColorAttachments(uint n, FramebufferAttachment* attachments);
+	GLenum FramebufferAttachmentToGLenum(FramebufferAttachment attachment);
+
+	void ClearCurrentAllAttachments(FramebufferClearBitmask bitmask);
 	void ClearBuffers(FramebufferClearBitmask bitmask, uint n, GLenum* buffers);
-	GLenum FramebufferAttachmentToGLenum(int attachment);
+	void ClearCurrentAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments);
 
 private:
 	GLuint depthRenderbuffer_;

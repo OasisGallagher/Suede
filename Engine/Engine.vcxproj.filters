@@ -253,6 +253,9 @@
     <ClInclude Include="wrappers\gl.h">
       <Filter>wrappers\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\base\gbuffer.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -356,6 +359,9 @@
     </ClCompile>
     <ClCompile Include="internal\memory\creater.cpp">
       <Filter>internal\memory\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\gbuffer.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

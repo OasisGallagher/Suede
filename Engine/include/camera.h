@@ -14,6 +14,11 @@ enum RenderPath {
 	RenderPathDeferred,
 };
 
+enum DepthTextureMode {
+	DepthTextureModeNone,
+	DepthTextureModeDepth = 1,
+};
+
 class ImageEffect;
 
 class SUEDE_API ICamera : virtual public ISprite {
@@ -26,6 +31,9 @@ public:
 
 	virtual void SetRenderPath(RenderPath value) = 0;
 	virtual RenderPath GetRenderPath() = 0;
+
+	virtual void SetDepthTextureMode(DepthTextureMode value) = 0;
+	virtual DepthTextureMode GetDepthTextureMode() = 0;
 
 	virtual void SetSkybox(Skybox value) = 0;
 	virtual Skybox GetSkybox() = 0;

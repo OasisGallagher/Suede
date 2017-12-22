@@ -3,7 +3,7 @@
 #include "renderstate.h"
 #include "internal/memory/memory.h"
 
-void CullState::Initialize(int parameter0, int) {
+void CullState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 3,
 		Front, Back, Off)) {
 		Debug::LogError("invalid paramter for 'Cull'.");
@@ -32,7 +32,7 @@ RenderState * CullState::Clone() {
 	return MEMORY_CLONE(CullState, this);
 }
 
-void DepthTestState::Initialize(int parameter0, int) {
+void DepthTestState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 8,
 		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always)) {
 		Debug::LogError("invalid parameter0 for 'DepthTest'.");
@@ -59,7 +59,7 @@ RenderState * DepthTestState::Clone() {
 	return MEMORY_CLONE(DepthTestState, this);
 }
 
-void DepthWriteState::Initialize(int parameter0, int) {
+void DepthWriteState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 2,
 		On, Off)) {
 		Debug::LogError("invalid paramter for 'DepthWrite'.");
@@ -82,7 +82,121 @@ RenderState * DepthWriteState::Clone() {
 	return MEMORY_CLONE(DepthWriteState, this);
 }
 
-void RasterizerDiscardState::Initialize(int parameter0, int) {
+void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
+	if (!IsValidParamter(parameter0, 8,
+		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always)) {
+		Debug::LogError("invalid parameter0 for 'StencilTest'.");
+		return;
+	}
+
+	if (parameter1 > 0xFF || parameter1 < 0x00) {
+		Debug::LogError("invalid parameter1 for 'StencilTest'.");
+		return;
+	}
+
+	if (parameter2 > 0xFF || parameter2 < 0x00) {
+		Debug::LogError("invalid parameter2 for 'StencilTest'.");
+		return;
+	}
+
+	parameter0_ = parameter0;
+	parameter1_ = parameter1;
+	parameter2_ = parameter2;
+}
+
+void StencilTestState::Bind() {
+	oldEnabled_ = GL::IsEnabled(GL_STENCIL_TEST);
+
+	GL::GetIntegerv(GL_STENCIL_REF, (GLint*)&oldRef_);
+	GL::GetIntegerv(GL_STENCIL_FUNC, (GLint*)&oldFunc_);
+	GL::GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint*)&oldMask_);
+
+	Enable(GL_STENCIL_TEST, parameter0_ != Always);
+	GL::StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, parameter2_);
+}
+
+void StencilTestState::Unbind() {
+	Enable(GL_STENCIL_TEST, oldEnabled_);
+	GL::StencilFunc(oldRef_, oldFunc_, oldMask_);
+}
+
+RenderState * StencilTestState::Clone() {
+	return MEMORY_CLONE(StencilTestState, this);
+}
+
+void StencilMaskState::Initialize(int parameter0, int parameter1, int) {
+	if (!IsValidParamter(parameter0, 3,
+		Front, Back, FrontAndBack)) {
+		Debug::LogError("invalid parameter0 for 'StencilMask'.");
+		return;
+	}
+
+	if (parameter1 > 0xFF || parameter1 < 0x00) {
+		Debug::LogError("invalid parameter1 for 'StencilMask'.");
+		return;
+	}
+
+	parameter0_ = parameter0;
+	parameter1_ = parameter1;
+}
+
+void StencilMaskState::Bind() {
+	GL::GetIntegerv(GL_STENCIL_WRITEMASK, (GLint*)&oldFrontMask_);
+	GL::GetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint*)&oldBackMask_);
+
+	GL::StencilMaskSeparate(RenderParamterToGLEnum(parameter0_), parameter1_);
+}
+
+void StencilMaskState::Unbind() {
+	GL::StencilMaskSeparate(GL_FRONT, oldFrontMask_);
+	GL::StencilMaskSeparate(GL_BACK, oldBackMask_);
+}
+
+RenderState * StencilMaskState::Clone() {
+	return MEMORY_CLONE(StencilMaskState, this);
+}
+
+void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) {
+	if (!IsValidParamter(parameter0, 8,
+		Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert)) {
+		Debug::LogError("invalid parameter0 for 'StencilOp'.");
+		return;
+	}
+
+	if (!IsValidParamter(parameter1, 8,
+		Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert)) {
+		Debug::LogError("invalid parameter1 for 'StencilOp'.");
+		return;
+	}
+
+	if (!IsValidParamter(parameter2, 8,
+		Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert)) {
+		Debug::LogError("invalid parameter2 for 'StencilOp'.");
+		return;
+	}
+
+	parameter0_ = parameter0;
+	parameter1_ = parameter1;
+	parameter2_ = parameter2;
+}
+
+void StencilOpState::Bind() {
+	GL::GetIntegerv(GL_STENCIL_FAIL, (GLint*)&oldSfail_);
+	GL::GetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, (GLint*)&oldDpfail_);
+	GL::GetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, (GLint*)&oldDppass_);
+
+	GL::StencilOp(RenderParamterToGLEnum(parameter0_), RenderParamterToGLEnum(parameter1_), RenderParamterToGLEnum(parameter2_));
+}
+
+void StencilOpState::Unbind() {
+	GL::StencilOp(oldSfail_, oldDpfail_, oldDppass_);
+}
+
+RenderState * StencilOpState::Clone() {
+	return MEMORY_CLONE(StencilOpState, this);
+}
+
+void RasterizerDiscardState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 2,
 		On, Off)) {
 		Debug::LogError("invalid paramter for 'RasterizerDiscard'.");
@@ -105,7 +219,7 @@ RenderState * RasterizerDiscardState::Clone() {
 	return MEMORY_CLONE(RasterizerDiscardState, this);
 }
 
-void BlendState::Initialize(int parameter0, int parameter1) {
+void BlendState::Initialize(int parameter0, int parameter1, int) {
 	if (!IsValidParamter(parameter0, 9,
 		Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha)) {
 		Debug::LogError("invalid paramter for 'Blend'.");
@@ -172,6 +286,9 @@ GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 		case Back:
 			value = GL_BACK;
 			break;
+		case FrontAndBack:
+			value = GL_FRONT_AND_BACK;
+			break;
 		case Never:
 			value = GL_NEVER;
 			break;
@@ -219,6 +336,28 @@ GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 			break;
 		case OneMinusDestAlpha:
 			value = GL_ONE_MINUS_DST_ALPHA;
+			break;
+
+		case Keep:
+			value = GL_KEEP;
+			break;
+		case Replace:
+			value = GL_REPLACE;
+			break;
+		case Incr:
+			value = GL_INCR;
+			break;
+		case IncrWrap:
+			value = GL_INCR_WRAP;
+			break;
+		case Decr:
+			value = GL_DECR;
+			break;
+		case DecrWrap:
+			value = GL_DECR_WRAP;
+			break;
+		case Invert:
+			value = GL_INVERT;
 			break;
 	}
 

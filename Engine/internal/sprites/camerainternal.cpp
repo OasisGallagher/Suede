@@ -91,35 +91,44 @@ void CameraInternal::Render() {
 	if (!GetRenderableSprites(sprites)) {
 		return;
 	}
-	
-	FramebufferBase* active = GetActiveFramebuffer();
-	active->BindWrite();
 
 	if (renderPath_ == RenderPathForward) {
-		ForwardRender(sprites);
+		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
+			ForwardDepthPass(sprites);
+		}
 	}
-	else {
-		DeferredRender(sprites);
-	}
-
-	OnPostRender();
-	active->Unbind();
-
-	OnImageEffects();
-	pass_ = RenderPassNone;
-}
-
-void CameraInternal::ForwardRender(const std::vector<Sprite>& sprites) {
-	RenderDepthPass(sprites);
 
 	Light forwardBase;
 	std::vector<Light> forwardAdd;
 	GetLights(forwardBase, forwardAdd);
 
-	RenderShadowPass(sprites, forwardBase);
-
+	ShadowDepthPass(sprites, forwardBase);
+	
+	// TODO: switch framebuffer is expensive.
 	fb1_->SetDepthTexture(nullptr);
 
+	FramebufferBase* active = GetActiveFramebuffer();
+	active->BindWrite();
+
+	if (renderPath_ == RenderPathForward) {
+		ForwardRendering(sprites, forwardBase, forwardAdd);
+	}
+	else {
+		DeferredRendering(sprites, forwardBase, forwardAdd);
+	}
+
+	OnPostRender();
+
+	active->Unbind();
+
+	if (!imageEffects_.empty()) {
+		OnImageEffects();
+	}
+
+	pass_ = RenderPassNone;
+}
+
+void CameraInternal::ForwardRendering(const std::vector<Sprite>& sprites, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (forwardBase) {
 		RenderForwardBase(sprites, forwardBase);
 	}
@@ -129,10 +138,51 @@ void CameraInternal::ForwardRender(const std::vector<Sprite>& sprites) {
 	}
 }
 
-void CameraInternal::DeferredRender(const std::vector<Sprite>& sprites) {
+void CameraInternal::DeferredRendering(const std::vector<Sprite>& sprites, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (gbuffer_ == nullptr) {
-		gbuffer_ = MEMORY_CREATE(GBuffer);
+		InitializeDeferredRender();
 	}
+
+	RenderDeferredGeometryPass(sprites);
+}
+
+void CameraInternal::InitializeDeferredRender() {
+	gbuffer_ = MEMORY_CREATE(GBuffer);
+	gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
+
+	deferredMaterial_ = NewMaterial();
+	Shader shader = NewShader();
+	shader->Load("buildin/shaders/gbuffer");
+	deferredMaterial_->SetShader(shader);
+	deferredMaterial_->SetRenderState(Cull, Back);
+	deferredMaterial_->SetRenderState(DepthTest, LessEqual);
+	deferredMaterial_->SetRenderState(DepthWrite, On);
+	deferredMaterial_->SetRenderState(Blend, Off);
+}
+
+void CameraInternal::RenderDeferredGeometryPass(const std::vector<Sprite>& sprites) {
+	pass_ = RenderPassDeferredGeometryPass;
+	gbuffer_->Bind(GBuffer::GeometryPass);
+
+	for (int i = 0; i < sprites.size(); ++i) {
+		Sprite sprite = sprites[i];
+		//if (sprite->GetRenderer()->GetRenderQueue() < RenderQueueGeometry) {
+		//	continue;
+		//}
+
+		glm::mat4 localToClipSpaceMatrix = projection_ * GetWorldToLocalMatrix() * sprite->GetLocalToWorldMatrix();
+		deferredMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
+		deferredMaterial_->SetMatrix4(Variables::localToWorldSpaceMatrix, sprite->GetLocalToWorldMatrix());
+
+		Texture mainTexture = sprite->GetRenderer()->GetMaterial(0)->GetTexture(Variables::mainTexture);
+		deferredMaterial_->SetTexture(Variables::mainTexture, mainTexture);
+
+		// TODO: mesh renderer.
+		Resources::GetMeshRenderer()->SetMaterial(0, deferredMaterial_);
+		Resources::GetMeshRenderer()->RenderSprite(sprite);
+	}
+
+	gbuffer_->Unbind();
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
@@ -291,20 +341,20 @@ void CameraInternal::RenderForwardBase(const std::vector<Sprite>& sprites, Light
 	SetForwardBaseLightParameter(sprites, light);
 
 	int from = 0;
-	from = RenderBackgroundPass(sprites, from);
-	from = RenderOpaquePass(sprites, from);
-	from = RenderTransparentPass(sprites, from);
+	from = ForwardBackgroundPass(sprites, from);
+	from = ForwardOpaquePass(sprites, from);
+	from = ForwardTransparentPass(sprites, from);
 }
 
-void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light light) {
-	pass_ = RenderPassShadow;
+void CameraInternal::ShadowDepthPass(const std::vector<Sprite>& sprites, Light light) {
+	pass_ = RenderPassShadowDepth;
 	if (light->GetType() != ObjectTypeDirectionalLight) {
 		Debug::LogError("invalid light type");
 		return;
 	}
 
 	fb1_->SetDepthTexture(shadowTexture_);
-	fb1_->BindWrite(FramebufferAttachmentNone);
+	fb1_->BindWriteAttachment(FramebufferAttachmentNone);
 
 	glm::vec3 lightPosition = light->GetRotation() * glm::vec3(0, 0, 1);
 	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
@@ -336,17 +386,17 @@ void CameraInternal::RenderShadowPass(const std::vector<Sprite>& sprites, Light 
 void CameraInternal::RenderForwardAdd(const std::vector<Sprite>& sprites, const std::vector<Light>& lights) {
 }
 
-int CameraInternal::RenderBackgroundPass(const std::vector<Sprite>& sprites, int from) {
-	pass_ = RenderPassBackground;
+int CameraInternal::ForwardBackgroundPass(const std::vector<Sprite>& sprites, int from) {
+	pass_ = RenderPassForwardBackground;
 	return 0;
 }
 
-void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
-	pass_ = RenderPassDepth;
+void CameraInternal::ForwardDepthPass(const std::vector<Sprite>& sprites) {
+	pass_ = RenderPassForwardDepth;
 
 	fb1_->SetDepthTexture(depthTexture_);
 
-	fb1_->BindWrite(FramebufferAttachmentNone);
+	fb1_->BindWriteAttachment(FramebufferAttachmentNone);
 
 	for (int i = 0; i < sprites.size(); ++i) {
 		Sprite sprite = sprites[i];
@@ -365,39 +415,19 @@ void CameraInternal::RenderDepthPass(const std::vector<Sprite>& sprites) {
 	fb1_->Unbind();
 }
 
-Material deferredMaterial;
-int CameraInternal::RenderOpaquePass(const std::vector<Sprite>& sprites, int from) {
-	// TEST
-	if (gbuffer_ == nullptr) {
-		gbuffer_ = new GBuffer;
-		gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
-		deferredMaterial = NewMaterial();
-		Shader shader = NewShader();
-		shader->Load("buildin/shaders/gbuffer");
-		deferredMaterial->SetShader(shader);
-		deferredMaterial->SetRenderState(Cull, Back);
-		deferredMaterial->SetRenderState(DepthTest, LessEqual);
-		deferredMaterial->SetRenderState(DepthWrite, On);
-		deferredMaterial->SetRenderState(Blend, Off);
-	}
-
-	gbuffer_->Clear();
-	gbuffer_->Bind(GBuffer::GeometryPass);
-
-	pass_ = RenderPassOpaque;
+int CameraInternal::ForwardOpaquePass(const std::vector<Sprite>& sprites, int from) {
+	pass_ = RenderPassForwardOpaque;
 	// TODO: sort.
 	for (int i = 0; i < sprites.size(); ++i) {
 		Sprite sprite = sprites[i];
 		RenderSprite(sprite, sprite->GetRenderer());
 	}
 
-	gbuffer_->Unbind();
-
 	return 0;
 }
 
-int CameraInternal::RenderTransparentPass(const std::vector<Sprite>& sprites, int from) {
-	pass_ = RenderPassTransparent;
+int CameraInternal::ForwardTransparentPass(const std::vector<Sprite>& sprites, int from) {
+	pass_ = RenderPassForwardTransparent;
 	// TODO: sort.
 	return 0;
 }
@@ -418,8 +448,6 @@ void CameraInternal::OnPostRender() {
 }
 
 void CameraInternal::OnImageEffects() {
-	if (imageEffects_.empty()) { return; }
-
 	CreateFramebuffer2();
 
 	FramebufferBase* framebuffers[] = { fb1_, fb2_ };
@@ -431,17 +459,15 @@ void CameraInternal::OnImageEffects() {
 		
 		if (i + 1 == imageEffects_.size()) {
 			active = Framebuffer0::Get();
-			textures[index].reset();
+			textures[index] = nullptr;
 		}
 
 		active->BindWrite();
-		imageEffects_[i]->OnRenderImage(gbuffer_->GetRenderTexture(GBuffer::Normal)/*textures[1 - index]*/, textures[index]);
+		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
 
 		active->Unbind();
 		index = 1 - index;
 	}
-
-	Framebuffer0::Get()->Unbind();
 }
 
 bool CameraInternal::IsRenderable(Sprite sprite) {
@@ -478,7 +504,6 @@ void CameraInternal::SortRenderableSprites(std::vector<Sprite>& sprites) {
 
 void CameraInternal::RenderSprite(Sprite sprite, Renderer renderer) {
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		renderer->SetMaterial(0, deferredMaterial);
 		UpdateMaterial(sprite, renderer->GetMaterial(i));
 	}
 
@@ -490,11 +515,13 @@ void CameraInternal::UpdateMaterial(Sprite sprite, Material material) {
 	glm::mat4 worldToCameraSpaceMatrix = GetWorldToLocalMatrix();
 	glm::mat4 worldToClipSpaceMatrix = projection_ * worldToCameraSpaceMatrix;
 	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldMatrix;
+
+	// TODO: uniform buffers for common matrices.
 	material->SetMatrix4(Variables::worldToClipSpaceMatrix, worldToClipSpaceMatrix);
 	material->SetMatrix4(Variables::worldToCameraSpaceMatrix, worldToCameraSpaceMatrix);
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 
-	if (pass_ >= RenderPassOpaque) {
+	if (pass_ >= RenderPassForwardOpaque) {
 		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldMatrix);
 		material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}

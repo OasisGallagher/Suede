@@ -8,8 +8,8 @@ void main() {
 }
 
 #shader fragment
-out float c_depth;
+out float depth;
 
 void main() {
-	c_depth = gl_FragCoord.z;
+	depth = gl_FragCoord.z;
 }

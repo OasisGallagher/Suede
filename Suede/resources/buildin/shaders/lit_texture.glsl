@@ -24,7 +24,7 @@ void main() {
 }
 
 #shader fragment
-out vec4 c_fragColor;
+out vec4 fragColor;
 
 in vec2 texCoord;
 in vec3 worldPos;
@@ -38,5 +38,5 @@ uniform sampler2D c_mainTexture;
 void main() {
 	vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 	float visibility = calculateShadowVisibility();
-	c_fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
+	fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
 }

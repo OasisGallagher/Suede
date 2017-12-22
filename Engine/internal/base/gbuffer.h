@@ -1,13 +1,12 @@
 #pragma once
 #include "texture.h"
-
-class Framebuffer;
+#include "framebuffer.h"
 
 class GBuffer {
 public:
 	enum GTexture {
 		Pos,
-		Color,
+		Albedo,
 		Normal,
 		GTextureCount,
 	};
@@ -37,10 +36,10 @@ private:
 	bool InitializeFramebuffer(uint width, uint height);
 
 private:
-	Framebuffer* framebuffer_;
+	Framebuffer framebuffer_;
 	RenderTexture depthTexture_;
 	RenderTexture finalTexture_;
 	RenderTexture textures_[GTextureCount];
 
-	int colorAttachments_[GTextureCount];
+	FramebufferAttachment colorAttachments_[GTextureCount];
 };

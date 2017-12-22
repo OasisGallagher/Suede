@@ -38,6 +38,8 @@ public:
 
 enum RenderTextureFormat {
 	RenderTextureFormatRgba,
+	RenderTextureFormatRgbaSn,
+	RenderTextureFormatRgbHdr,
 	RenderTextureFormatRgbaHdr,
 	RenderTextureFormatDepth,
 	RenderTextureFormatShadow,

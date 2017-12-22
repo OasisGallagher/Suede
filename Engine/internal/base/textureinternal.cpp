@@ -229,6 +229,11 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 		case RenderTextureFormatRgbaSn:
 			internalFormat = GL_RGBA_SNORM;
 			break;
+		case RenderTextureFormatRgbHdr:
+			internalFormat = GL_RGB32F;
+			format = GL_RGB;
+			type = GL_FLOAT;
+			break;
 		case RenderTextureFormatRgbaHdr:
 			internalFormat = GL_RGBA32F;
 			type = GL_FLOAT;

@@ -13,7 +13,7 @@ void main() {
 }
 
 #shader fragment
-out vec4 c_fragColor;
+out vec4 fragColor;
 
 in vec2 texCoord;
 
@@ -21,5 +21,5 @@ uniform vec4 c_mainColor;
 uniform sampler2D c_mainTexture;
 
 void main() {
-	c_fragColor = texture(c_mainTexture, texCoord) * c_mainColor;
+	fragColor = texture(c_mainTexture, texCoord) * c_mainColor;
 }

@@ -3,14 +3,12 @@
 #include "internal/memory/memory.h"
 
 GBuffer::GBuffer() {
-	framebuffer_ = MEMORY_CREATE(Framebuffer);
 	for (int i = 0; i < GTextureCount; ++i) {
-		colorAttachments_[i] = FramebufferAttachment0 + i;
+		colorAttachments_[i] = FramebufferAttachment(FramebufferAttachment0 + i);
 	}
 }
 
 GBuffer::~GBuffer() {
-	MEMORY_RELEASE(framebuffer_);
 }
 
 bool GBuffer::Create(uint width, uint height) {
@@ -18,29 +16,29 @@ bool GBuffer::Create(uint width, uint height) {
 }
 
 void GBuffer::Clear() {
-	framebuffer_->Clear(FramebufferClearBitmaskColor);// , FramebufferAttachment0 + GTextureCount);
+	framebuffer_.Clear(FramebufferClearBitmaskColor);// , FramebufferAttachment0 + GTextureCount);
 }
 
 void GBuffer::Bind(GPass pass) {
 	switch (pass) {
 		case GeometryPass:
-			framebuffer_->BindWrite(GTextureCount, colorAttachments_);
+			framebuffer_.BindWriteAttachments(GTextureCount, colorAttachments_);
 			break;
 		case StencilPass:
-			framebuffer_->BindWrite(FramebufferAttachmentNone);
+			framebuffer_.BindWriteAttachment(FramebufferAttachmentNone);
 			break;
 		case LightPass:
-			framebuffer_->BindWrite(FramebufferAttachment0 + GTextureCount);
+			framebuffer_.BindWriteAttachment(FramebufferAttachment(FramebufferAttachment0 + GTextureCount));
 			break;
 		case FinalPass:
 			Framebuffer0::Get()->BindWrite();
-			framebuffer_->BindRead(FramebufferAttachment0 + GTextureCount);
+			framebuffer_.BindRead(FramebufferAttachment(FramebufferAttachment0 + GTextureCount));
 			break;
 	}
 }
 
 void GBuffer::Unbind() {
-	framebuffer_->Unbind();
+	framebuffer_.Unbind();
 }
 
 RenderTexture GBuffer::GetRenderTexture(GTexture index) {
@@ -53,21 +51,21 @@ RenderTexture GBuffer::GetRenderTexture(GTexture index) {
 }
 
 bool GBuffer::InitializeFramebuffer(uint width, uint height) {
-	framebuffer_->Create(width, height);
+	framebuffer_.Create(width, height);
 
 	for (int i = 0; i < GTextureCount; ++i) {
 		textures_[i] = NewRenderTexture();
-		textures_[i]->Load(RenderTextureFormatRgba, width, height);
-		framebuffer_->SetRenderTexture(FramebufferAttachment0 + i, textures_[i]);
+		textures_[i]->Load(RenderTextureFormatRgbHdr, width, height);
+		framebuffer_.SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + i), textures_[i]);
 	}
 
 	depthTexture_ = NewRenderTexture();
 	depthTexture_->Load(RenderTextureFormatDepthStencil, width, height);
-	framebuffer_->SetDepthTexture(depthTexture_);
+	framebuffer_.SetDepthTexture(depthTexture_);
 
 	finalTexture_ = NewRenderTexture();
 	finalTexture_->Load(RenderTextureFormatRgba, width, height);
-	framebuffer_->SetRenderTexture(FramebufferAttachment0 + GTextureCount, finalTexture_);
+	framebuffer_.SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + GTextureCount), finalTexture_);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		Debug::LogError("failed to create gbuffer.");

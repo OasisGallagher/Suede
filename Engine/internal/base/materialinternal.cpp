@@ -47,6 +47,7 @@ void MaterialInternal::SetShader(Shader value) {
 		switch (container[i].type) {
 			case ShaderPropertyTypeInt:
 				var->SetInt(0);
+				break;
 			case ShaderPropertyTypeBool:
 				var->SetBool(false);
 				break;
@@ -287,7 +288,7 @@ void MaterialInternal::Define(const std::string& name) {
 void MaterialInternal::Undefine(const std::string& name) {
 }
 
-void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int parameter1) {
+void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int parameter1, int parameter2) {
 	RenderState* state = nullptr;
 	switch (type) {
 		case Cull:
@@ -302,6 +303,15 @@ void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int 
 		case DepthWrite:
 			state = MEMORY_CREATE(DepthWriteState);
 			break;
+		case StencilOp:
+			state = MEMORY_CREATE(StencilOpState);
+			break;
+		case StencilTest:
+			state = MEMORY_CREATE(StencilTestState);
+			break;
+		case StencilMask:
+			state = MEMORY_CREATE(StencilMaskState);
+			break;
 		case RasterizerDiscard:
 			state = MEMORY_CREATE(RasterizerDiscardState);
 			break;
@@ -310,7 +320,7 @@ void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int 
 			break;
 	}
 
-	state->Initialize(parameter0, parameter1);
+	state->Initialize(parameter0, parameter1, parameter2);
 	MEMORY_RELEASE(states_[type]);
 	states_[type] = state;
 }

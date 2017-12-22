@@ -37,14 +37,17 @@ public:
 	static void DrawBuffers(GLsizei n, const GLenum* bufs);
 	static void GenVertexArrays(GLsizei n, GLuint* arrays);
 	static void AttachShader(GLuint program, GLuint shader);
+	static void StencilMaskSeparate(GLenum face, GLuint mask);
 	static void DeleteBuffers(GLsizei n, const GLuint* buffers);
 	static void GenFramebuffers(GLsizei n, GLuint* framebuffers);
 	static void DeleteTextures(GLsizei n, const GLuint* textures);
+	static void StencilFunc(GLenum func, GLint ref, GLuint mask);
 	static void VertexAttribDivisor(GLuint index, GLuint divisor);
 	static void GenRenderbuffers(GLsizei n, GLuint* renderbuffers);
 	static void BindFramebuffer(GLenum target, GLuint framebuffer);
 	static void DeleteVertexArrays(GLsizei n, const GLuint* arrays);
 	static void BindRenderbuffer(GLenum target, GLuint renderbuffer);
+	static void StencilOp(GLenum sfail, GLenum dpfail, GLenum dppass);
 	static void TexParameteri(GLenum target, GLenum pname, GLint param);
 	static GLint GetUniformLocation(GLuint program, const GLchar* name);
 	static void GetShaderiv(GLuint shader, GLenum pname, GLint* params);
@@ -307,6 +310,10 @@ inline void GL::TexImage2D(GLenum target, GLint level, GLint internalformat, GLs
 	GL_CALL(glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels));
 }
 
+inline void GL::StencilOp(GLenum sfail, GLenum dpfail, GLenum dppass) {
+	GL_CALL(glStencilOp(dppass, dppass, dppass));
+}
+
 inline void GL::TexParameteri(GLenum target, GLenum pname, GLint param) {
 	GL_CALL(glTexParameteri(target, pname, param));
 }
@@ -343,12 +350,20 @@ inline void GL::VertexAttribPointer(GLuint index, GLint size, GLenum type, GLboo
 	GL_CALL(glVertexAttribPointer(index, size, type, normalized, stride, pointer));
 }
 
+inline void GL::StencilFunc(GLenum func, GLint ref, GLuint mask) {
+	GL_CALL(glStencilFunc(func, ref, mask));
+}
+
 inline void GL::VertexAttribDivisor(GLuint index, GLuint divisor) {
 	GL_CALL(glVertexAttribDivisor(index, divisor));
 }
 
 inline void GL::BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data) {
 	GL_CALL(glBufferSubData(target, offset, size, data));
+}
+
+inline void GL::StencilMaskSeparate(GLenum face, GLuint mask) {
+	GL_CALL(glStencilMaskSeparate(face, mask));
 }
 
 inline void GL::DeleteBuffers(GLsizei n, const GLuint* buffers) {

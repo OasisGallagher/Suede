@@ -9,7 +9,7 @@
 
 #ifdef ENABLE_CRT_MEMORY_CHECK
 #define MEMORY_CREATE(T)				new T()
-#define MEMORY_CLONE(T, other)			new T(other)
+#define MEMORY_CLONE(T, other)			new T(*other)
 #define MEMORY_CREATE_ARRAY(T, count)	new T[count]
 #define MEMORY_RELEASE(pointer)			delete pointer
 #define MEMORY_RELEASE_ARRAY(pointer)	delete[] pointer
@@ -136,6 +136,6 @@ private:
 struct Deleter {
 	template <class T>
 	void operator()(T *p) {
-		delete p;
+		Memory::Release(p);
 	}
 };

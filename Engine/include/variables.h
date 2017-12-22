@@ -21,9 +21,6 @@ namespace Variables {
 
 	DEFINE_VARIABLE(boneToRootSpaceMatrices);
 
-	DEFINE_VARIABLE(fragColor);
-	DEFINE_VARIABLE(depth);
-
 	DEFINE_VARIABLE(mainTexture);
 	DEFINE_VARIABLE(bumpTexture);
 	DEFINE_VARIABLE(specularTexture);

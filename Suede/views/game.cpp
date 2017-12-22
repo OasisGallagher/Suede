@@ -19,12 +19,14 @@
 #include "scripts/cameracontroller.h"
 
 //#define SKYBOX
-#define MODEL
-#define POST_EFFECTS
-#define ANIMATION
+#define ROOM
+//#define MODEL
+//#define POST_EFFECTS
+//#define ANIMATION
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
+//#define DEFERRED_RENDERING
 
 Game* Game::get() {
 	static Game instance;
@@ -119,6 +121,11 @@ void Game::createScene() {
 
 	Camera camera = NewCamera();
 	controller_->setCamera(camera);
+
+#ifdef DEFERRED_RENDERING
+	camera->SetRenderPath(RenderPathDeferred);
+#endif
+
 	camera->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
@@ -208,9 +215,13 @@ void Game::createScene() {
 	fsprite2->SetRenderer(renderer2);
 #endif
 
-#if defined(MODEL) || defined(ANIMATION)
+#if defined(MODEL) || defined(ANIMATION) || defined(ROOM)
 	Sprite sprite;
-#if defined(MODEL)
+#if defined(ROOM)
+	sprite = WorldInstance()->Import("models/room_thickwalls.obj");
+	sprite->SetPosition(glm::vec3(0, 25, -25));
+	sprite->SetEulerAngles(glm::vec3(30, 60, 0));
+#elif defined(MODEL)
 	sprite = WorldInstance()->Import("models/teddy_bear.fbx");
 	sprite->SetPosition(glm::vec3(0, -20, -150));
 #elif defined(ANIMATION)
@@ -220,7 +231,7 @@ void Game::createScene() {
 #endif
 
 	if (sprite) {
-		sprite->SetParent(camera);
+		//sprite->SetParent(camera);
 		light->SetParent(camera);
 
 		Animation animation = sprite->GetAnimation();
