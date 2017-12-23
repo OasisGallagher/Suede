@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "defines.h"
+#include "../shareddefines.h"
 
 enum LogLevel {
 	LogLevelDebug,
@@ -14,7 +14,7 @@ public:
 	virtual void OnLogMessage(LogLevel level, const char* message) = 0;
 };
 
-class SUEDE_API Debug {
+class SHARED_API Debug {
 public:
 	static void Log(const char* format, ...);
 	static void LogWarning(const char* format, ...);

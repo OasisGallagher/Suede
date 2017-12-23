@@ -1,7 +1,7 @@
 #pragma once
 #include <gl/glew.h>
 
-#include "debug.h"
+#include "debug/debug.h"
 
 class GL {
 public:

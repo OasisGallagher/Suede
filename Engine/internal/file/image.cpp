@@ -1,8 +1,8 @@
 #include <FreeImage.h>
 
 #include "math2.h"
-#include "debug.h"
 #include "image.h"
+#include "debug/debug.h"
 
 static ColorFormat BppToColorFormat(uint bpp) {
 	switch (bpp) {

@@ -1,6 +1,6 @@
 #include <cstdarg>
-#include "debug.h"
 #include "renderstate.h"
+#include "debug/debug.h"
 #include "internal/memory/memory.h"
 
 void CullState::Initialize(int parameter0, int, int) {

@@ -1,5 +1,5 @@
-#include "debug.h"
 #include "variables.h"
+#include "debug/debug.h"
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "shaderinternal.h"

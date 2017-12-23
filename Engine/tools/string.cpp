@@ -1,5 +1,5 @@
-#include "debug.h"
 #include "string.h"
+#include "debug/debug.h"
 #include <cstdarg>
 
 std::string String::Format(const char* format, ...) {

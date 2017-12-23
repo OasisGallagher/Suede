@@ -1,6 +1,6 @@
 #include <fstream>
-#include "debug.h"
 #include "textloader.h"
+#include "debug/debug.h"
 
 bool TextLoader::Load(const std::string& file, std::string& text) {
 	std::ifstream ifs(file, std::ios::in);

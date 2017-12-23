@@ -1,6 +1,5 @@
 #include <cstdarg>
 
-#include "math2.h"
 #include "debug.h"
 
 static ILogReceiver* logReceiver;
@@ -9,7 +8,7 @@ static char buffer[512];
 
 #define FORMAT_BUFFER(format)	*buffer = 0; \
 	va_list ap; va_start(ap, format); \
-	vsnprintf(buffer, CountOf(buffer), format, ap); va_end(ap)
+	vsnprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), format, ap); va_end(ap)
 
 void Debug::SetLogReceiver(ILogReceiver* value) {
 	logReceiver = value;

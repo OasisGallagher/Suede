@@ -1,11 +1,11 @@
 #include <wrappers/gl.h>
 
-#include "debug.h"
 #include "time2.h"
 #include "world.h"
 #include "engine.h"
 #include "screen.h"
 #include "resources.h"
+#include "debug/debug.h"
 
 #ifndef _STDCALL
 #define _STDCALL __stdcall

@@ -1,6 +1,7 @@
 #include <QMenuBar>
 #include <QSplitter>
 #include <QKeyEvent>
+#include <QMessageBox>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QtWinExtras/QtWin>
@@ -19,6 +20,7 @@
 Suede::Suede(QWidget *parent)
 	: QMainWindow(parent) {
 
+	OS::SetPromptCallback(this);
 	Debug::SetLogReceiver(this);
 
 	setupUI();
@@ -141,6 +143,18 @@ void Suede::screenCapture() {
 	if (image.loadFromData(&data[0], data.size())) {
 		image.save(path);
 	}
+}
+
+bool Suede::OnPrompt(const char* message) {
+	return true;
+	/*QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No);
+
+	QMessageBox box(QMessageBox::Question, tr("Question"), QString(message), buttons, this);
+	box.setButtonText(QMessageBox::Yes, tr("Yes"));
+	box.setButtonText(QMessageBox::No, tr("No"));
+
+	return box.exec() == (int)QMessageBox::Yes;
+	*/
 }
 
 void Suede::OnLogMessage(LogLevel level, const char* message) {

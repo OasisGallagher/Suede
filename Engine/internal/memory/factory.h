@@ -3,9 +3,9 @@
 #include <map>
 #include <vector>
 
-#include "debug.h"
 #include "object.h"
 #include "memory.h"
+#include "debug/debug.h"
 
 class Factory {
 	typedef Object (*FactoryMethod)();

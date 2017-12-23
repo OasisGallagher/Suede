@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-#include "debug.h"
+#include "debug/debug.h"
 #include "views/hierarchy.h"
 #include "cameracontroller.h"
 

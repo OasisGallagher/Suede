@@ -2,14 +2,16 @@
 
 #include <QtWidgets/QMainWindow>
 
-#include "debug.h"
 #include "ui_suede.h"
+
+#include "os/os.h"
+#include "debug/debug.h"
 
 class Canvas;
 class Console;
 class Hierarchy;
 
-class Suede : public QMainWindow, public ILogReceiver {
+class Suede : public QMainWindow, public ILogReceiver, public IPromptCallback {
 	Q_OBJECT
 
 public:
@@ -33,6 +35,8 @@ public:
 protected:
 	// TODO: update hierarchy.
 	virtual void keyPressEvent(QKeyEvent *event);
+
+	virtual bool OnPrompt(const char* message);
 	virtual void OnLogMessage(LogLevel level, const char* message);
 
 private slots:

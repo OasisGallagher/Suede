@@ -1,7 +1,7 @@
 #include <glm/glm.hpp>
 
-#include "debug.h"
 #include "tools/path.h"
+#include "debug/debug.h"
 #include "textureinternal.h"
 
 void TextureInternal::Bind(uint index) {

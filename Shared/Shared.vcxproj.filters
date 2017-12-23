@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="debug">
+      <UniqueIdentifier>{99df00b1-c686-48a7-8681-5ad5a811cd9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debug\include">
+      <UniqueIdentifier>{60fed431-fc8a-4825-a748-0e74b634cc86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="debug\src">
+      <UniqueIdentifier>{6a4edd56-98b0-4c49-920d-71f40f5d00aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os">
+      <UniqueIdentifier>{14c2156f-0894-4cbc-b88e-180c84ebc719}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os\include">
+      <UniqueIdentifier>{bdd57297-3764-4281-9c8a-ae26488fc710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os\src">
+      <UniqueIdentifier>{9accdc21-f125-4e68-af7c-2c727439ca87}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="debug\debug.h">
+      <Filter>debug\include</Filter>
+    </ClInclude>
+    <ClInclude Include="os\os.h">
+      <Filter>os\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="debug\debug.cpp">
+      <Filter>debug\src</Filter>
+    </ClCompile>
+    <ClCompile Include="os\os.cpp">
+      <Filter>os\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

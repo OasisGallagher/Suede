@@ -5,10 +5,35 @@
 #include "tools/string.h"
 #include "internal/base/glsldefines.h"
 
+#pragma comment(lib, "Compiler.lib")
+
+#include "lr_grammar.h"
+
+#include "language.h"
+#include "syntax_tree.h"
+
+static const char* demo = "resources/demo.js";
+static const char* compiler = "resources/compiler";
+
+bool Loaded = false;
+
 bool ShaderCompiler::Compile(const std::string& path, const std::string& defines, std::string(&answer)[ShaderTypeCount]) {
 	std::vector<std::string> lines;
 	if (!TextLoader::Load(Path::GetResourceRootDirectory() + path, lines)) {
 		return false;
+	}
+
+	if (!Loaded) {
+		Loaded = true;
+		Language lang;
+		lang.Setup(grammar, compiler);
+
+		//Debug::Log(lang->ToString());
+
+		SyntaxTree tree;
+
+		if (lang.Parse(&tree, demo)) {
+		}
 	}
 
 	Clear();

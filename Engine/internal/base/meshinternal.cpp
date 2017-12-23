@@ -1,6 +1,6 @@
 #include "math2.h"
-#include "debug.h"
 #include "resources.h"
+#include "debug/debug.h"
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "internal/base/materialinternal.h"

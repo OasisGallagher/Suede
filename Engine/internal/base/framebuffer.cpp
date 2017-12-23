@@ -1,4 +1,4 @@
-#include "debug.h"
+#include "debug/debug.h"
 #include "framebuffer.h"
 #include "tools/string.h"
 #include "internal/memory/memory.h"

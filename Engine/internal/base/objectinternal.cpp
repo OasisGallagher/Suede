@@ -2,7 +2,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "math2.h"
-#include "debug.h"
+#include "debug/debug.h"
 #include "objectinternal.h"
 
 uint ObjectInternal::ObjectIDContainer[ObjectTypeCount];

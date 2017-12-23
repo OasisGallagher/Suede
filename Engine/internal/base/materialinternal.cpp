@@ -1,7 +1,7 @@
-#include "debug.h"
 #include "math2.h"
 #include "variables.h"
 #include "renderstate.h"
+#include "debug/debug.h"
 #include "tools/string.h"
 #include "materialinternal.h"
 

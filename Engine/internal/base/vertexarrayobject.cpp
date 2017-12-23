@@ -1,4 +1,4 @@
-#include "debug.h"
+#include "debug/debug.h"
 #include "vertexarrayobject.h"
 #include "internal/memory/memory.h"
 

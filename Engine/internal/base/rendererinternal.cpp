@@ -1,9 +1,9 @@
 #include <algorithm>
 
 #include "math2.h"
-#include "debug.h"
 #include "time2.h"
 #include "variables.h"
+#include "debug/debug.h"
 #include "rendererinternal.h"
 
 RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), queue_(RenderQueueGeometry) {	

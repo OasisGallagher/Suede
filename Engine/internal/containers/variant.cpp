@@ -1,5 +1,5 @@
-#include "debug.h"
 #include "variant.h"
+#include "debug/debug.h"
 #include "internal/memory/memory.h"
 
 const char* Variant::TypeString(VariantType type) {

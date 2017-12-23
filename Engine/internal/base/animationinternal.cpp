@@ -4,7 +4,7 @@
 
 #include "math2.h"
 #include "time2.h"
-#include "debug.h"
+#include "debug/debug.h"
 #include "animationinternal.h"
 
 #define DEFAULT_TICKS_PER_SECOND	25

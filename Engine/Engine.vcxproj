@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>.\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\Shared\glm-0.9.7.1;3rdparty\free-image-3.10.7\include;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\Compiler\include;..\Shared;3rdparty\free-image-3.10.7\include;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -112,7 +112,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;Compiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
@@ -181,7 +181,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\sprites\spriteinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
-    <ClCompile Include="src\debug.cpp" />
     <ClCompile Include="src\engine.cpp" />
     <ClCompile Include="src\graphics.cpp" />
     <ClCompile Include="src\resources.cpp" />
@@ -234,6 +233,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\containers\sortedvector.h" />
     <ClInclude Include="internal\containers\variant.h" />
     <ClInclude Include="internal\file\image.h" />
+    <ClInclude Include="internal\file\lr_grammar.h" />
     <ClInclude Include="internal\file\shadercompiler.h" />
     <ClInclude Include="internal\file\assetimporter.h" />
     <ClInclude Include="internal\file\textloader.h" />

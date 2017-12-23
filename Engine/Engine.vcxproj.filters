@@ -256,6 +256,9 @@
     <ClInclude Include="internal\base\gbuffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\file\lr_grammar.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -341,9 +344,6 @@
     </ClCompile>
     <ClCompile Include="internal\base\meshinternal.cpp">
       <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\debug.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics.cpp">
       <Filter>src</Filter>
