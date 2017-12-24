@@ -225,11 +225,13 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 		}
 
 		if (savech) {
-			if (bi >= COMPOLIER_MAX_TOKEN_CHARACTERS) {
+			if ((bi + 1) >= COMPOLIER_MAX_TOKEN_CHARACTERS) {
 				Debug::LogError("token too long.");
+				state = STATE_DONE;
 			}
-
-			tokenBuffer_[bi++] = ch;
+			else {
+				tokenBuffer_[bi++] = ch;
+			}
 		}
 	}
 

@@ -47,6 +47,7 @@ enum ScannerTokenType {
 
 	ScannerTokenOr,
 	ScannerTokenAnd,
+	ScannerTokenXor,
 
 	ScannerTokenLessEqual,
 	ScannerTokenGreaterEqual,

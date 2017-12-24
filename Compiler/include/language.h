@@ -14,7 +14,7 @@ public:
 	~Language();
 
 public:
-	void Setup(const char* productions, const char* fileName);
+	void Setup(const char* source, const char* fileName);
 
 public:
 	bool Parse(SyntaxTree* tree, const std::string& file);

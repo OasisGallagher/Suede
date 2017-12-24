@@ -53,6 +53,7 @@ static TokenDefine tokens[] = {
 
 	"||", ScannerTokenOr,
 	"&&", ScannerTokenAnd,
+	"^^", ScannerTokenXor,
 
 	"<=", ScannerTokenLessEqual,
 	">=", ScannerTokenGreaterEqual,
