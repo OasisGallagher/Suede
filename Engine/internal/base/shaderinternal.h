@@ -6,22 +6,22 @@
 #include "internal/containers/ptrmap.h"
 #include "internal/base/objectinternal.h"
 
-enum ShaderType {
-	ShaderTypeVertex,
-	ShaderTypeTessellationControl,
-	ShaderTypeTessellationEvaluation,
-	ShaderTypeGeometry,
-	ShaderTypeFragment,
-	ShaderTypeCount,
+enum ShaderStage {
+	ShaderStageVertex,
+	ShaderStageTessellationControl,
+	ShaderStageTessellationEvaluation,
+	ShaderStageGeometry,
+	ShaderStageFragment,
+	ShaderStageCount,
 };
 
 struct ShaderDescription {
-	GLenum glShaderType;
+	GLenum glShaderStage;
 	const char* name;
 	const char* tag;
 };
 
-inline const ShaderDescription& GetShaderDescription(ShaderType shaderType) {
+inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
 	static ShaderDescription descriptions[] = {
 		GL_VERTEX_SHADER, "VertexShader", "vertex",
 		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control",
@@ -30,14 +30,17 @@ inline const ShaderDescription& GetShaderDescription(ShaderType shaderType) {
 		GL_FRAGMENT_SHADER, "FragmentShader", "fragment"
 	};
 
-	return descriptions[shaderType];
+	return descriptions[stage];
 }
+
+class ShaderPass {
+public:
+	virtual void Bind() = 0;
+	virtual void Unbind() = 0;
+};
 
 class ShaderInternal : public IShader, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Shader)
-
-public:
-	
 
 public:
 	ShaderInternal();
@@ -46,6 +49,11 @@ public:
 public:
 	virtual bool Load(const std::string& path);
 	virtual uint GetNativePointer() { return program_; }
+
+	virtual void Bind(uint pass);
+	virtual void Unbind();
+
+	virtual uint GetPassCount() { return passes_.size(); }
 
 	virtual bool SetProperty(const std::string& name, const void* data);
 	virtual void GetProperties(std::vector<ShaderProperty>& properties);
@@ -61,7 +69,7 @@ private:
 
 private:
 	bool Link();
-	bool LoadSource(ShaderType shaderType, const char* source);
+	bool LoadSource(ShaderStage stage, const char* source);
 	bool GetErrorMessage(GLuint shaderObj, std::string& answer);
 	void ClearIntermediateShaders();
 
@@ -76,13 +84,15 @@ private:
 
 private:
 	GLuint program_;
-	GLuint shaderObjs_[ShaderTypeCount];
+	GLuint shaderObjs_[ShaderStageCount];
 
 	int maxTextureUnits_;
 	int textureUnitCount_;
 	UniformContainer uniforms_;
 
 	std::string path_;
+	uint currentPass_;
+	std::vector<ShaderPass*> passes_;
 
-	static ShaderDescription descriptions_[ShaderTypeCount];
+	static ShaderDescription descriptions_[ShaderStageCount];
 };
