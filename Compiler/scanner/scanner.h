@@ -8,21 +8,21 @@ public:
 	TextScanner();
 	~TextScanner();
 
-	void SetText(const char* text);
-	ScannerTokenType GetToken(char* token, int* pos = nullptr);
+	void SetText(const std::string& value);
+	ScannerTokenType GetToken(std::string& token, int* pos = nullptr);
+	void Discard() { current_ = nullptr; }
 
 private:
 	bool GetChar(int* ch);
 	void UngetChar();
-	ScannerTokenType GetNextToken(char* token, int* pos = nullptr);
+	ScannerTokenType GetNextToken(std::string& token, int* pos = nullptr);
 
 private:
-	char* lineBuffer_;
-	char* tokenBuffer_;
+	const char* start_;
+	const char* dest_;
+	const char* current_;
 
-	char* start_;
-	char* dest_;
-	char* current_;
+	std::string lineBuffer_;
 };
 
 class FileReader;
@@ -41,6 +41,9 @@ public:
 
 public:
 	bool GetToken(ScannerToken* token, TokenPosition* pos);
+
+private:
+	bool ReadCode(ScannerToken* token, std::string& code);
 
 private:
 	int lineno_;

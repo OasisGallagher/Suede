@@ -6,8 +6,8 @@
 #include "debug/debug.h"
 #include "compiler_defines.h"
 
-FileReader::FileReader(const char* fileName, bool skipBlankline, bool appendNewline)
-	: ifs_(fileName), lineNumber_(0), skipBlankline_(skipBlankline), appendNewline_(appendNewline) {
+FileReader::FileReader(const char* fileName, bool skipBlankline)
+	: ifs_(fileName), lineNumber_(0), skipBlankline_(skipBlankline) {
 
 }
 
@@ -15,25 +15,16 @@ FileReader::~FileReader() {
 	ifs_.close();
 }
 
-bool FileReader::ReadLine(char* buffer, size_t length, int* lineNumber) {
-	for (; ifs_.getline(buffer, length);) {
+bool FileReader::ReadLine(std::string& text, int* lineNumber) {
+	std::string line;
+	for (; getline(ifs_, line);) {
 		++lineNumber_;
-		if (!skipBlankline_ || !Utility::IsBlankText(buffer)) {
+		if (!skipBlankline_ || !Utility::IsBlankText(line.c_str())) {
 			break;
 		}
 	}
 
-	if (appendNewline_ && !ifs_.eof()) {
-		size_t ctext = strlen(buffer);
-		if (ctext + 1 >= length) {
-			Debug::LogError("buffer too small");
-			return false;
-		}
-
-		buffer[ctext] = '\n';
-		buffer[ctext + 1] = 0;
-	}
-
+	text = line;
 	if (lineNumber != nullptr) {
 		*lineNumber = lineNumber_;
 	}

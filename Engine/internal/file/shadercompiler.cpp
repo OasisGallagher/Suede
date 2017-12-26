@@ -33,6 +33,7 @@ bool ShaderCompiler::Compile(const std::string& path, const std::string& defines
 		SyntaxTree tree;
 
 		if (lang.Parse(&tree, demo)) {
+			Debug::Log("Accepted");
 		}
 	}
 

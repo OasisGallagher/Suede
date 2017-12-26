@@ -16,8 +16,8 @@ Action::~Action() {
 }
 
 bool Action::ParseParameters(TextScanner& scanner, Argument& argument) {
-	int count = COMPOLIER_MAX_PARSER_FUNCTION_PARAMTERS;
-	int parameters[COMPOLIER_MAX_PARSER_FUNCTION_PARAMTERS];
+	int count = COMPILER_MAX_PARSER_FUNCTION_PARAMTERS;
+	int parameters[COMPILER_MAX_PARSER_FUNCTION_PARAMTERS];
 	if (!SplitParameters(parameters, count, scanner)) {
 		return false;
 	}
@@ -27,7 +27,7 @@ bool Action::ParseParameters(TextScanner& scanner, Argument& argument) {
 }
 
 bool Action::SplitParameters(int* parameters, int& count, TextScanner& scanner) {
-	char token[COMPOLIER_MAX_TOKEN_CHARACTERS];
+	std::string token;
 	ScannerTokenType tokenType = ScannerTokenEndOfFile, expectedTokenType = ScannerTokenIdentifier;
 
 	int index = 0;
@@ -46,7 +46,7 @@ bool Action::SplitParameters(int* parameters, int& count, TextScanner& scanner) 
 		}
 		else {
 			int integer = 0;
-			if (*token != '$' || !Utility::ParseInteger(token + 1, &integer)){
+			if (token.front() != '$' || !Utility::ParseInteger(token.c_str() + 1, &integer)){
 				Debug::LogError("invalid parameter format %d.", token);
 				return false;
 			}
@@ -90,6 +90,17 @@ SyntaxNode* ActionLiteral::Invoke(const std::vector<void*>& container) {
 	Literal* literal = (Literal*)container[container.size() - argument_.parameters.front()];
 	SyntaxNode* ans = new SyntaxNode(SyntaxNodeLiteral, literal->ToString());
 	ans->SetLiteralAddress(literal);
+	return ans;
+}
+
+std::string ActionCode::ToString() const {
+	return std::string("$$ = code($") + std::to_string(argument_.parameters.front()) + ")";
+}
+
+SyntaxNode* ActionCode::Invoke(const std::vector<void*>& container) {
+	Code* code = (Code*)container[container.size() - argument_.parameters.front()];
+	SyntaxNode* ans = new SyntaxNode(SyntaxNodeCode, code->ToString());
+	ans->SetCodeAddress(code);
 	return ans;
 }
 
@@ -152,14 +163,14 @@ SyntaxNode* ActionMake::Invoke(const std::vector<void*>& container) {
 }
 
 bool ActionMake::ParseParameters(TextScanner& scanner, Argument& argument) {
-	char token[COMPOLIER_MAX_TOKEN_CHARACTERS];
+	std::string token;
 	ScannerTokenType tokenType = scanner.GetToken(token);
 	if (tokenType != ScannerTokenLeftParenthesis) {
 		Debug::LogError("invalid parameter");
 		return false;
 	}
 
-	if ((tokenType = scanner.GetToken(token)) != ScannerTokenString || strlen(token) == 0) {
+	if ((tokenType = scanner.GetToken(token)) != ScannerTokenString || token.empty()) {
 		Debug::LogError("invalid action name");
 		return false;
 	}
@@ -195,7 +206,7 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 	TextScanner scanner;
 	scanner.SetText(cmd.c_str());
 
-	char token[COMPOLIER_MAX_TOKEN_CHARACTERS];
+	std::string token;
 	ScannerTokenType tokenType = scanner.GetToken(token);
 
 	if (tokenType == ScannerTokenEndOfFile) {
@@ -203,7 +214,7 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 		return nullptr;
 	}
 
-	if (tokenType != ScannerTokenIdentifier || strcmp(token, "$$") != 0) {
+	if (tokenType != ScannerTokenIdentifier || token != "$$") {
 		Debug::LogError("invalid left hand side operand: %s.", token);
 		return false;
 	}
@@ -221,9 +232,9 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 	Action* action = nullptr;
 	Argument argument;
 
-	if (IsOperand(token)) {
+	if (IsOperand(token.c_str())) {
 		int integer = 0;
-		if (!Utility::ParseInteger(token + 1, &integer)) {
+		if (!Utility::ParseInteger(token.c_str() + 1, &integer)) {
 			Debug::LogError("invalid right operand %s.", token);
 			return nullptr;
 		}
@@ -233,21 +244,25 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 		argument.parameters.push_back(integer);
 	}
 	else {
-		if (strcmp(token, "make") == 0) {
+		if (token == "make") {
 			action = new ActionMake();
 			argument.text = "make";
 		}
-		else if (strcmp(token, "constant") == 0) {
+		else if (token == "constant") {
 			action = new ActionConstant();
 			argument.text = "constant";
 		}
-		else if (strcmp(token, "symbol") == 0) {
+		else if (token == "symbol") {
 			action = new ActionSymbol();
 			argument.text = "symbol";
 		}
-		else if (strcmp(token, "literal") == 0) {
+		else if (token == "literal") {
 			action = new ActionLiteral();
 			argument.text = "literal";
+		}
+		else if (token == "code") {
+			action = new ActionCode();
+			argument.text = "code";
 		}
 
 		if (action != nullptr && !action->ParseParameters(scanner, argument)) {

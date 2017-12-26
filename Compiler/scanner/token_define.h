@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include "compiler_defines.h"
 
 enum ScannerTokenType {
@@ -8,6 +9,7 @@ enum ScannerTokenType {
 	ScannerTokenIdentifier,
 	ScannerTokenNumber,
 	ScannerTokenString,
+	ScannerTokenCode,
 
 	ScannerTokenNewline,
 
@@ -73,5 +75,5 @@ enum ScannerTokenType {
 
 struct ScannerToken {
 	ScannerTokenType tokenType;
-	char text[COMPOLIER_MAX_TOKEN_CHARACTERS];
+	std::string tokenText;
 };

@@ -6,6 +6,7 @@
 
 enum SyntaxNodeType {
 	SyntaxNodeSymbol,
+	SyntaxNodeCode,
 	SyntaxNodeLiteral,
 	SyntaxNodeConstant,
 	SyntaxNodeOperation,
@@ -25,6 +26,17 @@ private:
 class Literal {
 public:
 	Literal(const std::string& text);
+
+public:
+	std::string ToString() const;
+
+private:
+	std::string value_;
+};
+
+class Code {
+public:
+	Code(const std::string& text);
 
 public:
 	std::string ToString() const;
@@ -61,6 +73,7 @@ public:
 
 	void SetSymbolAddress(Sym* addr);
 	void SetLiteralAddress(Literal* addr);
+	void SetCodeAddress(Code* addr);
 	void SetConstantAddress(Constant* addr);
 
 	const std::string& ToString() const;
@@ -75,6 +88,7 @@ private:
 
 	union {
 		Sym* symbol;
+		Code* code;
 		Literal* literal;
 		Constant* constant;
 

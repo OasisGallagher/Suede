@@ -4,15 +4,14 @@
 
 class FileReader {
 public:
-	FileReader(const char* fileName, bool skipBlankline, bool appendNewline);
+	FileReader(const char* fileName, bool skipBlankline);
 	~FileReader();
 
 public:
-	bool ReadLine(char* buffer, size_t length, int* lineNumber);
+	bool ReadLine(std::string& text, int* lineNumber);
 
 private:
 	bool skipBlankline_;
-	bool appendNewline_;
 	int lineNumber_;
 	std::ifstream ifs_;
 };

@@ -14,6 +14,7 @@ struct TokenPosition;
 struct SyntaxerStack;
 
 class SymTable;
+class CodeTable;
 class LiteralTable;
 class ConstantTable;
 
@@ -56,6 +57,7 @@ private:
 
 private:
 	SymTable* symTable_;
+	CodeTable* codeTable_;
 	LiteralTable* literalTable_;
 	ConstantTable* constantTable_;
 };

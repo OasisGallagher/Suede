@@ -74,6 +74,11 @@ void SyntaxNode::SetLiteralAddress(Literal* addr) {
 	value_.literal = addr;
 }
 
+void SyntaxNode::SetCodeAddress(Code* addr) {
+	DEBUG_NODE_TYPE(type_, SyntaxNodeCode);
+	value_.code = addr;
+}
+
 const std::string& SyntaxNode::ToString() const {
 	return text_;
 }

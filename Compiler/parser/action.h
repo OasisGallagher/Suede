@@ -41,6 +41,12 @@ public:
 	virtual SyntaxNode* Invoke(const std::vector<void*>& container);
 };
 
+class ActionCode :public Action {
+public:
+	virtual std::string ToString() const;
+	virtual SyntaxNode* Invoke(const std::vector<void*>& container);
+};
+
 class ActionSymbol : public Action {
 public:
 	virtual std::string ToString() const;

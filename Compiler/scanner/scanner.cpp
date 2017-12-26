@@ -9,12 +9,14 @@
 #include "debug/debug.h"
 #include "compiler_defines.h"
 
-#define STATE_START			-1
-#define STATE_DONE			0
-#define STATE_NUMBER		1
-#define STATE_STRING		2
-#define STATE_STRING2		3
-#define STATE_IDENTIFIER	4
+enum {
+	StartState,
+	DoneState,
+	NumberState,
+	StringState,
+	StringState2,
+	IdentifierState,
+};
 
 std::string TokenPosition::ToString() const {
 	std::ostringstream oss;
@@ -24,30 +26,16 @@ std::string TokenPosition::ToString() const {
 
 TextScanner::TextScanner() 
 	: current_(nullptr), dest_(nullptr) {
-	lineBuffer_ = new char[COMPOLIER_MAX_LINE_CHARACTERS];
-	std::fill(lineBuffer_, lineBuffer_ + COMPOLIER_MAX_LINE_CHARACTERS, 0);
-
-	tokenBuffer_ = new char[COMPOLIER_MAX_TOKEN_CHARACTERS];
-	std::fill(tokenBuffer_, tokenBuffer_ + COMPOLIER_MAX_TOKEN_CHARACTERS, 0);
 }
 
 TextScanner::~TextScanner() {
-	delete[] lineBuffer_;
-	delete[] tokenBuffer_;
 }
 
-void TextScanner::SetText(const char* text) {
-	size_t length = strlen(text);
-	if (length == 0 || length >= COMPOLIER_MAX_LINE_CHARACTERS) {
-		Debug::LogError("invalid line text");
-		return;
-	}
+void TextScanner::SetText(const std::string& value) {
+	lineBuffer_ = value;
 
-	std::copy(text, text + length, lineBuffer_);
-	lineBuffer_[length] = 0;
-
-	start_ = current_ = lineBuffer_;
-	dest_ = lineBuffer_ + length + 1;
+	start_ = current_ = lineBuffer_.c_str();
+	dest_ = lineBuffer_.c_str() + lineBuffer_.length() + 1;
 }
 
 bool TextScanner::GetChar(int* ch) {
@@ -60,7 +48,7 @@ bool TextScanner::GetChar(int* ch) {
 }
 
 void TextScanner::UngetChar() {
-	if (current_ == nullptr || current_ <= lineBuffer_) {
+	if (current_ == nullptr || current_ <= lineBuffer_.c_str()) {
 		Debug::LogError("unget failed. invalid state");
 		return;
 	}
@@ -68,18 +56,18 @@ void TextScanner::UngetChar() {
 	--current_;
 }
 
-ScannerTokenType TextScanner::GetToken(char* token, int* pos) {
-	*token = 0;
+ScannerTokenType TextScanner::GetToken(std::string& token, int* pos) {
 	return GetNextToken(token, pos);
 }
 
-ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
-	int ci = 0, bi = 0, ch = 0, state = STATE_START;
+ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
+	int ci = 0, bi = 0, ch = 0, state = StartState;
 	bool savech = true, unget = false;
 
+	std::string buffer;
 	ScannerTokenType tokenType = ScannerTokenError;
 
-	for (; state != STATE_DONE;) {
+	for (; state != DoneState;) {
 		if (!GetChar(&ch)) {
 			if (pos != nullptr) {
 				*pos = -1;
@@ -92,26 +80,31 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 		unget = false;
 
 		switch (state) {
-		case STATE_START:
+		case StartState:
 			if (ch == ' ' || ch == '\t' || ch == 0) {
 				savech = false;
 			}
+			else if ( ch == '@') {
+				savech = false;
+				state = DoneState;
+				tokenType = ScannerTokenCode;
+			}
 			else if (Utility::IsDigit(ch)) {
-				state = STATE_NUMBER;
+				state = NumberState;
 			}
 			else if (Utility::IsLetter(ch)) {
-				state = STATE_IDENTIFIER;
+				state = IdentifierState;
 			}
 			else if (ch == '\'') {
-				state = STATE_STRING;
+				state = StringState;
 				savech = false;
 			}
 			else if (ch == '"') {
-				state = STATE_STRING2;
+				state = StringState2;
 				savech = false;
 			}
 			else if (ch == '\n') {
-				state = STATE_DONE;
+				state = DoneState;
 				tokenType = ScannerTokenNewline;
 			}
 			else {
@@ -129,7 +122,7 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 
 				++ci;
 				if (high - low == 1 && strlen(Tokens::Text(low)) == ci) {
-					state = STATE_DONE;
+					state = DoneState;
 					tokenType = Tokens::Type(low);
 				}
 				else {
@@ -140,34 +133,34 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 			}
 			break;
 
-		case STATE_STRING:
+		case StringState:
 			if (ch == '\'') {
 				tokenType = ScannerTokenString;
 				savech = false;
-				state = STATE_DONE;
+				state = DoneState;
 			}
 			break;
 
-		case STATE_STRING2:
+		case StringState2:
 			if (ch == '"') {
 				tokenType = ScannerTokenString;
 				savech = false;
-				state = STATE_DONE;
+				state = DoneState;
 			}
 			break;
 
-		case STATE_IDENTIFIER:
+		case IdentifierState:
 			if (!Utility::IsDigit(ch) && !Utility::IsLetter(ch)) {
-				state = STATE_DONE;
+				state = DoneState;
 				tokenType = ScannerTokenIdentifier;
 				unget = true;
 				savech = false;
 			}
 			break;
 
-		case STATE_NUMBER:
+		case NumberState:
 			if (!Utility::IsDigit(ch)) {
-				state = STATE_DONE;
+				state = DoneState;
 				tokenType = ScannerTokenNumber;
 				unget = true;
 				savech = false;
@@ -184,7 +177,7 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 					break;
 				}
 
-				state = STATE_DONE;
+				state = DoneState;
 				tokenType = Tokens::Type(low);
 			}
 			else {
@@ -209,7 +202,7 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 				}
 
 				if (high - low == 1 && strlen(Tokens::Text(low)) == ci) {
-					state = STATE_DONE;
+					state = DoneState;
 					tokenType = Tokens::Type(low);
 				}
 				else {
@@ -225,18 +218,11 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 		}
 
 		if (savech) {
-			if ((bi + 1) >= COMPOLIER_MAX_TOKEN_CHARACTERS) {
-				Debug::LogError("token too long.");
-				state = STATE_DONE;
-			}
-			else {
-				tokenBuffer_[bi++] = ch;
-			}
+			buffer.push_back((char)ch);
 		}
 	}
 
-	strncpy(token, tokenBuffer_, bi);
-	token[bi] = 0;
+	token = buffer;
 
 	if (pos != nullptr) {
 		*pos = int(1 + current_ - start_ - bi);
@@ -246,7 +232,7 @@ ScannerTokenType TextScanner::GetNextToken(char* token, int* pos) {
 }
 
 FileScanner::FileScanner(const char* fileName)
-	: reader_(new FileReader(fileName, true, false)), lineno_(0) {
+	: reader_(new FileReader(fileName, true)), lineno_(0) {
 }
 
 FileScanner::~FileScanner() {
@@ -254,17 +240,22 @@ FileScanner::~FileScanner() {
 }
 
 bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
-	char buffer[COMPOLIER_MAX_TOKEN_CHARACTERS] = { 0 };
+	std::string line;
+	std::string buffer;
 	ScannerTokenType tokenType = textScanner_.GetToken(buffer, &pos->linepos);
+	std::string code;
+	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile; ) {
+		if (tokenType == ScannerTokenCode) {
+			textScanner_.Discard();
+			return ReadCode(token, code);
+		}
 
-	char line[COMPOLIER_MAX_LINE_CHARACTERS];
-	for (; tokenType == ScannerTokenEndOfFile; ) {
-		if (!reader_->ReadLine(line, COMPOLIER_MAX_LINE_CHARACTERS, &lineno_)) {
+		if (!reader_->ReadLine(line, &lineno_)) {
 			tokenType = ScannerTokenEndOfFile;
 			break;
 		}
 
-		if (Utility::IsBlankText(line)) {
+		if (Utility::IsBlankText(line.c_str())) {
 			continue;
 		}
 
@@ -279,7 +270,28 @@ bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 	}
 
 	token->tokenType = tokenType;
-	strcpy(token->text, buffer);
+	token->tokenText = buffer;
 
 	return true;
+}
+
+bool FileScanner::ReadCode(ScannerToken* token, std::string &code) {
+	std::string line;
+	for (; reader_->ReadLine(line, nullptr);) {
+		std::string str = Utility::Trim(line);
+		if (!str.empty() && str.front() == '@') {
+			token->tokenType = ScannerTokenCode;
+			token->tokenText = code;
+			return true;
+		}
+
+		if (!code.empty()) {
+			code += '\n';
+		}
+
+		code += line;
+	}
+
+	token->tokenType = ScannerTokenError;
+	return false;
 }

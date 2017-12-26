@@ -93,6 +93,7 @@ public:
 public:
 	static GrammarSymbol null;
 	static GrammarSymbol zero;
+	static GrammarSymbol code;
 	static GrammarSymbol number;
 	static GrammarSymbol string;
 	static GrammarSymbol unknown;

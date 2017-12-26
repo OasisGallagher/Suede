@@ -32,10 +32,8 @@ static GrammarSymbol CreateSymbol(Environment* env, const std::string& text) {
 }
 
 static bool ParseProduction(Environment* env, TextScanner* textScanner, SymbolVector& symbols) {
-	char token[COMPOLIER_MAX_TOKEN_CHARACTERS];
-	static int x = 0;
-	++x;
-
+	std::string token;
+	
 	for (ScannerTokenType tokenType; (tokenType = textScanner->GetToken(token)) != ScannerTokenEndOfFile;) {
 		symbols.push_back(CreateSymbol(env, token));
 	}

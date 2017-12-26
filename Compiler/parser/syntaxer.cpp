@@ -13,6 +13,8 @@ class ConstantTable : public Table<Constant> { };
 
 class LiteralTable : public Table<Literal> { };
 
+class CodeTable : public Table<Code> { };
+
 Sym::Sym(const std::string& text) {
 	value_ = text;
 }
@@ -42,6 +44,14 @@ std::string Literal::ToString() const {
 	return value_;
 }
 
+Code::Code(const std::string& text) {
+	value_ = text;
+}
+
+std::string Code::ToString() const {
+	return "\"CodeSnippet\"";
+}
+
 struct SyntaxerStack {
 	std::vector<int> states;
 	std::vector<void*> values;
@@ -55,6 +65,7 @@ struct SyntaxerStack {
 Syntaxer::Syntaxer() {
 	stack_ = new SyntaxerStack;
 	symTable_ = new SymTable;
+	codeTable_ = new CodeTable;
 	literalTable_ = new LiteralTable;
 	constantTable_ = new ConstantTable;
 }
@@ -62,6 +73,7 @@ Syntaxer::Syntaxer() {
 Syntaxer::~Syntaxer() {
 	delete stack_;
 	delete symTable_;
+	delete codeTable_;
 	delete literalTable_;
 	delete constantTable_;
 }
@@ -180,25 +192,29 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 	}
 	else if (token.tokenType == ScannerTokenNumber) {
 		answer = NativeSymbols::number;
-		addr = constantTable_->Add(token.text);
+		addr = constantTable_->Add(token.tokenText);
 	}
 	else if (token.tokenType == ScannerTokenString) {
 		answer = NativeSymbols::string;
-		addr = literalTable_->Add(token.text);
+		addr = literalTable_->Add(token.tokenText);
+	}
+	else if (token.tokenType == ScannerTokenCode) {
+		answer = NativeSymbols::code;
+		addr = codeTable_->Add(token.tokenText);
 	}
 	else {
-		GrammarSymbolContainer::const_iterator pos = p_.env->terminalSymbols.find(token.text);
+		GrammarSymbolContainer::const_iterator pos = p_.env->terminalSymbols.find(token.tokenText);
 		if (pos != p_.env->terminalSymbols.end()) {
 			answer = pos->second;
 		}
 		else {
 			answer = NativeSymbols::identifier;
-			addr = symTable_->Add(token.text);
+			addr = symTable_->Add(token.tokenText);
 		}
 	}
 
 	if (answer == NativeSymbols::null) {
-		Debug::LogError("can not find symbol %s.", token.text);
+		Debug::LogError("can not find symbol %s.", token.tokenText);
 	}
 
 	return answer;
