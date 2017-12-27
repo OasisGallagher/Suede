@@ -10,7 +10,7 @@ ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader), textureUnit
 	program_ = GL::CreateProgram();
 	GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits_);
 
-	std::fill(shaderObjs_, shaderObjs_ + ShaderTypeCount, 0);
+	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
 
 ShaderInternal::~ShaderInternal() {
@@ -20,13 +20,13 @@ ShaderInternal::~ShaderInternal() {
 
 bool ShaderInternal::Load(const std::string& path) {
 	ShaderCompiler compiler;
-	std::string sources[ShaderTypeCount];
+	std::string sources[ShaderStageCount];
 	if (!compiler.Compile(path + GLSL_POSTFIX, "", sources)) {
 		return false;
 	}
 
-	for (int i = 0; i < ShaderTypeCount; ++i) {
-		if (!sources[i].empty() && !LoadSource((ShaderType)i, sources[i].c_str())) {
+	for (int i = 0; i < ShaderStageCount; ++i) {
+		if (!sources[i].empty() && !LoadSource((ShaderStage)i, sources[i].c_str())) {
 			return false;
 		}
 	}
@@ -43,6 +43,20 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	AddAllUniforms();
 	return true;
+}
+
+void ShaderInternal::Bind(uint pass) {
+	if (pass > passes_.size()) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	currentPass_ = pass;
+	passes_[pass]->Bind();
+}
+
+void ShaderInternal::Unbind() {
+	passes_[currentPass_]->Unbind();
 }
 
 bool ShaderInternal::SetProperty(const std::string& name, const void* data) {
@@ -101,7 +115,7 @@ bool ShaderInternal::Link() {
 }
 
 void ShaderInternal::ClearIntermediateShaders() {
-	for (int i = 0; i < ShaderTypeCount; ++i) {
+	for (int i = 0; i < ShaderStageCount; ++i) {
 		if (shaderObjs_[i] != 0) {
 			GL::DeleteShader(shaderObjs_[i]);
 			shaderObjs_[i] = 0;
@@ -109,8 +123,8 @@ void ShaderInternal::ClearIntermediateShaders() {
 	}
 }
 
-bool ShaderInternal::LoadSource(ShaderType shaderType, const char* source) {
-	GLuint shaderObj = GL::CreateShader(GetShaderDescription(shaderType).glShaderType);
+bool ShaderInternal::LoadSource(ShaderStage stage, const char* source) {
+	GLuint shaderObj = GL::CreateShader(GetShaderDescription(stage).glShaderStage);
 
 	GL::ShaderSource(shaderObj, 1, &source, nullptr);
 	GL::CompileShader(shaderObj);
@@ -119,14 +133,14 @@ bool ShaderInternal::LoadSource(ShaderType shaderType, const char* source) {
 	
 	std::string message;
 	if (!GetErrorMessage(shaderObj, message)) {
-		if (shaderObjs_[shaderType] != 0) {
-			GL::DeleteShader(shaderObjs_[shaderType]);
+		if (shaderObjs_[stage] != 0) {
+			GL::DeleteShader(shaderObjs_[stage]);
 		}
-		shaderObjs_[shaderType] = shaderObj;
+		shaderObjs_[stage] = shaderObj;
 		return true;
 	}
 
-	Debug::LogError("%s %s.", GetShaderDescription(shaderType).name, message.c_str());
+	Debug::LogError("%s %s.", GetShaderDescription(stage).name, message.c_str());
 	return false;
 }
 

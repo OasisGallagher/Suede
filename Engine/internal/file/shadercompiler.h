@@ -4,7 +4,7 @@
 
 class ShaderCompiler {
 public:
-	bool Compile(const std::string& path, const std::string& defines, std::string(&answer)[ShaderTypeCount]);
+	bool Compile(const std::string& path, const std::string& defines, std::string(&answer)[ShaderStageCount]);
 
 private:
 	void Clear();
@@ -20,10 +20,10 @@ private:
 
 	void CalculateDefinesPermutations(std::vector<std::string>& anwser);
 
-	ShaderType ParseShaderType(const std::string& line);
+	ShaderStage ParseShaderStage(const std::string& line);
 
 private:
-	ShaderType type_;
+	ShaderStage type_;
 	std::string path_;
 	std::string* answer_;
 	std::string globals_;

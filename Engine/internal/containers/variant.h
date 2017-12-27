@@ -55,6 +55,9 @@ public:
 
 	const void* GetData() const;
 
+public:
+	Variant& operator = (const Variant& other);
+
 private:
 	bool SetType(VariantType type);
 

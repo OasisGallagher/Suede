@@ -25,6 +25,11 @@ public:
 	virtual bool Load(const std::string& path) = 0;
 	virtual uint GetNativePointer() = 0;
 
+	virtual void Bind(uint pass) = 0;
+	virtual void Unbind() = 0;
+
+	virtual uint GetPassCount() = 0;
+
 	virtual bool SetProperty(const std::string& name, const void* data) = 0;
 	virtual void GetProperties(std::vector<ShaderProperty>& properties) = 0;
 };

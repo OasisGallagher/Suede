@@ -17,7 +17,7 @@ static const char* compiler = "resources/compiler";
 
 bool Loaded = false;
 
-bool ShaderCompiler::Compile(const std::string& path, const std::string& defines, std::string(&answer)[ShaderTypeCount]) {
+bool ShaderCompiler::Compile(const std::string& path, const std::string& defines, std::string(&answer)[ShaderStageCount]) {
 	std::vector<std::string> lines;
 	if (!TextLoader::Load(Path::GetResourceRootDirectory() + path, lines)) {
 		return false;
@@ -45,7 +45,7 @@ bool ShaderCompiler::Compile(const std::string& path, const std::string& defines
 }
 
 void ShaderCompiler::Clear() {
-	type_ = ShaderTypeCount;
+	type_ = ShaderStageCount;
 	source_.clear();
 	globals_.clear();
 	answer_ = nullptr;
@@ -59,7 +59,7 @@ bool ShaderCompiler::CompileShaderSource(const std::vector<std::string>& lines, 
 	globals_ += FormatDefines(defines);
 	ReadShaderSource(lines);
 
-	if (type_ == ShaderTypeCount) {
+	if (type_ == ShaderStageCount) {
 		Debug::LogError("invalid shader file");
 		return false;
 	}
@@ -126,15 +126,15 @@ void ShaderCompiler::CalculateDefinesPermutations(std::vector<std::string>& anws
 	}
 }
 
-ShaderType ShaderCompiler::ParseShaderType(const std::string& tag) {
-	for (size_t i = 0; i < ShaderTypeCount; ++i) {
-		if (tag == GetShaderDescription((ShaderType)i).tag) {
-			return (ShaderType)i;
+ShaderStage ShaderCompiler::ParseShaderStage(const std::string& tag) {
+	for (size_t i = 0; i < ShaderStageCount; ++i) {
+		if (tag == GetShaderDescription((ShaderStage)i).tag) {
+			return (ShaderStage)i;
 		}
 	}
 
 	Debug::LogError("unkown shader tag %s.", tag.c_str());
-	return ShaderTypeCount;
+	return ShaderStageCount;
 }
 
 bool ShaderCompiler::ReadShaderSource(const std::vector<std::string> &lines) {
@@ -153,10 +153,10 @@ bool ShaderCompiler::ReadShaderSource(const std::vector<std::string> &lines) {
 }
 
 bool ShaderCompiler::PreprocessShader(const std::string& parameter) {
-	ShaderType newType = ParseShaderType(parameter);
+	ShaderStage newType = ParseShaderStage(parameter);
 
 	if (newType != type_) {
-		if (type_ == ShaderTypeCount) {
+		if (type_ == ShaderStageCount) {
 			globals_ += source_;
 		}
 		else {
