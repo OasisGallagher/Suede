@@ -35,8 +35,8 @@ public:
 	glm::vec3 GetVector3();
 	glm::vec4 GetVector4();
 	glm::quat GetQuaternion();
-	void* GetPodBuffer();
-	uint GetPodBufferSize();
+	const void* GetPodBuffer() const;
+	uint GetPodBufferSize() const;
 	Texture GetTexture();
 	int GetTextureIndex();
 

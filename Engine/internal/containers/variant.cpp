@@ -89,7 +89,7 @@ glm::quat Variant::GetQuaternion() {
 	return data_.quatValue;
 }
 
-void* Variant::GetPodBuffer() {
+const void* Variant::GetPodBuffer() const {
 	if (type_ != VariantTypePodBuffer) {
 		Debug::LogError("invalid uniform type.");
 		return nullptr;
@@ -98,7 +98,7 @@ void* Variant::GetPodBuffer() {
 	return data_.podBuffer.ptr;
 }
 
-uint Variant::GetPodBufferSize() {
+uint Variant::GetPodBufferSize() const {
 	if (type_ != VariantTypePodBuffer) {
 		Debug::LogError("invalid uniform type.");
 		return 0;
