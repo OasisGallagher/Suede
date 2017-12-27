@@ -33,12 +33,6 @@ inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
 	return descriptions[stage];
 }
 
-class ShaderPass {
-public:
-	virtual void Bind() = 0;
-	virtual void Unbind() = 0;
-};
-
 class ShaderInternal : public IShader, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Shader)
 

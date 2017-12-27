@@ -9,6 +9,7 @@ const char* Variant::TypeString(VariantType type) {
 		CASE(Int);
 		CASE(Bool);
 		CASE(Float);
+		CASE(Matrix3);
 		CASE(Matrix4);
 		CASE(Vector3);
 		CASE(Vector4);
@@ -26,7 +27,7 @@ Variant::~Variant() {
 	SetType(VariantTypeNone);
 }
 
-int Variant::GetInt() {
+int Variant::GetInt() const {
 	if (type_ != VariantTypeInt) {
 		Debug::LogError("invalid variant type.");
 		return 0;
@@ -35,7 +36,7 @@ int Variant::GetInt() {
 	return data_.intValue;
 }
 
-bool Variant::GetBool() {
+bool Variant::GetBool() const {
 	if (type_ != VariantTypeBool) {
 		Debug::LogError("invalid uniform type.");
 		return false;
@@ -44,7 +45,7 @@ bool Variant::GetBool() {
 	return data_.boolValue;
 }
 
-float Variant::GetFloat() {
+float Variant::GetFloat() const {
 	if (type_ != VariantTypeFloat) {
 		Debug::LogError("invalid uniform type.");
 		return 0;
@@ -53,7 +54,16 @@ float Variant::GetFloat() {
 	return data_.floatValue;
 }
 
-glm::mat4 Variant::GetMatrix4() {
+glm::mat3 Variant::GetMatrix3() const {
+	if (type_ != VariantTypeMatrix3) {
+		Debug::LogError("invalid uniform type.");
+		return glm::mat3(1);
+	}
+
+	return data_.mat3Value;
+}
+
+glm::mat4 Variant::GetMatrix4() const {
 	if (type_ != VariantTypeMatrix4) {
 		Debug::LogError("invalid uniform type.");
 		return glm::mat4(1);
@@ -62,7 +72,7 @@ glm::mat4 Variant::GetMatrix4() {
 	return data_.mat4Value;
 }
 
-glm::vec3 Variant::GetVector3() {
+glm::vec3 Variant::GetVector3() const {
 	if (type_ != VariantTypeVector3) {
 		Debug::LogError("invalid uniform type.");
 		return glm::vec3(0);
@@ -71,7 +81,7 @@ glm::vec3 Variant::GetVector3() {
 	return data_.vec3Value;
 }
 
-glm::vec4 Variant::GetVector4() {
+glm::vec4 Variant::GetVector4() const {
 	if (type_ != VariantTypeVector4) {
 		Debug::LogError("invalid uniform type.");
 		return glm::vec4(0, 0, 0, 1);
@@ -80,7 +90,7 @@ glm::vec4 Variant::GetVector4() {
 	return data_.vec4Value;
 }
 
-glm::quat Variant::GetQuaternion() {
+glm::quat Variant::GetQuaternion() const {
 	if (type_ != VariantTypeQuaternion) {
 		Debug::LogError("invalid uniform type.");
 		return glm::quat();
@@ -89,7 +99,7 @@ glm::quat Variant::GetQuaternion() {
 	return data_.quatValue;
 }
 
-const void* Variant::GetPodBuffer() const {
+const void* Variant::GetPodBuffer() const const {
 	if (type_ != VariantTypePodBuffer) {
 		Debug::LogError("invalid uniform type.");
 		return nullptr;
@@ -107,7 +117,7 @@ uint Variant::GetPodBufferSize() const {
 	return data_.podBuffer.size;
 }
 
-Texture Variant::GetTexture() {
+Texture Variant::GetTexture() const {
 	if (type_ != VariantTypeTexture) {
 		Debug::LogError("invalid uniform type.");
 		return nullptr;
@@ -115,7 +125,7 @@ Texture Variant::GetTexture() {
 	return texture_;
 }
 
-int Variant::GetTextureIndex() {
+int Variant::GetTextureIndex() const {
 	if (type_ != VariantTypeTexture) {
 		Debug::LogError("invalid uniform type.");
 		return 0;
@@ -137,6 +147,11 @@ void Variant::SetBool(bool value) {
 void Variant::SetFloat(float value) {
 	SetType(VariantTypeFloat);
 	data_.floatValue = value;
+}
+
+void Variant::SetMatrix3(const glm::mat3& value) {
+	SetType(VariantTypeMatrix3);
+	data_.mat3Value = value;
 }
 
 void Variant::SetMatrix4(const glm::mat4& value) {

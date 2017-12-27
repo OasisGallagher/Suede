@@ -46,6 +46,10 @@ int String::ToInteger(const std::string& str) {
 	return std::stoi(str);
 }
 
+float String::ToFloat(const std::string& str) {
+	return std::stof(str);
+}
+
 std::wstring String::MultiBytesToWideString(const std::string& text) {
 	std::wstring ans(text.size() + 1, 0);
 	mbstowcs(&ans[0], text.c_str(), text.length());
