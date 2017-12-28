@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "token_define.h"
+#include "tokendefine.h"
 
 class TextScanner {
 public:

@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "grammar_symbol.h"
+#include "grammarsymbol.h"
 
 class Action;
 

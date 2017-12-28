@@ -1,7 +1,7 @@
-#include "table_printer.h"
 #include <stdexcept>
 #include <iomanip>
 #include <stdexcept>
+#include "tableprinter.h"
 
 TablePrinter::TablePrinter(const std::string & separator) {
 	i_ = 0;

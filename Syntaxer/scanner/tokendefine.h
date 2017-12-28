@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "compiler_defines.h"
+#include "compilerdefines.h"
 
 enum ScannerTokenType {
 	ScannerTokenError,

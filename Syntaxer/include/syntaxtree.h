@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "compiler_defines.h"
+#include "compilerdefines.h"
 
 enum SyntaxNodeType {
 	SyntaxNodeSymbol,

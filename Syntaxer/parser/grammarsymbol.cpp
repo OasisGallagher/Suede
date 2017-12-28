@@ -1,8 +1,8 @@
 #include <sstream>
 
 #include "debug/debug.h"
-#include "token_define.h"
-#include "grammar_symbol.h"
+#include "tokendefine.h"
+#include "grammarsymbol.h"
 
 GrammarSymbol NativeSymbols::null = nullptr;
 GrammarSymbol NativeSymbols::zero = new TerminalSymbol("zero");

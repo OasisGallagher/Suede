@@ -1,6 +1,6 @@
 ﻿#include <stack>
+#include "syntaxtree.h"
 #include "debug/debug.h"
-#include "syntax_tree.h"
 
 #define DEBUG_NODE_TYPE(current, expected)	\
 	if(current != expected) { Debug::LogError("invalid syntax node type: %d != %d.", current, expected); } else (void)0

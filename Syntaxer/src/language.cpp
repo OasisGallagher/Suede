@@ -4,9 +4,9 @@
 #include "scanner.h"
 #include "language.h"
 #include "syntaxer.h"
-#include "lr_parser.h"
+#include "lrparser.h"
 #include "debug/debug.h"
-#include "grammar_symbol.h"
+#include "grammarsymbol.h"
 
 static GrammarSymbol CreateSymbol(Environment* env, const std::string& text) {
 	GrammarSymbolContainer* target = nullptr;

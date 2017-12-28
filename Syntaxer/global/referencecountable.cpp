@@ -1,4 +1,4 @@
-#include "reference_countable.h"
+#include "referencecountable.h"
 
 RefCount::RefCount() {
 	count_ = new int(1);

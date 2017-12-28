@@ -9,7 +9,7 @@
 #include "lr_grammar.h"
 
 #include "language.h"
-#include "syntax_tree.h"
+#include "syntaxtree.h"
 
 ShaderLanguage::ShaderLanguage() {
 	lang_ = MEMORY_CREATE(Language);

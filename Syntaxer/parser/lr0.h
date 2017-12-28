@@ -2,7 +2,7 @@
 
 #include "lr1.h"
 #include "grammar.h"
-#include "lr_impl.h"
+#include "lrimpl.h"
 
 struct Environment;
 

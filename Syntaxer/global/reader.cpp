@@ -4,7 +4,7 @@
 #include "reader.h"
 #include "utilities.h"
 #include "debug/debug.h"
-#include "compiler_defines.h"
+#include "compilerdefines.h"
 
 FileReader::FileReader(const char* path, bool skipBlankline)
 	: ifs_(path), lineNumber_(0), skipBlankline_(skipBlankline) {

@@ -1,11 +1,11 @@
 #include "action.h"
 #include "parser.h"
 #include "grammar.h"
-#include "lr_table.h"
+#include "lrtable.h"
 #include "syntaxer.h"
 #include "serializer.h"
 #include "debug/debug.h"
-#include "grammar_symbol.h"
+#include "grammarsymbol.h"
 
 #define MAX_SERIALIZABLE_CHARACTERS		256
 

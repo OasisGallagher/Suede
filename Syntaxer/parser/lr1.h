@@ -1,7 +1,7 @@
 #pragma once
 
 #include "matrix.h"
-#include "grammar_symbol.h"
+#include "grammarsymbol.h"
 
 class GrammarContainer;
 

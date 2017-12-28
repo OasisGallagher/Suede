@@ -1,8 +1,8 @@
 #include <sstream>
 
 #include "lalr.h"
-#include "lr_table.h"
-#include "grammar_symbol.h"
+#include "lrtable.h"
+#include "grammarsymbol.h"
 
 LRTable::LRTable() {
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "matrix.h"
-#include "lr_impl.h"
+#include "lrimpl.h"
 
 class LRGotoTable : public matrix <int, GrammarSymbol, int> {
 public:

@@ -3,7 +3,7 @@
 
 #include "lr1.h"
 #include "grammar.h"
-#include "compiler_defines.h"
+#include "compilerdefines.h"
 
 Forwards::Forwards() {
 }

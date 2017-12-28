@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 #include "utilities.h"
-#include "reference_countable.h"
+#include "referencecountable.h"
 
 enum GrammarSymbolType {
 	GrammarSymbolTerminal,

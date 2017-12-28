@@ -1,10 +1,10 @@
 #include <sstream>
 
 #include "grammar.h"
-#include "lr_impl.h"
-#include "lr_table.h"
+#include "lrimpl.h"
+#include "lrtable.h"
 #include "debug/debug.h"
-#include "grammar_symbol.h"
+#include "grammarsymbol.h"
 
 static const char* actionTexts[] = { "err", "s", "r", "acc" };
 

@@ -2,7 +2,7 @@
 
 #include "lr0.h"
 #include "parser.h"
-#include "table_printer.h"
+#include "tableprinter.h"
 
 LR0::LR0() {
 }

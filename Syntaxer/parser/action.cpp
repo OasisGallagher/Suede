@@ -3,9 +3,9 @@
 #include "scanner.h"
 #include "utilities.h"
 #include "debug/debug.h"
-#include "syntax_tree.h"
-#include "token_define.h"
-#include "compiler_defines.h"
+#include "syntaxtree.h"
+#include "tokendefine.h"
+#include "compilerdefines.h"
 
 void Action::SetArgument(const Argument& argument) {
 	argument_ = argument;

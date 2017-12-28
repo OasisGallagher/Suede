@@ -42,12 +42,6 @@
     <ClInclude Include="global\reader.h">
       <Filter>global\include</Filter>
     </ClInclude>
-    <ClInclude Include="global\reference_countable.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
-    <ClInclude Include="global\table_printer.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
     <ClInclude Include="global\utilities.h">
       <Filter>global\include</Filter>
     </ClInclude>
@@ -57,19 +51,7 @@
     <ClInclude Include="parser\grammar.h">
       <Filter>parser\include</Filter>
     </ClInclude>
-    <ClInclude Include="parser\grammar_symbol.h">
-      <Filter>parser\include</Filter>
-    </ClInclude>
     <ClInclude Include="parser\lalr.h">
-      <Filter>parser\include</Filter>
-    </ClInclude>
-    <ClInclude Include="parser\lr_impl.h">
-      <Filter>parser\include</Filter>
-    </ClInclude>
-    <ClInclude Include="parser\lr_parser.h">
-      <Filter>parser\include</Filter>
-    </ClInclude>
-    <ClInclude Include="parser\lr_table.h">
       <Filter>parser\include</Filter>
     </ClInclude>
     <ClInclude Include="parser\lr0.h">
@@ -93,30 +75,42 @@
     <ClInclude Include="scanner\scanner.h">
       <Filter>scanner\include</Filter>
     </ClInclude>
-    <ClInclude Include="scanner\token_define.h">
-      <Filter>scanner\include</Filter>
-    </ClInclude>
     <ClInclude Include="scanner\tokens.h">
       <Filter>scanner\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\syntax_tree.h">
-      <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\language.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\compiler_defines.h">
+    <ClInclude Include="global\referencecountable.h">
+      <Filter>global\include</Filter>
+    </ClInclude>
+    <ClInclude Include="global\tableprinter.h">
+      <Filter>global\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\compilerdefines.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\syntaxtree.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\grammarsymbol.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lrimpl.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lrparser.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lrtable.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="scanner\tokendefine.h">
+      <Filter>scanner\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="global\reader.cpp">
-      <Filter>global\src</Filter>
-    </ClCompile>
-    <ClCompile Include="global\reference_countable.cpp">
-      <Filter>global\src</Filter>
-    </ClCompile>
-    <ClCompile Include="global\table_printer.cpp">
       <Filter>global\src</Filter>
     </ClCompile>
     <ClCompile Include="global\utilities.cpp">
@@ -128,19 +122,7 @@
     <ClCompile Include="parser\grammar.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
-    <ClCompile Include="parser\grammar_symbol.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
     <ClCompile Include="parser\lalr.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
-    <ClCompile Include="parser\lr_impl.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
-    <ClCompile Include="parser\lr_parser.cpp">
-      <Filter>parser\src</Filter>
-    </ClCompile>
-    <ClCompile Include="parser\lr_table.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
     <ClCompile Include="parser\lr0.cpp">
@@ -167,7 +149,25 @@
     <ClCompile Include="src\language.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\syntax_tree.cpp">
+    <ClCompile Include="global\referencecountable.cpp">
+      <Filter>global\src</Filter>
+    </ClCompile>
+    <ClCompile Include="global\tableprinter.cpp">
+      <Filter>global\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\grammarsymbol.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lrimpl.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lrparser.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lrtable.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntaxtree.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

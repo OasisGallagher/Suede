@@ -1,6 +1,6 @@
 #pragma once
 #include "lr1.h"
-#include "lr_impl.h"
+#include "lrimpl.h"
 #include "parser.h"
 
 struct Condinate;

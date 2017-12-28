@@ -3,9 +3,9 @@
 #include "matrix.h"
 #include "scanner.h"
 #include "syntaxer.h"
-#include "lr_table.h"
-#include "lr_parser.h"
-#include "syntax_tree.h"
+#include "lrtable.h"
+#include "lrparser.h"
+#include "syntaxtree.h"
 
 LRParser::LRParser() {
 	impl_ = new LALR;

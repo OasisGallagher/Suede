@@ -2,10 +2,10 @@
 #include "action.h"
 #include "scanner.h"
 #include "syntaxer.h"
-#include "lr_table.h"
+#include "lrtable.h"
 #include "serializer.h"
 #include "debug/debug.h"
-#include "syntax_tree.h"
+#include "syntaxtree.h"
 
 class SymTable : public Table<Sym> { };
 

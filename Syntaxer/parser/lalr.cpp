@@ -5,10 +5,10 @@
 #include "lalr.h"
 #include "os/os.h"
 #include "grammar.h"
-#include "lr_table.h"
+#include "lrtable.h"
 #include "debug/debug.h"
-#include "table_printer.h"
-#include "compiler_defines.h"
+#include "tableprinter.h"
+#include "compilerdefines.h"
 
 struct Ambiguity {
 	int state;

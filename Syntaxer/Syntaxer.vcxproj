@@ -29,50 +29,50 @@
   <ItemGroup>
     <ClInclude Include="global\matrix.h" />
     <ClInclude Include="global\reader.h" />
-    <ClInclude Include="global\reference_countable.h" />
-    <ClInclude Include="global\table_printer.h" />
+    <ClInclude Include="global\referencecountable.h" />
+    <ClInclude Include="global\tableprinter.h" />
     <ClInclude Include="global\utilities.h" />
-    <ClInclude Include="include\compiler_defines.h" />
+    <ClInclude Include="include\compilerdefines.h" />
     <ClInclude Include="include\language.h" />
-    <ClInclude Include="include\syntax_tree.h" />
+    <ClInclude Include="include\syntaxtree.h" />
     <ClInclude Include="parser\action.h" />
     <ClInclude Include="parser\grammar.h" />
-    <ClInclude Include="parser\grammar_symbol.h" />
+    <ClInclude Include="parser\grammarsymbol.h" />
     <ClInclude Include="parser\lalr.h" />
     <ClInclude Include="parser\lr0.h" />
     <ClInclude Include="parser\lr1.h" />
-    <ClInclude Include="parser\lr_impl.h" />
-    <ClInclude Include="parser\lr_parser.h" />
-    <ClInclude Include="parser\lr_table.h" />
+    <ClInclude Include="parser\lrimpl.h" />
+    <ClInclude Include="parser\lrparser.h" />
+    <ClInclude Include="parser\lrtable.h" />
     <ClInclude Include="parser\parser.h" />
     <ClInclude Include="parser\serializer.h" />
     <ClInclude Include="parser\syntaxer.h" />
     <ClInclude Include="parser\table.h" />
     <ClInclude Include="scanner\scanner.h" />
     <ClInclude Include="scanner\tokens.h" />
-    <ClInclude Include="scanner\token_define.h" />
+    <ClInclude Include="scanner\tokendefine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="global\reader.cpp" />
-    <ClCompile Include="global\reference_countable.cpp" />
-    <ClCompile Include="global\table_printer.cpp" />
+    <ClCompile Include="global\referencecountable.cpp" />
+    <ClCompile Include="global\tableprinter.cpp" />
     <ClCompile Include="global\utilities.cpp" />
     <ClCompile Include="parser\action.cpp" />
     <ClCompile Include="parser\grammar.cpp" />
-    <ClCompile Include="parser\grammar_symbol.cpp" />
+    <ClCompile Include="parser\grammarsymbol.cpp" />
     <ClCompile Include="parser\lalr.cpp" />
     <ClCompile Include="parser\lr0.cpp" />
     <ClCompile Include="parser\lr1.cpp" />
-    <ClCompile Include="parser\lr_impl.cpp" />
-    <ClCompile Include="parser\lr_parser.cpp" />
-    <ClCompile Include="parser\lr_table.cpp" />
+    <ClCompile Include="parser\lrimpl.cpp" />
+    <ClCompile Include="parser\lrparser.cpp" />
+    <ClCompile Include="parser\lrtable.cpp" />
     <ClCompile Include="parser\parser.cpp" />
     <ClCompile Include="parser\serializer.cpp" />
     <ClCompile Include="parser\syntaxer.cpp" />
     <ClCompile Include="scanner\scanner.cpp" />
     <ClCompile Include="scanner\tokens.cpp" />
     <ClCompile Include="src\language.cpp" />
-    <ClCompile Include="src\syntax_tree.cpp" />
+    <ClCompile Include="src\syntaxtree.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1AD72401-EA15-485A-9CBB-9574AC936ED6}</ProjectGuid>

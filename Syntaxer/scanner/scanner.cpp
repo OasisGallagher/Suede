@@ -7,7 +7,7 @@
 #include "scanner.h"
 #include "utilities.h"
 #include "debug/debug.h"
-#include "compiler_defines.h"
+#include "compilerdefines.h"
 
 enum {
 	StartState,
