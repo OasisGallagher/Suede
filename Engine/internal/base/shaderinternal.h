@@ -47,7 +47,7 @@ public:
 	virtual void Bind(uint pass);
 	virtual void Unbind();
 
-	virtual uint GetPassCount() { return passes_.size(); }
+	virtual uint GetPassCount() { return 0; }
 
 	virtual bool SetProperty(const std::string& name, const void* data);
 	virtual void GetProperties(std::vector<ShaderProperty>& properties);
@@ -86,7 +86,6 @@ private:
 
 	std::string path_;
 	uint currentPass_;
-	std::vector<ShaderPass*> passes_;
 
 	static ShaderDescription descriptions_[ShaderStageCount];
 };

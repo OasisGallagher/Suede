@@ -8,7 +8,7 @@ class Language;
 class SyntaxTree;
 class SyntaxNode;
 
-struct ShaderProperty {
+struct ShaderProperty2 {
 	std::string name;
 	Variant defaultValue;
 };
@@ -43,7 +43,7 @@ struct SubShader {
 };
 
 struct Semantics {
-	std::vector<ShaderProperty> properties;
+	std::vector<ShaderProperty2> properties;
 	std::vector<SubShader> subShaders;
 };
 
@@ -53,7 +53,7 @@ public:
 	~ShaderLanguage();
 
 public:
-	bool Parse(const std::string& code, SyntaxTree& tree);
+	bool Parse(const std::string& path, SyntaxTree& tree);
 
 private:
 	Language* lang_;
@@ -61,7 +61,7 @@ private:
 
 class ShaderCompiler {
 public:
-	bool Compile(const std::string& path, const std::string& defines, Semantics& semantics);
+	bool Compile(Semantics& semantics, const std::string& path, const std::string& defines);
 
 private:
 	void Clear();
@@ -74,23 +74,23 @@ private:
 
 	bool Preprocess(const std::string& line);
 	bool PreprocessInclude(const std::string& parameter);
-	bool PreprocessShader(const std::string& parameter);
+	bool PreprocessShaderStage(const std::string& parameter);
 
 	void CalculateDefinesPermutations(std::vector<std::string>& anwser);
 
 	ShaderStage ParseShaderStage(const std::string& tag);
 
-	void ReadInt(SyntaxNode* node, ShaderProperty& property);
-	void ReadVec3(SyntaxNode* node, ShaderProperty& property);
-	void ReadTex2(SyntaxNode* node, ShaderProperty& property);
-	void ReadMat3(SyntaxNode* node, ShaderProperty& property);
-	void ReadMat4(SyntaxNode* node, ShaderProperty& property);
-	void ReadFloat(SyntaxNode* node, ShaderProperty& property);
-	void ReadNumber3(SyntaxNode* node, ShaderProperty& property);
+	void ReadInt(SyntaxNode* node, ShaderProperty2& property);
+	void ReadVec3(SyntaxNode* node, ShaderProperty2& property);
+	void ReadTex2(SyntaxNode* node, ShaderProperty2& property);
+	void ReadMat3(SyntaxNode* node, ShaderProperty2& property);
+	void ReadMat4(SyntaxNode* node, ShaderProperty2& property);
+	void ReadFloat(SyntaxNode* node, ShaderProperty2& property);
+	void ReadNumber3(SyntaxNode* node, ShaderProperty2& property);
 
-	void ReadProperty(SyntaxNode* node, ShaderProperty& property);
-	void ReadProperties(SyntaxNode* node, std::vector<ShaderProperty>& properties);
-	void ReadPropertyBlock(SyntaxNode* node, std::vector<ShaderProperty>& properties);
+	void ReadProperty(SyntaxNode* node, ShaderProperty2& property);
+	void ReadProperties(SyntaxNode* node, std::vector<ShaderProperty2>& properties);
+	void ReadPropertyBlock(SyntaxNode* node, std::vector<ShaderProperty2>& properties);
 
 	void ReadTag(SyntaxNode* node, SubShaderTag& tag);
 	void ReadTags(SyntaxNode* node, std::vector<SubShaderTag>& tags);
@@ -108,7 +108,7 @@ private:
 	void ReadSubShaderBlocks(SyntaxNode* node, std::vector<SubShader>& subShaders);
 
 	template <class Cont>
-	Cont::reference Allocate(Cont& cont);
+	typename Cont::reference Allocate(Cont& cont);
 
 private:
 	ShaderStage type_;
@@ -120,7 +120,7 @@ private:
 };
 
 template<class Cont>
-inline Cont::reference ShaderCompiler::Allocate(Cont& cont) {
+inline typename Cont::reference ShaderCompiler::Allocate(Cont& cont) {
 	cont.push_back(Cont::value_type());
 	return cont.back();
 }

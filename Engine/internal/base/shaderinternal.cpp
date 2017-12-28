@@ -21,7 +21,9 @@ ShaderInternal::~ShaderInternal() {
 bool ShaderInternal::Load(const std::string& path) {
 	ShaderCompiler compiler;
 	std::string sources[ShaderStageCount];
-	if (!compiler.Compile(path + GLSL_POSTFIX, "", sources)) {
+
+	Semantics semantics;
+	if (!compiler.Compile(semantics, "resources/demo.js"/*path + GLSL_POSTFIX*/, "")) {
 		return false;
 	}
 
@@ -46,17 +48,12 @@ bool ShaderInternal::Load(const std::string& path) {
 }
 
 void ShaderInternal::Bind(uint pass) {
-	if (pass > passes_.size()) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
-	currentPass_ = pass;
-	passes_[pass]->Bind();
+// 	currentPass_ = pass;
+// 	passes_[pass]->Bind();
 }
 
 void ShaderInternal::Unbind() {
-	passes_[currentPass_]->Unbind();
+//	passes_[currentPass_]->Unbind();
 }
 
 bool ShaderInternal::SetProperty(const std::string& name, const void* data) {
