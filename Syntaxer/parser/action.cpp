@@ -71,14 +71,14 @@ bool Action::SplitParameters(int* parameters, int& count, TextScanner& scanner) 
 	return true;
 }
 
-std::string ActionConstant::ToString() const {
-	return std::string("$$ = constant($") + std::to_string(argument_.parameters.front()) + ")";
+std::string ActionInteger::ToString() const {
+	return std::string("$$ = integer($") + std::to_string(argument_.parameters.front()) + ")";
 }
 
-SyntaxNode* ActionConstant::Invoke(const std::vector<void*>& container) {
-	Constant* constant = (Constant*)container[container.size() - argument_.parameters.front()];
-	SyntaxNode* ans = new SyntaxNode(SyntaxNodeConstant, constant->ToString());
-	ans->SetConstantAddress(constant);
+SyntaxNode* ActionInteger::Invoke(const std::vector<void*>& container) {
+	Integer* integer = (Integer*)container[container.size() - argument_.parameters.front()];
+	SyntaxNode* ans = new SyntaxNode(SyntaxNodeInteger, integer->ToString());
+	ans->SetIntegerAddress(integer);
 	return ans;
 }
 
@@ -248,9 +248,9 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 			action = new ActionMake();
 			argument.text = "make";
 		}
-		else if (token == "constant") {
-			action = new ActionConstant();
-			argument.text = "constant";
+		else if (token == "integer") {
+			action = new ActionInteger();
+			argument.text = "integer";
 		}
 		else if (token == "symbol") {
 			action = new ActionSymbol();

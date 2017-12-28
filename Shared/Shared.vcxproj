@@ -85,7 +85,7 @@
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
-copy $(TargetDir)$(TargetName).lib $(SolutionDir)Compiler\lib
+copy $(TargetDir)$(TargetName).lib $(SolutionDir)Syntaxer\lib
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </PostBuildEvent>

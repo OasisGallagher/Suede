@@ -158,26 +158,33 @@ void ShaderCompiler::ReadFloat(SyntaxNode* node, ShaderProperty2& property) {
 	property.defaultValue.SetFloat(String::ToFloat(node->GetChild(1)->GetText()));
 }
 
-void ShaderCompiler::ReadNumber3(SyntaxNode* node, ShaderProperty2& property) {
-	glm::vec3 value;
-	float* ptr = &value.x;
-	for (int i = 0; i < Math::Min(3, node->GetChildCount()); ++i) {
-		*ptr++ = String::ToFloat(node->GetChild(i)->GetText());
-	}
+void ShaderCompiler::ReadInteger3(SyntaxNode* node, ShaderProperty2& property) {
+	glm::ivec3 value;
+	ReadInteger3(value, node);
+	property.defaultValue.SetIVector3(value);
+}
 
-	property.defaultValue.SetVector3(value);
+
+void ShaderCompiler::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
+	int* ptr = &value.x;
+	for (int i = 0; i < Math::Min(3, node->GetChildCount()); ++i) {
+		*ptr++ = String::ToInteger(node->GetChild(i)->GetText());
+	}
 }
 
 void ShaderCompiler::ReadVec3(SyntaxNode* node, ShaderProperty2& property) {
 	if (node->GetChildCount() >= 2) {
-		ReadNumber3(node->GetChild(1), property);
+		ReadInteger3(node, property);
 	}
 }
 
 void ShaderCompiler::ReadTex2(SyntaxNode* node, ShaderProperty2& property) {
-	int color = String::ToInteger(node->GetChild(1)->GetText());
+	glm::ivec3 value;
+	ReadInteger3(value, node->GetChild(1));
+
+	uchar bytes[] = { uchar(value.x & 0xFF), uchar(value.y & 0xFF), uchar(value.z & 0xFF) };
 	Texture2D texture = NewTexture2D();
-	texture->Load(&color, ColorFormatRgb, 1, 1);
+	texture->Load(bytes, ColorFormatRgb, 1, 1);
 	property.defaultValue.SetTexture(texture);
 }
 
@@ -298,7 +305,7 @@ void ShaderCompiler::ReadRenderStates(SyntaxNode* node, std::vector<SubShaderRen
 }
 
 void ShaderCompiler::ReadCode(SyntaxNode* node, std::string& vertex, std::string& fragment) {
-	Debug::Log(node->GetText().c_str());
+	//Debug::Log(node->GetText().c_str());
 }
 
 void ShaderCompiler::ReadPass(SyntaxNode* node, ShaderPass& pass) {

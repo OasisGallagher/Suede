@@ -9,7 +9,7 @@
 
 class SymTable : public Table<Sym> { };
 
-class ConstantTable : public Table<Constant> { };
+class IntegerTable : public Table<Integer> { };
 
 class LiteralTable : public Table<Literal> { };
 
@@ -23,7 +23,7 @@ std::string Sym::ToString() const {
 	return value_;
 }
 
-Constant::Constant(const std::string& text) {
+Integer::Integer(const std::string& text) {
 	int integer = 0;
 	if (!Utility::ParseInteger(text.c_str(), &integer)) {
 		Debug::LogError("invalid integer %s.", text.c_str());
@@ -32,7 +32,7 @@ Constant::Constant(const std::string& text) {
 	value_ = integer;
 }
 
-std::string Constant::ToString() const {
+std::string Integer::ToString() const {
 	return std::to_string(value_);
 }
 
@@ -67,7 +67,7 @@ Syntaxer::Syntaxer() {
 	symTable_ = new SymTable;
 	codeTable_ = new CodeTable;
 	literalTable_ = new LiteralTable;
-	constantTable_ = new ConstantTable;
+	integerTable_ = new IntegerTable;
 }
 
 Syntaxer::~Syntaxer() {
@@ -75,7 +75,7 @@ Syntaxer::~Syntaxer() {
 	delete symTable_;
 	delete codeTable_;
 	delete literalTable_;
-	delete constantTable_;
+	delete integerTable_;
 }
 
 void Syntaxer::Setup(const SyntaxerSetupParameter& p) {
@@ -98,7 +98,7 @@ bool Syntaxer::ParseSyntax(SyntaxTree* tree, FileScanner* fileScanner) {
 
 	tree->SetRoot(root);
 
-	Debug::Log("Accepted");
+	//Debug::Log("Accepted");
 
 	return true;
 }
@@ -120,7 +120,7 @@ int Syntaxer::Reduce(int cpos) {
 	stack_->pop(length);
 
 	int nextState = p_.lrTable.GetGoto(stack_->states.back(), g->GetLhs());
-	Debug::Log("%s Goto state %d.", log.c_str(), nextState);
+	//Debug::Log("%s Goto state %d.", log.c_str(), nextState);
 
 	if (nextState < 0) {
 		Debug::LogError("empty goto item(%d, %s).", stack_->states.back(), g->GetLhs().ToString().c_str());
@@ -137,7 +137,7 @@ bool Syntaxer::Error(const GrammarSymbol& symbol, const TokenPosition& position)
 }
 
 void Syntaxer::Shift(int state, void* addr, const GrammarSymbol& symbol) {
-	Debug::Log(">> [S] `%s`. Goto state %d.", symbol.ToString(), state);
+	//Debug::Log(">> [S] `%s`. Goto state %d.", symbol.ToString(), state);
 	stack_->push(state, addr, symbol);
 }
 
@@ -190,9 +190,9 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 	if (token.tokenType == ScannerTokenEndOfFile) {
 		answer = NativeSymbols::zero;
 	}
-	else if (token.tokenType == ScannerTokenNumber) {
-		answer = NativeSymbols::number;
-		addr = constantTable_->Add(token.tokenText);
+	else if (token.tokenType == ScannerTokenInteger) {
+		answer = NativeSymbols::integer;
+		addr = integerTable_->Add(token.tokenText);
 	}
 	else if (token.tokenType == ScannerTokenString) {
 		answer = NativeSymbols::string;

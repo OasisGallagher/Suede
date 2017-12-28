@@ -43,7 +43,7 @@ void LALR::Setup(Environment* env, FirstSetTable* firstSets) {
 }
 
 bool LALR::Parse(LRActionTable& actionTable, LRGotoTable& gotoTable) {
-	Debug::Log("create LR0 itemsets");
+	//Debug::Log("create LR0 itemsets");
 	LR0 lr0;
 	lr0.Setup(env_, firstSets_);
 	lr0.CreateLR0Itemsets(itemsets_, edges_);
@@ -56,13 +56,13 @@ bool LALR::Parse(LRActionTable& actionTable, LRGotoTable& gotoTable) {
 	LR1Item init = *itemsets_.begin()->begin();
 	init.GetForwards().insert(NativeSymbols::zero);
 
-	Debug::Log("calculate forwards and propagations");
+	//Debug::Log("calculate forwards and propagations");
 	CalculateForwardsAndPropagations();
 
-	Debug::Log("propagate forwards");
+	//Debug::Log("propagate forwards");
 	PropagateSymbols();
 
-	Debug::Log("create parsing table");
+	//Debug::Log("create parsing table");
 	bool status = CreateLRParsingTable(gotoTable, actionTable);
 
 	return status;
@@ -363,7 +363,7 @@ bool LALR::PropagateFrom(const LR1Item &src) {
 }
 
 void LALR::CalculateForwardsAndPropagations() {
-	Debug::Log("add forwards and propagations");
+	//Debug::Log("add forwards and propagations");
 	int index = 1;
 	LR1Itemset target = nullptr;
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
@@ -400,7 +400,7 @@ void LALR::CalculateForwardsAndPropagations() {
 		}
 	}
 
-	Debug::Log("clean up");
+	//Debug::Log("clean up");
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
 		for (LR1Itemset::iterator ii = ite->begin(); ii != ite->end(); ++ii) {
 			Forwards& forwards = (Forwards&)ii->GetForwards();

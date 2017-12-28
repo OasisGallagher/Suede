@@ -60,12 +60,12 @@ void Language::Setup(const char* grammars, const char* savePath) {
 	time_t tp = OS::GetFileLastWriteTime("bin/Compiler.dll");
 	time_t to = OS::GetFileLastWriteTime(savePath);
 	if (tp > to) {
-		Debug::Log("build parser");
+		//Debug::Log("build parser");
 		BuildSyntaxer(grammars);
 		SaveSyntaxer(savePath);
 	}
 	else {
-		Debug::Log("load parser");
+		//Debug::Log("load parser");
 		LoadSyntaxer(savePath);
 	}
 }

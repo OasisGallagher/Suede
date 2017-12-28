@@ -86,7 +86,8 @@ private:
 	void ReadMat3(SyntaxNode* node, ShaderProperty2& property);
 	void ReadMat4(SyntaxNode* node, ShaderProperty2& property);
 	void ReadFloat(SyntaxNode* node, ShaderProperty2& property);
-	void ReadNumber3(SyntaxNode* node, ShaderProperty2& property);
+	void ReadInteger3(SyntaxNode* node, ShaderProperty2& property);
+	void ReadInteger3(glm::ivec3& value, SyntaxNode* node);
 
 	void ReadProperty(SyntaxNode* node, ShaderProperty2& property);
 	void ReadProperties(SyntaxNode* node, std::vector<ShaderProperty2>& properties);

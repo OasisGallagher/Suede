@@ -8,7 +8,7 @@ enum SyntaxNodeType {
 	SyntaxNodeSymbol,
 	SyntaxNodeCode,
 	SyntaxNodeLiteral,
-	SyntaxNodeConstant,
+	SyntaxNodeInteger,
 	SyntaxNodeOperation,
 };
 
@@ -45,9 +45,9 @@ private:
 	std::string value_;
 };
 
-class Constant {
+class Integer {
 public:
-	Constant(const std::string& text);
+	Integer(const std::string& text);
 
 public:
 	std::string ToString() const;
@@ -74,7 +74,7 @@ public:
 	void SetSymbolAddress(Sym* addr);
 	void SetLiteralAddress(Literal* addr);
 	void SetCodeAddress(Code* addr);
-	void SetConstantAddress(Constant* addr);
+	void SetIntegerAddress(Integer* addr);
 
 	const std::string& ToString() const;
 	const std::string& GetText() const { return text_; }
@@ -90,7 +90,7 @@ private:
 		Sym* symbol;
 		Code* code;
 		Literal* literal;
-		Constant* constant;
+		Integer* integer;
 
 		// 子节点, 第一个元素表示子节点个数.
 		SyntaxNode** children;

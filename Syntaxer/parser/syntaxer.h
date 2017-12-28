@@ -16,7 +16,7 @@ struct SyntaxerStack;
 class SymTable;
 class CodeTable;
 class LiteralTable;
-class ConstantTable;
+class IntegerTable;
 
 struct SyntaxerSetupParameter {
 	Environment* env;
@@ -59,5 +59,5 @@ private:
 	SymTable* symTable_;
 	CodeTable* codeTable_;
 	LiteralTable* literalTable_;
-	ConstantTable* constantTable_;
+	IntegerTable* integerTable_;
 };

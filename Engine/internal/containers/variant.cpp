@@ -11,6 +11,7 @@ const char* Variant::TypeString(VariantType type) {
 		CASE(Float);
 		CASE(Matrix3);
 		CASE(Matrix4);
+		CASE(IVector3);
 		CASE(Vector3);
 		CASE(Vector4);
 		CASE(Texture);
@@ -70,6 +71,15 @@ glm::mat4 Variant::GetMatrix4() const {
 	}
 
 	return data_.mat4Value;
+}
+
+glm::ivec3 Variant::GetIVector3() const {
+	if (type_ != VariantTypeIVector3) {
+		Debug::LogError("invalid uniform type.");
+		return glm::ivec3(0);
+	}
+
+	return data_.ivec3Value;
 }
 
 glm::vec3 Variant::GetVector3() const {
@@ -162,6 +172,11 @@ void Variant::SetMatrix4(const glm::mat4& value) {
 void Variant::SetVector3(const glm::vec3& value) {
 	SetType(VariantTypeVector3);
 	data_.vec3Value = value;
+}
+
+void Variant::SetIVector3(const glm::ivec3& value) {
+	SetType(VariantTypeIVector3);
+	data_.ivec3Value = value;
 }
 
 void Variant::SetVector4(const glm::vec4& value) {

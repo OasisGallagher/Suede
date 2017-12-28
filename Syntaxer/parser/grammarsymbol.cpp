@@ -8,7 +8,7 @@ GrammarSymbol NativeSymbols::null = nullptr;
 GrammarSymbol NativeSymbols::zero = new TerminalSymbol("zero");
 GrammarSymbol NativeSymbols::code = new TerminalSymbol("code");
 GrammarSymbol NativeSymbols::unknown = new TerminalSymbol("#");
-GrammarSymbol NativeSymbols::number = new TerminalSymbol("number");
+GrammarSymbol NativeSymbols::integer = new TerminalSymbol("integer");
 GrammarSymbol NativeSymbols::string = new TerminalSymbol("string");
 GrammarSymbol NativeSymbols::epsilon = new TerminalSymbol("epsilon");
 GrammarSymbol NativeSymbols::identifier = new TerminalSymbol("identifier");
@@ -102,7 +102,7 @@ GrammarSymbol SymbolFactory::Create(const std::string& text) {
 void NativeSymbols::Copy(GrammarSymbolContainer& terminalSymbols, GrammarSymbolContainer& nonterminalSymbols) {
 	terminalSymbols.insert(std::make_pair(zero.ToString(), zero));
 	terminalSymbols.insert(std::make_pair(code.ToString(), code));
-	terminalSymbols.insert(std::make_pair(number.ToString(), number));
+	terminalSymbols.insert(std::make_pair(integer.ToString(), integer));
 	terminalSymbols.insert(std::make_pair(string.ToString(), string));
 	terminalSymbols.insert(std::make_pair(epsilon.ToString(), epsilon));
 	terminalSymbols.insert(std::make_pair(identifier.ToString(), identifier));
@@ -114,7 +114,7 @@ bool NativeSymbols::IsNative(const GrammarSymbol& symbol) {
 	return symbol == null
 		|| symbol == zero
 		|| symbol == code
-		|| symbol == number
+		|| symbol == integer
 		|| symbol == string
 		|| symbol == unknown
 		|| symbol == epsilon

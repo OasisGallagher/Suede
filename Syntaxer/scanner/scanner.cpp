@@ -12,7 +12,7 @@
 enum {
 	StartState,
 	DoneState,
-	NumberState,
+	DecimalState,
 	HexState,
 	StringState,
 	StringState2,
@@ -86,7 +86,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 				savech = false;
 			}
 			else if (Utility::IsDigit(ch)) {
-				state = NumberState;
+				state = DecimalState;
 			}
 			else if (Utility::IsLetter(ch)) {
 				state = IdentifierState;
@@ -159,20 +159,20 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			if (!Utility::IsDigit(ch) 
 				&& !((ch <= 'f' && ch >= 'a') || (ch <= 'F' && ch >= 'A'))) {
 				state = DoneState;
-				tokenType = ScannerTokenNumber;
+				tokenType = ScannerTokenInteger;
 				unget = true;
 				savech = false;
 			}
 			break;
 
-		case NumberState:
+		case DecimalState:
 			if (!Utility::IsDigit(ch)) {
 				if (buffer.length() == 1 && ch == 'x') {
 					state = HexState;
 				}
 				else {
 					state = DoneState;
-					tokenType = ScannerTokenNumber;
+					tokenType = ScannerTokenInteger;
 					unget = true;
 					savech = false;
 				}

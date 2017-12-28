@@ -29,7 +29,7 @@ protected:
 	Argument argument_;
 };
 
-class ActionConstant : public Action {
+class ActionInteger : public Action {
 public:
 	virtual std::string ToString() const;
 	virtual SyntaxNode* Invoke(const std::vector<void*>& container);

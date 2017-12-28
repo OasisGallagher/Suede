@@ -7,7 +7,7 @@ enum ScannerTokenType {
 	ScannerTokenEndOfFile,
 
 	ScannerTokenIdentifier,
-	ScannerTokenNumber,
+	ScannerTokenInteger,
 	ScannerTokenString,
 	ScannerTokenCode,
 

@@ -2,11 +2,15 @@
 #include "syntaxtree.h"
 #include "debug/debug.h"
 
-#define DEBUG_NODE_TYPE(current, expected)	\
-	if(current != expected) { Debug::LogError("invalid syntax node type: %d != %d.", current, expected); } else (void)0
+inline bool DebugNodeType(SyntaxNodeType current, SyntaxNodeType expected) {
+#ifdef _DEBUG
+	if (current != expected) {
+		Debug::LogError("invalid syntax node type: %d != %d.", current, expected); return false;
+	}
+#endif
 
-#define DEBUG_NODE_TYPE_VOID(current, expected)	DEBUG_NODE_TYPE(current, expected); return
-#define DEBUG_NODE_TYPE_R(current, expected, value)	DEBUG_NODE_TYPE(current, expected); return value
+	return true;
+}
 
 SyntaxNode::SyntaxNode(SyntaxNodeType type, const std::string& text)
 	: text_(text), type_(type) {
@@ -24,7 +28,9 @@ SyntaxNodeType SyntaxNode::GetNodeType() const {
 }
 
 void SyntaxNode::AddChildren(SyntaxNode** buffer, int count) {
-	DEBUG_NODE_TYPE_VOID(type_, SyntaxNodeOperation);
+	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
+		return;
+	}
 
 	value_.children = new SyntaxNode*[count + 1];
 	*value_.children = (SyntaxNode*)(uint64)count;
@@ -35,7 +41,10 @@ void SyntaxNode::AddChildren(SyntaxNode** buffer, int count) {
 }
 
 SyntaxNode* SyntaxNode::GetChild(int index) {
-	DEBUG_NODE_TYPE_R(type_, SyntaxNodeOperation, nullptr);
+	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
+		return nullptr;
+	}
+
 	if (index < 0 || index >= GetChildCount()) {
 		Debug::LogError("index out of range");
 		return nullptr;
@@ -45,7 +54,10 @@ SyntaxNode* SyntaxNode::GetChild(int index) {
 }
 
 const SyntaxNode* SyntaxNode::GetChild(int index) const {
-	DEBUG_NODE_TYPE_R(type_, SyntaxNodeOperation, nullptr);
+	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
+		return nullptr;
+	}
+
 	if (index < 0 || index >= GetChildCount()) {
 		Debug::LogError("index out of range");
 		return nullptr;
@@ -55,28 +67,35 @@ const SyntaxNode* SyntaxNode::GetChild(int index) const {
 }
 
 int SyntaxNode::GetChildCount() const {
-	DEBUG_NODE_TYPE_R(type_, SyntaxNodeOperation, 0);
+	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
+		return 0;
+	}
+
 	return (int)(uint64)*value_.children;
 }
 
-void SyntaxNode::SetConstantAddress(Constant* addr) {
-	DEBUG_NODE_TYPE_VOID(type_, SyntaxNodeConstant);
-	value_.constant = addr;
+void SyntaxNode::SetIntegerAddress(Integer* addr) {
+	if (DebugNodeType(type_, SyntaxNodeInteger)) {
+		value_.integer = addr;
+	}
 }
 
 void SyntaxNode::SetSymbolAddress(Sym* addr) {
-	DEBUG_NODE_TYPE_VOID(type_, SyntaxNodeSymbol);
-	value_.symbol = addr;
+	if (DebugNodeType(type_, SyntaxNodeSymbol)) {
+		value_.symbol = addr;
+	}
 }
 
 void SyntaxNode::SetLiteralAddress(Literal* addr) {
-	DEBUG_NODE_TYPE_VOID(type_, SyntaxNodeLiteral);
-	value_.literal = addr;
+	if (DebugNodeType(type_, SyntaxNodeLiteral)) {
+		value_.literal = addr;
+	}
 }
 
 void SyntaxNode::SetCodeAddress(Code* addr) {
-	DEBUG_NODE_TYPE(type_, SyntaxNodeCode);
-	value_.code = addr;
+	if ((type_, SyntaxNodeCode)) {
+		value_.code = addr;
+	}
 }
 
 const std::string& SyntaxNode::ToString() const {
