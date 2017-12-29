@@ -4,55 +4,20 @@
 
 #include "shader.h"
 #include "internal/containers/ptrmap.h"
+#include "internal/file/shaderparser.h"
 #include "internal/base/objectinternal.h"
 
-enum ShaderStage {
-	ShaderStageVertex,
-	ShaderStageTessellationControl,
-	ShaderStageTessellationEvaluation,
-	ShaderStageGeometry,
-	ShaderStageFragment,
-	ShaderStageCount,
-};
+class RenderState;
 
-struct ShaderDescription {
-	GLenum glShaderStage;
-	const char* name;
-	const char* tag;
-};
-
-inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
-	static ShaderDescription descriptions[] = {
-		GL_VERTEX_SHADER, "VertexShader", "vertex",
-		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control",
-		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation",
-		GL_GEOMETRY_SHADER, "GeometryShader", "geometry",
-		GL_FRAGMENT_SHADER, "FragmentShader", "fragment"
-	};
-
-	return descriptions[stage];
-}
-
-class ShaderInternal : public IShader, public ObjectInternal {
-	DEFINE_FACTORY_METHOD(Shader)
+class Pass {
+public:
+	Pass();
+	~Pass();
 
 public:
-	ShaderInternal();
-	~ShaderInternal();
+	bool Initialize(const Semantics::Pass& pass, const std::string& path);
 
-public:
-	virtual bool Load(const std::string& path);
-	virtual uint GetNativePointer() { return program_; }
-
-	virtual void Bind(uint pass);
-	virtual void Unbind();
-
-	virtual uint GetPassCount() { return 0; }
-
-	virtual bool SetProperty(const std::string& name, const void* data);
-	virtual void GetProperties(std::vector<ShaderProperty>& properties);
 private:
-
 	struct Uniform {
 		ShaderPropertyType type;
 		GLuint size;
@@ -60,8 +25,8 @@ private:
 	};
 
 	typedef PtrMap<std::string, Uniform> UniformContainer;
+	void InitializeRenderStates(std::vector<Semantics::RenderState> states);
 
-private:
 	bool Link();
 	bool LoadSource(ShaderStage stage, const char* source);
 	bool GetErrorMessage(GLuint shaderObj, std::string& answer);
@@ -80,12 +45,74 @@ private:
 	GLuint program_;
 	GLuint shaderObjs_[ShaderStageCount];
 
+	std::string path_;
+
 	int maxTextureUnits_;
 	int textureUnitCount_;
 	UniformContainer uniforms_;
 
+	RenderState* states_[RenderStateCount];
+};
+
+class SubShader {
+public:
+	enum TagKey {
+		TagKeyQueue,
+	};
+
+	struct Tag {
+		TagKey key;
+		uint value;
+	};
+
+public:
+	SubShader();
+	~SubShader();
+
+public:
+	bool Initialize(const Semantics::SubShader& config, const std::string& path);
+
+private:
+	void InitializeTags(const std::vector<Semantics::Tag>& tags);
+
+private:
+	Pass* passes_;
+	uint passCount_;
+
+	Tag* tags_;
+	uint tagCount_;
+};
+
+class ShaderInternal : public IShader, public ObjectInternal {
+	DEFINE_FACTORY_METHOD(Shader)
+
+public:
+	ShaderInternal();
+	~ShaderInternal();
+
+public:
+	virtual bool Load(const std::string& path);
+
+	virtual void Bind(uint pass);
+	virtual void Unbind();
+
+	virtual uint GetPassCount() { return 0; }
+
+	virtual bool SetProperty(const std::string& name, const void* data);
+	virtual void GetProperties(std::vector<ShaderProperty>& properties);
+
+private:
+	void ParseProperties(std::vector<Semantics::Property>& properties);
+	void ParseSubShaders(std::vector<Semantics::SubShader>& subShaders, const std::string& path);
+
+private:
+	
+
 	std::string path_;
 	uint currentPass_;
 
-	static ShaderDescription descriptions_[ShaderStageCount];
+	std::vector<Semantics::Property> properties_;
+
+	SubShader* subShaders_;
+	uint subShaderCount_;
 };

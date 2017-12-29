@@ -3,6 +3,8 @@
 
 #include "lr1.h"
 #include "grammar.h"
+#include "tools/math2.h"
+#include "tools/string.h"
 #include "compilerdefines.h"
 
 Forwards::Forwards() {
@@ -66,7 +68,7 @@ bool LR1Item::operator ==(const LR1Item& other) const {
 }
 
 std::string LR1Item::ToRawString() const {
-	return Utility::Format("(%d, %d, %d)", Utility::Highword(ptr_->cpos), Utility::Loword(ptr_->cpos), ptr_->dpos);
+	return String::Format("(%d, %d, %d)", Math::Highword(ptr_->cpos), Math::Loword(ptr_->cpos), ptr_->dpos);
 }
 
 std::string LR1Item::ToString(const GrammarContainer& grammars) const {
@@ -94,7 +96,7 @@ std::string LR1Item::ToString(const GrammarContainer& grammars) const {
 	}
 
 	oss << ", ";
-	oss << "( " << Utility::Concat(ptr_->forwards.begin(), ptr_->forwards.end(), "/") << " )";
+	oss << "( " << String::Concat(ptr_->forwards.begin(), ptr_->forwards.end(), "/") << " )";
 
 	return oss.str();
 }

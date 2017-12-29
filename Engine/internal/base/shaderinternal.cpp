@@ -4,28 +4,32 @@
 #include "meshinternal.h"
 #include "shaderinternal.h"
 #include "internal/base/glsldefines.h"
-#include "internal/file/shadercompiler.h"
 
-ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader), textureUnitCount_(0){
+Pass::Pass() : program_(0) {
+	std::fill(states_, states_ + RenderStateCount, nullptr);
+
 	program_ = GL::CreateProgram();
 	GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits_);
 
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
 
-ShaderInternal::~ShaderInternal() {
+Pass::~Pass() {
+	for (int i = 0; i < RenderStateCount; ++i) {
+		MEMORY_RELEASE(states_[i]);
+	}
+
 	GL::DeleteProgram(program_);
 	ClearIntermediateShaders();
 }
 
-bool ShaderInternal::Load(const std::string& path) {
-	ShaderCompiler compiler;
+bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
+	InitializeRenderStates(pass.renderStates);
+	
 	std::string sources[ShaderStageCount];
-
-	Semantics semantics;
-	if (!compiler.Compile(semantics, "resources/demo.js"/*path + GLSL_POSTFIX*/, "")) {
-		return false;
-	}
+	GLSLParser parser;
+	// TODO: SetPath.
+	parser.Parse(sources, pass.source, "");
 
 	for (int i = 0; i < ShaderStageCount; ++i) {
 		if (!sources[i].empty() && !LoadSource((ShaderStage)i, sources[i].c_str())) {
@@ -35,7 +39,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	path_ = path;
 	ClearIntermediateShaders();
-	
+
 	UpdateVertexAttributes();
 	UpdateFragmentAttributes();
 
@@ -44,36 +48,13 @@ bool ShaderInternal::Load(const std::string& path) {
 	}
 
 	AddAllUniforms();
-	return true;
 }
 
-void ShaderInternal::Bind(uint pass) {
-// 	currentPass_ = pass;
-// 	passes_[pass]->Bind();
+void Pass::InitializeRenderStates(std::vector<Semantics::RenderState> states) {
+
 }
 
-void ShaderInternal::Unbind() {
-//	passes_[currentPass_]->Unbind();
-}
-
-bool ShaderInternal::SetProperty(const std::string& name, const void* data) {
-	Uniform* uniform = nullptr;
-	if (!uniforms_.get(name, uniform)) {
-		return false;
-	}
-
-	SetUniform(uniform, data);
-	return true;
-}
-
-void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
-	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
-		ShaderProperty property{ ite->first, ite->second->type };
-		properties.push_back(property);
-	}
-}
-
-bool ShaderInternal::GetErrorMessage(GLuint shaderObj, std::string& answer) {
+bool Pass::GetErrorMessage(GLuint shaderObj, std::string& answer) {
 	if (shaderObj == 0) {
 		answer = "invalid shader id";
 		return false;
@@ -90,9 +71,9 @@ bool ShaderInternal::GetErrorMessage(GLuint shaderObj, std::string& answer) {
 	return false;
 }
 
-bool ShaderInternal::Link() {
+bool Pass::Link() {
 	GL::LinkProgram(program_);
-	
+
 	GLint status = GL_FALSE;
 	GL::GetProgramiv(program_, GL_LINK_STATUS, &status);
 
@@ -111,7 +92,7 @@ bool ShaderInternal::Link() {
 	return true;
 }
 
-void ShaderInternal::ClearIntermediateShaders() {
+void Pass::ClearIntermediateShaders() {
 	for (int i = 0; i < ShaderStageCount; ++i) {
 		if (shaderObjs_[i] != 0) {
 			GL::DeleteShader(shaderObjs_[i]);
@@ -120,14 +101,14 @@ void ShaderInternal::ClearIntermediateShaders() {
 	}
 }
 
-bool ShaderInternal::LoadSource(ShaderStage stage, const char* source) {
+bool Pass::LoadSource(ShaderStage stage, const char* source) {
 	GLuint shaderObj = GL::CreateShader(GetShaderDescription(stage).glShaderStage);
 
 	GL::ShaderSource(shaderObj, 1, &source, nullptr);
 	GL::CompileShader(shaderObj);
 
 	GL::AttachShader(program_, shaderObj);
-	
+
 	std::string message;
 	if (!GetErrorMessage(shaderObj, message)) {
 		if (shaderObjs_[stage] != 0) {
@@ -141,7 +122,7 @@ bool ShaderInternal::LoadSource(ShaderStage stage, const char* source) {
 	return false;
 }
 
-void ShaderInternal::UpdateVertexAttributes() {
+void Pass::UpdateVertexAttributes() {
 	GL::BindAttribLocation(program_, VertexAttribPosition, Variables::position);
 	GL::BindAttribLocation(program_, VertexAttribTexCoord, Variables::texCoord);
 	GL::BindAttribLocation(program_, VertexAttribNormal, Variables::normal);
@@ -153,10 +134,10 @@ void ShaderInternal::UpdateVertexAttributes() {
 	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::instanceGeometry);
 }
 
-void ShaderInternal::UpdateFragmentAttributes() {
+void Pass::UpdateFragmentAttributes() {
 }
 
-void ShaderInternal::AddAllUniforms() {
+void Pass::AddAllUniforms() {
 	uniforms_.clear();
 	textureUnitCount_ = 0;
 
@@ -191,7 +172,7 @@ void ShaderInternal::AddAllUniforms() {
 	MEMORY_RELEASE_ARRAY(name);
 }
 
-void ShaderInternal::AddUniform(const char* name, GLenum type, GLuint location, GLint size) {
+void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size) {
 	Uniform* uniform = uniforms_[name];
 	uniform->size = size;
 	uniform->location = location;
@@ -228,7 +209,7 @@ void ShaderInternal::AddUniform(const char* name, GLenum type, GLuint location, 
 	}
 }
 
-void ShaderInternal::SetUniform(Uniform* uniform, const void* data) {
+void Pass::SetUniform(Uniform* uniform, const void* data) {
 	switch (uniform->type) {
 		case ShaderPropertyTypeInt:
 		case ShaderPropertyTypeBool:
@@ -253,7 +234,7 @@ void ShaderInternal::SetUniform(Uniform* uniform, const void* data) {
 	}
 }
 
-bool ShaderInternal::IsSampler(int type) {
+bool Pass::IsSampler(int type) {
 	switch (type) {
 		case GL_SAMPLER_1D:
 		case GL_SAMPLER_2D:
@@ -295,4 +276,99 @@ bool ShaderInternal::IsSampler(int type) {
 	}
 
 	return false;
+}
+
+
+SubShader::SubShader() : passes_(nullptr), passCount_(0), tags_(nullptr), tagCount_(0) {
+}
+
+SubShader::~SubShader() {
+	MEMORY_RELEASE_ARRAY(tags_);
+	MEMORY_RELEASE_ARRAY(passes_);
+}
+
+bool SubShader::Initialize(const Semantics::SubShader& config, const std::string& path) {
+	tags_ = MEMORY_CREATE_ARRAY(Tag, config.tags.size());
+
+	InitializeTags(config.tags);
+
+	passCount_ = config.tags.size();
+	passes_ = MEMORY_CREATE_ARRAY(Pass, config.passes.size());
+
+	for (uint i = 0; i < passCount_; ++i) {
+		passes_[i].Initialize(config.passes[i], path);
+	}
+
+	return true;
+}
+
+void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
+	for (uint i = 0; i < tagCount_; ++i) {
+		if (tags[i].key == "Queue") {
+			tags_[i].key = TagKeyQueue;
+		}
+		else {
+			Debug::LogError("invalid key %s", tags[i].key.c_str());
+		}
+	}
+}
+
+ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)
+	, subShaderCount_(0), subShaders_(nullptr) {
+}
+
+ShaderInternal::~ShaderInternal() {
+	MEMORY_RELEASE(subShaders_);
+}
+
+bool ShaderInternal::Load(const std::string& path) {
+	ShaderParser parser;
+	std::string sources[ShaderStageCount];
+
+	Semantics semantics;
+	if (!parser.Parse(semantics, "resources/demo.js"/*path + GLSL_POSTFIX*/, "")) {
+		return false;
+	}
+
+	ParseProperties(semantics.properties);
+	ParseSubShaders(semantics.subShaders, path);
+	return true;
+}
+
+void ShaderInternal::ParseProperties(std::vector<Semantics::Property>& properties) {
+	properties_ = properties;
+}
+
+void ShaderInternal::ParseSubShaders(std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
+	subShaderCount_ = subShaders.size();
+	subShaders_ = MEMORY_CREATE_ARRAY(SubShader, subShaders.size());
+	for (uint i = 0; i < subShaderCount_; ++i) {
+		subShaders_[i].Initialize(subShaders[i], path);
+	}
+}
+
+void ShaderInternal::Bind(uint pass) {
+// 	currentPass_ = pass;
+// 	passes_[pass]->Bind();
+}
+
+void ShaderInternal::Unbind() {
+//	passes_[currentPass_]->Unbind();
+}
+
+bool ShaderInternal::SetProperty(const std::string& name, const void* data) {
+// 	Uniform* uniform = nullptr;
+// 	if (!uniforms_.get(name, uniform)) {
+// 		return false;
+// 	}
+// 
+// 	SetUniform(uniform, data);
+	return true;
+}
+
+void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
+// 	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
+// 		ShaderProperty property{ ite->first, ite->second->type };
+// 		properties.push_back(property);
+// 	}
 }

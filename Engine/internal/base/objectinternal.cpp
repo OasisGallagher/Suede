@@ -1,7 +1,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "math2.h"
+#include "tools/math2.h"
 #include "debug/debug.h"
 #include "objectinternal.h"
 

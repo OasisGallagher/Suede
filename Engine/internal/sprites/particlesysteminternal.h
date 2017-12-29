@@ -1,7 +1,7 @@
 #include <vector>
 
-#include "math2.h"
 #include "shader.h"
+#include "tools/math2.h"
 #include "particlesystem.h"
 #include "internal/containers/freelist.h"
 #include "internal/sprites/spriteinternal.h"

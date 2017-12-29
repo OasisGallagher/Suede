@@ -6,8 +6,10 @@
 #include "os/os.h"
 #include "grammar.h"
 #include "lrtable.h"
+#include "tools/math2.h"
 #include "debug/debug.h"
 #include "tableprinter.h"
+#include "tools/string.h"
 #include "compilerdefines.h"
 
 struct Ambiguity {
@@ -90,12 +92,12 @@ bool LALR::CreateActionTable(LRActionTable &actionTable) {
 }
 
 bool LALR::InsertActionTable(LRActionTable& actionTable, const LR1Itemset& src, const GrammarSymbol& symbol, const LRAction& action) {
-	int state = Utility::ParseInteger(src.GetName());
+	int state = String::ToInteger(src.GetName());
 	LRActionTable::ib_pair status = actionTable.insert(state, symbol, action);
 	if (!status.second && status.first->second != action) {
 		Ambiguity ambiguity = { state, symbol, status.first->second, action };
 		if (ambiguities_->insert(ambiguity)) {
-			std::string prompt = Utility::Format("CONFLICT at (%d, %s). Replace %s with %s ?", 
+			std::string prompt = String::Format("CONFLICT at (%d, %s). Replace %s with %s ?",
 				state, symbol.ToString().c_str(), 
 				status.first->second.ToString(env_->grammars).c_str(), 
 				action.ToString(env_->grammars).c_str());
@@ -138,7 +140,7 @@ bool LALR::ParseLRAction(LRActionTable & actionTable, const LR1Itemset& itemset,
 	if (symbol.SymbolType() == GrammarSymbolTerminal) {
 		LR1Itemset target;
 		if (edges_.get(itemset, symbol, target)) {
-			int j = Utility::ParseInteger(target.GetName());
+			int j = String::ToInteger(target.GetName());
 			LRAction action = { LRActionShift, j };
 			return InsertActionTable(actionTable, itemset, symbol, action);
 		}
@@ -152,8 +154,8 @@ bool LALR::CreateGotoTable(LRGotoTable &gotoTable) {
 	for (LR1EdgeTable::const_iterator ite = edges_.begin(); ite != edges_.end(); ++ite) {
 		const GrammarSymbol& symbol = ite->first.second;
 		if (symbol.SymbolType() == GrammarSymbolNonterminal) {
-			int i = Utility::ParseInteger(ite->first.first.GetName());
-			int j = Utility::ParseInteger(ite->second.GetName());
+			int i = String::ToInteger(ite->first.first.GetName());
+			int j = String::ToInteger(ite->second.GetName());
 			gotoTable.insert(i, symbol, j);
 		}
 	}
@@ -219,7 +221,7 @@ void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1It
 				int dpos = 0;
 
 				for (; ite != tc->symbols.end(); ++ite, ++dpos) {
-					LR1Item newItem = FindItem(Utility::MakeDword(condinateIndex, gi), dpos, itemset);
+					LR1Item newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
 					newItem.GetForwards().insert(*fsi);
 					answer.insert(newItem);
 
@@ -229,7 +231,7 @@ void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1It
 				}
 
 				if (ite == tc->symbols.end()) {
-					LR1Item newItem = FindItem(Utility::MakeDword(condinateIndex, gi), dpos, itemset);
+					LR1Item newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
 					newItem.GetForwards().insert(*fsi);
 					answer.insert(newItem);
 				}
@@ -260,17 +262,17 @@ LR1Item LALR::FindItem(int cpos, int dpos, LR1Itemset& dict) {
 std::string LALR::ToString() const {
 	std::ostringstream oss;
 	
-	oss << Utility::Heading(" LR1 Edges ") << "\n";
+	oss << String::Heading(" LR1 Edges ") << "\n";
 	oss << edges_.ToString(env_->grammars);
 
 	oss << "\n\n";
 
-	oss << Utility::Heading(" LR1 Itemsets ") << "\n";
+	oss << String::Heading(" LR1 Itemsets ") << "\n";
 	oss << itemsets_.ToString(env_->grammars);
 
 	oss << "\n\n";
 
-	oss << Utility::Heading(" LR1 DFA ") << "\n";
+	oss << String::Heading(" LR1 DFA ") << "\n";
 	TablePrinter tp;
 
 	int maxlength = 0;

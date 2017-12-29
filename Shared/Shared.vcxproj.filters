@@ -19,6 +19,15 @@
     <Filter Include="os\src">
       <UniqueIdentifier>{9accdc21-f125-4e68-af7c-2c727439ca87}</UniqueIdentifier>
     </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{e15e866e-33ff-4356-85ec-2f1956975af6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\include">
+      <UniqueIdentifier>{e0abf4b5-b91f-4b9f-a72b-083fa9baf55f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\src">
+      <UniqueIdentifier>{80701aeb-887a-45d5-9262-b16ba119d2cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug\debug.h">
@@ -27,6 +36,18 @@
     <ClInclude Include="os\os.h">
       <Filter>os\include</Filter>
     </ClInclude>
+    <ClInclude Include="tools\path.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\string.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\math2.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\file.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">
@@ -34,6 +55,18 @@
     </ClCompile>
     <ClCompile Include="os\os.cpp">
       <Filter>os\src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\path.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\string.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\math2.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="tools\file.cpp">
+      <Filter>tools\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

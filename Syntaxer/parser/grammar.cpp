@@ -4,6 +4,7 @@
 #include "action.h"
 #include "grammar.h"
 #include "scanner.h"
+#include "tools/math2.h"
 #include "debug/debug.h"
 
 std::string Condinate::ToString() const {
@@ -118,8 +119,8 @@ Grammar* GrammarContainer::FindGrammar(const GrammarSymbol& lhs, int* index) {
 }
 
 const Condinate* GrammarContainer::GetTargetCondinate(int cpos, Grammar** grammar) const {
-	int gi = Utility::Highword(cpos);
-	int ci = Utility::Loword(cpos);
+	int gi = Math::Highword(cpos);
+	int ci = Math::Loword(cpos);
 	Grammar* g = at(gi);
 
 	if (grammar != nullptr) {

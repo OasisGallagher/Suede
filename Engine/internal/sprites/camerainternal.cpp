@@ -1,11 +1,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "math2.h"
 #include "light.h"
 #include "camera.h"
 #include "screen.h"
 #include "resources.h"
 #include "variables.h"
+#include "tools/math2.h"
 #include "internal/file/image.h"
 #include "internal/base/gbuffer.h"
 #include "internal/memory/factory.h"

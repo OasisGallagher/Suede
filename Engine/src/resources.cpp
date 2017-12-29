@@ -1,6 +1,6 @@
 #include <map>
-#include "math2.h"
 #include "resources.h"
+#include "tools/math2.h"
 
 typedef std::map<std::string, Shader> ShaderContainer;
 static ShaderContainer shaders;

@@ -1,16 +1,105 @@
+#include <fstream>
+
 #include "os/os.h"
-#include "reader.h"
 #include "parser.h"
 #include "scanner.h"
 #include "language.h"
 #include "syntaxer.h"
 #include "lrparser.h"
 #include "debug/debug.h"
+#include "tools/string.h"
 #include "grammarsymbol.h"
+
+typedef std::pair<std::string, std::string> ProductionText;
+
+struct GrammarText {
+	std::string lhs;
+	typedef std::vector<ProductionText> ProductionTextContainer;
+	ProductionTextContainer productions;
+
+	void Clear() {
+		lhs.clear();
+		productions.clear();
+	}
+
+	bool Empty() const { return lhs.empty(); }
+};
+
+typedef std::vector<GrammarText> GrammarTextContainer;
+
+class GrammarReader {
+public:
+	GrammarReader(const char* source);
+
+public:
+	const GrammarTextContainer& GetGrammars() const;
+
+private:
+	void ReadGrammars();
+	const char* SplitGrammar(const char*& text);
+
+private:
+	const char* source_;
+	GrammarTextContainer grammars_;
+};
+
+GrammarReader::GrammarReader(const char* source) : source_(source) {
+	ReadGrammars();
+}
+
+const GrammarTextContainer& GrammarReader::GetGrammars() const {
+	return grammars_;
+}
+
+const char* GrammarReader::SplitGrammar(const char*& text) {
+	text += strspn(text, ":\t\n ");
+	if (*text == '|') {
+		++text;
+	}
+
+	return std::find(text, text + strlen(text), '\t');
+}
+
+void GrammarReader::ReadGrammars() {
+	GrammarText g;
+	std::string line;
+	int lineNumber = 1;
+
+	const char* start = source_;
+	for (; String::SplitLine(start, line); ++lineNumber) {
+		if (String::IsBlankText(line.c_str(), nullptr)) {
+			if (!g.Empty()) {
+				grammars_.push_back(g);
+				g.Clear();
+			}
+
+			continue;
+		}
+
+		if (g.Empty()) {
+			g.lhs = String::Trim(line);
+			continue;
+		}
+
+		const char* ptr = line.c_str();
+		const char* tabpos = SplitGrammar(ptr);
+		if (*tabpos == 0) {
+			Debug::LogError("missing \\t between production and action at line %d.", lineNumber);
+			break;
+		}
+
+		g.productions.push_back(std::make_pair(String::Trim(std::string(ptr, tabpos)), String::Trim(std::string(tabpos))));
+	}
+
+	if (!g.Empty()) {
+		grammars_.push_back(g);
+	}
+}
+
 
 static GrammarSymbol CreateSymbol(Environment* env, const std::string& text) {
 	GrammarSymbolContainer* target = nullptr;
-	if (Utility::IsTerminal(text)) {
+	if (GrammarSymbol::IsTerminal(text)) {
 		target = &env->terminalSymbols;
 	}
 	else {
@@ -49,15 +138,17 @@ static bool ParseProduction(Environment* env, TextScanner* textScanner, SymbolVe
 Language::Language() {
 	env_ = new Environment;
 	syntaxer_ = new Syntaxer;
+	scanner_ = new FileScanner;
 }
 
 Language::~Language() {
 	delete env_;
+	delete scanner_;
 	delete syntaxer_;
 }
 
 void Language::Setup(const char* grammars, const char* savePath) {
-	time_t tp = OS::GetFileLastWriteTime("bin/Compiler.dll");
+	time_t tp = OS::GetFileLastWriteTime("bin/Engine.dll");
 	time_t to = OS::GetFileLastWriteTime(savePath);
 	if (tp > to) {
 		//Debug::Log("build parser");
@@ -71,8 +162,11 @@ void Language::Setup(const char* grammars, const char* savePath) {
 }
 
 bool Language::Parse(SyntaxTree* tree, const std::string& path) {
-	FileScanner scanner(path.c_str());
-	return syntaxer_->ParseSyntax(tree, &scanner);
+	if (!scanner_->Open(path)) {
+		return false;
+	}
+
+	return syntaxer_->ParseSyntax(tree, scanner_);
 }
 
 bool Language::SetupEnvironment(const char* grammars) {

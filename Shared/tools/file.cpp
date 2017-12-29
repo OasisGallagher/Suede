@@ -1,8 +1,9 @@
 #include <fstream>
-#include "textloader.h"
-#include "debug/debug.h"
 
-bool TextLoader::Load(const std::string& file, std::string& text) {
+#include "file.h"
+#include "../debug/debug.h"
+
+bool File::Load(const std::string& file, std::string& text) {
 	std::ifstream ifs(file, std::ios::in);
 	if (!ifs) {
 		Debug::LogError("failed to open file %s.", file.c_str());
@@ -26,7 +27,7 @@ bool TextLoader::Load(const std::string& file, std::string& text) {
 	return true;
 }
 
-bool TextLoader::Load(const std::string& file, std::vector<std::string>& lines) {
+bool File::Load(const std::string& file, std::vector<std::string>& lines) {
 	std::ifstream ifs(file, std::ios::in);
 	if (!ifs) {
 		Debug::LogError("failed to open file %s.", file.c_str());

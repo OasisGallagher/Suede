@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "lalr.h"
 #include "action.h"
 #include "matrix.h"

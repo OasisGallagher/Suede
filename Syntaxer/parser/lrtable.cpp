@@ -2,6 +2,7 @@
 
 #include "lalr.h"
 #include "lrtable.h"
+#include "tools/string.h"
 #include "grammarsymbol.h"
 
 LRTable::LRTable() {
@@ -25,12 +26,12 @@ int LRTable::GetGoto(int current, const GrammarSymbol& symbol) {
 std::string LRTable::ToString(const GrammarContainer& grammars) const {
 	std::ostringstream oss;
 	
-	oss << Utility::Heading(" Action Table ") << "\n";
+	oss << String::Heading(" Action Table ") << "\n";
 	oss << actionTable_.ToString(grammars);
 
 	oss << "\n\n";
 
-	oss << Utility::Heading(" Goto Table ") << "\n";
+	oss << String::Heading(" Goto Table ") << "\n";
 	oss << gotoTable_.ToString();
 
 	return oss.str();

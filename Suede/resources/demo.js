@@ -13,17 +13,25 @@ SubShader {
 	Pass {
 		Cull Off;
 		
-		GLPROGRAM
+		GLSLPROGRAM
 		
-		#include "main.inc"
+		#stage vertex
+		in vec3 c_position;
+
+		uniform mat4 c_localToClipSpaceMatrix;
+
+		void main() {
+			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+		}
+
+		#stage fragment
+		out float depth;
+
+		void main() {
+			depth = gl_FragCoord.z;
+		}		
 		
-		ENDGL
-	}
-	
-	Pass {
-	}
-	
-	Pass {
+		ENDGLSL
 	}
 }
 
@@ -38,14 +46,10 @@ SubShader {
 		Cull Off;
 		Blend SrcAlpha OneMinusSrcAlpha;
 		
-		GLPROGRAM
+		GLSLPROGRAM
+
 		#include "main.inc"
-		ENDGL
+
+		ENDGLSL
 	}
 }
-
-SubShader {
-	Pass {
-	}
-}
-

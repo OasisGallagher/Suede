@@ -3,10 +3,11 @@
 #include <algorithm>
 
 #include "tokens.h"
-#include "reader.h"
 #include "scanner.h"
-#include "utilities.h"
+#include "tools/file.h"
+#include "tools/math2.h"
 #include "debug/debug.h"
+#include "tools/string.h"
 #include "compilerdefines.h"
 
 enum {
@@ -85,10 +86,10 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			if (ch == ' ' || ch == '\t' || ch == 0) {
 				savech = false;
 			}
-			else if (Utility::IsDigit(ch)) {
+			else if (String::IsDigit(ch)) {
 				state = DecimalState;
 			}
-			else if (Utility::IsLetter(ch)) {
+			else if (String::IsLetter(ch)) {
 				state = IdentifierState;
 			}
 			else if (ch == '\'') {
@@ -122,7 +123,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 					tokenType = Tokens::Type(low);
 				}
 				else {
-					state = Utility::MakeDword(low, high);
+					state = Math::MakeDword(low, high);
 				}
 
 				savech = true;
@@ -146,9 +147,9 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			break;
 
 		case IdentifierState:
-			if (!Utility::IsDigit(ch) && !Utility::IsLetter(ch)) {
+			if (!String::IsDigit(ch) && !String::IsLetter(ch)) {
 				state = DoneState;
-				tokenType = (buffer == COMPILER_GLPROGRAM) 
+				tokenType = (buffer == COMPILER_CODE_BEGIN) 
 					? ScannerTokenCode : ScannerTokenIdentifier;
 				unget = true;
 				savech = false;
@@ -156,7 +157,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			break;
 
 		case HexState:
-			if (!Utility::IsDigit(ch) 
+			if (!String::IsDigit(ch)
 				&& !((ch <= 'f' && ch >= 'a') || (ch <= 'F' && ch >= 'A'))) {
 				state = DoneState;
 				tokenType = ScannerTokenInteger;
@@ -166,7 +167,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			break;
 
 		case DecimalState:
-			if (!Utility::IsDigit(ch)) {
+			if (!String::IsDigit(ch)) {
 				if (buffer.length() == 1 && ch == 'x') {
 					state = HexState;
 				}
@@ -180,7 +181,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			break;
 
 		default:
-			int low = Utility::Loword(state), high = Utility::Highword(state);
+			int low = Math::Loword(state), high = Math::Highword(state);
 			
 			savech = false;
 			if (ch == 0) {
@@ -218,7 +219,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 					tokenType = Tokens::Type(low);
 				}
 				else {
-					state = Utility::MakeDword(low, high);
+					state = Math::MakeDword(low, high);
 				}
 			}
 
@@ -243,31 +244,38 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 	return tokenType;
 }
 
-FileScanner::FileScanner(const char* path)
-	: reader_(new FileReader(path, true)), lineno_(0) {
+FileScanner::FileScanner()
+	: lineno_(0) {
 }
 
 FileScanner::~FileScanner() {
-	delete reader_;
+}
+
+bool FileScanner::Open(const std::string& path) {
+	if (!File::Load(path, text_)) {
+		return false;
+	}
+
+	start_ = text_.c_str();
+	return true;
 }
 
 bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
-	std::string line;
-	std::string buffer;
+	std::string line, buffer;
 	ScannerTokenType tokenType = textScanner_.GetToken(buffer, &pos->linepos);
-	std::string code;
 	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile; ) {
 		if (tokenType == ScannerTokenCode) {
 			textScanner_.Discard();
-			return ReadCode(token, code);
+			return ReadCode(token);
 		}
 
-		if (!reader_->ReadLine(line, &lineno_)) {
+		if (!String::SplitLine(start_, line)) {
 			tokenType = ScannerTokenEndOfFile;
 			break;
 		}
 
-		if (Utility::IsBlankText(line.c_str())) {
+		++lineno_;
+		if (String::IsBlankText(line.c_str())) {
 			continue;
 		}
 
@@ -287,11 +295,11 @@ bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 	return true;
 }
 
-bool FileScanner::ReadCode(ScannerToken* token, std::string &code) {
-	std::string line;
-	for (; reader_->ReadLine(line, nullptr);) {
-		std::string str = Utility::Trim(line);
-		if (!str.empty() && str == COMPILER_ENDGL) {
+bool FileScanner::ReadCode(ScannerToken* token) {
+	std::string line, code;
+	for (; String::SplitLine(start_, line);) {
+		std::string str = String::Trim(line);
+		if (!str.empty() && str == COMPILER_CODE_END) {
 			token->tokenType = ScannerTokenCode;
 			token->tokenText = code;
 			return true;

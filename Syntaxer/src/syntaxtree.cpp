@@ -1,4 +1,5 @@
 ﻿#include <stack>
+#include <sstream>
 #include "syntaxtree.h"
 #include "debug/debug.h"
 

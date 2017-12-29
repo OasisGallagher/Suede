@@ -81,7 +81,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>SHARED_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SHARED_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
@@ -119,10 +119,18 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp" />
     <ClCompile Include="os\os.cpp" />
+    <ClCompile Include="tools\file.cpp" />
+    <ClCompile Include="tools\math2.cpp" />
+    <ClCompile Include="tools\path.cpp" />
+    <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug\debug.h" />
     <ClInclude Include="os\os.h" />
+    <ClInclude Include="tools\file.h" />
+    <ClInclude Include="tools\math2.h" />
+    <ClInclude Include="tools\path.h" />
+    <ClInclude Include="tools\string.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

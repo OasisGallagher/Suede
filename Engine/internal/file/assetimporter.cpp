@@ -8,8 +8,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-#include "math2.h"
 #include "resources.h"
+#include "tools/math2.h"
 #include "tools/path.h"
 #include "debug/debug.h"
 #include "tools/string.h"

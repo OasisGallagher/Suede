@@ -1,9 +1,7 @@
 #pragma once
-#include <string>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
-#include "defines.h"
+#include "../shareddefines.h"
+#include "../glm/glm.hpp"
+#include "../glm/gtc/quaternion.hpp"
 
 template<class CountofType, size_t sizeOfArray>
 inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
@@ -13,7 +11,7 @@ inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
 #define CountOf(array) (sizeof(*__countof_helper(array)) + 0)
 #define Padding(size) char __unused[size]
 
-class SUEDE_API Math {
+class Math {
 public:
 	static int MakeDword(int low, int high);
 	static int Loword(int dword);
@@ -27,7 +25,7 @@ public:
 	static glm::vec3 Degrees(const glm::vec3& radians);
 	static glm::vec3 Radians(const glm::vec3& degrees);
 
-	static uint NextPowerOfTwo(uint x);
+	static unsigned NextPowerOfTwo(unsigned x);
 
 	template <class Ty>
 	static Ty Lerp(const Ty& from, const Ty& to, float t);
@@ -90,7 +88,7 @@ inline glm::vec3 Math::Radians(const glm::vec3 & degrees) {
 	return glm::vec3(Radians(degrees.x), Radians(degrees.y), Radians(degrees.z));
 }
 
-inline uint Math::NextPowerOfTwo(uint x) {
+inline unsigned Math::NextPowerOfTwo(unsigned x) {
 	x--;
 	x |= x >> 1;
 	x |= x >> 2;
@@ -124,19 +122,11 @@ inline float Math::PingPong(float t, float length) {
 
 template <class Ty>
 inline Ty Math::Random(Ty min, Ty max) {
-	if (min > max) {
-		std::swap(min, max);
-	}
-
 	return min + (rand() % (max - min + 1));
 }
 
 template <>
 inline float Math::Random(float min, float max) {
-	if (min > max) {
-		std::swap(min, max);
-	}
-
 	float random = ((float)rand()) / (float)RAND_MAX;
 	return (random * (max - min)) + min;
 }

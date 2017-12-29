@@ -19,15 +19,6 @@
     <Filter Include="scanner\src">
       <UniqueIdentifier>{e0048f5f-8a47-4e23-a89e-81f3831ad958}</UniqueIdentifier>
     </Filter>
-    <Filter Include="global">
-      <UniqueIdentifier>{bae71329-25f3-4ed7-995e-b6f06c03e4b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="global\include">
-      <UniqueIdentifier>{82db5c25-7f95-42fa-89f4-a313445d26aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="global\src">
-      <UniqueIdentifier>{4955cf20-14b4-4024-bf2d-1b8764e6347f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{ebd95411-c677-423c-86eb-995e850a87a6}</UniqueIdentifier>
     </Filter>
@@ -36,15 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="global\matrix.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
-    <ClInclude Include="global\reader.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
-    <ClInclude Include="global\utilities.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
     <ClInclude Include="parser\action.h">
       <Filter>parser\include</Filter>
     </ClInclude>
@@ -81,12 +63,6 @@
     <ClInclude Include="include\language.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="global\referencecountable.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
-    <ClInclude Include="global\tableprinter.h">
-      <Filter>global\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\compilerdefines.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -108,14 +84,17 @@
     <ClInclude Include="scanner\tokendefine.h">
       <Filter>scanner\include</Filter>
     </ClInclude>
+    <ClInclude Include="parser\matrix.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\referencecountable.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\tableprinter.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="global\reader.cpp">
-      <Filter>global\src</Filter>
-    </ClCompile>
-    <ClCompile Include="global\utilities.cpp">
-      <Filter>global\src</Filter>
-    </ClCompile>
     <ClCompile Include="parser\action.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
@@ -149,12 +128,6 @@
     <ClCompile Include="src\language.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="global\referencecountable.cpp">
-      <Filter>global\src</Filter>
-    </ClCompile>
-    <ClCompile Include="global\tableprinter.cpp">
-      <Filter>global\src</Filter>
-    </ClCompile>
     <ClCompile Include="parser\grammarsymbol.cpp">
       <Filter>parser\src</Filter>
     </ClCompile>
@@ -169,6 +142,12 @@
     </ClCompile>
     <ClCompile Include="src\syntaxtree.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\referencecountable.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\tableprinter.cpp">
+      <Filter>parser\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

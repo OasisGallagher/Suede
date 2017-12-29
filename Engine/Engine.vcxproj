@@ -168,9 +168,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\vertexarrayobject.cpp" />
     <ClCompile Include="internal\containers\variant.cpp" />
     <ClCompile Include="internal\file\image.cpp" />
-    <ClCompile Include="internal\file\shadercompiler.cpp" />
+    <ClCompile Include="internal\file\shaderparser.cpp" />
     <ClCompile Include="internal\file\assetimporter.cpp" />
-    <ClCompile Include="internal\file\textloader.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\memory\memory.cpp" />
@@ -186,13 +185,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\screen.cpp" />
     <ClCompile Include="src\time2.cpp" />
-    <ClCompile Include="tools\path.cpp" />
-    <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\animation.h" />
     <ClInclude Include="include\camera.h" />
-    <ClInclude Include="include\defines.h" />
+    <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
     <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
@@ -200,7 +197,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\debug.h" />
     <ClInclude Include="include\material.h" />
-    <ClInclude Include="include\math2.h" />
     <ClInclude Include="include\object.h" />
     <ClInclude Include="include\particlesystem.h" />
     <ClInclude Include="include\imageeffect.h" />
@@ -234,9 +230,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\containers\variant.h" />
     <ClInclude Include="internal\file\image.h" />
     <ClInclude Include="internal\file\lr_grammar.h" />
-    <ClInclude Include="internal\file\shadercompiler.h" />
+    <ClInclude Include="internal\file\shaderparser.h" />
     <ClInclude Include="internal\file\assetimporter.h" />
-    <ClInclude Include="internal\file\textloader.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\memory\memory.h" />
     <ClInclude Include="internal\sprites\camerainternal.h" />
@@ -246,8 +241,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\sprites\spriteinternal.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
-    <ClInclude Include="tools\path.h" />
-    <ClInclude Include="tools\string.h" />
     <ClInclude Include="wrappers\gl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -4,10 +4,10 @@
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
 
-#include "math2.h"
 #include "variables.h"
 #include "resources.h"
 #include "tools/path.h"
+#include "tools/math2.h"
 #include "tools/string.h"
 #include "fontinternal.h"
 #include "shaderinternal.h"

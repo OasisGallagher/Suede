@@ -47,15 +47,6 @@
     <Filter Include="src">
       <UniqueIdentifier>{10fefdc2-0492-4bd2-862a-c3098401f3c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tools">
-      <UniqueIdentifier>{4aae930e-eae0-47a3-a4f7-02c3154fb368}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="tools\include">
-      <UniqueIdentifier>{e71f9d77-60d2-426b-b7a3-9702344cffc9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="tools\src">
-      <UniqueIdentifier>{ed49453a-275e-471e-856f-37319a2b5cad}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\containers">
       <UniqueIdentifier>{c61e2ee9-b018-4ec7-9d3a-aa1d9f88e54c}</UniqueIdentifier>
     </Filter>
@@ -145,15 +136,6 @@
     <ClInclude Include="include\engine.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="tools\path.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\string.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\defines.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\memory\memory.h">
       <Filter>internal\memory\include</Filter>
     </ClInclude>
@@ -183,12 +165,6 @@
     </ClInclude>
     <ClInclude Include="include\screen.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\file\shadercompiler.h">
-      <Filter>internal\file\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\file\textloader.h">
-      <Filter>internal\file\include</Filter>
     </ClInclude>
     <ClInclude Include="include\animation.h">
       <Filter>include</Filter>
@@ -244,9 +220,6 @@
     <ClInclude Include="include\resources.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\math2.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\imageeffect.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -258,6 +231,12 @@
     </ClInclude>
     <ClInclude Include="internal\file\lr_grammar.h">
       <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\shaderparser.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\enginedefines.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -294,9 +273,6 @@
     <ClCompile Include="internal\memory\memory.cpp">
       <Filter>internal\memory\src</Filter>
     </ClCompile>
-    <ClCompile Include="tools\path.cpp">
-      <Filter>tools\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\framebuffer.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
@@ -311,15 +287,6 @@
     </ClCompile>
     <ClCompile Include="internal\world\environmentinternal.cpp">
       <Filter>internal\world\src</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\string.cpp">
-      <Filter>tools\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\file\shadercompiler.cpp">
-      <Filter>internal\file\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\file\textloader.cpp">
-      <Filter>internal\file\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\animationinternal.cpp">
       <Filter>internal\base\src</Filter>
@@ -362,6 +329,9 @@
     </ClCompile>
     <ClCompile Include="internal\base\gbuffer.cpp">
       <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\shaderparser.cpp">
+      <Filter>internal\file\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

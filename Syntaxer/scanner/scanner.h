@@ -25,8 +25,6 @@ private:
 	std::string lineBuffer_;
 };
 
-class FileReader;
-
 struct TokenPosition {
 	int lineno;
 	int linepos;
@@ -36,17 +34,19 @@ struct TokenPosition {
 
 class FileScanner {
 public:
-	FileScanner(const char* path);
+	FileScanner();
 	~FileScanner();
 
 public:
+	bool Open(const std::string& path);
 	bool GetToken(ScannerToken* token, TokenPosition* pos);
 
 private:
-	bool ReadCode(ScannerToken* token, std::string& code);
+	bool ReadCode(ScannerToken* token);
 
 private:
 	int lineno_;
-	FileReader* reader_;
+	std::string text_;
+	const char* start_;
 	TextScanner textScanner_;
 };

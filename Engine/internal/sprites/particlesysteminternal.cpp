@@ -1,7 +1,7 @@
-#include "math2.h"
 #include "time2.h"
 #include "variables.h"
 #include "resources.h"
+#include "tools/math2.h"
 #include "particlesysteminternal.h"
 #include "internal/base/meshinternal.h"
 #include "internal/world/worldinternal.h"

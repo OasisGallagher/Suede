@@ -1,9 +1,12 @@
+#include <sstream>
+
 #include "table.h"
 #include "action.h"
 #include "scanner.h"
-#include "utilities.h"
-#include "debug/debug.h"
+#include "syntaxer.h"
 #include "syntaxtree.h"
+#include "debug/debug.h"
+#include "tools/string.h"
 #include "tokendefine.h"
 #include "compilerdefines.h"
 
@@ -46,7 +49,7 @@ bool Action::SplitParameters(int* parameters, int& count, TextScanner& scanner) 
 		}
 		else {
 			int integer = 0;
-			if (token.front() != '$' || !Utility::ParseInteger(token.c_str() + 1, &integer)){
+			if (token.front() != '$' || !String::ToInteger(token.c_str() + 1, &integer)){
 				Debug::LogError("invalid parameter format %d.", token);
 				return false;
 			}
@@ -234,7 +237,7 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 
 	if (IsOperand(token.c_str())) {
 		int integer = 0;
-		if (!Utility::ParseInteger(token.c_str() + 1, &integer)) {
+		if (!String::ToInteger(token.c_str() + 1, &integer)) {
 			Debug::LogError("invalid right operand %s.", token);
 			return nullptr;
 		}
@@ -290,7 +293,7 @@ bool ActionParser::IsOperand(const char* text) {
 	}
 
 	++text;
-	if (*text != '$' && !Utility::ParseInteger(text, nullptr)) {
+	if (*text != '$' && !String::ToInteger(text, nullptr)) {
 		return false;
 	}
 

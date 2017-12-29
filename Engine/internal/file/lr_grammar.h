@@ -44,11 +44,11 @@ const char* const grammar =
 "	: $SubShadersPrefix			$$ = $1\n"
 "\n"
 "$SubShadersPrefix\n"
-"	: $SubShadersPrefix $SubShader		$$ = make(\"SubShaders\", $2, $1)\n"
-"	| $SubShader						$$ = $1\n"
+"	: $SubShadersPrefix $Semantics::SubShader		$$ = make(\"SubShaders\", $2, $1)\n"
+"	| $Semantics::SubShader						$$ = $1\n"
 "\n"
-"$SubShader\n"
-"	: SubShader { $TagBlock $PassesPrefix }		$$ = make(\"SubShader\", $3, $2)\n"
+"$Semantics::SubShader\n"
+"	: Semantics::SubShader { $TagBlock $PassesPrefix }		$$ = make(\"Semantics::SubShader\", $3, $2)\n"
 "\n"
 "$TagBlock\n"
 "	: epsilon			$$ = $0\n"
@@ -99,4 +99,4 @@ const char* const grammar =
 "	: identifier	$$ = symbol($1)\n"
 "\n"
 "$String\n"
-"	: string		$$ = literal($1)\n";
+"	: string		$$ = literal($1)";

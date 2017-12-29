@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include "debug/debug.h"
+#include "tools/math2.h"
 #include "tokendefine.h"
 #include "grammarsymbol.h"
 
@@ -92,7 +93,7 @@ void FirstSetTable::GetFirstSet(GrammarSymbolSet& answer, SymbolVector::iterator
 }
 
 GrammarSymbol SymbolFactory::Create(const std::string& text) {
-	if (Utility::IsTerminal(text)) {
+	if (GrammarSymbol::IsTerminal(text)) {
 		return new TerminalSymbol(text);
 	}
 

@@ -27,11 +27,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="global\matrix.h" />
-    <ClInclude Include="global\reader.h" />
-    <ClInclude Include="global\referencecountable.h" />
-    <ClInclude Include="global\tableprinter.h" />
-    <ClInclude Include="global\utilities.h" />
     <ClInclude Include="include\compilerdefines.h" />
     <ClInclude Include="include\language.h" />
     <ClInclude Include="include\syntaxtree.h" />
@@ -44,19 +39,18 @@
     <ClInclude Include="parser\lrimpl.h" />
     <ClInclude Include="parser\lrparser.h" />
     <ClInclude Include="parser\lrtable.h" />
+    <ClInclude Include="parser\matrix.h" />
     <ClInclude Include="parser\parser.h" />
+    <ClInclude Include="parser\referencecountable.h" />
     <ClInclude Include="parser\serializer.h" />
     <ClInclude Include="parser\syntaxer.h" />
     <ClInclude Include="parser\table.h" />
+    <ClInclude Include="parser\tableprinter.h" />
     <ClInclude Include="scanner\scanner.h" />
     <ClInclude Include="scanner\tokens.h" />
     <ClInclude Include="scanner\tokendefine.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="global\reader.cpp" />
-    <ClCompile Include="global\referencecountable.cpp" />
-    <ClCompile Include="global\tableprinter.cpp" />
-    <ClCompile Include="global\utilities.cpp" />
     <ClCompile Include="parser\action.cpp" />
     <ClCompile Include="parser\grammar.cpp" />
     <ClCompile Include="parser\grammarsymbol.cpp" />
@@ -67,8 +61,10 @@
     <ClCompile Include="parser\lrparser.cpp" />
     <ClCompile Include="parser\lrtable.cpp" />
     <ClCompile Include="parser\parser.cpp" />
+    <ClCompile Include="parser\referencecountable.cpp" />
     <ClCompile Include="parser\serializer.cpp" />
     <ClCompile Include="parser\syntaxer.cpp" />
+    <ClCompile Include="parser\tableprinter.cpp" />
     <ClCompile Include="scanner\scanner.cpp" />
     <ClCompile Include="scanner\tokens.cpp" />
     <ClCompile Include="src\language.cpp" />

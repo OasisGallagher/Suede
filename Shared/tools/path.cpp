@@ -1,5 +1,4 @@
 #include "path.h"
-#include "defines.h"
 
 std::string Path::GetFileName(const std::string& path) {
 	size_t slash = path.find_last_of("\\/");
@@ -12,7 +11,7 @@ std::string Path::GetFileName(const std::string& path) {
 
 std::string Path::GetDirectory(const std::string& path) {
 	std::string dir;
-	uint slash = (uint)path.find_last_of("/");
+	std::string::size_type slash = path.find_last_of("/");
 
 	if (slash == std::string::npos) {
 		dir = ".";

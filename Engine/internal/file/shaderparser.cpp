@@ -1,15 +1,15 @@
-#include "math2.h"
+#include "language.h"
 #include "variables.h"
-#include "textloader.h"
+#include "syntaxtree.h"
+#include "tools/file.h"
 #include "tools/path.h"
-#include "shadercompiler.h"
+#include "tools/math2.h"
+#include "shaderparser.h"
 #include "tools/string.h"
+#include "internal/memory/memory.h"
 #include "internal/base/glsldefines.h"
 
 #include "lr_grammar.h"
-
-#include "language.h"
-#include "syntaxtree.h"
 
 ShaderLanguage::ShaderLanguage() {
 	lang_ = MEMORY_CREATE(Language);
@@ -24,32 +24,20 @@ bool ShaderLanguage::Parse(const std::string& path, SyntaxTree& tree) {
 	return lang_->Parse(&tree, path);
 }
 
-bool ShaderCompiler::Compile(Semantics& semantics, const std::string& path, const std::string& defines) {
-	SyntaxTree tree;
-	if (!language_.Parse(path, tree)) {
-		return false;
-	}
-
-	if (!ParseSemantics(tree, semantics)) {
-		return false;
-	}
-
+bool GLSLParser::Parse(std::string* sources, const std::string& lines, const std::string& defines) {
 	Clear();
-
-	return true;
-	//answer_ = answer;
-	//path_ = path;
-	//return CompileShaderSource(lines, defines);
+	answer_ = sources;
+	return CompileShaderSource(lines, defines);
 }
 
-void ShaderCompiler::Clear() {
+void GLSLParser::Clear() {
 	type_ = ShaderStageCount;
 	source_.clear();
 	globals_.clear();
 	answer_ = nullptr;
 }
 
-bool ShaderCompiler::CompileShaderSource(const std::vector<std::string>& lines, const std::string& defines) {
+bool GLSLParser::CompileShaderSource(const std::string& lines, const std::string& defines) {
 	globals_ = "#version " GLSL_VERSION "\n";
 
 	AddConstants();
@@ -67,13 +55,13 @@ bool ShaderCompiler::CompileShaderSource(const std::vector<std::string>& lines, 
 	return true;
 }
 
-void ShaderCompiler::AddConstants() {
+void GLSLParser::AddConstants() {
 	globals_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
 }
 
-std::string ShaderCompiler::FormatDefines(const std::string& defines) {
+std::string GLSLParser::FormatDefines(const std::string& defines) {
 	std::vector<std::string> container;
-	String::Split(defines, '|', container);
+	String::Split(container, defines, '|');
 
 	std::string ans;
 	for (int i = 0; i < container.size(); ++i) {
@@ -83,7 +71,60 @@ std::string ShaderCompiler::FormatDefines(const std::string& defines) {
 	return ans;
 }
 
-bool ShaderCompiler::Preprocess(const std::string& line) {
+bool GLSLParser::ReadShaderSource(const std::string &lines) {
+	const char* start = lines.c_str();
+	std::string line;
+	for (uint ln = 1; String::SplitLine(start, line); ) {
+		const char* ptr = String::TrimStart(line.c_str());
+		if (*ptr == '#' && !Preprocess(ptr)) {
+			return false;
+		}
+
+		if (*ptr != '#') {
+			source_ += line + '\n';
+		}
+	}
+
+	return true;
+}
+
+bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
+	ShaderStage newType = ParseShaderStage(parameter);
+
+	if (newType != type_) {
+		if (type_ == ShaderStageCount) {
+			globals_ += source_;
+		}
+		else {
+			if (!answer_[type_].empty()) {
+				Debug::LogError("%s already exists.", GetShaderDescription(type_).name);
+				return false;
+			}
+
+			source_ = globals_ + source_;
+			answer_[type_] = source_;
+		}
+
+		source_.clear();
+		type_ = newType;
+	}
+
+	return true;
+}
+
+bool GLSLParser::PreprocessInclude(const std::string& parameter) {
+	std::string lines;
+	std::string path = parameter.substr(1, parameter.length() - 2);
+	if (!File::Load(Path::GetResourceRootDirectory() + path, lines)) {
+		return false;
+	}
+
+	path_ = path;
+
+	return ReadShaderSource(lines);
+}
+
+bool GLSLParser::Preprocess(const std::string& line) {
 	size_t pos = line.find(' ');
 	std::string cmd = line.substr(1, pos - 1);
 	std::string parameter;
@@ -106,7 +147,7 @@ bool ShaderCompiler::Preprocess(const std::string& line) {
 	return true;
 }
 
-void ShaderCompiler::CalculateDefinesPermutations(std::vector<std::string>& anwser) {
+void GLSLParser::CalculateDefinesPermutations(std::vector<std::string>& anwser) {
 	std::vector<std::string> defines_;
 	int max = 1 << 0; defines_.size();
 	for (int i = 0; i < max; ++i) {
@@ -124,7 +165,7 @@ void ShaderCompiler::CalculateDefinesPermutations(std::vector<std::string>& anws
 	}
 }
 
-ShaderStage ShaderCompiler::ParseShaderStage(const std::string& tag) {
+ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 	for (size_t i = 0; i < ShaderStageCount; ++i) {
 		if (tag == GetShaderDescription((ShaderStage)i).tag) {
 			return (ShaderStage)i;
@@ -135,12 +176,30 @@ ShaderStage ShaderCompiler::ParseShaderStage(const std::string& tag) {
 	return ShaderStageCount;
 }
 
-bool ShaderCompiler::ParseSemantics(SyntaxTree& tree, Semantics& semantics) {
+bool ShaderParser::Parse(Semantics& semantics, const std::string& path, const std::string& defines) {
+	SyntaxTree tree;
+	if (!language_.Parse(path, tree)) {
+		return false;
+	}
+
+	parser_.SetRootPath(path);
+
+	if (!ParseSemantics(tree, semantics)) {
+		return false;
+	}
+
+	return true;
+	//answer_ = answer;
+	//path_ = path;
+	//return CompileShaderSource(lines, defines);
+}
+
+bool ShaderParser::ParseSemantics(SyntaxTree& tree, Semantics& semantics) {
 	SyntaxNode* root = tree.GetRoot();
 	ReadPropertyBlock(root->GetChild(0), semantics.properties);
 
 	SyntaxNode* c1 = root->GetChild(1);
-	if (c1->GetText() == "SubShader") {
+	if (c1->ToString() == "Semantics::SubShader") {
 		ReadSubShaderBlock(c1, Allocate(semantics.subShaders));
 	}
 	else {
@@ -150,35 +209,35 @@ bool ShaderCompiler::ParseSemantics(SyntaxTree& tree, Semantics& semantics) {
 	return true;
 }
 
-void ShaderCompiler::ReadInt(SyntaxNode* node, ShaderProperty2& property) {
-	property.defaultValue.SetInt(String::ToInteger(node->GetChild(1)->GetText()));
+void ShaderParser::ReadInt(SyntaxNode* node, Semantics::Property& property) {
+	property.defaultValue.SetInt(String::ToInteger(node->GetChild(1)->ToString()));
 }
 
-void ShaderCompiler::ReadFloat(SyntaxNode* node, ShaderProperty2& property) {
-	property.defaultValue.SetFloat(String::ToFloat(node->GetChild(1)->GetText()));
+void ShaderParser::ReadFloat(SyntaxNode* node, Semantics::Property& property) {
+	property.defaultValue.SetFloat(String::ToFloat(node->GetChild(1)->ToString()));
 }
 
-void ShaderCompiler::ReadInteger3(SyntaxNode* node, ShaderProperty2& property) {
+void ShaderParser::ReadInteger3(SyntaxNode* node, Semantics::Property& property) {
 	glm::ivec3 value;
 	ReadInteger3(value, node);
 	property.defaultValue.SetIVector3(value);
 }
 
 
-void ShaderCompiler::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
+void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
 	int* ptr = &value.x;
 	for (int i = 0; i < Math::Min(3, node->GetChildCount()); ++i) {
-		*ptr++ = String::ToInteger(node->GetChild(i)->GetText());
+		*ptr++ = String::ToInteger(node->GetChild(i)->ToString());
 	}
 }
 
-void ShaderCompiler::ReadVec3(SyntaxNode* node, ShaderProperty2& property) {
+void ShaderParser::ReadVec3(SyntaxNode* node, Semantics::Property& property) {
 	if (node->GetChildCount() >= 2) {
 		ReadInteger3(node, property);
 	}
 }
 
-void ShaderCompiler::ReadTex2(SyntaxNode* node, ShaderProperty2& property) {
+void ShaderParser::ReadTex2(SyntaxNode* node, Semantics::Property& property) {
 	glm::ivec3 value;
 	ReadInteger3(value, node->GetChild(1));
 
@@ -188,17 +247,17 @@ void ShaderCompiler::ReadTex2(SyntaxNode* node, ShaderProperty2& property) {
 	property.defaultValue.SetTexture(texture);
 }
 
-void ShaderCompiler::ReadMat3(SyntaxNode* node, ShaderProperty2& property) {
+void ShaderParser::ReadMat3(SyntaxNode* node, Semantics::Property& property) {
 	property.defaultValue.SetMatrix3(glm::mat3(0));
 }
 
-void ShaderCompiler::ReadMat4(SyntaxNode* node, ShaderProperty2& property) {
+void ShaderParser::ReadMat4(SyntaxNode* node, Semantics::Property& property) {
 	property.defaultValue.SetMatrix4(glm::mat4(0));
 }
 
-void ShaderCompiler::ReadProperty(SyntaxNode* node, ShaderProperty2& property) {
-	const std::string& ns = node->GetText();
-	property.name = node->GetChild(0)->GetText();
+void ShaderParser::ReadProperty(SyntaxNode* node, Semantics::Property& property) {
+	const std::string& ns = node->ToString();
+	property.name = node->GetChild(0)->ToString();
 
 	if (ns == "Int") {
 		ReadInt(node, property);
@@ -223,9 +282,9 @@ void ShaderCompiler::ReadProperty(SyntaxNode* node, ShaderProperty2& property) {
 	}
 }
 
-void ShaderCompiler::ReadProperties(SyntaxNode* node, std::vector<ShaderProperty2>& properties) {
+void ShaderParser::ReadProperties(SyntaxNode* node, std::vector<Semantics::Property>& properties) {
 	SyntaxNode* c0 = node->GetChild(0);
-	if (c0->GetText() == "Properties") {
+	if (c0->ToString() == "Properties") {
 		ReadProperties(c0, properties);
 		ReadProperty(node->GetChild(1), Allocate(properties));
 	}
@@ -237,13 +296,13 @@ void ShaderCompiler::ReadProperties(SyntaxNode* node, std::vector<ShaderProperty
 	}
 }
 
-void ShaderCompiler::ReadPropertyBlock(SyntaxNode* node, std::vector<ShaderProperty2>& properties) {
+void ShaderParser::ReadPropertyBlock(SyntaxNode* node, std::vector<Semantics::Property>& properties) {
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0 == nullptr) {
 		return;
 	}
 
-	if (c0->GetText() == "Properties") {
+	if (c0->ToString() == "Properties") {
 		ReadProperties(c0, properties);
 		if (node->GetChildCount() >= 2) {
 			ReadProperty(node->GetChild(1), Allocate(properties));
@@ -254,20 +313,14 @@ void ShaderCompiler::ReadPropertyBlock(SyntaxNode* node, std::vector<ShaderPrope
 	}
 }
 
-void ShaderCompiler::ReadTag(SyntaxNode* node, SubShaderTag& tag) {
-	const std::string& key = node->GetText();
-	if (key == "Queue") {
-		tag.key = ShaderTagKeyQueue;
-		tag.value = 0;
-	}
-	else {
-		Debug::LogError("invalid tag key %s.", key.c_str());
-	}
+void ShaderParser::ReadTag(SyntaxNode* node, Semantics::Tag& tag) {
+	tag.key = node->ToString();
+	tag.value = node->GetChild(0)->ToString();
 }
 
-void ShaderCompiler::ReadTags(SyntaxNode* node, std::vector<SubShaderTag>& tags) {
+void ShaderParser::ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags) {
 	SyntaxNode* c0 = node->GetChild(0);
-	if (c0->GetText() == "Tags") {
+	if (c0->ToString() == "Tags") {
 		ReadTags(c0, tags);
 		ReadTag(node->GetChild(1), Allocate(tags));
 	}
@@ -279,20 +332,20 @@ void ShaderCompiler::ReadTags(SyntaxNode* node, std::vector<SubShaderTag>& tags)
 	}
 }
 
-void ShaderCompiler::ReadTagBlock(SyntaxNode* node, std::vector<SubShaderTag>& tags) {
+void ShaderParser::ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags) {
 	if (node->GetChild(0) != nullptr) {
 		ReadTags(node->GetChild(0), tags);
 	}
 }
 
-void ShaderCompiler::ReadRenderState(SyntaxNode* node, SubShaderRenderState& state) {
+void ShaderParser::ReadRenderState(SyntaxNode* node, Semantics::RenderState& state) {
 //#error subShader render state.
 //	Debug::Log(node->GetChild(0)->GetText() + " " + node->GetChild(1)->GetText());
 }
 
-void ShaderCompiler::ReadRenderStates(SyntaxNode* node, std::vector<SubShaderRenderState>& states) {
+void ShaderParser::ReadRenderStates(SyntaxNode* node, std::vector<Semantics::RenderState>& states) {
 	SyntaxNode* c0 = node->GetChild(0);
-	if (c0->GetText() == "RenderStates") {
+	if (c0->ToString() == "RenderStates") {
 		ReadRenderStates(c0, states);
 		ReadRenderState(node->GetChild(1), Allocate(states));
 	}
@@ -304,14 +357,14 @@ void ShaderCompiler::ReadRenderStates(SyntaxNode* node, std::vector<SubShaderRen
 	}
 }
 
-void ShaderCompiler::ReadCode(SyntaxNode* node, std::string& vertex, std::string& fragment) {
-	//Debug::Log(node->GetText().c_str());
+void ShaderParser::ReadCode(SyntaxNode* node, std::string& source) {
+	source = node->ToString();
 }
 
-void ShaderCompiler::ReadPass(SyntaxNode* node, ShaderPass& pass) {
+void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0 != nullptr) {
-		if (c0->GetText() == "RenderState") {
+		if (c0->ToString() == "RenderState") {
 			ReadRenderState(c0, Allocate(pass.renderStates));
 		}
 		else {
@@ -320,13 +373,13 @@ void ShaderCompiler::ReadPass(SyntaxNode* node, ShaderPass& pass) {
 	}
 
 	if (node->GetChild(1) != nullptr) {
-		ReadCode(node->GetChild(1), pass.vertex, pass.fragment);
+		ReadCode(node->GetChild(1), pass.source);
 	}
 }
 
-void ShaderCompiler::ReadPasses(SyntaxNode* node, std::vector<ShaderPass>& passes) {
+void ShaderParser::ReadPasses(SyntaxNode* node, std::vector<Semantics::Pass>& passes) {
 	SyntaxNode* c0 = node->GetChild(0);
-	if (c0->GetText() == "Pass") {
+	if (c0->ToString() == "Pass") {
 		ReadPass(c0, Allocate(passes));
 		if (node->GetChildCount() >= 2) {
 			ReadPass(node->GetChild(1), Allocate(passes));
@@ -338,12 +391,12 @@ void ShaderCompiler::ReadPasses(SyntaxNode* node, std::vector<ShaderPass>& passe
 	}
 }
 
-void ShaderCompiler::ReadSubShaderBlock(SyntaxNode* node, SubShader& subShader) {
+void ShaderParser::ReadSubShaderBlock(SyntaxNode* node, Semantics::SubShader& subShader) {
 	if (node->GetChild(0) != nullptr) {
 		ReadTagBlock(node->GetChild(0), subShader.tags);
 	}
 
-	if (node->GetChild(1)->GetText() == "Pass") {
+	if (node->GetChild(1)->ToString() == "Pass") {
 		ReadPass(node->GetChild(1), Allocate(subShader.passes));
 	}
 	else {
@@ -351,9 +404,9 @@ void ShaderCompiler::ReadSubShaderBlock(SyntaxNode* node, SubShader& subShader) 
 	}
 }
 
-void ShaderCompiler::ReadSubShaderBlocks(SyntaxNode* node, std::vector<SubShader>& subShaders) {
+void ShaderParser::ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::SubShader>& subShaders) {
 	SyntaxNode* c0 = node->GetChild(0);
-	if (c0->GetText() == "SubShaders") {
+	if (c0->ToString() == "SubShaders") {
 		ReadSubShaderBlocks(c0, subShaders);
 		ReadSubShaderBlock(node->GetChild(1), Allocate(subShaders));
 	}
@@ -363,55 +416,4 @@ void ShaderCompiler::ReadSubShaderBlocks(SyntaxNode* node, std::vector<SubShader
 			ReadSubShaderBlock(node->GetChild(1), Allocate(subShaders));
 		}
 	}
-}
-
-bool ShaderCompiler::ReadShaderSource(const std::vector<std::string> &lines) {
-	for (size_t i = 0; i < lines.size(); ++i) {
-		const std::string& line = lines[i];
-		if (line.front() == '#' && !Preprocess(line)) {
-			return false;
-		}
-
-		if (line.front() != '#') {
-			source_ += line + '\n';
-		}
-	}
-
-	return true;
-}
-
-bool ShaderCompiler::PreprocessShaderStage(const std::string& parameter) {
-	ShaderStage newType = ParseShaderStage(parameter);
-
-	if (newType != type_) {
-		if (type_ == ShaderStageCount) {
-			globals_ += source_;
-		}
-		else {
-			if (!answer_[type_].empty()) {
-				Debug::LogError("%s already exists.", GetShaderDescription(type_).name);
-				return false;
-			}
-
-			source_ = globals_ + source_;
-			answer_[type_] = source_;
-		}
-
-		source_.clear();
-		type_ = newType;
-	}
-
-	return true;
-}
-
-bool ShaderCompiler::PreprocessInclude(const std::string& parameter) {
-	std::vector<std::string> lines;
-	std::string path = parameter.substr(1, parameter.length() - 2);
-	if (!TextLoader::Load(Path::GetResourceRootDirectory() + path, lines)) {
-		return false;
-	}
-
-	path_ = path;
-
-	return ReadShaderSource(lines);
 }

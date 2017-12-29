@@ -2,6 +2,7 @@
 
 #include "lr0.h"
 #include "parser.h"
+#include "tools/math2.h"
 #include "tableprinter.h"
 
 LR0::LR0() {
@@ -64,7 +65,7 @@ void LR0::AddLR1Items(LR1Itemset& answer, const GrammarSymbol& lhs) {
 		int dpos = 0;
 
 		for (; ite != tc->symbols.end(); ++ite, ++dpos) {
-			LR1Item newItem(Utility::MakeDword(index, gi), dpos);
+			LR1Item newItem(Math::MakeDword(index, gi), dpos);
 			answer.insert(newItem);
 
 			if (*ite == NativeSymbols::epsilon || !IsNullable(*ite)) {
@@ -73,7 +74,7 @@ void LR0::AddLR1Items(LR1Itemset& answer, const GrammarSymbol& lhs) {
 		}
 
 		if (ite == tc->symbols.end()) {
-			LR1Item newItem(Utility::MakeDword(index, gi), dpos);
+			LR1Item newItem(Math::MakeDword(index, gi), dpos);
 			answer.insert(newItem);
 		}
 	}

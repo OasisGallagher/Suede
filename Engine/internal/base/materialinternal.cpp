@@ -1,5 +1,5 @@
-#include "math2.h"
 #include "variables.h"
+#include "tools/math2.h"
 #include "renderstate.h"
 #include "debug/debug.h"
 #include "tools/string.h"

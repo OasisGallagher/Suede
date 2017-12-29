@@ -4,7 +4,7 @@
 
 class Syntaxer;
 class SyntaxTree;
-class TextScanner;
+class FileScanner;
 
 struct Environment;
 
@@ -31,4 +31,5 @@ private:
 private:
 	Environment* env_;
 	Syntaxer* syntaxer_;
+	FileScanner* scanner_;
 };

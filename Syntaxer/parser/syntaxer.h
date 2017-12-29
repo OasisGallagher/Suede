@@ -23,6 +23,50 @@ struct SyntaxerSetupParameter {
 	LRTable lrTable;
 };
 
+class Sym {
+public:
+	Sym(const std::string& text);
+
+public:
+	std::string ToString() const;
+
+private:
+	std::string value_;
+};
+
+class Literal {
+public:
+	Literal(const std::string& text);
+
+public:
+	std::string ToString() const;
+
+private:
+	std::string value_;
+};
+
+class Code {
+public:
+	Code(const std::string& text);
+
+public:
+	std::string ToString() const;
+
+private:
+	std::string value_;
+};
+
+class Integer {
+public:
+	Integer(const std::string& text);
+
+public:
+	std::string ToString() const;
+
+private:
+	int value_;
+};
+
 class Syntaxer {
 public:
 	Syntaxer();

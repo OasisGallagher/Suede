@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defines.h"
+#include "enginedefines.h"
 
 class SUEDE_API Engine {
 public:

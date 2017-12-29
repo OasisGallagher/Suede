@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "types.h"
 
 #ifdef  SUEDE_EXPORT
 #define SUEDE_API __declspec(dllexport)
@@ -19,7 +20,3 @@
 #define SUEDE_BEGIN_NAMESPACE
 #define SUEDE_END_NAMESPACE
 #endif
-
-typedef unsigned int uint;
-typedef unsigned char uchar;
-typedef unsigned long ulong;

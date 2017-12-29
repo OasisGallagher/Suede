@@ -1,8 +1,8 @@
 #include <algorithm>
 
-#include "math2.h"
 #include "time2.h"
 #include "variables.h"
+#include "tools/math2.h"
 #include "debug/debug.h"
 #include "rendererinternal.h"
 

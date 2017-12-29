@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "math2.h"
+#include "tools/math2.h"
 #include "tools/string.h"
 #include "internal/file/assetimporter.h"
 #include "internal/world/worldinternal.h"

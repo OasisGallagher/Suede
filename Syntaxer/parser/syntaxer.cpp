@@ -4,8 +4,9 @@
 #include "syntaxer.h"
 #include "lrtable.h"
 #include "serializer.h"
-#include "debug/debug.h"
 #include "syntaxtree.h"
+#include "debug/debug.h"
+#include "tools/string.h"
 
 class SymTable : public Table<Sym> { };
 
@@ -25,7 +26,7 @@ std::string Sym::ToString() const {
 
 Integer::Integer(const std::string& text) {
 	int integer = 0;
-	if (!Utility::ParseInteger(text.c_str(), &integer)) {
+	if (!String::ToInteger(text.c_str(), &integer)) {
 		Debug::LogError("invalid integer %s.", text.c_str());
 	}
 
@@ -49,7 +50,7 @@ Code::Code(const std::string& text) {
 }
 
 std::string Code::ToString() const {
-	return "\"CodeSnippet\"";
+	return value_;
 }
 
 struct SyntaxerStack {
@@ -113,7 +114,7 @@ int Syntaxer::Reduce(int cpos) {
 
 	int length = cond->symbols.front() == NativeSymbols::epsilon ? 0 : cond->symbols.size();
 
-	std::string log = ">> [R] `" + Utility::Concat(stack_->symbols.end() - length, stack_->symbols.end()) + "` to `" + g->GetLhs().ToString() + "`.";
+	std::string log = ">> [R] `" + String::Concat(stack_->symbols.end() - length, stack_->symbols.end()) + "` to `" + g->GetLhs().ToString() + "`.";
 
 	void* newValue = (cond->action != nullptr) ? cond->action->Invoke(stack_->values) : nullptr;
 

@@ -1,5 +1,5 @@
-#include "math2.h"
 #include "resources.h"
+#include "tools/math2.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "meshinternal.h"

@@ -23,7 +23,6 @@ struct ShaderProperty {
 class SUEDE_API IShader : virtual public IObject {
 public:
 	virtual bool Load(const std::string& path) = 0;
-	virtual uint GetNativePointer() = 0;
 
 	virtual void Bind(uint pass) = 0;
 	virtual void Unbind() = 0;

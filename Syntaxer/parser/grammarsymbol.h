@@ -2,7 +2,6 @@
 #include <set>
 #include <map>
 #include <vector>
-#include "utilities.h"
 #include "referencecountable.h"
 
 enum GrammarSymbolType {
@@ -63,6 +62,11 @@ class GrammarSymbol {
 
 public:
 	GrammarSymbol() : ptr_(nullptr) { }
+
+public:
+	static bool IsTerminal(const std::string& token) {
+		return token.front() != '$';
+	}
 
 public:
 	operator bool() const { return ptr_ != nullptr; }

@@ -1,5 +1,5 @@
-#include "math2.h"
 #include "resources.h"
+#include "tools/math2.h"
 #include "worldinternal.h"
 #include "internal/memory/factory.h"
 #include "internal/file/assetimporter.h"

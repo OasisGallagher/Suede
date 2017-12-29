@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <sstream>
 #include "compilerdefines.h"
 
 enum SyntaxNodeType {
@@ -12,49 +11,10 @@ enum SyntaxNodeType {
 	SyntaxNodeOperation,
 };
 
-class Sym {
-public:
-	Sym(const std::string& text);
-
-public:
-	std::string ToString() const;
-
-private:
-	std::string value_;
-};
-
-class Literal {
-public:
-	Literal(const std::string& text);
-
-public:
-	std::string ToString() const;
-
-private:
-	std::string value_;
-};
-
-class Code {
-public:
-	Code(const std::string& text);
-
-public:
-	std::string ToString() const;
-
-private:
-	std::string value_;
-};
-
-class Integer {
-public:
-	Integer(const std::string& text);
-
-public:
-	std::string ToString() const;
-
-private:
-	int value_;
-};
+class Sym;
+class Code;
+class Literal;
+class Integer;
 
 class COMPILER_API SyntaxNode {
 public:
@@ -77,7 +37,7 @@ public:
 	void SetIntegerAddress(Integer* addr);
 
 	const std::string& ToString() const;
-	const std::string& GetText() const { return text_; }
+
 private:
 	SyntaxNode(const SyntaxNode& other);
 	SyntaxNode& operator = (const SyntaxNode& other);

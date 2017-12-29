@@ -1,12 +1,12 @@
 #include <sstream>
 
 #include "table.h"
-#include "reader.h"
 #include "parser.h"
 #include "action.h"
 #include "scanner.h"
 #include "serializer.h"
 #include "debug/debug.h"
+#include "tools/string.h"
 
 bool Environment::Load(std::ifstream& file) {
 	return Serializer::LoadEnvironment(file, this);
@@ -46,7 +46,6 @@ bool Parser::MergeNonEpsilonElements(GrammarSymbolSet& dest, const GrammarSymbol
 
 	return modified;
 }
-
 
 void Parser::Clear() {
 }
@@ -133,7 +132,7 @@ bool Parser::CreateFollowSetsOnePass() {
 
 std::string Parser::ToString() const {
 	std::ostringstream oss;
-	oss << Utility::Heading(" Grammars ") << "\n";
+	oss << String::Heading(" Grammars ") << "\n";
 	
 	const char* newline = "";
 	for (GrammarContainer::const_iterator ite = env_->grammars.begin(); ite != env_->grammars.end(); ++ite) {
@@ -144,12 +143,12 @@ std::string Parser::ToString() const {
 
 	oss << "\n\n";
 
-	oss << Utility::Heading(" TerminalSymbols ") << "\n";
+	oss << String::Heading(" TerminalSymbols ") << "\n";
 	oss << env_->terminalSymbols.ToString();
 
 	oss << "\n\n";
 
-	oss << Utility::Heading(" NonterminalSymbols ") << "\n";
+	oss << String::Heading(" NonterminalSymbols ") << "\n";
 	oss << env_->nonterminalSymbols.ToString();
 
 	return oss.str();

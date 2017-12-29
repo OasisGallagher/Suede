@@ -12,7 +12,5 @@
 // 产生式函数的最大参数个数.
 #define COMPILER_MAX_PARSER_FUNCTION_PARAMTERS		8
 
-#define COMPILER_GLPROGRAM							"GLPROGRAM"
-#define COMPILER_ENDGL								"ENDGL"
-
-typedef long long uint64;
+#define COMPILER_CODE_BEGIN							"GLSLPROGRAM"
+#define COMPILER_CODE_END							"ENDGLSL"
