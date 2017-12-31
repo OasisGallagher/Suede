@@ -1,4 +1,4 @@
-#shader vertex
+#stage vertex
 
 layout(location = 0) in vec3 c_position;
 
@@ -12,7 +12,7 @@ void main() {
 	texCoord = c_position;
 }
 
-#shader fragment
+#stage fragment
 
 out vec4 color;
 

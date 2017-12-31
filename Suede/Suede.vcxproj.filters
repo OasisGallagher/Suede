@@ -192,9 +192,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\buildin\shaders\depth.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
     <None Include="resources\buildin\shaders\skybox.glsl">
       <Filter>resources\buildin\shaders</Filter>
     </None>
@@ -206,9 +203,6 @@
     </None>
     <None Include="resources\shaders\inversion.glsl">
       <Filter>resources\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\directional_light_depth.glsl">
-      <Filter>resources\buildin\shaders</Filter>
     </None>
     <None Include="resources\buildin\shaders\include\light_vertex.inc">
       <Filter>resources\buildin\shaders\include</Filter>
@@ -222,16 +216,22 @@
     <None Include="resources\buildin\shaders\lit_bumped_texture.glsl">
       <Filter>resources\buildin\shaders</Filter>
     </None>
-    <None Include="resources\buildin\shaders\lit_texture.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
     <None Include="resources\buildin\shaders\particle.glsl">
       <Filter>resources\buildin\shaders</Filter>
     </None>
-    <None Include="resources\buildin\shaders\unlit_texture.glsl">
+    <None Include="resources\buildin\shaders\gbuffer.glsl">
       <Filter>resources\buildin\shaders</Filter>
     </None>
-    <None Include="resources\buildin\shaders\gbuffer.glsl">
+    <None Include="resources\buildin\shaders\lit_texture.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\depth.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\directional_light_depth.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\unlit_texture.shader">
       <Filter>resources\buildin\shaders</Filter>
     </None>
   </ItemGroup>

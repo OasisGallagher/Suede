@@ -1,7 +1,7 @@
-#shader vertex
+#stage vertex
 #include "shaders/include/post_effect_vertex.inc"
 
-#shader fragment
+#stage fragment
 out vec4 fragColor;
 
 in vec2 texCoord;

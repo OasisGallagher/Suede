@@ -1,4 +1,4 @@
-#shader vertex
+#stage vertex
 in vec3 c_position;
 in vec2 c_texCoord;
 in vec3 c_normal;
@@ -25,7 +25,7 @@ void main() {
 	gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
 }
 
-#shader fragment
+#stage fragment
 out vec4 fragColor;
 
 in vec2 texCoord;

@@ -82,10 +82,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;SHARED_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <DisableSpecificWarnings>4267</DisableSpecificWarnings>
     </ClCompile>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
-copy $(TargetDir)$(TargetName).lib $(SolutionDir)Syntaxer\lib
+      <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)GLEF\lib
+copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </PostBuildEvent>
@@ -118,6 +120,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp" />
+    <ClCompile Include="memory\memory.cpp" />
+    <ClCompile Include="memory\refcount.cpp" />
     <ClCompile Include="os\os.cpp" />
     <ClCompile Include="tools\file.cpp" />
     <ClCompile Include="tools\math2.cpp" />
@@ -125,7 +129,13 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="containers\freelist.h" />
+    <ClInclude Include="containers\ptrmap.h" />
+    <ClInclude Include="containers\sortedvector.h" />
+    <ClInclude Include="containers\table.h" />
     <ClInclude Include="debug\debug.h" />
+    <ClInclude Include="memory\memory.h" />
+    <ClInclude Include="memory\refcount.h" />
     <ClInclude Include="os\os.h" />
     <ClInclude Include="tools\file.h" />
     <ClInclude Include="tools\math2.h" />

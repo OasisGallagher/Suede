@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\Syntaxer\include;..\Shared;3rdparty\free-image-3.10.7\include;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;$(SolutionDir)Engine;..\GLEF\include;..\Shared;3rdparty\free-image-3.10.7\include;3rdparty\assimp-3.0\include;3rdparty\glew-2.1.0\include;3rdparty\free-type\include;3rdparty\image-magick-6\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -112,7 +112,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;Syntaxer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
@@ -166,13 +166,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\meshinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\vertexarrayobject.cpp" />
-    <ClCompile Include="internal\containers\variant.cpp" />
     <ClCompile Include="internal\file\image.cpp" />
     <ClCompile Include="internal\file\shaderparser.cpp" />
     <ClCompile Include="internal\file\assetimporter.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
-    <ClCompile Include="internal\memory\memory.cpp" />
     <ClCompile Include="internal\sprites\camerainternal.cpp" />
     <ClCompile Include="internal\sprites\lightinternal.cpp" />
     <ClCompile Include="internal\sprites\particlesysteminternal.cpp" />
@@ -185,6 +183,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\screen.cpp" />
     <ClCompile Include="src\time2.cpp" />
+    <ClCompile Include="src\variant.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\animation.h" />
@@ -195,7 +194,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\light.h" />
-    <ClInclude Include="include\debug.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\object.h" />
     <ClInclude Include="include\particlesystem.h" />
@@ -210,6 +208,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\time2.h" />
     <ClInclude Include="include\variables.h" />
+    <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\world.h" />
     <ClInclude Include="internal\base\animationinternal.h" />
     <ClInclude Include="internal\base\fontinternal.h" />
@@ -233,7 +232,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\file\shaderparser.h" />
     <ClInclude Include="internal\file\assetimporter.h" />
     <ClInclude Include="internal\memory\factory.h" />
-    <ClInclude Include="internal\memory\memory.h" />
     <ClInclude Include="internal\sprites\camerainternal.h" />
     <ClInclude Include="internal\sprites\lightinternal.h" />
     <ClInclude Include="internal\sprites\particlesysteminternal.h" />

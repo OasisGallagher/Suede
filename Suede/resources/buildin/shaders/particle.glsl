@@ -1,4 +1,4 @@
-#shader vertex
+#stage vertex
 in vec3 c_position;
 in vec4 c_instanceColor;
 in vec4 c_instanceGeometry;
@@ -23,7 +23,7 @@ void main() {
 	color = c_instanceColor;
 }
 
-#shader fragment
+#stage fragment
 in vec2 texCoord;
 in vec4 color;
 

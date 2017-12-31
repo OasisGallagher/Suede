@@ -1,7 +1,8 @@
 #pragma once
 
+#include "variant.h"
 #include "renderer.h"
-#include "internal/containers/variant.h"
+#include "wrappers/gl.h"
 
 class Language;
 class SyntaxTree;
@@ -35,11 +36,6 @@ inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
 }
 
 struct Semantics {
-	struct Property {
-		std::string name;
-		Variant defaultValue;
-	};
-
 	struct Tag {
 		std::string key;
 		std::string value;
@@ -47,11 +43,11 @@ struct Semantics {
 
 	struct RenderState {
 		enum {
-			RenderStateParameterCount = 3,
+			ParameterCount = 3,
 		};
 
-		RenderStateType type;
-		int parameters[RenderStateParameterCount];
+		std::string type;
+		std::string parameters[ParameterCount];
 	};
 
 	struct Pass {
@@ -68,34 +64,21 @@ struct Semantics {
 	std::vector<SubShader> subShaders;
 };
 
-class ShaderLanguage {
-public:
-	ShaderLanguage();
-	~ShaderLanguage();
-
-public:
-	bool Parse(const std::string& path, SyntaxTree& tree);
-
-private:
-	Language* lang_;
-};
-
 class GLSLParser {
 public:
-	void SetRootPath(const std::string& path) { path_ = path; }
-	bool Parse(std::string* sources, const std::string& lines, const std::string& defines);
+	bool Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines);
 
 private:
 	void Clear();
 	void AddConstants();
 	bool Preprocess(const std::string& line);
-	bool ReadShaderSource(const std::string& lines);
+	bool ReadShaderSource(const std::string& source);
 	bool PreprocessInclude(const std::string& parameter);
 	ShaderStage ParseShaderStage(const std::string& tag);
 	std::string FormatDefines(const std::string& defines);
 	bool PreprocessShaderStage(const std::string& parameter);
 	void CalculateDefinesPermutations(std::vector<std::string>& anwser);
-	bool CompileShaderSource(const std::string& lines, const std::string& defines);
+	bool CompileShaderSource(const std::string& source, const std::string& defines);
 
 private:
 	ShaderStage type_;
@@ -112,23 +95,39 @@ public:
 private:
 	bool ParseSemantics(SyntaxTree& tree, Semantics& semantices);
 
-	void ReadInt(SyntaxNode* node, Semantics::Property& property);
-	void ReadVec3(SyntaxNode* node, Semantics::Property& property);
-	void ReadTex2(SyntaxNode* node, Semantics::Property& property);
-	void ReadMat3(SyntaxNode* node, Semantics::Property& property);
-	void ReadMat4(SyntaxNode* node, Semantics::Property& property);
-	void ReadFloat(SyntaxNode* node, Semantics::Property& property);
-	void ReadInteger3(SyntaxNode* node, Semantics::Property& property);
+	void ReadInt(SyntaxNode* node, Property& property);
+	void ReadVec3(SyntaxNode* node, Property& property);
+	void ReadTex2(SyntaxNode* node, Property& property);
+	void ReadMat3(SyntaxNode* node, Property& property);
+	void ReadMat4(SyntaxNode* node, Property& property);
+	void ReadFloat(SyntaxNode* node, Property& property);
+	void ReadInteger3(SyntaxNode* node, Property& property);
 	void ReadInteger3(glm::ivec3& value, SyntaxNode* node);
 
-	void ReadProperty(SyntaxNode* node, Semantics::Property& property);
-	void ReadProperties(SyntaxNode* node, std::vector<Semantics::Property>& properties);
-	void ReadPropertyBlock(SyntaxNode* node, std::vector<Semantics::Property>& properties);
+	void ReadProperty(SyntaxNode* node, Property& property);
+	void ReadProperties(SyntaxNode* node, std::vector<Property>& properties);
+	void ReadPropertyBlock(SyntaxNode* node, std::vector<Property>& properties);
 
 	void ReadTag(SyntaxNode* node, Semantics::Tag& tag);
 	void ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags);
 	void ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags);
 
+	/**
+	* @param Cull: Front, Back, Off.
+	* @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
+	* @param DepthWrite: On, Off.
+	* @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
+	* @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
+	* @param StencilTest0: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
+	* @param StencilTest1: [0x00, 0xFF].
+	* @param StencilTest2: [0x00, 0xFF].
+	* @param StencilMask0: Front, Back, FrontAndBack.
+	* @param StencilMask1: [0x00, 0xFF].
+	* @param StencilOp0: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
+	* @param StencilOp1: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
+	* @param StencilOp2: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
+	* @param RasterizerDiscard: On, Off
+	*/
 	void ReadRenderState(SyntaxNode* node, Semantics::RenderState& state);
 	void ReadRenderStates(SyntaxNode* node, std::vector<Semantics::RenderState>& states);
 
@@ -142,10 +141,6 @@ private:
 
 	template <class Cont>
 	typename Cont::reference Allocate(Cont& cont);
-
-private:
-	GLSLParser parser_;
-	ShaderLanguage language_;
 };
 
 template<class Cont>

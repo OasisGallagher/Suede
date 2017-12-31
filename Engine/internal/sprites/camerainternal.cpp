@@ -91,6 +91,8 @@ void CameraInternal::Render() {
 	if (!GetRenderableSprites(sprites)) {
 		return;
 	}
+	
+	RestoreRenderStates();
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
@@ -154,10 +156,12 @@ void CameraInternal::InitializeDeferredRender() {
 	Shader shader = NewShader();
 	shader->Load("buildin/shaders/gbuffer");
 	deferredMaterial_->SetShader(shader);
+	/*
 	deferredMaterial_->SetRenderState(Cull, Back);
 	deferredMaterial_->SetRenderState(DepthTest, LessEqual);
 	deferredMaterial_->SetRenderState(DepthWrite, On);
 	deferredMaterial_->SetRenderState(Blend, Off);
+	*/
 }
 
 void CameraInternal::RenderDeferredGeometryPass(const std::vector<Sprite>& sprites) {
@@ -207,6 +211,10 @@ Texture2D CameraInternal::Capture() {
 	return texture;
 }
 
+void CameraInternal::RestoreRenderStates() {
+
+}
+
 void CameraInternal::InitializeVariables() {
 	depth_ = 0; 
 	aspect_ = 1.3f;
@@ -239,19 +247,20 @@ void CameraInternal::CreateDepthMaterial() {
 
 	depthMaterial_ = NewMaterial();
 	depthMaterial_->SetShader(shader);
+	/*
 	depthMaterial_->SetRenderState(Cull, Back);
 	depthMaterial_->SetRenderState(DepthWrite, On);
 	depthMaterial_->SetRenderState(DepthTest, LessEqual);
+	*/
 }
 
 void CameraInternal::CreateShadowMaterial() {
 	Shader shader = Resources::FindShader("buildin/shaders/directional_light_depth");
-
 	directionalLightShadowMaterial_ = NewMaterial();
 	directionalLightShadowMaterial_->SetShader(shader);
-	directionalLightShadowMaterial_->SetRenderState(Cull, Back);
-	directionalLightShadowMaterial_->SetRenderState(DepthWrite, On);
-	directionalLightShadowMaterial_->SetRenderState(DepthTest, LessEqual);
+	//directionalLightShadowMaterial_->SetRenderState(Cull, Back);
+	//directionalLightShadowMaterial_->SetRenderState(DepthWrite, On);
+	//directionalLightShadowMaterial_->SetRenderState(DepthTest, LessEqual);
 }
 
 void CameraInternal::UpdateSkybox() {

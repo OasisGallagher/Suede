@@ -1,7 +1,7 @@
 #include <cstdarg>
 #include "renderstate.h"
 #include "debug/debug.h"
-#include "internal/memory/memory.h"
+#include "memory/memory.h"
 
 void CullState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 3,

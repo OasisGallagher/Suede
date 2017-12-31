@@ -1,6 +1,6 @@
 #include "gbuffer.h"
 #include "framebuffer.h"
-#include "internal/memory/memory.h"
+#include "memory/memory.h"
 
 GBuffer::GBuffer() {
 	for (int i = 0; i < GTextureCount; ++i) {

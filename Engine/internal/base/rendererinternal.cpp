@@ -58,11 +58,16 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	mesh->Bind();
 
 	for (int i = 0; i < subMeshCount; ++i) {
-		GetMaterial(i)->Bind();
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		DrawCall(subMesh, mesh->GetTopology());
-
-		GetMaterial(i)->Unbind();
+		Material material = GetMaterial(i);
+		int pass = material->GetPass();
+		if (pass >= 0) {
+			RenderSubMesh(mesh, i, material, pass);
+		}
+		else {
+			for (int p = 0; p < material->GetPassCount(); ++p) {
+				RenderSubMesh(mesh, i, material, p);
+			}
+		}
 	}
 
 	mesh->Unbind();
@@ -70,14 +75,25 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 
 void RendererInternal::RenderMesh(Mesh mesh, Material material) {
 	mesh->Bind();
-	material->Bind();
+	int pass = material->GetPass();
+	if (pass >= 0) {
+		RenderMesh(mesh, material, pass);
+	}
+	else {
+		for (int p = 0; p < material->GetPassCount(); ++p) {
+			RenderMesh(mesh, material, p);
+		}
+	}
+	mesh->Unbind();
+}
 
+void RendererInternal::RenderMesh(Mesh mesh, Material material, int pass) {
+	material->Bind(pass);
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
 		DrawCall(subMesh, mesh->GetTopology());
 	}
 
-	mesh->Unbind();
 	material->Unbind();
 }
 
@@ -103,6 +119,14 @@ void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
 	GL::DrawElementsBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
 }
 
+void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
+	material->Bind(pass);
+	SubMesh subMesh = mesh->GetSubMesh(subMeshIndex);
+	DrawCall(subMesh, mesh->GetTopology());
+
+	material->Unbind();
+}
+
 void SkinnedMeshRendererInternal::UpdateMaterial(Sprite sprite) {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
 		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootSpaceMatrices, skeleton_->GetBoneToRootSpaceMatrices(), C_MAX_BONE_COUNT);
@@ -117,7 +141,7 @@ ParticleRendererInternal::ParticleRendererInternal()
 }
 
 void ParticleRendererInternal::AddMaterial(Material material) {
-	material->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
+//	material->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
 	RendererInternal::AddMaterial(material);
 }
 

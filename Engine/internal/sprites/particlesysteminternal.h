@@ -3,7 +3,7 @@
 #include "shader.h"
 #include "tools/math2.h"
 #include "particlesystem.h"
-#include "internal/containers/freelist.h"
+#include "containers/freelist.h"
 #include "internal/sprites/spriteinternal.h"
 
 class ParticleEmitterInternal : virtual public IParticleEmitter, public ObjectInternal {

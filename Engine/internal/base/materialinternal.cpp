@@ -5,15 +5,13 @@
 #include "tools/string.h"
 #include "materialinternal.h"
 
+static const uint subShader = 0;
+
 MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectTypeMaterial) , oldProgram_(0) {
-	std::fill(states_, states_ + RenderStateCount, nullptr);
+	: ObjectInternal(ObjectTypeMaterial), pass_(-1), textureIndex_(0) {
 }
 
 MaterialInternal::~MaterialInternal() {
-	for (int i = 0; i < RenderStateCount; ++i) {
-		MEMORY_RELEASE(states_[i]);
-	}
 }
 
 Object MaterialInternal::Clone() {
@@ -21,12 +19,6 @@ Object MaterialInternal::Clone() {
 	MaterialInternal* clonePtr = dynamic_cast<MaterialInternal*>(clone.get());
 	*clonePtr = *this;
 
-	for (int i = 0; i < RenderStateCount; ++i) {
-		if (states_[i] != nullptr) {
-			clonePtr->states_[i] = states_[i]->Clone();
-		}
-	}
-	
 	return clone;
 }
 
@@ -37,58 +29,13 @@ void MaterialInternal::SetShader(Shader value) {
 
 	shader_ = value;
 
-	std::vector<ShaderProperty> container;
+	std::vector<Property> container;
 	shader_->GetProperties(container);
 
 	properties_.clear();
 	int textureCount = 0;
 	for (int i = 0; i < container.size(); ++i) {
-		Variant* var = properties_[container[i].name];
-		switch (container[i].type) {
-			case ShaderPropertyTypeInt:
-				var->SetInt(0);
-				break;
-			case ShaderPropertyTypeBool:
-				var->SetBool(false);
-				break;
-			case ShaderPropertyTypeFloat:
-				var->SetFloat(0);
-				break;
-			case ShaderPropertyTypeMatrix4:
-				var->SetMatrix4(glm::mat4(0));
-				break;
-			case ShaderPropertyTypeMatrix4Array:
-				var->SetPodBuffer(nullptr, 0);
-				break;
-			case ShaderPropertyTypeVector3:
-				var->SetVector3(glm::vec3(0));
-				break;
-			case ShaderPropertyTypeVector4:
-				var->SetVector4(glm::vec4(0));
-				break;
-			case ShaderPropertyTypeTexture:
-				var->SetTextureIndex(textureCount++);
-				break;
-			default:
-				Debug::LogError("invalid property type %d.", container[i].type);
-				break;
-		}
-	}
-}
-
-void MaterialInternal::BindRenderStates() {
-	for (int i = 0; i < RenderStateCount; ++i) {
-		if (states_[i] != nullptr) {
-			states_[i]->Bind();
-		}
-	}
-}
-
-void MaterialInternal::UnbindRenderStates() {
-	for (int i = 0; i < RenderStateCount; ++i) {
-		if (states_[i] != nullptr) {
-			states_[i]->Unbind();
-		}
+		*properties_[container[i].name] = container[i].value;
 	}
 }
 
@@ -99,9 +46,9 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 	}
 
 	Variant* var = GetProperty(name, VariantTypeInt);
-	if (var != nullptr && var->GetInt() != value) {
+	//if (var != nullptr && var->GetInt() != value) {
 		var->SetInt(value);
-	}
+	//}
 }
 
 void MaterialInternal::SetFloat(const std::string& name, float value) {
@@ -111,9 +58,9 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 	}
 
 	Variant* var = GetProperty(name, VariantTypeFloat);
-	if (var != nullptr && !Math::Approximately(var->GetFloat(), value)) {
+	//if (var != nullptr && !Math::Approximately(var->GetFloat(), value)) {
 		var->SetFloat(value);
-	}
+	//}
 }
 
 void MaterialInternal::SetTexture(const std::string& name, Texture value) {
@@ -122,11 +69,16 @@ void MaterialInternal::SetTexture(const std::string& name, Texture value) {
 		return;
 	}
 
-	Variant* var = GetProperty(name, VariantTypeTexture);
-
-	if (var != nullptr && var->GetTexture() != value) {
-		var->SetTexture(value);
+	bool newItem = false;
+	Variant* var = GetProperty(name, VariantTypeTexture, &newItem);
+	//if (var != nullptr && var->GetTexture() != value) {
+	// TODO: texture index.
+	int index = -1;
+	if (newItem) {
+		index = textureIndex_++;
 	}
+		var->SetTexture(value, index);
+	//}
 }
 
 void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& value) {
@@ -136,9 +88,9 @@ void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& valu
 	}
 
 	Variant* var = GetProperty(name, VariantTypeVector3);
-	if (var != nullptr && var->GetVector3() != value) {
+	//if (var != nullptr && var->GetVector3() != value) {
 		var->SetVector3(value);
-	}
+	//}
 }
 
 void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& value) {
@@ -148,9 +100,9 @@ void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& valu
 	}
 
 	Variant* var = GetProperty(name, VariantTypeVector4);
-	if (var != nullptr && var->GetVector4() != value) {
+	//if (var != nullptr && var->GetVector4() != value) {
 		var->SetVector4(value);
-	}
+	//}
 }
 
 void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& value) {
@@ -160,9 +112,9 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 	}
 
 	Variant* var = GetProperty(name, VariantTypeMatrix4);
-	if (var != nullptr && var->GetMatrix4() != value) {
+	//if (var != nullptr && var->GetMatrix4() != value) {
 		var->SetMatrix4(value);
-	}
+	//}
 }
 
 void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) {
@@ -171,10 +123,10 @@ void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4*
 		return;
 	}
 
-	Variant* var = GetProperty(name, VariantTypePodBuffer);
-	if (var != nullptr) {
-		var->SetPodBuffer(ptr, count * sizeof(glm::mat4));
-	}
+	Variant* var = GetProperty(name, VariantTypeMatrix4Array);
+	//if (var != nullptr) {
+		var->SetMatrix4Array(ptr, count);
+	//}
 }
 
 int MaterialInternal::GetInt(const std::string& name) {
@@ -266,20 +218,23 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 	return var->GetVector4();
 }
 
-void MaterialInternal::Bind() {
-	BindRenderStates();
-	BindProperties();
+uint MaterialInternal::GetPassCount() const {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return 0;
+	}
 
-	GL::GetIntegerv(GL_CURRENT_PROGRAM, &oldProgram_);
-	GL::UseProgram(shader_->GetNativePointer());
+	return shader_->GetPassCount(subShader);
+}
+
+void MaterialInternal::Bind(uint pass) {
+	BindProperties(pass);
+	shader_->Bind(subShader, pass);
 }
 
 void MaterialInternal::Unbind() {
 	UnbindProperties();
-	UnbindRenderStates();
-
-	GL::UseProgram(oldProgram_);
-	oldProgram_ = 0;
+	shader_->Unbind();
 }
 
 void MaterialInternal::Define(const std::string& name) {
@@ -288,48 +243,17 @@ void MaterialInternal::Define(const std::string& name) {
 void MaterialInternal::Undefine(const std::string& name) {
 }
 
-void MaterialInternal::SetRenderState(RenderStateType type, int parameter0, int parameter1, int parameter2) {
-	RenderState* state = nullptr;
-	switch (type) {
-		case Cull:
-			state = MEMORY_CREATE(CullState);
-			break;
-		case DepthTest:
-			state = MEMORY_CREATE(DepthTestState);
-			break;
-		case Blend:
-			state = MEMORY_CREATE(BlendState);
-			break;
-		case DepthWrite:
-			state = MEMORY_CREATE(DepthWriteState);
-			break;
-		case StencilOp:
-			state = MEMORY_CREATE(StencilOpState);
-			break;
-		case StencilTest:
-			state = MEMORY_CREATE(StencilTestState);
-			break;
-		case StencilMask:
-			state = MEMORY_CREATE(StencilMaskState);
-			break;
-		case RasterizerDiscard:
-			state = MEMORY_CREATE(RasterizerDiscardState);
-			break;
-		default:
-			Debug::LogError("invalid render state %d.", type);
-			break;
+Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type, bool* newItem) {
+	PropertyContainer::ib_pair p = properties_.insert(name);
+	if (newItem != nullptr) {
+		*newItem = p.second;
 	}
-
-	state->Initialize(parameter0, parameter1, parameter2);
-	MEMORY_RELEASE(states_[type]);
-	states_[type] = state;
-}
-
-Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type) {
+	
+	return p.first->second;
+	/*
 	Variant* ans = nullptr;
 	if (!properties_.get(name, ans)) {
-		static int variablePrefixLength = strlen(VARIABLE_PREFIX);
-		if (strncmp(name.c_str(), VARIABLE_PREFIX, variablePrefixLength) != 0) {
+		if (!String::StartsWith(name, VARIABLE_PREFIX)) {
 			Debug::LogWarning("property %s does not exist.", name.c_str());
 		}
 
@@ -342,16 +266,18 @@ Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type
 	}
 
 	return ans;
+	*/
 }
 
-void MaterialInternal::BindProperties() {
+void MaterialInternal::BindProperties(uint pass) {
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		Variant* var = ite->second;
 		if (var->GetType() != VariantTypeTexture) {
-			shader_->SetProperty(ite->first, var->GetData());
+			shader_->SetProperty(subShader, pass, ite->first, var->GetData());
 		}
 		else if(var->GetTexture()){
-			var->GetTexture()->Bind(var->GetTextureIndex());
+			int index = 0;
+			var->GetTexture(&index)->Bind(index);
 		}
 	}
 }
@@ -369,3 +295,6 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
+void MaterialInternal::AddBuildinProperties() {
+
+}

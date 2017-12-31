@@ -1,7 +1,7 @@
 #include "debug/debug.h"
 #include "framebuffer.h"
 #include "tools/string.h"
-#include "internal/memory/memory.h"
+#include "memory/memory.h"
 #include "internal/memory/factory.h"
 #include "internal/base/textureinternal.h"
 

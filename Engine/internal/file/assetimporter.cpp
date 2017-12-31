@@ -14,8 +14,8 @@
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "assetimporter.h"
+#include "memory/memory.h"
 #include "internal/file/image.h"
-#include "internal/memory/memory.h"
 #include "internal/memory/factory.h"
 #include "internal/base/meshinternal.h"
 #include "internal/base/shaderinternal.h"
@@ -341,8 +341,8 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 		shaderName = "lit_animated_texture";
 	}
 
-	material->SetRenderState(Cull, attribute.twoSided ? Off : Back);
-	material->SetRenderState(DepthTest, LessEqual);
+	//material->SetRenderState(Cull, attribute.twoSided ? Off : Back);
+	//material->SetRenderState(DepthTest, LessEqual);
 
 	Shader shader = Resources::FindShader("buildin/shaders/" + shaderName);
 	material->SetShader(shader);

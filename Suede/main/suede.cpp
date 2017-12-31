@@ -146,15 +146,13 @@ void Suede::screenCapture() {
 }
 
 bool Suede::OnPrompt(const char* message) {
-	return true;
-	/*QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No);
+	QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No);
 
 	QMessageBox box(QMessageBox::Question, tr("Question"), QString(message), buttons, this);
 	box.setButtonText(QMessageBox::Yes, tr("Yes"));
 	box.setButtonText(QMessageBox::No, tr("No"));
 
 	return box.exec() == (int)QMessageBox::Yes;
-	*/
 }
 
 void Suede::OnLogMessage(LogLevel level, const char* message) {
@@ -173,7 +171,7 @@ void Suede::OnLogMessage(LogLevel level, const char* message) {
 
 		case LogLevelError:
 			Console::get()->addMessage(Console::Error, message);
-			__debugbreak();
+			//__debugbreak();
 			break;
 	}
 }

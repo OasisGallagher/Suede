@@ -1,11 +1,13 @@
 #include "variables.h"
+#include "tools/path.h"
 #include "debug/debug.h"
+#include "renderstate.h"
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "shaderinternal.h"
 #include "internal/base/glsldefines.h"
 
-Pass::Pass() : program_(0) {
+Pass::Pass() : program_(0), oldProgram_(0) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
 
 	program_ = GL::CreateProgram();
@@ -28,8 +30,9 @@ bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
 	
 	std::string sources[ShaderStageCount];
 	GLSLParser parser;
-	// TODO: SetPath.
-	parser.Parse(sources, pass.source, "");
+	if (!parser.Parse(sources, Path::GetDirectory(path), pass.source, "")) {
+		return false;
+	}
 
 	for (int i = 0; i < ShaderStageCount; ++i) {
 		if (!sources[i].empty() && !LoadSource((ShaderStage)i, sources[i].c_str())) {
@@ -48,10 +51,53 @@ bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
 	}
 
 	AddAllUniforms();
+
+	return true;
 }
 
-void Pass::InitializeRenderStates(std::vector<Semantics::RenderState> states) {
+bool Pass::SetProperty(const std::string& name, const void* data) {
+	Uniform* uniform = nullptr;
+	if (!uniforms_.get(name, uniform)) {
+		return false;
+	}
 
+	SetUniform(uniform, data);
+	return true;
+}
+
+void Pass::Bind() {
+	BindRenderStates();
+	GL::GetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&oldProgram_);
+	GL::UseProgram(program_);
+}
+
+void Pass::Unbind() {
+	UnbindRenderStates();
+	GL::UseProgram(oldProgram_);
+}
+
+void Pass::InitializeRenderStates(const std::vector<Semantics::RenderState>& states) {
+	for (uint i = 0; i < states.size(); ++i) {
+		RenderState* state = CreateRenderState(states[i]);
+		MEMORY_RELEASE(states_[state->GetType()]);
+		states_[state->GetType()] = state;
+	}
+}
+
+void Pass::BindRenderStates() {
+	for (int i = 0; i < RenderStateCount; ++i) {
+		if (states_[i] != nullptr) {
+			states_[i]->Bind();
+		}
+	}
+}
+
+void Pass::UnbindRenderStates() {
+	for (int i = 0; i < RenderStateCount; ++i) {
+		if (states_[i] != nullptr) {
+			states_[i]->Unbind();
+		}
+	}
 }
 
 bool Pass::GetErrorMessage(GLuint shaderObj, std::string& answer) {
@@ -90,6 +136,183 @@ bool Pass::Link() {
 	}
 
 	return true;
+}
+
+RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
+	int parameters[Semantics::RenderState::ParameterCount];
+	if (!ParseRenderStateParameters(parameters, state.parameters)) {
+		return false;
+	}
+
+	RenderState* answer = nullptr;
+	if (state.type == "Cull") {
+		answer = MEMORY_CREATE(CullState);
+	}
+	else if (state.type == "DepthTest") {
+		answer = MEMORY_CREATE(DepthTestState);
+	}
+	else if (state.type == "Blend") {
+		answer = MEMORY_CREATE(BlendState);
+	}
+	else if (state.type == "DepthWrite") {
+		answer = MEMORY_CREATE(DepthWriteState);
+	}
+	else if (state.type == "StencilOp") {
+		answer = MEMORY_CREATE(StencilOpState);
+	}
+	else if (state.type == "StencilTest") {
+		answer = MEMORY_CREATE(StencilTestState);
+	}
+	else if (state.type == "StencilMask") {
+		answer = MEMORY_CREATE(StencilMaskState);
+	}
+	else if (state.type == "RasterizerDiscard") {
+		answer = MEMORY_CREATE(RasterizerDiscardState);
+	}
+	else {
+		Debug::LogError("invalid render state %s.", state.type.c_str());
+	}
+
+	if (answer != nullptr) {
+		answer->Initialize(parameters[0], parameters[1], parameters[2]);
+	}
+
+	return answer;
+}
+
+bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters) {
+	for (uint i = 0; i < Semantics::RenderState::ParameterCount; ++i, ++answer) {
+		if ((*answer = RenderStateParameterToInteger(parameters[i])) < 0) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+int Pass::RenderStateParameterToInteger(const std::string& parameter) {
+	// TODO: binary search.
+	if (parameter.empty()) {
+		return None;
+	}
+
+	if (parameter == "None") {
+		return None;
+	}
+
+	if (parameter == "Front") {
+		return Front;
+	}
+
+	if (parameter == "Back") {
+		return Back;
+	}
+
+	if (parameter == "FrontAndBack") {
+		return FrontAndBack;
+	}
+
+	if (parameter == "On") {
+		return On;
+	}
+
+	if (parameter == "Off") {
+		return Off;
+	}
+	if (parameter == "Never") {
+		return Never;
+	}
+
+	if (parameter == "Less") {
+		return Less;
+	}
+
+	if (parameter == "LessEqual") {
+		return LessEqual;
+	}
+
+	if (parameter == "Equal") {
+		return Equal;
+	}
+
+	if (parameter == "Greater") {
+		return Greater;
+	}
+
+	if (parameter == "NotEqual") {
+		return NotEqual;
+	}
+
+	if (parameter == "GreaterEqual") {
+		return GreaterEqual;
+	}
+
+	if (parameter == "Always") {
+		return Always;
+	}
+
+	if (parameter == "Zero") {
+		return Zero;
+	}
+
+	if (parameter == "One") {
+		return One;
+	}
+
+	if (parameter == "SrcColor") {
+		return SrcColor;
+	}
+
+	if (parameter == "OneMinusSrcColor") {
+		return OneMinusSrcColor;
+	}
+
+	if (parameter == "SrcAlpha") {
+		return SrcAlpha;
+	}
+
+	if (parameter == "OneMinusSrcAlpha") {
+		return OneMinusSrcAlpha;
+	}
+
+	if (parameter == "DestAlpha") {
+		return DestAlpha;
+	}
+
+	if (parameter == "OneMinusDestAlpha") {
+		return OneMinusDestAlpha;
+	}
+
+	if (parameter == "Keep") {
+		return Keep;
+	}
+
+	if (parameter == "Replace") {
+		return Replace;
+	}
+
+	if (parameter == "Incr") {
+		return Incr;
+	}
+
+	if (parameter == "IncrWrap") {
+		return IncrWrap;
+	}
+
+	if (parameter == "Decr") {
+		return Decr;
+	}
+
+	if (parameter == "DecrWrap") {
+		return DecrWrap;
+	}
+
+	if (parameter == "Invert") {
+		return Invert;
+	}
+
+	Debug::LogError("invalid render state parameter %s.", parameter);
+	return -1;
 }
 
 void Pass::ClearIntermediateShaders() {
@@ -177,60 +400,69 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 	uniform->size = size;
 	uniform->location = location;
 
-	if (type == GL_INT) {
-		uniform->type = ShaderPropertyTypeInt;
-	}
-	else if (type == GL_FLOAT) {
-		uniform->type = ShaderPropertyTypeFloat;
-	}
-	else if (type == GL_FLOAT_MAT4) {
-		uniform->type = (size == 1) ? ShaderPropertyTypeMatrix4 : ShaderPropertyTypeMatrix4Array;
-	}
-	else if (type == GL_BOOL) {
-		uniform->type = ShaderPropertyTypeBool;
-	}
-	else if (type == GL_FLOAT_VEC3) {
-		uniform->type = ShaderPropertyTypeVector3;
-	}
-	else if (type == GL_FLOAT_VEC4) {
-		uniform->type = ShaderPropertyTypeVector4;
-	}
-	else if (IsSampler(type)) {
-		if (textureUnitCount_ >= maxTextureUnits_) {
-			Debug::LogError("too many textures.");
+	switch (type) {
+	case GL_INT:
+		uniform->type = VariantTypeInt;
+		break;
+	case GL_FLOAT:
+		uniform->type = VariantTypeFloat;
+		break;
+	case GL_FLOAT_MAT4:
+		uniform->type = (size == 1) ? VariantTypeMatrix4 : VariantTypeMatrix4Array;
+		break;
+	case GL_BOOL:
+		uniform->type = VariantTypeBool;
+		break;
+	case GL_FLOAT_VEC3:
+		uniform->type = VariantTypeVector3;
+		break;
+	case GL_FLOAT_VEC4:
+		uniform->type = VariantTypeVector4;
+		break;
+	default:
+		if (IsSampler(type)) {
+			if (textureUnitCount_ >= maxTextureUnits_) {
+				Debug::LogError("too many textures.");
+			}
+			else {
+				++textureUnitCount_;
+				uniform->type = VariantTypeTexture;
+			}
 		}
 		else {
-			++textureUnitCount_;
-			uniform->type = ShaderPropertyTypeTexture;
+			Debug::LogError("undefined uniform type 0x%x.", type);
 		}
-	}
-	else {
-		Debug::LogError("undefined uniform type 0x%x.", type);
+
+		break;
 	}
 }
 
 void Pass::SetUniform(Uniform* uniform, const void* data) {
-	switch (uniform->type) {
-		case ShaderPropertyTypeInt:
-		case ShaderPropertyTypeBool:
-			GL::ProgramUniform1iv(program_, uniform->location, uniform->size, (const GLint *)data);
-			break;
-		case ShaderPropertyTypeFloat:
-			GL::ProgramUniform1fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
-			break;
-		case ShaderPropertyTypeMatrix4:
-		case ShaderPropertyTypeMatrix4Array:
-			GL::ProgramUniformMatrix4fv(program_, uniform->location, uniform->size, false, (const GLfloat *)data);
-			break;
-		case ShaderPropertyTypeVector3:
-			GL::ProgramUniform3fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
-			break;
-		case ShaderPropertyTypeVector4:
-			GL::ProgramUniform4fv(program_, uniform->location, uniform->size, (const GLfloat *)data);
-			break;
-		default:
-			Debug::LogError("unable to set uniform (type 0x%x).", uniform->type);
-			break;
+	SetUniform(uniform->location, uniform->type, uniform->size, data);
+}
+
+void Pass::SetUniform(GLuint location, VariantType type, uint size, const void* data) {
+	switch (type) {
+	case VariantTypeInt:
+	case VariantTypeBool:
+		GL::ProgramUniform1iv(program_, location, size, (const GLint *)data);
+		break;
+	case VariantTypeFloat:
+		GL::ProgramUniform1fv(program_, location, size, (const GLfloat *)data);
+		break;
+	case VariantTypeMatrix4:
+	case VariantTypeMatrix4Array:
+		GL::ProgramUniformMatrix4fv(program_, location, size, false, (const GLfloat*)data);
+		break;
+	case VariantTypeVector3:
+		GL::ProgramUniform3fv(program_, location, size, (const GLfloat *)data);
+		break;
+	case VariantTypeVector4:
+		GL::ProgramUniform4fv(program_, location, size, (const GLfloat *)data);
+		break;
+	default:
+		Debug::LogError("unable to set uniform (type 0x%x).", type);
+		break;
 	}
 }
 
@@ -278,8 +510,8 @@ bool Pass::IsSampler(int type) {
 	return false;
 }
 
-
-SubShader::SubShader() : passes_(nullptr), passCount_(0), tags_(nullptr), tagCount_(0) {
+SubShader::SubShader() : passes_(nullptr), passCount_(0)
+	, currentPass_(UINT_MAX), tags_(nullptr), tagCount_(0) {
 }
 
 SubShader::~SubShader() {
@@ -292,7 +524,7 @@ bool SubShader::Initialize(const Semantics::SubShader& config, const std::string
 
 	InitializeTags(config.tags);
 
-	passCount_ = config.tags.size();
+	passCount_ = config.passes.size();
 	passes_ = MEMORY_CREATE_ARRAY(Pass, config.passes.size());
 
 	for (uint i = 0; i < passCount_; ++i) {
@@ -300,6 +532,35 @@ bool SubShader::Initialize(const Semantics::SubShader& config, const std::string
 	}
 
 	return true;
+}
+
+void SubShader::Bind(uint pass) {
+	if (pass > passCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	passes_[pass].Bind();
+	currentPass_ = pass;
+}
+
+void SubShader::Unbind() {
+	if (currentPass_ > passCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	passes_[currentPass_].Unbind();
+	currentPass_ = UINT_MAX;
+}
+
+Pass* SubShader::GetPass(uint pass) {
+	if (pass > passCount_) {
+		Debug::LogError("index out of range.");
+		return nullptr;
+	}
+
+	return passes_ + pass;
 }
 
 void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
@@ -314,28 +575,27 @@ void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
 }
 
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)
-	, subShaderCount_(0), subShaders_(nullptr) {
+	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
-	MEMORY_RELEASE(subShaders_);
+	MEMORY_RELEASE_ARRAY(subShaders_);
 }
 
 bool ShaderInternal::Load(const std::string& path) {
-	ShaderParser parser;
-	std::string sources[ShaderStageCount];
-
 	Semantics semantics;
-	if (!parser.Parse(semantics, "resources/demo.js"/*path + GLSL_POSTFIX*/, "")) {
+	ShaderParser parser;
+	if (!parser.Parse(semantics, path + GLSL_POSTFIX, "")) {
 		return false;
 	}
 
 	ParseProperties(semantics.properties);
 	ParseSubShaders(semantics.subShaders, path);
+
 	return true;
 }
 
-void ShaderInternal::ParseProperties(std::vector<Semantics::Property>& properties) {
+void ShaderInternal::ParseProperties(std::vector<Property>& properties) {
 	properties_ = properties;
 }
 
@@ -347,28 +607,35 @@ void ShaderInternal::ParseSubShaders(std::vector<Semantics::SubShader>& subShade
 	}
 }
 
-void ShaderInternal::Bind(uint pass) {
-// 	currentPass_ = pass;
-// 	passes_[pass]->Bind();
+void ShaderInternal::Bind(uint subShader, uint pass) {
+	if (subShader > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	subShaders_[subShader].Bind(pass);
+	currentSubShader_ = subShader;
 }
 
 void ShaderInternal::Unbind() {
-//	passes_[currentPass_]->Unbind();
+	if (currentSubShader_ > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	subShaders_[currentSubShader_].Unbind();
+	currentSubShader_ = UINT_MAX;
 }
 
-bool ShaderInternal::SetProperty(const std::string& name, const void* data) {
-// 	Uniform* uniform = nullptr;
-// 	if (!uniforms_.get(name, uniform)) {
-// 		return false;
-// 	}
-// 
-// 	SetUniform(uniform, data);
-	return true;
+void ShaderInternal::GetProperties(std::vector<Property>& properties) {
+	properties = properties_;
 }
 
-void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
-// 	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
-// 		ShaderProperty property{ ite->first, ite->second->type };
-// 		properties.push_back(property);
-// 	}
+bool ShaderInternal::SetProperty(uint subShader, uint pass, const std::string& name, const void* data) {
+	if (subShader > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return false;
+	}
+
+	return subShaders_[subShader].GetPass(pass)->SetProperty(name, data);
 }

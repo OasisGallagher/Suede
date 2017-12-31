@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "object.h"
-#include "memory.h"
 #include "debug/debug.h"
+#include "memory/memory.h"
 
 class Factory {
 	typedef Object (*FactoryMethod)();

@@ -28,6 +28,24 @@
     <Filter Include="tools\src">
       <UniqueIdentifier>{80701aeb-887a-45d5-9262-b16ba119d2cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="containers">
+      <UniqueIdentifier>{e81024b3-0fc1-4ba9-a4aa-28f37d6645d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="containers\include">
+      <UniqueIdentifier>{deba0ea3-4f1d-4ea2-87af-7bc84fd220b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="containers\src">
+      <UniqueIdentifier>{ab32e6e1-e9da-4241-b85c-872cae79e8ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="memory">
+      <UniqueIdentifier>{b1503456-2b23-4217-accc-7d43af140a5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="memory\include">
+      <UniqueIdentifier>{976249db-71ed-4503-b6a0-af7b84cc6e3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="memory\src">
+      <UniqueIdentifier>{44c4932f-a551-4d7f-95ca-f9d6cdd85d0c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug\debug.h">
@@ -48,6 +66,24 @@
     <ClInclude Include="tools\file.h">
       <Filter>tools\include</Filter>
     </ClInclude>
+    <ClInclude Include="containers\freelist.h">
+      <Filter>containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\ptrmap.h">
+      <Filter>containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\sortedvector.h">
+      <Filter>containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\table.h">
+      <Filter>containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\refcount.h">
+      <Filter>memory\include</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\memory.h">
+      <Filter>memory\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">
@@ -67,6 +103,12 @@
     </ClCompile>
     <ClCompile Include="tools\file.cpp">
       <Filter>tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="memory\memory.cpp">
+      <Filter>memory\src</Filter>
+    </ClCompile>
+    <ClCompile Include="memory\refcount.cpp">
+      <Filter>memory\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 #include "debug/debug.h"
+#include "memory/memory.h"
 #include "vertexarrayobject.h"
-#include "internal/memory/memory.h"
 
 VertexArrayObject::VertexArrayObject() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)

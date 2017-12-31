@@ -105,6 +105,8 @@ std::string String::Trim(const std::string& text) {
 }
 
 void String::Split(std::vector<std::string>& answer, const std::string& str, char seperator) {
+	if (str.empty()) { return; }
+
 	size_t from = 0, pos;
 	do {
 		pos = str.find(seperator, from);

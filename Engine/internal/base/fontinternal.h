@@ -2,8 +2,8 @@
 
 #include "font.h"
 #include "objectinternal.h"
+#include "containers/ptrmap.h"
 #include "internal/file/image.h"
-#include "internal/containers/ptrmap.h"
 
 #define DECL_FT_TYPE(T)	typedef struct T ## Rec_* T;
 

@@ -80,6 +80,8 @@ public:
 	virtual Texture2D Capture();
 
 private:
+	void RestoreRenderStates();
+
 	void InitializeVariables();
 	void CreateFramebuffers();
 	void CreateDepthMaterial();

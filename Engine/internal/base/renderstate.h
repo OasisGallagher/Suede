@@ -10,6 +10,7 @@ public:
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
 	virtual RenderState* Clone() = 0;
+	virtual RenderStateType GetType() const = 0;
 
 protected:
 	void Enable(GLenum cap, GLboolean enable);
@@ -23,7 +24,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-
+	virtual RenderStateType GetType() const { return Cull; }
 private:
 	int oldMode_;
 	GLboolean oldEnabled_;
@@ -36,6 +37,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return DepthTest; }
 
 private:
 	GLenum oldMode_;
@@ -49,6 +51,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return DepthWrite; }
 
 private:
 	GLint oldMask_;
@@ -61,6 +64,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return StencilTest; }
 
 private:
 	GLint oldRef_;
@@ -80,6 +84,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return StencilMask; }
 
 private:
 	GLuint oldBackMask_;
@@ -95,6 +100,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return StencilOp; }
 
 private:
 	GLenum oldSfail_;
@@ -112,6 +118,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return RasterizerDiscard; }
 
 private:
 	GLboolean oldEnabled_;
@@ -124,6 +131,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return Blend; }
 
 private:
 	GLboolean oldEnabled_;

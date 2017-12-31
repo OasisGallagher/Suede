@@ -2,12 +2,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "variant.h"
 #include "variables.h"
 #include "animation.h"
 #include "glsldefines.h"
-#include "internal/containers/variant.h"
+#include "containers/sortedvector.h"
 #include "internal/base/objectinternal.h"
-#include "internal/containers/sortedvector.h"
 
 class SkeletonInternal : public ISkeleton, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Skeleton)

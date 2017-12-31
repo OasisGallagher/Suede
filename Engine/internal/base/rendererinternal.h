@@ -36,6 +36,9 @@ protected:
 private:
 	virtual void RenderMesh(Mesh mesh);
 
+	void RenderMesh(Mesh mesh, Material material, int pass);
+	void RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass);
+
 private:
 	uint queue_;
 	std::vector<Material> materials_;

@@ -1,11 +1,8 @@
 #pragma once
 
 #include "material.h"
-#include "internal/containers/ptrmap.h"
-#include "internal/containers/variant.h"
+#include "containers/ptrmap.h"
 #include "internal/base/objectinternal.h"
-
-class RenderState;
 
 class MaterialInternal : public IMaterial, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Material)
@@ -19,13 +16,15 @@ public:
 	virtual void SetShader(Shader value);
 	virtual Shader GetShader() { return shader_; }
 
-	virtual void Bind();
+	virtual void SetPass(int value) { pass_ = value; }
+	virtual int GetPass() const { return pass_; }
+	virtual uint GetPassCount() const;
+
+	virtual void Bind(uint pass);
 	virtual void Unbind();
 
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
-
-	virtual void SetRenderState(RenderStateType type, int parameter0, int parameter1, int parameter2);
 
 	virtual void SetInt(const std::string& name, int value);
 	virtual void SetFloat(const std::string& name, float value);
@@ -43,18 +42,18 @@ public:
 	virtual glm::vec4 GetVector4(const std::string& name);
 
 private:
-	void BindProperties();
+	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void BindRenderStates();
-	void UnbindRenderStates();
+	void AddBuildinProperties();
 
-	Variant* GetProperty(const std::string& name, VariantType type);
+	// TODO: interface.
+	Variant* GetProperty(const std::string& name, VariantType type, bool* newItem = nullptr);
 
 private:
+	int pass_;
 	Shader shader_;
-	int oldProgram_;
-	RenderState* states_[RenderStateCount];
+	uint textureIndex_;
 	typedef PtrMap<std::string, Variant> PropertyContainer;
 	PropertyContainer properties_;
 };

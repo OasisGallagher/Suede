@@ -1,4 +1,4 @@
-#shader vertex
+#stage vertex
 
 in vec3 c_position;
 in vec2 c_texCoord;
@@ -22,7 +22,7 @@ void main() {
 	vo.worldNormal = m * c_normal;
 }
 
-#shader fragment
+#stage fragment
 
 in VertOut {
 	in	vec3 worldPos;

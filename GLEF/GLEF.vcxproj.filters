@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="scanner">
+      <UniqueIdentifier>{15e7854f-fbd0-454f-b8ac-a663bdf9415d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser">
+      <UniqueIdentifier>{bed9a7d7-b6ed-4cc1-84bd-f2b039c9d83b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser\include">
+      <UniqueIdentifier>{2ae6e0d8-e830-4a7c-8546-accb92515856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scanner\include">
+      <UniqueIdentifier>{a38cdc06-096e-479d-a5b9-ba71d616c8ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scanner\src">
+      <UniqueIdentifier>{e0048f5f-8a47-4e23-a89e-81f3831ad958}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{ebd95411-c677-423c-86eb-995e850a87a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{e093544b-f531-469b-8887-a1ce0e930567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serializer">
+      <UniqueIdentifier>{2ceb7306-1c56-413f-892e-b5786c9ed69e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serializer\include">
+      <UniqueIdentifier>{57fb75a5-bdf6-4d8c-9a73-56af924bf423}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serializer\src">
+      <UniqueIdentifier>{0e737f8c-73ea-47fc-8093-d0403b4d4b4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grammar">
+      <UniqueIdentifier>{1d10426d-c2cf-4e6d-8473-1aa2cda7bd6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grammar\include">
+      <UniqueIdentifier>{15c545d4-f187-4c63-8027-8b772da70a8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="grammar\src">
+      <UniqueIdentifier>{2aeca2b0-5938-45a2-b0ae-531569b1d35f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="parser\src">
+      <UniqueIdentifier>{0538c781-feb7-4bce-9b34-2a606ca8afb7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="parser\lalr.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lr0.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lr1.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\parser.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\syntaxer.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="scanner\scanner.h">
+      <Filter>scanner\include</Filter>
+    </ClInclude>
+    <ClInclude Include="scanner\tokens.h">
+      <Filter>scanner\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\language.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\syntaxtree.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lrimpl.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lrparser.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="parser\lrtable.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="scanner\tokendefine.h">
+      <Filter>scanner\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\slex.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\slexdefines.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\slexgrammar.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="serializer\serializer.h">
+      <Filter>serializer\include</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar\action.h">
+      <Filter>grammar\include</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar\grammar.h">
+      <Filter>grammar\include</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar\grammarsymbol.h">
+      <Filter>grammar\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="parser\lalr.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lr0.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lr1.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\parser.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\syntaxer.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner\tokens.cpp">
+      <Filter>scanner\src</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner\scanner.cpp">
+      <Filter>scanner\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\language.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lrimpl.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lrparser.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\lrtable.cpp">
+      <Filter>parser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\syntaxtree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glef.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="serializer\serializer.cpp">
+      <Filter>serializer\src</Filter>
+    </ClCompile>
+    <ClCompile Include="grammar\grammar.cpp">
+      <Filter>grammar\src</Filter>
+    </ClCompile>
+    <ClCompile Include="grammar\action.cpp">
+      <Filter>grammar\src</Filter>
+    </ClCompile>
+    <ClCompile Include="grammar\grammarsymbol.cpp">
+      <Filter>grammar\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
