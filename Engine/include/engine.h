@@ -9,4 +9,7 @@ public:
 
 	static void Update();
 	static void Resize(int w, int h);
+
+private:
+	static void SetDefaultRenderStates();
 };

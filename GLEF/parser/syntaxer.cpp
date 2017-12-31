@@ -193,25 +193,25 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 		answer = NativeSymbols::integer;
 		// TODO: set ?
 		IntegerTable::ib_pair p = integerTable_->insert(token.tokenText);
+		addr = p.first->second;
 		if (p.second) {
 			p.first->second->SetText(token.tokenText);
-			addr = p.first->second;
 		}
 	}
 	else if (token.tokenType == ScannerTokenString) {
 		answer = NativeSymbols::string;
 		LiteralTable::ib_pair p = literalTable_->insert(token.tokenText);
+		addr = p.first->second;
 		if (p.second) {
 			p.first->second->SetText(token.tokenText);
-			addr = p.first->second;
 		}
 	}
 	else if (token.tokenType == ScannerTokenCode) {
 		answer = NativeSymbols::code;
 		CodeTable::ib_pair p = codeTable_->insert(token.tokenText);
+		addr = p.first->second;
 		if (p.second) {
 			p.first->second->SetText(token.tokenText);
-			addr = p.first->second;
 		}
 	}
 	else {
@@ -222,9 +222,9 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 		else {
 			answer = NativeSymbols::identifier;
 			SymTable::ib_pair p = symTable_->insert(token.tokenText);
+			addr = p.first->second;
 			if (p.second) {
 				p.first->second->SetText(token.tokenText);
-				addr = p.first->second;
 			}
 		}
 	}

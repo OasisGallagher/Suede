@@ -35,6 +35,8 @@ bool Engine::Initialize() {
 		GL::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
 
+	SetDefaultRenderStates();
+
 	Resources::Import();
 	return true;
 }
@@ -51,6 +53,16 @@ void Engine::Resize(int w, int h) {
 void Engine::Update() {
 	Time::Update();
 	WorldInstance()->Update();
+}
+
+void Engine::SetDefaultRenderStates() {
+	GL::Enable(GL_DEPTH_TEST);
+	GL::DepthFunc(GL_LEQUAL);
+
+	GL::Enable(GL_CULL_FACE);
+	GL::CullFace(GL_BACK);
+
+	GL::DepthMask(GL_TRUE);
 }
 
 static void _STDCALL GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const GLvoid* userParam) {

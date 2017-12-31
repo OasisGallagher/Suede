@@ -28,12 +28,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="grammar\action.h" />
+    <ClInclude Include="grammar\glefgrammar.h" />
     <ClInclude Include="grammar\grammar.h" />
     <ClInclude Include="grammar\grammarsymbol.h" />
     <ClInclude Include="include\language.h" />
     <ClInclude Include="include\slex.h" />
     <ClInclude Include="include\slexdefines.h" />
-    <ClInclude Include="include\slexgrammar.h" />
     <ClInclude Include="include\syntaxtree.h" />
     <ClInclude Include="parser\lalr.h" />
     <ClInclude Include="parser\lr0.h" />

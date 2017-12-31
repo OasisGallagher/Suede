@@ -91,8 +91,6 @@ void CameraInternal::Render() {
 	if (!GetRenderableSprites(sprites)) {
 		return;
 	}
-	
-	RestoreRenderStates();
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
@@ -209,10 +207,6 @@ Texture2D CameraInternal::Capture() {
 	texture->Load(&data[0], ColorFormatRgb, Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	return texture;
-}
-
-void CameraInternal::RestoreRenderStates() {
-
 }
 
 void CameraInternal::InitializeVariables() {

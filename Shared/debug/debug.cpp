@@ -37,7 +37,6 @@ void Debug::LogError(const char* format, ...) {
 	}
 }
 
-
 void Debug::StartSample(const char* text) {
 	clock_t now = clock();
 	samples.push(std::to_string(now) + "#" + text);

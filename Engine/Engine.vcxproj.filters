@@ -223,9 +223,6 @@
     <ClInclude Include="internal\base\gbuffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\file\lr_grammar.h">
-      <Filter>internal\file\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\file\shaderparser.h">
       <Filter>internal\file\include</Filter>
     </ClInclude>

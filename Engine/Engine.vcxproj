@@ -228,7 +228,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\containers\sortedvector.h" />
     <ClInclude Include="internal\containers\variant.h" />
     <ClInclude Include="internal\file\image.h" />
-    <ClInclude Include="internal\file\lr_grammar.h" />
     <ClInclude Include="internal\file\shaderparser.h" />
     <ClInclude Include="internal\file\assetimporter.h" />
     <ClInclude Include="internal\memory\factory.h" />

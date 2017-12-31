@@ -90,9 +90,6 @@
     <ClInclude Include="include\slexdefines.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\slexgrammar.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="serializer\serializer.h">
       <Filter>serializer\include</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
       <Filter>grammar\include</Filter>
     </ClInclude>
     <ClInclude Include="grammar\grammarsymbol.h">
+      <Filter>grammar\include</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar\glefgrammar.h">
       <Filter>grammar\include</Filter>
     </ClInclude>
   </ItemGroup>
