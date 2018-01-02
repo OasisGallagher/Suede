@@ -394,20 +394,20 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\buildin\shaders\blit.glsl" />
+    <None Include="resources\buildin\shaders\blit.shader" />
     <None Include="resources\buildin\shaders\depth.shader" />
     <None Include="resources\buildin\shaders\directional_light_depth.shader" />
-    <None Include="resources\buildin\shaders\gbuffer.glsl" />
+    <None Include="resources\buildin\shaders\gbuffer.shader" />
     <None Include="resources\buildin\shaders\include\light_vertex.inc" />
-    <None Include="resources\buildin\shaders\lit_animated_texture.glsl" />
-    <None Include="resources\buildin\shaders\lit_bumped_texture.glsl" />
+    <None Include="resources\buildin\shaders\lit_animated_texture.shader" />
+    <None Include="resources\buildin\shaders\lit_bumped_texture.shader" />
     <None Include="resources\buildin\shaders\lit_texture.shader" />
-    <None Include="resources\buildin\shaders\particle.glsl" />
-    <None Include="resources\buildin\shaders\skybox.glsl" />
+    <None Include="resources\buildin\shaders\particle.shader" />
+    <None Include="resources\buildin\shaders\skybox.shader" />
     <None Include="resources\buildin\shaders\unlit_texture.shader" />
-    <None Include="resources\shaders\grayscale.glsl" />
+    <None Include="resources\shaders\grayscale.shader" />
     <None Include="resources\shaders\include\post_effect_vertex.inc" />
-    <None Include="resources\shaders\inversion.glsl" />
+    <None Include="resources\shaders\inversion.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

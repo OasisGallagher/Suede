@@ -25,6 +25,8 @@ Object MaterialInternal::Clone() {
 void MaterialInternal::SetShader(Shader value) {
 	if (shader_) {
 		UnbindProperties();
+		textureIndex_ = 0;
+		properties_.clear();
 	}
 
 	shader_ = value;

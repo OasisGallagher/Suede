@@ -192,35 +192,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\buildin\shaders\skybox.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\blit.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\shaders\grayscale.glsl">
-      <Filter>resources\shaders</Filter>
-    </None>
-    <None Include="resources\shaders\inversion.glsl">
-      <Filter>resources\shaders</Filter>
-    </None>
     <None Include="resources\buildin\shaders\include\light_vertex.inc">
       <Filter>resources\buildin\shaders\include</Filter>
     </None>
     <None Include="resources\shaders\include\post_effect_vertex.inc">
       <Filter>resources\shaders\include</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\lit_animated_texture.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\lit_bumped_texture.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\particle.glsl">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\gbuffer.glsl">
-      <Filter>resources\buildin\shaders</Filter>
     </None>
     <None Include="resources\buildin\shaders\lit_texture.shader">
       <Filter>resources\buildin\shaders</Filter>
@@ -232,6 +208,30 @@
       <Filter>resources\buildin\shaders</Filter>
     </None>
     <None Include="resources\buildin\shaders\unlit_texture.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\shaders\grayscale.shader">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="resources\shaders\inversion.shader">
+      <Filter>resources\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\blit.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\gbuffer.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\particle.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\skybox.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\lit_animated_texture.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
+    <None Include="resources\buildin\shaders\lit_bumped_texture.shader">
       <Filter>resources\buildin\shaders</Filter>
     </None>
   </ItemGroup>

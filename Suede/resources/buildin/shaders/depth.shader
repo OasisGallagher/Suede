@@ -2,6 +2,9 @@ Properties { }
 
 SubShader {
 	Pass {
+		Cull Back;
+		DepthWrite On;
+		DepthTest LessEqual;
 
 		GLSLPROGRAM
 		#stage vertex

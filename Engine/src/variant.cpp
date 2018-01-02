@@ -238,7 +238,8 @@ Variant& Variant::operator = (const Variant& other) {
 		MEMORY_RELEASE_ARRAY(data_.podArray.ptr);
 	}
 
-	return *this = other;
+	memcpy(this, &other, sizeof(other));
+	return *this;
 }
 
 bool Variant::SetType(VariantType type) {

@@ -341,8 +341,7 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 		shaderName = "lit_animated_texture";
 	}
 
-	//material->SetRenderState(Cull, attribute.twoSided ? Off : Back);
-	//material->SetRenderState(DepthTest, LessEqual);
+	// TODO: two sided.
 
 	Shader shader = Resources::FindShader("buildin/shaders/" + shaderName);
 	material->SetShader(shader);
@@ -353,11 +352,25 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 	material->SetVector3(Variables::specularColor, attribute.specularColor);
 	material->SetVector3(Variables::emissiveColor, attribute.emissiveColor);
 
-	material->SetTexture(Variables::mainTexture, attribute.mainTexture);
-	material->SetTexture(Variables::bumpTexture, attribute.bumpTexture);
-	material->SetTexture(Variables::specularTexture, attribute.specularTexture);
-	material->SetTexture(Variables::emissiveTexture, attribute.emissiveTexture);
-	material->SetTexture(Variables::lightmapTexture, attribute.lightmapTexture);
+	if (attribute.mainTexture) {
+		material->SetTexture(Variables::mainTexture, attribute.mainTexture);
+	}
+
+	if (attribute.bumpTexture) {
+		material->SetTexture(Variables::bumpTexture, attribute.bumpTexture);
+	}
+
+	if (attribute.specularTexture) {
+		material->SetTexture(Variables::specularTexture, attribute.specularTexture);
+	}
+
+	if (attribute.emissiveTexture) {
+		material->SetTexture(Variables::emissiveTexture, attribute.emissiveTexture);
+	}
+
+	if (attribute.lightmapTexture) {
+		material->SetTexture(Variables::lightmapTexture, attribute.lightmapTexture);
+	}
 
 	return true;
 }

@@ -7,14 +7,14 @@ SubShader {
 
 		GLSLPROGRAM
 
-		varying vec2 texCoord;
-		varying vec3 worldPos;
-		varying vec3 normal;
-
 		#stage vertex
 		in vec3 c_position;
 		in vec2 c_texCoord;
 		in vec3 c_normal;
+		
+		out vec2 texCoord;
+		out vec3 worldPos;
+		out vec3 normal;
 
 		#include "buildin/shaders/include/light_vertex.inc"
 
@@ -34,6 +34,10 @@ SubShader {
 
 		#stage fragment
 		out vec4 fragColor;
+		
+		in vec2 texCoord;
+		in vec3 worldPos;
+		in vec3 normal;
 
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
@@ -55,14 +59,14 @@ SubShader {
 
 		GLSLPROGRAM
 
-		varying vec2 texCoord;
-		varying vec3 worldPos;
-		varying vec3 normal;
-
 		#stage vertex
 		in vec3 c_position;
 		in vec2 c_texCoord;
 		in vec3 c_normal;
+
+		out vec2 texCoord;
+		out vec3 worldPos;
+		out vec3 normal;
 
 		#include "buildin/shaders/include/light_vertex.inc"
 
@@ -82,6 +86,10 @@ SubShader {
 
 		#stage fragment
 		out vec4 fragColor;
+
+		in vec2 texCoord;
+		in vec3 worldPos;
+		in vec3 normal;
 
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;

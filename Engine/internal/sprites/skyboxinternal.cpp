@@ -27,10 +27,7 @@ bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 	Renderer renderer = FindChild("defaultobject")->GetRenderer();
 	Material material = renderer->GetMaterial(0);
 	renderer->SetRenderQueue(RenderQueueBackground);
-	/*
-	material->SetRenderState(Cull, Front);
-	material->SetRenderState(DepthTest, LessEqual);
-	*/
+	
 	material->SetShader(shader);
 	material->SetTexture(Variables::mainTexture, texture);
 	

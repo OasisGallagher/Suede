@@ -2,7 +2,7 @@ Properties { }
 
 SubShader {
 	Pass {
-		Cull Back;
+		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
 

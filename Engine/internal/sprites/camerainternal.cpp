@@ -154,12 +154,6 @@ void CameraInternal::InitializeDeferredRender() {
 	Shader shader = NewShader();
 	shader->Load("buildin/shaders/gbuffer");
 	deferredMaterial_->SetShader(shader);
-	/*
-	deferredMaterial_->SetRenderState(Cull, Back);
-	deferredMaterial_->SetRenderState(DepthTest, LessEqual);
-	deferredMaterial_->SetRenderState(DepthWrite, On);
-	deferredMaterial_->SetRenderState(Blend, Off);
-	*/
 }
 
 void CameraInternal::RenderDeferredGeometryPass(const std::vector<Sprite>& sprites) {
@@ -241,20 +235,12 @@ void CameraInternal::CreateDepthMaterial() {
 
 	depthMaterial_ = NewMaterial();
 	depthMaterial_->SetShader(shader);
-	/*
-	depthMaterial_->SetRenderState(Cull, Back);
-	depthMaterial_->SetRenderState(DepthWrite, On);
-	depthMaterial_->SetRenderState(DepthTest, LessEqual);
-	*/
 }
 
 void CameraInternal::CreateShadowMaterial() {
 	Shader shader = Resources::FindShader("buildin/shaders/directional_light_depth");
 	directionalLightShadowMaterial_ = NewMaterial();
 	directionalLightShadowMaterial_->SetShader(shader);
-	//directionalLightShadowMaterial_->SetRenderState(Cull, Back);
-	//directionalLightShadowMaterial_->SetRenderState(DepthWrite, On);
-	//directionalLightShadowMaterial_->SetRenderState(DepthTest, LessEqual);
 }
 
 void CameraInternal::UpdateSkybox() {

@@ -23,7 +23,6 @@ FontInternal::FontInternal()
 
 	// TODO: set color for material instace, not shared.
 	material_->SetVector4(Variables::mainColor, glm::vec4(1));
-//	material_->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
 }
 
 FontInternal::~FontInternal() {

@@ -141,7 +141,6 @@ ParticleRendererInternal::ParticleRendererInternal()
 }
 
 void ParticleRendererInternal::AddMaterial(Material material) {
-//	material->SetRenderState(Blend, SrcAlpha, OneMinusSrcAlpha);
 	RendererInternal::AddMaterial(material);
 }
 
