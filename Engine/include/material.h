@@ -5,57 +5,6 @@
 #include "shader.h"
 #include "texture.h"
 
-enum RenderStateType {
-	Cull,
-	Blend,
-	RasterizerDiscard,
-
-	DepthTest,
-	DepthWrite,
-
-	StencilOp,
-	StencilTest,
-	StencilMask,
-
-	RenderStateCount,
-};
-
-enum {
-	None,
-	Front,
-	Back,
-	FrontAndBack,
-
-	On,
-	Off,
-
-	Never,
-	Less,
-	LessEqual,
-	Equal,
-	Greater,
-	NotEqual,
-	GreaterEqual,
-	Always,
-
-	Zero,
-	One,
-	SrcColor,
-	OneMinusSrcColor,
-	SrcAlpha,
-	OneMinusSrcAlpha,
-	DestAlpha,
-	OneMinusDestAlpha,
-
-	Keep,
-	Replace,
-	Incr,
-	IncrWrap,
-	Decr,
-	DecrWrap,
-	Invert,
-};
-
 class SUEDE_API IMaterial : virtual public IObject {
 public:
 	virtual void Bind(uint pass) = 0;

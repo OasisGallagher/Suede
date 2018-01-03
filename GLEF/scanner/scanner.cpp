@@ -275,7 +275,13 @@ bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 		}
 
 		++lineno_;
-		if (String::IsBlankText(line.c_str())) {
+
+		const char* nonBlankPtr = nullptr;
+		if (String::IsBlankText(line.c_str(), &nonBlankPtr)) {
+			continue;
+		}
+
+		if (String::StartsWith(nonBlankPtr, "//")) {
 			continue;
 		}
 

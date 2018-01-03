@@ -3,11 +3,10 @@
 #include <wrappers/gl.h>
 
 #include "shader.h"
+#include "renderstate.h"
 #include "containers/ptrmap.h"
 #include "internal/file/shaderparser.h"
 #include "internal/base/objectinternal.h"
-
-class RenderState;
 
 class Pass {
 public:
@@ -93,6 +92,8 @@ public:
 
 private:
 	void InitializeTags(const std::vector<Semantics::Tag>& tags);
+	void InitializeTag(const Semantics::Tag& tag, uint i);
+	uint ParseExpression(TagKey key, const std::string& expression);
 
 private:
 	Pass* passes_;

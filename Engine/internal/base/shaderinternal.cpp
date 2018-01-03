@@ -1,7 +1,6 @@
 #include "variables.h"
 #include "tools/path.h"
 #include "debug/debug.h"
-#include "renderstate.h"
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "shaderinternal.h"
@@ -520,6 +519,7 @@ SubShader::~SubShader() {
 }
 
 bool SubShader::Initialize(const Semantics::SubShader& config, const std::string& path) {
+	tagCount_ = config.tags.size();
 	tags_ = MEMORY_CREATE_ARRAY(Tag, config.tags.size());
 
 	InitializeTags(config.tags);
@@ -565,13 +565,52 @@ Pass* SubShader::GetPass(uint pass) {
 
 void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
 	for (uint i = 0; i < tagCount_; ++i) {
-		if (tags[i].key == "Queue") {
-			tags_[i].key = TagKeyQueue;
-		}
-		else {
-			Debug::LogError("invalid key %s", tags[i].key.c_str());
-		}
+		InitializeTag(tags[i], i);
 	}
+}
+
+void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
+	if (tag.key == "Queue") {
+		tags_[i].key = TagKeyQueue;
+		tags_[i].value = ParseExpression(tags_[i].key, tag.value);
+	}
+	else {
+		Debug::LogError("invalid tag key %s",  tag.key.c_str());
+	}
+}
+
+uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
+	if (key == TagKeyQueue) {
+		// TODO: parse expression.
+		std::vector<std::string> arguments;
+		String::Split(arguments, expression, '+');
+		if (arguments.empty() || arguments.size() > 2) {
+			return RenderQueueGeometry;
+		}
+
+		int queue = RenderQueueGeometry;
+
+		arguments[0] = String::Trim(arguments[0]);
+
+		if (arguments[0] == "Background") {
+			queue = RenderQueueBackground;
+		}
+		else if (arguments[0] == "Geometry") {
+			queue = RenderQueueGeometry;
+		}
+		else if (arguments[0] == "Transparent") {
+			queue = RenderQueueTransparent;
+		}
+
+		if (arguments.size() == 2) {
+			queue += String::ToInteger(arguments[1]);
+		}
+
+		return queue;
+	}
+
+	Debug::LogError("invalid tag key %d.", key);
+	return 0;
 }
 
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)

@@ -3,6 +3,64 @@
 
 #include "renderer.h"
 
+enum RenderStateType {
+	Cull,
+	Blend,
+	RasterizerDiscard,
+
+	DepthTest,
+	DepthWrite,
+
+	StencilOp,
+	StencilTest,
+	StencilMask,
+
+	RenderStateCount,
+};
+
+class RenderStateParameter {
+	struct Parameter {
+		int value;
+		const char* text;
+	};
+};
+
+enum {
+	None,
+	Front,
+	Back,
+	FrontAndBack,
+
+	On,
+	Off,
+
+	Never,
+	Less,
+	LessEqual,
+	Equal,
+	Greater,
+	NotEqual,
+	GreaterEqual,
+	Always,
+
+	Zero,
+	One,
+	SrcColor,
+	OneMinusSrcColor,
+	SrcAlpha,
+	OneMinusSrcAlpha,
+	DestAlpha,
+	OneMinusDestAlpha,
+
+	Keep,
+	Replace,
+	Incr,
+	IncrWrap,
+	Decr,
+	DecrWrap,
+	Invert,
+};
+
 class RenderState {
 public:
 	virtual ~RenderState() {}

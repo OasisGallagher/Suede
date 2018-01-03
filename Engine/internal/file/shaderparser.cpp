@@ -314,8 +314,14 @@ void ShaderParser::ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags)
 }
 
 void ShaderParser::ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags) {
-	if (node->GetChild(0) != nullptr) {
-		ReadTags(node->GetChild(0), tags);
+	SyntaxNode* c0 = node->GetChild(0);
+	if (c0 == nullptr) { return; }
+
+	if (c0->ToString() == "Tags") {
+		ReadTags(c0, tags);
+	}
+	else {
+		ReadTag(c0, Allocate(tags));
 	}
 }
 
