@@ -45,6 +45,20 @@ bool String::ToInteger(const std::string& str, int* integer) {
 	return (*p == 0);
 }
 
+bool String::ToFloat(const std::string& str, float* single) {
+	if (str.empty() || ((!IsDigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
+		return false;
+	}
+
+	char* p = nullptr;
+	float ans = strtof(str.c_str(), &p);
+	if (single != nullptr) {
+		*single = ans;
+	}
+
+	return (*p == 0 || *p == 'f' || *p == 'F');
+}
+
 float String::ToFloat(const std::string& str) {
 	return std::stof(str);
 }

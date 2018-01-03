@@ -444,6 +444,7 @@ void Pass::SetUniform(GLuint location, VariantType type, uint size, const void* 
 	switch (type) {
 	case VariantTypeInt:
 	case VariantTypeBool:
+	case VariantTypeTexture:
 		GL::ProgramUniform1iv(program_, location, size, (const GLint *)data);
 		break;
 	case VariantTypeFloat:

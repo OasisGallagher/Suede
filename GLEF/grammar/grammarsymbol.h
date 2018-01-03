@@ -99,6 +99,7 @@ public:
 	static GrammarSymbol zero;
 	static GrammarSymbol code;
 	static GrammarSymbol integer;
+	static GrammarSymbol single;
 	static GrammarSymbol string;
 	static GrammarSymbol unknown;
 	static GrammarSymbol epsilon;

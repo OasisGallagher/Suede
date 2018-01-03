@@ -85,6 +85,17 @@ SyntaxNode* ActionInteger::Invoke(const std::vector<void*>& container) {
 	return ans;
 }
 
+std::string ActionSingle::ToString() const {
+	return std::string("$$ = single($") + std::to_string(argument_.parameters.front()) + ")";
+}
+
+SyntaxNode* ActionSingle::Invoke(const std::vector<void*>& container) {
+	Single* single = (Single*)container[container.size() - argument_.parameters.front()];
+	SyntaxNode* ans = new SyntaxNode(SyntaxNodeSingle, single->ToString());
+	ans->SetSingleAddress(single);
+	return ans;
+}
+
 std::string ActionLiteral::ToString() const {
 	return std::string("$$ = literal($") + std::to_string(argument_.parameters.front()) + ")";
 }
@@ -254,6 +265,10 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 		else if (token == "integer") {
 			action = new ActionInteger();
 			argument.text = "integer";
+		}
+		else if (token == "single") {
+			action = new ActionSingle();
+			argument.text = "single";
 		}
 		else if (token == "symbol") {
 			action = new ActionSymbol();

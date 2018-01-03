@@ -100,7 +100,10 @@ private:
 	void ReadTex2(SyntaxNode* node, Property& property);
 	void ReadMat3(SyntaxNode* node, Property& property);
 	void ReadMat4(SyntaxNode* node, Property& property);
-	void ReadFloat(SyntaxNode* node, Property& property);
+	void ReadSingle(SyntaxNode* node, Property& property);
+	void ReadSingle3(SyntaxNode* node, Property& property);
+	void ReadSingle3(glm::vec3& value, SyntaxNode* node);
+	void ReadInteger(SyntaxNode* node, Property& property);
 	void ReadInteger3(SyntaxNode* node, Property& property);
 	void ReadInteger3(glm::ivec3& value, SyntaxNode* node);
 
@@ -112,22 +115,6 @@ private:
 	void ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags);
 	void ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags);
 
-	/**
-	* @param Cull: Front, Back, Off.
-	* @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
-	* @param DepthWrite: On, Off.
-	* @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
-	* @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
-	* @param StencilTest0: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
-	* @param StencilTest1: [0x00, 0xFF].
-	* @param StencilTest2: [0x00, 0xFF].
-	* @param StencilMask0: Front, Back, FrontAndBack.
-	* @param StencilMask1: [0x00, 0xFF].
-	* @param StencilOp0: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
-	* @param StencilOp1: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
-	* @param StencilOp2: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
-	* @param RasterizerDiscard: On, Off
-	*/
 	void ReadRenderState(SyntaxNode* node, Semantics::RenderState& state);
 	void ReadRenderStates(SyntaxNode* node, std::vector<Semantics::RenderState>& states);
 
@@ -140,11 +127,11 @@ private:
 	void ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::Semantics::SubShader>& subShaders);
 
 	template <class Cont>
-	typename Cont::reference Allocate(Cont& cont);
+	typename Cont::reference Append(Cont& cont);
 };
 
 template<class Cont>
-inline typename Cont::reference ShaderParser::Allocate(Cont& cont) {
+inline typename Cont::reference ShaderParser::Append(Cont& cont) {
 	cont.push_back(Cont::value_type());
 	return cont.back();
 }

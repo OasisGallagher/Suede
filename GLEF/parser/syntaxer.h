@@ -17,46 +17,41 @@ class SymTable;
 class CodeTable;
 class LiteralTable;
 class IntegerTable;
+class SingleTable;
 
 struct SyntaxerSetupParameter {
 	Environment* env;
 	LRTable lrTable;
 };
 
-class Sym {
+class SyntaxElement {
 public:
-	void SetText(const std::string& value) { value_ = value; }
-	std::string ToString() const;
+	virtual void SetText(const std::string& value) { value_ = value; }
 
-private:
+public:
+	std::string ToString() const { return value_; }
+
+protected:
 	std::string value_;
 };
 
-class Literal {
-public:
-	void SetText(const std::string& value) { value_ = value; }
-	std::string ToString() const;
-
-private:
-	std::string value_;
+class Sym : public SyntaxElement {
 };
 
-class Code {
-public:
-	void SetText(const std::string& value) { value_ = value; }
-	std::string ToString() const;
-
-private:
-	std::string value_;
+class Literal : public SyntaxElement {
 };
 
-class Integer {
+class Code : public SyntaxElement {
+};
+
+class Integer : public SyntaxElement {
 public:
 	void SetText(const std::string& value);
-	std::string ToString() const;
+};
 
-private:
-	int value_;
+class Single : public SyntaxElement {
+public:
+	void SetText(const std::string& value);
 };
 
 class Syntaxer {
@@ -98,4 +93,5 @@ private:
 	CodeTable* codeTable_;
 	LiteralTable* literalTable_;
 	IntegerTable* integerTable_;
+	SingleTable* singleTable_;
 };

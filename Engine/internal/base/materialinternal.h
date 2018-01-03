@@ -48,12 +48,11 @@ private:
 	void AddBuildinProperties();
 
 	// TODO: interface.
-	Variant* GetProperty(const std::string& name, VariantType type, bool* newItem = nullptr);
+	Variant* GetProperty(const std::string& name, VariantType type);
 
 private:
 	int pass_;
 	Shader shader_;
-	uint textureIndex_;
 	typedef PtrMap<std::string, Variant> PropertyContainer;
 	PropertyContainer properties_;
 };

@@ -13,33 +13,26 @@ class SymTable : public PtrMap<std::string, Sym> { };
 
 class IntegerTable : public PtrMap<std::string, Integer> { };
 
+class SingleTable : public PtrMap<std::string, Single> { };
+
 class LiteralTable : public PtrMap<std::string, Literal> { };
 
 class CodeTable : public PtrMap<std::string, Code> { };
 
-std::string Sym::ToString() const {
-	return value_;
-}
-
 void Integer::SetText(const std::string& text) {
-	int integer = 0;
-	if (!String::ToInteger(text.c_str(), &integer)) {
+	if (!String::ToInteger(text.c_str(), nullptr)) {
 		Debug::LogError("invalid integer %s.", text.c_str());
 	}
 
-	value_ = integer;
+	value_ = text;
 }
 
-std::string Integer::ToString() const {
-	return std::to_string(value_);
-}
+void Single::SetText(const std::string& text) {
+	if (!String::ToFloat(text.c_str(), nullptr)) {
+		Debug::LogError("invalid float %s.", text.c_str());
+	}
 
-std::string Literal::ToString() const {
-	return value_;
-}
-
-std::string Code::ToString() const {
-	return value_;
+	value_ = text;
 }
 
 struct SyntaxerStack {
@@ -58,6 +51,7 @@ Syntaxer::Syntaxer() {
 	codeTable_ = new CodeTable;
 	literalTable_ = new LiteralTable;
 	integerTable_ = new IntegerTable;
+	singleTable_ = new SingleTable;
 }
 
 Syntaxer::~Syntaxer() {
@@ -66,6 +60,7 @@ Syntaxer::~Syntaxer() {
 	delete codeTable_;
 	delete literalTable_;
 	delete integerTable_;
+	delete singleTable_;
 }
 
 void Syntaxer::Setup(const SyntaxerSetupParameter& p) {
@@ -103,6 +98,7 @@ void Syntaxer::Clear() {
 	codeTable_->clear();
 	literalTable_->clear();
 	integerTable_->clear();
+	singleTable_->clear();
 }
 
 int Syntaxer::Reduce(int cpos) {
@@ -193,6 +189,14 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 		answer = NativeSymbols::integer;
 		// TODO: set ?
 		IntegerTable::ib_pair p = integerTable_->insert(token.tokenText);
+		addr = p.first->second;
+		if (p.second) {
+			p.first->second->SetText(token.tokenText);
+		}
+	}
+	else if (token.tokenType == ScannerTokenSingle) {
+		answer = NativeSymbols::single;
+		SingleTable::ib_pair p = singleTable_->insert(token.tokenText);
 		addr = p.first->second;
 		if (p.second) {
 			p.first->second->SetText(token.tokenText);

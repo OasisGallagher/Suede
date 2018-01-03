@@ -8,6 +8,7 @@ enum SyntaxNodeType {
 	SyntaxNodeCode,
 	SyntaxNodeLiteral,
 	SyntaxNodeInteger,
+	SyntaxNodeSingle,
 	SyntaxNodeOperation,
 };
 
@@ -15,6 +16,7 @@ class Sym;
 class Code;
 class Literal;
 class Integer;
+class Single;
 
 class GLEF_API SyntaxNode {
 public:
@@ -35,6 +37,7 @@ public:
 	void SetLiteralAddress(Literal* addr);
 	void SetCodeAddress(Code* addr);
 	void SetIntegerAddress(Integer* addr);
+	void SetSingleAddress(Single* addr);
 
 	const std::string& ToString() const;
 
@@ -51,6 +54,7 @@ private:
 		Code* code;
 		Literal* literal;
 		Integer* integer;
+		Single* single;
 
 		// 子节点, 第一个元素表示子节点个数.
 		SyntaxNode** children;

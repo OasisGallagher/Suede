@@ -15,6 +15,7 @@ enum {
 	DoneState,
 	DecimalState,
 	HexState,
+	SingleState,
 	StringState,
 	StringState2,
 	IdentifierState,
@@ -156,6 +157,19 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			}
 			break;
 
+		case SingleState:
+			if (ch == 'f' || ch == 'F') {
+				state = DoneState;
+				tokenType = ScannerTokenSingle;
+			}
+			else if (!String::IsDigit(ch)) {
+				state = DoneState;
+				tokenType = ScannerTokenSingle;
+				unget = true;
+				savech = false;
+			}
+			break;
+
 		case HexState:
 			if (!String::IsDigit(ch)
 				&& !((ch <= 'f' && ch >= 'a') || (ch <= 'F' && ch >= 'A'))) {
@@ -168,7 +182,14 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 
 		case DecimalState:
 			if (!String::IsDigit(ch)) {
-				if (buffer.length() == 1 && ch == 'x') {
+				if (ch == '.') {
+					state = SingleState;
+				}
+				else if (ch == 'f' || ch == 'F') {
+					state = DoneState;
+					tokenType = ScannerTokenSingle;
+				}
+				else if (buffer.length() == 1 && ch == 'x') {
 					state = HexState;
 				}
 				else {

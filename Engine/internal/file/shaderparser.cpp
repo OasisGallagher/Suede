@@ -181,7 +181,7 @@ bool ShaderParser::ParseSemantics(SyntaxTree& tree, Semantics& semantics) {
 
 	SyntaxNode* c1 = root->GetChild(1);
 	if (c1->ToString() == "SubShader") {
-		ReadSubShaderBlock(c1, Allocate(semantics.subShaders));
+		ReadSubShaderBlock(c1, Append(semantics.subShaders));
 	}
 	else {
 		ReadSubShaderBlocks(c1, semantics.subShaders);
@@ -194,8 +194,28 @@ void ShaderParser::ReadInt(SyntaxNode* node, Property& property) {
 	property.value.SetInt(String::ToInteger(node->GetChild(1)->ToString()));
 }
 
-void ShaderParser::ReadFloat(SyntaxNode* node, Property& property) {
+void ShaderParser::ReadSingle(SyntaxNode* node, Property& property) {
 	property.value.SetFloat(String::ToFloat(node->GetChild(1)->ToString()));
+}
+
+void ShaderParser::ReadSingle3(SyntaxNode* node, Property& property) {
+	glm::vec3 value;
+	ReadSingle3(value, node);
+	property.value.SetVector3(value);
+}
+
+void ShaderParser::ReadSingle3(glm::vec3& value, SyntaxNode* node) {
+	SyntaxNode* c1 = node->GetChild(1);
+	if (c1 != nullptr) {
+		float* ptr = &value.x;
+		for (int i = 0; i < 3 && c1->GetChild(i) != nullptr; ++i) {
+			*ptr++ = String::ToFloat(c1->GetChild(i)->ToString());
+		}
+	}
+}
+
+void ShaderParser::ReadInteger(SyntaxNode* node, Property& property) {
+	property.value.SetInt(String::ToInteger(node->GetChild(1)->ToString()));
 }
 
 void ShaderParser::ReadInteger3(SyntaxNode* node, Property& property) {
@@ -204,23 +224,25 @@ void ShaderParser::ReadInteger3(SyntaxNode* node, Property& property) {
 	property.value.SetIVector3(value);
 }
 
-
 void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
-	int* ptr = &value.x;
-	for (int i = 0; i < Math::Min(3, node->GetChildCount()); ++i) {
-		*ptr++ = String::ToInteger(node->GetChild(i)->ToString());
+	SyntaxNode* c1 = node->GetChild(1);
+	if (c1 != nullptr) {
+		int* ptr = &value.x;
+		for (int i = 0; i < 3 && c1->GetChild(i) != nullptr; ++i) {
+			*ptr++ = String::ToInteger(c1->GetChild(i)->ToString());
+		}
 	}
 }
 
 void ShaderParser::ReadVec3(SyntaxNode* node, Property& property) {
 	if (node->GetChildCount() >= 2) {
-		ReadInteger3(node, property);
+		ReadSingle3(node, property);
 	}
 }
 
 void ShaderParser::ReadTex2(SyntaxNode* node, Property& property) {
 	glm::ivec3 value;
-	ReadInteger3(value, node->GetChild(1));
+	ReadInteger3(value, node);
 
 	uchar bytes[] = { uchar(value.x & 0xFF), uchar(value.y & 0xFF), uchar(value.z & 0xFF) };
 	Texture2D texture = NewTexture2D();
@@ -243,8 +265,8 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property& property) {
 	if (ns == "Int") {
 		ReadInt(node, property);
 	}
-	else if (ns == "Float") {
-		ReadFloat(node, property);
+	else if (ns == "Single") {
+		ReadSingle(node, property);
 	}
 	else if (ns == "Vec3") {
 		ReadVec3(node, property);
@@ -267,12 +289,12 @@ void ShaderParser::ReadProperties(SyntaxNode* node, std::vector<Property>& prope
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0->ToString() == "Properties") {
 		ReadProperties(c0, properties);
-		ReadProperty(node->GetChild(1), Allocate(properties));
+		ReadProperty(node->GetChild(1), Append(properties));
 	}
 	else {
-		ReadProperty(c0, Allocate(properties));
+		ReadProperty(c0, Append(properties));
 		if (node->GetChildCount() >= 2) {
-			ReadProperty(node->GetChild(1), Allocate(properties));
+			ReadProperty(node->GetChild(1), Append(properties));
 		}
 	}
 }
@@ -286,11 +308,11 @@ void ShaderParser::ReadPropertyBlock(SyntaxNode* node, std::vector<Property>& pr
 	if (c0->ToString() == "Properties") {
 		ReadProperties(c0, properties);
 		if (node->GetChildCount() >= 2) {
-			ReadProperty(node->GetChild(1), Allocate(properties));
+			ReadProperty(node->GetChild(1), Append(properties));
 		}
 	}
 	else {
-		ReadProperty(c0, Allocate(properties));
+		ReadProperty(c0, Append(properties));
 	}
 }
 
@@ -303,12 +325,12 @@ void ShaderParser::ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags)
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0->ToString() == "Tags") {
 		ReadTags(c0, tags);
-		ReadTag(node->GetChild(1), Allocate(tags));
+		ReadTag(node->GetChild(1), Append(tags));
 	}
 	else {
-		ReadTag(c0, Allocate(tags));
+		ReadTag(c0, Append(tags));
 		if (node->GetChildCount() >= 2) {
-			ReadTag(node->GetChild(1), Allocate(tags));
+			ReadTag(node->GetChild(1), Append(tags));
 		}
 	}
 }
@@ -321,7 +343,7 @@ void ShaderParser::ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& t
 		ReadTags(c0, tags);
 	}
 	else {
-		ReadTag(c0, Allocate(tags));
+		ReadTag(c0, Append(tags));
 	}
 }
 
@@ -341,12 +363,12 @@ void ShaderParser::ReadRenderStates(SyntaxNode* node, std::vector<Semantics::Ren
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0->ToString() == "RenderStates") {
 		ReadRenderStates(c0, states);
-		ReadRenderState(node->GetChild(1), Allocate(states));
+		ReadRenderState(node->GetChild(1), Append(states));
 	}
 	else {
-		ReadRenderState(c0, Allocate(states));
+		ReadRenderState(c0, Append(states));
 		if (node->GetChildCount() >= 2) {
-			ReadRenderState(node->GetChild(1), Allocate(states));
+			ReadRenderState(node->GetChild(1), Append(states));
 		}
 	}
 }
@@ -359,7 +381,7 @@ void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0 != nullptr) {
 		if (c0->ToString() == "RenderState") {
-			ReadRenderState(c0, Allocate(pass.renderStates));
+			ReadRenderState(c0, Append(pass.renderStates));
 		}
 		else {
 			ReadRenderStates(c0, pass.renderStates);
@@ -374,14 +396,14 @@ void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
 void ShaderParser::ReadPasses(SyntaxNode* node, std::vector<Semantics::Pass>& passes) {
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0->ToString() == "Pass") {
-		ReadPass(c0, Allocate(passes));
+		ReadPass(c0, Append(passes));
 		if (node->GetChildCount() >= 2) {
-			ReadPass(node->GetChild(1), Allocate(passes));
+			ReadPass(node->GetChild(1), Append(passes));
 		}
 	}
 	else {
 		ReadPasses(c0, passes);
-		ReadPass(node->GetChild(1), Allocate(passes));
+		ReadPass(node->GetChild(1), Append(passes));
 	}
 }
 
@@ -391,7 +413,7 @@ void ShaderParser::ReadSubShaderBlock(SyntaxNode* node, Semantics::SubShader& su
 	}
 
 	if (node->GetChild(1)->ToString() == "Pass") {
-		ReadPass(node->GetChild(1), Allocate(subShader.passes));
+		ReadPass(node->GetChild(1), Append(subShader.passes));
 	}
 	else {
 		ReadPasses(node->GetChild(1), subShader.passes);
@@ -402,12 +424,12 @@ void ShaderParser::ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0->ToString() == "SubShaders") {
 		ReadSubShaderBlocks(c0, subShaders);
-		ReadSubShaderBlock(node->GetChild(1), Allocate(subShaders));
+		ReadSubShaderBlock(node->GetChild(1), Append(subShaders));
 	}
 	else {
-		ReadSubShaderBlock(c0, Allocate(subShaders));
+		ReadSubShaderBlock(c0, Append(subShaders));
 		if (node->GetChildCount() >= 2) {
-			ReadSubShaderBlock(node->GetChild(1), Allocate(subShaders));
+			ReadSubShaderBlock(node->GetChild(1), Append(subShaders));
 		}
 	}
 }

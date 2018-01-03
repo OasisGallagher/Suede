@@ -127,14 +127,10 @@ uint Variant::GetMatrix4ArraySize() const {
 	return data_.podArray.size / sizeof(glm::mat4);
 }
 
-Texture Variant::GetTexture(int* data) const {
+Texture Variant::GetTexture() const {
 	if (type_ != VariantTypeTexture) {
 		Debug::LogError("invalid uniform type.");
 		return nullptr;
-	}
-
-	if (data != nullptr) {
-		*data = data_.intValue;
 	}
 
 	return texture_;
@@ -207,12 +203,9 @@ void Variant::SetPodArray(VariantType type, const void* data, uint size) {
 	data_.podArray.size = size;
 }
 
-void Variant::SetTexture(Texture value, int data) {
+void Variant::SetTexture(Texture value) {
 	SetType(VariantTypeTexture);
 	texture_ = value;
-	if (data >= 0) {
-		data_.intValue = data;
-	}
 }
 
 const void* Variant::GetData() const {
@@ -238,7 +231,10 @@ Variant& Variant::operator = (const Variant& other) {
 		MEMORY_RELEASE_ARRAY(data_.podArray.ptr);
 	}
 
-	memcpy(this, &other, sizeof(other));
+	memcpy(&data_, &other.data_, sizeof(data_));
+	texture_ = other.texture_;
+	type_ = other.type_;
+
 	return *this;
 }
 

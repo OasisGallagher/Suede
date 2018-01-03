@@ -81,6 +81,12 @@ void SyntaxNode::SetIntegerAddress(Integer* addr) {
 	}
 }
 
+void SyntaxNode::SetSingleAddress(Single* addr) {
+	if (DebugNodeType(type_, SyntaxNodeSingle)) {
+		value_.single = addr;
+	}
+}
+
 void SyntaxNode::SetSymbolAddress(Sym* addr) {
 	if (DebugNodeType(type_, SyntaxNodeSymbol)) {
 		value_.symbol = addr;

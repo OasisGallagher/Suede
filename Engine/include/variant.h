@@ -41,7 +41,7 @@ public:
 	glm::quat GetQuaternion() const;
 	const glm::mat4* GetMatrix4Array() const;
 	uint GetMatrix4ArraySize() const;
-	Texture GetTexture(int* data = nullptr) const;
+	Texture GetTexture() const;
 
 	VariantType GetType() const { return type_; }
 
@@ -55,7 +55,7 @@ public:
 	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
 	void SetMatrix4Array(const glm::mat4* data, uint size);
-	void SetTexture(Texture value, int data = -1);
+	void SetTexture(Texture value);
 
 	const void* GetData() const;
 
@@ -79,7 +79,7 @@ private:
 		glm::vec3 vec3Value;
 		glm::vec4 vec4Value;
 		glm::quat quatValue;
-		uint textureIndex;
+
 		struct {
 			char* ptr;
 			uint size;

@@ -16,6 +16,7 @@ public:
 	static int ToInteger(const std::string& str);
 	static bool ToInteger(const std::string& str, int* integer);
 	static float ToFloat(const std::string& str);
+	static bool ToFloat(const std::string& str, float* single);
 
 	static bool SplitLine(const char*& ptr, std::string& line);
 

@@ -8,7 +8,7 @@
 static const uint subShader = 0;
 
 MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectTypeMaterial), pass_(-1), textureIndex_(0) {
+	: ObjectInternal(ObjectTypeMaterial), pass_(-1) {
 }
 
 MaterialInternal::~MaterialInternal() {
@@ -25,7 +25,6 @@ Object MaterialInternal::Clone() {
 void MaterialInternal::SetShader(Shader value) {
 	if (shader_) {
 		UnbindProperties();
-		textureIndex_ = 0;
 		properties_.clear();
 	}
 
@@ -71,15 +70,9 @@ void MaterialInternal::SetTexture(const std::string& name, Texture value) {
 		return;
 	}
 
-	bool newItem = false;
-	Variant* var = GetProperty(name, VariantTypeTexture, &newItem);
+	Variant* var = GetProperty(name, VariantTypeTexture);
 	//if (var != nullptr && var->GetTexture() != value) {
-	// TODO: texture index.
-	int index = -1;
-	if (newItem) {
-		index = textureIndex_++;
-	}
-		var->SetTexture(value, index);
+		var->SetTexture(value);
 	//}
 }
 
@@ -245,13 +238,8 @@ void MaterialInternal::Define(const std::string& name) {
 void MaterialInternal::Undefine(const std::string& name) {
 }
 
-Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type, bool* newItem) {
-	PropertyContainer::ib_pair p = properties_.insert(name);
-	if (newItem != nullptr) {
-		*newItem = p.second;
-	}
-	
-	return p.first->second;
+Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type) {
+	return properties_[name];
 	/*
 	Variant* ans = nullptr;
 	if (!properties_.get(name, ans)) {
@@ -272,14 +260,15 @@ Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type
 }
 
 void MaterialInternal::BindProperties(uint pass) {
+	int textureIndex = 0;
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		Variant* var = ite->second;
 		if (var->GetType() != VariantTypeTexture) {
 			shader_->SetProperty(subShader, pass, ite->first, var->GetData());
 		}
-		else if(var->GetTexture()){
-			int index = 0;
-			var->GetTexture(&index)->Bind(index);
+		else if (var->GetTexture()) {
+			shader_->SetProperty(subShader, pass, ite->first, &textureIndex);
+			var->GetTexture()->Bind(textureIndex++);
 		}
 	}
 }

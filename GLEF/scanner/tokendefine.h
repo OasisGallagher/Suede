@@ -8,6 +8,7 @@ enum ScannerTokenType {
 
 	ScannerTokenIdentifier,
 	ScannerTokenInteger,
+	ScannerTokenSingle,
 	ScannerTokenString,
 	ScannerTokenCode,
 
