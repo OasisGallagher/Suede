@@ -234,5 +234,8 @@
     <None Include="resources\buildin\shaders\lit_bumped_texture.shader">
       <Filter>resources\buildin\shaders</Filter>
     </None>
+    <None Include="resources\shaders\xray.shader">
+      <Filter>resources\shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -171,7 +171,7 @@ void Suede::OnLogMessage(LogLevel level, const char* message) {
 
 		case LogLevelError:
 			Console::get()->addMessage(Console::Error, message);
-			//__debugbreak();
+			__debugbreak();
 			break;
 	}
 }

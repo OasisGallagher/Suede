@@ -408,6 +408,7 @@
     <None Include="resources\shaders\grayscale.shader" />
     <None Include="resources\shaders\include\post_effect_vertex.inc" />
     <None Include="resources\shaders\inversion.shader" />
+    <None Include="resources\shaders\xray.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

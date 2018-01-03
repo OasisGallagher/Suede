@@ -5,11 +5,11 @@
 
 /**
  * @param Cull: Front, Back, Off.
- * @param DepthTest: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
- * @param DepthWrite: On, Off.
+ * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always.
+ * @param ZWrite: On, Off.
  * @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
  * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
- * @param StencilTest0: Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always.
+ * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always.
  * @param StencilTest1: [0x00, 0xFF].
  * @param StencilTest2: [0x00, 0xFF].
  * @param StencilMask0: Front, Back, FrontAndBack.
@@ -24,8 +24,8 @@ enum RenderStateType {
 	Blend,
 	RasterizerDiscard,
 
-	DepthTest,
-	DepthWrite,
+	ZTest,
+	ZWrite,
 
 	StencilOp,
 	StencilTest,
@@ -52,11 +52,11 @@ enum {
 
 	Never,
 	Less,
-	LessEqual,
+	LEqual,
 	Equal,
 	Greater,
 	NotEqual,
-	GreaterEqual,
+	GEqual,
 	Always,
 
 	Zero,
@@ -111,7 +111,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return DepthTest; }
+	virtual RenderStateType GetType() const { return ZTest; }
 
 private:
 	GLenum oldMode_;
@@ -125,7 +125,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return DepthWrite; }
+	virtual RenderStateType GetType() const { return ZWrite; }
 
 private:
 	GLint oldMask_;

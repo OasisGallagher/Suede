@@ -96,14 +96,24 @@ private:
 	bool ParseSemantics(SyntaxTree& tree, Semantics& semantices);
 
 	void ReadInt(SyntaxNode* node, Property& property);
+	
 	void ReadVec3(SyntaxNode* node, Property& property);
+	void ReadVec4(SyntaxNode* node, Property& property);
+
 	void ReadTex2(SyntaxNode* node, Property& property);
+	
 	void ReadMat3(SyntaxNode* node, Property& property);
 	void ReadMat4(SyntaxNode* node, Property& property);
+	
 	void ReadSingle(SyntaxNode* node, Property& property);
+	void ReadInteger(SyntaxNode* node, Property& property);
+
 	void ReadSingle3(SyntaxNode* node, Property& property);
 	void ReadSingle3(glm::vec3& value, SyntaxNode* node);
-	void ReadInteger(SyntaxNode* node, Property& property);
+	
+	void ReadSingle4(SyntaxNode* node, Property& property);
+	void ReadSingle4(glm::vec4& value, SyntaxNode* node);
+	
 	void ReadInteger3(SyntaxNode* node, Property& property);
 	void ReadInteger3(glm::ivec3& value, SyntaxNode* node);
 

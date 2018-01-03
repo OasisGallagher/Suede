@@ -3,7 +3,7 @@ Properties { }
 SubShader {
 	Pass {
 		Cull Front;
-		DepthTest LessEqual;
+		ZTest LEqual;
 
 		GLSLPROGRAM
 

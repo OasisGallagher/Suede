@@ -204,7 +204,7 @@ FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
 
 	FIBITMAP* dib = FreeImage_Load(fif, path.c_str());
 	if (dib == nullptr) {
-		Debug::LogError("failed to load image \"%s\".", path.c_str());
+		Debug::LogWarning("failed to load image \"%s\".", path.c_str());
 		return nullptr;
 	}
 

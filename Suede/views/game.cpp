@@ -20,9 +20,9 @@
 
 //#define SKYBOX
 #define ROOM
-//#define MODEL
+#define BEAR
 //#define POST_EFFECTS
-//#define ANIMATION
+//#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
@@ -122,6 +122,8 @@ void Game::createScene() {
 	Camera camera = NewCamera();
 	controller_->setCamera(camera);
 
+	light->SetParent(camera);
+
 #ifdef DEFERRED_RENDERING
 	camera->SetRenderPath(RenderPathDeferred);
 #endif
@@ -215,31 +217,32 @@ void Game::createScene() {
 	fsprite2->SetRenderer(renderer2);
 #endif
 
-#if defined(MODEL) || defined(ANIMATION) || defined(ROOM)
-	Sprite sprite;
-#if defined(ROOM)
-	sprite = WorldInstance()->Import("models/room_thickwalls.obj");
-	sprite->SetPosition(glm::vec3(0, 25, -25));
-	sprite->SetEulerAngles(glm::vec3(30, 60, 0));
-#elif defined(MODEL)
-	sprite = WorldInstance()->Import("models/teddy_bear.fbx");
-	sprite->SetPosition(glm::vec3(0, -20, -150));
-#elif defined(ANIMATION)
-	sprite = WorldInstance()->Import("models/boblampclean.md5mesh");
-	sprite->SetPosition(glm::vec3(0, 0, -70));
-	sprite->SetEulerAngles(glm::vec3(270, 180, 180));
+#ifdef ROOM
+	Sprite room = WorldInstance()->Import("models/room_thickwalls.obj");
+	room->SetPosition(glm::vec3(0, 25, -25));
+	room->SetEulerAngles(glm::vec3(30, 60, 0));
 #endif
 
-	if (sprite) {
-		//sprite->SetParent(camera);
-		light->SetParent(camera);
+#ifdef BEAR
+	Sprite bear = WorldInstance()->Import("models/teddy_bear.fbx");
+	bear->SetPosition(glm::vec3(0, -20, -150));
+	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
+	Shader shader = Resources::FindShader("shaders/xray");
+	materail->SetShader(shader);
+#endif
 
-		Animation animation = sprite->GetAnimation();
+#ifdef MAN
+	Sprite man = WorldInstance()->Import("models/boblampclean.md5mesh");
+	man->SetPosition(glm::vec3(0, 0, -70));
+	man->SetEulerAngles(glm::vec3(270, 180, 180));
+	if (man) {
+		//sprite->SetParent(camera);
+
+		Animation animation = man->GetAnimation();
 		if (animation) {
 			animation->SetWrapMode(AnimationWrapModePingPong);
 			animation->Play("");
 		}
 	}
-
 #endif
 }

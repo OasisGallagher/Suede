@@ -147,13 +147,13 @@ RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 	if (state.type == "Cull") {
 		answer = MEMORY_CREATE(CullState);
 	}
-	else if (state.type == "DepthTest") {
+	else if (state.type == "ZTest") {
 		answer = MEMORY_CREATE(DepthTestState);
 	}
 	else if (state.type == "Blend") {
 		answer = MEMORY_CREATE(BlendState);
 	}
-	else if (state.type == "DepthWrite") {
+	else if (state.type == "ZWrite") {
 		answer = MEMORY_CREATE(DepthWriteState);
 	}
 	else if (state.type == "StencilOp") {
@@ -190,125 +190,41 @@ bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters
 }
 
 int Pass::RenderStateParameterToInteger(const std::string& parameter) {
-	// TODO: binary search.
 	if (parameter.empty()) {
 		return None;
 	}
 
-	if (parameter == "None") {
-		return None;
-	}
-
-	if (parameter == "Front") {
-		return Front;
-	}
-
-	if (parameter == "Back") {
-		return Back;
-	}
-
-	if (parameter == "FrontAndBack") {
-		return FrontAndBack;
-	}
-
-	if (parameter == "On") {
-		return On;
-	}
-
-	if (parameter == "Off") {
-		return Off;
-	}
-	if (parameter == "Never") {
-		return Never;
-	}
-
-	if (parameter == "Less") {
-		return Less;
-	}
-
-	if (parameter == "LessEqual") {
-		return LessEqual;
-	}
-
-	if (parameter == "Equal") {
-		return Equal;
-	}
-
-	if (parameter == "Greater") {
-		return Greater;
-	}
-
-	if (parameter == "NotEqual") {
-		return NotEqual;
-	}
-
-	if (parameter == "GreaterEqual") {
-		return GreaterEqual;
-	}
-
-	if (parameter == "Always") {
-		return Always;
-	}
-
-	if (parameter == "Zero") {
-		return Zero;
-	}
-
-	if (parameter == "One") {
-		return One;
-	}
-
-	if (parameter == "SrcColor") {
-		return SrcColor;
-	}
-
-	if (parameter == "OneMinusSrcColor") {
-		return OneMinusSrcColor;
-	}
-
-	if (parameter == "SrcAlpha") {
-		return SrcAlpha;
-	}
-
-	if (parameter == "OneMinusSrcAlpha") {
-		return OneMinusSrcAlpha;
-	}
-
-	if (parameter == "DestAlpha") {
-		return DestAlpha;
-	}
-
-	if (parameter == "OneMinusDestAlpha") {
-		return OneMinusDestAlpha;
-	}
-
-	if (parameter == "Keep") {
-		return Keep;
-	}
-
-	if (parameter == "Replace") {
-		return Replace;
-	}
-
-	if (parameter == "Incr") {
-		return Incr;
-	}
-
-	if (parameter == "IncrWrap") {
-		return IncrWrap;
-	}
-
-	if (parameter == "Decr") {
-		return Decr;
-	}
-
-	if (parameter == "DecrWrap") {
-		return DecrWrap;
-	}
-
-	if (parameter == "Invert") {
-		return Invert;
-	}
+#define CASE(value)	if (parameter == #value) return value
+	CASE(None);
+	CASE(Front); 
+	CASE(Back);
+	CASE(FrontAndBack); 
+	CASE(On); 
+	CASE(Off);
+	CASE(Never);
+	CASE(Less);
+	CASE(LEqual);
+	CASE(Equal); 
+	CASE(Greater);
+	CASE(NotEqual); 
+	CASE(GEqual); 
+	CASE(Always);
+	CASE(Zero); 
+	CASE(One);
+	CASE(SrcColor); 
+	CASE(OneMinusSrcColor);
+	CASE(SrcAlpha);
+	CASE(OneMinusSrcAlpha);
+	CASE(DestAlpha);
+	CASE(OneMinusDestAlpha);
+	CASE(Keep); 
+	CASE(Replace);
+	CASE(Incr);
+	CASE(IncrWrap); 
+	CASE(Decr);
+	CASE(DecrWrap);
+	CASE(Invert);
+#undef CASE
 
 	Debug::LogError("invalid render state parameter %s.", parameter);
 	return -1;

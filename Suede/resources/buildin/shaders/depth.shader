@@ -3,8 +3,8 @@ Properties { }
 SubShader {
 	Pass {
 		Cull Back;
-		DepthWrite On;
-		DepthTest LessEqual;
+		ZWrite On;
+		ZTest LEqual;
 
 		GLSLPROGRAM
 		#stage vertex

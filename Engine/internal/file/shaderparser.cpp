@@ -214,6 +214,22 @@ void ShaderParser::ReadSingle3(glm::vec3& value, SyntaxNode* node) {
 	}
 }
 
+void ShaderParser::ReadSingle4(SyntaxNode* node, Property& property) {
+	glm::vec4 value;
+	ReadSingle4(value, node);
+	property.value.SetVector4(value);
+}
+
+void ShaderParser::ReadSingle4(glm::vec4& value, SyntaxNode* node) {
+	SyntaxNode* c1 = node->GetChild(1);
+	if (c1 != nullptr) {
+		float* ptr = &value.x;
+		for (int i = 0; i < 4 && c1->GetChild(i) != nullptr; ++i) {
+			*ptr++ = String::ToFloat(c1->GetChild(i)->ToString());
+		}
+	}
+}
+
 void ShaderParser::ReadInteger(SyntaxNode* node, Property& property) {
 	property.value.SetInt(String::ToInteger(node->GetChild(1)->ToString()));
 }
@@ -237,6 +253,12 @@ void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
 void ShaderParser::ReadVec3(SyntaxNode* node, Property& property) {
 	if (node->GetChildCount() >= 2) {
 		ReadSingle3(node, property);
+	}
+}
+
+void ShaderParser::ReadVec4(SyntaxNode* node, Property& property) {
+	if (node->GetChildCount() >= 2) {
+		ReadSingle4(node, property);
 	}
 }
 
@@ -270,6 +292,9 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property& property) {
 	}
 	else if (ns == "Vec3") {
 		ReadVec3(node, property);
+	}
+	else if (ns == "Vec4") {
+		ReadVec4(node, property);
 	}
 	else if (ns == "Tex2") {
 		ReadTex2(node, property);

@@ -34,8 +34,8 @@ RenderState * CullState::Clone() {
 
 void DepthTestState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 8,
-		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always)) {
-		Debug::LogError("invalid parameter0 for 'DepthTest'.");
+		Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always)) {
+		Debug::LogError("invalid parameter0 for 'ZTest'.");
 		return;
 	}
 
@@ -62,7 +62,7 @@ RenderState * DepthTestState::Clone() {
 void DepthWriteState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 2,
 		On, Off)) {
-		Debug::LogError("invalid paramter for 'DepthWrite'.");
+		Debug::LogError("invalid paramter for 'ZWrite'.");
 		return;
 	}
 
@@ -84,7 +84,7 @@ RenderState * DepthWriteState::Clone() {
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
 	if (!IsValidParamter(parameter0, 8,
-		Never, Less, LessEqual, Equal, Greater, NotEqual, GreaterEqual, Always)) {
+		Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always)) {
 		Debug::LogError("invalid parameter0 for 'StencilTest'.");
 		return;
 	}
@@ -295,7 +295,7 @@ GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 		case Less:
 			value = GL_LESS;
 			break;
-		case LessEqual:
+		case LEqual:
 			value = GL_LEQUAL;
 			break;
 		case Equal:
@@ -307,7 +307,7 @@ GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 		case NotEqual:
 			value = GL_NOTEQUAL;
 			break;
-		case GreaterEqual:
+		case GEqual:
 			value = GL_GEQUAL;
 			break;
 		case Always:

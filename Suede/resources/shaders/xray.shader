@@ -1,8 +1,56 @@
 Properties {
+	vec4 xrayColor = { 1, 1, 1, 1 };
 }
 
 SubShader {
+	Tags { Queue = "Geometry + 200"; }
+
 	Pass {
+		ZWrite Off;
+		ZTest Greater;
+		//Blend SrcAlpha OneMinusSrcAlpha;
+
+		GLSLPROGRAM
+
+		#stage vertex
+		in vec3 c_position;
+		in vec3 c_cameraPosition;
+		in vec3 c_normal;
+
+		out vec3 viewDir;
+		out vec3 normal;
+
+		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_localToWorldSpaceMatrix;
+
+		void main() {
+			normal = transpose(inverse(mat3(c_localToWorldSpaceMatrix))) * c_normal;
+			vec3 worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			viewDir = c_cameraPosition - worldPos;
+			
+			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+		}
+
+		#stage fragment
+		out vec4 fragColor;
+		
+		in vec3 normal;
+		in vec3 viewDir;
+
+		uniform vec4 xrayColor;
+
+		void main() {
+			float factor = 1 - dot(normalize(normal), normalize(viewDir));
+			fragColor = xrayColor * factor;
+		}
+
+		ENDGLSL
+	}
+
+	Pass {
+		ZTest LEqual;
+		Blend SrcAlpha OneMinusSrcAlpha;
+
 		GLSLPROGRAM
 
 		#stage vertex
@@ -49,5 +97,5 @@ SubShader {
 		}
 
 		ENDGLSL
-	}
+	 }
 }

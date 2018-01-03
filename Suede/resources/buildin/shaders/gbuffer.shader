@@ -4,8 +4,8 @@ SubShader {
 	Pass {
 		Cull Back;
 		Blend, Off;
-		DepthWrite On;
-		DepthTest LessEqual;
+		ZWrite On;
+		ZTest LEqual;
 
 		GLSLPROGRAM
 
