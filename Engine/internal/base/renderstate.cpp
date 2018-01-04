@@ -1,15 +1,20 @@
 #include <cstdarg>
+#include "tools/math2.h"
+#include "debug/debug.h"
 #include "renderstate.h"
 #include "debug/debug.h"
 #include "memory/memory.h"
 
-void CullState::Initialize(int parameter0, int, int) {
-	if (!IsValidParamter(parameter0, 3,
-		Front, Back, Off)) {
-		Debug::LogError("invalid paramter for 'Cull'.");
-		return;
-	}
+#define CHECK_PARAMETER(name, value, ...)	\
+	if (true) { \
+		int buffer[] = { __VA_ARGS__ }; \
+		if (!IsValidParameter(value, buffer, CountOf(buffer))) { \
+			Debug::LogError("invalid paramter for '%s'", #name); \
+		} \
+	} else (void)0
 
+void CullState::Initialize(int parameter0, int, int) {
+	CHECK_PARAMETER(Cull, parameter0, Back, Off);
 	parameter_ = parameter0;
 }
 
@@ -33,26 +38,25 @@ RenderState * CullState::Clone() {
 }
 
 void ZTestState::Initialize(int parameter0, int, int) {
-	if (!IsValidParamter(parameter0, 8,
-		Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always)) {
-		Debug::LogError("invalid parameter0 for 'ZTest'.");
-		return;
-	}
-
+	CHECK_PARAMETER(ZTest, parameter0, Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off);
 	parameter_ = parameter0;
 }
 
 void ZTestState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_DEPTH_TEST);
-	GL::GetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
 
-	Enable(GL_DEPTH_TEST, parameter_ != Always);
-	GL::DepthFunc(RenderParamterToGLEnum(parameter_));
+	Enable(GL_DEPTH_TEST, parameter_ != Off);
+	if (parameter_ != Off) {
+		GL::GetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
+		GL::DepthFunc(RenderParamterToGLEnum(parameter_));
+	}
 }
 
 void ZTestState::Unbind() {
 	Enable(GL_DEPTH_TEST, oldEnabled_);
-	GL::DepthFunc(oldMode_);
+	if (parameter_ != Off) {
+		GL::DepthFunc(oldMode_);
+	}
 }
 
 RenderState * ZTestState::Clone() {
@@ -60,12 +64,7 @@ RenderState * ZTestState::Clone() {
 }
 
 void ZWriteState::Initialize(int parameter0, int, int) {
-	if (!IsValidParamter(parameter0, 2,
-		On, Off)) {
-		Debug::LogError("invalid paramter for 'ZWrite'.");
-		return;
-	}
-
+	CHECK_PARAMETER(ZWrite, parameter0, On, Off);
 	parameter_ = parameter0;
 }
 
@@ -78,16 +77,12 @@ void ZWriteState::Unbind() {
 	GL::DepthMask(oldMask_);
 }
 
-RenderState * ZWriteState::Clone() {
+RenderState* ZWriteState::Clone() {
 	return MEMORY_CLONE(ZWriteState, this);
 }
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
-	if (!IsValidParamter(parameter0, 8,
-		Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always)) {
-		Debug::LogError("invalid parameter0 for 'StencilTest'.");
-		return;
-	}
+	CHECK_PARAMETER(StencilTest, parameter0, Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off);
 
 	if (parameter1 > 0xFF || parameter1 < 0x00) {
 		Debug::LogError("invalid parameter1 for 'StencilTest'.");
@@ -107,17 +102,21 @@ void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2
 void StencilTestState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_STENCIL_TEST);
 
-	GL::GetIntegerv(GL_STENCIL_REF, (GLint*)&oldRef_);
-	GL::GetIntegerv(GL_STENCIL_FUNC, (GLint*)&oldFunc_);
-	GL::GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint*)&oldMask_);
+	Enable(GL_STENCIL_TEST, parameter0_ != Off);
+	if (parameter0_ != Off) {
+		GL::GetIntegerv(GL_STENCIL_REF, (GLint*)&oldRef_);
+		GL::GetIntegerv(GL_STENCIL_FUNC, (GLint*)&oldFunc_);
+		GL::GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint*)&oldMask_);
 
-	Enable(GL_STENCIL_TEST, parameter0_ != Always);
-	GL::StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, parameter2_);
+		GL::StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, parameter2_);
+	}
 }
 
 void StencilTestState::Unbind() {
 	Enable(GL_STENCIL_TEST, oldEnabled_);
-	GL::StencilFunc(oldFunc_, oldRef_, oldMask_);
+	if (parameter0_ != Off) {
+		GL::StencilFunc(oldFunc_, oldRef_, oldMask_);
+	}
 }
 
 RenderState * StencilTestState::Clone() {
@@ -125,11 +124,7 @@ RenderState * StencilTestState::Clone() {
 }
 
 void StencilMaskState::Initialize(int parameter0, int parameter1, int) {
-	if (!IsValidParamter(parameter0, 3,
-		Front, Back, FrontAndBack)) {
-		Debug::LogError("invalid parameter0 for 'StencilMask'.");
-		return;
-	}
+	CHECK_PARAMETER(StencilMask, parameter0, Front, Back, FrontAndBack);
 
 	if (parameter1 > 0xFF || parameter1 < 0x00) {
 		Debug::LogError("invalid parameter1 for 'StencilMask'.");
@@ -157,23 +152,9 @@ RenderState * StencilMaskState::Clone() {
 }
 
 void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) {
-	if (!IsValidParamter(parameter0, 8,
-		Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert)) {
-		Debug::LogError("invalid parameter0 for 'StencilOp'.");
-		return;
-	}
-
-	if (!IsValidParamter(parameter1, 8,
-		Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert)) {
-		Debug::LogError("invalid parameter1 for 'StencilOp'.");
-		return;
-	}
-
-	if (!IsValidParamter(parameter2, 8,
-		Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert)) {
-		Debug::LogError("invalid parameter2 for 'StencilOp'.");
-		return;
-	}
+	CHECK_PARAMETER(StencilOp, parameter0, Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert);
+	CHECK_PARAMETER(StencilOp, parameter1, Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert);
+	CHECK_PARAMETER(StencilOp, parameter2, Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert);
 
 	parameter0_ = parameter0;
 	parameter1_ = parameter1;
@@ -197,12 +178,7 @@ RenderState * StencilOpState::Clone() {
 }
 
 void RasterizerDiscardState::Initialize(int parameter0, int, int) {
-	if (!IsValidParamter(parameter0, 2,
-		On, Off)) {
-		Debug::LogError("invalid paramter for 'RasterizerDiscard'.");
-		return;
-	}
-
+	CHECK_PARAMETER(RasterizerDiscard, parameter0, On, Off);
 	parameter_ = parameter0;
 }
 
@@ -220,16 +196,10 @@ RenderState * RasterizerDiscardState::Clone() {
 }
 
 void BlendState::Initialize(int parameter0, int parameter1, int) {
-	if (!IsValidParamter(parameter0, 9,
-		Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha)) {
-		Debug::LogError("invalid paramter for 'Blend'.");
-		return;
-	}
+	CHECK_PARAMETER(Blend, parameter0, Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha);
 
-	if (parameter0 != Off && !IsValidParamter(parameter1, 9,
-		None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha)) {
-		Debug::LogError("invalid paramter for 'Blend'.");
-		return;
+	if (parameter0 != Off) {
+		CHECK_PARAMETER(Blend, parameter0, None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha);
 	}
 
 	src_ = parameter0;
@@ -261,18 +231,13 @@ void RenderState::Enable(GLenum cap, GLboolean enable) {
 	else { GL::Disable(cap); }
 }
 
-bool RenderState::IsValidParamter(int parameter0, int count, ...) {
-	va_list vl;
-	va_start(vl, count);
-
+bool RenderState::IsValidParameter(int value, const int* buffer, int count) {
 	int i = 0;
 	for (; i < count; ++i) {
-		if (parameter0 == va_arg(vl, int)) {
+		if (value == buffer[i]) {
 			break;
 		}
 	}
-
-	va_end(vl);
 
 	return (i < count);
 }
@@ -337,7 +302,6 @@ GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 		case OneMinusDestAlpha:
 			value = GL_ONE_MINUS_DST_ALPHA;
 			break;
-
 		case Keep:
 			value = GL_KEEP;
 			break;

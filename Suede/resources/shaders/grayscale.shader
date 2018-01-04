@@ -5,7 +5,7 @@ SubShader {
 		Cull Off;
 		Blend Off;
 		ZWrite Off;
-		ZTest Always;
+		ZTest Off;
 		
 		GLSLPROGRAM
 

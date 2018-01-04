@@ -3,11 +3,11 @@
 
 /**
  * @param Cull: Front, Back, Off.
- * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always.
+ * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
  * @param ZWrite: On, Off.
  * @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
  * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
- * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always.
+ * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
  * @param StencilTest1: [0x00, 0xFF].
  * @param StencilTest2: [0x00, 0xFF].
  * @param StencilMask0: Front, Back, FrontAndBack.
@@ -87,7 +87,7 @@ public:
 protected:
 	void Enable(GLenum cap, GLboolean enable);
 	GLenum RenderParamterToGLEnum(int parameter);
-	bool IsValidParamter(int parameter, int count, ...);
+	bool IsValidParameter(int value, const int* buffer, int count);
 };
 
 class CullState : public RenderState {

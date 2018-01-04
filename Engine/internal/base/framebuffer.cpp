@@ -79,6 +79,8 @@ GLbitfield FramebufferBase::FramebufferClearBitmaskToGLbitfield(FramebufferClear
 	GLbitfield bitfield = 0;
 	if ((bitmask & FramebufferClearBitmaskColor) != 0) { bitfield |= GL_COLOR_BUFFER_BIT; }
 	if ((bitmask & FramebufferClearBitmaskDepth) != 0) { bitfield |= GL_DEPTH_BUFFER_BIT; }
+	if ((bitmask & FramebufferClearBitmaskStencil) != 0) {bitfield |= GL_STENCIL_BUFFER_BIT; }
+
 	return bitfield;
 }
 
