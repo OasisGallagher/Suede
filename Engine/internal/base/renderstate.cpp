@@ -32,7 +32,7 @@ RenderState * CullState::Clone() {
 	return MEMORY_CLONE(CullState, this);
 }
 
-void DepthTestState::Initialize(int parameter0, int, int) {
+void ZTestState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 8,
 		Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always)) {
 		Debug::LogError("invalid parameter0 for 'ZTest'.");
@@ -42,7 +42,7 @@ void DepthTestState::Initialize(int parameter0, int, int) {
 	parameter_ = parameter0;
 }
 
-void DepthTestState::Bind() {
+void ZTestState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_DEPTH_TEST);
 	GL::GetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
 
@@ -50,16 +50,16 @@ void DepthTestState::Bind() {
 	GL::DepthFunc(RenderParamterToGLEnum(parameter_));
 }
 
-void DepthTestState::Unbind() {
+void ZTestState::Unbind() {
 	Enable(GL_DEPTH_TEST, oldEnabled_);
 	GL::DepthFunc(oldMode_);
 }
 
-RenderState * DepthTestState::Clone() {
-	return MEMORY_CLONE(DepthTestState, this);
+RenderState * ZTestState::Clone() {
+	return MEMORY_CLONE(ZTestState, this);
 }
 
-void DepthWriteState::Initialize(int parameter0, int, int) {
+void ZWriteState::Initialize(int parameter0, int, int) {
 	if (!IsValidParamter(parameter0, 2,
 		On, Off)) {
 		Debug::LogError("invalid paramter for 'ZWrite'.");
@@ -69,17 +69,17 @@ void DepthWriteState::Initialize(int parameter0, int, int) {
 	parameter_ = parameter0;
 }
 
-void DepthWriteState::Bind() {
+void ZWriteState::Bind() {
 	GL::GetIntegerv(GL_DEPTH_WRITEMASK, &oldMask_);
 	GL::DepthMask(parameter_ == On);
 }
 
-void DepthWriteState::Unbind() {
+void ZWriteState::Unbind() {
 	GL::DepthMask(oldMask_);
 }
 
-RenderState * DepthWriteState::Clone() {
-	return MEMORY_CLONE(DepthWriteState, this);
+RenderState * ZWriteState::Clone() {
+	return MEMORY_CLONE(ZWriteState, this);
 }
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
@@ -117,7 +117,7 @@ void StencilTestState::Bind() {
 
 void StencilTestState::Unbind() {
 	Enable(GL_STENCIL_TEST, oldEnabled_);
-	GL::StencilFunc(oldRef_, oldFunc_, oldMask_);
+	GL::StencilFunc(oldFunc_, oldRef_, oldMask_);
 }
 
 RenderState * StencilTestState::Clone() {

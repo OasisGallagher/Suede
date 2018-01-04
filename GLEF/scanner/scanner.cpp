@@ -87,6 +87,10 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			if (ch == ' ' || ch == '\t' || ch == 0) {
 				savech = false;
 			}
+			else if (ch == '-' || ch == '+') {
+				// +/-, 只作为数字的正负号使用.
+				state = DecimalState;
+			}
 			else if (String::IsDigit(ch)) {
 				state = DecimalState;
 			}
@@ -265,14 +269,14 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 	return tokenType;
 }
 
-FileScanner::FileScanner()
+SourceScanner::SourceScanner()
 	: lineno_(0) {
 }
 
-FileScanner::~FileScanner() {
+SourceScanner::~SourceScanner() {
 }
 
-bool FileScanner::Open(const std::string& path) {
+bool SourceScanner::Open(const std::string& path) {
 	if (!File::Load(path, text_)) {
 		return false;
 	}
@@ -281,10 +285,11 @@ bool FileScanner::Open(const std::string& path) {
 	return true;
 }
 
-bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
+bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 	std::string line, buffer;
 	ScannerTokenType tokenType = textScanner_.GetToken(buffer, &pos->linepos);
-	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile; ) {
+	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile 
+		|| tokenType == ScannerTokenComment; ) {
 		if (tokenType == ScannerTokenCode) {
 			textScanner_.Discard();
 			return ReadCode(token);
@@ -299,10 +304,6 @@ bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 
 		const char* nonBlankPtr = nullptr;
 		if (String::IsBlankText(line.c_str(), &nonBlankPtr)) {
-			continue;
-		}
-
-		if (String::StartsWith(nonBlankPtr, "//")) {
 			continue;
 		}
 
@@ -322,7 +323,7 @@ bool FileScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 	return true;
 }
 
-bool FileScanner::ReadCode(ScannerToken* token) {
+bool SourceScanner::ReadCode(ScannerToken* token) {
 	std::string line, code;
 	for (; String::SplitLine(start_, line);) {
 		std::string str = String::Trim(line);

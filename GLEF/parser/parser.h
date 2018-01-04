@@ -3,7 +3,7 @@
 
 class Syntaxer;
 class SyntaxTree;
-class FileScanner;
+class SourceScanner;
 class TextScanner;
 
 struct ScannerToken;

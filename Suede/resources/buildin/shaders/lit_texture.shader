@@ -3,6 +3,12 @@ Properties {
 
 SubShader {
 	Pass {
+		ZTest Less;
+
+		StencilTest Always 1 0xFF;
+		StencilOp Keep Keep Replace;
+		StencilMask FrontAndBack 0xFF;
+
 		GLSLPROGRAM
 
 		#stage vertex
@@ -46,6 +52,49 @@ SubShader {
 			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 			float visibility = calculateShadowVisibility();
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
+		}
+
+		ENDGLSL
+	}
+
+	Pass {
+		ZWrite Off;
+		ZTest Always;
+		StencilTest NotEqual 1 0xFF;
+		StencilMask FrontAndBack 0x00;
+
+		GLSLPROGRAM
+
+		#stage vertex
+		in vec3 c_position;
+		in vec3 c_cameraPosition;
+		in vec3 c_normal;
+
+		out vec3 viewDir;
+		out vec3 normal;
+
+		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_localToWorldSpaceMatrix;
+
+		void main() {
+			// normal local to world space.
+			normal = transpose(inverse(mat3(c_localToWorldSpaceMatrix))) * c_normal;
+			vec3 worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			viewDir = c_cameraPosition - worldPos;
+			
+			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+		}
+
+		#stage fragment
+		out vec4 fragColor;
+		
+		in vec3 normal;
+		in vec3 viewDir;
+
+		uniform vec4 xrayColor;
+
+		void main() {
+			fragColor.a = 0;
 		}
 
 		ENDGLSL

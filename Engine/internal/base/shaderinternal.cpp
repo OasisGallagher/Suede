@@ -148,13 +148,13 @@ RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 		answer = MEMORY_CREATE(CullState);
 	}
 	else if (state.type == "ZTest") {
-		answer = MEMORY_CREATE(DepthTestState);
+		answer = MEMORY_CREATE(ZTestState);
 	}
 	else if (state.type == "Blend") {
 		answer = MEMORY_CREATE(BlendState);
 	}
 	else if (state.type == "ZWrite") {
-		answer = MEMORY_CREATE(DepthWriteState);
+		answer = MEMORY_CREATE(ZWriteState);
 	}
 	else if (state.type == "StencilOp") {
 		answer = MEMORY_CREATE(StencilOpState);
@@ -226,8 +226,12 @@ int Pass::RenderStateParameterToInteger(const std::string& parameter) {
 	CASE(Invert);
 #undef CASE
 
-	Debug::LogError("invalid render state parameter %s.", parameter);
-	return -1;
+	int integer = -1;
+	if (!String::ToInteger(parameter, &integer)) {
+		Debug::LogError("invalid render state parameter %s.", parameter.c_str());
+	}
+
+	return integer;
 }
 
 void Pass::ClearIntermediateShaders() {

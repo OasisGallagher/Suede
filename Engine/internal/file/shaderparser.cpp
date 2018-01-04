@@ -458,3 +458,4 @@ void ShaderParser::ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::
 		}
 	}
 }
+

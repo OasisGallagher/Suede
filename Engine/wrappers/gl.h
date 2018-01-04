@@ -9,6 +9,7 @@ public:
 	static GLuint CreateProgram();
 	static void Enable(GLenum cap);
 	static void Disable(GLenum cap);
+	static void ClearStencil(GLint s);
 	static void CullFace(GLenum mode);
 	static void DepthFunc(GLenum func);
 	static void Clear(GLbitfield mask);
@@ -380,6 +381,10 @@ inline void GL::BindBuffer(GLenum target, GLuint buffer) {
 
 inline void GL::ClearDepth(GLclampd depth) {
 	GL_CALL(glClearDepth(depth));
+}
+
+inline void GL::ClearStencil(GLint s) {
+	GL_CALL(glClearStencil(s));
 }
 
 inline void GL::BindAttribLocation(GLuint program, GLuint index, const GLchar *name) {

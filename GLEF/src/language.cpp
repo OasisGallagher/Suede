@@ -139,7 +139,7 @@ static bool ParseProduction(Environment* env, TextScanner* textScanner, SymbolVe
 Language::Language() {
 	env_ = new Environment;
 	syntaxer_ = new Syntaxer;
-	scanner_ = new FileScanner;
+	scanner_ = new SourceScanner;
 }
 
 Language::~Language() {

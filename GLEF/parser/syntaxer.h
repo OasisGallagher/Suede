@@ -7,7 +7,7 @@
 
 class SyntaxNode;
 class SyntaxTree;
-class FileScanner;
+class SourceScanner;
 
 struct Environment;
 struct TokenPosition;
@@ -65,7 +65,7 @@ public:
 
 public:
 	void Setup(const SyntaxerSetupParameter& p);
-	bool ParseSyntax(SyntaxTree* tree, FileScanner* fileScanner);
+	bool ParseSyntax(SyntaxTree* tree, SourceScanner* sourceScanner);
 
 public:
 	std::string ToString() const;
@@ -77,12 +77,12 @@ private:
 	void Shift(int state, void* addr, const GrammarSymbol& symbol);
 	bool Error(const GrammarSymbol& symbol, const TokenPosition& position);
 
-	bool CreateSyntaxTree(SyntaxNode*& root, FileScanner* fileScanner);
+	bool CreateSyntaxTree(SyntaxNode*& root, SourceScanner* sourceScanner);
 
 	void CleanupOnFailure();
 
 	GrammarSymbol FindSymbol(const ScannerToken& token, void*& addr);
-	GrammarSymbol ParseNextSymbol(TokenPosition& position, void*& addr, FileScanner* fileScanner);
+	GrammarSymbol ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner);
 
 private:
 	SyntaxerStack* stack_;

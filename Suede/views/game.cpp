@@ -20,7 +20,8 @@
 
 //#define SKYBOX
 #define ROOM
-#define BEAR
+//#define BEAR
+//#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
@@ -226,9 +227,12 @@ void Game::createScene() {
 #ifdef BEAR
 	Sprite bear = WorldInstance()->Import("models/teddy_bear.fbx");
 	bear->SetPosition(glm::vec3(0, -20, -150));
+#ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
 	Shader shader = Resources::FindShader("shaders/xray");
 	materail->SetShader(shader);
+#endif
+
 #endif
 
 #ifdef MAN

@@ -6,6 +6,8 @@ enum ScannerTokenType {
 	ScannerTokenError,
 	ScannerTokenEndOfFile,
 
+	ScannerTokenComment,
+
 	ScannerTokenIdentifier,
 	ScannerTokenInteger,
 	ScannerTokenSingle,

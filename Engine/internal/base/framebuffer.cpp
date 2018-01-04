@@ -10,7 +10,7 @@ FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
 
 void FramebufferBase::BindWrite() {
 	BindFramebuffer(FramebufferTargetWrite);
-	ClearCurrent(FramebufferClearBitmaskColorDepth);
+	ClearCurrent(FramebufferClearBitmaskColorDepthStencil);
 	BindViewport();
 }
 
@@ -151,7 +151,7 @@ void Framebuffer::BindRead(FramebufferAttachment attachment) {
 
 void Framebuffer::BindWriteAttachments(uint n, FramebufferAttachment* attachments) {
 	FramebufferBase::BindFramebuffer(FramebufferTargetWrite);
-	ClearCurrentAllAttachments(FramebufferClearBitmaskColorDepth);
+	ClearCurrentAllAttachments(FramebufferClearBitmaskColorDepthStencil);
 
 	uint count = ToGLColorAttachments(n, attachments);
 	GL::DrawBuffers(count, glAttachments_);

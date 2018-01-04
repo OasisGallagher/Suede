@@ -1,5 +1,6 @@
 Properties {
-	vec4 xrayColor = { 1, 1, 1, 1 };
+	// Rim color.
+	vec4 xrayColor = { 0.2f, 0.55f, 0.73f, 1 };
 }
 
 SubShader {
@@ -8,7 +9,7 @@ SubShader {
 	Pass {
 		ZWrite Off;
 		ZTest Greater;
-		//Blend SrcAlpha OneMinusSrcAlpha;
+		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
 
@@ -24,6 +25,7 @@ SubShader {
 		uniform mat4 c_localToWorldSpaceMatrix;
 
 		void main() {
+			// normal local to world space.
 			normal = transpose(inverse(mat3(c_localToWorldSpaceMatrix))) * c_normal;
 			vec3 worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
 			viewDir = c_cameraPosition - worldPos;

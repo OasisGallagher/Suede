@@ -75,9 +75,9 @@ bool Syntaxer::Save(std::ofstream& file) {
 	return Serializer::SaveSyntaxer(file, p_);
 }
 
-bool Syntaxer::ParseSyntax(SyntaxTree* tree, FileScanner* fileScanner) {
+bool Syntaxer::ParseSyntax(SyntaxTree* tree, SourceScanner* sourceScanner) {
 	SyntaxNode* root = nullptr;
-	if (!CreateSyntaxTree(root, fileScanner)) {
+	if (!CreateSyntaxTree(root, sourceScanner)) {
 		return false;
 	}
 
@@ -135,7 +135,7 @@ void Syntaxer::Shift(int state, void* addr, const GrammarSymbol& symbol) {
 	stack_->push(state, addr, symbol);
 }
 
-bool Syntaxer::CreateSyntaxTree(SyntaxNode*& root, FileScanner* fileScanner) {
+bool Syntaxer::CreateSyntaxTree(SyntaxNode*& root, SourceScanner* sourceScanner) {
 	TokenPosition position = { 0 };
 
 	stack_->push(0, nullptr, NativeSymbols::zero);
@@ -145,7 +145,7 @@ bool Syntaxer::CreateSyntaxTree(SyntaxNode*& root, FileScanner* fileScanner) {
 	GrammarSymbol symbol = nullptr;
 
 	do {
-		if (action.type == LRActionShift && !(symbol = ParseNextSymbol(position, addr, fileScanner))) {
+		if (action.type == LRActionShift && !(symbol = ParseNextSymbol(position, addr, sourceScanner))) {
 			break;
 		}
 
@@ -240,11 +240,11 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 	return answer;
 }
 
-GrammarSymbol Syntaxer::ParseNextSymbol(TokenPosition& position, void*& addr, FileScanner* fileScanner) {
+GrammarSymbol Syntaxer::ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner) {
 	ScannerToken token;
 	GrammarSymbol answer = NativeSymbols::null;
 
-	if (fileScanner->GetToken(&token, &position)) {
+	if (sourceScanner->GetToken(&token, &position)) {
 		answer = FindSymbol(token, addr);
 	}
 

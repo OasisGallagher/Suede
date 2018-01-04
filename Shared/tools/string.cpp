@@ -28,7 +28,9 @@ bool String::EndsWith(const std::string& str, const std::string& suffix) {
 }
 
 int String::ToInteger(const std::string& str) {
-	return std::stoi(str);
+	int ans = 0;
+	ToInteger(str, &ans);
+	return ans;
 }
 
 bool String::ToInteger(const std::string& str, int* integer) {
@@ -37,7 +39,15 @@ bool String::ToInteger(const std::string& str, int* integer) {
 	}
 
 	char* p = nullptr;
-	int ans = strtol(str.c_str(), &p, 10);
+	int base = 10;
+	const char* ptr = str.c_str();
+	
+	if (_strnicmp(ptr, "0x", 2) == 0) {
+		ptr += 2;
+		base = 16;
+	}
+	
+	int ans = strtol(ptr, &p, base);
 	if (integer != nullptr) {
 		*integer = ans;
 	}

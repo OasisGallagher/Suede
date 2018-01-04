@@ -24,8 +24,9 @@ Object MaterialInternal::Clone() {
 
 void MaterialInternal::SetShader(Shader value) {
 	if (shader_) {
-		UnbindProperties();
-		properties_.clear();
+		// TODO: unbind properties ?
+//		UnbindProperties();
+//		properties_.clear();
 	}
 
 	shader_ = value;
@@ -33,8 +34,7 @@ void MaterialInternal::SetShader(Shader value) {
 	std::vector<Property> container;
 	shader_->GetProperties(container);
 
-	properties_.clear();
-	int textureCount = 0;
+//	properties_.clear();
 	for (int i = 0; i < container.size(); ++i) {
 		*properties_[container[i].name] = container[i].value;
 	}

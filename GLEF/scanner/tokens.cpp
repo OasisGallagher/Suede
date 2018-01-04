@@ -15,7 +15,7 @@ struct TokenDefine {
 };
 
 static TokenDefine tokens[] = {
-	"//", ScannerTokenEndOfFile,
+	"//", ScannerTokenComment,
 
 	"+", ScannerTokenPlus,
 	"-", ScannerTokenMinus,

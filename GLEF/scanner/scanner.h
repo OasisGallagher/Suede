@@ -32,10 +32,10 @@ struct TokenPosition {
 	std::string ToString() const;
 };
 
-class FileScanner {
+class SourceScanner {
 public:
-	FileScanner();
-	~FileScanner();
+	SourceScanner();
+	~SourceScanner();
 
 public:
 	bool Open(const std::string& path);

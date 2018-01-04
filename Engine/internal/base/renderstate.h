@@ -1,8 +1,6 @@
 #pragma once
 #include <wrappers/gl.h>
 
-#include "renderer.h"
-
 /**
  * @param Cull: Front, Back, Off.
  * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always.
@@ -105,7 +103,7 @@ private:
 	int parameter_;
 };
 
-class DepthTestState : public RenderState {
+class ZTestState : public RenderState {
 public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
@@ -119,7 +117,7 @@ private:
 	int parameter_;
 };
 
-class DepthWriteState : public RenderState {
+class ZWriteState : public RenderState {
 public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();

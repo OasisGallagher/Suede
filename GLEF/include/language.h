@@ -3,7 +3,7 @@
 
 class Syntaxer;
 class SyntaxTree;
-class FileScanner;
+class SourceScanner;
 
 struct Environment;
 
@@ -29,5 +29,5 @@ private:
 private:
 	Environment* env_;
 	Syntaxer* syntaxer_;
-	FileScanner* scanner_;
+	SourceScanner* scanner_;
 };
