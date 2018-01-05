@@ -10,6 +10,10 @@ public:
 	virtual void Bind(uint pass) = 0;
 	virtual void Unbind() = 0;
 
+	virtual void EnablePass(uint pass) = 0;
+	virtual void DisablePass(uint pass) = 0;
+	virtual bool IsPassEnabled(uint pass) const = 0;
+
 	virtual void SetPass(int pass) = 0;
 	virtual int GetPass() const = 0;
 	virtual uint GetPassCount() const = 0;

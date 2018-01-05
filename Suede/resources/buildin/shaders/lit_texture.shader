@@ -1,4 +1,5 @@
 Properties {
+	vec4 outlineColor = { 0.98, 0.51, 0.04, 0.5 };
 }
 
 SubShader {
@@ -6,7 +7,7 @@ SubShader {
 		ZTest Less;
 		StencilTest Always 1 0xFF;
 		StencilOp Keep Keep Replace;
-		StencilMask FrontAndBack 0xFF;
+		StencilWrite On;
 
 		GLSLPROGRAM
 
@@ -59,8 +60,9 @@ SubShader {
 	Pass {
 		ZWrite Off;
 		ZTest Off;
+		//Cull Front;
 		StencilTest NotEqual 1 0xFF;
-		StencilMask FrontAndBack 0x00;
+		StencilWrite Off;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
@@ -72,8 +74,8 @@ SubShader {
 		uniform mat4 c_localToClipSpaceMatrix;
 
 		void main() {
-			// normal local to world space.
-			float scale = 1.03;
+			// scale mesh slightly.
+			float scale = 1.1;
 			mat4 scaleMatrix = mat4(
 				scale, 0, 0, 0,
 				0, scale, 0, 0,
@@ -87,8 +89,9 @@ SubShader {
 		#stage fragment
 		out vec4 fragColor;
 		
+		uniform vec4 outlineColor;
 		void main() {
-			fragColor = vec4(1, 0, 0, 0.5);
+			fragColor = outlineColor;
 		}
 
 		ENDGLSL

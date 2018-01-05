@@ -14,6 +14,7 @@ public:
 	static void DepthFunc(GLenum func);
 	static void Clear(GLbitfield mask);
 	static void ReadBuffer(GLenum mode);
+	static void StencilMask(GLuint mask);
 	static void DepthMask(GLboolean flag);
 	static GLboolean IsEnabled(GLenum cap);
 	static void UseProgram(GLuint program);
@@ -149,6 +150,10 @@ inline void GL::Clear(GLbitfield mask) {
 
 inline void GL::ReadBuffer(GLenum mode) {
 	GL_CALL(glReadBuffer(mode));
+}
+
+inline void GL::StencilMask(GLuint mask) {
+	GL_CALL(glStencilMask(mask));
 }
 
 inline void GL::DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers) {

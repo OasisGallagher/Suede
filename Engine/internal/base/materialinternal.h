@@ -23,6 +23,10 @@ public:
 	virtual void Bind(uint pass);
 	virtual void Unbind();
 
+	virtual void EnablePass(uint pass);
+	virtual void DisablePass(uint pass);
+	virtual bool IsPassEnabled(uint pass) const;
+
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
 

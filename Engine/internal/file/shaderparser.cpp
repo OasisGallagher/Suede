@@ -9,6 +9,8 @@
 #include "memory/memory.h"
 #include "internal/base/glsldefines.h"
 
+#define MAX_PASS_COUNT	8
+
 bool GLSLParser::Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines) {
 	Clear();
 	path_ = path;
@@ -199,6 +201,10 @@ void ShaderParser::ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::
 
 void ShaderParser::ReadPasses(SyntaxNode* node, std::vector<Semantics::Pass>& passes) {
 	ReadTree(node, "Passes", &ShaderParser::ReadPass, passes);
+	if (passes.size() > MAX_PASS_COUNT) {
+		Debug::LogError("pass count must be less equal to %d.", MAX_PASS_COUNT);
+		passes.erase(passes.begin() + MAX_PASS_COUNT, passes.end());
+	}
 }
 
 void ShaderParser::ReadRenderStates(SyntaxNode* node, std::vector<Semantics::RenderState>& states) {
@@ -264,15 +270,11 @@ void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
 }
 
 void ShaderParser::ReadVec3(SyntaxNode* node, Property& property) {
-	if (node->GetChildCount() >= 2) {
-		ReadSingle3(node, property);
-	}
+	ReadSingle3(node, property);
 }
 
 void ShaderParser::ReadVec4(SyntaxNode* node, Property& property) {
-	if (node->GetChildCount() >= 2) {
-		ReadSingle4(node, property);
-	}
+	ReadSingle4(node, property);
 }
 
 void ShaderParser::ReadTex2(SyntaxNode* node, Property& property) {

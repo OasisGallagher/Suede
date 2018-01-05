@@ -9,9 +9,7 @@
  * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
  * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
  * @param StencilTest1: [0x00, 0xFF].
- * @param StencilTest2: [0x00, 0xFF].
- * @param StencilMask0: Front, Back, FrontAndBack.
- * @param StencilMask1: [0x00, 0xFF].
+ * @param StencilMask: On, Off.
  * @param StencilOp0: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
  * @param StencilOp1: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
  * @param StencilOp2: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
@@ -27,7 +25,7 @@ enum RenderStateType {
 
 	StencilOp,
 	StencilTest,
-	StencilMask,
+	StencilWrite,
 
 	RenderStateCount,
 };
@@ -132,7 +130,7 @@ private:
 
 class StencilTestState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int parameter1, int parameter2);
+	virtual void Initialize(int parameter0, int parameter1, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
@@ -147,16 +145,15 @@ private:
 
 	int parameter0_;
 	int parameter1_;
-	int parameter2_;
 };
 
-class StencilMaskState : public RenderState {
+class StencilWriteState : public RenderState {
 public:
-	virtual void Initialize(int parameter0, int parameter1, int);
+	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return StencilMask; }
+	virtual RenderStateType GetType() const { return StencilWrite; }
 
 private:
 	GLuint oldBackMask_;

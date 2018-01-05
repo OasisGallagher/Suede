@@ -253,20 +253,23 @@ bool AssetImporter::ReadAttribute(MeshAttribute& attribute, int index) {
 void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[index];
 
+	// TODO: multiple texture coords?
+	for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
+		if (aimesh->HasTextureCoords(i)) {
+			Debug::LogWarning("multiple texture coordinates");
+		}
+	}
+
+	bool logged = false;
 	const aiVector3D zero(0);
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
 		const aiVector3D* pos = &aimesh->mVertices[i];
 		const aiVector3D* normal = &aimesh->mNormals[i];
-		// TODO: multiple texture coords?
-		for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
-			if (aimesh->HasTextureCoords(i)) {
-				Debug::LogError("multiple texture coordinates");
-			}
-		}
 
 		// TODO:
-		if (aimesh->GetNumUVChannels() != 1) {
-			Debug::LogError("multiple uv channels");
+		if (aimesh->GetNumUVChannels() != 1 && !logged) {
+			logged = true;
+			Debug::LogWarning("this mesh contains %d uv channel(s).", aimesh->GetNumUVChannels());
 		}
 
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;

@@ -14,7 +14,7 @@
 	} else (void)0
 
 void CullState::Initialize(int parameter0, int, int) {
-	CHECK_PARAMETER(Cull, parameter0, Back, Off);
+	CHECK_PARAMETER(Cull, parameter0, Front, Back, Off);
 	parameter_ = parameter0;
 }
 
@@ -84,19 +84,13 @@ RenderState* ZWriteState::Clone() {
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
 	CHECK_PARAMETER(StencilTest, parameter0, Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off);
 
-	if (parameter1 > 0xFF || parameter1 < 0x00) {
+	if (parameter0 != Off && (parameter1 > 0xFF || parameter1 < 0x00)) {
 		Debug::LogError("invalid parameter1 for 'StencilTest'.");
-		return;
-	}
-
-	if (parameter2 > 0xFF || parameter2 < 0x00) {
-		Debug::LogError("invalid parameter2 for 'StencilTest'.");
 		return;
 	}
 
 	parameter0_ = parameter0;
 	parameter1_ = parameter1;
-	parameter2_ = parameter2;
 }
 
 void StencilTestState::Bind() {
@@ -108,7 +102,7 @@ void StencilTestState::Bind() {
 		GL::GetIntegerv(GL_STENCIL_FUNC, (GLint*)&oldFunc_);
 		GL::GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint*)&oldMask_);
 
-		GL::StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, parameter2_);
+		GL::StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, 0xFF);
 	}
 }
 
@@ -123,32 +117,26 @@ RenderState * StencilTestState::Clone() {
 	return MEMORY_CLONE(StencilTestState, this);
 }
 
-void StencilMaskState::Initialize(int parameter0, int parameter1, int) {
-	CHECK_PARAMETER(StencilMask, parameter0, Front, Back, FrontAndBack);
-
-	if (parameter1 > 0xFF || parameter1 < 0x00) {
-		Debug::LogError("invalid parameter1 for 'StencilMask'.");
-		return;
-	}
+void StencilWriteState::Initialize(int parameter0, int, int) {
+	CHECK_PARAMETER(StencilWrite, parameter0, On, Off);
 
 	parameter0_ = parameter0;
-	parameter1_ = parameter1;
 }
 
-void StencilMaskState::Bind() {
+void StencilWriteState::Bind() {
 	GL::GetIntegerv(GL_STENCIL_WRITEMASK, (GLint*)&oldFrontMask_);
 	GL::GetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint*)&oldBackMask_);
 
-	GL::StencilMaskSeparate(RenderParamterToGLEnum(parameter0_), parameter1_);
+	GL::StencilMask(parameter0_ == On ? 0xFF : 0);
 }
 
-void StencilMaskState::Unbind() {
+void StencilWriteState::Unbind() {
 	GL::StencilMaskSeparate(GL_FRONT, oldFrontMask_);
 	GL::StencilMaskSeparate(GL_BACK, oldBackMask_);
 }
 
-RenderState * StencilMaskState::Clone() {
-	return MEMORY_CLONE(StencilMaskState, this);
+RenderState * StencilWriteState::Clone() {
+	return MEMORY_CLONE(StencilWriteState, this);
 }
 
 void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) {

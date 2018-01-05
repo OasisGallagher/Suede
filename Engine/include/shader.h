@@ -17,6 +17,10 @@ public:
 	virtual void Bind(uint subShader, uint pass) = 0;
 	virtual void Unbind() = 0;
 
+	virtual void EnablePass(uint subShader, uint pass) = 0;
+	virtual void DisablePass(uint subShader, uint pass) = 0;
+	virtual bool IsPassEnabled(uint subShader, uint pass) const = 0;
+
 	virtual uint GetPassCount(uint subShader) const = 0;
 	virtual void GetProperties(std::vector<Property>& properties) = 0;
 	virtual bool SetProperty(uint subShader, uint pass, const std::string& name, const void* data) = 0;

@@ -31,6 +31,8 @@ private:
 
 	void InitializeRenderStates(const std::vector<Semantics::RenderState>& states);
 	RenderState* CreateRenderState(const Semantics::RenderState& state);
+	RenderState* AllocateRenderState(const Semantics::RenderState &state);
+
 	bool ParseRenderStateParameters(int* answer, const std::string* parameters);
 	int RenderStateParameterToInteger(const std::string& parameter);
 
@@ -87,6 +89,10 @@ public:
 	void Bind(uint pass);
 	void Unbind();
 
+	void EnablePass(uint pass);
+	void DisablePass(uint pass);
+	bool IsPassEnabled(uint pass) const;
+
 	Pass* GetPass(uint pass);
 	uint GetPassCount() const { return passCount_; }
 
@@ -98,6 +104,7 @@ private:
 private:
 	Pass* passes_;
 	uint passCount_;
+	uint passEnabled_;
 	uint currentPass_;
 
 	Tag* tags_;
@@ -116,6 +123,10 @@ public:
 
 	virtual void Bind(uint subShader, uint pass);
 	virtual void Unbind();
+
+	virtual void EnablePass(uint subShader, uint pass);
+	virtual void DisablePass(uint subShader, uint pass);
+	virtual bool IsPassEnabled(uint subShader, uint pass) const;
 
 	virtual uint GetPassCount(uint subShader) const { return subShaders_[subShader].GetPassCount(); }
 	virtual void GetProperties(std::vector<Property>& properties);

@@ -232,6 +232,33 @@ void MaterialInternal::Unbind() {
 	shader_->Unbind();
 }
 
+void MaterialInternal::EnablePass(uint pass) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
+	shader_->EnablePass(subShader, pass);
+}
+
+void MaterialInternal::DisablePass(uint pass) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
+	shader_->DisablePass(subShader, pass);
+}
+
+bool MaterialInternal::IsPassEnabled(uint pass) const {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return false;
+	}
+
+	return shader_->IsPassEnabled(subShader, pass);
+}
+
 void MaterialInternal::Define(const std::string& name) {
 }
 

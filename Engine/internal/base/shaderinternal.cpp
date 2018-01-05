@@ -143,40 +143,28 @@ RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 		return false;
 	}
 
-	RenderState* answer = nullptr;
-	if (state.type == "Cull") {
-		answer = MEMORY_CREATE(CullState);
-	}
-	else if (state.type == "ZTest") {
-		answer = MEMORY_CREATE(ZTestState);
-	}
-	else if (state.type == "Blend") {
-		answer = MEMORY_CREATE(BlendState);
-	}
-	else if (state.type == "ZWrite") {
-		answer = MEMORY_CREATE(ZWriteState);
-	}
-	else if (state.type == "StencilOp") {
-		answer = MEMORY_CREATE(StencilOpState);
-	}
-	else if (state.type == "StencilTest") {
-		answer = MEMORY_CREATE(StencilTestState);
-	}
-	else if (state.type == "StencilMask") {
-		answer = MEMORY_CREATE(StencilMaskState);
-	}
-	else if (state.type == "RasterizerDiscard") {
-		answer = MEMORY_CREATE(RasterizerDiscardState);
-	}
-	else {
-		Debug::LogError("invalid render state %s.", state.type.c_str());
-	}
-
+	RenderState* answer = AllocateRenderState(state);
 	if (answer != nullptr) {
 		answer->Initialize(parameters[0], parameters[1], parameters[2]);
 	}
 
 	return answer;
+}
+
+RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
+#define CASE(name)	if (state.type == #name) return MEMORY_CREATE(name ## State)
+	CASE(Cull);
+	CASE(ZTest);
+	CASE(Blend);
+	CASE(ZWrite);
+	CASE(StencilOp);
+	CASE(StencilTest);
+	CASE(StencilWrite);
+	CASE(RasterizerDiscard);
+#undef CASE
+
+	Debug::LogError("invalid render state %s.", state.type.c_str());
+	return nullptr;
 }
 
 bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters) {
@@ -431,7 +419,7 @@ bool Pass::IsSampler(int type) {
 }
 
 SubShader::SubShader() : passes_(nullptr), passCount_(0)
-	, currentPass_(UINT_MAX), tags_(nullptr), tagCount_(0) {
+	, currentPass_(UINT_MAX), tags_(nullptr), tagCount_(0), passEnabled_(UINT_MAX) {
 }
 
 SubShader::~SubShader() {
@@ -461,6 +449,11 @@ void SubShader::Bind(uint pass) {
 		return;
 	}
 
+	if (!IsPassEnabled(pass)) {
+		Debug::LogError("pass %d is not enabled.", pass);
+		return;
+	}
+
 	passes_[pass].Bind();
 	currentPass_ = pass;
 }
@@ -473,6 +466,33 @@ void SubShader::Unbind() {
 
 	passes_[currentPass_].Unbind();
 	currentPass_ = UINT_MAX;
+}
+
+void SubShader::EnablePass(uint pass) {
+	if (pass >= passCount_) {
+		Debug::LogError("pass index out of range.");
+		return;
+	}
+
+	passEnabled_ |= (1 << pass);
+}
+
+void SubShader::DisablePass(uint pass) {
+	if (pass >= passCount_) {
+		Debug::LogError("pass index out of range.");
+		return;
+	}
+
+	passEnabled_ &= ~(1 << pass);
+}
+
+bool SubShader::IsPassEnabled(uint pass) const {
+	if (pass >= passCount_) {
+		Debug::LogError("pass index out of range.");
+		return false;
+	}
+
+	return (passEnabled_ & (1 << pass)) != 0;
 }
 
 Pass* SubShader::GetPass(uint pass) {
@@ -585,6 +605,33 @@ void ShaderInternal::Unbind() {
 
 	subShaders_[currentSubShader_].Unbind();
 	currentSubShader_ = UINT_MAX;
+}
+
+void ShaderInternal::EnablePass(uint subShader, uint pass) {
+	if (currentSubShader_ > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	subShaders_[currentSubShader_].EnablePass(pass);
+}
+
+void ShaderInternal::DisablePass(uint subShader, uint pass) {
+	if (currentSubShader_ > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	subShaders_[currentSubShader_].DisablePass(pass);
+}
+
+bool ShaderInternal::IsPassEnabled(uint subShader, uint pass) const {
+	if (currentSubShader_ > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return false;
+	}
+
+	return subShaders_[currentSubShader_].IsPassEnabled(pass);
 }
 
 void ShaderInternal::GetProperties(std::vector<Property>& properties) {
