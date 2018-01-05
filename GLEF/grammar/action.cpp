@@ -142,10 +142,10 @@ SyntaxNode* ActionIndex::Invoke(const std::vector<void*>& container) {
 	return (SyntaxNode*)container[container.size() - argument_.parameters.front()];
 }
 
-std::string ActionMake::ToString() const {
+std::string ActionCreate::ToString() const {
 	std::ostringstream oss;
 	
-	oss << "$$ = make(\"" + argument_.text + "\"";
+	oss << "$$ = " + GetName() + "(\"" + argument_.text + "\"";
 
 	for (std::vector<int>::const_iterator ite = argument_.parameters.begin();
 		ite != argument_.parameters.end(); ++ite) {
@@ -158,25 +158,7 @@ std::string ActionMake::ToString() const {
 	return oss.str();
 }
 
-SyntaxNode* ActionMake::Invoke(const std::vector<void*>& container) {
-	SyntaxNode* ans = new SyntaxNode(SyntaxNodeOperation, argument_.text);
-	SyntaxNode** nodes = new SyntaxNode*[argument_.parameters.size()];
-	for (int i = 0; i < (int)argument_.parameters.size(); ++i) {
-		if (argument_.parameters[i] == 0) {
-			nodes[i] = nullptr;
-		}
-		else {
-			nodes[i] = (SyntaxNode*)container[container.size() - argument_.parameters[i]];
-		}
-	}
-
-	ans->AddChildren(nodes, argument_.parameters.size());
-	delete[] nodes;
-
-	return ans;
-}
-
-bool ActionMake::ParseParameters(TextScanner& scanner, Argument& argument) {
+bool ActionCreate::ParseParameters(TextScanner& scanner, Argument& argument) {
 	std::string token;
 	ScannerTokenType tokenType = scanner.GetToken(token);
 	if (tokenType != ScannerTokenLeftParenthesis) {
@@ -202,6 +184,54 @@ bool ActionMake::ParseParameters(TextScanner& scanner, Argument& argument) {
 	}
 
 	return Action::ParseParameters(scanner, argument);
+}
+
+SyntaxNode* ActionMake::Invoke(const std::vector<void*>& container) {
+	SyntaxNode* ans = new SyntaxNode(SyntaxNodeOperation, argument_.text);
+	SyntaxNode** nodes = new SyntaxNode*[argument_.parameters.size()];
+	for (int i = 0; i < (int)argument_.parameters.size(); ++i) {
+		if (argument_.parameters[i] == 0) {
+			nodes[i] = nullptr;
+		}
+		else {
+			nodes[i] = (SyntaxNode*)container[container.size() - argument_.parameters[i]];
+		}
+	}
+
+	ans->AddChildren(nodes, argument_.parameters.size());
+	delete[] nodes;
+
+	return ans;
+}
+
+SyntaxNode* ActionMerge::Invoke(const std::vector<void*>& container) {
+	SyntaxNode* ans = new SyntaxNode(SyntaxNodeOperation, argument_.text);
+	SyntaxNode* first = (SyntaxNode*)container[container.size() - argument_.parameters.front()];
+	std::vector<SyntaxNode*> nodes;
+	nodes.reserve(argument_.parameters.size());
+
+	int start = 0;
+	if (ans->ToString() == first->ToString()) {
+		for (int i = 0; i < first->GetChildCount(); ++i) {
+			nodes.push_back(first->GetChild(i));
+		}
+
+		start = 1;
+		delete first;
+	}
+
+	for (; start < (int)argument_.parameters.size(); ++start) {
+		if (argument_.parameters[start] == 0) {
+			nodes.push_back(nullptr);
+		}
+		else {
+			nodes.push_back((SyntaxNode*)container[container.size() - argument_.parameters[start]]);
+		}
+	}
+
+	ans->AddChildren(&nodes[0], nodes.size());
+
+	return ans;
 }
 
 Action* ActionParser::Parse(const std::string& cmd) {
@@ -261,6 +291,10 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 		if (token == "make") {
 			action = new ActionMake();
 			argument.text = "make";
+		}
+		else if (token == "merge") {
+			action = new ActionMerge();
+			argument.text = "merge";
 		}
 		else if (token == "integer") {
 			action = new ActionInteger();

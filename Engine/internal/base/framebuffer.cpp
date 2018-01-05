@@ -24,6 +24,8 @@ void FramebufferBase::ReadBuffer(std::vector<uchar>& pixels) {
 	
 	pixels.resize(3 * GetViewportWidth() * GetViewportHeight());
 	GL::ReadPixels(0, 0, GetViewportWidth(), GetViewportHeight(), GL_RGB, GL_UNSIGNED_BYTE, &pixels[0]);
+
+	UnbindFramebuffer();
 }
 
 void FramebufferBase::BindFramebuffer(FramebufferTarget target) {

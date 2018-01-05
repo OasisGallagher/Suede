@@ -138,10 +138,25 @@ private:
 
 	template <class Cont>
 	typename Cont::reference Append(Cont& cont);
+
+	template <class Cont, class Reader>
+	void ReadTree(SyntaxNode* node, const char* plurality, Reader reader, Cont& cont);
 };
 
 template<class Cont>
 inline typename Cont::reference ShaderParser::Append(Cont& cont) {
 	cont.push_back(Cont::value_type());
 	return cont.back();
+}
+
+template <class Cont, class Reader>
+void ShaderParser::ReadTree(SyntaxNode* node, const char* plurality, Reader reader, Cont& cont) {
+	if (node->ToString() == plurality) {
+		for (int i = 0; i < node->GetChildCount(); ++i) {
+			(this->*reader)(node->GetChild(i), Append(cont));
+		}
+	}
+	else {
+		(this->*reader)(node, Append(cont));
+	}
 }

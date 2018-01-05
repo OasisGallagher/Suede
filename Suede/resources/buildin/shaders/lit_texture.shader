@@ -73,8 +73,7 @@ SubShader {
 
 		void main() {
 			// normal local to world space.
-			vec3 position = c_position + c_normal * 0;
-			float scale = 1.1;
+			float scale = 1.03;
 			mat4 scaleMatrix = mat4(
 				scale, 0, 0, 0,
 				0, scale, 0, 0,
@@ -82,7 +81,7 @@ SubShader {
 				0, 0, 0, 1		
 			);
 
-			gl_Position = c_localToClipSpaceMatrix * scaleMatrix * vec4(position, 1);
+			gl_Position = c_localToClipSpaceMatrix * scaleMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment

@@ -65,11 +65,29 @@ public:
 	virtual SyntaxNode* Invoke(const std::vector<void*>& container);
 };
 
-class ActionMake : public Action {
+class ActionCreate : public Action {
 public:
 	virtual std::string ToString() const;
-	virtual SyntaxNode* Invoke(const std::vector<void*>& container);
 	virtual bool ParseParameters(TextScanner& scanner, Argument& argument);
+
+protected:
+	virtual std::string GetName() const = 0;
+};
+
+class ActionMake : public ActionCreate {
+public:
+	virtual SyntaxNode* Invoke(const std::vector<void*>& container);
+
+protected:
+	virtual std::string GetName() const { return "make"; }
+};
+
+class ActionMerge : public ActionMake {
+public:
+	virtual SyntaxNode* Invoke(const std::vector<void*>& container);
+
+protected:
+	virtual std::string GetName() const { return "merge"; }
 };
 
 class ActionParser {
