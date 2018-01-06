@@ -27,6 +27,10 @@ public:
 	virtual void DisablePass(uint pass);
 	virtual bool IsPassEnabled(uint pass) const;
 
+	virtual void EnablePass(const std::string& passName);
+	virtual void DisablePass(const std::string& passName);
+	virtual bool IsPassEnabled(const std::string& passName) const;
+
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
 

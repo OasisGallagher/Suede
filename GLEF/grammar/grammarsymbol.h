@@ -100,6 +100,7 @@ public:
 	static GrammarSymbol code;
 	static GrammarSymbol integer;
 	static GrammarSymbol single;
+	static GrammarSymbol boolean;
 	static GrammarSymbol string;
 	static GrammarSymbol unknown;
 	static GrammarSymbol epsilon;

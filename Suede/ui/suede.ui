@@ -34,10 +34,10 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>270</y>
-      <width>80</width>
-      <height>100</height>
+      <x>130</x>
+      <y>0</y>
+      <width>321</width>
+      <height>271</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -81,10 +81,10 @@
    <widget class="QDockWidget" name="hierarchy">
     <property name="geometry">
      <rect>
-      <x>120</x>
-      <y>270</y>
-      <width>181</width>
-      <height>111</height>
+      <x>450</x>
+      <y>-4</y>
+      <width>151</width>
+      <height>281</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -124,24 +124,30 @@
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
        </widget>
       </item>
      </layout>
     </widget>
    </widget>
    <widget class="QDockWidget" name="console">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>1</x>
       <y>270</y>
-      <width>211</width>
-      <height>101</height>
+      <width>601</width>
+      <height>149</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>80</width>
-      <height>93</height>
+      <width>89</width>
+      <height>111</height>
      </size>
     </property>
     <property name="floating">
@@ -177,6 +183,57 @@
      </layout>
     </widget>
    </widget>
+   <widget class="QDockWidget" name="inspector">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>131</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>89</width>
+      <height>111</height>
+     </size>
+    </property>
+    <property name="floating">
+     <bool>false</bool>
+    </property>
+    <property name="allowedAreas">
+     <set>Qt::AllDockWidgetAreas</set>
+    </property>
+    <property name="windowTitle">
+     <string>Inspector</string>
+    </property>
+    <widget class="View" name="inspectorWidget">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QTableWidget" name="table_2">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -199,203 +256,6 @@
    </widget>
    <addaction name="file"/>
   </widget>
-  <widget class="QDockWidget" name="inspector">
-   <property name="windowTitle">
-    <string>Inspector</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>4</number>
-   </attribute>
-   <widget class="View" name="inspectorWidget">
-    <layout class="QVBoxLayout" name="verticalLayout_5">
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QGroupBox" name="basic">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>Basic</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QCheckBox" name="checkBox">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="name">
-          <property name="text">
-           <string>name goes here</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="transform">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>Transform</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="2">
-         <widget class="QLineEdit" name="lineEdit_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>R</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="lineEdit_4">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="lineEdit_1">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QLineEdit" name="lineEdit_3">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>S</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="lineEdit_5">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_1">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>P</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QLineEdit" name="lineEdit_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QLineEdit" name="lineEdit_6">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_7">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QLineEdit" name="lineEdit_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <action name="exit">
    <property name="text">
     <string>&amp;Exit</string>
@@ -409,7 +269,6 @@
     <string>Ctrl+P</string>
    </property>
   </action>
-  <zorder>inspector</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

@@ -87,6 +87,12 @@ void SyntaxNode::SetSingleAddress(Single* addr) {
 	}
 }
 
+void SyntaxNode::SetBooleanAddress(Boolean* addr) {
+	if (DebugNodeType(type_, SyntaxNodeBoolean)) {
+		value_.boolean = addr;
+	}
+}
+
 void SyntaxNode::SetSymbolAddress(Sym* addr) {
 	if (DebugNodeType(type_, SyntaxNodeSymbol)) {
 		value_.symbol = addr;

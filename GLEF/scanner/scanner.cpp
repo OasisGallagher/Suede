@@ -154,8 +154,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 		case IdentifierState:
 			if (!String::IsDigit(ch) && !String::IsLetter(ch)) {
 				state = DoneState;
-				tokenType = (buffer == GLSL_CODE_BEGIN) 
-					? ScannerTokenCode : ScannerTokenIdentifier;
+				tokenType = ParseIdentifierType(buffer);
 				unget = true;
 				savech = false;
 			}
@@ -267,6 +266,12 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 	}
 
 	return tokenType;
+}
+
+ScannerTokenType TextScanner::ParseIdentifierType(const std::string& buffer) {
+	if (buffer == GLSL_CODE_BEGIN) { return ScannerTokenCode; }
+	if (buffer == TRUE_TEXT || buffer == FALSE_TEXT) { return ScannerTokenBoolean; }
+	return ScannerTokenIdentifier;
 }
 
 SourceScanner::SourceScanner()

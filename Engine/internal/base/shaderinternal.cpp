@@ -25,6 +25,8 @@ Pass::~Pass() {
 }
 
 bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
+	name_ = pass.name;
+
 	InitializeRenderStates(pass.renderStates);
 	
 	std::string sources[ShaderStageCount];
@@ -438,6 +440,9 @@ bool SubShader::Initialize(const Semantics::SubShader& config, const std::string
 
 	for (uint i = 0; i < passCount_; ++i) {
 		passes_[i].Initialize(config.passes[i], path);
+		if (!config.passes[i].enabled) {
+			passEnabled_ &= ~(1 << i);
+		}
 	}
 
 	return true;
@@ -493,6 +498,34 @@ bool SubShader::IsPassEnabled(uint pass) const {
 	}
 
 	return (passEnabled_ & (1 << pass)) != 0;
+}
+
+void SubShader::EnablePass(const std::string& name) {
+	for (int i = 0; i < passCount_; ++i) {
+		if (passes_[i].GetName() == name) {
+			EnablePass(i);
+			break;
+		}
+	}
+}
+
+void SubShader::DisablePass(const std::string& name) {
+	for (int i = 0; i < passCount_; ++i) {
+		if (passes_[i].GetName() == name) {
+			DisablePass(i);
+			break;
+		}
+	}
+}
+
+bool SubShader::IsPassEnabled(const std::string& name) const {
+	for (int i = 0; i < passCount_; ++i) {
+		if (passes_[i].GetName() == name) {
+			return IsPassEnabled(i);
+		}
+	}
+
+	return false;
 }
 
 Pass* SubShader::GetPass(uint pass) {
@@ -587,14 +620,14 @@ void ShaderInternal::ParseSubShaders(std::vector<Semantics::SubShader>& subShade
 	}
 }
 
-void ShaderInternal::Bind(uint subShader, uint pass) {
-	if (subShader > subShaderCount_) {
+void ShaderInternal::Bind(uint ssi, uint pass) {
+	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
 		return;
 	}
 
-	subShaders_[subShader].Bind(pass);
-	currentSubShader_ = subShader;
+	subShaders_[ssi].Bind(pass);
+	currentSubShader_ = ssi;
 }
 
 void ShaderInternal::Unbind() {
@@ -607,42 +640,69 @@ void ShaderInternal::Unbind() {
 	currentSubShader_ = UINT_MAX;
 }
 
-void ShaderInternal::EnablePass(uint subShader, uint pass) {
-	if (currentSubShader_ > subShaderCount_) {
+void ShaderInternal::EnablePass(uint ssi, uint pass) {
+	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
 		return;
 	}
 
-	subShaders_[currentSubShader_].EnablePass(pass);
+	subShaders_[ssi].EnablePass(pass);
 }
 
-void ShaderInternal::DisablePass(uint subShader, uint pass) {
-	if (currentSubShader_ > subShaderCount_) {
+void ShaderInternal::DisablePass(uint ssi, uint pass) {
+	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
 		return;
 	}
 
-	subShaders_[currentSubShader_].DisablePass(pass);
+	subShaders_[ssi].DisablePass(pass);
 }
 
-bool ShaderInternal::IsPassEnabled(uint subShader, uint pass) const {
-	if (currentSubShader_ > subShaderCount_) {
+bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
+	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
 		return false;
 	}
 
-	return subShaders_[currentSubShader_].IsPassEnabled(pass);
+	return subShaders_[ssi].IsPassEnabled(pass);
+}
+
+void ShaderInternal::EnablePass(uint ssi, const std::string & passName) {
+	if (ssi > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	subShaders_[ssi].EnablePass(passName);
+}
+
+void ShaderInternal::DisablePass(uint ssi, const std::string & passName) {
+	if (ssi > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	subShaders_[ssi].DisablePass(passName);
+}
+
+bool ShaderInternal::IsPassEnabled(uint ssi, const std::string & passName) const {
+	if (ssi > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return false;
+	}
+
+	return subShaders_[ssi].IsPassEnabled(passName);
 }
 
 void ShaderInternal::GetProperties(std::vector<Property>& properties) {
 	properties = properties_;
 }
 
-bool ShaderInternal::SetProperty(uint subShader, uint pass, const std::string& name, const void* data) {
-	if (subShader > subShaderCount_) {
+bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {
+	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
 		return false;
 	}
 
-	return subShaders_[subShader].GetPass(pass)->SetProperty(name, data);
+	return subShaders_[ssi].GetPass(pass)->SetProperty(name, data);
 }

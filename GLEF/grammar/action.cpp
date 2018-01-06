@@ -96,6 +96,17 @@ SyntaxNode* ActionSingle::Invoke(const std::vector<void*>& container) {
 	return ans;
 }
 
+std::string ActionBoolean::ToString() const {
+	return std::string("$$ = boolean($") + std::to_string(argument_.parameters.front()) + ")";
+}
+
+SyntaxNode* ActionBoolean::Invoke(const std::vector<void*>& container) {
+	Boolean* boolean = (Boolean*)container[container.size() - argument_.parameters.front()];
+	SyntaxNode* ans = new SyntaxNode(SyntaxNodeBoolean, boolean->ToString());
+	ans->SetBooleanAddress(boolean);
+	return ans;
+}
+
 std::string ActionLiteral::ToString() const {
 	return std::string("$$ = literal($") + std::to_string(argument_.parameters.front()) + ")";
 }
@@ -142,10 +153,10 @@ SyntaxNode* ActionIndex::Invoke(const std::vector<void*>& container) {
 	return (SyntaxNode*)container[container.size() - argument_.parameters.front()];
 }
 
-std::string ActionCreate::ToString() const {
+std::string ActionMake::ToString() const {
 	std::ostringstream oss;
 	
-	oss << "$$ = " + GetName() + "(\"" + argument_.text + "\"";
+	oss << "$$ = make(\"" + argument_.text + "\"";
 
 	for (std::vector<int>::const_iterator ite = argument_.parameters.begin();
 		ite != argument_.parameters.end(); ++ite) {
@@ -158,7 +169,7 @@ std::string ActionCreate::ToString() const {
 	return oss.str();
 }
 
-bool ActionCreate::ParseParameters(TextScanner& scanner, Argument& argument) {
+bool ActionMake::ParseParameters(TextScanner& scanner, Argument& argument) {
 	std::string token;
 	ScannerTokenType tokenType = scanner.GetToken(token);
 	if (tokenType != ScannerTokenLeftParenthesis) {
@@ -188,36 +199,12 @@ bool ActionCreate::ParseParameters(TextScanner& scanner, Argument& argument) {
 
 SyntaxNode* ActionMake::Invoke(const std::vector<void*>& container) {
 	SyntaxNode* ans = new SyntaxNode(SyntaxNodeOperation, argument_.text);
-	SyntaxNode** nodes = new SyntaxNode*[argument_.parameters.size()];
-	for (int i = 0; i < (int)argument_.parameters.size(); ++i) {
-		if (argument_.parameters[i] == 0) {
-			nodes[i] = nullptr;
-		}
-		else {
-			nodes[i] = (SyntaxNode*)container[container.size() - argument_.parameters[i]];
-		}
-	}
-
-	ans->AddChildren(nodes, argument_.parameters.size());
-	delete[] nodes;
-
-	return ans;
-}
-
-SyntaxNode* ActionMerge::Invoke(const std::vector<void*>& container) {
-	SyntaxNode* ans = new SyntaxNode(SyntaxNodeOperation, argument_.text);
-	SyntaxNode* first = (SyntaxNode*)container[container.size() - argument_.parameters.front()];
 	std::vector<SyntaxNode*> nodes;
 	nodes.reserve(argument_.parameters.size());
 
 	int start = 0;
-	if (ans->ToString() == first->ToString()) {
-		for (int i = 0; i < first->GetChildCount(); ++i) {
-			nodes.push_back(first->GetChild(i));
-		}
-
+	if (Deflate(nodes, ans, container)) {
 		start = 1;
-		delete first;
 	}
 
 	for (; start < (int)argument_.parameters.size(); ++start) {
@@ -232,6 +219,20 @@ SyntaxNode* ActionMerge::Invoke(const std::vector<void*>& container) {
 	ans->AddChildren(&nodes[0], nodes.size());
 
 	return ans;
+}
+
+bool ActionMake::Deflate(std::vector<SyntaxNode*>& nodes, const SyntaxNode* node, const std::vector<void*> &container) {
+	SyntaxNode* first = (SyntaxNode*)container[container.size() - argument_.parameters.front()];
+	if (first == nullptr || first->ToString() != node->ToString()) {
+		return false;
+	}
+
+	for (int i = 0; i < first->GetChildCount(); ++i) {
+		nodes.push_back(first->GetChild(i));
+	}
+
+	delete first;
+	return true;
 }
 
 Action* ActionParser::Parse(const std::string& cmd) {
@@ -292,10 +293,6 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 			action = new ActionMake();
 			argument.text = "make";
 		}
-		else if (token == "merge") {
-			action = new ActionMerge();
-			argument.text = "merge";
-		}
 		else if (token == "integer") {
 			action = new ActionInteger();
 			argument.text = "integer";
@@ -303,6 +300,10 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 		else if (token == "single") {
 			action = new ActionSingle();
 			argument.text = "single";
+		}
+		else if (token == "boolean") {
+			action = new ActionBoolean();
+			argument.text = "boolean";
 		}
 		else if (token == "symbol") {
 			action = new ActionSymbol();

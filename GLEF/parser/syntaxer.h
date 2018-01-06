@@ -18,6 +18,7 @@ class CodeTable;
 class LiteralTable;
 class IntegerTable;
 class SingleTable;
+class BooleanTable;
 
 struct SyntaxerSetupParameter {
 	Environment* env;
@@ -50,6 +51,11 @@ public:
 };
 
 class Single : public SyntaxElement {
+public:
+	void SetText(const std::string& value);
+};
+
+class Boolean : public SyntaxElement {
 public:
 	void SetText(const std::string& value);
 };
@@ -94,4 +100,5 @@ private:
 	LiteralTable* literalTable_;
 	IntegerTable* integerTable_;
 	SingleTable* singleTable_;
+	BooleanTable* booleanTable_;
 };

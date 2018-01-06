@@ -84,6 +84,9 @@
     <ClInclude Include="memory\memory.h">
       <Filter>memory\include</Filter>
     </ClInclude>
+    <ClInclude Include="debug\stackwalker.h">
+      <Filter>debug\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">
@@ -109,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="memory\refcount.cpp">
       <Filter>memory\src</Filter>
+    </ClCompile>
+    <ClCompile Include="debug\stackwalker.cpp">
+      <Filter>debug\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

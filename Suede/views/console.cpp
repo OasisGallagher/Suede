@@ -21,7 +21,7 @@ void Console::addMessage(MessageType type, const QString& message) {
 	table_->setColumnWidth(0, 24);
 
 	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
-	QTableWidgetItem* text = new QTableWidgetItem(message);
+	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
 	table_->setItem(r, 0, icon);
 	table_->setItem(r, 1, text);
 	table_->scrollToBottom();

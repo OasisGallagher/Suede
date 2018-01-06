@@ -365,11 +365,20 @@ void ShaderParser::ReadCode(SyntaxNode* node, std::string& source) {
 void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
 	SyntaxNode* c0 = node->GetChild(0);
 	if (c0 != nullptr) {
-		ReadRenderStates(c0, pass.renderStates);
+		pass.name = c0->ToString();
 	}
 
-	if (node->GetChild(1) != nullptr) {
-		ReadCode(node->GetChild(1), pass.source);
+	SyntaxNode* c1 = node->GetChild(1);
+	pass.enabled = (c1 == nullptr) || String::ToBool(c1->ToString());
+
+	SyntaxNode* c2 = node->GetChild(2);
+	if (c2 != nullptr) {
+		ReadRenderStates(c2, pass.renderStates);
+	}
+
+	SyntaxNode* c3 = node->GetChild(3);
+	if (c3 != nullptr) {
+		ReadCode(c3, pass.source);
 	}
 }
 

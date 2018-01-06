@@ -5,7 +5,8 @@
 #include "tools/string.h"
 #include "materialinternal.h"
 
-static const uint subShader = 0;
+// TODO: sub shader index.
+#define SUB_SHADER_INDEX	0
 
 MaterialInternal::MaterialInternal()
 	: ObjectInternal(ObjectTypeMaterial), pass_(-1) {
@@ -219,12 +220,12 @@ uint MaterialInternal::GetPassCount() const {
 		return 0;
 	}
 
-	return shader_->GetPassCount(subShader);
+	return shader_->GetPassCount(SUB_SHADER_INDEX);
 }
 
 void MaterialInternal::Bind(uint pass) {
 	BindProperties(pass);
-	shader_->Bind(subShader, pass);
+	shader_->Bind(SUB_SHADER_INDEX, pass);
 }
 
 void MaterialInternal::Unbind() {
@@ -238,7 +239,7 @@ void MaterialInternal::EnablePass(uint pass) {
 		return;
 	}
 
-	shader_->EnablePass(subShader, pass);
+	shader_->EnablePass(SUB_SHADER_INDEX, pass);
 }
 
 void MaterialInternal::DisablePass(uint pass) {
@@ -247,7 +248,7 @@ void MaterialInternal::DisablePass(uint pass) {
 		return;
 	}
 
-	shader_->DisablePass(subShader, pass);
+	shader_->DisablePass(SUB_SHADER_INDEX, pass);
 }
 
 bool MaterialInternal::IsPassEnabled(uint pass) const {
@@ -256,7 +257,34 @@ bool MaterialInternal::IsPassEnabled(uint pass) const {
 		return false;
 	}
 
-	return shader_->IsPassEnabled(subShader, pass);
+	return shader_->IsPassEnabled(SUB_SHADER_INDEX, pass);
+}
+
+void MaterialInternal::EnablePass(const std::string & passName) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
+	shader_->EnablePass(SUB_SHADER_INDEX, passName);
+}
+
+void MaterialInternal::DisablePass(const std::string & passName) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
+	shader_->DisablePass(SUB_SHADER_INDEX, passName);
+}
+
+bool MaterialInternal::IsPassEnabled(const std::string & passName) const {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return false;
+	}
+
+	return shader_->IsPassEnabled(SUB_SHADER_INDEX, passName);
 }
 
 void MaterialInternal::Define(const std::string& name) {
@@ -291,10 +319,10 @@ void MaterialInternal::BindProperties(uint pass) {
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		Variant* var = ite->second;
 		if (var->GetType() != VariantTypeTexture) {
-			shader_->SetProperty(subShader, pass, ite->first, var->GetData());
+			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, var->GetData());
 		}
 		else if (var->GetTexture()) {
-			shader_->SetProperty(subShader, pass, ite->first, &textureIndex);
+			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, &textureIndex);
 			var->GetTexture()->Bind(textureIndex++);
 		}
 	}

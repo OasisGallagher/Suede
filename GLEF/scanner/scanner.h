@@ -16,6 +16,7 @@ private:
 	bool GetChar(int* ch);
 	void UngetChar();
 	ScannerTokenType GetNextToken(std::string& token, int* pos = nullptr);
+	ScannerTokenType ParseIdentifierType(const std::string& buffer);
 
 private:
 	const char* start_;

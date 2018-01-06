@@ -60,12 +60,14 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	for (int i = 0; i < subMeshCount; ++i) {
 		Material material = GetMaterial(i);
 		int pass = material->GetPass();
-		if (pass >= 0) {
+		if (pass >= 0 && material->IsPassEnabled(pass)) {
 			RenderSubMesh(mesh, i, material, pass);
 		}
 		else {
 			for (int p = 0; p < material->GetPassCount(); ++p) {
-				RenderSubMesh(mesh, i, material, p);
+				if (material->IsPassEnabled(p)) {
+					RenderSubMesh(mesh, i, material, p);
+				}
 			}
 		}
 	}
@@ -76,14 +78,17 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 void RendererInternal::RenderMesh(Mesh mesh, Material material) {
 	mesh->Bind();
 	int pass = material->GetPass();
-	if (pass >= 0) {
+	if (pass >= 0 && material->IsPassEnabled(pass)) {
 		RenderMesh(mesh, material, pass);
 	}
 	else {
 		for (int p = 0; p < material->GetPassCount(); ++p) {
-			RenderMesh(mesh, material, p);
+			if (material->IsPassEnabled(p)) {
+				RenderMesh(mesh, material, p);
+			}
 		}
 	}
+
 	mesh->Unbind();
 }
 

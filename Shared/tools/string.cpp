@@ -27,6 +27,26 @@ bool String::EndsWith(const std::string& str, const std::string& suffix) {
 	return (str.length() >= suffix.length()) && (0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix));
 }
 
+bool String::ToBool(const std::string& str) {
+	bool ans = false;
+	ToBool(str, &ans);
+	return ans;
+}
+
+bool String::ToBool(const std::string& str, bool* boolean) {
+	if (str == "true") {
+		if (boolean != nullptr) *boolean = true;
+		return true;
+	}
+
+	if (str == "false") {
+		if (boolean != nullptr) *boolean = false;
+		return true;
+	}
+
+	return false;
+}
+
 int String::ToInteger(const std::string& str) {
 	int ans = 0;
 	ToInteger(str, &ans);

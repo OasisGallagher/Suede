@@ -51,6 +51,8 @@ struct Semantics {
 	};
 
 	struct Pass {
+		bool enabled;
+		std::string name;
 		std::string source;
 		std::vector<RenderState> renderStates;
 	};

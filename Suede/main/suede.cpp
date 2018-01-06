@@ -52,12 +52,15 @@ void Suede::setupUI() {
 	addDockWidget(Qt::RightDockWidgetArea, ui.console, Qt::Vertical);
 	addDockWidget(Qt::RightDockWidgetArea, ui.hierarchy, Qt::Horizontal);
 
+	const QRect& r = ui.inspector->geometry();
+	ui.inspector->setGeometry(r.x(), r.y(), 40, r.height());
+
 	//menuBar()->hide();
 	for (int i = ChildWindowGame + 1; i < ChildWindowCount; ++i) {
 		showChildWindow(i, false);
 	}
 
-	showChildWindow(ChildWindowConsole, true);
+//	showChildWindow(ChildWindowConsole, true);
 
 	Game::get()->setView(ui.gameWidget);
 	Console::get()->setView(ui.consoleWidget);

@@ -15,6 +15,8 @@ class IntegerTable : public PtrMap<std::string, Integer> { };
 
 class SingleTable : public PtrMap<std::string, Single> { };
 
+class BooleanTable : public PtrMap<std::string, Boolean> {};
+
 class LiteralTable : public PtrMap<std::string, Literal> { };
 
 class CodeTable : public PtrMap<std::string, Code> { };
@@ -30,6 +32,14 @@ void Integer::SetText(const std::string& text) {
 void Single::SetText(const std::string& text) {
 	if (!String::ToFloat(text.c_str(), nullptr)) {
 		Debug::LogError("invalid float %s.", text.c_str());
+	}
+
+	value_ = text;
+}
+
+void Boolean::SetText(const std::string& text) {
+	if (!String::ToBool(text.c_str(), nullptr)) {
+		Debug::LogError("invalid bool %s.", text.c_str());
 	}
 
 	value_ = text;
@@ -52,6 +62,7 @@ Syntaxer::Syntaxer() {
 	literalTable_ = new LiteralTable;
 	integerTable_ = new IntegerTable;
 	singleTable_ = new SingleTable;
+	booleanTable_ = new BooleanTable;
 }
 
 Syntaxer::~Syntaxer() {
@@ -61,6 +72,7 @@ Syntaxer::~Syntaxer() {
 	delete literalTable_;
 	delete integerTable_;
 	delete singleTable_;
+	delete booleanTable_;
 }
 
 void Syntaxer::Setup(const SyntaxerSetupParameter& p) {
@@ -197,6 +209,14 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 	else if (token.tokenType == ScannerTokenSingle) {
 		answer = NativeSymbols::single;
 		SingleTable::ib_pair p = singleTable_->insert(token.tokenText);
+		addr = p.first->second;
+		if (p.second) {
+			p.first->second->SetText(token.tokenText);
+		}
+	}
+	else if (token.tokenType == ScannerTokenBoolean) {
+		answer = NativeSymbols::boolean;
+		BooleanTable::ib_pair p = booleanTable_->insert(token.tokenText);
 		addr = p.first->second;
 		if (p.second) {
 			p.first->second->SetText(token.tokenText);

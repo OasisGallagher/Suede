@@ -25,6 +25,7 @@ private:
 	Console() { }
 	virtual void initialize();
 
+private:
 	const char* messageIconPath(MessageType type);
 
 private:

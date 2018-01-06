@@ -12,15 +12,15 @@ GLEF::GLEF() {
 	time_t to = OS::GetFileLastWriteTime(binary);
 
 	if (tp > to) {
-		Debug::StartSample("build and save GLEF.");
+		Debug::StartSample();
 		language.BuildSyntaxer(GLEFGrammar);
 		language.SaveSyntaxer(binary);
-		Debug::EndSample();
+		Debug::Log("build and save GLEF costs %.2f seconds.", Debug::EndSample());
 	}
 	else {
-		Debug::StartSample("load GLEF.");
+		Debug::StartSample();
 		language.LoadSyntaxer(binary);
-		Debug::EndSample();
+		Debug::Log("load GLEF costs %.2f seconds.", Debug::EndSample());
 	}
 }
 

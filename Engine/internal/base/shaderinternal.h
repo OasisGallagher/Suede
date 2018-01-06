@@ -17,6 +17,8 @@ public:
 	bool Initialize(const Semantics::Pass& pass, const std::string& directory);
 	bool SetProperty(const std::string& name, const void* data);
 
+	const std::string& GetName() const { return name_; }
+
 	void Bind();
 	void Unbind();
 
@@ -59,6 +61,7 @@ private:
 	GLuint oldProgram_;
 	GLuint shaderObjs_[ShaderStageCount];
 
+	std::string name_;
 	std::string path_;
 
 	int maxTextureUnits_;
@@ -93,6 +96,10 @@ public:
 	void DisablePass(uint pass);
 	bool IsPassEnabled(uint pass) const;
 
+	void EnablePass(const std::string& name);
+	void DisablePass(const std::string& name);
+	bool IsPassEnabled(const std::string& name) const;
+
 	Pass* GetPass(uint pass);
 	uint GetPassCount() const { return passCount_; }
 
@@ -121,16 +128,20 @@ public:
 public:
 	virtual bool Load(const std::string& path);
 
-	virtual void Bind(uint subShader, uint pass);
+	virtual void Bind(uint ssi, uint pass);
 	virtual void Unbind();
 
-	virtual void EnablePass(uint subShader, uint pass);
-	virtual void DisablePass(uint subShader, uint pass);
-	virtual bool IsPassEnabled(uint subShader, uint pass) const;
+	virtual void EnablePass(uint ssi, uint pass);
+	virtual void DisablePass(uint ssi, uint pass);
+	virtual bool IsPassEnabled(uint ssi, uint pass) const;
 
-	virtual uint GetPassCount(uint subShader) const { return subShaders_[subShader].GetPassCount(); }
+	virtual void EnablePass(uint ssi, const std::string& passName);
+	virtual void DisablePass(uint ssi, const std::string& passName);
+	virtual bool IsPassEnabled(uint ssi, const std::string& passName) const;
+
+	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
 	virtual void GetProperties(std::vector<Property>& properties);
-	virtual bool SetProperty(uint subShader, uint pass, const std::string& name, const void* data);
+	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 
 private:
 	void ParseProperties(std::vector<Property>& properties);

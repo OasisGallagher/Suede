@@ -13,6 +13,9 @@ public:
 	static bool StartsWith(const std::string& str, const std::string& prefix);
 	static bool EndsWith(const std::string&str, const std::string& suffix);
 
+	static bool ToBool(const std::string& str);
+	static bool ToBool(const std::string& str, bool* boolean);
+
 	static int ToInteger(const std::string& str);
 	static bool ToInteger(const std::string& str, int* integer);
 	static float ToFloat(const std::string& str);

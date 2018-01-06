@@ -11,6 +11,7 @@ enum ScannerTokenType {
 	ScannerTokenIdentifier,
 	ScannerTokenInteger,
 	ScannerTokenSingle,
+	ScannerTokenBoolean,
 	ScannerTokenString,
 	ScannerTokenCode,
 

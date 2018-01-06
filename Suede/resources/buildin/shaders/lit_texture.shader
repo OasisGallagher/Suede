@@ -57,7 +57,7 @@ SubShader {
 		ENDGLSL
 	}
 
-	Pass {
+	Pass "Outline" false {
 		ZWrite Off;
 		ZTest Off;
 		//Cull Front;

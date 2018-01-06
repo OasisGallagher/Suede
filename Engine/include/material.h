@@ -14,6 +14,10 @@ public:
 	virtual void DisablePass(uint pass) = 0;
 	virtual bool IsPassEnabled(uint pass) const = 0;
 
+	virtual void EnablePass(const std::string& passName) = 0;
+	virtual void DisablePass(const std::string& passName) = 0;
+	virtual bool IsPassEnabled(const std::string& passName) const = 0;
+
 	virtual void SetPass(int pass) = 0;
 	virtual int GetPass() const = 0;
 	virtual uint GetPassCount() const = 0;
