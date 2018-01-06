@@ -14,7 +14,7 @@ void OS::EnableMemoryLeakCheck() {
 }
 
 time_t OS::GetFileLastWriteTime(const char* fileName) {
-	HANDLE hFile = CreateFile(fileName, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFile = CreateFileA(fileName, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE) {
 		return 0;
 	}

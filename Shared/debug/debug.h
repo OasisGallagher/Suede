@@ -20,8 +20,8 @@ public:
 	static void LogWarning(const char* format, ...);
 	static void LogError(const char* format, ...);
 
-	static void StartSample(const char* text);
-	static void EndSample();
+	static void StartSample();
+	static float EndSample();
 
 	static void SetLogReceiver(ILogReceiver* value);
 
