@@ -258,7 +258,7 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 		worldRotation = worldRotation_ = localRotation;
 		ClearDirty(WorldRotation);
 	}
-
+	
 	worldEulerAngles_ = Math::Degrees(glm::eulerAngles(worldRotation));
 
 	ClearDirty(WorldEulerAngles);
@@ -358,7 +358,7 @@ glm::quat SpriteInternal::GetLocalRotation() {
 		}
 
 		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
-			worldRotation *= glm::inverse(current->GetRotation());
+			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
 		localRotation_ = worldRotation;
@@ -411,7 +411,7 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 glm::mat4 SpriteInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
 		Sprite current = dsp_cast<Sprite>(shared_from_this());
-		glm::mat4 matrix = glm::translate(glm::mat4(1), GetLocalPosition()) * glm::mat4(GetLocalRotation()) * glm::scale(glm::mat4(1), GetLocalScale());
+		glm::mat4 matrix = TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
 		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
 			matrix = current->GetLocalToWorldMatrix() * matrix;
 		}
@@ -475,6 +475,10 @@ Sprite SpriteInternal::FindDirectChild(const std::string& name) {
 	}
 
 	return nullptr;
+}
+
+glm::mat4 SpriteInternal::TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s) {
+	return glm::translate(glm::mat4(1), t) * glm::mat4_cast(r) * glm::scale(glm::mat4(1), GetLocalScale());
 }
 
 const char* SpriteInternal::SpriteTypeToString(ObjectType type) {

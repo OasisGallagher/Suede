@@ -18,12 +18,10 @@ public:
 	void onMousePress(Qt::MouseButton button, const QPoint& pos);
 
 private:
-	void moveCamera(const QPoint& mousePos);
-	void rotateCamera(QPoint mousePos);
-	void rotateAroundSprite(const QPoint& mousePos);
-	glm::vec3 arcBallVector(const QPoint& point);
-
-	glm::vec3 sphereCoords(float x, float y);
+	void moveCamera(const QPoint& mousePos, QPoint& oldPos);
+	void rotateCamera(const QPoint& mousePos, QPoint& oldPos);
+	void rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos);
+	glm::vec3 calculateArcBallVector(const QPoint& point);
 
 private:
 	Camera camera_;

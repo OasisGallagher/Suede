@@ -115,6 +115,9 @@ void Game::update() {
 	}
 }
 
+uint ballSpriteID;
+uint roomSpriteID;
+
 void Game::createScene() {
 	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
 	DirectionalLight light = NewDirectionalLight();
@@ -219,9 +222,14 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Sprite room = WorldInstance()->Import("models/sphere.obj");
-	room->SetPosition(glm::vec3(0, 25, -25));
+	Sprite room = WorldInstance()->Import("models/room_thickwalls.obj");
+	room->SetPosition(glm::vec3(0, 25, -65));
 	room->SetEulerAngles(glm::vec3(30, 60, 0));
+	roomSpriteID = room->GetInstanceID();
+
+	Sprite ball = WorldInstance()->Import("models/sphere.obj");
+	ball->SetPosition(glm::vec3(0, 25, -40));
+	ballSpriteID = ball->GetInstanceID();
 #endif
 
 #ifdef BEAR

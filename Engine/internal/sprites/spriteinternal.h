@@ -54,6 +54,7 @@ public:
 	virtual glm::vec3 GetLocalEulerAngles();
 
 	virtual glm::mat4 GetLocalToWorldMatrix();
+
 	virtual glm::mat4 GetWorldToLocalMatrix();
 
 	virtual glm::vec3 GetLocalToWorldPosition(const glm::vec3& position);
@@ -96,6 +97,8 @@ private:
 
 	Sprite FindDirectChild(const std::string& name);
 	const char* SpriteTypeToString(ObjectType type);
+
+	glm::mat4 TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s);
 
 private:
 	bool active_;
