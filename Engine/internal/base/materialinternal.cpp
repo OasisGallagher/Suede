@@ -28,6 +28,7 @@ void MaterialInternal::SetShader(Shader value) {
 		// TODO: unbind properties ?
 //		UnbindProperties();
 //		properties_.clear();
+		passEnabled_ = 0;
 	}
 
 	shader_ = value;
@@ -38,6 +39,13 @@ void MaterialInternal::SetShader(Shader value) {
 //	properties_.clear();
 	for (int i = 0; i < container.size(); ++i) {
 		*properties_[container[i].name] = container[i].value;
+	}
+
+	passEnabled_ = UINT_MAX;
+	for (int i = 0; i < shader_->GetPassCount(SUB_SHADER_INDEX); ++i) {
+		if (!shader_->IsPassEnabled(SUB_SHADER_INDEX, i)) {
+			passEnabled_ &= ~(1 << i);
+		}
 	}
 }
 
@@ -224,6 +232,11 @@ uint MaterialInternal::GetPassCount() const {
 }
 
 void MaterialInternal::Bind(uint pass) {
+	if (!IsPassEnabled(pass)) {
+		Debug::LogError("pass %d is not enabled.", pass);
+		return;
+	}
+
 	BindProperties(pass);
 	shader_->Bind(SUB_SHADER_INDEX, pass);
 }
@@ -233,22 +246,24 @@ void MaterialInternal::Unbind() {
 	shader_->Unbind();
 }
 
-void MaterialInternal::EnablePass(uint pass) {
+bool MaterialInternal::EnablePass(uint pass) {
 	if (!shader_) {
 		Debug::LogError("invalid shader");
-		return;
+		return false;
 	}
 
-	shader_->EnablePass(SUB_SHADER_INDEX, pass);
+	passEnabled_ |= (1 << pass);
+	return true;
 }
 
-void MaterialInternal::DisablePass(uint pass) {
+bool MaterialInternal::DisablePass(uint pass) {
 	if (!shader_) {
 		Debug::LogError("invalid shader");
-		return;
+		return false;
 	}
 
-	shader_->DisablePass(SUB_SHADER_INDEX, pass);
+	passEnabled_ &= ~(1 << pass);
+	return true;
 }
 
 bool MaterialInternal::IsPassEnabled(uint pass) const {
@@ -257,34 +272,16 @@ bool MaterialInternal::IsPassEnabled(uint pass) const {
 		return false;
 	}
 
-	return shader_->IsPassEnabled(SUB_SHADER_INDEX, pass);
+	return (passEnabled_ & (1 << pass)) != 0;
 }
 
-void MaterialInternal::EnablePass(const std::string & passName) {
+int MaterialInternal::GetPassIndex(const std::string& name) const {
 	if (!shader_) {
 		Debug::LogError("invalid shader");
-		return;
+		return -1;
 	}
 
-	shader_->EnablePass(SUB_SHADER_INDEX, passName);
-}
-
-void MaterialInternal::DisablePass(const std::string & passName) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
-	shader_->DisablePass(SUB_SHADER_INDEX, passName);
-}
-
-bool MaterialInternal::IsPassEnabled(const std::string & passName) const {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return false;
-	}
-
-	return shader_->IsPassEnabled(SUB_SHADER_INDEX, passName);
+	return shader_->GetPassIndex(SUB_SHADER_INDEX, name);
 }
 
 void MaterialInternal::Define(const std::string& name) {

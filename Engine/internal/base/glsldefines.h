@@ -6,3 +6,4 @@
 #define GLSL_TAG_STAGE		"stage"
 #define GLSL_TAG_INCLUDE	"include"
 
+#define GLSL_MAX_PASSES		8

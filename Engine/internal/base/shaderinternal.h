@@ -92,14 +92,9 @@ public:
 	void Bind(uint pass);
 	void Unbind();
 
-	void EnablePass(uint pass);
-	void DisablePass(uint pass);
 	bool IsPassEnabled(uint pass) const;
-
-	void EnablePass(const std::string& name);
-	void DisablePass(const std::string& name);
-	bool IsPassEnabled(const std::string& name) const;
-
+	int GetPassIndex(const std::string& name) const;
+	
 	Pass* GetPass(uint pass);
 	uint GetPassCount() const { return passCount_; }
 
@@ -131,13 +126,9 @@ public:
 	virtual void Bind(uint ssi, uint pass);
 	virtual void Unbind();
 
-	virtual void EnablePass(uint ssi, uint pass);
-	virtual void DisablePass(uint ssi, uint pass);
 	virtual bool IsPassEnabled(uint ssi, uint pass) const;
 
-	virtual void EnablePass(uint ssi, const std::string& passName);
-	virtual void DisablePass(uint ssi, const std::string& passName);
-	virtual bool IsPassEnabled(uint ssi, const std::string& passName) const;
+	virtual int GetPassIndex(uint ssi, const std::string& name) const;
 
 	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
 	virtual void GetProperties(std::vector<Property>& properties);

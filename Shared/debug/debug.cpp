@@ -24,7 +24,7 @@ public:
 	}
 
 protected:
-	virtual void OnOutput(const char* text) override {
+	virtual void OnOutput(const char* text) {
 		if (++lineNumber_ > skipLineCount_) {
 			//StackWalker::OnOutput(text);
 			text_ += text;

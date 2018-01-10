@@ -23,13 +23,11 @@ public:
 	virtual void Bind(uint pass);
 	virtual void Unbind();
 
-	virtual void EnablePass(uint pass);
-	virtual void DisablePass(uint pass);
+	virtual bool EnablePass(uint pass);
+	virtual bool DisablePass(uint pass);
 	virtual bool IsPassEnabled(uint pass) const;
 
-	virtual void EnablePass(const std::string& passName);
-	virtual void DisablePass(const std::string& passName);
-	virtual bool IsPassEnabled(const std::string& passName) const;
+	virtual int GetPassIndex(const std::string& name) const;
 
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
@@ -61,6 +59,7 @@ private:
 private:
 	int pass_;
 	Shader shader_;
+	uint passEnabled_;
 	typedef PtrMap<std::string, Variant> PropertyContainer;
 	PropertyContainer properties_;
 };

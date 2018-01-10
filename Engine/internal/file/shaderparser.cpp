@@ -9,8 +9,6 @@
 #include "memory/memory.h"
 #include "internal/base/glsldefines.h"
 
-#define MAX_PASS_COUNT	8
-
 bool GLSLParser::Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines) {
 	Clear();
 	path_ = path;
@@ -201,9 +199,9 @@ void ShaderParser::ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::
 
 void ShaderParser::ReadPasses(SyntaxNode* node, std::vector<Semantics::Pass>& passes) {
 	ReadTree(node, "Passes", &ShaderParser::ReadPass, passes);
-	if (passes.size() > MAX_PASS_COUNT) {
-		Debug::LogError("pass count must be less equal to %d.", MAX_PASS_COUNT);
-		passes.erase(passes.begin() + MAX_PASS_COUNT, passes.end());
+	if (passes.size() > GLSL_MAX_PASSES) {
+		Debug::LogError("pass count must be less equal to %d.", GLSL_MAX_PASSES);
+		passes.erase(passes.begin() + GLSL_MAX_PASSES, passes.end());
 	}
 }
 

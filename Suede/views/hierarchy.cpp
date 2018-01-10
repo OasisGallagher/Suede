@@ -88,11 +88,14 @@ void Hierarchy::EnableSpriteOutline(Sprite sprite, bool enable) {
 
 	for (int i = 0; i < sprite->GetRenderer()->GetMaterialCount(); ++i) {
 		Material material = sprite->GetRenderer()->GetMaterial(i);
+		int outline = material->GetPassIndex("Outline");
+		if (outline < 0) { continue; }
+
 		if (enable) {
-			material->EnablePass("Outline");
+			material->EnablePass(outline);
 		}
 		else {
-			material->DisablePass("Outline");
+			material->DisablePass(outline);
 		}
 	}
 }

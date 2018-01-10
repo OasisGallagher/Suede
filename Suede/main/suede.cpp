@@ -155,10 +155,6 @@ bool Suede::OnPrompt(const char* message) {
 }
 
 void Suede::OnLogMessage(LogLevel level, const char* message) {
-	if (!childWindowVisible(ChildWindowConsole)) {
-		return;
-	}
-
 	switch (level) {
 		case LogLevelDebug:
 			Console::get()->addMessage(Console::Debug, message);

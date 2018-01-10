@@ -17,13 +17,8 @@ public:
 	virtual void Bind(uint ssi, uint pass) = 0;
 	virtual void Unbind() = 0;
 
-	virtual void EnablePass(uint ssi, uint pass) = 0;
-	virtual void DisablePass(uint ssi, uint pass) = 0;
 	virtual bool IsPassEnabled(uint ssi, uint pass) const = 0;
-
-	virtual void EnablePass(uint ssi, const std::string& passName) = 0;
-	virtual void DisablePass(uint ssi, const std::string& passName) = 0;
-	virtual bool IsPassEnabled(uint ssi, const std::string& passName) const = 0;
+	virtual int GetPassIndex(uint ssi, const std::string& name) const = 0;
 
 	virtual uint GetPassCount(uint ssi) const = 0;
 	virtual void GetProperties(std::vector<Property>& properties) = 0;

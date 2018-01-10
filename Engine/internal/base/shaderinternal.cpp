@@ -454,11 +454,6 @@ void SubShader::Bind(uint pass) {
 		return;
 	}
 
-	if (!IsPassEnabled(pass)) {
-		Debug::LogError("pass %d is not enabled.", pass);
-		return;
-	}
-
 	passes_[pass].Bind();
 	currentPass_ = pass;
 }
@@ -473,24 +468,6 @@ void SubShader::Unbind() {
 	currentPass_ = UINT_MAX;
 }
 
-void SubShader::EnablePass(uint pass) {
-	if (pass >= passCount_) {
-		Debug::LogError("pass index out of range.");
-		return;
-	}
-
-	passEnabled_ |= (1 << pass);
-}
-
-void SubShader::DisablePass(uint pass) {
-	if (pass >= passCount_) {
-		Debug::LogError("pass index out of range.");
-		return;
-	}
-
-	passEnabled_ &= ~(1 << pass);
-}
-
 bool SubShader::IsPassEnabled(uint pass) const {
 	if (pass >= passCount_) {
 		Debug::LogError("pass index out of range.");
@@ -500,32 +477,14 @@ bool SubShader::IsPassEnabled(uint pass) const {
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 
-void SubShader::EnablePass(const std::string& name) {
+int SubShader::GetPassIndex(const std::string& name) const {
 	for (int i = 0; i < passCount_; ++i) {
 		if (passes_[i].GetName() == name) {
-			EnablePass(i);
-			break;
-		}
-	}
-}
-
-void SubShader::DisablePass(const std::string& name) {
-	for (int i = 0; i < passCount_; ++i) {
-		if (passes_[i].GetName() == name) {
-			DisablePass(i);
-			break;
-		}
-	}
-}
-
-bool SubShader::IsPassEnabled(const std::string& name) const {
-	for (int i = 0; i < passCount_; ++i) {
-		if (passes_[i].GetName() == name) {
-			return IsPassEnabled(i);
+			return i;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
 Pass* SubShader::GetPass(uint pass) {
@@ -640,24 +599,6 @@ void ShaderInternal::Unbind() {
 	currentSubShader_ = UINT_MAX;
 }
 
-void ShaderInternal::EnablePass(uint ssi, uint pass) {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
-	subShaders_[ssi].EnablePass(pass);
-}
-
-void ShaderInternal::DisablePass(uint ssi, uint pass) {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
-	subShaders_[ssi].DisablePass(pass);
-}
-
 bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
 	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
@@ -667,31 +608,13 @@ bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
 	return subShaders_[ssi].IsPassEnabled(pass);
 }
 
-void ShaderInternal::EnablePass(uint ssi, const std::string & passName) {
+int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {
 	if (ssi > subShaderCount_) {
 		Debug::LogError("index out of range.");
-		return;
+		return -1;
 	}
 
-	subShaders_[ssi].EnablePass(passName);
-}
-
-void ShaderInternal::DisablePass(uint ssi, const std::string & passName) {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
-	subShaders_[ssi].DisablePass(passName);
-}
-
-bool ShaderInternal::IsPassEnabled(uint ssi, const std::string & passName) const {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return false;
-	}
-
-	return subShaders_[ssi].IsPassEnabled(passName);
+	return subShaders_[ssi].GetPassIndex(name);
 }
 
 void ShaderInternal::GetProperties(std::vector<Property>& properties) {
