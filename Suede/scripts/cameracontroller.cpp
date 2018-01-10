@@ -106,6 +106,7 @@ void CameraController::moveCamera(const QPoint& mousePos, QPoint& oldPos) {
 extern uint ballSpriteID;
 extern uint roomSpriteID;
 
+#include <QDebug>
 #include "world.h"
 #include "tools/math2.h"
 
@@ -114,40 +115,52 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos
 	Sprite ball = WorldInstance()->GetSprite(ballSpriteID);
 
 	glm::vec3 position = selected ? selected->GetPosition() : glm::vec3(0);
-	if (position == camera_->GetPosition()) {
+	if (position == ball->GetPosition()) {
+		Debug::LogError("invalid selection");
 		return;
 	}
 
 	QPoint mutablePos = mousePos;
-	mutablePos.setX(oldPos.x());
+	//mutablePos.setX(oldPos.x());
 
 	if (oldPos != mutablePos) {
 		glm::vec3 va = calculateArcBallVector(oldPos);
 		glm::vec3 vb = calculateArcBallVector(mutablePos);
 		glm::vec3 vc = glm::cross(va, vb);
 
-		glm::mat3 camera2Object = glm::inverse(glm::mat3(ball->GetWorldToLocalMatrix()) * glm::mat3(selected->GetLocalToWorldMatrix()));
-		glm::vec3 axis = camera2Object * glm::cross(va, vb);
+		glm::mat3 worldToObject = glm::mat3(selected->GetWorldToLocalMatrix());
+		glm::vec3 axis = worldToObject * glm::cross(va, vb);
 
-		glm::quat rot = glm::pow(glm::quat(glm::dot(va, vb), axis), 1 / 2.f);
+		glm::quat rot = glm::pow(glm::quat(glm::dot(va, vb), axis), 1 / 5.f);
 
 		glm::vec4 d2 = (selected->GetWorldToLocalMatrix() * glm::vec4(ball->GetPosition(), 1));
 		glm::vec3 dir = (glm::vec3)d2;
 
-		ball->SetPosition(selected->GetPosition() + (glm::mat3)selected->GetLocalToWorldMatrix() * (rot * dir));
-		ball->GetLocalPosition();
+		//qDebug() << "+" << ball->GetPosition().x;
 
-		glm::mat4 m4 = glm::lookAt(ball->GetPosition(), selected->GetPosition(), glm::cross(va, vb));
-		glm::quat q = glm::quat(glm::transpose(glm::mat3(m4)));
+		glm::vec3 offset = (rot * dir);
+		if (!Math::Approximately(glm::length2(dir), glm::length2(offset))) {
+		//	__debugbreak();
+		}
 
-		//ball->SetLocalEulerAngles(glm::vec3(Math::Random(0.f, 360.f), Math::Random(0.f, 360.f), Math::Random(0.f, 360.f)));
+		offset = (glm::mat3)selected->GetLocalToWorldMatrix() * offset;
+		ball->SetPosition(selected->GetPosition() + offset);
+
+		glm::vec3 forward = normalize(selected->GetPosition() - ball->GetPosition());
+		glm::vec3 up = glm::cross(forward, vc);
+		glm::vec3 right = glm::cross(forward, up);
+		up = glm::cross(right, forward);
+
+		glm::mat3 m3(right, up, -forward);
+		glm::quat q = glm::quat(m3);
+		q = glm::normalize(q);
 		ball->SetRotation(q);
 		//ball->GetLocalRotation();
 
 		//camera_->SetPosition(rot * glm::vec3(0, 0, 1) * glm::length());
 		//camera_->SetRotation(glm::conjugate(rot));
 		//selected->SetRotation(rot);
-
+		qDebug() << glm::length(ball->GetPosition() - selected->GetPosition());
 		oldPos = mutablePos;
 	}
 }

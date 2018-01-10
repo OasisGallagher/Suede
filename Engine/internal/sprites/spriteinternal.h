@@ -92,8 +92,8 @@ private:
 
 private:
 	void SetDiry(int bits);
-	bool IsDirty(int bits) { return (dirtyFlag_ & bits) != 0; }
-	void ClearDirty(int bits){ dirtyFlag_ &= ~bits; }
+	bool IsDirty(int bits) const { return (dirtyFlag_ & bits) != 0; }
+	void ClearDirty(int bits) { dirtyFlag_ &= ~bits; }
 
 	Sprite FindDirectChild(const std::string& name);
 	const char* SpriteTypeToString(ObjectType type);
@@ -114,10 +114,17 @@ private:
 	std::vector<Sprite> children_;
 	int dirtyFlag_;
 
-	glm::vec3 localScale_, worldScale_;
-	glm::quat localRotation_, worldRotation_;
-	glm::vec3 localPosition_, worldPosition_;
-	glm::vec3 localEulerAngles_, worldEulerAngles_;
+	struct Transform {
+		Transform() : scale(1) {}
+
+		glm::vec3 position;
+		glm::quat rotation;
+		glm::vec3 scale;
+		glm::vec3 eulerAngles;
+	};
+
+	Transform local_;
+	Transform world_;
 
 	glm::mat4 localToWorldMatrix_;
 	glm::mat4 worldToLocalMatrix_;

@@ -222,13 +222,15 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Sprite room = WorldInstance()->Import("models/room_thickwalls.obj");
-	room->SetPosition(glm::vec3(0, 25, -65));
-	room->SetEulerAngles(glm::vec3(30, 60, 0));
-	roomSpriteID = room->GetInstanceID();
+ 	Sprite room = WorldInstance()->Import("models/room_thickwalls.obj");
+ 	room->SetPosition(glm::vec3(0, 25, -65));
+ 	room->SetEulerAngles(glm::vec3(0, 60, 0));
+ 	roomSpriteID = room->GetInstanceID();
 
-	Sprite ball = WorldInstance()->Import("models/sphere.obj");
-	ball->SetPosition(glm::vec3(0, 25, -40));
+	Sprite ball = WorldInstance()->Import("models/box.obj");
+	ball->SetPosition(glm::vec3(0, 25, -55));
+	ball->SetScale(glm::vec3(0.5f, 2.5f, 0.5f));
+	ball->SetEulerAngles(glm::vec3(90, 0, 0));
 	ballSpriteID = ball->GetInstanceID();
 #endif
 

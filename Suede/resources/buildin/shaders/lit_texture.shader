@@ -28,7 +28,7 @@ SubShader {
 		void main() {
 			texCoord = c_texCoord;
 
-			normal = (c_localToWorldSpaceMatrix * vec4(c_normal, 0)).xyz;
+			normal = transpose(inverse(mat3(c_localToWorldSpaceMatrix))) * c_normal;
 			worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
 	
 			calculateShadowCoord();
