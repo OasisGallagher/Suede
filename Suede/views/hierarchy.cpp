@@ -28,14 +28,12 @@ void Hierarchy::initialize() {
 	view_->setSize(80, 200);
 
 	connect(tree_->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
-		this, SLOT(onSpriteClicked(const QItemSelection&, const QItemSelection&)));
+		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
 void Hierarchy::update(Sprite root) {
 	model_->setRowCount(0);
-	
 	updateRecursively(root, nullptr);
-
 	tree_->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
@@ -58,7 +56,7 @@ bool Hierarchy::selectedSprites(QList<Sprite>& sprites) {
 	return !sprites.empty();
 }
 
-void Hierarchy::onSpriteClicked(const QItemSelection& selected, const QItemSelection& deselected) {
+void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	EnableItemsOutline(selected, true);
 	EnableItemsOutline(deselected, false);
 }
@@ -68,6 +66,7 @@ void Hierarchy::updateRecursively(Sprite pp, QStandardItem* pi) {
 		Sprite child = pp->GetChildAt(i);
 
 		QStandardItem* item = new QStandardItem(child->GetName().c_str());
+
 		item->setData(child->GetInstanceID());
 
 		if (pi != nullptr) {

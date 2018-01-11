@@ -112,7 +112,7 @@ extern uint roomSpriteID;
 
 void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos) {
 	Sprite selected = WorldInstance()->GetSprite(roomSpriteID);
-	Sprite ball = WorldInstance()->GetSprite(ballSpriteID);
+	Sprite ball = camera_;// WorldInstance()->GetSprite(ballSpriteID);
 
 	if (!selected || selected->GetPosition() == ball->GetPosition()) {
 		return;
@@ -137,36 +137,42 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos
 		glm::mat3 m3(right, up, forward);
 		ball->SetRotation(glm::normalize(glm::quat(m3)));
 #else
- 		glm::mat4 w2o = selected->GetWorldToLocalMatrix();
- 		glm::vec3 bp(w2o * glm::vec4(ball->GetPosition(), 1));
+// 		glm::mat4 w2o = selected->GetWorldToLocalMatrix();
+// 		glm::vec3 bp(w2o * glm::vec4(ball->GetPosition(), 1));
 // 		glm::vec3 up(w2o * glm::vec4(ball->GetUp(), 0));
 // 		glm::vec3 forward = glm::normalize(-bp);
 // 		glm::vec3 right = glm::normalize(glm::cross(up, forward));
 // 		up = glm::cross(forward, right);
 // 		glm::mat3 m00(right, up, forward);
 
+		glm::vec3 bp(ball->GetPosition() - selected->GetPosition());
+
 		//glm::vec3 euler = glm::eulerAngles(glm::quat(m00));
 		QPoint delta = mousePos - oldPos;
-		/*delta.setX(0);*/
+		//delta.setX(0);
 		////delta.setX(0);		////euler.x= 0.05f * delta.y();
 		////euler.y= 0.05f * delta.x(x;
-		delta.setX(0);
+		//delta.setX(0);
 		glm::quat qx = glm::angleAxis(0.05f * delta.x(), glm::vec3(0, 1, 0));
 		glm::quat qy = glm::angleAxis(0.05f * delta.y(), glm::vec3(1, 0, 0));
+
+		qx *= qy;
 		
-		bp = qy * qx * bp;
-		bp = glm::vec3(selected->GetLocalToWorldMatrix() * glm::vec4(bp, 1));
+		bp = qx * bp + selected->GetPosition();
+		//bp = glm::vec3(selected->GetLocalToWorldMatrix() * glm::vec4(bp, 1));
 
 		ball->SetPosition(bp);
+		
+		//glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
+		//glm::vec3 up = qy * qx * ball->GetUp();
+		//glm::vec3 right = glm::cross(up, forward);
+		//up = glm::cross(forward, right);
 
-		glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
-		glm::vec3 up = glm::vec3(0, 1, 0);
-		glm::vec3 right = glm::cross(up, forward);
-		up = glm::cross(forward, right);
-
-		glm::mat3 m3(right, up, forward);
-		ball->SetRotation(glm::normalize(glm::quat(m3)));
-		//ball->SetRotation(qx * qy * ball->GetRotation());
+		//glm::mat3 m3(right, up, forward);
+		glm::quat q = qx * ball->GetRotation();
+		ball->SetRotation(glm::normalize(q));
+		
+		//ball->SetRotation(glm::normalize(qy * qx * ball->GetRotation()));
 #endif
 
 		oldPos = mousePos;

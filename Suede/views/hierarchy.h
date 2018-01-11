@@ -28,7 +28,7 @@ private:
 	void updateRecursively(Sprite pp, QStandardItem* pi);
 
 private slots:
-	void onSpriteClicked(const QItemSelection& selected, const QItemSelection& deselected);
+	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 	void EnableSpriteOutline(Sprite sprite, bool enable);
 	void EnableItemsOutline(const QItemSelection& items, bool enable);
