@@ -33,20 +33,8 @@ void MaterialInternal::SetShader(Shader value) {
 
 	shader_ = value;
 
-	std::vector<Property> container;
-	shader_->GetProperties(container);
-
-//	properties_.clear();
-	for (int i = 0; i < container.size(); ++i) {
-		*properties_[container[i].name] = container[i].value;
-	}
-
-	passEnabled_ = UINT_MAX;
-	for (int i = 0; i < shader_->GetPassCount(SUB_SHADER_INDEX); ++i) {
-		if (!shader_->IsPassEnabled(SUB_SHADER_INDEX, i)) {
-			passEnabled_ &= ~(1 << i);
-		}
-	}
+	InitializeProperties();
+	InitializeEnabledState();
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
@@ -338,6 +326,21 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::AddBuildinProperties() {
+void MaterialInternal::InitializeProperties() {
+	std::vector<Property> container;
+	shader_->GetProperties(container);
 
+	//	properties_.clear();
+	for (int i = 0; i < container.size(); ++i) {
+		*properties_[container[i].name] = container[i].value;
+	}
+}
+
+void MaterialInternal::InitializeEnabledState() {
+	passEnabled_ = UINT_MAX;
+	for (int i = 0; i < shader_->GetPassCount(SUB_SHADER_INDEX); ++i) {
+		if (!shader_->IsPassEnabled(SUB_SHADER_INDEX, i)) {
+			passEnabled_ &= ~(1 << i);
+		}
+	}
 }

@@ -17,6 +17,9 @@ public:
 	virtual void Bind(uint ssi, uint pass) = 0;
 	virtual void Unbind() = 0;
 
+	/**
+	 * @return initial enabled state of pass `pass`.
+	 */
 	virtual bool IsPassEnabled(uint ssi, uint pass) const = 0;
 	virtual int GetPassIndex(uint ssi, const std::string& name) const = 0;
 

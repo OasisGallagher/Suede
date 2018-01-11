@@ -14,6 +14,7 @@ public:
 public:
 	virtual Object Clone();
 	virtual void SetShader(Shader value);
+
 	virtual Shader GetShader() { return shader_; }
 
 	virtual void SetPass(int value) { pass_ = value; }
@@ -51,7 +52,8 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void AddBuildinProperties();
+	void InitializeProperties();
+	void InitializeEnabledState();
 
 	// TODO: interface.
 	Variant* GetProperty(const std::string& name, VariantType type);

@@ -92,6 +92,9 @@ public:
 	void Bind(uint pass);
 	void Unbind();
 
+	/**
+	* @return initial enabled state of pass `pass`.
+	*/
 	bool IsPassEnabled(uint pass) const;
 	int GetPassIndex(const std::string& name) const;
 	
@@ -127,7 +130,6 @@ public:
 	virtual void Unbind();
 
 	virtual bool IsPassEnabled(uint ssi, uint pass) const;
-
 	virtual int GetPassIndex(uint ssi, const std::string& name) const;
 
 	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }

@@ -26,7 +26,7 @@ void CameraController::onResize(const QSize& size) {
 }
 
 glm::vec3 CameraController::calculateArcBallVector(const QPoint& pos) {
-	glm::vec3 p = glm::vec3(pos.x() * width_ - 1.f, 1 - pos.y() * height_, 0);
+	glm::vec3 p = glm::vec3(pos.x() * width_ - 1.f, pos.y() * height_ - 1.f, 0);
 
 	float squared = glm::dot(p, p);
 	if (squared <= 1 * 1) {
@@ -112,46 +112,63 @@ extern uint roomSpriteID;
 
 void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos) {
 	Sprite selected = WorldInstance()->GetSprite(roomSpriteID);
-	Sprite ball = camera_;// WorldInstance()->GetSprite(ballSpriteID);
+	Sprite ball = WorldInstance()->GetSprite(ballSpriteID);
 
-	glm::vec3 position = selected ? selected->GetPosition() : glm::vec3(0);
-	if (position == ball->GetPosition()) {
-		Debug::LogError("invalid selection");
+	if (!selected || selected->GetPosition() == ball->GetPosition()) {
 		return;
 	}
 
-	QPoint mutablePos = mousePos;
-	//mutablePos.setY(oldPos.y());
-
-	if (oldPos != mutablePos) {
+	if (oldPos != mousePos) {
+#if ARC_BALL
 		glm::vec3 va = calculateArcBallVector(oldPos);
-		glm::vec3 vb = calculateArcBallVector(mutablePos);
-		glm::vec3 vc = glm::cross(va, vb);
+		glm::vec3 vb = calculateArcBallVector(mousePos);
 
-		glm::mat3 worldToObject = glm::mat3(selected->GetWorldToLocalMatrix());
-		glm::vec3 axis = worldToObject * glm::cross(va, vb);
+		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
+		rot = glm::pow(rot, 1 / 5.f);
 
-		glm::quat rot = glm::pow(glm::quat(glm::dot(va, vb), axis), 1 / 5.f);
-
-		glm::vec4 d2 = selected->GetWorldToLocalMatrix() * glm::vec4(ball->GetPosition(), 1);
-		glm::vec3 dir(d2);
-
-		//qDebug() << "+" << ball->GetPosition().x;
-
-		glm::vec3 offset = (rot * dir);
-		offset = (glm::mat3)selected->GetLocalToWorldMatrix() * offset;
-		ball->SetPosition(selected->GetPosition() + offset);
+		glm::vec3 dir = ball->GetPosition() - selected->GetPosition();
+		ball->SetPosition(selected->GetPosition() + rot * dir);
 
 		glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
-		glm::vec3 up = glm::vec3(0, 1, 0);// glm::cross(forward, vc);
+		glm::vec3 up = rot * ball->GetUp();
 		glm::vec3 right = glm::cross(up, forward);
 		up = glm::cross(forward, right);
 
 		glm::mat3 m3(right, up, forward);
-		glm::quat q(m3);
-		ball->SetRotation(glm::normalize(q));
+		ball->SetRotation(glm::normalize(glm::quat(m3)));
+#else
+ 		glm::mat4 w2o = selected->GetWorldToLocalMatrix();
+ 		glm::vec3 bp(w2o * glm::vec4(ball->GetPosition(), 1));
+// 		glm::vec3 up(w2o * glm::vec4(ball->GetUp(), 0));
+// 		glm::vec3 forward = glm::normalize(-bp);
+// 		glm::vec3 right = glm::normalize(glm::cross(up, forward));
+// 		up = glm::cross(forward, right);
+// 		glm::mat3 m00(right, up, forward);
 
-		qDebug() << glm::length(ball->GetPosition() - selected->GetPosition());
-		oldPos = mutablePos;
+		//glm::vec3 euler = glm::eulerAngles(glm::quat(m00));
+		QPoint delta = mousePos - oldPos;
+		/*delta.setX(0);*/
+		////delta.setX(0);		////euler.x= 0.05f * delta.y();
+		////euler.y= 0.05f * delta.x(x;
+		delta.setX(0);
+		glm::quat qx = glm::angleAxis(0.05f * delta.x(), glm::vec3(0, 1, 0));
+		glm::quat qy = glm::angleAxis(0.05f * delta.y(), glm::vec3(1, 0, 0));
+		
+		bp = qy * qx * bp;
+		bp = glm::vec3(selected->GetLocalToWorldMatrix() * glm::vec4(bp, 1));
+
+		ball->SetPosition(bp);
+
+		glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
+		glm::vec3 up = glm::vec3(0, 1, 0);
+		glm::vec3 right = glm::cross(up, forward);
+		up = glm::cross(forward, right);
+
+		glm::mat3 m3(right, up, forward);
+		ball->SetRotation(glm::normalize(glm::quat(m3)));
+		//ball->SetRotation(qx * qy * ball->GetRotation());
+#endif
+
+		oldPos = mousePos;
 	}
 }
