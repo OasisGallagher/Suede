@@ -52,6 +52,8 @@ public:
 	static bool Approximately(float x, float y = 0.f);
 
 	static float Luminance(const glm::vec3& color);
+
+	static void Orthogonalize(glm::vec3& t, const glm::vec3& n);
 private:
 	Math();
 };
@@ -168,4 +170,9 @@ inline bool Math::Approximately(float x, float y) {
 
 inline float Math::Luminance(const glm::vec3& color) {
 	return 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
+}
+
+inline void Math::Orthogonalize(glm::vec3& t, const glm::vec3& n) {
+	// Gram-Schmidt orthogonalize
+	t = glm::normalize(t - n * glm::dot(n, t));
 }

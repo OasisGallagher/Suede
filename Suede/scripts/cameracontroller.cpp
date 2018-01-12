@@ -82,13 +82,15 @@ void CameraController::onMousePress(Qt::MouseButton button, const QPoint & pos) 
 	}
 }
 
+#include "tools/math2.h"
+
 void CameraController::rotateCamera(const QPoint& mousePos, QPoint& oldPos) {
 	QPoint delta = mousePos - oldPos;
 	oldPos = mousePos;
-	glm::vec3 euler = camera_->GetEulerAngles();
-	euler.x += 0.05f * delta.y();
-	euler.y += 0.05f * delta.x();
-	camera_->SetEulerAngles(euler);
+	delta.setY(-delta.y());
+	glm::quat qx = glm::angleAxis(Math::Radians(0.05f * delta.x()), camera_->GetUp());
+	glm::quat qy = glm::angleAxis(Math::Radians(0.05f * delta.y()), camera_->GetRight());
+	camera_->SetRotation(qx * qy * camera_->GetRotation());
 }
 
 void CameraController::moveCamera(const QPoint& mousePos, QPoint& oldPos) {
@@ -108,7 +110,6 @@ extern uint roomSpriteID;
 
 #include <QDebug>
 #include "world.h"
-#include "tools/math2.h"
 
 void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos) {
 	Sprite selected = WorldInstance()->GetSprite(roomSpriteID);
@@ -137,39 +138,25 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos
 		glm::mat3 m3(right, up, forward);
 		ball->SetRotation(glm::normalize(glm::quat(m3)));
 #else
-// 		glm::mat4 w2o = selected->GetWorldToLocalMatrix();
-// 		glm::vec3 bp(w2o * glm::vec4(ball->GetPosition(), 1));
-// 		glm::vec3 up(w2o * glm::vec4(ball->GetUp(), 0));
-// 		glm::vec3 forward = glm::normalize(-bp);
-// 		glm::vec3 right = glm::normalize(glm::cross(up, forward));
-// 		up = glm::cross(forward, right);
-// 		glm::mat3 m00(right, up, forward);
-
 		glm::vec3 bp(ball->GetPosition() - selected->GetPosition());
-
-		//glm::vec3 euler = glm::eulerAngles(glm::quat(m00));
 		QPoint delta = mousePos - oldPos;
-		//delta.setX(0);
-		////delta.setX(0);		////euler.x= 0.05f * delta.y();
-		////euler.y= 0.05f * delta.x(x;
-		//delta.setX(0);
-		glm::quat qx = glm::angleAxis(0.05f * delta.x(), glm::vec3(0, 1, 0));
-		glm::quat qy = glm::angleAxis(0.05f * delta.y(), glm::vec3(1, 0, 0));
+		glm::quat qx = glm::angleAxis(0.05f * delta.x(), camera_->GetUp());
+		glm::quat qy = glm::angleAxis(0.05f * delta.y(), camera_->GetRight());
 
 		qx *= qy;
 		
 		bp = qx * bp + selected->GetPosition();
-		//bp = glm::vec3(selected->GetLocalToWorldMatrix() * glm::vec4(bp, 1));
 
 		ball->SetPosition(bp);
-		
-		//glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
-		//glm::vec3 up = qy * qx * ball->GetUp();
-		//glm::vec3 right = glm::cross(up, forward);
-		//up = glm::cross(forward, right);
 
-		//glm::mat3 m3(right, up, forward);
-		glm::quat q = qx * ball->GetRotation();
+		glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
+		glm::vec3 right = qx * ball->GetRight();
+		right.y = 0;
+		Math::Orthogonalize(right, forward);
+
+		glm::vec3 up = glm::cross(forward, right);
+		
+		glm::quat q(glm::mat3(right, up, forward));
 		ball->SetRotation(glm::normalize(q));
 		
 		//ball->SetRotation(glm::normalize(qy * qx * ball->GetRotation()));

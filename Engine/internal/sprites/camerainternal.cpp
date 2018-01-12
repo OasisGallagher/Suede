@@ -347,7 +347,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Sprite>& sprites, Light l
 
 	glm::vec3 lightPosition = light->GetRotation() * glm::vec3(0, 0, 1);
 	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
-	glm::mat4 view = glm::lookAt(lightPosition * 10.f, glm::vec3(0), glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(lightPosition * 10.f, glm::vec3(0), light->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
 
 	for (int i = 0; i < sprites.size(); ++i) {
