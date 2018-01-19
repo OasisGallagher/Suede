@@ -71,10 +71,6 @@ void Suede::setupUI() {
 void Suede::showChildWindow(int index, bool show) {
 	Q_ASSERT(index > 0 && index < ChildWindowCount);
 	dockWidgets_[index]->setVisible(show);
-
-	if (index == ChildWindowHierarchy && dockWidgets_[index]->isVisible()) {
-		Hierarchy::get()->update(WorldInstance()->GetRootSprite());
-	}
 }
 
 bool Suede::childWindowVisible(int index) {
@@ -121,7 +117,6 @@ void Suede::screenCapture() {
 
 	QString filter = "*.jpg;;*.png";
 	
-	// TODO: save to desktop...
 	QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 	QString path = QFileDialog::getSaveFileName(this, "", desktop, filter);
 	

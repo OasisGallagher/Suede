@@ -19,7 +19,7 @@
 #include "scripts/cameracontroller.h"
 
 //#define SKYBOX
-#define ROOM
+//#define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
@@ -121,18 +121,18 @@ uint roomSpriteID;
 void Game::createScene() {
 	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
 	DirectionalLight light = NewDirectionalLight();
-	light->SetColor(glm::vec3(0.7f));
+	//light->SetColor(glm::vec3(0.7f));
 
-	Camera camera = NewCamera();
-	controller_->setCamera(camera);
+	//Camera camera = NewCamera();
+	//controller_->setCamera(camera);
 
-	light->SetParent(camera);
+	//light->SetParent(camera);
 
 #ifdef DEFERRED_RENDERING
 	camera->SetRenderPath(RenderPathDeferred);
 #endif
 
-	camera->SetPosition(glm::vec3(0, 25, 0));
+//	camera->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
 	//camera->AddImageEffect(inversion_);
@@ -154,8 +154,8 @@ void Game::createScene() {
 	skybox->Load(faces);
 	camera->SetSkybox(skybox);
 #else
-	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
+//	camera->SetClearType(ClearTypeColor);
+//	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
 #endif
 	
 #ifdef RENDER_TEXTURE

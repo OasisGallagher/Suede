@@ -56,6 +56,7 @@ public:
 	static void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
 	static void GetProgramiv(GLuint program, GLenum pname, GLint* params);
 	static void DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers);
+	static void GetTexParameteriv(GLenum target, GLenum pname, GLint* params);
 	static void DebugMessageCallback(GLDEBUGPROC callback, const void* userParam);
 	static void BindAttribLocation(GLuint program, GLuint index, const GLchar *name);
 	static void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
@@ -158,6 +159,10 @@ inline void GL::StencilMask(GLuint mask) {
 
 inline void GL::DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers) {
 	GL_CALL(glDeleteRenderbuffers(n, renderbuffers));
+}
+
+inline void GL::GetTexParameteriv(GLenum target, GLenum pname, GLint* params) {
+	GL_CALL(glGetTexParameteriv(target, pname, params));
 }
 
 inline void GL::GenFramebuffers(GLsizei n, GLuint* framebuffers) {

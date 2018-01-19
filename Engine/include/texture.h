@@ -3,11 +3,43 @@
 
 #include "object.h"
 
+enum TextureMinFilterMode {
+	TextureMinFilterModeNearest,
+	TextureMinFilterModeLinear,
+	TextureMinFilterModeNearestMipmapNearest,
+	TextureMinFilterModeLinearMipmapNearest,
+	TextureMinFilterModeNearestMipmapLinear,
+	TextureMinFilterModeLinearMipmapLinear,
+};
+
+enum TextureMagFilterMode {
+	TextureMagFilterModeNearest,
+	TextureMagFilterModeLinear,
+};
+
+enum TextureWrapMode {
+	TextureWrapModeClampToEdge,
+	TextureWrapModeMirroredRepeat,
+	TextureWrapModeRepeat,
+};
+
 class SUEDE_API ITexture : virtual public IObject {
 public:
 	virtual void Bind(uint index) = 0;
 	virtual void Unbind() = 0;
 	virtual uint GetNativePointer() = 0;
+
+	virtual void SetMinFilterMode(TextureMinFilterMode value) = 0;
+	virtual TextureMinFilterMode GetMinFilterMode() const = 0;
+
+	virtual void SetMagFilterMode(TextureMagFilterMode value) = 0;
+	virtual TextureMagFilterMode GetMagFilterMode() const = 0;
+
+	virtual void SetWrapModeS(TextureWrapMode value) = 0;
+	virtual TextureWrapMode GetWrapModeS() const = 0;
+
+	virtual void SetWrapModeT(TextureWrapMode value) = 0;
+	virtual TextureWrapMode GetWrapModeT() const = 0;
 
 	virtual int GetWidth() = 0;
 	virtual int GetHeight() = 0;

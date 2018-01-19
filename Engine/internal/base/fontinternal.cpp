@@ -21,7 +21,7 @@ FontInternal::FontInternal()
 	Shader shader = Resources::FindShader("buildin/shaders/unlit_texture");
 	material_->SetShader(shader);
 
-	// TODO: set color for material instace, not shared.
+	// default font color.
 	material_->SetVector4(Variables::mainColor, glm::vec4(1));
 }
 

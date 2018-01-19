@@ -19,7 +19,8 @@ Hierarchy::~Hierarchy() {
 }
 
 void Hierarchy::initialize() {
-	if (model_ != nullptr) { delete model_; }
+	WorldInstance()->AddEventListener(this);
+
 	model_ = new QStandardItemModel(view_);
 	
 	tree_ = view_->findChild<QTreeView*>("tree", Qt::FindDirectChildrenOnly);
@@ -29,12 +30,6 @@ void Hierarchy::initialize() {
 
 	connect(tree_->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
-}
-
-void Hierarchy::update(Sprite root) {
-	model_->setRowCount(0);
-	updateRecursively(root, nullptr);
-	tree_->header()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 Sprite Hierarchy::selectedSprite() {
@@ -56,9 +51,19 @@ bool Hierarchy::selectedSprites(QList<Sprite>& sprites) {
 	return !sprites.empty();
 }
 
+void Hierarchy::OnWorldEvent(const WorldEventBase* e) {
+	switch (e->GetEventType()) {
+	case WorldEventTypeSpriteCreated:
+		model_->setRowCount(0);
+		updateRecursively(WorldInstance()->GetRootSprite(), nullptr);
+		tree_->header()->resizeSections(QHeaderView::ResizeToContents);
+		break;
+	}
+}
+
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
-	EnableItemsOutline(selected, true);
-	EnableItemsOutline(deselected, false);
+	enableItemsOutline(selected, true);
+	enableItemsOutline(deselected, false);
 }
 
 void Hierarchy::updateRecursively(Sprite pp, QStandardItem* pi) {
@@ -80,7 +85,7 @@ void Hierarchy::updateRecursively(Sprite pp, QStandardItem* pi) {
 	}
 }
 
-void Hierarchy::EnableSpriteOutline(Sprite sprite, bool enable) {
+void Hierarchy::enableSpriteOutline(Sprite sprite, bool enable) {
 	if (!sprite || !sprite->GetRenderer()) {
 		return;
 	}
@@ -99,12 +104,12 @@ void Hierarchy::EnableSpriteOutline(Sprite sprite, bool enable) {
 	}
 }
 
-void Hierarchy::EnableItemsOutline(const QItemSelection& items, bool enable) {
+void Hierarchy::enableItemsOutline(const QItemSelection& items, bool enable) {
 	foreach(QItemSelectionRange r, items) {
 		foreach(QModelIndex index, r.indexes()) {
 			uint id = model_->itemFromIndex(index)->data().toUInt();
 			Sprite sprite = WorldInstance()->GetSprite(id);
-			EnableSpriteOutline(sprite, enable);
+			enableSpriteOutline(sprite, enable);
 		}
 	}
 }

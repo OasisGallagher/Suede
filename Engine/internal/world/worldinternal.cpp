@@ -43,6 +43,10 @@ Object WorldInternal::Create(ObjectType type) {
 		Sprite sprite = dsp_cast<Sprite>(object);
 		sprite->SetParent(GetRootSprite());
 		sprites_.insert(std::make_pair(sprite->GetInstanceID(), sprite));
+
+		SpriteCreatedEvent e;
+		e.sprite = sprite;
+		FireEvent(&e);
 	}
 
 	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
@@ -93,6 +97,30 @@ bool WorldInternal::GetSprites(ObjectType type, std::vector<Sprite>& sprites) {
 	}
 
 	return !sprites.empty();
+}
+
+void WorldInternal::AddEventListener(WorldEventListener* listener) {
+	if (listener == nullptr) {
+		Debug::LogError("invalid world event listener.");
+		return;
+	}
+
+	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
+		listeners_.push_back(listener);
+	}
+}
+
+void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
+	EventListenerContainer::iterator pos = std::find(listeners_.begin(), listeners_.end(), listener);
+	if (pos != listeners_.end()) {
+		listeners_.erase(pos);
+	}
+}
+
+void WorldInternal::FireEvent(const WorldEventBase* e) {
+	for (int i = 0; i < listeners_.size(); ++i) {
+		listeners_[i]->OnWorldEvent(e);
+	}
 }
 
 void WorldInternal::Update() {

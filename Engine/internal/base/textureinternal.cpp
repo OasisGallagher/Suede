@@ -23,12 +23,68 @@ void TextureInternal::Unbind() {
 	}
 }
 
-void TextureInternal::BindTexture() {
+void TextureInternal::SetMinFilterMode(TextureMinFilterMode value) {
+	BindTexture();
+	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, TextureMinFilterModeToGLenum(value));
+	UnbindTexture();
+}
+
+TextureMinFilterMode TextureInternal::GetMinFilterMode() const {
+	BindTexture();
+	GLint parameter = 0;
+	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, &parameter);
+	UnbindTexture();
+	return GLenumToTextureMinFilterMode(parameter);
+}
+
+void TextureInternal::SetMagFilterMode(TextureMagFilterMode value) {
+	BindTexture();
+	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, TextureMagFilterModeToGLenum(value));
+	UnbindTexture();
+}
+
+TextureMagFilterMode TextureInternal::GetMagFilterMode() const {
+	BindTexture();
+	GLint parameter = 0;
+	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, &parameter);
+	UnbindTexture();
+	return GLenumToTextureMagFilterMode(parameter);
+}
+
+void TextureInternal::SetWrapModeS(TextureWrapMode value) {
+	BindTexture();
+	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_S, TextureWrapModeToGLenum(value));
+	UnbindTexture();
+}
+
+TextureWrapMode TextureInternal::GetWrapModeS() const {
+	BindTexture();
+	GLint parameter = 0;
+	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_S, &parameter);
+	UnbindTexture();
+	return GLenumToTextureWrapMode(parameter);
+}
+
+void TextureInternal::SetWrapModeT(TextureWrapMode value) {
+	BindTexture();
+	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_T, TextureWrapModeToGLenum(value));
+	UnbindTexture();
+}
+
+TextureWrapMode TextureInternal::GetWrapModeT() const {
+	BindTexture();
+	GLint parameter = 0;
+	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_T, &parameter);
+	UnbindTexture();
+	return GLenumToTextureWrapMode(parameter);
+}
+
+void TextureInternal::BindTexture() const {
 	GL::GetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
 	GL::BindTexture(GetGLTextureType(), texture_);
 }
 
-void TextureInternal::UnbindTexture() {
+void TextureInternal::UnbindTexture() const {
 	GL::BindTexture(GetGLTextureType(), oldBindingTexture_);
 	oldBindingTexture_ = 0;
 }
@@ -40,7 +96,7 @@ void TextureInternal::DestroyTexture() {
 	}
 }
 
-BppType TextureInternal::GLTextureFormatToBpp(GLenum format) {
+BppType TextureInternal::GLTextureFormatToBpp(GLenum format) const {
 	switch (format) {
 		case GL_RGB: return BppType24;
 		case GL_RGBA: return BppType32;
@@ -50,7 +106,7 @@ BppType TextureInternal::GLTextureFormatToBpp(GLenum format) {
 	return BppType24;
 }
 
-void TextureInternal::ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]) {
+void TextureInternal::ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]) const {
 	GLenum glInternalFormat = GL_RGBA, glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
 	switch (format) {
 		case ColorFormatRgb:
@@ -79,6 +135,76 @@ void TextureInternal::ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&p
 	parameters[0] = glInternalFormat;
 	parameters[1] = glFormat;
 	parameters[2] = glType;
+}
+
+GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const {
+	switch (mode) {
+	case TextureMinFilterModeNearest:  return GL_NEAREST;
+	case TextureMinFilterModeLinear: return GL_LINEAR;
+	case TextureMinFilterModeNearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+	case TextureMinFilterModeLinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
+	case TextureMinFilterModeNearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
+	case TextureMinFilterModeLinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
+	}
+
+	Debug::LogError("invalid TextureMinFilterMode %d.", mode);
+	return GL_LINEAR;
+}
+
+GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const {
+	switch (mode) {
+	case TextureMagFilterModeNearest: return GL_NEAREST;
+	case TextureMagFilterModeLinear: return GL_LINEAR;
+	}
+
+	Debug::LogError("invalid TextureMagFilterMode %d.", mode);
+	return GL_LINEAR;
+}
+
+GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
+	switch (mode) {
+	case TextureWrapModeClampToEdge: return GL_CLAMP_TO_EDGE;
+	case TextureWrapModeMirroredRepeat: return GL_MIRRORED_REPEAT;
+	case TextureWrapModeRepeat: return GL_REPEAT;
+	}
+
+	Debug::LogError("invalid TextureWrapMode %d.", mode);
+	return GL_REPEAT;
+}
+
+TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(GLenum value) const {
+	switch (value) {
+	case GL_NEAREST: return TextureMinFilterModeNearest;
+	case GL_LINEAR: return TextureMinFilterModeLinear;
+	case GL_NEAREST_MIPMAP_NEAREST: return TextureMinFilterModeNearestMipmapNearest;
+	case GL_LINEAR_MIPMAP_NEAREST: return TextureMinFilterModeLinearMipmapNearest;
+	case GL_NEAREST_MIPMAP_LINEAR: return TextureMinFilterModeNearestMipmapLinear;
+	case GL_LINEAR_MIPMAP_LINEAR: return TextureMinFilterModeLinearMipmapLinear;
+	}
+
+	Debug::LogError("invalid GLenum %d.", value);
+	return TextureMinFilterModeLinear;
+}
+
+TextureMagFilterMode TextureInternal::GLenumToTextureMagFilterMode(GLenum value) const {
+	switch (value) {
+	case GL_NEAREST: return TextureMagFilterModeNearest;
+	case GL_LINEAR: return TextureMagFilterModeLinear;
+	}
+
+	Debug::LogError("invalid GLenum %d.", value);
+	return TextureMagFilterModeLinear;
+}
+
+TextureWrapMode TextureInternal::GLenumToTextureWrapMode(GLenum value) const {
+	switch (value) {
+	case GL_CLAMP_TO_EDGE: return TextureWrapModeClampToEdge;
+	case GL_MIRRORED_REPEAT: return TextureWrapModeMirroredRepeat;
+	case GL_REPEAT: return TextureWrapModeRepeat;
+	}
+
+	Debug::LogError("invalid GLenum %d.", value);
+	return TextureWrapModeRepeat;
 }
 
 Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectTypeTexture2D) {
@@ -112,14 +238,9 @@ bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, in
 	ColorFormatToGLTextureFormat(format, glFormat);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], data);
 
-	format_ = glFormat[0];
-
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 	UnbindTexture();
+
+	format_ = glFormat[0];
 
 	return true;
 }

@@ -24,7 +24,14 @@ public:
 
 	virtual Sprite GetSprite(uint id);
 	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites);
+
+	virtual void AddEventListener(WorldEventListener* listener);
+	virtual void RemoveEventListener(WorldEventListener* listener);
+
 	virtual Environment GetEnvironment() { return environment_; }
+
+private:
+	void FireEvent(const WorldEventBase* e);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
@@ -33,12 +40,13 @@ private:
 	typedef std::map<uint, Sprite> SpriteContainer;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
-
+	typedef std::vector<WorldEventListener*> EventListenerContainer;
 private:
 	Sprite root_;
 	LightContainer lights_;
 	CameraContainer cameras_;
 	SpriteContainer sprites_;
+	EventListenerContainer listeners_;
 
 	Environment environment_;
 };

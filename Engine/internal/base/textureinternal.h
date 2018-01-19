@@ -19,19 +19,40 @@ public:
 	virtual int GetWidth() { return width_; }
 	virtual int GetHeight() { return height_; }
 
-protected:
-	virtual GLenum GetGLTextureType() = 0;
-	virtual GLenum GetGLTextureBindingName() = 0;
+	virtual void SetMinFilterMode(TextureMinFilterMode value);
+	virtual TextureMinFilterMode GetMinFilterMode() const;
 
-	void BindTexture();
-	void UnbindTexture();
+	virtual void SetMagFilterMode(TextureMagFilterMode value);
+	virtual TextureMagFilterMode GetMagFilterMode() const;
+
+	virtual void SetWrapModeS(TextureWrapMode value);
+	virtual TextureWrapMode GetWrapModeS() const;
+
+	virtual void SetWrapModeT(TextureWrapMode value);
+	virtual TextureWrapMode GetWrapModeT() const;
+
+protected:
+	virtual GLenum GetGLTextureType() const = 0;
+	virtual GLenum GetGLTextureBindingName() const = 0;
+
+	void BindTexture() const;
+	void UnbindTexture() const;
 	void DestroyTexture();
-	BppType GLTextureFormatToBpp(GLenum format);
-	void ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]);
+	BppType GLTextureFormatToBpp(GLenum format) const;
+	void ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]) const;
+
+private:
+	GLenum TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const;
+	GLenum TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const;
+	GLenum TextureWrapModeToGLenum(TextureWrapMode mode) const;
+
+	TextureMinFilterMode GLenumToTextureMinFilterMode(GLenum value) const;
+	TextureMagFilterMode GLenumToTextureMagFilterMode(GLenum value) const;
+	TextureWrapMode GLenumToTextureWrapMode(GLenum value) const;
 
 protected:
 	int width_, height_;
-	GLint oldBindingTexture_;
+	mutable GLint oldBindingTexture_;
 
 	GLenum format_;
 	GLuint texture_;
@@ -53,8 +74,8 @@ public:
 	virtual bool EncodeToJpg(std::vector<uchar>& data);
 
 protected:
-	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }
-	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
+	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
+	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
 private:
 	bool EncodeTo(std::vector<uchar>& data, ImageType type);
@@ -71,8 +92,8 @@ public:
 	bool Load(const std::string (&textures)[6]);
 
 protected:
-	virtual GLenum GetGLTextureType() { return GL_TEXTURE_CUBE_MAP; }
-	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_CUBE_MAP; }
+	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_CUBE_MAP; }
+	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_CUBE_MAP; }
 };
 
 class RenderTextureInternal : public IRenderTexture, public TextureInternal {
@@ -85,7 +106,7 @@ public:
 	bool Load(RenderTextureFormat format, int width, int height);
 
 protected:
-	virtual GLenum GetGLTextureType() { return GL_TEXTURE_2D; }
-	virtual GLenum GetGLTextureBindingName() { return GL_TEXTURE_BINDING_2D; }
+	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
+	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum (&parameters)[3]);
 };
