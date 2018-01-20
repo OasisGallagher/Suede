@@ -43,6 +43,8 @@ bool FontInternal::Require(const std::wstring& str) {
 
 			status = GetBitmapBits(str[i], texelMap) && status;
 			texelMaps_.push_back(texelMap);
+			
+			// invalidate material.
 			material_->SetTexture(Variables::mainTexture, nullptr);
 		}
 	}
@@ -128,7 +130,8 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 
 	answer->width = Math::Max(1u, bitmap.width);
 	answer->height = Math::Max(1u, bitmap.rows);
-	answer->format = ColorFormatLuminanceAlpha;
+	answer->textureFormat = TextureFormatRgba;
+	answer->format = ColorStreamFormatLuminanceAlpha;
 	// TODO: alignment.
 	answer->alignment = 4;
 
@@ -142,7 +145,7 @@ void FontInternal::RebuildMaterial() {
 	coords_ = atlas.coords;
 
 	Texture2D texture = NewTexture2D();
-	texture->Load(&atlas.data[0], ColorFormatLuminanceAlpha, atlas.width, atlas.height);
+	texture->Load(TextureFormatRgba, &atlas.data[0], ColorStreamFormatLuminanceAlpha, atlas.width, atlas.height);
 
 	material_->SetTexture(Variables::mainTexture, texture);
 }

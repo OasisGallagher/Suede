@@ -10,15 +10,7 @@ public:
 	~Canvas();
 
 protected:
-	void initializeGL();
-	void resizeGL(int w, int h);
-	void paintGL();
-
-	void timerEvent(QTimerEvent *event);
-
-signals:
-	void repaint();
-
-private:
-	int updateTimer_;
+	virtual void initializeGL();
+	virtual void resizeGL(int w, int h);
+	virtual void paintGL();
 };

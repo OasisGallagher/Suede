@@ -198,7 +198,7 @@ Texture2D CameraInternal::Capture() {
 	Framebuffer0::Get()->ReadBuffer(data);
 
 	Texture2D texture = NewTexture2D();
-	texture->Load(&data[0], ColorFormatRgb, Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
+	texture->Load(TextureFormatRgb, &data[0], ColorStreamFormatRgb, Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	return texture;
 }

@@ -4,6 +4,10 @@
 #include "debug/debug.h"
 #include "textureinternal.h"
 
+TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
+	, texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
+}
+
 void TextureInternal::Bind(uint index) {
 	if (!GL::IsTexture(texture_)) {
 		Debug::LogError("invalid texture");
@@ -96,7 +100,7 @@ void TextureInternal::DestroyTexture() {
 	}
 }
 
-BppType TextureInternal::GLTextureFormatToBpp(GLenum format) const {
+BppType TextureInternal::GLenumToBpp(GLenum format) const {
 	switch (format) {
 		case GL_RGB: return BppType24;
 		case GL_RGBA: return BppType32;
@@ -106,45 +110,58 @@ BppType TextureInternal::GLTextureFormatToBpp(GLenum format) const {
 	return BppType24;
 }
 
-void TextureInternal::ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]) const {
-	GLenum glInternalFormat = GL_RGBA, glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
+GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
+	switch (textureFormat) {
+		case TextureFormatRgb: return GL_RGB;
+		case TextureFormatRgb16: return GL_RGB16F;
+		case TextureFormatRgb32: return GL_RGB32F;
+		case TextureFormatRgba: return GL_RGBA;
+		case TextureFormatRgba16: return GL_RGBA16F;
+		case TextureFormatRgba32: return GL_RGBA32F;
+		case TextureFormatRgbaS: return GL_RGBA_SNORM;
+		case TextureFormatRgbS: return GL_RGB_SNORM;
+	}
+
+	Debug::LogError("invalid texture format %d.", textureFormat);
+	return GL_RGB;
+}
+
+void TextureInternal::ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const {
+	GLenum glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
 	switch (format) {
-		case ColorFormatRgb:
+		case ColorStreamFormatRgb:
 			glFormat = GL_RGB;
-			glInternalFormat = GL_RGB;
 			break;
-		case ColorFormatBgr:
+		case ColorStreamFormatBgr:
 			glFormat = GL_BGR;
-			glInternalFormat = GL_RGB;
 			break;
-		case ColorFormatRgba:
+		case ColorStreamFormatRgba:
 			glFormat = GL_RGBA;
 			break;
-		case ColorFormatArgb:
+		case ColorStreamFormatArgb:
 			glFormat = GL_BGRA;
 			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
 			break;
-		case ColorFormatBgra:
+		case ColorStreamFormatBgra:
 			glFormat = GL_BGRA;
 			break;
-		case ColorFormatLuminanceAlpha:
+		case ColorStreamFormatLuminanceAlpha:
 			glFormat = GL_LUMINANCE_ALPHA;
 			break;
 	}
 
-	parameters[0] = glInternalFormat;
-	parameters[1] = glFormat;
-	parameters[2] = glType;
+	parameters[0] = glFormat;
+	parameters[1] = glType;
 }
 
 GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const {
 	switch (mode) {
-	case TextureMinFilterModeNearest:  return GL_NEAREST;
-	case TextureMinFilterModeLinear: return GL_LINEAR;
-	case TextureMinFilterModeNearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
-	case TextureMinFilterModeLinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
-	case TextureMinFilterModeNearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
-	case TextureMinFilterModeLinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
+		case TextureMinFilterModeNearest:  return GL_NEAREST;
+		case TextureMinFilterModeLinear: return GL_LINEAR;
+		case TextureMinFilterModeNearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+		case TextureMinFilterModeLinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
+		case TextureMinFilterModeNearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
+		case TextureMinFilterModeLinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
 	Debug::LogError("invalid TextureMinFilterMode %d.", mode);
@@ -153,8 +170,8 @@ GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) 
 
 GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const {
 	switch (mode) {
-	case TextureMagFilterModeNearest: return GL_NEAREST;
-	case TextureMagFilterModeLinear: return GL_LINEAR;
+		case TextureMagFilterModeNearest: return GL_NEAREST;
+		case TextureMagFilterModeLinear: return GL_LINEAR;
 	}
 
 	Debug::LogError("invalid TextureMagFilterMode %d.", mode);
@@ -163,9 +180,9 @@ GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) 
 
 GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
 	switch (mode) {
-	case TextureWrapModeClampToEdge: return GL_CLAMP_TO_EDGE;
-	case TextureWrapModeMirroredRepeat: return GL_MIRRORED_REPEAT;
-	case TextureWrapModeRepeat: return GL_REPEAT;
+		case TextureWrapModeClampToEdge: return GL_CLAMP_TO_EDGE;
+		case TextureWrapModeMirroredRepeat: return GL_MIRRORED_REPEAT;
+		case TextureWrapModeRepeat: return GL_REPEAT;
 	}
 
 	Debug::LogError("invalid TextureWrapMode %d.", mode);
@@ -174,12 +191,12 @@ GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
 
 TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(GLenum value) const {
 	switch (value) {
-	case GL_NEAREST: return TextureMinFilterModeNearest;
-	case GL_LINEAR: return TextureMinFilterModeLinear;
-	case GL_NEAREST_MIPMAP_NEAREST: return TextureMinFilterModeNearestMipmapNearest;
-	case GL_LINEAR_MIPMAP_NEAREST: return TextureMinFilterModeLinearMipmapNearest;
-	case GL_NEAREST_MIPMAP_LINEAR: return TextureMinFilterModeNearestMipmapLinear;
-	case GL_LINEAR_MIPMAP_LINEAR: return TextureMinFilterModeLinearMipmapLinear;
+		case GL_NEAREST: return TextureMinFilterModeNearest;
+		case GL_LINEAR: return TextureMinFilterModeLinear;
+		case GL_NEAREST_MIPMAP_NEAREST: return TextureMinFilterModeNearestMipmapNearest;
+		case GL_LINEAR_MIPMAP_NEAREST: return TextureMinFilterModeLinearMipmapNearest;
+		case GL_NEAREST_MIPMAP_LINEAR: return TextureMinFilterModeNearestMipmapLinear;
+		case GL_LINEAR_MIPMAP_LINEAR: return TextureMinFilterModeLinearMipmapLinear;
 	}
 
 	Debug::LogError("invalid GLenum %d.", value);
@@ -188,8 +205,8 @@ TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(GLenum value)
 
 TextureMagFilterMode TextureInternal::GLenumToTextureMagFilterMode(GLenum value) const {
 	switch (value) {
-	case GL_NEAREST: return TextureMagFilterModeNearest;
-	case GL_LINEAR: return TextureMagFilterModeLinear;
+		case GL_NEAREST: return TextureMagFilterModeNearest;
+		case GL_LINEAR: return TextureMagFilterModeLinear;
 	}
 
 	Debug::LogError("invalid GLenum %d.", value);
@@ -198,9 +215,9 @@ TextureMagFilterMode TextureInternal::GLenumToTextureMagFilterMode(GLenum value)
 
 TextureWrapMode TextureInternal::GLenumToTextureWrapMode(GLenum value) const {
 	switch (value) {
-	case GL_CLAMP_TO_EDGE: return TextureWrapModeClampToEdge;
-	case GL_MIRRORED_REPEAT: return TextureWrapModeMirroredRepeat;
-	case GL_REPEAT: return TextureWrapModeRepeat;
+		case GL_CLAMP_TO_EDGE: return TextureWrapModeClampToEdge;
+		case GL_MIRRORED_REPEAT: return TextureWrapModeMirroredRepeat;
+		case GL_REPEAT: return TextureWrapModeRepeat;
 	}
 
 	Debug::LogError("invalid GLenum %d.", value);
@@ -220,27 +237,28 @@ bool Texture2DInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	return Load(&texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
+	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
 }
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
-bool Texture2DInternal::Load(const void* data, ColorFormat format, int width, int height) {
+bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height) {
 	DestroyTexture();
 
 	width_ = width;
 	height_ = height;
 
 	GL::GenTextures(1, &texture_);
-	
+
 	BindTexture();
 
-	GLenum glFormat[3];
-	ColorFormatToGLTextureFormat(format, glFormat);
-	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], data);
+	GLenum glFormat[2];
+	ColorStreamFormatToGLenum(glFormat, format);
+	GLenum internalFormat = TextureFormatToGLenum(textureFormat);
+	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
 
 	UnbindTexture();
 
-	format_ = glFormat[0];
+	internalFormat_ = internalFormat;
 
 	return true;
 }
@@ -260,12 +278,13 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	texelMap.width = GetWidth();
 	texelMap.height = GetHeight();
 	texelMap.alignment = 4;
-	BppType bpp = GLTextureFormatToBpp(format_);
+	BppType bpp = GLenumToBpp(internalFormat_);
 	texelMap.data.resize((bpp / 8) * GetWidth() * GetHeight());
-	GL::GetTexImage(GL_TEXTURE_2D, 0, format_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
+	GL::GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
-	texelMap.format = (bpp == BppType24) ? ColorFormatRgb : ColorFormatRgba;
+	texelMap.textureFormat = (bpp == BppType24) ? TextureFormatRgb : TextureFormatRgba;
+	texelMap.format = (bpp == BppType24) ? ColorStreamFormatRgb : ColorStreamFormatRgba;
 
 	return ImageCodec::Encode(data, type, texelMap);
 }
@@ -291,10 +310,13 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 			return false;
 		}
 
-		GLenum glFormat[3];
-		ColorFormatToGLTextureFormat(texelMap.format, glFormat);
-		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, glFormat[0], texelMap.width, texelMap.height, 0, glFormat[1], glFormat[2], &texelMap.data[0]);
-		format_ = glFormat[0];
+		GLenum glFormat[2];
+		ColorStreamFormatToGLenum(glFormat, texelMap.format);
+		GLenum internalFormat = TextureFormatToGLenum(texelMap.textureFormat);
+		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMap.width, texelMap.height, 0, glFormat[0], glFormat[1], &texelMap.data[0]);
+
+		internalFormat_ = internalFormat;
+
 		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -306,12 +328,12 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	return true;
 }
 
-RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture) {	
+RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture) {
 }
 
 bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int height) {
 	DestroyTexture();
-	
+
 	width_ = width;
 	height_ = height;
 
@@ -321,7 +343,7 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	GLenum glFormat[3];
 	RenderTextureFormatToGLenum(format, glFormat);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], nullptr);
-	format_ = glFormat[0];
+	internalFormat_ = glFormat[0];
 
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

@@ -1,11 +1,11 @@
 #pragma once
 #include <QMap>
-#include <QWidget>
+#include <QDockWidget>
 #include <QTableWidget>
 
-#include "window.h"
+#include "childwindow.h"
 
-class Console : public Window {
+class Console : public QDockWidget, public ChildWindow {
 	Q_OBJECT
 
 public:
@@ -19,11 +19,14 @@ public:
 	static Console* get();
 
 public:
-	void addMessage(MessageType type, const QString& message);
+	Console(QWidget* parent);
+	~Console();
 
-private:
-	Console() { }
-	virtual void initialize();
+public:
+	virtual void ready();
+
+public:
+	void addMessage(MessageType type, const QString& message);
 
 private:
 	const char* messageIconPath(MessageType type);

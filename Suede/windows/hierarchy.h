@@ -1,29 +1,32 @@
 #pragma once
+#include <QDockWidget>
 #include <QItemSelection>
+
+#include "childwindow.h"
 
 #include "world.h"
 #include "sprite.h"
-#include "window.h"
 
 class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public Window, public WorldEventListener {
+class Hierarchy : public QDockWidget, public ChildWindow, public WorldEventListener {
 	Q_OBJECT
 
 public:
 	static Hierarchy* get();
 
 public:
-	Sprite selectedSprite();
-	bool selectedSprites(QList<Sprite>& sprites);
-
-private:
-	Hierarchy();
+	Hierarchy(QWidget* parent);
 	~Hierarchy();
 
-	virtual void initialize();
+public:
+	virtual void ready();
+
+public:
+	Sprite selectedSprite();
+	bool selectedSprites(QList<Sprite>& sprites);
 	void updateRecursively(Sprite pp, QStandardItem* pi);
 
 private:

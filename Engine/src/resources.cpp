@@ -151,6 +151,6 @@ Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 
 Texture2D Resources::CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
-	texture->Load(&color, ColorFormatRgba, 1, 1);
+	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1);
 	return texture;
 }

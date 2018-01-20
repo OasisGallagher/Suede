@@ -7,26 +7,28 @@
 #include "engine.h"
 #include "hierarchy.h"
 
+Hierarchy* hierarchyInstance;
+
 Hierarchy* Hierarchy::get() {
-	static Hierarchy instance;
-	return &instance;
+	return hierarchyInstance;
 }
 
-Hierarchy::Hierarchy() : model_(nullptr) {
+Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
+	hierarchyInstance = this;
 }
 
 Hierarchy::~Hierarchy() {
+	hierarchyInstance = nullptr;
 }
 
-void Hierarchy::initialize() {
+void Hierarchy::ready() {
 	WorldInstance()->AddEventListener(this);
 
-	model_ = new QStandardItemModel(view_);
+	model_ = new QStandardItemModel(this);
 	
-	tree_ = view_->findChild<QTreeView*>("tree", Qt::FindDirectChildrenOnly);
+	tree_ = findChild<QTreeView*>("tree", Qt::FindChildrenRecursively);
 	tree_->setModel(model_);
 	tree_->setHeaderHidden(true);
-	view_->setSize(80, 200);
 
 	connect(tree_->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));

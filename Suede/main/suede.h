@@ -47,5 +47,5 @@ private:
 
 private:
 	Ui::Suede ui;
-	QDockWidget* dockWidgets_[ChildWindowCount];
+	QDockWidget* childWindows_[ChildWindowCount];
 };

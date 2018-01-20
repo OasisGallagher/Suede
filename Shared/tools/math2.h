@@ -54,6 +54,7 @@ public:
 	static float Luminance(const glm::vec3& color);
 
 	static void Orthogonalize(glm::vec3& t, const glm::vec3& n);
+
 private:
 	Math();
 };

@@ -2,13 +2,22 @@
 #include <QSplitter>
 #include <QHeaderView>
 
+Console* consoleInstance;
+
 Console* Console::get() {
-	static Console instance;
-	return &instance;
+	return consoleInstance;
 }
 
-void Console::initialize() {
-	table_ = view_->findChild<QTableWidget*>("table", Qt::FindDirectChildrenOnly);
+Console::Console(QWidget* parent) : QDockWidget(parent) {
+	consoleInstance = this;
+}
+
+Console::~Console() {
+	consoleInstance = nullptr;
+}
+
+void Console::ready() {
+	table_ = findChild<QTableWidget*>("table", Qt::FindChildrenRecursively);
 	table_->horizontalHeader()->setStretchLastSection(true);
 	table_->horizontalHeader()->setVisible(false);
 	table_->setColumnCount(2);

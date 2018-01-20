@@ -28,7 +28,7 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QDockWidget" name="game">
+   <widget class="Game" name="game">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -58,7 +58,7 @@
     <property name="windowTitle">
      <string>Game</string>
     </property>
-    <widget class="View" name="gameWidget">
+    <widget class="QWidget" name="gameView">
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="leftMargin">
        <number>0</number>
@@ -78,7 +78,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QDockWidget" name="hierarchy">
+   <widget class="Hierarchy" name="hierarchy">
     <property name="geometry">
      <rect>
       <x>450</x>
@@ -105,7 +105,7 @@
     <property name="windowTitle">
      <string>Hierarchy</string>
     </property>
-    <widget class="View" name="hierarchyWidget">
+    <widget class="QWidget" name="hierarchyView">
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <property name="leftMargin">
        <number>0</number>
@@ -132,7 +132,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QDockWidget" name="console">
+   <widget class="Console" name="console">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -159,7 +159,7 @@
     <property name="windowTitle">
      <string>Console</string>
     </property>
-    <widget class="View" name="consoleWidget">
+    <widget class="QWidget" name="consoleView">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="leftMargin">
        <number>0</number>
@@ -183,7 +183,7 @@
      </layout>
     </widget>
    </widget>
-   <widget class="QDockWidget" name="inspector">
+   <widget class="Inspector" name="inspector">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -210,7 +210,7 @@
     <property name="windowTitle">
      <string>Inspector</string>
     </property>
-    <widget class="View" name="inspectorWidget">
+    <widget class="QWidget" name="inspectorView">
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <property name="leftMargin">
        <number>0</number>
@@ -275,13 +275,31 @@
   <customwidget>
    <class>Canvas</class>
    <extends>QWidget</extends>
-   <header>views/canvas.h</header>
+   <header>windows/canvas.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>View</class>
-   <extends>QWidget</extends>
-   <header>views/view.h</header>
+   <class>Game</class>
+   <extends>QDockWidget</extends>
+   <header>windows/game.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Console</class>
+   <extends>QDockWidget</extends>
+   <header>windows/console.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Hierarchy</class>
+   <extends>QDockWidget</extends>
+   <header>windows/hierarchy.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Inspector</class>
+   <extends>QDockWidget</extends>
+   <header>windows/inspector.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

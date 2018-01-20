@@ -566,10 +566,10 @@ Texture AssetImporter::ReadEmbeddedTexture(uint index) {
 			return nullptr;
 		}
 
-		texture->Load(&texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
+		texture->Load(texelMap.textureFormat, &texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
 	}
 	else {
-		texture->Load(aitex->pcData, ColorFormatArgb, aitex->mWidth, aitex->mHeight);
+		texture->Load(TextureFormatRgba, aitex->pcData, ColorStreamFormatArgb, aitex->mWidth, aitex->mHeight);
 	}
 
 	return texture;

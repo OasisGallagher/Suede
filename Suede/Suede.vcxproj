@@ -167,10 +167,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_window.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -205,19 +201,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_window.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="main\suede.cpp" />
     <ClCompile Include="scripts\cameracontroller.cpp" />
-    <ClCompile Include="views\canvas.cpp" />
-    <ClCompile Include="views\console.cpp" />
-    <ClCompile Include="views\game.cpp" />
-    <ClCompile Include="views\hierarchy.cpp" />
-    <ClCompile Include="views\inspector.cpp" />
-    <ClCompile Include="views\window.cpp" />
+    <ClCompile Include="windows\canvas.cpp" />
+    <ClCompile Include="windows\console.cpp" />
+    <ClCompile Include="windows\game.cpp" />
+    <ClCompile Include="windows\hierarchy.cpp" />
+    <ClCompile Include="windows\inspector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -261,6 +252,97 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_suede.h" />
+    <ClInclude Include="windows\childwindow.h" />
+    <CustomBuild Include="windows\inspector.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing inspector.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing inspector.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing inspector.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing inspector.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+    </CustomBuild>
+    <CustomBuild Include="windows\hierarchy.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing hierarchy.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing hierarchy.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing hierarchy.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing hierarchy.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+    </CustomBuild>
+    <CustomBuild Include="windows\game.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing game.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing game.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing game.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing game.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+    </CustomBuild>
+    <CustomBuild Include="windows\console.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing console.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing console.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing console.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing console.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+    </CustomBuild>
+    <CustomBuild Include="windows\canvas.h">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing canvas.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing canvas.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing canvas.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing canvas.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
+    </CustomBuild>
     <CustomBuild Include="main\suede.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing suede.h...</Message>
@@ -283,115 +365,6 @@
     <ClInclude Include="scripts\cameracontroller.h" />
     <ClInclude Include="scripts\grayscale.h" />
     <ClInclude Include="scripts\inversion.h" />
-    <ClInclude Include="views\view.h" />
-    <CustomBuild Include="views\window.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing window.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing window.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE  "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing window.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing window.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-    </CustomBuild>
-    <CustomBuild Include="views\inspector.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing inspector.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing inspector.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE  "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing inspector.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing inspector.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-    </CustomBuild>
-    <CustomBuild Include="views\hierarchy.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing hierarchy.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing hierarchy.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE  "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing hierarchy.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing hierarchy.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-    </CustomBuild>
-    <CustomBuild Include="views\game.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing game.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing game.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE  "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing game.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing game.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-    </CustomBuild>
-    <CustomBuild Include="views\console.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing console.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing console.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE  "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing console.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing console.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-    </CustomBuild>
-    <CustomBuild Include="views\canvas.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing canvas.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing canvas.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D_UNICODE  "-I.\include" "-I.\..\Engine\include" "-I.\..\Shared" "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing canvas.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing canvas.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\buildin\shaders\blit.shader" />

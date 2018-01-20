@@ -4,39 +4,39 @@
 #include "tools/math2.h"
 #include "debug/debug.h"
 
-static ColorFormat BppToColorFormat(uint bpp) {
+static ColorStreamFormat BppToColorStreamFormat(uint bpp) {
 	switch (bpp) {
 	case 8:
 	case 24:
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		return ColorFormatBgr;
+		return ColorStreamFormatBgr;
 #else
-		return ColorFormatRgb;
+		return ColorStreamFormatRgb;
 #endif
 	case 32:
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		return ColorFormatBgra;
+		return ColorStreamFormatBgra;
 #else
-		return ColorFormatRgba;
+		return ColorStreamFormatRgba;
 #endif
 	}
 
 	Debug::LogError("invalid bbp number %d.", bpp);
-	return ColorFormatBgr;
+	return ColorStreamFormatBgr;
 }
 
-static uint ColorFormatToBpp(ColorFormat format) {
+static uint ColorStreamFormatToBpp(ColorStreamFormat format) {
 	switch (format) {
-	case ColorFormatRgb:
-	case ColorFormatBgr:
+	case ColorStreamFormatRgb:
+	case ColorStreamFormatBgr:
 		return 3 * 8;
 
-	case ColorFormatRgba:
-	case ColorFormatArgb:
-	case ColorFormatBgra:
+	case ColorStreamFormatRgba:
+	case ColorStreamFormatArgb:
+	case ColorStreamFormatBgra:
 		return 4 * 8;
 
-	case ColorFormatLuminanceAlpha:
+	case ColorStreamFormatLuminanceAlpha:
 		return 2 * 8;
 
 	default:
@@ -168,7 +168,8 @@ bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 
 	texelMap.width = width;
 	texelMap.height = height;
-	texelMap.format = BppToColorFormat(bpp);
+	texelMap.textureFormat = (bpp >= 32) ? TextureFormatRgba : TextureFormatRgb;
+	texelMap.format = BppToColorStreamFormat(bpp);
 	texelMap.alignment = 4;
 
 	return true;
@@ -212,13 +213,13 @@ FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
 }
 
 FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
-	if (texelMap.format != ColorFormatRgb && texelMap.format != ColorFormatRgba) {
+	if (texelMap.format != ColorStreamFormatRgb && texelMap.format != ColorStreamFormatRgba) {
 		Debug::LogError("invalid format %d.", texelMap.format);
 		return nullptr;
 	}
 
 	// TODO: 32 bbp jpg.
-	BppType bpp = texelMap.format == ColorFormatRgb ? BppType24 : BppType32;
+	BppType bpp = texelMap.format == ColorStreamFormatRgb ? BppType24 : BppType32;
 	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
 	CopyBitsFrom(dib, texelMap.width, texelMap.height, bpp, texelMap.data);
 
@@ -257,7 +258,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	uint width, height;
 	uint columnCount = Calculate(width, height, texelMaps, space);
 
-	uint bpp = ColorFormatToBpp(texelMaps.front()->format);
+	uint bpp = ColorStreamFormatToBpp(texelMaps.front()->format);
 	atlas.data.resize(width * height * (bpp / 8));
 	uchar* ptr = &atlas.data[0];
 	int bottom = space;
@@ -288,6 +289,12 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 
 	atlas.width = width;
 	atlas.height = height;
+
+	for (int i = 0; i < atlas.data.size(); ++i) {
+		if (atlas.data[i] != 0) {
+			//__debugbreak();
+		}
+	}
 
 	return true;
 }

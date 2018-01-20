@@ -11,11 +11,11 @@
 #include "engine.h"
 #include "camera.h"
 
-#include "views/game.h"
-#include "views/canvas.h"
-#include "views/console.h"
-#include "views/inspector.h"
-#include "views/hierarchy.h"
+#include "windows/game.h"
+#include "windows/canvas.h"
+#include "windows/console.h"
+#include "windows/inspector.h"
+#include "windows/hierarchy.h"
 
 Suede::Suede(QWidget *parent)
 	: QMainWindow(parent) {
@@ -42,40 +42,39 @@ void Suede::setupUI() {
 	QWidget* cw = takeCentralWidget();
 	cw->deleteLater();
 
-	dockWidgets_[ChildWindowGame] = ui.game;
-	dockWidgets_[ChildWindowConsole] = ui.console;
-	dockWidgets_[ChildWindowInspector] = ui.inspector;
-	dockWidgets_[ChildWindowHierarchy] = ui.hierarchy;
+	childWindows_[ChildWindowGame] = Game::get();
+	childWindows_[ChildWindowConsole] = Console::get();
+	childWindows_[ChildWindowInspector] = Inspector::get();
+	childWindows_[ChildWindowHierarchy] = Hierarchy::get();
 
-	addDockWidget(Qt::LeftDockWidgetArea, ui.inspector);
-	addDockWidget(Qt::RightDockWidgetArea, ui.game);
-	addDockWidget(Qt::RightDockWidgetArea, ui.console, Qt::Vertical);
-	addDockWidget(Qt::RightDockWidgetArea, ui.hierarchy, Qt::Horizontal);
+	addDockWidget(Qt::LeftDockWidgetArea, Inspector::get());
+	addDockWidget(Qt::RightDockWidgetArea, Game::get());
+	addDockWidget(Qt::RightDockWidgetArea, Console::get(), Qt::Vertical);
+	addDockWidget(Qt::RightDockWidgetArea, Hierarchy::get(), Qt::Horizontal);
 
-	const QRect& r = ui.inspector->geometry();
-	ui.inspector->setGeometry(r.x(), r.y(), 40, r.height());
+	const QRect& r = Inspector::get()->geometry();
+	Inspector::get()->setGeometry(r.x(), r.y(), 40, r.height());
 
 	//menuBar()->hide();
 	for (int i = ChildWindowGame + 1; i < ChildWindowCount; ++i) {
 		showChildWindow(i, false);
 	}
 
-//	showChildWindow(ChildWindowConsole, true);
+	//showChildWindow(ChildWindowConsole, true);
 
-	Game::get()->setView(ui.gameWidget);
-	Console::get()->setView(ui.consoleWidget);
-	Inspector::get()->setView(ui.inspectorWidget);
-	Hierarchy::get()->setView(ui.hierarchyWidget);
+	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {
+		dynamic_cast<ChildWindow*>(childWindows_[i])->ready();
+	}
 }
 
 void Suede::showChildWindow(int index, bool show) {
 	Q_ASSERT(index > 0 && index < ChildWindowCount);
-	dockWidgets_[index]->setVisible(show);
+	childWindows_[index]->setVisible(show);
 }
 
 bool Suede::childWindowVisible(int index) {
 	Q_ASSERT(index > 0 && index < ChildWindowCount);
-	return dockWidgets_[index]->isVisible();
+	return childWindows_[index]->isVisible();
 }
 
 void Suede::keyPressEvent(QKeyEvent* event) {

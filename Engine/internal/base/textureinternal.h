@@ -8,8 +8,7 @@
 
 class TextureInternal : virtual public ITexture, public ObjectInternal {
 public:
-	TextureInternal(ObjectType type) :ObjectInternal(type), texture_(0), width_(0), height_(0), location_(0), format_(0) {
-	}
+	TextureInternal(ObjectType type);
 
 public:
 	virtual void Bind(uint index);
@@ -38,8 +37,9 @@ protected:
 	void BindTexture() const;
 	void UnbindTexture() const;
 	void DestroyTexture();
-	BppType GLTextureFormatToBpp(GLenum format) const;
-	void ColorFormatToGLTextureFormat(ColorFormat format, GLenum(&parameters)[3]) const;
+	BppType GLenumToBpp(GLenum format) const;
+	GLenum TextureFormatToGLenum(TextureFormat textureFormat) const;
+	void ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const;
 
 private:
 	GLenum TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const;
@@ -54,9 +54,9 @@ protected:
 	int width_, height_;
 	mutable GLint oldBindingTexture_;
 
-	GLenum format_;
 	GLuint texture_;
 	GLenum location_;
+	GLenum internalFormat_;
 };
 
 class Texture2DInternal : public ITexture2D, public TextureInternal {
@@ -68,7 +68,7 @@ public:
 
 public:
 	virtual bool Load(const std::string& path);
-	virtual bool Load(const void* data, ColorFormat format, int width, int height);
+	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height);
 
 	virtual bool EncodeToPng(std::vector<uchar>& data);
 	virtual bool EncodeToJpg(std::vector<uchar>& data);

@@ -5,7 +5,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include "debug/debug.h"
-#include "views/hierarchy.h"
+#include "windows/hierarchy.h"
 #include "cameracontroller.h"
 
 CameraController::CameraController() : lpressed_(false), mpressed_(false), rpressed_(false) {

@@ -1,9 +1,11 @@
 #include <QWidget>
+#include "canvas.h"
 
 #include "game.h"
 #include "font.h"
 #include "mesh.h"
 #include "light.h"
+#include "time2.h"
 #include "world.h"
 #include "skybox.h"
 #include "camera.h"
@@ -19,22 +21,24 @@
 #include "scripts/cameracontroller.h"
 
 //#define SKYBOX
-//#define ROOM
+#define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
-//#define FONT
+#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
+static Game* gameInstance;
+
 Game* Game::get() {
-	static Game instance;
-	return &instance;
+	return gameInstance;
 }
 
-Game::Game() : sceneCreated_(false) {
+Game::Game(QWidget* parent) : QDockWidget(parent), initialized_(false) {
+	gameInstance = this;
 	grayscale_ = new Grayscale;
 	inversion_ = new Inversion;
 	controller_ = new CameraController;
@@ -44,43 +48,13 @@ Game::~Game() {
 	delete grayscale_;
 	delete inversion_;
 	delete controller_;
+	killTimer(updateTimer_);
+	gameInstance = nullptr;
 }
 
-void Game::initialize() {
-	canvas_ = view_->findChild<QWidget*>("canvas", Qt::FindDirectChildrenOnly);
-	canvas_->installEventFilter(this);
-	connect(canvas_, SIGNAL(repaint()), this, SLOT(update()), Qt::DirectConnection);
-	view_->setSize(300, 400);
-}
-
-bool Game::eventFilter(QObject* watched, QEvent* event) {
-	if (watched != canvas_) {
-		return false;
-	}
-
-	switch (event->type()) {
-	case QEvent::Wheel:
-		wheelEvent((QWheelEvent*)event);
-		break;
-	case QEvent::MouseButtonPress:
-		mousePressEvent((QMouseEvent*)event);
-		break;
-	case QEvent::MouseButtonRelease:
-		mouseReleaseEvent((QMouseEvent*)event);
-		break;
-	case QEvent::MouseMove:
-		mouseMoveEvent((QMouseEvent*)event);
-		break;
-	case QEvent::KeyRelease:
-		keyPressEvent((QKeyEvent*)event);
-		break;
-
-	case QEvent::Resize:
-		resizeEvent((QResizeEvent*)event);
-		break;
-	}
-
-	return false;
+void Game::ready() {
+	canvas_ = findChild<Canvas*>("canvas", Qt::FindChildrenRecursively);
+	updateTimer_ = startTimer(10);
 }
 
 void Game::wheelEvent(QWheelEvent* event) {
@@ -108,11 +82,20 @@ void Game::resizeEvent(QResizeEvent* event) {
 	controller_->onResize(event->size());
 }
 
-void Game::update() {
-	if (!sceneCreated_) {
-		createScene();
-		sceneCreated_ = true;
+void Game::timerEvent(QTimerEvent *event) {
+	if (event->timerId() != updateTimer_) {
+		return;
 	}
+
+	if (Time::GetFrameCount() == 0) {
+		createScene();
+	}
+
+	update();
+}
+
+void Game::update() {
+	canvas_->update();
 }
 
 uint ballSpriteID;
@@ -121,18 +104,18 @@ uint roomSpriteID;
 void Game::createScene() {
 	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
 	DirectionalLight light = NewDirectionalLight();
-	//light->SetColor(glm::vec3(0.7f));
+	light->SetColor(glm::vec3(0.7f));
 
-	//Camera camera = NewCamera();
-	//controller_->setCamera(camera);
+	Camera camera = NewCamera();
+	controller_->setCamera(camera);
 
-	//light->SetParent(camera);
+	light->SetParent(camera);
 
 #ifdef DEFERRED_RENDERING
 	camera->SetRenderPath(RenderPathDeferred);
 #endif
 
-//	camera->SetPosition(glm::vec3(0, 25, 0));
+	camera->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
 	//camera->AddImageEffect(inversion_);
@@ -154,8 +137,8 @@ void Game::createScene() {
 	skybox->Load(faces);
 	camera->SetSkybox(skybox);
 #else
-//	camera->SetClearType(ClearTypeColor);
-//	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
+	camera->SetClearType(ClearTypeColor);
+	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
 #endif
 	
 #ifdef RENDER_TEXTURE

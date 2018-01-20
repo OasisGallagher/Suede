@@ -12,7 +12,8 @@ struct TexelMap {
 	uint width;
 	uint height;
 	uint alignment;
-	ColorFormat format;
+	TextureFormat textureFormat;
+	ColorStreamFormat format;
 	std::vector<uchar> data;
 };
 

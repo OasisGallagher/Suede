@@ -281,7 +281,7 @@ void ShaderParser::ReadTex2(SyntaxNode* node, Property& property) {
 
 	uchar bytes[] = { uchar(value.x & 0xFF), uchar(value.y & 0xFF), uchar(value.z & 0xFF) };
 	Texture2D texture = NewTexture2D();
-	texture->Load(bytes, ColorFormatRgb, 1, 1);
+	texture->Load(TextureFormatRgb, bytes, ColorStreamFormatRgb, 1, 1);
 	property.value.SetTexture(texture);
 }
 

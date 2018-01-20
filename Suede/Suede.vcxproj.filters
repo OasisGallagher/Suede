@@ -49,15 +49,6 @@
     <Filter Include="resources\shaders\include">
       <UniqueIdentifier>{293ae9ed-e6bb-4edb-878e-204ffb3e8ba9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="views">
-      <UniqueIdentifier>{b2387caa-cad8-41c5-b0b7-574d52dbdb14}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="views\src">
-      <UniqueIdentifier>{b3748fa1-e9cd-4486-a2ca-fee7ab76f9af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="views\include">
-      <UniqueIdentifier>{a8b8c673-6a4b-4d6f-ad47-694561ff1ff6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="main">
       <UniqueIdentifier>{dc1b67d3-19aa-4507-9fbb-e436e116b57b}</UniqueIdentifier>
     </Filter>
@@ -67,10 +58,34 @@
     <Filter Include="main\src">
       <UniqueIdentifier>{317e476b-2a27-4789-807c-7898c43a4ae1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{b2387caa-cad8-41c5-b0b7-574d52dbdb14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\src">
+      <UniqueIdentifier>{b3748fa1-e9cd-4486-a2ca-fee7ab76f9af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\include">
+      <UniqueIdentifier>{a8b8c673-6a4b-4d6f-ad47-694561ff1ff6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
       <Filter>scripts\src</Filter>
+    </ClCompile>
+    <ClCompile Include="main\suede.cpp">
+      <Filter>main\src</Filter>
+    </ClCompile>
+    <ClCompile Include="main\main.cpp">
+      <Filter>main\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_canvas.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -102,44 +117,20 @@
     <ClCompile Include="GeneratedFiles\Release\moc_inspector.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_window.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="windows\console.cpp">
+      <Filter>windows\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_window.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="windows\canvas.cpp">
+      <Filter>windows\src</Filter>
     </ClCompile>
-    <ClCompile Include="views\canvas.cpp">
-      <Filter>views\src</Filter>
+    <ClCompile Include="windows\game.cpp">
+      <Filter>windows\src</Filter>
     </ClCompile>
-    <ClCompile Include="views\console.cpp">
-      <Filter>views\src</Filter>
+    <ClCompile Include="windows\hierarchy.cpp">
+      <Filter>windows\src</Filter>
     </ClCompile>
-    <ClCompile Include="views\game.cpp">
-      <Filter>views\src</Filter>
-    </ClCompile>
-    <ClCompile Include="views\hierarchy.cpp">
-      <Filter>views\src</Filter>
-    </ClCompile>
-    <ClCompile Include="views\inspector.cpp">
-      <Filter>views\src</Filter>
-    </ClCompile>
-    <ClCompile Include="views\window.cpp">
-      <Filter>views\src</Filter>
-    </ClCompile>
-    <ClCompile Include="main\suede.cpp">
-      <Filter>main\src</Filter>
-    </ClCompile>
-    <ClCompile Include="main\main.cpp">
-      <Filter>main\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
-      <Filter>Generated Files</Filter>
+    <ClCompile Include="windows\inspector.cpp">
+      <Filter>windows\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,26 +140,23 @@
     <CustomBuild Include="ui\suede.ui">
       <Filter>ui</Filter>
     </CustomBuild>
-    <CustomBuild Include="views\canvas.h">
-      <Filter>views\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="views\console.h">
-      <Filter>views\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="views\game.h">
-      <Filter>views\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="views\hierarchy.h">
-      <Filter>views\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="views\inspector.h">
-      <Filter>views\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="views\window.h">
-      <Filter>views\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="main\suede.h">
       <Filter>main\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\canvas.h">
+      <Filter>windows\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\console.h">
+      <Filter>windows\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\game.h">
+      <Filter>windows\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\hierarchy.h">
+      <Filter>windows\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector.h">
+      <Filter>windows\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -187,8 +175,8 @@
     <ClInclude Include="resources\buildin\shaders\include\light_fragment.inc">
       <Filter>resources\buildin\shaders\include</Filter>
     </ClInclude>
-    <ClInclude Include="views\view.h">
-      <Filter>views\include</Filter>
+    <ClInclude Include="windows\childwindow.h">
+      <Filter>windows\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

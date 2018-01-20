@@ -41,7 +41,7 @@ void GBuffer::Unbind() {
 	framebuffer_.Unbind();
 }
 
-RenderTexture GBuffer::GetRenderTexture(GTexture index) {
+RenderTexture GBuffer::GetRenderTexture(GTexture index) const {
 	if (index >= GTextureCount) {
 		Debug::LogError("index out of range.");
 		return nullptr;

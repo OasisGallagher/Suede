@@ -1,4 +1,4 @@
-#include "views/window.h"
+#include "windows/window.h"
 
 Window::Window() : view_(nullptr) {
 }

@@ -3,11 +3,9 @@
 
 Canvas::Canvas(QWidget *parent) 
 	: QGLWidget(parent) {
-	updateTimer_ = startTimer(10);
 }
 
 Canvas::~Canvas() {
-	killTimer(updateTimer_);
 	Engine::Release();
 }
 
@@ -21,14 +19,5 @@ void Canvas::resizeGL(int w, int h) {
 }
 
 void Canvas::paintGL() {
-	emit repaint();
 	Engine::Update();
-
-	//QMetaObject::invokeMethod(this, "updateGL", Qt::QueuedConnection);
-}
-
-void Canvas::timerEvent(QTimerEvent *event) {
-	if (event->timerId() == updateTimer_) {
-		update();
-	}
 }

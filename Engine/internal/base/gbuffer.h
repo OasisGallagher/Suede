@@ -29,8 +29,8 @@ public:
 	void Unbind();
 
 	void Clear();
-	RenderTexture GetRenderTexture(GTexture index);
-	RenderTexture GetDepthTexture() { return depthTexture_; }
+	RenderTexture GetRenderTexture(GTexture index) const;
+	RenderTexture GetDepthTexture() const { return depthTexture_; }
 
 private:
 	bool InitializeFramebuffer(uint width, uint height);
