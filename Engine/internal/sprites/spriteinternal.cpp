@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "tagmanager.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "internal/file/assetimporter.h"
@@ -18,6 +19,22 @@ SpriteInternal::SpriteInternal(ObjectType spriteType)
 	}
 
 	name_ = SpriteTypeToString(GetType());
+}
+
+bool SpriteInternal::SetTag(const std::string& value) {
+	if (!TagManager::IsRegistered(value)) {
+		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
+		return false;
+	}
+
+	if (tag_ != value) {
+		tag_ = value;
+		SpriteTagChangedEvent e;
+		e.sprite = dsp_cast<Sprite>(shared_from_this());
+		WorldInstance()->FireEvent(&e);
+	}
+
+	return true;
 }
 
 void SpriteInternal::AddChild(Sprite child) {

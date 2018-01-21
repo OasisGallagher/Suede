@@ -2,7 +2,7 @@
 #include <QSplitter>
 #include <QHeaderView>
 
-Console* consoleInstance;
+static Console* consoleInstance;
 
 Console* Console::get() {
 	return consoleInstance;
@@ -16,11 +16,13 @@ Console::~Console() {
 	consoleInstance = nullptr;
 }
 
-void Console::ready() {
+void Console::init() {
 	table_ = findChild<QTableWidget*>("table", Qt::FindChildrenRecursively);
 	table_->horizontalHeader()->setStretchLastSection(true);
 	table_->horizontalHeader()->setVisible(false);
 	table_->setColumnCount(2);
+
+	//((View*)widget())->setSize(QSize(300, 200));
 }
 
 void Console::addMessage(MessageType type, const QString& message) {
@@ -33,7 +35,8 @@ void Console::addMessage(MessageType type, const QString& message) {
 	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
 	table_->setItem(r, 0, icon);
 	table_->setItem(r, 1, text);
-	table_->scrollToBottom();
+
+	messages_.push_back(message);
 }
 
 const char* Console::messageIconPath(MessageType type) {

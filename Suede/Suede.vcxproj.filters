@@ -178,6 +178,9 @@
     <ClInclude Include="windows\childwindow.h">
       <Filter>windows\include</Filter>
     </ClInclude>
+    <ClInclude Include="windows\tags.h">
+      <Filter>windows\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\buildin\shaders\include\light_vertex.inc">

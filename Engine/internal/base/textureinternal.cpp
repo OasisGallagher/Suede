@@ -241,7 +241,7 @@ bool Texture2DInternal::Load(const std::string& path) {
 }
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
-bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height) {
+bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height, bool mipmap) {
 	DestroyTexture();
 
 	width_ = width;
@@ -255,6 +255,13 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 	ColorStreamFormatToGLenum(glFormat, format);
 	GLenum internalFormat = TextureFormatToGLenum(textureFormat);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
+
+	if (mipmap) {
+		GL::GenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		SetMinFilterMode(TextureMinFilterModeNearest);
+	}
 
 	UnbindTexture();
 

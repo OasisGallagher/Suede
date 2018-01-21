@@ -22,7 +22,7 @@ public:
 	~Hierarchy();
 
 public:
-	virtual void ready();
+	virtual void init();
 
 public:
 	Sprite selectedSprite();

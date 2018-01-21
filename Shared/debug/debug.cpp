@@ -11,28 +11,29 @@ static char buffer[512];
 
 class StackTracer : public StackWalker {
 public:
-	StackTracer(uint skipLineCount) : skipLineCount_(skipLineCount + 2) {
+	StackTracer(uint skipLineCount, uint depth = 3) : skipLineCount_(skipLineCount + 2), depth_(depth) {
 		// +2 for OnOutput and GetStackTrace.
 	}
 
 public:
 	const std::string& GetStackTrace() {
 		text_.clear();
-		lineNumber_ = 0;
+		lineCount_ = 0;
 		ShowCallstack();
 		return text_;
 	}
 
 protected:
 	virtual void OnOutput(const char* text) {
-		if (++lineNumber_ > skipLineCount_) {
+		if (++lineCount_ > skipLineCount_ && lineCount_ <= depth_) {
 			//StackWalker::OnOutput(text);
 			text_ += text;
 		}
 	}
 
 private:
-	uint lineNumber_;
+	uint depth_;
+	uint lineCount_;
 	uint skipLineCount_;
 	std::string text_;
 };

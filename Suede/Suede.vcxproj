@@ -253,6 +253,7 @@
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_suede.h" />
     <ClInclude Include="windows\childwindow.h" />
+    <ClInclude Include="windows\tags.h" />
     <CustomBuild Include="windows\inspector.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing inspector.h...</Message>

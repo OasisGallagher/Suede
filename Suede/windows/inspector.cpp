@@ -14,5 +14,5 @@ Inspector::~Inspector() {
 	inspectorInstance = nullptr;
 }
 
-void Inspector::ready() {
+void Inspector::init() {
 }

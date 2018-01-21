@@ -68,7 +68,7 @@ public:
 
 public:
 	virtual bool Load(const std::string& path);
-	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height);
+	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height, bool mipmap = false);
 
 	virtual bool EncodeToPng(std::vector<uchar>& data);
 	virtual bool EncodeToJpg(std::vector<uchar>& data);

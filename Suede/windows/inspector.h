@@ -13,5 +13,5 @@ public:
 	~Inspector();
 
 public:
-	virtual void ready();
+	virtual void init();
 };

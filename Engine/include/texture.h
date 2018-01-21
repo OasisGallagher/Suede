@@ -68,7 +68,7 @@ enum ColorStreamFormat {
 class SUEDE_API ITexture2D : virtual public ITexture {
 public:
 	virtual bool Load(const std::string& path) = 0;
-	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height) = 0;
+	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height, bool mipmap = false) = 0;
 
 	virtual bool EncodeToPng(std::vector<uchar>& data) = 0;
 	virtual bool EncodeToJpg(std::vector<uchar>& data) = 0;

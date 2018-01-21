@@ -25,13 +25,11 @@ public:
 	virtual Sprite GetSprite(uint id);
 	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites);
 
+	virtual void FireEvent(const WorldEventBase* e);
 	virtual void AddEventListener(WorldEventListener* listener);
 	virtual void RemoveEventListener(WorldEventListener* listener);
 
 	virtual Environment GetEnvironment() { return environment_; }
-
-private:
-	void FireEvent(const WorldEventBase* e);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };

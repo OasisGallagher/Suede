@@ -18,7 +18,8 @@ public:
 	~Game();
 
 public:
-	virtual void ready();
+	virtual void init();
+	virtual void awake();
 
 private slots:
 	void update();
@@ -33,6 +34,7 @@ protected:
 	virtual void timerEvent(QTimerEvent *event);
 
 private:
+	void start();
 	void createScene();
 
 private:

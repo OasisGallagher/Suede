@@ -1,6 +1,7 @@
 #include <QWidget>
 #include "canvas.h"
 
+#include "tags.h"
 #include "game.h"
 #include "font.h"
 #include "mesh.h"
@@ -14,6 +15,7 @@
 #include "engine.h"
 #include "texture.h"
 #include "variables.h"
+#include "tagmanager.h"
 #include "particlesystem.h"
 
 #include "scripts/grayscale.h"
@@ -51,10 +53,23 @@ Game::~Game() {
 	killTimer(updateTimer_);
 	gameInstance = nullptr;
 }
-
-void Game::ready() {
+void Game::init() {
 	canvas_ = findChild<Canvas*>("canvas", Qt::FindChildrenRecursively);
-	updateTimer_ = startTimer(10);
+	updateTimer_ = startTimer(10, Qt::PreciseTimer);
+}
+
+void Game::awake() {
+	TagManager::Register(Tags::kHideInHierarchy);
+
+	createScene();
+	update();
+}
+
+void Game::start() {
+}
+
+void Game::update() {
+	canvas_->redraw();
 }
 
 void Game::wheelEvent(QWheelEvent* event) {
@@ -87,15 +102,11 @@ void Game::timerEvent(QTimerEvent *event) {
 		return;
 	}
 
-	if (Time::GetFrameCount() == 0) {
-		createScene();
+	if (Time::GetFrameCount() == 1) {
+		start();
 	}
 
 	update();
-}
-
-void Game::update() {
-	canvas_->update();
 }
 
 uint ballSpriteID;
@@ -107,6 +118,8 @@ void Game::createScene() {
 	light->SetColor(glm::vec3(0.7f));
 
 	Camera camera = NewCamera();
+	camera->SetTag(Tags::kHideInHierarchy);
+
 	controller_->setCamera(camera);
 
 	light->SetParent(camera);
@@ -135,6 +148,8 @@ void Game::createScene() {
 	};
 
 	skybox->Load(faces);
+	skybox->SetTag(Tags::kHideInHierarchy);
+
 	camera->SetSkybox(skybox);
 #else
 	camera->SetClearType(ClearTypeColor);
@@ -177,6 +192,9 @@ void Game::createScene() {
 
 	Sprite fsprite2 = NewSprite();
 	fsprite2->SetPosition(glm::vec3(-10, 30, -20));
+
+	fsprite->SetTag(Tags::kHideInHierarchy);
+	fsprite2->SetTag(Tags::kHideInHierarchy);
 
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);

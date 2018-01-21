@@ -46,9 +46,9 @@ public:
 
 	bool empty() { return container_.empty(); }
 
-	void contains(const value_type& value) {
+	bool contains(const value_type& value) {
 		iterator ite = find(value);
-		return ite != container_.end() && !comp(value, *ite);
+		return ite != container_.end() && !comp_(value, *ite);
 	}
 
 	iterator begin() { return container_.begin(); }

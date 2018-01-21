@@ -13,6 +13,9 @@ public:
 	virtual void SetActive(bool value) = 0;
 	virtual bool GetActive() = 0;
 
+	virtual const std::string& GetTag() const = 0;
+	virtual bool SetTag(const std::string& value) = 0;
+
 	virtual std::string GetName() = 0;
 	virtual void SetName(const std::string& value) = 0;
 

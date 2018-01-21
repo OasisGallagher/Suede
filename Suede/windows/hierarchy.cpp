@@ -3,11 +3,12 @@
 #include <QAbstractItemView>
 #include <QStandardItemModel>
 
+#include "tags.h"
 #include "world.h"
 #include "engine.h"
 #include "hierarchy.h"
 
-Hierarchy* hierarchyInstance;
+static Hierarchy* hierarchyInstance;
 
 Hierarchy* Hierarchy::get() {
 	return hierarchyInstance;
@@ -21,7 +22,7 @@ Hierarchy::~Hierarchy() {
 	hierarchyInstance = nullptr;
 }
 
-void Hierarchy::ready() {
+void Hierarchy::init() {
 	WorldInstance()->AddEventListener(this);
 
 	model_ = new QStandardItemModel(this);
@@ -56,6 +57,7 @@ bool Hierarchy::selectedSprites(QList<Sprite>& sprites) {
 void Hierarchy::OnWorldEvent(const WorldEventBase* e) {
 	switch (e->GetEventType()) {
 	case WorldEventTypeSpriteCreated:
+	case WorldEventTypeSpriteTagChanged:
 		model_->setRowCount(0);
 		updateRecursively(WorldInstance()->GetRootSprite(), nullptr);
 		tree_->header()->resizeSections(QHeaderView::ResizeToContents);
@@ -71,9 +73,11 @@ void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSe
 void Hierarchy::updateRecursively(Sprite pp, QStandardItem* pi) {
 	for (int i = 0; i < pp->GetChildCount(); ++i) {
 		Sprite child = pp->GetChildAt(i);
+		if (child->GetTag() == Tags::kHideInHierarchy) {
+			continue;
+		}
 
 		QStandardItem* item = new QStandardItem(child->GetName().c_str());
-
 		item->setData(child->GetInstanceID());
 
 		if (pi != nullptr) {

@@ -9,8 +9,9 @@ public:
 	Canvas(QWidget *parent = NULL);
 	~Canvas();
 
+public:
+	void redraw();
+
 protected:
-	virtual void initializeGL();
 	virtual void resizeGL(int w, int h);
-	virtual void paintGL();
 };

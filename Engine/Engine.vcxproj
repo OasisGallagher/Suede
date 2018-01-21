@@ -182,6 +182,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="src\graphics.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\screen.cpp" />
+    <ClCompile Include="src\tagmanager.cpp" />
     <ClCompile Include="src\time2.cpp" />
     <ClCompile Include="src\variant.cpp" />
   </ItemGroup>
@@ -239,6 +240,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
     <ClInclude Include="wrappers\gl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="include\tagmanager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

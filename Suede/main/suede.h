@@ -7,10 +7,6 @@
 #include "os/os.h"
 #include "debug/debug.h"
 
-class Canvas;
-class Console;
-class Hierarchy;
-
 class Suede : public QMainWindow, public ILogReceiver, public IPromptCallback {
 	Q_OBJECT
 
@@ -19,12 +15,14 @@ public:
 	~Suede();
 
 public:
+	void awake();
+
+public:
 	enum {
 		ChildWindowGame = 1,
 		ChildWindowConsole,
 		ChildWindowInspector,
 		ChildWindowHierarchy,
-
 		ChildWindowCount,
 	};
 
@@ -33,11 +31,11 @@ public:
 	void showChildWindow(int index, bool show);
 
 protected:
-	// TODO: update hierarchy.
-	virtual void keyPressEvent(QKeyEvent *event);
-
 	virtual bool OnPrompt(const char* message);
 	virtual void OnLogMessage(LogLevel level, const char* message);
+
+	virtual void closeEvent(QCloseEvent *event);
+	virtual void keyPressEvent(QKeyEvent *event);
 
 private slots:
 	void screenCapture();

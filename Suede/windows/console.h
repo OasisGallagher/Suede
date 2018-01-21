@@ -23,7 +23,7 @@ public:
 	~Console();
 
 public:
-	virtual void ready();
+	virtual void init();
 
 public:
 	void addMessage(MessageType type, const QString& message);
@@ -33,4 +33,5 @@ private:
 
 private:
 	QTableWidget* table_;
+	QList<QString> messages_;
 };

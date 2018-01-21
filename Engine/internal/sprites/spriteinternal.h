@@ -16,6 +16,9 @@ public:
 	virtual void SetActive(bool value) { active_ = value; }
 	virtual bool GetActive() { return active_; }
 
+	virtual const std::string& GetTag() const { return tag_; }
+	virtual bool SetTag(const std::string& value);
+
 	virtual std::string GetName() { return name_; }
 	virtual void SetName(const std::string& value) { name_ = value; }
 
@@ -103,6 +106,7 @@ private:
 private:
 	bool active_;
 
+	std::string tag_;
 	std::string name_;
 
 	Mesh mesh_;

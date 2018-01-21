@@ -7,6 +7,9 @@
 enum WorldEventType {
 	WorldEventTypeSpriteCreated,
 	WorldEventTypeSpriteDestroyed,
+	WorldEventTypeSpriteTagChanged,
+
+	WorldEventTypeCustom = 128,
 };
 
 struct WorldEventBase {
@@ -25,6 +28,10 @@ struct SpriteDestroyedEvent : public SpriteEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteDestroyed; }
 };
 
+struct SpriteTagChangedEvent : public SpriteEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteTagChanged; }
+};
+
 class WorldEventListener {
 public:
 	virtual void OnWorldEvent(const WorldEventBase* e) = 0;
@@ -41,6 +48,7 @@ public:
 	virtual Sprite GetSprite(uint id) = 0;
 	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites) = 0;
 
+	virtual void FireEvent(const WorldEventBase* e) = 0;
 	virtual void AddEventListener(WorldEventListener* listener) = 0;
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
 

@@ -1,5 +1,5 @@
 #include <QMenuBar>
-#include <QSplitter>
+#include <QSettings>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -16,6 +16,8 @@
 #include "windows/console.h"
 #include "windows/inspector.h"
 #include "windows/hierarchy.h"
+
+#define LAYOUT_PATH		"resources/settings/layout.ini"
 
 Suede::Suede(QWidget *parent)
 	: QMainWindow(parent) {
@@ -40,30 +42,40 @@ void Suede::setupUI() {
 	ui.setupUi(this);
 
 	QWidget* cw = takeCentralWidget();
-	cw->deleteLater();
+	delete cw;
+
+	setDockNestingEnabled(true);
 
 	childWindows_[ChildWindowGame] = Game::get();
 	childWindows_[ChildWindowConsole] = Console::get();
 	childWindows_[ChildWindowInspector] = Inspector::get();
 	childWindows_[ChildWindowHierarchy] = Hierarchy::get();
 
-	addDockWidget(Qt::LeftDockWidgetArea, Inspector::get());
-	addDockWidget(Qt::RightDockWidgetArea, Game::get());
-	addDockWidget(Qt::RightDockWidgetArea, Console::get(), Qt::Vertical);
-	addDockWidget(Qt::RightDockWidgetArea, Hierarchy::get(), Qt::Horizontal);
+	QSettings settings(LAYOUT_PATH, QSettings::IniFormat);
+	QByteArray state = settings.value("State").toByteArray();
+	QByteArray geom = settings.value("Geometry").toByteArray();
 
-	const QRect& r = Inspector::get()->geometry();
-	Inspector::get()->setGeometry(r.x(), r.y(), 40, r.height());
-
-	//menuBar()->hide();
-	for (int i = ChildWindowGame + 1; i < ChildWindowCount; ++i) {
-		showChildWindow(i, false);
+	if (state.isEmpty() || geom.isEmpty()) {
+		addDockWidget(Qt::TopDockWidgetArea, Game::get());
+		splitDockWidget(Hierarchy::get(), Game::get(), Qt::Horizontal);
+		splitDockWidget(Game::get(), Inspector::get(), Qt::Horizontal);
+		splitDockWidget(Game::get(), Console::get(), Qt::Vertical);
 	}
+	else {
+		restoreGeometry(geom);
+		restoreState(state, 3350);
+	}
+}
 
-	//showChildWindow(ChildWindowConsole, true);
+void Suede::awake() {
+	show();
 
 	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {
-		dynamic_cast<ChildWindow*>(childWindows_[i])->ready();
+		dynamic_cast<ChildWindow*>(childWindows_[i])->init();
+	}
+
+	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {
+		dynamic_cast<ChildWindow*>(childWindows_[i])->awake();
 	}
 }
 
@@ -75,6 +87,14 @@ void Suede::showChildWindow(int index, bool show) {
 bool Suede::childWindowVisible(int index) {
 	Q_ASSERT(index > 0 && index < ChildWindowCount);
 	return childWindows_[index]->isVisible();
+}
+
+void Suede::closeEvent(QCloseEvent *event) {
+	QSettings settings(LAYOUT_PATH, QSettings::IniFormat);
+	settings.setValue("State", saveState(3350));
+	settings.setValue("Geometry", saveGeometry());
+
+	QMainWindow::closeEvent(event);
 }
 
 void Suede::keyPressEvent(QKeyEvent* event) {
@@ -98,7 +118,9 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 		case Qt::Key_9:
 			if ((event->modifiers() & Qt::ControlModifier) != 0) {
 				int index = event->key() - Qt::Key_0;
-				showChildWindow(index, !childWindowVisible(index));
+				if (index < ChildWindowCount) {
+					showChildWindow(index, !childWindowVisible(index));
+				}
 			}
 			break;
 	}

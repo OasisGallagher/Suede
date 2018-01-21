@@ -3,21 +3,22 @@
 
 Canvas::Canvas(QWidget *parent) 
 	: QGLWidget(parent) {
+	glInit();
+	Engine::Initialize();
 }
 
 Canvas::~Canvas() {
 	Engine::Release();
 }
 
-void Canvas::initializeGL() {
-	// TODO: make debug context.
-	Engine::Initialize();
-}
-
 void Canvas::resizeGL(int w, int h) {
 	Engine::Resize(w, h);
 }
 
-void Canvas::paintGL() {
+void Canvas::redraw() {
+	makeCurrent();
+
 	Engine::Update();
+	swapBuffers();
+	doneCurrent();
 }

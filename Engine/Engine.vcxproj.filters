@@ -324,5 +324,13 @@
     <ClCompile Include="src\variant.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\tagmanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="include\tagmanager.h">
+      <Filter>include</Filter>
+    </Text>
   </ItemGroup>
 </Project>
