@@ -13,21 +13,23 @@ public:
 	SpriteInternal();
 
 public:
-	virtual void SetActive(bool value) { active_ = value; }
-	virtual bool GetActive() { return active_; }
+	virtual bool GetActive() const;
+
+	virtual void SetActiveSelf(bool value);
+	virtual bool GetActiveSelf() const { return activeSelf_; }
 
 	virtual const std::string& GetTag() const { return tag_; }
 	virtual bool SetTag(const std::string& value);
 
-	virtual std::string GetName() { return name_; }
-	virtual void SetName(const std::string& value) { name_ = value; }
+	virtual std::string GetName() const { return name_; }
+	virtual void SetName(const std::string& value);
 
 	virtual void AddChild(Sprite child);
 	virtual void RemoveChild(Sprite child);
 	virtual void RemoveChildAt(uint index);
 
 	virtual void SetParent(Sprite value);
-	virtual Sprite GetParent() { return parent_.lock(); }
+	virtual Sprite GetParent() const { return parent_.lock(); }
 
 	virtual Sprite FindChild(const std::string& path);
 
@@ -38,6 +40,7 @@ public:
 	virtual void Update();
 	virtual void SetScale(const glm::vec3& value);
 	virtual void SetPosition(const glm::vec3& value);
+
 	virtual void SetRotation(const glm::quat& value);
 	virtual void SetEulerAngles(const glm::vec3& value);
 
@@ -57,7 +60,6 @@ public:
 	virtual glm::vec3 GetLocalEulerAngles();
 
 	virtual glm::mat4 GetLocalToWorldMatrix();
-
 	virtual glm::mat4 GetWorldToLocalMatrix();
 
 	virtual glm::vec3 GetLocalToWorldPosition(const glm::vec3& position);
@@ -98,13 +100,17 @@ private:
 	bool IsDirty(int bits) const { return (dirtyFlag_ & bits) != 0; }
 	void ClearDirty(int bits) { dirtyFlag_ &= ~bits; }
 
+	void DirtyChildrenScales();
+	void DirtyChildrenPositions();
+	void DirtyChildrenRotationsAndEulerAngles();
+
 	Sprite FindDirectChild(const std::string& name);
 	const char* SpriteTypeToString(ObjectType type);
 
 	glm::mat4 TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s);
 
 private:
-	bool active_;
+	bool activeSelf_;
 
 	std::string tag_;
 	std::string name_;

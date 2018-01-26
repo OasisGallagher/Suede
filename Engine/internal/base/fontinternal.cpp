@@ -3,6 +3,8 @@
 #include <freetype/ftglyph.h>
 #include <freetype/ftoutln.h>
 #include <freetype/fttrigon.h>
+#include <freetype/ftsnames.h>
+#include <freetype/ttnameid.h>
 
 #include "variables.h"
 #include "resources.h"
@@ -57,6 +59,18 @@ bool FontInternal::Require(const std::wstring& str) {
 	return status;
 }
 
+Texture2D FontInternal::GetTexture() const {
+	return dsp_cast<Texture2D>(material_->GetTexture(Variables::mainTexture));
+}
+
+std::string FontInternal::GetFamilyName() const {
+	return face_->family_name;
+}
+
+std::string FontInternal::GetStyleName() const {
+	return face_->style_name;
+}
+
 bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 	Glyph* g;
 	Atlas::CoordContainer::iterator pos = coords_.find(wch);
@@ -89,7 +103,7 @@ bool FontInternal::Import(const std::string& path, int size) {
 
 	FT_Select_Charmap(face_, FT_ENCODING_UNICODE);
 	FT_Set_Char_Size(face_, size << 6, size << 6, 96, 96);
-	
+
 	fname_ = Path::GetFileName(path);
 	size_ = size;
 

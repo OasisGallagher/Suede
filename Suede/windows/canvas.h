@@ -1,5 +1,4 @@
 #pragma once
-#include <QTimerEvent>
 #include <QtOpenGL/QGLWidget>
 
 class Canvas : public QGLWidget {

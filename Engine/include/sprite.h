@@ -10,17 +10,19 @@ SUEDE_DECLARE_OBJECT_CREATER(Sprite);
 
 class SUEDE_API ISprite : virtual public IObject {
 public:
-	virtual void SetActive(bool value) = 0;
-	virtual bool GetActive() = 0;
+	virtual bool GetActive() const = 0;
+
+	virtual void SetActiveSelf(bool value) = 0;
+	virtual bool GetActiveSelf() const = 0;
 
 	virtual const std::string& GetTag() const = 0;
 	virtual bool SetTag(const std::string& value) = 0;
 
-	virtual std::string GetName() = 0;
+	virtual std::string GetName() const = 0;
 	virtual void SetName(const std::string& value) = 0;
 
 	virtual void SetParent(Sprite value) = 0;
-	virtual Sprite GetParent() = 0;
+	virtual Sprite GetParent() const = 0;
 
 	virtual Sprite FindChild(const std::string& path) = 0;
 

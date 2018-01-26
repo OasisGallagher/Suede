@@ -132,7 +132,8 @@ bool Pass::Link() {
 	GL::ValidateProgram(program_);
 	GL::GetProgramiv(program_, GL_VALIDATE_STATUS, &status);
 	if (status != GL_TRUE) {
-		Debug::LogWarning("failed to validate shader %s.", path_.c_str());
+		// harmless.
+		//Debug::LogWarning("failed to validate shader %s.", path_.c_str());
 		//return false;
 	}
 

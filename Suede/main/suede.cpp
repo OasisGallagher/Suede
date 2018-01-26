@@ -71,7 +71,7 @@ void Suede::awake() {
 	show();
 
 	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {
-		dynamic_cast<ChildWindow*>(childWindows_[i])->init();
+		dynamic_cast<ChildWindow*>(childWindows_[i])->init(&ui);
 	}
 
 	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {

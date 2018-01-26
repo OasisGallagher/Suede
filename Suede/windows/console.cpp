@@ -1,6 +1,8 @@
-#include "console.h"
 #include <QSplitter>
 #include <QHeaderView>
+
+#include "console.h"
+#include "ui_suede.h"
 
 static Console* consoleInstance;
 
@@ -16,25 +18,26 @@ Console::~Console() {
 	consoleInstance = nullptr;
 }
 
-void Console::init() {
-	table_ = findChild<QTableWidget*>("table", Qt::FindChildrenRecursively);
-	table_->horizontalHeader()->setStretchLastSection(true);
-	table_->horizontalHeader()->setVisible(false);
-	table_->setColumnCount(2);
+void Console::init(Ui::Suede* ui) {
+	ChildWindow::init(ui);
+	ui_->table = findChild<QTableWidget*>("table");
+	ui_->table->horizontalHeader()->setStretchLastSection(true);
+	ui_->table->horizontalHeader()->setVisible(false);
+	ui_->table->setColumnCount(2);
 
 	//((View*)widget())->setSize(QSize(300, 200));
 }
 
 void Console::addMessage(MessageType type, const QString& message) {
-	int r = table_->rowCount();
-	table_->insertRow(r);
-	table_->setRowHeight(r, 20);
-	table_->setColumnWidth(0, 24);
+	int r = ui_->table->rowCount();
+	ui_->table->insertRow(r);
+	ui_->table->setRowHeight(r, 20);
+	ui_->table->setColumnWidth(0, 24);
 
 	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
 	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
-	table_->setItem(r, 0, icon);
-	table_->setItem(r, 1, text);
+	ui_->table->setItem(r, 0, icon);
+	ui_->table->setItem(r, 1, text);
 
 	messages_.push_back(message);
 }

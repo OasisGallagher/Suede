@@ -7,7 +7,7 @@
 #include "os/os.h"
 #include "debug/debug.h"
 
-class Suede : public QMainWindow, public ILogReceiver, public IPromptCallback {
+class Suede : public QMainWindow, public LogReceiver, public PromptCallback {
 	Q_OBJECT
 
 public:

@@ -9,7 +9,7 @@ enum LogLevel {
 	LogLevelFatal,
 };
 
-class ILogReceiver {
+class LogReceiver {
 public:
 	virtual void OnLogMessage(LogLevel level, const char* message) = 0;
 };
@@ -23,7 +23,7 @@ public:
 	static void StartSample();
 	static float EndSample();
 
-	static void SetLogReceiver(ILogReceiver* value);
+	static void SetLogReceiver(LogReceiver* value);
 
 private:
 	Debug();

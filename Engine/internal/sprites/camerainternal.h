@@ -110,7 +110,7 @@ private:
 	void RenderSprite(Sprite sprite, Renderer renderer);
 	void UpdateMaterial(Sprite sprite, Material material);
 
-	bool GetRenderableSprites(std::vector<Sprite>& sprites);
+	void GetRenderableSprites(std::vector<Sprite>& sprites);
 	void SortRenderableSprites(std::vector<Sprite>& sprites);
 
 	void SetForwardBaseLightParameter(const std::vector<Sprite>& sprites, Light light);

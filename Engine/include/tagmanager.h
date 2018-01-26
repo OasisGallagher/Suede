@@ -9,5 +9,5 @@ public:
 	static void Register(const std::string& name);
 	static void Unregister(const std::string& name);
 	static bool IsRegistered(const std::string& name);
-	static void GetAllTags(std::vector<std::string>& container);
+	static const std::vector<std::string>& GetAllTags();
 };

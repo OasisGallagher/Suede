@@ -169,10 +169,17 @@ void TextMeshInternal::RebuildMesh() {
 
 	InitializeMeshAttribute(attribute, wtext);
 
-	SubMesh subMesh = NewSubMesh();
-	uint indexCount = attribute.indexes.back() + 1;
+	SubMesh subMesh = nullptr;
+	if (GetSubMeshCount() == 0) {
+		subMesh = NewSubMesh();
+		AddSubMesh(subMesh);
+	}
+	else {
+		subMesh = GetSubMesh(0);
+	}
+
+	uint indexCount = attribute.indexes.size();
 	subMesh->SetTriangles(indexCount, 0, 0);
-	AddSubMesh(subMesh);
 
 	SetAttribute(attribute);
 }
@@ -182,6 +189,12 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	const float scale = 0.08f;
 
 	attribute.topology = MeshTopologyTriangles;
+
+	uint cap = 6 * wtext.length();
+	attribute.positions.reserve(cap);
+	attribute.texCoords.reserve(cap);
+	attribute.indexes.reserve(cap);
+
 	uint x = 0;
 	for (int i = 0; i < wtext.length(); ++i) {
 		CharacterInfo info;

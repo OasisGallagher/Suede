@@ -17,6 +17,13 @@ class SUEDE_API IFont : virtual public IObject {
 public:
 	virtual bool Load(const std::string& path, int size) = 0;
 	virtual bool Require(const std::wstring& str) = 0;
+
+	virtual uint GetFontSize() const = 0;
+	virtual Texture2D GetTexture() const = 0;
+	
+	virtual std::string GetFamilyName() const = 0;
+	virtual std::string GetStyleName() const = 0;
+
 	virtual Material GetMaterial() = 0;
 	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info) = 0;
 };

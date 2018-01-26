@@ -23,7 +23,7 @@ public:
 	~Console();
 
 public:
-	virtual void init();
+	virtual void init(Ui::Suede* ui);
 
 public:
 	void addMessage(MessageType type, const QString& message);
@@ -32,6 +32,5 @@ private:
 	const char* messageIconPath(MessageType type);
 
 private:
-	QTableWidget* table_;
 	QList<QString> messages_;
 };

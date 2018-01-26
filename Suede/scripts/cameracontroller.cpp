@@ -4,6 +4,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include "tools/math2.h"
 #include "debug/debug.h"
 #include "windows/hierarchy.h"
 #include "cameracontroller.h"
@@ -82,8 +83,6 @@ void CameraController::onMousePress(Qt::MouseButton button, const QPoint & pos) 
 	}
 }
 
-#include "tools/math2.h"
-
 void CameraController::rotateCamera(const QPoint& mousePos, QPoint& oldPos) {
 	QPoint delta = mousePos - oldPos;
 	oldPos = mousePos;
@@ -105,7 +104,6 @@ void CameraController::moveCamera(const QPoint& mousePos, QPoint& oldPos) {
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }
 
-extern uint ballSpriteID;
 extern uint roomSpriteID;
 
 #include <QDebug>
@@ -113,9 +111,8 @@ extern uint roomSpriteID;
 
 void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos) {
 	Sprite selected = WorldInstance()->GetSprite(roomSpriteID);
-	Sprite ball = camera_;// WorldInstance()->GetSprite(ballSpriteID);
 
-	if (!selected || selected->GetPosition() == ball->GetPosition()) {
+	if (!selected || selected->GetPosition() == camera_->GetPosition()) {
 		return;
 	}
 
@@ -127,18 +124,18 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos
 		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
 		rot = glm::pow(rot, 1 / 5.f);
 
-		glm::vec3 dir = ball->GetPosition() - selected->GetPosition();
-		ball->SetPosition(selected->GetPosition() + rot * dir);
+		glm::vec3 dir = camera_->GetPosition() - selected->GetPosition();
+		camera_->SetPosition(selected->GetPosition() + rot * dir);
 
-		glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
-		glm::vec3 up = rot * ball->GetUp();
+		glm::vec3 forward = -normalize(selected->GetPosition() - camera_->GetPosition());
+		glm::vec3 up = rot * camera_->GetUp();
 		glm::vec3 right = glm::cross(up, forward);
 		up = glm::cross(forward, right);
 
 		glm::mat3 m3(right, up, forward);
-		ball->SetRotation(glm::normalize(glm::quat(m3)));
+		camera_->SetRotation(glm::normalize(glm::quat(m3)));
 #else
-		glm::vec3 bp(ball->GetPosition() - selected->GetPosition());
+		glm::vec3 bp(camera_->GetPosition() - selected->GetPosition());
 		QPoint delta = mousePos - oldPos;
 		glm::quat qx = glm::angleAxis(0.05f * delta.x(), camera_->GetUp());
 		glm::quat qy = glm::angleAxis(0.05f * delta.y(), camera_->GetRight());
@@ -147,19 +144,19 @@ void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos
 		
 		bp = qx * bp + selected->GetPosition();
 
-		ball->SetPosition(bp);
+		camera_->SetPosition(bp);
 
-		glm::vec3 forward = -normalize(selected->GetPosition() - ball->GetPosition());
-		glm::vec3 right = qx * ball->GetRight();
+		glm::vec3 forward = -normalize(selected->GetPosition() - camera_->GetPosition());
+		glm::vec3 right = qx * camera_->GetRight();
 		right.y = 0;
 		Math::Orthogonalize(right, forward);
 
 		glm::vec3 up = glm::cross(forward, right);
 		
 		glm::quat q(glm::mat3(right, up, forward));
-		ball->SetRotation(glm::normalize(q));
+		camera_->SetRotation(glm::normalize(q));
 		
-		//ball->SetRotation(glm::normalize(qy * qx * ball->GetRotation()));
+		//camera_->SetRotation(glm::normalize(qy * qx * camera_->GetRotation()));
 #endif
 
 		oldPos = mousePos;

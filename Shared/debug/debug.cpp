@@ -5,7 +5,7 @@
 #include "debug.h"
 #include "stackwalker.h"
 
-static ILogReceiver* logReceiver;
+static LogReceiver* logReceiver;
 static std::stack<clock_t> samples;
 static char buffer[512];
 
@@ -42,7 +42,7 @@ private:
 	va_list ap; va_start(ap, format); \
 	vsnprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), format, ap); va_end(ap)
 
-void Debug::SetLogReceiver(ILogReceiver* value) {
+void Debug::SetLogReceiver(LogReceiver* value) {
 	logReceiver = value;
 }
 

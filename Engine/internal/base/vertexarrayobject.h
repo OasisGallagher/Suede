@@ -32,6 +32,7 @@ public:
 	void Unbind();
 
 private:
+	bool IsIPointer(GLenum type);
 	GLenum GetBindingName(GLenum target);
 
 private:

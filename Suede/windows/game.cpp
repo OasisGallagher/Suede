@@ -1,5 +1,6 @@
 #include <QWidget>
 #include "canvas.h"
+#include "ui_suede.h"
 
 #include "tags.h"
 #include "game.h"
@@ -22,7 +23,7 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define SKYBOX
+#define SKYBOX
 #define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
@@ -53,14 +54,12 @@ Game::~Game() {
 	killTimer(updateTimer_);
 	gameInstance = nullptr;
 }
-void Game::init() {
-	canvas_ = findChild<Canvas*>("canvas", Qt::FindChildrenRecursively);
+void Game::init(Ui::Suede* ui) {
+	ChildWindow::init(ui);
 	updateTimer_ = startTimer(10, Qt::PreciseTimer);
 }
 
 void Game::awake() {
-	TagManager::Register(Tags::kHideInHierarchy);
-
 	createScene();
 	update();
 }
@@ -69,7 +68,7 @@ void Game::start() {
 }
 
 void Game::update() {
-	canvas_->redraw();
+	ui_->canvas->redraw();
 }
 
 void Game::wheelEvent(QWheelEvent* event) {
@@ -109,7 +108,6 @@ void Game::timerEvent(QTimerEvent *event) {
 	update();
 }
 
-uint ballSpriteID;
 uint roomSpriteID;
 
 void Game::createScene() {
@@ -118,8 +116,6 @@ void Game::createScene() {
 	light->SetColor(glm::vec3(0.7f));
 
 	Camera camera = NewCamera();
-	camera->SetTag(Tags::kHideInHierarchy);
-
 	controller_->setCamera(camera);
 
 	light->SetParent(camera);
@@ -148,7 +144,6 @@ void Game::createScene() {
 	};
 
 	skybox->Load(faces);
-	skybox->SetTag(Tags::kHideInHierarchy);
 
 	camera->SetSkybox(skybox);
 #else
@@ -158,7 +153,7 @@ void Game::createScene() {
 	
 #ifdef RENDER_TEXTURE
 	RenderTexture renderTexture = NewRenderTexture();
-	renderTexture->Load(RenderTextureFormatRgba, canvas_->width(), canvas_->height());
+	renderTexture->Load(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
 
@@ -193,9 +188,6 @@ void Game::createScene() {
 	Sprite fsprite2 = NewSprite();
 	fsprite2->SetPosition(glm::vec3(-10, 30, -20));
 
-	fsprite->SetTag(Tags::kHideInHierarchy);
-	fsprite2->SetTag(Tags::kHideInHierarchy);
-
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
@@ -227,12 +219,6 @@ void Game::createScene() {
  	room->SetPosition(glm::vec3(0, 25, -65));
  	room->SetEulerAngles(glm::vec3(30, 60, 0));
  	roomSpriteID = room->GetInstanceID();
-
-	Sprite ball = WorldInstance()->Import("models/box.obj");
-	ball->SetPosition(glm::vec3(0, 25, -55));
-	ball->SetScale(glm::vec3(0.5f, 2.5f, 0.5f));
-	ball->SetEulerAngles(glm::vec3(90, 0, 0));
-	ballSpriteID = ball->GetInstanceID();
 #endif
 
 #ifdef BEAR

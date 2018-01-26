@@ -4,11 +4,10 @@
 
 template <class Ty, class Comp = std::less<Ty> > 
 class SortedVector {
-	typedef std::vector<Ty> container_type;
-
 public:
 	typedef Ty value_type;
 	typedef Comp comparer_type;
+	typedef std::vector<value_type> container_type;
 
 	typedef typename container_type::iterator iterator;
 	typedef typename container_type::const_iterator const_iterator;
@@ -16,6 +15,15 @@ public:
 	typedef typename container_type::const_reference const_reference;
 
 public:
+	SortedVector() {}
+
+	template <class Iterator>
+	SortedVector(Iterator first, Iterator last) {
+		for (; first != last; ++first) {
+			insert(*first);
+		}
+	}
+
 	void insert(const value_type& value) {
 		iterator ite = find(value);
 		if (ite != container_.end() && !comp_(*ite, value)) {
@@ -24,6 +32,10 @@ public:
 		else {
 			container_.insert(ite, value);
 		}
+	}
+
+	const container_type& container() const {
+		return container_;
 	}
 
 	iterator find(const value_type& value) {

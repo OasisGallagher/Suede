@@ -13,12 +13,26 @@ SpriteInternal::SpriteInternal() : SpriteInternal(ObjectTypeSprite) {
 }
 
 SpriteInternal::SpriteInternal(ObjectType spriteType)
-	: ObjectInternal(spriteType), dirtyFlag_(0), active_(true) {
+	: ObjectInternal(spriteType), dirtyFlag_(0), activeSelf_(true) {
 	if (spriteType < ObjectTypeSprite || spriteType >= ObjectTypeCount) {
 		Debug::LogError("invalid sprite type %d.", spriteType);
 	}
 
 	name_ = SpriteTypeToString(GetType());
+}
+
+bool SpriteInternal::GetActive() const {
+	return activeSelf_ && GetParent()->GetActiveSelf();
+}
+
+void SpriteInternal::SetActiveSelf(bool value) {
+	if (activeSelf_ != value) {
+		activeSelf_ = value;
+
+		SpriteActiveEvent e;
+		e.sprite = dsp_cast<Sprite>(shared_from_this());
+		WorldInstance()->FireEvent(&e);
+	}
 }
 
 bool SpriteInternal::SetTag(const std::string& value) {
@@ -35,6 +49,21 @@ bool SpriteInternal::SetTag(const std::string& value) {
 	}
 
 	return true;
+}
+
+void SpriteInternal::SetName(const std::string& value) {
+	if (value.empty()) {
+		Debug::LogError("empty name.");
+		return;
+	}
+
+	if (name_ != value) {
+		name_ = value;
+
+		SpriteNameChangedEvent e;
+		e.sprite = dsp_cast<Sprite>(shared_from_this());
+		WorldInstance()->FireEvent(&e);
+	}
 }
 
 void SpriteInternal::AddChild(Sprite child) {
@@ -91,6 +120,10 @@ void SpriteInternal::SetParent(Sprite value) {
 	GetPosition();
 
 	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
+
+	SpriteParentChangedEvent e;
+	e.sprite = thisSp;
+	WorldInstance()->FireEvent(&e);
 }
 
 Sprite SpriteInternal::FindChild(const std::string& path) {
@@ -123,11 +156,12 @@ void SpriteInternal::SetScale(const glm::vec3& value) {
 	world_.scale = value;
 	SetDiry(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
-		si->GetLocalScale();
-		si->SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	DirtyChildrenScales();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(2, 0);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 void SpriteInternal::SetPosition(const glm::vec3& value) {
@@ -137,11 +171,12 @@ void SpriteInternal::SetPosition(const glm::vec3& value) {
 	world_.position = value;
 	SetDiry(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
-		si->GetLocalPosition();
-		si->SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	DirtyChildrenPositions();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(0, 0);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 void SpriteInternal::SetRotation(const glm::quat& value) {
@@ -151,12 +186,12 @@ void SpriteInternal::SetRotation(const glm::quat& value) {
 	world_.rotation = value;
 
 	SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
-		si->GetLocalRotation();
-		si->GetLocalEulerAngles();
-		si->SetDiry(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	DirtyChildrenRotationsAndEulerAngles();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(1, 0);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 void SpriteInternal::SetEulerAngles(const glm::vec3& value) {
@@ -166,12 +201,12 @@ void SpriteInternal::SetEulerAngles(const glm::vec3& value) {
 	world_.eulerAngles = value;
 
 	SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
-		si->GetLocalRotation();
-		si->GetLocalEulerAngles();
-		si->SetDiry(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	DirtyChildrenRotationsAndEulerAngles();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(1, 0);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 glm::vec3 SpriteInternal::GetScale() {
@@ -285,34 +320,61 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 
 void SpriteInternal::SetLocalScale(const glm::vec3& value) {
 	ClearDirty(LocalScale);
-	if (local_.scale != value) {
-		local_.scale = value;
-		SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	if (local_.scale == value) { return; }
+
+	local_.scale = value;
+	SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+
+	DirtyChildrenScales();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(2, 1);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 void SpriteInternal::SetLocalPosition(const glm::vec3& value) {
 	ClearDirty(LocalPosition);
-	if (local_.position != value) {
-		local_.position = value;
-		SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	if (local_.position == value) { return; }
+
+	local_.position = value;
+	SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+	DirtyChildrenPositions();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(0, 1);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 void SpriteInternal::SetLocalRotation(const glm::quat& value) {
 	ClearDirty(LocalRotation);
-	if (!Math::Approximately(glm::dot(local_.rotation, value), 0)) {
-		local_.rotation = value;
-		SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	if (Math::Approximately(glm::dot(local_.rotation, value), 0)) { return; }
+
+	local_.rotation = value;
+	SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+
+	DirtyChildrenRotationsAndEulerAngles();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(1, 1);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 void SpriteInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	ClearDirty(LocalEulerAngles);
-	if (local_.eulerAngles != value) {
-		local_.eulerAngles = value;
-		SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
-	}
+	if (local_.eulerAngles == value) { return; }
+
+	local_.eulerAngles = value;
+	SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
+
+	DirtyChildrenRotationsAndEulerAngles();
+
+	SpriteTransformChangedEvent e;
+	e.prs = Math::MakeDword(1, 1);
+	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	WorldInstance()->FireEvent(&e);
 }
 
 glm::vec3 SpriteInternal::GetLocalScale() {
@@ -481,6 +543,31 @@ void SpriteInternal::SetDiry(int bits) {
 
 	if (IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles)) {
 		Debug::LogError("invalid state");
+	}
+}
+
+void SpriteInternal::DirtyChildrenScales() {
+	for (int i = 0; i < GetChildCount(); ++i) {
+		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
+		si->GetLocalScale();
+		si->SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+	}
+}
+
+void SpriteInternal::DirtyChildrenPositions() {
+	for (int i = 0; i < GetChildCount(); ++i) {
+		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
+		si->GetLocalPosition();
+		si->SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+	}
+}
+
+void SpriteInternal::DirtyChildrenRotationsAndEulerAngles() {
+	for (int i = 0; i < GetChildCount(); ++i) {
+		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
+		si->GetLocalRotation();
+		si->GetLocalEulerAngles();
+		si->SetDiry(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 

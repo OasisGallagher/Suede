@@ -8,6 +8,10 @@ enum WorldEventType {
 	WorldEventTypeSpriteCreated,
 	WorldEventTypeSpriteDestroyed,
 	WorldEventTypeSpriteTagChanged,
+	WorldEventTypeSpriteNameChanged,
+	WorldEventTypeSpriteParentChanged,
+	WorldEventTypeSpriteTransformChanged,
+	WorldEventTypeSpriteActive,
 
 	WorldEventTypeCustom = 128,
 };
@@ -28,8 +32,27 @@ struct SpriteDestroyedEvent : public SpriteEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteDestroyed; }
 };
 
+struct SpriteParentChangedEvent : public SpriteEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteParentChanged; }
+};
+
+struct SpriteActiveEvent : public SpriteEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteActive; }
+};
+
 struct SpriteTagChangedEvent : public SpriteEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteTagChanged; }
+};
+
+struct SpriteNameChangedEvent : public SpriteEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteNameChanged; }
+};
+
+struct SpriteTransformChangedEvent : public SpriteEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeSpriteTransformChanged; }
+	// Hw: local or world.
+	// Lw: position rotation or scale.
+	uint prs;
 };
 
 class WorldEventListener {

@@ -1,9 +1,11 @@
 #include "tagmanager.h"
 #include "debug/debug.h"
+#include "tools/math2.h"
 #include "containers/sortedvector.h"
 
 typedef SortedVector<std::string> TagContainer;
-static TagContainer tagContainer;
+static const char* defaultTags[] = { "" };
+static TagContainer tagContainer(defaultTags, defaultTags + CountOf(defaultTags));
 
 void TagManager::Register(const std::string& name) {
 	tagContainer.insert(name);
@@ -17,6 +19,6 @@ bool TagManager::IsRegistered(const std::string& name) {
 	return tagContainer.contains(name);
 }
 
-void TagManager::GetAllTags(std::vector<std::string>& container) {
-	container.assign(tagContainer.begin(), tagContainer.end());
+const std::vector<std::string>& TagManager::GetAllTags() {
+	return tagContainer.container();
 }

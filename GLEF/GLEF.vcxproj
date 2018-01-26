@@ -31,9 +31,9 @@
     <ClInclude Include="grammar\glefgrammar.h" />
     <ClInclude Include="grammar\grammar.h" />
     <ClInclude Include="grammar\grammarsymbol.h" />
-    <ClInclude Include="include\language.h" />
-    <ClInclude Include="include\slex.h" />
-    <ClInclude Include="include\slexdefines.h" />
+    <ClInclude Include="grammar\language.h" />
+    <ClInclude Include="include\glef.h" />
+    <ClInclude Include="include\glefdefines.h" />
     <ClInclude Include="include\syntaxtree.h" />
     <ClInclude Include="parser\lalr.h" />
     <ClInclude Include="parser\lr0.h" />
@@ -52,6 +52,7 @@
     <ClCompile Include="grammar\action.cpp" />
     <ClCompile Include="grammar\grammar.cpp" />
     <ClCompile Include="grammar\grammarsymbol.cpp" />
+    <ClCompile Include="grammar\language.cpp" />
     <ClCompile Include="parser\lalr.cpp" />
     <ClCompile Include="parser\lr0.cpp" />
     <ClCompile Include="parser\lr1.cpp" />
@@ -64,7 +65,6 @@
     <ClCompile Include="scanner\tokens.cpp" />
     <ClCompile Include="serializer\serializer.cpp" />
     <ClCompile Include="src\glef.cpp" />
-    <ClCompile Include="src\language.cpp" />
     <ClCompile Include="src\syntaxtree.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -128,7 +128,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>../Shared/lib;lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -4,6 +4,7 @@
 #include "world.h"
 #include "engine.h"
 #include "screen.h"
+#include "vld/vld.h"
 #include "resources.h"
 #include "debug/debug.h"
 

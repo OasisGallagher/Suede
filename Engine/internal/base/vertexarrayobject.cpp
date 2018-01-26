@@ -46,7 +46,7 @@ void VertexArrayObject::SetVertexDataSource(int index, int location, int size, G
 	BindBuffer(index);
 	GL::EnableVertexAttribArray(location);
 
-	if (!normalized && (type == GL_BYTE || type == GL_UNSIGNED_BYTE || type == GL_INT || type == GL_UNSIGNED_INT || type == GL_SHORT || type == GL_UNSIGNED_SHORT)) {
+	if (!normalized && IsIPointer(type)) {
 		GL::VertexAttribIPointer(location, size, type, stride, (void*)(size_t)offset);
 	}
 	else {
@@ -133,4 +133,8 @@ GLenum VertexArrayObject::GetBindingName(GLenum target) {
 	if (target == GL_ELEMENT_ARRAY_BUFFER) { return GL_ELEMENT_ARRAY_BUFFER_BINDING; }
 	Debug::LogError("undefined target binding name");
 	return 0;
+}
+
+bool VertexArrayObject::IsIPointer(GLenum type) {
+	return (type == GL_BYTE || type == GL_UNSIGNED_BYTE || type == GL_INT || type == GL_UNSIGNED_INT || type == GL_SHORT || type == GL_UNSIGNED_SHORT);
 }

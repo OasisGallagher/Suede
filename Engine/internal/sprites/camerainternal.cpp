@@ -88,9 +88,7 @@ void CameraInternal::Update() {
 
 void CameraInternal::Render() {
 	std::vector<Sprite> sprites;
-	if (!GetRenderableSprites(sprites)) {
-		return;
-	}
+	GetRenderableSprites(sprites);
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
@@ -464,10 +462,9 @@ bool CameraInternal::IsRenderable(Sprite sprite) {
 		&& sprite->GetMesh() && sprite->GetMesh()->GetSubMeshCount() > 0;
 }
 
-bool CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {
+void CameraInternal::GetRenderableSprites(std::vector<Sprite>& sprites) {
 	WorldInstance()->GetSprites(ObjectTypeSprite, sprites);
 	SortRenderableSprites(sprites);
-	return !sprites.empty();
 }
 
 void CameraInternal::SortRenderableSprites(std::vector<Sprite>& sprites) {

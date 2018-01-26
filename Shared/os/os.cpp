@@ -3,14 +3,10 @@
 
 #include "os.h"
 
-IPromptCallback* promptCallback;
+PromptCallback* promptCallback;
 
-void OS::SetPromptCallback(IPromptCallback* value) {
+void OS::SetPromptCallback(PromptCallback* value) {
 	promptCallback = value;
-}
-
-void OS::EnableMemoryLeakCheck() {
-	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);
 }
 
 time_t OS::GetFileLastWriteTime(const char* fileName) {

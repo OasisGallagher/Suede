@@ -4,6 +4,8 @@
 Canvas::Canvas(QWidget *parent) 
 	: QGLWidget(parent) {
 	glInit();
+	makeCurrent();
+
 	Engine::Initialize();
 }
 
@@ -16,9 +18,8 @@ void Canvas::resizeGL(int w, int h) {
 }
 
 void Canvas::redraw() {
-	makeCurrent();
-
+//	makeCurrent();
 	Engine::Update();
 	swapBuffers();
-	doneCurrent();
+	//doneCurrent();
 }

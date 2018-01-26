@@ -132,6 +132,9 @@
     <ClCompile Include="windows\inspector.cpp">
       <Filter>windows\src</Filter>
     </ClCompile>
+    <ClCompile Include="windows\childwindow.cpp">
+      <Filter>windows\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">

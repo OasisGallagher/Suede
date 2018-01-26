@@ -34,7 +34,6 @@ WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
 	, root_(Factory::Create<SpriteInternal>()) {
-	root_->SetName("root");
 }
 
 Object WorldInternal::Create(ObjectType type) {

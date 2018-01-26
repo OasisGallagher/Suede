@@ -66,9 +66,6 @@
     <ClInclude Include="scanner\tokens.h">
       <Filter>scanner\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\language.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\syntaxtree.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -84,12 +81,6 @@
     <ClInclude Include="scanner\tokendefine.h">
       <Filter>scanner\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\slex.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\slexdefines.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="serializer\serializer.h">
       <Filter>serializer\include</Filter>
     </ClInclude>
@@ -104,6 +95,15 @@
     </ClInclude>
     <ClInclude Include="grammar\glefgrammar.h">
       <Filter>grammar\include</Filter>
+    </ClInclude>
+    <ClInclude Include="grammar\language.h">
+      <Filter>grammar\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\glef.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\glefdefines.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -127,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="scanner\scanner.cpp">
       <Filter>scanner\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\language.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="parser\lrimpl.cpp">
       <Filter>parser\src</Filter>
@@ -156,6 +153,9 @@
       <Filter>grammar\src</Filter>
     </ClCompile>
     <ClCompile Include="grammar\grammarsymbol.cpp">
+      <Filter>grammar\src</Filter>
+    </ClCompile>
+    <ClCompile Include="grammar\language.cpp">
       <Filter>grammar\src</Filter>
     </ClCompile>
   </ItemGroup>

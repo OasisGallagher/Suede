@@ -1,5 +1,6 @@
 #include "glef.h"
 #include "os/os.h"
+#include "vld/vld.h"
 #include "language.h"
 #include "debug/debug.h"
 #include "glefgrammar.h"
@@ -12,15 +13,11 @@ GLEF::GLEF() {
 	time_t to = OS::GetFileLastWriteTime(binary);
 
 	if (tp > to) {
-		Debug::StartSample();
 		language.BuildSyntaxer(GLEFGrammar);
 		language.SaveSyntaxer(binary);
-		Debug::Log("build and save GLEF costs %.2f seconds.", Debug::EndSample());
 	}
 	else {
-		Debug::StartSample();
 		language.LoadSyntaxer(binary);
-		Debug::Log("load GLEF costs %.2f seconds.", Debug::EndSample());
 	}
 }
 

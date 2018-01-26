@@ -18,7 +18,7 @@ public:
 	~Game();
 
 public:
-	virtual void init();
+	virtual void init(Ui::Suede* ui);
 	virtual void awake();
 
 private slots:
