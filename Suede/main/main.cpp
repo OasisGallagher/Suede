@@ -1,4 +1,7 @@
+#ifdef _DEBUG
 #include "vld/vld.h"
+#endif
+
 #include "suede.h"
 #include "os/os.h"
 #include <QtWidgets/QApplication>

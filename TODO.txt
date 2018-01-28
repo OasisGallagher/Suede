@@ -1,0 +1,2 @@
+BUG:
+  在inspector中，改变text，出现乱码。

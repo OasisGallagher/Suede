@@ -4,18 +4,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <QtWinExtras/QtWin>
 
 #include "suede.h"
-#include "world.h"
-#include "engine.h"
 #include "camera.h"
-
-#include "windows/game.h"
-#include "windows/canvas.h"
-#include "windows/console.h"
-#include "windows/inspector.h"
-#include "windows/hierarchy.h"
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
@@ -182,7 +173,7 @@ void Suede::OnLogMessage(LogLevel level, const char* message) {
 
 		case LogLevelError:
 			Console::get()->addMessage(Console::Error, message);
-			__debugbreak();
+			Debug::Break();
 			break;
 	}
 }

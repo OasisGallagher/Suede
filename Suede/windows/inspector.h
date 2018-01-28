@@ -9,6 +9,7 @@
 
 class QLineEdit;
 class QPushButton;
+class QListWidget;
 
 class Inspector : public QDockWidget, public ChildWindow, public WorldEventListener {
 	Q_OBJECT
@@ -45,6 +46,8 @@ private:
 
 	void reloadMesh();
 	void reloadRenderer();
+
+	void shrinkListWidget(QListWidget* w);
 
 	void onSpriteTransformChanged(SpriteTransformChangedEvent* e);
 

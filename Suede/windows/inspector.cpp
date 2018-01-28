@@ -1,15 +1,9 @@
 #include <QLineEdit>
-#include <QComboBox>
-#include <QCheckBox>
-#include <QListView>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QDockWidget>
+#include <QDirIterator>
 
 #include "ui_suede.h"
 
 #include "inspector.h"
-#include "hierarchy.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
 
@@ -112,7 +106,6 @@ void Inspector::onNameChanged() {
 }
 
 // TODO: debug
-#include <QImage>
 
 void Inspector::onTextChanged() {
 	QByteArray arr = ui_->text->text().toLocal8Bit();
@@ -121,8 +114,8 @@ void Inspector::onTextChanged() {
 
 	QImage image;
 	std::vector<uchar> data;
-	if (textMesh->GetFont()->GetTexture()->EncodeToJpg(data) && image.loadFromData(&data[0], data.size())) {
-		image.save("e:/1.jpg");
+	if (textMesh->GetFont()->GetTexture()->EncodeToPng(data) && image.loadFromData(&data[0], data.size())) {
+		image.save("e:/1.png");
 	}
 }
 
@@ -218,14 +211,19 @@ void Inspector::reloadTransform() {
 void Inspector::reloadMesh() {
 	Mesh mesh = target_->GetMesh();
 	ui_->topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
+	ui_->vertices->setText(QString::number(mesh->GetVertexCount()));
 	ui_->subMeshList->clear();
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
 		uint indexCount, baseIndex, baseVertex;
 		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
-		ui_->subMeshList->addItem(QString::asprintf("Index count %d", indexCount));
+
+		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? indexCount / 3 : Math::Max(0u, indexCount - 2);
+		ui_->subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
 	}
+
+	shrinkListWidget(ui_->subMeshList);
 
 	ui_->textMeshAttributes->setVisible(mesh->GetType() == ObjectTypeTextMesh);
 	if (mesh->GetType() == ObjectTypeTextMesh) {
@@ -239,7 +237,36 @@ void Inspector::reloadMesh() {
 }
 
 void Inspector::reloadRenderer() {
+	Renderer renderer = target_->GetRenderer();
+	ui_->materialList->clear();
 
+	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+		Material material = renderer->GetMaterial(i);
+		Shader shader = material->GetShader();
+		ui_->materialList->addItem(shader ? shader->GetName().c_str() : "Null");
+	}
+
+	shrinkListWidget(ui_->materialList);
+
+	QStringList shaders;
+	QStringList nameFilters("*.shader");
+	QDir dir("resources/shaders");
+	shaders << dir.entryList(nameFilters, QDir::Files);
+	dir.setCurrent("resources/buildin/shaders");
+	shaders << dir.entryList(nameFilters, QDir::Files);
+
+	ui_->shaders->clear();
+	ui_->shaders->addItems(shaders);
+
+}
+
+void Inspector::shrinkListWidget(QListWidget* w) {
+	int height = 0;
+	for (int i = 0; i < w->count(); ++i) {
+		height += w->sizeHintForRow(i);
+	}
+
+	w->setMaximumHeight(height + 4);
 }
 
 void Inspector::onSpriteTransformChanged(SpriteTransformChangedEvent* e) {

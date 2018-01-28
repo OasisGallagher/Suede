@@ -185,33 +185,35 @@ void Game::createScene() {
 	fsprite->SetPosition(glm::vec3(-10, 20, -20));
 	fsprite->SetEulerAngles(glm::vec3(0, 0, 0));
 
-	Sprite fsprite2 = NewSprite();
-	fsprite2->SetPosition(glm::vec3(-10, 30, -20));
+	//Sprite fsprite2 = NewSprite();
+	//fsprite2->SetPosition(glm::vec3(-10, 30, -20));
 
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
 	TextMesh mesh = NewTextMesh();
 	mesh->SetFont(font);
-	mesh->SetText("落霞与孤鹜齐飞 秋水共长天一色");
+	mesh->SetText("ab");
 	
 	mesh->SetFontSize(12);
 	fsprite->SetMesh(mesh);
-	fsprite2->SetMesh(mesh);
+	//fsprite2->SetMesh(mesh);
 
 	Renderer renderer = NewMeshRenderer();
 	Material fontMaterial = dsp_cast<Material>(font->GetMaterial()->Clone());
 	fontMaterial->SetVector4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
 
+	/*
 	Renderer renderer2 = NewMeshRenderer();
 	Material fontMaterial2 = dsp_cast<Material>(font->GetMaterial()->Clone());
 	fontMaterial2->SetVector4(Variables::mainColor, glm::vec4(1, 1, 0, 1));
+	*/
 
 	renderer->AddMaterial(fontMaterial);
-	renderer2->AddMaterial(fontMaterial2);
+	//renderer2->AddMaterial(fontMaterial2);
 
 	fsprite->SetRenderer(renderer);
-	fsprite2->SetRenderer(renderer2);
+	//fsprite2->SetRenderer(renderer2);
 #endif
 
 #ifdef ROOM
