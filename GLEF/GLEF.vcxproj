@@ -158,7 +158,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>GLEF_EXPORT;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;GLEF_EXPORT;_CONSOLE;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\Shared;include;global;scanner;parser;grammar;serializer</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>

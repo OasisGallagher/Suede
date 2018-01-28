@@ -1,9 +1,7 @@
 #include "resources.h"
 #include "tools/math2.h"
-#include "debug/debug.h"
 #include "tools/string.h"
 #include "meshinternal.h"
-#include "internal/base/materialinternal.h"
 
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh)
 	, indexCount_(0), baseVertex_(0), baseIndex_(0) {
@@ -25,7 +23,7 @@ MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
 }
 
 MeshInternal::MeshInternal(ObjectType type)
-	: ObjectInternal(type), indexBuffer_(0), topology_(MeshTopologyTriangles) {
+	: ObjectInternal(type), indexBuffer_(0), topology_(MeshTopologyTriangles), vertexCount_(0) {
 	memset(instanceBuffer_, 0, sizeof(instanceBuffer_));
 }
 
@@ -47,9 +45,13 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
+
+	// TODO: update vbo instead.
 	vao_.CreateVBOs(vboCount);
 
 	uint vboIndex = 0;
+
+	vertexCount_ = attribute.positions.size();
 
 	if (!attribute.positions.empty()) {
 		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
@@ -152,6 +154,7 @@ void TextMeshInternal::SetFont(Font value) {
 }
 
 void TextMeshInternal::SetFontSize(uint value) {
+	// TODO: rebuild mesh twice with SetFont and SetFontSize.
 	if (size_ != value) {
 		size_ = value;
 		RebuildMesh();
@@ -169,14 +172,12 @@ void TextMeshInternal::RebuildMesh() {
 
 	InitializeMeshAttribute(attribute, wtext);
 
-	SubMesh subMesh = nullptr;
-	if (GetSubMeshCount() == 0) {
-		subMesh = NewSubMesh();
-		AddSubMesh(subMesh);
+	if (GetSubMeshCount() != 0) {
+		RemoveSubMesh(0);
 	}
-	else {
-		subMesh = GetSubMesh(0);
-	}
+
+	SubMesh subMesh = NewSubMesh();
+	AddSubMesh(subMesh);
 
 	uint indexCount = attribute.indexes.size();
 	subMesh->SetTriangles(indexCount, 0, 0);

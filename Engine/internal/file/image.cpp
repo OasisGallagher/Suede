@@ -69,14 +69,14 @@ bool ImageCodec::Decode(TexelMap& texelMap, const std::string& path) {
 #ifdef _DEBUG
 		uint bpp = FreeImage_GetBPP(dib);
 		if (bpp != 24 && bpp != 32) {
-			__debugbreak();
+			Debug::Break();
 		}
 
 		int pitch = FreeImage_GetPitch(dib);
 		int w = FreeImage_GetPitch(dib) / bpp * 8;
 		int width = FreeImage_GetWidth(dib);
 		if (w != width) {
-			__debugbreak();
+			Debug::Break();
 		}
 #endif // _DEBUG
 
@@ -96,8 +96,8 @@ bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const TexelMap
 	return status;
 }
 
-void ImageCodec::CopyBitsFrom(FIBITMAP* dib, int width, int height, BppType bpp, const std::vector<uchar>& data) {
-	uint srcStride = width * bpp / 8;
+void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BppType bpp, const std::vector<uchar>& data) {
+	uint srcStride = Math::RoundUpToPowerOfTwo(width, alignment) * bpp / 8;
 	uint destStride = FreeImage_GetPitch(dib);
 	const uchar* src = &data[0];
 	uchar* dest = FreeImage_GetBits(dib);
@@ -221,7 +221,7 @@ FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
 	// TODO: 32 bbp jpg.
 	BppType bpp = texelMap.format == ColorStreamFormatRgb ? BppType24 : BppType32;
 	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
-	CopyBitsFrom(dib, texelMap.width, texelMap.height, bpp, texelMap.data);
+	CopyBitsFrom(dib, texelMap.width, texelMap.height, texelMap.alignment, bpp, texelMap.data);
 
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
 	SwapRedBlue(dib);
@@ -292,7 +292,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 
 	for (int i = 0; i < atlas.data.size(); ++i) {
 		if (atlas.data[i] != 0) {
-			//__debugbreak();
+			// Debug::Break();
 		}
 	}
 

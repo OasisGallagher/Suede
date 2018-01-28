@@ -555,6 +555,10 @@ ShaderInternal::~ShaderInternal() {
 	MEMORY_RELEASE_ARRAY(subShaders_);
 }
 
+std::string ShaderInternal::GetName() const {
+	return Path::GetFileNameWithoutExtension(path_);
+}
+
 bool ShaderInternal::Load(const std::string& path) {
 	Semantics semantics;
 	ShaderParser parser;
@@ -565,6 +569,7 @@ bool ShaderInternal::Load(const std::string& path) {
 	ParseProperties(semantics.properties);
 	ParseSubShaders(semantics.subShaders, path);
 
+	path_ = path;
 	return true;
 }
 

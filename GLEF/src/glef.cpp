@@ -1,6 +1,9 @@
+#ifdef _DEBUG
+#include "vld/vld.h"
+#endif
+
 #include "glef.h"
 #include "os/os.h"
-#include "vld/vld.h"
 #include "language.h"
 #include "debug/debug.h"
 #include "glefgrammar.h"

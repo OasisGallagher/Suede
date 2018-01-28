@@ -31,6 +31,7 @@ public:
 	static void ValidateProgram(GLuint program);
 	static void EnableVertexAttribArray(GLuint index);
 	static void GenBuffers(GLsizei n, GLuint* buffers);
+	static void PixelStorei(GLenum pname, GLint param);
 	static GLenum CheckFramebufferStatus(GLenum target);
 	static void BindBuffer(GLenum target, GLuint buffer);
 	static void GenTextures(GLsizei n, GLuint* textures);
@@ -344,6 +345,10 @@ inline void GL::DeleteVertexArrays(GLsizei n, const GLuint* arrays) {
 
 inline void GL::GenBuffers(GLsizei n, GLuint* buffers) {
 	GL_CALL(glGenBuffers(n, buffers));
+}
+
+inline void GL::PixelStorei(GLenum pname, GLint param) {
+	GL_CALL(glPixelStorei(pname, param));
 }
 
 inline void GL::BufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage) {

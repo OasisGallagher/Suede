@@ -26,6 +26,7 @@ public:
 	static glm::vec3 Radians(const glm::vec3& degrees);
 
 	static unsigned NextPowerOfTwo(unsigned x);
+	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
 
 	template <class Ty>
 	static Ty Lerp(const Ty& from, const Ty& to, float t);
@@ -100,6 +101,11 @@ inline unsigned Math::NextPowerOfTwo(unsigned x) {
 	x |= x >> 16;
 	x++;
 	return x;
+}
+
+inline unsigned Math::RoundUpToPowerOfTwo(unsigned x, unsigned target) {
+	--target;
+	return (x + target) & (~target);
 }
 
 template <class Ty>

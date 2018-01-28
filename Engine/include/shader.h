@@ -12,6 +12,7 @@ struct Property {
 
 class SUEDE_API IShader : virtual public IObject {
 public:
+	virtual std::string GetName() const = 0;
 	virtual bool Load(const std::string& path) = 0;
 
 	virtual void Bind(uint ssi, uint pass) = 0;

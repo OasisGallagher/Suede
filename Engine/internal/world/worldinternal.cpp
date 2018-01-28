@@ -1,7 +1,6 @@
 #include "resources.h"
 #include "tools/math2.h"
 #include "worldinternal.h"
-#include "internal/memory/factory.h"
 #include "internal/file/assetimporter.h"
 #include "internal/sprites/spriteinternal.h"
 #include "internal/world/environmentinternal.h"

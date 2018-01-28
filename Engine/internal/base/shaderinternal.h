@@ -124,6 +124,7 @@ public:
 	~ShaderInternal();
 
 public:
+	virtual std::string GetName() const;
 	virtual bool Load(const std::string& path);
 
 	virtual void Bind(uint ssi, uint pass);

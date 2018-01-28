@@ -1,7 +1,7 @@
 #include <glm/glm.hpp>
 
 #include "tools/path.h"
-#include "debug/debug.h"
+#include "tools/math2.h"
 #include "textureinternal.h"
 
 TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
@@ -254,6 +254,7 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 	GLenum glFormat[2];
 	ColorStreamFormatToGLenum(glFormat, format);
 	GLenum internalFormat = TextureFormatToGLenum(textureFormat);
+
 	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
 
 	if (mipmap) {
@@ -284,9 +285,14 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	TexelMap texelMap;
 	texelMap.width = GetWidth();
 	texelMap.height = GetHeight();
-	texelMap.alignment = 4;
+	
+	uint alignment = 4;
+	GL::GetIntegerv(GL_UNPACK_ALIGNMENT, (GLint*)&alignment);
+
+	texelMap.alignment = alignment;
 	BppType bpp = GLenumToBpp(internalFormat_);
-	texelMap.data.resize((bpp / 8) * GetWidth() * GetHeight());
+
+	texelMap.data.resize((bpp / 8) * Math::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight());
 	GL::GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 

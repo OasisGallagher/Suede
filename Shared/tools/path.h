@@ -5,6 +5,8 @@
 class SHARED_API Path {
 public:
 	static std::string GetFileName(const std::string& path);
+	static std::string GetFileNameWithoutExtension(const std::string& path);
+
 	static std::string GetDirectory(const std::string& path);
 	static std::string GetResourceRootDirectory();
 };

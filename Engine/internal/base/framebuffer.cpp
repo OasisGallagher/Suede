@@ -1,9 +1,7 @@
 #include "debug/debug.h"
+#include "tools/math2.h"
 #include "framebuffer.h"
-#include "tools/string.h"
 #include "memory/memory.h"
-#include "internal/memory/factory.h"
-#include "internal/base/textureinternal.h"
 
 FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
 }
@@ -19,11 +17,16 @@ void FramebufferBase::Unbind() {
 	UnbindViewport();
 }
 
-void FramebufferBase::ReadBuffer(std::vector<uchar>& pixels) {
+void FramebufferBase::ReadBuffer(std::vector<uchar>& data) {
 	BindFramebuffer(FramebufferTargetRead);
 	
-	pixels.resize(3 * GetViewportWidth() * GetViewportHeight());
-	GL::ReadPixels(0, 0, GetViewportWidth(), GetViewportHeight(), GL_RGB, GL_UNSIGNED_BYTE, &pixels[0]);
+	uint alignment = 4;
+	GL::GetIntegerv(GL_PACK_ALIGNMENT, (GLint*)&alignment);
+
+	uint w = Math::RoundUpToPowerOfTwo(GetViewportWidth(), alignment);
+	data.resize(3 * w * GetViewportHeight());
+
+	GL::ReadPixels(0, 0, GetViewportWidth(), GetViewportHeight(), GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
 
 	UnbindFramebuffer();
 }

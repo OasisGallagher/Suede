@@ -20,6 +20,8 @@ public:
 	static void LogWarning(const char* format, ...);
 	static void LogError(const char* format, ...);
 
+	static void Break();
+
 	static void StartSample();
 	static float EndSample();
 

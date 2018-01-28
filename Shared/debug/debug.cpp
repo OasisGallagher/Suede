@@ -1,6 +1,5 @@
 #include <stack>
 #include <ctime>
-#include <cstdarg>
 
 #include "debug.h"
 #include "stackwalker.h"
@@ -71,6 +70,10 @@ void Debug::LogError(const char* format, ...) {
 		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace();
 		logReceiver->OnLogMessage(LogLevelError, text.c_str());
 	}
+}
+
+void Debug::Break() {
+	__debugbreak();
 }
 
 void Debug::StartSample() {

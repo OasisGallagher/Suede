@@ -46,7 +46,7 @@ private:
 	static bool EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP* dib);
 
 	static bool CopyTexelsTo(TexelMap &bits, FIBITMAP* dib);
-	static void CopyBitsFrom(FIBITMAP* dib, int width, int height, BppType bpp, const std::vector<uchar>& data);
+	static void CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BppType bpp, const std::vector<uchar>& data);
 };
 
 struct Atlas {

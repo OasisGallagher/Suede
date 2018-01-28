@@ -50,9 +50,11 @@ public:
 
 	virtual void AddSubMesh(SubMesh subMesh) { subMeshes_.push_back(subMesh); }
 	virtual int GetSubMeshCount() { return subMeshes_.size(); }
-	virtual SubMesh GetSubMesh(int index) { return subMeshes_[index]; }
+	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
+	virtual void RemoveSubMesh(uint index) { subMeshes_.erase(subMeshes_.begin() + index); }
 
 	virtual MeshTopology GetTopology() { return topology_; }
+	virtual uint GetVertexCount() const { return vertexCount_; }
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
@@ -63,6 +65,8 @@ private:
 
 private:
 	uint indexBuffer_;
+	uint vertexCount_;
+
 	VertexArrayObject vao_;
 	MeshTopology topology_;
 

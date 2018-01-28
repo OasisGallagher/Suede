@@ -146,7 +146,6 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 	answer->height = Math::Max(1u, bitmap.rows);
 	answer->textureFormat = TextureFormatRgba;
 	answer->format = ColorStreamFormatLuminanceAlpha;
-	// TODO: alignment.
 	answer->alignment = 4;
 
 	return true;

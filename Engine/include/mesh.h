@@ -53,9 +53,11 @@ public:
 
 	virtual void AddSubMesh(SubMesh subMesh) = 0;
 	virtual int GetSubMeshCount() = 0;
-	virtual SubMesh GetSubMesh(int index) = 0;
+	virtual SubMesh GetSubMesh(uint index) = 0;
+	virtual void RemoveSubMesh(uint index) = 0;
 
 	virtual MeshTopology GetTopology() = 0;
+	virtual uint GetVertexCount() const = 0;
 
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
