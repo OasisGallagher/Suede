@@ -1,12 +1,12 @@
 #include "glef.h"
+#include "resources.h"
 #include "variables.h"
-#include "tools/file.h"
-#include "tools/path.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "shaderparser.h"
 #include "tools/string.h"
 #include "memory/memory.h"
+#include "os/filesystem.h"
 #include "internal/base/glsldefines.h"
 
 bool GLSLParser::Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines) {
@@ -101,7 +101,7 @@ bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
 bool GLSLParser::PreprocessInclude(const std::string& parameter) {
 	std::string source;
 	std::string path = parameter.substr(1, parameter.length() - 2);
-	if (!File::Load(Path::GetResourceRootDirectory() + path, source)) {
+	if (!FileSystem::ReadAllText(Resources::GetRootDirectory() + path, source)) {
 		return false;
 	}
 
@@ -164,7 +164,7 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 
 bool ShaderParser::Parse(Semantics& semantics, const std::string& path, const std::string& defines) {
 	SyntaxTree tree;
-	if (!GLEF::Parse(path.c_str(), tree)) {
+	if (!GLEF::Parse((Resources::GetRootDirectory() + path).c_str(), tree)) {
 		return false;
 	}
 

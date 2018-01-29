@@ -125,10 +125,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="debug\stackwalker.cpp" />
     <ClCompile Include="memory\memory.cpp" />
     <ClCompile Include="memory\refcount.cpp" />
-    <ClCompile Include="os\os.cpp" />
-    <ClCompile Include="tools\file.cpp" />
+    <ClCompile Include="os\filesystem.cpp" />
     <ClCompile Include="tools\math2.cpp" />
-    <ClCompile Include="tools\path.cpp" />
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -140,10 +138,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="debug\stackwalker.h" />
     <ClInclude Include="memory\memory.h" />
     <ClInclude Include="memory\refcount.h" />
-    <ClInclude Include="os\os.h" />
-    <ClInclude Include="tools\file.h" />
+    <ClInclude Include="os\filesystem.h" />
     <ClInclude Include="tools\math2.h" />
-    <ClInclude Include="tools\path.h" />
     <ClInclude Include="tools\string.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

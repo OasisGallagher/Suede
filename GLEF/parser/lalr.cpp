@@ -3,13 +3,13 @@
 
 #include "lr0.h"
 #include "lalr.h"
-#include "os/os.h"
 #include "grammar.h"
 #include "lrtable.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "glefdefines.h"
+#include "os/filesystem.h"
 
 struct Ambiguity {
 	int state;
@@ -95,16 +95,16 @@ bool LALR::InsertActionTable(LRActionTable& actionTable, const LR1Itemset& src, 
 	LRActionTable::ib_pair status = actionTable.insert(state, symbol, action);
 	if (!status.second && status.first->second != action) {
 		Ambiguity ambiguity = { state, symbol, status.first->second, action };
+
+		// ambiguity does not exist.
 		if (ambiguities_->insert(ambiguity)) {
 			std::string prompt = String::Format("CONFLICT at (%d, %s). Replace %s with %s ?",
 				state, symbol.ToString().c_str(), 
 				status.first->second.ToString(env_->grammars).c_str(), 
 				action.ToString(env_->grammars).c_str());
 			
-			if (OS::Prompt(prompt.c_str())) {
-				status.first->second = action;
-			}
-			
+			// Conflict.
+			Debug::LogError(prompt.c_str());
 			return false;
 		}
 	}

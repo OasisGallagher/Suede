@@ -1,56 +1,69 @@
 #include <map>
 #include "resources.h"
 #include "tools/math2.h"
+#include "os/filesystem.h"
 
 typedef std::map<std::string, Shader> ShaderContainer;
-static ShaderContainer shaders;
+static ShaderContainer shaders_;
 
 typedef std::map<std::string, Texture> TextureContainer;
-static TextureContainer textures;
+static TextureContainer textures_;
 
 typedef std::map<std::string, Material> MaterialContainer;
-static MaterialContainer materials;
+static MaterialContainer materials_;
 
-static MeshRenderer meshRenderer;
+typedef std::vector<ShaderResource> ShaderResourceContainer;
+static ShaderResourceContainer shaderResources_;
 
-Texture2D blackTexture, whiteTexture;
-
-static Mesh primitives[PrimitiveTypeCount];
+static MeshRenderer meshRenderer_;
+static Mesh primitives_[PrimitiveTypeCount];
+static Texture2D blackTexture_, whiteTexture_;
 
 void Resources::Import() {
-	if (!meshRenderer) {
-		meshRenderer = NewMeshRenderer();
-		meshRenderer->AddMaterial(nullptr);
+	if (!meshRenderer_) {
+		meshRenderer_ = NewMeshRenderer();
+		meshRenderer_->AddMaterial(nullptr);
 	}
+
+	ImportShaderResources();
+
 }
 
 MeshRenderer Resources::GetMeshRenderer() {
-	return meshRenderer;
+	return meshRenderer_;
 }
 
 Texture2D Resources::GetBlackTexture() {
-	if (!blackTexture) {
-		blackTexture = CreateSolidTexture(0xff000000);
+	if (!blackTexture_) {
+		blackTexture_ = CreateSolidTexture(0xff000000);
 	}
 
-	return blackTexture;
+	return blackTexture_;
 }
 
 Texture2D Resources::GetWhiteTexture() {
-	if (!blackTexture) {
-		blackTexture = CreateSolidTexture(0xffffffff);
+	if (!blackTexture_) {
+		blackTexture_ = CreateSolidTexture(0xffffffff);
 	}
 
-	return blackTexture;
+	return blackTexture_;
+}
+
+const std::vector<ShaderResource>& Resources::GetShaderResources() {
+	return shaderResources_;
+}
+
+std::string Resources::GetRootDirectory() {
+	return "resources/";
 }
 
 Mesh Resources::GetPrimitive(PrimitiveType type) {
-	if (primitives[type]) {
-		return primitives[type];
+	if (primitives_[type]) {
+		return primitives_[type];
 	}
 
-	primitives[type] = CreatePrimitive(type, 1);
-	return primitives[type];
+	primitives_[type] = CreatePrimitive(type, 1);
+	return primitives_[type];
 }
 
 Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) {
@@ -80,13 +93,13 @@ void Resources::GetPrimitiveAttribute(PrimitiveType type, float scale, MeshAttri
 }
 
 Shader Resources::FindShader(const std::string& path) {
-	ShaderContainer::iterator ite = shaders.find(path);
-	if (ite != shaders.end()) {
+	ShaderContainer::iterator ite = shaders_.find(path);
+	if (ite != shaders_.end()) {
 		return ite->second;
 	}
 
 	Shader shader = NewShader();
-	shaders.insert(std::make_pair(path, shader));
+	shaders_.insert(std::make_pair(path, shader));
 	if (shader->Load(path)) {
 		return shader;
 	}
@@ -99,8 +112,8 @@ Texture Resources::FindTexture(const std::string& path) {
 }
 
 Material Resources::FindMaterial(const std::string& name) {
-	MaterialContainer::iterator ite = materials.find(name);
-	if (ite != materials.end()) {
+	MaterialContainer::iterator ite = materials_.find(name);
+	if (ite != materials_.end()) {
 		return ite->second;
 	}
 
@@ -153,4 +166,20 @@ Texture2D Resources::CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
 	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1);
 	return texture;
+}
+
+void Resources::ImportShaderResources() {
+	std::vector<std::string> paths;
+	FileSystem::ListAllFiles(paths, "resources/shaders", "shader");
+	FileSystem::ListAllFiles(paths, "resources/buildin/shaders", "shader");
+
+	shaderResources_.clear();
+	// TODO: shader name.
+	for (int i = 0; i < paths.size(); ++i) {
+		ShaderResource sr = {
+			FileSystem::GetFileNameWithoutExtension(paths[i]), paths[i]
+		};
+
+		shaderResources_.push_back(sr);
+	}
 }

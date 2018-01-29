@@ -1,7 +1,8 @@
 #include <glm/glm.hpp>
 
-#include "tools/path.h"
+#include "resources.h"
 #include "tools/math2.h"
+#include "os/filesystem.h"
 #include "textureinternal.h"
 
 TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
@@ -233,7 +234,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Path::GetResourceRootDirectory() + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + path)) {
 		return false;
 	}
 
@@ -318,7 +319,7 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 
 	for (int i = 0; i < 6; ++i) {
 		TexelMap texelMap;
-		if (!ImageCodec::Decode(texelMap, Path::GetResourceRootDirectory() + textures[i])) {
+		if (!ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + textures[i])) {
 			DestroyTexture();
 			return false;
 		}

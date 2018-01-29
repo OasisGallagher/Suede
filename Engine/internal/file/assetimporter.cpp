@@ -1,30 +1,18 @@
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include <assimp/scene.h>
-#include <assimp/config.h>
-#include <assimp/cimport.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
 #include "resources.h"
 #include "tools/math2.h"
-#include "tools/path.h"
-#include "debug/debug.h"
 #include "tools/string.h"
 #include "assetimporter.h"
-#include "memory/memory.h"
+#include "os/filesystem.h"
 #include "internal/file/image.h"
-#include "internal/memory/factory.h"
-#include "internal/base/meshinternal.h"
-#include "internal/base/shaderinternal.h"
 #include "internal/world/worldinternal.h"
-#include "internal/base/textureinternal.h"
-#include "internal/base/materialinternal.h"
-#include "internal/base/rendererinternal.h"
 #include "internal/base/animationinternal.h"
-#include "internal/sprites/spriteinternal.h"
 
 static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
@@ -113,7 +101,7 @@ bool AssetImporter::Initialize(const std::string& path, Assimp::Importer &import
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
-	std::string fpath = Path::GetResourceRootDirectory() + path;
+	std::string fpath = Resources::GetRootDirectory() + path;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 	if (scene == nullptr) {
@@ -385,11 +373,11 @@ void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMateri
 	aiColor3D acolor;
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
-		attribute.name = Path::GetFileName(astring.C_Str());
+		attribute.name = FileSystem::GetFileName(astring.C_Str());
 	}
 	
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
-		attribute.mainTexture = GetTexture(Path::GetFileName(astring.C_Str()));
+		attribute.mainTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (!attribute.mainTexture) {
@@ -397,19 +385,19 @@ void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMateri
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
-		attribute.bumpTexture = GetTexture(Path::GetFileName(astring.C_Str()));
+		attribute.bumpTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
-		attribute.specularTexture = GetTexture(Path::GetFileName(astring.C_Str()));
+		attribute.specularTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
-		attribute.lightmapTexture = GetTexture(Path::GetFileName(astring.C_Str()));
+		attribute.lightmapTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
-		attribute.emissiveTexture = GetTexture(Path::GetFileName(astring.C_Str()));
+		attribute.emissiveTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {

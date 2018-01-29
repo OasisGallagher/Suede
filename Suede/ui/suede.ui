@@ -826,7 +826,14 @@
     <addaction name="screenCapture"/>
     <addaction name="exit"/>
    </widget>
+   <widget class="QMenu" name="help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="about"/>
+   </widget>
    <addaction name="file"/>
+   <addaction name="help"/>
   </widget>
   <action name="exit">
    <property name="text">
@@ -839,6 +846,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="about">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

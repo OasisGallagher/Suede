@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 
 #include "suede.h"
+#include "driver.h"
 #include "camera.h"
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
@@ -13,7 +14,6 @@
 Suede::Suede(QWidget *parent)
 	: QMainWindow(parent) {
 
-	OS::SetPromptCallback(this);
 	Debug::SetLogReceiver(this);
 
 	setupUI();
@@ -23,6 +23,10 @@ Suede::Suede(QWidget *parent)
 
 	connect(actions[0], SIGNAL(triggered()), this, SLOT(screenCapture()));
 	connect(actions[1], SIGNAL(triggered()), qApp, SLOT(quit()));
+
+	QMenu* helpMenu = menuBar()->findChild<QMenu*>("help");
+	actions = helpMenu->actions();
+	connect(actions[0], SIGNAL(triggered()), this, SLOT(aboutBox()));
 }
 
 Suede::~Suede() {
@@ -117,6 +121,18 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 	}
 }
 
+void Suede::aboutBox() {
+	QMessageBox::information(this, "Suede", QString::asprintf(
+		"Vendor: %s\n"
+		"Renderer: %s\n"
+		"OpenGL: %s\n"
+		"GLSL: %s",
+		Driver::GetVendor(), 
+		Driver::GetRenderer(), 
+		Driver::GetVersion(), 
+		Driver::GetGLSLVersion()));
+}
+
 void Suede::screenCapture() {
 	std::vector<Sprite> sprites;
 	if (!WorldInstance()->GetSprites(ObjectTypeCamera, sprites)) {
@@ -149,16 +165,6 @@ void Suede::screenCapture() {
 	if (image.loadFromData(&data[0], data.size())) {
 		image.save(path);
 	}
-}
-
-bool Suede::OnPrompt(const char* message) {
-	QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No);
-
-	QMessageBox box(QMessageBox::Question, tr("Question"), QString(message), buttons, this);
-	box.setButtonText(QMessageBox::Yes, tr("Yes"));
-	box.setButtonText(QMessageBox::No, tr("No"));
-
-	return box.exec() == (int)QMessageBox::Yes;
 }
 
 void Suede::OnLogMessage(LogLevel level, const char* message) {

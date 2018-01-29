@@ -1,21 +1,11 @@
 #include <ft2build.h>
-#include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
-#include <freetype/ftoutln.h>
-#include <freetype/fttrigon.h>
-#include <freetype/ftsnames.h>
-#include <freetype/ttnameid.h>
 
 #include "variables.h"
 #include "resources.h"
-#include "tools/path.h"
 #include "tools/math2.h"
-#include "tools/string.h"
 #include "fontinternal.h"
-#include "shaderinternal.h"
-#include "textureinternal.h"
-#include "materialinternal.h"
-#include "internal/file/image.h"
+#include "os/filesystem.h"
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
@@ -104,7 +94,7 @@ bool FontInternal::Import(const std::string& path, int size) {
 	FT_Select_Charmap(face_, FT_ENCODING_UNICODE);
 	FT_Set_Char_Size(face_, size << 6, size << 6, 96, 96);
 
-	fname_ = Path::GetFileName(path);
+	fname_ = FileSystem::GetFileName(path);
 	size_ = size;
 
 	return true;

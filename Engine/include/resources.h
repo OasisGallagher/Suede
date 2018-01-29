@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+
 #include "mesh.h"
 #include "shader.h"
 #include "material.h"
@@ -10,6 +12,11 @@ enum PrimitiveType {
 	PrimitiveTypeCount,
 };
 
+struct ShaderResource {
+	std::string name;
+	std::string path;
+};
+
 class SUEDE_API Resources {
 public:
 	static void Import();
@@ -17,6 +24,10 @@ public:
 public:
 	static Texture2D GetBlackTexture();
 	static Texture2D GetWhiteTexture();
+
+	static const std::vector<ShaderResource>& GetShaderResources();
+
+	static std::string GetRootDirectory();
 
 	/** TODO: GL.End() instead ?
 	 * @brief: Temporary mesh renderer.
@@ -34,6 +45,8 @@ public:
 	static Material FindMaterial(const std::string& name);
 
 private:
+	static void ImportShaderResources();
+
 	static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
 	static void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
 	static Mesh CreateMesh(MeshAttribute &attribute);

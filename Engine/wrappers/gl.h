@@ -24,6 +24,7 @@ public:
 	static void LinkProgram(GLuint program);
 	static void CompileShader(GLuint shader);
 	static void GenerateMipmap(GLenum target);
+	static const char* GetString(GLenum name);
 	static void DeleteProgram(GLuint program);
 	static void ActiveTexture(GLenum texture);
 	static void BindVertexArray(GLuint array);
@@ -429,6 +430,10 @@ inline void GL::CompileShader(GLuint shader) {
 
 inline void GL::GenerateMipmap(GLenum target) {
 	GL_CALL(glGenerateMipmap(target));
+}
+
+inline const char* GL::GetString(GLenum name) {
+	GL_CALL_R((const char*)glGetString(name));
 }
 
 inline void GL::AttachShader(GLuint program, GLuint shader) {

@@ -1,8 +1,7 @@
 #include "variables.h"
-#include "tools/path.h"
-#include "debug/debug.h"
 #include "tools/string.h"
 #include "meshinternal.h"
+#include "os/filesystem.h"
 #include "shaderinternal.h"
 #include "internal/base/glsldefines.h"
 
@@ -31,7 +30,7 @@ bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
 	
 	std::string sources[ShaderStageCount];
 	GLSLParser parser;
-	if (!parser.Parse(sources, Path::GetDirectory(path), pass.source, "")) {
+	if (!parser.Parse(sources, FileSystem::GetDirectory(path), pass.source, "")) {
 		return false;
 	}
 
@@ -556,7 +555,7 @@ ShaderInternal::~ShaderInternal() {
 }
 
 std::string ShaderInternal::GetName() const {
-	return Path::GetFileNameWithoutExtension(path_);
+	return FileSystem::GetFileNameWithoutExtension(path_);
 }
 
 bool ShaderInternal::Load(const std::string& path) {

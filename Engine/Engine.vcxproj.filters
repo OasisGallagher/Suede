@@ -232,6 +232,9 @@
     <ClInclude Include="include\variant.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\driver.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -325,6 +328,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\tagmanager.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\driver.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

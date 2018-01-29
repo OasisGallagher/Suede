@@ -1,15 +1,14 @@
 #include <fstream>
 
-#include "os/os.h"
 #include "parser.h"
 #include "scanner.h"
 #include "language.h"
 #include "syntaxer.h"
 #include "lrparser.h"
-#include "tools/path.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "grammarsymbol.h"
+#include "os/filesystem.h"
 
 typedef std::pair<std::string, std::string> ProductionText;
 
@@ -149,11 +148,7 @@ Language::~Language() {
 }
 
 bool Language::Parse(SyntaxTree* tree, const std::string& path) {
-	if (!scanner_->Open(Path::GetResourceRootDirectory() + path)) {
-		return false;
-	}
-
-	return syntaxer_->ParseSyntax(tree, scanner_);
+	return scanner_->Open(path) && syntaxer_->ParseSyntax(tree, scanner_);
 }
 
 bool Language::SetupEnvironment(const char* grammars) {

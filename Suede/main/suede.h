@@ -4,10 +4,10 @@
 
 #include "ui_suede.h"
 
-#include "os/os.h"
+#include "os/filesystem.h"
 #include "debug/debug.h"
 
-class Suede : public QMainWindow, public LogReceiver, public PromptCallback {
+class Suede : public QMainWindow, public LogReceiver {
 	Q_OBJECT
 
 public:
@@ -31,13 +31,13 @@ public:
 	void showChildWindow(int index, bool show);
 
 protected:
-	virtual bool OnPrompt(const char* message);
 	virtual void OnLogMessage(LogLevel level, const char* message);
 
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
 
 private slots:
+	void aboutBox();
 	void screenCapture();
 
 private:

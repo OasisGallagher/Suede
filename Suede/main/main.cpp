@@ -3,7 +3,7 @@
 #endif
 
 #include "suede.h"
-#include "os/os.h"
+#include "os/filesystem.h"
 #include <QtWidgets/QApplication>
 
 int main(int argc, char *argv[]) {

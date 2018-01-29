@@ -10,24 +10,6 @@
     <Filter Include="debug\src">
       <UniqueIdentifier>{6a4edd56-98b0-4c49-920d-71f40f5d00aa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="os">
-      <UniqueIdentifier>{14c2156f-0894-4cbc-b88e-180c84ebc719}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="os\include">
-      <UniqueIdentifier>{bdd57297-3764-4281-9c8a-ae26488fc710}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="os\src">
-      <UniqueIdentifier>{9accdc21-f125-4e68-af7c-2c727439ca87}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="tools">
-      <UniqueIdentifier>{e15e866e-33ff-4356-85ec-2f1956975af6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="tools\include">
-      <UniqueIdentifier>{e0abf4b5-b91f-4b9f-a72b-083fa9baf55f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="tools\src">
-      <UniqueIdentifier>{80701aeb-887a-45d5-9262-b16ba119d2cf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="containers">
       <UniqueIdentifier>{e81024b3-0fc1-4ba9-a4aa-28f37d6645d5}</UniqueIdentifier>
     </Filter>
@@ -46,24 +28,33 @@
     <Filter Include="memory\src">
       <UniqueIdentifier>{44c4932f-a551-4d7f-95ca-f9d6cdd85d0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{e15e866e-33ff-4356-85ec-2f1956975af6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\include">
+      <UniqueIdentifier>{e0abf4b5-b91f-4b9f-a72b-083fa9baf55f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools\src">
+      <UniqueIdentifier>{80701aeb-887a-45d5-9262-b16ba119d2cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os">
+      <UniqueIdentifier>{14c2156f-0894-4cbc-b88e-180c84ebc719}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os\include">
+      <UniqueIdentifier>{bdd57297-3764-4281-9c8a-ae26488fc710}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os\src">
+      <UniqueIdentifier>{9accdc21-f125-4e68-af7c-2c727439ca87}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug\debug.h">
       <Filter>debug\include</Filter>
     </ClInclude>
-    <ClInclude Include="os\os.h">
-      <Filter>os\include</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\path.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
     <ClInclude Include="tools\string.h">
       <Filter>tools\include</Filter>
     </ClInclude>
     <ClInclude Include="tools\math2.h">
-      <Filter>tools\include</Filter>
-    </ClInclude>
-    <ClInclude Include="tools\file.h">
       <Filter>tools\include</Filter>
     </ClInclude>
     <ClInclude Include="containers\freelist.h">
@@ -87,24 +78,18 @@
     <ClInclude Include="debug\stackwalker.h">
       <Filter>debug\include</Filter>
     </ClInclude>
+    <ClInclude Include="os\filesystem.h">
+      <Filter>os\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">
       <Filter>debug\src</Filter>
     </ClCompile>
-    <ClCompile Include="os\os.cpp">
-      <Filter>os\src</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\path.cpp">
-      <Filter>tools\src</Filter>
-    </ClCompile>
     <ClCompile Include="tools\string.cpp">
       <Filter>tools\src</Filter>
     </ClCompile>
     <ClCompile Include="tools\math2.cpp">
-      <Filter>tools\src</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\file.cpp">
       <Filter>tools\src</Filter>
     </ClCompile>
     <ClCompile Include="memory\memory.cpp">
@@ -115,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="debug\stackwalker.cpp">
       <Filter>debug\src</Filter>
+    </ClCompile>
+    <ClCompile Include="os\filesystem.cpp">
+      <Filter>os\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

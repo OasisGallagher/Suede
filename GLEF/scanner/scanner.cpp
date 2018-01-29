@@ -4,11 +4,11 @@
 
 #include "tokens.h"
 #include "scanner.h"
-#include "tools/file.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "glefdefines.h"
+#include "os/filesystem.h"
 
 enum {
 	StartState,
@@ -282,7 +282,7 @@ SourceScanner::~SourceScanner() {
 }
 
 bool SourceScanner::Open(const std::string& path) {
-	if (!File::Load(path, text_)) {
+	if (!FileSystem::ReadAllText(path, text_)) {
 		return false;
 	}
 

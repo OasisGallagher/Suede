@@ -4,8 +4,10 @@
 #include "ui_suede.h"
 
 #include "inspector.h"
+#include "resources.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
+#include "os/filesystem.h"
 
 static Inspector* inspectorInstance;
 
@@ -248,16 +250,15 @@ void Inspector::reloadRenderer() {
 
 	shrinkListWidget(ui_->materialList);
 
-	QStringList shaders;
-	QStringList nameFilters("*.shader");
-	QDir dir("resources/shaders");
-	shaders << dir.entryList(nameFilters, QDir::Files);
-	dir.setCurrent("resources/buildin/shaders");
-	shaders << dir.entryList(nameFilters, QDir::Files);
-
 	ui_->shaders->clear();
-	ui_->shaders->addItems(shaders);
 
+	QStringList list;
+	const std::vector<ShaderResource>& shaders = Resources::GetShaderResources();
+	for (int i = 0; i < shaders.size(); ++i) {
+		list << shaders[i].name.c_str();
+	}
+
+	ui_->shaders->addItems(list);
 }
 
 void Inspector::shrinkListWidget(QListWidget* w) {
