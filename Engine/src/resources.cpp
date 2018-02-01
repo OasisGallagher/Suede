@@ -170,8 +170,9 @@ Texture2D Resources::CreateSolidTexture(uint color) {
 
 void Resources::ImportShaderResources() {
 	std::vector<std::string> paths;
-	FileSystem::ListAllFiles(paths, "resources/shaders", "shader");
-	FileSystem::ListAllFiles(paths, "resources/buildin/shaders", "shader");
+	const char* reg = ".*\\.shader";
+	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
+	FileSystem::ListAllFiles(paths, "resources/buildin/shaders", reg);
 
 	shaderResources_.clear();
 	// TODO: shader name.

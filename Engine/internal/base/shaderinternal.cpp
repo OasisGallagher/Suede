@@ -30,7 +30,7 @@ bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
 	
 	std::string sources[ShaderStageCount];
 	GLSLParser parser;
-	if (!parser.Parse(sources, FileSystem::GetDirectory(path), pass.source, "")) {
+	if (!parser.Parse(sources, path, pass.source, "")) {
 		return false;
 	}
 
