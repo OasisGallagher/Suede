@@ -3,6 +3,7 @@
 
 #include "object.h"
 #include "shader.h"
+#include "variant.h"
 #include "texture.h"
 
 class SUEDE_API IMaterial : virtual public IObject {
@@ -40,6 +41,8 @@ public:
 	virtual glm::mat4 GetMatrix4(const std::string& name) = 0;
 	virtual glm::vec3 GetVector3(const std::string& name) = 0;
 	virtual glm::vec4 GetVector4(const std::string& name) = 0;
+
+	virtual void GetProperties(std::vector<Property>& properties) const = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Material);

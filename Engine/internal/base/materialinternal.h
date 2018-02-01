@@ -48,6 +48,8 @@ public:
 	virtual glm::vec3 GetVector3(const std::string& name);
 	virtual glm::vec4 GetVector4(const std::string& name);
 
+	virtual void GetProperties(std::vector<Property>& properties) const;
+
 private:
 	void BindProperties(uint pass);
 	void UnbindProperties();

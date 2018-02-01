@@ -3,12 +3,14 @@
 
 #include "ui_suede.h"
 
+#include "variables.h"
 #include "inspector.h"
 #include "resources.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "os/filesystem.h"
 
+#define LAYOUT_SPACING	12
 static Inspector* inspectorInstance;
 
 Inspector* Inspector::get() {
@@ -53,19 +55,19 @@ void Inspector::OnWorldEvent(const WorldEventBase* e) {
 void Inspector::onTransformChanged() {
 	QObject* s = sender();
 	if (s == transform_[0] || s == transform_[1] || s == transform_[2]) {
-		target_->SetLocalPosition(readFields(0));
+		target_->SetLocalPosition(readTransformFields(0));
 	}
 	else if (s == transform_[3] || s == transform_[4] || s == transform_[5]) {
-		target_->SetLocalEulerAngles(readFields(3));
+		target_->SetLocalEulerAngles(readTransformFields(3));
 	}
 	else {
-		target_->SetLocalScale(readFields(6));
+		target_->SetLocalScale(readTransformFields(6));
 	}
 
 	reloadTransform();
 }
 
-glm::vec3 Inspector::readFields(int i) {
+glm::vec3 Inspector::readTransformFields(int i) {
 	return glm::vec3(transform_[i]->text().toFloat(),
 		transform_[i + 1]->text().toFloat(),
 		transform_[i + 2]->text().toFloat());
@@ -82,7 +84,99 @@ QString Inspector::float2QString(float f) {
 	return ans;
 }
 
-void Inspector::writeFields(int i, const glm::vec3& v3) {
+bool Inspector::isPropertyVisible(const QString& name) {
+	return (name == Variables::mainTexture
+		|| name == Variables::bumpTexture
+		|| name == Variables::specularTexture
+		|| name == Variables::emissiveTexture
+		|| name == Variables::lightmapTexture
+		|| name == Variables::gloss
+		|| name == Variables::mainColor
+		|| name == Variables::specularColor
+		|| name == Variables::emissiveColor);
+}
+
+QWidget* Inspector::drawIntField(const QString& name, int value) {
+	QWidget* widget = new QWidget(this);
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	widget->setLayout(layout);
+
+	layout->setSpacing(LAYOUT_SPACING);
+
+	QLabel* label = new QLabel(name, widget);
+	QLineEdit* edit = new QLineEdit(QString::number(value), widget);
+	layout->addWidget(label);
+	layout->addWidget(edit);
+
+	return widget;
+}
+
+QWidget* Inspector::drawFloatField(const QString& name, float value) {
+	QWidget* widget = new QWidget(this);
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	widget->setLayout(layout);
+
+	layout->setSpacing(LAYOUT_SPACING);
+
+	QLabel* label = new QLabel(name, widget);
+	QLineEdit* edit = new QLineEdit(float2QString(value), widget);
+	layout->addWidget(label);
+	layout->addWidget(edit);
+
+	return widget;
+}
+
+QWidget* Inspector::drawTextureField(const QString& name, Texture value) {
+	return nullptr;
+}
+
+QWidget* Inspector::drawVec3Field(const QString& name, const glm::vec3& value) {
+	QWidget* widget = new QWidget(this);
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	widget->setLayout(layout);
+
+	layout->setSpacing(LAYOUT_SPACING);
+
+	QLabel* label = new QLabel(name, widget);
+	layout->addWidget(label);
+
+	QHBoxLayout* layout2 = new QHBoxLayout(this);
+	QLineEdit* x = new QLineEdit(float2QString(value.x), widget);
+	QLineEdit* y = new QLineEdit(float2QString(value.y), widget);
+	QLineEdit* z = new QLineEdit(float2QString(value.z), widget);
+	layout2->addWidget(x);
+	layout2->addWidget(y);
+	layout2->addWidget(z);
+	layout->addLayout(layout2);
+
+	return widget;
+}
+
+QWidget* Inspector::drawVec4Field(const QString& name, const glm::vec4& value) {
+	QWidget* widget = new QWidget(this);
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	widget->setLayout(layout);
+
+	layout->setSpacing(LAYOUT_SPACING);
+
+	QLabel* label = new QLabel(name, widget);
+	layout->addWidget(label);
+
+	QHBoxLayout* layout2 = new QHBoxLayout(this);
+	QLineEdit* x = new QLineEdit(float2QString(value.x), widget);
+	QLineEdit* y = new QLineEdit(float2QString(value.y), widget);
+	QLineEdit* z = new QLineEdit(float2QString(value.z), widget);
+	QLineEdit* w = new QLineEdit(float2QString(value.w), widget);
+	layout2->addWidget(x);
+	layout2->addWidget(y);
+	layout2->addWidget(z);
+	layout2->addWidget(w);
+	layout->addLayout(layout2);
+
+	return widget;
+}
+
+void Inspector::writeTransformFields(int i, const glm::vec3& v3) {
 	transform_[i]->setText(float2QString(v3.x));
 	transform_[i + 1]->setText(float2QString(v3.y));
 	transform_[i + 2]->setText(float2QString(v3.z));
@@ -201,9 +295,9 @@ void Inspector::reloadTransform() {
 		transform_[i]->blockSignals(true);
 	}
 
-	writeFields(0, target_->GetLocalPosition());
-	writeFields(3, target_->GetLocalEulerAngles());
-	writeFields(6, target_->GetLocalScale());
+	writeTransformFields(0, target_->GetLocalPosition());
+	writeTransformFields(3, target_->GetLocalEulerAngles());
+	writeTransformFields(6, target_->GetLocalScale());
 
 	for (int i = 0; i < CountOf(transform_); ++i) {
 		transform_[i]->blockSignals(false);
@@ -259,6 +353,44 @@ void Inspector::reloadRenderer() {
 	}
 
 	ui_->shaders->addItems(list);
+	
+	std::vector<Property> properties;
+	Material material = renderer->GetMaterial(0);
+	material->GetProperties(properties);
+
+	qDeleteAll(fields_);
+	fields_.clear();
+
+	for (int i = 0; i < properties.size(); ++i) {
+		const Property& p = properties[i];
+		if (!isPropertyVisible(p.name.c_str())) {
+			continue;
+		}
+
+		QWidget* widget = nullptr;
+		switch (p.value.GetType()) {
+			case VariantTypeInt:
+				widget = drawIntField(p.name.c_str(), p.value.GetInt());
+				break;
+			case VariantTypeFloat:
+				widget = drawFloatField(p.name.c_str(), p.value.GetFloat());
+				break;
+			case VariantTypeTexture:
+				break;
+			case VariantTypeVector3:
+				widget = drawVec3Field(p.name.c_str(), p.value.GetVector3());
+				break;
+			case  VariantTypeVector4:
+				widget = drawVec4Field(p.name.c_str(), p.value.GetVector4());
+				break;
+		}
+
+		if (widget != nullptr) {
+			ui_->propertiesLayout->addWidget(widget);
+			widget->layout()->setContentsMargins(0, 1, 0, 1);
+			fields_.push_back(widget);
+		}
+	}
 }
 
 void Inspector::shrinkListWidget(QListWidget* w) {
