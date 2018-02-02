@@ -51,13 +51,21 @@ private:
 
 	void onSpriteTransformChanged(SpriteTransformChangedEvent* e);
 
-	glm::vec3 readFields(int i);
-	void writeFields(int i, const glm::vec3& v3);
+	glm::vec3 readTransformFields(int i);
+	void writeTransformFields(int i, const glm::vec3& v3);
 	QString float2QString(float f);
+
+	bool isPropertyVisible(const QString& name);
+
+	QWidget* drawIntField(const QString& name, int value);
+	QWidget* drawFloatField(const QString& name, float value);
+	QWidget* drawTextureField(const QString& name, Texture value);
+	QWidget* drawVec3Field(const QString& name, const glm::vec3& value);
+	QWidget* drawVec4Field(const QString& name, const glm::vec4& value);
 
 private:
 	Sprite target_;
-
+	QList<QWidget*> fields_;
 	QPushButton* reset_[3];
 	QLineEdit* transform_[9];
 };

@@ -169,9 +169,6 @@
     <ClInclude Include="internal\base\animationinternal.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\containers\variant.h">
-      <Filter>internal\containers\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\containers\sortedvector.h">
       <Filter>internal\containers\include</Filter>
     </ClInclude>

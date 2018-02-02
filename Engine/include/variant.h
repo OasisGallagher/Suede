@@ -20,7 +20,7 @@ enum VariantType {
 	VariantTypeMatrix4Array,
 };
 
-class Variant {
+class SUEDE_API Variant {
 public:
 	Variant() :type_(VariantTypeNone) {
 	}

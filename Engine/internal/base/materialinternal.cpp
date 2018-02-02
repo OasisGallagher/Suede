@@ -210,6 +210,13 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 	return var->GetVector4();
 }
 
+void MaterialInternal::GetProperties(std::vector<Property>& properties) const {
+	for (PropertyContainer::const_iterator ite = properties_.cbegin(); ite != properties_.cend(); ++ite) {
+		Property value = { ite->first, *ite->second };
+		properties.push_back(value);
+	}
+}
+
 uint MaterialInternal::GetPassCount() const {
 	if (!shader_) {
 		Debug::LogError("invalid shader");

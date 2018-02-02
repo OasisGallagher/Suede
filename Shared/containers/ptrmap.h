@@ -9,6 +9,7 @@ public:
 	typedef Ty* value_type;
 	typedef std::map<key_type, value_type> container_type;
 	typedef typename container_type::iterator iterator;
+	typedef typename container_type::const_iterator const_iterator;
 	typedef std::pair<iterator, bool> ib_pair;
 
 public:
@@ -52,6 +53,9 @@ public:
 
 	iterator begin() { return cont_.begin(); }
 	iterator end() { return cont_.end(); }
+
+	const_iterator cbegin() const { return cont_.cbegin(); }
+	const_iterator cend() const { return cont_.cend(); }
 
 	ib_pair insert(const key_type& key) {
 		iterator pos = cont_.find(key);
