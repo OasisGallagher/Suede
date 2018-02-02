@@ -42,19 +42,10 @@ bool FileSystem::ReadAllText(const std::string& file, std::string& text) {
 		return false;
 	}
 
-	text.clear();
 	const char* seperator = "";
-
-	std::string line;
-	for (; getline(ifs, line);) {
-		if (!line.empty()) {
-			text += seperator;
-			text += line;
-			seperator = "\n";
-		}
+	for (std::string line; std::getline(ifs, line); seperator = "\n") {
+		text += (seperator + line);
 	}
-
-	ifs.close();
 
 	return true;
 }
@@ -66,15 +57,9 @@ bool FileSystem::ReadAllLines(const std::string& file, std::vector<std::string>&
 		return false;
 	}
 
-	lines.clear();
-
-	std::string line;
-	for (; getline(ifs, line);) {
-		if (!line.empty()) {
-			lines.push_back(line);
-		}
+	for (std::string line; std::getline(ifs, line);) {
+		lines.push_back(line);
 	}
 
-	ifs.close();
 	return true;
 }

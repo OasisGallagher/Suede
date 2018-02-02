@@ -234,9 +234,9 @@
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-235</y>
-          <width>487</width>
-          <height>634</height>
+          <y>-169</y>
+          <width>480</width>
+          <height>572</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -781,7 +781,7 @@
               <property name="title">
                <string>Materials</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_9">
+              <layout class="QVBoxLayout" name="materialsLayout">
                <item>
                 <widget class="QListWidget" name="materialList">
                  <property name="sizePolicy">
@@ -790,41 +790,6 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QGroupBox" name="properties">
-                 <property name="title">
-                  <string>Properties</string>
-                 </property>
-                 <layout class="QVBoxLayout" name="propertiesLayout">
-                  <property name="spacing">
-                   <number>1</number>
-                  </property>
-                  <item>
-                   <layout class="QHBoxLayout" name="horizontalLayout_7">
-                    <property name="spacing">
-                     <number>12</number>
-                    </property>
-                    <item>
-                     <widget class="QLabel" name="label_14">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="text">
-                       <string>Shader:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QComboBox" name="shaders"/>
-                    </item>
-                   </layout>
-                  </item>
-                 </layout>
                 </widget>
                </item>
               </layout>

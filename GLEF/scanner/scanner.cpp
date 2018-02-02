@@ -282,6 +282,8 @@ SourceScanner::~SourceScanner() {
 }
 
 bool SourceScanner::Open(const std::string& path) {
+	text_.clear();
+
 	if (!FileSystem::ReadAllText(path, text_)) {
 		return false;
 	}

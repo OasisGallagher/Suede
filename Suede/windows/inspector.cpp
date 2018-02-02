@@ -1,4 +1,5 @@
 #include <QLineEdit>
+#include <QFormLayout>
 #include <QDirIterator>
 
 #include "ui_suede.h"
@@ -107,7 +108,7 @@ QWidget* Inspector::drawIntField(const QString& name, int value) {
 	QLineEdit* edit = new QLineEdit(QString::number(value), widget);
 	layout->addWidget(label);
 	layout->addWidget(edit);
-
+	
 	return widget;
 }
 
@@ -338,19 +339,38 @@ void Inspector::reloadRenderer() {
 
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		Material material = renderer->GetMaterial(i);
+
+		// TODO: material name here.
 		Shader shader = material->GetShader();
 		ui_->materialList->addItem(shader ? shader->GetName().c_str() : "Null");
 	}
 
 	shrinkListWidget(ui_->materialList);
 
-	ui_->shaders->clear();
-
 	QStringList list;
 	const std::vector<ShaderResource>& shaders = Resources::GetShaderResources();
 	for (int i = 0; i < shaders.size(); ++i) {
 		list << shaders[i].name.c_str();
 	}
+
+	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+		Material material = renderer->GetMaterial(i);
+		Shader shader = material->GetShader();
+
+		QGroupBox* g = new QGroupBox(this);
+		g->setTitle(shader->GetName().c_str());
+		ui_->materialsLayout->addWidget(g);
+
+		QFormLayout* form = new QFormLayout(g);
+		g->setLayout(form);
+
+		QComboBox* combo = new QComboBox(g);
+		combo->addItems(list);
+		list.indexOf()
+		combo->setCurrentIndex();
+	}
+
+	
 
 	ui_->shaders->addItems(list);
 	
