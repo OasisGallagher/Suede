@@ -89,7 +89,7 @@ void Hierarchy::reload() {
 	items_.clear();
 	model_->setRowCount(0);
 
-	updateRecursively(WorldInstance()->GetRootEntity(), nullptr);
+	updateRecursively(WorldInstance()->GetRootTransform()->GetEntity(), nullptr);
 }
 
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
@@ -104,9 +104,9 @@ void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSe
 	emit selectionChanged(ss, ds);
 }
 
-void Hierarchy::updateRecursively(Entity pp, QStandardItem* pi) {
-	for (int i = 0; i < pp->GetChildCount(); ++i) {
-		Entity child = pp->GetChildAt(i);
+void Hierarchy::updateRecursively(Entity entity, QStandardItem* pi) {
+	for (int i = 0; i < entity->GetTransform()->GetChildCount(); ++i) {
+		Entity child = entity->GetTransform()->GetChildAt(i)->GetEntity();
 		if (child->GetType() == ObjectTypeSkybox) {
 			continue;
 		}
@@ -116,15 +116,15 @@ void Hierarchy::updateRecursively(Entity pp, QStandardItem* pi) {
 	}
 }
 
-QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
-	QStandardItem* item = items_.value(entity->GetInstanceID());
+QStandardItem* Hierarchy::appendItem(Entity transform, QStandardItem* pi) {
+	QStandardItem* item = items_.value(transform->GetInstanceID());
 	if (item != nullptr) {
-		items_.remove(entity->GetInstanceID());
+		items_.remove(transform->GetInstanceID());
 		model_->removeRow(item->row());
 	}
 
-	item = new QStandardItem(entity->GetName().c_str());
-	item->setData(entity->GetInstanceID());
+	item = new QStandardItem(transform->GetName().c_str());
+	item->setData(transform->GetInstanceID());
 	
 	if (pi != nullptr) {
 		pi->appendRow(item);
@@ -133,7 +133,7 @@ QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
 		model_->appendRow(item);
 	}
 
-	items_[entity->GetInstanceID()] = item;
+	items_[transform->GetInstanceID()] = item;
 	return item;
 }
 
@@ -150,11 +150,11 @@ void Hierarchy::removeItem(QStandardItem* item) {
 }
 
 void Hierarchy::appendChildItem(Entity entity) {
-	Entity parent = entity->GetParent();
+	Transform parent = entity->GetTransform()->GetParent();
 	Q_ASSERT(parent);
 
 	QStandardItem* pi = nullptr;
-	if (parent == WorldInstance()->GetRootEntity() || (pi = items_.value(parent->GetInstanceID())) != nullptr) {
+	if (parent == WorldInstance()->GetRootTransform() || (pi = items_.value(parent->GetInstanceID())) != nullptr) {
 		appendItem(entity, pi);
 	}
 	else if (pi == nullptr && (pi = items_.value(entity->GetInstanceID())) != nullptr) {
@@ -185,9 +185,9 @@ void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelectio
 	foreach(QItemSelectionRange r, items) {
 		foreach(QModelIndex index, r.indexes()) {
 			uint id = model_->itemFromIndex(index)->data().toUInt();
-			Entity entity = WorldInstance()->GetEntity(id);
-			Q_ASSERT(entity);
-			entities.push_back(entity);
+			Entity transform = WorldInstance()->GetEntity(id);
+			Q_ASSERT(transform);
+			entities.push_back(transform);
 		}
 	}
 }

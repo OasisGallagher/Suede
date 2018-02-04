@@ -10,6 +10,7 @@ enum ObjectType {
 	ObjectTypeSubMesh,
 	ObjectTypeTextMesh,
 	ObjectTypeMaterial,
+	ObjectTypeTransform,
 	ObjectTypeTexture2D,
 	ObjectTypeTextureCube,
 	ObjectTypeRenderTexture,

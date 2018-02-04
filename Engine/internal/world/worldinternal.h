@@ -17,7 +17,7 @@ public:
 
 public:
 	virtual void Update();
-	virtual Entity GetRootEntity() { return root_; }
+	virtual Transform GetRootTransform() { return root_->GetTransform(); }
 	virtual Object Create(ObjectType type);
 
 	virtual Entity Import(const std::string& path);
@@ -39,6 +39,7 @@ private:
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
+
 private:
 	Entity root_;
 	LightContainer lights_;

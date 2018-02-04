@@ -165,6 +165,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\shaderinternal.cpp" />
     <ClCompile Include="internal\base\meshinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
+    <ClCompile Include="internal\base\transforminternal.cpp" />
     <ClCompile Include="internal\base\vertexarrayobject.cpp" />
     <ClCompile Include="internal\file\image.cpp" />
     <ClCompile Include="internal\file\shaderparser.cpp" />
@@ -210,6 +211,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\time2.h" />
+    <ClInclude Include="include\transform.h" />
     <ClInclude Include="include\variables.h" />
     <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\world.h" />
@@ -225,6 +227,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\shaderinternal.h" />
     <ClInclude Include="internal\base\meshinternal.h" />
     <ClInclude Include="internal\base\textureinternal.h" />
+    <ClInclude Include="internal\base\transforminternal.h" />
     <ClInclude Include="internal\base\vertexarrayobject.h" />
     <ClInclude Include="internal\containers\freelist.h" />
     <ClInclude Include="internal\containers\ptrmap.h" />

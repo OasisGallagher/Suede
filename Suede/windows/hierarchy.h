@@ -28,7 +28,7 @@ public:
 public:
 	Entity selectedEntity();
 	bool selectedEntities(QList<Entity>& entities);
-	void updateRecursively(Entity pp, QStandardItem* pi);
+	void updateRecursively(Entity entity, QStandardItem* pi);
 
 signals:
 	void selectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
@@ -46,13 +46,11 @@ private:
 	void removeItem(QStandardItem* item);
 
 	void onEntityTagChanged(Entity entity);
-
 	void onEntityNameChanged(Entity entity);
 	void onEntityParentChanged(Entity entity);
 
 	void enableEntityOutline(Entity entity, bool enable);
 	void enableItemsOutline(const QList<Entity>& entities, bool enable);
-
 	void selectionToEntities(QList<Entity>& entities, const QItemSelection& items);
 
 private:

@@ -2,6 +2,7 @@
 #include <vector>
 #include "entity.h"
 #include "object.h"
+#include "transform.h"
 #include "environment.h"
 
 enum WorldEventType {
@@ -67,7 +68,7 @@ public:
 
 	virtual Entity Import(const std::string& path) = 0;
 
-	virtual Entity GetRootEntity() = 0;
+	virtual Transform GetRootTransform() = 0;
 	virtual Entity GetEntity(uint id) = 0;
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
 

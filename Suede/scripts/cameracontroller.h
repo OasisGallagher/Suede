@@ -1,5 +1,5 @@
 #pragma once
-#include "camera.h"
+#include "transform.h"
 #include <QMouseEvent>
 
 class CameraController {
@@ -7,7 +7,7 @@ public:
 	CameraController();
 
 public:
-	void setCamera(Camera value);
+	void setCamera(Transform value);
 
 	void onResize(const QSize& size);
 
@@ -24,7 +24,7 @@ private:
 	glm::vec3 calculateArcBallVector(const QPoint& point);
 
 private:
-	Camera camera_;
+	Transform camera_;
 
 	bool lpressed_;
 	bool mpressed_;

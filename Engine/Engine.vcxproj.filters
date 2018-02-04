@@ -232,6 +232,12 @@
     <ClInclude Include="internal\entities\entityinternal.h">
       <Filter>internal\entities\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\transform.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\transforminternal.h">
+      <Filter>internal\entities\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -328,6 +334,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\entityinternal.cpp">
+      <Filter>internal\entities\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\transforminternal.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
   </ItemGroup>

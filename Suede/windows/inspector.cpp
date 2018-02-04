@@ -79,13 +79,13 @@ void Inspector::OnWorldEvent(const WorldEventBase* e) {
 void Inspector::onTransformChanged() {
 	QObject* s = sender();
 	if (s == ui_->px || s == ui_->py || s == ui_->pz) {
-		target_->SetLocalPosition(readTransformFields(ui_->px, ui_->py, ui_->pz));
+		target_->GetTransform()->SetLocalPosition(readTransformFields(ui_->px, ui_->py, ui_->pz));
 	}
 	else if (s == ui_->rx || s == ui_->ry || s == ui_->rz) {
-		target_->SetLocalEulerAngles(readTransformFields(ui_->rx, ui_->ry, ui_->rz));
+		target_->GetTransform()->SetLocalEulerAngles(readTransformFields(ui_->rx, ui_->ry, ui_->rz));
 	}
 	else {
-		target_->SetLocalScale(readTransformFields(ui_->sx, ui_->sy, ui_->sz));
+		target_->GetTransform()->SetLocalScale(readTransformFields(ui_->sx, ui_->sy, ui_->sz));
 	}
 
 	reloadTransform();
@@ -255,13 +255,13 @@ void Inspector::writeTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, c
 void Inspector::onResetButtonClicked() {
 	QObject* s = sender();
 	if (s == ui_->p0) {
-		target_->SetLocalPosition(glm::vec3(0));
+		target_->GetTransform()->SetLocalPosition(glm::vec3(0));
 	}
 	else if (s == ui_->r0) {
-		target_->SetLocalEulerAngles(glm::vec3(0));
+		target_->GetTransform()->SetLocalEulerAngles(glm::vec3(0));
 	}
 	else {
-		target_->SetLocalScale(glm::vec3(1));
+		target_->GetTransform()->SetLocalScale(glm::vec3(1));
 	}
 
 	reloadTransform();
@@ -422,9 +422,9 @@ void Inspector::reloadTags() {
 }
 
 void Inspector::reloadTransform() {
-	writeTransformFields(ui_->px, ui_->py, ui_->pz, target_->GetLocalPosition());
-	writeTransformFields(ui_->rx, ui_->ry, ui_->rz, target_->GetLocalEulerAngles());
-	writeTransformFields(ui_->sx, ui_->sy, ui_->sz, target_->GetLocalScale());
+	writeTransformFields(ui_->px, ui_->py, ui_->pz, target_->GetTransform()->GetLocalPosition());
+	writeTransformFields(ui_->rx, ui_->ry, ui_->rz, target_->GetTransform()->GetLocalEulerAngles());
+	writeTransformFields(ui_->sx, ui_->sy, ui_->sz, target_->GetTransform()->GetLocalScale());
 }
 
 void Inspector::reloadMesh() {

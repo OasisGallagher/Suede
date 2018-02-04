@@ -12,7 +12,7 @@
 CameraController::CameraController() : lpressed_(false), mpressed_(false), rpressed_(false) {
 }
 
-void CameraController::setCamera(Camera value) {
+void CameraController::setCamera(Transform value) {
 	camera_ = value;
 }
 
@@ -112,7 +112,7 @@ extern uint roomEntityID;
 void CameraController::rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos) {
 	Entity selected = WorldInstance()->GetEntity(roomEntityID);
 
-	if (!selected || selected->GetPosition() == camera_->GetPosition()) {
+	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
 		return;
 	}
 
@@ -135,18 +135,18 @@ void CameraController::rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos
 		glm::mat3 m3(right, up, forward);
 		camera_->SetRotation(glm::normalize(glm::quat(m3)));
 #else
-		glm::vec3 bp(camera_->GetPosition() - selected->GetPosition());
+		glm::vec3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
 		QPoint delta = mousePos - oldPos;
 		glm::quat qx = glm::angleAxis(0.05f * delta.x(), camera_->GetUp());
 		glm::quat qy = glm::angleAxis(0.05f * delta.y(), camera_->GetRight());
 
 		qx *= qy;
 		
-		bp = qx * bp + selected->GetPosition();
+		bp = qx * bp + selected->GetTransform()->GetPosition();
 
 		camera_->SetPosition(bp);
 
-		glm::vec3 forward = -normalize(selected->GetPosition() - camera_->GetPosition());
+		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
 		glm::vec3 right = qx * camera_->GetRight();
 		right.y = 0;
 		Math::Orthogonalize(right, forward);

@@ -46,7 +46,7 @@ void ParticleSystemInternal::Update() {
 void ParticleSystemInternal::SortBuffers() {
 	std::vector<Entity> cameras;
 	if (WorldInstance()->GetEntities(ObjectTypeCamera, cameras)) {
-		SortParticlesByDepth(cameras.front()->GetPosition());
+		SortParticlesByDepth(cameras.front()->GetTransform()->GetPosition());
 	}
 }
 
@@ -152,7 +152,7 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 
 	emitter_->Emit(&buffer_[0], count);
 	for (int i = 0; i < count; ++i) {
-		buffer_[i]->position += GetPosition();
+		buffer_[i]->position += GetTransform()->GetPosition();
 	}
 }
 

@@ -142,7 +142,7 @@ void AssetImporter::CombineAttribute(MeshAttribute& dest, const MeshAttribute& s
 
 Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	Entity entity = NewEntity();
-	entity->SetParent(parent);
+	entity->GetTransform()->SetParent(parent->GetTransform());
 
 	ReadNodeTo(entity, node, attributes, materials);
 	ReadChildren(entity, node, attributes, materials);
@@ -157,9 +157,9 @@ void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, MeshAttribute* attri
 	glm::quat rotation;
 	DecomposeAIMatrix(translation, rotation, scale, node->mTransformation);
 
-	entity->SetLocalScale(scale);
-	entity->SetLocalRotation(rotation);
-	entity->SetLocalPosition(translation);
+	entity->GetTransform()->SetLocalScale(scale);
+	entity->GetTransform()->SetLocalRotation(rotation);
+	entity->GetTransform()->SetLocalPosition(translation);
 
 	if (node->mNumMeshes > 0) {
 		ReadComponents(entity, node, attributes, materials);

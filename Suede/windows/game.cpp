@@ -116,15 +116,15 @@ void Game::createScene() {
 	light->SetColor(glm::vec3(0.7f));
 
 	Camera camera = NewCamera();
-	controller_->setCamera(camera);
+	controller_->setCamera(camera->GetTransform());
 
-	light->SetParent(camera);
+	light->GetTransform()->SetParent(camera->GetTransform());
 
 #ifdef DEFERRED_RENDERING
 	camera->SetRenderPath(RenderPathDeferred);
 #endif
 
-	camera->SetPosition(glm::vec3(0, 25, 0));
+	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
 	//camera->AddImageEffect(inversion_);
@@ -159,7 +159,7 @@ void Game::createScene() {
 
 #ifdef PARTICLE_SYSTEM
 	ParticleSystem particleSystem = NewParticleSystem();
-	particleSystem->SetPosition(glm::vec3(-30, 20, -50));
+	particleSystem->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -182,8 +182,8 @@ void Game::createScene() {
 
 #if defined(FONT)
 	Entity fentity = NewEntity();
-	fentity->SetPosition(glm::vec3(-10, 20, -20));
-	fentity->SetEulerAngles(glm::vec3(0, 0, 0));
+	fentity->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
+	fentity->GetTransform()->SetEulerAngles(glm::vec3(0, 0, 0));
 
 	//Entity fentity2 = NewEntity();
 	//fentity2->SetPosition(glm::vec3(-10, 30, -20));
@@ -218,14 +218,14 @@ void Game::createScene() {
 
 #ifdef ROOM
  	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
- 	room->SetPosition(glm::vec3(0, 25, -65));
- 	room->SetEulerAngles(glm::vec3(30, 60, 0));
+ 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
+ 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
  	roomEntityID = room->GetInstanceID();
 #endif
 
 #ifdef BEAR
 	Entity bear = WorldInstance()->Import("models/teddy_bear.fbx");
-	bear->SetPosition(glm::vec3(0, -20, -150));
+	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
 	Shader shader = Resources::FindShader("shaders/xray");
@@ -236,8 +236,8 @@ void Game::createScene() {
 
 #ifdef MAN
 	Entity man = WorldInstance()->Import("models/boblampclean.md5mesh");
-	man->SetPosition(glm::vec3(0, 0, -70));
-	man->SetEulerAngles(glm::vec3(270, 180, 180));
+	man->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
+	man->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
 	if (man) {
 		//entity->SetParent(camera);
 

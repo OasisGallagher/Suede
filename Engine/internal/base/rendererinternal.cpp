@@ -41,7 +41,7 @@ void RendererInternal::UpdateMaterial(Entity entity) {
 		material->SetFloat(Variables::time, Time::GetRealTimeSinceStartup());
 		material->SetFloat(Variables::deltaTime, Time::GetDeltaTime());
 
-		glm::mat4 localToWorldMatrix = entity->GetLocalToWorldMatrix();
+		glm::mat4 localToWorldMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
 		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
 	}
 }

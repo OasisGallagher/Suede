@@ -2,6 +2,7 @@
 #include "tools/math2.h"
 #include "worldinternal.h"
 #include "internal/file/assetimporter.h"
+#include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
 
@@ -33,13 +34,18 @@ WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
 	, root_(Factory::Create<EntityInternal>()) {
+	Transform transform = Factory::Create<TransformInternal>();
+	root_->SetTransform(transform);
 }
 
 Object WorldInternal::Create(ObjectType type) {
 	Object object = Factory::Create(type);
 	if (type >= ObjectTypeEntity) {
 		Entity entity = dsp_cast<Entity>(object);
-		entity->SetParent(GetRootEntity());
+		Transform transform = Factory::Create<TransformInternal>();
+		entity->SetTransform(transform);
+		transform->SetParent(root_->GetTransform());
+
 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 
 		EntityCreatedEvent e;
