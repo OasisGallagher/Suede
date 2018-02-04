@@ -217,7 +217,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\fontinternal.h" />
     <ClInclude Include="internal\base\framebuffer.h" />
     <ClInclude Include="internal\base\gbuffer.h" />
-    <ClInclude Include="internal\base\glsldefines.h" />
+    <ClInclude Include="internal\base\renderdefines.h" />
     <ClInclude Include="internal\base\materialinternal.h" />
     <ClInclude Include="internal\base\objectinternal.h" />
     <ClInclude Include="internal\base\rendererinternal.h" />

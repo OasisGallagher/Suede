@@ -316,8 +316,8 @@ void CameraInternal::SetForwardBaseLightParameter(const std::vector<Sprite>& spr
 			Material material = renderer->GetMaterial(i);
 
 			material->SetVector3(Variables::cameraPosition, GetPosition());
-			material->SetVector3(Variables::ambientLightColor, WorldInstance()->GetEnvironment()->GetAmbientColor());
-			material->SetVector3(Variables::lightColor, light->GetColor());
+			material->SetColor3(Variables::ambientLightColor, WorldInstance()->GetEnvironment()->GetAmbientColor());
+			material->SetColor3(Variables::lightColor, light->GetColor());
 			material->SetVector3(Variables::lightPosition, light->GetPosition());
 			material->SetVector3(Variables::lightDirection, light->GetRotation() * glm::vec3(0, 0, -1));
 		}

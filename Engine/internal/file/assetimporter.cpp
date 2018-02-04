@@ -44,6 +44,10 @@ static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
 	return answer;
 }
 
+AssetImporter::MaterialAttribute::MaterialAttribute()
+	: twoSided(false), gloss(20), mainColor(1), name(UNNAMED_MATERIAL) {
+}
+
 Sprite AssetImporter::Import(const std::string& path) {
 	Sprite sprite = NewSprite();
 	ImportTo(sprite, path);
@@ -339,9 +343,11 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 
 	material->SetFloat(Variables::gloss, attribute.gloss);
 
-	material->SetVector4(Variables::mainColor, attribute.mainColor);
-	material->SetVector3(Variables::specularColor, attribute.specularColor);
-	material->SetVector3(Variables::emissiveColor, attribute.emissiveColor);
+	material->SetColor4(Variables::mainColor, attribute.mainColor);
+	material->SetColor3(Variables::specularColor, attribute.specularColor);
+	material->SetColor3(Variables::emissiveColor, attribute.emissiveColor);
+
+	material->SetName(attribute.name);
 
 	if (attribute.mainTexture) {
 		material->SetTexture(Variables::mainTexture, attribute.mainTexture);

@@ -2,8 +2,11 @@ in vec4 shadowCoord;
 
 uniform vec3 c_ambientLightColor;
 uniform vec3 c_cameraPosition;
+uniform vec3 c_specularColor;
 uniform vec3 c_lightColor;
 uniform vec3 c_lightDirection;
+uniform vec3 c_emissiveColor;
+uniform float c_gloss;
 uniform sampler2DShadow c_shadowDepthTexture;
 
 vec2 poissonDisk[] = vec2[]( 
@@ -32,8 +35,6 @@ float random(vec3 seed, int i){
 }
 
 vec3 calculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
-	const float gloss = 20;
-
 	vec3 ambient = vec3(c_ambientLightColor);
 
 	float factor = clamp(dot(worldNormal, -c_lightDirection), 0, 1);
@@ -42,10 +43,10 @@ vec3 calculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility
 	vec3 toEye = normalize(c_cameraPosition - worldPos);
 	vec3 reflectDir = normalize(reflect(c_lightDirection, worldNormal));
 	factor = clamp(dot(toEye, reflectDir), 0, 1);
-	factor = pow(factor, gloss);
-	vec3 specular = vec3(c_lightColor * factor);
+	factor = pow(factor, c_gloss);
+	vec3 specular = vec3(c_lightColor * factor) * c_specularColor;
 
-	return ambient + visibility * (diffuse + specular);
+	return ambient + c_emissiveColor + visibility * (diffuse + specular);
 }
 
 float calculateShadowVisibility() {

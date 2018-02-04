@@ -17,6 +17,11 @@ struct ShaderResource {
 	std::string path;
 };
 
+struct TextureResource {
+	std::string name;
+	std::string path;
+};
+
 class SUEDE_API Resources {
 public:
 	static void Import();
@@ -45,7 +50,10 @@ public:
 	static Material FindMaterial(const std::string& name);
 
 private:
+	static const char* GetRelativePath(const char* path);
+
 	static void ImportShaderResources();
+	static void ImportTextureResources();
 
 	static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
 	static void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);

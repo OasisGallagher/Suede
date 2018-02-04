@@ -3,7 +3,7 @@
 #include "meshinternal.h"
 #include "os/filesystem.h"
 #include "shaderinternal.h"
-#include "internal/base/glsldefines.h"
+#include "internal/base/renderdefines.h"
 
 Pass::Pass() : program_(0), oldProgram_(0) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
@@ -23,7 +23,7 @@ Pass::~Pass() {
 	ClearIntermediateShaders();
 }
 
-bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
+bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass& pass, const std::string& path) {
 	name_ = pass.name;
 
 	InitializeRenderStates(pass.renderStates);
@@ -51,6 +51,7 @@ bool Pass::Initialize(const Semantics::Pass& pass, const std::string& path) {
 	}
 
 	AddAllUniforms();
+	AddAllUniformProperties(properties);
 
 	return true;
 }
@@ -304,6 +305,58 @@ void Pass::AddAllUniforms() {
 	MEMORY_RELEASE_ARRAY(name);
 }
 
+void Pass::AddAllUniformProperties(std::vector<Property*>& properties) {
+	for (UniformContainer::iterator ite = uniforms_.begin(); ite != uniforms_.end(); ++ite) {
+		AddUniformProperty(properties, ite->first, ite->second->type);
+	}
+}
+
+void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::string& name, VariantType type) {
+	for (int i = 0; i < properties.size(); ++i) {
+		if (properties[i]->name == name) {
+			return;
+		}
+	}
+
+	Property* p = new Property;
+	p->name = name;
+	switch (type) {
+		case VariantTypeInt:
+			p->value.SetInt(0);
+			break;
+		case VariantTypeFloat:
+			p->value.SetFloat(0);
+			break;
+		case VariantTypeMatrix4:
+			p->value.SetMatrix4(glm::mat4(0));
+			break;
+		case VariantTypeBool:
+			p->value.SetBool(false);
+			break;
+		case VariantTypeVector3:
+			if (String::EndsWith(name, "Color")) {
+				p->value.SetColor3(glm::vec3(0));
+			}
+			else{
+				p->value.SetVector3(glm::vec3(0));
+			}
+			break;
+		case VariantTypeVector4:
+			if (String::EndsWith(name, "Color")) {
+				p->value.SetColor4(glm::vec4(0));
+			}
+			else {
+				p->value.SetVector4(glm::vec4(0));
+			}
+			break;
+		case VariantTypeTexture:
+			p->value.SetTexture(nullptr);
+			break;
+	}
+
+	properties.push_back(p);
+}
+
 void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size) {
 	Uniform* uniform = uniforms_[name];
 	uniform->size = size;
@@ -429,7 +482,7 @@ SubShader::~SubShader() {
 	MEMORY_RELEASE_ARRAY(passes_);
 }
 
-bool SubShader::Initialize(const Semantics::SubShader& config, const std::string& path) {
+bool SubShader::Initialize(std::vector<Property*>& properties, const Semantics::SubShader& config, const std::string& path) {
 	tagCount_ = config.tags.size();
 	tags_ = MEMORY_CREATE_ARRAY(Tag, config.tags.size());
 
@@ -439,7 +492,7 @@ bool SubShader::Initialize(const Semantics::SubShader& config, const std::string
 	passes_ = MEMORY_CREATE_ARRAY(Pass, config.passes.size());
 
 	for (uint i = 0; i < passCount_; ++i) {
-		passes_[i].Initialize(config.passes[i], path);
+		passes_[i].Initialize(properties, config.passes[i], path);
 		if (!config.passes[i].enabled) {
 			passEnabled_ &= ~(1 << i);
 		}
@@ -547,11 +600,13 @@ uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 }
 
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)
-	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
+	, subShaderCount_(0), subShaders_(nullptr)
+	, propertyCount_(0), properties_(nullptr), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
 	MEMORY_RELEASE_ARRAY(subShaders_);
+	ReleaseProperties();
 }
 
 std::string ShaderInternal::GetName() const {
@@ -565,23 +620,37 @@ bool ShaderInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	ParseProperties(semantics.properties);
-	ParseSubShaders(semantics.subShaders, path);
+	ParseSubShaders(semantics.properties, semantics.subShaders, path);
+
+	LoadProperties(semantics.properties);
 
 	path_ = path;
 	return true;
 }
 
-void ShaderInternal::ParseProperties(std::vector<Property>& properties) {
-	properties_ = properties;
+void ShaderInternal::LoadProperties(std::vector<Property*>& properties) {
+	ReleaseProperties();
+	properties_ = MEMORY_CREATE_ARRAY(Property*, properties.size());
+	propertyCount_ = properties.size();
+
+	std::copy(properties.begin(), properties.end(), properties_);
 }
 
-void ShaderInternal::ParseSubShaders(std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
+void ShaderInternal::ParseSubShaders(std::vector<Property*>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
 	subShaderCount_ = subShaders.size();
 	subShaders_ = MEMORY_CREATE_ARRAY(SubShader, subShaders.size());
 	for (uint i = 0; i < subShaderCount_; ++i) {
-		subShaders_[i].Initialize(subShaders[i], path);
+		subShaders_[i].Initialize(properties, subShaders[i], path);
 	}
+}
+
+void ShaderInternal::ReleaseProperties() {
+	for (int i = 0; i < propertyCount_; ++i) {
+		MEMORY_RELEASE(properties_[i]);
+	}
+
+	MEMORY_RELEASE_ARRAY(properties_);
+	propertyCount_ = 0;
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {
@@ -622,8 +691,8 @@ int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {
 	return subShaders_[ssi].GetPassIndex(name);
 }
 
-void ShaderInternal::GetProperties(std::vector<Property>& properties) {
-	properties = properties_;
+void ShaderInternal::GetProperties(std::vector<const Property*>& properties) {
+	properties.assign(properties_, properties_ + propertyCount_);
 }
 
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {

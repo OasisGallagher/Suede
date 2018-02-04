@@ -13,10 +13,13 @@ enum VariantType {
 	VariantTypeMatrix4,
 	VariantTypeIVector3,
 	VariantTypeVector3,
+	VariantTypeColor3,
+	VariantTypeColor4,
 	VariantTypeVector4,
 	VariantTypeTexture,
 	VariantTypeQuaternion,
 
+	// Buffer type.
 	VariantTypeMatrix4Array,
 };
 
@@ -24,6 +27,8 @@ class SUEDE_API Variant {
 public:
 	Variant() :type_(VariantTypeNone) {
 	}
+	Variant(const Variant& other);
+
 	~Variant();
 
 public:
@@ -37,6 +42,8 @@ public:
 	glm::mat4 GetMatrix4() const;
 	glm::ivec3 GetIVector3() const;
 	glm::vec3 GetVector3() const;
+	glm::vec3 GetColor3() const;
+	glm::vec4 GetColor4() const;
 	glm::vec4 GetVector4() const;
 	glm::quat GetQuaternion() const;
 	const glm::mat4* GetMatrix4Array() const;
@@ -52,6 +59,8 @@ public:
 	void SetMatrix4(const glm::mat4& value);
 	void SetIVector3(const glm::ivec3& value);
 	void SetVector3(const glm::vec3& value);
+	void SetColor3(const glm::vec3& value);
+	void SetColor4(const glm::vec4& value);
 	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
 	void SetMatrix4Array(const glm::mat4* data, uint size);

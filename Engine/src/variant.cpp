@@ -13,6 +13,7 @@ const char* Variant::TypeString(VariantType type) {
 		CASE(Matrix4);
 		CASE(IVector3);
 		CASE(Vector3);
+		CASE(Color4);
 		CASE(Vector4);
 		CASE(Texture);
 		CASE(Matrix4Array);
@@ -22,6 +23,17 @@ const char* Variant::TypeString(VariantType type) {
 
 	Debug::LogError("invalid variant type %d.", type);
 	return "";
+}
+
+Variant::Variant(const Variant& other) : Variant() {
+	if (other.type_ >= VariantTypeMatrix4Array) {
+		SetPodArray(other.type_, other.data_.podArray.ptr, other.data_.podArray.size);
+	}
+	else {
+		memcpy(&data_, &other.data_, sizeof(data_));
+		texture_ = other.texture_;
+		type_ = other.type_;
+	}
 }
 
 Variant::~Variant() {
@@ -89,6 +101,24 @@ glm::vec3 Variant::GetVector3() const {
 	}
 
 	return data_.vec3Value;
+}
+
+glm::vec3 Variant::GetColor3() const {
+	if (type_ != VariantTypeColor3) {
+		Debug::LogError("invalid uniform type.");
+		return glm::vec3(0, 0, 0);
+	}
+
+	return data_.vec3Value;
+}
+
+glm::vec4 Variant::GetColor4() const {
+	if (type_ != VariantTypeColor4) {
+		Debug::LogError("invalid uniform type.");
+		return glm::vec4(0, 0, 0, 1);
+	}
+
+	return data_.vec4Value;
 }
 
 glm::vec4 Variant::GetVector4() const {
@@ -169,6 +199,16 @@ void Variant::SetVector3(const glm::vec3& value) {
 void Variant::SetIVector3(const glm::ivec3& value) {
 	SetType(VariantTypeIVector3);
 	data_.ivec3Value = value;
+}
+
+void Variant::SetColor3(const glm::vec3& value) {
+	SetType(VariantTypeColor3);
+	data_.vec3Value = value;
+}
+
+void Variant::SetColor4(const glm::vec4& value) {
+	SetType(VariantTypeColor4);
+	data_.vec4Value = value;
 }
 
 void Variant::SetVector4(const glm::vec4& value) {

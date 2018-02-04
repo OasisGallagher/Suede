@@ -151,9 +151,6 @@
     <ClInclude Include="internal\world\environmentinternal.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\glsldefines.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\variables.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -231,6 +228,9 @@
     </ClInclude>
     <ClInclude Include="include\driver.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\renderdefines.h">
+      <Filter>internal\base\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

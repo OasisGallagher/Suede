@@ -14,7 +14,7 @@ FontInternal::FontInternal()
 	material_->SetShader(shader);
 
 	// default font color.
-	material_->SetVector4(Variables::mainColor, glm::vec4(1));
+	material_->SetColor4(Variables::mainColor, glm::vec4(1));
 }
 
 FontInternal::~FontInternal() {

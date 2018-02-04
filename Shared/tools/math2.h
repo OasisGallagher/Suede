@@ -25,6 +25,9 @@ public:
 	static glm::vec3 Degrees(const glm::vec3& radians);
 	static glm::vec3 Radians(const glm::vec3& degrees);
 
+	static glm::ivec4 IntColor(const glm::vec4& color);
+	static glm::vec4 NormalizedColor(const glm::ivec4& color);
+
 	static unsigned NextPowerOfTwo(unsigned x);
 	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
 
@@ -82,6 +85,24 @@ inline float Math::Degrees(float radians) {
 
 inline float Math::Radians(float degrees) {
 	return degrees * 0.0174532924f;
+}
+
+inline glm::ivec4 Math::IntColor(const glm::vec4& color) {
+	return glm::ivec4(
+		Clamp(int(color.x * 255), 0, 255),
+		Clamp(int(color.y * 255), 0, 255),
+		Clamp(int(color.z * 255), 0, 255),
+		Clamp(int(color.w * 255), 0, 255)
+	);
+}
+
+inline glm::vec4 Math::NormalizedColor(const glm::ivec4& color) {
+	return glm::vec4(
+		Clamp01(color.x / 255.f),
+		Clamp01(color.y / 255.f),
+		Clamp01(color.z / 255.f),
+		Clamp01(color.w / 255.f)
+	);
 }
 
 inline glm::vec3 Math::Degrees(const glm::vec3 & radians) {

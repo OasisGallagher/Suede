@@ -25,7 +25,7 @@ public:
 	virtual int GetPassIndex(uint ssi, const std::string& name) const = 0;
 
 	virtual uint GetPassCount(uint ssi) const = 0;
-	virtual void GetProperties(std::vector<Property>& properties) = 0;
+	virtual void GetProperties(std::vector<const Property*>& properties) = 0;
 	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data) = 0;
 };
 

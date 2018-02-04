@@ -42,7 +42,7 @@ private:
 	void ReadBoneAttributes(int index, MeshAttribute& attribute);
 
 	struct MaterialAttribute {
-		MaterialAttribute() : twoSided(false), gloss(0), mainColor(1) {}
+		MaterialAttribute();
 
 		std::string name;
 

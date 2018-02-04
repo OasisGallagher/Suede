@@ -15,6 +15,9 @@ static MaterialContainer materials_;
 typedef std::vector<ShaderResource> ShaderResourceContainer;
 static ShaderResourceContainer shaderResources_;
 
+typedef std::vector<TextureResource> TextureResourceContainer;
+static TextureResourceContainer textureResources_;
+
 static MeshRenderer meshRenderer_;
 static Mesh primitives_[PrimitiveTypeCount];
 static Texture2D blackTexture_, whiteTexture_;
@@ -26,7 +29,7 @@ void Resources::Import() {
 	}
 
 	ImportShaderResources();
-
+	ImportTextureResources();
 }
 
 MeshRenderer Resources::GetMeshRenderer() {
@@ -178,9 +181,34 @@ void Resources::ImportShaderResources() {
 	// TODO: shader name.
 	for (int i = 0; i < paths.size(); ++i) {
 		ShaderResource sr = {
-			FileSystem::GetFileNameWithoutExtension(paths[i]), paths[i]
+			FileSystem::GetFileNameWithoutExtension(paths[i]), 
+			GetRelativePath(paths[i].c_str())
 		};
 
 		shaderResources_.push_back(sr);
 	}
+}
+
+void Resources::ImportTextureResources() {
+	std::vector<std::string> paths;
+	const char* reg = ".*\\.(jpg|png|tif|bmp|tga|dds)";
+	FileSystem::ListAllFiles(paths, "resources/textures", reg);
+
+	textureResources_.clear();
+	for (int i = 0; i < paths.size(); ++i) {
+		TextureResource tr = {
+			FileSystem::GetFileNameWithoutExtension(paths[i]), 
+			GetRelativePath(paths[i].c_str())
+		};
+
+		textureResources_.push_back(tr);
+	}
+}
+
+const char* Resources::GetRelativePath(const char* path) {
+	for (; *path != 0 && *path != '/' && *path != '\\'; ++path) {
+	}
+
+	if (*path != 0) { ++path; }
+	return path;
 }

@@ -5,7 +5,7 @@
 #include "variant.h"
 #include "variables.h"
 #include "animation.h"
-#include "glsldefines.h"
+#include "renderdefines.h"
 #include "containers/sortedvector.h"
 #include "internal/base/objectinternal.h"
 

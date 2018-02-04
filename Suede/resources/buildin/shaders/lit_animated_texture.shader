@@ -46,11 +46,12 @@ SubShader {
 		in vec3 normal;
 		in mat4 o_matrix;
 
+		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 		#include "buildin/shaders/include/light_fragment.inc"
 
 		void main() {
-			vec4 albedo = texture(c_mainTexture, texCoord);
+			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 			float visibility = 1; //calculateShadowVisibility();
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
 		}

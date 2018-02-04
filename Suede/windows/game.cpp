@@ -24,12 +24,12 @@
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-#define ROOM
+//#define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
-//#define MAN
-//#define PARTICLE_SYSTEM
+#define MAN
+#define PARTICLE_SYSTEM
 #define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
@@ -201,12 +201,12 @@ void Game::createScene() {
 
 	Renderer renderer = NewMeshRenderer();
 	Material fontMaterial = dsp_cast<Material>(font->GetMaterial()->Clone());
-	fontMaterial->SetVector4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
+	fontMaterial->SetColor4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
 
 	/*
 	Renderer renderer2 = NewMeshRenderer();
 	Material fontMaterial2 = dsp_cast<Material>(font->GetMaterial()->Clone());
-	fontMaterial2->SetVector4(Variables::mainColor, glm::vec4(1, 1, 0, 1));
+	fontMaterial2->SetColor(Variables::mainColor, glm::vec4(1, 1, 0, 1));
 	*/
 
 	renderer->AddMaterial(fontMaterial);

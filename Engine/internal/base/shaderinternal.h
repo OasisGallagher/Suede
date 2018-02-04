@@ -14,7 +14,7 @@ public:
 	~Pass();
 
 public:
-	bool Initialize(const Semantics::Pass& pass, const std::string& directory);
+	bool Initialize(std::vector<Property*>& properties, const Semantics::Pass& pass, const std::string& directory);
 	bool SetProperty(const std::string& name, const void* data);
 
 	const std::string& GetName() const { return name_; }
@@ -52,7 +52,11 @@ private:
 	void UpdateFragmentAttributes();
 
 	void AddAllUniforms();
+	void AddAllUniformProperties(std::vector<Property*>& properties);
+
 	void AddUniform(const char* name, GLenum type, GLuint location, GLint size);
+	void AddUniformProperty(std::vector<Property*>& properties, const std::string& name, VariantType type);
+
 	void SetUniform(Uniform* uniform, const void* data);
 	void SetUniform(GLuint location, VariantType type, uint size, const void* data);
 
@@ -87,7 +91,7 @@ public:
 	~SubShader();
 
 public:
-	bool Initialize(const Semantics::SubShader& config, const std::string& path);
+	bool Initialize(std::vector<Property*>& properties, const Semantics::SubShader& config, const std::string& path);
 
 	void Bind(uint pass);
 	void Unbind();
@@ -134,17 +138,19 @@ public:
 	virtual int GetPassIndex(uint ssi, const std::string& name) const;
 
 	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
-	virtual void GetProperties(std::vector<Property>& properties);
+	virtual void GetProperties(std::vector<const Property*>& properties);
 	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 
 private:
-	void ParseProperties(std::vector<Property>& properties);
-	void ParseSubShaders(std::vector<Semantics::SubShader>& subShaders, const std::string& path);
+	void ReleaseProperties();
+	void LoadProperties(std::vector<Property*>& properties);
+	void ParseSubShaders(std::vector<Property*>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:
 	std::string path_;
 	
-	std::vector<Property> properties_;
+	uint propertyCount_;
+	Property** properties_;
 
 	SubShader* subShaders_;
 	uint subShaderCount_;

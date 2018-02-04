@@ -22,8 +22,8 @@ public:
 		return cont_.find(key) != cont_.end();
 	}
 
-	bool get(const key_type& key, value_type& value) {
-		iterator ite = cont_.find(key);
+	bool get(const key_type& key, value_type& value) const {
+		const_iterator ite = cont_.find(key);
 		if (ite == cont_.end()) {
 			return false;
 		}

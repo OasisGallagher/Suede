@@ -135,6 +135,15 @@
     <ClCompile Include="windows\childwindow.cpp">
       <Filter>windows\src</Filter>
     </ClCompile>
+    <ClCompile Include="windows\labeltexture.cpp">
+      <Filter>windows\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_labeltexture.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_labeltexture.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -159,6 +168,9 @@
       <Filter>windows\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\inspector.h">
+      <Filter>windows\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\labeltexture.h">
       <Filter>windows\include</Filter>
     </CustomBuild>
   </ItemGroup>

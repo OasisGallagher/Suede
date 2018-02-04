@@ -1,5 +1,7 @@
 #pragma once
 #define VARIABLE_PREFIX					"c_"
+#define VARIABLE_PREFIX_LENGTH			2
+
 #define VARIABLE_NAME(name)				(VARIABLE_PREFIX #name)
 #define DEFINE_VARIABLE(name)			static const char* name = VARIABLE_NAME(name)
 

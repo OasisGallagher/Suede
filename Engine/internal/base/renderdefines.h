@@ -7,3 +7,5 @@
 #define GLSL_TAG_INCLUDE	"include"
 
 #define GLSL_MAX_PASSES		8
+
+#define UNNAMED_MATERIAL	"UnnamedMaterial"

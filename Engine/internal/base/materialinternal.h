@@ -12,6 +12,9 @@ public:
 	~MaterialInternal();
 
 public:
+	virtual void SetName(const std::string& value) { name_ = value; }
+	virtual const std::string& GetName() const { return name_; }
+
 	virtual Object Clone();
 	virtual void SetShader(Shader value);
 
@@ -39,6 +42,8 @@ public:
 	virtual void SetMatrix4(const std::string& name, const glm::mat4& value);
 	virtual void SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count);
 	virtual void SetVector3(const std::string& name, const glm::vec3& value);
+	virtual void SetColor3(const std::string& name, const glm::vec3& value);
+	virtual void SetColor4(const std::string& name, const glm::vec4& value);
 	virtual void SetVector4(const std::string& name, const glm::vec4& value);
 
 	virtual int GetInt(const std::string& name);
@@ -46,9 +51,11 @@ public:
 	virtual Texture GetTexture(const std::string& name);
 	virtual glm::mat4 GetMatrix4(const std::string& name);
 	virtual glm::vec3 GetVector3(const std::string& name);
+	virtual glm::vec3 GetColor3(const std::string& name);
+	virtual glm::vec4 GetColor4(const std::string& name);
 	virtual glm::vec4 GetVector4(const std::string& name);
 
-	virtual void GetProperties(std::vector<Property>& properties) const;
+	virtual void GetProperties(std::vector<const Property*>& properties) const;
 
 private:
 	void BindProperties(uint pass);
@@ -64,6 +71,7 @@ private:
 	int pass_;
 	Shader shader_;
 	uint passEnabled_;
-	typedef PtrMap<std::string, Variant> PropertyContainer;
+	std::string name_;
+	typedef PtrMap<std::string, Property> PropertyContainer;
 	PropertyContainer properties_;
 };
