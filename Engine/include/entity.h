@@ -5,10 +5,10 @@
 #include "renderer.h"
 #include "animation.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(Sprite);
-SUEDE_DECLARE_OBJECT_CREATER(Sprite);
+SUEDE_DEFINE_OBJECT_POINTER(Entity);
+SUEDE_DECLARE_OBJECT_CREATER(Entity);
 
-class SUEDE_API ISprite : virtual public IObject {
+class SUEDE_API IEntity : virtual public IObject {
 public:
 	virtual bool GetActive() const = 0;
 
@@ -21,17 +21,17 @@ public:
 	virtual std::string GetName() const = 0;
 	virtual void SetName(const std::string& value) = 0;
 
-	virtual void SetParent(Sprite value) = 0;
-	virtual Sprite GetParent() const = 0;
+	virtual void SetParent(Entity value) = 0;
+	virtual Entity GetParent() const = 0;
 
-	virtual Sprite FindChild(const std::string& path) = 0;
+	virtual Entity FindChild(const std::string& path) = 0;
 
-	virtual void AddChild(Sprite child) = 0;
-	virtual void RemoveChild(Sprite child) = 0;
+	virtual void AddChild(Entity child) = 0;
+	virtual void RemoveChild(Entity child) = 0;
 	virtual void RemoveChildAt(uint index) = 0;
 
 	virtual int GetChildCount() = 0;
-	virtual Sprite GetChildAt(int i) = 0;
+	virtual Entity GetChildAt(int i) = 0;
 
 	virtual void SetScale(const glm::vec3& value) = 0;
 	virtual void SetPosition(const glm::vec3& value) = 0;

@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "world.h"
-#include "sprite.h"
+#include "entity.h"
 #include "childwindow.h"
 
 class QLineEdit;
@@ -34,7 +34,7 @@ private slots:
 
 	void onTagChanged(int index);
 	void onActiveChanged(int state);
-	void onSelectionChanged(const QList<Sprite>& selected, const QList<Sprite>& deselected);
+	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 	void onTransformChanged();
 	void onResetButtonClicked();
 
@@ -52,7 +52,7 @@ private:
 
 	void shrinkListWidget(QListWidget* w);
 
-	void onSpriteTransformChanged(SpriteTransformChangedEvent* e);
+	void onEntityTransformChanged(EntityTransformChangedEvent* e);
 
 	glm::vec3 readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z);
 	void writeTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3);
@@ -68,6 +68,6 @@ private:
 	QWidget* drawVec4Field(uint index, const QString& name, const glm::vec4& value);
 
 private:
-	Sprite target_;
+	Entity target_;
 	QList<QWidget*> groups_;
 };

@@ -2,14 +2,14 @@
 
 #include <glm/glm.hpp>
 
-#include "sprite.h"
+#include "entity.h"
 
 enum LightImportance {
 	LightImportanceNotImportant,
 	LightImportanceImportant,
 };
 
-class ILight : virtual public ISprite {
+class ILight : virtual public IEntity {
 public:
 	virtual void SetImportance(LightImportance value) = 0;
 	virtual LightImportance GetImportance() = 0;

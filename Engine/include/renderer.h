@@ -10,11 +10,11 @@ enum RenderQueue {
 	RenderQueueTransparent = 4000,
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Sprite);
+SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
 class SUEDE_API IRenderer : virtual public IObject {
 public:
-	virtual void RenderSprite(Sprite sprite) = 0;
+	virtual void RenderEntity(Entity entity) = 0;
 	virtual void RenderMesh(Mesh mesh, Material material) = 0;
 	
 	virtual void AddMaterial(Material material) = 0;

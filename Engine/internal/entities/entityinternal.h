@@ -2,15 +2,15 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "mesh.h"
-#include "sprite.h"
+#include "entity.h"
 #include "animation.h"
 #include "internal/base/objectinternal.h"
 
-class SpriteInternal : virtual public ISprite, public ObjectInternal {
-	DEFINE_FACTORY_METHOD(Sprite)
+class EntityInternal : virtual public IEntity, public ObjectInternal {
+	DEFINE_FACTORY_METHOD(Entity)
 
 public:
-	SpriteInternal();
+	EntityInternal();
 
 public:
 	virtual bool GetActive() const;
@@ -24,17 +24,17 @@ public:
 	virtual std::string GetName() const { return name_; }
 	virtual void SetName(const std::string& value);
 
-	virtual void AddChild(Sprite child);
-	virtual void RemoveChild(Sprite child);
+	virtual void AddChild(Entity child);
+	virtual void RemoveChild(Entity child);
 	virtual void RemoveChildAt(uint index);
 
-	virtual void SetParent(Sprite value);
-	virtual Sprite GetParent() const { return parent_.lock(); }
+	virtual void SetParent(Entity value);
+	virtual Entity GetParent() const { return parent_.lock(); }
 
-	virtual Sprite FindChild(const std::string& path);
+	virtual Entity FindChild(const std::string& path);
 
 	virtual int GetChildCount() { return (int)children_.size(); }
-	virtual Sprite GetChildAt(int i) { return children_[i]; }
+	virtual Entity GetChildAt(int i) { return children_[i]; }
 
 public:
 	virtual void Update();
@@ -79,7 +79,7 @@ public:
 	virtual Renderer GetRenderer() { return renderer_; }
 
 protected:
-	SpriteInternal(ObjectType spriteType);
+	EntityInternal(ObjectType entityType);
 
 private:
 	enum {
@@ -104,8 +104,8 @@ private:
 	void DirtyChildrenPositions();
 	void DirtyChildrenRotationsAndEulerAngles();
 
-	Sprite FindDirectChild(const std::string& name);
-	const char* SpriteTypeToString(ObjectType type);
+	Entity FindDirectChild(const std::string& name);
+	const char* EntityTypeToString(ObjectType type);
 
 	glm::mat4 TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s);
 
@@ -119,9 +119,9 @@ private:
 	Renderer renderer_;
 	Animation animation_;
 
-	std::weak_ptr<Sprite::element_type> parent_;
+	std::weak_ptr<Entity::element_type> parent_;
 
-	std::vector<Sprite> children_;
+	std::vector<Entity> children_;
 	int dirtyFlag_;
 
 	struct Transform {

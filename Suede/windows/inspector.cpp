@@ -54,8 +54,8 @@ void Inspector::init(Ui::Suede* ui) {
 
 	WorldInstance()->AddEventListener(this);
 
-	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Sprite>&, const QList<Sprite>&)),
-		this, SLOT(onSelectionChanged(const QList<Sprite>&, const QList<Sprite>&)));
+	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
+		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
 
 	showView(false);
 
@@ -70,8 +70,8 @@ void Inspector::init(Ui::Suede* ui) {
 
 void Inspector::OnWorldEvent(const WorldEventBase* e) {
 	switch (e->GetEventType()) {
-		case WorldEventTypeSpriteTransformChanged:
-			onSpriteTransformChanged((SpriteTransformChangedEvent*)e);
+		case WorldEventTypeEntityTransformChanged:
+			onEntityTransformChanged((EntityTransformChangedEvent*)e);
 			break;
 	}
 }
@@ -359,7 +359,7 @@ void Inspector::onActiveChanged(int state) {
 	target_->SetActiveSelf(!!state);
 }
 
-void Inspector::onSelectionChanged(const QList<Sprite>& selected, const QList<Sprite>& deselected) {
+void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
 	if (!selected.empty()) {
 		target_ = selected.front();
 		reload();
@@ -549,8 +549,8 @@ void Inspector::shrinkListWidget(QListWidget* w) {
 	w->setFixedHeight(height + 4);
 }
 
-void Inspector::onSpriteTransformChanged(SpriteTransformChangedEvent* e) {
-	if (e->sprite == target_ && Math::Highword(e->prs) == 0) {
+void Inspector::onEntityTransformChanged(EntityTransformChangedEvent* e) {
+	if (e->entity == target_ && Math::Highword(e->prs) == 0) {
 		reloadTransform();
 	}
 }

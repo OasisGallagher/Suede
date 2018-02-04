@@ -42,7 +42,7 @@ glm::vec3 CameraController::calculateArcBallVector(const QPoint& pos) {
 
 void CameraController::onMouseMove(const QPoint& pos) {
 	if (lpressed_) {
-		rotateAroundSprite(pos, lpos_);
+		rotateAroundEntity(pos, lpos_);
 	}
 
 	if (mpressed_) {
@@ -104,13 +104,13 @@ void CameraController::moveCamera(const QPoint& mousePos, QPoint& oldPos) {
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }
 
-extern uint roomSpriteID;
+extern uint roomEntityID;
 
 #include <QDebug>
 #include "world.h"
 
-void CameraController::rotateAroundSprite(const QPoint& mousePos, QPoint& oldPos) {
-	Sprite selected = WorldInstance()->GetSprite(roomSpriteID);
+void CameraController::rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos) {
+	Entity selected = WorldInstance()->GetEntity(roomEntityID);
 
 	if (!selected || selected->GetPosition() == camera_->GetPosition()) {
 		return;

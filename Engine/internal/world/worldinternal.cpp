@@ -2,7 +2,7 @@
 #include "tools/math2.h"
 #include "worldinternal.h"
 #include "internal/file/assetimporter.h"
-#include "internal/sprites/spriteinternal.h"
+#include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
 
 World& WorldInstance() {
@@ -32,18 +32,18 @@ bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera&
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
-	, root_(Factory::Create<SpriteInternal>()) {
+	, root_(Factory::Create<EntityInternal>()) {
 }
 
 Object WorldInternal::Create(ObjectType type) {
 	Object object = Factory::Create(type);
-	if (type >= ObjectTypeSprite) {
-		Sprite sprite = dsp_cast<Sprite>(object);
-		sprite->SetParent(GetRootSprite());
-		sprites_.insert(std::make_pair(sprite->GetInstanceID(), sprite));
+	if (type >= ObjectTypeEntity) {
+		Entity entity = dsp_cast<Entity>(object);
+		entity->SetParent(GetRootEntity());
+		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 
-		SpriteCreatedEvent e;
-		e.sprite = sprite;
+		EntityCreatedEvent e;
+		e.entity = entity;
 		FireEvent(&e);
 	}
 
@@ -58,43 +58,43 @@ Object WorldInternal::Create(ObjectType type) {
 	return object;
 }
 
-Sprite WorldInternal::Import(const std::string& path) {
+Entity WorldInternal::Import(const std::string& path) {
 	AssetImporter importer;
 	return importer.Import(path);
 }
 
-Sprite WorldInternal::GetSprite(uint id) {
-	SpriteContainer::iterator ite = sprites_.find(id);
-	if (ite == sprites_.end()) { return nullptr; }
+Entity WorldInternal::GetEntity(uint id) {
+	EntityContainer::iterator ite = entities_.find(id);
+	if (ite == entities_.end()) { return nullptr; }
 	return ite->second;
 }
 
-bool WorldInternal::GetSprites(ObjectType type, std::vector<Sprite>& sprites) {
-	if (type < ObjectTypeSprite) {
-		Debug::LogError("invalid sprite type");
+bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) {
+	if (type < ObjectTypeEntity) {
+		Debug::LogError("invalid entity type");
 		return false;
 	}
 
-	if (type == ObjectTypeSprite) {
-		for (SpriteContainer::iterator ite = sprites_.begin(); ite != sprites_.end(); ++ite) {
-			sprites.push_back(ite->second);
+	if (type == ObjectTypeEntity) {
+		for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+			entities.push_back(ite->second);
 		}
 	}
 	else if (type == ObjectTypeCamera) {
-		sprites.assign(cameras_.begin(), cameras_.end());
+		entities.assign(cameras_.begin(), cameras_.end());
 	}
 	else if (type == ObjectTypeLights) {
-		sprites.assign(lights_.begin(), lights_.end());
+		entities.assign(lights_.begin(), lights_.end());
 	}
 	else {
-		for (SpriteContainer::iterator ite = sprites_.begin(); ite != sprites_.end(); ++ite) {
+		for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			if (ite->second->GetType() == type) {
-				sprites.push_back(ite->second);
+				entities.push_back(ite->second);
 			}
 		}
 	}
 
-	return !sprites.empty();
+	return !entities.empty();
 }
 
 void WorldInternal::AddEventListener(WorldEventListener* listener) {
@@ -122,7 +122,7 @@ void WorldInternal::FireEvent(const WorldEventBase* e) {
 }
 
 void WorldInternal::Update() {
-	for (SpriteContainer::iterator ite = sprites_.begin(); ite != sprites_.end(); ++ite) {
+	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 		if (ite->second->GetActive()) {
 			ite->second->Update();
 		}

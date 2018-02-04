@@ -1,9 +1,9 @@
 #include "light.h"
-#include "internal/sprites/spriteinternal.h"
+#include "internal/entities/entityinternal.h"
 
-class LightInternal : virtual public ILight, public SpriteInternal {
+class LightInternal : virtual public ILight, public EntityInternal {
 public:
-	LightInternal(ObjectType type) : SpriteInternal(type) {
+	LightInternal(ObjectType type) : EntityInternal(type) {
 	}
 
 	virtual void SetImportance(LightImportance value) { importance_ = value; }

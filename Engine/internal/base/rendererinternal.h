@@ -13,7 +13,7 @@ public:
 	~RendererInternal();
 
 public:
-	virtual void RenderSprite(Sprite sprite);
+	virtual void RenderEntity(Entity entity);
 	virtual void RenderMesh(Mesh mesh, Material material);
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
@@ -27,7 +27,7 @@ public:
 	virtual void SetRenderQueue(uint value) { queue_ = value; }
 
 protected:
-	virtual void UpdateMaterial(Sprite sprite);
+	virtual void UpdateMaterial(Entity entity);
 	virtual void DrawCall(SubMesh subMesh, MeshTopology topology);
 
 protected:
@@ -58,7 +58,7 @@ public:
 	SkinnedMeshRendererInternal() : RendererInternal(ObjectTypeSkinnedMeshRenderer) {}
 
 public:
-	virtual void UpdateMaterial(Sprite sprite);
+	virtual void UpdateMaterial(Entity entity);
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 
 private:
@@ -72,7 +72,7 @@ public:
 	ParticleRendererInternal();
 
 public:
-	virtual void RenderSprite(Sprite sprite);
+	virtual void RenderEntity(Entity entity);
 	virtual void AddMaterial(Material material);
 
 protected:

@@ -108,7 +108,7 @@ void Game::timerEvent(QTimerEvent *event) {
 	update();
 }
 
-uint roomSpriteID;
+uint roomEntityID;
 
 void Game::createScene() {
 	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
@@ -181,12 +181,12 @@ void Game::createScene() {
 #endif
 
 #if defined(FONT)
-	Sprite fsprite = NewSprite();
-	fsprite->SetPosition(glm::vec3(-10, 20, -20));
-	fsprite->SetEulerAngles(glm::vec3(0, 0, 0));
+	Entity fentity = NewEntity();
+	fentity->SetPosition(glm::vec3(-10, 20, -20));
+	fentity->SetEulerAngles(glm::vec3(0, 0, 0));
 
-	//Sprite fsprite2 = NewSprite();
-	//fsprite2->SetPosition(glm::vec3(-10, 30, -20));
+	//Entity fentity2 = NewEntity();
+	//fentity2->SetPosition(glm::vec3(-10, 30, -20));
 
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
@@ -196,8 +196,8 @@ void Game::createScene() {
 	mesh->SetText("ab");
 	
 	mesh->SetFontSize(12);
-	fsprite->SetMesh(mesh);
-	//fsprite2->SetMesh(mesh);
+	fentity->SetMesh(mesh);
+	//fentity2->SetMesh(mesh);
 
 	Renderer renderer = NewMeshRenderer();
 	Material fontMaterial = dsp_cast<Material>(font->GetMaterial()->Clone());
@@ -212,19 +212,19 @@ void Game::createScene() {
 	renderer->AddMaterial(fontMaterial);
 	//renderer2->AddMaterial(fontMaterial2);
 
-	fsprite->SetRenderer(renderer);
-	//fsprite2->SetRenderer(renderer2);
+	fentity->SetRenderer(renderer);
+	//fentity2->SetRenderer(renderer2);
 #endif
 
 #ifdef ROOM
- 	Sprite room = WorldInstance()->Import("models/room_thickwalls.obj");
+ 	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
  	room->SetPosition(glm::vec3(0, 25, -65));
  	room->SetEulerAngles(glm::vec3(30, 60, 0));
- 	roomSpriteID = room->GetInstanceID();
+ 	roomEntityID = room->GetInstanceID();
 #endif
 
 #ifdef BEAR
-	Sprite bear = WorldInstance()->Import("models/teddy_bear.fbx");
+	Entity bear = WorldInstance()->Import("models/teddy_bear.fbx");
 	bear->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -235,11 +235,11 @@ void Game::createScene() {
 #endif
 
 #ifdef MAN
-	Sprite man = WorldInstance()->Import("models/boblampclean.md5mesh");
+	Entity man = WorldInstance()->Import("models/boblampclean.md5mesh");
 	man->SetPosition(glm::vec3(0, 0, -70));
 	man->SetEulerAngles(glm::vec3(270, 180, 180));
 	if (man) {
-		//sprite->SetParent(camera);
+		//entity->SetParent(camera);
 
 		Animation animation = man->GetAnimation();
 		if (animation) {

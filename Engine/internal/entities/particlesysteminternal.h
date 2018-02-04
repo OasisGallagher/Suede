@@ -4,7 +4,7 @@
 #include "tools/math2.h"
 #include "particlesystem.h"
 #include "containers/freelist.h"
-#include "internal/sprites/spriteinternal.h"
+#include "internal/entities/entityinternal.h"
 
 class ParticleEmitterInternal : virtual public IParticleEmitter, public ObjectInternal {
 public:
@@ -92,7 +92,7 @@ private:
 	glm::vec3 randomForce_;
 };
 
-class ParticleSystemInternal : public IParticleSystem, public SpriteInternal {
+class ParticleSystemInternal : public IParticleSystem, public EntityInternal {
 	DEFINE_FACTORY_METHOD(ParticleSystem)
 
 public:

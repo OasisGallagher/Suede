@@ -1,5 +1,5 @@
 #pragma once
-#include "sprite.h"
+#include "entity.h"
 
 struct ParticleBurst {
 	float time;
@@ -69,7 +69,7 @@ public:
 	virtual void Update(Particle& particle) = 0;
 };
 
-class SUEDE_API IParticleSystem : virtual public ISprite {
+class SUEDE_API IParticleSystem : virtual public IEntity {
 public:
 	virtual void SetDuration(float value) = 0;
 	virtual float GetDuration() = 0;

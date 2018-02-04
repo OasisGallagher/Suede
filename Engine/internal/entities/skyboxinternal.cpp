@@ -7,14 +7,14 @@
 #include "internal/file/assetimporter.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
-#include "internal/sprites/skyboxinternal.h"
+#include "internal/entities/skyboxinternal.h"
 
-SkyboxInternal::SkyboxInternal() : SpriteInternal(ObjectTypeSkybox) {
+SkyboxInternal::SkyboxInternal() : EntityInternal(ObjectTypeSkybox) {
 }
 
 bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 	AssetImporter importer;
-	importer.ImportTo(dsp_cast<Sprite>(shared_from_this()), "buildin/models/box.obj");
+	importer.ImportTo(dsp_cast<Entity>(shared_from_this()), "buildin/models/box.obj");
 
 	TextureCube texture = NewTextureCube();
 	if (!texture->Load(textures)) {

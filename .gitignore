@@ -1,0 +1,11 @@
+/.vs/Suede/v14/*.suo
+Debug
+/*.opendb
+/Suede.VC.db
+/Suede/GeneratedFiles
+/Engine/lib/GLEF.lib
+/Engine/lib/Shared.lib
+/Suede/bin/Engine.dll
+/Suede/bin/GLEF.dll
+/Suede/bin/Shared.dll
+/Suede/*.user

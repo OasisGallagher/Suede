@@ -15,7 +15,7 @@ static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 #define MAX_PARTICLE_COUNT	1000
 
 ParticleSystemInternal::ParticleSystemInternal()
-	: SpriteInternal(ObjectTypeParticleSystem), duration_(3)
+	: EntityInternal(ObjectTypeParticleSystem), duration_(3)
 	, looping_(false), startDelay_(0), time_(0), maxParticles_(MAX_PARTICLE_COUNT)
 	, particles_(MAX_PARTICLE_COUNT) {
 	InitializeMesh();
@@ -44,8 +44,8 @@ void ParticleSystemInternal::Update() {
 }
 
 void ParticleSystemInternal::SortBuffers() {
-	std::vector<Sprite> cameras;
-	if (WorldInstance()->GetSprites(ObjectTypeCamera, cameras)) {
+	std::vector<Entity> cameras;
+	if (WorldInstance()->GetEntities(ObjectTypeCamera, cameras)) {
 		SortParticlesByDepth(cameras.front()->GetPosition());
 	}
 }

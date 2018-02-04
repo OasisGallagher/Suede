@@ -38,75 +38,75 @@ void Hierarchy::init(Ui::Suede* ui) {
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
-Sprite Hierarchy::selectedSprite() {
+Entity Hierarchy::selectedEntity() {
 	QModelIndex index = ui_->tree->selectionModel()->currentIndex();
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return WorldInstance()->GetSprite(id);
+	return WorldInstance()->GetEntity(id);
 }
 
-bool Hierarchy::selectedSprites(QList<Sprite>& sprites) {
+bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
 
 	foreach (QModelIndex index, indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		sprites.push_back(WorldInstance()->GetSprite(id));
+		entities.push_back(WorldInstance()->GetEntity(id));
 	}
 
-	return !sprites.empty();
+	return !entities.empty();
 }
 
 void Hierarchy::OnWorldEvent(const WorldEventBase* e) {
 	switch (e->GetEventType()) {
-		case WorldEventTypeSpriteTagChanged:
-			onSpriteTagChanged(((SpriteEvent*)e)->sprite);
+		case WorldEventTypeEntityTagChanged:
+			onEntityTagChanged(((EntityEvent*)e)->entity);
 			break;
-		case WorldEventTypeSpriteNameChanged:
-			onSpriteNameChanged(((SpriteEvent*)e)->sprite);
+		case WorldEventTypeEntityNameChanged:
+			onEntityNameChanged(((EntityEvent*)e)->entity);
 			break;
-		case WorldEventTypeSpriteParentChanged:
-			onSpriteParentChanged(((SpriteEvent*)e)->sprite);
+		case WorldEventTypeEntityParentChanged:
+			onEntityParentChanged(((EntityEvent*)e)->entity);
 			break;
 	}
 }
 
-void Hierarchy::onSpriteTagChanged(Sprite sprite) {
+void Hierarchy::onEntityTagChanged(Entity entity) {
 }
 
-void Hierarchy::onSpriteNameChanged(Sprite sprite) {
-	QStandardItem* item = items_.value(sprite->GetInstanceID());
+void Hierarchy::onEntityNameChanged(Entity entity) {
+	QStandardItem* item = items_.value(entity->GetInstanceID());
 	if (item != nullptr) {
-		item->setText(sprite->GetName().c_str());
+		item->setText(entity->GetName().c_str());
 	}
 }
 
-void Hierarchy::onSpriteParentChanged(Sprite sprite) {
-	appendChildItem(sprite);
+void Hierarchy::onEntityParentChanged(Entity entity) {
+	appendChildItem(entity);
 }
 
 void Hierarchy::reload() {
 	items_.clear();
 	model_->setRowCount(0);
 
-	updateRecursively(WorldInstance()->GetRootSprite(), nullptr);
+	updateRecursively(WorldInstance()->GetRootEntity(), nullptr);
 }
 
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
-	QList<Sprite> ss;
-	selectionToSprites(ss, selected);
+	QList<Entity> ss;
+	selectionToEntities(ss, selected);
 	enableItemsOutline(ss, true);
 
-	QList<Sprite> ds;
-	selectionToSprites(ds, deselected);
+	QList<Entity> ds;
+	selectionToEntities(ds, deselected);
 	enableItemsOutline(ds, false);
 
 	emit selectionChanged(ss, ds);
 }
 
-void Hierarchy::updateRecursively(Sprite pp, QStandardItem* pi) {
+void Hierarchy::updateRecursively(Entity pp, QStandardItem* pi) {
 	for (int i = 0; i < pp->GetChildCount(); ++i) {
-		Sprite child = pp->GetChildAt(i);
+		Entity child = pp->GetChildAt(i);
 		if (child->GetType() == ObjectTypeSkybox) {
 			continue;
 		}
@@ -116,15 +116,15 @@ void Hierarchy::updateRecursively(Sprite pp, QStandardItem* pi) {
 	}
 }
 
-QStandardItem* Hierarchy::appendItem(Sprite sprite, QStandardItem* pi) {
-	QStandardItem* item = items_.value(sprite->GetInstanceID());
+QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
+	QStandardItem* item = items_.value(entity->GetInstanceID());
 	if (item != nullptr) {
-		items_.remove(sprite->GetInstanceID());
+		items_.remove(entity->GetInstanceID());
 		model_->removeRow(item->row());
 	}
 
-	item = new QStandardItem(sprite->GetName().c_str());
-	item->setData(sprite->GetInstanceID());
+	item = new QStandardItem(entity->GetName().c_str());
+	item->setData(entity->GetInstanceID());
 	
 	if (pi != nullptr) {
 		pi->appendRow(item);
@@ -133,7 +133,7 @@ QStandardItem* Hierarchy::appendItem(Sprite sprite, QStandardItem* pi) {
 		model_->appendRow(item);
 	}
 
-	items_[sprite->GetInstanceID()] = item;
+	items_[entity->GetInstanceID()] = item;
 	return item;
 }
 
@@ -149,26 +149,26 @@ void Hierarchy::removeItem(QStandardItem* item) {
 	model_->removeRow(item->row());
 }
 
-void Hierarchy::appendChildItem(Sprite sprite) {
-	Sprite parent = sprite->GetParent();
+void Hierarchy::appendChildItem(Entity entity) {
+	Entity parent = entity->GetParent();
 	Q_ASSERT(parent);
 
 	QStandardItem* pi = nullptr;
-	if (parent == WorldInstance()->GetRootSprite() || (pi = items_.value(parent->GetInstanceID())) != nullptr) {
-		appendItem(sprite, pi);
+	if (parent == WorldInstance()->GetRootEntity() || (pi = items_.value(parent->GetInstanceID())) != nullptr) {
+		appendItem(entity, pi);
 	}
-	else if (pi == nullptr && (pi = items_.value(sprite->GetInstanceID())) != nullptr) {
+	else if (pi == nullptr && (pi = items_.value(entity->GetInstanceID())) != nullptr) {
 		removeItem(pi);
 	}
 }
 
-void Hierarchy::enableSpriteOutline(Sprite sprite, bool enable) {
-	if (!sprite || !sprite->GetRenderer()) {
+void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
+	if (!entity || !entity->GetRenderer()) {
 		return;
 	}
 
-	for (int i = 0; i < sprite->GetRenderer()->GetMaterialCount(); ++i) {
-		Material material = sprite->GetRenderer()->GetMaterial(i);
+	for (int i = 0; i < entity->GetRenderer()->GetMaterialCount(); ++i) {
+		Material material = entity->GetRenderer()->GetMaterial(i);
 		int outline = material->GetPassIndex("Outline");
 		if (outline < 0) { continue; }
 
@@ -181,19 +181,19 @@ void Hierarchy::enableSpriteOutline(Sprite sprite, bool enable) {
 	}
 }
 
-void Hierarchy::selectionToSprites(QList<Sprite>& sprites, const QItemSelection& items) {
+void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelection& items) {
 	foreach(QItemSelectionRange r, items) {
 		foreach(QModelIndex index, r.indexes()) {
 			uint id = model_->itemFromIndex(index)->data().toUInt();
-			Sprite sprite = WorldInstance()->GetSprite(id);
-			Q_ASSERT(sprite);
-			sprites.push_back(sprite);
+			Entity entity = WorldInstance()->GetEntity(id);
+			Q_ASSERT(entity);
+			entities.push_back(entity);
 		}
 	}
 }
 
-void Hierarchy::enableItemsOutline(const QList<Sprite>& sprites, bool enable) {
-	foreach (Sprite sprite, sprites) {
-		enableSpriteOutline(sprite, enable);
+void Hierarchy::enableItemsOutline(const QList<Entity>& entities, bool enable) {
+	foreach (Entity entity, entities) {
+		enableEntityOutline(entity, enable);
 	}
 }

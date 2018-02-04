@@ -18,8 +18,8 @@ namespace Assimp {
 
 class AssetImporter {
 public:
-	Sprite Import(const std::string& path);
-	bool ImportTo(Sprite sprite, const std::string& path);
+	Entity Import(const std::string& path);
+	bool ImportTo(Entity entity, const std::string& path);
 
 public:
 	Animation GetAnimation() { return animation_; }
@@ -29,12 +29,12 @@ private:
 	bool Initialize(const std::string& path, Assimp::Importer &importer);
 	void CombineAttribute(MeshAttribute& dest, const MeshAttribute& src);
 
-	Sprite ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials);
+	Entity ReadHierarchy(Entity parent, aiNode* node, MeshAttribute* attributes, Material* materials);
 
-	void ReadNodeTo(Sprite sprite, aiNode* node, MeshAttribute* attribute, Material* materials);
-	void ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials);
+	void ReadNodeTo(Entity entity, aiNode* node, MeshAttribute* attribute, Material* materials);
+	void ReadComponents(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials);
 
-	void ReadChildren(Sprite sprite, aiNode* node, MeshAttribute* attribute, Material* materials);
+	void ReadChildren(Entity entity, aiNode* node, MeshAttribute* attribute, Material* materials);
 
 	bool ReadAttributes(MeshAttribute* attribute);
 	bool ReadAttribute(MeshAttribute& attribute, int index);

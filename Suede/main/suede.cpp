@@ -134,12 +134,12 @@ void Suede::aboutBox() {
 }
 
 void Suede::screenCapture() {
-	std::vector<Sprite> sprites;
-	if (!WorldInstance()->GetSprites(ObjectTypeCamera, sprites)) {
+	std::vector<Entity> entities;
+	if (!WorldInstance()->GetEntities(ObjectTypeCamera, entities)) {
 		return;
 	}
 
-	Camera camera = dsp_cast<Camera>(sprites.front());
+	Camera camera = dsp_cast<Camera>(entities.front());
 
 	Texture2D tex = camera->Capture();
 

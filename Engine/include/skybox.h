@@ -1,7 +1,7 @@
 #pragma once
-#include "sprite.h"
+#include "entity.h"
 
-class SUEDE_API ISkybox : virtual public ISprite {
+class SUEDE_API ISkybox : virtual public IEntity {
 public:
 	virtual bool Load(const std::string(&textures)[6]) = 0;
 };

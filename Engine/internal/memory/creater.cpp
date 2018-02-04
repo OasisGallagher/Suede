@@ -2,7 +2,7 @@
 #include "mesh.h"
 #include "light.h"
 #include "world.h"
-#include "sprite.h"
+#include "entity.h"
 #include "camera.h"
 #include "skybox.h"
 #include "shader.h"
@@ -40,7 +40,7 @@ DEFINE_OBJECT_CREATER(AnimationFrame)
 DEFINE_OBJECT_CREATER(ParticleAnimator)
 DEFINE_OBJECT_CREATER(SphereParticleEmitter)
 
-DEFINE_OBJECT_CREATER(Sprite)
+DEFINE_OBJECT_CREATER(Entity)
 DEFINE_OBJECT_CREATER(Camera)
 DEFINE_OBJECT_CREATER(Skybox)
 DEFINE_OBJECT_CREATER(SpotLight)

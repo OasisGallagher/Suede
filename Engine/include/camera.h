@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 
 #include "skybox.h"
-#include "sprite.h"
+#include "entity.h"
 
 enum ClearType {
 	ClearTypeColor,
@@ -21,7 +21,7 @@ enum DepthTextureMode {
 
 class ImageEffect;
 
-class SUEDE_API ICamera : virtual public ISprite {
+class SUEDE_API ICamera : virtual public IEntity {
 public:
 	virtual void SetDepth(int value) = 0;
 	virtual int GetDepth() = 0;

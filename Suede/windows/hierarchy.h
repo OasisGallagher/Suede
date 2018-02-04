@@ -6,7 +6,7 @@
 #include "childwindow.h"
 
 #include "world.h"
-#include "sprite.h"
+#include "entity.h"
 
 class QTreeView;
 class QStandardItem;
@@ -26,12 +26,12 @@ public:
 	virtual void init(Ui::Suede* ui);
 
 public:
-	Sprite selectedSprite();
-	bool selectedSprites(QList<Sprite>& sprites);
-	void updateRecursively(Sprite pp, QStandardItem* pi);
+	Entity selectedEntity();
+	bool selectedEntities(QList<Entity>& entities);
+	void updateRecursively(Entity pp, QStandardItem* pi);
 
 signals:
-	void selectionChanged(const QList<Sprite>& selected, const QList<Sprite>& deselected);
+	void selectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
 private:
 	virtual void OnWorldEvent(const WorldEventBase* e);
@@ -41,19 +41,19 @@ private slots:
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-	void appendChildItem(Sprite sprite);
-	QStandardItem* appendItem(Sprite child, QStandardItem* pi);
+	void appendChildItem(Entity entity);
+	QStandardItem* appendItem(Entity child, QStandardItem* pi);
 	void removeItem(QStandardItem* item);
 
-	void onSpriteTagChanged(Sprite sprite);
+	void onEntityTagChanged(Entity entity);
 
-	void onSpriteNameChanged(Sprite sprite);
-	void onSpriteParentChanged(Sprite sprite);
+	void onEntityNameChanged(Entity entity);
+	void onEntityParentChanged(Entity entity);
 
-	void enableSpriteOutline(Sprite sprite, bool enable);
-	void enableItemsOutline(const QList<Sprite>& sprites, bool enable);
+	void enableEntityOutline(Entity entity, bool enable);
+	void enableItemsOutline(const QList<Entity>& entities, bool enable);
 
-	void selectionToSprites(QList<Sprite>& sprites, const QItemSelection& items);
+	void selectionToEntities(QList<Entity>& entities, const QItemSelection& items);
 
 private:
 	QStandardItemModel* model_;

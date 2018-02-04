@@ -4,35 +4,35 @@
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "internal/world/worldinternal.h"
-#include "internal/sprites/spriteinternal.h"
+#include "internal/entities/entityinternal.h"
 
-SpriteInternal::SpriteInternal() : SpriteInternal(ObjectTypeSprite) {
+EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 }
 
-SpriteInternal::SpriteInternal(ObjectType spriteType)
-	: ObjectInternal(spriteType), dirtyFlag_(0), activeSelf_(true) {
-	if (spriteType < ObjectTypeSprite || spriteType >= ObjectTypeCount) {
-		Debug::LogError("invalid sprite type %d.", spriteType);
+EntityInternal::EntityInternal(ObjectType entityType)
+	: ObjectInternal(entityType), dirtyFlag_(0), activeSelf_(true) {
+	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
+		Debug::LogError("invalid entity type %d.", entityType);
 	}
 
-	name_ = SpriteTypeToString(GetType());
+	name_ = EntityTypeToString(GetType());
 }
 
-bool SpriteInternal::GetActive() const {
+bool EntityInternal::GetActive() const {
 	return activeSelf_ && GetParent()->GetActiveSelf();
 }
 
-void SpriteInternal::SetActiveSelf(bool value) {
+void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
 
-		SpriteActiveEvent e;
-		e.sprite = dsp_cast<Sprite>(shared_from_this());
+		EntityActiveEvent e;
+		e.entity = dsp_cast<Entity>(shared_from_this());
 		WorldInstance()->FireEvent(&e);
 	}
 }
 
-bool SpriteInternal::SetTag(const std::string& value) {
+bool EntityInternal::SetTag(const std::string& value) {
 	if (!TagManager::IsRegistered(value)) {
 		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
 		return false;
@@ -40,15 +40,15 @@ bool SpriteInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		SpriteTagChangedEvent e;
-		e.sprite = dsp_cast<Sprite>(shared_from_this());
+		EntityTagChangedEvent e;
+		e.entity = dsp_cast<Entity>(shared_from_this());
 		WorldInstance()->FireEvent(&e);
 	}
 
 	return true;
 }
 
-void SpriteInternal::SetName(const std::string& value) {
+void EntityInternal::SetName(const std::string& value) {
 	if (value.empty()) {
 		Debug::LogError("empty name.");
 		return;
@@ -57,58 +57,58 @@ void SpriteInternal::SetName(const std::string& value) {
 	if (name_ != value) {
 		name_ = value;
 
-		SpriteNameChangedEvent e;
-		e.sprite = dsp_cast<Sprite>(shared_from_this());
+		EntityNameChangedEvent e;
+		e.entity = dsp_cast<Entity>(shared_from_this());
 		WorldInstance()->FireEvent(&e);
 	}
 }
 
-void SpriteInternal::AddChild(Sprite child) {
+void EntityInternal::AddChild(Entity child) {
 	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
 		children_.push_back(child);
-		child->SetParent(dsp_cast<Sprite>(shared_from_this()));
+		child->SetParent(dsp_cast<Entity>(shared_from_this()));
 	}
 }
 
-void SpriteInternal::RemoveChild(Sprite child) {
-	std::vector<Sprite>::iterator pos = std::find(children_.begin(), children_.end(), child);
+void EntityInternal::RemoveChild(Entity child) {
+	std::vector<Entity>::iterator pos = std::find(children_.begin(), children_.end(), child);
 	if (pos != children_.end()) {
-		child->SetParent(WorldInstance()->GetRootSprite());
+		child->SetParent(WorldInstance()->GetRootEntity());
 		children_.erase(pos);
 	}
 }
 
-void SpriteInternal::RemoveChildAt(uint index) {
+void EntityInternal::RemoveChildAt(uint index) {
 	if (index >= children_.size()) {
 		Debug::LogError("index out of range.");
 		return;
 	}
 
-	Sprite child = children_[index];
-	child->SetParent(WorldInstance()->GetRootSprite());
+	Entity child = children_[index];
+	child->SetParent(WorldInstance()->GetRootEntity());
 	children_.erase(children_.begin() + index);
 }
 
-void SpriteInternal::SetParent(Sprite value) {
+void EntityInternal::SetParent(Entity value) {
 	if (value->GetInstanceID() == GetInstanceID()) {
 		Debug::LogError("parent can not be itself.");
 		return;
 	}
 
-	std::weak_ptr<Sprite::element_type> old = parent_;
+	std::weak_ptr<Entity::element_type> old = parent_;
 	// Save old parent.
-	Sprite sprite = old.lock();
-	if (sprite == value) { return; }
+	Entity entity = old.lock();
+	if (entity == value) { return; }
 
-	Sprite thisSp = dsp_cast<Sprite>(shared_from_this());
-	if (sprite) {
-		sprite->RemoveChild(thisSp);
+	Entity thisSp = dsp_cast<Entity>(shared_from_this());
+	if (entity) {
+		entity->RemoveChild(thisSp);
 	}
 
 	parent_ = value;
-	sprite = parent_.lock();
-	if (sprite) {
-		sprite->AddChild(thisSp);
+	entity = parent_.lock();
+	if (entity) {
+		entity->AddChild(thisSp);
 	}
 
 	// Clear dirty flags.
@@ -118,34 +118,34 @@ void SpriteInternal::SetParent(Sprite value) {
 
 	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
-	SpriteParentChangedEvent e;
-	e.sprite = thisSp;
+	EntityParentChangedEvent e;
+	e.entity = thisSp;
 	WorldInstance()->FireEvent(&e);
 }
 
-Sprite SpriteInternal::FindChild(const std::string& path) {
+Entity EntityInternal::FindChild(const std::string& path) {
 	const char* back = path.c_str(), *fwd = back;
 
-	SpriteInternal* current = this;
+	EntityInternal* current = this;
 	for (; (fwd = strchr(back, '/')) != nullptr; back = fwd + 1) {
-		Sprite child = current->FindDirectChild(std::string(back, fwd));
+		Entity child = current->FindDirectChild(std::string(back, fwd));
 		if (!child) {
 			return nullptr;
 		}
 
-		current = dynamic_cast<SpriteInternal*>(child.get());
+		current = dynamic_cast<EntityInternal*>(child.get());
 	}
 
 	return current->FindDirectChild(back);
 }
 
-void SpriteInternal::Update() {
+void EntityInternal::Update() {
 	if (animation_) {
 		animation_->Update();
 	}
 }
 
-void SpriteInternal::SetScale(const glm::vec3& value) {
+void EntityInternal::SetScale(const glm::vec3& value) {
 	ClearDirty(WorldScale);
 
 	if (world_.scale == value) { return; }
@@ -155,13 +155,13 @@ void SpriteInternal::SetScale(const glm::vec3& value) {
 
 	DirtyChildrenScales();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(2, 0);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-void SpriteInternal::SetPosition(const glm::vec3& value) {
+void EntityInternal::SetPosition(const glm::vec3& value) {
 	ClearDirty(WorldPosition);
 	if (world_.position == value) { return; }
 
@@ -170,13 +170,13 @@ void SpriteInternal::SetPosition(const glm::vec3& value) {
 
 	DirtyChildrenPositions();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(0, 0);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-void SpriteInternal::SetRotation(const glm::quat& value) {
+void EntityInternal::SetRotation(const glm::quat& value) {
 	ClearDirty(WorldRotation);
 
 	if (Math::Approximately(glm::dot(world_.rotation, value), 0)) { return; }
@@ -185,13 +185,13 @@ void SpriteInternal::SetRotation(const glm::quat& value) {
 	SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	DirtyChildrenRotationsAndEulerAngles();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(1, 0);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-void SpriteInternal::SetEulerAngles(const glm::vec3& value) {
+void EntityInternal::SetEulerAngles(const glm::vec3& value) {
 	ClearDirty(WorldEulerAngles);
 
 	if (world_.eulerAngles == value) { return; }
@@ -200,21 +200,21 @@ void SpriteInternal::SetEulerAngles(const glm::vec3& value) {
 	SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	DirtyChildrenRotationsAndEulerAngles();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(1, 0);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-glm::vec3 SpriteInternal::GetScale() {
+glm::vec3 EntityInternal::GetScale() {
 	if (IsDirty(WorldScale)) {
 		if (IsDirty(LocalScale)) {
 			Debug::LogError("invalid state");
 		}
 
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::vec3 scale = GetLocalScale();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			scale *= current->GetScale();
 		}
 
@@ -225,15 +225,15 @@ glm::vec3 SpriteInternal::GetScale() {
 	return world_.scale;
 }
 
-glm::vec3 SpriteInternal::GetPosition() {
+glm::vec3 EntityInternal::GetPosition() {
 	if (IsDirty(WorldPosition)) {
 		if (IsDirty(LocalPosition)) {
 			Debug::LogError("invalid state");
 		}
 
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::vec3 position = GetLocalPosition();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			position += current->GetPosition();
 		}
 
@@ -244,14 +244,14 @@ glm::vec3 SpriteInternal::GetPosition() {
 	return world_.position;
 }
 
-glm::quat SpriteInternal::GetRotation() {
+glm::quat EntityInternal::GetRotation() {
 	if (!IsDirty(WorldRotation)) { return world_.rotation; }
 
 	if (!IsDirty(WorldEulerAngles)) {
 		world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
 	}
 	else {
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::quat localRotation;
 		if (!IsDirty(LocalRotation)) {
 			localRotation = GetLocalRotation();
@@ -265,7 +265,7 @@ glm::quat SpriteInternal::GetRotation() {
 			ClearDirty(LocalRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			localRotation = current->GetRotation() * localRotation;
 		}
 
@@ -277,7 +277,7 @@ glm::quat SpriteInternal::GetRotation() {
 	return world_.rotation;
 }
 
-glm::vec3 SpriteInternal::GetEulerAngles() {
+glm::vec3 EntityInternal::GetEulerAngles() {
 	if (!IsDirty(WorldEulerAngles)) { return world_.eulerAngles; }
 
 	glm::quat worldRotation;
@@ -285,7 +285,7 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 		worldRotation = GetRotation();
 	}
 	else {
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::quat localRotation;
 		
 		if (!IsDirty(LocalRotation)) {
@@ -300,7 +300,7 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 			ClearDirty(LocalRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			localRotation = current->GetRotation() * localRotation;
 		}
 
@@ -315,7 +315,7 @@ glm::vec3 SpriteInternal::GetEulerAngles() {
 	return world_.eulerAngles;
 }
 
-void SpriteInternal::SetLocalScale(const glm::vec3& value) {
+void EntityInternal::SetLocalScale(const glm::vec3& value) {
 	ClearDirty(LocalScale);
 	if (local_.scale == value) { return; }
 
@@ -324,13 +324,13 @@ void SpriteInternal::SetLocalScale(const glm::vec3& value) {
 
 	DirtyChildrenScales();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(2, 1);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-void SpriteInternal::SetLocalPosition(const glm::vec3& value) {
+void EntityInternal::SetLocalPosition(const glm::vec3& value) {
 	ClearDirty(LocalPosition);
 	if (local_.position == value) { return; }
 
@@ -338,13 +338,13 @@ void SpriteInternal::SetLocalPosition(const glm::vec3& value) {
 	SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 	DirtyChildrenPositions();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(0, 1);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-void SpriteInternal::SetLocalRotation(const glm::quat& value) {
+void EntityInternal::SetLocalRotation(const glm::quat& value) {
 	ClearDirty(LocalRotation);
 	if (Math::Approximately(glm::dot(local_.rotation, value), 0)) { return; }
 
@@ -353,13 +353,13 @@ void SpriteInternal::SetLocalRotation(const glm::quat& value) {
 
 	DirtyChildrenRotationsAndEulerAngles();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(1, 1);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-void SpriteInternal::SetLocalEulerAngles(const glm::vec3& value) {
+void EntityInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	ClearDirty(LocalEulerAngles);
 	if (local_.eulerAngles == value) { return; }
 
@@ -368,21 +368,21 @@ void SpriteInternal::SetLocalEulerAngles(const glm::vec3& value) {
 
 	DirtyChildrenRotationsAndEulerAngles();
 
-	SpriteTransformChangedEvent e;
+	EntityTransformChangedEvent e;
 	e.prs = Math::MakeDword(1, 1);
-	e.sprite = dsp_cast<Sprite>(shared_from_this());
+	e.entity = dsp_cast<Entity>(shared_from_this());
 	WorldInstance()->FireEvent(&e);
 }
 
-glm::vec3 SpriteInternal::GetLocalScale() {
+glm::vec3 EntityInternal::GetLocalScale() {
 	if (IsDirty(LocalScale)) {
 		if (IsDirty(WorldScale)) {
 			Debug::LogError("invalid state");
 		}
 
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::vec3 scale = GetScale();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			scale /= current->GetScale();
 		}
 
@@ -393,15 +393,15 @@ glm::vec3 SpriteInternal::GetLocalScale() {
 	return local_.scale;
 }
 
-glm::vec3 SpriteInternal::GetLocalPosition() {
+glm::vec3 EntityInternal::GetLocalPosition() {
 	if (IsDirty(LocalPosition)) {
 		if (IsDirty(WorldPosition)) {
 			Debug::LogError("invalid state");
 		}
 
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::vec3 position = GetPosition();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			position -= current->GetPosition();
 		}
 
@@ -412,14 +412,14 @@ glm::vec3 SpriteInternal::GetLocalPosition() {
 	return local_.position;
 }
 
-glm::quat SpriteInternal::GetLocalRotation() {
+glm::quat EntityInternal::GetLocalRotation() {
 	if (!IsDirty(LocalRotation)) { return local_.rotation; }
 
 	if (!IsDirty(LocalEulerAngles)) {
 		local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
 	}
 	else {
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::quat worldRotation;
 		if (!IsDirty(WorldRotation)) {
 			worldRotation = GetRotation();
@@ -433,7 +433,7 @@ glm::quat SpriteInternal::GetLocalRotation() {
 			ClearDirty(WorldRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
@@ -445,7 +445,7 @@ glm::quat SpriteInternal::GetLocalRotation() {
 	return local_.rotation;
 }
 
-glm::vec3 SpriteInternal::GetLocalEulerAngles() {
+glm::vec3 EntityInternal::GetLocalEulerAngles() {
 	if (!IsDirty(LocalEulerAngles)) { return local_.eulerAngles; }
 
 	glm::quat localRotation;
@@ -453,7 +453,7 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 		localRotation = GetLocalRotation();
 	}
 	else {
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::quat worldRotation;
 
 		if (!IsDirty(WorldRotation)) {
@@ -468,7 +468,7 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 			ClearDirty(WorldRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
@@ -484,11 +484,11 @@ glm::vec3 SpriteInternal::GetLocalEulerAngles() {
 	return local_.eulerAngles;
 }
 
-glm::mat4 SpriteInternal::GetLocalToWorldMatrix() {
+glm::mat4 EntityInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
-		Sprite current = dsp_cast<Sprite>(shared_from_this());
+		Entity current = dsp_cast<Entity>(shared_from_this());
 		glm::mat4 matrix = TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
-		if ((current = current->GetParent()) != WorldInstance()->GetRootSprite()) {
+		if ((current = current->GetParent()) != WorldInstance()->GetRootEntity()) {
 			matrix = current->GetLocalToWorldMatrix() * matrix;
 		}
 
@@ -499,7 +499,7 @@ glm::mat4 SpriteInternal::GetLocalToWorldMatrix() {
 	return localToWorldMatrix_;
 }
 
-glm::mat4 SpriteInternal::GetWorldToLocalMatrix() {
+glm::mat4 EntityInternal::GetWorldToLocalMatrix() {
 	if (IsDirty(WorldToLocalMatrix)) {
 		worldToLocalMatrix_ = glm::inverse(GetLocalToWorldMatrix());
 		ClearDirty(WorldToLocalMatrix);
@@ -508,27 +508,27 @@ glm::mat4 SpriteInternal::GetWorldToLocalMatrix() {
 	return worldToLocalMatrix_;
 }
 
-glm::vec3 SpriteInternal::GetLocalToWorldPosition(const glm::vec3& position) {
+glm::vec3 EntityInternal::GetLocalToWorldPosition(const glm::vec3& position) {
 	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(position, 1));
 }
 
-glm::vec3 SpriteInternal::GetWorldToLocalPosition(const glm::vec3& position) {
+glm::vec3 EntityInternal::GetWorldToLocalPosition(const glm::vec3& position) {
 	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(position, 1));
 }
 
-glm::vec3 SpriteInternal::GetUp() {
+glm::vec3 EntityInternal::GetUp() {
 	return local_.rotation * glm::vec3(0, 1, 0);
 }
 
-glm::vec3 SpriteInternal::GetRight() {
+glm::vec3 EntityInternal::GetRight() {
 	return local_.rotation * glm::vec3(1, 0, 0);
 }
 
-glm::vec3 SpriteInternal::GetForward() {
+glm::vec3 EntityInternal::GetForward() {
 	return local_.rotation * glm::vec3(0, 0, -1);
 }
 
-void SpriteInternal::SetDiry(int bits) {
+void EntityInternal::SetDiry(int bits) {
 	dirtyFlag_ |= bits;
 	if (IsDirty(LocalScale) && IsDirty(WorldScale)) {
 		Debug::LogError("invalid state");
@@ -543,32 +543,32 @@ void SpriteInternal::SetDiry(int bits) {
 	}
 }
 
-void SpriteInternal::DirtyChildrenScales() {
+void EntityInternal::DirtyChildrenScales() {
 	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
+		EntityInternal* si = dynamic_cast<EntityInternal*>(GetChildAt(i).get());
 		si->GetLocalScale();
 		si->SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 
-void SpriteInternal::DirtyChildrenPositions() {
+void EntityInternal::DirtyChildrenPositions() {
 	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
+		EntityInternal* si = dynamic_cast<EntityInternal*>(GetChildAt(i).get());
 		si->GetLocalPosition();
 		si->SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 
-void SpriteInternal::DirtyChildrenRotationsAndEulerAngles() {
+void EntityInternal::DirtyChildrenRotationsAndEulerAngles() {
 	for (int i = 0; i < GetChildCount(); ++i) {
-		SpriteInternal* si = dynamic_cast<SpriteInternal*>(GetChildAt(i).get());
+		EntityInternal* si = dynamic_cast<EntityInternal*>(GetChildAt(i).get());
 		si->GetLocalRotation();
 		si->GetLocalEulerAngles();
 		si->SetDiry(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 
-Sprite SpriteInternal::FindDirectChild(const std::string& name) {
+Entity EntityInternal::FindDirectChild(const std::string& name) {
 	for (int i = 0; i < children_.size(); ++i) {
 		if (name == children_[i]->GetName()) {
 			return children_[i];
@@ -578,15 +578,15 @@ Sprite SpriteInternal::FindDirectChild(const std::string& name) {
 	return nullptr;
 }
 
-glm::mat4 SpriteInternal::TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s) {
+glm::mat4 EntityInternal::TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s) {
 	return glm::translate(glm::mat4(1), t) * glm::scale(glm::mat4_cast(r), GetLocalScale());
 }
 
-const char* SpriteInternal::SpriteTypeToString(ObjectType type) {
+const char* EntityInternal::EntityTypeToString(ObjectType type) {
 	const char* name = "";
 	switch (type) {
-		case ObjectTypeSprite:
-			name = "Sprite";
+		case ObjectTypeEntity:
+			name = "Entity";
 			break;
 		case ObjectTypeCamera:
 			name = "Camera";
@@ -607,7 +607,7 @@ const char* SpriteInternal::SpriteTypeToString(ObjectType type) {
 			name = "ParticleSystem";
 			break;
 		default:
-			Debug::LogError("sprite name for %d does not exist.", type);
+			Debug::LogError("entity name for %d does not exist.", type);
 			break;
 	}
 

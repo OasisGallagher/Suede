@@ -5,13 +5,13 @@
 #include "skybox.h"
 #include "imageeffect.h"
 #include "internal/base/objectinternal.h"
-#include "internal/sprites/spriteinternal.h"
+#include "internal/entities/entityinternal.h"
 
 class GBuffer;
 class Framebuffer;
 class FramebufferBase;
 
-class CameraInternal : public ICamera, public SpriteInternal {
+class CameraInternal : public ICamera, public EntityInternal {
 	DEFINE_FACTORY_METHOD(Camera)
 	
 	enum RenderPass {
@@ -85,11 +85,11 @@ private:
 	void CreateDepthMaterial();
 	void CreateShadowMaterial();
 
-	void ForwardRendering(const std::vector<Sprite>& sprites, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(const std::vector<Sprite>& sprites, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(const std::vector<Sprite>& sprites);
+	void RenderDeferredGeometryPass(const std::vector<Entity>& entities);
 
 	void UpdateSkybox();
 	void SetUpFramebuffer1();
@@ -98,25 +98,25 @@ private:
 	void OnContextSizeChanged(int w, int h);
 	FramebufferBase* GetActiveFramebuffer();
 
-	void ShadowDepthPass(const std::vector<Sprite>& sprites, Light light);
+	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
 
-	void ForwardDepthPass(const std::vector<Sprite>& sprites);
-	int ForwardBackgroundPass(const std::vector<Sprite>& sprites, int from);
-	int ForwardOpaquePass(const std::vector<Sprite>& sprites, int from);
-	int ForwardTransparentPass(const std::vector<Sprite>& sprites, int from);
+	void ForwardDepthPass(const std::vector<Entity>& entities);
+	int ForwardBackgroundPass(const std::vector<Entity>& entities, int from);
+	int ForwardOpaquePass(const std::vector<Entity>& entities, int from);
+	int ForwardTransparentPass(const std::vector<Entity>& entities, int from);
 
-	bool IsRenderable(Sprite sprite);
+	bool IsRenderable(Entity entity);
 
-	void RenderSprite(Sprite sprite, Renderer renderer);
-	void UpdateMaterial(Sprite sprite, Material material);
+	void RenderEntity(Entity entity, Renderer renderer);
+	void UpdateMaterial(Entity entity, Material material);
 
-	void GetRenderableSprites(std::vector<Sprite>& sprites);
-	void SortRenderableSprites(std::vector<Sprite>& sprites);
+	void GetRenderableEntities(std::vector<Entity>& entities);
+	void SortRenderableEntities(std::vector<Entity>& entities);
 
-	void SetForwardBaseLightParameter(const std::vector<Sprite>& sprites, Light light);
+	void SetForwardBaseLightParameter(const std::vector<Entity>& entities, Light light);
 
-	void RenderForwardBase(const std::vector<Sprite>& sprites, Light light);
-	void RenderForwardAdd(const std::vector<Sprite>& sprites, const std::vector<Light>& lights);
+	void RenderForwardBase(const std::vector<Entity>& entities, Light light);
+	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
 
 	void OnPostRender();
 	void OnImageEffects();

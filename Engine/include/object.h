@@ -28,8 +28,8 @@ enum ObjectType {
 	ObjectTypeParticleAnimator,
 	ObjectTypeSphereParticleEmitter,
 
-	// Sprites.
-	ObjectTypeSprite,
+	// Entities.
+	ObjectTypeEntity,
 	ObjectTypeCamera,
 	ObjectTypeSkybox,
 	ObjectTypeSpotLight,

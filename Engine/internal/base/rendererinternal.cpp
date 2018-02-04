@@ -12,15 +12,15 @@ RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), queu
 RendererInternal::~RendererInternal() {
 }
 
-void RendererInternal::RenderSprite(Sprite sprite) {
-	UpdateMaterial(sprite);
+void RendererInternal::RenderEntity(Entity entity) {
+	UpdateMaterial(entity);
 
-	Mesh mesh = sprite->GetMesh();
+	Mesh mesh = entity->GetMesh();
 	if (GetMaterialCount() == 1) {
 		RenderMesh(mesh, GetMaterial(0));
 	}
 	else {
-		RenderMesh(sprite->GetMesh());
+		RenderMesh(entity->GetMesh());
 	}
 }
 
@@ -34,14 +34,14 @@ GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
 	return GL_TRIANGLE_STRIP;
 }
 
-void RendererInternal::UpdateMaterial(Sprite sprite) {
+void RendererInternal::UpdateMaterial(Entity entity) {
 	int materialCount = GetMaterialCount();
 	for (int i = 0; i < materialCount; ++i) {
 		Material material = GetMaterial(i);
 		material->SetFloat(Variables::time, Time::GetRealTimeSinceStartup());
 		material->SetFloat(Variables::deltaTime, Time::GetDeltaTime());
 
-		glm::mat4 localToWorldMatrix = sprite->GetLocalToWorldMatrix();
+		glm::mat4 localToWorldMatrix = entity->GetLocalToWorldMatrix();
 		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
 	}
 }
@@ -132,12 +132,12 @@ void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material mater
 	material->Unbind();
 }
 
-void SkinnedMeshRendererInternal::UpdateMaterial(Sprite sprite) {
+void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
 		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootSpaceMatrices, skeleton_->GetBoneToRootSpaceMatrices(), C_MAX_BONE_COUNT);
 	}
 
-	RendererInternal::UpdateMaterial(sprite);
+	RendererInternal::UpdateMaterial(entity);
 }
 
 ParticleRendererInternal::ParticleRendererInternal()
@@ -149,8 +149,8 @@ void ParticleRendererInternal::AddMaterial(Material material) {
 	RendererInternal::AddMaterial(material);
 }
 
-void ParticleRendererInternal::RenderSprite(Sprite sprite) {
-	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(sprite);
+void ParticleRendererInternal::RenderEntity(Entity entity) {
+	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(entity);
 	if (!particleSystem) {
 		Debug::LogError("invalid particle system");
 		return;
@@ -158,7 +158,7 @@ void ParticleRendererInternal::RenderSprite(Sprite sprite) {
 
 	particleCount_ = particleSystem->GetParticlesCount();
 
-	RendererInternal::RenderSprite(sprite);
+	RendererInternal::RenderEntity(entity);
 }
 
 void ParticleRendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {

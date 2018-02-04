@@ -4,7 +4,7 @@
 #include "world.h"
 #include "light.h"
 #include "camera.h"
-#include "sprite.h"
+#include "entity.h"
 #include "environment.h"
 #include "internal/base/objectinternal.h"
 
@@ -17,13 +17,13 @@ public:
 
 public:
 	virtual void Update();
-	virtual Sprite GetRootSprite() { return root_; }
+	virtual Entity GetRootEntity() { return root_; }
 	virtual Object Create(ObjectType type);
 
-	virtual Sprite Import(const std::string& path);
+	virtual Entity Import(const std::string& path);
 
-	virtual Sprite GetSprite(uint id);
-	virtual bool GetSprites(ObjectType type, std::vector<Sprite>& sprites);
+	virtual Entity GetEntity(uint id);
+	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
 
 	virtual void FireEvent(const WorldEventBase* e);
 	virtual void AddEventListener(WorldEventListener* listener);
@@ -35,15 +35,15 @@ private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
 
-	typedef std::map<uint, Sprite> SpriteContainer;
+	typedef std::map<uint, Entity> EntityContainer;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 private:
-	Sprite root_;
+	Entity root_;
 	LightContainer lights_;
 	CameraContainer cameras_;
-	SpriteContainer sprites_;
+	EntityContainer entities_;
 	EventListenerContainer listeners_;
 
 	Environment environment_;

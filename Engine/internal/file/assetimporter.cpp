@@ -48,15 +48,15 @@ AssetImporter::MaterialAttribute::MaterialAttribute()
 	: twoSided(false), gloss(20), mainColor(1), name(UNNAMED_MATERIAL) {
 }
 
-Sprite AssetImporter::Import(const std::string& path) {
-	Sprite sprite = NewSprite();
-	ImportTo(sprite, path);
-	return sprite;
+Entity AssetImporter::Import(const std::string& path) {
+	Entity entity = NewEntity();
+	ImportTo(entity, path);
+	return entity;
 }
 
-bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
-	if (!sprite) {
-		Debug::LogError("invalid sprite");
+bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
+	if (!entity) {
+		Debug::LogError("invalid entity");
 		return false;
 	}
 
@@ -82,15 +82,15 @@ bool AssetImporter::ImportTo(Sprite sprite, const std::string& path) {
 		}
 	}
 
-	ReadNodeTo(sprite, scene_->mRootNode, attributes, materials);
-	ReadChildren(sprite, scene_->mRootNode, attributes, materials);
+	ReadNodeTo(entity, scene_->mRootNode, attributes, materials);
+	ReadChildren(entity, scene_->mRootNode, attributes, materials);
 
 	MEMORY_RELEASE_ARRAY(materials);
 	MEMORY_RELEASE_ARRAY(attributes);
 
 	Animation animation;
 	if (ReadAnimation(animation)) {
-		sprite->SetAnimation(animation);
+		entity->SetAnimation(animation);
 	}
 
 	return true;
@@ -140,33 +140,33 @@ void AssetImporter::CombineAttribute(MeshAttribute& dest, const MeshAttribute& s
 #undef COMBINE_FIELD
 }
 
-Sprite AssetImporter::ReadHierarchy(Sprite parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
-	Sprite sprite = NewSprite();
-	sprite->SetParent(parent);
+Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
+	Entity entity = NewEntity();
+	entity->SetParent(parent);
 
-	ReadNodeTo(sprite, node, attributes, materials);
-	ReadChildren(sprite, node, attributes, materials);
+	ReadNodeTo(entity, node, attributes, materials);
+	ReadChildren(entity, node, attributes, materials);
 
-	return sprite;
+	return entity;
 }
 
-void AssetImporter::ReadNodeTo(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
-	sprite->SetName(node->mName.C_Str());
+void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials) {
+	entity->SetName(node->mName.C_Str());
 
 	glm::vec3 translation, scale;
 	glm::quat rotation;
 	DecomposeAIMatrix(translation, rotation, scale, node->mTransformation);
 
-	sprite->SetLocalScale(scale);
-	sprite->SetLocalRotation(rotation);
-	sprite->SetLocalPosition(translation);
+	entity->SetLocalScale(scale);
+	entity->SetLocalRotation(rotation);
+	entity->SetLocalPosition(translation);
 
 	if (node->mNumMeshes > 0) {
-		ReadComponents(sprite, node, attributes, materials);
+		ReadComponents(entity, node, attributes, materials);
 	}
 }
 
-void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
+void AssetImporter::ReadComponents(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	Renderer renderer = nullptr;
 	if (scene_->mNumAnimations == 0) {
 		renderer = NewMeshRenderer();
@@ -200,13 +200,13 @@ void AssetImporter::ReadComponents(Sprite sprite, aiNode* node, MeshAttribute* a
 	MEMORY_RELEASE_ARRAY(subMeshes);
 	mesh->SetAttribute(current);
 
-	sprite->SetMesh(mesh);
-	sprite->SetRenderer(renderer);
+	entity->SetMesh(mesh);
+	entity->SetRenderer(renderer);
 }
 
-void AssetImporter::ReadChildren(Sprite sprite, aiNode* node, MeshAttribute* attributes, Material* materials) {
+void AssetImporter::ReadChildren(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		ReadHierarchy(sprite, node->mChildren[i], attributes, materials);
+		ReadHierarchy(entity, node->mChildren[i], attributes, materials);
 	}
 }
 

@@ -8,7 +8,7 @@
     <Filter Include="internal\base">
       <UniqueIdentifier>{a5ee88c7-9643-440a-be06-26cdb17cb76a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\sprites">
+    <Filter Include="internal\entities">
       <UniqueIdentifier>{4d538f95-b8fe-4e72-a8b3-49cb0475678b}</UniqueIdentifier>
     </Filter>
     <Filter Include="internal\world">
@@ -26,10 +26,10 @@
     <Filter Include="internal\world\src">
       <UniqueIdentifier>{9a204d23-73c2-48ff-8ee8-cefb02aec656}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\sprites\include">
+    <Filter Include="internal\entities\include">
       <UniqueIdentifier>{b1a88a82-1fde-408b-9747-4053423be3b0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\sprites\src">
+    <Filter Include="internal\entities\src">
       <UniqueIdentifier>{f5de384c-d5da-45b8-b5d7-4fac3d034669}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
@@ -91,9 +91,6 @@
     <ClInclude Include="include\skybox.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\sprite.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\texture.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -118,14 +115,11 @@
     <ClInclude Include="internal\world\worldinternal.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\sprites\camerainternal.h">
-      <Filter>internal\sprites\include</Filter>
+    <ClInclude Include="internal\entities\camerainternal.h">
+      <Filter>internal\entities\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\sprites\skyboxinternal.h">
-      <Filter>internal\sprites\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\sprites\spriteinternal.h">
-      <Filter>internal\sprites\include</Filter>
+    <ClInclude Include="internal\entities\skyboxinternal.h">
+      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\renderstate.h">
       <Filter>internal\base\include</Filter>
@@ -142,8 +136,8 @@
     <ClInclude Include="include\light.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\sprites\lightinternal.h">
-      <Filter>internal\sprites\include</Filter>
+    <ClInclude Include="internal\entities\lightinternal.h">
+      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="include\environment.h">
       <Filter>include</Filter>
@@ -172,8 +166,8 @@
     <ClInclude Include="include\particlesystem.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\sprites\particlesysteminternal.h">
-      <Filter>internal\sprites\include</Filter>
+    <ClInclude Include="internal\entities\particlesysteminternal.h">
+      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\vertexarrayobject.h">
       <Filter>internal\base\include</Filter>
@@ -232,6 +226,12 @@
     <ClInclude Include="internal\base\renderdefines.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\entity.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\entities\entityinternal.h">
+      <Filter>internal\entities\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -249,14 +249,11 @@
     <ClCompile Include="internal\world\worldinternal.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\sprites\camerainternal.cpp">
-      <Filter>internal\sprites\src</Filter>
+    <ClCompile Include="internal\entities\camerainternal.cpp">
+      <Filter>internal\entities\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\sprites\skyboxinternal.cpp">
-      <Filter>internal\sprites\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\sprites\spriteinternal.cpp">
-      <Filter>internal\sprites\src</Filter>
+    <ClCompile Include="internal\entities\skyboxinternal.cpp">
+      <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\memory\factory.cpp">
       <Filter>internal\memory\src</Filter>
@@ -273,8 +270,8 @@
     <ClCompile Include="internal\base\renderstate.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\sprites\lightinternal.cpp">
-      <Filter>internal\sprites\src</Filter>
+    <ClCompile Include="internal\entities\lightinternal.cpp">
+      <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\world\environmentinternal.cpp">
       <Filter>internal\world\src</Filter>
@@ -282,8 +279,8 @@
     <ClCompile Include="internal\base\animationinternal.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\sprites\particlesysteminternal.cpp">
-      <Filter>internal\sprites\src</Filter>
+    <ClCompile Include="internal\entities\particlesysteminternal.cpp">
+      <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\vertexarrayobject.cpp">
       <Filter>internal\base\src</Filter>
@@ -329,6 +326,9 @@
     </ClCompile>
     <ClCompile Include="src\driver.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\entities\entityinternal.cpp">
+      <Filter>internal\entities\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

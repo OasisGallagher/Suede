@@ -1,8 +1,8 @@
 #pragma once
 #include "skybox.h"
-#include "internal/sprites/spriteinternal.h"
+#include "internal/entities/entityinternal.h"
 
-class SkyboxInternal : public ISkybox, public SpriteInternal {
+class SkyboxInternal : public ISkybox, public EntityInternal {
 	DEFINE_FACTORY_METHOD(Skybox)
 
 public:
