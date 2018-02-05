@@ -30,7 +30,7 @@
 //#define POST_EFFECTS
 #define MAN
 #define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
@@ -113,9 +113,11 @@ uint roomEntityID;
 void Game::createScene() {
 	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
 	DirectionalLight light = NewDirectionalLight();
+	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
 
 	Camera camera = NewCamera();
+	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
 
 	light->GetTransform()->SetParent(camera->GetTransform());

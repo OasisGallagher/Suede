@@ -100,7 +100,9 @@ void CameraInternal::Render() {
 	std::vector<Light> forwardAdd;
 	GetLights(forwardBase, forwardAdd);
 
-	ShadowDepthPass(entities, forwardBase);
+	if (forwardBase) {
+		ShadowDepthPass(entities, forwardBase);
+	}
 	
 	// TODO: switch framebuffer is expensive.
 	fb1_->SetDepthTexture(nullptr);

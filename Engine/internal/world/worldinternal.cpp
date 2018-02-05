@@ -44,8 +44,8 @@ Object WorldInternal::Create(ObjectType type) {
 		Entity entity = dsp_cast<Entity>(object);
 		Transform transform = Factory::Create<TransformInternal>();
 		entity->SetTransform(transform);
-		transform->SetParent(root_->GetTransform());
 
+		transform->SetParent(root_->GetTransform());
 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 
 		EntityCreatedEvent e;

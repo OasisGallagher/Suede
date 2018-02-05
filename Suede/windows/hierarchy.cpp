@@ -116,15 +116,24 @@ void Hierarchy::updateRecursively(Entity entity, QStandardItem* pi) {
 	}
 }
 
-QStandardItem* Hierarchy::appendItem(Entity transform, QStandardItem* pi) {
-	QStandardItem* item = items_.value(transform->GetInstanceID());
+QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
+	QStandardItem* item = items_.value(entity->GetInstanceID());
 	if (item != nullptr) {
-		items_.remove(transform->GetInstanceID());
-		model_->removeRow(item->row());
+		for (ItemContainer::iterator ite = items_.begin(); ite != items_.end(); ++ite) {
+			ite.value()->accessibleText();
+		}
+
+		QStandardItem* p = item->parent();
+		items_.remove(entity->GetInstanceID());
+		model_->removeRow(item->row(), p != nullptr ? p->index() : QModelIndex());
+
+		for (ItemContainer::iterator ite = items_.begin(); ite != items_.end(); ++ite) {
+			ite.value()->accessibleText();
+		}
 	}
 
-	item = new QStandardItem(transform->GetName().c_str());
-	item->setData(transform->GetInstanceID());
+	item = new QStandardItem(entity->GetName().c_str());
+	item->setData(entity->GetInstanceID());
 	
 	if (pi != nullptr) {
 		pi->appendRow(item);
@@ -133,7 +142,7 @@ QStandardItem* Hierarchy::appendItem(Entity transform, QStandardItem* pi) {
 		model_->appendRow(item);
 	}
 
-	items_[transform->GetInstanceID()] = item;
+	items_[entity->GetInstanceID()] = item;
 	return item;
 }
 
@@ -154,11 +163,14 @@ void Hierarchy::appendChildItem(Entity entity) {
 	Q_ASSERT(parent);
 
 	QStandardItem* pi = nullptr;
-	if (parent == WorldInstance()->GetRootTransform() || (pi = items_.value(parent->GetInstanceID())) != nullptr) {
+	if (parent == WorldInstance()->GetRootTransform() || (pi = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
 		appendItem(entity, pi);
 	}
 	else if (pi == nullptr && (pi = items_.value(entity->GetInstanceID())) != nullptr) {
 		removeItem(pi);
+	}
+	else {
+		__debugbreak();
 	}
 }
 
