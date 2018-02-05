@@ -5,17 +5,18 @@
 #include "labeltexture.h"
 
 LabelTexture::LabelTexture(QWidget* parent) : QLabel(parent) {
+	setFrameShape(QFrame::Box);
 }
 
 void LabelTexture::setColor(const QColor& color) {
-	setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)", color.red(), color.green(), color.blue()));
+	setStyleSheet(QString::asprintf("background-color: rgb(%d,%d,%d)", color.red(), color.green(), color.blue()));
 }
 
-void LabelTexture::setColor(const glm::vec4& color) {
+void LabelTexture::setColor(const glm::vec3& color) {
 	setColor(Math::IntColor(color));
 }
 
-void LabelTexture::setColor(const glm::ivec4& color) {
+void LabelTexture::setColor(const glm::ivec3& color) {
 	setColor(QColor(color.r, color.g, color.b));
 }
 

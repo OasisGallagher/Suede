@@ -210,12 +210,6 @@ void ShaderParser::ReadSingle(SyntaxNode* node, Property* property) {
 	property->value.SetFloat(String::ToFloat(node->GetChild(1)->ToString()));
 }
 
-void ShaderParser::ReadSingle3(SyntaxNode* node, Property* property) {
-	glm::vec3 value;
-	ReadSingle3(value, node);
-	property->value.SetVector3(value);
-}
-
 void ShaderParser::ReadSingle3(glm::vec3& value, SyntaxNode* node) {
 	SyntaxNode* c1 = node->GetChild(1);
 	if (c1 == nullptr) { return; }
@@ -223,12 +217,6 @@ void ShaderParser::ReadSingle3(glm::vec3& value, SyntaxNode* node) {
 	for (int i = 0; i < 3 && c1->GetChild(i) != nullptr; ++i) {
 		*ptr++ = String::ToFloat(c1->GetChild(i)->ToString());
 	}
-}
-
-void ShaderParser::ReadSingle4(SyntaxNode* node, Property* property) {
-	glm::vec4 value;
-	ReadSingle4(value, node);
-	property->value.SetVector4(value);
 }
 
 void ShaderParser::ReadSingle4(glm::vec4& value, SyntaxNode* node) {
@@ -261,11 +249,27 @@ void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
 }
 
 void ShaderParser::ReadVec3(SyntaxNode* node, Property* property) {
-	ReadSingle3(node, property);
+	glm::vec3 value;
+	ReadSingle3(value, node);
+	property->value.SetVector3(value);
 }
 
 void ShaderParser::ReadVec4(SyntaxNode* node, Property* property) {
-	ReadSingle4(node, property);
+	glm::vec4 value;
+	ReadSingle4(value, node);
+	property->value.SetVector4(value);
+}
+
+void ShaderParser::ReadColor3(SyntaxNode * node, Property * property) {
+	glm::vec3 value;
+	ReadSingle3(value, node);
+	property->value.SetColor3(value);
+}
+
+void ShaderParser::ReadColor4(SyntaxNode * node, Property * property) {
+	glm::vec4 value;
+	ReadSingle4(value, node);
+	property->value.SetColor4(value);
 }
 
 void ShaderParser::ReadTex2(SyntaxNode* node, Property* property) {
@@ -307,6 +311,13 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	}
 	else if (ns == "Vec4") {
 		ReadVec4(node, property);
+	}
+	else if (ns == "Color3") {
+		ReadColor3(node, property);
+	}
+	else if (ns == "Color4") {
+		ReadColor4(node, property);
+
 	}
 	else if (ns == "Tex2") {
 		ReadTex2(node, property);

@@ -28,6 +28,9 @@ public:
 	static glm::ivec4 IntColor(const glm::vec4& color);
 	static glm::vec4 NormalizedColor(const glm::ivec4& color);
 
+	static glm::ivec3 IntColor(const glm::vec3& color);
+	static glm::vec3 NormalizedColor(const glm::ivec3& color);
+
 	static unsigned NextPowerOfTwo(unsigned x);
 	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
 
@@ -102,6 +105,22 @@ inline glm::vec4 Math::NormalizedColor(const glm::ivec4& color) {
 		Clamp01(color.y / 255.f),
 		Clamp01(color.z / 255.f),
 		Clamp01(color.w / 255.f)
+	);
+}
+
+inline glm::ivec3 Math::IntColor(const glm::vec3& color) {
+	return glm::ivec3(
+		Clamp(int(color.x * 255), 0, 255),
+		Clamp(int(color.y * 255), 0, 255),
+		Clamp(int(color.z * 255), 0, 255)
+	);
+}
+
+inline glm::vec3 Math::NormalizedColor(const glm::ivec3& color) {
+	return glm::vec3(
+		Clamp01(color.x / 255.f),
+		Clamp01(color.y / 255.f),
+		Clamp01(color.z / 255.f)
 	);
 }
 

@@ -88,7 +88,7 @@ void Inspector::onTransformChanged() {
 		target_->GetTransform()->SetLocalScale(readTransformFields(ui_->sx, ui_->sy, ui_->sz));
 	}
 
-	reloadTransform();
+	drawTransform();
 }
 
 glm::vec3 Inspector::readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z) {
@@ -107,7 +107,8 @@ QString Inspector::float2QString(float f) {
 }
 
 bool Inspector::isPropertyVisible(const QString& name) {
-	return (name == Variables::mainTexture
+	return !name.startsWith(VARIABLE_PREFIX)
+		|| name == Variables::mainTexture
 		|| name == Variables::bumpTexture
 		|| name == Variables::specularTexture
 		|| name == Variables::emissiveTexture
@@ -115,7 +116,7 @@ bool Inspector::isPropertyVisible(const QString& name) {
 		|| name == Variables::gloss
 		|| name == Variables::mainColor
 		|| name == Variables::specularColor
-		|| name == Variables::emissiveColor);
+		|| name == Variables::emissiveColor;
 }
 
 QWidget* Inspector::drawIntField(uint index, const QString& name, int value) {
@@ -147,31 +148,40 @@ QWidget* Inspector::drawTextureField(uint index, const QString& name, Texture va
 	return label;
 }
 
-QWidget* Inspector::drawColor4Field(uint index, const QString& name, const glm::vec4& value) {
+QWidget* Inspector::drawColorField(uint index, const QString& name, VariantType type, const void* value) {
 	QWidget* widget = new QWidget;
 	QVBoxLayout* layout = new QVBoxLayout;
 	widget->setLayout(layout);
 
 	LabelTexture* label = new LabelTexture(widget);
 	label->setObjectName(ObjectName::colorButton);
-	label->setColor(value);
-	label->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeColor4));
+	label->setColor(*(glm::vec3*)value);
+	label->setUserData(Qt::UserRole, new UserData(index, name, type));
 	connect(label, SIGNAL(clicked()), this, SLOT(onClickProperty()));
-
-	QProgressBar* alpha = new QProgressBar(widget);
-	alpha->setObjectName(ObjectName::alphaProgress);
-	alpha->setStyleSheet("QProgressBar::chunk { background-color: #595959 }");
-	alpha->setFixedHeight(2);
-	alpha->setMaximum(255);
-	alpha->setValue(int(value.a * 255));
 
 	layout->setSpacing(1);
 	layout->setContentsMargins(0, 0, 0, 0);
-
 	layout->addWidget(label);
-	layout->addWidget(alpha);
+
+	if (type == VariantTypeColor4) {
+		QProgressBar* alpha = new QProgressBar(widget);
+		alpha->setObjectName(ObjectName::alphaProgress);
+		alpha->setStyleSheet("QProgressBar::chunk { background-color: #595959 }");
+		alpha->setFixedHeight(2);
+		alpha->setMaximum(255);
+		alpha->setValue(int(((glm::vec4*)value)->a * 255));
+		layout->addWidget(alpha);
+	}
 
 	return widget;
+}
+
+QWidget* Inspector::drawColor3Field(uint index, const QString& name, const glm::vec3& value) {
+	return drawColorField(index, name, VariantTypeColor3, &value);
+}
+
+QWidget* Inspector::drawColor4Field(uint index, const QString& name, const glm::vec4& value) {
+	return drawColorField(index, name, VariantTypeColor4, &value);
 }
 
 QWidget* Inspector::drawVec3Field(uint index, const QString& name, const glm::vec3& value) {
@@ -264,7 +274,7 @@ void Inspector::onResetButtonClicked() {
 		target_->GetTransform()->SetLocalScale(glm::vec3(1));
 	}
 
-	reloadTransform();
+	drawTransform();
 }
 
 void Inspector::onNameChanged() {
@@ -312,37 +322,21 @@ void Inspector::onEditProperty() {
 }
 
 void Inspector::onClickProperty() {
-	UserData* ud = ((UserData*)sender()->userData(Qt::UserRole));
+	QWidget* senderWidget = (QWidget*)sender();
+	UserData* ud = ((UserData*)senderWidget->userData(Qt::UserRole));
 	uint index = ud->index;
 	QString name = ud->name;
 	VariantType type = ud->type;
 
 	Material material = target_->GetRenderer()->GetMaterial(index);
 	if (type == VariantTypeColor3) {
+		onSelectColor3(senderWidget, material, name);
 	}
 	else if (type == VariantTypeColor4) {
-		glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
-		QColor old(color.r, color.g, color.b, color.a);
-		QColor selected = QColorDialog::getColor(old, this, "Select color", QColorDialog::ShowAlphaChannel);
-		if (selected.isValid()) {
-			glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
-			material->SetColor4(name.toStdString(), newColor);
-
-			((QWidget*)sender())->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)", selected.red(), selected.green(), selected.blue()));
-			QProgressBar* alpha = sender()->parent()->findChild<QProgressBar*>(ObjectName::alphaProgress);
-			alpha->setValue(selected.alpha());
-		}
+		onSelectColor4(senderWidget, material, name);
 	}
 	else if (type == VariantTypeTexture) {
-		QString path = QFileDialog::getOpenFileName(this, "Select texture", Resources::GetRootDirectory().c_str(), "*.jpg;;*.png");
-		if (!path.isEmpty()) {
-			Texture2D texture = NewTexture2D();
-			QDir dir(Resources::GetRootDirectory().c_str());
-			path = dir.relativeFilePath(path);
-			texture->Load(path.toStdString());
-			material->SetTexture(name.toStdString(), texture);
-			((LabelTexture*)sender())->setTexture(texture);
-		}
+		onSelectTexture(senderWidget, material, name);
 	}
 }
 
@@ -362,7 +356,7 @@ void Inspector::onActiveChanged(int state) {
 void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
 	if (!selected.empty()) {
 		target_ = selected.front();
-		reload();
+		redraw();
 	}
 	else {
 		target_ = nullptr;
@@ -379,27 +373,27 @@ void Inspector::showView(bool show) {
 	}
 }
 
-void Inspector::reload() {
+void Inspector::redraw() {
 	showView(true);
 
 	ui_->name->setText(target_->GetName().c_str());
 	ui_->active->setChecked(target_->GetActiveSelf());
 
-	reloadTags();
-	reloadTransform();
+	drawTags();
+	drawTransform();
 
 	ui_->mesh->setVisible(!!target_->GetMesh());
 	if (target_->GetMesh()) {
-		reloadMesh();
+		drawMesh();
 	}
 
 	ui_->renderer->setVisible(!!target_->GetRenderer());
 	if (target_->GetRenderer()) {
-		reloadRenderer();
+		drawRenderer();
 	}
 }
 
-void Inspector::reloadTags() {
+void Inspector::drawTags() {
 	QStringList items;
 
 	int tagIndex = -1;
@@ -421,41 +415,23 @@ void Inspector::reloadTags() {
 	ui_->tag->blockSignals(false);
 }
 
-void Inspector::reloadTransform() {
+void Inspector::drawTransform() {
 	writeTransformFields(ui_->px, ui_->py, ui_->pz, target_->GetTransform()->GetLocalPosition());
 	writeTransformFields(ui_->rx, ui_->ry, ui_->rz, target_->GetTransform()->GetLocalEulerAngles());
 	writeTransformFields(ui_->sx, ui_->sy, ui_->sz, target_->GetTransform()->GetLocalScale());
 }
 
-void Inspector::reloadMesh() {
+void Inspector::drawMesh() {
 	Mesh mesh = target_->GetMesh();
 	ui_->topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
 	ui_->vertices->setText(QString::number(mesh->GetVertexCount()));
 	ui_->subMeshList->clear();
 
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		uint indexCount, baseIndex, baseVertex;
-		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
-
-		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? indexCount / 3 : Math::Max(0u, indexCount - 2);
-		ui_->subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
-	}
-
-	shrinkListWidget(ui_->subMeshList);
-
-	ui_->textMeshAttributes->setVisible(mesh->GetType() == ObjectTypeTextMesh);
-	if (mesh->GetType() == ObjectTypeTextMesh) {
-		TextMesh textMesh = dsp_cast<TextMesh>(mesh);
-		ui_->text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
-
-		Font font = textMesh->GetFont();
-		ui_->fontName->setText(font->GetFamilyName().c_str());
-		ui_->fontSize->setText(QString::number(font->GetFontSize()));
-	}
+	drawSubMeshes(mesh);
+	drawTextMesh(mesh);
 }
 
-void Inspector::reloadRenderer() {
+void Inspector::drawRenderer() {
 	Renderer renderer = target_->GetRenderer();
 	ui_->materialList->clear();
 
@@ -464,7 +440,7 @@ void Inspector::reloadRenderer() {
 		ui_->materialList->addItem(material->GetName().c_str());
 	}
 
-	shrinkListWidget(ui_->materialList);
+	shrinkToFit(ui_->materialList);
 
 	QStringList list;
 	const std::vector<ShaderResource>& shaders = Resources::GetShaderResources();
@@ -476,71 +452,11 @@ void Inspector::reloadRenderer() {
 	groups_.clear();
 
 	for (uint materialIndex = 0; materialIndex < renderer->GetMaterialCount(); ++materialIndex) {
-		Material material = renderer->GetMaterial(materialIndex);
-		Shader shader = material->GetShader();
-
-		QGroupBox* g = new QGroupBox(this);
-		groups_.push_back(g);
-
-		g->setTitle(material->GetName().c_str());
-		ui_->materialsLayout->addWidget(g);
-
-		QFormLayout* form = new QFormLayout(g);
-		g->setLayout(form);
-
-		QComboBox* combo = new QComboBox(g);
-		combo->setFocusPolicy(Qt::ClickFocus);
-
-		combo->addItems(list);
-		combo->setCurrentIndex(list.indexOf(shader->GetName().c_str()));
-
-		form->addRow("Shader", combo);
-
-		std::vector<const Property*> properties;
-		material->GetProperties(properties);
-
-		for (uint i = 0; i < properties.size(); ++i) {
-			const Property* p = properties[i];
-			if (!isPropertyVisible(p->name.c_str())) {
-				continue;
-			}
-
-			QWidget* widget = nullptr;
-			switch (p->value.GetType()) {
-				case VariantTypeInt:
-					widget = drawIntField(materialIndex, p->name.c_str(), p->value.GetInt());
-					break;
-				case VariantTypeFloat:
-					widget = drawFloatField(materialIndex, p->name.c_str(), p->value.GetFloat());
-					break;
-				case VariantTypeColor4:
-					widget = drawColor4Field(materialIndex, p->name.c_str(), p->value.GetColor4());
-					break;
-				case VariantTypeTexture:
-					widget = drawTextureField(materialIndex, p->name.c_str(), p->value.GetTexture());
-					break;
-				case VariantTypeVector3:
-					widget = drawVec3Field(materialIndex, p->name.c_str(), p->value.GetVector3());
-					break;
-				case VariantTypeVector4:
-					widget = drawVec4Field(materialIndex, p->name.c_str(), p->value.GetVector4());
-					break;
-			}
-
-			if (widget != nullptr) {
-				const char* ptr = p->name.c_str();
-				if (strncmp(ptr, VARIABLE_PREFIX, VARIABLE_PREFIX_LENGTH) == 0) {
-					ptr += VARIABLE_PREFIX_LENGTH;
-				}
-
-				form->addRow(ptr, widget);
-				widget->setParent(g);
-			}
-		}
+		drawMaterial(renderer, materialIndex, list);
 	}
 }
 
-void Inspector::shrinkListWidget(QListWidget* w) {
+void Inspector::shrinkToFit(QListWidget* w) {
 	int height = 0;
 	for (int i = 0; i < w->count(); ++i) {
 		height += w->sizeHintForRow(i);
@@ -551,7 +467,7 @@ void Inspector::shrinkListWidget(QListWidget* w) {
 
 void Inspector::onEntityTransformChanged(EntityTransformChangedEvent* e) {
 	if (e->entity == target_ && Math::Highword(e->prs) == 0) {
-		reloadTransform();
+		drawTransform();
 	}
 }
 
@@ -576,4 +492,143 @@ void Inspector::initTransformUI() {
 	CONNECT_SIGNAL(ui_->sz);
 
 #undef CONNECT_SIGNAL
+}
+
+void Inspector::onSelectTexture(QWidget* widget, Material material, const QString& name) {
+	QString path = QFileDialog::getOpenFileName(this, "Select texture", Resources::GetRootDirectory().c_str(), "*.jpg;;*.png");
+	if (!path.isEmpty()) {
+		Texture2D texture = NewTexture2D();
+		QDir dir(Resources::GetRootDirectory().c_str());
+		path = dir.relativeFilePath(path);
+		texture->Load(path.toStdString());
+		material->SetTexture(name.toStdString(), texture);
+		((LabelTexture*)sender())->setTexture(texture);
+	}
+}
+
+void Inspector::onSelectColor3(QWidget* widget, Material material, const QString& name) {
+	glm::ivec3 color = Math::IntColor(material->GetColor3(name.toStdString()));
+	QColor old(color.r, color.g, color.b);
+	QColor selected = QColorDialog::getColor(old, this, "Select color");
+	if (selected.isValid()) {
+		glm::vec3 newColor = Math::NormalizedColor(glm::ivec3(selected.red(), selected.green(), selected.blue()));
+		material->SetColor3(name.toStdString(), newColor);
+		widget->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)", selected.red(), selected.green(), selected.blue()));
+	}
+}
+
+void Inspector::onSelectColor4(QWidget* widget, Material material, const QString& name) {
+	glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
+	QColor old(color.r, color.g, color.b, color.a);
+	QColor selected = QColorDialog::getColor(old, this, "Select color", QColorDialog::ShowAlphaChannel);
+	if (selected.isValid()) {
+		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
+		material->SetColor4(name.toStdString(), newColor);
+
+		widget->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)", selected.red(), selected.green(), selected.blue()));
+		QProgressBar* alpha = widget->parent()->findChild<QProgressBar*>(ObjectName::alphaProgress);
+		alpha->setValue(selected.alpha());
+	}
+}
+
+void Inspector::drawSubMeshes(Mesh mesh) {
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		uint indexCount, baseIndex, baseVertex;
+		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+
+		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? indexCount / 3 : Math::Max(0u, indexCount - 2);
+		ui_->subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
+	}
+
+	shrinkToFit(ui_->subMeshList);
+}
+
+void Inspector::drawTextMesh(Mesh mesh) {
+	ui_->textMeshAttributes->setVisible(mesh->GetType() == ObjectTypeTextMesh);
+	if (mesh->GetType() == ObjectTypeTextMesh) {
+		TextMesh textMesh = dsp_cast<TextMesh>(mesh);
+		ui_->text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
+
+		Font font = textMesh->GetFont();
+		ui_->fontName->setText(font->GetFamilyName().c_str());
+		ui_->fontSize->setText(QString::number(font->GetFontSize()));
+	}
+}
+
+void Inspector::drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders) {
+	Material material = renderer->GetMaterial(materialIndex);
+	Shader shader = material->GetShader();
+
+	QGroupBox* g = new QGroupBox(this);
+	groups_.push_back(g);
+
+	g->setTitle(material->GetName().c_str());
+	ui_->materialsLayout->addWidget(g);
+
+	QFormLayout* form = new QFormLayout(g);
+	g->setLayout(form);
+
+	QComboBox* combo = new QComboBox(g);
+	combo->setFocusPolicy(Qt::ClickFocus);
+
+	combo->addItems(shaders);
+	combo->setCurrentIndex(shaders.indexOf(shader->GetName().c_str()));
+
+	form->addRow("Shader", combo);
+
+	QWidgetList widgets;
+	drawMaterialProperties(widgets, material, materialIndex);
+
+	foreach(QWidget* w, widgets) {
+		form->addRow(w->objectName(), w);
+		w->setParent(g);
+	}
+}
+
+void Inspector::drawMaterialProperties(QWidgetList& widgets, Material material, uint materialIndex) {
+	std::vector<const Property*> properties;
+	material->GetProperties(properties);
+
+	for (uint i = 0; i < properties.size(); ++i) {
+		const Property* p = properties[i];
+		if (!isPropertyVisible(p->name.c_str())) {
+			continue;
+		}
+
+		QWidget* widget = nullptr;
+		switch (p->value.GetType()) {
+			case VariantTypeInt:
+				widget = drawIntField(materialIndex, p->name.c_str(), p->value.GetInt());
+				break;
+			case VariantTypeFloat:
+				widget = drawFloatField(materialIndex, p->name.c_str(), p->value.GetFloat());
+				break;
+			case VariantTypeColor3:
+				widget = drawColor3Field(materialIndex, p->name.c_str(), p->value.GetColor3());
+				break;
+			case VariantTypeColor4:
+				widget = drawColor4Field(materialIndex, p->name.c_str(), p->value.GetColor4());
+				break;
+			case VariantTypeTexture:
+				widget = drawTextureField(materialIndex, p->name.c_str(), p->value.GetTexture());
+				break;
+			case VariantTypeVector3:
+				widget = drawVec3Field(materialIndex, p->name.c_str(), p->value.GetVector3());
+				break;
+			case VariantTypeVector4:
+				widget = drawVec4Field(materialIndex, p->name.c_str(), p->value.GetVector4());
+				break;
+		}
+
+		if (widget != nullptr) {
+			const char* ptr = p->name.c_str();
+			if (strncmp(ptr, VARIABLE_PREFIX, VARIABLE_PREFIX_LENGTH) == 0) {
+				ptr += VARIABLE_PREFIX_LENGTH;
+			}
+
+			widget->setObjectName(ptr);
+			widgets.push_back(widget);
+		}
+	}
 }

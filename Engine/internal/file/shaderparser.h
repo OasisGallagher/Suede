@@ -103,6 +103,9 @@ private:
 	void ReadVec3(SyntaxNode* node, Property* property);
 	void ReadVec4(SyntaxNode* node, Property* property);
 
+	void ReadColor3(SyntaxNode* node, Property* property);
+	void ReadColor4(SyntaxNode* node, Property* property);
+
 	void ReadTex2(SyntaxNode* node, Property* property);
 	
 	void ReadMat3(SyntaxNode* node, Property* property);

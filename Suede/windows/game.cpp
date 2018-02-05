@@ -24,11 +24,11 @@
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-//#define ROOM
+#define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
-#define MAN
+//#define MAN
 #define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED

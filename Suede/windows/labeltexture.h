@@ -11,8 +11,8 @@ public:
 
 public:
 	void setColor(const QColor& color);
-	void setColor(const glm::vec4& color);
-	void setColor(const glm::ivec4& color);
+	void setColor(const glm::vec3& color);
+	void setColor(const glm::ivec3& color);
 
 	void setTexture(Texture texture);
 

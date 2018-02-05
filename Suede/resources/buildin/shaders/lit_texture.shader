@@ -1,5 +1,5 @@
 Properties {
-	vec4 outlineColor = { 0.98, 0.51, 0.04, 0.5 };
+	color4 outlineColor = { 0.98, 0.51, 0.04, 0.5 };
 }
 
 SubShader {
