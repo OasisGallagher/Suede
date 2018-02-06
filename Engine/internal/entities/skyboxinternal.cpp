@@ -30,6 +30,7 @@ bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 	
 	material->SetShader(shader);
 	material->SetTexture(Variables::mainTexture, texture);
-	
+	material->SetColor4(Variables::mainColor, glm::vec4(1));
+
 	return true;
 }

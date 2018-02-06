@@ -17,23 +17,27 @@
 #include "os/filesystem.h"
 
 #define LAYOUT_SPACING	12
-#define DEFINE_OBJECT_NAME(name)	static const char* name = #name
-namespace ObjectName {
-	DEFINE_OBJECT_NAME(colorButton);
-	DEFINE_OBJECT_NAME(alphaProgress);
+#define DEFINE_STRING_CONSTANT(name)	static const char* name = #name
+namespace Constants {
+	DEFINE_STRING_CONSTANT(current);
+
+	DEFINE_STRING_CONSTANT(colorButton);
+	DEFINE_STRING_CONSTANT(alphaProgress);
 }
 
 static Inspector* inspectorInstance;
 
 struct UserData : public QObjectUserData {
-	UserData(uint index, const QString& name, VariantType type) {
+	UserData(uint index, const QString& name, VariantType type, QWidget* sender = nullptr) {
 		this->index = index;
 		this->name = name;
 		this->type = type;
+		this->sender = sender;
 	}
 
 	uint index;
 	QString name;
+	QWidget* sender;
 	VariantType type;
 };
 
@@ -43,6 +47,10 @@ Inspector* Inspector::get() {
 
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 	inspectorInstance = this;
+	colorPicker_ = new QColorDialog(this);
+	colorPicker_->setWindowTitle("Select color");
+	colorPicker_->setOption(QColorDialog::NoButtons);
+	connect(colorPicker_, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorChanged(const QColor&)));
 }
 
 Inspector::~Inspector() {
@@ -154,7 +162,7 @@ QWidget* Inspector::drawColorField(uint index, const QString& name, VariantType 
 	widget->setLayout(layout);
 
 	LabelTexture* label = new LabelTexture(widget);
-	label->setObjectName(ObjectName::colorButton);
+	label->setObjectName(Constants::colorButton);
 	label->setColor(*(glm::vec3*)value);
 	label->setUserData(Qt::UserRole, new UserData(index, name, type));
 	connect(label, SIGNAL(clicked()), this, SLOT(onClickProperty()));
@@ -165,7 +173,7 @@ QWidget* Inspector::drawColorField(uint index, const QString& name, VariantType 
 
 	if (type == VariantTypeColor4) {
 		QProgressBar* alpha = new QProgressBar(widget);
-		alpha->setObjectName(ObjectName::alphaProgress);
+		alpha->setObjectName(Constants::alphaProgress);
 		alpha->setStyleSheet("QProgressBar::chunk { background-color: #595959 }");
 		alpha->setFixedHeight(2);
 		alpha->setMaximum(255);
@@ -328,15 +336,38 @@ void Inspector::onClickProperty() {
 	QString name = ud->name;
 	VariantType type = ud->type;
 
-	Material material = target_->GetRenderer()->GetMaterial(index);
 	if (type == VariantTypeColor3) {
-		onSelectColor3(senderWidget, material, name);
+		onSelectColor3(senderWidget, index, name);
 	}
 	else if (type == VariantTypeColor4) {
-		onSelectColor4(senderWidget, material, name);
+		onSelectColor4(senderWidget, index, name);
 	}
 	else if (type == VariantTypeTexture) {
-		onSelectTexture(senderWidget, material, name);
+		onSelectTexture(senderWidget, index, name);
+	}
+}
+
+void Inspector::onColorChanged(const QColor& color) {
+	QColor selected = colorPicker_->currentColor();
+	if (!selected.isValid()) {
+		return;
+	}
+
+	UserData* data = (UserData*)colorPicker_->userData(Qt::UserRole);
+	data->sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
+				selected.red(), selected.green(), selected.blue()));
+
+	Material material = target_->GetRenderer()->GetMaterial(data->index);
+	if (data->type == VariantTypeColor4) {
+		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
+		material->SetColor4(data->name.toStdString(), newColor);
+
+		QProgressBar* alpha = data->sender->parent()->findChild<QProgressBar*>(Constants::alphaProgress);
+		alpha->setValue(selected.alpha());
+	}
+	else {
+		glm::vec3 newColor = Math::NormalizedColor(glm::ivec3(selected.red(), selected.green(), selected.blue()));
+		material->SetColor3(data->name.toStdString(), newColor);
 	}
 }
 
@@ -494,41 +525,45 @@ void Inspector::initTransformUI() {
 #undef CONNECT_SIGNAL
 }
 
-void Inspector::onSelectTexture(QWidget* widget, Material material, const QString& name) {
+void Inspector::onSelectTexture(QWidget* widget, uint materialIndex, const QString& name) {
 	QString path = QFileDialog::getOpenFileName(this, "Select texture", Resources::GetRootDirectory().c_str(), "*.jpg;;*.png");
 	if (!path.isEmpty()) {
 		Texture2D texture = NewTexture2D();
 		QDir dir(Resources::GetRootDirectory().c_str());
 		path = dir.relativeFilePath(path);
 		texture->Load(path.toStdString());
+		Material material = target_->GetRenderer()->GetMaterial(materialIndex);
 		material->SetTexture(name.toStdString(), texture);
 		((LabelTexture*)sender())->setTexture(texture);
 	}
 }
 
-void Inspector::onSelectColor3(QWidget* widget, Material material, const QString& name) {
+void Inspector::onSelectColor3(QWidget* widget, uint materialIndex, const QString& name) {
+	colorPicker_->setOption(QColorDialog::ShowAlphaChannel, false);
+	Material material = target_->GetRenderer()->GetMaterial(materialIndex);
 	glm::ivec3 color = Math::IntColor(material->GetColor3(name.toStdString()));
 	QColor old(color.r, color.g, color.b);
-	QColor selected = QColorDialog::getColor(old, this, "Select color");
-	if (selected.isValid()) {
-		glm::vec3 newColor = Math::NormalizedColor(glm::ivec3(selected.red(), selected.green(), selected.blue()));
-		material->SetColor3(name.toStdString(), newColor);
-		widget->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)", selected.red(), selected.green(), selected.blue()));
-	}
+
+	colorPicker_->blockSignals(true);
+	colorPicker_->setCurrentColor(old);
+	colorPicker_->blockSignals(false);
+
+	colorPicker_->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor3, widget));
+	colorPicker_->exec();
 }
 
-void Inspector::onSelectColor4(QWidget* widget, Material material, const QString& name) {
+void Inspector::onSelectColor4(QWidget* widget, uint materialIndex, const QString& name) {
+	colorPicker_->setOption(QColorDialog::ShowAlphaChannel);
+	Material material = target_->GetRenderer()->GetMaterial(materialIndex);
 	glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
 	QColor old(color.r, color.g, color.b, color.a);
-	QColor selected = QColorDialog::getColor(old, this, "Select color", QColorDialog::ShowAlphaChannel);
-	if (selected.isValid()) {
-		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
-		material->SetColor4(name.toStdString(), newColor);
+	
+	colorPicker_->blockSignals(true);
+	colorPicker_->setCurrentColor(old);
+	colorPicker_->blockSignals(false);
 
-		widget->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)", selected.red(), selected.green(), selected.blue()));
-		QProgressBar* alpha = widget->parent()->findChild<QProgressBar*>(ObjectName::alphaProgress);
-		alpha->setValue(selected.alpha());
-	}
+	colorPicker_->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor4, widget));
+	colorPicker_->exec();
 }
 
 void Inspector::drawSubMeshes(Mesh mesh) {

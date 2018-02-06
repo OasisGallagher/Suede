@@ -1,4 +1,5 @@
-Properties { }
+Properties {
+}
 
 SubShader {
 	Pass {
@@ -26,9 +27,10 @@ SubShader {
 		in vec3 texCoord;
 		
 		uniform samplerCube c_mainTexture;
+		uniform vec4 c_mainColor;
 
 		void main() {
-			color = texture(c_mainTexture, texCoord);
+			color = texture(c_mainTexture, texCoord) * c_mainColor;
 		}
 
 		ENDGLSL

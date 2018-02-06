@@ -10,6 +10,7 @@
 class QLineEdit;
 class QPushButton;
 class QListWidget;
+class QColorDialog;
 
 class Inspector : public QDockWidget, public ChildWindow, public WorldEventListener {
 	Q_OBJECT
@@ -32,9 +33,11 @@ private slots:
 	void onEditProperty();
 	void onClickProperty();
 
-	void onSelectColor3(QWidget* widget, Material material, const QString& name);
-	void onSelectColor4(QWidget* widget, Material material, const QString& name);
-	void onSelectTexture(QWidget* widget, Material material, const QString& name);
+	void onColorChanged(const QColor& color);
+
+	void onSelectColor3(QWidget* widget, uint materialIndex, const QString& name);
+	void onSelectColor4(QWidget* widget, uint materialIndex, const QString& name);
+	void onSelectTexture(QWidget* widget, uint materialIndex, const QString& name);
 
 	void onTagChanged(int index);
 	void onActiveChanged(int state);
@@ -83,4 +86,5 @@ private:
 private:
 	Entity target_;
 	QList<QWidget*> groups_;
+	QColorDialog* colorPicker_;
 };
