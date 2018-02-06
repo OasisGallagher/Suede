@@ -45,12 +45,12 @@ Object WorldInternal::Create(ObjectType type) {
 		Transform transform = Factory::Create<TransformInternal>();
 		entity->SetTransform(transform);
 
+		EntityCreatedEventPointer e = NewWorldEvent<EntityCreatedEventPointer>();
+		e->entity = entity;
+		FireEvent(e);
+
 		transform->SetParent(root_->GetTransform());
 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
-
-		EntityCreatedEvent e;
-		e.entity = entity;
-		FireEvent(&e);
 	}
 
 	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
@@ -121,13 +121,30 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 	}
 }
 
-void WorldInternal::FireEvent(const WorldEventBase* e) {
+bool WorldInternal::FireEvent(WorldEventBasePointer e) {
+	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
+		if ((*ite)->Equals(e)) {
+			return false;
+		}
+	}
+
+	events_.push_back(e);
+	return true;
+}
+
+void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
 	for (int i = 0; i < listeners_.size(); ++i) {
 		listeners_[i]->OnWorldEvent(e);
 	}
 }
 
 void WorldInternal::Update() {
+	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
+		FireEventImmediate(*ite);
+	}
+
+	events_.clear();
+
 	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 		if (ite->second->GetActive()) {
 			ite->second->Update();

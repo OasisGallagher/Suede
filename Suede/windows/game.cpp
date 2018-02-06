@@ -24,8 +24,8 @@
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-#define ROOM
-//#define BEAR
+//#define ROOM
+#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN

@@ -2,7 +2,7 @@
 #include "object.h"
 #include "enginedefines.h"
 
-struct TRS {
+struct PRS {
 	glm::vec3 position;
 	glm::quat rotation;
 	glm::vec3 scale;

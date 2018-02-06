@@ -76,10 +76,11 @@ void Inspector::init(Ui::Suede* ui) {
 	connect(ui_->text, SIGNAL(editingFinished()), this, SLOT(onTextChanged()));
 }
 
-void Inspector::OnWorldEvent(const WorldEventBase* e) {
+void Inspector::OnWorldEvent(WorldEventBasePointer e) {
+	EntityTransformChangedEventPointer tcp = ssp_cast<EntityTransformChangedEventPointer>(e);
 	switch (e->GetEventType()) {
 		case WorldEventTypeEntityTransformChanged:
-			onEntityTransformChanged((EntityTransformChangedEvent*)e);
+			onEntityTransformChanged(tcp->entity, tcp->prs);
 			break;
 	}
 }
@@ -496,8 +497,8 @@ void Inspector::shrinkToFit(QListWidget* w) {
 	w->setFixedHeight(height + 4);
 }
 
-void Inspector::onEntityTransformChanged(EntityTransformChangedEvent* e) {
-	if (e->entity == target_ && Math::Highword(e->prs) == 0) {
+void Inspector::onEntityTransformChanged(Entity target, uint prs) {
+	if (target == target_ && Math::Highword(prs) == 0) {
 		drawTransform();
 	}
 }
@@ -548,6 +549,7 @@ void Inspector::onSelectColor3(QWidget* widget, uint materialIndex, const QStrin
 	colorPicker_->setCurrentColor(old);
 	colorPicker_->blockSignals(false);
 
+	delete colorPicker_->userData(Qt::UserRole);
 	colorPicker_->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor3, widget));
 	colorPicker_->exec();
 }
@@ -562,6 +564,7 @@ void Inspector::onSelectColor4(QWidget* widget, uint materialIndex, const QStrin
 	colorPicker_->setCurrentColor(old);
 	colorPicker_->blockSignals(false);
 
+	delete colorPicker_->userData(Qt::UserRole);
 	colorPicker_->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor4, widget));
 	colorPicker_->exec();
 }

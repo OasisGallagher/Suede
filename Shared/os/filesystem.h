@@ -10,6 +10,7 @@ public:
 	static std::string GetFileName(const std::string& path);
 	static std::string GetFileNameWithoutExtension(const std::string& path);
 
+	static std::string GetExtension(const std::string& path);
 	static std::string GetParentPath(const std::string& path);
 
 	static bool ReadAllText(const std::string& file, std::string& text);

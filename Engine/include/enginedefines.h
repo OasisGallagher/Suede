@@ -14,9 +14,31 @@
 #define SUEDE_USE_NAMESPACE
 
 #ifdef  SUEDE_USE_NAMESPACE
-#define SUEDE_BEGIN_NAMESPACE	namespace {
+#define SUEDE_BEGIN_NAMESPACE	namespace Suede {
 #define SUEDE_END_NAMESPACE		}
 #else
 #define SUEDE_BEGIN_NAMESPACE
 #define SUEDE_END_NAMESPACE
 #endif
+
+/**
+* static shared_ptr cast.
+*/
+template<class T, class Ptr>
+inline T ssp_cast(const Ptr& ptr) {
+	return T(ptr, static_cast<typename T::element_type*>(ptr.get()));
+}
+
+/**
+* dynamic shared_ptr cast.
+*/
+template<class T, class Ptr>
+inline T dsp_cast(const Ptr& ptr) {
+	typedef typename T::element_type Element;
+	Element* p = dynamic_cast<Element*>(ptr.get());
+	if (p != nullptr) {
+		return T(ptr, p);
+	}
+
+	return T();
+}

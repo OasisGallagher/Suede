@@ -47,19 +47,15 @@ void Debug::SetLogReceiver(LogReceiver* value) {
 
 void Debug::Log(const char* format, ...) {
 	if (logReceiver != nullptr) {
-		StackTracer tracer(1);
 		FORMAT_BUFFER(format);
-		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace();
-		logReceiver->OnLogMessage(LogLevelDebug, text.c_str());
+		logReceiver->OnLogMessage(LogLevelDebug, buffer);
 	}
 }
 
 void Debug::LogWarning(const char* format, ...) {
 	if (logReceiver != nullptr) {
-		StackTracer tracer(1);
 		FORMAT_BUFFER(format);
-		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace();
-		logReceiver->OnLogMessage(LogLevelWarning, text.c_str());
+		logReceiver->OnLogMessage(LogLevelWarning, buffer);
 	}
 }
 

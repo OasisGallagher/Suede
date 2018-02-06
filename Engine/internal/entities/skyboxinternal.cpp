@@ -24,7 +24,7 @@ bool SkyboxInternal::Load(const std::string(&textures)[6]) {
 	Shader shader = Resources::FindShader("buildin/shaders/skybox");
 
 	// TODO: simple cube
-	Renderer renderer = GetTransform()->FindChild("defaultobject")->GetEntity()->GetRenderer();
+	Renderer renderer = GetTransform()->GetChildAt(0)->GetEntity()->GetRenderer();
 	Material material = renderer->GetMaterial(0);
 	renderer->SetRenderQueue(RenderQueueBackground);
 	

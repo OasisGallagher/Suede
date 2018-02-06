@@ -57,18 +57,29 @@ bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 	return !entities.empty();
 }
 
-void Hierarchy::OnWorldEvent(const WorldEventBase* e) {
+void Hierarchy::OnWorldEvent(WorldEventBasePointer e) {
+	EntityEventPointer eep = ssp_cast<EntityEventPointer>(e);
 	switch (e->GetEventType()) {
+		case WorldEventTypeEntityCreated:
+			onEntityCreated(eep->entity);
+			break;
 		case WorldEventTypeEntityTagChanged:
-			onEntityTagChanged(((EntityEvent*)e)->entity);
+			onEntityTagChanged(eep->entity);
 			break;
 		case WorldEventTypeEntityNameChanged:
-			onEntityNameChanged(((EntityEvent*)e)->entity);
+			onEntityNameChanged(eep->entity);
 			break;
 		case WorldEventTypeEntityParentChanged:
-			onEntityParentChanged(((EntityEvent*)e)->entity);
+			onEntityParentChanged(eep->entity);
 			break;
 	}
+}
+
+void Hierarchy::onEntityCreated(Entity entity) {
+	QStandardItem* item = new QStandardItem(entity->GetName().c_str());
+	item->setData(entity->GetInstanceID());
+	model_->appendRow(item);
+	items_[entity->GetInstanceID()] = item;
 }
 
 void Hierarchy::onEntityTagChanged(Entity entity) {
@@ -119,17 +130,9 @@ void Hierarchy::updateRecursively(Entity entity, QStandardItem* pi) {
 QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
 	QStandardItem* item = items_.value(entity->GetInstanceID());
 	if (item != nullptr) {
-		for (ItemContainer::iterator ite = items_.begin(); ite != items_.end(); ++ite) {
-			ite.value()->accessibleText();
-		}
-
 		QStandardItem* p = item->parent();
 		items_.remove(entity->GetInstanceID());
 		model_->removeRow(item->row(), p != nullptr ? p->index() : QModelIndex());
-
-		for (ItemContainer::iterator ite = items_.begin(); ite != items_.end(); ++ite) {
-			ite.value()->accessibleText();
-		}
 	}
 
 	item = new QStandardItem(entity->GetName().c_str());

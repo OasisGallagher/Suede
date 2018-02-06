@@ -25,7 +25,8 @@ public:
 	virtual Entity GetEntity(uint id);
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
 
-	virtual void FireEvent(const WorldEventBase* e);
+	virtual bool FireEvent(WorldEventBasePointer e);
+	virtual void FireEventImmediate(WorldEventBasePointer e);
 	virtual void AddEventListener(WorldEventListener* listener);
 	virtual void RemoveEventListener(WorldEventListener* listener);
 
@@ -38,14 +39,14 @@ private:
 	typedef std::map<uint, Entity> EntityContainer;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
+	typedef std::vector<WorldEventBasePointer> WorldEventContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
-
 private:
 	Entity root_;
 	LightContainer lights_;
 	CameraContainer cameras_;
 	EntityContainer entities_;
 	EventListenerContainer listeners_;
-
+	WorldEventContainer events_;
 	Environment environment_;
 };

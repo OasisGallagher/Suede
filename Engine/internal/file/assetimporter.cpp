@@ -100,7 +100,7 @@ bool AssetImporter::Initialize(const std::string& path, Assimp::Importer &import
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
 
-	if (String::EndsWith(path, ".fbx")) {
+	if (FileSystem::GetExtension(path) == ".fbx") {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}

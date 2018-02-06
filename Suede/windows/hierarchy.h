@@ -34,7 +34,7 @@ signals:
 	void selectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
 private:
-	virtual void OnWorldEvent(const WorldEventBase* e);
+	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private slots:
 	void reload();
@@ -45,6 +45,7 @@ private:
 	QStandardItem* appendItem(Entity child, QStandardItem* pi);
 	void removeItem(QStandardItem* item);
 
+	void onEntityCreated(Entity entity);
 	void onEntityTagChanged(Entity entity);
 	void onEntityNameChanged(Entity entity);
 	void onEntityParentChanged(Entity entity);

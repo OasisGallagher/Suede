@@ -67,6 +67,9 @@
     <Filter Include="windows\include">
       <UniqueIdentifier>{a8b8c673-6a4b-4d6f-ad47-694561ff1ff6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resources\winrc">
+      <UniqueIdentifier>{311718b2-a96d-4bbd-a172-5156996483a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -243,5 +246,10 @@
     <None Include="resources\shaders\xray.shader">
       <Filter>resources\shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\winrc\res.rc">
+      <Filter>resources\winrc</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

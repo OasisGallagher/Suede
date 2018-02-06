@@ -88,8 +88,8 @@ private:
 	std::weak_ptr<Transform::element_type> parent_;
 	std::weak_ptr<Entity::element_type> entity_;
 
-	TRS local_;
-	TRS world_;
+	PRS local_;
+	PRS world_;
 
 	int dirtyFlag_;
 	glm::mat4 localToWorldMatrix_;

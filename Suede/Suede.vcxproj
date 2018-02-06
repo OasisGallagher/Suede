@@ -412,6 +412,9 @@
     <None Include="resources\shaders\inversion.shader" />
     <None Include="resources\shaders\xray.shader" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\winrc\res.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

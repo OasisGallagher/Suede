@@ -24,7 +24,7 @@ public:
 
 public:
 	virtual void init(Ui::Suede* ui);
-	virtual void OnWorldEvent(const WorldEventBase* e);
+	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private slots:
 	void onNameChanged();
@@ -64,7 +64,7 @@ private:
 
 	void shrinkToFit(QListWidget* w);
 
-	void onEntityTransformChanged(EntityTransformChangedEvent* e);
+	void onEntityTransformChanged(Entity target, uint prs);
 
 	glm::vec3 readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z);
 	void writeTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3);

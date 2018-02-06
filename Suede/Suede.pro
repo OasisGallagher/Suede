@@ -16,4 +16,6 @@ MOC_DIR += ./GeneratedFiles/debug
 OBJECTS_DIR += debug
 UI_DIR += ./GeneratedFiles
 RCC_DIR += ./GeneratedFiles
+RC_FILE += ./resources/winrc/res.rc
+
 include(Suede.pri)

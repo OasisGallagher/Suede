@@ -31,6 +31,10 @@ std::string FileSystem::GetFileNameWithoutExtension(const std::string& path) {
 	return fs::path(path).stem().string();
 }
 
+std::string FileSystem::GetExtension(const std::string& path) {
+	return fs::path(path).extension().string();
+}
+
 std::string FileSystem::GetParentPath(const std::string& path) {
 	return fs::path(path).parent_path().string();
 }

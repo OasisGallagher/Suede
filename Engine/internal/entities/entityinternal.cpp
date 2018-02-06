@@ -28,9 +28,9 @@ void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
 
-		EntityActiveEvent e;
-		e.entity = dsp_cast<Entity>(shared_from_this());
-		WorldInstance()->FireEvent(&e);
+		EntityActiveEventPointer e = NewWorldEvent<EntityActiveEventPointer>();
+		e->entity = dsp_cast<Entity>(shared_from_this());
+		WorldInstance()->FireEvent(e);
 	}
 }
 
@@ -42,9 +42,9 @@ bool EntityInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		EntityTagChangedEvent e;
-		e.entity = dsp_cast<Entity>(shared_from_this());
-		WorldInstance()->FireEvent(&e);
+		EntityTagChangedEventPointer e = NewWorldEvent<EntityTagChangedEventPointer>();
+		e->entity = dsp_cast<Entity>(shared_from_this());
+		WorldInstance()->FireEvent(e);
 	}
 
 	return true;
@@ -59,9 +59,9 @@ void EntityInternal::SetName(const std::string& value) {
 	if (name_ != value) {
 		name_ = value;
 
-		EntityNameChangedEvent e;
-		e.entity = dsp_cast<Entity>(shared_from_this());
-		WorldInstance()->FireEvent(&e);
+		EntityNameChangedEventPointer e = NewWorldEvent<EntityNameChangedEventPointer>();
+		e->entity = dsp_cast<Entity>(shared_from_this());
+		WorldInstance()->FireEvent(e);
 	}
 }
 
