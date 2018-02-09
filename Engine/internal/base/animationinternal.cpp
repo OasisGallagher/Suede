@@ -394,7 +394,7 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 }
 
 void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
-	SortedVector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
+	sorted_vector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
 	if (attributes_.size() != otherAttributes.size()) {
 		Debug::LogError("attribute count mismatch");
 		return;

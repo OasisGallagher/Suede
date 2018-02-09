@@ -17,7 +17,7 @@ enum WorldEventType {
 	WorldEventTypeCustom = 128,
 };
 
-#define DEFINE_WORLD_EVENT_POINTER(type)	struct type; typedef std::shared_ptr<type> type ## Pointer
+#define DEFINE_WORLD_EVENT_POINTER(type)	typedef std::shared_ptr<struct type> type ## Pointer
 
 template <class Ptr>
 Ptr NewWorldEvent() { return std::make_shared<Ptr::element_type>(); }

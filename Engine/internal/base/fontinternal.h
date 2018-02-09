@@ -40,7 +40,7 @@ private:
 		TexelMap texelMap;
 	};
 
-	typedef PtrMap<uint, Glyph> GlyphContainer;
+	typedef ptr_map<uint, Glyph> GlyphContainer;
 
 private:
 	void Destroy();

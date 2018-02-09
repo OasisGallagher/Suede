@@ -98,7 +98,7 @@ void ParticleSystemInternal::UpdateMesh() {
 void ParticleSystemInternal::UpdateAttributes() {
 	float deltaTime = Time::GetDeltaTime();
 
-	for (FreeList<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
+	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
 
 		if ((particle->life -= deltaTime) <= 0) {
@@ -117,7 +117,7 @@ void ParticleSystemInternal::UpdateBuffers() {
 	if (colors_.size() < count) { colors_.resize(count); }
 	if (geometries_.size() < count) { geometries_.resize(count); }
 
-	for (FreeList<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
+	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
 		Particle* particle = *ite;
 
 		colors_[index] = particle->color;

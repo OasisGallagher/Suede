@@ -3,7 +3,7 @@
 #include "tools/math2.h"
 #include "containers/sortedvector.h"
 
-typedef SortedVector<std::string> TagContainer;
+typedef sorted_vector<std::string> TagContainer;
 static const char* defaultTags[] = { "" };
 static TagContainer tagContainer(defaultTags, defaultTags + CountOf(defaultTags));
 

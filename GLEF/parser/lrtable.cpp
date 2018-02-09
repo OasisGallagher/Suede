@@ -26,12 +26,12 @@ int LRTable::GetGoto(int current, const GrammarSymbol& symbol) {
 std::string LRTable::ToString(const GrammarContainer& grammars) const {
 	std::ostringstream oss;
 	
-	oss << String::Heading(" Action Table ") << "\n";
+	oss << String::Heading(" Action table ") << "\n";
 	oss << actionTable_.ToString(grammars);
 
 	oss << "\n\n";
 
-	oss << String::Heading(" Goto Table ") << "\n";
+	oss << String::Heading(" Goto table ") << "\n";
 	oss << gotoTable_.ToString();
 
 	return oss.str();

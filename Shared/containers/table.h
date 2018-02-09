@@ -14,7 +14,7 @@ struct TableKeyComparer : public std::binary_function <key_type, key_type, bool>
 };
 
 template <class Kty1, class Kty2, class Ty, class Comp = TableKeyComparer<std::pair<Kty1, Kty2>>>
-class Table {
+class table {
 public:
 	typedef Kty1 first_key_type;
 	typedef Kty2 second_key_type;
@@ -29,7 +29,7 @@ public:
 	typedef std::pair<iterator, bool> ib_pair;
 
 public:
-	Table& operator = (const Table& other) {
+	table& operator = (const table& other) {
 		cont_ = other.cont_;
 		return *this;
 	}

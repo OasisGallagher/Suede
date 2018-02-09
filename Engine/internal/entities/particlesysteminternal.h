@@ -155,6 +155,6 @@ private:
 	std::vector<glm::vec4> colors_;
 	std::vector<glm::vec4> geometries_;
 	
-	FreeList<Particle> particles_;
+	free_list<Particle> particles_;
 	std::vector<Particle*> buffer_;
 };

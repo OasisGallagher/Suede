@@ -456,7 +456,7 @@ void Inspector::drawTransform() {
 void Inspector::drawMesh() {
 	Mesh mesh = target_->GetMesh();
 	ui_->topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
-	ui_->vertices->setText(QString::number(mesh->GetVertexCount()));
+	ui_->vertices->setText(QString::number(mesh->GetVertices().size()));
 	ui_->subMeshList->clear();
 
 	drawSubMeshes(mesh);

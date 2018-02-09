@@ -2,12 +2,12 @@
 #include "lrimpl.h"
 #include "containers/table.h"
 
-class LRGotoTable : public Table <int, GrammarSymbol, int> {
+class LRGotoTable : public table <int, GrammarSymbol, int> {
 public:
 	std::string ToString() const;
 };
 
-class LRActionTable : public Table <int, GrammarSymbol, LRAction> {
+class LRActionTable : public table <int, GrammarSymbol, LRAction> {
 public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };

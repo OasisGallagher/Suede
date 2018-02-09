@@ -3,7 +3,7 @@
 #include <algorithm>
 
 template <class Ty, class Comp = std::less<Ty> > 
-class SortedVector {
+class sorted_vector {
 public:
 	typedef Ty value_type;
 	typedef Comp comparer_type;
@@ -15,10 +15,10 @@ public:
 	typedef typename container_type::const_reference const_reference;
 
 public:
-	SortedVector() {}
+	sorted_vector() {}
 
 	template <class Iterator>
-	SortedVector(Iterator first, Iterator last) {
+	sorted_vector(Iterator first, Iterator last) {
 		for (; first != last; ++first) {
 			insert(*first);
 		}

@@ -3,7 +3,7 @@
 #include <map>
 
 template <class Key, class Ty>
-class PtrMap {
+class ptr_map {
 public:
 	typedef Key key_type;
 	typedef Ty* value_type;
@@ -13,7 +13,7 @@ public:
 	typedef std::pair<iterator, bool> ib_pair;
 
 public:
-	~PtrMap() {
+	~ptr_map() {
 		clear();
 	}
 
@@ -40,7 +40,7 @@ public:
 		cont_.clear();
 	}
 
-	PtrMap<Key, Ty>& operator= (PtrMap<Key, Ty>& other) {
+	ptr_map<Key, Ty>& operator= (ptr_map<Key, Ty>& other) {
 		clear();
 		for (iterator ite = other.begin(); ite != other.end(); ++ite) {
 			*(operator[](ite->first)) = *ite->second;

@@ -23,7 +23,7 @@ MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
 }
 
 MeshInternal::MeshInternal(ObjectType type)
-	: ObjectInternal(type), indexBuffer_(0), topology_(MeshTopologyTriangles), vertexCount_(0) {
+	: ObjectInternal(type), indexBuffer_(0) {
 	memset(instanceBuffer_, 0, sizeof(instanceBuffer_));
 }
 
@@ -36,11 +36,11 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
+	attribute_ = value;
+
 	vao_.Bind();
 	UpdateGLBuffers(value);
 	vao_.Unbind();
-
-	topology_ = value.topology;
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -50,8 +50,6 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	vao_.CreateVBOs(vboCount);
 
 	uint vboIndex = 0;
-
-	vertexCount_ = attribute.positions.size();
 
 	if (!attribute.positions.empty()) {
 		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);

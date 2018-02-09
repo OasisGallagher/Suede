@@ -24,8 +24,8 @@
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-//#define ROOM
-#define BEAR
+#define ROOM
+//#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
@@ -220,6 +220,7 @@ void Game::createScene() {
 
 #ifdef ROOM
  	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
+	room->SetName("room");
  	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
  	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
  	roomEntityID = room->GetInstanceID();

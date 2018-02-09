@@ -170,6 +170,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\file\image.cpp" />
     <ClCompile Include="internal\file\shaderparser.cpp" />
     <ClCompile Include="internal\file\assetimporter.cpp" />
+    <ClCompile Include="internal\geometry\geometryutility.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\entities\camerainternal.cpp" />
@@ -189,6 +190,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="src\variant.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Shared\containers\arraylist.h" />
+    <ClInclude Include="..\Shared\containers\freelist.h" />
+    <ClInclude Include="..\Shared\containers\ptrmap.h" />
+    <ClInclude Include="..\Shared\containers\sortedvector.h" />
+    <ClInclude Include="..\Shared\containers\table.h" />
     <ClInclude Include="include\animation.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\driver.h" />
@@ -229,12 +235,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\textureinternal.h" />
     <ClInclude Include="internal\base\transforminternal.h" />
     <ClInclude Include="internal\base\vertexarrayobject.h" />
-    <ClInclude Include="internal\containers\freelist.h" />
-    <ClInclude Include="internal\containers\ptrmap.h" />
-    <ClInclude Include="internal\containers\sortedvector.h" />
     <ClInclude Include="internal\file\image.h" />
     <ClInclude Include="internal\file\shaderparser.h" />
     <ClInclude Include="internal\file\assetimporter.h" />
+    <ClInclude Include="internal\geometry\geometryutility.h" />
+    <ClInclude Include="internal\geometry\plane.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\entities\camerainternal.h" />
     <ClInclude Include="internal\entities\lightinternal.h" />

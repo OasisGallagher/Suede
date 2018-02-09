@@ -72,6 +72,6 @@ private:
 	Shader shader_;
 	uint passEnabled_;
 	std::string name_;
-	typedef PtrMap<std::string, Property> PropertyContainer;
+	typedef ptr_map<std::string, Property> PropertyContainer;
 	PropertyContainer properties_;
 };

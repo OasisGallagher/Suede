@@ -29,7 +29,7 @@ private:
 		GLuint location;
 	};
 
-	typedef PtrMap<std::string, Uniform> UniformContainer;
+	typedef ptr_map<std::string, Uniform> UniformContainer;
 
 	void InitializeRenderStates(const std::vector<Semantics::RenderState>& states);
 	RenderState* CreateRenderState(const Semantics::RenderState& state);

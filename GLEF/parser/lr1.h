@@ -129,7 +129,7 @@ public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };
 
-class LR1EdgeTable : public Table <LR1Itemset, GrammarSymbol, LR1Itemset> {
+class LR1EdgeTable : public table <LR1Itemset, GrammarSymbol, LR1Itemset> {
 public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };

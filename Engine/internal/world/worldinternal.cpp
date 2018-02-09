@@ -30,6 +30,8 @@ bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera&
 	return lhs->GetDepth() < rhs->GetDepth();
 }
 
+#include "internal/geometry/geometryutility.h"
+
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
@@ -138,6 +140,9 @@ void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
 	}
 }
 
+#include "internal/geometry/plane.h"
+#include "internal/geometry/geometryutility.h"
+
 void WorldInternal::Update() {
 	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
 		FireEventImmediate(*ite);
@@ -145,7 +150,12 @@ void WorldInternal::Update() {
 
 	events_.clear();
 
+	Entity room;
 	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+		if (ite->second->GetName() == "room") {
+			room = ite->second;
+		}
+
 		if (ite->second->GetActive()) {
 			ite->second->Update();
 		}
@@ -154,6 +164,42 @@ void WorldInternal::Update() {
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		if ((*ite)->GetActive()) {
 			(*ite)->Render();
+		}
+	}
+
+	if (!room || cameras_.empty()) {
+		return;
+	}
+
+	Mesh mesh = room->GetMesh();
+	if (!mesh) {
+		return;
+	}
+
+	const std::vector<uint>& indexes = mesh->GetIndexes();
+	const std::vector<glm::vec3>& vertices = mesh->GetVertices();
+	Plane planes[6];
+	Camera camera = *cameras_.begin();
+	GeometryUtility::CalculateFrustumPlanes(planes, camera->GetProjectionMatrix() * camera->GetTransform()->GetWorldToLocalMatrix());
+	std::vector<glm::vec3> polygon;
+
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		uint indexCount, baseVertex, baseIndex;
+		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+		// TODO: triangle strip.
+		for (int j = 0; j < indexCount; j += 3) {
+			uint index0 = indexes[baseIndex] + baseVertex;
+			uint index1 = indexes[baseIndex + 1] + baseVertex;
+			uint index2 = indexes[baseIndex + 2] + baseVertex;
+
+			glm::vec3 vs[] = {
+				vertices[index0],
+				vertices[index1],
+				vertices[index2]
+			};
+
+			GeometryUtility::ClampTriangle(polygon, vs, planes, CountOf(planes));
 		}
 	}
 }

@@ -111,7 +111,7 @@ private:
 		}
 	};
 
-	typedef SortedVector<Key> Keys;
+	typedef sorted_vector<Key> Keys;
 	typedef std::vector<Keys*> Container;
 
 private:
@@ -166,7 +166,7 @@ private:
 	bool playing_;
 	AnimationClip current_;
 
-	SortedVector<Key> clips_;
+	sorted_vector<Key> clips_;
 };
 
 class AnimationFrameInternal : public IAnimationFrame, public ObjectInternal {
@@ -206,7 +206,7 @@ private:
 private:
 
 	float time_;
-	SortedVector<Key> attributes_;
+	sorted_vector<Key> attributes_;
 };
 
 class AnimationCurveInternal : public IAnimationCurve, public ObjectInternal {

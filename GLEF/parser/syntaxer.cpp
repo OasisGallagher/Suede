@@ -9,17 +9,17 @@
 #include "tools/string.h"
 #include "containers/ptrmap.h"
 
-class SymTable : public PtrMap<std::string, Sym> { };
+class SymTable : public ptr_map<std::string, Sym> { };
 
-class IntegerTable : public PtrMap<std::string, Integer> { };
+class IntegerTable : public ptr_map<std::string, Integer> { };
 
-class SingleTable : public PtrMap<std::string, Single> { };
+class SingleTable : public ptr_map<std::string, Single> { };
 
-class BooleanTable : public PtrMap<std::string, Boolean> {};
+class BooleanTable : public ptr_map<std::string, Boolean> {};
 
-class LiteralTable : public PtrMap<std::string, Literal> { };
+class LiteralTable : public ptr_map<std::string, Literal> { };
 
-class CodeTable : public PtrMap<std::string, Code> { };
+class CodeTable : public ptr_map<std::string, Code> { };
 
 void Integer::SetText(const std::string& text) {
 	if (!String::ToInteger(text.c_str(), nullptr)) {

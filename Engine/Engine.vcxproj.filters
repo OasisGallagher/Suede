@@ -71,6 +71,15 @@
     <Filter Include="wrappers\include">
       <UniqueIdentifier>{926afe17-d09c-45e9-aacc-58dfc3e62096}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\geometry">
+      <UniqueIdentifier>{ed0ca55e-2816-417d-8287-68c3a15e28e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\geometry\include">
+      <UniqueIdentifier>{fcb06d9b-ade4-4bd8-bd2d-5dc2d96e13c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\geometry\src">
+      <UniqueIdentifier>{391be752-2b84-491a-8c76-c612d5d398e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -160,9 +169,6 @@
     <ClInclude Include="internal\base\animationinternal.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\containers\sortedvector.h">
-      <Filter>internal\containers\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\particlesystem.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -171,9 +177,6 @@
     </ClInclude>
     <ClInclude Include="internal\base\vertexarrayobject.h">
       <Filter>internal\base\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\containers\freelist.h">
-      <Filter>internal\containers\include</Filter>
     </ClInclude>
     <ClInclude Include="include\time2.h">
       <Filter>include</Filter>
@@ -189,9 +192,6 @@
     </ClInclude>
     <ClInclude Include="internal\file\image.h">
       <Filter>internal\file\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\containers\ptrmap.h">
-      <Filter>internal\containers\include</Filter>
     </ClInclude>
     <ClInclude Include="include\mesh.h">
       <Filter>include</Filter>
@@ -237,6 +237,27 @@
     </ClInclude>
     <ClInclude Include="internal\base\transforminternal.h">
       <Filter>internal\entities\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\containers\arraylist.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\containers\freelist.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\containers\ptrmap.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\containers\sortedvector.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\containers\table.h">
+      <Filter>internal\containers\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\geometry\plane.h">
+      <Filter>internal\geometry\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\geometry\geometryutility.h">
+      <Filter>internal\geometry\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -338,6 +359,9 @@
     </ClCompile>
     <ClCompile Include="internal\base\transforminternal.cpp">
       <Filter>internal\entities\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\geometryutility.cpp">
+      <Filter>internal\geometry\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

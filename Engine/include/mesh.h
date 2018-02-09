@@ -57,7 +57,9 @@ public:
 	virtual void RemoveSubMesh(uint index) = 0;
 
 	virtual MeshTopology GetTopology() = 0;
-	virtual uint GetVertexCount() const = 0;
+
+	virtual const std::vector<uint>& GetIndexes() const = 0;
+	virtual const std::vector<glm::vec3>& GetVertices() const = 0;
 
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;

@@ -25,6 +25,8 @@ public:
 	static glm::vec3 Degrees(const glm::vec3& radians);
 	static glm::vec3 Radians(const glm::vec3& degrees);
 
+	static float Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal);
+
 	static glm::ivec4 IntColor(const glm::vec4& color);
 	static glm::vec4 NormalizedColor(const glm::ivec4& color);
 
@@ -88,6 +90,16 @@ inline float Math::Degrees(float radians) {
 
 inline float Math::Radians(float degrees) {
 	return degrees * 0.0174532924f;
+}
+
+inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal) {
+	float r = acosf(glm::dot(a, b));
+	glm::vec3 c = glm::cross(a, b);
+	if (glm::dot(normal, c) < 0) {
+		r = -r;
+	}
+
+	return r;
 }
 
 inline glm::ivec4 Math::IntColor(const glm::vec4& color) {

@@ -53,8 +53,10 @@ public:
 	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
 	virtual void RemoveSubMesh(uint index) { subMeshes_.erase(subMeshes_.begin() + index); }
 
-	virtual MeshTopology GetTopology() { return topology_; }
-	virtual uint GetVertexCount() const { return vertexCount_; }
+	virtual MeshTopology GetTopology() { return attribute_.topology; }
+
+	virtual const std::vector<uint>& GetIndexes() const { return attribute_.indexes; }
+	virtual const std::vector<glm::vec3>& GetVertices() const { return attribute_.positions; }
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
@@ -65,10 +67,9 @@ private:
 
 private:
 	uint indexBuffer_;
-	uint vertexCount_;
+	MeshAttribute attribute_;
 
 	VertexArrayObject vao_;
-	MeshTopology topology_;
 
 	uint instanceBuffer_[2];
 	std::vector<SubMesh> subMeshes_;

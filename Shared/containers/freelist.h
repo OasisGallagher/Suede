@@ -4,7 +4,7 @@
 #include "../memory/memory.h"
 
 template <class T>
-class FreeList {
+class free_list {
 	struct Head {
 		struct Block* prev;
 		struct Block* next;
@@ -52,12 +52,12 @@ public:
 	typedef free_list_iterator iterator;
 
 public:
-	FreeList(size_t capacity) : free_(nullptr), busy_(nullptr), size_(0) {
+	free_list(size_t capacity) : free_(nullptr), busy_(nullptr), size_(0) {
 		capacity_ = capacity;
 		allocate(capacity_);
 	}
 
-	~FreeList() {
+	~free_list() {
 		MEMORY_RELEASE_ARRAY(memory_);
 	}
 
