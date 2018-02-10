@@ -21,6 +21,12 @@ public:
 	virtual void SetParent(Transform value);
 	virtual Transform GetParent() const { return parent_.lock(); }
 
+	virtual glm::vec3 TransformPoint(const glm::vec3& point);
+	virtual glm::vec3 TransformDirection(const glm::vec3& direction);
+
+	virtual glm::vec3 InverseTransformPoint(const glm::vec3& point);
+	virtual glm::vec3 InverseTransformDirection(const glm::vec3& direction);
+
 	virtual Transform FindChild(const std::string& path);
 
 	virtual int GetChildCount() { return (int)children_.size(); }

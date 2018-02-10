@@ -158,6 +158,7 @@ RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
 #define CASE(name)	if (state.type == #name) return MEMORY_CREATE(name ## State)
 	CASE(Cull);
 	CASE(ZTest);
+	CASE(Offset);
 	CASE(Blend);
 	CASE(ZWrite);
 	CASE(StencilOp);

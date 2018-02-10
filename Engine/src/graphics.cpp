@@ -7,7 +7,5 @@ void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	static Mesh mesh = Resources::CreatePrimitive(PrimitiveTypeQuad, 2);
 
 	material->SetTexture(Variables::mainTexture, src);
-
-	Resources::GetMeshRenderer()->SetMaterial(0, material);
-	Resources::GetMeshRenderer()->RenderMesh(mesh, material);
+	Resources::GetAuxMeshRenderer()->RenderMesh(mesh, material);
 }

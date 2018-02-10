@@ -9,6 +9,7 @@
 #include "texture.h"
 #include "material.h"
 #include "renderer.h"
+#include "projector.h"
 #include "animation.h"
 #include "particlesystem.h"
 
@@ -24,8 +25,8 @@ DEFINE_OBJECT_CREATER(TextMesh)
 DEFINE_OBJECT_CREATER(Material)
 DEFINE_OBJECT_CREATER(Texture2D)
 DEFINE_OBJECT_CREATER(TextureCube)
-DEFINE_OBJECT_CREATER(RenderTexture)
 DEFINE_OBJECT_CREATER(MeshRenderer)
+DEFINE_OBJECT_CREATER(RenderTexture)
 DEFINE_OBJECT_CREATER(ParticleRenderer)
 DEFINE_OBJECT_CREATER(SkinnedMeshRenderer)
 
@@ -43,6 +44,7 @@ DEFINE_OBJECT_CREATER(SphereParticleEmitter)
 DEFINE_OBJECT_CREATER(Entity)
 DEFINE_OBJECT_CREATER(Camera)
 DEFINE_OBJECT_CREATER(Skybox)
+DEFINE_OBJECT_CREATER(Projector)
 DEFINE_OBJECT_CREATER(SpotLight)
 DEFINE_OBJECT_CREATER(PointLight)
 DEFINE_OBJECT_CREATER(DirectionalLight)

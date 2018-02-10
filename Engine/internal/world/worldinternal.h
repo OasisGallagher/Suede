@@ -5,6 +5,7 @@
 #include "light.h"
 #include "camera.h"
 #include "entity.h"
+#include "projector.h"
 #include "environment.h"
 #include "internal/base/objectinternal.h"
 
@@ -35,16 +36,20 @@ public:
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
+	struct ProjectorComparer { bool operator() (const Projector& lhs, const Projector& rhs) const; };
 
 	typedef std::map<uint, Entity> EntityContainer;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
+	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
 	typedef std::vector<WorldEventBasePointer> WorldEventContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 private:
 	Entity root_;
 	LightContainer lights_;
 	CameraContainer cameras_;
+	ProjectorContainer projectors_;
+
 	EntityContainer entities_;
 	EventListenerContainer listeners_;
 	WorldEventContainer events_;

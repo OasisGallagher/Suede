@@ -33,6 +33,7 @@ enum ObjectType {
 	ObjectTypeEntity,
 	ObjectTypeCamera,
 	ObjectTypeSkybox,
+	ObjectTypeProjector,
 	ObjectTypeSpotLight,
 	ObjectTypePointLight,
 	ObjectTypeDirectionalLight,

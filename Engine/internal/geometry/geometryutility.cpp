@@ -46,7 +46,12 @@ bool GeometryUtility::PolygonContains(const std::vector<glm::vec3>& positions, c
 }
 
 void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::vector<glm::vec3>& polygon, const glm::vec3& normal) {
-	return EarClippingTriangulate(triangles, polygon, normal);
+	if (polygon.size() == 3) {
+		triangles.insert(triangles.end(), polygon.begin(), polygon.end());
+	}
+	else if (polygon.size() > 3) {
+		EarClippingTriangulate(triangles, polygon, normal);
+	}
 }
 
 void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const glm::vec3 triangle[3], const Plane* planes, uint count) {
@@ -77,12 +82,20 @@ bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plan
 }
 
 void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipSpaceMatrix) {
-	planes[0] = Plane(worldToClipSpaceMatrix[3] + worldToClipSpaceMatrix[0]);
-	planes[1] = Plane(worldToClipSpaceMatrix[3] - worldToClipSpaceMatrix[0]);
-	planes[2] = Plane(worldToClipSpaceMatrix[3] + worldToClipSpaceMatrix[1]);
-	planes[3] = Plane(worldToClipSpaceMatrix[3] - worldToClipSpaceMatrix[1]);
-	planes[4] = Plane(worldToClipSpaceMatrix[3] + worldToClipSpaceMatrix[2]);
-	planes[5] = Plane(worldToClipSpaceMatrix[3] - worldToClipSpaceMatrix[2]);
+#define EXTRACT_PLANE(index, sign, row)	\
+	planes[index] = Plane(glm::vec4(worldToClipSpaceMatrix[0][3] sign worldToClipSpaceMatrix[0][row], \
+		worldToClipSpaceMatrix[1][3] sign worldToClipSpaceMatrix[1][row], \
+		worldToClipSpaceMatrix[2][3] sign worldToClipSpaceMatrix[2][row], \
+		worldToClipSpaceMatrix[3][3] sign worldToClipSpaceMatrix[3][row]))
+
+	EXTRACT_PLANE(0, +, 0);
+	EXTRACT_PLANE(1, -, 0);
+	EXTRACT_PLANE(2, +, 1);
+	EXTRACT_PLANE(3, -, 1);
+	EXTRACT_PLANE(4, +, 2);
+	EXTRACT_PLANE(5, -, 2);
+
+#undef EXTRACT_PLANE
 }
 
 //void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], Camera camera) {

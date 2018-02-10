@@ -5,6 +5,8 @@
 
 #include "world.h"
 #include "entity.h"
+#include "camera.h"
+#include "projector.h"
 #include "childwindow.h"
 
 class QLineEdit;
@@ -33,6 +35,8 @@ private slots:
 	void onEditProperty();
 	void onClickProperty();
 
+	void onSliderValueChanged(int value);
+
 	void onColorChanged(const QColor& color);
 
 	void onSelectColor3(QWidget* widget, uint materialIndex, const QString& name);
@@ -53,6 +57,9 @@ private:
 	void redraw();
 	void drawTags();
 	void drawTransform();
+
+	void drawCamera(Camera camera);
+	void drawProjector(Projector projector);
 
 	void drawMesh();
 	void drawTextMesh(Mesh mesh);

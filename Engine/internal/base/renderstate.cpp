@@ -33,7 +33,7 @@ void CullState::Unbind() {
 	GL::CullFace(oldMode_);
 }
 
-RenderState * CullState::Clone() {
+RenderState* CullState::Clone() {
 	return MEMORY_CLONE(CullState, this);
 }
 
@@ -59,7 +59,7 @@ void ZTestState::Unbind() {
 	}
 }
 
-RenderState * ZTestState::Clone() {
+RenderState* ZTestState::Clone() {
 	return MEMORY_CLONE(ZTestState, this);
 }
 
@@ -79,6 +79,26 @@ void ZWriteState::Unbind() {
 
 RenderState* ZWriteState::Clone() {
 	return MEMORY_CLONE(ZWriteState, this);
+}
+
+void OffsetState::Initialize(int parameter0, int parameter1, int) {
+	parameter0_ = parameter0;
+	parameter1_ = parameter1;
+}
+
+void OffsetState::Bind() {
+	GL::GetFloatv(GL_POLYGON_OFFSET_UNITS, &oldUnits_);
+	GL::GetFloatv(GL_POLYGON_OFFSET_FACTOR, &oldFactor_);
+
+	GL::PolygonOffset(float(parameter0_) / Scale, float(parameter1_) / Scale);
+}
+
+void OffsetState::Unbind() {
+	GL::PolygonOffset(oldFactor_, oldUnits_);
+}
+
+RenderState* OffsetState::Clone() {
+	return MEMORY_CLONE(OffsetState, this);
 }
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
@@ -113,7 +133,7 @@ void StencilTestState::Unbind() {
 	}
 }
 
-RenderState * StencilTestState::Clone() {
+RenderState* StencilTestState::Clone() {
 	return MEMORY_CLONE(StencilTestState, this);
 }
 
@@ -135,7 +155,7 @@ void StencilWriteState::Unbind() {
 	GL::StencilMaskSeparate(GL_BACK, oldBackMask_);
 }
 
-RenderState * StencilWriteState::Clone() {
+RenderState* StencilWriteState::Clone() {
 	return MEMORY_CLONE(StencilWriteState, this);
 }
 
@@ -161,7 +181,7 @@ void StencilOpState::Unbind() {
 	GL::StencilOp(oldSfail_, oldDpfail_, oldDppass_);
 }
 
-RenderState * StencilOpState::Clone() {
+RenderState* StencilOpState::Clone() {
 	return MEMORY_CLONE(StencilOpState, this);
 }
 
@@ -179,7 +199,7 @@ void RasterizerDiscardState::Unbind() {
 	Enable(GL_RASTERIZER_DISCARD, oldEnabled_);
 }
 
-RenderState * RasterizerDiscardState::Clone() {
+RenderState* RasterizerDiscardState::Clone() {
 	return MEMORY_CLONE(RasterizerDiscardState, this);
 }
 
@@ -210,7 +230,7 @@ void BlendState::Unbind() {
 	GL::BlendFunc(oldSrc_, oldDest_);
 }
 
-RenderState * BlendState::Clone() {
+RenderState* BlendState::Clone() {
 	return MEMORY_CLONE(BlendState, this);
 }
 

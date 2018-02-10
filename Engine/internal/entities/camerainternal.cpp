@@ -5,6 +5,7 @@
 #include "screen.h"
 #include "resources.h"
 #include "variables.h"
+#include "imageeffect.h"
 #include "tools/math2.h"
 #include "internal/file/image.h"
 #include "internal/base/gbuffer.h"
@@ -63,8 +64,8 @@ void CameraInternal::SetFarClipPlane(float value) {
 }
 
 void CameraInternal::SetFieldOfView(float value) {
-	if (!Math::Approximately(near_, value)) {
-		near_ = value;
+	if (!Math::Approximately(fieldOfView_, value)) {
+		fieldOfView_ = value;
 		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 	}
 }
@@ -174,8 +175,8 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 		deferredMaterial_->SetTexture(Variables::mainTexture, mainTexture);
 
 		// TODO: mesh renderer.
-		Resources::GetMeshRenderer()->SetMaterial(0, deferredMaterial_);
-		Resources::GetMeshRenderer()->RenderEntity(entity);
+		Resources::GetAuxMeshRenderer()->SetMaterial(0, deferredMaterial_);
+		Resources::GetAuxMeshRenderer()->RenderEntity(entity);
 	}
 
 	gbuffer_->Unbind();
@@ -211,8 +212,8 @@ void CameraInternal::InitializeVariables() {
 	fieldOfView_ = Math::Pi() / 3.f;
 	projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 
-	clearType_ = ClearTypeColor;
 	pass_ = RenderPassNone;
+	clearType_ = ClearTypeColor;
 	renderPath_ = RenderPathForward;
 }
 
@@ -357,8 +358,8 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 		}
 
 		directionalLightShadowMaterial_->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * entity->GetTransform()->GetLocalToWorldMatrix());
-		Resources::GetMeshRenderer()->SetMaterial(0, directionalLightShadowMaterial_);
-		Resources::GetMeshRenderer()->RenderEntity(entity);
+		Resources::GetAuxMeshRenderer()->SetMaterial(0, directionalLightShadowMaterial_);
+		Resources::GetAuxMeshRenderer()->RenderEntity(entity);
 	}
 
 	glm::mat4 bias(
@@ -397,8 +398,8 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 		depthMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 
 		// TODO: mesh renderer.
-		Resources::GetMeshRenderer()->SetMaterial(0, depthMaterial_);
-		Resources::GetMeshRenderer()->RenderEntity(entity);
+		Resources::GetAuxMeshRenderer()->SetMaterial(0, depthMaterial_);
+		Resources::GetAuxMeshRenderer()->RenderEntity(entity);
 	}
 
 	fb1_->Unbind();
@@ -433,7 +434,93 @@ void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAd
 	}
 }
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "variables.h"
+#include "internal/geometry/plane.h"
+#include "internal/geometry/geometryutility.h"
+
 void CameraInternal::OnPostRender() {
+	std::vector<Entity> entities;
+	WorldInstance()->GetEntities(ObjectTypeEntity, entities);
+	Entity room;
+	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
+		if ((*ite)->GetName() == "Cube_Cube.001") {
+			room = *ite;
+			break;
+		}
+	}
+
+	Mesh mesh = room->GetMesh();
+	if (!mesh) {
+		return;
+	}
+
+	const std::vector<uint>& indexes = mesh->GetIndexes();
+	const std::vector<glm::vec3>& vertices = mesh->GetVertices();
+	Plane planes[6];
+
+	std::vector<Entity> projectors;
+	WorldInstance()->GetEntities(ObjectTypeProjector, projectors);
+	Projector projector = dsp_cast<Projector>(projectors.front());
+	GeometryUtility::CalculateFrustumPlanes(planes, projector->GetProjectionMatrix() * projector->GetTransform()->GetWorldToLocalMatrix());
+
+	std::vector<glm::vec3> triangles;
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		uint indexCount, baseVertex, baseIndex;
+		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+		// TODO: triangle strip.
+		for (int j = 0; j < indexCount; j += 3) {
+			std::vector<glm::vec3> polygon;
+			uint index0 = indexes[baseIndex + j] + baseVertex;
+			uint index1 = indexes[baseIndex + j + 1] + baseVertex;
+			uint index2 = indexes[baseIndex + j + 2] + baseVertex;
+
+			glm::vec3 vs[] = {
+				room->GetTransform()->TransformPoint(vertices[index0]),
+				room->GetTransform()->TransformPoint(vertices[index1]),
+				room->GetTransform()->TransformPoint(vertices[index2])
+			};
+
+			GeometryUtility::ClampTriangle(polygon, vs, planes, CountOf(planes));
+			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
+		}
+	}
+
+	Material material;
+	{
+		if (!material) {
+			material = NewMaterial();
+
+			Shader shader = Resources::FindShader("buildin/shaders/projector");
+			material->SetShader(shader);
+
+			material->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+			material->SetTexture(Variables::mainTexture, Resources::GetWhiteTexture());
+		}
+
+		Mesh mesh = NewMesh();
+		MeshAttribute attribute;
+		attribute.topology = MeshTopologyTriangles;
+		attribute.color.count = attribute.geometry.count = 0;
+		attribute.positions = triangles;
+		attribute.normals = std::vector<glm::vec3>(triangles.size(), glm::vec3(0, 0, 1));
+
+		std::vector<uint> indexes;
+		for (uint i = 0; i < triangles.size(); ++i) {
+			indexes.push_back(i);
+		}
+		attribute.indexes = indexes;
+		mesh->SetAttribute(attribute);
+
+		SubMesh subMesh = NewSubMesh();
+		subMesh->SetTriangles(triangles.size(), 0, 0);
+		mesh->AddSubMesh(subMesh);
+
+		Resources::GetAuxMeshRenderer()->RenderMesh(mesh, material);
+	}
 }
 
 void CameraInternal::OnImageEffects() {

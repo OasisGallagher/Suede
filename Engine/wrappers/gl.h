@@ -37,11 +37,13 @@ public:
 	static void BindBuffer(GLenum target, GLuint buffer);
 	static void GenTextures(GLsizei n, GLuint* textures);
 	static void GetIntegerv(GLenum pname, GLint* params);
+	static void GetFloatv(GLenum pname, GLfloat* params);
 	static void BlendFunc(GLenum sfactor, GLenum dfactor);
 	static void BindTexture(GLenum target, GLuint texture);
 	static void DrawBuffers(GLsizei n, const GLenum* bufs);
 	static void GenVertexArrays(GLsizei n, GLuint* arrays);
 	static void AttachShader(GLuint program, GLuint shader);
+	static void PolygonOffset(GLfloat factor, GLfloat units);
 	static void StencilMaskSeparate(GLenum face, GLuint mask);
 	static void DeleteBuffers(GLsizei n, const GLuint* buffers);
 	static void GenFramebuffers(GLsizei n, GLuint* framebuffers);
@@ -130,6 +132,10 @@ T GL::VerifyR(const char* func, T ans) {
 
 inline void GL::ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels) {
 	GL_CALL(glReadPixels(x, y, width, height, format, type, pixels));
+}
+
+inline void GL::GetFloatv(GLenum pname, GLfloat* params) {
+	GL_CALL(glGetFloatv(pname, params));
 }
 
 inline void GL::GetIntegerv(GLenum pname, GLint* params) {
@@ -440,4 +446,8 @@ inline void GL::AttachShader(GLuint program, GLuint shader) {
 	GL_CALL(glAttachShader(program, shader));
 }
 
+inline void GL::PolygonOffset(GLfloat factor, GLfloat units) {
+	GL_CALL(glPolygonOffset(factor, units));
+}
 
+#undef GL_CALL

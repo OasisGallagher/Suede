@@ -5,6 +5,8 @@
  * @param Cull: Front, Back, Off.
  * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
  * @param ZWrite: On, Off.
+ * @param Offset0: int(scale Offset::Scale).
+ * @param Offset1: int(scale Offset::Scale).
  * @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
  * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
  * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
@@ -22,6 +24,7 @@ enum RenderStateType {
 
 	ZTest,
 	ZWrite,
+	Offset,
 
 	StencilOp,
 	StencilTest,
@@ -126,6 +129,26 @@ public:
 private:
 	GLint oldMask_;
 	int parameter_;
+};
+
+class OffsetState : public RenderState {
+public:
+	enum {
+		Scale = 100,
+	};
+
+public:
+	virtual void Initialize(int parameter0, int parameter1, int);
+	virtual void Bind();
+	virtual void Unbind();
+	virtual RenderState* Clone();
+	virtual RenderStateType GetType() const { return Offset; }
+
+private:
+	GLfloat oldUnits_;
+	GLfloat oldFactor_;
+	int parameter0_;
+	int parameter1_;
 };
 
 class StencilTestState : public RenderState {

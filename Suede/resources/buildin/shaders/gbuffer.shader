@@ -3,7 +3,7 @@ Properties { }
 SubShader {
 	Pass {
 		Cull Back;
-		Blend, Off;
+		Blend Off;
 		ZWrite On;
 		ZTest LEqual;
 

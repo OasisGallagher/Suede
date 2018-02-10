@@ -17,12 +17,18 @@
 #include "os/filesystem.h"
 
 #define LAYOUT_SPACING	12
+#define MIN_FOV		1
+#define MAX_FOV		179
+
 #define DEFINE_STRING_CONSTANT(name)	static const char* name = #name
 namespace Constants {
 	DEFINE_STRING_CONSTANT(current);
 
 	DEFINE_STRING_CONSTANT(colorButton);
 	DEFINE_STRING_CONSTANT(alphaProgress);
+
+	DEFINE_STRING_CONSTANT(cameraFov);
+	DEFINE_STRING_CONSTANT(projectorFov);
 }
 
 static Inspector* inspectorInstance;
@@ -330,6 +336,16 @@ void Inspector::onEditProperty() {
 	}
 }
 
+void Inspector::onSliderValueChanged(int value) {
+	QSlider* slider = (QSlider*)sender();
+	if (slider->objectName() == Constants::cameraFov) {
+		dsp_cast<Camera>(target_)->SetFieldOfView(Math::Radians(value));
+	}
+	else if (slider->objectName() == Constants::projectorFov) {
+		dsp_cast<Projector>(target_)->SetFieldOfView(Math::Radians(value));
+	}
+}
+
 void Inspector::onClickProperty() {
 	QWidget* senderWidget = (QWidget*)sender();
 	UserData* ud = ((UserData*)senderWidget->userData(Qt::UserRole));
@@ -414,6 +430,13 @@ void Inspector::redraw() {
 	drawTags();
 	drawTransform();
 
+	if (target_->GetType() == ObjectTypeCamera) {
+		drawCamera(dsp_cast<Camera>(target_));
+	}
+	else if (target_->GetType() == ObjectTypeProjector) {
+		drawProjector(dsp_cast<Projector>(target_));
+	}
+
 	ui_->mesh->setVisible(!!target_->GetMesh());
 	if (target_->GetMesh()) {
 		drawMesh();
@@ -445,6 +468,54 @@ void Inspector::drawTags() {
 	ui_->tag->setCurrentIndex(tagIndex);
 
 	ui_->tag->blockSignals(false);
+}
+
+void Inspector::drawCamera(Camera camera) {
+	QGroupBox* g = new QGroupBox(this);
+	g->setTitle("Camera");
+
+	QFormLayout* form = new QFormLayout(g);
+	g->setLayout(form);
+
+	ui_->content->insertWidget(ui_->content->count() - 2, g);
+
+	QSlider* slider = new QSlider(g);
+	slider->setObjectName(Constants::cameraFov);
+
+	slider->setOrientation(Qt::Horizontal);
+
+	slider->setMinimum(0);
+	slider->setMaximum(180);
+	slider->setValue(Math::Degrees(camera->GetFieldOfView()));
+	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
+
+	form->addRow("Fov", slider);
+
+	ui_->content->addLayout(form);
+}
+
+void Inspector::drawProjector(Projector projector) {
+	QGroupBox* g = new QGroupBox(this);
+	g->setTitle("Projector");
+
+	QFormLayout* form = new QFormLayout(g);
+	g->setLayout(form);
+
+	ui_->content->insertWidget(ui_->content->count() - 2, g);
+
+	QSlider* slider = new QSlider(g);
+	slider->setObjectName(Constants::projectorFov);
+
+	slider->setOrientation(Qt::Horizontal);
+
+	slider->setMinimum(0);
+	slider->setMaximum(180);
+	slider->setValue(Math::Degrees(projector->GetFieldOfView()));
+	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
+
+	form->addRow("Fov", slider);
+
+	ui_->content->addLayout(form);
 }
 
 void Inspector::drawTransform() {

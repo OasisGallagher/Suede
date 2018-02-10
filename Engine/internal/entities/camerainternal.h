@@ -3,11 +3,10 @@
 
 #include "camera.h"
 #include "skybox.h"
-#include "imageeffect.h"
-#include "internal/base/objectinternal.h"
 #include "internal/entities/entityinternal.h"
 
 class GBuffer;
+class ImageEffect;
 class Framebuffer;
 class FramebufferBase;
 

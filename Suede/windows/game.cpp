@@ -15,9 +15,12 @@
 #include "skybox.h"
 #include "engine.h"
 #include "texture.h"
+#include "projector.h"
 #include "variables.h"
 #include "tagmanager.h"
 #include "particlesystem.h"
+
+#include "tools/math2.h"
 
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
@@ -29,7 +32,7 @@
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
-#define PARTICLE_SYSTEM
+//#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
@@ -120,6 +123,8 @@ void Game::createScene() {
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
 
+	Projector projector = NewProjector();
+	projector->SetFieldOfView(Math::Radians(9));
 	light->GetTransform()->SetParent(camera->GetTransform());
 
 #ifdef DEFERRED_RENDERING
@@ -127,6 +132,7 @@ void Game::createScene() {
 #endif
 
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
 	//camera->AddImageEffect(inversion_);
@@ -219,11 +225,12 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
- 	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
+ 	Entity room = WorldInstance()->Import("models/quad_r.obj");
 	room->SetName("room");
  	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
- 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
- 	roomEntityID = room->GetInstanceID();
+ 	room->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
+	room->GetTransform()->SetScale(glm::vec3(9));
+	roomEntityID = room->GetInstanceID();
 #endif
 
 #ifdef BEAR

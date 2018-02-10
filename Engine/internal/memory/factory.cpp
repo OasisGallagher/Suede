@@ -13,6 +13,7 @@
 #include "internal/entities/lightinternal.h"
 #include "internal/entities/skyboxinternal.h"
 #include "internal/entities/camerainternal.h"
+#include "internal/entities/projectorinternal.h"
 #include "internal/entities/particlesysteminternal.h"
 
 Factory Factory::instance;
@@ -35,6 +36,7 @@ Factory::Factory() {
 	ADD_FACTROY_METHOD(SubMesh);
 	ADD_FACTROY_METHOD(TextMesh);
 	ADD_FACTROY_METHOD(Material);
+	ADD_FACTROY_METHOD(Projector);
 	ADD_FACTROY_METHOD(MeshRenderer);
 	ADD_FACTROY_METHOD(ParticleRenderer);
 	ADD_FACTROY_METHOD(SkinnedMeshRenderer);

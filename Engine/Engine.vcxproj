@@ -167,6 +167,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\transforminternal.cpp" />
     <ClCompile Include="internal\base\vertexarrayobject.cpp" />
+    <ClCompile Include="internal\entities\projectorinternal.cpp" />
     <ClCompile Include="internal\file\image.cpp" />
     <ClCompile Include="internal\file\shaderparser.cpp" />
     <ClCompile Include="internal\file\assetimporter.cpp" />
@@ -208,6 +209,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\object.h" />
     <ClInclude Include="include\particlesystem.h" />
     <ClInclude Include="include\imageeffect.h" />
+    <ClInclude Include="include\projector.h" />
     <ClInclude Include="include\renderer.h" />
     <ClInclude Include="include\resources.h" />
     <ClInclude Include="include\screen.h" />
@@ -235,6 +237,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\textureinternal.h" />
     <ClInclude Include="internal\base\transforminternal.h" />
     <ClInclude Include="internal\base\vertexarrayobject.h" />
+    <ClInclude Include="internal\entities\projectorinternal.h" />
     <ClInclude Include="internal\file\image.h" />
     <ClInclude Include="internal\file\shaderparser.h" />
     <ClInclude Include="internal\file\assetimporter.h" />

@@ -32,7 +32,7 @@ void Resources::Import() {
 	ImportTextureResources();
 }
 
-MeshRenderer Resources::GetMeshRenderer() {
+MeshRenderer Resources::GetAuxMeshRenderer() {
 	return meshRenderer_;
 }
 

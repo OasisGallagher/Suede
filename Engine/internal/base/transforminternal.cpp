@@ -75,6 +75,22 @@ void TransformInternal::SetParent(Transform value) {
 	WorldInstance()->FireEvent(e);
 }
 
+glm::vec3 TransformInternal::TransformPoint(const glm::vec3 & point) {
+	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(point, 1));
+}
+
+glm::vec3 TransformInternal::TransformDirection(const glm::vec3 & direction) {
+	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(direction, 0));
+}
+
+glm::vec3 TransformInternal::InverseTransformPoint(const glm::vec3 & point) {
+	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(point, 1));
+}
+
+glm::vec3 TransformInternal::InverseTransformDirection(const glm::vec3 & direction) {
+	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(direction, 0));
+}
+
 Transform TransformInternal::FindChild(const std::string& path) {
 	const char* back = path.c_str(), *fwd = back;
 

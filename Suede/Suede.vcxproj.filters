@@ -246,6 +246,9 @@
     <None Include="resources\shaders\xray.shader">
       <Filter>resources\shaders</Filter>
     </None>
+    <None Include="resources\buildin\shaders\projector.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

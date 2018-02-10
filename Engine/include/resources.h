@@ -34,10 +34,10 @@ public:
 
 	static std::string GetRootDirectory();
 
-	/** TODO: GL.End() instead ?
+	/**
 	 * @brief: Temporary mesh renderer.
 	 */
-	static MeshRenderer GetMeshRenderer();
+	static MeshRenderer GetAuxMeshRenderer();
 
 	static Mesh GetPrimitive(PrimitiveType type);
 	static Mesh CreatePrimitive(PrimitiveType type, float scale);
