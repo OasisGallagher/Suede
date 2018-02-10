@@ -143,7 +143,7 @@ bool Pass::Link() {
 RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 	int parameters[Semantics::RenderState::ParameterCount];
 	if (!ParseRenderStateParameters(parameters, state.parameters)) {
-		return false;
+		return nullptr;
 	}
 
 	RenderState* answer = AllocateRenderState(state);
@@ -173,7 +173,7 @@ RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
 
 bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters) {
 	for (uint i = 0; i < Semantics::RenderState::ParameterCount; ++i, ++answer) {
-		if ((*answer = RenderStateParameterToInteger(parameters[i])) < 0) {
+		if (!RenderStateParameterToInteger(parameters[i], *answer)) {
 			return false;
 		}
 	}
@@ -181,12 +181,13 @@ bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters
 	return true;
 }
 
-int Pass::RenderStateParameterToInteger(const std::string& parameter) {
+bool Pass::RenderStateParameterToInteger(const std::string& parameter, int& answer) {
 	if (parameter.empty()) {
-		return None;
+		answer = None;
+		return true;
 	}
 
-#define CASE(value)	if (parameter == #value) return value
+#define CASE(value)	if (parameter == #value) { answer = value; return true; } else (void)0
 	CASE(None);
 	CASE(Front); 
 	CASE(Back);
@@ -221,9 +222,11 @@ int Pass::RenderStateParameterToInteger(const std::string& parameter) {
 	int integer = -1;
 	if (!String::ToInteger(parameter, &integer)) {
 		Debug::LogError("invalid render state parameter %s.", parameter.c_str());
+		return false;
 	}
 
-	return integer;
+	answer = integer;
+	return true;
 }
 
 void Pass::ClearIntermediateShaders() {

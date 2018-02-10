@@ -446,7 +446,7 @@ void CameraInternal::OnPostRender() {
 	WorldInstance()->GetEntities(ObjectTypeEntity, entities);
 	Entity room;
 	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
-		if ((*ite)->GetName() == "Cube_Cube.001") {
+		if ((*ite)->GetName() == "Sphere"/*"Cube_Cube.001"*/) {
 			room = *ite;
 			break;
 		}
@@ -497,8 +497,12 @@ void CameraInternal::OnPostRender() {
 			Shader shader = Resources::FindShader("buildin/shaders/projector");
 			material->SetShader(shader);
 
+			Texture2D texture = NewTexture2D();
+			texture->Load("textures/brick_diffuse.jpg");
+
+			material->SetMatrix4("projectorMVP", projector->GetProjectionMatrix() * projector->GetTransform()->GetWorldToLocalMatrix());
 			material->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
-			material->SetTexture(Variables::mainTexture, Resources::GetWhiteTexture());
+			material->SetTexture(Variables::mainTexture, texture);
 		}
 
 		Mesh mesh = NewMesh();

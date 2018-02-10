@@ -2,7 +2,9 @@ Properties { }
 
 SubShader {
 	Pass {
-		Offset 200 0;
+		Offset -10 0;
+		ZTest LEqual;
+		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
 
@@ -10,13 +12,13 @@ SubShader {
 		in vec3 c_position;
 		out vec3 uvw;
 
+		uniform mat4 projectorMVP;
 		uniform mat4 c_localToClipSpaceMatrix;
 
 		void main() {
-			vec4 p = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			vec4 p = projectorMVP * vec4(c_position, 1);
 			uvw = p.xyw;
-
-			gl_Position = p;
 		}
 
 		#stage fragment

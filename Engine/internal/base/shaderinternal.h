@@ -36,7 +36,7 @@ private:
 	RenderState* AllocateRenderState(const Semantics::RenderState &state);
 
 	bool ParseRenderStateParameters(int* answer, const std::string* parameters);
-	int RenderStateParameterToInteger(const std::string& parameter);
+	bool RenderStateParameterToInteger(const std::string& parameter, int& answer);
 
 	bool Link();
 	bool LoadSource(ShaderStage stage, const char* source);
