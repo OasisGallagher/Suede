@@ -61,6 +61,12 @@ public:
 		MEMORY_RELEASE_ARRAY(memory_);
 	}
 
+	void clear() {
+		for (iterator ite = begin(); ite != end(); ) {
+			recycle(*ite++);
+		}
+	}
+
 	void reallocate(size_t n) {
 		MEMORY_RELEASE_ARRAY(memory_);
 		size_ = 0;

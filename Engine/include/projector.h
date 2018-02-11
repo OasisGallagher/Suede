@@ -1,8 +1,21 @@
 #pragma once
 #include "entity.h"
+#include "texture.h"
+
+struct Decal {
+	Texture texture;
+	glm::mat4 matrix;
+
+	MeshTopology topology;
+	std::vector<uint> indexes;
+	std::vector<glm::vec3> positions;
+};
 
 class SUEDE_API IProjector : virtual public IEntity {
 public:
+	virtual Texture GetTexture() = 0;
+	virtual void SetTexture(Texture value) = 0;
+
 	virtual void SetDepth(int value) = 0;
 	virtual int GetDepth() = 0;
 

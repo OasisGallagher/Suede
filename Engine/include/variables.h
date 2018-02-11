@@ -44,6 +44,7 @@ namespace Variables {
 
 	DEFINE_VARIABLE(cameraPosition);
 
+	DEFINE_VARIABLE(decalMatrix);
 	DEFINE_VARIABLE(worldToCameraSpaceMatrix);
 	DEFINE_VARIABLE(localToClipSpaceMatrix);
 	DEFINE_VARIABLE(localToWorldSpaceMatrix);

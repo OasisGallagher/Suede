@@ -4,6 +4,7 @@
 #include "internal/file/assetimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
+#include "internal/geometry/geometryutility.h"
 #include "internal/world/environmentinternal.h"
 
 World& WorldInstance() {
@@ -34,12 +35,10 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 	return lhs->GetDepth() < rhs->GetDepth();
 }
 
-#include "internal/geometry/geometryutility.h"
-
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
-	, root_(Factory::Create<EntityInternal>()) {
+	, root_(Factory::Create<EntityInternal>()), decals_(MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
 	root_->SetTransform(transform);
 }
@@ -102,6 +101,9 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 	else if (type == ObjectTypeLights) {
 		entities.assign(lights_.begin(), lights_.end());
 	}
+	else if (type == ObjectTypeProjector) {
+		entities.assign(projectors_.begin(), projectors_.end());
+	}
 	else {
 		for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			if (ite->second->GetType() == type) {
@@ -148,27 +150,129 @@ void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
 	}
 }
 
-void WorldInternal::Update() {
-	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
-		FireEventImmediate(*ite);
+void WorldInternal::GetDecals(std::vector<Decal*>& container) {
+	for (DecalContainer::iterator ite = decals_.begin(); ite != decals_.end(); ++ite) {
+		container.push_back(*ite);
 	}
+}
 
-	events_.clear();
-
-	Entity room;
-	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-		if (ite->second->GetName() == "Cube_Cube.001") {
-			room = ite->second;
-		}
-
-		if (ite->second->GetActive()) {
-			ite->second->Update();
-		}
-	}
-
+void WorldInternal::RenderUpdate() {
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		if ((*ite)->GetActive()) {
 			(*ite)->Render();
 		}
 	}
+}
+
+void WorldInternal::UpdateDecals() {
+	decals_.clear();
+	CreateDecals();
+}
+
+void WorldInternal::UpdateEntities() {
+	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+		if (ite->second->GetActive()) {
+			ite->second->Update();
+		}
+	}
+}
+
+void WorldInternal::FireEvents() {
+	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
+		FireEventImmediate(*ite);
+	}
+
+	events_.clear();
+}
+
+void WorldInternal::CreateDecals() {
+	for (ProjectorContainer::iterator ite = projectors_.begin(); ite != projectors_.end(); ++ite) {
+		Projector p = *ite;
+		GeometryUtility::CalculateFrustumPlanes(planes_, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix());
+
+		if (!CreateProjectorDecal(p, planes_)) {
+			break;
+		}
+	}
+}
+
+bool WorldInternal::CreateEntityDecal(Decal& decal, Entity entity, Plane planes[6]) {
+	std::vector<glm::vec3> triangles;
+	if (!ClampMesh(triangles, entity, planes)) {
+		return false;
+	}
+
+	std::vector<uint> indexes;
+	indexes.reserve(triangles.size());
+	for (uint i = 0; i < triangles.size(); ++i) {
+		indexes.push_back(i);
+	}
+
+	decal.indexes = indexes;
+	decal.positions = triangles;
+	decal.topology = MeshTopologyTriangles;
+
+	return true;
+}
+
+bool WorldInternal::CreateProjectorDecal(Projector p, Plane planes[6]) {
+	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+		Entity entity = ite->second;
+		if (entity == p) { continue; }
+		if (!entity->GetMesh()) { continue; }
+		
+		Decal* decal = decals_.spawn();
+		if (decal == nullptr) {
+			Debug::LogError("too many decals");
+			return false;
+		}
+
+		if (!CreateEntityDecal(*decal, entity, planes)) {
+			decals_.recycle(decal);
+		}
+
+		decal->texture = p->GetTexture();
+		decal->matrix = p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix();
+	}
+
+	return true;
+}
+
+bool WorldInternal::ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]) {
+	Mesh mesh = entity->GetMesh();
+
+	const std::vector<uint>& indexes = mesh->GetIndexes();
+	const std::vector<glm::vec3>& vertices = mesh->GetVertices();
+
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		uint indexCount, baseVertex, baseIndex;
+		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+
+		// TODO: triangle strip.
+		for (int j = 0; j < indexCount; j += 3) {
+			std::vector<glm::vec3> polygon;
+			uint index0 = indexes[baseIndex + j] + baseVertex;
+			uint index1 = indexes[baseIndex + j + 1] + baseVertex;
+			uint index2 = indexes[baseIndex + j + 2] + baseVertex;
+
+			glm::vec3 vs[] = {
+				entity->GetTransform()->TransformPoint(vertices[index0]),
+				entity->GetTransform()->TransformPoint(vertices[index1]),
+				entity->GetTransform()->TransformPoint(vertices[index2])
+			};
+
+			GeometryUtility::ClampTriangle(polygon, vs, planes, 6);
+			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
+		}
+	}
+
+	return triangles.size() >= 3;
+}
+
+void WorldInternal::Update() {
+	FireEvents();
+	UpdateEntities();
+	UpdateDecals();
+	RenderUpdate();
 }

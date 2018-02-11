@@ -9,33 +9,37 @@ ProjectorInternal::ProjectorInternal()
 	near_ = 1.f;
 	far_ = 1000.f;
 	fieldOfView_ = Math::Pi() / 3.f;
-	projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+	Recalculate();
 }
 
 void ProjectorInternal::SetAspect(float value) {
 	if (!Math::Approximately(aspect_, value)) {
 		aspect_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+		Recalculate();
 	}
 }
 
 void ProjectorInternal::SetNearClipPlane(float value) {
 	if (!Math::Approximately(near_, value)) {
 		near_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+		Recalculate();
 	}
 }
 
 void ProjectorInternal::SetFarClipPlane(float value) {
 	if (!Math::Approximately(far_, value)) {
 		far_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+		Recalculate();
 	}
 }
 
 void ProjectorInternal::SetFieldOfView(float value) {
 	if (!Math::Approximately(fieldOfView_, value)) {
 		fieldOfView_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+		Recalculate();
 	}
+}
+
+void ProjectorInternal::Recalculate() {
+	projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 }

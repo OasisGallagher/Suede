@@ -246,7 +246,7 @@
     <None Include="resources\shaders\xray.shader">
       <Filter>resources\shaders</Filter>
     </None>
-    <None Include="resources\buildin\shaders\projector.shader">
+    <None Include="resources\buildin\shaders\decal.shader">
       <Filter>resources\buildin\shaders</Filter>
     </None>
   </ItemGroup>

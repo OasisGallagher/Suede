@@ -177,8 +177,6 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, MeshAttribute* a
 	}
 
 	MeshAttribute current{ MeshTopologyTriangles };
-	current.color.count = current.color.divisor = 0;
-	current.geometry.count = current.geometry.divisor = 0;
 
 	Mesh mesh = NewMesh();
 
@@ -233,8 +231,6 @@ bool AssetImporter::ReadAttribute(MeshAttribute& attribute, int index) {
 	}
 
 	attribute.topology = MeshTopologyTriangles;
-	attribute.color.count = attribute.color.divisor = 0;
-	attribute.geometry.count = attribute.geometry.divisor = 0;
 
 	ReadVertexAttributes(index, attribute);
 	ReadBoneAttributes(index, attribute);

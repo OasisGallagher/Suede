@@ -397,7 +397,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\buildin\shaders\blit.shader" />
-    <None Include="resources\buildin\shaders\projector.shader" />
+    <None Include="resources\buildin\shaders\decal.shader" />
     <None Include="resources\buildin\shaders\depth.shader" />
     <None Include="resources\buildin\shaders\directional_light_depth.shader" />
     <None Include="resources\buildin\shaders\gbuffer.shader" />

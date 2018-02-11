@@ -123,8 +123,14 @@ void Game::createScene() {
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
 
-	Projector projector = NewProjector();
-	projector->SetFieldOfView(Math::Radians(9));
+ 	Projector projector = NewProjector();
+ 	projector->SetFieldOfView(Math::Radians(9));
+	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+
+	Texture2D texture = NewTexture2D();
+	texture->Load("textures/brick_diffuse.jpg");
+	projector->SetTexture(texture);
+
 	light->GetTransform()->SetParent(camera->GetTransform());
 
 #ifdef DEFERRED_RENDERING
@@ -132,7 +138,6 @@ void Game::createScene() {
 #endif
 
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
-	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
 	//camera->AddImageEffect(inversion_);
@@ -225,12 +230,12 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
- 	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
+ 	Entity room = WorldInstance()->Import("models/quad_r.obj");
 	room->SetName("room");
  	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	// 	room->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
-//	room->GetTransform()->SetScale(glm::vec3(9));
+	//room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
+	room->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
+	room->GetTransform()->SetScale(glm::vec3(9));
 	roomEntityID = room->GetInstanceID();
 #endif
 

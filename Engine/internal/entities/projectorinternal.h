@@ -9,6 +9,9 @@ public:
 	ProjectorInternal();
 
 public:
+	virtual Texture GetTexture() { return texture_; }
+	virtual void SetTexture(Texture value) { texture_ = value; }
+
 	virtual void SetDepth(int value) { depth_ = value; }
 	virtual int GetDepth() { return depth_; }
 
@@ -27,9 +30,14 @@ public:
 	virtual const glm::mat4 & GetProjectionMatrix() { return projection_; }
 
 private:
+	void Recalculate();
+
+private:
 	int depth_;
 	float aspect_;
 	float near_, far_;
 	float fieldOfView_;
+
+	Texture texture_;
 	glm::mat4 projection_;
 };

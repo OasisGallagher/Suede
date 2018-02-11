@@ -24,6 +24,10 @@ struct BlendAttribute {
 };
 
 struct InstanceAttribute {
+	InstanceAttribute(uint c = 0, int d = 0) 
+		: count(c), divisor(d) {
+	}
+
 	uint count;
 	int divisor;
 };

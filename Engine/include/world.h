@@ -97,6 +97,7 @@ public:
 	virtual void OnWorldEvent(WorldEventBasePointer e) = 0;
 };
 
+struct Decal;
 class SUEDE_API IWorld : virtual public IObject {
 public:
 	virtual void Update() = 0;
@@ -112,6 +113,8 @@ public:
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;
 	virtual void AddEventListener(WorldEventListener* listener) = 0;
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
+
+	virtual void GetDecals(std::vector<Decal*>& container) = 0;
 
 	virtual Environment GetEnvironment() = 0;
 };

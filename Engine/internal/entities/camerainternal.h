@@ -81,6 +81,7 @@ public:
 private:
 	void InitializeVariables();
 	void CreateFramebuffers();
+	void CreateDecalMaterial();
 	void CreateDepthMaterial();
 	void CreateShadowMaterial();
 
@@ -117,7 +118,9 @@ private:
 	void RenderForwardBase(const std::vector<Entity>& entities, Light light);
 	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
 
+	void RenderDecals();
 	void OnPostRender();
+
 	void OnImageEffects();
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
@@ -143,6 +146,7 @@ private:
 	RenderTexture renderTexture2_;
 
 	// TODO: Common material.
+	Material decalMaterial_;
 	Material depthMaterial_;
 	Material deferredMaterial_;
 	Material directionalLightShadowMaterial_;

@@ -24,6 +24,7 @@ CameraInternal::CameraInternal()
 	InitializeVariables();
 	CreateFramebuffers();
 	CreateDepthMaterial();
+	CreateDecalMaterial();
 	CreateShadowMaterial();
 	GL::ClearDepth(1);
 }
@@ -231,6 +232,13 @@ void CameraInternal::CreateFramebuffers() {
 	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
 }
 
+void CameraInternal::CreateDecalMaterial() {
+	Shader shader = Resources::FindShader("buildin/shaders/decal");
+
+	decalMaterial_ = NewMaterial();
+	decalMaterial_->SetShader(shader);
+}
+
 void CameraInternal::CreateDepthMaterial() {
 	Shader shader = Resources::FindShader("buildin/shaders/depth");
 
@@ -434,96 +442,35 @@ void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAd
 	}
 }
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include "variables.h"
-#include "internal/geometry/plane.h"
-#include "internal/geometry/geometryutility.h"
-
 void CameraInternal::OnPostRender() {
-	std::vector<Entity> entities;
-	WorldInstance()->GetEntities(ObjectTypeEntity, entities);
-	Entity room;
-	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
-		if ((*ite)->GetName() == "Sphere"/*"Cube_Cube.001"*/) {
-			room = *ite;
-			break;
-		}
-	}
+	RenderDecals();
+}
 
-	Mesh mesh = room->GetMesh();
-	if (!mesh) {
-		return;
-	}
+void CameraInternal::RenderDecals() {
+	std::vector<Decal*> decals;
+	WorldInstance()->GetDecals(decals);
 
-	const std::vector<uint>& indexes = mesh->GetIndexes();
-	const std::vector<glm::vec3>& vertices = mesh->GetVertices();
-	Plane planes[6];
+	for (int i = 0; i < decals.size(); ++i) {
+		Decal* d = decals[i];
 
-	std::vector<Entity> projectors;
-	WorldInstance()->GetEntities(ObjectTypeProjector, projectors);
-	Projector projector = dsp_cast<Projector>(projectors.front());
-	GeometryUtility::CalculateFrustumPlanes(planes, projector->GetProjectionMatrix() * projector->GetTransform()->GetWorldToLocalMatrix());
-
-	std::vector<glm::vec3> triangles;
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		uint indexCount, baseVertex, baseIndex;
-		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
-		// TODO: triangle strip.
-		for (int j = 0; j < indexCount; j += 3) {
-			std::vector<glm::vec3> polygon;
-			uint index0 = indexes[baseIndex + j] + baseVertex;
-			uint index1 = indexes[baseIndex + j + 1] + baseVertex;
-			uint index2 = indexes[baseIndex + j + 2] + baseVertex;
-
-			glm::vec3 vs[] = {
-				room->GetTransform()->TransformPoint(vertices[index0]),
-				room->GetTransform()->TransformPoint(vertices[index1]),
-				room->GetTransform()->TransformPoint(vertices[index2])
-			};
-
-			GeometryUtility::ClampTriangle(polygon, vs, planes, CountOf(planes));
-			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
-		}
-	}
-
-	Material material;
-	{
-		if (!material) {
-			material = NewMaterial();
-
-			Shader shader = Resources::FindShader("buildin/shaders/projector");
-			material->SetShader(shader);
-
-			Texture2D texture = NewTexture2D();
-			texture->Load("textures/brick_diffuse.jpg");
-
-			material->SetMatrix4("projectorMVP", projector->GetProjectionMatrix() * projector->GetTransform()->GetWorldToLocalMatrix());
-			material->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
-			material->SetTexture(Variables::mainTexture, texture);
-		}
+		decalMaterial_->SetMatrix4(Variables::decalMatrix, d->matrix);
+		decalMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+		decalMaterial_->SetTexture(Variables::mainTexture, d->texture);
 
 		Mesh mesh = NewMesh();
-		MeshAttribute attribute;
-		attribute.topology = MeshTopologyTriangles;
-		attribute.color.count = attribute.geometry.count = 0;
-		attribute.positions = triangles;
-		attribute.normals = std::vector<glm::vec3>(triangles.size(), glm::vec3(0, 0, 1));
 
-		std::vector<uint> indexes;
-		for (uint i = 0; i < triangles.size(); ++i) {
-			indexes.push_back(i);
-		}
-		attribute.indexes = indexes;
+		MeshAttribute attribute;
+		attribute.topology = d->topology;
+		attribute.indexes = d->indexes;
+		attribute.positions = d->positions;
+
 		mesh->SetAttribute(attribute);
 
 		SubMesh subMesh = NewSubMesh();
-		subMesh->SetTriangles(triangles.size(), 0, 0);
+		subMesh->SetTriangles(d->indexes.size(), 0, 0);
 		mesh->AddSubMesh(subMesh);
 
-		Resources::GetAuxMeshRenderer()->RenderMesh(mesh, material);
+		Resources::GetAuxMeshRenderer()->RenderMesh(mesh, decalMaterial_);
 	}
 }
 

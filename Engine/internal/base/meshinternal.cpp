@@ -165,8 +165,6 @@ void TextMeshInternal::RebuildMesh() {
 	font_->Require(wtext);
 
 	MeshAttribute attribute;
-	attribute.color.count = attribute.color.divisor = 0;
-	attribute.geometry.count = attribute.geometry.divisor = 0;
 
 	InitializeMeshAttribute(attribute, wtext);
 
