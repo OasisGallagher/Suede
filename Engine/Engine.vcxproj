@@ -177,7 +177,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\entities\camerainternal.cpp" />
     <ClCompile Include="internal\entities\lightinternal.cpp" />
     <ClCompile Include="internal\entities\particlesysteminternal.cpp" />
-    <ClCompile Include="internal\entities\skyboxinternal.cpp" />
     <ClCompile Include="internal\entities\entityinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
@@ -214,7 +213,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\resources.h" />
     <ClInclude Include="include\screen.h" />
     <ClInclude Include="include\shader.h" />
-    <ClInclude Include="include\skybox.h" />
     <ClInclude Include="include\entity.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\texture.h" />
@@ -247,7 +245,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\entities\camerainternal.h" />
     <ClInclude Include="internal\entities\lightinternal.h" />
     <ClInclude Include="internal\entities\particlesysteminternal.h" />
-    <ClInclude Include="internal\entities\skyboxinternal.h" />
     <ClInclude Include="internal\entities\entityinternal.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />

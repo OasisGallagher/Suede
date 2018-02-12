@@ -118,10 +118,6 @@ void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSe
 void Hierarchy::updateRecursively(Entity entity, QStandardItem* pi) {
 	for (int i = 0; i < entity->GetTransform()->GetChildCount(); ++i) {
 		Entity child = entity->GetTransform()->GetChildAt(i)->GetEntity();
-		if (child->GetType() == ObjectTypeSkybox) {
-			continue;
-		}
-
 		QStandardItem* item = appendItem(child, pi);
 		updateRecursively(child, item);
 	}

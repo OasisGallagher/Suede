@@ -1,7 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
 
-#include "skybox.h"
 #include "entity.h"
 
 enum ClearType {
@@ -34,9 +33,6 @@ public:
 
 	virtual void SetDepthTextureMode(DepthTextureMode value) = 0;
 	virtual DepthTextureMode GetDepthTextureMode() = 0;
-
-	virtual void SetSkybox(Skybox value) = 0;
-	virtual Skybox GetSkybox() = 0;
 
 	virtual void SetClearColor(const glm::vec3& value) = 0;
 	virtual glm::vec3 GetClearColor() = 0;

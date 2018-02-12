@@ -23,9 +23,12 @@ CameraInternal::CameraInternal()
 	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
 	InitializeVariables();
 	CreateFramebuffers();
-	CreateDepthMaterial();
-	CreateDecalMaterial();
-	CreateShadowMaterial();
+
+	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth");
+	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal");
+	CreateAuxMaterial(skyboxMaterial_, "buildin/shaders/skybox");
+	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth");
+
 	GL::ClearDepth(1);
 }
 
@@ -186,13 +189,13 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
-	return glm::project(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+	return glm::project(position, GetTransform()->GetWorldToLocalMatrix(), projection_, viewport);
 }
 
 glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
-	return glm::unProject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+	return glm::unProject(position, GetTransform()->GetWorldToLocalMatrix(), projection_, viewport);
 }
 
 Texture2D CameraInternal::Capture() {
@@ -232,39 +235,17 @@ void CameraInternal::CreateFramebuffers() {
 	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
 }
 
-void CameraInternal::CreateDecalMaterial() {
-	Shader shader = Resources::FindShader("buildin/shaders/decal");
-
-	decalMaterial_ = NewMaterial();
-	decalMaterial_->SetShader(shader);
-}
-
-void CameraInternal::CreateDepthMaterial() {
-	Shader shader = Resources::FindShader("buildin/shaders/depth");
-
-	depthMaterial_ = NewMaterial();
-	depthMaterial_->SetShader(shader);
-}
-
-void CameraInternal::CreateShadowMaterial() {
-	Shader shader = Resources::FindShader("buildin/shaders/directional_light_depth");
-	directionalLightShadowMaterial_ = NewMaterial();
-	directionalLightShadowMaterial_->SetShader(shader);
+void CameraInternal::CreateAuxMaterial(Material& material, const std::string& shaderPath) {
+	Shader shader = Resources::FindShader(shaderPath);
+	material = NewMaterial();
+	material->SetShader(shader);
 }
 
 void CameraInternal::UpdateSkybox() {
-	if (clearType_ != ClearTypeSkybox) { return; }
-	Skybox skybox = skybox_;
-	if (!skybox) {
-		skybox = WorldInstance()->GetEnvironment()->GetSkybox();
+	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
+	if (skybox) {
+		Resources::GetAuxMeshRenderer()->RenderMesh(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
 	}
-
-	if (!skybox) {
-		Debug::LogError("skybox does not exist.");
-		return;
-	}
-
-	skybox->GetTransform()->SetPosition(GetTransform()->GetPosition());
 }
 
 void CameraInternal::OnContextSizeChanged(int w, int h) {
@@ -454,8 +435,16 @@ void CameraInternal::RenderDecals() {
 		Decal* d = decals[i];
 
 		decalMaterial_->SetMatrix4(Variables::decalMatrix, d->matrix);
-		decalMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 		decalMaterial_->SetTexture(Variables::mainTexture, d->texture);
+
+		auto proj = projection_ * GetTransform()->GetWorldToLocalMatrix();
+		for (int i = 0; i < d->positions.size(); ++i) {
+			glm::vec4 pos = proj * glm::vec4(d->positions[i], 1);
+			pos /= pos.w;
+			__nop();
+		}
+
+		decalMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, projection_ * GetTransform()->GetWorldToLocalMatrix());
 
 		Mesh mesh = NewMesh();
 
@@ -537,18 +526,22 @@ void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
 }
 
 void CameraInternal::UpdateMaterial(Entity entity, Material material) {
-	glm::mat4 localToWorldMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
+	glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
 	glm::mat4 worldToCameraSpaceMatrix = GetTransform()->GetWorldToLocalMatrix();
 	glm::mat4 worldToClipSpaceMatrix = projection_ * worldToCameraSpaceMatrix;
-	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldMatrix;
+	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
+
+	glm::mat4 localToClipSpaceMatrix2 = projection_ * glm::mat4(glm::mat3(worldToCameraSpaceMatrix * localToWorldSpaceMatrix));
 
 	// TODO: uniform buffers for common matrices.
+	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldSpaceMatrix);
 	material->SetMatrix4(Variables::worldToClipSpaceMatrix, worldToClipSpaceMatrix);
 	material->SetMatrix4(Variables::worldToCameraSpaceMatrix, worldToCameraSpaceMatrix);
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
+	material->SetMatrix4(Variables::cameraToClipSpaceMatrix, projection_);
 
 	if (pass_ >= RenderPassForwardOpaque) {
-		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldMatrix);
+		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldSpaceMatrix);
 		material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}
 }

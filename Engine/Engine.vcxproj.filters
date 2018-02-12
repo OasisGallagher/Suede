@@ -97,9 +97,6 @@
     <ClInclude Include="include\shader.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\skybox.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\texture.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -125,9 +122,6 @@
       <Filter>internal\world\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\entities\camerainternal.h">
-      <Filter>internal\entities\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\entities\skyboxinternal.h">
       <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\renderstate.h">
@@ -283,9 +277,6 @@
       <Filter>internal\world\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\camerainternal.cpp">
-      <Filter>internal\entities\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\entities\skyboxinternal.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\memory\factory.cpp">

@@ -2,7 +2,6 @@
 #include <glm/glm.hpp>
 
 #include "camera.h"
-#include "skybox.h"
 #include "internal/entities/entityinternal.h"
 
 class GBuffer;
@@ -45,9 +44,6 @@ public:
 	virtual void SetDepthTextureMode(DepthTextureMode value) { depthTextureMode_ = value; }
 	virtual DepthTextureMode GetDepthTextureMode() { return depthTextureMode_; }
 
-	virtual void SetSkybox(Skybox value) { skybox_ = value; }
-	virtual Skybox GetSkybox() { return skybox_; }
-
 	virtual void SetClearColor(const glm::vec3& value);
 	virtual glm::vec3 GetClearColor();
 
@@ -81,9 +77,7 @@ public:
 private:
 	void InitializeVariables();
 	void CreateFramebuffers();
-	void CreateDecalMaterial();
-	void CreateDepthMaterial();
-	void CreateShadowMaterial();
+	void CreateAuxMaterial(Material& material, const std::string& shaderPath);
 
 	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 	void DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
@@ -148,14 +142,13 @@ private:
 	// TODO: Common material.
 	Material decalMaterial_;
 	Material depthMaterial_;
+	Material skyboxMaterial_;
 	Material deferredMaterial_;
 	Material directionalLightShadowMaterial_;
 
 	std::vector<ImageEffect*> imageEffects_;
 
 	RenderPass pass_;
-
-	Skybox skybox_;
 
 	ClearType clearType_;
 	RenderPath renderPath_;

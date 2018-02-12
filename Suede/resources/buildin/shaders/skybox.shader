@@ -12,11 +12,13 @@ SubShader {
 
 		in vec3 c_position;
 		out vec3 texCoord;
-		
-		uniform mat4 c_localToClipSpaceMatrix;
+
+		uniform mat4 c_cameraToClipSpaceMatrix;
+		uniform mat4 c_localToWorldSpaceMatrix;
+		uniform mat4 c_worldToCameraSpaceMatrix;
 
 		void main() {
-			vec4 pos = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			vec4 pos = c_cameraToClipSpaceMatrix * vec4(mat3(c_worldToCameraSpaceMatrix * c_localToWorldSpaceMatrix) * c_position, 1);
 			gl_Position = pos.xyww;
 			texCoord = c_position;
 		}

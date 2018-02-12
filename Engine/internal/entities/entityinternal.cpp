@@ -87,9 +87,6 @@ const char* EntityInternal::EntityTypeToString(ObjectType type) {
 		case ObjectTypeCamera:
 			name = "Camera";
 			break;
-		case ObjectTypeSkybox:
-			name = "Skybox";
-			break;
 		case ObjectTypeProjector:
 			name = "Projector";
 			break;

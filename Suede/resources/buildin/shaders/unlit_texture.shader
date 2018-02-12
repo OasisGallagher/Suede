@@ -13,7 +13,6 @@ SubShader {
 		out vec2 texCoord;
 
 		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
 
 		void main() {
 			texCoord = c_texCoord;

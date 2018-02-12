@@ -11,7 +11,6 @@
 #include "internal/world/worldinternal.h"
 
 #include "internal/entities/lightinternal.h"
-#include "internal/entities/skyboxinternal.h"
 #include "internal/entities/camerainternal.h"
 #include "internal/entities/projectorinternal.h"
 #include "internal/entities/particlesysteminternal.h"
@@ -30,7 +29,6 @@ Factory::Factory() {
 	ADD_FACTROY_METHOD(Font);
 	ADD_FACTROY_METHOD(Camera);
 	ADD_FACTROY_METHOD(Shader);
-	ADD_FACTROY_METHOD(Skybox);
 	ADD_FACTROY_METHOD(Entity);
 	ADD_FACTROY_METHOD(Mesh);
 	ADD_FACTROY_METHOD(SubMesh);

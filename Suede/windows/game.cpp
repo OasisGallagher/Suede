@@ -9,10 +9,8 @@
 #include "light.h"
 #include "time2.h"
 #include "world.h"
-#include "skybox.h"
 #include "camera.h"
 #include "shader.h"
-#include "skybox.h"
 #include "engine.h"
 #include "texture.h"
 #include "projector.h"
@@ -146,7 +144,9 @@ void Game::createScene() {
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearTypeSkybox);
-	Skybox skybox = NewSkybox();
+	Material skybox = NewMaterial();
+	TextureCube cube = NewTextureCube();
+
 	std::string faces[] = {
 		"textures/lake_skybox/right.jpg",
 		"textures/lake_skybox/left.jpg",
@@ -156,9 +156,11 @@ void Game::createScene() {
 		"textures/lake_skybox/front.jpg",
 	};
 
-	skybox->Load(faces);
+	cube->Load(faces);
+	skybox->SetTexture(Variables::mainTexture, texture);
+	skybox->SetColor4(Variables::mainColor, glm::vec4(1));
+	WorldInstance()->GetEnvironment()->SetSkybox(skybox);
 
-	camera->SetSkybox(skybox);
 #else
 	camera->SetClearType(ClearTypeColor);
 	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
@@ -234,7 +236,7 @@ void Game::createScene() {
 	room->SetName("room");
  	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	//room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	room->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
+	room->GetTransform()->SetEulerAngles(glm::vec3(30, 180, 0));
 	room->GetTransform()->SetScale(glm::vec3(9));
 	roomEntityID = room->GetInstanceID();
 #endif

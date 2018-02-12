@@ -51,6 +51,7 @@ namespace Variables {
 	DEFINE_VARIABLE(localToShadowSpaceMatrix);
 	DEFINE_VARIABLE(localToOrthographicLightSpaceMatrix);
 	DEFINE_VARIABLE(worldToClipSpaceMatrix);
+	DEFINE_VARIABLE(cameraToClipSpaceMatrix);
 };
 
 #undef DEFINE_VARIABLE
