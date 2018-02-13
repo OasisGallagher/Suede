@@ -144,7 +144,11 @@ void Game::createScene() {
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearTypeSkybox);
+	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
+
 	Material skybox = NewMaterial();
+	skybox->SetShader(Resources::FindShader("buildin/shaders/skybox"));
+
 	TextureCube cube = NewTextureCube();
 
 	std::string faces[] = {
@@ -235,10 +239,10 @@ void Game::createScene() {
  	Entity room = WorldInstance()->Import("models/quad_r.obj");
 	room->SetName("room");
  	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	//room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 180, 0));
-	room->GetTransform()->SetScale(glm::vec3(9));
+	room->GetTransform()->SetScale(glm::vec3(10));
 	roomEntityID = room->GetInstanceID();
+	//room->GetTransform()->GetChildAt(0)->GetEntity()->SetMesh(Resources::GetPrimitive(PrimitiveTypeCube));
 #endif
 
 #ifdef BEAR

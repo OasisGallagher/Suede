@@ -162,6 +162,10 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 		glm::vec3(-0.5f, -0.5f, 0.5f),
 		glm::vec3(0.5f, -0.5f, 0.5f),
 	};
+	for (int i = 0; i < CountOf(vertices); ++i) {
+		vertices[i] *= 2;
+	}
+
 	attribute.positions.assign(vertices, vertices + CountOf(vertices));
 
 	uint indexes[] = {
@@ -180,29 +184,29 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	};
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 
-	glm::vec3 normals[] = {
-		glm::vec3(0.333333f, 0.666667f, -0.666667f),
-		glm::vec3(-0.816497f, 0.408248f, -0.408248f),
-		glm::vec3(-0.333333f, 0.666667f, 0.666667f),
-		glm::vec3(0.816497f, 0.408248f, 0.408248f),
-		glm::vec3(0.666667f, -0.666667f, -0.333333f),
-		glm::vec3(-0.408248f, -0.408248f, -0.816497f),
-		glm::vec3(-0.666667f, -0.666667f, 0.333333f),
-		glm::vec3(0.408248f, -0.408248f, 0.816497f)
-	};
-	attribute.normals.assign(normals, normals + CountOf(normals));
+// 	glm::vec3 normals[] = {
+// 		glm::vec3(0.333333f, 0.666667f, -0.666667f),
+// 		glm::vec3(-0.816497f, 0.408248f, -0.408248f),
+// 		glm::vec3(-0.333333f, 0.666667f, 0.666667f),
+// 		glm::vec3(0.816497f, 0.408248f, 0.408248f),
+// 		glm::vec3(0.666667f, -0.666667f, -0.333333f),
+// 		glm::vec3(-0.408248f, -0.408248f, -0.816497f),
+// 		glm::vec3(-0.666667f, -0.666667f, 0.333333f),
+// 		glm::vec3(0.408248f, -0.408248f, 0.816497f)
+// 	};
+// 	attribute.normals.assign(normals, normals + CountOf(normals));
 
-	glm::vec2 texCoords[] = {
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 1.f),
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 1.f),
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 0.f),
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 0.f),
-	};
-	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
+// 	glm::vec2 texCoords[] = {
+// 		glm::vec2(0.f, 1.f),
+// 		glm::vec2(1.f, 1.f),
+// 		glm::vec2(0.f, 1.f),
+// 		glm::vec2(1.f, 1.f),
+// 		glm::vec2(0.f, 0.f),
+// 		glm::vec2(1.f, 0.f),
+// 		glm::vec2(0.f, 0.f),
+// 		glm::vec2(1.f, 0.f),
+// 	};
+// 	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
 }
 
 Mesh Resources::CreateMesh(MeshAttribute &attribute) {

@@ -30,12 +30,9 @@ SubShader {
 		uniform sampler2D c_mainTexture;
 
 		void main() {
-			/*
 			vec2 uv = uvw.xy / uvw.z;
 			uv = uv * 0.5 + 0.5;
 			fragColor = texture(c_mainTexture, uv);
-			*/
-			fragColor = vec4(gl_FragCoord.z, gl_FragCoord.z, gl_FragCoord.z, 1);
 		}
 
 		ENDGLSL

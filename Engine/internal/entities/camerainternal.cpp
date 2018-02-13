@@ -88,7 +88,9 @@ void CameraInternal::Update() {
 		OnContextSizeChanged(w, h);
 	}
 
-	UpdateSkybox();
+	if (clearType_ == ClearTypeSkybox) {
+	//	UpdateSkybox();
+	}
 }
 
 void CameraInternal::Render() {
@@ -114,6 +116,10 @@ void CameraInternal::Render() {
 
 	FramebufferBase* active = GetActiveFramebuffer();
 	active->BindWrite();
+
+	if (clearType_ == ClearTypeSkybox) {
+		UpdateSkybox();
+	}
 
 	if (renderPath_ == RenderPathForward) {
 		ForwardRendering(entities, forwardBase, forwardAdd);
@@ -244,6 +250,7 @@ void CameraInternal::CreateAuxMaterial(Material& material, const std::string& sh
 void CameraInternal::UpdateSkybox() {
 	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	if (skybox) {
+		skybox->SetMatrix4(Variables::cameraToClipSpaceMatrix, projection_);
 		Resources::GetAuxMeshRenderer()->RenderMesh(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
 	}
 }
