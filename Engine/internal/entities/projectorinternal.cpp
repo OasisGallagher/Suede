@@ -41,5 +41,6 @@ void ProjectorInternal::SetFieldOfView(float value) {
 }
 
 void ProjectorInternal::Recalculate() {
-	projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
+	projection_ = glm::ortho(-5.f, 5.f, -5.f, 5.f, 1.f, 1000.f);
+	//projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
 }

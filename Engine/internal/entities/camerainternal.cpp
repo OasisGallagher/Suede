@@ -434,14 +434,18 @@ void CameraInternal::OnPostRender() {
 	RenderDecals();
 }
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 void CameraInternal::RenderDecals() {
 	std::vector<Decal*> decals;
 	WorldInstance()->GetDecals(decals);
 
 	for (int i = 0; i < decals.size(); ++i) {
 		Decal* d = decals[i];
+		glm::mat4 bias = glm::translate(glm::mat4(1) , glm::vec3(0.5f)) * glm::scale(glm::mat4(1), glm::vec3(0.5f));
 
-		decalMaterial_->SetMatrix4(Variables::decalMatrix, d->matrix);
+		decalMaterial_->SetMatrix4(Variables::decalMatrix, bias * d->matrix);
 		decalMaterial_->SetTexture(Variables::mainTexture, d->texture);
 
 		auto proj = projection_ * GetTransform()->GetWorldToLocalMatrix();
@@ -451,7 +455,7 @@ void CameraInternal::RenderDecals() {
 			__nop();
 		}
 
-		decalMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, projection_ * GetTransform()->GetWorldToLocalMatrix());
+		decalMaterial_->SetMatrix4(Variables::worldToClipSpaceMatrix, projection_ * GetTransform()->GetWorldToLocalMatrix());
 
 		Mesh mesh = NewMesh();
 

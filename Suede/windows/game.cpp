@@ -239,9 +239,11 @@ void Game::createScene() {
  	Entity room = WorldInstance()->Import("models/quad_r.obj");
 	room->SetName("room");
  	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	room->GetTransform()->SetEulerAngles(glm::vec3(30, 180, 0));
+	room->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
 	room->GetTransform()->SetScale(glm::vec3(10));
+	room->GetTransform()->GetChildAt(0)->GetEntity()->GetMesh()->GetSubMesh(0)->SetTriangles(3, 0, 0);
 	roomEntityID = room->GetInstanceID();
+
 	//room->GetTransform()->GetChildAt(0)->GetEntity()->SetMesh(Resources::GetPrimitive(PrimitiveTypeCube));
 #endif
 

@@ -13,26 +13,27 @@ SubShader {
 		#stage vertex
 		in vec3 c_position;
 		
-		out vec3 uvw;
+		out vec4 projTexCoord;
+		out vec4 clipPosition;
 
 		uniform mat4 c_decalMatrix;
-		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_worldToClipSpaceMatrix;
 
 		void main() {
-			uvw = (c_decalMatrix * vec4(c_position, 1)).xyw;
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			projTexCoord = c_decalMatrix * vec4(c_position, 1);
+			gl_Position = c_worldToClipSpaceMatrix * vec4(c_position, 1);
+			clipPosition = gl_Position;
 		}
 
 		#stage fragment
 		out vec4 fragColor;
 
-		in vec3 uvw;
+		in vec4 clipPosition;
+		in vec4 projTexCoord;
 		uniform sampler2D c_mainTexture;
 
 		void main() {
-			vec2 uv = uvw.xy / uvw.z;
-			uv = uv * 0.5 + 0.5;
-			fragColor = texture(c_mainTexture, uv);
+			fragColor = textureProj(c_mainTexture, projTexCoord);
 		}
 
 		ENDGLSL

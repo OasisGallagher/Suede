@@ -8,7 +8,7 @@ public:
 	typedef T& reference;
 
 public:
-	array_list(unsigned capacity){
+	array_list(unsigned capacity) : container_(nullptr), free_(-1), head_(-1), tail_(-1) {
 		initialize(capacity);
 	}
 
@@ -22,7 +22,7 @@ private:
 		int index = -1;
 		int prev = -1;
 		int next = -1;
-		int nextFree = -1;
+		int free = -1;
 	};
 
 public:
@@ -144,7 +144,7 @@ private:
 			container_[i].index = i;
 
 			if (i < capacity_ - 1) {
-				container_[i].nextFree = i + 1;
+				container_[i].free = i + 1;
 			}
 		}
 
@@ -159,8 +159,8 @@ private:
 		}
 
 		int answer = free_;
-		free_ = container_[free_].nextFree;
-		container_[answer].nextFree = -1;
+		free_ = container_[free_].free;
+		container_[answer].free = -1;
 
 		return answer;
 	}
@@ -168,15 +168,15 @@ private:
 	void push_list(node& n) {
 		n.value = T();
 		n.prev = n.next = -1;
-		n.nextFree = free_;
+		n.free = free_;
 		free_ = n.index;
 	}
 
 	unsigned size_;
 	unsigned capacity_;
-	node* container_ = nullptr;
 
-	int free_ = -1;
-	int head_ = -1;
-	int tail_ = -1;
+	int free_;
+	int head_;
+	int tail_;
+	node* container_;
 };

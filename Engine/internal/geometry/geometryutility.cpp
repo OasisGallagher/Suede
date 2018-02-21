@@ -284,8 +284,8 @@ void GeometryUtility::DoTriangulate(std::vector<glm::vec3>& triangles, array_lis
 		}
 
 		for (int i = 0; i < removedEarCount; ++i) {
-			if (!(removedEars[i].earListIndex >= 0)) {
-				Debug::LogError("");
+			if (removedEars[i].earListIndex < 0) {
+				Debug::Break();
 			}
 
 			earTips.erase(removedEars[i].earListIndex);
@@ -306,8 +306,8 @@ int GeometryUtility::UpdateEarVertexState(array_list<EarVertex>& vertices, int v
 	bool isEar = earVertex.TestMask(EarVertex::Ear);
 
 	if (earVertex.TestMask(EarVertex::Reflex)) {
-		if (!(!isEar)) {
-			Debug::LogError("");
+		if (isEar) {
+			Debug::Break();
 		}
 
 		if (!earVertex.SetMask(EarVertex::Reflex, IsReflex(vertices, vertexIndex, normal))
