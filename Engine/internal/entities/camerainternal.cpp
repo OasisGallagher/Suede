@@ -1,8 +1,9 @@
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 
 #include "light.h"
 #include "camera.h"
 #include "screen.h"
+#include "frustum.h"
 #include "resources.h"
 #include "variables.h"
 #include "imageeffect.h"
@@ -21,12 +22,13 @@
 CameraInternal::CameraInternal() 
 	: EntityInternal(ObjectTypeCamera)
 	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
+	frustum_ = MEMORY_CREATE(Frustum);
+
 	InitializeVariables();
 	CreateFramebuffers();
 
 	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth");
 	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal");
-	CreateAuxMaterial(skyboxMaterial_, "buildin/shaders/skybox");
 	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth");
 
 	GL::ClearDepth(1);
@@ -35,6 +37,7 @@ CameraInternal::CameraInternal()
 CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(fb1_);
 	MEMORY_RELEASE(fb2_);
+	MEMORY_RELEASE(frustum_);
 	MEMORY_RELEASE(gbuffer_);
 }
 
@@ -44,34 +47,6 @@ void CameraInternal::SetClearColor(const glm::vec3 & value) {
 
 glm::vec3 CameraInternal::GetClearColor() {
 	return Framebuffer0::Get()->GetClearColor();
-}
-
-void CameraInternal::SetAspect(float value) {
-	if (!Math::Approximately(aspect_, value)) {
-		aspect_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
-	}
-}
-
-void CameraInternal::SetNearClipPlane(float value) {
-	if (!Math::Approximately(near_, value)) {
-		near_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
-	}
-}
-
-void CameraInternal::SetFarClipPlane(float value) {
-	if (!Math::Approximately(far_, value)) {
-		far_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
-	}
-}
-
-void CameraInternal::SetFieldOfView(float value) {
-	if (!Math::Approximately(fieldOfView_, value)) {
-		fieldOfView_ = value;
-		projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
-	}
 }
 
 void CameraInternal::SetRenderTexture(RenderTexture value) {
@@ -89,7 +64,7 @@ void CameraInternal::Update() {
 	}
 
 	if (clearType_ == ClearTypeSkybox) {
-	//	UpdateSkybox();
+		UpdateSkybox();
 	}
 }
 
@@ -139,6 +114,58 @@ void CameraInternal::Render() {
 	pass_ = RenderPassNone;
 }
 
+bool CameraInternal::GetPerspective() const {
+	return frustum_->GetPerspective();
+}
+
+void CameraInternal::SetPerspective(bool value) {
+	frustum_->SetPerspective(value);
+}
+
+float CameraInternal::GetOrthographicSize() const {
+	return frustum_->GetOrthographicSize();
+}
+
+void CameraInternal::SetOrthographicSize(float value) {
+	frustum_->SetOrthographicSize(value);
+}
+
+void CameraInternal::SetAspect(float value) {
+	frustum_->SetAspect(value);
+}
+
+void CameraInternal::SetNearClipPlane(float value) {
+	frustum_->SetNearClipPlane(value);
+}
+
+void CameraInternal::SetFarClipPlane(float value) {
+	frustum_->SetFarClipPlane(value);
+}
+
+void CameraInternal::SetFieldOfView(float value) {
+	frustum_->SetFieldOfView(value);
+}
+
+float CameraInternal::GetAspect() {
+	return frustum_->GetAspect();
+}
+
+float CameraInternal::GetNearClipPlane() {
+	return frustum_->GetNearClipPlane();
+}
+
+float CameraInternal::GetFarClipPlane() {
+	return frustum_->GetFarClipPlane();
+}
+
+float CameraInternal::GetFieldOfView() {
+	return frustum_->GetFieldOfView();
+}
+
+const glm::mat4 & CameraInternal::GetProjectionMatrix() {
+	return frustum_->GetProjectionMatrix();
+}
+
 void CameraInternal::ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (forwardBase) {
 		RenderForwardBase(entities, forwardBase);
@@ -177,7 +204,7 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 		//	continue;
 		//}
 
-		glm::mat4 localToClipSpaceMatrix = projection_ * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
+		glm::mat4 localToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
 		deferredMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 		deferredMaterial_->SetMatrix4(Variables::localToWorldSpaceMatrix, entity->GetTransform()->GetLocalToWorldMatrix());
 
@@ -195,13 +222,13 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
-	return glm::project(position, GetTransform()->GetWorldToLocalMatrix(), projection_, viewport);
+	return glm::project(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
-	return glm::unProject(position, GetTransform()->GetWorldToLocalMatrix(), projection_, viewport);
+	return glm::unProject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 Texture2D CameraInternal::Capture() {
@@ -216,12 +243,6 @@ Texture2D CameraInternal::Capture() {
 
 void CameraInternal::InitializeVariables() {
 	depth_ = 0; 
-	aspect_ = 1.3f;
-	near_ = 1.f;
-	far_ = 1000.f;
-	fieldOfView_ = Math::Pi() / 3.f;
-	projection_ = glm::perspective(fieldOfView_, aspect_, near_, far_);
-
 	pass_ = RenderPassNone;
 	clearType_ = ClearTypeColor;
 	renderPath_ = RenderPathForward;
@@ -250,7 +271,9 @@ void CameraInternal::CreateAuxMaterial(Material& material, const std::string& sh
 void CameraInternal::UpdateSkybox() {
 	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	if (skybox) {
-		skybox->SetMatrix4(Variables::cameraToClipSpaceMatrix, projection_);
+		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
+		matrix[3] = glm::vec4(0, 0, 0, 1);
+		skybox->SetMatrix4(Variables::cameraToClipSpaceMatrix, GetProjectionMatrix() * matrix);
 		Resources::GetAuxMeshRenderer()->RenderMesh(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
 	}
 }
@@ -390,7 +413,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 			continue;
 		}
 
-		glm::mat4 localToClipSpaceMatrix = projection_ * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
+		glm::mat4 localToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
 		depthMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 
 		// TODO: mesh renderer.
@@ -448,14 +471,14 @@ void CameraInternal::RenderDecals() {
 		decalMaterial_->SetMatrix4(Variables::decalMatrix, bias * d->matrix);
 		decalMaterial_->SetTexture(Variables::mainTexture, d->texture);
 
-		auto proj = projection_ * GetTransform()->GetWorldToLocalMatrix();
+		auto proj = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 		for (int i = 0; i < d->positions.size(); ++i) {
 			glm::vec4 pos = proj * glm::vec4(d->positions[i], 1);
 			pos /= pos.w;
 			__nop();
 		}
 
-		decalMaterial_->SetMatrix4(Variables::worldToClipSpaceMatrix, projection_ * GetTransform()->GetWorldToLocalMatrix());
+		decalMaterial_->SetMatrix4(Variables::worldToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 
 		Mesh mesh = NewMesh();
 
@@ -539,17 +562,17 @@ void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
 void CameraInternal::UpdateMaterial(Entity entity, Material material) {
 	glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
 	glm::mat4 worldToCameraSpaceMatrix = GetTransform()->GetWorldToLocalMatrix();
-	glm::mat4 worldToClipSpaceMatrix = projection_ * worldToCameraSpaceMatrix;
+	glm::mat4 worldToClipSpaceMatrix = GetProjectionMatrix() * worldToCameraSpaceMatrix;
 	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
 
-	glm::mat4 localToClipSpaceMatrix2 = projection_ * glm::mat4(glm::mat3(worldToCameraSpaceMatrix * localToWorldSpaceMatrix));
+	glm::mat4 localToClipSpaceMatrix2 = GetProjectionMatrix() * glm::mat4(glm::mat3(worldToCameraSpaceMatrix * localToWorldSpaceMatrix));
 
 	// TODO: uniform buffers for common matrices.
 	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldSpaceMatrix);
 	material->SetMatrix4(Variables::worldToClipSpaceMatrix, worldToClipSpaceMatrix);
 	material->SetMatrix4(Variables::worldToCameraSpaceMatrix, worldToCameraSpaceMatrix);
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
-	material->SetMatrix4(Variables::cameraToClipSpaceMatrix, projection_);
+	material->SetMatrix4(Variables::cameraToClipSpaceMatrix, GetProjectionMatrix());
 
 	if (pass_ >= RenderPassForwardOpaque) {
 		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldSpaceMatrix);

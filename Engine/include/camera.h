@@ -25,6 +25,15 @@ public:
 	virtual void SetDepth(int value) = 0;
 	virtual int GetDepth() = 0;
 
+	virtual bool GetPerspective() const = 0;
+	virtual void SetPerspective(bool value) = 0;
+
+	/**
+	* Half-size when in orthographic mode.
+	*/
+	virtual float GetOrthographicSize() const = 0;
+	virtual void SetOrthographicSize(float value) = 0;
+
 	virtual void SetClearType(ClearType value) = 0;
 	virtual ClearType GetClearType() = 0;
 

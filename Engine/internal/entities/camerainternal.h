@@ -5,6 +5,7 @@
 #include "internal/entities/entityinternal.h"
 
 class GBuffer;
+class Frustum;
 class ImageEffect;
 class Framebuffer;
 class FramebufferBase;
@@ -55,17 +56,23 @@ public:
 	virtual void Render();
 
 public:
+	virtual bool GetPerspective() const;
+	virtual void SetPerspective(bool value);
+
+	virtual float GetOrthographicSize() const;
+	virtual void SetOrthographicSize(float value);
+
 	virtual void SetAspect(float value);
 	virtual void SetNearClipPlane(float value);
 	virtual void SetFarClipPlane(float value);
 	virtual void SetFieldOfView(float value);
 
-	virtual float GetAspect() { return aspect_; }
-	virtual float GetNearClipPlane() { return near_; }
-	virtual float GetFarClipPlane() { return far_; }
-	virtual float GetFieldOfView() { return fieldOfView_; }
+	virtual float GetAspect();
+	virtual float GetNearClipPlane();
+	virtual float GetFarClipPlane();
+	virtual float GetFieldOfView();
 
-	virtual const glm::mat4& GetProjectionMatrix() { return projection_; }
+	virtual const glm::mat4& GetProjectionMatrix();
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position);
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
@@ -121,14 +128,10 @@ private:
 
 private:
 	int depth_;
-
-	float aspect_;
-	float near_, far_;
-	float fieldOfView_;
-	glm::mat4 projection_;
 	glm::mat4 viewToShadowSpaceMatrix_;
 
 	GBuffer* gbuffer_;
+	Frustum* frustum_;
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;

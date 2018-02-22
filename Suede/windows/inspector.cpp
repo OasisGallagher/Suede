@@ -339,10 +339,10 @@ void Inspector::onEditProperty() {
 void Inspector::onSliderValueChanged(int value) {
 	QSlider* slider = (QSlider*)sender();
 	if (slider->objectName() == Constants::cameraFov) {
-		dsp_cast<Camera>(target_)->SetFieldOfView(Math::Radians(value));
+		dsp_cast<Camera>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
 	else if (slider->objectName() == Constants::projectorFov) {
-		dsp_cast<Projector>(target_)->SetFieldOfView(Math::Radians(value));
+		dsp_cast<Projector>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
 }
 
@@ -510,7 +510,7 @@ void Inspector::drawProjector(Projector projector) {
 
 	slider->setMinimum(0);
 	slider->setMaximum(180);
-	slider->setValue(Math::Degrees(projector->GetFieldOfView()));
+	slider->setValue(projector->GetOrthographicSize());
 	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
 
 	form->addRow("Fov", slider);

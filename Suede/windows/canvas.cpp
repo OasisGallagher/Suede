@@ -17,9 +17,6 @@ void Canvas::resizeGL(int w, int h) {
 	Engine::Resize(w, h);
 }
 
-void Canvas::redraw() {
-//	makeCurrent();
+void Canvas::paintGL() {
 	Engine::Update();
-	swapBuffers();
-	//doneCurrent();
 }

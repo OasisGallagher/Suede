@@ -3,8 +3,8 @@
 #include "../glm/glm.hpp"
 #include "../glm/gtc/quaternion.hpp"
 
-template<class CountofType, size_t sizeOfArray>
-inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
+template<class CountofTpe, size_t sizeOfArray>
+inline char(*__countof_helper(CountofTpe(&_Array)[sizeOfArray]))[sizeOfArray] {
 	return nullptr;
 }
 
@@ -19,11 +19,11 @@ public:
 
 	static float Pi();
 
-	static float Degrees(float radians);
-	static float Radians(float degrees);
+	template <class T>
+	static T Degrees(const T& radians);
 
-	static glm::vec3 Degrees(const glm::vec3& radians);
-	static glm::vec3 Radians(const glm::vec3& degrees);
+	template <class T>
+	static T Radians(const T& degrees);
 
 	static float Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal);
 
@@ -36,27 +36,27 @@ public:
 	static unsigned NextPowerOfTwo(unsigned x);
 	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
 
-	template <class Ty>
-	static Ty Lerp(const Ty& from, const Ty& to, float t);
+	template <class T>
+	static T Lerp(const T& from, const T& to, float t);
 
 	static float Repeat(float t, float length);
 	static float PingPong(float t, float length);
 
-	template <class Ty>
-	static Ty Random(Ty min, Ty max);
+	template <class T>
+	static T Random(T min, T max);
 	static glm::vec3 RandomInsideSphere(float r);
 
-	template <class Ty>
-	static Ty Min(Ty x, Ty y);
+	template <class T>
+	static T Min(T x, T y);
 
-	template <class Ty>
-	static Ty Max(Ty x, Ty y);
+	template <class T>
+	static T Max(T x, T y);
 
-	template <class Ty>
-	static Ty Clamp(Ty value, Ty min, Ty max);
+	template <class T>
+	static T Clamp(T value, T min, T max);
 
-	template <class Ty>
-	static Ty Clamp01(Ty value);
+	template <class T>
+	static T Clamp01(T value);
 
 	static bool Approximately(float x, float y = 0.f);
 
@@ -82,14 +82,6 @@ inline int Math::MakeDword(int low, int high) {
 
 inline float Math::Pi() {
 	return 3.1415926f;
-}
-
-inline float Math::Degrees(float radians) {
-	return radians * 57.29578f;
-}
-
-inline float Math::Radians(float degrees) {
-	return degrees * 0.0174532924f;
 }
 
 inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal) {
@@ -136,12 +128,14 @@ inline glm::vec3 Math::NormalizedColor(const glm::ivec3& color) {
 	);
 }
 
-inline glm::vec3 Math::Degrees(const glm::vec3 & radians) {
-	return glm::vec3(Degrees(radians.x), Degrees(radians.y), Degrees(radians.z));
+template <class T>
+inline T Math::Degrees(const T& radians) {
+	return glm::degrees(radians);
 }
 
-inline glm::vec3 Math::Radians(const glm::vec3 & degrees) {
-	return glm::vec3(Radians(degrees.x), Radians(degrees.y), Radians(degrees.z));
+template <class T>
+inline T Math::Radians(const T& degrees) {
+	return glm::radians(degrees);
 }
 
 inline unsigned Math::NextPowerOfTwo(unsigned x) {
@@ -160,8 +154,8 @@ inline unsigned Math::RoundUpToPowerOfTwo(unsigned x, unsigned target) {
 	return (x + target) & (~target);
 }
 
-template <class Ty>
-inline Ty Math::Lerp(const Ty& from, const Ty& to, float t) {
+template <class T>
+inline T Math::Lerp(const T& from, const T& to, float t) {
 	return from + (to - from) * t;
 }
 
@@ -181,8 +175,8 @@ inline float Math::PingPong(float t, float length) {
 	return L - T;
 }
 
-template <class Ty>
-inline Ty Math::Random(Ty min, Ty max) {
+template <class T>
+inline T Math::Random(T min, T max) {
 	return min + (rand() % (max - min + 1));
 }
 
@@ -202,21 +196,21 @@ inline glm::vec3 Math::RandomInsideSphere(float r) {
 	return r * glm::vec3(sinf(theta) * cosf(phi), sinf(theta) * sinf(phi), cosf(theta));
 }
 
-template <class Ty>
-inline Ty Math::Min(Ty x, Ty y) { return x > y ? y : x; }
+template <class T>
+inline T Math::Min(T x, T y) { return x > y ? y : x; }
 
-template <class Ty>
-inline Ty Math::Max(Ty x, Ty y) { return x > y ? x : y; }
+template <class T>
+inline T Math::Max(T x, T y) { return x > y ? x : y; }
 
-template <class Ty>
-inline Ty Math::Clamp(Ty value, Ty min, Ty max) {
+template <class T>
+inline T Math::Clamp(T value, T min, T max) {
 	if (value < min) { value = min; }
 	if (value > max) { value = max; }
 	return value;
 }
 
-template <class Ty>
-inline Ty Math::Clamp01(Ty value) {
+template <class T>
+inline T Math::Clamp01(T value) {
 	if (value < 0) { value = 0; }
 	if (value > 1) { value = 1; }
 	return value;

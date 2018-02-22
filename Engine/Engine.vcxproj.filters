@@ -259,6 +259,9 @@
     <ClInclude Include="internal\entities\projectorinternal.h">
       <Filter>internal\entities\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\entities\frustum.h">
+      <Filter>internal\entities\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -361,6 +364,9 @@
       <Filter>internal\geometry\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\projectorinternal.cpp">
+      <Filter>internal\entities\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\entities\frustum.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
   </ItemGroup>

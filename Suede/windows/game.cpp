@@ -69,7 +69,7 @@ void Game::start() {
 }
 
 void Game::update() {
-	ui_->canvas->redraw();
+	ui_->canvas->update();
 }
 
 void Game::wheelEvent(QWheelEvent* event) {
@@ -122,7 +122,9 @@ void Game::createScene() {
 	controller_->setCamera(camera->GetTransform());
 
  	Projector projector = NewProjector();
- 	projector->SetFieldOfView(Math::Radians(9));
+	projector->SetPerspective(false);
+	projector->SetOrthographicSize(5);
+ 	//projector->SetFieldOfView(Math::Radians(9));
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();
@@ -161,7 +163,7 @@ void Game::createScene() {
 	};
 
 	cube->Load(faces);
-	skybox->SetTexture(Variables::mainTexture, texture);
+	skybox->SetTexture(Variables::mainTexture, cube);
 	skybox->SetColor4(Variables::mainColor, glm::vec4(1));
 	WorldInstance()->GetEnvironment()->SetSkybox(skybox);
 
@@ -236,15 +238,10 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
- 	Entity room = WorldInstance()->Import("models/quad_r.obj");
-	room->SetName("room");
- 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	room->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
-	room->GetTransform()->SetScale(glm::vec3(10));
-	room->GetTransform()->GetChildAt(0)->GetEntity()->GetMesh()->GetSubMesh(0)->SetTriangles(3, 0, 0);
+	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
+	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
+	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	roomEntityID = room->GetInstanceID();
-
-	//room->GetTransform()->GetChildAt(0)->GetEntity()->SetMesh(Resources::GetPrimitive(PrimitiveTypeCube));
 #endif
 
 #ifdef BEAR
