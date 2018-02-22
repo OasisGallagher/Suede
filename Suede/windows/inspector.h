@@ -54,27 +54,29 @@ private:
 
 	void showView(bool show);
 
+	void appendComponentInspector(QWidget* w);
+	void clearComponentInspectors();
+
 	void redraw();
 	void drawTags();
 	void drawTransform();
 
-	void drawCamera(Camera camera);
-	void drawProjector(Projector projector);
+	QWidget* drawCamera(Camera camera);
+	QWidget* drawProjector(Projector projector);
 
-	void drawMesh();
-	void drawTextMesh(Mesh mesh);
-	void drawSubMeshes(Mesh mesh);
+	QWidget* drawMesh(Mesh mesh);
+	QWidget* drawRenderer(Renderer renderer);
 
-	void drawRenderer();
-	void drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders);
 	void drawMaterialProperties(QWidgetList& widgets, Material material, uint materialIndex);
+	void drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders, QLayout* materialsLayout);
 
 	void shrinkToFit(QListWidget* w);
+	QString formatRowName(const QString& name);
 
 	void onEntityTransformChanged(Entity target, uint prs);
 
 	glm::vec3 readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z);
-	void writeTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3);
+	void drawTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3);
 	QString float2QString(float f);
 
 	bool isPropertyVisible(const QString& name);
@@ -92,6 +94,6 @@ private:
 
 private:
 	Entity target_;
-	QList<QWidget*> groups_;
+	QList<QWidget*> components_;
 	QColorDialog* colorPicker_;
 };

@@ -327,7 +327,7 @@ bool AssetImporter::ReadMaterials(Material* materials) {
 }
 
 bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& attribute) {
-	std::string shaderName = "unlit_texture";
+	std::string shaderName = "lit_texture";
 	if (scene_->mNumAnimations != 0) {
 		shaderName = "lit_animated_texture";
 	}

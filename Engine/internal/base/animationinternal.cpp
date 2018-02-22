@@ -228,8 +228,7 @@ void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<Animation
 }
 
 int AnimationKeysInternal::SmoothKeys() {
-	typedef std::set<float> TimeLine;
-	TimeLine times;
+	std::set<float> times;
 	for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 		if (*ite == nullptr) { continue; }
 		Keys* keys = (*ite);
@@ -238,7 +237,7 @@ int AnimationKeysInternal::SmoothKeys() {
 		}
 	}
 
-	for (TimeLine::iterator ite = times.begin(); ite != times.end(); ++ite) {
+	for (std::set<float>::iterator ite = times.begin(); ite != times.end(); ++ite) {
 		float time = *ite;
 		for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 			if (*ite == nullptr) { continue; }

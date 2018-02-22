@@ -84,9 +84,8 @@ void CameraController::onMousePress(Qt::MouseButton button, const QPoint & pos) 
 }
 
 void CameraController::rotateCamera(const QPoint& mousePos, QPoint& oldPos) {
-	QPoint delta = mousePos - oldPos;
+	QPoint delta = -(mousePos - oldPos);
 	oldPos = mousePos;
-	delta.setY(-delta.y());
 	glm::quat qx = glm::angleAxis(Math::Radians(0.05f * delta.x()), camera_->GetUp());
 	glm::quat qy = glm::angleAxis(Math::Radians(0.05f * delta.y()), camera_->GetRight());
 	camera_->SetRotation(qx * qy * camera_->GetRotation());

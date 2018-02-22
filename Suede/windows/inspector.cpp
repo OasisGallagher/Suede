@@ -1,6 +1,7 @@
 #include <QPixmap>
 #include <QLineEdit>
 #include <QFormLayout>
+#include <QListWidget>
 #include <QFileDialog>
 #include <QProgressBar>
 #include <QColorDialog>
@@ -78,8 +79,6 @@ void Inspector::init(Ui::Suede* ui) {
 	connect(ui_->active, SIGNAL(stateChanged(int)), this, SLOT(onActiveChanged(int)));
 
 	initTransformUI();
-
-	connect(ui_->text, SIGNAL(editingFinished()), this, SLOT(onTextChanged()));
 }
 
 void Inspector::OnWorldEvent(WorldEventBasePointer e) {
@@ -271,7 +270,7 @@ QWidget* Inspector::drawVec4Field(uint index, const QString& name, const glm::ve
 	return widget;
 }
 
-void Inspector::writeTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3) {
+void Inspector::drawTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3) {
 	x->setText(float2QString(v3.x));
 	y->setText(float2QString(v3.y));
 	z->setText(float2QString(v3.z));
@@ -299,7 +298,7 @@ void Inspector::onNameChanged() {
 // TODO: debug
 
 void Inspector::onTextChanged() {
-	QByteArray arr = ui_->text->text().toLocal8Bit();
+	QByteArray arr = ((QLineEdit*)sender())->text().toLocal8Bit();
 	TextMesh textMesh = dsp_cast<TextMesh>(target_->GetMesh());
 	textMesh->SetText(arr.toStdString());
 
@@ -421,6 +420,16 @@ void Inspector::showView(bool show) {
 	}
 }
 
+void Inspector::appendComponentInspector(QWidget* w) {
+	ui_->content->insertWidget(ui_->content->count() - 1, w);
+	components_.push_back(w);
+}
+
+void Inspector::clearComponentInspectors() {
+	qDeleteAll(components_);
+	components_.clear();
+}
+
 void Inspector::redraw() {
 	showView(true);
 
@@ -430,21 +439,21 @@ void Inspector::redraw() {
 	drawTags();
 	drawTransform();
 
+	clearComponentInspectors();
+
 	if (target_->GetType() == ObjectTypeCamera) {
-		drawCamera(dsp_cast<Camera>(target_));
+		appendComponentInspector(drawCamera(dsp_cast<Camera>(target_)));
 	}
 	else if (target_->GetType() == ObjectTypeProjector) {
-		drawProjector(dsp_cast<Projector>(target_));
+		appendComponentInspector(drawProjector(dsp_cast<Projector>(target_)));
 	}
 
-	ui_->mesh->setVisible(!!target_->GetMesh());
 	if (target_->GetMesh()) {
-		drawMesh();
+		appendComponentInspector(drawMesh(target_->GetMesh()));
 	}
 
-	ui_->renderer->setVisible(!!target_->GetRenderer());
 	if (target_->GetRenderer()) {
-		drawRenderer();
+		appendComponentInspector(drawRenderer(target_->GetRenderer()));
 	}
 }
 
@@ -470,14 +479,11 @@ void Inspector::drawTags() {
 	ui_->tag->blockSignals(false);
 }
 
-void Inspector::drawCamera(Camera camera) {
-	QGroupBox* g = new QGroupBox(this);
-	g->setTitle("Camera");
+QWidget* Inspector::drawCamera(Camera camera) {
+	QGroupBox* g = new QGroupBox("Camera", this);
 
 	QFormLayout* form = new QFormLayout(g);
 	g->setLayout(form);
-
-	ui_->content->insertWidget(ui_->content->count() - 2, g);
 
 	QSlider* slider = new QSlider(g);
 	slider->setObjectName(Constants::cameraFov);
@@ -489,19 +495,16 @@ void Inspector::drawCamera(Camera camera) {
 	slider->setValue(Math::Degrees(camera->GetFieldOfView()));
 	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
 
-	form->addRow("Fov", slider);
+	form->addRow(formatRowName("Fov"), slider);
 
-	ui_->content->addLayout(form);
+	return g;
 }
 
-void Inspector::drawProjector(Projector projector) {
-	QGroupBox* g = new QGroupBox(this);
-	g->setTitle("Projector");
+QWidget* Inspector::drawProjector(Projector projector) {
+	QGroupBox* g = new QGroupBox("Projector", this);
 
 	QFormLayout* form = new QFormLayout(g);
 	g->setLayout(form);
-
-	ui_->content->insertWidget(ui_->content->count() - 2, g);
 
 	QSlider* slider = new QSlider(g);
 	slider->setObjectName(Constants::projectorFov);
@@ -513,37 +516,76 @@ void Inspector::drawProjector(Projector projector) {
 	slider->setValue(projector->GetOrthographicSize());
 	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
 
-	form->addRow("Fov", slider);
+	form->addRow(formatRowName("Fov"), slider);
 
-	ui_->content->addLayout(form);
+	return g;
 }
 
 void Inspector::drawTransform() {
-	writeTransformFields(ui_->px, ui_->py, ui_->pz, target_->GetTransform()->GetLocalPosition());
-	writeTransformFields(ui_->rx, ui_->ry, ui_->rz, target_->GetTransform()->GetLocalEulerAngles());
-	writeTransformFields(ui_->sx, ui_->sy, ui_->sz, target_->GetTransform()->GetLocalScale());
+	drawTransformFields(ui_->px, ui_->py, ui_->pz, target_->GetTransform()->GetLocalPosition());
+	drawTransformFields(ui_->rx, ui_->ry, ui_->rz, target_->GetTransform()->GetLocalEulerAngles());
+	drawTransformFields(ui_->sx, ui_->sy, ui_->sz, target_->GetTransform()->GetLocalScale());
 }
 
-void Inspector::drawMesh() {
-	Mesh mesh = target_->GetMesh();
-	ui_->topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
-	ui_->vertices->setText(QString::number(mesh->GetVertices().size()));
-	ui_->subMeshList->clear();
+QWidget* Inspector::drawMesh(Mesh mesh) {
+	QGroupBox* g = new QGroupBox("Mesh", this);
+	QFormLayout* form = new QFormLayout(g);
 
-	drawSubMeshes(mesh);
-	drawTextMesh(mesh);
+	QLabel* topology = new QLabel(g);
+	topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
+	form->addRow(formatRowName("Topology"), topology);
+
+	QLabel* vertices = new QLabel(g);
+	vertices->setText(QString::number(mesh->GetVertices().size()));
+	form->addRow(formatRowName("Vertices"), vertices);
+
+	QListWidget* subMeshList = new QListWidget(g);
+	
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh subMesh = mesh->GetSubMesh(i);
+		uint indexCount, baseIndex, baseVertex;
+		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+
+		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? indexCount / 3 : Math::Max(0u, indexCount - 2);
+		subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
+	}
+
+	form->setWidget(form->rowCount(), QFormLayout::SpanningRole, subMeshList);
+
+	shrinkToFit(subMeshList);
+
+	if (mesh->GetType() == ObjectTypeTextMesh) {
+		TextMesh textMesh = dsp_cast<TextMesh>(mesh);
+		QLineEdit* text = new QLineEdit(g);
+		text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
+		connect(text, SIGNAL(editingFinished()), this, SLOT(onTextChanged()));
+		form->addRow(formatRowName("Text"), text);
+
+		Font font = textMesh->GetFont();
+		QLabel* fontName = new QLabel(g);
+		fontName->setText(font->GetFamilyName().c_str());
+		form->addRow(formatRowName("Font"), fontName);
+
+		QLabel* fontSize = new QLabel(g);
+		fontSize->setText(QString::number(font->GetFontSize()));
+		form->addRow(formatRowName("Size"), fontSize);
+	}
+
+	return g;
 }
 
-void Inspector::drawRenderer() {
-	Renderer renderer = target_->GetRenderer();
-	ui_->materialList->clear();
+QWidget* Inspector::drawRenderer(Renderer renderer) {
+	QGroupBox* g = new QGroupBox("Renderer", this);
+	QFormLayout* form = new QFormLayout(g);
+
+	QListWidget* materialList = new QListWidget(g);
 
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		Material material = renderer->GetMaterial(i);
-		ui_->materialList->addItem(material->GetName().c_str());
+		materialList->addItem(material->GetName().c_str());
 	}
-
-	shrinkToFit(ui_->materialList);
+	form->setWidget(form->rowCount(), QFormLayout::SpanningRole, materialList);
+	shrinkToFit(materialList);
 
 	QStringList list;
 	const std::vector<ShaderResource>& shaders = Resources::GetShaderResources();
@@ -551,12 +593,34 @@ void Inspector::drawRenderer() {
 		list << shaders[i].name.c_str();
 	}
 
-	qDeleteAll(groups_);
-	groups_.clear();
+	QGroupBox* materials = new QGroupBox(formatRowName("Materials"), g);
+	QVBoxLayout* materialsLayout = new QVBoxLayout(materials);
 
 	for (uint materialIndex = 0; materialIndex < renderer->GetMaterialCount(); ++materialIndex) {
-		drawMaterial(renderer, materialIndex, list);
+		drawMaterial(renderer, materialIndex, list, materialsLayout);
 	}
+
+	form->setWidget(form->rowCount(), QFormLayout::SpanningRole, materials);
+
+	return g;
+}
+
+QString Inspector::formatRowName(const QString& name) {
+	QString answer;
+	for (int i = 0; i < name.length(); ++i) {
+		if (!answer.isEmpty() && name[i].isUpper()) {
+			answer += " ";
+		}
+
+		if (i == 0 && name[i].isLower()) {
+			answer += name[i].toUpper();
+		}
+		else {
+			answer += name[i];
+		}
+	}
+
+	return answer + ": ";
 }
 
 void Inspector::shrinkToFit(QListWidget* w) {
@@ -640,40 +704,12 @@ void Inspector::onSelectColor4(QWidget* widget, uint materialIndex, const QStrin
 	colorPicker_->exec();
 }
 
-void Inspector::drawSubMeshes(Mesh mesh) {
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		uint indexCount, baseIndex, baseVertex;
-		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
-
-		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? indexCount / 3 : Math::Max(0u, indexCount - 2);
-		ui_->subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
-	}
-
-	shrinkToFit(ui_->subMeshList);
-}
-
-void Inspector::drawTextMesh(Mesh mesh) {
-	ui_->textMeshAttributes->setVisible(mesh->GetType() == ObjectTypeTextMesh);
-	if (mesh->GetType() == ObjectTypeTextMesh) {
-		TextMesh textMesh = dsp_cast<TextMesh>(mesh);
-		ui_->text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
-
-		Font font = textMesh->GetFont();
-		ui_->fontName->setText(font->GetFamilyName().c_str());
-		ui_->fontSize->setText(QString::number(font->GetFontSize()));
-	}
-}
-
-void Inspector::drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders) {
+void Inspector::drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders, QLayout* materialsLayout) {
 	Material material = renderer->GetMaterial(materialIndex);
 	Shader shader = material->GetShader();
 
-	QGroupBox* g = new QGroupBox(this);
-	groups_.push_back(g);
-
-	g->setTitle(material->GetName().c_str());
-	ui_->materialsLayout->addWidget(g);
+	QGroupBox* g = new QGroupBox(material->GetName().c_str(), this);
+	materialsLayout->addWidget(g);
 
 	QFormLayout* form = new QFormLayout(g);
 	g->setLayout(form);
@@ -684,13 +720,13 @@ void Inspector::drawMaterial(Renderer renderer, uint materialIndex, const QStrin
 	combo->addItems(shaders);
 	combo->setCurrentIndex(shaders.indexOf(shader->GetName().c_str()));
 
-	form->addRow("Shader", combo);
+	form->addRow(formatRowName("Shader"), combo);
 
 	QWidgetList widgets;
 	drawMaterialProperties(widgets, material, materialIndex);
 
 	foreach(QWidget* w, widgets) {
-		form->addRow(w->objectName(), w);
+		form->addRow(formatRowName(w->objectName()), w);
 		w->setParent(g);
 	}
 }
