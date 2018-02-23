@@ -1,7 +1,51 @@
 <RCC>
     <qresource prefix="/images">
+        <file alias="up_arrow_disabled">resources/images/up_arrow_disabled.png</file>
+        <file alias="Hmovetoolbar">resources/images/Hmovetoolbar.png</file>
+        <file alias="stylesheet-branch-end">resources/images/stylesheet-branch-end.png</file>
+        <file alias="branch_closed-on">resources/images/branch_closed-on.png</file>
+        <file alias="stylesheet-vline">resources/images/stylesheet-vline.png</file>
+        <file alias="branch_closed">resources/images/branch_closed.png</file>
+        <file alias="branch_open-on">resources/images/branch_open-on.png</file>
+        <file alias="transparent">resources/images/transparent.png</file>
+        <file alias="right_arrow_disabled">resources/images/right_arrow_disabled.png</file>
+        <file alias="sizegrip">resources/images/sizegrip.png</file>
+        <file alias="close">resources/images/close.png</file>
+        <file alias="close-hover">resources/images/close-hover.png</file>
+        <file alias="close-pressed">resources/images/close-pressed.png</file>
+        <file alias="down_arrow">resources/images/down_arrow.png</file>
+        <file alias="Vmovetoolbar">resources/images/Vmovetoolbar.png</file>
+        <file alias="left_arrow">resources/images/left_arrow.png</file>
+        <file alias="stylesheet-branch-more">resources/images/stylesheet-branch-more.png</file>
+        <file alias="up_arrow">resources/images/up_arrow.png</file>
+        <file alias="right_arrow">resources/images/right_arrow.png</file>
+        <file alias="left_arrow_disabled">resources/images/left_arrow_disabled.png</file>
+        <file alias="Hsepartoolbar">resources/images/Hsepartoolbar.png</file>
+        <file alias="branch_open">resources/images/branch_open.png</file>
+        <file alias="Vsepartoolbar">resources/images/Vsepartoolbar.png</file>
+        <file alias="down_arrow_disabled">resources/images/down_arrow_disabled.png</file>
+        <file alias="undock">resources/images/undock.png</file>
+        <file alias="checkbox_checked_disabled">resources/images/checkbox_checked_disabled.png</file>
+        <file alias="checkbox_checked_focus">resources/images/checkbox_checked_focus.png</file>
+        <file alias="checkbox_checked">resources/images/checkbox_checked.png</file>
+        <file alias="checkbox_indeterminate">resources/images/checkbox_indeterminate.png</file>
+        <file alias="checkbox_indeterminate_focus">resources/images/checkbox_indeterminate_focus.png</file>
+        <file alias="checkbox_unchecked_disabled">resources/images/checkbox_unchecked_disabled.png</file>
+        <file alias="checkbox_unchecked_focus">resources/images/checkbox_unchecked_focus.png</file>
+        <file alias="checkbox_unchecked">resources/images/checkbox_unchecked.png</file>
+        <file alias="radio_checked_disabled">resources/images/radio_checked_disabled.png</file>
+        <file alias="radio_checked_focus">resources/images/radio_checked_focus.png</file>
+        <file alias="radio_checked">resources/images/radio_checked.png</file>
+        <file alias="radio_unchecked_disabled">resources/images/radio_unchecked_disabled.png</file>
+        <file alias="radio_unchecked_focus">resources/images/radio_unchecked_focus.png</file>
+        <file alias="radio_unchecked">resources/images/radio_unchecked.png</file>
+        <file alias="debug">resources/images/debug.png</file>
         <file alias="error">resources/images/error.png</file>
         <file alias="warning">resources/images/warning.png</file>
-        <file alias="debug">resources/images/debug.png</file>
+        <file alias="logo">resources/images/logo.ico</file>
+        <file alias="splash">resources/images/splash.png</file>
+    </qresource>
+    <qresource prefix="/qss">
+        <file alias="style">resources/qss/style.qss</file>
     </qresource>
 </RCC>

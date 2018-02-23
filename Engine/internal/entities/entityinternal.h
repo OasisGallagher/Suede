@@ -1,6 +1,4 @@
 #pragma once
-#include <glm/gtc/quaternion.hpp>
-
 #include "mesh.h"
 #include "entity.h"
 #include "animation.h"

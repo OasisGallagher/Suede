@@ -46,13 +46,13 @@ const char* Console::messageIconPath(MessageType type) {
 	const char* path = "";
 	switch (type) {
 		case Debug:
-			path = ":/images/debug";
+			path = ":/images/console_debug";
 			break;
 		case Warning:
-			path = ":/images/warning";
+			path = ":/images/console_warning";
 			break;
 		case Error:
-			path = ":/images/error";
+			path = ":/images/console_error";
 			break;
 	}
 

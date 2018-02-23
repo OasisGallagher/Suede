@@ -9,6 +9,7 @@
 #include "ui_suede.h"
 #include "labeltexture.h"
 
+#include "floatslider.h"
 #include "variables.h"
 #include "inspector.h"
 #include "resources.h"
@@ -17,19 +18,28 @@
 #include "tools/math2.h"
 #include "os/filesystem.h"
 
-#define LAYOUT_SPACING	12
-#define MIN_FOV		1
-#define MAX_FOV		179
-
-#define DEFINE_STRING_CONSTANT(name)	static const char* name = #name
 namespace Constants {
-	DEFINE_STRING_CONSTANT(current);
+	static uint layoutSpacing = 12;
+	static uint minFieldOfView = 0;
+	static uint maxFieldOfView = 180;
 
-	DEFINE_STRING_CONSTANT(colorButton);
-	DEFINE_STRING_CONSTANT(alphaProgress);
+	static uint minOrthographicSize = 1;
+	static uint maxOrthographicSize = 20;
+}
 
-	DEFINE_STRING_CONSTANT(cameraFov);
-	DEFINE_STRING_CONSTANT(projectorFov);
+#define DEFINE_LITERAL(name)	static const char* name = #name
+namespace Literals {
+	DEFINE_LITERAL(current);
+
+	DEFINE_LITERAL(colorButton);
+	DEFINE_LITERAL(alphaProgress);
+
+	DEFINE_LITERAL(cameraFovLabel);
+	DEFINE_LITERAL(cameraFovSlider);
+	DEFINE_LITERAL(cameraFovSlider2);
+
+	DEFINE_LITERAL(projectorFovSlider);
+	DEFINE_LITERAL(projectorFovSlider2);
 }
 
 static Inspector* inspectorInstance;
@@ -158,7 +168,7 @@ QWidget* Inspector::drawTextureField(uint index, const QString& name, Texture va
 	label->setFixedSize(32, 32);
 	label->setTexture(value);
 	label->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeTexture));
-	connect(label, SIGNAL(clicked()), this, SLOT(onClickProperty()));
+	connect(label, SIGNAL(clicked()), this, SLOT(onEditProperty()));
 	return label;
 }
 
@@ -168,10 +178,10 @@ QWidget* Inspector::drawColorField(uint index, const QString& name, VariantType 
 	widget->setLayout(layout);
 
 	LabelTexture* label = new LabelTexture(widget);
-	label->setObjectName(Constants::colorButton);
+	label->setObjectName(Literals::colorButton);
 	label->setColor(*(glm::vec3*)value);
 	label->setUserData(Qt::UserRole, new UserData(index, name, type));
-	connect(label, SIGNAL(clicked()), this, SLOT(onClickProperty()));
+	connect(label, SIGNAL(clicked()), this, SLOT(onEditProperty()));
 
 	layout->setSpacing(1);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -179,7 +189,8 @@ QWidget* Inspector::drawColorField(uint index, const QString& name, VariantType 
 
 	if (type == VariantTypeColor4) {
 		QProgressBar* alpha = new QProgressBar(widget);
-		alpha->setObjectName(Constants::alphaProgress);
+		alpha->setObjectName(Literals::alphaProgress);
+		alpha->setTextVisible(false);
 		alpha->setStyleSheet("QProgressBar::chunk { background-color: #595959 }");
 		alpha->setFixedHeight(2);
 		alpha->setMaximum(255);
@@ -310,6 +321,7 @@ void Inspector::onTextChanged() {
 }
 
 void Inspector::onEditProperty() {
+	QWidget* senderWidget = (QWidget*)sender();
 	UserData* ud = ((UserData*)sender()->userData(Qt::UserRole));
 	uint index = ud->index;
 	QString name = ud->name;
@@ -325,41 +337,31 @@ void Inspector::onEditProperty() {
 		case VariantTypeVector3:
 			break;
 		case VariantTypeColor3:
+			onSelectColor3(senderWidget, index, name);
 			break;
 		case VariantTypeColor4:
+			onSelectColor4(senderWidget, index, name);
 			break;
 		case VariantTypeVector4:
 			break;
 		case VariantTypeTexture:
+			onSelectTexture(senderWidget, index, name);
 			break;
 	}
 }
 
-void Inspector::onSliderValueChanged(int value) {
-	QSlider* slider = (QSlider*)sender();
-	if (slider->objectName() == Constants::cameraFov) {
+void Inspector::onSliderValueChanged(const QString& name, float value) {
+	if (name == Literals::cameraFovSlider) {
 		dsp_cast<Camera>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
-	else if (slider->objectName() == Constants::projectorFov) {
+	else if (name == Literals::projectorFovSlider) {
 		dsp_cast<Projector>(target_)->SetFieldOfView(Math::Radians(float(value)));
+	}	
+	else if (name == Literals::cameraFovSlider2) {
+		dsp_cast<Camera>(target_)->SetOrthographicSize(value);
 	}
-}
-
-void Inspector::onClickProperty() {
-	QWidget* senderWidget = (QWidget*)sender();
-	UserData* ud = ((UserData*)senderWidget->userData(Qt::UserRole));
-	uint index = ud->index;
-	QString name = ud->name;
-	VariantType type = ud->type;
-
-	if (type == VariantTypeColor3) {
-		onSelectColor3(senderWidget, index, name);
-	}
-	else if (type == VariantTypeColor4) {
-		onSelectColor4(senderWidget, index, name);
-	}
-	else if (type == VariantTypeTexture) {
-		onSelectTexture(senderWidget, index, name);
+	else if (name == Literals::projectorFovSlider2) {
+		dsp_cast<Projector>(target_)->SetOrthographicSize(value);
 	}
 }
 
@@ -378,7 +380,7 @@ void Inspector::onColorChanged(const QColor& color) {
 		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
 		material->SetColor4(data->name.toStdString(), newColor);
 
-		QProgressBar* alpha = data->sender->parent()->findChild<QProgressBar*>(Constants::alphaProgress);
+		QProgressBar* alpha = data->sender->parent()->findChild<QProgressBar*>(Literals::alphaProgress);
 		alpha->setValue(selected.alpha());
 	}
 	else {
@@ -485,16 +487,13 @@ QWidget* Inspector::drawCamera(Camera camera) {
 	QFormLayout* form = new QFormLayout(g);
 	g->setLayout(form);
 
-	QSlider* slider = new QSlider(g);
-	slider->setObjectName(Constants::cameraFov);
-
-	slider->setOrientation(Qt::Horizontal);
-
-	slider->setMinimum(0);
-	slider->setMaximum(180);
+	FloatSlider* slider = new FloatSlider(g);
+	slider->setObjectName(Literals::cameraFovSlider);
+	slider->setRange(Constants::minFieldOfView, Constants::maxFieldOfView);
 	slider->setValue(Math::Degrees(camera->GetFieldOfView()));
-	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
 
+	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
+	
 	form->addRow(formatRowName("Fov"), slider);
 
 	return g;
@@ -506,17 +505,22 @@ QWidget* Inspector::drawProjector(Projector projector) {
 	QFormLayout* form = new QFormLayout(g);
 	g->setLayout(form);
 
-	QSlider* slider = new QSlider(g);
-	slider->setObjectName(Constants::projectorFov);
+	FloatSlider* slider = new FloatSlider(g);
 
-	slider->setOrientation(Qt::Horizontal);
+	if (projector->GetPerspective()) {
+		slider->setObjectName(Literals::projectorFovSlider);
+		slider->setRange(Constants::minFieldOfView, Constants::maxFieldOfView);
+		slider->setValue(Math::Degrees(projector->GetFieldOfView()));
+		form->addRow(formatRowName("Fov"), slider);
+	}
+	else {
+		slider->setObjectName(Literals::projectorFovSlider2);
+		slider->setRange(Constants::minOrthographicSize, Constants::maxOrthographicSize);
+		slider->setValue(projector->GetOrthographicSize());
+		form->addRow(formatRowName("Size"), slider);
+	}
 
-	slider->setMinimum(0);
-	slider->setMaximum(180);
-	slider->setValue(projector->GetOrthographicSize());
-	connect(slider, SIGNAL(valueChanged(int)), this, SLOT(onSliderValueChanged(int)));
-
-	form->addRow(formatRowName("Fov"), slider);
+	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
 
 	return g;
 }

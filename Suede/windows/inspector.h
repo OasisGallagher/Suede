@@ -33,9 +33,8 @@ private slots:
 	void onTextChanged();
 
 	void onEditProperty();
-	void onClickProperty();
 
-	void onSliderValueChanged(int value);
+	void onSliderValueChanged(const QString& name, float value);
 
 	void onColorChanged(const QColor& color);
 

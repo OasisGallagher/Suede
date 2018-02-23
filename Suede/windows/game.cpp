@@ -28,7 +28,7 @@
 #define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
-#define POST_EFFECTS
+//#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 #define FONT
