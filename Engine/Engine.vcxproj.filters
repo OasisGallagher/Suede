@@ -369,6 +369,9 @@
     <ClCompile Include="internal\entities\frustum.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
+    <ClCompile Include="internal\geometry\plane.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h">

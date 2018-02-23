@@ -196,6 +196,10 @@ void WorldInternal::CreateDecals() {
 	}
 }
 
+#include <ctime>
+#include <windows.h>
+#include "tools/string.h"
+
 bool WorldInternal::CreateEntityDecal(Decal& decal, Entity entity, Plane planes[6]) {
 	std::vector<glm::vec3> triangles;
 	if (!ClampMesh(triangles, entity, planes)) {
@@ -249,6 +253,7 @@ bool WorldInternal::ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, 
 		uint indexCount, baseVertex, baseIndex;
 		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
 
+		clock_t c0 = 0, c1 = 0;
 		// TODO: triangle strip.
 		for (int j = 0; j < indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
@@ -256,15 +261,30 @@ bool WorldInternal::ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, 
 			uint index1 = indexes[baseIndex + j + 1] + baseVertex;
 			uint index2 = indexes[baseIndex + j + 2] + baseVertex;
 
-			glm::vec3 vs[] = {
-				entity->GetTransform()->TransformPoint(vertices[index0]),
-				entity->GetTransform()->TransformPoint(vertices[index1]),
-				entity->GetTransform()->TransformPoint(vertices[index2])
-			};
+			// TODO: camera position.
+			// local space.
+			glm::vec3 eye = (*cameras_.begin())->GetTransform()->GetPosition();
+			eye = entity->GetTransform()->InverseTransformPoint(eye);
+			glm::vec3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
 
+			if (!GeometryUtility::IsFrontFace(vs, eye)) {
+				continue;
+			}
+
+			vs[0] = entity->GetTransform()->TransformPoint(vs[0]);
+			vs[1] = entity->GetTransform()->TransformPoint(vs[1]);
+			vs[2] = entity->GetTransform()->TransformPoint(vs[2]);
+
+			clock_t c = clock();
 			GeometryUtility::ClampTriangle(polygon, vs, planes, 6);
+			c0 += (clock() - c);
+
+			c = clock();
 			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
+			c1 += (clock() - c);
 		}
+
+		OutputDebugStringA(String::Format("+ %.2f %.2f\n", c0 / 1000.f, c1 / 1000.f).c_str());
 	}
 
 	return triangles.size() >= 3;

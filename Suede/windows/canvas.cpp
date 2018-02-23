@@ -1,3 +1,6 @@
+#include <QDebug>
+
+#include "time2.h"
 #include "engine.h"
 #include "canvas.h"
 
@@ -19,4 +22,5 @@ void Canvas::resizeGL(int w, int h) {
 
 void Canvas::paintGL() {
 	Engine::Update();
+	qDebug() << Time::GetDeltaTime();
 }

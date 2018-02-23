@@ -55,13 +55,25 @@ void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::
 }
 
 void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const glm::vec3 triangle[3], const Plane* planes, uint count) {
-	std::list<glm::vec3> list(triangle, triangle + 3);
+	int state = CalculateSide(triangle, planes, count);
 
-	for (int pi = 0; list.size() >= 3 && pi < count; ++pi) {
-		ClampPolygon(list, planes[pi]);
+	if (state == -1) {
+		polygon.insert(polygon.end(), triangle, triangle + 3);
 	}
+	else if (state == 0) {
+		std::list<glm::vec3> list(triangle, triangle + 3);
 
-	polygon.insert(polygon.end(), list.begin(), list.end());
+		for (int pi = 0; list.size() >= 3 && pi < count; ++pi) {
+			ClampPolygon(list, planes[pi]);
+		}
+
+		polygon.insert(polygon.end(), list.begin(), list.end());
+	}
+}
+
+bool GeometryUtility::IsFrontFace(const glm::vec3 triangle[3], const glm::vec3& camera) {
+	glm::vec3 normal = glm::cross(triangle[1] - triangle[0], triangle[2] - triangle[1]);
+	return glm::dot(normal, triangle[1] - camera) < 0;
 }
 
 float GeometryUtility::GetDistance(const Plane& plane, const glm::vec3& p) {
@@ -137,6 +149,25 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 	vec3 bottomPlaneNormal = Dot(bottomPlaneNormal , p0);
 	*/
 //}
+
+int GeometryUtility::CalculateSide(const glm::vec3 triangle[3], const Plane* planes, uint count) {
+	for (int i = 0; i < count; ++i) {
+		float f0 = GeometryUtility::GetDistance(planes[i], triangle[0]);
+		float f1 = GeometryUtility::GetDistance(planes[i], triangle[1]);
+		if (f0 * f1 < 0) { return 0; }
+
+		float f2 = GeometryUtility::GetDistance(planes[i], triangle[2]);
+		if (f1 * f2 < 0 || f0 * f2 < 0) {
+			return 0;
+		}
+
+		if (f0 <= 0 && f1 <= 0 && f2 <= 0) {
+			return 1;
+		}
+	}
+
+	return -1;
+}
 
 bool GeometryUtility::GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next) {
 	if (!GetIntersection(intersection, plane, prev, next)) {

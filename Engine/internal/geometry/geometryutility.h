@@ -17,6 +17,8 @@ public:
 	static void Triangulate(std::vector<glm::vec3>& triangles, const std::vector<glm::vec3>& polygon, const glm::vec3& normal);
 	static void ClampTriangle(std::vector<glm::vec3>& polygon, const glm::vec3 triangle[3], const Plane* planes, uint count);
 
+	static bool IsFrontFace(const glm::vec3 triangle[3], const glm::vec3& camera);
+
 	static float GetDistance(const Plane& plane, const glm::vec3& p);
 	static bool GetIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& p0, const glm::vec3& p1);
 	static void CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipSpaceMatrix);
@@ -25,6 +27,7 @@ private:
 	static void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane);
 	static void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane);
 
+	static int CalculateSide(const glm::vec3 triangle[3], const Plane* planes, uint count);
 	static bool GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next);
 
 	static bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal);
