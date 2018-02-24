@@ -6,6 +6,10 @@ class MeshInspector : public CustomInspector {
 public:
 	MeshInspector(Object object);
 
+private:
+	void drawMesh();
+	void drawTextMesh();
+
 private slots:
 	void onTextChanged();
 };

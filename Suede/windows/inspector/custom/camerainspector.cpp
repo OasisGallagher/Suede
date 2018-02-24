@@ -2,7 +2,7 @@
 #include <QFormLayout>
 
 #include "tools/math2.h"
-#include "../../controls/floatslider.h"
+#include "windows/controls/floatslider.h"
 
 #include "camera.h"
 #include "camerainspector.h"
@@ -30,9 +30,9 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 
 void CameraInspector::onSliderValueChanged(const QString& name, float value) {
 	if (name == Literals::cameraFovSlider) {
-		dsp_cast<Camera>(object_)->SetFieldOfView(Math::Radians(float(value)));
+		dsp_cast<Camera>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
 	else if (name == Literals::cameraFovSlider2) {
-		dsp_cast<Camera>(object_)->SetOrthographicSize(value);
+		dsp_cast<Camera>(target_)->SetOrthographicSize(value);
 	}
 }

@@ -12,13 +12,8 @@
 #include "variables.h"
 #include "resources.h"
 #include "rendererinspector.h"
-#include "../../controls/labeltexture.h"
+#include "windows/controls/labeltexture.h"
 
-namespace Constants {
-	static uint layoutSpacing = 12;
-}
-
-#define DEFINE_LITERAL(name)	static const char* name = #name
 namespace Literals {
 	DEFINE_LITERAL(current);
 
@@ -41,18 +36,16 @@ struct UserData : public QObjectUserData {
 };
 
 RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer", object) {
-	colorPicker_ = new QColorDialog(this);
-	colorPicker_->setWindowTitle("Select color");
-	colorPicker_->setOption(QColorDialog::NoButtons);
-	connect(colorPicker_, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorChanged(const QColor&)));
+	initializeColorPicker();
 
-	Renderer renderer = dsp_cast<Renderer>(object_);
+	Renderer renderer = dsp_cast<Renderer>(target_);
 	QListWidget* materialList = new QListWidget(this);
 
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		Material material = renderer->GetMaterial(i);
 		materialList->addItem(material->GetName().c_str());
 	}
+
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materialList);
 	shrinkToFit(materialList);
 
@@ -62,7 +55,7 @@ RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer"
 		list << shaders[i].name.c_str();
 	}
 
-	QGroupBox* materials = new QGroupBox(formatRowName("Materials"), this);
+	QGroupBox* materials = new QGroupBox("Materials", this);
 	QVBoxLayout* materialsLayout = new QVBoxLayout(materials);
 
 	for (uint materialIndex = 0; materialIndex < renderer->GetMaterialCount(); ++materialIndex) {
@@ -70,6 +63,13 @@ RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer"
 	}
 
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materials);
+}
+
+void RendererInspector::initializeColorPicker() {
+	colorPicker_ = new QColorDialog(this);
+	colorPicker_->setWindowTitle("Select color");
+	colorPicker_->setOption(QColorDialog::NoButtons);
+	connect(colorPicker_, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorChanged(const QColor&)));
 }
 
 void RendererInspector::drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders, QLayout* materialsLayout) {
@@ -306,10 +306,10 @@ void RendererInspector::onEditProperty() {
 
 	switch (type) {
 		case VariantTypeInt:
-			dsp_cast<Renderer>(object_)->GetMaterial(index)->SetInt(name.toStdString(), ((QLineEdit*)sender())->text().toInt());
+			dsp_cast<Renderer>(target_)->GetMaterial(index)->SetInt(name.toStdString(), ((QLineEdit*)sender())->text().toInt());
 			break;
 		case VariantTypeFloat:
-			dsp_cast<Renderer>(object_)->GetMaterial(index)->SetFloat(name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
+			dsp_cast<Renderer>(target_)->GetMaterial(index)->SetFloat(name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
 			break;
 		case VariantTypeVector3:
 			break;
@@ -337,7 +337,7 @@ void RendererInspector::onColorChanged(const QColor& color) {
 	data->sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
 		selected.red(), selected.green(), selected.blue()));
 
-	Material material = dsp_cast<Renderer>(object_)->GetMaterial(data->index);
+	Material material = dsp_cast<Renderer>(target_)->GetMaterial(data->index);
 	if (data->type == VariantTypeColor4) {
 		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
 		material->SetColor4(data->name.toStdString(), newColor);
@@ -359,7 +359,7 @@ void RendererInspector::onSelectTexture(QWidget* widget, uint materialIndex, con
 		QDir dir(Resources::GetRootDirectory().c_str());
 		path = dir.relativeFilePath(path);
 		texture->Load(path.toStdString());
-		Material material = dsp_cast<Renderer>(object_)->GetMaterial(materialIndex);
+		Material material = dsp_cast<Renderer>(target_)->GetMaterial(materialIndex);
 		material->SetTexture(name.toStdString(), texture);
 		((LabelTexture*)sender())->setTexture(texture);
 	}
@@ -367,7 +367,7 @@ void RendererInspector::onSelectTexture(QWidget* widget, uint materialIndex, con
 
 void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, const QString& name) {
 	colorPicker_->setOption(QColorDialog::ShowAlphaChannel, false);
-	Material material = dsp_cast<Renderer>(object_)->GetMaterial(materialIndex);
+	Material material = dsp_cast<Renderer>(target_)->GetMaterial(materialIndex);
 	glm::ivec3 color = Math::IntColor(material->GetColor3(name.toStdString()));
 	QColor old(color.r, color.g, color.b);
 
@@ -382,7 +382,7 @@ void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, cons
 
 void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, const QString& name) {
 	colorPicker_->setOption(QColorDialog::ShowAlphaChannel);
-	Material material = dsp_cast<Renderer>(object_)->GetMaterial(materialIndex);
+	Material material = dsp_cast<Renderer>(target_)->GetMaterial(materialIndex);
 	glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
 	QColor old(color.r, color.g, color.b, color.a);
 

@@ -2,7 +2,7 @@
  * https://github.com/ColinDuquesnoy/QDarkStyleSheet
  */
 * {
-	font-family: "Microsoft YaHei";
+	font-family: "Tahoma";
 }
 
 QToolTip {

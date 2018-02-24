@@ -3,7 +3,7 @@
 #include <QDockWidget>
 #include <QTableWidget>
 
-#include "../controls/childwindow.h"
+#include "windows/controls/childwindow.h"
 
 class Console : public QDockWidget, public ChildWindow {
 	Q_OBJECT

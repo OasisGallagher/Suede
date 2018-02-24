@@ -2,7 +2,7 @@
 #include <QFormLayout>
 
 #include "tools/math2.h"
-#include "../../controls/floatslider.h"
+#include "windows/controls/floatslider.h"
 
 #include "projector.h"
 #include "projectorinspector.h"
@@ -23,7 +23,7 @@ namespace Literals {
 ProjectorInspector::ProjectorInspector(Object object) : CustomInspector("Projector", object) {
 	FloatSlider* slider = new FloatSlider(this);
 
-	Projector projector = dsp_cast<Projector>(object_);
+	Projector projector = dsp_cast<Projector>(target_);
 
 	if (projector->GetPerspective()) {
 		slider->setObjectName(Literals::projectorFovSlider);
@@ -43,9 +43,9 @@ ProjectorInspector::ProjectorInspector(Object object) : CustomInspector("Project
 
 void ProjectorInspector::onSliderValueChanged(const QString& name, float value) {
 	if (name == Literals::projectorFovSlider) {
-		dsp_cast<Projector>(object_)->SetFieldOfView(Math::Radians(float(value)));
+		dsp_cast<Projector>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
 	else if (name == Literals::projectorFovSlider2) {
-		dsp_cast<Projector>(object_)->SetOrthographicSize(value);
+		dsp_cast<Projector>(target_)->SetOrthographicSize(value);
 	}
 }

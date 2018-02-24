@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDockWidget>
-#include "../controls/childwindow.h"
+#include "windows/controls/childwindow.h"
 
 class Canvas;
 class ImageEffect;

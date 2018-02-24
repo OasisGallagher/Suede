@@ -20,6 +20,6 @@ protected:
 	QString formatRowName(const QString& name) const;
 
 protected:
-	Object object_;
+	Object target_;
 	QFormLayout* form_;
 };

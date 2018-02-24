@@ -13,6 +13,7 @@ namespace Constants {
 	static uint minFieldOfView = 0;
 	static uint maxFieldOfView = 180;
 }
+
 namespace Literals {
 	DEFINE_LITERAL(cameraFovLabel);
 	DEFINE_LITERAL(cameraFovSlider);
@@ -20,7 +21,15 @@ namespace Literals {
 }
 
 MeshInspector::MeshInspector(Object object) : CustomInspector("Mesh", object) {
-	Mesh mesh = dsp_cast<Mesh>(object_);
+	drawMesh();
+
+	if (dsp_cast<TextMesh>(target_)) {
+		drawTextMesh();
+	}
+}
+
+void MeshInspector::drawMesh() {
+	Mesh mesh = dsp_cast<Mesh>(target_);
 	QLabel* topology = new QLabel(this);
 	topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
 	form_->addRow(formatRowName("Topology"), topology);
@@ -43,27 +52,27 @@ MeshInspector::MeshInspector(Object object) : CustomInspector("Mesh", object) {
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, subMeshList);
 
 	shrinkToFit(subMeshList);
+}
 
-	if (mesh->GetType() == ObjectTypeTextMesh) {
-		TextMesh textMesh = dsp_cast<TextMesh>(mesh);
-		QLineEdit* text = new QLineEdit(this);
-		text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
-		connect(text, SIGNAL(editingFinished()), this, SLOT(onTextChanged()));
-		form_->addRow(formatRowName("Text"), text);
+void MeshInspector::drawTextMesh() {
+	TextMesh textMesh = dsp_cast<TextMesh>(target_);
+	QLineEdit* text = new QLineEdit(this);
+	text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
+	connect(text, SIGNAL(editingFinished()), this, SLOT(onTextChanged()));
+	form_->addRow(formatRowName("Text"), text);
 
-		Font font = textMesh->GetFont();
-		QLabel* fontName = new QLabel(this);
-		fontName->setText(font->GetFamilyName().c_str());
-		form_->addRow(formatRowName("Font"), fontName);
+	Font font = textMesh->GetFont();
+	QLabel* fontName = new QLabel(this);
+	fontName->setText(font->GetFamilyName().c_str());
+	form_->addRow(formatRowName("Font"), fontName);
 
-		QLabel* fontSize = new QLabel(this);
-		fontSize->setText(QString::number(font->GetFontSize()));
-		form_->addRow(formatRowName("Size"), fontSize);
-	}
+	QLabel* fontSize = new QLabel(this);
+	fontSize->setText(QString::number(font->GetFontSize()));
+	form_->addRow(formatRowName("Size"), fontSize);
 }
 
 void MeshInspector::onTextChanged() {
-	Mesh mesh = dsp_cast<Mesh>(object_);
+	Mesh mesh = dsp_cast<Mesh>(target_);
 	QByteArray arr = ((QLineEdit*)sender())->text().toLocal8Bit();
 
 	TextMesh textMesh = dsp_cast<TextMesh>(mesh);

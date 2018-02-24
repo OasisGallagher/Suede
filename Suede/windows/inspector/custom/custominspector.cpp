@@ -3,7 +3,7 @@
 #include "custominspector.h"
 
 CustomInspector::CustomInspector(const QString& title, Object object) 
-	: QGroupBox(title), object_(object) {
+	: QGroupBox(title), target_(object) {
 	form_ = new QFormLayout(this);
 }
 

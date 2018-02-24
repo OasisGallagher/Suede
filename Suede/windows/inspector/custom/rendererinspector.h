@@ -11,6 +11,8 @@ public:
 	RendererInspector(Object object);
 
 private:
+	void initializeColorPicker();
+
 	void drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders, QLayout* materialsLayout);
 	void drawMaterialProperties(QWidgetList& widgets, Material material, uint materialIndex);
 	bool isPropertyVisible(const QString& name);

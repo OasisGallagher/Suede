@@ -3,7 +3,7 @@
 #include <QDockWidget>
 #include <QItemSelection>
 
-#include "../controls/childwindow.h"
+#include "windows/controls/childwindow.h"
 
 #include "world.h"
 #include "entity.h"
