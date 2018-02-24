@@ -5,7 +5,6 @@
 
 #include "ui_suede.h"
 
-#include "tags.h"
 #include "world.h"
 #include "engine.h"
 #include "hierarchy.h"

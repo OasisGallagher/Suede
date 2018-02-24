@@ -669,31 +669,31 @@
   <customwidget>
    <class>Canvas</class>
    <extends>QWidget</extends>
-   <header>windows/canvas.h</header>
+   <header>windows/controls/canvas.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Game</class>
    <extends>QDockWidget</extends>
-   <header>windows/game.h</header>
+   <header>windows/game/game.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Console</class>
    <extends>QDockWidget</extends>
-   <header>windows/console.h</header>
+   <header>windows/console/console.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Hierarchy</class>
    <extends>QDockWidget</extends>
-   <header>windows/hierarchy.h</header>
+   <header>windows/hierarchy/hierarchy.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Inspector</class>
    <extends>QDockWidget</extends>
-   <header>windows/inspector.h</header>
+   <header>windows/inspector/inspector.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

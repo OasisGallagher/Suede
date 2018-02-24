@@ -61,17 +61,65 @@
     <Filter Include="windows">
       <UniqueIdentifier>{b2387caa-cad8-41c5-b0b7-574d52dbdb14}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\src">
-      <UniqueIdentifier>{b3748fa1-e9cd-4486-a2ca-fee7ab76f9af}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\include">
-      <UniqueIdentifier>{a8b8c673-6a4b-4d6f-ad47-694561ff1ff6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resources\winrc">
       <UniqueIdentifier>{311718b2-a96d-4bbd-a172-5156996483a4}</UniqueIdentifier>
     </Filter>
     <Filter Include="resources\qss">
       <UniqueIdentifier>{f5285957-7c63-4bb1-b7c8-39412e92e3eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\console">
+      <UniqueIdentifier>{53e12b98-f85e-4690-8015-8c36a57af3fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\controls">
+      <UniqueIdentifier>{412ad60b-716b-447f-9863-626339a2f8d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\game">
+      <UniqueIdentifier>{dbc1ae30-795b-4a8a-9865-e0f2ef4b870c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\hierarchy">
+      <UniqueIdentifier>{9f57e7fa-f10a-4868-966b-c939b4adc4f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector">
+      <UniqueIdentifier>{2d83e312-8d09-48b3-8eed-83acf55aacdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\console\include">
+      <UniqueIdentifier>{43837287-dd5d-4941-bd1c-3e95cc4c575b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\controls\include">
+      <UniqueIdentifier>{421b6cb8-6cd9-4b54-97be-b28145c97827}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\game\include">
+      <UniqueIdentifier>{c922873b-9813-4e30-976d-399197e7f3da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\hierarchy\include">
+      <UniqueIdentifier>{34fc0604-ab20-4e18-985b-7a4945fd7b56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\include">
+      <UniqueIdentifier>{0ceb53db-54ae-490d-bf2c-266cd943da84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\console\src">
+      <UniqueIdentifier>{3942be14-6513-4843-8e5b-3eacc0708945}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\controls\src">
+      <UniqueIdentifier>{20cecae9-657a-4a81-a573-420b259fece2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\game\src">
+      <UniqueIdentifier>{ec41d563-7124-49ae-8925-8014870c2958}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\hierarchy\src">
+      <UniqueIdentifier>{fe91196a-ab9e-4462-b0a2-906090bc7da5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\src">
+      <UniqueIdentifier>{c4061003-9ac8-47c2-8320-116f689d2ecd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\custom">
+      <UniqueIdentifier>{43ac319b-e4d5-422d-a1ce-8863a5125c26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\custom\include">
+      <UniqueIdentifier>{83d42b6f-29f7-4a33-9aeb-e48421309e33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\custom\src">
+      <UniqueIdentifier>{08948759-06ff-4f97-9641-fe3af5014b10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -93,56 +141,26 @@
     <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_canvas.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_canvas.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_console.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_console.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_game.cpp">
+    <ClCompile Include="windows\console\console.cpp">
+      <Filter>windows\console\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_canvas.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_game.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_canvas.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_hierarchy.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_floatslider.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_hierarchy.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_floatslider.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_inspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_inspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\console.cpp">
-      <Filter>windows\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\canvas.cpp">
-      <Filter>windows\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\game.cpp">
-      <Filter>windows\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\hierarchy.cpp">
-      <Filter>windows\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector.cpp">
-      <Filter>windows\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\childwindow.cpp">
-      <Filter>windows\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\labeltexture.cpp">
-      <Filter>windows\src</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_labeltexture.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -150,14 +168,83 @@
     <ClCompile Include="GeneratedFiles\Release\moc_labeltexture.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\floatslider.cpp">
-      <Filter>windows\src</Filter>
+    <ClCompile Include="windows\controls\canvas.cpp">
+      <Filter>windows\controls\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_floatslider.cpp">
+    <ClCompile Include="windows\controls\childwindow.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\floatslider.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\labeltexture.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_game.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_floatslider.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_game.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\game\game.cpp">
+      <Filter>windows\game\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_hierarchy.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_hierarchy.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\hierarchy\hierarchy.cpp">
+      <Filter>windows\hierarchy\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_inspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_inspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\custom\camerainspector.cpp">
+      <Filter>windows\inspector\custom\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\inspector.cpp">
+      <Filter>windows\inspector\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_camerainspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_camerainspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_projectorinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_projectorinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\custom\projectorinspector.cpp">
+      <Filter>windows\inspector\custom\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_meshinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_meshinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\custom\meshinspector.cpp">
+      <Filter>windows\inspector\custom\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rendererinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_rendererinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\custom\rendererinspector.cpp">
+      <Filter>windows\inspector\custom\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\custom\custominspector.cpp">
+      <Filter>windows\inspector\custom\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,26 +257,38 @@
     <CustomBuild Include="main\suede.h">
       <Filter>main\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\canvas.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\console\console.h">
+      <Filter>windows\console\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\console.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\controls\canvas.h">
+      <Filter>windows\controls\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\game.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\controls\floatslider.h">
+      <Filter>windows\controls\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\hierarchy.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\controls\labeltexture.h">
+      <Filter>windows\controls\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\game\game.h">
+      <Filter>windows\game\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\labeltexture.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\hierarchy\hierarchy.h">
+      <Filter>windows\hierarchy\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\floatslider.h">
-      <Filter>windows\include</Filter>
+    <CustomBuild Include="windows\inspector\inspector.h">
+      <Filter>windows\inspector\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\camerainspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\projectorinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\meshinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\rendererinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -208,11 +307,11 @@
     <ClInclude Include="resources\buildin\shaders\include\light_fragment.inc">
       <Filter>resources\buildin\shaders\include</Filter>
     </ClInclude>
-    <ClInclude Include="windows\childwindow.h">
-      <Filter>windows\include</Filter>
+    <ClInclude Include="windows\controls\childwindow.h">
+      <Filter>windows\controls\include</Filter>
     </ClInclude>
-    <ClInclude Include="windows\tags.h">
-      <Filter>windows\include</Filter>
+    <ClInclude Include="windows\inspector\custom\custominspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

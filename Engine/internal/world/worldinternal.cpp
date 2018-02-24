@@ -166,7 +166,7 @@ void WorldInternal::RenderUpdate() {
 
 void WorldInternal::UpdateDecals() {
 	decals_.clear();
-	CreateDecals();
+	CreateDecals(*cameras_.begin());
 }
 
 void WorldInternal::UpdateEntities() {
@@ -185,24 +185,20 @@ void WorldInternal::FireEvents() {
 	events_.clear();
 }
 
-void WorldInternal::CreateDecals() {
+void WorldInternal::CreateDecals(Camera camera) {
 	for (ProjectorContainer::iterator ite = projectors_.begin(); ite != projectors_.end(); ++ite) {
 		Projector p = *ite;
 		GeometryUtility::CalculateFrustumPlanes(planes_, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix());
 
-		if (!CreateProjectorDecal(p, planes_)) {
+		if (!CreateProjectorDecal(camera, p, planes_)) {
 			break;
 		}
 	}
 }
 
-#include <ctime>
-#include <windows.h>
-#include "tools/string.h"
-
-bool WorldInternal::CreateEntityDecal(Decal& decal, Entity entity, Plane planes[6]) {
+bool WorldInternal::CreateEntityDecal(Camera camera, Decal& decal, Entity entity, Plane planes[6]) {
 	std::vector<glm::vec3> triangles;
-	if (!ClampMesh(triangles, entity, planes)) {
+	if (!ClampMesh(camera, triangles, entity, planes)) {
 		return false;
 	}
 
@@ -219,7 +215,7 @@ bool WorldInternal::CreateEntityDecal(Decal& decal, Entity entity, Plane planes[
 	return true;
 }
 
-bool WorldInternal::CreateProjectorDecal(Projector p, Plane planes[6]) {
+bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]) {
 	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 		Entity entity = ite->second;
 		if (entity == p) { continue; }
@@ -231,7 +227,7 @@ bool WorldInternal::CreateProjectorDecal(Projector p, Plane planes[6]) {
 			return false;
 		}
 
-		if (!CreateEntityDecal(*decal, entity, planes)) {
+		if (!CreateEntityDecal(camera, *decal, entity, planes)) {
 			decals_.recycle(decal);
 		}
 
@@ -242,8 +238,9 @@ bool WorldInternal::CreateProjectorDecal(Projector p, Plane planes[6]) {
 	return true;
 }
 
-bool WorldInternal::ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]) {
+bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]) {
 	Mesh mesh = entity->GetMesh();
+	glm::vec3 cameraPosition = entity->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
 	const std::vector<uint>& indexes = mesh->GetIndexes();
 	const std::vector<glm::vec3>& vertices = mesh->GetVertices();
@@ -253,21 +250,16 @@ bool WorldInternal::ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, 
 		uint indexCount, baseVertex, baseIndex;
 		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
 
-		clock_t c0 = 0, c1 = 0;
 		// TODO: triangle strip.
 		for (int j = 0; j < indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
 			uint index0 = indexes[baseIndex + j] + baseVertex;
 			uint index1 = indexes[baseIndex + j + 1] + baseVertex;
 			uint index2 = indexes[baseIndex + j + 2] + baseVertex;
-
-			// TODO: camera position.
-			// local space.
-			glm::vec3 eye = (*cameras_.begin())->GetTransform()->GetPosition();
-			eye = entity->GetTransform()->InverseTransformPoint(eye);
+			
 			glm::vec3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
 
-			if (!GeometryUtility::IsFrontFace(vs, eye)) {
+			if (!GeometryUtility::IsFrontFace(vs, cameraPosition)) {
 				continue;
 			}
 
@@ -275,24 +267,32 @@ bool WorldInternal::ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, 
 			vs[1] = entity->GetTransform()->TransformPoint(vs[1]);
 			vs[2] = entity->GetTransform()->TransformPoint(vs[2]);
 
-			clock_t c = clock();
 			GeometryUtility::ClampTriangle(polygon, vs, planes, 6);
-			c0 += (clock() - c);
-
-			c = clock();
 			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
-			c1 += (clock() - c);
 		}
-
-		OutputDebugStringA(String::Format("+ %.2f %.2f\n", c0 / 1000.f, c1 / 1000.f).c_str());
 	}
 
 	return triangles.size() >= 3;
 }
 
 void WorldInternal::Update() {
+	Debug::StartSample();
+
+	Debug::StartSample();
 	FireEvents();
+	Debug::Output("[events]\t%.3f\n", Debug::EndSample());
+
+	Debug::StartSample();
 	UpdateEntities();
+	Debug::Output("[entities]\t%.3f\n", Debug::EndSample());
+	
+	Debug::StartSample();
 	UpdateDecals();
+	Debug::Output("[decals]\t%.3f\n", Debug::EndSample());
+	
+	Debug::StartSample();
 	RenderUpdate();
+	Debug::Output("[render]\t%.3f\n", Debug::EndSample());
+
+	Debug::Output("[#total]\t%.3f\n", Debug::EndSample());
 }

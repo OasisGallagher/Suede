@@ -86,8 +86,7 @@ inline float Math::Pi() {
 
 inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal) {
 	float r = acosf(glm::dot(a, b));
-	glm::vec3 c = glm::cross(a, b);
-	if (glm::dot(normal, c) < 0) {
+	if (glm::dot(normal, glm::cross(a, b)) < 0) {
 		r = -r;
 	}
 

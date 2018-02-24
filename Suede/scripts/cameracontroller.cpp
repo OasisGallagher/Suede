@@ -6,8 +6,8 @@
 
 #include "tools/math2.h"
 #include "debug/debug.h"
-#include "windows/hierarchy.h"
 #include "cameracontroller.h"
+#include "windows/hierarchy/hierarchy.h"
 
 CameraController::CameraController() : lpressed_(false), mpressed_(false), rpressed_(false) {
 }
@@ -86,8 +86,8 @@ void CameraController::onMousePress(Qt::MouseButton button, const QPoint & pos) 
 void CameraController::rotateCamera(const QPoint& mousePos, QPoint& oldPos) {
 	QPoint delta = -(mousePos - oldPos);
 	oldPos = mousePos;
-	glm::quat qx = glm::angleAxis(Math::Radians(0.05f * delta.x()), camera_->GetUp());
-	glm::quat qy = glm::angleAxis(Math::Radians(0.05f * delta.y()), camera_->GetRight());
+	glm::quat qx = glm::angleAxis(Math::Radians(0.5f * delta.x()), camera_->GetUp());
+	glm::quat qy = glm::angleAxis(Math::Radians(0.5f * delta.y()), camera_->GetRight());
 	camera_->SetRotation(qx * qy * camera_->GetRotation());
 }
 

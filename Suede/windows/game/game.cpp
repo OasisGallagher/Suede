@@ -1,8 +1,7 @@
 #include <QWidget>
-#include "canvas.h"
 #include "ui_suede.h"
+#include "../controls/canvas.h"
 
-#include "tags.h"
 #include "game.h"
 #include "font.h"
 #include "mesh.h"

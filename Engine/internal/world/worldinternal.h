@@ -44,11 +44,10 @@ private:
 	void UpdateDecals();
 	void UpdateEntities();
 
-	void CreateDecals();
-	bool CreateProjectorDecal(Projector p, Plane planes[6]);
-	bool CreateEntityDecal(Decal& decal, Entity entity, Plane planes[6]);
-
-	bool ClampMesh(std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]);
+	void CreateDecals(Camera camera);
+	bool CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]);
+	bool CreateEntityDecal(Camera camera, Decal& decal, Entity entity, Plane planes[6]);
+	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };

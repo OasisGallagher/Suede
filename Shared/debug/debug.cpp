@@ -68,6 +68,11 @@ void Debug::LogError(const char* format, ...) {
 	}
 }
 
+void Debug::Output(const char* format, ...) {
+	FORMAT_BUFFER(format);
+	OutputDebugStringA(buffer);
+}
+
 void Debug::Break() {
 	__debugbreak();
 }

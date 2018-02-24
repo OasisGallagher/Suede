@@ -8,14 +8,14 @@
 struct EarVertex {
 	enum { Reflex = 1, Ear = 2, };
 
-	EarVertex() {}
-	EarVertex(const glm::vec3& value) { position = value; }
+	EarVertex() : mask(0), earListIndex(-1) {}
+	EarVertex(const glm::vec3& value) : EarVertex() { position = value; }
 
 	bool SetMask(int value, bool addMask);
 	bool TestMask(int value) const { return (mask & value) != 0; }
 
 	int mask;
-	int earListIndex = -1;
+	int earListIndex;
 	glm::vec3 position;
 };
 
@@ -29,10 +29,10 @@ bool GeometryUtility::DiagonalRectContains(const glm::vec3& point, const glm::ve
 	return point.x >= xMin && point.x <= xMax && point.z >= zMin && point.z <= zMax;
 }
 
-bool GeometryUtility::PolygonContains(const std::vector<glm::vec3>& positions, const glm::vec3& point, const glm::vec3& normal, bool onEdge) {
-	for (int i = 1; i <= positions.size(); ++i) {
-		const glm::vec3& currentPosition = i < positions.size() ? positions[i] : positions[0];
-		float cr = Math::Angle(glm::normalize(point - positions[i - 1]), glm::normalize(currentPosition - positions[i - 1]), normal);
+bool GeometryUtility::PolygonContains(const glm::vec3* positions, uint npositions, const glm::vec3& point, const glm::vec3& normal, bool onEdge) {
+	for (uint i = 1; i <= npositions; ++i) {
+		const glm::vec3& currentPosition = i < npositions ? positions[i] : positions[0];
+		float cr = Math::Angle(glm::normalize(currentPosition - positions[i - 1]), glm::normalize(point - positions[i - 1]), normal);
 		if (IsZero(cr) && DiagonalRectContains(point, currentPosition, positions[i - 1])) {
 			return onEdge;
 		}
@@ -55,12 +55,12 @@ void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::
 }
 
 void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const glm::vec3 triangle[3], const Plane* planes, uint count) {
-	int state = CalculateSide(triangle, planes, count);
+	int state = CalculateSide(triangle, 3, planes, count);
 
-	if (state == -1) {
+	if (state == 2) {
 		polygon.insert(polygon.end(), triangle, triangle + 3);
 	}
-	else if (state == 0) {
+	else if (state == 3) {
 		std::list<glm::vec3> list(triangle, triangle + 3);
 
 		for (int pi = 0; list.size() >= 3 && pi < count; ++pi) {
@@ -150,23 +150,17 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 	*/
 //}
 
-int GeometryUtility::CalculateSide(const glm::vec3 triangle[3], const Plane* planes, uint count) {
-	for (int i = 0; i < count; ++i) {
-		float f0 = GeometryUtility::GetDistance(planes[i], triangle[0]);
-		float f1 = GeometryUtility::GetDistance(planes[i], triangle[1]);
-		if (f0 * f1 < 0) { return 0; }
-
-		float f2 = GeometryUtility::GetDistance(planes[i], triangle[2]);
-		if (f1 * f2 < 0 || f0 * f2 < 0) {
-			return 0;
-		}
-
-		if (f0 <= 0 && f1 <= 0 && f2 <= 0) {
-			return 1;
+int GeometryUtility::CalculateSide(const glm::vec3* points, uint npoints, const Plane* planes, uint nplanes) {
+	int flag = 0;
+	for (uint i = 0; i < nplanes; ++i) {
+		for (uint j = 0; flag != 3 && j < npoints; ++j) {
+			float f = GeometryUtility::GetDistance(planes[i], points[j]);
+			if (f < 0) { flag |= 1; }
+			else if (f > 0) { flag |= 2; }
 		}
 	}
 
-	return -1;
+	return flag;
 }
 
 bool GeometryUtility::GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next) {
@@ -212,7 +206,7 @@ void GeometryUtility::EarClippingTriangulate(std::vector<glm::vec3>& triangles, 
 		}
 	}
 
-	DoTriangulate(triangles, vertices, earTips, normal);
+	EarClipping(triangles, vertices, earTips, normal);
 }
 
 void GeometryUtility::ClampPolygon(std::list<glm::vec3>& list, const Plane& plane) {
@@ -240,10 +234,11 @@ bool GeometryUtility::IsEar(array_list<EarVertex>& vertices, int current, const 
 	int prev = vertices.prev_index(current);
 	int next = vertices.next_index(current);
 
-	std::vector<glm::vec3> points;
-	points.push_back(vertices[prev].position);
-	points.push_back(vertices[current].position);
-	points.push_back(vertices[next].position);
+	glm::vec3 points[] = {
+		vertices[prev].position,
+		vertices[current].position,
+		vertices[next].position,
+	};
 
 	glm::vec3 c = glm::cross(points[0] - points[1], points[2] - points[1]);
 	// Collinear.
@@ -256,7 +251,7 @@ bool GeometryUtility::IsEar(array_list<EarVertex>& vertices, int current, const 
 			continue;
 		}
 
-		if (PolygonContains(points, vertices[ite->index()].position, normal)) {
+		if (PolygonContains(points, CountOf(points), vertices[ite->index()].position, normal)) {
 			return false;
 		}
 	}
@@ -271,12 +266,7 @@ bool GeometryUtility::IsReflex(array_list<EarVertex>& vertices, int index, const
 	return Math::Angle(glm::normalize(next - current), glm::normalize(prev - current), normal) < 0;
 }
 
-void GeometryUtility::DoTriangulate(std::vector<glm::vec3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const glm::vec3& normal) {
-	triangles.reserve((vertices.size() - 2) * 3);
-
-	EarVertex removedEars[2];
-	int removedEarCount = 0;
-
+void GeometryUtility::EarClipping(std::vector<glm::vec3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const glm::vec3& normal) {
 	int earTipIndex = -1;
 	for (array_list<int>::iterator ite = earTips.begin(); ite != earTips.end(); ++ite) {
 		if (earTipIndex >= 0) { earTips.erase(earTipIndex); }
@@ -286,11 +276,11 @@ void GeometryUtility::DoTriangulate(std::vector<glm::vec3>& triangles, array_lis
 		int earTipVertexIndex = earTips[earTipIndex];
 		EarVertex& earTipVertex = vertices[earTipVertexIndex];
 
-		int prevIndex = vertices.prev_index(earTipVertexIndex);
+		int prevVertexIndex = vertices.prev_index(earTipVertexIndex);
 		EarVertex& prevVertex = vertices.prev_value(earTipVertexIndex);
 
-		int nextIndex = vertices.next_index(earTipVertexIndex);
-		EarVertex nextVertex = vertices.next_value(earTipVertexIndex);
+		int nextVertexIndex = vertices.next_index(earTipVertexIndex);
+		EarVertex& nextVertex = vertices.next_value(earTipVertexIndex);
 
 		triangles.push_back(prevVertex.position);
 		triangles.push_back(earTipVertex.position);
@@ -298,39 +288,28 @@ void GeometryUtility::DoTriangulate(std::vector<glm::vec3>& triangles, array_lis
 
 		vertices.erase(earTipVertexIndex);
 
-		int state = UpdateEarVertexState(vertices, prevIndex, normal);
+		int state = UpdateEarVertexState(vertices, prevVertexIndex, normal);
 		if (state > 0) {
-			prevVertex.earListIndex = earTips.add(prevIndex);
+			prevVertex.earListIndex = earTips.add(prevVertexIndex);
 		}
 		else if (state < 0) {
-			removedEars[removedEarCount++] = prevVertex;
+			earTips.erase(prevVertex.earListIndex);
 		}
 
-		state = UpdateEarVertexState(vertices, nextIndex, normal);
+		state = UpdateEarVertexState(vertices, nextVertexIndex, normal);
 		if (state > 0) {
-			nextVertex.earListIndex = earTips.add(nextIndex);
+			nextVertex.earListIndex = earTips.add(nextVertexIndex);
 		}
 		else if (state < 0) {
-			removedEars[removedEarCount++] = nextVertex;
+			earTips.erase(nextVertex.earListIndex);
 		}
-
-		for (int i = 0; i < removedEarCount; ++i) {
-			if (removedEars[i].earListIndex < 0) {
-				Debug::Break();
-			}
-
-			earTips.erase(removedEars[i].earListIndex);
-			removedEars[i].earListIndex = -1;
-		}
-
-		removedEarCount = 0;
 	}
 
 	if (earTipIndex >= 0) { earTips.erase(earTipIndex); }
 }
 
 int GeometryUtility::UpdateEarVertexState(array_list<EarVertex>& vertices, int vertexIndex, const glm::vec3& normal) {
-	EarVertex earVertex = vertices[vertexIndex];
+	EarVertex& earVertex = vertices[vertexIndex];
 
 	int result = 0;
 

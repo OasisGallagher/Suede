@@ -104,7 +104,7 @@ public:
 		if (n.index == tail_) { tail_ = n.prev; }
 
 		push_list(n);
-
+		if (size_ == 0) { Debug::Break(); }
 		--size_;
 		return next;
 	}
