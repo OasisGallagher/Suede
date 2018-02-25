@@ -18,6 +18,7 @@ public:
 	static void DepthMask(GLboolean flag);
 	static GLboolean IsEnabled(GLenum cap);
 	static void UseProgram(GLuint program);
+	static void UnmapBuffer(GLenum target);
 	static void ClearDepth(GLclampd depth);
 	static void DeleteShader(GLuint shader);
 	static GLuint CreateShader(GLenum type);
@@ -34,6 +35,7 @@ public:
 	static void GenBuffers(GLsizei n, GLuint* buffers);
 	static void PixelStorei(GLenum pname, GLint param);
 	static GLenum CheckFramebufferStatus(GLenum target);
+	static void* MapBuffer(GLenum target, GLenum access);
 	static void BindBuffer(GLenum target, GLuint buffer);
 	static void GenTextures(GLsizei n, GLuint* textures);
 	static void GetIntegerv(GLenum pname, GLint* params);
@@ -196,6 +198,14 @@ inline void GL::RenderbufferStorage(GLenum target, GLenum internalformat, GLsize
 
 inline void GL::FramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
 	GL_CALL(glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer));
+}
+
+inline void* GL::MapBuffer(GLenum target, GLenum access) {
+	GL_CALL_R(glMapBuffer(target, access));
+}
+
+inline void GL::UnmapBuffer(GLenum target) {
+	GL_CALL(glUnmapBuffer(target));
 }
 
 inline GLenum GL::CheckFramebufferStatus(GLenum target) {

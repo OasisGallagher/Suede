@@ -169,9 +169,6 @@
     <ClInclude Include="internal\entities\particlesysteminternal.h">
       <Filter>internal\entities\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\vertexarrayobject.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\time2.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -262,6 +259,12 @@
     <ClInclude Include="internal\entities\frustum.h">
       <Filter>internal\entities\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\base\pipeline.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\vao.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -308,9 +311,6 @@
     </ClCompile>
     <ClCompile Include="internal\entities\particlesysteminternal.cpp">
       <Filter>internal\entities\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\base\vertexarrayobject.cpp">
-      <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\file\assetimporter.cpp">
       <Filter>internal\file\src</Filter>
@@ -371,6 +371,12 @@
     </ClCompile>
     <ClCompile Include="internal\geometry\plane.cpp">
       <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\pipeline.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\vao.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,10 +5,16 @@
 #include "object.h"
 #include "material.h"
 
+struct TriangleBase {
+	uint indexCount;
+	uint baseIndex;
+	uint baseVertex;
+}; 
+
 class ISubMesh : virtual public IObject {
 public:
-	virtual void SetTriangles(uint indexCount, uint baseVertex, uint baseIndex) = 0;
-	virtual void GetTriangles(uint& indexCount, uint& baseVertex, uint& baseIndex) = 0;
+	virtual const TriangleBase& GetTriangles() const = 0;
+	virtual void SetTriangles(const TriangleBase& value) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh);
@@ -18,6 +24,10 @@ struct BlendAttribute {
 	enum {
 		Quality = 4,
 	};
+
+	BlendAttribute() {
+		memset(this, 0, sizeof(BlendAttribute));
+	}
 
 	uint indexes[Quality];
 	float weights[Quality];
@@ -51,6 +61,8 @@ struct MeshAttribute {
 	InstanceAttribute geometry;
 };
 
+SUEDE_DEFINE_OBJECT_POINTER(Mesh);
+
 class SUEDE_API IMesh : virtual public IObject {
 public:
 	virtual void SetAttribute(const MeshAttribute& value) = 0;
@@ -62,16 +74,19 @@ public:
 
 	virtual MeshTopology GetTopology() = 0;
 
-	virtual const std::vector<uint>& GetIndexes() const = 0;
-	virtual const std::vector<glm::vec3>& GetVertices() const = 0;
+	virtual bool MapIndexes(uint** data, uint* count) = 0;
+	virtual void UnmapIndexes() = 0;
+
+	virtual bool MapVertices(glm::vec3** data, uint* count) = 0;
+	virtual void UnmapVertices() = 0;
 
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
+	virtual void MakeShared(Mesh other) = 0;
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data) = 0;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Mesh);
 SUEDE_DECLARE_OBJECT_CREATER(Mesh);
 
 class SUEDE_API ITextMesh : virtual public IMesh {

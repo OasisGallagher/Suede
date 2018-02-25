@@ -214,7 +214,8 @@ Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 	mesh->SetAttribute(attribute);
 
 	SubMesh subMesh = NewSubMesh();
-	subMesh->SetTriangles(attribute.indexes.size(), 0, 0);
+	TriangleBase base{ attribute.indexes.size() };
+	subMesh->SetTriangles(base);
 
 	mesh->AddSubMesh(subMesh);
 	return mesh;

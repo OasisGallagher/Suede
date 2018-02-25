@@ -490,7 +490,8 @@ void CameraInternal::RenderDecals() {
 		mesh->SetAttribute(attribute);
 
 		SubMesh subMesh = NewSubMesh();
-		subMesh->SetTriangles(d->indexes.size(), 0, 0);
+		TriangleBase base{ d->indexes.size() };
+		subMesh->SetTriangles(base);
 		mesh->AddSubMesh(subMesh);
 
 		Resources::GetAuxMeshRenderer()->RenderMesh(mesh, decalMaterial_);

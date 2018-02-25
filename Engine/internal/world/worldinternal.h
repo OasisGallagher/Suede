@@ -53,14 +53,20 @@ private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
 	struct ProjectorComparer { bool operator() (const Projector& lhs, const Projector& rhs) const; };
+	struct WorldEventComparer {
+		bool operator () (const WorldEventBasePointer& lhs, const WorldEventBasePointer& rhs) const {
+			return lhs->Compare(rhs);
+		}
+	};
 
 	typedef free_list<Decal> DecalContainer;
 	typedef std::map<uint, Entity> EntityContainer;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef std::set<Camera, CameraComparer> CameraContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
-	typedef std::vector<WorldEventBasePointer> WorldEventContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
+	typedef std::set<WorldEventBasePointer, WorldEventComparer> WorldEventCollection;
+	typedef WorldEventCollection WorldEventContainer[WorldEventTypeCount];
 
 private:
 	Entity root_;

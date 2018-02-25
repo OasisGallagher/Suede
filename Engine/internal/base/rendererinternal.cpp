@@ -117,11 +117,10 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 }
 
 void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
-	uint indexCount, baseVertex, baseIndex;
-	subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+	const TriangleBase& base = subMesh->GetTriangles();
 
 	GLenum mode = TopologyToGLEnum(topology);
-	GL::DrawElementsBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), baseVertex);
+	GL::DrawElementsBaseVertex(mode, base.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* base.baseIndex), base.baseVertex);
 }
 
 void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
@@ -163,9 +162,8 @@ void ParticleRendererInternal::RenderEntity(Entity entity) {
 
 void ParticleRendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
 	if (particleCount_ == 0) { return; }
-	uint indexCount, baseVertex, baseIndex;
-	subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+	const TriangleBase& base = subMesh->GetTriangles();
 
 	GLenum mode = TopologyToGLEnum(topology);
-	GL::DrawElementsInstancedBaseVertex(mode, indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* baseIndex), particleCount_, baseVertex);
+	GL::DrawElementsInstancedBaseVertex(mode, base.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* base.baseIndex), particleCount_, base.baseVertex);
 }

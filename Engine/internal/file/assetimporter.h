@@ -27,19 +27,19 @@ public:
 private:
 	void Clear();
 	bool Initialize(const std::string& path, Assimp::Importer &importer);
-	void CombineAttribute(MeshAttribute& dest, const MeshAttribute& src);
 
-	Entity ReadHierarchy(Entity parent, aiNode* node, MeshAttribute* attributes, Material* materials);
+	Entity ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
 
-	void ReadNodeTo(Entity entity, aiNode* node, MeshAttribute* attribute, Material* materials);
-	void ReadComponents(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials);
+	void ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
+	void ReadComponents(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
+	void ReadChildren(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
 
-	void ReadChildren(Entity entity, aiNode* node, MeshAttribute* attribute, Material* materials);
+	bool ReadAttribute(MeshAttribute& attribute, TriangleBase* bases);
+	void ReserveMemory(MeshAttribute& attribute);
+	bool ReadAttributeAt(int index, MeshAttribute& attribute, TriangleBase* bases);
 
-	bool ReadAttributes(MeshAttribute* attribute);
-	bool ReadAttribute(MeshAttribute& attribute, int index);
-	void ReadVertexAttributes(int index, MeshAttribute& attribute);
-	void ReadBoneAttributes(int index, MeshAttribute& attribute);
+	void ReadVertexAttribute(int meshIndex, MeshAttribute& attribute);
+	void ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, TriangleBase* bases);
 
 	struct MaterialAttribute {
 		MaterialAttribute();
@@ -61,8 +61,8 @@ private:
 	};
 
 	bool ReadMaterials(Material* materials);
-	bool ReadMaterial(Material material, const MaterialAttribute& attribute);
-	void ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material);
+	bool ReadMaterial(Material material, const MaterialAttribute& surface);
+	void ReadMaterialAttribute(MaterialAttribute& surface, aiMaterial* material);
 
 	bool ReadAnimation(Animation& animation);
 	void ReadAnimationClip(const aiAnimation* anim, AnimationClip clip);

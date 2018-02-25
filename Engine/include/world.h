@@ -14,7 +14,7 @@ enum WorldEventType {
 	WorldEventTypeEntityTransformChanged,
 	WorldEventTypeEntityActive,
 
-	WorldEventTypeCustom = 128,
+	WorldEventTypeCount,
 };
 
 #define DEFINE_WORLD_EVENT_POINTER(type)	typedef std::shared_ptr<struct type> type ## Pointer
@@ -25,17 +25,19 @@ Ptr NewWorldEvent() { return std::make_shared<Ptr::element_type>(); }
 DEFINE_WORLD_EVENT_POINTER(WorldEventBase);
 struct WorldEventBase {
 	virtual WorldEventType GetEventType() const = 0;
-
-	virtual bool Equals(WorldEventBasePointer other) const {
-		return GetEventType() == other->GetEventType();
+	bool operator < (WorldEventBasePointer other) const {
+		return Compare(other);
 	}
+
+	virtual bool Compare(WorldEventBasePointer other) const = 0;
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityEvent);
 struct EntityEvent : public WorldEventBase {
 	Entity entity;
-	virtual bool Equals(WorldEventBasePointer other) const {
-		return WorldEventBase::Equals(other) && entity == ssp_cast<EntityEventPointer>(other)->entity;
+
+	virtual bool Compare(WorldEventBasePointer other) const {
+		return entity->GetInstanceID() < ssp_cast<EntityEventPointer>(other)->entity->GetInstanceID();
 	}
 };
 
@@ -81,8 +83,8 @@ DEFINE_WORLD_EVENT_POINTER(EntityTransformChangedEvent);
 struct EntityTransformChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityTransformChanged; }
 
-	virtual bool Equals(WorldEventBasePointer other) const {
-		return EntityEvent::Equals(other) && prs == ssp_cast<EntityTransformChangedEventPointer>(other)->prs;
+	virtual bool Compare(WorldEventBasePointer other) const {
+		return prs < ssp_cast<EntityTransformChangedEventPointer>(other)->prs;
 	}
 
 	// Hw: local or world.

@@ -1,19 +1,19 @@
+#include "vao.h"
 #include "debug/debug.h"
 #include "memory/memory.h"
-#include "vertexarrayobject.h"
 
-VertexArrayObject::VertexArrayObject() 
+VAO::VAO() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
 	, vboCount_(0) {
 	GL::GenVertexArrays(1, &vao_);
 }
 
-VertexArrayObject::~VertexArrayObject() {
+VAO::~VAO() {
 	DestroyVBOs();
 	GL::DeleteVertexArrays(1, &vao_);
 }
 
-void VertexArrayObject::CreateVBOs(size_t n) {
+void VAO::CreateVBOs(size_t n) {
 	DestroyVBOs();
 
 	Bind();
@@ -27,7 +27,7 @@ void VertexArrayObject::CreateVBOs(size_t n) {
 	Unbind();
 }
 
-void VertexArrayObject::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
+void VAO::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return;
@@ -42,7 +42,7 @@ void VertexArrayObject::SetBuffer(uint index, GLenum target, size_t size, const 
 	UnbindBuffer(index);
 }
 
-void VertexArrayObject::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
+void VAO::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
 	BindBuffer(index);
 	GL::EnableVertexAttribArray(location);
 
@@ -60,7 +60,31 @@ void VertexArrayObject::SetVertexDataSource(int index, int location, int size, G
 	UnbindBuffer(index);
 }
 
-uint VertexArrayObject::GetBufferNativePointer(uint index) {
+void VAO::MapBuffer(int index, void** data, uint* length) {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return;
+	}
+
+	if (length != nullptr) {
+		*length = attributes_[index].size;
+	}
+
+	if (data != nullptr) {
+		*data = GL::MapBuffer(attributes_[index].target, GL_READ_ONLY);
+	}
+}
+
+void VAO::UnmapBuffer(int index) {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return;
+	}
+	
+	GL::UnmapBuffer(attributes_[index].target);
+}
+
+uint VAO::GetBufferNativePointer(uint index) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return 0;
@@ -69,7 +93,7 @@ uint VertexArrayObject::GetBufferNativePointer(uint index) {
 	return vbos_[index];
 }
 
-void VertexArrayObject::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
+void VAO::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return;
@@ -86,7 +110,7 @@ void VertexArrayObject::UpdateBuffer(uint index, int offset, size_t size, const 
 	UnbindBuffer(index);
 }
 
-void VertexArrayObject::DestroyVBOs() {
+void VAO::DestroyVBOs() {
 	if (vboCount_ == 0) {
 		return;
 	}
@@ -101,7 +125,7 @@ void VertexArrayObject::DestroyVBOs() {
 	vboCount_ = 0;
 }
 
-void VertexArrayObject::Bind() {
+void VAO::Bind() {
 	if (vao_ == 0) {
 		Debug::LogError("invalid vao");
 		return;
@@ -111,30 +135,30 @@ void VertexArrayObject::Bind() {
 	GL::BindVertexArray(vao_);
 }
 
-void VertexArrayObject::Unbind() {
+void VAO::Unbind() {
 	GL::BindVertexArray(oldVao_);
 	oldVao_ = 0;
 }
 
-void VertexArrayObject::BindBuffer(int index) {
+void VAO::BindBuffer(int index) {
 	GLenum pname = GetBindingName(attributes_[index].target);
 	GL::GetIntegerv(pname, (GLint*)&oldBuffer_);
 
 	GL::BindBuffer(attributes_[index].target, vbos_[index]);
 }
 
-void VertexArrayObject::UnbindBuffer(int index) {
+void VAO::UnbindBuffer(int index) {
 	GL::BindBuffer(attributes_[index].target, oldBuffer_);
 	oldBuffer_ = 0;
 }
 
-GLenum VertexArrayObject::GetBindingName(GLenum target) {
+GLenum VAO::GetBindingName(GLenum target) {
 	if (target == GL_ARRAY_BUFFER) { return GL_ARRAY_BUFFER_BINDING; }
 	if (target == GL_ELEMENT_ARRAY_BUFFER) { return GL_ELEMENT_ARRAY_BUFFER_BINDING; }
 	Debug::LogError("undefined target binding name");
 	return 0;
 }
 
-bool VertexArrayObject::IsIPointer(GLenum type) {
+bool VAO::IsIPointer(GLenum type) {
 	return (type == GL_BYTE || type == GL_UNSIGNED_BYTE || type == GL_INT || type == GL_UNSIGNED_INT || type == GL_SHORT || type == GL_UNSIGNED_SHORT);
 }

@@ -3,8 +3,8 @@
 #include <vector>
 #include <wrappers/gl.h>
 
+#include "vao.h"
 #include "mesh.h"
-#include "vertexarrayobject.h"
 #include "internal/base/objectinternal.h"
 
 enum VertexAttrib {
@@ -25,13 +25,11 @@ class SubMeshInternal : public ISubMesh, public ObjectInternal {
 public:
 	SubMeshInternal();
 
-	virtual void SetTriangles(uint indexCount, uint baseVertex, uint baseIndex);
-	virtual void GetTriangles(uint& indexCount, uint& baseVertex, uint& baseIndex);
+	virtual void SetTriangles(const TriangleBase& value) { base_ = value; }
+	virtual const TriangleBase& GetTriangles() const { return base_; }
 
 private:
-	uint baseIndex_;
-	uint baseVertex_;
-	uint indexCount_;
+	TriangleBase base_;
 };
 
 class MeshInternal : virtual public IMesh, public ObjectInternal {
@@ -47,16 +45,20 @@ public:
 
 	virtual void Bind();
 	virtual void Unbind();
+	virtual void MakeShared(Mesh other);
 
 	virtual void AddSubMesh(SubMesh subMesh) { subMeshes_.push_back(subMesh); }
 	virtual int GetSubMeshCount() { return subMeshes_.size(); }
 	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
 	virtual void RemoveSubMesh(uint index) { subMeshes_.erase(subMeshes_.begin() + index); }
 
-	virtual MeshTopology GetTopology() { return attribute_.topology; }
+	virtual MeshTopology GetTopology() { return topology_; }
 
-	virtual const std::vector<uint>& GetIndexes() const { return attribute_.indexes; }
-	virtual const std::vector<glm::vec3>& GetVertices() const { return attribute_.positions; }
+	virtual bool MapIndexes(uint** data, uint* count);
+	virtual void UnmapIndexes();
+
+	virtual bool MapVertices(glm::vec3** data, uint* count);
+	virtual void UnmapVertices();
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
@@ -66,12 +68,19 @@ private:
 	int CalculateVBOCount(const MeshAttribute& attribute);
 
 private:
-	uint indexBuffer_;
-	MeshAttribute attribute_;
+	enum BufferIndex {
+		IndexBuffer,
+		VertexBuffer,
+		InstanceBuffer0,
+		InstanceBuffer1,
+		BufferIndexCount,
+	};
 
-	VertexArrayObject vao_;
+private:
+	VAOPointer vao_;
+	MeshTopology topology_;
+	uint bufferIndexes_[BufferIndexCount];
 
-	uint instanceBuffer_[2];
 	std::vector<SubMesh> subMeshes_;
 };
 

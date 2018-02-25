@@ -3,28 +3,15 @@
 #include "tools/string.h"
 #include "meshinternal.h"
 
-SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh)
-	, indexCount_(0), baseVertex_(0), baseIndex_(0) {
-}
-
-void SubMeshInternal::SetTriangles(uint indexCount, uint baseVertex, uint baseIndex) {
-	indexCount_ = indexCount;
-	baseVertex_ = baseVertex;
-	baseIndex_ = baseIndex;
-}
-
-void SubMeshInternal::GetTriangles(uint& indexCount, uint& baseVertex, uint& baseIndex) {
-	indexCount = indexCount_;
-	baseVertex = baseVertex_;
-	baseIndex = baseIndex_;
+SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh) {
 }
 
 MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
 }
 
 MeshInternal::MeshInternal(ObjectType type)
-	: ObjectInternal(type), indexBuffer_(0) {
-	memset(instanceBuffer_, 0, sizeof(instanceBuffer_));
+	: ObjectInternal(type) {
+	memset(bufferIndexes_, 0, sizeof(bufferIndexes_));
 }
 
 MeshInternal::~MeshInternal() {
@@ -36,68 +23,76 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
-	attribute_ = value;
+	topology_ = value.topology;
 
-	vao_.Bind();
+	if (!vao_) {
+		vao_.reset(MEMORY_CREATE(VAO));
+	}
+
+	vao_->Bind();
 	UpdateGLBuffers(value);
-	vao_.Unbind();
+	vao_->Unbind();
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
+	if (vboCount == 0) {
+		Debug::LogWarning("empty mesh attribute");
+		return;
+	}
 
 	// TODO: update vbo instead.
-	vao_.CreateVBOs(vboCount);
+	vao_->CreateVBOs(vboCount);
 
 	uint vboIndex = 0;
 
 	if (!attribute.positions.empty()) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribPosition, 3, GL_FLOAT, false, 0, 0);
-		++vboIndex;
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribPosition, 3, GL_FLOAT, false, 0, 0);
+		bufferIndexes_[VertexBuffer] = vboIndex++;
 	}
 
 	if (!attribute.texCoords.empty()) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.texCoords, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribTexCoord, 2, GL_FLOAT, false, 0, 0);
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.texCoords, GL_STATIC_DRAW);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribTexCoord, 2, GL_FLOAT, false, 0, 0);
 		++vboIndex;
 	}
 
 	if (!attribute.normals.empty()) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.normals, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribNormal, 3, GL_FLOAT, false, 0, 0);
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.normals, GL_STATIC_DRAW);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribNormal, 3, GL_FLOAT, false, 0, 0);
 		++vboIndex;
 	}
 
 	if (!attribute.tangents.empty()) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.tangents, GL_STATIC_DRAW);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribTangent, 3, GL_FLOAT, false, 0, 0);
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.tangents, GL_STATIC_DRAW);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribTangent, 3, GL_FLOAT, false, 0, 0);
 		++vboIndex;
 	}
 
 	if (!attribute.blendAttrs.empty()) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.blendAttrs, GL_STATIC_DRAW);
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.blendAttrs, GL_STATIC_DRAW);
 
-		vao_.SetVertexDataSource(vboIndex, VertexAttribBoneIndexes, 4, GL_INT, false, sizeof(BlendAttribute), 0);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribBoneWeights, 4, GL_FLOAT, false, sizeof(BlendAttribute), (sizeof(uint) * BlendAttribute::Quality));
+		vao_->SetVertexDataSource(vboIndex, VertexAttribBoneIndexes, 4, GL_INT, false, sizeof(BlendAttribute), 0);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribBoneWeights, 4, GL_FLOAT, false, sizeof(BlendAttribute), (sizeof(uint) * BlendAttribute::Quality));
 		++vboIndex;
 	}
 
 	if (!attribute.indexes.empty()) {
-		vao_.SetBuffer(vboIndex, GL_ELEMENT_ARRAY_BUFFER, attribute.indexes, GL_STATIC_DRAW);
-		indexBuffer_ = vboIndex++;
+		vao_->SetBuffer(vboIndex, GL_ELEMENT_ARRAY_BUFFER, attribute.indexes, GL_STATIC_DRAW);
+		bufferIndexes_[IndexBuffer] = vboIndex++;
 	}
 	
 	if (attribute.color.count != 0) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribInstanceColor, 4, GL_FLOAT, false, 0, 0, attribute.color.divisor);
-		instanceBuffer_[0] = vboIndex++;
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribInstanceColor, 4, GL_FLOAT, false, 0, 0, attribute.color.divisor);
+		bufferIndexes_[InstanceBuffer0] = vboIndex++;
 	}
 
 	if (attribute.geometry.count != 0) {
-		vao_.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.geometry.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
-		vao_.SetVertexDataSource(vboIndex, VertexAttribInstanceGeometry, 4, GL_FLOAT, false, 0, 0, attribute.geometry.divisor);
-		instanceBuffer_[1] = vboIndex++;
+		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.geometry.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
+		vao_->SetVertexDataSource(vboIndex, VertexAttribInstanceGeometry, 4, GL_FLOAT, false, 0, 0, attribute.geometry.divisor);
+		bufferIndexes_[InstanceBuffer1] = vboIndex++;
 	}
 }
 
@@ -115,23 +110,60 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 	return count;
 }
 
+void MeshInternal::MakeShared(Mesh other) {
+	MeshInternal* ptr = dynamic_cast<MeshInternal*>(other.get());
+	vao_ = ptr->vao_;
+	topology_ = ptr->topology_;
+	memcpy(bufferIndexes_, ptr->bufferIndexes_, sizeof(bufferIndexes_));
+}
+
 void MeshInternal::Bind() {
-	vao_.Bind();
-	vao_.BindBuffer(indexBuffer_);
+	if (vao_->GetVBOCount() != 0) {
+		vao_->Bind();
+		vao_->BindBuffer(bufferIndexes_[IndexBuffer]);
+	}
 }
 
 void MeshInternal::Unbind() {
-	vao_.Unbind();
-	vao_.UnbindBuffer(indexBuffer_);
+	if (vao_->GetVBOCount() != 0) {
+		vao_->Unbind();
+		vao_->UnbindBuffer(bufferIndexes_[IndexBuffer]);
+	}
+}
+
+bool MeshInternal::MapIndexes(uint** data, uint* count) {
+	vao_->MapBuffer(bufferIndexes_[IndexBuffer], (void**)data, count);
+	if (count != nullptr) {
+		*count /= sizeof(uint);
+	}
+
+	return true;
+}
+
+void MeshInternal::UnmapIndexes() {
+	vao_->UnmapBuffer(bufferIndexes_[IndexBuffer]);
+}
+
+bool MeshInternal::MapVertices(glm::vec3** data, uint* count) {
+	vao_->MapBuffer(bufferIndexes_[VertexBuffer], (void**)data, count);
+	if (data != nullptr) {
+		*count /= sizeof(glm::vec3);
+	}
+
+	return true;
+}
+
+void MeshInternal::UnmapVertices() {
+	vao_->UnmapBuffer(bufferIndexes_[VertexBuffer]);
 }
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
-	if (i >= CountOf(instanceBuffer_)) {
+	if (i >= 2) {
 		Debug::LogError("index out of range");
 		return;
 	}
 
-	vao_.UpdateBuffer(instanceBuffer_[i], 0, size, data);
+	vao_->UpdateBuffer(bufferIndexes_[InstanceBuffer0 + i], 0, size, data);
 }
 
 TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh) {
@@ -175,8 +207,8 @@ void TextMeshInternal::RebuildMesh() {
 	SubMesh subMesh = NewSubMesh();
 	AddSubMesh(subMesh);
 
-	uint indexCount = attribute.indexes.size();
-	subMesh->SetTriangles(indexCount, 0, 0);
+	TriangleBase base{ attribute.indexes.size() };
+	subMesh->SetTriangles(base);
 
 	SetAttribute(attribute);
 }

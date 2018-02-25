@@ -134,14 +134,14 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 }
 
 bool WorldInternal::FireEvent(WorldEventBasePointer e) {
-	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
-		if ((*ite)->Equals(e)) {
-			return false;
-		}
+	WorldEventType type = e->GetEventType();
+	WorldEventCollection& collection = events_[type];
+	if (collection.find(e) == collection.end()) {
+		collection.insert(e);
+		return true;
 	}
 
-	events_.push_back(e);
-	return true;
+	return false;
 }
 
 void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
@@ -178,11 +178,14 @@ void WorldInternal::UpdateEntities() {
 }
 
 void WorldInternal::FireEvents() {
-	for (WorldEventContainer::const_iterator ite = events_.begin(); ite != events_.end(); ++ite) {
-		FireEventImmediate(*ite);
-	}
+	for (uint i = 0; i < WorldEventTypeCount; ++i) {
+		WorldEventCollection& collection = events_[i];
+		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {
+			FireEventImmediate(*ite);
+		}
 
-	events_.clear();
+		collection.clear();
+	}
 }
 
 void WorldInternal::CreateDecals(Camera camera) {
@@ -242,20 +245,22 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 	Mesh mesh = entity->GetMesh();
 	glm::vec3 cameraPosition = entity->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
-	const std::vector<uint>& indexes = mesh->GetIndexes();
-	const std::vector<glm::vec3>& vertices = mesh->GetVertices();
+	uint* indexes = nullptr;
+	mesh->MapIndexes(&indexes, nullptr);
+	
+	glm::vec3* vertices = nullptr;
+	mesh->MapVertices(&vertices, nullptr);
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
-		uint indexCount, baseVertex, baseIndex;
-		subMesh->GetTriangles(indexCount, baseVertex, baseIndex);
+		const TriangleBase& base = subMesh->GetTriangles();
 
 		// TODO: triangle strip.
-		for (int j = 0; j < indexCount; j += 3) {
+		for (int j = 0; j < base.indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
-			uint index0 = indexes[baseIndex + j] + baseVertex;
-			uint index1 = indexes[baseIndex + j + 1] + baseVertex;
-			uint index2 = indexes[baseIndex + j + 2] + baseVertex;
+			uint index0 = indexes[base.baseIndex + j] + base.baseVertex;
+			uint index1 = indexes[base.baseIndex + j + 1] + base.baseVertex;
+			uint index2 = indexes[base.baseIndex + j + 2] + base.baseVertex;
 			
 			glm::vec3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
 
@@ -272,27 +277,30 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 		}
 	}
 
+	mesh->UnmapIndexes();
+	mesh->UnmapVertices();
+
 	return triangles.size() >= 3;
 }
 
 void WorldInternal::Update() {
-	Debug::StartSample();
+	//Debug::StartSample();
 
-	Debug::StartSample();
+	//Debug::StartSample();
 	FireEvents();
-	Debug::Output("[events]\t%.3f\n", Debug::EndSample());
-
+	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());
+	
 	Debug::StartSample();
-	UpdateEntities();
+	//UpdateEntities();
 	Debug::Output("[entities]\t%.3f\n", Debug::EndSample());
-	
+	/*
 	Debug::StartSample();
-	UpdateDecals();
+	//UpdateDecals();
 	Debug::Output("[decals]\t%.3f\n", Debug::EndSample());
-	
+	*/
 	Debug::StartSample();
-	RenderUpdate();
+	//RenderUpdate();
 	Debug::Output("[render]\t%.3f\n", Debug::EndSample());
 
-	Debug::Output("[#total]\t%.3f\n", Debug::EndSample());
+	//Debug::Output("[#total]\t%.3f\n", Debug::EndSample());
 }

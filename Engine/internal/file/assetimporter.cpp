@@ -60,13 +60,20 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 		return false;
 	}
 
+	Debug::StartSample();
 	Assimp::Importer importer;
 	if (!Initialize(path, importer)) {
 		return false;
 	}
 
+	Debug::Output("[init assimp]\t%.3f\n", Debug::EndSample());
+
+	Debug::StartSample();
+
+	TriangleBase* subMeshBases = nullptr;
+	MeshAttribute attribute{ MeshTopologyTriangles };
+
 	Material* materials = nullptr;
-	MeshAttribute* attributes = nullptr;
 
 	if (scene_->mNumMaterials > 0) {
 		materials = MEMORY_CREATE_ARRAY(Material, scene_->mNumMaterials);
@@ -76,17 +83,26 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 	}
 
 	if (scene_->mNumMeshes > 0) {
-		attributes = MEMORY_CREATE_ARRAY(MeshAttribute, scene_->mNumMeshes);
-		if (!ReadAttributes(attributes)) {
+		subMeshBases = MEMORY_CREATE_ARRAY(TriangleBase, scene_->mNumMeshes);
+		if (!ReadAttribute(attribute, subMeshBases)) {
 			Debug::LogError("failed to load meshes for %s.", path.c_str());
 		}
 	}
 
-	ReadNodeTo(entity, scene_->mRootNode, attributes, materials);
-	ReadChildren(entity, scene_->mRootNode, attributes, materials);
+	Mesh surface = NewMesh();
+	surface->SetAttribute(attribute);
+
+	Debug::Output("[read attributes]\t%.3f\n", Debug::EndSample());
+
+	Debug::StartSample();
+	
+	ReadNodeTo(entity, scene_->mRootNode, surface, subMeshBases, materials);
+	ReadChildren(entity, scene_->mRootNode, surface, subMeshBases, materials);
+
+	Debug::Output("[read hierarchy]\t%.3f\n", Debug::EndSample());
 
 	MEMORY_RELEASE_ARRAY(materials);
-	MEMORY_RELEASE_ARRAY(attributes);
+	MEMORY_RELEASE_ARRAY(subMeshBases);
 
 	Animation animation;
 	if (ReadAnimation(animation)) {
@@ -98,7 +114,8 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 
 bool AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
-		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs;
+		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs
+		| aiProcess_OptimizeMeshes/* | aiProcess_OptimizeGraph*/ | aiProcess_RemoveRedundantMaterials;
 
 	if (FileSystem::GetExtension(path) == ".fbx") {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
@@ -129,28 +146,17 @@ void AssetImporter::Clear() {
 	animation_.reset();
 }
 
-void AssetImporter::CombineAttribute(MeshAttribute& dest, const MeshAttribute& src) {
-#define COMBINE_FIELD(field)	dest.field.insert(dest.field.end(), src.field.begin(), src.field.end())
-	COMBINE_FIELD(positions);
-	COMBINE_FIELD(normals);
-	COMBINE_FIELD(texCoords);
-	COMBINE_FIELD(tangents);
-	COMBINE_FIELD(blendAttrs);
-	COMBINE_FIELD(indexes);
-#undef COMBINE_FIELD
-}
-
-Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, MeshAttribute* attributes, Material* materials) {
+Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
 	Entity entity = NewEntity();
 	entity->GetTransform()->SetParent(parent->GetTransform());
 
-	ReadNodeTo(entity, node, attributes, materials);
-	ReadChildren(entity, node, attributes, materials);
+	ReadNodeTo(entity, node, surface, bases, materials);
+	ReadChildren(entity, node, surface, bases, materials);
 
 	return entity;
 }
 
-void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials) {
+void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
 	entity->SetName(node->mName.C_Str());
 
 	glm::vec3 translation, scale;
@@ -161,12 +167,10 @@ void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, MeshAttribute* attri
 	entity->GetTransform()->SetLocalRotation(rotation);
 	entity->GetTransform()->SetLocalPosition(translation);
 
-	if (node->mNumMeshes > 0) {
-		ReadComponents(entity, node, attributes, materials);
-	}
+	ReadComponents(entity, node, surface, bases, materials);
 }
 
-void AssetImporter::ReadComponents(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials) {
+void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
 	Renderer renderer = nullptr;
 	if (scene_->mNumAnimations == 0) {
 		renderer = NewMeshRenderer();
@@ -176,18 +180,14 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, MeshAttribute* a
 		dsp_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
-	MeshAttribute current{ MeshTopologyTriangles };
-
 	Mesh mesh = NewMesh();
+	mesh->MakeShared(surface);
 
-	SubMesh* subMeshes = MEMORY_CREATE_ARRAY(SubMesh, node->mNumMeshes);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];
-		subMeshes[i] = NewSubMesh();
-		subMeshes[i]->SetTriangles(attributes[meshIndex].indexes.size(), current.positions.size(), current.indexes.size());
-		mesh->AddSubMesh(subMeshes[i]);
-
-		CombineAttribute(current, attributes[meshIndex]);
+		SubMesh subMesh = NewSubMesh();
+		subMesh->SetTriangles(bases[meshIndex]);
+		mesh->AddSubMesh(subMesh);
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
@@ -195,51 +195,53 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, MeshAttribute* a
 		}
 	}
 
-	MEMORY_RELEASE_ARRAY(subMeshes);
-	mesh->SetAttribute(current);
-
 	entity->SetMesh(mesh);
 	entity->SetRenderer(renderer);
 }
 
-void AssetImporter::ReadChildren(Entity entity, aiNode* node, MeshAttribute* attributes, Material* materials) {
+void AssetImporter::ReadChildren(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		ReadHierarchy(entity, node->mChildren[i], attributes, materials);
+		ReadHierarchy(entity, node->mChildren[i], surface, bases, materials);
 	}
 }
 
-bool AssetImporter::ReadAttributes(MeshAttribute* attributes) {
+void AssetImporter::ReserveMemory(MeshAttribute& attribute) {
+	int indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
-		ReadAttribute(attributes[i], i);
+		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
+		vertexCount += scene_->mMeshes[i]->mNumVertices;
 	}
 
-	return true;
-}
-
-bool AssetImporter::ReadAttribute(MeshAttribute& attribute, int index) {
-	int indexCount = scene_->mMeshes[index]->mNumFaces * 3;
-	int vertexCount = scene_->mMeshes[index]->mNumVertices;
 	attribute.positions.reserve(vertexCount);
 	attribute.normals.reserve(vertexCount);
 	attribute.texCoords.reserve(vertexCount);
 	attribute.tangents.reserve(vertexCount);
 	attribute.indexes.reserve(indexCount);
 	attribute.blendAttrs.resize(vertexCount);
+}
 
-	for (int i = 0; i < vertexCount; ++i) {
-		memset(&attribute.blendAttrs[i], 0, sizeof(BlendAttribute));
+bool AssetImporter::ReadAttribute(MeshAttribute& attribute, TriangleBase* bases) {
+	ReserveMemory(attribute);
+
+	for (int i = 0; i < scene_->mNumMeshes; ++i) {
+		bases[i].baseIndex = attribute.indexes.size();
+		bases[i].baseVertex = attribute.positions.size();
+		ReadAttributeAt(i, attribute, bases);
+		bases[i].indexCount = scene_->mMeshes[i]->mNumFaces * 3;
 	}
-
-	attribute.topology = MeshTopologyTriangles;
-
-	ReadVertexAttributes(index, attribute);
-	ReadBoneAttributes(index, attribute);
 
 	return true;
 }
 
-void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
-	const aiMesh* aimesh = scene_->mMeshes[index];
+bool AssetImporter::ReadAttributeAt(int meshIndex, MeshAttribute& attribute, TriangleBase* bases) {
+	ReadVertexAttribute(meshIndex, attribute);
+	ReadBoneAttribute(meshIndex, attribute, bases);
+
+	return true;
+}
+
+void AssetImporter::ReadVertexAttribute(int meshIndex, MeshAttribute& attribute) {
+	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	// TODO: multiple texture coords?
 	for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
@@ -282,8 +284,8 @@ void AssetImporter::ReadVertexAttributes(int index, MeshAttribute& attribute) {
 	}
 }
 
-void AssetImporter::ReadBoneAttributes(int index, MeshAttribute& attribute) {
-	const aiMesh* aimesh = scene_->mMeshes[index];
+void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, TriangleBase* bases) {
+	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = NewSkeleton(); }
 		std::string name(aimesh->mBones[i]->mName.data);
@@ -298,7 +300,7 @@ void AssetImporter::ReadBoneAttributes(int index, MeshAttribute& attribute) {
 		}
 
 		for (int j = 0; j < aimesh->mBones[i]->mNumWeights; ++j) {
-			uint vertexID = aimesh->mBones[i]->mWeights[j].mVertexId;
+			uint vertexID = bases[meshIndex].baseVertex + aimesh->mBones[i]->mWeights[j].mVertexId;
 
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {
@@ -314,11 +316,11 @@ void AssetImporter::ReadBoneAttributes(int index, MeshAttribute& attribute) {
 
 bool AssetImporter::ReadMaterials(Material* materials) {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
-		MaterialAttribute attribute;
-		ReadMaterialAttribute(attribute, scene_->mMaterials[i]);
+		MaterialAttribute surface;
+		ReadMaterialAttribute(surface, scene_->mMaterials[i]);
 		
 		Material material = NewMaterial();
-		ReadMaterial(material, attribute);
+		ReadMaterial(material, surface);
 
 		materials[i] = material;
 	}
@@ -326,7 +328,7 @@ bool AssetImporter::ReadMaterials(Material* materials) {
 	return true;
 }
 
-bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& attribute) {
+bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& surface) {
 	std::string shaderName = "lit_texture";
 	if (scene_->mNumAnimations != 0) {
 		shaderName = "lit_animated_texture";
@@ -337,94 +339,94 @@ bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& att
 	Shader shader = Resources::FindShader("buildin/shaders/" + shaderName);
 	material->SetShader(shader);
 
-	material->SetFloat(Variables::gloss, attribute.gloss);
+	material->SetFloat(Variables::gloss, surface.gloss);
 
-	material->SetColor4(Variables::mainColor, attribute.mainColor);
-	material->SetColor3(Variables::specularColor, attribute.specularColor);
-	material->SetColor3(Variables::emissiveColor, attribute.emissiveColor);
+	material->SetColor4(Variables::mainColor, surface.mainColor);
+	material->SetColor3(Variables::specularColor, surface.specularColor);
+	material->SetColor3(Variables::emissiveColor, surface.emissiveColor);
 
-	material->SetName(attribute.name);
+	material->SetName(surface.name);
 
-	if (attribute.mainTexture) {
-		material->SetTexture(Variables::mainTexture, attribute.mainTexture);
+	if (surface.mainTexture) {
+		material->SetTexture(Variables::mainTexture, surface.mainTexture);
 	}
 
-	if (attribute.bumpTexture) {
-		material->SetTexture(Variables::bumpTexture, attribute.bumpTexture);
+	if (surface.bumpTexture) {
+		material->SetTexture(Variables::bumpTexture, surface.bumpTexture);
 	}
 
-	if (attribute.specularTexture) {
-		material->SetTexture(Variables::specularTexture, attribute.specularTexture);
+	if (surface.specularTexture) {
+		material->SetTexture(Variables::specularTexture, surface.specularTexture);
 	}
 
-	if (attribute.emissiveTexture) {
-		material->SetTexture(Variables::emissiveTexture, attribute.emissiveTexture);
+	if (surface.emissiveTexture) {
+		material->SetTexture(Variables::emissiveTexture, surface.emissiveTexture);
 	}
 
-	if (attribute.lightmapTexture) {
-		material->SetTexture(Variables::lightmapTexture, attribute.lightmapTexture);
+	if (surface.lightmapTexture) {
+		material->SetTexture(Variables::lightmapTexture, surface.lightmapTexture);
 	}
 
 	return true;
 }
 
-void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material) {
+void AssetImporter::ReadMaterialAttribute(MaterialAttribute& surface, aiMaterial* material) {
 	int aint;
 	float afloat;
 	aiString astring;
 	aiColor3D acolor;
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
-		attribute.name = FileSystem::GetFileName(astring.C_Str());
+		surface.name = FileSystem::GetFileName(astring.C_Str());
 	}
 	
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
-		attribute.mainTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		surface.mainTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
-	if (!attribute.mainTexture) {
-		attribute.mainTexture = Resources::GetWhiteTexture();
+	if (!surface.mainTexture) {
+		surface.mainTexture = Resources::GetWhiteTexture();
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
-		attribute.bumpTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		surface.bumpTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
-		attribute.specularTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		surface.specularTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
-		attribute.lightmapTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		surface.lightmapTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
-		attribute.emissiveTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		surface.emissiveTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
 		if (Math::Approximately(afloat)) { afloat = 1; }
-		attribute.mainColor.a = afloat;
+		surface.mainColor.a = afloat;
 	}
 
 	if (material->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) == AI_SUCCESS) {
-		attribute.mainColor = glm::vec4(acolor.r, acolor.g, acolor.b, attribute.mainColor.a);
+		surface.mainColor = glm::vec4(acolor.r, acolor.g, acolor.b, surface.mainColor.a);
 	}
 
 	if (material->Get(AI_MATKEY_COLOR_SPECULAR, acolor) == AI_SUCCESS) {
-		attribute.specularColor = glm::vec3(acolor.r, acolor.g, acolor.b);
+		surface.specularColor = glm::vec3(acolor.r, acolor.g, acolor.b);
 	}
 
 	if (material->Get(AI_MATKEY_COLOR_EMISSIVE, acolor) == AI_SUCCESS) {
-		attribute.emissiveColor = glm::vec3(acolor.r, acolor.g, acolor.b);
+		surface.emissiveColor = glm::vec3(acolor.r, acolor.g, acolor.b);
 	}
 
 	if (material->Get(AI_MATKEY_SHININESS, afloat) == AI_SUCCESS) {
-		attribute.gloss = afloat;
+		surface.gloss = afloat;
 	}
 
 	if (material->Get(AI_MATKEY_TWOSIDED, aint) == AI_SUCCESS) {
-		attribute.twoSided = !!aint;
+		surface.twoSided = !!aint;
 	}
 }
 

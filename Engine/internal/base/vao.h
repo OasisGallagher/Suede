@@ -1,11 +1,13 @@
 #pragma once
+#include <vector>
+
 #include <wrappers/gl.h>
 #include "enginedefines.h"
 
-class VertexArrayObject {
+class VAO {
 public:
-	VertexArrayObject();
-	~VertexArrayObject();
+	VAO();
+	~VAO();
 
 public:
 	void CreateVBOs(size_t n);
@@ -24,6 +26,9 @@ public:
 
 	void BindBuffer(int index);
 	void UnbindBuffer(int index);
+
+	void MapBuffer(int index, void** data, uint* length);
+	void UnmapBuffer(int index);
 
 	uint GetBufferNativePointer(uint index);
 	void UpdateBuffer(uint index, int offset, size_t size, const void* ptr);
@@ -52,3 +57,5 @@ private:
 
 	int vboCount_;
 };
+
+typedef std::shared_ptr<VAO> VAOPointer;
