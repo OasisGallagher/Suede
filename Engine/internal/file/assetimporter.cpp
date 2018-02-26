@@ -181,7 +181,7 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, T
 	}
 
 	Mesh mesh = NewMesh();
-	mesh->MakeShared(surface);
+	mesh->ShareStorage(surface);
 
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];

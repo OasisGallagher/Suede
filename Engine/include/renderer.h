@@ -4,12 +4,6 @@
 #include "material.h"
 #include "animation.h"
 
-enum RenderQueue {
-	RenderQueueBackground = 1000,
-	RenderQueueGeometry = 2000,
-	RenderQueueTransparent = 4000,
-};
-
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
 class SUEDE_API IRenderer : virtual public IObject {
@@ -23,9 +17,6 @@ public:
 	virtual void RemoveMaterial(Material material) = 0;
 	virtual void RemoveMaterialAt(uint index) = 0;
 	virtual uint GetMaterialCount() = 0;
-
-	virtual void SetRenderQueue(uint value) = 0;
-	virtual uint GetRenderQueue() = 0;
 };
 
 class SUEDE_API IMeshRenderer : virtual public IRenderer {

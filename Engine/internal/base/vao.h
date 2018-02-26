@@ -27,8 +27,9 @@ public:
 	void BindBuffer(int index);
 	void UnbindBuffer(int index);
 
-	void MapBuffer(int index, void** data, uint* length);
+	void* MapBuffer(int index);
 	void UnmapBuffer(int index);
+	size_t GetBufferSize(int index);
 
 	uint GetBufferNativePointer(uint index);
 	void UpdateBuffer(uint index, int offset, size_t size, const void* ptr);

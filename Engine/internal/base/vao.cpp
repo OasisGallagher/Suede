@@ -60,19 +60,13 @@ void VAO::SetVertexDataSource(int index, int location, int size, GLenum type, bo
 	UnbindBuffer(index);
 }
 
-void VAO::MapBuffer(int index, void** data, uint* length) {
+void* VAO::MapBuffer(int index) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
-		return;
+		return nullptr;
 	}
 
-	if (length != nullptr) {
-		*length = attributes_[index].size;
-	}
-
-	if (data != nullptr) {
-		*data = GL::MapBuffer(attributes_[index].target, GL_READ_ONLY);
-	}
+	return GL::MapBuffer(attributes_[index].target, GL_READ_ONLY);
 }
 
 void VAO::UnmapBuffer(int index) {
@@ -82,6 +76,15 @@ void VAO::UnmapBuffer(int index) {
 	}
 	
 	GL::UnmapBuffer(attributes_[index].target);
+}
+
+size_t VAO::GetBufferSize(int index) {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return 0;
+	}
+
+	return attributes_[index].size;
 }
 
 uint VAO::GetBufferNativePointer(uint index) {

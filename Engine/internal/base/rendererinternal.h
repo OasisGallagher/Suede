@@ -28,7 +28,7 @@ public:
 
 protected:
 	virtual void UpdateMaterial(Entity entity);
-	virtual void DrawCall(SubMesh subMesh, MeshTopology topology);
+	virtual void DrawCall(SubMesh subMesh, Material material, int pass);
 
 protected:
 	GLenum TopologyToGLEnum(MeshTopology topology);
@@ -76,7 +76,7 @@ public:
 	virtual void AddMaterial(Material material);
 
 protected:
-	virtual void DrawCall(SubMesh subMesh, MeshTopology topology);
+	virtual void DrawCall(SubMesh subMesh, Material material, int pass);
 
 private:
 	uint particleCount_;

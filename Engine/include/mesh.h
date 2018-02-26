@@ -11,8 +11,13 @@ struct TriangleBase {
 	uint baseVertex;
 }; 
 
+SUEDE_DEFINE_OBJECT_POINTER(Mesh);
+
 class ISubMesh : virtual public IObject {
 public:
+	virtual Mesh GetMesh() = 0;
+	virtual void SetMesh(Mesh value) = 0;
+
 	virtual const TriangleBase& GetTriangles() const = 0;
 	virtual void SetTriangles(const TriangleBase& value) = 0;
 };
@@ -61,8 +66,6 @@ struct MeshAttribute {
 	InstanceAttribute geometry;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Mesh);
-
 class SUEDE_API IMesh : virtual public IObject {
 public:
 	virtual void SetAttribute(const MeshAttribute& value) = 0;
@@ -74,15 +77,17 @@ public:
 
 	virtual MeshTopology GetTopology() = 0;
 
-	virtual bool MapIndexes(uint** data, uint* count) = 0;
+	virtual uint* MapIndexes() = 0;
 	virtual void UnmapIndexes() = 0;
+	virtual uint GetIndexCount() = 0;
 
-	virtual bool MapVertices(glm::vec3** data, uint* count) = 0;
+	virtual glm::vec3* MapVertices() = 0;
 	virtual void UnmapVertices() = 0;
+	virtual uint GetVertexCount() = 0;
 
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
-	virtual void MakeShared(Mesh other) = 0;
+	virtual void ShareStorage(Mesh other) = 0;
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data) = 0;
 };

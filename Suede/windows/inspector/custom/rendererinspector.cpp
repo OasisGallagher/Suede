@@ -2,13 +2,11 @@
 #include <QComboBox>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QFormLayout>
 #include <QFileDialog>
 #include <QProgressBar>
 
 #include "tools/math2.h"
 
-#include "renderer.h"
 #include "variables.h"
 #include "resources.h"
 #include "rendererinspector.h"

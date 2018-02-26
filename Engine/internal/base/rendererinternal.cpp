@@ -1,12 +1,13 @@
 #include <algorithm>
 
 #include "time2.h"
+#include "pipeline.h"
 #include "variables.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "rendererinternal.h"
 
-RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), queue_(RenderQueueGeometry) {	
+RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type) {	
 }
 
 RendererInternal::~RendererInternal() {
@@ -55,8 +56,6 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 		return;
 	}
 
-	mesh->Bind();
-
 	for (int i = 0; i < subMeshCount; ++i) {
 		Material material = GetMaterial(i);
 		int pass = material->GetPass();
@@ -71,12 +70,9 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 			}
 		}
 	}
-
-	mesh->Unbind();
 }
 
 void RendererInternal::RenderMesh(Mesh mesh, Material material) {
-	mesh->Bind();
 	int pass = material->GetPass();
 	if (pass >= 0 && material->IsPassEnabled(pass)) {
 		RenderMesh(mesh, material, pass);
@@ -88,18 +84,12 @@ void RendererInternal::RenderMesh(Mesh mesh, Material material) {
 			}
 		}
 	}
-
-	mesh->Unbind();
 }
 
 void RendererInternal::RenderMesh(Mesh mesh, Material material, int pass) {
-	material->Bind(pass);
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		DrawCall(subMesh, mesh->GetTopology());
+		DrawCall(mesh->GetSubMesh(i), material, pass);
 	}
-
-	material->Unbind();
 }
 
 void RendererInternal::RemoveMaterial(Material material) {
@@ -116,19 +106,16 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 	materials_.erase(materials_.begin() + index);
 }
 
-void RendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
-	const TriangleBase& base = subMesh->GetTriangles();
-
-	GLenum mode = TopologyToGLEnum(topology);
-	GL::DrawElementsBaseVertex(mode, base.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* base.baseIndex), base.baseVertex);
+void RendererInternal::DrawCall(SubMesh subMesh, Material material, int pass) {
+	Renderable* item = Pipeline::CreateRenderable();
+	item->pass = pass;
+	item->instance = 0;
+	item->material = material;
+	item->subMesh = subMesh;
 }
 
 void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
-	material->Bind(pass);
-	SubMesh subMesh = mesh->GetSubMesh(subMeshIndex);
-	DrawCall(subMesh, mesh->GetTopology());
-
-	material->Unbind();
+	DrawCall(mesh->GetSubMesh(subMeshIndex), material, pass);
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
@@ -141,7 +128,6 @@ void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
 
 ParticleRendererInternal::ParticleRendererInternal()
 	: RendererInternal(ObjectTypeParticleRenderer), particleCount_(0) {
-	SetRenderQueue(RenderQueueTransparent);
 }
 
 void ParticleRendererInternal::AddMaterial(Material material) {
@@ -160,10 +146,11 @@ void ParticleRendererInternal::RenderEntity(Entity entity) {
 	RendererInternal::RenderEntity(entity);
 }
 
-void ParticleRendererInternal::DrawCall(SubMesh subMesh, MeshTopology topology) {
+void ParticleRendererInternal::DrawCall(SubMesh subMesh, Material material, int pass) {
 	if (particleCount_ == 0) { return; }
-	const TriangleBase& base = subMesh->GetTriangles();
-
-	GLenum mode = TopologyToGLEnum(topology);
-	GL::DrawElementsInstancedBaseVertex(mode, base.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* base.baseIndex), particleCount_, base.baseVertex);
+	Renderable* item = Pipeline::CreateRenderable();
+	item->pass = pass;
+	item->material = material;
+	item->subMesh = subMesh;
+	item->instance = particleCount_;
 }

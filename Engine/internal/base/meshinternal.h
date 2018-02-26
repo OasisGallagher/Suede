@@ -25,11 +25,15 @@ class SubMeshInternal : public ISubMesh, public ObjectInternal {
 public:
 	SubMeshInternal();
 
+	virtual void SetMesh(Mesh value) { mesh_ = value; }
+	virtual Mesh GetMesh() { return mesh_.lock(); }
+
 	virtual void SetTriangles(const TriangleBase& value) { base_ = value; }
 	virtual const TriangleBase& GetTriangles() const { return base_; }
 
 private:
 	TriangleBase base_;
+	std::weak_ptr<Mesh::element_type> mesh_;
 };
 
 class MeshInternal : virtual public IMesh, public ObjectInternal {
@@ -45,20 +49,22 @@ public:
 
 	virtual void Bind();
 	virtual void Unbind();
-	virtual void MakeShared(Mesh other);
+	virtual void ShareStorage(Mesh other);
 
-	virtual void AddSubMesh(SubMesh subMesh) { subMeshes_.push_back(subMesh); }
+	virtual void AddSubMesh(SubMesh subMesh);
 	virtual int GetSubMeshCount() { return subMeshes_.size(); }
 	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
-	virtual void RemoveSubMesh(uint index) { subMeshes_.erase(subMeshes_.begin() + index); }
+	virtual void RemoveSubMesh(uint index);
 
 	virtual MeshTopology GetTopology() { return topology_; }
 
-	virtual bool MapIndexes(uint** data, uint* count);
+	virtual uint* MapIndexes();
 	virtual void UnmapIndexes();
+	virtual uint GetIndexCount();
 
-	virtual bool MapVertices(glm::vec3** data, uint* count);
+	virtual glm::vec3* MapVertices();
 	virtual void UnmapVertices();
+	virtual uint GetVertexCount();
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
 

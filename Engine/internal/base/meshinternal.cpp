@@ -110,11 +110,16 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 	return count;
 }
 
-void MeshInternal::MakeShared(Mesh other) {
+void MeshInternal::ShareStorage(Mesh other) {
 	MeshInternal* ptr = dynamic_cast<MeshInternal*>(other.get());
 	vao_ = ptr->vao_;
 	topology_ = ptr->topology_;
 	memcpy(bufferIndexes_, ptr->bufferIndexes_, sizeof(bufferIndexes_));
+}
+
+void MeshInternal::AddSubMesh(SubMesh subMesh) {
+	subMeshes_.push_back(subMesh);
+	subMesh->SetMesh(dsp_cast<Mesh>(shared_from_this()));
 }
 
 void MeshInternal::Bind() {
@@ -131,31 +136,36 @@ void MeshInternal::Unbind() {
 	}
 }
 
-bool MeshInternal::MapIndexes(uint** data, uint* count) {
-	vao_->MapBuffer(bufferIndexes_[IndexBuffer], (void**)data, count);
-	if (count != nullptr) {
-		*count /= sizeof(uint);
-	}
+void MeshInternal::RemoveSubMesh(uint index) {
+	SubMesh subMesh = subMeshes_[index];
+	subMeshes_.erase(subMeshes_.begin() + index);
+	subMesh->SetMesh(nullptr);
+}
 
-	return true;
+uint* MeshInternal::MapIndexes() {
+	return (uint*)vao_->MapBuffer(bufferIndexes_[IndexBuffer]);
 }
 
 void MeshInternal::UnmapIndexes() {
 	vao_->UnmapBuffer(bufferIndexes_[IndexBuffer]);
 }
 
-bool MeshInternal::MapVertices(glm::vec3** data, uint* count) {
-	vao_->MapBuffer(bufferIndexes_[VertexBuffer], (void**)data, count);
-	if (data != nullptr) {
-		*count /= sizeof(glm::vec3);
-	}
+uint MeshInternal::GetIndexCount() {
+	return vao_->GetBufferSize(bufferIndexes_[IndexBuffer]) / sizeof(uint);
+}
 
-	return true;
+glm::vec3* MeshInternal::MapVertices() {
+	return (glm::vec3*)vao_->MapBuffer(bufferIndexes_[VertexBuffer]);
 }
 
 void MeshInternal::UnmapVertices() {
 	vao_->UnmapBuffer(bufferIndexes_[VertexBuffer]);
 }
+
+uint MeshInternal::GetVertexCount() {
+	return vao_->GetBufferSize(bufferIndexes_[VertexBuffer]) / sizeof(glm::vec3);
+}
+
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	if (i >= 2) {
