@@ -1,6 +1,6 @@
 #include "resources.h"
-#include "tools/math2.h"
 #include "worldinternal.h"
+#include "internal/base/pipeline.h"
 #include "internal/file/assetimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
@@ -162,6 +162,8 @@ void WorldInternal::RenderUpdate() {
 			(*ite)->Render();
 		}
 	}
+
+	Pipeline::Update();
 }
 
 void WorldInternal::UpdateDecals() {
@@ -245,11 +247,8 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 	Mesh mesh = entity->GetMesh();
 	glm::vec3 cameraPosition = entity->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
-	uint* indexes = nullptr;
-	mesh->MapIndexes(&indexes, nullptr);
-	
-	glm::vec3* vertices = nullptr;
-	mesh->MapVertices(&vertices, nullptr);
+	uint* indexes = mesh->MapIndexes();
+	glm::vec3* vertices = mesh->MapVertices();
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
@@ -291,15 +290,15 @@ void WorldInternal::Update() {
 	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());
 	
 	Debug::StartSample();
-	//UpdateEntities();
+	UpdateEntities();
 	Debug::Output("[entities]\t%.3f\n", Debug::EndSample());
 	/*
 	Debug::StartSample();
-	//UpdateDecals();
+	UpdateDecals();
 	Debug::Output("[decals]\t%.3f\n", Debug::EndSample());
 	*/
 	Debug::StartSample();
-	//RenderUpdate();
+	RenderUpdate();
 	Debug::Output("[render]\t%.3f\n", Debug::EndSample());
 
 	//Debug::Output("[#total]\t%.3f\n", Debug::EndSample());

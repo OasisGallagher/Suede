@@ -16,9 +16,12 @@ public:
 	virtual const std::string& GetName() const { return name_; }
 
 	virtual Object Clone();
-	virtual void SetShader(Shader value);
 
+	virtual void SetShader(Shader value);
 	virtual Shader GetShader() { return shader_; }
+
+	virtual void SetRenderQueue(uint value);
+	virtual uint GetRenderQueue() const;
 
 	virtual void SetPass(int value) { pass_ = value; }
 	virtual int GetPass() const { return pass_; }

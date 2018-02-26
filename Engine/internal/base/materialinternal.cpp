@@ -333,6 +333,24 @@ int MaterialInternal::GetPassIndex(const std::string& name) const {
 	return shader_->GetPassIndex(SUB_SHADER_INDEX, name);
 }
 
+void MaterialInternal::SetRenderQueue(uint value) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return;
+	}
+
+	return shader_->SetRenderQueue(SUB_SHADER_INDEX, value);
+}
+
+uint MaterialInternal::GetRenderQueue() const {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return 0;
+	}
+
+	return shader_->GetRenderQueue(SUB_SHADER_INDEX);
+}
+
 void MaterialInternal::Define(const std::string& name) {
 }
 

@@ -479,18 +479,15 @@ bool Pass::IsSampler(int type) {
 }
 
 SubShader::SubShader() : passes_(nullptr), passCount_(0)
-	, currentPass_(UINT_MAX), tags_(nullptr), tagCount_(0), passEnabled_(UINT_MAX) {
+	, currentPass_(UINT_MAX), passEnabled_(UINT_MAX) {
+	tags_[TagKeyRenderQueue] = RenderQueueGeometry;
 }
 
 SubShader::~SubShader() {
-	MEMORY_RELEASE_ARRAY(tags_);
 	MEMORY_RELEASE_ARRAY(passes_);
 }
 
 bool SubShader::Initialize(std::vector<Property*>& properties, const Semantics::SubShader& config, const std::string& path) {
-	tagCount_ = config.tags.size();
-	tags_ = MEMORY_CREATE_ARRAY(Tag, config.tags.size());
-
 	InitializeTags(config.tags);
 
 	passCount_ = config.passes.size();
@@ -555,15 +552,14 @@ Pass* SubShader::GetPass(uint pass) {
 }
 
 void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
-	for (uint i = 0; i < tagCount_; ++i) {
+	for (uint i = 0; i < tags.size(); ++i) {
 		InitializeTag(tags[i], i);
 	}
 }
 
 void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
 	if (tag.key == "Queue") {
-		tags_[i].key = TagKeyQueue;
-		tags_[i].value = ParseExpression(tags_[i].key, tag.value);
+		tags_[TagKeyRenderQueue] = ParseExpression(TagKeyRenderQueue, tag.value);
 	}
 	else {
 		Debug::LogError("invalid tag key %s",  tag.key.c_str());
@@ -571,7 +567,7 @@ void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
 }
 
 uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
-	if (key == TagKeyQueue) {
+	if (key == TagKeyRenderQueue) {
 		// TODO: parse expression.
 		std::vector<std::string> arguments;
 		String::Split(arguments, expression, '+');
@@ -676,6 +672,24 @@ void ShaderInternal::Unbind() {
 
 	subShaders_[currentSubShader_].Unbind();
 	currentSubShader_ = UINT_MAX;
+}
+
+void ShaderInternal::SetRenderQueue(uint ssi, uint value) {
+	if (ssi > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return;
+	}
+
+	return subShaders_[ssi].SetRenderQueue(value);
+}
+
+uint ShaderInternal::GetRenderQueue(uint ssi) const {
+	if (ssi > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return 0;
+	}
+
+	return subShaders_[ssi].GetRenderQueue();
 }
 
 bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {

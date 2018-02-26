@@ -1,6 +1,8 @@
 Properties { }
 
 SubShader {
+	Tags { Queue = "Transparent" }
+
 	Pass {
 		Blend SrcAlpha OneMinusSrcAlpha;
 

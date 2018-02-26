@@ -1,8 +1,6 @@
 #include <QLabel>
-#include <QGroupBox>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QFormLayout>
 
 #include "tools/math2.h"
 
@@ -36,11 +34,7 @@ void MeshInspector::drawMesh() {
 
 	QLabel* vertices = new QLabel(this);
 	
-	uint count = 0;
-	mesh->MapVertices(nullptr, &count);
-	// TODO: Seperate map vertices and read count.
-	//mesh->UnmapVertices();
-
+	uint count = mesh->GetVertexCount();
 	vertices->setText(QString::number(count));
 	form_->addRow(formatRowName("Vertices"), vertices);
 

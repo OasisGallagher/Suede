@@ -1,5 +1,4 @@
 #include <QGroupBox>
-#include <QFormLayout>
 
 #include "tools/math2.h"
 #include "windows/controls/floatslider.h"

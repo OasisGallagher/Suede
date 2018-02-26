@@ -62,9 +62,7 @@ public:
 	}
 
 	void clear() {
-		for (iterator ite = begin(); ite != end(); ) {
-			recycle(*ite++);
-		}
+		setup();
 	}
 
 	void reallocate(size_t n) {
@@ -134,25 +132,29 @@ public:
 private:
 	void allocate(size_t size) {
 		memory_ = MEMORY_CREATE_ARRAY(Block, size);
-		for (size_t i = 0; i < size; ++i) {
-			if (i >= 1) {
-				memory_[i - 1].head.next = memory_ + i;
-			}
-
-			if (i < size - 1) {
-				memory_[i + 1].head.prev = memory_ + i;
-			}
-		}
-
-		memory_[size - 1].head.next = nullptr;
-		memory_[0].head.prev = nullptr;
-
-		free_ = memory_;
-		busy_ = nullptr;
+		setup();
 	}
 
 	void* advance(void* ptr, int off) const {
 		return (char*)ptr + off;
+	}
+
+	void setup() {
+		for (size_t i = 0; i < capacity_; ++i) {
+			if (i >= 1) {
+				memory_[i - 1].head.next = memory_ + i;
+			}
+
+			if (i < capacity_ - 1) {
+				memory_[i + 1].head.prev = memory_ + i;
+			}
+		}
+
+		memory_[capacity_ - 1].head.next = nullptr;
+		memory_[0].head.prev = nullptr;
+
+		free_ = memory_;
+		busy_ = nullptr;
 	}
 
 	size_t size_;

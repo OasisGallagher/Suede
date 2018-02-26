@@ -6,6 +6,13 @@
 #include "variant.h"
 #include "texture.h"
 
+enum RenderQueue {
+	RenderQueueBackground = 1000,
+	RenderQueueGeometry = 2000,
+	RenderQueueTransparent = 4000,
+	RenderQueueDecal = 6000,
+};
+
 class SUEDE_API IMaterial : virtual public IObject {
 public:
 	virtual void SetName(const std::string& value) = 0;
@@ -24,8 +31,11 @@ public:
 	virtual int GetPass() const = 0;
 	virtual uint GetPassCount() const = 0;
 
-	virtual void SetShader(Shader shader) = 0;
+	virtual void SetShader(Shader value) = 0;
 	virtual Shader GetShader() = 0;
+
+	virtual void SetRenderQueue(uint value) = 0;
+	virtual uint GetRenderQueue() const = 0;
 
 	virtual void Define(const std::string& name) = 0;
 	virtual void Undefine(const std::string& name) = 0;

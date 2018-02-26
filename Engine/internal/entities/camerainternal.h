@@ -84,7 +84,9 @@ public:
 private:
 	void InitializeVariables();
 	void CreateFramebuffers();
-	void CreateAuxMaterial(Material& material, const std::string& shaderPath);
+	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
+
+	void AddToPipeline(Mesh mesh, Material material, Property** properties, uint count);
 
 	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 	void DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);

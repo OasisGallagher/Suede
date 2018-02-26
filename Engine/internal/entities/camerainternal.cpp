@@ -1,22 +1,14 @@
 #include <glm/gtx/transform.hpp>
 
 #include "light.h"
-#include "camera.h"
 #include "screen.h"
 #include "frustum.h"
 #include "resources.h"
 #include "variables.h"
 #include "imageeffect.h"
-#include "tools/math2.h"
-#include "internal/file/image.h"
 #include "internal/base/gbuffer.h"
-#include "internal/memory/factory.h"
-#include "internal/base/framebuffer.h"
-#include "internal/base/shaderinternal.h"
+#include "internal/base/pipeline.h"
 #include "internal/world/worldinternal.h"
-#include "internal/base/textureinternal.h"
-#include "internal/base/materialinternal.h"
-#include "internal/base/rendererinternal.h"
 #include "internal/entities/camerainternal.h"
 
 CameraInternal::CameraInternal() 
@@ -27,9 +19,9 @@ CameraInternal::CameraInternal()
 	InitializeVariables();
 	CreateFramebuffers();
 
-	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth");
-	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal");
-	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth");
+	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth", RenderQueueBackground - 300);
+	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal", RenderQueueDecal);
+	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth", RenderQueueBackground - 200);
 
 	GL::ClearDepth(1);
 }
@@ -189,9 +181,22 @@ void CameraInternal::InitializeDeferredRender() {
 	gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	deferredMaterial_ = NewMaterial();
+	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
+
 	Shader shader = NewShader();
 	shader->Load("buildin/shaders/gbuffer");
 	deferredMaterial_->SetShader(shader);
+}
+
+void CameraInternal::AddToPipeline(Mesh mesh, Material material, Property** properties, uint count) {
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		Renderable* renderable = Pipeline::CreateRenderable();
+		renderable->pass = 0;
+		renderable->instance = 0;
+		renderable->subMesh = mesh->GetSubMesh(i);
+		renderable->material = material;
+		memcpy(renderable->properties, properties, count * sizeof(Property*));
+	}
 }
 
 void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entities) {
@@ -200,20 +205,23 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		//if (entity->GetRenderer()->GetRenderQueue() < RenderQueueGeometry) {
-		//	continue;
-		//}
 
+		Property* p[3] = { nullptr };
+		p[0] = Pipeline::CreateProperty();
+		p[0]->name = Variables::localToClipSpaceMatrix;
 		glm::mat4 localToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
-		deferredMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
-		deferredMaterial_->SetMatrix4(Variables::localToWorldSpaceMatrix, entity->GetTransform()->GetLocalToWorldMatrix());
+		p[0]->value.SetMatrix4(localToClipSpaceMatrix);
+
+		p[1] = Pipeline::CreateProperty();
+		p[1]->name = Variables::localToWorldSpaceMatrix;
+		p[1]->value.SetMatrix4(entity->GetTransform()->GetLocalToWorldMatrix());
 
 		Texture mainTexture = entity->GetRenderer()->GetMaterial(0)->GetTexture(Variables::mainTexture);
-		deferredMaterial_->SetTexture(Variables::mainTexture, mainTexture);
+		p[2] = Pipeline::CreateProperty();
+		p[2]->name = Variables::mainTexture;
+		p[2]->value.SetTexture(mainTexture);
 
-		// TODO: mesh renderer.
-		Resources::GetAuxMeshRenderer()->SetMaterial(0, deferredMaterial_);
-		Resources::GetAuxMeshRenderer()->RenderEntity(entity);
+		AddToPipeline(entity->GetMesh(), deferredMaterial_, p, CountOf(p));
 	}
 
 	gbuffer_->Unbind();
@@ -262,7 +270,7 @@ void CameraInternal::CreateFramebuffers() {
 	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
 }
 
-void CameraInternal::CreateAuxMaterial(Material& material, const std::string& shaderPath) {
+void CameraInternal::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
 	Shader shader = Resources::FindShader(shaderPath);
 	material = NewMaterial();
 	material->SetShader(shader);
@@ -372,13 +380,10 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (entity->GetRenderer()->GetRenderQueue() < RenderQueueGeometry) {
-			continue;
-		}
-
-		directionalLightShadowMaterial_->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * entity->GetTransform()->GetLocalToWorldMatrix());
-		Resources::GetAuxMeshRenderer()->SetMaterial(0, directionalLightShadowMaterial_);
-		Resources::GetAuxMeshRenderer()->RenderEntity(entity);
+		Property* p = Pipeline::CreateProperty();
+		p->name = Variables::localToOrthographicLightSpaceMatrix;
+		p->value.SetMatrix4(shadowDepthMatrix * entity->GetTransform()->GetLocalToWorldMatrix());
+		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_, &p, 1);
 	}
 
 	glm::mat4 bias(
@@ -409,16 +414,11 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (entity->GetRenderer()->GetRenderQueue() < RenderQueueGeometry) {
-			continue;
-		}
 
-		glm::mat4 localToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
-		depthMaterial_->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
-
-		// TODO: mesh renderer.
-		Resources::GetAuxMeshRenderer()->SetMaterial(0, depthMaterial_);
-		Resources::GetAuxMeshRenderer()->RenderEntity(entity);
+		Property* p = Pipeline::CreateProperty();
+		p->name = Variables::localToClipSpaceMatrix;
+		p->value.SetMatrix4(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix());
+		AddToPipeline(entity->GetMesh(), depthMaterial_, &p, 1);
 	}
 
 	fb1_->Unbind();
@@ -457,8 +457,6 @@ void CameraInternal::OnPostRender() {
 	RenderDecals();
 }
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 void CameraInternal::RenderDecals() {
 	std::vector<Decal*> decals;
@@ -541,7 +539,7 @@ void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 
 		int j = p - 1;
 
-		for (; j >= 0 && entities[j]->GetRenderer()->GetRenderQueue() > key->GetRenderer()->GetRenderQueue(); --j) {
+		for (; j >= 0 /*&& entities[j]->GetRenderer()->GetRenderQueue() > key->GetRenderer()->GetRenderQueue()*/; --j) {
 			entities[j + 1] = entities[j];
 		}
 

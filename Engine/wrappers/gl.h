@@ -461,3 +461,4 @@ inline void GL::PolygonOffset(GLfloat factor, GLfloat units) {
 }
 
 #undef GL_CALL
+#undef GL_CALL_R

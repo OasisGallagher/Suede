@@ -78,7 +78,8 @@ private:
 class SubShader {
 public:
 	enum TagKey {
-		TagKeyQueue,
+		TagKeyRenderQueue,
+		TagKeyCount,
 	};
 
 	struct Tag {
@@ -95,6 +96,9 @@ public:
 
 	void Bind(uint pass);
 	void Unbind();
+
+	void SetRenderQueue(uint value) { tags_[TagKeyRenderQueue] = value; }
+	uint GetRenderQueue() const { return tags_[TagKeyRenderQueue]; }
 
 	/**
 	* @return initial enabled state of pass `pass`.
@@ -116,8 +120,7 @@ private:
 	uint passEnabled_;
 	uint currentPass_;
 
-	Tag* tags_;
-	uint tagCount_;
+	int tags_[TagKeyCount];
 };
 
 class ShaderInternal : public IShader, public ObjectInternal {
@@ -133,6 +136,9 @@ public:
 
 	virtual void Bind(uint ssi, uint pass);
 	virtual void Unbind();
+
+	virtual void SetRenderQueue(uint ssi, uint value);
+	virtual uint GetRenderQueue(uint ssi) const;
 
 	virtual bool IsPassEnabled(uint ssi, uint pass) const;
 	virtual int GetPassIndex(uint ssi, const std::string& name) const;
