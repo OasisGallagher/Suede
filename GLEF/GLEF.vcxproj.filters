@@ -105,6 +105,9 @@
     <ClInclude Include="include\glefdefines.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="parser\mathexpr.h">
+      <Filter>parser\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser\lalr.cpp">
@@ -157,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="grammar\language.cpp">
       <Filter>grammar\src</Filter>
+    </ClCompile>
+    <ClCompile Include="parser\mathexpr.cpp">
+      <Filter>parser\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

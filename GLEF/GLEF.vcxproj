@@ -35,6 +35,7 @@
     <ClInclude Include="include\glef.h" />
     <ClInclude Include="include\glefdefines.h" />
     <ClInclude Include="include\syntaxtree.h" />
+    <ClInclude Include="parser\mathexpr.h" />
     <ClInclude Include="parser\lalr.h" />
     <ClInclude Include="parser\lr0.h" />
     <ClInclude Include="parser\lr1.h" />
@@ -53,6 +54,7 @@
     <ClCompile Include="grammar\grammar.cpp" />
     <ClCompile Include="grammar\grammarsymbol.cpp" />
     <ClCompile Include="grammar\language.cpp" />
+    <ClCompile Include="parser\mathexpr.cpp" />
     <ClCompile Include="parser\lalr.cpp" />
     <ClCompile Include="parser\lr0.cpp" />
     <ClCompile Include="parser\lr1.cpp" />

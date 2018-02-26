@@ -59,11 +59,11 @@ void TextScanner::UngetChar() {
 	--current_;
 }
 
-ScannerTokenType TextScanner::GetToken(std::string& token, int* pos) {
-	return GetNextToken(token, pos);
+ScannerTokenType TextScanner::GetToken(std::string& token, bool unary, int* pos) {
+	return GetNextToken(token, unary, pos);
 }
 
-ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
+ScannerTokenType TextScanner::GetNextToken(std::string& token, bool unary, int* pos) {
 	int ci = 0, ch = 0, state = StartState;
 	bool savech = true, unget = false;
 
@@ -87,7 +87,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			if (ch == ' ' || ch == '\t' || ch == 0) {
 				savech = false;
 			}
-			else if (ch == '-' || ch == '+') {
+			else if (unary && (ch == '-' || ch == '+')) {
 				// +/-, 只作为数字的正负号使用.
 				state = DecimalState;
 			}
@@ -294,7 +294,7 @@ bool SourceScanner::Open(const std::string& path) {
 
 bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 	std::string line, buffer;
-	ScannerTokenType tokenType = textScanner_.GetToken(buffer, &pos->linepos);
+	ScannerTokenType tokenType = textScanner_.GetToken(buffer, true, &pos->linepos);
 	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile 
 		|| tokenType == ScannerTokenComment; ) {
 		if (tokenType == ScannerTokenCode) {
@@ -315,7 +315,7 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 		}
 
 		textScanner_.SetText(line);
-		tokenType = textScanner_.GetToken(buffer, &pos->linepos);
+		tokenType = textScanner_.GetToken(buffer, true, &pos->linepos);
 	}
 
 	pos->lineno = lineno_;

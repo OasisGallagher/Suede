@@ -9,13 +9,14 @@ public:
 	~TextScanner();
 
 	void SetText(const std::string& value);
-	ScannerTokenType GetToken(std::string& token, int* pos = nullptr);
+	// TODO: +/- positive/negtive or plus/minus.
+	ScannerTokenType GetToken(std::string& token, bool unary = true, int* pos = nullptr);
 	void Discard() { current_ = nullptr; }
 
 private:
 	bool GetChar(int* ch);
 	void UngetChar();
-	ScannerTokenType GetNextToken(std::string& token, int* pos = nullptr);
+	ScannerTokenType GetNextToken(std::string& token, bool unary, int* pos = nullptr);
 	ScannerTokenType ParseIdentifierType(const std::string& buffer);
 
 private:
