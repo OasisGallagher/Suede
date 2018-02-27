@@ -26,6 +26,7 @@ public:
 	 */
 	virtual bool IsPassEnabled(uint ssi, uint pass) const = 0;
 	virtual int GetPassIndex(uint ssi, const std::string& name) const = 0;
+	virtual uint GetNativePointer(uint ssi, uint pass) const = 0;
 
 	virtual uint GetPassCount(uint ssi) const = 0;
 	virtual void GetProperties(std::vector<const Property*>& properties) = 0;

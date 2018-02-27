@@ -21,6 +21,7 @@ public:
 
 	void Bind();
 	void Unbind();
+	uint GetNativePointer() const { return program_; }
 
 private:
 	struct Uniform {
@@ -71,7 +72,6 @@ private:
 	int maxTextureUnits_;
 	int textureUnitCount_;
 	UniformContainer uniforms_;
-
 	RenderState* states_[RenderStateCount];
 };
 
@@ -107,7 +107,10 @@ public:
 	int GetPassIndex(const std::string& name) const;
 	
 	Pass* GetPass(uint pass);
+	const Pass* GetPass(uint pass) const;
+
 	uint GetPassCount() const { return passCount_; }
+	uint GetNativePointer(uint pass) const;
 
 private:
 	void InitializeTags(const std::vector<Semantics::Tag>& tags);
@@ -142,6 +145,7 @@ public:
 
 	virtual bool IsPassEnabled(uint ssi, uint pass) const;
 	virtual int GetPassIndex(uint ssi, const std::string& name) const;
+	virtual uint GetNativePointer(uint ssi, uint pass) const;
 
 	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
 	virtual void GetProperties(std::vector<const Property*>& properties);

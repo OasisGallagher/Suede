@@ -30,9 +30,6 @@ protected:
 	virtual void UpdateMaterial(Entity entity);
 	virtual void DrawCall(SubMesh subMesh, Material material, int pass);
 
-protected:
-	GLenum TopologyToGLEnum(MeshTopology topology);
-
 private:
 	virtual void RenderMesh(Mesh mesh);
 

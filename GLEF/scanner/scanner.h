@@ -9,22 +9,28 @@ public:
 	~TextScanner();
 
 	void SetText(const std::string& value);
-	// TODO: +/- positive/negtive or plus/minus.
-	ScannerTokenType GetToken(std::string& token, bool unary = true, int* pos = nullptr);
+
+	/**
+	 * @brief Only leading '-' recognized as negative. Otherwise, all '-' are recognized as negative.
+	 */
+	void SetLeadingNegative(bool value) { leadingNegative_ = value; }
+
+	ScannerTokenType GetToken(std::string& token, int* pos = nullptr);
 	void Discard() { current_ = nullptr; }
 
 private:
 	bool GetChar(int* ch);
 	void UngetChar();
-	ScannerTokenType GetNextToken(std::string& token, bool unary, int* pos = nullptr);
+	ScannerTokenType GetNextToken(std::string& token, int* pos = nullptr);
 	ScannerTokenType ParseIdentifierType(const std::string& buffer);
 
 private:
 	const char* start_;
 	const char* dest_;
 	const char* current_;
-
+	bool leadingNegative_;
 	std::string lineBuffer_;
+	ScannerTokenType lastTokenType_;
 };
 
 struct TokenPosition {

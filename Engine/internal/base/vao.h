@@ -31,7 +31,8 @@ public:
 	void UnmapBuffer(int index);
 	size_t GetBufferSize(int index);
 
-	uint GetBufferNativePointer(uint index);
+	uint GetNativePointer() const { return vao_; }
+	uint GetBufferNativePointer(uint index) const;
 	void UpdateBuffer(uint index, int offset, size_t size, const void* ptr);
 
 	void Bind();

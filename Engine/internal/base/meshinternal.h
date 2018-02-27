@@ -57,6 +57,7 @@ public:
 	virtual void RemoveSubMesh(uint index);
 
 	virtual MeshTopology GetTopology() { return topology_; }
+	virtual uint GetNativePointer() const { return vao_->GetNativePointer(); }
 
 	virtual uint* MapIndexes();
 	virtual void UnmapIndexes();

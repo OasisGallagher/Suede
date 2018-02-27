@@ -87,7 +87,7 @@ size_t VAO::GetBufferSize(int index) {
 	return attributes_[index].size;
 }
 
-uint VAO::GetBufferNativePointer(uint index) {
+uint VAO::GetBufferNativePointer(uint index) const {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return 0;

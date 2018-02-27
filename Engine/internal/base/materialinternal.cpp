@@ -280,6 +280,15 @@ uint MaterialInternal::GetPassCount() const {
 	return shader_->GetPassCount(SUB_SHADER_INDEX);
 }
 
+uint MaterialInternal::GetPassNativePointer(uint pass) const {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return 0;
+	}
+
+	return shader_->GetNativePointer(SUB_SHADER_INDEX, pass);
+}
+
 void MaterialInternal::Bind(uint pass) {
 	if (!IsPassEnabled(pass)) {
 		Debug::LogError("pass %d is not enabled.", pass);

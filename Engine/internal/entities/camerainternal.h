@@ -94,7 +94,7 @@ private:
 	void InitializeDeferredRender();
 	void RenderDeferredGeometryPass(const std::vector<Entity>& entities);
 
-	void UpdateSkybox();
+	void RenderSkybox();
 	void SetUpFramebuffer1();
 	void CreateFramebuffer2();
 

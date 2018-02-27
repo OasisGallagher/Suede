@@ -26,6 +26,7 @@ public:
 	virtual void SetPass(int value) { pass_ = value; }
 	virtual int GetPass() const { return pass_; }
 	virtual uint GetPassCount() const;
+	virtual uint GetPassNativePointer(uint pass) const;
 
 	virtual void Bind(uint pass);
 	virtual void Unbind();

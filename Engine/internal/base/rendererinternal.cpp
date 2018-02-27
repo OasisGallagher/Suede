@@ -25,16 +25,6 @@ void RendererInternal::RenderEntity(Entity entity) {
 	}
 }
 
-GLenum RendererInternal::TopologyToGLEnum(MeshTopology topology) {
-	if (topology != MeshTopologyTriangles && topology != MeshTopologyTriangleStripes) {
-		Debug::LogError("invalid mesh topology");
-		return 0;
-	}
-
-	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
-	return GL_TRIANGLE_STRIP;
-}
-
 void RendererInternal::UpdateMaterial(Entity entity) {
 	int materialCount = GetMaterialCount();
 	for (int i = 0; i < materialCount; ++i) {

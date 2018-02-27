@@ -20,7 +20,7 @@ CameraInternal::CameraInternal()
 	CreateFramebuffers();
 
 	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth", RenderQueueBackground - 300);
-	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal", RenderQueueDecal);
+	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal", RenderQueueOverlay - 500);
 	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth", RenderQueueBackground - 200);
 
 	GL::ClearDepth(1);
@@ -54,10 +54,6 @@ void CameraInternal::Update() {
 		fb0->SetViewport(w, h);
 		OnContextSizeChanged(w, h);
 	}
-
-	if (clearType_ == ClearTypeSkybox) {
-		UpdateSkybox();
-	}
 }
 
 void CameraInternal::Render() {
@@ -85,7 +81,7 @@ void CameraInternal::Render() {
 	active->BindWrite();
 
 	if (clearType_ == ClearTypeSkybox) {
-		UpdateSkybox();
+		RenderSkybox();
 	}
 
 	if (renderPath_ == RenderPathForward) {
@@ -195,7 +191,10 @@ void CameraInternal::AddToPipeline(Mesh mesh, Material material, Property** prop
 		renderable->instance = 0;
 		renderable->subMesh = mesh->GetSubMesh(i);
 		renderable->material = material;
-		memcpy(renderable->properties, properties, count * sizeof(Property*));
+
+		if (properties != nullptr) {
+			memcpy(renderable->properties, properties, count * sizeof(Property*));
+		}
 	}
 }
 
@@ -274,15 +273,16 @@ void CameraInternal::CreateAuxMaterial(Material& material, const std::string& sh
 	Shader shader = Resources::FindShader(shaderPath);
 	material = NewMaterial();
 	material->SetShader(shader);
+	material->SetRenderQueue(renderQueue);
 }
 
-void CameraInternal::UpdateSkybox() {
+void CameraInternal::RenderSkybox() {
 	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
 		matrix[3] = glm::vec4(0, 0, 0, 1);
 		skybox->SetMatrix4(Variables::cameraToClipSpaceMatrix, GetProjectionMatrix() * matrix);
-		Resources::GetAuxMeshRenderer()->RenderMesh(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
+		AddToPipeline(Resources::GetPrimitive(PrimitiveTypeCube), skybox, nullptr, 0);
 	}
 }
 
@@ -533,18 +533,9 @@ void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 	int p = 0;
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity key = entities[i];
-		if (!IsRenderable(key)) {
-			continue;
+		if (IsRenderable(key)) {
+			entities[p++] = key;
 		}
-
-		int j = p - 1;
-
-		for (; j >= 0 /*&& entities[j]->GetRenderer()->GetRenderQueue() > key->GetRenderer()->GetRenderQueue()*/; --j) {
-			entities[j + 1] = entities[j];
-		}
-
-		entities[j + 1] = key;
-		++p;
 	}
 
 	entities.erase(entities.begin() + p, entities.end());

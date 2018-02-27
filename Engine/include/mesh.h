@@ -76,6 +76,7 @@ public:
 	virtual void RemoveSubMesh(uint index) = 0;
 
 	virtual MeshTopology GetTopology() = 0;
+	virtual uint GetNativePointer() const = 0;
 
 	virtual uint* MapIndexes() = 0;
 	virtual void UnmapIndexes() = 0;

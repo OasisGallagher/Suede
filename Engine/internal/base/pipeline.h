@@ -1,11 +1,12 @@
 #pragma once
 #include "mesh.h"
 #include "material.h"
+#include "wrappers/gl.h"
 
 struct Renderable {
 	enum { MaxProperties = 3 };
 	Renderable() { properties[0] = nullptr; }
-	
+
 	uint pass;
 	uint instance;
 	SubMesh subMesh;
@@ -21,4 +22,6 @@ public:
 
 private:
 	static void ResetRenderable(Renderable* renderable);
+	static GLenum TopologyToGLEnum(MeshTopology topology);
 };
+

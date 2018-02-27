@@ -1,10 +1,20 @@
 #include "glef.h"
 #include "variables.h"
+#include "tools/math2.h"
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "os/filesystem.h"
 #include "shaderinternal.h"
 #include "internal/base/renderdefines.h"
+
+std::pair<std::string, float> _variables[] = {
+	std::make_pair("Background", (float)RenderQueueBackground),
+	std::make_pair("Geometry", (float)RenderQueueGeometry),
+	std::make_pair("Transparent", (float)RenderQueueTransparent),
+	std::make_pair("Overlay", (float)RenderQueueOverlay),
+};
+
+static std::map<std::string, float> renderQueueVariables(_variables, _variables + CountOf(_variables));
 
 Pass::Pass() : program_(0), oldProgram_(0) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
@@ -551,6 +561,21 @@ Pass* SubShader::GetPass(uint pass) {
 	return passes_ + pass;
 }
 
+const Pass* SubShader::GetPass(uint pass) const {
+	if (pass > passCount_) {
+		Debug::LogError("index out of range.");
+		return nullptr;
+	}
+
+	return passes_ + pass;
+}
+
+uint SubShader::GetNativePointer(uint pass) const {
+	const Pass* p = GetPass(pass);
+	if (p == nullptr) { return 0; }
+	return p->GetNativePointer();
+}
+
 void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
 	for (uint i = 0; i < tags.size(); ++i) {
 		InitializeTag(tags[i], i);
@@ -568,32 +593,7 @@ void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
 
 uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 	if (key == TagKeyRenderQueue) {
-		// TODO: parse expression.
-		std::vector<std::string> arguments;
-		String::Split(arguments, expression, '+');
-		if (arguments.empty() || arguments.size() > 2) {
-			return RenderQueueGeometry;
-		}
-
-		int queue = RenderQueueGeometry;
-
-		arguments[0] = String::Trim(arguments[0]);
-
-		if (arguments[0] == "Background") {
-			queue = RenderQueueBackground;
-		}
-		else if (arguments[0] == "Geometry") {
-			queue = RenderQueueGeometry;
-		}
-		else if (arguments[0] == "Transparent") {
-			queue = RenderQueueTransparent;
-		}
-
-		if (arguments.size() == 2) {
-			queue += String::ToInteger(arguments[1]);
-		}
-
-		return queue;
+		return (uint)GLEF::Evaluate(expression.c_str(), &renderQueueVariables);
 	}
 
 	Debug::LogError("invalid tag key %d.", key);
@@ -699,6 +699,15 @@ bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
 	}
 
 	return subShaders_[ssi].IsPassEnabled(pass);
+}
+
+uint ShaderInternal::GetNativePointer(uint ssi, uint pass) const {
+	if (ssi > subShaderCount_) {
+		Debug::LogError("index out of range.");
+		return false;
+	}
+
+	return subShaders_[ssi].GetNativePointer(pass);
 }
 
 int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {

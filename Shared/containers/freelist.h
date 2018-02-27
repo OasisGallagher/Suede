@@ -20,6 +20,9 @@ class free_list {
 public:
 	class free_list_iterator {
 	public:
+		typedef T value_type;
+
+	public:
 		free_list_iterator(Block* block) :ptr_(block) {}
 
 		bool operator == (const free_list_iterator& other) const {

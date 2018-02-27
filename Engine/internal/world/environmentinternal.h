@@ -3,7 +3,7 @@
 
 class EnvironmentInternal : public IEnvironment {
 public:
-	virtual void SetSkybox(Material value) { skybox_ = value; }
+	virtual void SetSkybox(Material value);
 	virtual Material GetSkybox() { return skybox_; }
 	virtual void SetAmbientColor(const glm::vec3 & value) { ambientColor_ = value; }
 	virtual glm::vec3 GetAmbientColor() { return ambientColor_; }

@@ -4,7 +4,7 @@
 #include "debug/debug.h"
 #include "tools/string.h"
 
-#define NaN nanf("")
+static float NaN = nanf("");
 #define StrOperator(op)		"#" + std::to_string(op)
 #define Precedence(type)	int((type) == ScannerTokenMultiply || (type) == ScannerTokenDivide)
 
@@ -20,15 +20,28 @@ float MathExpr::Eval(const char* expression, const Variables* variables) {
 bool MathExpr::ShuntingYard(std::vector<std::string>& tokens, const char* expression) {
 	TextScanner scanner;
 	scanner.SetText(expression);
+	scanner.SetLeadingNegative(true);
 
 	std::string token;
+	bool positive = true;
 	std::vector<ScannerTokenType> operators;
 
 	for (ScannerTokenType type; (type = scanner.GetToken(token, false)) != ScannerTokenEndOfFile;) {
 		switch (type) {
 			case ScannerTokenSingle:
 			case ScannerTokenInteger:
+				if (token == "-") {
+					positive = !positive;
+				}
+				else {
+					if (!positive) { token = "-" + token; }
+					positive = true;
+					tokens.push_back(token);
+				}
+				break;
 			case ScannerTokenIdentifier:
+				if (!positive) { token = "-" + token; }
+				positive = true;
 				tokens.push_back(token);
 				break;
 
@@ -76,24 +89,35 @@ bool MathExpr::ShuntingYard(std::vector<std::string>& tokens, const char* expres
 }
 
 float MathExpr::Calculate(std::vector<std::string>& tokens, const Variables* variables) {
-	float rhs = NaN;
+	std::vector<float> stack;
+
 	for (int i = 0; i < tokens.size(); ++i) {
+		float f;
 		if (tokens[i][0] == '#') {
 			ScannerTokenType op = (ScannerTokenType)String::ToInteger(tokens[i].c_str() + 1);
-			float lhs;
-			if (isnan(rhs) && (!ToFloat(lhs, tokens[i - 2], variables) || !ToFloat(rhs, tokens[i - 1], variables))) {
-				return false;
-			}
-
-			if (!isnan(rhs) && !ToFloat(lhs, tokens[i - 1], variables)) {
-				return false;
-			}
-
-			rhs = Calculate(lhs, rhs, op);
+			f = Calculate(*++stack.rbegin(), stack.back(), op);
+			stack.pop_back();
+			stack.pop_back();
 		}
+		else {
+			const char* ptr = tokens[i].c_str();
+			if (tokens[i][0] == '-') { ++ptr; }
+			if (!ToFloat(f, ptr, variables)) {
+				return false;
+			}
+
+			if (tokens[i][0] == '-') { f = -f; }
+		}
+
+		stack.push_back(f);
 	}
 
-	return rhs;
+	if (stack.size() != 1) {
+		Debug::LogError("failed to calculate expression.");
+		return NaN;
+	}
+
+	return stack.back();
 }
 
 float MathExpr::Calculate(float lhs, float rhs, ScannerTokenType type) {
