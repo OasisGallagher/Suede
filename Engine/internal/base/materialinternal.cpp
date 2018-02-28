@@ -19,7 +19,12 @@ MaterialInternal::~MaterialInternal() {
 Object MaterialInternal::Clone() {
 	Material clone = NewMaterial();
 	MaterialInternal* clonePtr = dynamic_cast<MaterialInternal*>(clone.get());
-	*clonePtr = *this;
+	clonePtr->pass_ = -1;
+	clonePtr->shader_ = shader_;
+	clonePtr->name_ = name_;
+
+	clonePtr->InitializeProperties();
+	clonePtr->InitializeEnabledState();
 
 	return clone;
 }
@@ -435,5 +440,37 @@ void MaterialInternal::InitializeEnabledState() {
 		if (!shader_->IsPassEnabled(SUB_SHADER_INDEX, i)) {
 			passEnabled_ &= ~(1 << i);
 		}
+	}
+}
+
+void MaterialInternal::SetVariant(const std::string& name, const Variant& value) {
+	switch (value.GetType()) {
+		case VariantTypeInt:
+			SetInt(name, value.GetInt());
+			break;
+		case VariantTypeFloat:
+			SetFloat(name, value.GetFloat());
+			break;
+		case VariantTypeTexture:
+			SetTexture(name, value.GetTexture());
+			break;
+		case VariantTypeMatrix4:
+			SetMatrix4(name, value.GetMatrix4());
+			break;
+		case VariantTypeVector3:
+			SetVector3(name, value.GetVector3());
+			break;
+		case VariantTypeColor3:
+			SetColor3(name, value.GetColor3());
+			break;
+		case VariantTypeColor4:
+			SetColor4(name, value.GetColor4());
+			break;
+		case VariantTypeVector4:
+			SetVector4(name, value.GetVector4());
+			break;
+		default:
+			Debug::LogError("invalid variant type %d.", value.GetType());
+			break;
 	}
 }

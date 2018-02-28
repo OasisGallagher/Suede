@@ -5,7 +5,7 @@
 #include "object.h"
 #include "material.h"
 
-struct TriangleBase {
+struct TriangleBias {
 	uint indexCount;
 	uint baseIndex;
 	uint baseVertex;
@@ -18,8 +18,8 @@ public:
 	virtual Mesh GetMesh() = 0;
 	virtual void SetMesh(Mesh value) = 0;
 
-	virtual const TriangleBase& GetTriangles() const = 0;
-	virtual void SetTriangles(const TriangleBase& value) = 0;
+	virtual const TriangleBias& GetTriangles() const = 0;
+	virtual void SetTriangles(const TriangleBias& value) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh);

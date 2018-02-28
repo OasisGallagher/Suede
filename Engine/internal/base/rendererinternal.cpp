@@ -3,6 +3,7 @@
 #include "time2.h"
 #include "pipeline.h"
 #include "variables.h"
+#include "framebuffer.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "rendererinternal.h"
@@ -15,14 +16,7 @@ RendererInternal::~RendererInternal() {
 
 void RendererInternal::RenderEntity(Entity entity) {
 	UpdateMaterial(entity);
-
-	Mesh mesh = entity->GetMesh();
-	if (GetMaterialCount() == 1) {
-		RenderMesh(mesh, GetMaterial(0));
-	}
-	else {
-		RenderMesh(entity->GetMesh());
-	}
+	RenderMesh(entity->GetMesh());
 }
 
 void RendererInternal::UpdateMaterial(Entity entity) {
@@ -62,23 +56,23 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	}
 }
 
-void RendererInternal::RenderMesh(Mesh mesh, Material material) {
-	int pass = material->GetPass();
-	if (pass >= 0 && material->IsPassEnabled(pass)) {
-		RenderMesh(mesh, material, pass);
-	}
-	else {
-		for (int p = 0; p < material->GetPassCount(); ++p) {
-			if (material->IsPassEnabled(p)) {
-				RenderMesh(mesh, material, p);
-			}
-		}
-	}
-}
+// void RendererInternal::RenderMesh(Mesh mesh, Material material) {
+// 	int pass = material->GetPass();
+// 	if (pass >= 0 && material->IsPassEnabled(pass)) {
+// 		RenderMesh(mesh, material, pass);
+// 	}
+// 	else {
+// 		for (int p = 0; p < material->GetPassCount(); ++p) {
+// 			if (material->IsPassEnabled(p)) {
+// 				RenderMesh(mesh, material, p);
+// 			}
+// 		}
+// 	}
+// }
 
 void RendererInternal::RenderMesh(Mesh mesh, Material material, int pass) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		DrawCall(mesh->GetSubMesh(i), material, pass);
+		AddToPipeline(mesh->GetSubMesh(i), material, pass);
 	}
 }
 
@@ -96,16 +90,17 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 	materials_.erase(materials_.begin() + index);
 }
 
-void RendererInternal::DrawCall(SubMesh subMesh, Material material, int pass) {
+void RendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pass) {
 	Renderable* item = Pipeline::CreateRenderable();
 	item->pass = pass;
 	item->instance = 0;
 	item->material = material;
 	item->subMesh = subMesh;
+	item->framebuffer = FramebufferBase::GetWriteTarget();
 }
 
 void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
-	DrawCall(mesh->GetSubMesh(subMeshIndex), material, pass);
+	AddToPipeline(mesh->GetSubMesh(subMeshIndex), material, pass);
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
@@ -136,7 +131,7 @@ void ParticleRendererInternal::RenderEntity(Entity entity) {
 	RendererInternal::RenderEntity(entity);
 }
 
-void ParticleRendererInternal::DrawCall(SubMesh subMesh, Material material, int pass) {
+void ParticleRendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pass) {
 	if (particleCount_ == 0) { return; }
 	Renderable* item = Pipeline::CreateRenderable();
 	item->pass = pass;

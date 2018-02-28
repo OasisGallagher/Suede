@@ -86,27 +86,27 @@ private:
 	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
-	void AddToPipeline(Mesh mesh, Material material, Property** properties, uint count);
+	void AddToPipeline(Mesh mesh, Material material, FramebufferBase* fb);
 
-	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(const std::vector<Entity>& entities, FramebufferBase* fb, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(const std::vector<Entity>& entities, FramebufferBase* fb, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
 	void RenderDeferredGeometryPass(const std::vector<Entity>& entities);
 
-	void RenderSkybox();
 	void SetUpFramebuffer1();
 	void CreateFramebuffer2();
+	void RenderSkybox(FramebufferBase* fb);
 
 	void OnContextSizeChanged(int w, int h);
 	FramebufferBase* GetActiveFramebuffer();
 
-	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
+	void ShadowDepthPass(const std::vector<Entity>& entities, FramebufferBase* fb, Light light);
 
-	void ForwardDepthPass(const std::vector<Entity>& entities);
-	int ForwardBackgroundPass(const std::vector<Entity>& entities, int from);
-	int ForwardOpaquePass(const std::vector<Entity>& entities, int from);
-	int ForwardTransparentPass(const std::vector<Entity>& entities, int from);
+	void ForwardDepthPass(const std::vector<Entity>& entities, FramebufferBase* fb);
+	int ForwardBackgroundPass(const std::vector<Entity>& entities, FramebufferBase* fb, int from);
+	int ForwardOpaquePass(const std::vector<Entity>& entities, FramebufferBase* fb, int from);
+	int ForwardTransparentPass(const std::vector<Entity>& entities, FramebufferBase* fb, int from);
 
 	bool IsRenderable(Entity entity);
 
@@ -118,8 +118,8 @@ private:
 
 	void SetForwardBaseLightParameter(const std::vector<Entity>& entities, Light light);
 
-	void RenderForwardBase(const std::vector<Entity>& entities, Light light);
-	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
+	void RenderForwardBase(const std::vector<Entity>& entities, FramebufferBase* fb, Light light);
+	void RenderForwardAdd(const std::vector<Entity>& entities, FramebufferBase* fb, const std::vector<Light>& lights);
 
 	void RenderDecals();
 	void OnPostRender();

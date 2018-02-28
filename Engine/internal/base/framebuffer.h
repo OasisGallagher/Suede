@@ -54,6 +54,8 @@ public:
 
 	uint GetNativePointer() { return fbo_; }
 
+	static FramebufferBase* GetWriteTarget() { return writeTarget_; }
+
 protected:
 	FramebufferBase();
 	virtual ~FramebufferBase() {}
@@ -78,6 +80,8 @@ protected:
 private:
 	GLint oldFramebuffer_;
 	GLenum bindTarget_;
+
+	static FramebufferBase* writeTarget_;
 };
 
 class Framebuffer0 : public FramebufferBase {

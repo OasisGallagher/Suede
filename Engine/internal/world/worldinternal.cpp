@@ -252,14 +252,14 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
-		const TriangleBase& base = subMesh->GetTriangles();
+		const TriangleBias& bias = subMesh->GetTriangles();
 
 		// TODO: triangle strip.
-		for (int j = 0; j < base.indexCount; j += 3) {
+		for (int j = 0; j < bias.indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
-			uint index0 = indexes[base.baseIndex + j] + base.baseVertex;
-			uint index1 = indexes[base.baseIndex + j + 1] + base.baseVertex;
-			uint index2 = indexes[base.baseIndex + j + 2] + base.baseVertex;
+			uint index0 = indexes[bias.baseIndex + j] + bias.baseVertex;
+			uint index1 = indexes[bias.baseIndex + j + 1] + bias.baseVertex;
+			uint index2 = indexes[bias.baseIndex + j + 2] + bias.baseVertex;
 			
 			glm::vec3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
 

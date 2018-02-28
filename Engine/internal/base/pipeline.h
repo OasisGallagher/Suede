@@ -3,21 +3,19 @@
 #include "material.h"
 #include "wrappers/gl.h"
 
-struct Renderable {
-	enum { MaxProperties = 3 };
-	Renderable() { properties[0] = nullptr; }
+class FramebufferBase;
 
+struct Renderable {
 	uint pass;
 	uint instance;
 	SubMesh subMesh;
 	Material material;
-	Property* properties[MaxProperties];
+	FramebufferBase* framebuffer;
 };
 
 class Pipeline {
 public:
 	static void Update();
-	static Property* CreateProperty();
 	static Renderable* CreateRenderable();
 
 private:

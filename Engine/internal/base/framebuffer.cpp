@@ -3,6 +3,8 @@
 #include "framebuffer.h"
 #include "memory/memory.h"
 
+FramebufferBase* FramebufferBase::writeTarget_;
+
 FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
 }
 
@@ -10,11 +12,13 @@ void FramebufferBase::BindWrite() {
 	BindFramebuffer(FramebufferTargetWrite);
 	ClearCurrent(FramebufferClearBitmaskColorDepthStencil);
 	BindViewport();
+	writeTarget_ = this;
 }
 
 void FramebufferBase::Unbind() {
 	UnbindFramebuffer();
 	UnbindViewport();
+	writeTarget_ = nullptr;
 }
 
 void FramebufferBase::ReadBuffer(std::vector<uchar>& data) {

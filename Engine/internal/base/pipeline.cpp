@@ -1,25 +1,26 @@
 #include <algorithm>
 #include "pipeline.h"
-#include "containers/freelist.h"
+#include "tools/math2.h"
+#include "framebuffer.h"
 
-static free_list<Property> properties_(20480);
-static free_list<Renderable> renderables_(20480);
+static uint nrenderables_;
+static std::vector<Renderable> renderables_(1024);
 
 struct RenderableComparer {
-	bool operator () (Renderable* lhs, Renderable* rhs) const {
-		Material& lm = lhs->material, &rm = rhs->material;
+	bool operator () (Renderable& lhs, Renderable& rhs) const {
+		Material& lm = lhs.material, &rm = rhs.material;
 		if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
 			return lm->GetRenderQueue() < rm->GetRenderQueue();
 		}
 
-		uint lp = lm->GetPassNativePointer(lhs->pass);
-		uint rp = lm->GetPassNativePointer(rhs->pass);
+		uint lp = lm->GetPassNativePointer(lhs.pass);
+		uint rp = lm->GetPassNativePointer(rhs.pass);
 		if (lp != rp) {
 			return lp < rp;
 		}
 
-		uint lme = lhs->subMesh->GetMesh()->GetNativePointer();
-		uint rme = rhs->subMesh->GetMesh()->GetNativePointer();
+		uint lme = lhs.subMesh->GetMesh()->GetNativePointer();
+		uint rme = rhs.subMesh->GetMesh()->GetNativePointer();
 		if (lme != rme) {
 			return lme < rme;
 		}
@@ -29,40 +30,75 @@ struct RenderableComparer {
 };
 
 static RenderableComparer comparer;
+#include <ctime>
 
 void Pipeline::Update() {
-	std::vector<Renderable*> container;
-	container.reserve(renderables_.size());
+	Debug::StartSample();
+	clock_t delta = clock();
+	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparer);
+	delta = clock() - delta;
+	Debug::Output("[sort]\t%.2f\n", float(delta) / CLOCKS_PER_SEC);
 
-	for (free_list<Renderable>::iterator ite = renderables_.begin(); ite != renderables_.end(); ++ite) {
-		container.push_back(*ite);
-	}
+	Material oldMaterial;
+	uint oldMeshPointer = 0;
+	FramebufferBase* oldFbo = nullptr;
 
-	std::sort(container.begin(), container.end(), comparer);
+	clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0;
 
-	for (std::vector<Renderable*>::iterator ite = container.begin(); ite != container.end(); ++ite) {
-		Renderable* p = *ite;
-		p->material->Bind(p->pass);
+	for (uint i = 0; i < nrenderables_; ++i) {
+		Renderable& p = renderables_[i];
 
-		Mesh mesh = p->subMesh->GetMesh();
-		mesh->Bind();
+		if (oldFbo != p.framebuffer) {
+			delta = clock();
+			if (oldFbo != nullptr) {
+				oldFbo->Unbind();
+			}
 
-		const TriangleBase& base = p->subMesh->GetTriangles();
+			oldFbo = p.framebuffer;
+
+			p.framebuffer->BindWrite();
+			switchFramebuffer += (clock() - delta);
+		}
+
+		if (p.material != oldMaterial) {
+			delta = clock();
+			p.material->Bind(p.pass);
+			oldMaterial = p.material;
+			switchMaterial += (clock() - delta);
+		}
+
+		Mesh mesh = p.subMesh->GetMesh();
+		if (mesh->GetNativePointer() != oldMeshPointer) {
+			delta = clock();
+			mesh->Bind();
+			oldMeshPointer = mesh->GetNativePointer();
+			switchMesh += (clock() - delta);
+		}
+
+		const TriangleBias& bias = p.subMesh->GetTriangles();
 
 		GLenum mode = TopologyToGLEnum(mesh->GetTopology());
-		if (p->instance == 0) {
-			GL::DrawElementsBaseVertex(mode, base.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* base.baseIndex), base.baseVertex);
+		if (p.instance == 0) {
+			GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 		}
 		else {
-			GL::DrawElementsInstancedBaseVertex(mode, base.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* base.baseIndex), p->instance, base.baseVertex);
+			GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), p.instance, bias.baseVertex);
 		}
 
-		mesh->Unbind();
-		p->material->Unbind();
+		//mesh->Unbind();
+		//p.material->Unbind();
+	}
+	Debug::Output("[fb]\t%.2f\n", float(switchFramebuffer) / CLOCKS_PER_SEC);
+	Debug::Output("[mat]\t%.2f\n", float(switchMaterial) / CLOCKS_PER_SEC);
+	Debug::Output("[mesh]\t%.2f\n", float(switchMesh) / CLOCKS_PER_SEC);
+
+	if (oldFbo != nullptr) {
+		oldFbo->Unbind();
 	}
 
-	properties_.clear();
-	renderables_.clear();
+	nrenderables_ = 0;
+
+	Debug::Output("[pipeline]\t%.2f\n", Debug::EndSample());
 }
 
 GLenum Pipeline::TopologyToGLEnum(MeshTopology topology) {
@@ -75,19 +111,16 @@ GLenum Pipeline::TopologyToGLEnum(MeshTopology topology) {
 	return GL_TRIANGLE_STRIP;
 }
 
-Property* Pipeline::CreateProperty() {
-	return properties_.spawn();
-}
-
 Renderable* Pipeline::CreateRenderable() {
-	Renderable* answer = renderables_.spawn();
-	if (answer != nullptr) {
-		ResetRenderable(answer);
+	if (nrenderables_ == renderables_.size()) {
+		renderables_.resize(2 * nrenderables_);
 	}
 
+	Renderable* answer = &renderables_[nrenderables_++];
+	ResetRenderable(answer);
 	return answer;
 }
 
 void Pipeline::ResetRenderable(Renderable* answer) {
-	memset(answer->properties, 0, sizeof(answer->properties));
+	answer->framebuffer = nullptr;
 }

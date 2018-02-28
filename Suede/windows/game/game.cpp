@@ -23,7 +23,7 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define SKYBOX
+//#define SKYBOX
 #define ROOM
 //#define BEAR
 //#define BEAR_X_RAY

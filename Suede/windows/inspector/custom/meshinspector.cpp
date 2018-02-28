@@ -42,9 +42,9 @@ void MeshInspector::drawMesh() {
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
-		const TriangleBase& base = subMesh->GetTriangles();
+		const TriangleBias& bias = subMesh->GetTriangles();
 
-		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? base.indexCount / 3 : Math::Max(0u, base.indexCount - 2);
+		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? bias.indexCount / 3 : Math::Max(0u, bias.indexCount - 2);
 		subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
 	}
 

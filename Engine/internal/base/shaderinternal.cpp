@@ -16,6 +16,9 @@ std::pair<std::string, float> _variables[] = {
 
 static std::map<std::string, float> renderQueueVariables(_variables, _variables + CountOf(_variables));
 
+#define BIND(old, new)	if (old == new) { old = -1; } else
+#define UNBIND(old)		if (old == -1) { } else
+
 Pass::Pass() : program_(0), oldProgram_(0) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
 
@@ -80,12 +83,16 @@ bool Pass::SetProperty(const std::string& name, const void* data) {
 void Pass::Bind() {
 	BindRenderStates();
 	GL::GetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&oldProgram_);
-	GL::UseProgram(program_);
+	BIND(oldProgram_, program_) {
+		GL::UseProgram(program_);
+	}
 }
 
 void Pass::Unbind() {
 	UnbindRenderStates();
-	GL::UseProgram(oldProgram_);
+	UNBIND(oldProgram_) {
+		GL::UseProgram(oldProgram_);
+	}
 }
 
 void Pass::InitializeRenderStates(const std::vector<Semantics::RenderState>& states) {

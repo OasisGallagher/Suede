@@ -14,7 +14,7 @@ public:
 
 public:
 	virtual void RenderEntity(Entity entity);
-	virtual void RenderMesh(Mesh mesh, Material material);
+	//virtual void RenderMesh(Mesh mesh, Material material);
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
 	virtual Material GetMaterial(uint index) { return materials_[index]; }
@@ -28,7 +28,7 @@ public:
 
 protected:
 	virtual void UpdateMaterial(Entity entity);
-	virtual void DrawCall(SubMesh subMesh, Material material, int pass);
+	virtual void AddToPipeline(SubMesh subMesh, Material material, int pass);
 
 private:
 	virtual void RenderMesh(Mesh mesh);
@@ -73,7 +73,7 @@ public:
 	virtual void AddMaterial(Material material);
 
 protected:
-	virtual void DrawCall(SubMesh subMesh, Material material, int pass);
+	virtual void AddToPipeline(SubMesh subMesh, Material material, int pass);
 
 private:
 	uint particleCount_;

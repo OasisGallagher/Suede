@@ -70,7 +70,7 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 
 	Debug::StartSample();
 
-	TriangleBase* subMeshBases = nullptr;
+	TriangleBias* biases = nullptr;
 	MeshAttribute attribute{ MeshTopologyTriangles };
 
 	Material* materials = nullptr;
@@ -83,8 +83,8 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 	}
 
 	if (scene_->mNumMeshes > 0) {
-		subMeshBases = MEMORY_CREATE_ARRAY(TriangleBase, scene_->mNumMeshes);
-		if (!ReadAttribute(attribute, subMeshBases)) {
+		biases = MEMORY_CREATE_ARRAY(TriangleBias, scene_->mNumMeshes);
+		if (!ReadAttribute(attribute, biases)) {
 			Debug::LogError("failed to load meshes for %s.", path.c_str());
 		}
 	}
@@ -96,13 +96,13 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 
 	Debug::StartSample();
 	
-	ReadNodeTo(entity, scene_->mRootNode, surface, subMeshBases, materials);
-	ReadChildren(entity, scene_->mRootNode, surface, subMeshBases, materials);
+	ReadNodeTo(entity, scene_->mRootNode, surface, biases, materials);
+	ReadChildren(entity, scene_->mRootNode, surface, biases, materials);
 
 	Debug::Output("[read hierarchy]\t%.3f\n", Debug::EndSample());
 
 	MEMORY_RELEASE_ARRAY(materials);
-	MEMORY_RELEASE_ARRAY(subMeshBases);
+	MEMORY_RELEASE_ARRAY(biases);
 
 	Animation animation;
 	if (ReadAnimation(animation)) {
@@ -146,17 +146,17 @@ void AssetImporter::Clear() {
 	animation_.reset();
 }
 
-Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
+Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials) {
 	Entity entity = NewEntity();
 	entity->GetTransform()->SetParent(parent->GetTransform());
 
-	ReadNodeTo(entity, node, surface, bases, materials);
-	ReadChildren(entity, node, surface, bases, materials);
+	ReadNodeTo(entity, node, surface, biases, materials);
+	ReadChildren(entity, node, surface, biases, materials);
 
 	return entity;
 }
 
-void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
+void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials) {
 	entity->SetName(node->mName.C_Str());
 
 	glm::vec3 translation, scale;
@@ -167,10 +167,10 @@ void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, Trian
 	entity->GetTransform()->SetLocalRotation(rotation);
 	entity->GetTransform()->SetLocalPosition(translation);
 
-	ReadComponents(entity, node, surface, bases, materials);
+	ReadComponents(entity, node, surface, biases, materials);
 }
 
-void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
+void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials) {
 	Renderer renderer = nullptr;
 	if (scene_->mNumAnimations == 0) {
 		renderer = NewMeshRenderer();
@@ -186,7 +186,7 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, T
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];
 		SubMesh subMesh = NewSubMesh();
-		subMesh->SetTriangles(bases[meshIndex]);
+		subMesh->SetTriangles(biases[meshIndex]);
 		mesh->AddSubMesh(subMesh);
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
@@ -199,9 +199,9 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, T
 	entity->SetRenderer(renderer);
 }
 
-void AssetImporter::ReadChildren(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials) {
+void AssetImporter::ReadChildren(Entity entity, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		ReadHierarchy(entity, node->mChildren[i], surface, bases, materials);
+		ReadHierarchy(entity, node->mChildren[i], surface, biases, materials);
 	}
 }
 
@@ -220,22 +220,22 @@ void AssetImporter::ReserveMemory(MeshAttribute& attribute) {
 	attribute.blendAttrs.resize(vertexCount);
 }
 
-bool AssetImporter::ReadAttribute(MeshAttribute& attribute, TriangleBase* bases) {
+bool AssetImporter::ReadAttribute(MeshAttribute& attribute, TriangleBias* biases) {
 	ReserveMemory(attribute);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
-		bases[i].baseIndex = attribute.indexes.size();
-		bases[i].baseVertex = attribute.positions.size();
-		ReadAttributeAt(i, attribute, bases);
-		bases[i].indexCount = scene_->mMeshes[i]->mNumFaces * 3;
+		biases[i].baseIndex = attribute.indexes.size();
+		biases[i].baseVertex = attribute.positions.size();
+		ReadAttributeAt(i, attribute, biases);
+		biases[i].indexCount = scene_->mMeshes[i]->mNumFaces * 3;
 	}
 
 	return true;
 }
 
-bool AssetImporter::ReadAttributeAt(int meshIndex, MeshAttribute& attribute, TriangleBase* bases) {
+bool AssetImporter::ReadAttributeAt(int meshIndex, MeshAttribute& attribute, TriangleBias* biases) {
 	ReadVertexAttribute(meshIndex, attribute);
-	ReadBoneAttribute(meshIndex, attribute, bases);
+	ReadBoneAttribute(meshIndex, attribute, biases);
 
 	return true;
 }
@@ -284,7 +284,7 @@ void AssetImporter::ReadVertexAttribute(int meshIndex, MeshAttribute& attribute)
 	}
 }
 
-void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, TriangleBase* bases) {
+void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, TriangleBias* biases) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = NewSkeleton(); }
@@ -300,7 +300,7 @@ void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, T
 		}
 
 		for (int j = 0; j < aimesh->mBones[i]->mNumWeights; ++j) {
-			uint vertexID = bases[meshIndex].baseVertex + aimesh->mBones[i]->mWeights[j].mVertexId;
+			uint vertexID = biases[meshIndex].baseVertex + aimesh->mBones[i]->mWeights[j].mVertexId;
 
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {

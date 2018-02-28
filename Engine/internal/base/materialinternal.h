@@ -65,6 +65,8 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
+	void SetVariant(const std::string& name, const Variant& value);
+
 	void InitializeProperties();
 	void InitializeEnabledState();
 

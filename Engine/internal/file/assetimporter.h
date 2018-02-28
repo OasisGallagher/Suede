@@ -28,18 +28,18 @@ private:
 	void Clear();
 	bool Initialize(const std::string& path, Assimp::Importer &importer);
 
-	Entity ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
+	Entity ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials);
 
-	void ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
-	void ReadComponents(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
-	void ReadChildren(Entity entity, aiNode* node, Mesh& surface, TriangleBase* bases, Material* materials);
+	void ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials);
+	void ReadComponents(Entity entity, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials);
+	void ReadChildren(Entity entity, aiNode* node, Mesh& surface, TriangleBias* biases, Material* materials);
 
-	bool ReadAttribute(MeshAttribute& attribute, TriangleBase* bases);
+	bool ReadAttribute(MeshAttribute& attribute, TriangleBias* biases);
 	void ReserveMemory(MeshAttribute& attribute);
-	bool ReadAttributeAt(int index, MeshAttribute& attribute, TriangleBase* bases);
+	bool ReadAttributeAt(int index, MeshAttribute& attribute, TriangleBias* biases);
 
 	void ReadVertexAttribute(int meshIndex, MeshAttribute& attribute);
-	void ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, TriangleBase* bases);
+	void ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, TriangleBias* biases);
 
 	struct MaterialAttribute {
 		MaterialAttribute();
