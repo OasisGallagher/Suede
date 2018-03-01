@@ -538,6 +538,7 @@
     <None Include="resources\buildin\shaders\directional_light_depth.shader" />
     <None Include="resources\buildin\shaders\gbuffer.shader" />
     <None Include="resources\buildin\shaders\include\light_vertex.inc" />
+    <None Include="resources\buildin\shaders\include\suede.inc" />
     <None Include="resources\buildin\shaders\lit_animated_texture.shader" />
     <None Include="resources\buildin\shaders\lit_bumped_texture.shader" />
     <None Include="resources\buildin\shaders\lit_texture.shader" />

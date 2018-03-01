@@ -129,11 +129,6 @@ void VAO::DestroyVBOs() {
 }
 
 void VAO::Bind() {
-	if (vao_ == 0) {
-		Debug::LogError("invalid vao");
-		return;
-	}
-
 	GL::GetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&oldVao_);
 	GL::BindVertexArray(vao_);
 }

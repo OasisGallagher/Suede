@@ -167,6 +167,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\meshinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\transforminternal.cpp" />
+    <ClCompile Include="internal\base\ubo.cpp" />
     <ClCompile Include="internal\base\vao.cpp" />
     <ClCompile Include="internal\entities\frustum.cpp" />
     <ClCompile Include="internal\entities\projectorinternal.cpp" />
@@ -238,6 +239,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\meshinternal.h" />
     <ClInclude Include="internal\base\textureinternal.h" />
     <ClInclude Include="internal\base\transforminternal.h" />
+    <ClInclude Include="internal\base\ubo.h" />
     <ClInclude Include="internal\base\vao.h" />
     <ClInclude Include="internal\entities\frustum.h" />
     <ClInclude Include="internal\entities\projectorinternal.h" />

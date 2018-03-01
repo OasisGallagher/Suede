@@ -265,6 +265,9 @@
     <ClInclude Include="internal\base\vao.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\base\ubo.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -376,6 +379,9 @@
       <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\vao.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\ubo.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>

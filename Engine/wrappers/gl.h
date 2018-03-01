@@ -62,10 +62,12 @@ public:
 	static void GetShaderiv(GLuint shader, GLenum pname, GLint* params);
 	static void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
 	static void GetProgramiv(GLuint program, GLenum pname, GLint* params);
+	static void BindBufferBase(GLenum target, GLuint index, GLuint buffer);
 	static void DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers);
 	static void GetTexParameteriv(GLenum target, GLenum pname, GLint* params);
 	static void DebugMessageCallback(GLDEBUGPROC callback, const void* userParam);
 	static void BindAttribLocation(GLuint program, GLuint index, const GLchar *name);
+	static GLuint GetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
 	static void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 	static void BufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
 	static void BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data);
@@ -77,7 +79,9 @@ public:
 	static void ProgramUniform3fv(GLuint program, GLint location, GLsizei count, const GLfloat* value);
 	static void ProgramUniform4fv(GLuint program, GLint location, GLsizei count, const GLfloat* value);
 	static void RenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+	static void UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 	static void ShaderSource(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+	static void GetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params);
 	static void VertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer);
 	static void DrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void* indices, GLint basevertex);
 	static void ReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid* pixels);
@@ -152,6 +156,10 @@ inline void GL::Viewport(GLint x, GLint y, GLsizei width, GLsizei height) {
 	GL_CALL(glViewport(x, y, width, height));
 }
 
+inline GLuint GL::GetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName) {
+	GL_CALL_R(glGetUniformBlockIndex(program, uniformBlockName));
+}
+
 inline void GL::ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) {
 	GL_CALL(glClearColor(red, green, blue, alpha));
 }
@@ -194,6 +202,10 @@ inline void GL::BindRenderbuffer(GLenum target, GLuint renderbuffer) {
 
 inline void GL::RenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
 	GL_CALL(glRenderbufferStorage(target, internalformat, width, height));
+}
+
+inline void GL::UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding) {
+	GL_CALL(glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding));
 }
 
 inline void GL::FramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
@@ -278,6 +290,10 @@ inline void GL::LinkProgram(GLuint program) {
 
 inline void GL::GetProgramiv(GLuint program, GLenum pname, GLint* params) {
 	GL_CALL(glGetProgramiv(program, pname, params));
+}
+
+inline void GL::BindBufferBase(GLenum target, GLuint index, GLuint buffer) {
+	GL_CALL(glBindBufferBase(target, index, buffer));
 }
 
 inline void GL::ValidateProgram(GLuint program) {
@@ -438,6 +454,10 @@ inline GLuint GL::CreateShader(GLenum type) {
 
 inline void GL::ShaderSource(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length) {
 	GL_CALL(glShaderSource(shader, count, string, length));
+}
+
+inline void GL::GetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params) {
+	GL_CALL(glGetActiveUniformBlockiv(program, uniformBlockIndex, pname, params));
 }
 
 inline void GL::CompileShader(GLuint shader) {

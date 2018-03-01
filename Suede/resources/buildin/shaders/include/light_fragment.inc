@@ -1,10 +1,6 @@
 in vec4 shadowCoord;
 
-uniform vec3 c_ambientLightColor;
-uniform vec3 c_cameraPosition;
 uniform vec3 c_specularColor;
-uniform vec3 c_lightColor;
-uniform vec3 c_lightDirection;
 uniform vec3 c_emissiveColor;
 uniform float c_gloss;
 uniform sampler2DShadow c_shadowDepthTexture;

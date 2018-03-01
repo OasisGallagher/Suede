@@ -4,6 +4,7 @@
 #include "camera.h"
 #include "internal/entities/entityinternal.h"
 
+class UBO;
 class GBuffer;
 class Frustum;
 class ImageEffect;
@@ -82,6 +83,7 @@ public:
 	virtual Texture2D Capture();
 
 private:
+	void CreateUBOs();
 	void InitializeVariables();
 	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
@@ -137,6 +139,10 @@ private:
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;
+
+	UBO* textures_;
+	UBO* transforms_;
+	UBO* lightParameters_;
 
 	RenderTexture depthTexture_;
 	RenderTexture shadowTexture_;

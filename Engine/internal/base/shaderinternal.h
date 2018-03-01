@@ -148,6 +148,8 @@ public:
 	virtual uint GetNativePointer(uint ssi, uint pass) const;
 
 	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
+	virtual uint GetSubShaderCount() const { return subShaderCount_; }
+
 	virtual void GetProperties(std::vector<const Property*>& properties);
 	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 

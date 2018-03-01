@@ -366,6 +366,9 @@
     <None Include="resources\qss\style.qss">
       <Filter>resources\qss</Filter>
     </None>
+    <None Include="resources\buildin\shaders\include\suede.inc">
+      <Filter>resources\buildin\shaders\include</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

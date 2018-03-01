@@ -12,6 +12,8 @@ SubShader {
 		StencilWrite On;
 
 		GLSLPROGRAM
+		
+		#include "buildin/shaders/include/suede.inc"
 
 		#stage vertex
 		in vec3 c_position;
@@ -23,9 +25,6 @@ SubShader {
 		out vec3 normal;
 
 		#include "buildin/shaders/include/light_vertex.inc"
-
-		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
 
 		void main() {
 			texCoord = c_texCoord;
