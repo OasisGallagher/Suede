@@ -8,8 +8,8 @@ SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
 class SUEDE_API IRenderer : virtual public IObject {
 public:
+	virtual void RenderMesh(Mesh mesh) = 0;
 	virtual void RenderEntity(Entity entity) = 0;
-	//virtual void RenderMesh(Mesh mesh, Material material) = 0;
 	
 	virtual void AddMaterial(Material material) = 0;
 	virtual Material GetMaterial(uint index) = 0;

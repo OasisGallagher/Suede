@@ -6,6 +6,7 @@ SubShader {
 		Blend Off;
 		Cull Front;
 		ZTest LEqual;
+		DepthWrite Off;
 
 		GLSLPROGRAM
 

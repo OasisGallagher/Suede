@@ -160,7 +160,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\gbuffer.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
-    <ClCompile Include="internal\base\pipeline.cpp" />
     <ClCompile Include="internal\base\rendererinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
     <ClCompile Include="internal\base\shaderinternal.cpp" />
@@ -183,6 +182,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\entities\particlesysteminternal.cpp" />
     <ClCompile Include="internal\entities\entityinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
+    <ClCompile Include="internal\world\globalubo.cpp" />
+    <ClCompile Include="internal\world\pipeline.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
     <ClCompile Include="src\driver.cpp" />
     <ClCompile Include="src\engine.cpp" />
@@ -229,7 +230,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\fontinternal.h" />
     <ClInclude Include="internal\base\framebuffer.h" />
     <ClInclude Include="internal\base\gbuffer.h" />
-    <ClInclude Include="internal\base\pipeline.h" />
     <ClInclude Include="internal\base\renderdefines.h" />
     <ClInclude Include="internal\base\materialinternal.h" />
     <ClInclude Include="internal\base\objectinternal.h" />
@@ -254,6 +254,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\entities\particlesysteminternal.h" />
     <ClInclude Include="internal\entities\entityinternal.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
+    <ClInclude Include="internal\world\globalubo.h" />
+    <ClInclude Include="internal\world\pipeline.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
     <ClInclude Include="wrappers\gl.h" />
   </ItemGroup>

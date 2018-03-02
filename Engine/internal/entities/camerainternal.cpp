@@ -1,5 +1,6 @@
 #include <glm/gtx/transform.hpp>
 
+#include "time2.h"
 #include "light.h"
 #include "screen.h"
 #include "frustum.h"
@@ -8,7 +9,8 @@
 #include "imageeffect.h"
 #include "internal/base/ubo.h"
 #include "internal/base/gbuffer.h"
-#include "internal/base/pipeline.h"
+#include "internal/world/pipeline.h"
+#include "internal/world/globalubo.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
 
@@ -17,7 +19,6 @@ CameraInternal::CameraInternal()
 	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
 	frustum_ = MEMORY_CREATE(Frustum);
 
-	CreateUBOs();
 	InitializeVariables();
 	CreateFramebuffers();
 
@@ -33,10 +34,6 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(fb2_);
 	MEMORY_RELEASE(frustum_);
 	MEMORY_RELEASE(gbuffer_);
-
-	MEMORY_RELEASE(textures_);
-	MEMORY_RELEASE(transforms_);
-	MEMORY_RELEASE(lightParameters_);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -61,25 +58,13 @@ void CameraInternal::Update() {
 		OnContextSizeChanged(w, h);
 	}
 
-	struct UBOTransforms {
-		glm::mat4 worldToClipSpaceMatrix;
-		glm::mat4 worldToCameraSpaceMatrix;
-		glm::mat4 cameraToClipSpaceMatrix;
-
-		glm::vec4 cameraPosition;
-	};
-
-	static UBOTransforms transforms;
-	//material->SetColor3(Variables::lightColor, light->GetColor());
-	//material->SetVector3(Variables::lightPosition, light->GetTransform()->GetPosition());
-	//material->SetVector3(Variables::lightDirection, light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1));
-
+	static GlobalUBOStructs::Transforms transforms;
 	transforms.worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 	transforms.worldToCameraSpaceMatrix = GetTransform()->GetWorldToLocalMatrix();
 	transforms.cameraToClipSpaceMatrix = GetProjectionMatrix();
 	transforms.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 
-	transforms_->SetBuffer(&transforms, 0, sizeof(transforms));
+	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Transforms , &transforms, 0, sizeof(transforms));
 }
 
 void CameraInternal::Render() {
@@ -112,6 +97,11 @@ void CameraInternal::Render() {
 	if (clearType_ == ClearTypeSkybox) {
 		RenderSkybox(active);
 	}
+
+	static GlobalUBOStructs::Time time;
+	time.time.x = Time::GetRealTimeSinceStartup();
+	time.time.y = Time::GetDeltaTime();
+	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Time, &time, 0, sizeof(time));
 
 	if (renderPath_ == RenderPathForward) {
 		ForwardRendering(entities, active, forwardBase, forwardAdd);
@@ -266,17 +256,6 @@ Texture2D CameraInternal::Capture() {
 	return texture;
 }
 
-void CameraInternal::CreateUBOs() {
-	textures_ = MEMORY_CREATE(UBO);
-	textures_->Create("Textures", 4);
-
-	transforms_ = MEMORY_CREATE(UBO);
-	transforms_->Create("Transforms", 64 + 64 + 64 + 16);
-
-	lightParameters_ = MEMORY_CREATE(UBO);
-	lightParameters_->Create("Light", 16 + 16 + 16 + 16);
-}
-
 void CameraInternal::InitializeVariables() {
 	depth_ = 0; 
 	pass_ = RenderPassNone;
@@ -368,40 +347,12 @@ void CameraInternal::CreateFramebuffer2() {
 }
 
 void CameraInternal::SetForwardBaseLightParameter(const std::vector<Entity>& entities, Light light) {
-	struct UBOLight {
-		glm::vec4 ambientLightColor;
-		glm::vec4 lightColor;
-		glm::vec4 lightPosition;
-		glm::vec4 lightDirection;
-	};
-
-	static UBOLight ulight;
-	ulight.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
-	ulight.lightColor = glm::vec4(light->GetColor(), 1);
-	ulight.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
-	ulight.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
-	lightParameters_->SetBuffer(&ulight, 0, sizeof(ulight));
-
-	//material->SetColor3(Variables::ambientLightColor, WorldInstance()->GetEnvironment()->GetAmbientColor());
-	//material->SetColor3(Variables::lightColor, light->GetColor());
-	//material->SetVector3(Variables::lightPosition, light->GetTransform()->GetPosition());
-	//material->SetVector3(Variables::lightDirection, light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1));
-
-	/*for (int i = 0; i < entities.size(); ++i) {
-		if (!IsRenderable(entities[i])) { continue; }
-
-		Renderer renderer = entities[i]->GetRenderer();
-		int materialCount = renderer->GetMaterialCount();
-		for (int i = 0; i < materialCount; ++i) {
-			Material material = renderer->GetMaterial(i);
-			// TODO: UNIFORM BLOCK !!!
-			//material->SetVector3(Variables::cameraPosition, GetTransform()->GetPosition());
-			//material->SetColor3(Variables::ambientLightColor, WorldInstance()->GetEnvironment()->GetAmbientColor());
-			//material->SetColor3(Variables::lightColor, light->GetColor());
-			//material->SetVector3(Variables::lightPosition, light->GetTransform()->GetPosition());
-			//material->SetVector3(Variables::lightDirection, light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1));
-		}
-	}*/
+	static GlobalUBOStructs::Light parameter;
+	parameter.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
+	parameter.lightColor = glm::vec4(light->GetColor(), 1);
+	parameter.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
+	parameter.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
+	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Light, &parameter, 0, sizeof(parameter));
 }
 
 void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, FramebufferBase* fb, Light light) {
@@ -518,7 +469,6 @@ void CameraInternal::OnPostRender() {
 	RenderDecals();
 }
 
-
 void CameraInternal::RenderDecals() {
 	std::vector<Decal*> decals;
 	WorldInstance()->GetDecals(decals);
@@ -552,8 +502,6 @@ void CameraInternal::RenderDecals() {
 		TriangleBias base{ d->indexes.size() };
 		subMesh->SetTriangles(base);
 		mesh->AddSubMesh(subMesh);
-
-		//Resources::GetAuxMeshRenderer()->RenderMesh(mesh, decalMaterial_);
 	}
 }
 
@@ -604,8 +552,9 @@ void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
 	clock_t b = clock();
+	glm::mat4 worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		UpdateMaterial(entity, renderer->GetMaterial(i));
+		UpdateMaterial(entity, worldToClipSpaceMatrix, renderer->GetMaterial(i));
 	}
 	mat += clock() - b;
 
@@ -614,16 +563,12 @@ void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
 	push += clock() - b;
 }
 
-void CameraInternal::UpdateMaterial(Entity entity, Material material) {
+void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipSpaceMatrix, Material material) {
 	glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
-	glm::mat4 localToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * localToWorldSpaceMatrix;
+	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
 
-	// TODO: uniform buffers for common matrices.
 	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldSpaceMatrix);
-	//material->SetMatrix4(Variables::worldToClipSpaceMatrix, worldToClipSpaceMatrix);
-	//material->SetMatrix4(Variables::worldToCameraSpaceMatrix, worldToCameraSpaceMatrix);
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
-	//material->SetMatrix4(Variables::cameraToClipSpaceMatrix, GetProjectionMatrix());
 
 	if (pass_ >= RenderPassForwardOpaque) {
 		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldSpaceMatrix);

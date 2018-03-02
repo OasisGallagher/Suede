@@ -1,6 +1,6 @@
+#include "pipeline.h"
 #include "resources.h"
 #include "worldinternal.h"
-#include "internal/base/pipeline.h"
 #include "internal/file/assetimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"

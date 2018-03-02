@@ -3,7 +3,6 @@
 
 static uint bindingPoint;
 static uint maxBindingPoints;
-static std::vector<UBO*> ubos;
 
 UBO::UBO() : ubo_(0) {
 	if (maxBindingPoints == 0) {
@@ -15,19 +14,14 @@ UBO::~UBO() {
 	Destroy();
 }
 
-UBO* UBO::Create(const std::string& name, uint size) {
+bool UBO::Create(const std::string& name, uint size) {
 	if (bindingPoint == maxBindingPoints) {
 		Debug::LogError("too many uniform buffers");
 		return false;
 	}
 
-	UBO* ubo = MEMORY_CREATE(UBO);
-	ubo->Initialize(name, size);
-	return ubo;
-}
-
-void UBO::GetAllUBOs(std::vector<UBO*>& container) {
-	container = ubos;
+	Initialize(name, size);
+	return true;
 }
 
 void UBO::Attach(Shader shader) {
@@ -46,7 +40,7 @@ void UBO::AttachToProgram(uint program) {
 	}
 
 	int dataSize = 0;
-	GL::GetActiveUniformBlockiv(program, binding_, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
+	GL::GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
 	if (dataSize != size_) {
 		Debug::LogError("uniform buffer size mismatch");
 		return;
@@ -59,10 +53,6 @@ void UBO::SetBuffer(const void* data, uint offset, uint size) {
 	Bind();
 	GL::BufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 	Unbind();
-}
-
-UBO::~UBO() {
-	Destroy();
 }
 
 void UBO::Bind() {

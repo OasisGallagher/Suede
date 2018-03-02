@@ -13,6 +13,7 @@ layout(std140) uniform Light {
 	vec3 c_lightDirection;
 };
 
-layout(std140) uniform Textures {
-	sampler2D c_shadowDepthTexture;
-}
+layout(std140) uniform Time {
+	float time;
+	float deltaTime;
+};

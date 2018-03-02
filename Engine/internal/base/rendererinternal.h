@@ -13,8 +13,8 @@ public:
 	~RendererInternal();
 
 public:
+	virtual void RenderMesh(Mesh mesh);
 	virtual void RenderEntity(Entity entity);
-	//virtual void RenderMesh(Mesh mesh, Material material);
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
 	virtual Material GetMaterial(uint index) { return materials_[index]; }
@@ -29,9 +29,6 @@ public:
 protected:
 	virtual void UpdateMaterial(Entity entity);
 	virtual void AddToPipeline(SubMesh subMesh, Material material, int pass);
-
-private:
-	virtual void RenderMesh(Mesh mesh);
 
 	void RenderMesh(Mesh mesh, Material material, int pass);
 	void RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass);

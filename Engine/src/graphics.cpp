@@ -5,7 +5,14 @@
 
 void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	static Mesh mesh = Resources::CreatePrimitive(PrimitiveTypeQuad, 2);
+	static Renderer renderer = nullptr;
+	
+	if (!renderer) {
+		renderer = NewMeshRenderer();
+		renderer->AddMaterial(material);
+	}
 
+	material->SetRenderQueue(RenderQueueOverlay + 5000);
 	material->SetTexture(Variables::mainTexture, src);
-	//Resources::GetAuxMeshRenderer()->RenderMesh(mesh, material);
+	renderer->RenderMesh(mesh);
 }

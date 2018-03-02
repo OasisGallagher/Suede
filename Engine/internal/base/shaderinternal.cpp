@@ -5,6 +5,7 @@
 #include "meshinternal.h"
 #include "os/filesystem.h"
 #include "shaderinternal.h"
+#include "internal/world/globalubo.h"
 #include "internal/base/renderdefines.h"
 
 std::pair<std::string, float> _variables[] = {
@@ -631,6 +632,8 @@ bool ShaderInternal::Load(const std::string& path) {
 	ParseSubShaders(semantics.properties, semantics.subShaders, path);
 
 	LoadProperties(semantics.properties);
+
+	GlobalUBO::Get()->Attach(dsp_cast<Shader>(shared_from_this()));
 
 	path_ = path;
 	return true;

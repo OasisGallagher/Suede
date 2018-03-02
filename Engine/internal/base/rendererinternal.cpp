@@ -1,12 +1,11 @@
 #include <algorithm>
 
-#include "time2.h"
-#include "pipeline.h"
 #include "variables.h"
 #include "framebuffer.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "rendererinternal.h"
+#include "internal/world/pipeline.h"
 
 RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type) {	
 }
@@ -20,15 +19,6 @@ void RendererInternal::RenderEntity(Entity entity) {
 }
 
 void RendererInternal::UpdateMaterial(Entity entity) {
-	int materialCount = GetMaterialCount();
-	for (int i = 0; i < materialCount; ++i) {
-		Material material = GetMaterial(i);
-		material->SetFloat(Variables::time, Time::GetRealTimeSinceStartup());
-		material->SetFloat(Variables::deltaTime, Time::GetDeltaTime());
-
-		glm::mat4 localToWorldMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
-		material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldMatrix);
-	}
 }
 
 void RendererInternal::RenderMesh(Mesh mesh) {

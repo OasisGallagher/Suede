@@ -26,6 +26,9 @@ SubShader {
 
 		#include "buildin/shaders/include/light_vertex.inc"
 
+		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_localToWorldSpaceMatrix;
+
 		void main() {
 			texCoord = c_texCoord;
 

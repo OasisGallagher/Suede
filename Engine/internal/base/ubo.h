@@ -6,17 +6,17 @@
 
 class UBO {
 public:
-	static UBO* Create(const std::string& name, uint size);
-	static void GetAllUBOs(std::vector<UBO*>& container);
-
-public:
-	void Attach(Shader shader);
-	void SetBuffer(const void* data, uint offset, uint size);
-
-private:
 	UBO();
 	~UBO();
 
+public:
+	bool Create(const std::string& name, uint size);
+	void Attach(Shader shader);
+	void SetBuffer(const void* data, uint offset, uint size);
+
+	const std::string& GetName() const { return name_; }
+
+private:
 	void Bind();
 	void Unbind();
 	void Destroy();

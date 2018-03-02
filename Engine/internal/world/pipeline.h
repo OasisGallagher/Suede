@@ -19,6 +19,9 @@ public:
 	static Renderable* CreateRenderable();
 
 private:
+	static void ResetState();
+	static void SortRenderables();
+	static void Render(Renderable& p);
 	static void ResetRenderable(Renderable* renderable);
 	static GLenum TopologyToGLEnum(MeshTopology topology);
 };

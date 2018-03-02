@@ -4,7 +4,6 @@
 #include "camera.h"
 #include "internal/entities/entityinternal.h"
 
-class UBO;
 class GBuffer;
 class Frustum;
 class ImageEffect;
@@ -83,7 +82,6 @@ public:
 	virtual Texture2D Capture();
 
 private:
-	void CreateUBOs();
 	void InitializeVariables();
 	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
@@ -113,7 +111,7 @@ private:
 	bool IsRenderable(Entity entity);
 
 	void RenderEntity(Entity entity, Renderer renderer);
-	void UpdateMaterial(Entity entity, Material material);
+	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipSpaceMatrix, Material material);
 
 	void GetRenderableEntities(std::vector<Entity>& entities);
 	void SortRenderableEntities(std::vector<Entity>& entities);
@@ -139,10 +137,6 @@ private:
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;
-
-	UBO* textures_;
-	UBO* transforms_;
-	UBO* lightParameters_;
 
 	RenderTexture depthTexture_;
 	RenderTexture shadowTexture_;
