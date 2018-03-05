@@ -4,14 +4,17 @@
 
 class Inversion : public ImageEffect {
 public:
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
-		World world = WorldInstance();
-
+	Inversion() {
+		material_ = NewMaterial();
 		Shader shader = Resources::FindShader("shaders/inversion");
-
-		Material material = NewMaterial();
-		material->SetShader(shader);
-
-		Graphics::Blit(src, dest, material);
+		material_->SetShader(shader);
 	}
+
+public:
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
+		Graphics::Blit(src, dest, material_);
+	}
+
+private:
+	Material material_;
 };

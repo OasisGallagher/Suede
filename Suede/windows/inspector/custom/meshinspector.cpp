@@ -42,7 +42,7 @@ void MeshInspector::drawMesh() {
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
-		const TriangleBias& bias = subMesh->GetTriangles();
+		const TriangleBias& bias = subMesh->GetTriangleBias();
 
 		int triangles = mesh->GetTopology() == MeshTopologyTriangles ? bias.indexCount / 3 : Math::Max(0u, bias.indexCount - 2);
 		subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
@@ -50,7 +50,7 @@ void MeshInspector::drawMesh() {
 
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, subMeshList);
 
-	shrinkToFit(subMeshList);
+	resizeGeometryToFit(subMeshList);
 }
 
 void MeshInspector::drawTextMesh() {

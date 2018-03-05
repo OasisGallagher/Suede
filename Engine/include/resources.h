@@ -34,11 +34,6 @@ public:
 
 	static std::string GetRootDirectory();
 
-	/**
-	 * @brief: Temporary mesh renderer.
-	 */
-	static MeshRenderer GetAuxMeshRenderer();
-
 	static Mesh GetPrimitive(PrimitiveType type);
 	static Mesh CreatePrimitive(PrimitiveType type, float scale);
 	static Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);

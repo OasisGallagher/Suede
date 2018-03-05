@@ -27,7 +27,7 @@
 #define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
-#define POST_EFFECTS
+//#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -42,8 +42,6 @@ Game* Game::get() {
 
 Game::Game(QWidget* parent) : QDockWidget(parent), initialized_(false) {
 	gameInstance = this;
-	grayscale_ = new Grayscale;
-	inversion_ = new Inversion;
 	controller_ = new CameraController;
 }
 
@@ -60,6 +58,9 @@ void Game::init(Ui::Suede* ui) {
 }
 
 void Game::awake() {
+	grayscale_ = new Grayscale;
+	inversion_ = new Inversion;
+
 	createScene();
 	update();
 }

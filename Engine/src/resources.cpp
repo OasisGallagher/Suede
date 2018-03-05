@@ -18,22 +18,12 @@ static ShaderResourceContainer shaderResources_;
 typedef std::vector<TextureResource> TextureResourceContainer;
 static TextureResourceContainer textureResources_;
 
-static MeshRenderer meshRenderer_;
 static Mesh primitives_[PrimitiveTypeCount];
 static Texture2D blackTexture_, whiteTexture_;
 
 void Resources::Import() {
-	if (!meshRenderer_) {
-		meshRenderer_ = NewMeshRenderer();
-		meshRenderer_->AddMaterial(nullptr);
-	}
-
 	ImportShaderResources();
 	ImportTextureResources();
-}
-
-MeshRenderer Resources::GetAuxMeshRenderer() {
-	return meshRenderer_;
 }
 
 Texture2D Resources::GetBlackTexture() {
@@ -163,7 +153,7 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 		glm::vec3(0.5f, -0.5f, 0.5f),
 	};
 	for (int i = 0; i < CountOf(vertices); ++i) {
-		vertices[i] *= 2;
+		vertices[i] *= scale;
 	}
 
 	attribute.positions.assign(vertices, vertices + CountOf(vertices));
@@ -215,7 +205,7 @@ Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 
 	SubMesh subMesh = NewSubMesh();
 	TriangleBias base{ attribute.indexes.size() };
-	subMesh->SetTriangles(base);
+	subMesh->SetTriangleBias(base);
 
 	mesh->AddSubMesh(subMesh);
 	return mesh;

@@ -7,6 +7,7 @@ static uint nrenderables_;
 static std::vector<Renderable> renderables_(1024);
 
 static Material oldMaterial;
+static int oldPass = -1;
 static uint oldMeshPointer = 0;
 static FramebufferBase* oldFbo = nullptr;
 
@@ -16,6 +17,10 @@ static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0;
 struct RenderableComparer {
 	bool operator () (Renderable& lhs, Renderable& rhs) const {
 		Material& lm = lhs.material, &rm = rhs.material;
+		if (lm == rm) {
+			return lhs.pass < rhs.pass;
+		}
+
 		if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
 			return lm->GetRenderQueue() < rm->GetRenderQueue();
 		}
@@ -98,9 +103,19 @@ void Pipeline::Render(Renderable& p) {
 
 	if (p.material != oldMaterial) {
 		clock_t delta = clock();
-		p.material->Bind(p.pass);
+		if (oldMaterial) {
+			oldMaterial->Unbind();
+		}
+
+		oldPass = p.pass;
 		oldMaterial = p.material;
+
+		p.material->Bind(p.pass);
 		switchMaterial += (clock() - delta);
+	}
+	else if (oldPass != p.pass) {
+		p.material->Bind(p.pass);
+		oldPass = p.pass;
 	}
 
 	Mesh mesh = p.subMesh->GetMesh();
@@ -111,7 +126,7 @@ void Pipeline::Render(Renderable& p) {
 		switchMesh += (clock() - delta);
 	}
 
-	const TriangleBias& bias = p.subMesh->GetTriangles();
+	const TriangleBias& bias = p.subMesh->GetTriangleBias();
 
 	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
 	if (p.instance == 0) {
@@ -133,8 +148,13 @@ void Pipeline::ResetState() {
 		oldFbo = nullptr;
 	}
 	
-	oldMeshPointer = 0;
+	if (oldMaterial) {
+		oldMaterial->Unbind();
+	}
+
 	oldMaterial = nullptr;
+
+	oldMeshPointer = 0;
 
 	nrenderables_ = 0;
 }

@@ -86,7 +86,7 @@ void RendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pas
 	item->instance = 0;
 	item->material = material;
 	item->subMesh = subMesh;
-	item->framebuffer = FramebufferBase::GetWriteTarget();
+	item->framebuffer = Framebuffer::GetCurrentWrite();
 }
 
 void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {

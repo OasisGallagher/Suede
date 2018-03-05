@@ -36,7 +36,7 @@ bool GLSLParser::CompileShaderSource(const std::string& source, const std::strin
 		return false;
 	}
 
-	answer_[type_] = globals_ + source_;
+	answer_[type_] += globals_ + source_;
 
 	return true;
 }
@@ -88,7 +88,7 @@ bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
 			}
 
 			source_ = globals_ + source_;
-			answer_[type_] = source_;
+			answer_[type_] += source_;
 		}
 
 		source_.clear();

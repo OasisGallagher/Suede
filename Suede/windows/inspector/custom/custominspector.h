@@ -15,7 +15,7 @@ public:
 	static QString float2QString(float f);
 
 protected:
-	void shrinkToFit(QListWidget* w);
+	void resizeGeometryToFit(QListWidget* w);
 
 	QString formatRowName(const QString& name) const;
 

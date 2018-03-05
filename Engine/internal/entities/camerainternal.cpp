@@ -25,8 +25,6 @@ CameraInternal::CameraInternal()
 	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth", RenderQueueBackground - 300);
 	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal", RenderQueueOverlay - 500);
 	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth", RenderQueueBackground - 200);
-
-	GL::ClearDepth(1);
 }
 
 CameraInternal::~CameraInternal() {
@@ -76,7 +74,7 @@ void CameraInternal::Render() {
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-			//ForwardDepthPass(entities);
+		//	ForwardDepthPass(entities);
 		}
 	}
 
@@ -85,17 +83,13 @@ void CameraInternal::Render() {
 	GetLights(forwardBase, forwardAdd);
 
 	if (forwardBase) {
-		//ShadowDepthPass(entities, forwardBase);
+	//	ShadowDepthPass(entities, forwardBase);
 	}
-	
-	// TODO: switch framebuffer is expensive.
-	fb1_->SetDepthTexture(nullptr);
 
-	FramebufferBase* active = GetActiveFramebuffer();
-	active->BindWrite();
+	Framebuffer::SetCurrentWrite(GetActiveFramebuffer());
 
 	if (clearType_ == ClearTypeSkybox) {
-		RenderSkybox(active);
+		RenderSkybox();
 	}
 
 	static GlobalUBOStructs::Time time;
@@ -104,15 +98,15 @@ void CameraInternal::Render() {
 	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Time, &time, 0, sizeof(time));
 
 	if (renderPath_ == RenderPathForward) {
-		ForwardRendering(entities, active, forwardBase, forwardAdd);
+		ForwardRendering(entities, forwardBase, forwardAdd);
 	}
 	else {
-		DeferredRendering(entities, active, forwardBase, forwardAdd);
+		DeferredRendering(entities, forwardBase, forwardAdd);
 	}
 
 	OnPostRender();
 
-	active->Unbind();
+	Framebuffer::SetCurrentWrite(nullptr);
 
 	if (!imageEffects_.empty()) {
 		OnImageEffects();
@@ -173,17 +167,17 @@ const glm::mat4 & CameraInternal::GetProjectionMatrix() {
 	return frustum_->GetProjectionMatrix();
 }
 
-void CameraInternal::ForwardRendering(const std::vector<Entity>& entities, FramebufferBase* fb, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void CameraInternal::ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (forwardBase) {
-		RenderForwardBase(entities, fb, forwardBase);
+		RenderForwardBase(entities, forwardBase);
 	}
 
 	if (!forwardAdd.empty()) {
-		RenderForwardAdd(entities, fb, forwardAdd);
+		RenderForwardAdd(entities, forwardAdd);
 	}
 }
 
-void CameraInternal::DeferredRendering(const std::vector<Entity>& entities, FramebufferBase* fb, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void CameraInternal::DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (gbuffer_ == nullptr) {
 		InitializeDeferredRender();
 	}
@@ -203,14 +197,14 @@ void CameraInternal::InitializeDeferredRender() {
 	deferredMaterial_->SetShader(shader);
 }
 
-void CameraInternal::AddToPipeline(Mesh mesh, Material material, FramebufferBase* fb) {
+void CameraInternal::AddToPipeline(Mesh mesh, Material material) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		Renderable* renderable = Pipeline::CreateRenderable();
 		renderable->pass = 0;
 		renderable->instance = 0;
 		renderable->subMesh = mesh->GetSubMesh(i);
 		renderable->material = material;
-		renderable->framebuffer = fb;
+		renderable->framebuffer = Framebuffer::GetCurrentWrite();
 	}
 }
 
@@ -228,7 +222,7 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 		material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 		material->SetMatrix4(Variables::localToWorldSpaceMatrix, entity->GetTransform()->GetLocalToWorldMatrix());
 		material->SetTexture(Variables::mainTexture, mainTexture);
-		AddToPipeline(entity->GetMesh(), deferredMaterial_, Framebuffer0::Get());
+		AddToPipeline(entity->GetMesh(), deferredMaterial_);
 	}
 
 	gbuffer_->Unbind();
@@ -269,6 +263,7 @@ void CameraInternal::CreateFramebuffers() {
 
 	fb1_ = MEMORY_CREATE(Framebuffer);
 	fb1_->Create(w, h);
+	fb1_->CreateDepthRenderbuffer();
 
 	depthTexture_ = NewRenderTexture();
 	depthTexture_->Load(RenderTextureFormatDepth, w, h);
@@ -284,13 +279,14 @@ void CameraInternal::CreateAuxMaterial(Material& material, const std::string& sh
 	material->SetRenderQueue(renderQueue);
 }
 
-void CameraInternal::RenderSkybox(FramebufferBase* fb) {
+void CameraInternal::RenderSkybox() {
 	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		skybox->SetMatrix4(Variables::cameraToClipSpaceMatrix, GetProjectionMatrix() * matrix);
-		AddToPipeline(Resources::GetPrimitive(PrimitiveTypeCube), skybox, fb);
+		const char* skyboxMatrix = "skyboxMatrix";
+		skybox->SetMatrix4(skyboxMatrix, GetProjectionMatrix() * matrix);
+		AddToPipeline(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
 	}
 }
 
@@ -343,6 +339,7 @@ void CameraInternal::CreateFramebuffer2() {
 		renderTexture2_ = NewRenderTexture();
 		renderTexture2_->Load(RenderTextureFormatRgba, fb2_->GetViewportWidth(), fb2_->GetViewportHeight());
 		fb2_->SetRenderTexture(FramebufferAttachment0, renderTexture2_);
+		fb2_->CreateDepthRenderbuffer();
 	}
 }
 
@@ -355,18 +352,18 @@ void CameraInternal::SetForwardBaseLightParameter(const std::vector<Entity>& ent
 	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Light, &parameter, 0, sizeof(parameter));
 }
 
-void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, FramebufferBase* fb, Light light) {
+void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Light light) {
 	Debug::StartSample();
 	SetForwardBaseLightParameter(entities, light);
 	Debug::Output("[lightparam]\t%.2f\n", Debug::EndSample());
 
 	int from = 0;
-	from = ForwardBackgroundPass(entities, fb, from);
-	from = ForwardOpaquePass(entities, fb, from);
-	from = ForwardTransparentPass(entities, fb, from);
+	from = ForwardBackgroundPass(entities, from);
+	from = ForwardOpaquePass(entities, from);
+	from = ForwardTransparentPass(entities, from);
 }
 
-void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, FramebufferBase* fb, Light light) {
+void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light light) {
 	pass_ = RenderPassShadowDepth;
 	if (light->GetType() != ObjectTypeDirectionalLight) {
 		Debug::LogError("invalid light type");
@@ -383,9 +380,13 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Frameb
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
+		if (!IsRenderable(entity)) {
+			continue;
+		}
+
 		Material material = dsp_cast<Material>(directionalLightShadowMaterial_->Clone());
 		material->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * entity->GetTransform()->GetLocalToWorldMatrix());
-		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_, fb);
+		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_);
 	}
 
 	glm::mat4 bias(
@@ -395,31 +396,34 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Frameb
 		0.5, 0.5f, 0.5f, 1.f
 	);
 
-	viewToShadowSpaceMatrix_ = bias * shadowDepthMatrix;
+	worldToShadowSpaceMatrix_ = bias * shadowDepthMatrix;
 	fb1_->Unbind();
 }
 
-void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, FramebufferBase* fb, const std::vector<Light>& lights) {
+void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights) {
 }
 
-int CameraInternal::ForwardBackgroundPass(const std::vector<Entity>& entities, FramebufferBase* fb, int from) {
+int CameraInternal::ForwardBackgroundPass(const std::vector<Entity>& entities, int from) {
 	pass_ = RenderPassForwardBackground;
 	return 0;
 }
 
-void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities, FramebufferBase* fb) {
+void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	pass_ = RenderPassForwardDepth;
 
 	fb1_->SetDepthTexture(depthTexture_);
-
 	fb1_->BindWriteAttachment(FramebufferAttachmentNone);
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
+		if (!IsRenderable(entity)) {
+			continue;
+		}
+
 		Material material = dsp_cast<Material>(directionalLightShadowMaterial_->Clone());
 		material->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix());
 
-		AddToPipeline(entity->GetMesh(), depthMaterial_, fb);
+		AddToPipeline(entity->GetMesh(), material);
 	}
 
 	fb1_->Unbind();
@@ -429,7 +433,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities, Frame
 clock_t mat = 0;
 clock_t push = 0;
 
-int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, FramebufferBase* fb, int from) {
+int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, int from) {
 	pass_ = RenderPassForwardOpaque;
 
 	for (int i = 0; i < entities.size(); ++i) {
@@ -447,7 +451,7 @@ int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, Frame
 	return 0;
 }
 
-int CameraInternal::ForwardTransparentPass(const std::vector<Entity>& entities, FramebufferBase* fb, int from) {
+int CameraInternal::ForwardTransparentPass(const std::vector<Entity>& entities, int from) {
 	pass_ = RenderPassForwardTransparent;
 	// TODO: sort.
 	return 0;
@@ -500,7 +504,7 @@ void CameraInternal::RenderDecals() {
 
 		SubMesh subMesh = NewSubMesh();
 		TriangleBias base{ d->indexes.size() };
-		subMesh->SetTriangles(base);
+		subMesh->SetTriangleBias(base);
 		mesh->AddSubMesh(subMesh);
 	}
 }
@@ -520,12 +524,13 @@ void CameraInternal::OnImageEffects() {
 			textures[index] = nullptr;
 		}
 
-		active->BindWrite();
+		Framebuffer::SetCurrentWrite(active);
 		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
 
-		active->Unbind();
 		index = 1 - index;
 	}
+
+	Framebuffer::SetCurrentWrite(nullptr);
 }
 
 bool CameraInternal::IsRenderable(Entity entity) {
@@ -571,7 +576,7 @@ void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipS
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
 
 	if (pass_ >= RenderPassForwardOpaque) {
-		material->SetMatrix4(Variables::localToShadowSpaceMatrix, viewToShadowSpaceMatrix_ * localToWorldSpaceMatrix);
-		//material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
+		material->SetMatrix4(Variables::localToShadowSpaceMatrix, worldToShadowSpaceMatrix_ * localToWorldSpaceMatrix);
+		material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}
 }

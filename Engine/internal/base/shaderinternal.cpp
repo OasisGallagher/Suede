@@ -44,6 +44,7 @@ bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass&
 	InitializeRenderStates(pass.renderStates);
 	
 	std::string sources[ShaderStageCount];
+
 	GLSLParser parser;
 	if (!parser.Parse(sources, path, pass.source, "")) {
 		return false;

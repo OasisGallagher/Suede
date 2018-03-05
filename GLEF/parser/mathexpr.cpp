@@ -34,14 +34,21 @@ bool MathExpr::ShuntingYard(std::vector<std::string>& tokens, const char* expres
 					positive = !positive;
 				}
 				else {
-					if (!positive) { token = "-" + token; }
-					positive = true;
+					if (!positive) {
+						token = "-" + token;
+						positive = true;
+					}
+
 					tokens.push_back(token);
 				}
 				break;
+
 			case ScannerTokenIdentifier:
-				if (!positive) { token = "-" + token; }
-				positive = true;
+				if (!positive) {
+					token = "-" + token;
+					positive = true;
+				}
+
 				tokens.push_back(token);
 				break;
 

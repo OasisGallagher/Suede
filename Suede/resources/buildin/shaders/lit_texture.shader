@@ -72,12 +72,13 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
+		#include "buildin/shaders/include/suede.inc"
+
 		in vec3 c_position;
 		in vec3 c_normal;
 
 		uniform mat4 c_localToClipSpaceMatrix;
 		uniform mat4 c_localToWorldSpaceMatrix;
-		uniform mat4 c_worldToClipSpaceMatrix;
 
 		void main() {
 			mat3 m3 = transpose(inverse(mat3(c_localToWorldSpaceMatrix)));

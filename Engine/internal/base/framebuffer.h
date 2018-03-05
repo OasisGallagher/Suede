@@ -32,6 +32,7 @@ enum FramebufferAttachment {
 	FramebufferAttachment6,
 	FramebufferAttachment7,
 	FramebufferAttachment8,
+	FramebufferAttachmentMax = FramebufferAttachment8,
 };
 
 class FramebufferBase {
@@ -54,12 +55,14 @@ public:
 
 	uint GetNativePointer() { return fbo_; }
 
-	static FramebufferBase* GetWriteTarget() { return writeTarget_; }
-
 protected:
 	FramebufferBase();
 	virtual ~FramebufferBase() {}
-	
+
+protected:
+	virtual void OnViewportChanged() {}
+
+protected:
 	void ClearCurrent(FramebufferClearBitmask bitmask);
 
 	void BindFramebuffer(FramebufferTarget target = FramebufferTargetReadWrite);
@@ -80,8 +83,6 @@ protected:
 private:
 	GLint oldFramebuffer_;
 	GLenum bindTarget_;
-
-	static FramebufferBase* writeTarget_;
 };
 
 class Framebuffer0 : public FramebufferBase {
@@ -96,6 +97,13 @@ class Framebuffer : public FramebufferBase {
 public:
 	Framebuffer();
 	~Framebuffer();
+
+public:
+	static void SetCurrentRead(FramebufferBase* value);
+	static void SetCurrentWrite(FramebufferBase* value);
+
+	static FramebufferBase* GetCurrentRead() { return read_; }
+	static FramebufferBase* GetCurrentWrite() { return write_; }
 
 public:
 	void Create(int width, int height);
@@ -113,7 +121,7 @@ public:
 
 public:
 	void SetDepthTexture(RenderTexture texture);
-	void CreateDepthRenderBuffer();
+	void CreateDepthRenderbuffer();
 
 	uint GetRenderTextureCount();
 	RenderTexture GetDepthTexture();
@@ -121,6 +129,9 @@ public:
 	RenderTexture GetRenderTexture(FramebufferAttachment attachment);
 	void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
 
+private:
+	virtual void OnViewportChanged();
+	
 private:
 	uint ToGLColorAttachments();
 	uint ToGLColorAttachments(uint n, FramebufferAttachment* attachments);
@@ -138,4 +149,20 @@ private:
 	GLenum* glAttachments_;
 	RenderTexture* renderTextures_;
 	RenderTexture depthTexture_;
+
+	static FramebufferBase* read_, *write_;
 };
+
+class FramebufferState {
+public:
+	FramebufferState(FramebufferBase* framebuffer);
+
+private:
+	GLuint depthRenderbuffer_;
+
+	RenderTexture depthTexture;
+	RenderTexture* renderTextures_;
+
+	int attachedRenderTextureCount_;
+};
+

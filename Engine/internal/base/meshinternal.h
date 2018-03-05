@@ -28,8 +28,8 @@ public:
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_.lock(); }
 
-	virtual void SetTriangles(const TriangleBias& value) { base_ = value; }
-	virtual const TriangleBias& GetTriangles() const { return base_; }
+	virtual void SetTriangleBias(const TriangleBias& value) { base_ = value; }
+	virtual const TriangleBias& GetTriangleBias() const { return base_; }
 
 private:
 	TriangleBias base_;

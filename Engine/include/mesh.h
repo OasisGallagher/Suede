@@ -18,8 +18,8 @@ public:
 	virtual Mesh GetMesh() = 0;
 	virtual void SetMesh(Mesh value) = 0;
 
-	virtual const TriangleBias& GetTriangles() const = 0;
-	virtual void SetTriangles(const TriangleBias& value) = 0;
+	virtual const TriangleBias& GetTriangleBias() const = 0;
+	virtual void SetTriangleBias(const TriangleBias& value) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh);

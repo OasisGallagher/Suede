@@ -3,7 +3,8 @@
 #include "framebuffer.h"
 #include "memory/memory.h"
 
-FramebufferBase* FramebufferBase::writeTarget_;
+FramebufferBase* Framebuffer::read_ = Framebuffer0::Get();
+FramebufferBase* Framebuffer::write_ = Framebuffer0::Get();
 
 FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
 }
@@ -12,13 +13,11 @@ void FramebufferBase::BindWrite() {
 	BindFramebuffer(FramebufferTargetWrite);
 	ClearCurrent(FramebufferClearBitmaskColorDepthStencil);
 	BindViewport();
-	writeTarget_ = this;
 }
 
 void FramebufferBase::Unbind() {
 	UnbindFramebuffer();
 	UnbindViewport();
-	writeTarget_ = nullptr;
 }
 
 void FramebufferBase::ReadBuffer(std::vector<uchar>& data) {
@@ -97,6 +96,7 @@ void FramebufferBase::SetViewport(uint width, uint height) {
 	if (width_ != width || height_ != width) {
 		width_ = width;
 		height_ = height;
+		OnViewportChanged();
 	}
 }
 
@@ -129,6 +129,16 @@ Framebuffer::~Framebuffer() {
 	}
 }
 
+void Framebuffer::SetCurrentRead(FramebufferBase* value) {
+	if (value == nullptr) { value = Framebuffer0::Get(); }
+	read_ = value;
+}
+
+void Framebuffer::SetCurrentWrite(FramebufferBase * value) {
+	if (value == nullptr) { value = Framebuffer0::Get(); }
+	write_ = value;
+}
+
 void Framebuffer::Create(int width, int height) {
 	if (renderTextures_ != nullptr || glAttachments_ != nullptr) {
 		Debug::LogError("framebuffer already created");
@@ -144,6 +154,11 @@ void Framebuffer::Create(int width, int height) {
 	GL::GetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxRenderTextures_);
 	renderTextures_ = MEMORY_CREATE_ARRAY(RenderTexture, maxRenderTextures_);
 	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, maxRenderTextures_);
+
+	BindFramebuffer();
+	GL::ClearDepth(1);
+	GL::DepthRange(0.f, 1.f);
+	UnbindFramebuffer();
 }
 
 void Framebuffer::BindWrite() {
@@ -175,6 +190,18 @@ void Framebuffer::Clear(FramebufferClearBitmask bitmask) {
 	ClearCurrentAllAttachments(bitmask);
 
 	UnbindFramebuffer();
+}
+
+void Framebuffer::OnViewportChanged() {
+	if (depthRenderbuffer_ != 0) {
+		BindFramebuffer();
+
+		GL::BindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer_);
+		GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GetViewportWidth(), GetViewportHeight());
+		GL::BindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		UnbindFramebuffer();
+	}
 }
 
 void Framebuffer::ClearAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments) {
@@ -229,7 +256,7 @@ uint Framebuffer::ToGLColorAttachments(uint n, FramebufferAttachment* attachment
 	return i;
 }
 
-void Framebuffer::CreateDepthRenderBuffer() {
+void Framebuffer::CreateDepthRenderbuffer() {
 	if (depthRenderbuffer_ != 0) {
 		Debug::LogError("depth texture or render buffer already exists");
 		return;
@@ -239,8 +266,11 @@ void Framebuffer::CreateDepthRenderBuffer() {
 
 	GL::GenRenderbuffers(1, &depthRenderbuffer_);
 	GL::BindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer_);
+
 	GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GetViewportWidth(), GetViewportHeight());
 	GL::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
+
+	GL::BindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	UnbindFramebuffer();
 }

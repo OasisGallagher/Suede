@@ -186,7 +186,7 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, T
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];
 		SubMesh subMesh = NewSubMesh();
-		subMesh->SetTriangles(biases[meshIndex]);
+		subMesh->SetTriangleBias(biases[meshIndex]);
 		mesh->AddSubMesh(subMesh);
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;

@@ -5,10 +5,17 @@
 
 class Grayscale : public ImageEffect {
 public:
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
-		Shader shader = Resources::FindShader("shaders/grayscale");
-		Material material = NewMaterial();
-		material->SetShader(shader);
-		Graphics::Blit(src, dest, material);
+	Grayscale() {
+		Shader shader = Resources::FindShader("buildin/shaders/blit");
+		material_ = NewMaterial();
+		material_->SetShader(shader);
 	}
+
+public:
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
+		Graphics::Blit(src, dest, material_);
+	}
+
+private:
+	Material material_;
 };

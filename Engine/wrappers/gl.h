@@ -41,6 +41,7 @@ public:
 	static void GetIntegerv(GLenum pname, GLint* params);
 	static void GetFloatv(GLenum pname, GLfloat* params);
 	static void BlendFunc(GLenum sfactor, GLenum dfactor);
+	static void DepthRange(GLclampd zNear, GLclampd zFar);
 	static void BindTexture(GLenum target, GLuint texture);
 	static void DrawBuffers(GLsizei n, const GLenum* bufs);
 	static void GenVertexArrays(GLsizei n, GLuint* arrays);
@@ -254,6 +255,10 @@ inline void GL::DepthFunc(GLenum func) {
 
 inline void GL::DepthMask(GLboolean flag) {
 	GL_CALL(glDepthMask(flag));
+}
+
+inline void GL::DepthRange(GLclampd zNear, GLclampd zFar) {
+	GL_CALL(glDepthRange(zNear, zFar));
 }
 
 inline void GL::BlendFunc(GLenum sfactor, GLenum dfactor) {

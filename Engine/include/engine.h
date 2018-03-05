@@ -11,5 +11,5 @@ public:
 	static void Resize(int w, int h);
 
 private:
-	static void SetDefaultRenderStates();
+	static void SetDefaultGLStates();
 };

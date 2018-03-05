@@ -45,7 +45,7 @@ RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer"
 	}
 
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materialList);
-	shrinkToFit(materialList);
+	resizeGeometryToFit(materialList);
 
 	QStringList list;
 	const std::vector<ShaderResource>& shaders = Resources::GetShaderResources();

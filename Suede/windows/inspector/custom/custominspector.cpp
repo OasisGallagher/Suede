@@ -7,7 +7,7 @@ CustomInspector::CustomInspector(const QString& title, Object object)
 	form_ = new QFormLayout(this);
 }
 
-void CustomInspector::shrinkToFit(QListWidget* w) {
+void CustomInspector::resizeGeometryToFit(QListWidget* w) {
 	int height = 0;
 	for (int i = 0; i < w->count(); ++i) {
 		height += w->sizeHintForRow(i);

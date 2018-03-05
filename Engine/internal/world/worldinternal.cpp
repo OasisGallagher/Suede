@@ -252,7 +252,7 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh subMesh = mesh->GetSubMesh(i);
-		const TriangleBias& bias = subMesh->GetTriangles();
+		const TriangleBias& bias = subMesh->GetTriangleBias();
 
 		// TODO: triangle strip.
 		for (int j = 0; j < bias.indexCount; j += 3) {

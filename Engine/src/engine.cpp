@@ -39,7 +39,7 @@ bool Engine::Initialize() {
 		GL::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
 
-	SetDefaultRenderStates();
+	SetDefaultGLStates();
 
 	Resources::Import();
 	return true;
@@ -59,7 +59,10 @@ void Engine::Update() {
 	WorldInstance()->Update();
 }
 
-void Engine::SetDefaultRenderStates() {
+void Engine::SetDefaultGLStates() {
+	GL::ClearDepth(1);
+	GL::DepthRange(0.f, 1.f);
+
 	GL::Enable(GL_DEPTH_TEST);
 	GL::DepthFunc(GL_LEQUAL);
 
