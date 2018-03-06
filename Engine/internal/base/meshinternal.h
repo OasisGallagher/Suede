@@ -28,11 +28,11 @@ public:
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_.lock(); }
 
-	virtual void SetTriangleBias(const TriangleBias& value) { base_ = value; }
-	virtual const TriangleBias& GetTriangleBias() const { return base_; }
+	virtual void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
+	virtual const TriangleBias& GetTriangleBias() const { return bias_; }
 
 private:
-	TriangleBias base_;
+	TriangleBias bias_;
 	std::weak_ptr<Mesh::element_type> mesh_;
 };
 

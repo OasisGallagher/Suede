@@ -35,6 +35,21 @@ enum FramebufferAttachment {
 	FramebufferAttachmentMax = FramebufferAttachment8,
 };
 
+class FramebufferBase;
+struct FramebufferState {
+	void BindWrite();
+	void Unbind();
+	void Clear();
+
+	bool operator != (const FramebufferState& other) const;
+
+	FramebufferBase* framebuffer;
+	RenderTexture depthTexture;
+
+	RenderTexture renderTexture;
+	FramebufferAttachment attachment;
+};
+
 class FramebufferBase {
 public:
 	virtual void ReadBuffer(std::vector<uchar>& data);
@@ -43,6 +58,19 @@ public:
 	virtual void Unbind();
 
 	virtual void Clear(FramebufferClearBitmask bitmask);
+
+public:
+	virtual void SetDepthTexture(RenderTexture texture);
+	virtual void CreateDepthRenderbuffer();
+
+	virtual uint GetRenderTextureCount();
+	virtual RenderTexture GetDepthTexture();
+
+	virtual RenderTexture GetRenderTexture(FramebufferAttachment attachment);
+	virtual void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
+
+public:
+	void SaveState(FramebufferState& state);
 
 public:
 	int GetViewportWidth() { return width_; }
@@ -120,14 +148,14 @@ public:
 	void BindWriteAttachments(uint n, FramebufferAttachment* attachments);
 
 public:
-	void SetDepthTexture(RenderTexture texture);
-	void CreateDepthRenderbuffer();
+	virtual void SetDepthTexture(RenderTexture texture);
+	virtual void CreateDepthRenderbuffer();
 
-	uint GetRenderTextureCount();
-	RenderTexture GetDepthTexture();
+	virtual uint GetRenderTextureCount();
+	virtual RenderTexture GetDepthTexture();
 
-	RenderTexture GetRenderTexture(FramebufferAttachment attachment);
-	void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
+	virtual RenderTexture GetRenderTexture(FramebufferAttachment attachment);
+	virtual void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
 
 private:
 	virtual void OnViewportChanged();
@@ -152,17 +180,3 @@ private:
 
 	static FramebufferBase* read_, *write_;
 };
-
-class FramebufferState {
-public:
-	FramebufferState(FramebufferBase* framebuffer);
-
-private:
-	GLuint depthRenderbuffer_;
-
-	RenderTexture depthTexture;
-	RenderTexture* renderTextures_;
-
-	int attachedRenderTextureCount_;
-};
-

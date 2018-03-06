@@ -181,9 +181,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\entities\lightinternal.cpp" />
     <ClCompile Include="internal\entities\particlesysteminternal.cpp" />
     <ClCompile Include="internal\entities\entityinternal.cpp" />
+    <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\globalubo.cpp" />
-    <ClCompile Include="internal\world\pipeline.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
     <ClCompile Include="src\driver.cpp" />
     <ClCompile Include="src\engine.cpp" />
@@ -253,9 +253,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\entities\lightinternal.h" />
     <ClInclude Include="internal\entities\particlesysteminternal.h" />
     <ClInclude Include="internal\entities\entityinternal.h" />
+    <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\globalubo.h" />
-    <ClInclude Include="internal\world\pipeline.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
     <ClInclude Include="wrappers\gl.h" />
   </ItemGroup>

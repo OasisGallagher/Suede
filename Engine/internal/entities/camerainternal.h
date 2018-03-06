@@ -6,6 +6,7 @@
 
 class GBuffer;
 class Frustum;
+class Pipeline;
 class ImageEffect;
 class Framebuffer;
 class FramebufferBase;
@@ -86,6 +87,7 @@ private:
 	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
+	void UpdateTimeUBO();
 	void AddToPipeline(Mesh mesh, Material material);
 
 	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
@@ -116,7 +118,7 @@ private:
 	void GetRenderableEntities(std::vector<Entity>& entities);
 	void SortRenderableEntities(std::vector<Entity>& entities);
 
-	void SetForwardBaseLightParameter(const std::vector<Entity>& entities, Light light);
+	void UpdateForwardBaseLightUBO(const std::vector<Entity>& entities, Light light);
 
 	void RenderForwardBase(const std::vector<Entity>& entities, Light light);
 	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
@@ -132,11 +134,14 @@ private:
 	int depth_;
 	glm::mat4 worldToShadowSpaceMatrix_;
 
+
 	GBuffer* gbuffer_;
 	Frustum* frustum_;
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;
+
+	Pipeline* pipeline_;
 
 	RenderTexture depthTexture_;
 	RenderTexture shadowTexture_;

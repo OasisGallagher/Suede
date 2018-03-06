@@ -217,8 +217,8 @@ void TextMeshInternal::RebuildMesh() {
 	SubMesh subMesh = NewSubMesh();
 	AddSubMesh(subMesh);
 
-	TriangleBias base{ attribute.indexes.size() };
-	subMesh->SetTriangleBias(base);
+	TriangleBias bias{ attribute.indexes.size() };
+	subMesh->SetTriangleBias(bias);
 
 	SetAttribute(attribute);
 }

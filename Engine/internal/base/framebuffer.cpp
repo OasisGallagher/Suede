@@ -6,6 +6,28 @@
 FramebufferBase* Framebuffer::read_ = Framebuffer0::Get();
 FramebufferBase* Framebuffer::write_ = Framebuffer0::Get();
 
+bool FramebufferState::operator!=(const FramebufferState& other) const {
+	return framebuffer != other.framebuffer || depthTexture != other.depthTexture
+		|| renderTexture != other.renderTexture;
+}
+
+void FramebufferState::BindWrite() {
+	framebuffer->SetDepthTexture(depthTexture);
+	framebuffer->SetRenderTexture(attachment, renderTexture);
+	framebuffer->BindWrite();
+}
+
+void FramebufferState::Unbind() {
+	framebuffer->Unbind();
+}
+
+void FramebufferState::Clear() {
+	framebuffer = Framebuffer0::Get();
+	depthTexture = nullptr;
+	renderTexture = nullptr;
+	attachment = FramebufferAttachment0;
+}
+
 FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
 }
 
@@ -104,6 +126,35 @@ void FramebufferBase::Clear(FramebufferClearBitmask bitmask) {
 	BindFramebuffer();
 	ClearCurrent(bitmask);
 	UnbindFramebuffer();
+}
+
+void FramebufferBase::SetDepthTexture(RenderTexture texture) {
+}
+
+void FramebufferBase::CreateDepthRenderbuffer() {
+}
+
+uint FramebufferBase::GetRenderTextureCount() {
+	return 0;
+}
+
+RenderTexture FramebufferBase::GetDepthTexture() {
+	return nullptr;
+}
+
+RenderTexture FramebufferBase::GetRenderTexture(FramebufferAttachment attachment) {
+	return nullptr;
+}
+
+void FramebufferBase::SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture) {
+}
+
+void FramebufferBase::SaveState(FramebufferState& state) {
+	state.framebuffer = this;
+	state.depthTexture = GetDepthTexture();
+
+	state.attachment = FramebufferAttachment0;
+	state.renderTexture = (GetRenderTextureCount() > 0) ? GetRenderTexture(FramebufferAttachment0) : nullptr;
 }
 
 void FramebufferBase::ClearCurrent(FramebufferClearBitmask bitmask) {
@@ -305,6 +356,10 @@ void Framebuffer::SetDepthTexture(RenderTexture texture) {
 	BindFramebuffer();
 	depthTexture_ = texture;
 	GL::FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture ? texture->GetNativePointer() : 0, 0);
+
+	if (!texture && depthRenderbuffer_ != 0) {
+		GL::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
+	}
 
 	GLenum status = GL::CheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE && status != GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {

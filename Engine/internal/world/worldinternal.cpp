@@ -1,4 +1,3 @@
-#include "pipeline.h"
 #include "resources.h"
 #include "worldinternal.h"
 #include "internal/file/assetimporter.h"
@@ -162,8 +161,6 @@ void WorldInternal::RenderUpdate() {
 			(*ite)->Render();
 		}
 	}
-
-	Pipeline::Update();
 }
 
 void WorldInternal::UpdateDecals() {

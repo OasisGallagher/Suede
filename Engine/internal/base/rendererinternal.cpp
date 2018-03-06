@@ -5,7 +5,7 @@
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "rendererinternal.h"
-#include "internal/world/pipeline.h"
+#include "internal/rendering/pipeline.h"
 
 RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type) {	
 }
@@ -37,28 +37,14 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 			RenderSubMesh(mesh, i, material, pass);
 		}
 		else {
-			for (int p = 0; p < material->GetPassCount(); ++p) {
-				if (material->IsPassEnabled(p)) {
-					RenderSubMesh(mesh, i, material, p);
+			for (pass = 0; pass < material->GetPassCount(); ++pass) {
+				if (material->IsPassEnabled(pass)) {
+					RenderSubMesh(mesh, i, material, pass);
 				}
 			}
 		}
 	}
 }
-
-// void RendererInternal::RenderMesh(Mesh mesh, Material material) {
-// 	int pass = material->GetPass();
-// 	if (pass >= 0 && material->IsPassEnabled(pass)) {
-// 		RenderMesh(mesh, material, pass);
-// 	}
-// 	else {
-// 		for (int p = 0; p < material->GetPassCount(); ++p) {
-// 			if (material->IsPassEnabled(p)) {
-// 				RenderMesh(mesh, material, p);
-// 			}
-// 		}
-// 	}
-// }
 
 void RendererInternal::RenderMesh(Mesh mesh, Material material, int pass) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
@@ -81,12 +67,12 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 }
 
 void RendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pass) {
-	Renderable* item = Pipeline::CreateRenderable();
+	Renderable* item = Pipeline::GetCurrent()->CreateRenderable();
 	item->pass = pass;
 	item->instance = 0;
 	item->material = material;
 	item->subMesh = subMesh;
-	item->framebuffer = Framebuffer::GetCurrentWrite();
+	Framebuffer::GetCurrentWrite()->SaveState(item->state);
 }
 
 void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
@@ -123,9 +109,10 @@ void ParticleRendererInternal::RenderEntity(Entity entity) {
 
 void ParticleRendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pass) {
 	if (particleCount_ == 0) { return; }
-	Renderable* item = Pipeline::CreateRenderable();
+	Renderable* item = Pipeline::GetCurrent()->CreateRenderable();
 	item->pass = pass;
 	item->material = material;
 	item->subMesh = subMesh;
 	item->instance = particleCount_;
+	Framebuffer::GetCurrentWrite()->SaveState(item->state);
 }

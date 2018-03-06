@@ -1,7 +1,7 @@
 Properties { }
 
 SubShader {
-	Tags { Queue = "Transparent" }
+	Tags { Queue = "Transparent"; }
 
 	Pass {
 		Blend SrcAlpha OneMinusSrcAlpha;
@@ -16,8 +16,7 @@ SubShader {
 		out vec2 texCoord;
 		out vec4 color;
 
-		uniform mat4 c_worldToClipSpaceMatrix;
-		uniform mat4 c_worldToCameraSpaceMatrix;
+		#include "buildin/shaders/include/suede.inc"
 
 		void main() {
 			float size = c_instanceGeometry.w;

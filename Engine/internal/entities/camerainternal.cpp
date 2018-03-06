@@ -9,8 +9,8 @@
 #include "imageeffect.h"
 #include "internal/base/ubo.h"
 #include "internal/base/gbuffer.h"
-#include "internal/world/pipeline.h"
 #include "internal/world/globalubo.h"
+#include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
 
@@ -18,6 +18,7 @@ CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera)
 	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
 	frustum_ = MEMORY_CREATE(Frustum);
+	pipeline_ = MEMORY_CREATE(Pipeline);
 
 	InitializeVariables();
 	CreateFramebuffers();
@@ -32,6 +33,7 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(fb2_);
 	MEMORY_RELEASE(frustum_);
 	MEMORY_RELEASE(gbuffer_);
+	MEMORY_RELEASE(pipeline_);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -72,9 +74,11 @@ void CameraInternal::Render() {
 	GetRenderableEntities(entities);
 	Debug::Output("[collect]\t%.2f\n", Debug::EndSample());
 
+	Pipeline::SetCurrent(pipeline_);
+
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-		//	ForwardDepthPass(entities);
+			ForwardDepthPass(entities);
 		}
 	}
 
@@ -83,26 +87,21 @@ void CameraInternal::Render() {
 	GetLights(forwardBase, forwardAdd);
 
 	if (forwardBase) {
-	//	ShadowDepthPass(entities, forwardBase);
+		ShadowDepthPass(entities, forwardBase);
 	}
 
 	Framebuffer::SetCurrentWrite(GetActiveFramebuffer());
 
-	if (clearType_ == ClearTypeSkybox) {
-		RenderSkybox();
-	}
-
-	static GlobalUBOStructs::Time time;
-	time.time.x = Time::GetRealTimeSinceStartup();
-	time.time.y = Time::GetDeltaTime();
-	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Time, &time, 0, sizeof(time));
-
+	UpdateTimeUBO();
+	
 	if (renderPath_ == RenderPathForward) {
 		ForwardRendering(entities, forwardBase, forwardAdd);
 	}
 	else {
 		DeferredRendering(entities, forwardBase, forwardAdd);
 	}
+
+	pipeline_->Update();
 
 	OnPostRender();
 
@@ -112,7 +111,15 @@ void CameraInternal::Render() {
 		OnImageEffects();
 	}
 
+	Pipeline::SetCurrent(nullptr);
 	pass_ = RenderPassNone;
+}
+
+void CameraInternal::UpdateTimeUBO() {
+	static GlobalUBOStructs::Time time;
+	time.time.x = Time::GetRealTimeSinceStartup();
+	time.time.y = Time::GetDeltaTime();
+	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Time, &time, 0, sizeof(time));
 }
 
 bool CameraInternal::GetPerspective() const {
@@ -168,6 +175,10 @@ const glm::mat4 & CameraInternal::GetProjectionMatrix() {
 }
 
 void CameraInternal::ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
+	if (clearType_ == ClearTypeSkybox) {
+		RenderSkybox();
+	}
+	
 	if (forwardBase) {
 		RenderForwardBase(entities, forwardBase);
 	}
@@ -175,6 +186,8 @@ void CameraInternal::ForwardRendering(const std::vector<Entity>& entities, Light
 	if (!forwardAdd.empty()) {
 		RenderForwardAdd(entities, forwardAdd);
 	}
+	
+	RenderDecals();
 }
 
 void CameraInternal::DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
@@ -199,12 +212,12 @@ void CameraInternal::InitializeDeferredRender() {
 
 void CameraInternal::AddToPipeline(Mesh mesh, Material material) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		Renderable* renderable = Pipeline::CreateRenderable();
+		Renderable* renderable = pipeline_->CreateRenderable();
 		renderable->pass = 0;
 		renderable->instance = 0;
 		renderable->subMesh = mesh->GetSubMesh(i);
 		renderable->material = material;
-		renderable->framebuffer = Framebuffer::GetCurrentWrite();
+		Framebuffer::GetCurrentWrite()->SaveState(renderable->state);
 	}
 }
 
@@ -343,7 +356,7 @@ void CameraInternal::CreateFramebuffer2() {
 	}
 }
 
-void CameraInternal::SetForwardBaseLightParameter(const std::vector<Entity>& entities, Light light) {
+void CameraInternal::UpdateForwardBaseLightUBO(const std::vector<Entity>& entities, Light light) {
 	static GlobalUBOStructs::Light parameter;
 	parameter.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
 	parameter.lightColor = glm::vec4(light->GetColor(), 1);
@@ -354,7 +367,7 @@ void CameraInternal::SetForwardBaseLightParameter(const std::vector<Entity>& ent
 
 void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Light light) {
 	Debug::StartSample();
-	SetForwardBaseLightParameter(entities, light);
+	UpdateForwardBaseLightUBO(entities, light);
 	Debug::Output("[lightparam]\t%.2f\n", Debug::EndSample());
 
 	int from = 0;
@@ -371,7 +384,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	}
 
 	fb1_->SetDepthTexture(shadowTexture_);
-	fb1_->BindWriteAttachment(FramebufferAttachmentNone);
+	Framebuffer::SetCurrentWrite(fb1_);
 
 	glm::vec3 lightPosition = light->GetTransform()->GetRotation() * glm::vec3(0, 0, 1);
 	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
@@ -397,7 +410,8 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	);
 
 	worldToShadowSpaceMatrix_ = bias * shadowDepthMatrix;
-	fb1_->Unbind();
+
+	Framebuffer::SetCurrentWrite(nullptr);
 }
 
 void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights) {
@@ -412,7 +426,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	pass_ = RenderPassForwardDepth;
 
 	fb1_->SetDepthTexture(depthTexture_);
-	fb1_->BindWriteAttachment(FramebufferAttachmentNone);
+	Framebuffer::SetCurrentWrite(fb1_);
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
@@ -420,13 +434,13 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 			continue;
 		}
 
-		Material material = dsp_cast<Material>(directionalLightShadowMaterial_->Clone());
+		Material material = dsp_cast<Material>(depthMaterial_->Clone());
 		material->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix());
 
 		AddToPipeline(entity->GetMesh(), material);
 	}
 
-	fb1_->Unbind();
+	Framebuffer::SetCurrentWrite(nullptr);
 }
 
 #include <ctime>
@@ -470,7 +484,7 @@ void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAd
 }
 
 void CameraInternal::OnPostRender() {
-	RenderDecals();
+	
 }
 
 void CameraInternal::RenderDecals() {

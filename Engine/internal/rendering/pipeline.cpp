@@ -3,13 +3,7 @@
 #include "tools/math2.h"
 #include "internal/base/framebuffer.h"
 
-static uint nrenderables_;
-static std::vector<Renderable> renderables_(1024);
-
-static Material oldMaterial;
-static int oldPass = -1;
-static uint oldMeshPointer = 0;
-static FramebufferBase* oldFbo = nullptr;
+Pipeline* Pipeline::current_ = nullptr;
 
 #include <ctime>
 static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0;
@@ -41,6 +35,19 @@ struct RenderableComparer {
 	}
 };
 
+Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
+	, oldTarget_(nullptr), oldPass_(-1), oldMeshPointer_(0) {
+}
+
+GLenum TopologyToGLEnum(MeshTopology topology) {
+	if (topology != MeshTopologyTriangles && topology != MeshTopologyTriangleStripes) {
+		Debug::LogError("invalid mesh topology");
+		return 0;
+	}
+
+	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
+	return GL_TRIANGLE_STRIP;
+}
 
 void Pipeline::Update() {
 	Debug::StartSample();
@@ -64,65 +71,56 @@ void Pipeline::SortRenderables() {
 	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparer);
 }
 
-GLenum Pipeline::TopologyToGLEnum(MeshTopology topology) {
-	if (topology != MeshTopologyTriangles && topology != MeshTopologyTriangleStripes) {
-		Debug::LogError("invalid mesh topology");
-		return 0;
-	}
-
-	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
-	return GL_TRIANGLE_STRIP;
-}
-
 Renderable* Pipeline::CreateRenderable() {
 	if (nrenderables_ == renderables_.size()) {
 		renderables_.resize(2 * nrenderables_);
 	}
 
 	Renderable* answer = &renderables_[nrenderables_++];
-	ResetRenderable(answer);
+	ClearRenderable(answer);
 	return answer;
 }
 
-void Pipeline::ResetRenderable(Renderable* answer) {
-	answer->framebuffer = nullptr;
+void Pipeline::ClearRenderable(Renderable* answer) {
+	answer->state.Clear();
 }
 
 void Pipeline::Render(Renderable& p) {
-	if (oldFbo != p.framebuffer) {
+	if (oldTarget_ == nullptr || *oldTarget_ != p.state) {
 		clock_t delta = clock();
-		if (oldFbo != nullptr) {
-			oldFbo->Unbind();
+		if (oldTarget_ != nullptr) {
+			oldTarget_->Unbind();
 		}
 
-		oldFbo = p.framebuffer;
+		oldTarget_ = &p.state;
 
-		p.framebuffer->BindWrite();
+		p.state.BindWrite();
+
 		switchFramebuffer += (clock() - delta);
 	}
 
-	if (p.material != oldMaterial) {
+	if (p.material != oldMaterial_) {
 		clock_t delta = clock();
-		if (oldMaterial) {
-			oldMaterial->Unbind();
+		if (oldMaterial_) {
+			oldMaterial_->Unbind();
 		}
 
-		oldPass = p.pass;
-		oldMaterial = p.material;
+		oldPass_ = p.pass;
+		oldMaterial_ = p.material;
 
 		p.material->Bind(p.pass);
 		switchMaterial += (clock() - delta);
 	}
-	else if (oldPass != p.pass) {
+	else if (oldPass_ != p.pass) {
 		p.material->Bind(p.pass);
-		oldPass = p.pass;
+		oldPass_ = p.pass;
 	}
 
 	Mesh mesh = p.subMesh->GetMesh();
-	if (mesh->GetNativePointer() != oldMeshPointer) {
+	if (mesh->GetNativePointer() != oldMeshPointer_) {
 		clock_t delta = clock();
 		mesh->Bind();
-		oldMeshPointer = mesh->GetNativePointer();
+		oldMeshPointer_ = mesh->GetNativePointer();
 		switchMesh += (clock() - delta);
 	}
 
@@ -135,26 +133,23 @@ void Pipeline::Render(Renderable& p) {
 	else {
 		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), p.instance, bias.baseVertex);
 	}
-
-	//mesh->Unbind();
-	//p.material->Unbind();
 }
 
 void Pipeline::ResetState() {
 	switchFramebuffer = switchMaterial = switchMesh = 0;
 
-	if (oldFbo != nullptr) {
-		oldFbo->Unbind();
-		oldFbo = nullptr;
+	if (oldTarget_ != nullptr) {
+		oldTarget_->Unbind();
+		oldTarget_ = nullptr;
 	}
 	
-	if (oldMaterial) {
-		oldMaterial->Unbind();
+	if (oldMaterial_) {
+		oldMaterial_->Unbind();
 	}
 
-	oldMaterial = nullptr;
+	oldMaterial_ = nullptr;
 
-	oldMeshPointer = 0;
+	oldMeshPointer_ = 0;
 
 	nrenderables_ = 0;
 }

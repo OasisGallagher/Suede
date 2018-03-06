@@ -80,6 +80,15 @@
     <Filter Include="internal\geometry\src">
       <UniqueIdentifier>{391be752-2b84-491a-8c76-c612d5d398e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\rendering">
+      <UniqueIdentifier>{04231575-3207-44df-a7a9-fe50c3dbb05c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rendering\include">
+      <UniqueIdentifier>{21632f62-aac2-45ad-8e82-7ba586fb9321}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\rendering\src">
+      <UniqueIdentifier>{25898a48-9103-48de-9fcd-2f61882bd8d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -268,8 +277,8 @@
     <ClInclude Include="internal\world\globalubo.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\world\pipeline.h">
-      <Filter>internal\world\include</Filter>
+    <ClInclude Include="internal\rendering\pipeline.h">
+      <Filter>internal\rendering\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -387,8 +396,8 @@
     <ClCompile Include="internal\world\globalubo.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\pipeline.cpp">
-      <Filter>internal\world\src</Filter>
+    <ClCompile Include="internal\rendering\pipeline.cpp">
+      <Filter>internal\rendering\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

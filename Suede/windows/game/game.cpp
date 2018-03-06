@@ -23,7 +23,7 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define SKYBOX
+//#define SKYBOX
 #define ROOM
 //#define BEAR
 //#define BEAR_X_RAY
@@ -52,6 +52,7 @@ Game::~Game() {
 	killTimer(updateTimer_);
 	gameInstance = nullptr;
 }
+
 void Game::init(Ui::Suede* ui) {
 	ChildWindow::init(ui);
 	updateTimer_ = startTimer(10, Qt::PreciseTimer);

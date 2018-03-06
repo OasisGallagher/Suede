@@ -48,6 +48,8 @@ SubShader {
 
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
+
+		#include "buildin/shaders/include/suede.inc"
 		#include "buildin/shaders/include/light_fragment.inc"
 
 		void main() {
