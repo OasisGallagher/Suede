@@ -28,7 +28,7 @@ bool UBO::Create(const std::string& name, uint size) {
 	return true;
 }
 
-void UBO::Attach(Shader shader) {
+void UBO::AttachSharedBuffer(Shader shader) {
 	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
 		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
 			uint program = shader->GetNativePointer(i, j);
@@ -37,18 +37,25 @@ void UBO::Attach(Shader shader) {
 	}
 }
 
+void UBO::AttachEntityBuffer(Shader shader, uint offset, uint size) {
+	AttachSharedBuffer(shader);
+	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_, offset, size);
+}
+
 void UBO::AttachToProgram(uint program) {
 	GLuint index = GL::GetUniformBlockIndex(program, name_.c_str());
+
 	if (index == GL_INVALID_INDEX) {
 		return;
 	}
 
-	int dataSize = 0;
-	GL::GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
-	if (dataSize != size_) {
-		Debug::LogError("uniform buffer size mismatch");
-		return;
-	}
+	// TODO: check size
+//	int dataSize = 0;
+//	GL::GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
+//	if (dataSize != size_) {
+//		Debug::LogError("uniform buffer size mismatch");
+//		return;
+//	}
 
 	GL::UniformBlockBinding(program, index, binding_);
 }

@@ -13,7 +13,7 @@ struct Renderable {
 	uint subMeshIndex;
 
 	Material material;
-	std::vector<Property> properties;
+	uint matrixBufferIndex;
 
 	FramebufferState state;
 };

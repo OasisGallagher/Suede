@@ -82,6 +82,7 @@ public:
 	static void RenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 	static void UniformBlockBinding(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
 	static void ShaderSource(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length);
+	static void BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 	static void GetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params);
 	static void VertexAttribIPointer(GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer);
 	static void DrawElementsBaseVertex(GLenum mode, GLsizei count, GLenum type, void* indices, GLint basevertex);
@@ -459,6 +460,10 @@ inline GLuint GL::CreateShader(GLenum type) {
 
 inline void GL::ShaderSource(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length) {
 	GL_CALL(glShaderSource(shader, count, string, length));
+}
+
+inline void GL::BindBufferRange(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size) {
+	GL_CALL(glBindBufferRange(target, index, buffer, offset, size));
 }
 
 inline void GL::GetActiveUniformBlockiv(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint* params) {

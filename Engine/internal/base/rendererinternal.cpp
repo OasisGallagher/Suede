@@ -46,12 +46,6 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 	}
 }
 
-void RendererInternal::RenderMesh(Mesh mesh, Material material, int pass) {
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		AddToPipeline(mesh, i, material, pass);
-	}
-}
-
 void RendererInternal::RemoveMaterial(Material material) {
 	std::vector<Material>::iterator pos = std::remove(materials_.begin(), materials_.end(), material);
 	materials_.erase(pos, materials_.end());
@@ -71,16 +65,6 @@ void RendererInternal::AddToPipeline(Mesh mesh, uint subMeshIndex, Material mate
 	item->pass = pass;
 	item->instance = 0;
 	item->material = material;
-	Variant v;
-	v.SetMatrix4(material->GetMatrix4(Variables::localToWorldSpaceMatrix));
-	Property prop{ Variables::localToWorldSpaceMatrix, v };
-
-	Variant v2;
-	v2.SetMatrix4(material->GetMatrix4(Variables::localToClipSpaceMatrix));
-	Property prop2{ Variables::localToClipSpaceMatrix, v2 };
-
-	item->properties.push_back(prop);
-	item->properties.push_back(prop2);
 
 	item->mesh = mesh;
 	item->subMeshIndex = subMeshIndex;

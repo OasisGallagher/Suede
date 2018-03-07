@@ -6,6 +6,7 @@
 #include "frustum.h"
 #include "resources.h"
 #include "variables.h"
+#include "tools/math2.h"
 #include "imageeffect.h"
 #include "internal/base/ubo.h"
 #include "internal/base/gbuffer.h"
@@ -13,6 +14,9 @@
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
+
+
+static bool __debugIndexSet = false;
 
 CameraInternal::CameraInternal() 
 	: EntityInternal(ObjectTypeCamera)
@@ -58,13 +62,13 @@ void CameraInternal::Update() {
 		OnContextSizeChanged(w, h);
 	}
 
-	static GlobalUBOStructs::Transforms transforms;
+	static SharedUBOStructs::Transforms transforms;
 	transforms.worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 	transforms.worldToCameraSpaceMatrix = GetTransform()->GetWorldToLocalMatrix();
 	transforms.cameraToClipSpaceMatrix = GetProjectionMatrix();
 	transforms.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 
-	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Transforms , &transforms, 0, sizeof(transforms));
+	GlobalUBO::Get()->SetBuffer(SharedUBONames::Transforms , &transforms, 0, sizeof(transforms));
 }
 
 void CameraInternal::Render() {
@@ -116,10 +120,10 @@ void CameraInternal::Render() {
 }
 
 void CameraInternal::UpdateTimeUBO() {
-	static GlobalUBOStructs::Time time;
+	static SharedUBOStructs::Time time;
 	time.time.x = Time::GetRealTimeSinceStartup();
 	time.time.y = Time::GetDeltaTime();
-	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Time, &time, 0, sizeof(time));
+	GlobalUBO::Get()->SetBuffer(SharedUBONames::Time, &time, 0, sizeof(time));
 }
 
 bool CameraInternal::GetPerspective() const {
@@ -298,8 +302,7 @@ void CameraInternal::RenderSkybox() {
 	if (skybox) {
 		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		const char* skyboxMatrix = "skyboxMatrix";
-		skybox->SetMatrix4(skyboxMatrix, GetProjectionMatrix() * matrix);
+		skybox->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * matrix);
 		AddToPipeline(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
 	}
 }
@@ -358,12 +361,12 @@ void CameraInternal::CreateFramebuffer2() {
 }
 
 void CameraInternal::UpdateForwardBaseLightUBO(const std::vector<Entity>& entities, Light light) {
-	static GlobalUBOStructs::Light parameter;
+	static SharedUBOStructs::Light parameter;
 	parameter.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
 	parameter.lightColor = glm::vec4(light->GetColor(), 1);
 	parameter.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	parameter.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
-	GlobalUBO::Get()->SetBuffer(GlobalUBONames::Light, &parameter, 0, sizeof(parameter));
+	GlobalUBO::Get()->SetBuffer(SharedUBONames::Light, &parameter, 0, sizeof(parameter));
 }
 
 void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Light light) {
@@ -373,7 +376,9 @@ void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Ligh
 
 	int from = 0;
 	from = ForwardBackgroundPass(entities, from);
+	Debug::StartSample();
 	from = ForwardOpaquePass(entities, from);
+	Debug::Output("[pass]\t%.2f\n", Debug::EndSample());
 	from = ForwardTransparentPass(entities, from);
 }
 
@@ -451,12 +456,31 @@ clock_t push = 0;
 int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, int from) {
 	pass_ = RenderPassForwardOpaque;
 
+	int n = 0;
+	std::vector<glm::mat4> matrices;
+	matrices.reserve(entities.size());
+
+	glm::mat4 worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
+
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
 		if (IsRenderable(entity)) {
-			RenderEntity(entity, entity->GetRenderer());
+			RenderEntity(entity, entity->GetRenderer(), worldToClipSpaceMatrix, matrices);
 		}
 	}
+
+	__debugIndexSet = true;
+
+	Debug::StartSample();
+	// TODO: UBO size(64k).
+	size_t length = matrices.size() * sizeof(glm::mat4);
+	int index = 0;
+	for (size_t offset = 0; offset < length; offset += 64 * 1024) {
+		uint size = Math::Min(length - offset, size_t(64 * 1024));
+		GlobalUBO::Get()->SetBuffer(EntityUBONames::GetEntityMatricesName(index++), (char*)&matrices[0] + offset, 0, size);
+	}
+
+	Debug::Output("[matrix_ubo]\t%.2f\n", Debug::EndSample());
 
 	Debug::Output("[opaque_mat]\t%.2f\n", float(mat) / CLOCKS_PER_SEC);
 	Debug::Output("[opaque_push]\t%.2f\n", float(push) / CLOCKS_PER_SEC);
@@ -566,29 +590,39 @@ void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 	entities.erase(entities.begin() + p, entities.end());
 }
 
-void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
-	clock_t b = clock();
-	glm::mat4 worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
+void CameraInternal::RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipSpaceMatrix, std::vector<glm::mat4>& matrices) {
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		UpdateMaterial(entity, worldToClipSpaceMatrix, renderer->GetMaterial(i));
+		Material material = renderer->GetMaterial(i);
+		//UpdateMaterial(entity, worldToClipSpaceMatrix, material);
+		const uint matrixCount = (sizeof(EntityUBOStructs::EntityMatrices) / sizeof(glm::mat4));
+
+		if (!__debugIndexSet) {
+			material->SetInt("c_index", matrices.size() / matrixCount);
+		}
+		clock_t b = clock();
+
+		glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
+		glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
+
+		matrices.push_back(localToWorldSpaceMatrix);
+		matrices.push_back(localToClipSpaceMatrix);
+		mat += clock() - b;
 	}
 
-	mat += clock() - b;
-
-	b = clock();
+	clock_t b = clock();
 	renderer->RenderEntity(entity);
 	push += clock() - b;
 }
 
 void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipSpaceMatrix, Material material) {
-	glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
+	/*glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
 	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
 
 	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldSpaceMatrix);
 	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
-
+	*/
 	if (pass_ >= RenderPassForwardOpaque) {
-		material->SetMatrix4(Variables::localToShadowSpaceMatrix, worldToShadowSpaceMatrix_ * localToWorldSpaceMatrix);
-		material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
+	//	material->SetMatrix4(Variables::localToShadowSpaceMatrix, worldToShadowSpaceMatrix_ * localToWorldSpaceMatrix);
+	//	material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}
 }

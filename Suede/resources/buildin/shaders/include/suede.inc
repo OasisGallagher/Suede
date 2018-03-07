@@ -18,3 +18,13 @@ layout(std140) uniform Transforms {
 
 	vec3 c_cameraPosition;
 };
+
+layout(std140) uniform EntityMatrices {
+	mat4 localToWorldSpaceMatrix;
+	mat4 localToClipSpaceMatrix;
+} c_entityMatrices[10];
+
+uniform int c_index;
+
+#define SUEDE_MVP	c_entityMatrices[c_index / 512].localToClipSpaceMatrix
+#define SUEDE_WORLD	c_entityMatrices[c_index / 512].localToWorldSpaceMatrix

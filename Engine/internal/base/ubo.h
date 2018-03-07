@@ -11,7 +11,10 @@ public:
 
 public:
 	bool Create(const std::string& name, uint size);
-	void Attach(Shader shader);
+	
+	void AttachSharedBuffer(Shader shader);
+	void AttachEntityBuffer(Shader shader, uint offset, uint size);
+
 	void SetBuffer(const void* data, uint offset, uint size);
 
 	const std::string& GetName() const { return name_; }

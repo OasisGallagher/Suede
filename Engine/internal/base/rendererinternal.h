@@ -13,7 +13,6 @@ public:
 	~RendererInternal();
 
 public:
-	virtual void RenderMesh(Mesh mesh);
 	virtual void RenderEntity(Entity entity);
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
@@ -30,7 +29,7 @@ protected:
 	virtual void UpdateMaterial(Entity entity);
 	virtual void AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass);
 
-	void RenderMesh(Mesh mesh, Material material, int pass);
+	void RenderMesh(Mesh mesh);
 	void RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass);
 
 private:

@@ -1,13 +1,20 @@
 #pragma once
 #include "shader.h"
+#include "tools/string.h"
 
-namespace GlobalUBONames {
+namespace SharedUBONames {
 	static const char* Time = "Time";
 	static const char* Light = "Light";
 	static const char* Transforms = "Transforms";
 }
 
-namespace GlobalUBOStructs {
+namespace EntityUBONames {
+	static const std::string GetEntityMatricesName(int i) {
+		return String::Format("EntityMatrices[%d]", i);
+	}
+}
+
+namespace SharedUBOStructs {
 	struct Light {
 		glm::vec4 ambientLightColor;
 		glm::vec4 lightColor;
@@ -27,12 +34,23 @@ namespace GlobalUBOStructs {
 	};
 }
 
+namespace EntityUBOStructs {
+	struct EntityMatrices {
+		glm::mat4 localToWorldSpaceMatrix;
+		glm::mat4 localToClipSpaceMatrix;
+	};
+}
+
 class GlobalUBO {
+public:
+	enum { MaxEntityMatrixBuffers = 10 };
+
 public:
 	static GlobalUBO* Get();
 
 public:
-	static void Attach(Shader shader);
+	static void AttachSharedBuffer(Shader shader);
+	static void AttachEntityBuffer(Shader shader, uint offset, uint size);
 	static bool SetBuffer(const std::string& name, const void* data, uint offset, uint size);
 
 private:

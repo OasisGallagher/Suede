@@ -13,12 +13,19 @@ GlobalUBO* GlobalUBO::Get() {
 
 GlobalUBO::GlobalUBO() {
 #define CREATE_UBO(name)	UBO* name ## Ptr = MEMORY_CREATE(UBO); \
-	(name ## Ptr)->Create(GlobalUBONames::name, sizeof(GlobalUBOStructs::name)); \
+	(name ## Ptr)->Create(SharedUBONames::name, sizeof(SharedUBOStructs::name)); \
 	ubos_.insert(std::make_pair((name ## Ptr)->GetName(), (name ## Ptr)))
 
 	CREATE_UBO(Time);
 	CREATE_UBO(Light);
 	CREATE_UBO(Transforms);
+
+	for (int i = 0; i < MaxEntityMatrixBuffers; ++i) {
+		UBO* ptr = MEMORY_CREATE(UBO);
+		// TODO: maximum buffer size.
+		ptr->Create(EntityUBONames::GetEntityMatricesName(i), 65536);
+		ubos_.insert(std::make_pair(ptr->GetName(), ptr));
+	}
 
 #undef CREATE_UBO
 }
@@ -29,9 +36,21 @@ GlobalUBO::~GlobalUBO() {
 	}
 }
 
-void GlobalUBO::Attach(Shader shader) {
+void GlobalUBO::AttachSharedBuffer(Shader shader) {
 	for (UBOContainer::iterator ite = ubos_.begin(); ite != ubos_.end(); ++ite) {
-		ite->second->Attach(shader);
+		// TODO: name pattern.
+		if (!String::StartsWith(ite->first, "EntityMatrices")) {
+			ite->second->AttachSharedBuffer(shader);
+		}
+	}
+}
+
+void GlobalUBO::AttachEntityBuffer(Shader shader, uint offset, uint size) {
+	for (UBOContainer::iterator ite = ubos_.begin(); ite != ubos_.end(); ++ite) {
+		// TODO: name pattern.
+		if (String::StartsWith(ite->first, "EntityMatrices")) {
+			ite->second->AttachEntityBuffer(shader, offset, size);
+		}
 	}
 }
 

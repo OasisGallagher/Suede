@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "pipeline.h"
 #include "tools/math2.h"
+#include "internal/world/globalubo.h"
 #include "internal/base/framebuffer.h"
 
 Pipeline* Pipeline::current_ = nullptr;
@@ -118,11 +119,10 @@ void Pipeline::Render(Renderable& p) {
 
 		oldPass_ = p.pass;
 		oldMaterial_ = p.material;
-		for (auto prop : p.properties) {
-			p.material->SetVariant(prop.name, prop.value);
-		}
-
+		
 		p.material->Bind(p.pass);
+		const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
+		GlobalUBO::AttachEntityBuffer(p.material->GetShader(), p.material->GetInt("c_index") * structureSize, structureSize);
 		switchMaterial += (clock() - delta);
 	}
 	else if (oldPass_ != p.pass) {

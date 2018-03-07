@@ -112,7 +112,7 @@ private:
 
 	bool IsRenderable(Entity entity);
 
-	void RenderEntity(Entity entity, Renderer renderer);
+	void RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipSpaceMatrix, std::vector<glm::mat4>& matrices);
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipSpaceMatrix, Material material);
 
 	void GetRenderableEntities(std::vector<Entity>& entities);
