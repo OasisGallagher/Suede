@@ -115,7 +115,7 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 bool AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_FlipUVs
-		| aiProcess_OptimizeMeshes/* | aiProcess_OptimizeGraph*/ | aiProcess_RemoveRedundantMaterials;
+		| aiProcess_OptimizeMeshes /*| aiProcess_OptimizeGraph*/ | aiProcess_RemoveRedundantMaterials;
 
 	if (FileSystem::GetExtension(path) == ".fbx") {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);

@@ -78,7 +78,7 @@ void CameraInternal::Render() {
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-			ForwardDepthPass(entities);
+		//	ForwardDepthPass(entities);
 		}
 	}
 
@@ -87,7 +87,7 @@ void CameraInternal::Render() {
 	GetLights(forwardBase, forwardAdd);
 
 	if (forwardBase) {
-		ShadowDepthPass(entities, forwardBase);
+	//	ShadowDepthPass(entities, forwardBase);
 	}
 
 	Framebuffer::SetCurrentWrite(GetActiveFramebuffer());
@@ -215,7 +215,8 @@ void CameraInternal::AddToPipeline(Mesh mesh, Material material) {
 		Renderable* renderable = pipeline_->CreateRenderable();
 		renderable->pass = 0;
 		renderable->instance = 0;
-		renderable->subMesh = mesh->GetSubMesh(i);
+		renderable->mesh = mesh;
+		renderable->subMeshIndex = i;
 		renderable->material = material;
 		Framebuffer::GetCurrentWrite()->SaveState(renderable->state);
 	}
@@ -493,19 +494,12 @@ void CameraInternal::RenderDecals() {
 
 	for (int i = 0; i < decals.size(); ++i) {
 		Decal* d = decals[i];
-		glm::mat4 bias = glm::translate(glm::mat4(1) , glm::vec3(0.5f)) * glm::scale(glm::mat4(1), glm::vec3(0.5f));
+		glm::mat4 biasMatrix = glm::translate(glm::mat4(1) , glm::vec3(0.5f)) * glm::scale(glm::mat4(1), glm::vec3(0.5f));
+		Material decalMaterial = dsp_cast<Material>(decalMaterial_->Clone());
 
-		decalMaterial_->SetMatrix4(Variables::decalMatrix, bias * d->matrix);
-		decalMaterial_->SetTexture(Variables::mainTexture, d->texture);
-
-		auto proj = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
-		for (int i = 0; i < d->positions.size(); ++i) {
-			glm::vec4 pos = proj * glm::vec4(d->positions[i], 1);
-			pos /= pos.w;
-			__nop();
-		}
-
-		decalMaterial_->SetMatrix4(Variables::worldToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+		decalMaterial->SetMatrix4(Variables::decalMatrix, biasMatrix * d->matrix);
+		decalMaterial->SetTexture(Variables::mainTexture, d->texture);
+		decalMaterial->SetMatrix4(Variables::worldToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 
 		Mesh mesh = NewMesh();
 
@@ -517,9 +511,12 @@ void CameraInternal::RenderDecals() {
 		mesh->SetAttribute(attribute);
 
 		SubMesh subMesh = NewSubMesh();
-		TriangleBias base{ d->indexes.size() };
-		subMesh->SetTriangleBias(base);
+		TriangleBias bias{ d->indexes.size() };
+		subMesh->SetTriangleBias(bias);
+
 		mesh->AddSubMesh(subMesh);
+
+		AddToPipeline(mesh, decalMaterial);
 	}
 }
 
@@ -575,6 +572,7 @@ void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		UpdateMaterial(entity, worldToClipSpaceMatrix, renderer->GetMaterial(i));
 	}
+
 	mat += clock() - b;
 
 	b = clock();

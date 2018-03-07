@@ -49,6 +49,7 @@ public:
 	virtual void SetColor3(const std::string& name, const glm::vec3& value);
 	virtual void SetColor4(const std::string& name, const glm::vec4& value);
 	virtual void SetVector4(const std::string& name, const glm::vec4& value);
+	virtual void SetVariant(const std::string& name, const Variant& value);
 
 	virtual int GetInt(const std::string& name);
 	virtual float GetFloat(const std::string& name);
@@ -64,8 +65,6 @@ public:
 private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
-
-	void SetVariant(const std::string& name, const Variant& value);
 
 	void InitializeProperties();
 	void InitializeEnabledState();

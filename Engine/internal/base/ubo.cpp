@@ -3,10 +3,14 @@
 
 static uint bindingPoint;
 static uint maxBindingPoints;
-
+static uint maxBlockSize;
 UBO::UBO() : ubo_(0) {
 	if (maxBindingPoints == 0) {
 		GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint*)&maxBindingPoints);
+	}
+
+	if (maxBlockSize == 0) {
+		GL::GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint*)&maxBlockSize);
 	}
 }
 

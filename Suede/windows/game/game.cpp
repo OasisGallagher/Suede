@@ -25,6 +25,7 @@
 
 //#define SKYBOX
 #define ROOM
+//#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
@@ -122,15 +123,17 @@ void Game::createScene() {
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
 
- //	Projector projector = NewProjector();
-	//projector->SetPerspective(false);
-	//projector->SetOrthographicSize(5);
- //	//projector->SetFieldOfView(Math::Radians(9));
-	//projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+#ifdef PROJECTOR
+	Projector projector = NewProjector();
+	projector->SetPerspective(false);
+	projector->SetOrthographicSize(5);
+ 	//projector->SetFieldOfView(Math::Radians(9));
+	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
-	//Texture2D texture = NewTexture2D();
-	//texture->Load("textures/brick_diffuse.jpg");
-	//projector->SetTexture(texture);
+	Texture2D texture = NewTexture2D();
+	texture->Load("textures/brick_diffuse.jpg");
+	projector->SetTexture(texture);
+#endif // PROJECTOR
 
 	light->GetTransform()->SetParent(camera->GetTransform());
 
@@ -239,7 +242,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
+	Entity room = WorldInstance()->Import("models/house.fbx");
 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	roomEntityID = room->GetInstanceID();

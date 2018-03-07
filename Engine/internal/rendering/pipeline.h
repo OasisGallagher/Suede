@@ -8,8 +8,12 @@
 struct Renderable {
 	uint pass;
 	uint instance;
-	SubMesh subMesh;
+
+	Mesh mesh;
+	uint subMeshIndex;
+
 	Material material;
+	std::vector<Property> properties;
 
 	FramebufferState state;
 };

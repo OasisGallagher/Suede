@@ -66,7 +66,11 @@ void* VAO::MapBuffer(int index) {
 		return nullptr;
 	}
 
-	return GL::MapBuffer(attributes_[index].target, GL_READ_ONLY);
+	BindBuffer(index);
+	void* ptr = GL::MapBuffer(attributes_[index].target, GL_READ_ONLY);
+	UnbindBuffer(index);
+
+	return ptr;
 }
 
 void VAO::UnmapBuffer(int index) {
@@ -74,8 +78,10 @@ void VAO::UnmapBuffer(int index) {
 		Debug::LogError("index out of range");
 		return;
 	}
-	
+
+	BindBuffer(index);
 	GL::UnmapBuffer(attributes_[index].target);
+	UnbindBuffer(index);
 }
 
 size_t VAO::GetBufferSize(int index) {

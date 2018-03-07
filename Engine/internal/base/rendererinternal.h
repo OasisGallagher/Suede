@@ -28,7 +28,7 @@ public:
 
 protected:
 	virtual void UpdateMaterial(Entity entity);
-	virtual void AddToPipeline(SubMesh subMesh, Material material, int pass);
+	virtual void AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass);
 
 	void RenderMesh(Mesh mesh, Material material, int pass);
 	void RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass);
@@ -70,7 +70,7 @@ public:
 	virtual void AddMaterial(Material material);
 
 protected:
-	virtual void AddToPipeline(SubMesh subMesh, Material material, int pass);
+	virtual void AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass);
 
 private:
 	uint particleCount_;

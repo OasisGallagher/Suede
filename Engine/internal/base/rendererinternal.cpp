@@ -48,7 +48,7 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 
 void RendererInternal::RenderMesh(Mesh mesh, Material material, int pass) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		AddToPipeline(mesh->GetSubMesh(i), material, pass);
+		AddToPipeline(mesh, i, material, pass);
 	}
 }
 
@@ -66,17 +66,29 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 	materials_.erase(materials_.begin() + index);
 }
 
-void RendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pass) {
+void RendererInternal::AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass) {
 	Renderable* item = Pipeline::GetCurrent()->CreateRenderable();
 	item->pass = pass;
 	item->instance = 0;
 	item->material = material;
-	item->subMesh = subMesh;
+	Variant v;
+	v.SetMatrix4(material->GetMatrix4(Variables::localToWorldSpaceMatrix));
+	Property prop{ Variables::localToWorldSpaceMatrix, v };
+
+	Variant v2;
+	v2.SetMatrix4(material->GetMatrix4(Variables::localToClipSpaceMatrix));
+	Property prop2{ Variables::localToClipSpaceMatrix, v2 };
+
+	item->properties.push_back(prop);
+	item->properties.push_back(prop2);
+
+	item->mesh = mesh;
+	item->subMeshIndex = subMeshIndex;
 	Framebuffer::GetCurrentWrite()->SaveState(item->state);
 }
 
 void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
-	AddToPipeline(mesh->GetSubMesh(subMeshIndex), material, pass);
+	AddToPipeline(mesh, subMeshIndex, material, pass);
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
@@ -107,12 +119,13 @@ void ParticleRendererInternal::RenderEntity(Entity entity) {
 	RendererInternal::RenderEntity(entity);
 }
 
-void ParticleRendererInternal::AddToPipeline(SubMesh subMesh, Material material, int pass) {
+void ParticleRendererInternal::AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass) {
 	if (particleCount_ == 0) { return; }
 	Renderable* item = Pipeline::GetCurrent()->CreateRenderable();
 	item->pass = pass;
 	item->material = material;
-	item->subMesh = subMesh;
+	item->mesh = mesh;
+	item->subMeshIndex = subMeshIndex;
 	item->instance = particleCount_;
 	Framebuffer::GetCurrentWrite()->SaveState(item->state);
 }

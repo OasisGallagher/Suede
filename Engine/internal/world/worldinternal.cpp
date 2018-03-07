@@ -289,11 +289,11 @@ void WorldInternal::Update() {
 	Debug::StartSample();
 	UpdateEntities();
 	Debug::Output("[entities]\t%.3f\n", Debug::EndSample());
-	/*
+	
 	Debug::StartSample();
 	UpdateDecals();
 	Debug::Output("[decals]\t%.3f\n", Debug::EndSample());
-	*/
+	
 	Debug::StartSample();
 	RenderUpdate();
 	Debug::Output("[render]\t%.3f\n", Debug::EndSample());

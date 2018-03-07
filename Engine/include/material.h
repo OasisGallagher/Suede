@@ -50,6 +50,7 @@ public:
 	virtual void SetColor3(const std::string& name, const glm::vec3& value) = 0;
 	virtual void SetColor4(const std::string& name, const glm::vec4& value) = 0;
 	virtual void SetVector4(const std::string& name, const glm::vec4& value) = 0;
+	virtual void SetVariant(const std::string& name, const Variant& value) = 0;
 
 	virtual int GetInt(const std::string& name) = 0;
 	virtual float GetFloat(const std::string& name) = 0;

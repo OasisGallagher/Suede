@@ -136,7 +136,7 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 	}
 
 	Variant* var = GetProperty(name, VariantTypeMatrix4);
-	if (var != nullptr && var->GetMatrix4() != value) {
+	if (var != nullptr /*&& var->GetMatrix4() != value*/) {
 		var->SetMatrix4(value);
 	}
 }

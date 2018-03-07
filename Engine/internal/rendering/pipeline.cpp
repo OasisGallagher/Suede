@@ -9,9 +9,18 @@ Pipeline* Pipeline::current_ = nullptr;
 static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0;
 
 struct RenderableComparer {
+	// TODO: hash renderable.
 	bool operator () (Renderable& lhs, Renderable& rhs) const {
+		if (lhs.state.framebuffer != rhs.state.framebuffer) {
+			return lhs.state.framebuffer < rhs.state.framebuffer;
+		}
+
 		Material& lm = lhs.material, &rm = rhs.material;
-		if (lm == rm) {
+		if (lm != rm) {
+			return lm < rm;
+		}
+
+		if (lhs.pass != rhs.pass) {
 			return lhs.pass < rhs.pass;
 		}
 
@@ -25,8 +34,8 @@ struct RenderableComparer {
 			return lp < rp;
 		}
 
-		uint lme = lhs.subMesh->GetMesh()->GetNativePointer();
-		uint rme = rhs.subMesh->GetMesh()->GetNativePointer();
+		uint lme = lhs.mesh->GetNativePointer();
+		uint rme = rhs.mesh->GetNativePointer();
 		if (lme != rme) {
 			return lme < rme;
 		}
@@ -52,7 +61,9 @@ GLenum TopologyToGLEnum(MeshTopology topology) {
 void Pipeline::Update() {
 	Debug::StartSample();
 
+	Debug::StartSample();
 	SortRenderables();
+	Debug::Output("[sort]\t%.2f\n", Debug::EndSample());
 
 	for (uint i = 0; i < nrenderables_; ++i) {
 		Render(renderables_[i]);
@@ -107,6 +118,9 @@ void Pipeline::Render(Renderable& p) {
 
 		oldPass_ = p.pass;
 		oldMaterial_ = p.material;
+		for (auto prop : p.properties) {
+			p.material->SetVariant(prop.name, prop.value);
+		}
 
 		p.material->Bind(p.pass);
 		switchMaterial += (clock() - delta);
@@ -116,17 +130,16 @@ void Pipeline::Render(Renderable& p) {
 		oldPass_ = p.pass;
 	}
 
-	Mesh mesh = p.subMesh->GetMesh();
-	if (mesh->GetNativePointer() != oldMeshPointer_) {
+	if (p.mesh->GetNativePointer() != oldMeshPointer_) {
 		clock_t delta = clock();
-		mesh->Bind();
-		oldMeshPointer_ = mesh->GetNativePointer();
+		p.mesh->Bind();
+		oldMeshPointer_ = p.mesh->GetNativePointer();
 		switchMesh += (clock() - delta);
 	}
 
-	const TriangleBias& bias = p.subMesh->GetTriangleBias();
+	const TriangleBias& bias = p.mesh->GetSubMesh(p.subMeshIndex)->GetTriangleBias();
 
-	GLenum mode = TopologyToGLEnum(mesh->GetTopology());
+	GLenum mode = TopologyToGLEnum(p.mesh->GetTopology());
 	if (p.instance == 0) {
 		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 	}
