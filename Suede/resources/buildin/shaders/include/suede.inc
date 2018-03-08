@@ -20,11 +20,10 @@ layout(std140) uniform Transforms {
 };
 
 layout(std140) uniform EntityMatrices {
-	mat4 localToWorldSpaceMatrix;
-	mat4 localToClipSpaceMatrix;
-} c_entityMatrices[10];
+	mat4 c_localToWorldSpaceMatrix;
+	mat4 c_localToClipSpaceMatrix;
+};
 
-uniform int c_index;
+#define SUEDE_MVP	c_localToClipSpaceMatrix
+#define SUEDE_WORLD	c_localToWorldSpaceMatrix
 
-#define SUEDE_MVP	c_entityMatrices[c_index / 512].localToClipSpaceMatrix
-#define SUEDE_WORLD	c_entityMatrices[c_index / 512].localToWorldSpaceMatrix

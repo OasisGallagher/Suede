@@ -1,16 +1,12 @@
 #include "ubo.h"
 #include "memory/memory.h"
 
-static uint bindingPoint;
-static uint maxBindingPoints;
-static uint maxBlockSize;
-UBO::UBO() : ubo_(0) {
-	if (maxBindingPoints == 0) {
-		GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint*)&maxBindingPoints);
-	}
+uint UBO::bindingPoint_;
+uint UBO::maxBindingPoints_;
 
-	if (maxBlockSize == 0) {
-		GL::GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint*)&maxBlockSize);
+UBO::UBO() : ubo_(0) {
+	if (maxBindingPoints_ == 0) {
+		GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint*)&maxBindingPoints_);
 	}
 }
 
@@ -19,7 +15,7 @@ UBO::~UBO() {
 }
 
 bool UBO::Create(const std::string& name, uint size) {
-	if (bindingPoint == maxBindingPoints) {
+	if (bindingPoint_ == maxBindingPoints_) {
 		Debug::LogError("too many uniform buffers");
 		return false;
 	}
@@ -37,13 +33,18 @@ void UBO::AttachSharedBuffer(Shader shader) {
 	}
 }
 
-void UBO::AttachEntityBuffer(Shader shader, uint offset, uint size) {
-	AttachSharedBuffer(shader);
+void UBO::SetEntityBuffer(uint offset, uint size) {
 	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_, offset, size);
 }
 
 void UBO::AttachToProgram(uint program) {
-	GLuint index = GL::GetUniformBlockIndex(program, name_.c_str());
+	const char* ptr = name_.c_str();
+	const char* pos = strrchr(ptr, '[');
+	std::string newName = name_;
+	if (pos != nullptr) {
+		newName.assign(ptr, pos);
+	}
+	GLuint index = GL::GetUniformBlockIndex(program, newName.c_str());
 
 	if (index == GL_INVALID_INDEX) {
 		return;
@@ -56,7 +57,7 @@ void UBO::AttachToProgram(uint program) {
 //		Debug::LogError("uniform buffer size mismatch");
 //		return;
 //	}
-
+	
 	GL::UniformBlockBinding(program, index, binding_);
 }
 
@@ -73,6 +74,7 @@ void UBO::Bind() {
 
 void UBO::Unbind() {
 	GL::BindBuffer(GL_UNIFORM_BUFFER, oldUbo_);
+	oldUbo_ = 0;
 }
 
 void UBO::Initialize(const std::string& name, uint size) {
@@ -84,7 +86,7 @@ void UBO::Initialize(const std::string& name, uint size) {
 	GL::BufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 	Unbind();
 
-	binding_ = bindingPoint++;
+	binding_ = bindingPoint_++;
 	GL::BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_);
 }
 

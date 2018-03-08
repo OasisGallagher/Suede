@@ -1,7 +1,11 @@
 #pragma once
+#include <intrin.h>
+
 #include "../shareddefines.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/quaternion.hpp"
+
+#pragma intrinsic(_BitScanForward)
 
 template<class CountofTpe, size_t sizeOfArray>
 inline char(*__countof_helper(CountofTpe(&_Array)[sizeOfArray]))[sizeOfArray] {
@@ -35,6 +39,8 @@ public:
 
 	static unsigned NextPowerOfTwo(unsigned x);
 	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
+
+	static uint Log2PowerOfTwo(uint x);
 
 	template <class T>
 	static T Lerp(const T& from, const T& to, float t);
@@ -151,6 +157,12 @@ inline unsigned Math::NextPowerOfTwo(unsigned x) {
 inline unsigned Math::RoundUpToPowerOfTwo(unsigned x, unsigned target) {
 	--target;
 	return (x + target) & (~target);
+}
+
+inline unsigned Math::Log2PowerOfTwo(uint x) {
+	ulong index;
+	_BitScanForward(&index, x);
+	return index;
 }
 
 template <class T>

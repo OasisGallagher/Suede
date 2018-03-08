@@ -1,4 +1,5 @@
 #include "resources.h"
+#include "ubomanager.h"
 #include "worldinternal.h"
 #include "internal/file/assetimporter.h"
 #include "internal/base/transforminternal.h"
@@ -40,6 +41,7 @@ WorldInternal::WorldInternal()
 	, root_(Factory::Create<EntityInternal>()), decals_(MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
 	root_->SetTransform(transform);
+	UBOManager::Initialize();
 }
 
 Object WorldInternal::Create(ObjectType type) {

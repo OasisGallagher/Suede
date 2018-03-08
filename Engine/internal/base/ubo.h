@@ -13,7 +13,7 @@ public:
 	bool Create(const std::string& name, uint size);
 	
 	void AttachSharedBuffer(Shader shader);
-	void AttachEntityBuffer(Shader shader, uint offset, uint size);
+	void SetEntityBuffer(uint offset, uint size);
 
 	void SetBuffer(const void* data, uint offset, uint size);
 
@@ -33,4 +33,8 @@ private:
 	GLuint oldUbo_;
 	GLuint binding_;
 	std::string name_;
+
+private:
+	static uint bindingPoint_;
+	static uint maxBindingPoints_;
 };

@@ -274,11 +274,11 @@
     <ClInclude Include="internal\base\ubo.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\world\globalubo.h">
-      <Filter>internal\world\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rendering\pipeline.h">
       <Filter>internal\rendering\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\ubomanager.h">
+      <Filter>internal\world\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -393,11 +393,11 @@
     <ClCompile Include="internal\base\ubo.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\globalubo.cpp">
-      <Filter>internal\world\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\pipeline.cpp">
       <Filter>internal\rendering\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\ubomanager.cpp">
+      <Filter>internal\world\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

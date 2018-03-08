@@ -1,13 +1,14 @@
 #include <algorithm>
 #include "pipeline.h"
 #include "tools/math2.h"
-#include "internal/world/globalubo.h"
+#include "internal/world/ubomanager.h"
 #include "internal/base/framebuffer.h"
 
 Pipeline* Pipeline::current_ = nullptr;
 
 #include <ctime>
 static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0;
+static clock_t setBuffer = 0;
 
 struct RenderableComparer {
 	// TODO: hash renderable.
@@ -69,10 +70,11 @@ void Pipeline::Update() {
 	for (uint i = 0; i < nrenderables_; ++i) {
 		Render(renderables_[i]);
 	}
-
+	
 	Debug::Output("[fb]\t%.2f\n", float(switchFramebuffer) / CLOCKS_PER_SEC);
 	Debug::Output("[mat]\t%.2f\n", float(switchMaterial) / CLOCKS_PER_SEC);
 	Debug::Output("[mesh]\t%.2f\n", float(switchMesh) / CLOCKS_PER_SEC);
+	Debug::Output("[setBuffer]\t%.2f\n", float(setBuffer) / CLOCKS_PER_SEC);
 	Debug::Output("[pipeline]\t%.2f\n", Debug::EndSample());
 
 	ResetState();
@@ -121,14 +123,17 @@ void Pipeline::Render(Renderable& p) {
 		oldMaterial_ = p.material;
 		
 		p.material->Bind(p.pass);
-		const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
-		GlobalUBO::AttachEntityBuffer(p.material->GetShader(), p.material->GetInt("c_index") * structureSize, structureSize);
 		switchMaterial += (clock() - delta);
 	}
 	else if (oldPass_ != p.pass) {
 		p.material->Bind(p.pass);
 		oldPass_ = p.pass;
 	}
+
+	clock_t sss = clock();
+	const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
+	UBOManager::SetEntityBuffer(p.mesh->GetSubMesh(p.subMeshIndex)->__GetIndex());
+	setBuffer += clock() - sss;
 
 	if (p.mesh->GetNativePointer() != oldMeshPointer_) {
 		clock_t delta = clock();
@@ -149,7 +154,7 @@ void Pipeline::Render(Renderable& p) {
 }
 
 void Pipeline::ResetState() {
-	switchFramebuffer = switchMaterial = switchMesh = 0;
+	switchFramebuffer = switchMaterial = switchMesh = setBuffer = 0;
 
 	if (oldTarget_ != nullptr) {
 		oldTarget_->Unbind();

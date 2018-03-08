@@ -18,6 +18,9 @@ public:
 	virtual Mesh GetMesh() = 0;
 	virtual void SetMesh(Mesh value) = 0;
 
+	virtual void __SetIndex(int value) = 0;
+	virtual int __GetIndex() const = 0;
+
 	virtual const TriangleBias& GetTriangleBias() const = 0;
 	virtual void SetTriangleBias(const TriangleBias& value) = 0;
 };
