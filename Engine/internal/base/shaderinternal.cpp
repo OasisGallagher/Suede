@@ -634,7 +634,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	LoadProperties(semantics.properties);
 
-	UBOManager::AttachSharedBuffer(dsp_cast<Shader>(shared_from_this()));
+	UBOManager::AttachSharedBuffers(dsp_cast<Shader>(shared_from_this()));
 
 	path_ = path;
 	return true;

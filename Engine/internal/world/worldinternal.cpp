@@ -44,6 +44,10 @@ WorldInternal::WorldInternal()
 	UBOManager::Initialize();
 }
 
+WorldInternal::~WorldInternal() {
+	UBOManager::Destroy();
+}
+
 Object WorldInternal::Create(ObjectType type) {
 	Object object = Factory::Create(type);
 	if (type >= ObjectTypeEntity) {

@@ -16,7 +16,7 @@ class WorldInternal : public ObjectInternal, public IWorld {
 
 public:
 	WorldInternal();
-	~WorldInternal() {}
+	~WorldInternal();
 
 public:
 	virtual void Update();

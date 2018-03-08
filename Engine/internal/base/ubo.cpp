@@ -24,20 +24,16 @@ bool UBO::Create(const std::string& name, uint size) {
 	return true;
 }
 
-void UBO::AttachSharedBuffer(Shader shader) {
-	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
-		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
-			uint program = shader->GetNativePointer(i, j);
-			AttachToProgram(program);
-		}
-	}
+void UBO::AttachBuffer(Shader shader) {
+	Attach(shader);
 }
 
-void UBO::SetEntityBuffer(uint offset, uint size) {
+void UBO::AttachSubBuffer(Shader shader, uint offset, uint size) {
 	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_, offset, size);
+	Attach(shader);
 }
 
-void UBO::AttachToProgram(uint program) {
+void UBO::AttachProgram(uint program) {
 	const char* ptr = name_.c_str();
 	const char* pos = strrchr(ptr, '[');
 	std::string newName = name_;
@@ -93,5 +89,14 @@ void UBO::Initialize(const std::string& name, uint size) {
 void UBO::Destroy() {
 	if (oldUbo_ != 0) {
 		GL::DeleteBuffers(1, &oldUbo_);
+	}
+}
+
+void UBO::Attach(Shader shader) {
+	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
+		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
+			uint program = shader->GetNativePointer(i, j);
+			AttachProgram(program);
+		}
 	}
 }

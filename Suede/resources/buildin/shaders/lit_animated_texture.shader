@@ -2,6 +2,8 @@ Properties { }
 SubShader {
 	Pass {
 		GLSLPROGRAM
+
+		#include "buildin/shaders/include/suede.inc"
 		
 		#stage vertex
 
@@ -18,8 +20,6 @@ SubShader {
 
 		#include "buildin/shaders/include/light_vertex.inc"
 
-		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
 		uniform mat4 c_boneToRootSpaceMatrices[C_MAX_BONE_COUNT];
 
 		void main() {
@@ -49,7 +49,6 @@ SubShader {
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 
-		#include "buildin/shaders/include/suede.inc"
 		#include "buildin/shaders/include/light_fragment.inc"
 
 		void main() {

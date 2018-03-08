@@ -31,23 +31,29 @@ void UBOManager::Initialize() {
 #undef CREATE_UBO
 }
 
-void UBOManager::AttachSharedBuffer(Shader shader) {
+void UBOManager::Destroy() {
 	for (SharedUBOContainer::iterator ite = sharedUBOs_.begin(); ite != sharedUBOs_.end(); ++ite) {
-		ite->second->AttachSharedBuffer(shader);
+		MEMORY_RELEASE(ite->second);
 	}
 
 	for (int i = 0; i < MaxEntityMatrixBuffers; ++i) {
-		entityUBOs_[i]->AttachSharedBuffer(shader);
+		MEMORY_RELEASE(entityUBOs_[i]);
 	}
 }
 
-void UBOManager::SetEntityBuffer(uint index) {
+void UBOManager::AttachSharedBuffers(Shader shader) {
+	for (SharedUBOContainer::iterator ite = sharedUBOs_.begin(); ite != sharedUBOs_.end(); ++ite) {
+		ite->second->AttachBuffer(shader);
+	}
+}
+
+void UBOManager::AttachEntityBuffer(Shader shader, uint index) {
 	static uint stride = GetMaxBlockSize() / sizeof(EntityUBOStructs::EntityMatrices);
 	static uint n = Math::Log2PowerOfTwo(stride);
 	
 	uint pos = index >> n;
 	uint offset = (index & (stride - 1)) * sizeof(EntityUBOStructs::EntityMatrices);
-	entityUBOs_[pos]->SetEntityBuffer(offset, sizeof(EntityUBOStructs::EntityMatrices));
+	entityUBOs_[pos]->AttachSubBuffer(shader, offset, sizeof(EntityUBOStructs::EntityMatrices));
 }
 
 bool UBOManager::UpdateSharedBuffer(const std::string& name, const void * data, uint offset, uint size) {

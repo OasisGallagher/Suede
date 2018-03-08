@@ -51,14 +51,15 @@ public:
 
 public:
 	static void Initialize();
+	static void Destroy();
 
 public:
 	static uint GetMaxBlockSize() { return maxBlockSize_; }
 	static uint GetOffsetAlignment() { return offsetAlignment_; }
 
 public:
-	static void AttachSharedBuffer(Shader shader);
-	static void SetEntityBuffer(uint index);
+	static void AttachSharedBuffers(Shader shader);
+	static void AttachEntityBuffer(Shader shader, uint index);
 	static bool UpdateEntityBuffer(uint index, const void* data, uint offset, uint size);
 	static bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
 

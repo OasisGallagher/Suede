@@ -18,16 +18,16 @@ struct RenderableComparer {
 		}
 
 		Material& lm = lhs.material, &rm = rhs.material;
+		if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
+			return lm->GetRenderQueue() < rm->GetRenderQueue();
+		}
+
 		if (lm != rm) {
 			return lm < rm;
 		}
 
 		if (lhs.pass != rhs.pass) {
 			return lhs.pass < rhs.pass;
-		}
-
-		if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
-			return lm->GetRenderQueue() < rm->GetRenderQueue();
 		}
 
 		uint lp = lm->GetPassNativePointer(lhs.pass);
@@ -40,6 +40,10 @@ struct RenderableComparer {
 		uint rme = rhs.mesh->GetNativePointer();
 		if (lme != rme) {
 			return lme < rme;
+		}
+
+		if (lhs.subMeshIndex != rhs.subMeshIndex) {
+			return lhs.subMeshIndex < rhs.subMeshIndex;
 		}
 
 		return false;
@@ -67,8 +71,15 @@ void Pipeline::Update() {
 	SortRenderables();
 	Debug::Output("[sort]\t%.2f\n", Debug::EndSample());
 
-	for (uint i = 0; i < nrenderables_; ++i) {
-		Render(renderables_[i]);
+	FindInstances();
+
+	uint i = 1, start = 0;
+	for (; i < nrenderables_; ++i) {
+		if (!renderables_[i].IsInstance(renderables_[start])) {
+//			renderables_[i].instance = start - i;
+			start = i;
+			Render(renderables_[i]);
+		}
 	}
 	
 	Debug::Output("[fb]\t%.2f\n", float(switchFramebuffer) / CLOCKS_PER_SEC);
@@ -78,6 +89,15 @@ void Pipeline::Update() {
 	Debug::Output("[pipeline]\t%.2f\n", Debug::EndSample());
 
 	ResetState();
+}
+
+void Pipeline::FindInstances() {
+	uint i = 1, start = 0;
+	for (; i < nrenderables_; ++i) {
+		if (!renderables_[i].IsInstance(renderables_[start])) {
+			start = i;
+		}
+	}
 }
 
 void Pipeline::SortRenderables() {
@@ -132,7 +152,7 @@ void Pipeline::Render(Renderable& p) {
 
 	clock_t sss = clock();
 	const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
-	UBOManager::SetEntityBuffer(p.mesh->GetSubMesh(p.subMeshIndex)->__GetIndex());
+	UBOManager::AttachEntityBuffer(p.material->GetShader(), p.mesh->GetSubMesh(p.subMeshIndex)->__GetIndex());
 	setBuffer += clock() - sss;
 
 	if (p.mesh->GetNativePointer() != oldMeshPointer_) {

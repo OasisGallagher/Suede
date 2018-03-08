@@ -13,9 +13,32 @@ struct Renderable {
 	uint subMeshIndex;
 
 	Material material;
-	uint matrixBufferIndex;
 
 	FramebufferState state;
+
+	bool IsInstance(const Renderable& other) const {
+		if (state.framebuffer != other.state.framebuffer) {
+			return false;
+		}
+
+		if (material != other.material) {
+			return false;
+		}
+
+		if (pass != other.pass) {
+			return false;
+		}
+
+		if (mesh->GetNativePointer() != other.mesh->GetNativePointer()) {
+			return false;
+		}
+
+		if (subMeshIndex != other.subMeshIndex) {
+			return false;
+		}
+
+		return true;
+	}
 };
 
 class Pipeline {
@@ -32,6 +55,7 @@ public:
 
 private:
 	void ResetState();
+	void FindInstances();
 	void SortRenderables();
 	void Render(Renderable& p);
 	void ClearRenderable(Renderable* renderable);
