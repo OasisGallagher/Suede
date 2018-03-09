@@ -55,9 +55,9 @@ public:
 
 private:
 	void ResetState();
-	void FindInstances();
 	void SortRenderables();
 	void Render(Renderable& p);
+	void RenderInstanced(uint first, uint last);
 	void ClearRenderable(Renderable* renderable);
 	
 private:

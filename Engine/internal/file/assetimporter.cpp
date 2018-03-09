@@ -89,8 +89,6 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 		}
 	}
 
-	attribute.geometry.count = attribute.geometry.divisor = 1;
-
 	Mesh surface = NewMesh();
 	surface->SetAttribute(attribute);
 

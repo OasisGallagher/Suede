@@ -7,6 +7,7 @@ namespace SharedUBONames {
 	static const char* Time = "Time";
 	static const char* Light = "Light";
 	static const char* Transforms = "Transforms";
+	static const char* EntityMatricesInstanced = "EntityMatricesInstanced";
 }
 
 namespace EntityUBONames {
@@ -32,6 +33,11 @@ namespace SharedUBOStructs {
 
 	struct Time {
 		glm::vec4 time;
+	};
+
+	struct EntityMatricesInstanced {
+		// TODO: count
+		glm::mat4 matrices[1024];
 	};
 }
 

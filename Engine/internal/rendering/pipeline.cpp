@@ -7,8 +7,9 @@
 Pipeline* Pipeline::current_ = nullptr;
 
 #include <ctime>
-static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0;
+static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0, updateUBO = 0;
 static clock_t setBuffer = 0;
+static uint drawCall = 0;
 
 struct RenderableComparer {
 	// TODO: hash renderable.
@@ -71,16 +72,17 @@ void Pipeline::Update() {
 	SortRenderables();
 	Debug::Output("[sort]\t%.2f\n", Debug::EndSample());
 
-	FindInstances();
-
+	Debug::StartSample();
 	uint i = 1, start = 0;
 	for (; i < nrenderables_; ++i) {
 		if (!renderables_[i].IsInstance(renderables_[start])) {
-//			renderables_[i].instance = start - i;
+			RenderInstanced(start, i);
 			start = i;
-			Render(renderables_[i]);
 		}
 	}
+	Debug::Output("[instanced]\t%d\t%.2f/%.2f\n", drawCall, float(updateUBO) / CLOCKS_PER_SEC, Debug::EndSample());
+
+	RenderInstanced(start, nrenderables_);
 	
 	Debug::Output("[fb]\t%.2f\n", float(switchFramebuffer) / CLOCKS_PER_SEC);
 	Debug::Output("[mat]\t%.2f\n", float(switchMaterial) / CLOCKS_PER_SEC);
@@ -91,12 +93,28 @@ void Pipeline::Update() {
 	ResetState();
 }
 
-void Pipeline::FindInstances() {
-	uint i = 1, start = 0;
-	for (; i < nrenderables_; ++i) {
-		if (!renderables_[i].IsInstance(renderables_[start])) {
-			start = i;
+void Pipeline::RenderInstanced(uint first, uint last) {
+	Renderable& ref = renderables_[first];
+	static int maxInstances = UBOManager::GetMaxBlockSize() / (2 * sizeof(glm::mat4));
+	int instanceCount = last - first;
+	for (int j = 0; j < instanceCount; j += maxInstances) {
+		int count = Math::Min(instanceCount - j, maxInstances);
+		ref.instance = count;
+
+		std::vector<glm::mat4> matrices;
+		matrices.reserve(2 * count);
+		for (int k = first; k < first + count; ++k) {
+			glm::mat4 m0, m1;
+			renderables_[k].mesh->GetSubMesh(ref.subMeshIndex)->__GetIndex(m0, m1);
+			matrices.push_back(m0);
+			matrices.push_back(m1);
 		}
+
+		clock_t s = clock();
+		UBOManager::UpdateSharedBuffer(SharedUBONames::EntityMatricesInstanced, &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
+		updateUBO += clock() - s;
+
+		Render(ref);
 	}
 }
 
@@ -150,10 +168,10 @@ void Pipeline::Render(Renderable& p) {
 		oldPass_ = p.pass;
 	}
 
-	clock_t sss = clock();
-	const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
-	UBOManager::AttachEntityBuffer(p.material->GetShader(), p.mesh->GetSubMesh(p.subMeshIndex)->__GetIndex());
-	setBuffer += clock() - sss;
+// 	clock_t sss = clock();
+// 	const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
+// 	UBOManager::AttachEntityBuffer(p.material->GetShader(), p.mesh->GetSubMesh(p.subMeshIndex)->__GetIndex());
+// 	setBuffer += clock() - sss;
 
 	if (p.mesh->GetNativePointer() != oldMeshPointer_) {
 		clock_t delta = clock();
@@ -171,10 +189,13 @@ void Pipeline::Render(Renderable& p) {
 	else {
 		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), p.instance, bias.baseVertex);
 	}
+
+	++drawCall;
 }
 
 void Pipeline::ResetState() {
-	switchFramebuffer = switchMaterial = switchMesh = setBuffer = 0;
+	drawCall = 0;
+	switchFramebuffer = switchMaterial = switchMesh = setBuffer = updateUBO = 0;
 
 	if (oldTarget_ != nullptr) {
 		oldTarget_->Unbind();

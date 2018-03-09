@@ -18,8 +18,8 @@ public:
 	virtual Mesh GetMesh() = 0;
 	virtual void SetMesh(Mesh value) = 0;
 
-	virtual void __SetIndex(int value) = 0;
-	virtual int __GetIndex() const = 0;
+	virtual void __SetIndex(const glm::mat4& m0, const glm::mat4& m1) = 0;
+	virtual void __GetIndex(glm::mat4& m0, glm::mat4& m1) const = 0;
 
 	virtual const TriangleBias& GetTriangleBias() const = 0;
 	virtual void SetTriangleBias(const TriangleBias& value) = 0;
@@ -42,12 +42,12 @@ struct BlendAttribute {
 };
 
 struct InstanceAttribute {
-	InstanceAttribute(uint c = 0, int d = 0) 
+	InstanceAttribute(uint c = 0, uint d = 0) 
 		: count(c), divisor(d) {
 	}
 
 	uint count;
-	int divisor;
+	uint divisor;
 };
 
 enum MeshTopology {

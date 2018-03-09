@@ -449,15 +449,15 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 }
 
 #include <ctime>
-clock_t set_opaque_material = 0;
+
 clock_t push_renderables = 0;
+clock_t set_opaque_material = 0;
 
 int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, int from) {
 	pass_ = RenderPassForwardOpaque;
 
-	int n = 0;
-	std::vector<glm::mat4> matrices;
-	matrices.reserve(entities.size() * 4);
+ 	std::vector<glm::mat4> matrices;
+// 	matrices.reserve(entities.size() * 4);
 
 	glm::mat4 worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 
@@ -470,15 +470,15 @@ int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, int f
 
 	//__debugIndexSet = true;
 
-	Debug::StartSample();
-	size_t length = matrices.size() * sizeof(glm::mat4);
-	const size_t maxBlockSize = UBOManager::GetMaxBlockSize();
-	for (size_t offset = 0, index = 0; offset < length; offset += maxBlockSize) {
-		uint size = Math::Min(length - offset, maxBlockSize);
-		UBOManager::UpdateEntityBuffer(index++, (char*)&matrices[0] + offset, 0, size);
-	}
-
-	Debug::Output("[matrix_ubo]\t%.2f\n", Debug::EndSample());
+// 	Debug::StartSample();
+// 	size_t length = matrices.size() * sizeof(glm::mat4);
+// 	const size_t maxBlockSize = UBOManager::GetMaxBlockSize();
+// 	for (size_t offset = 0, index = 0; offset < length; offset += maxBlockSize) {
+// 		uint size = Math::Min(length - offset, maxBlockSize);
+// 		UBOManager::UpdateEntityBuffer(index++, (char*)&matrices[0] + offset, 0, size);
+// 	}
+// 
+// 	Debug::Output("[matrix_ubo]\t%.2f\n", Debug::EndSample());
 
 	Debug::Output("[opaque_mat]\t%.2f\n", float(set_opaque_material) / CLOCKS_PER_SEC);
 	Debug::Output("[opaque_push]\t%.2f\n", float(push_renderables) / CLOCKS_PER_SEC);
@@ -592,21 +592,24 @@ void CameraInternal::RenderEntity(Entity entity, Renderer renderer, const glm::m
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		Material material = renderer->GetMaterial(i);
 		//UpdateMaterial(entity, worldToClipSpaceMatrix, material);
-		const uint matrixCount = (sizeof(EntityUBOStructs::EntityMatrices) / sizeof(glm::mat4));
-
-		if (!__debugIndexSet) {
-			entity->GetMesh()->GetSubMesh(i)->__SetIndex(matrices.size() / matrixCount);
-		}
-		clock_t b = clock();
+		//const uint matrixCount = (sizeof(EntityUBOStructs::EntityMatrices) / sizeof(glm::mat4));
 
 		glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
 		glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
 
-		matrices.push_back(localToWorldSpaceMatrix);
-		matrices.push_back(localToClipSpaceMatrix);
-		matrices.push_back(glm::mat4(0));
-		matrices.push_back(glm::mat4(0));
-		set_opaque_material += clock() - b;
+		if (!__debugIndexSet) {
+			entity->GetMesh()->GetSubMesh(i)->__SetIndex(localToWorldSpaceMatrix, localToClipSpaceMatrix);
+		}
+// 		clock_t b = clock();
+// 
+// 		glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
+// 		glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
+// 
+// 		matrices.push_back(localToWorldSpaceMatrix);
+// 		matrices.push_back(localToClipSpaceMatrix);
+// 		matrices.push_back(glm::mat4(0));
+// 		matrices.push_back(glm::mat4(0));
+// 		set_opaque_material += clock() - b;
 	}
 
 	clock_t b = clock();

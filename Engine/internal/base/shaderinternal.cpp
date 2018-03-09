@@ -5,6 +5,7 @@
 #include "meshinternal.h"
 #include "os/filesystem.h"
 #include "shaderinternal.h"
+// TODO: reference world components? Limits class?
 #include "internal/world/ubomanager.h"
 #include "internal/base/renderdefines.h"
 

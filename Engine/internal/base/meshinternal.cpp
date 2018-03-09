@@ -45,7 +45,7 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	vao_->CreateVBOs(vboCount);
 
 	uint vboIndex = 0;
-
+	
 	if (!attribute.positions.empty()) {
 		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
 		vao_->SetVertexDataSource(vboIndex, VertexAttribPosition, 3, GL_FLOAT, false, 0, 0);
@@ -82,7 +82,7 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 		vao_->SetBuffer(vboIndex, GL_ELEMENT_ARRAY_BUFFER, attribute.indexes, GL_STATIC_DRAW);
 		bufferIndexes_[IndexBuffer] = vboIndex++;
 	}
-	
+
 	if (attribute.color.count != 0) {
 		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
 		vao_->SetVertexDataSource(vboIndex, VertexAttribInstanceColor, 4, GL_FLOAT, false, 0, 0, attribute.color.divisor);
@@ -168,7 +168,7 @@ uint MeshInternal::GetVertexCount() {
 
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
-	if (i >= 2) {
+	if (i >= BufferIndexCount - InstanceBuffer0) {
 		Debug::LogError("index out of range");
 		return;
 	}

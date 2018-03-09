@@ -20,6 +20,7 @@ void UBOManager::Initialize() {
 	CREATE_UBO(Time);
 	CREATE_UBO(Light);
 	CREATE_UBO(Transforms);
+	CREATE_UBO(EntityMatricesInstanced);
 
 	for (int i = 0; i < MaxEntityMatrixBuffers; ++i) {
 		UBO* ptr = MEMORY_CREATE(UBO);
