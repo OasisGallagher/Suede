@@ -18,9 +18,6 @@ public:
 	virtual Mesh GetMesh() = 0;
 	virtual void SetMesh(Mesh value) = 0;
 
-	virtual void __SetIndex(const glm::mat4& m0, const glm::mat4& m1) = 0;
-	virtual void __GetIndex(glm::mat4& m0, glm::mat4& m1) const = 0;
-
 	virtual const TriangleBias& GetTriangleBias() const = 0;
 	virtual void SetTriangleBias(const TriangleBias& value) = 0;
 };

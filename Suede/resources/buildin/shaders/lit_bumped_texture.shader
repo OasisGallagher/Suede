@@ -9,23 +9,23 @@ SubShader {
 
 		out vec2 texCoord;
 		out vec3 worldPos;
-		out mat3 tangentToWorldSpaceMatrix;
+		out mat3 tangentToWorldMatrix;
 
-		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
+		uniform mat4 c_localToWorldMatrix;
 
 		void main() {
 			texCoord = c_texCoord;
-			worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 
-			vec3 worldNormal = (c_localToWorldSpaceMatrix * vec4(c_normal, 0)).xyz;
-			vec3 worldTangent = (c_localToWorldSpaceMatrix * vec4(c_tangent, 0)).xyz;
+			vec3 worldNormal = (c_localToWorldMatrix * vec4(c_normal, 0)).xyz;
+			vec3 worldTangent = (c_localToWorldMatrix * vec4(c_tangent, 0)).xyz;
 			vec3 worldBitangent = cross(worldNormal, worldTangent);
 			
 			vec3 bitangent = cross(c_normal, c_tangent);
-			tangentToWorldSpaceMatrix = mat3(worldTangent, worldBitangent, worldNormal);
+			tangentToWorldMatrix = mat3(worldTangent, worldBitangent, worldNormal);
 
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment
@@ -33,7 +33,7 @@ SubShader {
 
 		in vec2 texCoord;
 		in vec3 worldPos;
-		in mat3 tangentToWorldSpaceMatrix;
+		in mat3 tangentToWorldMatrix;
 
 		uniform sampler2D c_mainTexture;
 		uniform sampler2D c_bumpTexture;
@@ -42,7 +42,7 @@ SubShader {
 
 		void main() {
 			vec3 normal = texture(c_bumpTexture, texCoord).xyz;
-			normal = tangentToWorldSpaceMatrix * normal;
+			normal = tangentToWorldMatrix * normal;
 
 			vec4 albedo = texture(c_mainTexture, texCoord);
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal)), 1);

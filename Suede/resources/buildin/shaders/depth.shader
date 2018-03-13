@@ -10,10 +10,10 @@ SubShader {
 		#stage vertex
 		in vec3 c_position;
 
-		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
 
 		void main() {
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment

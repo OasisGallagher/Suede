@@ -25,9 +25,9 @@ namespace SharedUBOStructs {
 	};
 
 	struct Transforms {
-		glm::mat4 worldToClipSpaceMatrix;
-		glm::mat4 worldToCameraSpaceMatrix;
-		glm::mat4 cameraToClipSpaceMatrix;
+		glm::mat4 worldToClipMatrix;
+		glm::mat4 worldToCameraMatrix;
+		glm::mat4 cameraToClipMatrix;
 		glm::vec4 cameraPosition;
 	};
 
@@ -43,8 +43,8 @@ namespace SharedUBOStructs {
 
 namespace EntityUBOStructs {
 	struct EntityMatrices {
-		glm::mat4 localToWorldSpaceMatrix;
-		glm::mat4 localToClipSpaceMatrix;
+		glm::mat4 localToWorldMatrix;
+		glm::mat4 localToClipMatrix;
 		glm::mat4 __padding0;
 		glm::mat4 __padding1;
 	};

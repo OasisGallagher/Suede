@@ -12,10 +12,10 @@ SubShader {
 
 		in vec3 c_position;
 		out vec3 texCoord;
-		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
 
 		void main() {
-			vec4 pos = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			vec4 pos = c_localToClipMatrix * vec4(c_position, 1);
 			gl_Position = pos.xyww;
 			texCoord = c_position;
 		}

@@ -15,8 +15,8 @@ SubShader {
 		in vec2 c_texCoord;
 		in vec3 c_normal;
 
-		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
+		uniform mat4 c_localToWorldMatrix;
 
 		out VertOut {
 			out	vec3 worldPos;
@@ -25,11 +25,11 @@ SubShader {
 		} vo;
 
 		void main() {
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
-			vo.worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			vo.worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 			vo.texCoord = c_texCoord;
 
-			mat3 m = inverse(transpose(mat3(c_localToWorldSpaceMatrix)));
+			mat3 m = inverse(transpose(mat3(c_localToWorldMatrix)));
 			vo.worldNormal = m * c_normal;
 		}
 

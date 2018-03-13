@@ -1,5 +1,6 @@
 #pragma once
 #include "mesh.h"
+#include "camera.h"
 #include "texture.h"
 #include "material.h"
 #include "wrappers/gl.h"
@@ -8,13 +9,11 @@
 struct Renderable {
 	uint pass;
 	uint instance;
-
 	Mesh mesh;
 	uint subMeshIndex;
-
 	Material material;
-
 	FramebufferState state;
+	glm::mat4 localToWorldMatrix;
 
 	bool IsInstance(const Renderable& other) const {
 		if (state.framebuffer != other.state.framebuffer) {
@@ -49,15 +48,22 @@ public:
 	static Pipeline* GetCurrent() { return current_; }
 	static void SetCurrent(Pipeline* value) { current_ = value; }
 
+	static void SetCamera(Camera value) { camera_ = value; }
+	static Camera GetCamera() { return camera_; }
+
+	static void SetFramebuffer(FramebufferBase* value);
+	static FramebufferBase* GetFramebuffer() { return framebuffer_; }
+
 public:
 	void Update();
-	Renderable* CreateRenderable();
+	Renderable* BeginRenderable();
+	void EndRenderable();
 
 private:
 	void ResetState();
 	void SortRenderables();
 	void Render(Renderable& p);
-	void RenderInstanced(uint first, uint last);
+	void RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix);
 	void ClearRenderable(Renderable* renderable);
 	
 private:
@@ -69,5 +75,7 @@ private:
 	Material oldMaterial_;
 	FramebufferState* oldTarget_;
 
+	static Camera camera_;
 	static Pipeline* current_;
+	static FramebufferBase* framebuffer_;
 };

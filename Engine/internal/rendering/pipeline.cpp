@@ -4,7 +4,9 @@
 #include "internal/world/ubomanager.h"
 #include "internal/base/framebuffer.h"
 
-Pipeline* Pipeline::current_ = nullptr;
+Camera Pipeline::camera_;
+Pipeline* Pipeline::current_;
+FramebufferBase* Pipeline::framebuffer_;
 
 #include <ctime>
 static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0, updateUBO = 0;
@@ -65,6 +67,14 @@ GLenum TopologyToGLEnum(MeshTopology topology) {
 	return GL_TRIANGLE_STRIP;
 }
 
+void Pipeline::SetFramebuffer(FramebufferBase * value) {
+	if (value == nullptr) {
+		value = Framebuffer0::Get();
+	}
+
+	framebuffer_ = value;
+}
+
 void Pipeline::Update() {
 	Debug::StartSample();
 
@@ -74,15 +84,16 @@ void Pipeline::Update() {
 
 	Debug::StartSample();
 	uint i = 1, start = 0;
+	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
 	for (; i < nrenderables_; ++i) {
 		if (!renderables_[i].IsInstance(renderables_[start])) {
-			RenderInstanced(start, i);
+			RenderInstanced(start, i, worldToClipMatrix);
 			start = i;
 		}
 	}
 	Debug::Output("[instanced]\t%d\t%.2f/%.2f\n", drawCall, float(updateUBO) / CLOCKS_PER_SEC, Debug::EndSample());
 
-	RenderInstanced(start, nrenderables_);
+	RenderInstanced(start, nrenderables_, worldToClipMatrix);
 	
 	Debug::Output("[fb]\t%.2f\n", float(switchFramebuffer) / CLOCKS_PER_SEC);
 	Debug::Output("[mat]\t%.2f\n", float(switchMaterial) / CLOCKS_PER_SEC);
@@ -93,7 +104,7 @@ void Pipeline::Update() {
 	ResetState();
 }
 
-void Pipeline::RenderInstanced(uint first, uint last) {
+void Pipeline::RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix) {
 	Renderable& ref = renderables_[first];
 	static int maxInstances = UBOManager::GetMaxBlockSize() / (2 * sizeof(glm::mat4));
 	int instanceCount = last - first;
@@ -104,10 +115,8 @@ void Pipeline::RenderInstanced(uint first, uint last) {
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
 		for (int k = first; k < first + count; ++k) {
-			glm::mat4 m0, m1;
-			renderables_[k].mesh->GetSubMesh(ref.subMeshIndex)->__GetIndex(m0, m1);
-			matrices.push_back(m0);
-			matrices.push_back(m1);
+			matrices.push_back(ref.localToWorldMatrix);
+			matrices.push_back(worldToClipMatrix * ref.localToWorldMatrix);
 		}
 
 		clock_t s = clock();
@@ -123,7 +132,7 @@ void Pipeline::SortRenderables() {
 	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparer);
 }
 
-Renderable* Pipeline::CreateRenderable() {
+Renderable* Pipeline::BeginRenderable() {
 	if (nrenderables_ == renderables_.size()) {
 		renderables_.resize(2 * nrenderables_);
 	}
@@ -131,6 +140,10 @@ Renderable* Pipeline::CreateRenderable() {
 	Renderable* answer = &renderables_[nrenderables_++];
 	ClearRenderable(answer);
 	return answer;
+}
+
+void Pipeline::EndRenderable() {
+
 }
 
 void Pipeline::ClearRenderable(Renderable* answer) {

@@ -93,12 +93,12 @@ bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plan
 	return true;
 }
 
-void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipSpaceMatrix) {
+void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix) {
 #define EXTRACT_PLANE(index, sign, row)	\
-	planes[index] = Plane(glm::vec4(worldToClipSpaceMatrix[0][3] sign worldToClipSpaceMatrix[0][row], \
-		worldToClipSpaceMatrix[1][3] sign worldToClipSpaceMatrix[1][row], \
-		worldToClipSpaceMatrix[2][3] sign worldToClipSpaceMatrix[2][row], \
-		worldToClipSpaceMatrix[3][3] sign worldToClipSpaceMatrix[3][row]))
+	planes[index] = Plane(glm::vec4(worldToClipMatrix[0][3] sign worldToClipMatrix[0][row], \
+		worldToClipMatrix[1][3] sign worldToClipMatrix[1][row], \
+		worldToClipMatrix[2][3] sign worldToClipMatrix[2][row], \
+		worldToClipMatrix[3][3] sign worldToClipMatrix[3][row]))
 
 	EXTRACT_PLANE(0, +, 0);
 	EXTRACT_PLANE(1, -, 0);

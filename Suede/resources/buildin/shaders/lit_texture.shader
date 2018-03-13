@@ -29,12 +29,12 @@ SubShader {
 		void main() {
 			texCoord = c_texCoord;
 
-			normal = transpose(inverse(mat3(c_localToWorldSpaceMatrix))) * c_normal;
-			worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			normal = transpose(inverse(mat3(c_localToWorldMatrix))) * c_normal;
+			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 	
 			calculateShadowCoord();
 
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment
@@ -75,10 +75,10 @@ SubShader {
 		in vec3 c_normal;
 
 		void main() {
-			mat3 m3 = transpose(inverse(mat3(c_localToWorldSpaceMatrix)));
+			mat3 m3 = transpose(inverse(mat3(c_localToWorldMatrix)));
 			vec3 normal = m3 * c_normal;
-			normal.xy = mat2(c_worldToClipSpaceMatrix) * normal.xy;
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			normal.xy = mat2(c_worldToClipMatrix) * normal.xy;
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 			gl_Position.xy += normal.xy * 0.4;
 		}
 

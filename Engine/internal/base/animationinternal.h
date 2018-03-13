@@ -21,7 +21,7 @@ public:
 	virtual SkeletonBone* GetBone(uint index);
 	virtual SkeletonBone* GetBone(const std::string& name);
 	
-	virtual void SetBoneToRootSpaceMatrix(uint index, const glm::mat4& value);
+	virtual void SetBoneToRootMatrix(uint index, const glm::mat4& value);
 	virtual glm::mat4* GetBoneToRootSpaceMatrices() { return boneToRootSpaceMatrices_; }
 
 	virtual int GetBoneIndex(const std::string& name);

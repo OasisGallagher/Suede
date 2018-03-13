@@ -17,11 +17,11 @@ SubShader {
 		out vec4 clipPosition;
 
 		uniform mat4 c_decalMatrix;
-		uniform mat4 c_worldToClipSpaceMatrix;
+		uniform mat4 c_worldToClipMatrix;
 
 		void main() {
 			projTexCoord = c_decalMatrix * vec4(c_position, 1);
-			gl_Position = c_worldToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_worldToClipMatrix * vec4(c_position, 1);
 			clipPosition = gl_Position;
 		}
 

@@ -62,9 +62,9 @@ void CameraInternal::Update() {
 	}
 
 	static SharedUBOStructs::Transforms transforms;
-	transforms.worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
-	transforms.worldToCameraSpaceMatrix = GetTransform()->GetWorldToLocalMatrix();
-	transforms.cameraToClipSpaceMatrix = GetProjectionMatrix();
+	transforms.worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
+	transforms.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+	transforms.cameraToClipMatrix = GetProjectionMatrix();
 	transforms.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 
 	UBOManager::UpdateSharedBuffer(SharedUBONames::Transforms, &transforms, 0, sizeof(transforms));
@@ -77,6 +77,7 @@ void CameraInternal::Render() {
 	GetRenderableEntities(entities);
 	Debug::Output("[collect]\t%.2f\n", Debug::EndSample());
 
+	Pipeline::SetCamera(dsp_cast<Camera>(shared_from_this()));
 	Pipeline::SetCurrent(pipeline_);
 
 	if (renderPath_ == RenderPathForward) {
@@ -93,7 +94,7 @@ void CameraInternal::Render() {
 	//	ShadowDepthPass(entities, forwardBase);
 	}
 
-	Framebuffer::SetCurrentWrite(GetActiveFramebuffer());
+	Pipeline::SetFramebuffer(GetActiveFramebuffer());
 
 	UpdateTimeUBO();
 	
@@ -108,13 +109,16 @@ void CameraInternal::Render() {
 
 	OnPostRender();
 
-	Framebuffer::SetCurrentWrite(nullptr);
+	Pipeline::SetFramebuffer(nullptr);
 
 	if (!imageEffects_.empty()) {
 		OnImageEffects();
 	}
 
+	Pipeline::SetCamera(nullptr);
 	Pipeline::SetCurrent(nullptr);
+	Pipeline::SetFramebuffer(nullptr);
+
 	pass_ = RenderPassNone;
 }
 
@@ -215,13 +219,14 @@ void CameraInternal::InitializeDeferredRender() {
 
 void CameraInternal::AddToPipeline(Mesh mesh, Material material) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		Renderable* renderable = pipeline_->CreateRenderable();
+		Renderable* renderable = pipeline_->BeginRenderable();
 		renderable->pass = 0;
 		renderable->instance = 0;
 		renderable->mesh = mesh;
 		renderable->subMeshIndex = i;
 		renderable->material = material;
-		Framebuffer::GetCurrentWrite()->SaveState(renderable->state);
+		Pipeline::GetFramebuffer()->SaveState(renderable->state);
+		Pipeline::GetCurrent()->EndRenderable();
 	}
 }
 
@@ -232,12 +237,12 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
 
-		glm::mat4 localToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
+		glm::mat4 localToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix();
 		Texture mainTexture = entity->GetRenderer()->GetMaterial(0)->GetTexture(Variables::mainTexture);
 
 		Material material = dsp_cast<Material>(deferredMaterial_->Clone());
-		material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
-		material->SetMatrix4(Variables::localToWorldSpaceMatrix, entity->GetTransform()->GetLocalToWorldMatrix());
+		material->SetMatrix4(Variables::localToClipMatrix, localToClipMatrix);
+		material->SetMatrix4(Variables::localToWorldMatrix, entity->GetTransform()->GetLocalToWorldMatrix());
 		material->SetTexture(Variables::mainTexture, mainTexture);
 		AddToPipeline(entity->GetMesh(), deferredMaterial_);
 	}
@@ -301,7 +306,7 @@ void CameraInternal::RenderSkybox() {
 	if (skybox) {
 		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		skybox->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * matrix);
+		skybox->SetMatrix4(Variables::localToClipMatrix, GetProjectionMatrix() * matrix);
 		AddToPipeline(Resources::GetPrimitive(PrimitiveTypeCube), skybox);
 	}
 }
@@ -389,7 +394,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	}
 
 	fb1_->SetDepthTexture(shadowTexture_);
-	Framebuffer::SetCurrentWrite(fb1_);
+	Pipeline::SetFramebuffer(fb1_);
 
 	glm::vec3 lightPosition = light->GetTransform()->GetRotation() * glm::vec3(0, 0, 1);
 	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
@@ -403,7 +408,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 		}
 
 		Material material = dsp_cast<Material>(directionalLightShadowMaterial_->Clone());
-		material->SetMatrix4(Variables::localToOrthographicLightSpaceMatrix, shadowDepthMatrix * entity->GetTransform()->GetLocalToWorldMatrix());
+		material->SetMatrix4(Variables::localToOrthographicLightMatrix, shadowDepthMatrix * entity->GetTransform()->GetLocalToWorldMatrix());
 		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_);
 	}
 
@@ -414,9 +419,9 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 		0.5, 0.5f, 0.5f, 1.f
 	);
 
-	worldToShadowSpaceMatrix_ = bias * shadowDepthMatrix;
+	worldToShadowMatrix_ = bias * shadowDepthMatrix;
 
-	Framebuffer::SetCurrentWrite(nullptr);
+	Pipeline::SetFramebuffer(nullptr);
 }
 
 void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights) {
@@ -431,7 +436,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	pass_ = RenderPassForwardDepth;
 
 	fb1_->SetDepthTexture(depthTexture_);
-	Framebuffer::SetCurrentWrite(fb1_);
+	Pipeline::SetFramebuffer(fb1_);
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
@@ -440,12 +445,12 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 		}
 
 		Material material = dsp_cast<Material>(depthMaterial_->Clone());
-		material->SetMatrix4(Variables::localToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix());
+		material->SetMatrix4(Variables::localToClipMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix() * entity->GetTransform()->GetLocalToWorldMatrix());
 
 		AddToPipeline(entity->GetMesh(), material);
 	}
 
-	Framebuffer::SetCurrentWrite(nullptr);
+	Pipeline::SetFramebuffer(nullptr);
 }
 
 #include <ctime>
@@ -459,12 +464,12 @@ int CameraInternal::ForwardOpaquePass(const std::vector<Entity>& entities, int f
  	std::vector<glm::mat4> matrices;
 // 	matrices.reserve(entities.size() * 4);
 
-	glm::mat4 worldToClipSpaceMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
+	glm::mat4 worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
 		if (IsRenderable(entity)) {
-			RenderEntity(entity, entity->GetRenderer(), worldToClipSpaceMatrix, matrices);
+			RenderEntity(entity, entity->GetRenderer(), worldToClipMatrix, matrices);
 		}
 	}
 
@@ -521,7 +526,7 @@ void CameraInternal::RenderDecals() {
 
 		decalMaterial->SetMatrix4(Variables::decalMatrix, biasMatrix * d->matrix);
 		decalMaterial->SetTexture(Variables::mainTexture, d->texture);
-		decalMaterial->SetMatrix4(Variables::worldToClipSpaceMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+		decalMaterial->SetMatrix4(Variables::worldToClipMatrix, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 
 		Mesh mesh = NewMesh();
 
@@ -557,13 +562,11 @@ void CameraInternal::OnImageEffects() {
 			textures[index] = nullptr;
 		}
 
-		Framebuffer::SetCurrentWrite(active);
+		Pipeline::SetFramebuffer(active);
 		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
 
 		index = 1 - index;
 	}
-
-	Framebuffer::SetCurrentWrite(nullptr);
 }
 
 bool CameraInternal::IsRenderable(Entity entity) {
@@ -588,44 +591,37 @@ void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 	entities.erase(entities.begin() + p, entities.end());
 }
 
-void CameraInternal::RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipSpaceMatrix, std::vector<glm::mat4>& matrices) {
-	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		Material material = renderer->GetMaterial(i);
-		//UpdateMaterial(entity, worldToClipSpaceMatrix, material);
+void CameraInternal::RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipMatrix, std::vector<glm::mat4>& matrices) {
+//	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+		//Material material = renderer->GetMaterial(i);
+		//UpdateMaterial(entity, worldToClipMatrix, material);
 		//const uint matrixCount = (sizeof(EntityUBOStructs::EntityMatrices) / sizeof(glm::mat4));
 
-		glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
-		glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
-
-		if (!__debugIndexSet) {
-			entity->GetMesh()->GetSubMesh(i)->__SetIndex(localToWorldSpaceMatrix, localToClipSpaceMatrix);
-		}
-// 		clock_t b = clock();
+// 		clock_t b = clock(Matrix 
+// 		glm::mMatrixcalToWorldMatriMatrixtity->GetTransform()->GetLocalToWorldMatrix();
+// 		glm::mat4MatrixToClipMatrix = worldToClipMatrix * localToWorldMatrix;
 // 
-// 		glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
-// 		glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
-// 
-// 		matrices.push_back(localToWorldSpaceMatrix);
-// 		matrices.push_back(localToClipSpaceMatrix);
-// 		matrices.push_back(glm::mat4(0));
-// 		matrices.push_back(glm::mat4(0));
+// 		matrices.pushMatrixlocalToWorldMaMatrix
+// 		matricesMatrixback(localToClipMatrix);
+// 		matrices.pushMatrixglm::mat4(0));
+// 		matrices.push_backMatrixmat4(0));
 // 		set_opaque_material += clock() - b;
-	}
+//	}
 
 	clock_t b = clock();
 	renderer->RenderEntity(entity);
 	push_renderables += clock() - b;
 }
 
-void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipSpaceMatrix, Material material) {
-	/*glm::mat4 localToWorldSpaceMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
-	glm::mat4 localToClipSpaceMatrix = worldToClipSpaceMatrix * localToWorldSpaceMatrix;
+void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {
+	/*glm::mat4 localToWorldMatrix = entity->GMatrixsform()->GetLocalToWorldMatrix();
+	glm::mat4 locMatrixipMatrix = worldToClipMatrix * localToWorldMatrix;
 
-	material->SetMatrix4(Variables::localToWorldSpaceMatrix, localToWorldSpaceMatrix);
-	material->SetMatrix4(Variables::localToClipSpaceMatrix, localToClipSpaceMatrix);
+	material->SetMatrix4Matrixbles::localToWMatrixtrix, localToWoMatrixrix);
+	material->SetMatrix4(Variables::localToCliMatrixx, localToClipMatrix);
 	*/
 	if (pass_ >= RenderPassForwardOpaque) {
-	//	material->SetMatrix4(Variables::localToShadowSpaceMatrix, worldToShadowSpaceMatrix_ * localToWorldSpaceMatrix);
+	//	material->SetMatrix4(Variables::localToShadowMatrix, worldToShadowMatrix_ * localToWorldMatrix);
 	//	material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}
 }

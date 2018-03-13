@@ -24,7 +24,7 @@ public:
 
 	static float GetDistance(const Plane& plane, const glm::vec3& p);
 	static bool GetIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& p0, const glm::vec3& p1);
-	static void CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipSpaceMatrix);
+	static void CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix);
 
 private:
 	static void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane);

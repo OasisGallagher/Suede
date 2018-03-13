@@ -20,7 +20,7 @@ SUEDE_DECLARE_OBJECT_CREATER(AnimationFrame);
 
 struct SkeletonBone {
 	std::string name;
-	glm::mat4 localToBoneSpaceMatrix;
+	glm::mat4 localToBoneMatrix;
 };
 
 struct SkeletonNode {
@@ -42,7 +42,7 @@ public:
 	virtual void AddNode(SkeletonNode* parent, SkeletonNode* child) = 0;
 	virtual SkeletonNode* GetRootNode() = 0;
 	
-	virtual void SetBoneToRootSpaceMatrix(uint index, const glm::mat4& value) = 0;
+	virtual void SetBoneToRootMatrix(uint index, const glm::mat4& value) = 0;
 	virtual glm::mat4* GetBoneToRootSpaceMatrices() = 0;
 
 	virtual int GetBoneIndex(const std::string& name) = 0;

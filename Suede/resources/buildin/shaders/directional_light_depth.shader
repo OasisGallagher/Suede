@@ -11,10 +11,10 @@ SubShader {
 		#stage vertex
 		in vec3 c_position;
 
-		uniform mat4 c_localToOrthographicLightSpaceMatrix;
+		uniform mat4 c_localToOrthographicLightMatrix;
 
 		void main() {
-			gl_Position = c_localToOrthographicLightSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToOrthographicLightMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment

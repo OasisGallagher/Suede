@@ -127,13 +127,6 @@ public:
 	~Framebuffer();
 
 public:
-	static void SetCurrentRead(FramebufferBase* value);
-	static void SetCurrentWrite(FramebufferBase* value);
-
-	static FramebufferBase* GetCurrentRead() { return read_; }
-	static FramebufferBase* GetCurrentWrite() { return write_; }
-
-public:
 	void Create(int width, int height);
 
 	void BindRead(FramebufferAttachment attachment);
@@ -177,6 +170,4 @@ private:
 	GLenum* glAttachments_;
 	RenderTexture* renderTextures_;
 	RenderTexture depthTexture_;
-
-	static FramebufferBase* read_, *write_;
 };

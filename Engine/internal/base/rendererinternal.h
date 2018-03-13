@@ -27,10 +27,10 @@ public:
 
 protected:
 	virtual void UpdateMaterial(Entity entity);
-	virtual void AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass);
+	virtual void AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass);
 
-	void RenderMesh(Mesh mesh);
-	void RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass);
+	void RenderMesh(Entity entity);
+	void RenderSubMesh(Entity entity, int subMeshIndex, Material material, int pass);
 
 private:
 	uint queue_;
@@ -69,7 +69,7 @@ public:
 	virtual void AddMaterial(Material material);
 
 protected:
-	virtual void AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass);
+	virtual void AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass);
 
 private:
 	uint particleCount_;

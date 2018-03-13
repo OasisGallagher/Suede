@@ -12,20 +12,19 @@ layout(std140) uniform Light {
 };
 
 layout(std140) uniform Transforms {
-	mat4 c_worldToClipSpaceMatrix;
-	mat4 c_worldToCameraSpaceMatrix;
-	mat4 c_cameraToClipSpaceMatrix;
+	mat4 c_worldToClipMatrix;
+	mat4 c_worldToCameraMatrix;
+	mat4 c_cameraToClipMatrix;
 
 	vec3 c_cameraPosition;
 };
 
-//uniform mat4 c_localToWorldSpaceMatrix;
-//uniform mat4 c_localToClipSpaceMatrix;
+//uniform mat4 c_localToWorldMatrix;
+//uniform mat4 c_localToClipMatrix;
 
 layout(std140) uniform EntityMatricesInstanced {
 	mat4 entityMatrices[C_MAX_ENTITY_MATRCES];
 };
 
-#define c_localToWorldSpaceMatrix	entityMatrices[gl_InstanceID * 2]
-#define c_localToClipSpaceMatrix	entityMatrices[gl_InstanceID * 2 + 1]
-
+#define c_localToWorldMatrix	entityMatrices[gl_InstanceID * 2]
+#define c_localToClipMatrix	entityMatrices[gl_InstanceID * 2 + 1]

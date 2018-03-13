@@ -15,14 +15,14 @@ RendererInternal::~RendererInternal() {
 
 void RendererInternal::RenderEntity(Entity entity) {
 	UpdateMaterial(entity);
-	RenderMesh(entity->GetMesh());
+	RenderMesh(entity);
 }
 
 void RendererInternal::UpdateMaterial(Entity entity) {
 }
 
-void RendererInternal::RenderMesh(Mesh mesh) {
-	int subMeshCount = mesh->GetSubMeshCount();
+void RendererInternal::RenderMesh(Entity entity) {
+	int subMeshCount = entity->GetMesh()->GetSubMeshCount();
 	int materialCount = GetMaterialCount();
 
 	if (materialCount != subMeshCount) {
@@ -34,12 +34,12 @@ void RendererInternal::RenderMesh(Mesh mesh) {
 		Material material = GetMaterial(i);
 		int pass = material->GetPass();
 		if (pass >= 0 && material->IsPassEnabled(pass)) {
-			RenderSubMesh(mesh, i, material, pass);
+			RenderSubMesh(entity, i, material, pass);
 		}
 		else {
 			for (pass = 0; pass < material->GetPassCount(); ++pass) {
 				if (material->IsPassEnabled(pass)) {
-					RenderSubMesh(mesh, i, material, pass);
+					RenderSubMesh(entity, i, material, pass);
 				}
 			}
 		}
@@ -60,19 +60,22 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 	materials_.erase(materials_.begin() + index);
 }
 
-void RendererInternal::AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass) {
-	Renderable* item = Pipeline::GetCurrent()->CreateRenderable();
+void RendererInternal::AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass) {
+	Renderable* item = Pipeline::GetCurrent()->BeginRenderable();
 	item->pass = pass;
 	item->instance = 0;
 	item->material = material;
 
-	item->mesh = mesh;
+	item->mesh = entity->GetMesh();
 	item->subMeshIndex = subMeshIndex;
-	Framebuffer::GetCurrentWrite()->SaveState(item->state);
+	item->localToWorldMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
+	Pipeline::GetFramebuffer()->SaveState(item->state);
+
+	Pipeline::GetCurrent()->EndRenderable();
 }
 
-void RendererInternal::RenderSubMesh(Mesh mesh, int subMeshIndex, Material material, int pass) {
-	AddToPipeline(mesh, subMeshIndex, material, pass);
+void RendererInternal::RenderSubMesh(Entity entity, int subMeshIndex, Material material, int pass) {
+	AddToPipeline(entity, subMeshIndex, material, pass);
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
@@ -103,13 +106,15 @@ void ParticleRendererInternal::RenderEntity(Entity entity) {
 	RendererInternal::RenderEntity(entity);
 }
 
-void ParticleRendererInternal::AddToPipeline(Mesh mesh, uint subMeshIndex, Material material, int pass) {
+void ParticleRendererInternal::AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass) {
 	if (particleCount_ == 0) { return; }
-	Renderable* item = Pipeline::GetCurrent()->CreateRenderable();
+	Renderable* item = Pipeline::GetCurrent()->BeginRenderable();
 	item->pass = pass;
 	item->material = material;
-	item->mesh = mesh;
+	item->mesh = entity->GetMesh();
 	item->subMeshIndex = subMeshIndex;
 	item->instance = particleCount_;
-	Framebuffer::GetCurrentWrite()->SaveState(item->state);
+	item->localToWorldMatrix = entity->GetTransform()->GetLocalToWorldMatrix();
+	Pipeline::GetFramebuffer()->SaveState(item->state);
+	Pipeline::GetCurrent()->EndRenderable();
 }

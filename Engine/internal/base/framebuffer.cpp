@@ -3,9 +3,6 @@
 #include "framebuffer.h"
 #include "memory/memory.h"
 
-FramebufferBase* Framebuffer::read_ = Framebuffer0::Get();
-FramebufferBase* Framebuffer::write_ = Framebuffer0::Get();
-
 bool FramebufferState::operator!=(const FramebufferState& other) const {
 	return framebuffer != other.framebuffer || depthTexture != other.depthTexture
 		|| renderTexture != other.renderTexture;
@@ -178,16 +175,6 @@ Framebuffer::~Framebuffer() {
 		GL::DeleteRenderbuffers(1, &depthRenderbuffer_);
 		depthRenderbuffer_ = 0;
 	}
-}
-
-void Framebuffer::SetCurrentRead(FramebufferBase* value) {
-	if (value == nullptr) { value = Framebuffer0::Get(); }
-	read_ = value;
-}
-
-void Framebuffer::SetCurrentWrite(FramebufferBase * value) {
-	if (value == nullptr) { value = Framebuffer0::Get(); }
-	write_ = value;
 }
 
 void Framebuffer::Create(int width, int height) {

@@ -295,7 +295,7 @@ void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, S
 		if (index < 0) {
 			SkeletonBone bone;
 			bone.name = name;
-			AIMaterixToGLM(bone.localToBoneSpaceMatrix, aimesh->mBones[i]->mOffsetMatrix);
+			AIMaterixToGLM(bone.localToBoneMatrix, aimesh->mBones[i]->mOffsetMatrix);
 			index = skeleton_->GetBoneCount();
 			skeleton_->AddBone(bone);
 		}

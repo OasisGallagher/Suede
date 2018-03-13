@@ -30,12 +30,12 @@ SubShader {
 
 			texCoord = c_texCoord;
 
-			normal = (c_localToWorldSpaceMatrix * mat * vec4(c_normal, 0)).xyz;
-			worldPos = (c_localToWorldSpaceMatrix * mat * vec4(c_position, 1)).xyz;
+			normal = (c_localToWorldMatrix * mat * vec4(c_normal, 0)).xyz;
+			worldPos = (c_localToWorldMatrix * mat * vec4(c_position, 1)).xyz;
 
 			//calculateShadowCoord();
 
-			gl_Position = c_localToClipSpaceMatrix * mat * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * mat * vec4(c_position, 1);
 		}
 
 		#stage fragment

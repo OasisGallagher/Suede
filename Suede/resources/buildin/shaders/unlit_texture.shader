@@ -12,11 +12,11 @@ SubShader {
 
 		out vec2 texCoord;
 
-		uniform mat4 c_localToClipSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
 
 		void main() {
 			texCoord = c_texCoord;
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment

@@ -48,7 +48,7 @@ SkeletonBone* SkeletonInternal::GetBone(const std::string& name) {
 	return bones_ + pos->second;
 }
 
-void SkeletonInternal::SetBoneToRootSpaceMatrix(uint index, const glm::mat4& value) {
+void SkeletonInternal::SetBoneToRootMatrix(uint index, const glm::mat4& value) {
 	if (index >= current_) {
 		Debug::LogError("index out of range");
 		return;
@@ -152,10 +152,10 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 	Skeleton skeleton = GetAnimation()->GetSkeleton();
 	int index = skeleton->GetBoneIndex(node->name);
 	if (index >= 0) {
-		glm::mat4 boneToRootSpaceMatrix = GetAnimation()->GetRootTransform();
-		boneToRootSpaceMatrix *= transform * skeleton->GetBone(index)->localToBoneSpaceMatrix;
+		glm::mat4 boneToRootMatrix = GetAnimation()->GetRootTransform();
+		boneToRootMatrix *= transform * skeleton->GetBone(index)->localToBoneMatrix;
 
-		skeleton->SetBoneToRootSpaceMatrix(index, boneToRootSpaceMatrix);
+		skeleton->SetBoneToRootMatrix(index, boneToRootMatrix);
 	}
 
 	for (int i = 0; i < node->children.size(); ++i) {

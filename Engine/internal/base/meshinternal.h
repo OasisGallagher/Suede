@@ -28,16 +28,11 @@ public:
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_.lock(); }
 
-	virtual void __SetIndex(const glm::mat4& m0, const glm::mat4& m1) { __m0__ = m0; __m1__ = m1; }
-	virtual void __GetIndex(glm::mat4& m0, glm::mat4& m1) const { m0 = __m0__;  m1 = __m1__; }
-
 	virtual void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
 	virtual const TriangleBias& GetTriangleBias() const { return bias_; }
 
 private:
 	TriangleBias bias_;
-	glm::mat4 __m0__;
-	glm::mat4 __m1__;
 	std::weak_ptr<Mesh::element_type> mesh_;
 };
 

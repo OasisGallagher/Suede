@@ -22,11 +22,11 @@ SubShader {
 			float size = c_instanceGeometry.w;
 			vec3 center = c_instanceGeometry.xyz;
 
-			vec3 cameraUp = vec3(c_worldToCameraSpaceMatrix[0][1], c_worldToCameraSpaceMatrix[1][1], c_worldToCameraSpaceMatrix[2][1]);
-			vec3 cameraRight = vec3(c_worldToCameraSpaceMatrix[0][0], c_worldToCameraSpaceMatrix[1][0], c_worldToCameraSpaceMatrix[2][0]);
+			vec3 cameraUp = vec3(c_worldToCameraMatrix[0][1], c_worldToCameraMatrix[1][1], c_worldToCameraMatrix[2][1]);
+			vec3 cameraRight = vec3(c_worldToCameraMatrix[0][0], c_worldToCameraMatrix[1][0], c_worldToCameraMatrix[2][0]);
 
 			vec3 position = center + cameraUp * c_position.y * size + cameraRight * c_position.x * size;
-			gl_Position = c_worldToClipSpaceMatrix * vec4(position, 1);
+			gl_Position = c_worldToClipMatrix * vec4(position, 1);
 
 			texCoord = c_position.xy + vec2(0.5f);
 			color = c_instanceColor;

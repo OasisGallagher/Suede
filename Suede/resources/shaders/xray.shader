@@ -21,16 +21,16 @@ SubShader {
 		out vec3 viewDir;
 		out vec3 normal;
 
-		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
+		uniform mat4 c_localToWorldMatrix;
 
 		void main() {
 			// normal local to world space.
-			normal = transpose(inverse(mat3(c_localToWorldSpaceMatrix))) * c_normal;
-			vec3 worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			normal = transpose(inverse(mat3(c_localToWorldMatrix))) * c_normal;
+			vec3 worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 			viewDir = c_cameraPosition - worldPos;
 			
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment
@@ -66,18 +66,18 @@ SubShader {
 
 		#include "buildin/shaders/include/light_vertex.inc"
 
-		uniform mat4 c_localToClipSpaceMatrix;
-		uniform mat4 c_localToWorldSpaceMatrix;
+		uniform mat4 c_localToClipMatrix;
+		uniform mat4 c_localToWorldMatrix;
 
 		void main() {
 			texCoord = c_texCoord;
 
-			normal = (c_localToWorldSpaceMatrix * vec4(c_normal, 0)).xyz;
-			worldPos = (c_localToWorldSpaceMatrix * vec4(c_position, 1)).xyz;
+			normal = (c_localToWorldMatrix * vec4(c_normal, 0)).xyz;
+			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 	
 			calculateShadowCoord();
 
-			gl_Position = c_localToClipSpaceMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
 
 		#stage fragment

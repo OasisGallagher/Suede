@@ -112,8 +112,8 @@ private:
 
 	bool IsRenderable(Entity entity);
 
-	void RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipSpaceMatrix, std::vector<glm::mat4>& matrices);
-	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipSpaceMatrix, Material material);
+	void RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipMatrix, std::vector<glm::mat4>& matrices);
+	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
 	void GetRenderableEntities(std::vector<Entity>& entities);
 	void SortRenderableEntities(std::vector<Entity>& entities);
@@ -132,7 +132,7 @@ private:
 
 private:
 	int depth_;
-	glm::mat4 worldToShadowSpaceMatrix_;
+	glm::mat4 worldToShadowMatrix_;
 
 
 	GBuffer* gbuffer_;
