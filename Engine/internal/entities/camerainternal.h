@@ -13,21 +13,6 @@ class FramebufferBase;
 
 class CameraInternal : public ICamera, public EntityInternal {
 	DEFINE_FACTORY_METHOD(Camera)
-	
-	enum RenderPass {
-		RenderPassNone = -1,
-
-		RenderPassShadowDepth,
-
-		RenderPassForwardBackground,
-		RenderPassForwardDepth,
-		RenderPassForwardOpaque,
-		RenderPassForwardTransparent,
-
-		RenderPassDeferredGeometryPass,
-
-		RenderPassCount
-	};
 
 public:
 	CameraInternal();
@@ -88,7 +73,7 @@ private:
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
 	void UpdateTimeUBO();
-	void AddToPipeline(Mesh mesh, Material material);
+	void AddToPipeline(Mesh mesh, Material material, const glm::mat4& localToWorldMatrix);
 
 	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 	void DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
@@ -105,14 +90,12 @@ private:
 
 	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
 
+	void ForwardPass(const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
-	int ForwardBackgroundPass(const std::vector<Entity>& entities, int from);
-	int ForwardOpaquePass(const std::vector<Entity>& entities, int from);
-	int ForwardTransparentPass(const std::vector<Entity>& entities, int from);
 
 	bool IsRenderable(Entity entity);
 
-	void RenderEntity(Entity entity, Renderer renderer, const glm::mat4& worldToClipMatrix, std::vector<glm::mat4>& matrices);
+	void RenderEntity(Entity entity, Renderer renderer);
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
 	void GetRenderableEntities(std::vector<Entity>& entities);
@@ -157,8 +140,6 @@ private:
 	Material directionalLightShadowMaterial_;
 
 	std::vector<ImageEffect*> imageEffects_;
-
-	RenderPass pass_;
 
 	ClearType clearType_;
 	RenderPath renderPath_;

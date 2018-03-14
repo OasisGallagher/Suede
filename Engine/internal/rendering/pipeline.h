@@ -7,15 +7,27 @@
 #include "internal/base/framebuffer.h"
 
 struct Renderable {
-	uint pass;
 	uint instance;
+	
 	Mesh mesh;
 	uint subMeshIndex;
+	
 	Material material;
+	uint pass;
+
 	FramebufferState state;
+
 	glm::mat4 localToWorldMatrix;
 
 	bool IsInstance(const Renderable& other) const {
+		if (mesh->GetNativePointer() != other.mesh->GetNativePointer()) {
+			return false;
+		}
+
+		if (subMeshIndex != other.subMeshIndex) {
+			return false;
+		}
+		
 		if (state.framebuffer != other.state.framebuffer) {
 			return false;
 		}
@@ -28,19 +40,26 @@ struct Renderable {
 			return false;
 		}
 
-		if (mesh->GetNativePointer() != other.mesh->GetNativePointer()) {
-			return false;
-		}
-
-		if (subMeshIndex != other.subMeshIndex) {
-			return false;
-		}
-
 		return true;
 	}
 };
 
 class Pipeline {
+	enum RenderPass {
+		RenderPassNone = -1,
+
+		RenderPassShadowDepth,
+
+		RenderPassForwardBackground,
+		RenderPassForwardDepth,
+		RenderPassForwardOpaque,
+		RenderPassForwardTransparent,
+
+		RenderPassDeferredGeometryPass,
+
+		RenderPassCount
+	};
+
 public:
 	Pipeline();
 
@@ -56,15 +75,22 @@ public:
 
 public:
 	void Update();
-	Renderable* BeginRenderable();
-	void EndRenderable();
+	void AddRenderable(
+		Mesh mesh,
+		uint subMeshIndex,
+		Material material,
+		uint pass,
+		const FramebufferState& state,
+		const glm::mat4& localToWorldMatrix,
+		uint instance = 0
+	);
 
 private:
 	void ResetState();
 	void SortRenderables();
-	void Render(Renderable& p);
+	void Render(Renderable& ref);
 	void RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix);
-	void ClearRenderable(Renderable* renderable);
+	void ClearRenderable(Renderable& ref);
 	
 private:
 	uint nrenderables_;

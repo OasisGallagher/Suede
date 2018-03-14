@@ -9,9 +9,9 @@ Pipeline* Pipeline::current_;
 FramebufferBase* Pipeline::framebuffer_;
 
 #include <ctime>
-static clock_t switchFramebuffer = 0, switchMaterial = 0, switchMesh = 0, updateUBO = 0;
-static clock_t setBuffer = 0;
-static uint drawCall = 0;
+static clock_t switch_framebuffer = 0, switch_material = 0, switch_mesh = 0, update_ubo = 0;
+static clock_t set_buffer = 0;
+static uint draw_calls = 0;
 
 struct RenderableComparer {
 	// TODO: hash renderable.
@@ -67,7 +67,7 @@ GLenum TopologyToGLEnum(MeshTopology topology) {
 	return GL_TRIANGLE_STRIP;
 }
 
-void Pipeline::SetFramebuffer(FramebufferBase * value) {
+void Pipeline::SetFramebuffer(FramebufferBase* value) {
 	if (value == nullptr) {
 		value = Framebuffer0::Get();
 	}
@@ -91,14 +91,16 @@ void Pipeline::Update() {
 			start = i;
 		}
 	}
-	Debug::Output("[instanced]\t%d\t%.2f/%.2f\n", drawCall, float(updateUBO) / CLOCKS_PER_SEC, Debug::EndSample());
 
 	RenderInstanced(start, nrenderables_, worldToClipMatrix);
+
+	Debug::Output("[drawcall]\t%d\n", draw_calls);
+	Debug::Output("[instanced]\t%.2f/%.2f\n", float(update_ubo) / CLOCKS_PER_SEC, Debug::EndSample());
 	
-	Debug::Output("[fb]\t%.2f\n", float(switchFramebuffer) / CLOCKS_PER_SEC);
-	Debug::Output("[mat]\t%.2f\n", float(switchMaterial) / CLOCKS_PER_SEC);
-	Debug::Output("[mesh]\t%.2f\n", float(switchMesh) / CLOCKS_PER_SEC);
-	Debug::Output("[setBuffer]\t%.2f\n", float(setBuffer) / CLOCKS_PER_SEC);
+	Debug::Output("[fb]\t%.2f\n", float(switch_framebuffer) / CLOCKS_PER_SEC);
+	Debug::Output("[mat]\t%.2f\n", float(switch_material) / CLOCKS_PER_SEC);
+	Debug::Output("[mesh]\t%.2f\n", float(switch_mesh) / CLOCKS_PER_SEC);
+	Debug::Output("[setBuffer]\t%.2f\n", float(set_buffer) / CLOCKS_PER_SEC);
 	Debug::Output("[pipeline]\t%.2f\n", Debug::EndSample());
 
 	ResetState();
@@ -106,7 +108,7 @@ void Pipeline::Update() {
 
 void Pipeline::RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix) {
 	Renderable& ref = renderables_[first];
-	static int maxInstances = UBOManager::GetMaxBlockSize() / (2 * sizeof(glm::mat4));
+	static int maxInstances = UBOManager::GetMaxBlockSize() / sizeof(EntityUBOStructs::EntityMatrices);
 	int instanceCount = last - first;
 	for (int j = 0; j < instanceCount; j += maxInstances) {
 		int count = Math::Min(instanceCount - j, maxInstances);
@@ -121,7 +123,7 @@ void Pipeline::RenderInstanced(uint first, uint last, const glm::mat4& worldToCl
 
 		clock_t s = clock();
 		UBOManager::UpdateSharedBuffer(SharedUBONames::EntityMatricesInstanced, &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
-		updateUBO += clock() - s;
+		update_ubo += clock() - s;
 
 		Render(ref);
 	}
@@ -132,83 +134,81 @@ void Pipeline::SortRenderables() {
 	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparer);
 }
 
-Renderable* Pipeline::BeginRenderable() {
+void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		renderables_.resize(2 * nrenderables_);
 	}
 
-	Renderable* answer = &renderables_[nrenderables_++];
-	ClearRenderable(answer);
-	return answer;
+	Renderable& ref = renderables_[nrenderables_++];
+	ref.instance = instance;
+	ref.mesh = mesh;
+	ref.subMeshIndex = subMeshIndex;
+	ref.material = material;
+	ref.pass = pass;
+	ref.state = state;
+	ref.localToWorldMatrix = localToWorldMatrix;
+
+	ClearRenderable(ref);
 }
 
-void Pipeline::EndRenderable() {
-
+void Pipeline::ClearRenderable(Renderable& ref) {
+	ref.state.Clear();
 }
 
-void Pipeline::ClearRenderable(Renderable* answer) {
-	answer->state.Clear();
-}
-
-void Pipeline::Render(Renderable& p) {
-	if (oldTarget_ == nullptr || *oldTarget_ != p.state) {
+void Pipeline::Render(Renderable& ref) {
+	if (oldTarget_ == nullptr || *oldTarget_ != ref.state) {
 		clock_t delta = clock();
 		if (oldTarget_ != nullptr) {
 			oldTarget_->Unbind();
 		}
 
-		oldTarget_ = &p.state;
+		oldTarget_ = &ref.state;
 
-		p.state.BindWrite();
+		ref.state.BindWrite();
 
-		switchFramebuffer += (clock() - delta);
+		switch_framebuffer += (clock() - delta);
 	}
 
-	if (p.material != oldMaterial_) {
+	if (ref.material != oldMaterial_) {
 		clock_t delta = clock();
 		if (oldMaterial_) {
 			oldMaterial_->Unbind();
 		}
 
-		oldPass_ = p.pass;
-		oldMaterial_ = p.material;
+		oldPass_ = ref.pass;
+		oldMaterial_ = ref.material;
 		
-		p.material->Bind(p.pass);
-		switchMaterial += (clock() - delta);
+		ref.material->Bind(ref.pass);
+		switch_material += (clock() - delta);
 	}
-	else if (oldPass_ != p.pass) {
-		p.material->Bind(p.pass);
-		oldPass_ = p.pass;
+	else if (oldPass_ != ref.pass) {
+		ref.material->Bind(ref.pass);
+		oldPass_ = ref.pass;
 	}
 
-// 	clock_t sss = clock();
-// 	const size_t structureSize = sizeof(EntityUBOStructs::EntityMatrices);
-// 	UBOManager::AttachEntityBuffer(p.material->GetShader(), p.mesh->GetSubMesh(p.subMeshIndex)->__GetIndex());
-// 	setBuffer += clock() - sss;
-
-	if (p.mesh->GetNativePointer() != oldMeshPointer_) {
+	if (ref.mesh->GetNativePointer() != oldMeshPointer_) {
 		clock_t delta = clock();
-		p.mesh->Bind();
-		oldMeshPointer_ = p.mesh->GetNativePointer();
-		switchMesh += (clock() - delta);
+		ref.mesh->Bind();
+		oldMeshPointer_ = ref.mesh->GetNativePointer();
+		switch_mesh += (clock() - delta);
 	}
 
-	const TriangleBias& bias = p.mesh->GetSubMesh(p.subMeshIndex)->GetTriangleBias();
+	const TriangleBias& bias = ref.mesh->GetSubMesh(ref.subMeshIndex)->GetTriangleBias();
 
-	GLenum mode = TopologyToGLEnum(p.mesh->GetTopology());
-	if (p.instance == 0) {
+	GLenum mode = TopologyToGLEnum(ref.mesh->GetTopology());
+	if (ref.instance == 0) {
 		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 	}
 	else {
-		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), p.instance, bias.baseVertex);
+		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), ref.instance, bias.baseVertex);
 	}
 
-	++drawCall;
+	++draw_calls;
 }
 
 void Pipeline::ResetState() {
-	drawCall = 0;
-	switchFramebuffer = switchMaterial = switchMesh = setBuffer = updateUBO = 0;
+	draw_calls = 0;
+	switch_framebuffer = switch_material = switch_mesh = set_buffer = update_ubo = 0;
 
 	if (oldTarget_ != nullptr) {
 		oldTarget_->Unbind();

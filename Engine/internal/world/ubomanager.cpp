@@ -20,14 +20,16 @@ void UBOManager::Initialize() {
 	CREATE_UBO(Time);
 	CREATE_UBO(Light);
 	CREATE_UBO(Transforms);
-	CREATE_UBO(EntityMatricesInstanced);
 
-	for (int i = 0; i < MaxEntityMatrixBuffers; ++i) {
-		UBO* ptr = MEMORY_CREATE(UBO);
-		// TODO: maximum buffer size.
-		ptr->Create(EntityUBONames::GetEntityMatricesName(i), 65536);
-		entityUBOs_[i] = ptr;
-	}
+	UBO* ptr = MEMORY_CREATE(UBO);
+	ptr->Create(SharedUBONames::EntityMatricesInstanced, GetMaxBlockSize());
+	sharedUBOs_.insert(std::make_pair(ptr->GetName(), (ptr)));
+
+ 	for (int i = 0; i < MaxEntityMatrixBuffers; ++i) {
+ 		UBO* ptr = MEMORY_CREATE(UBO);
+ 		ptr->Create(EntityUBONames::GetEntityMatricesName(i), GetMaxBlockSize());
+ 		entityUBOs_[i] = ptr;
+ 	}
 
 #undef CREATE_UBO
 }

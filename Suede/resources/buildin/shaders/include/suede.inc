@@ -19,12 +19,9 @@ layout(std140) uniform Transforms {
 	vec3 c_cameraPosition;
 };
 
-//uniform mat4 c_localToWorldMatrix;
-//uniform mat4 c_localToClipMatrix;
-
 layout(std140) uniform EntityMatricesInstanced {
 	mat4 entityMatrices[C_MAX_ENTITY_MATRCES];
 };
 
 #define c_localToWorldMatrix	entityMatrices[gl_InstanceID * 2]
-#define c_localToClipMatrix	entityMatrices[gl_InstanceID * 2 + 1]
+#define c_localToClipMatrix		entityMatrices[gl_InstanceID * 2 + 1]

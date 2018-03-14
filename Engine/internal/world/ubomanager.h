@@ -34,19 +34,12 @@ namespace SharedUBOStructs {
 	struct Time {
 		glm::vec4 time;
 	};
-
-	struct EntityMatricesInstanced {
-		// TODO: count
-		glm::mat4 matrices[1024];
-	};
 }
 
 namespace EntityUBOStructs {
 	struct EntityMatrices {
 		glm::mat4 localToWorldMatrix;
 		glm::mat4 localToClipMatrix;
-		glm::mat4 __padding0;
-		glm::mat4 __padding1;
 	};
 }
 
