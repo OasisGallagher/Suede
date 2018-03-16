@@ -20,7 +20,7 @@ layout(std140) uniform Transforms {
 };
 
 layout(std140) uniform EntityMatricesInstanced {
-	mat4 entityMatrices[C_MAX_ENTITY_MATRCES];
+	mat4 entityMatrices[C_MAX_ENTITY_MATRICES];
 };
 
 #define c_localToWorldMatrix	entityMatrices[gl_InstanceID * 2]

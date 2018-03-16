@@ -11,12 +11,8 @@ class CustomInspector : public QGroupBox {
 public:
 	CustomInspector(const QString& title, Object object);
 
-public:
-	static QString float2QString(float f);
-
 protected:
 	void resizeGeometryToFit(QListWidget* w);
-
 	QString formatRowName(const QString& name) const;
 
 protected:

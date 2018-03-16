@@ -2,11 +2,12 @@
 #include "pipeline.h"
 #include "tools/math2.h"
 #include "internal/world/ubomanager.h"
-#include "internal/base/framebuffer.h"
 
 Camera Pipeline::camera_;
 Pipeline* Pipeline::current_;
 FramebufferBase* Pipeline::framebuffer_;
+
+#define CLOCKS_PER_SEC_F	float(CLOCKS_PER_SEC)
 
 #include <ctime>
 static clock_t switch_framebuffer = 0, switch_material = 0, switch_mesh = 0, update_ubo = 0;
@@ -95,12 +96,12 @@ void Pipeline::Update() {
 	RenderInstanced(start, nrenderables_, worldToClipMatrix);
 
 	Debug::Output("[drawcall]\t%d\n", draw_calls);
-	Debug::Output("[instanced]\t%.2f/%.2f\n", float(update_ubo) / CLOCKS_PER_SEC, Debug::EndSample());
+	Debug::Output("[instanced]\t%.2f/%.2f\n", update_ubo / CLOCKS_PER_SEC_F, Debug::EndSample());
 	
-	Debug::Output("[fb]\t%.2f\n", float(switch_framebuffer) / CLOCKS_PER_SEC);
-	Debug::Output("[mat]\t%.2f\n", float(switch_material) / CLOCKS_PER_SEC);
-	Debug::Output("[mesh]\t%.2f\n", float(switch_mesh) / CLOCKS_PER_SEC);
-	Debug::Output("[setBuffer]\t%.2f\n", float(set_buffer) / CLOCKS_PER_SEC);
+	Debug::Output("[fb]\t%.2f\n", switch_framebuffer / CLOCKS_PER_SEC_F);
+	Debug::Output("[mat]\t%.2f\n", switch_material / CLOCKS_PER_SEC_F);
+	Debug::Output("[mesh]\t%.2f\n", switch_mesh / CLOCKS_PER_SEC_F);
+	Debug::Output("[setBuffer]\t%.2f\n", set_buffer / CLOCKS_PER_SEC_F);
 	Debug::Output("[pipeline]\t%.2f\n", Debug::EndSample());
 
 	ResetState();
@@ -117,9 +118,11 @@ void Pipeline::RenderInstanced(uint first, uint last, const glm::mat4& worldToCl
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
 		for (int k = first; k < first + count; ++k) {
-			matrices.push_back(ref.localToWorldMatrix);
-			matrices.push_back(worldToClipMatrix * ref.localToWorldMatrix);
+			matrices.push_back(renderables_[k].localToWorldMatrix);
+			matrices.push_back(worldToClipMatrix * renderables_[k].localToWorldMatrix);
 		}
+
+		first += count;
 
 		clock_t s = clock();
 		UBOManager::UpdateSharedBuffer(SharedUBONames::EntityMatricesInstanced, &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
@@ -147,12 +150,6 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	ref.pass = pass;
 	ref.state = state;
 	ref.localToWorldMatrix = localToWorldMatrix;
-
-	ClearRenderable(ref);
-}
-
-void Pipeline::ClearRenderable(Renderable& ref) {
-	ref.state.Clear();
 }
 
 void Pipeline::Render(Renderable& ref) {

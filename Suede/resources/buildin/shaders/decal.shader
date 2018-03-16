@@ -11,17 +11,18 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
+		#include "buildin/shaders/include/suede.inc"
+
 		in vec3 c_position;
 		
 		out vec4 projTexCoord;
 		out vec4 clipPosition;
 
 		uniform mat4 c_decalMatrix;
-		uniform mat4 c_worldToClipMatrix;
 
 		void main() {
 			projTexCoord = c_decalMatrix * vec4(c_position, 1);
-			gl_Position = c_worldToClipMatrix * vec4(c_position, 1);
+			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 			clipPosition = gl_Position;
 		}
 

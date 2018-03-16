@@ -513,8 +513,7 @@ void CameraInternal::OnImageEffects() {
 }
 
 bool CameraInternal::IsRenderable(Entity entity) {
-	return entity->GetActive() && entity->GetRenderer()
-		&& entity->GetMesh() && entity->GetMesh()->GetSubMeshCount() > 0;
+	return entity->GetActive() && entity->GetRenderer() && entity->GetMesh();
 }
 
 void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {

@@ -33,14 +33,3 @@ QString CustomInspector::formatRowName(const QString& name) const {
 
 	return answer + ": ";
 }
-
-QString CustomInspector::float2QString(float f) {
-	QString ans;
-	ans.setNum(f, 'f', 1);
-	int dot = ans.indexOf('.');
-	if (dot >= 0 && ans[dot + 1] == '0') {
-		ans.remove(dot, 2);
-	}
-
-	return ans;
-}

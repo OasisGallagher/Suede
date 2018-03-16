@@ -1,9 +1,6 @@
 #include <algorithm>
 
 #include "variables.h"
-#include "framebuffer.h"
-#include "tools/math2.h"
-#include "debug/debug.h"
 #include "rendererinternal.h"
 #include "internal/rendering/pipeline.h"
 

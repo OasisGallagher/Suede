@@ -280,6 +280,9 @@
     <ClInclude Include="internal\world\ubomanager.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\geometry\triangle.h">
+      <Filter>internal\geometry\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -398,6 +401,9 @@
     </ClCompile>
     <ClCompile Include="internal\world\ubomanager.cpp">
       <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\triangle.cpp">
+      <Filter>internal\geometry\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

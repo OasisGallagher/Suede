@@ -69,9 +69,9 @@ glm::vec3 Inspector::readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* 
 }
 
 void Inspector::drawTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3) {
-	x->setText(CustomInspector::float2QString(v3.x));
-	y->setText(CustomInspector::float2QString(v3.y));
-	z->setText(CustomInspector::float2QString(v3.z));
+	x->setText(QString::number(v3.x));
+	y->setText(QString::number(v3.y));
+	z->setText(QString::number(v3.z));
 }
 
 void Inspector::onResetButtonClicked() {

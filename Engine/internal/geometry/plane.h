@@ -1,9 +1,13 @@
 #include <glm/glm.hpp>
 
+/** 
+ * @brief: Ax + By + Cz + d = 0 
+ */
 class Plane {
 public:
 	Plane() :Plane(glm::vec4(0, 0, 1, 0)) {}
 	Plane(const glm::vec4& abcd);
+	Plane(const glm::vec3 points[3]);
 	Plane(const glm::vec3& normal, float d) : normal_(normal), d_(d) {}
 
 public:

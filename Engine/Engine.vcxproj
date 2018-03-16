@@ -175,6 +175,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\file\assetimporter.cpp" />
     <ClCompile Include="internal\geometry\geometryutility.cpp" />
     <ClCompile Include="internal\geometry\plane.cpp" />
+    <ClCompile Include="internal\geometry\triangle.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\entities\camerainternal.cpp" />
@@ -248,6 +249,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\file\assetimporter.h" />
     <ClInclude Include="internal\geometry\geometryutility.h" />
     <ClInclude Include="internal\geometry\plane.h" />
+    <ClInclude Include="internal\geometry\triangle.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\entities\camerainternal.h" />
     <ClInclude Include="internal\entities\lightinternal.h" />

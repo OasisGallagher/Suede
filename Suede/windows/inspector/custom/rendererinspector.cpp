@@ -168,7 +168,7 @@ QWidget* RendererInspector::drawIntField(uint index, const QString& name, int va
 }
 
 QWidget* RendererInspector::drawFloatField(uint index, const QString& name, float value) {
-	QLineEdit* line = new QLineEdit(float2QString(value));
+	QLineEdit* line = new QLineEdit(QString::number(value));
 	line->setValidator(new QDoubleValidator(line));
 
 	line->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeFloat));
@@ -230,9 +230,9 @@ QWidget* RendererInspector::drawVec3Field(uint index, const QString& name, const
 
 	widget->setLayout(layout);
 
-	QLineEdit* x = new QLineEdit(float2QString(value.x), widget);
-	QLineEdit* y = new QLineEdit(float2QString(value.y), widget);
-	QLineEdit* z = new QLineEdit(float2QString(value.z), widget);
+	QLineEdit* x = new QLineEdit(QString::number(value.x), widget);
+	QLineEdit* y = new QLineEdit(QString::number(value.y), widget);
+	QLineEdit* z = new QLineEdit(QString::number(value.z), widget);
 
 	QValidator* validator = new QDoubleValidator(widget);
 	x->setValidator(validator);
@@ -263,10 +263,10 @@ QWidget* RendererInspector::drawVec4Field(uint index, const QString& name, const
 
 	widget->setLayout(layout);
 
-	QLineEdit* x = new QLineEdit(float2QString(value.x), widget);
-	QLineEdit* y = new QLineEdit(float2QString(value.y), widget);
-	QLineEdit* z = new QLineEdit(float2QString(value.z), widget);
-	QLineEdit* w = new QLineEdit(float2QString(value.w), widget);
+	QLineEdit* x = new QLineEdit(QString::number(value.x), widget);
+	QLineEdit* y = new QLineEdit(QString::number(value.y), widget);
+	QLineEdit* z = new QLineEdit(QString::number(value.z), widget);
+	QLineEdit* w = new QLineEdit(QString::number(value.w), widget);
 
 	QValidator* validator = new QDoubleValidator(widget);
 	x->setValidator(validator);

@@ -44,7 +44,7 @@ bool GLSLParser::CompileShaderSource(const std::string& source, const std::strin
 
 void GLSLParser::AddConstants() {
 	globals_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
-	globals_ += "#define C_MAX_ENTITY_MATRCES " + std::to_string(UBOManager::GetMaxBlockSize() / sizeof(glm::mat4))  + "\n";
+	globals_ += "#define C_MAX_ENTITY_MATRICES " + std::to_string(UBOManager::GetMaxBlockSize() / sizeof(glm::mat4))  + "\n";
 }
 
 std::string GLSLParser::FormatDefines(const std::string& defines) {

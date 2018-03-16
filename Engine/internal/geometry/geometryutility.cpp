@@ -54,14 +54,14 @@ void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::
 	}
 }
 
-void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const glm::vec3 triangle[3], const Plane* planes, uint count) {
-	int state = CalculateSide(triangle, 3, planes, count);
+void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const Triangle& triangle, const Plane* planes, uint count) {
+	int state = CalculateSide(planes, count, triangle.points, 3);
 
 	if (state == 2) {
-		polygon.insert(polygon.end(), triangle, triangle + 3);
+		polygon.insert(polygon.end(), triangle.points, triangle.points + 3);
 	}
 	else if (state == 3) {
-		std::list<glm::vec3> list(triangle, triangle + 3);
+		std::list<glm::vec3> list(triangle.points, triangle.points + 3);
 
 		for (int pi = 0; list.size() >= 3 && pi < count; ++pi) {
 			ClampPolygon(list, planes[pi]);
@@ -71,7 +71,7 @@ void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const glm::
 	}
 }
 
-bool GeometryUtility::IsFrontFace(const glm::vec3 triangle[3], const glm::vec3& camera) {
+bool GeometryUtility::IsFrontFace(const Triangle& triangle, const glm::vec3& camera) {
 	glm::vec3 normal = glm::cross(triangle[1] - triangle[0], triangle[2] - triangle[1]);
 	return glm::dot(normal, triangle[1] - camera) < 0;
 }
@@ -150,7 +150,7 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 	*/
 //}
 
-int GeometryUtility::CalculateSide(const glm::vec3* points, uint npoints, const Plane* planes, uint nplanes) {
+int GeometryUtility::CalculateSide(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {
 	int flag = 0;
 	for (uint i = 0; i < nplanes; ++i) {
 		for (uint j = 0; flag != 3 && j < npoints; ++j) {

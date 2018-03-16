@@ -90,7 +90,6 @@ private:
 	void SortRenderables();
 	void Render(Renderable& ref);
 	void RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix);
-	void ClearRenderable(Renderable& ref);
 	
 private:
 	uint nrenderables_;
