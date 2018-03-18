@@ -55,12 +55,10 @@ void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::
 }
 
 void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const Triangle& triangle, const Plane* planes, uint count) {
-	int state = CalculateSide(planes, count, triangle.points, 3);
-
-	if (state == 2) {
+	if (CountPointsNotBehindPlanes(planes, count, triangle.points, 3) == 3) {
 		polygon.insert(polygon.end(), triangle.points, triangle.points + 3);
 	}
-	else if (state == 3) {
+	else {
 		std::list<glm::vec3> list(triangle.points, triangle.points + 3);
 
 		for (int pi = 0; list.size() >= 3 && pi < count; ++pi) {
@@ -150,17 +148,37 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 	*/
 //}
 
-int GeometryUtility::CalculateSide(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {
-	int flag = 0;
-	for (uint i = 0; i < nplanes; ++i) {
-		for (uint j = 0; flag != 3 && j < npoints; ++j) {
-			float f = GeometryUtility::GetDistance(planes[i], points[j]);
-			if (f < 0) { flag |= 1; }
-			else if (f > 0) { flag |= 2; }
-		}
+Side GeometryUtility::CalculateSide(const Plane& plane, const glm::vec3* points, uint npoints) {
+	uint npositive = 0, nnegative = 0;
+	for (uint j = 0; j < npoints; ++j) {
+		float f = GeometryUtility::GetDistance(plane, points[j]);
+		if (f < 0) { ++nnegative; }
+		else if (f > 0) { ++npositive; }
 	}
 
-	return flag;
+	if (npositive == 0 && nnegative == 0) { return SideCoinciding; }
+
+	if (npositive == 0) { return SideBehind; }
+
+	if (nnegative == 0) { return SideInfront; }
+
+	return SideSpanning;
+}
+
+uint GeometryUtility::CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {
+	uint count = 0;
+	for (uint i = 0; i < npoints; ++i) {
+		bool inside = true;
+		for (uint j = 0; j < nplanes; ++j) {
+			if (GeometryUtility::CalculateSide(planes[j], points + i, 1) == SideBehind) {
+				inside = false;
+			}
+		}
+
+		if (inside) { ++count; }
+	}
+
+	return count;
 }
 
 bool GeometryUtility::GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next) {

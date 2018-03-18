@@ -4,11 +4,18 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "triangle.h"
+#include "polygon.h"
 #include "containers/arraylist.h"
 
 class Plane;
 struct EarVertex;
+
+enum Side {
+	SideCoinciding,
+	SideBehind,
+	SideInfront,
+	SideSpanning,
+};
 
 class GeometryUtility {
 public:
@@ -20,10 +27,7 @@ public:
 
 	static bool IsFrontFace(const Triangle& triangle, const glm::vec3& camera);
 	
-	/**
-	 * @return: 0: coinciding; 1: behind; 2: infront; 3: spanning 
-	 */
-	static int CalculateSide(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints);
+	static Side CalculateSide(const Plane& plane, const glm::vec3* points, uint npoints);
 
 	static float GetDistance(const Plane& plane, const glm::vec3& p);
 	static bool GetIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& p0, const glm::vec3& p1);
@@ -33,6 +37,7 @@ private:
 	static void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane);
 	static void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane);
 
+	static uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints);
 	static bool GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next);
 
 	static bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal);
