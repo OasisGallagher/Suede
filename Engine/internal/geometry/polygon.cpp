@@ -3,7 +3,7 @@
 #include "memory/memory.h"
 #include "geometryutility.h"
 
-#define CHECK_INDEX(index)	if (index >= count) { Debug::LogError("index out of range."); return points[0]; } else (void)0
+#define CHECK_INDEX(index)	if (index >= npoints) { Debug::LogError("index out of range."); return points[0]; } else (void)0
 
 Polygon::Polygon(const glm::vec3 * p, uint n) {
 	points = MEMORY_CREATE_ARRAY(glm::vec3, n);
@@ -20,6 +20,7 @@ Polygon& Polygon::operator=(const Polygon& other) {
 	MEMORY_RELEASE_ARRAY(points);
 	points = MEMORY_CREATE_ARRAY(glm::vec3, other.npoints);
 	memcpy(points, other.points, sizeof(glm::vec3) * other.npoints);
+	return *this;
 }
 
 glm::vec3& Polygon::operator[](uint index) {
