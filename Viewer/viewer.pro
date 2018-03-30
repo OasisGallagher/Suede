@@ -3,7 +3,7 @@
 # ------------------------------------------------------
 
 TEMPLATE = app
-TARGET = Suede
+TARGET = Viewer
 DESTDIR = ../Win32/Debug
 QT += core widgets gui
 CONFIG += debug
@@ -18,4 +18,4 @@ UI_DIR += ./GeneratedFiles
 RCC_DIR += ./GeneratedFiles
 RC_FILE += ./resources/winrc/res.rc
 
-include(Suede.pri)
+include(Viewer.pri)

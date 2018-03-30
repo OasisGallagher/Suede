@@ -115,8 +115,8 @@
       <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;OpenThreads.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
-copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
+      <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Viewer\lib
+copy $(TargetDir)$(TargetName).dll $(SolutionDir)Viewer\bin</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

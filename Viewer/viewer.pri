@@ -6,5 +6,5 @@
 # Remove it when you are finished editing this file.
 message("You are running qmake on a generated .pro file. This may not work!")
 
-FORMS += ./ui/suede.ui
-RESOURCES += suede.qrc
+FORMS += ./ui/Viewer.ui
+RESOURCES += Viewer.qrc

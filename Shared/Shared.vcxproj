@@ -90,8 +90,8 @@
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)GLEF\lib
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
-copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
-copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
+copy $(TargetDir)$(TargetName).lib $(SolutionDir)Viewer\lib
+copy $(TargetDir)$(TargetName).dll $(SolutionDir)Viewer\bin</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
