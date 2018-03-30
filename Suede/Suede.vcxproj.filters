@@ -248,6 +248,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="suede.qrc">
+      <Filter>resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\suede.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
     <CustomBuild Include="main\suede.h">
       <Filter>main\include</Filter>
     </CustomBuild>
@@ -362,12 +368,6 @@
     </None>
     <None Include="resources\buildin\shaders\include\suede.inc">
       <Filter>resources\buildin\shaders\include</Filter>
-    </None>
-    <None Include="viewer.qrc">
-      <Filter>resources</Filter>
-    </None>
-    <None Include="ui\view.ui">
-      <Filter>ui</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
