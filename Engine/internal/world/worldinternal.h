@@ -11,6 +11,8 @@
 #include "internal/geometry/plane.h"
 #include "internal/base/objectinternal.h"
 
+class EntityImporter;
+
 class WorldInternal : public ObjectInternal, public IWorld {
 	DEFINE_FACTORY_METHOD(World)
 
@@ -72,6 +74,8 @@ private:
 	Entity root_;
 	LightContainer lights_;
 	CameraContainer cameras_;
+
+	EntityImporter* importer_;
 
 	Plane planes_[6];
 	DecalContainer decals_;

@@ -181,9 +181,6 @@
     <ClInclude Include="include\time2.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\file\assetimporter.h">
-      <Filter>internal\file\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\font.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -286,6 +283,9 @@
     <ClInclude Include="internal\geometry\bsptree.h">
       <Filter>internal\geometry\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\file\entityimporter.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -332,9 +332,6 @@
     </ClCompile>
     <ClCompile Include="internal\entities\particlesysteminternal.cpp">
       <Filter>internal\entities\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\file\assetimporter.cpp">
-      <Filter>internal\file\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\fontinternal.cpp">
       <Filter>internal\base\src</Filter>
@@ -410,6 +407,9 @@
     </ClCompile>
     <ClCompile Include="internal\geometry\bsptree.cpp">
       <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\entityimporter.cpp">
+      <Filter>internal\file\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,6 +4,7 @@
 #include "variables.h"
 #include "wrappers/gl.h"
 
+// TODO: enum to GLenum or vice versa.
 extern GLenum TopologyToGLEnum(MeshTopology topology);
 
 static void DrawSubMeshes(Mesh mesh) {
@@ -29,6 +30,7 @@ void Graphics::Draw(Mesh mesh, Material material) {
 		material->Bind(pass);
 		DrawSubMeshes(mesh);
 		material->Unbind();
+		return;
 	}
 	else {
 		for (pass = 0; pass < material->GetPassCount(); ++pass) {

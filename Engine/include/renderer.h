@@ -10,6 +10,9 @@ class SUEDE_API IRenderer : virtual public IObject {
 public:
 	virtual void RenderEntity(Entity entity) = 0;
 
+	virtual bool GetReady() const = 0;
+	virtual void SetReady(bool value) = 0;
+
 	virtual void AddMaterial(Material material) = 0;
 	virtual Material GetMaterial(uint index) = 0;
 	virtual void SetMaterial(uint index, Material value) = 0;

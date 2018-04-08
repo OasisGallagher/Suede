@@ -152,6 +152,7 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 		glm::vec3(-0.5f, -0.5f, 0.5f),
 		glm::vec3(0.5f, -0.5f, 0.5f),
 	};
+
 	for (int i = 0; i < CountOf(vertices); ++i) {
 		vertices[i] *= scale;
 	}

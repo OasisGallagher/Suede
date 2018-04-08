@@ -1,7 +1,7 @@
 #include "resources.h"
 #include "ubomanager.h"
 #include "worldinternal.h"
-#include "internal/file/assetimporter.h"
+#include "internal/file/entityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/geometry/geometryutility.h"
@@ -37,6 +37,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
+	, importer_(MEMORY_CREATE(EntityImporter))
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
 	, root_(Factory::Create<EntityInternal>()), decals_(MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
@@ -46,6 +47,7 @@ WorldInternal::WorldInternal()
 
 WorldInternal::~WorldInternal() {
 	UBOManager::Destroy();
+	MEMORY_RELEASE(importer_);
 }
 
 Object WorldInternal::Create(ObjectType type) {
@@ -79,8 +81,7 @@ Object WorldInternal::Create(ObjectType type) {
 }
 
 Entity WorldInternal::Import(const std::string& path) {
-	static AssetImporter importer;
-	return importer.Import(path);
+	return importer_->Import(path);
 }
 
 Entity WorldInternal::GetEntity(uint id) {
@@ -287,6 +288,7 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 
 void WorldInternal::Update() {
 	//Debug::StartSample();
+	importer_->Update();
 
 	//Debug::StartSample();
 	FireEvents();

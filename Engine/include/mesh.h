@@ -68,6 +68,9 @@ struct MeshAttribute {
 
 class SUEDE_API IMesh : virtual public IObject {
 public:
+	/**
+	 * @brief: create an empty storage for sharing.
+	 */
 	virtual void CreateStorage() = 0;
 	virtual void SetAttribute(const MeshAttribute& value) = 0;
 
