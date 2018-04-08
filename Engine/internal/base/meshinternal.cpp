@@ -11,7 +11,6 @@ MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
 
 MeshInternal::MeshInternal(ObjectType type)
 	: ObjectInternal(type) {
-	memset(bufferIndexes_, 0, sizeof(bufferIndexes_));
 }
 
 MeshInternal::~MeshInternal() {
@@ -22,16 +21,18 @@ void MeshInternal::Destroy() {
 	subMeshes_.clear();
 }
 
-void MeshInternal::SetAttribute(const MeshAttribute& value) {
-	topology_ = value.topology;
+void MeshInternal::CreateStorage() {
+	storage_.reset(MEMORY_CREATE(Storage));
+}
 
-	if (!vao_) {
-		vao_.reset(MEMORY_CREATE(VAO));
+void MeshInternal::SetAttribute(const MeshAttribute& value) {
+	if (!storage_) {
+		storage_.reset(MEMORY_CREATE(Storage));
 	}
 
-	vao_->Bind();
+	storage_->vao.Initialize();
+	storage_->topology = value.topology;
 	UpdateGLBuffers(value);
-	vao_->Unbind();
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -41,59 +42,63 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 		return;
 	}
 
+	storage_->vao.Bind();
+
 	// TODO: update vbo instead.
-	vao_->CreateVBOs(vboCount);
+	storage_->vao.CreateVBOs(vboCount);
 
 	uint vboIndex = 0;
 	
 	if (!attribute.positions.empty()) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribPosition, 3, GL_FLOAT, false, 0, 0);
-		bufferIndexes_[VertexBuffer] = vboIndex++;
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribPosition, 3, GL_FLOAT, false, 0, 0);
+		storage_->bufferIndexes[VertexBuffer] = vboIndex++;
 	}
 
 	if (!attribute.texCoords.empty()) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.texCoords, GL_STATIC_DRAW);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribTexCoord, 2, GL_FLOAT, false, 0, 0);
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.texCoords, GL_STATIC_DRAW);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribTexCoord, 2, GL_FLOAT, false, 0, 0);
 		++vboIndex;
 	}
 
 	if (!attribute.normals.empty()) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.normals, GL_STATIC_DRAW);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribNormal, 3, GL_FLOAT, false, 0, 0);
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.normals, GL_STATIC_DRAW);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribNormal, 3, GL_FLOAT, false, 0, 0);
 		++vboIndex;
 	}
 
 	if (!attribute.tangents.empty()) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.tangents, GL_STATIC_DRAW);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribTangent, 3, GL_FLOAT, false, 0, 0);
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.tangents, GL_STATIC_DRAW);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribTangent, 3, GL_FLOAT, false, 0, 0);
 		++vboIndex;
 	}
 
 	if (!attribute.blendAttrs.empty()) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.blendAttrs, GL_STATIC_DRAW);
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.blendAttrs, GL_STATIC_DRAW);
 
-		vao_->SetVertexDataSource(vboIndex, VertexAttribBoneIndexes, 4, GL_INT, false, sizeof(BlendAttribute), 0);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribBoneWeights, 4, GL_FLOAT, false, sizeof(BlendAttribute), (sizeof(uint) * BlendAttribute::Quality));
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribBoneIndexes, 4, GL_INT, false, sizeof(BlendAttribute), 0);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribBoneWeights, 4, GL_FLOAT, false, sizeof(BlendAttribute), (sizeof(uint) * BlendAttribute::Quality));
 		++vboIndex;
 	}
 
 	if (!attribute.indexes.empty()) {
-		vao_->SetBuffer(vboIndex, GL_ELEMENT_ARRAY_BUFFER, attribute.indexes, GL_STATIC_DRAW);
-		bufferIndexes_[IndexBuffer] = vboIndex++;
+		storage_->vao.SetBuffer(vboIndex, GL_ELEMENT_ARRAY_BUFFER, attribute.indexes, GL_STATIC_DRAW);
+		storage_->bufferIndexes[IndexBuffer] = vboIndex++;
 	}
 
 	if (attribute.color.count != 0) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribInstanceColor, 4, GL_FLOAT, false, 0, 0, attribute.color.divisor);
-		bufferIndexes_[InstanceBuffer0] = vboIndex++;
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribInstanceColor, 4, GL_FLOAT, false, 0, 0, attribute.color.divisor);
+		storage_->bufferIndexes[InstanceBuffer0] = vboIndex++;
 	}
 
 	if (attribute.geometry.count != 0) {
-		vao_->SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.geometry.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
-		vao_->SetVertexDataSource(vboIndex, VertexAttribInstanceGeometry, 4, GL_FLOAT, false, 0, 0, attribute.geometry.divisor);
-		bufferIndexes_[InstanceBuffer1] = vboIndex++;
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.geometry.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
+		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribInstanceGeometry, 4, GL_FLOAT, false, 0, 0, attribute.geometry.divisor);
+		storage_->bufferIndexes[InstanceBuffer1] = vboIndex++;
 	}
+
+	storage_->vao.Unbind();
 }
 
 int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
@@ -112,9 +117,12 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 
 void MeshInternal::ShareStorage(Mesh other) {
 	MeshInternal* ptr = dynamic_cast<MeshInternal*>(other.get());
-	vao_ = ptr->vao_;
-	topology_ = ptr->topology_;
-	memcpy(bufferIndexes_, ptr->bufferIndexes_, sizeof(bufferIndexes_));
+	if (!ptr->storage_) {
+		Debug::LogError("empty storage");
+		return;
+	}
+
+	storage_ = ptr->storage_;
 }
 
 void MeshInternal::AddSubMesh(SubMesh subMesh) {
@@ -123,16 +131,16 @@ void MeshInternal::AddSubMesh(SubMesh subMesh) {
 }
 
 void MeshInternal::Bind() {
-	if (vao_->GetVBOCount() != 0) {
-		vao_->Bind();
-		vao_->BindBuffer(bufferIndexes_[IndexBuffer]);
+	if (storage_->vao.GetVBOCount() != 0) {
+		storage_->vao.Bind();
+		storage_->vao.BindBuffer(storage_->bufferIndexes[IndexBuffer]);
 	}
 }
 
 void MeshInternal::Unbind() {
-	if (vao_->GetVBOCount() != 0) {
-		vao_->Unbind();
-		vao_->UnbindBuffer(bufferIndexes_[IndexBuffer]);
+	if (storage_->vao.GetVBOCount() != 0) {
+		storage_->vao.Unbind();
+		storage_->vao.UnbindBuffer(storage_->bufferIndexes[IndexBuffer]);
 	}
 }
 
@@ -143,27 +151,27 @@ void MeshInternal::RemoveSubMesh(uint index) {
 }
 
 uint* MeshInternal::MapIndexes() {
-	return (uint*)vao_->MapBuffer(bufferIndexes_[IndexBuffer]);
+	return (uint*)storage_->vao.MapBuffer(storage_->bufferIndexes[IndexBuffer]);
 }
 
 void MeshInternal::UnmapIndexes() {
-	vao_->UnmapBuffer(bufferIndexes_[IndexBuffer]);
+	storage_->vao.UnmapBuffer(storage_->bufferIndexes[IndexBuffer]);
 }
 
 uint MeshInternal::GetIndexCount() {
-	return vao_->GetBufferSize(bufferIndexes_[IndexBuffer]) / sizeof(uint);
+	return storage_->vao.GetBufferSize(storage_->bufferIndexes[IndexBuffer]) / sizeof(uint);
 }
 
 glm::vec3* MeshInternal::MapVertices() {
-	return (glm::vec3*)vao_->MapBuffer(bufferIndexes_[VertexBuffer]);
+	return (glm::vec3*)storage_->vao.MapBuffer(storage_->bufferIndexes[VertexBuffer]);
 }
 
 void MeshInternal::UnmapVertices() {
-	vao_->UnmapBuffer(bufferIndexes_[VertexBuffer]);
+	storage_->vao.UnmapBuffer(storage_->bufferIndexes[VertexBuffer]);
 }
 
 uint MeshInternal::GetVertexCount() {
-	return vao_->GetBufferSize(bufferIndexes_[VertexBuffer]) / sizeof(glm::vec3);
+	return storage_->vao.GetBufferSize(storage_->bufferIndexes[VertexBuffer]) / sizeof(glm::vec3);
 }
 
 
@@ -173,7 +181,7 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 		return;
 	}
 
-	vao_->UpdateBuffer(bufferIndexes_[InstanceBuffer0 + i], 0, size, data);
+	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
 TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh) {
@@ -264,4 +272,8 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 			attribute.indexes.push_back(6 * i + j);
 		}
 	}
+}
+
+MeshInternal::Storage::Storage() {
+	memset(bufferIndexes, 0, sizeof(bufferIndexes));
 }

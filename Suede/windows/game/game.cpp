@@ -242,7 +242,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/house.fbx");
+	Entity room = WorldInstance()->Import("models/teddy_bear.fbx");
 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	room->GetTransform()->SetScale(glm::vec3(0.01f));

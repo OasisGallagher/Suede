@@ -10,6 +10,8 @@ public:
 	~VAO();
 
 public:
+	void Initialize();
+
 	void CreateVBOs(size_t n);
 	void DestroyVBOs();
 
@@ -59,5 +61,3 @@ private:
 
 	int vboCount_;
 };
-
-typedef std::shared_ptr<VAO> VAOPointer;

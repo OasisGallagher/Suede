@@ -79,7 +79,7 @@ Object WorldInternal::Create(ObjectType type) {
 }
 
 Entity WorldInternal::Import(const std::string& path) {
-	AssetImporter importer;
+	static AssetImporter importer;
 	return importer.Import(path);
 }
 

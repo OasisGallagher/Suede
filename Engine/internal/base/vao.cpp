@@ -5,12 +5,17 @@
 VAO::VAO() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
 	, vboCount_(0) {
-	GL::GenVertexArrays(1, &vao_);
 }
 
 VAO::~VAO() {
 	DestroyVBOs();
 	GL::DeleteVertexArrays(1, &vao_);
+}
+
+void VAO::Initialize() {
+	if (vao_ == 0) {
+		GL::GenVertexArrays(1, &vao_);
+	}
 }
 
 void VAO::CreateVBOs(size_t n) {

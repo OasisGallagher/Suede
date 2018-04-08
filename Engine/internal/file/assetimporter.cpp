@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include "texture.h"
 #include "resources.h"
 #include "tools/math2.h"
 #include "tools/string.h"
@@ -13,6 +14,144 @@
 #include "internal/file/image.h"
 #include "internal/world/worldinternal.h"
 #include "internal/base/animationinternal.h"
+
+#include <OpenThreads/Thread>
+
+struct MaterialAttribute {
+	MaterialAttribute();
+
+	Material material;
+
+	std::string name;
+	std::string shaderName;
+
+	float gloss;
+	bool twoSided;
+
+	glm::vec4 mainColor;
+	glm::vec3 specularColor;
+	glm::vec3 emissiveColor;
+
+	TexelMap* mainTexels;
+	TexelMap* bumpTexels;
+	TexelMap* specularTexels;
+	TexelMap* emissiveTexels;
+	TexelMap* lightmapTexels;
+};
+
+struct AssetData {
+	MeshAttribute meshAttribute;
+	std::vector<MaterialAttribute> materialAttributes;
+};
+
+inline std::string ParseThreadError(int err) {
+	if (err == -1) {
+		return "errno = " + std::to_string(errno);
+	}
+
+	return "error = " + std::to_string(err);
+}
+
+class AssetDataLoader : public OpenThreads::Thread {
+public:
+	virtual void run() {
+		Assimp::Importer importer;
+		if (!Initialize(importer)) {
+			return;
+		}
+
+		SubMesh* subMeshes = nullptr;
+		MeshAttribute attribute{ MeshTopologyTriangles };
+
+		if (scene_->mNumMaterials > 0) {
+			data_.materialAttributes.resize(scene_->mNumMaterials);
+			ReadMaterials();
+		}
+
+		if (scene_->mNumMeshes > 0) {
+			subMeshes = MEMORY_CREATE_ARRAY(SubMesh, scene_->mNumMeshes);
+			if (!ReadAttribute(attribute, subMeshes)) {
+				Debug::LogError("failed to load meshes for %s.", path_.c_str());
+			}
+		}
+
+		Mesh surface = NewMesh();
+		
+		surface->CreateStorage();
+
+		//surface->SetAttribute(attribute);
+
+		//Debug::Output("[read attributes]\t%.3f\n", Debug::EndSample());
+
+		//Debug::StartSample();
+
+		ReadNodeTo(target_, scene_->mRootNode, surface, subMeshes);
+		ReadChildren(target_, scene_->mRootNode, surface, subMeshes);
+
+		//Debug::Output("[read hierarchy]\t%.3f\n", Debug::EndSample());
+
+		MEMORY_RELEASE_ARRAY(subMeshes);
+
+		Animation animation;
+		if (ReadAnimation(animation)) {
+			target_->SetAnimation(animation);
+		}
+	}
+
+public:
+	void SetTarget(const std::string& path, Entity entity) {
+		path_ = path;
+		target_ = entity;
+	}
+
+	AssetData& GetLoadedData() {
+		return data_;
+	}
+
+private:
+	void Clear();
+	bool Initialize(Assimp::Importer& importer);
+	void UpdateMaterial(MaterialAttribute& attribute);
+
+	Entity ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+
+	void ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void ReadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void ReadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+
+	bool ReadAttribute(MeshAttribute& attribute, SubMesh* subMeshes);
+	void ReserveMemory(MeshAttribute& attribute);
+	bool ReadAttributeAt(int index, MeshAttribute& attribute, SubMesh* subMeshes);
+
+	void ReadVertexAttribute(int meshIndex, MeshAttribute& attribute);
+	void ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, SubMesh* subMeshes);
+
+	void ReadMaterials();
+
+	void ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material);
+
+	bool ReadAnimation(Animation& animation);
+	void ReadAnimationClip(const aiAnimation* anim, AnimationClip clip);
+	void ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
+	const aiNodeAnim * FindChannel(const aiAnimation* anim, const char* name);
+
+	TexelMap* ReadTexels(const std::string& name);
+
+	bool ReadEmbeddedTexels(TexelMap& texelMap, uint index);
+	bool ReadExternalTexels(TexelMap& texelMap, const std::string& name);
+
+private:
+	Entity target_;
+	AssetData data_;
+
+	Skeleton skeleton_;
+	std::string path_;
+	const aiScene* scene_;
+	Animation animation_;
+
+	typedef std::map<std::string, TexelMap*> TexelMapContainer;
+	TexelMapContainer texelMapContainer_;
+};
 
 static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
@@ -44,8 +183,19 @@ static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
 	return answer;
 }
 
-AssetImporter::MaterialAttribute::MaterialAttribute()
+MaterialAttribute::MaterialAttribute()
 	: twoSided(false), gloss(20), mainColor(1), name(UNNAMED_MATERIAL) {
+	material = NewMaterial();
+	mainTexels = bumpTexels = specularTexels = emissiveTexels = lightmapTexels = nullptr;
+}
+
+AssetImporter::AssetImporter() {
+	loader_ = MEMORY_CREATE(AssetDataLoader);
+}
+
+AssetImporter::~AssetImporter() {
+	loader_->cancel();
+	MEMORY_RELEASE(loader_);
 }
 
 Entity AssetImporter::Import(const std::string& path) {
@@ -60,104 +210,76 @@ bool AssetImporter::ImportTo(Entity entity, const std::string& path) {
 		return false;
 	}
 
-	Debug::StartSample();
-	Assimp::Importer importer;
-	if (!Initialize(path, importer)) {
+	if (loader_->isRunning()) {
+		Debug::LogError("asset importer is running");
 		return false;
 	}
 
-	Debug::Output("[init assimp]\t%.3f\n", Debug::EndSample());
+	loader_->SetTarget(path, entity);
 
-	Debug::StartSample();
-
-	SubMesh* subMeshes = nullptr;
-	MeshAttribute attribute{ MeshTopologyTriangles };
-
-	Material* materials = nullptr;
-
-	if (scene_->mNumMaterials > 0) {
-		materials = MEMORY_CREATE_ARRAY(Material, scene_->mNumMaterials);
-		if (!ReadMaterials(materials)) {
-			Debug::LogError("failed to load materials for %s.", path.c_str());
-		}
-	}
-
-	if (scene_->mNumMeshes > 0) {
-		subMeshes = MEMORY_CREATE_ARRAY(SubMesh, scene_->mNumMeshes);
-		if (!ReadAttribute(attribute, subMeshes)) {
-			Debug::LogError("failed to load meshes for %s.", path.c_str());
-		}
-	}
-
-	Mesh surface = NewMesh();
-	surface->SetAttribute(attribute);
-
-	Debug::Output("[read attributes]\t%.3f\n", Debug::EndSample());
-
-	Debug::StartSample();
-	
-	ReadNodeTo(entity, scene_->mRootNode, surface, subMeshes, materials);
-	ReadChildren(entity, scene_->mRootNode, surface, subMeshes, materials);
-
-	Debug::Output("[read hierarchy]\t%.3f\n", Debug::EndSample());
-
-	MEMORY_RELEASE_ARRAY(materials);
-	MEMORY_RELEASE_ARRAY(subMeshes);
-
-	Animation animation;
-	if (ReadAnimation(animation)) {
-		entity->SetAnimation(animation);
+	int err = loader_->start();
+	if (err != 0) {
+		Debug::LogError("failed to start thread: %s", ParseThreadError(err).c_str());
+		return false;
 	}
 
 	return true;
 }
 
-bool AssetImporter::Initialize(const std::string& path, Assimp::Importer &importer) {
+bool AssetDataLoader::Initialize(Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices 
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals 
 		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes /*| aiProcess_OptimizeGraph*/ 
 		| aiProcess_RemoveRedundantMaterials;
 
-	if (FileSystem::GetExtension(path) == ".fbx") {
+	if (FileSystem::GetExtension(path_) == ".fbx") {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
-	std::string fpath = Resources::GetRootDirectory() + path;
+	std::string fpath = Resources::GetRootDirectory() + path_;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 	if (scene == nullptr) {
-		Debug::LogError("failed to read file %s: %s", fpath.c_str(), importer.GetErrorString());
+		Debug::LogError("failed to read file %s: %s", path_.c_str(), importer.GetErrorString());
 		return false;
 	}
 
 	Clear();
-
 	path_ = fpath;
 	scene_ = scene;
 
 	return true;
 }
 
-void AssetImporter::Clear() {
+void AssetDataLoader::Clear() {
 	path_.clear();
+
+	data_.meshAttribute = MeshAttribute();
+	data_.materialAttributes.clear();
+
 	scene_ = nullptr;
 	skeleton_.reset();
-	textures_.clear();
+
+	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
+		MEMORY_RELEASE(ite->second);
+	}
+	texelMapContainer_.clear();
+
 	animation_.reset();
 }
 
-Entity AssetImporter::ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, Material* materials) {
+Entity AssetDataLoader::ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	Entity entity = NewEntity();
 	entity->GetTransform()->SetParent(parent->GetTransform());
 
-	ReadNodeTo(entity, node, surface, subMeshes, materials);
-	ReadChildren(entity, node, surface, subMeshes, materials);
+	ReadNodeTo(entity, node, surface, subMeshes);
+	ReadChildren(entity, node, surface, subMeshes);
 
 	return entity;
 }
 
-void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, Material* materials) {
+void AssetDataLoader::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	entity->SetName(node->mName.C_Str());
 
 	glm::vec3 translation, scale;
@@ -168,10 +290,10 @@ void AssetImporter::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMe
 	entity->GetTransform()->SetLocalRotation(rotation);
 	entity->GetTransform()->SetLocalPosition(translation);
 
-	ReadComponents(entity, node, surface, subMeshes, materials);
+	ReadComponents(entity, node, surface, subMeshes);
 }
 
-void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, Material* materials) {
+void AssetDataLoader::ReadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	Renderer renderer = nullptr;
 	if (scene_->mNumAnimations == 0) {
 		renderer = NewMeshRenderer();
@@ -190,7 +312,7 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, S
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
-			renderer->AddMaterial(materials[materialIndex]);
+			renderer->AddMaterial(data_.materialAttributes[materialIndex].material);
 		}
 	}
 
@@ -198,13 +320,13 @@ void AssetImporter::ReadComponents(Entity entity, aiNode* node, Mesh& surface, S
 	entity->SetRenderer(renderer);
 }
 
-void AssetImporter::ReadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, Material* materials) {
+void AssetDataLoader::ReadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		ReadHierarchy(entity, node->mChildren[i], surface, subMeshes, materials);
+		ReadHierarchy(entity, node->mChildren[i], surface, subMeshes);
 	}
 }
 
-void AssetImporter::ReserveMemory(MeshAttribute& attribute) {
+void AssetDataLoader::ReserveMemory(MeshAttribute& attribute) {
 	int indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
@@ -219,7 +341,7 @@ void AssetImporter::ReserveMemory(MeshAttribute& attribute) {
 	attribute.blendAttrs.resize(vertexCount);
 }
 
-bool AssetImporter::ReadAttribute(MeshAttribute& attribute, SubMesh* subMeshes) {
+bool AssetDataLoader::ReadAttribute(MeshAttribute& attribute, SubMesh* subMeshes) {
 	ReserveMemory(attribute);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
@@ -234,14 +356,14 @@ bool AssetImporter::ReadAttribute(MeshAttribute& attribute, SubMesh* subMeshes) 
 	return true;
 }
 
-bool AssetImporter::ReadAttributeAt(int meshIndex, MeshAttribute& attribute, SubMesh* subMeshes) {
+bool AssetDataLoader::ReadAttributeAt(int meshIndex, MeshAttribute& attribute, SubMesh* subMeshes) {
 	ReadVertexAttribute(meshIndex, attribute);
 	ReadBoneAttribute(meshIndex, attribute, subMeshes);
 
 	return true;
 }
 
-void AssetImporter::ReadVertexAttribute(int meshIndex, MeshAttribute& attribute) {
+void AssetDataLoader::ReadVertexAttribute(int meshIndex, MeshAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	// TODO: multiple texture coords?
@@ -285,7 +407,7 @@ void AssetImporter::ReadVertexAttribute(int meshIndex, MeshAttribute& attribute)
 	}
 }
 
-void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, SubMesh* subMeshes) {
+void AssetDataLoader::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, SubMesh* subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = NewSkeleton(); }
@@ -315,94 +437,90 @@ void AssetImporter::ReadBoneAttribute(int meshIndex, MeshAttribute& attribute, S
 	}
 }
 
-bool AssetImporter::ReadMaterials(Material* materials) {
+void AssetDataLoader::ReadMaterials() {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
-		MaterialAttribute attribute;
-		ReadMaterialAttribute(attribute, scene_->mMaterials[i]);
-		
-		Material material = NewMaterial();
-		ReadMaterial(material, attribute);
-
-		materials[i] = material;
+		ReadMaterialAttribute(data_.materialAttributes[i], scene_->mMaterials[i]);
 	}
-
-	return true;
 }
 
-bool AssetImporter::ReadMaterial(Material material, const MaterialAttribute& attribute) {
-	std::string shaderName = "lit_texture";
-	if (scene_->mNumAnimations != 0) {
-		shaderName = "lit_animated_texture";
+inline Texture2D CreateTexture2D(const TexelMap* texelMap) {
+	Texture2D texture = NewTexture2D();
+	if (!texture->Load(texelMap->textureFormat, &texelMap->data[0], texelMap->format, texelMap->width, texelMap->height, false)) {
+		return nullptr;
 	}
 
-	// TODO: two sided.
+	return texture;
+}
 
-	Shader shader = Resources::FindShader("buildin/shaders/" + shaderName);
+void AssetDataLoader::UpdateMaterial(MaterialAttribute& materialAttribute) {
+	// TODO: two sided.
+	Material material = materialAttribute.material;
+
+	Shader shader = Resources::FindShader("buildin/shaders/" + materialAttribute.shaderName);
 	material->SetShader(shader);
 
-	material->SetFloat(Variables::gloss, attribute.gloss);
+	material->SetFloat(Variables::gloss, materialAttribute.gloss);
 
-	material->SetColor4(Variables::mainColor, attribute.mainColor);
-	material->SetColor3(Variables::specularColor, attribute.specularColor);
-	material->SetColor3(Variables::emissiveColor, attribute.emissiveColor);
+	material->SetColor4(Variables::mainColor, materialAttribute.mainColor);
+	material->SetColor3(Variables::specularColor, materialAttribute.specularColor);
+	material->SetColor3(Variables::emissiveColor, materialAttribute.emissiveColor);
 
-	material->SetName(attribute.name);
+	material->SetName(materialAttribute.name);
 
-	if (attribute.mainTexture) {
-		material->SetTexture(Variables::mainTexture, attribute.mainTexture);
+	if (materialAttribute.mainTexels != nullptr) {
+		material->SetTexture(Variables::mainTexture, CreateTexture2D(materialAttribute.mainTexels));
+	}
+	else {
+		material->SetTexture(Variables::mainTexture, Resources::GetWhiteTexture());
 	}
 
-	if (attribute.bumpTexture) {
-		material->SetTexture(Variables::bumpTexture, attribute.bumpTexture);
+	if (materialAttribute.bumpTexels) {
+		material->SetTexture(Variables::bumpTexture, CreateTexture2D(materialAttribute.bumpTexels));
 	}
 
-	if (attribute.specularTexture) {
-		material->SetTexture(Variables::specularTexture, attribute.specularTexture);
+	if (materialAttribute.specularTexels) {
+		material->SetTexture(Variables::specularTexture, CreateTexture2D(materialAttribute.specularTexels));
 	}
 
-	if (attribute.emissiveTexture) {
-		material->SetTexture(Variables::emissiveTexture, attribute.emissiveTexture);
+	if (materialAttribute.emissiveTexels) {
+		material->SetTexture(Variables::emissiveTexture, CreateTexture2D(materialAttribute.emissiveTexels));
 	}
 
-	if (attribute.lightmapTexture) {
-		material->SetTexture(Variables::lightmapTexture, attribute.lightmapTexture);
+	if (materialAttribute.lightmapTexels) {
+		material->SetTexture(Variables::lightmapTexture, CreateTexture2D(materialAttribute.lightmapTexels));
 	}
-
-	return true;
 }
 
-void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material) {
+void AssetDataLoader::ReadMaterialAttribute(MaterialAttribute& attribute, aiMaterial* material) {
 	int aint;
 	float afloat;
 	aiString astring;
 	aiColor3D acolor;
+
+	attribute.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "lit_texture";
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
 		attribute.name = FileSystem::GetFileName(astring.C_Str());
 	}
 	
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
-		attribute.mainTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
-	}
-
-	if (!attribute.mainTexture) {
-		attribute.mainTexture = Resources::GetWhiteTexture();
+		attribute.mainTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
-		attribute.bumpTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		attribute.bumpTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
-		attribute.specularTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		attribute.specularTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
-		attribute.lightmapTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		attribute.lightmapTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
-		attribute.emissiveTexture = GetTexture(FileSystem::GetFileName(astring.C_Str()));
+		attribute.emissiveTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
@@ -431,7 +549,7 @@ void AssetImporter::ReadMaterialAttribute(MaterialAttribute& attribute, aiMateri
 	}
 }
 
-bool AssetImporter::ReadAnimation(Animation& animation) {
+bool AssetDataLoader::ReadAnimation(Animation& animation) {
 	if (scene_->mNumAnimations == 0) {
 		return true;
 	}
@@ -461,14 +579,14 @@ bool AssetImporter::ReadAnimation(Animation& animation) {
 	return true;
 }
 
-void AssetImporter::ReadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
+void AssetDataLoader::ReadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapModeLoop);
 	ReadAnimationNode(anim, scene_->mRootNode, nullptr);
 }
 
-void AssetImporter::ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
+void AssetDataLoader::ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
@@ -508,7 +626,7 @@ void AssetImporter::ReadAnimationNode(const aiAnimation* anim, const aiNode* pai
 	}
 }
 
-const aiNodeAnim* AssetImporter::FindChannel(const aiAnimation* anim, const char* name) {
+const aiNodeAnim* AssetDataLoader::FindChannel(const aiAnimation* anim, const char* name) {
 	for (int i = 0; i < anim->mNumChannels; ++i) {
 		if (strcmp(anim->mChannels[i]->mNodeName.C_Str(), name) == 0) {
 			return anim->mChannels[i];
@@ -518,52 +636,54 @@ const aiNodeAnim* AssetImporter::FindChannel(const aiAnimation* anim, const char
 	return nullptr;
 }
 
-Texture AssetImporter::GetTexture(const std::string& name) {
-	TextureContainer::iterator pos = textures_.find(name);
-	if (pos != textures_.end()) {
+TexelMap* AssetDataLoader::ReadTexels(const std::string& name) {
+	TexelMapContainer::iterator pos = texelMapContainer_.find(name);
+	if (pos != texelMapContainer_.end()) {
 		return pos->second;
 	}
 
-	Texture texture = nullptr;
+	bool status = false;
+	TexelMap* answer = MEMORY_CREATE(TexelMap);
+
 	if (String::StartsWith(name, "*")) {
-		texture = ReadEmbeddedTexture(String::ToInteger(name.substr(1)));
+		status = ReadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
 	}
 	else {
-		texture = ReadExternalTexture(name);
+		status = ReadExternalTexels(*answer, name);
 	}
 
-	textures_.insert(std::make_pair(name, texture));
-	return texture;
-}
-
-Texture AssetImporter::ReadExternalTexture(const std::string& name) {
-	Texture2D texture = NewTexture2D();
-	if (!texture->Load("textures/" + name)) {
-		return nullptr;
+	if (!status) {
+		MEMORY_RELEASE(answer);
+		return false;
 	}
 
-	return texture;
+	texelMapContainer_.insert(std::make_pair(name, answer));
+	return answer;
 }
 
-Texture AssetImporter::ReadEmbeddedTexture(uint index) {
+bool AssetDataLoader::ReadExternalTexels(TexelMap& texelMap, const std::string& name) {
+	return ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + "textures/" + name);
+}
+
+bool AssetDataLoader::ReadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	if (index >= scene_->mNumTextures) {
 		Debug::LogError("embedded texture index out of range");
-		return nullptr;
+		return false;
 	}
 
-	Texture2D texture = NewTexture2D();
 	aiTexture* aitex = scene_->mTextures[index];
 	if (aitex->mHeight == 0) {
-		TexelMap texelMap;
 		if (!ImageCodec::Decode(texelMap, aitex->pcData, aitex->mWidth)) {
-			return nullptr;
+			return false;
 		}
-
-		texture->Load(texelMap.textureFormat, &texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
 	}
 	else {
-		texture->Load(TextureFormatRgba, aitex->pcData, ColorStreamFormatArgb, aitex->mWidth, aitex->mHeight);
+		texelMap.textureFormat = TextureFormatRgba;
+		texelMap.data.assign((uchar*)aitex->pcData, (uchar*)aitex->pcData + aitex->mWidth * aitex->mHeight * sizeof(aiTexel));
+		texelMap.format = ColorStreamFormatArgb;
+		texelMap.width = aitex->mWidth;
+		texelMap.height = aitex->mHeight;
 	}
 
-	return texture;
+	return true;
 }

@@ -68,6 +68,7 @@ struct MeshAttribute {
 
 class SUEDE_API IMesh : virtual public IObject {
 public:
+	virtual void CreateStorage() = 0;
 	virtual void SetAttribute(const MeshAttribute& value) = 0;
 
 	virtual void AddSubMesh(SubMesh subMesh) = 0;

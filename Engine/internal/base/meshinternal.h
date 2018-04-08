@@ -45,6 +45,7 @@ public:
 	~MeshInternal();
 
 public:
+	virtual void CreateStorage();
 	virtual void SetAttribute(const MeshAttribute& value);
 
 	virtual void Bind();
@@ -56,8 +57,8 @@ public:
 	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
 	virtual void RemoveSubMesh(uint index);
 
-	virtual MeshTopology GetTopology() { return topology_; }
-	virtual uint GetNativePointer() const { return vao_->GetNativePointer(); }
+	virtual MeshTopology GetTopology() { return storage_->topology; }
+	virtual uint GetNativePointer() const { return storage_->vao.GetNativePointer(); }
 
 	virtual uint* MapIndexes();
 	virtual void UnmapIndexes();
@@ -83,12 +84,17 @@ private:
 		BufferIndexCount,
 	};
 
-private:
-	VAOPointer vao_;
-	MeshTopology topology_;
-	uint bufferIndexes_[BufferIndexCount];
+	struct Storage {
+		Storage();
 
+		VAO vao;
+		MeshTopology topology;
+		uint bufferIndexes[BufferIndexCount];
+	};
+
+private:
 	std::vector<SubMesh> subMeshes_;
+	std::shared_ptr<Storage> storage_;
 };
 
 class TextMeshInternal : public ITextMesh, public MeshInternal {
