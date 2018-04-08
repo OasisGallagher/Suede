@@ -111,34 +111,34 @@ protected:
 	virtual void Clear();
 
 private:
-	bool ReadAsset();
+	bool LoadAsset();
 	bool Initialize(Assimp::Importer& importer);
 
-	Entity ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	Entity LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes);
 
-	void ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
-	void ReadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
-	void ReadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
 
 	void ReserveMemory(MeshAsset& meshAsset);
-	bool ReadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes);
-	bool ReadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes);
+	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes);
+	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes);
 
-	void ReadVertexAttribute(int meshIndex, MeshAsset& meshAsset);
-	void ReadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes);
+	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset);
+	void LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes);
 
-	void ReadMaterials();
-	void ReadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
+	void LoadMaterials();
+	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
 
-	bool ReadAnimation(Animation& animation);
-	void ReadAnimationClip(const aiAnimation* anim, AnimationClip clip);
-	void ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
+	bool LoadAnimation(Animation& animation);
+	void LoadAnimationClip(const aiAnimation* anim, AnimationClip clip);
+	void LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
 	const aiNodeAnim * FindChannel(const aiAnimation* anim, const char* name);
 
-	TexelMap* ReadTexels(const std::string& name);
+	TexelMap* LoadTexels(const std::string& name);
 
-	bool ReadEmbeddedTexels(TexelMap& texelMap, uint index);
-	bool ReadExternalTexels(TexelMap& texelMap, const std::string& name);
+	bool LoadEmbeddedTexels(TexelMap& texelMap, uint index);
+	bool LoadExternalTexels(TexelMap& texelMap, const std::string& name);
 
 	glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec);
 	glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat);
@@ -240,7 +240,7 @@ bool EntityAssetLoader::Initialize(Assimp::Importer &importer) {
 
 void EntityAssetLoader::Run() {
 	SetStatus(
-		ReadAsset() ? Ok : Failed
+		LoadAsset() ? Ok : Failed
 	);
 }
 
@@ -269,31 +269,33 @@ void EntityAssetLoader::Clear() {
 	animation_.reset();
 }
 
-Entity EntityAssetLoader::ReadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	Entity entity = NewEntity();
 	entity->GetTransform()->SetParent(parent->GetTransform());
 
-	ReadNodeTo(entity, node, surface, subMeshes);
-	ReadChildren(entity, node, surface, subMeshes);
+	LoadNodeTo(entity, node, surface, subMeshes);
+	LoadChildren(entity, node, surface, subMeshes);
 
 	return entity;
 }
 
-void EntityAssetLoader::ReadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	entity->SetName(node->mName.C_Str());
 
-	glm::vec3 translation, scale;
-	glm::quat rotation;
-	DecomposeAIMatrix(translation, rotation, scale, node->mTransformation);
+	if (entity != root_) {
+		glm::quat rotation;
+		glm::vec3 translation, scale;
+		DecomposeAIMatrix(translation, rotation, scale, node->mTransformation);
 
-	entity->GetTransform()->SetLocalScale(scale);
-	entity->GetTransform()->SetLocalRotation(rotation);
-	entity->GetTransform()->SetLocalPosition(translation);
+		entity->GetTransform()->SetLocalScale(scale);
+		entity->GetTransform()->SetLocalRotation(rotation);
+		entity->GetTransform()->SetLocalPosition(translation);
+	}
 
-	ReadComponents(entity, node, surface, subMeshes);
+	LoadComponents(entity, node, surface, subMeshes);
 }
 
-void EntityAssetLoader::ReadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
@@ -326,9 +328,9 @@ void EntityAssetLoader::ReadComponents(Entity entity, aiNode* node, Mesh& surfac
 	entity->SetRenderer(renderer);
 }
 
-void EntityAssetLoader::ReadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		ReadHierarchy(entity, node->mChildren[i], surface, subMeshes);
+		LoadHierarchy(entity, node->mChildren[i], surface, subMeshes);
 	}
 }
 
@@ -347,7 +349,7 @@ void EntityAssetLoader::ReserveMemory(MeshAsset& meshAsset) {
 	meshAsset.blendAttrs.resize(vertexCount);
 }
 
-bool EntityAssetLoader::ReadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
+bool EntityAssetLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
@@ -356,20 +358,20 @@ bool EntityAssetLoader::ReadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) 
 			scene_->mMeshes[i]->mNumFaces * 3, meshAsset.indexes.size(), meshAsset.positions.size()
 		};
 		subMeshes[i]->SetTriangleBias(bias);
-		ReadAttributeAt(i, meshAsset, subMeshes);
+		LoadAttributeAt(i, meshAsset, subMeshes);
 	}
 
 	return true;
 }
 
-bool EntityAssetLoader::ReadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
-	ReadVertexAttribute(meshIndex, meshAsset);
-	ReadBoneAttribute(meshIndex, meshAsset, subMeshes);
+bool EntityAssetLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+	LoadVertexAttribute(meshIndex, meshAsset);
+	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
 
 	return true;
 }
 
-void EntityAssetLoader::ReadVertexAttribute(int meshIndex, MeshAsset& meshAsset) {
+void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	// TODO: multiple texture coords?
@@ -413,7 +415,7 @@ void EntityAssetLoader::ReadVertexAttribute(int meshIndex, MeshAsset& meshAsset)
 	}
 }
 
-void EntityAssetLoader::ReadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = NewSkeleton(); }
@@ -443,13 +445,13 @@ void EntityAssetLoader::ReadBoneAttribute(int meshIndex, MeshAsset& meshAsset, S
 	}
 }
 
-void EntityAssetLoader::ReadMaterials() {
+void EntityAssetLoader::LoadMaterials() {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
-		ReadMaterialAsset(asset_.materialAssets[i], scene_->mMaterials[i]);
+		LoadMaterialAsset(asset_.materialAssets[i], scene_->mMaterials[i]);
 	}
 }
 
-void EntityAssetLoader::ReadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
+void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
 	int aint;
 	float afloat;
 	aiString astring;
@@ -462,23 +464,23 @@ void EntityAssetLoader::ReadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	}
 	
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
-		materialAsset.mainTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
+		materialAsset.mainTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
-		materialAsset.bumpTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
+		materialAsset.bumpTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
-		materialAsset.specularTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
+		materialAsset.specularTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
-		materialAsset.lightmapTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
+		materialAsset.lightmapTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
-		materialAsset.emissiveTexels = ReadTexels(FileSystem::GetFileName(astring.C_Str()));
+		materialAsset.emissiveTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
@@ -507,7 +509,7 @@ void EntityAssetLoader::ReadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	}
 }
 
-bool EntityAssetLoader::ReadAnimation(Animation& animation) {
+bool EntityAssetLoader::LoadAnimation(Animation& animation) {
 	if (scene_->mNumAnimations == 0) {
 		return true;
 	}
@@ -527,7 +529,7 @@ bool EntityAssetLoader::ReadAnimation(Animation& animation) {
 			defaultClipName = anim->mName.C_Str();
 		}
 
-		ReadAnimationClip(anim, clip);
+		LoadAnimationClip(anim, clip);
 		animation->AddClip(name, clip);
 	}
 
@@ -537,14 +539,14 @@ bool EntityAssetLoader::ReadAnimation(Animation& animation) {
 	return true;
 }
 
-void EntityAssetLoader::ReadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
+void EntityAssetLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapModeLoop);
-	ReadAnimationNode(anim, scene_->mRootNode, nullptr);
+	LoadAnimationNode(anim, scene_->mRootNode, nullptr);
 }
 
-void EntityAssetLoader::ReadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
+void EntityAssetLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
@@ -580,7 +582,7 @@ void EntityAssetLoader::ReadAnimationNode(const aiAnimation* anim, const aiNode*
 	skeleton_->AddNode(pskNode, child);
 
 	for (int i = 0; i < paiNode->mNumChildren; ++i) {
-		ReadAnimationNode(anim, paiNode->mChildren[i], child);
+		LoadAnimationNode(anim, paiNode->mChildren[i], child);
 	}
 }
 
@@ -594,7 +596,7 @@ const aiNodeAnim* EntityAssetLoader::FindChannel(const aiAnimation* anim, const 
 	return nullptr;
 }
 
-TexelMap* EntityAssetLoader::ReadTexels(const std::string& name) {
+TexelMap* EntityAssetLoader::LoadTexels(const std::string& name) {
 	TexelMapContainer::iterator pos = texelMapContainer_.find(name);
 	if (pos != texelMapContainer_.end()) {
 		return pos->second;
@@ -604,10 +606,10 @@ TexelMap* EntityAssetLoader::ReadTexels(const std::string& name) {
 	TexelMap* answer = MEMORY_CREATE(TexelMap);
 
 	if (String::StartsWith(name, "*")) {
-		status = ReadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
+		status = LoadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
 	}
 	else {
-		status = ReadExternalTexels(*answer, name);
+		status = LoadExternalTexels(*answer, name);
 	}
 
 	if (!status) {
@@ -619,11 +621,11 @@ TexelMap* EntityAssetLoader::ReadTexels(const std::string& name) {
 	return answer;
 }
 
-bool EntityAssetLoader::ReadExternalTexels(TexelMap& texelMap, const std::string& name) {
+bool EntityAssetLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
 	return ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + "textures/" + name);
 }
 
-bool EntityAssetLoader::ReadEmbeddedTexels(TexelMap& texelMap, uint index) {
+bool EntityAssetLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	if (index >= scene_->mNumTextures) {
 		Debug::LogError("embedded texture index out of range");
 		return false;
@@ -646,7 +648,7 @@ bool EntityAssetLoader::ReadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	return true;
 }
 
-bool EntityAssetLoader::ReadAsset() {
+bool EntityAssetLoader::LoadAsset() {
 	Assimp::Importer importer;
 	if (!Initialize(importer)) {
 		return false;
@@ -657,12 +659,12 @@ bool EntityAssetLoader::ReadAsset() {
 
 	if (scene_->mNumMaterials > 0) {
 		asset_.materialAssets.resize(scene_->mNumMaterials);
-		ReadMaterials();
+		LoadMaterials();
 	}
 
 	if (scene_->mNumMeshes > 0) {
 		subMeshes = MEMORY_CREATE_ARRAY(SubMesh, scene_->mNumMeshes);
-		if (!ReadAttribute(asset_.meshAsset, subMeshes)) {
+		if (!LoadAttribute(asset_.meshAsset, subMeshes)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
 	}
@@ -670,13 +672,13 @@ bool EntityAssetLoader::ReadAsset() {
 	surface_ = NewMesh();
 	surface_->CreateStorage();
 
-	ReadNodeTo(root_, scene_->mRootNode, surface_, subMeshes);
-	ReadChildren(root_, scene_->mRootNode, surface_, subMeshes);
+	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes);
+	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes);
 
 	MEMORY_RELEASE_ARRAY(subMeshes);
 
 	Animation animation;
-	if (ReadAnimation(animation)) {
+	if (LoadAnimation(animation)) {
 		root_->SetAnimation(animation);
 	}
 
