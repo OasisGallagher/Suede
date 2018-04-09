@@ -5,9 +5,10 @@
 #include "meshinternal.h"
 #include "os/filesystem.h"
 #include "shaderinternal.h"
+
 // TODO: reference world components? Limits class?
-#include "internal/world/ubomanager.h"
 #include "internal/base/renderdefines.h"
+#include "internal/world/uniformbuffermanager.h"
 
 std::pair<std::string, float> _variables[] = {
 	std::make_pair("Background", (float)RenderQueueBackground),
@@ -635,7 +636,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	LoadProperties(semantics.properties);
 
-	UBOManager::AttachSharedBuffers(dsp_cast<Shader>(shared_from_this()));
+	UniformBufferManager::AttachSharedBuffers(dsp_cast<Shader>(shared_from_this()));
 
 	path_ = path;
 	return true;

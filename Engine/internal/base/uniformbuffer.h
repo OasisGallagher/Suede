@@ -4,10 +4,10 @@
 #include "shader.h"
 #include "wrappers/gl.h"
 
-class UBO {
+class UniformBuffer {
 public:
-	UBO();
-	~UBO();
+	UniformBuffer();
+	~UniformBuffer();
 
 public:
 	bool Create(const std::string& name, uint size);

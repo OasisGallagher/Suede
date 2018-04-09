@@ -24,9 +24,6 @@ public:
 
 	static void Break();
 
-	static void StartSample();
-	static float EndSample();
-
 	static void SetLogReceiver(LogReceiver* value);
 
 private:

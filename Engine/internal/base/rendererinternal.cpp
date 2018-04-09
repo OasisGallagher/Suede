@@ -4,7 +4,7 @@
 #include "rendererinternal.h"
 #include "internal/rendering/pipeline.h"
 
-RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), ready_(false) {
+RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type), ready_(true) {
 }
 
 RendererInternal::~RendererInternal() {
@@ -60,7 +60,7 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 void RendererInternal::AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass) {
 	FramebufferState state;
 	Pipeline::GetFramebuffer()->SaveState(state);
-	Pipeline::GetCurrent()->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, state, entity->GetTransform()->GetLocalToWorldMatrix());
+	Pipeline::GetCurrent()->AddDrawable(entity->GetMesh(), subMeshIndex, material, pass, state, entity->GetTransform()->GetLocalToWorldMatrix());
 }
 
 void RendererInternal::RenderSubMesh(Entity entity, int subMeshIndex, Material material, int pass) {
@@ -99,6 +99,6 @@ void ParticleRendererInternal::AddToPipeline(Entity entity, uint subMeshIndex, M
 	if (particleCount_ != 0) {
 		FramebufferState state;
 		Pipeline::GetFramebuffer()->SaveState(state);
-		Pipeline::GetCurrent()->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, state, entity->GetTransform()->GetLocalToWorldMatrix(), particleCount_);
+		Pipeline::GetCurrent()->AddDrawable(entity->GetMesh(), subMeshIndex, material, pass, state, entity->GetTransform()->GetLocalToWorldMatrix(), particleCount_);
 	}
 }

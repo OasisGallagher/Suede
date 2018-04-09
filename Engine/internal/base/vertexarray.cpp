@@ -1,24 +1,24 @@
-#include "vao.h"
+#include "vertexarray.h"
 #include "debug/debug.h"
 #include "memory/memory.h"
 
-VAO::VAO() 
+VertexArray::VertexArray() 
 	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
 	, vboCount_(0) {
 }
 
-VAO::~VAO() {
+VertexArray::~VertexArray() {
 	DestroyVBOs();
 	GL::DeleteVertexArrays(1, &vao_);
 }
 
-void VAO::Initialize() {
+void VertexArray::Initialize() {
 	if (vao_ == 0) {
 		GL::GenVertexArrays(1, &vao_);
 	}
 }
 
-void VAO::CreateVBOs(size_t n) {
+void VertexArray::CreateVBOs(size_t n) {
 	DestroyVBOs();
 
 	Bind();
@@ -32,7 +32,7 @@ void VAO::CreateVBOs(size_t n) {
 	Unbind();
 }
 
-void VAO::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
+void VertexArray::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return;
@@ -47,7 +47,7 @@ void VAO::SetBuffer(uint index, GLenum target, size_t size, const void* data, GL
 	UnbindBuffer(index);
 }
 
-void VAO::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
+void VertexArray::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
 	BindBuffer(index);
 	GL::EnableVertexAttribArray(location);
 
@@ -65,7 +65,7 @@ void VAO::SetVertexDataSource(int index, int location, int size, GLenum type, bo
 	UnbindBuffer(index);
 }
 
-void* VAO::MapBuffer(int index) {
+void* VertexArray::MapBuffer(int index) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return nullptr;
@@ -78,7 +78,7 @@ void* VAO::MapBuffer(int index) {
 	return ptr;
 }
 
-void VAO::UnmapBuffer(int index) {
+void VertexArray::UnmapBuffer(int index) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return;
@@ -89,7 +89,7 @@ void VAO::UnmapBuffer(int index) {
 	UnbindBuffer(index);
 }
 
-size_t VAO::GetBufferSize(int index) {
+size_t VertexArray::GetBufferSize(int index) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return 0;
@@ -98,7 +98,7 @@ size_t VAO::GetBufferSize(int index) {
 	return attributes_[index].size;
 }
 
-uint VAO::GetBufferNativePointer(uint index) const {
+uint VertexArray::GetBufferNativePointer(uint index) const {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return 0;
@@ -107,7 +107,7 @@ uint VAO::GetBufferNativePointer(uint index) const {
 	return vbos_[index];
 }
 
-void VAO::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
+void VertexArray::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
 	if (index >= vboCount_) {
 		Debug::LogError("index out of range");
 		return;
@@ -124,7 +124,7 @@ void VAO::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
 	UnbindBuffer(index);
 }
 
-void VAO::DestroyVBOs() {
+void VertexArray::DestroyVBOs() {
 	if (vboCount_ == 0) {
 		return;
 	}
@@ -139,35 +139,35 @@ void VAO::DestroyVBOs() {
 	vboCount_ = 0;
 }
 
-void VAO::Bind() {
+void VertexArray::Bind() {
 	GL::GetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&oldVao_);
 	GL::BindVertexArray(vao_);
 }
 
-void VAO::Unbind() {
+void VertexArray::Unbind() {
 	GL::BindVertexArray(oldVao_);
 	oldVao_ = 0;
 }
 
-void VAO::BindBuffer(int index) {
+void VertexArray::BindBuffer(int index) {
 	GLenum pname = GetBindingName(attributes_[index].target);
 	GL::GetIntegerv(pname, (GLint*)&oldBuffer_);
 
 	GL::BindBuffer(attributes_[index].target, vbos_[index]);
 }
 
-void VAO::UnbindBuffer(int index) {
+void VertexArray::UnbindBuffer(int index) {
 	GL::BindBuffer(attributes_[index].target, oldBuffer_);
 	oldBuffer_ = 0;
 }
 
-GLenum VAO::GetBindingName(GLenum target) {
+GLenum VertexArray::GetBindingName(GLenum target) {
 	if (target == GL_ARRAY_BUFFER) { return GL_ARRAY_BUFFER_BINDING; }
 	if (target == GL_ELEMENT_ARRAY_BUFFER) { return GL_ELEMENT_ARRAY_BUFFER_BINDING; }
 	Debug::LogError("undefined target binding name");
 	return 0;
 }
 
-bool VAO::IsIPointer(GLenum type) {
+bool VertexArray::IsIPointer(GLenum type) {
 	return (type == GL_BYTE || type == GL_UNSIGNED_BYTE || type == GL_INT || type == GL_UNSIGNED_INT || type == GL_SHORT || type == GL_UNSIGNED_SHORT);
 }

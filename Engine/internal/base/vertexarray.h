@@ -4,10 +4,10 @@
 #include <wrappers/gl.h>
 #include "enginedefines.h"
 
-class VAO {
+class VertexArray {
 public:
-	VAO();
-	~VAO();
+	VertexArray();
+	~VertexArray();
 
 public:
 	void Initialize();

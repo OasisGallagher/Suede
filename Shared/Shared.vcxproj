@@ -122,6 +122,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp" />
+    <ClCompile Include="debug\profiler.cpp" />
     <ClCompile Include="debug\stackwalker.cpp" />
     <ClCompile Include="memory\memory.cpp" />
     <ClCompile Include="memory\refcount.cpp" />
@@ -135,6 +136,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="containers\sortedvector.h" />
     <ClInclude Include="containers\table.h" />
     <ClInclude Include="debug\debug.h" />
+    <ClInclude Include="debug\profiler.h" />
     <ClInclude Include="debug\stackwalker.h" />
     <ClInclude Include="glm\common.hpp" />
     <ClInclude Include="glm\detail\func_common.hpp" />

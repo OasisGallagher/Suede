@@ -3,8 +3,8 @@
 #include <vector>
 #include <wrappers/gl.h>
 
-#include "vao.h"
 #include "mesh.h"
+#include "vertexarray.h"
 #include "internal/base/objectinternal.h"
 
 enum VertexAttrib {
@@ -87,7 +87,7 @@ private:
 	struct Storage {
 		Storage();
 
-		VAO vao;
+		VertexArray vao;
 		MeshTopology topology;
 		uint bufferIndexes[BufferIndexCount];
 	};

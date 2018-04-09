@@ -1,13 +1,7 @@
 #pragma once
 
 #include "entity.h"
-
-class EntityAssetLoader;
-
-class LoaderCallback {
-public:
-	virtual void operator()() = 0;
-};
+#include "entityassetloader.h"
 
 class EntityImporter : public LoaderCallback {
 public:

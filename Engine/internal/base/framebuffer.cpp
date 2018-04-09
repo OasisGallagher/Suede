@@ -20,8 +20,8 @@ void FramebufferState::Unbind() {
 
 void FramebufferState::Clear() {
 	framebuffer = Framebuffer0::Get();
-	depthTexture = nullptr;
-	renderTexture = nullptr;
+	depthTexture.reset();
+	renderTexture.reset();
 	attachment = FramebufferAttachment0;
 }
 

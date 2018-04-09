@@ -30,7 +30,7 @@
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
-//#define PARTICLE_SYSTEM
+#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING

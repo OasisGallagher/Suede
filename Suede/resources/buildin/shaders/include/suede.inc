@@ -1,7 +1,7 @@
 // uniform buffers.
 layout(std140) uniform Time {
-	float time;
-	float deltaTime;
+	float c_time;
+	float c_deltaTime;
 };
 
 layout(std140) uniform Light {
@@ -20,8 +20,9 @@ layout(std140) uniform Transforms {
 };
 
 layout(std140) uniform EntityMatricesInstanced {
-	mat4 entityMatrices[C_MAX_ENTITY_MATRICES];
+	// C_MAX_ENTITY_MATRICES = GL_MAX_UNIFORM_BLOCK_SIZE / sizeof(mat4).
+	mat4 c_entityMatrices[C_MAX_ENTITY_MATRICES];
 };
 
-#define c_localToWorldMatrix	entityMatrices[gl_InstanceID * 2]
-#define c_localToClipMatrix		entityMatrices[gl_InstanceID * 2 + 1]
+#define c_localToWorldMatrix	(c_entityMatrices[gl_InstanceID * 2])
+#define c_localToClipMatrix		(c_entityMatrices[gl_InstanceID * 2 + 1])

@@ -93,13 +93,13 @@ private:
 	void ForwardPass(const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
-	bool IsRenderable(Entity entity);
+	bool IsDrawable(Entity entity);
 
 	void RenderEntity(Entity entity, Renderer renderer);
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
-	void GetRenderableEntities(std::vector<Entity>& entities);
-	void SortRenderableEntities(std::vector<Entity>& entities);
+	void GetDrawableEntities(std::vector<Entity>& entities);
+	void SortDrawableEntities(std::vector<Entity>& entities);
 
 	void UpdateForwardBaseLightUBO(const std::vector<Entity>& entities, Light light);
 

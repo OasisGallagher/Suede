@@ -6,9 +6,9 @@
 #include "wrappers/gl.h"
 #include "internal/base/framebuffer.h"
 
-struct Renderable {
+struct Drawable {
 	uint instance;
-	
+
 	Mesh mesh;
 	uint subMeshIndex;
 	
@@ -19,7 +19,13 @@ struct Renderable {
 
 	glm::mat4 localToWorldMatrix;
 
-	bool IsInstance(const Renderable& other) const {
+	void Clear() {
+		mesh.reset();
+		material.reset();
+		state.Clear();
+	}
+
+	bool IsInstance(const Drawable& other) const {
 		if (mesh->GetNativePointer() != other.mesh->GetNativePointer()) {
 			return false;
 		}
@@ -75,7 +81,7 @@ public:
 
 public:
 	void Update();
-	void AddRenderable(
+	void AddDrawable(
 		Mesh mesh,
 		uint subMeshIndex,
 		Material material,
@@ -86,14 +92,14 @@ public:
 	);
 
 private:
-	void ResetState();
-	void SortRenderables();
-	void Render(Renderable& ref);
+	void Clear();
+	void SortDrawables();
+	void Render(Drawable& ref);
 	void RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix);
 	
 private:
-	uint nrenderables_;
-	std::vector<Renderable> renderables_;
+	uint ndrawables_;
+	std::vector<Drawable> drawables_;
 
 	int oldPass_;
 	uint oldMeshPointer_;

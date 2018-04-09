@@ -1,11 +1,9 @@
 #include <stack>
-#include <ctime>
 
 #include "debug.h"
 #include "stackwalker.h"
 
 static LogReceiver* logReceiver;
-static std::stack<clock_t> samples;
 static char buffer[512];
 
 class StackTracer : public StackWalker {
@@ -75,15 +73,4 @@ void Debug::Output(const char* format, ...) {
 
 void Debug::Break() {
 	__debugbreak();
-}
-
-void Debug::StartSample() {
-	samples.push(clock());
-}
-
-float Debug::EndSample() {
-	clock_t samp = samples.top();
-	samples.pop();
-
-	return float(clock() - samp) / CLOCKS_PER_SEC;
 }

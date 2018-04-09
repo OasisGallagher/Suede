@@ -1,6 +1,7 @@
-#include "resources.h"
-#include "ubomanager.h"
+#include "time2.h"
 #include "worldinternal.h"
+#include "debug/profiler.h"
+#include "uniformbuffermanager.h"
 #include "internal/file/entityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
@@ -42,11 +43,13 @@ WorldInternal::WorldInternal()
 	, root_(Factory::Create<EntityInternal>()), decals_(MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
 	root_->SetTransform(transform);
-	UBOManager::Initialize();
+
+	Profiler::Initialize();
+	UniformBufferManager::Initialize();
 }
 
 WorldInternal::~WorldInternal() {
-	UBOManager::Destroy();
+	UniformBufferManager::Destroy();
 	MEMORY_RELEASE(importer_);
 }
 
@@ -294,17 +297,17 @@ void WorldInternal::Update() {
 	FireEvents();
 	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());
 	
-	Debug::StartSample();
+	Profiler::StartSample();
 	UpdateEntities();
-	Debug::Output("[entities]\t%.3f\n", Debug::EndSample());
+	Debug::Output("[entities]\t%.3f\n", Profiler::EndSample());
 	
-	Debug::StartSample();
+	Profiler::StartSample();
 	UpdateDecals();
-	Debug::Output("[decals]\t%.3f\n", Debug::EndSample());
+	Debug::Output("[decals]\t%.3f\n", Profiler::EndSample());
 	
-	Debug::StartSample();
+	Profiler::StartSample();
 	RenderUpdate();
-	Debug::Output("[render]\t%.3f\n", Debug::EndSample());
+	Debug::Output("[render]\t%.3f\n", Profiler::EndSample());
 
 	//Debug::Output("[#total]\t%.3f\n", Debug::EndSample());
 }

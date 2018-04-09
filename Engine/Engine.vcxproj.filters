@@ -265,17 +265,8 @@
     <ClInclude Include="internal\entities\frustum.h">
       <Filter>internal\entities\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\vao.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\base\ubo.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rendering\pipeline.h">
       <Filter>internal\rendering\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\world\ubomanager.h">
-      <Filter>internal\world\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\geometry\polygon.h">
       <Filter>internal\geometry\include</Filter>
@@ -285,6 +276,18 @@
     </ClInclude>
     <ClInclude Include="internal\file\entityimporter.h">
       <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\file\entityassetloader.h">
+      <Filter>internal\file\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\uniformbuffer.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\vertexarray.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\uniformbuffermanager.h">
+      <Filter>internal\world\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -390,17 +393,8 @@
     <ClCompile Include="internal\geometry\plane.cpp">
       <Filter>internal\geometry\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\vao.cpp">
-      <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\base\ubo.cpp">
-      <Filter>internal\base\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\pipeline.cpp">
       <Filter>internal\rendering\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\world\ubomanager.cpp">
-      <Filter>internal\world\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\geometry\polygon.cpp">
       <Filter>internal\geometry\src</Filter>
@@ -410,6 +404,18 @@
     </ClCompile>
     <ClCompile Include="internal\file\entityimporter.cpp">
       <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\file\entityassetloader.cpp">
+      <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\uniformbuffer.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\vertexarray.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\uniformbuffermanager.cpp">
+      <Filter>internal\world\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

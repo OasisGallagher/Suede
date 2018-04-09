@@ -43,8 +43,8 @@ namespace EntityUBOStructs {
 	};
 }
 
-class UBO;
-class UBOManager {
+class UniformBuffer;
+class UniformBufferManager {
 public:
 	enum { MaxEntityMatrixBuffers = 20 };
 
@@ -63,13 +63,13 @@ public:
 	static bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
 
 private:
-	UBOManager() {}
+	UniformBufferManager() {}
 
 private:
-	typedef std::map<std::string, UBO*> SharedUBOContainer;
+	typedef std::map<std::string, UniformBuffer*> SharedUBOContainer;
 	static SharedUBOContainer sharedUBOs_;
 
-	typedef UBO*(EntityUBOContainer)[UBOManager::MaxEntityMatrixBuffers];
+	typedef UniformBuffer*(EntityUBOContainer)[UniformBufferManager::MaxEntityMatrixBuffers];
 	static EntityUBOContainer entityUBOs_;
 
 	static uint maxBlockSize_;

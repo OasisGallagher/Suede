@@ -8,9 +8,10 @@
 #include "variables.h"
 #include "tools/math2.h"
 #include "imageeffect.h"
-#include "internal/base/ubo.h"
+#include "debug/profiler.h"
 #include "internal/base/gbuffer.h"
-#include "internal/world/ubomanager.h"
+#include "internal/world/uniformbuffermanager.h"
+#include "internal/base/uniformbuffer.h"
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
@@ -65,15 +66,15 @@ void CameraInternal::Update() {
 	transforms.cameraToClipMatrix = GetProjectionMatrix();
 	transforms.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 
-	UBOManager::UpdateSharedBuffer(SharedUBONames::Transforms, &transforms, 0, sizeof(transforms));
+	UniformBufferManager::UpdateSharedBuffer(SharedUBONames::Transforms, &transforms, 0, sizeof(transforms));
 }
 
 void CameraInternal::Render() {
 	std::vector<Entity> entities;
 
-	Debug::StartSample();
-	GetRenderableEntities(entities);
-	Debug::Output("[collect]\t%.2f\n", Debug::EndSample());
+	Profiler::StartSample();
+	GetDrawableEntities(entities);
+	Debug::Output("[collect]\t%.2f\n", Profiler::EndSample());
 
 	Pipeline::SetCamera(dsp_cast<Camera>(shared_from_this()));
 	Pipeline::SetCurrent(pipeline_);
@@ -122,7 +123,7 @@ void CameraInternal::UpdateTimeUBO() {
 	static SharedUBOStructs::Time time;
 	time.time.x = Time::GetRealTimeSinceStartup();
 	time.time.y = Time::GetDeltaTime();
-	UBOManager::UpdateSharedBuffer(SharedUBONames::Time, &time, 0, sizeof(time));
+	UniformBufferManager::UpdateSharedBuffer(SharedUBONames::Time, &time, 0, sizeof(time));
 }
 
 bool CameraInternal::GetPerspective() const {
@@ -217,7 +218,7 @@ void CameraInternal::AddToPipeline(Mesh mesh, Material material, const glm::mat4
 	FramebufferState state;
 	Pipeline::GetFramebuffer()->SaveState(state);
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		pipeline_->AddRenderable(mesh, i, material, 0, state, localToWorldMatrix);
+		pipeline_->AddDrawable(mesh, i, material, 0, state, localToWorldMatrix);
 	}
 }
 
@@ -354,17 +355,17 @@ void CameraInternal::UpdateForwardBaseLightUBO(const std::vector<Entity>& entiti
 	parameter.lightColor = glm::vec4(light->GetColor(), 1);
 	parameter.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	parameter.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
-	UBOManager::UpdateSharedBuffer(SharedUBONames::Light, &parameter, 0, sizeof(parameter));
+	UniformBufferManager::UpdateSharedBuffer(SharedUBONames::Light, &parameter, 0, sizeof(parameter));
 }
 
 void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Light light) {
-	Debug::StartSample();
+	Profiler::StartSample();
 	UpdateForwardBaseLightUBO(entities, light);
-	Debug::Output("[lightparam]\t%.2f\n", Debug::EndSample());
+	Debug::Output("[lightparam]\t%.2f\n", Profiler::EndSample());
 
-	Debug::StartSample();
+	Profiler::StartSample();
 	ForwardPass(entities);
-	Debug::Output("[pass]\t%.2f\n", Debug::EndSample());
+	Debug::Output("[pass]\t%.2f\n", Profiler::EndSample());
 }
 
 void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light light) {
@@ -383,7 +384,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (!IsRenderable(entity)) {
+		if (!IsDrawable(entity)) {
 			continue;
 		}
 
@@ -413,7 +414,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (!IsRenderable(entity)) {
+		if (!IsDrawable(entity)) {
 			continue;
 		}
 
@@ -424,23 +425,21 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	Pipeline::SetFramebuffer(nullptr);
 }
 
-#include <ctime>
-
-clock_t push_renderables = 0;
-clock_t set_opaque_material = 0;
+uint64 push_drawables = 0;
+uint64 set_opaque_material = 0;
 
 void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (IsRenderable(entity)) {
+		if (IsDrawable(entity)) {
 			RenderEntity(entity, entity->GetRenderer());
 		}
 	}
 
-	Debug::Output("[opaque_mat]\t%.2f\n", float(set_opaque_material) / CLOCKS_PER_SEC);
-	Debug::Output("[opaque_push]\t%.2f\n", float(push_renderables) / CLOCKS_PER_SEC);
+	Debug::Output("[opaque_mat]\t%.2f\n", float(set_opaque_material) * Profiler::GetSecondsPerTick());
+	Debug::Output("[opaque_push]\t%.2f\n", float(push_drawables) * Profiler::GetSecondsPerTick());
 
-	set_opaque_material = push_renderables = 0;
+	set_opaque_material = push_drawables = 0;
 }
 
 void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
@@ -512,20 +511,20 @@ void CameraInternal::OnImageEffects() {
 	}
 }
 
-bool CameraInternal::IsRenderable(Entity entity) {
+bool CameraInternal::IsDrawable(Entity entity) {
 	return entity->GetActive() && entity->GetRenderer() && entity->GetRenderer()->GetReady() && entity->GetMesh();
 }
 
-void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
+void CameraInternal::GetDrawableEntities(std::vector<Entity>& entities) {
 	WorldInstance()->GetEntities(ObjectTypeEntity, entities);
-	//SortRenderableEntities(entities);
+	//SortDrawableEntities(entities);
 }
 
-void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
+void CameraInternal::SortDrawableEntities(std::vector<Entity>& entities) {
 	int p = 0;
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity key = entities[i];
-		if (IsRenderable(key)) {
+		if (IsDrawable(key)) {
 			entities[p++] = key;
 		}
 	}
@@ -534,9 +533,9 @@ void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
-	clock_t b = clock();
+	uint64 b = Profiler::GetTicks();
 	renderer->RenderEntity(entity);
-	push_renderables += clock() - b;
+	push_drawables += Profiler::GetTicks() - b;
 }
 
 void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {
