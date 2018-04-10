@@ -1,5 +1,4 @@
 /.vs/Suede/v14/*.suo
-Debug
 /*.opendb
 /Suede.VC.db
 /Suede/GeneratedFiles
@@ -9,3 +8,8 @@ Debug
 /Suede/bin/GLEF.dll
 /Suede/bin/Shared.dll
 /Suede/*.user
+/Engine/x64/Debug
+/GLEF/x64/Debug
+/Shared/x64/Debug
+/Suede/x64/Debug
+/x64/Debug
