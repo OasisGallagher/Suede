@@ -1,3 +1,5 @@
+#include <OpenThreads/ScopedLock>
+
 #include "time2.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
@@ -7,6 +9,8 @@
 #include "internal/entities/entityinternal.h"
 #include "internal/geometry/geometryutility.h"
 #include "internal/world/environmentinternal.h"
+
+#define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
 
 World& WorldInstance() {
 	static World instance = Factory::Create<WorldInternal>();
@@ -145,6 +149,8 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 bool WorldInternal::FireEvent(WorldEventBasePointer e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
+
+	LockEventContainerInScope();
 	if (collection.find(e) == collection.end()) {
 		collection.insert(e);
 		return true;
@@ -187,6 +193,8 @@ void WorldInternal::UpdateEntities() {
 }
 
 void WorldInternal::FireEvents() {
+	LockEventContainerInScope();
+
 	for (uint i = 0; i < WorldEventTypeCount; ++i) {
 		WorldEventCollection& collection = events_[i];
 		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {

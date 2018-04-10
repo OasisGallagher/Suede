@@ -9,7 +9,7 @@
 
 class Factory {
 	typedef Object (*FactoryMethod)();
-	typedef std::map<std::string, FactoryMethod> MapContainer;
+	typedef std::map<std::string, FactoryMethod> MethodDictionary;
 
 	Factory();
 
@@ -20,7 +20,7 @@ public:
 	}
 
 	static Object Create(const std::string& name) {
-		MapContainer::iterator pos = instance.methodDictionary_.find(name);
+		MethodDictionary::iterator pos = instance.methodDictionary_.find(name);
 		if (pos == instance.methodDictionary_.end()) {
 			Debug::LogError("no factroy method exists for %s", name.c_str());
 			return nullptr;
@@ -60,6 +60,6 @@ private:
 	}
 
 	static Factory instance;
-	MapContainer methodDictionary_;
+	MethodDictionary methodDictionary_;
 	FactoryMethod methodArray_[ObjectTypeCount];
 };

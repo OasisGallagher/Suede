@@ -1,5 +1,6 @@
 #pragma once
 #include <set>
+#include <OpenThreads/Mutex>
 
 #include "world.h"
 #include "light.h"
@@ -83,6 +84,9 @@ private:
 
 	EntityContainer entities_;
 	EventListenerContainer listeners_;
+
 	WorldEventContainer events_;
+	OpenThreads::Mutex eventContainerMutex_;
+
 	Environment environment_;
 };

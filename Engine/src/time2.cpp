@@ -2,16 +2,16 @@
 #include "debug/debug.h"
 #include "debug/profiler.h"
 
-static uint frames;
-static uint64 ticks;
+static uint frameCount;
+static uint64 lastFrameTicks;
 static double deltaTime;
 
 void Time::Update() {
-	uint64 now = Profiler::GetTicks();
-	deltaTime = (now - ticks) * Profiler::GetSecondsPerTick();
-	ticks = now;
+	uint64 ticks = Profiler::GetTicks();
+	deltaTime = (ticks - lastFrameTicks) * Profiler::GetSecondsPerTick();
+	lastFrameTicks = ticks;
 
-	++frames;
+	++frameCount;
 }
 
 float Time::GetDeltaTime() {
@@ -23,5 +23,5 @@ float Time::GetRealTimeSinceStartup() {
 }
 
 uint Time::GetFrameCount() {
-	return frames;
+	return frameCount;
 }
