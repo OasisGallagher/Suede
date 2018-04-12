@@ -340,7 +340,7 @@ bool MaterialInternal::IsPassEnabled(uint pass) const {
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 
-int MaterialInternal::GetPassIndex(const std::string& name) const {
+int MaterialInternal::FindPass(const std::string& name) const {
 	if (!shader_) {
 		Debug::LogError("invalid shader");
 		return -1;

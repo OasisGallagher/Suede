@@ -11,7 +11,7 @@ public:
 	EntityInternal();
 
 public:
-	virtual bool GetActive() const;
+	virtual bool GetActive() const { return active_; }
 
 	virtual void SetActiveSelf(bool value);
 	virtual bool GetActiveSelf() const { return activeSelf_; }
@@ -40,9 +40,11 @@ protected:
 	EntityInternal(ObjectType entityType);
 
 private:
+	void UpdateChildrenActive(Entity parent);
 	const char* EntityTypeToString(ObjectType type);
 
 private:
+	bool active_;
 	bool activeSelf_;
 
 	std::string tag_;

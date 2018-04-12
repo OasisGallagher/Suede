@@ -21,7 +21,7 @@ namespace Variables {
 	DEFINE_VARIABLE(instanceColor);
 	DEFINE_VARIABLE(instanceGeometry);
 
-	DEFINE_VARIABLE(boneToRootSpaceMatrices);
+	DEFINE_VARIABLE(boneToRootMatrices);
 
 	DEFINE_VARIABLE(mainTexture);
 	DEFINE_VARIABLE(bumpTexture);

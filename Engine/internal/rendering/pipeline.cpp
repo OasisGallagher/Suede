@@ -10,9 +10,8 @@ Camera Pipeline::camera_;
 Pipeline* Pipeline::current_;
 FramebufferBase* Pipeline::framebuffer_;
 
-static uint64 switch_framebuffer = 0, switch_material = 0, switch_mesh = 0, update_ubo = 0;
-static uint64 set_buffer = 0;
 static uint draw_calls = 0;
+static uint64 switch_framebuffer = 0, switch_material = 0, switch_mesh = 0, update_ubo = 0;
 
 struct DrawableComparer {
 	// TODO: hash drawable.
@@ -60,7 +59,7 @@ Pipeline::Pipeline() :drawables_(1024), ndrawables_(0)
 
 GLenum TopologyToGLEnum(MeshTopology topology) {
 	if (topology != MeshTopologyTriangles && topology != MeshTopologyTriangleStripes) {
-		Debug::LogError("invalid mesh topology");
+		Debug::LogError("unsupported mesh topology  %d.", topology);
 		return 0;
 	}
 
@@ -85,45 +84,84 @@ void Pipeline::Update() {
 
 	Profiler::StartSample();
 
-	uint start = 0;
+	Profiler::StartSample();
+	RangeContainer container;
+	GatherInstances(container);
+	Debug::Output("[gather]\t%.2f\n", Profiler::EndSample());
+
 	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
-	for (uint i = 0; i < ndrawables_; ++i) {
-		if (drawables_[i].instance != 0) {
-			RenderInstanced(start, i, worldToClipMatrix);
-
-			// render particle system.
-			Render(drawables_[i]);
-			start = i + 1;
+	for (RangeContainer::iterator ite = container.begin(); ite != container.end(); ++ite) {
+		Range& r = *ite;
+		if (drawables_[r.first].instance != 0) {
+			Render(drawables_[r.first]);
 		}
-		else if (i != 0 && !drawables_[i].IsInstance(drawables_[start])) {
-			RenderInstanced(start, i, worldToClipMatrix);
-			start = i;
+		else {
+			RenderInstances(r.first, r.second, worldToClipMatrix);
 		}
 	}
 
-	if (start != ndrawables_) {
-		RenderInstanced(start, ndrawables_, worldToClipMatrix);
-	}
+	//	uint start = 0;
+	// 	for (uint i = 0; i < ndrawables_; ++i) {
+	// 		// particle system.
+	// 		if (drawables_[i].instance != 0) {
+	// 			// render instanced drawables.
+	// 			RenderInstanced(start, i, worldToClipMatrix);
+	// 
+	// 			Render(drawables_[i]);
+	// 			start = i + 1;
+	// 		}
+	// 		else if (i != 0 && !drawables_[i].IsInstance(drawables_[start])) {
+	// 			RenderInstanced(start, i, worldToClipMatrix);
+	// 			start = i;
+	// 		}
+	// 	}
+	// 
+	// 	if (start != ndrawables_) {
+	// 		RenderInstanced(start, ndrawables_, worldToClipMatrix);
+	// 	}
 
 	Debug::Output("[drawcall]\t%d\n", draw_calls);
-	Debug::Output("[instanced]\t%.2f/%.2f\n", update_ubo * Profiler::GetSecondsPerTick(), Profiler::EndSample());
-	
-	Debug::Output("[fb]\t%.2f\n", switch_framebuffer * Profiler::GetSecondsPerTick());
-	Debug::Output("[mat]\t%.2f\n", switch_material * Profiler::GetSecondsPerTick());
-	Debug::Output("[mesh]\t%.2f\n", switch_mesh * Profiler::GetSecondsPerTick());
-	Debug::Output("[setBuffer]\t%.2f\n", set_buffer * Profiler::GetSecondsPerTick());
+	Debug::Output("[instanced]\t%.2f/%.2f\n", Profiler::TimeStampToSeconds(update_ubo), Profiler::EndSample());
+
+	Debug::Output("[fb]\t%.2f\n", Profiler::TimeStampToSeconds(switch_framebuffer));
+	Debug::Output("[mat]\t%.2f\n", Profiler::TimeStampToSeconds(switch_material));
+	Debug::Output("[mesh]\t%.2f\n", Profiler::TimeStampToSeconds(switch_mesh));
 	Debug::Output("[pipeline]\t%.2f\n", Profiler::EndSample());
 
 	Clear();
 }
 
-void Pipeline::RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix) {
-	Drawable& ref = drawables_[first];
-	static int maxInstances = UniformBufferManager::GetMaxBlockSize() / sizeof(EntityUBOStructs::EntityMatrices);
+void Pipeline::GatherInstances(RangeContainer& container) {
+	uint start = 0;
+	for (uint i = 0; i < ndrawables_; ++i) {
+		// particle system.
+		if (drawables_[i].instance != 0) {
+			// render instanced drawables.
+			if (i > start) {
+				container.push_back(Range(start, i));
+			}
+
+			container.push_back(Range(i, i + 1));
+			start = i + 1;
+		}
+		else if (i != 0 && !drawables_[i].IsInstance(drawables_[start])) {
+			container.push_back(Range(start, i));
+			start = i;
+		}
+	}
+
+	if (start != ndrawables_) {
+		container.push_back(Range(start, ndrawables_));
+	}
+}
+
+void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix) {
+	Drawable& drawable = drawables_[first];
+	static int maxInstances = UniformBufferManager::GetMaxBlockSize() / sizeof(EntityMatricesUniforms);
 	int instanceCount = last - first;
 	for (int j = 0; j < instanceCount; j += maxInstances) {
 		int count = Math::Min(instanceCount - j, maxInstances);
-		ref.instance = count;
+		drawable.instance = count;
 
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
@@ -134,11 +172,11 @@ void Pipeline::RenderInstanced(uint first, uint last, const glm::mat4& worldToCl
 
 		first += count;
 
-		uint64 s = Profiler::GetTicks();
-		UniformBufferManager::UpdateSharedBuffer(SharedUBONames::EntityMatricesInstanced, &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
-		update_ubo += Profiler::GetTicks() - s;
+		uint64 s = Profiler::GetTimeStamp();
+		UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
+		update_ubo += Profiler::GetTimeStamp() - s;
 
-		Render(ref);
+		Render(drawable);
 	}
 }
 
@@ -152,76 +190,90 @@ void Pipeline::AddDrawable(Mesh mesh, uint subMeshIndex, Material material, uint
 		drawables_.resize(2 * ndrawables_);
 	}
 
-	Drawable& ref = drawables_[ndrawables_++];
-	ref.instance = instance;
-	ref.mesh = mesh;
-	ref.subMeshIndex = subMeshIndex;
-	ref.material = material;
-	ref.pass = pass;
-	ref.state = state;
-	ref.localToWorldMatrix = localToWorldMatrix;
+	Drawable& drawable = drawables_[ndrawables_++];
+	drawable.instance = instance;
+	drawable.mesh = mesh;
+	drawable.subMeshIndex = subMeshIndex;
+	drawable.material = material;
+	drawable.pass = pass;
+	drawable.state = state;
+	drawable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::Render(Drawable& ref) {
-	if (oldTarget_ == nullptr || *oldTarget_ != ref.state) {
-		uint64 delta = Profiler::GetTicks();
-		if (oldTarget_ != nullptr) {
-			oldTarget_->Unbind();
-		}
+void Pipeline::Render(Drawable& drawable) {
+	UpdateRenderContext(drawable);
 
-		oldTarget_ = &ref.state;
+	const TriangleBias& bias = drawable.mesh->GetSubMesh(drawable.subMeshIndex)->GetTriangleBias();
 
-		ref.state.BindWrite();
-
-		switch_framebuffer += (Profiler::GetTicks() - delta);
-	}
-
-	if (ref.material != oldMaterial_) {
-		uint64 delta = Profiler::GetTicks();
-		if (oldMaterial_) {
-			oldMaterial_->Unbind();
-		}
-
-		oldPass_ = ref.pass;
-		oldMaterial_ = ref.material;
-		
-		ref.material->Bind(ref.pass);
-		switch_material += (Profiler::GetTicks() - delta);
-	}
-	else if (oldPass_ != ref.pass) {
-		ref.material->Bind(ref.pass);
-		oldPass_ = ref.pass;
-	}
-
-	if (ref.mesh->GetNativePointer() != oldMeshPointer_) {
-		uint64 delta = Profiler::GetTicks();
-		ref.mesh->Bind();
-		oldMeshPointer_ = ref.mesh->GetNativePointer();
-		switch_mesh += (Profiler::GetTicks() - delta);
-	}
-
-	const TriangleBias& bias = ref.mesh->GetSubMesh(ref.subMeshIndex)->GetTriangleBias();
-
-	GLenum mode = TopologyToGLEnum(ref.mesh->GetTopology());
-	if (ref.instance == 0) {
+	GLenum mode = TopologyToGLEnum(drawable.mesh->GetTopology());
+	if (drawable.instance == 0) {
 		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 	}
 	else {
-		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), ref.instance, bias.baseVertex);
+		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), drawable.instance, bias.baseVertex);
 	}
 
 	++draw_calls;
 }
 
+void Pipeline::UpdateRenderContext(Drawable& drawable) {
+	if (oldTarget_ == nullptr || *oldTarget_ != drawable.state) {
+		uint64 timeStamp = Profiler::GetTimeStamp();
+		if (oldTarget_ != nullptr) {
+			oldTarget_->Unbind();
+		}
+
+		oldTarget_ = &drawable.state;
+
+		drawable.state.BindWrite();
+
+		switch_framebuffer += (Profiler::GetTimeStamp() - timeStamp);
+	}
+
+	if (drawable.material != oldMaterial_) {
+		uint64 timeStamp = Profiler::GetTimeStamp();
+		if (oldMaterial_) {
+			oldMaterial_->Unbind();
+		}
+
+		oldPass_ = drawable.pass;
+		oldMaterial_ = drawable.material;
+
+		drawable.material->Bind(drawable.pass);
+		switch_material += (Profiler::GetTimeStamp() - timeStamp);
+	}
+	else if (oldPass_ != drawable.pass) {
+		drawable.material->Bind(drawable.pass);
+		oldPass_ = drawable.pass;
+	}
+
+	if (drawable.mesh->GetNativePointer() != oldMeshPointer_) {
+		uint64 timeStamp = Profiler::GetTimeStamp();
+		drawable.mesh->Bind();
+		oldMeshPointer_ = drawable.mesh->GetNativePointer();
+		switch_mesh += (Profiler::GetTimeStamp() - timeStamp);
+	}
+}
+
 void Pipeline::Clear() {
 	draw_calls = 0;
-	switch_framebuffer = switch_material = switch_mesh = set_buffer = update_ubo = 0;
+	switch_framebuffer = switch_material = switch_mesh = update_ubo = 0;
 
+	ResetRenderContext();
+
+	for (uint i = 0; i < ndrawables_; ++i) {
+		drawables_[i].Clear();
+	}
+
+	ndrawables_ = 0;
+}
+
+void Pipeline::ResetRenderContext() {
 	if (oldTarget_ != nullptr) {
 		oldTarget_->Unbind();
 		oldTarget_ = nullptr;
 	}
-	
+
 	if (oldMaterial_) {
 		oldMaterial_->Unbind();
 	}
@@ -229,10 +281,4 @@ void Pipeline::Clear() {
 	oldMaterial_ = nullptr;
 
 	oldMeshPointer_ = 0;
-
-	for (uint i = 0; i < ndrawables_; ++i) {
-		drawables_[i].Clear();
-	}
-
-	ndrawables_ = 0;
 }

@@ -72,7 +72,10 @@ private:
 	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
-	void UpdateTimeUBO();
+	void UpdateViewportSize();
+	void UpdateTimeUniformBuffer();
+	void UpdateTransformsUniformBuffer();
+
 	void AddToPipeline(Mesh mesh, Material material, const glm::mat4& localToWorldMatrix);
 
 	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
@@ -85,7 +88,7 @@ private:
 	void CreateFramebuffer2();
 	void RenderSkybox();
 
-	void OnContextSizeChanged(int w, int h);
+	void OnViewportSizeChanged(int w, int h);
 	FramebufferBase* GetActiveFramebuffer();
 
 	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
@@ -101,7 +104,7 @@ private:
 	void GetDrawableEntities(std::vector<Entity>& entities);
 	void SortDrawableEntities(std::vector<Entity>& entities);
 
-	void UpdateForwardBaseLightUBO(const std::vector<Entity>& entities, Light light);
+	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
 	void RenderForwardBase(const std::vector<Entity>& entities, Light light);
 	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);

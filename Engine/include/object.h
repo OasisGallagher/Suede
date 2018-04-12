@@ -45,7 +45,7 @@ enum ObjectType {
 
 SUEDE_DEFINE_OBJECT_POINTER(Object);
 
-class SUEDE_API IObject : public std::enable_shared_from_this<IObject> {
+class SUEDE_API IObject {
 public:
 	virtual ~IObject() {}
 

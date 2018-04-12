@@ -12,7 +12,7 @@ EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 }
 
 EntityInternal::EntityInternal(ObjectType entityType)
-	: ObjectInternal(entityType), activeSelf_(true) {
+	: ObjectInternal(entityType), active_(true),  activeSelf_(true) {
 	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
@@ -20,13 +20,11 @@ EntityInternal::EntityInternal(ObjectType entityType)
 	name_ = EntityTypeToString(GetType());
 }
 
-bool EntityInternal::GetActive() const {
-	return activeSelf_ && GetTransform()->GetParent()->GetEntity()->GetActiveSelf();
-}
-
 void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
+		active_ = activeSelf_ && transform_->GetParent()->GetEntity()->GetActive();
+		UpdateChildrenActive(dsp_cast<Entity>(shared_from_this()));
 
 		EntityActiveEventPointer e = NewWorldEvent<EntityActiveEventPointer>();
 		e->entity = dsp_cast<Entity>(shared_from_this());
@@ -75,6 +73,15 @@ void EntityInternal::SetTransform(Transform value) {
 	if (transform_ != value) {
 		transform_ = value;
 		transform_->SetEntity(dsp_cast<Entity>(shared_from_this()));
+	}
+}
+
+void EntityInternal::UpdateChildrenActive(Entity parent) {
+	for (int i = 0; i < parent->GetTransform()->GetChildCount(); ++i) {
+		Entity child = parent->GetTransform()->GetChildAt(i)->GetEntity();
+		EntityInternal* childPtr = dynamic_cast<EntityInternal*>(child.get());
+		childPtr->active_ &= parent->GetActive();
+		UpdateChildrenActive(child);
 	}
 }
 

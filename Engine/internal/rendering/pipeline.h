@@ -26,25 +26,15 @@ struct Drawable {
 	}
 
 	bool IsInstance(const Drawable& other) const {
-		if (mesh->GetNativePointer() != other.mesh->GetNativePointer()) {
-			return false;
-		}
+#define CHECK_INSTANCE(expr)	if (expr != other.expr) { return false; } else (void)0
 
-		if (subMeshIndex != other.subMeshIndex) {
-			return false;
-		}
-		
-		if (state.framebuffer != other.state.framebuffer) {
-			return false;
-		}
+		CHECK_INSTANCE(mesh->GetNativePointer());
+		CHECK_INSTANCE(subMeshIndex);
+		CHECK_INSTANCE(state.framebuffer);
+		CHECK_INSTANCE(material);
+		CHECK_INSTANCE(pass);
 
-		if (material != other.material) {
-			return false;
-		}
-
-		if (pass != other.pass) {
-			return false;
-		}
+#undef CHECK_INSTANCE
 
 		return true;
 	}
@@ -93,10 +83,19 @@ public:
 
 private:
 	void Clear();
+
 	void SortDrawables();
-	void Render(Drawable& ref);
-	void RenderInstanced(uint first, uint last, const glm::mat4& worldToClipMatrix);
-	
+	void Render(Drawable& drawable);
+
+	void ResetRenderContext();
+	void UpdateRenderContext(Drawable& drawable);
+
+	typedef std::pair<uint, uint> Range;
+	typedef std::vector<Range> RangeContainer;
+
+	void GatherInstances(RangeContainer& container);
+	void RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix);
+
 private:
 	uint ndrawables_;
 	std::vector<Drawable> drawables_;

@@ -2,52 +2,49 @@
 #include <map>
 #include "shader.h"
 #include "tools/string.h"
+#include "internal/base/uniformbuffer.h"
 
-namespace SharedUBONames {
-	static const char* Time = "Time";
-	static const char* Light = "Light";
-	static const char* Transforms = "Transforms";
-	static const char* EntityMatricesInstanced = "EntityMatricesInstanced";
-}
+//static const char* SharedTimeUniformBufferName = "Time";
+//static const char* SharedLightUniformBufferName = "Light";
+//static const char* SharedTransformsUniformBufferName = "Transforms";
+//static const char* SharedEntityMatricesInstancedUniformBufferName = "EntityMatricesInstanced";
 
-namespace EntityUBONames {
-	static const std::string GetEntityMatricesName(int i) {
-		return String::Format("EntityMatrices[%d]", i);
-	}
-}
+struct SharedTimeUniformBuffer {
+	glm::vec4 time;
 
-namespace SharedUBOStructs {
-	struct Light {
-		glm::vec4 ambientLightColor;
-		glm::vec4 lightColor;
-		glm::vec4 lightPosition;
-		glm::vec4 lightDirection;
-	};
+	static const char* GetName() { return "SharedTimeUniformBuffer"; }
+};
 
-	struct Transforms {
-		glm::mat4 worldToClipMatrix;
-		glm::mat4 worldToCameraMatrix;
-		glm::mat4 cameraToClipMatrix;
-		glm::vec4 cameraPosition;
-	};
+struct SharedLightUniformBuffer {
+	glm::vec4 ambientLightColor;
+	glm::vec4 lightColor;
+	glm::vec4 lightPosition;
+	glm::vec4 lightDirection;
 
-	struct Time {
-		glm::vec4 time;
-	};
-}
+	static const char* GetName() { return "SharedLightUniformBuffer"; }
+};
 
-namespace EntityUBOStructs {
-	struct EntityMatrices {
-		glm::mat4 localToWorldMatrix;
-		glm::mat4 localToClipMatrix;
-	};
-}
+struct SharedTransformsUniformBuffer {
+	glm::mat4 worldToClipMatrix;
+	glm::mat4 worldToCameraMatrix;
+	glm::mat4 cameraToClipMatrix;
+	glm::vec4 cameraPosition;
+
+	static const char* GetName() { return "SharedTransformsUniformBuffer"; }
+};
+
+struct EntityMatricesUniforms {
+	glm::mat4 localToWorldMatrix;
+	glm::mat4 localToClipMatrix;
+
+	/**
+	 * @returns name of the container contains these uniforms.
+	 */
+	static const char* GetName() { return "SharedEntityMatricesUniformBuffer"; }
+};
 
 class UniformBuffer;
 class UniformBufferManager {
-public:
-	enum { MaxEntityMatrixBuffers = 20 };
-
 public:
 	static void Initialize();
 	static void Destroy();
@@ -58,20 +55,27 @@ public:
 
 public:
 	static void AttachSharedBuffers(Shader shader);
-	static void AttachEntityBuffer(Shader shader, uint index);
-	static bool UpdateEntityBuffer(uint index, const void* data, uint offset, uint size);
 	static bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
 
 private:
 	UniformBufferManager() {}
 
 private:
-	typedef std::map<std::string, UniformBuffer*> SharedUBOContainer;
-	static SharedUBOContainer sharedUBOs_;
+	template <class T>
+	static void CreateSharedUniformBuffer(uint size = 0);
 
-	typedef UniformBuffer*(EntityUBOContainer)[UniformBufferManager::MaxEntityMatrixBuffers];
-	static EntityUBOContainer entityUBOs_;
+private:
+	typedef std::map<std::string, UniformBuffer*> SharedUniformBufferContainer;
+	static SharedUniformBufferContainer sharedUniformBuffers_;
 
 	static uint maxBlockSize_;
 	static uint offsetAlignment_;
 };
+
+template  <class T>
+void UniformBufferManager::CreateSharedUniformBuffer(uint size) {
+	if (size == 0) { size = sizeof(T); }
+	UniformBuffer* ptr = MEMORY_CREATE(UniformBuffer);
+	ptr->Create(T::GetName(), size);
+	sharedUniformBuffers_.insert(std::make_pair(T::GetName(), ptr));
+}

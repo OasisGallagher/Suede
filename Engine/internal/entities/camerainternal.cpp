@@ -51,22 +51,11 @@ void CameraInternal::SetRenderTexture(RenderTexture value) {
 }
 
 void CameraInternal::Update() {
-	int w = Screen::GetWidth();
-	int h = Screen::GetHeight();
-
-	Framebuffer0* fb0 = Framebuffer0::Get();
-	if (w != fb0->GetViewportWidth() || h != fb0->GetViewportHeight()) {
-		fb0->SetViewport(w, h);
-		OnContextSizeChanged(w, h);
-	}
-
-	static SharedUBOStructs::Transforms transforms;
-	transforms.worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
-	transforms.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-	transforms.cameraToClipMatrix = GetProjectionMatrix();
-	transforms.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
-
-	UniformBufferManager::UpdateSharedBuffer(SharedUBONames::Transforms, &transforms, 0, sizeof(transforms));
+	UpdateViewportSize();
+	
+	// Stub: main thread only.
+	UpdateTimeUniformBuffer();
+	UpdateTransformsUniformBuffer();
 }
 
 void CameraInternal::Render() {
@@ -95,8 +84,6 @@ void CameraInternal::Render() {
 
 	Pipeline::SetFramebuffer(GetActiveFramebuffer());
 
-	UpdateTimeUBO();
-	
 	if (renderPath_ == RenderPathForward) {
 		ForwardRendering(entities, forwardBase, forwardAdd);
 	}
@@ -104,12 +91,14 @@ void CameraInternal::Render() {
 		DeferredRendering(entities, forwardBase, forwardAdd);
 	}
 
+	//  Stub: main thread only.
 	pipeline_->Update();
 
 	OnPostRender();
 
 	Pipeline::SetFramebuffer(nullptr);
 
+	// Stub: main thread only.
 	if (!imageEffects_.empty()) {
 		OnImageEffects();
 	}
@@ -119,11 +108,31 @@ void CameraInternal::Render() {
 	Pipeline::SetFramebuffer(nullptr);
 }
 
-void CameraInternal::UpdateTimeUBO() {
-	static SharedUBOStructs::Time time;
-	time.time.x = Time::GetRealTimeSinceStartup();
-	time.time.y = Time::GetDeltaTime();
-	UniformBufferManager::UpdateSharedBuffer(SharedUBONames::Time, &time, 0, sizeof(time));
+void CameraInternal::UpdateViewportSize() {
+	int w = Screen::GetWidth();
+	int h = Screen::GetHeight();
+
+	Framebuffer0* fb0 = Framebuffer0::Get();
+	if (w != fb0->GetViewportWidth() || h != fb0->GetViewportHeight()) {
+		fb0->SetViewport(w, h);
+		OnViewportSizeChanged(w, h);
+	}
+}
+
+void CameraInternal::UpdateTimeUniformBuffer() {
+	static SharedTimeUniformBuffer p;
+	p.time.x = Time::GetRealTimeSinceStartup();
+	p.time.y = Time::GetDeltaTime();
+	UniformBufferManager::UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
+}
+
+void CameraInternal::UpdateTransformsUniformBuffer() {
+	static SharedTransformsUniformBuffer p;
+	p.worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
+	p.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+	p.cameraToClipMatrix = GetProjectionMatrix();
+	p.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
+	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 bool CameraInternal::GetPerspective() const {
@@ -296,7 +305,7 @@ void CameraInternal::RenderSkybox() {
 	}
 }
 
-void CameraInternal::OnContextSizeChanged(int w, int h) {
+void CameraInternal::OnViewportSizeChanged(int w, int h) {
 	fb1_->SetViewport(w, h);
 
 	if (fb2_ != nullptr) {
@@ -349,18 +358,19 @@ void CameraInternal::CreateFramebuffer2() {
 	}
 }
 
-void CameraInternal::UpdateForwardBaseLightUBO(const std::vector<Entity>& entities, Light light) {
-	static SharedUBOStructs::Light parameter;
-	parameter.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
-	parameter.lightColor = glm::vec4(light->GetColor(), 1);
-	parameter.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
-	parameter.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
-	UniformBufferManager::UpdateSharedBuffer(SharedUBONames::Light, &parameter, 0, sizeof(parameter));
+void CameraInternal::UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light) {
+	static SharedLightUniformBuffer p;
+	p.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
+	p.lightColor = glm::vec4(light->GetColor(), 1);
+	p.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
+	p.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
+	UniformBufferManager::UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Light light) {
 	Profiler::StartSample();
-	UpdateForwardBaseLightUBO(entities, light);
+	// Stub: GL.
+	UpdateForwardBaseLightUniformBuffer(entities, light);
 	Debug::Output("[lightparam]\t%.2f\n", Profiler::EndSample());
 
 	Profiler::StartSample();
@@ -436,8 +446,8 @@ void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 		}
 	}
 
-	Debug::Output("[opaque_mat]\t%.2f\n", float(set_opaque_material) * Profiler::GetSecondsPerTick());
-	Debug::Output("[opaque_push]\t%.2f\n", float(push_drawables) * Profiler::GetSecondsPerTick());
+	Debug::Output("[opaque_mat]\t%.2f\n", Profiler::TimeStampToSeconds(set_opaque_material));
+	Debug::Output("[opaque_push]\t%.2f\n", Profiler::TimeStampToSeconds(push_drawables));
 
 	set_opaque_material = push_drawables = 0;
 }
@@ -533,9 +543,9 @@ void CameraInternal::SortDrawableEntities(std::vector<Entity>& entities) {
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
-	uint64 b = Profiler::GetTicks();
+	uint64 b = Profiler::GetTimeStamp();
 	renderer->RenderEntity(entity);
-	push_drawables += Profiler::GetTicks() - b;
+	push_drawables += Profiler::GetTimeStamp() - b;
 }
 
 void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {

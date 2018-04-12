@@ -20,13 +20,13 @@ SubShader {
 
 		#include "buildin/shaders/include/light_vertex.inc"
 
-		uniform mat4 c_boneToRootSpaceMatrices[C_MAX_BONE_COUNT];
+		uniform mat4 c_boneToRootMatrices[C_MAX_BONE_COUNT];
 
 		void main() {
-			mat4 mat = c_boneToRootSpaceMatrices[c_boneIndexes[0]] * c_boneWeights[0];
-			mat += c_boneToRootSpaceMatrices[c_boneIndexes[1]] * c_boneWeights[1];
-			mat += c_boneToRootSpaceMatrices[c_boneIndexes[2]] * c_boneWeights[2];
-			mat += c_boneToRootSpaceMatrices[c_boneIndexes[3]] * c_boneWeights[3];
+			mat4 mat = c_boneToRootMatrices[c_boneIndexes[0]] * c_boneWeights[0];
+			mat += c_boneToRootMatrices[c_boneIndexes[1]] * c_boneWeights[1];
+			mat += c_boneToRootMatrices[c_boneIndexes[2]] * c_boneWeights[2];
+			mat += c_boneToRootMatrices[c_boneIndexes[3]] * c_boneWeights[3];
 
 			texCoord = c_texCoord;
 

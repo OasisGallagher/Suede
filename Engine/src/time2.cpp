@@ -3,13 +3,13 @@
 #include "debug/profiler.h"
 
 static uint frameCount;
-static uint64 lastFrameTicks;
+static uint64 lastFrameTimeStamp;
 static double deltaTime;
 
 void Time::Update() {
-	uint64 ticks = Profiler::GetTicks();
-	deltaTime = (ticks - lastFrameTicks) * Profiler::GetSecondsPerTick();
-	lastFrameTicks = ticks;
+	uint64 timeStamp = Profiler::GetTimeStamp();
+	deltaTime = Profiler::TimeStampToSeconds(timeStamp - lastFrameTimeStamp);
+	lastFrameTimeStamp = timeStamp;
 
 	++frameCount;
 }
@@ -19,7 +19,7 @@ float Time::GetDeltaTime() {
 }
 
 float Time::GetRealTimeSinceStartup() {
-	return float(Profiler::GetTicks() * Profiler::GetSecondsPerTick());
+	return float(Profiler::TimeStampToSeconds(Profiler::GetTimeStamp()));
 }
 
 uint Time::GetFrameCount() {

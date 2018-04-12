@@ -30,7 +30,6 @@ void Graphics::Draw(Mesh mesh, Material material) {
 		material->Bind(pass);
 		DrawSubMeshes(mesh);
 		material->Unbind();
-		return;
 	}
 	else {
 		for (pass = 0; pass < material->GetPassCount(); ++pass) {

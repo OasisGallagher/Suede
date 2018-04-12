@@ -43,7 +43,7 @@ public:
 	virtual SkeletonNode* GetRootNode() = 0;
 	
 	virtual void SetBoneToRootMatrix(uint index, const glm::mat4& value) = 0;
-	virtual glm::mat4* GetBoneToRootSpaceMatrices() = 0;
+	virtual glm::mat4* GetBoneToRootMatrices() = 0;
 
 	virtual int GetBoneIndex(const std::string& name) = 0;
 	virtual int GetBoneCount() = 0;
@@ -119,6 +119,10 @@ public:
 class SUEDE_API IAnimationCurve : virtual public IObject {
 public:
 	virtual void SetKeyframes(const std::vector<AnimationFrame>& value) = 0;
+
+	/**
+	 * @returns whether time reaches the last frame.
+	 */
 	virtual bool Sample(float time, AnimationFrame& frame) = 0;
 };
 

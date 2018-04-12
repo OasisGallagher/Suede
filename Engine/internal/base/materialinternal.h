@@ -35,7 +35,7 @@ public:
 	virtual bool DisablePass(uint pass);
 	virtual bool IsPassEnabled(uint pass) const;
 
-	virtual int GetPassIndex(const std::string& name) const;
+	virtual int FindPass(const std::string& name) const;
 
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);

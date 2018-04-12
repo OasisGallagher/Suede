@@ -24,7 +24,7 @@
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-#define ROOM
+//#define ROOM
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
@@ -242,10 +242,10 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/house.fbx");
+	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	room->GetTransform()->SetScale(glm::vec3(0.01f));
+	//room->GetTransform()->SetScale(glm::vec3(0.01f));
 	roomEntityID = room->GetInstanceID();
 #endif
 

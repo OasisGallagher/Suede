@@ -3,7 +3,7 @@
 #include "object.h"
 #include "internal/memory/factory.h"
 
-class ObjectInternal : virtual public IObject {
+class ObjectInternal : virtual public IObject, public std::enable_shared_from_this<ObjectInternal> {
 public:
 	ObjectInternal(ObjectType type);
 	virtual ~ObjectInternal() {}
@@ -17,7 +17,7 @@ public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
 
 private:
-	static uint CreateInstanceID(ObjectType type);
+	static uint GenerateInstanceID(ObjectType type);
 
 private:
 	uint id_;

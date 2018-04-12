@@ -1,3 +1,4 @@
+
 #include <set>
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
@@ -54,7 +55,7 @@ void SkeletonInternal::SetBoneToRootMatrix(uint index, const glm::mat4& value) {
 		return;
 	}
 
-	boneToRootSpaceMatrices_[index] = value;
+	boneToRootMatrices_[index] = value;
 }
 
 int SkeletonInternal::GetBoneIndex(const std::string& name) {
@@ -134,10 +135,10 @@ bool AnimationClipInternal::Sample(float time) {
 }
 
 bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, const glm::mat4& matrix) {
-	bool lastFrame = true;
+	bool endFrame = true;
 	glm::mat4 transform = node->matrix;
 	if (node->curve) {
-		lastFrame = node->curve->Sample(time, frame_);
+		endFrame = node->curve->Sample(time, frame_);
 
 		glm::quat rotation = frame_->GetQuaternion(FrameKeyRotation);
 		glm::vec3 position = frame_->GetVector3(FrameKeyPosition);
@@ -159,10 +160,10 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 	}
 
 	for (int i = 0; i < node->children.size(); ++i) {
-		lastFrame = SampleHierarchy(time, node->children[i], transform) && lastFrame;
+		endFrame = SampleHierarchy(time, node->children[i], transform) && endFrame;
 	}
 
-	return lastFrame;
+	return endFrame;
 }
 
 AnimationKeysInternal::AnimationKeysInternal() :ObjectInternal(ObjectTypeAnimationKeys) {
@@ -358,7 +359,7 @@ void AnimationInternal::Update() {
 bool AnimationCurveInternal::Sample(float time, AnimationFrame& frame) {
 	int index = FindInterpolateIndex(time);
 	if (index + 1 >= keyframes_.size()) {
-		SampleLastFrame(frame);
+		SampleEndFrame(frame);
 		return true;
 	}
 
@@ -376,7 +377,7 @@ int AnimationCurveInternal::FindInterpolateIndex(float time) {
 	return (int)std::distance(std::lower_bound(keyframes_.begin(), keyframes_.end(), time, Comparerer()), keyframes_.end());
 }
 
-void AnimationCurveInternal::SampleLastFrame(AnimationFrame& frame) {
+void AnimationCurveInternal::SampleEndFrame(AnimationFrame& frame) {
 	if (!keyframes_.empty()) {
 		frame->Assign(keyframes_.back());
 	}

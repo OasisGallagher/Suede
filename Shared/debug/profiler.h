@@ -9,6 +9,6 @@ public:
 	static void StartSample();
 	static double EndSample();
 
-	static uint64 GetTicks();
-	static double GetSecondsPerTick();
+	static uint64 GetTimeStamp();
+	static double TimeStampToSeconds(uint64 timeStamp);
 };

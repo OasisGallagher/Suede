@@ -69,7 +69,7 @@ void RendererInternal::RenderSubMesh(Entity entity, int subMeshIndex, Material m
 
 void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
-		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootSpaceMatrices, skeleton_->GetBoneToRootSpaceMatrices(), C_MAX_BONE_COUNT);
+		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootMatrices, skeleton_->GetBoneToRootMatrices(), C_MAX_BONE_COUNT);
 	}
 
 	RendererInternal::UpdateMaterial(entity);

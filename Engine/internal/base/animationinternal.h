@@ -22,7 +22,7 @@ public:
 	virtual SkeletonBone* GetBone(const std::string& name);
 	
 	virtual void SetBoneToRootMatrix(uint index, const glm::mat4& value);
-	virtual glm::mat4* GetBoneToRootSpaceMatrices() { return boneToRootSpaceMatrices_; }
+	virtual glm::mat4* GetBoneToRootMatrices() { return boneToRootMatrices_; }
 
 	virtual int GetBoneIndex(const std::string& name);
 	virtual int GetBoneCount() { return current_; }
@@ -37,7 +37,7 @@ private:
 private:
 	int current_;
 	SkeletonBone bones_[C_MAX_BONE_COUNT];
-	glm::mat4 boneToRootSpaceMatrices_[C_MAX_BONE_COUNT];
+	glm::mat4 boneToRootMatrices_[C_MAX_BONE_COUNT];
 
 	SkeletonNode* root_;
 
@@ -221,7 +221,7 @@ public:
 
 private:
 	int FindInterpolateIndex(float time);
-	void SampleLastFrame(AnimationFrame& frame);
+	void SampleEndFrame(AnimationFrame& frame);
 	void Lerp(int index, float time, AnimationFrame& frame);
 
 private:

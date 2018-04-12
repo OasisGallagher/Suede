@@ -4,40 +4,42 @@
 #include "debug.h"
 #include "profiler.h"
 
-static double secondsPerTick = 1.0;
+static double timeStampToSeconds = 1.0;
+// TODO: multi-thread, one thread, one samples container.
 static std::stack<uint64> samples;
 
 void Profiler::Initialize() {
+	Debug::LogWarning("TODO: Profiler multi-thread");
+
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency)) {
-		secondsPerTick = 1.0 / frequency.QuadPart;
+		timeStampToSeconds = 1.0 / frequency.QuadPart;
 	}
 	else {
-		Debug::LogError("initialize Time failed: %d.", GetLastError());
+		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
 	}
 }
 
 void Profiler::StartSample() {
-	samples.push(GetTicks());
+	samples.push(GetTimeStamp());
 }
 
 double Profiler::EndSample() {
-	uint64 samp = samples.top();
+	uint64 timeStamp = samples.top();
 	samples.pop();
-
-	return (GetTicks() - samp) * GetSecondsPerTick();
+	return TimeStampToSeconds(GetTimeStamp() - timeStamp);
 }
 
-double Profiler::GetSecondsPerTick() {
-	return secondsPerTick;
+double Profiler::TimeStampToSeconds(uint64 timeStamp) {
+	return timeStamp * timeStampToSeconds;
 }
 
-uint64 Profiler::GetTicks() {
+uint64 Profiler::GetTimeStamp() {
 	LARGE_INTEGER qpc;
 	if (QueryPerformanceCounter(&qpc)) {
 		return qpc.QuadPart;
 	}
 
-	Debug::LogError("GetTicks failed: %d.", GetLastError());
+	Debug::LogError("GetTimeStamp failed: %d.", GetLastError());
 	return 0;
 }

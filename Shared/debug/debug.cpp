@@ -4,7 +4,6 @@
 #include "stackwalker.h"
 
 static LogReceiver* logReceiver;
-static char buffer[512];
 
 class StackTracer : public StackWalker {
 public:
@@ -35,12 +34,16 @@ private:
 	std::string text_;
 };
 
-#define FORMAT_BUFFER(format)	*buffer = 0; \
-	va_list ap; va_start(ap, format); \
-	vsnprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), format, ap); va_end(ap)
+#define MAX_LOG_LENGTH	512
+#define FORMAT_BUFFER(format)	\
+	char buffer[MAX_LOG_LENGTH]; \
+	va_list ap; \
+	va_start(ap, format); \
+	vsnprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), format, ap); \
+	va_end(ap)
 
 void Debug::SetLogReceiver(LogReceiver* value) {
-	logReceiver = value;
+	logReceiver = value; 
 }
 
 void Debug::Log(const char* format, ...) {

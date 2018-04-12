@@ -28,7 +28,7 @@ SubShader {
 			vec3 position = center + cameraUp * c_position.y * size + cameraRight * c_position.x * size;
 			gl_Position = c_worldToClipMatrix * vec4(position, 1);
 
-			texCoord = c_position.xy + vec2(0.5f);
+			texCoord = c_position.xy + vec2(0.5);
 			color = c_instanceColor;
 		}
 

@@ -8,6 +8,7 @@
 #include "world.h"
 #include "engine.h"
 #include "hierarchy.h"
+#include "debug/debug.h"
 
 static Hierarchy* hierarchyInstance;
 
@@ -168,7 +169,7 @@ void Hierarchy::appendChildItem(Entity entity) {
 		removeItem(pi);
 	}
 	else {
-		__debugbreak();
+		Debug::Break();
 	}
 }
 
@@ -179,7 +180,7 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 
 	for (int i = 0; i < entity->GetRenderer()->GetMaterialCount(); ++i) {
 		Material material = entity->GetRenderer()->GetMaterial(i);
-		int outline = material->GetPassIndex("Outline");
+		int outline = material->FindPass("Outline");
 		if (outline < 0) { continue; }
 
 		if (enable) {
