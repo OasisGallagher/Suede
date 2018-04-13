@@ -22,6 +22,9 @@ CameraInternal::CameraInternal()
 	frustum_ = MEMORY_CREATE(Frustum);
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
+	forward_pass = Profiler::CreateSample();
+	push_drawables = Profiler::CreateSample();
+
 	InitializeVariables();
 	CreateFramebuffers();
 
@@ -36,6 +39,9 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(frustum_);
 	MEMORY_RELEASE(gbuffer_);
 	MEMORY_RELEASE(pipeline_);
+
+	Profiler::ReleaseSample(forward_pass);
+	Profiler::ReleaseSample(push_drawables);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -61,9 +67,7 @@ void CameraInternal::Update() {
 void CameraInternal::Render() {
 	std::vector<Entity> entities;
 
-	Profiler::StartSample();
 	GetDrawableEntities(entities);
-	Debug::Output("[collect]\t%.2f\n", Profiler::EndSample());
 
 	Pipeline::SetCamera(dsp_cast<Camera>(shared_from_this()));
 	Pipeline::SetCurrent(pipeline_);
@@ -368,14 +372,13 @@ void CameraInternal::UpdateForwardBaseLightUniformBuffer(const std::vector<Entit
 }
 
 void CameraInternal::RenderForwardBase(const std::vector<Entity>& entities, Light light) {
-	Profiler::StartSample();
 	// Stub: GL.
 	UpdateForwardBaseLightUniformBuffer(entities, light);
-	Debug::Output("[lightparam]\t%.2f\n", Profiler::EndSample());
 
-	Profiler::StartSample();
+	forward_pass->Restart();
 	ForwardPass(entities);
-	Debug::Output("[pass]\t%.2f\n", Profiler::EndSample());
+	forward_pass->Stop();
+	Debug::Output("[CameraInternal::RenderForwardBase::forward_pass]\t%.2f\n", forward_pass->GetElapsedSeconds());
 }
 
 void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light light) {
@@ -435,9 +438,6 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	Pipeline::SetFramebuffer(nullptr);
 }
 
-uint64 push_drawables = 0;
-uint64 set_opaque_material = 0;
-
 void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
@@ -446,10 +446,8 @@ void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 		}
 	}
 
-	Debug::Output("[opaque_mat]\t%.2f\n", Profiler::TimeStampToSeconds(set_opaque_material));
-	Debug::Output("[opaque_push]\t%.2f\n", Profiler::TimeStampToSeconds(push_drawables));
-
-	set_opaque_material = push_drawables = 0;
+	Debug::Output("[CameraInternal::ForwardPass::push_drawables]\t%.2f\n", push_drawables->GetElapsedSeconds());
+	push_drawables->Clear();
 }
 
 void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
@@ -543,9 +541,9 @@ void CameraInternal::SortDrawableEntities(std::vector<Entity>& entities) {
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
-	uint64 b = Profiler::GetTimeStamp();
+	push_drawables->Start();
 	renderer->RenderEntity(entity);
-	push_drawables += Profiler::GetTimeStamp() - b;
+	push_drawables->Stop();
 }
 
 void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {

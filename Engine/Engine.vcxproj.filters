@@ -289,6 +289,9 @@
     <ClInclude Include="internal\world\uniformbuffermanager.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\frameevent.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">

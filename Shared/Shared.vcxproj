@@ -86,8 +86,7 @@
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;SHARED_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4267;4091;4996</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>3rdparty\open-threads-3.2.1\include</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)GLEF\lib
@@ -95,6 +94,9 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </PostBuildEvent>
+    <Link>
+      <AdditionalDependencies>lib/OpenThreads.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

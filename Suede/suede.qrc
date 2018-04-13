@@ -43,7 +43,7 @@
         <file alias="error">resources/images/error.png</file>
         <file alias="warning">resources/images/warning.png</file>
         <file alias="logo">resources/images/logo.ico</file>
-        <file alias="splash">resources/images/splash.png</file>
+        <file alias="splash">resources/images/splash.jpg</file>
     </qresource>
     <qresource prefix="/qss">
         <file alias="style">resources/qss/style.qss</file>

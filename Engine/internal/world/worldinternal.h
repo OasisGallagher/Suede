@@ -9,9 +9,11 @@
 #include "projector.h"
 #include "environment.h"
 #include "containers/freelist.h"
+#include "containers/sortedvector.h"
 #include "internal/geometry/plane.h"
 #include "internal/base/objectinternal.h"
 
+class Sample;
 class EntityImporter;
 
 class WorldInternal : public ObjectInternal, public IWorld {
@@ -63,9 +65,10 @@ private:
 	};
 
 	typedef free_list<Decal> DecalContainer;
-	typedef std::map<uint, Entity> EntityContainer;
+	typedef std::vector<Entity> EntityContainer;
+	typedef std::map<uint, Entity> EntityDictionary;
 	typedef std::set<Light, LightComparer> LightContainer;
-	typedef std::set<Camera, CameraComparer> CameraContainer;
+	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<WorldEventBasePointer, WorldEventComparer> WorldEventCollection;
@@ -82,11 +85,13 @@ private:
 	DecalContainer decals_;
 	ProjectorContainer projectors_;
 
-	EntityContainer entities_;
+	EntityDictionary entities_;
 	EventListenerContainer listeners_;
 
 	WorldEventContainer events_;
 	OpenThreads::Mutex eventContainerMutex_;
+
+	Sample *update_entities, *update_decals, *update_rendering;
 
 	Environment environment_;
 };

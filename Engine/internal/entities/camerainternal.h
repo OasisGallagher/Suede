@@ -11,6 +11,7 @@ class ImageEffect;
 class Framebuffer;
 class FramebufferBase;
 
+class Sample;
 class CameraInternal : public ICamera, public EntityInternal {
 	DEFINE_FACTORY_METHOD(Camera)
 
@@ -128,6 +129,7 @@ private:
 	Framebuffer* fb2_;
 
 	Pipeline* pipeline_;
+	Sample *push_drawables, *forward_pass;
 
 	RenderTexture depthTexture_;
 	RenderTexture shadowTexture_;

@@ -1,12 +1,18 @@
-#include <stack>
 #include <Windows.h>
+
+#include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
 
 #include "debug.h"
 #include "profiler.h"
 
+OpenThreads::Mutex mutex;
+#define LockSampleContainerInScole()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex)
+
 static double timeStampToSeconds = 1.0;
-// TODO: multi-thread, one thread, one samples container.
-static std::stack<uint64> samples;
+
+#define MAX_PROFILTER_SAMPLES	1024
+static free_list<Sample> samples(MAX_PROFILTER_SAMPLES);
 
 void Profiler::Initialize() {
 	Debug::LogWarning("TODO: Profiler multi-thread");
@@ -20,14 +26,23 @@ void Profiler::Initialize() {
 	}
 }
 
-void Profiler::StartSample() {
-	samples.push(GetTimeStamp());
+void Profiler::OnFrameEnter() {
+
 }
 
-double Profiler::EndSample() {
-	uint64 timeStamp = samples.top();
-	samples.pop();
-	return TimeStampToSeconds(GetTimeStamp() - timeStamp);
+void Profiler::OnFrameExit() {
+
+}
+
+Sample* Profiler::CreateSample() {
+	LockSampleContainerInScole();
+	return samples.spawn();
+}
+
+void Profiler::ReleaseSample(Sample* sample) {
+	LockSampleContainerInScole();
+	sample->Clear();
+	samples.recycle(sample);
 }
 
 double Profiler::TimeStampToSeconds(uint64 timeStamp) {
@@ -42,4 +57,33 @@ uint64 Profiler::GetTimeStamp() {
 
 	Debug::LogError("GetTimeStamp failed: %d.", GetLastError());
 	return 0;
+}
+
+void Sample::Start() {
+	started_ = true;
+	timeStamp_ = Profiler::GetTimeStamp();
+}
+
+void Sample::Restart() {
+	Clear();
+	Start();
+}
+
+void Sample::Stop() {
+	started_ = false;
+	elapsed_ += (Profiler::GetTimeStamp() - timeStamp_);
+}
+
+void Sample::Clear() {
+	started_ = false;
+	elapsed_ = timeStamp_ = 0;
+}
+
+double Sample::GetElapsedSeconds() const {
+	if (started_) {
+		Debug::LogError("call stop first.");
+		return 0.0;
+	}
+
+	return Profiler::TimeStampToSeconds(elapsed_);
 }

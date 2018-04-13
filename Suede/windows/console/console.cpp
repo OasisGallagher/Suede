@@ -31,7 +31,6 @@ void Console::init(Ui::Suede* ui) {
 void Console::addMessage(MessageType type, const QString& message) {
 	int r = ui_->table->rowCount();
 	ui_->table->insertRow(r);
-	ui_->table->setRowHeight(r, 20);
 	ui_->table->setColumnWidth(0, 24);
 
 	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");

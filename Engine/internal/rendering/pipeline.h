@@ -3,6 +3,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "material.h"
+#include "frameevent.h"
 #include "wrappers/gl.h"
 #include "internal/base/framebuffer.h"
 
@@ -40,7 +41,8 @@ struct Drawable {
 	}
 };
 
-class Pipeline {
+class Sample;
+class Pipeline : public FrameEventListener {
 	enum RenderPass {
 		RenderPassNone = -1,
 
@@ -58,6 +60,7 @@ class Pipeline {
 
 public:
 	Pipeline();
+	~Pipeline();
 
 public:
 	static Pipeline* GetCurrent() { return current_; }
@@ -68,6 +71,10 @@ public:
 
 	static void SetFramebuffer(FramebufferBase* value);
 	static FramebufferBase* GetFramebuffer() { return framebuffer_; }
+
+public:
+	virtual void OnFrameEnter();
+	virtual void OnFrameLeave();
 
 public:
 	void Update();
@@ -100,11 +107,17 @@ private:
 	uint ndrawables_;
 	std::vector<Drawable> drawables_;
 
+	// render context.
 	int oldPass_;
 	uint oldMeshPointer_;
 	Material oldMaterial_;
-	FramebufferState* oldTarget_;
+	FramebufferState* oldFramebuffer_;
 
+	// performance.
+	uint ndrawcalls;
+	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *sort_drawables, *rendering;
+
+	// environment.
 	static Camera camera_;
 	static Pipeline* current_;
 	static FramebufferBase* framebuffer_;

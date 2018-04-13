@@ -50,11 +50,19 @@ WorldInternal::WorldInternal()
 
 	Profiler::Initialize();
 	UniformBufferManager::Initialize();
+
+	update_entities = Profiler::CreateSample();
+	update_decals = Profiler::CreateSample();
+	update_rendering = Profiler::CreateSample();
 }
 
 WorldInternal::~WorldInternal() {
 	UniformBufferManager::Destroy();
 	MEMORY_RELEASE(importer_);
+
+	Profiler::ReleaseSample(update_entities);
+	Profiler::ReleaseSample(update_decals);
+	Profiler::ReleaseSample(update_rendering);
 }
 
 Object WorldInternal::Create(ObjectType type) {
@@ -92,7 +100,7 @@ Entity WorldInternal::Import(const std::string& path) {
 }
 
 Entity WorldInternal::GetEntity(uint id) {
-	EntityContainer::iterator ite = entities_.find(id);
+	EntityDictionary::iterator ite = entities_.find(id);
 	if (ite == entities_.end()) { return nullptr; }
 	return ite->second;
 }
@@ -104,7 +112,7 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 	}
 
 	if (type == ObjectTypeEntity) {
-		for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			entities.push_back(ite->second);
 		}
 	}
@@ -118,7 +126,7 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 		entities.assign(projectors_.begin(), projectors_.end());
 	}
 	else {
-		for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			if (ite->second->GetType() == type) {
 				entities.push_back(ite->second);
 			}
@@ -185,7 +193,7 @@ void WorldInternal::UpdateDecals() {
 }
 
 void WorldInternal::UpdateEntities() {
-	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+	for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 		if (ite->second->GetActive()) {
 			ite->second->Update();
 		}
@@ -236,7 +244,7 @@ bool WorldInternal::CreateEntityDecal(Camera camera, Decal& decal, Entity entity
 }
 
 bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]) {
-	for (EntityContainer::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+	for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 		Entity entity = ite->second;
 		if (entity == p) { continue; }
 		if (!entity->GetMesh()) { continue; }
@@ -305,17 +313,20 @@ void WorldInternal::Update() {
 	FireEvents();
 	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());
 	
-	Profiler::StartSample();
+	update_entities->Restart();
 	UpdateEntities();
-	Debug::Output("[entities]\t%.3f\n", Profiler::EndSample());
+	update_entities->Stop();
+	Debug::Output("[WorldInternal::Update::update_entities]\t%.3f\n", update_entities->GetElapsedSeconds());
 	
-	Profiler::StartSample();
+	update_decals->Restart();
 	UpdateDecals();
-	Debug::Output("[decals]\t%.3f\n", Profiler::EndSample());
+	update_decals->Stop();
+	Debug::Output("[WorldInternal::Update::update_decals]\t%.3f\n", update_decals->GetElapsedSeconds());
 	
-	Profiler::StartSample();
+	update_rendering->Restart();
 	RenderUpdate();
-	Debug::Output("[render]\t%.3f\n", Profiler::EndSample());
+	update_rendering->Stop();
+	Debug::Output("[WorldInternal::Update::update_rendering]\t%.3f\n", update_rendering->GetElapsedSeconds());
 
 	//Debug::Output("[#total]\t%.3f\n", Debug::EndSample());
 }

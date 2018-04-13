@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "time2.h"
+#include "engine.h"
 #include "pipeline.h"
 #include "tools/math2.h"
 #include "debug/profiler.h"
@@ -9,9 +10,6 @@
 Camera Pipeline::camera_;
 Pipeline* Pipeline::current_;
 FramebufferBase* Pipeline::framebuffer_;
-
-static uint draw_calls = 0;
-static uint64 switch_framebuffer = 0, switch_material = 0, switch_mesh = 0, update_ubo = 0;
 
 struct DrawableComparer {
 	// TODO: hash drawable.
@@ -54,7 +52,30 @@ struct DrawableComparer {
 };
 
 Pipeline::Pipeline() :drawables_(1024), ndrawables_(0)
-	, oldTarget_(nullptr), oldPass_(-1), oldMeshPointer_(0) {
+	, oldFramebuffer_(nullptr), oldPass_(-1), oldMeshPointer_(0) {
+	switch_material = Profiler::CreateSample();
+	switch_framebuffer = Profiler::CreateSample();
+	switch_mesh = Profiler::CreateSample();
+	update_ubo = Profiler::CreateSample();
+	gather_instances = Profiler::CreateSample();
+	update_pipeline = Profiler::CreateSample();
+	sort_drawables = Profiler::CreateSample();
+	rendering = Profiler::CreateSample();
+
+	Engine::AddFrameEventListener(this);
+}
+
+Pipeline::~Pipeline() {
+	Profiler::ReleaseSample(switch_material);
+	Profiler::ReleaseSample(switch_framebuffer);
+	Profiler::ReleaseSample(switch_mesh);
+	Profiler::ReleaseSample(update_ubo);
+	Profiler::ReleaseSample(gather_instances);
+	Profiler::ReleaseSample(update_pipeline);
+	Profiler::ReleaseSample(sort_drawables);
+	Profiler::ReleaseSample(rendering);
+
+	Engine::RemoveFrameEventListener(this);
 }
 
 GLenum TopologyToGLEnum(MeshTopology topology) {
@@ -75,20 +96,29 @@ void Pipeline::SetFramebuffer(FramebufferBase* value) {
 	framebuffer_ = value;
 }
 
+void Pipeline::OnFrameEnter() {
+
+}
+
+void Pipeline::OnFrameLeave() {
+
+}
+
 void Pipeline::Update() {
-	Profiler::StartSample();
+	update_pipeline->Restart();
 
-	Profiler::StartSample();
+	//sort_drawables->Restart();
 	SortDrawables();
-	Debug::Output("[sort]\t%.2f\n", Profiler::EndSample());
+	//sort_drawables->Stop();
+	//Debug::Output("[sort]\t%.2f\n", sort_drawables->GetElapsedSeconds());
 
-	Profiler::StartSample();
-
-	Profiler::StartSample();
+	gather_instances->Restart();
 	RangeContainer container;
 	GatherInstances(container);
-	Debug::Output("[gather]\t%.2f\n", Profiler::EndSample());
+	gather_instances->Stop();
+	Debug::Output("[Pipeline::Update::gather]\t%.2f\n", gather_instances->GetElapsedSeconds());
 
+	//rendering->Restart();
 	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
 	for (RangeContainer::iterator ite = container.begin(); ite != container.end(); ++ite) {
 		Range& r = *ite;
@@ -99,34 +129,18 @@ void Pipeline::Update() {
 			RenderInstances(r.first, r.second, worldToClipMatrix);
 		}
 	}
+	//rendering->Stop();
 
-	//	uint start = 0;
-	// 	for (uint i = 0; i < ndrawables_; ++i) {
-	// 		// particle system.
-	// 		if (drawables_[i].instance != 0) {
-	// 			// render instanced drawables.
-	// 			RenderInstanced(start, i, worldToClipMatrix);
-	// 
-	// 			Render(drawables_[i]);
-	// 			start = i + 1;
-	// 		}
-	// 		else if (i != 0 && !drawables_[i].IsInstance(drawables_[start])) {
-	// 			RenderInstanced(start, i, worldToClipMatrix);
-	// 			start = i;
-	// 		}
-	// 	}
-	// 
-	// 	if (start != ndrawables_) {
-	// 		RenderInstanced(start, ndrawables_, worldToClipMatrix);
-	// 	}
+	//Debug::Output("[drawcall]\t%d\n", ndrawcalls);
+	//Debug::Output("[update_ubo]\t%.2f\n", update_ubo->GetElapsedSeconds());
+	//Debug::Output("[rendering]\t%.2f\n", rendering->GetElapsedSeconds());
 
-	Debug::Output("[drawcall]\t%d\n", draw_calls);
-	Debug::Output("[instanced]\t%.2f/%.2f\n", Profiler::TimeStampToSeconds(update_ubo), Profiler::EndSample());
+	//Debug::Output("[fb]\t%.2f\n", switch_framebuffer->GetElapsedSeconds());
+	//Debug::Output("[mat]\t%.2f\n", switch_material->GetElapsedSeconds());
+	//Debug::Output("[mesh]\t%.2f\n", switch_mesh->GetElapsedSeconds());
 
-	Debug::Output("[fb]\t%.2f\n", Profiler::TimeStampToSeconds(switch_framebuffer));
-	Debug::Output("[mat]\t%.2f\n", Profiler::TimeStampToSeconds(switch_material));
-	Debug::Output("[mesh]\t%.2f\n", Profiler::TimeStampToSeconds(switch_mesh));
-	Debug::Output("[pipeline]\t%.2f\n", Profiler::EndSample());
+	update_pipeline->Stop();
+	Debug::Output("[Pipeline::Update::pipeline]\t%.2f\n", update_pipeline->GetElapsedSeconds());
 
 	Clear();
 }
@@ -172,9 +186,9 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 
 		first += count;
 
-		uint64 s = Profiler::GetTimeStamp();
+		update_ubo->Restart();
 		UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
-		update_ubo += Profiler::GetTimeStamp() - s;
+		update_ubo->Stop();
 
 		Render(drawable);
 	}
@@ -213,25 +227,24 @@ void Pipeline::Render(Drawable& drawable) {
 		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), drawable.instance, bias.baseVertex);
 	}
 
-	++draw_calls;
+	++ndrawcalls;
 }
 
 void Pipeline::UpdateRenderContext(Drawable& drawable) {
-	if (oldTarget_ == nullptr || *oldTarget_ != drawable.state) {
-		uint64 timeStamp = Profiler::GetTimeStamp();
-		if (oldTarget_ != nullptr) {
-			oldTarget_->Unbind();
+	if (oldFramebuffer_ == nullptr || *oldFramebuffer_ != drawable.state) {
+		switch_framebuffer->Start();
+		if (oldFramebuffer_ != nullptr) {
+			oldFramebuffer_->Unbind();
 		}
 
-		oldTarget_ = &drawable.state;
-
+		oldFramebuffer_ = &drawable.state;
 		drawable.state.BindWrite();
 
-		switch_framebuffer += (Profiler::GetTimeStamp() - timeStamp);
+		switch_framebuffer->Stop();
 	}
 
 	if (drawable.material != oldMaterial_) {
-		uint64 timeStamp = Profiler::GetTimeStamp();
+		switch_material->Start();
 		if (oldMaterial_) {
 			oldMaterial_->Unbind();
 		}
@@ -240,7 +253,7 @@ void Pipeline::UpdateRenderContext(Drawable& drawable) {
 		oldMaterial_ = drawable.material;
 
 		drawable.material->Bind(drawable.pass);
-		switch_material += (Profiler::GetTimeStamp() - timeStamp);
+		switch_material->Stop();
 	}
 	else if (oldPass_ != drawable.pass) {
 		drawable.material->Bind(drawable.pass);
@@ -248,18 +261,20 @@ void Pipeline::UpdateRenderContext(Drawable& drawable) {
 	}
 
 	if (drawable.mesh->GetNativePointer() != oldMeshPointer_) {
-		uint64 timeStamp = Profiler::GetTimeStamp();
+		switch_mesh->Start();
 		drawable.mesh->Bind();
 		oldMeshPointer_ = drawable.mesh->GetNativePointer();
-		switch_mesh += (Profiler::GetTimeStamp() - timeStamp);
+		switch_mesh->Stop();
 	}
 }
 
 void Pipeline::Clear() {
-	draw_calls = 0;
-	switch_framebuffer = switch_material = switch_mesh = update_ubo = 0;
-
+	ndrawcalls = 0;
 	ResetRenderContext();
+
+	switch_mesh->Clear();
+	switch_material->Clear();
+	switch_framebuffer->Clear();
 
 	for (uint i = 0; i < ndrawables_; ++i) {
 		drawables_[i].Clear();
@@ -269,9 +284,9 @@ void Pipeline::Clear() {
 }
 
 void Pipeline::ResetRenderContext() {
-	if (oldTarget_ != nullptr) {
-		oldTarget_->Unbind();
-		oldTarget_ = nullptr;
+	if (oldFramebuffer_ != nullptr) {
+		oldFramebuffer_->Unbind();
+		oldFramebuffer_ = nullptr;
 	}
 
 	if (oldMaterial_) {

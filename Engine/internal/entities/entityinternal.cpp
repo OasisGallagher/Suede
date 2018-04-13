@@ -80,7 +80,7 @@ void EntityInternal::UpdateChildrenActive(Entity parent) {
 	for (int i = 0; i < parent->GetTransform()->GetChildCount(); ++i) {
 		Entity child = parent->GetTransform()->GetChildAt(i)->GetEntity();
 		EntityInternal* childPtr = dynamic_cast<EntityInternal*>(child.get());
-		childPtr->active_ &= parent->GetActive();
+		childPtr->active_ = childPtr->activeSelf_ && parent->GetActive();
 		UpdateChildrenActive(child);
 	}
 }

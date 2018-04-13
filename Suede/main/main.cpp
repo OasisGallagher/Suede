@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
 	
 	QSplashScreen* splash = new QSplashScreen;
-	splash->setPixmap(QPixmap(":/images/error"));
+	splash->setPixmap(QPixmap(":/images/splash"));
 	splash->show();
 
 	a.processEvents();

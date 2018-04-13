@@ -74,7 +74,7 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 bool EntityAssetLoader::Initialize(Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
-		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes /*| aiProcess_OptimizeGraph*/
+		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph
 		| aiProcess_RemoveRedundantMaterials;
 
 	if (FileSystem::GetExtension(path_) == ".fbx") {

@@ -24,7 +24,7 @@
 #include "scripts/cameracontroller.h"
 
 #define SKYBOX
-//#define ROOM
+#define ROOM
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
@@ -150,7 +150,6 @@ void Game::createScene() {
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearTypeSkybox);
-	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
 
 	Material skybox = NewMaterial();
 	skybox->SetShader(Resources::FindShader("buildin/shaders/skybox"));

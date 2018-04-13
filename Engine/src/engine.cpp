@@ -2,6 +2,7 @@
 #include "vld/vld.h"
 #endif
 
+#include <vector>
 #include <wrappers/gl.h>
 
 #include "time2.h"
@@ -11,9 +12,13 @@
 #include "resources.h"
 #include "debug/debug.h"
 
+static std::vector<FrameEventListener*> frameEventListeners;
+
 #ifndef _STDCALL
 #define _STDCALL __stdcall
 #endif
+
+#define FOR_EACH_FRAME_EVENT_LISTENER(func)	for (uint i = 0; i < frameEventListeners.size(); ++i) frameEventListeners[i]->func()
 
 static void _STDCALL GLDebugMessageCallback(
 	GLenum source, 
@@ -54,14 +59,31 @@ void Engine::Resize(int w, int h) {
 	GL::Viewport(0, 0, w, h);
 }
 
+void Engine::AddFrameEventListener(FrameEventListener* listener) {
+	if (std::find(frameEventListeners.begin(), frameEventListeners.end(), listener) == frameEventListeners.end()) {
+		frameEventListeners.push_back(listener);
+	}
+}
+
+void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
+	std::vector<FrameEventListener*>::iterator ite = std::find(frameEventListeners.begin(), frameEventListeners.end(), listener);
+	if (ite != frameEventListeners.end()) {
+		frameEventListeners.erase(ite);
+	}
+}
+
 void Engine::Update() {
+	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameEnter);
+
 	Time::Update();
 	WorldInstance()->Update();
+
+	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameLeave);
 }
 
 void Engine::SetDefaultGLStates() {
-	GL::ClearDepth(1);
-	GL::DepthRange(0.f, 1.f);
+	//GL::ClearDepth(0);
+	//GL::DepthRange(0.f, 1.f);
 
 	GL::Enable(GL_DEPTH_TEST);
 	GL::DepthFunc(GL_LEQUAL);
