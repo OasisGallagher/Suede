@@ -11,11 +11,11 @@ Camera Pipeline::camera_;
 Pipeline* Pipeline::current_;
 FramebufferBase* Pipeline::framebuffer_;
 
-struct DrawableComparer {
-	// TODO: hash drawable.
-	bool operator () (Drawable& lhs, Drawable& rhs) const {
-		if (lhs.state.framebuffer != rhs.state.framebuffer) {
-			return lhs.state.framebuffer < rhs.state.framebuffer;
+struct RenderableComparer {
+	// TODO: hash renderable.
+	bool operator () (Renderable& lhs, Renderable& rhs) const {
+		if (lhs.framebufferState.framebuffer != rhs.framebufferState.framebuffer) {
+			return lhs.framebufferState.framebuffer < rhs.framebufferState.framebuffer;
 		}
 
 		Material& lm = lhs.material, &rm = rhs.material;
@@ -51,15 +51,15 @@ struct DrawableComparer {
 	}
 };
 
-Pipeline::Pipeline() :drawables_(1024), ndrawables_(0)
-	, oldFramebuffer_(nullptr), oldPass_(-1), oldMeshPointer_(0) {
+Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
+	, oldFramebufferState_(nullptr), oldPass_(-1) {
 	switch_material = Profiler::CreateSample();
 	switch_framebuffer = Profiler::CreateSample();
 	switch_mesh = Profiler::CreateSample();
 	update_ubo = Profiler::CreateSample();
 	gather_instances = Profiler::CreateSample();
 	update_pipeline = Profiler::CreateSample();
-	sort_drawables = Profiler::CreateSample();
+	sort_renderables = Profiler::CreateSample();
 	rendering = Profiler::CreateSample();
 
 	Engine::AddFrameEventListener(this);
@@ -72,7 +72,7 @@ Pipeline::~Pipeline() {
 	Profiler::ReleaseSample(update_ubo);
 	Profiler::ReleaseSample(gather_instances);
 	Profiler::ReleaseSample(update_pipeline);
-	Profiler::ReleaseSample(sort_drawables);
+	Profiler::ReleaseSample(sort_renderables);
 	Profiler::ReleaseSample(rendering);
 
 	Engine::RemoveFrameEventListener(this);
@@ -107,10 +107,10 @@ void Pipeline::OnFrameLeave() {
 void Pipeline::Update() {
 	update_pipeline->Restart();
 
-	//sort_drawables->Restart();
-	SortDrawables();
-	//sort_drawables->Stop();
-	//Debug::Output("[sort]\t%.2f\n", sort_drawables->GetElapsedSeconds());
+	//sort_renderables->Restart();
+	SortRenderables();
+	//sort_renderables->Stop();
+	//Debug::Output("[sort]\t%.2f\n", sort_renderables->GetElapsedSeconds());
 
 	gather_instances->Restart();
 	RangeContainer container;
@@ -122,8 +122,8 @@ void Pipeline::Update() {
 	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
 	for (RangeContainer::iterator ite = container.begin(); ite != container.end(); ++ite) {
 		Range& r = *ite;
-		if (drawables_[r.first].instance != 0) {
-			Render(drawables_[r.first]);
+		if (renderables_[r.first].instance != 0) {
+			Render(renderables_[r.first]);
 		}
 		else {
 			RenderInstances(r.first, r.second, worldToClipMatrix);
@@ -147,10 +147,10 @@ void Pipeline::Update() {
 
 void Pipeline::GatherInstances(RangeContainer& container) {
 	uint start = 0;
-	for (uint i = 0; i < ndrawables_; ++i) {
+	for (uint i = 0; i < nrenderables_; ++i) {
 		// particle system.
-		if (drawables_[i].instance != 0) {
-			// render instanced drawables.
+		if (renderables_[i].instance != 0) {
+			// render instanced renderables.
 			if (i > start) {
 				container.push_back(Range(start, i));
 			}
@@ -158,30 +158,30 @@ void Pipeline::GatherInstances(RangeContainer& container) {
 			container.push_back(Range(i, i + 1));
 			start = i + 1;
 		}
-		else if (i != 0 && !drawables_[i].IsInstance(drawables_[start])) {
+		else if (i != 0 && !renderables_[i].IsInstance(renderables_[start])) {
 			container.push_back(Range(start, i));
 			start = i;
 		}
 	}
 
-	if (start != ndrawables_) {
-		container.push_back(Range(start, ndrawables_));
+	if (start != nrenderables_) {
+		container.push_back(Range(start, nrenderables_));
 	}
 }
 
 void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix) {
-	Drawable& drawable = drawables_[first];
+	Renderable& renderable = renderables_[first];
 	static int maxInstances = UniformBufferManager::GetMaxBlockSize() / sizeof(EntityMatricesUniforms);
 	int instanceCount = last - first;
 	for (int j = 0; j < instanceCount; j += maxInstances) {
 		int count = Math::Min(instanceCount - j, maxInstances);
-		drawable.instance = count;
+		renderable.instance = count;
 
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
 		for (int k = first; k < first + count; ++k) {
-			matrices.push_back(drawables_[k].localToWorldMatrix);
-			matrices.push_back(worldToClipMatrix * drawables_[k].localToWorldMatrix);
+			matrices.push_back(renderables_[k].localToWorldMatrix);
+			matrices.push_back(worldToClipMatrix * renderables_[k].localToWorldMatrix);
 		}
 
 		first += count;
@@ -190,80 +190,86 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 		UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
 		update_ubo->Stop();
 
-		Render(drawable);
+		Render(renderable);
 	}
 }
 
-void Pipeline::SortDrawables() {
-	static DrawableComparer comparer;
-	std::sort(drawables_.begin(), drawables_.begin() + ndrawables_, comparer);
+void Pipeline::SortRenderables() {
+	static RenderableComparer comparer;
+	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparer);
 }
 
-void Pipeline::AddDrawable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance) {
-	if (ndrawables_ == drawables_.size()) {
-		drawables_.resize(2 * ndrawables_);
+void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance) {
+	if (nrenderables_ == renderables_.size()) {
+		renderables_.resize(2 * nrenderables_);
 	}
 
-	Drawable& drawable = drawables_[ndrawables_++];
-	drawable.instance = instance;
-	drawable.mesh = mesh;
-	drawable.subMeshIndex = subMeshIndex;
-	drawable.material = material;
-	drawable.pass = pass;
-	drawable.state = state;
-	drawable.localToWorldMatrix = localToWorldMatrix;
+	Renderable& renderable = renderables_[nrenderables_++];
+	renderable.instance = instance;
+	renderable.mesh = mesh;
+	renderable.subMeshIndex = subMeshIndex;
+	renderable.material = material;
+	renderable.pass = pass;
+	renderable.framebufferState = state;
+	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::Render(Drawable& drawable) {
-	UpdateRenderContext(drawable);
+void Pipeline::Render(Renderable& renderable) {
+	UpdateRenderContext(renderable);
 
-	const TriangleBias& bias = drawable.mesh->GetSubMesh(drawable.subMeshIndex)->GetTriangleBias();
+	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
-	GLenum mode = TopologyToGLEnum(drawable.mesh->GetTopology());
-	if (drawable.instance == 0) {
+	GLenum mode = TopologyToGLEnum(renderable.mesh->GetTopology());
+	if (renderable.instance == 0) {
 		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 	}
 	else {
-		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), drawable.instance, bias.baseVertex);
+		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), renderable.instance, bias.baseVertex);
 	}
 
 	++ndrawcalls;
 }
 
-void Pipeline::UpdateRenderContext(Drawable& drawable) {
-	if (oldFramebuffer_ == nullptr || *oldFramebuffer_ != drawable.state) {
+void Pipeline::UpdateRenderContext(Renderable& renderable) {
+	if (oldFramebufferState_ == nullptr || *oldFramebufferState_ != renderable.framebufferState) {
 		switch_framebuffer->Start();
-		if (oldFramebuffer_ != nullptr) {
-			oldFramebuffer_->Unbind();
-		}
+// 		if (oldFramebufferState_ != nullptr) {
+// 			oldFramebufferState_->Unbind();
+// 		}
 
-		oldFramebuffer_ = &drawable.state;
-		drawable.state.BindWrite();
+		oldFramebufferState_ = &renderable.framebufferState;
+		//renderable.framebufferState.BindWrite();
 
 		switch_framebuffer->Stop();
 	}
 
-	if (drawable.material != oldMaterial_) {
+	if (renderable.material != oldMaterial_) {
 		switch_material->Start();
 		if (oldMaterial_) {
 			oldMaterial_->Unbind();
 		}
 
-		oldPass_ = drawable.pass;
-		oldMaterial_ = drawable.material;
+		oldPass_ = renderable.pass;
+		oldMaterial_ = renderable.material;
 
-		drawable.material->Bind(drawable.pass);
+		renderable.material->Bind(renderable.pass);
 		switch_material->Stop();
 	}
-	else if (oldPass_ != drawable.pass) {
-		drawable.material->Bind(drawable.pass);
-		oldPass_ = drawable.pass;
+	else if (oldPass_ != renderable.pass) {
+		renderable.material->Bind(renderable.pass);
+		oldPass_ = renderable.pass;
 	}
 
-	if (drawable.mesh->GetNativePointer() != oldMeshPointer_) {
+	if (!oldMesh_ || renderable.mesh->GetNativePointer() != oldMesh_->GetNativePointer()) {
 		switch_mesh->Start();
-		drawable.mesh->Bind();
-		oldMeshPointer_ = drawable.mesh->GetNativePointer();
+		
+		if (oldMesh_) {
+			oldMesh_->Unbind();
+		}
+
+		oldMesh_ = renderable.mesh;
+
+		renderable.mesh->Bind();
 		switch_mesh->Stop();
 	}
 }
@@ -276,24 +282,46 @@ void Pipeline::Clear() {
 	switch_material->Clear();
 	switch_framebuffer->Clear();
 
-	for (uint i = 0; i < ndrawables_; ++i) {
-		drawables_[i].Clear();
+	for (uint i = 0; i < nrenderables_; ++i) {
+		renderables_[i].Clear();
 	}
 
-	ndrawables_ = 0;
+	nrenderables_ = 0;
 }
 
 void Pipeline::ResetRenderContext() {
-	if (oldFramebuffer_ != nullptr) {
-		oldFramebuffer_->Unbind();
-		oldFramebuffer_ = nullptr;
+	if (oldFramebufferState_ != nullptr) {
+		//oldFramebufferState_->Unbind();
+		oldFramebufferState_ = nullptr;
 	}
 
 	if (oldMaterial_) {
 		oldMaterial_->Unbind();
+		oldMaterial_.reset();
 	}
 
-	oldMaterial_ = nullptr;
+	if (oldMesh_) {
+		oldMesh_->Unbind();
+		oldMesh_.reset();
+	}
+}
 
-	oldMeshPointer_ = 0;
+void Renderable::Clear() {
+	mesh.reset();
+	material.reset();
+	framebufferState.Clear();
+}
+
+bool Renderable::IsInstance(const Renderable& other) const {
+#define CHECK_INSTANCE(expr)	if (expr != other.expr) { return false; } else (void)0
+
+	CHECK_INSTANCE(mesh->GetNativePointer());
+	CHECK_INSTANCE(subMeshIndex);
+	CHECK_INSTANCE(framebufferState.framebuffer);
+	CHECK_INSTANCE(material);
+	CHECK_INSTANCE(pass);
+
+#undef CHECK_INSTANCE
+
+	return true;
 }

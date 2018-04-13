@@ -12,12 +12,11 @@
 #include "resources.h"
 #include "debug/debug.h"
 
-static std::vector<FrameEventListener*> frameEventListeners;
-
 #ifndef _STDCALL
 #define _STDCALL __stdcall
 #endif
 
+static std::vector<FrameEventListener*> frameEventListeners;
 #define FOR_EACH_FRAME_EVENT_LISTENER(func)	for (uint i = 0; i < frameEventListeners.size(); ++i) frameEventListeners[i]->func()
 
 static void _STDCALL GLDebugMessageCallback(
@@ -82,8 +81,8 @@ void Engine::Update() {
 }
 
 void Engine::SetDefaultGLStates() {
-	//GL::ClearDepth(0);
-	//GL::DepthRange(0.f, 1.f);
+	GL::ClearDepth(1);
+	GL::DepthRange(0, 1);
 
 	GL::Enable(GL_DEPTH_TEST);
 	GL::DepthFunc(GL_LEQUAL);

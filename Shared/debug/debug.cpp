@@ -35,11 +35,11 @@ private:
 };
 
 #define MAX_LOG_LENGTH	512
-#define FORMAT_BUFFER(format)	\
-	char buffer[MAX_LOG_LENGTH]; \
+#define FORMAT_BUFFER(format, bufname)	\
+	char bufname[MAX_LOG_LENGTH]; \
 	va_list ap; \
 	va_start(ap, format); \
-	vsnprintf(buffer, sizeof(buffer) / sizeof(buffer[0]), format, ap); \
+	vsnprintf(bufname, sizeof(bufname) / sizeof(bufname[0]), format, ap); \
 	va_end(ap)
 
 void Debug::SetLogReceiver(LogReceiver* value) {
@@ -48,14 +48,14 @@ void Debug::SetLogReceiver(LogReceiver* value) {
 
 void Debug::Log(const char* format, ...) {
 	if (logReceiver != nullptr) {
-		FORMAT_BUFFER(format);
+		FORMAT_BUFFER(format, buffer);
 		logReceiver->OnLogMessage(LogLevelDebug, buffer);
 	}
 }
 
 void Debug::LogWarning(const char* format, ...) {
 	if (logReceiver != nullptr) {
-		FORMAT_BUFFER(format);
+		FORMAT_BUFFER(format, buffer);
 		logReceiver->OnLogMessage(LogLevelWarning, buffer);
 	}
 }
@@ -63,14 +63,14 @@ void Debug::LogWarning(const char* format, ...) {
 void Debug::LogError(const char* format, ...) {
 	if (logReceiver != nullptr) {
 		StackTracer tracer(1);
-		FORMAT_BUFFER(format);
+		FORMAT_BUFFER(format, buffer);
 		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace();
 		logReceiver->OnLogMessage(LogLevelError, text.c_str());
 	}
 }
 
 void Debug::Output(const char* format, ...) {
-	FORMAT_BUFFER(format);
+	FORMAT_BUFFER(format, buffer);
 	OutputDebugStringA(buffer);
 }
 

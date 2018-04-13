@@ -49,6 +49,7 @@ private:
 	void onEntityTagChanged(Entity entity);
 	void onEntityNameChanged(Entity entity);
 	void onEntityParentChanged(Entity entity);
+	void onEntityActiveChanged(Entity entity);
 
 	void enableEntityOutline(Entity entity, bool enable);
 	void enableItemsOutline(const QList<Entity>& entities, bool enable);

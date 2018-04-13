@@ -2,5 +2,5 @@
 
 void EnvironmentInternal::SetSkybox(Material value) {
 	skybox_ = value;
-	skybox_->SetRenderQueue(RenderQueueGeometry + 1000);
+	skybox_->SetRenderQueue(RenderQueueGeometry - 1000);
 }

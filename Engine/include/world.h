@@ -12,7 +12,7 @@ enum WorldEventType {
 	WorldEventTypeEntityNameChanged,
 	WorldEventTypeEntityParentChanged,
 	WorldEventTypeEntityTransformChanged,
-	WorldEventTypeEntityActive,
+	WorldEventTypeEntityActiveChanged,
 
 	WorldEventTypeCount,
 };
@@ -61,11 +61,11 @@ struct EntityParentChangedEvent : public EntityEvent {
 
 DEFINE_WORLD_EVENT_POINTER(EntityParentChangedEvent);
 
-struct EntityActiveEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityActive; }
+struct EntityActiveChangedEvent : public EntityEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityActiveChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityActiveEvent);
+DEFINE_WORLD_EVENT_POINTER(EntityActiveChangedEvent);
 
 struct EntityTagChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityTagChanged; }

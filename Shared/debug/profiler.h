@@ -14,7 +14,7 @@ public:
 
 private:
 	/**
-	 * use Profiler::CreateSample to create.
+	 * use Profiler::CreateSample() to create.
 	 */
 	Sample() { Clear(); }
 	friend class free_list<Sample>;

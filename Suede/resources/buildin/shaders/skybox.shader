@@ -22,11 +22,11 @@ SubShader {
 
 		#stage fragment
 
-		out vec4 fragColor;
 		in vec3 texCoord;
+		out vec4 fragColor;
 
-		uniform samplerCube c_mainTexture;
 		uniform vec4 c_mainColor;
+		uniform samplerCube c_mainTexture;
 
 		void main() {
 			fragColor = texture(c_mainTexture, texCoord) * c_mainColor;

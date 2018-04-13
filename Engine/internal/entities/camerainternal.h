@@ -97,13 +97,13 @@ private:
 	void ForwardPass(const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
-	bool IsDrawable(Entity entity);
+	bool IsRenderable(Entity entity);
 
 	void RenderEntity(Entity entity, Renderer renderer);
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
-	void GetDrawableEntities(std::vector<Entity>& entities);
-	void SortDrawableEntities(std::vector<Entity>& entities);
+	void GetRenderableEntities(std::vector<Entity>& entities);
+	void SortRenderableEntities(std::vector<Entity>& entities);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
@@ -129,7 +129,7 @@ private:
 	Framebuffer* fb2_;
 
 	Pipeline* pipeline_;
-	Sample *push_drawables, *forward_pass;
+	Sample *push_renderables, *forward_pass;
 
 	RenderTexture depthTexture_;
 	RenderTexture shadowTexture_;

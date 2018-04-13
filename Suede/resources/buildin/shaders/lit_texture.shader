@@ -5,7 +5,7 @@ Properties {
 SubShader {
 	Pass {
 		ZTest LEqual;
-	//	Blend SrcAlpha OneMinusSrcAlpha;
+		//Blend SrcAlpha OneMinusSrcAlpha;
 
 		StencilTest Always 1 0xFF;
 		StencilOp Keep Keep Replace;

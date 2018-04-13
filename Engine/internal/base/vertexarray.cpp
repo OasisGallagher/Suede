@@ -140,7 +140,14 @@ void VertexArray::DestroyVBOs() {
 }
 
 void VertexArray::Bind() {
-	GL::GetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&oldVao_);
+	GLint old = 0;
+	GL::GetIntegerv(GL_VERTEX_ARRAY_BINDING, (GLint*)&old);
+	if (old == vao_) {
+		Debug::LogError("vertex array %d already bound.", vao_);
+		return;
+	}
+
+	oldVao_ = old;
 	GL::BindVertexArray(vao_);
 }
 

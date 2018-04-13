@@ -23,7 +23,7 @@ CameraInternal::CameraInternal()
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
 	forward_pass = Profiler::CreateSample();
-	push_drawables = Profiler::CreateSample();
+	push_renderables = Profiler::CreateSample();
 
 	InitializeVariables();
 	CreateFramebuffers();
@@ -41,7 +41,7 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(pipeline_);
 
 	Profiler::ReleaseSample(forward_pass);
-	Profiler::ReleaseSample(push_drawables);
+	Profiler::ReleaseSample(push_renderables);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -66,8 +66,7 @@ void CameraInternal::Update() {
 
 void CameraInternal::Render() {
 	std::vector<Entity> entities;
-
-	GetDrawableEntities(entities);
+	GetRenderableEntities(entities);
 
 	Pipeline::SetCamera(dsp_cast<Camera>(shared_from_this()));
 	Pipeline::SetCurrent(pipeline_);
@@ -231,7 +230,7 @@ void CameraInternal::AddToPipeline(Mesh mesh, Material material, const glm::mat4
 	FramebufferState state;
 	Pipeline::GetFramebuffer()->SaveState(state);
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		pipeline_->AddDrawable(mesh, i, material, 0, state, localToWorldMatrix);
+		pipeline_->AddRenderable(mesh, i, material, 0, state, localToWorldMatrix);
 	}
 }
 
@@ -397,7 +396,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (!IsDrawable(entity)) {
+		if (!IsRenderable(entity)) {
 			continue;
 		}
 
@@ -427,7 +426,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (!IsDrawable(entity)) {
+		if (!IsRenderable(entity)) {
 			continue;
 		}
 
@@ -441,13 +440,13 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (IsDrawable(entity)) {
+		if (IsRenderable(entity)) {
 			RenderEntity(entity, entity->GetRenderer());
 		}
 	}
 
-	Debug::Output("[CameraInternal::ForwardPass::push_drawables]\t%.2f\n", push_drawables->GetElapsedSeconds());
-	push_drawables->Clear();
+	Debug::Output("[CameraInternal::ForwardPass::push_renderables]\t%.2f\n", push_renderables->GetElapsedSeconds());
+	push_renderables->Clear();
 }
 
 void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
@@ -519,20 +518,20 @@ void CameraInternal::OnImageEffects() {
 	}
 }
 
-bool CameraInternal::IsDrawable(Entity entity) {
+bool CameraInternal::IsRenderable(Entity entity) {
 	return entity->GetActive() && entity->GetRenderer() && entity->GetRenderer()->GetReady() && entity->GetMesh();
 }
 
-void CameraInternal::GetDrawableEntities(std::vector<Entity>& entities) {
+void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
 	WorldInstance()->GetEntities(ObjectTypeEntity, entities);
-	//SortDrawableEntities(entities);
+	//SortRenderableEntities(entities);
 }
 
-void CameraInternal::SortDrawableEntities(std::vector<Entity>& entities) {
+void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
 	int p = 0;
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity key = entities[i];
-		if (IsDrawable(key)) {
+		if (IsRenderable(key)) {
 			entities[p++] = key;
 		}
 	}
@@ -541,9 +540,9 @@ void CameraInternal::SortDrawableEntities(std::vector<Entity>& entities) {
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
-	push_drawables->Start();
+	push_renderables->Start();
 	renderer->RenderEntity(entity);
-	push_drawables->Stop();
+	push_renderables->Stop();
 }
 
 void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {

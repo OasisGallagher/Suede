@@ -72,6 +72,9 @@ void Hierarchy::OnWorldEvent(WorldEventBasePointer e) {
 		case WorldEventTypeEntityParentChanged:
 			onEntityParentChanged(eep->entity);
 			break;
+		case WorldEventTypeEntityActiveChanged:
+			onEntityActiveChanged(eep->entity);
+			break;
 	}
 }
 
@@ -94,6 +97,15 @@ void Hierarchy::onEntityNameChanged(Entity entity) {
 
 void Hierarchy::onEntityParentChanged(Entity entity) {
 	appendChildItem(entity);
+}
+
+void Hierarchy::onEntityActiveChanged(Entity entity) {
+	QStandardItem* item = items_.value(entity->GetInstanceID());
+	if (item != nullptr) {
+		static QBrush activeNameBrush(QColor(0xFFFFFF));
+		static QBrush inactiveNameBrush(QColor(0x666666));
+		item->setForeground(entity->GetActive() ? activeNameBrush : inactiveNameBrush);
+	}
 }
 
 void Hierarchy::reload() {

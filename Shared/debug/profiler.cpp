@@ -15,8 +15,6 @@ static double timeStampToSeconds = 1.0;
 static free_list<Sample> samples(MAX_PROFILTER_SAMPLES);
 
 void Profiler::Initialize() {
-	Debug::LogWarning("TODO: Profiler multi-thread");
-
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency)) {
 		timeStampToSeconds = 1.0 / frequency.QuadPart;
@@ -81,7 +79,7 @@ void Sample::Clear() {
 
 double Sample::GetElapsedSeconds() const {
 	if (started_) {
-		Debug::LogError("call stop first.");
+		Debug::LogError("call Stop() first.");
 		return 0.0;
 	}
 

@@ -7,7 +7,7 @@
 #include "wrappers/gl.h"
 #include "internal/base/framebuffer.h"
 
-struct Drawable {
+struct Renderable {
 	uint instance;
 
 	Mesh mesh;
@@ -16,29 +16,12 @@ struct Drawable {
 	Material material;
 	uint pass;
 
-	FramebufferState state;
+	FramebufferState framebufferState;
 
 	glm::mat4 localToWorldMatrix;
 
-	void Clear() {
-		mesh.reset();
-		material.reset();
-		state.Clear();
-	}
-
-	bool IsInstance(const Drawable& other) const {
-#define CHECK_INSTANCE(expr)	if (expr != other.expr) { return false; } else (void)0
-
-		CHECK_INSTANCE(mesh->GetNativePointer());
-		CHECK_INSTANCE(subMeshIndex);
-		CHECK_INSTANCE(state.framebuffer);
-		CHECK_INSTANCE(material);
-		CHECK_INSTANCE(pass);
-
-#undef CHECK_INSTANCE
-
-		return true;
-	}
+	void Clear();
+	bool IsInstance(const Renderable& other) const;
 };
 
 class Sample;
@@ -78,7 +61,7 @@ public:
 
 public:
 	void Update();
-	void AddDrawable(
+	void AddRenderable(
 		Mesh mesh,
 		uint subMeshIndex,
 		Material material,
@@ -91,11 +74,11 @@ public:
 private:
 	void Clear();
 
-	void SortDrawables();
-	void Render(Drawable& drawable);
+	void SortRenderables();
+	void Render(Renderable& renderable);
 
 	void ResetRenderContext();
-	void UpdateRenderContext(Drawable& drawable);
+	void UpdateRenderContext(Renderable& renderable);
 
 	typedef std::pair<uint, uint> Range;
 	typedef std::vector<Range> RangeContainer;
@@ -104,18 +87,19 @@ private:
 	void RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix);
 
 private:
-	uint ndrawables_;
-	std::vector<Drawable> drawables_;
+	uint nrenderables_;
+	std::vector<Renderable> renderables_;
 
 	// render context.
 	int oldPass_;
-	uint oldMeshPointer_;
+	Mesh oldMesh_;
 	Material oldMaterial_;
-	FramebufferState* oldFramebuffer_;
+
+	FramebufferState* oldFramebufferState_;
 
 	// performance.
 	uint ndrawcalls;
-	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *sort_drawables, *rendering;
+	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *sort_renderables, *rendering;
 
 	// environment.
 	static Camera camera_;

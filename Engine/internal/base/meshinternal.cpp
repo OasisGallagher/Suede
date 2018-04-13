@@ -42,10 +42,10 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 		return;
 	}
 
-	storage_->vao.Bind();
-
 	// TODO: update vbo instead.
 	storage_->vao.CreateVBOs(vboCount);
+
+	storage_->vao.Bind();
 
 	uint vboIndex = 0;
 	

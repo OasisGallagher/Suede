@@ -2,6 +2,7 @@ Properties { }
 
 SubShader {
 	Pass {
+		ZTest Off;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM

@@ -40,6 +40,7 @@ protected:
 	EntityInternal(ObjectType entityType);
 
 private:
+	void SetActive(bool value);
 	void UpdateChildrenActive(Entity parent);
 	const char* EntityTypeToString(ObjectType type);
 

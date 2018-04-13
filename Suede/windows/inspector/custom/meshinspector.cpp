@@ -48,9 +48,8 @@ void MeshInspector::drawMesh() {
 		subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
 	}
 
-	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, subMeshList);
-
 	resizeGeometryToFit(subMeshList);
+	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, subMeshList);
 }
 
 void MeshInspector::drawTextMesh() {

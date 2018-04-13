@@ -193,10 +193,10 @@ void Framebuffer::Create(int width, int height) {
 	renderTextures_ = MEMORY_CREATE_ARRAY(RenderTexture, maxRenderTextures_);
 	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, maxRenderTextures_);
 
-	//BindFramebuffer();
-	//GL::ClearDepth(0);
-	//GL::DepthRange(0.f, 1.f);
-	//UnbindFramebuffer();
+	BindFramebuffer();
+	GL::ClearDepth(1);
+	GL::DepthRange(0, 1);
+	UnbindFramebuffer();
 }
 
 void Framebuffer::BindWrite() {

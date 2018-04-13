@@ -23,12 +23,8 @@ EntityInternal::EntityInternal(ObjectType entityType)
 void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
-		active_ = activeSelf_ && transform_->GetParent()->GetEntity()->GetActive();
+		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
 		UpdateChildrenActive(dsp_cast<Entity>(shared_from_this()));
-
-		EntityActiveEventPointer e = NewWorldEvent<EntityActiveEventPointer>();
-		e->entity = dsp_cast<Entity>(shared_from_this());
-		WorldInstance()->FireEvent(e);
 	}
 }
 
@@ -76,11 +72,20 @@ void EntityInternal::SetTransform(Transform value) {
 	}
 }
 
+void EntityInternal::SetActive(bool value) {
+	if (active_ != value) {
+		active_ = value;
+		EntityActiveChangedEventPointer e = NewWorldEvent<EntityActiveChangedEventPointer>();
+		e->entity = dsp_cast<Entity>(shared_from_this());
+		WorldInstance()->FireEvent(e);
+	}
+}
+
 void EntityInternal::UpdateChildrenActive(Entity parent) {
 	for (int i = 0; i < parent->GetTransform()->GetChildCount(); ++i) {
 		Entity child = parent->GetTransform()->GetChildAt(i)->GetEntity();
 		EntityInternal* childPtr = dynamic_cast<EntityInternal*>(child.get());
-		childPtr->active_ = childPtr->activeSelf_ && parent->GetActive();
+		childPtr->SetActive(childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
 	}
 }

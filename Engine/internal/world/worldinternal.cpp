@@ -4,6 +4,7 @@
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
+#include "internal/base/framebuffer.h"
 #include "internal/file/entityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
@@ -180,6 +181,8 @@ void WorldInternal::GetDecals(std::vector<Decal*>& container) {
 }
 
 void WorldInternal::RenderUpdate() {
+	Framebuffer0::Get()->Clear(FramebufferClearBitmaskColorDepthStencil);
+
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		if ((*ite)->GetActive()) {
 			(*ite)->Render();

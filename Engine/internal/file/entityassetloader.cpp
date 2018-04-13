@@ -75,6 +75,7 @@ bool EntityAssetLoader::Initialize(Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
 		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph
+
 		| aiProcess_RemoveRedundantMaterials;
 
 	if (FileSystem::GetExtension(path_) == ".fbx") {
@@ -317,7 +318,7 @@ void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	aiString astring;
 	aiColor3D acolor;
 
-	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "lit_texture";
+	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "unlit_texture";
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
 		materialAsset.name = FileSystem::GetFileName(astring.C_Str());
