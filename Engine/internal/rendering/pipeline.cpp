@@ -113,21 +113,24 @@ void Pipeline::Update() {
 	//Debug::Output("[sort]\t%.2f\n", sort_renderables->GetElapsedSeconds());
 
 	gather_instances->Restart();
-	RangeContainer container;
-	GatherInstances(container);
+	std::vector<uint> ranges;
+	GatherInstances(ranges);
 	gather_instances->Stop();
 	Debug::Output("[Pipeline::Update::gather]\t%.2f\n", gather_instances->GetElapsedSeconds());
 
 	//rendering->Restart();
 	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
-	for (RangeContainer::iterator ite = container.begin(); ite != container.end(); ++ite) {
-		Range& r = *ite;
-		if (renderables_[r.first].instance != 0) {
-			Render(renderables_[r.first]);
+	uint from = 0;
+	for (std::vector<uint>::iterator ite = ranges.begin(); ite != ranges.end(); ++ite) {
+		if (renderables_[from].instance != 0) {
+			Debug::Break();
+			Render(renderables_[from]);
 		}
 		else {
-			RenderInstances(r.first, r.second, worldToClipMatrix);
+			RenderInstances(from, *ite, worldToClipMatrix);
 		}
+
+		from = *ite;
 	}
 	//rendering->Stop();
 
@@ -145,27 +148,29 @@ void Pipeline::Update() {
 	Clear();
 }
 
-void Pipeline::GatherInstances(RangeContainer& container) {
-	uint start = 0;
+void Pipeline::GatherInstances(std::vector<uint>& ranges) {
+	uint base = 0;
 	for (uint i = 0; i < nrenderables_; ++i) {
 		// particle system.
 		if (renderables_[i].instance != 0) {
+			Debug::Break();
+
 			// render instanced renderables.
-			if (i > start) {
-				container.push_back(Range(start, i));
+			if (i > base) {
+				ranges.push_back(i);
 			}
 
-			container.push_back(Range(i, i + 1));
-			start = i + 1;
+			ranges.push_back(i + 1);
+			base = i + 1;
 		}
-		else if (i != 0 && !renderables_[i].IsInstance(renderables_[start])) {
-			container.push_back(Range(start, i));
-			start = i;
+		else if (i != base && !renderables_[base].IsInstance(renderables_[i])) {
+			ranges.push_back(i);
+			base = i;
 		}
 	}
 
-	if (start != nrenderables_) {
-		container.push_back(Range(start, nrenderables_));
+	if (base != nrenderables_) {
+		ranges.push_back(nrenderables_);
 	}
 }
 
@@ -173,24 +178,24 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 	Renderable& renderable = renderables_[first];
 	static int maxInstances = UniformBufferManager::GetMaxBlockSize() / sizeof(EntityMatricesUniforms);
 	int instanceCount = last - first;
-	for (int j = 0; j < instanceCount; j += maxInstances) {
+
+	for (int j = 0; j < instanceCount; ) {
 		int count = Math::Min(instanceCount - j, maxInstances);
 		renderable.instance = count;
 
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
-		for (int k = first; k < first + count; ++k) {
+		for (int k = j + first, max = j + first + count; k < max; ++k) {
 			matrices.push_back(renderables_[k].localToWorldMatrix);
 			matrices.push_back(worldToClipMatrix * renderables_[k].localToWorldMatrix);
 		}
-
-		first += count;
 
 		update_ubo->Restart();
 		UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
 		update_ubo->Stop();
 
 		Render(renderable);
+		j += count;
 	}
 }
 

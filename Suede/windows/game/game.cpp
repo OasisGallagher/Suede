@@ -241,10 +241,10 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
+	Entity room = WorldInstance()->Import("models/house.fbx");
 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	//room->GetTransform()->SetScale(glm::vec3(0.01f));
+	room->GetTransform()->SetScale(glm::vec3(0.01f));
 	roomEntityID = room->GetInstanceID();
 #endif
 

@@ -1,6 +1,7 @@
 #include <QMenuBar>
 #include <QSettings>
 #include <QKeyEvent>
+#include <QStatusBar>
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStandardPaths>
@@ -38,6 +39,8 @@ void Suede::setupUI() {
 
 	QWidget* cw = takeCentralWidget();
 	delete cw;
+
+	statusBar()->setStatusTip("Ready");
 
 	setDockNestingEnabled(true);
 

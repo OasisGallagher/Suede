@@ -430,8 +430,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 			continue;
 		}
 
-		Material material = dsp_cast<Material>(depthMaterial_->Clone());
-		AddToPipeline(entity->GetMesh(), material, entity->GetTransform()->GetLocalToWorldMatrix());
+		AddToPipeline(entity->GetMesh(), depthMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	Pipeline::SetFramebuffer(nullptr);

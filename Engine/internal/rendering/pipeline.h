@@ -80,10 +80,7 @@ private:
 	void ResetRenderContext();
 	void UpdateRenderContext(Renderable& renderable);
 
-	typedef std::pair<uint, uint> Range;
-	typedef std::vector<Range> RangeContainer;
-
-	void GatherInstances(RangeContainer& container);
+	void GatherInstances(std::vector<uint>& ranges);
 	void RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix);
 
 private:

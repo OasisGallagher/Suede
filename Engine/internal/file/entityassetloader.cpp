@@ -74,8 +74,7 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 bool EntityAssetLoader::Initialize(Assimp::Importer &importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
-		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes | aiProcess_OptimizeGraph
-
+		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes/* | aiProcess_OptimizeGraph*/
 		| aiProcess_RemoveRedundantMaterials;
 
 	if (FileSystem::GetExtension(path_) == ".fbx") {
@@ -249,10 +248,10 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset)
 		const aiVector3D* normal = &aimesh->mNormals[i];
 
 		// TODO:
-		if (aimesh->GetNumUVChannels() != 1 && !logged) {
-			logged = true;
-			Debug::LogWarning("this mesh contains %d uv channel(s).", aimesh->GetNumUVChannels());
-		}
+		//if (aimesh->GetNumUVChannels() != 1 && !logged) {
+		//	logged = true;
+		//	Debug::LogWarning("this mesh contains %d uv channel(s).", aimesh->GetNumUVChannels());
+		//}
 
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
 		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;
@@ -318,7 +317,7 @@ void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	aiString astring;
 	aiColor3D acolor;
 
-	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "unlit_texture";
+	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "lit_texture";
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
 		materialAsset.name = FileSystem::GetFileName(astring.C_Str());
