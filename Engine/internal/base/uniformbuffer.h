@@ -14,7 +14,7 @@ public:
 	
 	void AttachBuffer(Shader shader);
 	void AttachSubBuffer(Shader shader, uint offset, uint size);
-	void SetBuffer(const void* data, uint offset, uint size);
+	void UpdateBuffer(const void* data, uint offset, uint size);
 
 	const std::string& GetName() const { return name_; }
 

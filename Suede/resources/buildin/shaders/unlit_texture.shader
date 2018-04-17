@@ -2,7 +2,6 @@ Properties { }
 
 SubShader {
 	Pass {
-		ZTest Off;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
@@ -24,7 +23,6 @@ SubShader {
 		out vec4 fragColor;
 
 		in vec2 texCoord;
-
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 

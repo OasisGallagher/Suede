@@ -57,8 +57,9 @@ void UniformBuffer::AttachProgram(uint program) {
 	GL::UniformBlockBinding(program, index, binding_);
 }
 
-void UniformBuffer::SetBuffer(const void* data, uint offset, uint size) {
+void UniformBuffer::UpdateBuffer(const void* data, uint offset, uint size) {
 	Bind();
+	GL::BufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
 	GL::BufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 	Unbind();
 }
@@ -79,7 +80,7 @@ void UniformBuffer::Initialize(const std::string& name, uint size) {
 
 	GL::GenBuffers(1, &ubo_);
 	Bind();
-	GL::BufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+	GL::BufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
 	Unbind();
 
 	binding_ = bindingPoint_++;

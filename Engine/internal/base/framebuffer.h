@@ -41,6 +41,7 @@ struct FramebufferState {
 	void Unbind();
 	void Clear();
 
+	bool operator == (const FramebufferState& other) const;
 	bool operator != (const FramebufferState& other) const;
 
 	FramebufferBase* framebuffer;

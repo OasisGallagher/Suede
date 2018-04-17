@@ -317,7 +317,7 @@ void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	aiString astring;
 	aiColor3D acolor;
 
-	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "lit_texture";
+	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "unlit_texture";
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
 		materialAsset.name = FileSystem::GetFileName(astring.C_Str());

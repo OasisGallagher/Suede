@@ -3,6 +3,11 @@
 #include "framebuffer.h"
 #include "memory/memory.h"
 
+bool FramebufferState::operator==(const FramebufferState& other) const {
+	return framebuffer == other.framebuffer && depthTexture == other.depthTexture
+		&& renderTexture == other.renderTexture;
+}
+
 bool FramebufferState::operator!=(const FramebufferState& other) const {
 	return framebuffer != other.framebuffer || depthTexture != other.depthTexture
 		|| renderTexture != other.renderTexture;

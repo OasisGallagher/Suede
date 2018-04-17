@@ -37,7 +37,7 @@ bool UniformBufferManager::UpdateSharedBuffer(const std::string& name, const voi
 		return false;
 	}
 
-	pos->second->SetBuffer(data, offset, size);
+	pos->second->UpdateBuffer(data, offset, size);
 	return true;
 }
 

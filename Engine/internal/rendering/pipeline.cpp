@@ -52,7 +52,7 @@ struct RenderableComparer {
 };
 
 Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
-	, oldFramebufferState_(nullptr), oldPass_(-1) {
+	, oldFramebufferState_(nullptr), oldPass_(-1), ndrawcalls(0) {
 	switch_material = Profiler::CreateSample();
 	switch_framebuffer = Profiler::CreateSample();
 	switch_mesh = Profiler::CreateSample();
@@ -119,8 +119,9 @@ void Pipeline::Update() {
 	Debug::Output("[Pipeline::Update::gather]\t%.2f\n", gather_instances->GetElapsedSeconds());
 
 	//rendering->Restart();
-	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
 	uint from = 0;
+	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
+
 	for (std::vector<uint>::iterator ite = ranges.begin(); ite != ranges.end(); ++ite) {
 		if (renderables_[from].instance != 0) {
 			Debug::Break();
@@ -132,6 +133,7 @@ void Pipeline::Update() {
 
 		from = *ite;
 	}
+
 	//rendering->Stop();
 
 	//Debug::Output("[drawcall]\t%d\n", ndrawcalls);
@@ -226,6 +228,7 @@ void Pipeline::Render(Renderable& renderable) {
 
 	GLenum mode = TopologyToGLEnum(renderable.mesh->GetTopology());
 	if (renderable.instance == 0) {
+		// TODO: update c_localToWorldMatrix, c_localToClipMatrix to material.
 		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 	}
 	else {
@@ -322,7 +325,7 @@ bool Renderable::IsInstance(const Renderable& other) const {
 
 	CHECK_INSTANCE(mesh->GetNativePointer());
 	CHECK_INSTANCE(subMeshIndex);
-	CHECK_INSTANCE(framebufferState.framebuffer);
+	CHECK_INSTANCE(framebufferState);
 	CHECK_INSTANCE(material);
 	CHECK_INSTANCE(pass);
 
