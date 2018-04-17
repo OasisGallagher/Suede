@@ -107,10 +107,10 @@ void Pipeline::OnFrameLeave() {
 void Pipeline::Update() {
 	update_pipeline->Restart();
 
-	//sort_renderables->Restart();
+	sort_renderables->Restart();
 	SortRenderables();
-	//sort_renderables->Stop();
-	//Debug::Output("[sort]\t%.2f\n", sort_renderables->GetElapsedSeconds());
+	sort_renderables->Stop();
+	Debug::Output("[Pipeline::Update::sort]\t%.2f\n", sort_renderables->GetElapsedSeconds());
 
 	gather_instances->Restart();
 	std::vector<uint> ranges;
@@ -118,7 +118,7 @@ void Pipeline::Update() {
 	gather_instances->Stop();
 	Debug::Output("[Pipeline::Update::gather]\t%.2f\n", gather_instances->GetElapsedSeconds());
 
-	//rendering->Restart();
+	rendering->Restart();
 	uint from = 0;
 	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
 
@@ -134,15 +134,15 @@ void Pipeline::Update() {
 		from = *ite;
 	}
 
-	//rendering->Stop();
+	rendering->Stop();
 
-	//Debug::Output("[drawcall]\t%d\n", ndrawcalls);
-	//Debug::Output("[update_ubo]\t%.2f\n", update_ubo->GetElapsedSeconds());
-	//Debug::Output("[rendering]\t%.2f\n", rendering->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d\n", ndrawcalls);
+	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f\n", update_ubo->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::rendering]\t%.2f\n", rendering->GetElapsedSeconds());
 
-	//Debug::Output("[fb]\t%.2f\n", switch_framebuffer->GetElapsedSeconds());
-	//Debug::Output("[mat]\t%.2f\n", switch_material->GetElapsedSeconds());
-	//Debug::Output("[mesh]\t%.2f\n", switch_mesh->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_framebuffer]\t%.2f\n", switch_framebuffer->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_material]\t%.2f\n", switch_material->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_mesh]\t%.2f\n", switch_mesh->GetElapsedSeconds());
 
 	update_pipeline->Stop();
 	Debug::Output("[Pipeline::Update::pipeline]\t%.2f\n", update_pipeline->GetElapsedSeconds());
@@ -181,15 +181,15 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 	static int maxInstances = UniformBufferManager::GetMaxBlockSize() / sizeof(EntityMatricesUniforms);
 	int instanceCount = last - first;
 
-	for (int j = 0; j < instanceCount; ) {
-		int count = Math::Min(instanceCount - j, maxInstances);
+	for (int i = 0; i < instanceCount; ) {
+		int count = Math::Min(instanceCount - i, maxInstances);
 		renderable.instance = count;
 
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
-		for (int k = j + first, max = j + first + count; k < max; ++k) {
-			matrices.push_back(renderables_[k].localToWorldMatrix);
-			matrices.push_back(worldToClipMatrix * renderables_[k].localToWorldMatrix);
+		for (int j = i + first, max = j + count; j < max; ++j) {
+			matrices.push_back(renderables_[j].localToWorldMatrix);
+			matrices.push_back(worldToClipMatrix * renderables_[j].localToWorldMatrix);
 		}
 
 		update_ubo->Restart();
@@ -197,7 +197,7 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 		update_ubo->Stop();
 
 		Render(renderable);
-		j += count;
+		i += count;
 	}
 }
 
@@ -314,22 +314,32 @@ void Pipeline::ResetRenderContext() {
 	}
 }
 
+bool Renderable::IsInstance(const Renderable& other) const {
+	return IsFramebufferInstanced(other) && IsMeshInstanced(other) && IsMaterialInstanced(other);
+}
+
 void Renderable::Clear() {
 	mesh.reset();
 	material.reset();
 	framebufferState.Clear();
 }
 
-bool Renderable::IsInstance(const Renderable& other) const {
-#define CHECK_INSTANCE(expr)	if (expr != other.expr) { return false; } else (void)0
+bool Renderable::IsMeshInstanced(const Renderable & other) const {
+	if (mesh->GetNativePointer() != other.mesh->GetNativePointer()
+		|| subMeshIndex != other.subMeshIndex) {
+		return false;
+	}
 
-	CHECK_INSTANCE(mesh->GetNativePointer());
-	CHECK_INSTANCE(subMeshIndex);
-	CHECK_INSTANCE(framebufferState);
-	CHECK_INSTANCE(material);
-	CHECK_INSTANCE(pass);
+	const TriangleBias& bias = mesh->GetSubMesh(subMeshIndex)->GetTriangleBias();
+	const TriangleBias& otherBias = other.mesh->GetSubMesh(subMeshIndex)->GetTriangleBias();
+	return bias.indexCount == otherBias.indexCount
+		&& bias.baseVertex == otherBias.baseVertex && bias.baseIndex == otherBias.baseIndex;
+}
 
-#undef CHECK_INSTANCE
+bool Renderable::IsMaterialInstanced(const Renderable & other) const {
+	return material == other.material && pass == other.pass;
+}
 
-	return true;
+bool Renderable::IsFramebufferInstanced(const Renderable & other) const {
+	return framebufferState == other.framebufferState;
 }

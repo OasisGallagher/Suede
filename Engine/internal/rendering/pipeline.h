@@ -22,6 +22,10 @@ struct Renderable {
 
 	void Clear();
 	bool IsInstance(const Renderable& other) const;
+
+	bool IsMeshInstanced(const Renderable& other) const;
+	bool IsMaterialInstanced(const Renderable& other) const;
+	bool IsFramebufferInstanced(const Renderable& other) const;
 };
 
 class Sample;

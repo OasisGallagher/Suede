@@ -138,6 +138,8 @@ Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surfa
 	return entity;
 }
 
+void* debugCeilingMeshPointer;
+
 void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	entity->SetName(node->mName.C_Str());
 
