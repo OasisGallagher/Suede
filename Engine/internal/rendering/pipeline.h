@@ -77,6 +77,7 @@ public:
 
 private:
 	void Clear();
+	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
 	void SortRenderables();
 	void Render(Renderable& renderable);

@@ -47,6 +47,20 @@ struct RenderableComparer {
 			return lhs.subMeshIndex < rhs.subMeshIndex;
 		}
 
+		const TriangleBias& bias = lhs.mesh->GetSubMesh(lhs.subMeshIndex)->GetTriangleBias();
+		const TriangleBias& otherBias = rhs.mesh->GetSubMesh(rhs.subMeshIndex)->GetTriangleBias();
+		if (bias.indexCount != otherBias.indexCount) {
+			return bias.indexCount < otherBias.indexCount;
+		}
+		
+		if (bias.baseIndex != otherBias.baseIndex) {
+			return bias.baseIndex < otherBias.baseIndex;
+		}
+
+		if (bias.baseVertex != otherBias.baseVertex) {
+			return bias.baseVertex < otherBias.baseVertex;
+		}
+
 		return false;
 	}
 };
@@ -134,6 +148,8 @@ void Pipeline::Update() {
 		from = *ite;
 	}
 
+	debugDumpPipelineAndRanges(ranges);
+
 	rendering->Stop();
 
 	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d\n", ndrawcalls);
@@ -145,7 +161,7 @@ void Pipeline::Update() {
 	Debug::Output("[Pipeline::Update::switch_mesh]\t%.2f\n", switch_mesh->GetElapsedSeconds());
 
 	update_pipeline->Stop();
-	Debug::Output("[Pipeline::Update::pipeline]\t%.2f\n", update_pipeline->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f\n", update_pipeline->GetElapsedSeconds());
 
 	Clear();
 }
@@ -198,6 +214,34 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 
 		Render(renderable);
 		i += count;
+	}
+}
+
+#include <fstream>
+void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
+	static bool dumpped = false;
+	if (nrenderables_ > 50 && !dumpped) {
+		std::ofstream ofs("pipeline_dump.txt");
+		ofs << "Index\tQueue\tMaterial\tPass\tShader\tMesh\tSubMesh\tIndexCount\tBaseIndex\tBaseVertex\n";
+
+		for (uint i = 0; i < nrenderables_; ++i) {
+			Renderable& r = renderables_[i];
+			ofs << ((i < ranges.size()) ? std::to_string(ranges[i]) : "000")
+				<< "\t" << r.material->GetRenderQueue()
+				<< "\t" << r.material.get()
+				<< "\t" << r.pass
+				<< "\t" << r.material->GetPassNativePointer(r.pass)
+				<< "\t" << r.mesh->GetNativePointer()
+				<< "\t" << r.subMeshIndex
+				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().indexCount
+				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().baseIndex
+				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().baseVertex
+				<< std::endl;
+		}
+
+		ofs.close();
+
+		dumpped = true;
 	}
 }
 
