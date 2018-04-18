@@ -31,7 +31,7 @@ void GBuffer::Bind(GPass pass) {
 			framebuffer_.BindWriteAttachment(FramebufferAttachment(FramebufferAttachment0 + GTextureCount));
 			break;
 		case FinalPass:
-			Framebuffer0::Get()->BindWrite();
+			Framebuffer0::Get()->BindWrite(true);
 			framebuffer_.BindRead(FramebufferAttachment(FramebufferAttachment0 + GTextureCount));
 			break;
 	}

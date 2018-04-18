@@ -30,6 +30,9 @@ public:
 	virtual void SetAnimation(Animation value) { animation_ = value; }
 	virtual Animation GetAnimation() { return animation_; }
 
+	virtual void SetBounds(const Bounds& value) { bounds_ = value; }
+	virtual const Bounds& GetBounds() const { return bounds_; }
+
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_; }
 
@@ -54,6 +57,7 @@ private:
 	Transform transform_;
 
 	Mesh mesh_;
+	Bounds bounds_;
 	Renderer renderer_;
 	Animation animation_;
 };

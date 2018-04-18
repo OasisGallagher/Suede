@@ -292,6 +292,9 @@
     <ClInclude Include="include\frameevent.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\bounds.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -419,6 +422,9 @@
     </ClCompile>
     <ClCompile Include="internal\world\uniformbuffermanager.cpp">
       <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bounds.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

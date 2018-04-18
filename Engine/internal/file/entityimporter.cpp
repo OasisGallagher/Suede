@@ -4,13 +4,28 @@
 #include "memory/memory.h"
 #include "entityimporter.h"
 
+
+
 EntityImporter::EntityImporter() 
 	: loader_(MEMORY_CREATE(EntityAssetLoader))
 	, status_(Loader::Failed) {
 	loader_->SetCallback(this);
+
+	int err = loader_->Start();
+	if (err != 0) {
+		Debug::LogError("failed to start thread: %s", StrError(err).c_str());
+	}
 }
 
 EntityImporter::~EntityImporter() {
+	if (loader_->isRunning()) {
+		loader_->Terminate();
+	}
+
+	for (; loader_->isRunning();) {
+		OpenThreads::Thread::YieldCurrentThread();
+	}
+
 	MEMORY_RELEASE(loader_);
 }
 
@@ -30,19 +45,7 @@ bool EntityImporter::ImportTo(Entity entity, const std::string& path) {
 		return false;
 	}
 
-	if (status_ != Loader::Failed) {
-		Debug::LogError("asset importer is running");
-		return false;
-	}
-
-	loader_->SetTarget(path, entity);
-
-	int err = loader_->Start();
-	if (err != 0) {
-		Debug::LogError("failed to start thread: %s", StrError(err).c_str());
-		return false;
-	}
-
+	loader_->Load(path, entity);
 	return true;
 }
 

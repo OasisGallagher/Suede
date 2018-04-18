@@ -3,6 +3,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include <OpenThreads/Mutex>
 #include <OpenThreads/Thread>
 
 #include "mesh.h"
@@ -59,15 +60,18 @@ public:
 		Ok,
 		Failed,
 		Running,
+		Done,
 	};
 
 public:
 	int Start();
 	int GetStatus() const { return status_; }
 	void SetCallback(LoaderCallback* value) { callback_ = value; }
+	void Terminate() { status_ = Done; }
 
 public:
 	virtual void Run() = 0;
+	virtual bool IsReady() const = 0;
 
 private:
 	virtual void run();
@@ -77,16 +81,19 @@ protected:
 	void SetStatus(int value) { status_ = value; }
 
 private:
+	bool done_;
 	int status_;
 	LoaderCallback* callback_;
 };
 
+class Bounds;
 class EntityAssetLoader : public Loader {
 public:
 	~EntityAssetLoader() { Clear(); }
 
 public:
 	virtual void Run();
+	virtual bool IsReady() const;
 
 public:
 	Mesh GetSurface() { return surface_; }
@@ -94,7 +101,7 @@ public:
 	EntityAsset& GetEntityAsset() { return asset_; }
 	std::vector<Renderer>& GetRenderers() { return renderers_; }
 
-	void SetTarget(const std::string& path, Entity entity);
+	bool Load(const std::string& path, Entity entity);
 
 protected:
 	virtual void Clear();
@@ -103,18 +110,18 @@ private:
 	bool LoadAsset();
 	bool Initialize(Assimp::Importer& importer);
 
-	Entity LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	void LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	void LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
 
-	void LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
-	void LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
-	void LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	Entity LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
 
 	void ReserveMemory(MeshAsset& meshAsset);
-	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes);
-	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes);
+	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses);
+	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses);
 
-	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset);
 	void LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes);
+	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses);
 
 	void LoadMaterials();
 	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
@@ -140,6 +147,8 @@ private:
 	EntityAsset asset_;
 
 	std::string path_;
+	OpenThreads::Mutex pathMutex_;
+
 	Skeleton skeleton_;
 	Animation animation_;
 	const aiScene* scene_;

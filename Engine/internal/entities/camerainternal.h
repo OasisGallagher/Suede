@@ -2,17 +2,18 @@
 #include <glm/glm.hpp>
 
 #include "camera.h"
+#include "frustum.h"
+#include "internal/geometry/plane.h"
 #include "internal/entities/entityinternal.h"
 
 class GBuffer;
-class Frustum;
 class Pipeline;
 class ImageEffect;
 class Framebuffer;
 class FramebufferBase;
 
 class Sample;
-class CameraInternal : public ICamera, public EntityInternal {
+class CameraInternal : public ICamera, public EntityInternal, public ProjectionMatrixChangedListener {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:
@@ -69,10 +70,14 @@ public:
 	virtual Texture2D Capture();
 
 private:
+	virtual void OnProjectionMatrixChanged();
+
+private:
 	void InitializeVariables();
 	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
+	void ClearFramebuffers();
 	void UpdateViewportSize();
 	void UpdateTimeUniformBuffer();
 	void UpdateTransformsUniformBuffer();
@@ -123,6 +128,8 @@ private:
 
 
 	GBuffer* gbuffer_;
+
+	Plane planes_[6];
 	Frustum* frustum_;
 
 	Framebuffer* fb1_;

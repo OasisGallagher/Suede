@@ -16,7 +16,7 @@ bool FramebufferState::operator!=(const FramebufferState& other) const {
 void FramebufferState::BindWrite() {
 	framebuffer->SetDepthTexture(depthTexture);
 	framebuffer->SetRenderTexture(attachment, renderTexture);
-	framebuffer->BindWrite();
+	framebuffer->BindWrite(false);
 }
 
 void FramebufferState::Unbind() {
@@ -33,9 +33,12 @@ void FramebufferState::Clear() {
 FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
 }
 
-void FramebufferBase::BindWrite() {
+void FramebufferBase::BindWrite(bool clear) {
 	BindFramebuffer(FramebufferTargetWrite);
-	ClearCurrent(FramebufferClearBitmaskColorDepthStencil);
+	if (clear) {
+		ClearCurrent(FramebufferClearBitmaskColorDepthStencil);
+	}
+
 	BindViewport();
 }
 
@@ -204,8 +207,8 @@ void Framebuffer::Create(int width, int height) {
 	UnbindFramebuffer();
 }
 
-void Framebuffer::BindWrite() {
-	FramebufferBase::BindWrite();
+void Framebuffer::BindWrite(bool clear) {
+	FramebufferBase::BindWrite(clear);
 
 	uint count = ToGLColorAttachments();
 	GL::DrawBuffers(count, glAttachments_);

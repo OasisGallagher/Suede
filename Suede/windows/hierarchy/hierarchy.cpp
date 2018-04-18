@@ -216,8 +216,6 @@ void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelectio
 }
 
 void Hierarchy::enableItemsOutline(const QList<Entity>& entities, bool enable) {
-	return;
-
 	foreach (Entity entity, entities) {
 		enableEntityOutline(entity, enable);
 	}

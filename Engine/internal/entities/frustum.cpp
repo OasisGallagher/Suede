@@ -8,7 +8,7 @@
 		Debug::LogError("%s is only valid in %s mode.", name, perspective ? "perspective" : "orthographic"); \
 	} else (void)0
 
-Frustum::Frustum() : perspective_(true) {
+Frustum::Frustum() : perspective_(true), listener_(nullptr) {
 	near_ = 1.f;
 	far_ = 1000.f;
 	aspect_ = 1.3f;
@@ -24,6 +24,10 @@ void Frustum::RecalculateProjectionMatrix() {
 	else {
 		float hHalfSize = orthographicSize_ * aspect_;
 		projection_ = glm::ortho(-hHalfSize, hHalfSize, -orthographicSize_, orthographicSize_, near_, far_);
+	}
+
+	if (listener_ != nullptr) {
+		listener_->OnProjectionMatrixChanged();
 	}
 }
 

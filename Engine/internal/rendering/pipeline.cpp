@@ -152,6 +152,7 @@ void Pipeline::Update() {
 
 	rendering->Stop();
 
+	Debug::Output("[Pipeline::Update::nrenderables]\t%d\n", nrenderables_);
 	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d\n", ndrawcalls);
 	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f\n", update_ubo->GetElapsedSeconds());
 	Debug::Output("[Pipeline::Update::rendering]\t%.2f\n", rendering->GetElapsedSeconds());
@@ -219,14 +220,14 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 
 #include <fstream>
 void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
-	static bool dumpped = false;
-	if (nrenderables_ > 50 && !dumpped) {
+	static bool dumped = false;
+	if (nrenderables_ > 50 && !dumped) {
 		std::ofstream ofs("pipeline_dump.txt");
 		ofs << "Index\tQueue\tMaterial\tPass\tShader\tMesh\tSubMesh\tIndexCount\tBaseIndex\tBaseVertex\n";
-
+		uint j = 0;
 		for (uint i = 0; i < nrenderables_; ++i) {
 			Renderable& r = renderables_[i];
-			ofs << ((i < ranges.size()) ? std::to_string(ranges[i]) : "000")
+			ofs << ((i + 1 == ranges[j]) ? std::to_string(ranges[j]) : "")
 				<< "\t" << r.material->GetRenderQueue()
 				<< "\t" << r.material.get()
 				<< "\t" << r.pass
@@ -237,11 +238,13 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().baseIndex
 				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().baseVertex
 				<< std::endl;
+
+			if (i + 1 == ranges[j]) { ++j; }
 		}
 
 		ofs.close();
 
-		dumpped = true;
+		dumped = true;
 	}
 }
 
@@ -285,12 +288,12 @@ void Pipeline::Render(Renderable& renderable) {
 void Pipeline::UpdateRenderContext(Renderable& renderable) {
 	if (oldFramebufferState_ == nullptr || *oldFramebufferState_ != renderable.framebufferState) {
 		switch_framebuffer->Start();
-// 		if (oldFramebufferState_ != nullptr) {
-// 			oldFramebufferState_->Unbind();
-// 		}
+		if (oldFramebufferState_ != nullptr) {
+			oldFramebufferState_->Unbind();
+		}
 
 		oldFramebufferState_ = &renderable.framebufferState;
-		//renderable.framebufferState.BindWrite();
+		renderable.framebufferState.BindWrite();
 
 		switch_framebuffer->Stop();
 	}
@@ -343,7 +346,7 @@ void Pipeline::Clear() {
 
 void Pipeline::ResetRenderContext() {
 	if (oldFramebufferState_ != nullptr) {
-		//oldFramebufferState_->Unbind();
+		oldFramebufferState_->Unbind();
 		oldFramebufferState_ = nullptr;
 	}
 

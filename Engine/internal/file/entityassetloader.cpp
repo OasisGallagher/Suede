@@ -1,5 +1,6 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include "bounds.h"
 #include "variables.h"
 #include "resources.h"
 #include "debug/debug.h"
@@ -10,14 +11,23 @@
 #include "entityassetloader.h"
 #include "internal/base/renderdefines.h"
 
+#define LockPathInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(pathMutex_)
+
 int Loader::Start() {
 	status_ = Running;
 	return start();
 }
 
 void Loader::run() {
-	Run();
-	if (callback_ != nullptr) { (*callback_)(); }
+	for (; status_ != Done;) {
+		if (!IsReady()) {
+			OpenThreads::Thread::YieldCurrentThread();
+			continue;
+		}
+
+		Run();
+		if (callback_ != nullptr) { (*callback_)(); }
+	}
 }
 
 MaterialAsset::MaterialAsset()
@@ -101,11 +111,24 @@ void EntityAssetLoader::Run() {
 	SetStatus(
 		LoadAsset() ? Ok : Failed
 	);
+
+	root_.reset();
+	path_.clear();
 }
 
-void EntityAssetLoader::SetTarget(const std::string& path, Entity entity) {
+bool EntityAssetLoader::IsReady() const {
+	return !path_.empty();
+}
+
+bool EntityAssetLoader::Load(const std::string& path, Entity entity) {
+	if (!path_.empty()) {
+		Debug::LogError("loader is running.");
+		return false;
+	}
+
 	path_ = path;
 	root_ = entity;
+	return true;
 }
 
 void EntityAssetLoader::Clear() {
@@ -128,19 +151,19 @@ void EntityAssetLoader::Clear() {
 	animation_.reset();
 }
 
-Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	Entity entity = NewEntity();
 	entity->GetTransform()->SetParent(parent->GetTransform());
 
-	LoadNodeTo(entity, node, surface, subMeshes);
-	LoadChildren(entity, node, surface, subMeshes);
+	LoadNodeTo(entity, node, surface, subMeshes, boundses);
+	LoadChildren(entity, node, surface, subMeshes, boundses);
 
 	return entity;
 }
 
 void* debugCeilingMeshPointer;
 
-void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	entity->SetName(node->mName.C_Str());
 
 	if (entity != root_) {
@@ -153,10 +176,10 @@ void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, S
 		entity->GetTransform()->SetLocalPosition(translation);
 	}
 
-	LoadComponents(entity, node, surface, subMeshes);
+	LoadComponents(entity, node, surface, subMeshes, boundses);
 }
 
-void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
@@ -175,10 +198,15 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 
 	Mesh mesh = NewMesh();
 	mesh->ShareStorage(surface);
-
+	
+	Bounds bounds(boundses[node->mMeshes[0]]);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];
 		mesh->AddSubMesh(subMeshes[meshIndex]);
+
+		if (i > 0) {
+			bounds.Encapsulate(boundses[meshIndex]);
+		}
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
@@ -187,12 +215,13 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 	}
 
 	entity->SetMesh(mesh);
+	entity->SetBounds(bounds);
 	entity->SetRenderer(renderer);
 }
 
-void EntityAssetLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void EntityAssetLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		LoadHierarchy(entity, node->mChildren[i], surface, subMeshes);
+		LoadHierarchy(entity, node->mChildren[i], surface, subMeshes, boundses);
 	}
 }
 
@@ -211,29 +240,29 @@ void EntityAssetLoader::ReserveMemory(MeshAsset& meshAsset) {
 	meshAsset.blendAttrs.resize(vertexCount);
 }
 
-bool EntityAssetLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
+bool EntityAssetLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		subMeshes[i] = NewSubMesh();
-		TriangleBias bias{
+		TriangleBias bias {
 			scene_->mMeshes[i]->mNumFaces * 3, meshAsset.indexes.size(), meshAsset.positions.size()
 		};
 		subMeshes[i]->SetTriangleBias(bias);
-		LoadAttributeAt(i, meshAsset, subMeshes);
+		LoadAttributeAt(i, meshAsset, subMeshes, boundses);
 	}
 
 	return true;
 }
 
-bool EntityAssetLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
-	LoadVertexAttribute(meshIndex, meshAsset);
+bool EntityAssetLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
+	LoadVertexAttribute(meshIndex, meshAsset, boundses);
 	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
 
 	return true;
 }
 
-void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) {
+void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	// TODO: multiple texture coords?
@@ -245,6 +274,8 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset)
 
 	bool logged = false;
 	const aiVector3D zero(0);
+	
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
 		const aiVector3D* pos = &aimesh->mVertices[i];
 		const aiVector3D* normal = &aimesh->mNormals[i];
@@ -262,7 +293,12 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset)
 		meshAsset.normals.push_back(glm::vec3(normal->x, normal->y, normal->z));
 		meshAsset.texCoords.push_back(glm::vec2(texCoord->x, texCoord->y));
 		meshAsset.tangents.push_back(glm::vec3(tangent->x, tangent->y, tangent->z));
+
+		min = glm::vec3(glm::min(min.x, pos->x), glm::min(min.y, pos->y), glm::min(min.z, pos->z));
+		max = glm::vec3(glm::max(max.x, pos->x), glm::max(max.y, pos->y), glm::max(max.z, pos->z));
 	}
+
+	boundses[meshIndex].Create(min, max);
 
 	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
 		const aiFace& face = aimesh->mFaces[i];
@@ -517,6 +553,7 @@ bool EntityAssetLoader::LoadAsset() {
 	}
 
 	SubMesh* subMeshes = nullptr;
+	Bounds* boundses = nullptr;
 	asset_.meshAsset.topology = MeshTopologyTriangles;
 
 	if (scene_->mNumMaterials > 0) {
@@ -526,7 +563,8 @@ bool EntityAssetLoader::LoadAsset() {
 
 	if (scene_->mNumMeshes > 0) {
 		subMeshes = MEMORY_CREATE_ARRAY(SubMesh, scene_->mNumMeshes);
-		if (!LoadAttribute(asset_.meshAsset, subMeshes)) {
+		boundses = MEMORY_CREATE_ARRAY(Bounds, scene_->mNumMeshes);
+		if (!LoadAttribute(asset_.meshAsset, subMeshes, boundses)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
 	}
@@ -534,10 +572,11 @@ bool EntityAssetLoader::LoadAsset() {
 	surface_ = NewMesh();
 	surface_->CreateStorage();
 
-	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes);
-	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes);
+	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes, boundses);
+	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes, boundses);
 
 	MEMORY_RELEASE_ARRAY(subMeshes);
+	MEMORY_RELEASE_ARRAY(boundses);
 
 	Animation animation;
 	if (LoadAnimation(animation)) {

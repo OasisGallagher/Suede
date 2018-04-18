@@ -1,6 +1,11 @@
 #pragma once
 #include <glm/glm.hpp>
 
+class ProjectionMatrixChangedListener {
+public:
+	virtual void OnProjectionMatrixChanged() = 0;
+};
+
 class Frustum {
 public:
 	Frustum();
@@ -25,6 +30,9 @@ public:
 
 	const glm::mat4& GetProjectionMatrix() const { return projection_; }
 
+public:
+	void SetProjectionMatrixChangedListener(ProjectionMatrixChangedListener* value) { listener_ = value; }
+
 private:
 	void RecalculateProjectionMatrix();
 
@@ -33,6 +41,9 @@ private:
 	float near_, far_;
 	bool perspective_;
 	float fieldOfView_;
+
 	float orthographicSize_;
 	glm::mat4 projection_;
+
+	ProjectionMatrixChangedListener* listener_;
 };

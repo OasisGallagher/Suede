@@ -55,7 +55,7 @@ class FramebufferBase {
 public:
 	virtual void ReadBuffer(std::vector<uchar>& data);
 
-	virtual void BindWrite();
+	virtual void BindWrite(bool clear);
 	virtual void Unbind();
 
 	virtual void Clear(FramebufferClearBitmask bitmask);
@@ -132,7 +132,7 @@ public:
 
 	void BindRead(FramebufferAttachment attachment);
 
-	virtual void BindWrite();
+	virtual void BindWrite(bool clear);
 	virtual void Clear(FramebufferClearBitmask bitmask);
 
 	void ClearAttachment(FramebufferClearBitmask bitmask, FramebufferAttachment attachment) { ClearAttachments(bitmask, 1, &attachment); }

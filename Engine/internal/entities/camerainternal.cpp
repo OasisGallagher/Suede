@@ -3,23 +3,25 @@
 #include "time2.h"
 #include "light.h"
 #include "screen.h"
-#include "frustum.h"
 #include "resources.h"
 #include "variables.h"
 #include "tools/math2.h"
 #include "imageeffect.h"
 #include "debug/profiler.h"
 #include "internal/base/gbuffer.h"
-#include "internal/world/uniformbuffermanager.h"
 #include "internal/base/uniformbuffer.h"
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
+#include "internal/geometry/geometryutility.h"
+#include "internal/world/uniformbuffermanager.h"
 
 CameraInternal::CameraInternal() 
 	: EntityInternal(ObjectTypeCamera)
 	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
 	frustum_ = MEMORY_CREATE(Frustum);
+	frustum_->SetProjectionMatrixChangedListener(this);
+
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
 	forward_pass = Profiler::CreateSample();
@@ -58,8 +60,9 @@ void CameraInternal::SetRenderTexture(RenderTexture value) {
 
 void CameraInternal::Update() {
 	UpdateViewportSize();
-	
+
 	// Stub: main thread only.
+	ClearFramebuffers();
 	UpdateTimeUniformBuffer();
 	UpdateTransformsUniformBuffer();
 }
@@ -109,6 +112,17 @@ void CameraInternal::Render() {
 	Pipeline::SetCamera(nullptr);
 	Pipeline::SetCurrent(nullptr);
 	Pipeline::SetFramebuffer(nullptr);
+}
+
+void CameraInternal::OnProjectionMatrixChanged() {
+	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+}
+
+void CameraInternal::ClearFramebuffers() {
+	fb1_->Clear(FramebufferClearBitmaskColorDepth);
+	if (fb2_ != nullptr) {
+		fb2_->Clear(FramebufferClearBitmaskColorDepth);
+	}
 }
 
 void CameraInternal::UpdateViewportSize() {
@@ -518,7 +532,15 @@ void CameraInternal::OnImageEffects() {
 }
 
 bool CameraInternal::IsRenderable(Entity entity) {
-	return entity->GetActive() && entity->GetRenderer() && entity->GetRenderer()->GetReady() && entity->GetMesh();
+	if (!entity->GetActive() || !entity->GetRenderer() || !entity->GetRenderer()->GetReady() || !entity->GetMesh()) {
+		return false;
+	}
+	
+	// TODO: debug.
+	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+
+	const Bounds& bounds = entity->GetBounds();
+	return GeometryUtility::PlanesCulling(planes_, CountOf(planes_), bounds.GetPoints(), bounds.GetPointCount());
 }
 
 void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
