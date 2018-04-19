@@ -2,6 +2,7 @@
 #include <set>
 #include <OpenThreads/Mutex>
 
+#include "plane.h"
 #include "world.h"
 #include "light.h"
 #include "camera.h"
@@ -10,7 +11,6 @@
 #include "environment.h"
 #include "containers/freelist.h"
 #include "containers/sortedvector.h"
-#include "internal/geometry/plane.h"
 #include "internal/base/objectinternal.h"
 
 class Sample;
@@ -30,6 +30,9 @@ public:
 	virtual Object Create(ObjectType type);
 
 	virtual Entity Import(const std::string& path);
+
+	virtual Camera GetMainCamera() { return mainCamera_; }
+	virtual void SetMainCamera(Camera value) { mainCamera_ = value; }
 
 	virtual Entity GetEntity(uint id);
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
@@ -76,6 +79,8 @@ private:
 
 private:
 	Entity root_;
+	Camera mainCamera_;
+
 	LightContainer lights_;
 	CameraContainer cameras_;
 

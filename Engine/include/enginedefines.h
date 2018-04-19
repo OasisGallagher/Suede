@@ -21,7 +21,7 @@
 #define SUEDE_END_NAMESPACE
 #endif
 
-#define MAX_DECALS		256
+#define SUEDE_MAX_DECALS		256
 
 /**
 * static shared_ptr cast.

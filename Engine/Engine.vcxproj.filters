@@ -199,9 +199,6 @@
     <ClInclude Include="include\resources.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\imageeffect.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="wrappers\gl.h">
       <Filter>wrappers\include</Filter>
     </ClInclude>
@@ -250,12 +247,6 @@
     <ClInclude Include="..\Shared\containers\table.h">
       <Filter>internal\containers\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\geometry\plane.h">
-      <Filter>internal\geometry\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\geometry\geometryutility.h">
-      <Filter>internal\geometry\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\projector.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -267,9 +258,6 @@
     </ClInclude>
     <ClInclude Include="internal\rendering\pipeline.h">
       <Filter>internal\rendering\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\geometry\polygon.h">
-      <Filter>internal\geometry\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\geometry\bsptree.h">
       <Filter>internal\geometry\include</Filter>
@@ -293,6 +281,24 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\bounds.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gizmos.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imageeffect.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gizmospainter.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\geometryutility.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\plane.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\polygon.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -387,23 +393,14 @@
     <ClCompile Include="internal\base\transforminternal.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\geometry\geometryutility.cpp">
-      <Filter>internal\geometry\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\entities\projectorinternal.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\frustum.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\geometry\plane.cpp">
-      <Filter>internal\geometry\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\pipeline.cpp">
       <Filter>internal\rendering\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\geometry\polygon.cpp">
-      <Filter>internal\geometry\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\geometry\bsptree.cpp">
       <Filter>internal\geometry\src</Filter>
@@ -424,6 +421,18 @@
       <Filter>internal\world\src</Filter>
     </ClCompile>
     <ClCompile Include="src\bounds.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gizmos.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\geometryutility.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\plane.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\polygon.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

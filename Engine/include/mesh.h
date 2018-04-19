@@ -48,8 +48,11 @@ struct InstanceAttribute {
 };
 
 enum MeshTopology {
+	MeshTopologyLines,
+	MeshTopologyLineStripe,
+
 	MeshTopologyTriangles,
-	MeshTopologyTriangleStripes,
+	MeshTopologyTriangleStripe,
 };
 
 struct MeshAttribute {

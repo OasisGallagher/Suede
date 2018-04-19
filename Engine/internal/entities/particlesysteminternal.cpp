@@ -44,10 +44,9 @@ void ParticleSystemInternal::Update() {
 }
 
 void ParticleSystemInternal::SortBuffers() {
-	std::vector<Entity> cameras;
-	if (WorldInstance()->GetEntities(ObjectTypeCamera, cameras)) {
-		SortParticlesByDepth(cameras.front()->GetTransform()->GetPosition());
-	}
+	// TODO: multi-cameras support.
+	Camera camera = WorldInstance()->GetMainCamera();
+	SortParticlesByDepth(camera->GetTransform()->GetPosition());
 }
 
 void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {

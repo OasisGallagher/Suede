@@ -3,12 +3,12 @@
 #include "time2.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
+#include "geometryutility.h"
 #include "uniformbuffermanager.h"
 #include "internal/base/framebuffer.h"
 #include "internal/file/entityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
-#include "internal/geometry/geometryutility.h"
 #include "internal/world/environmentinternal.h"
 
 #define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
@@ -45,7 +45,7 @@ WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
 	, importer_(MEMORY_CREATE(EntityImporter))
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
-	, root_(Factory::Create<EntityInternal>()), decals_(MAX_DECALS) {
+	, root_(Factory::Create<EntityInternal>()), decals_(SUEDE_MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
 	root_->SetTransform(transform);
 
@@ -310,8 +310,6 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 
 void WorldInternal::Update() {
 	//Debug::StartSample();
-	importer_->Update();
-
 	//Debug::StartSample();
 	FireEvents();
 	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());

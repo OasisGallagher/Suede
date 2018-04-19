@@ -3,6 +3,7 @@
 
 #include "tagmanager.h"
 #include "tools/math2.h"
+#include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
 #include "internal/base/transforminternal.h"
@@ -70,6 +71,35 @@ void EntityInternal::SetTransform(Transform value) {
 		transform_ = value;
 		transform_->SetEntity(dsp_cast<Entity>(shared_from_this()));
 	}
+}
+
+void EntityInternal::SetInitialBounds(const Bounds& value) {
+	initialBounds_ = value;
+	RecalculateBounds();
+}
+
+void EntityInternal::RecalculateBounds() {
+	if (initialBounds_.IsEmpty()) {
+		return;
+	}
+
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCuboidCoordinates(points, initialBounds_.center, initialBounds_.size);
+
+	Transform transform = GetTransform();
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
+	for (uint i = 0; i < points.size(); ++i) {
+		points[i] *= transform->GetScale();
+		points[i] = transform->GetRotation() * points[i];
+
+		min = glm::vec3(glm::min(min.x, points[i].x), glm::min(min.y, points[i].y), glm::min(min.z, points[i].z));
+		max = glm::vec3(glm::max(max.x, points[i].x), glm::max(max.y, points[i].y), glm::max(max.z, points[i].z));
+	}
+
+	min += transform->GetPosition();
+	max += transform->GetPosition();
+
+	bounds_.SetMinMax(min, max);
 }
 
 void EntityInternal::SetActive(bool value) {

@@ -29,8 +29,16 @@ public:
 	virtual void SetAnimation(Animation value) = 0;
 	virtual Animation GetAnimation() = 0;
 
-	virtual void SetBounds(const Bounds& value) = 0;
+	/**
+	 * @returns bounds measured in the world space.
+	 */
 	virtual const Bounds& GetBounds() const = 0;
+
+	/**
+	 * @returns set initial bounds in local space.
+	 */
+	virtual void SetInitialBounds(const Bounds& value) = 0;
+	virtual void RecalculateBounds() = 0;
 
 	virtual void SetMesh(Mesh value) = 0;
 	virtual Mesh GetMesh() = 0;

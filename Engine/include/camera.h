@@ -19,6 +19,7 @@ enum DepthTextureMode {
 };
 
 class ImageEffect;
+class GizmosPainter;
 
 class SUEDE_API ICamera : virtual public IEntity {
 public:
@@ -65,6 +66,7 @@ public:
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;
 
 	virtual void AddImageEffect(ImageEffect* effect) = 0;
+	virtual void AddGizmosPainter(GizmosPainter* painter) = 0;
 
 	virtual Texture2D Capture() = 0;
 

@@ -15,7 +15,7 @@
 
 class LoaderCallback {
 public:
-	virtual void operator()() = 0;
+	virtual void OnLoadFinished() = 0;
 };
 
 struct MaterialAsset {
@@ -86,7 +86,7 @@ private:
 	LoaderCallback* callback_;
 };
 
-class Bounds;
+struct Bounds;
 class EntityAssetLoader : public Loader {
 public:
 	~EntityAssetLoader() { Clear(); }
@@ -141,8 +141,11 @@ private:
 	glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion);
 	void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);
 
-private:
+public:
+	// Stub: test(revert: private and reset at EntityAssetLoader::Run).
 	Entity root_;
+
+private:
 	Mesh surface_;
 	EntityAsset asset_;
 

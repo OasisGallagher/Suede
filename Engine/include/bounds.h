@@ -1,21 +1,22 @@
 #pragma once
-#include "types.h"
+#include <vector>
 #include <glm/glm.hpp>
 
-class Bounds {
-public:
+#include "enginedefines.h"
+
+struct SUEDE_API Bounds {
 	Bounds();
-	Bounds(const glm::vec3& min, const glm::vec3& max);
+	Bounds(const glm::vec3& center, const glm::vec3& size);
 
+	bool IsEmpty() const;
 	void Encapsulate(const Bounds& other);
-	void Create(const glm::vec3& min, const glm::vec3& max);
+	void SetMinMax(const glm::vec3& min, const glm::vec3& max);
 
-	const glm::vec3& GetMin() const;
-	const glm::vec3& GetMax() const;
+	glm::vec3 GetMin() const { return center - size / 2.f; }
+	glm::vec3 GetMax() const { return center + size / 2.f; }
 
-	uint GetPointCount() const { return 8; }
-	const glm::vec3* GetPoints() const { return points; }
+	glm::vec3 GetSize() const { return size; }
 
-private:
-	glm::vec3 points[8];
+	glm::vec3 size;
+	glm::vec3 center;
 };

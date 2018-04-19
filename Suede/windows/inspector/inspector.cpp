@@ -107,6 +107,7 @@ void Inspector::onActiveChanged(int state) {
 }
 
 void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
+	// TODO: multi-selection.
 	if (!selected.empty()) {
 		target_ = selected.front();
 		redraw();

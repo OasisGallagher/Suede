@@ -1,13 +1,16 @@
 #pragma once
 
 #include <QDockWidget>
+
+#include "entity.h"
+#include "gizmospainter.h"
 #include "windows/controls/childwindow.h"
 
 class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow {
+class Game : public QDockWidget, public ChildWindow, public GizmosPainter {
 	Q_OBJECT
 
 public:
@@ -21,8 +24,12 @@ public:
 	virtual void init(Ui::Suede* ui);
 	virtual void awake();
 
+public:
+	virtual void OnDrawGizmos();
+
 private slots:
 	void update();
+	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);
@@ -40,6 +47,8 @@ private:
 private:
 	bool initialized_;
 	int updateTimer_;
+
+	QList<Entity> selected_;
 
 	Canvas* canvas_;
 	ImageEffect* grayscale_;

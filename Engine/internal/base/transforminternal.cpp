@@ -117,6 +117,7 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 	SetDiry(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
 	DirtyChildrenScales();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(2, 0);
@@ -132,6 +133,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 	SetDiry(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
 	DirtyChildrenPositions();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(0, 0);
@@ -146,7 +148,9 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 	world_.rotation = value;
 
 	SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+	
 	DirtyChildrenRotationsAndEulerAngles();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(1, 0);
@@ -162,6 +166,7 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 
 	SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	DirtyChildrenRotationsAndEulerAngles();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(1, 0);
@@ -286,6 +291,7 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 	SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
 	DirtyChildrenScales();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(2, 1);
@@ -300,6 +306,7 @@ void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 	local_.position = value;
 	SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 	DirtyChildrenPositions();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(0, 1);
@@ -315,6 +322,7 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 	SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
 	DirtyChildrenRotationsAndEulerAngles();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(1, 1);
@@ -330,6 +338,7 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
 
 	DirtyChildrenRotationsAndEulerAngles();
+	entity_.lock()->RecalculateBounds();
 
 	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 	e->prs = Math::MakeDword(1, 1);

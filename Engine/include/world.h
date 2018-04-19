@@ -2,6 +2,7 @@
 #include <vector>
 #include "entity.h"
 #include "object.h"
+#include "camera.h"
 #include "transform.h"
 #include "environment.h"
 
@@ -108,6 +109,11 @@ public:
 	virtual Entity Import(const std::string& path) = 0;
 
 	virtual Transform GetRootTransform() = 0;
+
+	// TODO: multi-cameras support.
+	virtual Camera GetMainCamera() = 0;
+	virtual void SetMainCamera(Camera value) = 0;
+
 	virtual Entity GetEntity(uint id) = 0;
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
 

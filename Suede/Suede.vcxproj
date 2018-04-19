@@ -537,6 +537,7 @@
     <None Include="resources\buildin\shaders\depth.shader" />
     <None Include="resources\buildin\shaders\directional_light_depth.shader" />
     <None Include="resources\buildin\shaders\gbuffer.shader" />
+    <None Include="resources\buildin\shaders\gizmos.shader" />
     <None Include="resources\buildin\shaders\include\light_vertex.inc" />
     <None Include="resources\buildin\shaders\include\suede.inc" />
     <None Include="resources\buildin\shaders\lit_animated_texture.shader" />

@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "shader.h"
 #include "engine.h"
+#include "gizmos.h"
 #include "texture.h"
 #include "projector.h"
 #include "variables.h"
@@ -57,6 +58,9 @@ Game::~Game() {
 void Game::init(Ui::Suede* ui) {
 	ChildWindow::init(ui);
 	updateTimer_ = startTimer(10, Qt::PreciseTimer);
+
+	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
+		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
 }
 
 void Game::awake() {
@@ -65,6 +69,17 @@ void Game::awake() {
 
 	createScene();
 	update();
+}
+
+void Game::OnDrawGizmos() {
+	foreach (Entity entity, selected_) {
+		if (entity->GetTransform()->GetPosition() == glm::vec3(0)) {
+			continue;
+		}
+
+		const Bounds& bounds = entity->GetBounds();
+		Gizmos::DrawCuboid(bounds.center, bounds.size);
+	}
 }
 
 void Game::start() {
@@ -111,6 +126,10 @@ void Game::timerEvent(QTimerEvent *event) {
 	update();
 }
 
+void Game::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
+	selected_ = selected;
+}
+
 uint roomEntityID;
 
 void Game::createScene() {
@@ -120,6 +139,10 @@ void Game::createScene() {
 	light->SetColor(glm::vec3(0.7f));
 
 	Camera camera = NewCamera();
+	WorldInstance()->SetMainCamera(camera);
+
+	camera->AddGizmosPainter(this);
+
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
 
@@ -242,9 +265,9 @@ void Game::createScene() {
 
 #ifdef ROOM
 	Entity room = WorldInstance()->Import("models/room_thickwalls.obj");
-	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	room->GetTransform()->SetScale(glm::vec3(0.01f));
+// 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
+// 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
+	//room->GetTransform()->SetScale(glm::vec3(0.01f));
 	roomEntityID = room->GetInstanceID();
 #endif
 

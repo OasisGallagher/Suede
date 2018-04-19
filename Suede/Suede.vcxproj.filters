@@ -369,6 +369,9 @@
     <None Include="resources\buildin\shaders\include\suede.inc">
       <Filter>resources\buildin\shaders\include</Filter>
     </None>
+    <None Include="resources\buildin\shaders\gizmos.shader">
+      <Filter>resources\buildin\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

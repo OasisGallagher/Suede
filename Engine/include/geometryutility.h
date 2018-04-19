@@ -1,11 +1,8 @@
 #pragma once
-
-#include <list>
 #include <vector>
 #include <glm/glm.hpp>
 
 #include "polygon.h"
-#include "containers/arraylist.h"
 
 enum Side {
 	SideCoinciding,
@@ -26,6 +23,8 @@ public:
 	static bool IsFrontFace(const Triangle& face, const glm::vec3& camera);
 	static Side TestSide(const Plane& plane, const glm::vec3* points, uint npoints);
 
+	static void GetCuboidCoordinates(std::vector<glm::vec3>& container, const glm::vec3& center, const glm::vec3& size);
+
 	/**
 	 * @returns true if one or more points are inside the plane array.
 	 */
@@ -34,4 +33,7 @@ public:
 	static float GetDistance(const Plane& plane, const glm::vec3& p);
 	static bool GetIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& p0, const glm::vec3& p1);
 	static void CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix);
+
+private:
+	GeometryUtility();
 };

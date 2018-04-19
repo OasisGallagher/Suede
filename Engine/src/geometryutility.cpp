@@ -1,7 +1,9 @@
+#include <list>
+
 #include "plane.h"
 #include "tools/math2.h"
-#include "debug/debug.h"
 #include "geometryutility.h"
+#include "containers/arraylist.h"
 
 #define IsZero(f)	(fabs((f)) < 1e-5)
 
@@ -176,6 +178,23 @@ Side GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint
 	if (nnegative == 0) { return SideInfront; }
 
 	return SideSpanning;
+}
+
+void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& container, const glm::vec3& center, const glm::vec3& size) {
+	glm::vec3 half = size / 2.f;
+	glm::vec3 points[] = {
+		center - half,
+		center - glm::vec3(half.x, half.y, -half.z),
+		center - glm::vec3(-half.x, half.y, -half.z),
+		center - glm::vec3(-half.x, half.y, half.z),
+
+		center - glm::vec3(half.x, -half.y, half.z),
+		center - glm::vec3(half.x, -half.y, -half.z),
+		center + half,
+		center - glm::vec3(-half.x, -half.y, half.z),
+	};
+
+	container.assign(points, points + CountOf(points));
 }
 
 bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {

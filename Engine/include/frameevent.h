@@ -2,6 +2,6 @@
 
 class FrameEventListener {
 public:
-	virtual void OnFrameEnter() = 0;
-	virtual void OnFrameLeave() = 0;
+	virtual void OnFrameEnter() {}
+	virtual void OnFrameLeave() {}
 };

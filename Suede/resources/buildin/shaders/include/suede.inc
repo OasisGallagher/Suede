@@ -26,3 +26,4 @@ layout(std140) uniform SharedEntityMatricesUniformBuffer {
 
 #define c_localToWorldMatrix	(c_entityMatrices[gl_InstanceID * 2])
 #define c_localToClipMatrix		(c_entityMatrices[gl_InstanceID * 2 + 1])
+

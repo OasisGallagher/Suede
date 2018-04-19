@@ -1,14 +1,17 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include "plane.h"
 #include "camera.h"
 #include "frustum.h"
-#include "internal/geometry/plane.h"
 #include "internal/entities/entityinternal.h"
 
 class GBuffer;
 class Pipeline;
+
 class ImageEffect;
+class GizmosPainter;
+
 class Framebuffer;
 class FramebufferBase;
 
@@ -67,6 +70,8 @@ public:
 
 public:
 	virtual void AddImageEffect(ImageEffect* effect) { imageEffects_.push_back(effect); }
+	virtual void AddGizmosPainter(GizmosPainter* painter) { gizmosPainters_.push_back(painter); }
+
 	virtual Texture2D Capture();
 
 private:
@@ -118,6 +123,7 @@ private:
 	void RenderDecals();
 	void OnPostRender();
 
+	void OnDrawGizmos();
 	void OnImageEffects();
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
@@ -152,6 +158,7 @@ private:
 	Material directionalLightShadowMaterial_;
 
 	std::vector<ImageEffect*> imageEffects_;
+	std::vector<GizmosPainter*> gizmosPainters_;
 
 	ClearType clearType_;
 	RenderPath renderPath_;

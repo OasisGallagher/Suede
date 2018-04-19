@@ -93,13 +93,28 @@ Pipeline::~Pipeline() {
 }
 
 GLenum TopologyToGLEnum(MeshTopology topology) {
-	if (topology != MeshTopologyTriangles && topology != MeshTopologyTriangleStripes) {
+	GLenum mode = 0;
+	switch (topology) {
+		case MeshTopologyTriangles:
+			mode = GL_TRIANGLES;
+			break;
+		case MeshTopologyTriangleStripe:
+			mode = GL_TRIANGLE_STRIP;
+			break;
+		case MeshTopologyLines:
+			mode = GL_LINES;
+			break;
+		case MeshTopologyLineStripe:
+			mode = GL_LINE_STRIP;
+			break;
+	}
+
+	if (mode == 0) {
 		Debug::LogError("unsupported mesh topology  %d.", topology);
 		return 0;
 	}
 
-	if (topology == MeshTopologyTriangles) { return GL_TRIANGLES; }
-	return GL_TRIANGLE_STRIP;
+	return mode;
 }
 
 void Pipeline::SetFramebuffer(FramebufferBase* value) {
@@ -118,7 +133,7 @@ void Pipeline::OnFrameLeave() {
 
 }
 
-void Pipeline::Update() {
+void Pipeline::Flush() {
 	update_pipeline->Restart();
 
 	sort_renderables->Restart();

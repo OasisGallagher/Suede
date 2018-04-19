@@ -2,18 +2,20 @@
 
 #include "time2.h"
 #include "light.h"
+#include "gizmos.h"
 #include "screen.h"
 #include "resources.h"
 #include "variables.h"
 #include "tools/math2.h"
 #include "imageeffect.h"
+#include "gizmospainter.h"
 #include "debug/profiler.h"
+#include "geometryutility.h"
 #include "internal/base/gbuffer.h"
 #include "internal/base/uniformbuffer.h"
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
-#include "internal/geometry/geometryutility.h"
 #include "internal/world/uniformbuffermanager.h"
 
 CameraInternal::CameraInternal() 
@@ -98,7 +100,7 @@ void CameraInternal::Render() {
 	}
 
 	//  Stub: main thread only.
-	pipeline_->Update();
+	pipeline_->Flush();
 
 	OnPostRender();
 
@@ -108,6 +110,8 @@ void CameraInternal::Render() {
 	if (!imageEffects_.empty()) {
 		OnImageEffects();
 	}
+
+	OnDrawGizmos();
 
 	Pipeline::SetCamera(nullptr);
 	Pipeline::SetCurrent(nullptr);
@@ -509,6 +513,14 @@ void CameraInternal::RenderDecals() {
 	}
 }
 
+void CameraInternal::OnDrawGizmos() {
+	for (int i = 0; i < gizmosPainters_.size(); ++i) {
+		gizmosPainters_[i]->OnDrawGizmos();
+	}
+
+	Gizmos::Flush();
+}
+
 void CameraInternal::OnImageEffects() {
 	CreateFramebuffer2();
 
@@ -535,12 +547,17 @@ bool CameraInternal::IsRenderable(Entity entity) {
 	if (!entity->GetActive() || !entity->GetRenderer() || !entity->GetRenderer()->GetReady() || !entity->GetMesh()) {
 		return false;
 	}
+
+	return true;
 	
 	// TODO: debug.
 	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 
 	const Bounds& bounds = entity->GetBounds();
-	return GeometryUtility::PlanesCulling(planes_, CountOf(planes_), bounds.GetPoints(), bounds.GetPointCount());
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
+
+	return GeometryUtility::PlanesCulling(planes_, CountOf(planes_), &points[0], points.size());
 }
 
 void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {

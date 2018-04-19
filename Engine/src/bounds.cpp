@@ -1,11 +1,19 @@
 #include "bounds.h"
+#include "tools/math2.h"
 
-Bounds::Bounds() {
-	Create(glm::vec3(std::numeric_limits<float>::max()), glm::vec3(std::numeric_limits<float>::min()));
+Bounds::Bounds() : Bounds(glm::vec3(0), glm::vec3(0)) {
 }
 
-Bounds::Bounds(const glm::vec3& min, const glm::vec3& max) {
-	Create(min, max);
+Bounds::Bounds(const glm::vec3& center, const glm::vec3& size) :center(center), size(size) {
+}
+
+bool Bounds::IsEmpty() const {
+	return Math::Approximately(size.x) || Math::Approximately(size.y) || Math::Approximately(size.z);
+}
+
+void Bounds::SetMinMax(const glm::vec3& min, const glm::vec3& max) {
+	center = (min + max) / 2.f;
+	size = max - min;
 }
 
 void Bounds::Encapsulate(const Bounds& other) {
@@ -15,25 +23,5 @@ void Bounds::Encapsulate(const Bounds& other) {
 	glm::vec3 min = glm::vec3(glm::min(min1.x, min2.x), glm::min(min1.y, min2.y), glm::min(min1.z, min2.z));
 	glm::vec3 max = glm::vec3(glm::max(max1.x, max2.x), glm::max(max1.y, max2.y), glm::max(max1.z, max2.z));
 
-	Create(min, max);
-}
-
-void Bounds::Create(const glm::vec3& min, const glm::vec3& max) {
-	points[0] = glm::vec3(min.x, min.y, min.z);
-	points[1] = glm::vec3(min.x, min.y, max.z);
-	points[2] = glm::vec3(max.x, min.y, max.z);
-	points[3] = glm::vec3(max.x, min.y, min.z);
-
-	points[4] = glm::vec3(min.x, max.y, min.z);
-	points[5] = glm::vec3(min.x, max.y, max.z);
-	points[6] = glm::vec3(max.x, max.y, max.z);
-	points[7] = glm::vec3(max.x, max.y, min.z);
-}
-
-const glm::vec3 & Bounds::GetMin() const {
-	return points[0];
-}
-
-const glm::vec3 & Bounds::GetMax() const {
-	return points[6];
+	SetMinMax(min, max);
 }

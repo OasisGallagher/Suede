@@ -26,7 +26,7 @@ void Loader::run() {
 		}
 
 		Run();
-		if (callback_ != nullptr) { (*callback_)(); }
+		if (callback_ != nullptr) { callback_->OnLoadFinished(); }
 	}
 }
 
@@ -112,7 +112,7 @@ void EntityAssetLoader::Run() {
 		LoadAsset() ? Ok : Failed
 	);
 
-	root_.reset();
+	//root_.reset();
 	path_.clear();
 }
 
@@ -128,6 +128,7 @@ bool EntityAssetLoader::Load(const std::string& path, Entity entity) {
 
 	path_ = path;
 	root_ = entity;
+
 	return true;
 }
 
@@ -160,8 +161,6 @@ Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surfa
 
 	return entity;
 }
-
-void* debugCeilingMeshPointer;
 
 void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	entity->SetName(node->mName.C_Str());
@@ -215,7 +214,7 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 	}
 
 	entity->SetMesh(mesh);
-	entity->SetBounds(bounds);
+	entity->SetInitialBounds(bounds);
 	entity->SetRenderer(renderer);
 }
 
@@ -298,7 +297,7 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 		max = glm::vec3(glm::max(max.x, pos->x), glm::max(max.y, pos->y), glm::max(max.z, pos->z));
 	}
 
-	boundses[meshIndex].Create(min, max);
+	boundses[meshIndex].SetMinMax(min, max);
 
 	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
 		const aiFace& face = aimesh->mFaces[i];
@@ -355,7 +354,7 @@ void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	aiString astring;
 	aiColor3D acolor;
 
-	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "unlit_texture";
+	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "lit_texture";
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
 		materialAsset.name = FileSystem::GetFileName(astring.C_Str());

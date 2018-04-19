@@ -30,8 +30,9 @@ public:
 	virtual void SetAnimation(Animation value) { animation_ = value; }
 	virtual Animation GetAnimation() { return animation_; }
 
-	virtual void SetBounds(const Bounds& value) { bounds_ = value; }
 	virtual const Bounds& GetBounds() const { return bounds_; }
+	virtual void SetInitialBounds(const Bounds& value);
+	virtual void RecalculateBounds();
 
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_; }
@@ -58,6 +59,10 @@ private:
 
 	Mesh mesh_;
 	Bounds bounds_;
+
+	// initial bounds in local space.
+	Bounds initialBounds_;
+
 	Renderer renderer_;
 	Animation animation_;
 };

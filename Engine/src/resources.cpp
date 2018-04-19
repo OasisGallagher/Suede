@@ -115,7 +115,7 @@ Material Resources::FindMaterial(const std::string& name) {
 }
 
 void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
-	attribute.topology = MeshTopologyTriangleStripes;
+	attribute.topology = MeshTopologyTriangleStripe;
 
 	glm::vec3 vertices[] = {
 		glm::vec3(-0.5f * scale, -0.5f * scale, 0.f),

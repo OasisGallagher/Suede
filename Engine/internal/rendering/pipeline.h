@@ -64,7 +64,7 @@ public:
 	virtual void OnFrameLeave();
 
 public:
-	void Update();
+	void Flush();
 	void AddRenderable(
 		Mesh mesh,
 		uint subMeshIndex,
