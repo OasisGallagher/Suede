@@ -32,7 +32,7 @@ public:
 	/**
 	 * @returns bounds measured in the world space.
 	 */
-	virtual const Bounds& GetBounds() const = 0;
+	virtual const Bounds& GetBounds() = 0;
 
 	/**
 	 * @returns set initial bounds in local space.

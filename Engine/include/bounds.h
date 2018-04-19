@@ -4,6 +4,9 @@
 
 #include "enginedefines.h"
 
+/**
+ * @brief axis-aligned bounding box.
+ */
 struct SUEDE_API Bounds {
 	Bounds();
 	Bounds(const glm::vec3& center, const glm::vec3& size);

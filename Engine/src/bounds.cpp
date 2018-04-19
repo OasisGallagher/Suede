@@ -17,11 +17,17 @@ void Bounds::SetMinMax(const glm::vec3& min, const glm::vec3& max) {
 }
 
 void Bounds::Encapsulate(const Bounds& other) {
-	const glm::vec3& min1 = GetMin(), &max1 = GetMax();
-	const glm::vec3& min2 = other.GetMin(), &max2 = other.GetMax();
+	if (other.IsEmpty()) { return; }
+	if (IsEmpty()) {
+		center = other.center;
+		size = other.size;
+	}
+	else {
+		const glm::vec3& min1 = GetMin(), &max1 = GetMax();
+		const glm::vec3& min2 = other.GetMin(), &max2 = other.GetMax();
+		glm::vec3 min = glm::vec3(glm::min(min1.x, min2.x), glm::min(min1.y, min2.y), glm::min(min1.z, min2.z));
+		glm::vec3 max = glm::vec3(glm::max(max1.x, max2.x), glm::max(max1.y, max2.y), glm::max(max1.z, max2.z));
 
-	glm::vec3 min = glm::vec3(glm::min(min1.x, min2.x), glm::min(min1.y, min2.y), glm::min(min1.z, min2.z));
-	glm::vec3 max = glm::vec3(glm::max(max1.x, max2.x), glm::max(max1.y, max2.y), glm::max(max1.z, max2.z));
-
-	SetMinMax(min, max);
+		SetMinMax(min, max);
+	}
 }

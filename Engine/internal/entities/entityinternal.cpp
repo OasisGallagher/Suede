@@ -13,7 +13,8 @@ EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 }
 
 EntityInternal::EntityInternal(ObjectType entityType)
-	: ObjectInternal(entityType), active_(true),  activeSelf_(true) {
+	: ObjectInternal(entityType), active_(true),  activeSelf_(true)
+	, boundsDirty_(true) {
 	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
@@ -74,32 +75,14 @@ void EntityInternal::SetTransform(Transform value) {
 }
 
 void EntityInternal::SetInitialBounds(const Bounds& value) {
-	initialBounds_ = value;
+	initialBounds_ = bounds_ = value;
 	RecalculateBounds();
 }
 
 void EntityInternal::RecalculateBounds() {
-	if (initialBounds_.IsEmpty()) {
-		return;
-	}
-
-	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, initialBounds_.center, initialBounds_.size);
-
-	Transform transform = GetTransform();
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
-	for (uint i = 0; i < points.size(); ++i) {
-		points[i] *= transform->GetScale();
-		points[i] = transform->GetRotation() * points[i];
-
-		min = glm::vec3(glm::min(min.x, points[i].x), glm::min(min.y, points[i].y), glm::min(min.z, points[i].z));
-		max = glm::vec3(glm::max(max.x, points[i].x), glm::max(max.y, points[i].y), glm::max(max.z, points[i].z));
-	}
-
-	min += transform->GetPosition();
-	max += transform->GetPosition();
-
-	bounds_.SetMinMax(min, max);
+	boundsDirty_ = true;
+	DirtyParentBounds();
+	DirtyChildrenBoundses();
 }
 
 void EntityInternal::SetActive(bool value) {
@@ -117,6 +100,38 @@ void EntityInternal::UpdateChildrenActive(Entity parent) {
 		EntityInternal* childPtr = dynamic_cast<EntityInternal*>(child.get());
 		childPtr->SetActive(childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
+	}
+}
+
+const Bounds& EntityInternal::GetBounds() {
+	if (boundsDirty_) {
+		if (!initialBounds_.IsEmpty()) {
+			CalculateWorldSpaceBounds();
+		}
+
+		for (uint i = 0; i < transform_->GetChildCount(); ++i) {
+			bounds_.Encapsulate(transform_->GetChildAt(i)->GetEntity()->GetBounds());
+		}
+
+		boundsDirty_ = false;
+	}
+
+	return bounds_;
+}
+
+void EntityInternal::DirtyParentBounds() {
+	Transform parent, current = transform_;
+	for (; (parent = current->GetParent()) != WorldInstance()->GetRootTransform();) {
+		dynamic_cast<EntityInternal*>(parent->GetEntity().get())->boundsDirty_ = true;
+		current = parent;
+	}
+}
+
+void EntityInternal::DirtyChildrenBoundses() {
+	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
+		EntityInternal* child = dynamic_cast<EntityInternal*>(transform_->GetChildAt(i)->GetEntity().get());
+		child->DirtyChildrenBoundses();
+		child->boundsDirty_ = true;
 	}
 }
 
@@ -150,4 +165,24 @@ const char* EntityInternal::EntityTypeToString(ObjectType type) {
 	}
 
 	return name;
+}
+
+void EntityInternal::CalculateWorldSpaceBounds() {
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCuboidCoordinates(points, initialBounds_.center, initialBounds_.size);
+
+	Transform transform = GetTransform();
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
+	for (uint i = 0; i < points.size(); ++i) {
+		points[i] *= transform->GetScale();
+		points[i] = transform->GetRotation() * points[i];
+
+		min = glm::vec3(glm::min(min.x, points[i].x), glm::min(min.y, points[i].y), glm::min(min.z, points[i].z));
+		max = glm::vec3(glm::max(max.x, points[i].x), glm::max(max.y, points[i].y), glm::max(max.z, points[i].z));
+	}
+
+	min += transform->GetPosition();
+	max += transform->GetPosition();
+
+	bounds_.SetMinMax(min, max);
 }
