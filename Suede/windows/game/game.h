@@ -3,6 +3,7 @@
 #include <QDockWidget>
 
 #include "entity.h"
+#include "camera.h"
 #include "gizmospainter.h"
 #include "windows/controls/childwindow.h"
 
@@ -29,6 +30,7 @@ public:
 
 private slots:
 	void update();
+	void onFocusEntity(Entity entity);
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
 protected:
@@ -43,6 +45,7 @@ protected:
 private:
 	void start();
 	void createScene();
+	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
 
 private:
 	bool initialized_;

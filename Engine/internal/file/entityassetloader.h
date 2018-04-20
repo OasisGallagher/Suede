@@ -136,7 +136,7 @@ private:
 	bool LoadExternalTexels(TexelMap& texelMap, const std::string& name);
 
 private:
-	static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec);
+	static glm::vec3 AIVector3ToGLM(const aiVector3D& vec);
 	static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat);
 	static glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion);
 	static void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);

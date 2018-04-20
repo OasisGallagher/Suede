@@ -36,6 +36,8 @@ void Hierarchy::init(Ui::Suede* ui) {
 
 	connect(ui_->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
+
+	connect(ui->tree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onEntityDoubleClicked(const QModelIndex&)));
 }
 
 Entity Hierarchy::selectedEntity() {
@@ -113,6 +115,13 @@ void Hierarchy::reload() {
 	model_->setRowCount(0);
 
 	updateRecursively(WorldInstance()->GetRootTransform()->GetEntity(), nullptr);
+}
+
+void Hierarchy::onEntityDoubleClicked(const QModelIndex& index) {
+	uint id = model_->itemFromIndex(index)->data().toUInt();
+	Entity entity = WorldInstance()->GetEntity(id);
+
+	emit focusEntity(entity);
 }
 
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {

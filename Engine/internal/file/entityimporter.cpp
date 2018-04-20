@@ -54,7 +54,7 @@ void EntityImporter::OnFrameEnter() {
 	}
 
 	loader_->root_->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	loader_->root_->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
+	//loader_->root_->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	loader_->root_->GetTransform()->SetScale(glm::vec3(0.01f));
 }
 

@@ -31,13 +31,15 @@ public:
 	void updateRecursively(Entity entity, QStandardItem* pi);
 
 signals:
+	void focusEntity(Entity entity);
 	void selectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
-
+	
 private:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private slots:
 	void reload();
+	void onEntityDoubleClicked(const QModelIndex&);
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:

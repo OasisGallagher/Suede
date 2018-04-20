@@ -111,67 +111,69 @@ Transform TransformInternal::FindChild(const std::string& path) {
 void TransformInternal::SetScale(const glm::vec3& value) {
 	ClearDirty(WorldScale);
 
-	if (world_.scale == value) { return; }
+	if (world_.scale != value) {
+		world_.scale = value;
+		SetDiry(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	world_.scale = value;
-	SetDiry(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenScales();
+		entity_.lock()->RecalculateBounds();
 
-	DirtyChildrenScales();
-	entity_.lock()->RecalculateBounds();
-
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(2, 0);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(2, 0);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void TransformInternal::SetPosition(const glm::vec3& value) {
 	ClearDirty(WorldPosition);
-	if (world_.position == value) { return; }
+	if (world_.position != value) {
+		world_.position = value;
+		SetDiry(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	world_.position = value;
-	SetDiry(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenPositions();
+		entity_.lock()->RecalculateBounds();
 
-	DirtyChildrenPositions();
-	entity_.lock()->RecalculateBounds();
-
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(0, 0);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(0, 0);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void TransformInternal::SetRotation(const glm::quat& value) {
 	ClearDirty(WorldRotation);
 
-	if (Math::Approximately(glm::dot(world_.rotation, value), 0)) { return; }
-	world_.rotation = value;
+	if (!Math::Approximately(glm::dot(world_.rotation, value), 0)) {
+		world_.rotation = value;
 
-	SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	
-	DirtyChildrenRotationsAndEulerAngles();
-	entity_.lock()->RecalculateBounds();
+		SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(1, 0);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		DirtyChildrenRotationsAndEulerAngles();
+		entity_.lock()->RecalculateBounds();
+
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(1, 0);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 	ClearDirty(WorldEulerAngles);
 
-	if (world_.eulerAngles == value) { return; }
-	world_.eulerAngles = value;
+	if (world_.eulerAngles != value) {
+		world_.eulerAngles = value;
 
-	SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-	DirtyChildrenRotationsAndEulerAngles();
-	entity_.lock()->RecalculateBounds();
+		SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenRotationsAndEulerAngles();
+		entity_.lock()->RecalculateBounds();
 
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(1, 0);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(1, 0);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 glm::vec3 TransformInternal::GetScale() {
@@ -285,65 +287,65 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 
 void TransformInternal::SetLocalScale(const glm::vec3& value) {
 	ClearDirty(LocalScale);
-	if (local_.scale == value) { return; }
+	if (local_.scale != value) {
+		local_.scale = value;
+		SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	local_.scale = value;
-	SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenScales();
+		entity_.lock()->RecalculateBounds();
 
-	DirtyChildrenScales();
-	entity_.lock()->RecalculateBounds();
-
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(2, 1);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(2, 1);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 	ClearDirty(LocalPosition);
-	if (local_.position == value) { return; }
+	if (local_.position != value) {
+		local_.position = value;
+		SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenPositions();
+		entity_.lock()->RecalculateBounds();
 
-	local_.position = value;
-	SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
-	DirtyChildrenPositions();
-	entity_.lock()->RecalculateBounds();
-
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(0, 1);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(0, 1);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void TransformInternal::SetLocalRotation(const glm::quat& value) {
 	ClearDirty(LocalRotation);
-	if (Math::Approximately(glm::dot(local_.rotation, value), 0)) { return; }
+	if (!Math::Approximately(glm::dot(local_.rotation, value), 0)) {
+		local_.rotation = value;
+		SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	local_.rotation = value;
-	SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenRotationsAndEulerAngles();
+		entity_.lock()->RecalculateBounds();
 
-	DirtyChildrenRotationsAndEulerAngles();
-	entity_.lock()->RecalculateBounds();
-
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(1, 1);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(1, 1);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	ClearDirty(LocalEulerAngles);
-	if (local_.eulerAngles == value) { return; }
+	if (local_.eulerAngles != value) {
+		local_.eulerAngles = value;
+		SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
 
-	local_.eulerAngles = value;
-	SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
+		DirtyChildrenRotationsAndEulerAngles();
+		entity_.lock()->RecalculateBounds();
 
-	DirtyChildrenRotationsAndEulerAngles();
-	entity_.lock()->RecalculateBounds();
-
-	EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
-	e->prs = Math::MakeDword(1, 1);
-	e->entity = entity_.lock();
-	WorldInstance()->FireEvent(e);
+		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		e->prs = Math::MakeDword(1, 1);
+		e->entity = entity_.lock();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 glm::vec3 TransformInternal::GetLocalScale() {
@@ -489,15 +491,15 @@ glm::vec3 TransformInternal::GetWorldToLocalPosition(const glm::vec3& position) 
 }
 
 glm::vec3 TransformInternal::GetUp() {
-	return local_.rotation * glm::vec3(0, 1, 0);
+	return world_.rotation * glm::vec3(0, 1, 0);
 }
 
 glm::vec3 TransformInternal::GetRight() {
-	return local_.rotation * glm::vec3(1, 0, 0);
+	return world_.rotation * glm::vec3(1, 0, 0);
 }
 
 glm::vec3 TransformInternal::GetForward() {
-	return local_.rotation * glm::vec3(0, 0, -1);
+	return world_.rotation * glm::vec3(0, 0, -1);
 }
 
 void TransformInternal::SetDiry(int bits) {

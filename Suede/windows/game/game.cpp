@@ -1,4 +1,6 @@
 #include <QWidget>
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "ui_suede.h"
 #include "windows/controls/canvas.h"
 
@@ -61,6 +63,7 @@ void Game::init(Ui::Suede* ui) {
 
 	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
+	connect(Hierarchy::get(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntity(Entity)));
 }
 
 void Game::awake() {
@@ -126,8 +129,28 @@ void Game::timerEvent(QTimerEvent *event) {
 	update();
 }
 
+void Game::onFocusEntity(Entity entity) {
+	Transform trans = entity->GetTransform();
+	Transform camera = WorldInstance()->GetMainCamera()->GetTransform();
+	glm::vec3 p = trans->GetPosition() + trans->GetForward() * calculateCameraDistanceFitsBounds(WorldInstance()->GetMainCamera(), entity);
+	camera->SetLocalPosition(p);
+
+	glm::vec3 up(0, 1, 0);
+	glm::vec3 forward = -glm::normalize(trans->GetPosition() - camera->GetPosition());
+	glm::vec3 right = glm::cross(up, forward);
+	glm::quat q(glm::mat3(right, up, forward));
+	camera->SetLocalRotation(glm::normalize(q));
+}
+
 void Game::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
 	selected_ = selected;
+}
+
+float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
+	const Bounds& b = entity->GetBounds();
+	glm::vec4 size = (entity->GetTransform()->GetWorldToLocalMatrix() * glm::vec4(b.size, 1));
+	float d = (b.size.y / 2) / tanf(camera->GetFieldOfView() / 2);
+	return d;
 }
 
 uint roomEntityID;

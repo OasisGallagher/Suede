@@ -536,9 +536,9 @@ void CameraInternal::OnImageEffects() {
 void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix) {
 	for (int i = 0; i < root->GetChildCount(); ++i) {
 		Entity child = root->GetChildAt(i)->GetEntity();
-		/*if (!IsVisible(child, worldToClipMatrix)) {
+		if (!IsVisible(child, worldToClipMatrix)) {
 			continue;
-		}*/
+		}
 
 		if (CheckRenderComponents(child)) {
 			entities.push_back(child);
@@ -568,8 +568,10 @@ bool CameraInternal::IsVisible(Entity entity, glm::mat4& worldToClipMatrix) {
 }
 
 void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
-	glm::mat4 matrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
-	GetRenderableEntitiesInHierarchy(entities, WorldInstance()->GetRootTransform(), matrix);
+	GetRenderableEntitiesInHierarchy(entities, 
+		WorldInstance()->GetRootTransform(), 
+		GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix()
+	);
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {

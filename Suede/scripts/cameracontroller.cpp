@@ -145,7 +145,7 @@ void CameraController::rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos
 
 		camera_->SetPosition(bp);
 
-		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
+		glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
 		glm::vec3 right = qx * camera_->GetRight();
 		right.y = 0;
 		Math::Orthogonalize(right, forward);

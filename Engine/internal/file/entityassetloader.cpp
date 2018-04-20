@@ -276,10 +276,10 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 	
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
-		const aiVector3D* pos = &aimesh->mVertices[i];
-		const aiVector3D* normal = &aimesh->mNormals[i];
+		glm::vec3 pos = AIVector3ToGLM(aimesh->mVertices[i]);
+		glm::vec3 normal = AIVector3ToGLM(aimesh->mNormals[i]);
 
-		// TODO: multi-texture mapping.
+		// TODO:
 		//if (aimesh->GetNumUVChannels() != 1 && !logged) {
 		//	logged = true;
 		//	Debug::LogWarning("this mesh contains %d uv channel(s).", aimesh->GetNumUVChannels());
@@ -288,13 +288,13 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
 		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;
 
-		meshAsset.positions.push_back(glm::vec3(pos->x, pos->y, pos->z));
-		meshAsset.normals.push_back(glm::vec3(normal->x, normal->y, normal->z));
+		meshAsset.positions.push_back(pos);
+		meshAsset.normals.push_back(normal);
 		meshAsset.texCoords.push_back(glm::vec2(texCoord->x, texCoord->y));
 		meshAsset.tangents.push_back(glm::vec3(tangent->x, tangent->y, tangent->z));
 
-		min = glm::min(min, AIVector3ToGLM(min, *pos));
-		max = glm::max(min, AIVector3ToGLM(max, *pos));
+		min = glm::min(min, pos);
+		max = glm::max(max, pos);
 	}
 
 	boundses[meshIndex].SetMinMax(min, max);
@@ -451,8 +451,7 @@ void EntityAssetLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode*
 	if (channel != nullptr) {
 		for (int i = 0; i < channel->mNumPositionKeys; ++i) {
 			const aiVectorKey& key = channel->mPositionKeys[i];
-			glm::vec3 position;
-			keys->AddVector3(FrameKeyPosition, (float)key.mTime, AIVector3ToGLM(position, key.mValue));
+			keys->AddVector3(FrameKeyPosition, (float)key.mTime, AIVector3ToGLM(key.mValue));
 		}
 
 		for (int i = 0; i < channel->mNumRotationKeys; ++i) {
@@ -463,8 +462,7 @@ void EntityAssetLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode*
 
 		for (int i = 0; i < channel->mNumScalingKeys; ++i) {
 			const aiVectorKey& key = channel->mScalingKeys[i];
-			glm::vec3 scale;
-			keys->AddVector3(FrameKeyScale, (float)key.mTime, AIVector3ToGLM(scale, key.mValue));
+			keys->AddVector3(FrameKeyScale, (float)key.mTime, AIVector3ToGLM(key.mValue));
 		}
 
 		std::vector<AnimationFrame> keyframes;
@@ -610,7 +608,6 @@ void EntityAssetLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rot
 	rotation = glm::conjugate(rotation);
 }
 
-glm::vec3& EntityAssetLoader::AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec) {
-	answer = glm::vec3(vec.x, vec.y, vec.z);
-	return answer;
+glm::vec3 EntityAssetLoader::AIVector3ToGLM(const aiVector3D& vec) {
+	return glm::vec3(vec.x, vec.y, vec.z);
 }
