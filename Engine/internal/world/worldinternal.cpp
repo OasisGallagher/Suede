@@ -69,7 +69,7 @@ WorldInternal::~WorldInternal() {
 Object WorldInternal::Create(ObjectType type) {
 	Object object = Factory::Create(type);
 	if (type >= ObjectTypeEntity) {
-		Entity entity = dsp_cast<Entity>(object);
+		Entity entity = suede_dynamic_cast<Entity>(object);
 		Transform transform = Factory::Create<TransformInternal>();
 		entity->SetTransform(transform);
 
@@ -82,15 +82,15 @@ Object WorldInternal::Create(ObjectType type) {
 	}
 
 	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
-		lights_.insert(dsp_cast<Light>(object));
+		lights_.insert(suede_dynamic_cast<Light>(object));
 	}
 
 	if (type == ObjectTypeCamera) {
-		cameras_.insert(dsp_cast<Camera>(object));
+		cameras_.insert(suede_dynamic_cast<Camera>(object));
 	}
 
 	if (type == ObjectTypeProjector) {
-		projectors_.insert(dsp_cast<Projector>(object));
+		projectors_.insert(suede_dynamic_cast<Projector>(object));
 	}
 
 	return object;
@@ -106,7 +106,7 @@ Entity WorldInternal::GetEntity(uint id) {
 	return ite->second;
 }
 
-bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) {
+bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector) {
 	if (type < ObjectTypeEntity) {
 		Debug::LogError("invalid entity type");
 		return false;
@@ -114,7 +114,9 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 
 	if (type == ObjectTypeEntity) {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			entities.push_back(ite->second);
+			if (selector == nullptr || selector->Select(ite->second)) {
+				entities.push_back(ite->second);
+			}
 		}
 	}
 	else if (type == ObjectTypeCamera) {
@@ -128,7 +130,7 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 	}
 	else {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			if (ite->second->GetType() == type) {
+			if (ite->second->GetType() == type && (selector == nullptr || selector->Select(ite->second))) {
 				entities.push_back(ite->second);
 			}
 		}

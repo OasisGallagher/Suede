@@ -24,18 +24,18 @@
 #define SUEDE_MAX_DECALS		256
 
 /**
-* static shared_ptr cast.
-*/
+ * @brief static shared_ptr cast.
+ */
 template<class T, class Ptr>
-inline T ssp_cast(const Ptr& ptr) {
+inline T suede_static_cast(const Ptr& ptr) {
 	return T(ptr, static_cast<typename T::element_type*>(ptr.get()));
 }
 
 /**
-* dynamic shared_ptr cast.
-*/
+ * @brief dynamic shared_ptr cast.
+ */
 template<class T, class Ptr>
-inline T dsp_cast(const Ptr& ptr) {
+inline T suede_dynamic_cast(const Ptr& ptr) {
 	typedef typename T::element_type Element;
 	Element* p = dynamic_cast<Element*>(ptr.get());
 	if (p != nullptr) {

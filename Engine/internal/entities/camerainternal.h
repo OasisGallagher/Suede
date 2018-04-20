@@ -107,13 +107,14 @@ private:
 	void ForwardPass(const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
-	bool IsRenderable(Entity entity);
-
 	void RenderEntity(Entity entity, Renderer renderer);
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
+	bool CheckRenderComponents(Entity entity);
+	bool IsVisible(Entity entity, glm::mat4& worldToClipMatrix);
+
 	void GetRenderableEntities(std::vector<Entity>& entities);
-	void SortRenderableEntities(std::vector<Entity>& entities);
+	void GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 

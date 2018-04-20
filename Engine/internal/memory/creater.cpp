@@ -13,7 +13,7 @@
 #include "particlesystem.h"
 
 #define DEFINE_OBJECT_CREATER(T)	T New ## T() { \
-	return dsp_cast<T>(WorldInstance()->Create(ObjectType ## T)); \
+	return suede_dynamic_cast<T>(WorldInstance()->Create(ObjectType ## T)); \
 }
 
 DEFINE_OBJECT_CREATER(Font)

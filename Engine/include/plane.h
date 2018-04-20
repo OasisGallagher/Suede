@@ -1,19 +1,20 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "enginedefines.h"
 
 /** 
  * @brief: Ax + By + Cz + d = 0 
  */
-class Plane {
+class SUEDE_API Plane {
 public:
-	Plane() :Plane(glm::vec4(0, 0, 1, 0)) {}
+	Plane();
 	Plane(const glm::vec4& abcd);
 	Plane(const glm::vec3 points[3]);
-	Plane(const glm::vec3& normal, float d) : normal_(normal), d_(d) {}
+	Plane(const glm::vec3& normal, float d);
 
 public:
-	float GetDistance() const { return d_; }
-	glm::vec3 GetNormal() const { return normal_; }
+	float GetDistance() const;
+	glm::vec3 GetNormal() const;
 
 private:
 	void Normalize();

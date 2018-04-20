@@ -127,7 +127,7 @@ void MeshInternal::ShareStorage(Mesh other) {
 
 void MeshInternal::AddSubMesh(SubMesh subMesh) {
 	subMeshes_.push_back(subMesh);
-	subMesh->SetMesh(dsp_cast<Mesh>(shared_from_this()));
+	subMesh->SetMesh(suede_dynamic_cast<Mesh>(shared_from_this()));
 }
 
 void MeshInternal::Bind() {

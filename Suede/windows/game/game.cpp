@@ -164,6 +164,7 @@ void Game::createScene() {
 	camera->SetRenderPath(RenderPathDeferred);
 #endif
 
+	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef POST_EFFECTS
@@ -247,12 +248,12 @@ void Game::createScene() {
 	//fentity2->SetMesh(mesh);
 
 	Renderer renderer = NewMeshRenderer();
-	Material fontMaterial = dsp_cast<Material>(font->GetMaterial()->Clone());
+	Material fontMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
 	fontMaterial->SetColor4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
 
 	/*
 	Renderer renderer2 = NewMeshRenderer();
-	Material fontMaterial2 = dsp_cast<Material>(font->GetMaterial()->Clone());
+	Material fontMaterial2 = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
 	fontMaterial2->SetColor(Variables::mainColor, glm::vec4(1, 1, 0, 1));
 	*/
 
@@ -264,7 +265,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/house.fbx");
+	Entity room = WorldInstance()->Import("models/geom.fbx");
 // 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 // 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	//room->GetTransform()->SetScale(glm::vec3(0.01f));

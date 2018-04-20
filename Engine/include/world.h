@@ -38,7 +38,7 @@ struct EntityEvent : public WorldEventBase {
 	Entity entity;
 
 	virtual bool Compare(WorldEventBasePointer other) const {
-		return entity->GetInstanceID() < ssp_cast<EntityEventPointer>(other)->entity->GetInstanceID();
+		return entity->GetInstanceID() < suede_static_cast<EntityEventPointer>(other)->entity->GetInstanceID();
 	}
 };
 
@@ -85,7 +85,7 @@ struct EntityTransformChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityTransformChanged; }
 
 	virtual bool Compare(WorldEventBasePointer other) const {
-		return prs < ssp_cast<EntityTransformChangedEventPointer>(other)->prs;
+		return prs < suede_static_cast<EntityTransformChangedEventPointer>(other)->prs;
 	}
 
 	// Hw: local or world.
@@ -98,6 +98,14 @@ struct EntityTransformChangedEvent : public EntityEvent {
 class WorldEventListener {
 public:
 	virtual void OnWorldEvent(WorldEventBasePointer e) = 0;
+};
+
+class EntitySelector {
+public:
+	virtual ~EntitySelector() {}
+
+public:
+	virtual bool Select(Entity entity) = 0;
 };
 
 struct Decal;
@@ -115,7 +123,7 @@ public:
 	virtual void SetMainCamera(Camera value) = 0;
 
 	virtual Entity GetEntity(uint id) = 0;
-	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
+	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector) = 0;
 
 	virtual bool FireEvent(WorldEventBasePointer e) = 0;
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;

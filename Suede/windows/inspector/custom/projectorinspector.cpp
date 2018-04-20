@@ -22,7 +22,7 @@ namespace Literals {
 ProjectorInspector::ProjectorInspector(Object object) : CustomInspector("Projector", object) {
 	FloatSlider* slider = new FloatSlider(this);
 
-	Projector projector = dsp_cast<Projector>(target_);
+	Projector projector = suede_dynamic_cast<Projector>(target_);
 
 	if (projector->GetPerspective()) {
 		slider->setObjectName(Literals::projectorFovSlider);
@@ -42,9 +42,9 @@ ProjectorInspector::ProjectorInspector(Object object) : CustomInspector("Project
 
 void ProjectorInspector::onSliderValueChanged(const QString& name, float value) {
 	if (name == Literals::projectorFovSlider) {
-		dsp_cast<Projector>(target_)->SetFieldOfView(Math::Radians(float(value)));
+		suede_dynamic_cast<Projector>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
 	else if (name == Literals::projectorFovSlider2) {
-		dsp_cast<Projector>(target_)->SetOrthographicSize(value);
+		suede_dynamic_cast<Projector>(target_)->SetOrthographicSize(value);
 	}
 }

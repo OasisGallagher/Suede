@@ -35,7 +35,7 @@ public:
 	virtual void SetMainCamera(Camera value) { mainCamera_ = value; }
 
 	virtual Entity GetEntity(uint id);
-	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
+	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector);
 
 	virtual bool FireEvent(WorldEventBasePointer e);
 	virtual void FireEventImmediate(WorldEventBasePointer e);

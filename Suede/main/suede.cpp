@@ -138,11 +138,11 @@ void Suede::aboutBox() {
 
 void Suede::screenCapture() {
 	std::vector<Entity> entities;
-	if (!WorldInstance()->GetEntities(ObjectTypeCamera, entities)) {
+	if (!WorldInstance()->GetEntities(ObjectTypeCamera, entities, nullptr)) {
 		return;
 	}
 
-	Camera camera = dsp_cast<Camera>(entities.front());
+	Camera camera = suede_dynamic_cast<Camera>(entities.front());
 
 	Texture2D tex = camera->Capture();
 

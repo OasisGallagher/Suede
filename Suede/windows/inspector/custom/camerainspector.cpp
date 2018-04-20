@@ -20,7 +20,7 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 	FloatSlider* slider = new FloatSlider(this);
 	slider->setObjectName(Literals::cameraFovSlider);
 	slider->setRange(Constants::minFieldOfView, Constants::maxFieldOfView);
-	slider->setValue(Math::Degrees(dsp_cast<Camera>(object)->GetFieldOfView()));
+	slider->setValue(Math::Degrees(suede_dynamic_cast<Camera>(object)->GetFieldOfView()));
 
 	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
 
@@ -29,9 +29,9 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 
 void CameraInspector::onSliderValueChanged(const QString& name, float value) {
 	if (name == Literals::cameraFovSlider) {
-		dsp_cast<Camera>(target_)->SetFieldOfView(Math::Radians(float(value)));
+		suede_dynamic_cast<Camera>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
 	else if (name == Literals::cameraFovSlider2) {
-		dsp_cast<Camera>(target_)->SetOrthographicSize(value);
+		suede_dynamic_cast<Camera>(target_)->SetOrthographicSize(value);
 	}
 }

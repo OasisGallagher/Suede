@@ -25,9 +25,9 @@ EntityImporter::~EntityImporter() {
 		OpenThreads::Thread::YieldCurrentThread();
 	}
 
-	Engine::RemoveFrameEventListener(this);
-
 	MEMORY_RELEASE(loader_);
+
+	Engine::RemoveFrameEventListener(this);
 }
 
 void EntityImporter::OnLoadFinished() {

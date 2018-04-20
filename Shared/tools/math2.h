@@ -40,6 +40,9 @@ public:
 	static unsigned NextPowerOfTwo(unsigned x);
 	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
 
+	/**
+	 * @brief log_2_POT.
+	 */
 	static uint Log2PowerOfTwo(uint x);
 
 	template <class T>

@@ -189,7 +189,7 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 	}
 	else {
 		renderer = NewSkinnedMeshRenderer();
-		dsp_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
+		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
 	renderer->SetReady(false);
@@ -271,15 +271,15 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 		}
 	}
 
-	bool logged = false;
+	//bool logged = false;
 	const aiVector3D zero(0);
 	
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
 		const aiVector3D* pos = &aimesh->mVertices[i];
 		const aiVector3D* normal = &aimesh->mNormals[i];
 
-		// TODO:
+		// TODO: multi-texture mapping.
 		//if (aimesh->GetNumUVChannels() != 1 && !logged) {
 		//	logged = true;
 		//	Debug::LogWarning("this mesh contains %d uv channel(s).", aimesh->GetNumUVChannels());
@@ -293,8 +293,8 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 		meshAsset.texCoords.push_back(glm::vec2(texCoord->x, texCoord->y));
 		meshAsset.tangents.push_back(glm::vec3(tangent->x, tangent->y, tangent->z));
 
-		min = glm::vec3(glm::min(min.x, pos->x), glm::min(min.y, pos->y), glm::min(min.z, pos->z));
-		max = glm::vec3(glm::max(max.x, pos->x), glm::max(max.y, pos->y), glm::max(max.z, pos->z));
+		min = glm::min(min, AIVector3ToGLM(min, *pos));
+		max = glm::max(min, AIVector3ToGLM(max, *pos));
 	}
 
 	boundses[meshIndex].SetMinMax(min, max);
@@ -342,7 +342,7 @@ void EntityAssetLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, S
 	}
 }
 
-void EntityAssetLoader::LoadMaterials() {
+void EntityAssetLoader::LoadMaterialAssets() {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
 		LoadMaterialAsset(asset_.materialAssets[i], scene_->mMaterials[i]);
 	}
@@ -557,7 +557,7 @@ bool EntityAssetLoader::LoadAsset() {
 
 	if (scene_->mNumMaterials > 0) {
 		asset_.materialAssets.resize(scene_->mNumMaterials);
-		LoadMaterials();
+		LoadMaterialAssets();
 	}
 
 	if (scene_->mNumMeshes > 0) {

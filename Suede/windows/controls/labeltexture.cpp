@@ -21,7 +21,7 @@ void LabelTexture::setColor(const glm::ivec3& color) {
 }
 
 void LabelTexture::setTexture(Texture texture) {
-	Texture2D tex = dsp_cast<Texture2D>(texture);
+	Texture2D tex = suede_dynamic_cast<Texture2D>(texture);
 	if (!tex) { return; }
 
 	std::vector<uchar> data;

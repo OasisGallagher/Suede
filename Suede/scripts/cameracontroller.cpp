@@ -18,7 +18,7 @@ void CameraController::setCamera(Transform value) {
 
 void CameraController::onMouseWheel(int delta) {
 	glm::vec3 fwd = camera_->GetForward();
-	camera_->SetPosition(camera_->GetPosition() + fwd * 0.005f * (float)delta);
+	camera_->SetPosition(camera_->GetPosition() + fwd * 0.05f * (float)delta);
 }
 
 void CameraController::onResize(const QSize& size) {

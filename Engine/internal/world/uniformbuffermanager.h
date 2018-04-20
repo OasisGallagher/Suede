@@ -4,11 +4,6 @@
 #include "tools/string.h"
 #include "internal/base/uniformbuffer.h"
 
-//static const char* SharedTimeUniformBufferName = "Time";
-//static const char* SharedLightUniformBufferName = "Light";
-//static const char* SharedTransformsUniformBufferName = "Transforms";
-//static const char* SharedEntityMatricesInstancedUniformBufferName = "EntityMatricesInstanced";
-
 struct SharedTimeUniformBuffer {
 	glm::vec4 time;
 

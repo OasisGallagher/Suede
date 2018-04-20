@@ -64,8 +64,8 @@ public:
 
 private:
 	void SetDiry(int bits);
-	bool IsDirty(int bits) const { return (dirtyFlag_ & bits) != 0; }
-	void ClearDirty(int bits) { dirtyFlag_ &= ~bits; }
+	bool IsDirty(int bits) const { return (dirtyBits_ & bits) != 0; }
+	void ClearDirty(int bits) { dirtyBits_ &= ~bits; }
 
 	void DirtyChildrenScales();
 	void DirtyChildrenPositions();
@@ -97,7 +97,7 @@ private:
 	PRS local_;
 	PRS world_;
 
-	int dirtyFlag_;
+	int dirtyBits_;
 	glm::mat4 localToWorldMatrix_;
 	glm::mat4 worldToLocalMatrix_;
 };

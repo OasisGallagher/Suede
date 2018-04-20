@@ -30,7 +30,9 @@ public:
 	virtual void SetAnimation(Animation value) { animation_ = value; }
 	virtual Animation GetAnimation() { return animation_; }
 
+	// TODO: animation may change bounds.
 	virtual const Bounds& GetBounds();
+
 	virtual void SetInitialBounds(const Bounds& value);
 	virtual void RecalculateBounds();
 
@@ -44,14 +46,17 @@ protected:
 	EntityInternal(ObjectType entityType);
 
 private:
-	void CalculateWorldSpaceBounds();
+	void CalculateSelfBounds();
+	void CalculateHierarchyBounds();
 
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
 
 	void SetActive(bool value);
 	void UpdateChildrenActive(Entity parent);
-	const char* EntityTypeToString(ObjectType type);
+
+private:
+	static const char* EntityTypeToString(ObjectType type);
 
 private:
 	bool active_;
@@ -64,8 +69,8 @@ private:
 
 	Mesh mesh_;
 
-	Bounds bounds_;
-	bool boundsDirty_;
+	mutable Bounds bounds_;
+	mutable bool boundsDirty_;
 
 	// initial bounds in local space.
 	Bounds initialBounds_;

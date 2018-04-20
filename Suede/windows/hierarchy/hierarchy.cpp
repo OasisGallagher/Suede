@@ -58,7 +58,7 @@ bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 }
 
 void Hierarchy::OnWorldEvent(WorldEventBasePointer e) {
-	EntityEventPointer eep = ssp_cast<EntityEventPointer>(e);
+	EntityEventPointer eep = suede_static_cast<EntityEventPointer>(e);
 	switch (e->GetEventType()) {
 		case WorldEventTypeEntityCreated:
 			onEntityCreated(eep->entity);

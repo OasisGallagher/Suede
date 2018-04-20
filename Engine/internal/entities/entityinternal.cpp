@@ -26,7 +26,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
 		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
-		UpdateChildrenActive(dsp_cast<Entity>(shared_from_this()));
+		UpdateChildrenActive(suede_dynamic_cast<Entity>(shared_from_this()));
 	}
 }
 
@@ -39,7 +39,7 @@ bool EntityInternal::SetTag(const std::string& value) {
 	if (tag_ != value) {
 		tag_ = value;
 		EntityTagChangedEventPointer e = NewWorldEvent<EntityTagChangedEventPointer>();
-		e->entity = dsp_cast<Entity>(shared_from_this());
+		e->entity = suede_dynamic_cast<Entity>(shared_from_this());
 		WorldInstance()->FireEvent(e);
 	}
 
@@ -48,15 +48,13 @@ bool EntityInternal::SetTag(const std::string& value) {
 
 void EntityInternal::SetName(const std::string& value) {
 	if (value.empty()) {
-		Debug::LogError("empty name.");
-		return;
+		Debug::LogWarning("empty name.");
 	}
-
-	if (name_ != value) {
+	else if (name_ != value) {
 		name_ = value;
 
 		EntityNameChangedEventPointer e = NewWorldEvent<EntityNameChangedEventPointer>();
-		e->entity = dsp_cast<Entity>(shared_from_this());
+		e->entity = suede_dynamic_cast<Entity>(shared_from_this());
 		WorldInstance()->FireEvent(e);
 	}
 }
@@ -70,7 +68,7 @@ void EntityInternal::Update() {
 void EntityInternal::SetTransform(Transform value) {
 	if (transform_ != value) {
 		transform_ = value;
-		transform_->SetEntity(dsp_cast<Entity>(shared_from_this()));
+		transform_->SetEntity(suede_dynamic_cast<Entity>(shared_from_this()));
 	}
 }
 
@@ -89,7 +87,7 @@ void EntityInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
 		EntityActiveChangedEventPointer e = NewWorldEvent<EntityActiveChangedEventPointer>();
-		e->entity = dsp_cast<Entity>(shared_from_this());
+		e->entity = suede_dynamic_cast<Entity>(shared_from_this());
 		WorldInstance()->FireEvent(e);
 	}
 }
@@ -105,18 +103,40 @@ void EntityInternal::UpdateChildrenActive(Entity parent) {
 
 const Bounds& EntityInternal::GetBounds() {
 	if (boundsDirty_) {
-		if (!initialBounds_.IsEmpty()) {
-			CalculateWorldSpaceBounds();
-		}
-
-		for (uint i = 0; i < transform_->GetChildCount(); ++i) {
-			bounds_.Encapsulate(transform_->GetChildAt(i)->GetEntity()->GetBounds());
-		}
-
-		boundsDirty_ = false;
+		bounds_.Clear();
+		CalculateHierarchyBounds();
 	}
 
 	return bounds_;
+}
+
+void EntityInternal::CalculateHierarchyBounds() {
+	if (!initialBounds_.IsEmpty()) {
+		CalculateSelfBounds();
+	}
+
+	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
+		const Bounds& b = transform_->GetChildAt(i)->GetEntity()->GetBounds();
+		bounds_.Encapsulate(b);
+	}
+
+	boundsDirty_ = false;
+}
+
+void EntityInternal::CalculateSelfBounds() {
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCuboidCoordinates(points, initialBounds_.center, initialBounds_.size);
+
+	Transform transform = GetTransform();
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	for (uint i = 0; i < points.size(); ++i) {
+		points[i] = transform->TransformPoint(points[i]);
+
+		min = glm::min(min, points[i]);
+		max = glm::max(max, points[i]);
+	}
+
+	bounds_.SetMinMax(min, max);
 }
 
 void EntityInternal::DirtyParentBounds() {
@@ -136,53 +156,18 @@ void EntityInternal::DirtyChildrenBoundses() {
 }
 
 const char* EntityInternal::EntityTypeToString(ObjectType type) {
-	const char* name = "";
+#define CASE(name)	case ObjectType ## name: return #name;
 	switch (type) {
-		case ObjectTypeEntity:
-			name = "Entity";
-			break;
-		case ObjectTypeCamera:
-			name = "Camera";
-			break;
-		case ObjectTypeProjector:
-			name = "Projector";
-			break;
-		case ObjectTypeSpotLight:
-			name = "SpotLight";
-			break;
-		case ObjectTypePointLight:
-			name = "PointLight";
-			break;
-		case ObjectTypeDirectionalLight:
-			name = "DirectionalLight";
-			break;
-		case ObjectTypeParticleSystem:
-			name = "ParticleSystem";
-			break;
-		default:
-			Debug::LogError("entity name for %d does not exist.", type);
-			break;
+		CASE(Entity);
+		CASE(Camera);
+		CASE(Projector);
+		CASE(SpotLight);
+		CASE(PointLight);
+		CASE(DirectionalLight);
+		CASE(ParticleSystem);
 	}
+#undef CASE
 
-	return name;
-}
-
-void EntityInternal::CalculateWorldSpaceBounds() {
-	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, initialBounds_.center, initialBounds_.size);
-
-	Transform transform = GetTransform();
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min());
-	for (uint i = 0; i < points.size(); ++i) {
-		points[i] *= transform->GetScale();
-		points[i] = transform->GetRotation() * points[i];
-
-		min = glm::vec3(glm::min(min.x, points[i].x), glm::min(min.y, points[i].y), glm::min(min.z, points[i].z));
-		max = glm::vec3(glm::max(max.x, points[i].x), glm::max(max.y, points[i].y), glm::max(max.z, points[i].z));
-	}
-
-	min += transform->GetPosition();
-	max += transform->GetPosition();
-
-	bounds_.SetMinMax(min, max);
+	Debug::LogError("entity name for %d does not exist.", type);
+	return "";
 }

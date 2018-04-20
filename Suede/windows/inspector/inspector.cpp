@@ -41,7 +41,7 @@ void Inspector::init(Ui::Suede* ui) {
 }
 
 void Inspector::OnWorldEvent(WorldEventBasePointer e) {
-	EntityTransformChangedEventPointer tcp = ssp_cast<EntityTransformChangedEventPointer>(e);
+	EntityTransformChangedEventPointer tcp = suede_static_cast<EntityTransformChangedEventPointer>(e);
 	switch (e->GetEventType()) {
 		case WorldEventTypeEntityTransformChanged:
 			onEntityTransformChanged(tcp->entity, tcp->prs);

@@ -50,7 +50,7 @@ bool FontInternal::Require(const std::wstring& str) {
 }
 
 Texture2D FontInternal::GetTexture() const {
-	return dsp_cast<Texture2D>(material_->GetTexture(Variables::mainTexture));
+	return suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::mainTexture));
 }
 
 std::string FontInternal::GetFamilyName() const {

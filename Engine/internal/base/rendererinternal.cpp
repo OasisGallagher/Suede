@@ -84,7 +84,7 @@ void ParticleRendererInternal::AddMaterial(Material material) {
 }
 
 void ParticleRendererInternal::RenderEntity(Entity entity) {
-	ParticleSystem particleSystem = dsp_cast<ParticleSystem>(entity);
+	ParticleSystem particleSystem = suede_dynamic_cast<ParticleSystem>(entity);
 	if (!particleSystem) {
 		Debug::LogError("invalid particle system");
 		return;

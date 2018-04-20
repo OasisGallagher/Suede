@@ -315,7 +315,7 @@ void AnimationInternal::AddClip(const std::string& name, AnimationClip value) {
 	Key key{ name, value };
 	clips_.insert(key);
 
-	value->SetAnimation(dsp_cast<Animation>(shared_from_this()));
+	value->SetAnimation(suede_dynamic_cast<Animation>(shared_from_this()));
 }
 
 AnimationClip AnimationInternal::GetClip(const std::string& name) {

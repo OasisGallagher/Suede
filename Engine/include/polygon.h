@@ -1,10 +1,10 @@
 #pragma once
-#include "types.h"
 #include <glm/glm.hpp>
+#include "enginedefines.h"
 
-struct Polygon {
+struct SUEDE_API Polygon {
+	Polygon(const Polygon& other);
 	Polygon(const glm::vec3* p, uint n);
-	Polygon(const Polygon& other) : Polygon(other.points, other.npoints) {}
 
 	virtual ~Polygon();
 
@@ -18,5 +18,5 @@ struct Polygon {
 };
 
 struct Triangle : Polygon {
-	Triangle(const glm::vec3* p) : Polygon(p, 3) {}
+	Triangle(const glm::vec3* p);
 };

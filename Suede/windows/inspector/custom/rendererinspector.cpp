@@ -36,7 +36,7 @@ struct UserData : public QObjectUserData {
 RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer", object) {
 	initializeColorPicker();
 
-	Renderer renderer = dsp_cast<Renderer>(target_);
+	Renderer renderer = suede_dynamic_cast<Renderer>(target_);
 	QListWidget* materialList = new QListWidget(this);
 
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
@@ -304,10 +304,10 @@ void RendererInspector::onEditProperty() {
 
 	switch (type) {
 		case VariantTypeInt:
-			dsp_cast<Renderer>(target_)->GetMaterial(index)->SetInt(name.toStdString(), ((QLineEdit*)sender())->text().toInt());
+			suede_dynamic_cast<Renderer>(target_)->GetMaterial(index)->SetInt(name.toStdString(), ((QLineEdit*)sender())->text().toInt());
 			break;
 		case VariantTypeFloat:
-			dsp_cast<Renderer>(target_)->GetMaterial(index)->SetFloat(name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
+			suede_dynamic_cast<Renderer>(target_)->GetMaterial(index)->SetFloat(name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
 			break;
 		case VariantTypeVector3:
 			break;
@@ -335,7 +335,7 @@ void RendererInspector::onColorChanged(const QColor& color) {
 	data->sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
 		selected.red(), selected.green(), selected.blue()));
 
-	Material material = dsp_cast<Renderer>(target_)->GetMaterial(data->index);
+	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(data->index);
 	if (data->type == VariantTypeColor4) {
 		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
 		material->SetColor4(data->name.toStdString(), newColor);
@@ -357,7 +357,7 @@ void RendererInspector::onSelectTexture(QWidget* widget, uint materialIndex, con
 		QDir dir(Resources::GetRootDirectory().c_str());
 		path = dir.relativeFilePath(path);
 		texture->Load(path.toStdString());
-		Material material = dsp_cast<Renderer>(target_)->GetMaterial(materialIndex);
+		Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
 		material->SetTexture(name.toStdString(), texture);
 		((LabelTexture*)sender())->setTexture(texture);
 	}
@@ -365,7 +365,7 @@ void RendererInspector::onSelectTexture(QWidget* widget, uint materialIndex, con
 
 void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, const QString& name) {
 	colorPicker_->setOption(QColorDialog::ShowAlphaChannel, false);
-	Material material = dsp_cast<Renderer>(target_)->GetMaterial(materialIndex);
+	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
 	glm::ivec3 color = Math::IntColor(material->GetColor3(name.toStdString()));
 	QColor old(color.r, color.g, color.b);
 
@@ -380,7 +380,7 @@ void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, cons
 
 void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, const QString& name) {
 	colorPicker_->setOption(QColorDialog::ShowAlphaChannel);
-	Material material = dsp_cast<Renderer>(target_)->GetMaterial(materialIndex);
+	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
 	glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
 	QColor old(color.r, color.g, color.b, color.a);
 

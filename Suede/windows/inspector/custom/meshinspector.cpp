@@ -21,13 +21,13 @@ namespace Literals {
 MeshInspector::MeshInspector(Object object) : CustomInspector("Mesh", object) {
 	drawMesh();
 
-	if (dsp_cast<TextMesh>(target_)) {
+	if (suede_dynamic_cast<TextMesh>(target_)) {
 		drawTextMesh();
 	}
 }
 
 void MeshInspector::drawMesh() {
-	Mesh mesh = dsp_cast<Mesh>(target_);
+	Mesh mesh = suede_dynamic_cast<Mesh>(target_);
 	QLabel* topology = new QLabel(this);
 	topology->setText(mesh->GetTopology() == MeshTopologyTriangles ? "Triangles" : "TriangleStrips");
 	form_->addRow(formatRowName("Topology"), topology);
@@ -53,7 +53,7 @@ void MeshInspector::drawMesh() {
 }
 
 void MeshInspector::drawTextMesh() {
-	TextMesh textMesh = dsp_cast<TextMesh>(target_);
+	TextMesh textMesh = suede_dynamic_cast<TextMesh>(target_);
 	QLineEdit* text = new QLineEdit(this);
 	text->setText(QString::fromLocal8Bit(textMesh->GetText().c_str()));
 	connect(text, SIGNAL(editingFinished()), this, SLOT(onTextChanged()));
@@ -70,10 +70,10 @@ void MeshInspector::drawTextMesh() {
 }
 
 void MeshInspector::onTextChanged() {
-	Mesh mesh = dsp_cast<Mesh>(target_);
+	Mesh mesh = suede_dynamic_cast<Mesh>(target_);
 	QByteArray arr = ((QLineEdit*)sender())->text().toLocal8Bit();
 
-	TextMesh textMesh = dsp_cast<TextMesh>(mesh);
+	TextMesh textMesh = suede_dynamic_cast<TextMesh>(mesh);
 	textMesh->SetText(arr.toStdString());
 
 	QImage image;

@@ -18,7 +18,7 @@
 #include "internal/entities/camerainternal.h"
 #include "internal/world/uniformbuffermanager.h"
 
-CameraInternal::CameraInternal() 
+CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera)
 	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
 	frustum_ = MEMORY_CREATE(Frustum);
@@ -73,7 +73,7 @@ void CameraInternal::Render() {
 	std::vector<Entity> entities;
 	GetRenderableEntities(entities);
 
-	Pipeline::SetCamera(dsp_cast<Camera>(shared_from_this()));
+	Pipeline::SetCamera(suede_dynamic_cast<Camera>(shared_from_this()));
 	Pipeline::SetCurrent(pipeline_);
 
 	if (renderPath_ == RenderPathForward) {
@@ -259,7 +259,7 @@ void CameraInternal::RenderDeferredGeometryPass(const std::vector<Entity>& entit
 		Entity entity = entities[i];
 
 		Texture mainTexture = entity->GetRenderer()->GetMaterial(0)->GetTexture(Variables::mainTexture);
-		Material material = dsp_cast<Material>(deferredMaterial_->Clone());
+		Material material = suede_dynamic_cast<Material>(deferredMaterial_->Clone());
 		material->SetTexture(Variables::mainTexture, mainTexture);
 		AddToPipeline(entity->GetMesh(), deferredMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
@@ -414,11 +414,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (!IsRenderable(entity)) {
-			continue;
-		}
-
-		Material material = dsp_cast<Material>(directionalLightShadowMaterial_->Clone());
+		Material material = suede_dynamic_cast<Material>(directionalLightShadowMaterial_->Clone());
 		material->SetMatrix4(Variables::localToOrthographicLightMatrix, shadowDepthMatrix);
 		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
@@ -444,10 +440,6 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (!IsRenderable(entity)) {
-			continue;
-		}
-
 		AddToPipeline(entity->GetMesh(), depthMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
@@ -457,9 +449,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		if (IsRenderable(entity)) {
-			RenderEntity(entity, entity->GetRenderer());
-		}
+		RenderEntity(entity, entity->GetRenderer());
 	}
 
 	Debug::Output("[CameraInternal::ForwardPass::push_renderables]\t%.2f\n", push_renderables->GetElapsedSeconds());
@@ -468,13 +458,13 @@ void CameraInternal::ForwardPass(const std::vector<Entity>& entities) {
 
 void CameraInternal::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Entity> lights;
-	if (!WorldInstance()->GetEntities(ObjectTypeLights, lights)) {
+	if (!WorldInstance()->GetEntities(ObjectTypeLights, lights, nullptr)) {
 		return;
 	}
 
-	forwardBase = dsp_cast<Light>(lights.front());
+	forwardBase = suede_dynamic_cast<Light>(lights.front());
 	for (int i = 1; i < lights.size(); ++i) {
-		forwardAdd.push_back(dsp_cast<Light>(lights[i]));
+		forwardAdd.push_back(suede_dynamic_cast<Light>(lights[i]));
 	}
 }
 
@@ -489,7 +479,7 @@ void CameraInternal::RenderDecals() {
 	for (int i = 0; i < decals.size(); ++i) {
 		Decal* d = decals[i];
 		glm::mat4 biasMatrix = glm::translate(glm::mat4(1) , glm::vec3(0.5f)) * glm::scale(glm::mat4(1), glm::vec3(0.5f));
-		Material decalMaterial = dsp_cast<Material>(decalMaterial_->Clone());
+		Material decalMaterial = suede_dynamic_cast<Material>(decalMaterial_->Clone());
 
 		decalMaterial->SetMatrix4(Variables::decalMatrix, biasMatrix * d->matrix);
 		decalMaterial->SetTexture(Variables::mainTexture, d->texture);
@@ -543,38 +533,43 @@ void CameraInternal::OnImageEffects() {
 	}
 }
 
-bool CameraInternal::IsRenderable(Entity entity) {
-	if (!entity->GetActive() || !entity->GetRenderer() || !entity->GetRenderer()->GetReady() || !entity->GetMesh()) {
-		return false;
+void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix) {
+	for (int i = 0; i < root->GetChildCount(); ++i) {
+		Entity child = root->GetChildAt(i)->GetEntity();
+		/*if (!IsVisible(child, worldToClipMatrix)) {
+			continue;
+		}*/
+
+		if (CheckRenderComponents(child)) {
+			entities.push_back(child);
+		}
+
+		GetRenderableEntitiesInHierarchy(entities, child->GetTransform(), worldToClipMatrix);
 	}
+}
 
-	return true;
-	
-	// TODO: debug.
-	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+bool CameraInternal::CheckRenderComponents(Entity entity) {
+	return entity->GetActive() && entity->GetRenderer() && entity->GetRenderer()->GetReady() && entity->GetMesh();
+}
 
+bool CameraInternal::IsVisible(Entity entity, glm::mat4& worldToClipMatrix) {
 	const Bounds& bounds = entity->GetBounds();
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 
-	return GeometryUtility::PlanesCulling(planes_, CountOf(planes_), &points[0], points.size());
-}
-
-void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
-	WorldInstance()->GetEntities(ObjectTypeEntity, entities);
-	//SortRenderableEntities(entities);
-}
-
-void CameraInternal::SortRenderableEntities(std::vector<Entity>& entities) {
-	int p = 0;
-	for (int i = 0; i < entities.size(); ++i) {
-		Entity key = entities[i];
-		if (IsRenderable(key)) {
-			entities[p++] = key;
+	for (int i = 0; i < points.size(); ++i) {
+		glm::vec4 p = worldToClipMatrix * glm::vec4(points[i], 1);
+		if (p.x >= -p.w && p.x <= p.w && p.y >= -p.w && p.y <= p.w && p.z >= -p.w && p.z <= p.w) {
+			return true;
 		}
 	}
 
-	entities.erase(entities.begin() + p, entities.end());
+	return false;
+}
+
+void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
+	glm::mat4 matrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
+	GetRenderableEntitiesInHierarchy(entities, WorldInstance()->GetRootTransform(), matrix);
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {

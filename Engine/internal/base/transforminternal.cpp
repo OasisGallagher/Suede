@@ -4,21 +4,21 @@
 #include "tools/math2.h"
 #include "transforminternal.h"
 
-TransformInternal::TransformInternal() : ObjectInternal(ObjectTypeTransform), dirtyFlag_(0) {
+TransformInternal::TransformInternal() : ObjectInternal(ObjectTypeTransform), dirtyBits_(0) {
 	local_.scale = world_.scale = glm::vec3(1);
 }
 
 void TransformInternal::SetEntity(Entity value) {
 	if (entity_.lock() != value) {
 		entity_ = value;
-		value->SetTransform(dsp_cast<Transform>(shared_from_this()));
+		value->SetTransform(suede_dynamic_cast<Transform>(shared_from_this()));
 	}
 }
 
 void TransformInternal::AddChild(Transform child) {
 	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
 		children_.push_back(child);
-		child->SetParent(dsp_cast<Transform>(shared_from_this()));
+		child->SetParent(suede_dynamic_cast<Transform>(shared_from_this()));
 	}
 }
 
@@ -52,7 +52,7 @@ void TransformInternal::SetParent(Transform value) {
 		return;
 	}
 
-	Transform thisSp = dsp_cast<Transform>(shared_from_this());
+	Transform thisSp = suede_dynamic_cast<Transform>(shared_from_this());
 	if (oldParent) {
 		oldParent->RemoveChild(thisSp);
 	}
@@ -75,19 +75,19 @@ void TransformInternal::SetParent(Transform value) {
 	WorldInstance()->FireEvent(e);
 }
 
-glm::vec3 TransformInternal::TransformPoint(const glm::vec3 & point) {
+glm::vec3 TransformInternal::TransformPoint(const glm::vec3& point) {
 	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(point, 1));
 }
 
-glm::vec3 TransformInternal::TransformDirection(const glm::vec3 & direction) {
+glm::vec3 TransformInternal::TransformDirection(const glm::vec3& direction) {
 	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(direction, 0));
 }
 
-glm::vec3 TransformInternal::InverseTransformPoint(const glm::vec3 & point) {
+glm::vec3 TransformInternal::InverseTransformPoint(const glm::vec3& point) {
 	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(point, 1));
 }
 
-glm::vec3 TransformInternal::InverseTransformDirection(const glm::vec3 & direction) {
+glm::vec3 TransformInternal::InverseTransformDirection(const glm::vec3& direction) {
 	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(direction, 0));
 }
 
@@ -180,7 +180,7 @@ glm::vec3 TransformInternal::GetScale() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::vec3 scale = GetLocalScale();
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
 			scale *= current->GetScale();
@@ -199,7 +199,7 @@ glm::vec3 TransformInternal::GetPosition() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::vec3 position = GetLocalPosition();
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
 			position += current->GetPosition();
@@ -219,7 +219,7 @@ glm::quat TransformInternal::GetRotation() {
 		world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
 	}
 	else {
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::quat localRotation;
 		if (!IsDirty(LocalRotation)) {
 			localRotation = GetLocalRotation();
@@ -253,7 +253,7 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 		worldRotation = GetRotation();
 	}
 	else {
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::quat localRotation;
 
 		if (!IsDirty(LocalRotation)) {
@@ -352,7 +352,7 @@ glm::vec3 TransformInternal::GetLocalScale() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::vec3 scale = GetScale();
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
 			scale /= current->GetScale();
@@ -371,7 +371,7 @@ glm::vec3 TransformInternal::GetLocalPosition() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::vec3 position = GetPosition();
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
 			position -= current->GetPosition();
@@ -391,7 +391,7 @@ glm::quat TransformInternal::GetLocalRotation() {
 		local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
 	}
 	else {
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::quat worldRotation;
 		if (!IsDirty(WorldRotation)) {
 			worldRotation = GetRotation();
@@ -425,7 +425,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 		localRotation = GetLocalRotation();
 	}
 	else {
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::quat worldRotation;
 
 		if (!IsDirty(WorldRotation)) {
@@ -458,7 +458,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 
 glm::mat4 TransformInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
-		Transform current = dsp_cast<Transform>(shared_from_this());
+		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::mat4 matrix = Concatenate(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
 			matrix = current->GetLocalToWorldMatrix() * matrix;
@@ -501,7 +501,7 @@ glm::vec3 TransformInternal::GetForward() {
 }
 
 void TransformInternal::SetDiry(int bits) {
-	dirtyFlag_ |= bits;
+	dirtyBits_ |= bits;
 	if (IsDirty(LocalScale) && IsDirty(WorldScale)) {
 		Debug::LogError("invalid state");
 	}
@@ -551,5 +551,5 @@ Transform TransformInternal::FindDirectChild(const std::string& name) {
 }
 
 glm::mat4 TransformInternal::Concatenate(const glm::vec3& t, const glm::quat& r, const glm::vec3& s) {
-	return glm::translate(glm::mat4(1), t) * glm::scale(glm::mat4_cast(r), GetLocalScale());
+	return glm::translate(glm::mat4(1), t) * glm::scale(glm::mat4_cast(r), s);
 }

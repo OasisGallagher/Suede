@@ -81,7 +81,6 @@ protected:
 	void SetStatus(int value) { status_ = value; }
 
 private:
-	bool done_;
 	int status_;
 	LoaderCallback* callback_;
 };
@@ -123,7 +122,7 @@ private:
 	void LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes);
 	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses);
 
-	void LoadMaterials();
+	void LoadMaterialAssets();
 	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
 
 	bool LoadAnimation(Animation& animation);
@@ -136,10 +135,11 @@ private:
 	bool LoadEmbeddedTexels(TexelMap& texelMap, uint index);
 	bool LoadExternalTexels(TexelMap& texelMap, const std::string& name);
 
-	glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec);
-	glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat);
-	glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion);
-	void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);
+private:
+	static glm::vec3& AIVector3ToGLM(glm::vec3& answer, const aiVector3D& vec);
+	static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat);
+	static glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion);
+	static void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);
 
 public:
 	// Stub: test(revert: private and reset at EntityAssetLoader::Run).

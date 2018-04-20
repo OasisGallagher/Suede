@@ -12,13 +12,17 @@ struct SUEDE_API Bounds {
 	Bounds(const glm::vec3& center, const glm::vec3& size);
 
 	bool IsEmpty() const;
+
+	void Clear();
 	void Encapsulate(const Bounds& other);
 	void SetMinMax(const glm::vec3& min, const glm::vec3& max);
 
-	glm::vec3 GetMin() const { return center - size / 2.f; }
-	glm::vec3 GetMax() const { return center + size / 2.f; }
+	void Expand(const glm::vec3& amount);
+	void Translate(const glm::vec3& amount);
 
-	glm::vec3 GetSize() const { return size; }
+	glm::vec3 GetMin() const;
+	glm::vec3 GetMax() const;
+	glm::vec3 GetSize() const;
 
 	glm::vec3 size;
 	glm::vec3 center;

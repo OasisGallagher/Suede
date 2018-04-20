@@ -2,22 +2,5 @@
 1. 在inspector中，改变text，出现乱码。
 2. 由于euler角的多种表示方法，输入(0, 180, 0)转成quaternion再转回euler角时，变为(180, 0, 180).
    https://stackoverflow.com/questions/11103683/euler-angle-to-quaternion-then-quaternion-to-euler-angle
-
-Perf:
-[drawcall]	22
-[instanced]	0.00/0.02
-[fb]	0.00
-[mat]	0.00
-[mesh]	0.00
-[setBuffer]	0.00
-[pipeline]	0.04
-[render]	0.088
-[entities]	0.007
-[decals]	0.000
-[collect]	0.01
-[lightparam]	0.00
-[opaque_mat]	0.00
-[opaque_push]	0.02
-[pass]	0.04
-[sort]	0.02
+3. 导入带light的fbx，使用test_light.fbx.
 
