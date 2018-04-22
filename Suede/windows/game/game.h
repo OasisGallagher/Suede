@@ -30,7 +30,7 @@ public:
 
 private slots:
 	void update();
-	void onFocusEntity(Entity entity);
+	void onFocusEntityBounds(Entity entity);
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
 protected:

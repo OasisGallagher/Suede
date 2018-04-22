@@ -37,13 +37,18 @@ public:
 	static glm::ivec3 IntColor(const glm::vec3& color);
 	static glm::vec3 NormalizedColor(const glm::ivec3& color);
 
-	static unsigned NextPowerOfTwo(unsigned x);
-	static unsigned RoundUpToPowerOfTwo(unsigned x, unsigned target);
+	static uint NextPowerOfTwo(uint x);
+	static uint RoundUpToPowerOfTwo(uint x, uint target);
 
 	/**
 	 * @brief log_2_POT.
 	 */
 	static uint Log2PowerOfTwo(uint x);
+
+	/**
+	* @brief count the number of binary "1" bits in x.
+	*/
+	static uint PopulationCount(uint x);
 
 	template <class T>
 	static T Lerp(const T& from, const T& to, float t);
@@ -146,7 +151,7 @@ inline T Math::Radians(const T& degrees) {
 	return glm::radians(degrees);
 }
 
-inline unsigned Math::NextPowerOfTwo(unsigned x) {
+inline uint Math::NextPowerOfTwo(uint x) {
 	x--;
 	x |= x >> 1;
 	x |= x >> 2;
@@ -157,12 +162,27 @@ inline unsigned Math::NextPowerOfTwo(unsigned x) {
 	return x;
 }
 
-inline unsigned Math::RoundUpToPowerOfTwo(unsigned x, unsigned target) {
+inline uint Math::RoundUpToPowerOfTwo(uint x, uint target) {
 	--target;
 	return (x + target) & (~target);
 }
 
-inline unsigned Math::Log2PowerOfTwo(uint x) {
+inline uint Math::PopulationCount(uint x) {
+	uint n;
+
+	n = (x >> 1) & 0x77777777;
+	x = x - n;
+	n = (n >> 1) & 0x77777777;
+	x = x - n;
+	n = (n >> 1) & 0x77777777;
+	x = x - n;
+	x = (x + (x >> 4)) & 0x0F0F0F0F;
+	x = x * 0x01010101;
+
+	return x >> 24;
+}
+
+inline uint Math::Log2PowerOfTwo(uint x) {
 	ulong index;
 	_BitScanForward(&index, x);
 	return index;

@@ -27,6 +27,10 @@ void EntityInternal::SetActiveSelf(bool value) {
 		activeSelf_ = value;
 		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
 		UpdateChildrenActive(suede_dynamic_cast<Entity>(shared_from_this()));
+
+		if (!GetBounds().IsEmpty()) {
+			DirtyParentBounds();
+		}
 	}
 }
 
@@ -116,8 +120,11 @@ void EntityInternal::CalculateHierarchyBounds() {
 	}
 
 	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
-		const Bounds& b = transform_->GetChildAt(i)->GetEntity()->GetBounds();
-		bounds_.Encapsulate(b);
+		Entity child = transform_->GetChildAt(i)->GetEntity();
+		if (child->GetActive()) {
+			const Bounds& b = child->GetBounds();
+			bounds_.Encapsulate(b);
+		}
 	}
 
 	boundsDirty_ = false;

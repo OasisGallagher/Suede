@@ -10,9 +10,9 @@ class Console : public QDockWidget, public ChildWindow {
 
 public:
 	enum MessageType {
-		Debug,
-		Warning,
-		Error,
+		Debug = 1,
+		Warning = 2,
+		Error = 4,
 	};
 
 public:
@@ -28,9 +28,21 @@ public:
 public:
 	void addMessage(MessageType type, const QString& message);
 
+private slots:
+	void onClearMessages();
+	void onSelectionChanged(uint mask);
+	void onSearchTextChanged(const QString& text);
+
 private:
+	void filterMessageByType(int mask);
+	void filterMessageBySubString(const QString& substr);
+
+	void showMessage(MessageType type, const QString &message);
+
 	const char* messageIconPath(MessageType type);
 
 private:
+	uint mask_;
+	QString substr_;
 	QList<QString> messages_;
 };

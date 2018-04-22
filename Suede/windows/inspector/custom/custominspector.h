@@ -1,6 +1,7 @@
 #pragma once
 #include <QGroupBox>
 #include <QFormLayout>
+#include <QColorDialog>
 
 #include "object.h"
 
@@ -8,6 +9,8 @@
 
 class QListWidget;
 class CustomInspector : public QGroupBox {
+	Q_OBJECT
+
 public:
 	CustomInspector(const QString& title, Object object);
 

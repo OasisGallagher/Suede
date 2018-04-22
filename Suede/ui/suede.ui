@@ -140,8 +140,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>89</width>
-     <height>111</height>
+     <width>317</width>
+     <height>137</height>
     </size>
    </property>
    <property name="floating">
@@ -158,6 +158,9 @@
    </attribute>
    <widget class="QWidget" name="consoleView">
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>1</number>
+     </property>
      <property name="leftMargin">
       <number>0</number>
      </property>
@@ -170,6 +173,65 @@
      <property name="bottomMargin">
       <number>0</number>
      </property>
+     <item>
+      <widget class="QWidget" name="widget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>3</number>
+        </property>
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>1</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="search">
+          <property name="frame">
+           <bool>true</bool>
+          </property>
+          <property name="placeholderText">
+           <string>Search log message here...</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="CheckableComboBox" name="filter"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="clear">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Clear</string>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
      <item>
       <widget class="QTableWidget" name="table">
        <property name="editTriggers">
@@ -236,7 +298,7 @@
           <x>0</x>
           <y>0</y>
           <width>497</width>
-          <height>271</height>
+          <height>259</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -695,6 +757,11 @@
    <extends>QDockWidget</extends>
    <header>windows/inspector/inspector.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CheckableComboBox</class>
+   <extends>QComboBox</extends>
+   <header>windows/controls/checkablecombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -6,11 +6,24 @@
 #include <QProgressBar>
 
 #include "tools/math2.h"
+#include "debug/profiler.h"
 
 #include "variables.h"
 #include "resources.h"
 #include "rendererinspector.h"
+#include "windows/controls/colorpicker.h"
 #include "windows/controls/labeltexture.h"
+
+Sample* render_inspector = Profiler::CreateSample();
+
+static void begin_render_inspector() {
+	render_inspector->Restart();
+}
+
+static void end_render_inspector(const char* text) {
+	render_inspector->Stop();
+	Debug::Log((std::string(text) + " %.2f").c_str(), render_inspector->GetElapsedSeconds());
+}
 
 namespace Literals {
 	DEFINE_LITERAL(current);
@@ -34,40 +47,44 @@ struct UserData : public QObjectUserData {
 };
 
 RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer", object) {
-	initializeColorPicker();
-
+	begin_render_inspector();
 	Renderer renderer = suede_dynamic_cast<Renderer>(target_);
 	QListWidget* materialList = new QListWidget(this);
+	end_render_inspector("createMaterialList");
 
+	begin_render_inspector();
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		Material material = renderer->GetMaterial(i);
 		materialList->addItem(material->GetName().c_str());
 	}
+	end_render_inspector("materialList");
 
+	begin_render_inspector();
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materialList);
 	resizeGeometryToFit(materialList);
+	end_render_inspector("resizeGeometry");
 
+	begin_render_inspector();
 	QStringList list;
 	const std::vector<ShaderResource>& shaders = Resources::GetShaderResources();
 	for (int i = 0; i < shaders.size(); ++i) {
 		list << shaders[i].name.c_str();
 	}
+	end_render_inspector("appendShaders");
 
+	begin_render_inspector();
 	QGroupBox* materials = new QGroupBox("Materials", this);
 	QVBoxLayout* materialsLayout = new QVBoxLayout(materials);
 
 	for (uint materialIndex = 0; materialIndex < renderer->GetMaterialCount(); ++materialIndex) {
 		drawMaterial(renderer, materialIndex, list, materialsLayout);
 	}
+	end_render_inspector("drawMaterial");
 
+	begin_render_inspector();
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materials);
-}
-
-void RendererInspector::initializeColorPicker() {
-	colorPicker_ = new QColorDialog(this);
-	colorPicker_->setWindowTitle("Select color");
-	colorPicker_->setOption(QColorDialog::NoButtons);
-	connect(colorPicker_, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorChanged(const QColor&)));
+	connect(ColorPicker::get(), SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorPicked(const QColor&)));
+	end_render_inspector("misc");
 }
 
 void RendererInspector::drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders, QLayout* materialsLayout) {
@@ -325,13 +342,13 @@ void RendererInspector::onEditProperty() {
 	}
 }
 
-void RendererInspector::onColorChanged(const QColor& color) {
-	QColor selected = colorPicker_->currentColor();
+void RendererInspector::onColorPicked(const QColor& color) {
+	QColor selected = ColorPicker::get()->currentColor();
 	if (!selected.isValid()) {
 		return;
 	}
 
-	UserData* data = (UserData*)colorPicker_->userData(Qt::UserRole);
+	UserData* data = (UserData*)ColorPicker::get()->userData(Qt::UserRole);
 	data->sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
 		selected.red(), selected.green(), selected.blue()));
 
@@ -364,31 +381,31 @@ void RendererInspector::onSelectTexture(QWidget* widget, uint materialIndex, con
 }
 
 void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, const QString& name) {
-	colorPicker_->setOption(QColorDialog::ShowAlphaChannel, false);
+	ColorPicker::get()->setOption(QColorDialog::ShowAlphaChannel, false);
 	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
 	glm::ivec3 color = Math::IntColor(material->GetColor3(name.toStdString()));
 	QColor old(color.r, color.g, color.b);
 
-	colorPicker_->blockSignals(true);
-	colorPicker_->setCurrentColor(old);
-	colorPicker_->blockSignals(false);
+	ColorPicker::get()->blockSignals(true);
+	ColorPicker::get()->setCurrentColor(old);
+	ColorPicker::get()->blockSignals(false);
 
-	delete colorPicker_->userData(Qt::UserRole);
-	colorPicker_->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor3, widget));
-	colorPicker_->exec();
+	delete ColorPicker::get()->userData(Qt::UserRole);
+	ColorPicker::get()->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor3, widget));
+	ColorPicker::get()->exec();
 }
 
 void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, const QString& name) {
-	colorPicker_->setOption(QColorDialog::ShowAlphaChannel);
+	ColorPicker::get()->setOption(QColorDialog::ShowAlphaChannel);
 	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
 	glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
 	QColor old(color.r, color.g, color.b, color.a);
 
-	colorPicker_->blockSignals(true);
-	colorPicker_->setCurrentColor(old);
-	colorPicker_->blockSignals(false);
+	ColorPicker::get()->blockSignals(true);
+	ColorPicker::get()->setCurrentColor(old);
+	ColorPicker::get()->blockSignals(false);
 
-	delete colorPicker_->userData(Qt::UserRole);
-	colorPicker_->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor4, widget));
-	colorPicker_->exec();
+	delete ColorPicker::get()->userData(Qt::UserRole);
+	ColorPicker::get()->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor4, widget));
+	ColorPicker::get()->exec();
 }

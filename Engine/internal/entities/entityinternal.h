@@ -33,8 +33,8 @@ public:
 	// TODO: animation may change bounds.
 	virtual const Bounds& GetBounds();
 
-	virtual void SetInitialBounds(const Bounds& value);
 	virtual void RecalculateBounds();
+	virtual void SetInitialBounds(const Bounds& value);
 
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_; }

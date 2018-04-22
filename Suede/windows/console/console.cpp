@@ -25,20 +25,57 @@ void Console::init(Ui::Suede* ui) {
 	ui_->table->horizontalHeader()->setVisible(false);
 	ui_->table->setColumnCount(2);
 
-	//((View*)widget())->setSize(QSize(300, 200));
+	connect(ui_->clear, SIGNAL(clicked()), this, SLOT(onClearMessages()));
+	connect(ui_->filter, SIGNAL(selectionChanged(uint)), this, SLOT(onSelectionChanged(uint)));
+	connect(ui_->search, SIGNAL(textChanged(const QString&)), this, SLOT(onSearchTextChanged(const QString&)));
+
+	mask_ = -1;
+	ui_->filter->setItems(QStringList() << "Message" << "Warning" << "Error");
+}
+
+void Console::onClearMessages() {
+	messages_.clear();
+	ui_->table->setRowCount(0);
+}
+
+void Console::onSelectionChanged(uint mask) {
+	mask_ = mask;
+	filterMessageByType(mask);
+}
+
+void Console::onSearchTextChanged(const QString& text) {
+	substr_ = text;
+	filterMessageBySubString(text);
 }
 
 void Console::addMessage(MessageType type, const QString& message) {
-	int r = ui_->table->rowCount();
-	ui_->table->insertRow(r);
-	ui_->table->setColumnWidth(0, 24);
+	if ((type & mask_) != 0 && (substr_.isEmpty() || message.contains(substr_))) {
+		showMessage(type, message);
+	}
 
-	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
-	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
-	ui_->table->setItem(r, 0, icon);
-	ui_->table->setItem(r, 1, text);
+	messages_.push_back((type + '0') + message);
+}
 
-	messages_.push_back(message);
+void Console::filterMessageByType(int mask) {
+	ui_->table->setRowCount(0);
+
+	foreach(QString msg, messages_) {
+		int type = msg.at(0).toLatin1() - '0';
+		if ((type & mask) != 0) {
+			showMessage(MessageType(type), msg.right(msg.length() - 1));
+		}
+	}
+}
+
+void Console::filterMessageBySubString(const QString& substr) {
+	ui_->table->setRowCount(0);
+
+	foreach(QString msg, messages_) {
+		if (substr.isEmpty() || msg.contains(substr)) {
+			int type = msg.at(0).toLatin1() - '0';
+			showMessage(MessageType(type), msg.right(msg.length() - 1));
+		}
+	}
 }
 
 const char* Console::messageIconPath(MessageType type) {
@@ -56,4 +93,15 @@ const char* Console::messageIconPath(MessageType type) {
 	}
 
 	return path;
+}
+
+void Console::showMessage(MessageType type, const QString &message) {
+	int r = ui_->table->rowCount();
+	ui_->table->insertRow(r);
+	ui_->table->setColumnWidth(0, 24);
+
+	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
+	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
+	ui_->table->setItem(r, 0, icon);
+	ui_->table->setItem(r, 1, text);
 }

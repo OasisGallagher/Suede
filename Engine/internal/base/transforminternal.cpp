@@ -204,7 +204,7 @@ glm::vec3 TransformInternal::GetPosition() {
 		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::vec3 position = GetLocalPosition();
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
-			position += current->GetPosition();
+			position = current->TransformPoint(position);
 		}
 
 		world_.position = position;
@@ -376,7 +376,7 @@ glm::vec3 TransformInternal::GetLocalPosition() {
 		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
 		glm::vec3 position = GetPosition();
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
-			position -= current->GetPosition();
+			position = current->InverseTransformPoint(position);
 		}
 
 		local_.position = position;

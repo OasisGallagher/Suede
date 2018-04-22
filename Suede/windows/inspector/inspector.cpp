@@ -3,6 +3,7 @@
 #include "tagmanager.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
+#include "debug/profiler.h"
 
 #include "custom/meshinspector.h"
 #include "custom/camerainspector.h"
@@ -10,6 +11,8 @@
 #include "custom/projectorinspector.h"
 
 static Inspector* inspectorInstance;
+
+static Sample* sample = Profiler::CreateSample();
 
 Inspector* Inspector::get() {
 	return inspectorInstance;
@@ -128,8 +131,11 @@ void Inspector::showView(bool show) {
 }
 
 void Inspector::addInspector(CustomInspector* inspector) {
+	sample->Restart();
 	ui_->content->insertWidget(ui_->content->count() - 1, inspector);
 	inspectors_.push_back(inspector);
+	sample->Stop();
+	Debug::Log("addInspector %.2f", sample->GetElapsedSeconds());
 }
 
 void Inspector::destroyInspectors() {
@@ -146,7 +152,10 @@ void Inspector::redraw() {
 	drawTags();
 	drawTransform();
 
+	sample->Restart();
 	destroyInspectors();
+	sample->Stop();
+	Debug::Log("destroyInspectors %.2f", sample->GetElapsedSeconds());
 
 	if (target_->GetType() == ObjectTypeCamera) {
 		addInspector(new CameraInspector(target_));
@@ -155,13 +164,19 @@ void Inspector::redraw() {
 		addInspector(new ProjectorInspector(target_));
 	}
 
+	sample->Restart();
 	if (target_->GetMesh()) {
 		addInspector(new MeshInspector(target_->GetMesh()));
 	}
+	sample->Stop();
+	Debug::Log("MeshInspector %.2f", sample->GetElapsedSeconds());
 
+	sample->Restart();
 	if (target_->GetRenderer()) {
 		addInspector(new RendererInspector(target_->GetRenderer()));
 	}
+	sample->Stop();
+	Debug::Log("RendererInspector %.2f", sample->GetElapsedSeconds());
 }
 
 void Inspector::drawTags() {

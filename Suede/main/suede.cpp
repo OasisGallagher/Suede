@@ -31,6 +31,7 @@ Suede::Suede(QWidget *parent)
 }
 
 Suede::~Suede() {
+	ColorPicker::destroy();
 	Debug::SetLogReceiver(nullptr);
 }
 

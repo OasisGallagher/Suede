@@ -11,8 +11,6 @@ public:
 	RendererInspector(Object object);
 
 private:
-	void initializeColorPicker();
-
 	void drawMaterial(Renderer renderer, uint materialIndex, const QStringList& shaders, QLayout* materialsLayout);
 	void drawMaterialProperties(QWidgetList& widgets, Material material, uint materialIndex);
 	bool isPropertyVisible(const QString& name);
@@ -28,11 +26,8 @@ private:
 
 private slots:
 	void onEditProperty();
-	void onColorChanged(const QColor& color);
+	void onColorPicked(const QColor& color);
 	void onSelectTexture(QWidget* widget, uint materialIndex, const QString& name);
 	void onSelectColor3(QWidget* widget, uint materialIndex, const QString& name);
 	void onSelectColor4(QWidget* widget, uint materialIndex, const QString& name);
-
-private:
-	QColorDialog* colorPicker_;
 };
