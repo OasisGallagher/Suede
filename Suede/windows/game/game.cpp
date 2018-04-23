@@ -26,15 +26,15 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 #define SKYBOX
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
-#define MAN
+//#define MAN
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
@@ -91,7 +91,7 @@ void Game::OnDrawGizmos() {
 }
 
 void Game::OnEntityImported(Entity root) {
-#ifdef MAN
+#if defined(MAN)
 	root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
 	root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
 	//entity->SetParent(camera);
@@ -102,7 +102,7 @@ void Game::OnEntityImported(Entity root) {
 		animation->Play("");
 	}
 
-#elif ROOM
+#elif defined(ROOM)
 	root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	root->GetTransform()->SetScale(glm::vec3(0.01f));
@@ -314,7 +314,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/house.fbx");
+	Entity room = WorldInstance()->Import("models/house.fbx", this);
 // 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 // 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	//room->GetTransform()->SetScale(glm::vec3(0.01f));

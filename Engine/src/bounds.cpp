@@ -9,7 +9,8 @@ Bounds::Bounds(const glm::vec3& center, const glm::vec3& size) :center(center), 
 }
 
 bool Bounds::Empty() const {
-	return Math::Approximately(size.x) || Math::Approximately(size.y) || Math::Approximately(size.z);
+	return size == glm::vec3(0);
+	//return Math::Approximately(size.x) || Math::Approximately(size.y) || Math::Approximately(size.z);
 }
 
 void Bounds::Clear() {

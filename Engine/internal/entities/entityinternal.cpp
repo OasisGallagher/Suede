@@ -120,9 +120,8 @@ void EntityInternal::CalculateHierarchyBounds() {
 	}
 	else {
 		CalculateHierarchyMeshBounds();
+		boundsDirty_ = false;
 	}
-
-	boundsDirty_ = false;
 }
 
 void EntityInternal::CalculateHierarchyMeshBounds() {

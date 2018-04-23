@@ -19,24 +19,6 @@ enum VertexAttrib {
 	VertexAttribInstanceGeometry,
 };
 
-enum BufferIndex {
-	IndexBuffer,
-	VertexBuffer,
-	InstanceBuffer0,
-	InstanceBuffer1,
-	BufferIndexCount,
-};
-
-struct Storage {
-	Storage();
-
-	VertexArray vao;
-	MeshTopology topology;
-	uint bufferIndexes[BufferIndexCount];
-};
-
-typedef std::shared_ptr<Storage> StoragePointer;
-
 class SubMeshInternal : public ISubMesh, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(SubMesh)
 
@@ -75,8 +57,8 @@ public:
 	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
 	virtual void RemoveSubMesh(uint index);
 
-	virtual MeshTopology GetTopology() { return GetStorage()->topology; }
-	virtual uint GetNativePointer() { return GetStorage()->vao.GetNativePointer(); }
+	virtual MeshTopology GetTopology() { return storage_->topology; }
+	virtual uint GetNativePointer() const { return storage_->vao.GetNativePointer(); }
 
 	virtual uint* MapIndexes();
 	virtual void UnmapIndexes();
@@ -88,13 +70,27 @@ public:
 
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
-protected:
-	virtual StoragePointer& GetStorage() { return storage_; }
-
 private:
 	void Destroy();
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
+
+private:
+	enum BufferIndex {
+		IndexBuffer,
+		VertexBuffer,
+		InstanceBuffer0,
+		InstanceBuffer1,
+		BufferIndexCount,
+	};
+
+	struct Storage {
+		Storage();
+
+		VertexArray vao;
+		MeshTopology topology;
+		uint bufferIndexes[BufferIndexCount];
+	};
 
 private:
 	std::vector<SubMesh> subMeshes_;
@@ -117,24 +113,13 @@ public:
 	virtual void SetFontSize(uint value);
 	virtual uint GetFontSize() { return size_; }
 
-	virtual void AddSubMesh(SubMesh subMesh);
-	virtual int GetSubMeshCount();
-	virtual SubMesh GetSubMesh(uint index);
-	virtual void RemoveSubMesh(uint index);
-
-protected:
-	virtual StoragePointer& GetStorage();
-
 private:
-	void RebuildStorage();
-	void BuildTextMesh(const std::string& text);
-
+	void RebuildMesh();
 	void InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext);
 
 private:
 	uint size_;
 	Font font_;
 
-	bool dirty_;
 	std::string text_;
 };
