@@ -15,6 +15,7 @@ struct SUEDE_API Bounds {
 
 	void Clear();
 	void Encapsulate(const Bounds& other);
+	void Encapsulate(const glm::vec3& point);
 	void SetMinMax(const glm::vec3& min, const glm::vec3& max);
 
 	void Expand(const glm::vec3& amount);

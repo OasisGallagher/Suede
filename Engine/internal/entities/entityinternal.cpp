@@ -76,8 +76,8 @@ void EntityInternal::SetTransform(Transform value) {
 	}
 }
 
-void EntityInternal::SetInitialBounds(const Bounds& value) {
-	initialBounds_ = bounds_ = value;
+void EntityInternal::SetMeshBounds(const Bounds& value) {
+	meshBounds = bounds_ = value;
 	RecalculateBounds();
 }
 
@@ -115,8 +115,19 @@ const Bounds& EntityInternal::GetBounds() {
 }
 
 void EntityInternal::CalculateHierarchyBounds() {
-	if (!initialBounds_.IsEmpty()) {
-		CalculateSelfBounds();
+	if (animation_) {
+		CalculateBonesBounds();
+	}
+	else {
+		CalculateHierarchyMeshBounds();
+	}
+
+	boundsDirty_ = false;
+}
+
+void EntityInternal::CalculateHierarchyMeshBounds() {
+	if (!meshBounds.IsEmpty()) {
+		CalculateMeshBounds();
 	}
 
 	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
@@ -126,13 +137,11 @@ void EntityInternal::CalculateHierarchyBounds() {
 			bounds_.Encapsulate(b);
 		}
 	}
-
-	boundsDirty_ = false;
 }
 
-void EntityInternal::CalculateSelfBounds() {
+void EntityInternal::CalculateMeshBounds() {
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, initialBounds_.center, initialBounds_.size);
+	GeometryUtility::GetCuboidCoordinates(points, meshBounds.center, meshBounds.size);
 
 	Transform transform = GetTransform();
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -144,6 +153,29 @@ void EntityInternal::CalculateSelfBounds() {
 	}
 
 	bounds_.SetMinMax(min, max);
+}
+
+void EntityInternal::CalculateBonesBounds() {
+	std::vector<glm::vec3> points;
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+
+	Bounds boneBounds;
+	Skeleton skeleton = animation_->GetSkeleton();
+	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
+
+	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
+		SkeletonBone* bone = skeleton->GetBone(i);
+		GeometryUtility::GetCuboidCoordinates(points, bone->bounds.center, bone->bounds.size);
+		for (uint j = 0; j < points.size(); ++j) {
+			points[j] = transform_->TransformPoint(glm::vec3(matrices[i] * glm::vec4(points[j], 1)));
+
+			min = glm::min(min, points[j]);
+			max = glm::max(max, points[j]);
+		}
+
+		boneBounds.SetMinMax(min, max);
+		bounds_.Encapsulate(boneBounds);
+	}
 }
 
 void EntityInternal::DirtyParentBounds() {

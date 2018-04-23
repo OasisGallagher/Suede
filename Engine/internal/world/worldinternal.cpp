@@ -6,7 +6,7 @@
 #include "geometryutility.h"
 #include "uniformbuffermanager.h"
 #include "internal/base/framebuffer.h"
-#include "internal/file/entityimporter.h"
+#include "internal/file/asyncentityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
@@ -43,7 +43,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld)
-	, importer_(MEMORY_CREATE(EntityImporter))
+	, importer_(MEMORY_CREATE(AsyncEntityImporter))
 	, environment_(MEMORY_CREATE(EnvironmentInternal))
 	, root_(Factory::Create<EntityInternal>()), decals_(SUEDE_MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
@@ -96,7 +96,8 @@ Object WorldInternal::Create(ObjectType type) {
 	return object;
 }
 
-Entity WorldInternal::Import(const std::string& path) {
+Entity WorldInternal::Import(const std::string& path, EntityImportedListener* listener) {
+	importer_->SetImportedListener(listener);
 	return importer_->Import(path);
 }
 

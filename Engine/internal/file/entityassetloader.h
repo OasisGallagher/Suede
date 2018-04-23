@@ -13,7 +13,7 @@
 #include "renderer.h"
 #include "material.h"
 
-class LoaderCallback {
+class AssetLoadedListener {
 public:
 	virtual void OnLoadFinished() = 0;
 };
@@ -52,7 +52,7 @@ struct EntityAsset {
 
 class Loader : public OpenThreads::Thread {
 public:
-	Loader() : callback_(nullptr) {}
+	Loader() : listener_(nullptr) {}
 	~Loader() { if (isRunning()) { cancel(); } }
 
 public:
@@ -66,7 +66,7 @@ public:
 public:
 	int Start();
 	int GetStatus() const { return status_; }
-	void SetCallback(LoaderCallback* value) { callback_ = value; }
+	void SetLoadedListener(AssetLoadedListener* value) { listener_ = value; }
 	void Terminate() { status_ = Done; }
 
 public:
@@ -82,7 +82,7 @@ protected:
 
 private:
 	int status_;
-	LoaderCallback* callback_;
+	AssetLoadedListener* listener_;
 };
 
 struct Bounds;
@@ -95,10 +95,10 @@ public:
 	virtual bool IsReady() const;
 
 public:
+	Entity GetRoot() { return root_; }
 	Mesh GetSurface() { return surface_; }
 
 	EntityAsset& GetEntityAsset() { return asset_; }
-	std::vector<Renderer>& GetRenderers() { return renderers_; }
 
 	bool Load(const std::string& path, Entity entity);
 
@@ -141,11 +141,8 @@ private:
 	static glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion);
 	static void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);
 
-public:
-	// Stub: test(revert: private and reset at EntityAssetLoader::Run).
-	Entity root_;
-
 private:
+	Entity root_;
 	Mesh surface_;
 	EntityAsset asset_;
 
@@ -155,8 +152,6 @@ private:
 	Skeleton skeleton_;
 	Animation animation_;
 	const aiScene* scene_;
-
-	std::vector<Renderer> renderers_;
 
 	typedef std::map<std::string, TexelMap*> TexelMapContainer;
 	TexelMapContainer texelMapContainer_;

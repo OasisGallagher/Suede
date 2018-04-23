@@ -15,9 +15,6 @@ public:
 public:
 	virtual void RenderEntity(Entity entity);
 
-	virtual void SetReady(bool value) { ready_ = value; }
-	virtual bool GetReady() const { return ready_; }
-
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
 	virtual Material GetMaterial(uint index) { return materials_[index]; }
 	virtual void SetMaterial(uint index, Material value) { materials_[index] = value; }
@@ -36,7 +33,6 @@ protected:
 	void RenderSubMesh(Entity entity, int subMeshIndex, Material material, int pass);
 
 private:
-	bool ready_;
 	uint queue_;
 	std::vector<Material> materials_;
 };

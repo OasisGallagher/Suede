@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "transform.h"
 #include "environment.h"
+#include "entityimportedlistener.h"
 
 enum WorldEventType {
 	WorldEventTypeEntityCreated,
@@ -114,7 +115,7 @@ public:
 	virtual void Update() = 0;
 	virtual Object Create(ObjectType type) = 0;
 
-	virtual Entity Import(const std::string& path) = 0;
+	virtual Entity Import(const std::string& path, EntityImportedListener* listener) = 0;
 
 	virtual Transform GetRootTransform() = 0;
 

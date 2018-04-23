@@ -14,7 +14,7 @@
 #include "internal/base/objectinternal.h"
 
 class Sample;
-class EntityImporter;
+class AsyncEntityImporter;
 
 class WorldInternal : public ObjectInternal, public IWorld {
 	DEFINE_FACTORY_METHOD(World)
@@ -29,7 +29,7 @@ public:
 	virtual Transform GetRootTransform() { return root_->GetTransform(); }
 	virtual Object Create(ObjectType type);
 
-	virtual Entity Import(const std::string& path);
+	virtual Entity Import(const std::string& path, EntityImportedListener* listener);
 
 	virtual Camera GetMainCamera() { return mainCamera_; }
 	virtual void SetMainCamera(Camera value) { mainCamera_ = value; }
@@ -84,7 +84,7 @@ private:
 	LightContainer lights_;
 	CameraContainer cameras_;
 
-	EntityImporter* importer_;
+	AsyncEntityImporter* importer_;
 
 	Plane planes_[6];
 	DecalContainer decals_;

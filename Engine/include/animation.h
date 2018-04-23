@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "object.h"
+#include "bounds.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Skeleton);
 SUEDE_DEFINE_OBJECT_POINTER(Animation);
@@ -20,6 +21,11 @@ SUEDE_DECLARE_OBJECT_CREATER(AnimationFrame);
 
 struct SkeletonBone {
 	std::string name;
+
+	/**
+	 * @brief AABB in bone space.
+	 */
+	Bounds bounds;
 	glm::mat4 localToBoneMatrix;
 };
 

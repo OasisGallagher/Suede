@@ -5,13 +5,14 @@
 #include "entity.h"
 #include "camera.h"
 #include "gizmospainter.h"
+#include "entityimportedlistener.h"
 #include "windows/controls/childwindow.h"
 
 class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow, public GizmosPainter {
+class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityImportedListener {
 	Q_OBJECT
 
 public:
@@ -27,6 +28,9 @@ public:
 
 public:
 	virtual void OnDrawGizmos();
+
+public:
+	virtual void OnEntityImported(Entity root);
 
 private slots:
 	void update();

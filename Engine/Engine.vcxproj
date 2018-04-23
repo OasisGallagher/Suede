@@ -177,7 +177,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\file\entityassetloader.cpp" />
     <ClCompile Include="internal\file\image.cpp" />
     <ClCompile Include="internal\file\shaderparser.cpp" />
-    <ClCompile Include="internal\file\entityimporter.cpp" />
+    <ClCompile Include="internal\file\asyncentityimporter.cpp" />
     <ClCompile Include="internal\geometry\bsptree.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
@@ -215,6 +215,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\driver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
+    <ClInclude Include="include\entityimportedlistener.h" />
     <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\frameevent.h" />
@@ -262,7 +263,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\file\entityassetloader.h" />
     <ClInclude Include="internal\file\image.h" />
     <ClInclude Include="internal\file\shaderparser.h" />
-    <ClInclude Include="internal\file\entityimporter.h" />
+    <ClInclude Include="internal\file\asyncentityimporter.h" />
     <ClInclude Include="internal\geometry\bsptree.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\entities\camerainternal.h" />

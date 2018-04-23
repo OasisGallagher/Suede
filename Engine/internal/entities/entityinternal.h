@@ -34,7 +34,7 @@ public:
 	virtual const Bounds& GetBounds();
 
 	virtual void RecalculateBounds();
-	virtual void SetInitialBounds(const Bounds& value);
+	virtual void SetMeshBounds(const Bounds& value);
 
 	virtual void SetMesh(Mesh value) { mesh_ = value; }
 	virtual Mesh GetMesh() { return mesh_; }
@@ -46,8 +46,11 @@ protected:
 	EntityInternal(ObjectType entityType);
 
 private:
-	void CalculateSelfBounds();
+	void CalculateMeshBounds();
+	void CalculateBonesBounds();
+
 	void CalculateHierarchyBounds();
+	void CalculateHierarchyMeshBounds();
 
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
@@ -73,7 +76,7 @@ private:
 	mutable bool boundsDirty_;
 
 	// initial bounds in local space.
-	Bounds initialBounds_;
+	Bounds meshBounds;
 
 	Renderer renderer_;
 	Animation animation_;

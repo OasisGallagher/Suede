@@ -26,13 +26,13 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 #define SKYBOX
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
-//#define MAN
+#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
@@ -86,6 +86,25 @@ void Game::OnDrawGizmos() {
 		const Bounds& bounds = entity->GetBounds();
 		Gizmos::DrawCuboid(bounds.center, bounds.size);
 	}
+}
+
+void Game::OnEntityImported(Entity root) {
+#ifdef MAN
+	root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
+	root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
+	//entity->SetParent(camera);
+
+	Animation animation = root->GetAnimation();
+	if (animation) {
+		animation->SetWrapMode(AnimationWrapModePingPong);
+		animation->Play("");
+	}
+
+#elif ROOM
+	root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
+	root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
+	root->GetTransform()->SetScale(glm::vec3(0.01f));
+#endif
 }
 
 void Game::start() {
@@ -293,7 +312,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/geom.fbx");
+	Entity room = WorldInstance()->Import("models/house.fbx");
 // 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 // 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	//room->GetTransform()->SetScale(glm::vec3(0.01f));
@@ -312,17 +331,6 @@ void Game::createScene() {
 #endif
 
 #ifdef MAN
-	Entity man = WorldInstance()->Import("models/boblampclean.md5mesh");
-	man->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
-	man->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
-	if (man) {
-		//entity->SetParent(camera);
-
-		Animation animation = man->GetAnimation();
-		if (animation) {
-			animation->SetWrapMode(AnimationWrapModePingPong);
-			animation->Play("");
-		}
-	}
+	Entity man = WorldInstance()->Import("models/boblampclean.md5mesh", this);
 #endif
 }

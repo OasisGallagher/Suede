@@ -536,6 +536,10 @@ void CameraInternal::OnImageEffects() {
 void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix) {
 	for (int i = 0; i < root->GetChildCount(); ++i) {
 		Entity child = root->GetChildAt(i)->GetEntity();
+		if (!child->GetActive()) {
+			continue;
+		}
+
 		if (!IsVisible(child, worldToClipMatrix)) {
 			continue;
 		}
@@ -549,7 +553,7 @@ void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entit
 }
 
 bool CameraInternal::CheckRenderComponents(Entity entity) {
-	return entity->GetActive() && entity->GetRenderer() && entity->GetRenderer()->GetReady() && entity->GetMesh();
+	return entity->GetActive() && entity->GetRenderer() && entity->GetMesh();
 }
 
 bool CameraInternal::IsVisible(Entity entity, glm::mat4& worldToClipMatrix) {

@@ -37,7 +37,7 @@ public:
 	/**
 	 * @returns set initial bounds in local space.
 	 */
-	virtual void SetInitialBounds(const Bounds& value) = 0;
+	virtual void SetMeshBounds(const Bounds& value) = 0;
 	virtual void RecalculateBounds() = 0;
 
 	virtual void SetMesh(Mesh value) = 0;

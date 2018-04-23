@@ -1,5 +1,6 @@
 #include "bounds.h"
 #include "tools/math2.h"
+#include "debug/debug.h"
 
 Bounds::Bounds() : Bounds(glm::vec3(0), glm::vec3(0)) {
 }
@@ -46,11 +47,16 @@ void Bounds::Encapsulate(const Bounds& other) {
 		size = other.size;
 	}
 	else if(!other.IsEmpty()) {
-		const glm::vec3& min1 = GetMin(), &max1 = GetMax();
-		const glm::vec3& min2 = other.GetMin(), &max2 = other.GetMax();
-		glm::vec3 min = glm::vec3(glm::min(min1.x, min2.x), glm::min(min1.y, min2.y), glm::min(min1.z, min2.z));
-		glm::vec3 max = glm::vec3(glm::max(max1.x, max2.x), glm::max(max1.y, max2.y), glm::max(max1.z, max2.z));
+		SetMinMax(glm::min(GetMin(), other.GetMin()), glm::max(GetMax(), other.GetMax()));
+	}
+}
 
-		SetMinMax(min, max);
+void Bounds::Encapsulate(const glm::vec3& point) {
+	if (IsEmpty()) {
+		center = point;
+		size = glm::vec3(std::numeric_limits<float>::min());
+	}
+	else {
+		SetMinMax(glm::min(GetMin(), point), glm::max(GetMax(), point));
 	}
 }

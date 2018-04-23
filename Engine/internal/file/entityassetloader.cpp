@@ -26,7 +26,7 @@ void Loader::run() {
 		}
 
 		Run();
-		if (callback_ != nullptr) { callback_->OnLoadFinished(); }
+		if (listener_ != nullptr) { listener_->OnLoadFinished(); }
 	}
 }
 
@@ -128,6 +128,7 @@ bool EntityAssetLoader::Load(const std::string& path, Entity entity) {
 
 	path_ = path;
 	root_ = entity;
+	root_->SetActiveSelf(false);
 
 	return true;
 }
@@ -192,9 +193,6 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
-	renderer->SetReady(false);
-	renderers_.push_back(renderer);
-
 	Mesh mesh = NewMesh();
 	mesh->ShareStorage(surface);
 	
@@ -214,7 +212,7 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 	}
 
 	entity->SetMesh(mesh);
-	entity->SetInitialBounds(bounds);
+	entity->SetMeshBounds(bounds);
 	entity->SetRenderer(renderer);
 }
 
@@ -335,6 +333,9 @@ void EntityAssetLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, S
 				if (Math::Approximately(meshAsset.blendAttrs[vertexID].weights[k])) {
 					meshAsset.blendAttrs[vertexID].indexes[k] = index;
 					meshAsset.blendAttrs[vertexID].weights[k] = weight;
+
+					SkeletonBone* bone = skeleton_->GetBone(index);
+					bone->bounds.Encapsulate(glm::vec3(bone->localToBoneMatrix * glm::vec4(meshAsset.positions[vertexID], 1)));
 					break;
 				}
 			}

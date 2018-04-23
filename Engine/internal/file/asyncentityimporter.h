@@ -3,11 +3,15 @@
 #include "entity.h"
 #include "engine.h"
 #include "entityassetloader.h"
+#include "entityimportedlistener.h"
 
-class EntityImporter : public LoaderCallback, public FrameEventListener {
+class AsyncEntityImporter : public AssetLoadedListener, public FrameEventListener {
 public:
-	EntityImporter();
-	~EntityImporter();
+	AsyncEntityImporter();
+	~AsyncEntityImporter();
+
+public:
+	void SetImportedListener(EntityImportedListener* listener);
 
 public:
 	virtual void OnLoadFinished();
@@ -25,4 +29,5 @@ private:
 private:
 	int status_;
 	EntityAssetLoader* loader_;
+	EntityImportedListener* listener_;
 };
