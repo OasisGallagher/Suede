@@ -83,4 +83,3 @@ std::string AsyncEntityImporter::StrError(int err) {
 
 	return "error = " + std::to_string(err);
 }
-

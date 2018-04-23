@@ -195,12 +195,13 @@ void Hierarchy::appendChildItem(Entity entity) {
 }
 
 void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
-	if (!entity || !entity->GetRenderer()) {
+	Renderer renderer;
+	if (!entity || !(renderer = entity->GetRenderer())) {
 		return;
 	}
 
-	for (int i = 0; i < entity->GetRenderer()->GetMaterialCount(); ++i) {
-		Material material = entity->GetRenderer()->GetMaterial(i);
+	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+		Material material = renderer->GetMaterial(i);
 		int outline = material->FindPass("Outline");
 		if (outline < 0) { continue; }
 

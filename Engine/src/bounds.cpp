@@ -8,7 +8,7 @@ Bounds::Bounds() : Bounds(glm::vec3(0), glm::vec3(0)) {
 Bounds::Bounds(const glm::vec3& center, const glm::vec3& size) :center(center), size(size) {
 }
 
-bool Bounds::IsEmpty() const {
+bool Bounds::Empty() const {
 	return Math::Approximately(size.x) || Math::Approximately(size.y) || Math::Approximately(size.z);
 }
 
@@ -42,17 +42,17 @@ glm::vec3 Bounds::GetSize() const {
 }
 
 void Bounds::Encapsulate(const Bounds& other) {
-	if (IsEmpty()) {
+	if (Empty()) {
 		center = other.center;
 		size = other.size;
 	}
-	else if(!other.IsEmpty()) {
+	else if(!other.Empty()) {
 		SetMinMax(glm::min(GetMin(), other.GetMin()), glm::max(GetMax(), other.GetMax()));
 	}
 }
 
 void Bounds::Encapsulate(const glm::vec3& point) {
-	if (IsEmpty()) {
+	if (Empty()) {
 		center = point;
 		size = glm::vec3(std::numeric_limits<float>::min());
 	}

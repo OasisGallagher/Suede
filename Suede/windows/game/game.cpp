@@ -34,7 +34,7 @@
 //#define POST_EFFECTS
 #define MAN
 //#define PARTICLE_SYSTEM
-//#define FONT
+#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
@@ -78,13 +78,15 @@ void Game::awake() {
 }
 
 void Game::OnDrawGizmos() {
-	foreach (Entity entity, selected_) {
+	foreach(Entity entity, selected_) {
 		if (!entity->GetActive()) {
 			continue;
 		}
 
 		const Bounds& bounds = entity->GetBounds();
-		Gizmos::DrawCuboid(bounds.center, bounds.size);
+		if (!bounds.Empty()) {
+			Gizmos::DrawCuboid(bounds.center, bounds.size);
+		}
 	}
 }
 

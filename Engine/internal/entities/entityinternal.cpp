@@ -28,7 +28,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
 		UpdateChildrenActive(suede_dynamic_cast<Entity>(shared_from_this()));
 
-		if (!GetBounds().IsEmpty()) {
+		if (!GetBounds().Empty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -126,7 +126,7 @@ void EntityInternal::CalculateHierarchyBounds() {
 }
 
 void EntityInternal::CalculateHierarchyMeshBounds() {
-	if (!meshBounds.IsEmpty()) {
+	if (!meshBounds.Empty()) {
 		CalculateMeshBounds();
 	}
 
