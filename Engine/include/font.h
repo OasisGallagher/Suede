@@ -13,6 +13,11 @@ struct CharacterInfo {
 	glm::vec4 texCoord;
 };
 
+class FontMaterialRebuiltListener {
+public:
+	virtual void OnMaterialRebuilt() = 0;
+};
+
 class SUEDE_API IFont : virtual public IObject {
 public:
 	virtual bool Load(const std::string& path, int size) = 0;
@@ -26,4 +31,7 @@ public:
 
 	virtual Material GetMaterial() = 0;
 	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info) = 0;
+
+	virtual void AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) = 0;
+	virtual void RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) = 0;
 };

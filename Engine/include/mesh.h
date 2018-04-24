@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "font.h"
+#include "bounds.h"
 #include "material.h"
 #include "component.h"
 
@@ -15,9 +16,6 @@ SUEDE_DEFINE_OBJECT_POINTER(Mesh);
 
 class ISubMesh : virtual public IObject {
 public:
-	virtual Mesh GetMesh() = 0;
-	virtual void SetMesh(Mesh value) = 0;
-
 	virtual const TriangleBias& GetTriangleBias() const = 0;
 	virtual void SetTriangleBias(const TriangleBias& value) = 0;
 };
@@ -76,6 +74,12 @@ public:
 	 */
 	virtual void CreateStorage() = 0;
 	virtual void SetAttribute(const MeshAttribute& value) = 0;
+
+	/**
+	 * @returns bounds measured in the world space.
+	 */
+	virtual const Bounds& GetBounds() const = 0;
+	virtual void SetBounds(const Bounds& value) = 0;
 
 	virtual void AddSubMesh(SubMesh subMesh) = 0;
 	virtual int GetSubMeshCount() = 0;

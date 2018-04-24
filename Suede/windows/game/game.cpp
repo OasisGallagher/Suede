@@ -27,7 +27,7 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define BEAR
@@ -86,7 +86,7 @@ void Game::OnDrawGizmos() {
 		}
 
 		const Bounds& bounds = entity->GetBounds();
-		if (!bounds.Empty()) {
+		if (!bounds.IsEmpty()) {
 			Gizmos::DrawCuboid(bounds.center, bounds.size);
 		}
 	}
@@ -250,7 +250,7 @@ void Game::createScene() {
 
 #else
 	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(1, 1, 1));
+	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
 #endif
 	
 #ifdef RENDER_TEXTURE
@@ -283,48 +283,41 @@ void Game::createScene() {
 #endif
 
 #if defined(FONT)
-	Entity fentity = NewEntity();
-	fentity->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
-	fentity->GetTransform()->SetEulerAngles(glm::vec3(0, 0, 0));
-
-	//Entity fentity2 = NewEntity();
-	//fentity2->SetPosition(glm::vec3(-10, 30, -20));
-
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
-	TextMesh mesh = NewTextMesh();
-	fentity->SetMesh(mesh);
+	Entity redText = NewEntity();
+	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
 
-	mesh->SetFont(font);
-	mesh->SetText("ab");
-	
-	mesh->SetFontSize(12);
-	//fentity2->SetMesh(mesh);
+	Entity blueText = NewEntity();
+	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
 
-	Renderer renderer = NewMeshRenderer();
-	Material fontMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	fontMaterial->SetColor4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
+	TextMesh redMesh = NewTextMesh();
+	redMesh->SetFont(font);
+	redMesh->SetText("落霞与孤鹜齐飞");
+	redMesh->SetFontSize(12);
 
-	/*
-	Renderer renderer2 = NewMeshRenderer();
-	Material fontMaterial2 = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	fontMaterial2->SetColor(Variables::mainColor, glm::vec4(1, 1, 0, 1));
-	*/
+	TextMesh blueMesh = NewTextMesh();
+	blueMesh->SetFont(font);
+	blueMesh->SetText("秋水共长天一色");
+	blueMesh->SetFontSize(12);
 
-	renderer->AddMaterial(fontMaterial);
-	//renderer2->AddMaterial(fontMaterial2);
+	redText->SetMesh(redMesh);
+	blueText->SetMesh(blueMesh);
 
-	fentity->SetRenderer(renderer);
-	
-	fentity->Update();
+	Renderer redRenderer = NewMeshRenderer();
+	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
+	redMaterial->SetColor4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
+	redRenderer->AddMaterial(redMaterial);
 
-	std::vector<uchar> data;
-	font->GetTexture()->EncodeToPNG(data);
-	QImage image;
-	image.loadFromData(data.data(), data.size());
-	image.save("c:\\esd\\1.jpg");
-	//fentity2->SetRenderer(renderer2);
+	Renderer blueRenderer = NewMeshRenderer();
+	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
+	blueMaterial->SetColor4(Variables::mainColor, glm::vec4(0, 0, 1, 1));
+	blueRenderer->AddMaterial(blueMaterial);
+
+	redText->SetRenderer(redRenderer);
+	blueText->SetRenderer(blueRenderer);
+
 #endif
 
 #ifdef ROOM

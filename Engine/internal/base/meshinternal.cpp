@@ -127,7 +127,6 @@ void MeshInternal::ShareStorage(Mesh other) {
 
 void MeshInternal::AddSubMesh(SubMesh subMesh) {
 	subMeshes_.push_back(subMesh);
-	subMesh->SetMesh(suede_dynamic_cast<Mesh>(shared_from_this()));
 }
 
 void MeshInternal::Bind() {
@@ -147,7 +146,6 @@ void MeshInternal::Unbind() {
 void MeshInternal::RemoveSubMesh(uint index) {
 	SubMesh subMesh = subMeshes_[index];
 	subMeshes_.erase(subMeshes_.begin() + index);
-	subMesh->SetMesh(nullptr);
 }
 
 uint* MeshInternal::MapIndexes() {
@@ -174,7 +172,6 @@ uint MeshInternal::GetVertexCount() {
 	return storage_->vao.GetBufferSize(storage_->bufferIndexes[VertexBuffer]) / sizeof(glm::vec3);
 }
 
-
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	if (i >= BufferIndexCount - InstanceBuffer0) {
 		Debug::LogError("index out of range");
@@ -187,27 +184,37 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh), dirty_(false) {
 }
 
+TextMeshInternal::~TextMeshInternal() {
+	if (font_) {
+		font_->RemoveMaterialRebuiltListener(this);
+	}
+}
+
 void TextMeshInternal::SetText(const std::string& value) {
 	if (text_ != value) {
 		text_ = value;
-		//RebuildMesh();
 		dirty_ = true;
 	}
 }
 
 void TextMeshInternal::SetFont(Font value) {
-	if (font_ != value) {
-		font_ = value;
-		//RebuildMesh();
-		dirty_ = true;
+	if (font_ == value) { return; }
+
+	if (font_) {
+		font_->RemoveMaterialRebuiltListener(this);
 	}
+
+	if (value) {
+		value->AddMaterialRebuiltListener(this);
+	}
+
+	font_ = value;
+	dirty_ = true;
 }
 
 void TextMeshInternal::SetFontSize(uint value) {
-	// TODO: rebuild mesh twice with SetFont and SetFontSize.
 	if (size_ != value) {
 		size_ = value;
-		//RebuildMesh();
 		dirty_ = true;
 	}
 }
@@ -216,6 +223,10 @@ void TextMeshInternal::Update() {
 	if (dirty_) {
 		RebuildMesh();
 	}
+}
+
+void TextMeshInternal::OnMaterialRebuilt() {
+	dirty_ = true;
 }
 
 void TextMeshInternal::RebuildMesh() {
@@ -292,9 +303,8 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		max = glm::max(max, attribute.positions[i]);
 	}
 
-	Bounds bounds;
-	bounds.SetMinMax(min, max);
-	GetEntity()->SetMeshBounds(bounds);
+	bounds_.SetMinMax(min, max);
+	GetEntity()->RecalculateBounds();
 }
 
 MeshInternal::Storage::Storage() {

@@ -33,11 +33,8 @@ public:
 	virtual void SetAnimation(Animation value);
 	virtual Animation GetAnimation() { return animation_; }
 
-	// TODO: animation may change bounds.
 	virtual const Bounds& GetBounds();
-
 	virtual void RecalculateBounds();
-	virtual void SetMeshBounds(const Bounds& value);
 
 	virtual void SetMesh(Mesh value);
 	virtual Mesh GetMesh() { return mesh_; }
@@ -49,8 +46,8 @@ protected:
 	EntityInternal(ObjectType entityType);
 
 private:
-	void CalculateMeshBounds();
-	void CalculateBonesBounds();
+	void CalculateSelfWorldBounds();
+	void CalculateBonesWorldBounds();
 
 	void CalculateHierarchyBounds();
 	void CalculateHierarchyMeshBounds();
@@ -76,11 +73,9 @@ private:
 
 	Mesh mesh_;
 
-	mutable Bounds bounds_;
-	mutable bool boundsDirty_;
-
-	// initial bounds in local space.
-	Bounds meshBounds;
+	Bounds worldBounds_;
+	// is world space dirty.
+	bool boundsDirty_;
 
 	Renderer renderer_;
 	Animation animation_;

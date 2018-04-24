@@ -35,6 +35,9 @@ public:
 
 	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
 
+	virtual void AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
+	virtual void RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
+
 private:
 	struct Glyph {
 		TexelMap texelMap;
@@ -55,6 +58,7 @@ private:
 	GlyphContainer glyphs_;
 	Atlas::CoordContainer coords_;
 	std::vector<TexelMap*> texelMaps_;
+	std::vector<FontMaterialRebuiltListener*> listeners_;
 
 	int size_;
 	std::string fname_;

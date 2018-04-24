@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include <ft2build.h>
 #include <freetype/ftglyph.h>
 
@@ -15,6 +17,7 @@ FontInternal::FontInternal()
 
 	// default font color.
 	material_->SetColor4(Variables::mainColor, glm::vec4(1));
+	material_->SetTexture(Variables::mainTexture, NewTexture2D());
 }
 
 FontInternal::~FontInternal() {
@@ -27,7 +30,7 @@ bool FontInternal::Load(const std::string& path, int size) {
 }
 
 bool FontInternal::Require(const std::wstring& str) {
-	bool status = true;
+	bool status = true, updateMaterial = false;
 	for (int i = 0; i < str.length(); ++i) {
 		if (!glyphs_.contains(str[i])) {
 			TexelMap* texelMap = &glyphs_[str[i]]->texelMap;
@@ -36,13 +39,11 @@ bool FontInternal::Require(const std::wstring& str) {
 			status = GetBitmapBits(str[i], texelMap) && status;
 			texelMaps_.push_back(texelMap);
 			
-			// invalidate material.
-			material_->SetTexture(Variables::mainTexture, nullptr);
+			updateMaterial = true;
 		}
 	}
 
-	// TODO: rebuild timing.
-	if (!material_->GetTexture(Variables::mainTexture)) {
+	if (updateMaterial) {
 		RebuildMaterial();
 	}
 
@@ -77,6 +78,16 @@ bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 	}
 
 	return true;
+}
+
+void FontInternal::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) {
+	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
+		listeners_.push_back(listener);
+	}
+}
+
+void FontInternal::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) {
+	listeners_.erase(std::remove(listeners_.begin(), listeners_.end(), listener), listeners_.end());
 }
 
 bool FontInternal::Import(const std::string& path, int size) {
@@ -147,10 +158,12 @@ void FontInternal::RebuildMaterial() {
 
 	coords_ = atlas.coords;
 
-	Texture2D texture = NewTexture2D();
+	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::mainTexture));
 	texture->Load(TextureFormatRgba, &atlas.data[0], ColorStreamFormatLuminanceAlpha, atlas.width, atlas.height);
 
-	material_->SetTexture(Variables::mainTexture, texture);
+	for (uint i = 0; i < listeners_.size(); ++i) {
+		listeners_[i]->OnMaterialRebuilt();
+	}
 }
 
 void FontInternal::Destroy() {

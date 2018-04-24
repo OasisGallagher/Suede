@@ -25,15 +25,12 @@ class SubMeshInternal : public ISubMesh, public ObjectInternal {
 public:
 	SubMeshInternal();
 
-	virtual void SetMesh(Mesh value) { mesh_ = value; }
-	virtual Mesh GetMesh() { return mesh_.lock(); }
-
+public:
 	virtual void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
 	virtual const TriangleBias& GetTriangleBias() const { return bias_; }
 
 private:
 	TriangleBias bias_;
-	std::weak_ptr<Mesh::element_type> mesh_;
 };
 
 class MeshInternal : virtual public IMesh, public ComponentInternal {
@@ -47,6 +44,9 @@ public:
 public:
 	virtual void CreateStorage();
 	virtual void SetAttribute(const MeshAttribute& value);
+
+	virtual void SetBounds(const Bounds& value) { bounds_ = value; }
+	virtual const Bounds& GetBounds() const { return bounds_; }
 
 	virtual void Bind();
 	virtual void Unbind();
@@ -92,16 +92,20 @@ private:
 		uint bufferIndexes[BufferIndexCount];
 	};
 
+protected:
+	Bounds bounds_;
+
 private:
 	std::vector<SubMesh> subMeshes_;
 	std::shared_ptr<Storage> storage_;
 };
 
-class TextMeshInternal : public ITextMesh, public MeshInternal {
+class TextMeshInternal : public ITextMesh, public MeshInternal, public FontMaterialRebuiltListener {
 	DEFINE_FACTORY_METHOD(TextMesh)
 
 public:
 	TextMeshInternal();
+	~TextMeshInternal();
 
 public:
 	virtual void Update();
@@ -115,6 +119,9 @@ public:
 
 	virtual void SetFontSize(uint value);
 	virtual uint GetFontSize() { return size_; }
+
+public:
+	virtual void OnMaterialRebuilt();
 
 private:
 	void RebuildMesh();

@@ -20,14 +20,7 @@ Object MaterialInternal::Clone() {
 	Material clone = NewMaterial();
 	MaterialInternal* clonePtr = dynamic_cast<MaterialInternal*>(clone.get());
 	*clonePtr = *this;
-	/* Keep all properties ?
-	clonePtr->pass_ = -1;
-	clonePtr->shader_ = shader_;
-	clonePtr->name_ = name_;
 
-	clonePtr->InitializeProperties();
-	clonePtr->InitializeEnabledState();
-	*/
 	return clone;
 }
 

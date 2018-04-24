@@ -26,12 +26,8 @@ SubShader {
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 
-		uniform bool test;
 		void main() {
 			fragColor = texture(c_mainTexture, texCoord) * c_mainColor;
-			if (!test) {
-			//	fragColor = vec4(texCoord, 0, 1);
-			}
 		}
 
 		ENDGLSL

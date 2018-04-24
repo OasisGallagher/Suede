@@ -28,7 +28,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
 		UpdateChildrenActive(suede_dynamic_cast<Entity>(shared_from_this()));
 
-		if (!GetBounds().Empty()) {
+		if (!mesh_->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -90,11 +90,6 @@ void EntityInternal::SetAnimation(Animation value) {
 	}
 }
 
-void EntityInternal::SetMeshBounds(const Bounds& value) {
-	meshBounds = bounds_ = value;
-	RecalculateBounds();
-}
-
 void EntityInternal::SetMesh(Mesh value) {
 	if (mesh_ == value) { return; }
 
@@ -105,6 +100,8 @@ void EntityInternal::SetMesh(Mesh value) {
 	if (mesh_ = value) {
 		mesh_->SetEntity(suede_dynamic_cast<Entity>(shared_from_this()));
 	}
+
+	boundsDirty_ = true;
 }
 
 void EntityInternal::SetRenderer(Renderer value) {
@@ -145,16 +142,16 @@ void EntityInternal::UpdateChildrenActive(Entity parent) {
 
 const Bounds& EntityInternal::GetBounds() {
 	if (boundsDirty_) {
-		bounds_.Clear();
+		worldBounds_.Clear();
 		CalculateHierarchyBounds();
 	}
 
-	return bounds_;
+	return worldBounds_;
 }
 
 void EntityInternal::CalculateHierarchyBounds() {
 	if (animation_) {
-		CalculateBonesBounds();
+		CalculateBonesWorldBounds();
 	}
 	else {
 		CalculateHierarchyMeshBounds();
@@ -163,22 +160,23 @@ void EntityInternal::CalculateHierarchyBounds() {
 }
 
 void EntityInternal::CalculateHierarchyMeshBounds() {
-	if (!meshBounds.Empty()) {
-		CalculateMeshBounds();
+	if (mesh_ && !mesh_->GetBounds().IsEmpty()) {
+		CalculateSelfWorldBounds();
 	}
 
 	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
 		Entity child = transform_->GetChildAt(i)->GetEntity();
 		if (child->GetActive()) {
 			const Bounds& b = child->GetBounds();
-			bounds_.Encapsulate(b);
+			worldBounds_.Encapsulate(b);
 		}
 	}
 }
 
-void EntityInternal::CalculateMeshBounds() {
+void EntityInternal::CalculateSelfWorldBounds() {
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, meshBounds.center, meshBounds.size);
+	const Bounds& localBounds = mesh_->GetBounds();
+	GeometryUtility::GetCuboidCoordinates(points, localBounds.center, localBounds.size);
 
 	Transform transform = GetTransform();
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -189,10 +187,10 @@ void EntityInternal::CalculateMeshBounds() {
 		max = glm::max(max, points[i]);
 	}
 
-	bounds_.SetMinMax(min, max);
+	worldBounds_.SetMinMax(min, max);
 }
 
-void EntityInternal::CalculateBonesBounds() {
+void EntityInternal::CalculateBonesWorldBounds() {
 	std::vector<glm::vec3> points;
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
@@ -211,7 +209,7 @@ void EntityInternal::CalculateBonesBounds() {
 		}
 
 		boneBounds.SetMinMax(min, max);
-		bounds_.Encapsulate(boneBounds);
+		worldBounds_.Encapsulate(boneBounds);
 	}
 }
 

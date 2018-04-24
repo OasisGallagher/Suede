@@ -11,7 +11,7 @@ struct SUEDE_API Bounds {
 	Bounds();
 	Bounds(const glm::vec3& center, const glm::vec3& size);
 
-	bool Empty() const;
+	bool IsEmpty() const;
 
 	void Clear();
 	void Encapsulate(const Bounds& other);
@@ -27,4 +27,6 @@ struct SUEDE_API Bounds {
 
 	glm::vec3 size;
 	glm::vec3 center;
+
+	static const Bounds empty;
 };

@@ -212,8 +212,9 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 		}
 	}
 
+	mesh->SetBounds(bounds);
+
 	entity->SetMesh(mesh);
-	entity->SetMeshBounds(bounds);
 	entity->SetRenderer(renderer);
 }
 
