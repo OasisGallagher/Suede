@@ -30,7 +30,7 @@ public:
 	virtual void OnDrawGizmos();
 
 public:
-	virtual void OnEntityImported(Entity root);
+	virtual void OnEntityImported(bool status, Entity root);
 
 private slots:
 	void update();
@@ -61,4 +61,6 @@ private:
 	ImageEffect* grayscale_;
 	ImageEffect* inversion_;
 	CameraController* controller_;
+
+	float loadSceneStart_;
 };

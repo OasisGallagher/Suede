@@ -14,7 +14,7 @@ EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 
 EntityInternal::EntityInternal(ObjectType entityType)
 	: ObjectInternal(entityType), active_(true),  activeSelf_(true)
-	, boundsDirty_(true) {
+	, boundsDirty_(true), status_(EntityStatusReady) {
 	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
@@ -53,8 +53,10 @@ bool EntityInternal::SetTag(const std::string& value) {
 void EntityInternal::SetName(const std::string& value) {
 	if (value.empty()) {
 		Debug::LogWarning("empty name.");
+		return;
 	}
-	else if (name_ != value) {
+	
+	if (name_ != value) {
 		name_ = value;
 
 		EntityNameChangedEventPointer e = NewWorldEvent<EntityNameChangedEventPointer>();
@@ -64,9 +66,9 @@ void EntityInternal::SetName(const std::string& value) {
 }
 
 void EntityInternal::Update() {
-	if (animation_) {
-		animation_->Update();
-	}
+	if (mesh_) { mesh_->Update(); }
+	if (animation_) { animation_->Update(); }
+	if (renderer_) { renderer_->Update(); }
 }
 
 void EntityInternal::SetTransform(Transform value) {
@@ -76,9 +78,45 @@ void EntityInternal::SetTransform(Transform value) {
 	}
 }
 
+void EntityInternal::SetAnimation(Animation value) {
+	if (animation_ == value) { return; }
+
+	if (animation_) {
+		animation_->SetEntity(nullptr);
+	}
+
+	if (animation_ = value) {
+		animation_->SetEntity(suede_dynamic_cast<Entity>(shared_from_this()));
+	}
+}
+
 void EntityInternal::SetMeshBounds(const Bounds& value) {
 	meshBounds = bounds_ = value;
 	RecalculateBounds();
+}
+
+void EntityInternal::SetMesh(Mesh value) {
+	if (mesh_ == value) { return; }
+
+	if (mesh_) {
+		mesh_->SetEntity(nullptr);
+	}
+
+	if (mesh_ = value) {
+		mesh_->SetEntity(suede_dynamic_cast<Entity>(shared_from_this()));
+	}
+}
+
+void EntityInternal::SetRenderer(Renderer value) {
+	if (renderer_ == value) { return; }
+
+	if (renderer_) {
+		renderer_->SetEntity(nullptr);
+	}
+
+	if (renderer_ = value) {
+		renderer_->SetEntity(suede_dynamic_cast<Entity>(shared_from_this()));
+	}
 }
 
 void EntityInternal::RecalculateBounds() {

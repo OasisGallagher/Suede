@@ -2,8 +2,8 @@
 #include <vector>
 
 #include "font.h"
-#include "object.h"
 #include "material.h"
+#include "component.h"
 
 struct TriangleBias {
 	uint indexCount;
@@ -69,7 +69,7 @@ struct MeshAttribute {
 	InstanceAttribute geometry;
 };
 
-class SUEDE_API IMesh : virtual public IObject {
+class SUEDE_API IMesh : virtual public IComponent {
 public:
 	/**
 	 * @brief: create an empty storage for sharing.

@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "ui_suede.h"
+#include "windows/status/status.h"
 #include "windows/controls/canvas.h"
 
 #include "game.h"
@@ -26,15 +27,15 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
-#define SKYBOX
+//#define ROOM
+//#define SKYBOX
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
-//#define FONT
+#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
@@ -73,6 +74,7 @@ void Game::awake() {
 	grayscale_ = new Grayscale;
 	inversion_ = new Inversion;
 
+	loadSceneStart_ = Time::GetRealTimeSinceStartup();
 	createScene();
 	update();
 }
@@ -90,7 +92,7 @@ void Game::OnDrawGizmos() {
 	}
 }
 
-void Game::OnEntityImported(Entity root) {
+void Game::OnEntityImported(bool status, Entity root) {
 #if defined(MAN)
 	root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
 	root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
@@ -107,6 +109,9 @@ void Game::OnEntityImported(Entity root) {
 	root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 	root->GetTransform()->SetScale(glm::vec3(0.01f));
 #endif
+
+	float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
+	Status::get()->showMessage(QString("Scene loaded in %1 seconds").arg(QString::number(delta, 'g', 2)), 2000);
 }
 
 void Game::start() {
@@ -245,7 +250,7 @@ void Game::createScene() {
 
 #else
 	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
+	camera->SetClearColor(glm::vec3(1, 1, 1));
 #endif
 	
 #ifdef RENDER_TEXTURE
@@ -289,11 +294,12 @@ void Game::createScene() {
 	font->Load("fonts/ms_yh.ttf", 12);
 
 	TextMesh mesh = NewTextMesh();
+	fentity->SetMesh(mesh);
+
 	mesh->SetFont(font);
 	mesh->SetText("ab");
 	
 	mesh->SetFontSize(12);
-	fentity->SetMesh(mesh);
 	//fentity2->SetMesh(mesh);
 
 	Renderer renderer = NewMeshRenderer();
@@ -310,15 +316,21 @@ void Game::createScene() {
 	//renderer2->AddMaterial(fontMaterial2);
 
 	fentity->SetRenderer(renderer);
+	
+	fentity->Update();
+
+	std::vector<uchar> data;
+	font->GetTexture()->EncodeToPNG(data);
+	QImage image;
+	image.loadFromData(data.data(), data.size());
+	image.save("c:\\esd\\1.jpg");
 	//fentity2->SetRenderer(renderer2);
 #endif
 
 #ifdef ROOM
 	Entity room = WorldInstance()->Import("models/house.fbx", this);
-// 	room->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-// 	room->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	//room->GetTransform()->SetScale(glm::vec3(0.01f));
 	roomEntityID = room->GetInstanceID();
+	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif
 
 #ifdef BEAR

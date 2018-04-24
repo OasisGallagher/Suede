@@ -11,6 +11,9 @@ public:
 	EntityInternal();
 
 public:
+	virtual void SetStatus(EntityStatus value) { status_ = value; }
+	virtual EntityStatus GetStatus() const { return status_; }
+
 	virtual bool GetActive() const { return active_; }
 
 	virtual void SetActiveSelf(bool value);
@@ -27,7 +30,7 @@ public:
 	virtual void SetTransform(Transform value);
 	virtual Transform GetTransform() const { return transform_; }
 
-	virtual void SetAnimation(Animation value) { animation_ = value; }
+	virtual void SetAnimation(Animation value);
 	virtual Animation GetAnimation() { return animation_; }
 
 	// TODO: animation may change bounds.
@@ -36,10 +39,10 @@ public:
 	virtual void RecalculateBounds();
 	virtual void SetMeshBounds(const Bounds& value);
 
-	virtual void SetMesh(Mesh value) { mesh_ = value; }
+	virtual void SetMesh(Mesh value);
 	virtual Mesh GetMesh() { return mesh_; }
 
-	virtual void SetRenderer(Renderer value) { renderer_ = value; }
+	virtual void SetRenderer(Renderer value);
 	virtual Renderer GetRenderer() { return renderer_; }
 
 protected:
@@ -64,6 +67,7 @@ private:
 private:
 	bool active_;
 	bool activeSelf_;
+	EntityStatus status_;
 
 	std::string tag_;
 	std::string name_;

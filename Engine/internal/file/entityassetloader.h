@@ -95,7 +95,6 @@ public:
 	virtual bool IsReady() const;
 
 public:
-	Entity GetRoot() { return root_; }
 	Mesh GetSurface() { return surface_; }
 
 	EntityAsset& GetEntityAsset() { return asset_; }

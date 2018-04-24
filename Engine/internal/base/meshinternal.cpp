@@ -10,7 +10,7 @@ MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
 }
 
 MeshInternal::MeshInternal(ObjectType type)
-	: ObjectInternal(type) {
+	: ComponentInternal(type) {
 }
 
 MeshInternal::~MeshInternal() {
@@ -38,7 +38,7 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
 	if (vboCount == 0) {
-		Debug::LogWarning("empty mesh attribute");
+		Debug::LogWarning("empty mesh attribute.");
 		return;
 	}
 
@@ -184,20 +184,22 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh) {
+TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh), dirty_(false) {
 }
 
 void TextMeshInternal::SetText(const std::string& value) {
 	if (text_ != value) {
 		text_ = value;
-		RebuildMesh();
+		//RebuildMesh();
+		dirty_ = true;
 	}
 }
 
 void TextMeshInternal::SetFont(Font value) {
 	if (font_ != value) {
 		font_ = value;
-		RebuildMesh();
+		//RebuildMesh();
+		dirty_ = true;
 	}
 }
 
@@ -205,26 +207,37 @@ void TextMeshInternal::SetFontSize(uint value) {
 	// TODO: rebuild mesh twice with SetFont and SetFontSize.
 	if (size_ != value) {
 		size_ = value;
+		//RebuildMesh();
+		dirty_ = true;
+	}
+}
+
+void TextMeshInternal::Update() {
+	if (dirty_) {
 		RebuildMesh();
 	}
 }
 
 void TextMeshInternal::RebuildMesh() {
-	if (text_.empty()) { return; }
-	std::wstring wtext = String::MultiBytesToWideString(text_);
+	if (!text_.empty()) {
+		std::wstring wtext = String::MultiBytesToWideString(text_);
+		RebuildUnicodeTextMesh(wtext);
+	}
+
+	dirty_ = false;
+}
+
+void TextMeshInternal::RebuildUnicodeTextMesh(std::wstring wtext) {
 	font_->Require(wtext);
 
 	MeshAttribute attribute;
-
 	InitializeMeshAttribute(attribute, wtext);
 
-	if (GetSubMeshCount() != 0) {
-		RemoveSubMesh(0);
+	if (GetSubMeshCount() == 0) {
+		AddSubMesh(NewSubMesh());
 	}
 
-	SubMesh subMesh = NewSubMesh();
-	AddSubMesh(subMesh);
-
+	SubMesh subMesh = GetSubMesh(0);
 	TriangleBias bias{ attribute.indexes.size() };
 	subMesh->SetTriangleBias(bias);
 
@@ -272,6 +285,16 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 			attribute.indexes.push_back(6 * i + j);
 		}
 	}
+
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	for (uint i = 0; i < attribute.positions.size(); ++i) {
+		min = glm::min(min, attribute.positions[i]);
+		max = glm::max(max, attribute.positions[i]);
+	}
+
+	Bounds bounds;
+	bounds.SetMinMax(min, max);
+	GetEntity()->SetMeshBounds(bounds);
 }
 
 MeshInternal::Storage::Storage() {

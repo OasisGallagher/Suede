@@ -6,8 +6,8 @@
 #include "variables.h"
 #include "animation.h"
 #include "renderdefines.h"
+#include "componentinternal.h"
 #include "containers/sortedvector.h"
-#include "internal/base/objectinternal.h"
 
 class SkeletonInternal : public ISkeleton, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Skeleton)
@@ -127,11 +127,14 @@ private:
 	Container container_;
 };
 
-class AnimationInternal : public IAnimation, public ObjectInternal {
+class AnimationInternal : public IAnimation, public ComponentInternal {
 	DEFINE_FACTORY_METHOD(Animation)
 
 public:
-	AnimationInternal() : ObjectInternal(ObjectTypeAnimation), time_(0), playing_(false) {}
+	AnimationInternal() : ComponentInternal(ObjectTypeAnimation), time_(0), playing_(false) {}
+
+public:
+	virtual void Update();
 
 public:
 	virtual void AddClip(const std::string& name, AnimationClip value);
@@ -143,8 +146,6 @@ public:
 	virtual void SetWrapMode(AnimationWrapMode value);
 
 	virtual bool Play(const std::string& name);
-
-	virtual void Update();
 
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 	virtual Skeleton GetSkeleton() { return skeleton_; }

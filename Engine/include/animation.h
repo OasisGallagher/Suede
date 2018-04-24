@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "object.h"
 #include "bounds.h"
+#include "component.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Skeleton);
 SUEDE_DEFINE_OBJECT_POINTER(Animation);
@@ -132,7 +132,7 @@ public:
 	virtual bool Sample(float time, AnimationFrame& frame) = 0;
 };
 
-class SUEDE_API IAnimation : virtual public IObject {
+class SUEDE_API IAnimation : virtual public IComponent {
 public:
 	virtual void AddClip(const std::string& name, AnimationClip value) = 0;
 	virtual AnimationClip GetClip(const std::string& name) = 0;
@@ -146,6 +146,4 @@ public:
 	virtual void SetWrapMode(AnimationWrapMode value) = 0;
 
 	virtual bool Play(const std::string& name) = 0;
-
-	virtual void Update() = 0;
 };

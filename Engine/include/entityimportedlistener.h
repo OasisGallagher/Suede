@@ -3,5 +3,5 @@
 
 class EntityImportedListener {
 public:
-	virtual void OnEntityImported(Entity root) = 0;
+	virtual void OnEntityImported(bool status, Entity root) = 0;
 };

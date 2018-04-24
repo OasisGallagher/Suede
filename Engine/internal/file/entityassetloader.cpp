@@ -112,7 +112,7 @@ void EntityAssetLoader::Run() {
 		LoadAsset() ? Ok : Failed
 	);
 
-	//root_.reset();
+	root_.reset();
 	path_.clear();
 }
 
@@ -128,7 +128,7 @@ bool EntityAssetLoader::Load(const std::string& path, Entity entity) {
 
 	path_ = path;
 	root_ = entity;
-	root_->SetActiveSelf(false);
+	root_->SetStatus(EntityStatusLoading);
 
 	return true;
 }
@@ -148,6 +148,7 @@ void EntityAssetLoader::Clear() {
 	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
 		MEMORY_RELEASE(ite->second);
 	}
+
 	texelMapContainer_.clear();
 
 	animation_.reset();

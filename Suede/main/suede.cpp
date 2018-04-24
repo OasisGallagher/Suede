@@ -9,6 +9,7 @@
 #include "suede.h"
 #include "driver.h"
 #include "camera.h"
+#include "../windows/status/status.h"
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
@@ -16,8 +17,10 @@ Suede::Suede(QWidget *parent)
 	: QMainWindow(parent) {
 
 	Debug::SetLogReceiver(this);
-
+	
 	setupUI();
+
+	setStatusBar(new Status(this));
 
 	QMenu* fileMenu = menuBar()->findChild<QMenu*>("file");
 	QList<QAction*> actions = fileMenu->actions();
@@ -157,11 +160,11 @@ void Suede::screenCapture() {
 	}
 
 	std::vector<uchar> data;
-	if (path.endsWith(".jpg") && !tex->EncodeToJpg(data)) {
+	if (path.endsWith(".jpg") && !tex->EncodeToJPG(data)) {
 		return;
 	}
 
-	if (path.endsWith(".png") && !tex->EncodeToPng(data)) {
+	if (path.endsWith(".png") && !tex->EncodeToPNG(data)) {
 		return;
 	}
 

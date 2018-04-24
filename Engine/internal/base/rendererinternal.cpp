@@ -4,7 +4,7 @@
 #include "rendererinternal.h"
 #include "internal/rendering/pipeline.h"
 
-RendererInternal::RendererInternal(ObjectType type) : ObjectInternal(type) {
+RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
 }
 
 RendererInternal::~RendererInternal() {

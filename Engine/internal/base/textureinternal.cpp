@@ -272,11 +272,11 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 	return true;
 }
 
-bool Texture2DInternal::EncodeToPng(std::vector<uchar>& data) {
+bool Texture2DInternal::EncodeToPNG(std::vector<uchar>& data) {
 	return EncodeTo(data, ImageTypePng);
 }
 
-bool Texture2DInternal::EncodeToJpg(std::vector<uchar>& data) {
+bool Texture2DInternal::EncodeToJPG(std::vector<uchar>& data) {
 	return EncodeTo(data, ImageTypeJpg);
 }
 

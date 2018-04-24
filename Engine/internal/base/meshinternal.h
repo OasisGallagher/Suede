@@ -5,7 +5,7 @@
 
 #include "mesh.h"
 #include "vertexarray.h"
-#include "internal/base/objectinternal.h"
+#include "componentinternal.h"
 
 enum VertexAttrib {
 	VertexAttribPosition,
@@ -36,7 +36,7 @@ private:
 	std::weak_ptr<Mesh::element_type> mesh_;
 };
 
-class MeshInternal : virtual public IMesh, public ObjectInternal {
+class MeshInternal : virtual public IMesh, public ComponentInternal {
 	DEFINE_FACTORY_METHOD(Mesh)
 
 public:
@@ -104,6 +104,9 @@ public:
 	TextMeshInternal();
 
 public:
+	virtual void Update();
+
+public:
 	virtual void SetText(const std::string& value);
 	virtual std::string GetText() { return text_; }
 
@@ -115,11 +118,13 @@ public:
 
 private:
 	void RebuildMesh();
+	void RebuildUnicodeTextMesh(std::wstring wtext);
+
 	void InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext);
 
 private:
 	uint size_;
 	Font font_;
-
+	bool dirty_;
 	std::string text_;
 };

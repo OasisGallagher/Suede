@@ -3,11 +3,11 @@
 #include "mesh.h"
 #include "renderer.h"
 #include "particlesystem.h"
-#include "internal/base/objectinternal.h"
+#include "componentinternal.h"
 
 class RenderState;
 
-class RendererInternal : virtual public IRenderer, public ObjectInternal {
+class RendererInternal : virtual public IRenderer, public ComponentInternal {
 public:
 	RendererInternal(ObjectType type);
 	~RendererInternal();

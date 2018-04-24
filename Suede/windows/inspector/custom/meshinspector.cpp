@@ -78,7 +78,7 @@ void MeshInspector::onTextChanged() {
 
 	QImage image;
 	std::vector<uchar> data;
-	if (textMesh->GetFont()->GetTexture()->EncodeToPng(data) && image.loadFromData(&data[0], data.size())) {
+	if (textMesh->GetFont()->GetTexture()->EncodeToPNG(data) && image.loadFromData(&data[0], data.size())) {
 		image.save("e:/1.png");
 	}
 }

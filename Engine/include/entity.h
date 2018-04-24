@@ -8,8 +8,17 @@
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DECLARE_OBJECT_CREATER(Entity);
 
+enum EntityStatus {
+	EntityStatusLoading,
+	EntityStatusReady,
+	EntityStatusDestroyed,
+};
+
 class SUEDE_API IEntity : virtual public IObject {
 public:
+	virtual void SetStatus(EntityStatus value) = 0;
+	virtual EntityStatus GetStatus() const = 0;
+
 	virtual bool GetActive() const = 0;
 
 	virtual void SetActiveSelf(bool value) = 0;

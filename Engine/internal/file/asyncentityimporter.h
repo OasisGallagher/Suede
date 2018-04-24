@@ -28,6 +28,7 @@ private:
 
 private:
 	int status_;
+	Entity root_;
 	EntityAssetLoader* loader_;
 	EntityImportedListener* listener_;
 };

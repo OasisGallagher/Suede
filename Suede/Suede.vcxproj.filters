@@ -121,6 +121,15 @@
     <Filter Include="windows\inspector\custom\src">
       <UniqueIdentifier>{08948759-06ff-4f97-9641-fe3af5014b10}</UniqueIdentifier>
     </Filter>
+    <Filter Include="windows\status">
+      <UniqueIdentifier>{22a8d1da-ebe9-44cd-ae10-0a05e5db13dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\status\include">
+      <UniqueIdentifier>{26428fac-05af-48bb-a157-2636ae8eb984}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\status\src">
+      <UniqueIdentifier>{19041b3a-78f1-40c6-b11c-9587b781b34d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -270,6 +279,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_colorpicker.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="windows\status\status.cpp">
+      <Filter>windows\status\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_status.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_status.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -322,6 +340,9 @@
     </CustomBuild>
     <CustomBuild Include="windows\controls\colorpicker.h">
       <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\status\status.h">
+      <Filter>windows\status\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

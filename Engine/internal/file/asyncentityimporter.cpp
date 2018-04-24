@@ -51,19 +51,21 @@ void AsyncEntityImporter::OnFrameEnter() {
 	}
 
 	loader_->GetSurface()->SetAttribute(asset.meshAsset);
-	loader_->GetRoot()->SetActiveSelf(true);
+
+	root_->SetStatus(EntityStatusReady);
 
 	if (listener_ != nullptr) {
-		listener_->OnEntityImported(status_ == Loader::Ok ? loader_->GetRoot() : nullptr);
+		listener_->OnEntityImported(status_ == Loader::Ok, root_);
 	}
 
+	root_.reset();
 	status_ = Loader::Running;
 }
 
 Entity AsyncEntityImporter::Import(const std::string& path) {
-	Entity entity = NewEntity();
-	ImportTo(entity, path);
-	return entity;
+	root_ = NewEntity();
+	ImportTo(root_, path);
+	return root_;
 }
 
 bool AsyncEntityImporter::ImportTo(Entity entity, const std::string& path) {

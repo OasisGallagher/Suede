@@ -536,7 +536,7 @@ void CameraInternal::OnImageEffects() {
 void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix) {
 	for (int i = 0; i < root->GetChildCount(); ++i) {
 		Entity child = root->GetChildAt(i)->GetEntity();
-		if (!child->GetActive()) {
+		if (child->GetStatus() != EntityStatusReady) {
 			continue;
 		}
 

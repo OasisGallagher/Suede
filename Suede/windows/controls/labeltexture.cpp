@@ -25,7 +25,7 @@ void LabelTexture::setTexture(Texture texture) {
 	if (!tex) { return; }
 
 	std::vector<uchar> data;
-	tex->EncodeToPng(data);
+	tex->EncodeToPNG(data);
 
 	QPixmap pixmap;
 	if (!pixmap.loadFromData(&data[0], data.size())) {

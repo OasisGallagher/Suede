@@ -6,7 +6,7 @@
 
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
-class SUEDE_API IRenderer : virtual public IObject {
+class SUEDE_API IRenderer : virtual public IComponent {
 public:
 	virtual void RenderEntity(Entity entity) = 0;
 

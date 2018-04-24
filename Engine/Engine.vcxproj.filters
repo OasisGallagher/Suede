@@ -304,6 +304,12 @@
     <ClInclude Include="include\entityimportedlistener.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\component.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\componentinternal.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -437,6 +443,9 @@
     </ClCompile>
     <ClCompile Include="internal\file\asyncentityimporter.cpp">
       <Filter>internal\file\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\componentinternal.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

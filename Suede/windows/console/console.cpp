@@ -1,3 +1,4 @@
+#include <QThread>
 #include <QSplitter>
 #include <QHeaderView>
 
@@ -96,6 +97,10 @@ const char* Console::messageIconPath(MessageType type) {
 }
 
 void Console::showMessage(MessageType type, const QString &message) {
+	if (QThread::currentThread() != thread()) {
+		// TODO: threading.
+	}
+
 	int r = ui_->table->rowCount();
 	ui_->table->insertRow(r);
 	ui_->table->setColumnWidth(0, 24);
