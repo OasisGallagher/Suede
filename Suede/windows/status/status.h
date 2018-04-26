@@ -9,8 +9,14 @@ class Status : public QStatusBar {
 public:
 	static Status* get();
 
+public:
+	void updateFPS(float fps);
+
 private:
 	friend class Suede;
 	Status(QWidget* parent);
 	~Status();
+
+private:
+	QLabel* fps_;
 };

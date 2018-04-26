@@ -28,14 +28,14 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
 //#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 

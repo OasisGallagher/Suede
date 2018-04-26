@@ -12,6 +12,7 @@
 #include "debug/profiler.h"
 #include "geometryutility.h"
 #include "internal/base/gbuffer.h"
+#include "internal/base/renderdefines.h"
 #include "internal/base/uniformbuffer.h"
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
@@ -28,6 +29,7 @@ CameraInternal::CameraInternal()
 
 	forward_pass = Profiler::CreateSample();
 	push_renderables = Profiler::CreateSample();
+	get_renderable_entities = Profiler::CreateSample();
 
 	InitializeVariables();
 	CreateFramebuffers();
@@ -46,6 +48,7 @@ CameraInternal::~CameraInternal() {
 
 	Profiler::ReleaseSample(forward_pass);
 	Profiler::ReleaseSample(push_renderables);
+	Profiler::ReleaseSample(get_renderable_entities);
 }
 
 void CameraInternal::SetClearColor(const glm::vec3 & value) {
@@ -71,7 +74,10 @@ void CameraInternal::Update() {
 
 void CameraInternal::Render() {
 	std::vector<Entity> entities;
+	get_renderable_entities->Restart();
 	GetRenderableEntities(entities);
+	get_renderable_entities->Stop();
+	Debug::Output("[CameraInternal::Render::get_renderable_entities]\t%.2f\n", get_renderable_entities->GetElapsedSeconds());
 
 	Pipeline::SetCamera(suede_dynamic_cast<Camera>(shared_from_this()));
 	Pipeline::SetCurrent(pipeline_);
@@ -533,8 +539,12 @@ void CameraInternal::OnImageEffects() {
 	}
 }
 
-void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix) {
+void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix) {
 	for (int i = 0; i < root->GetChildCount(); ++i) {
+		if (root->GetEntity()->GetStatus() != EntityStatusReady) {
+			Debug::Break();
+		}
+
 		Entity child = root->GetChildAt(i)->GetEntity();
 		if (child->GetStatus() != EntityStatusReady) {
 			continue;
@@ -556,16 +566,36 @@ bool CameraInternal::CheckRenderComponents(Entity entity) {
 	return entity->GetActive() && entity->GetRenderer() && entity->GetMesh();
 }
 
-bool CameraInternal::IsVisible(Entity entity, glm::mat4& worldToClipMatrix) {
+bool CameraInternal::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
 	const Bounds& bounds = entity->GetBounds();
+	if (bounds.IsEmpty()) {
+		return false;
+	}
+
+	return FrustumCulling(bounds, worldToClipMatrix);
+}
+
+bool CameraInternal::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 
+	bool inside = false;
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (int i = 0; i < points.size(); ++i) {
 		glm::vec4 p = worldToClipMatrix * glm::vec4(points[i], 1);
-		if (p.x >= -p.w && p.x <= p.w && p.y >= -p.w && p.y <= p.w && p.z >= -p.w && p.z <= p.w) {
-			return true;
+		p /= p.w;
+		if (p.x >= -1 && p.x <= 1 && p.y >= -1 && p.y <= 1 && p.z >= -1 && p.z <= 1) {
+			inside = true;
 		}
+
+		points[i] = glm::vec3(p);
+		min = glm::min(min, points[i]);
+		max = glm::max(max, points[i]);
+	}
+
+	if (inside) {
+		glm::vec2 size(max.x - min.x, max.y - min.y);
+		return glm::dot(size, size) > MIN_RENDERABLE_RADIUS_SQUARED;
 	}
 
 	return false;

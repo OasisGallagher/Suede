@@ -107,6 +107,7 @@
       <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;3rdparty\free-type\include;3rdparty\glew-2.1.0\include;3rdparty\assimp-3.0\include;3rdparty\image-magick-6\include;3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\open-threads-3.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018;4838</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -186,6 +187,13 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\entities\lightinternal.cpp" />
     <ClCompile Include="internal\entities\particlesysteminternal.cpp" />
     <ClCompile Include="internal\entities\entityinternal.cpp" />
+    <ClCompile Include="internal\occlusionculling\CullingThreadpool.cpp" />
+    <ClCompile Include="internal\occlusionculling\FrameRecorder.cpp" />
+    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCulling.cpp" />
+    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX512.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\uniformbuffermanager.cpp" />
@@ -273,6 +281,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\entities\lightinternal.h" />
     <ClInclude Include="internal\entities\particlesysteminternal.h" />
     <ClInclude Include="internal\entities\entityinternal.h" />
+    <ClInclude Include="internal\occlusionculling\CullingThreadpool.h" />
+    <ClInclude Include="internal\occlusionculling\FrameRecorder.h" />
+    <ClInclude Include="internal\occlusionculling\MaskedOcclusionCulling.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\uniformbuffermanager.h" />
@@ -281,6 +292,10 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="internal\occlusionculling\CompilerSpecific.inl" />
+    <None Include="internal\occlusionculling\MaskedOcclusionCullingCommon.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

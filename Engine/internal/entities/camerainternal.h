@@ -111,10 +111,12 @@ private:
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
 	bool CheckRenderComponents(Entity entity);
-	bool IsVisible(Entity entity, glm::mat4& worldToClipMatrix);
+	bool IsVisible(Entity entity, const glm::mat4& worldToClipMatrix);
+
+	bool FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix);
 
 	void GetRenderableEntities(std::vector<Entity>& entities);
-	void GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, glm::mat4& worldToClipMatrix);
+	void GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
@@ -143,7 +145,7 @@ private:
 	Framebuffer* fb2_;
 
 	Pipeline* pipeline_;
-	Sample *push_renderables, *forward_pass;
+	Sample *push_renderables, *forward_pass, *get_renderable_entities;
 
 	RenderTexture depthTexture_;
 	RenderTexture shadowTexture_;

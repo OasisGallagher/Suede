@@ -9,3 +9,5 @@
 #define GLSL_MAX_PASSES		8
 
 #define UNNAMED_MATERIAL	"UnnamedMaterial"
+
+#define MIN_RENDERABLE_RADIUS_SQUARED	0.002f

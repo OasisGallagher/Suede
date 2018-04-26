@@ -32,8 +32,11 @@ namespace Literals {
 	DEFINE_LITERAL(alphaProgress);
 }
 
-struct UserData : public QObjectUserData {
-	UserData(uint index, const QString& name, VariantType type, QWidget* sender = nullptr) {
+#define USER_PROPERTY	"USER_PROPERTY"
+
+struct UserProperty {
+	UserProperty() : UserProperty(0, "", VariantTypeNone) {}
+	UserProperty(uint index, const QString& name, VariantType type, QWidget* sender = nullptr) {
 		this->index = index;
 		this->name = name;
 		this->type = type;
@@ -45,6 +48,8 @@ struct UserData : public QObjectUserData {
 	QWidget* sender;
 	VariantType type;
 };
+
+Q_DECLARE_METATYPE(UserProperty);
 
 RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer", object) {
 	begin_render_inspector();
@@ -178,7 +183,7 @@ QWidget* RendererInspector::drawIntField(uint index, const QString& name, int va
 	QLineEdit* line = new QLineEdit(QString::number(value));
 	line->setValidator(new QIntValidator(line));
 
-	line->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeInt));
+	line->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(index, name, VariantTypeInt)));
 	connect(line, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
 	return line;
@@ -188,7 +193,7 @@ QWidget* RendererInspector::drawFloatField(uint index, const QString& name, floa
 	QLineEdit* line = new QLineEdit(QString::number(value));
 	line->setValidator(new QDoubleValidator(line));
 
-	line->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeFloat));
+	line->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(index, name, VariantTypeFloat)));
 	connect(line, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
 	return line;
@@ -198,7 +203,7 @@ QWidget* RendererInspector::drawTextureField(uint index, const QString& name, Te
 	LabelTexture* label = new LabelTexture;
 	label->setFixedSize(32, 32);
 	label->setTexture(value);
-	label->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeTexture));
+	label->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(index, name, VariantTypeTexture)));
 	connect(label, SIGNAL(clicked()), this, SLOT(onEditProperty()));
 	return label;
 }
@@ -211,7 +216,7 @@ QWidget* RendererInspector::drawColorField(uint index, const QString& name, Vari
 	LabelTexture* label = new LabelTexture(widget);
 	label->setObjectName(Literals::colorButton);
 	label->setColor(*(glm::vec3*)value);
-	label->setUserData(Qt::UserRole, new UserData(index, name, type));
+	label->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(index, name, type)));
 	connect(label, SIGNAL(clicked()), this, SLOT(onEditProperty()));
 
 	layout->setSpacing(1);
@@ -256,14 +261,14 @@ QWidget* RendererInspector::drawVec3Field(uint index, const QString& name, const
 	y->setValidator(validator);
 	z->setValidator(validator);
 
-	// TODO: 3 userData ?
-	x->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector3));
+	QVariant variant = QVariant::fromValue(UserProperty(index, name, VariantTypeVector3));
+	x->setProperty(USER_PROPERTY, variant);
 	connect(x, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
-	y->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector3));
+	y->setProperty(USER_PROPERTY, variant);
 	connect(y, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
-	z->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector3));
+	z->setProperty(USER_PROPERTY, variant);
 	connect(z, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
 	layout->addWidget(x);
@@ -291,17 +296,17 @@ QWidget* RendererInspector::drawVec4Field(uint index, const QString& name, const
 	z->setValidator(validator);
 	w->setValidator(validator);
 
-	// TODO: 4 userData ?
-	x->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector4));
+	QVariant variant = QVariant::fromValue(UserProperty(index, name, VariantTypeVector4));
+	x->setProperty(USER_PROPERTY, variant);
 	connect(x, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
-	y->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector4));
+	y->setProperty(USER_PROPERTY, variant);
 	connect(y, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
-	z->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector4));
+	z->setProperty(USER_PROPERTY, variant);
 	connect(z, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
-	w->setUserData(Qt::UserRole, new UserData(index, name, VariantTypeVector4));
+	w->setProperty(USER_PROPERTY, variant);
 	connect(w, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
 
 	layout->addWidget(x);
@@ -314,30 +319,27 @@ QWidget* RendererInspector::drawVec4Field(uint index, const QString& name, const
 
 void RendererInspector::onEditProperty() {
 	QWidget* senderWidget = (QWidget*)sender();
-	UserData* ud = ((UserData*)sender()->userData(Qt::UserRole));
-	uint index = ud->index;
-	QString name = ud->name;
-	VariantType type = ud->type;
+	UserProperty prop = sender()->property(USER_PROPERTY).value<UserProperty>();
 
-	switch (type) {
+	switch (prop.type) {
 		case VariantTypeInt:
-			suede_dynamic_cast<Renderer>(target_)->GetMaterial(index)->SetInt(name.toStdString(), ((QLineEdit*)sender())->text().toInt());
+			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.index)->SetInt(prop.name.toStdString(), ((QLineEdit*)sender())->text().toInt());
 			break;
 		case VariantTypeFloat:
-			suede_dynamic_cast<Renderer>(target_)->GetMaterial(index)->SetFloat(name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
+			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.index)->SetFloat(prop.name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
 			break;
 		case VariantTypeVector3:
 			break;
 		case VariantTypeColor3:
-			onSelectColor3(senderWidget, index, name);
+			onSelectColor3(senderWidget, prop.index, prop.name);
 			break;
 		case VariantTypeColor4:
-			onSelectColor4(senderWidget, index, name);
+			onSelectColor4(senderWidget, prop.index, prop.name);
 			break;
 		case VariantTypeVector4:
 			break;
 		case VariantTypeTexture:
-			onSelectTexture(senderWidget, index, name);
+			onSelectTexture(senderWidget, prop.index, prop.name);
 			break;
 	}
 }
@@ -348,21 +350,21 @@ void RendererInspector::onColorPicked(const QColor& color) {
 		return;
 	}
 
-	UserData* data = (UserData*)ColorPicker::get()->userData(Qt::UserRole);
-	data->sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
+	UserProperty prop = ColorPicker::get()->property(USER_PROPERTY).value<UserProperty>();
+	prop.sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
 		selected.red(), selected.green(), selected.blue()));
 
-	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(data->index);
-	if (data->type == VariantTypeColor4) {
+	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.index);
+	if (prop.type == VariantTypeColor4) {
 		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
-		material->SetColor4(data->name.toStdString(), newColor);
+		material->SetColor4(prop.name.toStdString(), newColor);
 
-		QProgressBar* alpha = data->sender->parent()->findChild<QProgressBar*>(Literals::alphaProgress);
+		QProgressBar* alpha = prop.sender->parent()->findChild<QProgressBar*>(Literals::alphaProgress);
 		alpha->setValue(selected.alpha());
 	}
 	else {
 		glm::vec3 newColor = Math::NormalizedColor(glm::ivec3(selected.red(), selected.green(), selected.blue()));
-		material->SetColor3(data->name.toStdString(), newColor);
+		material->SetColor3(prop.name.toStdString(), newColor);
 	}
 }
 
@@ -391,7 +393,7 @@ void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, cons
 	ColorPicker::get()->blockSignals(false);
 
 	delete ColorPicker::get()->userData(Qt::UserRole);
-	ColorPicker::get()->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor3, widget));
+	ColorPicker::get()->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeColor3, widget)));
 	ColorPicker::get()->exec();
 }
 
@@ -406,6 +408,6 @@ void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, cons
 	ColorPicker::get()->blockSignals(false);
 
 	delete ColorPicker::get()->userData(Qt::UserRole);
-	ColorPicker::get()->setUserData(Qt::UserRole, new UserData(materialIndex, name, VariantTypeColor4, widget));
+	ColorPicker::get()->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeColor4, widget)));
 	ColorPicker::get()->exec();
 }

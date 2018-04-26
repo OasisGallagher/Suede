@@ -1,0 +1,16 @@
+[WorldInternal::Update::update_entities]	0.006
+[WorldInternal::Update::update_decals]	0.000
+[WorldInternal::Update::update_rendering]	0.196
+[CameraInternal::Render::get_renderable_entities]	0.09
+[CameraInternal::ForwardPass::push_renderables]	0.03
+[CameraInternal::RenderForwardBase::forward_pass]	0.03
+[Pipeline::Update::sort]	0.04
+[Pipeline::Update::gather]	0.01
+[Pipeline::Update::nrenderables]	4358
+[Pipeline::Update::ndrawcalls]	130
+[Pipeline::Update::update_ubo]	0.00
+[Pipeline::Update::rendering]	0.02
+[Pipeline::Update::switch_framebuffer]	0.00
+[Pipeline::Update::switch_material]	0.00
+[Pipeline::Update::switch_mesh]	0.00
+[Pipeline::Update::update_pipeline]	0.07
