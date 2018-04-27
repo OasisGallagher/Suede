@@ -69,7 +69,6 @@ private:
 	void InitializeProperties();
 	void InitializeEnabledState();
 
-	// TODO: interface.
 	Variant* GetProperty(const std::string& name, VariantType type);
 
 private:

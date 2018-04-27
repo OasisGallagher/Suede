@@ -80,16 +80,23 @@ void Game::awake() {
 }
 
 void Game::OnDrawGizmos() {
-	foreach(Entity entity, selected_) {
+	int i = 0;
+	glm::vec3 colors[] = { glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) };
+	glm::vec3 oldColor = Gizmos::GetColor();
+	foreach(Entity entity, selection_) {
 		if (!entity->GetActive()) {
 			continue;
 		}
 
 		const Bounds& bounds = entity->GetBounds();
 		if (!bounds.IsEmpty()) {
+			Gizmos::SetColor(colors[i % CountOf(colors)]);
 			Gizmos::DrawCuboid(bounds.center, bounds.size);
+			++i;
 		}
 	}
+
+	Gizmos::SetColor(oldColor);
 }
 
 void Game::OnEntityImported(bool status, Entity root) {
@@ -158,6 +165,18 @@ void Game::timerEvent(QTimerEvent *event) {
 	update();
 }
 
+void Game::updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected) {
+	foreach(Entity entity, selected) {
+		if (container.indexOf(entity) < 0) {
+			container.push_back(entity);
+		}
+	}
+
+	foreach(Entity entity, deselected) {
+		container.removeOne(entity);
+	}
+}
+
 void Game::onFocusEntityBounds(Entity entity) {
 	Transform trans = entity->GetTransform();
 	Transform camera = WorldInstance()->GetMainCamera()->GetTransform();
@@ -173,7 +192,7 @@ void Game::onFocusEntityBounds(Entity entity) {
 }
 
 void Game::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
-	selected_ = selected;
+	updateSelection(selection_, selected, deselected);
 }
 
 float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
@@ -321,7 +340,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/house.fbx", this);
+	Entity room = WorldInstance()->Import("models/geom.fbx", this);
 	roomEntityID = room->GetInstanceID();
 	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif

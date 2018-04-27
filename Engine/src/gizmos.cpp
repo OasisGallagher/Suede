@@ -13,8 +13,22 @@ static Material material;
 
 static glm::vec3 color;
 
-static std::vector<uint> pointIndexes;
-static std::vector<glm::vec3> linePoints;
+struct Batch {
+	glm::vec3 color;
+	std::vector<uint> indexes;
+	std::vector<glm::vec3> points;
+};
+
+static std::vector<Batch> batches;
+
+static Batch& GetBatch() {
+	if (batches.empty() || batches.back().color != color) {
+		Batch b = { color };
+		batches.push_back(b);
+	}
+
+	return batches.back();
+}
 
 static void Initialize() {
 	Shader shader = NewShader();
@@ -23,9 +37,11 @@ static void Initialize() {
 	}
 
 	mesh = NewMesh();
+	color = glm::vec3(0, 1, 0);
+
 	material = NewMaterial();
 	material->SetShader(shader);
-	material->SetColor4(Variables::mainColor, glm::vec4(0, 1, 0, 1));
+	material->SetColor4(Variables::mainColor, glm::vec4(color, 1));
 }
 
 glm::vec3 Gizmos::GetColor() {
@@ -37,18 +53,23 @@ void Gizmos::SetColor(const glm::vec3& value) {
 }
 
 void Gizmos::DrawLines(const glm::vec3* points, uint npoints) {
-	uint base = linePoints.size();
-	linePoints.insert(linePoints.end(), points, points + npoints);
+	Batch& b = GetBatch();
+
+	uint base = b.points.size();
+	b.points.insert(b.points.end(), points, points + npoints);
 	for (uint i = 0; i < npoints; ++i) {
-		pointIndexes.push_back(base + i);
+		b.indexes.push_back(base + i);
 	}
 }
 
 void Gizmos::DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes) {
-	uint base = linePoints.size();
-	linePoints.insert(linePoints.end(), points, points + npoints);
+	Batch& b = GetBatch();
+
+	uint base = b.points.size();
+	b.points.insert(b.points.end(), points, points + npoints);
+
 	for (uint i = 0; i < nindexes; ++i) {
-		pointIndexes.push_back(base + indexes[i]);
+		b.indexes.push_back(base + indexes[i]);
 	}
 }
 
@@ -66,30 +87,27 @@ void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
 }
 
 void Gizmos::Flush() {
-	if (linePoints.empty()) {
-		return;
-	}
-
 	if (!material) { Initialize(); }
+	for (uint i = 0; i < batches.size(); ++i) {
+		const Batch& b = batches[i];
+		MeshAttribute attribute;
+		attribute.topology = MeshTopologyLines;
 
-	MeshAttribute attribute;
-	attribute.topology = MeshTopologyLines;
+		attribute.positions = b.points;
+		attribute.indexes = b.indexes;
 
-	attribute.positions = linePoints;
-	attribute.indexes = pointIndexes;
+		mesh->SetAttribute(attribute);
 
-	mesh->SetAttribute(attribute);
+		if (mesh->GetSubMeshCount() == 0) {
+			mesh->AddSubMesh(NewSubMesh());
+		}
 
-	if (mesh->GetSubMeshCount() != 0) {
-		mesh->RemoveSubMesh(0);
+		TriangleBias bias{ b.indexes.size(), 0, 0 };
+		mesh->GetSubMesh(0)->SetTriangleBias(bias);
+
+		material->SetColor4(Variables::mainColor, glm::vec4(b.color, 1));
+		Graphics::Draw(mesh, material);
 	}
 
-	SubMesh subMesh = NewSubMesh();
-	TriangleBias bias{ pointIndexes.size(), 0, 0 };
-	subMesh->SetTriangleBias(bias);
-	mesh->AddSubMesh(subMesh);
-
-	linePoints.clear();
-
-	Graphics::Draw(mesh, material);
+	batches.clear();
 }

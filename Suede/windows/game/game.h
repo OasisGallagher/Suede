@@ -46,6 +46,9 @@ protected:
 	virtual void keyPressEvent(QKeyEvent* event);
 	virtual void timerEvent(QTimerEvent *event);
 
+protected:
+	void updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected);
+
 private:
 	void start();
 	void createScene();
@@ -55,7 +58,7 @@ private:
 	bool initialized_;
 	int updateTimer_;
 
-	QList<Entity> selected_;
+	QList<Entity> selection_;
 
 	Canvas* canvas_;
 	ImageEffect* grayscale_;

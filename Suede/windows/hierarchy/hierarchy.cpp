@@ -215,13 +215,11 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 }
 
 void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelection& items) {
-	foreach(QItemSelectionRange r, items) {
-		foreach(QModelIndex index, r.indexes()) {
-			uint id = model_->itemFromIndex(index)->data().toUInt();
-			Entity transform = WorldInstance()->GetEntity(id);
-			Q_ASSERT(transform);
-			entities.push_back(transform);
-		}
+	foreach(QModelIndex index, items.indexes()) {
+		uint id = model_->itemFromIndex(index)->data().toUInt();
+		Entity transform = WorldInstance()->GetEntity(id);
+		Q_ASSERT(transform);
+		entities.push_back(transform);
 	}
 }
 

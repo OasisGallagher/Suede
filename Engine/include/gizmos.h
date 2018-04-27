@@ -4,7 +4,6 @@
 
 class SUEDE_API Gizmos {
 public:
-	// TODO: UNUSED.
 	static glm::vec3 GetColor();
 	static void SetColor(const glm::vec3& value);
 

@@ -373,23 +373,6 @@ Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type
 	}
 
 	return nullptr;
-	/*
-	Variant* ans = nullptr;
-	if (!properties_.get(name, ans)) {
-	if (!String::StartsWith(name, VARIABLE_PREFIX)) {
-	Debug::LogWarning("property %s does not exist.", name.c_str());
-	}
-
-	return false;
-	}
-
-	if (ans->GetType() != type) {
-	Debug::LogError("property %s does not defined as %s.", name.c_str(), Variant::TypeString(type));
-	return false;
-	}
-
-	return ans;
-	*/
 }
 
 void MaterialInternal::BindProperties(uint pass) {
