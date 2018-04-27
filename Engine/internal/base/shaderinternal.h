@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
-#include <wrappers/gl.h>
 
 #include "shader.h"
+#include "api/gl.h"
 #include "renderstate.h"
 #include "containers/ptrmap.h"
 #include "internal/file/shaderparser.h"

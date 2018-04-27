@@ -1,6 +1,6 @@
 #include "driver.h"
 #include "debug/debug.h"
-#include "wrappers/gl.h"
+#include "api/gl.h"
 
 const char* Driver::GetVendor() {
 	return GL::GetString(GL_VENDOR);

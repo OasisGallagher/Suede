@@ -288,6 +288,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_status.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="windows\controls\folddedcombobox.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -362,6 +365,9 @@
       <Filter>resources\buildin\shaders\include</Filter>
     </ClInclude>
     <ClInclude Include="windows\controls\childwindow.h">
+      <Filter>windows\controls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\controls\folddedcombobox.h">
       <Filter>windows\controls\include</Filter>
     </ClInclude>
   </ItemGroup>

@@ -290,6 +290,7 @@
     <ClCompile Include="windows\controls\childwindow.cpp" />
     <ClCompile Include="windows\controls\colorpicker.cpp" />
     <ClCompile Include="windows\controls\floatslider.cpp" />
+    <ClCompile Include="windows\controls\folddedcombobox.cpp" />
     <ClCompile Include="windows\controls\labeltexture.cpp" />
     <ClCompile Include="windows\game\game.cpp" />
     <ClCompile Include="windows\hierarchy\hierarchy.cpp" />
@@ -343,6 +344,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_suede.h" />
+    <ClInclude Include="windows\controls\folddedcombobox.h" />
     <CustomBuild Include="windows\status\status.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing %(Identity)...</Message>

@@ -66,8 +66,8 @@ void EntityInternal::SetName(const std::string& value) {
 }
 
 void EntityInternal::Update() {
-	if (mesh_) { mesh_->Update(); }
 	if (animation_) { animation_->Update(); }
+	if (mesh_) { mesh_->Update(); }
 	if (renderer_) { renderer_->Update(); }
 }
 

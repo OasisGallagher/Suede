@@ -266,6 +266,7 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 
 	// TODO: multiple texture coords?
 	for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
+		// GetNumUVChannels() > 1.
 		if (aimesh->HasTextureCoords(i)) {
 			Debug::LogWarning("multiple texture coordinates");
 		}
@@ -278,12 +279,6 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
 		glm::vec3 pos = AIVector3ToGLM(aimesh->mVertices[i]);
 		glm::vec3 normal = AIVector3ToGLM(aimesh->mNormals[i]);
-
-		// TODO:
-		//if (aimesh->GetNumUVChannels() != 1 && !logged) {
-		//	logged = true;
-		//	Debug::LogWarning("this mesh contains %d uv channel(s).", aimesh->GetNumUVChannels());
-		//}
 
 		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
 		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;

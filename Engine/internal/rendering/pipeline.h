@@ -4,7 +4,7 @@
 #include "texture.h"
 #include "material.h"
 #include "frameevent.h"
-#include "wrappers/gl.h"
+#include "api/gl.h"
 #include "internal/base/framebuffer.h"
 
 struct Renderable {

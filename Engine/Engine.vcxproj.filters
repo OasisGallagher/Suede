@@ -65,12 +65,6 @@
     <Filter Include="internal\containers\src">
       <UniqueIdentifier>{1e57a109-0bf2-4ecc-9612-7917ae76c1bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="wrappers">
-      <UniqueIdentifier>{58daa8e9-d251-40e8-ad29-6b00e01fbba7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="wrappers\include">
-      <UniqueIdentifier>{926afe17-d09c-45e9-aacc-58dfc3e62096}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\geometry">
       <UniqueIdentifier>{ed0ca55e-2816-417d-8287-68c3a15e28e3}</UniqueIdentifier>
     </Filter>
@@ -97,6 +91,12 @@
     </Filter>
     <Filter Include="internal\occlusionculling\src">
       <UniqueIdentifier>{6cfc2ec8-a2a8-4bc1-96e1-b943ebbb0501}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="api">
+      <UniqueIdentifier>{384f19f2-09d5-4a3b-8d2c-338e049f1b82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="api\include">
+      <UniqueIdentifier>{82c584a2-c323-49fd-b709-c9e885613e79}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -208,9 +208,6 @@
     <ClInclude Include="include\resources.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="wrappers\gl.h">
-      <Filter>wrappers\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\gbuffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
@@ -280,9 +277,6 @@
     <ClInclude Include="internal\base\vertexarray.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\world\uniformbuffermanager.h">
-      <Filter>internal\world\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\frameevent.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -327,6 +321,12 @@
     </ClInclude>
     <ClInclude Include="internal\occlusionculling\MaskedOcclusionCulling.h">
       <Filter>internal\occlusionculling\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\uniformbuffermanager.h">
+      <Filter>internal\rendering\include</Filter>
+    </ClInclude>
+    <ClInclude Include="api\gl.h">
+      <Filter>api\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -441,9 +441,6 @@
     <ClCompile Include="internal\base\vertexarray.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\uniformbuffermanager.cpp">
-      <Filter>internal\world\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\bounds.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -479,6 +476,9 @@
     </ClCompile>
     <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX512.cpp">
       <Filter>internal\occlusionculling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\uniformbuffermanager.cpp">
+      <Filter>internal\rendering\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

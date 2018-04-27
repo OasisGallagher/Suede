@@ -195,8 +195,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </ClCompile>
     <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX512.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
+    <ClCompile Include="internal\rendering\uniformbuffermanager.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
-    <ClCompile Include="internal\world\uniformbuffermanager.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
     <ClCompile Include="src\bounds.cpp" />
     <ClCompile Include="src\driver.cpp" />
@@ -218,6 +218,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="..\Shared\containers\ptrmap.h" />
     <ClInclude Include="..\Shared\containers\sortedvector.h" />
     <ClInclude Include="..\Shared\containers\table.h" />
+    <ClInclude Include="api\gl.h" />
     <ClInclude Include="include\animation.h" />
     <ClInclude Include="include\bounds.h" />
     <ClInclude Include="include\camera.h" />
@@ -285,10 +286,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\occlusionculling\FrameRecorder.h" />
     <ClInclude Include="internal\occlusionculling\MaskedOcclusionCulling.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
+    <ClInclude Include="internal\rendering\uniformbuffermanager.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
-    <ClInclude Include="internal\world\uniformbuffermanager.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
-    <ClInclude Include="wrappers\gl.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h" />

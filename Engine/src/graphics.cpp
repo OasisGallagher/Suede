@@ -1,19 +1,12 @@
 #include "mesh.h"
+#include "api/gl.h"
 #include "graphics.h"
 #include "resources.h"
 #include "variables.h"
-#include "wrappers/gl.h"
-
-// TODO: enum to GLenum or vice versa.
-extern GLenum TopologyToGLEnum(MeshTopology topology);
 
 static void DrawSubMeshes(Mesh mesh) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		const TriangleBias& bias = subMesh->GetTriangleBias();
-
-		GLenum mode = TopologyToGLEnum(mesh->GetTopology());
-		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
+		GLUtil::DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
 	}
 }
 

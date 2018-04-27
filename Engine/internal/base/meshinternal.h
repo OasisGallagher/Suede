@@ -1,9 +1,9 @@
 #pragma once
 
 #include <vector>
-#include <wrappers/gl.h>
 
 #include "mesh.h"
+#include "api/gl.h"
 #include "vertexarray.h"
 #include "componentinternal.h"
 

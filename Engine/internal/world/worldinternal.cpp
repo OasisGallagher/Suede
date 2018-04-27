@@ -4,12 +4,12 @@
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
-#include "uniformbuffermanager.h"
 #include "internal/base/framebuffer.h"
 #include "internal/file/asyncentityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 #define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
 

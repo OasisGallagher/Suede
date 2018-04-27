@@ -7,8 +7,8 @@
 #include "tools/string.h"
 #include "memory/memory.h"
 #include "os/filesystem.h"
-#include "internal/world/uniformbuffermanager.h"
 #include "internal/base/renderdefines.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 bool GLSLParser::Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines) {
 	Clear();

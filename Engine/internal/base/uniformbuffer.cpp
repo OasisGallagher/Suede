@@ -46,13 +46,12 @@ void UniformBuffer::AttachProgram(uint program) {
 		return;
 	}
 
-	// TODO: check size
-//	int dataSize = 0;
-//	GL::GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
-//	if (dataSize != size_) {
-//		Debug::LogError("uniform buffer size mismatch");
-//		return;
-//	}
+	int dataSize = 0;
+	GL::GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
+	if (dataSize != size_) {
+		Debug::LogError("uniform buffer size mismatch");
+		return;
+	}
 	
 	GL::UniformBlockBinding(program, index, binding_);
 }

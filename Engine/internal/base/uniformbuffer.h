@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "shader.h"
-#include "wrappers/gl.h"
+#include "api/gl.h"
 
 class UniformBuffer {
 public:

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include <wrappers/gl.h>
+#include "api/gl.h"
 #include "enginedefines.h"
 
 class VertexArray {

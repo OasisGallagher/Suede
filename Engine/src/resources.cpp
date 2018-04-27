@@ -225,7 +225,6 @@ void Resources::ImportShaderResources() {
 	FileSystem::ListAllFiles(paths, "resources/buildin/shaders", reg);
 
 	shaderResources_.clear();
-	// TODO: shader name.
 	for (int i = 0; i < paths.size(); ++i) {
 		ShaderResource sr = {
 			FileSystem::GetFileNameWithoutExtension(paths[i]), 

@@ -6,9 +6,10 @@
 #include "os/filesystem.h"
 #include "shaderinternal.h"
 
-// TODO: reference world components? Limits class?
 #include "internal/base/renderdefines.h"
-#include "internal/world/uniformbuffermanager.h"
+
+// TODO: reference world components? Limits class?
+#include "internal/rendering/uniformbuffermanager.h"
 
 std::pair<std::string, float> _variables[] = {
 	std::make_pair("Background", (float)RenderQueueBackground),

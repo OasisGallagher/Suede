@@ -2,7 +2,7 @@
 
 #include "variant.h"
 #include "renderer.h"
-#include "wrappers/gl.h"
+#include "api/gl.h"
 #include "memory/memory.h"
 
 class Language;

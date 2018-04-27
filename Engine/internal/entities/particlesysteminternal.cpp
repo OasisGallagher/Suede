@@ -41,6 +41,8 @@ void ParticleSystemInternal::Update() {
 	}
 
 	time_ += Time::GetDeltaTime();
+
+	EntityInternal::Update();
 }
 
 void ParticleSystemInternal::SortBuffers() {

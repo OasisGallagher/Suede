@@ -2,8 +2,8 @@
 #include <vector>
 
 #include <glm/glm.hpp>
-#include <wrappers/gl.h>
 
+#include "api/gl.h"
 #include "texture.h"
 
 enum FramebufferTarget {

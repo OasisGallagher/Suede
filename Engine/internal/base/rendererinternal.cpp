@@ -11,14 +11,6 @@ RendererInternal::~RendererInternal() {
 }
 
 void RendererInternal::RenderEntity(Entity entity) {
-	UpdateMaterial(entity);
-	RenderMesh(entity);
-}
-
-void RendererInternal::UpdateMaterial(Entity entity) {
-}
-
-void RendererInternal::RenderMesh(Entity entity) {
 	int subMeshCount = entity->GetMesh()->GetSubMeshCount();
 	int materialCount = GetMaterialCount();
 
@@ -67,32 +59,24 @@ void RendererInternal::RenderSubMesh(Entity entity, int subMeshIndex, Material m
 	AddToPipeline(entity, subMeshIndex, material, pass);
 }
 
-void SkinnedMeshRendererInternal::UpdateMaterial(Entity entity) {
+void SkinnedMeshRendererInternal::Update() {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
 		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootMatrices, skeleton_->GetBoneToRootMatrices(), C_MAX_BONE_COUNT);
 	}
-
-	RendererInternal::UpdateMaterial(entity);
 }
 
 ParticleRendererInternal::ParticleRendererInternal()
 	: RendererInternal(ObjectTypeParticleRenderer), particleCount_(0) {
 }
 
-void ParticleRendererInternal::AddMaterial(Material material) {
-	RendererInternal::AddMaterial(material);
-}
-
-void ParticleRendererInternal::RenderEntity(Entity entity) {
-	ParticleSystem particleSystem = suede_dynamic_cast<ParticleSystem>(entity);
+void ParticleRendererInternal::Update() {
+	ParticleSystem particleSystem = suede_dynamic_cast<ParticleSystem>(GetEntity());
 	if (!particleSystem) {
 		Debug::LogError("invalid particle system");
 		return;
 	}
 
 	particleCount_ = particleSystem->GetParticlesCount();
-
-	RendererInternal::RenderEntity(entity);
 }
 
 void ParticleRendererInternal::AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass) {

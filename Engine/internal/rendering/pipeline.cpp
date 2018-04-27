@@ -5,7 +5,7 @@
 #include "pipeline.h"
 #include "tools/math2.h"
 #include "debug/profiler.h"
-#include "internal/world/uniformbuffermanager.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 Camera Pipeline::camera_;
 Pipeline* Pipeline::current_;
@@ -90,31 +90,6 @@ Pipeline::~Pipeline() {
 	Profiler::ReleaseSample(rendering);
 
 	Engine::RemoveFrameEventListener(this);
-}
-
-GLenum TopologyToGLEnum(MeshTopology topology) {
-	GLenum mode = 0;
-	switch (topology) {
-		case MeshTopologyTriangles:
-			mode = GL_TRIANGLES;
-			break;
-		case MeshTopologyTriangleStripe:
-			mode = GL_TRIANGLE_STRIP;
-			break;
-		case MeshTopologyLines:
-			mode = GL_LINES;
-			break;
-		case MeshTopologyLineStripe:
-			mode = GL_LINE_STRIP;
-			break;
-	}
-
-	if (mode == 0) {
-		Debug::LogError("unsupported mesh topology  %d.", topology);
-		return 0;
-	}
-
-	return mode;
 }
 
 void Pipeline::SetFramebuffer(FramebufferBase* value) {
@@ -288,13 +263,12 @@ void Pipeline::Render(Renderable& renderable) {
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
-	GLenum mode = TopologyToGLEnum(renderable.mesh->GetTopology());
 	if (renderable.instance == 0) {
 		// TODO: update c_localToWorldMatrix, c_localToClipMatrix to material.
-		GL::DrawElementsBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
+		GLUtil::DrawElementsBaseVertex(renderable.mesh->GetTopology(), bias);
 	}
 	else {
-		GL::DrawElementsInstancedBaseVertex(mode, bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), renderable.instance, bias.baseVertex);
+		GLUtil::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, renderable.instance);
 	}
 
 	++ndrawcalls;

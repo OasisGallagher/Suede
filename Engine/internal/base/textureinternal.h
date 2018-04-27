@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include <wrappers/gl.h>
 
+#include "api/gl.h"
 #include "texture.h"
 #include "internal/file/image.h"
 #include "internal/base/objectinternal.h"

@@ -1,6 +1,5 @@
-#include <wrappers/gl.h>
-
 #include "mesh.h"
+#include "api/gl.h"
 #include "renderer.h"
 #include "particlesystem.h"
 #include "componentinternal.h"
@@ -26,10 +25,8 @@ public:
 	virtual void SetRenderQueue(uint value) { queue_ = value; }
 
 protected:
-	virtual void UpdateMaterial(Entity entity);
 	virtual void AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass);
 
-	void RenderMesh(Entity entity);
 	void RenderSubMesh(Entity entity, int subMeshIndex, Material material, int pass);
 
 private:
@@ -51,7 +48,7 @@ public:
 	SkinnedMeshRendererInternal() : RendererInternal(ObjectTypeSkinnedMeshRenderer) {}
 
 public:
-	virtual void UpdateMaterial(Entity entity);
+	virtual void Update();
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 
 private:
@@ -65,8 +62,7 @@ public:
 	ParticleRendererInternal();
 
 public:
-	virtual void RenderEntity(Entity entity);
-	virtual void AddMaterial(Material material);
+	virtual void Update();
 
 protected:
 	virtual void AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass);

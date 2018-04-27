@@ -17,7 +17,7 @@
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
-#include "internal/world/uniformbuffermanager.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera)
@@ -420,8 +420,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		Material material = suede_dynamic_cast<Material>(directionalLightShadowMaterial_->Clone());
-		material->SetMatrix4(Variables::localToOrthographicLightMatrix, shadowDepthMatrix);
+		directionalLightShadowMaterial_->SetMatrix4(Variables::localToOrthographicLightMatrix, shadowDepthMatrix);
 		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
