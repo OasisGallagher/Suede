@@ -32,7 +32,7 @@ static Batch& GetBatch() {
 
 static void Initialize() {
 	Shader shader = NewShader();
-	if (!shader->Load("buildin/gizmos")) {
+	if (!shader->Load("builtin/gizmos")) {
 		return;
 	}
 

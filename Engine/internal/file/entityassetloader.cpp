@@ -37,7 +37,7 @@ MaterialAsset::MaterialAsset()
 }
 
 void MaterialAsset::ApplyAsset() {
-	Shader shader = Resources::FindShader("buildin/" + shaderName);
+	Shader shader = Resources::FindShader("builtin/" + shaderName);
 	material->SetShader(shader);
 
 	material->SetFloat(Variables::gloss, gloss);

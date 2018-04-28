@@ -10,7 +10,7 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
-		#include "include/post_effect_vertex.inc"
+		#include "builtin/include/post_effect_vertex.inc"
 
 		#stage fragment
 		out vec4 fragColor;

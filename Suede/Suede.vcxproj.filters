@@ -372,9 +372,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\include\post_effect_vertex.inc">
-      <Filter>resources\shaders\include</Filter>
-    </None>
     <None Include="resources\shaders\grayscale.shader">
       <Filter>resources\shaders</Filter>
     </None>
@@ -387,41 +384,53 @@
     <None Include="resources\qss\style.qss">
       <Filter>resources\qss</Filter>
     </None>
-    <None Include="resources\shaders\buildin\blit.shader">
+    <None Include="resources\shaders\builtin\blit.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\decal.shader">
+    <None Include="resources\shaders\builtin\decal.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\depth.shader">
+    <None Include="resources\shaders\builtin\depth.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\directional_light_depth.shader">
+    <None Include="resources\shaders\builtin\directional_light_depth.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\gbuffer.shader">
+    <None Include="resources\shaders\builtin\gbuffer.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\gizmos.shader">
+    <None Include="resources\shaders\builtin\gizmos.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\lit_animated_texture.shader">
+    <None Include="resources\shaders\builtin\lit_animated_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\lit_bumped_texture.shader">
+    <None Include="resources\shaders\builtin\lit_bumped_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\lit_texture.shader">
+    <None Include="resources\shaders\builtin\lit_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\particle.shader">
+    <None Include="resources\shaders\builtin\particle.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\skybox.shader">
+    <None Include="resources\shaders\builtin\skybox.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\buildin\unlit_texture.shader">
+    <None Include="resources\shaders\builtin\unlit_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\include\light_fragment.inc">
+      <Filter>resources\shaders\builtin\include</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\include\light_vertex.inc">
+      <Filter>resources\shaders\builtin\include</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\include\post_effect_vertex.inc">
+      <Filter>resources\shaders\builtin\include</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\include\suede.inc">
+      <Filter>resources\shaders\builtin\include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

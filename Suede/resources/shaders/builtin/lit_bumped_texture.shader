@@ -38,7 +38,7 @@ SubShader {
 		uniform sampler2D c_mainTexture;
 		uniform sampler2D c_bumpTexture;
 
-		#include "buildin/include/light.inc"
+		#include "builtin/include/light.inc"
 
 		void main() {
 			vec3 normal = texture(c_bumpTexture, texCoord).xyz;

@@ -32,7 +32,7 @@
 //#define PROJECTOR
 //#define BEAR
 //#define BEAR_X_RAY
-//#define POST_EFFECTS
+#define POST_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -249,7 +249,7 @@ void Game::createScene() {
 	camera->SetClearType(ClearTypeSkybox);
 
 	Material skybox = NewMaterial();
-	skybox->SetShader(Resources::FindShader("buildin/skybox"));
+	skybox->SetShader(Resources::FindShader("builtin/skybox"));
 
 	TextureCube cube = NewTextureCube();
 
