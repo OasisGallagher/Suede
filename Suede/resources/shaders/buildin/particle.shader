@@ -16,7 +16,7 @@ SubShader {
 		out vec2 texCoord;
 		out vec4 color;
 
-		#include "buildin/shaders/include/suede.inc"
+		#include "buildin/include/suede.inc"
 
 		void main() {
 			float size = c_instanceGeometry.w;

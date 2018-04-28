@@ -34,9 +34,9 @@ CameraInternal::CameraInternal()
 	InitializeVariables();
 	CreateFramebuffers();
 
-	CreateAuxMaterial(depthMaterial_, "buildin/shaders/depth", RenderQueueBackground - 300);
-	CreateAuxMaterial(decalMaterial_, "buildin/shaders/decal", RenderQueueOverlay - 500);
-	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/shaders/directional_light_depth", RenderQueueBackground - 200);
+	CreateAuxMaterial(depthMaterial_, "buildin/depth", RenderQueueBackground - 300);
+	CreateAuxMaterial(decalMaterial_, "buildin/decal", RenderQueueOverlay - 500);
+	CreateAuxMaterial(directionalLightShadowMaterial_, "buildin/directional_light_depth", RenderQueueBackground - 200);
 }
 
 CameraInternal::~CameraInternal() {
@@ -246,7 +246,7 @@ void CameraInternal::InitializeDeferredRender() {
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
 
 	Shader shader = NewShader();
-	shader->Load("buildin/shaders/gbuffer");
+	shader->Load("buildin/gbuffer");
 	deferredMaterial_->SetShader(shader);
 }
 

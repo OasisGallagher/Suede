@@ -9,7 +9,7 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
-		#include "buildin/shaders/include/suede.inc"
+		#include "buildin/include/suede.inc"
 
 		in vec3 c_position;
 		out vec3 texCoord;

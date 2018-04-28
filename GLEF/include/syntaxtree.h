@@ -32,8 +32,8 @@ public:
 	
 	int GetChildCount() const;
 
-	SyntaxNode* GetChild(int index);
-	const SyntaxNode* GetChild(int index) const;
+	SyntaxNode* GetChildAt(int index);
+	const SyntaxNode* GetChildAt(int index) const;
 
 	void SetSymbolAddress(Sym* addr);
 	void SetLiteralAddress(Literal* addr);

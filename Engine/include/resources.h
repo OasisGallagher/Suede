@@ -30,8 +30,6 @@ public:
 	static Texture2D GetBlackTexture();
 	static Texture2D GetWhiteTexture();
 
-	static const std::vector<ShaderResource>& GetShaderResources();
-
 	static std::string GetRootDirectory();
 
 	static Mesh GetPrimitive(PrimitiveType type);
@@ -47,7 +45,7 @@ public:
 private:
 	static const char* GetRelativePath(const char* path);
 
-	static void ImportShaderResources();
+	//static void ImportShaderResources();
 	static void ImportTextureResources();
 
 	static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);

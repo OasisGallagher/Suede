@@ -171,7 +171,7 @@ template <class T, class Reader>
 void ShaderParser::ReadTree(SyntaxNode* node, const char* plurality, Reader reader, std::vector<T*>& cont) {
 	if (node->ToString() == plurality) {
 		for (int i = 0; i < node->GetChildCount(); ++i) {
-			(this->*reader)(node->GetChild(i), Append(cont));
+			(this->*reader)(node->GetChildAt(i), Append(cont));
 		}
 	}
 	else {
@@ -183,7 +183,7 @@ template <class T, class Reader>
 void ShaderParser::ReadTreeRef(SyntaxNode* node, const char* plurality, Reader reader, std::vector<T>& cont) {
 	if (node->ToString() == plurality) {
 		for (int i = 0; i < node->GetChildCount(); ++i) {
-			(this->*reader)(node->GetChild(i), AppendRef(cont));
+			(this->*reader)(node->GetChildAt(i), AppendRef(cont));
 		}
 	}
 	else {

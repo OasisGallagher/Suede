@@ -13,7 +13,7 @@ SubShader {
 
 		GLSLPROGRAM
 		
-		#include "buildin/shaders/include/suede.inc"
+		#include "buildin/include/suede.inc"
 
 		#stage vertex
 		in vec3 c_position;
@@ -24,7 +24,7 @@ SubShader {
 		out vec3 worldPos;
 		out vec3 normal;
 
-		#include "buildin/shaders/include/light_vertex.inc"
+		#include "buildin/include/light_vertex.inc"
 
 		void main() {
 			texCoord = c_texCoord;
@@ -47,7 +47,7 @@ SubShader {
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 
-		#include "buildin/shaders/include/light_fragment.inc"
+		#include "buildin/include/light_fragment.inc"
 
 		void main() {
 			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
@@ -69,7 +69,7 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
-		#include "buildin/shaders/include/suede.inc"
+		#include "buildin/include/suede.inc"
 
 		in vec3 c_position;
 		in vec3 c_normal;

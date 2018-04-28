@@ -3,7 +3,7 @@ SubShader {
 	Pass {
 		GLSLPROGRAM
 
-		#include "buildin/shaders/include/suede.inc"
+		#include "buildin/include/suede.inc"
 		
 		#stage vertex
 
@@ -18,7 +18,7 @@ SubShader {
 		out vec3 worldPos;
 		out vec3 normal;
 
-		#include "buildin/shaders/include/light_vertex.inc"
+		#include "buildin/include/light_vertex.inc"
 
 		uniform mat4 c_boneToRootMatrices[C_MAX_BONE_COUNT];
 
@@ -49,7 +49,7 @@ SubShader {
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 
-		#include "buildin/shaders/include/light_fragment.inc"
+		#include "buildin/include/light_fragment.inc"
 
 		void main() {
 			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;

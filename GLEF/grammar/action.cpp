@@ -228,7 +228,7 @@ bool ActionMake::Deflate(std::vector<SyntaxNode*>& nodes, const SyntaxNode* node
 	}
 
 	for (int i = 0; i < first->GetChildCount(); ++i) {
-		nodes.push_back(first->GetChild(i));
+		nodes.push_back(first->GetChildAt(i));
 	}
 
 	delete first;

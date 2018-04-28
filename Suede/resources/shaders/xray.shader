@@ -64,7 +64,7 @@ SubShader {
 		out vec3 worldPos;
 		out vec3 normal;
 
-		#include "buildin/shaders/include/light_vertex.inc"
+		#include "buildin/include/light_vertex.inc"
 
 		uniform mat4 c_localToClipMatrix;
 		uniform mat4 c_localToWorldMatrix;
@@ -90,7 +90,7 @@ SubShader {
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 
-		#include "buildin/shaders/include/light_fragment.inc"
+		#include "buildin/include/light_fragment.inc"
 
 		void main() {
 			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;

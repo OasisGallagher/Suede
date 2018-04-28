@@ -168,7 +168,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	ParticleRenderer renderer = NewParticleRenderer();
 
 	Material material = NewMaterial();
-	Shader shader = Resources::FindShader("buildin/shaders/particle");
+	Shader shader = Resources::FindShader("buildin/particle");
 	material->SetShader(shader);
 
 	Texture2D mainTexture = NewTexture2D();

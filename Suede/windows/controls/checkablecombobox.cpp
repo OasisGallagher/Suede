@@ -28,7 +28,6 @@ void CheckableComboBox::setItems(const QStringList& items) {
 	Q_ASSERT(items.size() > 0 && items.size() < MAX_COMBOX_ITEMS);
 
 	int width = minimumWidth();
-	//foreach(QString str, items) {
 	for(uint i = 0; i < items.size(); ++i) {
 		const QString& str = items[i];
 

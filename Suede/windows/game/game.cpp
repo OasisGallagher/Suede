@@ -249,7 +249,7 @@ void Game::createScene() {
 	camera->SetClearType(ClearTypeSkybox);
 
 	Material skybox = NewMaterial();
-	skybox->SetShader(Resources::FindShader("buildin/shaders/skybox"));
+	skybox->SetShader(Resources::FindShader("buildin/skybox"));
 
 	TextureCube cube = NewTextureCube();
 
@@ -350,7 +350,7 @@ void Game::createScene() {
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
-	Shader shader = Resources::FindShader("shaders/xray");
+	Shader shader = Resources::FindShader("xray");
 	materail->SetShader(shader);
 #endif
 

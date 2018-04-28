@@ -25,12 +25,6 @@
       <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
       <Extensions>ui</Extensions>
     </Filter>
-    <Filter Include="resources\buildin">
-      <UniqueIdentifier>{ef71728c-0118-4a07-ba75-c636b628828c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resources\buildin\shaders">
-      <UniqueIdentifier>{7799e13f-e719-497a-b633-ff8c543af3e9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="scripts">
       <UniqueIdentifier>{d9d38ab5-25a0-4526-8735-dbceb209adba}</UniqueIdentifier>
     </Filter>
@@ -39,9 +33,6 @@
     </Filter>
     <Filter Include="scripts\src">
       <UniqueIdentifier>{dfce4a84-8832-4749-b332-0fdd5a01e4e8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="resources\buildin\shaders\include">
-      <UniqueIdentifier>{d4b000e9-5adc-4391-a49a-d9fb0bfbc95b}</UniqueIdentifier>
     </Filter>
     <Filter Include="resources\shaders">
       <UniqueIdentifier>{cda91b8e-50f4-4c01-a697-db1bad03772d}</UniqueIdentifier>
@@ -129,6 +120,12 @@
     </Filter>
     <Filter Include="windows\status\src">
       <UniqueIdentifier>{19041b3a-78f1-40c6-b11c-9587b781b34d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\shaders\builtin">
+      <UniqueIdentifier>{43d28d5e-e2af-4923-9408-8a0df599c17a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\shaders\builtin\include">
+      <UniqueIdentifier>{fe0db015-bb51-460e-b034-52f8394634f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -288,8 +285,14 @@
     <ClCompile Include="GeneratedFiles\Release\moc_status.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\controls\folddedcombobox.cpp">
+    <ClCompile Include="windows\controls\treeviewcombobox.cpp">
       <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_treeviewcombobox.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_treeviewcombobox.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -347,6 +350,9 @@
     <CustomBuild Include="windows\status\status.h">
       <Filter>windows\status\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\controls\treeviewcombobox.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -361,34 +367,13 @@
     <ClInclude Include="GeneratedFiles\ui_suede.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="resources\buildin\shaders\include\light_fragment.inc">
-      <Filter>resources\buildin\shaders\include</Filter>
-    </ClInclude>
     <ClInclude Include="windows\controls\childwindow.h">
-      <Filter>windows\controls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="windows\controls\folddedcombobox.h">
       <Filter>windows\controls\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\buildin\shaders\include\light_vertex.inc">
-      <Filter>resources\buildin\shaders\include</Filter>
-    </None>
     <None Include="resources\shaders\include\post_effect_vertex.inc">
       <Filter>resources\shaders\include</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\lit_texture.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\depth.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\directional_light_depth.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\unlit_texture.shader">
-      <Filter>resources\buildin\shaders</Filter>
     </None>
     <None Include="resources\shaders\grayscale.shader">
       <Filter>resources\shaders</Filter>
@@ -396,38 +381,47 @@
     <None Include="resources\shaders\inversion.shader">
       <Filter>resources\shaders</Filter>
     </None>
-    <None Include="resources\buildin\shaders\blit.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\gbuffer.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\particle.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\skybox.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\lit_animated_texture.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\lit_bumped_texture.shader">
-      <Filter>resources\buildin\shaders</Filter>
-    </None>
     <None Include="resources\shaders\xray.shader">
       <Filter>resources\shaders</Filter>
-    </None>
-    <None Include="resources\buildin\shaders\decal.shader">
-      <Filter>resources\buildin\shaders</Filter>
     </None>
     <None Include="resources\qss\style.qss">
       <Filter>resources\qss</Filter>
     </None>
-    <None Include="resources\buildin\shaders\include\suede.inc">
-      <Filter>resources\buildin\shaders\include</Filter>
+    <None Include="resources\shaders\buildin\blit.shader">
+      <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\buildin\shaders\gizmos.shader">
-      <Filter>resources\buildin\shaders</Filter>
+    <None Include="resources\shaders\buildin\decal.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\depth.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\directional_light_depth.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\gbuffer.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\gizmos.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\lit_animated_texture.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\lit_bumped_texture.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\lit_texture.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\particle.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\skybox.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\buildin\unlit_texture.shader">
+      <Filter>resources\shaders\builtin</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

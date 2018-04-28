@@ -41,7 +41,7 @@ void SyntaxNode::AddChildren(SyntaxNode** buffer, int count) {
 	}
 }
 
-SyntaxNode* SyntaxNode::GetChild(int index) {
+SyntaxNode* SyntaxNode::GetChildAt(int index) {
 	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
 		return nullptr;
 	}
@@ -54,7 +54,7 @@ SyntaxNode* SyntaxNode::GetChild(int index) {
 	return value_.children[index + 1];
 }
 
-const SyntaxNode* SyntaxNode::GetChild(int index) const {
+const SyntaxNode* SyntaxNode::GetChildAt(int index) const {
 	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
 		return nullptr;
 	}
@@ -148,7 +148,7 @@ void SyntaxTree::ToStringRecursively(std::ostringstream& oss, const std::string&
 
 	for (int i = 0; i < current->GetChildCount(); ++i) {
 		bool lastChild = current != nullptr && current->GetChildCount() == (i + 1);
-		ToStringRecursively(oss, prefix + (tail ? "     " : "│    "), current->GetChild(i), lastChild);
+		ToStringRecursively(oss, prefix + (tail ? "     " : "│    "), current->GetChildAt(i), lastChild);
 	}
 
 	/*
@@ -160,7 +160,7 @@ void SyntaxTree::ToStringRecursively(std::ostringstream& oss, const std::string&
 	}
 
 	for (int i = 0; i < current->GetChildCount(); ++i) {
-		SyntaxNodeToString(oss, prefix + (tail ? "     " : "│    "), current, current->GetChild(i));
+		SyntaxNodeToString(oss, prefix + (tail ? "     " : "│    "), current, current->GetChildAt(i));
 	}
 	*/
 }
@@ -183,7 +183,7 @@ void SyntaxTree::PreorderTreeWalk(TreeWalkCallback callback) {
 
 		if (cur != nullptr && cur->GetNodeType() == SyntaxNodeOperation) {
 			for (int i = cur->GetChildCount() - 1; i >= 0; --i) {
-				s.push(cur->GetChild(i));
+				s.push(cur->GetChildAt(i));
 			}
 		}
 

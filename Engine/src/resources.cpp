@@ -12,9 +12,6 @@ static TextureContainer textures_;
 typedef std::map<std::string, Material> MaterialContainer;
 static MaterialContainer materials_;
 
-typedef std::vector<ShaderResource> ShaderResourceContainer;
-static ShaderResourceContainer shaderResources_;
-
 typedef std::vector<TextureResource> TextureResourceContainer;
 static TextureResourceContainer textureResources_;
 
@@ -22,7 +19,7 @@ static Mesh primitives_[PrimitiveTypeCount];
 static Texture2D blackTexture_, whiteTexture_;
 
 void Resources::Import() {
-	ImportShaderResources();
+//	ImportShaderResources();
 	ImportTextureResources();
 }
 
@@ -40,10 +37,6 @@ Texture2D Resources::GetWhiteTexture() {
 	}
 
 	return whiteTexture_;
-}
-
-const std::vector<ShaderResource>& Resources::GetShaderResources() {
-	return shaderResources_;
 }
 
 std::string Resources::GetRootDirectory() {
@@ -218,22 +211,21 @@ Texture2D Resources::CreateSolidTexture(uint color) {
 	return texture;
 }
 
-void Resources::ImportShaderResources() {
-	std::vector<std::string> paths;
-	const char* reg = ".*\\.shader";
-	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
-	FileSystem::ListAllFiles(paths, "resources/buildin/shaders", reg);
-
-	shaderResources_.clear();
-	for (int i = 0; i < paths.size(); ++i) {
-		ShaderResource sr = {
-			FileSystem::GetFileNameWithoutExtension(paths[i]), 
-			GetRelativePath(paths[i].c_str())
-		};
-
-		shaderResources_.push_back(sr);
-	}
-}
+// void Resources::ImportShaderResources() {
+// 	std::vector<std::string> paths;
+// 	const char* reg = ".*\\.shader";
+// 	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
+// 
+// 	shaderResources_.clear();
+// 	for (int i = 0; i < paths.size(); ++i) {
+// 		ShaderResource sr = {
+// 			FileSystem::GetFileNameWithoutExtension(paths[i]), 
+// 			GetRelativePath(paths[i].c_str())
+// 		};
+// 
+// 		shaderResources_.push_back(sr);
+// 	}
+// }
 
 void Resources::ImportTextureResources() {
 	std::vector<std::string> paths;
