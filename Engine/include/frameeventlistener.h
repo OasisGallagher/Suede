@@ -1,6 +1,7 @@
 #pragma once
+#include "enginedefines.h"
 
-class FrameEventListener {
+class SUEDE_API FrameEventListener {
 public:
 	virtual void OnFrameEnter() {}
 	virtual void OnFrameLeave() {}

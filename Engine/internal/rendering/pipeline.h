@@ -3,8 +3,8 @@
 #include "camera.h"
 #include "texture.h"
 #include "material.h"
-#include "frameevent.h"
 #include "api/gl.h"
+#include "frameeventlistener.h"
 #include "internal/base/framebuffer.h"
 
 struct Renderable {
@@ -99,8 +99,10 @@ private:
 
 	FramebufferState* oldFramebufferState_;
 
+	uint ndrawcalls_;
+	uint ntriangles_;
+
 	// performance.
-	uint ndrawcalls;
 	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *sort_renderables, *rendering;
 
 	// environment.

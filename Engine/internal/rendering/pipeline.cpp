@@ -3,9 +3,10 @@
 #include "time2.h"
 #include "engine.h"
 #include "pipeline.h"
+#include "statistics.h"
 #include "tools/math2.h"
 #include "debug/profiler.h"
-#include "internal/rendering/uniformbuffermanager.h"
+#include "uniformbuffermanager.h"
 
 Camera Pipeline::camera_;
 Pipeline* Pipeline::current_;
@@ -66,7 +67,7 @@ struct RenderableComparer {
 };
 
 Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
-	, oldFramebufferState_(nullptr), oldPass_(-1), ndrawcalls(0) {
+	, oldFramebufferState_(nullptr), oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
 	switch_material = Profiler::CreateSample();
 	switch_framebuffer = Profiler::CreateSample();
 	switch_mesh = Profiler::CreateSample();
@@ -128,7 +129,6 @@ void Pipeline::Flush() {
 
 	for (std::vector<uint>::iterator ite = ranges.begin(); ite != ranges.end(); ++ite) {
 		if (renderables_[from].instance != 0) {
-			Debug::Break();
 			Render(renderables_[from]);
 		}
 		else {
@@ -138,12 +138,15 @@ void Pipeline::Flush() {
 		from = *ite;
 	}
 
+	Statistics::AddTriangles(ntriangles_);
+	Statistics::AddDrawcalls(ndrawcalls_);
+
 	debugDumpPipelineAndRanges(ranges);
 
 	rendering->Stop();
 
 	Debug::Output("[Pipeline::Update::nrenderables]\t%d\n", nrenderables_);
-	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d\n", ndrawcalls);
+	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d\n", ndrawcalls_);
 	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f\n", update_ubo->GetElapsedSeconds());
 	Debug::Output("[Pipeline::Update::rendering]\t%.2f\n", rendering->GetElapsedSeconds());
 
@@ -162,8 +165,6 @@ void Pipeline::GatherInstances(std::vector<uint>& ranges) {
 	for (uint i = 0; i < nrenderables_; ++i) {
 		// particle system.
 		if (renderables_[i].instance != 0) {
-			Debug::Break();
-
 			// render instanced renderables.
 			if (i > base) {
 				ranges.push_back(i);
@@ -264,14 +265,16 @@ void Pipeline::Render(Renderable& renderable) {
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
 	if (renderable.instance == 0) {
+		Debug::Break();
 		// TODO: update c_localToWorldMatrix, c_localToClipMatrix to material.
-		GLUtil::DrawElementsBaseVertex(renderable.mesh->GetTopology(), bias);
+		//GLUtil::DrawElementsBaseVertex(renderable.mesh->GetTopology(), bias);
 	}
 	else {
 		GLUtil::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, renderable.instance);
 	}
 
-	++ndrawcalls;
+	++ndrawcalls_;
+	ntriangles_ += bias.indexCount / 3;
 }
 
 void Pipeline::UpdateRenderContext(Renderable& renderable) {
@@ -319,7 +322,9 @@ void Pipeline::UpdateRenderContext(Renderable& renderable) {
 }
 
 void Pipeline::Clear() {
-	ndrawcalls = 0;
+	ndrawcalls_ = 0;
+	ntriangles_ = 0;
+
 	ResetRenderContext();
 
 	switch_mesh->Clear();

@@ -244,10 +244,7 @@ void CameraInternal::InitializeDeferredRender() {
 
 	deferredMaterial_ = NewMaterial();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
-
-	Shader shader = NewShader();
-	shader->Load("builtin/gbuffer");
-	deferredMaterial_->SetShader(shader);
+	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));
 }
 
 void CameraInternal::AddToPipeline(Mesh mesh, Material material, const glm::mat4& localToWorldMatrix) {

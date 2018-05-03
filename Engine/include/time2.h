@@ -3,6 +3,9 @@
 
 class SUEDE_API Time {
 public:
+	/**
+	 * @brief the time in seconds it took to complete the last frame.
+	 */
 	static float GetDeltaTime();
 	static float GetRealTimeSinceStartup();
 

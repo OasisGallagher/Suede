@@ -174,6 +174,13 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\transforminternal.cpp" />
     <ClCompile Include="internal\base\uniformbuffer.cpp" />
     <ClCompile Include="internal\base\vertexarray.cpp" />
+    <ClCompile Include="internal\culling\occlusionculling\CullingThreadpool.cpp" />
+    <ClCompile Include="internal\culling\occlusionculling\FrameRecorder.cpp" />
+    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCulling.cpp" />
+    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX512.cpp" />
     <ClCompile Include="internal\entities\frustum.cpp" />
     <ClCompile Include="internal\entities\projectorinternal.cpp" />
     <ClCompile Include="internal\file\entityassetloader.cpp" />
@@ -187,13 +194,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\entities\lightinternal.cpp" />
     <ClCompile Include="internal\entities\particlesysteminternal.cpp" />
     <ClCompile Include="internal\entities\entityinternal.cpp" />
-    <ClCompile Include="internal\occlusionculling\CullingThreadpool.cpp" />
-    <ClCompile Include="internal\occlusionculling\FrameRecorder.cpp" />
-    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCulling.cpp" />
-    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
-      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-    </ClCompile>
-    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX512.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
@@ -208,6 +208,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="src\polygon.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\screen.cpp" />
+    <ClCompile Include="src\statistics.cpp" />
     <ClCompile Include="src\tagmanager.cpp" />
     <ClCompile Include="src\time2.cpp" />
     <ClCompile Include="src\variant.cpp" />
@@ -229,7 +230,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\entityimportedlistener.h" />
     <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
-    <ClInclude Include="include\frameevent.h" />
+    <ClInclude Include="include\frameeventlistener.h" />
     <ClInclude Include="include\geometryutility.h" />
     <ClInclude Include="include\gizmos.h" />
     <ClInclude Include="include\gizmospainter.h" />
@@ -248,6 +249,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\entity.h" />
     <ClInclude Include="include\mesh.h" />
+    <ClInclude Include="include\statistics.h" />
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\time2.h" />
     <ClInclude Include="include\transform.h" />
@@ -270,6 +272,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\transforminternal.h" />
     <ClInclude Include="internal\base\uniformbuffer.h" />
     <ClInclude Include="internal\base\vertexarray.h" />
+    <ClInclude Include="internal\culling\occlusionculling\CullingThreadpool.h" />
+    <ClInclude Include="internal\culling\occlusionculling\FrameRecorder.h" />
+    <ClInclude Include="internal\culling\occlusionculling\MaskedOcclusionCulling.h" />
     <ClInclude Include="internal\entities\frustum.h" />
     <ClInclude Include="internal\entities\projectorinternal.h" />
     <ClInclude Include="internal\file\entityassetloader.h" />
@@ -282,9 +287,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\entities\lightinternal.h" />
     <ClInclude Include="internal\entities\particlesysteminternal.h" />
     <ClInclude Include="internal\entities\entityinternal.h" />
-    <ClInclude Include="internal\occlusionculling\CullingThreadpool.h" />
-    <ClInclude Include="internal\occlusionculling\FrameRecorder.h" />
-    <ClInclude Include="internal\occlusionculling\MaskedOcclusionCulling.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\uniformbuffermanager.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
@@ -294,8 +296,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <Text Include="include\tagmanager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="internal\occlusionculling\CompilerSpecific.inl" />
-    <None Include="internal\occlusionculling\MaskedOcclusionCullingCommon.inl" />
+    <None Include="internal\culling\occlusionculling\CompilerSpecific.inl" />
+    <None Include="internal\culling\occlusionculling\MaskedOcclusionCullingCommon.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

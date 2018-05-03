@@ -340,7 +340,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/geom.fbx", this);
+	Entity room = WorldInstance()->Import("models/house.fbx", this);
 	roomEntityID = room->GetInstanceID();
 	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif

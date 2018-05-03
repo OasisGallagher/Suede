@@ -10,6 +10,7 @@
 #include "engine.h"
 #include "screen.h"
 #include "resources.h"
+#include "statistics.h"
 #include "debug/debug.h"
 
 #ifndef _STDCALL
@@ -18,6 +19,19 @@
 
 static std::vector<FrameEventListener*> frameEventListeners;
 #define FOR_EACH_FRAME_EVENT_LISTENER(func)	for (uint i = 0; i < frameEventListeners.size(); ++i) frameEventListeners[i]->func()
+
+static void SetDefaultGLStates() {
+	GL::ClearDepth(1);
+	GL::DepthRange(0, 1);
+
+	GL::Enable(GL_DEPTH_TEST);
+	GL::DepthFunc(GL_LEQUAL);
+
+	GL::Enable(GL_CULL_FACE);
+	GL::CullFace(GL_BACK);
+
+	GL::DepthMask(GL_TRUE);
+}
 
 static void _STDCALL GLDebugMessageCallback(
 	GLenum source, 
@@ -46,6 +60,8 @@ bool Engine::Initialize() {
 	SetDefaultGLStates();
 
 	Resources::Import();
+	Statistics::Initialize();
+
 	return true;
 }
 
@@ -72,25 +88,11 @@ void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
 }
 
 void Engine::Update() {
-	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameEnter);
-
 	Time::Update();
+
+	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameEnter);
 	WorldInstance()->Update();
-
 	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameLeave);
-}
-
-void Engine::SetDefaultGLStates() {
-	GL::ClearDepth(1);
-	GL::DepthRange(0, 1);
-
-	GL::Enable(GL_DEPTH_TEST);
-	GL::DepthFunc(GL_LEQUAL);
-
-	GL::Enable(GL_CULL_FACE);
-	GL::CullFace(GL_BACK);
-
-	GL::DepthMask(GL_TRUE);
 }
 
 static void _STDCALL GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const GLvoid* userParam) {

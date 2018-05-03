@@ -83,20 +83,23 @@
     <Filter Include="internal\rendering\src">
       <UniqueIdentifier>{25898a48-9103-48de-9fcd-2f61882bd8d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\occlusionculling">
-      <UniqueIdentifier>{6989c1c4-fc39-44da-bcb6-9b222c066786}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\occlusionculling\include">
-      <UniqueIdentifier>{59cbdb6c-09bd-417d-9f79-8cc2280aadd8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\occlusionculling\src">
-      <UniqueIdentifier>{6cfc2ec8-a2a8-4bc1-96e1-b943ebbb0501}</UniqueIdentifier>
-    </Filter>
     <Filter Include="api">
       <UniqueIdentifier>{384f19f2-09d5-4a3b-8d2c-338e049f1b82}</UniqueIdentifier>
     </Filter>
     <Filter Include="api\include">
       <UniqueIdentifier>{82c584a2-c323-49fd-b709-c9e885613e79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\culling">
+      <UniqueIdentifier>{5a133204-f746-4f89-affe-24b00d2605a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\culling\occlusionculling">
+      <UniqueIdentifier>{6989c1c4-fc39-44da-bcb6-9b222c066786}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\culling\occlusionculling\include">
+      <UniqueIdentifier>{59cbdb6c-09bd-417d-9f79-8cc2280aadd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\culling\occlusionculling\src">
+      <UniqueIdentifier>{6cfc2ec8-a2a8-4bc1-96e1-b943ebbb0501}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -277,9 +280,6 @@
     <ClInclude Include="internal\base\vertexarray.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\frameevent.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\bounds.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -313,20 +313,26 @@
     <ClInclude Include="internal\base\componentinternal.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\occlusionculling\CullingThreadpool.h">
-      <Filter>internal\occlusionculling\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\occlusionculling\FrameRecorder.h">
-      <Filter>internal\occlusionculling\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\occlusionculling\MaskedOcclusionCulling.h">
-      <Filter>internal\occlusionculling\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rendering\uniformbuffermanager.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
     <ClInclude Include="api\gl.h">
       <Filter>api\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\statistics.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\frameeventlistener.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\culling\occlusionculling\CullingThreadpool.h">
+      <Filter>internal\culling\occlusionculling\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\culling\occlusionculling\FrameRecorder.h">
+      <Filter>internal\culling\occlusionculling\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\culling\occlusionculling\MaskedOcclusionCulling.h">
+      <Filter>internal\culling\occlusionculling\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -462,23 +468,26 @@
     <ClCompile Include="internal\base\componentinternal.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\occlusionculling\CullingThreadpool.cpp">
-      <Filter>internal\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\occlusionculling\FrameRecorder.cpp">
-      <Filter>internal\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCulling.cpp">
-      <Filter>internal\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
-      <Filter>internal\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\occlusionculling\MaskedOcclusionCullingAVX512.cpp">
-      <Filter>internal\occlusionculling\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp">
       <Filter>internal\rendering\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\statistics.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionculling\CullingThreadpool.cpp">
+      <Filter>internal\culling\occlusionculling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionculling\FrameRecorder.cpp">
+      <Filter>internal\culling\occlusionculling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCulling.cpp">
+      <Filter>internal\culling\occlusionculling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
+      <Filter>internal\culling\occlusionculling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX512.cpp">
+      <Filter>internal\culling\occlusionculling\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -487,11 +496,11 @@
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="internal\occlusionculling\CompilerSpecific.inl">
-      <Filter>internal\occlusionculling\include</Filter>
+    <None Include="internal\culling\occlusionculling\CompilerSpecific.inl">
+      <Filter>internal\culling\occlusionculling\include</Filter>
     </None>
-    <None Include="internal\occlusionculling\MaskedOcclusionCullingCommon.inl">
-      <Filter>internal\occlusionculling\include</Filter>
+    <None Include="internal\culling\occlusionculling\MaskedOcclusionCullingCommon.inl">
+      <Filter>internal\culling\occlusionculling\include</Filter>
     </None>
   </ItemGroup>
 </Project>

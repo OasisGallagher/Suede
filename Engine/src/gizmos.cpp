@@ -4,6 +4,7 @@
 #include "gizmos.h"
 #include "material.h"
 #include "graphics.h"
+#include "resources.h"
 #include "variables.h"
 #include "tools/math2.h"
 #include "geometryutility.h"
@@ -31,16 +32,11 @@ static Batch& GetBatch() {
 }
 
 static void Initialize() {
-	Shader shader = NewShader();
-	if (!shader->Load("builtin/gizmos")) {
-		return;
-	}
-
 	mesh = NewMesh();
 	color = glm::vec3(0, 1, 0);
 
 	material = NewMaterial();
-	material->SetShader(shader);
+	material->SetShader(Resources::FindShader("builtin/gizmos"));
 	material->SetColor4(Variables::mainColor, glm::vec4(color, 1));
 }
 

@@ -11,12 +11,4 @@ public:
 protected:
 	virtual void paintGL();
 	virtual void resizeGL(int w, int h);
-
-private:
-	void UpdateFPS();
-
-private:
-	float fps_;
-	float timeCounter_;
-	uint frameCounter_;
 };

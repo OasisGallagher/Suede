@@ -182,8 +182,8 @@ void RendererInspector::drawMaterialProperties(QWidgetList& widgets, Material ma
 }
 
 bool RendererInspector::updateMaterial(uint materialIndex, const QString& shaderPath) {
-	Shader shader = NewShader();
-	if (!shader->Load(shaderPath.toStdString())) {
+	Shader shader = Resources::FindShader(shaderPath.toStdString());
+	if (!shader) {
 		return false;
 	}
 
