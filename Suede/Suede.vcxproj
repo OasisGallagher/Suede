@@ -671,8 +671,8 @@
     <None Include="resources\shaders\builtin\directional_light_depth.shader" />
     <None Include="resources\shaders\builtin\gbuffer.shader" />
     <None Include="resources\shaders\builtin\gizmos.shader" />
-    <None Include="resources\shaders\builtin\include\light_fragment.inc" />
-    <None Include="resources\shaders\builtin\include\light_vertex.inc" />
+    <None Include="resources\shaders\builtin\include\lit_fragment.inc" />
+    <None Include="resources\shaders\builtin\include\lit_vertex.inc" />
     <None Include="resources\shaders\builtin\include\post_effect_vertex.inc" />
     <None Include="resources\shaders\builtin\include\suede.inc" />
     <None Include="resources\shaders\builtin\lit_animated_texture.shader" />

@@ -1,3 +1,6 @@
+#ifndef __SUEDE_INC__
+#define __SUEDE_INC__
+
 // shared uniform buffers.
 layout(std140) uniform SharedTimeUniformBuffer {
 	float c_time;
@@ -15,6 +18,7 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	mat4 c_worldToClipMatrix;
 	mat4 c_worldToCameraMatrix;
 	mat4 c_cameraToClipMatrix;
+	mat4 c_worldToShadowMatrix;
 
 	vec3 c_cameraPosition;
 };
@@ -27,3 +31,4 @@ layout(std140) uniform SharedEntityMatricesUniformBuffer {
 #define c_localToWorldMatrix	(c_entityMatrices[gl_InstanceID * 2])
 #define c_localToClipMatrix		(c_entityMatrices[gl_InstanceID * 2 + 1])
 
+#endif	// __SUEDE_INC__

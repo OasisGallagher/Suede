@@ -108,7 +108,6 @@ private:
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
 	void RenderEntity(Entity entity, Renderer renderer);
-	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
@@ -135,6 +134,7 @@ private:
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;
+	Framebuffer* fbDepth_;
 
 	Pipeline* pipeline_;
 	Sample *push_renderables, *forward_pass, *get_renderable_entities;

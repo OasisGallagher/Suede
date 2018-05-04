@@ -49,6 +49,10 @@ struct FramebufferState {
 
 	RenderTexture renderTexture;
 	FramebufferAttachment attachment;
+
+private:
+	RenderTexture oldDepthTexture;
+	RenderTexture oldRenderTexture;
 };
 
 class FramebufferBase {

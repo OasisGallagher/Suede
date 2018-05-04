@@ -14,13 +14,21 @@ bool FramebufferState::operator!=(const FramebufferState& other) const {
 }
 
 void FramebufferState::BindWrite() {
+	oldDepthTexture = framebuffer->GetDepthTexture();
+	oldRenderTexture = framebuffer->GetRenderTexture(attachment);
+
 	framebuffer->SetDepthTexture(depthTexture);
 	framebuffer->SetRenderTexture(attachment, renderTexture);
+	// TODO: clear flags.
 	framebuffer->BindWrite(false);
 }
 
 void FramebufferState::Unbind() {
 	framebuffer->Unbind();
+
+	// TODO: restore old depth & render texture?
+	framebuffer->SetDepthTexture(oldDepthTexture);
+	framebuffer->SetRenderTexture(attachment, oldRenderTexture);
 }
 
 void FramebufferState::Clear() {

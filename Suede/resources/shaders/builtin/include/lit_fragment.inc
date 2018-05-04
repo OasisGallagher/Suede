@@ -1,3 +1,6 @@
+#ifndef __LIT_FRAGMENT_INC__
+#define __LIT_FRAGMENT_INC__
+
 in vec4 shadowCoord;
 
 uniform vec3 c_specularColor;
@@ -68,3 +71,5 @@ float calculateShadowVisibility() {
 
 	return visibility;
 }
+
+#endif // __LIT_FRAGMENT_INC__

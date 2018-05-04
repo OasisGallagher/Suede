@@ -23,6 +23,7 @@ struct SharedTransformsUniformBuffer {
 	glm::mat4 worldToClipMatrix;
 	glm::mat4 worldToCameraMatrix;
 	glm::mat4 cameraToClipMatrix;
+	glm::mat4 worldToShadowMatrix;
 	glm::vec4 cameraPosition;
 
 	static const char* GetName() { return "SharedTransformsUniformBuffer"; }

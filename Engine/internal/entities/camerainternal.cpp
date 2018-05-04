@@ -17,7 +17,7 @@
 
 CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera)
-	, fb1_(nullptr), fb2_(nullptr), gbuffer_(nullptr) {
+	, fb1_(nullptr), fb2_(nullptr), fbDepth_(nullptr), gbuffer_(nullptr) {
 	frustum_ = MEMORY_CREATE(Frustum);
 	frustum_->SetProjectionMatrixChangedListener(this);
 
@@ -38,6 +38,8 @@ CameraInternal::CameraInternal()
 CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(fb1_);
 	MEMORY_RELEASE(fb2_);
+	MEMORY_RELEASE(fbDepth_);
+
 	MEMORY_RELEASE(frustum_);
 	MEMORY_RELEASE(gbuffer_);
 	MEMORY_RELEASE(pipeline_);
@@ -84,19 +86,19 @@ void CameraInternal::Render() {
 		//	ForwardDepthPass(entities);
 		}
 	}
-
+	
 	Light forwardBase;
 	std::vector<Light> forwardAdd;
 	GetLights(forwardBase, forwardAdd);
 
 	if (forwardBase) {
-	//	ShadowDepthPass(entities, forwardBase);
+		ShadowDepthPass(entities, forwardBase);
 	}
 
 	Pipeline::SetFramebuffer(GetActiveFramebuffer());
 
 	if (renderPath_ == RenderPathForward) {
-		ForwardRendering(entities, forwardBase, forwardAdd);
+	//	ForwardRendering(entities, forwardBase, forwardAdd);
 	}
 	else {
 		DeferredRendering(entities, forwardBase, forwardAdd);
@@ -155,6 +157,8 @@ void CameraInternal::UpdateTransformsUniformBuffer() {
 	p.worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 	p.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 	p.cameraToClipMatrix = GetProjectionMatrix();
+	p.worldToShadowMatrix = worldToShadowMatrix_;
+
 	p.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
@@ -411,10 +415,10 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
 	glm::mat4 view = glm::lookAt(lightPosition * 10.f, glm::vec3(0), light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
+	directionalLightShadowMaterial_->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		directionalLightShadowMaterial_->SetMatrix4(Variables::localToOrthographicLightMatrix, shadowDepthMatrix);
 		AddToPipeline(entity->GetMesh(), directionalLightShadowMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
@@ -525,8 +529,11 @@ void CameraInternal::OnImageEffects() {
 			textures[index] = nullptr;
 		}
 
-		Pipeline::SetFramebuffer(active);
+		active->BindWrite(true);
+		//imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
 		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
+
+		active->Unbind();
 
 		index = 1 - index;
 	}
@@ -534,13 +541,18 @@ void CameraInternal::OnImageEffects() {
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {
 	push_renderables->Start();
+
+	for (uint i = 0; i < renderer->GetMaterialCount(); ++i) {
+		renderer->GetMaterial(i)->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
+	}
+
 	renderer->RenderEntity(entity);
 	push_renderables->Stop();
 }
-
-void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {
-	//if (pass_ >= RenderPassForwardOpaque) {
-	//	material->SetMatrix4(Variables::localToShadowMatrix, worldToShadowMatrix_ * localToWorldMatrix);
-	//	material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
-	//}
-}
+//
+//void CameraInternal::UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material) {
+//	//if (pass_ >= RenderPassForwardOpaque) {
+//	//	material->SetMatrix4(Variables::localToShadowMatrix, worldToShadowMatrix_ * localToWorldMatrix);
+//	//	material->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
+//	//}
+//}

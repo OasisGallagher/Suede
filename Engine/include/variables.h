@@ -48,8 +48,7 @@ namespace Variables {
 	DEFINE_VARIABLE(worldToCameraMatrix);
 	DEFINE_VARIABLE(localToClipMatrix);
 	DEFINE_VARIABLE(localToWorldMatrix);
-	DEFINE_VARIABLE(localToShadowMatrix);
-	DEFINE_VARIABLE(localToOrthographicLightMatrix);
+	DEFINE_VARIABLE(worldToOrthographicLightMatrix);
 	DEFINE_VARIABLE(worldToClipMatrix);
 	DEFINE_VARIABLE(cameraToClipMatrix);
 };

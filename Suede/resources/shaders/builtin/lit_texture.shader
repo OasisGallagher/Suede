@@ -24,7 +24,7 @@ SubShader {
 		out vec3 worldPos;
 		out vec3 normal;
 
-		#include "builtin/include/light_vertex.inc"
+		#include "builtin/include/lit_vertex.inc"
 
 		void main() {
 			texCoord = c_texCoord;
@@ -47,7 +47,7 @@ SubShader {
 		uniform vec4 c_mainColor;
 		uniform sampler2D c_mainTexture;
 
-		#include "builtin/include/light_fragment.inc"
+		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
 			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;

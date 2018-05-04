@@ -29,11 +29,11 @@
 
 #define ROOM
 #define SKYBOX
-#define PROJECTOR
+//#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define POST_EFFECTS
+#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -246,7 +246,7 @@ void Game::createScene() {
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
-#ifdef POST_EFFECTS
+#ifdef IMAGE_EFFECTS
 	//camera->AddImageEffect(inversion_);
 	camera->AddImageEffect(grayscale_);
 #endif
