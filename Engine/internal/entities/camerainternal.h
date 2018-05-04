@@ -14,6 +14,7 @@ class GizmosPainter;
 
 class Framebuffer;
 class FramebufferBase;
+struct FramebufferState;
 
 class Sample;
 class CameraInternal : public ICamera, public EntityInternal, public ProjectionMatrixChangedListener {
@@ -87,34 +88,35 @@ private:
 	void UpdateTimeUniformBuffer();
 	void UpdateTransformsUniformBuffer();
 
-	void AddToPipeline(Mesh mesh, Material material, const glm::mat4& localToWorldMatrix);
+	void AddToPipeline(const FramebufferState& state, Mesh mesh, Material material, const glm::mat4& localToWorldMatrix);
 
-	void ForwardRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(const std::vector<Entity>& entities);
+	void RenderDeferredGeometryPass(const FramebufferState& state, const std::vector<Entity>& entities);
 
 	void SetUpFramebuffer1();
 	void CreateFramebuffer2();
-	void RenderSkybox();
+	void RenderSkybox(const FramebufferState& state);
 
 	void OnViewportSizeChanged(int w, int h);
 	FramebufferBase* GetActiveFramebuffer();
 
 	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
 
-	void ForwardPass(const std::vector<Entity>& entities);
+	void ForwardPass(const FramebufferState& state, const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
-	void RenderEntity(Entity entity, Renderer renderer);
+	void RenderEntity(const FramebufferState& state, Entity entity, Renderer renderer);
+	void RenderSubMesh(const FramebufferState& state, Entity entity, int subMeshIndex, Material material, int pass);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
-	void RenderForwardBase(const std::vector<Entity>& entities, Light light);
 	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
+	void RenderForwardBase(const FramebufferState& state, const std::vector<Entity>& entities, Light light);
 
-	void RenderDecals();
+	void RenderDecals(const FramebufferState& state);
 	void OnPostRender();
 
 	void OnDrawGizmos();
@@ -125,7 +127,6 @@ private:
 private:
 	int depth_;
 	glm::mat4 worldToShadowMatrix_;
-
 
 	GBuffer* gbuffer_;
 

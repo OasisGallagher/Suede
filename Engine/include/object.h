@@ -4,19 +4,13 @@
 
 enum ObjectType {
 	ObjectTypeFont,
-	ObjectTypeMesh,
 	ObjectTypeWorld,
 	ObjectTypeShader,
 	ObjectTypeSubMesh,
-	ObjectTypeTextMesh,
 	ObjectTypeMaterial,
-	ObjectTypeTransform,
 	ObjectTypeTexture2D,
 	ObjectTypeTextureCube,
 	ObjectTypeRenderTexture,
-	ObjectTypeMeshRenderer,
-	ObjectTypeParticleRenderer,
-	ObjectTypeSkinnedMeshRenderer,
 
 	ObjectTypeSkeleton,
 	ObjectTypeAnimation,
@@ -29,6 +23,15 @@ enum ObjectType {
 	ObjectTypeParticleAnimator,
 	ObjectTypeSphereParticleEmitter,
 
+	// Components
+	ObjectTypeTransform,
+	ObjectTypeParticleSystem,
+	ObjectTypeMesh,
+	ObjectTypeTextMesh,
+	ObjectTypeMeshRenderer,
+	ObjectTypeParticleRenderer,
+	ObjectTypeSkinnedMeshRenderer,
+
 	// Entities.
 	ObjectTypeEntity,
 	ObjectTypeCamera,
@@ -36,7 +39,6 @@ enum ObjectType {
 	ObjectTypeSpotLight,
 	ObjectTypePointLight,
 	ObjectTypeDirectionalLight,
-	ObjectTypeParticleSystem,
 
 	ObjectTypeCount,
 

@@ -4,20 +4,8 @@
 
 #include "mesh.h"
 #include "api/gl.h"
-#include "vertexarray.h"
 #include "componentinternal.h"
-
-enum VertexAttrib {
-	VertexAttribPosition,
-	VertexAttribTexCoord,
-	VertexAttribNormal,
-	VertexAttribTangent,
-	VertexAttribBoneIndexes,
-	VertexAttribBoneWeights,
-
-	VertexAttribInstanceColor,
-	VertexAttribInstanceGeometry,
-};
+#include "internal/base/vertexarray.h"
 
 class SubMeshInternal : public ISubMesh, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(SubMesh)

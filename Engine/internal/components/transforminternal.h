@@ -1,19 +1,15 @@
 #include <vector>
 
-#include "entity.h"
 #include "transform.h"
-#include "internal/base/objectinternal.h"
+#include "internal/components/componentinternal.h"
 
-class TransformInternal : public ITransform, public ObjectInternal {
+class TransformInternal : virtual public ITransform, public ComponentInternal {
 	DEFINE_FACTORY_METHOD(Transform)
 
 public:
 	TransformInternal();
 
 public:
-	virtual Entity GetEntity() { return entity_.lock(); }
-	virtual void SetEntity(Entity value);
-
 	virtual void AddChild(Transform child);
 	virtual void RemoveChild(Transform child);
 	virtual void RemoveChildAt(uint index);
@@ -90,7 +86,6 @@ private:
 private:
 	std::vector<Transform> children_;
 	std::weak_ptr<Transform::element_type> parent_;
-	std::weak_ptr<Entity::element_type> entity_;
 
 	PRS local_;
 	PRS world_;

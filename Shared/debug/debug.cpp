@@ -7,32 +7,20 @@ static LogReceiver* logReceiver;
 
 class StackTracer : public StackWalker {
 public:
-	StackTracer(uint skipLineCount, uint depth = 3) : skipLineCount_(skipLineCount + 2), depth_(depth) {
-		// +2 for OnOutput and GetStackTrace.
-	}
+	StackTracer();
 
 public:
-	const std::string& GetStackTrace() {
-		text_.clear();
-		lineCount_ = 0;
-		ShowCallstack();
-		return text_;
-	}
+	const std::string& GetStackTrace(uint start, uint depth = 3);
 
 protected:
-	virtual void OnOutput(const char* text) {
-		if (++lineCount_ > skipLineCount_ && lineCount_ <= depth_) {
-			//StackWalker::OnOutput(text);
-			text_ += text;
-		}
-	}
+	virtual void OnOutput(const char* text);
 
 private:
-	uint depth_;
-	uint lineCount_;
-	uint skipLineCount_;
 	std::string text_;
+	uint ln_, depth_, start_;
 };
+
+static StackTracer tracer;
 
 #define MAX_LOG_LENGTH	512
 #define FORMAT_BUFFER(format, bufname)	\
@@ -62,9 +50,8 @@ void Debug::LogWarning(const char* format, ...) {
 
 void Debug::LogError(const char* format, ...) {
 	if (logReceiver != nullptr) {
-		StackTracer tracer(1);
 		FORMAT_BUFFER(format, buffer);
-		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace();
+		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace(1, 5);
 		logReceiver->OnLogMessage(LogLevelError, text.c_str());
 	}
 }
@@ -76,4 +63,27 @@ void Debug::Output(const char* format, ...) {
 
 void Debug::Break() {
 	__debugbreak();
+}
+
+StackTracer::StackTracer() {
+	LoadModules();
+}
+
+const std::string & StackTracer::GetStackTrace(uint start, uint depth) {
+	text_.clear();
+	ln_ = 0;
+
+	depth_ = depth;
+
+	// skip this call & OnOutput.
+	start_ = start + 2;
+
+	ShowCallstack();
+	return text_;
+}
+
+void StackTracer::OnOutput(const char* text) {
+	if (++ln_ > start_ && ln_ <= depth_) {
+		text_ += text;
+	}
 }

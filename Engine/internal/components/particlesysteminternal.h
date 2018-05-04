@@ -4,7 +4,7 @@
 #include "tools/math2.h"
 #include "particlesystem.h"
 #include "containers/freelist.h"
-#include "internal/entities/entityinternal.h"
+#include "internal/components/componentinternal.h"
 
 class ParticleEmitterInternal : virtual public IParticleEmitter, public ObjectInternal {
 public:
@@ -92,7 +92,7 @@ private:
 	glm::vec3 randomForce_;
 };
 
-class ParticleSystemInternal : public IParticleSystem, public EntityInternal {
+class ParticleSystemInternal : public IParticleSystem, public ComponentInternal {
 	DEFINE_FACTORY_METHOD(ParticleSystem)
 
 public:
@@ -112,7 +112,7 @@ public:
 	virtual void SetStartDelay(float value) { startDelay_ = value; }
 	virtual float GetStartDelay() { return startDelay_; }
 
-	virtual uint GetParticlesCount();
+	virtual uint GetParticlesCount() const;
 
 	virtual void SetEmitter(ParticleEmitter value) { emitter_ = value; }
 	virtual ParticleEmitter GetEmitter() { return emitter_; }
@@ -148,6 +148,9 @@ private:
 	float time_;
 	float duration_;
 	float startDelay_;
+
+	bool meshDirty_;
+	bool rendererDirty_;
 
 	ParticleEmitter emitter_;
 	ParticleAnimator particleAnimator_;

@@ -2,14 +2,14 @@
 
 #include "entity.h"
 #include "component.h"
-#include "objectinternal.h"
+#include "internal/base/objectinternal.h"
 
 class ComponentInternal : virtual public IComponent, public ObjectInternal {
 public:
 	ComponentInternal(ObjectType type) : ObjectInternal(type) {}
 
 public:
-	virtual void SetEntity(Entity entity) { entity_ = entity; }
+	virtual void SetEntity(Entity entity);
 	virtual Entity GetEntity() { return entity_.lock(); }
 
 	virtual void Update() {}

@@ -1,5 +1,5 @@
 #pragma once
-#include "object.h"
+#include "component.h"
 #include "enginedefines.h"
 
 struct PRS {
@@ -12,11 +12,8 @@ struct PRS {
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
-class ITransform : virtual public IObject {
+class ITransform : virtual public IComponent {
 public:
-	virtual Entity GetEntity() = 0;
-	virtual void SetEntity(Entity value) = 0;
-
 	virtual void AddChild(Transform child) = 0;
 	virtual void RemoveChild(Transform child) = 0;
 	virtual void RemoveChildAt(uint index) = 0;

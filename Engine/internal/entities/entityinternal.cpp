@@ -6,10 +6,8 @@
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
-#include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
-
-#define THIS_PTR	suede_dynamic_cast<Entity>(shared_from_this())
+#include "internal/components/transforminternal.h"
 
 EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 }
@@ -28,7 +26,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
 		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
-		UpdateChildrenActive(THIS_PTR);
+		UpdateChildrenActive(This<Entity>());
 
 		if (renderer_ && mesh_ && !mesh_->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
@@ -45,7 +43,7 @@ bool EntityInternal::SetTag(const std::string& value) {
 	if (tag_ != value) {
 		tag_ = value;
 		EntityTagChangedEventPointer e = NewWorldEvent<EntityTagChangedEventPointer>();
-		e->entity = THIS_PTR;
+		e->entity = This<Entity>();
 		WorldInstance()->FireEvent(e);
 	}
 
@@ -62,21 +60,23 @@ void EntityInternal::SetName(const std::string& value) {
 		name_ = value;
 
 		EntityNameChangedEventPointer e = NewWorldEvent<EntityNameChangedEventPointer>();
-		e->entity = THIS_PTR;
+		e->entity = This<Entity>();
 		WorldInstance()->FireEvent(e);
 	}
 }
 
 void EntityInternal::Update() {
+	// TODO: generic component container.
 	if (animation_) { animation_->Update(); }
 	if (mesh_) { mesh_->Update(); }
+	if (particleSystem_) { particleSystem_->Update(); }
 	if (renderer_) { renderer_->Update(); }
 }
 
 void EntityInternal::SetTransform(Transform value) {
 	if (transform_ != value) {
 		transform_ = value;
-		transform_->SetEntity(THIS_PTR);
+		transform_->SetEntity(This<Entity>());
 	}
 }
 
@@ -88,38 +88,25 @@ void EntityInternal::SetAnimation(Animation value) {
 	}
 
 	if (animation_ = value) {
-		animation_->SetEntity(THIS_PTR);
+		animation_->SetEntity(This<Entity>());
 	}
 }
 
 void EntityInternal::SetMesh(Mesh value) {
-	if (mesh_ == value) { return; }
-
-	if (mesh_) {
-		mesh_->SetEntity(nullptr);
-	}
-
-	if (mesh_ = value) {
-		mesh_->SetEntity(THIS_PTR);
-	}
-
+	SetComponent(mesh_, value);
 	RecalculateBounds();
 }
 
-void EntityInternal::SetRenderer(Renderer value) {
-	if (renderer_ == value) { return; }
+void EntityInternal::SetParticleSystem(ParticleSystem value) {
+	SetComponent(particleSystem_, value);
+}
 
+void EntityInternal::SetRenderer(Renderer value) {
 	if ((!!renderer_) != (!!value)) {
 		RecalculateBounds();
 	}
 
-	if (renderer_) {
-		renderer_->SetEntity(nullptr);
-	}
-
-	if (renderer_ = value) {
-		renderer_->SetEntity(THIS_PTR);
-	}
+	SetComponent(renderer_, value);
 }
 
 void EntityInternal::RecalculateBounds() {
@@ -132,7 +119,7 @@ void EntityInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
 		EntityActiveChangedEventPointer e = NewWorldEvent<EntityActiveChangedEventPointer>();
-		e->entity = THIS_PTR;
+		e->entity = This<Entity>();
 		WorldInstance()->FireEvent(e);
 	}
 }

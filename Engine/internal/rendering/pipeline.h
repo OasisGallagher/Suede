@@ -50,21 +50,11 @@ public:
 	~Pipeline();
 
 public:
-	static Pipeline* GetCurrent() { return current_; }
-	static void SetCurrent(Pipeline* value) { current_ = value; }
-
-	static void SetCamera(Camera value) { camera_ = value; }
-	static Camera GetCamera() { return camera_; }
-
-	static void SetFramebuffer(FramebufferBase* value);
-	static FramebufferBase* GetFramebuffer() { return framebuffer_; }
-
-public:
 	virtual void OnFrameEnter();
 	virtual void OnFrameLeave();
 
 public:
-	void Flush();
+	void Flush(const glm::mat4& worldToClipMatrix);
 	void AddRenderable(
 		Mesh mesh,
 		uint subMeshIndex,
@@ -104,9 +94,4 @@ private:
 
 	// performance.
 	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *sort_renderables, *rendering;
-
-	// environment.
-	static Camera camera_;
-	static Pipeline* current_;
-	static FramebufferBase* framebuffer_;
 };

@@ -8,14 +8,17 @@ SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
 class SUEDE_API IRenderer : virtual public IComponent {
 public:
-	virtual void RenderEntity(Entity entity) = 0;
-
 	virtual void AddMaterial(Material material) = 0;
 	virtual Material GetMaterial(uint index) = 0;
 	virtual void SetMaterial(uint index, Material value) = 0;
 	virtual void RemoveMaterial(Material material) = 0;
 	virtual void RemoveMaterialAt(uint index) = 0;
 	virtual uint GetMaterialCount() = 0;
+	
+	/**
+	 * @brief update renderer properties to materials.
+	 */
+	virtual void UpdateMaterialProperties() = 0;
 };
 
 class SUEDE_API IMeshRenderer : virtual public IRenderer {

@@ -5,7 +5,7 @@ Properties {
 SubShader {
 	Pass {
 		ZTest LEqual;
-		//Blend SrcAlpha OneMinusSrcAlpha;
+		Blend SrcAlpha OneMinusSrcAlpha;
 
 		StencilTest Always 1 0xFF;
 		StencilOp Keep Keep Replace;
@@ -32,7 +32,8 @@ SubShader {
 			normal = transpose(inverse(mat3(c_localToWorldMatrix))) * c_normal;
 			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 	
-			calculateShadowCoord();
+			c_shadowCoord = 100 * c_worldToShadowMatrix * vec4(worldPos, 1);
+			//calculateShadowCoord();
 
 			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
@@ -50,9 +51,14 @@ SubShader {
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
-			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
+			//fragColor = vec4(c_worldToShadowMatrix * vec4(worldPos.xyz, 1));// * vec4(worldPos.xyz, 1);
+			//return;
+
+			//vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 			float visibility = calculateShadowVisibility();
-			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
+			//fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
+
+			fragColor = vec4(c_shadowCoord.xyz / c_shadowCoord.w, 1);
 		}
 
 		ENDGLSL

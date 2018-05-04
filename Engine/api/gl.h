@@ -3,6 +3,7 @@
 
 #include "mesh.h"
 #include "debug/debug.h"
+#include "tools/string.h"
 
 class GL {
 public:
@@ -118,8 +119,9 @@ public:
 
 inline void GL::Verify(const char* func) {
 #define CASE(errorEnum)		case errorEnum: message = #errorEnum; break
-	const char* message = nullptr;
-	switch (glGetError()) {
+	GLenum error = glGetError();
+	std::string message;
+	switch (error) {
 		case GL_NO_ERROR:
 			break;
 		CASE(GL_INVALID_ENUM);
@@ -128,14 +130,15 @@ inline void GL::Verify(const char* func) {
 		CASE(GL_STACK_OVERFLOW);
 		CASE(GL_STACK_UNDERFLOW);
 		CASE(GL_OUT_OF_MEMORY);
+		CASE(GL_INVALID_FRAMEBUFFER_OPERATION);
 		default:
-			message = "undefined error";
+			message = String::Format("undefined error 0x%x", error);
 			break;
 	}
 #undef CASE
 
-	if (message != nullptr) {
-		Debug::LogError("%s: %s.", func, message);
+	if (!message.empty()) {
+		Debug::LogError("%s: %s.", func, message.c_str());
 	}
 }
 

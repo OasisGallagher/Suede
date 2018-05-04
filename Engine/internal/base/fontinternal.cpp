@@ -12,8 +12,8 @@
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = NewMaterial();
-	Shader shader = Resources::FindShader("builtin/unlit_texture");
-	material_->SetShader(shader);
+	material_->SetShader(Resources::FindShader("builtin/unlit_texture"));
+	material_->SetRenderQueue(RenderQueueTransparent);
 
 	// default font color.
 	material_->SetColor4(Variables::mainColor, glm::vec4(1));

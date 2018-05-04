@@ -16,6 +16,10 @@ public:
 public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
 
+protected:
+	template <class T>
+	T This();
+
 private:
 	static uint GenerateInstanceID(ObjectType type);
 
@@ -25,6 +29,11 @@ private:
 
 	static uint ObjectIDContainer[ObjectTypeCount];
 };
+
+template <class T>
+T ObjectInternal::This() {
+	return suede_dynamic_cast<T>(shared_from_this());
+}
 
 #define DEFINE_FACTORY_METHOD(name) \
 	public: \

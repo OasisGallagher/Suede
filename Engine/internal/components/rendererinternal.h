@@ -12,7 +12,7 @@ public:
 	~RendererInternal();
 
 public:
-	virtual void RenderEntity(Entity entity);
+	virtual void UpdateMaterialProperties() {}
 
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
 	virtual Material GetMaterial(uint index) { return materials_[index]; }
@@ -23,11 +23,6 @@ public:
 
 	virtual uint GetRenderQueue() { return queue_; }
 	virtual void SetRenderQueue(uint value) { queue_ = value; }
-
-protected:
-	virtual void AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass);
-
-	void RenderSubMesh(Entity entity, int subMeshIndex, Material material, int pass);
 
 private:
 	uint queue_;
@@ -48,7 +43,7 @@ public:
 	SkinnedMeshRendererInternal() : RendererInternal(ObjectTypeSkinnedMeshRenderer) {}
 
 public:
-	virtual void Update();
+	virtual void UpdateMaterialProperties();
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 
 private:
@@ -60,13 +55,4 @@ class ParticleRendererInternal : public IParticleRenderer, public RendererIntern
 
 public:
 	ParticleRendererInternal();
-
-public:
-	virtual void Update();
-
-protected:
-	virtual void AddToPipeline(Entity entity, uint subMeshIndex, Material material, int pass);
-
-private:
-	uint particleCount_;
 };

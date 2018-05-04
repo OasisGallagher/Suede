@@ -1,8 +1,8 @@
 #include "glef.h"
 #include "variables.h"
 #include "tools/math2.h"
+#include "vertexattrib.h"
 #include "tools/string.h"
-#include "meshinternal.h"
 #include "os/filesystem.h"
 #include "shaderinternal.h"
 

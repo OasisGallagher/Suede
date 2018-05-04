@@ -6,9 +6,9 @@
 #include "internal/base/framebuffer.h"
 #include "internal/base/renderdefines.h"
 #include "internal/file/asyncentityimporter.h"
-#include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
+#include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
 #define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
@@ -156,8 +156,9 @@ void WorldInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entiti
 			continue;
 		}
 
+		// TODO: fix bug for particle system.
 		if (!IsVisible(child, worldToClipMatrix)) {
-			continue;
+		//	continue;
 		}
 
 		if (child->GetActive() && child->GetRenderer() && child->GetMesh()) {

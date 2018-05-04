@@ -101,6 +101,15 @@
     <Filter Include="internal\culling\occlusionculling\src">
       <UniqueIdentifier>{6cfc2ec8-a2a8-4bc1-96e1-b943ebbb0501}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\components">
+      <UniqueIdentifier>{dca0170e-fd60-4d7a-82d7-620ad2a1b774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\components\include">
+      <UniqueIdentifier>{97dd7537-b7f5-43fe-a0d7-cd8296b4999d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\components\src">
+      <UniqueIdentifier>{76a1ca00-5788-45b2-855a-324e66d396a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -128,9 +137,6 @@
       <Filter>internal\base\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\objectinternal.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\base\rendererinternal.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\shaderinternal.h">
@@ -181,14 +187,8 @@
     <ClInclude Include="include\animation.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\animationinternal.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\particlesystem.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\entities\particlesysteminternal.h">
-      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="include\time2.h">
       <Filter>include</Filter>
@@ -204,9 +204,6 @@
     </ClInclude>
     <ClInclude Include="include\mesh.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\base\meshinternal.h">
-      <Filter>internal\base\include</Filter>
     </ClInclude>
     <ClInclude Include="include\resources.h">
       <Filter>include</Filter>
@@ -237,9 +234,6 @@
     </ClInclude>
     <ClInclude Include="include\transform.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\base\transforminternal.h">
-      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="..\Shared\containers\arraylist.h">
       <Filter>internal\containers\include</Filter>
@@ -310,9 +304,6 @@
     <ClInclude Include="include\component.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\componentinternal.h">
-      <Filter>internal\base\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rendering\uniformbuffermanager.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
@@ -333,6 +324,27 @@
     </ClInclude>
     <ClInclude Include="internal\culling\occlusionculling\MaskedOcclusionCulling.h">
       <Filter>internal\culling\occlusionculling\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\animationinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\componentinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\meshinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\particlesysteminternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\rendererinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\transforminternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\vertexattrib.h">
+      <Filter>internal\base\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -363,9 +375,6 @@
     <ClCompile Include="internal\base\framebuffer.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\rendererinternal.cpp">
-      <Filter>internal\base\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\renderstate.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
@@ -375,20 +384,11 @@
     <ClCompile Include="internal\world\environmentinternal.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\animationinternal.cpp">
-      <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\entities\particlesysteminternal.cpp">
-      <Filter>internal\entities\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\fontinternal.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\file\image.cpp">
       <Filter>internal\file\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\base\meshinternal.cpp">
-      <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="src\graphics.cpp">
       <Filter>src</Filter>
@@ -421,9 +421,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\entityinternal.cpp">
-      <Filter>internal\entities\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\base\transforminternal.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\projectorinternal.cpp">
@@ -465,9 +462,6 @@
     <ClCompile Include="internal\file\asyncentityimporter.cpp">
       <Filter>internal\file\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\componentinternal.cpp">
-      <Filter>internal\base\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp">
       <Filter>internal\rendering\src</Filter>
     </ClCompile>
@@ -488,6 +482,24 @@
     </ClCompile>
     <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX512.cpp">
       <Filter>internal\culling\occlusionculling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\animationinternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\componentinternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\meshinternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\particlesysteminternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\transforminternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\rendererinternal.cpp">
+      <Filter>internal\components\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

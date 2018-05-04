@@ -285,8 +285,10 @@ void Game::createScene() {
 #endif
 
 #ifdef PARTICLE_SYSTEM
+	Entity entity = NewEntity();
 	ParticleSystem particleSystem = NewParticleSystem();
-	particleSystem->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
+	entity->SetParticleSystem(particleSystem);
+	entity->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);

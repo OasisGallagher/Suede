@@ -2,6 +2,7 @@
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "meshinternal.h"
+#include "internal/base/vertexattrib.h"
 
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh) {
 }

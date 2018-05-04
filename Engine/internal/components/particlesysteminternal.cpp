@@ -1,25 +1,19 @@
 #include "time2.h"
+#include "world.h"
+#include "camera.h"
 #include "variables.h"
 #include "resources.h"
 #include "tools/math2.h"
 #include "particlesysteminternal.h"
-#include "internal/base/meshinternal.h"
-#include "internal/world/worldinternal.h"
-#include "internal/base/shaderinternal.h"
-#include "internal/base/textureinternal.h"
-#include "internal/base/materialinternal.h"
-#include "internal/base/rendererinternal.h"
 
 static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 
 #define MAX_PARTICLE_COUNT	1000
 
 ParticleSystemInternal::ParticleSystemInternal()
-	: EntityInternal(ObjectTypeParticleSystem), duration_(3)
+	: ComponentInternal(ObjectTypeParticleSystem), duration_(3)
 	, looping_(false), startDelay_(0), time_(0), maxParticles_(MAX_PARTICLE_COUNT)
-	, particles_(MAX_PARTICLE_COUNT) {
-	InitializeMesh();
-	InitializeRenderer();
+	, particles_(MAX_PARTICLE_COUNT), meshDirty_(true), rendererDirty_(true) {
 }
 
 ParticleSystemInternal::~ParticleSystemInternal() {
@@ -29,11 +23,19 @@ void ParticleSystemInternal::SetMaxParticles(uint value) {
 	if (maxParticles_ != value) {
 		maxParticles_ = value;
 		particles_.reallocate(value);
-		InitializeMesh();
+		meshDirty_ = true;
 	}
 }
 
 void ParticleSystemInternal::Update() {
+	if (meshDirty_) {
+		InitializeMesh();
+	}
+
+	if (rendererDirty_) {
+		InitializeRenderer();
+	}
+
 	UpdateParticles();
 
 	if (emitter_ && time_ >= startDelay_) {
@@ -42,7 +44,7 @@ void ParticleSystemInternal::Update() {
 
 	time_ += Time::GetDeltaTime();
 
-	EntityInternal::Update();
+	ComponentInternal::Update();
 }
 
 void ParticleSystemInternal::SortBuffers() {
@@ -90,7 +92,7 @@ void ParticleSystemInternal::UpdateParticles() {
 void ParticleSystemInternal::UpdateMesh() {
 	uint count = particles_.size();
 	if (count > 0) {
-		Mesh mesh = GetMesh();
+		Mesh mesh = GetEntity()->GetMesh();
 		mesh->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
 		mesh->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
 	}
@@ -153,7 +155,7 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 
 	emitter_->Emit(&buffer_[0], count);
 	for (int i = 0; i < count; ++i) {
-		buffer_[i]->position += GetTransform()->GetPosition();
+		buffer_[i]->position += GetEntity()->GetTransform()->GetPosition();
 	}
 }
 
@@ -161,7 +163,8 @@ void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute color(maxParticles_, 1);
 	InstanceAttribute geometry(maxParticles_, 1);
 	Mesh mesh = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, 1, color, geometry);
-	SetMesh(mesh);
+	GetEntity()->SetMesh(mesh);
+	meshDirty_ = false;
 }
 
 void ParticleSystemInternal::InitializeRenderer() {
@@ -176,10 +179,12 @@ void ParticleSystemInternal::InitializeRenderer() {
 	material->SetTexture(Variables::mainTexture, mainTexture);
 
 	renderer->AddMaterial(material);
-	SetRenderer(renderer);
+	GetEntity()->SetRenderer(renderer);
+
+	rendererDirty_ = false;
 }
 
-uint ParticleSystemInternal::GetParticlesCount() {
+uint ParticleSystemInternal::GetParticlesCount() const {
 	return particles_.size();
 }
 

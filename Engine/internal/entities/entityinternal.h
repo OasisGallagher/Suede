@@ -39,6 +39,9 @@ public:
 	virtual void SetMesh(Mesh value);
 	virtual Mesh GetMesh() { return mesh_; }
 
+	virtual void SetParticleSystem(ParticleSystem value);
+	virtual ParticleSystem GetParticleSystem() { return particleSystem_; }
+
 	virtual void SetRenderer(Renderer value);
 	virtual Renderer GetRenderer() { return renderer_; }
 
@@ -57,6 +60,9 @@ private:
 
 	void SetActive(bool value);
 	void UpdateChildrenActive(Entity parent);
+
+	template <class T>
+	void SetComponent(T& ref, T value);
 
 private:
 	static const char* EntityTypeToString(ObjectType type);
@@ -79,4 +85,18 @@ private:
 
 	Renderer renderer_;
 	Animation animation_;
+	ParticleSystem particleSystem_;
 };
+
+template <class T>
+void EntityInternal::SetComponent(T& ref, T value) {
+	if (ref == value) { return; }
+
+	if (ref) {
+		ref->SetEntity(nullptr);
+	}
+
+	if (ref = value) {
+		ref->SetEntity(This<Entity>());
+	}
+}

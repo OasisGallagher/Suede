@@ -4,6 +4,7 @@
 #include "renderer.h"
 #include "animation.h"
 #include "transform.h"
+#include "particlesystem.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DECLARE_OBJECT_CREATER(Entity);
@@ -47,6 +48,9 @@ public:
 
 	virtual void SetMesh(Mesh value) = 0;
 	virtual Mesh GetMesh() = 0;
+
+	virtual void SetParticleSystem(ParticleSystem value) = 0;
+	virtual ParticleSystem GetParticleSystem() = 0;
 
 	virtual void SetRenderer(Renderer value) = 0;
 	virtual Renderer GetRenderer() = 0;

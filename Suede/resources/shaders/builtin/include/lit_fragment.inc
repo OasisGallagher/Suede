@@ -1,7 +1,7 @@
 #ifndef __LIT_FRAGMENT_INC__
 #define __LIT_FRAGMENT_INC__
 
-in vec4 shadowCoord;
+in vec4 c_shadowCoord;
 
 uniform vec3 c_specularColor;
 uniform vec3 c_emissiveColor;
@@ -52,6 +52,8 @@ float calculateShadowVisibility() {
 	float visibility = 1;
 	float bias = 0.005;
 
+	return texture(c_shadowDepthTexture, c_shadowCoord.xyz);
+	/*
 	for (int i = 0; i < 4; ++i) {
 		// use either :
 		//  - Always the same samples.
@@ -66,10 +68,10 @@ float calculateShadowVisibility() {
 		
 		// being fully in the shadow will eat up 4*0.2 = 0.8
 		// 0.2 potentially remain, which is quite dark.
-		visibility -= 0.2 * (1 - texture(c_shadowDepthTexture, vec3(shadowCoord.xy + poissonDisk[index] / 700.0,  (shadowCoord.z - bias)/shadowCoord.w)));
+		visibility -= 0.2 * (1 - texture(c_shadowDepthTexture, vec3(c_shadowCoord.xy + poissonDisk[index] / 700.0,  (c_shadowCoord.z - bias)/c_shadowCoord.w)));
 	}
 
-	return visibility;
+	return visibility;*/
 }
 
 #endif // __LIT_FRAGMENT_INC__

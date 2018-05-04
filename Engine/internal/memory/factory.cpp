@@ -1,19 +1,20 @@
 #include "internal/memory/factory.h"
 
 #include "internal/base/fontinternal.h"
-#include "internal/base/meshinternal.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
-#include "internal/base/rendererinternal.h"
 #include "internal/base/materialinternal.h"
-#include "internal/base/animationinternal.h"
 
 #include "internal/world/worldinternal.h"
+
+#include "internal/components/meshinternal.h"
+#include "internal/components/rendererinternal.h"
+#include "internal/components/animationinternal.h"
+#include "internal/components/particlesysteminternal.h"
 
 #include "internal/entities/lightinternal.h"
 #include "internal/entities/camerainternal.h"
 #include "internal/entities/projectorinternal.h"
-#include "internal/entities/particlesysteminternal.h"
 
 Factory Factory::instance;
 

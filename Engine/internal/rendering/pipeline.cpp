@@ -8,10 +8,6 @@
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
 
-Camera Pipeline::camera_;
-Pipeline* Pipeline::current_;
-FramebufferBase* Pipeline::framebuffer_;
-
 struct RenderableComparer {
 	// TODO: hash renderable.
 	bool operator () (Renderable& lhs, Renderable& rhs) const {
@@ -93,14 +89,6 @@ Pipeline::~Pipeline() {
 	Engine::RemoveFrameEventListener(this);
 }
 
-void Pipeline::SetFramebuffer(FramebufferBase* value) {
-	if (value == nullptr) {
-		value = Framebuffer0::Get();
-	}
-
-	framebuffer_ = value;
-}
-
 void Pipeline::OnFrameEnter() {
 
 }
@@ -109,7 +97,7 @@ void Pipeline::OnFrameLeave() {
 
 }
 
-void Pipeline::Flush() {
+void Pipeline::Flush(const glm::mat4& worldToClipMatrix) {
 	update_pipeline->Restart();
 
 	sort_renderables->Restart();
@@ -125,7 +113,6 @@ void Pipeline::Flush() {
 
 	rendering->Restart();
 	uint from = 0;
-	glm::mat4 worldToClipMatrix = camera_->GetProjectionMatrix() * camera_->GetTransform()->GetWorldToLocalMatrix();
 
 	for (std::vector<uint>::iterator ite = ranges.begin(); ite != ranges.end(); ++ite) {
 		if (renderables_[from].instance != 0) {

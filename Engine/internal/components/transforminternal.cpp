@@ -4,15 +4,8 @@
 #include "tools/math2.h"
 #include "transforminternal.h"
 
-TransformInternal::TransformInternal() : ObjectInternal(ObjectTypeTransform), dirtyBits_(0) {
+TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform), dirtyBits_(0) {
 	local_.scale = world_.scale = glm::vec3(1);
-}
-
-void TransformInternal::SetEntity(Entity value) {
-	if (entity_.lock() != value) {
-		entity_ = value;
-		value->SetTransform(suede_dynamic_cast<Transform>(shared_from_this()));
-	}
 }
 
 void TransformInternal::AddChild(Transform child) {
