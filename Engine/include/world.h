@@ -125,6 +125,7 @@ public:
 
 	virtual Entity GetEntity(uint id) = 0;
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector) = 0;
+	virtual bool GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix) = 0;
 
 	virtual bool FireEvent(WorldEventBasePointer e) = 0;
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;

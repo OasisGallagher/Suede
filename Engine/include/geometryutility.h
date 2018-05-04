@@ -17,6 +17,9 @@ public:
 	static bool AARectContains(const glm::vec3& position, const glm::vec3& tl, const glm::vec3& rb);
 	static bool PolygonContains(const glm::vec3* vertices, uint nvertices, const glm::vec3& position, const glm::vec3& normal, bool onEdge = true);
 
+	/**
+	 * @warning triangulate 2D polyon only.
+	 */
 	static void Triangulate(std::vector<glm::vec3>& triangles, const std::vector<glm::vec3>& polygon, const glm::vec3& normal);
 	static void ClampTriangle(std::vector<glm::vec3>& polygon, const Triangle& triangle, const Plane* planes, uint count);
 

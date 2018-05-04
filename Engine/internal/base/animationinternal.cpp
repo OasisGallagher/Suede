@@ -144,7 +144,7 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 		glm::vec3 position = frame_->GetVector3(FrameKeyPosition);
 		glm::vec3 scale = frame_->GetVector3(FrameKeyScale);
 
-		transform = glm::translate(glm::mat4(1), position) * glm::scale(glm::mat4_cast(rotation), scale);
+		transform = Math::TRS(position, rotation, scale);
 	}
 
 	transform = matrix * transform;

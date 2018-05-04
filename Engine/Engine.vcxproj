@@ -113,7 +113,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;..\Shared\lib\OpenThreads.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;..\Shared\lib\pugixml.lib;..\Shared\lib\OpenThreads.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib

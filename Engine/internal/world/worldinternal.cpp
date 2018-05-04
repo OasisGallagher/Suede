@@ -1,10 +1,10 @@
 #include <OpenThreads/ScopedLock>
 
-#include "time2.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
 #include "internal/base/framebuffer.h"
+#include "internal/base/renderdefines.h"
 #include "internal/file/asyncentityimporter.h"
 #include "internal/base/transforminternal.h"
 #include "internal/entities/entityinternal.h"
@@ -140,6 +140,69 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities, 
 	return !entities.empty();
 }
 
+bool WorldInternal::GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix) {
+	GetRenderableEntitiesInHierarchy(entities, root_->GetTransform(), worldToClipMatrix);
+	return !entities.empty();
+}
+
+void WorldInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4 & worldToClipMatrix) {
+	for (int i = 0; i < root->GetChildCount(); ++i) {
+		if (root->GetEntity()->GetStatus() != EntityStatusReady) {
+			Debug::Break();
+		}
+
+		Entity child = root->GetChildAt(i)->GetEntity();
+		if (child->GetStatus() != EntityStatusReady) {
+			continue;
+		}
+
+		if (!IsVisible(child, worldToClipMatrix)) {
+			continue;
+		}
+
+		if (child->GetActive() && child->GetRenderer() && child->GetMesh()) {
+			entities.push_back(child);
+		}
+
+		GetRenderableEntitiesInHierarchy(entities, child->GetTransform(), worldToClipMatrix);
+	}
+}
+
+bool WorldInternal::IsVisible(Entity entity, const glm::mat4 & worldToClipMatrix) {
+	const Bounds& bounds = entity->GetBounds();
+	if (bounds.IsEmpty()) {
+		return false;
+	}
+
+	return FrustumCulling(bounds, worldToClipMatrix);
+}
+
+bool WorldInternal::FrustumCulling(const Bounds & bounds, const glm::mat4 & worldToClipMatrix) {
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
+
+	bool inside = false;
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	for (int i = 0; i < points.size(); ++i) {
+		glm::vec4 p = worldToClipMatrix * glm::vec4(points[i], 1);
+		p /= p.w;
+		if (p.x >= -1 && p.x <= 1 && p.y >= -1 && p.y <= 1 && p.z >= -1 && p.z <= 1) {
+			inside = true;
+		}
+
+		points[i] = glm::vec3(p);
+		min = glm::min(min, points[i]);
+		max = glm::max(max, points[i]);
+	}
+
+	if (inside) {
+		glm::vec2 size(max.x - min.x, max.y - min.y);
+		return glm::dot(size, size) > MIN_NDC_RADIUS_SQUARED;
+	}
+
+	return false;
+}
+
 void WorldInternal::AddEventListener(WorldEventListener* listener) {
 	if (listener == nullptr) {
 		Debug::LogError("invalid world event listener.");
@@ -250,10 +313,14 @@ bool WorldInternal::CreateEntityDecal(Camera camera, Decal& decal, Entity entity
 }
 
 bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]) {
-	for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-		Entity entity = ite->second;
+	std::vector<Entity> entities;
+	if (!GetVisibleEntities(entities, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix())) {
+		return true;
+	}
+
+	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
+		Entity entity = *ite;
 		if (entity == p) { continue; }
-		if (!entity->GetMesh()) { continue; }
 		
 		Decal* decal = decals_.spawn();
 		if (decal == nullptr) {
@@ -283,7 +350,7 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 		SubMesh subMesh = mesh->GetSubMesh(i);
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
-		// TODO: triangle strip.
+		// TODO: use triangle strip?
 		for (int j = 0; j < bias.indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
 			uint index0 = indexes[bias.baseIndex + j] + bias.baseVertex;

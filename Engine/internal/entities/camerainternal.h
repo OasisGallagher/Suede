@@ -110,14 +110,6 @@ private:
 	void RenderEntity(Entity entity, Renderer renderer);
 	void UpdateMaterial(Entity entity, const glm::mat4& worldToClipMatrix, Material material);
 
-	bool CheckRenderComponents(Entity entity);
-	bool IsVisible(Entity entity, const glm::mat4& worldToClipMatrix);
-
-	bool FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix);
-
-	void GetRenderableEntities(std::vector<Entity>& entities);
-	void GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix);
-
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
 	void RenderForwardBase(const std::vector<Entity>& entities, Light light);

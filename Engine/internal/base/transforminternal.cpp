@@ -461,7 +461,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 glm::mat4 TransformInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
 		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
-		glm::mat4 matrix = Concatenate(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
+		glm::mat4 matrix = Math::TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
 		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
 			matrix = current->GetLocalToWorldMatrix() * matrix;
 		}
@@ -550,8 +550,4 @@ Transform TransformInternal::FindDirectChild(const std::string& name) {
 	}
 
 	return nullptr;
-}
-
-glm::mat4 TransformInternal::Concatenate(const glm::vec3& t, const glm::quat& r, const glm::vec3& s) {
-	return glm::translate(glm::mat4(1), t) * glm::scale(glm::mat4_cast(r), s);
 }

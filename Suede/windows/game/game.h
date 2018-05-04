@@ -55,7 +55,6 @@ private:
 	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
 
 private:
-	bool initialized_;
 	int updateTimer_;
 
 	QList<Entity> selection_;

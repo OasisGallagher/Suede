@@ -29,7 +29,8 @@
 
 #define ROOM
 #define SKYBOX
-//#define PROJECTOR
+#define PROJECTOR
+//#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 #define POST_EFFECTS
@@ -45,7 +46,7 @@ Game* Game::get() {
 	return gameInstance;
 }
 
-Game::Game(QWidget* parent) : QDockWidget(parent), initialized_(false) {
+Game::Game(QWidget* parent) : QDockWidget(parent) {
 	gameInstance = this;
 	controller_ = new CameraController;
 }
@@ -114,7 +115,7 @@ void Game::OnEntityImported(bool status, Entity root) {
 #elif defined(ROOM)
 	root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 	root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	root->GetTransform()->SetScale(glm::vec3(0.01f));
+	//root->GetTransform()->SetScale(glm::vec3(0.01f));
 #endif
 
 	float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
@@ -221,9 +222,14 @@ void Game::createScene() {
 
 #ifdef PROJECTOR
 	Projector projector = NewProjector();
+	
+#ifdef PROJECTOR_ORTHOGRAPHIC
 	projector->SetPerspective(false);
 	projector->SetOrthographicSize(5);
- 	//projector->SetFieldOfView(Math::Radians(9));
+#else
+	projector->SetFieldOfView(Math::Radians(9.f));
+#endif
+
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();
@@ -340,7 +346,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/house.fbx", this);
+	Entity room = WorldInstance()->Import("models/room_thickwalls.obj", this);
 	roomEntityID = room->GetInstanceID();
 	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif

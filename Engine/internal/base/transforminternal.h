@@ -71,8 +71,6 @@ private:
 	void DirtyChildrenPositions();
 	void DirtyChildrenRotationsAndEulerAngles();
 
-	glm::mat4 Concatenate(const glm::vec3& t, const glm::quat& r, const glm::vec3& s);
-
 	Transform FindDirectChild(const std::string& name);
 
 private:

@@ -1,19 +1,15 @@
 #include <glm/gtx/transform.hpp>
 
 #include "time2.h"
-#include "light.h"
 #include "gizmos.h"
 #include "screen.h"
 #include "resources.h"
 #include "variables.h"
-#include "tools/math2.h"
 #include "imageeffect.h"
 #include "gizmospainter.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
 #include "internal/base/gbuffer.h"
-#include "internal/base/renderdefines.h"
-#include "internal/base/uniformbuffer.h"
 #include "internal/rendering/pipeline.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/camerainternal.h"
@@ -75,8 +71,9 @@ void CameraInternal::Update() {
 void CameraInternal::Render() {
 	std::vector<Entity> entities;
 	get_renderable_entities->Restart();
-	GetRenderableEntities(entities);
+	WorldInstance()->GetVisibleEntities(entities, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	get_renderable_entities->Stop();
+
 	Debug::Output("[CameraInternal::Render::get_renderable_entities]\t%.2f\n", get_renderable_entities->GetElapsedSeconds());
 
 	Pipeline::SetCamera(suede_dynamic_cast<Camera>(shared_from_this()));
@@ -480,7 +477,7 @@ void CameraInternal::RenderDecals() {
 
 	for (int i = 0; i < decals.size(); ++i) {
 		Decal* d = decals[i];
-		glm::mat4 biasMatrix = glm::translate(glm::mat4(1) , glm::vec3(0.5f)) * glm::scale(glm::mat4(1), glm::vec3(0.5f));
+		glm::mat4 biasMatrix = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5f)), glm::vec3(0.5f));
 		Material decalMaterial = suede_dynamic_cast<Material>(decalMaterial_->Clone());
 
 		decalMaterial->SetMatrix4(Variables::decalMatrix, biasMatrix * d->matrix);
@@ -533,75 +530,6 @@ void CameraInternal::OnImageEffects() {
 
 		index = 1 - index;
 	}
-}
-
-void CameraInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix) {
-	for (int i = 0; i < root->GetChildCount(); ++i) {
-		if (root->GetEntity()->GetStatus() != EntityStatusReady) {
-			Debug::Break();
-		}
-
-		Entity child = root->GetChildAt(i)->GetEntity();
-		if (child->GetStatus() != EntityStatusReady) {
-			continue;
-		}
-
-		if (!IsVisible(child, worldToClipMatrix)) {
-			continue;
-		}
-
-		if (CheckRenderComponents(child)) {
-			entities.push_back(child);
-		}
-
-		GetRenderableEntitiesInHierarchy(entities, child->GetTransform(), worldToClipMatrix);
-	}
-}
-
-bool CameraInternal::CheckRenderComponents(Entity entity) {
-	return entity->GetActive() && entity->GetRenderer() && entity->GetMesh();
-}
-
-bool CameraInternal::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
-	const Bounds& bounds = entity->GetBounds();
-	if (bounds.IsEmpty()) {
-		return false;
-	}
-
-	return FrustumCulling(bounds, worldToClipMatrix);
-}
-
-bool CameraInternal::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
-	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
-
-	bool inside = false;
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-	for (int i = 0; i < points.size(); ++i) {
-		glm::vec4 p = worldToClipMatrix * glm::vec4(points[i], 1);
-		p /= p.w;
-		if (p.x >= -1 && p.x <= 1 && p.y >= -1 && p.y <= 1 && p.z >= -1 && p.z <= 1) {
-			inside = true;
-		}
-
-		points[i] = glm::vec3(p);
-		min = glm::min(min, points[i]);
-		max = glm::max(max, points[i]);
-	}
-
-	if (inside) {
-		glm::vec2 size(max.x - min.x, max.y - min.y);
-		return glm::dot(size, size) > MIN_RENDERABLE_RADIUS_SQUARED;
-	}
-
-	return false;
-}
-
-void CameraInternal::GetRenderableEntities(std::vector<Entity>& entities) {
-	GetRenderableEntitiesInHierarchy(entities, 
-		WorldInstance()->GetRootTransform(), 
-		GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix()
-	);
 }
 
 void CameraInternal::RenderEntity(Entity entity, Renderer renderer) {

@@ -4,6 +4,7 @@
 #include "../shareddefines.h"
 #include "../glm/glm.hpp"
 #include "../glm/gtc/quaternion.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
 
 #pragma intrinsic(_BitScanForward)
 
@@ -39,6 +40,8 @@ public:
 
 	static uint NextPowerOfTwo(uint x);
 	static uint RoundUpToPowerOfTwo(uint x, uint target);
+
+	static glm::mat4 TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s);
 
 	/**
 	 * @brief log_2_POT.
@@ -165,6 +168,10 @@ inline uint Math::NextPowerOfTwo(uint x) {
 inline uint Math::RoundUpToPowerOfTwo(uint x, uint target) {
 	--target;
 	return (x + target) & (~target);
+}
+
+inline glm::mat4 Math::TRS(const glm::vec3 & t, const glm::quat & r, const glm::vec3 & s) {
+	return glm::translate(glm::mat4(1), t) * glm::scale(glm::mat4_cast(r), s);
 }
 
 inline uint Math::PopulationCount(uint x) {
