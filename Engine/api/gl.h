@@ -33,6 +33,7 @@ public:
 	static void BindVertexArray(GLuint array);
 	static GLboolean IsTexture(GLuint texture);
 	static void ValidateProgram(GLuint program);
+	static void PolygonMode(GLenum face, GLenum mode);
 	static void EnableVertexAttribArray(GLuint index);
 	static void GenBuffers(GLsizei n, GLuint* buffers);
 	static void PixelStorei(GLenum pname, GLint param);
@@ -402,6 +403,10 @@ inline void GL::PixelStorei(GLenum pname, GLint param) {
 
 inline void GL::BufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage) {
 	GL_CALL(glBufferData(target, size, data, usage));
+}
+
+inline void GL::PolygonMode(GLenum face, GLenum mode) {
+	GL_CALL(glPolygonMode(face, mode));
 }
 
 inline void GL::EnableVertexAttribArray(GLuint index) {

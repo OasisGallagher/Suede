@@ -41,7 +41,7 @@ private:
 class SHARED_API FileSystem {
 public:
 	static time_t GetFileLastWriteTime(const std::string& fileName);
-	static bool ListAllFiles(FileTree& tree, const std::string& directory, const std::string& reg = ".+");
+	static bool ListFileTree(FileTree& tree, const std::string& directory, const std::string& reg = ".+");
 	static bool ListAllFiles(std::vector<std::string>& paths, const std::string& directory, const std::string& reg = ".+");
 
 	static std::string GetFileName(const std::string& path);
@@ -52,6 +52,14 @@ public:
 
 	static bool ReadAllText(const std::string& file, std::string& text);
 	static bool ReadAllLines(const std::string& file, std::vector<std::string>& lines);
+
+public:
+	static bool ReadInteger(std::ifstream& file, int* x);
+	static bool WriteInteger(std::ofstream& file, int x);
+
+	static const uint kMaxStringLength = 256;
+	static bool ReadString(std::ifstream& file, std::string* str);
+	static bool WriteString(std::ofstream& file, const std::string& str);
 
 private:
 	FileSystem();

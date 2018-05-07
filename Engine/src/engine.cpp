@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include "glef.h"
 #include "time2.h"
 #include "world.h"
 #include "api/gl.h"
@@ -47,6 +48,8 @@ bool Engine::Initialize() {
 	setlocale(LC_ALL, "");
 	glewExperimental = true;
 
+	Debug::Initialize();
+
 	if (glewInit() != GLEW_OK) {
 		Debug::LogError("failed to initialize glew.");
 		return false;
@@ -59,8 +62,8 @@ bool Engine::Initialize() {
 
 	SetDefaultGLStates();
 
+	GLEF::Initialize();
 	Resources::Import();
-	Statistics::Initialize();
 
 	return true;
 }
@@ -89,6 +92,7 @@ void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
 
 void Engine::Update() {
 	Time::Update();
+	Statistics::Update();
 
 	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameEnter);
 	WorldInstance()->Update();

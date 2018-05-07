@@ -3,11 +3,10 @@
 #include "canvas.h"
 #include "../windows/status/status.h"
 
-
 Canvas::Canvas(QWidget *parent) : QGLWidget(parent) {
 	glInit();
 	makeCurrent();
-
+	// TODO: switch GL context.
 	Engine::Initialize();
 }
 
@@ -22,3 +21,4 @@ void Canvas::resizeGL(int w, int h) {
 void Canvas::paintGL() {
 	Engine::Update();
 }
+

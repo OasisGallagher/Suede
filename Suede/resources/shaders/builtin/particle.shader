@@ -4,6 +4,7 @@ SubShader {
 	Tags { Queue = "Transparent"; }
 
 	Pass {
+		ZWrite Off;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM

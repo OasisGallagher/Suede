@@ -19,6 +19,8 @@ static void setup() {
 	QCoreApplication::setApplicationName("Suede");
 }
 
+#include <QThread>
+
 int main(int argc, char *argv[]) {
 	QApplication a(argc, argv);
 	

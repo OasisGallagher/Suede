@@ -47,17 +47,17 @@ class Code : public SyntaxElement {
 
 class Integer : public SyntaxElement {
 public:
-	void SetText(const std::string& value);
+	virtual void SetText(const std::string& value);
 };
 
 class Single : public SyntaxElement {
 public:
-	void SetText(const std::string& value);
+	virtual void SetText(const std::string& value);
 };
 
 class Boolean : public SyntaxElement {
 public:
-	void SetText(const std::string& value);
+	virtual void SetText(const std::string& value);
 };
 
 class Syntaxer {

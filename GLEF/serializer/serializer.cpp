@@ -7,10 +7,7 @@
 #include "debug/debug.h"
 #include "grammarsymbol.h"
 
-#define MAX_SERIALIZABLE_CHARACTERS		256
-
-static char intBuffer[sizeof(int)];
-static char strBuffer[MAX_SERIALIZABLE_CHARACTERS];
+#include "os/filesystem.h"
 
 bool Serializer::SaveEnvironment(std::ofstream& file, Environment* env) {
 	if (!SaveSymbols(file, env->terminalSymbols)) {
@@ -83,14 +80,14 @@ bool Serializer::SaveSymbols(std::ofstream& file, const GrammarSymbolContainer& 
 		}
 
 		++count;
-		if (!WriteString(file, ite->first)) {
+		if (!FileSystem::WriteString(file, ite->first)) {
 			return false;
 		}
 	}
 
 	newpos = file.tellp();
 	file.seekp(oldpos);
-	WriteInteger(file, count);
+	FileSystem::WriteInteger(file, count);
 
 	file.seekp(newpos);
 
@@ -99,13 +96,13 @@ bool Serializer::SaveSymbols(std::ofstream& file, const GrammarSymbolContainer& 
 
 bool Serializer::LoadSymbols(std::ifstream& file, GrammarSymbolContainer& cont) {
 	int count = 0;
-	if (!ReadInteger(file, count)) {
+	if (!FileSystem::ReadInteger(file, &count)) {
 		return false;
 	}
 
 	std::string text;
 	for (int i = 0; i < count; ++i) {
-		if (!ReadString(file, text)) {
+		if (!FileSystem::ReadString(file, &text)) {
 			return false;
 		}
 
@@ -117,32 +114,32 @@ bool Serializer::LoadSymbols(std::ifstream& file, GrammarSymbolContainer& cont) 
 }
 
 bool Serializer::SaveGrammars(std::ofstream& file, const GrammarContainer& cont) {
-	WriteInteger(file, cont.size());
+	FileSystem::WriteInteger(file, cont.size());
 
 	for (GrammarContainer::const_iterator ite = cont.begin(); ite != cont.end(); ++ite) {
 		const Grammar* g = *ite;
-		if (!WriteString(file, g->GetLhs().ToString())) {
+		if (!FileSystem::WriteString(file, g->GetLhs().ToString())) {
 			return false;
 		}
 
 		const CondinateContainer& conds = g->GetCondinates();
-		if (!WriteInteger(file, conds.size())) {
+		if (!FileSystem::WriteInteger(file, conds.size())) {
 			return false;
 		}
 
 		for (CondinateContainer::const_iterator ite = conds.begin(); ite != conds.end(); ++ite) {
 			const Condinate* c = *ite;
-			if (!WriteInteger(file, c->symbols.size())) {
+			if (!FileSystem::WriteInteger(file, c->symbols.size())) {
 				return false;
 			}
 
 			for (SymbolVector::const_iterator ite2 = c->symbols.begin(); ite2 != c->symbols.end(); ++ite2) {
-				if (!WriteString(file, ite2->ToString())) {
+				if (!FileSystem::WriteString(file, ite2->ToString())) {
 					return false;
 				}
 			}
 
-			if (!WriteString(file, c->action != nullptr ? c->action->ToString() : "")) {
+			if (!FileSystem::WriteString(file, c->action != nullptr ? c->action->ToString() : "")) {
 				return false;
 			}
 		}
@@ -153,13 +150,13 @@ bool Serializer::SaveGrammars(std::ofstream& file, const GrammarContainer& cont)
 
 bool Serializer::LoadGrammars(std::ifstream& file, GrammarSymbolContainer& terminalSymbols, GrammarSymbolContainer& nonterminalSymbols, GrammarContainer& grammars) {
 	int count = 0;
-	if (!ReadInteger(file, count)) {
+	if (!FileSystem::ReadInteger(file, &count)) {
 		return false;
 	}
 
 	std::string ltext;
 	for (int i = 0; i < count; ++i) {
-		if (!ReadString(file, ltext)) {
+		if (!FileSystem::ReadString(file, &ltext)) {
 			return false;
 		}
 
@@ -201,18 +198,18 @@ bool Serializer::LoadCondinates(GrammarSymbolContainer& terminalSymbols, Grammar
 	SymbolVector symbols;
 	std::string stext, atext;
 
-	if (!ReadInteger(file, cn)) {
+	if (!FileSystem::ReadInteger(file, &cn)) {
 		return false;
 	}
 
 	for (int i = 0; i < cn; ++i) {
 		int sn = 0;
-		if (!ReadInteger(file, sn)) {
+		if (!FileSystem::ReadInteger(file, &sn)) {
 			return false;
 		}
 
 		for (int j = 0; j < sn; ++j) {
-			if (!ReadString(file, stext)) {
+			if (!FileSystem::ReadString(file, &stext)) {
 				return false;
 			}
 
@@ -226,7 +223,7 @@ bool Serializer::LoadCondinates(GrammarSymbolContainer& terminalSymbols, Grammar
 			symbols.push_back(symbol);
 		}
 
-		if (!ReadString(file, atext)) {
+		if (!FileSystem::ReadString(file, &atext)) {
 			return false;
 		}
 
@@ -238,22 +235,22 @@ bool Serializer::LoadCondinates(GrammarSymbolContainer& terminalSymbols, Grammar
 }
 
 bool Serializer::SaveLRActionTable(std::ofstream& file, const LRActionTable &actionTable) {
-	WriteInteger(file, actionTable.size());
+	FileSystem::WriteInteger(file, actionTable.size());
 
 	for (LRActionTable::const_iterator ite = actionTable.begin(); ite != actionTable.end(); ++ite) {
-		if (!WriteInteger(file, ite->first.first)) {
+		if (!FileSystem::WriteInteger(file, ite->first.first)) {
 			return false;
 		}
 
-		if (!WriteString(file, ite->first.second.ToString())) {
+		if (!FileSystem::WriteString(file, ite->first.second.ToString())) {
 			return false;
 		}
 
-		if (!WriteInteger(file, ite->second.type)) {
+		if (!FileSystem::WriteInteger(file, ite->second.type)) {
 			return false;
 		}
 
-		if (!WriteInteger(file, ite->second.parameter)) {
+		if (!FileSystem::WriteInteger(file, ite->second.parameter)) {
 			return false;
 		}
 	}
@@ -262,17 +259,17 @@ bool Serializer::SaveLRActionTable(std::ofstream& file, const LRActionTable &act
 }
 
 bool Serializer::SaveLRGotoTable(std::ofstream& file, const LRGotoTable &gotoTable) {
-	WriteInteger(file, gotoTable.size());
+	FileSystem::WriteInteger(file, gotoTable.size());
 	for (LRGotoTable::const_iterator ite = gotoTable.begin(); ite != gotoTable.end(); ++ite) {
-		if (!WriteInteger(file, ite->first.first)) {
+		if (!FileSystem::WriteInteger(file, ite->first.first)) {
 			return false;
 		}
 
-		if (!WriteString(file, ite->first.second.ToString())) {
+		if (!FileSystem::WriteString(file, ite->first.second.ToString())) {
 			return false;
 		}
 
-		if (!WriteInteger(file, ite->second)) {
+		if (!FileSystem::WriteInteger(file, ite->second)) {
 			return false;
 		}
 	}
@@ -282,18 +279,18 @@ bool Serializer::SaveLRGotoTable(std::ofstream& file, const LRGotoTable &gotoTab
 
 bool Serializer::LoadLRActionTable(std::ifstream& file, GrammarSymbolContainer& terminalSymbols, LRTable &table) {
 	int count = 0;
-	if (!ReadInteger(file, count)) {
+	if (!FileSystem::ReadInteger(file, &count)) {
 		return false;
 	}
 
 	std::string stext;
 	for (int i = 0; i < count; ++i) {
 		int from, actionType, actionParameter;
-		if (!ReadInteger(file, from)) {
+		if (!FileSystem::ReadInteger(file, &from)) {
 			return false;
 		}
 
-		if (!ReadString(file, stext)) {
+		if (!FileSystem::ReadString(file, &stext)) {
 			return false;
 		}
 
@@ -303,11 +300,11 @@ bool Serializer::LoadLRActionTable(std::ifstream& file, GrammarSymbolContainer& 
 			return false;
 		}
 
-		if (!ReadInteger(file, actionType)) {
+		if (!FileSystem::ReadInteger(file, &actionType)) {
 			return false;
 		}
 
-		if (!ReadInteger(file, actionParameter)) {
+		if (!FileSystem::ReadInteger(file, &actionParameter)) {
 			return false;
 		}
 
@@ -320,18 +317,18 @@ bool Serializer::LoadLRActionTable(std::ifstream& file, GrammarSymbolContainer& 
 
 bool Serializer::LoadLRGotoTable(std::ifstream& file, GrammarSymbolContainer& nonterminalSymbols, LRTable &table) {
 	int count = 0;
-	if (!ReadInteger(file, count)) {
+	if (!FileSystem::ReadInteger(file, &count)) {
 		return false;
 	}
 
 	std::string stext;
 	for (int i = 0; i < count; ++i) {
 		int from, to;
-		if (!ReadInteger(file, from)) {
+		if (!FileSystem::ReadInteger(file, &from)) {
 			return false;
 		}
 
-		if (!ReadString(file, stext)) {
+		if (!FileSystem::ReadString(file, &stext)) {
 			return false;
 		}
 
@@ -341,55 +338,12 @@ bool Serializer::LoadLRGotoTable(std::ifstream& file, GrammarSymbolContainer& no
 			return false;
 		}
 
-		if (!ReadInteger(file, to)) {
+		if (!FileSystem::ReadInteger(file, &to)) {
 			return false;
 		}
 
 		table.gotoTable_.insert(from, symbol, to);
 	}
 
-	return true;
-}
-
-bool Serializer::WriteInteger(std::ofstream& file, int x) {
-	return !!file.write((char*)&x, sizeof(x));
-}
-
-bool Serializer::WriteString(std::ofstream& file, const std::string& str) {
-	if (str.length() >= MAX_SERIALIZABLE_CHARACTERS) {
-		Debug::LogError("string length exceed.");
-		return false;
-	}
-
-	int count = (int)str.length();
-	return file.write((char*)&count, sizeof(count)) && file.write(str.c_str(), count);
-}
-
-bool Serializer::ReadInteger(std::ifstream& file, int& integer) {
-	if (!file.read(intBuffer, sizeof(int))) {
-		return false;
-	}
-	
-	integer = *(int*)intBuffer;
-	return true;
-}
-
-bool Serializer::ReadString(std::ifstream& file, std::string& str) {
-	int length = 0;
-	if (!ReadInteger(file, length)) {
-		return false;
-	}
-
-	if (length >= MAX_SERIALIZABLE_CHARACTERS) {
-		Debug::LogError("token length exceed.");
-		return false;
-	}
-
-	if (!file.read(strBuffer, length)) {
-		return false;
-	}
-
-	strBuffer[length] = 0;
-	str.assign(strBuffer);
 	return true;
 }

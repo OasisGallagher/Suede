@@ -12,7 +12,7 @@
 static Language language;
 const char* binary = "bin/GLEF.bin";
 
-GLEF::GLEF() {
+void GLEF::Initialize() {
 	time_t tp = FileSystem::GetFileLastWriteTime("bin/GLEF.dll");
 	time_t to = FileSystem::GetFileLastWriteTime(binary);
 
@@ -25,11 +25,7 @@ GLEF::GLEF() {
 	}
 }
 
-GLEF::~GLEF() {
-}
-
 bool GLEF::Parse(const char* path, SyntaxTree& tree) {
-	static GLEF instance_;
 	return language.Parse(&tree, path);
 }
 

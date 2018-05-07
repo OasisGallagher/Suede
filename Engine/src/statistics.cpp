@@ -1,5 +1,4 @@
 #include "time2.h"
-#include "engine.h"
 #include "statistics.h"
 
 static float frameRate;
@@ -16,11 +15,7 @@ struct FrameStats {
 FrameStats& lastFrameStats = stats[0];
 FrameStats& thisFrameStats = stats[1];
 
-Statistics::Statistics() {
-	Engine::AddFrameEventListener(this);
-}
-
-void Statistics::OnFrameEnter() {
+void Statistics::Update() {
 	lastFrameStats = thisFrameStats;
 	memset(&thisFrameStats, 0, sizeof(FrameStats));
 
@@ -33,13 +28,6 @@ void Statistics::OnFrameEnter() {
 		frameCounter = 0;
 		timeCounter = 0.0f;
 	}
-}
-
-void Statistics::OnFrameLeave() {
-}
-
-void Statistics::Initialize() {
-	static Statistics instance;
 }
 
 void Statistics::AddTriangles(uint n) {

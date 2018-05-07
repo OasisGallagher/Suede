@@ -35,11 +35,4 @@ private:
 
 	static bool LoadLRGotoTable(std::ifstream& file, GrammarSymbolContainer& nonterminalSymbols, LRTable &table);
 	static bool LoadLRActionTable(std::ifstream& file, GrammarSymbolContainer& terminalSymbols, LRTable &table);
-
-private:
-	static bool WriteInteger(std::ofstream& file, int x);
-	static bool WriteString(std::ofstream& file, const std::string& str);
-
-	static bool ReadInteger(std::ifstream& file, int& integer);
-	static bool ReadString(std::ifstream& file, std::string& str);
 };

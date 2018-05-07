@@ -7,9 +7,6 @@ static LogReceiver* logReceiver;
 
 class StackTracer : public StackWalker {
 public:
-	StackTracer();
-
-public:
 	const std::string& GetStackTrace(uint start, uint depth = 3);
 
 protected:
@@ -29,6 +26,10 @@ static StackTracer tracer;
 	va_start(ap, format); \
 	vsnprintf(bufname, sizeof(bufname) / sizeof(bufname[0]), format, ap); \
 	va_end(ap)
+
+void Debug::Initialize() {
+	tracer.LoadModules();
+}
 
 void Debug::SetLogReceiver(LogReceiver* value) {
 	logReceiver = value; 
@@ -63,10 +64,6 @@ void Debug::Output(const char* format, ...) {
 
 void Debug::Break() {
 	__debugbreak();
-}
-
-StackTracer::StackTracer() {
-	LoadModules();
 }
 
 const std::string & StackTracer::GetStackTrace(uint start, uint depth) {

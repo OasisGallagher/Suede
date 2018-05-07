@@ -23,7 +23,7 @@ void TreeViewComboBox::showPopup() {
 	QComboBox::showPopup();
 
 	FileTree tree;
-	if (!FileSystem::ListAllFiles(tree, directory_.toStdString(), regex_.toStdString())) {
+	if (!FileSystem::ListFileTree(tree, directory_.toStdString(), regex_.toStdString())) {
 		hidePopup();
 	}
 	else {

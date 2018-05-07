@@ -119,7 +119,7 @@ int Syntaxer::Reduce(int cpos) {
 
 	int length = cond->symbols.front() == NativeSymbols::epsilon ? 0 : cond->symbols.size();
 
-	std::string log = ">> [R] `" + String::Concat(stack_->symbols.end() - length, stack_->symbols.end()) + "` to `" + g->GetLhs().ToString() + "`.";
+	//std::string log = ">> [R] `" + String::Concat(stack_->symbols.end() - length, stack_->symbols.end()) + "` to `" + g->GetLhs().ToString() + "`.";
 
 	void* newValue = (cond->action != nullptr) ? cond->action->Invoke(stack_->values) : nullptr;
 
@@ -199,7 +199,6 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 	}
 	else if (token.tokenType == ScannerTokenInteger) {
 		answer = NativeSymbols::integer;
-		// TODO: set ?
 		IntegerTable::ib_pair p = integerTable_->insert(token.tokenText);
 		addr = p.first->second;
 		if (p.second) {

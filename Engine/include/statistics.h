@@ -1,14 +1,6 @@
 #pragma once
-#include "frameeventlistener.h"
 
-class SUEDE_API Statistics : public FrameEventListener {
-public:
-	virtual void OnFrameEnter();
-	virtual void OnFrameLeave();
-
-public:
-	static void Initialize();
-
+class SUEDE_API Statistics {
 public:
 	static void AddTriangles(uint n);
 	static void AddDrawcalls(uint n);
@@ -16,6 +8,10 @@ public:
 	static uint GetTriangles();
 	static uint GetDrawcalls();
 	static float GetFrameRate();
+
+private:
+	friend class Engine;
+	static void Update();
 
 private:
 	Statistics();

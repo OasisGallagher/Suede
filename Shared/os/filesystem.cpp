@@ -8,6 +8,9 @@
 
 namespace fs = std::experimental::filesystem::v1;
 
+static char intBuffer[sizeof(int)];
+static char strBuffer[FileSystem::kMaxStringLength];
+
 FileTree::FileTree() : root_(nullptr) {
 }
 
@@ -76,7 +79,7 @@ time_t FileSystem::GetFileLastWriteTime(const std::string& fileName) {
 	return fs::file_time_type::clock::to_time_t(fs::last_write_time(fileName, err));
 }
 
-bool FileSystem::ListAllFiles(FileTree& tree, const std::string& directory, const std::string& reg) {
+bool FileSystem::ListFileTree(FileTree& tree, const std::string& directory, const std::string& reg) {
 	return tree.Create(directory, reg);
 }
 
@@ -134,6 +137,55 @@ bool FileSystem::ReadAllLines(const std::string& file, std::vector<std::string>&
 
 	for (std::string line; std::getline(ifs, line);) {
 		lines.push_back(line);
+	}
+
+	return true;
+}
+
+bool FileSystem::WriteInteger(std::ofstream& file, int x) {
+	return !!file.write((char*)&x, sizeof(x));
+}
+
+bool FileSystem::WriteString(std::ofstream& file, const std::string& str) {
+	if (str.length() >= kMaxStringLength) {
+		Debug::LogError("string length exceed.");
+		return false;
+	}
+
+	int count = (int)str.length();
+	return file.write((char*)&count, sizeof(count)) && file.write(str.c_str(), count);
+}
+
+bool FileSystem::ReadInteger(std::ifstream& file, int* x) {
+	if (!file.read(intBuffer, sizeof(int))) {
+		return false;
+	}
+
+	if (x != nullptr) {
+		*x = *(int*)intBuffer;
+	}
+
+	return true;
+}
+
+bool FileSystem::ReadString(std::ifstream& file, std::string* str) {
+	int length = 0;
+	if (!ReadInteger(file, &length)) {
+		return false;
+	}
+
+	if (length >= kMaxStringLength) {
+		Debug::LogError("token length exceed.");
+		return false;
+	}
+
+	if (!file.read(strBuffer, length)) {
+		return false;
+	}
+
+	if (str != nullptr) {
+		strBuffer[length] = 0;
+		str->assign(strBuffer);
 	}
 
 	return true;
