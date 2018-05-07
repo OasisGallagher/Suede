@@ -52,8 +52,6 @@ float calculateShadowVisibility() {
 	float visibility = 1;
 	float bias = 0.005;
 
-	return texture(c_shadowDepthTexture, c_shadowCoord.xyz);
-	/*
 	for (int i = 0; i < 4; ++i) {
 		// use either :
 		//  - Always the same samples.
@@ -71,7 +69,8 @@ float calculateShadowVisibility() {
 		visibility -= 0.2 * (1 - texture(c_shadowDepthTexture, vec3(c_shadowCoord.xy + poissonDisk[index] / 700.0,  (c_shadowCoord.z - bias)/c_shadowCoord.w)));
 	}
 
-	return visibility;*/
+	return texture(c_shadowDepthTexture, c_shadowCoord.xyz);
+	//return visibility;
 }
 
 #endif // __LIT_FRAGMENT_INC__

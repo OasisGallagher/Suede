@@ -32,8 +32,7 @@ SubShader {
 			normal = transpose(inverse(mat3(c_localToWorldMatrix))) * c_normal;
 			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
 	
-			c_shadowCoord = 100 * c_worldToShadowMatrix * vec4(worldPos, 1);
-			//calculateShadowCoord();
+			calculateShadowCoord();
 
 			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
 		}
@@ -51,14 +50,10 @@ SubShader {
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
-			//fragColor = vec4(c_worldToShadowMatrix * vec4(worldPos.xyz, 1));// * vec4(worldPos.xyz, 1);
-			//return;
-
-			//vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
+			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 			float visibility = calculateShadowVisibility();
-			//fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
-
-			fragColor = vec4(c_shadowCoord.xyz / c_shadowCoord.w, 1);
+			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
+			fragColor = vec4(visibility, visibility, visibility, 1);
 		}
 
 		ENDGLSL

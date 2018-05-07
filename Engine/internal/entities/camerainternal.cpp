@@ -18,9 +18,6 @@
 CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera)
 	, fb1_(nullptr), fb2_(nullptr), fbDepth_(nullptr), gbuffer_(nullptr) {
-	frustum_ = MEMORY_CREATE(Frustum);
-	frustum_->SetProjectionMatrixChangedListener(this);
-
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
 	forward_pass = Profiler::CreateSample();
@@ -40,7 +37,6 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(fb2_);
 	MEMORY_RELEASE(fbDepth_);
 
-	MEMORY_RELEASE(frustum_);
 	MEMORY_RELEASE(gbuffer_);
 	MEMORY_RELEASE(pipeline_);
 
@@ -179,58 +175,6 @@ void CameraInternal::UpdateTransformsUniformBuffer() {
 
 	p.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
-}
-
-bool CameraInternal::GetPerspective() const {
-	return frustum_->GetPerspective();
-}
-
-void CameraInternal::SetPerspective(bool value) {
-	frustum_->SetPerspective(value);
-}
-
-float CameraInternal::GetOrthographicSize() const {
-	return frustum_->GetOrthographicSize();
-}
-
-void CameraInternal::SetOrthographicSize(float value) {
-	frustum_->SetOrthographicSize(value);
-}
-
-void CameraInternal::SetAspect(float value) {
-	frustum_->SetAspect(value);
-}
-
-void CameraInternal::SetNearClipPlane(float value) {
-	frustum_->SetNearClipPlane(value);
-}
-
-void CameraInternal::SetFarClipPlane(float value) {
-	frustum_->SetFarClipPlane(value);
-}
-
-void CameraInternal::SetFieldOfView(float value) {
-	frustum_->SetFieldOfView(value);
-}
-
-float CameraInternal::GetAspect() {
-	return frustum_->GetAspect();
-}
-
-float CameraInternal::GetNearClipPlane() {
-	return frustum_->GetNearClipPlane();
-}
-
-float CameraInternal::GetFarClipPlane() {
-	return frustum_->GetFarClipPlane();
-}
-
-float CameraInternal::GetFieldOfView() {
-	return frustum_->GetFieldOfView();
-}
-
-const glm::mat4 & CameraInternal::GetProjectionMatrix() {
-	return frustum_->GetProjectionMatrix();
 }
 
 void CameraInternal::ForwardRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
@@ -434,9 +378,11 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	FramebufferState state;
 	fbDepth_->SaveState(state);
 
-	glm::vec3 lightPosition = glm::vec3(0, 20, 30);// light->GetTransform()->GetRotation() * glm::vec3(0, 0, 1);
-	glm::mat4 projection = glm::ortho(-100.f, 100.f, -100.f, 100.f, -100.f, 100.f);
-	glm::mat4 view = glm::lookAt(lightPosition * 10.f, glm::vec3(0), light->GetTransform()->GetUp());
+	DirectionalLight directionalLight = suede_dynamic_cast<DirectionalLight>(light);
+
+	glm::vec3 lightPosition = directionalLight->GetTransform()->GetPosition();
+	glm::mat4 projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 100.f);
+	glm::mat4 view = glm::lookAt(lightPosition, lightPosition - glm::vec3(0, 0, 1), light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
 	directionalLightShadowMaterial_->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
 
@@ -570,6 +516,7 @@ void CameraInternal::RenderEntity(const FramebufferState& state, Entity entity, 
 		return;
 	}
 
+	// TODO: update shadowTexture property only once.
 	for (uint i = 0; i < renderer->GetMaterialCount(); ++i) {
 		renderer->GetMaterial(i)->SetTexture(Variables::shadowDepthTexture, shadowTexture_);
 	}

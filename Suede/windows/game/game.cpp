@@ -237,7 +237,7 @@ void Game::createScene() {
 	projector->SetTexture(texture);
 #endif // PROJECTOR
 
-	light->GetTransform()->SetParent(camera->GetTransform());
+//	light->GetTransform()->SetParent(camera->GetTransform());
 
 #ifdef DEFERRED_RENDERING
 	camera->SetRenderPath(RenderPathDeferred);
@@ -245,6 +245,7 @@ void Game::createScene() {
 
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
 	//camera->AddImageEffect(inversion_);

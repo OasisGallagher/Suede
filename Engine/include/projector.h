@@ -38,7 +38,7 @@ public:
 	virtual float GetFarClipPlane() const = 0;
 	virtual float GetFieldOfView() const = 0;
 
-	virtual const glm::mat4& GetProjectionMatrix() const = 0;
+	virtual const glm::mat4& GetProjectionMatrix() = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Projector);

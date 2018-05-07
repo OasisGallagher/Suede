@@ -347,6 +347,7 @@ bool Renderable::IsInstance(const Renderable& other) const {
 }
 
 void Renderable::Clear() {
+	instance = 0;
 	mesh.reset();
 	material.reset();
 	framebufferState.Clear();

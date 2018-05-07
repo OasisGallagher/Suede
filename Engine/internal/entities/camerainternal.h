@@ -17,7 +17,7 @@ class FramebufferBase;
 struct FramebufferState;
 
 class Sample;
-class CameraInternal : public ICamera, public EntityInternal, public ProjectionMatrixChangedListener {
+class CameraInternal : public ICamera, public EntityInternal, public Frustum {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:
@@ -48,23 +48,25 @@ public:
 	virtual void Render();
 
 public:
-	virtual bool GetPerspective() const;
-	virtual void SetPerspective(bool value);
+	virtual bool GetPerspective() const { return Frustum::GetPerspective(); }
+	virtual void SetPerspective(bool value) { return Frustum::SetPerspective(value); }
 
-	virtual float GetOrthographicSize() const;
-	virtual void SetOrthographicSize(float value);
+	virtual float GetOrthographicSize() const { return Frustum::GetOrthographicSize(); }
+	virtual void SetOrthographicSize(float value) { return Frustum::SetOrthographicSize(value); }
 
-	virtual void SetAspect(float value);
-	virtual void SetNearClipPlane(float value);
-	virtual void SetFarClipPlane(float value);
-	virtual void SetFieldOfView(float value);
+	virtual void SetAspect(float value) { return Frustum::SetAspect(value); }
+	virtual float GetAspect() const { return Frustum::GetAspect(); }
 
-	virtual float GetAspect();
-	virtual float GetNearClipPlane();
-	virtual float GetFarClipPlane();
-	virtual float GetFieldOfView();
+	virtual void SetNearClipPlane(float value) { return Frustum::SetNearClipPlane(value); }
+	virtual float GetNearClipPlane() const { return Frustum::GetNearClipPlane(); }
 
-	virtual const glm::mat4& GetProjectionMatrix();
+	virtual void SetFarClipPlane(float value) { return Frustum::SetFarClipPlane(value); }
+	virtual float GetFarClipPlane() const { return Frustum::GetFarClipPlane(); }
+
+	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
+	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
+
+	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position);
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
@@ -75,7 +77,7 @@ public:
 
 	virtual Texture2D Capture();
 
-private:
+protected:
 	virtual void OnProjectionMatrixChanged();
 
 private:
@@ -131,7 +133,6 @@ private:
 	GBuffer* gbuffer_;
 
 	Plane planes_[6];
-	Frustum* frustum_;
 
 	Framebuffer* fb1_;
 	Framebuffer* fb2_;

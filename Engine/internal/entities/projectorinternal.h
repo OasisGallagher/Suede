@@ -1,15 +1,13 @@
 #pragma once
+#include "frustum.h"
 #include "projector.h"
 #include "internal/entities/entityinternal.h"
 
-class Frustum;
-
-class ProjectorInternal : public IProjector, public EntityInternal {
+class ProjectorInternal : public IProjector, public EntityInternal, public Frustum {
 	DEFINE_FACTORY_METHOD(Projector)
 
 public:
 	ProjectorInternal();
-	~ProjectorInternal();
 
 public:
 	virtual Texture GetTexture() const { return texture_; }
@@ -18,27 +16,28 @@ public:
 	virtual void SetDepth(int value) { depth_ = value; }
 	virtual int GetDepth() const { return depth_; }
 
-	virtual bool GetPerspective() const;
-	virtual void SetPerspective(bool value);
+public:
+	virtual bool GetPerspective() const { return Frustum::GetPerspective(); }
+	virtual void SetPerspective(bool value) { return Frustum::SetPerspective(value); }
 
-	virtual float GetOrthographicSize() const;
-	virtual void SetOrthographicSize(float value);
-	virtual void SetAspect(float value);
-	virtual float GetAspect() const;
+	virtual float GetOrthographicSize() const { return Frustum::GetOrthographicSize(); }
+	virtual void SetOrthographicSize(float value) { return Frustum::SetOrthographicSize(value); }
 
-	virtual void SetNearClipPlane(float value);
-	virtual float GetNearClipPlane() const;
+	virtual void SetAspect(float value) { return Frustum::SetAspect(value); }
+	virtual float GetAspect() const { return Frustum::GetAspect(); }
 
-	virtual void SetFarClipPlane(float value);
-	virtual float GetFarClipPlane() const;
+	virtual void SetNearClipPlane(float value) { return Frustum::SetNearClipPlane(value); }
+	virtual float GetNearClipPlane() const { return Frustum::GetNearClipPlane(); }
 
-	virtual void SetFieldOfView(float value);
-	virtual float GetFieldOfView() const;
+	virtual void SetFarClipPlane(float value) { return Frustum::SetFarClipPlane(value); }
+	virtual float GetFarClipPlane() const { return Frustum::GetFarClipPlane(); }
 
-	virtual const glm::mat4& GetProjectionMatrix() const;
+	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
+	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
+
+	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
 private:
 	int depth_;
 	Texture texture_;
-	Frustum* frustum_;
 };
