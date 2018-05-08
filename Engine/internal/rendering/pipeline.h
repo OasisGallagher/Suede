@@ -16,9 +16,10 @@ struct Renderable {
 	Material material;
 	uint pass;
 
+	glm::mat4 localToWorldMatrix;
 	FramebufferState framebufferState;
 
-	glm::mat4 localToWorldMatrix;
+	bool operator < (const Renderable& other) const;
 
 	void Clear();
 	bool IsInstance(const Renderable& other) const;

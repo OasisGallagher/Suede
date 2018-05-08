@@ -16,7 +16,7 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera)
+	: EntityInternal(ObjectTypeCamera), depthTextureMode_(DepthTextureModeNone)
 	, fb1_(nullptr), fb2_(nullptr), fbDepth_(nullptr), gbuffer_(nullptr) {
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
@@ -76,7 +76,7 @@ void CameraInternal::Render() {
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-		//	ForwardDepthPass(entities);
+			ForwardDepthPass(entities);
 		}
 	}
 	
@@ -88,6 +88,8 @@ void CameraInternal::Render() {
 		ShadowDepthPass(entities, forwardBase);
 	}
 
+	UpdateTransformsUniformBuffer();
+
 	FramebufferState state;
 	GetActiveFramebuffer()->SaveState(state);
 
@@ -97,8 +99,6 @@ void CameraInternal::Render() {
 	else {
 		DeferredRendering(state, entities, forwardBase, forwardAdd);
 	}
-
-	UpdateTransformsUniformBuffer();
 
 	//  Stub: main thread only.
 	pipeline_->Flush(worldToClipMatrix);
@@ -118,10 +118,10 @@ void CameraInternal::OnProjectionMatrixChanged() {
 }
 
 void CameraInternal::ClearFramebuffers() {
-	fb1_->Clear(FramebufferClearBitmaskColorDepth);
+	fb1_->Clear(FramebufferClearMaskColorDepth);
 
 	if (fb2_ != nullptr) {
-		fb2_->Clear(FramebufferClearBitmaskColorDepth);
+		fb2_->Clear(FramebufferClearMaskColorDepth);
 	}
 }
 
@@ -274,7 +274,7 @@ void CameraInternal::CreateFramebuffers() {
 	depthTexture_->Load(RenderTextureFormatDepth, w, h);
 
 	shadowTexture_ = NewRenderTexture();
-	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
+	shadowTexture_->Load(RenderTextureFormatDepth, w, h);
 }
 
 void CameraInternal::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
@@ -373,7 +373,7 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	}
 
 	fbDepth_->SetDepthTexture(shadowTexture_);
-	fbDepth_->Clear(FramebufferClearBitmaskDepth);
+	fbDepth_->Clear(FramebufferClearMaskDepth);
 	
 	FramebufferState state;
 	fbDepth_->SaveState(state);
@@ -381,8 +381,10 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	DirectionalLight directionalLight = suede_dynamic_cast<DirectionalLight>(light);
 
 	glm::vec3 lightPosition = directionalLight->GetTransform()->GetPosition();
-	glm::mat4 projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, 1.f, 100.f);
-	glm::mat4 view = glm::lookAt(lightPosition, lightPosition - glm::vec3(0, 0, 1), light->GetTransform()->GetUp());
+	glm::vec3 lightDirection = directionalLight->GetTransform()->GetForward();
+	float near = 1.f, far = 90.f;
+	glm::mat4 projection = glm::ortho(-20.f, 20.f, -20.f, 20.f, near, far);
+	glm::mat4 view = glm::lookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
 	directionalLightShadowMaterial_->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
 
@@ -390,6 +392,11 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 		Entity entity = entities[i];
 		AddToPipeline(state, entity->GetMesh(), directionalLightShadowMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
+
+	glm::vec3 center(0, 0, (near + far) / 2);
+	glm::vec3 size(40, 40, far - near);
+	center = glm::vec3(directionalLight->GetTransform()->GetLocalToWorldMatrix() * glm::vec4(center, 1));
+	Gizmos::DrawCuboid(center, size);
 
 	glm::mat4 bias(
 		0.5f, 0, 0, 0,
@@ -406,7 +413,7 @@ void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const
 
 void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	fbDepth_->SetDepthTexture(depthTexture_);
-	fbDepth_->Clear(FramebufferClearBitmaskDepth);
+	fbDepth_->Clear(FramebufferClearMaskDepth);
 
 	FramebufferState state;
 	fbDepth_->SaveState(state);
@@ -497,8 +504,8 @@ void CameraInternal::OnImageEffects() {
 			textures[index] = nullptr;
 		}
 
-		active->BindWrite(true);
-		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
+		active->BindWrite(FramebufferClearMaskNone);
+		imageEffects_[i]->OnRenderImage(shadowTexture_/*textures[1 - index]*/, textures[index]);
 		active->Unbind();
 
 		index = 1 - index;

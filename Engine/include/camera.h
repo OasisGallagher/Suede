@@ -30,7 +30,7 @@ public:
 	virtual void SetPerspective(bool value) = 0;
 
 	/**
-	* Half-size when in orthographic mode.
+	* half-size when in orthographic mode.
 	*/
 	virtual float GetOrthographicSize() const = 0;
 	virtual void SetOrthographicSize(float value) = 0;

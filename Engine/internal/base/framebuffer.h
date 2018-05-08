@@ -12,13 +12,14 @@ enum FramebufferTarget {
 	FramebufferTargetReadWrite,
 };
 
-enum FramebufferClearBitmask {
-	FramebufferClearBitmaskColor = 1,
-	FramebufferClearBitmaskDepth = 2,
-	FramebufferClearBitmaskStencil = 4,
+enum FramebufferClearMask {
+	FramebufferClearMaskNone = 0,
+	FramebufferClearMaskColor = 1,
+	FramebufferClearMaskDepth = 2,
+	FramebufferClearMaskStencil = 4,
 
-	FramebufferClearBitmaskColorDepth = FramebufferClearBitmaskColor | FramebufferClearBitmaskDepth,
-	FramebufferClearBitmaskColorDepthStencil = FramebufferClearBitmaskColorDepth | FramebufferClearBitmaskStencil,
+	FramebufferClearMaskColorDepth = FramebufferClearMaskColor | FramebufferClearMaskDepth,
+	FramebufferClearMaskColorDepthStencil = FramebufferClearMaskColorDepth | FramebufferClearMaskStencil,
 };
 
 enum FramebufferAttachment {
@@ -37,7 +38,7 @@ enum FramebufferAttachment {
 
 class FramebufferBase;
 struct FramebufferState {
-	void BindWrite();
+	void BindWrite(FramebufferClearMask clearMask);
 	void Unbind();
 	void Clear();
 
@@ -59,10 +60,10 @@ class FramebufferBase {
 public:
 	virtual void ReadBuffer(std::vector<uchar>& data);
 
-	virtual void BindWrite(bool clear);
+	virtual void BindWrite(FramebufferClearMask clearMask);
 	virtual void Unbind();
 
-	virtual void Clear(FramebufferClearBitmask bitmask);
+	virtual void Clear(FramebufferClearMask clearMask);
 
 public:
 	virtual void SetDepthTexture(RenderTexture texture);
@@ -78,13 +79,16 @@ public:
 	void SaveState(FramebufferState& state);
 
 public:
-	int GetViewportWidth() { return width_; }
-	int GetViewportHeight() { return height_; }
+	int GetViewportWidth() const { return width_; }
+	int GetViewportHeight() const { return height_; }
 
 	void SetViewport(uint width, uint height);
 
 	void SetClearColor(const glm::vec3& value) { clearColor_ = value; }
-	glm::vec3 GetClearColor() { return clearColor_; }
+	glm::vec3 GetClearColor() const { return clearColor_; }
+
+	void SetClearDepth(float value) { clearDepth_ = value; }
+	float GetClearDepth() const { return clearDepth_; }
 
 	uint GetNativePointer() { return fbo_; }
 
@@ -96,7 +100,7 @@ protected:
 	virtual void OnViewportChanged() {}
 
 protected:
-	void ClearCurrent(FramebufferClearBitmask bitmask);
+	void ClearCurrent(FramebufferClearMask clearMask);
 
 	void BindFramebuffer(FramebufferTarget target = FramebufferTargetReadWrite);
 	void UnbindFramebuffer();
@@ -104,13 +108,15 @@ protected:
 	void BindViewport();
 	void UnbindViewport();
 
-	GLbitfield FramebufferClearBitmaskToGLbitfield(FramebufferClearBitmask bitmask);
+	GLbitfield FramebufferClearBitmaskToGLbitfield(FramebufferClearMask clearMask);
 	void FramebufferTargetToGLenum(FramebufferTarget target, GLenum* query, GLenum* bind);
 
 protected:
 	GLuint fbo_;
 	GLsizei width_;
 	GLsizei height_;
+
+	float clearDepth_;
 	glm::vec3 clearColor_;
 
 private:
@@ -136,11 +142,11 @@ public:
 
 	void BindRead(FramebufferAttachment attachment);
 
-	virtual void BindWrite(bool clear);
-	virtual void Clear(FramebufferClearBitmask bitmask);
+	virtual void BindWrite(FramebufferClearMask clearMask);
+	virtual void Clear(FramebufferClearMask clearMask);
 
-	void ClearAttachment(FramebufferClearBitmask bitmask, FramebufferAttachment attachment) { ClearAttachments(bitmask, 1, &attachment); }
-	void ClearAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments);
+	void ClearAttachment(FramebufferClearMask clearMask, FramebufferAttachment attachment) { ClearAttachments(clearMask, 1, &attachment); }
+	void ClearAttachments(FramebufferClearMask clearMask, uint n, FramebufferAttachment* attachments);
 
 	void BindWriteAttachment(FramebufferAttachment attachment) { BindWriteAttachments(1, &attachment); }
 	void BindWriteAttachments(uint n, FramebufferAttachment* attachments);
@@ -163,9 +169,9 @@ private:
 	uint ToGLColorAttachments(uint n, FramebufferAttachment* attachments);
 	GLenum FramebufferAttachmentToGLenum(FramebufferAttachment attachment);
 
-	void ClearCurrentAllAttachments(FramebufferClearBitmask bitmask);
-	void ClearBuffers(FramebufferClearBitmask bitmask, uint n, GLenum* buffers);
-	void ClearCurrentAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments);
+	void ClearCurrentAllAttachments(FramebufferClearMask clearMask);
+	void ClearBuffers(FramebufferClearMask clearMask, uint n, GLenum* buffers);
+	void ClearCurrentAttachments(FramebufferClearMask clearMask, uint n, FramebufferAttachment* attachments);
 
 private:
 	GLuint depthRenderbuffer_;

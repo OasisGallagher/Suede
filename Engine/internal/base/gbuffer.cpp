@@ -16,7 +16,7 @@ bool GBuffer::Create(uint width, uint height) {
 }
 
 void GBuffer::Clear() {
-	framebuffer_.Clear(FramebufferClearBitmaskColor);// , FramebufferAttachment0 + GTextureCount);
+	framebuffer_.Clear(FramebufferClearMaskColor);// , FramebufferAttachment0 + GTextureCount);
 }
 
 void GBuffer::Bind(GPass pass) {
@@ -31,7 +31,7 @@ void GBuffer::Bind(GPass pass) {
 			framebuffer_.BindWriteAttachment(FramebufferAttachment(FramebufferAttachment0 + GTextureCount));
 			break;
 		case FinalPass:
-			Framebuffer0::Get()->BindWrite(true);
+			Framebuffer0::Get()->BindWrite(FramebufferClearMaskColorDepthStencil);
 			framebuffer_.BindRead(FramebufferAttachment(FramebufferAttachment0 + GTextureCount));
 			break;
 	}

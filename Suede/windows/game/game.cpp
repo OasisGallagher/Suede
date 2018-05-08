@@ -246,10 +246,11 @@ void Game::createScene() {
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	light->GetTransform()->SetEulerAngles(glm::vec3(0, 180, 0));
 
 #ifdef IMAGE_EFFECTS
-	//camera->AddImageEffect(inversion_);
 	camera->AddImageEffect(grayscale_);
+	//camera->AddImageEffect(inversion_);
 #endif
 
 #ifdef SKYBOX

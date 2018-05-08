@@ -366,7 +366,7 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 
 	if (format == RenderTextureFormatShadow) {
 		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	}
 
 	UnbindTexture();

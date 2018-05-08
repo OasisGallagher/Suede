@@ -19,7 +19,6 @@ Suede::Suede(QWidget *parent)
 	Debug::SetLogReceiver(this);
 	
 	setupUI();
-
 	setStatusBar(new Status(this));
 
 	QMenu* fileMenu = menuBar()->findChild<QMenu*>("file");

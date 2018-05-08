@@ -9,8 +9,7 @@ class Status : public QStatusBar {
 public:
 	static Status* get();
 
-private:
-	friend class Suede;
+public:
 	Status(QWidget* parent);
 	~Status();
 

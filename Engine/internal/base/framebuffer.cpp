@@ -13,22 +13,21 @@ bool FramebufferState::operator!=(const FramebufferState& other) const {
 		|| renderTexture != other.renderTexture;
 }
 
-void FramebufferState::BindWrite() {
+void FramebufferState::BindWrite(FramebufferClearMask clearMask) {
 	oldDepthTexture = framebuffer->GetDepthTexture();
 	oldRenderTexture = framebuffer->GetRenderTexture(attachment);
 
 	framebuffer->SetDepthTexture(depthTexture);
 	framebuffer->SetRenderTexture(attachment, renderTexture);
 	// TODO: clear flags.
-	framebuffer->BindWrite(false);
+	framebuffer->BindWrite(clearMask);
 }
 
 void FramebufferState::Unbind() {
 	framebuffer->Unbind();
 
-	// TODO: restore old depth & render texture?
-	framebuffer->SetDepthTexture(oldDepthTexture);
-	framebuffer->SetRenderTexture(attachment, oldRenderTexture);
+// 	framebuffer->SetDepthTexture(oldDepthTexture);
+// 	framebuffer->SetRenderTexture(attachment, oldRenderTexture);
 }
 
 void FramebufferState::Clear() {
@@ -38,15 +37,12 @@ void FramebufferState::Clear() {
 	attachment = FramebufferAttachment0;
 }
 
-FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0) {
+FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0), clearDepth_(1) {
 }
 
-void FramebufferBase::BindWrite(bool clear) {
+void FramebufferBase::BindWrite(FramebufferClearMask clearMask) {
 	BindFramebuffer(FramebufferTargetWrite);
-	if (clear) {
-		ClearCurrent(FramebufferClearBitmaskColorDepthStencil);
-	}
-
+	ClearCurrent(clearMask);
 	BindViewport();
 }
 
@@ -118,11 +114,11 @@ void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, GLenum
 	if (bind != nullptr) { *bind = glBind; }
 }
 
-GLbitfield FramebufferBase::FramebufferClearBitmaskToGLbitfield(FramebufferClearBitmask bitmask) {
+GLbitfield FramebufferBase::FramebufferClearBitmaskToGLbitfield(FramebufferClearMask clearMask) {
 	GLbitfield bitfield = 0;
-	if ((bitmask & FramebufferClearBitmaskColor) != 0) { bitfield |= GL_COLOR_BUFFER_BIT; }
-	if ((bitmask & FramebufferClearBitmaskDepth) != 0) { bitfield |= GL_DEPTH_BUFFER_BIT; }
-	if ((bitmask & FramebufferClearBitmaskStencil) != 0) {bitfield |= GL_STENCIL_BUFFER_BIT; }
+	if ((clearMask & FramebufferClearMaskColor) != 0) { bitfield |= GL_COLOR_BUFFER_BIT; }
+	if ((clearMask & FramebufferClearMaskDepth) != 0) { bitfield |= GL_DEPTH_BUFFER_BIT; }
+	if ((clearMask & FramebufferClearMaskStencil) != 0) {bitfield |= GL_STENCIL_BUFFER_BIT; }
 
 	return bitfield;
 }
@@ -135,9 +131,9 @@ void FramebufferBase::SetViewport(uint width, uint height) {
 	}
 }
 
-void FramebufferBase::Clear(FramebufferClearBitmask bitmask) {
+void FramebufferBase::Clear(FramebufferClearMask clearMask) {
 	BindFramebuffer();
-	ClearCurrent(bitmask);
+	ClearCurrent(clearMask);
 	UnbindFramebuffer();
 }
 
@@ -170,9 +166,11 @@ void FramebufferBase::SaveState(FramebufferState& state) {
 	state.renderTexture = (GetRenderTextureCount() > 0) ? GetRenderTexture(FramebufferAttachment0) : nullptr;
 }
 
-void FramebufferBase::ClearCurrent(FramebufferClearBitmask bitmask) {
+void FramebufferBase::ClearCurrent(FramebufferClearMask clearMask) {
+	GL::ClearDepth(clearDepth_);
 	GL::ClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1);
-	GL::Clear(FramebufferClearBitmaskToGLbitfield(bitmask));
+	GLbitfield bitfield = FramebufferClearBitmaskToGLbitfield(clearMask);
+	if (bitfield != 0) { GL::Clear(bitfield); }
 }
 
 Framebuffer0* Framebuffer0::Get() {
@@ -215,8 +213,8 @@ void Framebuffer::Create(int width, int height) {
 	UnbindFramebuffer();
 }
 
-void Framebuffer::BindWrite(bool clear) {
-	FramebufferBase::BindWrite(clear);
+void Framebuffer::BindWrite(FramebufferClearMask clearMask) {
+	FramebufferBase::BindWrite(clearMask);
 
 	uint count = ToGLColorAttachments();
 	GL::DrawBuffers(count, glAttachments_);
@@ -231,7 +229,7 @@ void Framebuffer::BindRead(FramebufferAttachment attachment) {
 
 void Framebuffer::BindWriteAttachments(uint n, FramebufferAttachment* attachments) {
 	FramebufferBase::BindFramebuffer(FramebufferTargetWrite);
-	ClearCurrentAllAttachments(FramebufferClearBitmaskColorDepthStencil);
+	ClearCurrentAllAttachments(FramebufferClearMaskColorDepthStencil);
 
 	uint count = ToGLColorAttachments(n, attachments);
 	GL::DrawBuffers(count, glAttachments_);
@@ -239,9 +237,9 @@ void Framebuffer::BindWriteAttachments(uint n, FramebufferAttachment* attachment
 	BindViewport();
 }
 
-void Framebuffer::Clear(FramebufferClearBitmask bitmask) {
+void Framebuffer::Clear(FramebufferClearMask clearMask) {
 	BindFramebuffer();
-	ClearCurrentAllAttachments(bitmask);
+	ClearCurrentAllAttachments(clearMask);
 
 	UnbindFramebuffer();
 }
@@ -258,26 +256,26 @@ void Framebuffer::OnViewportChanged() {
 	}
 }
 
-void Framebuffer::ClearAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments) {
+void Framebuffer::ClearAttachments(FramebufferClearMask clearMask, uint n, FramebufferAttachment* attachments) {
 	BindFramebuffer();
-	ClearCurrentAttachments(bitmask, n, attachments);
+	ClearCurrentAttachments(clearMask, n, attachments);
 	UnbindFramebuffer();
 }
 
-void Framebuffer::ClearCurrentAllAttachments(FramebufferClearBitmask bitmask) {
+void Framebuffer::ClearCurrentAllAttachments(FramebufferClearMask clearMask) {
 	uint count = ToGLColorAttachments();
-	ClearBuffers(bitmask, count, glAttachments_);
+	ClearBuffers(clearMask, count, glAttachments_);
 }
 
-void Framebuffer::ClearCurrentAttachments(FramebufferClearBitmask bitmask, uint n, FramebufferAttachment* attachments) {
+void Framebuffer::ClearCurrentAttachments(FramebufferClearMask clearMask, uint n, FramebufferAttachment* attachments) {
 	n = ToGLColorAttachments(n, attachments);
-	ClearBuffers(bitmask, n, glAttachments_);
+	ClearBuffers(clearMask, n, glAttachments_);
 }
 
-void Framebuffer::ClearBuffers(FramebufferClearBitmask bitmask, uint n, GLenum* buffers) {
+void Framebuffer::ClearBuffers(FramebufferClearMask clearMask, uint n, GLenum* buffers) {
 	GL::DrawBuffers(n, buffers);
 	GL::ClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1);
-	GL::Clear(FramebufferClearBitmaskToGLbitfield(bitmask));
+	GL::Clear(FramebufferClearBitmaskToGLbitfield(clearMask));
 }
 
 GLenum Framebuffer::FramebufferAttachmentToGLenum(FramebufferAttachment attachment) {

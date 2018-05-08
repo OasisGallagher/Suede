@@ -8,9 +8,9 @@ SubShader {
 
 		GLSLPROGRAM
 		#stage vertex
-		in vec3 c_position;
+		#include "builtin/include/suede.inc"
 
-		uniform mat4 c_localToClipMatrix;
+		in vec3 c_position;
 
 		void main() {
 			gl_Position = c_localToClipMatrix * vec4(c_position, 1);

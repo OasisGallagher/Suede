@@ -12,7 +12,7 @@
 static Mesh mesh;
 static Material material;
 
-static glm::vec3 color;
+static glm::vec3 color(0, 1, 0);
 
 struct Batch {
 	glm::vec3 color;
@@ -33,7 +33,6 @@ static Batch& GetBatch() {
 
 static void Initialize() {
 	mesh = NewMesh();
-	color = glm::vec3(0, 1, 0);
 
 	material = NewMaterial();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));

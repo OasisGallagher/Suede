@@ -248,7 +248,7 @@ void WorldInternal::GetDecals(std::vector<Decal*>& container) {
 }
 
 void WorldInternal::RenderUpdate() {
-	Framebuffer0::Get()->Clear(FramebufferClearBitmaskColorDepthStencil);
+	Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
 
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		if ((*ite)->GetActive()) {

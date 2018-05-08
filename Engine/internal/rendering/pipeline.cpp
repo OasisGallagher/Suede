@@ -8,60 +8,6 @@
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
 
-struct RenderableComparer {
-	// TODO: hash renderable.
-	bool operator () (Renderable& lhs, Renderable& rhs) const {
-		if (lhs.framebufferState.framebuffer != rhs.framebufferState.framebuffer) {
-			return lhs.framebufferState.framebuffer < rhs.framebufferState.framebuffer;
-		}
-
-		Material& lm = lhs.material, &rm = rhs.material;
-		if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
-			return lm->GetRenderQueue() < rm->GetRenderQueue();
-		}
-
-		if (lm != rm) {
-			return lm < rm;
-		}
-
-		if (lhs.pass != rhs.pass) {
-			return lhs.pass < rhs.pass;
-		}
-
-		uint lp = lm->GetPassNativePointer(lhs.pass);
-		uint rp = lm->GetPassNativePointer(rhs.pass);
-		if (lp != rp) {
-			return lp < rp;
-		}
-
-		uint lme = lhs.mesh->GetNativePointer();
-		uint rme = rhs.mesh->GetNativePointer();
-		if (lme != rme) {
-			return lme < rme;
-		}
-
-		if (lhs.subMeshIndex != rhs.subMeshIndex) {
-			return lhs.subMeshIndex < rhs.subMeshIndex;
-		}
-
-		const TriangleBias& bias = lhs.mesh->GetSubMesh(lhs.subMeshIndex)->GetTriangleBias();
-		const TriangleBias& otherBias = rhs.mesh->GetSubMesh(rhs.subMeshIndex)->GetTriangleBias();
-		if (bias.indexCount != otherBias.indexCount) {
-			return bias.indexCount < otherBias.indexCount;
-		}
-		
-		if (bias.baseIndex != otherBias.baseIndex) {
-			return bias.baseIndex < otherBias.baseIndex;
-		}
-
-		if (bias.baseVertex != otherBias.baseVertex) {
-			return bias.baseVertex < otherBias.baseVertex;
-		}
-
-		return false;
-	}
-};
-
 Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
 	, oldFramebufferState_(nullptr), oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
 	switch_material = Profiler::CreateSample();
@@ -227,8 +173,7 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 }
 
 void Pipeline::SortRenderables() {
-	static RenderableComparer comparer;
-	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparer);
+	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_);
 }
 
 void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance) {
@@ -272,7 +217,7 @@ void Pipeline::UpdateRenderContext(Renderable& renderable) {
 		}
 
 		oldFramebufferState_ = &renderable.framebufferState;
-		renderable.framebufferState.BindWrite();
+		renderable.framebufferState.BindWrite(FramebufferClearMaskNone);
 
 		switch_framebuffer->Stop();
 	}
@@ -340,6 +285,57 @@ void Pipeline::ResetRenderContext() {
 		oldMesh_->Unbind();
 		oldMesh_.reset();
 	}
+}
+
+bool Renderable::operator < (const Renderable& other) const {
+	const Material& lm = material, &rm = other.material;
+	if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
+		return lm->GetRenderQueue() < rm->GetRenderQueue();
+	}
+
+	if (framebufferState.framebuffer != other.framebufferState.framebuffer) {
+		return framebufferState.framebuffer < other.framebufferState.framebuffer;
+	}
+
+	if (lm != rm) {
+		return lm < rm;
+	}
+
+	if (pass != other.pass) {
+		return pass < other.pass;
+	}
+
+	uint lp = lm->GetPassNativePointer(pass);
+	uint rp = lm->GetPassNativePointer(other.pass);
+	if (lp != rp) {
+		return lp < rp;
+	}
+
+	uint lme = mesh->GetNativePointer();
+	uint rme = other.mesh->GetNativePointer();
+	if (lme != rme) {
+		return lme < rme;
+	}
+
+	if (subMeshIndex != other.subMeshIndex) {
+		return subMeshIndex < other.subMeshIndex;
+	}
+
+	const TriangleBias& bias = mesh->GetSubMesh(subMeshIndex)->GetTriangleBias();
+	const TriangleBias& otherBias = other.mesh->GetSubMesh(other.subMeshIndex)->GetTriangleBias();
+	if (bias.indexCount != otherBias.indexCount) {
+		return bias.indexCount < otherBias.indexCount;
+	}
+
+	if (bias.baseIndex != otherBias.baseIndex) {
+		return bias.baseIndex < otherBias.baseIndex;
+	}
+
+	if (bias.baseVertex != otherBias.baseVertex) {
+		return bias.baseVertex < otherBias.baseVertex;
+	}
+
+	return false;
 }
 
 bool Renderable::IsInstance(const Renderable& other) const {
