@@ -69,8 +69,7 @@ float calculateShadowVisibility() {
 		visibility -= 0.2 * (1 - texture(c_shadowDepthTexture, vec3(c_shadowCoord.xy + poissonDisk[index] / 700.0,  (c_shadowCoord.z - bias)/c_shadowCoord.w)));
 	}
 
-	return texture(c_shadowDepthTexture, c_shadowCoord.xyz);
-	//return visibility;
+	return visibility;
 }
 
 #endif // __LIT_FRAGMENT_INC__

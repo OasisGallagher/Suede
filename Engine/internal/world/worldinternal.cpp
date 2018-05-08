@@ -156,7 +156,7 @@ void WorldInternal::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entiti
 			continue;
 		}
 
-		// TODO: fix bug for particle system.
+		// TODO: fix bug for particle system by calculating its bounds.
 		if (!IsVisible(child, worldToClipMatrix)) {
 		//	continue;
 		}

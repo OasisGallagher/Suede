@@ -73,8 +73,8 @@ private:
 	void SortRenderables();
 	void Render(Renderable& renderable);
 
-	void ResetRenderContext();
-	void UpdateRenderContext(Renderable& renderable);
+	void ResetState();
+	void UpdateState(Renderable& renderable);
 
 	void GatherInstances(std::vector<uint>& ranges);
 	void RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix);
@@ -83,11 +83,10 @@ private:
 	uint nrenderables_;
 	std::vector<Renderable> renderables_;
 
-	// render context.
+	// states.
 	int oldPass_;
 	Mesh oldMesh_;
 	Material oldMaterial_;
-
 	FramebufferState* oldFramebufferState_;
 
 	uint ndrawcalls_;

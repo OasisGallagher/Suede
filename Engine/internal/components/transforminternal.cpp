@@ -484,15 +484,15 @@ glm::vec3 TransformInternal::GetWorldToLocalPosition(const glm::vec3& position) 
 }
 
 glm::vec3 TransformInternal::GetUp() {
-	return world_.rotation * glm::vec3(0, 1, 0);
+	return GetRotation() * glm::vec3(0, 1, 0);
 }
 
 glm::vec3 TransformInternal::GetRight() {
-	return world_.rotation * glm::vec3(1, 0, 0);
+	return GetRotation() * glm::vec3(1, 0, 0);
 }
 
 glm::vec3 TransformInternal::GetForward() {
-	return world_.rotation * glm::vec3(0, 0, -1);
+	return GetRotation() * glm::vec3(0, 0, -1);
 }
 
 void TransformInternal::SetDiry(int bits) {

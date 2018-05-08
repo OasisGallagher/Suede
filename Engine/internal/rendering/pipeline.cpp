@@ -192,7 +192,7 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 }
 
 void Pipeline::Render(Renderable& renderable) {
-	UpdateRenderContext(renderable);
+	UpdateState(renderable);
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
@@ -209,7 +209,7 @@ void Pipeline::Render(Renderable& renderable) {
 	ntriangles_ += bias.indexCount / 3;
 }
 
-void Pipeline::UpdateRenderContext(Renderable& renderable) {
+void Pipeline::UpdateState(Renderable& renderable) {
 	if (oldFramebufferState_ == nullptr || *oldFramebufferState_ != renderable.framebufferState) {
 		switch_framebuffer->Start();
 		if (oldFramebufferState_ != nullptr) {
@@ -257,7 +257,7 @@ void Pipeline::Clear() {
 	ndrawcalls_ = 0;
 	ntriangles_ = 0;
 
-	ResetRenderContext();
+	ResetState();
 
 	switch_mesh->Clear();
 	switch_material->Clear();
@@ -270,7 +270,7 @@ void Pipeline::Clear() {
 	nrenderables_ = 0;
 }
 
-void Pipeline::ResetRenderContext() {
+void Pipeline::ResetState() {
 	if (oldFramebufferState_ != nullptr) {
 		oldFramebufferState_->Unbind();
 		oldFramebufferState_ = nullptr;

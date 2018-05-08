@@ -142,30 +142,7 @@ void CameraInternal::UpdateTimeUniformBuffer() {
 	p.time.y = Time::GetDeltaTime();
 	UniformBufferManager::UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
-/*
-for (int i = 0; i < 4; ++i) {
-	// use either :
-	//  - Always the same samples.
-	//    Gives a fixed pattern in the shadow, but no noise
-	int index = i;
-	//  - A random sample, based on the pixel's screen location. 
-	//    No banding, but the shadow moves with the camera, which looks weird.
-	// int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-	//  - A random sample, based on the pixel's position in world space.
-	//    The position is rounded to the millimeter to avoid too much aliasing
-	// int index = int(16.0 * random(floor(worldPos.xyz * 1000.0), i)) % 16;
 
-	// being fully in the shadow will eat up 4*0.2 = 0.8
-	// 0.2 potentially remain, which is quite dark.
-	visibility -= 0.2 * (
-		1 - texture(
-			c_shadowDepthTexture, vec3(
-				c_shadowCoord.xy + poissonDisk[index] / 700.0, (c_shadowCoord.z - bias) / c_shadowCoord.w
-			)
-		)
-	);
-}
-*/
 void CameraInternal::UpdateTransformsUniformBuffer() {
 	static SharedTransformsUniformBuffer p;
 	p.worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
@@ -274,7 +251,7 @@ void CameraInternal::CreateFramebuffers() {
 	depthTexture_->Load(RenderTextureFormatDepth, w, h);
 
 	shadowTexture_ = NewRenderTexture();
-	shadowTexture_->Load(RenderTextureFormatDepth, w, h);
+	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
 }
 
 void CameraInternal::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
@@ -383,18 +360,19 @@ void CameraInternal::ShadowDepthPass(const std::vector<Entity>& entities, Light 
 	glm::vec3 lightPosition = directionalLight->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = directionalLight->GetTransform()->GetForward();
 	float near = 1.f, far = 90.f;
-	glm::mat4 projection = glm::ortho(-20.f, 20.f, -20.f, 20.f, near, far);
+	
+	glm::mat4 projection = glm::ortho(-50.f, 50.f, -50.f, 50.f, near, far);
 	glm::mat4 view = glm::lookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
 	directionalLightShadowMaterial_->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
-
+	
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
 		AddToPipeline(state, entity->GetMesh(), directionalLightShadowMaterial_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
-	glm::vec3 center(0, 0, (near + far) / 2);
-	glm::vec3 size(40, 40, far - near);
+	glm::vec3 center(0, 0, -(near + far) / 2);
+	glm::vec3 size(100, 100, far - near);
 	center = glm::vec3(directionalLight->GetTransform()->GetLocalToWorldMatrix() * glm::vec4(center, 1));
 	Gizmos::DrawCuboid(center, size);
 
@@ -505,7 +483,7 @@ void CameraInternal::OnImageEffects() {
 		}
 
 		active->BindWrite(FramebufferClearMaskNone);
-		imageEffects_[i]->OnRenderImage(shadowTexture_/*textures[1 - index]*/, textures[index]);
+		imageEffects_[i]->OnRenderImage(textures[1 - index], textures[index]);
 		active->Unbind();
 
 		index = 1 - index;
