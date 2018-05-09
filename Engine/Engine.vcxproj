@@ -196,6 +196,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\entities\lightinternal.cpp" />
     <ClCompile Include="internal\entities\entityinternal.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
+    <ClCompile Include="internal\rendering\shadows.cpp" />
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
@@ -290,6 +291,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\entities\lightinternal.h" />
     <ClInclude Include="internal\entities\entityinternal.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
+    <ClInclude Include="internal\rendering\shadows.h" />
     <ClInclude Include="internal\rendering\uniformbuffermanager.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />

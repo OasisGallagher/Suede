@@ -52,6 +52,9 @@ WorldInternal::WorldInternal()
 	Profiler::Initialize();
 	UniformBufferManager::Initialize();
 
+	Screen::AddScreenSizeChangedListener(this);
+	Framebuffer0::Get()->SetViewport(Screen::GetWidth(), Screen::GetHeight());
+
 	update_entities = Profiler::CreateSample();
 	update_decals = Profiler::CreateSample();
 	update_rendering = Profiler::CreateSample();
@@ -60,6 +63,8 @@ WorldInternal::WorldInternal()
 WorldInternal::~WorldInternal() {
 	UniformBufferManager::Destroy();
 	MEMORY_RELEASE(importer_);
+
+	Screen::RemoveScreenSizeChangedListener(this);
 
 	Profiler::ReleaseSample(update_entities);
 	Profiler::ReleaseSample(update_decals);
@@ -268,6 +273,10 @@ void WorldInternal::UpdateEntities() {
 			ite->second->Update();
 		}
 	}
+}
+
+void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
+	Framebuffer0::Get()->SetViewport(width, height);
 }
 
 void WorldInternal::FireEvents() {

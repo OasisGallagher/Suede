@@ -26,8 +26,8 @@ void FramebufferState::BindWrite(FramebufferClearMask clearMask) {
 void FramebufferState::Unbind() {
 	framebuffer->Unbind();
 
-// 	framebuffer->SetDepthTexture(oldDepthTexture);
-// 	framebuffer->SetRenderTexture(attachment, oldRenderTexture);
+	framebuffer->SetDepthTexture(oldDepthTexture);
+	framebuffer->SetRenderTexture(attachment, oldRenderTexture);
 }
 
 void FramebufferState::Clear() {
@@ -364,7 +364,7 @@ void Framebuffer::SetDepthTexture(RenderTexture texture) {
 
 	GLenum status = GL::CheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE && status != GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
-		Debug::LogError("failed to bind depth texture");
+		Debug::LogError("failed to bind depth texture(0x%x)", status);
 	}
 
 	UnbindFramebuffer();

@@ -54,7 +54,7 @@ void Engine::Release() {
 
 void Engine::Resize(int w, int h) {
 	Screen::Set(w, h);
-	GL::Viewport(0, 0, w, h);
+	//GL::Viewport(0, 0, w, h);
 }
 
 void Engine::AddFrameEventListener(FrameEventListener* listener) {

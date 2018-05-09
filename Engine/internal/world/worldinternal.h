@@ -6,6 +6,7 @@
 #include "world.h"
 #include "light.h"
 #include "camera.h"
+#include "screen.h"
 #include "entity.h"
 #include "projector.h"
 #include "environment.h"
@@ -16,7 +17,7 @@
 class Sample;
 class AsyncEntityImporter;
 
-class WorldInternal : public ObjectInternal, public IWorld {
+class WorldInternal : public ObjectInternal, public IWorld, public ScreenSizeChangedListener {
 	DEFINE_FACTORY_METHOD(World)
 
 public:
@@ -46,6 +47,9 @@ public:
 	virtual void GetDecals(std::vector<Decal*>& container);
 
 	virtual Environment GetEnvironment() { return environment_; }
+
+public:
+	virtual void OnScreenSizeChanged(uint width, uint height);
 
 private:
 	void FireEvents();

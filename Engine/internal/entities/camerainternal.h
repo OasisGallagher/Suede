@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 
 #include "plane.h"
+#include "screen.h"
 #include "camera.h"
 #include "frustum.h"
 #include "internal/entities/entityinternal.h"
@@ -17,7 +18,7 @@ class FramebufferBase;
 struct FramebufferState;
 
 class Sample;
-class CameraInternal : public ICamera, public EntityInternal, public Frustum {
+class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:
@@ -40,8 +41,10 @@ public:
 	virtual void SetClearColor(const glm::vec3& value);
 	virtual glm::vec3 GetClearColor();
 
-	virtual void SetRenderTexture(RenderTexture value);
-	virtual RenderTexture GetRenderTexture() { return renderTexture_; }
+	virtual void SetTargetTexture(RenderTexture value);
+	virtual RenderTexture GetTargetTexture();
+
+	virtual Texture2D Capture();
 
 public:
 	virtual void Update();
@@ -75,7 +78,8 @@ public:
 	virtual void AddImageEffect(ImageEffect* effect) { imageEffects_.push_back(effect); }
 	virtual void AddGizmosPainter(GizmosPainter* painter) { gizmosPainters_.push_back(painter); }
 
-	virtual Texture2D Capture();
+public:
+	virtual void OnScreenSizeChanged(uint width, uint height);
 
 protected:
 	virtual void OnProjectionMatrixChanged();
@@ -86,7 +90,6 @@ private:
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
 	void ClearFramebuffers();
-	void UpdateViewportSize();
 	void UpdateTimeUniformBuffer();
 	void UpdateTransformsUniformBuffer();
 
@@ -102,7 +105,6 @@ private:
 	void CreateFramebuffer2();
 	void RenderSkybox(const FramebufferState& state);
 
-	void OnViewportSizeChanged(int w, int h);
 	FramebufferBase* GetActiveFramebuffer();
 
 	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);

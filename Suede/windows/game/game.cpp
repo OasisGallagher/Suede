@@ -28,12 +28,12 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
+//#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -277,7 +277,7 @@ void Game::createScene() {
 
 #else
 	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(0, 0, 1.f));
+	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
 #endif
 	
 #ifdef RENDER_TEXTURE

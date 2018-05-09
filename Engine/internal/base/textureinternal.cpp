@@ -242,7 +242,7 @@ bool Texture2DInternal::Load(const std::string& path) {
 }
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
-bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height, bool mipmap) {
+bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, bool mipmap) {
 	DestroyTexture();
 
 	width_ = width;
@@ -342,10 +342,10 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	return true;
 }
 
-RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture) {
+RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture), format_(RenderTextureFormatRgba) {
 }
 
-bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int height) {
+bool RenderTextureInternal::Load(RenderTextureFormat format, uint width, uint height) {
 	DestroyTexture();
 
 	width_ = width;
@@ -354,10 +354,8 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	GL::GenTextures(1, &texture_);
 	BindTexture();
 
-	GLenum glFormat[3];
-	RenderTextureFormatToGLenum(format, glFormat);
-	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], width, height, 0, glFormat[1], glFormat[2], nullptr);
-	internalFormat_ = glFormat[0];
+	format_ = format;
+	ResizeStorage(width, height);
 
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -372,6 +370,21 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, int width, int heig
 	UnbindTexture();
 
 	return true;
+}
+
+void RenderTextureInternal::Resize(uint width, uint height) {
+	BindTexture();
+	ResizeStorage(width, height);
+	UnbindTexture();
+}
+
+void RenderTextureInternal::ResizeStorage(uint w, uint h) {
+	GLenum glFormat[3];
+	RenderTextureFormatToGLenum(format_, glFormat);
+	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], w, h, 0, glFormat[1], glFormat[2], nullptr);
+	width_ = w;
+	height_ = h;
+	internalFormat_ = glFormat[0];
 }
 
 void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]) {

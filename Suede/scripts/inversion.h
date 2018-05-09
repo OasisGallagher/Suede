@@ -6,8 +6,7 @@ class Inversion : public ImageEffect {
 public:
 	Inversion() {
 		material_ = NewMaterial();
-		Shader shader = Resources::FindShader("inversion");
-		material_->SetShader(shader);
+		material_->SetShader(Resources::FindShader("inversion"));
 	}
 
 public:

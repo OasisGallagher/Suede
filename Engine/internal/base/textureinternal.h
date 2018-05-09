@@ -15,8 +15,8 @@ public:
 	virtual void Unbind();
 	virtual uint GetNativePointer() { return texture_; }
 	
-	virtual int GetWidth() { return width_; }
-	virtual int GetHeight() { return height_; }
+	virtual uint GetWidth() const { return width_; }
+	virtual uint GetHeight() const { return height_; }
 
 	virtual void SetMinFilterMode(TextureMinFilterMode value);
 	virtual TextureMinFilterMode GetMinFilterMode() const;
@@ -68,7 +68,7 @@ public:
 
 public:
 	virtual bool Load(const std::string& path);
-	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height, bool mipmap = false);
+	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, bool mipmap = false);
 
 	virtual bool EncodeToPNG(std::vector<uchar>& data);
 	virtual bool EncodeToJPG(std::vector<uchar>& data);
@@ -103,10 +103,17 @@ public:
 	RenderTextureInternal();
 
 public:
-	bool Load(RenderTextureFormat format, int width, int height);
+	virtual bool Load(RenderTextureFormat format, uint width, uint height);
+	virtual void Resize(uint width, uint height);
 
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
-	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum (&parameters)[3]);
+
+private:
+	void ResizeStorage(uint w, uint h);
+	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
+
+private:
+	RenderTextureFormat format_;
 };

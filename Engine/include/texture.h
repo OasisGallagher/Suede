@@ -41,8 +41,8 @@ public:
 	virtual void SetWrapModeT(TextureWrapMode value) = 0;
 	virtual TextureWrapMode GetWrapModeT() const = 0;
 
-	virtual int GetWidth() = 0;
-	virtual int GetHeight() = 0;
+	virtual uint GetWidth() const = 0;
+	virtual uint GetHeight() const = 0;
 };
 
 enum TextureFormat {
@@ -68,7 +68,7 @@ enum ColorStreamFormat {
 class SUEDE_API ITexture2D : virtual public ITexture {
 public:
 	virtual bool Load(const std::string& path) = 0;
-	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, int width, int height, bool mipmap = false) = 0;
+	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, bool mipmap = false) = 0;
 
 	virtual bool EncodeToPNG(std::vector<uchar>& data) = 0;
 	virtual bool EncodeToJPG(std::vector<uchar>& data) = 0;
@@ -91,7 +91,8 @@ enum RenderTextureFormat {
 
 class SUEDE_API IRenderTexture : virtual public ITexture {
 public:
-	virtual bool Load(RenderTextureFormat format, int width, int height) = 0;
+	virtual bool Load(RenderTextureFormat format, uint width, uint height) = 0;
+	virtual void Resize(uint width, uint height) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Texture);

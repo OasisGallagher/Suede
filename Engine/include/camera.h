@@ -47,8 +47,8 @@ public:
 	virtual void SetClearColor(const glm::vec3& value) = 0;
 	virtual glm::vec3 GetClearColor() = 0;
 
-	virtual void SetRenderTexture(RenderTexture value) = 0;
-	virtual RenderTexture GetRenderTexture() = 0;
+	virtual void SetTargetTexture(RenderTexture value) = 0;
+	virtual RenderTexture GetTargetTexture() = 0;
 
 	virtual void SetAspect(float value) = 0;
 	virtual float GetAspect() const = 0;

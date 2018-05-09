@@ -24,6 +24,8 @@ CameraInternal::CameraInternal()
 	push_renderables = Profiler::CreateSample();
 	get_renderable_entities = Profiler::CreateSample();
 
+	Screen::AddScreenSizeChangedListener(this);
+
 	InitializeVariables();
 	CreateFramebuffers();
 
@@ -40,6 +42,8 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(gbuffer_);
 	MEMORY_RELEASE(pipeline_);
 
+	Screen::RemoveScreenSizeChangedListener(this);
+
 	Profiler::ReleaseSample(forward_pass);
 	Profiler::ReleaseSample(push_renderables);
 	Profiler::ReleaseSample(get_renderable_entities);
@@ -53,13 +57,16 @@ glm::vec3 CameraInternal::GetClearColor() {
 	return Framebuffer0::Get()->GetClearColor();
 }
 
-void CameraInternal::SetRenderTexture(RenderTexture value) {
+void CameraInternal::SetTargetTexture(RenderTexture value) {
+	value->Resize(Screen::GetWidth(), Screen::GetHeight());
 	fb1_->SetRenderTexture(FramebufferAttachment0, value);
 }
 
-void CameraInternal::Update() {
-	UpdateViewportSize();
+RenderTexture CameraInternal::GetTargetTexture() {
+	return fb1_->GetRenderTexture(FramebufferAttachment0);
+}
 
+void CameraInternal::Update() {
 	// Stub: main thread only.
 	ClearFramebuffers();
 	UpdateTimeUniformBuffer();
@@ -113,6 +120,32 @@ void CameraInternal::Render() {
 	OnDrawGizmos();
 }
 
+void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
+	fb1_->SetViewport(width, height);
+	fbDepth_->SetViewport(width, height);
+
+	if (fb2_ != nullptr) {
+		fb2_->SetViewport(width, height);
+	}
+
+	if (renderTexture_) {
+		renderTexture_->Resize(width, height);
+	}
+
+	RenderTexture target = GetTargetTexture();
+	if (target && target != renderTexture_) {
+		target->Resize(width, height);
+	}
+
+	depthTexture_->Resize(width, height);
+	shadowTexture_->Resize(width, height);
+
+	float aspect = (float)width / height;
+	if (!Math::Approximately(aspect, GetAspect())) {
+		SetAspect(aspect);
+	}
+}
+
 void CameraInternal::OnProjectionMatrixChanged() {
 	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 }
@@ -122,17 +155,6 @@ void CameraInternal::ClearFramebuffers() {
 
 	if (fb2_ != nullptr) {
 		fb2_->Clear(FramebufferClearMaskColorDepth);
-	}
-}
-
-void CameraInternal::UpdateViewportSize() {
-	int w = Screen::GetWidth();
-	int h = Screen::GetHeight();
-
-	Framebuffer0* fb0 = Framebuffer0::Get();
-	if (w != fb0->GetViewportWidth() || h != fb0->GetViewportHeight()) {
-		fb0->SetViewport(w, h);
-		OnViewportSizeChanged(w, h);
 	}
 }
 
@@ -237,8 +259,8 @@ void CameraInternal::InitializeVariables() {
 }
 
 void CameraInternal::CreateFramebuffers() {
-	int w = Screen::GetWidth();
-	int h = Screen::GetHeight();
+	uint w = Screen::GetWidth();
+	uint h = Screen::GetHeight();
 
 	fb1_ = MEMORY_CREATE(Framebuffer);
 	fb1_->Create(w, h);
@@ -252,6 +274,8 @@ void CameraInternal::CreateFramebuffers() {
 
 	shadowTexture_ = NewRenderTexture();
 	shadowTexture_->Load(RenderTextureFormatShadow, w, h);
+
+	SetAspect((float)w / h);
 }
 
 void CameraInternal::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
@@ -270,20 +294,6 @@ void CameraInternal::RenderSkybox(const FramebufferState& state) {
 	}
 }
 
-void CameraInternal::OnViewportSizeChanged(int w, int h) {
-	fb1_->SetViewport(w, h);
-	fbDepth_->SetViewport(w, h);
-
-	if (fb2_ != nullptr) {
-		fb2_->SetViewport(w, h);
-	}
-
-	float aspect = (float)w / h;
-	if (!Math::Approximately(aspect, GetAspect())) {
-		SetAspect(aspect);
-	}
-}
-
 FramebufferBase* CameraInternal::GetActiveFramebuffer() {
 	FramebufferBase* active = nullptr;
 
@@ -293,6 +303,7 @@ FramebufferBase* CameraInternal::GetActiveFramebuffer() {
 
 	if (fb1_->GetRenderTexture(FramebufferAttachment0)) {
 		active = fb1_;
+		active->SetClearColor(Framebuffer0::Get()->GetClearColor());
 	}
 	else {
 		active = Framebuffer0::Get();
