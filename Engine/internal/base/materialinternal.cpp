@@ -6,6 +6,9 @@
 #include "renderdefines.h"
 #include "materialinternal.h"
 
+// TODO: reference world components?
+#include "internal/rendering/shadows.h"
+
 // TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
 
@@ -410,6 +413,8 @@ void MaterialInternal::InitializeProperties() {
 	for (int i = 0; i < container.size(); ++i) {
 		*properties_[container[i]->name] = *container[i];
 	}
+
+	Shadows::Get()->AttachShadowTexture(suede_dynamic_cast<Material>(shared_from_this()));
 }
 
 void MaterialInternal::InitializeEnabledState() {

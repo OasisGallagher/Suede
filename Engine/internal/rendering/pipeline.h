@@ -56,6 +56,16 @@ public:
 
 public:
 	void Flush(const glm::mat4& worldToClipMatrix);
+	
+	void AddRenderable(
+		Mesh mesh,
+		Material material,
+		uint pass,
+		const FramebufferState& state,
+		const glm::mat4& localToWorldMatrix,
+		uint instance = 0
+	);
+
 	void AddRenderable(
 		Mesh mesh,
 		uint subMeshIndex,

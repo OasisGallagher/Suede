@@ -93,8 +93,6 @@ private:
 	void UpdateTimeUniformBuffer();
 	void UpdateTransformsUniformBuffer();
 
-	void AddToPipeline(const FramebufferState& state, Mesh mesh, Material material, const glm::mat4& localToWorldMatrix);
-
 	void ForwardRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 	void DeferredRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
@@ -103,11 +101,12 @@ private:
 
 	void SetUpFramebuffer1();
 	void CreateFramebuffer2();
+	void CreateDepthFramebuffer();
 	void RenderSkybox(const FramebufferState& state);
 
 	FramebufferBase* GetActiveFramebuffer();
 
-	void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
+	//void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
 
 	void ForwardPass(const FramebufferState& state, const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
@@ -130,7 +129,6 @@ private:
 
 private:
 	int depth_;
-	glm::mat4 worldToShadowMatrix_;
 
 	GBuffer* gbuffer_;
 
@@ -144,7 +142,6 @@ private:
 	Sample *push_renderables, *forward_pass, *get_renderable_entities;
 
 	RenderTexture depthTexture_;
-	RenderTexture shadowTexture_;
 
 	RenderTexture renderTexture_;
 	RenderTexture renderTexture2_;
@@ -154,7 +151,6 @@ private:
 	Material depthMaterial_;
 	Material skyboxMaterial_;
 	Material deferredMaterial_;
-	Material directionalLightShadowMaterial_;
 
 	std::vector<ImageEffect*> imageEffects_;
 	std::vector<GizmosPainter*> gizmosPainters_;

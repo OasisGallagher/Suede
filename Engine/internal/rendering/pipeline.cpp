@@ -191,6 +191,12 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
+void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		AddRenderable(mesh, i, material, 0, state, localToWorldMatrix);
+	}
+}
+
 void Pipeline::Render(Renderable& renderable) {
 	UpdateState(renderable);
 

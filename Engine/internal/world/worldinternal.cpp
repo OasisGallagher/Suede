@@ -4,6 +4,7 @@
 #include "debug/profiler.h"
 #include "geometryutility.h"
 #include "internal/base/framebuffer.h"
+#include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
 #include "internal/file/asyncentityimporter.h"
 #include "internal/entities/entityinternal.h"
@@ -51,6 +52,9 @@ WorldInternal::WorldInternal()
 
 	Profiler::Initialize();
 	UniformBufferManager::Initialize();
+
+	Shadows* shadows = Shadows::Get();
+	shadows->Initialize();
 
 	Screen::AddScreenSizeChangedListener(this);
 	Framebuffer0::Get()->SetViewport(Screen::GetWidth(), Screen::GetHeight());

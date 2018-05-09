@@ -8,7 +8,7 @@
 
 #include "internal/base/renderdefines.h"
 
-// TODO: reference world components? Limits class?
+// TODO: reference world components?
 #include "internal/rendering/uniformbuffermanager.h"
 
 std::pair<std::string, float> _variables[] = {
