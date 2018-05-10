@@ -86,19 +86,19 @@ void CameraInternal::Render() {
 			ForwardDepthPass(entities);
 		}
 	}
-	
+
 	Light forwardBase;
 	std::vector<Light> forwardAdd;
 	GetLights(forwardBase, forwardAdd);
 
-	if (WorldInstance()->GetMainCamera().get() == this) {
-		Shadows::Get()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
-	}
+	Shadows::Resize();
+	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
 
 	UpdateTransformsUniformBuffer();
 
 	FramebufferState state;
 	GetActiveFramebuffer()->SaveState(state);
+	state.viewportRect = viewportRect_;
 
 	if (renderPath_ == RenderPathForward) {
 		ForwardRendering(state, entities, forwardBase, forwardAdd);
@@ -172,7 +172,7 @@ void CameraInternal::UpdateTransformsUniformBuffer() {
 	p.worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 	p.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 	p.cameraToClipMatrix = GetProjectionMatrix();
-	p.worldToShadowMatrix = Shadows::Get()->GetWorldToShadowMatrix();
+	p.worldToShadowMatrix = Shadows::GetWorldToShadowMatrix();
 
 	p.cameraPosition = glm::vec4(GetTransform()->GetPosition(), 1);
 	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
@@ -358,6 +358,7 @@ void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 
 	FramebufferState state;
 	fbDepth_->SaveState(state);
+	state.viewportRect = viewportRect_;
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];

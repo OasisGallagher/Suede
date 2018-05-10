@@ -3,6 +3,9 @@
 #include "framebuffer.h"
 #include "memory/memory.h"
 
+FramebufferState::FramebufferState() : viewportRect(0, 0, 1, 1) {
+}
+
 bool FramebufferState::operator==(const FramebufferState& other) const {
 	return framebuffer == other.framebuffer && depthTexture == other.depthTexture
 		&& renderTexture == other.renderTexture;
@@ -20,7 +23,7 @@ void FramebufferState::BindWrite(FramebufferClearMask clearMask) {
 	framebuffer->SetDepthTexture(depthTexture);
 	framebuffer->SetRenderTexture(attachment, renderTexture);
 	// TODO: clear flags.
-	framebuffer->BindWrite(clearMask);
+	framebuffer->BindWrite(clearMask, viewportRect);
 }
 
 void FramebufferState::Unbind() {
@@ -40,7 +43,7 @@ void FramebufferState::Clear() {
 FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0), clearDepth_(1) {
 }
 
-void FramebufferBase::BindWrite(FramebufferClearMask clearMask) {
+void FramebufferBase::BindWrite(FramebufferClearMask clearMask, const glm::vec4& viewportRect) {
 	BindFramebuffer(FramebufferTargetWrite);
 	ClearCurrent(clearMask);
 	BindViewport();
@@ -57,10 +60,10 @@ void FramebufferBase::ReadBuffer(std::vector<uchar>& data) {
 	uint alignment = 4;
 	GL::GetIntegerv(GL_PACK_ALIGNMENT, (GLint*)&alignment);
 
-	uint w = Math::RoundUpToPowerOfTwo(GetViewportWidth(), alignment);
-	data.resize(3 * w * GetViewportHeight());
+	uint w = Math::RoundUpToPowerOfTwo(viewport_.z, alignment);
+	data.resize(3 * w * viewport_.w);
 
-	GL::ReadPixels(0, 0, GetViewportWidth(), GetViewportHeight(), GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
+	GL::ReadPixels(0, 0, viewport_.z, viewport_.w, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
 
 	UnbindFramebuffer();
 }
@@ -86,7 +89,7 @@ void FramebufferBase::UnbindFramebuffer() {
 }
 
 void FramebufferBase::BindViewport() {
-	GL::Viewport(0, 0, GetViewportWidth(), GetViewportHeight());
+	GL::Viewport(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
 }
 
 void FramebufferBase::UnbindViewport() {
@@ -123,10 +126,9 @@ GLbitfield FramebufferBase::FramebufferClearBitmaskToGLbitfield(FramebufferClear
 	return bitfield;
 }
 
-void FramebufferBase::SetViewport(uint width, uint height) {
-	if (width_ != width || height_ != width) {
-		width_ = width;
-		height_ = height;
+void FramebufferBase::SetViewport(const glm::uvec4& value) {
+	if (viewport_ != value) {
+		viewport_ = value;
 		OnViewportChanged();
 	}
 }
@@ -191,14 +193,13 @@ Framebuffer::~Framebuffer() {
 	}
 }
 
-void Framebuffer::Create(int width, int height) {
+void Framebuffer::Create(uint width, uint height) {
 	if (renderTextures_ != nullptr || glAttachments_ != nullptr) {
 		Debug::LogError("framebuffer already created");
 		return;
 	}
 
-	width_ = width;
-	height_ = height;
+	viewport_ = glm::uvec4(0, 0, width, height);
 
 	attachedRenderTextureCount_ = 0;
 
@@ -213,8 +214,8 @@ void Framebuffer::Create(int width, int height) {
 	UnbindFramebuffer();
 }
 
-void Framebuffer::BindWrite(FramebufferClearMask clearMask) {
-	FramebufferBase::BindWrite(clearMask);
+void Framebuffer::BindWrite(FramebufferClearMask clearMask, const glm::vec4& viewportRect) {
+	FramebufferBase::BindWrite(clearMask, viewportRect);
 
 	uint count = ToGLColorAttachments();
 	GL::DrawBuffers(count, glAttachments_);
@@ -249,7 +250,7 @@ void Framebuffer::OnViewportChanged() {
 		BindFramebuffer();
 
 		GL::BindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer_);
-		GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GetViewportWidth(), GetViewportHeight());
+		GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, viewport_.z, viewport_.w);
 		GL::BindRenderbuffer(GL_RENDERBUFFER, 0);
 
 		UnbindFramebuffer();
@@ -319,7 +320,7 @@ void Framebuffer::CreateDepthRenderbuffer() {
 	GL::GenRenderbuffers(1, &depthRenderbuffer_);
 	GL::BindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer_);
 
-	GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, GetViewportWidth(), GetViewportHeight());
+	GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, viewport_.z, viewport_.w);
 	GL::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
 
 	GL::BindRenderbuffer(GL_RENDERBUFFER, 0);

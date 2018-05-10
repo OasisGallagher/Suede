@@ -62,6 +62,9 @@ public:
 	virtual void SetFieldOfView(float value) = 0;
 	virtual float GetFieldOfView() const = 0;
 
+	virtual void SetViewportRect(const glm::vec4& value) = 0;
+	virtual const glm::vec4& GetViewportRect() const = 0;
+
 	virtual const glm::mat4& GetProjectionMatrix() = 0;
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;

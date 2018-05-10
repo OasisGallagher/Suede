@@ -14,6 +14,7 @@
 #include "resources.h"
 #include "statistics.h"
 #include "debug/debug.h"
+#include "debug/profiler.h"
 
 static std::vector<FrameEventListener*> frameEventListeners;
 #define FOR_EACH_FRAME_EVENT_LISTENER(func)	for (uint i = 0; i < frameEventListeners.size(); ++i) frameEventListeners[i]->func()
@@ -43,6 +44,8 @@ bool Engine::Initialize() {
 	SetDefaultGLStates();
 
 	GLEF::Initialize();
+	Profiler::Initialize();
+
 	Resources::Import();
 
 	return true;

@@ -69,6 +69,9 @@ public:
 	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
 	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
 
+	virtual void SetViewportRect(const glm::vec4& value) { viewportRect_ = value; }
+	virtual const glm::vec4& GetViewportRect() const { return viewportRect_; }
+
 	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position);
@@ -106,8 +109,6 @@ private:
 
 	FramebufferBase* GetActiveFramebuffer();
 
-	//void ShadowDepthPass(const std::vector<Entity>& entities, Light light);
-
 	void ForwardPass(const FramebufferState& state, const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
@@ -129,6 +130,7 @@ private:
 
 private:
 	int depth_;
+	glm::vec4 viewportRect_;
 
 	GBuffer* gbuffer_;
 

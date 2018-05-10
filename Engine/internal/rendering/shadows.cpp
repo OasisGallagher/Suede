@@ -5,24 +5,30 @@
 #include "internal/base/framebuffer.h"
 #include "internal/world/worldinternal.h"
 
-Shadows* Shadows::Get() {
-	static Shadows instance;
-	return &instance;
+static Framebuffer fbDepth;
+static glm::mat4 worldToShadowMatrix;
+static RenderTexture shadowDepthTexture;
+static Material directionalLightShadowMaterial;
+
+void Shadows::Initialize() {
+	uint w = Screen::GetWidth(), h = Screen::GetHeight();
+	fbDepth.Create(w, h);
+
+	shadowDepthTexture = NewRenderTexture();
+	shadowDepthTexture->Load(RenderTextureFormatShadow, w, h);
+
+	fbDepth.SetDepthTexture(shadowDepthTexture);
+
+	directionalLightShadowMaterial = NewMaterial();
+	directionalLightShadowMaterial->SetShader(Resources::FindShader("builtin/directional_light_depth"));
+	directionalLightShadowMaterial->SetRenderQueue(RenderQueueBackground - 200);
 }
 
-Shadows::Shadows() {
-	Screen::AddScreenSizeChangedListener(this);
-
-	Initialize();
-}
-
-Shadows::~Shadows() {
-	Screen::RemoveScreenSizeChangedListener(this);
-}
-
-void Shadows::OnScreenSizeChanged(uint width, uint height) {
-	fbDepth->SetViewport(width, height);
-	shadowDepthTexture->Resize(width, height);
+void Shadows::Resize(uint width, uint height) {
+	if (width != fbDepth.GetViewportWidth() || height != fbDepth.GetViewportHeight()) {
+		fbDepth.SetViewport(width, height);
+		shadowDepthTexture->Resize(width, height);
+	}
 }
 
 void Shadows::AttachShadowTexture(Material material) {
@@ -30,10 +36,10 @@ void Shadows::AttachShadowTexture(Material material) {
 }
 
 void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities) {
-	fbDepth->Clear(FramebufferClearMaskDepth);
+	fbDepth.Clear(FramebufferClearMaskDepth);
 
 	FramebufferState state;
-	fbDepth->SaveState(state);
+	fbDepth.SaveState(state);
 
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
@@ -66,17 +72,6 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 	worldToShadowMatrix = bias * shadowDepthMatrix;
 }
 
-void Shadows::Initialize() {
-	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-	fbDepth = MEMORY_CREATE(Framebuffer);
-	fbDepth->Create(w, h);
-
-	shadowDepthTexture = NewRenderTexture();
-	shadowDepthTexture->Load(RenderTextureFormatShadow, w, h);
-
-	fbDepth->SetDepthTexture(shadowDepthTexture);
-
-	directionalLightShadowMaterial = NewMaterial();
-	directionalLightShadowMaterial->SetShader(Resources::FindShader("builtin/directional_light_depth"));
-	directionalLightShadowMaterial->SetRenderQueue(RenderQueueBackground - 200);
+const glm::mat4& Shadows::GetWorldToShadowMatrix() {
+	return worldToShadowMatrix;
 }

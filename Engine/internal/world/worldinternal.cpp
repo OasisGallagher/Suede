@@ -14,8 +14,18 @@
 
 #define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
 
+static void Initialize() {
+	Shadows::Initialize();
+	UniformBufferManager::Initialize();
+}
+
 World& WorldInstance() {
-	static World instance = Factory::Create<WorldInternal>();
+	static World instance;
+	if (!instance) {
+		instance = Factory::Create<WorldInternal>();
+		Initialize();
+	}
+
 	return instance;
 }
 
@@ -49,12 +59,6 @@ WorldInternal::WorldInternal()
 	, root_(Factory::Create<EntityInternal>()), decals_(SUEDE_MAX_DECALS) {
 	Transform transform = Factory::Create<TransformInternal>();
 	root_->SetTransform(transform);
-
-	Profiler::Initialize();
-	UniformBufferManager::Initialize();
-
-	Shadows* shadows = Shadows::Get();
-	shadows->Initialize();
 
 	Screen::AddScreenSizeChangedListener(this);
 	Framebuffer0::Get()->SetViewport(Screen::GetWidth(), Screen::GetHeight());

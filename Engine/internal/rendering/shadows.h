@@ -2,36 +2,22 @@
 #include <glm/glm.hpp>
 
 #include "light.h"
-#include "screen.h"
 #include "entity.h"
 #include "material.h"
 
 class Pipeline;
 class Framebuffer;
 
-class Shadows : public ScreenSizeChangedListener {
+class Shadows {
 public:
-	static Shadows* Get();
+	static void Initialize();
+	static void AttachShadowTexture(Material material);
 
 public:
-	virtual void OnScreenSizeChanged(uint width, uint height);
-
-public:
-	void Initialize();
-	void AttachShadowTexture(Material material);
-
-public:
-	void Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities);
-	const glm::mat4& GetWorldToShadowMatrix() const { return worldToShadowMatrix; }
+	static void Resize(uint width, uint height);
+	static const glm::mat4& GetWorldToShadowMatrix();
+	static void Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities);
 
 private:
 	Shadows();
-	~Shadows();
-
-private:
-	Framebuffer* fbDepth;
-
-	glm::mat4 worldToShadowMatrix;
-	RenderTexture shadowDepthTexture;
-	Material directionalLightShadowMaterial;
 };

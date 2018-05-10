@@ -38,12 +38,16 @@ enum FramebufferAttachment {
 
 class FramebufferBase;
 struct FramebufferState {
+	FramebufferState();
+
 	void BindWrite(FramebufferClearMask clearMask);
 	void Unbind();
 	void Clear();
 
 	bool operator == (const FramebufferState& other) const;
 	bool operator != (const FramebufferState& other) const;
+
+	glm::vec4 viewportRect;
 
 	FramebufferBase* framebuffer;
 	RenderTexture depthTexture;
@@ -60,7 +64,7 @@ class FramebufferBase {
 public:
 	virtual void ReadBuffer(std::vector<uchar>& data);
 
-	virtual void BindWrite(FramebufferClearMask clearMask);
+	virtual void BindWrite(FramebufferClearMask clearMask, const glm::vec4& viewportRect = glm::vec4(0, 0, 1, 1));
 	virtual void Unbind();
 
 	virtual void Clear(FramebufferClearMask clearMask);
@@ -79,10 +83,8 @@ public:
 	void SaveState(FramebufferState& state);
 
 public:
-	int GetViewportWidth() const { return width_; }
-	int GetViewportHeight() const { return height_; }
-
-	void SetViewport(uint width, uint height);
+	void SetViewport(const glm::uvec4& value);
+	const glm::uvec4& GetViewport() const { return viewport_; }
 
 	void SetClearColor(const glm::vec3& value) { clearColor_ = value; }
 	glm::vec3 GetClearColor() const { return clearColor_; }
@@ -113,8 +115,7 @@ protected:
 
 protected:
 	GLuint fbo_;
-	GLsizei width_;
-	GLsizei height_;
+	glm::uvec4 viewport_;
 
 	float clearDepth_;
 	glm::vec3 clearColor_;
@@ -138,11 +139,11 @@ public:
 	~Framebuffer();
 
 public:
-	void Create(int width, int height);
+	void Create(uint width, uint height);
 
 	void BindRead(FramebufferAttachment attachment);
 
-	virtual void BindWrite(FramebufferClearMask clearMask);
+	virtual void BindWrite(FramebufferClearMask clearMask, const glm::vec4& viewportRect = glm::vec4(0, 0, 1, 1));
 	virtual void Clear(FramebufferClearMask clearMask);
 
 	void ClearAttachment(FramebufferClearMask clearMask, FramebufferAttachment attachment) { ClearAttachments(clearMask, 1, &attachment); }

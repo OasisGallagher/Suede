@@ -373,9 +373,11 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, uint width, uint he
 }
 
 void RenderTextureInternal::Resize(uint width, uint height) {
-	BindTexture();
-	ResizeStorage(width, height);
-	UnbindTexture();
+	if (width_ != width || height_ != height) {
+		BindTexture();
+		ResizeStorage(width, height);
+		UnbindTexture();
+	}
 }
 
 void RenderTextureInternal::ResizeStorage(uint w, uint h) {
