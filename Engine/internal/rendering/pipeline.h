@@ -16,8 +16,8 @@ struct Renderable {
 	Material material;
 	uint pass;
 
+	RenderTexture target;
 	glm::mat4 localToWorldMatrix;
-	FramebufferState framebufferState;
 
 	bool operator < (const Renderable& other) const;
 
@@ -61,7 +61,7 @@ public:
 		Mesh mesh,
 		Material material,
 		uint pass,
-		const FramebufferState& state,
+		RenderTexture target,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -71,7 +71,7 @@ public:
 		uint subMeshIndex,
 		Material material,
 		uint pass,
-		const FramebufferState& state,
+		RenderTexture target,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -97,7 +97,7 @@ private:
 	int oldPass_;
 	Mesh oldMesh_;
 	Material oldMaterial_;
-	FramebufferState* oldFramebufferState_;
+	RenderTexture oldTarget_;
 
 	uint ndrawcalls_;
 	uint ntriangles_;

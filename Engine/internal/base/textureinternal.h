@@ -31,12 +31,12 @@ public:
 	virtual TextureWrapMode GetWrapModeT() const;
 
 protected:
+	virtual void DestroyTexture();
 	virtual GLenum GetGLTextureType() const = 0;
 	virtual GLenum GetGLTextureBindingName() const = 0;
 
 	void BindTexture() const;
 	void UnbindTexture() const;
-	void DestroyTexture();
 	BppType GLenumToBpp(GLenum format) const;
 	GLenum TextureFormatToGLenum(TextureFormat textureFormat) const;
 	void ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const;
@@ -96,24 +96,70 @@ protected:
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_CUBE_MAP; }
 };
 
+class FramebufferBase;
 class RenderTextureInternal : public IRenderTexture, public TextureInternal {
 	DEFINE_FACTORY_METHOD(RenderTexture)
 
 public:
 	RenderTextureInternal();
+	~RenderTextureInternal();
 
 public:
-	virtual bool Load(RenderTextureFormat format, uint width, uint height);
+	virtual bool Create(RenderTextureFormat format, uint width, uint height);
+
+	virtual void Clear(const glm::vec4& value);
 	virtual void Resize(uint width, uint height);
 
+	virtual void BindWrite();
+
+	virtual void Bind(uint index);
+	virtual void Unbind();
+
 protected:
+	virtual void DestroyTexture();
+
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
+protected:
+	virtual void ResizeStorage(uint w, uint h);
+
 private:
-	void ResizeStorage(uint w, uint h);
+	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormatDepth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
 
 private:
+	enum {
+		StatusNone,
+		StatusRead,
+		StatusWrite,
+	} bindStatus_;
+
 	RenderTextureFormat format_;
+	FramebufferBase* framebuffer_;
+};
+
+class ScreenRenderTexture : public IRenderTexture, public TextureInternal {
+public:
+	ScreenRenderTexture();
+
+protected:
+	virtual bool Create(RenderTextureFormat format, uint width, uint height);
+	virtual void Clear(const glm::vec4& value);
+
+	virtual uint GetWidth() const;
+	virtual uint GetHeight() const;
+
+	virtual void Resize(uint w, uint h);
+
+	virtual void Bind(uint index);
+	virtual void BindWrite();
+	virtual void Unbind();
+
+protected:
+	virtual GLenum GetGLTextureType() const;
+	virtual GLenum GetGLTextureBindingName() const;
+
+private:
+	FramebufferBase* framebuffer_;
 };

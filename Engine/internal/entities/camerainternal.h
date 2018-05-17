@@ -7,15 +7,11 @@
 #include "frustum.h"
 #include "internal/entities/entityinternal.h"
 
-class GBuffer;
+//class GBuffer;
 class Pipeline;
 
 class ImageEffect;
 class GizmosPainter;
-
-class Framebuffer;
-class FramebufferBase;
-struct FramebufferState;
 
 class Sample;
 class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener {
@@ -38,11 +34,11 @@ public:
 	virtual void SetDepthTextureMode(DepthTextureMode value) { depthTextureMode_ = value; }
 	virtual DepthTextureMode GetDepthTextureMode() { return depthTextureMode_; }
 
-	virtual void SetClearColor(const glm::vec3& value);
-	virtual glm::vec3 GetClearColor();
+	virtual void SetClearColor(const glm::vec3& value) { clearColor_ = value; }
+	virtual glm::vec3 GetClearColor() { return clearColor_; }
 
-	virtual void SetTargetTexture(RenderTexture value);
-	virtual RenderTexture GetTargetTexture();
+	virtual void SetTargetTexture(RenderTexture value) { targetTexture_ = value; }
+	virtual RenderTexture GetTargetTexture() { return targetTexture_; }
 
 	virtual Texture2D Capture();
 
@@ -89,38 +85,38 @@ protected:
 
 private:
 	void InitializeVariables();
-	void CreateFramebuffers();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
-	void ClearFramebuffers();
+	void ClearRenderTextures();
+
 	void UpdateTimeUniformBuffer();
 	void UpdateTransformsUniformBuffer();
 
-	void ForwardRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(const FramebufferState& state, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(const FramebufferState& state, const std::vector<Entity>& entities);
+	void RenderDeferredGeometryPass(RenderTexture target, const std::vector<Entity>& entities);
 
-	void SetUpFramebuffer1();
-	void CreateFramebuffer2();
-	void CreateDepthFramebuffer();
-	void RenderSkybox(const FramebufferState& state);
+	void CreateAuxTexture1();
+	void CreateAuxTexture2();
+	void CreateDepthTexture();
+	void RenderSkybox(RenderTexture target);
 
-	FramebufferBase* GetActiveFramebuffer();
+	RenderTexture GetActiveRenderTarget();
 
-	void ForwardPass(const FramebufferState& state, const std::vector<Entity>& entities);
+	void ForwardPass(RenderTexture target, const std::vector<Entity>& entities);
 	void ForwardDepthPass(const std::vector<Entity>& entities);
 
-	void RenderEntity(const FramebufferState& state, Entity entity, Renderer renderer);
-	void RenderSubMesh(const FramebufferState& state, Entity entity, int subMeshIndex, Material material, int pass);
+	void RenderEntity(RenderTexture target, Entity entity, Renderer renderer);
+	void RenderSubMesh(RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
 	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
-	void RenderForwardBase(const FramebufferState& state, const std::vector<Entity>& entities, Light light);
+	void RenderForwardBase(RenderTexture target, const std::vector<Entity>& entities, Light light);
 
-	void RenderDecals(const FramebufferState& state);
+	void RenderDecals(RenderTexture target);
 	void OnPostRender();
 
 	void OnDrawGizmos();
@@ -132,21 +128,17 @@ private:
 	int depth_;
 	glm::vec4 viewportRect_;
 
-	GBuffer* gbuffer_;
+	//GBuffer* gbuffer_;
 
 	Plane planes_[6];
 
-	Framebuffer* fb1_;
-	Framebuffer* fb2_;
-	Framebuffer* fbDepth_;
+	RenderTexture auxTexture1_;
+	RenderTexture auxTexture2_;
+	RenderTexture depthTexture_;
+	RenderTexture targetTexture_;
 
 	Pipeline* pipeline_;
 	Sample *push_renderables, *forward_pass, *get_renderable_entities;
-
-	RenderTexture depthTexture_;
-
-	RenderTexture renderTexture_;
-	RenderTexture renderTexture2_;
 
 	// TODO: Common material.
 	Material decalMaterial_;
@@ -158,6 +150,8 @@ private:
 	std::vector<GizmosPainter*> gizmosPainters_;
 
 	ClearType clearType_;
+	glm::vec3 clearColor_;
+
 	RenderPath renderPath_;
 	DepthTextureMode depthTextureMode_;
 };

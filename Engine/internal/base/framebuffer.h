@@ -36,51 +36,30 @@ enum FramebufferAttachment {
 	FramebufferAttachmentMax = FramebufferAttachment8,
 };
 
-class FramebufferBase;
-struct FramebufferState {
-	FramebufferState();
-
-	void BindWrite(FramebufferClearMask clearMask);
-	void Unbind();
-	void Clear();
-
-	bool operator == (const FramebufferState& other) const;
-	bool operator != (const FramebufferState& other) const;
-
-	glm::vec4 viewportRect;
-
-	FramebufferBase* framebuffer;
-	RenderTexture depthTexture;
-
-	RenderTexture renderTexture;
-	FramebufferAttachment attachment;
-
-private:
-	RenderTexture oldDepthTexture;
-	RenderTexture oldRenderTexture;
-};
-
 class FramebufferBase {
 public:
-	virtual void ReadBuffer(std::vector<uchar>& data);
-
-	virtual void BindWrite(FramebufferClearMask clearMask, const glm::vec4& viewportRect = glm::vec4(0, 0, 1, 1));
-	virtual void Unbind();
-
-	virtual void Clear(FramebufferClearMask clearMask);
+	FramebufferBase();
+	virtual ~FramebufferBase() {}
 
 public:
-	virtual void SetDepthTexture(RenderTexture texture);
+	void BindRead();
+	void ReadBuffer(std::vector<uchar>& data);
+
+	void Unbind();
+	void Clear(FramebufferClearMask clearMask);
+
+public:
+	virtual void BindWrite();
+
+public:
+	virtual void SetDepthTexture(uint texture);
 	virtual void CreateDepthRenderbuffer();
 
 	virtual uint GetRenderTextureCount();
-	virtual RenderTexture GetDepthTexture();
+	virtual uint GetDepthTexture();
 
-	virtual RenderTexture GetRenderTexture(FramebufferAttachment attachment);
-	virtual void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
-
-public:
-	void SaveState(FramebufferState& state);
+	virtual uint GetRenderTexture(FramebufferAttachment attachment);
+	virtual void SetRenderTexture(FramebufferAttachment attachment, uint texture);
 
 public:
 	void SetViewport(const glm::uvec4& value);
@@ -92,32 +71,31 @@ public:
 	void SetClearDepth(float value) { clearDepth_ = value; }
 	float GetClearDepth() const { return clearDepth_; }
 
+	void SetClearStencil(int value) { clearStencil_ = value; }
+	int GetClearStencil() const { return clearStencil_; }
+
 	uint GetNativePointer() { return fbo_; }
 
 protected:
-	FramebufferBase();
-	virtual ~FramebufferBase() {}
-
-protected:
 	virtual void OnViewportChanged() {}
+	virtual void ClearCurrent(FramebufferClearMask clearMask);
 
 protected:
-	void ClearCurrent(FramebufferClearMask clearMask);
-
-	void BindFramebuffer(FramebufferTarget target = FramebufferTargetReadWrite);
+	void BindFramebuffer(FramebufferTarget target);
 	void UnbindFramebuffer();
 
 	void BindViewport();
 	void UnbindViewport();
 
-	GLbitfield FramebufferClearBitmaskToGLbitfield(FramebufferClearMask clearMask);
+	void ReadCurrentBuffer(std::vector<uchar> &data);
 	void FramebufferTargetToGLenum(FramebufferTarget target, GLenum* query, GLenum* bind);
 
 protected:
-	GLuint fbo_;
+	uint fbo_;
 	glm::uvec4 viewport_;
 
 	float clearDepth_;
+	int clearStencil_;
 	glm::vec3 clearColor_;
 
 private:
@@ -139,47 +117,49 @@ public:
 	~Framebuffer();
 
 public:
-	void Create(uint width, uint height);
+	void BindReadAttachment(FramebufferAttachment attachment);
+	void ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAttachment attachment);
 
-	void BindRead(FramebufferAttachment attachment);
-
-	virtual void BindWrite(FramebufferClearMask clearMask, const glm::vec4& viewportRect = glm::vec4(0, 0, 1, 1));
-	virtual void Clear(FramebufferClearMask clearMask);
-
-	void ClearAttachment(FramebufferClearMask clearMask, FramebufferAttachment attachment) { ClearAttachments(clearMask, 1, &attachment); }
-	void ClearAttachments(FramebufferClearMask clearMask, uint n, FramebufferAttachment* attachments);
-
-	void BindWriteAttachment(FramebufferAttachment attachment) { BindWriteAttachments(1, &attachment); }
-	void BindWriteAttachments(uint n, FramebufferAttachment* attachments);
+	void BindWriteAttachments(FramebufferAttachment* attachments, uint n);
+	void ClearAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n);
 
 public:
-	virtual void SetDepthTexture(RenderTexture texture);
+	/**
+	 * @brief bind all color attachments for writing.
+	 */
+	virtual void BindWrite();
+
+public:
+	virtual void SetDepthTexture(uint texture);
 	virtual void CreateDepthRenderbuffer();
 
 	virtual uint GetRenderTextureCount();
-	virtual RenderTexture GetDepthTexture();
+	virtual uint GetDepthTexture();
 
-	virtual RenderTexture GetRenderTexture(FramebufferAttachment attachment);
-	virtual void SetRenderTexture(FramebufferAttachment attachment, RenderTexture texture);
+	virtual uint GetRenderTexture(FramebufferAttachment attachment);
+	virtual void SetRenderTexture(FramebufferAttachment attachment, uint texture);
 
-private:
+protected:
 	virtual void OnViewportChanged();
-	
+
+	/**
+	 * @brief clear all color attachments.
+	 */
+	virtual void ClearCurrent(FramebufferClearMask clearMask);
+
 private:
 	uint ToGLColorAttachments();
 	uint ToGLColorAttachments(uint n, FramebufferAttachment* attachments);
 	GLenum FramebufferAttachmentToGLenum(FramebufferAttachment attachment);
 
-	void ClearCurrentAllAttachments(FramebufferClearMask clearMask);
-	void ClearBuffers(FramebufferClearMask clearMask, uint n, GLenum* buffers);
-	void ClearCurrentAttachments(FramebufferClearMask clearMask, uint n, FramebufferAttachment* attachments);
+	void ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n);
 
 private:
-	GLuint depthRenderbuffer_;
-
-	int attachedRenderTextureCount_;
+	uint depthTexture_;
+	uint* renderTextures_;
 	int maxRenderTextures_;
+	int attachedRenderTextureCount_;
+
 	GLenum* glAttachments_;
-	RenderTexture* renderTextures_;
-	RenderTexture depthTexture_;
+	uint depthRenderbuffer_;
 };

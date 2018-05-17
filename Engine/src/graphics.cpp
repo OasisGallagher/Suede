@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "world.h"
 #include "api/gl.h"
 #include "graphics.h"
 #include "resources.h"
@@ -12,8 +13,12 @@ static void DrawSubMeshes(Mesh mesh) {
 
 void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	static Mesh mesh = Resources::CreatePrimitive(PrimitiveTypeQuad, 2);
+	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
+
+	dest->BindWrite();
 	material->SetTexture(Variables::mainTexture, src);
 	Draw(mesh, material);
+	dest->Unbind();
 }
 
 void Graphics::Draw(Mesh mesh, Material material) {

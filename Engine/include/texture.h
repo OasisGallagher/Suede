@@ -84,6 +84,7 @@ enum RenderTextureFormat {
 	RenderTextureFormatRgbaSn,
 	RenderTextureFormatRgbHdr,
 	RenderTextureFormatRgbaHdr,
+
 	RenderTextureFormatDepth,
 	RenderTextureFormatShadow,
 	RenderTextureFormatDepthStencil,
@@ -91,8 +92,12 @@ enum RenderTextureFormat {
 
 class SUEDE_API IRenderTexture : virtual public ITexture {
 public:
-	virtual bool Load(RenderTextureFormat format, uint width, uint height) = 0;
+	virtual bool Create(RenderTextureFormat format, uint width, uint height) = 0;
+
+	virtual void Clear(const glm::vec4& value) = 0;
 	virtual void Resize(uint width, uint height) = 0;
+
+	virtual void BindWrite() = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Texture);

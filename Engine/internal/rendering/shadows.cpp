@@ -5,19 +5,14 @@
 #include "internal/base/framebuffer.h"
 #include "internal/world/worldinternal.h"
 
-static Framebuffer fbDepth;
+static RenderTexture rtShadow;
 static glm::mat4 worldToShadowMatrix;
-static RenderTexture shadowDepthTexture;
 static Material directionalLightShadowMaterial;
 
 void Shadows::Initialize() {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-	fbDepth.Create(w, h);
-
-	shadowDepthTexture = NewRenderTexture();
-	shadowDepthTexture->Load(RenderTextureFormatShadow, w, h);
-
-	fbDepth.SetDepthTexture(shadowDepthTexture);
+	rtShadow = NewRenderTexture();
+	rtShadow->Create(RenderTextureFormatShadow, w, h);
 
 	directionalLightShadowMaterial = NewMaterial();
 	directionalLightShadowMaterial->SetShader(Resources::FindShader("builtin/directional_light_depth"));
@@ -25,21 +20,17 @@ void Shadows::Initialize() {
 }
 
 void Shadows::Resize(uint width, uint height) {
-	if (width != fbDepth.GetViewportWidth() || height != fbDepth.GetViewportHeight()) {
-		fbDepth.SetViewport(width, height);
-		shadowDepthTexture->Resize(width, height);
+	if (width != rtShadow->GetWidth() || height != rtShadow->GetHeight()) {
+		rtShadow->Resize(width, height);
 	}
 }
 
 void Shadows::AttachShadowTexture(Material material) {
-	material->SetTexture(Variables::shadowDepthTexture, shadowDepthTexture);
+	material->SetTexture(Variables::shadowDepthTexture, rtShadow);
 }
 
 void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities) {
-	fbDepth.Clear(FramebufferClearMaskDepth);
-
-	FramebufferState state;
-	fbDepth.SaveState(state);
+	rtShadow->Clear(glm::vec4(0, 0, 0, 1));
 
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
@@ -52,7 +43,7 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, state, entity->GetTransform()->GetLocalToWorldMatrix());
+		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, rtShadow, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	/*

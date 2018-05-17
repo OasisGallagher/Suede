@@ -6,6 +6,7 @@
 #include "internal/base/framebuffer.h"
 #include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
+#include "internal/base/textureinternal.h"
 #include "internal/file/asyncentityimporter.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
@@ -15,8 +16,8 @@
 #define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
 
 static void Initialize() {
-	Shadows::Initialize();
 	UniformBufferManager::Initialize();
+	Shadows::Initialize();
 }
 
 World& WorldInstance() {
@@ -61,7 +62,9 @@ WorldInternal::WorldInternal()
 	root_->SetTransform(transform);
 
 	Screen::AddScreenSizeChangedListener(this);
-	Framebuffer0::Get()->SetViewport(Screen::GetWidth(), Screen::GetHeight());
+
+	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTexture));
+	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
 
 	update_entities = Profiler::CreateSample();
 	update_decals = Profiler::CreateSample();
@@ -284,7 +287,7 @@ void WorldInternal::UpdateEntities() {
 }
 
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
-	Framebuffer0::Get()->SetViewport(width, height);
+	screenRenderTarget_->Resize(width, height);
 }
 
 void WorldInternal::FireEvents() {

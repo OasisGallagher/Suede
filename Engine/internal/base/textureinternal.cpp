@@ -1,7 +1,9 @@
 #include <glm/glm.hpp>
 
+#include "screen.h"
 #include "resources.h"
 #include "tools/math2.h"
+#include "framebuffer.h"
 #include "os/filesystem.h"
 #include "textureinternal.h"
 
@@ -22,7 +24,7 @@ void TextureInternal::Bind(uint index) {
 
 void TextureInternal::Unbind() {
 	if (location_ != 0) {
-		GL::ActiveTexture(location_);
+		//GL::ActiveTexture(location_);
 		UnbindTexture();
 		location_ = 0;
 	}
@@ -342,14 +344,21 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	return true;
 }
 
-RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture), format_(RenderTextureFormatRgba) {
+RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr), 
+	bindStatus_(StatusNone), format_(RenderTextureFormatRgba) {
 }
 
-bool RenderTextureInternal::Load(RenderTextureFormat format, uint width, uint height) {
+RenderTextureInternal::~RenderTextureInternal() {
+	MEMORY_RELEASE(framebuffer_);
+}
+
+bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
 	DestroyTexture();
 
 	width_ = width;
 	height_ = height;
+
+	framebuffer_ = MEMORY_CREATE(Framebuffer);
 
 	GL::GenTextures(1, &texture_);
 	BindTexture();
@@ -369,7 +378,27 @@ bool RenderTextureInternal::Load(RenderTextureFormat format, uint width, uint he
 
 	UnbindTexture();
 
+	if (!ContainsDepthInfo()) {
+		framebuffer_->CreateDepthRenderbuffer();
+		framebuffer_->SetRenderTexture(FramebufferAttachment0, texture_);
+	}
+	else {
+		framebuffer_->SetDepthTexture(texture_);
+	}
+
 	return true;
+}
+
+void RenderTextureInternal::Clear(const glm::vec4& value) {
+	if (ContainsDepthInfo()) {
+		framebuffer_->SetClearDepth(value.w);
+		framebuffer_->Clear(FramebufferClearMaskDepth);
+	}
+	else {
+		framebuffer_->SetClearDepth(value.w);
+		framebuffer_->SetClearColor(glm::vec3(value));
+		framebuffer_->Clear(FramebufferClearMaskColorDepth);
+	}
 }
 
 void RenderTextureInternal::Resize(uint width, uint height) {
@@ -377,6 +406,36 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 		BindTexture();
 		ResizeStorage(width, height);
 		UnbindTexture();
+	}
+}
+
+void RenderTextureInternal::BindWrite() {
+	bindStatus_ = StatusWrite;
+	framebuffer_->SetViewport(glm::uvec4(0, 0, width_, height_));
+	framebuffer_->BindWrite();
+}
+
+void RenderTextureInternal::Bind(uint index) {
+	bindStatus_ = StatusRead;
+	TextureInternal::Bind(index);
+}
+
+void RenderTextureInternal::Unbind() {
+	if (bindStatus_ == StatusWrite) {
+		framebuffer_->Unbind();
+	}
+	else {
+		TextureInternal::Unbind();
+	}
+
+	bindStatus_ = StatusNone;
+}
+
+void RenderTextureInternal::DestroyTexture() {
+	TextureInternal::DestroyTexture();
+	if (framebuffer_ != nullptr) {
+		MEMORY_RELEASE(framebuffer_);
+		framebuffer_ = nullptr;
 	}
 }
 
@@ -429,4 +488,55 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	parameters[0] = internalFormat;
 	parameters[1] = format;
 	parameters[2] = type;
+}
+
+#define LogUnsupportedRenderTextureOperation()	Debug::LogError("unsupported render texture operation %s.", __func__);
+
+ScreenRenderTexture::ScreenRenderTexture() :TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {
+}
+
+bool ScreenRenderTexture::Create(RenderTextureFormat format, uint width, uint height) {
+	framebuffer_ = Framebuffer0::Get();
+	return true;
+}
+
+void ScreenRenderTexture::Clear(const glm::vec4& value) {
+	framebuffer_->SetClearDepth(value.w);
+	framebuffer_->SetClearColor(glm::vec3(value));
+	framebuffer_->Clear(FramebufferClearMaskColorDepth);
+}
+
+uint ScreenRenderTexture::GetWidth() const {
+	return Screen::GetWidth();
+}
+
+uint ScreenRenderTexture::GetHeight() const {
+	return Screen::GetHeight();
+}
+
+GLenum ScreenRenderTexture::GetGLTextureType() const {
+	LogUnsupportedRenderTextureOperation();
+	return 0;
+}
+
+GLenum ScreenRenderTexture::GetGLTextureBindingName() const {
+	LogUnsupportedRenderTextureOperation();
+	return 0;
+}
+
+void ScreenRenderTexture::Resize(uint w, uint h) {
+	LogUnsupportedRenderTextureOperation();
+}
+
+void ScreenRenderTexture::Bind(uint index) {
+	LogUnsupportedRenderTextureOperation();
+}
+
+void ScreenRenderTexture::BindWrite() {
+	framebuffer_->SetViewport(glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight()));
+	framebuffer_->BindWrite();
+}
+
+void ScreenRenderTexture::Unbind() {
+	framebuffer_->Unbind();
 }

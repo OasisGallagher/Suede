@@ -6,5 +6,7 @@ public:
 	virtual ~ImageEffect() {}
 
 public:
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) = 0;
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
+
+	}
 };

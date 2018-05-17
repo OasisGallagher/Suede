@@ -9,7 +9,7 @@
 #include "uniformbuffermanager.h"
 
 Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
-	, oldFramebufferState_(nullptr), oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
+	, oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
 	switch_material = Profiler::CreateSample();
 	switch_framebuffer = Profiler::CreateSample();
 	switch_mesh = Profiler::CreateSample();
@@ -176,7 +176,7 @@ void Pipeline::SortRenderables() {
 	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_);
 }
 
-void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance) {
+void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, RenderTexture target, const glm::mat4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		renderables_.resize(2 * nrenderables_);
 	}
@@ -187,13 +187,13 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.subMeshIndex = subMeshIndex;
 	renderable.material = material;
 	renderable.pass = pass;
-	renderable.framebufferState = state;
+	renderable.target = target;
 	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const FramebufferState& state, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
+void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, RenderTexture target, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		AddRenderable(mesh, i, material, 0, state, localToWorldMatrix);
+		AddRenderable(mesh, i, material, 0, target, localToWorldMatrix);
 	}
 }
 
@@ -216,14 +216,14 @@ void Pipeline::Render(Renderable& renderable) {
 }
 
 void Pipeline::UpdateState(Renderable& renderable) {
-	if (oldFramebufferState_ == nullptr || *oldFramebufferState_ != renderable.framebufferState) {
+	if (!oldTarget_ || oldTarget_ != renderable.target) {
 		switch_framebuffer->Start();
-		if (oldFramebufferState_ != nullptr) {
-			oldFramebufferState_->Unbind();
+		if (oldTarget_) {
+			oldTarget_->Unbind();
 		}
 
-		oldFramebufferState_ = &renderable.framebufferState;
-		renderable.framebufferState.BindWrite(FramebufferClearMaskNone);
+		oldTarget_ = renderable.target;
+		renderable.target->BindWrite();
 
 		switch_framebuffer->Stop();
 	}
@@ -277,9 +277,9 @@ void Pipeline::Clear() {
 }
 
 void Pipeline::ResetState() {
-	if (oldFramebufferState_ != nullptr) {
-		oldFramebufferState_->Unbind();
-		oldFramebufferState_ = nullptr;
+	if (oldTarget_) {
+		oldTarget_->Unbind();
+		oldTarget_.reset();
 	}
 
 	if (oldMaterial_) {
@@ -299,8 +299,8 @@ bool Renderable::operator < (const Renderable& other) const {
 		return lm->GetRenderQueue() < rm->GetRenderQueue();
 	}
 
-	if (framebufferState.framebuffer != other.framebufferState.framebuffer) {
-		return framebufferState.framebuffer < other.framebufferState.framebuffer;
+	if (target != other.target) {
+		return target < other.target;
 	}
 
 	if (lm != rm) {
@@ -352,7 +352,6 @@ void Renderable::Clear() {
 	instance = 0;
 	mesh.reset();
 	material.reset();
-	framebufferState.Clear();
 }
 
 bool Renderable::IsMeshInstanced(const Renderable & other) const {
@@ -372,5 +371,5 @@ bool Renderable::IsMaterialInstanced(const Renderable & other) const {
 }
 
 bool Renderable::IsFramebufferInstanced(const Renderable & other) const {
-	return framebufferState == other.framebufferState;
+	return target == other.target;
 }

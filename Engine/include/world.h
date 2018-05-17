@@ -123,6 +123,8 @@ public:
 	virtual Camera GetMainCamera() = 0;
 	virtual void SetMainCamera(Camera value) = 0;
 
+	virtual RenderTexture GetScreenRenderTarget() = 0;
+
 	virtual Entity GetEntity(uint id) = 0;
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector) = 0;
 	virtual bool GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix) = 0;
