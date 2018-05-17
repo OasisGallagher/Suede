@@ -33,7 +33,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
+//#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -246,11 +246,12 @@ void Game::createScene() {
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera->SetDepthTextureMode(DepthTextureModeDepth);
+	camera->SetRect(glm::vec4(0, 0, 0.5f, 0.5f));
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
 	camera->AddImageEffect(grayscale_);
-	//camera->AddImageEffect(inversion_);
+	camera->AddImageEffect(inversion_);
 #endif
 
 #ifdef SKYBOX

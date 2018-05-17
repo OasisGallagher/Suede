@@ -409,9 +409,9 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 	}
 }
 
-void RenderTextureInternal::BindWrite() {
+void RenderTextureInternal::BindWrite(const glm::vec4& rect) {
 	bindStatus_ = StatusWrite;
-	framebuffer_->SetViewport(glm::uvec4(0, 0, width_, height_));
+	framebuffer_->SetViewport(glm::uvec4(0, 0, width_ * rect.z, height_ * rect.w));
 	framebuffer_->BindWrite();
 }
 
@@ -532,8 +532,13 @@ void ScreenRenderTexture::Bind(uint index) {
 	LogUnsupportedRenderTextureOperation();
 }
 
-void ScreenRenderTexture::BindWrite() {
-	framebuffer_->SetViewport(glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight()));
+void ScreenRenderTexture::BindWrite(const glm::vec4& rect) {
+	uint x = uint(Screen::GetWidth() * rect.x);
+	uint y = uint(Screen::GetHeight() * rect.y);
+	uint w = uint(Screen::GetWidth() * rect.z);
+	uint h = uint(Screen::GetHeight() * rect.w);
+
+	framebuffer_->SetViewport(glm::uvec4(x, y, w, h));
 	framebuffer_->BindWrite();
 }
 

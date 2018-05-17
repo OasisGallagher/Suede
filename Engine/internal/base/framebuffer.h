@@ -149,7 +149,7 @@ protected:
 
 private:
 	uint ToGLColorAttachments();
-	uint ToGLColorAttachments(uint n, FramebufferAttachment* attachments);
+	uint ToGLColorAttachments(FramebufferAttachment* attachments, uint n);
 	GLenum FramebufferAttachmentToGLenum(FramebufferAttachment attachment);
 
 	void ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n);

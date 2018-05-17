@@ -65,8 +65,8 @@ public:
 	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
 	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
 
-	virtual void SetViewportRect(const glm::vec4& value) { viewportRect_ = value; }
-	virtual const glm::vec4& GetViewportRect() const { return viewportRect_; }
+	virtual void SetRect(const glm::vec4& value) { rect_ = value; }
+	virtual const glm::vec4& GetRect() const { return rect_; }
 
 	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
@@ -126,7 +126,7 @@ private:
 
 private:
 	int depth_;
-	glm::vec4 viewportRect_;
+	glm::vec4 rect_;
 
 	//GBuffer* gbuffer_;
 

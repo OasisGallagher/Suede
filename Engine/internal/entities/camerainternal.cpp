@@ -229,13 +229,16 @@ void CameraInternal::RenderSkybox(RenderTexture target) {
 	if (skybox) {
 		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pipeline_->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, matrix);
+		pipeline_->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, rect_, matrix);
 	}
 }
 
 RenderTexture CameraInternal::GetActiveRenderTarget() {
 	if (!imageEffects_.empty()) {
-		CreateAuxTexture1();
+		if (!auxTexture1_) {
+			CreateAuxTexture1();
+		}
+
 		return auxTexture1_;
 	}
 
@@ -287,17 +290,10 @@ void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const
 void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	if (!depthTexture_) { CreateDepthTexture(); }
 	depthTexture_->Clear(glm::vec4(0, 0, 0, 1));
-// 
-// 	fbDepth_->SetDepthTexture(depthTexture_);
-// 	fbDepth_->Clear(FramebufferClearMaskDepth);
-// 
-// 	FramebufferState target;
-// 	fbDepth_->SaveState(target);
-// 	target.viewportRect = viewportRect_;
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipeline_->AddRenderable(entity->GetMesh(), depthMaterial_, 0, depthTexture_, entity->GetTransform()->GetLocalToWorldMatrix());
+		pipeline_->AddRenderable(entity->GetMesh(), depthMaterial_, 0, depthTexture_, glm::vec4(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 }
 
@@ -354,7 +350,7 @@ void CameraInternal::RenderDecals(RenderTexture target) {
 
 		mesh->AddSubMesh(subMesh);
 
-		pipeline_->AddRenderable(mesh, decalMaterial, 0, target, glm::mat4(1));
+		pipeline_->AddRenderable(mesh, decalMaterial, 0, target, rect_, glm::mat4(1));
 	}
 }
 
@@ -416,5 +412,5 @@ void CameraInternal::RenderEntity(RenderTexture target, Entity entity, Renderer 
 void CameraInternal::RenderSubMesh(RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass) {
 	ParticleSystem p = entity->GetParticleSystem();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pipeline_->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pipeline_->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, rect_, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

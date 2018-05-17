@@ -15,7 +15,8 @@ void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	static Mesh mesh = Resources::CreatePrimitive(PrimitiveTypeQuad, 2);
 	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
 
-	dest->BindWrite();
+	// TODO: VIEWPORT RECT.
+	dest->BindWrite(glm::vec4(0, 0, 1, 1));
 	material->SetTexture(Variables::mainTexture, src);
 	Draw(mesh, material);
 	dest->Unbind();

@@ -176,7 +176,7 @@ void Pipeline::SortRenderables() {
 	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_);
 }
 
-void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, RenderTexture target, const glm::mat4& localToWorldMatrix, uint instance) {
+void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, RenderTexture target, const glm::vec4& rect, const glm::mat4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		renderables_.resize(2 * nrenderables_);
 	}
@@ -188,12 +188,13 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.material = material;
 	renderable.pass = pass;
 	renderable.target = target;
+	renderable.rect = rect;
 	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, RenderTexture target, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
+void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, RenderTexture target, const glm::vec4& rect, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		AddRenderable(mesh, i, material, 0, target, localToWorldMatrix);
+		AddRenderable(mesh, i, material, 0, target, rect, localToWorldMatrix);
 	}
 }
 
@@ -223,7 +224,7 @@ void Pipeline::UpdateState(Renderable& renderable) {
 		}
 
 		oldTarget_ = renderable.target;
-		renderable.target->BindWrite();
+		renderable.target->BindWrite(renderable.rect);
 
 		switch_framebuffer->Stop();
 	}

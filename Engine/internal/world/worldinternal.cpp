@@ -7,8 +7,8 @@
 #include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
 #include "internal/base/textureinternal.h"
-#include "internal/file/asyncentityimporter.h"
 #include "internal/entities/entityinternal.h"
+#include "internal/file/asyncentityimporter.h"
 #include "internal/world/environmentinternal.h"
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
@@ -264,7 +264,8 @@ void WorldInternal::GetDecals(std::vector<Decal*>& container) {
 }
 
 void WorldInternal::RenderUpdate() {
-	Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
+	// TODO: CLEAR STENCIL BUFFER.
+	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
 
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		if ((*ite)->GetActive()) {
@@ -287,7 +288,6 @@ void WorldInternal::UpdateEntities() {
 }
 
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
-	screenRenderTarget_->Resize(width, height);
 }
 
 void WorldInternal::FireEvents() {

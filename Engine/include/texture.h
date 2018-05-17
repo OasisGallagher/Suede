@@ -97,7 +97,7 @@ public:
 	virtual void Clear(const glm::vec4& value) = 0;
 	virtual void Resize(uint width, uint height) = 0;
 
-	virtual void BindWrite() = 0;
+	virtual void BindWrite(const glm::vec4& rect) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Texture);

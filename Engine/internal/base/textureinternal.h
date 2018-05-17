@@ -110,7 +110,7 @@ public:
 	virtual void Clear(const glm::vec4& value);
 	virtual void Resize(uint width, uint height);
 
-	virtual void BindWrite();
+	virtual void BindWrite(const glm::vec4& rect);
 
 	virtual void Bind(uint index);
 	virtual void Unbind();
@@ -153,7 +153,7 @@ protected:
 	virtual void Resize(uint w, uint h);
 
 	virtual void Bind(uint index);
-	virtual void BindWrite();
+	virtual void BindWrite(const glm::vec4& rect);
 	virtual void Unbind();
 
 protected:

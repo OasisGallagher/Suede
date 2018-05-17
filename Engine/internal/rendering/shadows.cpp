@@ -43,7 +43,7 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, rtShadow, entity->GetTransform()->GetLocalToWorldMatrix());
+		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, rtShadow, glm::vec4(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	/*

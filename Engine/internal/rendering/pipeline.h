@@ -17,6 +17,8 @@ struct Renderable {
 	uint pass;
 
 	RenderTexture target;
+	glm::vec4 rect;
+
 	glm::mat4 localToWorldMatrix;
 
 	bool operator < (const Renderable& other) const;
@@ -62,6 +64,7 @@ public:
 		Material material,
 		uint pass,
 		RenderTexture target,
+		const glm::vec4& rect,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -72,6 +75,7 @@ public:
 		Material material,
 		uint pass,
 		RenderTexture target,
+		const glm::vec4& rect,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);

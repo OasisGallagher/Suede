@@ -7,7 +7,7 @@ class Grayscale : public ImageEffect {
 public:
 	Grayscale() {
 		material_ = NewMaterial();
-		material_->SetShader(Resources::FindShader("builtin/blit"));
+		material_->SetShader(Resources::FindShader("grayscale"));
 	}
 
 public:

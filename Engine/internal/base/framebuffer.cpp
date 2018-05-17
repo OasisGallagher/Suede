@@ -200,7 +200,7 @@ void Framebuffer::BindWriteAttachments(FramebufferAttachment* attachments, uint 
 	FramebufferBase::BindFramebuffer(FramebufferTargetWrite);
 	ClearCurrent(FramebufferClearMaskColorDepthStencil);
 
-	uint count = ToGLColorAttachments(n, attachments);
+	uint count = ToGLColorAttachments(attachments, n);
 	GL::DrawBuffers(count, glAttachments_);
 
 	BindViewport();
@@ -231,7 +231,7 @@ void Framebuffer::ClearCurrent(FramebufferClearMask clearMask) {
 }
 
 void Framebuffer::ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n) {
-	n = ToGLColorAttachments(n, attachments);
+	n = ToGLColorAttachments(attachments, n);
 	GL::DrawBuffers(n, glAttachments_);
 	FramebufferBase::ClearCurrent(clearMask);
 }
@@ -257,7 +257,7 @@ uint Framebuffer::ToGLColorAttachments() {
 	return count;
 }
 
-uint Framebuffer::ToGLColorAttachments(uint n, FramebufferAttachment* attachments) {
+uint Framebuffer::ToGLColorAttachments(FramebufferAttachment* attachments, uint n) {
 	uint i = 0;
 	for (; i < n; ++i) {
 		glAttachments_[i] = FramebufferAttachmentToGLenum(attachments[i]);
