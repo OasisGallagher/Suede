@@ -28,7 +28,7 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
@@ -246,7 +246,14 @@ void Game::createScene() {
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera->SetDepthTextureMode(DepthTextureModeDepth);
-	camera->SetRect(glm::vec4(0, 0, 0.5f, 0.5f));
+	camera->SetRect(Rect(0, 0, 0.5f, 0.5f));
+
+	Camera camera2 = NewCamera();
+	camera2->SetFarClipPlane(10000.f);
+	camera2->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	camera2->SetDepthTextureMode(DepthTextureModeDepth);
+	camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
+
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
@@ -278,7 +285,7 @@ void Game::createScene() {
 
 #else
 	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(0, 0, 0.1f));
+	camera->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
 #endif
 	
 #ifdef RENDER_TEXTURE

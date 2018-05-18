@@ -17,7 +17,7 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera), depthTextureMode_(DepthTextureModeNone)
+	: EntityInternal(ObjectTypeCamera), depthTextureMode_(DepthTextureModeNone), normalizedRect_(0, 0, 1, 1)
 	/*, gbuffer_(nullptr) */{
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
@@ -113,13 +113,13 @@ void CameraInternal::OnProjectionMatrixChanged() {
 }
 
 void CameraInternal::ClearRenderTextures() {
-	if (auxTexture1_) { auxTexture1_->Clear(glm::vec4(clearColor_, 1)); }
-	if (auxTexture2_) { auxTexture2_->Clear(glm::vec4(0, 0, 0, 1)); }
-	if (depthTexture_) { depthTexture_->Clear(glm::vec4(0, 0, 0, 1)); }
+	if (auxTexture1_) { auxTexture1_->Clear(normalizedRect_, glm::vec4(clearColor_, 1)); }
+	if (auxTexture2_) { auxTexture2_->Clear(normalizedRect_, glm::vec4(0, 0, 0, 1)); }
+	if (depthTexture_) { depthTexture_->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1)); }
 
 	RenderTexture target = targetTexture_;
 	if (!target) { target = WorldInstance()->GetScreenRenderTarget(); }
-	target->Clear(glm::vec4(clearColor_, 1));
+	target->Clear(normalizedRect_, glm::vec4(clearColor_, 1));
 }
 
 void CameraInternal::UpdateTimeUniformBuffer() {
@@ -188,6 +188,13 @@ void CameraInternal::RenderDeferredGeometryPass(RenderTexture target, const std:
 // 	gbuffer_->Unbind();
 }
 
+void CameraInternal::SetRect(const Rect& value) {
+	if (normalizedRect_ != value) {
+		ClearRenderTextures();
+		normalizedRect_ = value;
+	}
+}
+
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
@@ -229,7 +236,7 @@ void CameraInternal::RenderSkybox(RenderTexture target) {
 	if (skybox) {
 		glm::mat4 matrix = GetTransform()->GetWorldToLocalMatrix();
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pipeline_->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, rect_, matrix);
+		pipeline_->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, normalizedRect_, matrix);
 	}
 }
 
@@ -289,11 +296,10 @@ void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const
 
 void CameraInternal::ForwardDepthPass(const std::vector<Entity>& entities) {
 	if (!depthTexture_) { CreateDepthTexture(); }
-	depthTexture_->Clear(glm::vec4(0, 0, 0, 1));
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipeline_->AddRenderable(entity->GetMesh(), depthMaterial_, 0, depthTexture_, glm::vec4(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
+		pipeline_->AddRenderable(entity->GetMesh(), depthMaterial_, 0, depthTexture_, Rect(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 }
 
@@ -350,7 +356,7 @@ void CameraInternal::RenderDecals(RenderTexture target) {
 
 		mesh->AddSubMesh(subMesh);
 
-		pipeline_->AddRenderable(mesh, decalMaterial, 0, target, rect_, glm::mat4(1));
+		pipeline_->AddRenderable(mesh, decalMaterial, 0, target, normalizedRect_, glm::mat4(1));
 	}
 }
 
@@ -412,5 +418,5 @@ void CameraInternal::RenderEntity(RenderTexture target, Entity entity, Renderer 
 void CameraInternal::RenderSubMesh(RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass) {
 	ParticleSystem p = entity->GetParticleSystem();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pipeline_->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, rect_, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pipeline_->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, normalizedRect_, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

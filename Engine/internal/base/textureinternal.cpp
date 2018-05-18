@@ -1,5 +1,6 @@
 #include <glm/glm.hpp>
 
+#include "rect.h"
 #include "screen.h"
 #include "resources.h"
 #include "tools/math2.h"
@@ -389,7 +390,10 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	return true;
 }
 
-void RenderTextureInternal::Clear(const glm::vec4& value) {
+void RenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
+	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), normalizedRect);
+	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+
 	if (ContainsDepthInfo()) {
 		framebuffer_->SetClearDepth(value.w);
 		framebuffer_->Clear(FramebufferClearMaskDepth);
@@ -409,9 +413,10 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 	}
 }
 
-void RenderTextureInternal::BindWrite(const glm::vec4& rect) {
+void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 	bindStatus_ = StatusWrite;
-	framebuffer_->SetViewport(glm::uvec4(0, 0, width_ * rect.z, height_ * rect.w));
+	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), normalizedRect);
+	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
 	framebuffer_->BindWrite();
 }
 
@@ -500,7 +505,10 @@ bool ScreenRenderTexture::Create(RenderTextureFormat format, uint width, uint he
 	return true;
 }
 
-void ScreenRenderTexture::Clear(const glm::vec4& value) {
+void ScreenRenderTexture::Clear(const Rect& normalizedRect, const glm::vec4& value) {
+	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect);
+	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+
 	framebuffer_->SetClearDepth(value.w);
 	framebuffer_->SetClearColor(glm::vec3(value));
 	framebuffer_->Clear(FramebufferClearMaskColorDepth);
@@ -532,13 +540,9 @@ void ScreenRenderTexture::Bind(uint index) {
 	LogUnsupportedRenderTextureOperation();
 }
 
-void ScreenRenderTexture::BindWrite(const glm::vec4& rect) {
-	uint x = uint(Screen::GetWidth() * rect.x);
-	uint y = uint(Screen::GetHeight() * rect.y);
-	uint w = uint(Screen::GetWidth() * rect.z);
-	uint h = uint(Screen::GetHeight() * rect.w);
-
-	framebuffer_->SetViewport(glm::uvec4(x, y, w, h));
+void ScreenRenderTexture::BindWrite(const Rect& normalizedRect) {
+	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect);
+	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
 	framebuffer_->BindWrite();
 }
 

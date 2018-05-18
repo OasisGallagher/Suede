@@ -30,7 +30,7 @@ void Shadows::AttachShadowTexture(Material material) {
 }
 
 void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities) {
-	rtShadow->Clear(glm::vec4(0, 0, 0, 1));
+	rtShadow->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
@@ -43,7 +43,7 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, rtShadow, glm::vec4(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
+		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, rtShadow, Rect(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	/*

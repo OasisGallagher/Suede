@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include "rect.h"
 #include "entity.h"
 
 enum ClearType {
@@ -62,8 +63,8 @@ public:
 	virtual void SetFieldOfView(float value) = 0;
 	virtual float GetFieldOfView() const = 0;
 
-	virtual void SetRect(const glm::vec4& value) = 0;
-	virtual const glm::vec4& GetRect() const = 0;
+	virtual void SetRect(const Rect& value) = 0;
+	virtual const Rect& GetRect() const = 0;
 
 	virtual const glm::mat4& GetProjectionMatrix() = 0;
 

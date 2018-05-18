@@ -1,9 +1,11 @@
 #pragma once
+#include "api/gl.h"
+
 #include "mesh.h"
+#include "rect.h"
 #include "camera.h"
 #include "texture.h"
 #include "material.h"
-#include "api/gl.h"
 #include "frameeventlistener.h"
 #include "internal/base/framebuffer.h"
 
@@ -17,7 +19,7 @@ struct Renderable {
 	uint pass;
 
 	RenderTexture target;
-	glm::vec4 rect;
+	Rect normalizedRect;
 
 	glm::mat4 localToWorldMatrix;
 
@@ -64,7 +66,7 @@ public:
 		Material material,
 		uint pass,
 		RenderTexture target,
-		const glm::vec4& rect,
+		const Rect& normalizedRect,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -75,7 +77,7 @@ public:
 		Material material,
 		uint pass,
 		RenderTexture target,
-		const glm::vec4& rect,
+		const Rect& normalizedRect,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);

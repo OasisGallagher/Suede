@@ -349,6 +349,9 @@
     <ClInclude Include="internal\rendering\shadows.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\rect.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -506,6 +509,9 @@
     </ClCompile>
     <ClCompile Include="internal\rendering\shadows.cpp">
       <Filter>internal\rendering\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\rect.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

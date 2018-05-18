@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 
+#include "rect.h"
 #include "object.h"
 
 enum TextureMinFilterMode {
@@ -94,10 +95,10 @@ class SUEDE_API IRenderTexture : virtual public ITexture {
 public:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height) = 0;
 
-	virtual void Clear(const glm::vec4& value) = 0;
 	virtual void Resize(uint width, uint height) = 0;
+	virtual void Clear(const Rect& normalizedRect, const glm::vec4& value) = 0;
 
-	virtual void BindWrite(const glm::vec4& rect) = 0;
+	virtual void BindWrite(const Rect& normalizedRect) = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Texture);

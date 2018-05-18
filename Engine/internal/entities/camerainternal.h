@@ -65,8 +65,8 @@ public:
 	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
 	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
 
-	virtual void SetRect(const glm::vec4& value) { rect_ = value; }
-	virtual const glm::vec4& GetRect() const { return rect_; }
+	virtual void SetRect(const Rect& value);
+	virtual const Rect& GetRect() const { return normalizedRect_; }
 
 	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
@@ -126,7 +126,7 @@ private:
 
 private:
 	int depth_;
-	glm::vec4 rect_;
+	Rect normalizedRect_;
 
 	//GBuffer* gbuffer_;
 

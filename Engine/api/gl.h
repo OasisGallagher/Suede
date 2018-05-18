@@ -64,6 +64,7 @@ public:
 	static void TexParameteri(GLenum target, GLenum pname, GLint param);
 	static GLint GetUniformLocation(GLuint program, const GLchar* name);
 	static void GetShaderiv(GLuint shader, GLenum pname, GLint* params);
+	static void Scissor(GLint x, GLint y, GLsizei width, GLsizei height);
 	static void Viewport(GLint x, GLint y, GLsizei width, GLsizei height);
 	static void GetProgramiv(GLuint program, GLenum pname, GLint* params);
 	static void BindBufferBase(GLenum target, GLuint index, GLuint buffer);
@@ -291,6 +292,10 @@ inline void GL::DeleteProgram(GLuint program) {
 
 inline void GL::GetShaderiv(GLuint shader, GLenum pname, GLint* params) {
 	GL_CALL(glGetShaderiv(shader, pname, params));
+}
+
+inline void GL::Scissor(GLint x, GLint y, GLsizei width, GLsizei height) {
+	GL_CALL(glScissor(x, y, width, height));
 }
 
 inline void GL::FramebufferTexture(GLenum target, GLenum attachment, GLuint texture, GLint level) {

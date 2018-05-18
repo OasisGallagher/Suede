@@ -16,7 +16,7 @@ void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
 
 	// TODO: VIEWPORT RECT.
-	dest->BindWrite(glm::vec4(0, 0, 1, 1));
+	dest->BindWrite(Rect(0, 0, 1, 1));
 	material->SetTexture(Variables::mainTexture, src);
 	Draw(mesh, material);
 	dest->Unbind();

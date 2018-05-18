@@ -62,7 +62,7 @@ public:
 	virtual void SetRenderTexture(FramebufferAttachment attachment, uint texture);
 
 public:
-	void SetViewport(const glm::uvec4& value);
+	void SetViewport(uint x, uint y, uint width, uint height);
 	const glm::uvec4& GetViewport() const { return viewport_; }
 
 	void SetClearColor(const glm::vec3& value) { clearColor_ = value; }

@@ -25,9 +25,9 @@ void FramebufferBase::Unbind() {
 }
 
 void FramebufferBase::ReadBuffer(std::vector<uchar>& data) {
-	BindFramebuffer(FramebufferTargetRead);
+	BindRead();
 	ReadCurrentBuffer(data);
-	UnbindFramebuffer();
+	Unbind();
 }
 
 void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data) {
@@ -89,7 +89,8 @@ void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, GLenum
 	if (bind != nullptr) { *bind = glBind; }
 }
 
-void FramebufferBase::SetViewport(const glm::uvec4& value) {
+void FramebufferBase::SetViewport(uint x, uint y, uint width, uint height) {
+	glm::uvec4 value(x, y, width, height);
 	if (viewport_ != value) {
 		viewport_ = value;
 		OnViewportChanged();
@@ -97,9 +98,14 @@ void FramebufferBase::SetViewport(const glm::uvec4& value) {
 }
 
 void FramebufferBase::Clear(FramebufferClearMask clearMask) {
-	BindFramebuffer(FramebufferTargetWrite);
+	BindWrite();
+	
+	GL::Enable(GL_SCISSOR_TEST);
+	GL::Scissor(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
 	ClearCurrent(clearMask);
-	UnbindFramebuffer();
+	GL::Disable(GL_SCISSOR_TEST);
+
+	Unbind();
 }
 
 void FramebufferBase::SetDepthTexture(uint texture) {
