@@ -97,7 +97,23 @@ protected:
 };
 
 class FramebufferBase;
-class RenderTextureInternal : public IRenderTexture, public TextureInternal {
+
+class RenderTextureInternalBase : public IRenderTexture, public TextureInternal {
+public:
+	RenderTextureInternalBase() : TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {}
+
+public:
+	const Rect& GetContentRect() const { return contentRect_; }
+
+protected:
+	void SetContentRect(uint width, uint height, const Rect& normalizedRect);
+
+protected:
+	Rect contentRect_;
+	FramebufferBase* framebuffer_;
+};
+
+class RenderTextureInternal : public RenderTextureInternalBase {
 	DEFINE_FACTORY_METHOD(RenderTexture)
 
 public:
@@ -136,12 +152,11 @@ private:
 	} bindStatus_;
 
 	RenderTextureFormat format_;
-	FramebufferBase* framebuffer_;
 };
 
-class ScreenRenderTexture : public IRenderTexture, public TextureInternal {
+class ScreenRenderTextureInternal : public RenderTextureInternalBase {
 public:
-	ScreenRenderTexture();
+	ScreenRenderTextureInternal();
 
 protected:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
@@ -159,7 +174,4 @@ protected:
 protected:
 	virtual GLenum GetGLTextureType() const;
 	virtual GLenum GetGLTextureBindingName() const;
-
-private:
-	FramebufferBase* framebuffer_;
 };

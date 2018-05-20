@@ -13,6 +13,12 @@ public:
 	bool operator != (const Rect& other) const;
 
 public:
+	glm::vec2 GetLeftTop() const;
+	glm::vec2 GetLeftBottom() const;
+	glm::vec2 GetRightTop() const;
+	glm::vec2 GetRightBottom() const;
+
+public:
 	void SetWidth(float value);
 	float GetWidth() const;
 

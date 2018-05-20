@@ -6,7 +6,8 @@
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
 
-FramebufferBase::FramebufferBase() : oldFramebuffer_(0), bindTarget_(0), clearDepth_(1), clearStencil_(0) {
+FramebufferBase::FramebufferBase() : fbo_(0), oldFramebuffer_(0)
+	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
 }
 
 void FramebufferBase::BindRead() {

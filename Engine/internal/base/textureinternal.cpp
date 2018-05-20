@@ -345,8 +345,8 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	return true;
 }
 
-RenderTextureInternal::RenderTextureInternal() :TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr), 
-	bindStatus_(StatusNone), format_(RenderTextureFormatRgba) {
+RenderTextureInternal::RenderTextureInternal() 
+	: bindStatus_(StatusNone), format_(RenderTextureFormatRgba) {
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
@@ -391,8 +391,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 }
 
 void RenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), normalizedRect);
-	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+	SetContentRect(width_, height_, normalizedRect);
 
 	if (ContainsDepthInfo()) {
 		framebuffer_->SetClearDepth(value.w);
@@ -415,8 +414,8 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 
 void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 	bindStatus_ = StatusWrite;
-	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), normalizedRect);
-	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+
+	SetContentRect(width_, height_, normalizedRect);
 	framebuffer_->BindWrite();
 }
 
@@ -497,55 +496,59 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 
 #define LogUnsupportedRenderTextureOperation()	Debug::LogError("unsupported render texture operation %s.", __func__);
 
-ScreenRenderTexture::ScreenRenderTexture() :TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {
+ScreenRenderTextureInternal::ScreenRenderTextureInternal() {
 }
 
-bool ScreenRenderTexture::Create(RenderTextureFormat format, uint width, uint height) {
+bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
 	framebuffer_ = Framebuffer0::Get();
 	return true;
 }
 
-void ScreenRenderTexture::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect);
-	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
+	SetContentRect(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 
 	framebuffer_->SetClearDepth(value.w);
 	framebuffer_->SetClearColor(glm::vec3(value));
 	framebuffer_->Clear(FramebufferClearMaskColorDepth);
 }
 
-uint ScreenRenderTexture::GetWidth() const {
+uint ScreenRenderTextureInternal::GetWidth() const {
 	return Screen::GetWidth();
 }
 
-uint ScreenRenderTexture::GetHeight() const {
+uint ScreenRenderTextureInternal::GetHeight() const {
 	return Screen::GetHeight();
 }
 
-GLenum ScreenRenderTexture::GetGLTextureType() const {
+GLenum ScreenRenderTextureInternal::GetGLTextureType() const {
 	LogUnsupportedRenderTextureOperation();
 	return 0;
 }
 
-GLenum ScreenRenderTexture::GetGLTextureBindingName() const {
+GLenum ScreenRenderTextureInternal::GetGLTextureBindingName() const {
 	LogUnsupportedRenderTextureOperation();
 	return 0;
 }
 
-void ScreenRenderTexture::Resize(uint w, uint h) {
+void ScreenRenderTextureInternal::Resize(uint w, uint h) {
 	LogUnsupportedRenderTextureOperation();
 }
 
-void ScreenRenderTexture::Bind(uint index) {
+void ScreenRenderTextureInternal::Bind(uint index) {
 	LogUnsupportedRenderTextureOperation();
 }
 
-void ScreenRenderTexture::BindWrite(const Rect& normalizedRect) {
-	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect);
-	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
+	SetContentRect(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 	framebuffer_->BindWrite();
 }
 
-void ScreenRenderTexture::Unbind() {
+void ScreenRenderTextureInternal::Unbind() {
 	framebuffer_->Unbind();
+}
+
+void RenderTextureInternalBase::SetContentRect(uint width, uint height, const Rect& normalizedRect) {
+	contentRect_ = normalizedRect;
+	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
+	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
 }

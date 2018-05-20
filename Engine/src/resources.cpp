@@ -54,21 +54,21 @@ Mesh Resources::GetPrimitive(PrimitiveType type) {
 
 Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) {
 	MeshAttribute attribute;
-	GetPrimitiveAttribute(type, scale, attribute);
+	GetPrimitiveAttribute(attribute, type, scale);
 
 	return CreateMesh(attribute);
 }
 
 Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
 	MeshAttribute attribute;
-	GetPrimitiveAttribute(type, scale, attribute);
+	GetPrimitiveAttribute(attribute, type, scale);
 	attribute.color = color;
 	attribute.geometry = geometry;
 
 	return CreateMesh(attribute);
 }
 
-void Resources::GetPrimitiveAttribute(PrimitiveType type, float scale, MeshAttribute& attribute) {
+void Resources::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) {
 	switch (type) {
 	case PrimitiveTypeQuad:
 		GetQuadMeshAttribute(attribute, scale);

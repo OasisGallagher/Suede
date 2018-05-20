@@ -17,6 +17,22 @@ bool Rect::operator != (const Rect & other) const {
 	return data_ != other.data_;
 }
 
+glm::vec2 Rect::GetLeftTop() const {
+	return glm::vec2(data_.x, data_.y + data_.w);
+}
+
+glm::vec2 Rect::GetLeftBottom() const {
+	return glm::vec2(data_.x, data_.y);
+}
+
+glm::vec2 Rect::GetRightTop() const {
+	return glm::vec2(data_.x + data_.z, data_.y + data_.w);
+}
+
+glm::vec2 Rect::GetRightBottom() const {
+	return glm::vec2(data_.x + data_.z, data_.y);
+}
+
 void Rect::SetWidth(float value) {
 	data_.z = value;
 }

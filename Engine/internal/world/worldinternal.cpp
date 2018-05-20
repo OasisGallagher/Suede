@@ -63,7 +63,7 @@ WorldInternal::WorldInternal()
 
 	Screen::AddScreenSizeChangedListener(this);
 
-	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTexture));
+	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
 	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
 
 	update_entities = Profiler::CreateSample();

@@ -36,7 +36,7 @@ public:
 	static Mesh CreatePrimitive(PrimitiveType type, float scale);
 	static Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
-	static void GetPrimitiveAttribute(PrimitiveType type, float scale, MeshAttribute& attribute);
+	static void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 
 	static Shader FindShader(const std::string& path);
 	static Texture FindTexture(const std::string& path);
