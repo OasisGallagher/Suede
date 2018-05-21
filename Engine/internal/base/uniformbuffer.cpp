@@ -1,13 +1,10 @@
+#include "api/gllimits.h"
 #include "uniformbuffer.h"
 #include "memory/memory.h"
 
 uint UniformBuffer::bindingPoint_;
-uint UniformBuffer::maxBindingPoints_;
 
 UniformBuffer::UniformBuffer() : ubo_(0) {
-	if (maxBindingPoints_ == 0) {
-		GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, (GLint*)&maxBindingPoints_);
-	}
 }
 
 UniformBuffer::~UniformBuffer() {
@@ -15,7 +12,7 @@ UniformBuffer::~UniformBuffer() {
 }
 
 bool UniformBuffer::Create(const std::string& name, uint size) {
-	if (bindingPoint_ == maxBindingPoints_) {
+	if (bindingPoint_ == GLLimits::Get(GLLimitsMaxUniformBufferBindings)) {
 		Debug::LogError("too many uniform buffers");
 		return false;
 	}

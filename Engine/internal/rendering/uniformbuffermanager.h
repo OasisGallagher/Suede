@@ -46,7 +46,6 @@ public:
 	static void Destroy();
 
 public:
-	static uint GetMaxBlockSize() { return maxBlockSize_; }
 	static uint GetOffsetAlignment() { return offsetAlignment_; }
 
 public:
@@ -63,8 +62,6 @@ private:
 private:
 	typedef std::map<std::string, UniformBuffer*> SharedUniformBufferContainer;
 	static SharedUniformBufferContainer sharedUniformBuffers_;
-
-	static uint maxBlockSize_;
 	static uint offsetAlignment_;
 };
 

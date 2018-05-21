@@ -1,21 +1,20 @@
 #include "tools/math2.h"
+#include "api/gllimits.h"
 #include "memory/memory.h"
 #include "uniformbuffermanager.h"
 
-uint UniformBufferManager::maxBlockSize_;
 uint UniformBufferManager::offsetAlignment_;
 
 UniformBufferManager::SharedUniformBufferContainer UniformBufferManager::sharedUniformBuffers_;
 
 void UniformBufferManager::Initialize() {
 	GL::GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint*)&offsetAlignment_);
-	GL::GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, (GLint*)&maxBlockSize_);
 
 	CreateSharedUniformBuffer<SharedTimeUniformBuffer>();
 	CreateSharedUniformBuffer<SharedLightUniformBuffer>();
 	CreateSharedUniformBuffer<SharedTransformsUniformBuffer>();
 
-	CreateSharedUniformBuffer<EntityMatricesUniforms>(GetMaxBlockSize());
+	CreateSharedUniformBuffer<EntityMatricesUniforms>(GLLimits::Get(GLLimitsMaxUniformBlockSize));
 }
 
 void UniformBufferManager::Destroy() {
@@ -31,6 +30,11 @@ void UniformBufferManager::AttachSharedBuffers(Shader shader) {
 }
 
 bool UniformBufferManager::UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size) {
+	if (size > GLLimits::Get(GLLimitsMaxUniformBlockSize)) {
+		Debug::LogError("%d exceeds max buffer size.", size);
+		return false;
+	}
+
 	SharedUniformBufferContainer::iterator pos = sharedUniformBuffers_.find(name);
 	if (pos == sharedUniformBuffers_.end()) {
 		Debug::LogError("invalid shared uniform buffer name %s.", name.c_str());

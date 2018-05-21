@@ -2,6 +2,7 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "framebuffer.h"
+#include "api/gllimits.h"
 #include "memory/memory.h"
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
@@ -165,13 +166,11 @@ Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRe
 	viewport_ = glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight());
 
 	GL::GenFramebuffers(1, &fbo_);
-	// TODO: limits.
-	GL::GetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxRenderTextures_);
 
-	renderTextures_ = MEMORY_CREATE_ARRAY(uint, maxRenderTextures_);
-	std::fill(renderTextures_, renderTextures_ + maxRenderTextures_, 0);
+	renderTextures_ = MEMORY_CREATE_ARRAY(uint, GLLimits::Get(GLLimitsMaxColorAttachments));
+	std::fill(renderTextures_, renderTextures_ + GLLimits::Get(GLLimitsMaxColorAttachments), 0);
 
-	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, maxRenderTextures_);
+	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, GLLimits::Get(GLLimitsMaxColorAttachments));
 }
 
 Framebuffer::~Framebuffer() {
@@ -255,7 +254,7 @@ uint Framebuffer::ToGLColorAttachments() {
 	}
 
 	uint count = 0;
-	for (int i = 0; i < maxRenderTextures_; ++i) {
+	for (int i = 0; i < GLLimits::Get(GLLimitsMaxColorAttachments); ++i) {
 		if (renderTextures_[i]) {
 			glAttachments_[count++] = GL_COLOR_ATTACHMENT0 + i;
 		}
@@ -293,7 +292,7 @@ void Framebuffer::CreateDepthRenderbuffer() {
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	if (attachment >= maxRenderTextures_) {
+	if (attachment >= GLLimits::Get(GLLimitsMaxColorAttachments)) {
 		Debug::LogError("index out of range");
 		return 0;
 	}

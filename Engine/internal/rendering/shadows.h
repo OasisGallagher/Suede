@@ -6,7 +6,6 @@
 #include "material.h"
 
 class Pipeline;
-class Framebuffer;
 
 class Shadows {
 public:

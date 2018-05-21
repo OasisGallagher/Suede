@@ -1,6 +1,7 @@
 #include "glef.h"
 #include "variables.h"
 #include "tools/math2.h"
+#include "api/gllimits.h"
 #include "vertexattrib.h"
 #include "tools/string.h"
 #include "os/filesystem.h"
@@ -27,8 +28,6 @@ Pass::Pass() : program_(0), oldProgram_(0) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
 
 	program_ = GL::CreateProgram();
-	GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits_);
-
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
 
@@ -410,7 +409,7 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 		break;
 	default:
 		if (IsSampler(type)) {
-			if (textureUnitCount_ >= maxTextureUnits_) {
+			if (textureUnitCount_ >= GLLimits::Get(GLLimitsMaxTextureUnits)) {
 				Debug::LogError("too many textures.");
 			}
 			else {

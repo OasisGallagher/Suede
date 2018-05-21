@@ -157,7 +157,6 @@ private:
 private:
 	uint depthTexture_;
 	uint* renderTextures_;
-	int maxRenderTextures_;
 	int attachedRenderTextureCount_;
 
 	GLenum* glAttachments_;

@@ -119,7 +119,6 @@ public:
 
 	virtual Transform GetRootTransform() = 0;
 
-	// TODO: multi-cameras support.
 	virtual Camera GetMainCamera() = 0;
 	virtual void SetMainCamera(Camera value) = 0;
 

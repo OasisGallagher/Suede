@@ -110,6 +110,9 @@
     <Filter Include="internal\components\src">
       <UniqueIdentifier>{76a1ca00-5788-45b2-855a-324e66d396a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="api\src">
+      <UniqueIdentifier>{9e9d953f-affe-4df5-93a2-3bcde0a5186f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -352,6 +355,9 @@
     <ClInclude Include="include\rect.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="api\gllimits.h">
+      <Filter>api\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -512,6 +518,9 @@
     </ClCompile>
     <ClCompile Include="src\rect.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="api\gllimits.cpp">
+      <Filter>api\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

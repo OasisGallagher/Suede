@@ -69,7 +69,6 @@ private:
 	std::string name_;
 	std::string path_;
 
-	int maxTextureUnits_;
 	int textureUnitCount_;
 	UniformContainer uniforms_;
 	RenderState* states_[RenderStateCount];

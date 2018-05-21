@@ -5,6 +5,7 @@
 #include "pipeline.h"
 #include "statistics.h"
 #include "tools/math2.h"
+#include "api/gllimits.h"
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
 
@@ -119,7 +120,7 @@ void Pipeline::GatherInstances(std::vector<uint>& ranges) {
 
 void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix) {
 	Renderable& renderable = renderables_[first];
-	static int maxInstances = UniformBufferManager::GetMaxBlockSize() / sizeof(EntityMatricesUniforms);
+	static int maxInstances = GLLimits::Get(GLLimitsMaxUniformBlockSize) / sizeof(EntityMatricesUniforms);
 	int instanceCount = last - first;
 
 	for (int i = 0; i < instanceCount; ) {

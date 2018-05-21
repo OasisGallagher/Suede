@@ -1,10 +1,10 @@
 #include <OpenThreads/ScopedLock>
 
 #include "time2.h"
+#include "api/gllimits.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
-#include "internal/base/framebuffer.h"
 #include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
 #include "internal/base/textureinternal.h"
@@ -17,6 +17,7 @@
 #define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
 
 static void Initialize() {
+	GLLimits::Initialize();
 	UniformBufferManager::Initialize();
 	Shadows::Initialize();
 }
