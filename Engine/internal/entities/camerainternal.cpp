@@ -61,7 +61,7 @@ void CameraInternal::Render() {
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-			ForwardDepthPass(entities);
+		//	ForwardDepthPass(entities);
 		}
 	}
 
@@ -72,7 +72,7 @@ void CameraInternal::Render() {
 	RenderTexture target = GetActiveRenderTarget();
 
 	Shadows::Resize(target->GetWidth(), target->GetHeight());
-	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
+	//Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
 
 	UpdateTransformsUniformBuffer();
 

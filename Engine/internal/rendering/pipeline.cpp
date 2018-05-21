@@ -218,7 +218,7 @@ void Pipeline::Render(Renderable& renderable) {
 }
 
 void Pipeline::UpdateState(Renderable& renderable) {
-	if (!oldTarget_ || oldTarget_ != renderable.target) {
+	if (!oldTarget_ || oldTarget_ != renderable.target || oldTarget_->GetContentRect() != renderable.target->GetContentRect()) {
 		switch_framebuffer->Start();
 		if (oldTarget_) {
 			oldTarget_->Unbind();

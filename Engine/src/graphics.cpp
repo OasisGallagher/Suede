@@ -16,7 +16,7 @@ static void DrawSubMeshes(Mesh mesh) {
  * [0, 1] to [-1, 1].
  */
 static glm::vec3 RectCoordToGLSpace(const glm::vec2& coord) {
-	return glm::vec3(coord * glm::vec2(2) - glm::vec2(1), 0);
+	return glm::vec3(coord * glm::vec2(2) - glm::vec2(1), 1);
 }
 
 static void CreateMeshAttributeFromContentRect(MeshAttribute& attribute, const Rect& rect) {
@@ -44,6 +44,21 @@ static void CreateMeshAttributeFromContentRect(MeshAttribute& attribute, const R
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 }
 
+static Material CreateBlitMaterial() {
+	Shader shader = NewShader();
+	shader->Load("builtin/blit");
+
+	Material material = NewMaterial();
+	material->SetShader(shader);
+
+	return material;
+}
+
+void Graphics::Blit(RenderTexture src, RenderTexture dest) {
+	static Material blitMaterial = CreateBlitMaterial();
+	Blit(src, dest, blitMaterial);
+}
+
 void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 	MeshAttribute attribute;
 	CreateMeshAttributeFromContentRect(attribute, src->GetContentRect());
@@ -59,7 +74,6 @@ void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
 
 	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
 
-	// TODO: VIEWPORT RECT.
 	dest->BindWrite(Rect(0, 0, 1, 1));
 	material->SetTexture(Variables::mainTexture, src);
 	Draw(mesh, material);

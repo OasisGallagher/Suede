@@ -98,6 +98,7 @@ public:
 	virtual void Resize(uint width, uint height) = 0;
 	virtual void Clear(const Rect& normalizedRect, const glm::vec4& value) = 0;
 
+	virtual void __tmp_SetContentRect(const Rect& value) = 0;
 	virtual const Rect& GetContentRect() const = 0;
 	virtual void BindWrite(const Rect& normalizedRect) = 0;
 };

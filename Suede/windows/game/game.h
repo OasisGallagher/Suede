@@ -5,6 +5,7 @@
 #include "entity.h"
 #include "camera.h"
 #include "gizmospainter.h"
+#include "frameeventlistener.h"
 #include "entityimportedlistener.h"
 #include "windows/controls/childwindow.h"
 
@@ -12,7 +13,7 @@ class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityImportedListener {
+class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityImportedListener, public FrameEventListener {
 	Q_OBJECT
 
 public:
@@ -31,6 +32,9 @@ public:
 
 public:
 	virtual void OnEntityImported(bool status, Entity root);
+
+public:
+	virtual void OnFrameLeave();
 
 private slots:
 	void update();
@@ -58,6 +62,7 @@ private:
 	int updateTimer_;
 
 	QList<Entity> selection_;
+	RenderTexture renderTexture_;
 
 	Canvas* canvas_;
 	ImageEffect* grayscale_;

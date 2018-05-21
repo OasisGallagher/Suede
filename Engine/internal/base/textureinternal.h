@@ -103,7 +103,8 @@ public:
 	RenderTextureInternalBase() : TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {}
 
 public:
-	const Rect& GetContentRect() const { return contentRect_; }
+	virtual void __tmp_SetContentRect(const Rect& value) { contentRect_ = value; }
+	virtual const Rect& GetContentRect() const { return contentRect_; }
 
 protected:
 	void SetContentRect(uint width, uint height, const Rect& normalizedRect);

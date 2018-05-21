@@ -11,6 +11,7 @@
 #include "light.h"
 #include "time2.h"
 #include "world.h"
+#include "screen.h"
 #include "camera.h"
 #include "shader.h"
 #include "engine.h"
@@ -28,7 +29,7 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
@@ -49,9 +50,12 @@ Game* Game::get() {
 Game::Game(QWidget* parent) : QDockWidget(parent) {
 	gameInstance = this;
 	controller_ = new CameraController;
+	Engine::AddFrameEventListener(this);
 }
 
 Game::~Game() {
+	Engine::RemoveFrameEventListener(this);
+
 	delete grayscale_;
 	delete inversion_;
 	delete controller_;
@@ -120,6 +124,11 @@ void Game::OnEntityImported(bool status, Entity root) {
 
 	float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
 	Status::get()->showMessage(QString("Scene loaded in %1 seconds").arg(QString::number(delta, 'g', 2)), 2000);
+}
+
+void Game::OnFrameLeave() {
+/*	renderTexture_->__tmp_SetContentRect(Rect(0, 0, 1, 1));
+	Graphics::Blit(renderTexture_, nullptr);*/
 }
 
 void Game::start() {
@@ -212,6 +221,9 @@ void Game::createScene() {
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
 
+	renderTexture_ = NewRenderTexture();
+	renderTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+
 	Camera camera = NewCamera();
 	WorldInstance()->SetMainCamera(camera);
 
@@ -247,12 +259,16 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera->SetDepthTextureMode(DepthTextureModeDepth);
 	camera->SetRect(Rect(0, 0, 0.5f, 0.5f));
+	//camera->SetTargetTexture(renderTexture_);
 	
 	Camera camera2 = NewCamera();
 	camera2->SetFarClipPlane(10000.f);
 	camera2->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera2->SetDepthTextureMode(DepthTextureModeDepth);
+
 	camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
+	//camera2->SetTargetTexture(renderTexture_);
+
 	camera2->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
 	
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));

@@ -21,4 +21,3 @@ void Canvas::resizeGL(int w, int h) {
 void Canvas::paintGL() {
 	Engine::Update();
 }
-
