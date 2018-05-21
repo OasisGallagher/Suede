@@ -1,5 +1,6 @@
 #include <OpenThreads/ScopedLock>
 
+#include "time2.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
@@ -267,6 +268,8 @@ void WorldInternal::RenderUpdate() {
 	// TODO: CLEAR STENCIL BUFFER.
 	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
 
+	UpdateTimeUniformBuffer();
+
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		if ((*ite)->GetActive()) {
 			(*ite)->Render();
@@ -397,6 +400,13 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 	mesh->UnmapVertices();
 
 	return triangles.size() >= 3;
+}
+
+inline void WorldInternal::UpdateTimeUniformBuffer() {
+	static SharedTimeUniformBuffer p;
+	p.time.x = Time::GetRealTimeSinceStartup();
+	p.time.y = Time::GetDeltaTime();
+	UniformBufferManager::UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void WorldInternal::Update() {

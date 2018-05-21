@@ -1,7 +1,7 @@
 #pragma once
-#include "../shareddefines.h"
+#include "../types.h"
 
-class SHARED_API RefCount {
+class SUEDE_API RefCount {
 public:
 	RefCount();
 	RefCount(const RefCount& other);

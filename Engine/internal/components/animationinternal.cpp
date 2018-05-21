@@ -1,17 +1,15 @@
 
 #include <set>
 #include <algorithm>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "time2.h"
-#include "debug/debug.h"
 #include "tools/math2.h"
 #include "animationinternal.h"
 
 #define DEFAULT_TICKS_PER_SECOND	25
 
-static void SetVariant(AnimationFrame frame, int id, Variant& value);
-static void LerpVariant(Variant& variant, Variant& lhs, Variant& rhs, float factor);
+static void SetVariant(AnimationFrame frame, int id, const Variant& value);
+static void LerpVariant(Variant& variant, const Variant& lhs, const Variant& rhs, float factor);
 
 bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 	if (GetBone(bone.name) != nullptr) {
@@ -170,7 +168,7 @@ AnimationKeysInternal::AnimationKeysInternal() :ObjectInternal(ObjectTypeAnimati
 }
 
 AnimationKeysInternal::~AnimationKeysInternal() {
-	for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
+	for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 		MEMORY_RELEASE(*ite);
 	}
 }
@@ -205,16 +203,19 @@ void AnimationKeysInternal::ToKeyframes(std::vector<AnimationFrame>& keyframes) 
 	}
 }
 
-void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<AnimationFrame> &keyframes) {
+void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<AnimationFrame>& keyframes) {
 	keyframes.reserve(count);
 
 	for (int i = 0; i < count; ++i) {
 		AnimationFrame keyframe;
 
-		for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
+		for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 			if (*ite == nullptr) { continue; }
 
-			Key& key = (*ite)->at(i);
+			Keys::iterator p = (*ite)->begin();
+			std::advance(p, i);
+
+			const Key& key = *p;
 
 			if (!keyframe) {
 				keyframe = NewAnimationFrame();
@@ -229,7 +230,7 @@ void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<Animation
 
 int AnimationKeysInternal::SmoothKeys() {
 	std::set<float> times;
-	for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
+	for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 		if (*ite == nullptr) { continue; }
 		Keys* keys = (*ite);
 		for (Keys::iterator ite2 = keys->begin(); ite2 != keys->end(); ++ite2) {
@@ -239,7 +240,7 @@ int AnimationKeysInternal::SmoothKeys() {
 
 	for (std::set<float>::iterator ite = times.begin(); ite != times.end(); ++ite) {
 		float time = *ite;
-		for (Container::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
+		for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 			if (*ite == nullptr) { continue; }
 			SmoothKey(*ite, time);
 		}
@@ -255,6 +256,7 @@ void AnimationKeysInternal::InsertKey(uint id, const Key& key) {
 	}
 
 	Keys* keys = container_[id];
+
 	if (container_[id] == nullptr) {
 		container_[id] = keys = MEMORY_CREATE(Keys);
 	}
@@ -268,7 +270,7 @@ void AnimationKeysInternal::RemoveKey(const Key& key) {
 		return;
 	}
 
-	keys->remove(key);
+	keys->erase(key);
 	if (keys->empty()) {
 		MEMORY_RELEASE(keys);
 		container_[key.id] = nullptr;
@@ -289,14 +291,14 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 		return;
 	}
 
-	key.id = keys->front().id;
+	key.id = keys->begin()->id;
 
 	if (pos == keys->end()) {
-		key.value = keys->back().value;
+		key.value = (--keys->end())->value;
 	}
 	else {
 		if (pos == keys->begin()) {
-			key.value = keys->front().value;
+			key.value = keys->begin()->value;
 		}
 		else {
 			Keys::iterator prev = pos;
@@ -319,14 +321,17 @@ void AnimationInternal::AddClip(const std::string& name, AnimationClip value) {
 
 AnimationClip AnimationInternal::GetClip(const std::string& name) {
 	Key key{ name };
-	if (!clips_.get(key)) { return nullptr; }
+	ClipContainer::iterator pos = clips_.find(key);
+	if (pos == clips_.end()) {
+		return nullptr;
+	}
 
-	return key.value;
+	return pos->value;
 }
 
 void AnimationInternal::SetWrapMode(AnimationWrapMode value) {
-	for (int i = 0; i < clips_.size(); ++i) {
-		clips_[i].value->SetWrapMode(value);
+	for (ClipContainer::iterator ite = clips_.begin(); ite != clips_.end(); ++ite) {
+		ite->value->SetWrapMode(value);
 	}
 }
 
@@ -393,14 +398,14 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 }
 
 void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
-	sorted_vector<Key>& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
+	AttributeContainer& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
 	if (attributes_.size() != otherAttributes.size()) {
 		Debug::LogError("attribute count mismatch");
 		return;
 	}
 
-	for (int i = 0; i < attributes_.size(); ++i) {
-		Key& lhs = attributes_[i], &rhs = otherAttributes[i];
+	for (AttributeContainer::iterator ite = attributes_.begin(), ite2 = otherAttributes.begin(); ite != attributes_.end(); ++ite, ++ite2) {
+		Key& lhs = (Key&)*ite, &rhs = (Key&)*ite2;
 		if (lhs.id != rhs.id) {
 			Debug::LogError("attribute id mismatch");
 			continue;
@@ -449,36 +454,39 @@ void AnimationFrameInternal::SetQuaternion(int id, const glm::quat& value) {
 
 float AnimationFrameInternal::GetFloat(int id) {
 	Key key{ id };
-	if (!attributes_.get(key)) {
+	AttributeContainer::iterator pos = attributes_.find(key);
+	if(pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return 0;
 	}
 
-	return key.value.GetFloat();
+	return pos->value.GetFloat();
 }
 
 
 glm::vec3 AnimationFrameInternal::GetVector3(int id) {
 	Key key{ id };
-	if (!attributes_.get(key)) {
+	AttributeContainer::iterator pos = attributes_.find(key);
+	if (pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return glm::vec3(0);
 	}
 
-	return key.value.GetVector3();
+	return pos->value.GetVector3();
 }
 
 glm::quat AnimationFrameInternal::GetQuaternion(int id) {
 	Key key{ id };
-	if (!attributes_.get(key)) {
+	AttributeContainer::iterator pos = attributes_.find(key);
+	if (pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return glm::quat();
 	}
 
-	return key.value.GetQuaternion();
+	return pos->value.GetQuaternion();
 }
 
-static void SetVariant(AnimationFrame frame, int id, Variant& value) {
+static void SetVariant(AnimationFrame frame, int id, const Variant& value) {
 	VariantType type = value.GetType();
 	switch (type) {
 		case VariantTypeFloat:
@@ -496,7 +504,7 @@ static void SetVariant(AnimationFrame frame, int id, Variant& value) {
 	}
 }
 
-static void LerpVariant(Variant& variant, Variant& lhs, Variant& rhs, float factor) {
+static void LerpVariant(Variant& variant, const Variant& lhs, const Variant& rhs, float factor) {
 	if (lhs.GetType() != rhs.GetType()) {
 		Debug::LogError("variant type mismatch");
 		return;

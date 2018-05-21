@@ -20,7 +20,7 @@ class Integer;
 class Single;
 class Boolean;
 
-class GLEF_API SyntaxNode {
+class SUEDE_API SyntaxNode {
 public:
 	SyntaxNode(SyntaxNodeType type, const std::string& text);
 	~SyntaxNode();
@@ -65,7 +65,7 @@ private:
 	} value_;
 };
 
-class GLEF_API SyntaxTree {
+class SUEDE_API SyntaxTree {
 public:
 	SyntaxTree();
 	~SyntaxTree();

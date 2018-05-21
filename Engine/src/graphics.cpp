@@ -12,17 +12,24 @@ static void DrawSubMeshes(Mesh mesh) {
 	}
 }
 
+/**
+ * [0, 1] to [-1, 1].
+ */
+static glm::vec3 RectCoordToGLSpace(const glm::vec2& coord) {
+	return glm::vec3(coord * glm::vec2(2) - glm::vec2(1), 0);
+}
+
 static void CreateMeshAttributeFromContentRect(MeshAttribute& attribute, const Rect& rect) {
 	attribute.topology = MeshTopologyTriangleStripe;
 
-#define ToGLSpace(v2)	(v2 * glm::vec2(2) - glm::vec2(1))
+	glm::vec3 positions[] = {
+		RectCoordToGLSpace(rect.GetLeftBottom()),
+		RectCoordToGLSpace(rect.GetRightBottom()),
+		RectCoordToGLSpace(rect.GetLeftTop()),
+		RectCoordToGLSpace(rect.GetRightTop())
+	};
 
-	attribute.positions.push_back(glm::vec3(ToGLSpace(rect.GetLeftBottom()), 0));
-	attribute.positions.push_back(glm::vec3(ToGLSpace(rect.GetRightBottom()), 0));
-	attribute.positions.push_back(glm::vec3(ToGLSpace(rect.GetLeftTop()), 0));
-	attribute.positions.push_back(glm::vec3(ToGLSpace(rect.GetRightTop()), 0));
-
-#undef ToGLSpace
+	attribute.positions.assign(positions, positions + CountOf(positions));
 
 	glm::vec2 texCoords[] = {
 		glm::vec2(0.f, 0.f),
@@ -30,6 +37,7 @@ static void CreateMeshAttributeFromContentRect(MeshAttribute& attribute, const R
 		glm::vec2(0.f, 1.f),
 		glm::vec2(1.f, 1.f),
 	};
+
 	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
 
 	int indexes[] = { 0, 1, 2, 3 };

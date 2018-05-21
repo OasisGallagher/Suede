@@ -1,8 +1,8 @@
 #pragma once
-#include "../shareddefines.h"
+#include "../types.h"
 #include "../containers/freelist.h"
 
-class SHARED_API Sample {
+class SUEDE_API Sample {
 public:
 	void Start();
 	void Restart();
@@ -25,7 +25,7 @@ private:
 	uint64 timeStamp_;
 };
 
-class SHARED_API Profiler {
+class SUEDE_API Profiler {
 public:
 	static void Initialize();
 	static void OnFrameEnter();

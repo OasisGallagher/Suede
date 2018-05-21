@@ -25,13 +25,7 @@ public:
 	}
 
 	void insert(const value_type& value) {
-		iterator ite = find(value);
-		if (ite != container_.end() && !comp_(*ite, value)) {
-			*ite = value;
-		}
-		else {
-			container_.insert(ite, value);
-		}
+		container_.insert(find(value), value);
 	}
 
 	const container_type& container() const {

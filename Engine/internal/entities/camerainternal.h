@@ -89,7 +89,6 @@ private:
 
 	void ClearRenderTextures();
 
-	void UpdateTimeUniformBuffer();
 	void UpdateTransformsUniformBuffer();
 
 	void ForwardRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);

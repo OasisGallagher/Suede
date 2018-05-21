@@ -1,9 +1,9 @@
 #pragma once
 #include <regex>
 #include <vector>
-#include "../shareddefines.h"
+#include "../types.h"
 
-class SHARED_API FileEntry {
+class SUEDE_API FileEntry {
 public:
 	~FileEntry();
 
@@ -21,7 +21,7 @@ private:
 	std::vector<FileEntry*> children_;
 };
 
-class SHARED_API FileTree {
+class SUEDE_API FileTree {
 public:
 	FileTree();
 	~FileTree();
@@ -38,9 +38,9 @@ private:
 	FileEntry* root_;
 };
 
-class SHARED_API FileSystem {
+class SUEDE_API FileSystem {
 public:
-	static time_t GetFileLastWriteTime(const std::string& fileName);
+	static time_t GetFileLastWriteTime(const std::string& fileName, time_t defaultValue = 0);
 	static bool ListFileTree(FileTree& tree, const std::string& directory, const std::string& reg = ".+");
 	static bool ListAllFiles(std::vector<std::string>& paths, const std::string& directory, const std::string& reg = ".+");
 

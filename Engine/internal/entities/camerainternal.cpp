@@ -48,7 +48,6 @@ CameraInternal::~CameraInternal() {
 void CameraInternal::Update() {
 	// Stub: main thread only.
 	ClearRenderTextures();
-	UpdateTimeUniformBuffer();
 }
 
 void CameraInternal::Render() {
@@ -120,13 +119,6 @@ void CameraInternal::ClearRenderTextures() {
 	RenderTexture target = targetTexture_;
 	if (!target) { target = WorldInstance()->GetScreenRenderTarget(); }
 	target->Clear(normalizedRect_, glm::vec4(clearColor_, 1));
-}
-
-void CameraInternal::UpdateTimeUniformBuffer() {
-	static SharedTimeUniformBuffer p;
-	p.time.x = Time::GetRealTimeSinceStartup();
-	p.time.y = Time::GetDeltaTime();
-	UniformBufferManager::UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void CameraInternal::UpdateTransformsUniformBuffer() {

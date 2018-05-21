@@ -4,7 +4,7 @@
 #include "syntaxtree.h"
 #include "glefdefines.h"
 
-class GLEF_API GLEF {
+class SUEDE_API GLEF {
 public:
 	static void Initialize();
 

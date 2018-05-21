@@ -2,9 +2,10 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include "../shareddefines.h"
 
-class SHARED_API String {
+#include "../types.h"
+
+class SUEDE_API String {
 public:
 	static std::string Trim(const std::string& text);
 	static const char* TrimStart(const char* text);

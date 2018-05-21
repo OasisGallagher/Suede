@@ -247,13 +247,14 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera->SetDepthTextureMode(DepthTextureModeDepth);
 	camera->SetRect(Rect(0, 0, 0.5f, 0.5f));
-	/*
+	
 	Camera camera2 = NewCamera();
 	camera2->SetFarClipPlane(10000.f);
 	camera2->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera2->SetDepthTextureMode(DepthTextureModeDepth);
 	camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
-	*/
+	camera2->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
+	
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS

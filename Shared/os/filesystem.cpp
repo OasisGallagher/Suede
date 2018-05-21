@@ -74,9 +74,14 @@ bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& paren
 	return empty;
 }
 
-time_t FileSystem::GetFileLastWriteTime(const std::string& fileName) {
+time_t FileSystem::GetFileLastWriteTime(const std::string& fileName, time_t defaultValue) {
 	std::error_code err;
-	return fs::file_time_type::clock::to_time_t(fs::last_write_time(fileName, err));
+	fs::file_time_type time = fs::last_write_time(fileName, err);
+	if (err) {
+		return defaultValue;
+	}
+
+	return fs::file_time_type::clock::to_time_t(time);
 }
 
 bool FileSystem::ListFileTree(FileTree& tree, const std::string& directory, const std::string& reg) {

@@ -99,7 +99,10 @@ void Inspector::onNameChanged() {
 void Inspector::onTagChanged(int index) {
 	QString tag;
 	if (index >= 0) {
-		tag = TagManager::GetAllTags()[index].c_str();
+		std::vector<std::string> tags;
+		TagManager::GetAllTags(tags);
+
+		tag = tags[index].c_str();
 	}
 
 	target_->SetTag(tag.toStdString());
@@ -183,8 +186,10 @@ void Inspector::drawTags() {
 	QStringList items;
 
 	int tagIndex = -1;
-	for (int i = 0; i < TagManager::GetAllTags().size(); ++i) {
-		const std::string& str = TagManager::GetAllTags()[i];
+	std::vector<std::string> tags;
+	TagManager::GetAllTags(tags);
+	for (int i = 0; i < tags.size(); ++i) {
+		const std::string& str = tags[i];
 		if (tagIndex == -1 && str == target_->GetTag()) {
 			tagIndex = i;
 		}

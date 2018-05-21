@@ -6,7 +6,6 @@
 #include "variables.h"
 #include "animation.h"
 #include "componentinternal.h"
-#include "containers/sortedvector.h"
 #include "internal/base/renderdefines.h"
 
 class SkeletonInternal : public ISkeleton, public ObjectInternal {
@@ -111,8 +110,8 @@ private:
 		}
 	};
 
-	typedef sorted_vector<Key> Keys;
-	typedef std::vector<Keys*> Container;
+	typedef std::set<Key> Keys;
+	typedef std::vector<Keys*> KeysContainer;
 
 private:
 	void InsertKey(uint id, const Key& key);
@@ -124,7 +123,7 @@ private:
 	void InitializeKeyframes(int count, std::vector<AnimationFrame> &keyframes);
 
 private:
-	Container container_;
+	KeysContainer container_;
 };
 
 class AnimationInternal : public IAnimation, public ComponentInternal {
@@ -167,7 +166,8 @@ private:
 	bool playing_;
 	AnimationClip current_;
 
-	sorted_vector<Key> clips_;
+	typedef std::set<Key> ClipContainer;
+	ClipContainer clips_;
 };
 
 class AnimationFrameInternal : public IAnimationFrame, public ObjectInternal {
@@ -207,7 +207,8 @@ private:
 private:
 
 	float time_;
-	sorted_vector<Key> attributes_;
+	typedef std::set<Key> AttributeContainer;
+	AttributeContainer attributes_;
 };
 
 class AnimationCurveInternal : public IAnimationCurve, public ObjectInternal {
