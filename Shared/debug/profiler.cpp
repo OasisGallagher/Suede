@@ -1,13 +1,13 @@
 #include <Windows.h>
 
-#include <OpenThreads/Mutex>
-#include <OpenThreads/ScopedLock>
+#include <ZThread/Mutex.h>
+#include <ZThread/Guard.h>
 
 #include "debug.h"
 #include "profiler.h"
 
-OpenThreads::Mutex mutex;
-#define LockSampleContainerInScole()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex)
+ZThread::Mutex mutex;
+#define LockSampleContainerInScole()	ZThread::Guard<ZThread::Mutex> lock(mutex)
 
 static double timeStampToSeconds = 1.0;
 

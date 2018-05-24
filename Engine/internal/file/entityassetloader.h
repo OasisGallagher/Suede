@@ -3,8 +3,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-#include <OpenThreads/Mutex>
-#include <OpenThreads/Thread>
+#include <ZThread/Mutex.h>
+#include <ZThread/Thread.h>
 
 #include "mesh.h"
 #include "image.h"
@@ -50,10 +50,10 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class Loader : public OpenThreads::Thread {
+class Loader : public ZThread::Thread {
 public:
 	Loader() : listener_(nullptr) {}
-	~Loader() { if (isRunning()) { cancel(); } }
+	~Loader() { }
 
 public:
 	enum {
@@ -146,7 +146,7 @@ private:
 	EntityAsset asset_;
 
 	std::string path_;
-	OpenThreads::Mutex pathMutex_;
+	ZThread::Mutex pathMutex_;
 
 	Skeleton skeleton_;
 	Animation animation_;

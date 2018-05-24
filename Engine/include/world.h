@@ -118,6 +118,8 @@ public:
 };
 
 struct Decal;
+class GizmosPainter;
+
 class SUEDE_API IWorld : virtual public IObject {
 public:
 	virtual void Update() = 0;

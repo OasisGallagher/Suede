@@ -2,6 +2,7 @@
 
 #include "time2.h"
 #include "world.h"
+#include "engine.h"
 #include "gizmos.h"
 #include "screen.h"
 #include "resources.h"
@@ -26,6 +27,7 @@ CameraInternal::CameraInternal()
 	push_renderables = Profiler::CreateSample();
 	get_renderable_entities = Profiler::CreateSample();
 
+	Engine::AddFrameEventListener(this);
 	Screen::AddScreenSizeChangedListener(this);
 
 	InitializeVariables();
@@ -39,6 +41,7 @@ CameraInternal::~CameraInternal() {
 	//MEMORY_RELEASE(gbuffer_);
 	MEMORY_RELEASE(pipeline_);
 
+	Engine::RemoveFrameEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
 
 	Profiler::ReleaseSample(forward_pass);
@@ -102,8 +105,6 @@ void CameraInternal::Render() {
 	if (!imageEffects_.empty()) {
 		OnImageEffects();
 	}
-
-	OnDrawGizmos();
 }
 
 void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
@@ -119,6 +120,22 @@ void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
 
 void CameraInternal::OnProjectionMatrixChanged() {
 	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+}
+
+int CameraInternal::GetFrameEventQueue() {
+	return IsMainCamera() ? std::numeric_limits<int>::max() : FrameEventListener::GetFrameEventQueue();
+}
+
+void CameraInternal::OnFrameLeave() {
+	if (IsMainCamera()) {
+		WorldInstance()->GetScreenRenderTarget()->BindWrite(normalizedRect_);
+		OnDrawGizmos();
+		WorldInstance()->GetScreenRenderTarget()->Unbind();
+	}
+}
+
+bool CameraInternal::IsMainCamera() const {
+	return WorldInstance()->GetMainCamera().get() == this;
 }
 
 void CameraInternal::ClearRenderTextures() {

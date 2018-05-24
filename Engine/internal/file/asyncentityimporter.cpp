@@ -25,7 +25,7 @@ AsyncEntityImporter::~AsyncEntityImporter() {
 	}
 
 	for (; loader_->isRunning();) {
-		OpenThreads::Thread::YieldCurrentThread();
+		ZThread::Thread::YieldCurrentThread();
 	}
 
 	MEMORY_RELEASE(loader_);

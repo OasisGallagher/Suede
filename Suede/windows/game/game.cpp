@@ -29,7 +29,7 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
@@ -225,7 +225,6 @@ void Game::createScene() {
 
 	Camera camera = NewCamera();
 	WorldInstance()->SetMainCamera(camera);
-
 	camera->AddGizmosPainter(this);
 
 	camera->SetName("camera");

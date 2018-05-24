@@ -3,6 +3,7 @@
 #endif
 
 #include <vector>
+#include <algorithm>
 
 #include "glef.h"
 #include "time2.h"
@@ -16,8 +17,27 @@
 #include "debug/debug.h"
 #include "debug/profiler.h"
 
-static std::vector<FrameEventListener*> frameEventListeners;
-#define FOR_EACH_FRAME_EVENT_LISTENER(func)	for (uint i = 0; i < frameEventListeners.size(); ++i) frameEventListeners[i]->func()
+typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
+static FrameEventListenerContainer frameEventListeners_;
+
+template <class MemFunc>
+static void ForEachFrameEventListener(MemFunc func) {
+	for (FrameEventListenerContainer::iterator ite = frameEventListeners_.begin();
+		ite != frameEventListeners_.end(); ++ite) {
+		((*ite)->*func)();
+	}
+}
+
+static void SortFrameEventListeners() {
+	struct FrameEventComparer {
+		bool operator()(FrameEventListener* lhs, FrameEventListener* rhs) {
+			return lhs->GetFrameEventQueue() < rhs->GetFrameEventQueue();
+		}
+	};
+
+	static FrameEventComparer comparer;
+	std::sort(frameEventListeners_.begin(), frameEventListeners_.end(), comparer);
+}
 
 static void SetDefaultGLStates() {
 	GL::ClearDepth(1);
@@ -60,15 +80,15 @@ void Engine::Resize(int w, int h) {
 }
 
 void Engine::AddFrameEventListener(FrameEventListener* listener) {
-	if (std::find(frameEventListeners.begin(), frameEventListeners.end(), listener) == frameEventListeners.end()) {
-		frameEventListeners.push_back(listener);
+	if (std::find(frameEventListeners_.begin(), frameEventListeners_.end(), listener) == frameEventListeners_.end()) {
+		frameEventListeners_.push_back(listener);
 	}
 }
 
 void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
-	std::vector<FrameEventListener*>::iterator ite = std::find(frameEventListeners.begin(), frameEventListeners.end(), listener);
-	if (ite != frameEventListeners.end()) {
-		frameEventListeners.erase(ite);
+	std::vector<FrameEventListener*>::iterator ite = std::find(frameEventListeners_.begin(), frameEventListeners_.end(), listener);
+	if (ite != frameEventListeners_.end()) {
+		frameEventListeners_.erase(ite);
 	}
 }
 
@@ -76,7 +96,8 @@ void Engine::Update() {
 	Time::Update();
 	Statistics::Update();
 
-	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameEnter);
+	SortFrameEventListeners();
+	ForEachFrameEventListener(&FrameEventListener::OnFrameEnter);
 	WorldInstance()->Update();
-	FOR_EACH_FRAME_EVENT_LISTENER(OnFrameLeave);
+	ForEachFrameEventListener(&FrameEventListener::OnFrameLeave);
 }

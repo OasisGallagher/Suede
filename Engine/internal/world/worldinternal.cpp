@@ -1,4 +1,4 @@
-#include <OpenThreads/ScopedLock>
+#include <ZThread/Guard.h>
 
 #include "time2.h"
 #include "api/gllimits.h"
@@ -14,7 +14,7 @@
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-#define LockEventContainerInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(eventContainerMutex_)
+#define LockEventContainerInScope()	ZThread::Guard<ZThread::Mutex> lock(eventContainerMutex_)
 
 static void Initialize() {
 	GLLimits::Initialize();

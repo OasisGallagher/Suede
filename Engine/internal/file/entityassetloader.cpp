@@ -11,7 +11,7 @@
 #include "entityassetloader.h"
 #include "internal/base/renderdefines.h"
 
-#define LockPathInScope()	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(pathMutex_)
+#define LockPathInScope()	ZThread::Guard<ZThread::Mutex> lock(pathMutex_)
 
 int Loader::Start() {
 	status_ = Running;
@@ -21,7 +21,7 @@ int Loader::Start() {
 void Loader::run() {
 	for (; status_ != Done;) {
 		if (!IsReady()) {
-			OpenThreads::Thread::YieldCurrentThread();
+			ZThread::Thread::YieldCurrentThread();
 			continue;
 		}
 

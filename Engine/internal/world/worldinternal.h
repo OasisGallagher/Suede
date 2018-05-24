@@ -1,6 +1,6 @@
 #pragma once
 #include <set>
-#include <OpenThreads/Mutex>
+#include <ZThread/Mutex.h>
 
 #include "plane.h"
 #include "world.h"
@@ -112,7 +112,7 @@ private:
 	EventListenerContainer listeners_;
 
 	WorldEventContainer events_;
-	OpenThreads::Mutex eventContainerMutex_;
+	ZThread::Mutex eventContainerMutex_;
 
 	Sample *update_entities, *update_decals, *update_rendering;
 

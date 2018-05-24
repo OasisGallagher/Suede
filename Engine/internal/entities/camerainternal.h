@@ -5,6 +5,7 @@
 #include "screen.h"
 #include "camera.h"
 #include "frustum.h"
+#include "frameeventlistener.h"
 #include "internal/entities/entityinternal.h"
 
 //class GBuffer;
@@ -14,7 +15,7 @@ class ImageEffect;
 class GizmosPainter;
 
 class Sample;
-class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener {
+class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener, public FrameEventListener {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:
@@ -83,10 +84,15 @@ public:
 protected:
 	virtual void OnProjectionMatrixChanged();
 
+public:
+	virtual int GetFrameEventQueue();
+	virtual void OnFrameLeave();
+
 private:
 	void InitializeVariables();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
+	bool IsMainCamera() const;
 	void ClearRenderTextures();
 
 	void UpdateTransformsUniformBuffer();
