@@ -7,6 +7,16 @@ enum {
 	GLLimitsMaxUniformBufferBindings,
 	GLLimitsMaxUniformBlockSize,
 
+	GLLimitsRedBits,
+	GLLimitsGreenBits,
+	GLLimitsBlueBits,
+	GLLimitsAlphaBits,
+	GLLimitsDepthBits,
+	GLLimitsStencilBits,
+
+	GLLimitsMaxClipPlanes,
+	GLLimitsMaxTextureSize,
+
 	GLLimitsCount,
 };
 

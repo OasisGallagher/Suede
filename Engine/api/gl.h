@@ -58,6 +58,7 @@ public:
 	static void VertexAttribDivisor(GLuint index, GLuint divisor);
 	static void GenRenderbuffers(GLsizei n, GLuint* renderbuffers);
 	static void BindFramebuffer(GLenum target, GLuint framebuffer);
+	static void DeleteFramebuffers(GLsizei n, GLuint* framebuffers);
 	static void DeleteVertexArrays(GLsizei n, const GLuint* arrays);
 	static void BindRenderbuffer(GLenum target, GLuint renderbuffer);
 	static void StencilOp(GLenum sfail, GLenum dpfail, GLenum dppass);
@@ -73,6 +74,7 @@ public:
 	static void DebugMessageCallback(GLDEBUGPROC callback, const void* userParam);
 	static void BindAttribLocation(GLuint program, GLuint index, const GLchar *name);
 	static GLuint GetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
+	static void GetRenderbufferParameteriv(GLenum target, GLenum pname, GLint *params);
 	static void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 	static void BufferData(GLenum target, GLsizeiptr size, const void* data, GLenum usage);
 	static void BufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* data);
@@ -172,6 +174,10 @@ inline void GL::Viewport(GLint x, GLint y, GLsizei width, GLsizei height) {
 
 inline GLuint GL::GetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName) {
 	GL_CALL_R(glGetUniformBlockIndex(program, uniformBlockName));
+}
+
+inline void GL::GetRenderbufferParameteriv(GLenum target, GLenum pname, GLint *params) {
+	GL_CALL(glGetRenderbufferParameteriv(target, pname, params));
 }
 
 inline void GL::ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) {
@@ -392,6 +398,10 @@ inline void GL::GetTexImage(GLenum target, GLint level, GLenum format, GLenum ty
 
 inline void GL::GenVertexArrays(GLsizei n, GLuint* arrays) {
 	GL_CALL(glGenVertexArrays(n, arrays));
+}
+
+inline void GL::DeleteFramebuffers(GLsizei n, GLuint* framebuffers) {
+	GL_CALL(glDeleteFramebuffers(n, framebuffers));
 }
 
 inline void GL::DeleteVertexArrays(GLsizei n, const GLuint* arrays) {

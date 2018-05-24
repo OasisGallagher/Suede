@@ -12,71 +12,80 @@ static void DrawSubMeshes(Mesh mesh) {
 	}
 }
 
-/**
- * [0, 1] to [-1, 1].
- */
-static glm::vec3 RectCoordToGLSpace(const glm::vec2& coord) {
-	return glm::vec3(coord * glm::vec2(2) - glm::vec2(1), 1);
-}
+static Material GetBlitMaterial() {
+	static Material material;
+	if (!material) {
+		Shader shader = NewShader();
+		shader->Load("builtin/blit");
 
-static void CreateMeshAttributeFromContentRect(MeshAttribute& attribute, const Rect& rect) {
-	attribute.topology = MeshTopologyTriangleStripe;
-
-	glm::vec3 positions[] = {
-		RectCoordToGLSpace(rect.GetLeftBottom()),
-		RectCoordToGLSpace(rect.GetRightBottom()),
-		RectCoordToGLSpace(rect.GetLeftTop()),
-		RectCoordToGLSpace(rect.GetRightTop())
-	};
-
-	attribute.positions.assign(positions, positions + CountOf(positions));
-
-	glm::vec2 texCoords[] = {
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 0.f),
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 1.f),
-	};
-
-	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
-
-	int indexes[] = { 0, 1, 2, 3 };
-	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
-}
-
-static Material CreateBlitMaterial() {
-	Shader shader = NewShader();
-	shader->Load("builtin/blit");
-
-	Material material = NewMaterial();
-	material->SetShader(shader);
+		material = NewMaterial();
+		material->SetShader(shader);
+	}
 
 	return material;
 }
 
-void Graphics::Blit(RenderTexture src, RenderTexture dest) {
-	static Material blitMaterial = CreateBlitMaterial();
-	Blit(src, dest, blitMaterial);
-}
+static Mesh CreateBlitMesh(const Rect &srcRect) {
+	MeshAttribute attribute = { MeshTopologyTriangleStripe };
 
-void Graphics::Blit(RenderTexture src, RenderTexture dest, Material material) {
-	MeshAttribute attribute;
-	CreateMeshAttributeFromContentRect(attribute, src->GetContentRect());
+	glm::vec3 vertices[] = {
+		glm::vec3(-1.f, -1.f, 0.f),
+		glm::vec3(1.f, -1.f, 0.f),
+		glm::vec3(-1.f, 1.f, 0.f),
+		glm::vec3(1.f, 1.f, 0.f),
+	};
+	attribute.positions.assign(vertices, vertices + CountOf(vertices));
 
+	glm::vec2 texCoords[] = {
+		srcRect.GetLeftBottom(),
+		srcRect.GetRightBottom(),
+		srcRect.GetLeftTop(),
+		srcRect.GetRightTop(),
+	};
+	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
+
+	int indexes[] = { 0, 1, 2, 3 };
+	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
+	
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
+	mesh->AddSubMesh(NewSubMesh());
 
-	SubMesh subMesh = NewSubMesh();
-	TriangleBias base{ attribute.indexes.size() };
-	subMesh->SetTriangleBias(base);
+	TriangleBias bias{ attribute.indexes.size() };
+	mesh->GetSubMesh(0)->SetTriangleBias(bias);
 
-	mesh->AddSubMesh(subMesh);
+	return mesh;
+}
 
+void Graphics::Blit(Texture src, RenderTexture dest) {
+	Blit(src, dest, GetBlitMaterial(), Rect(0, 0, 1, 1), Rect(0, 0, 1, 1));
+}
+
+void Graphics::Blit(Texture src, RenderTexture dest, const Rect& rect) {
+	Blit(src, dest, GetBlitMaterial(), rect, rect);
+}
+
+void Graphics::Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect) {
+	Blit(src, dest, GetBlitMaterial(), srcRect, destRect);
+}
+
+void Graphics::Blit(Texture src, RenderTexture dest, Material material) {
+	Blit(src, dest, material, Rect(0, 0, 1, 1), Rect(0, 0, 1, 1));
+}
+
+void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& rect) {
+	Blit(src, dest, material, rect, rect);
+}
+
+void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) {
 	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
 
-	dest->BindWrite(Rect(0, 0, 1, 1));
+	dest->BindWrite(destRect);
 	material->SetTexture(Variables::mainTexture, src);
+	
+	Mesh mesh = CreateBlitMesh(srcRect);
 	Draw(mesh, material);
+
 	dest->Unbind();
 }
 

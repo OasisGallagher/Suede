@@ -102,15 +102,10 @@ class RenderTextureInternalBase : public IRenderTexture, public TextureInternal 
 public:
 	RenderTextureInternalBase() : TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {}
 
-public:
-	virtual void __tmp_SetContentRect(const Rect& value) { contentRect_ = value; }
-	virtual const Rect& GetContentRect() const { return contentRect_; }
+protected:
+	void SetViewport(uint width, uint height, const Rect& normalizedRect);
 
 protected:
-	void SetContentRect(uint width, uint height, const Rect& normalizedRect);
-
-protected:
-	Rect contentRect_;
 	FramebufferBase* framebuffer_;
 };
 

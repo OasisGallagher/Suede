@@ -10,8 +10,8 @@ public:
 	}
 
 public:
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
-		Graphics::Blit(src, dest, material_);
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
+		Graphics::Blit(src, dest, material_, normalizedRect);
 	}
 
 private:

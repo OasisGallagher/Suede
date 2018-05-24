@@ -17,7 +17,7 @@
 class Sample;
 class AsyncEntityImporter;
 
-class WorldInternal : public ObjectInternal, public IWorld, public ScreenSizeChangedListener {
+class WorldInternal : public ObjectInternal, public IWorld, public ScreenSizeChangedListener, public WorldEventListener {
 	DEFINE_FACTORY_METHOD(World)
 
 public:
@@ -53,6 +53,9 @@ public:
 
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height);
+
+public:
+	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private:
 	void FireEvents();

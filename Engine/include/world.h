@@ -16,6 +16,8 @@ enum WorldEventType {
 	WorldEventTypeEntityTransformChanged,
 	WorldEventTypeEntityActiveChanged,
 
+	WorldEventTypeCameraDepthChanged,
+
 	WorldEventTypeCount,
 };
 
@@ -80,6 +82,12 @@ struct EntityNameChangedEvent : public EntityEvent {
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityNameChangedEvent);
+
+struct CameraDepthChangedEvent : public EntityEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeCameraDepthChanged; }
+};
+
+DEFINE_WORLD_EVENT_POINTER(CameraDepthChangedEvent);
 
 DEFINE_WORLD_EVENT_POINTER(EntityTransformChangedEvent);
 struct EntityTransformChangedEvent : public EntityEvent {

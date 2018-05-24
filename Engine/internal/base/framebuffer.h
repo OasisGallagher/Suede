@@ -81,6 +81,7 @@ protected:
 	virtual void ClearCurrent(FramebufferClearMask clearMask);
 
 protected:
+	bool IsFramebufferBound() const { return bindTarget_ != 0; }
 	void BindFramebuffer(FramebufferTarget target);
 	void UnbindFramebuffer();
 
@@ -132,6 +133,8 @@ public:
 public:
 	virtual void SetDepthTexture(uint texture);
 	virtual void CreateDepthRenderbuffer();
+
+	void ResizeDepthRenderbuffer();
 
 	virtual uint GetRenderTextureCount();
 	virtual uint GetDepthTexture();

@@ -1,6 +1,7 @@
 #include <glm/gtx/transform.hpp>
 
 #include "time2.h"
+#include "world.h"
 #include "gizmos.h"
 #include "screen.h"
 #include "resources.h"
@@ -17,7 +18,7 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera), depthTextureMode_(DepthTextureModeNone), normalizedRect_(0, 0, 1, 1)
+	: EntityInternal(ObjectTypeCamera), depth_(-1), depthTextureMode_(DepthTextureModeNone), normalizedRect_(0, 0, 1, 1)
 	/*, gbuffer_(nullptr) */{
 	pipeline_ = MEMORY_CREATE(Pipeline);
 
@@ -43,6 +44,15 @@ CameraInternal::~CameraInternal() {
 	Profiler::ReleaseSample(forward_pass);
 	Profiler::ReleaseSample(push_renderables);
 	Profiler::ReleaseSample(get_renderable_entities);
+}
+
+void CameraInternal::SetDepth(int value) {
+	if (depth_ != value) {
+		depth_ = value;
+		CameraDepthChangedEventPointer e = NewWorldEvent<CameraDepthChangedEventPointer>();
+		e->entity = This<Camera>();
+		WorldInstance()->FireEvent(e);
+	}
 }
 
 void CameraInternal::Update() {
@@ -211,7 +221,7 @@ Texture2D CameraInternal::Capture() {
 }
 
 void CameraInternal::InitializeVariables() {
-	depth_ = 0; 
+	depth_ = 0;
 	clearType_ = ClearTypeColor;
 	renderPath_ = RenderPathForward;
 }
@@ -371,7 +381,7 @@ void CameraInternal::OnImageEffects() {
 			targets[index] = targetTexture_;
 		}
 
-		imageEffects_[i]->OnRenderImage(targets[1 - index], targets[index]);
+		imageEffects_[i]->OnRenderImage(targets[1 - index], targets[index], normalizedRect_);
 		index = 1 - index;
 	}
 }

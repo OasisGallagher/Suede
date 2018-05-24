@@ -74,7 +74,7 @@ void MaterialAsset::ApplyAsset() {
 
 Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	Texture2D texture = NewTexture2D();
-	if (!texture->Load(texelMap->textureFormat, &texelMap->data[0], texelMap->format, texelMap->width, texelMap->height, false)) {
+	if (!texture->Load(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, false)) {
 		return nullptr;
 	}
 
@@ -533,7 +533,7 @@ bool EntityAssetLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	else {
 		texelMap.textureFormat = TextureFormatRgba;
 		texelMap.data.assign((uchar*)aitex->pcData, (uchar*)aitex->pcData + aitex->mWidth * aitex->mHeight * sizeof(aiTexel));
-		texelMap.format = ColorStreamFormatArgb;
+		texelMap.colorStreamFormat = ColorStreamFormatArgb;
 		texelMap.width = aitex->mWidth;
 		texelMap.height = aitex->mHeight;
 	}

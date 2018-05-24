@@ -169,7 +169,7 @@ bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 	texelMap.width = width;
 	texelMap.height = height;
 	texelMap.textureFormat = (bpp >= 32) ? TextureFormatRgba : TextureFormatRgb;
-	texelMap.format = BppToColorStreamFormat(bpp);
+	texelMap.colorStreamFormat = BppToColorStreamFormat(bpp);
 	texelMap.alignment = 4;
 
 	return true;
@@ -213,13 +213,13 @@ FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
 }
 
 FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
-	if (texelMap.format != ColorStreamFormatRgb && texelMap.format != ColorStreamFormatRgba) {
-		Debug::LogError("invalid format %d.", texelMap.format);
+	if (texelMap.colorStreamFormat != ColorStreamFormatRgb && texelMap.colorStreamFormat != ColorStreamFormatRgba) {
+		Debug::LogError("invalid format %d.", texelMap.colorStreamFormat);
 		return nullptr;
 	}
 
 	// TODO: 32 bbp jpg.
-	BppType bpp = texelMap.format == ColorStreamFormatRgb ? BppType24 : BppType32;
+	BppType bpp = texelMap.colorStreamFormat == ColorStreamFormatRgb ? BppType24 : BppType32;
 	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
 	CopyBitsFrom(dib, texelMap.width, texelMap.height, texelMap.alignment, bpp, texelMap.data);
 
@@ -258,7 +258,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	uint width, height;
 	uint columnCount = Calculate(width, height, texelMaps, space);
 
-	uint bpp = ColorStreamFormatToBpp(texelMaps.front()->format);
+	uint bpp = ColorStreamFormatToBpp(texelMaps.front()->colorStreamFormat);
 	atlas.data.resize(width * height * (bpp / 8));
 	uchar* ptr = &atlas.data[0];
 	int bottom = space;

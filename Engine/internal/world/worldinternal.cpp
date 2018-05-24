@@ -64,6 +64,7 @@ WorldInternal::WorldInternal()
 	root_->SetTransform(transform);
 
 	Screen::AddScreenSizeChangedListener(this);
+	AddEventListener(this);
 
 	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
 	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
@@ -77,6 +78,7 @@ WorldInternal::~WorldInternal() {
 	UniformBufferManager::Destroy();
 	MEMORY_RELEASE(importer_);
 
+	RemoveEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
 
 	Profiler::ReleaseSample(update_entities);
@@ -292,6 +294,12 @@ void WorldInternal::UpdateEntities() {
 }
 
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
+}
+
+void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
+	if (e->GetEventType() == WorldEventTypeCameraDepthChanged) {
+		cameras_.sort();
+	}
 }
 
 void WorldInternal::FireEvents() {

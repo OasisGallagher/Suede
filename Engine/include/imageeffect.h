@@ -6,7 +6,5 @@ public:
 	virtual ~ImageEffect() {}
 
 public:
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest) {
-
-	}
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) = 0;
 };

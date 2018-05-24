@@ -32,6 +32,10 @@ public:
 		return container_;
 	}
 
+	void sort() {
+		std::sort(container_.begin(), container_.end(), comp_);
+	}
+
 	iterator find(const value_type& value) {
 		return std::lower_bound(container_.begin(), container_.end(), value, comp_);
 	}

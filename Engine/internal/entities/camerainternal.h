@@ -22,7 +22,7 @@ public:
 	~CameraInternal();
 
 public:
-	virtual void SetDepth(int value) { depth_ = value; }
+	virtual void SetDepth(int value);
 	virtual int GetDepth() { return depth_;  }
 
 	virtual void SetClearType(ClearType value) { clearType_ = value; }

@@ -62,7 +62,7 @@ private:
 	int updateTimer_;
 
 	QList<Entity> selection_;
-	RenderTexture renderTexture_;
+	RenderTexture targetTexture_;
 
 	Canvas* canvas_;
 	ImageEffect* grayscale_;

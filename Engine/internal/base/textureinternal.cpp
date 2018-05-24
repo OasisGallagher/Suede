@@ -241,7 +241,7 @@ bool Texture2DInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.format, texelMap.width, texelMap.height);
+	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height);
 }
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
@@ -301,7 +301,7 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	UnbindTexture();
 
 	texelMap.textureFormat = (bpp == BppType24) ? TextureFormatRgb : TextureFormatRgba;
-	texelMap.format = (bpp == BppType24) ? ColorStreamFormatRgb : ColorStreamFormatRgba;
+	texelMap.colorStreamFormat = (bpp == BppType24) ? ColorStreamFormatRgb : ColorStreamFormatRgba;
 
 	return ImageCodec::Encode(data, type, texelMap);
 }
@@ -328,12 +328,12 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 		}
 
 		GLenum glFormat[2];
-		ColorStreamFormatToGLenum(glFormat, texelMap.format);
+		ColorStreamFormatToGLenum(glFormat, texelMap.colorStreamFormat);
 		GLenum internalFormat = TextureFormatToGLenum(texelMap.textureFormat);
 		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMap.width, texelMap.height, 0, glFormat[0], glFormat[1], &texelMap.data[0]);
 
 		internalFormat_ = internalFormat;
-
+		
 		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -380,6 +380,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	UnbindTexture();
 
 	if (!ContainsDepthInfo()) {
+		framebuffer_->SetViewport(0, 0, width, height);
 		framebuffer_->CreateDepthRenderbuffer();
 		framebuffer_->SetRenderTexture(FramebufferAttachment0, texture_);
 	}
@@ -391,7 +392,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 }
 
 void RenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	SetContentRect(width_, height_, normalizedRect);
+	SetViewport(width_, height_, normalizedRect);
 
 	if (ContainsDepthInfo()) {
 		framebuffer_->SetClearDepth(value.w);
@@ -415,7 +416,7 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 	bindStatus_ = StatusWrite;
 
-	SetContentRect(width_, height_, normalizedRect);
+	SetViewport(width_, height_, normalizedRect);
 	framebuffer_->BindWrite();
 }
 
@@ -461,15 +462,15 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 		case  RenderTextureFormatRgba:
 			internalFormat = GL_RGBA;
 			break;
-		case RenderTextureFormatRgbaSn:
+		case RenderTextureFormatRgbaSN:
 			internalFormat = GL_RGBA_SNORM;
 			break;
-		case RenderTextureFormatRgbHdr:
+		case RenderTextureFormatRgbHDR:
 			internalFormat = GL_RGB32F;
 			format = GL_RGB;
 			type = GL_FLOAT;
 			break;
-		case RenderTextureFormatRgbaHdr:
+		case RenderTextureFormatRgbaHDR:
 			internalFormat = GL_RGBA32F;
 			type = GL_FLOAT;
 			break;
@@ -505,7 +506,7 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 }
 
 void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	SetContentRect(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 
 	framebuffer_->SetClearDepth(value.w);
 	framebuffer_->SetClearColor(glm::vec3(value));
@@ -539,7 +540,7 @@ void ScreenRenderTextureInternal::Bind(uint index) {
 }
 
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	SetContentRect(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 	framebuffer_->BindWrite();
 }
 
@@ -547,8 +548,7 @@ void ScreenRenderTextureInternal::Unbind() {
 	framebuffer_->Unbind();
 }
 
-void RenderTextureInternalBase::SetContentRect(uint width, uint height, const Rect& normalizedRect) {
-	contentRect_ = normalizedRect;
+void RenderTextureInternalBase::SetViewport(uint width, uint height, const Rect& normalizedRect) {
 	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
 	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
 }

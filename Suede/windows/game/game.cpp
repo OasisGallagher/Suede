@@ -127,8 +127,7 @@ void Game::OnEntityImported(bool status, Entity root) {
 }
 
 void Game::OnFrameLeave() {
-/*	renderTexture_->__tmp_SetContentRect(Rect(0, 0, 1, 1));
-	Graphics::Blit(renderTexture_, nullptr);*/
+	Graphics::Blit(targetTexture_, nullptr);
 }
 
 void Game::start() {
@@ -221,8 +220,8 @@ void Game::createScene() {
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
 
-	renderTexture_ = NewRenderTexture();
-	renderTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+	targetTexture_ = NewRenderTexture();
+	targetTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
 
 	Camera camera = NewCamera();
 	WorldInstance()->SetMainCamera(camera);
@@ -258,8 +257,9 @@ void Game::createScene() {
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera->SetDepthTextureMode(DepthTextureModeDepth);
-	camera->SetRect(Rect(0, 0, 0.5f, 0.5f));
-	//camera->SetTargetTexture(renderTexture_);
+	camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));
+	//camera->SetActiveSelf(false);
+	camera->SetTargetTexture(targetTexture_);
 	
 	Camera camera2 = NewCamera();
 	camera2->SetFarClipPlane(10000.f);
@@ -267,10 +267,12 @@ void Game::createScene() {
 	camera2->SetDepthTextureMode(DepthTextureModeDepth);
 
 	camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
-	//camera2->SetTargetTexture(renderTexture_);
+	camera2->SetTargetTexture(targetTexture_);
 
-	camera2->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
-	
+	camera2->SetClearColor(glm::vec3(0.1f, 0, 0.1f));
+	camera2->SetDepth(-1);
+	camera2->SetName("MultiCameraTest");
+
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
