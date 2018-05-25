@@ -3,5 +3,5 @@
 
 class EntityImportedListener {
 public:
-	virtual void OnEntityImported(bool status, Entity root) = 0;
+	virtual void OnEntityImported(Entity root, const std::string& path) = 0;
 };

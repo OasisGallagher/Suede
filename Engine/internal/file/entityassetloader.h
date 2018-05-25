@@ -13,9 +13,10 @@
 #include "renderer.h"
 #include "material.h"
 
+class EntityAssetLoader;
 class AssetLoadedListener {
 public:
-	virtual void OnLoadFinished() = 0;
+	virtual void OnLoadFinished(EntityAssetLoader* loader) = 0;
 };
 
 struct MaterialAsset {
@@ -50,59 +51,26 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class Loader : public ZThread::Thread {
+struct Bounds;
+class EntityAssetLoader : public ZThread::Runnable {
 public:
-	Loader() : listener_(nullptr) {}
-	~Loader() { }
+	EntityAssetLoader(const std::string& path, Entity entity, AssetLoadedListener* listener);
+	~EntityAssetLoader() { }
 
 public:
-	enum {
-		Ok,
-		Failed,
-		Running,
-		Done,
-	};
-
-public:
-	int Start();
-	int GetStatus() const { return status_; }
-	void SetLoadedListener(AssetLoadedListener* value) { listener_ = value; }
-	void Terminate() { status_ = Done; }
-
-public:
-	virtual void Run() = 0;
-	virtual bool IsReady() const = 0;
-
-private:
 	virtual void run();
 
-protected:
-	virtual void Clear() { status_ = Failed; }
-	void SetStatus(int value) { status_ = value; }
-
-private:
-	int status_;
-	AssetLoadedListener* listener_;
-};
-
-struct Bounds;
-class EntityAssetLoader : public Loader {
 public:
-	~EntityAssetLoader() { Clear(); }
+	Entity GetEntity() { return root_; }
+	const std::string& GetPath() { return path_; }
 
-public:
-	virtual void Run();
-	virtual bool IsReady() const;
-
-public:
 	Mesh GetSurface() { return surface_; }
-
 	EntityAsset& GetEntityAsset() { return asset_; }
 
-	bool Load(const std::string& path, Entity entity);
-
-protected:
-	virtual void Clear();
+private:
+	// TODO: NonCopyable.
+	EntityAssetLoader(const EntityAssetLoader&);
+	const EntityAssetLoader& operator=(const EntityAssetLoader&);
 
 private:
 	bool LoadAsset();
@@ -127,7 +95,7 @@ private:
 	bool LoadAnimation(Animation& animation);
 	void LoadAnimationClip(const aiAnimation* anim, AnimationClip clip);
 	void LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
-	const aiNodeAnim * FindChannel(const aiAnimation* anim, const char* name);
+	const aiNodeAnim* FindChannel(const aiAnimation* anim, const char* name);
 
 	TexelMap* LoadTexels(const std::string& name);
 
@@ -141,16 +109,17 @@ private:
 	static void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);
 
 private:
-	Entity root_;
 	Mesh surface_;
 	EntityAsset asset_;
 
+	Entity root_;
 	std::string path_;
-	ZThread::Mutex pathMutex_;
 
 	Skeleton skeleton_;
 	Animation animation_;
 	const aiScene* scene_;
+
+	AssetLoadedListener* listener_;
 
 	typedef std::map<std::string, TexelMap*> TexelMapContainer;
 	TexelMapContainer texelMapContainer_;

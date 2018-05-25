@@ -1,4 +1,6 @@
 #pragma once
+#include <ZThread/LockedQueue.h>
+#include <ZThread/PoolExecutor.h>
 
 #include "entity.h"
 #include "engine.h"
@@ -14,7 +16,7 @@ public:
 	void SetImportedListener(EntityImportedListener* listener);
 
 public:
-	virtual void OnLoadFinished();
+	virtual void OnLoadFinished(EntityAssetLoader* loader);
 
 public:
 	virtual void OnFrameEnter();
@@ -24,11 +26,11 @@ public:
 	bool ImportTo(Entity entity, const std::string& path);
 
 private:
-	std::string StrError(int err);
+	ZThread::PoolExecutor executor_;
+	ZThread::LockedQueue<ZThread::Task, ZThread::Mutex> schedules_;
 
-private:
-	int status_;
-	Entity root_;
-	EntityAssetLoader* loader_;
+	std::vector<ZThread::Task> tasks_;
+	ZThread::Mutex taskContainerMutex_;
+
 	EntityImportedListener* listener_;
 };

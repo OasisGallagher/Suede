@@ -28,18 +28,21 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 #define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
-//#define MAN
+//#define IMAGE_EFFECTS
+#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
+
+static const char* manFbxPath = "models/boblampclean.md5mesh";
+static const char* roomFbxPath = "models/house.fbx";
 
 static Game* gameInstance;
 
@@ -104,30 +107,30 @@ void Game::OnDrawGizmos() {
 	Gizmos::SetColor(oldColor);
 }
 
-void Game::OnEntityImported(bool status, Entity root) {
-#if defined(MAN)
-	root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
-	root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
-	//entity->SetParent(camera);
+void Game::OnEntityImported(Entity root, const std::string& path) {
+	if (path == manFbxPath) {
+		root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
+		root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
+		//entity->SetParent(camera);
 
-	Animation animation = root->GetAnimation();
-	if (animation) {
-		animation->SetWrapMode(AnimationWrapModePingPong);
-		animation->Play("");
+		Animation animation = root->GetAnimation();
+		if (animation) {
+			animation->SetWrapMode(AnimationWrapModePingPong);
+			animation->Play("");
+		}
 	}
 
-#elif defined(ROOM)
-	root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-	root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-	//root->GetTransform()->SetScale(glm::vec3(0.01f));
-#endif
-
-	float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
-	Status::get()->showMessage(QString("Scene loaded in %1 seconds").arg(QString::number(delta, 'g', 2)), 2000);
+	if (path == roomFbxPath) {
+		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
+		root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
+		//root->GetTransform()->SetScale(glm::vec3(0.01f));
+		float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
+		Status::get()->showMessage(QString("%1 loaded in %2 seconds").arg(path.c_str()).arg(QString::number(delta, 'g', 2)), 2000);
+	}
 }
 
 void Game::OnFrameLeave() {
-	Graphics::Blit(targetTexture_, nullptr);
+//	Graphics::Blit(targetTexture_, nullptr);
 }
 
 void Game::start() {
@@ -220,8 +223,8 @@ void Game::createScene() {
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
 
-	targetTexture_ = NewRenderTexture();
-	targetTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+	//targetTexture_ = NewRenderTexture();
+	//targetTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
 
 	Camera camera = NewCamera();
 	WorldInstance()->SetMainCamera(camera);
@@ -256,21 +259,21 @@ void Game::createScene() {
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	camera->SetDepthTextureMode(DepthTextureModeDepth);
-	camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));
+	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
-	camera->SetTargetTexture(targetTexture_);
+	//camera->SetTargetTexture(targetTexture_);
 	
-	Camera camera2 = NewCamera();
-	camera2->SetFarClipPlane(10000.f);
-	camera2->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
-	camera2->SetDepthTextureMode(DepthTextureModeDepth);
+	//Camera camera2 = NewCamera();
+	//camera2->SetFarClipPlane(10000.f);
+	//camera2->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	//camera2->SetDepthTextureMode(DepthTextureModeDepth);
 
-	camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
-	camera2->SetTargetTexture(targetTexture_);
+	//camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
+	////camera2->SetTargetTexture(targetTexture_);
 
-	camera2->SetClearColor(glm::vec3(0.1f, 0, 0.1f));
-	camera2->SetDepth(-1);
-	camera2->SetName("MultiCameraTest");
+	//camera2->SetClearColor(glm::vec3(0.1f, 0, 0.1f));
+	//camera2->SetDepth(-1);
+	//camera2->SetName("MultiCameraTest");
 
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
@@ -376,7 +379,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import("models/room_thickwalls.obj", this);
+	Entity room = WorldInstance()->Import(roomFbxPath, this);
 	roomEntityID = room->GetInstanceID();
 	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif
@@ -393,6 +396,6 @@ void Game::createScene() {
 #endif
 
 #ifdef MAN
-	Entity man = WorldInstance()->Import("models/boblampclean.md5mesh", this);
+	Entity man = WorldInstance()->Import(manFbxPath, this);
 #endif
 }

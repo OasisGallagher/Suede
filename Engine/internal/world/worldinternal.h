@@ -58,6 +58,9 @@ public:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private:
+	friend void InitWorld(WorldInternal* world);
+
+private:
 	void FireEvents();
 	void RenderUpdate();
 	void UpdateDecals();
@@ -89,8 +92,8 @@ private:
 	typedef std::map<uint, Entity> EntityDictionary;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
-	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
+	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
 	typedef std::set<WorldEventBasePointer, WorldEventComparer> WorldEventCollection;
 	typedef WorldEventCollection WorldEventContainer[WorldEventTypeCount];
 

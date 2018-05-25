@@ -162,7 +162,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;SUEDE_EXPORT;_CONSOLE;_LIB;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\Shared;include;global;scanner;parser;grammar;serializer</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;global;scanner;parser;grammar;serializer;..\Shared;..\Shared\3rdparty\vld-2.5.1\include</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018;4244</DisableSpecificWarnings>
     </ClCompile>

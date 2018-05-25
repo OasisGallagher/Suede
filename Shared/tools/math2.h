@@ -2,9 +2,12 @@
 #include <intrin.h>
 
 #include "../types.h"
-#include "../glm/glm.hpp"
-#include "../glm/gtc/quaternion.hpp"
-#include "../glm/gtc/matrix_transform.hpp"
+
+// use full relative path here.
+// cos' some projects will not set glm as 'Additional Include Directories'.
+#include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
+#include "../3rdparty/glm-0.9.7.1/include/glm/gtc/quaternion.hpp"
+#include "../3rdparty/glm-0.9.7.1/include/glm/gtc/matrix_transform.hpp"
 
 #pragma intrinsic(_BitScanForward)
 

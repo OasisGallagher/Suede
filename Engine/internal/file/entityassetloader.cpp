@@ -11,25 +11,6 @@
 #include "entityassetloader.h"
 #include "internal/base/renderdefines.h"
 
-#define LockPathInScope()	ZThread::Guard<ZThread::Mutex> lock(pathMutex_)
-
-int Loader::Start() {
-	status_ = Running;
-	return start();
-}
-
-void Loader::run() {
-	for (; status_ != Done;) {
-		if (!IsReady()) {
-			ZThread::Thread::YieldCurrentThread();
-			continue;
-		}
-
-		Run();
-		if (listener_ != nullptr) { listener_->OnLoadFinished(); }
-	}
-}
-
 MaterialAsset::MaterialAsset()
 	: twoSided(false), gloss(20), mainColor(1), name(UNNAMED_MATERIAL) {
 	material = NewMaterial();
@@ -81,7 +62,7 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-bool EntityAssetLoader::Initialize(Assimp::Importer &importer) {
+bool EntityAssetLoader::Initialize(Assimp::Importer& importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
 		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes/* | aiProcess_OptimizeGraph*/
@@ -100,58 +81,25 @@ bool EntityAssetLoader::Initialize(Assimp::Importer &importer) {
 		return false;
 	}
 
-	Clear();
-	path_ = fpath;
 	scene_ = scene;
 
 	return true;
 }
 
-void EntityAssetLoader::Run() {
-	SetStatus(
-		LoadAsset() ? Ok : Failed
-	);
-
-	root_.reset();
-	path_.clear();
-}
-
-bool EntityAssetLoader::IsReady() const {
-	return !path_.empty();
-}
-
-bool EntityAssetLoader::Load(const std::string& path, Entity entity) {
-	if (!path_.empty()) {
-		Debug::LogError("loader is running.");
-		return false;
-	}
-
+EntityAssetLoader::EntityAssetLoader(const std::string& path, Entity entity, AssetLoadedListener* listener) : listener_(listener) {
 	path_ = path;
 	root_ = entity;
 	root_->SetStatus(EntityStatusLoading);
-
-	return true;
 }
 
-void EntityAssetLoader::Clear() {
-	Loader::Clear();
-
-	path_.clear();
-
-	asset_.meshAsset = MeshAsset();
-	asset_.materialAssets.clear();
-
-	scene_ = nullptr;
-	surface_.reset();
-	skeleton_.reset();
-
-	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
-		MEMORY_RELEASE(ite->second);
+void EntityAssetLoader::run() {
+	if (!LoadAsset()) {
+		root_->SetStatus(EntityStatusDestroyed);
 	}
 
-	texelMapContainer_.clear();
-
-	animation_.reset();
+	if (listener_ != nullptr) {
+		listener_->OnLoadFinished(this);
+	}
 }
 
 Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {

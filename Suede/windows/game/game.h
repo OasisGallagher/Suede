@@ -31,7 +31,7 @@ public:
 	virtual void OnDrawGizmos();
 
 public:
-	virtual void OnEntityImported(bool status, Entity root);
+	virtual void OnEntityImported(Entity root, const std::string& path);
 
 public:
 	virtual void OnFrameLeave();
@@ -62,7 +62,7 @@ private:
 	int updateTimer_;
 
 	QList<Entity> selection_;
-	RenderTexture targetTexture_;
+	/*RenderTexture targetTexture_;*/
 
 	Canvas* canvas_;
 	ImageEffect* grayscale_;

@@ -16,17 +16,21 @@
 
 #define LockEventContainerInScope()	ZThread::Guard<ZThread::Mutex> lock(eventContainerMutex_)
 
-static void Initialize() {
+static void InitWorld(WorldInternal* world) {
 	GLLimits::Initialize();
 	UniformBufferManager::Initialize();
 	Shadows::Initialize();
+
+	world->root_ = Factory::Create<EntityInternal>();
+	world->root_->SetTransform(Factory::Create<TransformInternal>());
+	world->root_->SetName("Root");
 }
 
 World& WorldInstance() {
 	static World instance;
 	if (!instance) {
 		instance = Factory::Create<WorldInternal>();
-		Initialize();
+		InitWorld(dynamic_cast<WorldInternal*>(instance.get()));
 	}
 
 	return instance;
@@ -56,13 +60,8 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 }
 
 WorldInternal::WorldInternal()
-	: ObjectInternal(ObjectTypeWorld)
-	, importer_(MEMORY_CREATE(AsyncEntityImporter))
-	, environment_(MEMORY_CREATE(EnvironmentInternal))
-	, root_(Factory::Create<EntityInternal>()), decals_(SUEDE_MAX_DECALS) {
-	Transform transform = Factory::Create<TransformInternal>();
-	root_->SetTransform(transform);
-
+	: ObjectInternal(ObjectTypeWorld), importer_(MEMORY_CREATE(AsyncEntityImporter))
+	, environment_(MEMORY_CREATE(EnvironmentInternal)) , decals_(SUEDE_MAX_DECALS) {
 	Screen::AddScreenSizeChangedListener(this);
 	AddEventListener(this);
 

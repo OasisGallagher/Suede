@@ -1,71 +1,63 @@
 #include <glm/glm.hpp>
+#include <ZThread/Guard.h>
 
 #include "debug/debug.h"
 #include "memory/memory.h"
 #include "asyncentityimporter.h"
 
-AsyncEntityImporter::AsyncEntityImporter()
-	: loader_(MEMORY_CREATE(EntityAssetLoader))
-	, listener_(nullptr)
-	, status_(Loader::Running) {
+AsyncEntityImporter::AsyncEntityImporter() : listener_(nullptr), executor_(16) {
 	Engine::AddFrameEventListener(this);
-
-	loader_->SetLoadedListener(this);
-	int err = loader_->Start();
-
-	if (err != 0) {
-		status_ = Loader::Failed;
-		Debug::LogError("failed to start thread: %s", StrError(err).c_str());
-	}
 }
 
 AsyncEntityImporter::~AsyncEntityImporter() {
-	if (loader_->isRunning()) {
-		loader_->Terminate();
-	}
-
-	for (; loader_->isRunning();) {
-		ZThread::Thread::YieldCurrentThread();
-	}
-
-	MEMORY_RELEASE(loader_);
 	Engine::RemoveFrameEventListener(this);
+
+	executor_.interrupt();
+	executor_.wait();
 }
 
 void AsyncEntityImporter::SetImportedListener(EntityImportedListener* listener) {
 	listener_ = listener;
 }
 
-void AsyncEntityImporter::OnLoadFinished() {
-	status_ = loader_->GetStatus();
+void AsyncEntityImporter::OnLoadFinished(EntityAssetLoader* loader) {
+	ZThread::Guard<ZThread::Mutex> guard(taskContainerMutex_);
+
+	for (std::vector<ZThread::Task>::iterator ite = tasks_.begin(); ite != tasks_.end(); ++ite) {
+		ZThread::Task& task = *ite;
+		if (loader == task.operator->()) {
+			tasks_.erase(ite);
+			schedules_.add(task);
+			break;
+		}
+	}
 }
 
 void AsyncEntityImporter::OnFrameEnter() {
-	if (status_ == Loader::Running) {
-		return;
+	for (; !schedules_.empty();) {
+		ZThread::Task schedule = schedules_.next();
+		EntityAssetLoader* loader = (EntityAssetLoader*)schedule.operator->();
+
+		if (loader->GetEntity()->GetStatus() != EntityStatusDestroyed) {
+			EntityAsset asset = loader->GetEntityAsset();
+			for (uint i = 0; i < asset.materialAssets.size(); ++i) {
+				asset.materialAssets[i].ApplyAsset();
+			}
+
+			loader->GetSurface()->SetAttribute(asset.meshAsset);
+			loader->GetEntity()->SetStatus(EntityStatusReady);
+		}
+
+		if (listener_ != nullptr) {
+			listener_->OnEntityImported(loader->GetEntity(), loader->GetPath());
+		}
 	}
-
-	EntityAsset asset = loader_->GetEntityAsset();
-	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
-		asset.materialAssets[i].ApplyAsset();
-	}
-
-	loader_->GetSurface()->SetAttribute(asset.meshAsset);
-
-	root_->SetStatus(EntityStatusReady);
-
-	if (listener_ != nullptr) {
-		listener_->OnEntityImported(status_ == Loader::Ok, root_);
-	}
-
-	root_.reset();
-	status_ = Loader::Running;
 }
 
 Entity AsyncEntityImporter::Import(const std::string& path) {
-	root_ = NewEntity();
-	ImportTo(root_, path);
-	return root_;
+	Entity root = NewEntity();
+	ImportTo(root, path);
+	return root;
 }
 
 bool AsyncEntityImporter::ImportTo(Entity entity, const std::string& path) {
@@ -74,14 +66,9 @@ bool AsyncEntityImporter::ImportTo(Entity entity, const std::string& path) {
 		return false;
 	}
 
-	loader_->Load(path, entity);
+	ZThread::Task task = new EntityAssetLoader(path, entity, this);
+	tasks_.push_back(task);
+
+	executor_.execute(task);
 	return true;
-}
-
-std::string AsyncEntityImporter::StrError(int err) {
-	if (err == -1) {
-		return "errno = " + std::to_string(errno);
-	}
-
-	return "error = " + std::to_string(err);
 }
