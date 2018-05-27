@@ -173,27 +173,26 @@ AnimationKeysInternal::~AnimationKeysInternal() {
 	}
 }
 
-void AnimationKeysInternal::AddFloat(int id, float time, float value) {
-	Key key{ id, time };
+void AnimationKeysInternal::AddFloat(float time, int id, float value) {
+	Key key{ id };
 	key.value.SetFloat(value);
-	InsertKey(id, key);
+	InsertKey(time, key);
 }
 
-void AnimationKeysInternal::AddVector3(int id, float time, const glm::vec3& value) {
-	Key key{ id, time };
+void AnimationKeysInternal::AddVector3(float time, int id, const glm::vec3& value) {
+	Key key{ id };
 	key.value.SetVector3(value);
-	InsertKey(id, key);
+	InsertKey(time, key);
 }
 
-void AnimationKeysInternal::AddQuaternion(int id, float time, const glm::quat& value) {
-	Key key{ id, time };
+void AnimationKeysInternal::AddQuaternion(float time, int id, const glm::quat& value) {
+	Key key{ id };
 	key.value.SetQuaternion(value);
-	InsertKey(id, key);
+	InsertKey(time, key);
 }
 
-void AnimationKeysInternal::Remove(int id, float time) {
-	Key key{ id, time };
-	RemoveKey(key);
+void AnimationKeysInternal::Remove(float time, int id) {
+	RemoveKey(id, time);
 }
 
 void AnimationKeysInternal::ToKeyframes(std::vector<AnimationFrame>& keyframes) {
@@ -215,11 +214,11 @@ void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<Animation
 			Keys::iterator p = (*ite)->begin();
 			std::advance(p, i);
 
-			const Key& key = *p;
+			const Key& key = p->second;
 
 			if (!keyframe) {
 				keyframe = NewAnimationFrame();
-				keyframe->SetTime(key.time);
+				keyframe->SetTime(p->first);
 				keyframes.push_back(keyframe);
 			}
 
@@ -234,7 +233,7 @@ int AnimationKeysInternal::SmoothKeys() {
 		if (*ite == nullptr) { continue; }
 		Keys* keys = (*ite);
 		for (Keys::iterator ite2 = keys->begin(); ite2 != keys->end(); ++ite2) {
-			times.insert(ite2->time);
+			times.insert(ite2->first);
 		}
 	}
 
@@ -249,31 +248,31 @@ int AnimationKeysInternal::SmoothKeys() {
 	return times.size();
 }
 
-void AnimationKeysInternal::InsertKey(uint id, const Key& key) {
-	if (id >= FrameKeyMaxCount) {
+void AnimationKeysInternal::InsertKey(float time, const Key& key) {
+	if (key.id >= FrameKeyMaxCount) {
 		Debug::LogError("id must be less than %d.",FrameKeyMaxCount);
 		return;
 	}
 
-	Keys* keys = container_[id];
+	Keys* keys = container_[key.id];
 
-	if (container_[id] == nullptr) {
-		container_[id] = keys = MEMORY_CREATE(Keys);
+	if (container_[key.id] == nullptr) {
+		container_[key.id] = keys = MEMORY_CREATE(Keys);
 	}
 
-	keys->insert(key);
+	keys->insert(std::make_pair(time, key));
 }
 
-void AnimationKeysInternal::RemoveKey(const Key& key) {
-	Keys* keys = container_[key.id];
+void AnimationKeysInternal::RemoveKey(int id, float time) {
+	Keys* keys = container_[id];
 	if (keys == nullptr) {
 		return;
 	}
 
-	keys->erase(key);
+	keys->erase(time);
 	if (keys->empty()) {
 		MEMORY_RELEASE(keys);
-		container_[key.id] = nullptr;
+		container_[id] = nullptr;
 	}
 }
 
@@ -283,55 +282,50 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 		return;
 	}
 
-	Keys::value_type key;
-	key.time = time;
-
-	Keys::iterator pos = keys->find(key);
-	if (pos != keys->end() && Math::Approximately(pos->time, time)) {
+	Keys::iterator pos = keys->find(time);
+	if (pos != keys->end()) {
 		return;
 	}
 
-	key.id = keys->begin()->id;
+	Key key;
+	key.id = keys->begin()->second.id;
 
 	if (pos == keys->end()) {
-		key.value = (--keys->end())->value;
+		key.value = (--keys->end())->second.value;
 	}
 	else {
 		if (pos == keys->begin()) {
-			key.value = keys->begin()->value;
+			key.value = keys->begin()->second.value;
 		}
 		else {
 			Keys::iterator prev = pos;
 			--prev;
 
-			float t = Math::Clamp01((time - prev->time) / (pos->time - prev->time));
-			LerpVariant(key.value, prev->value, pos->value, t);
+			float t = Math::Clamp01((time - prev->first) / (pos->first - prev->first));
+			LerpVariant(key.value, prev->second.value, pos->second.value, t);
 		}
 	}
 
-	keys->insert(key);
+	keys->insert(std::make_pair(time, key));
 }
 
 void AnimationInternal::AddClip(const std::string& name, AnimationClip value) {
-	Key key{ name, value };
-	clips_.insert(key);
-
+	clips_.insert(std::make_pair(name, value));
 	value->SetAnimation(suede_dynamic_cast<Animation>(shared_from_this()));
 }
 
 AnimationClip AnimationInternal::GetClip(const std::string& name) {
-	Key key{ name };
-	ClipContainer::iterator pos = clips_.find(key);
+	ClipContainer::iterator pos = clips_.find(name);
 	if (pos == clips_.end()) {
 		return nullptr;
 	}
 
-	return pos->value;
+	return pos->second;
 }
 
 void AnimationInternal::SetWrapMode(AnimationWrapMode value) {
 	for (ClipContainer::iterator ite = clips_.begin(); ite != clips_.end(); ++ite) {
-		ite->value->SetWrapMode(value);
+		ite->second->SetWrapMode(value);
 	}
 }
 
@@ -405,19 +399,20 @@ void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, f
 	}
 
 	for (AttributeContainer::iterator ite = attributes_.begin(), ite2 = otherAttributes.begin(); ite != attributes_.end(); ++ite, ++ite2) {
-		Key& lhs = (Key&)*ite, &rhs = (Key&)*ite2;
-		if (lhs.id != rhs.id) {
+		int id = ite->first, id2 = ite2->first;
+		Variant& variant = ite->second, &variant2 = ite2->second;
+		if (id != id2) {
 			Debug::LogError("attribute id mismatch");
 			continue;
 		}
 
-		if (lhs.value.GetType() != rhs.value.GetType()) {
+		if (variant.GetType() != variant2.GetType()) {
 			Debug::LogError("attribute type mismatch");
 			continue;
 		}
 
 		result->SetTime(Math::Lerp(time_, other->GetTime(), factor));
-		LerpAttribute(result, lhs, rhs, factor);
+		LerpAttribute(result, id, variant, variant2, factor);
 	}
 }
 
@@ -427,63 +422,60 @@ void AnimationFrameInternal::Assign(AnimationFrame other) {
 	attributes_ = ptr->attributes_;
 }
 
-void AnimationFrameInternal::LerpAttribute(AnimationFrame ans, Key& lhs, Key& rhs, float factor) {
-	VariantType type = lhs.value.GetType();
+void AnimationFrameInternal::LerpAttribute(AnimationFrame ans, int id, const Variant& lhs, const Variant& rhs, float factor) {
+	VariantType type = lhs.GetType();
 	Variant variant;
-	LerpVariant(variant, lhs.value, rhs.value, factor);
-	SetVariant(ans, lhs.id, variant);
+	LerpVariant(variant, lhs, rhs, factor);
+	SetVariant(ans, id, variant);
 }
 
 void AnimationFrameInternal::SetFloat(int id, float value) {
-	Key key = { id };
-	key.value.SetFloat(value);
-	attributes_.insert(key);
+	Variant variant;
+	variant.SetFloat(value);
+	attributes_[id] = variant;
 }
 
 void AnimationFrameInternal::SetVector3(int id, const glm::vec3& value) {
-	Key key = { id };
-	key.value.SetVector3(value);
-	attributes_.insert(key);
+	Variant variant;
+	variant.SetVector3(value);
+	attributes_[id] = variant;
 }
 
 void AnimationFrameInternal::SetQuaternion(int id, const glm::quat& value) {
-	Key key = { id };
-	key.value.SetQuaternion(value);
-	attributes_.insert(key);
+	Variant variant;
+	variant.SetQuaternion(value);
+	attributes_[id] = variant;
 }
 
 float AnimationFrameInternal::GetFloat(int id) {
-	Key key{ id };
-	AttributeContainer::iterator pos = attributes_.find(key);
+	AttributeContainer::iterator pos = attributes_.find(id);
 	if(pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return 0;
 	}
 
-	return pos->value.GetFloat();
+	return pos->second.GetFloat();
 }
 
 
 glm::vec3 AnimationFrameInternal::GetVector3(int id) {
-	Key key{ id };
-	AttributeContainer::iterator pos = attributes_.find(key);
+	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return glm::vec3(0);
 	}
 
-	return pos->value.GetVector3();
+	return pos->second.GetVector3();
 }
 
 glm::quat AnimationFrameInternal::GetQuaternion(int id) {
-	Key key{ id };
-	AttributeContainer::iterator pos = attributes_.find(key);
+	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
 		return glm::quat();
 	}
 
-	return pos->value.GetQuaternion();
+	return pos->second.GetQuaternion();
 }
 
 static void SetVariant(AnimationFrame frame, int id, const Variant& value) {

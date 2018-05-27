@@ -25,8 +25,7 @@ enum VariantType {
 
 class SUEDE_API Variant {
 public:
-	Variant() :type_(VariantTypeNone) {
-	}
+	Variant() :type_(VariantTypeNone) { }
 	Variant(const Variant& other);
 
 	~Variant();

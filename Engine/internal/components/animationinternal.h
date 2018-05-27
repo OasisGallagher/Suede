@@ -91,31 +91,32 @@ public:
 	~AnimationKeysInternal();
 
 public:
-	virtual void AddFloat(int id, float time, float value);
-	virtual void AddVector3(int id, float time, const glm::vec3& value);
-	virtual void AddQuaternion(int id, float time, const glm::quat& value);
+	virtual void AddFloat(float time, int id, float value);
+	virtual void AddVector3(float time, int id, const glm::vec3& value);
+	virtual void AddQuaternion(float time, int id, const glm::quat& value);
 
-	virtual void Remove(int id, float time);
+	virtual void Remove(float time, int id);
 
 	virtual void ToKeyframes(std::vector<AnimationFrame>& keyframes);
 
 private:
-	struct Key {
-		int id;
-		float time;
-		Variant value;
-
-		bool operator < (const Key& other) const {
-			return time < other.time;
+	struct FloatCamparer {
+		bool operator()(float lhs, float rhs) const {
+			return !Math::Approximately(lhs, rhs) && lhs < rhs;
 		}
 	};
 
-	typedef std::set<Key> Keys;
+	struct Key {
+		int id;
+		Variant value;
+	};
+
+	typedef std::map<float, Key, FloatCamparer> Keys;
 	typedef std::vector<Keys*> KeysContainer;
 
 private:
-	void InsertKey(uint id, const Key& key);
-	void RemoveKey(const Key& key);
+	void InsertKey(float time, const Key& key);
+	void RemoveKey(int id, float time);
 
 	int SmoothKeys();
 	void SmoothKey(Keys* keys, float time);
@@ -149,14 +150,6 @@ public:
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 	virtual Skeleton GetSkeleton() { return skeleton_; }
 
-	struct Key {
-		std::string name;
-		AnimationClip value;
-		bool operator < (const Key& other) const {
-			return name < other.name;
-		}
-	};
-
 private:
 	Skeleton skeleton_;
 	glm::mat4 rootTransform_;
@@ -166,7 +159,7 @@ private:
 	bool playing_;
 	AnimationClip current_;
 
-	typedef std::set<Key> ClipContainer;
+	typedef std::map<std::string, AnimationClip> ClipContainer;
 	ClipContainer clips_;
 };
 
@@ -192,22 +185,12 @@ public:
 	virtual glm::quat GetQuaternion(int id);
 
 private:
-	struct Key {
-		int id;
-		Variant value;
-
-		bool operator < (const Key& other) const {
-			return id < other.id;
-		}
-	};
+	void LerpAttribute(AnimationFrame ans, int id, const Variant& lhs, const Variant& rhs, float factor);
 
 private:
-	void LerpAttribute(AnimationFrame ans, Key& lhs, Key& rhs, float factor);
-
-private:
-
 	float time_;
-	typedef std::set<Key> AttributeContainer;
+
+	typedef std::map<int, Variant> AttributeContainer;
 	AttributeContainer attributes_;
 };
 

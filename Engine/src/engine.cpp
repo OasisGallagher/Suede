@@ -72,7 +72,12 @@ bool Engine::Initialize() {
 }
 
 void Engine::Release() {
-	WorldInstance().reset();
+	try {
+		WorldInstance().reset();
+	}
+	catch (...) {
+		Debug::Break();
+	}
 }
 
 void Engine::Resize(int w, int h) {

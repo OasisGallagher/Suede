@@ -397,18 +397,18 @@ void EntityAssetLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode*
 	if (channel != nullptr) {
 		for (int i = 0; i < channel->mNumPositionKeys; ++i) {
 			const aiVectorKey& key = channel->mPositionKeys[i];
-			keys->AddVector3(FrameKeyPosition, (float)key.mTime, AIVector3ToGLM(key.mValue));
+			keys->AddVector3((float)key.mTime, FrameKeyPosition, AIVector3ToGLM(key.mValue));
 		}
 
 		for (int i = 0; i < channel->mNumRotationKeys; ++i) {
 			const aiQuatKey& key = channel->mRotationKeys[i];
 			glm::quat rotation;
-			keys->AddQuaternion(FrameKeyRotation, (float)key.mTime, AIQuaternionToGLM(rotation, key.mValue));
+			keys->AddQuaternion((float)key.mTime, FrameKeyRotation, AIQuaternionToGLM(rotation, key.mValue));
 		}
 
 		for (int i = 0; i < channel->mNumScalingKeys; ++i) {
 			const aiVectorKey& key = channel->mScalingKeys[i];
-			keys->AddVector3(FrameKeyScale, (float)key.mTime, AIVector3ToGLM(key.mValue));
+			keys->AddVector3((float)key.mTime, FrameKeyScale, AIVector3ToGLM(key.mValue));
 		}
 
 		std::vector<AnimationFrame> keyframes;

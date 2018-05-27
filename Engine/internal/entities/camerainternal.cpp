@@ -85,7 +85,7 @@ void CameraInternal::Render() {
 	RenderTexture target = GetActiveRenderTarget();
 
 	Shadows::Resize(target->GetWidth(), target->GetHeight());
-	//Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
+	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
 
 	UpdateTransformsUniformBuffer();
 

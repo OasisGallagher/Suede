@@ -83,10 +83,10 @@
 // #define ZTHREAD_NOINLINE
 
 // Uncomment if you want to compile a DLL version of the library. (Win32)
-// #define ZTHREAD_EXPORTS 1
+#define ZTHREAD_EXPORTS 1
 
 // Uncomment if you want to compile a client using the DLL version of the library. (Win32)
-//#define ZTHREAD_IMPORTS 1
+// #define ZTHREAD_IMPORTS 1
 
 // ===================================================================================
 // The following section will attempt to guess the best configuration for your system
@@ -213,6 +213,13 @@
 #else
 #  define ZTHREAD_INLINE inline 
 #endif
+
+#include <exception>
+typedef void(*ZTExceptionHandler)(const std::exception& exception);
+
+ZTHREAD_API extern ZTExceptionHandler ztException; 
+
+#define THROW_EXCEPTION(exception)	ztException(exception)
 
 #endif // __ZTCONFIG_H__
 

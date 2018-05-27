@@ -87,11 +87,11 @@ class SUEDE_API IAnimationState : virtual public IObject {
 
 class SUEDE_API IAnimationKeys : virtual public IObject {
 public:
-	virtual void AddFloat(int id, float time, float value) = 0;
-	virtual void AddVector3(int id, float time, const glm::vec3& value) = 0;
-	virtual void AddQuaternion(int id, float time, const glm::quat& value) = 0;
+	virtual void AddFloat(float time, int id, float value) = 0;
+	virtual void AddVector3(float time, int id, const glm::vec3& value) = 0;
+	virtual void AddQuaternion(float time, int id, const glm::quat& value) = 0;
 
-	virtual void Remove(int id, float time) = 0;
+	virtual void Remove(float time, int id) = 0;
 
 	virtual void ToKeyframes(std::vector<AnimationFrame>& keyframes) = 0;
 };
