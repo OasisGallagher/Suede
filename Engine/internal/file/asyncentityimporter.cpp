@@ -5,15 +5,27 @@
 #include "memory/memory.h"
 #include "asyncentityimporter.h"
 
-AsyncEntityImporter::AsyncEntityImporter() : listener_(nullptr), executor_(16) {
+AsyncEntityImporter::AsyncEntityImporter() : listener_(nullptr)
+#ifdef USE_POOL_EXECUTOR
+	, executor_(16)
+#endif
+{
 	Engine::AddFrameEventListener(this);
 }
 
 AsyncEntityImporter::~AsyncEntityImporter() {
 	Engine::RemoveFrameEventListener(this);
 
-	executor_.interrupt();
-	executor_.wait();
+	try {
+		executor_.interrupt();
+		executor_.wait();
+	}
+	catch (const ZThread::Synchronization_Exception& e) {
+		Debug::LogError(e.what());
+	}
+	catch (...) {
+		Debug::LogError("unknown exception");
+	}
 }
 
 void AsyncEntityImporter::SetImportedListener(EntityImportedListener* listener) {
@@ -21,21 +33,38 @@ void AsyncEntityImporter::SetImportedListener(EntityImportedListener* listener) 
 }
 
 void AsyncEntityImporter::OnLoadFinished(EntityAssetLoader* loader) {
-	ZThread::Guard<ZThread::Mutex> guard(taskContainerMutex_);
+	ZThread::Guard<ZThread::Mutex> guard(scheduleContainerMutex_);
 
 	for (std::vector<ZThread::Task>::iterator ite = tasks_.begin(); ite != tasks_.end(); ++ite) {
-		ZThread::Task& task = *ite;
+		ZThread::Task task = *ite;
+
 		if (loader == task.operator->()) {
 			tasks_.erase(ite);
-			schedules_.add(task);
+			schedules_.push(task);
 			break;
 		}
 	}
 }
 
 void AsyncEntityImporter::OnFrameEnter() {
+	try {
+		UpdateSchedules();
+	}
+	catch (const ZThread::Synchronization_Exception& e) {
+		Debug::LogError(e.what());
+	}
+	catch (...) {
+		Debug::LogError("unknown exception");
+	}
+}
+
+void AsyncEntityImporter::UpdateSchedules() {
+	ZThread::Guard<ZThread::Mutex> guard(scheduleContainerMutex_);
+
 	for (; !schedules_.empty();) {
-		ZThread::Task schedule = schedules_.next();
+		ZThread::Task schedule = schedules_.front();
+		schedules_.pop();
+
 		EntityAssetLoader* loader = (EntityAssetLoader*)schedule.operator->();
 
 		if (loader->GetEntity()->GetStatus() != EntityStatusDestroyed) {
@@ -69,6 +98,12 @@ bool AsyncEntityImporter::ImportTo(Entity entity, const std::string& path) {
 	ZThread::Task task = new EntityAssetLoader(path, entity, this);
 	tasks_.push_back(task);
 
-	executor_.execute(task);
+	try {
+		executor_.execute(task);
+	}
+	catch (const ZThread::Synchronization_Exception& e) {
+		Debug::LogError(e.what());
+	}
+
 	return true;
 }

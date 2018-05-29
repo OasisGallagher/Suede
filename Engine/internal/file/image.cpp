@@ -66,19 +66,19 @@ bool ImageCodec::Decode(TexelMap& texelMap, const std::string& path) {
 	FIBITMAP* dib = LoadDibFromPath(path);
 	bool status = false;
 	if (dib != nullptr) {
-#ifdef _DEBUG
 		uint bpp = FreeImage_GetBPP(dib);
 		if (bpp != 24 && bpp != 32) {
 			Debug::Break();
 		}
 
+		/**	https://msdn.microsoft.com/en-us/library/windows/desktop/bb206357(v=vs.85).aspx
 		int pitch = FreeImage_GetPitch(dib);
 		int w = FreeImage_GetPitch(dib) / bpp * 8;
 		int width = FreeImage_GetWidth(dib);
 		if (w != width) {
 			Debug::Break();
 		}
-#endif // _DEBUG
+		*/
 
 		FreeImage_FlipVertical(dib);
 		status = CopyTexelsTo(texelMap, dib);

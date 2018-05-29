@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "models/boblampclean.md5mesh";
-static const char* roomFbxPath = "models/room.obj";
+static const char* roomFbxPath = "models/house.fbx";
 
 static Game* gameInstance;
 
@@ -111,6 +111,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 	if (path == manFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
 		root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
+		root->GetTransform()->SetScale(glm::vec3(0.2f));
 		//entity->SetParent(camera);
 
 		Animation animation = root->GetAnimation();
@@ -123,7 +124,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 	if (path == roomFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 		root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
-//		root->GetTransform()->SetScale(glm::vec3(0.01f));
+		root->GetTransform()->SetScale(glm::vec3(0.01f));
 		float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
 		Status::get()->showMessage(QString("%1 loaded in %2 seconds").arg(path.c_str()).arg(QString::number(delta, 'g', 2)), 2000);
 	}

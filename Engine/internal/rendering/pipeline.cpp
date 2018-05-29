@@ -50,13 +50,13 @@ void Pipeline::Flush(const glm::mat4& worldToClipMatrix) {
 	sort_renderables->Restart();
 	SortRenderables();
 	sort_renderables->Stop();
-	Debug::Output("[Pipeline::Update::sort]\t%.2f\n", sort_renderables->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::sort]\t%.2f", sort_renderables->GetElapsedSeconds());
 
 	gather_instances->Restart();
 	std::vector<uint> ranges;
 	GatherInstances(ranges);
 	gather_instances->Stop();
-	Debug::Output("[Pipeline::Update::gather]\t%.2f\n", gather_instances->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::gather]\t%.2f", gather_instances->GetElapsedSeconds());
 
 	rendering->Restart();
 	uint from = 0;
@@ -79,17 +79,17 @@ void Pipeline::Flush(const glm::mat4& worldToClipMatrix) {
 
 	rendering->Stop();
 
-	Debug::Output("[Pipeline::Update::nrenderables]\t%d\n", nrenderables_);
-	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d\n", ndrawcalls_);
-	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f\n", update_ubo->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::rendering]\t%.2f\n", rendering->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::nrenderables]\t%d", nrenderables_);
+	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d", ndrawcalls_);
+	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f", update_ubo->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::rendering]\t%.2f", rendering->GetElapsedSeconds());
 
-	Debug::Output("[Pipeline::Update::switch_framebuffer]\t%.2f\n", switch_framebuffer->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::switch_material]\t%.2f\n", switch_material->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::switch_mesh]\t%.2f\n", switch_mesh->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_framebuffer]\t%.2f", switch_framebuffer->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_material]\t%.2f", switch_material->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_mesh]\t%.2f", switch_mesh->GetElapsedSeconds());
 
 	update_pipeline->Stop();
-	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f\n", update_pipeline->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f", update_pipeline->GetElapsedSeconds());
 
 	Clear();
 }

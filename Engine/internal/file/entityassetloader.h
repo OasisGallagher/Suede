@@ -55,7 +55,7 @@ struct Bounds;
 class EntityAssetLoader : public ZThread::Runnable {
 public:
 	EntityAssetLoader(const std::string& path, Entity entity, AssetLoadedListener* listener);
-	~EntityAssetLoader() { }
+	~EntityAssetLoader();
 
 public:
 	virtual void run();

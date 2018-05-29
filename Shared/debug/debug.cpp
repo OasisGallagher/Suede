@@ -20,12 +20,20 @@ private:
 static StackTracer tracer;
 
 #define MAX_LOG_LENGTH	512
+#define VA_FORMAT(format, bufname) \
+	va_list _Ap; \
+	va_start(_Ap, format); \
+	int _L = vsnprintf(bufname, sizeof(bufname) / sizeof(bufname[0]), format, _Ap); \
+	va_end(_Ap)
+
 #define FORMAT_BUFFER(format, bufname)	\
 	char bufname[MAX_LOG_LENGTH]; \
-	va_list ap; \
-	va_start(ap, format); \
-	vsnprintf(bufname, sizeof(bufname) / sizeof(bufname[0]), format, ap); \
-	va_end(ap)
+	VA_FORMAT(format, bufname)
+
+#define FORMAT_LINE_BUFFER(format, bufname)	\
+	char bufname[MAX_LOG_LENGTH - 1]; \
+	VA_FORMAT(format, bufname); \
+	bufname[_L++] = '\n', bufname[_L] = 0
 
 void Debug::Initialize() {
 	tracer.LoadModules();
@@ -58,7 +66,7 @@ void Debug::LogError(const char* format, ...) {
 }
 
 void Debug::Output(const char* format, ...) {
-	FORMAT_BUFFER(format, buffer);
+	FORMAT_LINE_BUFFER(format, buffer);
 	OutputDebugStringA(buffer);
 }
 

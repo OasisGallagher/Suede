@@ -1,24 +1,24 @@
 /*
- * Copyright (c) 2005, Eric Crahen
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- */
+* Copyright (c) 2005, Eric Crahen
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is furnished
+* to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*
+*/
 
 #ifndef __ZTCONFIG_H__
 #define __ZTCONFIG_H__
@@ -83,7 +83,7 @@
 // #define ZTHREAD_NOINLINE
 
 // Uncomment if you want to compile a DLL version of the library. (Win32)
-#define ZTHREAD_EXPORTS 1
+//#define ZTHREAD_EXPORTS 1
 
 // Uncomment if you want to compile a client using the DLL version of the library. (Win32)
 // #define ZTHREAD_IMPORTS 1
@@ -196,6 +196,7 @@
 #  pragma warning(disable:4786)
 #  pragma warning(disable:4251)
 #  pragma warning(disable:4355)
+#  pragma warning(disable:4715)
 #endif
 
 // Ensure that only one implementation is selected
@@ -215,12 +216,14 @@
 #endif
 
 #include <exception>
+
 typedef void(*ZTExceptionHandler)(const std::exception& exception);
 
-ZTHREAD_API extern ZTExceptionHandler ztException; 
+namespace ZThread {
+	ZTHREAD_API extern ZTExceptionHandler ztException;
+}
 
-#define THROW_EXCEPTION(exception)	ztException(exception)
+#define THROW_EXCEPTION(exception)	ZThread::ztException(exception)
 
 #endif // __ZTCONFIG_H__
-
 

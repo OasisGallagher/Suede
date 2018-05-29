@@ -1,6 +1,15 @@
 #pragma once
+#include <queue>
+
+#define USE_POOL_EXECUTOR
+
 #include <ZThread/LockedQueue.h>
+
+#ifdef USE_POOL_EXECUTOR
 #include <ZThread/PoolExecutor.h>
+#else
+#include <ZThread/ThreadedExecutor.h>
+#endif
 
 #include "entity.h"
 #include "engine.h"
@@ -13,9 +22,6 @@ public:
 	~AsyncEntityImporter();
 
 public:
-	void SetImportedListener(EntityImportedListener* listener);
-
-public:
 	virtual void OnLoadFinished(EntityAssetLoader* loader);
 
 public:
@@ -25,12 +31,22 @@ public:
 	Entity Import(const std::string& path);
 	bool ImportTo(Entity entity, const std::string& path);
 
-private:
-	ZThread::PoolExecutor executor_;
-	ZThread::LockedQueue<ZThread::Task, ZThread::Mutex> schedules_;
+	void SetImportedListener(EntityImportedListener* listener);
 
+private:
+	void UpdateSchedules();
+
+private:
+#ifdef USE_POOL_EXECUTOR
+	ZThread::PoolExecutor executor_;
+#else
+	ZThread::ThreadedExecutor executor_;
+#endif
+	
 	std::vector<ZThread::Task> tasks_;
-	ZThread::Mutex taskContainerMutex_;
+	std::queue<ZThread::Task> schedules_;
+
+	ZThread::Mutex scheduleContainerMutex_;
 
 	EntityImportedListener* listener_;
 };

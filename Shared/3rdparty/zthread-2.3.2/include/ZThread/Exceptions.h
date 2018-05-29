@@ -36,13 +36,11 @@ namespace ZThread {
  * this package.
  *
  */
-class Synchronization_Exception {
+class Synchronization_Exception : public std::exception{
 
   // Restrict heap allocation
   static void * operator new(size_t size);
   static void * operator new[](size_t size);
-
-  std::string _msg;
   
 public:
   
@@ -50,23 +48,23 @@ public:
    * Create a new exception with a default error message 'Synchronization 
    * Exception'
    */
-  Synchronization_Exception() : _msg("Synchronization exception") { }
+  Synchronization_Exception() : std::exception("Synchronization exception") { }
 
   /**
    * Create a new exception with a given error message
    *
    * @param const char* - error message
    */
-  Synchronization_Exception(const char* msg) : _msg(msg) { }
+  Synchronization_Exception(const char* msg) : std::exception(msg) { }
 
   /**
    * Get additional info about the exception
    *
    * @return const char* for the error message
    */
-  const char* what() const {
-    return _msg.c_str();
-  }
+//   const char* what() const {
+//     return _msg.c_str();
+//   }
   
 };
   
@@ -182,7 +180,7 @@ class Timeout_Exception : public Synchronization_Exception {
  * The last operation that was attempted on a Queue could not find 
  * the item that was indicated (during that last Queue method invocation)
  */
-class NoSuchElement_Exception {
+class NoSuchElement_Exception : public std::exception {
  public:
   
   //! Create a new exception

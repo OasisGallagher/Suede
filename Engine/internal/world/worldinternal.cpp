@@ -426,17 +426,17 @@ void WorldInternal::Update() {
 	update_entities->Restart();
 	UpdateEntities();
 	update_entities->Stop();
-	Debug::Output("[WorldInternal::Update::update_entities]\t%.3f\n", update_entities->GetElapsedSeconds());
+	Debug::Output("[WorldInternal::Update::update_entities]\t%.3f", update_entities->GetElapsedSeconds());
 	
 	update_decals->Restart();
 	UpdateDecals();
 	update_decals->Stop();
-	Debug::Output("[WorldInternal::Update::update_decals]\t%.3f\n", update_decals->GetElapsedSeconds());
+	Debug::Output("[WorldInternal::Update::update_decals]\t%.3f", update_decals->GetElapsedSeconds());
 	
 	update_rendering->Restart();
 	RenderUpdate();
 	update_rendering->Stop();
-	Debug::Output("[WorldInternal::Update::update_rendering]\t%.3f\n", update_rendering->GetElapsedSeconds());
+	Debug::Output("[WorldInternal::Update::update_rendering]\t%.3f", update_rendering->GetElapsedSeconds());
 
-	//Debug::Output("[#total]\t%.3f\n", Debug::EndSample());
+	//Debug::Output("[#total]\t%.3f", Debug::EndSample());
 }

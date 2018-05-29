@@ -62,6 +62,27 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
+EntityAssetLoader::EntityAssetLoader(const std::string& path, Entity entity, AssetLoadedListener* listener) 
+	: listener_(listener), path_(path), root_(entity) {
+	root_->SetStatus(EntityStatusLoading);
+}
+
+EntityAssetLoader::~EntityAssetLoader() {
+	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
+		MEMORY_RELEASE(ite->second);
+	}
+}
+
+void EntityAssetLoader::run() {
+	if (!LoadAsset()) {
+		root_->SetStatus(EntityStatusDestroyed);
+	}
+
+	if (listener_ != nullptr) {
+		listener_->OnLoadFinished(this);
+	}
+}
+
 bool EntityAssetLoader::Initialize(Assimp::Importer& importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
@@ -84,22 +105,6 @@ bool EntityAssetLoader::Initialize(Assimp::Importer& importer) {
 	scene_ = scene;
 
 	return true;
-}
-
-EntityAssetLoader::EntityAssetLoader(const std::string& path, Entity entity, AssetLoadedListener* listener) : listener_(listener) {
-	path_ = path;
-	root_ = entity;
-	root_->SetStatus(EntityStatusLoading);
-}
-
-void EntityAssetLoader::run() {
-	if (!LoadAsset()) {
-		root_->SetStatus(EntityStatusDestroyed);
-	}
-
-	if (listener_ != nullptr) {
-		listener_->OnLoadFinished(this);
-	}
 }
 
 Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {

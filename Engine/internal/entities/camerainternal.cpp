@@ -70,7 +70,7 @@ void CameraInternal::Render() {
 	WorldInstance()->GetVisibleEntities(entities, worldToClipMatrix);
 	get_renderable_entities->Stop();
 
-	Debug::Output("[CameraInternal::Render::get_renderable_entities]\t%.2f\n", get_renderable_entities->GetElapsedSeconds());
+	Debug::Output("[CameraInternal::Render::get_renderable_entities]\t%.2f", get_renderable_entities->GetElapsedSeconds());
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
@@ -307,7 +307,7 @@ void CameraInternal::RenderForwardBase(RenderTexture target, const std::vector<E
 	forward_pass->Restart();
 	ForwardPass(target, entities);
 	forward_pass->Stop();
-	Debug::Output("[CameraInternal::RenderForwardBase::forward_pass]\t%.2f\n", forward_pass->GetElapsedSeconds());
+	Debug::Output("[CameraInternal::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
 void CameraInternal::RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights) {
@@ -328,7 +328,7 @@ void CameraInternal::ForwardPass(RenderTexture target, const std::vector<Entity>
 		RenderEntity(target, entity, entity->GetRenderer());
 	}
 
-	Debug::Output("[CameraInternal::ForwardPass::push_renderables]\t%.2f\n", push_renderables->GetElapsedSeconds());
+	Debug::Output("[CameraInternal::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
 	push_renderables->Clear();
 }
 

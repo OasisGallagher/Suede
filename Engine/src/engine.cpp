@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 
+#include <ZThread/Config.h>
+
 #include "glef.h"
 #include "time2.h"
 #include "world.h"
@@ -48,12 +50,24 @@ static void SetDefaultGLStates() {
 
 	GL::Enable(GL_CULL_FACE);
 	GL::CullFace(GL_BACK);
-
+	
 	GL::DepthMask(GL_TRUE);
+}
+
+static void OnZThreadException(const std::exception& exception) {
+	Debug::Output("!!! Thread Exception %s\n", exception.what());
+	throw exception;
+}
+
+static void OnTerminate() {
+	Debug::Break();
 }
 
 bool Engine::Initialize() {
 	setlocale(LC_ALL, "");
+
+	std::set_terminate(OnTerminate);
+	ZThread::ztException = OnZThreadException;
 
 	Debug::Initialize();
 
@@ -72,12 +86,7 @@ bool Engine::Initialize() {
 }
 
 void Engine::Release() {
-	try {
-		WorldInstance().reset();
-	}
-	catch (...) {
-		Debug::Break();
-	}
+	WorldInstance().reset();
 }
 
 void Engine::Resize(int w, int h) {
