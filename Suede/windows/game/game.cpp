@@ -28,7 +28,7 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "models/boblampclean.md5mesh";
-static const char* roomFbxPath = "models/house.fbx";
+static const char* roomFbxPath = "models/room.obj";
 
 static Game* gameInstance;
 

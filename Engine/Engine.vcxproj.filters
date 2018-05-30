@@ -113,6 +113,15 @@
     <Filter Include="api\src">
       <UniqueIdentifier>{9e9d953f-affe-4df5-93a2-3bcde0a5186f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\async">
+      <UniqueIdentifier>{5d5fb4fe-554a-4129-9dee-ac4805561d2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\async\include">
+      <UniqueIdentifier>{a3f46df8-f262-4765-bee9-f9453899a796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\async\src">
+      <UniqueIdentifier>{21b66b73-907d-4d3a-a7e9-553714058ee6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -268,9 +277,6 @@
     <ClInclude Include="internal\geometry\bsptree.h">
       <Filter>internal\geometry\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\file\entityassetloader.h">
-      <Filter>internal\file\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\uniformbuffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
@@ -357,6 +363,9 @@
     </ClInclude>
     <ClInclude Include="api\gllimits.h">
       <Filter>api\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\async\threadpool.h">
+      <Filter>internal\async\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -447,9 +456,6 @@
     <ClCompile Include="internal\geometry\bsptree.cpp">
       <Filter>internal\geometry\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\file\entityassetloader.cpp">
-      <Filter>internal\file\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\uniformbuffer.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
@@ -521,6 +527,9 @@
     </ClCompile>
     <ClCompile Include="api\gllimits.cpp">
       <Filter>api\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\async\threadpool.cpp">
+      <Filter>internal\async\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

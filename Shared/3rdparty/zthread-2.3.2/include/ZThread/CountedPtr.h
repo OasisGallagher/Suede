@@ -206,6 +206,13 @@ namespace ZThread {
         return lhs.less(rhs);
       }
 
+	  T* get() {
+		  return _instance;
+	  }
+
+	  const T* get() const {
+		  return _instance;
+	  }
 
       T& operator*() {
         assert(_instance != 0);
