@@ -3,7 +3,7 @@
 
 #include "api/gl.h"
 #include "texture.h"
-#include "internal/file/image.h"
+#include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"
 
 class TextureInternal : virtual public ITexture, public ObjectInternal {

@@ -5,7 +5,7 @@
 #include "api/gl.h"
 #include "renderstate.h"
 #include "containers/ptrmap.h"
-#include "internal/file/shaderparser.h"
+#include "internal/codec/shaderparser.h"
 #include "internal/base/objectinternal.h"
 
 class Pass {

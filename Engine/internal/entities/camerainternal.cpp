@@ -59,11 +59,11 @@ void CameraInternal::SetDepth(int value) {
 }
 
 void CameraInternal::Update() {
-	// Stub: main thread only.
-	ClearRenderTextures();
 }
 
 void CameraInternal::Render() {
+	ClearRenderTextures();
+
 	std::vector<Entity> entities;
 	glm::mat4 worldToClipMatrix = GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix();
 	get_renderable_entities->Restart();

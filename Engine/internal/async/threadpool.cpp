@@ -2,6 +2,8 @@
 #include "threadpool.h"
 #include "debug/debug.h"
 
+#define LogUnknownException()	Debug::LogError("unknown exception")
+
 ThreadPool::ThreadPool()
 #ifdef USE_POOL_EXECUTOR
 	: executor_(16)
@@ -21,11 +23,11 @@ ThreadPool::~ThreadPool() {
 		Debug::LogError(e.what());
 	}
 	catch (...) {
-		Debug::LogError("unknown exception");
+		LogUnknownException();
 	}
 }
 
-void ThreadPool::OnFinished(ZThread::Runnable* runnable) {
+void ThreadPool::OnAsyncFinished(ZThread::Runnable* runnable) {
 	ZThread::Guard<ZThread::Mutex> guard(scheduleContainerMutex_);
 
 	for (std::vector<ZThread::Task>::iterator ite = tasks_.begin(); ite != tasks_.end(); ++ite) {
@@ -46,7 +48,7 @@ void ThreadPool::OnFrameEnter() {
 		Debug::LogError(e.what());
 	}
 	catch (...) {
-		Debug::LogError("unknown exception");
+		LogUnknownException();
 	}
 }
 
@@ -69,6 +71,10 @@ bool ThreadPool::Execute(ZThread::Task task) {
 	}
 	catch (const ZThread::Synchronization_Exception& e) {
 		Debug::LogError(e.what());
+		return false;
+	}
+	catch (...) {
+		LogUnknownException();
 		return false;
 	}
 

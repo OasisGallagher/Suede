@@ -41,16 +41,10 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class ThreadPool;
-struct Bounds;
-
-class EntityAssetLoader : public ZThread::Runnable {
+class EntityAssetLoader : public AsyncWorker {
 public:
-	EntityAssetLoader(const std::string& path, Entity entity, ThreadPool* pool);
+	EntityAssetLoader(const std::string& path, Entity entity, AsyncEventReceiver* receiver);
 	~EntityAssetLoader();
-
-public:
-	virtual void run();
 
 public:
 	Entity GetEntity() { return root_; }
@@ -58,6 +52,9 @@ public:
 
 	Mesh GetSurface() { return surface_; }
 	EntityAsset& GetEntityAsset() { return asset_; }
+
+protected:
+	virtual void OnRun();
 
 private:
 	// TODO: NonCopyable.
@@ -110,8 +107,6 @@ private:
 	Skeleton skeleton_;
 	Animation animation_;
 	const aiScene* scene_;
-
-	ThreadPool* pool_;
 
 	typedef std::map<std::string, TexelMap*> TexelMapContainer;
 	TexelMapContainer texelMapContainer_;

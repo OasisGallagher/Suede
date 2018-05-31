@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "frustum.h"
 #include "frameeventlistener.h"
+#include "internal/culling/culling.h"
 #include "internal/entities/entityinternal.h"
 
 //class GBuffer;
@@ -15,7 +16,7 @@ class ImageEffect;
 class GizmosPainter;
 
 class Sample;
-class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener, public FrameEventListener {
+class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener, public FrameEventListener, public CullingListener {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:

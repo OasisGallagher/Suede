@@ -9,6 +9,7 @@
 #include "memory/memory.h"
 #include "os/filesystem.h"
 #include "asyncentityimporter.h"
+#include "internal/async/async.h"
 #include "internal/base/renderdefines.h"
 
 MaterialAsset::MaterialAsset()
@@ -62,8 +63,8 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-EntityAssetLoader::EntityAssetLoader(const std::string& path, Entity entity, ThreadPool* pool)
-	: pool_(pool), path_(path), root_(entity) {
+EntityAssetLoader::EntityAssetLoader(const std::string& path, Entity entity, AsyncEventReceiver* receiver)
+	: AsyncWorker(receiver), path_(path), root_(entity) {
 	root_->SetStatus(EntityStatusLoading);
 }
 
@@ -73,13 +74,9 @@ EntityAssetLoader::~EntityAssetLoader() {
 	}
 }
 
-void EntityAssetLoader::run() {
+void EntityAssetLoader::OnRun() {
 	if (!LoadAsset()) {
 		root_->SetStatus(EntityStatusDestroyed);
-	}
-
-	if (pool_ != nullptr) {
-		pool_->OnFinished(this);
 	}
 }
 

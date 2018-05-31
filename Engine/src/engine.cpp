@@ -16,7 +16,6 @@
 #include "screen.h"
 #include "resources.h"
 #include "statistics.h"
-#include "debug/debug.h"
 #include "debug/profiler.h"
 
 typedef std::vector<FrameEventListener*> FrameEventListenerContainer;

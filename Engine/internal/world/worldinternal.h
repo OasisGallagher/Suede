@@ -40,7 +40,7 @@ public:
 
 	virtual Entity GetEntity(uint id);
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector);
-	virtual bool GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix);
+	virtual bool GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix) { return true; }
 
 	virtual bool FireEvent(WorldEventBasePointer e);
 	virtual void FireEventImmediate(WorldEventBasePointer e);
@@ -72,10 +72,6 @@ private:
 	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]);
 
 	void UpdateTimeUniformBuffer();
-
-	bool IsVisible(Entity entity, const glm::mat4& worldToClipMatrix);
-	bool FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix);
-	void GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };

@@ -12,15 +12,16 @@
 #include <ZThread/ThreadedExecutor.h>
 #endif
 
+#include "async.h"
 #include "frameeventlistener.h"
 
-class ThreadPool : public FrameEventListener {
+class ThreadPool : public FrameEventListener, public AsyncEventReceiver {
 public:
 	ThreadPool();
 	~ThreadPool();
 
 public:
-	void OnFinished(ZThread::Runnable* runnable);
+	virtual void OnAsyncFinished(ZThread::Runnable* runnable);
 
 protected:
 	virtual void OnFrameEnter();
