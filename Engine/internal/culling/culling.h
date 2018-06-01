@@ -3,14 +3,15 @@
 #include "internal/async/async.h"
 #include "internal/async/threadpool.h"
 
+class Culling;
 class CullingListener {
 public:
-	virtual void OnCullingFinished() = 0;
+	virtual void OnCullingFinished(Culling* worker) = 0;
 };
 
 class Culling : public AsyncWorker {
 public:
-	Culling(const glm::mat4& worldToClipMatrix, AsyncEventReceiver* receiver);
+	Culling(const glm::mat4& worldToClipMatrix, AsyncEventListener* receiver);
 	~Culling() {}
 
 public:
@@ -29,7 +30,13 @@ private:
 	std::vector<Entity> entities_;
 };
 
-class AsyncCulling : public ThreadPool {
+class CullingThreadPool : public ThreadPool {
+public:
+	CullingThreadPool() : ThreadPool(ThreadPool::Synchronous), listener_(nullptr) {}
+
+public:
+	void GetVisibleEntities(const glm::mat4& worldToClipMatrix);
+
 public:
 	void SetCullingListener(CullingListener* listener);
 

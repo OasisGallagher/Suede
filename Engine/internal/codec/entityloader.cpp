@@ -6,9 +6,9 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "tools/string.h"
+#include "entityloader.h"
 #include "memory/memory.h"
 #include "os/filesystem.h"
-#include "asyncentityimporter.h"
 #include "internal/async/async.h"
 #include "internal/base/renderdefines.h"
 
@@ -63,24 +63,24 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-EntityAssetLoader::EntityAssetLoader(const std::string& path, Entity entity, AsyncEventReceiver* receiver)
+EntityLoader::EntityLoader(const std::string& path, Entity entity, AsyncEventListener* receiver)
 	: AsyncWorker(receiver), path_(path), root_(entity) {
 	root_->SetStatus(EntityStatusLoading);
 }
 
-EntityAssetLoader::~EntityAssetLoader() {
+EntityLoader::~EntityLoader() {
 	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
 		MEMORY_RELEASE(ite->second);
 	}
 }
 
-void EntityAssetLoader::OnRun() {
+void EntityLoader::OnRun() {
 	if (!LoadAsset()) {
 		root_->SetStatus(EntityStatusDestroyed);
 	}
 }
 
-bool EntityAssetLoader::Initialize(Assimp::Importer& importer) {
+bool EntityLoader::Initialize(Assimp::Importer& importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
 		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes/* | aiProcess_OptimizeGraph*/
@@ -104,7 +104,7 @@ bool EntityAssetLoader::Initialize(Assimp::Importer& importer) {
 	return true;
 }
 
-Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+Entity EntityLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	Entity entity = NewEntity();
 	entity->GetTransform()->SetParent(parent->GetTransform());
 
@@ -114,7 +114,7 @@ Entity EntityAssetLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surfa
 	return entity;
 }
 
-void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void EntityLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	entity->SetName(node->mName.C_Str());
 
 	if (entity != root_) {
@@ -130,7 +130,7 @@ void EntityAssetLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, S
 	LoadComponents(entity, node, surface, subMeshes, boundses);
 }
 
-void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
@@ -168,13 +168,13 @@ void EntityAssetLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surfac
 	entity->SetRenderer(renderer);
 }
 
-void EntityAssetLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void EntityLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
 		LoadHierarchy(entity, node->mChildren[i], surface, subMeshes, boundses);
 	}
 }
 
-void EntityAssetLoader::ReserveMemory(MeshAsset& meshAsset) {
+void EntityLoader::ReserveMemory(MeshAsset& meshAsset) {
 	int indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
@@ -189,7 +189,7 @@ void EntityAssetLoader::ReserveMemory(MeshAsset& meshAsset) {
 	meshAsset.blendAttrs.resize(vertexCount);
 }
 
-bool EntityAssetLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
+bool EntityLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
@@ -204,14 +204,14 @@ bool EntityAssetLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, 
 	return true;
 }
 
-bool EntityAssetLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
+bool EntityLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
 	LoadVertexAttribute(meshIndex, meshAsset, boundses);
 	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
 
 	return true;
 }
 
-void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
+void EntityLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	// TODO: multiple texture coords?
@@ -257,7 +257,7 @@ void EntityAssetLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset,
 	}
 }
 
-void EntityAssetLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+void EntityLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = NewSkeleton(); }
@@ -290,13 +290,13 @@ void EntityAssetLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, S
 	}
 }
 
-void EntityAssetLoader::LoadMaterialAssets() {
+void EntityLoader::LoadMaterialAssets() {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
 		LoadMaterialAsset(asset_.materialAssets[i], scene_->mMaterials[i]);
 	}
 }
 
-void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
+void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
 	int aint;
 	float afloat;
 	aiString astring;
@@ -354,7 +354,7 @@ void EntityAssetLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateri
 	}
 }
 
-bool EntityAssetLoader::LoadAnimation(Animation& animation) {
+bool EntityLoader::LoadAnimation(Animation& animation) {
 	if (scene_->mNumAnimations == 0) {
 		return true;
 	}
@@ -384,14 +384,14 @@ bool EntityAssetLoader::LoadAnimation(Animation& animation) {
 	return true;
 }
 
-void EntityAssetLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
+void EntityLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapModeLoop);
 	LoadAnimationNode(anim, scene_->mRootNode, nullptr);
 }
 
-void EntityAssetLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
+void EntityLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
@@ -429,7 +429,7 @@ void EntityAssetLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode*
 	}
 }
 
-const aiNodeAnim* EntityAssetLoader::FindChannel(const aiAnimation* anim, const char* name) {
+const aiNodeAnim* EntityLoader::FindChannel(const aiAnimation* anim, const char* name) {
 	for (int i = 0; i < anim->mNumChannels; ++i) {
 		if (strcmp(anim->mChannels[i]->mNodeName.C_Str(), name) == 0) {
 			return anim->mChannels[i];
@@ -439,7 +439,7 @@ const aiNodeAnim* EntityAssetLoader::FindChannel(const aiAnimation* anim, const 
 	return nullptr;
 }
 
-TexelMap* EntityAssetLoader::LoadTexels(const std::string& name) {
+TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 	TexelMapContainer::iterator pos = texelMapContainer_.find(name);
 	if (pos != texelMapContainer_.end()) {
 		return pos->second;
@@ -464,11 +464,11 @@ TexelMap* EntityAssetLoader::LoadTexels(const std::string& name) {
 	return answer;
 }
 
-bool EntityAssetLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
+bool EntityLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
 	return ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + "textures/" + name);
 }
 
-bool EntityAssetLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
+bool EntityLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	if (index >= scene_->mNumTextures) {
 		Debug::LogError("embedded texture index out of range");
 		return false;
@@ -491,7 +491,7 @@ bool EntityAssetLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	return true;
 }
 
-bool EntityAssetLoader::LoadAsset() {
+bool EntityLoader::LoadAsset() {
 	Assimp::Importer importer;
 	if (!Initialize(importer)) {
 		return false;
@@ -531,7 +531,7 @@ bool EntityAssetLoader::LoadAsset() {
 	return true;
 }
 
-glm::mat4& EntityAssetLoader::AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
+glm::mat4& EntityLoader::AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
 		mat.a1, mat.b1, mat.c1, mat.d1,
 		mat.a2, mat.b2, mat.c2, mat.d2,
@@ -542,12 +542,12 @@ glm::mat4& EntityAssetLoader::AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x
 	return answer;
 }
 
-glm::quat& EntityAssetLoader::AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion) {
+glm::quat& EntityLoader::AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion) {
 	answer = glm::quat(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
 	return answer;
 }
 
-void EntityAssetLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat) {
+void EntityLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat) {
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	glm::mat4 transformation;
@@ -556,31 +556,31 @@ void EntityAssetLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rot
 	rotation = glm::conjugate(rotation);
 }
 
-glm::vec3 EntityAssetLoader::AIVector3ToGLM(const aiVector3D& vec) {
+glm::vec3 EntityLoader::AIVector3ToGLM(const aiVector3D& vec) {
 	return glm::vec3(vec.x, vec.y, vec.z);
 }
 
-Entity AsyncEntityImporter::Import(const std::string& path) {
+Entity EntityLoaderThreadPool::Import(const std::string& path) {
 	Entity root = NewEntity();
 	ImportTo(root, path);
 	return root;
 }
 
-bool AsyncEntityImporter::ImportTo(Entity entity, const std::string& path) {
+bool EntityLoaderThreadPool::ImportTo(Entity entity, const std::string& path) {
 	if (!entity) {
 		Debug::LogError("invalid entity");
 		return false;
 	}
 
-	return Execute(new EntityAssetLoader(path, entity, this));
+	return Execute(new EntityLoader(path, entity, this));
 }
 
-void AsyncEntityImporter::SetImportedListener(EntityImportedListener * listener) {
+void EntityLoaderThreadPool::SetLoadedListener(EntityLoadedListener * listener) {
 	listener_ = listener;
 }
 
-void AsyncEntityImporter::OnSchedule(ZThread::Task& schedule) {
-	EntityAssetLoader* loader = (EntityAssetLoader*)schedule.get();
+void EntityLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
+	EntityLoader* loader = (EntityLoader*)schedule.get();
 
 	if (loader->GetEntity()->GetStatus() != EntityStatusDestroyed) {
 		EntityAsset asset = loader->GetEntityAsset();

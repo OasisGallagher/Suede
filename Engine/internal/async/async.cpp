@@ -3,8 +3,7 @@
 void AsyncWorker::run() {
 	OnRun();
 
-	if (receiver_ != nullptr) {
-		receiver_->OnAsyncFinished(this);
+	if (listener_ != nullptr) {
+		listener_->OnAsyncFinished(this);
 	}
 }
-

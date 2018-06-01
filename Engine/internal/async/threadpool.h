@@ -1,23 +1,25 @@
 #pragma once
 #include <queue>
 
-#define USE_POOL_EXECUTOR
-
 #include <ZThread/Mutex.h>
 #include <ZThread/LockedQueue.h>
 
-#ifdef USE_POOL_EXECUTOR
-#include <ZThread/PoolExecutor.h>
-#else
-#include <ZThread/ThreadedExecutor.h>
-#endif
+#include <ZThread/Executor.h>
 
 #include "async.h"
 #include "frameeventlistener.h"
 
-class ThreadPool : public FrameEventListener, public AsyncEventReceiver {
+class ThreadPool : public FrameEventListener, public AsyncEventListener {
 public:
-	ThreadPool();
+	enum {
+		Threaded = -2,
+		Concurrent = -1,
+		Synchronous = 0,
+		// Pool >= 1
+	};
+
+public:
+	ThreadPool(int type);
 	~ThreadPool();
 
 public:
@@ -32,13 +34,10 @@ protected:
 
 private:
 	void UpdateSchedules();
+	void CreateExecutor(int type);
 
 private:
-#ifdef USE_POOL_EXECUTOR
-	ZThread::PoolExecutor executor_;
-#else
-	ZThread::ThreadedExecutor executor_;
-#endif
+	ZThread::Executor* executor_;
 
 	std::vector<ZThread::Task> tasks_;
 	std::queue<ZThread::Task> schedules_;

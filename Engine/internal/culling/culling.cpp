@@ -4,7 +4,7 @@
 #include "geometryutility.h"
 #include "internal/base/renderdefines.h"
 
-Culling::Culling(const glm::mat4& worldToClipMatrix, AsyncEventReceiver* receiver) : AsyncWorker(receiver), worldToClipMatrix_(worldToClipMatrix) {
+Culling::Culling(const glm::mat4& worldToClipMatrix, AsyncEventListener* receiver) : AsyncWorker(receiver), worldToClipMatrix_(worldToClipMatrix) {
 }
 
 void Culling::OnRun() {
@@ -70,15 +70,20 @@ bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipM
 	return false;
 }
 
-void AsyncCulling::SetCullingListener(CullingListener* listener) {
+void CullingThreadPool::GetVisibleEntities(const glm::mat4& worldToClipMatrix) {
+	Execute(new Culling(worldToClipMatrix, this));
+}
+
+void CullingThreadPool::SetCullingListener(CullingListener* listener) {
 	listener_ = listener;
 }
 
-void AsyncCulling::OnSchedule(ZThread::Task& schedule) {
+void CullingThreadPool::OnSchedule(ZThread::Task& schedule) {
 	Culling* culling = (Culling*)schedule.get();
 
+	// main thread.
 
 	if (listener_ != nullptr) {
-		listener_->OnCullingFinished();
+		listener_->OnCullingFinished(culling);
 	}
 }

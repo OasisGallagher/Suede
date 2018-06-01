@@ -180,18 +180,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\components\rendererinternal.cpp" />
     <ClCompile Include="internal\components\transforminternal.cpp" />
     <ClCompile Include="internal\culling\culling.cpp" />
-    <ClCompile Include="internal\culling\occlusionculling\CullingThreadpool.cpp" />
-    <ClCompile Include="internal\culling\occlusionculling\FrameRecorder.cpp" />
-    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCulling.cpp" />
-    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
-      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
-    </ClCompile>
-    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX512.cpp" />
     <ClCompile Include="internal\entities\frustum.cpp" />
     <ClCompile Include="internal\entities\projectorinternal.cpp" />
     <ClCompile Include="internal\codec\image.cpp" />
     <ClCompile Include="internal\codec\shaderparser.cpp" />
-    <ClCompile Include="internal\codec\asyncentityimporter.cpp" />
+    <ClCompile Include="internal\codec\entityloader.cpp" />
     <ClCompile Include="internal\geometry\bsptree.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
@@ -235,7 +228,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\driver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
-    <ClInclude Include="include\entityimportedlistener.h" />
+    <ClInclude Include="include\entityloadedlistener.h" />
     <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\frameeventlistener.h" />
@@ -279,7 +272,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\base\uniformbuffer.h" />
     <ClInclude Include="internal\base\vertexarray.h" />
     <ClInclude Include="internal\base\vertexattrib.h" />
-    <ClInclude Include="internal\codec\asyncentityimporter.h" />
+    <ClInclude Include="internal\codec\entityloader.h" />
     <ClInclude Include="internal\components\animationinternal.h" />
     <ClInclude Include="internal\components\componentinternal.h" />
     <ClInclude Include="internal\components\meshinternal.h" />
@@ -287,9 +280,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\components\rendererinternal.h" />
     <ClInclude Include="internal\components\transforminternal.h" />
     <ClInclude Include="internal\culling\culling.h" />
-    <ClInclude Include="internal\culling\occlusionculling\CullingThreadpool.h" />
-    <ClInclude Include="internal\culling\occlusionculling\FrameRecorder.h" />
-    <ClInclude Include="internal\culling\occlusionculling\MaskedOcclusionCulling.h" />
     <ClInclude Include="internal\entities\frustum.h" />
     <ClInclude Include="internal\entities\projectorinternal.h" />
     <ClInclude Include="internal\codec\image.h" />
@@ -308,10 +298,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="internal\culling\occlusionculling\CompilerSpecific.inl" />
-    <None Include="internal\culling\occlusionculling\MaskedOcclusionCullingCommon.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

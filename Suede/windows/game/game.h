@@ -6,14 +6,14 @@
 #include "camera.h"
 #include "gizmospainter.h"
 #include "frameeventlistener.h"
-#include "entityimportedlistener.h"
+#include "entityloadedlistener.h"
 #include "windows/controls/childwindow.h"
 
 class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityImportedListener, public FrameEventListener {
+class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityLoadedListener, public FrameEventListener {
 	Q_OBJECT
 
 public:

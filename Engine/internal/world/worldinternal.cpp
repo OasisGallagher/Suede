@@ -7,9 +7,9 @@
 #include "geometryutility.h"
 #include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
+#include "internal/codec/entityloader.h"
 #include "internal/base/textureinternal.h"
 #include "internal/entities/entityinternal.h"
-#include "internal/codec/asyncentityimporter.h"
 #include "internal/world/environmentinternal.h"
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
@@ -36,7 +36,7 @@ World& WorldInstance() {
 	return instance;
 }
 
-bool WorldInternal::LightComparer::operator()(const Light & lhs, const Light & rhs) const {
+bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
 	ObjectType lt = lhs->GetType(), rt = rhs->GetType();
 	if (lt != rt && (lt == ObjectTypeDirectionalLight || rt == ObjectTypeDirectionalLight)) {
@@ -60,7 +60,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 }
 
 WorldInternal::WorldInternal()
-	: ObjectInternal(ObjectTypeWorld), importer_(MEMORY_CREATE(AsyncEntityImporter))
+	: ObjectInternal(ObjectTypeWorld), importer_(MEMORY_CREATE(EntityLoaderThreadPool))
 	, environment_(MEMORY_CREATE(EnvironmentInternal)) , decals_(SUEDE_MAX_DECALS) {
 	Screen::AddScreenSizeChangedListener(this);
 	AddEventListener(this);
@@ -115,8 +115,8 @@ Object WorldInternal::Create(ObjectType type) {
 	return object;
 }
 
-Entity WorldInternal::Import(const std::string& path, EntityImportedListener* listener) {
-	importer_->SetImportedListener(listener);
+Entity WorldInternal::Import(const std::string& path, EntityLoadedListener* listener) {
+	importer_->SetLoadedListener(listener);
 	return importer_->Import(path);
 }
 

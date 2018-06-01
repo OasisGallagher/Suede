@@ -15,7 +15,7 @@
 #include "internal/base/objectinternal.h"
 
 class Sample;
-class AsyncEntityImporter;
+class EntityLoaderThreadPool;
 
 class WorldInternal : public ObjectInternal, public IWorld, public ScreenSizeChangedListener, public WorldEventListener {
 	DEFINE_FACTORY_METHOD(World)
@@ -30,7 +30,7 @@ public:
 	virtual Transform GetRootTransform() { return root_->GetTransform(); }
 	virtual Object Create(ObjectType type);
 
-	virtual Entity Import(const std::string& path, EntityImportedListener* listener);
+	virtual Entity Import(const std::string& path, EntityLoadedListener* listener);
 
 	virtual Camera GetMainCamera() { return mainCamera_; }
 	virtual void SetMainCamera(Camera value) { mainCamera_ = value; }
@@ -101,7 +101,7 @@ private:
 	LightContainer lights_;
 	CameraContainer cameras_;
 
-	AsyncEntityImporter* importer_;
+	EntityLoaderThreadPool* importer_;
 
 	Plane planes_[6];
 	DecalContainer decals_;

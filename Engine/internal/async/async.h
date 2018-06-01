@@ -1,14 +1,14 @@
 #pragma once
 #include <ZThread/Runnable.h>
 
-class AsyncEventReceiver {
+class AsyncEventListener {
 public:
 	virtual void OnAsyncFinished(ZThread::Runnable* runnable) = 0;
 };
 
 class AsyncWorker : public ZThread::Runnable {
 public:
-	AsyncWorker(AsyncEventReceiver* receiver) : receiver_(receiver) {}
+	AsyncWorker(AsyncEventListener* listener) : listener_(listener) {}
 
 public:
 	// override OnRun instead.
@@ -18,5 +18,5 @@ protected:
 	virtual void OnRun() = 0;
 
 private:
-	AsyncEventReceiver* receiver_;
+	AsyncEventListener* listener_;
 };

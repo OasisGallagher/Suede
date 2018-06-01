@@ -6,7 +6,7 @@
 #include "image.h"
 #include "entity.h"
 #include "engine.h"
-#include "entityimportedlistener.h"
+#include "entityloadedlistener.h"
 #include "internal/async/threadpool.h"
 
 struct MaterialAsset {
@@ -41,10 +41,10 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class EntityAssetLoader : public AsyncWorker {
+class EntityLoader : public AsyncWorker {
 public:
-	EntityAssetLoader(const std::string& path, Entity entity, AsyncEventReceiver* receiver);
-	~EntityAssetLoader();
+	EntityLoader(const std::string& path, Entity entity, AsyncEventListener* receiver);
+	~EntityLoader();
 
 public:
 	Entity GetEntity() { return root_; }
@@ -58,8 +58,8 @@ protected:
 
 private:
 	// TODO: NonCopyable.
-	EntityAssetLoader(const EntityAssetLoader&);
-	const EntityAssetLoader& operator=(const EntityAssetLoader&);
+	EntityLoader(const EntityLoader&);
+	const EntityLoader& operator=(const EntityLoader&);
 
 private:
 	bool LoadAsset();
@@ -112,16 +112,19 @@ private:
 	TexelMapContainer texelMapContainer_;
 };
 
-class AsyncEntityImporter : public ThreadPool {
+class EntityLoaderThreadPool : public ThreadPool {
+public:
+	EntityLoaderThreadPool() : ThreadPool(16) {}
+
 public:
 	Entity Import(const std::string& path);
 	bool ImportTo(Entity entity, const std::string& path);
 
-	void SetImportedListener(EntityImportedListener* listener);
+	void SetLoadedListener(EntityLoadedListener* listener);
 
 protected:
 	virtual void OnSchedule(ZThread::Task& schedule);
 
 private:
-	EntityImportedListener* listener_;
+	EntityLoadedListener* listener_;
 };

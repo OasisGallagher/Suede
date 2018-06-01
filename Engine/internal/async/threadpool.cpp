@@ -1,23 +1,45 @@
 #include "engine.h"
 #include "threadpool.h"
 #include "debug/debug.h"
+#include "memory/memory.h"
+
+#include <ZThread/PoolExecutor.h>
+#include <ZThread/ThreadedExecutor.h>
+#include <ZThread/ConcurrentExecutor.h>
+#include <ZThread/SynchronousExecutor.h>
 
 #define LogUnknownException()	Debug::LogError("unknown exception")
 
-ThreadPool::ThreadPool()
-#ifdef USE_POOL_EXECUTOR
-	: executor_(16)
-#endif
-{
+ThreadPool::ThreadPool(int type) {
 	Engine::AddFrameEventListener(this);
+	CreateExecutor(type);
+}
+
+void ThreadPool::CreateExecutor(int type) {
+	if (type == Threaded) {
+		executor_ = new ZThread::ThreadedExecutor();
+	}
+	else if (type == Concurrent) {
+		executor_ = new ZThread::ConcurrentExecutor();
+	}
+	else if (type == Synchronous) {
+		executor_ = new ZThread::SynchronousExecutor();
+	}
+	else {
+		if (type <= 0) {
+			Debug::LogError("invalid parameter for thread pool");
+		}
+
+		executor_ = new ZThread::PoolExecutor(type);
+	}
 }
 
 ThreadPool::~ThreadPool() {
 	Engine::RemoveFrameEventListener(this);
 
 	try {
-		executor_.interrupt();
-		executor_.wait();
+		executor_->interrupt();
+		executor_->wait();
 	}
 	catch (const ZThread::Synchronization_Exception& e) {
 		Debug::LogError(e.what());
@@ -25,6 +47,8 @@ ThreadPool::~ThreadPool() {
 	catch (...) {
 		LogUnknownException();
 	}
+
+	delete executor_;
 }
 
 void ThreadPool::OnAsyncFinished(ZThread::Runnable* runnable) {
@@ -67,7 +91,7 @@ bool ThreadPool::Execute(ZThread::Task task) {
 	tasks_.push_back(task);
 
 	try {
-		executor_.execute(task);
+		executor_->execute(task);
 	}
 	catch (const ZThread::Synchronization_Exception& e) {
 		Debug::LogError(e.what());
