@@ -69,7 +69,7 @@ struct Semantics {
 
 class GLSLParser {
 public:
-	bool Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines);
+	bool Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, const std::string& defines);
 
 private:
 	void Clear();

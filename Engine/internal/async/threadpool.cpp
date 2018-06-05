@@ -17,20 +17,20 @@ ThreadPool::ThreadPool(int type) {
 
 void ThreadPool::CreateExecutor(int type) {
 	if (type == Threaded) {
-		executor_ = new ZThread::ThreadedExecutor();
+		executor_ = MEMORY_CREATE(ZThread::ThreadedExecutor);
 	}
 	else if (type == Concurrent) {
-		executor_ = new ZThread::ConcurrentExecutor();
+		executor_ = MEMORY_CREATE(ZThread::ConcurrentExecutor);
 	}
 	else if (type == Synchronous) {
-		executor_ = new ZThread::SynchronousExecutor();
+		executor_ = MEMORY_CREATE(ZThread::SynchronousExecutor);
 	}
 	else {
 		if (type <= 0) {
 			Debug::LogError("invalid parameter for thread pool");
 		}
 
-		executor_ = new ZThread::PoolExecutor(type);
+		executor_ = MEMORY_CREATE(ZThread::PoolExecutor, type);
 	}
 }
 
@@ -48,7 +48,7 @@ ThreadPool::~ThreadPool() {
 		LogUnknownException();
 	}
 
-	delete executor_;
+	MEMORY_RELEASE(executor_);
 }
 
 void ThreadPool::OnAsyncFinished(ZThread::Runnable* runnable) {

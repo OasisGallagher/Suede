@@ -27,11 +27,13 @@ void Culling::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Tr
 			//	continue;
 		}
 
-		if (child->GetActive() && child->GetRenderer() && child->GetMesh()) {
-			entities.push_back(child);
-		}
+		if (child->GetActive()) {
+			if (child->GetRenderer() && child->GetMesh()) {
+				entities.push_back(child);
+			}
 
-		GetRenderableEntitiesInHierarchy(entities, child->GetTransform(), worldToClipMatrix);
+			GetRenderableEntitiesInHierarchy(entities, child->GetTransform(), worldToClipMatrix);
+		}
 	}
 }
 
@@ -70,7 +72,12 @@ bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipM
 	return false;
 }
 
+CullingThreadPool::CullingThreadPool() : ThreadPool(ThreadPool::Synchronous), listener_(nullptr) {
+
+}
+
 void CullingThreadPool::GetVisibleEntities(const glm::mat4& worldToClipMatrix) {
+	// TODO: memory managed by ZThread.
 	Execute(new Culling(worldToClipMatrix, this));
 }
 

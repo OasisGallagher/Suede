@@ -32,7 +32,7 @@ private:
 
 class CullingThreadPool : public ThreadPool {
 public:
-	CullingThreadPool() : ThreadPool(ThreadPool::Synchronous), listener_(nullptr) {}
+	CullingThreadPool();
 
 public:
 	void GetVisibleEntities(const glm::mat4& worldToClipMatrix);

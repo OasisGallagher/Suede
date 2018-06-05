@@ -11,7 +11,7 @@
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-bool GLSLParser::Parse(std::string* sources, const std::string& path, const std::string& source, const std::string& defines) {
+bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, const std::string& defines) {
 	Clear();
 	path_ = path;
 	answer_ = sources;

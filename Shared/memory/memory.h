@@ -1,7 +1,6 @@
 #pragma once
 
-#define MEMORY_CREATE(T)				Memory::Create<T>()
-#define MEMORY_CLONE(T, other)			Memory::Clone<T>(other)
+#define MEMORY_CREATE(T, ...)			Memory::Create<T>(__VA_ARGS__)
 #define MEMORY_CREATE_ARRAY(T, count)	Memory::CreateArray<T>(count)
 #define MEMORY_RELEASE(pointer)			Memory::Release(pointer)
 #define MEMORY_RELEASE_ARRAY(pointer)	Memory::ReleaseArray(pointer)
@@ -10,14 +9,9 @@
 
 class Memory {
 public:
-	template <class T>
-	static T* Create() {
-		return new T;
-	}
-
-	template <class T>
-	static T* Clone(T* other) {
-		return new T(*other);
+	template <class T, class... Args>
+	static T* Create(Args... args) {
+		return new T(args...);
 	}
 
 	template <class T>

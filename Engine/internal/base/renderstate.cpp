@@ -34,7 +34,7 @@ void CullState::Unbind() {
 }
 
 RenderState* CullState::Clone() {
-	return MEMORY_CLONE(CullState, this);
+	return MEMORY_CREATE(CullState, *this);
 }
 
 void ZTestState::Initialize(int parameter0, int, int) {
@@ -60,7 +60,7 @@ void ZTestState::Unbind() {
 }
 
 RenderState* ZTestState::Clone() {
-	return MEMORY_CLONE(ZTestState, this);
+	return MEMORY_CREATE(ZTestState, *this);
 }
 
 void ZWriteState::Initialize(int parameter0, int, int) {
@@ -78,7 +78,7 @@ void ZWriteState::Unbind() {
 }
 
 RenderState* ZWriteState::Clone() {
-	return MEMORY_CLONE(ZWriteState, this);
+	return MEMORY_CREATE(ZWriteState, *this);
 }
 
 void OffsetState::Initialize(int parameter0, int parameter1, int) {
@@ -107,7 +107,7 @@ void OffsetState::Unbind() {
 }
 
 RenderState* OffsetState::Clone() {
-	return MEMORY_CLONE(OffsetState, this);
+	return MEMORY_CREATE(OffsetState, *this);
 }
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
@@ -143,7 +143,7 @@ void StencilTestState::Unbind() {
 }
 
 RenderState* StencilTestState::Clone() {
-	return MEMORY_CLONE(StencilTestState, this);
+	return MEMORY_CREATE(StencilTestState, *this);
 }
 
 void StencilWriteState::Initialize(int parameter0, int, int) {
@@ -165,7 +165,7 @@ void StencilWriteState::Unbind() {
 }
 
 RenderState* StencilWriteState::Clone() {
-	return MEMORY_CLONE(StencilWriteState, this);
+	return MEMORY_CREATE(StencilWriteState, *this);
 }
 
 void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) {
@@ -191,7 +191,7 @@ void StencilOpState::Unbind() {
 }
 
 RenderState* StencilOpState::Clone() {
-	return MEMORY_CLONE(StencilOpState, this);
+	return MEMORY_CREATE(StencilOpState, *this);
 }
 
 void RasterizerDiscardState::Initialize(int parameter0, int, int) {
@@ -209,7 +209,7 @@ void RasterizerDiscardState::Unbind() {
 }
 
 RenderState* RasterizerDiscardState::Clone() {
-	return MEMORY_CLONE(RasterizerDiscardState, this);
+	return MEMORY_CREATE(RasterizerDiscardState, *this);
 }
 
 void BlendState::Initialize(int parameter0, int parameter1, int) {
@@ -240,7 +240,7 @@ void BlendState::Unbind() {
 }
 
 RenderState* BlendState::Clone() {
-	return MEMORY_CLONE(BlendState, this);
+	return MEMORY_CREATE(BlendState, *this);
 }
 
 void RenderState::Enable(GLenum cap, GLboolean enable) {

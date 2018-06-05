@@ -294,6 +294,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_treeviewcombobox.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_floatlabel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_floatlabel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\floatlabel.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -351,6 +360,9 @@
       <Filter>windows\status\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\controls\treeviewcombobox.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\floatlabel.h">
       <Filter>windows\controls\include</Filter>
     </CustomBuild>
   </ItemGroup>

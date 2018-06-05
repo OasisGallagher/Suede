@@ -226,7 +226,7 @@ void Inspector::initTransformUI() {
 	QDoubleValidator* validator = new QDoubleValidator(this);
 
 #define CONNECT_SIGNAL(line)	line->setValidator(validator); \
-	connect(line, SIGNAL(editingFinished()), this, SLOT(onTransformChanged()))
+	connect(line, SIGNAL(textChanged(const QString&)), this, SLOT(onTransformChanged()))
 
 	CONNECT_SIGNAL(ui_->px);
 	CONNECT_SIGNAL(ui_->py);
