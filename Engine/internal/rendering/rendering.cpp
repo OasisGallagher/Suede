@@ -64,15 +64,15 @@ void Rendering::OnCullingFinished(Culling* worker) {
 
 	std::vector<Entity>& entities = worker->GetEntities();
 	glm::mat4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
-	/*get_renderable_entities->Restart();
-	WorldInstance()->GetVisibleEntities(entities, worldToClipMatrix);
-	get_renderable_entities->Stop();
 
-	Debug::Output("[Rendering::Render::get_renderable_entities]\t%.2f", get_renderable_entities->GetElapsedSeconds());*/
+	for (int i = 0; i < entities.size(); ++i) {
+		Entity entity = entities[i];
+		pipeline_->AddRenderable(entity->GetMesh(), nullptr, 0, nullptr, normalizedRect_, entity->GetTransform()->GetLocalToWorldMatrix());
+	}
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-			//	ForwardDepthPass(entities);
+			ForwardDepthPass(entities);
 		}
 	}
 
@@ -95,7 +95,7 @@ void Rendering::OnCullingFinished(Culling* worker) {
 	}
 
 	//  Stub: main thread only.
-	pipeline_->Flush(worldToClipMatrix);
+	pipeline_->Run(worldToClipMatrix);
 
 	OnPostRender();
 
@@ -249,10 +249,16 @@ void Rendering::RenderForwardAdd(const std::vector<Entity>& entities, const std:
 void Rendering::ForwardDepthPass(const std::vector<Entity>& entities) {
 	if (!depthTexture_) { CreateDepthTexture(); }
 
-	for (int i = 0; i < entities.size(); ++i) {
-		Entity entity = entities[i];
-		pipeline_->AddRenderable(entity->GetMesh(), depthMaterial_, 0, depthTexture_, Rect(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
+	Rect rect(0, 0, 1, 1);
+	uint nrenderables = pipeline_->GetRenderableCount();
+	for (uint i = 0; i < nrenderables; ++i) {
+		Renderable& renderable = pipeline_->GetRenderable(i);
+		renderable.material = depthMaterial_;
+		renderable.target = depthTexture_;
+		renderable.normalizedRect = rect;
 	}
+
+	pipeline_->Sort(SortModeMaterial);
 }
 
 void Rendering::ForwardPass(RenderTexture target, const std::vector<Entity>& entities) {

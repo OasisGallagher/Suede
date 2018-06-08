@@ -12,7 +12,8 @@ void Culling::OnRun() {
 }
 
 void Culling::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix) {
-	for (int i = 0; i < root->GetChildCount(); ++i) {
+	int childCount = root->GetChildCount();
+	for (int i = 0; i < childCount; ++i) {
 		if (root->GetEntity()->GetStatus() != EntityStatusReady) {
 			Debug::Break();
 		}

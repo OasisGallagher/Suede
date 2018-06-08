@@ -23,14 +23,18 @@ struct Renderable {
 
 	glm::mat4 localToWorldMatrix;
 
-	bool operator < (const Renderable& other) const;
-
 	void Clear();
 	bool IsInstance(const Renderable& other) const;
 
 	bool IsMeshInstanced(const Renderable& other) const;
 	bool IsMaterialInstanced(const Renderable& other) const;
 	bool IsFramebufferInstanced(const Renderable& other) const;
+};
+
+enum SortMode {
+	SortModeMesh,
+	SortModeMaterial,
+	SortModeMeshMaterial,
 };
 
 class Sample;
@@ -59,8 +63,14 @@ public:
 	virtual void OnFrameLeave();
 
 public:
-	void Flush(const glm::mat4& worldToClipMatrix);
-	
+	void Sort(SortMode mode);
+
+	void Run(const glm::mat4& worldToClipMatrix);
+	void Clear();
+
+	uint GetRenderableCount() const { return nrenderables_; }
+	Renderable& GetRenderable(uint i) { return renderables_[i]; }
+
 	void AddRenderable(
 		Mesh mesh,
 		Material material,
@@ -83,10 +93,8 @@ public:
 	);
 
 private:
-	void Clear();
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
-	void SortRenderables();
 	void Render(Renderable& renderable);
 
 	void ResetState();
@@ -109,5 +117,5 @@ private:
 	uint ntriangles_;
 
 	// performance.
-	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *sort_renderables, *rendering;
+	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *rendering;
 };

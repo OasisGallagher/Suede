@@ -9,6 +9,39 @@
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
 
+template <class T>
+inline int __compare(T lhs, T rhs) {
+	if (lhs == rhs) { return 0; }
+	return lhs < rhs ? -1 : 1;
+}
+
+#define COMPARE(lhs, rhs)	if (true) { int n = __compare(lhs, rhs); if (n != 0) { return n; } } else (void)0
+
+static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
+	COMPARE(lhs.mesh->GetNativePointer(), rhs.mesh->GetNativePointer());
+	COMPARE(lhs.subMeshIndex, rhs.subMeshIndex);
+
+	const TriangleBias& bias = lhs.mesh->GetSubMesh(lhs.subMeshIndex)->GetTriangleBias();
+	const TriangleBias& otherBias = rhs.mesh->GetSubMesh(rhs.subMeshIndex)->GetTriangleBias();
+	COMPARE(bias.indexCount, otherBias.indexCount);
+	COMPARE(bias.baseIndex, otherBias.baseIndex);
+	COMPARE(bias.baseVertex, otherBias.baseVertex);
+
+	return 0;
+}
+
+static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
+	const Material& lm = lhs.material, &rm = rhs.material;
+
+	COMPARE(lm->GetRenderQueue(), rm->GetRenderQueue());
+	COMPARE(lhs.target, rhs.target);
+	COMPARE(lm, rm);
+	COMPARE(lhs.pass, rhs.pass);
+	COMPARE(lm->GetPassNativePointer(lhs.pass), rm->GetPassNativePointer(rhs.pass));
+
+	return 0;
+}
+
 Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
 	, oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
 	switch_material = Profiler::CreateSample();
@@ -17,7 +50,6 @@ Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
 	update_ubo = Profiler::CreateSample();
 	gather_instances = Profiler::CreateSample();
 	update_pipeline = Profiler::CreateSample();
-	sort_renderables = Profiler::CreateSample();
 	rendering = Profiler::CreateSample();
 
 	Engine::AddFrameEventListener(this);
@@ -30,7 +62,6 @@ Pipeline::~Pipeline() {
 	Profiler::ReleaseSample(update_ubo);
 	Profiler::ReleaseSample(gather_instances);
 	Profiler::ReleaseSample(update_pipeline);
-	Profiler::ReleaseSample(sort_renderables);
 	Profiler::ReleaseSample(rendering);
 
 	Engine::RemoveFrameEventListener(this);
@@ -44,13 +75,41 @@ void Pipeline::OnFrameLeave() {
 
 }
 
-void Pipeline::Flush(const glm::mat4& worldToClipMatrix) {
-	update_pipeline->Restart();
+void Pipeline::Sort(SortMode mode) {
+	struct MeshComparer {
+		bool operator ()(const Renderable& lhs, const Renderable& rhs) const {
+			return MeshPredicate(lhs, rhs) < 0;
+		}
+	};
 
-	sort_renderables->Restart();
-	SortRenderables();
-	sort_renderables->Stop();
-	Debug::Output("[Pipeline::Update::sort]\t%.2f", sort_renderables->GetElapsedSeconds());
+	struct MaterialComparer {
+		bool operator ()(const Renderable& lhs, const Renderable& rhs) const {
+			return MaterialPredicate(lhs, rhs) < 0;
+		}
+	};
+
+	struct MeshMaterialComparer {
+		bool operator ()(const Renderable& lhs, const Renderable& rhs) const {
+			int n = MaterialPredicate(lhs, rhs);
+			return n != 0 ? n < 0 : MeshPredicate(lhs, rhs) < 0;
+		}
+	};
+
+	switch (mode) {
+		case SortModeMesh:
+			std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, MeshComparer());
+			break;
+		case SortModeMaterial:
+			std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, MaterialComparer());
+			break;
+		case SortModeMeshMaterial:
+			std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, MeshMaterialComparer());
+			break;
+	}
+}
+
+void Pipeline::Run(const glm::mat4& worldToClipMatrix) {
+	update_pipeline->Restart();
 
 	gather_instances->Restart();
 	std::vector<uint> ranges;
@@ -173,10 +232,6 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 	}
 }
 
-void Pipeline::SortRenderables() {
-	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_);
-}
-
 void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, RenderTexture target, const Rect& normalizedRect, const glm::mat4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		renderables_.resize(2 * nrenderables_);
@@ -293,57 +348,6 @@ void Pipeline::ResetState() {
 		oldMesh_->Unbind();
 		oldMesh_.reset();
 	}
-}
-
-bool Renderable::operator < (const Renderable& other) const {
-	const Material& lm = material, &rm = other.material;
-	if (lm->GetRenderQueue() != rm->GetRenderQueue()) {
-		return lm->GetRenderQueue() < rm->GetRenderQueue();
-	}
-
-	if (target != other.target) {
-		return target < other.target;
-	}
-
-	if (lm != rm) {
-		return lm < rm;
-	}
-
-	if (pass != other.pass) {
-		return pass < other.pass;
-	}
-
-	uint lp = lm->GetPassNativePointer(pass);
-	uint rp = lm->GetPassNativePointer(other.pass);
-	if (lp != rp) {
-		return lp < rp;
-	}
-
-	uint lme = mesh->GetNativePointer();
-	uint rme = other.mesh->GetNativePointer();
-	if (lme != rme) {
-		return lme < rme;
-	}
-
-	if (subMeshIndex != other.subMeshIndex) {
-		return subMeshIndex < other.subMeshIndex;
-	}
-
-	const TriangleBias& bias = mesh->GetSubMesh(subMeshIndex)->GetTriangleBias();
-	const TriangleBias& otherBias = other.mesh->GetSubMesh(other.subMeshIndex)->GetTriangleBias();
-	if (bias.indexCount != otherBias.indexCount) {
-		return bias.indexCount < otherBias.indexCount;
-	}
-
-	if (bias.baseIndex != otherBias.baseIndex) {
-		return bias.baseIndex < otherBias.baseIndex;
-	}
-
-	if (bias.baseVertex != otherBias.baseVertex) {
-		return bias.baseVertex < otherBias.baseVertex;
-	}
-
-	return false;
 }
 
 bool Renderable::IsInstance(const Renderable& other) const {
