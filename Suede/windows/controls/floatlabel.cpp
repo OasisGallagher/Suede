@@ -10,7 +10,13 @@ FloatLabel::FloatLabel(QWidget* parent) : QLabel(parent)
 }
 
 void FloatLabel::updateText(float f) {
-	((QLineEdit*)buddy())->setText(QString::number(f, 'g', precision_));
+	QLineEdit* line = dynamic_cast<QLineEdit*>(buddy());
+	if (line == nullptr) {
+		Debug::LogError("FloatLabel must have QLineEdit buddy");
+		return;
+	}
+
+	line->setText(QString::number(f, 'g', precision_));
 }
 
 void FloatLabel::setPrecision(uint value) {

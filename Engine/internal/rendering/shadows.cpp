@@ -5,14 +5,14 @@
 #include "internal/base/framebuffer.h"
 #include "internal/world/worldinternal.h"
 
-static RenderTexture rtShadow;
+static RenderTexture shadowDepthTexture;
 static glm::mat4 worldToShadowMatrix;
 static Material directionalLightShadowMaterial;
 
 void Shadows::Initialize() {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-	rtShadow = NewRenderTexture();
-	rtShadow->Create(RenderTextureFormatShadow, w, h);
+	shadowDepthTexture = NewRenderTexture();
+	shadowDepthTexture->Create(RenderTextureFormatShadow, w, h);
 
 	directionalLightShadowMaterial = NewMaterial();
 	directionalLightShadowMaterial->SetShader(Resources::FindShader("builtin/directional_light_depth"));
@@ -20,17 +20,17 @@ void Shadows::Initialize() {
 }
 
 void Shadows::Resize(uint width, uint height) {
-	if (width != rtShadow->GetWidth() || height != rtShadow->GetHeight()) {
-		rtShadow->Resize(width, height);
+	if (width != shadowDepthTexture->GetWidth() || height != shadowDepthTexture->GetHeight()) {
+		shadowDepthTexture->Resize(width, height);
 	}
 }
 
 void Shadows::AttachShadowTexture(Material material) {
-	material->SetTexture(Variables::shadowDepthTexture, rtShadow);
+	material->SetTexture(Variables::shadowDepthTexture, shadowDepthTexture);
 }
 
 void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities) {
-	rtShadow->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+	shadowDepthTexture->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
@@ -41,9 +41,13 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 	glm::mat4 shadowDepthMatrix = projection * view;
 	directionalLightShadowMaterial->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
 
-	for (int i = 0; i < entities.size(); ++i) {
-		Entity entity = entities[i];
-		pipeline->AddRenderable(entity->GetMesh(), directionalLightShadowMaterial, 0, rtShadow, Rect(0, 0, 1, 1), entity->GetTransform()->GetLocalToWorldMatrix());
+	uint nrenderables = pipeline->GetRenderableCount();
+	Rect rect(0, 0, 1, 1);
+	for (int i = 0; i < nrenderables; ++i) {
+		Renderable& r = pipeline->GetRenderable(i);
+		r.material = directionalLightShadowMaterial;
+		r.target = shadowDepthTexture;
+		r.normalizedRect = rect;
 	}
 
 	/*

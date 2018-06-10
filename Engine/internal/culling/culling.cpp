@@ -8,34 +8,25 @@ Culling::Culling(const glm::mat4& worldToClipMatrix, AsyncEventListener* receive
 }
 
 void Culling::OnRun() {
-	GetRenderableEntitiesInHierarchy(entities_, WorldInstance()->GetRootTransform(), worldToClipMatrix_);
+	entities_.clear();
+	WorldInstance()->WalkEntityHierarchy(this);
 }
 
-void Culling::GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix) {
-	int childCount = root->GetChildCount();
-	for (int i = 0; i < childCount; ++i) {
-		if (root->GetEntity()->GetStatus() != EntityStatusReady) {
-			Debug::Break();
-		}
-
-		Entity child = root->GetChildAt(i)->GetEntity();
-		if (child->GetStatus() != EntityStatusReady) {
-			continue;
-		}
-
-		// TODO: fix bug for particle system by calculating its bounds.
-		if (!IsVisible(child, worldToClipMatrix)) {
-			//	continue;
-		}
-
-		if (child->GetActive()) {
-			if (child->GetRenderer() && child->GetMesh()) {
-				entities.push_back(child);
-			}
-
-			GetRenderableEntitiesInHierarchy(entities, child->GetTransform(), worldToClipMatrix);
-		}
+WorldEntityWalker::WalkCommand Culling::OnWalkEntity(Entity entity) {
+	// TODO: fix bug for particle system by calculating its bounds.
+	if (!IsVisible(entity, worldToClipMatrix_)) {
+		//return WorldEntityWalker::WalkCommandContinue;
 	}
+
+	if (!entity->GetActive()) {
+		return WorldEntityWalker::WalkCommandNext;
+	}
+
+	if (entity->GetRenderer() && entity->GetMesh()) {
+		entities_.push_back(entity);
+	}
+
+	return WorldEntityWalker::WalkCommandContinue;
 }
 
 bool Culling::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {

@@ -15,6 +15,7 @@ public:
 	virtual void RemoveChildAt(uint index);
 
 	virtual void SetParent(Transform value);
+
 	virtual Transform GetParent() const { return parent_.lock(); }
 
 	virtual glm::vec3 TransformPoint(const glm::vec3& point);
@@ -68,6 +69,12 @@ private:
 	void DirtyChildrenRotationsAndEulerAngles();
 
 	Transform FindDirectChild(const std::string& name);
+	void ChangeParent(Transform oldParent, Transform newParent);
+
+	typedef std::vector<Transform> Children;
+
+	bool AddItem(Children& children, Transform child);
+	bool EraseItem(Children& children, Transform child);
 
 private:
 	enum {
@@ -84,7 +91,7 @@ private:
 	};
 
 private:
-	std::vector<Transform> children_;
+	Children children_;
 	std::weak_ptr<Transform::element_type> parent_;
 
 	PRS local_;

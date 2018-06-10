@@ -109,12 +109,15 @@ public:
 	virtual void OnWorldEvent(WorldEventBasePointer e) = 0;
 };
 
-class EntitySelector {
+class WorldEntityWalker {
 public:
-	virtual ~EntitySelector() {}
+	enum WalkCommand {
+		WalkCommandNext,
+		WalkCommandBreak,
+		WalkCommandContinue,
+	};
 
-public:
-	virtual bool Select(Entity entity) = 0;
+	virtual WalkCommand OnWalkEntity(Entity entity) = 0;
 };
 
 struct Decal;
@@ -135,8 +138,8 @@ public:
 	virtual RenderTexture GetScreenRenderTarget() = 0;
 
 	virtual Entity GetEntity(uint id) = 0;
-	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector) = 0;
-	virtual bool GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix) = 0;
+	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
+	virtual void WalkEntityHierarchy(WorldEntityWalker* walker) = 0;
 
 	virtual bool FireEvent(WorldEventBasePointer e) = 0;
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;

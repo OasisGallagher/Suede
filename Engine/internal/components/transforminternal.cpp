@@ -3,23 +3,21 @@
 #include "world.h"
 #include "tools/math2.h"
 #include "transforminternal.h"
+#include "internal/async/async.h"
 
 TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform), dirtyBits_(0) {
 	local_.scale = world_.scale = glm::vec3(1);
 }
 
 void TransformInternal::AddChild(Transform child) {
-	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
-		children_.push_back(child);
+	if (AddItem(children_, child)) {
 		child->SetParent(suede_dynamic_cast<Transform>(shared_from_this()));
 	}
 }
 
 void TransformInternal::RemoveChild(Transform child) {
-	std::vector<Transform>::iterator pos = std::find(children_.begin(), children_.end(), child);
-	if (pos != children_.end()) {
+	if (EraseItem(children_, child)) {
 		child->SetParent(WorldInstance()->GetRootTransform());
-		children_.erase(pos);
 	}
 }
 
@@ -35,37 +33,17 @@ void TransformInternal::RemoveChildAt(uint index) {
 }
 
 void TransformInternal::SetParent(Transform value) {
+	GUARD_SCOPE(Transform);
+
 	if (value.get() == this) {
 		Debug::LogError("parent can not be itself.");
 		return;
 	}
 
 	Transform oldParent = parent_.lock();
-	if (oldParent == value) {
-		return;
+	if (oldParent != value) {
+		ChangeParent(oldParent, value);
 	}
-
-	Transform thisSp = suede_dynamic_cast<Transform>(shared_from_this());
-	if (oldParent) {
-		oldParent->RemoveChild(thisSp);
-	}
-
-	if (value) {
-		value->AddChild(thisSp);
-	}
-
-	parent_ = value;
-
-	// Clear dirty flags.
-	GetScale();
-	GetRotation();
-	GetPosition();
-
-	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
-
-	EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
-	e->entity = thisSp->GetEntity();
-	WorldInstance()->FireEvent(e);
 }
 
 glm::vec3 TransformInternal::TransformPoint(const glm::vec3& point) {
@@ -543,4 +521,54 @@ Transform TransformInternal::FindDirectChild(const std::string& name) {
 	}
 
 	return nullptr;
+}
+
+void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
+	Transform thisSp = suede_dynamic_cast<Transform>(shared_from_this());
+
+	Children* pchildren;
+	if (oldParent) {
+		// remove from old parent.
+		pchildren = &dynamic_cast<TransformInternal*>(oldParent.get())->children_;
+		Children::iterator pos = std::find(pchildren->begin(), pchildren->end(), thisSp);
+		if (pos != pchildren->end()) {
+			pchildren->erase(pos);
+		}
+	}
+
+	if (!newParent) { newParent = WorldInstance()->GetRootTransform(); }
+	pchildren = &dynamic_cast<TransformInternal*>(newParent.get())->children_;
+	pchildren->push_back(thisSp);
+	
+	parent_ = newParent;
+
+	// Clear dirty flags.
+	GetScale();
+	GetRotation();
+	GetPosition();
+
+	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
+
+	EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
+	e->entity = thisSp->GetEntity();
+	WorldInstance()->FireEvent(e);
+}
+
+bool TransformInternal::AddItem(Children & children, Transform child) {
+	if (std::find(children.begin(), children.end(), child) == children.end()) {
+		children.push_back(child);
+		return true;
+	}
+
+	return false;
+}
+
+bool TransformInternal::EraseItem(Children & children, Transform child) {
+	Children::iterator pos = std::find(children_.begin(), children_.end(), child);
+	if (pos != children_.end()) {
+		children_.erase(pos);
+		return true;
+	}
+
+	return false;
 }

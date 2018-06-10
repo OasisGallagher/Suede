@@ -66,6 +66,7 @@ public:
 	void Sort(SortMode mode);
 
 	void Run(const glm::mat4& worldToClipMatrix);
+	
 	void Clear();
 
 	uint GetRenderableCount() const { return nrenderables_; }

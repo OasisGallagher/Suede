@@ -9,7 +9,7 @@ public:
 	virtual void OnCullingFinished(Culling* worker) = 0;
 };
 
-class Culling : public AsyncWorker {
+class Culling : public AsyncWorker, public WorldEntityWalker {
 public:
 	Culling(const glm::mat4& worldToClipMatrix, AsyncEventListener* receiver);
 	~Culling() {}
@@ -17,13 +17,15 @@ public:
 public:
 	std::vector<Entity>& GetEntities() { return entities_; }
 
+public:
+	virtual WalkCommand OnWalkEntity(Entity entity);
+
 protected:
 	virtual void OnRun();
 
 private:
 	bool IsVisible(Entity entity, const glm::mat4& worldToClipMatrix);
 	bool FrustumCulling(const Bounds & bounds, const glm::mat4& worldToClipMatrix);
-	void GetRenderableEntitiesInHierarchy(std::vector<Entity>& entities, Transform root, const glm::mat4& worldToClipMatrix);
 
 private:
 	glm::mat4 worldToClipMatrix_;

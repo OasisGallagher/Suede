@@ -70,9 +70,12 @@ void Rendering::OnCullingFinished(Culling* worker) {
 		pipeline_->AddRenderable(entity->GetMesh(), nullptr, 0, nullptr, normalizedRect_, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
+	pipeline_->Sort(SortModeMesh);
+
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
 			ForwardDepthPass(entities);
+			pipeline_->Run(worldToClipMatrix);
 		}
 	}
 
@@ -87,6 +90,9 @@ void Rendering::OnCullingFinished(Culling* worker) {
 
 	UpdateTransformsUniformBuffer();
 
+	pipeline_->Run(worldToClipMatrix);
+	pipeline_->Clear();
+
 	if (renderPath_ == RenderPathForward) {
 		ForwardRendering(target, entities, forwardBase, forwardAdd);
 	}
@@ -95,7 +101,9 @@ void Rendering::OnCullingFinished(Culling* worker) {
 	}
 
 	//  Stub: main thread only.
+	pipeline_->Sort(SortModeMeshMaterial);
 	pipeline_->Run(worldToClipMatrix);
+	pipeline_->Clear();
 
 	OnPostRender();
 
@@ -257,8 +265,6 @@ void Rendering::ForwardDepthPass(const std::vector<Entity>& entities) {
 		renderable.target = depthTexture_;
 		renderable.normalizedRect = rect;
 	}
-
-	pipeline_->Sort(SortModeMaterial);
 }
 
 void Rendering::ForwardPass(RenderTexture target, const std::vector<Entity>& entities) {
@@ -273,7 +279,7 @@ void Rendering::ForwardPass(RenderTexture target, const std::vector<Entity>& ent
 
 void Rendering::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Entity> lights;
-	if (!WorldInstance()->GetEntities(ObjectTypeLights, lights, nullptr)) {
+	if (!WorldInstance()->GetEntities(ObjectTypeLights, lights)) {
 		return;
 	}
 

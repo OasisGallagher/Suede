@@ -39,8 +39,8 @@ public:
 	virtual RenderTexture GetScreenRenderTarget() { return screenRenderTarget_; }
 
 	virtual Entity GetEntity(uint id);
-	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector);
-	virtual bool GetVisibleEntities(std::vector<Entity>& entities, const glm::mat4& worldToClipMatrix) { return true; }
+	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
+	virtual void WalkEntityHierarchy(WorldEntityWalker* walker);
 
 	virtual bool FireEvent(WorldEventBasePointer e);
 	virtual void FireEventImmediate(WorldEventBasePointer e);
@@ -65,6 +65,8 @@ private:
 	void RenderUpdate();
 	void UpdateDecals();
 	void UpdateEntities();
+
+	bool WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker);
 
 	void CreateDecals(Camera camera);
 	bool CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]);
@@ -111,6 +113,8 @@ private:
 	EventListenerContainer listeners_;
 
 	WorldEventContainer events_;
+
+	ZThread::Mutex hierarchyMutex_;
 	ZThread::Mutex eventContainerMutex_;
 
 	Sample *update_entities, *update_decals, *update_rendering;

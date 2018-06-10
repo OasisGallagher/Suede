@@ -14,8 +14,6 @@
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-#define LockEventContainerInScope()	ZThread::Guard<ZThread::Mutex> lock(eventContainerMutex_)
-
 static void InitWorld(WorldInternal* world) {
 	GLLimits::Initialize();
 	UniformBufferManager::Initialize();
@@ -97,6 +95,8 @@ Object WorldInternal::Create(ObjectType type) {
 		FireEvent(e);
 
 		transform->SetParent(root_->GetTransform());
+
+		GUARD_SCOPE(Transform);
 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 	}
 
@@ -126,7 +126,7 @@ Entity WorldInternal::GetEntity(uint id) {
 	return ite->second;
 }
 
-bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities, EntitySelector* selector) {
+bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) {
 	if (type < ObjectTypeEntity) {
 		Debug::LogError("invalid entity type");
 		return false;
@@ -134,9 +134,7 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities, 
 
 	if (type == ObjectTypeEntity) {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			if (selector == nullptr || selector->Select(ite->second)) {
-				entities.push_back(ite->second);
-			}
+			entities.push_back(ite->second);
 		}
 	}
 	else if (type == ObjectTypeCamera) {
@@ -150,13 +148,18 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities, 
 	}
 	else {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			if (ite->second->GetType() == type && (selector == nullptr || selector->Select(ite->second))) {
+			if (ite->second->GetType() == type) {
 				entities.push_back(ite->second);
 			}
 		}
 	}
 
 	return !entities.empty();
+}
+
+void WorldInternal::WalkEntityHierarchy(WorldEntityWalker* walker) {
+	GUARD_SCOPE(Transform);
+	WalkEntityHierarchyRecursively(GetRootTransform(), walker);
 }
 
 void WorldInternal::AddEventListener(WorldEventListener* listener) {
@@ -181,7 +184,7 @@ bool WorldInternal::FireEvent(WorldEventBasePointer e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
 
-	LockEventContainerInScope();
+	GUARD_SCOPE(WorldEventContainer);
 	if (collection.find(e) == collection.end()) {
 		collection.insert(e);
 		return true;
@@ -228,6 +231,34 @@ void WorldInternal::UpdateEntities() {
 	}
 }
 
+bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker) {
+	int childCount = root->GetChildCount();
+	for (int i = 0; i < childCount; ++i) {
+		Entity child = root->GetChildAt(i)->GetEntity();
+		if (child->GetStatus() != EntityStatusReady) {
+			continue;
+		}
+
+		WorldEntityWalker::WalkCommand command = walker->OnWalkEntity(child);
+
+		// next sibling.
+		if (command == WorldEntityWalker::WalkCommandNext) {
+			break;
+		}
+
+		// 
+		if (command == WorldEntityWalker::WalkCommandBreak) {
+			return false;
+		}
+
+		if (!WalkEntityHierarchyRecursively(child->GetTransform(), walker)) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 }
 
@@ -238,8 +269,7 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 }
 
 void WorldInternal::FireEvents() {
-	LockEventContainerInScope();
-
+	GUARD_SCOPE(WorldEventContainer);
 	for (uint i = 0; i < WorldEventTypeCount; ++i) {
 		WorldEventCollection& collection = events_[i];
 		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {
@@ -281,7 +311,7 @@ bool WorldInternal::CreateEntityDecal(Camera camera, Decal& decal, Entity entity
 }
 
 bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]) {
-	std::vector<Entity> entities;
+	/*std::vector<Entity> entities;
 	if (!GetVisibleEntities(entities, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix())) {
 		return true;
 	}
@@ -303,7 +333,7 @@ bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane plane
 		decal->texture = p->GetTexture();
 		decal->matrix = p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix();
 	}
-
+	*/
 	return true;
 }
 

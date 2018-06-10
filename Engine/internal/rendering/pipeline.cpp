@@ -150,7 +150,7 @@ void Pipeline::Run(const glm::mat4& worldToClipMatrix) {
 	update_pipeline->Stop();
 	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f", update_pipeline->GetElapsedSeconds());
 
-	Clear();
+	ResetState();
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {
@@ -319,8 +319,6 @@ void Pipeline::UpdateState(Renderable& renderable) {
 void Pipeline::Clear() {
 	ndrawcalls_ = 0;
 	ntriangles_ = 0;
-
-	ResetState();
 
 	switch_mesh->Clear();
 	switch_material->Clear();
