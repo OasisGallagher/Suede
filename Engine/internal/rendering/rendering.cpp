@@ -73,7 +73,7 @@ void Rendering::OnCullingFinished(Culling* worker) {
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-			ForwardDepthPass();
+			ForwardDepthPass(pipeline_);
 			pipeline_->Run(worldToClipMatrix);
 		}
 	}
@@ -93,10 +93,10 @@ void Rendering::OnCullingFinished(Culling* worker) {
 	pipeline_->Clear();
 
 	if (renderPath_ == RenderPathForward) {
-		ForwardRendering(target, entities, forwardBase, forwardAdd);
+		ForwardRendering(pipeline_, target, entities, forwardBase, forwardAdd);
 	}
 	else {
-		DeferredRendering(target, entities, forwardBase, forwardAdd);
+		DeferredRendering(pipeline_, target, entities, forwardBase, forwardAdd);
 	}
 
 	//  Stub: main thread only.
@@ -135,23 +135,23 @@ void Rendering::UpdateTransformsUniformBuffer() {
 	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
-void Rendering::ForwardRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void Rendering::ForwardRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (clearType_ == ClearTypeSkybox) {
-		RenderSkybox(target);
+		RenderSkybox(pl, target);
 	}
 
 	if (forwardBase) {
-		RenderForwardBase(target, entities, forwardBase);
+		RenderForwardBase(pl, target, entities, forwardBase);
 	}
 
 	if (!forwardAdd.empty()) {
-		RenderForwardAdd(entities, forwardAdd);
+		RenderForwardAdd(pl, entities, forwardAdd);
 	}
 
-	RenderDecals(target);
+	RenderDecals(pl, target);
 }
 
-void Rendering::DeferredRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void Rendering::DeferredRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	// 	if (gbuffer_ == nullptr) {
 	// 		InitializeDeferredRender();
 	// 	}
@@ -168,7 +168,7 @@ void Rendering::InitializeDeferredRender() {
 	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
 }
 
-void Rendering::RenderDeferredGeometryPass(RenderTexture target, const std::vector<Entity>& entities) {
+void Rendering::RenderDeferredGeometryPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities) {
 	// 	gbuffer_->Bind(GBuffer::GeometryPass);
 	// 
 	// 	for (int i = 0; i < entities.size(); ++i) {
@@ -190,12 +190,12 @@ void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderP
 	material->SetRenderQueue(renderQueue);
 }
 
-void Rendering::RenderSkybox(RenderTexture target) {
+void Rendering::RenderSkybox(Pipeline* pl, RenderTexture target) {
 	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pipeline_->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, normalizedRect_, matrix);
+		pl->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, normalizedRect_, matrix);
 	}
 }
 
@@ -240,26 +240,26 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& e
 	UniformBufferManager::UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
-void Rendering::RenderForwardBase(RenderTexture target, const std::vector<Entity>& entities, Light light) {
+void Rendering::RenderForwardBase(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light light) {
 	// Stub: GL.
 	UpdateForwardBaseLightUniformBuffer(entities, light);
 
 	forward_pass->Restart();
-	ForwardPass(target, entities);
+	ForwardPass(pl, target, entities);
 	forward_pass->Stop();
 	Debug::Output("[Rendering::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
-void Rendering::RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights) {
+void Rendering::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities, const std::vector<Light>& lights) {
 }
 
-void Rendering::ForwardDepthPass() {
+void Rendering::ForwardDepthPass(Pipeline* pl) {
 	if (!depthTexture_) { CreateDepthTexture(); }
 
 	Rect rect(0, 0, 1, 1);
-	uint nrenderables = pipeline_->GetRenderableCount();
+	uint nrenderables = pl->GetRenderableCount();
 	for (uint i = 0; i < nrenderables; ++i) {
-		Renderable& renderable = pipeline_->GetRenderable(i);
+		Renderable& renderable = pl->GetRenderable(i);
 		renderable.material = depthMaterial_;
 		renderable.target = depthTexture_;
 		renderable.instance = 0;
@@ -267,10 +267,10 @@ void Rendering::ForwardDepthPass() {
 	}
 }
 
-void Rendering::ForwardPass(RenderTexture target, const std::vector<Entity>& entities) {
+void Rendering::ForwardPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities) {
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		RenderEntity(target, entity, entity->GetRenderer());
+		RenderEntity(pl, target, entity, entity->GetRenderer());
 	}
 
 	Debug::Output("[Rendering::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
@@ -293,7 +293,7 @@ void Rendering::OnPostRender() {
 
 }
 
-void Rendering::RenderDecals(RenderTexture target) {
+void Rendering::RenderDecals(Pipeline* pl, RenderTexture target) {
 	std::vector<Decal*> decals;
 	WorldInstance()->GetDecals(decals);
 
@@ -320,7 +320,7 @@ void Rendering::RenderDecals(RenderTexture target) {
 
 		mesh->AddSubMesh(subMesh);
 
-		pipeline_->AddRenderable(mesh, decalMaterial, 0, target, normalizedRect_, glm::mat4(1));
+		pl->AddRenderable(mesh, decalMaterial, 0, target, normalizedRect_, glm::mat4(1));
 	}
 }
 
@@ -340,7 +340,7 @@ void Rendering::OnImageEffects() {
 	}
 }
 
-void Rendering::RenderEntity(RenderTexture target, Entity entity, Renderer renderer) {
+void Rendering::RenderEntity(Pipeline* pl, RenderTexture target, Entity entity, Renderer renderer) {
 	push_renderables->Start();
 
 	int subMeshCount = entity->GetMesh()->GetSubMeshCount();
@@ -357,12 +357,12 @@ void Rendering::RenderEntity(RenderTexture target, Entity entity, Renderer rende
 		Material material = renderer->GetMaterial(i);
 		int pass = material->GetPass();
 		if (pass >= 0 && material->IsPassEnabled(pass)) {
-			RenderSubMesh(target, entity, i, material, pass);
+			RenderSubMesh(pl, target, entity, i, material, pass);
 		}
 		else {
 			for (pass = 0; pass < material->GetPassCount(); ++pass) {
 				if (material->IsPassEnabled(pass)) {
-					RenderSubMesh(target, entity, i, material, pass);
+					RenderSubMesh(pl, target, entity, i, material, pass);
 				}
 			}
 		}
@@ -371,8 +371,8 @@ void Rendering::RenderEntity(RenderTexture target, Entity entity, Renderer rende
 	push_renderables->Stop();
 }
 
-void Rendering::RenderSubMesh(RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass) {
+void Rendering::RenderSubMesh(Pipeline* pl, RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass) {
 	ParticleSystem p = entity->GetParticleSystem();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pipeline_->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, normalizedRect_, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, normalizedRect_, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

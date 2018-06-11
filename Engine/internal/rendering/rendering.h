@@ -57,31 +57,31 @@ private:
 	void UpdateTransformsUniformBuffer();
 	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
 
-	void ForwardRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(RenderTexture target, const std::vector<Entity>& entities);
+	void RenderDeferredGeometryPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities);
 
 	void CreateAuxTexture1();
 	void CreateAuxTexture2();
 	void CreateDepthTexture();
-	void RenderSkybox(RenderTexture target);
+	void RenderSkybox(Pipeline* pl, RenderTexture target);
 
 	RenderTexture GetActiveRenderTarget();
 
-	void ForwardPass(RenderTexture target, const std::vector<Entity>& entities);
-	void ForwardDepthPass();
+	void ForwardPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities);
+	void ForwardDepthPass(Pipeline* pl);
 
-	void RenderEntity(RenderTexture target, Entity entity, Renderer renderer);
-	void RenderSubMesh(RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass);
+	void RenderEntity(Pipeline* pl, RenderTexture target, Entity entity, Renderer renderer);
+	void RenderSubMesh(Pipeline* pl, RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass);
 
 	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
 
-	void RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights);
-	void RenderForwardBase(RenderTexture target, const std::vector<Entity>& entities, Light light);
+	void RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities, const std::vector<Light>& lights);
+	void RenderForwardBase(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light light);
 
-	void RenderDecals(RenderTexture target);
+	void RenderDecals(Pipeline* pl, RenderTexture target);
 	void OnPostRender();
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
