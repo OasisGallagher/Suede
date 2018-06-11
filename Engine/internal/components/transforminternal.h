@@ -68,6 +68,7 @@ private:
 	void DirtyChildrenPositions();
 	void DirtyChildrenRotationsAndEulerAngles();
 
+	bool IsRoot(Transform transform);
 	Transform FindDirectChild(const std::string& name);
 	void ChangeParent(Transform oldParent, Transform newParent);
 

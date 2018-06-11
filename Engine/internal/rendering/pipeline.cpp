@@ -246,6 +246,10 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.target = target;
 	renderable.normalizedRect = normalizedRect;
 	renderable.localToWorldMatrix = localToWorldMatrix;
+
+	if (mesh->GetTopology() < 0 || mesh->GetTopology() > 3) {
+		Debug::Break();
+	}
 }
 
 void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, RenderTexture target, const Rect& normalizedRect, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
@@ -317,13 +321,6 @@ void Pipeline::UpdateState(Renderable& renderable) {
 }
 
 void Pipeline::Clear() {
-	ndrawcalls_ = 0;
-	ntriangles_ = 0;
-
-	switch_mesh->Clear();
-	switch_material->Clear();
-	switch_framebuffer->Clear();
-
 	for (uint i = 0; i < nrenderables_; ++i) {
 		renderables_[i].Clear();
 	}
@@ -332,6 +329,13 @@ void Pipeline::Clear() {
 }
 
 void Pipeline::ResetState() {
+	ndrawcalls_ = 0;
+	ntriangles_ = 0;
+
+	switch_mesh->Reset();
+	switch_material->Reset();
+	switch_framebuffer->Reset();
+
 	if (oldTarget_) {
 		oldTarget_->Unbind();
 		oldTarget_.reset();
@@ -346,6 +350,8 @@ void Pipeline::ResetState() {
 		oldMesh_->Unbind();
 		oldMesh_.reset();
 	}
+
+	oldPass_ = 0;
 }
 
 bool Renderable::IsInstance(const Renderable& other) const {

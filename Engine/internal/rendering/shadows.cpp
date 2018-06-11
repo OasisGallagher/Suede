@@ -2,35 +2,34 @@
 #include "pipeline.h"
 #include "resources.h"
 #include "variables.h"
-#include "internal/base/framebuffer.h"
 #include "internal/world/worldinternal.h"
 
-static RenderTexture shadowDepthTexture;
-static glm::mat4 worldToShadowMatrix;
-static Material directionalLightShadowMaterial;
+static RenderTexture shadowDepthTexture_;
+static glm::mat4 worldToShadowMatrix_;
+static Material directionalLightShadowMaterial_;
 
 void Shadows::Initialize() {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-	shadowDepthTexture = NewRenderTexture();
-	shadowDepthTexture->Create(RenderTextureFormatShadow, w, h);
+	shadowDepthTexture_ = NewRenderTexture();
+	shadowDepthTexture_->Create(RenderTextureFormatShadow, w, h);
 
-	directionalLightShadowMaterial = NewMaterial();
-	directionalLightShadowMaterial->SetShader(Resources::FindShader("builtin/directional_light_depth"));
-	directionalLightShadowMaterial->SetRenderQueue(RenderQueueBackground - 200);
+	directionalLightShadowMaterial_ = NewMaterial();
+	directionalLightShadowMaterial_->SetShader(Resources::FindShader("builtin/directional_light_depth"));
+	directionalLightShadowMaterial_->SetRenderQueue(RenderQueueBackground - 200);
 }
 
 void Shadows::Resize(uint width, uint height) {
-	if (width != shadowDepthTexture->GetWidth() || height != shadowDepthTexture->GetHeight()) {
-		shadowDepthTexture->Resize(width, height);
+	if (width != shadowDepthTexture_->GetWidth() || height != shadowDepthTexture_->GetHeight()) {
+		shadowDepthTexture_->Resize(width, height);
 	}
 }
 
 void Shadows::AttachShadowTexture(Material material) {
-	material->SetTexture(Variables::shadowDepthTexture, shadowDepthTexture);
+	material->SetTexture(Variables::shadowDepthTexture, shadowDepthTexture_);
 }
 
-void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities) {
-	shadowDepthTexture->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
+	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
@@ -39,14 +38,15 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 	glm::mat4 projection = glm::ortho(-50.f, 50.f, -50.f, 50.f, near, far);
 	glm::mat4 view = glm::lookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
-	directionalLightShadowMaterial->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
+	directionalLightShadowMaterial_->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
 
 	uint nrenderables = pipeline->GetRenderableCount();
 	Rect rect(0, 0, 1, 1);
 	for (int i = 0; i < nrenderables; ++i) {
 		Renderable& r = pipeline->GetRenderable(i);
-		r.material = directionalLightShadowMaterial;
-		r.target = shadowDepthTexture;
+		r.material = directionalLightShadowMaterial_;
+		r.target = shadowDepthTexture_;
+		r.instance = 0;
 		r.normalizedRect = rect;
 	}
 
@@ -64,9 +64,9 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline, const std::vect
 		0.5, 0.5f, 0.5f, 1.f
 	);
 
-	worldToShadowMatrix = bias * shadowDepthMatrix;
+	worldToShadowMatrix_ = bias * shadowDepthMatrix;
 }
 
 const glm::mat4& Shadows::GetWorldToShadowMatrix() {
-	return worldToShadowMatrix;
+	return worldToShadowMatrix_;
 }

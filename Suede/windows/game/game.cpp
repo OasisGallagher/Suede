@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "models/boblampclean.md5mesh";
-static const char* roomFbxPath = "models/room.obj";// "models/house.fbx";
+static const char* roomFbxPath = "models/house.fbx";
 
 static Game* gameInstance;
 
@@ -226,6 +226,7 @@ void Game::createScene() {
 	DirectionalLight light = NewDirectionalLight();
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
+	light->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	//targetTexture_ = NewRenderTexture();
 	//targetTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
@@ -233,6 +234,7 @@ void Game::createScene() {
 	Camera camera = NewCamera();
 	WorldInstance()->SetMainCamera(camera);
 	camera->AddGizmosPainter(this);
+	camera->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());

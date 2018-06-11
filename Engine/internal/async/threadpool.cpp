@@ -8,8 +8,6 @@
 #include <ZThread/ConcurrentExecutor.h>
 #include <ZThread/SynchronousExecutor.h>
 
-#define LogUnknownException()	Debug::LogError("unknown exception")
-
 ThreadPool::ThreadPool(int type) {
 	Engine::AddFrameEventListener(this);
 	CreateExecutor(type);
@@ -44,8 +42,8 @@ ThreadPool::~ThreadPool() {
 	catch (const ZThread::Synchronization_Exception& e) {
 		Debug::LogError(e.what());
 	}
-	catch (...) {
-		LogUnknownException();
+	catch (const std::exception& e) {
+		Debug::LogError(e.what());
 	}
 
 	MEMORY_RELEASE(executor_);
@@ -71,8 +69,8 @@ void ThreadPool::OnFrameEnter() {
 	catch (const ZThread::Synchronization_Exception& e) {
 		Debug::LogError(e.what());
 	}
-	catch (...) {
-		LogUnknownException();
+	catch (const std::exception& e) {
+		Debug::LogError(e.what());
 	}
 }
 
@@ -97,8 +95,8 @@ bool ThreadPool::Execute(ZThread::Task task) {
 		Debug::LogError(e.what());
 		return false;
 	}
-	catch (...) {
-		LogUnknownException();
+	catch (const std::exception& e) {
+		Debug::LogError(e.what());
 		return false;
 	}
 

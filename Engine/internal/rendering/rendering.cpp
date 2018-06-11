@@ -8,7 +8,6 @@
 #include "debug/profiler.h"
 #include "internal/rendering/shadows.h"
 #include "internal/rendering/pipeline.h"
-#include "internal/entities/camerainternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
 Rendering::Rendering() : normalizedRect_(0, 0, 1, 1), depthTextureMode_(DepthTextureModeNone)
@@ -74,7 +73,7 @@ void Rendering::OnCullingFinished(Culling* worker) {
 
 	if (renderPath_ == RenderPathForward) {
 		if ((depthTextureMode_ & DepthTextureModeDepth) != 0) {
-			ForwardDepthPass(entities);
+			ForwardDepthPass();
 			pipeline_->Run(worldToClipMatrix);
 		}
 	}
@@ -86,7 +85,7 @@ void Rendering::OnCullingFinished(Culling* worker) {
 	RenderTexture target = GetActiveRenderTarget();
 
 	Shadows::Resize(target->GetWidth(), target->GetHeight());
-	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_, entities);
+	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipeline_);
 
 	UpdateTransformsUniformBuffer();
 
@@ -254,7 +253,7 @@ void Rendering::RenderForwardBase(RenderTexture target, const std::vector<Entity
 void Rendering::RenderForwardAdd(const std::vector<Entity>& entities, const std::vector<Light>& lights) {
 }
 
-void Rendering::ForwardDepthPass(const std::vector<Entity>& entities) {
+void Rendering::ForwardDepthPass() {
 	if (!depthTexture_) { CreateDepthTexture(); }
 
 	Rect rect(0, 0, 1, 1);
@@ -263,6 +262,7 @@ void Rendering::ForwardDepthPass(const std::vector<Entity>& entities) {
 		Renderable& renderable = pipeline_->GetRenderable(i);
 		renderable.material = depthMaterial_;
 		renderable.target = depthTexture_;
+		renderable.instance = 0;
 		renderable.normalizedRect = rect;
 	}
 }
@@ -274,7 +274,7 @@ void Rendering::ForwardPass(RenderTexture target, const std::vector<Entity>& ent
 	}
 
 	Debug::Output("[Rendering::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
-	push_renderables->Clear();
+	push_renderables->Reset();
 }
 
 void Rendering::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {

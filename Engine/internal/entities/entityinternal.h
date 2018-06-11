@@ -11,9 +11,6 @@ public:
 	EntityInternal();
 
 public:
-	virtual void SetStatus(EntityStatus value) { status_ = value; }
-	virtual EntityStatus GetStatus() const { return status_; }
-
 	virtual bool GetActive() const { return active_; }
 
 	virtual void SetActiveSelf(bool value);
@@ -70,7 +67,6 @@ private:
 private:
 	bool active_;
 	bool activeSelf_;
-	EntityStatus status_;
 
 	std::string tag_;
 	std::string name_;
@@ -97,6 +93,6 @@ void EntityInternal::SetComponent(T& ref, T value) {
 	}
 
 	if (ref = value) {
-		ref->SetEntity(This<Entity>());
+		ref->SetEntity(SharedThis());
 	}
 }

@@ -10,13 +10,13 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform),
 }
 
 void TransformInternal::AddChild(Transform child) {
-	if (AddItem(children_, child)) {
-		child->SetParent(suede_dynamic_cast<Transform>(shared_from_this()));
+	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
+		child->SetParent(SharedThis());
 	}
 }
 
 void TransformInternal::RemoveChild(Transform child) {
-	if (EraseItem(children_, child)) {
+	if (std::find(children_.begin(), children_.end(), child) != children_.end()) {
 		child->SetParent(WorldInstance()->GetRootTransform());
 	}
 }
@@ -28,8 +28,7 @@ void TransformInternal::RemoveChildAt(uint index) {
 	}
 
 	Transform child = children_[index];
-	child->SetParent(WorldInstance()->GetRootTransform());
-	children_.erase(children_.begin() + index);
+	RemoveChild(child);
 }
 
 void TransformInternal::SetParent(Transform value) {
@@ -72,7 +71,7 @@ Transform TransformInternal::FindChild(const std::string& path) {
 			return nullptr;
 		}
 
-		current = dynamic_cast<TransformInternal*>(child.get());
+		current = InternalPtr(child);
 	}
 
 	return current->FindDirectChild(back);
@@ -153,9 +152,9 @@ glm::vec3 TransformInternal::GetScale() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::vec3 scale = GetLocalScale();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			scale *= current->GetScale();
 		}
 
@@ -172,9 +171,9 @@ glm::vec3 TransformInternal::GetPosition() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::vec3 position = GetLocalPosition();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			position = current->TransformPoint(position);
 		}
 
@@ -192,7 +191,7 @@ glm::quat TransformInternal::GetRotation() {
 		world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
 	}
 	else {
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::quat localRotation;
 		if (!IsDirty(LocalRotation)) {
 			localRotation = GetLocalRotation();
@@ -206,7 +205,7 @@ glm::quat TransformInternal::GetRotation() {
 			ClearDirty(LocalRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			localRotation = current->GetRotation() * localRotation;
 		}
 
@@ -226,7 +225,7 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 		worldRotation = GetRotation();
 	}
 	else {
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::quat localRotation;
 
 		if (!IsDirty(LocalRotation)) {
@@ -241,7 +240,7 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 			ClearDirty(LocalRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			localRotation = current->GetRotation() * localRotation;
 		}
 
@@ -325,9 +324,9 @@ glm::vec3 TransformInternal::GetLocalScale() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::vec3 scale = GetScale();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			scale /= current->GetScale();
 		}
 
@@ -344,9 +343,9 @@ glm::vec3 TransformInternal::GetLocalPosition() {
 			Debug::LogError("invalid state");
 		}
 
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::vec3 position = GetPosition();
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			position = current->InverseTransformPoint(position);
 		}
 
@@ -364,7 +363,7 @@ glm::quat TransformInternal::GetLocalRotation() {
 		local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
 	}
 	else {
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::quat worldRotation;
 		if (!IsDirty(WorldRotation)) {
 			worldRotation = GetRotation();
@@ -378,7 +377,7 @@ glm::quat TransformInternal::GetLocalRotation() {
 			ClearDirty(WorldRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
@@ -398,7 +397,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 		localRotation = GetLocalRotation();
 	}
 	else {
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::quat worldRotation;
 
 		if (!IsDirty(WorldRotation)) {
@@ -413,7 +412,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 			ClearDirty(WorldRotation);
 		}
 
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
@@ -431,9 +430,9 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 
 glm::mat4 TransformInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
-		Transform current = suede_dynamic_cast<Transform>(shared_from_this());
+		Transform current = SharedThis();
 		glm::mat4 matrix = Math::TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
-		if ((current = current->GetParent()) != WorldInstance()->GetRootTransform()) {
+		if (!IsRoot(current = current->GetParent())) {
 			matrix = current->GetLocalToWorldMatrix() * matrix;
 		}
 
@@ -490,7 +489,7 @@ void TransformInternal::SetDiry(int bits) {
 
 void TransformInternal::DirtyChildrenScales() {
 	for (int i = 0; i < GetChildCount(); ++i) {
-		TransformInternal* child = dynamic_cast<TransformInternal*>(GetChildAt(i).get());
+		TransformInternal* child = InternalPtr(GetChildAt(i));
 		child->GetLocalScale();
 		child->SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
@@ -498,7 +497,7 @@ void TransformInternal::DirtyChildrenScales() {
 
 void TransformInternal::DirtyChildrenPositions() {
 	for (int i = 0; i < GetChildCount(); ++i) {
-		TransformInternal* child = dynamic_cast<TransformInternal*>(GetChildAt(i).get());
+		TransformInternal* child = InternalPtr(GetChildAt(i));
 		child->GetLocalPosition();
 		child->SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
@@ -506,11 +505,15 @@ void TransformInternal::DirtyChildrenPositions() {
 
 void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 	for (int i = 0; i < GetChildCount(); ++i) {
-		TransformInternal* child = dynamic_cast<TransformInternal*>(GetChildAt(i).get());
+		TransformInternal* child = InternalPtr(GetChildAt(i));
 		child->GetLocalRotation();
 		child->GetLocalEulerAngles();
 		child->SetDiry(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
+}
+
+bool TransformInternal::IsRoot(Transform transform) {
+	return !transform || transform == WorldInstance()->GetRootTransform();
 }
 
 Transform TransformInternal::FindDirectChild(const std::string& name) {
@@ -524,21 +527,15 @@ Transform TransformInternal::FindDirectChild(const std::string& name) {
 }
 
 void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
-	Transform thisSp = suede_dynamic_cast<Transform>(shared_from_this());
+	Transform thisSp = SharedThis();
 
-	Children* pchildren;
-	if (oldParent) {
-		// remove from old parent.
-		pchildren = &dynamic_cast<TransformInternal*>(oldParent.get())->children_;
-		Children::iterator pos = std::find(pchildren->begin(), pchildren->end(), thisSp);
-		if (pos != pchildren->end()) {
-			pchildren->erase(pos);
-		}
+	if (oldParent) { // remove from old parent.
+		EraseItem(InternalPtr(oldParent)->children_, thisSp);
 	}
 
-	if (!newParent) { newParent = WorldInstance()->GetRootTransform(); }
-	pchildren = &dynamic_cast<TransformInternal*>(newParent.get())->children_;
-	pchildren->push_back(thisSp);
+	if (newParent) {
+		AddItem(InternalPtr(newParent)->children_, thisSp);
+	}
 	
 	parent_ = newParent;
 

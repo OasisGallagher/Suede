@@ -11,7 +11,7 @@ public:
 
 template <class T>
 ZThread::Mutex Mutex<T>::mutex;
-#define GUARD_SCOPE(T)	ZThread::Guard<ZThread::Mutex> __guardScope(Mutex<T>::mutex)
+#define GUARD_SCOPE(T)	ZThread::Guard<ZThread::Mutex> asyncGuard(Mutex<T>::mutex)
 
 class AsyncEventListener {
 public:

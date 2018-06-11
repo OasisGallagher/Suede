@@ -94,10 +94,10 @@ Object WorldInternal::Create(ObjectType type) {
 		e->entity = entity;
 		FireEvent(e);
 
-		transform->SetParent(root_->GetTransform());
-
-		GUARD_SCOPE(Transform);
-		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
+// 		transform->SetParent(root_->GetTransform());
+// 
+// 		GUARD_SCOPE(Transform);
+// 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 	}
 
 	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
@@ -235,10 +235,6 @@ bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWa
 	int childCount = root->GetChildCount();
 	for (int i = 0; i < childCount; ++i) {
 		Entity child = root->GetChildAt(i)->GetEntity();
-		if (child->GetStatus() != EntityStatusReady) {
-			continue;
-		}
-
 		WorldEntityWalker::WalkCommand command = walker->OnWalkEntity(child);
 
 		// next sibling.
@@ -265,6 +261,15 @@ void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 	if (e->GetEventType() == WorldEventTypeCameraDepthChanged) {
 		cameras_.sort();
+	}
+	else if (e->GetEventType() == WorldEventTypeEntityParentChanged) {
+		Entity entity = suede_static_cast<EntityParentChangedEventPointer>(e)->entity;
+		if (entity->GetTransform()->GetParent()) {
+			entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
+		}
+		else {
+			entities_.erase(entity->GetInstanceID());
+		}
 	}
 }
 

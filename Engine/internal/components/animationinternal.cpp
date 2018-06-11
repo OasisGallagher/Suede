@@ -311,7 +311,7 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 
 void AnimationInternal::AddClip(const std::string& name, AnimationClip value) {
 	clips_.insert(std::make_pair(name, value));
-	value->SetAnimation(suede_dynamic_cast<Animation>(shared_from_this()));
+	value->SetAnimation(SharedThis());
 }
 
 AnimationClip AnimationInternal::GetClip(const std::string& name) {

@@ -39,7 +39,7 @@ Sample* Profiler::CreateSample() {
 
 void Profiler::ReleaseSample(Sample* sample) {
 	LockSampleContainerInScole();
-	sample->Clear();
+	sample->Reset();
 	samples.recycle(sample);
 }
 
@@ -63,7 +63,7 @@ void Sample::Start() {
 }
 
 void Sample::Restart() {
-	Clear();
+	Reset();
 	Start();
 }
 
@@ -72,7 +72,7 @@ void Sample::Stop() {
 	elapsed_ += (Profiler::GetTimeStamp() - timeStamp_);
 }
 
-void Sample::Clear() {
+void Sample::Reset() {
 	started_ = false;
 	elapsed_ = timeStamp_ = 0;
 }

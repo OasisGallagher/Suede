@@ -9,14 +9,14 @@ public:
 
 	void Stop();
 
-	void Clear();
+	void Reset();
 	double GetElapsedSeconds() const;
 
 private:
 	/**
 	 * use Profiler::CreateSample() to create.
 	 */
-	Sample() { Clear(); }
+	Sample() { Reset(); }
 	friend class free_list<Sample>;
 
 private:

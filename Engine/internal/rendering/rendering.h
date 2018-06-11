@@ -71,7 +71,7 @@ private:
 	RenderTexture GetActiveRenderTarget();
 
 	void ForwardPass(RenderTexture target, const std::vector<Entity>& entities);
-	void ForwardDepthPass(const std::vector<Entity>& entities);
+	void ForwardDepthPass();
 
 	void RenderEntity(RenderTexture target, Entity entity, Renderer renderer);
 	void RenderSubMesh(RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass);

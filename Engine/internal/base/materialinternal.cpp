@@ -414,7 +414,7 @@ void MaterialInternal::InitializeProperties() {
 		*properties_[container[i]->name] = *container[i];
 	}
 
-	Shadows::AttachShadowTexture(suede_dynamic_cast<Material>(shared_from_this()));
+	Shadows::AttachShadowTexture(SharedThis());
 }
 
 void MaterialInternal::InitializeEnabledState() {

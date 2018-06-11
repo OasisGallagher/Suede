@@ -15,7 +15,7 @@ public:
 public:
 	static void Resize(uint width, uint height);
 	static const glm::mat4& GetWorldToShadowMatrix();
-	static void Update(DirectionalLight light, Pipeline* pipeline, const std::vector<Entity>& entities);
+	static void Update(DirectionalLight light, Pipeline* pipeline);
 
 private:
 	Shadows();

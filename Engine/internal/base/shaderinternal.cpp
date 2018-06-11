@@ -636,7 +636,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	LoadProperties(semantics.properties);
 
-	UniformBufferManager::AttachSharedBuffers(suede_dynamic_cast<Shader>(shared_from_this()));
+	UniformBufferManager::AttachSharedBuffers(SharedThis());
 
 	path_ = path;
 	return true;

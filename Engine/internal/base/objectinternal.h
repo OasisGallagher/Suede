@@ -18,7 +18,10 @@ public:
 
 protected:
 	template <class T>
-	T This();
+	typename T::Interface SharedThisTraits(T*);
+
+	template <class T, class U>
+	T InternalPtrTraits(T, U& obj);
 
 private:
 	static uint GenerateInstanceID(ObjectType type);
@@ -31,9 +34,17 @@ private:
 };
 
 template <class T>
-T ObjectInternal::This() {
-	return suede_dynamic_cast<T>(shared_from_this());
+typename T::Interface ObjectInternal::SharedThisTraits(T*) {
+	return suede_dynamic_cast<T::Interface>(shared_from_this());
 }
+
+template <class T, class U>
+T ObjectInternal::InternalPtrTraits(T, U& obj) {
+	return dynamic_cast<T>(obj.get());
+}
+
+#define SharedThis()		SharedThisTraits(this)
+#define InternalPtr(obj)	InternalPtrTraits(this, obj)
 
 #define DEFINE_FACTORY_METHOD(name) \
 	public: \

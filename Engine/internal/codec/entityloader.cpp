@@ -1,6 +1,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include "world.h"
 #include "variables.h"
 #include "resources.h"
 #include "debug/debug.h"
@@ -65,7 +66,6 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 
 EntityLoader::EntityLoader(const std::string& path, Entity entity, AsyncEventListener* receiver)
 	: AsyncWorker(receiver), path_(path), root_(entity) {
-	root_->SetStatus(EntityStatusLoading);
 }
 
 EntityLoader::~EntityLoader() {
@@ -76,7 +76,6 @@ EntityLoader::~EntityLoader() {
 
 void EntityLoader::OnRun() {
 	if (!LoadAsset()) {
-		root_->SetStatus(EntityStatusDestroyed);
 	}
 }
 
@@ -582,15 +581,13 @@ void EntityLoaderThreadPool::SetLoadedListener(EntityLoadedListener * listener) 
 void EntityLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	EntityLoader* loader = (EntityLoader*)schedule.get();
 
-	if (loader->GetEntity()->GetStatus() != EntityStatusDestroyed) {
-		EntityAsset asset = loader->GetEntityAsset();
-		for (uint i = 0; i < asset.materialAssets.size(); ++i) {
-			asset.materialAssets[i].ApplyAsset();
-		}
-
-		loader->GetSurface()->SetAttribute(asset.meshAsset);
-		loader->GetEntity()->SetStatus(EntityStatusReady);
+	EntityAsset asset = loader->GetEntityAsset();
+	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
+		asset.materialAssets[i].ApplyAsset();
 	}
+
+	loader->GetSurface()->SetAttribute(asset.meshAsset);
+	loader->GetEntity()->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	if (listener_ != nullptr) {
 		listener_->OnEntityImported(loader->GetEntity(), loader->GetPath());

@@ -13,8 +13,7 @@ EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 }
 
 EntityInternal::EntityInternal(ObjectType entityType)
-	: ObjectInternal(entityType), active_(true),  activeSelf_(true)
-	, boundsDirty_(true), status_(EntityStatusReady) {
+	: ObjectInternal(entityType), active_(true),  activeSelf_(true), boundsDirty_(true) {
 	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
@@ -26,7 +25,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
 		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
-		UpdateChildrenActive(This<Entity>());
+		UpdateChildrenActive(SharedThis());
 
 		if (renderer_ && mesh_ && !mesh_->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
@@ -43,7 +42,7 @@ bool EntityInternal::SetTag(const std::string& value) {
 	if (tag_ != value) {
 		tag_ = value;
 		EntityTagChangedEventPointer e = NewWorldEvent<EntityTagChangedEventPointer>();
-		e->entity = This<Entity>();
+		e->entity = SharedThis();
 		WorldInstance()->FireEvent(e);
 	}
 
@@ -60,7 +59,7 @@ void EntityInternal::SetName(const std::string& value) {
 		name_ = value;
 
 		EntityNameChangedEventPointer e = NewWorldEvent<EntityNameChangedEventPointer>();
-		e->entity = This<Entity>();
+		e->entity = SharedThis();
 		WorldInstance()->FireEvent(e);
 	}
 }
@@ -76,7 +75,7 @@ void EntityInternal::Update() {
 void EntityInternal::SetTransform(Transform value) {
 	if (transform_ != value) {
 		transform_ = value;
-		transform_->SetEntity(This<Entity>());
+		transform_->SetEntity(SharedThis());
 	}
 }
 
@@ -88,7 +87,7 @@ void EntityInternal::SetAnimation(Animation value) {
 	}
 
 	if (animation_ = value) {
-		animation_->SetEntity(This<Entity>());
+		animation_->SetEntity(SharedThis());
 	}
 }
 
@@ -119,7 +118,7 @@ void EntityInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
 		EntityActiveChangedEventPointer e = NewWorldEvent<EntityActiveChangedEventPointer>();
-		e->entity = This<Entity>();
+		e->entity = SharedThis();
 		WorldInstance()->FireEvent(e);
 	}
 }
@@ -208,7 +207,7 @@ void EntityInternal::CalculateBonesWorldBounds() {
 
 void EntityInternal::DirtyParentBounds() {
 	Transform parent, current = transform_;
-	for (; (parent = current->GetParent()) != WorldInstance()->GetRootTransform();) {
+	for (; (parent = current->GetParent()) && parent != WorldInstance()->GetRootTransform();) {
 		dynamic_cast<EntityInternal*>(parent->GetEntity().get())->boundsDirty_ = true;
 		current = parent;
 	}
