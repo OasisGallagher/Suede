@@ -154,7 +154,7 @@ glm::vec3 TransformInternal::GetScale() {
 
 		Transform current = SharedThis();
 		glm::vec3 scale = GetLocalScale();
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			scale *= current->GetScale();
 		}
 
@@ -173,7 +173,7 @@ glm::vec3 TransformInternal::GetPosition() {
 
 		Transform current = SharedThis();
 		glm::vec3 position = GetLocalPosition();
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			position = current->TransformPoint(position);
 		}
 
@@ -205,7 +205,7 @@ glm::quat TransformInternal::GetRotation() {
 			ClearDirty(LocalRotation);
 		}
 
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			localRotation = current->GetRotation() * localRotation;
 		}
 
@@ -240,7 +240,7 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 			ClearDirty(LocalRotation);
 		}
 
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			localRotation = current->GetRotation() * localRotation;
 		}
 
@@ -326,7 +326,7 @@ glm::vec3 TransformInternal::GetLocalScale() {
 
 		Transform current = SharedThis();
 		glm::vec3 scale = GetScale();
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			scale /= current->GetScale();
 		}
 
@@ -345,7 +345,7 @@ glm::vec3 TransformInternal::GetLocalPosition() {
 
 		Transform current = SharedThis();
 		glm::vec3 position = GetPosition();
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			position = current->InverseTransformPoint(position);
 		}
 
@@ -377,7 +377,7 @@ glm::quat TransformInternal::GetLocalRotation() {
 			ClearDirty(WorldRotation);
 		}
 
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
@@ -412,7 +412,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 			ClearDirty(WorldRotation);
 		}
 
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			worldRotation = glm::inverse(current->GetRotation()) * worldRotation;
 		}
 
@@ -432,7 +432,7 @@ glm::mat4 TransformInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
 		Transform current = SharedThis();
 		glm::mat4 matrix = Math::TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
-		if (!IsRoot(current = current->GetParent())) {
+		if (!IsNullOrRoot(current = current->GetParent())) {
 			matrix = current->GetLocalToWorldMatrix() * matrix;
 		}
 
@@ -512,7 +512,7 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 	}
 }
 
-bool TransformInternal::IsRoot(Transform transform) {
+bool TransformInternal::IsNullOrRoot(Transform transform) {
 	return !transform || transform == WorldInstance()->GetRootTransform();
 }
 
@@ -536,19 +536,27 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	if (newParent) {
 		AddItem(InternalPtr(newParent)->children_, thisSp);
 	}
-	
+
 	parent_ = newParent;
 
 	// Clear dirty flags.
 	GetScale();
 	GetRotation();
 	GetPosition();
-
 	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
-	EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
-	e->entity = thisSp->GetEntity();
-	WorldInstance()->FireEvent(e);
+	if (AttachedToScene(thisSp)) {
+		EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
+		e->entity = thisSp->GetEntity();
+		WorldInstance()->FireEvent(e);
+	}
+}
+
+bool TransformInternal::AttachedToScene(Transform transform) {
+	for (; transform && transform != WorldInstance()->GetRootTransform(); transform = transform->GetParent())
+		;
+
+	return !!transform;
 }
 
 bool TransformInternal::AddItem(Children & children, Transform child) {

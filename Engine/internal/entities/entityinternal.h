@@ -9,6 +9,8 @@ class EntityInternal : virtual public IEntity, public ObjectInternal {
 
 public:
 	EntityInternal();
+	~EntityInternal() {
+	}
 
 public:
 	virtual bool GetActive() const { return active_; }

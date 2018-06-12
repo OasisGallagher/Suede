@@ -62,9 +62,9 @@ bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 void Hierarchy::OnWorldEvent(WorldEventBasePointer e) {
 	EntityEventPointer eep = suede_static_cast<EntityEventPointer>(e);
 	switch (e->GetEventType()) {
-		case WorldEventTypeEntityCreated:
-			onEntityCreated(eep->entity);
-			break;
+//		case WorldEventTypeEntityCreated:
+//			onEntityCreated(eep->entity);
+//			break;
 		case WorldEventTypeEntityTagChanged:
 			onEntityTagChanged(eep->entity);
 			break;
@@ -190,7 +190,8 @@ void Hierarchy::appendChildItem(Entity entity) {
 		removeItem(pi);
 	}
 	else {
-		Debug::Break();
+	// 
+	// Debug::Break();
 	}
 }
 
