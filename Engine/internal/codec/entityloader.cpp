@@ -587,7 +587,6 @@ void EntityLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	}
 
 	loader->GetSurface()->SetAttribute(asset.meshAsset);
-	loader->GetEntity()->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	if (listener_ != nullptr) {
 		listener_->OnEntityImported(loader->GetEntity(), loader->GetPath());

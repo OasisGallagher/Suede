@@ -94,10 +94,8 @@ Object WorldInternal::Create(ObjectType type) {
 		e->entity = entity;
 		FireEvent(e);
 
-// 		transform->SetParent(root_->GetTransform());
-// 
-// 		GUARD_SCOPE(Transform);
-// 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
+ 		GUARD_SCOPE(Transform);
+ 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 	}
 
 	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {

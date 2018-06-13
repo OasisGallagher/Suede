@@ -9,6 +9,14 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform),
 	local_.scale = world_.scale = glm::vec3(1);
 }
 
+bool TransformInternal::IsAttachedToScene() {
+	Transform transform = SharedThis();
+	for (; transform && transform != WorldInstance()->GetRootTransform(); transform = transform->GetParent())
+		;
+
+	return !!transform;
+}
+
 void TransformInternal::AddChild(Transform child) {
 	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
 		child->SetParent(SharedThis());
@@ -545,18 +553,11 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	GetPosition();
 	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
-	if (AttachedToScene(thisSp)) {
+	if (IsAttachedToScene()) {
 		EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
 		e->entity = thisSp->GetEntity();
 		WorldInstance()->FireEvent(e);
 	}
-}
-
-bool TransformInternal::AttachedToScene(Transform transform) {
-	for (; transform && transform != WorldInstance()->GetRootTransform(); transform = transform->GetParent())
-		;
-
-	return !!transform;
 }
 
 bool TransformInternal::AddItem(Children & children, Transform child) {

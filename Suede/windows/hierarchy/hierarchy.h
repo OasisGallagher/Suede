@@ -28,7 +28,7 @@ public:
 public:
 	Entity selectedEntity();
 	bool selectedEntities(QList<Entity>& entities);
-	void updateRecursively(Entity entity, QStandardItem* pi);
+	void updateRecursively(Entity entity, QStandardItem* parent);
 
 signals:
 	void focusEntity(Entity entity);
@@ -44,7 +44,7 @@ private slots:
 
 private:
 	void appendChildItem(Entity entity);
-	QStandardItem* appendItem(Entity child, QStandardItem* pi);
+	QStandardItem* appendItem(Entity child, QStandardItem* parent);
 	void removeItem(QStandardItem* item);
 
 	void onEntityCreated(Entity entity);

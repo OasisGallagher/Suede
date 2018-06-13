@@ -94,10 +94,13 @@ RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer"
 	for (uint materialIndex = 0; materialIndex < renderer->GetMaterialCount(); ++materialIndex) {
 		drawMaterial(renderer, materialIndex, materialsLayout);
 	}
-	end_render_inspector("drawMaterial");
+	end_render_inspector("createMaterialList");
 
 	begin_render_inspector();
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materials);
+	end_render_inspector("appendMaterialList");
+
+	begin_render_inspector();
 	connect(ColorPicker::get(), SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorPicked(const QColor&)));
 	end_render_inspector("misc");
 }

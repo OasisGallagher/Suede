@@ -63,6 +63,9 @@ private:
 	template <class T>
 	void SetComponent(T& ref, T value);
 
+	template <class T>
+	void FireWorldEvent(bool attachedToSceneOnly);
+
 private:
 	static const char* EntityTypeToString(ObjectType type);
 
@@ -87,7 +90,7 @@ private:
 };
 
 template <class T>
-void EntityInternal::SetComponent(T& ref, T value) {
+inline void EntityInternal::SetComponent(T& ref, T value) {
 	if (ref == value) { return; }
 
 	if (ref) {
@@ -96,5 +99,14 @@ void EntityInternal::SetComponent(T& ref, T value) {
 
 	if (ref = value) {
 		ref->SetEntity(SharedThis());
+	}
+}
+
+template <class T>
+inline void EntityInternal::FireWorldEvent(bool attachedToSceneOnly) {
+	if (!attachedToSceneOnly || transform_->IsAttachedToScene()) {
+		T e = NewWorldEvent<T>();
+		e->entity = SharedThis();
+		WorldInstance()->FireEvent(e);
 	}
 }

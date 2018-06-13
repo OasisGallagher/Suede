@@ -37,6 +37,7 @@ struct WorldEventBase {
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityEvent);
+
 struct EntityEvent : public WorldEventBase {
 	Entity entity;
 
@@ -59,24 +60,36 @@ struct EntityDestroyedEvent : public EntityEvent {
 
 DEFINE_WORLD_EVENT_POINTER(EntityDestroyedEvent);
 
+/**
+ * @warning only entities with non-null parant cound send this event.
+ */
 struct EntityParentChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityParentChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityParentChangedEvent);
 
+/**
+ * @warning only entities with non-null parant cound send this event.
+ */
 struct EntityActiveChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityActiveChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityActiveChangedEvent);
 
+/**
+ * @warning only entities with non-null parant cound send this event.
+ */
 struct EntityTagChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityTagChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityTagChangedEvent);
 
+/**
+ * @warning only entities with non-null parant cound send this event.
+ */
 struct EntityNameChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityNameChanged; }
 };

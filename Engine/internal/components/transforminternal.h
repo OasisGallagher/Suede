@@ -10,12 +10,13 @@ public:
 	TransformInternal();
 
 public:
+	virtual bool IsAttachedToScene();
+
 	virtual void AddChild(Transform child);
 	virtual void RemoveChild(Transform child);
 	virtual void RemoveChildAt(uint index);
 
 	virtual void SetParent(Transform value);
-
 	virtual Transform GetParent() const { return parent_.lock(); }
 
 	virtual glm::vec3 TransformPoint(const glm::vec3& point);
@@ -69,7 +70,6 @@ private:
 	void DirtyChildrenRotationsAndEulerAngles();
 
 	bool IsNullOrRoot(Transform transform);
-	bool AttachedToScene(Transform transform);
 	Transform FindDirectChild(const std::string& name);
 	void ChangeParent(Transform oldParent, Transform newParent);
 

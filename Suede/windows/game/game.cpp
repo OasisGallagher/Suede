@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "models/boblampclean.md5mesh";
-static const char* roomFbxPath = "models/room.obj";// .fbx";
+static const char* roomFbxPath = "models/house.fbx";
 
 static Game* gameInstance;
 
@@ -108,6 +108,8 @@ void Game::OnDrawGizmos() {
 }
 
 void Game::OnEntityImported(Entity root, const std::string& path) {
+	root->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+
 	if (path == manFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
 		root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
@@ -248,7 +250,7 @@ void Game::createScene() {
 #else
 	projector->SetFieldOfView(Math::Radians(9.f));
 #endif
-
+	projector->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();

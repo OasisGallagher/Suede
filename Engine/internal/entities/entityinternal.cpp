@@ -41,9 +41,7 @@ bool EntityInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		EntityTagChangedEventPointer e = NewWorldEvent<EntityTagChangedEventPointer>();
-		e->entity = SharedThis();
-		WorldInstance()->FireEvent(e);
+		FireWorldEvent<EntityTagChangedEventPointer>(true);
 	}
 
 	return true;
@@ -54,13 +52,10 @@ void EntityInternal::SetName(const std::string& value) {
 		Debug::LogWarning("empty name.");
 		return;
 	}
-	
+
 	if (name_ != value) {
 		name_ = value;
-
-		EntityNameChangedEventPointer e = NewWorldEvent<EntityNameChangedEventPointer>();
-		e->entity = SharedThis();
-		WorldInstance()->FireEvent(e);
+		FireWorldEvent<EntityNameChangedEventPointer>(true);
 	}
 }
 
@@ -117,9 +112,7 @@ void EntityInternal::RecalculateBounds() {
 void EntityInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
-		EntityActiveChangedEventPointer e = NewWorldEvent<EntityActiveChangedEventPointer>();
-		e->entity = SharedThis();
-		WorldInstance()->FireEvent(e);
+		FireWorldEvent<EntityActiveChangedEventPointer>(true);
 	}
 }
 

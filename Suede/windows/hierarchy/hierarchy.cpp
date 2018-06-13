@@ -136,15 +136,15 @@ void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSe
 	emit selectionChanged(ss, ds);
 }
 
-void Hierarchy::updateRecursively(Entity entity, QStandardItem* pi) {
+void Hierarchy::updateRecursively(Entity entity, QStandardItem* parent) {
 	for (int i = 0; i < entity->GetTransform()->GetChildCount(); ++i) {
 		Entity child = entity->GetTransform()->GetChildAt(i)->GetEntity();
-		QStandardItem* item = appendItem(child, pi);
+		QStandardItem* item = appendItem(child, parent);
 		updateRecursively(child, item);
 	}
 }
 
-QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
+QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* parent) {
 	QStandardItem* item = items_.value(entity->GetInstanceID());
 	if (item != nullptr) {
 		QStandardItem* p = item->parent();
@@ -155,8 +155,8 @@ QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* pi) {
 	item = new QStandardItem(entity->GetName().c_str());
 	item->setData(entity->GetInstanceID());
 	
-	if (pi != nullptr) {
-		pi->appendRow(item);
+	if (parent != nullptr) {
+		parent->appendRow(item);
 	}
 	else {
 		model_->appendRow(item);
@@ -180,18 +180,21 @@ void Hierarchy::removeItem(QStandardItem* item) {
 
 void Hierarchy::appendChildItem(Entity entity) {
 	Transform parent = entity->GetTransform()->GetParent();
-	Q_ASSERT(parent);
+	if (!parent) { return; }
 
-	QStandardItem* pi = nullptr;
-	if (parent == WorldInstance()->GetRootTransform() || (pi = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
-		appendItem(entity, pi);
+	QStandardItem* item = nullptr;
+	// append child node.
+	if (parent == WorldInstance()->GetRootTransform() || (item = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
+		QStandardItem* pi = appendItem(entity, item);
+		updateRecursively(entity, pi);
+		/*pi == nullptr || pi->parent()->data().toUInt() == parent->GetInstanceID()*/
 	}
-	else if (pi == nullptr && (pi = items_.value(entity->GetInstanceID())) != nullptr) {
-		removeItem(pi);
+	// remove orphan node.
+	else if (item == nullptr && (item = items_.value(entity->GetInstanceID())) != nullptr) {
+		removeItem(item);
 	}
 	else {
-	// 
-	// Debug::Break();
+		Debug::Break();
 	}
 }
 

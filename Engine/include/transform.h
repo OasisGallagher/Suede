@@ -14,6 +14,8 @@ SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
 class ITransform : virtual public IComponent {
 public:
+	virtual bool IsAttachedToScene() = 0;
+
 	virtual void AddChild(Transform child) = 0;
 	virtual void RemoveChild(Transform child) = 0;
 	virtual void RemoveChildAt(uint index) = 0;
