@@ -14,9 +14,10 @@ public:
 	static void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
 	static void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
 
-private:
-	friend class Engine;
 	static void Set(uint width, uint height);
+
+private:
+//	friend class GraphicsViewer;
 
 private:
 	Screen();

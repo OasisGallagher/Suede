@@ -161,6 +161,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="api\gllimits.cpp" />
+    <ClCompile Include="include\graphicsviewer.cpp" />
     <ClCompile Include="internal\async\async.cpp" />
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\fontinternal.cpp" />
@@ -236,6 +237,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\gizmos.h" />
     <ClInclude Include="include\gizmospainter.h" />
     <ClInclude Include="include\graphics.h" />
+    <ClInclude Include="include\graphicscanvas.h" />
     <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\material.h" />
@@ -257,6 +259,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\transform.h" />
     <ClInclude Include="include\variables.h" />
     <ClInclude Include="include\variant.h" />
+    <ClInclude Include="include\graphicsviewer.h" />
     <ClInclude Include="include\world.h" />
     <ClInclude Include="internal\async\async.h" />
     <ClInclude Include="internal\async\threadpool.h" />

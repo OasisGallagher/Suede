@@ -18,8 +18,9 @@ static void _STDCALL GLDebugMessageCallback(
 
 bool Driver::Initialize() {
 	glewExperimental = true;
-	if (glewInit() != GLEW_OK) {
-		Debug::LogError("failed to initialize glew.");
+	GLenum status = glewInit();
+	if (status != GLEW_OK) {
+		Debug::LogError("failed to initialize glew(0x%x).", status);
 		return false;
 	}
 

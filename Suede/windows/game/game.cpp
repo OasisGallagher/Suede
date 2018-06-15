@@ -50,14 +50,14 @@ Game* Game::get() {
 	return gameInstance;
 }
 
-Game::Game(QWidget* parent) : QDockWidget(parent) {
+Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr) {
 	gameInstance = this;
 	controller_ = new CameraController;
-	Engine::AddFrameEventListener(this);
+	//Engine::AddFrameEventListener(this);
 }
 
 Game::~Game() {
-	Engine::RemoveFrameEventListener(this);
+	//Engine::RemoveFrameEventListener(this);
 
 	delete grayscale_;
 	delete inversion_;
@@ -66,6 +66,14 @@ Game::~Game() {
 	killTimer(updateTimer_);
 
 	gameInstance = nullptr;
+}
+
+Canvas * Game::canvas() {
+	if (canvas_ == nullptr) {
+		canvas_ = findChild<Canvas*>("canvas");
+	}
+
+	return canvas_;
 }
 
 void Game::init(Ui::Suede* ui) {
@@ -135,9 +143,9 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 	}
 }
 
-void Game::OnFrameLeave() {
-//	Graphics::Blit(targetTexture_, nullptr);
-}
+// void Game::OnFrameLeave() {
+// //	Graphics::Blit(targetTexture_, nullptr);
+// }
 
 void Game::start() {
 }

@@ -364,6 +364,12 @@
     <ClInclude Include="include\entityloadedlistener.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\graphicsviewer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\graphicscanvas.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -521,6 +527,9 @@
     </ClCompile>
     <ClCompile Include="internal\codec\entityloader.cpp">
       <Filter>internal\codec\src</Filter>
+    </ClCompile>
+    <ClCompile Include="include\graphicsviewer.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

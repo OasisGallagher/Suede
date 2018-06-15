@@ -13,7 +13,7 @@ class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityLoadedListener, public FrameEventListener {
+class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityLoadedListener/*, public FrameEventListener*/ {
 	Q_OBJECT
 
 public:
@@ -22,6 +22,9 @@ public:
 public:
 	Game(QWidget* parent);
 	~Game();
+
+public:
+	Canvas* canvas();
 
 public:
 	virtual void init(Ui::Suede* ui);
@@ -33,8 +36,8 @@ public:
 public:
 	virtual void OnEntityImported(Entity root, const std::string& path);
 
-public:
-	virtual void OnFrameLeave();
+// public:
+// 	virtual void OnFrameLeave();
 
 private slots:
 	void update();
