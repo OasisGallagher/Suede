@@ -3,9 +3,9 @@
 #include "world.h"
 #include "tools/math2.h"
 #include "transforminternal.h"
-#include "internal/async/async.h"
+#include "internal/async/guard.h"
 
-TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform), dirtyBits_(0) {
+TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform) {
 	local_.scale = world_.scale = glm::vec3(1);
 }
 
@@ -40,7 +40,7 @@ void TransformInternal::RemoveChildAt(uint index) {
 }
 
 void TransformInternal::SetParent(Transform value) {
-	GUARD_SCOPE(Transform);
+	GUARD_SCOPE_TYPED(Transform);
 
 	if (value.get() == this) {
 		Debug::LogError("parent can not be itself.");
@@ -91,7 +91,7 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 
 	if (world_.scale != value) {
 		world_.scale = value;
-		SetDiry(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenScales();
 		entity_.lock()->RecalculateBounds();
@@ -107,7 +107,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 	ClearDirty(WorldPosition);
 	if (world_.position != value) {
 		world_.position = value;
-		SetDiry(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenPositions();
 		entity_.lock()->RecalculateBounds();
@@ -125,7 +125,7 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 	if (!Math::Approximately(glm::dot(world_.rotation, value), 0)) {
 		world_.rotation = value;
 
-		SetDiry(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenRotationsAndEulerAngles();
 		entity_.lock()->RecalculateBounds();
@@ -143,7 +143,7 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 	if (world_.eulerAngles != value) {
 		world_.eulerAngles = value;
 
-		SetDiry(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 		DirtyChildrenRotationsAndEulerAngles();
 		entity_.lock()->RecalculateBounds();
 
@@ -267,7 +267,7 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 	ClearDirty(LocalScale);
 	if (local_.scale != value) {
 		local_.scale = value;
-		SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenScales();
 		entity_.lock()->RecalculateBounds();
@@ -283,7 +283,7 @@ void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 	ClearDirty(LocalPosition);
 	if (local_.position != value) {
 		local_.position = value;
-		SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 		DirtyChildrenPositions();
 		entity_.lock()->RecalculateBounds();
 
@@ -298,7 +298,7 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 	ClearDirty(LocalRotation);
 	if (!Math::Approximately(glm::dot(local_.rotation, value), 0)) {
 		local_.rotation = value;
-		SetDiry(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenRotationsAndEulerAngles();
 		entity_.lock()->RecalculateBounds();
@@ -314,7 +314,7 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	ClearDirty(LocalEulerAngles);
 	if (local_.eulerAngles != value) {
 		local_.eulerAngles = value;
-		SetDiry(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
+		SetDirty(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenRotationsAndEulerAngles();
 		entity_.lock()->RecalculateBounds();
@@ -480,8 +480,9 @@ glm::vec3 TransformInternal::GetForward() {
 	return GetRotation() * glm::vec3(0, 0, -1);
 }
 
-void TransformInternal::SetDiry(int bits) {
-	dirtyBits_ |= bits;
+void TransformInternal::SetDirty(int bits) {
+	DirtyBits::SetDirty(bits);
+
 	if (IsDirty(LocalScale) && IsDirty(WorldScale)) {
 		Debug::LogError("invalid state");
 	}
@@ -499,7 +500,7 @@ void TransformInternal::DirtyChildrenScales() {
 	for (int i = 0; i < GetChildCount(); ++i) {
 		TransformInternal* child = InternalPtr(GetChildAt(i));
 		child->GetLocalScale();
-		child->SetDiry(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
+		child->SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 
@@ -507,7 +508,7 @@ void TransformInternal::DirtyChildrenPositions() {
 	for (int i = 0; i < GetChildCount(); ++i) {
 		TransformInternal* child = InternalPtr(GetChildAt(i));
 		child->GetLocalPosition();
-		child->SetDiry(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+		child->SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 
@@ -516,7 +517,7 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 		TransformInternal* child = InternalPtr(GetChildAt(i));
 		child->GetLocalRotation();
 		child->GetLocalEulerAngles();
-		child->SetDiry(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
+		child->SetDirty(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 	}
 }
 
@@ -551,7 +552,7 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	GetScale();
 	GetRotation();
 	GetPosition();
-	SetDiry(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
+	SetDirty(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
 	if (IsAttachedToScene()) {
 		EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();

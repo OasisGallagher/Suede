@@ -8,6 +8,14 @@
 #include <ZThread/ConcurrentExecutor.h>
 #include <ZThread/SynchronousExecutor.h>
 
+void Worker::run() {
+	Run();
+
+	if (listener_ != nullptr) {
+		listener_->OnWorkFinished(this);
+	}
+}
+
 ThreadPool::ThreadPool(int type) {
 	Engine::AddFrameEventListener(this);
 	CreateExecutor(type);
@@ -49,7 +57,7 @@ ThreadPool::~ThreadPool() {
 	MEMORY_RELEASE(executor_);
 }
 
-void ThreadPool::OnAsyncFinished(ZThread::Runnable* runnable) {
+void ThreadPool::OnWorkFinished(Worker* runnable) {
 	ZThread::Guard<ZThread::Mutex> guard(scheduleContainerMutex_);
 
 	for (std::vector<ZThread::Task>::iterator ite = tasks_.begin(); ite != tasks_.end(); ++ite) {

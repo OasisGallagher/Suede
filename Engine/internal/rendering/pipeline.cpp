@@ -51,8 +51,6 @@ Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
 	gather_instances = Profiler::CreateSample();
 	update_pipeline = Profiler::CreateSample();
 	rendering = Profiler::CreateSample();
-
-	Engine::AddFrameEventListener(this);
 }
 
 Pipeline::~Pipeline() {
@@ -63,16 +61,6 @@ Pipeline::~Pipeline() {
 	Profiler::ReleaseSample(gather_instances);
 	Profiler::ReleaseSample(update_pipeline);
 	Profiler::ReleaseSample(rendering);
-
-	Engine::RemoveFrameEventListener(this);
-}
-
-void Pipeline::OnFrameEnter() {
-
-}
-
-void Pipeline::OnFrameLeave() {
-
 }
 
 void Pipeline::Sort(SortMode mode) {

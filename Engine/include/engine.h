@@ -9,8 +9,6 @@ public:
 	static bool Initialize();
 	static void Release();
 
-	static void SetCanvas(GraphicsCanvas* value);
-
 	static void Update();
 
 	static void AddFrameEventListener(FrameEventListener* listener);

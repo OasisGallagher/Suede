@@ -3,11 +3,14 @@
 #include "graphicsviewer.h"
 #include "graphicscanvas.h"
 
-GraphicsViewer::GraphicsViewer(int argc, char * argv[]) {
-}
+enum {
+	ViewerStatusUninitialized,
+	ViewerStatusRunning,
+	ViewerStatusClosed,
+};
 
-void GraphicsViewer::_GraphicsViewer_() {
-	Engine::Initialize();
+GraphicsViewer::GraphicsViewer(int argc, char * argv[]) 
+	: canvas_(nullptr), status_(ViewerStatusUninitialized) {
 }
 
 GraphicsViewer::~GraphicsViewer() {
@@ -15,18 +18,35 @@ GraphicsViewer::~GraphicsViewer() {
 }
 
 void GraphicsViewer::Run() {
-	for (;;) {
+	for (; status_ != ViewerStatusClosed;) {
 		Update();
+
+		if (canvas_ != nullptr) {
+			canvas_->MakeCurrent();
+			Engine::Update();
+
+			canvas_->SwapBuffers();
+			canvas_->DoneCurrent();
+		}
 	}
 }
 
 void GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
-	Engine::SetCanvas(value);
+	if (status_ == ViewerStatusUninitialized) {
+		Engine::Initialize();
+		status_ = ViewerStatusRunning;
+	}
+
+	canvas_ = value;
 	Screen::Set(value->GetWidth(), value->GetHeight());
 }
 
 void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
 	Screen::Set(width, height);
+}
+
+void GraphicsViewer::Close() {
+	status_ = ViewerStatusClosed;
 }
 
 void GraphicsViewer::Update() {

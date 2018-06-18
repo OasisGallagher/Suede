@@ -1,50 +1,44 @@
 #pragma once
 #include "entity.h"
-#include "internal/async/async.h"
+#include "internal/async/guard.h"
 #include "internal/async/threadpool.h"
 
-class Culling;
+class CullingThread;
 class CullingListener {
 public:
-	virtual void OnCullingFinished(Culling* worker) = 0;
+	virtual void OnCullingFinished() = 0;
 };
 
-class Culling : public AsyncWorker, public WorldEntityWalker {
+class CullingThread : public ZThread::Runnable, public WorldEntityWalker {
+	enum {
+		Waiting,
+		Working,
+		Finished,
+	};
+
 public:
-	Culling(const glm::mat4& worldToClipMatrix, AsyncEventListener* receiver);
-	~Culling() {}
+	CullingThread(CullingListener* listener);
+	~CullingThread() {}
 
 public:
 	std::vector<Entity>& GetEntities() { return entities_; }
+
+	void Done() { status_ = Finished; }
+	void Cull(const glm::mat4& worldToClipMatrix);
 
 public:
 	virtual WalkCommand OnWalkEntity(Entity entity);
 
 protected:
-	virtual void OnRun();
+	virtual void run();
 
 private:
 	bool IsVisible(Entity entity, const glm::mat4& worldToClipMatrix);
 	bool FrustumCulling(const Bounds & bounds, const glm::mat4& worldToClipMatrix);
 
 private:
+	int status_;
+	CullingListener* listener_;
 	glm::mat4 worldToClipMatrix_;
 	std::vector<Entity> entities_;
-};
-
-class CullingThreadPool : public ThreadPool {
-public:
-	CullingThreadPool();
-
-public:
-	void GetVisibleEntities(const glm::mat4& worldToClipMatrix);
-
-public:
-	void SetCullingListener(CullingListener* listener);
-
-protected:
-	virtual void OnSchedule(ZThread::Task& schedule);
-
-private:
-	CullingListener* listener_;
 };

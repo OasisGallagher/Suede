@@ -1,13 +1,7 @@
 #include <Windows.h>
 
-#include <ZThread/Mutex.h>
-#include <ZThread/Guard.h>
-
 #include "debug.h"
 #include "profiler.h"
-
-ZThread::Mutex mutex;
-#define LockSampleContainerInScole()	ZThread::Guard<ZThread::Mutex> lock(mutex)
 
 static double timeStampToSeconds = 1.0;
 
@@ -33,12 +27,10 @@ void Profiler::OnFrameExit() {
 }
 
 Sample* Profiler::CreateSample() {
-	LockSampleContainerInScole();
 	return samples.spawn();
 }
 
 void Profiler::ReleaseSample(Sample* sample) {
-	LockSampleContainerInScole();
 	sample->Reset();
 	samples.recycle(sample);
 }

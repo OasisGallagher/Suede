@@ -53,6 +53,9 @@
    <property name="focusPolicy">
     <enum>Qt::StrongFocus</enum>
    </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <property name="windowTitle">
     <string>Game</string>
    </property>
@@ -80,7 +83,14 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="Canvas" name="canvas" native="true"/>
+      <widget class="Canvas" name="canvas" native="true">
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>

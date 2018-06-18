@@ -41,9 +41,9 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class EntityLoader : public AsyncWorker {
+class EntityLoader : public Worker {
 public:
-	EntityLoader(const std::string& path, Entity entity, AsyncEventListener* receiver);
+	EntityLoader(const std::string& path, Entity entity, WorkerEventListener* receiver);
 	~EntityLoader();
 
 public:
@@ -54,7 +54,7 @@ public:
 	EntityAsset& GetEntityAsset() { return asset_; }
 
 protected:
-	virtual void OnRun();
+	virtual void Run();
 
 private:
 	// TODO: NonCopyable.

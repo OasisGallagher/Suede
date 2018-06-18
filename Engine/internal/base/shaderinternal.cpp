@@ -24,10 +24,8 @@ static std::map<std::string, float> renderQueueVariables(_variables, _variables 
 #define BIND(old, new)	if (old == new) { old = -1; } else
 #define UNBIND(old)		if (old == -1) { } else
 
-Pass::Pass() : program_(0), oldProgram_(0) {
+Pass::Pass() : program_(0), oldProgram_(0), sources_(nullptr) {
 	std::fill(states_, states_ + RenderStateCount, nullptr);
-
-	program_ = GL::CreateProgram();
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
 
@@ -45,32 +43,15 @@ bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass&
 
 	InitializeRenderStates(pass.renderStates);
 	
-	std::string sources[ShaderStageCount];
+	sources_ = MEMORY_CREATE_ARRAY(std::string, ShaderStageCount);
 
 	GLSLParser parser;
-	if (!parser.Parse(sources, path, pass.source, "")) {
+	if (!parser.Parse(sources_, path, pass.source, "")) {
 		return false;
-	}
-
-	for (int i = 0; i < ShaderStageCount; ++i) {
-		if (!sources[i].empty() && !LoadSource((ShaderStage)i, sources[i].c_str())) {
-			return false;
-		}
 	}
 
 	path_ = path;
-	ClearIntermediateShaders();
-
-	UpdateVertexAttributes();
-	UpdateFragmentAttributes();
-
-	if (!Link()) {
-		return false;
-	}
-
-	AddAllUniforms();
-	AddAllUniformProperties(properties);
-
+	properties_ = properties;
 	return true;
 }
 
@@ -84,7 +65,19 @@ bool Pass::SetProperty(const std::string& name, const void* data) {
 	return true;
 }
 
+uint Pass::GetNativePointer() {
+	if (sources_ != nullptr) {
+		ApplySources();
+	}
+
+	return program_;
+}
+
 void Pass::Bind() {
+	if (sources_ != nullptr) {
+		ApplySources();
+	}
+
 	BindRenderStates();
 	GL::GetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&oldProgram_);
 	BIND(oldProgram_, program_) {
@@ -201,6 +194,40 @@ bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters
 	}
 
 	return true;
+}
+
+bool Pass::ApplySources() {
+	program_ = GL::CreateProgram();
+	int i = 0;
+	for (; i < ShaderStageCount; ++i) {
+		if (!sources_[i].empty() && !LoadSource((ShaderStage)i, sources_[i].c_str())) {
+			break;
+		}
+	}
+
+	bool status = false;
+	if (i == ShaderStageCount) {
+		ClearIntermediateShaders();
+
+		UpdateVertexAttributes();
+		UpdateFragmentAttributes();
+
+		if (Link()) {
+			AddAllUniforms();
+			AddAllUniformProperties(properties_);
+			status = true;
+		}
+	}
+
+	MEMORY_RELEASE_ARRAY(sources_);
+	sources_ = nullptr;
+
+	if (!status) {
+		GL::DeleteProgram(program_);
+		program_ = 0;
+	}
+
+	return status;
 }
 
 bool Pass::RenderStateParameterToInteger(const std::string& parameter, int& answer) {

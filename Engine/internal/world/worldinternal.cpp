@@ -1,12 +1,9 @@
-#include <ZThread/Guard.h>
-
 #include "time2.h"
 #include "api/gllimits.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
-#include "internal/rendering/shadows.h"
-#include "internal/base/renderdefines.h"
+#include "internal/async/guard.h"
 #include "internal/codec/entityloader.h"
 #include "internal/base/textureinternal.h"
 #include "internal/entities/entityinternal.h"
@@ -16,8 +13,6 @@
 
 static void InitWorld(WorldInternal* world) {
 	GLLimits::Initialize();
-	UniformBufferManager::Initialize();
-	Shadows::Initialize();
 
 	world->root_ = Factory::Create<EntityInternal>();
 	world->root_->SetTransform(Factory::Create<TransformInternal>());
@@ -94,7 +89,7 @@ Object WorldInternal::Create(ObjectType type) {
 		e->entity = entity;
 		FireEvent(e);
 
- 		GUARD_SCOPE(Transform);
+ 		GUARD_SCOPE_TYPED(Transform);
  		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 	}
 
@@ -156,7 +151,7 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 }
 
 void WorldInternal::WalkEntityHierarchy(WorldEntityWalker* walker) {
-	GUARD_SCOPE(Transform);
+	GUARD_SCOPE_TYPED(Transform);
 	WalkEntityHierarchyRecursively(GetRootTransform(), walker);
 }
 
@@ -182,7 +177,7 @@ bool WorldInternal::FireEvent(WorldEventBasePointer e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
 
-	GUARD_SCOPE(WorldEventContainer);
+	GUARD_SCOPE_TYPED(WorldEventContainer);
 	if (collection.find(e) == collection.end()) {
 		collection.insert(e);
 		return true;
@@ -272,7 +267,7 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 }
 
 void WorldInternal::FireEvents() {
-	GUARD_SCOPE(WorldEventContainer);
+	GUARD_SCOPE_TYPED(WorldEventContainer);
 	for (uint i = 0; i < WorldEventTypeCount; ++i) {
 		WorldEventCollection& collection = events_[i];
 		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {

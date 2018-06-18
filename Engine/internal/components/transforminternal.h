@@ -1,9 +1,10 @@
 #include <vector>
 
 #include "transform.h"
+#include "tools/dirtybits.h"
 #include "internal/components/componentinternal.h"
 
-class TransformInternal : virtual public ITransform, public ComponentInternal {
+class TransformInternal : virtual public ITransform, public ComponentInternal, public DirtyBits {
 	DEFINE_FACTORY_METHOD(Transform)
 
 public:
@@ -60,11 +61,10 @@ public:
 	virtual glm::vec3 GetRight();
 	virtual glm::vec3 GetForward();
 
-private:
-	void SetDiry(int bits);
-	bool IsDirty(int bits) const { return (dirtyBits_ & bits) != 0; }
-	void ClearDirty(int bits) { dirtyBits_ &= ~bits; }
+protected:
+	virtual void SetDirty(int bits);
 
+private:
 	void DirtyChildrenScales();
 	void DirtyChildrenPositions();
 	void DirtyChildrenRotationsAndEulerAngles();
@@ -99,7 +99,6 @@ private:
 	PRS local_;
 	PRS world_;
 
-	int dirtyBits_;
 	glm::mat4 localToWorldMatrix_;
 	glm::mat4 worldToLocalMatrix_;
 };

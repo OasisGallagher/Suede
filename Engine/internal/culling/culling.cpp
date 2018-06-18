@@ -1,18 +1,31 @@
 #include "world.h"
 #include "culling.h"
 #include "debug/debug.h"
+#include "memory/memory.h"
 #include "geometryutility.h"
 #include "internal/base/renderdefines.h"
 
-Culling::Culling(const glm::mat4& worldToClipMatrix, AsyncEventListener* receiver) : AsyncWorker(receiver), worldToClipMatrix_(worldToClipMatrix) {
+CullingThread::CullingThread(CullingListener* listener) : listener_(listener), status_(Waiting) {
 }
 
-void Culling::OnRun() {
-	entities_.clear();
-	WorldInstance()->WalkEntityHierarchy(this);
+void CullingThread::run() {
+	for (; status_ != Finished;) {
+		if (status_ == Working) {
+			entities_.clear();
+			WorldInstance()->WalkEntityHierarchy(this);
+			listener_->OnCullingFinished();
+
+			status_ = Waiting;
+		}
+	}
 }
 
-WorldEntityWalker::WalkCommand Culling::OnWalkEntity(Entity entity) {
+void CullingThread::Cull(const glm::mat4& worldToClipMatrix) {
+	worldToClipMatrix_ = worldToClipMatrix;
+	status_ = Working;
+}
+
+WorldEntityWalker::WalkCommand CullingThread::OnWalkEntity(Entity entity) {
 	// TODO: fix bug for particle system by calculating its bounds.
 	if (!IsVisible(entity, worldToClipMatrix_)) {
 		//return WorldEntityWalker::WalkCommandContinue;
@@ -29,7 +42,7 @@ WorldEntityWalker::WalkCommand Culling::OnWalkEntity(Entity entity) {
 	return WorldEntityWalker::WalkCommandContinue;
 }
 
-bool Culling::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
+bool CullingThread::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
 	const Bounds& bounds = entity->GetBounds();
 	if (bounds.IsEmpty()) {
 		return false;
@@ -38,7 +51,7 @@ bool Culling::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
 	return FrustumCulling(bounds, worldToClipMatrix);
 }
 
-bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
+bool CullingThread::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 
@@ -62,27 +75,4 @@ bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipM
 	}
 
 	return false;
-}
-
-CullingThreadPool::CullingThreadPool() : ThreadPool(ThreadPool::Synchronous), listener_(nullptr) {
-
-}
-
-void CullingThreadPool::GetVisibleEntities(const glm::mat4& worldToClipMatrix) {
-	// TODO: memory managed by ZThread.
-	Execute(new Culling(worldToClipMatrix, this));
-}
-
-void CullingThreadPool::SetCullingListener(CullingListener* listener) {
-	listener_ = listener;
-}
-
-void CullingThreadPool::OnSchedule(ZThread::Task& schedule) {
-	Culling* culling = (Culling*)schedule.get();
-
-	// main thread.
-
-	if (listener_ != nullptr) {
-		listener_->OnCullingFinished(culling);
-	}
 }

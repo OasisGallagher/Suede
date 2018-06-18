@@ -7,7 +7,7 @@ class Canvas : public QGLWidget, public GraphicsCanvas {
 
 public:
 	Canvas(QWidget *parent = NULL);
-	~Canvas();
+	~Canvas() {}
 
 signals:
 	void sizeChanged(uint w, uint h);

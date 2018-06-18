@@ -6,13 +6,18 @@
 #include "gizmospainter.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
+
 #include "internal/base/framebuffer.h"
 #include "internal/entities/camerainternal.h"
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera), depth_(0)
+	: EntityInternal(ObjectTypeCamera), depth_(0), __rendering(false)
 	 /*, gbuffer_(nullptr) */{
-	rendering_ = MEMORY_CREATE(Rendering);
+	cullingThread_ = MEMORY_CREATE(CullingThread, this);
+	renderingThread_ = MEMORY_CREATE(RenderingThread, this);
+
+	executor_.execute(cullingThread_);
+	executor_.execute(renderingThread_);
 
 	Engine::AddFrameEventListener(this);
 	Screen::AddScreenSizeChangedListener(this);
@@ -22,7 +27,8 @@ CameraInternal::CameraInternal()
 
 CameraInternal::~CameraInternal() {
 	//MEMORY_RELEASE(gbuffer_);
-	MEMORY_RELEASE(rendering_);
+	MEMORY_RELEASE(cullingThread_);
+	MEMORY_RELEASE(renderingThread_);
 	Engine::RemoveFrameEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
 }
@@ -40,15 +46,13 @@ void CameraInternal::Update() {
 }
 
 void CameraInternal::Render() {
-	Rendering::Matrices matrix;
-	matrix.position = GetTransform()->GetPosition();
-	matrix.projectionMatrix = GetProjectionMatrix();
-	matrix.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-	rendering_->Render(matrix);
+	if (__rendering) { return; }
+	__rendering = true;
+	cullingThread_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 }
 
 void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
-	rendering_->Resize(width, height);
+	renderingThread_->Resize(width, height);
 
 	float aspect = (float)width / height;
 	if (!Math::Approximately(aspect, GetAspect())) {
@@ -58,6 +62,18 @@ void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
 
 void CameraInternal::OnProjectionMatrixChanged() {
 	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+}
+
+void CameraInternal::OnCullingFinished() {
+	RenderingThread::Matrices matrix;
+	matrix.position = GetTransform()->GetPosition();
+	matrix.projectionMatrix = GetProjectionMatrix();
+	matrix.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+	renderingThread_->Render(cullingThread_->GetEntities(), matrix);
+}
+
+void CameraInternal::OnRenderingFinished() {
+	__rendering = false;
 }
 
 int CameraInternal::GetFrameEventQueue() {
@@ -77,11 +93,11 @@ bool CameraInternal::IsMainCamera() const {
 }
 
 void CameraInternal::SetRect(const Rect& value) {
-	rendering_->SetRect(value);
+	renderingThread_->SetRect(value);
 }
 
 const Rect& CameraInternal::GetRect() const {
-	return rendering_->GetRect();
+	return renderingThread_->GetRect();
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {

@@ -3,14 +3,26 @@
 #include "entity.h"
 #include "texture.h"
 #include "material.h"
+#include "tools/dirtybits.h"
 #include "internal/culling/culling.h"
 
 class Sample;
 class Pipeline;
 class ImageEffect;
-class CameraInternal;
 
-class Rendering : public CullingListener {
+class RenderingThread;
+class RenderingListener {
+public:
+	virtual void OnRenderingFinished() = 0;
+};
+
+class RenderingThread : public ZThread::Runnable, public DirtyBits {
+	enum {
+		Waiting,
+		Working,
+		Finished,
+	};
+
 public:
 	struct Matrices {
 		glm::vec3 position;
@@ -19,11 +31,11 @@ public:
 	};
 
 public:
-	Rendering();
-	~Rendering();
+	RenderingThread(RenderingListener* listener);
+	~RenderingThread();
 
 public:
-	void Render(const Matrices& matrices);
+	void Render(std::vector<Entity>& entities, const Matrices& matrices);
 
 	void SetTargetTexture(RenderTexture value) { targetTexture_ = value; }
 	RenderTexture GetTargetTexture() { return targetTexture_; }
@@ -48,10 +60,13 @@ public:
 	void SetRect(const Rect& value);
 	const Rect& GetRect() const { return normalizedRect_; }
 
-public:
-	virtual void OnCullingFinished(Culling* worker);
+protected:
+	virtual void run();
 
 private:
+	void ApplyPendingOperations();
+
+	void RenderEntities();
 	void ClearRenderTextures();
 
 	void UpdateTransformsUniformBuffer();
@@ -88,10 +103,22 @@ private:
 	void OnImageEffects();
 
 private:
-	bool __working;
+	void ApplyResize();
+
+private:
+	enum {
+		ScreenSize = 1,
+		RenderTextures = 1 << 1,
+	};
+
+private:
+	int status_;
 
 	Matrices matrices_;
+	std::vector<Entity> entities_;
+	RenderingListener* listener_;
 
+	glm::uvec2 size_;
 	Rect normalizedRect_;
 
 	ClearType clearType_;
@@ -115,5 +142,4 @@ private:
 	Sample *push_renderables, *forward_pass, *get_renderable_entities;
 
 	Pipeline* pipeline_;
-	CullingThreadPool* culling_;
 };

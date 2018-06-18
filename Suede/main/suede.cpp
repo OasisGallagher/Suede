@@ -94,8 +94,9 @@ void Suede::closeEvent(QCloseEvent *event) {
 	QSettings settings(LAYOUT_PATH, QSettings::IniFormat);
 	settings.setValue("State", saveState(3350));
 	settings.setValue("Geometry", saveGeometry());
-
 	QMainWindow::closeEvent(event);
+
+	emit aboutToClose();
 }
 
 void Suede::keyPressEvent(QKeyEvent* event) {

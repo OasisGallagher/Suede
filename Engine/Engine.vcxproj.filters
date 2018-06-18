@@ -352,9 +352,6 @@
     <ClInclude Include="internal\culling\culling.h">
       <Filter>internal\culling\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\async\async.h">
-      <Filter>internal\async\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rendering\rendering.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
@@ -369,6 +366,9 @@
     </ClInclude>
     <ClInclude Include="include\graphicscanvas.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\async\guard.h">
+      <Filter>internal\async\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -518,9 +518,6 @@
     </ClCompile>
     <ClCompile Include="internal\culling\culling.cpp">
       <Filter>internal\culling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\async\async.cpp">
-      <Filter>internal\async\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\rendering\rendering.cpp">
       <Filter>internal\rendering\src</Filter>

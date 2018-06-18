@@ -19,8 +19,6 @@
 #include "graphicscanvas.h"
 #include "debug/profiler.h"
 
-GraphicsCanvas* canvas_;
-
 typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
 static FrameEventListenerContainer frameEventListeners_;
 
@@ -89,16 +87,6 @@ bool Engine::Initialize() {
 
 void Engine::Release() {
 	WorldInstance().reset();
-}
-
-void Engine::SetCanvas(GraphicsCanvas* value) {
-	if (canvas_ == value) { return; }
-
-	if (canvas_ != nullptr) {
-		// TODO: clear up old viewer.
-	}
-
-	canvas_ = value;
 }
 
 void Engine::AddFrameEventListener(FrameEventListener* listener) {

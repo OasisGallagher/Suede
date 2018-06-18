@@ -2,7 +2,6 @@
 #include <QSplashScreen>
 
 #include "suede.h"
-#include "engine.h"
 #include "qtviewer.h"
 
 QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv) {
@@ -12,19 +11,16 @@ QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(a
 
 	app_.processEvents();
 
-	setup();
+	setupRegistry();
+	setupStyle();
+	setupSuede();
 
-	Suede suede;
-	Canvas* c = Game::get()->canvas();
-	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
-
-	SetCanvas(c);
-	_GraphicsViewer_();
-	suede.awake();
-
-	splash->finish(&suede);
+	splash->finish(suede_);
 	delete splash;
+}
 
+QtViewer::~QtViewer() {
+	delete suede_;
 }
 
 void QtViewer::Update() {
@@ -32,13 +28,26 @@ void QtViewer::Update() {
 	app_.processEvents();
 }
 
-void QtViewer::setup() {
+void QtViewer::setupStyle() {
 	QFile qss(":/qss/style");
 	qss.open(QFile::ReadOnly);
 	QString str = qss.readAll();
 	qApp->setStyleSheet(str);
 	qss.close();
+}
 
+void QtViewer::setupSuede() {
+	suede_ = new Suede();
+	connect(suede_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseSuede()));
+
+	Canvas* c = Game::get()->canvas();
+	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
+
+	SetCanvas(c);
+	suede_->awake();
+}
+
+void QtViewer::setupRegistry() {
 	QCoreApplication::setOrganizationName("Oasis");
 	QCoreApplication::setApplicationName("Suede");
 }

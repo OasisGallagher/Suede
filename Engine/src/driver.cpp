@@ -17,18 +17,6 @@ static void _STDCALL GLDebugMessageCallback(
 );
 
 bool Driver::Initialize() {
-	glewExperimental = true;
-	GLenum status = glewInit();
-	if (status != GLEW_OK) {
-		Debug::LogError("failed to initialize glew(0x%x).", status);
-		return false;
-	}
-
-	if (GLEW_ARB_debug_output) {
-		GL::DebugMessageCallback(GLDebugMessageCallback, nullptr);
-		GL::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	}
-
 	return true;
 }
 

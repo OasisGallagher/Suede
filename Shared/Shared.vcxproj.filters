@@ -522,6 +522,9 @@
     <ClInclude Include="debug\profiler.h">
       <Filter>debug\include</Filter>
     </ClInclude>
+    <ClInclude Include="tools\dirtybits.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">

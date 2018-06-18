@@ -21,7 +21,7 @@ public:
 
 	void Bind();
 	void Unbind();
-	uint GetNativePointer() const { return program_; }
+	uint GetNativePointer();
 
 private:
 	struct Uniform {
@@ -38,6 +38,8 @@ private:
 
 	bool ParseRenderStateParameters(int* answer, const std::string* parameters);
 	bool RenderStateParameterToInteger(const std::string& parameter, int& answer);
+
+	bool ApplySources();
 
 	bool Link();
 	bool LoadSource(ShaderStage stage, const char* source);
@@ -68,6 +70,9 @@ private:
 
 	std::string name_;
 	std::string path_;
+
+	std::string* sources_;
+	std::vector<Property*> properties_;
 
 	int textureUnitCount_;
 	UniformContainer uniforms_;

@@ -31,6 +31,9 @@ public:
 	bool childWindowVisible(int index);
 	void showChildWindow(int index, bool show);
 
+signals:
+	void aboutToClose();
+
 protected:
 	virtual void OnLogMessage(LogLevel level, const char* message);
 

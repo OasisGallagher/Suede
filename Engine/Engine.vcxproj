@@ -113,7 +113,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;..\Shared\lib\pugixml.lib;..\Shared\lib\ZThread.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;..\Shared\lib\ZThread.lib;..\Shared\lib\pugixml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -162,7 +162,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
   <ItemGroup>
     <ClCompile Include="api\gllimits.cpp" />
     <ClCompile Include="include\graphicsviewer.cpp" />
-    <ClCompile Include="internal\async\async.cpp" />
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
@@ -261,7 +260,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\graphicsviewer.h" />
     <ClInclude Include="include\world.h" />
-    <ClInclude Include="internal\async\async.h" />
+    <ClInclude Include="internal\async\guard.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\fontinternal.h" />
     <ClInclude Include="internal\base\framebuffer.h" />

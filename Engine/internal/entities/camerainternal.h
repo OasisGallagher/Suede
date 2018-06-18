@@ -6,17 +6,23 @@
 #include "camera.h"
 #include "frustum.h"
 #include "frameeventlistener.h"
+
+#include <ZThread/ThreadedExecutor.h>
+#include "internal/culling/culling.h"
 #include "internal/rendering/rendering.h"
+
 #include "internal/entities/entityinternal.h"
 
 //class GBuffer;
 
-class Rendering;
 class ImageEffect;
 class GizmosPainter;
 
 class Sample;
-class CameraInternal : public ICamera, public EntityInternal, public Frustum, public ScreenSizeChangedListener, public FrameEventListener {
+class CameraInternal : public ICamera
+	, public EntityInternal, public Frustum
+	, public CullingListener, public RenderingListener 
+	, public ScreenSizeChangedListener, public FrameEventListener {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:
@@ -27,20 +33,20 @@ public:
 	virtual void SetDepth(int value);
 	virtual int GetDepth() { return depth_;  }
 
-	virtual void SetClearType(ClearType value) { rendering_->SetClearType(value);; }
-	virtual ClearType GetClearType() { return rendering_->GetClearType(); }
+	virtual void SetClearType(ClearType value) { renderingThread_->SetClearType(value);; }
+	virtual ClearType GetClearType() { return renderingThread_->GetClearType(); }
 
-	virtual void SetRenderPath(RenderPath value) { rendering_->SetRenderPath(value); }
-	virtual RenderPath GetRenderPath() { return rendering_->GetRenderPath(); }
+	virtual void SetRenderPath(RenderPath value) { renderingThread_->SetRenderPath(value); }
+	virtual RenderPath GetRenderPath() { return renderingThread_->GetRenderPath(); }
 
-	virtual void SetDepthTextureMode(DepthTextureMode value) { rendering_->SetDepthTextureMode(value); }
-	virtual DepthTextureMode GetDepthTextureMode() { return rendering_->GetDepthTextureMode(); }
+	virtual void SetDepthTextureMode(DepthTextureMode value) { renderingThread_->SetDepthTextureMode(value); }
+	virtual DepthTextureMode GetDepthTextureMode() { return renderingThread_->GetDepthTextureMode(); }
 
-	virtual void SetClearColor(const glm::vec3& value) { rendering_->SetClearColor(value); }
-	virtual glm::vec3 GetClearColor() { return rendering_->GetClearColor(); }
+	virtual void SetClearColor(const glm::vec3& value) { renderingThread_->SetClearColor(value); }
+	virtual glm::vec3 GetClearColor() { return renderingThread_->GetClearColor(); }
 
-	virtual void SetTargetTexture(RenderTexture value) { rendering_->SetTargetTexture(value); }
-	virtual RenderTexture GetTargetTexture() { return rendering_->GetTargetTexture(); }
+	virtual void SetTargetTexture(RenderTexture value) { renderingThread_->SetTargetTexture(value); }
+	virtual RenderTexture GetTargetTexture() { return renderingThread_->GetTargetTexture(); }
 
 	virtual Texture2D Capture();
 
@@ -76,7 +82,7 @@ public:
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
 public:
-	virtual void AddImageEffect(ImageEffect* effect) { rendering_->AddImageEffect(effect); }
+	virtual void AddImageEffect(ImageEffect* effect) { renderingThread_->AddImageEffect(effect); }
 	virtual void AddGizmosPainter(GizmosPainter* painter) { gizmosPainters_.push_back(painter); }
 
 public:
@@ -84,6 +90,10 @@ public:
 
 protected:
 	virtual void OnProjectionMatrixChanged();
+
+protected:
+	virtual void OnCullingFinished();
+	virtual void OnRenderingFinished();
 
 public:
 	virtual int GetFrameEventQueue();
@@ -96,10 +106,15 @@ private:
 private:
 	int depth_;
 
+	bool __rendering;
+
 	//GBuffer* gbuffer_;
 
 	Plane planes_[6];
-	Rendering* rendering_;
-	
+
+	CullingThread* cullingThread_;
+	RenderingThread* renderingThread_;
+	ZThread::ThreadedExecutor executor_;
+
 	std::vector<GizmosPainter*> gizmosPainters_;
 };

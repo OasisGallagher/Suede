@@ -10,7 +10,7 @@
 #include "entityloader.h"
 #include "memory/memory.h"
 #include "os/filesystem.h"
-#include "internal/async/async.h"
+#include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
 
 MaterialAsset::MaterialAsset()
@@ -64,8 +64,8 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-EntityLoader::EntityLoader(const std::string& path, Entity entity, AsyncEventListener* receiver)
-	: AsyncWorker(receiver), path_(path), root_(entity) {
+EntityLoader::EntityLoader(const std::string& path, Entity entity, WorkerEventListener* receiver)
+	: Worker(receiver), path_(path), root_(entity) {
 }
 
 EntityLoader::~EntityLoader() {
@@ -74,7 +74,7 @@ EntityLoader::~EntityLoader() {
 	}
 }
 
-void EntityLoader::OnRun() {
+void EntityLoader::Run() {
 	if (!LoadAsset()) {
 	}
 }

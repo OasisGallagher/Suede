@@ -38,7 +38,7 @@ enum SortMode {
 };
 
 class Sample;
-class Pipeline : public FrameEventListener {
+class Pipeline {
 	enum RenderPass {
 		RenderPassNone = -1,
 
@@ -57,10 +57,6 @@ class Pipeline : public FrameEventListener {
 public:
 	Pipeline();
 	~Pipeline();
-
-public:
-	virtual void OnFrameEnter();
-	virtual void OnFrameLeave();
 
 public:
 	void Sort(SortMode mode);
