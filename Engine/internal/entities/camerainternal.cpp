@@ -7,17 +7,20 @@
 #include "debug/profiler.h"
 #include "geometryutility.h"
 
-#include "internal/base/framebuffer.h"
 #include "internal/entities/camerainternal.h"
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera), depth_(0), __rendering(false)
+	: EntityInternal(ObjectTypeCamera), depth_(0), __isCulling(false), currentTraits_(nullptr)
 	 /*, gbuffer_(nullptr) */{
 	cullingThread_ = MEMORY_CREATE(CullingThread, this);
-	renderingThread_ = MEMORY_CREATE(RenderingThread, this);
+
+	traits0_ = MEMORY_CREATE(RenderableTraits, &p_);
+	traits1_ = MEMORY_CREATE(RenderableTraits, &p_);
+
+	renderingThread_ = MEMORY_CREATE(RenderingThread, &p_);// , this);
 
 	executor_.execute(cullingThread_);
-	executor_.execute(renderingThread_);
+	//executor_.execute(renderingThread_);
 
 	Engine::AddFrameEventListener(this);
 	Screen::AddScreenSizeChangedListener(this);
@@ -27,7 +30,12 @@ CameraInternal::CameraInternal()
 
 CameraInternal::~CameraInternal() {
 	//MEMORY_RELEASE(gbuffer_);
-	MEMORY_RELEASE(cullingThread_);
+	cullingThread_->Stop();
+	executor_.wait();
+
+	MEMORY_RELEASE(traits0_);
+	MEMORY_RELEASE(traits1_);
+
 	MEMORY_RELEASE(renderingThread_);
 	Engine::RemoveFrameEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
@@ -46,9 +54,17 @@ void CameraInternal::Update() {
 }
 
 void CameraInternal::Render() {
-	if (__rendering) { return; }
-	__rendering = true;
-	cullingThread_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+	if (!cullingThread_->IsWorking()) {
+		cullingThread_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+	}
+
+	if (currentTraits_ != nullptr) {
+		RenderingMatrices matrices;
+		matrices.position = GetTransform()->GetPosition();
+		matrices.projectionMatrix = GetProjectionMatrix();
+		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+		renderingThread_->Render(currentTraits_->GetPipelines(), matrices);
+	}
 }
 
 void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
@@ -65,16 +81,19 @@ void CameraInternal::OnProjectionMatrixChanged() {
 }
 
 void CameraInternal::OnCullingFinished() {
-	RenderingThread::Matrices matrix;
-	matrix.position = GetTransform()->GetPosition();
-	matrix.projectionMatrix = GetProjectionMatrix();
-	matrix.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-	renderingThread_->Render(cullingThread_->GetEntities(), matrix);
+	RenderableTraits* free = (currentTraits_ != traits0_) ? traits0_ : traits1_;
+
+	RenderingMatrices matrices;
+	matrices.position = GetTransform()->GetPosition();
+	matrices.projectionMatrix = GetProjectionMatrix();
+	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+	free->Traits(cullingThread_->GetEntities(), matrices);
+
+	currentTraits_ = free;
 }
 
-void CameraInternal::OnRenderingFinished() {
-	__rendering = false;
-}
+// void CameraInternal::OnRenderingFinished() {
+// }
 
 int CameraInternal::GetFrameEventQueue() {
 	return IsMainCamera() ? std::numeric_limits<int>::max() : FrameEventListener::GetFrameEventQueue();
@@ -93,11 +112,10 @@ bool CameraInternal::IsMainCamera() const {
 }
 
 void CameraInternal::SetRect(const Rect& value) {
-	renderingThread_->SetRect(value);
-}
-
-const Rect& CameraInternal::GetRect() const {
-	return renderingThread_->GetRect();
+	if (p_.normalizedRect != value) {
+		p_.normalizedRect = value;
+		renderingThread_->ClearRenderTextures();
+	}
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {

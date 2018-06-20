@@ -13,6 +13,7 @@ public:
 	static void AttachShadowTexture(Material material);
 
 public:
+	static void Clear();
 	static void Resize(uint width, uint height);
 	static const glm::mat4& GetWorldToShadowMatrix();
 	static void Update(DirectionalLight light, Pipeline* pipeline);

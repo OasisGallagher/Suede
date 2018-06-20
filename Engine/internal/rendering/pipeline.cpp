@@ -15,6 +15,8 @@ inline int __compare(T lhs, T rhs) {
 	return lhs < rhs ? -1 : 1;
 }
 
+typedef bool(*RenderableComparer)(const Renderable& lhs, const Renderable& rhs);
+
 #define COMPARE(lhs, rhs)	if (true) { int n = __compare(lhs, rhs); if (n != 0) { return n; } } else (void)0
 
 static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
@@ -44,73 +46,60 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 
 Pipeline::Pipeline() :renderables_(1024), nrenderables_(0)
 	, oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
-	switch_material = Profiler::CreateSample();
-	switch_framebuffer = Profiler::CreateSample();
-	switch_mesh = Profiler::CreateSample();
-	update_ubo = Profiler::CreateSample();
-	gather_instances = Profiler::CreateSample();
-	update_pipeline = Profiler::CreateSample();
-	rendering = Profiler::CreateSample();
+// 	switch_material = Profiler::CreateSample();
+// 	switch_framebuffer = Profiler::CreateSample();
+// 	switch_mesh = Profiler::CreateSample();
+// 	update_ubo = Profiler::CreateSample();
+// 	gather_instances = Profiler::CreateSample();
+// 	update_pipeline = Profiler::CreateSample();
+// 	rendering = Profiler::CreateSample();
 }
 
 Pipeline::~Pipeline() {
-	Profiler::ReleaseSample(switch_material);
-	Profiler::ReleaseSample(switch_framebuffer);
-	Profiler::ReleaseSample(switch_mesh);
-	Profiler::ReleaseSample(update_ubo);
-	Profiler::ReleaseSample(gather_instances);
-	Profiler::ReleaseSample(update_pipeline);
-	Profiler::ReleaseSample(rendering);
+// 	Profiler::ReleaseSample(switch_material);
+// 	Profiler::ReleaseSample(switch_framebuffer);
+// 	Profiler::ReleaseSample(switch_mesh);
+// 	Profiler::ReleaseSample(update_ubo);
+// 	Profiler::ReleaseSample(gather_instances);
+// 	Profiler::ReleaseSample(update_pipeline);
+// 	Profiler::ReleaseSample(rendering);
 }
 
+static bool MeshComparer(const Renderable& lhs, const Renderable& rhs) {
+	return MeshPredicate(lhs, rhs) < 0;
+}
+
+static bool MaterialComparer(const Renderable& lhs, const Renderable& rhs) {
+	return MaterialPredicate(lhs, rhs) < 0;
+}
+
+static bool MeshMaterialComparer(const Renderable& lhs, const Renderable& rhs) {
+	int n = MaterialPredicate(lhs, rhs);
+	return n != 0 ? n < 0 : MeshPredicate(lhs, rhs) < 0;
+}
+
+static RenderableComparer comparers[] = {
+	MeshComparer, MaterialComparer, MeshMaterialComparer,
+};
+
 void Pipeline::Sort(SortMode mode) {
-	struct MeshComparer {
-		bool operator ()(const Renderable& lhs, const Renderable& rhs) const {
-			return MeshPredicate(lhs, rhs) < 0;
-		}
-	};
-
-	struct MaterialComparer {
-		bool operator ()(const Renderable& lhs, const Renderable& rhs) const {
-			return MaterialPredicate(lhs, rhs) < 0;
-		}
-	};
-
-	struct MeshMaterialComparer {
-		bool operator ()(const Renderable& lhs, const Renderable& rhs) const {
-			int n = MaterialPredicate(lhs, rhs);
-			return n != 0 ? n < 0 : MeshPredicate(lhs, rhs) < 0;
-		}
-	};
-
-	switch (mode) {
-		case SortModeMesh:
-			std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, MeshComparer());
-			break;
-		case SortModeMaterial:
-			std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, MaterialComparer());
-			break;
-		case SortModeMeshMaterial:
-			std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, MeshMaterialComparer());
-			break;
-	}
+	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparers[mode]);
+	GatherInstances(ranges_);
 }
 
 void Pipeline::Run(const glm::mat4& worldToClipMatrix) {
-	update_pipeline->Restart();
+// 	update_pipeline->Restart();
+// 
+// 	gather_instances->Restart();
+	//gather_instances->Stop();
+	//Debug::Output("[Pipeline::Update::gather]\t%.2f", gather_instances->GetElapsedSeconds());
 
-	gather_instances->Restart();
-	std::vector<uint> ranges;
-	GatherInstances(ranges);
-	gather_instances->Stop();
-	Debug::Output("[Pipeline::Update::gather]\t%.2f", gather_instances->GetElapsedSeconds());
-
-	rendering->Restart();
+	//rendering->Restart();
 	uint from = 0;
 
-	for (std::vector<uint>::iterator ite = ranges.begin(); ite != ranges.end(); ++ite) {
+	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		if (renderables_[from].instance != 0) {
-			Render(renderables_[from]);
+			Render(renderables_[from], renderables_[from].instance);
 		}
 		else {
 			RenderInstances(from, *ite, worldToClipMatrix);
@@ -122,21 +111,21 @@ void Pipeline::Run(const glm::mat4& worldToClipMatrix) {
 	Statistics::AddTriangles(ntriangles_);
 	Statistics::AddDrawcalls(ndrawcalls_);
 
-	debugDumpPipelineAndRanges(ranges);
+	//debugDumpPipelineAndRanges(ranges_);
 
-	rendering->Stop();
+	//rendering->Stop();
 
 	Debug::Output("[Pipeline::Update::nrenderables]\t%d", nrenderables_);
 	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d", ndrawcalls_);
-	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f", update_ubo->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::rendering]\t%.2f", rendering->GetElapsedSeconds());
+// 	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f", update_ubo->GetElapsedSeconds());
+// 	Debug::Output("[Pipeline::Update::rendering]\t%.2f", rendering->GetElapsedSeconds());
+// 
+// 	Debug::Output("[Pipeline::Update::switch_framebuffer]\t%.2f", switch_framebuffer->GetElapsedSeconds());
+// 	Debug::Output("[Pipeline::Update::switch_material]\t%.2f", switch_material->GetElapsedSeconds());
+// 	Debug::Output("[Pipeline::Update::switch_mesh]\t%.2f", switch_mesh->GetElapsedSeconds());
 
-	Debug::Output("[Pipeline::Update::switch_framebuffer]\t%.2f", switch_framebuffer->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::switch_material]\t%.2f", switch_material->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::switch_mesh]\t%.2f", switch_mesh->GetElapsedSeconds());
-
-	update_pipeline->Stop();
-	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f", update_pipeline->GetElapsedSeconds());
+	//update_pipeline->Stop();
+	//Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f", update_pipeline->GetElapsedSeconds());
 
 	ResetState();
 }
@@ -172,7 +161,7 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 
 	for (int i = 0; i < instanceCount; ) {
 		int count = Math::Min(instanceCount - i, maxInstances);
-		renderable.instance = count;
+		//renderable.instance = count;
 
 		std::vector<glm::mat4> matrices;
 		matrices.reserve(2 * count);
@@ -181,11 +170,11 @@ void Pipeline::RenderInstances(uint first, uint last, const glm::mat4& worldToCl
 			matrices.push_back(worldToClipMatrix * renderables_[j].localToWorldMatrix);
 		}
 
-		update_ubo->Restart();
+		//update_ubo->Restart();
 		UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices[0], 0, sizeof(glm::mat4) * matrices.size());
-		update_ubo->Stop();
+		//update_ubo->Stop();
 
-		Render(renderable);
+		Render(renderable, count);
 		i += count;
 	}
 }
@@ -246,19 +235,19 @@ void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, RenderText
 	}
 }
 
-void Pipeline::Render(Renderable& renderable) {
+void Pipeline::Render(Renderable& renderable, uint instance) {
 	UpdateState(renderable);
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
-	if (renderable.instance == 0) {
-		Debug::Break();
+	//if (renderable.instance == 0) {
+	//	Debug::Break();
 		// TODO: update c_localToWorldMatrix, c_localToClipMatrix to material.
 		//GLUtil::DrawElementsBaseVertex(renderable.mesh->GetTopology(), bias);
-	}
-	else {
-		GLUtil::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, renderable.instance);
-	}
+	//}
+	//else {
+	GLUtil::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
+	//}
 
 	++ndrawcalls_;
 	ntriangles_ += bias.indexCount / 3;
@@ -266,7 +255,7 @@ void Pipeline::Render(Renderable& renderable) {
 
 void Pipeline::UpdateState(Renderable& renderable) {
 	if (!oldTarget_ || oldTarget_ != renderable.target) {
-		switch_framebuffer->Start();
+		//switch_framebuffer->Start();
 		if (oldTarget_) {
 			oldTarget_->Unbind();
 		}
@@ -274,11 +263,11 @@ void Pipeline::UpdateState(Renderable& renderable) {
 		oldTarget_ = renderable.target;
 		renderable.target->BindWrite(renderable.normalizedRect);
 
-		switch_framebuffer->Stop();
+		//switch_framebuffer->Stop();
 	}
 
 	if (renderable.material != oldMaterial_) {
-		switch_material->Start();
+		//switch_material->Start();
 		if (oldMaterial_) {
 			oldMaterial_->Unbind();
 		}
@@ -287,7 +276,7 @@ void Pipeline::UpdateState(Renderable& renderable) {
 		oldMaterial_ = renderable.material;
 
 		renderable.material->Bind(renderable.pass);
-		switch_material->Stop();
+		//switch_material->Stop();
 	}
 	else if (oldPass_ != renderable.pass) {
 		renderable.material->Bind(renderable.pass);
@@ -295,7 +284,7 @@ void Pipeline::UpdateState(Renderable& renderable) {
 	}
 
 	if (!oldMesh_ || renderable.mesh->GetNativePointer() != oldMesh_->GetNativePointer()) {
-		switch_mesh->Start();
+		//switch_mesh->Start();
 		
 		if (oldMesh_) {
 			oldMesh_->Unbind();
@@ -304,11 +293,13 @@ void Pipeline::UpdateState(Renderable& renderable) {
 		oldMesh_ = renderable.mesh;
 
 		renderable.mesh->Bind();
-		switch_mesh->Stop();
+		//switch_mesh->Stop();
 	}
 }
 
 void Pipeline::Clear() {
+	ranges_.clear();
+
 	for (uint i = 0; i < nrenderables_; ++i) {
 		renderables_[i].Clear();
 	}
@@ -316,13 +307,21 @@ void Pipeline::Clear() {
 	nrenderables_ = 0;
 }
 
+Pipeline& Pipeline::operator=(const Pipeline& other) {
+	ranges_ = other.ranges_;
+
+	renderables_ = other.renderables_;
+	nrenderables_ = other.nrenderables_;
+	return *this;
+}
+
 void Pipeline::ResetState() {
 	ndrawcalls_ = 0;
 	ntriangles_ = 0;
 
-	switch_mesh->Reset();
-	switch_material->Reset();
-	switch_framebuffer->Reset();
+	//switch_mesh->Reset();
+	//switch_material->Reset();
+	//switch_framebuffer->Reset();
 
 	if (oldTarget_) {
 		oldTarget_->Unbind();

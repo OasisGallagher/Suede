@@ -1,9 +1,11 @@
 #include "time2.h"
+#include "resources.h"
 #include "api/gllimits.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
 #include "internal/async/guard.h"
+#include "internal/rendering/shadows.h"
 #include "internal/codec/entityloader.h"
 #include "internal/base/textureinternal.h"
 #include "internal/entities/entityinternal.h"
@@ -13,6 +15,10 @@
 
 static void InitWorld(WorldInternal* world) {
 	GLLimits::Initialize();
+	UniformBufferManager::Initialize();
+
+	Resources::Import();
+	Shadows::Initialize();
 
 	world->root_ = Factory::Create<EntityInternal>();
 	world->root_->SetTransform(Factory::Create<TransformInternal>());

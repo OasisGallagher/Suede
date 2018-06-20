@@ -14,7 +14,6 @@
 #include "api/gl.h"
 #include "engine.h"
 #include "screen.h"
-#include "resources.h"
 #include "statistics.h"
 #include "graphicscanvas.h"
 #include "debug/profiler.h"
@@ -79,8 +78,6 @@ bool Engine::Initialize() {
 
 	GLEF::Initialize();
 	Profiler::Initialize();
-
-	Resources::Import();
 
 	return true;
 }

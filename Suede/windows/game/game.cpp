@@ -29,20 +29,20 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
 //#define MAN
-//#define PARTICLE_SYSTEM
-//#define FONT
+// #define PARTICLE_SYSTEM
+// #define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "models/boblampclean.md5mesh";
-static const char* roomFbxPath = "models/room.obj";// .fbx";
+static const char* roomFbxPath = "models/house.fbx";
 
 static Game* gameInstance;
 
@@ -63,8 +63,6 @@ Game::~Game() {
 	delete inversion_;
 	delete controller_;
 
-	killTimer(updateTimer_);
-
 	gameInstance = nullptr;
 }
 
@@ -78,8 +76,6 @@ Canvas * Game::canvas() {
 
 void Game::init(Ui::Suede* ui) {
 	ChildWindow::init(ui);
-
-	updateTimer_ = startTimer(10, Qt::PreciseTimer);
 
 	connect(Hierarchy::get(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
 	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
@@ -180,15 +176,6 @@ void Game::resizeEvent(QResizeEvent* event) {
 }
 
 void Game::timerEvent(QTimerEvent *event) {
-	if (event->timerId() != updateTimer_) {
-		return;
-	}
-
-	if (Time::GetFrameCount() == 1) {
-		start();
-	}
-
-	update();
 }
 
 void Game::updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected) {
@@ -336,6 +323,7 @@ void Game::createScene() {
 	ParticleSystem particleSystem = NewParticleSystem();
 	entity->SetParticleSystem(particleSystem);
 	entity->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
+	entity->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -362,9 +350,11 @@ void Game::createScene() {
 
 	Entity redText = NewEntity();
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
+	redText->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	Entity blueText = NewEntity();
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
+	blueText->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
 
 	TextMesh redMesh = NewTextMesh();
 	redMesh->SetFont(font);

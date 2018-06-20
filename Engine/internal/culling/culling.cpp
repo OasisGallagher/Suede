@@ -1,8 +1,7 @@
 #include "world.h"
 #include "culling.h"
-#include "debug/debug.h"
-#include "memory/memory.h"
 #include "geometryutility.h"
+#include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
 
 CullingThread::CullingThread(CullingListener* listener) : listener_(listener), status_(Waiting) {
@@ -15,14 +14,22 @@ void CullingThread::run() {
 			WorldInstance()->WalkEntityHierarchy(this);
 			listener_->OnCullingFinished();
 
+			GUARD_SCOPE_TYPED(CullingThread);
 			status_ = Waiting;
 		}
 	}
 }
 
+void CullingThread::Stop() {
+	GUARD_SCOPE_TYPED(CullingThread);
+	status_ = Finished;
+}
+
 void CullingThread::Cull(const glm::mat4& worldToClipMatrix) {
-	worldToClipMatrix_ = worldToClipMatrix;
-	status_ = Working;
+	if (status_ == Waiting) {
+		worldToClipMatrix_ = worldToClipMatrix;
+		status_ = Working;
+	}
 }
 
 WorldEntityWalker::WalkCommand CullingThread::OnWalkEntity(Entity entity) {

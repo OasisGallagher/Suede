@@ -64,6 +64,7 @@ public:
 	void Run(const glm::mat4& worldToClipMatrix);
 	
 	void Clear();
+	Pipeline& operator = (const Pipeline& other);
 
 	uint GetRenderableCount() const { return nrenderables_; }
 	Renderable& GetRenderable(uint i) { return renderables_[i]; }
@@ -92,7 +93,7 @@ public:
 private:
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
-	void Render(Renderable& renderable);
+	void Render(Renderable& renderable, uint instance);
 
 	void ResetState();
 	void UpdateState(Renderable& renderable);
@@ -104,6 +105,8 @@ private:
 	uint nrenderables_;
 	std::vector<Renderable> renderables_;
 
+	std::vector<uint> ranges_;
+
 	// states.
 	int oldPass_;
 	Mesh oldMesh_;
@@ -114,5 +117,5 @@ private:
 	uint ntriangles_;
 
 	// performance.
-	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *rendering;
+	//Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *rendering;
 };

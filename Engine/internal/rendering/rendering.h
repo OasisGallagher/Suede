@@ -3,12 +3,56 @@
 #include "entity.h"
 #include "texture.h"
 #include "material.h"
-#include "tools/dirtybits.h"
-#include "internal/culling/culling.h"
+//#include "tools/dirtybits.h"
+#include "internal/rendering/pipeline.h"
 
 class Sample;
 class Pipeline;
 class ImageEffect;
+
+struct RenderingMatrices {
+	glm::vec3 position;
+	glm::mat4 projectionMatrix;
+	glm::mat4 worldToCameraMatrix;
+};
+
+struct RenderingMaterials {
+	// TODO: Common material.
+	Material decal;
+	Material depth;
+};
+
+struct RenderingRenderTextures {
+	RenderTexture aux1;
+	RenderTexture aux2;
+	RenderTexture depth;
+	RenderTexture target;
+};
+
+struct RenderingParameters {
+	RenderingParameters();
+
+	Rect normalizedRect;
+
+	ClearType clearType;
+	glm::vec3 clearColor;
+
+	RenderPath renderPath;
+	DepthTextureMode depthTextureMode;
+
+	RenderingMaterials materials;
+	RenderingRenderTextures renderTextures;
+
+	std::vector<ImageEffect*> imageEffects;
+};
+
+struct RenderingPipelines {
+	Light forwardBaseLight;
+
+	Pipeline* depth;
+	Pipeline* shadow;
+	Pipeline* rendering;
+};
 
 class RenderingThread;
 class RenderingListener {
@@ -16,7 +60,32 @@ public:
 	virtual void OnRenderingFinished() = 0;
 };
 
-class RenderingThread : public ZThread::Runnable, public DirtyBits {
+class RenderingThread {
+public:
+	RenderingThread(RenderingParameters* p);
+
+public:
+	void Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices);
+
+	void Resize(uint width, uint height);
+	void ClearRenderTextures();
+
+private:
+	void OnPostRender();
+	void OnImageEffects();
+
+	void UpdateForwardBaseLightUniformBuffer(Light light);
+	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
+
+	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
+
+private:
+	RenderingParameters* p_;
+	std::vector<Entity> entities_;
+};
+
+// TODO: multi-thread rendering.
+class RenderableTraits/* : public ZThread::Runnable, public DirtyBits*/ {
 	enum {
 		Waiting,
 		Working,
@@ -24,63 +93,20 @@ class RenderingThread : public ZThread::Runnable, public DirtyBits {
 	};
 
 public:
-	struct Matrices {
-		glm::vec3 position;
-		glm::mat4 projectionMatrix;
-		glm::mat4 worldToCameraMatrix;
-	};
+	RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/);
+	~RenderableTraits();
 
 public:
-	RenderingThread(RenderingListener* listener);
-	~RenderingThread();
-
-public:
-	void Render(std::vector<Entity>& entities, const Matrices& matrices);
-
-	void SetTargetTexture(RenderTexture value) { targetTexture_ = value; }
-	RenderTexture GetTargetTexture() { return targetTexture_; }
-
-	void SetClearType(ClearType value) { clearType_ = value; }
-	ClearType GetClearType() { return clearType_; }
-
-	void SetRenderPath(RenderPath value) { renderPath_ = value; }
-	RenderPath GetRenderPath() { return renderPath_; }
-
-	void SetDepthTextureMode(DepthTextureMode value) { depthTextureMode_ = value; }
-	DepthTextureMode GetDepthTextureMode() { return depthTextureMode_; }
-
-	void SetClearColor(const glm::vec3& value) { clearColor_ = value; }
-	glm::vec3 GetClearColor() { return clearColor_; }
-
-	void AddImageEffect(ImageEffect* effect) { imageEffects_.push_back(effect); }
-
-public:
-	void Resize(uint width, uint height);
-
-	void SetRect(const Rect& value);
-	const Rect& GetRect() const { return normalizedRect_; }
-
-protected:
-	virtual void run();
+	RenderingPipelines& GetPipelines() { return pipelines_; }
+	void Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices);
 
 private:
-	void ApplyPendingOperations();
-
-	void RenderEntities();
-	void ClearRenderTextures();
-
-	void UpdateTransformsUniformBuffer();
-	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
-
 	void ForwardRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 	void DeferredRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
 	void RenderDeferredGeometryPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities);
 
-	void CreateAuxTexture1();
-	void CreateAuxTexture2();
-	void CreateDepthTexture();
 	void RenderSkybox(Pipeline* pl, RenderTexture target);
 
 	RenderTexture GetActiveRenderTarget();
@@ -91,55 +117,22 @@ private:
 	void RenderEntity(Pipeline* pl, RenderTexture target, Entity entity, Renderer renderer);
 	void RenderSubMesh(Pipeline* pl, RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass);
 
-	void UpdateForwardBaseLightUniformBuffer(const std::vector<Entity>& entities, Light light);
-
 	void RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities, const std::vector<Light>& lights);
 	void RenderForwardBase(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light light);
 
 	void RenderDecals(Pipeline* pl, RenderTexture target);
-	void OnPostRender();
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
-	void OnImageEffects();
-
-private:
-	void ApplyResize();
-
-private:
-	enum {
-		ScreenSize = 1,
-		RenderTextures = 1 << 1,
-	};
 
 private:
 	int status_;
 
-	Matrices matrices_;
-	std::vector<Entity> entities_;
-	RenderingListener* listener_;
+	RenderingParameters* p_;
+	RenderingMatrices matrices_;
 
-	glm::uvec2 size_;
-	Rect normalizedRect_;
+	/*RenderingListener* listener_;*/
 
-	ClearType clearType_;
-	glm::vec3 clearColor_;
-
-	RenderPath renderPath_;
-	DepthTextureMode depthTextureMode_;
-
-	// TODO: Common material.
-	Material decalMaterial_;
-	Material depthMaterial_;
-	Material skyboxMaterial_;
-	Material deferredMaterial_;
-
-	RenderTexture auxTexture1_;
-	RenderTexture auxTexture2_;
-	RenderTexture depthTexture_;
-	RenderTexture targetTexture_;
-
-	std::vector<ImageEffect*> imageEffects_;
 	Sample *push_renderables, *forward_pass, *get_renderable_entities;
 
-	Pipeline* pipeline_;
+	RenderingPipelines pipelines_;
 };

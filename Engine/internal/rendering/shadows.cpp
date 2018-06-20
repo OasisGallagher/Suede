@@ -28,9 +28,11 @@ void Shadows::AttachShadowTexture(Material material) {
 	material->SetTexture(Variables::shadowDepthTexture, shadowDepthTexture_);
 }
 
-void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
+void Shadows::Clear() {
 	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+}
 
+void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
 	float near = 1.f, far = 90.f;

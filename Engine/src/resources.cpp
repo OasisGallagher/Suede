@@ -18,24 +18,33 @@ static TextureResourceContainer textureResources_;
 static Mesh primitives_[PrimitiveTypeCount];
 static Texture2D blackTexture_, whiteTexture_;
 
+static const char* GetRelativePath(const char* path);
+
+static void ImportShaderResources();
+static void ImportTextureResources();
+static void ImportBuiltinResources();
+
+static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
+static void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
+static Mesh CreateMesh(MeshAttribute &attribute);
+static Texture2D CreateSolidTexture(uint color);
+
+static bool builtinResourcesImported_ = false;
+
 void Resources::Import() {
-//	ImportShaderResources();
+	ImportShaderResources();
 	ImportTextureResources();
+
+	if (!builtinResourcesImported_) {
+		ImportBuiltinResources();
+	}
 }
 
 Texture2D Resources::GetBlackTexture() {
-	if (!blackTexture_) {
-		blackTexture_ = CreateSolidTexture(0xff000000);
-	}
-
 	return blackTexture_;
 }
 
 Texture2D Resources::GetWhiteTexture() {
-	if (!whiteTexture_) {
-		whiteTexture_ = CreateSolidTexture(0xffffffff);
-	}
-
 	return whiteTexture_;
 }
 
@@ -44,11 +53,6 @@ std::string Resources::GetRootDirectory() {
 }
 
 Mesh Resources::GetPrimitive(PrimitiveType type) {
-	if (primitives_[type]) {
-		return primitives_[type];
-	}
-
-	primitives_[type] = CreatePrimitive(type, 1);
 	return primitives_[type];
 }
 
@@ -107,7 +111,7 @@ Material Resources::FindMaterial(const std::string& name) {
 	return nullptr;
 }
 
-void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
+void GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopologyTriangleStripe;
 
 	glm::vec3 vertices[] = {
@@ -132,7 +136,7 @@ void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 }
 
-void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
+void GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopologyTriangles;
 
 	glm::vec3 vertices[] = {
@@ -193,7 +197,7 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
 }
 
-Mesh Resources::CreateMesh(MeshAttribute &attribute) {
+Mesh CreateMesh(MeshAttribute &attribute) {
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
 
@@ -205,29 +209,40 @@ Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 	return mesh;
 }
 
-Texture2D Resources::CreateSolidTexture(uint color) {
+Texture2D CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
 	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1);
 	return texture;
 }
 
-// void Resources::ImportShaderResources() {
-// 	std::vector<std::string> paths;
-// 	const char* reg = ".*\\.shader";
-// 	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
-// 
-// 	shaderResources_.clear();
-// 	for (int i = 0; i < paths.size(); ++i) {
-// 		ShaderResource sr = {
-// 			FileSystem::GetFileNameWithoutExtension(paths[i]), 
-// 			GetRelativePath(paths[i].c_str())
-// 		};
-// 
-// 		shaderResources_.push_back(sr);
-// 	}
-// }
+void ImportBuiltinResources() {
+	whiteTexture_ = CreateSolidTexture(0xffffffff);
+	blackTexture_ = CreateSolidTexture(0xff000000);
 
-void Resources::ImportTextureResources() {
+	for (int type = PrimitiveTypeQuad; type < PrimitiveTypeCount; ++type) {
+		primitives_[type] = Resources::CreatePrimitive((PrimitiveType)type, 1);
+	}
+
+	builtinResourcesImported_ = true;
+}
+
+void ImportShaderResources() {
+	/*std::vector<std::string> paths;
+	const char* reg = ".*\\.shader";
+	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
+
+	shaderResources_.clear();
+	for (int i = 0; i < paths.size(); ++i) {
+		ShaderResource sr = {
+			FileSystem::GetFileNameWithoutExtension(paths[i]),
+			GetRelativePath(paths[i].c_str())
+		};
+
+		shaderResources_.push_back(sr);
+	}*/
+}
+
+void ImportTextureResources() {
 	std::vector<std::string> paths;
 	const char* reg = ".*\\.(jpg|png|tif|bmp|tga|dds)";
 	FileSystem::ListAllFiles(paths, "resources/textures", reg);
@@ -243,7 +258,7 @@ void Resources::ImportTextureResources() {
 	}
 }
 
-const char* Resources::GetRelativePath(const char* path) {
+const char* GetRelativePath(const char* path) {
 	for (; *path != 0 && *path != '/' && *path != '\\'; ++path) {
 	}
 

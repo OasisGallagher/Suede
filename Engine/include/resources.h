@@ -43,16 +43,5 @@ public:
 	static Material FindMaterial(const std::string& name);
 
 private:
-	static const char* GetRelativePath(const char* path);
-
-	//static void ImportShaderResources();
-	static void ImportTextureResources();
-
-	static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
-	static void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
-	static Mesh CreateMesh(MeshAttribute &attribute);
-	static Texture2D CreateSolidTexture(uint color);
-
-private:
 	Resources();
 };

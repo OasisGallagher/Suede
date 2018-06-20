@@ -62,8 +62,6 @@ private:
 	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
 
 private:
-	int updateTimer_;
-
 	QList<Entity> selection_;
 	/*RenderTexture targetTexture_;*/
 

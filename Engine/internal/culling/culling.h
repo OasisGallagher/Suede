@@ -1,7 +1,7 @@
 #pragma once
+#include <ZThread//Runnable.h>
+
 #include "entity.h"
-#include "internal/async/guard.h"
-#include "internal/async/threadpool.h"
 
 class CullingThread;
 class CullingListener {
@@ -23,7 +23,9 @@ public:
 public:
 	std::vector<Entity>& GetEntities() { return entities_; }
 
-	void Done() { status_ = Finished; }
+	void Stop();
+	bool IsWorking() { return status_ == Working; }
+
 	void Cull(const glm::mat4& worldToClipMatrix);
 
 public:
