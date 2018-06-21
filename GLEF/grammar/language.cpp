@@ -1,14 +1,17 @@
 #include <fstream>
 
-#include "parser.h"
-#include "scanner.h"
 #include "language.h"
-#include "syntaxer.h"
-#include "lrparser.h"
+
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "grammarsymbol.h"
 #include "os/filesystem.h"
+
+#include "scanner/scanner.h"
+
+#include "parser/parser.h"
+#include "parser/syntaxer.h"
+#include "parser/lrparser.h"
 
 typedef std::pair<std::string, std::string> ProductionText;
 

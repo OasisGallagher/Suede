@@ -1,9 +1,10 @@
 #pragma once
 
-#include "grammar.h"
 #include "lrtable.h"
-#include "grammarsymbol.h"
 #include "containers/table.h"
+
+#include "grammar/grammar.h"
+#include "grammar/grammarsymbol.h"
 
 class SyntaxNode;
 class SyntaxTree;

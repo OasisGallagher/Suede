@@ -3,7 +3,6 @@
 #include "lalr.h"
 #include "lrtable.h"
 #include "tools/string.h"
-#include "grammarsymbol.h"
 
 LRTable::LRTable() {
 }

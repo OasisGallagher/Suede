@@ -1,12 +1,12 @@
 #include <sstream>
 
 #include "parser.h"
-#include "action.h"
-#include "scanner.h"
-#include "serializer.h"
 #include "debug/debug.h"
 #include "tools/string.h"
+#include "grammar/action.h"
 #include "containers/table.h"
+#include "scanner/scanner.h"
+#include "serializer/serializer.h"
 
 bool Environment::Load(std::ifstream& file) {
 	return Serializer::LoadEnvironment(file, this);

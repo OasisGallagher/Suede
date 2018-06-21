@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <vector>
-#include "scanner.h"
+#include "scanner/scanner.h"
 
 class MathExpr {
 public:

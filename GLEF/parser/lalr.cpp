@@ -3,13 +3,13 @@
 
 #include "lr0.h"
 #include "lalr.h"
-#include "grammar.h"
 #include "lrtable.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "glefdefines.h"
 #include "os/filesystem.h"
+#include "grammar/grammar.h"
 
 struct Ambiguity {
 	int state;

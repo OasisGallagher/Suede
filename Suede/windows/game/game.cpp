@@ -41,8 +41,8 @@
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* manFbxPath = "models/boblampclean.md5mesh";
-static const char* roomFbxPath = "models/house.fbx";
+static const char* manFbxPath = "boblampclean.md5mesh";
+static const char* roomFbxPath = "house.fbx";
 
 static Game* gameInstance;
 
@@ -249,7 +249,7 @@ void Game::createScene() {
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();
-	texture->Load("textures/brick_diffuse.jpg");
+	texture->Load("brick_diffuse.jpg");
 	projector->SetTexture(texture);
 #endif // PROJECTOR
 
@@ -294,12 +294,12 @@ void Game::createScene() {
 	TextureCube cube = NewTextureCube();
 
 	std::string faces[] = {
-		"textures/lake_skybox/right.jpg",
-		"textures/lake_skybox/left.jpg",
-		"textures/lake_skybox/top.jpg",
-		"textures/lake_skybox/bottom.jpg",
-		"textures/lake_skybox/back.jpg",
-		"textures/lake_skybox/front.jpg",
+		"lake_skybox/right.jpg",
+		"lake_skybox/left.jpg",
+		"lake_skybox/top.jpg",
+		"lake_skybox/bottom.jpg",
+		"lake_skybox/back.jpg",
+		"lake_skybox/front.jpg",
 	};
 
 	cube->Load(faces);
@@ -391,7 +391,7 @@ void Game::createScene() {
 #endif
 
 #ifdef BEAR
-	Entity bear = WorldInstance()->Import("models/teddy_bear.fbx");
+	Entity bear = WorldInstance()->Import("teddy_bear.fbx");
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);

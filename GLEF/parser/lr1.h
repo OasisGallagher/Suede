@@ -1,7 +1,7 @@
 #pragma once
 
-#include "grammarsymbol.h"
 #include "containers/table.h"
+#include "grammar/grammarsymbol.h"
 
 class GrammarContainer;
 

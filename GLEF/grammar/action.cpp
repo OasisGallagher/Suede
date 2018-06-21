@@ -1,14 +1,15 @@
 #include <sstream>
 
 #include "action.h"
-#include "scanner.h"
-#include "syntaxer.h"
+#include "scanner/scanner.h"
+#include "scanner/tokendefine.h"
+
 #include "syntaxtree.h"
 #include "debug/debug.h"
-#include "tools/string.h"
-#include "tokendefine.h"
 #include "glefdefines.h"
+#include "tools/string.h"
 #include "containers/table.h"
+#include "parser/syntaxer.h"
 
 void Action::SetArgument(const Argument& argument) {
 	argument_ = argument;

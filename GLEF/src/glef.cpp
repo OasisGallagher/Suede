@@ -3,11 +3,11 @@
 #endif
 
 #include "glef.h"
-#include "language.h"
-#include "mathexpr.h"
 #include "debug/debug.h"
-#include "glefgrammar.h"
 #include "os/filesystem.h"
+#include "parser/mathexpr.h"
+#include "grammar/language.h"
+#include "grammar/glefgrammar.h"
 
 static Language language;
 const char* binary = "bin/GLEF.bin";

@@ -1,12 +1,12 @@
 #include <sstream>
 
 #include "lalr.h"
-#include "action.h"
-#include "scanner.h"
 #include "syntaxer.h"
 #include "lrtable.h"
 #include "lrparser.h"
 #include "syntaxtree.h"
+#include "grammar/action.h"
+#include "scanner/scanner.h"
 
 LRParser::LRParser() {
 	impl_ = new LALR;

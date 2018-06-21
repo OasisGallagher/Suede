@@ -2,10 +2,10 @@
 #include <algorithm>
 
 #include "lr1.h"
-#include "grammar.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "glefdefines.h"
+#include "grammar/grammar.h"
 
 Forwards::Forwards() {
 }
