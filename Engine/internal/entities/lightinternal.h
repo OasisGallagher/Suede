@@ -3,8 +3,8 @@
 
 class LightInternal : virtual public ILight, public EntityInternal {
 public:
-	LightInternal(ObjectType type) : EntityInternal(type) {
-	}
+	LightInternal(ObjectType type) : EntityInternal(type) {}
+	~LightInternal() {}
 
 	virtual void SetImportance(LightImportance value) { importance_ = value; }
 	virtual LightImportance GetImportance() { return importance_; }

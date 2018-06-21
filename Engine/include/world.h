@@ -139,6 +139,8 @@ class GizmosPainter;
 class SUEDE_API IWorld : virtual public IObject {
 public:
 	virtual void Update() = 0;
+	virtual void Destroy() = 0;
+
 	virtual Object Create(ObjectType type) = 0;
 
 	virtual Entity Import(const std::string& path, EntityLoadedListener* listener) = 0;

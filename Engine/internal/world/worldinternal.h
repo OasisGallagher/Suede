@@ -26,6 +26,7 @@ public:
 
 public:
 	virtual void Update();
+	virtual void Destroy();
 
 	virtual Transform GetRootTransform() { return root_->GetTransform(); }
 	virtual Object Create(ObjectType type);

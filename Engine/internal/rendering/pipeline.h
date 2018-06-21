@@ -39,31 +39,16 @@ enum SortMode {
 
 class Sample;
 class Pipeline {
-	enum RenderPass {
-		RenderPassNone = -1,
-
-		RenderPassShadowDepth,
-
-		RenderPassForwardBackground,
-		RenderPassForwardDepth,
-		RenderPassForwardOpaque,
-		RenderPassForwardTransparent,
-
-		RenderPassDeferredGeometryPass,
-
-		RenderPassCount
-	};
-
 public:
 	Pipeline();
 	~Pipeline();
 
 public:
-	void Sort(SortMode mode);
+	void Sort(SortMode mode, const glm::mat4& worldToClipMatrix);
 
-	void Run(const glm::mat4& worldToClipMatrix);
-	
+	void Run();
 	void Clear();
+
 	Pipeline& operator = (const Pipeline& other);
 
 	uint GetRenderableCount() const { return nrenderables_; }
@@ -91,21 +76,20 @@ public:
 	);
 
 private:
-	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
-
 	void Render(Renderable& renderable, uint instance);
 
 	void ResetState();
 	void UpdateState(Renderable& renderable);
 
+	void RenderInstances(uint first, uint last);
 	void GatherInstances(std::vector<uint>& ranges);
-	void RenderInstances(uint first, uint last, const glm::mat4& worldToClipMatrix);
 
 private:
 	uint nrenderables_;
 	std::vector<Renderable> renderables_;
 
 	std::vector<uint> ranges_;
+	std::vector<glm::mat4> matrices_;
 
 	// states.
 	int oldPass_;
@@ -117,5 +101,5 @@ private:
 	uint ntriangles_;
 
 	// performance.
-	//Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *gather_instances, *update_pipeline, *rendering;
+	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *update_matrices, *gather_instances, *update_pipeline, *rendering;
 };

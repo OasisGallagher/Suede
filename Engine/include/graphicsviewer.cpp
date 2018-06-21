@@ -19,10 +19,10 @@ GraphicsViewer::~GraphicsViewer() {
 
 void GraphicsViewer::Run() {
 	for (; status_ != ViewerStatusClosed;) {
-		Update();
-
 		if (canvas_ != nullptr) {
 			canvas_->MakeCurrent();
+
+			Update();
 			Engine::Update();
 
 			canvas_->SwapBuffers();

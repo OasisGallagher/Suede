@@ -36,7 +36,7 @@
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
 //#define MAN
-// #define PARTICLE_SYSTEM
+//#define PARTICLE_SYSTEM
 // #define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
@@ -66,7 +66,7 @@ Game::~Game() {
 	gameInstance = nullptr;
 }
 
-Canvas * Game::canvas() {
+Canvas* Game::canvas() {
 	if (canvas_ == nullptr) {
 		canvas_ = findChild<Canvas*>("canvas");
 	}

@@ -77,6 +77,7 @@ public:
 	virtual Texture2D Capture() = 0;
 
 	virtual void Render() = 0;
+	virtual void OnBeforeWorldDestroyed() = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Camera);

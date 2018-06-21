@@ -12,15 +12,13 @@
 CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera), depth_(0), __isCulling(false), currentTraits_(nullptr)
 	 /*, gbuffer_(nullptr) */{
-	cullingThread_ = MEMORY_CREATE(CullingThread, this);
+	culling_ = MEMORY_CREATE(Culling, this);
+	cullingThread_ = new ZThread::Thread(culling_);
 
 	traits0_ = MEMORY_CREATE(RenderableTraits, &p_);
 	traits1_ = MEMORY_CREATE(RenderableTraits, &p_);
 
-	renderingThread_ = MEMORY_CREATE(RenderingThread, &p_);// , this);
-
-	executor_.execute(cullingThread_);
-	//executor_.execute(renderingThread_);
+	rendering_ = MEMORY_CREATE(Rendering, &p_);// , this);
 
 	Engine::AddFrameEventListener(this);
 	Screen::AddScreenSizeChangedListener(this);
@@ -30,15 +28,27 @@ CameraInternal::CameraInternal()
 
 CameraInternal::~CameraInternal() {
 	//MEMORY_RELEASE(gbuffer_);
-	cullingThread_->Stop();
-	executor_.wait();
+	CancelThreads();
 
 	MEMORY_RELEASE(traits0_);
 	MEMORY_RELEASE(traits1_);
 
-	MEMORY_RELEASE(renderingThread_);
+	MEMORY_RELEASE(rendering_);
 	Engine::RemoveFrameEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
+}
+
+void CameraInternal::OnBeforeWorldDestroyed() {
+	CancelThreads();
+}
+
+void CameraInternal::CancelThreads() {
+	if (cullingThread_ != nullptr) {
+		culling_->Stop();
+		cullingThread_->wait();
+		MEMORY_RELEASE(cullingThread_);
+		cullingThread_ = nullptr;
+	}
 }
 
 void CameraInternal::SetDepth(int value) {
@@ -54,8 +64,8 @@ void CameraInternal::Update() {
 }
 
 void CameraInternal::Render() {
-	if (!cullingThread_->IsWorking()) {
-		cullingThread_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+	if (!culling_->IsWorking()) {
+		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	}
 
 	if (currentTraits_ != nullptr) {
@@ -63,12 +73,12 @@ void CameraInternal::Render() {
 		matrices.position = GetTransform()->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-		renderingThread_->Render(currentTraits_->GetPipelines(), matrices);
+		rendering_->Render(currentTraits_->GetPipelines(), matrices);
 	}
 }
 
 void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
-	renderingThread_->Resize(width, height);
+	rendering_->Resize(width, height);
 
 	float aspect = (float)width / height;
 	if (!Math::Approximately(aspect, GetAspect())) {
@@ -87,7 +97,7 @@ void CameraInternal::OnCullingFinished() {
 	matrices.position = GetTransform()->GetPosition();
 	matrices.projectionMatrix = GetProjectionMatrix();
 	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-	free->Traits(cullingThread_->GetEntities(), matrices);
+	free->Traits(culling_->GetEntities(), matrices);
 
 	currentTraits_ = free;
 }
@@ -114,7 +124,7 @@ bool CameraInternal::IsMainCamera() const {
 void CameraInternal::SetRect(const Rect& value) {
 	if (p_.normalizedRect != value) {
 		p_.normalizedRect = value;
-		renderingThread_->ClearRenderTextures();
+		rendering_->ClearRenderTextures();
 	}
 }
 

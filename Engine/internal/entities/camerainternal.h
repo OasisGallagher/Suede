@@ -56,6 +56,7 @@ public:
 public:
 	virtual void Update();
 	virtual void Render();
+	virtual void OnBeforeWorldDestroyed();
 
 public:
 	virtual bool GetPerspective() const { return Frustum::GetPerspective(); }
@@ -102,6 +103,7 @@ public:
 private:
 	bool IsMainCamera() const;
 	void OnDrawGizmos();
+	void CancelThreads();
 
 private:
 	int depth_;
@@ -113,13 +115,13 @@ private:
 	Plane planes_[6];
 	RenderingParameters p_;
 
-	CullingThread* cullingThread_;
+	Culling* culling_;
+	ZThread::Thread* cullingThread_;
 
 	RenderableTraits* currentTraits_;
 	RenderableTraits* traits0_, *traits1_;
 
-	RenderingThread* renderingThread_;
-	ZThread::ThreadedExecutor executor_;
+	Rendering* rendering_;
 
 	std::vector<GizmosPainter*> gizmosPainters_;
 };

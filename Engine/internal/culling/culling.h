@@ -3,28 +3,22 @@
 
 #include "entity.h"
 
-class CullingThread;
+class Culling;
 class CullingListener {
 public:
 	virtual void OnCullingFinished() = 0;
 };
 
-class CullingThread : public ZThread::Runnable, public WorldEntityWalker {
-	enum {
-		Waiting,
-		Working,
-		Finished,
-	};
-
+class Culling : public ZThread::Runnable, public WorldEntityWalker {
 public:
-	CullingThread(CullingListener* listener);
-	~CullingThread() {}
+	Culling(CullingListener* listener);
+	~Culling() {}
 
 public:
 	std::vector<Entity>& GetEntities() { return entities_; }
 
 	void Stop();
-	bool IsWorking() { return status_ == Working; }
+	bool IsWorking() { return !stopped_ && working_; }
 
 	void Cull(const glm::mat4& worldToClipMatrix);
 
@@ -39,7 +33,7 @@ private:
 	bool FrustumCulling(const Bounds & bounds, const glm::mat4& worldToClipMatrix);
 
 private:
-	int status_;
+	bool working_, stopped_;
 	CullingListener* listener_;
 	glm::mat4 worldToClipMatrix_;
 	std::vector<Entity> entities_;

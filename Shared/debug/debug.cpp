@@ -74,7 +74,7 @@ void Debug::Break() {
 	__debugbreak();
 }
 
-const std::string & StackTracer::GetStackTrace(uint start, uint depth) {
+const std::string& StackTracer::GetStackTrace(uint start, uint depth) {
 	text_.clear();
 	ln_ = 0;
 

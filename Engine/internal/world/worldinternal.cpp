@@ -73,6 +73,13 @@ WorldInternal::WorldInternal()
 }
 
 WorldInternal::~WorldInternal() {
+}
+
+void WorldInternal::Destroy() {
+	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
+		(*ite)->OnBeforeWorldDestroyed();
+	}
+
 	UniformBufferManager::Destroy();
 	MEMORY_RELEASE(importer_);
 
@@ -234,6 +241,11 @@ bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWa
 	int childCount = root->GetChildCount();
 	for (int i = 0; i < childCount; ++i) {
 		Entity child = root->GetChildAt(i)->GetEntity();
+		if (!child) {
+			Debug::Break();
+			continue;
+		}
+
 		WorldEntityWalker::WalkCommand command = walker->OnWalkEntity(child);
 
 		// next sibling.

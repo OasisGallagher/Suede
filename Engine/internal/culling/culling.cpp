@@ -4,38 +4,36 @@
 #include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
 
-CullingThread::CullingThread(CullingListener* listener) : listener_(listener), status_(Waiting) {
+Culling::Culling(CullingListener* listener) : listener_(listener), working_(false), stopped_(false) {
 }
 
-void CullingThread::run() {
-	for (; status_ != Finished;) {
-		if (status_ == Working) {
+void Culling::run() {
+	for (; !stopped_;) {
+		if (working_) {
 			entities_.clear();
 			WorldInstance()->WalkEntityHierarchy(this);
 			listener_->OnCullingFinished();
 
-			GUARD_SCOPE_TYPED(CullingThread);
-			status_ = Waiting;
+			working_ = false;
 		}
 	}
 }
 
-void CullingThread::Stop() {
-	GUARD_SCOPE_TYPED(CullingThread);
-	status_ = Finished;
+void Culling::Stop() {
+	stopped_ = true;
 }
 
-void CullingThread::Cull(const glm::mat4& worldToClipMatrix) {
-	if (status_ == Waiting) {
+void Culling::Cull(const glm::mat4& worldToClipMatrix) {
+	if (!working_) {
 		worldToClipMatrix_ = worldToClipMatrix;
-		status_ = Working;
+		working_ = true;
 	}
 }
 
-WorldEntityWalker::WalkCommand CullingThread::OnWalkEntity(Entity entity) {
+WorldEntityWalker::WalkCommand Culling::OnWalkEntity(Entity entity) {
 	// TODO: fix bug for particle system by calculating its bounds.
 	if (!IsVisible(entity, worldToClipMatrix_)) {
-		//return WorldEntityWalker::WalkCommandContinue;
+		return WorldEntityWalker::WalkCommandContinue;
 	}
 
 	if (!entity->GetActive()) {
@@ -49,7 +47,7 @@ WorldEntityWalker::WalkCommand CullingThread::OnWalkEntity(Entity entity) {
 	return WorldEntityWalker::WalkCommandContinue;
 }
 
-bool CullingThread::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
+bool Culling::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
 	const Bounds& bounds = entity->GetBounds();
 	if (bounds.IsEmpty()) {
 		return false;
@@ -58,7 +56,7 @@ bool CullingThread::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix)
 	return FrustumCulling(bounds, worldToClipMatrix);
 }
 
-bool CullingThread::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
+bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 

@@ -13,7 +13,7 @@ RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTe
 	, clearType(ClearTypeColor), renderPath(RenderPathForward) {
 }
 
-RenderingThread::RenderingThread(RenderingParameters * p) :p_(p) {
+Rendering::Rendering(RenderingParameters * p) :p_(p) {
 	CreateAuxMaterial(p_->materials.depth, "builtin/depth", RenderQueueBackground - 300);
 	CreateAuxMaterial(p_->materials.decal, "builtin/decal", RenderQueueOverlay - 500);
 
@@ -27,7 +27,7 @@ RenderingThread::RenderingThread(RenderingParameters * p) :p_(p) {
 	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::GetWidth(), Screen::GetHeight());
 }
 
-void RenderingThread::Resize(uint width, uint height) {
+void Rendering::Resize(uint width, uint height) {
 	p_->renderTextures.aux1->Resize(width, height);
 	p_->renderTextures.aux2->Resize(width, height);
 	p_->renderTextures.depth->Resize(width, height);
@@ -38,13 +38,12 @@ Sample* shadowSample = Profiler::CreateSample();
 Sample* renderingSample = Profiler::CreateSample();
 #define OutputSample(sample)	Debug::Output("%s elapsed %.2f seconds", #sample, sample->GetElapsedSeconds())
 
-void RenderingThread::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
+void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
 
-	glm::mat4 worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	depthSample->Restart();
 	if (pipelines.depth->GetRenderableCount() > 0) {
-		pipelines.depth->Run(worldToClipMatrix);
+		pipelines.depth->Run();
 	}
 	depthSample->Stop();
 	OutputSample(depthSample);
@@ -54,12 +53,12 @@ void RenderingThread::Render(RenderingPipelines& pipelines, const RenderingMatri
 
 	Shadows::Clear();
 	shadowSample->Restart();
-	pipelines.shadow->Run(worldToClipMatrix);
+	pipelines.shadow->Run();
 	shadowSample->Stop();
 	OutputSample(shadowSample);
 
 	renderingSample->Restart();
-	pipelines.rendering->Run(worldToClipMatrix);
+	pipelines.rendering->Run();
 	renderingSample->Stop();
 	OutputSample(renderingSample);
 
@@ -70,7 +69,7 @@ void RenderingThread::Render(RenderingPipelines& pipelines, const RenderingMatri
 	}
 }
 
-void RenderingThread::ClearRenderTextures() {
+void Rendering::ClearRenderTextures() {
 	p_->renderTextures.aux1->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 	p_->renderTextures.aux2->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
 	p_->renderTextures.depth->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
@@ -80,7 +79,7 @@ void RenderingThread::ClearRenderTextures() {
 	target->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 }
 
-void RenderingThread::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
+void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
 	static SharedTransformsUniformBuffer p;
 	p.worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	p.worldToCameraMatrix = matrices.worldToCameraMatrix;
@@ -91,7 +90,7 @@ void RenderingThread::UpdateTransformsUniformBuffer(const RenderingMatrices& mat
 	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
-void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light light) {
+void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
 	p.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
 	p.lightColor = glm::vec4(light->GetColor(), 1);
@@ -100,18 +99,18 @@ void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light light) {
 	UniformBufferManager::UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
-void RenderingThread::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
+void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
 	Shader shader = Resources::FindShader(shaderPath);
 	material = NewMaterial();
 	material->SetShader(shader);
 	material->SetRenderQueue(renderQueue);
 }
 
-void RenderingThread::OnPostRender() {
+void Rendering::OnPostRender() {
 
 }
 
-void RenderingThread::OnImageEffects() {
+void Rendering::OnImageEffects() {
 	RenderTexture targets[] = { p_->renderTextures.aux1, p_->renderTextures.aux2 };
 
 	int index = 1;
@@ -125,7 +124,7 @@ void RenderingThread::OnImageEffects() {
 	}
 }
 
-RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p), status_(Waiting)/*, listener_(listener)*/ {
+RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
 	pipelines_.depth = MEMORY_CREATE(Pipeline);
 	pipelines_.shadow = MEMORY_CREATE(Pipeline);
 	pipelines_.rendering = MEMORY_CREATE(Pipeline);
@@ -147,17 +146,18 @@ RenderableTraits::~RenderableTraits() {
 
 void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
-
 	pipelines_.depth->Clear();
 	pipelines_.shadow->Clear();
 	pipelines_.rendering->Clear();
+
+	glm::mat4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
 		pipelines_.shadow->AddRenderable(entity->GetMesh(), nullptr, 0, nullptr, p_->normalizedRect, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
-	pipelines_.shadow->Sort(SortModeMesh);
+	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
 
 	if (p_->renderPath == RenderPathForward) {
 		if ((p_->depthTextureMode & DepthTextureModeDepth) != 0) {
@@ -182,7 +182,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 		DeferredRendering(pipelines_.rendering, target, entities, forwardBase, forwardAdd);
 	}
 
-	pipelines_.rendering->Sort(SortModeMeshMaterial);
+	pipelines_.rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
 }
 
 void RenderableTraits::ForwardRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {

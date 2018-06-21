@@ -10,6 +10,21 @@ class Sample;
 class Pipeline;
 class ImageEffect;
 
+enum RenderPass {
+	RenderPassNone = -1,
+
+	RenderPassShadowDepth,
+
+	RenderPassForwardBackground,
+	RenderPassForwardDepth,
+	RenderPassForwardOpaque,
+	RenderPassForwardTransparent,
+
+	RenderPassDeferredGeometryPass,
+
+	RenderPassCount
+};
+
 struct RenderingMatrices {
 	glm::vec3 position;
 	glm::mat4 projectionMatrix;
@@ -54,15 +69,15 @@ struct RenderingPipelines {
 	Pipeline* rendering;
 };
 
-class RenderingThread;
+class Rendering;
 class RenderingListener {
 public:
 	virtual void OnRenderingFinished() = 0;
 };
 
-class RenderingThread {
+class Rendering {
 public:
-	RenderingThread(RenderingParameters* p);
+	Rendering(RenderingParameters* p);
 
 public:
 	void Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices);
@@ -86,12 +101,6 @@ private:
 
 // TODO: multi-thread rendering.
 class RenderableTraits/* : public ZThread::Runnable, public DirtyBits*/ {
-	enum {
-		Waiting,
-		Working,
-		Finished,
-	};
-
 public:
 	RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/);
 	~RenderableTraits();
@@ -125,14 +134,11 @@ private:
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
 
 private:
-	int status_;
-
 	RenderingParameters* p_;
 	RenderingMatrices matrices_;
 
 	/*RenderingListener* listener_;*/
 
-	Sample *push_renderables, *forward_pass, *get_renderable_entities;
-
 	RenderingPipelines pipelines_;
+	Sample *push_renderables, *forward_pass, *get_renderable_entities;
 };

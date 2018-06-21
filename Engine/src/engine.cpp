@@ -83,6 +83,7 @@ bool Engine::Initialize() {
 }
 
 void Engine::Release() {
+	WorldInstance()->Destroy();
 	WorldInstance().reset();
 }
 
