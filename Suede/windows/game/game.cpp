@@ -29,7 +29,7 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR

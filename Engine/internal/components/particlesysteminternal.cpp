@@ -120,12 +120,21 @@ void ParticleSystemInternal::UpdateBuffers() {
 	if (colors_.size() < count) { colors_.resize(count); }
 	if (geometries_.size() < count) { geometries_.resize(count); }
 
+	float maxSize = 0;
+	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
 		Particle* particle = *ite;
 
 		colors_[index] = particle->color;
 		geometries_[index++] = glm::vec4(particle->position, particle->size);
+
+		min = glm::min(min, particle->position);
+		max = glm::max(max, particle->position);
+		maxSize = glm::max(maxSize, particle->size);
 	}
+
+	bounds_.SetMinMax(min, max);
+	bounds_.size += maxSize / 2;
 }
 
 void ParticleSystemInternal::UpdateEmitter() {

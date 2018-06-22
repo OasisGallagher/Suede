@@ -84,6 +84,7 @@ public:
 	virtual uint GetMaxParticles() = 0;
 
 	virtual uint GetParticlesCount() const = 0;
+	virtual const Bounds& GetMaxBounds() = 0;
 
 	virtual void SetEmitter(ParticleEmitter value) = 0;
 	virtual ParticleEmitter GetEmitter() = 0;

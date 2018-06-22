@@ -142,6 +142,10 @@ void EntityInternal::CalculateHierarchyBounds() {
 		CalculateHierarchyMeshBounds();
 		boundsDirty_ = false;
 	}
+
+	if (particleSystem_) {
+		worldBounds_.Encapsulate(particleSystem_->GetMaxBounds());
+	}
 }
 
 void EntityInternal::CalculateHierarchyMeshBounds() {

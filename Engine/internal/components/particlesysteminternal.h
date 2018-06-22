@@ -113,6 +113,7 @@ public:
 	virtual float GetStartDelay() { return startDelay_; }
 
 	virtual uint GetParticlesCount() const;
+	virtual const Bounds& GetMaxBounds() { return bounds_; }
 
 	virtual void SetEmitter(ParticleEmitter value) { emitter_ = value; }
 	virtual ParticleEmitter GetEmitter() { return emitter_; }
@@ -151,6 +152,8 @@ private:
 
 	bool meshDirty_;
 	bool rendererDirty_;
+
+	Bounds bounds_;
 
 	ParticleEmitter emitter_;
 	ParticleAnimator particleAnimator_;

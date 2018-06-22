@@ -31,7 +31,6 @@ void Culling::Cull(const glm::mat4& worldToClipMatrix) {
 }
 
 WorldEntityWalker::WalkCommand Culling::OnWalkEntity(Entity entity) {
-	// TODO: fix bug for particle system by calculating its bounds.
 	if (!IsVisible(entity, worldToClipMatrix_)) {
 		return WorldEntityWalker::WalkCommandContinue;
 	}
