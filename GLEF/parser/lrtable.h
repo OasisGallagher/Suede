@@ -1,6 +1,7 @@
 #pragma once
 #include "lrimpl.h"
 #include "containers/table.h"
+#include "grammar/grammarsymbol.h"
 
 class LRGotoTable : public table <int, GrammarSymbol, int> {
 public:

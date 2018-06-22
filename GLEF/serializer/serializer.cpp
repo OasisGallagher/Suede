@@ -1,11 +1,13 @@
-#include "action.h"
-#include "parser.h"
-#include "grammar.h"
-#include "lrtable.h"
-#include "syntaxer.h"
 #include "serializer.h"
 #include "debug/debug.h"
-#include "grammarsymbol.h"
+
+#include "parser/parser.h"
+#include "parser/lrtable.h"
+#include "parser/syntaxer.h"
+
+#include "grammar/action.h"
+#include "grammar/grammar.h"
+#include "grammar/grammarsymbol.h"
 
 #include "os/filesystem.h"
 

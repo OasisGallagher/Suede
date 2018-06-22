@@ -1,8 +1,8 @@
 #pragma once
 
 #include "lr1.h"
-#include "grammar.h"
 #include "lrimpl.h"
+#include "grammar/grammar.h"
 
 struct Environment;
 

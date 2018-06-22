@@ -90,7 +90,7 @@ bool EntityLoader::Initialize(Assimp::Importer& importer) {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
-	std::string fpath = Resources::GetRootDirectory() + path_;
+	std::string fpath = Resources::GetRootDirectory() + "models/" + path_;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 	if (scene == nullptr) {

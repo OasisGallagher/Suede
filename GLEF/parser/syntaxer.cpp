@@ -1,13 +1,13 @@
 #include "parser.h"
-#include "action.h"
-#include "scanner.h"
 #include "syntaxer.h"
 #include "lrtable.h"
-#include "serializer.h"
 #include "syntaxtree.h"
 #include "debug/debug.h"
 #include "tools/string.h"
+#include "grammar/action.h"
+#include "scanner/scanner.h"
 #include "containers/ptrmap.h"
+#include "serializer/serializer.h"
 
 class SymTable : public ptr_map<std::string, Sym> { };
 

@@ -4,6 +4,8 @@
 class LRTable;
 class LRGotoTable;
 class LRActionTable;
+
+class Grammar;
 class GrammarContainer;
 class GrammarSymbolContainer;
 

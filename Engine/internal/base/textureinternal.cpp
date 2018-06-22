@@ -237,7 +237,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + "textures/" + path)) {
 		return false;
 	}
 

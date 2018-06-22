@@ -3,9 +3,9 @@
 
 #include "action.h"
 #include "grammar.h"
-#include "scanner.h"
 #include "tools/math2.h"
 #include "debug/debug.h"
+#include "scanner/scanner.h"
 
 std::string Condinate::ToString() const {
 	std::ostringstream oss;

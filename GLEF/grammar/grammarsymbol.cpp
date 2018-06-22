@@ -2,8 +2,8 @@
 
 #include "debug/debug.h"
 #include "tools/math2.h"
-#include "tokendefine.h"
 #include "grammarsymbol.h"
+#include "scanner/tokendefine.h"
 
 GrammarSymbol NativeSymbols::null = nullptr;
 GrammarSymbol NativeSymbols::zero = new TerminalSymbol("zero");

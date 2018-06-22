@@ -1,5 +1,5 @@
 #pragma once
-#include "grammar.h"
+#include "grammar/grammar.h"
 
 class Syntaxer;
 class SyntaxTree;
