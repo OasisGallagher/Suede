@@ -61,6 +61,9 @@ struct Atlas {
 
 class AtlasMaker {
 public:
+	/**
+	 * @warning: RGBA format. alignment = 4.
+	 */
 	static bool Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uint space);
 
 private:

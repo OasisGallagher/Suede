@@ -175,7 +175,11 @@ inline uint Math::NextPowerOfTwo(uint x) {
 }
 
 inline uint Math::RoundUpToPowerOfTwo(uint x, uint target) {
-	if (!IsPowerOfTwo(target)) { Debug::LogError("target must be power of two."); }
+	if (!IsPowerOfTwo(target)) {
+		Debug::LogError("target must be power of two.");
+		return x;
+	}
+
 	--target;
 	return (x + target) & (~target);
 }

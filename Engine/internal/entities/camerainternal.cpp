@@ -141,12 +141,13 @@ glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 }
 
 Texture2D CameraInternal::Capture() {
+	uint alignment = 4;
 	std::vector<uchar> data;
-	Framebuffer0::Get()->ReadBuffer(data);
+	Framebuffer0::Get()->ReadBuffer(data, &alignment);
 
 	Texture2D texture = NewTexture2D();
 	const glm::uvec4& viewport = Framebuffer0::Get()->GetViewport();
-	texture->Load(TextureFormatRgb, &data[0], ColorStreamFormatRgb, viewport.z, viewport.w);
+	texture->Load(TextureFormatRgb, &data[0], ColorStreamFormatRgb, viewport.z, viewport.w, alignment);
 
 	return texture;
 }

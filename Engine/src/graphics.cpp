@@ -1,14 +1,14 @@
 #include "mesh.h"
 #include "world.h"
-#include "api/gl.h"
 #include "graphics.h"
 #include "resources.h"
 #include "variables.h"
+#include "api/glutils.h"
 #include "tools/math2.h"
 
 static void DrawSubMeshes(Mesh mesh) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		GLUtil::DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
+		GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
 	}
 }
 

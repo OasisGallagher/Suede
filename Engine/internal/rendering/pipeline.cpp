@@ -5,7 +5,7 @@
 #include "pipeline.h"
 #include "statistics.h"
 #include "tools/math2.h"
-#include "api/gllimits.h"
+#include "api/glutils.h"
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
 
@@ -220,7 +220,7 @@ void Pipeline::Render(Renderable& renderable, uint instance) {
 		//GLUtil::DrawElementsBaseVertex(renderable.mesh->GetTopology(), bias);
 	//}
 	//else {
-	GLUtil::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
+	GLUtils::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
 	//}
 
 	++ndrawcalls_;

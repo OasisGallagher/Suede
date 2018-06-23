@@ -337,9 +337,6 @@
     <ClInclude Include="include\rect.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="api\gllimits.h">
-      <Filter>api\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\async\threadpool.h">
       <Filter>internal\async\include</Filter>
     </ClInclude>
@@ -369,6 +366,9 @@
     </ClInclude>
     <ClInclude Include="internal\async\guard.h">
       <Filter>internal\async\include</Filter>
+    </ClInclude>
+    <ClInclude Include="api\glutils.h">
+      <Filter>api\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -504,9 +504,6 @@
     <ClCompile Include="src\rect.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="api\gllimits.cpp">
-      <Filter>api\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\async\threadpool.cpp">
       <Filter>internal\async\src</Filter>
     </ClCompile>
@@ -527,6 +524,9 @@
     </ClCompile>
     <ClCompile Include="include\graphicsviewer.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="api\glutils.cpp">
+      <Filter>api\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

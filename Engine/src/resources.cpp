@@ -211,7 +211,7 @@ Mesh CreateMesh(MeshAttribute &attribute) {
 
 Texture2D CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
-	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1);
+	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1, 4);
 	return texture;
 }
 

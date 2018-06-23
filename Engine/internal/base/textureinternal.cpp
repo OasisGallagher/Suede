@@ -3,6 +3,7 @@
 #include "rect.h"
 #include "screen.h"
 #include "resources.h"
+#include "api/glutils.h"
 #include "tools/math2.h"
 #include "framebuffer.h"
 #include "os/filesystem.h"
@@ -241,11 +242,11 @@ bool Texture2DInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height);
+	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height, texelMap.alignment);
 }
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
-bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, bool mipmap) {
+bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	DestroyTexture();
 
 	width_ = width;
@@ -259,7 +260,9 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 	ColorStreamFormatToGLenum(glFormat, format);
 	GLenum internalFormat = TextureFormatToGLenum(textureFormat);
 
+	GLUtils::PushGLMode(GLModeUnpackAlignment, alignment);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
+	GLUtils::PopGLMode(GLModeUnpackAlignment);
 
 	if (mipmap) {
 		GL::GenerateMipmap(GL_TEXTURE_2D);

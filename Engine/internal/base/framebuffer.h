@@ -43,7 +43,7 @@ public:
 
 public:
 	void BindRead();
-	void ReadBuffer(std::vector<uchar>& data);
+	void ReadBuffer(std::vector<uchar>& data, uint* alignment);
 
 	void Unbind();
 	void Clear(FramebufferClearMask clearMask);
@@ -88,7 +88,7 @@ protected:
 	void BindViewport();
 	void UnbindViewport();
 
-	void ReadCurrentBuffer(std::vector<uchar> &data);
+	void ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment);
 	void FramebufferTargetToGLenum(FramebufferTarget target, GLenum* query, GLenum* bind);
 
 protected:
@@ -119,7 +119,7 @@ public:
 
 public:
 	void BindReadAttachment(FramebufferAttachment attachment);
-	void ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAttachment attachment);
+	void ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAttachment attachment, uint* alignment);
 
 	void BindWriteAttachments(FramebufferAttachment* attachments, uint n);
 	void ClearAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n);

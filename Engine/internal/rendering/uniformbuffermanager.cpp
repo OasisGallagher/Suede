@@ -1,5 +1,5 @@
 #include "tools/math2.h"
-#include "api/gllimits.h"
+#include "api/glutils.h"
 #include "memory/memory.h"
 #include "uniformbuffermanager.h"
 

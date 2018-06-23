@@ -1,6 +1,6 @@
 #include "time2.h"
 #include "resources.h"
-#include "api/gllimits.h"
+#include "api/glutils.h"
 #include "worldinternal.h"
 #include "debug/profiler.h"
 #include "geometryutility.h"
@@ -14,7 +14,9 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 static void InitWorld(WorldInternal* world) {
+	GLUtils::Initialize();
 	GLLimits::Initialize();
+
 	UniformBufferManager::Initialize();
 
 	Resources::Import();

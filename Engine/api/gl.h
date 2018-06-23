@@ -1,7 +1,6 @@
 #pragma once
 #include <gl/glew.h>
 
-#include "mesh.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 
@@ -105,12 +104,6 @@ private:
 
 	template <class T>
 	static T VerifyR(const char* func, T ans);
-};
-
-class GLUtil {
-public:
-	static void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
-	static void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias& bias, uint instance);
 };
 
 #ifdef _DEBUG
@@ -518,39 +511,6 @@ inline void GL::AttachShader(GLuint program, GLuint shader) {
 
 inline void GL::PolygonOffset(GLfloat factor, GLfloat units) {
 	GL_CALL(glPolygonOffset(factor, units));
-}
-
-static GLenum TopologyToGLEnum(MeshTopology topology) {
-	GLenum mode = 0;
-	switch (topology) {
-		case MeshTopologyTriangles:
-			mode = GL_TRIANGLES;
-			break;
-		case MeshTopologyTriangleStripe:
-			mode = GL_TRIANGLE_STRIP;
-			break;
-		case MeshTopologyLines:
-			mode = GL_LINES;
-			break;
-		case MeshTopologyLineStripe:
-			mode = GL_LINE_STRIP;
-			break;
-	}
-
-	if (mode == 0) {
-		Debug::LogError("unsupported mesh topology  %d.", topology);
-		return 0;
-	}
-
-	return mode;
-}
-
-inline void GLUtil::DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias) {
-	GL::DrawElementsBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
-}
-
-inline void GLUtil::DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias& bias, uint instance) {
-	GL::DrawElementsInstancedBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), instance, bias.baseVertex);
 }
 
 #undef GL_CALL

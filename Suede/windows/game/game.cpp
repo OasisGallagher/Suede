@@ -34,7 +34,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
+//#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 // #define FONT

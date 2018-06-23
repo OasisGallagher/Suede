@@ -2,7 +2,7 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "framebuffer.h"
-#include "api/gllimits.h"
+#include "api/glutils.h"
 #include "memory/memory.h"
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
@@ -27,20 +27,23 @@ void FramebufferBase::Unbind() {
 	UnbindViewport();
 }
 
-void FramebufferBase::ReadBuffer(std::vector<uchar>& data) {
+void FramebufferBase::ReadBuffer(std::vector<uchar>& data, uint* alignment) {
 	BindRead();
-	ReadCurrentBuffer(data);
+	ReadCurrentBuffer(data, alignment);
 	Unbind();
 }
 
-void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data) {
-	uint alignment = 4;
-	GL::GetIntegerv(GL_PACK_ALIGNMENT, (GLint*)&alignment);
+void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment) {
+	uint packAlignment = GLUtils::GetGLMode(GLModePackAlignment);
 
-	uint width = Math::RoundUpToPowerOfTwo(viewport_.z, alignment);
+	uint width = Math::RoundUpToPowerOfTwo(viewport_.z, packAlignment);
 	data.resize(3 * width * viewport_.w);
 
 	GL::ReadPixels(0, 0, viewport_.z, viewport_.w, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
+
+	if (alignment != nullptr) {
+		*alignment = packAlignment;
+	}
 }
 
 void FramebufferBase::BindFramebuffer(FramebufferTarget target) {
@@ -195,9 +198,9 @@ void Framebuffer::BindWrite() {
 	GL::DrawBuffers(count, glAttachments_);
 }
 
-void Framebuffer::ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAttachment attachment) {
+void Framebuffer::ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAttachment attachment, uint* alignment) {
 	BindReadAttachment(attachment);
-	ReadCurrentBuffer(data);
+	ReadCurrentBuffer(data, alignment);
 	Unbind();
 }
 

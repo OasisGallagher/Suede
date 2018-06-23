@@ -1,7 +1,7 @@
 #include "glef.h"
 #include "variables.h"
 #include "tools/math2.h"
-#include "api/gllimits.h"
+#include "api/glutils.h"
 #include "vertexattrib.h"
 #include "tools/string.h"
 #include "os/filesystem.h"

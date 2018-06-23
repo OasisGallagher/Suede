@@ -80,7 +80,7 @@ SubShader {
 			vec3 normal = m3 * c_normal;
 			normal.xy = mat2(c_worldToClipMatrix) * normal.xy;
 			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
-			gl_Position.xy += normal.xy * 0.4;
+			gl_Position.xy += normal.xy * 0.2;
 		}
 
 		#stage fragment

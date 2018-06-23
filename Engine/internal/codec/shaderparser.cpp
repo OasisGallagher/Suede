@@ -3,7 +3,7 @@
 #include "variables.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
-#include "api/gllimits.h"
+#include "api/glutils.h"
 #include "shaderparser.h"
 #include "tools/string.h"
 #include "memory/memory.h"
@@ -281,7 +281,7 @@ void ShaderParser::ReadTex2(SyntaxNode* node, Property* property) {
 
 	uchar bytes[] = { uchar(value.x & 0xFF), uchar(value.y & 0xFF), uchar(value.z & 0xFF) };
 	Texture2D texture = NewTexture2D();
-	texture->Load(TextureFormatRgb, bytes, ColorStreamFormatRgb, 1, 1);
+	texture->Load(TextureFormatRgb, bytes, ColorStreamFormatRgb, 1, 1, 4);
 	property->value.SetTexture(texture);
 }
 

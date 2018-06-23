@@ -160,7 +160,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="api\gllimits.cpp" />
+    <ClCompile Include="api\glutils.cpp" />
     <ClCompile Include="include\graphicsviewer.cpp" />
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\fontinternal.cpp" />
@@ -220,7 +220,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="..\Shared\containers\sortedvector.h" />
     <ClInclude Include="..\Shared\containers\table.h" />
     <ClInclude Include="api\gl.h" />
-    <ClInclude Include="api\gllimits.h" />
+    <ClInclude Include="api\glutils.h" />
     <ClInclude Include="include\animation.h" />
     <ClInclude Include="include\bounds.h" />
     <ClInclude Include="include\camera.h" />

@@ -290,12 +290,6 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	atlas.width = width;
 	atlas.height = height;
 
-	for (int i = 0; i < atlas.data.size(); ++i) {
-		if (atlas.data[i] != 0) {
-			// Debug::Break();
-		}
-	}
-
 	return true;
 }
 
