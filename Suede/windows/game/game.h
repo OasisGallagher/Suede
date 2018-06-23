@@ -13,7 +13,7 @@ class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityLoadedListener/*, public FrameEventListener*/ {
+class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityLoadedListener {
 	Q_OBJECT
 
 public:
@@ -40,7 +40,6 @@ public:
 // 	virtual void OnFrameLeave();
 
 private slots:
-	void update();
 	void onFocusEntityBounds(Entity entity);
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 

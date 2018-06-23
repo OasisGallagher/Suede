@@ -97,7 +97,7 @@ bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const TexelMap
 }
 
 void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BppType bpp, const std::vector<uchar>& data) {
-	uint srcStride = Math::RoundUpToPowerOfTwo(width, alignment) * bpp / 8;
+	uint srcStride = Math::RoundUpToPowerOfTwo(width * bpp / 8, alignment);
 	uint destStride = FreeImage_GetPitch(dib);
 	const uchar* src = &data[0];
 	uchar* dest = FreeImage_GetBits(dib);

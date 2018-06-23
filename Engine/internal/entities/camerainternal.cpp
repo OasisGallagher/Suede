@@ -141,7 +141,6 @@ glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 }
 
 Texture2D CameraInternal::Capture() {
-	// TODO: VIEWPORT.
 	std::vector<uchar> data;
 	Framebuffer0::Get()->ReadBuffer(data);
 

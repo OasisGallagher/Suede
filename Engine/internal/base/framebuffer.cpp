@@ -37,8 +37,8 @@ void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data) {
 	uint alignment = 4;
 	GL::GetIntegerv(GL_PACK_ALIGNMENT, (GLint*)&alignment);
 
-	uint w = Math::RoundUpToPowerOfTwo(viewport_.z, alignment);
-	data.resize(3 * w * viewport_.w);
+	uint width = Math::RoundUpToPowerOfTwo(viewport_.z, alignment);
+	data.resize(3 * width * viewport_.w);
 
 	GL::ReadPixels(0, 0, viewport_.z, viewport_.w, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
 }

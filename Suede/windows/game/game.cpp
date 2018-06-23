@@ -34,7 +34,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-//#define IMAGE_EFFECTS
+#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 // #define FONT
@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "boblampclean.md5mesh";
-static const char* roomFbxPath = "house.fbx";
+static const char* roomFbxPath = "room.obj";// house.fbx";
 
 static Game* gameInstance;
 
@@ -53,12 +53,9 @@ Game* Game::get() {
 Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr) {
 	gameInstance = this;
 	controller_ = new CameraController;
-	//Engine::AddFrameEventListener(this);
 }
 
 Game::~Game() {
-	//Engine::RemoveFrameEventListener(this);
-
 	delete grayscale_;
 	delete inversion_;
 	delete controller_;
@@ -88,7 +85,6 @@ void Game::awake() {
 
 	loadSceneStart_ = Time::GetRealTimeSinceStartup();
 	createScene();
-	update();
 }
 
 void Game::OnDrawGizmos() {
@@ -144,10 +140,6 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 // }
 
 void Game::start() {
-}
-
-void Game::update() {
-	ui_->canvas->update();
 }
 
 void Game::wheelEvent(QWheelEvent* event) {

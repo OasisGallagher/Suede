@@ -2,6 +2,7 @@
 #include <intrin.h>
 
 #include "../types.h"
+#include "../debug/debug.h"
 
 // use full relative path here.
 // cos' some projects will not set glm as 'Additional Include Directories'.
@@ -41,6 +42,7 @@ public:
 	static glm::ivec3 IntColor(const glm::vec3& color);
 	static glm::vec3 NormalizedColor(const glm::ivec3& color);
 
+	static bool IsPowerOfTwo(uint x);
 	static uint NextPowerOfTwo(uint x);
 	static uint RoundUpToPowerOfTwo(uint x, uint target);
 
@@ -157,6 +159,10 @@ inline T Math::Radians(const T& degrees) {
 	return glm::radians(degrees);
 }
 
+inline bool Math::IsPowerOfTwo(uint x) {
+	return (x & (x - 1)) == 0;
+}
+
 inline uint Math::NextPowerOfTwo(uint x) {
 	x--;
 	x |= x >> 1;
@@ -169,6 +175,7 @@ inline uint Math::NextPowerOfTwo(uint x) {
 }
 
 inline uint Math::RoundUpToPowerOfTwo(uint x, uint target) {
+	if (!IsPowerOfTwo(target)) { Debug::LogError("target must be power of two."); }
 	--target;
 	return (x + target) & (~target);
 }
