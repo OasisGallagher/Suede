@@ -51,7 +51,10 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	UpdateTransformsUniformBuffer(matrices);
 	UpdateForwardBaseLightUniformBuffer(pipelines.forwardBaseLight);
 
+	RenderTexture target = pipelines.rendering->GetTargetTexture();
+	Shadows::Resize(target->GetWidth(), target->GetHeight());
 	Shadows::Clear();
+
 	shadowSample->Restart();
 	pipelines.shadow->Run();
 	shadowSample->Stop();
@@ -126,8 +129,10 @@ void Rendering::OnImageEffects() {
 
 RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
 	pipelines_.depth = MEMORY_CREATE(Pipeline);
-	pipelines_.shadow = MEMORY_CREATE(Pipeline);
 	pipelines_.rendering = MEMORY_CREATE(Pipeline);
+
+	pipelines_.shadow = MEMORY_CREATE(Pipeline);
+	pipelines_.shadow->SetTargetTexture(Shadows::GetShadowTexture(), Rect(0, 0, 1, 1));
 
 	forward_pass = Profiler::CreateSample();
 	push_renderables = Profiler::CreateSample();
@@ -154,7 +159,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipelines_.shadow->AddRenderable(entity->GetMesh(), nullptr, 0, nullptr, p_->normalizedRect, entity->GetTransform()->GetLocalToWorldMatrix());
+		pipelines_.shadow->AddRenderable(entity->GetMesh(), nullptr, 0, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
@@ -162,6 +167,8 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	if (p_->renderPath == RenderPathForward) {
 		if ((p_->depthTextureMode & DepthTextureModeDepth) != 0) {
 			*pipelines_.depth = *pipelines_.shadow;
+			pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
+
 			ForwardDepthPass(pipelines_.depth);
 		}
 	}
@@ -172,36 +179,36 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	RenderTexture target = GetActiveRenderTarget();
 
-	Shadows::Resize(target->GetWidth(), target->GetHeight());
 	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
 
+	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
 	if (p_->renderPath == RenderPathForward) {
-		ForwardRendering(pipelines_.rendering, target, entities, forwardBase, forwardAdd);
+		ForwardRendering(pipelines_.rendering, entities, forwardBase, forwardAdd);
 	}
 	else {
-		DeferredRendering(pipelines_.rendering, target, entities, forwardBase, forwardAdd);
+		DeferredRendering(pipelines_.rendering, entities, forwardBase, forwardAdd);
 	}
 
 	pipelines_.rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
 }
 
-void RenderableTraits::ForwardRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (p_->clearType == ClearTypeSkybox) {
-		RenderSkybox(pl, target);
+		RenderSkybox(pl);
 	}
 
 	if (forwardBase) {
-		RenderForwardBase(pl, target, entities_, forwardBase);
+		RenderForwardBase(pl, entities_, forwardBase);
 	}
 
 	if (!forwardAdd.empty()) {
 		RenderForwardAdd(pl, entities_, forwardAdd);
 	}
 
-	RenderDecals(pl, target);
+	RenderDecals(pl);
 }
 
-void RenderableTraits::DeferredRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	// 	if (gbuffer_ == nullptr) {
 	// 		InitializeDeferredRender();
 	// 	}
@@ -218,7 +225,7 @@ void RenderableTraits::InitializeDeferredRender() {
 	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
 }
 
-void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities_) {
+void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<Entity>& entities_) {
 	// 	gbuffer_->Bind(GBuffer::GeometryPass);
 	// 
 	// 	for (int i = 0; i < entities_.size(); ++i) {
@@ -233,12 +240,12 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, RenderTexture ta
 	// 	gbuffer_->Unbind();
 }
 
-void RenderableTraits::RenderSkybox(Pipeline* pl, RenderTexture target) {
+void RenderableTraits::RenderSkybox(Pipeline* pl) {
 	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pl->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, target, p_->normalizedRect, matrix);
+		pl->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, matrix);
 	}
 }
 
@@ -255,11 +262,11 @@ RenderTexture RenderableTraits::GetActiveRenderTarget() {
 	return target;
 }
 
-void RenderableTraits::RenderForwardBase(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities_, Light light) {
+void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<Entity>& entities_, Light light) {
 	pipelines_.forwardBaseLight = light;
 
 	forward_pass->Restart();
-	ForwardPass(pl, target, entities_);
+	ForwardPass(pl, entities_);
 	forward_pass->Stop();
 	Debug::Output("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
@@ -268,21 +275,18 @@ void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>&
 }
 
 void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
-	Rect rect(0, 0, 1, 1);
 	uint nrenderables = pl->GetRenderableCount();
 	for (uint i = 0; i < nrenderables; ++i) {
 		Renderable& renderable = pl->GetRenderable(i);
 		renderable.material = p_->materials.depth;
-		renderable.target = p_->renderTextures.depth;
 		renderable.instance = 0;
-		renderable.normalizedRect = rect;
 	}
 }
 
-void RenderableTraits::ForwardPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities_) {
+void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& entities_) {
 	for (int i = 0; i < entities_.size(); ++i) {
 		Entity entity = entities_[i];
-		RenderEntity(pl, target, entity, entity->GetRenderer());
+		RenderEntity(pl, entity, entity->GetRenderer());
 	}
 
 	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
@@ -301,7 +305,7 @@ void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forward
 	}
 }
 
-void RenderableTraits::RenderDecals(Pipeline* pl, RenderTexture target) {
+void RenderableTraits::RenderDecals(Pipeline* pl) {
 	std::vector<Decal*> decals;
 	WorldInstance()->GetDecals(decals);
 
@@ -328,11 +332,11 @@ void RenderableTraits::RenderDecals(Pipeline* pl, RenderTexture target) {
 
 		mesh->AddSubMesh(subMesh);
 
-		pl->AddRenderable(mesh, decalMaterial, 0, target, p_->normalizedRect, glm::mat4(1));
+		pl->AddRenderable(mesh, decalMaterial, 0, glm::mat4(1));
 	}
 }
 
-void RenderableTraits::RenderEntity(Pipeline* pl, RenderTexture target, Entity entity, Renderer renderer) {
+void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer renderer) {
 	push_renderables->Start();
 
 	int subMeshCount = entity->GetMesh()->GetSubMeshCount();
@@ -349,12 +353,12 @@ void RenderableTraits::RenderEntity(Pipeline* pl, RenderTexture target, Entity e
 		Material material = renderer->GetMaterial(i);
 		int pass = material->GetPass();
 		if (pass >= 0 && material->IsPassEnabled(pass)) {
-			RenderSubMesh(pl, target, entity, i, material, pass);
+			RenderSubMesh(pl, entity, i, material, pass);
 		}
 		else {
 			for (pass = 0; pass < material->GetPassCount(); ++pass) {
 				if (material->IsPassEnabled(pass)) {
-					RenderSubMesh(pl, target, entity, i, material, pass);
+					RenderSubMesh(pl, entity, i, material, pass);
 				}
 			}
 		}
@@ -363,8 +367,8 @@ void RenderableTraits::RenderEntity(Pipeline* pl, RenderTexture target, Entity e
 	push_renderables->Stop();
 }
 
-void RenderableTraits::RenderSubMesh(Pipeline* pl, RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass) {
+void RenderableTraits::RenderSubMesh(Pipeline* pl, Entity entity, int subMeshIndex, Material material, int pass) {
 	ParticleSystem p = entity->GetParticleSystem();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, target, p_->normalizedRect, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

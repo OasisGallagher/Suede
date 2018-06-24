@@ -38,7 +38,6 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 	const Material& lm = lhs.material, &rm = rhs.material;
 
 	COMPARE(lm->GetRenderQueue(), rm->GetRenderQueue());
-	COMPARE(lhs.target, rhs.target);
 	COMPARE(lm, rm);
 	COMPARE(lhs.pass, rhs.pass);
 	COMPARE(lm->GetPassNativePointer(lhs.pass), rm->GetPassNativePointer(rhs.pass));
@@ -50,7 +49,6 @@ Pipeline::Pipeline()
 	: renderables_(RENDERABLE_CAPACITY), matrices_(RENDERABLE_CAPACITY * 2)
 	, nrenderables_(0) , oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
 	switch_material = Profiler::CreateSample();
-	switch_framebuffer = Profiler::CreateSample();
 	switch_mesh = Profiler::CreateSample();
 	update_ubo = Profiler::CreateSample();
 	update_matrices = Profiler::CreateSample();
@@ -61,7 +59,6 @@ Pipeline::Pipeline()
 
 Pipeline::~Pipeline() {
  	Profiler::ReleaseSample(switch_material);
- 	Profiler::ReleaseSample(switch_framebuffer);
  	Profiler::ReleaseSample(switch_mesh);
  	Profiler::ReleaseSample(update_ubo);
 	Profiler::ReleaseSample(update_matrices);
@@ -100,6 +97,8 @@ void Pipeline::Sort(SortMode mode, const glm::mat4& worldToClipMatrix) {
 }
 
 void Pipeline::Run() {
+	targetTexture_->BindWrite(normalizedRect_);
+
  	update_pipeline->Restart();
 
 	rendering->Restart();
@@ -140,6 +139,7 @@ void Pipeline::Run() {
 	/*Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f", update_pipeline->GetElapsedSeconds());*/
 
 	ResetState();
+	targetTexture_->Unbind();
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {
@@ -182,7 +182,7 @@ void Pipeline::RenderInstances(uint first, uint last) {
 	}
 }
 
-void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, RenderTexture target, const Rect& normalizedRect, const glm::mat4& localToWorldMatrix, uint instance) {
+void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		matrices_.resize(4 * nrenderables_);
 		renderables_.resize(2 * nrenderables_);
@@ -194,8 +194,6 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.subMeshIndex = subMeshIndex;
 	renderable.material = material;
 	renderable.pass = pass;
-	renderable.target = target;
-	renderable.normalizedRect = normalizedRect;
 	renderable.localToWorldMatrix = localToWorldMatrix;
 
 	if (mesh->GetTopology() < 0 || mesh->GetTopology() > 3) {
@@ -203,9 +201,9 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	}
 }
 
-void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, RenderTexture target, const Rect& normalizedRect, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
+void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		AddRenderable(mesh, i, material, 0, target, normalizedRect, localToWorldMatrix, instance);
+		AddRenderable(mesh, i, material, 0, localToWorldMatrix, instance);
 	}
 }
 
@@ -228,18 +226,6 @@ void Pipeline::Render(Renderable& renderable, uint instance) {
 }
 
 void Pipeline::UpdateState(Renderable& renderable) {
-	if (!oldTarget_ || oldTarget_ != renderable.target) {
-		switch_framebuffer->Start();
-		if (oldTarget_) {
-			oldTarget_->Unbind();
-		}
-
-		oldTarget_ = renderable.target;
-		renderable.target->BindWrite(renderable.normalizedRect);
-
-		switch_framebuffer->Stop();
-	}
-
 	if (renderable.material != oldMaterial_) {
 		switch_material->Start();
 		if (oldMaterial_) {
@@ -281,6 +267,15 @@ void Pipeline::Clear() {
 	nrenderables_ = 0;
 }
 
+RenderTexture Pipeline::GetTargetTexture() {
+	return targetTexture_;
+}
+
+void Pipeline::SetTargetTexture(RenderTexture value, const Rect& normalizedRect) {
+	targetTexture_ = value;
+	normalizedRect_ = normalizedRect;
+}
+
 Pipeline& Pipeline::operator=(const Pipeline& other) {
 	ranges_ = other.ranges_;
 	matrices_ = other.matrices_;
@@ -296,15 +291,9 @@ void Pipeline::ResetState() {
 
 	switch_mesh->Reset();
 	switch_material->Reset();
-	switch_framebuffer->Reset();
 
 	update_ubo->Reset();
 	update_matrices->Reset();
-
-	if (oldTarget_) {
-		oldTarget_->Unbind();
-		oldTarget_.reset();
-	}
 
 	if (oldMaterial_) {
 		oldMaterial_->Unbind();
@@ -320,7 +309,7 @@ void Pipeline::ResetState() {
 }
 
 bool Renderable::IsInstance(const Renderable& other) const {
-	return IsFramebufferInstanced(other) && IsMeshInstanced(other) && IsMaterialInstanced(other);
+	return IsMeshInstanced(other) && IsMaterialInstanced(other);
 }
 
 void Renderable::Clear() {
@@ -343,8 +332,4 @@ bool Renderable::IsMeshInstanced(const Renderable& other) const {
 
 bool Renderable::IsMaterialInstanced(const Renderable& other) const {
 	return material == other.material && pass == other.pass;
-}
-
-bool Renderable::IsFramebufferInstanced(const Renderable& other) const {
-	return target == other.target;
 }

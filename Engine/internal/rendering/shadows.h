@@ -14,6 +14,8 @@ public:
 
 public:
 	static void Clear();
+	static RenderTexture GetShadowTexture();
+
 	static void Resize(uint width, uint height);
 	static const glm::mat4& GetWorldToShadowMatrix();
 	static void Update(DirectionalLight light, Pipeline* pipeline);

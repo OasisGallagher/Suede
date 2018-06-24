@@ -110,26 +110,26 @@ public:
 	void Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices);
 
 private:
-	void ForwardRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities);
+	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<Entity>& entities);
 
-	void RenderSkybox(Pipeline* pl, RenderTexture target);
+	void RenderSkybox(Pipeline* pl);
 
 	RenderTexture GetActiveRenderTarget();
 
-	void ForwardPass(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities);
+	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
 	void ForwardDepthPass(Pipeline* pl);
 
-	void RenderEntity(Pipeline* pl, RenderTexture target, Entity entity, Renderer renderer);
-	void RenderSubMesh(Pipeline* pl, RenderTexture target, Entity entity, int subMeshIndex, Material material, int pass);
+	void RenderEntity(Pipeline* pl, Entity entity, Renderer renderer);
+	void RenderSubMesh(Pipeline* pl, Entity entity, int subMeshIndex, Material material, int pass);
 
 	void RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities, const std::vector<Light>& lights);
-	void RenderForwardBase(Pipeline* pl, RenderTexture target, const std::vector<Entity>& entities, Light light);
+	void RenderForwardBase(Pipeline* pl, const std::vector<Entity>& entities, Light light);
 
-	void RenderDecals(Pipeline* pl, RenderTexture target);
+	void RenderDecals(Pipeline* pl);
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
 

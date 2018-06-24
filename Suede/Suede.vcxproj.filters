@@ -115,9 +115,6 @@
     <Filter Include="windows\status">
       <UniqueIdentifier>{22a8d1da-ebe9-44cd-ae10-0a05e5db13dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\status\include">
-      <UniqueIdentifier>{26428fac-05af-48bb-a157-2636ae8eb984}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows\status\src">
       <UniqueIdentifier>{19041b3a-78f1-40c6-b11c-9587b781b34d}</UniqueIdentifier>
     </Filter>
@@ -126,6 +123,9 @@
     </Filter>
     <Filter Include="resources\shaders\builtin\include">
       <UniqueIdentifier>{fe0db015-bb51-460e-b034-52f8394634f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\status\include">
+      <UniqueIdentifier>{26428fac-05af-48bb-a157-2636ae8eb984}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -312,6 +312,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_qtviewer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="windows\status\statwidget.cpp">
+      <Filter>windows\status\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -377,6 +380,9 @@
     <CustomBuild Include="main\qtviewer.h">
       <Filter>main\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="ui\statwidget.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -393,6 +399,12 @@
     </ClInclude>
     <ClInclude Include="windows\controls\childwindow.h">
       <Filter>windows\controls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\status\statwidget.h">
+      <Filter>windows\status\include</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_statwidget.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,9 @@
 #pragma once
-#include <QList>
-#include <QLabel>
+#include <QTimer>
+#include <QCheckBox>
 #include <QStatusBar>
+
+class StatWidget;
 
 class Status : public QStatusBar {
 	Q_OBJECT
@@ -13,10 +15,19 @@ public:
 	Status(QWidget* parent);
 	~Status();
 
-private:
-	virtual void timerEvent(QTimerEvent *event);
+protected:
+	virtual bool eventFilter(QObject* watched, QEvent* event);
+
+private slots:
+	void updateStat();
+	void toggleStatistics(int state);
 
 private:
-	int timer_;
-	QLabel* fps_;
+	void moveWidgets();
+
+private:
+	QTimer* timer_;
+
+	StatWidget* stat_;
+	QCheckBox* statChk_;
 };

@@ -18,9 +18,6 @@ struct Renderable {
 	Material material;
 	uint pass;
 
-	RenderTexture target;
-	Rect normalizedRect;
-
 	glm::mat4 localToWorldMatrix;
 
 	void Clear();
@@ -28,7 +25,6 @@ struct Renderable {
 
 	bool IsMeshInstanced(const Renderable& other) const;
 	bool IsMaterialInstanced(const Renderable& other) const;
-	bool IsFramebufferInstanced(const Renderable& other) const;
 };
 
 enum SortMode {
@@ -49,6 +45,9 @@ public:
 	void Run();
 	void Clear();
 
+	RenderTexture GetTargetTexture();
+	void SetTargetTexture(RenderTexture value, const Rect& normalizedRect);
+
 	Pipeline& operator = (const Pipeline& other);
 
 	uint GetRenderableCount() const { return nrenderables_; }
@@ -58,8 +57,6 @@ public:
 		Mesh mesh,
 		Material material,
 		uint pass,
-		RenderTexture target,
-		const Rect& normalizedRect,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -69,8 +66,6 @@ public:
 		uint subMeshIndex,
 		Material material,
 		uint pass,
-		RenderTexture target,
-		const Rect& normalizedRect,
 		const glm::mat4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -95,11 +90,13 @@ private:
 	int oldPass_;
 	Mesh oldMesh_;
 	Material oldMaterial_;
-	RenderTexture oldTarget_;
 
 	uint ndrawcalls_;
 	uint ntriangles_;
 
+	Rect normalizedRect_;
+	RenderTexture targetTexture_;
+
 	// performance.
-	Sample *switch_material, *switch_framebuffer, *switch_mesh, *update_ubo, *update_matrices, *gather_instances, *update_pipeline, *rendering;
+	Sample *switch_material, *switch_mesh, *update_ubo, *update_matrices, *gather_instances, *update_pipeline, *rendering;
 };

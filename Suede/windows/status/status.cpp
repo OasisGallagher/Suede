@@ -1,8 +1,6 @@
-#include <QThread>
-#include <QTimerEvent>
-
 #include "time2.h"
 #include "status.h"
+#include "statwidget.h"
 #include "statistics.h"
 #include "debug/debug.h"
 
@@ -13,29 +11,62 @@ Status* Status::get() {
 	return statusInstance;
 }
 
-Status::Status(QWidget* parent) :QStatusBar(parent) {
+Status::Status(QWidget* parent) :QStatusBar(parent), stat_(nullptr) {
 	statusInstance = this;
+
 	QLabel* label = new QLabel(this);
 	addWidget(label);
 	label->setText(tr("Ready"));
 
-	fps_ = new QLabel(this);
-	addPermanentWidget(fps_);
-	fps_->setText("0.00");
+	statChk_ = new QCheckBox(this);
+	connect(statChk_, SIGNAL(stateChanged(int)), this, SLOT(toggleStatistics(int)));
+	statChk_->setText("Stat");
+	addPermanentWidget(statChk_);
 
-	timer_ = startTimer(FPS_UPDATE_INTERVAL);
+	statChk_->installEventFilter(this);
+
+	timer_ = new QTimer(this);
+	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStat()));
+	timer_->start(FPS_UPDATE_INTERVAL);
 }
 
 Status::~Status() {
-	killTimer(timer_);
 }
 
-void Status::timerEvent(QTimerEvent *event) {
-	if (event->timerId() == timer_) {
-		fps_->setText(
-			QString("triangles (%1), drawcalls (%2), %3 fps")
-			.arg(Statistics::GetTriangles())
-			.arg(Statistics::GetDrawcalls())
-			.arg(QString::number(Statistics::GetFrameRate(), 'f', 2)));
+bool Status::eventFilter(QObject* watched, QEvent* event) {
+	if (event->type() == QEvent::Move && watched == statChk_) {
+		moveWidgets();
+	}
+
+	return false;
+}
+
+void Status::toggleStatistics(int state) {
+	if (stat_ == nullptr) {
+		stat_ = new StatWidget(parentWidget());
+		moveWidgets();
+	}
+
+	stat_->setVisible(!!state);
+	if (stat_->isVisible()) {
+		updateStat();
+		moveWidgets();
+	}
+}
+
+void Status::updateStat() {
+	if (stat_ != nullptr && stat_->isVisible()) {
+		stat_->setFps(Statistics::GetFrameRate());
+		stat_->setTriangles(Statistics::GetTriangles());
+		stat_->setDrawcalls(Statistics::GetDrawcalls());
+	}
+}
+
+void Status::moveWidgets() {
+	if (stat_ != nullptr) {
+		QPoint pos = mapToParent(statChk_->pos());
+		pos.setX(pos.x() - stat_->width());
+		pos.setY(pos.y() - stat_->height());
+		stat_->move(pos);
 	}
 }

@@ -32,6 +32,10 @@ void Shadows::Clear() {
 	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 }
 
+RenderTexture Shadows::GetShadowTexture() {
+	return shadowDepthTexture_;
+}
+
 void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
@@ -47,9 +51,7 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
 	for (int i = 0; i < nrenderables; ++i) {
 		Renderable& r = pipeline->GetRenderable(i);
 		r.material = directionalLightShadowMaterial_;
-		r.target = shadowDepthTexture_;
 		r.instance = 0;
-		r.normalizedRect = rect;
 	}
 
 	/*
