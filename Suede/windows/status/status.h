@@ -3,7 +3,7 @@
 #include <QCheckBox>
 #include <QStatusBar>
 
-class StatWidget;
+class StatsWidget;
 
 class Status : public QStatusBar {
 	Q_OBJECT
@@ -28,6 +28,6 @@ private:
 private:
 	QTimer* timer_;
 
-	StatWidget* stat_;
+	StatsWidget* stat_;
 	QCheckBox* statChk_;
 };

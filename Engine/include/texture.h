@@ -101,11 +101,19 @@ public:
 	virtual void BindWrite(const Rect& normalizedRect) = 0;
 };
 
+class SUEDE_API ITextureBuffer : virtual public ITexture {
+public:
+	virtual void Create(uint size) = 0;
+	virtual void Update(uint offset, uint size, const void* data) = 0;
+};
+
 SUEDE_DEFINE_OBJECT_POINTER(Texture);
 SUEDE_DEFINE_OBJECT_POINTER(Texture2D);
 SUEDE_DEFINE_OBJECT_POINTER(TextureCube);
 SUEDE_DEFINE_OBJECT_POINTER(RenderTexture);
+SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer);
 
 SUEDE_DECLARE_OBJECT_CREATER(Texture2D);
 SUEDE_DECLARE_OBJECT_CREATER(TextureCube);
 SUEDE_DECLARE_OBJECT_CREATER(RenderTexture);
+SUEDE_DECLARE_OBJECT_CREATER(TextureBuffer);

@@ -171,3 +171,42 @@ protected:
 	virtual GLenum GetGLTextureType() const;
 	virtual GLenum GetGLTextureBindingName() const;
 };
+
+class Buffer;
+class TextureBufferInternal : public ITexture, public TextureInternal {
+	DEFINE_FACTORY_METHOD(TextureBuffer)
+
+public:
+	TextureBufferInternal();
+	~TextureBufferInternal();
+
+public:
+	void Create(uint size);
+	void Destroy();
+
+	void Update(uint offset, uint size, const void* data);
+
+protected:
+	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
+	virtual GLenum GetGLTextureBindingName() const { GL_TEXTURE_BINDING_BUFFER; }
+	virtual void DestroyTexture();
+
+private:
+	Buffer* buffer_;
+};
+
+/*
+{
+glm::vec3 TBOData[3] = {glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)};
+
+glGenBuffers(1, &m_TextureBuffer);
+glBindBuffer(GL_TEXTURE_BUFFER, m_TextureBuffer);
+glBufferData(GL_TEXTURE_BUFFER, sizeof(TBOData), TBOData, GL_STATIC_DRAW);
+glBindBuffer(GL_TEXTURE_BUFFER, 0);
+
+glGenTextures(1, &m_Texture);
+glBindTexture(GL_TEXTURE_BUFFER, m_Texture);
+glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, m_TextureBuffer);//buffer缓存对象关联到激活的纹理单元target的缓存纹理。
+glBindTexture(GL_TEXTURE_BUFFER, 0);
+}
+*/

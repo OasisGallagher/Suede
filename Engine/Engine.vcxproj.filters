@@ -370,6 +370,9 @@
     <ClInclude Include="api\glutils.h">
       <Filter>api\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\base\buffer.h">
+      <Filter>internal\base\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -527,6 +530,9 @@
     </ClCompile>
     <ClCompile Include="api\glutils.cpp">
       <Filter>api\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\buffer.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,9 @@
 #include "suede.h"
 #include "driver.h"
 #include "camera.h"
+
 #include "../windows/status/status.h"
+#include "../windows/about/aboutDialog.h"
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
@@ -129,15 +131,14 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 }
 
 void Suede::aboutBox() {
-	QMessageBox::information(this, "Suede", QString::asprintf(
-		"Vendor: %s\n"
-		"Renderer: %s\n"
-		"OpenGL: %s\n"
-		"GLSL: %s",
-		Driver::GetVendor(), 
-		Driver::GetRenderer(), 
-		Driver::GetVersion(), 
-		Driver::GetGLSLVersion()));
+	AboutDialog aboutDialog(this);
+	aboutDialog.setWindowTitle("Suede");
+	aboutDialog.addInformation("Qt", QT_VERSION_STR);
+	aboutDialog.addInformation("Vendor", Driver::GetVendor());
+	aboutDialog.addInformation("Renderer", Driver::GetRenderer());
+	aboutDialog.addInformation("OpenGL", Driver::GetOpenGLVersion());
+	aboutDialog.addInformation("GLSL", Driver::GetGLSLVersion());
+	aboutDialog.exec();
 }
 
 void Suede::screenCapture() {

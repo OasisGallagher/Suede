@@ -1,14 +1,14 @@
+#include "buffer.h"
 #include "vertexarray.h"
 #include "debug/debug.h"
 #include "memory/memory.h"
 
 VertexArray::VertexArray() 
-	: vao_(0), oldVao_(0), vbos_(nullptr), attributes_(nullptr), oldBuffer_(0)
-	, vboCount_(0) {
+	: vao_(0), oldVao_(0), vbos_(nullptr), vboCount_(0) {
 }
 
 VertexArray::~VertexArray() {
-	DestroyVBOs();
+	DestroyVertexBuffers();
 	GL::DeleteVertexArrays(1, &vao_);
 }
 
@@ -18,37 +18,27 @@ void VertexArray::Initialize() {
 	}
 }
 
-void VertexArray::CreateVBOs(size_t n) {
-	DestroyVBOs();
+void VertexArray::CreateVertexBuffers(size_t n) {
+	DestroyVertexBuffers();
 
 	Bind();
 
-	vbos_ = MEMORY_CREATE_ARRAY(GLuint, n);
-	GL::GenBuffers(n, vbos_);
-	attributes_ = MEMORY_CREATE_ARRAY(VBOAttribute, n);
-
+	vbos_ = MEMORY_CREATE_ARRAY(Buffer, n);
 	vboCount_ = n;
 
 	Unbind();
 }
 
 void VertexArray::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
+	if (!VerifyIndex(index)) {
 		return;
 	}
 
-	attributes_[index].size = size;
-	attributes_[index].target = target;
-	attributes_[index].usage = usage;
-
-	BindBuffer(index);
-	GL::BufferData(target, size, data, usage);
-	UnbindBuffer(index);
+	vbos_[index].Create(target, size, data, usage);
 }
 
 void VertexArray::SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor) {
-	BindBuffer(index);
+	vbos_[index].Bind();
 	GL::EnableVertexAttribArray(location);
 
 	if (!normalized && IsIPointer(type)) {
@@ -62,81 +52,56 @@ void VertexArray::SetVertexDataSource(int index, int location, int size, GLenum 
 		GL::VertexAttribDivisor(location, divisor);
 	}
 
-	UnbindBuffer(index);
+	vbos_[index].Unbind();
 }
 
 void* VertexArray::MapBuffer(int index) {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
+	if (!VerifyIndex(index)) {
 		return nullptr;
 	}
 
-	BindBuffer(index);
-	void* ptr = GL::MapBuffer(attributes_[index].target, GL_READ_ONLY);
-	UnbindBuffer(index);
-
-	return ptr;
+	return vbos_[index].Map();
 }
 
 void VertexArray::UnmapBuffer(int index) {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
+	if (!VerifyIndex(index)) {
 		return;
 	}
 
-	BindBuffer(index);
-	GL::UnmapBuffer(attributes_[index].target);
-	UnbindBuffer(index);
+	vbos_[index].Unmap();
 }
 
 size_t VertexArray::GetBufferSize(int index) {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
+	if (!VerifyIndex(index)) {
 		return 0;
 	}
 
-	return attributes_[index].size;
+	return vbos_[index].GetSize();
 }
 
 uint VertexArray::GetBufferNativePointer(uint index) const {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
+	if (!VerifyIndex(index)) {
 		return 0;
 	}
 
-	return vbos_[index];
+	return vbos_[index].GetNativePointer();
 }
 
 void VertexArray::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
+	if (!VerifyIndex(index)) {
 		return;
 	}
 
-	GLuint vbo = vbos_[index];
-	VBOAttribute& attr = attributes_[index];
-
-	BindBuffer(index);
-
-	GL::BufferData(attr.target, attr.size, nullptr, attr.usage); 
-	GL::BufferSubData(attr.target, offset, size, data);
-
-	UnbindBuffer(index);
+	vbos_[index].Update(offset, size, data);
 }
 
-void VertexArray::DestroyVBOs() {
-	if (vboCount_ == 0) {
-		return;
+void VertexArray::DestroyVertexBuffers() {
+	for (uint i = 0; i < vboCount_; ++i) {
+		vbos_[i].Destroy();
 	}
 
-	GL::DeleteBuffers(vboCount_, vbos_);
-	MEMORY_RELEASE_ARRAY(vbos_);
-	vbos_ = nullptr;
-
-	MEMORY_RELEASE_ARRAY(attributes_);
-	attributes_ = nullptr;
-
 	vboCount_ = 0;
+	MEMORY_RELEASE_ARRAY(vbos_);
 }
 
 void VertexArray::Bind() {
@@ -156,23 +121,29 @@ void VertexArray::Unbind() {
 	oldVao_ = 0;
 }
 
-void VertexArray::BindBuffer(int index) {
-	GLenum pname = GetBindingName(attributes_[index].target);
-	GL::GetIntegerv(pname, (GLint*)&oldBuffer_);
+void VertexArray::BindBuffer(uint index) {
+	if (!VerifyIndex(index)) {
+		return;
+	}
 
-	GL::BindBuffer(attributes_[index].target, vbos_[index]);
+	vbos_[index].Bind();
 }
 
-void VertexArray::UnbindBuffer(int index) {
-	GL::BindBuffer(attributes_[index].target, oldBuffer_);
-	oldBuffer_ = 0;
+void VertexArray::UnbindBuffer(uint index) {
+	if (!VerifyIndex(index)) {
+		return;
+	}
+
+	vbos_[index].Unbind();
 }
 
-GLenum VertexArray::GetBindingName(GLenum target) {
-	if (target == GL_ARRAY_BUFFER) { return GL_ARRAY_BUFFER_BINDING; }
-	if (target == GL_ELEMENT_ARRAY_BUFFER) { return GL_ELEMENT_ARRAY_BUFFER_BINDING; }
-	Debug::LogError("undefined target binding name");
-	return 0;
+bool VertexArray::VerifyIndex(int index) const {
+	if (index >= vboCount_) {
+		Debug::LogError("index out of range");
+		return false;
+	}
+
+	return true;
 }
 
 bool VertexArray::IsIPointer(GLenum type) {

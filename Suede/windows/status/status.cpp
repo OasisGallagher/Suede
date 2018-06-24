@@ -1,6 +1,6 @@
 #include "time2.h"
 #include "status.h"
-#include "statwidget.h"
+#include "statswidget.h"
 #include "statistics.h"
 #include "debug/debug.h"
 
@@ -43,7 +43,7 @@ bool Status::eventFilter(QObject* watched, QEvent* event) {
 
 void Status::toggleStatistics(int state) {
 	if (stat_ == nullptr) {
-		stat_ = new StatWidget(parentWidget());
+		stat_ = new StatsWidget(parentWidget());
 		moveWidgets();
 	}
 
@@ -56,9 +56,9 @@ void Status::toggleStatistics(int state) {
 
 void Status::updateStat() {
 	if (stat_ != nullptr && stat_->isVisible()) {
-		stat_->setFps(Statistics::GetFrameRate());
-		stat_->setTriangles(Statistics::GetTriangles());
-		stat_->setDrawcalls(Statistics::GetDrawcalls());
+		stat_->setStats(Statistics::GetFrameRate(),
+			Statistics::GetTriangles(),
+			Statistics::GetDrawcalls());
 	}
 }
 

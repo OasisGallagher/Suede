@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "boblampclean.md5mesh";
-static const char* roomFbxPath = "room.obj";// house.fbx";
+static const char* roomFbxPath = "house.fbx";
 
 static Game* gameInstance;
 

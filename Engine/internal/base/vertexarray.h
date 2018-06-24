@@ -4,6 +4,7 @@
 #include "api/gl.h"
 #include "enginedefines.h"
 
+class Buffer;
 class VertexArray {
 public:
 	VertexArray();
@@ -12,22 +13,19 @@ public:
 public:
 	void Initialize();
 
-	void CreateVBOs(size_t n);
-	void DestroyVBOs();
+	void CreateVertexBuffers(size_t n);
+	void DestroyVertexBuffers();
 
 	size_t GetVBOCount() { return vboCount_; }
 
 	void SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage);
 
 	template <class Container>
-	void SetBuffer(uint index, GLenum target, const Container& cont, GLenum usage, int divisor = 0) {
+	void SetBuffer(uint index, GLenum target, const Container& cont, GLenum usage) {
 		SetBuffer(index, target, cont.size() * sizeof(Container::value_type), &cont[0], usage);
 	}
 	
 	void SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor = 0);
-
-	void BindBuffer(int index);
-	void UnbindBuffer(int index);
 
 	void* MapBuffer(int index);
 	void UnmapBuffer(int index);
@@ -40,24 +38,17 @@ public:
 	void Bind();
 	void Unbind();
 
-private:
-	bool IsIPointer(GLenum type);
-	GLenum GetBindingName(GLenum target);
+	void BindBuffer(uint index);
+	void UnbindBuffer(uint index);
 
 private:
-	struct VBOAttribute {
-		size_t size;
-		GLenum target;
-		GLenum usage;
-	};
+	bool IsIPointer(GLenum type);
+	bool VerifyIndex(int index) const;
 
 private:
 	GLuint vao_;
 	GLuint oldVao_;
 
-	GLuint* vbos_;
-	GLuint oldBuffer_;
-	VBOAttribute* attributes_;
-
+	Buffer* vbos_;
 	int vboCount_;
 };

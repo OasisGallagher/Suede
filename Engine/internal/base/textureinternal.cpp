@@ -2,6 +2,7 @@
 
 #include "rect.h"
 #include "screen.h"
+#include "buffer.h"
 #include "resources.h"
 #include "api/glutils.h"
 #include "tools/math2.h"
@@ -496,6 +497,28 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	parameters[0] = internalFormat;
 	parameters[1] = format;
 	parameters[2] = type;
+}
+
+TextureBufferInternal::TextureBufferInternal() : TextureInternal(ObjectTypeTextureBuffer), buffer_(nullptr) {
+}
+
+TextureBufferInternal::~TextureBufferInternal() {}
+
+void TextureBufferInternal::Create(uint size) {
+	DestroyTexture();
+	GL::GenTextures(1, &texture_);
+	BindTexture();
+
+	UnbindTexture();
+
+	buffer_ = MEMORY_CREATE(Buffer);
+	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
+}
+
+inline void TextureBufferInternal::DestroyTexture() {
+	TextureInternal::DestroyTexture();
+	MEMORY_RELEASE(buffer_);
+	buffer_ = nullptr;
 }
 
 #define LogUnsupportedRenderTextureOperation()	Debug::LogError("unsupported render texture operation %s.", __func__);

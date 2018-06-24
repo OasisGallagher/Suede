@@ -17,6 +17,7 @@ enum {
 
 	GLLimitsMaxClipPlanes,
 	GLLimitsMaxTextureSize,
+	GLLimitsMaxTextureBufferSize,
 
 	GLLimitsCount,
 };

@@ -11,6 +11,7 @@ enum ObjectType {
 	ObjectTypeTexture2D,
 	ObjectTypeTextureCube,
 	ObjectTypeRenderTexture,
+	ObjectTypeTextureBuffer,
 
 	ObjectTypeSkeleton,
 	ObjectTypeAnimation,

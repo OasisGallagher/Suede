@@ -44,7 +44,7 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	}
 
 	// TODO: update vbo instead.
-	storage_->vao.CreateVBOs(vboCount);
+	storage_->vao.CreateVertexBuffers(vboCount);
 
 	storage_->vao.Bind();
 

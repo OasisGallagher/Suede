@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "api/gl.h"
 
+class Buffer;
 class UniformBuffer {
 public:
 	UniformBuffer();
@@ -19,8 +20,6 @@ public:
 	const std::string& GetName() const { return name_; }
 
 private:
-	void Bind();
-	void Unbind();
 	void Destroy();
 	void Attach(Shader shader);
 	void AttachProgram(uint program);
@@ -29,8 +28,8 @@ private:
 private:
 	uint size_;
 
-	GLuint ubo_;
-	GLuint oldUbo_;
+	Buffer* ubo_;
+
 	GLuint binding_;
 	std::string name_;
 

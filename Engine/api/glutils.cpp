@@ -38,10 +38,13 @@ void GLLimits::Initialize() {
 				GL::GetIntegerv(GL_STENCIL_BITS, &value); 
 				break;
 			case GLLimitsMaxClipPlanes: 
-				GL::GetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
+				GL::GetIntegerv(GL_MAX_CLIP_PLANES, &value);
 				break;
 			case GLLimitsMaxTextureSize: 
-				GL::GetIntegerv(GL_MAX_CLIP_PLANES, &value); 
+				GL::GetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
+				break;
+			case GLLimitsMaxTextureBufferSize:
+				GL::GetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &value);
 				break;
 		}
 

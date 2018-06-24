@@ -127,6 +127,15 @@
     <Filter Include="windows\status\include">
       <UniqueIdentifier>{26428fac-05af-48bb-a157-2636ae8eb984}</UniqueIdentifier>
     </Filter>
+    <Filter Include="windows\about">
+      <UniqueIdentifier>{75f3b7ca-8bc6-4059-a4ee-c57764fc51e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\about\include">
+      <UniqueIdentifier>{a3341cdd-1eb2-4bc3-98e5-84302635e646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\about\src">
+      <UniqueIdentifier>{f6ee1684-8b08-479e-a708-cc0f968c746a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -312,7 +321,16 @@
     <ClCompile Include="GeneratedFiles\Release\moc_qtviewer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\status\statwidget.cpp">
+    <ClCompile Include="windows\about\aboutDialog.cpp">
+      <Filter>windows\about\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_aboutDialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_aboutDialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\status\statswidget.cpp">
       <Filter>windows\status\src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -380,7 +398,13 @@
     <CustomBuild Include="main\qtviewer.h">
       <Filter>main\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="ui\statwidget.ui">
+    <CustomBuild Include="ui\aboutDialog.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\about\aboutDialog.h">
+      <Filter>windows\about\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\statswidget.ui">
       <Filter>ui</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -400,10 +424,13 @@
     <ClInclude Include="windows\controls\childwindow.h">
       <Filter>windows\controls\include</Filter>
     </ClInclude>
-    <ClInclude Include="windows\status\statwidget.h">
+    <ClInclude Include="GeneratedFiles\ui_aboutDialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\status\statswidget.h">
       <Filter>windows\status\include</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_statwidget.h">
+    <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

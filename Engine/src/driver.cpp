@@ -44,7 +44,7 @@ const char* Driver::GetRenderer() {
 	return GL::GetString(GL_RENDERER);
 }
 
-const char* Driver::GetVersion() {
+const char* Driver::GetOpenGLVersion() {
 	return GL::GetString(GL_VERSION);
 }
 

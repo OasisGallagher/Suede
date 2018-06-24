@@ -1,10 +1,11 @@
+#include "buffer.h"
 #include "api/glutils.h"
 #include "uniformbuffer.h"
 #include "memory/memory.h"
 
 uint UniformBuffer::bindingPoint_;
 
-UniformBuffer::UniformBuffer() : ubo_(0) {
+UniformBuffer::UniformBuffer() : ubo_(nullptr) {
 }
 
 UniformBuffer::~UniformBuffer() {
@@ -26,7 +27,7 @@ void UniformBuffer::AttachBuffer(Shader shader) {
 }
 
 void UniformBuffer::AttachSubBuffer(Shader shader, uint offset, uint size) {
-	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_, offset, size);
+	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer(), offset, size);
 	Attach(shader);
 }
 
@@ -54,39 +55,22 @@ void UniformBuffer::AttachProgram(uint program) {
 }
 
 void UniformBuffer::UpdateBuffer(const void* data, uint offset, uint size) {
-	Bind();
-	GL::BufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
-	GL::BufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-	Unbind();
-}
-
-void UniformBuffer::Bind() {
-	GL::GetIntegerv(GL_UNIFORM_BUFFER_BINDING, (GLint*)&oldUbo_);
-	GL::BindBuffer(GL_UNIFORM_BUFFER, ubo_);
-}
-
-void UniformBuffer::Unbind() {
-	GL::BindBuffer(GL_UNIFORM_BUFFER, oldUbo_);
-	oldUbo_ = 0;
+	ubo_->Update(offset, size, data);
 }
 
 void UniformBuffer::Initialize(const std::string& name, uint size) {
 	name_ = name;
 	size_ = size;
 
-	GL::GenBuffers(1, &ubo_);
-	Bind();
-	GL::BufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
-	Unbind();
+	ubo_ = MEMORY_CREATE(Buffer);
+	ubo_->Create(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
 
 	binding_ = bindingPoint_++;
-	GL::BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_);
+	GL::BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer());
 }
 
 void UniformBuffer::Destroy() {
-	if (oldUbo_ != 0) {
-		GL::DeleteBuffers(1, &oldUbo_);
-	}
+	MEMORY_RELEASE(ubo_);
 }
 
 void UniformBuffer::Attach(Shader shader) {
