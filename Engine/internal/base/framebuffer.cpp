@@ -171,10 +171,10 @@ Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRe
 
 	GL::GenFramebuffers(1, &fbo_);
 
-	renderTextures_ = MEMORY_CREATE_ARRAY(uint, GLLimits::Get(GLLimitsMaxColorAttachments));
-	std::fill(renderTextures_, renderTextures_ + GLLimits::Get(GLLimitsMaxColorAttachments), 0);
+	renderTextures_ = MEMORY_CREATE_ARRAY(uint, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
+	std::fill(renderTextures_, renderTextures_ + GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
 
-	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, GLLimits::Get(GLLimitsMaxColorAttachments));
+	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
 }
 
 Framebuffer::~Framebuffer() {
@@ -256,7 +256,7 @@ uint Framebuffer::ToGLColorAttachments() {
 	}
 
 	uint count = 0;
-	for (int i = 0; i < GLLimits::Get(GLLimitsMaxColorAttachments); ++i) {
+	for (int i = 0; i < GLUtils::GetLimits(GLLimitsMaxColorAttachments); ++i) {
 		if (renderTextures_[i] != 0) {
 			glAttachments_[count++] = GL_COLOR_ATTACHMENT0 + i;
 		}
@@ -302,7 +302,7 @@ void Framebuffer::ResizeDepthRenderbuffer() {
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	if (attachment >= GLLimits::Get(GLLimitsMaxColorAttachments)) {
+	if (attachment >= GLUtils::GetLimits(GLLimitsMaxColorAttachments)) {
 		Debug::LogError("index out of range");
 		return 0;
 	}

@@ -3,56 +3,10 @@
 
 static int limits_[GLLimitsCount];
 
-void GLLimits::Initialize() {
-	for (int i = 0; i < GLLimitsCount; ++i) {
-		GLint value = 0;
-		switch (i) {
-			case GLLimitsMaxColorAttachments:
-				GL::GetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &value);
-				break;
-			case GLLimitsMaxTextureUnits:
-				GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &value);
-				break;
-			case GLLimitsMaxUniformBufferBindings:
-				GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &value);
-				break;
-			case GLLimitsMaxUniformBlockSize:
-				GL::GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &value);
-				break;
-			case GLLimitsRedBits:
-				GL::GetIntegerv(GL_RED_BITS, &value); 
-				break;
-			case GLLimitsGreenBits: 
-				GL::GetIntegerv(GL_GREEN_BITS, &value); 
-				break;
-			case GLLimitsBlueBits: 
-				GL::GetIntegerv(GL_BLUE_BITS, &value); 
-				break;
-			case GLLimitsAlphaBits: 
-				GL::GetIntegerv(GL_ALPHA_BITS, &value); 
-				break;
-			case GLLimitsDepthBits: 
-				GL::GetIntegerv(GL_DEPTH_BITS, &value); 
-				break;
-			case GLLimitsStencilBits: 
-				GL::GetIntegerv(GL_STENCIL_BITS, &value); 
-				break;
-			case GLLimitsMaxClipPlanes: 
-				GL::GetIntegerv(GL_MAX_CLIP_PLANES, &value);
-				break;
-			case GLLimitsMaxTextureSize: 
-				GL::GetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
-				break;
-			case GLLimitsMaxTextureBufferSize:
-				GL::GetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &value);
-				break;
-		}
+static void InitializeGLModes();
+static void InitializeGLLimits();
 
-		limits_[i] = value;
-	}
-}
-
-int GLLimits::Get(uint type) {
+int GLUtils::GetLimits(GLLimits type) {
 	if (type >= GLLimitsCount) {
 		Debug::LogError("invalid limit type %d.", type);
 		return 0;
@@ -96,9 +50,8 @@ static int modes_[GLModeCount];
 static bool modeDirty_[GLModeCount];
 
 void GLUtils::Initialize() {
-	for (int i = 0; i < GLModeCount; ++i) {
-		modes_[i] = GetGLMode((GLMode)i);
-	}
+	InitializeGLModes();
+	InitializeGLLimits();
 }
 
 void GLUtils::DrawElementsBaseVertex(MeshTopology topology, const TriangleBias & bias) {
@@ -148,5 +101,60 @@ void GLUtils::PopGLMode(GLMode key) {
 	if (modeDirty_[key]) {
 		GLModeSet(key, modes_[key]);
 		modeDirty_[key] = false;
+	}
+}
+
+void InitializeGLModes() {
+	for (int i = 0; i < GLModeCount; ++i) {
+		modes_[i] = GLUtils::GetGLMode((GLMode)i);
+	}
+}
+
+void InitializeGLLimits() {
+	for (int i = 0; i < GLLimitsCount; ++i) {
+		GLint value = 0;
+		switch (i) {
+			case GLLimitsMaxColorAttachments:
+				GL::GetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &value);
+				break;
+			case GLLimitsMaxTextureUnits:
+				GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &value);
+				break;
+			case GLLimitsMaxUniformBufferBindings:
+				GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &value);
+				break;
+			case GLLimitsMaxUniformBlockSize:
+				GL::GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &value);
+				break;
+			case GLLimitsRedBits:
+				GL::GetIntegerv(GL_RED_BITS, &value);
+				break;
+			case GLLimitsGreenBits:
+				GL::GetIntegerv(GL_GREEN_BITS, &value);
+				break;
+			case GLLimitsBlueBits:
+				GL::GetIntegerv(GL_BLUE_BITS, &value);
+				break;
+			case GLLimitsAlphaBits:
+				GL::GetIntegerv(GL_ALPHA_BITS, &value);
+				break;
+			case GLLimitsDepthBits:
+				GL::GetIntegerv(GL_DEPTH_BITS, &value);
+				break;
+			case GLLimitsStencilBits:
+				GL::GetIntegerv(GL_STENCIL_BITS, &value);
+				break;
+			case GLLimitsMaxClipPlanes:
+				GL::GetIntegerv(GL_MAX_CLIP_PLANES, &value);
+				break;
+			case GLLimitsMaxTextureSize:
+				GL::GetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
+				break;
+			case GLLimitsMaxTextureBufferSize:
+				GL::GetIntegerv(GL_MAX_TEXTURE_BUFFER_SIZE, &value);
+				break;
+		}
+
+		limits_[i] = value;
 	}
 }

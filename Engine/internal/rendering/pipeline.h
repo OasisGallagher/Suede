@@ -98,5 +98,5 @@ private:
 	RenderTexture targetTexture_;
 
 	// performance.
-	Sample *switch_material, *switch_mesh, *update_ubo, *update_matrices, *gather_instances, *update_pipeline, *rendering;
+	Sample *switch_material, *switch_mesh, *update_ubo, *update_matrices, *update_tbo, *gather_instances, *update_pipeline, *rendering;
 };

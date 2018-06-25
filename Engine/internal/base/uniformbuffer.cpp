@@ -13,7 +13,7 @@ UniformBuffer::~UniformBuffer() {
 }
 
 bool UniformBuffer::Create(const std::string& name, uint size) {
-	if (bindingPoint_ == GLLimits::Get(GLLimitsMaxUniformBufferBindings)) {
+	if (bindingPoint_ == GLUtils::GetLimits(GLLimitsMaxUniformBufferBindings)) {
 		Debug::LogError("too many uniform buffers");
 		return false;
 	}

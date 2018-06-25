@@ -42,7 +42,7 @@
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "boblampclean.md5mesh";
-static const char* roomFbxPath = "house.fbx";
+static const char* roomFbxPath = "room.obj";// house.fbx";
 
 static Game* gameInstance;
 
@@ -95,6 +95,17 @@ void Game::OnDrawGizmos() {
 		if (!entity->GetActive()) {
 			continue;
 		}
+
+		TextureBuffer samplerBuffer = NewTextureBuffer();
+
+		glm::vec4 texels[] = { glm::vec4(0, 1, 0, 1), glm::vec4(0, 1, 0, 1) };
+		uint size = sizeof(glm::vec4) * CountOf(texels);
+
+		samplerBuffer->Create(size);
+		samplerBuffer->Update(0, sizeof(glm::vec4) * CountOf(texels), texels);
+
+		Material material = entity->GetTransform()->FindChild("Sphere")->GetEntity()->GetRenderer()->GetMaterial(0);
+		material->SetTexture("testSamplerBuffer", samplerBuffer);
 
 		const Bounds& bounds = entity->GetBounds();
 		if (!bounds.IsEmpty()) {

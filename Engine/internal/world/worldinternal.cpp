@@ -8,6 +8,7 @@
 #include "internal/rendering/shadows.h"
 #include "internal/codec/entityloader.h"
 #include "internal/base/textureinternal.h"
+#include "internal/rendering/matrixbuffer.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
 #include "internal/components/transforminternal.h"
@@ -15,12 +16,11 @@
 
 static void InitWorld(WorldInternal* world) {
 	GLUtils::Initialize();
-	GLLimits::Initialize();
-
 	UniformBufferManager::Initialize();
 
 	Resources::Import();
 	Shadows::Initialize();
+	MatrixBuffer::Initialize();
 
 	world->root_ = Factory::Create<EntityInternal>();
 	world->root_->SetTransform(Factory::Create<TransformInternal>());

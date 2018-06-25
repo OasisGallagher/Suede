@@ -70,6 +70,7 @@ public:
 	static void BindBufferBase(GLenum target, GLuint index, GLuint buffer);
 	static void DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers);
 	static void GetTexParameteriv(GLenum target, GLenum pname, GLint* params);
+	static void TexBuffer(GLenum target, GLenum internalformat, GLuint buffer);
 	static void DebugMessageCallback(GLDEBUGPROC callback, const void* userParam);
 	static void BindAttribLocation(GLuint program, GLuint index, const GLchar *name);
 	static GLuint GetUniformBlockIndex(GLuint program, const GLchar *uniformBlockName);
@@ -191,6 +192,10 @@ inline void GL::StencilMask(GLuint mask) {
 
 inline void GL::DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers) {
 	GL_CALL(glDeleteRenderbuffers(n, renderbuffers));
+}
+
+inline void GL::TexBuffer(GLenum target, GLenum internalformat, GLuint buffer) {
+	GL_CALL(glTexBuffer(target, internalformat, buffer));
 }
 
 inline void GL::GetTexParameteriv(GLenum target, GLenum pname, GLint* params) {

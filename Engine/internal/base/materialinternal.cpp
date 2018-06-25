@@ -8,6 +8,7 @@
 
 // TODO: reference world components?
 #include "internal/rendering/shadows.h"
+#include "internal/rendering/matrixbuffer.h"
 
 // TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
@@ -414,7 +415,9 @@ void MaterialInternal::InitializeProperties() {
 		*properties_[container[i]->name] = *container[i];
 	}
 
-	Shadows::AttachShadowTexture(SharedThis());
+	Material _this = SharedThis();
+	Shadows::AttachShadowTexture(_this);
+	MatrixBuffer::AttachMatrixBuffer(_this);
 }
 
 void MaterialInternal::InitializeEnabledState() {

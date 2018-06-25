@@ -29,6 +29,7 @@ namespace Variables {
 	DEFINE_VARIABLE(emissiveTexture);
 	DEFINE_VARIABLE(lightmapTexture);
 
+	DEFINE_VARIABLE(matrixBuffer);
 	DEFINE_VARIABLE(shadowDepthTexture);
 
 	DEFINE_VARIABLE(gloss);

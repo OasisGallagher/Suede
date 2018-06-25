@@ -32,7 +32,7 @@ void Buffer::Unbind() {
 	old_ = 0;
 }
 
-void * Buffer::Map() {
+void* Buffer::Map() {
 	Bind();
 	void* ptr = GL::MapBuffer(attribute_.target, GL_READ_ONLY);
 	Unbind();

@@ -14,6 +14,10 @@ TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
 	, texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
 }
 
+TextureInternal::~TextureInternal() {
+	DestroyTexture();
+}
+
 void TextureInternal::Bind(uint index) {
 	if (!GL::IsTexture(texture_)) {
 		Debug::LogError("invalid texture");
@@ -104,6 +108,15 @@ void TextureInternal::DestroyTexture() {
 		GL::DeleteTextures(1, &texture_);
 		texture_ = 0;
 	}
+}
+
+bool TextureInternal::VerifyUncreated() {
+	if (texture_ != 0) {
+		Debug::LogError("texture already created");
+		return false;
+	}
+
+	return true;
 }
 
 BppType TextureInternal::GLenumToBpp(GLenum format) const {
@@ -234,7 +247,6 @@ Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectTypeTexture2D) {
 }
 
 Texture2DInternal::~Texture2DInternal() {
-	DestroyTexture();
 }
 
 bool Texture2DInternal::Load(const std::string& path) {
@@ -248,7 +260,9 @@ bool Texture2DInternal::Load(const std::string& path) {
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
 bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
-	DestroyTexture();
+	if (!VerifyUncreated()) {
+		return false;
+	}
 
 	width_ = width;
 	height_ = height;
@@ -314,11 +328,12 @@ TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCu
 }
 
 TextureCubeInternal::~TextureCubeInternal() {
-	DestroyTexture();
 }
 
 bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
-	DestroyTexture();
+	if (!VerifyUncreated()) {
+		return false;
+	}
 
 	GL::GenTextures(1, &texture_);
 
@@ -354,11 +369,13 @@ RenderTextureInternal::RenderTextureInternal()
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
-	MEMORY_RELEASE(framebuffer_);
+	DestroyFramebuffer();
 }
 
 bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	DestroyTexture();
+	if (!VerifyUncreated()) {
+		return false;
+	}
 
 	width_ = width;
 	height_ = height;
@@ -440,8 +457,7 @@ void RenderTextureInternal::Unbind() {
 	bindStatus_ = StatusNone;
 }
 
-void RenderTextureInternal::DestroyTexture() {
-	TextureInternal::DestroyTexture();
+void RenderTextureInternal::DestroyFramebuffer() {
 	if (framebuffer_ != nullptr) {
 		MEMORY_RELEASE(framebuffer_);
 		framebuffer_ = nullptr;
@@ -502,23 +518,39 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 TextureBufferInternal::TextureBufferInternal() : TextureInternal(ObjectTypeTextureBuffer), buffer_(nullptr) {
 }
 
-TextureBufferInternal::~TextureBufferInternal() {}
+TextureBufferInternal::~TextureBufferInternal() {
+	DestroyBuffer();
+}
 
-void TextureBufferInternal::Create(uint size) {
-	DestroyTexture();
-	GL::GenTextures(1, &texture_);
-	BindTexture();
-
-	UnbindTexture();
+bool TextureBufferInternal::Create(uint size) {
+	if (!VerifyUncreated()) {
+		return false;
+	}
 
 	buffer_ = MEMORY_CREATE(Buffer);
 	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
+
+	GL::GenTextures(1, &texture_);
+	BindTexture();
+	GL::TexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffer_->GetNativePointer());
+	UnbindTexture();
+
+	return true;
 }
 
-inline void TextureBufferInternal::DestroyTexture() {
-	TextureInternal::DestroyTexture();
-	MEMORY_RELEASE(buffer_);
-	buffer_ = nullptr;
+uint TextureBufferInternal::GetSize() const {
+	return buffer_->GetSize();
+}
+
+void TextureBufferInternal::Update(uint offset, uint size, const void * data) {
+	buffer_->Update(offset, size, data);
+}
+
+inline void TextureBufferInternal::DestroyBuffer() {
+	if (buffer_ != nullptr) {
+		MEMORY_RELEASE(buffer_);
+		buffer_ = nullptr;
+	}
 }
 
 #define LogUnsupportedRenderTextureOperation()	Debug::LogError("unsupported render texture operation %s.", __func__);

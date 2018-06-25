@@ -103,7 +103,8 @@ public:
 
 class SUEDE_API ITextureBuffer : virtual public ITexture {
 public:
-	virtual void Create(uint size) = 0;
+	virtual uint GetSize() const = 0;
+	virtual bool Create(uint size) = 0;
 	virtual void Update(uint offset, uint size, const void* data) = 0;
 };
 

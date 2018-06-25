@@ -13,8 +13,9 @@ void UniformBufferManager::Initialize() {
 	CreateSharedUniformBuffer<SharedTimeUniformBuffer>();
 	CreateSharedUniformBuffer<SharedLightUniformBuffer>();
 	CreateSharedUniformBuffer<SharedTransformsUniformBuffer>();
+	CreateSharedUniformBuffer<SharedMatrixBufferOffsetUniformBuffer>();
 
-	CreateSharedUniformBuffer<EntityMatricesUniforms>(GLLimits::Get(GLLimitsMaxUniformBlockSize));
+	CreateSharedUniformBuffer<EntityMatricesUniforms>(GLUtils::GetLimits(GLLimitsMaxUniformBlockSize));
 }
 
 void UniformBufferManager::Destroy() {
@@ -30,7 +31,7 @@ void UniformBufferManager::AttachSharedBuffers(Shader shader) {
 }
 
 bool UniformBufferManager::UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size) {
-	if (size > GLLimits::Get(GLLimitsMaxUniformBlockSize)) {
+	if (size > GLUtils::GetLimits(GLLimitsMaxUniformBlockSize)) {
 		Debug::LogError("%d exceeds max buffer size.", size);
 		return false;
 	}

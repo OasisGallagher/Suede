@@ -373,6 +373,9 @@
     <ClInclude Include="internal\base\buffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\rendering\matrixbuffer.h">
+      <Filter>internal\rendering\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -533,6 +536,9 @@
     </ClCompile>
     <ClCompile Include="internal\base\buffer.cpp">
       <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\matrixbuffer.cpp">
+      <Filter>internal\rendering\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

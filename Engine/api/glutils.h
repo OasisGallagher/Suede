@@ -2,7 +2,7 @@
 #include "gl.h"
 #include "mesh.h"
 
-enum {
+enum GLLimits {
 	GLLimitsMaxColorAttachments,
 	GLLimitsMaxTextureUnits,
 	GLLimitsMaxUniformBufferBindings,
@@ -22,14 +22,6 @@ enum {
 	GLLimitsCount,
 };
 
-class GLLimits {
-public:
-	static void Initialize();
-
-public:
-	static int Get(uint type);
-};
-
 enum GLMode {
 	GLModePackAlignment,
 	GLModeUnpackAlignment,
@@ -44,6 +36,8 @@ public:
 public:
 	static void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
 	static void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias& bias, uint instance);
+
+	static int GetLimits(GLLimits type);
 
 	static int GetGLMode(GLMode key);
 	static void PushGLMode(GLMode key, int value);
