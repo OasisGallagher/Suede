@@ -53,8 +53,8 @@ SubShader {
 			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
 			float visibility = calculateShadowVisibility();
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
-			fragColor = texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8);
-			fragColor.a = 1;
+			//fragColor = texelFetch(c_matrixBuffer, c_matrixBufferOffset + 0 * 8);
+			//fragColor.a = 1;
 			//fragColor = vec4(visibility, visibility, visibility, 1);
 		}
 

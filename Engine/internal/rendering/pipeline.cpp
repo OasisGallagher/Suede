@@ -4,13 +4,13 @@
 #include "engine.h"
 #include "pipeline.h"
 #include "statistics.h"
+#include "variables.h"
 #include "tools/math2.h"
 #include "api/glutils.h"
 #include "matrixbuffer.h"
 #include "debug/profiler.h"
 #include "uniformbuffermanager.h"
-
-#define RENDERABLE_CAPACITY	1024
+#include "internal/base/renderdefines.h"
 
 template <class T>
 inline int __compare(T lhs, T rhs) {
@@ -47,12 +47,13 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 }
 
 Pipeline::Pipeline() 
-	: renderables_(RENDERABLE_CAPACITY), matrices_(RENDERABLE_CAPACITY * 2)
+	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2)
 	, nrenderables_(0) , oldPass_(-1), ndrawcalls_(0), ntriangles_(0) {
 	switch_material = Profiler::CreateSample();
 	switch_mesh = Profiler::CreateSample();
 	update_ubo = Profiler::CreateSample();
 	update_tbo = Profiler::CreateSample();
+	update_offset = Profiler::CreateSample();
 	update_matrices = Profiler::CreateSample();
 	gather_instances = Profiler::CreateSample();
 	update_pipeline = Profiler::CreateSample();
@@ -64,6 +65,7 @@ Pipeline::~Pipeline() {
  	Profiler::ReleaseSample(switch_mesh);
  	Profiler::ReleaseSample(update_ubo);
 	Profiler::ReleaseSample(update_tbo);
+	Profiler::ReleaseSample(update_offset);
 	Profiler::ReleaseSample(update_matrices);
  	Profiler::ReleaseSample(gather_instances);
  	Profiler::ReleaseSample(update_pipeline);
@@ -101,18 +103,16 @@ void Pipeline::Sort(SortMode mode, const glm::mat4& worldToClipMatrix) {
 
 void Pipeline::Run() {
 	update_tbo->Restart();
-	uint size = nrenderables_ * 2 * sizeof(glm::mat4);
-
-	MatrixBuffer::Update(size, &matrices_[0]);
-
+	MatrixBuffer::Update(nrenderables_, &matrices_[0]);
 	update_tbo->Stop();
 
 	targetTexture_->BindWrite(normalizedRect_);
 
- 	update_pipeline->Restart();
-
 	rendering->Restart();
+	update_pipeline->Restart();
+
 	uint from = 0;
+	update_offset->Reset();
 
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		Renderable& first = renderables_[from];
@@ -140,6 +140,7 @@ void Pipeline::Run() {
 	Debug::Output("[Pipeline::Update::update_matrices]\t%.2f", update_matrices->GetElapsedSeconds());
 	Debug::Output("[Pipeline::Update::update_ubo]\t%.5f", update_ubo->GetElapsedSeconds());
 	Debug::Output("[Pipeline::Update::update_tbo]\t%.5f", update_tbo->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_offset]\t%.5f", update_offset->GetElapsedSeconds());
 	Debug::Output("[Pipeline::Update::rendering]\t%.2f", rendering->GetElapsedSeconds());
 
 	//Debug::Output("[Pipeline::Update::switch_framebuffer]\t%.2f", switch_framebuffer->GetElapsedSeconds());
@@ -179,22 +180,25 @@ void Pipeline::GatherInstances(std::vector<uint>& ranges) {
 
 void Pipeline::RenderInstances(uint first, uint last) {
 	Renderable& renderable = renderables_[first];
-	static int maxInstances = GLUtils::GetLimits(GLLimitsMaxUniformBlockSize) / sizeof(EntityMatricesUniforms);
-	int instanceCount = last - first;
+	//static int maxInstances = GLUtils::GetLimits(GLLimitsMaxUniformBlockSize) / sizeof(EntityMatricesUniforms);
+	//int instanceCount = last - first;
 
-	static SharedMatrixBufferOffsetUniformBuffer p;
-	p.matrixBufferOffset = first * 8;
-	UniformBufferManager::UpdateSharedBuffer(SharedMatrixBufferOffsetUniformBuffer::GetName(), &p, 0, sizeof(p));
+	update_offset->Start();
+	//static SharedMatrixBufferOffsetUniformBuffer p;
+	//p.matrixBufferOffset = first * 8;
+	//UniformBufferManager::UpdateSharedBuffer(SharedMatrixBufferOffsetUniformBuffer::GetName(), &p, 0, sizeof(p));
+	renderable.material->SetInt(Variables::matrixBufferOffset, first * 8);
+	update_offset->Stop();
 
-	for (int i = 0; i < instanceCount; ) {
-		int count = Math::Min(instanceCount - i, maxInstances);
-		update_ubo->Start();
-		UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices_[(i + first) * 2], 0, sizeof(glm::mat4) * (count * 2));
-		update_ubo->Stop();
+	//for (int i = 0; i < instanceCount; ) {
+	//	int count = Math::Min(instanceCount - i, maxInstances);
+	//	update_ubo->Start();
+	//	UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices_[(i + first) * 2], 0, sizeof(glm::mat4) * (count * 2));
+	//	update_ubo->Stop();
 
 		Render(renderable, last - first);
-		i += count;
-	}
+	//	i += count;
+	//}
 }
 
 void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance) {

@@ -24,22 +24,20 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 };
 
 uniform samplerBuffer c_matrixBuffer;
-
-layout(std140) uniform SharedMatrixBufferOffsetUniformBuffer {
-	int c_matrixBufferOffset;
-};
+uniform int c_matrixBufferOffset;
 
 layout(std140) uniform SharedEntityMatricesUniformBuffer {
 	// C_MAX_ENTITY_MATRICES = GL_MAX_UNIFORM_BLOCK_SIZE / sizeof(mat4).
 	mat4 c_entityMatrices[C_MAX_ENTITY_MATRICES];
 };
 
-#define c_localToWorldMatrix	(c_entityMatrices[gl_InstanceID * 2])
-#define c_localToClipMatrix		(c_entityMatrices[gl_InstanceID * 2 + 1])
-
 /*
+#define c_localToWorldMatrix	(c_entityMatrices[c_matrixBufferOffset + gl_InstanceID * 2])
+#define c_localToClipMatrix		(c_entityMatrices[c_matrixBufferOffset + gl_InstanceID * 2 + 1])
+*/
+
 #define c_localToWorldMatrix	mat4( \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8), \
+									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 0), \
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 1), \
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 2), \
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 3) \
@@ -51,7 +49,5 @@ layout(std140) uniform SharedEntityMatricesUniformBuffer {
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 6), \
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 7) \
 								)
-
-*/
 
 #endif	// __SUEDE_INC__

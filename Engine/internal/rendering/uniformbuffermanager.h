@@ -29,12 +29,6 @@ struct SharedTransformsUniformBuffer {
 	static const char* GetName() { return "SharedTransformsUniformBuffer"; }
 };
 
-struct SharedMatrixBufferOffsetUniformBuffer {
-	int matrixBufferOffset;
-	int __padding[3];
-	static const char* GetName() { return "SharedMatrixBufferOffsetUniformBuffer"; }
-};
-
 struct EntityMatricesUniforms {
 	glm::mat4 localToWorldMatrix;
 	glm::mat4 localToClipMatrix;

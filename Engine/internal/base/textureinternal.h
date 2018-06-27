@@ -33,7 +33,6 @@ public:
 
 protected:
 	void DestroyTexture();
-	bool VerifyUncreated();
 
 protected:
 	virtual GLenum GetGLTextureType() const = 0;

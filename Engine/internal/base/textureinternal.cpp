@@ -110,15 +110,6 @@ void TextureInternal::DestroyTexture() {
 	}
 }
 
-bool TextureInternal::VerifyUncreated() {
-	if (texture_ != 0) {
-		Debug::LogError("texture already created");
-		return false;
-	}
-
-	return true;
-}
-
 BppType TextureInternal::GLenumToBpp(GLenum format) const {
 	switch (format) {
 		case GL_RGB: return BppType24;
@@ -260,9 +251,7 @@ bool Texture2DInternal::Load(const std::string& path) {
 
 // TODO: assume UNPACK_ALIGNMENT = 4.
 bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
-	if (!VerifyUncreated()) {
-		return false;
-	}
+	DestroyTexture();
 
 	width_ = width;
 	height_ = height;
@@ -331,12 +320,9 @@ TextureCubeInternal::~TextureCubeInternal() {
 }
 
 bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
-	if (!VerifyUncreated()) {
-		return false;
-	}
+	DestroyTexture();
 
 	GL::GenTextures(1, &texture_);
-
 	BindTexture();
 
 	for (int i = 0; i < 6; ++i) {
@@ -373,9 +359,8 @@ RenderTextureInternal::~RenderTextureInternal() {
 }
 
 bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	if (!VerifyUncreated()) {
-		return false;
-	}
+	DestroyTexture();
+	DestroyFramebuffer();
 
 	width_ = width;
 	height_ = height;
@@ -523,9 +508,8 @@ TextureBufferInternal::~TextureBufferInternal() {
 }
 
 bool TextureBufferInternal::Create(uint size) {
-	if (!VerifyUncreated()) {
-		return false;
-	}
+	DestroyBuffer();
+	DestroyTexture();
 
 	buffer_ = MEMORY_CREATE(Buffer);
 	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
@@ -542,7 +526,7 @@ uint TextureBufferInternal::GetSize() const {
 	return buffer_->GetSize();
 }
 
-void TextureBufferInternal::Update(uint offset, uint size, const void * data) {
+void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
 	buffer_->Update(offset, size, data);
 }
 

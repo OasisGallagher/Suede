@@ -30,6 +30,7 @@ namespace Variables {
 	DEFINE_VARIABLE(lightmapTexture);
 
 	DEFINE_VARIABLE(matrixBuffer);
+	DEFINE_VARIABLE(matrixBufferOffset);
 	DEFINE_VARIABLE(shadowDepthTexture);
 
 	DEFINE_VARIABLE(gloss);
