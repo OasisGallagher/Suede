@@ -40,6 +40,8 @@ public:
 	virtual void Define(const std::string& name);
 	virtual void Undefine(const std::string& name);
 
+	virtual void SetIntImmediate(uint pass, const std::string& name, int value);
+
 	virtual void SetInt(const std::string& name, int value);
 	virtual void SetFloat(const std::string& name, float value);
 	virtual void SetTexture(const std::string& name, Texture value);

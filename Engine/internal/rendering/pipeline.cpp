@@ -187,7 +187,7 @@ void Pipeline::RenderInstances(uint first, uint last) {
 	//static SharedMatrixBufferOffsetUniformBuffer p;
 	//p.matrixBufferOffset = first * 8;
 	//UniformBufferManager::UpdateSharedBuffer(SharedMatrixBufferOffsetUniformBuffer::GetName(), &p, 0, sizeof(p));
-	renderable.material->SetInt(Variables::matrixBufferOffset, first * 8);
+	renderable.material->SetIntImmediate(renderable.pass, Variables::matrixBufferOffset, first * 8);
 	update_offset->Stop();
 
 	//for (int i = 0; i < instanceCount; ) {
