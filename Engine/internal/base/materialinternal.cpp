@@ -55,11 +55,6 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 }
 
 void MaterialInternal::SetIntImmediate(uint pass, const std::string& name, int value) {
-	Variant* var = GetProperty(name, VariantTypeInt);
-	if (var == nullptr) {
-		return;
-	}
-
 	shader_->SetProperty(SUB_SHADER_INDEX, pass, name, &value);
 }
 

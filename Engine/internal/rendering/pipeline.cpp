@@ -118,7 +118,7 @@ void Pipeline::Run() {
 		Renderable& first = renderables_[from];
 		if (first.material->IsPassEnabled(first.pass)) {
 			if (renderables_[from].instance != 0) {
-				Render(renderables_[from], renderables_[from].instance);
+				Render(renderables_[from], renderables_[from].instance, 0);
 			}
 			else {
 				RenderInstances(from, *ite);
@@ -187,7 +187,7 @@ void Pipeline::RenderInstances(uint first, uint last) {
 	//static SharedMatrixBufferOffsetUniformBuffer p;
 	//p.matrixBufferOffset = first * 8;
 	//UniformBufferManager::UpdateSharedBuffer(SharedMatrixBufferOffsetUniformBuffer::GetName(), &p, 0, sizeof(p));
-	renderable.material->SetIntImmediate(renderable.pass, Variables::matrixBufferOffset, first * 8);
+	/*renderable.material->SetIntImmediate(renderable.pass, Variables::matrixBufferOffset, first * 8);*/
 	update_offset->Stop();
 
 	//for (int i = 0; i < instanceCount; ) {
@@ -196,7 +196,7 @@ void Pipeline::RenderInstances(uint first, uint last) {
 	//	UniformBufferManager::UpdateSharedBuffer(EntityMatricesUniforms::GetName(), &matrices_[(i + first) * 2], 0, sizeof(glm::mat4) * (count * 2));
 	//	update_ubo->Stop();
 
-		Render(renderable, last - first);
+		Render(renderable, last - first, first * 8);
 	//	i += count;
 	//}
 }
@@ -226,8 +226,9 @@ void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const glm:
 	}
 }
 
-void Pipeline::Render(Renderable& renderable, uint instance) {
+void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) {
 	UpdateState(renderable);
+	renderable.material->SetIntImmediate(renderable.pass, Variables::matrixBufferOffset, matrixOffset);
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 

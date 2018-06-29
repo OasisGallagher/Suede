@@ -71,7 +71,7 @@ public:
 	);
 
 private:
-	void Render(Renderable& renderable, uint instance);
+	void Render(Renderable& renderable, uint instance, uint matrixOffset);
 
 	void ResetState();
 	void UpdateState(Renderable& renderable);
