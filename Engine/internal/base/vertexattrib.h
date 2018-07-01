@@ -10,5 +10,9 @@ enum VertexAttrib {
 
 	VertexAttribInstanceColor,
 	VertexAttribInstanceGeometry,
-};
 
+	/**
+	 * @warning Match location of suede.inc -> c_matrixBufferOffset.
+	 */
+	VertexAttribMatrixOffset,
+};

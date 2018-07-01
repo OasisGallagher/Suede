@@ -1,36 +1,32 @@
 #include "glef.h"
 #include "resources.h"
 #include "variables.h"
-#include "debug/debug.h"
-#include "tools/math2.h"
-#include "api/glutils.h"
 #include "shaderparser.h"
-#include "tools/string.h"
-#include "memory/memory.h"
 #include "os/filesystem.h"
 #include "internal/base/renderdefines.h"
-#include "internal/rendering/uniformbuffermanager.h"
 
-bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, const std::string& defines) {
+bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, const std::string& customDefines) {
 	Clear();
 	path_ = path;
 	answer_ = sources;
-	return CompileShaderSource(source, defines);
+	return CompileShaderSource(source, customDefines);
 }
 
 void GLSLParser::Clear() {
 	type_ = ShaderStageCount;
 	source_.clear();
+
 	globals_.clear();
+	version_.clear();
+	defines_.clear();
+
 	answer_ = nullptr;
 }
 
-bool GLSLParser::CompileShaderSource(const std::string& source, const std::string& defines) {
-	globals_ = "#version " GLSL_VERSION "\n";
+bool GLSLParser::CompileShaderSource(const std::string& source, const std::string& customDefines) {
+	version_ = "#version " GLSL_VERSION "\n";
 
-	AddConstants();
-
-	globals_ += FormatDefines(defines);
+	AddDefines(customDefines);
 	ReadShaderSource(source);
 
 	if (type_ == ShaderStageCount) {
@@ -38,14 +34,14 @@ bool GLSLParser::CompileShaderSource(const std::string& source, const std::strin
 		return false;
 	}
 
-	answer_[type_] += globals_ + source_;
+	SetShaderStageCode(type_);
 
 	return true;
 }
 
-void GLSLParser::AddConstants() {
-	globals_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
-	globals_ += "#define C_MAX_ENTITY_MATRICES " + std::to_string(GLUtils::GetLimits(GLLimitsMaxUniformBlockSize) / sizeof(glm::mat4))  + "\n";
+void GLSLParser::AddDefines(const std::string& customDefines) {
+	defines_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
+	defines_ += FormatDefines(customDefines);
 }
 
 std::string GLSLParser::FormatDefines(const std::string& defines) {
@@ -90,8 +86,7 @@ bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
 				return false;
 			}
 
-			source_ = globals_ + source_;
-			answer_[type_] += source_;
+			SetShaderStageCode(type_);
 		}
 
 		source_.clear();
@@ -165,7 +160,17 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 	return ShaderStageCount;
 }
 
-bool ShaderParser::Parse(Semantics& semantics, const std::string& path, const std::string& defines) {
+void GLSLParser::SetShaderStageCode(ShaderStage stage) {
+	std::string nameDefine = std::string("#define ") + GetShaderDescription(type_).shaderNameDefine + "\n";
+	answer_[stage] =
+		version_		// #version ...
+		+ nameDefine	// #define VERTEX_SHADER ...
+		+ defines_		// #define C_MAX_BONE_COUNT...
+		+ globals_		// global lines shared by every shader.
+		+ source_;		// GLSL source code.
+}
+
+bool ShaderParser::Parse(Semantics& semantics, const std::string& path, const std::string& customDefines) {
 	SyntaxTree tree;
 	return GLEF::Parse((Resources::GetRootDirectory() + "shaders/" + path).c_str(), tree)
 		&& ParseSemantics(tree, semantics);

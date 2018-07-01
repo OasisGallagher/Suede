@@ -154,7 +154,7 @@ public:
 
 private:
 	void ReleaseProperties();
-	void LoadProperties(std::vector<Property*>& properties);
+	void LoadProperties(const std::vector<Property*>& properties);
 	void ParseSubShaders(std::vector<Property*>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:

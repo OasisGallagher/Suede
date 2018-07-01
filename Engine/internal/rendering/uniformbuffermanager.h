@@ -29,16 +29,6 @@ struct SharedTransformsUniformBuffer {
 	static const char* GetName() { return "SharedTransformsUniformBuffer"; }
 };
 
-struct EntityMatricesUniforms {
-	glm::mat4 localToWorldMatrix;
-	glm::mat4 localToClipMatrix;
-
-	/**
-	 * @returns name of the container contains these uniforms.
-	 */
-	static const char* GetName() { return "SharedEntityMatricesUniformBuffer"; }
-};
-
 class UniformBuffer;
 class UniformBufferManager {
 public:

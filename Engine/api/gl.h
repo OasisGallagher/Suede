@@ -34,6 +34,7 @@ public:
 	static void ValidateProgram(GLuint program);
 	static void PolygonMode(GLenum face, GLenum mode);
 	static void EnableVertexAttribArray(GLuint index);
+	static void VertexAttribI1i(GLuint index, GLint x);
 	static void GenBuffers(GLsizei n, GLuint* buffers);
 	static void PixelStorei(GLenum pname, GLint param);
 	static GLenum CheckFramebufferStatus(GLenum target);
@@ -51,6 +52,7 @@ public:
 	static void PolygonOffset(GLfloat factor, GLfloat units);
 	static void StencilMaskSeparate(GLenum face, GLuint mask);
 	static void DeleteBuffers(GLsizei n, const GLuint* buffers);
+	static void VertexAttribI2i(GLuint index, GLint x, GLint y);
 	static void GenFramebuffers(GLsizei n, GLuint* framebuffers);
 	static void DeleteTextures(GLsizei n, const GLuint* textures);
 	static void StencilFunc(GLenum func, GLint ref, GLuint mask);
@@ -204,6 +206,11 @@ inline void GL::GetTexParameteriv(GLenum target, GLenum pname, GLint* params) {
 
 inline void GL::GenFramebuffers(GLsizei n, GLuint* framebuffers) {
 	GL_CALL(glGenFramebuffers(n, framebuffers));
+}
+
+inline void GL::VertexAttribI2i(GLuint index, GLint x, GLint y) {
+	auto ptr = glVertexAttribI2i;
+	GL_CALL(glVertexAttribI2i(index, x, y));
 }
 
 inline void GL::DrawBuffers(GLsizei n, const GLenum* bufs) {
@@ -404,6 +411,10 @@ inline void GL::DeleteFramebuffers(GLsizei n, GLuint* framebuffers) {
 
 inline void GL::DeleteVertexArrays(GLsizei n, const GLuint* arrays) {
 	GL_CALL(glDeleteVertexArrays(n, arrays));
+}
+
+inline void GL::VertexAttribI1i(GLuint index, GLint x) {
+	GL_CALL(glVertexAttribI1i(index, x));
 }
 
 inline void GL::GenBuffers(GLsizei n, GLuint* buffers) {

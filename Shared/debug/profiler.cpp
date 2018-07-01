@@ -6,7 +6,9 @@
 static double timeStampToSeconds = 1.0;
 
 #define MAX_PROFILTER_SAMPLES	1024
-static free_list<Sample> samples(MAX_PROFILTER_SAMPLES);
+
+typedef free_list<Sample> SampleContainer;
+static  SampleContainer samples_(MAX_PROFILTER_SAMPLES);
 
 void Profiler::Initialize() {
 	LARGE_INTEGER frequency;
@@ -18,21 +20,19 @@ void Profiler::Initialize() {
 	}
 }
 
-void Profiler::OnFrameEnter() {
-
-}
-
-void Profiler::OnFrameExit() {
-
+void Profiler::Update() {
+	//for (SampleContainer::iterator ite = samples_.begin(); ite != samples_.end(); ++ite) {
+	//	(*ite)->Reset();
+	//}
 }
 
 Sample* Profiler::CreateSample() {
-	return samples.spawn();
+	return samples_.spawn();
 }
 
 void Profiler::ReleaseSample(Sample* sample) {
 	sample->Reset();
-	samples.recycle(sample);
+	samples_.recycle(sample);
 }
 
 double Profiler::TimeStampToSeconds(uint64 timeStamp) {

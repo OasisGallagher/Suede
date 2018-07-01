@@ -42,7 +42,7 @@ public:
 public:
 	void Sort(SortMode mode, const glm::mat4& worldToClipMatrix);
 
-	void Run();
+	void Run(bool isRendering = false);
 	void Clear();
 
 	RenderTexture GetTargetTexture();
@@ -78,6 +78,7 @@ private:
 
 	void RenderInstances(uint first, uint last);
 	void GatherInstances(std::vector<uint>& ranges);
+	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
 private:
 	uint nrenderables_;
@@ -94,9 +95,21 @@ private:
 	uint ndrawcalls_;
 	uint ntriangles_;
 
+	uint nmeshChanges_;
+	uint nmaterialChanges_;
+
 	Rect normalizedRect_;
 	RenderTexture targetTexture_;
 
 	// performance.
-	Sample *switch_material, *switch_mesh, *update_ubo, *update_offset, *update_matrices, *update_tbo, *gather_instances, *update_pipeline, *rendering;
+	Sample 
+		*switch_state,
+		*update_ubo, 
+		*update_offset, 
+		*update_matrices, 
+		*update_tbo, 
+		*draw_call,
+		*gather_instances, 
+		*update_pipeline, 
+		*stat_and_output;
 };

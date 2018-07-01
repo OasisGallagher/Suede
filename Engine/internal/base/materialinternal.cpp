@@ -54,10 +54,6 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 	}
 }
 
-void MaterialInternal::SetIntImmediate(uint pass, const std::string& name, int value) {
-	shader_->SetProperty(SUB_SHADER_INDEX, pass, name, &value);
-}
-
 void MaterialInternal::SetFloat(const std::string& name, float value) {
 	if (!shader_) {
 		Debug::LogError("invalid shader");

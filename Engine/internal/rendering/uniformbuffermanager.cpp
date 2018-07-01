@@ -13,7 +13,6 @@ void UniformBufferManager::Initialize() {
 	CreateSharedUniformBuffer<SharedTimeUniformBuffer>();
 	CreateSharedUniformBuffer<SharedLightUniformBuffer>();
 	CreateSharedUniformBuffer<SharedTransformsUniformBuffer>();
-	CreateSharedUniformBuffer<EntityMatricesUniforms>(GLUtils::GetLimits(GLLimitsMaxUniformBlockSize));
 }
 
 void UniformBufferManager::Destroy() {

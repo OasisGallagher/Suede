@@ -102,6 +102,7 @@ void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
 
 void Engine::Update() {
 	Time::Update();
+	Profiler::Update();
 	Statistics::Update();
 
 	SortFrameEventListeners();

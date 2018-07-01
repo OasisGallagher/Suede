@@ -61,7 +61,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	OutputSample(shadowSample);
 
 	renderingSample->Restart();
-	pipelines.rendering->Run();
+	pipelines.rendering->Run(true);
 	renderingSample->Stop();
 	OutputSample(renderingSample);
 

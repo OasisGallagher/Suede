@@ -23,18 +23,11 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	vec3 c_cameraPosition;
 };
 
+#ifdef VERTEX_SHADER
+
+// 8 matches VertexAttribMatrixOffset.
+layout(location = 8) in int c_matrixBufferOffset;
 uniform samplerBuffer c_matrixBuffer;
-uniform int c_matrixBufferOffset;
-
-layout(std140) uniform SharedEntityMatricesUniformBuffer {
-	// C_MAX_ENTITY_MATRICES = GL_MAX_UNIFORM_BLOCK_SIZE / sizeof(mat4).
-	mat4 c_entityMatrices[C_MAX_ENTITY_MATRICES];
-};
-
-/*
-#define c_localToWorldMatrix	(c_entityMatrices[c_matrixBufferOffset + gl_InstanceID * 2])
-#define c_localToClipMatrix		(c_entityMatrices[c_matrixBufferOffset + gl_InstanceID * 2 + 1])
-*/
 
 #define c_localToWorldMatrix	mat4( \
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 0), \
@@ -49,5 +42,6 @@ layout(std140) uniform SharedEntityMatricesUniformBuffer {
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 6), \
 									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 7) \
 								)
+#endif	// VERTEX_SHADER
 
 #endif	// __SUEDE_INC__

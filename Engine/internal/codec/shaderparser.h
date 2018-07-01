@@ -22,15 +22,16 @@ struct ShaderDescription {
 	GLenum glShaderStage;
 	const char* name;
 	const char* tag;
+	const char* shaderNameDefine;
 };
 
 inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
 	static ShaderDescription descriptions[] = {
-		GL_VERTEX_SHADER, "VertexShader", "vertex",
-		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control",
-		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation",
-		GL_GEOMETRY_SHADER, "GeometryShader", "geometry",
-		GL_FRAGMENT_SHADER, "FragmentShader", "fragment"
+		GL_VERTEX_SHADER, "VertexShader", "vertex", "VERTEX_SHADER",
+		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control", "TESS_CONTROL_SHADER",
+		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation", "TESS_EVALUATION_SHADER",
+		GL_GEOMETRY_SHADER, "GeometryShader", "geometry", "GEOMETRY_SHADER",
+		GL_FRAGMENT_SHADER, "FragmentShader", "fragment", "FRAGMENT_SHADER",
 	};
 
 	return descriptions[stage];
@@ -73,27 +74,32 @@ public:
 
 private:
 	void Clear();
-	void AddConstants();
 	bool Preprocess(const std::string& line);
+	void SetShaderStageCode(ShaderStage stage);
+	void AddDefines(const std::string& customDefines);
 	bool ReadShaderSource(const std::string& source);
 	bool PreprocessInclude(const std::string& parameter);
 	ShaderStage ParseShaderStage(const std::string& tag);
-	std::string FormatDefines(const std::string& defines);
+	std::string FormatDefines(const std::string& customDefines);
 	bool PreprocessShaderStage(const std::string& parameter);
 	void CalculateDefinesPermutations(std::vector<std::string>& anwser);
-	bool CompileShaderSource(const std::string& source, const std::string& defines);
+	bool CompileShaderSource(const std::string& source, const std::string& customDefines);
 
 private:
 	ShaderStage type_;
 	std::string path_;
 	std::string* answer_;
+	
 	std::string globals_;
+	std::string version_;
+	std::string defines_;
+
 	std::string source_;
 };
 
 class ShaderParser {
 public:
-	bool Parse(Semantics& semantics, const std::string& path, const std::string& defines);
+	bool Parse(Semantics& semantics, const std::string& path, const std::string& customDefines);
 
 private:
 	bool ParseSemantics(SyntaxTree& tree, Semantics& semantices);

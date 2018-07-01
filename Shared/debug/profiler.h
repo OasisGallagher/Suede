@@ -28,8 +28,7 @@ private:
 class SUEDE_API Profiler {
 public:
 	static void Initialize();
-	static void OnFrameEnter();
-	static void OnFrameExit();
+	static void Update();
 
 public:
 	static Sample* CreateSample();

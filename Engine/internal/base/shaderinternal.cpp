@@ -195,7 +195,7 @@ RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
 
 bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters) {
 	for (uint i = 0; i < Semantics::RenderState::ParameterCount; ++i, ++answer) {
-		if (!RenderStateParameterToInteger(parameters[i], *answer)) {
+		if (!RenderStateParameterToInteger(parameters[i],*answer)) {
 			return false;
 		}
 	}
@@ -291,6 +291,11 @@ void Pass::UpdateVertexAttributes() {
 
 	GL::BindAttribLocation(program_, VertexAttribInstanceColor, Variables::instanceColor);
 	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::instanceGeometry);
+
+	// https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
+	// TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
+	// int location = glGetAttribLocation(program_, Variables::matrixBuffer);
+	GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::matrixBuffer);
 }
 
 void Pass::UpdateFragmentAttributes() {
@@ -344,7 +349,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 		}
 	}
 
-	Property* p = new Property;
+	Property* p = MEMORY_CREATE(Property);
 	p->name = name;
 	switch (type) {
 		case VariantTypeInt:
@@ -434,20 +439,20 @@ void Pass::SetUniform(GLuint location, VariantType type, uint size, const void* 
 	case VariantTypeInt:
 	case VariantTypeBool:
 	case VariantTypeTexture:
-		GL::ProgramUniform1iv(program_, location, size, (const GLint *)data);
+		GL::ProgramUniform1iv(program_, location, size, (const GLint*)data);
 		break;
 	case VariantTypeFloat:
-		GL::ProgramUniform1fv(program_, location, size, (const GLfloat *)data);
+		GL::ProgramUniform1fv(program_, location, size, (const GLfloat*)data);
 		break;
 	case VariantTypeMatrix4:
 	case VariantTypeMatrix4Array:
 		GL::ProgramUniformMatrix4fv(program_, location, size, false, (const GLfloat*)data);
 		break;
 	case VariantTypeVector3:
-		GL::ProgramUniform3fv(program_, location, size, (const GLfloat *)data);
+		GL::ProgramUniform3fv(program_, location, size, (const GLfloat*)data);
 		break;
 	case VariantTypeVector4:
-		GL::ProgramUniform4fv(program_, location, size, (const GLfloat *)data);
+		GL::ProgramUniform4fv(program_, location, size, (const GLfloat*)data);
 		break;
 	default:
 		Debug::LogError("unable to set uniform (type 0x%x).", type);
@@ -642,7 +647,7 @@ bool ShaderInternal::Load(const std::string& path) {
 	return true;
 }
 
-void ShaderInternal::LoadProperties(std::vector<Property*>& properties) {
+void ShaderInternal::LoadProperties(const std::vector<Property*>& properties) {
 	ReleaseProperties();
 	properties_ = MEMORY_CREATE_ARRAY(Property*, properties.size());
 	propertyCount_ = properties.size();
