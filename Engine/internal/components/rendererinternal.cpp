@@ -16,11 +16,7 @@ void RendererInternal::RemoveMaterial(Material material) {
 }
 
 void RendererInternal::RemoveMaterialAt(uint index) {
-	if (index >= materials_.size()) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(index, materials_.size(), NOARG);
 	materials_.erase(materials_.begin() + index);
 }
 

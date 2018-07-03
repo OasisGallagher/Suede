@@ -43,7 +43,6 @@ public:
 
 private:
 	bool IsIPointer(GLenum type);
-	bool VerifyIndex(int index) const;
 
 private:
 	GLuint vao_;

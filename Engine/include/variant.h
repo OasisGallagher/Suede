@@ -66,9 +66,11 @@ public:
 	void SetTexture(Texture value);
 
 	const void* GetData() const;
+	uint GetDataSize() const;
 
 public:
 	Variant& operator = (const Variant& other);
+	bool operator == (const Variant& other) const;
 
 private:
 	bool SetType(VariantType type);

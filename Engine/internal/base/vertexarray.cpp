@@ -30,10 +30,7 @@ void VertexArray::CreateVertexBuffers(size_t n) {
 }
 
 void VertexArray::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
-	if (!VerifyIndex(index)) {
-		return;
-	}
-
+	VERIFY_INDEX(index, vboCount_, NOARG);
 	vbos_[index].Create(target, size, data, usage);
 }
 
@@ -56,42 +53,27 @@ void VertexArray::SetVertexDataSource(int index, int location, int size, GLenum 
 }
 
 void* VertexArray::MapBuffer(int index) {
-	if (!VerifyIndex(index)) {
-		return nullptr;
-	}
-
+	VERIFY_INDEX(index, vboCount_, nullptr);
 	return vbos_[index].Map();
 }
 
 void VertexArray::UnmapBuffer(int index) {
-	if (!VerifyIndex(index)) {
-		return;
-	}
-
+	VERIFY_INDEX(index, vboCount_, NOARG);
 	vbos_[index].Unmap();
 }
 
 size_t VertexArray::GetBufferSize(int index) {
-	if (!VerifyIndex(index)) {
-		return 0;
-	}
-
+	VERIFY_INDEX(index, vboCount_, 0);
 	return vbos_[index].GetSize();
 }
 
 uint VertexArray::GetBufferNativePointer(uint index) const {
-	if (!VerifyIndex(index)) {
-		return 0;
-	}
-
+	VERIFY_INDEX(index, vboCount_, 0);
 	return vbos_[index].GetNativePointer();
 }
 
 void VertexArray::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
-	if (!VerifyIndex(index)) {
-		return;
-	}
-
+	VERIFY_INDEX(index, vboCount_, NOARG);
 	vbos_[index].Update(offset, size, data);
 }
 
@@ -122,28 +104,13 @@ void VertexArray::Unbind() {
 }
 
 void VertexArray::BindBuffer(uint index) {
-	if (!VerifyIndex(index)) {
-		return;
-	}
-
+	VERIFY_INDEX(index, vboCount_, NOARG);
 	vbos_[index].Bind();
 }
 
 void VertexArray::UnbindBuffer(uint index) {
-	if (!VerifyIndex(index)) {
-		return;
-	}
-
+	VERIFY_INDEX(index, vboCount_, NOARG);
 	vbos_[index].Unbind();
-}
-
-bool VertexArray::VerifyIndex(int index) const {
-	if (index >= vboCount_) {
-		Debug::LogError("index out of range");
-		return false;
-	}
-
-	return true;
 }
 
 bool VertexArray::IsIPointer(GLenum type) {

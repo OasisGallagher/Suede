@@ -242,7 +242,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + "textures/" + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + path)) {
 		return false;
 	}
 
@@ -320,22 +320,23 @@ TextureCubeInternal::~TextureCubeInternal() {
 }
 
 bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
+	TexelMap texelMaps[6];
+	for (int i = 0; i < 6; ++i) {
+		if (!ImageCodec::Decode(texelMaps[i], Resources::GetTextureDirectory() + textures[i])) {
+			return false;
+		}
+	}
+
 	DestroyTexture();
 
 	GL::GenTextures(1, &texture_);
 	BindTexture();
 
-	for (int i = 0; i < 6; ++i) {
-		TexelMap texelMap;
-		if (!ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + textures[i])) {
-			DestroyTexture();
-			return false;
-		}
-
+	for(int i = 0; i < 6; ++i) {
 		GLenum glFormat[2];
-		ColorStreamFormatToGLenum(glFormat, texelMap.colorStreamFormat);
-		GLenum internalFormat = TextureFormatToGLenum(texelMap.textureFormat);
-		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMap.width, texelMap.height, 0, glFormat[0], glFormat[1], &texelMap.data[0]);
+		ColorStreamFormatToGLenum(glFormat, texelMaps[i].colorStreamFormat);
+		GLenum internalFormat = TextureFormatToGLenum(texelMaps[i].textureFormat);
+		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMaps[i].width, texelMaps[i].height, 0, glFormat[0], glFormat[1], &texelMaps[i].data[0]);
 
 		internalFormat_ = internalFormat;
 		

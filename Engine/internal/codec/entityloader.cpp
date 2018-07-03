@@ -57,7 +57,7 @@ void MaterialAsset::ApplyAsset() {
 
 Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	Texture2D texture = NewTexture2D();
-	if (!texture->Load(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, false)) {
+	if (!texture->Load(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, 4, false)) {
 		return nullptr;
 	}
 
@@ -90,7 +90,7 @@ bool EntityLoader::Initialize(Assimp::Importer& importer) {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
-	std::string fpath = Resources::GetRootDirectory() + "models/" + path_;
+	std::string fpath = Resources::GetModelDirectory() + path_;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 	if (scene == nullptr) {
@@ -464,14 +464,11 @@ TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 }
 
 bool EntityLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
-	return ImageCodec::Decode(texelMap, Resources::GetRootDirectory() + "textures/" + name);
+	return ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + name);
 }
 
 bool EntityLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
-	if (index >= scene_->mNumTextures) {
-		Debug::LogError("embedded texture index out of range");
-		return false;
-	}
+	VERIFY_INDEX(index, scene_->mNumTextures, false);
 
 	aiTexture* aitex = scene_->mTextures[index];
 	if (aitex->mHeight == 0) {

@@ -261,6 +261,29 @@ const void* Variant::GetData() const {
 	return &data_;
 }
 
+uint Variant::GetDataSize() const {
+	if (type_ >= VariantTypeMatrix4Array) {
+		return data_.podArray.size;
+	}
+
+	switch (type_) {
+		case VariantTypeInt: return sizeof(int);
+		case VariantTypeBool: return sizeof(bool);
+		case VariantTypeFloat: return sizeof(float);
+		case VariantTypeMatrix3: return sizeof(glm::mat3);
+		case VariantTypeMatrix4: return sizeof(glm::mat4);
+		case VariantTypeIVector3: return sizeof(glm::ivec3);
+		case VariantTypeVector3: return sizeof(glm::vec3);
+		case VariantTypeColor3: return sizeof(glm::vec3);
+		case VariantTypeColor4: return sizeof(glm::vec4);
+		case VariantTypeVector4: return sizeof(glm::vec4);
+		case VariantTypeQuaternion: return sizeof(glm::quat);
+	}
+
+	Debug::LogError("unable to get data size for type %d.", type_);
+	return 0;
+}
+
 Variant& Variant::operator = (const Variant& other) {
 	if (other.type_ >= VariantTypeMatrix4Array) {
 		SetPodArray(other.type_, other.data_.podArray.ptr, other.data_.podArray.size);
@@ -276,6 +299,15 @@ Variant& Variant::operator = (const Variant& other) {
 	type_ = other.type_;
 
 	return *this;
+}
+
+bool Variant::operator == (const Variant& other) const {
+	if (type_ != other.type_) { return false; }
+	if (type_ == VariantTypeTexture) {
+		return texture_ == other.texture_;
+	}
+
+	return memcmp(GetData(), other.GetData(), GetDataSize()) == 0;
 }
 
 bool Variant::SetType(VariantType type) {

@@ -410,7 +410,7 @@ void MaterialInternal::InitializeProperties() {
 	std::vector<const Property*> container;
 	shader_->GetProperties(container);
 
-	//	properties_.clear();
+	properties_.clear();
 	for (int i = 0; i < container.size(); ++i) {
 		*properties_[container[i]->name] = *container[i];
 	}

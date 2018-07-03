@@ -30,11 +30,7 @@ bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 }
 
 SkeletonBone* SkeletonInternal::GetBone(uint index) {
-	if (index >= current_) {
-		Debug::LogError("index out of range");
-		return nullptr;
-	}
-
+	VERIFY_INDEX(index, current_, nullptr);
 	return bones_ + index;
 }
 
@@ -48,11 +44,7 @@ SkeletonBone* SkeletonInternal::GetBone(const std::string& name) {
 }
 
 void SkeletonInternal::SetBoneToRootMatrix(uint index, const glm::mat4& value) {
-	if (index >= current_) {
-		Debug::LogError("index out of range");
-		return;
-	}
-
+	VERIFY_INDEX(index, current_, NOARG);
 	boneToRootMatrices_[index] = value;
 }
 

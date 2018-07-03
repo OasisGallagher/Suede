@@ -42,10 +42,7 @@
 // }
 // 
 // RenderTexture GBuffer::GetRenderTexture(GTexture index) const {
-// 	if (index >= GTextureCount) {
-// 		Debug::LogError("index out of range.");
-// 		return nullptr;
-// 	}
+//	VERIFY_INDEX(index, GTextureCount, nullptr);
 // 
 // 	return textures_[index];
 // }

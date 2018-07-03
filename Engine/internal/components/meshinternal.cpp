@@ -174,11 +174,7 @@ uint MeshInternal::GetVertexCount() {
 }
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
-	if (i >= BufferIndexCount - InstanceBuffer0) {
-		Debug::LogError("index out of range");
-		return;
-	}
-
+	VERIFY_INDEX(i, BufferIndexCount - InstanceBuffer0, NOARG);
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 

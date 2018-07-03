@@ -4,13 +4,6 @@
 #include "memory/memory.h"
 #include "geometryutility.h"
 
-#define DEBUG_CHECK_INDEX(index) \
-	if (index >= npoints) { \
-		Debug::LogError("index out of range."); \
-		return points[0]; \
-	} \
-	else (void)0
-
 Polygon::Polygon(const glm::vec3 * p, uint n) {
 	points = MEMORY_CREATE_ARRAY(glm::vec3, n);
 	memcpy(points, p, sizeof(glm::vec3) * n);
@@ -33,12 +26,12 @@ Polygon& Polygon::operator=(const Polygon& other) {
 }
 
 glm::vec3& Polygon::operator[](uint index) {
-	DEBUG_CHECK_INDEX(index);
+	VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
 }
 
 const glm::vec3& Polygon::operator[](uint index) const {
-	DEBUG_CHECK_INDEX(index);
+	VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
 }
 

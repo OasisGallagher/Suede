@@ -41,29 +41,21 @@ void SyntaxNode::AddChildren(SyntaxNode** buffer, int count) {
 	}
 }
 
-SyntaxNode* SyntaxNode::GetChildAt(int index) {
+SyntaxNode* SyntaxNode::GetChildAt(uint index) {
 	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
 		return nullptr;
 	}
 
-	if (index < 0 || index >= GetChildCount()) {
-		Debug::LogError("index out of range");
-		return nullptr;
-	}
-
+	VERIFY_INDEX(index, GetChildCount(), nullptr);
 	return value_.children[index + 1];
 }
 
-const SyntaxNode* SyntaxNode::GetChildAt(int index) const {
+const SyntaxNode* SyntaxNode::GetChildAt(uint index) const {
 	if (!DebugNodeType(type_, SyntaxNodeOperation)) {
 		return nullptr;
 	}
 
-	if (index < 0 || index >= GetChildCount()) {
-		Debug::LogError("index out of range");
-		return nullptr;
-	}
-
+	VERIFY_INDEX(index, GetChildCount(), nullptr);
 	return value_.children[index + 1];
 }
 

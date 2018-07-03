@@ -2,6 +2,9 @@
 #include <string>
 #include "../types.h"
 
+#define NOARG
+#define VERIFY_INDEX(index, bounds, returns) if (index >= bounds) { Debug::LogError("index out of range"); return returns; } else (void)0
+
 enum LogLevel {
 	LogLevelDebug,
 	LogLevelWarning,

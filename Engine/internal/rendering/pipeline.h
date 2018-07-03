@@ -42,7 +42,7 @@ public:
 public:
 	void Sort(SortMode mode, const glm::mat4& worldToClipMatrix);
 
-	void Run(bool isRendering = false);
+	void Run(bool __tmpIsRendering = false);
 	void Clear();
 
 	RenderTexture GetTargetTexture();

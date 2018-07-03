@@ -25,9 +25,9 @@ static std::map<std::string, float> renderQueueVariables(_variables, _variables 
 #define UNBIND(old)		if (old == -1) { } else
 
 Pass::Pass() : program_(0), oldProgram_(0) {
-	std::fill(states_, states_ + RenderStateCount, nullptr);
-
 	program_ = GL::CreateProgram();
+
+	std::fill(states_, states_ + RenderStateCount, nullptr);
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
 
@@ -343,6 +343,7 @@ void Pass::AddAllUniformProperties(std::vector<Property*>& properties) {
 }
 
 void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::string& name, VariantType type) {
+	// name must be unique.
 	for (int i = 0; i < properties.size(); ++i) {
 		if (properties[i]->name == name) {
 			return;
@@ -530,31 +531,19 @@ bool SubShader::Initialize(std::vector<Property*>& properties, const Semantics::
 }
 
 void SubShader::Bind(uint pass) {
-	if (pass > passCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(pass, passCount_, NOARG);
 	passes_[pass].Bind();
 	currentPass_ = pass;
 }
 
 void SubShader::Unbind() {
-	if (currentPass_ > passCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(currentPass_, passCount_, NOARG);
 	passes_[currentPass_].Unbind();
 	currentPass_ = UINT_MAX;
 }
 
 bool SubShader::IsPassEnabled(uint pass) const {
-	if (pass >= passCount_) {
-		Debug::LogError("pass index out of range.");
-		return false;
-	}
-
+	VERIFY_INDEX(pass, passCount_, false);
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 
@@ -569,20 +558,12 @@ int SubShader::GetPassIndex(const std::string& name) const {
 }
 
 Pass* SubShader::GetPass(uint pass) {
-	if (pass > passCount_) {
-		Debug::LogError("index out of range.");
-		return nullptr;
-	}
-
+	VERIFY_INDEX(pass, passCount_, nullptr);
 	return passes_ + pass;
 }
 
 const Pass* SubShader::GetPass(uint pass) const {
-	if (pass > passCount_) {
-		Debug::LogError("index out of range.");
-		return nullptr;
-	}
-
+	VERIFY_INDEX(pass, passCount_, nullptr);
 	return passes_ + pass;
 }
 
@@ -673,67 +654,39 @@ void ShaderInternal::ReleaseProperties() {
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, NOARG);
 	subShaders_[ssi].Bind(pass);
 	currentSubShader_ = ssi;
 }
 
 void ShaderInternal::Unbind() {
-	if (currentSubShader_ > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(currentSubShader_, subShaderCount_, NOARG);
 	subShaders_[currentSubShader_].Unbind();
 	currentSubShader_ = UINT_MAX;
 }
 
 void ShaderInternal::SetRenderQueue(uint ssi, uint value) {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, NOARG);
 	return subShaders_[ssi].SetRenderQueue(value);
 }
 
 uint ShaderInternal::GetRenderQueue(uint ssi) const {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return 0;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, 0);
 	return subShaders_[ssi].GetRenderQueue();
 }
 
 bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return false;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, false);
 	return subShaders_[ssi].IsPassEnabled(pass);
 }
 
 uint ShaderInternal::GetNativePointer(uint ssi, uint pass) const {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return false;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, 0);
 	return subShaders_[ssi].GetNativePointer(pass);
 }
 
 int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return -1;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, -1);
 	return subShaders_[ssi].GetPassIndex(name);
 }
 
@@ -742,10 +695,6 @@ void ShaderInternal::GetProperties(std::vector<const Property*>& properties) {
 }
 
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {
-	if (ssi > subShaderCount_) {
-		Debug::LogError("index out of range.");
-		return false;
-	}
-
+	VERIFY_INDEX(ssi, subShaderCount_, false);
 	return subShaders_[ssi].GetPass(pass)->SetProperty(name, data);
 }

@@ -127,7 +127,7 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 	}
 }
 
-void Pipeline::Run(bool isRendering) {
+void Pipeline::Run(bool __tmpIsRendering) {
 	update_pipeline->Restart();
 
 	update_tbo->Restart();
@@ -159,7 +159,7 @@ void Pipeline::Run(bool isRendering) {
 	Statistics::AddTriangles(ntriangles_);
 	Statistics::AddDrawcalls(ndrawcalls_);
 
-	if (isRendering) {
+	if (__tmpIsRendering) {
 		debugDumpPipelineAndRanges(ranges_);
 	}
 

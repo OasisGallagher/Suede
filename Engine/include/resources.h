@@ -31,6 +31,9 @@ public:
 	static Texture2D GetWhiteTexture();
 
 	static std::string GetRootDirectory();
+	static std::string GetModelDirectory();
+	static std::string GetShaderDirectory();
+	static std::string GetTextureDirectory();
 
 	static Mesh GetPrimitive(PrimitiveType type);
 	static Mesh CreatePrimitive(PrimitiveType type, float scale);

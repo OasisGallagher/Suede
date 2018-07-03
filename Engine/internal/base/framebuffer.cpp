@@ -302,11 +302,7 @@ void Framebuffer::ResizeDepthRenderbuffer() {
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	if (attachment >= GLUtils::GetLimits(GLLimitsMaxColorAttachments)) {
-		Debug::LogError("index out of range");
-		return 0;
-	}
-
+	VERIFY_INDEX(attachment, GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
 	return renderTextures_[attachment];
 }
 

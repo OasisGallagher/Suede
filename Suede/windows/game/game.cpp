@@ -28,16 +28,16 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
-//#define SKYBOX
+//#define ROOM
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-//#define MAN
-//#define PARTICLE_SYSTEM
-// #define FONT
+#define MAN
+#define PARTICLE_SYSTEM
+#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 

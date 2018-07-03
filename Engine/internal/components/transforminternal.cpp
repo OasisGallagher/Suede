@@ -30,11 +30,7 @@ void TransformInternal::RemoveChild(Transform child) {
 }
 
 void TransformInternal::RemoveChildAt(uint index) {
-	if (index >= children_.size()) {
-		Debug::LogError("index out of range.");
-		return;
-	}
-
+	VERIFY_INDEX(index, children_.size(), NOARG);
 	Transform child = children_[index];
 	RemoveChild(child);
 }

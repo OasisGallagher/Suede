@@ -52,6 +52,18 @@ std::string Resources::GetRootDirectory() {
 	return "resources/";
 }
 
+std::string Resources::GetModelDirectory() {
+	return GetRootDirectory() + "models/";
+}
+
+std::string Resources::GetShaderDirectory() {
+	return GetRootDirectory() + "shaders/";
+}
+
+std::string Resources::GetTextureDirectory() {
+	return GetRootDirectory() + "textures/";
+}
+
 Mesh Resources::GetPrimitive(PrimitiveType type) {
 	return primitives_[type];
 }

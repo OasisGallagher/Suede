@@ -31,6 +31,9 @@ public:
 	virtual uint GetPassCount(uint ssi) const = 0;
 	virtual uint GetSubShaderCount() const = 0;
 
+	/**
+	* @param properties return initial properties defined in shader.
+	*/
 	virtual void GetProperties(std::vector<const Property*>& properties) = 0;
 	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data) = 0;
 };
