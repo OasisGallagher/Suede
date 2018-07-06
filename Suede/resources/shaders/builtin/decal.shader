@@ -13,16 +13,16 @@ SubShader {
 		#stage vertex
 		#include "builtin/include/suede.inc"
 
-		in vec3 c_position;
+		in vec3 _Pos;
 		
 		out vec4 projTexCoord;
 		out vec4 clipPosition;
 
-		uniform mat4 c_decalMatrix;
+		uniform mat4 _DecalMatrix;
 
 		void main() {
-			projTexCoord = c_decalMatrix * vec4(c_position, 1);
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			projTexCoord = _DecalMatrix * vec4(_Pos, 1);
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 			clipPosition = gl_Position;
 		}
 
@@ -31,10 +31,10 @@ SubShader {
 
 		in vec4 clipPosition;
 		in vec4 projTexCoord;
-		uniform sampler2D c_mainTexture;
+		uniform sampler2D _MainTexture;
 
 		void main() {
-			fragColor = textureProj(c_mainTexture, projTexCoord);
+			fragColor = textureProj(_MainTexture, projTexCoord);
 		}
 
 		ENDGLSL

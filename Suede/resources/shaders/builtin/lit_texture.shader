@@ -16,9 +16,9 @@ SubShader {
 		#include "builtin/include/suede.inc"
 
 		#stage vertex
-		in vec3 c_position;
-		in vec2 c_texCoord;
-		in vec3 c_normal;
+		in vec3 _Pos;
+		in vec2 _TexCoord;
+		in vec3 _Normal;
 		
 		out vec2 texCoord;
 		out vec3 worldPos;
@@ -27,14 +27,14 @@ SubShader {
 		#include "builtin/include/lit_vertex.inc"
 
 		void main() {
-			texCoord = c_texCoord;
+			texCoord = _TexCoord;
 
-			normal = transpose(inverse(mat3(c_localToWorldMatrix))) * c_normal;
-			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
+			normal = transpose(inverse(mat3(_LocalToWorldMatrix))) * _Normal;
+			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 	
 			calculateShadowCoord();
 
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment
@@ -44,16 +44,16 @@ SubShader {
 		in vec3 worldPos;
 		in vec3 normal;
 
-		uniform vec4 c_mainColor;
-		uniform sampler2D c_mainTexture;
+		uniform vec4 _MainColor;
+		uniform sampler2D _MainTexture;
 
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
-			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
+			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
 			float visibility = calculateShadowVisibility();
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
-			//fragColor = texelFetch(c_matrixBuffer, c_matrixBufferOffset + 0 * 8);
+			//fragColor = texelFetch(_MatrixBuffer, _MatrixBufferOffset + 0 * 8);
 			//fragColor.a = 1;
 			//fragColor = vec4(visibility, visibility, visibility, 1);
 		}
@@ -74,15 +74,14 @@ SubShader {
 		#stage vertex
 		#include "builtin/include/suede.inc"
 
-		in vec3 c_position;
-		in vec3 c_normal;
+		in vec3 _Pos;
+		in vec3 _Normal;
 
 		void main() {
-			mat3 m3 = transpose(inverse(mat3(c_localToWorldMatrix)));
-			vec3 normal = m3 * c_normal;
-			normal.xy = mat2(c_worldToClipMatrix) * normal.xy;
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
-			gl_Position.xy += normal.xy * 0.2;
+			mat3 m3 = transpose(inverse(mat3(_LocalToWorldMatrix)));
+			vec3 normal = m3 * _Normal;
+			normal.xy = mat2(_WorldToClipMatrix) * normal.xy;
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment

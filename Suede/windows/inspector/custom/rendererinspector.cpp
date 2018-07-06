@@ -6,6 +6,7 @@
 #include <QProgressBar>
 
 #include "tools/math2.h"
+#include "tools/string.h"
 #include "debug/profiler.h"
 
 #include "variables.h"
@@ -174,8 +175,8 @@ void RendererInspector::drawMaterialProperties(QWidgetList& widgets, Material ma
 
 		if (widget != nullptr) {
 			const char* ptr = p->name.c_str();
-			if (strncmp(ptr, VARIABLE_PREFIX, VARIABLE_PREFIX_LENGTH) == 0) {
-				ptr += VARIABLE_PREFIX_LENGTH;
+			if (String::StartsWith(p->name, VARIABLE_PREFIX)) {
+				ptr += strlen(VARIABLE_PREFIX);
 			}
 
 			widget->setObjectName(ptr);
@@ -209,15 +210,15 @@ bool RendererInspector::updateMaterial(uint materialIndex, const QString& shader
 
 bool RendererInspector::isPropertyVisible(const QString& name) {
 	return !name.startsWith(VARIABLE_PREFIX)
-		|| name == Variables::mainTexture
-		|| name == Variables::bumpTexture
-		|| name == Variables::specularTexture
-		|| name == Variables::emissiveTexture
-		|| name == Variables::lightmapTexture
-		|| name == Variables::gloss
-		|| name == Variables::mainColor
-		|| name == Variables::specularColor
-		|| name == Variables::emissiveColor;
+		|| name == Variables::MainTexture
+		|| name == Variables::BumpTexture
+		|| name == Variables::SpecularTexture
+		|| name == Variables::EmissiveTexture
+		|| name == Variables::LightmapTexture
+		|| name == Variables::Gloss
+		|| name == Variables::MainColor
+		|| name == Variables::SpecularColor
+		|| name == Variables::EmissiveColor;
 }
 
 QWidget* RendererInspector::drawIntField(uint materialIndex, const QString& name, int value) {
@@ -445,7 +446,7 @@ void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, cons
 	ColorPicker::get()->blockSignals(false);
 
 	ColorPicker::get()->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeColor3, widget)));
-	ColorPicker::get()->exec();
+	ColorPicker::popup();
 }
 
 void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, const QString& name) {
@@ -459,5 +460,5 @@ void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, cons
 	ColorPicker::get()->blockSignals(false);
 
 	ColorPicker::get()->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeColor4, widget)));
-	ColorPicker::get()->exec();
+	ColorPicker::popup();
 }

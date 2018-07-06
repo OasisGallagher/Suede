@@ -17,11 +17,11 @@ SubShader {
 
 		in vec2 texCoord;
 
-		uniform sampler2D c_mainTexture;
+		uniform sampler2D _MainTexture;
 
 		void main() {
 			vec3 scale = vec3(0.2126, 0.7152, 0.0722);
-			float average = dot(scale, texture(c_mainTexture, texCoord).rgb);
+			float average = dot(scale, texture(_MainTexture, texCoord).rgb);
 			fragColor = vec4(average, average, average, 1);
 		}
 

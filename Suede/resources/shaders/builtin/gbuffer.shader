@@ -11,12 +11,12 @@ SubShader {
 
 		#stage vertex
 
-		in vec3 c_position;
-		in vec2 c_texCoord;
-		in vec3 c_normal;
+		in vec3 _Pos;
+		in vec2 _TexCoord;
+		in vec3 _Normal;
 
-		uniform mat4 c_localToClipMatrix;
-		uniform mat4 c_localToWorldMatrix;
+		uniform mat4 _LocalToClipMatrix;
+		uniform mat4 _LocalToWorldMatrix;
 
 		out VertOut {
 			out	vec3 worldPos;
@@ -25,12 +25,12 @@ SubShader {
 		} vo;
 
 		void main() {
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
-			vo.worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
-			vo.texCoord = c_texCoord;
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
+			vo.worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
+			vo.texCoord = _TexCoord;
 
-			mat3 m = inverse(transpose(mat3(c_localToWorldMatrix)));
-			vo.worldNormal = m * c_normal;
+			mat3 m = inverse(transpose(mat3(_LocalToWorldMatrix)));
+			vo.worldNormal = m * _Normal;
 		}
 
 		#stage fragment
@@ -45,11 +45,11 @@ SubShader {
 		out vec3 albedo;
 		out vec3 worldNormal;
 
-		uniform sampler2D c_mainTexture;
+		uniform sampler2D _MainTexture;
 
 		void main() {
 			worldPos = fi.worldPos;
-			albedo = texture(c_mainTexture, fi.texCoord).rgb;
+			albedo = texture(_MainTexture, fi.texCoord).rgb;
 			worldNormal = normalize(fi.worldNormal);
 		}
 

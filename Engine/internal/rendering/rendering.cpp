@@ -231,9 +231,9 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 	// 	for (int i = 0; i < entities_.size(); ++i) {
 	// 		Entity entity = entities_[i];
 	// 
-	// 		Texture mainTexture = entity->GetRenderer()->GetMaterial(0)->GetTexture(Variables::mainTexture);
+	// 		Texture mainTexture = entity->GetRenderer()->GetMaterial(0)->GetTexture(Variables::MainTexture);
 	// 		Material material = suede_dynamic_cast<Material>(deferredMaterial_->Clone());
-	// 		material->SetTexture(Variables::mainTexture, mainTexture);
+	// 		material->SetTexture(Variables::MainTexture, mainTexture);
 	// 		pipeline_->AddRenderable(entity->GetMesh(), deferredMaterial_, 0, target, entity->GetTransform()->GetLocalToWorldMatrix());
 	// 	}
 	// 
@@ -314,8 +314,8 @@ void RenderableTraits::RenderDecals(Pipeline* pl) {
 		glm::mat4 biasMatrix = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5f)), glm::vec3(0.5f));
 		Material decalMaterial = suede_dynamic_cast<Material>(p_->materials.decal->Clone());
 
-		decalMaterial->SetMatrix4(Variables::decalMatrix, biasMatrix * d->matrix);
-		decalMaterial->SetTexture(Variables::mainTexture, d->texture);
+		decalMaterial->SetMatrix4(Variables::DecalMatrix, biasMatrix * d->matrix);
+		decalMaterial->SetTexture(Variables::MainTexture, d->texture);
 
 		Mesh mesh = NewMesh();
 

@@ -7,18 +7,18 @@ SubShader {
 		#stage vertex
 		#include "builtin/include/suede.inc"
 
-		in vec3 c_position;
+		in vec3 _Pos;
 
 		void main() {
-			gl_Position = c_worldToClipMatrix * vec4(c_position, 1);
+			gl_Position = _WorldToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment
 		out vec3 fragColor;
-		uniform vec4 c_mainColor;
+		uniform vec4 _MainColor;
 
 		void main() {
-			fragColor = c_mainColor.xyz;
+			fragColor = _MainColor.xyz;
 		}
 
 		ENDGLSL

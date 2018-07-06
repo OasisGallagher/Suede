@@ -81,7 +81,7 @@ void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Re
 	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
 
 	dest->BindWrite(destRect);
-	material->SetTexture(Variables::mainTexture, src);
+	material->SetTexture(Variables::MainTexture, src);
 	
 	Mesh mesh = CreateBlitMesh(srcRect);
 	Draw(mesh, material);

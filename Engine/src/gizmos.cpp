@@ -36,7 +36,7 @@ static void Initialize() {
 
 	material = NewMaterial();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));
-	material->SetColor4(Variables::mainColor, glm::vec4(color, 1));
+	material->SetColor4(Variables::MainColor, glm::vec4(color, 1));
 }
 
 glm::vec3 Gizmos::GetColor() {
@@ -100,7 +100,7 @@ void Gizmos::Flush() {
 		TriangleBias bias{ b.indexes.size(), 0, 0 };
 		mesh->GetSubMesh(0)->SetTriangleBias(bias);
 
-		material->SetColor4(Variables::mainColor, glm::vec4(b.color, 1));
+		material->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
 		Graphics::Draw(mesh, material);
 	}
 

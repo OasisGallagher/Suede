@@ -40,7 +40,7 @@ bool GLSLParser::CompileShaderSource(const std::string& source, const std::strin
 }
 
 void GLSLParser::AddDefines(const std::string& customDefines) {
-	defines_ += "#define C_MAX_BONE_COUNT " + std::to_string(C_MAX_BONE_COUNT) + "\n";
+	defines_ += "#define C_MAX_BONE_COUNT " + std::to_string(MAX_BONE_COUNT) + "\n";
 	defines_ += FormatDefines(customDefines);
 }
 
@@ -165,7 +165,7 @@ void GLSLParser::SetShaderStageCode(ShaderStage stage) {
 	answer_[stage] =
 		version_		// #version ...
 		+ nameDefine	// #define VERTEX_SHADER ...
-		+ defines_		// #define C_MAX_BONE_COUNT...
+		+ defines_		// #define MAX_BONE_COUNT...
 		+ globals_		// global lines shared by every shader.
 		+ source_;		// GLSL source code.
 }

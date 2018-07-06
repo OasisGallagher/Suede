@@ -7,12 +7,12 @@ SubShader {
 		
 		#stage vertex
 
-		in vec3 c_position;
-		in vec2 c_texCoord;
-		in vec3 c_normal;
+		in vec3 _Pos;
+		in vec2 _TexCoord;
+		in vec3 _Normal;
 
-		in ivec4 c_boneIndexes;
-		in vec4 c_boneWeights;
+		in ivec4 _BoneIndexes;
+		in vec4 _BoneWeights;
 
 		out vec2 texCoord;
 		out vec3 worldPos;
@@ -20,22 +20,22 @@ SubShader {
 
 		#include "builtin/include/lit_vertex.inc"
 
-		uniform mat4 c_boneToRootMatrices[C_MAX_BONE_COUNT];
+		uniform mat4 _BoneToRootMatrices[_MAX_BONE_COUNT];
 
 		void main() {
-			mat4 mat = c_boneToRootMatrices[c_boneIndexes[0]] * c_boneWeights[0];
-			mat += c_boneToRootMatrices[c_boneIndexes[1]] * c_boneWeights[1];
-			mat += c_boneToRootMatrices[c_boneIndexes[2]] * c_boneWeights[2];
-			mat += c_boneToRootMatrices[c_boneIndexes[3]] * c_boneWeights[3];
+			mat4 mat = _BoneToRootMatrices[_BoneIndexes[0]] * _BoneWeights[0];
+			mat += _BoneToRootMatrices[_BoneIndexes[1]] * _BoneWeights[1];
+			mat += _BoneToRootMatrices[_BoneIndexes[2]] * _BoneWeights[2];
+			mat += _BoneToRootMatrices[_BoneIndexes[3]] * _BoneWeights[3];
 
-			texCoord = c_texCoord;
+			texCoord = _TexCoord;
 
-			normal = (c_localToWorldMatrix * mat * vec4(c_normal, 0)).xyz;
-			worldPos = (c_localToWorldMatrix * mat * vec4(c_position, 1)).xyz;
+			normal = (_LocalToWorldMatrix * mat * vec4(_Normal, 0)).xyz;
+			worldPos = (_LocalToWorldMatrix * mat * vec4(_Pos, 1)).xyz;
 
 			//calculateShadowCoord();
 
-			gl_Position = c_localToClipMatrix * mat * vec4(c_position, 1);
+			gl_Position = _LocalToClipMatrix * mat * vec4(_Pos, 1);
 		}
 
 		#stage fragment
@@ -46,13 +46,13 @@ SubShader {
 		in vec3 normal;
 		in mat4 o_matrix;
 
-		uniform vec4 c_mainColor;
-		uniform sampler2D c_mainTexture;
+		uniform vec4 _MainColor;
+		uniform sampler2D _MainTexture;
 
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
-			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
+			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
 			float visibility = 1; //calculateShadowVisibility();
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
 		}

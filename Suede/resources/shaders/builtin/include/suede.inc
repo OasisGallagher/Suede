@@ -3,44 +3,44 @@
 
 // shared uniform buffers.
 layout(std140) uniform SharedTimeUniformBuffer {
-	float c_time;
-	float c_deltaTime;
+	float _Time;
+	float _DeltaTime;
 };
 
 layout(std140) uniform SharedLightUniformBuffer {
-	vec3 c_ambientLightColor;
-	vec3 c_lightColor;
-	vec3 c_lightPosition;
-	vec3 c_lightDirection;
+	vec3 _AmbientLightColor;
+	vec3 _LightColor;
+	vec3 _LightPosition;
+	vec3 _LightDirection;
 };
 
 layout(std140) uniform SharedTransformsUniformBuffer {
-	mat4 c_worldToClipMatrix;
-	mat4 c_worldToCameraMatrix;
-	mat4 c_cameraToClipMatrix;
-	mat4 c_worldToShadowMatrix;
+	mat4 _WorldToClipMatrix;
+	mat4 _WorldToCameraMatrix;
+	mat4 _CameraToClipMatrix;
+	mat4 _WorldToShadowMatrix;
 
-	vec3 c_cameraPosition;
+	vec3 _CameraPosition;
 };
 
 #ifdef VERTEX_SHADER
 
 // 8 matches VertexAttribMatrixOffset.
-layout(location = 8) in int c_matrixBufferOffset;
-uniform samplerBuffer c_matrixBuffer;
+layout(location = 8) in int _MatrixBufferOffset;
+uniform samplerBuffer _MatrixBuffer;
 
-#define c_localToWorldMatrix	mat4( \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 0), \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 1), \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 2), \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 3) \
+#define _LocalToWorldMatrix	mat4( \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 0), \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 1), \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 2), \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 3) \
 								)
 
-#define c_localToClipMatrix		mat4( \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 4), \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 5), \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 6), \
-									texelFetch(c_matrixBuffer, c_matrixBufferOffset + gl_InstanceID * 8 + 7) \
+#define _LocalToClipMatrix		mat4( \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 4), \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 5), \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 6), \
+									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 7) \
 								)
 #endif	// VERTEX_SHADER
 

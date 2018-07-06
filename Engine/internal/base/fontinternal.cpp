@@ -16,8 +16,8 @@ FontInternal::FontInternal()
 	material_->SetRenderQueue(RenderQueueTransparent);
 
 	// default font color.
-	material_->SetColor4(Variables::mainColor, glm::vec4(1));
-	material_->SetTexture(Variables::mainTexture, NewTexture2D());
+	material_->SetColor4(Variables::MainColor, glm::vec4(1));
+	material_->SetTexture(Variables::MainTexture, NewTexture2D());
 }
 
 FontInternal::~FontInternal() {
@@ -51,7 +51,7 @@ bool FontInternal::Require(const std::wstring& str) {
 }
 
 Texture2D FontInternal::GetTexture() const {
-	return suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::mainTexture));
+	return suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::MainTexture));
 }
 
 std::string FontInternal::GetFamilyName() const {
@@ -158,7 +158,7 @@ void FontInternal::RebuildMaterial() {
 
 	coords_ = atlas.coords;
 
-	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::mainTexture));
+	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::MainTexture));
 	texture->Load(TextureFormatRgba, &atlas.data[0], ColorStreamFormatLuminanceAlpha, atlas.width, atlas.height, 4);
 
 	for (uint i = 0; i < listeners_.size(); ++i) {

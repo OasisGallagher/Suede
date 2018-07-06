@@ -2,6 +2,7 @@
 
 #include "variables.h"
 #include "rendererinternal.h"
+#include "internal/base/renderdefines.h"
 #include "internal/rendering/pipeline.h"
 
 RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
@@ -22,7 +23,7 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 
 void SkinnedMeshRendererInternal::UpdateMaterialProperties() {
 	for (int i = 0; i < GetMaterialCount(); ++i) {
-		GetMaterial(i)->SetMatrix4Array(Variables::boneToRootMatrices, skeleton_->GetBoneToRootMatrices(), C_MAX_BONE_COUNT);
+		GetMaterial(i)->SetMatrix4Array(Variables::BoneToRootMatrices, skeleton_->GetBoneToRootMatrices(), MAX_BONE_COUNT);
 	}
 }
 

@@ -1,17 +1,32 @@
+#include <QEvent>
 #include "colorpicker.h"
-ColorPicker* colorPickerInstance;
+
+ColorPicker* instance_;
 
 ColorPicker* ColorPicker::get() {
-	if (colorPickerInstance == nullptr) {
-		colorPickerInstance = new ColorPicker;
-		colorPickerInstance->setWindowTitle(tr("Select color"));
-		colorPickerInstance->setOption(QColorDialog::NoButtons);
+	if (instance_ == nullptr) {
+		instance_ = new ColorPicker;
 	}
 
-	return colorPickerInstance;
+	return instance_;
+}
+
+ColorPicker::ColorPicker() {
+	setWindowTitle(tr("Select color"));
+	setOption(QColorDialog::NoButtons);
+	setFocusPolicy(Qt::StrongFocus);
+}
+
+void ColorPicker::popup() {
+	instance_->show();
+	//instance_->setFocus();
 }
 
 void ColorPicker::destroy() {
-	delete colorPickerInstance;
-	colorPickerInstance = nullptr;
+	delete instance_;
+	instance_ = nullptr;
+}
+
+void ColorPicker::focusOutEvent(QFocusEvent* event) {
+//	instance_->close();
 }

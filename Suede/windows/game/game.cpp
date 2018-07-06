@@ -28,21 +28,21 @@
 #include "scripts/inversion.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
-//#define SKYBOX
+#define ROOM
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-#define MAN
-#define PARTICLE_SYSTEM
+//#define MAN
+//#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
 static const char* manFbxPath = "boblampclean.md5mesh";
-static const char* roomFbxPath = "teddy_bear.fbx";
+static const char* roomFbxPath = "room.obj";
 
 static Game* gameInstance;
 
@@ -296,8 +296,8 @@ void Game::createScene() {
 	};
 
 	cube->Load(faces);
-	skybox->SetTexture(Variables::mainTexture, cube);
-	skybox->SetColor4(Variables::mainColor, glm::vec4(1));
+	skybox->SetTexture(Variables::MainTexture, cube);
+	skybox->SetColor4(Variables::MainColor, glm::vec4(1));
 	WorldInstance()->GetEnvironment()->SetSkybox(skybox);
 
 #else
@@ -364,12 +364,12 @@ void Game::createScene() {
 
 	Renderer redRenderer = NewMeshRenderer();
 	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	redMaterial->SetColor4(Variables::mainColor, glm::vec4(1, 0, 0, 1));
+	redMaterial->SetColor4(Variables::MainColor, glm::vec4(1, 0, 0, 1));
 	redRenderer->AddMaterial(redMaterial);
 
 	Renderer blueRenderer = NewMeshRenderer();
 	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	blueMaterial->SetColor4(Variables::mainColor, glm::vec4(0, 0, 1, 1));
+	blueMaterial->SetColor4(Variables::MainColor, glm::vec4(0, 0, 1, 1));
 	blueRenderer->AddMaterial(blueMaterial);
 
 	redText->SetRenderer(redRenderer);

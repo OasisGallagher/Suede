@@ -282,20 +282,20 @@ bool Pass::LoadSource(ShaderStage stage, const char* source) {
 }
 
 void Pass::UpdateVertexAttributes() {
-	GL::BindAttribLocation(program_, VertexAttribPosition, Variables::position);
-	GL::BindAttribLocation(program_, VertexAttribTexCoord, Variables::texCoord);
-	GL::BindAttribLocation(program_, VertexAttribNormal, Variables::normal);
-	GL::BindAttribLocation(program_, VertexAttribTangent, Variables::tangent);
-	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, Variables::boneIndexes);
-	GL::BindAttribLocation(program_, VertexAttribBoneWeights, Variables::boneWeights);
+	GL::BindAttribLocation(program_, VertexAttribPosition, Variables::Pos);
+	GL::BindAttribLocation(program_, VertexAttribTexCoord, Variables::TexCoord);
+	GL::BindAttribLocation(program_, VertexAttribNormal, Variables::Normal);
+	GL::BindAttribLocation(program_, VertexAttribTangent, Variables::Tangent);
+	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, Variables::BoneIndexes);
+	GL::BindAttribLocation(program_, VertexAttribBoneWeights, Variables::BoneWeights);
 
-	GL::BindAttribLocation(program_, VertexAttribInstanceColor, Variables::instanceColor);
-	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::instanceGeometry);
+	GL::BindAttribLocation(program_, VertexAttribInstanceColor, Variables::InstanceColor);
+	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::InstanceGeometry);
 
 	// https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
 	// TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
-	// int location = glGetAttribLocation(program_, Variables::matrixBuffer);
-	GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::matrixBuffer);
+	// int location = glGetAttribLocation(program_, Variables::MatrixBuffer);
+	GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::MatrixBuffer);
 }
 
 void Pass::UpdateFragmentAttributes() {

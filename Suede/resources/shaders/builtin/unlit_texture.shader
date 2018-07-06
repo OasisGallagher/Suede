@@ -9,25 +9,25 @@ SubShader {
 		#stage vertex
 		#include "builtin/include/suede.inc"
 
-		in vec3 c_position;
-		in vec2 c_texCoord;
+		in vec3 _Pos;
+		in vec2 _TexCoord;
 
 		out vec2 texCoord;
 
 		void main() {
-			texCoord = c_texCoord;
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			texCoord = _TexCoord;
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment
 		out vec4 fragColor;
 
 		in vec2 texCoord;
-		uniform vec4 c_mainColor;
-		uniform sampler2D c_mainTexture;
+		uniform vec4 _MainColor;
+		uniform sampler2D _MainTexture;
 
 		void main() {
-			fragColor = texture(c_mainTexture, texCoord) * c_mainColor;
+			fragColor = texture(_MainTexture, texCoord) * _MainColor;
 		}
 
 		ENDGLSL

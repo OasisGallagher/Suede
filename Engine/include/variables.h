@@ -1,58 +1,41 @@
 #pragma once
-#define VARIABLE_PREFIX					"c_"
-#define VARIABLE_PREFIX_LENGTH			2
+#define VARIABLE_PREFIX					"_"
 
 #define VARIABLE_NAME(name)				(VARIABLE_PREFIX #name)
 #define DEFINE_VARIABLE(name)			static const char* name = VARIABLE_NAME(name)
 
-#define C_MAX_BONE_COUNT				128
-
 namespace Variables {
-	DEFINE_VARIABLE(time);
-	DEFINE_VARIABLE(deltaTime);
+	DEFINE_VARIABLE(Pos);
+	DEFINE_VARIABLE(TexCoord);
+	DEFINE_VARIABLE(Normal);
+	DEFINE_VARIABLE(Tangent);
+	DEFINE_VARIABLE(BoneIndexes);
+	DEFINE_VARIABLE(BoneWeights);
 
-	DEFINE_VARIABLE(position);
-	DEFINE_VARIABLE(texCoord);
-	DEFINE_VARIABLE(normal);
-	DEFINE_VARIABLE(tangent);
-	DEFINE_VARIABLE(boneIndexes);
-	DEFINE_VARIABLE(boneWeights);
+	DEFINE_VARIABLE(InstanceColor);
+	DEFINE_VARIABLE(InstanceGeometry);
 
-	DEFINE_VARIABLE(instanceColor);
-	DEFINE_VARIABLE(instanceGeometry);
+	DEFINE_VARIABLE(BoneToRootMatrices);
 
-	DEFINE_VARIABLE(boneToRootMatrices);
+	DEFINE_VARIABLE(MainTexture);
+	DEFINE_VARIABLE(BumpTexture);
+	DEFINE_VARIABLE(SpecularTexture);
+	DEFINE_VARIABLE(EmissiveTexture);
+	DEFINE_VARIABLE(LightmapTexture);
 
-	DEFINE_VARIABLE(mainTexture);
-	DEFINE_VARIABLE(bumpTexture);
-	DEFINE_VARIABLE(specularTexture);
-	DEFINE_VARIABLE(emissiveTexture);
-	DEFINE_VARIABLE(lightmapTexture);
+	DEFINE_VARIABLE(MatrixBuffer);
+	DEFINE_VARIABLE(MatrixBufferOffset);
+	DEFINE_VARIABLE(ShadowDepthTexture);
 
-	DEFINE_VARIABLE(matrixBuffer);
-	DEFINE_VARIABLE(matrixBufferOffset);
-	DEFINE_VARIABLE(shadowDepthTexture);
+	DEFINE_VARIABLE(Gloss);
+	DEFINE_VARIABLE(MainColor);
+	DEFINE_VARIABLE(SpecularColor);
+	DEFINE_VARIABLE(EmissiveColor);
 
-	DEFINE_VARIABLE(gloss);
-	DEFINE_VARIABLE(mainColor);
-	DEFINE_VARIABLE(specularColor);
-	DEFINE_VARIABLE(emissiveColor);
-
-	DEFINE_VARIABLE(ambientLightColor);
-
-	DEFINE_VARIABLE(lightColor);
-	DEFINE_VARIABLE(lightPosition);
-	DEFINE_VARIABLE(lightDirection);
-
-	DEFINE_VARIABLE(cameraPosition);
-
-	DEFINE_VARIABLE(decalMatrix);
-	DEFINE_VARIABLE(worldToCameraMatrix);
-	DEFINE_VARIABLE(localToClipMatrix);
-	DEFINE_VARIABLE(localToWorldMatrix);
-	DEFINE_VARIABLE(worldToOrthographicLightMatrix);
-	DEFINE_VARIABLE(worldToClipMatrix);
-	DEFINE_VARIABLE(cameraToClipMatrix);
+	DEFINE_VARIABLE(DecalMatrix);
+	DEFINE_VARIABLE(LocalToClipMatrix);
+	DEFINE_VARIABLE(LocalToWorldMatrix);
+	DEFINE_VARIABLE(WorldToOrthographicLightMatrix);
 };
 
 #undef DEFINE_VARIABLE

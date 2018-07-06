@@ -10,10 +10,10 @@ SubShader {
 		#stage vertex
 		#include "builtin/include/suede.inc"
 
-		in vec3 c_position;
+		in vec3 _Pos;
 
 		void main() {
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment

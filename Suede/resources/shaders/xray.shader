@@ -14,23 +14,23 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
-		in vec3 c_position;
-		in vec3 c_cameraPosition;
-		in vec3 c_normal;
+		in vec3 _Pos;
+		in vec3 _CameraPosition;
+		in vec3 _Normal;
 
 		out vec3 viewDir;
 		out vec3 normal;
 
-		uniform mat4 c_localToClipMatrix;
-		uniform mat4 c_localToWorldMatrix;
+		uniform mat4 _LocalToClipMatrix;
+		uniform mat4 _LocalToWorldMatrix;
 
 		void main() {
 			// normal local to world space.
-			normal = transpose(inverse(mat3(c_localToWorldMatrix))) * c_normal;
-			vec3 worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
-			viewDir = c_cameraPosition - worldPos;
+			normal = transpose(inverse(mat3(_LocalToWorldMatrix))) * _Normal;
+			vec3 worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
+			viewDir = _CameraPosition - worldPos;
 			
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment
@@ -56,9 +56,9 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
-		in vec3 c_position;
-		in vec2 c_texCoord;
-		in vec3 c_normal;
+		in vec3 _Pos;
+		in vec2 _TexCoord;
+		in vec3 _Normal;
 		
 		out vec2 texCoord;
 		out vec3 worldPos;
@@ -66,18 +66,18 @@ SubShader {
 
 		#include "builtin/include/lit_vertex.inc"
 
-		uniform mat4 c_localToClipMatrix;
-		uniform mat4 c_localToWorldMatrix;
+		uniform mat4 _LocalToClipMatrix;
+		uniform mat4 _LocalToWorldMatrix;
 
 		void main() {
-			texCoord = c_texCoord;
+			texCoord = _TexCoord;
 
-			normal = (c_localToWorldMatrix * vec4(c_normal, 0)).xyz;
-			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
+			normal = (_LocalToWorldMatrix * vec4(_Normal, 0)).xyz;
+			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 	
 			calculateShadowCoord();
 
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment
@@ -87,13 +87,13 @@ SubShader {
 		in vec3 worldPos;
 		in vec3 normal;
 
-		uniform vec4 c_mainColor;
-		uniform sampler2D c_mainTexture;
+		uniform vec4 _MainColor;
+		uniform sampler2D _MainTexture;
 
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
-			vec4 albedo = texture(c_mainTexture, texCoord) * c_mainColor;
+			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
 			float visibility = calculateShadowVisibility();
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
 		}

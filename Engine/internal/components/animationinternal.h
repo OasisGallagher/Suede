@@ -35,8 +35,8 @@ private:
 
 private:
 	int current_;
-	SkeletonBone bones_[C_MAX_BONE_COUNT];
-	glm::mat4 boneToRootMatrices_[C_MAX_BONE_COUNT];
+	SkeletonBone bones_[MAX_BONE_COUNT];
+	glm::mat4 boneToRootMatrices_[MAX_BONE_COUNT];
 
 	SkeletonNode* root_;
 

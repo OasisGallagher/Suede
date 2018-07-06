@@ -25,7 +25,7 @@ void Shadows::Resize(uint width, uint height) {
 }
 
 void Shadows::AttachShadowTexture(Material material) {
-	material->SetTexture(Variables::shadowDepthTexture, shadowDepthTexture_);
+	material->SetTexture(Variables::ShadowDepthTexture, shadowDepthTexture_);
 }
 
 void Shadows::Clear() {
@@ -44,7 +44,7 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
 	glm::mat4 projection = glm::ortho(-50.f, 50.f, -50.f, 50.f, near, far);
 	glm::mat4 view = glm::lookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
-	directionalLightShadowMaterial_->SetMatrix4(Variables::worldToOrthographicLightMatrix, shadowDepthMatrix);
+	directionalLightShadowMaterial_->SetMatrix4(Variables::WorldToOrthographicLightMatrix, shadowDepthMatrix);
 
 	uint nrenderables = pipeline->GetRenderableCount();
 	Rect rect(0, 0, 1, 1);

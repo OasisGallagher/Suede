@@ -1,12 +1,12 @@
 #ifndef __LIT_FRAGMENT_INC__
 #define __LIT_FRAGMENT_INC__
 
-in vec4 c_shadowCoord;
+in vec4 _ShadowCoord;
 
-uniform vec3 c_specularColor;
-uniform vec3 c_emissiveColor;
-uniform float c_gloss;
-uniform sampler2DShadow c_shadowDepthTexture;
+uniform vec3 _SpecularColor;
+uniform vec3 _EmissiveColor;
+uniform float _Gloss;
+uniform sampler2DShadow _ShadowDepthTexture;
 
 vec2 poissonDisk[] = vec2[]( 
    vec2(-0.94201624, -0.39906216), 
@@ -34,18 +34,18 @@ float random(vec3 seed, int i){
 }
 
 vec3 calculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
-	vec3 ambient = vec3(c_ambientLightColor);
+	vec3 ambient = vec3(_AmbientLightColor);
 
-	float factor = clamp(dot(worldNormal, -c_lightDirection), 0, 1);
-	vec3 diffuse = vec3(c_lightColor * factor);
+	float factor = clamp(dot(worldNormal, -_LightDirection), 0, 1);
+	vec3 diffuse = vec3(_LightColor * factor);
 
-	vec3 toEye = normalize(c_cameraPosition - worldPos);
-	vec3 reflectDir = normalize(reflect(c_lightDirection, worldNormal));
+	vec3 toEye = normalize(_CameraPosition - worldPos);
+	vec3 reflectDir = normalize(reflect(_LightDirection, worldNormal));
 	factor = clamp(dot(toEye, reflectDir), 0, 1);
-	factor = pow(factor, c_gloss);
-	vec3 specular = vec3(c_lightColor * factor) * c_specularColor;
+	factor = pow(factor, _Gloss);
+	vec3 specular = vec3(_LightColor * factor) * _SpecularColor;
 
-	return ambient + c_emissiveColor + visibility * (diffuse + specular);
+	return ambient + _EmissiveColor + visibility * (diffuse + specular);
 }
 
 float calculateShadowVisibility() {
@@ -66,7 +66,7 @@ float calculateShadowVisibility() {
 		
 		// being fully in the shadow will eat up 4*0.2 = 0.8
 		// 0.2 potentially remain, which is quite dark.
-		visibility -= 0.2 * (1 - texture(c_shadowDepthTexture, vec3(c_shadowCoord.xy + poissonDisk[index] / 700.0,  (c_shadowCoord.z - bias)/c_shadowCoord.w)));
+		visibility -= 0.2 * (1 - texture(_ShadowDepthTexture, vec3(_ShadowCoord.xy + poissonDisk[index] / 700.0,  (_ShadowCoord.z - bias)/_ShadowCoord.w)));
 	}
 
 	return visibility;

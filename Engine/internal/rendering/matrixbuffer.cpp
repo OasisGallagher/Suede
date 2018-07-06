@@ -30,5 +30,5 @@ void MatrixBuffer::Update(uint size, const void* data) {
 }
 
 void MatrixBuffer::AttachMatrixBuffer(Material material) {
-	material->SetTexture(Variables::matrixBuffer, textureBuffer_);
+	material->SetTexture(Variables::MatrixBuffer, textureBuffer_);
 }

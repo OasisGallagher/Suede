@@ -2,30 +2,30 @@ Properties { }
 SubShader {
 	GLSLPROGRAM
 		#stage vertex
-		in vec3 c_position;
-		in vec2 c_texCoord;
-		in vec3 c_normal;
-		in vec3 c_tangent;
+		in vec3 _Pos;
+		in vec2 _TexCoord;
+		in vec3 _Normal;
+		in vec3 _Tangent;
 
 		out vec2 texCoord;
 		out vec3 worldPos;
 		out mat3 tangentToWorldMatrix;
 
-		uniform mat4 c_localToClipMatrix;
-		uniform mat4 c_localToWorldMatrix;
+		uniform mat4 _LocalToClipMatrix;
+		uniform mat4 _LocalToWorldMatrix;
 
 		void main() {
-			texCoord = c_texCoord;
-			worldPos = (c_localToWorldMatrix * vec4(c_position, 1)).xyz;
+			texCoord = _TexCoord;
+			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 
-			vec3 worldNormal = (c_localToWorldMatrix * vec4(c_normal, 0)).xyz;
-			vec3 worldTangent = (c_localToWorldMatrix * vec4(c_tangent, 0)).xyz;
+			vec3 worldNormal = (_LocalToWorldMatrix * vec4(_Normal, 0)).xyz;
+			vec3 worldTangent = (_LocalToWorldMatrix * vec4(_Tangent, 0)).xyz;
 			vec3 worldBitangent = cross(worldNormal, worldTangent);
 			
-			vec3 bitangent = cross(c_normal, c_tangent);
+			vec3 bitangent = cross(_Normal, _Tangent);
 			tangentToWorldMatrix = mat3(worldTangent, worldBitangent, worldNormal);
 
-			gl_Position = c_localToClipMatrix * vec4(c_position, 1);
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment
@@ -35,16 +35,16 @@ SubShader {
 		in vec3 worldPos;
 		in mat3 tangentToWorldMatrix;
 
-		uniform sampler2D c_mainTexture;
-		uniform sampler2D c_bumpTexture;
+		uniform sampler2D _MainTexture;
+		uniform sampler2D _BumpTexture;
 
 		#include "builtin/include/light.inc"
 
 		void main() {
-			vec3 normal = texture(c_bumpTexture, texCoord).xyz;
+			vec3 normal = texture(_BumpTexture, texCoord).xyz;
 			normal = tangentToWorldMatrix * normal;
 
-			vec4 albedo = texture(c_mainTexture, texCoord);
+			vec4 albedo = texture(_MainTexture, texCoord);
 			fragColor = albedo * vec4(calculateDirectionalLight(worldPos, normalize(normal)), 1);
 		}
 		

@@ -11,12 +11,12 @@ SubShader {
 		#stage vertex
 		#include "builtin/include/suede.inc"
 
-		in vec3 c_position;
+		in vec3 _Pos;
 
-		uniform mat4 c_worldToOrthographicLightMatrix;
+		uniform mat4 _WorldToOrthographicLightMatrix;
 
 		void main() {
-			gl_Position = c_worldToOrthographicLightMatrix * c_localToWorldMatrix * vec4(c_position, 1);
+			gl_Position = _WorldToOrthographicLightMatrix * _LocalToWorldMatrix * vec4(_Pos, 1);
 		}
 
 		#stage fragment

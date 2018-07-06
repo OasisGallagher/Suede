@@ -23,35 +23,35 @@ void MaterialAsset::ApplyAsset() {
 	Shader shader = Resources::FindShader("builtin/" + shaderName);
 	material->SetShader(shader);
 
-	material->SetFloat(Variables::gloss, gloss);
+	material->SetFloat(Variables::Gloss, gloss);
 
-	material->SetColor4(Variables::mainColor, mainColor);
-	material->SetColor3(Variables::specularColor, specularColor);
-	material->SetColor3(Variables::emissiveColor, emissiveColor);
+	material->SetColor4(Variables::MainColor, mainColor);
+	material->SetColor3(Variables::SpecularColor, specularColor);
+	material->SetColor3(Variables::EmissiveColor, emissiveColor);
 
 	material->SetName(name);
 
 	if (mainTexels != nullptr) {
-		material->SetTexture(Variables::mainTexture, CreateTexture2D(mainTexels));
+		material->SetTexture(Variables::MainTexture, CreateTexture2D(mainTexels));
 	}
 	else {
-		material->SetTexture(Variables::mainTexture, Resources::GetWhiteTexture());
+		material->SetTexture(Variables::MainTexture, Resources::GetWhiteTexture());
 	}
 
 	if (bumpTexels != nullptr) {
-		material->SetTexture(Variables::bumpTexture, CreateTexture2D(bumpTexels));
+		material->SetTexture(Variables::BumpTexture, CreateTexture2D(bumpTexels));
 	}
 
 	if (specularTexels != nullptr) {
-		material->SetTexture(Variables::specularTexture, CreateTexture2D(specularTexels));
+		material->SetTexture(Variables::SpecularTexture, CreateTexture2D(specularTexels));
 	}
 
 	if (emissiveTexels != nullptr) {
-		material->SetTexture(Variables::emissiveTexture, CreateTexture2D(emissiveTexels));
+		material->SetTexture(Variables::EmissiveTexture, CreateTexture2D(emissiveTexels));
 	}
 
 	if (lightmapTexels != nullptr) {
-		material->SetTexture(Variables::lightmapTexture, CreateTexture2D(lightmapTexels));
+		material->SetTexture(Variables::LightmapTexture, CreateTexture2D(lightmapTexels));
 	}
 }
 

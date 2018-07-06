@@ -16,7 +16,7 @@ bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 		return false;
 	}
 
-	if (current_ >= C_MAX_BONE_COUNT) {
+	if (current_ >= MAX_BONE_COUNT) {
 		Debug::LogError("too many bones");
 		return false;
 	}

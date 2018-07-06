@@ -17,10 +17,10 @@ SubShader {
 
 		in vec2 texCoord;
 
-		uniform sampler2D c_mainTexture;
+		uniform sampler2D _MainTexture;
 
 		void main() {
-			fragColor = vec4(1 - texture(c_mainTexture, texCoord).rgb, 1);
+			fragColor = vec4(1 - texture(_MainTexture, texCoord).rgb, 1);
 		}
 
 		ENDGLSL
