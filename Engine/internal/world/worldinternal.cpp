@@ -252,7 +252,7 @@ bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWa
 
 		// next sibling.
 		if (command == WorldEntityWalker::WalkCommandNext) {
-			break;
+			continue;
 		}
 
 		// 

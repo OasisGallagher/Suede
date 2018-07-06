@@ -145,6 +145,7 @@ void EntityInternal::CalculateHierarchyBounds() {
 
 	if (particleSystem_) {
 		worldBounds_.Encapsulate(particleSystem_->GetMaxBounds());
+		boundsDirty_ = true;
 	}
 }
 

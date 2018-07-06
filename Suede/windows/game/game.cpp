@@ -29,7 +29,7 @@
 #include "scripts/cameracontroller.h"
 
 //#define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
@@ -37,7 +37,7 @@
 //#define IMAGE_EFFECTS
 #define MAN
 #define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
@@ -109,6 +109,7 @@ void Game::OnDrawGizmos() {
 
 void Game::OnEntityImported(Entity root, const std::string& path) {
 	root->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	root->SetName(path);
 
 	if (path == manFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
