@@ -88,9 +88,10 @@ void CameraController::rotateCamera(const QPoint& mousePos, QPoint& oldPos) {
 	oldPos = mousePos;
 
 	glm::vec3 eulerAngles = camera_->GetEulerAngles();
-	const float scale = 0.5f;
+	const float scale = 0.3f;
 	eulerAngles.x += delta.y() * scale;
 	eulerAngles.y += delta.x() * scale;
+	eulerAngles.z = 0;
 	camera_->SetEulerAngles(eulerAngles);
 }
 

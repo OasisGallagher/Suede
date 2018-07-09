@@ -7,12 +7,17 @@ class ColorPicker : public QColorDialog {
 public:
 	ColorPicker();
 
+protected:
+	virtual void mousePressEvent(QMouseEvent *event);
+	virtual void mouseMoveEvent(QMouseEvent *event);
+	virtual void focusOutEvent(QFocusEvent* event);
+
 public:
 	static ColorPicker* get();
 
 	static void popup();
 	static void destroy();
 
-protected:
-	virtual void focusOutEvent(QFocusEvent* event);
+private:
+	QPoint pos_;
 };

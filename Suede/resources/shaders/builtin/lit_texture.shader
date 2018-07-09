@@ -3,6 +3,10 @@ Properties {
 }
 
 SubShader {
+	Tags { 
+		Queue = "Transparent";
+	}
+
 	Pass {
 		ZTest LEqual;
 		Blend SrcAlpha OneMinusSrcAlpha;
