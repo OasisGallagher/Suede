@@ -11,7 +11,7 @@ ColorPicker* ColorPicker::get() {
 	return instance_;
 }
 
-ColorPicker::ColorPicker() {
+ColorPicker::ColorPicker() : listener_(nullptr) {
 	setWindowTitle(tr("Select color"));
 	setOption(QColorDialog::NoButtons);
 	setFocusPolicy(Qt::StrongFocus);
@@ -27,6 +27,8 @@ void ColorPicker::destroy() {
 	instance_ = nullptr;
 }
 
-void ColorPicker::focusOutEvent(QFocusEvent* event) {
-//	instance_->close();
+void ColorPicker::onColorChanged(const QColor& color) {
+	if (listener_ != nullptr) {
+		listener_->onColorChanged(color);
+	}
 }

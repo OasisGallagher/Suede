@@ -192,9 +192,6 @@
     <ClCompile Include="windows\controls\floatslider.cpp">
       <Filter>windows\controls\src</Filter>
     </ClCompile>
-    <ClCompile Include="windows\controls\labeltexture.cpp">
-      <Filter>windows\controls\src</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_game.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -333,6 +330,12 @@
     <ClCompile Include="windows\status\statswidget.cpp">
       <Filter>windows\status\src</Filter>
     </ClCompile>
+    <ClCompile Include="windows\inspector\custom\lightinspector.cpp">
+      <Filter>windows\inspector\custom\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\propertyfields.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -351,9 +354,6 @@
       <Filter>windows\controls\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\controls\floatslider.h">
-      <Filter>windows\controls\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\controls\labeltexture.h">
       <Filter>windows\controls\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\game\game.h">
@@ -407,6 +407,9 @@
     <CustomBuild Include="ui\statswidget.ui">
       <Filter>ui</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\controls\propertyfields.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -432,6 +435,9 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\inspector\custom\lightinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

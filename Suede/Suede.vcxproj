@@ -326,11 +326,12 @@
     <ClCompile Include="windows\controls\floatslider.cpp" />
     <ClCompile Include="windows\controls\floatlabel.cpp" />
     <ClCompile Include="windows\controls\treeviewcombobox.cpp" />
-    <ClCompile Include="windows\controls\labeltexture.cpp" />
+    <ClCompile Include="windows\controls\propertyfields.cpp" />
     <ClCompile Include="windows\game\game.cpp" />
     <ClCompile Include="windows\hierarchy\hierarchy.cpp" />
     <ClCompile Include="windows\inspector\custom\camerainspector.cpp" />
     <ClCompile Include="windows\inspector\custom\custominspector.cpp" />
+    <ClCompile Include="windows\inspector\custom\lightinspector.cpp" />
     <ClCompile Include="windows\inspector\custom\meshinspector.cpp" />
     <ClCompile Include="windows\inspector\custom\projectorinspector.cpp" />
     <ClCompile Include="windows\inspector\custom\rendererinspector.cpp" />
@@ -400,6 +401,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
+    <ClInclude Include="windows\inspector\custom\lightinspector.h" />
     <ClInclude Include="windows\status\statswidget.h" />
     <CustomBuild Include="windows\controls\floatlabel.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -654,7 +656,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
     </CustomBuild>
-    <CustomBuild Include="windows\controls\labeltexture.h">
+    <CustomBuild Include="windows\controls\propertyfields.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing labeltexture.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
