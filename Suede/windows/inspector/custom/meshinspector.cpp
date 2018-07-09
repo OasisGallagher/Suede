@@ -75,11 +75,4 @@ void MeshInspector::onTextChanged() {
 
 	TextMesh textMesh = suede_dynamic_cast<TextMesh>(mesh);
 	textMesh->SetText(arr.toStdString());
-
-	QImage image;
-	std::vector<uchar> data;
-	if (textMesh->GetFont()->GetTexture()->EncodeToPNG(data) && image.loadFromData(&data[0], data.size())) {
-		image.save("e:/1.png");
-	}
 }
-

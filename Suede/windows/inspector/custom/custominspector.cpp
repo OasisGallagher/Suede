@@ -1,6 +1,7 @@
 #include <QListWidget>
 
 #include "custominspector.h"
+#include "windows/controls/labeltexture.h"
 
 CustomInspector::CustomInspector(const QString& title, Object object)
 	: QGroupBox(title), target_(object) {
@@ -19,11 +20,11 @@ void CustomInspector::resizeGeometryToFit(QListWidget* w) {
 QString CustomInspector::formatRowName(const QString& name) const {
 	QString answer;
 	for (int i = 0; i < name.length(); ++i) {
-		if (!answer.isEmpty() && name[i].isUpper()) {
+		if (!answer.isEmpty()&& name[i].isUpper()) {
 			answer += " ";
 		}
 
-		if (i == 0 && name[i].isLower()) {
+		if (i == 0&& name[i].isLower()) {
 			answer += name[i].toUpper();
 		}
 		else {

@@ -1,16 +1,16 @@
 #pragma once
 #include <QColorDialog>
 
+class ColorListener {
+public:
+	virtual void onColorChanged(const QColor& color) = 0;
+};
+
 class ColorPicker : public QColorDialog {
 	Q_OBJECT
 
 public:
 	ColorPicker();
-
-protected:
-	virtual void mousePressEvent(QMouseEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
-	virtual void focusOutEvent(QFocusEvent* event);
 
 public:
 	static ColorPicker* get();
@@ -18,6 +18,12 @@ public:
 	static void popup();
 	static void destroy();
 
+public:
+	void setColorListener(ColorListener* value) { listener_ = value; }
+
+private slots :
+	void onColorChanged(const QColor& color);
+
 private:
-	QPoint pos_;
+	ColorListener* listener_;
 };
