@@ -6,6 +6,7 @@
 #include "debug/profiler.h"
 
 #include "custom/meshinspector.h"
+#include "custom/lightinspector.h"
 #include "custom/camerainspector.h"
 #include "custom/rendererinspector.h"
 #include "custom/projectorinspector.h"
@@ -154,17 +155,24 @@ void Inspector::redraw() {
 
 	drawTags();
 	drawTransform();
+	drawInspectors();
+}
 
-	sample->Restart();
+void Inspector::drawInspectors() {
 	destroyInspectors();
-	sample->Stop();
-	Debug::Log("destroyInspectors %.2f", sample->GetElapsedSeconds());
 
-	if (target_->GetType() == ObjectTypeCamera) {
-		addInspector(new CameraInspector(target_));
-	}
-	else if (target_->GetType() == ObjectTypeProjector) {
-		addInspector(new ProjectorInspector(target_));
+	switch (target_->GetType()) {
+		case ObjectTypeCamera:
+			addInspector(new CameraInspector(target_));
+			break;
+		case ObjectTypeProjector:
+			addInspector(new ProjectorInspector(target_));
+			break;
+		case ObjectTypeSpotLight:
+		case ObjectTypePointLight:
+		case ObjectTypeDirectionalLight:
+			addInspector(new LightInspector(target_));
+			break;
 	}
 
 	sample->Restart();

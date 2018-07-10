@@ -6,7 +6,6 @@
 
 #include "debug/debug.h"
 #include "os/filesystem.h"
-#include "windows/controls/colorpicker.h"
 
 class Suede : public QMainWindow, public LogReceiver {
 	Q_OBJECT

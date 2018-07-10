@@ -136,6 +136,15 @@
     <Filter Include="windows\about\src">
       <UniqueIdentifier>{f6ee1684-8b08-479e-a708-cc0f968c746a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="windows\colorpicker">
+      <UniqueIdentifier>{023c43df-0166-4b37-bc6f-ff0d6e703d5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\colorpicker\include">
+      <UniqueIdentifier>{a818facc-3fa3-47dc-81b0-2964f5a7c876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\colorpicker\src">
+      <UniqueIdentifier>{0278d67d-e861-419c-82bb-9338074ac12a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -176,9 +185,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_floatslider.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_labeltexture.cpp">
-      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_labeltexture.cpp">
       <Filter>Generated Files\Release</Filter>
@@ -273,15 +279,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_custominspector.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\controls\colorpicker.cpp">
-      <Filter>windows\controls\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_colorpicker.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_colorpicker.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="windows\status\status.cpp">
       <Filter>windows\status\src</Filter>
     </ClCompile>
@@ -333,8 +330,38 @@
     <ClCompile Include="windows\inspector\custom\lightinspector.cpp">
       <Filter>windows\inspector\custom\src</Filter>
     </ClCompile>
-    <ClCompile Include="windows\controls\propertyfields.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_lightinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_lightinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_colorfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_colorfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\colorfield.cpp">
       <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\texturefield.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_texturefield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_texturefield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\colorpicker\colorpicker.cpp">
+      <Filter>windows\colorpicker\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_colorpicker.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_colorpicker.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -383,9 +410,6 @@
     <CustomBuild Include="windows\inspector\custom\custominspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\controls\colorpicker.h">
-      <Filter>windows\controls\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\status\status.h">
       <Filter>windows\status\include</Filter>
     </CustomBuild>
@@ -407,8 +431,17 @@
     <CustomBuild Include="ui\statswidget.ui">
       <Filter>ui</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\controls\propertyfields.h">
+    <CustomBuild Include="windows\inspector\custom\lightinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\colorfield.h">
       <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\texturefield.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\colorpicker\colorpicker.h">
+      <Filter>windows\colorpicker\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -435,9 +468,6 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="windows\inspector\custom\lightinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

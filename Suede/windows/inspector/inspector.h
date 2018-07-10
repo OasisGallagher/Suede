@@ -41,8 +41,10 @@ private:
 	void destroyInspectors();
 
 	void redraw();
+
 	void drawTags();
 	void drawTransform();
+	void drawInspectors();
 
 	void onEntityTransformChanged(Entity target, uint prs);
 

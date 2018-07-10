@@ -12,8 +12,10 @@
 #include "variables.h"
 #include "resources.h"
 #include "rendererinspector.h"
-#include "windows/controls/colorpicker.h"
-#include "windows/controls/labeltexture.h"
+
+#include "windows/controls/colorfield.h"
+#include "windows/controls/texturefield.h"
+
 #include "windows/controls/treeviewcombobox.h"
 
 static const char* shaderRegex = ".*\\.shader";
@@ -100,10 +102,6 @@ RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer"
 	begin_render_inspector();
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materials);
 	end_render_inspector("appendMaterialList");
-
-	begin_render_inspector();
-	connect(ColorPicker::get(), SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onColorPicked(const QColor&)));
-	end_render_inspector("misc");
 }
 
 void RendererInspector::drawMaterial(Renderer renderer, uint materialIndex, QLayout* materialsLayout) {
@@ -242,41 +240,27 @@ QWidget* RendererInspector::drawFloatField(uint materialIndex, const QString& na
 }
 
 QWidget* RendererInspector::drawTextureField(uint materialIndex, const QString& name, Texture value) {
-	LabelTexture* label = new LabelTexture;
-	label->setFixedSize(32, 32);
-	label->setTexture(value);
-	label->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeTexture)));
-	connect(label, SIGNAL(clicked()), this, SLOT(onEditProperty()));
-	return label;
+	TextureField* field = new TextureField(this);
+	field->setTexture(value);
+
+	field->setData(QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeTexture)));
+	connect(field, SIGNAL(currentTextureChanged(Texture)), this, SLOT(onCurrentTextureChanged(Texture)));
+	return field;
 }
 
 QWidget* RendererInspector::drawColorField(uint materialIndex, const QString& name, VariantType type, const void* value) {
-	QWidget* widget = new QWidget;
-	QVBoxLayout* layout = new QVBoxLayout;
-	widget->setLayout(layout);
+	ColorField* field = new ColorField(this);
+	field->setData(QVariant::fromValue(UserProperty(materialIndex, name, type)));
 
-	LabelTexture* label = new LabelTexture(widget);
-	label->setObjectName(Literals::colorButton);
-	label->setColor(*(glm::vec3*)value);
-	label->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, type)));
-	connect(label, SIGNAL(clicked()), this, SLOT(onEditProperty()));
-
-	layout->setSpacing(1);
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(label);
-
-	if (type == VariantTypeColor4) {
-		QProgressBar* alpha = new QProgressBar(widget);
-		alpha->setObjectName(Literals::alphaProgress);
-		alpha->setTextVisible(false);
-		alpha->setStyleSheet("QProgressBar::chunk { background-color: #595959 }");
-		alpha->setFixedHeight(2);
-		alpha->setMaximum(255);
-		alpha->setValue(int(((glm::vec4*)value)->a * 255));
-		layout->addWidget(alpha);
+	if (type == VariantTypeColor3) {
+		field->setColor(*(const glm::vec3*)value);
 	}
+	else {
+		field->setColor(*(const glm::vec4*)value);
+	}
+	connect(field, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onCurrentColorChanged(const QColor&)));
 
-	return widget;
+	return field;
 }
 
 QWidget* RendererInspector::drawColor3Field(uint materialIndex, const QString& name, const glm::vec3& value) {
@@ -372,40 +356,22 @@ void RendererInspector::onEditProperty() {
 			break;
 		case VariantTypeVector3:
 			break;
-		case VariantTypeColor3:
-			onSelectColor3(senderWidget, prop.materialIndex, prop.name);
-			break;
-		case VariantTypeColor4:
-			onSelectColor4(senderWidget, prop.materialIndex, prop.name);
-			break;
 		case VariantTypeVector4:
-			break;
-		case VariantTypeTexture:
-			onSelectTexture(senderWidget, prop.materialIndex, prop.name);
 			break;
 	}
 }
 
-void RendererInspector::onColorPicked(const QColor& color) {
-	QColor selected = ColorPicker::get()->currentColor();
-	if (!selected.isValid()) {
-		return;
-	}
-
-	UserProperty prop = ColorPicker::get()->property(USER_PROPERTY).value<UserProperty>();
-	prop.sender->setStyleSheet(QString::asprintf("border: 0; background-color: rgb(%d,%d,%d)",
-		selected.red(), selected.green(), selected.blue()));
+void RendererInspector::onCurrentColorChanged(const QColor& color) {
+	ColorField* field = (ColorField*)sender();
+	UserProperty prop = field->data().value<UserProperty>();
 
 	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex);
 	if (prop.type == VariantTypeColor4) {
-		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(selected.red(), selected.green(), selected.blue(), selected.alpha()));
+		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(color.red(), color.green(), color.blue(), color.alpha()));
 		material->SetColor4(prop.name.toStdString(), newColor);
-
-		QProgressBar* alpha = prop.sender->parent()->findChild<QProgressBar*>(Literals::alphaProgress);
-		alpha->setValue(selected.alpha());
 	}
 	else {
-		glm::vec3 newColor = Math::NormalizedColor(glm::ivec3(selected.red(), selected.green(), selected.blue()));
+		glm::vec3 newColor = Math::NormalizedColor(glm::ivec3(color.red(), color.green(), color.blue()));
 		material->SetColor3(prop.name.toStdString(), newColor);
 	}
 }
@@ -422,43 +388,9 @@ void RendererInspector::onShaderSelectionChanged(const QString& path) {
 	}
 }
 
-void RendererInspector::onSelectTexture(QWidget* widget, uint materialIndex, const QString& name) {
-	QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::GetRootDirectory().c_str(), "*.jpg;;*.png");
-	if (!path.isEmpty()) {
-		Texture2D texture = NewTexture2D();
-		QDir dir(Resources::GetRootDirectory().c_str());
-		path = dir.relativeFilePath(path);
-		texture->Load(path.toStdString());
-		Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
-		material->SetTexture(name.toStdString(), texture);
-		((LabelTexture*)sender())->setTexture(texture);
-	}
-}
-
-void RendererInspector::onSelectColor3(QWidget* widget, uint materialIndex, const QString& name) {
-	ColorPicker::get()->setOption(QColorDialog::ShowAlphaChannel, false);
-	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
-	glm::ivec3 color = Math::IntColor(material->GetColor3(name.toStdString()));
-	QColor old(color.r, color.g, color.b);
-
-	ColorPicker::get()->blockSignals(true);
-	ColorPicker::get()->setCurrentColor(old);
-	ColorPicker::get()->blockSignals(false);
-
-	ColorPicker::get()->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeColor3, widget)));
-	ColorPicker::popup();
-}
-
-void RendererInspector::onSelectColor4(QWidget* widget, uint materialIndex, const QString& name) {
-	ColorPicker::get()->setOption(QColorDialog::ShowAlphaChannel);
-	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(materialIndex);
-	glm::ivec4 color = Math::IntColor(material->GetColor4(name.toStdString()));
-	QColor old(color.r, color.g, color.b, color.a);
-
-	ColorPicker::get()->blockSignals(true);
-	ColorPicker::get()->setCurrentColor(old);
-	ColorPicker::get()->blockSignals(false);
-
-	ColorPicker::get()->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeColor4, widget)));
-	ColorPicker::popup();
+void RendererInspector::onCurrentTextureChanged(Texture texture) {
+	TextureField* field = (TextureField*)sender();
+	UserProperty prop = field->data().value<UserProperty>();
+	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex);
+	material->SetTexture(prop.name.toStdString(), texture);
 }

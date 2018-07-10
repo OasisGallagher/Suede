@@ -7,5 +7,5 @@ public:
 	LightInspector(Object object);
 
 private slots:
-	void onColorPicked(const QColor& color);
+	void onCurrentColorChanged(const QColor& color);
 };

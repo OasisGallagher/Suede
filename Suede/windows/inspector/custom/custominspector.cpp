@@ -1,7 +1,6 @@
 #include <QListWidget>
 
 #include "custominspector.h"
-#include "windows/controls/labeltexture.h"
 
 CustomInspector::CustomInspector(const QString& title, Object object)
 	: QGroupBox(title), target_(object) {

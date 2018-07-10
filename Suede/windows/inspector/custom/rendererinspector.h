@@ -29,10 +29,8 @@ private:
 
 private slots:
 	void onEditProperty();
-	void onColorPicked(const QColor& color);
-	void onShaderSelectionChanged(const QString& path);
+	void onCurrentColorChanged(const QColor& color);
+	void onCurrentTextureChanged(Texture texture);
 
-	void onSelectTexture(QWidget* widget, uint materialIndex, const QString& name);
-	void onSelectColor3(QWidget* widget, uint materialIndex, const QString& name);
-	void onSelectColor4(QWidget* widget, uint materialIndex, const QString& name);
+	void onShaderSelectionChanged(const QString& path);
 };

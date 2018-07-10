@@ -11,7 +11,8 @@
 #include "camera.h"
 
 #include "../windows/status/status.h"
-#include "../windows/about/aboutDialog.h"
+#include "../windows/about/aboutdialog.h"
+#include "../windows/colorpicker/colorpicker.h"
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
