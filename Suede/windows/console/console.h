@@ -3,17 +3,17 @@
 #include <QDockWidget>
 #include <QTableWidget>
 
+#include "tools/enum.h"
 #include "windows/controls/childwindow.h"
+
+BETTER_ENUM_MASK(ConsoleMessageType, int,
+	Debug = 1,
+	Warning = 2,
+	Error = 4
+)
 
 class Console : public QDockWidget, public ChildWindow {
 	Q_OBJECT
-
-public:
-	enum MessageType {
-		Debug = 1,
-		Warning = 2,
-		Error = 4,
-	};
 
 public:
 	static Console* get();
@@ -26,7 +26,7 @@ public:
 	virtual void init(Ui::Suede* ui);
 
 public:
-	void addMessage(MessageType type, const QString& message);
+	void addMessage(ConsoleMessageType type, const QString& message);
 
 private slots:
 	void onClearMessages();
@@ -37,9 +37,9 @@ private:
 	void filterMessageByType(int mask);
 	void filterMessageBySubString(const QString& substr);
 
-	void showMessage(MessageType type, const QString &message);
+	void showMessage(ConsoleMessageType type, const QString &message);
 
-	const char* messageIconPath(MessageType type);
+	const char* messageIconPath(ConsoleMessageType type);
 
 private:
 	uint mask_;

@@ -256,7 +256,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	const uint space = 2;
 	const float scale = 0.08f;
 
-	attribute.topology = MeshTopologyTriangles;
+	attribute.topology = MeshTopology::Triangles;
 
 	uint cap = 6 * wtext.length();
 	attribute.positions.reserve(cap);

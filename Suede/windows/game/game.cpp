@@ -119,7 +119,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 
 		Animation animation = root->GetAnimation();
 		if (animation) {
-			animation->SetWrapMode(AnimationWrapModePingPong);
+			animation->SetWrapMode(AnimationWrapMode::PingPong);
 			animation->Play("");
 		}
 	}
@@ -254,7 +254,7 @@ void Game::createScene() {
 
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
-	camera->SetDepthTextureMode(DepthTextureModeDepth);
+	camera->SetDepthTextureMode(DepthTextureMode::Depth);
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
 	//camera->SetTargetTexture(targetTexture_);
@@ -279,7 +279,7 @@ void Game::createScene() {
 #endif
 
 #ifdef SKYBOX
-	camera->SetClearType(ClearTypeSkybox);
+	camera->SetClearType(ClearType::Skybox);
 
 	Material skybox = NewMaterial();
 	skybox->SetShader(Resources::FindShader("builtin/skybox"));

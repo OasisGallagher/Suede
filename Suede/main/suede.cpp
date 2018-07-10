@@ -174,15 +174,15 @@ void Suede::screenCapture() {
 void Suede::OnLogMessage(LogLevel level, const char* message) {
 	switch (level) {
 		case LogLevelDebug:
-			Console::get()->addMessage(Console::Debug, message);
+			Console::get()->addMessage(ConsoleMessageType::Debug, message);
 			break;
 
 		case LogLevelWarning:
-			Console::get()->addMessage(Console::Warning, message);
+			Console::get()->addMessage(ConsoleMessageType::Warning, message);
 			break;
 
 		case LogLevelError:
-			Console::get()->addMessage(Console::Error, message);
+			Console::get()->addMessage(ConsoleMessageType::Error, message);
 			Debug::Break();
 			break;
 	}

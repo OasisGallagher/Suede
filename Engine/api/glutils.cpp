@@ -22,10 +22,10 @@ int GLUtils::GetLimits(GLLimits type) {
 
 static GLenum TopologyToGLEnum(MeshTopology topology) {
 	switch (topology) {
-		case MeshTopologyLines: return GL_LINES;
-		case MeshTopologyTriangles: return GL_TRIANGLES;
-		case MeshTopologyLineStripe: return GL_LINE_STRIP;
-		case MeshTopologyTriangleStripe: return GL_TRIANGLE_STRIP;
+		case MeshTopology::Lines: return GL_LINES;
+		case MeshTopology::Triangles: return GL_TRIANGLES;
+		case MeshTopology::LineStripe: return GL_LINE_STRIP;
+		case MeshTopology::TriangleStripe: return GL_TRIANGLE_STRIP;
 	}
 
 	Debug::LogError("unsupported mesh topology  %d.", topology);

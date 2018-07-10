@@ -9,8 +9,8 @@
 #include "internal/rendering/shadows.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureModeNone)
-	, clearType(ClearTypeColor), renderPath(RenderPathForward) {
+RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
+	, clearType(ClearType::Color), renderPath(RenderPath::Forward) {
 }
 
 Rendering::Rendering(RenderingParameters * p) :p_(p) {
@@ -164,8 +164,8 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
 
-	if (p_->renderPath == RenderPathForward) {
-		if ((p_->depthTextureMode & DepthTextureModeDepth) != 0) {
+	if (p_->renderPath == +RenderPath::Forward) {
+		if ((p_->depthTextureMode & DepthTextureMode::Depth) != 0) {
 			*pipelines_.depth = *pipelines_.shadow;
 			pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
 
@@ -182,7 +182,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
 
 	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
-	if (p_->renderPath == RenderPathForward) {
+	if (p_->renderPath == +RenderPath::Forward) {
 		ForwardRendering(pipelines_.rendering, entities, forwardBase, forwardAdd);
 	}
 	else {
@@ -193,7 +193,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 }
 
 void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
-	if (p_->clearType == ClearTypeSkybox) {
+	if (p_->clearType == +ClearType::Skybox) {
 		RenderSkybox(pl);
 	}
 

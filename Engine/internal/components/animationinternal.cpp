@@ -94,14 +94,14 @@ AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectTypeAnimat
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
 	switch (wrapMode_ = value) {
-	case AnimationWrapModeLoop:
+	case AnimationWrapMode::Loop:
 		wrapper_ = Math::Repeat;
 		break;
-	case AnimationWrapModePingPong:
+	case AnimationWrapMode::PingPong:
 		wrapper_ = Math::PingPong;
 		break;
-	case AnimationWrapModeOnce:
-	case AnimationWrapModeClampForever:
+	case AnimationWrapMode::Once:
+	case AnimationWrapMode::ClampForever:
 		wrapper_ = Math::Min;
 		break;
 	}
@@ -340,7 +340,7 @@ void AnimationInternal::Update() {
 
 	time_ += Time::GetDeltaTime();
 	
-	if (current_->Sample(time_) && current_->GetWrapMode() == AnimationWrapModeOnce) {
+	if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
 		current_->Sample(0);
 		playing_ = false;
 	}

@@ -2,6 +2,7 @@
 #include <vector>
 #include "bounds.h"
 #include "component.h"
+#include "tools/enum.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Skeleton);
 SUEDE_DEFINE_OBJECT_POINTER(Animation);
@@ -55,12 +56,12 @@ public:
 	virtual int GetBoneCount() = 0;
 };
 
-enum AnimationWrapMode {
-	AnimationWrapModeOnce,
-	AnimationWrapModeLoop,
-	AnimationWrapModePingPong,
-	AnimationWrapModeClampForever,
-};
+BETTER_ENUM(AnimationWrapMode, int, 
+	Once,
+	Loop,
+	PingPong,
+	ClampForever
+)
 
 class SUEDE_API IAnimationClip : virtual public IObject {
 public:

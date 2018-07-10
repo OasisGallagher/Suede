@@ -3,21 +3,22 @@
 
 #include "rect.h"
 #include "entity.h"
+#include "tools/enum.h"
 
-enum ClearType {
-	ClearTypeColor,
-	ClearTypeSkybox,
-};
+BETTER_ENUM(ClearType, int,
+	Color,
+	Skybox
+)
 
-enum RenderPath {
-	RenderPathForward,
-	RenderPathDeferred,
-};
+BETTER_ENUM(RenderPath, int,
+	Forward,
+	Deferred
+)
 
-enum DepthTextureMode {
-	DepthTextureModeNone,
-	DepthTextureModeDepth = 1,
-};
+BETTER_ENUM(DepthTextureMode, int,
+	None,
+	Depth = 1
+)
 
 class ImageEffect;
 class GizmosPainter;

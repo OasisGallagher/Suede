@@ -1,6 +1,8 @@
 #include "colorpicker.h"
 #include "tools/math2.h"
 
+#include "tools/enum.h"
+
 static QMetaObject::Connection connection_;
 
 static ColorPicker* colorDialog() {

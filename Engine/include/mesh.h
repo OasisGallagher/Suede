@@ -5,6 +5,7 @@
 #include "bounds.h"
 #include "material.h"
 #include "component.h"
+#include "tools/enum.h"
 
 struct TriangleBias {
 	uint indexCount;
@@ -45,13 +46,13 @@ struct InstanceAttribute {
 	uint divisor;
 };
 
-enum MeshTopology {
-	MeshTopologyLines,
-	MeshTopologyLineStripe,
+BETTER_ENUM(MeshTopology, int,
+	Lines,
+	LineStripe,
 
-	MeshTopologyTriangles,
-	MeshTopologyTriangleStripe,
-};
+	Triangles,
+	TriangleStripe
+)
 
 struct MeshAttribute {
 	MeshTopology topology;

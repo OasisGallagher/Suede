@@ -26,7 +26,7 @@ static Material GetBlitMaterial() {
 }
 
 static Mesh CreateBlitMesh(const Rect &srcRect) {
-	MeshAttribute attribute = { MeshTopologyTriangleStripe };
+	MeshAttribute attribute = { MeshTopology::TriangleStripe };
 
 	glm::vec3 vertices[] = {
 		glm::vec3(-1.f, -1.f, 0.f),

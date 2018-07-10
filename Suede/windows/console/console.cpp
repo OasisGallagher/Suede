@@ -31,7 +31,7 @@ void Console::init(Ui::Suede* ui) {
 	connect(ui_->search, SIGNAL(textChanged(const QString&)), this, SLOT(onSearchTextChanged(const QString&)));
 
 	mask_ = -1;
-	ui_->filter->setItems(QStringList() << "Message" << "Warning" << "Error");
+	ui_->filter->setEnums(ConsoleMessageType(ConsoleMessageType::Error | ConsoleMessageType::Warning));
 }
 
 void Console::onClearMessages() {
@@ -49,7 +49,7 @@ void Console::onSearchTextChanged(const QString& text) {
 	filterMessageBySubString(text);
 }
 
-void Console::addMessage(MessageType type, const QString& message) {
+void Console::addMessage(ConsoleMessageType type, const QString& message) {
 	if ((type & mask_) != 0 && (substr_.isEmpty() || message.contains(substr_))) {
 		showMessage(type, message);
 	}
@@ -63,7 +63,7 @@ void Console::filterMessageByType(int mask) {
 	foreach(QString msg, messages_) {
 		int type = msg.at(0).toLatin1() - '0';
 		if ((type & mask) != 0) {
-			showMessage(MessageType(type), msg.right(msg.length() - 1));
+			showMessage(ConsoleMessageType(type), msg.right(msg.length() - 1));
 		}
 	}
 }
@@ -74,21 +74,21 @@ void Console::filterMessageBySubString(const QString& substr) {
 	foreach(QString msg, messages_) {
 		if (substr.isEmpty() || msg.contains(substr)) {
 			int type = msg.at(0).toLatin1() - '0';
-			showMessage(MessageType(type), msg.right(msg.length() - 1));
+			showMessage(ConsoleMessageType(type), msg.right(msg.length() - 1));
 		}
 	}
 }
 
-const char* Console::messageIconPath(MessageType type) {
+const char* Console::messageIconPath(ConsoleMessageType type) {
 	const char* path = "";
 	switch (type) {
-		case Debug:
+		case ConsoleMessageType::Debug:
 			path = ":/images/debug";
 			break;
-		case Warning:
+		case ConsoleMessageType::Warning:
 			path = ":/images/warning";
 			break;
-		case Error:
+		case ConsoleMessageType::Error:
 			path = ":/images/error";
 			break;
 	}
@@ -96,7 +96,7 @@ const char* Console::messageIconPath(MessageType type) {
 	return path;
 }
 
-void Console::showMessage(MessageType type, const QString &message) {
+void Console::showMessage(ConsoleMessageType type, const QString &message) {
 	if (QThread::currentThread() != thread()) {
 		// TODO: threading.
 	}

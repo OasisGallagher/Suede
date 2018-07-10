@@ -215,7 +215,7 @@
          </widget>
         </item>
         <item>
-         <widget class="CheckableComboBox" name="filter"/>
+         <widget class="MaskField" name="filter"/>
         </item>
         <item>
          <widget class="QPushButton" name="clear">
@@ -308,7 +308,7 @@
           <x>0</x>
           <y>0</y>
           <width>497</width>
-          <height>259</height>
+          <height>262</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -796,9 +796,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CheckableComboBox</class>
+   <class>MaskField</class>
    <extends>QComboBox</extends>
-   <header>windows/controls/checkablecombobox.h</header>
+   <header>windows/controls/maskfield.h</header>
   </customwidget>
   <customwidget>
    <class>FloatLabel</class>

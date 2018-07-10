@@ -156,12 +156,6 @@
     <ClCompile Include="main\main.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
@@ -264,15 +258,6 @@
     <ClCompile Include="windows\inspector\custom\custominspector.cpp">
       <Filter>windows\inspector\custom\src</Filter>
     </ClCompile>
-    <ClCompile Include="windows\controls\checkablecombobox.cpp">
-      <Filter>windows\controls\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_checkablecombobox.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_checkablecombobox.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_custominspector.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -363,6 +348,24 @@
     <ClCompile Include="GeneratedFiles\Release\moc_colorpicker.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="windows\controls\enumfield.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\maskfield.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_maskfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_maskfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -443,6 +446,9 @@
     <CustomBuild Include="windows\colorpicker\colorpicker.h">
       <Filter>windows\colorpicker\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\controls\maskfield.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -468,6 +474,9 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\controls\enumfield.h">
+      <Filter>windows\controls\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

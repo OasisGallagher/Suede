@@ -1,6 +1,7 @@
 #include <QGroupBox>
 
 #include "tools/math2.h"
+#include "windows/controls/enumfield.h"
 #include "windows/controls/floatslider.h"
 
 #include "camera.h"
@@ -25,6 +26,10 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
 
 	form_->addRow(formatRowName("Fov"), slider);
+
+	EnumField* field = new EnumField(this);
+	field->setEnums(+ClearType::Skybox);
+	form_->addRow(formatRowName("ClearType"), field);
 }
 
 void CameraInspector::onSliderValueChanged(const QString& name, float value) {

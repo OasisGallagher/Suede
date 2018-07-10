@@ -386,7 +386,7 @@ bool EntityLoader::LoadAnimation(Animation& animation) {
 void EntityLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
-	clip->SetWrapMode(AnimationWrapModeLoop);
+	clip->SetWrapMode(AnimationWrapMode::Loop);
 	LoadAnimationNode(anim, scene_->mRootNode, nullptr);
 }
 
@@ -495,7 +495,7 @@ bool EntityLoader::LoadAsset() {
 
 	SubMesh* subMeshes = nullptr;
 	Bounds* boundses = nullptr;
-	asset_.meshAsset.topology = MeshTopologyTriangles;
+	asset_.meshAsset.topology = MeshTopology::Triangles;
 
 	if (scene_->mNumMaterials > 0) {
 		asset_.materialAssets.resize(scene_->mNumMaterials);

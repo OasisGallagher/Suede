@@ -323,7 +323,7 @@ bool WorldInternal::CreateEntityDecal(Camera camera, Decal& decal, Entity entity
 
 	decal.indexes = indexes;
 	decal.positions = triangles;
-	decal.topology = MeshTopologyTriangles;
+	decal.topology = MeshTopology::Triangles;
 
 	return true;
 }

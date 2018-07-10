@@ -3,11 +3,12 @@
 #include <glm/glm.hpp>
 
 #include "entity.h"
+#include "tools/enum.h"
 
-enum LightImportance {
-	LightImportanceNotImportant,
-	LightImportanceImportant,
-};
+BETTER_ENUM(LightImportance, int,
+	NotImportant,
+	Important
+)
 
 class ILight : virtual public IEntity {
 public:

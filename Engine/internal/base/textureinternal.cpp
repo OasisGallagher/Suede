@@ -166,12 +166,12 @@ void TextureInternal::ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStr
 
 GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const {
 	switch (mode) {
-		case TextureMinFilterModeNearest:  return GL_NEAREST;
-		case TextureMinFilterModeLinear: return GL_LINEAR;
-		case TextureMinFilterModeNearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
-		case TextureMinFilterModeLinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
-		case TextureMinFilterModeNearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
-		case TextureMinFilterModeLinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
+		case TextureMinFilterMode::Nearest:  return GL_NEAREST;
+		case TextureMinFilterMode::Linear: return GL_LINEAR;
+		case TextureMinFilterMode::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+		case TextureMinFilterMode::LinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
+		case TextureMinFilterMode::NearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
+		case TextureMinFilterMode::LinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
 	}
 
 	Debug::LogError("invalid TextureMinFilterMode %d.", mode);
@@ -180,8 +180,8 @@ GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) 
 
 GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const {
 	switch (mode) {
-		case TextureMagFilterModeNearest: return GL_NEAREST;
-		case TextureMagFilterModeLinear: return GL_LINEAR;
+		case TextureMagFilterMode::Nearest: return GL_NEAREST;
+		case TextureMagFilterMode::Linear: return GL_LINEAR;
 	}
 
 	Debug::LogError("invalid TextureMagFilterMode %d.", mode);
@@ -190,9 +190,9 @@ GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) 
 
 GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
 	switch (mode) {
-		case TextureWrapModeClampToEdge: return GL_CLAMP_TO_EDGE;
-		case TextureWrapModeMirroredRepeat: return GL_MIRRORED_REPEAT;
-		case TextureWrapModeRepeat: return GL_REPEAT;
+		case TextureWrapMode::ClampToEdge: return GL_CLAMP_TO_EDGE;
+		case TextureWrapMode::MirroredRepeat: return GL_MIRRORED_REPEAT;
+		case TextureWrapMode::Repeat: return GL_REPEAT;
 	}
 
 	Debug::LogError("invalid TextureWrapMode %d.", mode);
@@ -201,37 +201,37 @@ GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
 
 TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(GLenum value) const {
 	switch (value) {
-		case GL_NEAREST: return TextureMinFilterModeNearest;
-		case GL_LINEAR: return TextureMinFilterModeLinear;
-		case GL_NEAREST_MIPMAP_NEAREST: return TextureMinFilterModeNearestMipmapNearest;
-		case GL_LINEAR_MIPMAP_NEAREST: return TextureMinFilterModeLinearMipmapNearest;
-		case GL_NEAREST_MIPMAP_LINEAR: return TextureMinFilterModeNearestMipmapLinear;
-		case GL_LINEAR_MIPMAP_LINEAR: return TextureMinFilterModeLinearMipmapLinear;
+		case GL_NEAREST: return TextureMinFilterMode::Nearest;
+		case GL_LINEAR: return TextureMinFilterMode::Linear;
+		case GL_NEAREST_MIPMAP_NEAREST: return TextureMinFilterMode::NearestMipmapNearest;
+		case GL_LINEAR_MIPMAP_NEAREST: return TextureMinFilterMode::LinearMipmapNearest;
+		case GL_NEAREST_MIPMAP_LINEAR: return TextureMinFilterMode::NearestMipmapLinear;
+		case GL_LINEAR_MIPMAP_LINEAR: return TextureMinFilterMode::LinearMipmapLinear;
 	}
 
 	Debug::LogError("invalid GLenum %d.", value);
-	return TextureMinFilterModeLinear;
+	return TextureMinFilterMode::Linear;
 }
 
 TextureMagFilterMode TextureInternal::GLenumToTextureMagFilterMode(GLenum value) const {
 	switch (value) {
-		case GL_NEAREST: return TextureMagFilterModeNearest;
-		case GL_LINEAR: return TextureMagFilterModeLinear;
+		case GL_NEAREST: return TextureMagFilterMode::Nearest;
+		case GL_LINEAR: return TextureMagFilterMode::Linear;
 	}
 
 	Debug::LogError("invalid GLenum %d.", value);
-	return TextureMagFilterModeLinear;
+	return TextureMagFilterMode::Linear;
 }
 
 TextureWrapMode TextureInternal::GLenumToTextureWrapMode(GLenum value) const {
 	switch (value) {
-		case GL_CLAMP_TO_EDGE: return TextureWrapModeClampToEdge;
-		case GL_MIRRORED_REPEAT: return TextureWrapModeMirroredRepeat;
-		case GL_REPEAT: return TextureWrapModeRepeat;
+		case GL_CLAMP_TO_EDGE: return TextureWrapMode::ClampToEdge;
+		case GL_MIRRORED_REPEAT: return TextureWrapMode::MirroredRepeat;
+		case GL_REPEAT: return TextureWrapMode::Repeat;
 	}
 
 	Debug::LogError("invalid GLenum %d.", value);
-	return TextureWrapModeRepeat;
+	return TextureWrapMode::Repeat;
 }
 
 Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectTypeTexture2D) {
@@ -272,7 +272,7 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 		GL::GenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
-		SetMinFilterMode(TextureMinFilterModeNearest);
+		SetMinFilterMode(TextureMinFilterMode::Nearest);
 	}
 
 	UnbindTexture();

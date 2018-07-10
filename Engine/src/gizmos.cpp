@@ -86,7 +86,7 @@ void Gizmos::Flush() {
 	for (uint i = 0; i < batches.size(); ++i) {
 		const Batch& b = batches[i];
 		MeshAttribute attribute;
-		attribute.topology = MeshTopologyLines;
+		attribute.topology = MeshTopology::Lines;
 
 		attribute.positions = b.points;
 		attribute.indexes = b.indexes;

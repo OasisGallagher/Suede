@@ -3,26 +3,27 @@
 
 #include "rect.h"
 #include "object.h"
+#include "tools/enum.h"
 
-enum TextureMinFilterMode {
-	TextureMinFilterModeNearest,
-	TextureMinFilterModeLinear,
-	TextureMinFilterModeNearestMipmapNearest,
-	TextureMinFilterModeLinearMipmapNearest,
-	TextureMinFilterModeNearestMipmapLinear,
-	TextureMinFilterModeLinearMipmapLinear,
-};
+BETTER_ENUM(TextureMinFilterMode, int,
+	Nearest,
+	Linear,
+	NearestMipmapNearest,
+	LinearMipmapNearest,
+	NearestMipmapLinear,
+	LinearMipmapLinear
+)
 
-enum TextureMagFilterMode {
-	TextureMagFilterModeNearest,
-	TextureMagFilterModeLinear,
-};
+BETTER_ENUM(TextureMagFilterMode, int,
+	Nearest,
+	Linear
+)
 
-enum TextureWrapMode {
-	TextureWrapModeClampToEdge,
-	TextureWrapModeMirroredRepeat,
-	TextureWrapModeRepeat,
-};
+BETTER_ENUM(TextureWrapMode, int,
+	ClampToEdge,
+	MirroredRepeat,
+	Repeat
+)
 
 class SUEDE_API ITexture : virtual public IObject {
 public:
