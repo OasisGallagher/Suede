@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "glefdefines.h"
+#include "tools/noncopyable.h"
 
 enum SyntaxNodeType {
 	SyntaxNodeSymbol,
@@ -20,7 +21,7 @@ class Integer;
 class Single;
 class Boolean;
 
-class SUEDE_API SyntaxNode {
+class SUEDE_API SyntaxNode : public NonCopyable {
 public:
 	SyntaxNode(SyntaxNodeType type, const std::string& text);
 	~SyntaxNode();
@@ -45,10 +46,6 @@ public:
 	const std::string& ToString() const;
 
 private:
-	SyntaxNode(const SyntaxNode& other);
-	SyntaxNode& operator = (const SyntaxNode& other);
-
-private:
 	std::string text_;
 	SyntaxNodeType type_;
 
@@ -65,7 +62,7 @@ private:
 	} value_;
 };
 
-class SUEDE_API SyntaxTree {
+class SUEDE_API SyntaxTree : public NonCopyable {
 public:
 	SyntaxTree();
 	~SyntaxTree();
@@ -80,9 +77,6 @@ public:
 	std::string ToString() const;
 
 private:
-	SyntaxTree(const SyntaxTree&);
-	SyntaxTree& operator = (const SyntaxTree&);
-
 	void ToStringRecursively(std::ostringstream& oss, const std::string& prefix, const SyntaxNode* current, bool tail) const;
 	void DeleteTreeNode(SyntaxNode* node);
 

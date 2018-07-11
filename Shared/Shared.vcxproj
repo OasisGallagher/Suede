@@ -289,7 +289,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="memory\refcount.h" />
     <ClInclude Include="os\filesystem.h" />
     <ClInclude Include="tools\dirtybits.h" />
+    <ClInclude Include="tools\enum.h" />
     <ClInclude Include="tools\math2.h" />
+    <ClInclude Include="tools\noncopyable.h" />
     <ClInclude Include="tools\string.h" />
   </ItemGroup>
   <ItemGroup>

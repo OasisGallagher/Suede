@@ -1,10 +1,11 @@
 #pragma once
 #include <vector>
 #include "grammarsymbol.h"
+#include "tools/noncopyable.h"
 
 class Action;
 
-struct Condinate {
+struct Condinate : NonCopyable {
 	Condinate(const SymbolVector& container, const std::string& actionText);
 	~Condinate();
 
@@ -12,10 +13,6 @@ struct Condinate {
 
 	SymbolVector symbols;
 	Action* action;
-
-private:
-	Condinate(const Condinate&);
-	Condinate& operator = (const Condinate&);
 };
 
 class CondinateContainer : public std::vector<Condinate*> {

@@ -1,5 +1,5 @@
-#ifndef __SUEDE_INC__
-#define __SUEDE_INC__
+#ifndef SUEDE_INCLUDED
+#define SUEDE_INCLUDED
 
 // shared uniform buffers.
 layout(std140) uniform SharedTimeUniformBuffer {
@@ -44,4 +44,4 @@ uniform samplerBuffer _MatrixBuffer;
 								)
 #endif	// VERTEX_SHADER
 
-#endif	// __SUEDE_INC__
+#endif	// SUEDE_INCLUDED

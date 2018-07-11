@@ -6,6 +6,7 @@
 #include "image.h"
 #include "entity.h"
 #include "engine.h"
+#include "tools/noncopyable.h"
 #include "entityloadedlistener.h"
 #include "internal/async/threadpool.h"
 
@@ -41,7 +42,7 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class EntityLoader : public Worker {
+class EntityLoader : public Worker, public NonCopyable {
 public:
 	EntityLoader(const std::string& path, Entity entity, WorkerEventListener* receiver);
 	~EntityLoader();
@@ -55,11 +56,6 @@ public:
 
 protected:
 	virtual void Run();
-
-private:
-	// TODO: NonCopyable.
-	EntityLoader(const EntityLoader&);
-	const EntityLoader& operator=(const EntityLoader&);
 
 private:
 	bool LoadAsset();

@@ -1,5 +1,5 @@
-#ifndef __LIT_FRAGMENT_INC__
-#define __LIT_FRAGMENT_INC__
+#ifndef LIT_FRAGMENT_INCLUDED
+#define LIT_FRAGMENT_INCLUDED
 
 in vec4 _ShadowCoord;
 
@@ -33,7 +33,7 @@ float random(vec3 seed, int i){
 	return fract(sin(dp) * 43758.5453);
 }
 
-vec3 calculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
+vec3 _CalculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
 	vec3 ambient = vec3(_AmbientLightColor);
 
 	float factor = clamp(dot(worldNormal, -_LightDirection), 0, 1);
@@ -48,7 +48,7 @@ vec3 calculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility
 	return ambient + _EmissiveColor + visibility * (diffuse + specular);
 }
 
-float calculateShadowVisibility() {
+float _CalculateShadowVisibility() {
 	float visibility = 1;
 	float bias = 0.005;
 
@@ -72,4 +72,4 @@ float calculateShadowVisibility() {
 	return visibility;
 }
 
-#endif // __LIT_FRAGMENT_INC__
+#endif // LIT_FRAGMENT_INCLUDED
