@@ -14,9 +14,6 @@ public:
 	
 	static void destroy();
 
-signals:
-	void currentColorChanged(const QColor& color);
-
 protected:
 	virtual void hideEvent(QHideEvent* event);
 	virtual void mouseMoveEvent(QMouseEvent* event);

@@ -16,7 +16,7 @@
 #include "windows/controls/colorfield.h"
 #include "windows/controls/texturefield.h"
 
-#include "windows/controls/treeviewcombobox.h"
+#include "windows/controls/filetreefield.h"
 
 static const char* shaderRegex = ".*\\.shader";
 static QString shaderDirectory = "resources/shaders/";
@@ -118,12 +118,12 @@ QGroupBox* RendererInspector::createMaterialBox(Renderer renderer, uint material
 	QFormLayout* form = new QFormLayout(g);
 	g->setLayout(form);
 
-	TreeViewComboBox* combo = new TreeViewComboBox(g);
-	combo->setProperty(USER_PROPERTY, QVariant::fromValue(MaterialProperty(materialsLayout, g, materialIndex)));
-	combo->setDirectory(shaderDirectory, material->GetShader()->GetName().c_str(), shaderRegex);
-	connect(combo, SIGNAL(selectionChanged(const QString&)), this, SLOT(onShaderSelectionChanged(const QString&)));
+	FileTreeField* field = new FileTreeField(g);
+	field->setProperty(USER_PROPERTY, QVariant::fromValue(MaterialProperty(materialsLayout, g, materialIndex)));
+	field->setDirectory(shaderDirectory, material->GetShader()->GetName().c_str(), shaderRegex);
+	connect(field, SIGNAL(selectionChanged(const QString&)), this, SLOT(onShaderSelectionChanged(const QString&)));
 
-	form->addRow(formatRowName("Shader"), combo);
+	form->addRow(formatRowName("Shader"), field);
 
 	QWidgetList widgets;
 	drawMaterialProperties(widgets, material, materialIndex);

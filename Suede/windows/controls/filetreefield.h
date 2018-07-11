@@ -6,12 +6,12 @@
 class FileTree;
 class FileEntry;
 
-class TreeViewComboBox : public QComboBox {
+class FileTreeField : public QComboBox {
 	Q_OBJECT
 
 public:
-	TreeViewComboBox(QWidget* parent = Q_NULLPTR);
-	~TreeViewComboBox();
+	FileTreeField(QWidget* parent = Q_NULLPTR);
+	~FileTreeField();
 
 public:
 	void setDirectory(const QString& path, const QString& selected, const QString& regex);

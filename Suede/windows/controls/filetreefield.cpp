@@ -1,25 +1,25 @@
 #include <QLineEdit>
 
 #include "os/filesystem.h"
-#include "treeviewcombobox.h"
+#include "filetreefield.h"
 
-TreeViewComboBox::TreeViewComboBox(QWidget* parent) :QComboBox(parent), menu_(nullptr) {
+FileTreeField::FileTreeField(QWidget* parent) :QComboBox(parent), menu_(nullptr) {
 	setEditable(true);
 	lineEdit()->setReadOnly(true);
 	lineEdit()->setAlignment(Qt::AlignLeft);
 }
 
-TreeViewComboBox::~TreeViewComboBox() {
+FileTreeField::~FileTreeField() {
 	delete menu_;
 }
 
-void TreeViewComboBox::setDirectory(const QString& directory, const QString& selected, const QString& regex) {
+void FileTreeField::setDirectory(const QString& directory, const QString& selected, const QString& regex) {
 	regex_ = regex;
 	directory_ = directory;
 	setEditText(selected);
 }
 
-void TreeViewComboBox::showPopup() {
+void FileTreeField::showPopup() {
 	QComboBox::showPopup();
 
 	FileTree tree;
@@ -35,7 +35,7 @@ void TreeViewComboBox::showPopup() {
 	}
 }
 
-void TreeViewComboBox::createMenu(FileTree &tree) {
+void FileTreeField::createMenu(FileTree &tree) {
 	menu_ = new QMenu(this);
 	connect(menu_, SIGNAL(aboutToHide()), this, SLOT(onHideMenu()));
 
@@ -43,22 +43,22 @@ void TreeViewComboBox::createMenu(FileTree &tree) {
 	menu_->exec(mapToGlobal(QPoint(0, geometry().height())));
 }
 
-void TreeViewComboBox::hidePopup() {
+void FileTreeField::hidePopup() {
 	QComboBox::hidePopup();
 }
 
-void TreeViewComboBox::onHideMenu() {
+void FileTreeField::onHideMenu() {
 	hidePopup();
 }
 
-void TreeViewComboBox::onSelectItem() {
+void FileTreeField::onSelectItem() {
 	QString path = ((QAction*)sender())->data().toString();
 	emit selectionChanged(path);
 
 	setEditText(FileSystem::GetFileNameWithoutExtension(path.toStdString()).c_str());
 }
 
-void TreeViewComboBox::createSubMenu(QMenu* parent, FileEntry* entry) {
+void FileTreeField::createSubMenu(QMenu* parent, FileEntry* entry) {
 	for (uint i = 0; i < entry->GetChildCount(); ++i) {
 		FileEntry* child = entry->GetChildAt(i);
 		QString path = child->GetName().c_str();

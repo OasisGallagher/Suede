@@ -10,6 +10,7 @@ static ColorPicker* colorDialog() {
 	if (instance == nullptr) {
 		instance = new ColorPicker;
 		instance->setWindowFlags(Qt::Popup);
+		instance->setOption(QColorDialog::NoButtons, true);
 	}
 
 	return instance;

@@ -273,15 +273,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_status.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\controls\treeviewcombobox.cpp">
-      <Filter>windows\controls\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_treeviewcombobox.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_treeviewcombobox.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_floatlabel.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -300,13 +291,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_qtviewer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\about\aboutDialog.cpp">
+    <ClCompile Include="windows\about\aboutdialog.cpp">
       <Filter>windows\about\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_aboutDialog.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_aboutdialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_aboutDialog.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_aboutdialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="windows\status\statswidget.cpp">
@@ -366,6 +357,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="windows\controls\filetreefield.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_filetreefield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_filetreefield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -407,17 +407,11 @@
     <CustomBuild Include="windows\inspector\custom\rendererinspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\controls\checkablecombobox.h">
-      <Filter>windows\controls\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\inspector\custom\custominspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\status\status.h">
       <Filter>windows\status\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\controls\treeviewcombobox.h">
-      <Filter>windows\controls\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\controls\floatlabel.h">
       <Filter>windows\controls\include</Filter>
@@ -425,10 +419,7 @@
     <CustomBuild Include="main\qtviewer.h">
       <Filter>main\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="ui\aboutDialog.ui">
-      <Filter>ui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\about\aboutDialog.h">
+    <CustomBuild Include="windows\about\aboutdialog.h">
       <Filter>windows\about\include</Filter>
     </CustomBuild>
     <CustomBuild Include="ui\statswidget.ui">
@@ -449,6 +440,12 @@
     <CustomBuild Include="windows\controls\maskfield.h">
       <Filter>windows\controls\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\controls\filetreefield.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\aboutdialog.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -466,9 +463,6 @@
     <ClInclude Include="windows\controls\childwindow.h">
       <Filter>windows\controls\include</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_aboutDialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="windows\status\statswidget.h">
       <Filter>windows\status\include</Filter>
     </ClInclude>
@@ -477,6 +471,9 @@
     </ClInclude>
     <ClInclude Include="windows\controls\enumfield.h">
       <Filter>windows\controls\include</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_aboutdialog.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

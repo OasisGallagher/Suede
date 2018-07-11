@@ -1,4 +1,3 @@
-#include <QMatrix>
 #include <QMouseEvent>
 
 #include "colorfield.h"
