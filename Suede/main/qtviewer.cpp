@@ -5,18 +5,18 @@
 #include "qtviewer.h"
 
 QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv) {
-	QSplashScreen* splash = new QSplashScreen;
-	splash->setPixmap(QPixmap(":/images/splash"));
-	splash->show();
+	//QSplashScreen* splash = new QSplashScreen;
+	//splash->setPixmap(QPixmap(":/images/splash"));
+	//splash->show();
 
-	app_.processEvents();
+	//app_.processEvents();
 
 	setupRegistry();
 	setupStyle();
 	setupSuede();
 
-	splash->finish(suede_);
-	delete splash;
+	//splash->finish(suede_);
+	//delete splash;
 }
 
 QtViewer::~QtViewer() {

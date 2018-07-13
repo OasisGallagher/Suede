@@ -41,8 +41,9 @@
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
+static const char* roomFbxPath = "granate.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
-static const char* roomFbxPath = "room.obj";
+static const char* lightModelPath = "builtin/sphere.obj";
 
 static Game* gameInstance;
 
@@ -213,10 +214,13 @@ uint roomEntityID;
 
 void Game::createScene() {
 	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
+
 	DirectionalLight light = NewDirectionalLight();
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
 	light->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+
+	WorldInstance()->ImportTo(light, lightModelPath, this);
 
 	//targetTexture_ = NewRenderTexture();
 	//targetTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
@@ -278,8 +282,7 @@ void Game::createScene() {
 	//camera->AddImageEffect(inversion_);
 #endif
 
-#ifdef SKYBOX
-	camera->SetClearType(ClearType::Skybox);
+	camera->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
 
 	Material skybox = NewMaterial();
 	skybox->SetShader(Resources::FindShader("builtin/skybox"));
@@ -300,9 +303,10 @@ void Game::createScene() {
 	skybox->SetColor4(Variables::MainColor, glm::vec4(1));
 	WorldInstance()->GetEnvironment()->SetSkybox(skybox);
 
+#ifdef SKYBOX
+	camera->SetClearType(ClearType::Skybox);
 #else
-	camera->SetClearType(ClearTypeColor);
-	camera->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
+	camera->SetClearType(ClearType::Color);
 #endif
 	
 #ifdef RENDER_TEXTURE

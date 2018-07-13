@@ -183,7 +183,7 @@ void EntityInternal::CalculateSelfWorldBounds() {
 void EntityInternal::CalculateBonesWorldBounds() {
 	std::vector<glm::vec3> points;
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-
+	
 	Bounds boneBounds;
 	Skeleton skeleton = animation_->GetSkeleton();
 	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();

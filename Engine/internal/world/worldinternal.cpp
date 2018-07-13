@@ -128,6 +128,11 @@ Entity WorldInternal::Import(const std::string& path, EntityLoadedListener* list
 	return importer_->Import(path);
 }
 
+bool WorldInternal::ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener) {
+	importer_->SetLoadedListener(listener);
+	return importer_->ImportTo(entity, path);
+}
+
 Entity WorldInternal::GetEntity(uint id) {
 	EntityDictionary::iterator ite = entities_.find(id);
 	if (ite == entities_.end()) { return nullptr; }
@@ -287,14 +292,16 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 }
 
 void WorldInternal::FireEvents() {
-	GUARD_SCOPE_TYPED(WorldEventContainer);
 	for (uint i = 0; i < WorldEventTypeCount; ++i) {
-		WorldEventCollection& collection = events_[i];
+		WorldEventCollection collection = events_[i];
 		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {
 			FireEventImmediate(*ite);
 		}
+	}
 
-		collection.clear();
+	GUARD_SCOPE_TYPED(WorldEventContainer);
+	for (uint i = 0; i < WorldEventTypeCount; ++i) {
+		events_[i].clear();
 	}
 }
 

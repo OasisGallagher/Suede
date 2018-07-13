@@ -15,12 +15,12 @@ void EnumField::setEnums(T selected) {
 	clear();
 
 	int index = -1;
-	for (int i = 0; i < T::_size(); ++i) {
-		if (selected == T::_values()[i]) {
+	for (int i = 0; i < T::size(); ++i) {
+		if (selected == T::value(i)) {
 			index = i;
 		}
 
-		addItem(T::_values()[i]._to_string());
+		addItem(T::value(i).to_string());
 	}
 
 	setCurrentIndex(index);

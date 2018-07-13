@@ -1,5 +1,5 @@
-#ifndef SUEDE_INCLUDED
-#define SUEDE_INCLUDED
+#ifndef _SUEDE_INCLUDED
+#define _SUEDE_INCLUDED
 
 // shared uniform buffers.
 layout(std140) uniform SharedTimeUniformBuffer {
@@ -23,7 +23,7 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	vec3 _CameraPosition;
 };
 
-#ifdef VERTEX_SHADER
+#ifdef _VERTEX_SHADER
 
 // 8 matches VertexAttribMatrixOffset.
 layout(location = 8) in int _MatrixBufferOffset;
@@ -42,6 +42,6 @@ uniform samplerBuffer _MatrixBuffer;
 									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 6), \
 									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 7) \
 								)
-#endif	// VERTEX_SHADER
+#endif	// _VERTEX_SHADER
 
-#endif	// SUEDE_INCLUDED
+#endif	// _SUEDE_INCLUDED

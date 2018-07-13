@@ -28,8 +28,14 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 	form_->addRow(formatRowName("Fov"), slider);
 
 	EnumField* field = new EnumField(this);
-	field->setEnums(+ClearType::Skybox);
+	field->setEnums(suede_dynamic_cast<Camera>(target_)->GetClearType());
+	connect(field, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onClearTypeChanged(const QString&)));
 	form_->addRow(formatRowName("ClearType"), field);
+}
+
+void CameraInspector::onClearTypeChanged(const QString& text) {
+	ClearType type = ClearType::from_string(text.toLatin1());
+	suede_dynamic_cast<Camera>(target_)->SetClearType(type);
 }
 
 void CameraInspector::onSliderValueChanged(const QString& name, float value) {

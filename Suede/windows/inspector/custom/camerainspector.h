@@ -7,5 +7,6 @@ public:
 	CameraInspector(Object object);
 
 private slots:
+	void onClearTypeChanged(const QString& text);
 	void onSliderValueChanged(const QString& name, float value);
 };

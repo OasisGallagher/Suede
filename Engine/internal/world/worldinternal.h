@@ -32,6 +32,7 @@ public:
 	virtual Object Create(ObjectType type);
 
 	virtual Entity Import(const std::string& path, EntityLoadedListener* listener);
+	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener);
 
 	virtual Camera GetMainCamera() { return mainCamera_; }
 	virtual void SetMainCamera(Camera value) { mainCamera_ = value; }

@@ -120,6 +120,9 @@ void InitializeGLLimits() {
 			case GLLimitsMaxTextureUnits:
 				GL::GetIntegerv(GL_MAX_TEXTURE_UNITS, &value);
 				break;
+			case GLLimitsMaxCombinedTextureImageUnits:
+				GL::GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &value);
+				break;
 			case GLLimitsMaxUniformBufferBindings:
 				GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &value);
 				break;

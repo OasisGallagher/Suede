@@ -27,11 +27,11 @@ struct ShaderDescription {
 
 inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
 	static ShaderDescription descriptions[] = {
-		GL_VERTEX_SHADER, "VertexShader", "vertex", "VERTEX_SHADER",
-		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control", "TESS_CONTROL_SHADER",
-		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation", "TESS_EVALUATION_SHADER",
-		GL_GEOMETRY_SHADER, "GeometryShader", "geometry", "GEOMETRY_SHADER",
-		GL_FRAGMENT_SHADER, "FragmentShader", "fragment", "FRAGMENT_SHADER",
+		GL_VERTEX_SHADER, "VertexShader", "vertex", "_VERTEX_SHADER",
+		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control", "_TESS_CONTROL_SHADER",
+		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation", "_TESS_EVALUATION_SHADER",
+		GL_GEOMETRY_SHADER, "GeometryShader", "geometry", "_GEOMETRY_SHADER",
+		GL_FRAGMENT_SHADER, "FragmentShader", "fragment", "_FRAGMENT_SHADER",
 	};
 
 	return descriptions[stage];

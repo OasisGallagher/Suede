@@ -29,7 +29,7 @@ MeshInspector::MeshInspector(Object object) : CustomInspector("Mesh", object) {
 void MeshInspector::drawMesh() {
 	Mesh mesh = suede_dynamic_cast<Mesh>(target_);
 	QLabel* topology = new QLabel(this);
-	topology->setText(mesh->GetTopology() == +MeshTopology::Triangles ? "Triangles" : "TriangleStrips");
+	topology->setText(mesh->GetTopology() == MeshTopology::Triangles ? "Triangles" : "TriangleStrips");
 	form_->addRow(formatRowName("Topology"), topology);
 
 	QLabel* vertices = new QLabel(this);
@@ -44,7 +44,7 @@ void MeshInspector::drawMesh() {
 		SubMesh subMesh = mesh->GetSubMesh(i);
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
-		int triangles = mesh->GetTopology() == +MeshTopology::Triangles ? bias.indexCount / 3 : Math::Max(0u, bias.indexCount - 2);
+		int triangles = mesh->GetTopology() == MeshTopology::Triangles ? bias.indexCount / 3 : Math::Max(0u, bias.indexCount - 2);
 		subMeshList->addItem(QString::asprintf("Triangles: %d", triangles));
 	}
 

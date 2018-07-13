@@ -183,19 +183,20 @@ void Hierarchy::appendChildItem(Entity entity) {
 	if (!parent) { return; }
 
 	QStandardItem* item = nullptr;
+
 	// append child node.
 	if (parent == WorldInstance()->GetRootTransform() || (item = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
 		QStandardItem* pi = appendItem(entity, item);
 		updateRecursively(entity, pi);
-		/*pi == nullptr || pi->parent()->data().toUInt() == parent->GetInstanceID()*/
 	}
 	// remove orphan node.
 	else if (item == nullptr && (item = items_.value(entity->GetInstanceID())) != nullptr) {
 		removeItem(item);
 	}
-	else {
-		Debug::Break();
-	}
+	//else {
+	// parent node does not exist. 
+	//	Debug::Break();
+	//}
 }
 
 void Hierarchy::enableEntityOutline(Entity entity, bool enable) {

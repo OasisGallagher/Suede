@@ -20,7 +20,7 @@ SubShader {
 
 		#include "builtin/include/lit_vertex.inc"
 
-		uniform mat4 _BoneToRootMatrices[_MAX_BONE_COUNT];
+		uniform mat4 _BoneToRootMatrices[_C_MAX_BONE_COUNT];
 
 		void main() {
 			mat4 mat = _BoneToRootMatrices[_BoneIndexes[0]] * _BoneWeights[0];
@@ -53,7 +53,7 @@ SubShader {
 
 		void main() {
 			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
-			float visibility = 1; //calculateShadowVisibility();
+			float visibility = _CalculateShadowVisibility(worldPos);
 			fragColor = albedo * vec4(_CalculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
 		}
 		

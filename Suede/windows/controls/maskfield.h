@@ -48,8 +48,10 @@ private:
 template <class T>
 void MaskField::setEnums(T selected) {
 	QStringList list;
-	for (int i = 1; i < T::_size() - 1; ++i) {
-		list << T::_values()[i]._to_string();
+
+	// skip None & Everything.
+	for (int i = 1; i < T::size() - 1; ++i) {
+		list << T::value(i).to_string();
 	}
 
 	setItems(list, selected);

@@ -354,8 +354,8 @@ void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* m
 }
 
 bool EntityLoader::LoadAnimation(Animation& animation) {
-	if (scene_->mNumAnimations == 0) {
-		return true;
+	if (!skeleton_ || scene_->mNumAnimations == 0) {
+		return false;
 	}
 
 	animation = NewAnimation();

@@ -1,5 +1,5 @@
-#ifndef POST_EFFECT_VERTEX_INCLUDED
-#define POST_EFFECT_VERTEX_INCLUDED
+#ifndef _POST_EFFECT_VERTEX_INCLUDED
+#define _POST_EFFECT_VERTEX_INCLUDED
 
 in vec3 _Pos;
 in vec2 _TexCoord;
@@ -11,4 +11,4 @@ void main() {
 	gl_Position = vec4(_Pos, 1);
 }
 
-#endif	// POST_EFFECT_VERTEX_INCLUDED
+#endif	// _POST_EFFECT_VERTEX_INCLUDED

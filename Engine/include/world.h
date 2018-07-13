@@ -144,6 +144,7 @@ public:
 	virtual Object Create(ObjectType type) = 0;
 
 	virtual Entity Import(const std::string& path, EntityLoadedListener* listener) = 0;
+	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener) = 0;
 
 	virtual Transform GetRootTransform() = 0;
 
