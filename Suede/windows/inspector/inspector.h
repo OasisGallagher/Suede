@@ -28,13 +28,15 @@ private slots:
 
 	void onTagChanged(int index);
 	void onActiveChanged(int state);
+
+	void onPositionChanged(const glm::vec3& value);
+	void onRotationChanged(const glm::vec3& value);
+	void onScaleChanged(const glm::vec3& value);
+
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
-	void onTransformChanged();
 	void onResetButtonClicked();
 
 private:
-	void initTransformUI();
-
 	void showView(bool show);
 
 	void addInspector(CustomInspector* inspector);
@@ -47,9 +49,6 @@ private:
 	void drawInspectors();
 
 	void onEntityTransformChanged(Entity target, uint prs);
-
-	glm::vec3 readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z);
-	void drawTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3);
 
 private:
 	Entity target_;

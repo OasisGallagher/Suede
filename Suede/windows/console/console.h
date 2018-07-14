@@ -30,7 +30,7 @@ public:
 
 private slots:
 	void onClearMessages();
-	void onSelectionChanged(uint mask);
+	void onSelectionChanged(int mask);
 	void onSearchTextChanged(const QString& text);
 
 private:

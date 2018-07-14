@@ -48,24 +48,27 @@ vec3 _CalculateDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibilit
 	return ambient + _EmissiveColor + visibility * (diffuse + specular);
 }
 
+#define _SHADOW_LEVEL	 0
 float _CalculateShadowVisibility(vec3 worldPos) {
 	float visibility = 1;
 	float bias = 0.005;
 
 	for (int i = 0; i < 4; ++i) {
+	#if _SHADOW_LEVEL == 0
 		// use either :
 		//  - Always the same samples.
 		//    Gives a fixed pattern in the shadow, but no noise
-		// int index = i;
-		//
+		int index = i;
+	#elif _SHADOW_LEVEL == 1
 		//  - A random sample, based on the pixel's screen location. 
 		//    No banding, but the shadow moves with the camera, which looks weird.
-		// int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-		//
+		int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
+	#elif _SHADOW_LEVEL == 2
 		//  - A random sample, based on the pixel's position in world space.
 		//    The position is rounded to the millimeter to avoid too much aliasing
 		int index = int(16.0 * random(floor(worldPos.xyz * 1000.0), i)) % 16;
-		
+	#endif
+
 		// being fully in the shadow will eat up 4*0.2 = 0.8
 		// 0.2 potentially remain, which is quite dark.
 		visibility -= 0.2 * (1 - texture(_ShadowDepthTexture, vec3(_ShadowCoord.xy + poissonDisk[index] / 700.0,  (_ShadowCoord.z - bias)/_ShadowCoord.w)));

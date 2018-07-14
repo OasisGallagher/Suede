@@ -41,7 +41,7 @@
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "granate.fbx";
+static const char* roomFbxPath = "room.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.obj";
 
@@ -258,7 +258,8 @@ void Game::createScene() {
 
 	camera->SetFarClipPlane(10000.f);
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
-	camera->SetDepthTextureMode(DepthTextureMode::Depth);
+	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
+
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
 	//camera->SetTargetTexture(targetTexture_);

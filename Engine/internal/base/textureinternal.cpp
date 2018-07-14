@@ -110,14 +110,14 @@ void TextureInternal::DestroyTexture() {
 	}
 }
 
-BppType TextureInternal::GLenumToBpp(GLenum format) const {
+BPPType TextureInternal::GLenumToBpp(GLenum format) const {
 	switch (format) {
-		case GL_RGB: return BppType24;
-		case GL_RGBA: return BppType32;
+		case GL_RGB: return BPPType24;
+		case GL_RGBA: return BPPType32;
 	}
 
 	Debug::LogError("unknown internal format 0x%x.", format);
-	return BppType24;
+	return BPPType24;
 }
 
 GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
@@ -283,11 +283,11 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 }
 
 bool Texture2DInternal::EncodeToPNG(std::vector<uchar>& data) {
-	return EncodeTo(data, ImageTypePng);
+	return EncodeTo(data, ImageTypePNG);
 }
 
 bool Texture2DInternal::EncodeToJPG(std::vector<uchar>& data) {
-	return EncodeTo(data, ImageTypeJpg);
+	return EncodeTo(data, ImageTypeJPG);
 }
 
 bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
@@ -301,14 +301,14 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	GL::GetIntegerv(GL_UNPACK_ALIGNMENT, (GLint*)&alignment);
 
 	texelMap.alignment = alignment;
-	BppType bpp = GLenumToBpp(internalFormat_);
+	BPPType bpp = GLenumToBpp(internalFormat_);
 
 	texelMap.data.resize((bpp / 8) * Math::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight());
 	GL::GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
-	texelMap.textureFormat = (bpp == BppType24) ? TextureFormatRgb : TextureFormatRgba;
-	texelMap.colorStreamFormat = (bpp == BppType24) ? ColorStreamFormatRgb : ColorStreamFormatRgba;
+	texelMap.textureFormat = (bpp == BPPType24) ? TextureFormatRgb : TextureFormatRgba;
+	texelMap.colorStreamFormat = (bpp == BPPType24) ? ColorStreamFormatRgb : ColorStreamFormatRgba;
 
 	return ImageCodec::Encode(data, type, texelMap);
 }

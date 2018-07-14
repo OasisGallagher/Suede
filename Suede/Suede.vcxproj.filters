@@ -273,15 +273,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_status.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_floatlabel.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_floatlabel.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\controls\floatlabel.cpp">
-      <Filter>windows\controls\src</Filter>
-    </ClCompile>
     <ClCompile Include="main\qtviewer.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
@@ -366,6 +357,42 @@
     <ClCompile Include="GeneratedFiles\Release\moc_filetreefield.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="windows\controls\floatfield.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_floatfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_floatfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_vecfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_vecfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\controls\vecfield.cpp">
+      <Filter>windows\controls\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_vec3field.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_vec3field.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_vec2field.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_vec4field.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_vec4field.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_vec2field.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -413,9 +440,6 @@
     <CustomBuild Include="windows\status\status.h">
       <Filter>windows\status\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\controls\floatlabel.h">
-      <Filter>windows\controls\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="main\qtviewer.h">
       <Filter>main\include</Filter>
     </CustomBuild>
@@ -445,6 +469,21 @@
     </CustomBuild>
     <CustomBuild Include="ui\aboutdialog.ui">
       <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\floatfield.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\vecfield.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\vec3field.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\vec2field.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\controls\vec4field.h">
+      <Filter>windows\controls\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

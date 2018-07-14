@@ -295,7 +295,7 @@ void Pass::UpdateVertexAttributes() {
 	// https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
 	// TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
 	// int location = glGetAttribLocation(program_, Variables::MatrixBuffer);
-	GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::MatrixBuffer);
+	// GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::MatrixTextureBuffer);
 }
 
 void Pass::UpdateFragmentAttributes() {

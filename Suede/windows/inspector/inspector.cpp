@@ -41,7 +41,9 @@ void Inspector::init(Ui::Suede* ui) {
 	connect(ui_->tag, SIGNAL(currentIndexChanged(int)), this, SLOT(onTagChanged(int)));
 	connect(ui_->active, SIGNAL(stateChanged(int)), this, SLOT(onActiveChanged(int)));
 
-	initTransformUI();
+	connect(ui_->position, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onPositionChanged(const glm::vec3&)));
+	connect(ui_->rotation, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onRotationChanged(const glm::vec3&)));
+	connect(ui_->scale, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onScaleChanged(const glm::vec3&)));
 }
 
 void Inspector::OnWorldEvent(WorldEventBasePointer e) {
@@ -53,29 +55,16 @@ void Inspector::OnWorldEvent(WorldEventBasePointer e) {
 	}
 }
 
-void Inspector::onTransformChanged() {
-	QObject* s = sender();
-	if (s == ui_->px || s == ui_->py || s == ui_->pz) {
-		target_->GetTransform()->SetLocalPosition(readTransformFields(ui_->px, ui_->py, ui_->pz));
-	}
-	else if (s == ui_->rx || s == ui_->ry || s == ui_->rz) {
-		target_->GetTransform()->SetLocalEulerAngles(readTransformFields(ui_->rx, ui_->ry, ui_->rz));
-	}
-	else {
-		target_->GetTransform()->SetLocalScale(readTransformFields(ui_->sx, ui_->sy, ui_->sz));
-	}
-
-	drawTransform();
+void Inspector::onPositionChanged(const glm::vec3& value) {
+	target_->GetTransform()->SetLocalPosition(value);
 }
 
-glm::vec3 Inspector::readTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z) {
-	return glm::vec3(x->text().toFloat(), y->text().toFloat(), z->text().toFloat());
+void Inspector::onRotationChanged(const glm::vec3& value) {
+	target_->GetTransform()->SetLocalEulerAngles(value);
 }
 
-void Inspector::drawTransformFields(QLineEdit* x, QLineEdit* y, QLineEdit* z, const glm::vec3& v3) {
-	x->setText(QString::number(v3.x));
-	y->setText(QString::number(v3.y));
-	z->setText(QString::number(v3.z));
+void Inspector::onScaleChanged(const glm::vec3& value) {
+	target_->GetTransform()->SetLocalScale(value);
 }
 
 void Inspector::onResetButtonClicked() {
@@ -190,6 +179,20 @@ void Inspector::drawInspectors() {
 	Debug::Log("RendererInspector %.2f", sample->GetElapsedSeconds());
 }
 
+void Inspector::drawTransform() {
+	ui_->position->blockSignals(true);
+	ui_->position->setValue(target_->GetTransform()->GetLocalPosition());
+	ui_->position->blockSignals(false);
+
+	ui_->rotation->blockSignals(true);
+	ui_->rotation->setValue(target_->GetTransform()->GetLocalEulerAngles());
+	ui_->rotation->blockSignals(false);
+
+	ui_->scale->blockSignals(true);
+	ui_->scale->setValue(target_->GetTransform()->GetLocalScale());
+	ui_->scale->blockSignals(false);
+}
+
 void Inspector::drawTags() {
 	QStringList items;
 
@@ -214,38 +217,8 @@ void Inspector::drawTags() {
 	ui_->tag->blockSignals(false);
 }
 
-void Inspector::drawTransform() {
-	drawTransformFields(ui_->px, ui_->py, ui_->pz, target_->GetTransform()->GetLocalPosition());
-	drawTransformFields(ui_->rx, ui_->ry, ui_->rz, target_->GetTransform()->GetLocalEulerAngles());
-	drawTransformFields(ui_->sx, ui_->sy, ui_->sz, target_->GetTransform()->GetLocalScale());
-}
-
 void Inspector::onEntityTransformChanged(Entity target, uint prs) {
-	if (target == target_ && Math::Highword(prs) == 0) {
+	if (target == target_ && Math::Highword(prs) == 1) {
 		drawTransform();
 	}
 }
-
-void Inspector::initTransformUI() {
-	connect(ui_->p0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
-	connect(ui_->r0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
-	connect(ui_->s0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
-
-	QDoubleValidator* validator = new QDoubleValidator(this);
-
-#define CONNECT_SIGNAL(line)	line->setValidator(validator); \
-	connect(line, SIGNAL(textChanged(const QString&)), this, SLOT(onTransformChanged()))
-
-	CONNECT_SIGNAL(ui_->px);
-	CONNECT_SIGNAL(ui_->py);
-	CONNECT_SIGNAL(ui_->pz);
-	CONNECT_SIGNAL(ui_->rx);
-	CONNECT_SIGNAL(ui_->ry);
-	CONNECT_SIGNAL(ui_->rz);
-	CONNECT_SIGNAL(ui_->sx);
-	CONNECT_SIGNAL(ui_->sy);
-	CONNECT_SIGNAL(ui_->sz);
-
-#undef CONNECT_SIGNAL
-}
-

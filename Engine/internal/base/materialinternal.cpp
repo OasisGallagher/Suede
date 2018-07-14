@@ -388,15 +388,15 @@ void MaterialInternal::BindProperties(uint pass) {
 		}
 		else if (var.GetTexture()) {
 			// TODO: for some weird reason...
- 			if (ite->first == Variables::MatrixBuffer) {
- 				textureIndex = 0;
- 			}
- 			else if (ite->first == Variables::MainTexture) {
- 				textureIndex = 1;
- 			}
- 			else if (ite->first == Variables::ShadowDepthTexture) {
- 				textureIndex = 2;
- 			}
+ 			//if (ite->first == Variables::MatrixTextureBuffer) {
+ 			//	textureIndex = 1;
+ 			//}
+ 			//else if (ite->first == Variables::MainTexture) {
+ 			//	textureIndex = 0;
+ 			//}
+ 			//else if (ite->first == Variables::ShadowDepthTexture) {
+ 			//	textureIndex = 2;
+ 			//}
 
 			var.GetTexture()->Bind(textureIndex);
 			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, &textureIndex);

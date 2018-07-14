@@ -96,7 +96,7 @@ bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const TexelMap
 	return status;
 }
 
-void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BppType bpp, const std::vector<uchar>& data) {
+void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BPPType bpp, const std::vector<uchar>& data) {
 	uint srcStride = Math::RoundUpToPowerOfTwo(width * bpp / 8, alignment);
 	uint destStride = FreeImage_GetPitch(dib);
 	const uchar* src = &data[0];
@@ -219,7 +219,7 @@ FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
 	}
 
 	// TODO: 32 bbp jpg.
-	BppType bpp = texelMap.colorStreamFormat == ColorStreamFormatRgb ? BppType24 : BppType32;
+	BPPType bpp = texelMap.colorStreamFormat == ColorStreamFormatRgb ? BPPType24 : BPPType32;
 	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
 	CopyBitsFrom(dib, texelMap.width, texelMap.height, texelMap.alignment, bpp, texelMap.data);
 
@@ -234,7 +234,7 @@ bool ImageCodec::EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP*
 	FIMEMORY* stream = FreeImage_OpenMemory();
 
 	bool status = false;
-	if (FreeImage_SaveToMemory(type == ImageTypeJpg ? FIF_JPEG : FIF_PNG, dib, stream)) {
+	if (FreeImage_SaveToMemory(type == ImageTypeJPG ? FIF_JPEG : FIF_PNG, dib, stream)) {
 		ulong bytes = 0;
 		uchar *buffer = nullptr;
 		FreeImage_AcquireMemory(stream, &buffer, &bytes);

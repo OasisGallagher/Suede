@@ -27,11 +27,11 @@ void Console::init(Ui::Suede* ui) {
 	ui_->table->setColumnCount(2);
 
 	connect(ui_->clear, SIGNAL(clicked()), this, SLOT(onClearMessages()));
-	connect(ui_->filter, SIGNAL(selectionChanged(uint)), this, SLOT(onSelectionChanged(uint)));
+	connect(ui_->filter, SIGNAL(selectionChanged(int)), this, SLOT(onSelectionChanged(int)));
 	connect(ui_->search, SIGNAL(textChanged(const QString&)), this, SLOT(onSearchTextChanged(const QString&)));
 
 	mask_ = -1;
-	ui_->filter->setEnums(ConsoleMessageType(ConsoleMessageType::Error | ConsoleMessageType::Warning));
+	ui_->filter->setEnums(+ConsoleMessageType::Everything);
 }
 
 void Console::onClearMessages() {
@@ -39,7 +39,7 @@ void Console::onClearMessages() {
 	ui_->table->setRowCount(0);
 }
 
-void Console::onSelectionChanged(uint mask) {
+void Console::onSelectionChanged(int mask) {
 	mask_ = mask;
 	filterMessageByType(mask);
 }

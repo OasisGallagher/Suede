@@ -18,13 +18,13 @@ struct TexelMap {
 };
 
 enum ImageType {
-	ImageTypeJpg,
-	ImageTypePng,
+	ImageTypeJPG,
+	ImageTypePNG,
 };
 
-enum BppType {
-	BppType24 = 24,
-	BppType32 = 32,
+enum BPPType {
+	BPPType24 = 24,
+	BPPType32 = 32,
 };
 
 struct FIBITMAP;
@@ -45,8 +45,8 @@ private:
 
 	static bool EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP* dib);
 
-	static bool CopyTexelsTo(TexelMap &bits, FIBITMAP* dib);
-	static void CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BppType bpp, const std::vector<uchar>& data);
+	static bool CopyTexelsTo(TexelMap& bits, FIBITMAP* dib);
+	static void CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BPPType bpp, const std::vector<uchar>& data);
 };
 
 struct Atlas {

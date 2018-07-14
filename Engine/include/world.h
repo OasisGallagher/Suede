@@ -110,7 +110,7 @@ struct EntityTransformChangedEvent : public EntityEvent {
 		return prs < suede_static_cast<EntityTransformChangedEventPointer>(other)->prs;
 	}
 
-	// Hw: local or world.
+	// Hw: local or world(0).
 	// Lw: position rotation or scale.
 	uint prs;
 };

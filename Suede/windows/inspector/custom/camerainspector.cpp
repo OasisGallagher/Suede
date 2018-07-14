@@ -2,6 +2,8 @@
 
 #include "tools/math2.h"
 #include "windows/controls/enumfield.h"
+#include "windows/controls/vec4field.h"
+#include "windows/controls/floatfield.h"
 #include "windows/controls/floatslider.h"
 
 #include "camera.h"
@@ -19,18 +21,30 @@ namespace Literals {
 
 CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", object) {
 	FloatSlider* slider = new FloatSlider(this);
+	Camera camera = suede_dynamic_cast<Camera>(object);
+
 	slider->setObjectName(Literals::cameraFovSlider);
 	slider->setRange(Constants::minFieldOfView, Constants::maxFieldOfView);
-	slider->setValue(Math::Degrees(suede_dynamic_cast<Camera>(object)->GetFieldOfView()));
+	slider->setValue(Math::Degrees(camera->GetFieldOfView()));
 
 	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
 
 	form_->addRow(formatRowName("Fov"), slider);
 
-	EnumField* field = new EnumField(this);
-	field->setEnums(suede_dynamic_cast<Camera>(target_)->GetClearType());
-	connect(field, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onClearTypeChanged(const QString&)));
-	form_->addRow(formatRowName("ClearType"), field);
+	EnumField* clearType = new EnumField(this);
+	clearType->setEnums(suede_dynamic_cast<Camera>(target_)->GetClearType());
+	connect(clearType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onClearTypeChanged(const QString&)));
+	form_->addRow(formatRowName("ClearType"), clearType);
+
+	FloatField* nearClipPlane = new FloatField(this);
+	form_->addRow(formatRowName("Near"), nearClipPlane);
+	
+	Vec4Field* rect = new Vec4Field(this, QStringList({ "X", "Y", "W", "H" }));
+	form_->addRow(formatRowName("Rect"), rect);
+
+	const Rect& r = camera->GetRect();
+	glm::vec4 v4(r.GetXMin(), r.GetYMin(), r.GetWidth(), r.GetHeight());
+	rect->setValue(v4);
 }
 
 void CameraInspector::onClearTypeChanged(const QString& text) {

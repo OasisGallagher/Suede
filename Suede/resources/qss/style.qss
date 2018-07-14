@@ -582,8 +582,8 @@ QTreeView:hover {
 }
 
 QComboBox:on {
-    padding-top: 3px;
-    padding-left: 4px;
+    /*padding-top: 3px;*/
+    /*padding-left: 4px;*/
     selection-background-color: #4a4a4a;
 }
 

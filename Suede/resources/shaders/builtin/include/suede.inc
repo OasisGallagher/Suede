@@ -26,21 +26,21 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 #ifdef _VERTEX_SHADER
 
 // 8 matches VertexAttribMatrixOffset.
-layout(location = 8) in int _MatrixBufferOffset;
-uniform samplerBuffer _MatrixBuffer;
+layout(location = 8) in int _MatrixTextureBufferOffset;
+uniform samplerBuffer _MatrixTextureBuffer;
 
 #define _LocalToWorldMatrix	mat4( \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 0), \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 1), \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 2), \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 3) \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 0), \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 1), \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 2), \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 3) \
 								)
 
 #define _LocalToClipMatrix		mat4( \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 4), \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 5), \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 6), \
-									texelFetch(_MatrixBuffer, _MatrixBufferOffset + gl_InstanceID * 8 + 7) \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 4), \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 5), \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 6), \
+									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 7) \
 								)
 #endif	// _VERTEX_SHADER
 

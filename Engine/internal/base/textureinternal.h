@@ -40,7 +40,7 @@ protected:
 
 	void BindTexture() const;
 	void UnbindTexture() const;
-	BppType GLenumToBpp(GLenum format) const;
+	BPPType GLenumToBpp(GLenum format) const;
 	GLenum TextureFormatToGLenum(TextureFormat textureFormat) const;
 	void ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const;
 
@@ -131,9 +131,6 @@ public:
 	virtual void Unbind();
 
 protected:
-	void DestroyFramebuffer();
-
-protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
@@ -141,6 +138,7 @@ protected:
 	virtual void ResizeStorage(uint w, uint h);
 
 private:
+	void DestroyFramebuffer();
 	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormatDepth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
 
@@ -190,11 +188,11 @@ public:
 	void Update(uint offset, uint size, const void* data);
 
 protected:
-	void DestroyBuffer();
-
-protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
+
+private:
+	void DestroyBuffer();
 
 private:
 	Buffer* buffer_;
