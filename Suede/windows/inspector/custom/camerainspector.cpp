@@ -3,6 +3,8 @@
 #include "tools/math2.h"
 #include "windows/controls/enumfield.h"
 #include "windows/controls/vec4field.h"
+
+#include "windows/controls/rectfield.h"
 #include "windows/controls/floatfield.h"
 #include "windows/controls/floatslider.h"
 
@@ -13,6 +15,7 @@ namespace Constants {
 	static uint minFieldOfView = 0;
 	static uint maxFieldOfView = 180;
 }
+
 namespace Literals {
 	DEFINE_LITERAL(cameraFovLabel);
 	DEFINE_LITERAL(cameraFovSlider);
@@ -39,12 +42,15 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 	FloatField* nearClipPlane = new FloatField(this);
 	form_->addRow(formatRowName("Near"), nearClipPlane);
 	
-	Vec4Field* rect = new Vec4Field(this, QStringList({ "X", "Y", "W", "H" }));
+	RectField* rect = new RectField(this);
 	form_->addRow(formatRowName("Rect"), rect);
+	connect(rect, SIGNAL(valueChanged(const Rect&)), this, SLOT(onRectChanged(const Rect&)));
 
-	const Rect& r = camera->GetRect();
-	glm::vec4 v4(r.GetXMin(), r.GetYMin(), r.GetWidth(), r.GetHeight());
-	rect->setValue(v4);
+	rect->setValue(camera->GetRect());
+}
+
+void CameraInspector::onRectChanged(const Rect& rect) {
+	suede_dynamic_cast<Camera>(target_)->SetRect(rect);
 }
 
 void CameraInspector::onClearTypeChanged(const QString& text) {

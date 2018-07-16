@@ -106,7 +106,7 @@ public:
 	RenderTextureInternalBase() : TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {}
 
 protected:
-	void SetViewport(uint width, uint height, const Rect& normalizedRect);
+	bool SetViewport(uint width, uint height, const Rect& normalizedRect);
 
 protected:
 	FramebufferBase* framebuffer_;

@@ -11,6 +11,13 @@ public:
 	) : VecField(parent, verifyCount(names, 2)) {}
 
 public:
+	void setXRange(float min, float max) { setRange(0, min, max); }
+	void setYRange(float min, float max) { setRange(1, min, max); }
+
+public:
+	/**
+	 * set value with signal blocked.
+	 */
 	void setValue(const glm::vec2& value) { setFields((float*)&value); }
 
 signals:

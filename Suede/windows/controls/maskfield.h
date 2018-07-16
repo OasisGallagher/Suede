@@ -34,7 +34,7 @@ private:
 
 	void clearAll();
 	enum {
-		MaxItems = sizeof(int) * 8,
+		MaxMaskItems = sizeof(int) * 8,
 	};
 
 private:

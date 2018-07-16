@@ -3,9 +3,9 @@
 
 #include "maskfield.h"
 
-#define NONE			"None"
-#define MIXED			"Mixed"
-#define EVERYTHING		"Everything"
+#define NONE_STRING				tr("None")
+#define MIXED_STRING			tr("Mixed")
+#define EVERYTHING_STRING		tr("Everything")
 
 MaskField::MaskField(QWidget* parent) : QComboBox(parent), selected_(0), everything_(0) {
 	view_ = new QListWidget(this);
@@ -23,16 +23,17 @@ MaskField::MaskField(QWidget* parent) : QComboBox(parent), selected_(0), everyth
 
 void MaskField::setItems(const QStringList& items, int mask) {
 	clearAll();
-	Q_ASSERT(items.size() <= MaxItems);
+	Q_ASSERT(items.size() <= MaxMaskItems);
+
 	updateEverythingMask(items.size());
-	int width = fontMetrics().width(MIXED);
-	width = qMax(width, addItem(NONE));
+	int width = fontMetrics().width(MIXED_STRING);
+	width = qMax(width, addItem(NONE_STRING));
 
 	for(uint i = 0; i < items.size(); ++i) {
-		const QString& str = items[i];
-		width = qMax(width, addItem(str));
+		width = qMax(width, addItem(items[i]));
 	}
-	width = qMax(width, addItem(EVERYTHING));
+
+	width = qMax(width, addItem(EVERYTHING_STRING));
 
 	setSelectedMask(mask);
 
@@ -58,7 +59,7 @@ int MaskField::addItem(const QString& str) {
 void MaskField::updateEverythingMask(int size) {
 	everything_ = -1;
 
-	if (size < MaxItems) {
+	if (size < MaxMaskItems) {
 		everything_ = 0;
 		for (int i = 0; i < size; ++i) {
 			everything_ |= (1 << i);
@@ -144,7 +145,7 @@ void MaskField::removeSelectedMask(int index) {
 
 void MaskField::updateText() {
 	if (selected_ == -1) {
-		setEditText(tr("Everything"));
+		setEditText(EVERYTHING_STRING);
 		return;
 	}
 	
@@ -152,13 +153,13 @@ void MaskField::updateText() {
 	uint n = count1Bits(selected_, p);
 
 	if (n == 0) {
-		setEditText(tr("None"));
+		setEditText(NONE_STRING);
 	}
 	else if (n == 1) {
 		setEditText(checkBoxes_[p + 1]->text());
 	}
 	else {
-		setEditText(tr("Mixed"));
+		setEditText(MIXED_STRING);
 	}
 }
 

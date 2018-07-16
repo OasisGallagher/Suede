@@ -20,7 +20,7 @@ VecField::VecField(QWidget* parent, const QStringList& names) : QWidget(parent) 
 
 		layout->addWidget(label);
 		layout->addWidget(fields_[i]);
-		connect(fields_[i], SIGNAL(valueChanged(float)), this, SLOT(onFieldValueChanged(float)));
+		connect(fields_[i], SIGNAL(valueChanged(float)), this, SLOT(onFieldValueChanged()));
 	}
 }
 
@@ -34,7 +34,12 @@ void VecField::setFields(float* values) {
 	}
 }
 
-void VecField::onFieldValueChanged(float value) {
+void VecField::setRange(uint index, float min, uint max) {
+	Q_ASSERT(index < count_);
+	fields_[index]->setRange(min, max);
+}
+
+void VecField::onFieldValueChanged() {
 	static float values[MAX_FLOAT_FIELDS];
 	for (uint i = 0; i < count_; ++i) {
 		values[i] = fields_[i]->value();

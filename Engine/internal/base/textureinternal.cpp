@@ -399,7 +399,9 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 }
 
 void RenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	SetViewport(width_, height_, normalizedRect);
+	if (!SetViewport(width_, height_, normalizedRect)) {
+		return;
+	}
 
 	if (ContainsDepthInfo()) {
 		framebuffer_->SetClearDepth(value.w);
@@ -591,7 +593,8 @@ void ScreenRenderTextureInternal::Unbind() {
 	framebuffer_->Unbind();
 }
 
-void RenderTextureInternalBase::SetViewport(uint width, uint height, const Rect& normalizedRect) {
+bool RenderTextureInternalBase::SetViewport(uint width, uint height, const Rect& normalizedRect) {
 	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
 	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+	return (uint)viewport.GetWidth() > 0 && (uint)viewport.GetHeight() > 0;
 }

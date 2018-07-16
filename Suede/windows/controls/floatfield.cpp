@@ -3,19 +3,31 @@
 #include <QMouseEvent>
 #include <QDoubleValidator>
 
-FloatField::FloatField(QWidget* parent) : QLineEdit(parent)
-	, dragging_(false), step_(1), value_(0) {
+#include "tools/math2.h"
+
+#define MAX_DECIMALS	5
+
+FloatField::FloatField(QWidget* parent)
+	: QLineEdit(parent)
+	, dragging_(false), step_(1), value_(0), min_(-FLT_MAX), max_(FLT_MAX) {
 	updateText();
 
 	setMouseTracking(true);
-	setValidator(new QDoubleValidator(this));
-
 	connect(this, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
 }
 
 void FloatField::setValue(float value) {
-	value_ = value;
-	updateText();
+	if (!Math::Approximately(value_, value)) {
+		value_ = value;
+		blockSignals(true);
+		updateText();
+		blockSignals(false);
+	}
+}
+
+void FloatField::setRange(float min, float max) {
+	min_ = min;
+	max_ = max;
 }
 
 void FloatField::updateText() {
@@ -59,6 +71,11 @@ void FloatField::mouseReleaseEvent(QMouseEvent* e) {
 }
 
 void FloatField::onEditingFinished() {
-	value_ = text().toFloat();
+	bool ok = false;
+	float f = text().toFloat(&ok);
+	if (ok) {
+		value_ = f;
+	}
+
 	updateText();
 }

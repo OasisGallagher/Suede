@@ -11,6 +11,8 @@ public:
 	float value() const { return value_; }
 	void setValue(float value);
 
+	void setRange(float min, float max);
+
 signals:
 	void valueChanged(float value);
 
@@ -30,6 +32,7 @@ private:
 
 	float step_;
 	float value_;
+	float min_, max_;
 
 	bool dragging_;
 };

@@ -10,7 +10,11 @@ public:
 	~VecField();
 
 public:
+	/**
+	 * set values with signal blocked.
+	 */
 	void setFields(float* values);
+	void setRange(uint index, float min, uint max);
 
 protected:
 	virtual void valueChanged(float* values) = 0;
@@ -19,7 +23,7 @@ protected:
 	const QStringList& verifyCount(const QStringList& names, uint count);
 
 private slots:
-	void onFieldValueChanged(float value);
+	void onFieldValueChanged();
 
 private:
 	uint count_;

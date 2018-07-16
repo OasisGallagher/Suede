@@ -393,6 +393,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_vec2field.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rectfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_rectfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="suede.qrc">
@@ -485,6 +491,9 @@
     <CustomBuild Include="windows\controls\vec4field.h">
       <Filter>windows\controls\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\controls\rectfield.h">
+      <Filter>windows\controls\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -575,6 +584,12 @@
     </None>
     <None Include="resources\shaders\builtin\include\lit_vertex.inc">
       <Filter>resources\shaders\builtin\include</Filter>
+    </None>
+    <None Include="GeneratedFiles\Debug\rectfield.moc">
+      <Filter>Generated Files\Debug</Filter>
+    </None>
+    <None Include="GeneratedFiles\Release\rectfield.moc">
+      <Filter>Generated Files\Release</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
