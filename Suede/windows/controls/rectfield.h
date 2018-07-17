@@ -13,7 +13,7 @@ public:
 
 public:
 	/**
-	 * set rect with signal blocked.
+	 * @brief set rect with signal blocked.
 	 */
 	void setValue(const Rect& value) { setFields((float*)&value); }
 

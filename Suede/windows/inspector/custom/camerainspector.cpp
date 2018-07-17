@@ -1,15 +1,15 @@
 #include <QGroupBox>
 
+#include "camera.h"
+#include "camerainspector.h"
+
 #include "tools/math2.h"
+
 #include "windows/controls/enumfield.h"
 #include "windows/controls/vec4field.h"
-
 #include "windows/controls/rectfield.h"
 #include "windows/controls/floatfield.h"
 #include "windows/controls/floatslider.h"
-
-#include "camera.h"
-#include "camerainspector.h"
 
 namespace Constants {
 	static uint minFieldOfView = 0;

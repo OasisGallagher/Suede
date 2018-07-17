@@ -17,7 +17,7 @@ public:
 
 public:
 	/**
-	 * set value with signal blocked.
+	 * @brief set value with signal blocked.
 	 */
 	void setValue(const glm::vec3& value) { setFields((float*)&value); }
 

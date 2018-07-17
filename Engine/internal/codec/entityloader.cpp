@@ -135,7 +135,7 @@ void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, Su
 	}
 
 	Renderer renderer = nullptr;
-	if (scene_->mNumAnimations == 0) {
+	if (!HasAnimation()) {
 		renderer = NewMeshRenderer();
 	}
 	else {
@@ -301,7 +301,7 @@ void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* m
 	aiString astring;
 	aiColor3D acolor;
 
-	materialAsset.shaderName = (scene_->mNumAnimations != 0) ? "lit_animated_texture" : "lit_texture";
+	materialAsset.shaderName = HasAnimation() ? "lit_animated_texture" : "lit_texture";
 
 	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
 		materialAsset.name = FileSystem::GetFileName(astring.C_Str());
@@ -354,7 +354,7 @@ void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* m
 }
 
 bool EntityLoader::LoadAnimation(Animation& animation) {
-	if (!skeleton_ || scene_->mNumAnimations == 0) {
+	if (!HasAnimation()) {
 		return false;
 	}
 
@@ -451,7 +451,7 @@ TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 		status = LoadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
 	}
 	else {
-		status = LoadExternalTexels(*answer, name);
+		status = LoadExternalTexels(*answer, FileSystem::GetFileNameWithoutExtension(path_) + "/" + name);
 	}
 
 	if (!status) {
@@ -497,17 +497,17 @@ bool EntityLoader::LoadAsset() {
 	Bounds* boundses = nullptr;
 	asset_.meshAsset.topology = MeshTopology::Triangles;
 
-	if (scene_->mNumMaterials > 0) {
-		asset_.materialAssets.resize(scene_->mNumMaterials);
-		LoadMaterialAssets();
-	}
-
 	if (scene_->mNumMeshes > 0) {
 		subMeshes = MEMORY_CREATE_ARRAY(SubMesh, scene_->mNumMeshes);
 		boundses = MEMORY_CREATE_ARRAY(Bounds, scene_->mNumMeshes);
 		if (!LoadAttribute(asset_.meshAsset, subMeshes, boundses)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
+	}
+
+	if (scene_->mNumMaterials > 0) {
+		asset_.materialAssets.resize(scene_->mNumMaterials);
+		LoadMaterialAssets();
 	}
 
 	surface_ = NewMesh();
