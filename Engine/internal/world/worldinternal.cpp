@@ -1,8 +1,8 @@
 #include "time2.h"
+#include "profiler.h"
 #include "resources.h"
 #include "api/glutils.h"
 #include "worldinternal.h"
-#include "debug/profiler.h"
 #include "geometryutility.h"
 #include "internal/async/guard.h"
 #include "internal/rendering/shadows.h"
@@ -16,7 +16,8 @@
 
 static void InitWorld(WorldInternal* world) {
 	GLUtils::Initialize();
-	UniformBufferManager::Initialize();
+
+	UniformBufferManager::get();
 
 	Shadows::get();
 	MatrixBuffer::get();
@@ -82,7 +83,6 @@ void WorldInternal::Destroy() {
 		(*ite)->OnBeforeWorldDestroyed();
 	}
 
-	UniformBufferManager::Destroy();
 	MEMORY_RELEASE(importer_);
 
 	RemoveEventListener(this);
@@ -405,7 +405,7 @@ inline void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
 	p.time.x = Time::get()->GetRealTimeSinceStartup();
 	p.time.y = Time::get()->GetDeltaTime();
-	UniformBufferManager::UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
+	UniformBufferManager::get()->UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void WorldInternal::Update() {

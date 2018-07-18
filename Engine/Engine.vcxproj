@@ -208,6 +208,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="src\graphics.cpp" />
     <ClCompile Include="src\plane.cpp" />
     <ClCompile Include="src\polygon.cpp" />
+    <ClCompile Include="src\profiler.cpp" />
     <ClCompile Include="src\rect.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\screen.cpp" />
@@ -247,6 +248,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\particlesystem.h" />
     <ClInclude Include="include\plane.h" />
     <ClInclude Include="include\polygon.h" />
+    <ClInclude Include="include\profiler.h" />
     <ClInclude Include="include\projector.h" />
     <ClInclude Include="include\rect.h" />
     <ClInclude Include="include\renderer.h" />

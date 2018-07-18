@@ -1,11 +1,11 @@
 #include "world.h"
 #include "screen.h"
+#include "profiler.h"
 #include "variables.h"
 #include "resources.h"
 #include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
-#include "debug/profiler.h"
 #include "internal/rendering/shadows.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
@@ -90,7 +90,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.worldToShadowMatrix = Shadows::get()->GetWorldToShadowMatrix();
 
 	p.cameraPosition = glm::vec4(matrices.position, 1);
-	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
+	UniformBufferManager::get()->UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
@@ -99,7 +99,7 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	p.lightColor = glm::vec4(light->GetColor(), 1);
 	p.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	p.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
-	UniformBufferManager::UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
+	UniformBufferManager::get()->UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {

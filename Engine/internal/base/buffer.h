@@ -3,6 +3,10 @@
 
 class Buffer {
 public:
+	Buffer();
+	~Buffer();
+
+public:
 	void Create(GLenum target, size_t size, const void* data, GLenum usage);
 	void Destroy();
 

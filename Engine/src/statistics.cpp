@@ -5,7 +5,11 @@
 #define thisFrameStats	stats_[1]
 #define FPS_REFRESH_TIME	0.5f
 
-void Statistics::Update() {
+Statistics::Statistics() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
+	Engine::get()->AddFrameEventListener(this);
+}
+
+void Statistics::OnFrameEnter() {
 	lastFrameStats = thisFrameStats;
 	memset(&thisFrameStats, 0, sizeof(FrameStats));
 

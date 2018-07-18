@@ -1,10 +1,8 @@
 #pragma once
+#include "engine.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Statistics : public Singleton<Statistics> {
-public:
-	void Update();
-
+class SUEDE_API Statistics : public Singleton<Statistics>, public FrameEventListener {
 public:
 	void AddTriangles(uint n);
 	void AddDrawcalls(uint n);
@@ -12,6 +10,13 @@ public:
 	uint GetTriangles();
 	uint GetDrawcalls();
 	float GetFrameRate();
+
+public:
+	virtual void OnFrameEnter();
+	virtual int GetFrameEventQueue() { return FrameEventQueueStatistics; }
+
+public:
+	Statistics();
 
 private:
 	float frameRate_;

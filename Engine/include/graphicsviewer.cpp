@@ -14,7 +14,7 @@ GraphicsViewer::GraphicsViewer(int argc, char * argv[])
 }
 
 GraphicsViewer::~GraphicsViewer() {
-	Engine::Release();
+	Engine::get()->Release();
 }
 
 void GraphicsViewer::Run() {
@@ -23,7 +23,7 @@ void GraphicsViewer::Run() {
 			canvas_->MakeCurrent();
 
 			Update();
-			Engine::Update();
+			Engine::get()->Update();
 
 			canvas_->SwapBuffers();
 			canvas_->DoneCurrent();
@@ -33,7 +33,7 @@ void GraphicsViewer::Run() {
 
 void GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	if (status_ == ViewerStatusUninitialized) {
-		Engine::Initialize();
+		Engine::get()->Initialize();
 		status_ = ViewerStatusRunning;
 	}
 

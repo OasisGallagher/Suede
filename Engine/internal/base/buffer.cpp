@@ -1,5 +1,13 @@
 #include "buffer.h"
 
+Buffer::Buffer() : old_(0), buffer_(0) {
+	memset(&attribute_, 0, sizeof(attribute_));
+}
+
+Buffer::~Buffer() {
+	Destroy();
+}
+
 void Buffer::Create(GLenum target, size_t size, const void* data, GLenum usage) {
 	Destroy();
 	GL::GenBuffers(1, &buffer_);

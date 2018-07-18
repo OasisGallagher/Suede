@@ -14,24 +14,29 @@
 #include "api/gl.h"
 #include "engine.h"
 #include "screen.h"
+#include "profiler.h"
 #include "statistics.h"
 #include "graphicscanvas.h"
-#include "debug/profiler.h"
 
-typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
-static FrameEventListenerContainer frameEventListeners_;
+static void OnTerminate() {
+	Debug::Break();
+}
 
-template <class MemFunc>
-static void ForEachFrameEventListener(MemFunc func) {
-	for (FrameEventListenerContainer::iterator ite = frameEventListeners_.begin();
-		ite != frameEventListeners_.end(); ++ite) {
+static void OnZThreadException(const std::exception& exception) {
+	Debug::Output("!!! Thread Exception %s\n", exception.what());
+	throw exception;
+}
+
+template <class T, class MemFunc>
+static void ForEachFrameEventListener(T& container, MemFunc func) {
+	for (T::iterator ite = container.begin(); ite != container.end(); ++ite) {
 		((*ite)->*func)();
 	}
 }
 
-static void SortFrameEventListeners() {
+void Engine::SortFrameEventListeners() {
 	struct FrameEventComparer {
-		bool operator()(FrameEventListener* lhs, FrameEventListener* rhs) {
+		bool operator()(FrameEventListener* lhs, FrameEventListener* rhs) const {
 			return lhs->GetFrameEventQueue() < rhs->GetFrameEventQueue();
 		}
 	};
@@ -40,7 +45,7 @@ static void SortFrameEventListeners() {
 	std::sort(frameEventListeners_.begin(), frameEventListeners_.end(), comparer);
 }
 
-static void SetDefaultGLStates() {
+void Engine::SetDefaultGLStates() {
 	GL::ClearDepth(1);
 	GL::DepthRange(0, 1);
 
@@ -51,15 +56,6 @@ static void SetDefaultGLStates() {
 	GL::CullFace(GL_BACK);
 	
 	GL::DepthMask(GL_TRUE);
-}
-
-static void OnZThreadException(const std::exception& exception) {
-	Debug::Output("!!! Thread Exception %s\n", exception.what());
-	throw exception;
-}
-
-static void OnTerminate() {
-	Debug::Break();
 }
 
 bool Engine::Initialize() {
@@ -100,12 +96,8 @@ void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
 }
 
 void Engine::Update() {
-	Time::get()->Update();
-	Profiler::get()->Update();
-	Statistics::get()->Update();
-
 	SortFrameEventListeners();
-	ForEachFrameEventListener(&FrameEventListener::OnFrameEnter);
+	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
 	WorldInstance()->Update();
-	ForEachFrameEventListener(&FrameEventListener::OnFrameLeave);
+	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameLeave);
 }

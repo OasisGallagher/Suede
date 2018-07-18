@@ -3,8 +3,8 @@
 #include "world.h"
 #include "engine.h"
 #include "gizmos.h"
+#include "profiler.h"
 #include "gizmospainter.h"
-#include "debug/profiler.h"
 #include "geometryutility.h"
 
 #include "internal/entities/camerainternal.h"
@@ -20,7 +20,7 @@ CameraInternal::CameraInternal()
 
 	rendering_ = MEMORY_CREATE(Rendering, &p_);// , this);
 
-	Engine::AddFrameEventListener(this);
+	Engine::get()->AddFrameEventListener(this);
 	Screen::AddScreenSizeChangedListener(this);
 
 	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
@@ -34,7 +34,7 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(traits1_);
 
 	MEMORY_RELEASE(rendering_);
-	Engine::RemoveFrameEventListener(this);
+	Engine::get()->RemoveFrameEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
 }
 

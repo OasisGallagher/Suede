@@ -1,9 +1,10 @@
-#include "ui_suede.h"
 #include "inspector.h"
+
+#include "ui_suede.h"
+#include "profiler.h"
 #include "tagmanager.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
-#include "debug/profiler.h"
 
 #include "custom/meshinspector.h"
 #include "custom/lightinspector.h"

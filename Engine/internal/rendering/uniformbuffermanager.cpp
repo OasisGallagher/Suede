@@ -3,11 +3,7 @@
 #include "memory/memory.h"
 #include "uniformbuffermanager.h"
 
-uint UniformBufferManager::offsetAlignment_;
-
-UniformBufferManager::SharedUniformBufferContainer UniformBufferManager::sharedUniformBuffers_;
-
-void UniformBufferManager::Initialize() {
+UniformBufferManager::UniformBufferManager() {
 	GL::GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint*)&offsetAlignment_);
 
 	CreateSharedUniformBuffer<SharedTimeUniformBuffer>();
@@ -15,7 +11,7 @@ void UniformBufferManager::Initialize() {
 	CreateSharedUniformBuffer<SharedTransformsUniformBuffer>();
 }
 
-void UniformBufferManager::Destroy() {
+UniformBufferManager::~UniformBufferManager() {
 	for (SharedUniformBufferContainer::iterator ite = sharedUniformBuffers_.begin(); ite != sharedUniformBuffers_.end(); ++ite) {
 		MEMORY_RELEASE(ite->second);
 	}

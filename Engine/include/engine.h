@@ -1,16 +1,26 @@
 #pragma once
+#include <vector>
 
 #include "enginedefines.h"
+#include "tools/singleton.h"
 #include "frameeventlistener.h"
 
 class GraphicsCanvas;
-class Engine {
+class Engine : public Singleton<Engine> {
 public:
-	static bool Initialize();
-	static void Release();
+	bool Initialize();
+	void Release();
 
-	static void Update();
+	void Update();
 
-	static void AddFrameEventListener(FrameEventListener* listener);
-	static void RemoveFrameEventListener(FrameEventListener* listener);
+	void AddFrameEventListener(FrameEventListener* listener);
+	void RemoveFrameEventListener(FrameEventListener* listener);
+
+private:
+	void SetDefaultGLStates();
+	void SortFrameEventListeners();
+	
+private:
+	typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
+	FrameEventListenerContainer frameEventListeners_;
 };

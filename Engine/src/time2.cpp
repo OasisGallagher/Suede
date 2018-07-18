@@ -1,8 +1,12 @@
 #include "time2.h"
+#include "profiler.h"
 #include "debug/debug.h"
-#include "debug/profiler.h"
 
-void Time::Update() {
+Time::Time() {
+	Engine::get()->AddFrameEventListener(this);
+}
+
+void Time::OnFrameEnter() {
 	uint64 timeStamp = Profiler::get()->GetTimeStamp();
 	deltaTime_ = Profiler::get()->TimeStampToSeconds(timeStamp - lastFrameTimeStamp_);
 	lastFrameTimeStamp_ = timeStamp;

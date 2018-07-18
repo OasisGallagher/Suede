@@ -519,9 +519,6 @@
     <ClInclude Include="glm\gtx\wrap.hpp">
       <Filter>glm\gtx</Filter>
     </ClInclude>
-    <ClInclude Include="debug\profiler.h">
-      <Filter>debug\include</Filter>
-    </ClInclude>
     <ClInclude Include="tools\dirtybits.h">
       <Filter>tools\include</Filter>
     </ClInclude>
@@ -556,9 +553,6 @@
     </ClCompile>
     <ClCompile Include="os\filesystem.cpp">
       <Filter>os\src</Filter>
-    </ClCompile>
-    <ClCompile Include="debug\profiler.cpp">
-      <Filter>debug\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

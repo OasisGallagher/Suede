@@ -5,9 +5,9 @@
 #include <QFileDialog>
 #include <QProgressBar>
 
+#include "profiler.h"
 #include "tools/math2.h"
 #include "tools/string.h"
-#include "debug/profiler.h"
 
 #include "variables.h"
 #include "resources.h"

@@ -1,10 +1,10 @@
 #include <algorithm>
 
 #include "pipeline.h"
+#include "profiler.h"
 #include "statistics.h"
 #include "api/glutils.h"
 #include "matrixbuffer.h"
-#include "debug/profiler.h"
 #include "internal/base/vertexattrib.h"
 #include "internal/base/renderdefines.h"
 

@@ -3,13 +3,13 @@
 #include "api/gl.h"
 
 GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
-	Engine::AddFrameEventListener(this);
+	Engine::get()->AddFrameEventListener(this);
 
 	GL::GenQueries(MaxQueries, ids_);
 }
 
 GpuQuerier::~GpuQuerier() {
-	Engine::RemoveFrameEventListener(this);
+	Engine::get()->RemoveFrameEventListener(this);
 	GL::DeleteQueries(MaxQueries, ids_);
 }
 

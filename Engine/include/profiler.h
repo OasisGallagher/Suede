@@ -1,7 +1,7 @@
 #pragma once
-#include "../types.h"
-#include "../tools/singleton.h"
-#include "../containers/freelist.h"
+#include "engine.h"
+#include "tools/singleton.h"
+#include "containers/freelist.h"
 
 class SUEDE_API Sample {
 public:
@@ -26,15 +26,17 @@ private:
 	uint64 timeStamp_;
 };
 
-class SUEDE_API Profiler : public Singleton<Profiler> {
+class SUEDE_API Profiler : public Singleton<Profiler>, public FrameEventListener {
 public:
-	void Update();
-
 	Sample* CreateSample();
 	void ReleaseSample(Sample* value);
 
 	uint64 GetTimeStamp();
 	double TimeStampToSeconds(uint64 timeStamp);
+
+public:
+	virtual void OnFrameEnter();
+	virtual int GetFrameEventQueue() { return FrameEventQueueProfiler; }
 
 public:
 	Profiler();

@@ -1,7 +1,7 @@
 #include <Windows.h>
 
-#include "debug.h"
 #include "profiler.h"
+#include "debug/debug.h"
 
 Profiler::Profiler() : samples_(MaxProfilterSamples) {
 	LARGE_INTEGER frequency;
@@ -12,9 +12,11 @@ Profiler::Profiler() : samples_(MaxProfilterSamples) {
 		timeStampToSeconds_ = 1.0;
 		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
 	}
+
+	Engine::get()->AddFrameEventListener(this);
 }
 
-void Profiler::Update() {
+void Profiler::OnFrameEnter() {
 	//for (SampleContainer::iterator ite = samples_.begin(); ite != samples_.end(); ++ite) {
 	//	(*ite)->Reset();
 	//}

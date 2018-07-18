@@ -2,6 +2,7 @@
 #include <map>
 #include "shader.h"
 #include "tools/string.h"
+#include "tools/singleton.h"
 #include "internal/base/uniformbuffer.h"
 
 struct SharedTimeUniformBuffer {
@@ -30,29 +31,29 @@ struct SharedTransformsUniformBuffer {
 };
 
 class UniformBuffer;
-class UniformBufferManager {
+class UniformBufferManager : public Singleton<UniformBufferManager> {
 public:
-	static void Initialize();
-	static void Destroy();
+	//void Destroy();
 
 public:
-	static uint GetOffsetAlignment() { return offsetAlignment_; }
+	uint GetOffsetAlignment() { return offsetAlignment_; }
 
 public:
-	static void AttachSharedBuffers(Shader shader);
-	static bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
+	void AttachSharedBuffers(Shader shader);
+	bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
 
-private:
-	UniformBufferManager() {}
+public:
+	UniformBufferManager();
+	~UniformBufferManager();
 
 private:
 	template <class T>
-	static void CreateSharedUniformBuffer(uint size = 0);
+	void CreateSharedUniformBuffer(uint size = 0);
 
 private:
 	typedef std::map<std::string, UniformBuffer*> SharedUniformBufferContainer;
-	static SharedUniformBufferContainer sharedUniformBuffers_;
-	static uint offsetAlignment_;
+	SharedUniformBufferContainer sharedUniformBuffers_;
+	uint offsetAlignment_;
 };
 
 template  <class T>
