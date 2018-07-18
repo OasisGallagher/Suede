@@ -4,22 +4,27 @@
 #include "light.h"
 #include "entity.h"
 #include "material.h"
+#include "tools/singleton.h"
 
 class Pipeline;
 
-class Shadows {
+class Shadows : public Singleton<Shadows> {
 public:
-	static void Initialize();
-	static void AttachShadowTexture(Material material);
+	void AttachShadowTexture(Material material);
 
 public:
-	static void Clear();
-	static RenderTexture GetShadowTexture();
+	void Clear();
+	RenderTexture GetShadowTexture();
 
-	static void Resize(uint width, uint height);
-	static const glm::mat4& GetWorldToShadowMatrix();
-	static void Update(DirectionalLight light, Pipeline* pipeline);
+	void Resize(uint width, uint height);
+	const glm::mat4& GetWorldToShadowMatrix();
+	void Update(DirectionalLight light, Pipeline* pipeline);
+
+public:
+	Shadows();
 
 private:
-	Shadows();
+	RenderTexture shadowDepthTexture_;
+	glm::mat4 worldToShadowMatrix_;
+	Material directionalLightShadowMaterial_;
 };

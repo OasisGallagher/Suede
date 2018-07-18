@@ -1,18 +1,26 @@
 #pragma once
+#include "tools/singleton.h"
 
-class SUEDE_API Statistics {
+class SUEDE_API Statistics : public Singleton<Statistics> {
 public:
-	static void AddTriangles(uint n);
-	static void AddDrawcalls(uint n);
+	void Update();
 
-	static uint GetTriangles();
-	static uint GetDrawcalls();
-	static float GetFrameRate();
+public:
+	void AddTriangles(uint n);
+	void AddDrawcalls(uint n);
+
+	uint GetTriangles();
+	uint GetDrawcalls();
+	float GetFrameRate();
 
 private:
-	friend class Engine;
-	static void Update();
+	float frameRate_;
+	float timeCounter_;
+	uint frameCounter_;
 
-private:
-	Statistics();
+	struct FrameStats {
+		uint ndrawcalls;
+		uint nvertices;
+		uint ntriangles;
+	} stats_[2];
 };

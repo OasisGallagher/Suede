@@ -33,9 +33,9 @@ void Rendering::Resize(uint width, uint height) {
 	p_->renderTextures.depth->Resize(width, height);
 }
 
-Sample* depthSample = Profiler::CreateSample();
-Sample* shadowSample = Profiler::CreateSample();
-Sample* renderingSample = Profiler::CreateSample();
+Sample* depthSample = Profiler::get()->CreateSample();
+Sample* shadowSample = Profiler::get()->CreateSample();
+Sample* renderingSample = Profiler::get()->CreateSample();
 #define OutputSample(sample)	Debug::Output("%s elapsed %.2f seconds", #sample, sample->GetElapsedSeconds())
 
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
@@ -52,8 +52,8 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	UpdateForwardBaseLightUniformBuffer(pipelines.forwardBaseLight);
 
 	RenderTexture target = pipelines.rendering->GetTargetTexture();
-	Shadows::Resize(target->GetWidth(), target->GetHeight());
-	Shadows::Clear();
+	Shadows::get()->Resize(target->GetWidth(), target->GetHeight());
+	Shadows::get()->Clear();
 
 	shadowSample->Restart();
 	pipelines.shadow->Run();
@@ -87,7 +87,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	p.worldToCameraMatrix = matrices.worldToCameraMatrix;
 	p.cameraToClipMatrix = matrices.projectionMatrix;
-	p.worldToShadowMatrix = Shadows::GetWorldToShadowMatrix();
+	p.worldToShadowMatrix = Shadows::get()->GetWorldToShadowMatrix();
 
 	p.cameraPosition = glm::vec4(matrices.position, 1);
 	UniformBufferManager::UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
@@ -103,7 +103,7 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 }
 
 void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
-	Shader shader = Resources::FindShader(shaderPath);
+	Shader shader = Resources::get()->FindShader(shaderPath);
 	material = NewMaterial();
 	material->SetShader(shader);
 	material->SetRenderQueue(renderQueue);
@@ -132,11 +132,11 @@ RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* li
 	pipelines_.rendering = MEMORY_CREATE(Pipeline);
 
 	pipelines_.shadow = MEMORY_CREATE(Pipeline);
-	pipelines_.shadow->SetTargetTexture(Shadows::GetShadowTexture(), Rect(0, 0, 1, 1));
+	pipelines_.shadow->SetTargetTexture(Shadows::get()->GetShadowTexture(), Rect(0, 0, 1, 1));
 
-	forward_pass = Profiler::CreateSample();
-	push_renderables = Profiler::CreateSample();
-	get_renderable_entities = Profiler::CreateSample();
+	forward_pass = Profiler::get()->CreateSample();
+	push_renderables = Profiler::get()->CreateSample();
+	get_renderable_entities = Profiler::get()->CreateSample();
 }
 
 RenderableTraits::~RenderableTraits() {
@@ -144,9 +144,9 @@ RenderableTraits::~RenderableTraits() {
 	MEMORY_RELEASE(pipelines_.shadow);
 	MEMORY_RELEASE(pipelines_.rendering);
 
-	Profiler::ReleaseSample(forward_pass);
-	Profiler::ReleaseSample(push_renderables);
-	Profiler::ReleaseSample(get_renderable_entities);
+	Profiler::get()->ReleaseSample(forward_pass);
+	Profiler::get()->ReleaseSample(push_renderables);
+	Profiler::get()->ReleaseSample(get_renderable_entities);
 }
 
 void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices) {
@@ -179,7 +179,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	RenderTexture target = GetActiveRenderTarget();
 
-	Shadows::Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
+	Shadows::get()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
 
 	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
 	if (p_->renderPath == +RenderPath::Forward) {
@@ -222,7 +222,7 @@ void RenderableTraits::InitializeDeferredRender() {
 
 	deferredMaterial_ = NewMaterial();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
-	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
+	deferredMaterial_->SetShader(Resources::get()->FindShader("builtin/gbuffer"));*/
 }
 
 void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<Entity>& entities_) {
@@ -245,7 +245,7 @@ void RenderableTraits::RenderSkybox(Pipeline* pl) {
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pl->AddRenderable(Resources::GetPrimitive(PrimitiveTypeCube), skybox, 0, matrix);
+		pl->AddRenderable(Resources::get()->GetPrimitive(PrimitiveTypeCube), skybox, 0, matrix);
 	}
 }
 

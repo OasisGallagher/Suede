@@ -84,14 +84,14 @@ void Game::awake() {
 	grayscale_ = new Grayscale;
 	inversion_ = new Inversion;
 
-	loadSceneStart_ = Time::GetRealTimeSinceStartup();
+	loadSceneStart_ = Time::get()->GetRealTimeSinceStartup();
 	createScene();
 }
 
 void Game::OnDrawGizmos() {
 	int i = 0;
 	glm::vec3 colors[] = { glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) };
-	glm::vec3 oldColor = Gizmos::GetColor();
+	glm::vec3 oldColor = Gizmos::get()->GetColor();
 	foreach(Entity entity, selection_) {
 		if (!entity->GetActive()) {
 			continue;
@@ -99,13 +99,13 @@ void Game::OnDrawGizmos() {
 
 		const Bounds& bounds = entity->GetBounds();
 		if (!bounds.IsEmpty()) {
-			Gizmos::SetColor(colors[i % CountOf(colors)]);
-			Gizmos::DrawCuboid(bounds.center, bounds.size);
+			Gizmos::get()->SetColor(colors[i % CountOf(colors)]);
+			Gizmos::get()->DrawCuboid(bounds.center, bounds.size);
 			++i;
 		}
 	}
 
-	Gizmos::SetColor(oldColor);
+	Gizmos::get()->SetColor(oldColor);
 }
 
 void Game::OnEntityImported(Entity root, const std::string& path) {
@@ -132,7 +132,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			root->GetTransform()->SetScale(glm::vec3(0.01f));
 		}
 
-		float delta = Time::GetRealTimeSinceStartup() - loadSceneStart_;
+		float delta = Time::get()->GetRealTimeSinceStartup() - loadSceneStart_;
 		Status::get()->showMessage(QString("%1 loaded in %2 seconds").arg(path.c_str()).arg(QString::number(delta, 'g', 2)), 2000);
 	}
 }
@@ -286,7 +286,7 @@ void Game::createScene() {
 	camera->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
 
 	Material skybox = NewMaterial();
-	skybox->SetShader(Resources::FindShader("builtin/skybox"));
+	skybox->SetShader(Resources::get()->FindShader("builtin/skybox"));
 
 	TextureCube cube = NewTextureCube();
 
@@ -393,7 +393,7 @@ void Game::createScene() {
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
-	Shader shader = Resources::FindShader("xray");
+	Shader shader = Resources::get()->FindShader("xray");
 	materail->SetShader(shader);
 #endif
 

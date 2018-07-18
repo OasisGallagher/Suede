@@ -157,5 +157,5 @@ void CameraInternal::OnDrawGizmos() {
 		gizmosPainters_[i]->OnDrawGizmos();
 	}
 
-	Gizmos::Flush();
+	Gizmos::get()->Flush();
 }

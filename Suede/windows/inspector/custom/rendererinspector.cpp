@@ -20,7 +20,7 @@
 
 static const char* shaderRegex = ".*\\.shader";
 static QString shaderDirectory = "resources/shaders/";
-static Sample* render_inspector = Profiler::CreateSample();
+static Sample* render_inspector = Profiler::get()->CreateSample();
 
 static void begin_render_inspector() {
 	render_inspector->Restart();
@@ -184,7 +184,7 @@ void RendererInspector::drawMaterialProperties(QWidgetList& widgets, Material ma
 }
 
 bool RendererInspector::updateMaterial(uint materialIndex, const QString& shaderPath) {
-	Shader shader = Resources::FindShader(shaderPath.toStdString());
+	Shader shader = Resources::get()->FindShader(shaderPath.toStdString());
 	if (!shader) {
 		return false;
 	}

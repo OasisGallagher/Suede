@@ -13,7 +13,7 @@
 
 static Inspector* inspectorInstance;
 
-static Sample* sample = Profiler::CreateSample();
+static Sample* sample = Profiler::get()->CreateSample();
 
 Inspector* Inspector::get() {
 	return inspectorInstance;

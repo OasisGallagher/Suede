@@ -1,5 +1,6 @@
 #pragma once
 #include "../types.h"
+#include "../tools/singleton.h"
 #include "../containers/freelist.h"
 
 class SUEDE_API Sample {
@@ -14,7 +15,7 @@ public:
 
 private:
 	/**
-	 * use Profiler::CreateSample() to create.
+	 * use Profiler::get()->CreateSample() to create.
 	 */
 	Sample() { Reset(); }
 	friend class free_list<Sample>;
@@ -25,15 +26,25 @@ private:
 	uint64 timeStamp_;
 };
 
-class SUEDE_API Profiler {
+class SUEDE_API Profiler : public Singleton<Profiler> {
 public:
-	static void Initialize();
-	static void Update();
+	void Update();
+
+	Sample* CreateSample();
+	void ReleaseSample(Sample* value);
+
+	uint64 GetTimeStamp();
+	double TimeStampToSeconds(uint64 timeStamp);
 
 public:
-	static Sample* CreateSample();
-	static void ReleaseSample(Sample* value);
+	Profiler();
 
-	static uint64 GetTimeStamp();
-	static double TimeStampToSeconds(uint64 timeStamp);
+private:
+	enum {
+		MaxProfilterSamples = 1024,
+	};
+
+	typedef free_list<Sample> SampleContainer;
+	SampleContainer samples_;
+	double timeStampToSeconds_;
 };

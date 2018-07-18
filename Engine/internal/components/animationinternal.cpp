@@ -338,7 +338,7 @@ bool AnimationInternal::Play(const std::string& name) {
 void AnimationInternal::Update() {
 	if (!playing_ || !current_) { return; }
 
-	time_ += Time::GetDeltaTime();
+	time_ += Time::get()->GetDeltaTime();
 	
 	if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
 		current_->Sample(0);

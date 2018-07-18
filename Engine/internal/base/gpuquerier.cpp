@@ -1,19 +1,28 @@
 #include "gpuquerier.h"
 
-GpuQuerier::GpuQuerier() : queriers_(16) {
+#include "api/gl.h"
+
+GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
 	Engine::AddFrameEventListener(this);
+
+	GL::GenQueries(MaxQueries, ids_);
 }
 
 GpuQuerier::~GpuQuerier() {
 	Engine::RemoveFrameEventListener(this);
+	GL::DeleteQueries(MaxQueries, ids_);
 }
 
 uint GpuQuerier::Start(QueryType type, QuerierResultListener* listener) {
+	if (listener == nullptr) {
+		Debug::LogError("invalid listener");
+		return 0;
+	}
+
 	return 0;
 }
 
 void GpuQuerier::Stop() {
-
 }
 
 void GpuQuerier::OnFrameEnter() {
@@ -22,6 +31,4 @@ void GpuQuerier::OnFrameEnter() {
 }
 
 void GpuQuerier::OnFrameLeave() {
-	throw std::logic_error("The method or operation is not implemented.");
 }
-

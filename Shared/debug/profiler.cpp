@@ -3,19 +3,13 @@
 #include "debug.h"
 #include "profiler.h"
 
-static double timeStampToSeconds = 1.0;
-
-#define MAX_PROFILTER_SAMPLES	1024
-
-typedef free_list<Sample> SampleContainer;
-static  SampleContainer samples_(MAX_PROFILTER_SAMPLES);
-
-void Profiler::Initialize() {
+Profiler::Profiler() : samples_(MaxProfilterSamples) {
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency)) {
-		timeStampToSeconds = 1.0 / frequency.QuadPart;
+		timeStampToSeconds_ = 1.0 / frequency.QuadPart;
 	}
 	else {
+		timeStampToSeconds_ = 1.0;
 		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
 	}
 }
@@ -36,7 +30,7 @@ void Profiler::ReleaseSample(Sample* sample) {
 }
 
 double Profiler::TimeStampToSeconds(uint64 timeStamp) {
-	return timeStamp * timeStampToSeconds;
+	return timeStamp * timeStampToSeconds_;
 }
 
 uint64 Profiler::GetTimeStamp() {
@@ -51,7 +45,7 @@ uint64 Profiler::GetTimeStamp() {
 
 void Sample::Start() {
 	started_ = true;
-	timeStamp_ = Profiler::GetTimeStamp();
+	timeStamp_ = Profiler::get()->GetTimeStamp();
 }
 
 void Sample::Restart() {
@@ -61,7 +55,7 @@ void Sample::Restart() {
 
 void Sample::Stop() {
 	started_ = false;
-	elapsed_ += (Profiler::GetTimeStamp() - timeStamp_);
+	elapsed_ += (Profiler::get()->GetTimeStamp() - timeStamp_);
 }
 
 void Sample::Reset() {
@@ -75,5 +69,5 @@ double Sample::GetElapsedSeconds() const {
 		return 0.0;
 	}
 
-	return Profiler::TimeStampToSeconds(elapsed_);
+	return Profiler::get()->TimeStampToSeconds(elapsed_);
 }

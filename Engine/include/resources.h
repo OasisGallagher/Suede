@@ -1,10 +1,12 @@
 #pragma once
+#include <map>
 #include <vector>
 
 #include "mesh.h"
 #include "shader.h"
 #include "material.h"
 #include "renderer.h"
+#include "tools/singleton.h"
 
 enum PrimitiveType {
 	PrimitiveTypeQuad,
@@ -22,29 +24,58 @@ struct TextureResource {
 	std::string path;
 };
 
-class SUEDE_API Resources {
+class SUEDE_API Resources : public Singleton<Resources> {
 public:
-	static void Import();
+	void Import();
 
 public:
-	static Texture2D GetBlackTexture();
-	static Texture2D GetWhiteTexture();
+	Texture2D GetBlackTexture();
+	Texture2D GetWhiteTexture();
 
-	static std::string GetRootDirectory();
-	static std::string GetModelDirectory();
-	static std::string GetShaderDirectory();
-	static std::string GetTextureDirectory();
+	std::string GetRootDirectory();
+	std::string GetModelDirectory();
+	std::string GetShaderDirectory();
+	std::string GetTextureDirectory();
 
-	static Mesh GetPrimitive(PrimitiveType type);
-	static Mesh CreatePrimitive(PrimitiveType type, float scale);
-	static Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	Mesh GetPrimitive(PrimitiveType type);
+	Mesh CreatePrimitive(PrimitiveType type, float scale);
+	Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
-	static void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
+	void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 
-	static Shader FindShader(const std::string& path);
-	static Texture FindTexture(const std::string& path);
-	static Material FindMaterial(const std::string& name);
+	Shader FindShader(const std::string& path);
+	Texture FindTexture(const std::string& path);
+	Material FindMaterial(const std::string& name);
+
+public:
+	Resources();
 
 private:
-	Resources();
+	// TODO: ????
+	const char* GetRelativePath(const char* path);
+
+	void ImportShaderResources();
+	void ImportTextureResources();
+	void ImportBuiltinResources();
+
+	void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
+	void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
+	Mesh CreateMesh(MeshAttribute &attribute);
+	Texture2D CreateSolidTexture(uint color);
+
+private:
+	typedef std::map<std::string, Shader> ShaderContainer;
+	ShaderContainer shaders_;
+
+	typedef std::map<std::string, Texture> TextureContainer;
+	TextureContainer textures_;
+
+	typedef std::map<std::string, Material> MaterialContainer;
+	MaterialContainer materials_;
+
+	typedef std::vector<TextureResource> TextureResourceContainer;
+	TextureResourceContainer textureResources_;
+
+	Mesh primitives_[PrimitiveTypeCount];
+	Texture2D blackTexture_, whiteTexture_;
 };

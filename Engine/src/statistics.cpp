@@ -1,32 +1,22 @@
 #include "time2.h"
 #include "statistics.h"
 
-static float frameRate;
-static float timeCounter;
-static uint frameCounter;
-
-struct FrameStats {
-	uint ndrawcalls;
-	uint nvertices;
-	uint ntriangles;
-} stats[2];
-
+#define lastFrameStats	stats_[0]
+#define thisFrameStats	stats_[1]
 #define FPS_REFRESH_TIME	0.5f
-FrameStats& lastFrameStats = stats[0];
-FrameStats& thisFrameStats = stats[1];
 
 void Statistics::Update() {
 	lastFrameStats = thisFrameStats;
 	memset(&thisFrameStats, 0, sizeof(FrameStats));
 
-	if (timeCounter < FPS_REFRESH_TIME) {
-		timeCounter += Time::GetDeltaTime();
-		frameCounter++;
+	if (timeCounter_ < FPS_REFRESH_TIME) {
+		timeCounter_ += Time::get()->GetDeltaTime();
+		frameCounter_++;
 	}
 	else {
-		frameRate = (float)frameCounter / timeCounter;
-		frameCounter = 0;
-		timeCounter = 0.0f;
+		frameRate_ = (float)frameCounter_ / timeCounter_;
+		frameCounter_ = 0;
+		timeCounter_ = 0.0f;
 	}
 }
 
@@ -47,5 +37,5 @@ uint Statistics::GetDrawcalls() {
 }
 
 float Statistics::GetFrameRate() {
-	return frameRate;
+	return frameRate_;
 }

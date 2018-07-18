@@ -3,9 +3,7 @@
 #include "matrixbuffer.h"
 #include "internal/base/renderdefines.h"
 
-TextureBuffer textureBuffer_;
-
-void MatrixBuffer::Initialize() {
+MatrixBuffer::MatrixBuffer() {
 	textureBuffer_ = NewTextureBuffer();
 	textureBuffer_->Create(INIT_RENDERABLE_CAPACITY * sizeof(glm::mat4) * 2);
 }

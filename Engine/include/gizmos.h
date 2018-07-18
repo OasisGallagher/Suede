@@ -1,20 +1,39 @@
 #pragma once
-#include "types.h"
 #include <glm/glm.hpp>
 
-class SUEDE_API Gizmos {
+#include "types.h"
+#include "tools/singleton.h"
+
+class SUEDE_API Gizmos : public Singleton<Gizmos> {
 public:
-	static glm::vec3 GetColor();
-	static void SetColor(const glm::vec3& value);
+	glm::vec3 GetColor();
+	void SetColor(const glm::vec3& value);
 
-	static void DrawLines(const glm::vec3* points, uint npoints);
-	static void DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes);
+	void DrawLines(const glm::vec3* points, uint npoints);
+	void DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes);
 
-	static void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
+	void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
 
 public:
-	static void Flush();
+	void Flush();
+
+public:
+	Gizmos();
 
 private:
-	Gizmos();
+	struct Batch {
+		glm::vec3 color;
+		std::vector<uint> indexes;
+		std::vector<glm::vec3> points;
+	};
+
+private:
+	Batch& GetBatch();
+
+private:
+	Mesh mesh_;
+	Material material_;
+
+	glm::vec3 color_;
+	std::vector<Batch> batches_;
 };

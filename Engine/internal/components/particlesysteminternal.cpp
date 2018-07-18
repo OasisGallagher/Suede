@@ -42,7 +42,7 @@ void ParticleSystemInternal::Update() {
 		UpdateEmitter();
 	}
 
-	time_ += Time::GetDeltaTime();
+	time_ += Time::get()->GetDeltaTime();
 
 	ComponentInternal::Update();
 }
@@ -99,7 +99,7 @@ void ParticleSystemInternal::UpdateMesh() {
 }
 
 void ParticleSystemInternal::UpdateAttributes() {
-	float deltaTime = Time::GetDeltaTime();
+	float deltaTime = Time::get()->GetDeltaTime();
 
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
@@ -171,7 +171,7 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute color(maxParticles_, 1);
 	InstanceAttribute geometry(maxParticles_, 1);
-	Mesh mesh = Resources::CreateInstancedPrimitive(PrimitiveTypeQuad, 1, color, geometry);
+	Mesh mesh = Resources::get()->CreateInstancedPrimitive(PrimitiveTypeQuad, 1, color, geometry);
 	GetEntity()->SetMesh(mesh);
 	meshDirty_ = false;
 }
@@ -180,7 +180,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	ParticleRenderer renderer = NewParticleRenderer();
 
 	Material material = NewMaterial();
-	Shader shader = Resources::FindShader("builtin/particle");
+	Shader shader = Resources::get()->FindShader("builtin/particle");
 	material->SetShader(shader);
 
 	Texture2D mainTexture = NewTexture2D();
@@ -226,21 +226,21 @@ void ParticleEmitterInternal::EmitParticles(Particle** particles, uint count) {
 
 uint ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	uint ans = rate_;
-	float nextTime = time_ + Time::GetDeltaTime();
+	float nextTime = time_ + Time::get()->GetDeltaTime();
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
 			ans = Math::Random(bursts_[i].min, bursts_[i].max);
 		}
 	}
 
-	remainder_ += ans * Time::GetDeltaTime();
+	remainder_ += ans * Time::get()->GetDeltaTime();
 	ans = (uint)remainder_;
 	remainder_ -= ans;
 	return ans;
 }
 
 void ParticleAnimatorInternal::Update(Particle& particle) {
-	float deltaTime = Time::GetDeltaTime();
+	float deltaTime = Time::get()->GetDeltaTime();
 	particle.position += particle.velocity * deltaTime;
 	particle.velocity += kGravitationalAcceleration * gravityScale_ * deltaTime;
 }

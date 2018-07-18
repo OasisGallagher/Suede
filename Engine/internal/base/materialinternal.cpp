@@ -428,8 +428,8 @@ void MaterialInternal::InitializeProperties() {
 	}
 
 	Material _this = SharedThis();
-	Shadows::AttachShadowTexture(_this);
-	MatrixBuffer::AttachMatrixBuffer(_this);
+	Shadows::get()->AttachShadowTexture(_this);
+	MatrixBuffer::get()->AttachMatrixBuffer(_this);
 }
 
 void MaterialInternal::InitializeEnabledState() {

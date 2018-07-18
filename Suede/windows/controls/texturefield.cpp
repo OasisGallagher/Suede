@@ -42,10 +42,10 @@ void TextureField::showTextureExplorer() {
 		disconnect(connection_);
 	}
 
-	QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::GetTextureDirectory().c_str(), "*.jpg;;*.png");
+	QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::get()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
 	if (!path.isEmpty()) {
 		Texture2D texture = NewTexture2D();
-		path = QDir(Resources::GetTextureDirectory().c_str()).relativeFilePath(path);
+		path = QDir(Resources::get()->GetTextureDirectory().c_str()).relativeFilePath(path);
 
 		if (texture->Load(path.toStdString())) {
 			setTexture(texture);

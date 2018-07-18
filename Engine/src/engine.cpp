@@ -77,7 +77,6 @@ bool Engine::Initialize() {
 	SetDefaultGLStates();
 
 	GLEF::Initialize();
-	Profiler::Initialize();
 
 	return true;
 }
@@ -101,9 +100,9 @@ void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
 }
 
 void Engine::Update() {
-	Time::Update();
-	Profiler::Update();
-	Statistics::Update();
+	Time::get()->Update();
+	Profiler::get()->Update();
+	Statistics::get()->Update();
 
 	SortFrameEventListeners();
 	ForEachFrameEventListener(&FrameEventListener::OnFrameEnter);

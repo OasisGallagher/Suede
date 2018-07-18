@@ -1,43 +1,14 @@
-#include <map>
 #include "resources.h"
 #include "tools/math2.h"
 #include "os/filesystem.h"
 
-typedef std::map<std::string, Shader> ShaderContainer;
-static ShaderContainer shaders_;
-
-typedef std::map<std::string, Texture> TextureContainer;
-static TextureContainer textures_;
-
-typedef std::map<std::string, Material> MaterialContainer;
-static MaterialContainer materials_;
-
-typedef std::vector<TextureResource> TextureResourceContainer;
-static TextureResourceContainer textureResources_;
-
-static Mesh primitives_[PrimitiveTypeCount];
-static Texture2D blackTexture_, whiteTexture_;
-
-static const char* GetRelativePath(const char* path);
-
-static void ImportShaderResources();
-static void ImportTextureResources();
-static void ImportBuiltinResources();
-
-static void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
-static void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
-static Mesh CreateMesh(MeshAttribute &attribute);
-static Texture2D CreateSolidTexture(uint color);
-
-static bool builtinResourcesImported_ = false;
+Resources::Resources() {
+	ImportBuiltinResources();
+}
 
 void Resources::Import() {
 	ImportShaderResources();
 	ImportTextureResources();
-
-	if (!builtinResourcesImported_) {
-		ImportBuiltinResources();
-	}
 }
 
 Texture2D Resources::GetBlackTexture() {
@@ -123,7 +94,7 @@ Material Resources::FindMaterial(const std::string& name) {
 	return nullptr;
 }
 
-void GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
+void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::TriangleStripe;
 
 	glm::vec3 vertices[] = {
@@ -148,7 +119,7 @@ void GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 }
 
-void GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
+void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::Triangles;
 
 	glm::vec3 vertices[] = {
@@ -209,7 +180,7 @@ void GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
 }
 
-Mesh CreateMesh(MeshAttribute &attribute) {
+Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
 
@@ -221,24 +192,22 @@ Mesh CreateMesh(MeshAttribute &attribute) {
 	return mesh;
 }
 
-Texture2D CreateSolidTexture(uint color) {
+Texture2D Resources::CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
 	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1, 4);
 	return texture;
 }
 
-void ImportBuiltinResources() {
+void Resources::ImportBuiltinResources() {
 	whiteTexture_ = CreateSolidTexture(0xffffffff);
 	blackTexture_ = CreateSolidTexture(0xff000000);
 
 	for (int type = PrimitiveTypeQuad; type < PrimitiveTypeCount; ++type) {
-		primitives_[type] = Resources::CreatePrimitive((PrimitiveType)type, 1);
+		primitives_[type] = CreatePrimitive((PrimitiveType)type, 1);
 	}
-
-	builtinResourcesImported_ = true;
 }
 
-void ImportShaderResources() {
+void Resources::ImportShaderResources() {
 	/*std::vector<std::string> paths;
 	const char* reg = ".*\\.shader";
 	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
@@ -254,7 +223,7 @@ void ImportShaderResources() {
 	}*/
 }
 
-void ImportTextureResources() {
+void Resources::ImportTextureResources() {
 	std::vector<std::string> paths;
 	const char* reg = ".*\\.(jpg|png|tif|bmp|tga|dds)";
 	FileSystem::ListAllFiles(paths, "resources/textures", reg);
@@ -270,7 +239,7 @@ void ImportTextureResources() {
 	}
 }
 
-const char* GetRelativePath(const char* path) {
+const char* Resources::GetRelativePath(const char* path) {
 	for (; *path != 0 && *path != '/' && *path != '\\'; ++path) {
 	}
 

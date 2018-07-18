@@ -1,10 +1,15 @@
 #pragma once
 #include "material.h"
+#include "tools/singleton.h"
 
-class MatrixBuffer {
+class MatrixBuffer : public Singleton<MatrixBuffer> {
 public:
-	static void Initialize();
+	void Update(uint size, const void* data);
+	void AttachMatrixBuffer(Material material);
 
-	static void Update(uint size, const void* data);
-	static void AttachMatrixBuffer(Material material);
+public:
+	MatrixBuffer();
+
+private:
+	TextureBuffer textureBuffer_;
 };

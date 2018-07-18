@@ -9,42 +9,29 @@
 #include "tools/math2.h"
 #include "geometryutility.h"
 
-static Mesh mesh;
-static Material material;
+Gizmos::Gizmos() : color_(0, 1, 0) {
+	mesh_ = NewMesh();
 
-static glm::vec3 color(0, 1, 0);
-
-struct Batch {
-	glm::vec3 color;
-	std::vector<uint> indexes;
-	std::vector<glm::vec3> points;
-};
-
-static std::vector<Batch> batches;
-
-static Batch& GetBatch() {
-	if (batches.empty() || batches.back().color != color) {
-		Batch b = { color };
-		batches.push_back(b);
-	}
-
-	return batches.back();
+	material_ = NewMaterial();
+	material_->SetShader(Resources::get()->FindShader("builtin/gizmos"));
+	material_->SetColor4(Variables::MainColor, glm::vec4(color_, 1));
 }
 
-static void Initialize() {
-	mesh = NewMesh();
+Gizmos::Batch& Gizmos::GetBatch() {
+	if (batches_.empty() || batches_.back().color != color_) {
+		Batch b = { color_ };
+		batches_.push_back(b);
+	}
 
-	material = NewMaterial();
-	material->SetShader(Resources::FindShader("builtin/gizmos"));
-	material->SetColor4(Variables::MainColor, glm::vec4(color, 1));
+	return batches_.back();
 }
 
 glm::vec3 Gizmos::GetColor() {
-	return color;
+	return color_;
 }
 
 void Gizmos::SetColor(const glm::vec3& value) {
-	color = value;
+	color_ = value;
 }
 
 void Gizmos::DrawLines(const glm::vec3* points, uint npoints) {
@@ -82,27 +69,26 @@ void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
 }
 
 void Gizmos::Flush() {
-	if (!material) { Initialize(); }
-	for (uint i = 0; i < batches.size(); ++i) {
-		const Batch& b = batches[i];
+	for (uint i = 0; i < batches_.size(); ++i) {
+		const Batch& b = batches_[i];
 		MeshAttribute attribute;
 		attribute.topology = MeshTopology::Lines;
 
 		attribute.positions = b.points;
 		attribute.indexes = b.indexes;
 
-		mesh->SetAttribute(attribute);
+		mesh_->SetAttribute(attribute);
 
-		if (mesh->GetSubMeshCount() == 0) {
-			mesh->AddSubMesh(NewSubMesh());
+		if (mesh_->GetSubMeshCount() == 0) {
+			mesh_->AddSubMesh(NewSubMesh());
 		}
 
 		TriangleBias bias{ b.indexes.size(), 0, 0 };
-		mesh->GetSubMesh(0)->SetTriangleBias(bias);
+		mesh_->GetSubMesh(0)->SetTriangleBias(bias);
 
-		material->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
-		Graphics::Draw(mesh, material);
+		material_->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
+		Graphics::Draw(mesh_, material_);
 	}
 
-	batches.clear();
+	batches_.clear();
 }

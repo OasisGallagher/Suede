@@ -1,5 +1,6 @@
 #pragma once
 #include "engine.h"
+#include "tools/singleton.h"
 #include "containers/freelist.h"
 
 enum QueryType {
@@ -15,25 +16,32 @@ public:
 	virtual void OnQuerierResult(uint id) = 0;
 };
 
-class GpuQuerier : public FrameEventListener {
+class GpuQuerier : public FrameEventListener, public Singleton<GpuQuerier> {
+public:
+	static uint Start(QueryType type, QuerierResultListener* listener);
+	static void Stop();
+
+private:
+	GpuQuerier();
+	~GpuQuerier();
+
+private:
+	virtual void OnFrameEnter();
+	virtual void OnFrameLeave();
+
+private:
 	struct Querier {
 		uint id;
 		QuerierResultListener* listener;
 	};
 
-public:
-	GpuQuerier();
-	~GpuQuerier();
+	enum {
+		MaxQueries = 16,
+	};
 
-public:
-	static uint Start(QueryType type, QuerierResultListener* listener);
-	static void Stop();
-
-protected:
-	virtual void OnFrameEnter();
-	virtual void OnFrameLeave();
+	typedef free_list<Querier> QuerierContainer;
 
 private:
-	typedef free_list<Querier> QuerierContainer;
+	uint ids_[MaxQueries];
 	QuerierContainer queriers_;
 };

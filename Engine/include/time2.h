@@ -1,20 +1,23 @@
 #pragma once
 #include "enginedefines.h"
+#include "tools/singleton.h"
 
-class SUEDE_API Time {
+class SUEDE_API Time : public Singleton<Time> {
+public:
+	void Update();
+
 public:
 	/**
 	 * @brief the time in seconds it took to complete the last frame.
 	 */
-	static float GetDeltaTime();
-	static float GetRealTimeSinceStartup();
+	float GetDeltaTime();
+	float GetRealTimeSinceStartup();
 
-	static uint GetFrameCount();
-
-private:
-	friend class Engine;
-	static void Update();
+	uint GetFrameCount();
 
 private:
-	Time();
+	double deltaTime_;
+
+	uint frameCount_;
+	uint64 lastFrameTimeStamp_;
 };

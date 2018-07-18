@@ -45,27 +45,27 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 Pipeline::Pipeline() 
 	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2)
 	, nrenderables_(0) , oldPass_(-1), ndrawcalls_(0), ntriangles_(0), nmeshChanges_(0), nmaterialChanges_(0) {
-	switch_state = Profiler::CreateSample();
-	update_ubo = Profiler::CreateSample();
-	update_tbo = Profiler::CreateSample();
-	draw_call = Profiler::CreateSample();
-	update_offset = Profiler::CreateSample();
-	update_matrices = Profiler::CreateSample();
-	gather_instances = Profiler::CreateSample();
-	update_pipeline = Profiler::CreateSample();
-	stat_and_output = Profiler::CreateSample();
+	switch_state = Profiler::get()->CreateSample();
+	update_ubo = Profiler::get()->CreateSample();
+	update_tbo = Profiler::get()->CreateSample();
+	draw_call = Profiler::get()->CreateSample();
+	update_offset = Profiler::get()->CreateSample();
+	update_matrices = Profiler::get()->CreateSample();
+	gather_instances = Profiler::get()->CreateSample();
+	update_pipeline = Profiler::get()->CreateSample();
+	stat_and_output = Profiler::get()->CreateSample();
 }
 
 Pipeline::~Pipeline() {
- 	Profiler::ReleaseSample(switch_state);
- 	Profiler::ReleaseSample(update_ubo);
-	Profiler::ReleaseSample(update_tbo);
-	Profiler::ReleaseSample(draw_call);
-	Profiler::ReleaseSample(update_offset);
-	Profiler::ReleaseSample(update_matrices);
- 	Profiler::ReleaseSample(gather_instances);
- 	Profiler::ReleaseSample(update_pipeline);
-	Profiler::ReleaseSample(stat_and_output);
+ 	Profiler::get()->ReleaseSample(switch_state);
+ 	Profiler::get()->ReleaseSample(update_ubo);
+	Profiler::get()->ReleaseSample(update_tbo);
+	Profiler::get()->ReleaseSample(draw_call);
+	Profiler::get()->ReleaseSample(update_offset);
+	Profiler::get()->ReleaseSample(update_matrices);
+ 	Profiler::get()->ReleaseSample(gather_instances);
+ 	Profiler::get()->ReleaseSample(update_pipeline);
+	Profiler::get()->ReleaseSample(stat_and_output);
 }
 
 static bool MeshComparer(const Renderable& lhs, const Renderable& rhs) {
@@ -131,7 +131,7 @@ void Pipeline::Run(bool __tmpIsRendering) {
 	update_pipeline->Restart();
 
 	update_tbo->Restart();
-	MatrixBuffer::Update(nrenderables_, &matrices_[0]);
+	MatrixBuffer::get()->Update(nrenderables_, &matrices_[0]);
 	update_tbo->Stop();
 
 	targetTexture_->BindWrite(normalizedRect_);
@@ -156,8 +156,8 @@ void Pipeline::Run(bool __tmpIsRendering) {
 	}
 
 	stat_and_output->Restart();
-	Statistics::AddTriangles(ntriangles_);
-	Statistics::AddDrawcalls(ndrawcalls_);
+	Statistics::get()->AddTriangles(ntriangles_);
+	Statistics::get()->AddDrawcalls(ndrawcalls_);
 
 	if (__tmpIsRendering) {
 		debugDumpPipelineAndRanges(ranges_);

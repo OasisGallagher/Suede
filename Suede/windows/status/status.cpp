@@ -56,9 +56,9 @@ void Status::toggleStatistics(int state) {
 
 void Status::updateStat() {
 	if (stat_ != nullptr && stat_->isVisible()) {
-		stat_->setStats(Statistics::GetFrameRate(),
-			Statistics::GetDrawcalls(),
-			Statistics::GetTriangles()
+		stat_->setStats(Statistics::get()->GetFrameRate(),
+			Statistics::get()->GetDrawcalls(),
+			Statistics::get()->GetTriangles()
 		);
 	}
 }

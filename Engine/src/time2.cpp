@@ -2,26 +2,22 @@
 #include "debug/debug.h"
 #include "debug/profiler.h"
 
-static uint frameCount;
-static uint64 lastFrameTimeStamp;
-static double deltaTime;
-
 void Time::Update() {
-	uint64 timeStamp = Profiler::GetTimeStamp();
-	deltaTime = Profiler::TimeStampToSeconds(timeStamp - lastFrameTimeStamp);
-	lastFrameTimeStamp = timeStamp;
+	uint64 timeStamp = Profiler::get()->GetTimeStamp();
+	deltaTime_ = Profiler::get()->TimeStampToSeconds(timeStamp - lastFrameTimeStamp_);
+	lastFrameTimeStamp_ = timeStamp;
 
-	++frameCount;
+	++frameCount_;
 }
 
 float Time::GetDeltaTime() {
-	return (float)deltaTime;
+	return (float)deltaTime_;
 }
 
 float Time::GetRealTimeSinceStartup() {
-	return float(Profiler::TimeStampToSeconds(Profiler::GetTimeStamp()));
+	return float(Profiler::get()->TimeStampToSeconds(Profiler::get()->GetTimeStamp()));
 }
 
 uint Time::GetFrameCount() {
-	return frameCount;
+	return frameCount_;
 }

@@ -20,7 +20,7 @@ MaterialAsset::MaterialAsset()
 }
 
 void MaterialAsset::ApplyAsset() {
-	Shader shader = Resources::FindShader("builtin/" + shaderName);
+	Shader shader = Resources::get()->FindShader("builtin/" + shaderName);
 	material->SetShader(shader);
 
 	material->SetFloat(Variables::Gloss, gloss);
@@ -35,7 +35,7 @@ void MaterialAsset::ApplyAsset() {
 		material->SetTexture(Variables::MainTexture, CreateTexture2D(mainTexels));
 	}
 	else {
-		material->SetTexture(Variables::MainTexture, Resources::GetWhiteTexture());
+		material->SetTexture(Variables::MainTexture, Resources::get()->GetWhiteTexture());
 	}
 
 	if (bumpTexels != nullptr) {
@@ -90,7 +90,7 @@ bool EntityLoader::Initialize(Assimp::Importer& importer) {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
-	std::string fpath = Resources::GetModelDirectory() + path_;
+	std::string fpath = Resources::get()->GetModelDirectory() + path_;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 	if (scene == nullptr) {
@@ -464,7 +464,7 @@ TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 }
 
 bool EntityLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
-	return ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + name);
+	return ImageCodec::Decode(texelMap, Resources::get()->GetTextureDirectory() + name);
 }
 
 bool EntityLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {

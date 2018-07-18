@@ -95,7 +95,7 @@ copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lib\ZThread.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -292,6 +292,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="tools\enum.h" />
     <ClInclude Include="tools\math2.h" />
     <ClInclude Include="tools\noncopyable.h" />
+    <ClInclude Include="tools\singleton.h" />
     <ClInclude Include="tools\string.h" />
   </ItemGroup>
   <ItemGroup>

@@ -531,6 +531,9 @@
     <ClInclude Include="tools\enum.h">
       <Filter>tools\include</Filter>
     </ClInclude>
+    <ClInclude Include="tools\singleton.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">

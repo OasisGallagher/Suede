@@ -242,7 +242,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::get()->GetTextureDirectory() + path)) {
 		return false;
 	}
 
@@ -322,7 +322,7 @@ TextureCubeInternal::~TextureCubeInternal() {
 bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	TexelMap texelMaps[6];
 	for (int i = 0; i < 6; ++i) {
-		if (!ImageCodec::Decode(texelMaps[i], Resources::GetTextureDirectory() + textures[i])) {
+		if (!ImageCodec::Decode(texelMaps[i], Resources::get()->GetTextureDirectory() + textures[i])) {
 			return false;
 		}
 	}

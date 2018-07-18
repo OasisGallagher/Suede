@@ -18,9 +18,9 @@ static void InitWorld(WorldInternal* world) {
 	GLUtils::Initialize();
 	UniformBufferManager::Initialize();
 
-	Resources::Import();
-	Shadows::Initialize();
-	MatrixBuffer::Initialize();
+	Shadows::get();
+	MatrixBuffer::get();
+	Resources::get()->Import();
 
 	world->root_ = Factory::Create<EntityInternal>();
 	world->root_->SetTransform(Factory::Create<TransformInternal>());
@@ -69,9 +69,9 @@ WorldInternal::WorldInternal()
 	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
 	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
 
-	update_entities = Profiler::CreateSample();
-	update_decals = Profiler::CreateSample();
-	update_rendering = Profiler::CreateSample();
+	update_entities = Profiler::get()->CreateSample();
+	update_decals = Profiler::get()->CreateSample();
+	update_rendering = Profiler::get()->CreateSample();
 }
 
 WorldInternal::~WorldInternal() {
@@ -88,9 +88,9 @@ void WorldInternal::Destroy() {
 	RemoveEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
 
-	Profiler::ReleaseSample(update_entities);
-	Profiler::ReleaseSample(update_decals);
-	Profiler::ReleaseSample(update_rendering);
+	Profiler::get()->ReleaseSample(update_entities);
+	Profiler::get()->ReleaseSample(update_decals);
+	Profiler::get()->ReleaseSample(update_rendering);
 }
 
 Object WorldInternal::Create(ObjectType type) {
@@ -403,8 +403,8 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 
 inline void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
-	p.time.x = Time::GetRealTimeSinceStartup();
-	p.time.y = Time::GetDeltaTime();
+	p.time.x = Time::get()->GetRealTimeSinceStartup();
+	p.time.y = Time::get()->GetDeltaTime();
 	UniformBufferManager::UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
