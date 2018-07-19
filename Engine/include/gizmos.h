@@ -5,6 +5,8 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Gizmos : public Singleton<Gizmos> {
+	friend class Singleton<Gizmos>;
+
 public:
 	glm::vec3 GetColor();
 	void SetColor(const glm::vec3& value);
@@ -17,7 +19,7 @@ public:
 public:
 	void Flush();
 
-public:
+private:
 	Gizmos();
 
 private:

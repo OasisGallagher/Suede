@@ -25,6 +25,8 @@ struct TextureResource {
 };
 
 class SUEDE_API Resources : public Singleton<Resources> {
+	friend class Singleton<Resources>;
+
 public:
 	void Import();
 
@@ -47,13 +49,10 @@ public:
 	Texture FindTexture(const std::string& path);
 	Material FindMaterial(const std::string& name);
 
-public:
+private:
 	Resources();
 
 private:
-	// TODO: ????
-	const char* GetRelativePath(const char* path);
-
 	void ImportShaderResources();
 	void ImportTextureResources();
 	void ImportBuiltinResources();

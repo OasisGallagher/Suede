@@ -5,7 +5,7 @@
 
 class Action;
 
-struct Condinate : NonCopyable {
+struct Condinate : private NonCopyable {
 	Condinate(const SymbolVector& container, const std::string& actionText);
 	~Condinate();
 

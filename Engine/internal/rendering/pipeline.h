@@ -7,6 +7,8 @@
 #include "texture.h"
 #include "material.h"
 #include "frameeventlistener.h"
+
+#include "internal/base/gpuquerier.h"
 #include "internal/base/framebuffer.h"
 
 struct Renderable {
@@ -34,7 +36,7 @@ enum SortMode {
 };
 
 class Sample;
-class Pipeline {
+class Pipeline : public QuerierResultListener {
 public:
 	Pipeline();
 	~Pipeline();
@@ -71,6 +73,9 @@ public:
 	);
 
 private:
+	virtual void OnQuerierResult(uint id, uint result);
+
+private:
 	void Render(Renderable& renderable, uint instance, uint matrixOffset);
 
 	void ResetState();
@@ -100,6 +105,8 @@ private:
 
 	Rect normalizedRect_;
 	RenderTexture targetTexture_;
+
+	uint timeQuerier_;
 
 	// performance.
 	Sample 

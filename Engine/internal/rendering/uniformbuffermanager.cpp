@@ -38,7 +38,3 @@ bool UniformBufferManager::UpdateSharedBuffer(const std::string& name, const voi
 	pos->second->UpdateBuffer(data, offset, size);
 	return true;
 }
-
-const std::string GetEntityMatricesUniformBufferName(int i) {
-	return String::Format("EntityMatrices[%d]", i);
-}

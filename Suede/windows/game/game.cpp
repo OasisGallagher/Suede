@@ -41,9 +41,9 @@
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "butterfly.fbx";
+static const char* roomFbxPath = "suzanne.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
-static const char* lightModelPath = "builtin/sphere.obj";
+static const char* lightModelPath = "builtin/sphere.fbx";
 
 static Game* gameInstance;
 
@@ -130,6 +130,12 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
 		if (path.find("house") != std::string::npos) {
 			root->GetTransform()->SetScale(glm::vec3(0.01f));
+		}
+		else if (path.find("suzanne") != std::string::npos) {
+			Texture2D diffuse = NewTexture2D();
+			diffuse->Load("suzanne/diffuse.dds");
+			Entity target = root->GetTransform()->FindChild("suzanne_root/default")->GetEntity();
+			target->GetRenderer()->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
 		}
 
 		float delta = Time::get()->GetRealTimeSinceStartup() - loadSceneStart_;

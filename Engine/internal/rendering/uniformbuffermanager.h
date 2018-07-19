@@ -32,8 +32,7 @@ struct SharedTransformsUniformBuffer {
 
 class UniformBuffer;
 class UniformBufferManager : public Singleton<UniformBufferManager> {
-public:
-	//void Destroy();
+	friend Singleton<UniformBufferManager>;
 
 public:
 	uint GetOffsetAlignment() { return offsetAlignment_; }
@@ -42,7 +41,7 @@ public:
 	void AttachSharedBuffers(Shader shader);
 	bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
 
-public:
+private:
 	UniformBufferManager();
 	~UniformBufferManager();
 
@@ -52,8 +51,10 @@ private:
 
 private:
 	typedef std::map<std::string, UniformBuffer*> SharedUniformBufferContainer;
-	SharedUniformBufferContainer sharedUniformBuffers_;
+
+private:
 	uint offsetAlignment_;
+	SharedUniformBufferContainer sharedUniformBuffers_;
 };
 
 template  <class T>

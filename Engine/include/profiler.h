@@ -27,6 +27,8 @@ private:
 };
 
 class SUEDE_API Profiler : public Singleton<Profiler>, public FrameEventListener {
+	friend class Singleton<Profiler>;
+
 public:
 	Sample* CreateSample();
 	void ReleaseSample(Sample* value);
@@ -38,7 +40,7 @@ public:
 	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueueProfiler; }
 
-public:
+private:
 	Profiler();
 
 private:

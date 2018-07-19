@@ -111,9 +111,11 @@ int CameraInternal::GetFrameEventQueue() {
 
 void CameraInternal::OnFrameLeave() {
 	if (IsMainCamera()) {
-		WorldInstance()->GetScreenRenderTarget()->BindWrite(GetRect());
+		RenderTexture target = WorldInstance()->GetScreenRenderTarget();
+
+		target->BindWrite(GetRect());
 		OnDrawGizmos();
-		WorldInstance()->GetScreenRenderTarget()->Unbind();
+		target->Unbind();
 	}
 }
 

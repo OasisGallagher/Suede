@@ -3,15 +3,17 @@
 
 #define lastFrameStats	stats_[0]
 #define thisFrameStats	stats_[1]
-#define FPS_REFRESH_TIME	0.5f
+#define FPS_REFRESH_TIME	0.2f
 
 Statistics::Statistics() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
 	Engine::get()->AddFrameEventListener(this);
 }
 
+#include "debug/debug.h"
+
 void Statistics::OnFrameEnter() {
 	lastFrameStats = thisFrameStats;
-	memset(&thisFrameStats, 0, sizeof(FrameStats));
+	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
 
 	if (timeCounter_ < FPS_REFRESH_TIME) {
 		timeCounter_ += Time::get()->GetDeltaTime();

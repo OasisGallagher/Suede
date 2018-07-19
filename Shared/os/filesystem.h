@@ -49,6 +49,7 @@ public:
 
 	static std::string GetExtension(const std::string& path);
 	static std::string GetParentPath(const std::string& path);
+	//static std::string GetRelativePath(const std::string& directory, const std::string& path);
 
 	static bool ReadAllText(const std::string& file, std::string& text);
 	static bool ReadAllLines(const std::string& file, std::vector<std::string>& lines);

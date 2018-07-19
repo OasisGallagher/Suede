@@ -43,7 +43,7 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 }
 
 Pipeline::Pipeline() 
-	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2)
+	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), timeQuerier_(0)
 	, nrenderables_(0) , oldPass_(-1), ndrawcalls_(0), ntriangles_(0), nmeshChanges_(0), nmaterialChanges_(0) {
 	switch_state = Profiler::get()->CreateSample();
 	update_ubo = Profiler::get()->CreateSample();
@@ -128,6 +128,10 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 }
 
 void Pipeline::Run(bool __tmpIsRendering) {
+	if (__tmpIsRendering) {
+		timeQuerier_ = GpuQuerier::get()->Start(QueryTypeTimeElapsed, this);
+	}
+
 	update_pipeline->Restart();
 
 	update_tbo->Restart();
@@ -181,6 +185,12 @@ void Pipeline::Run(bool __tmpIsRendering) {
 	update_pipeline->Stop();
 	Debug::Output("[Pipeline::Update::stat_and_output]\t%.5f", stat_and_output->GetElapsedSeconds());
 	Debug::Output("[Pipeline::Update::update_pipeline]\t%.5f", update_pipeline->GetElapsedSeconds());
+
+	if (__tmpIsRendering) {
+		GpuQuerier::get()->Stop();
+		uint time = GpuQuerier::get()->Wait(timeQuerier_);
+		double seconds = time * 10e-9;
+	}
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {
@@ -233,6 +243,12 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		AddRenderable(mesh, i, material, 0, localToWorldMatrix, instance);
+	}
+}
+
+void Pipeline::OnQuerierResult(uint id, uint result) {
+	if (id == timeQuerier_) {
+		double seconds = result * 1e-9;
 	}
 }
 

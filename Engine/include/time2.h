@@ -4,6 +4,8 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Time : public Singleton<Time>, public FrameEventListener {
+	friend class Singleton<Time>;
+
 public:
 	/**
 	 * @brief the time in seconds it took to complete the last frame.
@@ -17,7 +19,7 @@ public:
 	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueueTime; }
 
-public:
+private:
 	Time();
 
 private:

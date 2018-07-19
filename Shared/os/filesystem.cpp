@@ -118,6 +118,11 @@ std::string FileSystem::GetParentPath(const std::string& path) {
 	return fs::path(path).parent_path().string();
 }
 
+//std::string FileSystem::GetRelativePath(const std::string& directory, const std::string& path) {
+//	fs::path::relative
+//	//return fs::relative(childPath, parentPath);
+//}
+
 bool FileSystem::ReadAllText(const std::string& file, std::string& text) {
 	std::ifstream ifs(file, std::ios::in);
 	if (!ifs) {

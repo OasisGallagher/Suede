@@ -21,7 +21,7 @@ class Integer;
 class Single;
 class Boolean;
 
-class SUEDE_API SyntaxNode : public NonCopyable {
+class SUEDE_API SyntaxNode : private NonCopyable {
 public:
 	SyntaxNode(SyntaxNodeType type, const std::string& text);
 	~SyntaxNode();
@@ -62,7 +62,7 @@ private:
 	} value_;
 };
 
-class SUEDE_API SyntaxTree : public NonCopyable {
+class SUEDE_API SyntaxTree : private NonCopyable {
 public:
 	SyntaxTree();
 	~SyntaxTree();

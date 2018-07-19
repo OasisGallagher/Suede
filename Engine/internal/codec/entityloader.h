@@ -42,7 +42,7 @@ struct EntityAsset {
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class EntityLoader : public Worker, public NonCopyable {
+class EntityLoader : public Worker, private NonCopyable {
 public:
 	EntityLoader(const std::string& path, Entity entity, WorkerEventListener* receiver);
 	~EntityLoader();

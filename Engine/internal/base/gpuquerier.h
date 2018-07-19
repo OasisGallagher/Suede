@@ -1,4 +1,7 @@
 #pragma once
+#include <stack>
+
+#include "api/gl.h"
 #include "engine.h"
 #include "tools/singleton.h"
 #include "containers/freelist.h"
@@ -8,18 +11,21 @@ enum QueryType {
 	QueryTypeAnySamplesPassed,
 	QueryTypeAnySamplesPassedConservative,
 	QueryTypeTimeElapsed,
-	QueryTypeTimestamp,
 };
 
 class QuerierResultListener {
 public:
-	virtual void OnQuerierResult(uint id) = 0;
+	virtual void OnQuerierResult(uint id, uint result) = 0;
 };
 
 class GpuQuerier : public FrameEventListener, public Singleton<GpuQuerier> {
+	friend class Singleton<GpuQuerier>;
+
 public:
-	static uint Start(QueryType type, QuerierResultListener* listener);
-	static void Stop();
+	uint Start(QueryType type, QuerierResultListener* listener);
+	void Stop();
+	uint Wait(uint id);
+	void Cancel(uint id);
 
 private:
 	GpuQuerier();
@@ -27,11 +33,11 @@ private:
 
 private:
 	virtual void OnFrameEnter();
-	virtual void OnFrameLeave();
 
 private:
 	struct Querier {
 		uint id;
+		GLenum type;
 		QuerierResultListener* listener;
 	};
 
@@ -42,6 +48,19 @@ private:
 	typedef free_list<Querier> QuerierContainer;
 
 private:
+	Querier* FindQuerier(uint id);
+
+	bool UpdateQuerier(Querier* querier);
+	void StopQuerier(Querier* querier);
+	void CancelQuerier(Querier* querier);
+	void RecycleQuerier(Querier* querier);
+	void StartQuerier(Querier* querier, QueryType type, QuerierResultListener* listener);
+
+	GLenum QueryTypeToGLenum(QueryType type);
+
+private:
 	uint ids_[MaxQueries];
+
 	QuerierContainer queriers_;
+	std::stack<Querier*> stack_;
 };

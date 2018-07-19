@@ -67,7 +67,7 @@ void Debug::LogError(const char* format, ...) {
 
 void Debug::Output(const char* format, ...) {
 	FORMAT_LINE_BUFFER(format, buffer);
-	//OutputDebugStringA(buffer);
+	OutputDebugStringA(buffer);
 }
 
 void Debug::Break() {

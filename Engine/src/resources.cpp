@@ -231,18 +231,10 @@ void Resources::ImportTextureResources() {
 	textureResources_.clear();
 	for (int i = 0; i < paths.size(); ++i) {
 		TextureResource tr = {
-			FileSystem::GetFileNameWithoutExtension(paths[i]), 
-			GetRelativePath(paths[i].c_str())
+			FileSystem::GetFileNameWithoutExtension(paths[i]),
+			paths[i].substr(GetTextureDirectory().size())
 		};
 
 		textureResources_.push_back(tr);
 	}
-}
-
-const char* Resources::GetRelativePath(const char* path) {
-	for (; *path != 0 && *path != '/' && *path != '\\'; ++path) {
-	}
-
-	if (*path != 0) { ++path; }
-	return path;
 }

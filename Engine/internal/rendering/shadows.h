@@ -9,6 +9,8 @@
 class Pipeline;
 
 class Shadows : public Singleton<Shadows> {
+	friend class Singleton<Shadows>;
+
 public:
 	void AttachShadowTexture(Material material);
 
@@ -20,7 +22,7 @@ public:
 	const glm::mat4& GetWorldToShadowMatrix();
 	void Update(DirectionalLight light, Pipeline* pipeline);
 
-public:
+private:
 	Shadows();
 
 private:

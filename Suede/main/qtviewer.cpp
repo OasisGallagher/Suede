@@ -37,6 +37,11 @@ void QtViewer::setupStyle() {
 }
 
 void QtViewer::setupSuede() {
+	QGLFormat format;
+	format.setSwapInterval(0);
+	format.setDoubleBuffer(true);
+	QGLFormat::setDefaultFormat(format);
+
 	suede_ = new Suede();
 	connect(suede_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseSuede()));
 

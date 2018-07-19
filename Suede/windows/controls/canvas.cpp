@@ -4,6 +4,7 @@
 Canvas::Canvas(QWidget *parent) : QGLWidget(parent) {
 	glInit();
 	setAutoBufferSwap(false);
+	
 	int si = format().swapInterval();
 }
 

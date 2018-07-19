@@ -7,6 +7,8 @@
 
 class GraphicsCanvas;
 class Engine : public Singleton<Engine> {
+	friend class Singleton<Engine>;
+
 public:
 	bool Initialize();
 	void Release();
@@ -17,6 +19,7 @@ public:
 	void RemoveFrameEventListener(FrameEventListener* listener);
 
 private:
+	Engine() {}
 	void SetDefaultGLStates();
 	void SortFrameEventListeners();
 	

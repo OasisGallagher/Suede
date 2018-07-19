@@ -3,6 +3,8 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Statistics : public Singleton<Statistics>, public FrameEventListener {
+	friend class Singleton<Statistics>;
+
 public:
 	void AddTriangles(uint n);
 	void AddDrawcalls(uint n);
@@ -15,7 +17,7 @@ public:
 	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueueStatistics; }
 
-public:
+private:
 	Statistics();
 
 private:

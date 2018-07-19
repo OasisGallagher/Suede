@@ -78,6 +78,9 @@ public:
 	iterator begin() { return iterator(busy_); }
 	iterator end() { return iterator(nullptr); }
 
+	iterator fbegin() { return iterator(free_); }
+	iterator fend() { return iterator(nullptr); }
+
 	size_t size() const { return size_; }
 	size_t capacity() const { return capacity_; }
 
