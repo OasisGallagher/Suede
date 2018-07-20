@@ -9,7 +9,7 @@
 
 FramebufferBase::FramebufferBase() : fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
-	viewport_ = glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	viewport_ = glm::uvec4(0, 0, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 }
 
 void FramebufferBase::BindRead() {
@@ -167,7 +167,7 @@ Framebuffer0* Framebuffer0::Get() {
 }
 
 Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRenderTextureCount_(0) {
-	viewport_ = glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	viewport_ = glm::uvec4(0, 0, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	GL::GenFramebuffers(1, &fbo_);
 

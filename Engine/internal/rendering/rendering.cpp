@@ -18,13 +18,13 @@ Rendering::Rendering(RenderingParameters * p) :p_(p) {
 	CreateAuxMaterial(p_->materials.decal, "builtin/decal", RenderQueueOverlay - 500);
 
 	p_->renderTextures.aux1 = NewRenderTexture();
-	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	p_->renderTextures.aux2 = NewRenderTexture();
-	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	p_->renderTextures.depth = NewRenderTexture();
-	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::GetWidth(), Screen::GetHeight());
+	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 }
 
 void Rendering::Resize(uint width, uint height) {

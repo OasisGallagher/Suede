@@ -536,6 +536,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
     </CustomBuild>
+    <ClInclude Include="scripts\gaussianblur.h" />
     <ClInclude Include="windows\controls\enumfield.h" />
     <CustomBuild Include="windows\controls\maskfield.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -965,6 +966,7 @@
     <None Include="resources\shaders\builtin\particle.shader" />
     <None Include="resources\shaders\builtin\skybox.shader" />
     <None Include="resources\shaders\builtin\unlit_texture.shader" />
+    <None Include="resources\shaders\gaussianblur.shader" />
     <None Include="resources\shaders\grayscale.shader" />
     <None Include="resources\shaders\inversion.shader" />
     <None Include="resources\shaders\xray.shader" />

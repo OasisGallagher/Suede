@@ -5,7 +5,7 @@
 #include "internal/world/worldinternal.h"
 
 Shadows::Shadows() {
-	uint w = Screen::GetWidth(), h = Screen::GetHeight();
+	uint w = Screen::get()->GetWidth(), h = Screen::get()->GetHeight();
 	shadowDepthTexture_ = NewRenderTexture();
 	shadowDepthTexture_->Create(RenderTextureFormatShadow, w, h);
 

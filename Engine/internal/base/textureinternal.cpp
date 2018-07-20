@@ -467,6 +467,12 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	GLenum type = GL_UNSIGNED_BYTE;
 
 	switch (input) {
+		case RenderTextureFormatRgb:
+			internalFormat = GL_RGB;
+			break;
+		case RenderTextureFormatRgbSN:
+			internalFormat = GL_RGB_SNORM;
+			break;
 		case  RenderTextureFormatRgba:
 			internalFormat = GL_RGBA;
 			break;
@@ -516,7 +522,7 @@ bool TextureBufferInternal::Create(uint size) {
 
 	buffer_ = MEMORY_CREATE(Buffer);
 	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
-
+	
 	GL::GenTextures(1, &texture_);
 	BindTexture();
 	GL::TexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffer_->GetNativePointer());
@@ -551,7 +557,7 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 }
 
 void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+	SetViewport(Screen::get()->GetWidth(), Screen::get()->GetHeight(), normalizedRect);
 
 	framebuffer_->SetClearDepth(value.w);
 	framebuffer_->SetClearColor(glm::vec3(value));
@@ -559,11 +565,11 @@ void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::v
 }
 
 uint ScreenRenderTextureInternal::GetWidth() const {
-	return Screen::GetWidth();
+	return Screen::get()->GetWidth();
 }
 
 uint ScreenRenderTextureInternal::GetHeight() const {
-	return Screen::GetHeight();
+	return Screen::get()->GetHeight();
 }
 
 GLenum ScreenRenderTextureInternal::GetGLTextureType() const {
@@ -585,7 +591,7 @@ void ScreenRenderTextureInternal::Bind(uint index) {
 }
 
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+	SetViewport(Screen::get()->GetWidth(), Screen::get()->GetHeight(), normalizedRect);
 	framebuffer_->BindWrite();
 }
 

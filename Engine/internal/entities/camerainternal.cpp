@@ -21,9 +21,9 @@ CameraInternal::CameraInternal()
 	rendering_ = MEMORY_CREATE(Rendering, &p_);// , this);
 
 	Engine::get()->AddFrameEventListener(this);
-	Screen::AddScreenSizeChangedListener(this);
+	Screen::get()->AddScreenSizeChangedListener(this);
 
-	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
+	SetAspect((float)Screen::get()->GetWidth() / Screen::get()->GetHeight());
 }
 
 CameraInternal::~CameraInternal() {
@@ -35,7 +35,7 @@ CameraInternal::~CameraInternal() {
 
 	MEMORY_RELEASE(rendering_);
 	Engine::get()->RemoveFrameEventListener(this);
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::get()->RemoveScreenSizeChangedListener(this);
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {

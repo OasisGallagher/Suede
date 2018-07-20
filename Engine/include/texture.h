@@ -82,9 +82,12 @@ public:
 };
 
 enum RenderTextureFormat {
+	RenderTextureFormatRgb,
+	RenderTextureFormatRgbSN,
+	RenderTextureFormatRgbHDR,
+
 	RenderTextureFormatRgba,
 	RenderTextureFormatRgbaSN,
-	RenderTextureFormatRgbHDR,
 	RenderTextureFormatRgbaHDR,
 
 	RenderTextureFormatDepth,

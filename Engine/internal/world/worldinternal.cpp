@@ -64,11 +64,11 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 WorldInternal::WorldInternal()
 	: ObjectInternal(ObjectTypeWorld), importer_(MEMORY_CREATE(EntityLoaderThreadPool))
 	, environment_(MEMORY_CREATE(EnvironmentInternal)) , decals_(SUEDE_MAX_DECALS) {
-	Screen::AddScreenSizeChangedListener(this);
+	Screen::get()->AddScreenSizeChangedListener(this);
 	AddEventListener(this);
 
 	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
-	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	update_entities = Profiler::get()->CreateSample();
 	update_decals = Profiler::get()->CreateSample();
@@ -86,7 +86,7 @@ void WorldInternal::Destroy() {
 	MEMORY_RELEASE(importer_);
 
 	RemoveEventListener(this);
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::get()->RemoveScreenSizeChangedListener(this);
 
 	Profiler::get()->ReleaseSample(update_entities);
 	Profiler::get()->ReleaseSample(update_decals);

@@ -26,6 +26,7 @@
 
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
+#include "scripts/gaussianblur.h"
 #include "scripts/cameracontroller.h"
 
 #define ROOM
@@ -34,7 +35,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-//#define IMAGE_EFFECTS
+#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -59,6 +60,8 @@ Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr) {
 Game::~Game() {
 	delete grayscale_;
 	delete inversion_;
+	delete gaussianBlur_;
+
 	delete controller_;
 
 	gameInstance = nullptr;
@@ -83,6 +86,7 @@ void Game::init(Ui::Suede* ui) {
 void Game::awake() {
 	grayscale_ = new Grayscale;
 	inversion_ = new Inversion;
+	gaussianBlur_ = new GaussianBlur;
 
 	loadSceneStart_ = Time::get()->GetRealTimeSinceStartup();
 	createScene();
@@ -229,7 +233,7 @@ void Game::createScene() {
 	WorldInstance()->ImportTo(light, lightModelPath, this);
 
 	//targetTexture_ = NewRenderTexture();
-	//targetTexture_->Create(RenderTextureFormatRgba, Screen::GetWidth(), Screen::GetHeight());
+	//targetTexture_->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	Camera camera = NewCamera();
 	WorldInstance()->SetMainCamera(camera);
@@ -285,7 +289,8 @@ void Game::createScene() {
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
-	camera->AddImageEffect(grayscale_);
+	camera->AddImageEffect(gaussianBlur_);
+	//camera->AddImageEffect(grayscale_);
 	//camera->AddImageEffect(inversion_);
 #endif
 

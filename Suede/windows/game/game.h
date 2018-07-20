@@ -67,6 +67,8 @@ private:
 	Canvas* canvas_;
 	ImageEffect* grayscale_;
 	ImageEffect* inversion_;
+	ImageEffect* gaussianBlur_;
+
 	CameraController* controller_;
 
 	float loadSceneStart_;

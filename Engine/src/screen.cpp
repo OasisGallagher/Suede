@@ -1,18 +1,5 @@
-#include <vector>
 #include "screen.h"
 #include "debug/debug.h"
-
-static uint width;
-static uint height;
-std::vector<ScreenSizeChangedListener*> listeners;
-
-uint Screen::GetWidth() {
-	return width;
-}
-
-uint Screen::GetHeight() {
-	return height;
-}
 
 void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 	if (listener == nullptr) {
@@ -20,27 +7,27 @@ void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 		return;
 	}
 
-	if (std::find(listeners.begin(), listeners.end(), listener) == listeners.end()) {
-		listeners.push_back(listener);
+	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
+		listeners_.push_back(listener);
 	}
 }
 
 void Screen::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
-	std::vector<ScreenSizeChangedListener*>::iterator pos = std::find(listeners.begin(), listeners.end(), listener);
-	if (pos != listeners.end()) {
-		listeners.erase(pos);
+	std::vector<ScreenSizeChangedListener*>::iterator pos = std::find(listeners_.begin(), listeners_.end(), listener);
+	if (pos != listeners_.end()) {
+		listeners_.erase(pos);
 	}
 }
 
 void Screen::Set(uint _width, uint _height) {
-	if (width == _width && height == _height) {
+	if (width_ == _width && height_ == _height) {
 		return;
 	}
 
-	width = _width;
-	height = _height;
+	width_ = _width;
+	height_ = _height;
 
-	for (uint i = 0; i < listeners.size(); ++i) {
-		listeners[i]->OnScreenSizeChanged(width, height);
+	for (uint i = 0; i < listeners_.size(); ++i) {
+		listeners_[i]->OnScreenSizeChanged(width_, height_);
 	}
 }

@@ -38,11 +38,11 @@ void GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	}
 
 	canvas_ = value;
-	Screen::Set(value->GetWidth(), value->GetHeight());
+	Screen::get()->Set(value->GetWidth(), value->GetHeight());
 }
 
 void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
-	Screen::Set(width, height);
+	Screen::get()->Set(width, height);
 }
 
 void GraphicsViewer::Close() {

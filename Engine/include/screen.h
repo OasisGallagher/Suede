@@ -1,24 +1,31 @@
 #pragma once
+#include <vector>
 #include "enginedefines.h"
+#include "tools/singleton.h"
 
 class ScreenSizeChangedListener {
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height) = 0;
 };
 
-class SUEDE_API Screen {
+class SUEDE_API Screen : public Singleton<Screen> {
+	friend class Singleton<Screen>;
+
 public:
-	static uint GetWidth();
-	static uint GetHeight();
+	uint GetWidth() { return width_; }
+	uint GetHeight() { return height_; }
 
-	static void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	static void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
 
-	static void Set(uint width, uint height);
-
-private:
-//	friend class GraphicsViewer;
+public:
+	void Set(uint width, uint height);
 
 private:
-	Screen();
+	Screen() {}
+
+private:
+	uint width_;
+	uint height_;
+	std::vector<ScreenSizeChangedListener*> listeners_;
 };

@@ -523,6 +523,9 @@
     <ClInclude Include="GeneratedFiles\ui_aboutdialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="scripts\gaussianblur.h">
+      <Filter>scripts\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\grayscale.shader">
@@ -590,6 +593,9 @@
     </None>
     <None Include="GeneratedFiles\Release\rectfield.moc">
       <Filter>Generated Files\Release</Filter>
+    </None>
+    <None Include="resources\shaders\gaussianblur.shader">
+      <Filter>resources\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
