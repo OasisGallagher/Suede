@@ -1,0 +1,150 @@
+$Program
+	: $Blocks		$$ = $1
+
+$Blocks
+	: $PropertyBlock $SubShaders		$$ = make("Blocks", $2, $1)
+
+$PropertyBlock
+	: Properties { $Properties }			$$ = make("PropertyBlock", $2)
+
+$Properties
+	: epsilon				$$ = $0
+	| $PropertiesPrefix		$$ = $1
+
+$PropertiesPrefix
+	: $PropertiesPrefix $Property			$$ = make("Properties", $2, $1)
+	| $Property								$$ = $1
+
+$Property
+	: int $Identifier $IntegerInitializer ;		$$ = make("Int", $3, $2)
+	| float $Identifier $SingleInitializer ;	$$ = make("Single", $3, $2)
+	| color3 $Identifier $Vec3Initializer ;		$$ = make("Color3", $3, $2)
+	| vec3 $Identifier $Vec3Initializer ;		$$ = make("Vec3", $3, $2)
+	| color4 $Identifier $Vec4Initializer ;		$$ = make("Color4", $3, $2)
+	| vec4 $Identifier $Vec4Initializer ;		$$ = make("Vec4", $3, $2)
+	| tex2 $Identifier $IVec3Initializer ;		$$ = make("Tex2", $3, $2)
+	| mat3 $Identifier ;						$$ = make("Mat3", $2)
+	| mat4 $Identifier ;						$$ = make("Mat4", $2)
+
+$IntegerInitializer
+	: epsilon		$$ = $0
+	| = $Integer	$$ = $1
+
+$SingleInitializer
+	: epsilon		$$ = $0
+	| = $Integer	$$ = $1
+	| = $Single		$$ = $1
+
+$Vec3Initializer
+	: epsilon			$$ = $0
+	| = { $Number3 }	$$ = $2
+
+$IVec3Initializer
+	: epsilon			$$ = $0
+	| = { $Integers3 }	$$ = $2
+
+$Vec4Initializer
+	: epsilon			$$ = $0
+	| = { $Number4 }	$$ = $2
+
+$Integers3
+	: epsilon							$$ = $0
+	| $Integer							$$ = make("Integer3", $1, $0, $0)
+	| $Integer , $Integer				$$ = make("Integer3", $3, $1, $0)
+	| $Integer , $Integer , $Integer	$$ = make("Integer3", $5, $3, $1)
+
+$Number
+	: $Integer						$$ = $1
+	| $Single						$$ = $1
+
+$Number3
+	: epsilon						$$ = $0
+	| $Number						$$ = make("Singles3", $1, $0, $0)
+	| $Number , $Number				$$ = make("Singles3", $3, $1, $0)
+	| $Number , $Number , $Number	$$ = make("Singles3", $5, $3, $1)
+
+$Number4
+	: epsilon									$$ = $0
+	| $Number									$$ = make("Singles4", $1, $0, $0, $0)
+	| $Number , $Number							$$ = make("Singles4", $3, $1, $0, $0)
+	| $Number , $Number , $Number				$$ = make("Singles4", $5, $3, $1, $0)
+	| $Number , $Number , $Number , $Number		$$ = make("Singles4", $7, $5, $3, $1)
+
+$SubShaders
+	: $SubShadersPrefix			$$ = $1
+
+$SubShadersPrefix
+	: $SubShadersPrefix $SubShader		$$ = make("SubShaders", $2, $1)
+	| $SubShader						$$ = $1
+
+$SubShader
+	: SubShader { $TagBlock $PassesPrefix }		$$ = make("SubShader", $3, $2)
+
+$TagBlock
+	: epsilon			$$ = $0
+	| Tags { $Tags }	$$ = make("TagBlock", $2)
+
+$Tags
+	: epsilon		$$ = $0
+	| $TagsPrefix	$$ = $1
+
+$TagsPrefix
+	: $TagsPrefix $Tag	$$ = make("Tags", $2, $1)
+	| $Tag				$$ = $1
+
+$Tag
+	: Queue = $String ;	$$ = make("Queue", $2)
+
+$PassesPrefix
+	: $PassesPrefix $Pass		$$ = make("Passes", $2, $1)
+	| $Pass						$$ = $1
+
+$Pass
+	: Pass $PassName $IsEnabled { $RenderStates $ShaderCode } 		$$ = make("Pass", $6, $5, $3, $2)
+
+$PassName
+	: epsilon			$$ = $0
+	| $String			$$ = $1
+
+$IsEnabled
+	: epsilon			$$ = $0
+	| $Boolean			$$ = $1
+
+$ShaderCode
+	: epsilon			$$ = $0
+	| $Code				$$ = $1
+
+$RenderStates
+	: epsilon				$$ = $0
+	| $RenderStatesPrefix	$$ = $1
+
+$RenderStatesPrefix
+	: $RenderStatesPrefix $RenderState	$$ = make("RenderStates", $2, $1)
+	| $RenderState						$$ = $1
+
+$RenderState
+	: $Identifier $RSP ;					$$ = make("RenderState", $3, $2, $0, $0)
+	| $Identifier $RSP $RSP ;				$$ = make("RenderState", $4, $3, $2, $0)
+	| $Identifier $RSP $RSP $RSP ;			$$ = make("RenderState", $5, $4, $3, $2)
+
+$RSP
+	: $Identifier		$$ = $1
+	| $Integer			$$ = $1
+
+$Integer
+	: integer		$$ = integer($1)
+
+$Single
+	: single		$$ = single($1)
+
+$Code
+	: code			$$ = code($1)
+
+$Boolean
+	: boolean		$$ = boolean($1)
+
+$Identifier
+	: identifier	$$ = symbol($1)
+
+$String
+	: string		$$ = literal($1)

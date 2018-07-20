@@ -18,3 +18,4 @@ OGLdpf.log
 /Viewer/GeneratedFiles/Debug
 /Suede/bin/GLEF.bin
 /Engine/*.user
+__pycache__
