@@ -7,7 +7,7 @@
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "cameracontroller.h"
-#include "windows/hierarchy/hierarchy.h"
+#include "widgets/hierarchy/hierarchy.h"
 
 CameraController::CameraController() : lpressed_(false), mpressed_(false), rpressed_(false) {
 }

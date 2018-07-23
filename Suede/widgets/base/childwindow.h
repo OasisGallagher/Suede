@@ -5,7 +5,7 @@ namespace Ui {
 
 class ChildWindow {
 public:
-	virtual void init(Ui::Suede* ui);
+	virtual void init(Ui::Suede* ui) { ui_ = ui; }
 	virtual void awake() {}
 
 protected:

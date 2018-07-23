@@ -11,7 +11,7 @@ public:
 
 public:
 	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
-		int first = 1, horizontal = 1;
+		bool first = 1, horizontal = 1;
 		int rtW = src->GetWidth(), rtH = src->GetHeight();
 
 		// temporary render texture.
@@ -23,11 +23,11 @@ public:
 		buffers[1]->Create(RenderTextureFormatRgbHDR, rtW, rtH);
 
 		for (int i = 0; i < amount_; ++i) {
-			material_->SetInt("horizontal", horizontal);
+			material_->SetBool("horizontal", horizontal);
 			Graphics::Blit((first != 0) ? src : buffers[1 - horizontal], buffers[horizontal], material_, normalizedRect);
 
-			horizontal = 1 - horizontal;
-			first = 0;
+			horizontal = !horizontal;
+			first = false;
 		}
 
 		Graphics::Blit(buffers[1 - horizontal], dest, normalizedRect);

@@ -42,6 +42,7 @@ public:
 	virtual void Undefine(const std::string& name) = 0;
 
 	virtual void SetInt(const std::string& name, int value) = 0;
+	virtual void SetBool(const std::string& name, bool value) = 0;
 	virtual void SetFloat(const std::string& name, float value) = 0;
 	virtual void SetTexture(const std::string& name, Texture value) = 0;
 	virtual void SetMatrix4(const std::string& name, const glm::mat4& value) = 0;
@@ -53,6 +54,7 @@ public:
 	virtual void SetVariant(const std::string& name, const Variant& value) = 0;
 
 	virtual int GetInt(const std::string& name) = 0;
+	virtual bool GetBool(const std::string& name) = 0;
 	virtual float GetFloat(const std::string& name) = 0;
 	virtual Texture GetTexture(const std::string& name) = 0;
 	virtual glm::mat4 GetMatrix4(const std::string& name) = 0;

@@ -1,7 +1,7 @@
 #include <QMouseEvent>
 
 #include "colorfield.h"
-#include "../windows/colorpicker/colorpicker.h"
+#include "../widgets/dialogs/colorpicker.h"
 
 #include "debug/debug.h"
 #include "tools/math2.h"
@@ -16,8 +16,8 @@ ColorField::ColorField(QWidget* parent) : QWidget(parent), alpha_(nullptr) {
 	layout_->addWidget(label_);
 }
 
-void ColorField::setColor(const glm::vec4& value) {
-	setColor(glm::vec3(value));
+void ColorField::setValue(const glm::vec4& value) {
+	setValue(glm::vec3(value));
 
 	if (alpha_ == nullptr) {
 		alpha_ = new QProgressBar(this);
@@ -34,7 +34,7 @@ void ColorField::setColor(const glm::vec4& value) {
 	color_ = value;
 }
 
-void ColorField::setColor(const glm::vec3& value) {
+void ColorField::setValue(const glm::vec3& value) {
 	color_ = glm::vec4(value, 1);
 
 	glm::ivec3 icolor = Math::IntColor(value);
@@ -60,12 +60,12 @@ void ColorField::showColorPicker() {
 
 void ColorField::onCurrentColorChanged(const QColor& color) {
 	if (alpha_ != nullptr && alpha_->isVisible()) {
-		setColor(glm::vec4(color.red(), color.green(), color.blue(), color.alpha()) / 255.f);
+		setValue(glm::vec4(color.red(), color.green(), color.blue(), color.alpha()) / 255.f);
 		alpha_->setValue(color.alpha());
 	}
 	else {
-		setColor(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
+		setValue(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
 	}
 
-	emit currentColorChanged(color);
+	emit valueChanged(color);
 }

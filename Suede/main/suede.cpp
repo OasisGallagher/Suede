@@ -10,32 +10,27 @@
 #include "driver.h"
 #include "camera.h"
 
-#include "../windows/status/status.h"
-#include "../windows/about/aboutdialog.h"
-#include "../windows/colorpicker/colorpicker.h"
+#include "../widgets/status/status.h"
+#include "../widgets/dialogs/lightdialog.h"
+#include "../widgets/dialogs/aboutdialog.h"
+#include "../widgets/dialogs/colorpicker.h"
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
 Suede::Suede(QWidget *parent)
-	: QMainWindow(parent) {
-
+	: QMainWindow(parent), envDialog_(nullptr) {
 	Debug::SetLogReceiver(this);
 	
 	setupUI();
 	setStatusBar(new Status(this));
 
-	QMenu* fileMenu = menuBar()->findChild<QMenu*>("file");
-	QList<QAction*> actions = fileMenu->actions();
-
-	connect(actions[0], SIGNAL(triggered()), this, SLOT(screenCapture()));
-	connect(actions[1], SIGNAL(triggered()), qApp, SLOT(quit()));
-
-	QMenu* helpMenu = menuBar()->findChild<QMenu*>("help");
-	actions = helpMenu->actions();
-	connect(actions[0], SIGNAL(triggered()), this, SLOT(aboutBox()));
+	initializeFileMenu();
+	initializeWindowsMenu();
+	initializeHelpMenu();
 }
 
 Suede::~Suede() {
+	delete childWindows_;
 	ColorPicker::destroy();
 	Debug::SetLogReceiver(nullptr);
 }
@@ -50,10 +45,12 @@ void Suede::setupUI() {
 
 	setDockNestingEnabled(true);
 
-	childWindows_[ChildWindowGame] = Game::get();
-	childWindows_[ChildWindowConsole] = Console::get();
-	childWindows_[ChildWindowInspector] = Inspector::get();
-	childWindows_[ChildWindowHierarchy] = Hierarchy::get();
+	childWindows_ = new QDockWidget*[ChildWindowType::size()];
+
+	childWindows_[ChildWindowType::Game] = Game::get();
+	childWindows_[ChildWindowType::Console] = Console::get();
+	childWindows_[ChildWindowType::Inspector] = Inspector::get();
+	childWindows_[ChildWindowType::Hierarchy] = Hierarchy::get();
 
 	QSettings settings(LAYOUT_PATH, QSettings::IniFormat);
 	QByteArray state = settings.value("State").toByteArray();
@@ -74,22 +71,22 @@ void Suede::setupUI() {
 void Suede::awake() {
 	show();
 
-	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<ChildWindow*>(childWindows_[i])->init(&ui);
 	}
 
-	for (int i = ChildWindowGame; i < ChildWindowCount; ++i) {
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<ChildWindow*>(childWindows_[i])->awake();
 	}
 }
 
 void Suede::showChildWindow(int index, bool show) {
-	Q_ASSERT(index > 0 && index < ChildWindowCount);
+	Q_ASSERT(index >= 0 && index < ChildWindowType::size());
 	childWindows_[index]->setVisible(show);
 }
 
 bool Suede::childWindowVisible(int index) {
-	Q_ASSERT(index > 0 && index < ChildWindowCount);
+	Q_ASSERT(index >= 0 && index < ChildWindowType::size());
 	return childWindows_[index]->isVisible();
 }
 
@@ -122,8 +119,8 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 		case Qt::Key_8:
 		case Qt::Key_9:
 			if ((event->modifiers() & Qt::ControlModifier) != 0) {
-				int index = event->key() - Qt::Key_0;
-				if (index < ChildWindowCount) {
+				int index = event->key() - Qt::Key_0 - 1;
+				if (index < ChildWindowType::size()) {
 					showChildWindow(index, !childWindowVisible(index));
 				}
 			}
@@ -140,6 +137,13 @@ void Suede::aboutBox() {
 	aboutDialog.addInformation("OpenGL", Driver::GetOpenGLVersion());
 	aboutDialog.addInformation("GLSL", Driver::GetGLSLVersion());
 	aboutDialog.exec();
+}
+
+void Suede::onShowWindowsMenu() {
+	QList<QAction*> actions = menuBar()->findChild<QMenu*>("windows")->actions();
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
+		actions[i]->setChecked(childWindowVisible(i));
+	}
 }
 
 void Suede::screenCapture() {
@@ -185,5 +189,59 @@ void Suede::OnLogMessage(LogLevel level, const char* message) {
 			Console::get()->addMessage(ConsoleMessageType::Error, message);
 			Debug::Break();
 			break;
+	}
+}
+
+void Suede::initializeFileMenu() {
+	QMenu* menu = menuBar()->findChild<QMenu*>("file");
+	QList<QAction*> actions = menu->actions();
+
+	connect(actions[0], SIGNAL(triggered()), this, SLOT(screenCapture()));
+	connect(actions[1], SIGNAL(triggered()), qApp, SLOT(quit()));
+}
+
+void Suede::initializeWindowsMenu() {
+	QMenu* menu = menuBar()->findChild<QMenu*>("windows");
+	connect(menu, SIGNAL(aboutToShow()), this, SLOT(onShowWindowsMenu()));
+
+	QAction* before = menu->actions().front();
+	for (int i = ChildWindowType::size() - 1; i >= 0; --i) {
+		QAction* a = new QAction(ChildWindowType::from_int(i).to_string(), menu);
+		a->setCheckable(true);
+
+		menu->insertAction(before, a);
+		connect(a, SIGNAL(triggered()), this, SLOT(onToggleWindowVisible()));
+		before = a;
+	}
+
+	QList<QAction*> actions = menu->actions();
+	// skip seperator.
+	connect(actions[ChildWindowType::size() + 1], SIGNAL(triggered()), this, SLOT(onShowEnvironment()));
+}
+
+void Suede::initializeHelpMenu() {
+	QMenu* menu = menuBar()->findChild<QMenu*>("help");
+	QList<QAction*> actions = menu->actions();
+	connect(actions[0], SIGNAL(triggered()), this, SLOT(aboutBox()));
+}
+
+void Suede::onShowEnvironment() {
+	if (envDialog_ == nullptr) {
+		envDialog_ = new LightDialog(this);
+
+		QPoint p((width() - envDialog_->width()) / 2, (height() - envDialog_->height()) / 2);
+		envDialog_->move(p);
+	}
+
+	envDialog_->show();
+}
+
+void Suede::onToggleWindowVisible() {
+	QList<QAction*> actions = menuBar()->findChild<QMenu*>("windows")->actions();
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
+		if (actions[i] == sender()) {
+			showChildWindow(i, !childWindowVisible(i));
+			break;
+		}
 	}
 }

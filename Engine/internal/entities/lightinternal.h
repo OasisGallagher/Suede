@@ -3,7 +3,7 @@
 
 class LightInternal : virtual public ILight, public EntityInternal {
 public:
-	LightInternal(ObjectType type) : EntityInternal(type) {}
+	LightInternal(ObjectType type) : EntityInternal(type), intensity_(1) {}
 	~LightInternal() {}
 
 	virtual void SetImportance(LightImportance value) { importance_ = value; }
@@ -12,7 +12,11 @@ public:
 	virtual void SetColor(const glm::vec3 & value) { color_ = value; }
 	virtual glm::vec3 GetColor() { return color_; }
 
-private:
+	virtual void SetIntensity(float value) { intensity_ = value; }
+	virtual float GetIntensity() { return intensity_; }
+
+protected:
+	float intensity_;
 	glm::vec3 color_;
 	LightImportance importance_;
 };
@@ -50,5 +54,7 @@ class DirectionalLightInternal : public IDirectionalLight, public LightInternal 
 	DEFINE_FACTORY_METHOD(DirectionalLight)
 
 public:
-	DirectionalLightInternal() : LightInternal(ObjectTypeDirectionalLight) {}
+	DirectionalLightInternal() : LightInternal(ObjectTypeDirectionalLight) {
+		intensity_ = 0.5f;
+	}
 };

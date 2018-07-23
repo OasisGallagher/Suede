@@ -1,9 +1,9 @@
 #include <QWidget>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "canvas.h"
 #include "ui_suede.h"
-#include "windows/status/status.h"
-#include "windows/controls/canvas.h"
+#include "widgets/status/status.h"
 
 #include "game.h"
 #include "font.h"
@@ -35,7 +35,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
+//#define IMAGE_EFFECTS
 //#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
@@ -140,6 +140,8 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			diffuse->Load("suzanne/diffuse.dds");
 			Entity target = root->GetTransform()->FindChild("suzanne_root/default")->GetEntity();
 			target->GetRenderer()->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
+			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
+			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}
 
 		float delta = Time::get()->GetRealTimeSinceStartup() - loadSceneStart_;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>705</width>
-    <height>1090</height>
+    <height>1087</height>
    </rect>
   </property>
   <property name="font">
@@ -308,7 +308,7 @@
           <x>0</x>
           <y>0</y>
           <width>299</width>
-          <height>241</height>
+          <height>264</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -528,7 +528,15 @@
     </property>
     <addaction name="about"/>
    </widget>
+   <widget class="QMenu" name="windows">
+    <property name="title">
+     <string>Windows</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="showEnvironment"/>
+   </widget>
    <addaction name="file"/>
+   <addaction name="windows"/>
    <addaction name="help"/>
   </widget>
   <action name="exit">
@@ -549,48 +557,100 @@
     <string>About</string>
    </property>
   </action>
+  <action name="gameVisible">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Game</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="inspectorVisible">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Inspector</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="consoleVisible">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Console</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="hierachyVisible">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Hierachy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="showEnvironment">
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
    <class>Canvas</class>
    <extends>QWidget</extends>
-   <header>windows/controls/canvas.h</header>
+   <header>widgets/game/canvas.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Game</class>
    <extends>QDockWidget</extends>
-   <header>windows/game/game.h</header>
+   <header>widgets/game/game.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Console</class>
    <extends>QDockWidget</extends>
-   <header>windows/console/console.h</header>
+   <header>widgets/console/console.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Hierarchy</class>
    <extends>QDockWidget</extends>
-   <header>windows/hierarchy/hierarchy.h</header>
+   <header>widgets/hierarchy/hierarchy.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Inspector</class>
    <extends>QDockWidget</extends>
-   <header>windows/inspector/inspector.h</header>
+   <header>widgets/inspector/inspector.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>MaskField</class>
    <extends>QComboBox</extends>
-   <header>windows/controls/maskfield.h</header>
+   <header>widgets/controls/maskfield.h</header>
   </customwidget>
   <customwidget>
    <class>Vec3Field</class>
    <extends>QWidget</extends>
-   <header>windows/controls/vec3field.h</header>
+   <header>widgets/controls/vec3field.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

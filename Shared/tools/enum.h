@@ -346,7 +346,7 @@ BETTER_ENUMS_CONSTEXPR_ static T* _or_null(optional<T*> maybe)
 
 
 // Functional sequencing. This is essentially a comma operator wrapped in a
-// constexpr function. g++ 4.7 doesn't "accept" integral constants in the second
+// constexpr function. g++ 4.7 doesn't "accept" int constants in the second
 // position for the comma operator, and emits an external symbol, which then
 // causes a linking error.
 
@@ -594,7 +594,7 @@ class Enum {                                                                   \
     typedef ::better_enums::optional<std::size_t>           _optional_index;   \
                                                                                \
   public:                                                                      \
-    typedef Underlying                                      _integral;         \
+    typedef Underlying                                      _int;         \
                                                                                \
     enum _enumerated SetUnderlyingType(Underlying) { __VA_ARGS__ };            \
 																			   \
@@ -607,14 +607,14 @@ class Enum {                                                                   \
         return SwitchType(Enum)(_value);                                       \
     }                                                                          \
                                                                                \
-    BETTER_ENUMS_CONSTEXPR_ _integral to_integral() const;                    \
+    BETTER_ENUMS_CONSTEXPR_ _int to_int() const;                    \
     BETTER_ENUMS_IF_EXCEPTIONS(                                                \
-    BETTER_ENUMS_CONSTEXPR_ static Enum from_integral(_integral value);       \
+    BETTER_ENUMS_CONSTEXPR_ static Enum from_int(_int value);       \
     )                                                                          \
     BETTER_ENUMS_CONSTEXPR_ static Enum                                        \
-    from_integral_unchecked(_integral value);                                 \
+    from_int_unchecked(_int value);                                 \
     BETTER_ENUMS_CONSTEXPR_ static _optional                                   \
-    from_integral_nothrow(_integral value);                                   \
+    from_int_nothrow(_int value);                                   \
                                                                                \
     ToStringConstexpr const char* to_string() const;                          \
     BETTER_ENUMS_IF_EXCEPTIONS(                                                \
@@ -629,7 +629,7 @@ class Enum {                                                                   \
     BETTER_ENUMS_CONSTEXPR_ static _optional                                   \
     from_string_nocase_nothrow(const char *name);                             \
                                                                                \
-    BETTER_ENUMS_CONSTEXPR_ static bool is_valid(_integral value);            \
+    BETTER_ENUMS_CONSTEXPR_ static bool is_valid(_int value);            \
     BETTER_ENUMS_CONSTEXPR_ static bool is_valid(const char *name);           \
     BETTER_ENUMS_CONSTEXPR_ static bool is_valid_nocase(const char *name);    \
                                                                                \
@@ -649,18 +649,18 @@ class Enum {                                                                   \
 	BETTER_ENUMS_CONSTEXPR_ static Enum value(int i);						  \
     ToStringConstexpr static _name_iterable names();                          \
                                                                                \
-    _integral      _value;                                                     \
+    _int      _value;                                                     \
                                                                                \
     BETTER_ENUMS_DEFAULT_CONSTRUCTOR(Enum)                                     \
                                                                                \
   /*private:*/                                                                     \
-    explicit BETTER_ENUMS_CONSTEXPR_ Enum(const _integral &value) :            \
+    explicit BETTER_ENUMS_CONSTEXPR_ Enum(const _int &value) :            \
         _value(value) { }                                                      \
                                                                                \
     DeclareInitialize                                                          \
                                                                                \
     BETTER_ENUMS_CONSTEXPR_ static _optional_index                             \
-    from_value_loop(_integral value, std::size_t index = 0);                  \
+    from_value_loop(_int value, std::size_t index = 0);                  \
     BETTER_ENUMS_CONSTEXPR_ static _optional_index                             \
     from_string_loop(const char *name, std::size_t index = 0);                \
     BETTER_ENUMS_CONSTEXPR_ static _optional_index                             \
@@ -691,7 +691,7 @@ operator +(Enum::_enumerated enumerated)                                       \
 }                                                                              \
                                                                                \
 BETTER_ENUMS_CONSTEXPR_ inline Enum::_optional_index                           \
-Enum::from_value_loop(Enum::_integral value, std::size_t index)               \
+Enum::from_value_loop(Enum::_int value, std::size_t index)               \
 {                                                                              \
     return                                                                     \
         index == size() ?                                                     \
@@ -723,19 +723,19 @@ Enum::from_string_nocase_loop(const char *name, std::size_t index)            \
                     from_string_nocase_loop(name, index + 1);                 \
 }                                                                              \
                                                                                \
-BETTER_ENUMS_CONSTEXPR_ inline Enum::_integral Enum::to_integral() const      \
+BETTER_ENUMS_CONSTEXPR_ inline Enum::_int Enum::to_int() const      \
 {                                                                              \
-    return _integral(_value);                                                  \
+    return _int(_value);                                                  \
 }                                                                              \
                                                                                \
 BETTER_ENUMS_CONSTEXPR_ inline Enum                                            \
-Enum::from_integral_unchecked(_integral value)                                \
+Enum::from_int_unchecked(_int value)                                \
 {                                                                              \
     return static_cast<_enumerated>(value);                                    \
 }                                                                              \
                                                                                \
 BETTER_ENUMS_CONSTEXPR_ inline Enum::_optional                                 \
-Enum::from_integral_nothrow(_integral value)                                  \
+Enum::from_int_nothrow(_int value)                                  \
 {                                                                              \
     return                                                                     \
         ::better_enums::_map_index<Enum>(BETTER_ENUMS_NS(Enum)::_value_array,  \
@@ -743,11 +743,11 @@ Enum::from_integral_nothrow(_integral value)                                  \
 }                                                                              \
                                                                                \
 BETTER_ENUMS_IF_EXCEPTIONS(                                                    \
-BETTER_ENUMS_CONSTEXPR_ inline Enum Enum::from_integral(_integral value)      \
+BETTER_ENUMS_CONSTEXPR_ inline Enum Enum::from_int(_int value)      \
 {                                                                              \
     return                                                                     \
-        ::better_enums::_or_throw(from_integral_nothrow(value),               \
-                                  #Enum "::from_integral: invalid argument"); \
+        ::better_enums::_or_throw(from_int_nothrow(value),               \
+                                  #Enum "::from_int: invalid argument"); \
 }                                                                              \
 )                                                                              \
                                                                                \
@@ -795,7 +795,7 @@ BETTER_ENUMS_CONSTEXPR_ inline Enum Enum::from_string_nocase(const char *name)\
 }                                                                              \
 )                                                                              \
                                                                                \
-BETTER_ENUMS_CONSTEXPR_ inline bool Enum::is_valid(_integral value)           \
+BETTER_ENUMS_CONSTEXPR_ inline bool Enum::is_valid(_int value)           \
 {                                                                              \
     return from_value_loop(value);                                            \
 }                                                                              \
@@ -836,30 +836,30 @@ DefineInitialize(Enum)                                                         \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator ==(const Enum &a, const Enum &b)                          \
-    { return a.to_integral() == b.to_integral(); }                           \
+    { return a.to_int() == b.to_int(); }                           \
 																			   \
 inline bool operator == (const Enum& a, Enum::_enumerated b)				   \
-	{ return a.to_integral() == b; }									       \
+	{ return a.to_int() == b; }									       \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator !=(const Enum &a, const Enum &b)                          \
-    { return a.to_integral() != b.to_integral(); }                           \
+    { return a.to_int() != b.to_int(); }                           \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator <(const Enum &a, const Enum &b)                           \
-    { return a.to_integral() < b.to_integral(); }                            \
+    { return a.to_int() < b.to_int(); }                            \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator <=(const Enum &a, const Enum &b)                          \
-    { return a.to_integral() <= b.to_integral(); }                           \
+    { return a.to_int() <= b.to_int(); }                           \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator >(const Enum &a, const Enum &b)                           \
-    { return a.to_integral() > b.to_integral(); }                            \
+    { return a.to_int() > b.to_int(); }                            \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator >=(const Enum &a, const Enum &b)                          \
-    { return a.to_integral() >= b.to_integral(); }                           \
+    { return a.to_int() >= b.to_int(); }                           \
                                                                                \
                                                                                \
 template <typename Char, typename Traits>                                      \

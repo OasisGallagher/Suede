@@ -41,6 +41,7 @@ public:
 	virtual void Undefine(const std::string& name);
 
 	virtual void SetInt(const std::string& name, int value);
+	virtual void SetBool(const std::string& name, bool value);
 	virtual void SetFloat(const std::string& name, float value);
 	virtual void SetTexture(const std::string& name, Texture value);
 	virtual void SetMatrix4(const std::string& name, const glm::mat4& value);
@@ -52,6 +53,7 @@ public:
 	virtual void SetVariant(const std::string& name, const Variant& value);
 
 	virtual int GetInt(const std::string& name);
+	virtual bool GetBool(const std::string& name);
 	virtual float GetFloat(const std::string& name);
 	virtual Texture GetTexture(const std::string& name);
 	virtual glm::mat4 GetMatrix4(const std::string& name);
@@ -70,6 +72,7 @@ private:
 	void InitializeEnabledState();
 
 	Variant* GetProperty(const std::string& name, VariantType type);
+	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
 	int pass_;

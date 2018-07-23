@@ -7,5 +7,6 @@ public:
 	LightInspector(Object object);
 
 private slots:
+	void onIntensityChanged(float intensity);
 	void onCurrentColorChanged(const QColor& color);
 };

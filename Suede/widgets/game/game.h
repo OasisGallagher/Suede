@@ -6,8 +6,8 @@
 #include "camera.h"
 #include "gizmospainter.h"
 #include "frameeventlistener.h"
+#include "../base/childwindow.h"
 #include "entityloadedlistener.h"
-#include "windows/controls/childwindow.h"
 
 class Canvas;
 class ImageEffect;

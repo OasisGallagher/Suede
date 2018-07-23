@@ -5,8 +5,17 @@
 #include "ui_suede.h"
 
 #include "debug/debug.h"
+#include "tools/enum.h"
 #include "os/filesystem.h"
 
+BETTER_ENUM(ChildWindowType, int,
+	Game,
+	Console,
+	Inspector,
+	Hierarchy
+);
+
+class LightDialog;
 class Suede : public QMainWindow, public LogReceiver {
 	Q_OBJECT
 
@@ -16,15 +25,6 @@ public:
 
 public:
 	void awake();
-
-public:
-	enum {
-		ChildWindowGame = 1,
-		ChildWindowConsole,
-		ChildWindowInspector,
-		ChildWindowHierarchy,
-		ChildWindowCount,
-	};
 
 public:
 	bool childWindowVisible(int index);
@@ -42,11 +42,19 @@ protected:
 private slots:
 	void aboutBox();
 	void screenCapture();
+	void onShowWindowsMenu();
+	void onShowEnvironment();
+	void onToggleWindowVisible();
 
 private:
 	void setupUI();
 
+	void initializeHelpMenu();
+	void initializeFileMenu();
+	void initializeWindowsMenu();
+
 private:
 	Ui::Suede ui;
-	QDockWidget* childWindows_[ChildWindowCount];
+	LightDialog* envDialog_;
+	QDockWidget** childWindows_;
 };

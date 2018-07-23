@@ -96,7 +96,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
 	p.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
-	p.lightColor = glm::vec4(light->GetColor(), 1);
+	p.lightColor = glm::vec4(light->GetColor() * light->GetIntensity(), 1);
 	p.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	p.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
 	UniformBufferManager::get()->UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));

@@ -5,11 +5,12 @@
 
 #include "tools/math2.h"
 
-#include "windows/controls/enumfield.h"
-#include "windows/controls/vec4field.h"
-#include "windows/controls/rectfield.h"
-#include "windows/controls/floatfield.h"
-#include "windows/controls/floatslider.h"
+#include "widgets/controls/enumfield.h"
+#include "widgets/controls/vec4field.h"
+#include "widgets/controls/rectfield.h"
+#include "widgets/controls/colorfield.h"
+#include "widgets/controls/floatfield.h"
+#include "widgets/controls/floatslider.h"
 
 namespace Constants {
 	static uint minFieldOfView = 0;
@@ -22,7 +23,7 @@ namespace Literals {
 	DEFINE_LITERAL(cameraFovSlider2);
 }
 
-CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", object) {
+CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", object), clearColorField_(nullptr) {
 	FloatSlider* slider = new FloatSlider(this);
 	Camera camera = suede_dynamic_cast<Camera>(object);
 
@@ -37,6 +38,8 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 	EnumField* clearType = new EnumField(this);
 	clearType->setEnums(suede_dynamic_cast<Camera>(target_)->GetClearType());
 	connect(clearType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onClearTypeChanged(const QString&)));
+
+	clearTypeRow_ = form_->rowCount();
 	form_->addRow(formatRowName("ClearType"), clearType);
 
 	FloatField* nearClipPlane = new FloatField(this);
@@ -56,6 +59,16 @@ void CameraInspector::onRectChanged(const Rect& rect) {
 void CameraInspector::onClearTypeChanged(const QString& text) {
 	ClearType type = ClearType::from_string(text.toLatin1());
 	suede_dynamic_cast<Camera>(target_)->SetClearType(type);
+	if (type == ClearType::Color) {
+		ColorField* colorField = new ColorField(this);
+		colorField->setValue(suede_dynamic_cast<Camera>(target_)->GetClearColor());
+		connect(colorField, SIGNAL(valueChanged(const QColor&)), this, SLOT(onClearColorChanged(const QColor&)));
+		form_->insertRow(clearTypeRow_ + 1, formatRowName("ClearColor"), colorField);
+	}
+}
+
+void CameraInspector::onClearColorChanged(const QColor& color) {
+	suede_dynamic_cast<Camera>(target_)->SetClearColor(glm::vec3(color.red(), color.blue(), color.green()) / 255.f);
 }
 
 void CameraInspector::onSliderValueChanged(const QString& name, float value) {

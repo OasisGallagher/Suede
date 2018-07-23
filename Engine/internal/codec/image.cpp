@@ -71,7 +71,7 @@ bool ImageCodec::Decode(TexelMap& texelMap, const std::string& path) {
 			Debug::Break();
 		}
 
-		/**	https://msdn.microsoft.com/en-us/library/windows/desktop/bb206357(v=vs.85).aspx
+		/**	https://msdn.microsoft.com/en-us/library/widgets/desktop/bb206357(v=vs.85).aspx
 		int pitch = FreeImage_GetPitch(dib);
 		int w = FreeImage_GetPitch(dib) / bpp * 8;
 		int width = FreeImage_GetWidth(dib);

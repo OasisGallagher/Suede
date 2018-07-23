@@ -43,23 +43,20 @@ void MaterialInternal::SetShader(Shader value) {
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeInt);
 	if (var != nullptr && var->GetInt() != value) {
 		var->SetInt(value);
 	}
 }
 
-void MaterialInternal::SetFloat(const std::string& name, float value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
+void MaterialInternal::SetBool(const std::string& name, bool value) {
+	Variant* var = GetProperty(name, VariantTypeBool);
+	if (var != nullptr && var->GetBool() != value) {
+		var->SetBool(value);
 	}
+}
 
+void MaterialInternal::SetFloat(const std::string& name, float value) {
 	Variant* var = GetProperty(name, VariantTypeFloat);
 	if (var != nullptr && !Math::Approximately(var->GetFloat(), value)) {
 		var->SetFloat(value);
@@ -67,11 +64,6 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 }
 
 void MaterialInternal::SetTexture(const std::string& name, Texture value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeTexture);
 	if (var != nullptr && var->GetTexture() != value) {
 		var->SetTexture(value);
@@ -79,11 +71,6 @@ void MaterialInternal::SetTexture(const std::string& name, Texture value) {
 }
 
 void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeVector3);
 	if (var != nullptr && var->GetVector3() != value) {
 		var->SetVector3(value);
@@ -91,11 +78,6 @@ void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& valu
 }
 
 void MaterialInternal::SetColor3(const std::string& name, const glm::vec3& value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeColor3);
 	if (var != nullptr && var->GetColor3() != value) {
 		var->SetColor3(value);
@@ -103,11 +85,6 @@ void MaterialInternal::SetColor3(const std::string& name, const glm::vec3& value
 }
 
 void MaterialInternal::SetColor4(const std::string& name, const glm::vec4& value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeColor4);
 	if (var != nullptr && var->GetColor4() != value) {
 		var->SetColor4(value);
@@ -115,11 +92,6 @@ void MaterialInternal::SetColor4(const std::string& name, const glm::vec4& value
 }
 
 void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeVector4);
 	if (var != nullptr && var->GetVector4() != value) {
 		var->SetVector4(value);
@@ -127,11 +99,6 @@ void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& valu
 }
 
 void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& value) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeMatrix4);
 	if (var != nullptr /*&& var->GetMatrix4() != value*/) {
 		var->SetMatrix4(value);
@@ -139,11 +106,6 @@ void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& valu
 }
 
 void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return;
-	}
-
 	Variant* var = GetProperty(name, VariantTypeMatrix4Array);
 	if (var != nullptr) {
 		var->SetMatrix4Array(ptr, count);
@@ -151,12 +113,7 @@ void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4*
 }
 
 int MaterialInternal::GetInt(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return 0;
-	}
-
-	Variant* var = GetProperty(name, VariantTypeInt);
+	Variant* var = VerifyProperty(name, VariantTypeInt);
 	if (var == nullptr) {
 		return 0;
 	}
@@ -164,15 +121,18 @@ int MaterialInternal::GetInt(const std::string& name) {
 	return var->GetInt();
 }
 
-float MaterialInternal::GetFloat(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
+bool MaterialInternal::GetBool(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantTypeBool);
+	if (var == nullptr) {
 		return 0;
 	}
 
-	Variant* var = GetProperty(name, VariantTypeFloat);
+	return var->GetBool();
+}
+
+float MaterialInternal::GetFloat(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantTypeFloat);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
 		return 0.f;
 	}
 
@@ -180,29 +140,17 @@ float MaterialInternal::GetFloat(const std::string& name) {
 }
 
 Texture MaterialInternal::GetTexture(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return nullptr;
-	}
-
-	Variant* var = GetProperty(name, VariantTypeTexture);
+	Variant* var = VerifyProperty(name, VariantTypeTexture);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
-		return Texture();
+		return nullptr;
 	}
 
 	return var->GetTexture();
 }
 
 glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return glm::mat4(0);
-	}
-
-	Variant* var = GetProperty(name, VariantTypeMatrix4);
+	Variant* var = VerifyProperty(name, VariantTypeMatrix4);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
 		return glm::mat4(0);
 	}
 
@@ -210,14 +158,8 @@ glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return glm::vec3(0);
-	}
-
-	Variant* var = GetProperty(name, VariantTypeVector3);
+	Variant* var = VerifyProperty(name, VariantTypeVector3);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
 		return glm::vec3(0);
 	}
 
@@ -225,14 +167,8 @@ glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetColor3(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return glm::vec3(0);
-	}
-
-	Variant* var = GetProperty(name, VariantTypeColor4);
+	Variant* var = VerifyProperty(name, VariantTypeColor4);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
 		return glm::vec3(0);
 	}
 
@@ -240,14 +176,8 @@ glm::vec3 MaterialInternal::GetColor3(const std::string& name) {
 }
 
 glm::vec4 MaterialInternal::GetColor4(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return glm::vec4(0);
-	}
-
-	Variant* var = GetProperty(name, VariantTypeColor4);
+	Variant* var = VerifyProperty(name, VariantTypeColor4);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
 		return glm::vec4(0);
 	}
 
@@ -255,14 +185,8 @@ glm::vec4 MaterialInternal::GetColor4(const std::string& name) {
 }
 
 glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return glm::vec4(0);
-	}
-
-	const Variant* var = GetProperty(name, VariantTypeVector4);
+	const Variant* var = VerifyProperty(name, VariantTypeVector4);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
 		return glm::vec4(0);
 	}
 
@@ -377,6 +301,20 @@ Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type
 	}
 
 	return nullptr;
+}
+
+Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType type) {
+	if (!shader_) {
+		Debug::LogError("invalid shader");
+		return nullptr;
+	}
+
+	Variant* var = GetProperty(name, type);
+	if (var == nullptr) {
+		Debug::LogError("no property named %s.", name.c_str());
+	}
+
+	return var;
 }
 
 void MaterialInternal::BindProperties(uint pass) {

@@ -14,24 +14,20 @@ public:
 	ColorField(QWidget* parent);
 
 public:
-	void setColor(const glm::vec4& value);
-	void setColor(const glm::vec3& value);
-
-	void setData(const QVariant& data) { data_ = data; }
-	const QVariant& data() const { return data_; }
+	void setValue(const glm::vec4& value);
+	void setValue(const glm::vec3& value);
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* event);
 
 signals:
-	void currentColorChanged(const QColor& color);
+	void valueChanged(const QColor& color);
 
 private slots:
 	void showColorPicker();
 	void onCurrentColorChanged(const QColor& color);
 
 private:
-	QVariant data_;
 	glm::vec4 color_;
 
 	QLabel* label_;

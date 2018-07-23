@@ -4,7 +4,7 @@
 #include <QTableWidget>
 
 #include "tools/enum.h"
-#include "windows/controls/childwindow.h"
+#include "../base/childwindow.h"
 
 BETTER_ENUM_MASK(ConsoleMessageType, int,
 	Debug = 1,

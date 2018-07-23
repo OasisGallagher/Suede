@@ -119,15 +119,6 @@
     <Filter Include="internal\culling\src">
       <UniqueIdentifier>{5d606452-5b94-4075-99e2-6bd916165304}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\culling\occlusionculling">
-      <UniqueIdentifier>{2cddc94c-6896-4b3e-9f4c-29a59e0837a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\culling\occlusionculling\include">
-      <UniqueIdentifier>{0767dc5b-1c7b-4126-acc9-b9e48fe7be11}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\culling\occlusionculling\src">
-      <UniqueIdentifier>{f908198c-70f7-4d1a-a01f-6c281ac15339}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -391,15 +382,6 @@
     <ClInclude Include="include\profiler.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\culling\occlusionculling\CullingThreadpool.h">
-      <Filter>internal\culling\occlusionculling\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\culling\occlusionculling\FrameRecorder.h">
-      <Filter>internal\culling\occlusionculling\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\culling\occlusionculling\MaskedOcclusionCulling.h">
-      <Filter>internal\culling\occlusionculling\include</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -570,33 +552,10 @@
     <ClCompile Include="src\profiler.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\culling\occlusionculling\CullingThreadpool.cpp">
-      <Filter>internal\culling\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\culling\occlusionculling\FrameRecorder.cpp">
-      <Filter>internal\culling\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCulling.cpp">
-      <Filter>internal\culling\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX2.cpp">
-      <Filter>internal\culling\occlusionculling\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\culling\occlusionculling\MaskedOcclusionCullingAVX512.cpp">
-      <Filter>internal\culling\occlusionculling\src</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h">
       <Filter>include</Filter>
     </Text>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="internal\culling\occlusionculling\CompilerSpecific.inl">
-      <Filter>internal\culling\occlusionculling\include</Filter>
-    </None>
-    <None Include="internal\culling\occlusionculling\MaskedOcclusionCullingCommon.inl">
-      <Filter>internal\culling\occlusionculling\include</Filter>
-    </None>
   </ItemGroup>
 </Project>

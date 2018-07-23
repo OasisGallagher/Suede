@@ -40,6 +40,8 @@ void QtViewer::setupSuede() {
 	QGLFormat format;
 	format.setSwapInterval(0);
 	format.setDoubleBuffer(true);
+	format.setSampleBuffers(true);
+
 	QGLFormat::setDefaultFormat(format);
 
 	suede_ = new Suede();

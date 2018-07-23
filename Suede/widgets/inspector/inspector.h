@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "world.h"
-#include "windows/controls/childwindow.h"
+#include "../base/childwindow.h"
 
 class CustomInspector;
 

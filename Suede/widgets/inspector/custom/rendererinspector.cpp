@@ -13,10 +13,10 @@
 #include "resources.h"
 #include "rendererinspector.h"
 
-#include "windows/controls/colorfield.h"
-#include "windows/controls/texturefield.h"
+#include "widgets/controls/colorfield.h"
+#include "widgets/controls/texturefield.h"
 
-#include "windows/controls/filetreefield.h"
+#include "widgets/controls/filetreefield.h"
 
 static const char* shaderRegex = ".*\\.shader";
 static QString shaderDirectory = "resources/shaders/";
@@ -250,15 +250,15 @@ QWidget* RendererInspector::drawTextureField(uint materialIndex, const QString& 
 
 QWidget* RendererInspector::drawColorField(uint materialIndex, const QString& name, VariantType type, const void* value) {
 	ColorField* field = new ColorField(this);
-	field->setData(QVariant::fromValue(UserProperty(materialIndex, name, type)));
+	field->setProperty("UserProperty", QVariant::fromValue(UserProperty(materialIndex, name, type)));
 
 	if (type == VariantTypeColor3) {
-		field->setColor(*(const glm::vec3*)value);
+		field->setValue(*(const glm::vec3*)value);
 	}
 	else {
-		field->setColor(*(const glm::vec4*)value);
+		field->setValue(*(const glm::vec4*)value);
 	}
-	connect(field, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(onCurrentColorChanged(const QColor&)));
+	connect(field, SIGNAL(valueChanged(const QColor&)), this, SLOT(onCurrentColorChanged(const QColor&)));
 
 	return field;
 }
@@ -363,7 +363,7 @@ void RendererInspector::onEditProperty() {
 
 void RendererInspector::onCurrentColorChanged(const QColor& color) {
 	ColorField* field = (ColorField*)sender();
-	UserProperty prop = field->data().value<UserProperty>();
+	UserProperty prop = field->property("UserProperty").value<UserProperty>();
 
 	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex);
 	if (prop.type == VariantTypeColor4) {
