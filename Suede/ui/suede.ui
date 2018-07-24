@@ -33,84 +33,7 @@
   <property name="dockOptions">
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <widget class="Lighting" name="lighting">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>291</width>
-      <height>141</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>524287</width>
-      <height>524287</height>
-     </size>
-    </property>
-    <property name="allowedAreas">
-     <set>Qt::AllDockWidgetAreas</set>
-    </property>
-    <property name="windowTitle">
-     <string>Light</string>
-    </property>
-    <widget class="QWidget" name="lightingView">
-     <layout class="QVBoxLayout" name="verticalLayout_6">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QGroupBox" name="groupBox_2">
-        <property name="title">
-         <string>GroupBox</string>
-        </property>
-        <layout class="QFormLayout" name="formLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Ambient:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="ColorField" name="ambient" native="true"/>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <widget class="Game" name="game">
    <property name="enabled">
     <bool>true</bool>
@@ -385,7 +308,7 @@
           <x>0</x>
           <y>0</y>
           <width>299</width>
-          <height>267</height>
+          <height>227</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -616,6 +539,50 @@
    <addaction name="windows"/>
    <addaction name="help"/>
   </widget>
+  <widget class="Lighting" name="lighting">
+   <property name="minimumSize">
+    <size>
+     <width>317</width>
+     <height>137</height>
+    </size>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>4</number>
+   </attribute>
+   <widget class="QWidget" name="lightingView">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>9</x>
+       <y>9</y>
+       <width>80</width>
+       <height>48</height>
+      </rect>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Environment</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QWidget" name="widget_3" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
   <action name="exit">
    <property name="text">
     <string>&amp;Exit</string>
@@ -731,9 +698,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ColorField</class>
-   <extends>QWidget</extends>
-   <header>widgets/fields/colorfield.h</header>
+   <class>Lighting</class>
+   <extends>QDockWidget</extends>
+   <header>windows/lighting/lighting.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
