@@ -4,13 +4,13 @@
 #include "ui_suede.h"
 
 void Lighting::init(Ui::Suede* ui) {
-	WinSingleton::init(ui);
+	WinBase::init(ui);
+	connect(ui_->ambient, SIGNAL(valueChanged(const QColor&)), this, SLOT(onAmbientChanged(const QColor&)));
 }
 
 Lighting::Lighting(QWidget* parent)
 	: QDockWidget(parent) {
 	setFeatures(AllDockWidgetFeatures);
-	connect(ui_->ambient, SIGNAL(valueChanged(const QColor&)), this, SLOT(onAmbientChanged(const QColor&)));
 }
 
 void Lighting::showEvent(QShowEvent* event) {

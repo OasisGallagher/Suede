@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QDockWidget>
 #include "../winbase.h"
 

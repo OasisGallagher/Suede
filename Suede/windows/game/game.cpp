@@ -67,7 +67,7 @@ Canvas* Game::canvas() {
 }
 
 void Game::init(Ui::Suede* ui) {
-	WinSingleton::init(ui);
+	WinBase::init(ui);
 
 	connect(Hierarchy::get(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
 	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),

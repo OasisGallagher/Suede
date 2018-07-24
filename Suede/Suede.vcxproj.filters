@@ -494,6 +494,36 @@
     <CustomBuild Include="windows\game\canvas.h">
       <Filter>windows\game\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="widgets\fields\colorfield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\floatfield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\filetreefield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\floatslider.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vec3field.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vec4field.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vecfield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\rectfield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\texturefield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vec2field.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -520,37 +550,7 @@
     <ClInclude Include="scripts\gaussianblur.h">
       <Filter>scripts\include</Filter>
     </ClInclude>
-    <ClInclude Include="widgets\fields\colorfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
     <ClInclude Include="widgets\fields\enumfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\filetreefield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\floatfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\floatslider.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\rectfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\texturefield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\vec2field.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\vec3field.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\vec4field.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\vecfield.h">
       <Filter>widgets\fields\include</Filter>
     </ClInclude>
     <ClInclude Include="windows\winbase.h">

@@ -18,7 +18,7 @@ Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
 
 void Inspector::init(Ui::Suede* ui) {
-	WinSingleton::init(ui);
+	WinBase::init(ui);
 
 	WorldInstance()->AddEventListener(this);
 

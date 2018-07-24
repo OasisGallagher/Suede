@@ -14,7 +14,7 @@ Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
 }
 
 void Hierarchy::init(Ui::Suede* ui) {
-	WinSingleton::init(ui);
+	WinBase::init(ui);
 
 	WorldInstance()->AddEventListener(this);
 

@@ -9,7 +9,7 @@ Console::Console(QWidget* parent) : QDockWidget(parent) {
 }
 
 void Console::init(Ui::Suede* ui) {
-	WinSingleton::init(ui);
+	WinBase::init(ui);
 	ui_->table = findChild<QTableWidget*>("table");
 	ui_->table->horizontalHeader()->setStretchLastSection(true);
 	ui_->table->horizontalHeader()->setVisible(false);

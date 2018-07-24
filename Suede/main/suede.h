@@ -16,7 +16,6 @@ BETTER_ENUM(ChildWindowType, int,
 	Lighting
 )
 
-class LightDialog;
 class Suede : public QMainWindow, public LogReceiver {
 	Q_OBJECT
 
@@ -57,6 +56,5 @@ private:
 
 private:
 	Ui::Suede ui;
-	LightDialog* envDialog_;
 	QDockWidget** childWindows_;
 };

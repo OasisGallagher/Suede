@@ -17,8 +17,7 @@
 
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
-Suede::Suede(QWidget *parent)
-	: QMainWindow(parent), envDialog_(nullptr) {
+Suede::Suede(QWidget *parent) : QMainWindow(parent) {
 	Debug::SetLogReceiver(this);
 	
 	setupUI();
@@ -67,11 +66,11 @@ void Suede::setupUI() {
 }
 
 void Suede::awake() {
-	show();
-
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<WinBase*>(childWindows_[i])->init(&ui);
 	}
+
+	show();
 
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<WinBase*>(childWindows_[i])->awake();
