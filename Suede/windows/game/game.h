@@ -4,20 +4,17 @@
 
 #include "entity.h"
 #include "camera.h"
+#include "../winbase.h"
 #include "gizmospainter.h"
 #include "frameeventlistener.h"
-#include "../base/childwindow.h"
 #include "entityloadedlistener.h"
 
 class Canvas;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public ChildWindow, public GizmosPainter, public EntityLoadedListener {
+class Game : public QDockWidget, public WinSingleton<Game>, public GizmosPainter, public EntityLoadedListener {
 	Q_OBJECT
-
-public:
-	static Game* get();
 
 public:
 	Game(QWidget* parent);
@@ -73,3 +70,4 @@ private:
 
 	float loadSceneStart_;
 };
+

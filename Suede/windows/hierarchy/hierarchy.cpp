@@ -10,22 +10,11 @@
 #include "hierarchy.h"
 #include "debug/debug.h"
 
-static Hierarchy* hierarchyInstance;
-
-Hierarchy* Hierarchy::get() {
-	return hierarchyInstance;
-}
-
 Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
-	hierarchyInstance = this;
-}
-
-Hierarchy::~Hierarchy() {
-	hierarchyInstance = nullptr;
 }
 
 void Hierarchy::init(Ui::Suede* ui) {
-	ChildWindow::init(ui);
+	WinSingleton::init(ui);
 
 	WorldInstance()->AddEventListener(this);
 

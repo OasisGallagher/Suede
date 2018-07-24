@@ -46,14 +46,7 @@ static const char* roomFbxPath = "suzanne.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
-static Game* gameInstance;
-
-Game* Game::get() {
-	return gameInstance;
-}
-
 Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr) {
-	gameInstance = this;
 	controller_ = new CameraController;
 }
 
@@ -63,8 +56,6 @@ Game::~Game() {
 	delete gaussianBlur_;
 
 	delete controller_;
-
-	gameInstance = nullptr;
 }
 
 Canvas* Game::canvas() {
@@ -76,7 +67,7 @@ Canvas* Game::canvas() {
 }
 
 void Game::init(Ui::Suede* ui) {
-	ChildWindow::init(ui);
+	WinSingleton::init(ui);
 
 	connect(Hierarchy::get(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
 	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),

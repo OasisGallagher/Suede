@@ -4,7 +4,7 @@
 #include <QTableWidget>
 
 #include "tools/enum.h"
-#include "../base/childwindow.h"
+#include "../winbase.h"
 
 BETTER_ENUM_MASK(ConsoleMessageType, int,
 	Debug = 1,
@@ -12,15 +12,11 @@ BETTER_ENUM_MASK(ConsoleMessageType, int,
 	Error = 4
 )
 
-class Console : public QDockWidget, public ChildWindow {
+class Console : public QDockWidget, public WinSingleton<Console> {
 	Q_OBJECT
 
 public:
-	static Console* get();
-
-public:
 	Console(QWidget* parent);
-	~Console();
 
 public:
 	virtual void init(Ui::Suede* ui);
@@ -46,3 +42,4 @@ private:
 	QString substr_;
 	QList<QString> messages_;
 };
+

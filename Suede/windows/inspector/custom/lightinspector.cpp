@@ -1,8 +1,8 @@
 #include "light.h"
 
 #include "lightinspector.h"
-#include "widgets/controls/colorfield.h"
-#include "widgets/controls/floatfield.h"
+#include "widgets/fields/colorfield.h"
+#include "widgets/fields/floatfield.h"
 
 LightInspector::LightInspector(Object object) : CustomInspector("Light", object) {
 	Light light = suede_dynamic_cast<Light>(target_);

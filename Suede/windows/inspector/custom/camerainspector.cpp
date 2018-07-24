@@ -5,12 +5,12 @@
 
 #include "tools/math2.h"
 
-#include "widgets/controls/enumfield.h"
-#include "widgets/controls/vec4field.h"
-#include "widgets/controls/rectfield.h"
-#include "widgets/controls/colorfield.h"
-#include "widgets/controls/floatfield.h"
-#include "widgets/controls/floatslider.h"
+#include "widgets/fields/enumfield.h"
+#include "widgets/fields/vec4field.h"
+#include "widgets/fields/rectfield.h"
+#include "widgets/fields/colorfield.h"
+#include "widgets/fields/floatfield.h"
+#include "widgets/fields/floatslider.h"
 
 namespace Constants {
 	static uint minFieldOfView = 0;

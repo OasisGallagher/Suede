@@ -19,3 +19,4 @@ OGLdpf.log
 /Suede/bin/GLEF.bin
 /Engine/*.user
 __pycache__
+/Suede/pipeline_dump.txt

@@ -12,8 +12,9 @@ BETTER_ENUM(ChildWindowType, int,
 	Game,
 	Console,
 	Inspector,
-	Hierarchy
-);
+	Hierarchy,
+	Lighting
+)
 
 class LightDialog;
 class Suede : public QMainWindow, public LogReceiver {
@@ -27,8 +28,8 @@ public:
 	void awake();
 
 public:
-	bool childWindowVisible(int index);
-	void showChildWindow(int index, bool show);
+	bool childWindowVisible(ChildWindowType index);
+	void showChildWindow(ChildWindowType index, bool show);
 
 signals:
 	void aboutToClose();
@@ -49,6 +50,7 @@ private slots:
 private:
 	void setupUI();
 
+	void initializeLayout();
 	void initializeHelpMenu();
 	void initializeFileMenu();
 	void initializeWindowsMenu();

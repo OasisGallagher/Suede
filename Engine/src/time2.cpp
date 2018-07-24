@@ -2,7 +2,7 @@
 #include "profiler.h"
 #include "debug/debug.h"
 
-Time::Time() {
+Time::Time() : deltaTime_(0), frameCount_(0), lastFrameTimeStamp_(0) {
 	Engine::get()->AddFrameEventListener(this);
 }
 

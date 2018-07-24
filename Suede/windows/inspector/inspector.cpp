@@ -12,24 +12,13 @@
 #include "custom/rendererinspector.h"
 #include "custom/projectorinspector.h"
 
-static Inspector* inspectorInstance;
-
 static Sample* sample = Profiler::get()->CreateSample();
 
-Inspector* Inspector::get() {
-	return inspectorInstance;
-}
-
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
-	inspectorInstance = this;
-}
-
-Inspector::~Inspector() {
-	inspectorInstance = nullptr;
 }
 
 void Inspector::init(Ui::Suede* ui) {
-	ChildWindow::init(ui);
+	WinSingleton::init(ui);
 
 	WorldInstance()->AddEventListener(this);
 

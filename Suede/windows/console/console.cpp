@@ -5,22 +5,11 @@
 #include "console.h"
 #include "ui_suede.h"
 
-static Console* consoleInstance;
-
-Console* Console::get() {
-	return consoleInstance;
-}
-
 Console::Console(QWidget* parent) : QDockWidget(parent) {
-	consoleInstance = this;
-}
-
-Console::~Console() {
-	consoleInstance = nullptr;
 }
 
 void Console::init(Ui::Suede* ui) {
-	ChildWindow::init(ui);
+	WinSingleton::init(ui);
 	ui_->table = findChild<QTableWidget*>("table");
 	ui_->table->horizontalHeader()->setStretchLastSection(true);
 	ui_->table->horizontalHeader()->setVisible(false);
@@ -110,3 +99,4 @@ void Console::showMessage(ConsoleMessageType type, const QString &message) {
 	ui_->table->setItem(r, 0, icon);
 	ui_->table->setItem(r, 1, text);
 }
+

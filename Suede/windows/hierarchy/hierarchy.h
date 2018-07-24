@@ -3,7 +3,7 @@
 #include <QDockWidget>
 #include <QItemSelection>
 
-#include "../base/childwindow.h"
+#include "../winbase.h"
 
 #include "world.h"
 #include "entity.h"
@@ -12,15 +12,11 @@ class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public QDockWidget, public ChildWindow, public WorldEventListener {
+class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener {
 	Q_OBJECT
 
 public:
-	static Hierarchy* get();
-
-public:
 	Hierarchy(QWidget* parent);
-	~Hierarchy();
 
 public:
 	virtual void init(Ui::Suede* ui);
@@ -63,3 +59,4 @@ private:
 	typedef QMap<uint, QStandardItem*> ItemContainer;
 	ItemContainer items_;
 };
+

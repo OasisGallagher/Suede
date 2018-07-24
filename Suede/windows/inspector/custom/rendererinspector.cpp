@@ -13,10 +13,10 @@
 #include "resources.h"
 #include "rendererinspector.h"
 
-#include "widgets/controls/colorfield.h"
-#include "widgets/controls/texturefield.h"
+#include "widgets/fields/colorfield.h"
+#include "widgets/fields/texturefield.h"
 
-#include "widgets/controls/filetreefield.h"
+#include "widgets/fields/filetreefield.h"
 
 static const char* shaderRegex = ".*\\.shader";
 static QString shaderDirectory = "resources/shaders/";

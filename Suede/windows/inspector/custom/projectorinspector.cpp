@@ -1,7 +1,7 @@
 #include <QGroupBox>
 
 #include "tools/math2.h"
-#include "widgets/controls/floatslider.h"
+#include "widgets/fields/floatslider.h"
 
 #include "projector.h"
 #include "projectorinspector.h"

@@ -5,19 +5,15 @@
 #include <glm/glm.hpp>
 
 #include "world.h"
-#include "../base/childwindow.h"
+#include "../winbase.h"
 
 class CustomInspector;
 
-class Inspector : public QDockWidget, public ChildWindow, public WorldEventListener {
+class Inspector : public QDockWidget, public WinSingleton<Inspector>, public WorldEventListener {
 	Q_OBJECT
 
 public:
-	static Inspector* get();
-
-public:
 	Inspector(QWidget* parent);
-	~Inspector();
 
 public:
 	virtual void init(Ui::Suede* ui);
@@ -54,3 +50,4 @@ private:
 	Entity target_;
 	QList<CustomInspector*> inspectors_;
 };
+
