@@ -54,4 +54,3 @@ public:
 	static void PushGLMode(GLMode key, int value);
 	static void PopGLMode(GLMode key);
 };
-
