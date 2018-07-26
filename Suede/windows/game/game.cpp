@@ -30,19 +30,19 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-//#define MAN
+#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "suzanne.fbx";
+static const char* roomFbxPath = "room.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
@@ -104,7 +104,7 @@ void Game::OnDrawGizmos() {
 }
 
 void Game::OnEntityImported(Entity root, const std::string& path) {
-	root->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	root->GetTransform()->SetParent(World::get()->GetRootTransform());
 	root->SetName(path);
 
 	if (path == manFbxPath) {
@@ -189,9 +189,9 @@ void Game::updateSelection(QList<Entity>& container, const QList<Entity>& select
 
 void Game::onFocusEntityBounds(Entity entity) {
 	Transform trans = entity->GetTransform();
-	Transform camera = WorldInstance()->GetMainCamera()->GetTransform();
+	Transform camera = Camera::GetMain()->GetTransform();
 	glm::vec3 position = entity->GetBounds().center;
-	glm::vec3 p = position - trans->GetForward() * calculateCameraDistanceFitsBounds(WorldInstance()->GetMainCamera(), entity);
+	glm::vec3 p = position - trans->GetForward() * calculateCameraDistanceFitsBounds(Camera::GetMain(), entity);
 	camera->SetPosition(p);
 
 	glm::vec3 up(0, 1, 0);
@@ -216,22 +216,25 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
 uint roomEntityID;
 
 void Game::createScene() {
-	WorldInstance()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
+	World::get()->GetEnvironment()->SetFogColor(glm::vec3(0.5f));
+	World::get()->GetEnvironment()->SetFogDensity(0.05f);
+
+	World::get()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
 
 	DirectionalLight light = NewDirectionalLight();
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
-	light->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	light->GetTransform()->SetParent(World::get()->GetRootTransform());
 
-	WorldInstance()->ImportTo(light, lightModelPath, this);
+	World::get()->ImportTo(light, lightModelPath, this);
 
 	//targetTexture_ = NewRenderTexture();
 	//targetTexture_->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	Camera camera = NewCamera();
-	WorldInstance()->SetMainCamera(camera);
+	Camera::SetMain(camera);
 	camera->AddGizmosPainter(this);
-	camera->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	camera->GetTransform()->SetParent(World::get()->GetRootTransform());
 
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
@@ -245,7 +248,7 @@ void Game::createScene() {
 #else
 	projector->SetFieldOfView(Math::Radians(9.f));
 #endif
-	projector->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	projector->GetTransform()->SetParent(World::get()->GetRootTransform());
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();
@@ -306,7 +309,7 @@ void Game::createScene() {
 	cube->Load(faces);
 	skybox->SetTexture(Variables::MainTexture, cube);
 	skybox->SetColor4(Variables::MainColor, glm::vec4(1));
-	WorldInstance()->GetEnvironment()->SetSkybox(skybox);
+	World::get()->GetEnvironment()->SetSkybox(skybox);
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
@@ -325,7 +328,7 @@ void Game::createScene() {
 	ParticleSystem particleSystem = NewParticleSystem();
 	entity->SetParticleSystem(particleSystem);
 	entity->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
-	entity->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	entity->GetTransform()->SetParent(World::get()->GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -352,11 +355,11 @@ void Game::createScene() {
 
 	Entity redText = NewEntity();
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
-	redText->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	redText->GetTransform()->SetParent(World::get()->GetRootTransform());
 
 	Entity blueText = NewEntity();
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
-	blueText->GetTransform()->SetParent(WorldInstance()->GetRootTransform());
+	blueText->GetTransform()->SetParent(World::get()->GetRootTransform());
 
 	TextMesh redMesh = NewTextMesh();
 	redMesh->SetFont(font);
@@ -387,13 +390,13 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = WorldInstance()->Import(roomFbxPath, this);
+	Entity room = World::get()->Import(roomFbxPath, this);
 	roomEntityID = room->GetInstanceID();
 	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif
 
 #ifdef BEAR
-	Entity bear = WorldInstance()->Import("teddy_bear.fbx");
+	Entity bear = World::get()->Import("teddy_bear.fbx");
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -404,6 +407,6 @@ void Game::createScene() {
 #endif
 
 #ifdef MAN
-	Entity man = WorldInstance()->Import(manFbxPath, this);
+	Entity man = World::get()->Import(manFbxPath, this);
 #endif
 }

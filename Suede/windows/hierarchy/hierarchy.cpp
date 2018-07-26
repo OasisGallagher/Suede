@@ -16,7 +16,7 @@ Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
 void Hierarchy::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
-	WorldInstance()->AddEventListener(this);
+	World::get()->AddEventListener(this);
 
 	model_ = new QStandardItemModel(this);
 	
@@ -34,7 +34,7 @@ Entity Hierarchy::selectedEntity() {
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return WorldInstance()->GetEntity(id);
+	return World::get()->GetEntity(id);
 }
 
 bool Hierarchy::selectedEntities(QList<Entity>& entities) {
@@ -42,7 +42,7 @@ bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 
 	foreach (QModelIndex index, indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		entities.push_back(WorldInstance()->GetEntity(id));
+		entities.push_back(World::get()->GetEntity(id));
 	}
 
 	return !entities.empty();
@@ -103,12 +103,12 @@ void Hierarchy::reload() {
 	items_.clear();
 	model_->setRowCount(0);
 
-	updateRecursively(WorldInstance()->GetRootTransform()->GetEntity(), nullptr);
+	updateRecursively(World::get()->GetRootTransform()->GetEntity(), nullptr);
 }
 
 void Hierarchy::onEntityDoubleClicked(const QModelIndex& index) {
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	Entity entity = WorldInstance()->GetEntity(id);
+	Entity entity = World::get()->GetEntity(id);
 
 	emit focusEntity(entity);
 }
@@ -174,7 +174,7 @@ void Hierarchy::appendChildItem(Entity entity) {
 	QStandardItem* item = nullptr;
 
 	// append child node.
-	if (parent == WorldInstance()->GetRootTransform() || (item = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
+	if (parent == World::get()->GetRootTransform() || (item = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
 		QStandardItem* pi = appendItem(entity, item);
 		updateRecursively(entity, pi);
 	}
@@ -211,7 +211,7 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelection& items) {
 	foreach(QModelIndex index, items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		Entity transform = WorldInstance()->GetEntity(id);
+		Entity transform = World::get()->GetEntity(id);
 		Q_ASSERT(transform);
 		entities.push_back(transform);
 	}

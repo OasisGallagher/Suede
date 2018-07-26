@@ -28,11 +28,11 @@ static void InitWorld(WorldInternal* world) {
 	world->root_->SetName("Root");
 }
 
-World& WorldInstance() {
+World& World::get() {
 	static World instance;
 	if (!instance) {
 		instance = Factory::Create<WorldInternal>();
-		InitWorld(dynamic_cast<WorldInternal*>(instance.get()));
+		InitWorld(dynamic_cast<WorldInternal*>(instance.std::shared_ptr<IWorld>::get()));
 	}
 
 	return instance;
@@ -66,9 +66,6 @@ WorldInternal::WorldInternal()
 	, environment_(MEMORY_CREATE(EnvironmentInternal)) , decals_(SUEDE_MAX_DECALS) {
 	Screen::get()->AddScreenSizeChangedListener(this);
 	AddEventListener(this);
-
-	screenRenderTarget_.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
-	screenRenderTarget_->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
 
 	update_entities = Profiler::get()->CreateSample();
 	update_decals = Profiler::get()->CreateSample();

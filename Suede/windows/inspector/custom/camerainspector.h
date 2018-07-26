@@ -12,8 +12,4 @@ private slots:
 	void onClearTypeChanged(const QString& text);
 	void onClearColorChanged(const QColor& color);
 	void onSliderValueChanged(const QString& name, float value);
-
-private:
-	int clearTypeRow_;
-	QWidget* clearColorField_;
 };

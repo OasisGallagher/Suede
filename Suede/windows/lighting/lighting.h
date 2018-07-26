@@ -17,4 +17,7 @@ protected:
 
 private slots:
 	void onAmbientChanged(const QColor& color);
+
+	void onFogColorChanged(const QColor& color);
+	void onFogDensityChanged(float density);
 };

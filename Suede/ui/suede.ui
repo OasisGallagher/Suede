@@ -308,7 +308,7 @@
           <x>0</x>
           <y>0</y>
           <width>299</width>
-          <height>227</height>
+          <height>221</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -575,15 +575,48 @@
         <item row="0" column="0">
          <widget class="QLabel" name="label">
           <property name="text">
-           <string>TextLabel</string>
+           <string>Amblent:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
          <widget class="ColorField" name="ambient" native="true"/>
         </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>FogColor:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>FogDensity:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="ColorField" name="fogColor" native="true"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="FloatField" name="fogDensity" native="true"/>
+        </item>
        </layout>
       </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </widget>
@@ -712,6 +745,12 @@
    <class>ColorField</class>
    <extends>QWidget</extends>
    <header>widgets/fields/colorfield.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FloatField</class>
+   <extends>QWidget</extends>
+   <header>widgets/fields/floatfield.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

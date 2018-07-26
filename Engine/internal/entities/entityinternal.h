@@ -107,6 +107,6 @@ inline void EntityInternal::FireWorldEvent(bool attachedToSceneOnly) {
 	if (!attachedToSceneOnly || transform_->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
 		e->entity = SharedThis();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }

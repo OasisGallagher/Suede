@@ -12,7 +12,7 @@ void Culling::run() {
 	for (; !stopped_;) {
 		if (working_) {
 			entities_.clear();
-			WorldInstance()->WalkEntityHierarchy(this);
+			World::get()->WalkEntityHierarchy(this);
 			listener_->OnCullingFinished();
 
 			working_ = false;

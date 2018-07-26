@@ -11,7 +11,7 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform) 
 
 bool TransformInternal::IsAttachedToScene() {
 	Transform transform = SharedThis();
-	for (; transform && transform != WorldInstance()->GetRootTransform(); transform = transform->GetParent())
+	for (; transform && transform != World::get()->GetRootTransform(); transform = transform->GetParent())
 		;
 
 	return !!transform;
@@ -25,7 +25,7 @@ void TransformInternal::AddChild(Transform child) {
 
 void TransformInternal::RemoveChild(Transform child) {
 	if (std::find(children_.begin(), children_.end(), child) != children_.end()) {
-		child->SetParent(WorldInstance()->GetRootTransform());
+		child->SetParent(World::get()->GetRootTransform());
 	}
 }
 
@@ -95,7 +95,7 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(2, 0);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -111,7 +111,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(0, 0);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -129,7 +129,7 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 0);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -146,7 +146,7 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 0);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -271,7 +271,7 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(2, 1);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -286,7 +286,7 @@ void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(0, 1);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -302,7 +302,7 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 1);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -318,7 +318,7 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 1);
 		e->entity = entity_.lock();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -522,7 +522,7 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 }
 
 bool TransformInternal::IsNullOrRoot(Transform transform) {
-	return !transform || transform == WorldInstance()->GetRootTransform();
+	return !transform || transform == World::get()->GetRootTransform();
 }
 
 Transform TransformInternal::FindDirectChild(const std::string& name) {
@@ -557,7 +557,7 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	if (IsAttachedToScene()) {
 		EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
 		e->entity = thisSp->GetEntity();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 

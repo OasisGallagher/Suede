@@ -29,7 +29,7 @@ void ColorField::setValue(const glm::vec4& value) {
 	}
 
 	alpha_->setVisible(true);
-	alpha_->setValue(int(value.a* 255));
+	alpha_->setValue(int(value.a * 255));
 
 	color_ = value;
 }

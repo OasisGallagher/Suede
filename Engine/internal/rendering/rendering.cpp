@@ -78,7 +78,7 @@ void Rendering::ClearRenderTextures() {
 	p_->renderTextures.depth->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	RenderTexture target = p_->renderTextures.target;
-	if (!target) { target = WorldInstance()->GetScreenRenderTarget(); }
+	if (!target) { target = RenderTexture::GetDefault(); }
 	target->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 }
 
@@ -89,16 +89,23 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.cameraToClipMatrix = matrices.projectionMatrix;
 	p.worldToShadowMatrix = Shadows::get()->GetWorldToShadowMatrix();
 
-	p.cameraPosition = glm::vec4(matrices.position, 1);
+	p.cameraPos = glm::vec4(matrices.position, 1);
 	UniformBufferManager::get()->UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
-	p.ambientLightColor = glm::vec4(WorldInstance()->GetEnvironment()->GetAmbientColor(), 1);
+	Environment env = World::get()->GetEnvironment();
+
+	p.fog.color = env->GetFogColor();
+	p.fog.density = env->GetFogDensity();
+
+	p.ambientColor = glm::vec4(env->GetAmbientColor(), 1);
+	
+	p.lightPos = glm::vec4(light->GetTransform()->GetPosition(), 1);
+	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
 	p.lightColor = glm::vec4(light->GetColor() * light->GetIntensity(), 1);
-	p.lightPosition = glm::vec4(light->GetTransform()->GetPosition(), 1);
-	p.lightDirection = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
+
 	UniformBufferManager::get()->UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
@@ -241,7 +248,7 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 }
 
 void RenderableTraits::RenderSkybox(Pipeline* pl) {
-	Material skybox = WorldInstance()->GetEnvironment()->GetSkybox();
+	Material skybox = World::get()->GetEnvironment()->GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
@@ -256,7 +263,7 @@ RenderTexture RenderableTraits::GetActiveRenderTarget() {
 
 	RenderTexture target = p_->renderTextures.target;
 	if (!target) {
-		target = WorldInstance()->GetScreenRenderTarget();
+		target = RenderTexture::GetDefault();
 	}
 
 	return target;
@@ -295,7 +302,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& enti
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Entity> lights;
-	if (!WorldInstance()->GetEntities(ObjectTypeLights, lights)) {
+	if (!World::get()->GetEntities(ObjectTypeLights, lights)) {
 		return;
 	}
 
@@ -307,7 +314,7 @@ void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forward
 
 void RenderableTraits::RenderDecals(Pipeline* pl) {
 	std::vector<Decal*> decals;
-	WorldInstance()->GetDecals(decals);
+	World::get()->GetDecals(decals);
 
 	for (int i = 0; i < decals.size(); ++i) {
 		Decal* d = decals[i];

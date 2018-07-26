@@ -42,6 +42,7 @@ public:
 
 private:
 	Profiler();
+	~Profiler();
 
 private:
 	enum {

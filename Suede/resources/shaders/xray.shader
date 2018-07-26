@@ -15,7 +15,6 @@ SubShader {
 
 		#stage vertex
 		in vec3 _Pos;
-		in vec3 _CameraPosition;
 		in vec3 _Normal;
 
 		out vec3 viewDir;
@@ -28,7 +27,7 @@ SubShader {
 			// normal local to world space.
 			normal = transpose(inverse(mat3(_LocalToWorldMatrix))) * _Normal;
 			vec3 worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
-			viewDir = _CameraPosition - worldPos;
+			viewDir = _CameraPos - worldPos;
 			
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
@@ -75,7 +74,7 @@ SubShader {
 			normal = (_LocalToWorldMatrix * vec4(_Normal, 0)).xyz;
 			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 	
-			_CalculateShadowCoord();
+			_CALC_SHADOW_COORD();
 
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
@@ -94,8 +93,8 @@ SubShader {
 
 		void main() {
 			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
-			float visibility = _CalculateShadowVisibility(worldPos);
-			fragColor = albedo * vec4(_CalculateDirectionalLight(worldPos, normalize(normal), visibility), 1);
+			float visibility = _CalcShadowVisibility(worldPos);
+			fragColor = albedo * vec4(_CalcDirectionalLight(worldPos, normalize(normal), visibility), 1);
 		}
 
 		ENDGLSL

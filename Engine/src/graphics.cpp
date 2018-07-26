@@ -78,7 +78,7 @@ void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Re
 }
 
 void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) {
-	if (!dest) { dest = WorldInstance()->GetScreenRenderTarget(); }
+	if (!dest) { dest = RenderTexture::GetDefault(); }
 
 	dest->BindWrite(destRect);
 	material->SetTexture(Variables::MainTexture, src);

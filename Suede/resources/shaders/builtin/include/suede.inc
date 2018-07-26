@@ -8,10 +8,12 @@ layout(std140) uniform SharedTimeUniformBuffer {
 };
 
 layout(std140) uniform SharedLightUniformBuffer {
-	vec3 _AmbientLightColor;
+	vec4 _FogParams;
+	vec3 _AmbientColor;
+
+	vec3 _LightPos;
+	vec3 _LightDir;
 	vec3 _LightColor;
-	vec3 _LightPosition;
-	vec3 _LightDirection;
 };
 
 layout(std140) uniform SharedTransformsUniformBuffer {
@@ -20,7 +22,7 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	mat4 _CameraToClipMatrix;
 	mat4 _WorldToShadowMatrix;
 
-	vec3 _CameraPosition;
+	vec3 _CameraPos;
 };
 
 #ifdef _VERTEX_SHADER
@@ -29,7 +31,7 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 layout(location = 8) in int _MatrixTextureBufferOffset;
 uniform samplerBuffer _MatrixTextureBuffer;
 
-#define _LocalToWorldMatrix	mat4( \
+#define _LocalToWorldMatrix		mat4( \
 									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 0), \
 									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 1), \
 									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 2), \

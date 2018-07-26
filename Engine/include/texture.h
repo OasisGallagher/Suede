@@ -105,6 +105,13 @@ public:
 	virtual void BindWrite(const Rect& normalizedRect) = 0;
 };
 
+SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(RenderTexture) {
+	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(RenderTexture)
+
+	static RenderTexture GetDefault();
+	static RenderTexture GetTemporary(uint width, uint height);
+};
+
 class SUEDE_API ITextureBuffer : virtual public ITexture {
 public:
 	virtual uint GetSize() const = 0;
@@ -115,7 +122,7 @@ public:
 SUEDE_DEFINE_OBJECT_POINTER(Texture);
 SUEDE_DEFINE_OBJECT_POINTER(Texture2D);
 SUEDE_DEFINE_OBJECT_POINTER(TextureCube);
-SUEDE_DEFINE_OBJECT_POINTER(RenderTexture);
+//SUEDE_DEFINE_OBJECT_POINTER(RenderTexture);
 SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer);
 
 SUEDE_DECLARE_OBJECT_CREATER(Texture2D);

@@ -34,12 +34,6 @@ public:
 	virtual Entity Import(const std::string& path, EntityLoadedListener* listener);
 	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener);
 
-	virtual Camera GetMainCamera() { return mainCamera_; }
-	virtual void SetMainCamera(Camera value) { mainCamera_ = value; }
-
-	// TODO: how to get screen framebuffer?
-	virtual RenderTexture GetScreenRenderTarget() { return screenRenderTarget_; }
-
 	virtual Entity GetEntity(uint id);
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker);
@@ -99,8 +93,6 @@ private:
 
 private:
 	Entity root_;
-	Camera mainCamera_;
-	RenderTexture screenRenderTarget_;
 
 	LightContainer lights_;
 	CameraContainer cameras_;

@@ -5,6 +5,8 @@
 #define MEMORY_RELEASE(pointer)			Memory::Release(pointer)
 #define MEMORY_RELEASE_ARRAY(pointer)	Memory::ReleaseArray(pointer)
 
+#define MEMORY_DESTROY_ON_UNLOAD(ptr)	static GlobalDestroyer<decltype(ptr)> _destroyer(ptr)
+
 #include <memory>
 
 class Memory {
@@ -39,6 +41,15 @@ public:
 	static void free(void* p) {
 		::operator delete(p);
 	}
+};
+
+template <class T>
+class GlobalDestroyer {
+	T ptr;
+
+public:
+	GlobalDestroyer(T p) : ptr(p) {}
+	~GlobalDestroyer() { MEMORY_RELEASE(ptr); }
 };
 
 template <class T> class Allocator;

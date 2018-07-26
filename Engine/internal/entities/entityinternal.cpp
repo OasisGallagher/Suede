@@ -205,7 +205,7 @@ void EntityInternal::CalculateBonesWorldBounds() {
 
 void EntityInternal::DirtyParentBounds() {
 	Transform parent, current = transform_;
-	for (; (parent = current->GetParent()) && parent != WorldInstance()->GetRootTransform();) {
+	for (; (parent = current->GetParent()) && parent != World::get()->GetRootTransform();) {
 		dynamic_cast<EntityInternal*>(parent->GetEntity().get())->boundsDirty_ = true;
 		current = parent;
 	}

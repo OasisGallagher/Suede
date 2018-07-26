@@ -9,6 +9,10 @@
 
 #include "internal/entities/camerainternal.h"
 
+static Camera main_;
+Camera Camera::GetMain() { return main_; }
+void Camera::SetMain(Camera value) { main_ = value; }
+
 CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera), depth_(0), __isCulling(false), currentTraits_(nullptr)
 	 /*, gbuffer_(nullptr) */{
@@ -40,6 +44,7 @@ CameraInternal::~CameraInternal() {
 
 void CameraInternal::OnBeforeWorldDestroyed() {
 	CancelThreads();
+	Camera::SetMain(nullptr);
 }
 
 void CameraInternal::CancelThreads() {
@@ -56,7 +61,7 @@ void CameraInternal::SetDepth(int value) {
 		depth_ = value;
 		CameraDepthChangedEventPointer e = NewWorldEvent<CameraDepthChangedEventPointer>();
 		e->entity = SharedThis();
-		WorldInstance()->FireEvent(e);
+		World::get()->FireEvent(e);
 	}
 }
 
@@ -111,8 +116,7 @@ int CameraInternal::GetFrameEventQueue() {
 
 void CameraInternal::OnFrameLeave() {
 	if (IsMainCamera()) {
-		RenderTexture target = WorldInstance()->GetScreenRenderTarget();
-
+		RenderTexture target = RenderTexture::GetDefault();
 		target->BindWrite(GetRect());
 		OnDrawGizmos();
 		target->Unbind();
@@ -120,7 +124,7 @@ void CameraInternal::OnFrameLeave() {
 }
 
 bool CameraInternal::IsMainCamera() const {
-	return WorldInstance()->GetMainCamera().get() == this;
+	return Camera::GetMain().get() == this;
 }
 
 void CameraInternal::SetRect(const Rect& value) {

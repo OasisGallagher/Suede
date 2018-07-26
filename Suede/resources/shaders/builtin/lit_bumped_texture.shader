@@ -45,7 +45,7 @@ SubShader {
 			normal = tangentToWorldMatrix * normal;
 
 			vec4 albedo = texture(_MainTexture, texCoord);
-			fragColor = albedo * vec4(_CalculateDirectionalLight(worldPos, normalize(normal)), 1);
+			fragColor = albedo * vec4(_CalcDirectionalLight(worldPos, normalize(normal)), 1);
 		}
 		
 		ENDGLSL

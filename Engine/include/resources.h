@@ -14,16 +14,6 @@ enum PrimitiveType {
 	PrimitiveTypeCount,
 };
 
-struct ShaderResource {
-	std::string name;
-	std::string path;
-};
-
-struct TextureResource {
-	std::string name;
-	std::string path;
-};
-
 class SUEDE_API Resources : public Singleton<Resources> {
 	friend class Singleton<Resources>;
 
@@ -31,15 +21,15 @@ public:
 	void Import();
 
 public:
-	Texture2D GetBlackTexture();
-	Texture2D GetWhiteTexture();
+	Texture2D GetBlackTexture() { return blackTexture_; }
+	Texture2D GetWhiteTexture() { return whiteTexture_; }
 
-	std::string GetRootDirectory();
-	std::string GetModelDirectory();
-	std::string GetShaderDirectory();
-	std::string GetTextureDirectory();
+	std::string GetRootDirectory() { return "resources/"; }
+	std::string GetModelDirectory() { return GetRootDirectory() + "models/"; }
+	std::string GetShaderDirectory() { return GetRootDirectory() + "shaders/"; }
+	std::string GetTextureDirectory() { return GetRootDirectory() + "textures/"; }
 
-	Mesh GetPrimitive(PrimitiveType type);
+	Mesh GetPrimitive(PrimitiveType type) { return primitives_[type]; }
 	Mesh CreatePrimitive(PrimitiveType type, float scale);
 	Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
@@ -50,7 +40,7 @@ public:
 	Material FindMaterial(const std::string& name);
 
 private:
-	Resources();
+	Resources() { ImportBuiltinResources(); }
 
 private:
 	void ImportShaderResources();
@@ -71,9 +61,6 @@ private:
 
 	typedef std::map<std::string, Material> MaterialContainer;
 	MaterialContainer materials_;
-
-	typedef std::vector<TextureResource> TextureResourceContainer;
-	TextureResourceContainer textureResources_;
 
 	Mesh primitives_[PrimitiveTypeCount];
 	Texture2D blackTexture_, whiteTexture_;

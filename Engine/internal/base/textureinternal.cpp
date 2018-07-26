@@ -249,7 +249,6 @@ bool Texture2DInternal::Load(const std::string& path) {
 	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height, texelMap.alignment);
 }
 
-// TODO: assume UNPACK_ALIGNMENT = 4.
 bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	DestroyTexture();
 
@@ -349,6 +348,21 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 
 	UnbindTexture();
 	return true;
+}
+
+RenderTexture RenderTexture::GetDefault() {
+	static RenderTexture screen;
+	
+	if (!screen) {
+		screen.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
+		screen->Create(RenderTextureFormatRgb, 0, 0);
+	}
+
+	return screen;
+}
+
+RenderTexture RenderTexture::GetTemporary(uint width, uint height) {
+	return nullptr;
 }
 
 RenderTextureInternal::RenderTextureInternal() 

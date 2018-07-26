@@ -23,7 +23,7 @@ namespace Literals {
 	DEFINE_LITERAL(cameraFovSlider2);
 }
 
-CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", object), clearColorField_(nullptr) {
+CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", object) {
 	FloatSlider* slider = new FloatSlider(this);
 	Camera camera = suede_dynamic_cast<Camera>(object);
 
@@ -38,8 +38,6 @@ CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", obje
 	EnumField* clearType = new EnumField(this);
 	clearType->setEnums(suede_dynamic_cast<Camera>(target_)->GetClearType());
 	connect(clearType, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onClearTypeChanged(const QString&)));
-
-	clearTypeRow_ = form_->rowCount();
 	form_->addRow(formatRowName("ClearType"), clearType);
 
 	FloatField* nearClipPlane = new FloatField(this);
@@ -60,10 +58,6 @@ void CameraInspector::onClearTypeChanged(const QString& text) {
 	ClearType type = ClearType::from_string(text.toLatin1());
 	suede_dynamic_cast<Camera>(target_)->SetClearType(type);
 	if (type == ClearType::Color) {
-		ColorField* colorField = new ColorField(this);
-		colorField->setValue(suede_dynamic_cast<Camera>(target_)->GetClearColor());
-		connect(colorField, SIGNAL(valueChanged(const QColor&)), this, SLOT(onClearColorChanged(const QColor&)));
-		form_->insertRow(clearTypeRow_ + 1, formatRowName("ClearColor"), colorField);
 	}
 }
 

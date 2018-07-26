@@ -32,8 +32,8 @@ public:
 	virtual void SetPerspective(bool value) = 0;
 
 	/**
-	* half-size when in orthographic mode.
-	*/
+	 * @return half-size when in orthographic mode.
+	 */
 	virtual float GetOrthographicSize() const = 0;
 	virtual void SetOrthographicSize(float value) = 0;
 
@@ -81,5 +81,11 @@ public:
 	virtual void OnBeforeWorldDestroyed() = 0;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Camera);
+SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Camera) {
+	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Camera)
+
+	static void SetMain(Camera value);
+	static Camera GetMain();
+};
+
 SUEDE_DECLARE_OBJECT_CREATER(Camera);

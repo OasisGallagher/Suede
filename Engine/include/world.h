@@ -148,11 +148,6 @@ public:
 
 	virtual Transform GetRootTransform() = 0;
 
-	virtual Camera GetMainCamera() = 0;
-	virtual void SetMainCamera(Camera value) = 0;
-
-	virtual RenderTexture GetScreenRenderTarget() = 0;
-
 	virtual Entity GetEntity(uint id) = 0;
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker) = 0;
@@ -167,6 +162,12 @@ public:
 	virtual Environment GetEnvironment() = 0;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(World);
+SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(World) {
+	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(World)
 
-SUEDE_API World& WorldInstance();
+	/**
+	 * @brief get world instance.
+	 */
+	static World& get();
+};
+//SUEDE_DEFINE_OBJECT_POINTER(World);

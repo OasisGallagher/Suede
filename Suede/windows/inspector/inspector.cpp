@@ -20,7 +20,7 @@ Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 void Inspector::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
-	WorldInstance()->AddEventListener(this);
+	World::get()->AddEventListener(this);
 
 	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));

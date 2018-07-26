@@ -46,7 +46,7 @@ static void GLModeSet(GLMode mode, int value) {
 	}
 }
 
-static int modes_[GLModeCount];
+static int oldModes_[GLModeCount];
 static bool modeDirty_[GLModeCount];
 
 void GLUtils::Initialize() {
@@ -89,8 +89,8 @@ void GLUtils::PushGLMode(GLMode key, int value) {
 		return;
 	}
 
-	if (modes_[key] != value) {
-		modes_[key] = GetGLMode(key);
+	if (oldModes_[key] != value) {
+		oldModes_[key] = GetGLMode(key);
 
 		GLModeSet(key, value);
 		modeDirty_[key] = true;
@@ -99,14 +99,14 @@ void GLUtils::PushGLMode(GLMode key, int value) {
 
 void GLUtils::PopGLMode(GLMode key) {
 	if (modeDirty_[key]) {
-		GLModeSet(key, modes_[key]);
+		GLModeSet(key, oldModes_[key]);
 		modeDirty_[key] = false;
 	}
 }
 
 void InitializeGLModes() {
 	for (int i = 0; i < GLModeCount; ++i) {
-		modes_[i] = GLUtils::GetGLMode((GLMode)i);
+		oldModes_[i] = GLUtils::GetGLMode((GLMode)i);
 	}
 }
 

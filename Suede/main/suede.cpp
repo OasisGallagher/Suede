@@ -70,11 +70,11 @@ void Suede::awake() {
 		dynamic_cast<WinBase*>(childWindows_[i])->init(&ui);
 	}
 
-	show();
-
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<WinBase*>(childWindows_[i])->awake();
 	}
+
+	show();
 }
 
 void Suede::showChildWindow(ChildWindowType index, bool show) {
@@ -144,9 +144,7 @@ void Suede::onShowWindowsMenu() {
 }
 
 void Suede::screenCapture() {
-	Camera camera = WorldInstance()->GetMainCamera();
-
-	Texture2D tex = camera->Capture();
+	Texture2D tex = Camera::GetMain()->Capture();
 
 	QString filter = "*.jpg;;*.png";
 	
@@ -158,12 +156,15 @@ void Suede::screenCapture() {
 	}
 
 	std::vector<uchar> data;
-	if (path.endsWith(".jpg") && !tex->EncodeToJPG(data)) {
-		return;
+	if (path.endsWith(".jpg")) {
+		if (!tex->EncodeToJPG(data)) {
+			return;
+		}
 	}
-
-	if (path.endsWith(".png") && !tex->EncodeToPNG(data)) {
-		return;
+	else if (path.endsWith(".png")) {
+		if (!tex->EncodeToPNG(data)) {
+			return;
+		}
 	}
 
 	QImage image;

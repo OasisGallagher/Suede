@@ -78,8 +78,8 @@ bool Engine::Initialize() {
 }
 
 void Engine::Release() {
-	WorldInstance()->Destroy();
-	WorldInstance().reset();
+	World::get()->Destroy();
+	World::get().reset();
 }
 
 void Engine::AddFrameEventListener(FrameEventListener* listener) {
@@ -98,6 +98,6 @@ void Engine::RemoveFrameEventListener(FrameEventListener* listener) {
 void Engine::Update() {
 	SortFrameEventListeners();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
-	WorldInstance()->Update();
+	World::get()->Update();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameLeave);
 }

@@ -2,6 +2,7 @@
 #include "tools/math2.h"
 
 #include "tools/enum.h"
+#include "memory/memory.h"
 
 static QMetaObject::Connection connection_;
 
@@ -18,7 +19,10 @@ static ColorPicker* colorDialog() {
 
 static void showDialog(const QColor& color, bool alpha, QObject* receiver, const char* member) {
 	colorDialog()->setOption(QColorDialog::ShowAlphaChannel, alpha);
+
+	colorDialog()->blockSignals(true);
 	colorDialog()->setCurrentColor(color);
+	colorDialog()->blockSignals(false);
 
 	connection_ = QObject::connect(colorDialog(), SIGNAL(currentColorChanged(const QColor&)), receiver, member);
 	colorDialog()->show();
@@ -39,7 +43,10 @@ void ColorPicker::destroy() {
 }
 
 void ColorPicker::hideEvent(QHideEvent* event) {
-	disconnect(connection_);
+	if (connection_) {
+		disconnect(connection_);
+	}
+
 	QColorDialog::hideEvent(event);
 }
 
@@ -51,6 +58,12 @@ void ColorPicker::mousePressEvent(QMouseEvent* event) {
 	else {
 		pos_ = p;
 	}
+
+	QColorDialog::mousePressEvent(event);
+}
+
+void ColorPicker::mouseReleaseEvent(QMouseEvent* event) {
+	QColorDialog::mouseReleaseEvent(event);
 }
 
 void ColorPicker::mouseMoveEvent(QMouseEvent* event) {
@@ -58,4 +71,6 @@ void ColorPicker::mouseMoveEvent(QMouseEvent* event) {
 		QPoint diff = event->pos() - pos_;
 		colorDialog()->move(colorDialog()->pos() + diff);
 	}
+
+	QColorDialog::mouseMoveEvent(event);
 }

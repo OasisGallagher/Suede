@@ -5,30 +5,38 @@
 #include "tools/singleton.h"
 #include "internal/base/uniformbuffer.h"
 
-struct SharedTimeUniformBuffer {
+#define DEFINE_SHARED_UNIFORM_BUFFER(name, ...) \
+	struct name { \
+		__VA_ARGS__ \
+		static const char* GetName() { return #name; } \
+	}
+
+DEFINE_SHARED_UNIFORM_BUFFER(SharedTimeUniformBuffer,
 	glm::vec4 time;
+);
 
-	static const char* GetName() { return "SharedTimeUniformBuffer"; }
-};
+DEFINE_SHARED_UNIFORM_BUFFER(SharedLightUniformBuffer,
+	struct {
+		glm::vec3 color;
+		float density;
+	} fog;
 
-struct SharedLightUniformBuffer {
-	glm::vec4 ambientLightColor;
+	glm::vec4 ambientColor;
+
+	glm::vec4 lightPos;
+	glm::vec4 lightDir;
 	glm::vec4 lightColor;
-	glm::vec4 lightPosition;
-	glm::vec4 lightDirection;
+);
 
-	static const char* GetName() { return "SharedLightUniformBuffer"; }
-};
-
-struct SharedTransformsUniformBuffer {
+DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 	glm::mat4 worldToClipMatrix;
 	glm::mat4 worldToCameraMatrix;
 	glm::mat4 cameraToClipMatrix;
 	glm::mat4 worldToShadowMatrix;
-	glm::vec4 cameraPosition;
+	glm::vec4 cameraPos;
+);
 
-	static const char* GetName() { return "SharedTransformsUniformBuffer"; }
-};
+#undef DEFINE_SHARED_UNIFORM_BUFFER
 
 class UniformBuffer;
 class UniformBufferManager : public Singleton<UniformBufferManager> {

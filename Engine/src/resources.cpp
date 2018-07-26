@@ -2,41 +2,9 @@
 #include "tools/math2.h"
 #include "os/filesystem.h"
 
-Resources::Resources() {
-	ImportBuiltinResources();
-}
-
 void Resources::Import() {
 	ImportShaderResources();
 	ImportTextureResources();
-}
-
-Texture2D Resources::GetBlackTexture() {
-	return blackTexture_;
-}
-
-Texture2D Resources::GetWhiteTexture() {
-	return whiteTexture_;
-}
-
-std::string Resources::GetRootDirectory() {
-	return "resources/";
-}
-
-std::string Resources::GetModelDirectory() {
-	return GetRootDirectory() + "models/";
-}
-
-std::string Resources::GetShaderDirectory() {
-	return GetRootDirectory() + "shaders/";
-}
-
-std::string Resources::GetTextureDirectory() {
-	return GetRootDirectory() + "textures/";
-}
-
-Mesh Resources::GetPrimitive(PrimitiveType type) {
-	return primitives_[type];
 }
 
 Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) {
@@ -208,33 +176,7 @@ void Resources::ImportBuiltinResources() {
 }
 
 void Resources::ImportShaderResources() {
-	/*std::vector<std::string> paths;
-	const char* reg = ".*\\.shader";
-	FileSystem::ListAllFiles(paths, "resources/shaders", reg);
-
-	shaderResources_.clear();
-	for (int i = 0; i < paths.size(); ++i) {
-		ShaderResource sr = {
-			FileSystem::GetFileNameWithoutExtension(paths[i]),
-			GetRelativePath(paths[i].c_str())
-		};
-
-		shaderResources_.push_back(sr);
-	}*/
 }
 
 void Resources::ImportTextureResources() {
-	std::vector<std::string> paths;
-	const char* reg = ".*\\.(jpg|png|tif|bmp|tga|dds)";
-	FileSystem::ListAllFiles(paths, "resources/textures", reg);
-
-	textureResources_.clear();
-	for (int i = 0; i < paths.size(); ++i) {
-		TextureResource tr = {
-			FileSystem::GetFileNameWithoutExtension(paths[i]),
-			paths[i].substr(GetTextureDirectory().size())
-		};
-
-		textureResources_.push_back(tr);
-	}
 }

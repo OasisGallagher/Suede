@@ -16,6 +16,9 @@ Profiler::Profiler() : samples_(MaxProfilterSamples) {
 	Engine::get()->AddFrameEventListener(this);
 }
 
+Profiler::~Profiler() {
+}
+
 void Profiler::OnFrameEnter() {
 	//for (SampleContainer::iterator ite = samples_.begin(); ite != samples_.end(); ++ite) {
 	//	(*ite)->Reset();

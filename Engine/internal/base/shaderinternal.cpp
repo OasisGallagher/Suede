@@ -324,11 +324,8 @@ void Pass::AddAllUniforms() {
 			continue;
 		}
 
-		// TODO: uniform array.
 		char* ptr = strrchr(name, '[');
-		if (ptr != nullptr) {
-			*ptr = 0;
-		}
+		if (ptr != nullptr) { *ptr = 0; }
 
 		AddUniform(name, type, location, size);
 	}
