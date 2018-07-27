@@ -38,6 +38,9 @@ public:
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker);
 
+	virtual void DestroyEntity(uint id);
+	virtual void DestroyEntity(Entity entity);
+
 	virtual bool FireEvent(WorldEventBasePointer e);
 	virtual void FireEventImmediate(WorldEventBasePointer e);
 	virtual void AddEventListener(WorldEventListener* listener);
@@ -62,6 +65,7 @@ private:
 	void UpdateDecals();
 	void UpdateEntities();
 
+	void DestroyEntityRecursively(Transform root);
 	bool WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker);
 
 	void CreateDecals(Camera camera);

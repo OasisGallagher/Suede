@@ -1,5 +1,6 @@
 import os;
 import sys;
+from stat import S_IREAD, S_IRGRP, S_IROTH;
 
 def Run(path, callback):
 	fullname = os.path.basename(path);
@@ -30,6 +31,7 @@ def Run(path, callback):
 
 		try:
 			callback(open(inf, "r"), dest);
+			os.chmod(outf,  S_IREAD | S_IRGRP | S_IROTH);
 		except Exception as e:
 			print(e);
 		else:

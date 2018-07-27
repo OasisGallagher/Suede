@@ -70,6 +70,9 @@ void CameraInternal::Update() {
 
 void CameraInternal::Render() {
 	if (!culling_->IsWorking()) {
+		RenderableTraits* free = (currentTraits_ != traits0_) ? traits0_ : traits1_;
+		free->Clear();
+
 		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	}
 

@@ -36,7 +36,7 @@
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-#define MAN
+//#define MAN
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
@@ -176,6 +176,8 @@ void Game::timerEvent(QTimerEvent *event) {
 }
 
 void Game::updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected) {
+	container.clear();
+
 	foreach(Entity entity, selected) {
 		if (container.indexOf(entity) < 0) {
 			container.push_back(entity);
@@ -226,7 +228,7 @@ void Game::createScene() {
 	light->SetColor(glm::vec3(0.7f));
 	light->GetTransform()->SetParent(World::get()->GetRootTransform());
 
-	World::get()->ImportTo(light, lightModelPath, this);
+	/*World::get()->ImportTo(light, lightModelPath, this);*/
 
 	//targetTexture_ = NewRenderTexture();
 	//targetTexture_->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());

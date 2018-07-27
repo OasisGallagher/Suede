@@ -158,9 +158,8 @@ RenderableTraits::~RenderableTraits() {
 
 void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
-	pipelines_.depth->Clear();
-	pipelines_.shadow->Clear();
-	pipelines_.rendering->Clear();
+	Clear();
+
 
 	glm::mat4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
@@ -186,7 +185,9 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	RenderTexture target = GetActiveRenderTarget();
 
-	Shadows::get()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
+	if (forwardBase) {
+		Shadows::get()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
+	}
 
 	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
 	if (p_->renderPath == +RenderPath::Forward) {
@@ -378,4 +379,10 @@ void RenderableTraits::RenderSubMesh(Pipeline* pl, Entity entity, int subMeshInd
 	ParticleSystem p = entity->GetParticleSystem();
 	uint instance = p ? p->GetParticlesCount() : 0;
 	pl->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+}
+
+void RenderableTraits::Clear() {
+	pipelines_.depth->Clear();
+	pipelines_.shadow->Clear();
+	pipelines_.rendering->Clear();
 }

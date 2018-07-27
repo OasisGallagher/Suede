@@ -108,6 +108,7 @@ public:
 public:
 	RenderingPipelines& GetPipelines() { return pipelines_; }
 	void Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices);
+	void Clear();
 
 private:
 	void ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);

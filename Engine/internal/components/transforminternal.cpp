@@ -9,6 +9,9 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform) 
 	local_.scale = world_.scale = glm::vec3(1);
 }
 
+TransformInternal::~TransformInternal() {
+}
+
 bool TransformInternal::IsAttachedToScene() {
 	Transform transform = SharedThis();
 	for (; transform && transform != World::get()->GetRootTransform(); transform = transform->GetParent())
@@ -570,10 +573,10 @@ bool TransformInternal::AddItem(Children & children, Transform child) {
 	return false;
 }
 
-bool TransformInternal::EraseItem(Children & children, Transform child) {
-	Children::iterator pos = std::find(children_.begin(), children_.end(), child);
-	if (pos != children_.end()) {
-		children_.erase(pos);
+bool TransformInternal::EraseItem(Children& children, Transform child) {
+	Children::iterator pos = std::find(children.begin(), children.end(), child);
+	if (pos != children.end()) {
+		children.erase(pos);
 		return true;
 	}
 

@@ -9,6 +9,7 @@ class TransformInternal : virtual public ITransform, public ComponentInternal, p
 
 public:
 	TransformInternal();
+	~TransformInternal();
 
 public:
 	virtual bool IsAttachedToScene();

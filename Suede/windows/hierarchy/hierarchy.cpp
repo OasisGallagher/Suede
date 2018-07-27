@@ -1,5 +1,8 @@
 #include <QTreeView>
+#include <QMimedata>
+#include <QKeyEvent>
 #include <QHeaderView>
+#include <QDragEnterEvent>
 #include <QAbstractItemView>
 #include <QStandardItemModel>
 
@@ -9,6 +12,7 @@
 #include "engine.h"
 #include "hierarchy.h"
 #include "debug/debug.h"
+#include "os/filesystem.h"
 
 Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
 }
@@ -18,6 +22,8 @@ void Hierarchy::init(Ui::Suede* ui) {
 
 	World::get()->AddEventListener(this);
 
+	setAcceptDrops(true);
+
 	model_ = new QStandardItemModel(this);
 	
 	ui_->tree->setModel(model_);
@@ -25,8 +31,13 @@ void Hierarchy::init(Ui::Suede* ui) {
 
 	connect(ui_->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
+	connect(ui_->tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
 
 	connect(ui->tree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onEntityDoubleClicked(const QModelIndex&)));
+}
+
+void Hierarchy::OnEntityImported(Entity root, const std::string& path) {
+	root->GetTransform()->SetParent(World::get()->GetRootTransform());
 }
 
 Entity Hierarchy::selectedEntity() {
@@ -48,12 +59,15 @@ bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 	return !entities.empty();
 }
 
-void Hierarchy::OnWorldEvent(WorldEventBasePointer e) {
-	EntityEventPointer eep = suede_static_cast<EntityEventPointer>(e);
-	switch (e->GetEventType()) {
+void Hierarchy::OnWorldEvent(WorldEventBasePointer entit) {
+	EntityEventPointer eep = suede_static_cast<EntityEventPointer>(entit);
+	switch (entit->GetEventType()) {
 //		case WorldEventTypeEntityCreated:
 //			onEntityCreated(eep->entity);
 //			break;
+		case WorldEventTypeEntityDestroyed:
+			onEntityDestroyed(eep->entity);
+			break;
 		case WorldEventTypeEntityTagChanged:
 			onEntityTagChanged(eep->entity);
 			break;
@@ -74,6 +88,26 @@ void Hierarchy::onEntityCreated(Entity entity) {
 	item->setData(entity->GetInstanceID());
 	model_->appendRow(item);
 	items_[entity->GetInstanceID()] = item;
+}
+
+void Hierarchy::onEntityDestroyed(Entity entity) {
+	QStandardItem* item = items_.value(entity->GetInstanceID());
+	if (item != nullptr) {
+		removeItem(item);
+	}
+
+	bool contains = false;
+	for (QModelIndex index : ui_->tree->selectionModel()->selectedIndexes()) {
+		uint id = model_->itemFromIndex(index)->data().toUInt();
+		if (id == entity->GetInstanceID()) {
+			contains = true;
+			break;
+		}
+	}
+
+	if (contains) {
+		emit selectionChanged(QList<Entity>(), QList<Entity>({ entity }));
+	}
 }
 
 void Hierarchy::onEntityTagChanged(Entity entity) {
@@ -113,6 +147,27 @@ void Hierarchy::onEntityDoubleClicked(const QModelIndex& index) {
 	emit focusEntity(entity);
 }
 
+void Hierarchy::onTreeCustomContextMenu() {
+	QMenu menu;
+	QAction* del = new QAction(tr("Delete"), &menu);
+	connect(del, SIGNAL(triggered()), this, SLOT(onDeleteSelected()));
+
+	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
+	if (indexes.empty()) {
+		del->setEnabled(false);
+	}
+
+	menu.addAction(del);
+	menu.exec(QCursor::pos());
+}
+
+void Hierarchy::onDeleteSelected() {
+	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
+	foreach(QModelIndex index, indexes) {
+		World::get()->DestroyEntity(model_->itemFromIndex(index)->data().toUInt());
+	}
+}
+
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	QList<Entity> ss;
 	selectionToEntities(ss, selected);
@@ -130,6 +185,30 @@ void Hierarchy::updateRecursively(Entity entity, QStandardItem* parent) {
 		Entity child = entity->GetTransform()->GetChildAt(i)->GetEntity();
 		QStandardItem* item = appendItem(child, parent);
 		updateRecursively(child, item);
+	}
+}
+
+void Hierarchy::keyReleaseEvent(QKeyEvent* event) {
+	switch (event->key()) {
+		case Qt::Key_Delete:
+			onDeleteSelected();
+			break;
+	}
+}
+
+void Hierarchy::dropEvent(QDropEvent* event) {
+	QDockWidget::dropEvent(event);
+	QList<QUrl> urls = event->mimeData()->urls();
+	foreach(QUrl url, urls) {
+		std::string path = FileSystem::GetFileName(url.toString().toStdString());
+		World::get()->Import(path, this);
+	}
+}
+
+void Hierarchy::dragEnterEvent(QDragEnterEvent* event) {
+	QDockWidget::dragEnterEvent(event);
+	if (event->mimeData()->hasUrls() && !containsUnacceptedModelFiles(event->mimeData()->urls())) {
+		event->acceptProposedAction();
 	}
 }
 
@@ -164,7 +243,20 @@ void Hierarchy::removeItem(QStandardItem* item) {
 	}
 
 	items_.remove(item->data().toUInt());
-	model_->removeRow(item->row());
+
+	QModelIndex p;
+	if (item->parent() != nullptr) { p = item->parent()->index(); }
+	model_->removeRow(item->row(), p);
+}
+
+bool Hierarchy::containsUnacceptedModelFiles(const QList<QUrl>& urls) {
+	foreach(QUrl url, urls) {
+		if (!url.toString().endsWith(".fbx") && !url.toString().endsWith(".obj")) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void Hierarchy::appendChildItem(Entity entity) {
@@ -211,9 +303,10 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelection& items) {
 	foreach(QModelIndex index, items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		Entity transform = World::get()->GetEntity(id);
-		Q_ASSERT(transform);
-		entities.push_back(transform);
+		Entity entity = World::get()->GetEntity(id);
+		if (entity) {
+			entities.push_back(entity);
+		}
 	}
 }
 

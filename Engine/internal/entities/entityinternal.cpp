@@ -21,6 +21,9 @@ EntityInternal::EntityInternal(ObjectType entityType)
 	name_ = EntityTypeToString(GetType());
 }
 
+EntityInternal::~EntityInternal() {
+}
+
 void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;

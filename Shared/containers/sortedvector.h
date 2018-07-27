@@ -47,7 +47,7 @@ public:
 		return true;
 	}
 
-	void remove(const value_type& value) {
+	void erase(const value_type& value) {
 		iterator ite = find(value);
 		if (!comp_(value, *ite)) {
 			container_.erase(ite);

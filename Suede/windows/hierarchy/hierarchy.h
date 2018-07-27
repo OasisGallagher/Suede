@@ -12,7 +12,7 @@ class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener {
+class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener, public EntityLoadedListener {
 	Q_OBJECT
 
 public:
@@ -22,9 +22,17 @@ public:
 	virtual void init(Ui::Suede* ui);
 
 public:
+	virtual void OnEntityImported(Entity root, const std::string& path);
+
+public:
 	Entity selectedEntity();
 	bool selectedEntities(QList<Entity>& entities);
 	void updateRecursively(Entity entity, QStandardItem* parent);
+
+protected:
+	virtual void dropEvent(QDropEvent* event);
+	virtual void keyReleaseEvent(QKeyEvent* event);
+	virtual void dragEnterEvent(QDragEnterEvent* event);
 
 signals:
 	void focusEntity(Entity entity);
@@ -35,6 +43,8 @@ private:
 
 private slots:
 	void reload();
+	void onDeleteSelected();
+	void onTreeCustomContextMenu();
 	void onEntityDoubleClicked(const QModelIndex&);
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
@@ -42,8 +52,10 @@ private:
 	void appendChildItem(Entity entity);
 	QStandardItem* appendItem(Entity child, QStandardItem* parent);
 	void removeItem(QStandardItem* item);
+	bool containsUnacceptedModelFiles(const QList<QUrl>& urls);
 
 	void onEntityCreated(Entity entity);
+	void onEntityDestroyed(Entity entity);
 	void onEntityTagChanged(Entity entity);
 	void onEntityNameChanged(Entity entity);
 	void onEntityParentChanged(Entity entity);

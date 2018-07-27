@@ -152,6 +152,9 @@ public:
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker) = 0;
 
+	virtual void DestroyEntity(uint id) = 0;
+	virtual void DestroyEntity(Entity entity) = 0;
+
 	virtual bool FireEvent(WorldEventBasePointer e) = 0;
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;
 	virtual void AddEventListener(WorldEventListener* listener) = 0;

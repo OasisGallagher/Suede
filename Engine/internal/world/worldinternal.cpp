@@ -136,6 +136,43 @@ Entity WorldInternal::GetEntity(uint id) {
 	return ite->second;
 }
 
+void WorldInternal::DestroyEntity(uint id) {
+	Entity entity = GetEntity(id);
+	if (entity) {
+		DestroyEntity(entity);
+	}
+}
+
+void WorldInternal::DestroyEntity(Entity entity) {
+	DestroyEntityRecursively(entity->GetTransform());
+}
+
+void WorldInternal::DestroyEntityRecursively(Transform root) {
+	Entity entity = root->GetEntity();
+
+	if (entity->GetType() == ObjectTypeCamera) {
+		cameras_.erase(suede_dynamic_cast<Camera>(entity));
+	}
+	else if (entity->GetType() == ObjectTypeProjector) {
+		projectors_.erase(suede_dynamic_cast<Projector>(entity));
+	}
+	else if (entity->GetType() >= ObjectTypeSpotLight && entity->GetType() <= ObjectTypeDirectionalLight) {
+		lights_.erase(suede_dynamic_cast<Light>(entity));
+	}
+
+	// TODO: tag entity with destroyed?
+	entities_.erase(entity->GetInstanceID());
+	entity->GetTransform()->SetParent(nullptr);
+
+	EntityDestroyedEventPointer e = NewWorldEvent<EntityDestroyedEventPointer>();
+	e->entity = entity;
+	FireEvent(e);
+
+	for (int i = 0; i < root->GetChildCount(); ++i) {
+		DestroyEntityRecursively(root->GetChildAt(i));
+	}
+}
+
 bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) {
 	if (type < ObjectTypeEntity) {
 		Debug::LogError("invalid entity type");
@@ -230,7 +267,9 @@ void WorldInternal::RenderUpdate() {
 
 void WorldInternal::UpdateDecals() {
 	decals_.clear();
-	CreateDecals(*cameras_.begin());
+
+	Camera main = Camera::GetMain();
+	if (main) { CreateDecals(main); }
 }
 
 void WorldInternal::UpdateEntities() {
@@ -246,7 +285,6 @@ bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWa
 	for (int i = 0; i < childCount; ++i) {
 		Entity child = root->GetChildAt(i)->GetEntity();
 		if (!child) {
-			Debug::Break();
 			continue;
 		}
 
