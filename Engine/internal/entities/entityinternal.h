@@ -32,7 +32,7 @@ public:
 	virtual Animation GetAnimation() { return animation_; }
 
 	virtual const Bounds& GetBounds();
-	virtual void RecalculateBounds();
+	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
 	virtual void SetMesh(Mesh value);
 	virtual Mesh GetMesh() { return mesh_; }

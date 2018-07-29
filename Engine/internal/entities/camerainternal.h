@@ -108,8 +108,6 @@ private:
 private:
 	int depth_;
 
-	bool __isCulling;
-
 	//GBuffer* gbuffer_;
 
 	Plane planes_[6];
@@ -118,7 +116,7 @@ private:
 	Culling* culling_;
 	ZThread::Thread* cullingThread_;
 
-	RenderableTraits* currentTraits_;
+	bool traitsReady_;
 	RenderableTraits* traits0_, *traits1_;
 
 	Rendering* rendering_;

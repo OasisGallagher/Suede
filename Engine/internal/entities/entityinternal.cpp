@@ -91,7 +91,7 @@ void EntityInternal::SetAnimation(Animation value) {
 
 void EntityInternal::SetMesh(Mesh value) {
 	SetComponent(mesh_, value);
-	RecalculateBounds();
+	RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 void EntityInternal::SetParticleSystem(ParticleSystem value) {
@@ -106,10 +106,18 @@ void EntityInternal::SetRenderer(Renderer value) {
 	SetComponent(renderer_, value);
 }
 
-void EntityInternal::RecalculateBounds() {
-	boundsDirty_ = true;
-	DirtyParentBounds();
-	DirtyChildrenBoundses();
+void EntityInternal::RecalculateBounds(int flags) {
+	if ((flags & RecalculateBoundsFlagsSelf) != 0) {
+		boundsDirty_ = true;
+	}
+
+	if ((flags & RecalculateBoundsFlagsParent) != 0) {
+		DirtyParentBounds();
+	}
+
+	if ((flags & RecalculateBoundsFlagsChildren) != 0) {
+		DirtyChildrenBoundses();
+	}
 }
 
 void EntityInternal::SetActive(bool value) {

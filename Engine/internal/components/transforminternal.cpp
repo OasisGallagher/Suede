@@ -549,6 +549,14 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 		AddItem(InternalPtr(newParent)->children_, thisSp);
 	}
 
+	if (parent_.lock()) {
+		parent_.lock()->GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	}
+
+	if (newParent) {
+		newParent->GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	}
+
 	parent_ = newParent;
 
 	// Clear dirty flags.

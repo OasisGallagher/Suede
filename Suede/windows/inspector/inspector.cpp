@@ -34,6 +34,10 @@ void Inspector::init(Ui::Suede* ui) {
 	connect(ui_->position, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onPositionChanged(const glm::vec3&)));
 	connect(ui_->rotation, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onRotationChanged(const glm::vec3&)));
 	connect(ui_->scale, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onScaleChanged(const glm::vec3&)));
+
+	connect(ui_->p0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
+	connect(ui_->r0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
+	connect(ui_->s0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
 }
 
 void Inspector::OnWorldEvent(WorldEventBasePointer e) {

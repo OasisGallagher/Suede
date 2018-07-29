@@ -301,7 +301,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	}
 
 	bounds_.SetMinMax(min, max);
-	GetEntity()->RecalculateBounds();
+	GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 MeshInternal::Storage::Storage() {

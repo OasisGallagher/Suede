@@ -52,7 +52,9 @@ private:
 	void appendChildItem(Entity entity);
 	QStandardItem* appendItem(Entity child, QStandardItem* parent);
 	void removeItem(QStandardItem* item);
-	bool containsUnacceptedModelFiles(const QList<QUrl>& urls);
+	void removeItemRecusively(QStandardItem* item);
+
+	bool dropAcceptable(const QMimeData* data);
 
 	void onEntityCreated(Entity entity);
 	void onEntityDestroyed(Entity entity);

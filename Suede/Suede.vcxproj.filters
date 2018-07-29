@@ -162,9 +162,6 @@
     <ClCompile Include="main\main.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_floatslider.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -423,11 +420,20 @@
     <ClCompile Include="GeneratedFiles\Release\moc_colorfield.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_dragdropableitemmodel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_dragdropableitemmodel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="suede.qrc">
-      <Filter>resources</Filter>
-    </CustomBuild>
     <CustomBuild Include="ui\suede.ui">
       <Filter>ui</Filter>
     </CustomBuild>
@@ -524,6 +530,12 @@
     <CustomBuild Include="widgets\fields\vec2field.h">
       <Filter>widgets\fields\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\hierarchy\dragdropableitemmodel.h">
+      <Filter>windows\hierarchy\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="suede.qrc">
+      <Filter>resources</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -617,12 +629,6 @@
     </None>
     <None Include="resources\shaders\builtin\include\lit_vertex.inc">
       <Filter>resources\shaders\builtin\include</Filter>
-    </None>
-    <None Include="GeneratedFiles\Debug\rectfield.moc">
-      <Filter>Generated Files\Debug</Filter>
-    </None>
-    <None Include="GeneratedFiles\Release\rectfield.moc">
-      <Filter>Generated Files\Release</Filter>
     </None>
     <None Include="resources\shaders\gaussianblur.shader">
       <Filter>resources\shaders</Filter>

@@ -43,7 +43,6 @@ private slots:
 	void aboutBox();
 	void screenCapture();
 	void onShowWindowsMenu();
-	void onShowEnvironment();
 	void onToggleWindowVisible();
 
 private:

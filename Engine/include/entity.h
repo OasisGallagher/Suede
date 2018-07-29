@@ -9,6 +9,13 @@
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DECLARE_OBJECT_CREATER(Entity);
 
+enum {
+	RecalculateBoundsFlagsSelf = 1,
+	RecalculateBoundsFlagsParent = 2,
+	RecalculateBoundsFlagsChildren = 4,
+	RecalculateBoundsFlagsAll = -1,
+};
+
 class SUEDE_API IEntity : virtual public IObject {
 public:
 	virtual bool GetActive() const = 0;
@@ -34,8 +41,7 @@ public:
 	 * @returns bounds measured in the world space.
 	 */
 	virtual const Bounds& GetBounds() = 0;
-
-	virtual void RecalculateBounds() = 0;
+	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll) = 0;
 
 	virtual void SetMesh(Mesh value) = 0;
 	virtual Mesh GetMesh() = 0;

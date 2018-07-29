@@ -10,19 +10,19 @@ class Sample;
 class Pipeline;
 class ImageEffect;
 
-enum RenderPass {
-	RenderPassNone = -1,
+enum RenderPassType {
+	RenderPassTypeNone = -1,
 
-	RenderPassShadowDepth,
+	RenderPassTypeShadowDepth,
 
-	RenderPassForwardBackground,
-	RenderPassForwardDepth,
-	RenderPassForwardOpaque,
-	RenderPassForwardTransparent,
+	RenderPassTypeForwardBackground,
+	RenderPassTypeForwardDepth,
+	RenderPassTypeForwardOpaque,
+	RenderPassTypeForwardTransparent,
 
-	RenderPassDeferredGeometryPass,
+	RenderPassTypeDeferredGeometryPass,
 
-	RenderPassCount
+	RenderPassTypeCount
 };
 
 struct RenderingMatrices {
@@ -88,6 +88,11 @@ public:
 private:
 	void OnPostRender();
 	void OnImageEffects();
+
+	void DepthPass(RenderingPipelines &pipelines);
+	void ShadowPass(RenderingPipelines &pipelines);
+	void RenderPass(RenderingPipelines &pipelines);
+	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines &pipelines);
 
 	void UpdateForwardBaseLightUniformBuffer(Light light);
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);

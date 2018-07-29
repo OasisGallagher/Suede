@@ -41,29 +41,13 @@ Sample* renderingSample = Profiler::get()->CreateSample();
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
 
-	depthSample->Restart();
-	if (pipelines.depth->GetRenderableCount() > 0) {
-		pipelines.depth->Run();
-	}
-	depthSample->Stop();
-	OutputSample(depthSample);
+	DepthPass(pipelines);
 
-	UpdateTransformsUniformBuffer(matrices);
-	UpdateForwardBaseLightUniformBuffer(pipelines.forwardBaseLight);
+	UpdateUniformBuffers(matrices, pipelines);
 
-	RenderTexture target = pipelines.rendering->GetTargetTexture();
-	Shadows::get()->Resize(target->GetWidth(), target->GetHeight());
-	Shadows::get()->Clear();
+	ShadowPass(pipelines);
 
-	shadowSample->Restart();
-	pipelines.shadow->Run();
-	shadowSample->Stop();
-	OutputSample(shadowSample);
-
-	renderingSample->Restart();
-	pipelines.rendering->Run(true);
-	renderingSample->Stop();
-	OutputSample(renderingSample);
+	RenderPass(pipelines);
 
 	OnPostRender();
 
@@ -132,6 +116,41 @@ void Rendering::OnImageEffects() {
 		p_->imageEffects[i]->OnRenderImage(targets[1 - index], targets[index], p_->normalizedRect);
 		index = 1 - index;
 	}
+}
+
+void Rendering::DepthPass(RenderingPipelines &pipelines) {
+	depthSample->Restart();
+	if (pipelines.depth->GetRenderableCount() > 0) {
+		pipelines.depth->Run();
+	}
+	depthSample->Stop();
+	OutputSample(depthSample);
+}
+
+void Rendering::UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines &pipelines) {
+	UpdateTransformsUniformBuffer(matrices);
+
+	if (pipelines.forwardBaseLight) {
+		UpdateForwardBaseLightUniformBuffer(pipelines.forwardBaseLight);
+	}
+}
+
+void Rendering::ShadowPass(RenderingPipelines &pipelines) {
+	RenderTexture target = pipelines.rendering->GetTargetTexture();
+	Shadows::get()->Resize(target->GetWidth(), target->GetHeight());
+	Shadows::get()->Clear();
+
+	shadowSample->Restart();
+	pipelines.shadow->Run();
+	shadowSample->Stop();
+	OutputSample(shadowSample);
+}
+
+void Rendering::RenderPass(RenderingPipelines &pipelines) {
+	renderingSample->Restart();
+	pipelines.rendering->Run(true);
+	renderingSample->Stop();
+	OutputSample(renderingSample);
 }
 
 RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {

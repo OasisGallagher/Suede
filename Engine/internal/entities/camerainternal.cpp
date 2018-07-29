@@ -14,7 +14,7 @@ Camera Camera::GetMain() { return main_; }
 void Camera::SetMain(Camera value) { main_ = value; }
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera), depth_(0), __isCulling(false), currentTraits_(nullptr)
+	: EntityInternal(ObjectTypeCamera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
 	culling_ = MEMORY_CREATE(Culling, this);
 	cullingThread_ = new ZThread::Thread(culling_);
@@ -70,18 +70,19 @@ void CameraInternal::Update() {
 
 void CameraInternal::Render() {
 	if (!culling_->IsWorking()) {
-		RenderableTraits* free = (currentTraits_ != traits0_) ? traits0_ : traits1_;
-		free->Clear();
-
+		traits1_->Clear();
 		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	}
 
-	if (currentTraits_ != nullptr) {
+	if (traitsReady_) {
 		RenderingMatrices matrices;
 		matrices.position = GetTransform()->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-		rendering_->Render(currentTraits_->GetPipelines(), matrices);
+		rendering_->Render(traits0_->GetPipelines(), matrices);
+	}
+	else {
+		// TODO: first frame not ready.
 	}
 }
 
@@ -99,15 +100,14 @@ void CameraInternal::OnProjectionMatrixChanged() {
 }
 
 void CameraInternal::OnCullingFinished() {
-	RenderableTraits* free = (currentTraits_ != traits0_) ? traits0_ : traits1_;
-
 	RenderingMatrices matrices;
 	matrices.position = GetTransform()->GetPosition();
 	matrices.projectionMatrix = GetProjectionMatrix();
 	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-	free->Traits(culling_->GetEntities(), matrices);
+	traits1_->Traits(culling_->GetEntities(), matrices);
 
-	currentTraits_ = free;
+	std::swap(traits0_, traits1_);
+	traitsReady_ = true;
 }
 
 // void CameraInternal::OnRenderingFinished() {

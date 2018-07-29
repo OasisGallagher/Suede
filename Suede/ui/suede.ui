@@ -311,7 +311,7 @@
           <x>0</x>
           <y>0</y>
           <width>299</width>
-          <height>211</height>
+          <height>208</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -535,8 +535,6 @@
     <property name="title">
      <string>Windows</string>
     </property>
-    <addaction name="separator"/>
-    <addaction name="showEnvironment"/>
    </widget>
    <addaction name="file"/>
    <addaction name="windows"/>
@@ -632,9 +630,6 @@
   <action name="screenCapture">
    <property name="text">
     <string>ScreenCapture</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
    </property>
   </action>
   <action name="about">

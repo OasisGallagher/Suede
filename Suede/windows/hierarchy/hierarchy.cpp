@@ -1,18 +1,12 @@
 #include <QTreeView>
 #include <QMimedata>
 #include <QKeyEvent>
-#include <QHeaderView>
-#include <QDragEnterEvent>
-#include <QAbstractItemView>
-#include <QStandardItemModel>
 
 #include "ui_suede.h"
 
-#include "world.h"
-#include "engine.h"
 #include "hierarchy.h"
-#include "debug/debug.h"
 #include "os/filesystem.h"
+#include "dragdropableitemmodel.h"
 
 Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
 }
@@ -24,10 +18,11 @@ void Hierarchy::init(Ui::Suede* ui) {
 
 	setAcceptDrops(true);
 
-	model_ = new QStandardItemModel(this);
+	model_ = new DragDropableItemModel(this);
 	
 	ui_->tree->setModel(model_);
 	ui_->tree->setHeaderHidden(true);
+	ui_->tree->setDragDropMode(QAbstractItemView::DragDrop);
 
 	connect(ui_->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
@@ -207,7 +202,7 @@ void Hierarchy::dropEvent(QDropEvent* event) {
 
 void Hierarchy::dragEnterEvent(QDragEnterEvent* event) {
 	QDockWidget::dragEnterEvent(event);
-	if (event->mimeData()->hasUrls() && !containsUnacceptedModelFiles(event->mimeData()->urls())) {
+	if (dropAcceptable(event->mimeData())) {
 		event->acceptProposedAction();
 	}
 }
@@ -215,9 +210,10 @@ void Hierarchy::dragEnterEvent(QDragEnterEvent* event) {
 QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* parent) {
 	QStandardItem* item = items_.value(entity->GetInstanceID());
 	if (item != nullptr) {
-		QStandardItem* p = item->parent();
-		items_.remove(entity->GetInstanceID());
-		model_->removeRow(item->row(), p != nullptr ? p->index() : QModelIndex());
+		removeItem(item);
+		//QStandardItem* p = item->parent();
+		//items_.remove(entity->GetInstanceID());
+		//model_->removeRow(item->row(), p != nullptr ? p->index() : QModelIndex());
 	}
 
 	item = new QStandardItem(entity->GetName().c_str());
@@ -235,28 +231,27 @@ QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* parent) {
 }
 
 void Hierarchy::removeItem(QStandardItem* item) {
-	for (int i = 0; i < item->rowCount(); ++i) {
-		foreach(QStandardItem* x, item->takeRow(i)) {
-			items_.remove(x->data().toUInt());
-			delete x;
-		}
-	}
-
-	items_.remove(item->data().toUInt());
+	removeItemRecusively(item);
 
 	QModelIndex p;
 	if (item->parent() != nullptr) { p = item->parent()->index(); }
 	model_->removeRow(item->row(), p);
 }
 
-bool Hierarchy::containsUnacceptedModelFiles(const QList<QUrl>& urls) {
-	foreach(QUrl url, urls) {
+bool Hierarchy::dropAcceptable(const QMimeData* data) {
+	if(data->hasFormat("targets")) {
+		return true;
+	}
+
+	if (!data->hasUrls()) { return false; }
+
+	foreach(QUrl url, data->urls()) {
 		if (!url.toString().endsWith(".fbx") && !url.toString().endsWith(".obj")) {
-			return true;
+			return false;
 		}
 	}
 
-	return false;
+	return true;
 }
 
 void Hierarchy::appendChildItem(Entity entity) {
@@ -314,4 +309,12 @@ void Hierarchy::enableItemsOutline(const QList<Entity>& entities, bool enable) {
 	foreach (Entity entity, entities) {
 		enableEntityOutline(entity, enable);
 	}
+}
+
+void Hierarchy::removeItemRecusively(QStandardItem* item) {
+	for (int i = 0; i < item->rowCount(); ++i) {
+		removeItemRecusively(item->child(i));
+	}
+
+	items_.remove(item->data().toUInt());
 }

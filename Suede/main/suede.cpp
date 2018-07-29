@@ -105,23 +105,6 @@ void Suede::keyPressEvent(QKeyEvent* event) {
 		case Qt::Key_0:
 			menuBar()->setVisible(!menuBar()->isVisible());
 			break;
-
-		case Qt::Key_1:
-		case Qt::Key_2:
-		case Qt::Key_3:
-		case Qt::Key_4:
-		case Qt::Key_5:
-		case Qt::Key_6:
-		case Qt::Key_7:
-		case Qt::Key_8:
-		case Qt::Key_9:
-			if ((event->modifiers() & Qt::ControlModifier) != 0) {
-				int index = event->key() - Qt::Key_1;
-				if (index < ChildWindowType::size()) {
-					showChildWindow((ChildWindowType)index, !childWindowVisible((ChildWindowType)index));
-				}
-			}
-			break;
 	}
 }
 
@@ -194,6 +177,9 @@ void Suede::initializeFileMenu() {
 	QMenu* menu = menuBar()->findChild<QMenu*>("file");
 	QList<QAction*> actions = menu->actions();
 
+	actions[0]->setShortcut(Qt::CTRL + Qt::Key_P);
+	actions[1]->setShortcut(Qt::ALT + Qt::Key_F4);
+
 	connect(actions[0], SIGNAL(triggered()), this, SLOT(screenCapture()));
 	connect(actions[1], SIGNAL(triggered()), qApp, SLOT(quit()));
 }
@@ -202,19 +188,14 @@ void Suede::initializeWindowsMenu() {
 	QMenu* menu = menuBar()->findChild<QMenu*>("windows");
 	connect(menu, SIGNAL(aboutToShow()), this, SLOT(onShowWindowsMenu()));
 
-	QAction* before = menu->actions().front();
-	for (int i = ChildWindowType::size() - 1; i >= 0; --i) {
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		QAction* a = new QAction(ChildWindowType::from_int(i).to_string(), menu);
 		a->setCheckable(true);
-
-		menu->insertAction(before, a);
+		a->setShortcut(Qt::CTRL + Qt::Key(Qt::Key_1 + i));
 		connect(a, SIGNAL(triggered()), this, SLOT(onToggleWindowVisible()));
-		before = a;
-	}
 
-	QList<QAction*> actions = menu->actions();
-	// skip seperator.
-	connect(actions[ChildWindowType::size() + 1], SIGNAL(triggered()), this, SLOT(onShowEnvironment()));
+		menu->addAction(a);
+	}
 }
 
 void Suede::initializeLayout() {
@@ -230,10 +211,6 @@ void Suede::initializeHelpMenu() {
 	QMenu* menu = menuBar()->findChild<QMenu*>("help");
 	QList<QAction*> actions = menu->actions();
 	connect(actions[0], SIGNAL(triggered()), this, SLOT(aboutBox()));
-}
-
-void Suede::onShowEnvironment() {
-	
 }
 
 void Suede::onToggleWindowVisible() {
