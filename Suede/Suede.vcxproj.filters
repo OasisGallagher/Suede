@@ -234,12 +234,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_maskfield.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_filetreefield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -426,11 +420,29 @@
     <ClCompile Include="GeneratedFiles\Release\moc_dragdropableitemmodel.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
       <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
+      <Filter>windows\hierarchy\src</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\dialogs\preferences.cpp">
+      <Filter>widgets\dialogs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_preferences.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_preferences.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="main\prefs.cpp">
+      <Filter>main\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -536,6 +548,12 @@
     <CustomBuild Include="suede.qrc">
       <Filter>resources</Filter>
     </CustomBuild>
+    <CustomBuild Include="ui\preferences.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\preferences.h">
+      <Filter>widgets\dialogs\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -567,6 +585,12 @@
     </ClInclude>
     <ClInclude Include="windows\winbase.h">
       <Filter>windows\include</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_preferences.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main\prefs.h">
+      <Filter>main\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

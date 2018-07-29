@@ -12,11 +12,15 @@ public:
 	QtViewer(int argc, char *argv[]);
 	~QtViewer();
 
+public:
+	static QString keySkin;
+	static QList<QString> builtinSkinNames();
+	static void setSkin(const QString& name);
+
 protected:
 	virtual void Update();
 
 private:
-	void setupStyle();
 	void setupSuede();
 	void setupRegistry();
 
@@ -27,4 +31,7 @@ private slots:
 private:
 	Suede* suede_;
 	QApplication app_;
+
+private:
+	static QMap<QString, QString> skinResources;
 };

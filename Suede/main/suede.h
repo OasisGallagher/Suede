@@ -40,9 +40,10 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 
 private slots:
-	void aboutBox();
-	void screenCapture();
-	void onShowWindowsMenu();
+	void onAbout();
+	void onPreferences();
+	void onScreenCapture();
+	void onShowWindowMenu();
 	void onToggleWindowVisible();
 
 private:
@@ -51,7 +52,8 @@ private:
 	void initializeLayout();
 	void initializeHelpMenu();
 	void initializeFileMenu();
-	void initializeWindowsMenu();
+	void initializeEditMenu();
+	void initializeWindowMenu();
 
 private:
 	Ui::Suede ui;

@@ -5,11 +5,9 @@
 
 #include "tools/math2.h"
 
-#define MAX_DECIMALS	5
-
 FloatField::FloatField(QWidget* parent)
 	: QLineEdit(parent)
-	, dragging_(false), step_(1), value_(0), min_(-FLT_MAX), max_(FLT_MAX) {
+	, dragging_(false), step_(1), value_(0), precision_(5), min_(-FLT_MAX), max_(FLT_MAX) {
 	updateText();
 
 	setMouseTracking(true);
@@ -18,20 +16,16 @@ FloatField::FloatField(QWidget* parent)
 
 void FloatField::setValue(float value) {
 	if (!Math::Approximately(value_, value)) {
-		value_ = value;
+		value_ = Math::Clamp(value, min_, max_);
+
 		blockSignals(true);
 		updateText();
 		blockSignals(false);
 	}
 }
 
-void FloatField::setRange(float min, float max) {
-	min_ = min;
-	max_ = max;
-}
-
 void FloatField::updateText() {
-	QString text = QString::number(value_, 'f', 2);
+	QString text = QString::number(value_, 'f', precision_);
 	int i = text.length() - 1;
 	for (; text[i] != '.' && text[i] == '0'; --i)
 		;
@@ -74,7 +68,7 @@ void FloatField::onEditingFinished() {
 	bool ok = false;
 	float f = text().toFloat(&ok);
 	if (ok) {
-		value_ = f;
+		value_ = Math::Clamp(f, min_, max_);
 	}
 
 	updateText();

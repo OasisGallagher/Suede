@@ -531,13 +531,20 @@
     </property>
     <addaction name="about"/>
    </widget>
-   <widget class="QMenu" name="windows">
+   <widget class="QMenu" name="window">
     <property name="title">
-     <string>Windows</string>
+     <string>&amp;Window</string>
     </property>
    </widget>
+   <widget class="QMenu" name="edit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="preferences"/>
+   </widget>
    <addaction name="file"/>
-   <addaction name="windows"/>
+   <addaction name="edit"/>
+   <addaction name="window"/>
    <addaction name="help"/>
   </widget>
   <widget class="Lighting" name="lighting">
@@ -629,12 +636,12 @@
   </action>
   <action name="screenCapture">
    <property name="text">
-    <string>ScreenCapture</string>
+    <string>Screen Capture...</string>
    </property>
   </action>
   <action name="about">
    <property name="text">
-    <string>About</string>
+    <string>About...</string>
    </property>
   </action>
   <action name="gameVisible">
@@ -687,6 +694,11 @@
   <action name="showEnvironment">
    <property name="text">
     <string>Light</string>
+   </property>
+  </action>
+  <action name="preferences">
+   <property name="text">
+    <string>Preferences...</string>
    </property>
   </action>
  </widget>
