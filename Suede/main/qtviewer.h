@@ -13,9 +13,9 @@ public:
 	~QtViewer();
 
 public:
-	static QString keySkin;
+	static QString skinName();
+	static bool setSkin(const QString& name);
 	static QList<QString> builtinSkinNames();
-	static void setSkin(const QString& name);
 
 protected:
 	virtual void Update();

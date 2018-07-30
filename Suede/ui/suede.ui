@@ -13,6 +13,7 @@
   <property name="font">
    <font>
     <family>Tahoma</family>
+    <pointsize>10</pointsize>
    </font>
   </property>
   <property name="focusPolicy">
@@ -46,7 +47,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>80</width>
+     <width>82</width>
      <height>100</height>
     </size>
    </property>
@@ -311,7 +312,7 @@
           <x>0</x>
           <y>0</y>
           <width>299</width>
-          <height>208</height>
+          <height>209</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -512,7 +513,7 @@
      <x>0</x>
      <y>0</y>
      <width>705</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="file">
@@ -551,7 +552,7 @@
    <property name="minimumSize">
     <size>
      <width>317</width>
-     <height>137</height>
+     <height>144</height>
     </size>
    </property>
    <property name="floating">

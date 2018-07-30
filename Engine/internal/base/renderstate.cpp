@@ -87,12 +87,7 @@ void OffsetState::Initialize(int parameter0, int parameter1, int) {
 }
 
 void OffsetState::Bind() {
-	oldEnabled_ = GL::IsEnabled(GL_POLYGON_OFFSET_FILL);
-
-	bool enabled = (parameter0_ != 0 || parameter1_ != 0);
-	Enable(GL_POLYGON_OFFSET_FILL, enabled);
-
-	if (enabled) {
+	if (parameter0_ != 0 && parameter1_ != 0) {
 		GL::GetFloatv(GL_POLYGON_OFFSET_UNITS, &oldUnits_);
 		GL::GetFloatv(GL_POLYGON_OFFSET_FACTOR, &oldFactor_);
 		GL::PolygonOffset(float(parameter0_) / Scale, float(parameter1_) / Scale);
@@ -100,8 +95,7 @@ void OffsetState::Bind() {
 }
 
 void OffsetState::Unbind() {
-	Enable(GL_POLYGON_OFFSET_FILL, oldEnabled_);
-	if (parameter0_ != 0 || parameter1_ != 0) {
+	if (parameter0_ != 0 && parameter1_ != 0) {
 		GL::PolygonOffset(oldFactor_, oldUnits_);
 	}
 }

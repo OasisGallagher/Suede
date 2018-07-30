@@ -42,7 +42,7 @@
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "butterfly.fbx";
+static const char* roomFbxPath = "suzanne.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
@@ -190,16 +190,12 @@ void Game::updateSelection(QList<Entity>& container, const QList<Entity>& select
 }
 
 void Game::onFocusEntityBounds(Entity entity) {
-	Transform trans = entity->GetTransform();
 	Transform camera = Camera::GetMain()->GetTransform();
 	glm::vec3 position = entity->GetBounds().center;
-	glm::vec3 p = position - trans->GetForward() * calculateCameraDistanceFitsBounds(Camera::GetMain(), entity);
+	glm::vec3 p = position - entity->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(Camera::GetMain(), entity);
 	camera->SetPosition(p);
 
-	glm::vec3 up(0, 1, 0);
-	glm::vec3 forward = glm::normalize(position - camera->GetPosition());
-	glm::vec3 right = glm::cross(up, forward);
-	glm::quat q(glm::mat3(right, up, forward));
+	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, entity->GetTransform()->GetUp()))));
 	camera->SetRotation(glm::normalize(q));
 }
 
@@ -211,7 +207,7 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
 	const Bounds& b = entity->GetBounds();
 	float f = tanf(camera->GetFieldOfView() / 2.f);
 	float dy = 2 * b.size.y / f;
-	float dx = 2 * b.size.x / (f* camera->GetAspect());
+	float dx = 2 * b.size.x / (f * camera->GetAspect());
 	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + b.size.z * 2, camera->GetFarClipPlane() - b.size.z * 2);
 }
 

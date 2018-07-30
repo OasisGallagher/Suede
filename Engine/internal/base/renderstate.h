@@ -147,7 +147,6 @@ public:
 private:
 	GLfloat oldUnits_;
 	GLfloat oldFactor_;
-	GLboolean oldEnabled_;
 
 	int parameter0_;
 	int parameter1_;

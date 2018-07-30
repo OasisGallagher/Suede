@@ -9,7 +9,7 @@ public:
 	Preferences(QWidget* parent);
 
 private slots:
-	void onSkinChanged(int index);
+	void onSkinChanged(const QString& name);
 
 private:
 	void updateUI();

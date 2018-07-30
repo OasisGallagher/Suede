@@ -16,7 +16,7 @@ inline int __compare(T lhs, T rhs) {
 
 typedef bool(*RenderableComparer)(const Renderable& lhs, const Renderable& rhs);
 
-#define COMPARE(lhs, rhs)	if (true) { int n = __compare(lhs, rhs); if (n != 0) { return n; } } else (void)0
+#define COMPARE(lhs, rhs)	{ int n = __compare(lhs, rhs); if (n != 0) { return n; } }
 
 static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
 	COMPARE(lhs.mesh->GetNativePointer(), rhs.mesh->GetNativePointer());

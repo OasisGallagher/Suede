@@ -235,7 +235,7 @@ void Suede::initializeHelpMenu() {
 }
 
 void Suede::onToggleWindowVisible() {
-	QList<QAction*> actions = menuBar()->findChild<QMenu*>("windows")->actions();
+	QList<QAction*> actions = menuBar()->findChild<QMenu*>("window")->actions();
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		if (actions[i] == sender()) {
 			showChildWindow((ChildWindowType)i, !childWindowVisible((ChildWindowType)i));

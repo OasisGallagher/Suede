@@ -6,7 +6,6 @@
 #include "prefs.h"
 #include "suede.h"
 
-QString QtViewer::keySkin("skin");
 QMap<QString, QString> QtViewer::skinResources({
 	std::make_pair("Default", ""),
 	std::make_pair("Dark",":/qss/style"),
@@ -21,7 +20,7 @@ QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(a
 
 	setupRegistry();
 
-	setSkin(Prefs::get()->load("skin").toString());
+	setSkin(skinName());
 	setupSuede();
 
 	//splash->finish(suede_);
@@ -41,15 +40,19 @@ QList<QString> QtViewer::builtinSkinNames() {
 	return skinResources.keys();
 }
 
-void QtViewer::setSkin(const QString& name) {
+QString QtViewer::skinName() {
+	return Prefs::get()->load("skin").toString();
+}
+
+bool QtViewer::setSkin(const QString& name) {
 	QMap<QString, QString>::iterator ite = skinResources.find(name);
 	if (ite == skinResources.end()) {
 		Debug::LogError(("invalid skin name " + name).toLatin1());
-		return;
+		return false;
 	}
 
 	QString qss;
-	if (!ite->value().isEmpty()) {
+	if (!ite.value().isEmpty()) {
 		QFile file(":/qss/style");
 		file.open(QFile::ReadOnly);
 		qss = file.readAll();
@@ -57,6 +60,9 @@ void QtViewer::setSkin(const QString& name) {
 	}
 
 	qApp->setStyleSheet(qss);
+	Prefs::get()->save("skin", name);
+
+	return true;
 }
 
 void QtViewer::setupSuede() {

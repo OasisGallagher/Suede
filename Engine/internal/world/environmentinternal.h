@@ -3,7 +3,7 @@
 
 class EnvironmentInternal : public IEnvironment {
 public:
-	EnvironmentInternal() : fogDensity_(0.05f) {}
+	EnvironmentInternal() : fogDensity_(0.0001f) {}
 
 public:
 	virtual void SetSkybox(Material value);

@@ -1,19 +1,55 @@
 Properties {
-	color4 outlineColor = { 0.98, 0.51, 0.04, 0.5 };
+	color3 outlineColor = { 0.98, 0.51, 0.04 };
 }
 
 SubShader {
 	Tags { 
-		Queue = "Transparent";
+		Queue = "Geometry";
+	}
+
+	Pass "Outline" true {
+		Cull Front;
+		ZWrite Off;
+		Offset 100 100;
+
+		//StencilTest NotEqual 1 0xFF;
+		//StencilWrite Off;
+
+		GLSLPROGRAM
+
+		#stage vertex
+		#include "builtin/include/suede.inc"
+
+		in vec3 _Pos;
+		in vec3 _Normal;
+
+		void main() {
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
+
+			vec3 normal = transpose(inverse(mat3(_WorldToCameraMatrix * _LocalToWorldMatrix))) * _Normal;
+			vec2 offset = mat2(_CameraToClipMatrix) * normal.xy;
+			gl_Position.xy += offset * 0.05;
+		}
+
+		#stage fragment
+		out vec4 fragColor;
+		
+		uniform vec3 outlineColor;
+		void main() {
+			fragColor = vec4(outlineColor, 1);
+		}
+
+		ENDGLSL
 	}
 
 	Pass {
+		//ZWrite On;
 		ZTest LEqual;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
-		StencilTest Always 1 0xFF;
-		StencilOp Keep Keep Replace;
-		StencilWrite On;
+		//StencilTest Always 1 0xFF;
+		//StencilOp Keep Keep Replace;
+		//StencilWrite On;
 
 		GLSLPROGRAM
 		
@@ -61,40 +97,6 @@ SubShader {
 			//fragColor = vec4(visibility, visibility, visibility, 1);
 			
 			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
-		}
-
-		ENDGLSL
-	}
-
-	Pass "Outline" false {
-		ZWrite Off;
-		ZTest Off;
-		//Cull Front;
-		StencilTest NotEqual 1 0xFF;
-		StencilWrite Off;
-		Blend SrcAlpha OneMinusSrcAlpha;
-
-		GLSLPROGRAM
-
-		#stage vertex
-		#include "builtin/include/suede.inc"
-
-		in vec3 _Pos;
-		in vec3 _Normal;
-
-		void main() {
-			mat3 m3 = transpose(inverse(mat3(_LocalToWorldMatrix)));
-			vec3 normal = m3 * _Normal;
-			normal.xy = mat2(_WorldToClipMatrix) * normal.xy;
-			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
-		}
-
-		#stage fragment
-		out vec4 fragColor;
-		
-		uniform vec4 outlineColor;
-		void main() {
-			fragColor = outlineColor;
 		}
 
 		ENDGLSL
