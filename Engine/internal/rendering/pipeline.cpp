@@ -284,8 +284,11 @@ void Pipeline::UpdateState(Renderable& renderable) {
 		++nmaterialChanges_;
 	}
 	else if (oldPass_ != renderable.pass) {
-		renderable.material->Bind(renderable.pass);
+		oldMaterial_->Unbind();
 		oldPass_ = renderable.pass;
+
+		renderable.material->Bind(renderable.pass);
+
 		++nmaterialChanges_;
 	}
 

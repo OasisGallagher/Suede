@@ -19,8 +19,8 @@ $Property
 	: int $Identifier $IntegerInitializer ;		$$ = make("Int", $3, $2)
 	| float $Identifier $SingleInitializer ;	$$ = make("Single", $3, $2)
 	| color3 $Identifier $Vec3Initializer ;		$$ = make("Color3", $3, $2)
-	| vec3 $Identifier $Vec3Initializer ;		$$ = make("Vec3", $3, $2)
 	| color4 $Identifier $Vec4Initializer ;		$$ = make("Color4", $3, $2)
+	| vec3 $Identifier $Vec3Initializer ;		$$ = make("Vec3", $3, $2)
 	| vec4 $Identifier $Vec4Initializer ;		$$ = make("Vec4", $3, $2)
 	| tex2 $Identifier $IVec3Initializer ;		$$ = make("Tex2", $3, $2)
 	| mat3 $Identifier ;						$$ = make("Mat3", $2)
@@ -34,6 +34,10 @@ $SingleInitializer
 	: epsilon		$$ = $0
 	| = $Integer	$$ = $1
 	| = $Single		$$ = $1
+	
+$Vec2Initializer
+	: epsilon			$$ = $0
+	| = { $Number2 }	$$ = $2
 
 $Vec3Initializer
 	: epsilon			$$ = $0
@@ -57,6 +61,11 @@ $Number
 	: $Integer						$$ = $1
 	| $Single						$$ = $1
 
+$Number2
+	: epsilon						$$ = $0
+	| $Number						$$ = make("Singles3", $1, $0, $0)
+	| $Number , $Number				$$ = make("Singles3", $3, $1, $0)
+	
 $Number3
 	: epsilon						$$ = $0
 	| $Number						$$ = make("Singles3", $1, $0, $0)

@@ -218,32 +218,28 @@ void ShaderParser::ReadSingle(SyntaxNode* node, Property* property) {
 	property->value.SetFloat(String::ToFloat(node->GetChildAt(1)->ToString()));
 }
 
+void ShaderParser::ReadSingle2(glm::vec2& value, SyntaxNode* node) {
+	ReadSingles(node, (float*)&value, 2);
+}
+
 void ShaderParser::ReadSingle3(glm::vec3& value, SyntaxNode* node) {
-	SyntaxNode* c1 = node->GetChildAt(1);
-	if (c1 == nullptr) { return; }
-	float* ptr = &value.x;
-	for (int i = 0; i < 3 && c1->GetChildAt(i) != nullptr; ++i) {
-		*ptr++ = String::ToFloat(c1->GetChildAt(i)->ToString());
-	}
+	ReadSingles(node, (float*)&value, 3);
 }
 
 void ShaderParser::ReadSingle4(glm::vec4& value, SyntaxNode* node) {
+	ReadSingles(node, (float*)&value, 4);
+}
+
+void ShaderParser::ReadSingles(SyntaxNode* node, float* ptr, int count) {
 	SyntaxNode* c1 = node->GetChildAt(1);
 	if (c1 == nullptr) { return; }
-	float* ptr = &value.x;
-	for (int i = 0; i < 4 && c1->GetChildAt(i) != nullptr; ++i) {
+	for (int i = 0; i < count && c1->GetChildAt(i) != nullptr; ++i) {
 		*ptr++ = String::ToFloat(c1->GetChildAt(i)->ToString());
 	}
 }
 
 void ShaderParser::ReadInteger(SyntaxNode* node, Property* property) {
 	property->value.SetInt(String::ToInteger(node->GetChildAt(1)->ToString()));
-}
-
-void ShaderParser::ReadInteger3(SyntaxNode* node, Property* property) {
-	glm::ivec3 value;
-	ReadInteger3(value, node);
-	property->value.SetIVector3(value);
 }
 
 void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
@@ -325,7 +321,6 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	}
 	else if (ns == "Color4") {
 		ReadColor4(node, property);
-
 	}
 	else if (ns == "Tex2") {
 		ReadTex2(node, property);

@@ -21,9 +21,11 @@ private:
 	QWidget* drawIntField(uint materialIndex, const QString& name, int value);
 	QWidget* drawFloatField(uint materialIndex, const QString& name, float value);
 	QWidget* drawTextureField(uint materialIndex, const QString& name, Texture value);
-	QWidget* drawColorField(uint materialIndex, const QString& name, VariantType type, const void* value);
+	
 	QWidget* drawColor3Field(uint materialIndex, const QString& name, const glm::vec3& value);
 	QWidget* drawColor4Field(uint materialIndex, const QString& name, const glm::vec4& value);
+	QWidget* drawColorField(uint materialIndex, const QString& name, VariantType type, const void* value);
+
 	QWidget* drawVec3Field(uint materialIndex, const QString& name, const glm::vec3& value);
 	QWidget* drawVec4Field(uint materialIndex, const QString& name, const glm::vec4& value);
 

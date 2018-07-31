@@ -37,12 +37,12 @@
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
 //#define MAN
-//#define PARTICLE_SYSTEM
+#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "suzanne.fbx";
+static const char* roomFbxPath = "room.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 

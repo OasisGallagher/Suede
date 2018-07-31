@@ -86,6 +86,7 @@ private:
 		glm::mat3 mat3Value;
 		glm::mat4 mat4Value;
 		glm::ivec3 ivec3Value;
+		glm::vec2 vec2Value;
 		glm::vec3 vec3Value;
 		glm::vec4 vec4Value;
 		glm::quat quatValue;

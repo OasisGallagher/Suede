@@ -10,7 +10,7 @@
 #include "widgets/fields/rectfield.h"
 #include "widgets/fields/colorfield.h"
 #include "widgets/fields/floatfield.h"
-#include "widgets/fields/floatslider.h"
+#include "widgets/fields/rangefield.h"
 
 namespace Constants {
 	static uint minFieldOfView = 0;
@@ -24,14 +24,14 @@ namespace Literals {
 }
 
 CameraInspector::CameraInspector(Object object) : CustomInspector("Camera", object) {
-	FloatSlider* slider = new FloatSlider(this);
+	RangeField* slider = new RangeField(this);
 	Camera camera = suede_dynamic_cast<Camera>(object);
 
 	slider->setObjectName(Literals::cameraFovSlider);
 	slider->setRange(Constants::minFieldOfView, Constants::maxFieldOfView);
 	slider->setValue(Math::Degrees(camera->GetFieldOfView()));
 
-	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
+	connect(slider, SIGNAL(valueChanged(float)), this, SLOT(onSliderValueChanged(float)));
 
 	form_->addRow(formatRowName("Fov"), slider);
 
@@ -65,11 +65,12 @@ void CameraInspector::onClearColorChanged(const QColor& color) {
 	suede_dynamic_cast<Camera>(target_)->SetClearColor(glm::vec3(color.red(), color.blue(), color.green()) / 255.f);
 }
 
-void CameraInspector::onSliderValueChanged(const QString& name, float value) {
-	if (name == Literals::cameraFovSlider) {
+void CameraInspector::onSliderValueChanged(float value) {
+	RangeField* field = (RangeField*)sender();
+	if (field->objectName() == Literals::cameraFovSlider) {
 		suede_dynamic_cast<Camera>(target_)->SetFieldOfView(Math::Radians(float(value)));
 	}
-	else if (name == Literals::cameraFovSlider2) {
+	else if (field->objectName() == Literals::cameraFovSlider2) {
 		suede_dynamic_cast<Camera>(target_)->SetOrthographicSize(value);
 	}
 }

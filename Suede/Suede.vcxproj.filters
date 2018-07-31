@@ -162,12 +162,6 @@
     <ClCompile Include="main\main.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_floatslider.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_floatslider.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_labeltexture.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
@@ -348,9 +342,6 @@
     <ClCompile Include="widgets\fields\floatfield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>
-    <ClCompile Include="widgets\fields\floatslider.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
     <ClCompile Include="widgets\fields\maskfield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>
@@ -444,6 +435,24 @@
     <ClCompile Include="main\prefs.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\fields\intfield.cpp">
+      <Filter>widgets\fields\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_intfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_intfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rangefield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_rangefield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\fields\rangefield.cpp">
+      <Filter>widgets\fields\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ui\suede.ui">
@@ -521,9 +530,6 @@
     <CustomBuild Include="widgets\fields\filetreefield.h">
       <Filter>widgets\fields\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="widgets\fields\floatslider.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="widgets\fields\vec3field.h">
       <Filter>widgets\fields\include</Filter>
     </CustomBuild>
@@ -553,6 +559,12 @@
     </CustomBuild>
     <CustomBuild Include="widgets\dialogs\preferences.h">
       <Filter>widgets\dialogs\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\intfield.h">
+      <Filter>widgets\fields\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\rangefield.h">
+      <Filter>widgets\fields\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

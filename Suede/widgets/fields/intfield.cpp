@@ -1,21 +1,21 @@
-#include "floatfield.h"
+#include "intfield.h"
 
 #include <QMouseEvent>
 #include <QDoubleValidator>
 
 #include "tools/math2.h"
 
-FloatField::FloatField(QWidget* parent, uint precision)
+IntField::IntField(QWidget* parent)
 	: QLineEdit(parent)
-	, dragging_(false), step_(1), value_(0), precision_(precision), min_(-FLT_MAX), max_(FLT_MAX) {
+	, dragging_(false), step_(1), value_(0), min_(INT_MIN), max_(INT_MAX) {
 	updateText();
 
 	setMouseTracking(true);
 	connect(this, SIGNAL(editingFinished()), this, SLOT(onEditingFinished()));
 }
 
-void FloatField::setValue(float value) {
-	if (!Math::Approximately(value_, value)) {
+void IntField::setValue(int value) {
+	if (value != value_) {
 		value_ = Math::Clamp(value, min_, max_);
 
 		blockSignals(true);
@@ -24,25 +24,12 @@ void FloatField::setValue(float value) {
 	}
 }
 
-void FloatField::setPrecision(uint value) {
-	if (!Math::Approximately(precision_, value_)) {
-		precision_ = value;
-		updateText();
-	}
-}
-
-void FloatField::updateText() {
-	QString text = QString::number(value_, 'f', precision_);
-	int i = text.length() - 1;
-	for (; text[i] != '.' && text[i] == '0'; --i)
-		;
-	text = text.left(i + int(text[i] != '.'));
-
-	setText(text);
+void IntField::updateText() {
+	setText(QString::number(value_));
 	emit valueChanged(value_);
 }
 
-void FloatField::mouseMoveEvent(QMouseEvent* e) {
+void IntField::mouseMoveEvent(QMouseEvent* e) {
 	if (dragging_) {
 		float delta = (e->pos() - pos_).x();
 		value_ += step_ * delta;
@@ -54,7 +41,7 @@ void FloatField::mouseMoveEvent(QMouseEvent* e) {
 	QLineEdit::mouseMoveEvent(e);
 }
 
-void FloatField::mousePressEvent(QMouseEvent* e) {
+void IntField::mousePressEvent(QMouseEvent* e) {
 	if (e->button() & Qt::MiddleButton) {
 		dragging_ = true;
 		pos_ = e->pos();
@@ -64,16 +51,16 @@ void FloatField::mousePressEvent(QMouseEvent* e) {
 	QLineEdit::mousePressEvent(e);
 }
 
-void FloatField::mouseReleaseEvent(QMouseEvent* e) {
+void IntField::mouseReleaseEvent(QMouseEvent* e) {
 	if (e->button() & Qt::MiddleButton) {
 		dragging_ = false;
 		setCursor(Qt::ArrowCursor);
 	}
 }
 
-void FloatField::onEditingFinished() {
+void IntField::onEditingFinished() {
 	bool ok = false;
-	float f = text().toFloat(&ok);
+	int f = text().toInt(&ok);
 	if (ok) {
 		value_ = Math::Clamp(f, min_, max_);
 	}

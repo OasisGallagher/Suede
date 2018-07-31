@@ -13,7 +13,12 @@
 #include "resources.h"
 #include "rendererinspector.h"
 
+#include "widgets/fields/intfield.h"
+#include "widgets/fields/vec3field.h"
+#include "widgets/fields/vec4field.h"
+#include "widgets/fields/rangefield.h"
 #include "widgets/fields/colorfield.h"
+#include "widgets/fields/floatfield.h"
 #include "widgets/fields/texturefield.h"
 
 #include "widgets/fields/filetreefield.h"
@@ -220,23 +225,19 @@ bool RendererInspector::isPropertyVisible(const QString& name) {
 }
 
 QWidget* RendererInspector::drawIntField(uint materialIndex, const QString& name, int value) {
-	QLineEdit* line = new QLineEdit(QString::number(value));
-	line->setValidator(new QIntValidator(line));
-
-	line->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeInt)));
-	connect(line, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	return line;
+	IntField* field = new IntField(this);
+	field->setValue(value);
+	field->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeInt)));
+	connect(field, SIGNAL(valueChanged(int)), this, SLOT(onEditProperty()));
+	return field;
 }
 
 QWidget* RendererInspector::drawFloatField(uint materialIndex, const QString& name, float value) {
-	QLineEdit* line = new QLineEdit(QString::number(value));
-	line->setValidator(new QDoubleValidator(line));
-
-	line->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeFloat)));
-	connect(line, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	return line;
+	FloatField* field = new FloatField(this);
+	field->setValue(value);
+	field->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeFloat)));
+	connect(field, SIGNAL(valueChanged(float)), this, SLOT(onEditProperty()));
+	return field;
 }
 
 QWidget* RendererInspector::drawTextureField(uint materialIndex, const QString& name, Texture value) {
@@ -246,6 +247,14 @@ QWidget* RendererInspector::drawTextureField(uint materialIndex, const QString& 
 	field->setData(QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeTexture)));
 	connect(field, SIGNAL(currentTextureChanged(Texture)), this, SLOT(onCurrentTextureChanged(Texture)));
 	return field;
+}
+
+QWidget* RendererInspector::drawColor3Field(uint materialIndex, const QString& name, const glm::vec3& value) {
+	return drawColorField(materialIndex, name, VariantTypeColor3, &value);
+}
+
+QWidget* RendererInspector::drawColor4Field(uint materialIndex, const QString& name, const glm::vec4& value) {
+	return drawColorField(materialIndex, name, VariantTypeColor4, &value);
 }
 
 QWidget* RendererInspector::drawColorField(uint materialIndex, const QString& name, VariantType type, const void* value) {
@@ -258,89 +267,32 @@ QWidget* RendererInspector::drawColorField(uint materialIndex, const QString& na
 	else {
 		field->setValue(*(const glm::vec4*)value);
 	}
+
 	connect(field, SIGNAL(valueChanged(const QColor&)), this, SLOT(onCurrentColorChanged(const QColor&)));
 
 	return field;
 }
 
-QWidget* RendererInspector::drawColor3Field(uint materialIndex, const QString& name, const glm::vec3& value) {
-	return drawColorField(materialIndex, name, VariantTypeColor3, &value);
-}
-
-QWidget* RendererInspector::drawColor4Field(uint materialIndex, const QString& name, const glm::vec4& value) {
-	return drawColorField(materialIndex, name, VariantTypeColor4, &value);
-}
-
 QWidget* RendererInspector::drawVec3Field(uint materialIndex, const QString& name, const glm::vec3& value) {
-	QWidget* widget = new QWidget;
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	layout->setContentsMargins(0, 1, 0, 1);
-
-	widget->setLayout(layout);
-
-	QLineEdit* x = new QLineEdit(QString::number(value.x), widget);
-	QLineEdit* y = new QLineEdit(QString::number(value.y), widget);
-	QLineEdit* z = new QLineEdit(QString::number(value.z), widget);
-
-	QValidator* validator = new QDoubleValidator(widget);
-	x->setValidator(validator);
-	y->setValidator(validator);
-	z->setValidator(validator);
+	Vec3Field* field = new Vec3Field(this);
+	field->setValue(value);
+	connect(field, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onEditProperty()));
 
 	QVariant variant = QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeVector3));
-	x->setProperty(USER_PROPERTY, variant);
-	connect(x, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
+	field->setProperty(USER_PROPERTY, variant);
 
-	y->setProperty(USER_PROPERTY, variant);
-	connect(y, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	z->setProperty(USER_PROPERTY, variant);
-	connect(z, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	layout->addWidget(x);
-	layout->addWidget(y);
-	layout->addWidget(z);
-
-	return widget;
+	return field;
 }
 
 QWidget* RendererInspector::drawVec4Field(uint materialIndex, const QString& name, const glm::vec4& value) {
-	QWidget* widget = new QWidget;
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	layout->setContentsMargins(0, 1, 0, 1);
-
-	widget->setLayout(layout);
-
-	QLineEdit* x = new QLineEdit(QString::number(value.x), widget);
-	QLineEdit* y = new QLineEdit(QString::number(value.y), widget);
-	QLineEdit* z = new QLineEdit(QString::number(value.z), widget);
-	QLineEdit* w = new QLineEdit(QString::number(value.w), widget);
-
-	QValidator* validator = new QDoubleValidator(widget);
-	x->setValidator(validator);
-	y->setValidator(validator);
-	z->setValidator(validator);
-	w->setValidator(validator);
+	Vec4Field* field = new Vec4Field(this);
+	field->setValue(value);
+	connect(field, SIGNAL(valueChanged(const glm::vec4&)), this, SLOT(onEditProperty()));
 
 	QVariant variant = QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeVector4));
-	x->setProperty(USER_PROPERTY, variant);
-	connect(x, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
+	field->setProperty(USER_PROPERTY, variant);
 
-	y->setProperty(USER_PROPERTY, variant);
-	connect(y, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	z->setProperty(USER_PROPERTY, variant);
-	connect(z, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	w->setProperty(USER_PROPERTY, variant);
-	connect(w, SIGNAL(editingFinished()), this, SLOT(onEditProperty()));
-
-	layout->addWidget(x);
-	layout->addWidget(y);
-	layout->addWidget(z);
-	layout->addWidget(w);
-
-	return widget;
+	return field;
 }
 
 void RendererInspector::onEditProperty() {
@@ -349,10 +301,10 @@ void RendererInspector::onEditProperty() {
 
 	switch (prop.type) {
 		case VariantTypeInt:
-			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex)->SetInt(prop.name.toStdString(), ((QLineEdit*)sender())->text().toInt());
+			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex)->SetInt(prop.name.toStdString(), ((IntField*)sender())->value());
 			break;
 		case VariantTypeFloat:
-			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex)->SetFloat(prop.name.toStdString(), ((QLineEdit*)sender())->text().toFloat());
+			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex)->SetFloat(prop.name.toStdString(), ((FloatField*)sender())->value());
 			break;
 		case VariantTypeVector3:
 			break;

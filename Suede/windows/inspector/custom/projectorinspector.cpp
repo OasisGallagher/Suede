@@ -1,7 +1,7 @@
 #include <QGroupBox>
 
 #include "tools/math2.h"
-#include "widgets/fields/floatslider.h"
+#include "widgets/fields/rangefield.h"
 
 #include "projector.h"
 #include "projectorinspector.h"
@@ -20,7 +20,7 @@ namespace Literals {
 }
 
 ProjectorInspector::ProjectorInspector(Object object) : CustomInspector("Projector", object) {
-	FloatSlider* slider = new FloatSlider(this);
+	RangeField* slider = new RangeField(this);
 
 	Projector projector = suede_dynamic_cast<Projector>(target_);
 

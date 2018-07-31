@@ -5,14 +5,14 @@ class FloatField : public QLineEdit {
 	Q_OBJECT
 
 public:
-	FloatField(QWidget* parent);
+	FloatField(QWidget* parent, uint precision = 5);
 
 public:
 	float value() const { return value_; }
 	void setValue(float value);
 
 	uint precision() const { return precision_; }
-	void setPrecision(uint value) { precision_ = value; }
+	void setPrecision(uint value);
 
 	void setRange(float min, float max) { min_ = min, max_ = max; }
 
