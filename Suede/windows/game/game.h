@@ -10,6 +10,7 @@
 #include "entityloadedlistener.h"
 
 class Canvas;
+class StatsWidget;
 class ImageEffect;
 class CameraController;
 
@@ -37,6 +38,7 @@ public:
 // 	virtual void OnFrameLeave();
 
 private slots:
+	void onToggleStat(int state);
 	void onFocusEntityBounds(Entity entity);
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
@@ -57,11 +59,18 @@ private:
 	void createScene();
 	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
 
+	void updateStat();
+	void moveWidgets();
+
 private:
 	QList<Entity> selection_;
 	/*RenderTexture targetTexture_;*/
 
+	QTimer* timer_;
+
 	Canvas* canvas_;
+	StatsWidget* stat_;
+
 	ImageEffect* grayscale_;
 	ImageEffect* inversion_;
 	ImageEffect* gaussianBlur_;

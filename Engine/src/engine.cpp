@@ -54,8 +54,10 @@ void Engine::SetDefaultGLStates() {
 
 	GL::Enable(GL_CULL_FACE);
 	GL::CullFace(GL_BACK);
-	
+
 	GL::DepthMask(GL_TRUE);
+
+	GL::PolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 bool Engine::Initialize() {

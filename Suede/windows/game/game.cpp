@@ -1,9 +1,11 @@
 #include <QWidget>
+#include <QToolBar>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "canvas.h"
 #include "ui_suede.h"
 #include "widgets/status/status.h"
+#include "widgets/status/statswidget.h"
 
 #include "game.h"
 #include "font.h"
@@ -19,6 +21,7 @@
 #include "texture.h"
 #include "projector.h"
 #include "variables.h"
+#include "statistics.h"
 #include "tagmanager.h"
 #include "particlesystem.h"
 
@@ -46,7 +49,9 @@ static const char* roomFbxPath = "room.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
-Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr) {
+#define FPS_UPDATE_INTERVAL		800
+
+Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullptr) {
 	controller_ = new CameraController;
 }
 
@@ -69,9 +74,14 @@ Canvas* Game::canvas() {
 void Game::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
+	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
 	connect(Hierarchy::get(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
 	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
+
+	timer_ = new QTimer(this);
+	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStat()));
+	timer_->start(FPS_UPDATE_INTERVAL);
 }
 
 void Game::awake() {
@@ -189,6 +199,18 @@ void Game::updateSelection(QList<Entity>& container, const QList<Entity>& select
 	}
 }
 
+void Game::onToggleStat(int state) {
+	if (stat_ == nullptr) {
+		stat_ = new StatsWidget(ui_->gameView);
+	}
+
+	stat_->setVisible(!!state);
+	if (stat_->isVisible()) {
+		updateStat();
+		moveWidgets();
+	}
+}
+
 void Game::onFocusEntityBounds(Entity entity) {
 	Transform camera = Camera::GetMain()->GetTransform();
 	glm::vec3 position = entity->GetBounds().center;
@@ -209,6 +231,25 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
 	float dy = 2 * b.size.y / f;
 	float dx = 2 * b.size.x / (f * camera->GetAspect());
 	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + b.size.z * 2, camera->GetFarClipPlane() - b.size.z * 2);
+}
+
+void Game::moveWidgets() {
+	if (stat_ != nullptr) {
+		QPoint ppp = ui_->stat->pos();
+		QPoint pos = ui_->stat->mapTo(ui_->gameView, ppp);
+		//pos.setX(pos.x() - stat_->width());
+		//pos.setY(stat_->pos().y() + stat_->height());
+		stat_->move(pos);
+	}
+}
+
+void Game::updateStat() {
+	if (stat_ != nullptr && stat_->isVisible()) {
+		stat_->setStats(Statistics::get()->GetFrameRate(),
+			Statistics::get()->GetDrawcalls(),
+			Statistics::get()->GetTriangles()
+		);
+	}
 }
 
 uint roomEntityID;

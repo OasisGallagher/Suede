@@ -8,7 +8,7 @@ SubShader {
 		Queue = "Transparent";
 	}
 
-	Pass "Outline" true {
+	Pass "Outline" false {
 		Cull Front;
 		ZWrite Off;
 		Offset 100 100;
