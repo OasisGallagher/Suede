@@ -89,6 +89,6 @@ bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipM
 		return false;
 	}
 
-	glm::vec2 size(max.x - min.x, max.y - min.y);
+	glm::vec2 size(max - min);
 	return glm::dot(size, size) > MIN_NDC_RADIUS_SQUARED;
 }

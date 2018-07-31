@@ -887,6 +887,7 @@
 // Swizzle operators
 
 // User defines: GLM_SWIZZLE
+#define GLM_SWIZZLE
 
 #if defined(GLM_MESSAGES) && !defined(GLM_MESSAGE_SWIZZLE_DISPLAYED)
 #	define GLM_MESSAGE_SWIZZLE_DISPLAYED

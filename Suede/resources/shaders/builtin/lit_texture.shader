@@ -1,10 +1,11 @@
 Properties {
+	float outlineFactor = 0.05;
 	color3 outlineColor = { 0.98, 0.51, 0.04 };
 }
 
 SubShader {
 	Tags { 
-		Queue = "Geometry";
+		Queue = "Transparent";
 	}
 
 	Pass "Outline" true {
@@ -23,12 +24,13 @@ SubShader {
 		in vec3 _Pos;
 		in vec3 _Normal;
 
+		uniform float outlineFactor;
 		void main() {
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 
 			vec3 normal = transpose(inverse(mat3(_WorldToCameraMatrix * _LocalToWorldMatrix))) * _Normal;
 			vec2 offset = mat2(_CameraToClipMatrix) * normal.xy;
-			gl_Position.xy += offset * 0.05;
+			gl_Position.xy += offset * outlineFactor;
 		}
 
 		#stage fragment

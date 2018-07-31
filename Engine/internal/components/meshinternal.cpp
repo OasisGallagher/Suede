@@ -279,13 +279,13 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / -2.f, 0));
 		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / 2.f, 0));
 
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.x, info.texCoord.y));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.z, info.texCoord.y));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.x, info.texCoord.w));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.xy));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.zy));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.xw));
 
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.x, info.texCoord.w));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.z, info.texCoord.y));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.z, info.texCoord.w));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.xw));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.zy));
+		attribute.texCoords.push_back(glm::vec2(info.texCoord.zw));
 
 		x += info.width;
 		x += space;

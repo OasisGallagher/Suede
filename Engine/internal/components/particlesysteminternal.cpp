@@ -57,14 +57,13 @@ void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {
 	for (int i = 1; i < count; ++i) {
 		glm::vec4 ck = colors_[i];
 		glm::vec4 pk = geometries_[i];
-		glm::vec3 vk(ref.x - pk.x, ref.y - pk.y, ref.z - pk.z);
+		glm::vec3 vk(ref.xyz - pk.xyz);
 		float distSquared = glm::dot(vk, vk);
 
 		int j = i - 1;
 		for (; j >= 0; --j) {
 			const glm::vec4& current = geometries_[j];
-			glm::vec3 vc(ref.x - current.x, ref.y - current.y, ref.z - current.z);
-
+			glm::vec3 vc(ref.xyz - current.xyz);
 			if (glm::dot(vc, vc) >= distSquared) {
 				break;
 			}
