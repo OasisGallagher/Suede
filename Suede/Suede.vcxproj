@@ -424,7 +424,6 @@
     <ClCompile Include="widgets\dialogs\popupwidget.cpp" />
     <ClCompile Include="widgets\dialogs\preferences.cpp" />
     <ClCompile Include="widgets\fields\colorfield.cpp" />
-    <ClCompile Include="widgets\fields\enumfield.cpp" />
     <ClCompile Include="widgets\fields\filetreefield.cpp" />
     <ClCompile Include="widgets\fields\floatfield.cpp" />
     <ClCompile Include="widgets\fields\rangefield.cpp" />

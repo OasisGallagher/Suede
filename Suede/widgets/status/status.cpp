@@ -6,7 +6,7 @@
 #include "debug/debug.h"
 
 Status* statusInstance;
-Status* Status::get() {
+Status* Status::instance() {
 	return statusInstance;
 }
 

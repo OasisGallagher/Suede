@@ -1,6 +1,6 @@
 #include "mesh.h"
-#include "api/gl.h"
 #include "renderer.h"
+#include "../api/gl.h"
 #include "particlesystem.h"
 #include "componentinternal.h"
 

@@ -33,6 +33,9 @@ QtViewer::~QtViewer() {
 
 void QtViewer::Update() {
 	GraphicsViewer::Update();
+
+	suede_->tick();
+
 	app_.processEvents();
 }
 
@@ -41,7 +44,7 @@ QList<QString> QtViewer::builtinSkinNames() {
 }
 
 QString QtViewer::skinName() {
-	return Prefs::get()->load("skin").toString();
+	return Prefs::instance()->load("skin").toString();
 }
 
 bool QtViewer::setSkin(const QString& name) {
@@ -60,7 +63,7 @@ bool QtViewer::setSkin(const QString& name) {
 	}
 
 	qApp->setStyleSheet(qss);
-	Prefs::get()->save("skin", name);
+	Prefs::instance()->save("skin", name);
 
 	return true;
 }
@@ -76,7 +79,7 @@ void QtViewer::setupSuede() {
 	suede_ = new Suede();
 	connect(suede_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseSuede()));
 
-	Canvas* c = Game::get()->canvas();
+	Canvas* c = Game::instance()->canvas();
 	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
 
 	SetCanvas(c);

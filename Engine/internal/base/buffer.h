@@ -1,5 +1,5 @@
 #pragma once
-#include "api/gl.h"
+#include "../api/gl.h"
 
 class Buffer {
 public:

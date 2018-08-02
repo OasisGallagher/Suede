@@ -25,6 +25,7 @@ public:
 
 public:
 	void awake();
+	void tick();
 
 public:
 	bool childWindowVisible(ChildWindowType index);

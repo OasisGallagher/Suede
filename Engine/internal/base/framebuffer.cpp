@@ -2,14 +2,14 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "framebuffer.h"
-#include "api/glutils.h"
 #include "memory/memory.h"
+#include "../api/glutils.h"
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
 
 FramebufferBase::FramebufferBase() : fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
-	viewport_ = glm::uvec4(0, 0, Screen::get()->GetWidth(), Screen::get()->GetHeight());
+	viewport_ = glm::uvec4(0, 0, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 }
 
 void FramebufferBase::BindRead() {
@@ -167,7 +167,7 @@ Framebuffer0* Framebuffer0::Get() {
 }
 
 Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRenderTextureCount_(0) {
-	viewport_ = glm::uvec4(0, 0, Screen::get()->GetWidth(), Screen::get()->GetHeight());
+	viewport_ = glm::uvec4(0, 0, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
 	GL::GenFramebuffers(1, &fbo_);
 

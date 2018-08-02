@@ -32,7 +32,6 @@ struct RenderingMatrices {
 };
 
 struct RenderingMaterials {
-	// TODO: Common material.
 	Material decal;
 	Material depth;
 };
@@ -102,6 +101,10 @@ private:
 private:
 	RenderingParameters* p_;
 	std::vector<Entity> entities_;
+
+	Sample* depthSample;
+	Sample* shadowSample;
+	Sample* renderingSample;
 };
 
 // TODO: multi-thread rendering.

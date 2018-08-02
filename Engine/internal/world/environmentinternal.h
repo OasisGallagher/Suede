@@ -1,7 +1,7 @@
 #include "material.h"
 #include "environment.h"
 
-class EnvironmentInternal : public IEnvironment {
+class EnvironmentInternal : public Environment {
 public:
 	EnvironmentInternal() : fogDensity_(0.0001f) {}
 

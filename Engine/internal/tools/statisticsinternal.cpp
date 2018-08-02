@@ -1,22 +1,21 @@
+#include "statisticsinternal.h"
+
 #include "time2.h"
-#include "statistics.h"
 
 #define lastFrameStats	stats_[0]
 #define thisFrameStats	stats_[1]
 #define FPS_REFRESH_TIME	0.2f
 
-Statistics::Statistics() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
-	Engine::get()->AddFrameEventListener(this);
+StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
+	Engine::instance()->AddFrameEventListener(this);
 }
 
-#include "debug/debug.h"
-
-void Statistics::OnFrameEnter() {
+void StatisticsInternal::OnFrameEnter() {
 	lastFrameStats = thisFrameStats;
 	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
 
 	if (timeCounter_ < FPS_REFRESH_TIME) {
-		timeCounter_ += Time::get()->GetDeltaTime();
+		timeCounter_ += Time::instance()->GetDeltaTime();
 		frameCounter_++;
 	}
 	else {
@@ -26,22 +25,22 @@ void Statistics::OnFrameEnter() {
 	}
 }
 
-void Statistics::AddTriangles(uint n) {
+void StatisticsInternal::AddTriangles(uint n) {
 	thisFrameStats.ntriangles += n;
 }
 
-void Statistics::AddDrawcalls(uint n) {
+void StatisticsInternal::AddDrawcalls(uint n) {
 	thisFrameStats.ndrawcalls += n;
 }
 
-uint Statistics::GetTriangles() {
+uint StatisticsInternal::GetTriangles() {
 	return lastFrameStats.ntriangles;
 }
 
-uint Statistics::GetDrawcalls() {
+uint StatisticsInternal::GetDrawcalls() {
 	return lastFrameStats.ndrawcalls;
 }
 
-float Statistics::GetFrameRate() {
+float StatisticsInternal::GetFrameRate() {
 	return frameRate_;
 }

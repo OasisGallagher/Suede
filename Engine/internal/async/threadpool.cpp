@@ -17,7 +17,7 @@ void Worker::run() {
 }
 
 ThreadPool::ThreadPool(int type) {
-	Engine::get()->AddFrameEventListener(this);
+	Engine::instance()->AddFrameEventListener(this);
 	CreateExecutor(type);
 }
 
@@ -41,7 +41,7 @@ void ThreadPool::CreateExecutor(int type) {
 }
 
 ThreadPool::~ThreadPool() {
-	Engine::get()->RemoveFrameEventListener(this);
+	Engine::instance()->RemoveFrameEventListener(this);
 
 	try {
 		executor_->interrupt();

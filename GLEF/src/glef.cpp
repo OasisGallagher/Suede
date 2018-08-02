@@ -12,7 +12,7 @@
 static Language language;
 const char* binary = "bin/GLEF.bin";
 
-void GLEF::Initialize() {
+GLEF::GLEF() {
 	time_t tp = FileSystem::GetFileLastWriteTime("bin/GLEF.dll");
 	time_t to = FileSystem::GetFileLastWriteTime(binary);
 

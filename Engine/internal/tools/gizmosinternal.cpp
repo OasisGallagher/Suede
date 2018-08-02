@@ -1,41 +1,38 @@
-#include <vector>
+#include "gizmosinternal.h"
 
-#include "mesh.h"
-#include "gizmos.h"
-#include "material.h"
 #include "graphics.h"
-#include "resources.h"
 #include "variables.h"
+#include "resources.h"
 #include "tools/math2.h"
 #include "geometryutility.h"
 
-Gizmos::Gizmos() : color_(0, 1, 0) {
+GizmosInternal::GizmosInternal() : color_(0, 1, 0) {
 	mesh_ = NewMesh();
 
 	material_ = NewMaterial();
-	material_->SetShader(Resources::get()->FindShader("builtin/gizmos"));
+	material_->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
 	material_->SetColor4(Variables::MainColor, glm::vec4(color_, 1));
 }
 
-Gizmos::Batch& Gizmos::GetBatch() {
+GizmosBatch& GizmosInternal::GetBatch() {
 	if (batches_.empty() || batches_.back().color != color_) {
-		Batch b = { color_ };
+		GizmosBatch b = { color_ };
 		batches_.push_back(b);
 	}
 
 	return batches_.back();
 }
 
-glm::vec3 Gizmos::GetColor() {
+glm::vec3 GizmosInternal::GetColor() {
 	return color_;
 }
 
-void Gizmos::SetColor(const glm::vec3& value) {
+void GizmosInternal::SetColor(const glm::vec3& value) {
 	color_ = value;
 }
 
-void Gizmos::DrawLines(const glm::vec3* points, uint npoints) {
-	Batch& b = GetBatch();
+void GizmosInternal::DrawLines(const glm::vec3* points, uint npoints) {
+	GizmosBatch& b = GetBatch();
 
 	uint base = b.points.size();
 	b.points.insert(b.points.end(), points, points + npoints);
@@ -44,8 +41,8 @@ void Gizmos::DrawLines(const glm::vec3* points, uint npoints) {
 	}
 }
 
-void Gizmos::DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes) {
-	Batch& b = GetBatch();
+void GizmosInternal::DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes) {
+	GizmosBatch& b = GetBatch();
 
 	uint base = b.points.size();
 	b.points.insert(b.points.end(), points, points + npoints);
@@ -55,7 +52,7 @@ void Gizmos::DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uin
 	}
 }
 
-void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
+void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetCuboidCoordinates(points, center, size);
 
@@ -68,9 +65,9 @@ void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
 	DrawLines(&points[0], points.size(), indexes, CountOf(indexes));
 }
 
-void Gizmos::Flush() {
+void GizmosInternal::Flush() {
 	for (uint i = 0; i < batches_.size(); ++i) {
-		const Batch& b = batches_[i];
+		const GizmosBatch& b = batches_[i];
 		MeshAttribute attribute;
 		attribute.topology = MeshTopology::Lines;
 
@@ -87,7 +84,7 @@ void Gizmos::Flush() {
 		mesh_->GetSubMesh(0)->SetTriangleBias(bias);
 
 		material_->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
-		Graphics::Draw(mesh_, material_);
+		Graphics::instance()->Draw(mesh_, material_);
 	}
 
 	batches_.clear();

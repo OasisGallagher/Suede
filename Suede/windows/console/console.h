@@ -1,5 +1,6 @@
 #pragma once
 #include <QMap>
+#include <QMutex>
 #include <QDockWidget>
 #include <QTableWidget>
 
@@ -20,6 +21,8 @@ public:
 
 public:
 	virtual void init(Ui::Suede* ui);
+	virtual void tick();
+
 
 public:
 	void addMessage(ConsoleMessageType type, const QString& message);
@@ -33,13 +36,18 @@ private:
 	void filterMessageByType(int mask);
 	void filterMessageBySubString(const QString& substr);
 
+	void showMessage(const QString& encodedMessage);
 	void showMessage(ConsoleMessageType type, const QString &message);
+	void flushMessages();
 
 	const char* messageIconPath(ConsoleMessageType type);
 
 private:
 	uint mask_;
 	QString substr_;
+
+	QMutex mutex_;
 	QList<QString> messages_;
+	QList<QString> messagesToShow_;
 };
 

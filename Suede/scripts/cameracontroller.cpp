@@ -113,7 +113,7 @@ extern uint roomEntityID;
 #include "world.h"
 
 void CameraController::rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos) {
-	Entity selected = World::get()->GetEntity(roomEntityID);
+	Entity selected = World::instance()->GetEntity(roomEntityID);
 
 	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
 		return;

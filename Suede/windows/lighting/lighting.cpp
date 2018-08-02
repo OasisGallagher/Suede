@@ -17,20 +17,20 @@ Lighting::Lighting(QWidget* parent)
 }
 
 void Lighting::showEvent(QShowEvent* event) {
-	ui_->ambient->setValue(World::get()->GetEnvironment()->GetAmbientColor());
+	ui_->ambient->setValue(Environment::instance()->GetAmbientColor());
 
-	ui_->fogColor->setValue(World::get()->GetEnvironment()->GetFogColor());
-	ui_->fogDensity->setValue(World::get()->GetEnvironment()->GetFogDensity());
+	ui_->fogColor->setValue(Environment::instance()->GetFogColor());
+	ui_->fogDensity->setValue(Environment::instance()->GetFogDensity());
 }
 
 void Lighting::onAmbientChanged(const QColor& color) {
-	World::get()->GetEnvironment()->SetAmbientColor(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
+	Environment::instance()->SetAmbientColor(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
 }
 
 void Lighting::onFogColorChanged(const QColor& color) {
-	World::get()->GetEnvironment()->SetFogColor(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
+	Environment::instance()->SetFogColor(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
 }
 
 void Lighting::onFogDensityChanged(float density) {
-	World::get()->GetEnvironment()->SetFogDensity(density);
+	Environment::instance()->SetFogDensity(density);
 }

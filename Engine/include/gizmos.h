@@ -4,38 +4,15 @@
 #include "types.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Gizmos : public Singleton<Gizmos> {
-	friend class Singleton<Gizmos>;
-
+class SUEDE_API Gizmos : public Singleton2<Gizmos> {
 public:
-	glm::vec3 GetColor();
-	void SetColor(const glm::vec3& value);
+	virtual void Flush() = 0;
 
-	void DrawLines(const glm::vec3* points, uint npoints);
-	void DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes);
+	virtual glm::vec3 GetColor() = 0;
+	virtual void SetColor(const glm::vec3& value) = 0;
 
-	void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
+	virtual void DrawLines(const glm::vec3* points, uint npoints) = 0;
+	virtual void DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes) = 0;
 
-public:
-	void Flush();
-
-private:
-	Gizmos();
-
-private:
-	struct Batch {
-		glm::vec3 color;
-		std::vector<uint> indexes;
-		std::vector<glm::vec3> points;
-	};
-
-private:
-	Batch& GetBatch();
-
-private:
-	Mesh mesh_;
-	Material material_;
-
-	glm::vec3 color_;
-	std::vector<Batch> batches_;
+	virtual void DrawCuboid(const glm::vec3& center, const glm::vec3& size) = 0;
 };

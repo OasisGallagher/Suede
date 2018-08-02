@@ -1,20 +1,26 @@
-#include "resources.h"
+#include "resourcesinternal.h"
+
 #include "tools/math2.h"
 #include "os/filesystem.h"
 
-void Resources::Import() {
+ResourcesInternal::ResourcesInternal() {
+	ImportBuiltinResources();
+	Import();
+}
+
+void ResourcesInternal::Import() {
 	ImportShaderResources();
 	ImportTextureResources();
 }
 
-Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) {
+Mesh ResourcesInternal::CreatePrimitive(PrimitiveType type, float scale) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 
 	return CreateMesh(attribute);
 }
 
-Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+Mesh ResourcesInternal::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 	attribute.color = color;
@@ -23,18 +29,18 @@ Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const 
 	return CreateMesh(attribute);
 }
 
-void Resources::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) {
+void ResourcesInternal::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) {
 	switch (type) {
-	case PrimitiveTypeQuad:
-		GetQuadMeshAttribute(attribute, scale);
-		break;
-	case PrimitiveTypeCube:
-		GetCubeMeshAttribute(attribute, scale);
-		break;
+		case PrimitiveTypeQuad:
+			GetQuadMeshAttribute(attribute, scale);
+			break;
+		case PrimitiveTypeCube:
+			GetCubeMeshAttribute(attribute, scale);
+			break;
 	}
 }
 
-Shader Resources::FindShader(const std::string& path) {
+Shader ResourcesInternal::FindShader(const std::string& path) {
 	ShaderContainer::iterator ite = shaders_.find(path);
 	if (ite != shaders_.end()) {
 		return ite->second;
@@ -49,11 +55,11 @@ Shader Resources::FindShader(const std::string& path) {
 	return nullptr;
 }
 
-Texture Resources::FindTexture(const std::string& path) {
+Texture ResourcesInternal::FindTexture(const std::string& path) {
 	return nullptr;
 }
 
-Material Resources::FindMaterial(const std::string& name) {
+Material ResourcesInternal::FindMaterial(const std::string& name) {
 	MaterialContainer::iterator ite = materials_.find(name);
 	if (ite != materials_.end()) {
 		return ite->second;
@@ -62,7 +68,7 @@ Material Resources::FindMaterial(const std::string& name) {
 	return nullptr;
 }
 
-void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
+void ResourcesInternal::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::TriangleStripe;
 
 	glm::vec3 vertices[] = {
@@ -87,7 +93,7 @@ void Resources::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 }
 
-void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
+void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::Triangles;
 
 	glm::vec3 vertices[] = {
@@ -123,17 +129,17 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	};
 	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
 
- 	glm::vec3 normals[] = {
- 		glm::vec3(0.333333f, 0.666667f, -0.666667f),
- 		glm::vec3(-0.816497f, 0.408248f, -0.408248f),
- 		glm::vec3(-0.333333f, 0.666667f, 0.666667f),
- 		glm::vec3(0.816497f, 0.408248f, 0.408248f),
- 		glm::vec3(0.666667f, -0.666667f, -0.333333f),
- 		glm::vec3(-0.408248f, -0.408248f, -0.816497f),
- 		glm::vec3(-0.666667f, -0.666667f, 0.333333f),
- 		glm::vec3(0.408248f, -0.408248f, 0.816497f)
- 	};
- 	attribute.normals.assign(normals, normals + CountOf(normals));
+	glm::vec3 normals[] = {
+		glm::vec3(0.333333f, 0.666667f, -0.666667f),
+		glm::vec3(-0.816497f, 0.408248f, -0.408248f),
+		glm::vec3(-0.333333f, 0.666667f, 0.666667f),
+		glm::vec3(0.816497f, 0.408248f, 0.408248f),
+		glm::vec3(0.666667f, -0.666667f, -0.333333f),
+		glm::vec3(-0.408248f, -0.408248f, -0.816497f),
+		glm::vec3(-0.666667f, -0.666667f, 0.333333f),
+		glm::vec3(0.408248f, -0.408248f, 0.816497f)
+	};
+	attribute.normals.assign(normals, normals + CountOf(normals));
 
 	glm::vec2 texCoords[] = {
 		glm::vec2(0.f, 1.f),
@@ -148,7 +154,7 @@ void Resources::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
 }
 
-Mesh Resources::CreateMesh(MeshAttribute &attribute) {
+Mesh ResourcesInternal::CreateMesh(MeshAttribute &attribute) {
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
 
@@ -160,13 +166,13 @@ Mesh Resources::CreateMesh(MeshAttribute &attribute) {
 	return mesh;
 }
 
-Texture2D Resources::CreateSolidTexture(uint color) {
+Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
 	texture->Load(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1, 4);
 	return texture;
 }
 
-void Resources::ImportBuiltinResources() {
+void ResourcesInternal::ImportBuiltinResources() {
 	whiteTexture_ = CreateSolidTexture(0xffffffff);
 	blackTexture_ = CreateSolidTexture(0xff000000);
 
@@ -175,8 +181,8 @@ void Resources::ImportBuiltinResources() {
 	}
 }
 
-void Resources::ImportShaderResources() {
+void ResourcesInternal::ImportShaderResources() {
 }
 
-void Resources::ImportTextureResources() {
+void ResourcesInternal::ImportTextureResources() {
 }

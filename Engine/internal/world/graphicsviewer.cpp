@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "graphicsviewer.h"
 #include "graphicscanvas.h"
+#include "engineinternal.h"
 
 enum {
 	ViewerStatusUninitialized,
@@ -14,7 +15,7 @@ GraphicsViewer::GraphicsViewer(int argc, char * argv[])
 }
 
 GraphicsViewer::~GraphicsViewer() {
-	Engine::get()->Release();
+	Engine::instance()->Release();
 }
 
 void GraphicsViewer::Run() {
@@ -23,7 +24,7 @@ void GraphicsViewer::Run() {
 			canvas_->MakeCurrent();
 
 			Update();
-			Engine::get()->Update();
+			Engine::instance()->Update();
 
 			canvas_->SwapBuffers();
 			canvas_->DoneCurrent();
@@ -32,17 +33,18 @@ void GraphicsViewer::Run() {
 }
 
 void GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
+	canvas_ = value;
+
 	if (status_ == ViewerStatusUninitialized) {
-		Engine::get()->Initialize();
+		Engine::implement(new EngineInternal);
+		Engine::instance()->Initialize(value->GetWidth(), value->GetHeight());
+
 		status_ = ViewerStatusRunning;
 	}
-
-	canvas_ = value;
-	Screen::get()->Set(value->GetWidth(), value->GetHeight());
 }
 
 void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
-	Screen::get()->Set(width, height);
+	Screen::instance()->Resize(width, height);
 }
 
 void GraphicsViewer::Close() {

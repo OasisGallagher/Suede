@@ -7,6 +7,7 @@ class WinBase {
 public:
 	virtual void init(Ui::Suede* ui) { ui_ = ui; }
 	virtual void awake() {}
+	virtual void tick() {}
 
 protected:
 	Ui::Suede* ui_;
@@ -23,7 +24,7 @@ public:
 	virtual ~WinSingleton() { instance_ = nullptr; }
 
 public:
-	static T* get() { return instance_; }
+	static T* instance() { return instance_; }
 
 private:
 	static T* instance_;

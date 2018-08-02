@@ -85,7 +85,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;SUEDE_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <DisableSpecificWarnings>4267;4091;4996;4251</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4267;4996;4251;4091</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>3rdparty\zthread-2.3.2\include</AdditionalIncludeDirectories>
     </ClCompile>
     <PostBuildEvent>

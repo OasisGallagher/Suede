@@ -1,5 +1,3 @@
-#include <stack>
-
 #include "debug.h"
 #include "stackwalker.h"
 
@@ -35,8 +33,8 @@ static StackTracer tracer;
 	VA_FORMAT(format, bufname); \
 	bufname[_L++] = '\n', bufname[_L] = 0
 
-void Debug::Initialize() {
-	tracer.LoadModules();
+bool Debug::Initialize() {
+	return !!tracer.LoadModules();
 }
 
 void Debug::SetLogReceiver(LogReceiver* value) {
@@ -65,9 +63,13 @@ void Debug::LogError(const char* format, ...) {
 	}
 }
 
+#define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
+
 void Debug::Output(const char* format, ...) {
-//	FORMAT_LINE_BUFFER(format, buffer);
-//	OutputDebugStringA(buffer);
+#ifndef SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
+	FORMAT_LINE_BUFFER(format, buffer);
+	OutputDebugStringA(buffer);
+#endif
 }
 
 void Debug::Break() {

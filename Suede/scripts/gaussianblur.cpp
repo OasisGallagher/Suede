@@ -3,7 +3,7 @@
 
 GaussianBlur::GaussianBlur() : amount_(5) {
 	material_ = NewMaterial();
-	material_->SetShader(Resources::get()->FindShader("gaussianblur"));
+	material_->SetShader(Resources::instance()->FindShader("gaussianblur"));
 }
 
 void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
@@ -20,11 +20,11 @@ void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Re
 
 	for (int i = 0; i < amount_; ++i) {
 		material_->SetBool("horizontal", horizontal != 0);
-		Graphics::Blit(src, buffers[horizontal], material_, normalizedRect);
+		Graphics::instance()->Blit(src, buffers[horizontal], material_, normalizedRect);
 
 		src = buffers[horizontal];
 		horizontal = 1 - horizontal;
 	}
 
-	Graphics::Blit(buffers[1 - horizontal], dest, normalizedRect);
+	Graphics::instance()->Blit(buffers[1 - horizontal], dest, normalizedRect);
 }

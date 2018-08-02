@@ -17,14 +17,13 @@
 class Sample;
 class EntityLoaderThreadPool;
 
-class WorldInternal : public ObjectInternal, public IWorld, public ScreenSizeChangedListener, public WorldEventListener {
-	DEFINE_FACTORY_METHOD(World)
-
+class WorldInternal : public World, public ScreenSizeChangedListener, public WorldEventListener {
 public:
 	WorldInternal();
 	~WorldInternal();
 
 public:
+	virtual void Initialize();
 	virtual void Update();
 	virtual void Destroy();
 
@@ -47,8 +46,6 @@ public:
 	virtual void RemoveEventListener(WorldEventListener* listener);
 
 	virtual void GetDecals(std::vector<Decal*>& container);
-
-	virtual Environment GetEnvironment() { return environment_; }
 
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height);
@@ -114,8 +111,4 @@ private:
 
 	ZThread::Mutex hierarchyMutex_;
 	ZThread::Mutex eventContainerMutex_;
-
-	Sample *update_entities, *update_decals, *update_rendering;
-
-	Environment environment_;
 };

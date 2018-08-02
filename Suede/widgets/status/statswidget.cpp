@@ -1,5 +1,7 @@
 #include "statswidget.h"
 
+#include <QPainter>
+
 StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 	ui.setupUi(this);
 	setStyleSheet("#" + objectName() + "{ border: 1px solid gray }");

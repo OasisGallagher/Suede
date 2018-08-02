@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 
 #include "world.h"
+#include "profiler.h"
 #include "../winbase.h"
 
 class CustomInspector;
@@ -14,9 +15,12 @@ class Inspector : public QDockWidget, public WinSingleton<Inspector>, public Wor
 
 public:
 	Inspector(QWidget* parent);
+	~Inspector();
 
 public:
 	virtual void init(Ui::Suede* ui);
+
+public:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private slots:
@@ -50,4 +54,3 @@ private:
 	Entity target_;
 	QList<CustomInspector*> inspectors_;
 };
-

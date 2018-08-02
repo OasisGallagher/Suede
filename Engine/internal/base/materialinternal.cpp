@@ -6,7 +6,6 @@
 #include "renderdefines.h"
 #include "materialinternal.h"
 
-// TODO: reference world components?
 #include "internal/rendering/shadows.h"
 #include "internal/rendering/matrixbuffer.h"
 
@@ -14,7 +13,7 @@
 #define SUB_SHADER_INDEX	0
 
 MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectTypeMaterial), pass_(-1), name_(UNNAMED_MATERIAL) {
+	: ObjectInternal(ObjectTypeMaterial), currentPass_(-1), name_(UNNAMED_MATERIAL) {
 }
 
 MaterialInternal::~MaterialInternal() {
@@ -29,13 +28,6 @@ Object MaterialInternal::Clone() {
 }
 
 void MaterialInternal::SetShader(Shader value) {
-	if (shader_) {
-		// TODO: unbind properties ?
-//		UnbindProperties();
-//		properties_.clear();
-		passEnabled_ = 0;
-	}
-
 	shader_ = value;
 
 	InitializeProperties();
@@ -225,11 +217,13 @@ void MaterialInternal::Bind(uint pass) {
 
 	BindProperties(pass);
 	shader_->Bind(SUB_SHADER_INDEX, pass);
+	currentPass_ = pass;
 }
 
 void MaterialInternal::Unbind() {
 	UnbindProperties();
 	shader_->Unbind();
+	currentPass_ = -1;
 }
 
 bool MaterialInternal::EnablePass(uint pass) {
@@ -344,11 +338,12 @@ void MaterialInternal::BindProperties(uint pass) {
 }
 
 void MaterialInternal::UnbindProperties() {
+	static float zero[sizeof(glm::mat4)  * MAX_BONE_COUNT];
+
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		Variant& var = ite->second->value;
 		if (var.GetType() != VariantTypeTexture) {
-			// need clear uniform ?
-			//shader_->SetProperty(ite->first, ???);
+			shader_->SetProperty(SUB_SHADER_INDEX, currentPass_, ite->first, zero);
 		}
 		else if (var.GetTexture()) {
 			var.GetTexture()->Unbind();
@@ -367,11 +362,11 @@ void MaterialInternal::InitializeProperties() {
 
 	Material _this = SharedThis();
 	if (properties_.contains(Variables::ShadowDepthTexture)) {
-		Shadows::get()->AttachShadowTexture(_this);
+		Shadows::instance()->AttachShadowTexture(_this);
 	}
 
 	if (properties_.contains(Variables::MatrixTextureBuffer)) {
-		MatrixBuffer::get()->AttachMatrixBuffer(_this);
+		MatrixBuffer::instance()->AttachMatrixBuffer(_this);
 	}
 }
 

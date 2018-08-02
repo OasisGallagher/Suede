@@ -333,9 +333,6 @@
     <ClCompile Include="widgets\fields\colorfield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>
-    <ClCompile Include="widgets\fields\enumfield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
     <ClCompile Include="widgets\fields\filetreefield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>

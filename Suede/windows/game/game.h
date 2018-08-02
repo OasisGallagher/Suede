@@ -27,6 +27,7 @@ public:
 public:
 	virtual void init(Ui::Suede* ui);
 	virtual void awake();
+	virtual void tick();
 
 public:
 	virtual void OnDrawGizmos();
@@ -38,7 +39,11 @@ public:
 // 	virtual void OnFrameLeave();
 
 private slots:
+	void updateStat();
 	void onToggleStat(int state);
+
+	void onShadingModeChanged(const QString& str);
+
 	void onFocusEntityBounds(Entity entity);
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
 
@@ -59,8 +64,7 @@ private:
 	void createScene();
 	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
 
-	void updateStat();
-	void moveWidgets();
+	void initializeStatWidget();
 
 private:
 	QList<Entity> selection_;
@@ -76,7 +80,5 @@ private:
 	ImageEffect* gaussianBlur_;
 
 	CameraController* controller_;
-
-	float loadSceneStart_;
 };
 

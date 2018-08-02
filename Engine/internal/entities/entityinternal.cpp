@@ -37,7 +37,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 }
 
 bool EntityInternal::SetTag(const std::string& value) {
-	if (!TagManager::IsRegistered(value)) {
+	if (!TagManager::instance()->IsRegistered(value)) {
 		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
 		return false;
 	}
@@ -63,7 +63,6 @@ void EntityInternal::SetName(const std::string& value) {
 }
 
 void EntityInternal::Update() {
-	// TODO: generic component container.
 	if (animation_) { animation_->Update(); }
 	if (mesh_) { mesh_->Update(); }
 	if (particleSystem_) { particleSystem_->Update(); }
@@ -216,7 +215,7 @@ void EntityInternal::CalculateBonesWorldBounds() {
 
 void EntityInternal::DirtyParentBounds() {
 	Transform parent, current = transform_;
-	for (; (parent = current->GetParent()) && parent != World::get()->GetRootTransform();) {
+	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
 		dynamic_cast<EntityInternal*>(parent->GetEntity().get())->boundsDirty_ = true;
 		current = parent;
 	}

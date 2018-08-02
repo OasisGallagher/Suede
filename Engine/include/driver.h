@@ -12,8 +12,7 @@ public:
 
 	static bool IsSupported(const char* feature);
 
-private:
-	friend class Engine;
+public: // TODO:
 	static bool Initialize();
 
 private:

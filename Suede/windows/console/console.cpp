@@ -23,6 +23,12 @@ void Console::init(Ui::Suede* ui) {
 	ui_->filter->setEnums(+ConsoleMessageType::Everything);
 }
 
+void Console::tick() {
+	if (!messagesToShow_.empty()) {
+		flushMessages();
+	}
+}
+
 void Console::onClearMessages() {
 	messages_.clear();
 	ui_->table->setRowCount(0);
@@ -39,11 +45,27 @@ void Console::onSearchTextChanged(const QString& text) {
 }
 
 void Console::addMessage(ConsoleMessageType type, const QString& message) {
+	QString encodedMessage = (type + '0') + message;
 	if ((type & mask_) != 0 && (substr_.isEmpty() || message.contains(substr_))) {
-		showMessage(type, message);
+		if (QThread::currentThread() != thread()) {
+			QMutexLocker locker(&mutex_);
+			messagesToShow_.append(encodedMessage);
+		}
+		else {
+			showMessage(type, message);
+		}
 	}
 
-	messages_.push_back((type + '0') + message);
+	messages_.push_back(encodedMessage);
+}
+
+void Console::flushMessages() {
+	QMutexLocker locker(&mutex_);
+	for (QString message : messagesToShow_) {
+		showMessage(message);
+	}
+
+	messagesToShow_.clear();
 }
 
 void Console::filterMessageByType(int mask) {
@@ -85,11 +107,12 @@ const char* Console::messageIconPath(ConsoleMessageType type) {
 	return path;
 }
 
-void Console::showMessage(ConsoleMessageType type, const QString &message) {
-	if (QThread::currentThread() != thread()) {
-		// TODO: threading.
-	}
+void Console::showMessage(const QString& encodedMessage) {
+	int type = encodedMessage.at(0).toLatin1() - '0';
+	showMessage(ConsoleMessageType(type), encodedMessage.right(encodedMessage.length() - 1));
+}
 
+void Console::showMessage(ConsoleMessageType type, const QString &message) {
 	int r = ui_->table->rowCount();
 	ui_->table->insertRow(r);
 	ui_->table->setColumnWidth(0, 24);
@@ -99,4 +122,3 @@ void Console::showMessage(ConsoleMessageType type, const QString &message) {
 	ui_->table->setItem(r, 0, icon);
 	ui_->table->setItem(r, 1, text);
 }
-

@@ -1,42 +1,19 @@
 #include "time2.h"
-#include "profiler.h"
-#include "resources.h"
-#include "api/glutils.h"
 #include "worldinternal.h"
+#include "../api/glutils.h"
 #include "geometryutility.h"
 #include "internal/async/guard.h"
 #include "internal/rendering/shadows.h"
 #include "internal/codec/entityloader.h"
-#include "internal/base/textureinternal.h"
 #include "internal/rendering/matrixbuffer.h"
 #include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-static void InitWorld(WorldInternal* world) {
-	GLUtils::Initialize();
-
-	UniformBufferManager::get();
-
-	Shadows::get();
-	MatrixBuffer::get();
-	Resources::get()->Import();
-
-	world->root_ = Factory::Create<EntityInternal>();
-	world->root_->SetTransform(Factory::Create<TransformInternal>());
-	world->root_->SetName("Root");
-}
-
-World& World::get() {
-	static World instance;
-	if (!instance) {
-		instance = Factory::Create<WorldInternal>();
-		InitWorld(dynamic_cast<WorldInternal*>(instance.std::shared_ptr<IWorld>::get()));
-	}
-
-	return instance;
-}
+#include "internal/tools/gizmosinternal.h"
+#include "internal/tools/graphicsinternal.h"
+#include "internal/tools/resourcesinternal.h"
 
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
@@ -62,14 +39,27 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 }
 
 WorldInternal::WorldInternal()
-	: ObjectInternal(ObjectTypeWorld), importer_(MEMORY_CREATE(EntityLoaderThreadPool))
-	, environment_(MEMORY_CREATE(EnvironmentInternal)) , decals_(SUEDE_MAX_DECALS) {
-	Screen::get()->AddScreenSizeChangedListener(this);
+	: importer_(MEMORY_CREATE(EntityLoaderThreadPool)), decals_(SUEDE_MAX_DECALS) {
+	Screen::instance()->AddScreenSizeChangedListener(this);
 	AddEventListener(this);
+}
 
-	update_entities = Profiler::get()->CreateSample();
-	update_decals = Profiler::get()->CreateSample();
-	update_rendering = Profiler::get()->CreateSample();
+void WorldInternal::Initialize() {
+	GLUtils::Initialize();
+
+	Resources::implement(new ResourcesInternal);
+	Gizmos::implement(new GizmosInternal);
+	Graphics::implement(new GraphicsInternal);
+	Environment::implement(new EnvironmentInternal);
+
+	UniformBufferManager::instance();
+
+	Shadows::instance();
+	MatrixBuffer::instance();
+
+	root_ = Factory::Create<EntityInternal>();
+	root_->SetTransform(Factory::Create<TransformInternal>());
+	root_->SetName("Root");
 }
 
 WorldInternal::~WorldInternal() {
@@ -83,11 +73,7 @@ void WorldInternal::Destroy() {
 	MEMORY_RELEASE(importer_);
 
 	RemoveEventListener(this);
-	Screen::get()->RemoveScreenSizeChangedListener(this);
-
-	Profiler::get()->ReleaseSample(update_entities);
-	Profiler::get()->ReleaseSample(update_decals);
-	Profiler::get()->ReleaseSample(update_rendering);
+	Screen::instance()->RemoveScreenSizeChangedListener(this);
 }
 
 Object WorldInternal::Create(ObjectType type) {
@@ -379,7 +365,7 @@ bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane plane
 	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
 		Entity entity = *ite;
 		if (entity == p) { continue; }
-		
+
 		Decal* decal = decals_.spawn();
 		if (decal == nullptr) {
 			Debug::LogError("too many decals");
@@ -392,8 +378,8 @@ bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane plane
 
 		decal->texture = p->GetTexture();
 		decal->matrix = p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix();
-	}
-	*/
+	}*/
+	
 	return true;
 }
 
@@ -438,9 +424,9 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 
 inline void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
-	p.time.x = Time::get()->GetRealTimeSinceStartup();
-	p.time.y = Time::get()->GetDeltaTime();
-	UniformBufferManager::get()->UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
+	p.time.x = Time::instance()->GetRealTimeSinceStartup();
+	p.time.y = Time::instance()->GetDeltaTime();
+	UniformBufferManager::instance()->UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void WorldInternal::Update() {
@@ -449,20 +435,9 @@ void WorldInternal::Update() {
 	FireEvents();
 	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());
 	
-	update_entities->Restart();
 	UpdateEntities();
-	update_entities->Stop();
-	Debug::Output("[WorldInternal::Update::update_entities]\t%.3f", update_entities->GetElapsedSeconds());
-	
-	update_decals->Restart();
 	UpdateDecals();
-	update_decals->Stop();
-	Debug::Output("[WorldInternal::Update::update_decals]\t%.3f", update_decals->GetElapsedSeconds());
-	
-	update_rendering->Restart();
 	RenderUpdate();
-	update_rendering->Stop();
-	Debug::Output("[WorldInternal::Update::update_rendering]\t%.3f", update_rendering->GetElapsedSeconds());
 
 	//Debug::Output("[#total]\t%.3f", Debug::EndSample());
 }

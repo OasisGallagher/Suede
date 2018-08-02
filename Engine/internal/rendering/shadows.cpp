@@ -5,12 +5,12 @@
 #include "internal/world/worldinternal.h"
 
 Shadows::Shadows() {
-	uint w = Screen::get()->GetWidth(), h = Screen::get()->GetHeight();
+	uint w = Screen::instance()->GetWidth(), h = Screen::instance()->GetHeight();
 	shadowDepthTexture_ = NewRenderTexture();
 	shadowDepthTexture_->Create(RenderTextureFormatShadow, w, h);
 
 	directionalLightShadowMaterial_ = NewMaterial();
-	directionalLightShadowMaterial_->SetShader(Resources::get()->FindShader("builtin/directional_light_depth"));
+	directionalLightShadowMaterial_->SetShader(Resources::instance()->FindShader("builtin/directional_light_depth"));
 	directionalLightShadowMaterial_->SetRenderQueue(RenderQueueBackground - 200);
 }
 

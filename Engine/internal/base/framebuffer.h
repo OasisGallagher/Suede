@@ -3,8 +3,8 @@
 
 #include <glm/glm.hpp>
 
-#include "api/gl.h"
 #include "texture.h"
+#include "../api/gl.h"
 
 enum FramebufferTarget {
 	FramebufferTargetRead,

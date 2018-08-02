@@ -1,6 +1,6 @@
 #include "tools/math2.h"
-#include "api/glutils.h"
 #include "memory/memory.h"
+#include "../api/glutils.h"
 #include "uniformbuffermanager.h"
 
 UniformBufferManager::UniformBufferManager() {

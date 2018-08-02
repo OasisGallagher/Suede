@@ -56,15 +56,15 @@ void Suede::setupUI() {
 
 	childWindows_ = new QDockWidget*[ChildWindowType::size()];
 
-	childWindows_[ChildWindowType::Game] = Game::get();
-	childWindows_[ChildWindowType::Console] = Console::get();
-	childWindows_[ChildWindowType::Inspector] = Inspector::get();
-	childWindows_[ChildWindowType::Hierarchy] = Hierarchy::get();
-	childWindows_[ChildWindowType::Lighting] = Lighting::get();
+	childWindows_[ChildWindowType::Game] = Game::instance();
+	childWindows_[ChildWindowType::Console] = Console::instance();
+	childWindows_[ChildWindowType::Inspector] = Inspector::instance();
+	childWindows_[ChildWindowType::Hierarchy] = Hierarchy::instance();
+	childWindows_[ChildWindowType::Lighting] = Lighting::instance();
 
 	QSettings settings(LAYOUT_PATH, QSettings::IniFormat);
-	QByteArray state = Prefs::get()->load(PrefsKeys::state).toByteArray();
-	QByteArray geom = Prefs::get()->load(PrefsKeys::geometry).toByteArray();
+	QByteArray state = Prefs::instance()->load(PrefsKeys::state).toByteArray();
+	QByteArray geom = Prefs::instance()->load(PrefsKeys::geometry).toByteArray();
 	
 	if (state.isEmpty() || geom.isEmpty()) {
 		initializeLayout();
@@ -87,6 +87,12 @@ void Suede::awake() {
 	show();
 }
 
+void Suede::tick() {
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
+		dynamic_cast<WinBase*>(childWindows_[i])->tick();
+	}
+}
+
 void Suede::showChildWindow(ChildWindowType index, bool show) {
 	Q_ASSERT(index >= 0 && index < ChildWindowType::size());
 	childWindows_[index]->setVisible(show);
@@ -98,8 +104,8 @@ bool Suede::childWindowVisible(ChildWindowType index) {
 }
 
 void Suede::closeEvent(QCloseEvent *event) {
-	Prefs::get()->save(PrefsKeys::state, saveState(PrefsKeys::stateVersion));
-	Prefs::get()->save(PrefsKeys::geometry, saveGeometry());
+	Prefs::instance()->save(PrefsKeys::state, saveState(PrefsKeys::stateVersion));
+	Prefs::instance()->save(PrefsKeys::geometry, saveGeometry());
 
 	QMainWindow::closeEvent(event);
 	emit aboutToClose();
@@ -173,15 +179,15 @@ void Suede::onScreenCapture() {
 void Suede::OnLogMessage(LogLevel level, const char* message) {
 	switch (level) {
 		case LogLevelDebug:
-			Console::get()->addMessage(ConsoleMessageType::Debug, message);
+			Console::instance()->addMessage(ConsoleMessageType::Debug, message);
 			break;
 
 		case LogLevelWarning:
-			Console::get()->addMessage(ConsoleMessageType::Warning, message);
+			Console::instance()->addMessage(ConsoleMessageType::Warning, message);
 			break;
 
 		case LogLevelError:
-			Console::get()->addMessage(ConsoleMessageType::Error, message);
+			Console::instance()->addMessage(ConsoleMessageType::Error, message);
 			Debug::Break();
 			break;
 	}
@@ -220,10 +226,10 @@ void Suede::initializeWindowMenu() {
 }
 
 void Suede::initializeLayout() {
-	addDockWidget(Qt::TopDockWidgetArea, Game::get());
-	splitDockWidget(Hierarchy::get(), Game::get(), Qt::Horizontal);
-	splitDockWidget(Game::get(), Inspector::get(), Qt::Horizontal);
-	splitDockWidget(Game::get(), Console::get(), Qt::Vertical);
+	addDockWidget(Qt::TopDockWidgetArea, Game::instance());
+	splitDockWidget(Hierarchy::instance(), Game::instance(), Qt::Horizontal);
+	splitDockWidget(Game::instance(), Inspector::instance(), Qt::Horizontal);
+	splitDockWidget(Game::instance(), Console::instance(), Qt::Vertical);
 
 	showChildWindow(ChildWindowType::Lighting, false);
 }

@@ -1,5 +1,7 @@
 #pragma once
-class SUEDE_API IEnvironment {
+#include "tools/singleton.h"
+
+class SUEDE_API Environment : public Singleton2<Environment> {
 public:
 	virtual void SetSkybox(Material value) = 0;
 	virtual Material GetSkybox() = 0;
@@ -13,6 +15,3 @@ public:
 	virtual void SetFogDensity(float value) = 0;
 	virtual float GetFogDensity() = 0;
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Environment);
-SUEDE_DECLARE_OBJECT_CREATER(Environment);

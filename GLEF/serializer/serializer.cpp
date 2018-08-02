@@ -17,7 +17,6 @@ bool Serializer::SaveEnvironment(std::ofstream& file, Environment* env) {
 		return false;
 	}
 
-	// TODO: 非终结符没有必要存储字符串, 为它们对应一个ID即可.
 	if (!SaveSymbols(file, env->nonterminalSymbols)) {
 		Debug::LogError("failed to save non-terminal symbols.");
 		return false;

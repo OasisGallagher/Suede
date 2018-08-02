@@ -2,11 +2,12 @@
 #include <vector>
 
 #include "types.h"
+#include "tools/singleton.h"
 
-class SUEDE_API TagManager {
+class SUEDE_API TagManager : public Singleton2<TagManager> {
 public:
-	static void Register(const std::string& name);
-	static void Unregister(const std::string& name);
-	static bool IsRegistered(const std::string& name);
-	static void GetAllTags(std::vector<std::string>& container);
+	virtual void Register(const std::string& name) = 0;
+	virtual void Unregister(const std::string& name) = 0;
+	virtual bool IsRegistered(const std::string& name) = 0;
+	virtual void GetAllTags(std::vector<std::string>& container) = 0;
 };

@@ -1,55 +1,22 @@
 #pragma once
-#include "engine.h"
 #include "tools/singleton.h"
-#include "containers/freelist.h"
 
 class SUEDE_API Sample {
 public:
-	void Start();
-	void Restart();
+	virtual void Start() = 0;
+	virtual void Restart() = 0;
 
-	void Stop();
+	virtual void Stop() = 0;
 
-	void Reset();
-	double GetElapsedSeconds() const;
-
-private:
-	/**
-	 * use Profiler::get()->CreateSample() to create.
-	 */
-	Sample() { Reset(); }
-	friend class free_list<Sample>;
-
-private:
-	bool started_;
-	uint64 elapsed_;
-	uint64 timeStamp_;
+	virtual void Reset() = 0;
+	virtual double GetElapsedSeconds() const = 0;
 };
 
-class SUEDE_API Profiler : public Singleton<Profiler>, public FrameEventListener {
-	friend class Singleton<Profiler>;
-
+class SUEDE_API Profiler : public Singleton2<Profiler> {
 public:
-	Sample* CreateSample();
-	void ReleaseSample(Sample* value);
+	virtual Sample* CreateSample() = 0;
+	virtual void ReleaseSample(Sample* value) = 0;
 
-	uint64 GetTimeStamp();
-	double TimeStampToSeconds(uint64 timeStamp);
-
-public:
-	virtual void OnFrameEnter();
-	virtual int GetFrameEventQueue() { return FrameEventQueueProfiler; }
-
-private:
-	Profiler();
-	~Profiler();
-
-private:
-	enum {
-		MaxProfilterSamples = 1024,
-	};
-
-	typedef free_list<Sample> SampleContainer;
-	SampleContainer samples_;
-	double timeStampToSeconds_;
+	virtual uint64 GetTimeStamp() = 0;
+	virtual double TimeStampToSeconds(uint64 timeStamp) = 0;
 };

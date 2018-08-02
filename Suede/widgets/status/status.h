@@ -7,7 +7,7 @@ class Status : public QStatusBar {
 	Q_OBJECT
 
 public:
-	static Status* get();
+	static Status* instance();
 
 public:
 	Status(QWidget* parent);

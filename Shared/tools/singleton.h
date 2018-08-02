@@ -7,48 +7,58 @@
 
 #include "noncopyable.h"
 
-template <class T>// class LockType = ZThread::FastMutex>
-class Singleton : private NonCopyable {
-public:
-	static T* get();
-
-private:
-	//! SingletonDestroyer
-	template <class U>
-	class Destroyer {
-		U* doomed;
-
-	public:
-		Destroyer(U* q) : doomed(q) { }
-		~Destroyer();
-	};
-};
-
-template <class T> // class LockType>
-T* Singleton<T/*LockType*/>::get() {
-	// Uses local static storage to avoid static construction
-	// sequence issues. (regaring when the lock is created)
-	static T* ptr = nullptr;
-	//static LockType lock;
-
-	if (ptr == nullptr) {
-		//ZThread::Guard<LockType, ZThread::LockedScope> g(lock);
-		//if (!ptr)
-		/*InstantiationPolicy::create(ptr);*/
-		ptr = new T;
-		static Destroyer<T> destroyer(ptr);
-	}
-
-	return ptr;
+#define __SUEDE_DEFINE_DESTROYER__(T, Name) \
+template <class T> \
+class Name { \
+	T* doomed; \
+public: \
+	Destroyer(T* p = nullptr) : doomed(p) {} \
+	~Destroyer() { reset(nullptr); } \
+public: \
+	void reset(T* p) { delete doomed; doomed = p; }\
 }
 
-template <class T> template <class U>
-Singleton<T>::Destroyer<U>::~Destroyer() {
-	try {
-		delete doomed;
-	}
-	catch (...) {
-	}
+template <class T>
+class Singleton : private NonCopyable {
+	static T* ptr;
+	__SUEDE_DEFINE_DESTROYER__(T, Destroyer);
 
-	doomed = nullptr;
+public:
+	virtual ~Singleton() {}
+
+public:
+	static T* instance() {
+		if (ptr == nullptr) {
+			ptr = new T;
+			static Destroyer<T> destroyer(ptr);
+		}
+
+		return ptr;
+	}
+};
+
+template <class T>
+T* Singleton<T>::ptr = nullptr;
+
+template <class T>
+class Singleton2 : private NonCopyable {
+	static T* ptr;
+	__SUEDE_DEFINE_DESTROYER__(T, Destroyer);
+
+public:
+	virtual ~Singleton2() {}
+
+public:
+	static T* instance() { return ptr; }
+	static void implement(T* impl);
+};
+
+template <class T>
+T* Singleton2<T>::ptr = nullptr;
+
+template<class T>
+void Singleton2<T>::implement(T * impl) {
+	ptr = impl;
+	static Destroyer<T> destroyer;
+	destroyer.reset(ptr);
 }

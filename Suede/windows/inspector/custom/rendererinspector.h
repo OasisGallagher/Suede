@@ -2,6 +2,7 @@
 #include <QColorDialog>
 
 #include "renderer.h"
+#include "profiler.h"
 #include "custominspector.h"
 
 class RendererInspector : public CustomInspector {
@@ -9,6 +10,14 @@ class RendererInspector : public CustomInspector {
 
 public:
 	RendererInspector(Object object);
+	~RendererInspector();
+
+private slots:
+	void onEditProperty();
+	void onCurrentColorChanged(const QColor& color);
+	void onCurrentTextureChanged(Texture texture);
+
+	void onShaderSelectionChanged(const QString& path);
 
 private:
 	void drawMaterial(Renderer renderer, uint materialIndex, QLayout* materialsLayout);
@@ -28,11 +37,4 @@ private:
 
 	QWidget* drawVec3Field(uint materialIndex, const QString& name, const glm::vec3& value);
 	QWidget* drawVec4Field(uint materialIndex, const QString& name, const glm::vec4& value);
-
-private slots:
-	void onEditProperty();
-	void onCurrentColorChanged(const QColor& color);
-	void onCurrentTextureChanged(Texture texture);
-
-	void onShaderSelectionChanged(const QString& path);
 };

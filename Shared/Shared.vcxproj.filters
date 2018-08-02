@@ -87,9 +87,6 @@
     <ClInclude Include="memory\memory.h">
       <Filter>memory\include</Filter>
     </ClInclude>
-    <ClInclude Include="debug\stackwalker.h">
-      <Filter>debug\include</Filter>
-    </ClInclude>
     <ClInclude Include="os\filesystem.h">
       <Filter>os\include</Filter>
     </ClInclude>
@@ -531,11 +528,11 @@
     <ClInclude Include="tools\singleton.h">
       <Filter>tools\include</Filter>
     </ClInclude>
+    <ClInclude Include="debug\stackwalker.h">
+      <Filter>debug\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="debug\debug.cpp">
-      <Filter>debug\src</Filter>
-    </ClCompile>
     <ClCompile Include="tools\string.cpp">
       <Filter>tools\src</Filter>
     </ClCompile>
@@ -548,11 +545,14 @@
     <ClCompile Include="memory\refcount.cpp">
       <Filter>memory\src</Filter>
     </ClCompile>
+    <ClCompile Include="os\filesystem.cpp">
+      <Filter>os\src</Filter>
+    </ClCompile>
     <ClCompile Include="debug\stackwalker.cpp">
       <Filter>debug\src</Filter>
     </ClCompile>
-    <ClCompile Include="os\filesystem.cpp">
-      <Filter>os\src</Filter>
+    <ClCompile Include="debug\debug.cpp">
+      <Filter>debug\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,6 @@
 #include <QFileDialog>
 #include <QProgressBar>
 
-#include "profiler.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 
@@ -25,16 +24,6 @@
 
 static const char* shaderRegex = ".*\\.shader";
 static QString shaderDirectory = "resources/shaders/";
-static Sample* render_inspector = Profiler::get()->CreateSample();
-
-static void begin_render_inspector() {
-	render_inspector->Restart();
-}
-
-static void end_render_inspector(const char* text) {
-	render_inspector->Stop();
-	Debug::Log((std::string(text) + " %.2f").c_str(), render_inspector->GetElapsedSeconds());
-}
 
 namespace Literals {
 	DEFINE_LITERAL(current);
@@ -78,35 +67,28 @@ struct MaterialProperty {
 Q_DECLARE_METATYPE(MaterialProperty);
 
 RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer", object) {
-	begin_render_inspector();
 	Renderer renderer = suede_dynamic_cast<Renderer>(target_);
 	QListWidget* materialList = new QListWidget(this);
-	end_render_inspector("createMaterialList");
 
-	begin_render_inspector();
 	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 		Material material = renderer->GetMaterial(i);
 		materialList->addItem(material->GetName().c_str());
 	}
-	end_render_inspector("materialList");
 
-	begin_render_inspector();
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materialList);
 	resizeGeometryToFit(materialList);
-	end_render_inspector("resizeGeometry");
 
-	begin_render_inspector();
 	QGroupBox* materials = new QGroupBox("Materials", this);
 	QVBoxLayout* materialsLayout = new QVBoxLayout(materials);
 
 	for (uint materialIndex = 0; materialIndex < renderer->GetMaterialCount(); ++materialIndex) {
 		drawMaterial(renderer, materialIndex, materialsLayout);
 	}
-	end_render_inspector("createMaterialList");
 
-	begin_render_inspector();
 	form_->setWidget(form_->rowCount(), QFormLayout::SpanningRole, materials);
-	end_render_inspector("appendMaterialList");
+}
+
+RendererInspector::~RendererInspector() {
 }
 
 void RendererInspector::drawMaterial(Renderer renderer, uint materialIndex, QLayout* materialsLayout) {
@@ -189,7 +171,7 @@ void RendererInspector::drawMaterialProperties(QWidgetList& widgets, Material ma
 }
 
 bool RendererInspector::updateMaterial(uint materialIndex, const QString& shaderPath) {
-	Shader shader = Resources::get()->FindShader(shaderPath.toStdString());
+	Shader shader = Resources::instance()->FindShader(shaderPath.toStdString());
 	if (!shader) {
 		return false;
 	}

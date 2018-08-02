@@ -32,16 +32,16 @@
 #include "scripts/gaussianblur.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-//#define IMAGE_EFFECTS
-//#define MAN
-#define PARTICLE_SYSTEM
-//#define FONT
+#define IMAGE_EFFECTS
+#define MAN
+// #define PARTICLE_SYSTEM
+// #define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
@@ -75,28 +75,33 @@ void Game::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-	connect(Hierarchy::get(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
-	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
+	connect(Hierarchy::instance(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
+	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
 
 	timer_ = new QTimer(this);
 	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStat()));
 	timer_->start(FPS_UPDATE_INTERVAL);
+
+	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
+	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
 }
 
 void Game::awake() {
 	grayscale_ = new Grayscale;
 	inversion_ = new Inversion;
 	gaussianBlur_ = new GaussianBlur;
-
-	loadSceneStart_ = Time::get()->GetRealTimeSinceStartup();
 	createScene();
+}
+
+void Game::tick() {
+
 }
 
 void Game::OnDrawGizmos() {
 	int i = 0;
 	glm::vec3 colors[] = { glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) };
-	glm::vec3 oldColor = Gizmos::get()->GetColor();
+	glm::vec3 oldColor = Gizmos::instance()->GetColor();
 	foreach(Entity entity, selection_) {
 		if (!entity->GetActive()) {
 			continue;
@@ -104,17 +109,17 @@ void Game::OnDrawGizmos() {
 
 		const Bounds& bounds = entity->GetBounds();
 		if (!bounds.IsEmpty()) {
-			Gizmos::get()->SetColor(colors[i % CountOf(colors)]);
-			Gizmos::get()->DrawCuboid(bounds.center, bounds.size);
+			Gizmos::instance()->SetColor(colors[i % CountOf(colors)]);
+			Gizmos::instance()->DrawCuboid(bounds.center, bounds.size);
 			++i;
 		}
 	}
 
-	Gizmos::get()->SetColor(oldColor);
+	Gizmos::instance()->SetColor(oldColor);
 }
 
 void Game::OnEntityImported(Entity root, const std::string& path) {
-	root->GetTransform()->SetParent(World::get()->GetRootTransform());
+	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
 	root->SetName(path);
 
 	if (path == manFbxPath) {
@@ -144,9 +149,6 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}
-
-		float delta = Time::get()->GetRealTimeSinceStartup() - loadSceneStart_;
-		Status::get()->showMessage(QString("%1 loaded in %2 seconds").arg(path.c_str()).arg(QString::number(delta, 'g', 2)), 2000);
 	}
 }
 
@@ -201,14 +203,26 @@ void Game::updateSelection(QList<Entity>& container, const QList<Entity>& select
 
 void Game::onToggleStat(int state) {
 	if (stat_ == nullptr) {
-		stat_ = new StatsWidget(ui_->gameView);
+		initializeStatWidget();
 	}
 
 	stat_->setVisible(!!state);
+
 	if (stat_->isVisible()) {
 		updateStat();
-		moveWidgets();
 	}
+}
+
+void Game::initializeStatWidget() {
+	stat_ = new StatsWidget(this);
+	QPoint pos = ui_->stat->parentWidget()->mapTo(this, ui_->stat->pos());
+	pos.setX(pos.x() - stat_->width());
+	pos.setY(pos.y() + ui_->stat->height());
+	stat_->move(pos);
+}
+
+void Game::onShadingModeChanged(const QString& str) {
+	Graphics::instance()->SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
 void Game::onFocusEntityBounds(Entity entity) {
@@ -233,47 +247,37 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
 	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + b.size.z * 2, camera->GetFarClipPlane() - b.size.z * 2);
 }
 
-void Game::moveWidgets() {
-	if (stat_ != nullptr) {
-		QPoint ppp = ui_->stat->pos();
-		QPoint pos = ui_->stat->mapTo(ui_->gameView, ppp);
-		//pos.setX(pos.x() - stat_->width());
-		//pos.setY(stat_->pos().y() + stat_->height());
-		stat_->move(pos);
-	}
-}
-
 void Game::updateStat() {
-	if (stat_ != nullptr && stat_->isVisible()) {
-		stat_->setStats(Statistics::get()->GetFrameRate(),
-			Statistics::get()->GetDrawcalls(),
-			Statistics::get()->GetTriangles()
-		);
-	}
+ 	if (stat_ != nullptr && stat_->isVisible()) {
+ 		stat_->setStats(Statistics::instance()->GetFrameRate(),
+ 			Statistics::instance()->GetDrawcalls(),
+ 			Statistics::instance()->GetTriangles()
+ 		);
+ 	}
 }
 
 uint roomEntityID;
 
 void Game::createScene() {
-	World::get()->GetEnvironment()->SetFogColor(glm::vec3(0.5f));
-	World::get()->GetEnvironment()->SetFogDensity(0.05f);
+	Environment::instance()->SetFogColor(glm::vec3(0.5f));
+	Environment::instance()->SetFogDensity(0.01f);
 
-	World::get()->GetEnvironment()->SetAmbientColor(glm::vec3(0.15f));
+	Environment::instance()->SetAmbientColor(glm::vec3(0.15f));
 
 	DirectionalLight light = NewDirectionalLight();
 	light->SetName("light");
 	light->SetColor(glm::vec3(0.7f));
-	light->GetTransform()->SetParent(World::get()->GetRootTransform());
+	light->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
-	/*World::get()->ImportTo(light, lightModelPath, this);*/
+	/*World::instance()->ImportTo(light, lightModelPath, this);*/
 
 	//targetTexture_ = NewRenderTexture();
-	//targetTexture_->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
+	//targetTexture_->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
 	Camera camera = NewCamera();
 	Camera::SetMain(camera);
 	camera->AddGizmosPainter(this);
-	camera->GetTransform()->SetParent(World::get()->GetRootTransform());
+	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	camera->SetName("camera");
 	controller_->setCamera(camera->GetTransform());
@@ -287,7 +291,7 @@ void Game::createScene() {
 #else
 	projector->SetFieldOfView(Math::Radians(9.f));
 #endif
-	projector->GetTransform()->SetParent(World::get()->GetRootTransform());
+	projector->GetTransform()->SetParent(World::instance()->GetRootTransform());
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();
@@ -332,7 +336,7 @@ void Game::createScene() {
 	camera->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
 
 	Material skybox = NewMaterial();
-	skybox->SetShader(Resources::get()->FindShader("builtin/skybox"));
+	skybox->SetShader(Resources::instance()->FindShader("builtin/skybox"));
 
 	TextureCube cube = NewTextureCube();
 
@@ -348,7 +352,7 @@ void Game::createScene() {
 	cube->Load(faces);
 	skybox->SetTexture(Variables::MainTexture, cube);
 	skybox->SetColor4(Variables::MainColor, glm::vec4(1));
-	World::get()->GetEnvironment()->SetSkybox(skybox);
+	Environment::instance()->SetSkybox(skybox);
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
@@ -367,7 +371,7 @@ void Game::createScene() {
 	ParticleSystem particleSystem = NewParticleSystem();
 	entity->SetParticleSystem(particleSystem);
 	entity->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
-	entity->GetTransform()->SetParent(World::get()->GetRootTransform());
+	entity->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -394,11 +398,11 @@ void Game::createScene() {
 
 	Entity redText = NewEntity();
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
-	redText->GetTransform()->SetParent(World::get()->GetRootTransform());
+	redText->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	Entity blueText = NewEntity();
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
-	blueText->GetTransform()->SetParent(World::get()->GetRootTransform());
+	blueText->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	TextMesh redMesh = NewTextMesh();
 	redMesh->SetFont(font);
@@ -429,23 +433,22 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = World::get()->Import(roomFbxPath, this);
+	Entity room = World::instance()->Import(roomFbxPath, this);
 	roomEntityID = room->GetInstanceID();
-	Status::get()->showMessage("Loading models/house.fbx...", 0);
 #endif
 
 #ifdef BEAR
-	Entity bear = World::get()->Import("teddy_bear.fbx");
+	Entity bear = World::instance()->Import("teddy_bear.fbx");
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
-	Shader shader = Resources::get()->FindShader("xray");
+	Shader shader = Resources::instance()->FindShader("xray");
 	materail->SetShader(shader);
 #endif
 
 #endif
 
 #ifdef MAN
-	Entity man = World::get()->Import(manFbxPath, this);
+	Entity man = World::instance()->Import(manFbxPath, this);
 #endif
 }

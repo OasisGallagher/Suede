@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "transform.h"
 #include "environment.h"
+#include "tools/singleton.h"
 #include "entityloadedlistener.h"
 
 enum WorldEventType {
@@ -136,8 +137,9 @@ public:
 struct Decal;
 class GizmosPainter;
 
-class SUEDE_API IWorld : virtual public IObject {
+class SUEDE_API World : public Singleton2<World> {
 public:
+	virtual void Initialize() = 0;
 	virtual void Update() = 0;
 	virtual void Destroy() = 0;
 
@@ -161,16 +163,4 @@ public:
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
 
 	virtual void GetDecals(std::vector<Decal*>& container) = 0;
-
-	virtual Environment GetEnvironment() = 0;
 };
-
-SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(World) {
-	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(World)
-
-	/**
-	 * @brief get world instance.
-	 */
-	static World& get();
-};
-//SUEDE_DEFINE_OBJECT_POINTER(World);

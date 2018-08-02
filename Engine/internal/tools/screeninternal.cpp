@@ -1,7 +1,8 @@
-#include "screen.h"
+#include "screeninternal.h"
+
 #include "debug/debug.h"
 
-void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
+void ScreenInternal::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 	if (listener == nullptr) {
 		Debug::LogError("invalid screen event listener.");
 		return;
@@ -12,14 +13,14 @@ void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 	}
 }
 
-void Screen::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
+void ScreenInternal::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 	std::vector<ScreenSizeChangedListener*>::iterator pos = std::find(listeners_.begin(), listeners_.end(), listener);
 	if (pos != listeners_.end()) {
 		listeners_.erase(pos);
 	}
 }
 
-void Screen::Set(uint _width, uint _height) {
+void ScreenInternal::Resize(uint _width, uint _height) {
 	if (width_ == _width && height_ == _height) {
 		return;
 	}

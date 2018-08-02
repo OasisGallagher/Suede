@@ -1,7 +1,6 @@
 #include "inspector.h"
 
 #include "ui_suede.h"
-#include "profiler.h"
 #include "tagmanager.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
@@ -12,17 +11,18 @@
 #include "custom/rendererinspector.h"
 #include "custom/projectorinspector.h"
 
-static Sample* sample = Profiler::get()->CreateSample();
-
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
+}
+
+Inspector::~Inspector() {
 }
 
 void Inspector::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
-	World::get()->AddEventListener(this);
+	World::instance()->AddEventListener(this);
 
-	connect(Hierarchy::get(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
+	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
 
 	showView(false);
@@ -84,7 +84,7 @@ void Inspector::onTagChanged(int index) {
 	QString tag;
 	if (index >= 0) {
 		std::vector<std::string> tags;
-		TagManager::GetAllTags(tags);
+		TagManager::instance()->GetAllTags(tags);
 
 		tag = tags[index].c_str();
 	}
@@ -118,11 +118,8 @@ void Inspector::showView(bool show) {
 }
 
 void Inspector::addInspector(CustomInspector* inspector) {
-	sample->Restart();
 	ui_->content->insertWidget(ui_->content->count() - 1, inspector);
 	inspectors_.push_back(inspector);
-	sample->Stop();
-	Debug::Log("addInspector %.2f", sample->GetElapsedSeconds());
 }
 
 void Inspector::destroyInspectors() {
@@ -158,19 +155,13 @@ void Inspector::drawInspectors() {
 			break;
 	}
 
-	sample->Restart();
 	if (target_->GetMesh()) {
 		addInspector(new MeshInspector(target_->GetMesh()));
 	}
-	sample->Stop();
-	Debug::Log("MeshInspector %.2f", sample->GetElapsedSeconds());
 
-	sample->Restart();
 	if (target_->GetRenderer()) {
 		addInspector(new RendererInspector(target_->GetRenderer()));
 	}
-	sample->Stop();
-	Debug::Log("RendererInspector %.2f", sample->GetElapsedSeconds());
 }
 
 void Inspector::drawTransform() {
@@ -187,12 +178,13 @@ void Inspector::drawTransform() {
 	ui_->scale->blockSignals(false);
 }
 
+#include "time2.h"
 void Inspector::drawTags() {
 	QStringList items;
-
+	Time::instance()->GetDeltaTime();
 	int tagIndex = -1;
 	std::vector<std::string> tags;
-	TagManager::GetAllTags(tags);
+	TagManager::instance()->GetAllTags(tags);
 	for (int i = 0; i < tags.size(); ++i) {
 		const std::string& str = tags[i];
 		if (tagIndex == -1 && str == target_->GetTag()) {

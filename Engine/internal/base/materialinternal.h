@@ -23,8 +23,8 @@ public:
 	virtual void SetRenderQueue(uint value);
 	virtual uint GetRenderQueue() const;
 
-	virtual void SetPass(int value) { pass_ = value; }
-	virtual int GetPass() const { return pass_; }
+	virtual void SetPass(int value) { currentPass_ = value; }
+	virtual int GetPass() const { return currentPass_; }
 	virtual uint GetPassCount() const;
 	virtual uint GetPassNativePointer(uint pass) const;
 
@@ -75,9 +75,10 @@ private:
 	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
-	int pass_;
 	Shader shader_;
+	int currentPass_;
 	uint passEnabled_;
+
 	std::string name_;
 	typedef ptr_map<std::string, Property> PropertyContainer;
 	PropertyContainer properties_;

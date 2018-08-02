@@ -16,10 +16,7 @@ void EnumField::setEnums(T selected) {
 
 	int index = -1;
 	for (int i = 0; i < T::size(); ++i) {
-		if (selected == T::value(i)) {
-			index = i;
-		}
-
+		if (selected == T::value(i)) { index = i; }
 		addItem(T::value(i).to_string());
 	}
 

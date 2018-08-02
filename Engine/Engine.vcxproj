@@ -104,8 +104,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;3rdparty\free-type\include;3rdparty\glew-2.1.0\include;3rdparty\assimp-3.0\include;3rdparty\image-magick-6\include;3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\glm-0.9.7.1\include;..\Shared\3rdparty\vld-2.5.1\include;..\Shared\3rdparty\zthread-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4251;4996;4267;4250;4018;4838</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;internal\3rdparty\free-type\include;internal\3rdparty\glew-2.1.0\include;internal\3rdparty\assimp-3.0\include;internal\3rdparty\image-magick-6\include;internal\3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\glm-0.9.7.1\include;..\Shared\3rdparty\vld-2.5.1\include;..\Shared\3rdparty\zthread-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4251;4996;4267;4250;4018;4838;4091</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
@@ -160,8 +160,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="api\glutils.cpp" />
-    <ClCompile Include="include\graphicsviewer.cpp" />
+    <ClCompile Include="internal\api\glutils.cpp" />
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\buffer.cpp" />
     <ClCompile Include="internal\base\fontinternal.cpp" />
@@ -174,6 +173,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\base\shaderinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\uniformbuffer.cpp" />
+    <ClCompile Include="internal\base\variant.cpp" />
     <ClCompile Include="internal\base\vertexarray.cpp" />
     <ClCompile Include="internal\components\animationinternal.cpp" />
     <ClCompile Include="internal\components\componentinternal.cpp" />
@@ -187,7 +187,12 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\codec\image.cpp" />
     <ClCompile Include="internal\codec\shaderparser.cpp" />
     <ClCompile Include="internal\codec\entityloader.cpp" />
+    <ClCompile Include="internal\geometry\bounds.cpp" />
     <ClCompile Include="internal\geometry\bsptree.cpp" />
+    <ClCompile Include="internal\geometry\geometryutility.cpp" />
+    <ClCompile Include="internal\geometry\plane.cpp" />
+    <ClCompile Include="internal\geometry\polygon.cpp" />
+    <ClCompile Include="internal\geometry\rect.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\entities\camerainternal.cpp" />
@@ -198,24 +203,19 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\rendering\rendering.cpp" />
     <ClCompile Include="internal\rendering\shadows.cpp" />
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp" />
+    <ClCompile Include="internal\tools\gizmosinternal.cpp" />
+    <ClCompile Include="internal\tools\graphicsinternal.cpp" />
+    <ClCompile Include="internal\tools\profilerinternal.cpp" />
+    <ClCompile Include="internal\tools\resourcesinternal.cpp" />
+    <ClCompile Include="internal\tools\screeninternal.cpp" />
+    <ClCompile Include="internal\tools\statisticsinternal.cpp" />
+    <ClCompile Include="internal\tools\tagmanagerinternal.cpp" />
+    <ClCompile Include="internal\tools\time2internal.cpp" />
+    <ClCompile Include="internal\world\driver.cpp" />
+    <ClCompile Include="internal\world\engineinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
+    <ClCompile Include="internal\world\graphicsviewer.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
-    <ClCompile Include="src\bounds.cpp" />
-    <ClCompile Include="src\driver.cpp" />
-    <ClCompile Include="src\engine.cpp" />
-    <ClCompile Include="src\geometryutility.cpp" />
-    <ClCompile Include="src\gizmos.cpp" />
-    <ClCompile Include="src\graphics.cpp" />
-    <ClCompile Include="src\plane.cpp" />
-    <ClCompile Include="src\polygon.cpp" />
-    <ClCompile Include="src\profiler.cpp" />
-    <ClCompile Include="src\rect.cpp" />
-    <ClCompile Include="src\resources.cpp" />
-    <ClCompile Include="src\screen.cpp" />
-    <ClCompile Include="src\statistics.cpp" />
-    <ClCompile Include="src\tagmanager.cpp" />
-    <ClCompile Include="src\time2.cpp" />
-    <ClCompile Include="src\variant.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\containers\arraylist.h" />
@@ -223,8 +223,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="..\Shared\containers\ptrmap.h" />
     <ClInclude Include="..\Shared\containers\sortedvector.h" />
     <ClInclude Include="..\Shared\containers\table.h" />
-    <ClInclude Include="api\gl.h" />
-    <ClInclude Include="api\glutils.h" />
     <ClInclude Include="include\animation.h" />
     <ClInclude Include="include\bounds.h" />
     <ClInclude Include="include\camera.h" />
@@ -265,6 +263,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\graphicsviewer.h" />
     <ClInclude Include="include\world.h" />
+    <ClInclude Include="internal\api\gl.h" />
+    <ClInclude Include="internal\api\glutils.h" />
     <ClInclude Include="internal\async\guard.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\buffer.h" />
@@ -303,6 +303,15 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\rendering\rendering.h" />
     <ClInclude Include="internal\rendering\shadows.h" />
     <ClInclude Include="internal\rendering\uniformbuffermanager.h" />
+    <ClInclude Include="internal\tools\gizmosinternal.h" />
+    <ClInclude Include="internal\tools\graphicsinternal.h" />
+    <ClInclude Include="internal\tools\profilerinternal.h" />
+    <ClInclude Include="internal\tools\resourcesinternal.h" />
+    <ClInclude Include="internal\tools\screeninternal.h" />
+    <ClInclude Include="internal\tools\statisticsinternal.h" />
+    <ClInclude Include="internal\tools\tagmanagerinternal.h" />
+    <ClInclude Include="internal\tools\time2internal.h" />
+    <ClInclude Include="internal\world\engineinternal.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
   </ItemGroup>

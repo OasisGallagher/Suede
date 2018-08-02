@@ -1,15 +1,14 @@
 #include "glef.h"
 #include "variables.h"
 #include "tools/math2.h"
-#include "api/glutils.h"
 #include "vertexattrib.h"
 #include "tools/string.h"
 #include "os/filesystem.h"
+#include "../api/glutils.h"
 #include "shaderinternal.h"
 
 #include "internal/base/renderdefines.h"
 
-// TODO: reference world components?
 #include "internal/rendering/uniformbuffermanager.h"
 
 std::pair<std::string, float> _variables[] = {
@@ -587,7 +586,7 @@ void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
 
 uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 	if (key == TagKeyRenderQueue) {
-		return (uint)GLEF::Evaluate(expression.c_str(), &renderQueueVariables);
+		return (uint)GLEF::instance()->Evaluate(expression.c_str(), &renderQueueVariables);
 	}
 
 	Debug::LogError("invalid tag key %d.", key);
@@ -619,7 +618,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	LoadProperties(semantics.properties);
 
-	UniformBufferManager::get()->AttachSharedBuffers(SharedThis());
+	UniformBufferManager::instance()->AttachSharedBuffers(SharedThis());
 
 	path_ = path;
 	return true;

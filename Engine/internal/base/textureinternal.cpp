@@ -4,10 +4,10 @@
 #include "screen.h"
 #include "buffer.h"
 #include "resources.h"
-#include "api/glutils.h"
 #include "tools/math2.h"
 #include "framebuffer.h"
 #include "os/filesystem.h"
+#include "../api/glutils.h"
 #include "textureinternal.h"
 
 TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
@@ -242,7 +242,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::get()->GetTextureDirectory() + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::instance()->GetTextureDirectory() + path)) {
 		return false;
 	}
 
@@ -321,7 +321,7 @@ TextureCubeInternal::~TextureCubeInternal() {
 bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	TexelMap texelMaps[6];
 	for (int i = 0; i < 6; ++i) {
-		if (!ImageCodec::Decode(texelMaps[i], Resources::get()->GetTextureDirectory() + textures[i])) {
+		if (!ImageCodec::Decode(texelMaps[i], Resources::instance()->GetTextureDirectory() + textures[i])) {
 			return false;
 		}
 	}
@@ -571,7 +571,7 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 }
 
 void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
-	SetViewport(Screen::get()->GetWidth(), Screen::get()->GetHeight(), normalizedRect);
+	SetViewport(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), normalizedRect);
 
 	framebuffer_->SetClearDepth(value.w);
 	framebuffer_->SetClearColor(glm::vec3(value));
@@ -579,11 +579,11 @@ void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::v
 }
 
 uint ScreenRenderTextureInternal::GetWidth() const {
-	return Screen::get()->GetWidth();
+	return Screen::instance()->GetWidth();
 }
 
 uint ScreenRenderTextureInternal::GetHeight() const {
-	return Screen::get()->GetHeight();
+	return Screen::instance()->GetHeight();
 }
 
 GLenum ScreenRenderTextureInternal::GetGLTextureType() const {
@@ -605,7 +605,7 @@ void ScreenRenderTextureInternal::Bind(uint index) {
 }
 
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	SetViewport(Screen::get()->GetWidth(), Screen::get()->GetHeight(), normalizedRect);
+	SetViewport(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), normalizedRect);
 	framebuffer_->BindWrite();
 }
 

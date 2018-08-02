@@ -1,29 +1,15 @@
 #pragma once
-#include <vector>
-
 #include "enginedefines.h"
 #include "tools/singleton.h"
 #include "frameeventlistener.h"
 
-class GraphicsCanvas;
-class Engine : public Singleton<Engine> {
-	friend class Singleton<Engine>;
-
+class SUEDE_API Engine : public Singleton2<Engine> {
 public:
-	bool Initialize();
-	void Release();
+	virtual bool Initialize(uint width, uint height) = 0;
+	virtual void Release() = 0;
 
-	void Update();
+	virtual void Update() = 0;
 
-	void AddFrameEventListener(FrameEventListener* listener);
-	void RemoveFrameEventListener(FrameEventListener* listener);
-
-private:
-	Engine() {}
-	void SetDefaultGLStates();
-	void SortFrameEventListeners();
-	
-private:
-	typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
-	FrameEventListenerContainer frameEventListeners_;
+	virtual void AddFrameEventListener(FrameEventListener* listener) = 0;
+	virtual void RemoveFrameEventListener(FrameEventListener* listener) = 0;
 };

@@ -1,6 +1,6 @@
-#include "api/gl.h"
 #include "driver.h"
 #include "debug/debug.h"
+#include "../api/gl.h"
 
 #ifndef _STDCALL
 #define _STDCALL __stdcall
@@ -28,6 +28,17 @@ bool Driver::Initialize() {
 		GL::DebugMessageCallback(GLDebugMessageCallback, nullptr);
 		GL::Enable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	}
+
+	GL::ClearDepth(1);
+	GL::DepthRange(0, 1);
+
+	GL::Enable(GL_DEPTH_TEST);
+	GL::DepthFunc(GL_LEQUAL);
+
+	GL::Enable(GL_CULL_FACE);
+	GL::CullFace(GL_BACK);
+
+	GL::DepthMask(GL_TRUE);
 
 	return true;
 }

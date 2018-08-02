@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "mesh.h"
-#include "api/gl.h"
+#include "../api/gl.h"
 #include "componentinternal.h"
 #include "internal/base/vertexarray.h"
 

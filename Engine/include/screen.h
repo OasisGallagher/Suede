@@ -8,24 +8,12 @@ public:
 	virtual void OnScreenSizeChanged(uint width, uint height) = 0;
 };
 
-class SUEDE_API Screen : public Singleton<Screen> {
-	friend class Singleton<Screen>;
-
+class SUEDE_API Screen : public Singleton2<Screen> {
 public:
-	uint GetWidth() { return width_; }
-	uint GetHeight() { return height_; }
+	virtual uint GetWidth() = 0;
+	virtual uint GetHeight() = 0;
 
-	void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-
-public:
-	void Set(uint width, uint height);
-
-private:
-	Screen() {}
-
-private:
-	uint width_;
-	uint height_;
-	std::vector<ScreenSizeChangedListener*> listeners_;
+	virtual void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) = 0;
+	virtual void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) = 0;
+	virtual void Resize(uint width, uint height) = 0;
 };

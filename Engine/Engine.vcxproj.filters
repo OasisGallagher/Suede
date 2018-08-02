@@ -44,9 +44,6 @@
     <Filter Include="internal\memory\src">
       <UniqueIdentifier>{267d6009-824e-4f16-8945-732e57717d21}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{10fefdc2-0492-4bd2-862a-c3098401f3c0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\containers">
       <UniqueIdentifier>{c61e2ee9-b018-4ec7-9d3a-aa1d9f88e54c}</UniqueIdentifier>
     </Filter>
@@ -74,12 +71,6 @@
     <Filter Include="internal\rendering\src">
       <UniqueIdentifier>{25898a48-9103-48de-9fcd-2f61882bd8d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="api">
-      <UniqueIdentifier>{384f19f2-09d5-4a3b-8d2c-338e049f1b82}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="api\include">
-      <UniqueIdentifier>{82c584a2-c323-49fd-b709-c9e885613e79}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\culling">
       <UniqueIdentifier>{5a133204-f746-4f89-affe-24b00d2605a1}</UniqueIdentifier>
     </Filter>
@@ -91,9 +82,6 @@
     </Filter>
     <Filter Include="internal\components\src">
       <UniqueIdentifier>{76a1ca00-5788-45b2-855a-324e66d396a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="api\src">
-      <UniqueIdentifier>{9e9d953f-affe-4df5-93a2-3bcde0a5186f}</UniqueIdentifier>
     </Filter>
     <Filter Include="internal\async">
       <UniqueIdentifier>{5d5fb4fe-554a-4129-9dee-ac4805561d2a}</UniqueIdentifier>
@@ -118,6 +106,24 @@
     </Filter>
     <Filter Include="internal\culling\src">
       <UniqueIdentifier>{5d606452-5b94-4075-99e2-6bd916165304}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\tools">
+      <UniqueIdentifier>{7250f762-5349-4e9d-86fa-b0ac0e0f55fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\tools\include">
+      <UniqueIdentifier>{b06d49b2-1c40-40a3-9663-931299fc5f98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\tools\src">
+      <UniqueIdentifier>{1c767404-18f1-442a-9461-bc1f5a9215b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\api">
+      <UniqueIdentifier>{384f19f2-09d5-4a3b-8d2c-338e049f1b82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\api\include">
+      <UniqueIdentifier>{82c584a2-c323-49fd-b709-c9e885613e79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\api\src">
+      <UniqueIdentifier>{9e9d953f-affe-4df5-93a2-3bcde0a5186f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -301,9 +307,6 @@
     <ClInclude Include="internal\rendering\uniformbuffermanager.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
-    <ClInclude Include="api\gl.h">
-      <Filter>api\include</Filter>
-    </ClInclude>
     <ClInclude Include="include\statistics.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -367,9 +370,6 @@
     <ClInclude Include="internal\async\guard.h">
       <Filter>internal\async\include</Filter>
     </ClInclude>
-    <ClInclude Include="api\glutils.h">
-      <Filter>api\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\buffer.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
@@ -381,6 +381,39 @@
     </ClInclude>
     <ClInclude Include="include\profiler.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\time2internal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\gizmosinternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\graphicsinternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\profilerinternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\resourcesinternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\screeninternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\statisticsinternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\tools\tagmanagerinternal.h">
+      <Filter>internal\tools\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\api\gl.h">
+      <Filter>internal\api\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\api\glutils.h">
+      <Filter>internal\api\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\engineinternal.h">
+      <Filter>internal\world\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -405,9 +438,6 @@
     <ClCompile Include="internal\memory\factory.cpp">
       <Filter>internal\memory\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\engine.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\framebuffer.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
@@ -423,32 +453,11 @@
     <ClCompile Include="internal\base\fontinternal.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphics.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\resources.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\time2.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\screen.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\memory\creater.cpp">
       <Filter>internal\memory\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\gbuffer.cpp">
       <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\variant.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\tagmanager.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\driver.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\entityinternal.cpp">
       <Filter>internal\entities\src</Filter>
@@ -471,26 +480,8 @@
     <ClCompile Include="internal\base\vertexarray.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\bounds.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gizmos.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\geometryutility.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\plane.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\polygon.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp">
       <Filter>internal\rendering\src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\statistics.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="internal\components\animationinternal.cpp">
       <Filter>internal\components\src</Filter>
@@ -513,9 +504,6 @@
     <ClCompile Include="internal\rendering\shadows.cpp">
       <Filter>internal\rendering\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\rect.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\async\threadpool.cpp">
       <Filter>internal\async\src</Filter>
     </ClCompile>
@@ -534,12 +522,6 @@
     <ClCompile Include="internal\codec\entityloader.cpp">
       <Filter>internal\codec\src</Filter>
     </ClCompile>
-    <ClCompile Include="include\graphicsviewer.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="api\glutils.cpp">
-      <Filter>api\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\buffer.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
@@ -549,8 +531,59 @@
     <ClCompile Include="internal\base\gpuquerier.cpp">
       <Filter>internal\base\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\profiler.cpp">
-      <Filter>src</Filter>
+    <ClCompile Include="internal\geometry\bounds.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\geometryutility.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\plane.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\polygon.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\rect.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\driver.cpp">
+      <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\graphicsviewer.cpp">
+      <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\variant.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\gizmosinternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\graphicsinternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\profilerinternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\resourcesinternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\screeninternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\statisticsinternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\tagmanagerinternal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\time2internal.cpp">
+      <Filter>internal\tools\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\api\glutils.cpp">
+      <Filter>internal\api\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\engineinternal.cpp">
+      <Filter>internal\world\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

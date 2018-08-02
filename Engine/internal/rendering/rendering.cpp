@@ -18,13 +18,17 @@ Rendering::Rendering(RenderingParameters * p) :p_(p) {
 	CreateAuxMaterial(p_->materials.decal, "builtin/decal", RenderQueueOverlay - 500);
 
 	p_->renderTextures.aux1 = NewRenderTexture();
-	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
+	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
 	p_->renderTextures.aux2 = NewRenderTexture();
-	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::get()->GetWidth(), Screen::get()->GetHeight());
+	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
 	p_->renderTextures.depth = NewRenderTexture();
-	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::get()->GetWidth(), Screen::get()->GetHeight());
+	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+
+	depthSample = Profiler::instance()->CreateSample();
+	shadowSample = Profiler::instance()->CreateSample();
+	renderingSample = Profiler::instance()->CreateSample();
 }
 
 void Rendering::Resize(uint width, uint height) {
@@ -33,17 +37,14 @@ void Rendering::Resize(uint width, uint height) {
 	p_->renderTextures.depth->Resize(width, height);
 }
 
-Sample* depthSample = Profiler::get()->CreateSample();
-Sample* shadowSample = Profiler::get()->CreateSample();
-Sample* renderingSample = Profiler::get()->CreateSample();
 #define OutputSample(sample)	Debug::Output("%s elapsed %.2f seconds", #sample, sample->GetElapsedSeconds())
 
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
 
-	DepthPass(pipelines);
-
 	UpdateUniformBuffers(matrices, pipelines);
+	
+	DepthPass(pipelines);
 
 	ShadowPass(pipelines);
 
@@ -71,30 +72,29 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	p.worldToCameraMatrix = matrices.worldToCameraMatrix;
 	p.cameraToClipMatrix = matrices.projectionMatrix;
-	p.worldToShadowMatrix = Shadows::get()->GetWorldToShadowMatrix();
+	p.worldToShadowMatrix = Shadows::instance()->GetWorldToShadowMatrix();
 
 	p.cameraPos = glm::vec4(matrices.position, 1);
-	UniformBufferManager::get()->UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
+	UniformBufferManager::instance()->UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
-	Environment env = World::get()->GetEnvironment();
 
-	p.fog.color = env->GetFogColor();
-	p.fog.density = env->GetFogDensity();
+	p.fog.color = Environment::instance()->GetFogColor();
+	p.fog.density = Environment::instance()->GetFogDensity();
 
-	p.ambientColor = glm::vec4(env->GetAmbientColor(), 1);
+	p.ambientColor = glm::vec4(Environment::instance()->GetAmbientColor(), 1);
 	
 	p.lightPos = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
 	p.lightColor = glm::vec4(light->GetColor() * light->GetIntensity(), 1);
 
-	UniformBufferManager::get()->UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
+	UniformBufferManager::instance()->UpdateSharedBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
-	Shader shader = Resources::get()->FindShader(shaderPath);
+	Shader shader = Resources::instance()->FindShader(shaderPath);
 	material = NewMaterial();
 	material->SetShader(shader);
 	material->SetRenderQueue(renderQueue);
@@ -137,8 +137,8 @@ void Rendering::UpdateUniformBuffers(const RenderingMatrices& matrices, Renderin
 
 void Rendering::ShadowPass(RenderingPipelines &pipelines) {
 	RenderTexture target = pipelines.rendering->GetTargetTexture();
-	Shadows::get()->Resize(target->GetWidth(), target->GetHeight());
-	Shadows::get()->Clear();
+	Shadows::instance()->Resize(target->GetWidth(), target->GetHeight());
+	Shadows::instance()->Clear();
 
 	shadowSample->Restart();
 	pipelines.shadow->Run();
@@ -158,11 +158,11 @@ RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* li
 	pipelines_.rendering = MEMORY_CREATE(Pipeline);
 
 	pipelines_.shadow = MEMORY_CREATE(Pipeline);
-	pipelines_.shadow->SetTargetTexture(Shadows::get()->GetShadowTexture(), Rect(0, 0, 1, 1));
+	pipelines_.shadow->SetTargetTexture(Shadows::instance()->GetShadowTexture(), Rect(0, 0, 1, 1));
 
-	forward_pass = Profiler::get()->CreateSample();
-	push_renderables = Profiler::get()->CreateSample();
-	get_renderable_entities = Profiler::get()->CreateSample();
+	forward_pass = Profiler::instance()->CreateSample();
+	push_renderables = Profiler::instance()->CreateSample();
+	get_renderable_entities = Profiler::instance()->CreateSample();
 }
 
 RenderableTraits::~RenderableTraits() {
@@ -170,9 +170,9 @@ RenderableTraits::~RenderableTraits() {
 	MEMORY_RELEASE(pipelines_.shadow);
 	MEMORY_RELEASE(pipelines_.rendering);
 
-	Profiler::get()->ReleaseSample(forward_pass);
-	Profiler::get()->ReleaseSample(push_renderables);
-	Profiler::get()->ReleaseSample(get_renderable_entities);
+	Profiler::instance()->ReleaseSample(forward_pass);
+	Profiler::instance()->ReleaseSample(push_renderables);
+	Profiler::instance()->ReleaseSample(get_renderable_entities);
 }
 
 void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices) {
@@ -205,7 +205,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	RenderTexture target = GetActiveRenderTarget();
 
 	if (forwardBase) {
-		Shadows::get()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
+		Shadows::instance()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
 	}
 
 	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
@@ -249,7 +249,7 @@ void RenderableTraits::InitializeDeferredRender() {
 
 	deferredMaterial_ = NewMaterial();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
-	deferredMaterial_->SetShader(Resources::get()->FindShader("builtin/gbuffer"));*/
+	deferredMaterial_->SetShader(Resources::instance()->FindShader("builtin/gbuffer"));*/
 }
 
 void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<Entity>& entities_) {
@@ -268,11 +268,11 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 }
 
 void RenderableTraits::RenderSkybox(Pipeline* pl) {
-	Material skybox = World::get()->GetEnvironment()->GetSkybox();
+	Material skybox = Environment::instance()->GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pl->AddRenderable(Resources::get()->GetPrimitive(PrimitiveTypeCube), skybox, 0, matrix);
+		pl->AddRenderable(Resources::instance()->GetPrimitive(PrimitiveTypeCube), skybox, 0, matrix);
 	}
 }
 
@@ -322,7 +322,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& enti
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Entity> lights;
-	if (!World::get()->GetEntities(ObjectTypeLights, lights)) {
+	if (!World::instance()->GetEntities(ObjectTypeLights, lights)) {
 		return;
 	}
 
@@ -334,7 +334,7 @@ void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forward
 
 void RenderableTraits::RenderDecals(Pipeline* pl) {
 	std::vector<Decal*> decals;
-	World::get()->GetDecals(decals);
+	World::instance()->GetDecals(decals);
 
 	for (int i = 0; i < decals.size(); ++i) {
 		Decal* d = decals[i];

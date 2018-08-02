@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "../types.h"
+#include "../tools/singleton.h"
 
 #define NOARG
 #define VERIFY_INDEX(index, bounds, returns) if (index >= bounds) { Debug::LogError("index out of range"); return returns; } else (void)0
@@ -27,9 +28,7 @@ public:
 	static void Output(const char* format, ...);
 	static void SetLogReceiver(LogReceiver* value);
 
-private:
-	friend class Engine;
-	static void Initialize();
+	static bool Initialize();
 
 private:
 	Debug();

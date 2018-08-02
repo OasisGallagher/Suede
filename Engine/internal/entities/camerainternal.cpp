@@ -24,10 +24,10 @@ CameraInternal::CameraInternal()
 
 	rendering_ = MEMORY_CREATE(Rendering, &p_);// , this);
 
-	Engine::get()->AddFrameEventListener(this);
-	Screen::get()->AddScreenSizeChangedListener(this);
+	Engine::instance()->AddFrameEventListener(this);
+	Screen::instance()->AddScreenSizeChangedListener(this);
 
-	SetAspect((float)Screen::get()->GetWidth() / Screen::get()->GetHeight());
+	SetAspect((float)Screen::instance()->GetWidth() / Screen::instance()->GetHeight());
 }
 
 CameraInternal::~CameraInternal() {
@@ -38,8 +38,8 @@ CameraInternal::~CameraInternal() {
 	MEMORY_RELEASE(traits1_);
 
 	MEMORY_RELEASE(rendering_);
-	Engine::get()->RemoveFrameEventListener(this);
-	Screen::get()->RemoveScreenSizeChangedListener(this);
+	Engine::instance()->RemoveFrameEventListener(this);
+	Screen::instance()->RemoveScreenSizeChangedListener(this);
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {
@@ -61,7 +61,7 @@ void CameraInternal::SetDepth(int value) {
 		depth_ = value;
 		CameraDepthChangedEventPointer e = NewWorldEvent<CameraDepthChangedEventPointer>();
 		e->entity = SharedThis();
-		World::get()->FireEvent(e);
+		World::instance()->FireEvent(e);
 	}
 }
 
@@ -166,5 +166,5 @@ void CameraInternal::OnDrawGizmos() {
 		gizmosPainters_[i]->OnDrawGizmos();
 	}
 
-	Gizmos::get()->Flush();
+	Gizmos::instance()->Flush();
 }

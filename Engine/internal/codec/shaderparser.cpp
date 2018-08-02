@@ -99,7 +99,7 @@ bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
 bool GLSLParser::PreprocessInclude(const std::string& parameter) {
 	std::string source;
 	std::string path = parameter.substr(1, parameter.length() - 2);
-	if (!FileSystem::ReadAllText(Resources::get()->GetShaderDirectory() + path, source)) {
+	if (!FileSystem::ReadAllText(Resources::instance()->GetShaderDirectory() + path, source)) {
 		return false;
 	}
 
@@ -172,7 +172,7 @@ void GLSLParser::SetShaderStageCode(ShaderStage stage) {
 
 bool ShaderParser::Parse(Semantics& semantics, const std::string& path, const std::string& customDefines) {
 	SyntaxTree tree;
-	return GLEF::Parse((Resources::get()->GetShaderDirectory() + path).c_str(), tree)
+	return GLEF::instance()->Parse((Resources::instance()->GetShaderDirectory() + path).c_str(), tree)
 		&& ParseSemantics(tree, semantics);
 }
 
