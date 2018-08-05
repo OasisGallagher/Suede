@@ -5,8 +5,8 @@
 
 class SUEDE_API Engine : public Singleton2<Engine> {
 public:
-	virtual bool Initialize(uint width, uint height) = 0;
-	virtual void Release() = 0;
+	virtual bool Startup(uint width, uint height) = 0;
+	virtual void Shutdown() = 0;
 
 	virtual void Update() = 0;
 

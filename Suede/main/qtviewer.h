@@ -19,6 +19,7 @@ public:
 
 protected:
 	virtual void Update();
+	virtual void PollEvents();
 
 private:
 	void setupSuede();

@@ -24,6 +24,7 @@ public:
 	~Suede();
 
 public:
+	void init();
 	void awake();
 	void tick();
 

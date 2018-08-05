@@ -9,14 +9,15 @@ public:
 
 public:
 	void Run();
-	void SetCanvas(GraphicsCanvas* value);
+	bool SetCanvas(GraphicsCanvas* value);
 	void OnCanvasSizeChanged(uint width, uint height);
 
 protected:
 	void Close();
 
 protected:
-	virtual void Update();
+	virtual void Update() = 0;
+	virtual void PollEvents() = 0;
 
 private:
 	int status_;

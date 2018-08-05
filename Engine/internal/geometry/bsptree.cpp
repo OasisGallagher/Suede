@@ -128,7 +128,7 @@
 //}
 //
 //BSPTreeNode* BSPTree::CreateNode() {
-//	BSPTreeNode* answer = MEMORY_CREATE(BSPTreeNode);
+//	BSPTreeNode* answer = MEMORY_NEW(BSPTreeNode);
 //	answer->tree = this;
 //	return answer;
 //}

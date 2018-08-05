@@ -23,12 +23,12 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::CreateStorage() {
-	storage_.reset(MEMORY_CREATE(Storage));
+	storage_.reset(MEMORY_NEW(Storage));
 }
 
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	if (!storage_) {
-		storage_.reset(MEMORY_CREATE(Storage));
+		storage_.reset(MEMORY_NEW(Storage));
 	}
 
 	storage_->vao.Initialize();

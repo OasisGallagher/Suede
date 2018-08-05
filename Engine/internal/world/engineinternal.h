@@ -6,8 +6,8 @@ public:
 	EngineInternal() {}
 
 public:
-	virtual bool Initialize(uint width, uint height);
-	virtual void Release();
+	virtual bool Startup(uint width, uint height);
+	virtual void Shutdown();
 
 	virtual void Update();
 

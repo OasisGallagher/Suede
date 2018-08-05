@@ -39,7 +39,7 @@ public:
 // 	virtual void OnFrameLeave();
 
 private slots:
-	void updateStat();
+	void updateStatContent();
 	void onToggleStat(int state);
 
 	void onShadingModeChanged(const QString& str);
@@ -64,7 +64,7 @@ private:
 	void createScene();
 	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
 
-	void initializeStatWidget();
+	void updateStatPosition();
 
 private:
 	QList<Entity> selection_;

@@ -15,23 +15,23 @@ FileTree::FileTree() : root_(nullptr) {
 }
 
 FileTree::~FileTree() {
-	MEMORY_RELEASE(root_);
+	MEMORY_DELETE(root_);
 }
 
 FileEntry::~FileEntry() {
 	for (uint i = 0; i < children_.size(); ++i) {
-		MEMORY_RELEASE(children_[i]);
+		MEMORY_DELETE(children_[i]);
 	}
 }
 
 bool FileTree::Create(const std::string& directory, const std::string& reg) {
-	MEMORY_RELEASE(root_);
+	MEMORY_DELETE(root_);
 
-	root_ = MEMORY_CREATE(FileEntry);
+	root_ = MEMORY_NEW(FileEntry);
 	root_->SetName(EnsureDirectory(directory));
 
 	if (CreateRecursively(root_, root_->GetName(), "", std::regex(reg))) {
-		MEMORY_RELEASE(root_);
+		MEMORY_DELETE(root_);
 		root_ = nullptr;
 		return false;
 	}
@@ -52,7 +52,7 @@ bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& paren
 		std::string name = p.path().filename().string();
 		FileEntry* entry;
 		if (fs::is_directory(p)) {
-			entry = MEMORY_CREATE(FileEntry);
+			entry = MEMORY_NEW(FileEntry);
 			name += "/";
 			entry->SetName(name);
 
@@ -60,12 +60,12 @@ bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& paren
 				parentNode->AddChild(entry);
 			}
 			else {
-				MEMORY_RELEASE(entry);
+				MEMORY_DELETE(entry);
 			}
 		}
 		else if (fs::is_regular_file(p) && std::regex_match(name, r)) {
 			empty = false;
-			entry = MEMORY_CREATE(FileEntry);
+			entry = MEMORY_NEW(FileEntry);
 			entry->SetName(path + name);
 			parentNode->AddChild(entry);
 		}

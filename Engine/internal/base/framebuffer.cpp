@@ -171,15 +171,15 @@ Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRe
 
 	GL::GenFramebuffers(1, &fbo_);
 
-	renderTextures_ = MEMORY_CREATE_ARRAY(uint, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
+	renderTextures_ = MEMORY_NEW_ARRAY(uint, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
 	std::fill(renderTextures_, renderTextures_ + GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
 
-	glAttachments_ = MEMORY_CREATE_ARRAY(GLenum, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
+	glAttachments_ = MEMORY_NEW_ARRAY(GLenum, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
 }
 
 Framebuffer::~Framebuffer() {
-	MEMORY_RELEASE_ARRAY(renderTextures_);
-	MEMORY_RELEASE_ARRAY(glAttachments_);
+	MEMORY_DELETE_ARRAY(renderTextures_);
+	MEMORY_DELETE_ARRAY(glAttachments_);
 	
 	if (fbo_ != 0) {
 		GL::DeleteFramebuffers(1, &fbo_);

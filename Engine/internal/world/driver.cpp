@@ -48,19 +48,27 @@ bool Driver::IsSupported(const char* feature) {
 }
 
 const char* Driver::GetVendor() {
-	return (const char*)GL::GetString(GL_VENDOR);
+	const char* answer = (const char*)GL::GetString(GL_VENDOR);
+	if (answer == nullptr) { answer = "Unknown"; }
+	return answer;
 }
 
 const char* Driver::GetRenderer() {
-	return (const char*)GL::GetString(GL_RENDERER);
+	const char* answer = (const char*)GL::GetString(GL_RENDERER);
+	if (answer == nullptr) { answer = "Unknown"; }
+	return answer;
 }
 
 const char* Driver::GetOpenGLVersion() {
-	return (const char*)GL::GetString(GL_VERSION);
+	const char* answer = (const char*)GL::GetString(GL_VERSION);
+	if (answer == nullptr) { answer = "Unknown"; }
+	return answer;
 }
 
 const char* Driver::GetGLSLVersion() {
-	return (const char*)GL::GetString(GL_SHADING_LANGUAGE_VERSION);
+	const char* answer = (const char*)GL::GetString(GL_SHADING_LANGUAGE_VERSION);
+	if (answer == nullptr) { answer = "Unknown"; }
+	return answer;
 }
 
 static void _STDCALL GLDebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const GLvoid* userParam) {

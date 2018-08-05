@@ -40,7 +40,7 @@ void EngineInternal::SortFrameEventListeners() {
 	std::sort(frameEventListeners_.begin(), frameEventListeners_.end(), comparer);
 }
 
-bool EngineInternal::Initialize(uint width, uint height) {
+bool EngineInternal::Startup(uint width, uint height) {
 	setlocale(LC_ALL, "");
 	std::set_terminate(OnTerminate);
 	ZThread::ztException = OnZThreadException;
@@ -60,8 +60,8 @@ bool EngineInternal::Initialize(uint width, uint height) {
 	World::instance()->Initialize();
 }
 
-void EngineInternal::Release() {
-	World::instance()->Destroy();
+void EngineInternal::Shutdown() {
+	World::instance()->Finalize();
 }
 
 void EngineInternal::Update() {

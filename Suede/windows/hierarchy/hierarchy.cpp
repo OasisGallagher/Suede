@@ -14,8 +14,6 @@ Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
 void Hierarchy::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
-	World::instance()->AddEventListener(this);
-
 	setAcceptDrops(true);
 
 	model_ = new DragDropableItemModel(this);
@@ -29,6 +27,10 @@ void Hierarchy::init(Ui::Suede* ui) {
 	connect(ui_->tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
 
 	connect(ui->tree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onEntityDoubleClicked(const QModelIndex&)));
+}
+
+void Hierarchy::awake() {
+	World::instance()->AddEventListener(this);
 }
 
 void Hierarchy::OnEntityImported(Entity root, const std::string& path) {

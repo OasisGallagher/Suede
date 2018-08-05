@@ -61,7 +61,7 @@ public:
 	}
 
 	~free_list() {
-		MEMORY_RELEASE_ARRAY(memory_);
+		MEMORY_DELETE_ARRAY(memory_);
 	}
 
 	void clear() {
@@ -69,7 +69,7 @@ public:
 	}
 
 	void reallocate(size_t n) {
-		MEMORY_RELEASE_ARRAY(memory_);
+		MEMORY_DELETE_ARRAY(memory_);
 		size_ = 0;
 		capacity_ = n;
 		allocate(n);
@@ -137,7 +137,7 @@ public:
 
 private:
 	void allocate(size_t size) {
-		memory_ = MEMORY_CREATE_ARRAY(Block, size);
+		memory_ = MEMORY_NEW_ARRAY(Block, size);
 		setup();
 	}
 

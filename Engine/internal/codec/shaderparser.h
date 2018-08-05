@@ -161,7 +161,7 @@ private:
 
 template<class T>
 inline T* ShaderParser::Append(std::vector<T*>& cont) {
-	cont.push_back(MEMORY_CREATE(T));
+	cont.push_back(MEMORY_NEW(T));
 	return cont.back();
 }
 

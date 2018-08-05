@@ -5,7 +5,7 @@
 #include "geometryutility.h"
 
 Polygon::Polygon(const glm::vec3 * p, uint n) {
-	points = MEMORY_CREATE_ARRAY(glm::vec3, n);
+	points = MEMORY_NEW_ARRAY(glm::vec3, n);
 	memcpy(points, p, sizeof(glm::vec3) * n);
 
 	npoints = n;
@@ -15,12 +15,12 @@ Polygon::Polygon(const Polygon& other) : Polygon(other.points, other.npoints) {
 }
 
 Polygon::~Polygon() {
-	MEMORY_RELEASE_ARRAY(points);
+	MEMORY_DELETE_ARRAY(points);
 }
 
 Polygon& Polygon::operator=(const Polygon& other) {
-	MEMORY_RELEASE_ARRAY(points);
-	points = MEMORY_CREATE_ARRAY(glm::vec3, other.npoints);
+	MEMORY_DELETE_ARRAY(points);
+	points = MEMORY_NEW_ARRAY(glm::vec3, other.npoints);
 	memcpy(points, other.points, sizeof(glm::vec3) * other.npoints);
 	return *this;
 }

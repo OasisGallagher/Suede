@@ -13,7 +13,7 @@ UniformBufferManager::UniformBufferManager() {
 
 UniformBufferManager::~UniformBufferManager() {
 	for (SharedUniformBufferContainer::iterator ite = sharedUniformBuffers_.begin(); ite != sharedUniformBuffers_.end(); ++ite) {
-		MEMORY_RELEASE(ite->second);
+		MEMORY_DELETE(ite->second);
 	}
 }
 

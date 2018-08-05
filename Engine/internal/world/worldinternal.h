@@ -25,10 +25,14 @@ public:
 public:
 	virtual void Initialize();
 	virtual void Update();
-	virtual void Destroy();
+	virtual void Finalize();
 
 	virtual Transform GetRootTransform() { return root_->GetTransform(); }
-	virtual Object Create(ObjectType type);
+
+	virtual Object CreateObject(ObjectType type);
+
+	virtual void DestroyEntity(uint id);
+	virtual void DestroyEntity(Entity entity);
 
 	virtual Entity Import(const std::string& path, EntityLoadedListener* listener);
 	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener);
@@ -36,9 +40,6 @@ public:
 	virtual Entity GetEntity(uint id);
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker);
-
-	virtual void DestroyEntity(uint id);
-	virtual void DestroyEntity(Entity entity);
 
 	virtual bool FireEvent(WorldEventBasePointer e);
 	virtual void FireEventImmediate(WorldEventBasePointer e);

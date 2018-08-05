@@ -70,7 +70,7 @@ EntityLoader::EntityLoader(const std::string& path, Entity entity, WorkerEventLi
 
 EntityLoader::~EntityLoader() {
 	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
-		MEMORY_RELEASE(ite->second);
+		MEMORY_DELETE(ite->second);
 	}
 }
 
@@ -444,7 +444,7 @@ TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 	}
 
 	bool status = false;
-	TexelMap* answer = MEMORY_CREATE(TexelMap);
+	TexelMap* answer = MEMORY_NEW(TexelMap);
 
 	if (String::StartsWith(name, "*")) {
 		status = LoadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
@@ -454,7 +454,7 @@ TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 	}
 
 	if (!status) {
-		MEMORY_RELEASE(answer);
+		MEMORY_DELETE(answer);
 		return false;
 	}
 
@@ -497,8 +497,8 @@ bool EntityLoader::LoadAsset() {
 	asset_.meshAsset.topology = MeshTopology::Triangles;
 
 	if (scene_->mNumMeshes > 0) {
-		subMeshes = MEMORY_CREATE_ARRAY(SubMesh, scene_->mNumMeshes);
-		boundses = MEMORY_CREATE_ARRAY(Bounds, scene_->mNumMeshes);
+		subMeshes = MEMORY_NEW_ARRAY(SubMesh, scene_->mNumMeshes);
+		boundses = MEMORY_NEW_ARRAY(Bounds, scene_->mNumMeshes);
 		if (!LoadAttribute(asset_.meshAsset, subMeshes, boundses)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
@@ -515,8 +515,8 @@ bool EntityLoader::LoadAsset() {
 	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes, boundses);
 	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes, boundses);
 
-	MEMORY_RELEASE_ARRAY(subMeshes);
-	MEMORY_RELEASE_ARRAY(boundses);
+	MEMORY_DELETE_ARRAY(subMeshes);
+	MEMORY_DELETE_ARRAY(boundses);
 
 	Animation animation;
 	if (LoadAnimation(animation)) {

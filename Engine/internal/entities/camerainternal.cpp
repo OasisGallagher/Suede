@@ -16,13 +16,13 @@ void Camera::SetMain(Camera value) { main_ = value; }
 CameraInternal::CameraInternal()
 	: EntityInternal(ObjectTypeCamera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
-	culling_ = MEMORY_CREATE(Culling, this);
+	culling_ = MEMORY_NEW(Culling, this);
 	cullingThread_ = new ZThread::Thread(culling_);
 
-	traits0_ = MEMORY_CREATE(RenderableTraits, &p_);
-	traits1_ = MEMORY_CREATE(RenderableTraits, &p_);
+	traits0_ = MEMORY_NEW(RenderableTraits, &p_);
+	traits1_ = MEMORY_NEW(RenderableTraits, &p_);
 
-	rendering_ = MEMORY_CREATE(Rendering, &p_);// , this);
+	rendering_ = MEMORY_NEW(Rendering, &p_);// , this);
 
 	Engine::instance()->AddFrameEventListener(this);
 	Screen::instance()->AddScreenSizeChangedListener(this);
@@ -31,13 +31,13 @@ CameraInternal::CameraInternal()
 }
 
 CameraInternal::~CameraInternal() {
-	//MEMORY_RELEASE(gbuffer_);
+	//MEMORY_DELETE(gbuffer_);
 	CancelThreads();
 
-	MEMORY_RELEASE(traits0_);
-	MEMORY_RELEASE(traits1_);
+	MEMORY_DELETE(traits0_);
+	MEMORY_DELETE(traits1_);
 
-	MEMORY_RELEASE(rendering_);
+	MEMORY_DELETE(rendering_);
 	Engine::instance()->RemoveFrameEventListener(this);
 	Screen::instance()->RemoveScreenSizeChangedListener(this);
 }
@@ -51,7 +51,7 @@ void CameraInternal::CancelThreads() {
 	if (cullingThread_ != nullptr) {
 		culling_->Stop();
 		cullingThread_->wait();
-		MEMORY_RELEASE(cullingThread_);
+		MEMORY_DELETE(cullingThread_);
 		cullingThread_ = nullptr;
 	}
 }

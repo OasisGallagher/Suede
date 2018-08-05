@@ -38,7 +38,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
+//#define IMAGE_EFFECTS
 #define MAN
 // #define PARTICLE_SYSTEM
 // #define FONT
@@ -73,6 +73,8 @@ Canvas* Game::canvas() {
 
 void Game::init(Ui::Suede* ui) {
 	WinBase::init(ui);
+	stat_ = new StatsWidget(this);
+	stat_->setVisible(false);
 
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
 	connect(Hierarchy::instance(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
@@ -80,10 +82,9 @@ void Game::init(Ui::Suede* ui) {
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
 
 	timer_ = new QTimer(this);
-	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStat()));
+	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStatContent()));
 	timer_->start(FPS_UPDATE_INTERVAL);
 
-	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
 }
 
@@ -91,6 +92,9 @@ void Game::awake() {
 	grayscale_ = new Grayscale;
 	inversion_ = new Inversion;
 	gaussianBlur_ = new GaussianBlur;
+	
+	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
+	
 	createScene();
 }
 
@@ -182,6 +186,7 @@ void Game::keyPressEvent(QKeyEvent* event) {
 
 void Game::resizeEvent(QResizeEvent* event) {
 	controller_->onResize(event->size());
+	updateStatPosition();
 }
 
 void Game::timerEvent(QTimerEvent *event) {
@@ -202,19 +207,15 @@ void Game::updateSelection(QList<Entity>& container, const QList<Entity>& select
 }
 
 void Game::onToggleStat(int state) {
-	if (stat_ == nullptr) {
-		initializeStatWidget();
-	}
-
 	stat_->setVisible(!!state);
 
 	if (stat_->isVisible()) {
-		updateStat();
+		updateStatContent();
+		updateStatPosition();
 	}
 }
 
-void Game::initializeStatWidget() {
-	stat_ = new StatsWidget(this);
+void Game::updateStatPosition() {
 	QPoint pos = ui_->stat->parentWidget()->mapTo(this, ui_->stat->pos());
 	pos.setX(pos.x() - stat_->width());
 	pos.setY(pos.y() + ui_->stat->height());
@@ -247,8 +248,8 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
 	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + b.size.z * 2, camera->GetFarClipPlane() - b.size.z * 2);
 }
 
-void Game::updateStat() {
- 	if (stat_ != nullptr && stat_->isVisible()) {
+void Game::updateStatContent() {
+ 	if (stat_->isVisible()) {
  		stat_->setStats(Statistics::instance()->GetFrameRate(),
  			Statistics::instance()->GetDrawcalls(),
  			Statistics::instance()->GetTriangles()

@@ -75,16 +75,16 @@ void Suede::setupUI() {
 	}
 }
 
-void Suede::awake() {
+void Suede::init() {
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<WinBase*>(childWindows_[i])->init(&ui);
 	}
+}
 
+void Suede::awake() {
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<WinBase*>(childWindows_[i])->awake();
 	}
-
-	show();
 }
 
 void Suede::tick() {

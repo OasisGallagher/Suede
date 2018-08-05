@@ -23,7 +23,7 @@ void VertexArray::CreateVertexBuffers(size_t n) {
 
 	Bind();
 
-	vbos_ = MEMORY_CREATE_ARRAY(Buffer, n);
+	vbos_ = MEMORY_NEW_ARRAY(Buffer, n);
 	vboCount_ = n;
 
 	Unbind();
@@ -83,7 +83,7 @@ void VertexArray::DestroyVertexBuffers() {
 	}
 
 	vboCount_ = 0;
-	MEMORY_RELEASE_ARRAY(vbos_);
+	MEMORY_DELETE_ARRAY(vbos_);
 }
 
 void VertexArray::Bind() {

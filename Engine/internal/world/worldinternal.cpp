@@ -39,7 +39,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 }
 
 WorldInternal::WorldInternal()
-	: importer_(MEMORY_CREATE(EntityLoaderThreadPool)), decals_(SUEDE_MAX_DECALS) {
+	: importer_(MEMORY_NEW(EntityLoaderThreadPool)), decals_(SUEDE_MAX_DECALS) {
 	Screen::instance()->AddScreenSizeChangedListener(this);
 	AddEventListener(this);
 }
@@ -65,18 +65,18 @@ void WorldInternal::Initialize() {
 WorldInternal::~WorldInternal() {
 }
 
-void WorldInternal::Destroy() {
+void WorldInternal::Finalize() {
 	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
 		(*ite)->OnBeforeWorldDestroyed();
 	}
 
-	MEMORY_RELEASE(importer_);
+	MEMORY_DELETE(importer_);
 
 	RemoveEventListener(this);
 	Screen::instance()->RemoveScreenSizeChangedListener(this);
 }
 
-Object WorldInternal::Create(ObjectType type) {
+Object WorldInternal::CreateObject(ObjectType type) {
 	Object object = Factory::Create(type);
 	if (type >= ObjectTypeEntity) {
 		Entity entity = suede_dynamic_cast<Entity>(object);

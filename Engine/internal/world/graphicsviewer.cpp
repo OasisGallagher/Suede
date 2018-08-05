@@ -15,12 +15,14 @@ GraphicsViewer::GraphicsViewer(int argc, char * argv[])
 }
 
 GraphicsViewer::~GraphicsViewer() {
-	Engine::instance()->Release();
+	Engine::instance()->Shutdown();
 }
 
 void GraphicsViewer::Run() {
 	for (; status_ != ViewerStatusClosed;) {
-		if (canvas_ != nullptr) {
+		PollEvents();
+
+		if (status_ == ViewerStatusRunning && canvas_ != nullptr) {
 			canvas_->MakeCurrent();
 
 			Update();
@@ -32,24 +34,25 @@ void GraphicsViewer::Run() {
 	}
 }
 
-void GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
+bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	canvas_ = value;
 
 	if (status_ == ViewerStatusUninitialized) {
 		Engine::implement(new EngineInternal);
-		Engine::instance()->Initialize(value->GetWidth(), value->GetHeight());
-
-		status_ = ViewerStatusRunning;
+		if (Engine::instance()->Startup(value->GetWidth(), value->GetHeight())) {
+			status_ = ViewerStatusRunning;
+		}
 	}
+
+	return status_ == ViewerStatusRunning;
 }
 
 void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
-	Screen::instance()->Resize(width, height);
+	if (Screen::instance()) {
+		Screen::instance()->Resize(width, height);
+	}
 }
 
 void GraphicsViewer::Close() {
 	status_ = ViewerStatusClosed;
-}
-
-void GraphicsViewer::Update() {
 }

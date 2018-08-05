@@ -32,10 +32,10 @@ QtViewer::~QtViewer() {
 }
 
 void QtViewer::Update() {
-	GraphicsViewer::Update();
-
 	suede_->tick();
+}
 
+void QtViewer::PollEvents() {
 	app_.processEvents();
 }
 
@@ -82,8 +82,13 @@ void QtViewer::setupSuede() {
 	Canvas* c = Game::instance()->canvas();
 	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
 
-	SetCanvas(c);
-	suede_->awake();
+	suede_->init();
+
+	if (SetCanvas(c)) {
+		suede_->awake();
+	}
+
+	suede_->show();
 }
 
 void QtViewer::setupRegistry() {

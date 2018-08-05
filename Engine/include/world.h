@@ -141,9 +141,12 @@ class SUEDE_API World : public Singleton2<World> {
 public:
 	virtual void Initialize() = 0;
 	virtual void Update() = 0;
-	virtual void Destroy() = 0;
+	virtual void Finalize() = 0;
 
-	virtual Object Create(ObjectType type) = 0;
+	virtual Object CreateObject(ObjectType type) = 0;
+
+	virtual void DestroyEntity(uint id) = 0;
+	virtual void DestroyEntity(Entity entity) = 0;
 
 	virtual Entity Import(const std::string& path, EntityLoadedListener* listener) = 0;
 	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener) = 0;
@@ -153,9 +156,6 @@ public:
 	virtual Entity GetEntity(uint id) = 0;
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker) = 0;
-
-	virtual void DestroyEntity(uint id) = 0;
-	virtual void DestroyEntity(Entity entity) = 0;
 
 	virtual bool FireEvent(WorldEventBasePointer e) = 0;
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;

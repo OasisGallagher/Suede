@@ -1,33 +1,31 @@
 #pragma once
 
-#define MEMORY_CREATE(T, ...)			Memory::Create<T>(__VA_ARGS__)
-#define MEMORY_CREATE_ARRAY(T, count)	Memory::CreateArray<T>(count)
-#define MEMORY_RELEASE(pointer)			Memory::Release(pointer)
-#define MEMORY_RELEASE_ARRAY(pointer)	Memory::ReleaseArray(pointer)
-
-#define MEMORY_DESTROY_ON_UNLOAD(ptr)	static GlobalDestroyer<decltype(ptr)> _destroyer(ptr)
+#define MEMORY_NEW(T, ...)				Memory::New<T>(__VA_ARGS__)
+#define MEMORY_NEW_ARRAY(T, count)		Memory::NewArray<T>(count)
+#define MEMORY_DELETE(pointer)			Memory::Delete(pointer)
+#define MEMORY_DELETE_ARRAY(pointer)	Memory::DeleteArray(pointer)
 
 #include <memory>
 
 class Memory {
 public:
 	template <class T, class... Args>
-	static T* Create(Args... args) {
+	static T* New(Args... args) {
 		return new T(args...);
 	}
 
 	template <class T>
-	static void Release(T* pointer) {
+	static void Delete(T* pointer) {
 		delete pointer;
 	}
 
 	template <class T>
-	static T* CreateArray(size_t n) {
+	static T* NewArray(size_t n) {
 		return new T[n];
 	}
 
 	template <class T>
-	static void ReleaseArray(T* pointer) {
+	static void DeleteArray(T* pointer) {
 		delete[] pointer;
 	}
 
@@ -41,15 +39,6 @@ public:
 	static void free(void* p) {
 		::operator delete(p);
 	}
-};
-
-template <class T>
-class GlobalDestroyer {
-	T ptr;
-
-public:
-	GlobalDestroyer(T p) : ptr(p) {}
-	~GlobalDestroyer() { MEMORY_RELEASE(ptr); }
 };
 
 template <class T> class Allocator;
@@ -126,6 +115,6 @@ private:
 struct Deleter {
 	template <class T>
 	void operator()(T *p) {
-		Memory::Release(p);
+		Memory::Delete(p);
 	}
 };

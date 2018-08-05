@@ -32,7 +32,7 @@ Pass::Pass() : program_(0), oldProgram_(0) {
 
 Pass::~Pass() {
 	for (int i = 0; i < RenderStateCount; ++i) {
-		MEMORY_RELEASE(states_[i]);
+		MEMORY_DELETE(states_[i]);
 	}
 
 	GL::DeleteProgram(program_);
@@ -101,7 +101,7 @@ void Pass::Unbind() {
 void Pass::InitializeRenderStates(const std::vector<Semantics::RenderState>& states) {
 	for (uint i = 0; i < states.size(); ++i) {
 		RenderState* state = CreateRenderState(states[i]);
-		MEMORY_RELEASE(states_[state->GetType()]);
+		MEMORY_DELETE(states_[state->GetType()]);
 		states_[state->GetType()] = state;
 	}
 }
@@ -176,7 +176,7 @@ RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 }
 
 RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
-#define CASE(name)	if (state.type == #name) return MEMORY_CREATE(name ## State)
+#define CASE(name)	if (state.type == #name) return MEMORY_NEW(name ## State)
 	CASE(Cull);
 	CASE(ZTest);
 	CASE(Offset);
@@ -311,7 +311,7 @@ void Pass::AddAllUniforms() {
 	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORMS, &count);
 	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
-	char* name = MEMORY_CREATE_ARRAY(char, maxLength);
+	char* name = MEMORY_NEW_ARRAY(char, maxLength);
 	for (int i = 0; i < count; ++i) {
 		GL::GetActiveUniform(program_, i, maxLength, &length, &size, &type, name);
 
@@ -329,7 +329,7 @@ void Pass::AddAllUniforms() {
 		AddUniform(name, type, location, size);
 	}
 
-	MEMORY_RELEASE_ARRAY(name);
+	MEMORY_DELETE_ARRAY(name);
 }
 
 void Pass::AddAllUniformProperties(std::vector<Property*>& properties) {
@@ -346,7 +346,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 		}
 	}
 
-	Property* p = MEMORY_CREATE(Property);
+	Property* p = MEMORY_NEW(Property);
 	p->name = name;
 	switch (type) {
 		case VariantTypeInt:
@@ -507,14 +507,14 @@ SubShader::SubShader() : passes_(nullptr), passCount_(0)
 }
 
 SubShader::~SubShader() {
-	MEMORY_RELEASE_ARRAY(passes_);
+	MEMORY_DELETE_ARRAY(passes_);
 }
 
 bool SubShader::Initialize(std::vector<Property*>& properties, const Semantics::SubShader& config, const std::string& path) {
 	InitializeTags(config.tags);
 
 	passCount_ = config.passes.size();
-	passes_ = MEMORY_CREATE_ARRAY(Pass, config.passes.size());
+	passes_ = MEMORY_NEW_ARRAY(Pass, config.passes.size());
 
 	for (uint i = 0; i < passCount_; ++i) {
 		passes_[i].Initialize(properties, config.passes[i], path);
@@ -599,7 +599,7 @@ ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)
 }
 
 ShaderInternal::~ShaderInternal() {
-	MEMORY_RELEASE_ARRAY(subShaders_);
+	MEMORY_DELETE_ARRAY(subShaders_);
 	ReleaseProperties();
 }
 
@@ -626,7 +626,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 void ShaderInternal::LoadProperties(const std::vector<Property*>& properties) {
 	ReleaseProperties();
-	properties_ = MEMORY_CREATE_ARRAY(Property*, properties.size());
+	properties_ = MEMORY_NEW_ARRAY(Property*, properties.size());
 	propertyCount_ = properties.size();
 
 	std::copy(properties.begin(), properties.end(), properties_);
@@ -634,7 +634,7 @@ void ShaderInternal::LoadProperties(const std::vector<Property*>& properties) {
 
 void ShaderInternal::ParseSubShaders(std::vector<Property*>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
 	subShaderCount_ = subShaders.size();
-	subShaders_ = MEMORY_CREATE_ARRAY(SubShader, subShaders.size());
+	subShaders_ = MEMORY_NEW_ARRAY(SubShader, subShaders.size());
 	for (uint i = 0; i < subShaderCount_; ++i) {
 		subShaders_[i].Initialize(properties, subShaders[i], path);
 	}
@@ -642,10 +642,10 @@ void ShaderInternal::ParseSubShaders(std::vector<Property*>& properties, std::ve
 
 void ShaderInternal::ReleaseProperties() {
 	for (int i = 0; i < propertyCount_; ++i) {
-		MEMORY_RELEASE(properties_[i]);
+		MEMORY_DELETE(properties_[i]);
 	}
 
-	MEMORY_RELEASE_ARRAY(properties_);
+	MEMORY_DELETE_ARRAY(properties_);
 	propertyCount_ = 0;
 }
 

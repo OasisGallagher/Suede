@@ -354,7 +354,7 @@ RenderTexture RenderTexture::GetDefault() {
 	static RenderTexture screen;
 	
 	if (!screen) {
-		screen.reset(MEMORY_CREATE(ScreenRenderTextureInternal));
+		screen.reset(MEMORY_NEW(ScreenRenderTextureInternal));
 		screen->Create(RenderTextureFormatRgb, 0, 0);
 	}
 
@@ -380,7 +380,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	width_ = width;
 	height_ = height;
 
-	framebuffer_ = MEMORY_CREATE(Framebuffer);
+	framebuffer_ = MEMORY_NEW(Framebuffer);
 
 	GL::GenTextures(1, &texture_);
 	BindTexture();
@@ -461,7 +461,7 @@ void RenderTextureInternal::Unbind() {
 
 void RenderTextureInternal::DestroyFramebuffer() {
 	if (framebuffer_ != nullptr) {
-		MEMORY_RELEASE(framebuffer_);
+		MEMORY_DELETE(framebuffer_);
 		framebuffer_ = nullptr;
 	}
 }
@@ -534,7 +534,7 @@ bool TextureBufferInternal::Create(uint size) {
 	DestroyBuffer();
 	DestroyTexture();
 
-	buffer_ = MEMORY_CREATE(Buffer);
+	buffer_ = MEMORY_NEW(Buffer);
 	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
 	
 	GL::GenTextures(1, &texture_);
@@ -555,7 +555,7 @@ void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
 
 inline void TextureBufferInternal::DestroyBuffer() {
 	if (buffer_ != nullptr) {
-		MEMORY_RELEASE(buffer_);
+		MEMORY_DELETE(buffer_);
 		buffer_ = nullptr;
 	}
 }

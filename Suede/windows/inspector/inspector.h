@@ -19,6 +19,7 @@ public:
 
 public:
 	virtual void init(Ui::Suede* ui);
+	virtual void awake();
 
 public:
 	virtual void OnWorldEvent(WorldEventBasePointer e);

@@ -20,8 +20,6 @@ Inspector::~Inspector() {
 void Inspector::init(Ui::Suede* ui) {
 	WinBase::init(ui);
 
-	World::instance()->AddEventListener(this);
-
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
 
@@ -38,6 +36,10 @@ void Inspector::init(Ui::Suede* ui) {
 	connect(ui_->p0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
 	connect(ui_->r0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
 	connect(ui_->s0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
+}
+
+void Inspector::awake() {
+	World::instance()->AddEventListener(this);
 }
 
 void Inspector::OnWorldEvent(WorldEventBasePointer e) {

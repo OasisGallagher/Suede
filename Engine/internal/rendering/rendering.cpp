@@ -154,10 +154,10 @@ void Rendering::RenderPass(RenderingPipelines &pipelines) {
 }
 
 RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
-	pipelines_.depth = MEMORY_CREATE(Pipeline);
-	pipelines_.rendering = MEMORY_CREATE(Pipeline);
+	pipelines_.depth = MEMORY_NEW(Pipeline);
+	pipelines_.rendering = MEMORY_NEW(Pipeline);
 
-	pipelines_.shadow = MEMORY_CREATE(Pipeline);
+	pipelines_.shadow = MEMORY_NEW(Pipeline);
 	pipelines_.shadow->SetTargetTexture(Shadows::instance()->GetShadowTexture(), Rect(0, 0, 1, 1));
 
 	forward_pass = Profiler::instance()->CreateSample();
@@ -166,9 +166,9 @@ RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* li
 }
 
 RenderableTraits::~RenderableTraits() {
-	MEMORY_RELEASE(pipelines_.depth);
-	MEMORY_RELEASE(pipelines_.shadow);
-	MEMORY_RELEASE(pipelines_.rendering);
+	MEMORY_DELETE(pipelines_.depth);
+	MEMORY_DELETE(pipelines_.shadow);
+	MEMORY_DELETE(pipelines_.rendering);
 
 	Profiler::instance()->ReleaseSample(forward_pass);
 	Profiler::instance()->ReleaseSample(push_renderables);
@@ -244,7 +244,7 @@ void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<Entity>
 }
 
 void RenderableTraits::InitializeDeferredRender() {
-	/*gbuffer_ = MEMORY_CREATE(GBuffer);
+	/*gbuffer_ = MEMORY_NEW(GBuffer);
 	gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	deferredMaterial_ = NewMaterial();

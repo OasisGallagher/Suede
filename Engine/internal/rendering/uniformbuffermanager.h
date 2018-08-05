@@ -68,7 +68,7 @@ private:
 template  <class T>
 void UniformBufferManager::CreateSharedUniformBuffer(uint size) {
 	if (size == 0) { size = sizeof(T); }
-	UniformBuffer* ptr = MEMORY_CREATE(UniformBuffer);
+	UniformBuffer* ptr = MEMORY_NEW(UniformBuffer);
 	ptr->Create(T::GetName(), size);
 	sharedUniformBuffers_.insert(std::make_pair(T::GetName(), ptr));
 }

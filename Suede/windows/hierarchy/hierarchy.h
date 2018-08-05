@@ -20,6 +20,7 @@ public:
 
 public:
 	virtual void init(Ui::Suede* ui);
+	virtual void awake();
 
 public:
 	virtual void OnEntityImported(Entity root, const std::string& path);

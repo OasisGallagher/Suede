@@ -62,7 +62,7 @@ void UniformBuffer::Initialize(const std::string& name, uint size) {
 	name_ = name;
 	size_ = size;
 
-	ubo_ = MEMORY_CREATE(Buffer);
+	ubo_ = MEMORY_NEW(Buffer);
 	ubo_->Create(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
 
 	binding_ = bindingPoint_++;
@@ -70,7 +70,7 @@ void UniformBuffer::Initialize(const std::string& name, uint size) {
 }
 
 void UniformBuffer::Destroy() {
-	MEMORY_RELEASE(ubo_);
+	MEMORY_DELETE(ubo_);
 }
 
 void UniformBuffer::Attach(Shader shader) {
