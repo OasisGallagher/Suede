@@ -102,8 +102,8 @@ Mesh GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 }
 
 void GraphicsInternal::DrawSubMeshes(Mesh mesh) {
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
+	for (SubMesh subMesh : mesh->GetSubMeshes()) {
+		GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), subMesh->GetTriangleBias());
 	}
 }
 

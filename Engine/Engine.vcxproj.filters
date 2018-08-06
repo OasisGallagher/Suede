@@ -415,6 +415,9 @@
     <ClInclude Include="internal\world\engineinternal.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\world\decalcreater.h">
+      <Filter>internal\world\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -583,6 +586,9 @@
       <Filter>internal\api\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\world\engineinternal.cpp">
+      <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\decalcreater.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,6 @@
 #include "time2.h"
+#include "tools/math2.h"
+#include "decalcreater.h"
 #include "worldinternal.h"
 #include "../api/glutils.h"
 #include "geometryutility.h"
@@ -39,7 +41,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 }
 
 WorldInternal::WorldInternal()
-	: importer_(MEMORY_NEW(EntityLoaderThreadPool)), decals_(SUEDE_MAX_DECALS) {
+	: importer_(MEMORY_NEW(EntityLoaderThreadPool)) {
 	Screen::instance()->AddScreenSizeChangedListener(this);
 	AddEventListener(this);
 }
@@ -53,9 +55,10 @@ void WorldInternal::Initialize() {
 	Environment::implement(new EnvironmentInternal);
 
 	UniformBufferManager::instance();
-
 	Shadows::instance();
 	MatrixBuffer::instance();
+
+	decalCreater_ = MEMORY_NEW(DecalCreater);
 
 	root_ = Factory::Create<EntityInternal>();
 	root_->SetTransform(Factory::Create<TransformInternal>());
@@ -71,6 +74,7 @@ void WorldInternal::Finalize() {
 	}
 
 	MEMORY_DELETE(importer_);
+	MEMORY_DELETE(decalCreater_);
 
 	RemoveEventListener(this);
 	Screen::instance()->RemoveScreenSizeChangedListener(this);
@@ -78,31 +82,7 @@ void WorldInternal::Finalize() {
 
 Object WorldInternal::CreateObject(ObjectType type) {
 	Object object = Factory::Create(type);
-	if (type >= ObjectTypeEntity) {
-		Entity entity = suede_dynamic_cast<Entity>(object);
-		Transform transform = Factory::Create<TransformInternal>();
-		entity->SetTransform(transform);
-
-		EntityCreatedEventPointer e = NewWorldEvent<EntityCreatedEventPointer>();
-		e->entity = entity;
-		FireEvent(e);
-
- 		GUARD_SCOPE_TYPED(Transform);
- 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
-	}
-
-	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
-		lights_.insert(suede_dynamic_cast<Light>(object));
-	}
-
-	if (type == ObjectTypeCamera) {
-		cameras_.insert(suede_dynamic_cast<Camera>(object));
-	}
-
-	if (type == ObjectTypeProjector) {
-		projectors_.insert(suede_dynamic_cast<Projector>(object));
-	}
-
+	AddObject(object);
 	return object;
 }
 
@@ -166,42 +146,15 @@ bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) 
 		return false;
 	}
 
-	if (type == ObjectTypeEntity) {
-		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			entities.push_back(ite->second);
-		}
-	}
-	else if (type == ObjectTypeCamera) {
-		entities.assign(cameras_.begin(), cameras_.end());
-	}
-	else if (type == ObjectTypeLights) {
-		entities.assign(lights_.begin(), lights_.end());
-	}
-	else if (type == ObjectTypeProjector) {
-		entities.assign(projectors_.begin(), projectors_.end());
-	}
-	else {
-		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			if (ite->second->GetType() == type) {
-				entities.push_back(ite->second);
-			}
-		}
-	}
-
-	return !entities.empty();
+	return CollectEntities(type, entities);
 }
 
 void WorldInternal::WalkEntityHierarchy(WorldEntityWalker* walker) {
-	GUARD_SCOPE_TYPED(Transform);
+	ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
 	WalkEntityHierarchyRecursively(GetRootTransform(), walker);
 }
 
 void WorldInternal::AddEventListener(WorldEventListener* listener) {
-	if (listener == nullptr) {
-		Debug::LogError("invalid world event listener.");
-		return;
-	}
-
 	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
 		listeners_.push_back(listener);
 	}
@@ -218,7 +171,7 @@ bool WorldInternal::FireEvent(WorldEventBasePointer e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
 
-	GUARD_SCOPE_TYPED(WorldEventContainer);
+	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 	if (collection.find(e) == collection.end()) {
 		collection.insert(e);
 		return true;
@@ -233,17 +186,15 @@ void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
 	}
 }
 
-void WorldInternal::GetDecals(std::vector<Decal*>& container) {
-	for (DecalContainer::iterator ite = decals_.begin(); ite != decals_.end(); ++ite) {
-		container.push_back(*ite);
-	}
+void WorldInternal::GetDecals(std::vector<Decal>& container) {
+	decalCreater_->GetDecals(container);
 }
 
 void WorldInternal::UpdateDecals() {
-	decals_.clear();
-
 	Camera main = Camera::GetMain();
-	if (main) { CreateDecals(main); }
+	if (main) {
+		decalCreater_->Update(main, projectors_);
+	}
 }
 
 void WorldInternal::CullingUpdateEntities() {
@@ -293,21 +244,79 @@ void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 }
 
 void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
-	if (e->GetEventType() == WorldEventTypeCameraDepthChanged) {
-		cameras_.sort();
+	switch (e->GetEventType()) {
+		case WorldEventTypeCameraDepthChanged:
+			cameras_.sort();
+			break;
+		case WorldEventTypeEntityParentChanged:
+			OnEntityParentChanged(suede_static_cast<EntityEventPointer>(e)->entity);
+			break;
+		case WorldEventTypeEntityUpdateStrategyChanged:
+			AddEntityToUpdateSequence(suede_static_cast<EntityEventPointer>(e)->entity);
+			break;
 	}
-	else if (e->GetEventType() == WorldEventTypeEntityParentChanged) {
-		Entity entity = suede_static_cast<EntityParentChangedEventPointer>(e)->entity;
-		if (entity->GetTransform()->GetParent()) {
-			entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
-		}
-		else {
-			entities_.erase(entity->GetInstanceID());
+}
+
+void WorldInternal::AddObject(Object object) {
+	ObjectType type = object->GetType();
+	if (type >= ObjectTypeEntity) {
+		Entity entity = suede_dynamic_cast<Entity>(object);
+		Transform transform = Factory::Create<TransformInternal>();
+		entity->SetTransform(transform);
+
+		EntityCreatedEventPointer e = NewWorldEvent<EntityCreatedEventPointer>();
+		e->entity = entity;
+		FireEvent(e);
+
+		ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
+		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
+	}
+
+	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
+		lights_.insert(suede_dynamic_cast<Light>(object));
+	}
+
+	if (type == ObjectTypeCamera) {
+		cameras_.insert(suede_dynamic_cast<Camera>(object));
+	}
+
+	if (type == ObjectTypeProjector) {
+		projectors_.insert(suede_dynamic_cast<Projector>(object));
+	}
+}
+
+bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity> &entities) {
+	if (type == ObjectTypeEntity) {
+		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+			entities.push_back(ite->second);
 		}
 	}
-	else if (e->GetEventType() == WorldEventTypeEntityUpdateStrategyChanged) {
-		Entity entity = suede_static_cast<EntityUpdateStrategyChangedEventPointer>(e)->entity;
-		AddEntityToUpdateSequence(entity);
+	else if (type == ObjectTypeCamera) {
+		entities.assign(cameras_.begin(), cameras_.end());
+	}
+	else if (type == ObjectTypeLights) {
+		entities.assign(lights_.begin(), lights_.end());
+	}
+	else if (type == ObjectTypeProjector) {
+		entities.assign(projectors_.begin(), projectors_.end());
+	}
+	else {
+		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+			if (ite->second->GetType() == type) {
+				entities.push_back(ite->second);
+			}
+		}
+	}
+
+	return !entities.empty();
+}
+
+void WorldInternal::OnEntityParentChanged(Entity entity) {
+	if (entity->GetTransform()->GetParent()) {
+		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
+	}
+	else {
+		entities_.erase(entity->GetInstanceID());
 	}
 }
 
@@ -319,106 +328,10 @@ void WorldInternal::FireEvents() {
 		}
 	}
 
-	GUARD_SCOPE_TYPED(WorldEventContainer);
+	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 	for (uint i = 0; i < WorldEventTypeCount; ++i) {
 		events_[i].clear();
 	}
-}
-
-void WorldInternal::CreateDecals(Camera camera) {
-	for (ProjectorContainer::iterator ite = projectors_.begin(); ite != projectors_.end(); ++ite) {
-		Projector p = *ite;
-		GeometryUtility::CalculateFrustumPlanes(planes_, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix());
-
-		if (!CreateProjectorDecal(camera, p, planes_)) {
-			break;
-		}
-	}
-}
-
-bool WorldInternal::CreateEntityDecal(Camera camera, Decal& decal, Entity entity, Plane planes[6]) {
-	std::vector<glm::vec3> triangles;
-	if (!ClampMesh(camera, triangles, entity, planes)) {
-		return false;
-	}
-
-	std::vector<uint> indexes;
-	indexes.reserve(triangles.size());
-	for (uint i = 0; i < triangles.size(); ++i) {
-		indexes.push_back(i);
-	}
-
-	decal.indexes = indexes;
-	decal.positions = triangles;
-	decal.topology = MeshTopology::Triangles;
-
-	return true;
-}
-
-bool WorldInternal::CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]) {
-	/*std::vector<Entity> entities;
-	if (!GetVisibleEntities(entities, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix())) {
-		return true;
-	}
-
-	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
-		Entity entity = *ite;
-		if (entity == p) { continue; }
-
-		Decal* decal = decals_.spawn();
-		if (decal == nullptr) {
-			Debug::LogError("too many decals");
-			return false;
-		}
-
-		if (!CreateEntityDecal(camera, *decal, entity, planes)) {
-			decals_.recycle(decal);
-		}
-
-		decal->texture = p->GetTexture();
-		decal->matrix = p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix();
-	}*/
-	
-	return true;
-}
-
-bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]) {
-	Mesh mesh = entity->GetMesh();
-	glm::vec3 cameraPosition = entity->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
-
-	uint* indexes = mesh->MapIndexes();
-	glm::vec3* vertices = mesh->MapVertices();
-
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
-		const TriangleBias& bias = subMesh->GetTriangleBias();
-
-		// TODO: use triangle strip?
-		for (int j = 0; j < bias.indexCount; j += 3) {
-			std::vector<glm::vec3> polygon;
-			uint index0 = indexes[bias.baseIndex + j] + bias.baseVertex;
-			uint index1 = indexes[bias.baseIndex + j + 1] + bias.baseVertex;
-			uint index2 = indexes[bias.baseIndex + j + 2] + bias.baseVertex;
-			
-			glm::vec3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
-
-			if (!GeometryUtility::IsFrontFace(vs, cameraPosition)) {
-				continue;
-			}
-
-			vs[0] = entity->GetTransform()->TransformPoint(vs[0]);
-			vs[1] = entity->GetTransform()->TransformPoint(vs[1]);
-			vs[2] = entity->GetTransform()->TransformPoint(vs[2]);
-
-			GeometryUtility::ClampTriangle(polygon, vs, planes, 6);
-			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
-		}
-	}
-
-	mesh->UnmapIndexes();
-	mesh->UnmapVertices();
-
-	return triangles.size() >= 3;
 }
 
 void WorldInternal::UpdateTimeUniformBuffer() {
@@ -455,12 +368,14 @@ void WorldInternal::AddEntityToUpdateSequence(Entity entity) {
 }
 
 void WorldInternal::CullingUpdate() {
-	UpdateDecals();
 	CullingUpdateEntities();
 }
 
 void WorldInternal::RenderingUpdate() {
 	FireEvents();
+
+	// TODO: update decals in rendering thread ?
+	UpdateDecals();
 
 	RenderingUpdateEntities();
 

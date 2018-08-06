@@ -45,6 +45,7 @@ public:
 	virtual void AddSubMesh(SubMesh subMesh);
 	virtual int GetSubMeshCount() { return subMeshes_.size(); }
 	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
+	virtual Enumerable GetSubMeshes() { return Enumerable(subMeshes_.begin(), subMeshes_.end()); }
 	virtual void RemoveSubMesh(uint index);
 
 	virtual MeshTopology GetTopology() { return storage_->topology; }

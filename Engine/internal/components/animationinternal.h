@@ -101,9 +101,7 @@ public:
 
 private:
 	struct FloatCamparer {
-		bool operator()(float lhs, float rhs) const {
-			return !Math::Approximately(lhs, rhs) && lhs < rhs;
-		}
+		bool operator()(float lhs, float rhs) const;
 	};
 
 	struct Key {

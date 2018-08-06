@@ -69,6 +69,8 @@ public:
 
 	virtual const glm::mat4& GetProjectionMatrix() = 0;
 
+	virtual void GetVisibleEntities(std::vector<Entity>& entities) = 0;
+
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;
 

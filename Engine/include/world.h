@@ -170,5 +170,5 @@ public:
 	virtual void AddEventListener(WorldEventListener* listener) = 0;
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
 
-	virtual void GetDecals(std::vector<Decal*>& container) = 0;
+	virtual void GetDecals(std::vector<Decal>& container) = 0;
 };

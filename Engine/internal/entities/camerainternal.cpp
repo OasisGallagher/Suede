@@ -7,6 +7,7 @@
 #include "gizmospainter.h"
 #include "geometryutility.h"
 
+#include "internal/async/guard.h"
 #include "internal/entities/camerainternal.h"
 
 static Camera main_;
@@ -101,7 +102,13 @@ void CameraInternal::OnCullingFinished() {
 	matrices.position = GetTransform()->GetPosition();
 	matrices.projectionMatrix = GetProjectionMatrix();
 	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-	traits1_->Traits(culling_->GetEntities(), matrices);
+
+	{
+		ZTHREAD_LOCK_SCOPE(visibleEntitiesMutex_);
+		visibleEntities_ = culling_->GetEntities();
+	}
+
+	traits1_->Traits(visibleEntities_, matrices);
 
 	std::swap(traits0_, traits1_);
 	traitsReady_ = true;
@@ -132,6 +139,11 @@ void CameraInternal::SetRect(const Rect& value) {
 		p_.normalizedRect = value;
 		rendering_->ClearRenderTextures();
 	}
+}
+
+void CameraInternal::GetVisibleEntities(std::vector<Entity>& entities) {
+	ZTHREAD_LOCK_SCOPE(visibleEntitiesMutex_);
+	entities = visibleEntities_;
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {

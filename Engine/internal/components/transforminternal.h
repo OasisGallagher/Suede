@@ -1,4 +1,5 @@
 #include <vector>
+#include <ZThread/Mutex.h>
 
 #include "transform.h"
 #include "tools/dirtybits.h"
@@ -6,6 +7,9 @@
 
 class TransformInternal : virtual public ITransform, public ComponentInternal, public DirtyBits {
 	DEFINE_FACTORY_METHOD(Transform)
+
+public:
+	static ZThread::Mutex hierarchyMutex;
 
 public:
 	TransformInternal();
@@ -79,8 +83,8 @@ private:
 
 	typedef std::vector<Transform> Children;
 
-	bool AddItem(Children& children, Transform child);
-	bool EraseItem(Children& children, Transform child);
+	bool AddChildItem(Children& children, Transform child);
+	bool RemoveChildItem(Children& children, Transform child);
 
 private:
 	enum {

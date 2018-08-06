@@ -32,7 +32,6 @@ struct RenderingMatrices {
 };
 
 struct RenderingMaterials {
-	Material decal;
 	Material depth;
 };
 

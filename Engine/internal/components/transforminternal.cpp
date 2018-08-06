@@ -5,6 +5,8 @@
 #include "transforminternal.h"
 #include "internal/async/guard.h"
 
+ZThread::Mutex TransformInternal::hierarchyMutex;
+
 TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform) {
 	local_.scale = world_.scale = glm::vec3(1);
 }
@@ -39,8 +41,6 @@ void TransformInternal::RemoveChildAt(uint index) {
 }
 
 void TransformInternal::SetParent(Transform value) {
-	GUARD_SCOPE_TYPED(Transform);
-
 	if (value.get() == this) {
 		Debug::LogError("parent can not be itself.");
 		return;
@@ -48,6 +48,7 @@ void TransformInternal::SetParent(Transform value) {
 
 	Transform oldParent = parent_.lock();
 	if (oldParent != value) {
+		ZTHREAD_LOCK_SCOPE(hierarchyMutex);
 		ChangeParent(oldParent, value);
 	}
 }
@@ -542,15 +543,15 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	Transform thisSp = SharedThis();
 
 	if (oldParent) { // remove from old parent.
-		EraseItem(InternalPtr(oldParent)->children_, thisSp);
+		RemoveChildItem(InternalPtr(oldParent)->children_, thisSp);
 	}
 
 	if (newParent) {
-		AddItem(InternalPtr(newParent)->children_, thisSp);
+		AddChildItem(InternalPtr(newParent)->children_, thisSp);
 	}
 
-	if (parent_.lock()) {
-		parent_.lock()->GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	if (oldParent) {
+		oldParent->GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}
 
 	if (newParent) {
@@ -572,7 +573,7 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	}
 }
 
-bool TransformInternal::AddItem(Children & children, Transform child) {
+bool TransformInternal::AddChildItem(Children & children, Transform child) {
 	if (std::find(children.begin(), children.end(), child) == children.end()) {
 		children.push_back(child);
 		return true;
@@ -581,7 +582,7 @@ bool TransformInternal::AddItem(Children & children, Transform child) {
 	return false;
 }
 
-bool TransformInternal::EraseItem(Children& children, Transform child) {
+bool TransformInternal::RemoveChildItem(Children& children, Transform child) {
 	Children::iterator pos = std::find(children.begin(), children.end(), child);
 	if (pos != children.end()) {
 		children.erase(pos);

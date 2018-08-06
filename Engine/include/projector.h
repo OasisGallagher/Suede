@@ -3,12 +3,8 @@
 #include "texture.h"
 
 struct Decal {
-	Texture texture;
-	glm::mat4 matrix;
-
-	MeshTopology topology;
-	std::vector<uint> indexes;
-	std::vector<glm::vec3> positions;
+	Mesh mesh;
+	Material material;
 };
 
 class SUEDE_API IProjector : virtual public IEntity {

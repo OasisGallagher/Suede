@@ -301,6 +301,10 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 	keys->insert(std::make_pair(time, key));
 }
 
+bool AnimationKeysInternal::FloatCamparer::operator()(float lhs, float rhs) const {
+	return !Math::Approximately(lhs, rhs) && lhs < rhs;
+}
+
 void AnimationInternal::AddClip(const std::string& name, AnimationClip value) {
 	clips_.insert(std::make_pair(name, value));
 	value->SetAnimation(SharedThis());

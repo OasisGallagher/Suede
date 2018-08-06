@@ -211,6 +211,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\tools\statisticsinternal.cpp" />
     <ClCompile Include="internal\tools\tagmanagerinternal.cpp" />
     <ClCompile Include="internal\tools\time2internal.cpp" />
+    <ClCompile Include="internal\world\decalcreater.cpp" />
     <ClCompile Include="internal\world\driver.cpp" />
     <ClCompile Include="internal\world\engineinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
@@ -311,6 +312,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\tools\statisticsinternal.h" />
     <ClInclude Include="internal\tools\tagmanagerinternal.h" />
     <ClInclude Include="internal\tools\time2internal.h" />
+    <ClInclude Include="internal\world\decalcreater.h" />
     <ClInclude Include="internal\world\engineinternal.h" />
     <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />

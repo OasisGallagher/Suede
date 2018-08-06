@@ -70,6 +70,9 @@ struct MeshAttribute {
 
 class SUEDE_API IMesh : virtual public IComponent {
 public:
+	typedef SuedeEnumerable<std::vector<SubMesh>::iterator> Enumerable;
+
+public:
 	/**
 	 * @brief: create an empty storage for sharing.
 	 */
@@ -85,6 +88,7 @@ public:
 	virtual void AddSubMesh(SubMesh subMesh) = 0;
 	virtual int GetSubMeshCount() = 0;
 	virtual SubMesh GetSubMesh(uint index) = 0;
+	virtual Enumerable GetSubMeshes() = 0;
 	virtual void RemoveSubMesh(uint index) = 0;
 
 	virtual MeshTopology GetTopology() = 0;

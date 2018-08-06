@@ -15,7 +15,6 @@ RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTe
 
 Rendering::Rendering(RenderingParameters * p) :p_(p) {
 	CreateAuxMaterial(p_->materials.depth, "builtin/depth", RenderQueueBackground - 300);
-	CreateAuxMaterial(p_->materials.decal, "builtin/decal", RenderQueueOverlay - 500);
 
 	p_->renderTextures.aux1 = NewRenderTexture();
 	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
@@ -179,7 +178,6 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	matrices_ = matrices;
 	Clear();
 
-
 	glm::mat4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
 	for (int i = 0; i < entities.size(); ++i) {
@@ -333,33 +331,11 @@ void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forward
 }
 
 void RenderableTraits::RenderDecals(Pipeline* pl) {
-	std::vector<Decal*> decals;
+	std::vector<Decal> decals;
 	World::instance()->GetDecals(decals);
 
-	for (int i = 0; i < decals.size(); ++i) {
-		Decal* d = decals[i];
-		glm::mat4 biasMatrix = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5f)), glm::vec3(0.5f));
-		Material decalMaterial = suede_dynamic_cast<Material>(p_->materials.decal->Clone());
-
-		decalMaterial->SetMatrix4(Variables::DecalMatrix, biasMatrix * d->matrix);
-		decalMaterial->SetTexture(Variables::MainTexture, d->texture);
-
-		Mesh mesh = NewMesh();
-
-		MeshAttribute attribute;
-		attribute.topology = d->topology;
-		attribute.indexes = d->indexes;
-		attribute.positions = d->positions;
-
-		mesh->SetAttribute(attribute);
-
-		SubMesh subMesh = NewSubMesh();
-		TriangleBias bias{ d->indexes.size() };
-		subMesh->SetTriangleBias(bias);
-
-		mesh->AddSubMesh(subMesh);
-
-		pl->AddRenderable(mesh, decalMaterial, 0, glm::mat4(1));
+	for (Decal& d : decals) {
+		pl->AddRenderable(d.mesh, d.material, 0, glm::mat4(1));
 	}
 }
 

@@ -1,3 +1,4 @@
+#include "guard.h"
 #include "engine.h"
 #include "threadpool.h"
 #include "debug/debug.h"
@@ -58,7 +59,7 @@ ThreadPool::~ThreadPool() {
 }
 
 void ThreadPool::OnWorkFinished(Worker* runnable) {
-	ZThread::Guard<ZThread::Mutex> guard(scheduleContainerMutex_);
+	ZTHREAD_LOCK_SCOPE(scheduleContainerMutex_);
 
 	for (std::vector<ZThread::Task>::iterator ite = tasks_.begin(); ite != tasks_.end(); ++ite) {
 		ZThread::Task task = *ite;
@@ -83,7 +84,7 @@ void ThreadPool::OnFrameEnter() {
 }
 
 void ThreadPool::UpdateSchedules() {
-	ZThread::Guard<ZThread::Mutex> guard(scheduleContainerMutex_);
+	ZTHREAD_LOCK_SCOPE(scheduleContainerMutex_);
 
 	for (; !schedules_.empty();) {
 		ZThread::Task schedule = schedules_.front();

@@ -40,8 +40,7 @@ void MeshInspector::drawMesh() {
 
 	QListWidget* subMeshList = new QListWidget(this);
 
-	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh subMesh = mesh->GetSubMesh(i);
+	for(SubMesh subMesh : mesh->GetSubMeshes()) {
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
 		int triangles = mesh->GetTopology() == MeshTopology::Triangles ? bias.indexCount / 3 : Math::Max(0u, bias.indexCount - 2);

@@ -10,11 +10,11 @@
 #include "entity.h"
 #include "projector.h"
 #include "environment.h"
-#include "containers/freelist.h"
 #include "containers/sortedvector.h"
 #include "internal/base/objectinternal.h"
 
 class Sample;
+class DecalCreater;
 class EntityLoaderThreadPool;
 
 class WorldInternal : public World, public ScreenSizeChangedListener, public WorldEventListener {
@@ -40,6 +40,7 @@ public:
 
 	virtual Entity GetEntity(uint id);
 	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
+
 	virtual void WalkEntityHierarchy(WorldEntityWalker* walker);
 
 	virtual bool FireEvent(WorldEventBasePointer e);
@@ -47,7 +48,7 @@ public:
 	virtual void AddEventListener(WorldEventListener* listener);
 	virtual void RemoveEventListener(WorldEventListener* listener);
 
-	virtual void GetDecals(std::vector<Decal*>& container);
+	virtual void GetDecals(std::vector<Decal>& container);
 
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height);
@@ -56,6 +57,11 @@ public:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private:
+	void AddObject(Object object);
+	bool CollectEntities(ObjectType type, std::vector<Entity>& entities);
+
+	void OnEntityParentChanged(Entity entity);
+
 	void FireEvents();
 	void UpdateDecals();
 	void CullingUpdateEntities();
@@ -63,11 +69,6 @@ private:
 
 	void DestroyEntityRecursively(Transform root);
 	bool WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker);
-
-	void CreateDecals(Camera camera);
-	bool CreateProjectorDecal(Camera camera, Projector p, Plane planes[6]);
-	bool CreateEntityDecal(Camera camera, Decal& decal, Entity entity, Plane planes[6]);
-	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]);
 
 	void UpdateTimeUniformBuffer();
 
@@ -84,7 +85,6 @@ private:
 		}
 	};
 
-	typedef free_list<Decal> DecalContainer;
 	typedef sorted_vector<Entity> EntitySequence;
 	typedef std::map<uint, Entity> EntityDictionary;
 	typedef std::set<Light, LightComparer> LightContainer;
@@ -100,10 +100,9 @@ private:
 	LightContainer lights_;
 	CameraContainer cameras_;
 
+	DecalCreater* decalCreater_;
 	EntityLoaderThreadPool* importer_;
 
-	Plane planes_[6];
-	DecalContainer decals_;
 	ProjectorContainer projectors_;
 
 	EntitySequence cullingUpdateSequence_;
@@ -112,6 +111,7 @@ private:
 	EntityDictionary entities_;
 	EventListenerContainer listeners_;
 
+	ZThread::Mutex eventsMutex_;
 	WorldEventContainer events_;
 
 	ZThread::Mutex hierarchyMutex_;
