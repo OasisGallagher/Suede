@@ -134,7 +134,8 @@ public:
 	AnimationInternal() : ComponentInternal(ObjectTypeAnimation), time_(0), playing_(false) {}
 
 public:
-	virtual void Update();
+	virtual void CullingUpdate();
+	virtual void RenderingUpdate();
 
 public:
 	virtual void AddClip(const std::string& name, AnimationClip value);
@@ -149,6 +150,8 @@ public:
 
 	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
 	virtual Skeleton GetSkeleton() { return skeleton_; }
+
+	virtual int GetUpdateStrategy() { return UpdateStrategyCulling; }
 
 private:
 	Skeleton skeleton_;

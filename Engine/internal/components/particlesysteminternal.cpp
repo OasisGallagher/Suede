@@ -27,7 +27,18 @@ void ParticleSystemInternal::SetMaxParticles(uint value) {
 	}
 }
 
-void ParticleSystemInternal::Update() {
+void ParticleSystemInternal::CullingUpdate() {
+	if (!meshDirty_ && !rendererDirty_) {
+		if (emitter_ && time_ >= startDelay_) {
+			UpdateEmitter();
+		}
+
+		UpdateParticles();
+		time_ += Time::instance()->GetDeltaTime();
+	}
+}
+
+void ParticleSystemInternal::RenderingUpdate() {
 	if (meshDirty_) {
 		InitializeMesh();
 	}
@@ -36,15 +47,7 @@ void ParticleSystemInternal::Update() {
 		InitializeRenderer();
 	}
 
-	UpdateParticles();
-
-	if (emitter_ && time_ >= startDelay_) {
-		UpdateEmitter();
-	}
-
-	time_ += Time::instance()->GetDeltaTime();
-
-	ComponentInternal::Update();
+	UpdateInstanceBuffers();
 }
 
 void ParticleSystemInternal::SortBuffers() {
@@ -84,11 +87,10 @@ void ParticleSystemInternal::UpdateParticles() {
 		UpdateAttributes();
 		UpdateBuffers();
 		SortBuffers();
-		UpdateMesh();
 	}
 }
 
-void ParticleSystemInternal::UpdateMesh() {
+void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint count = particles_.size();
 	if (count > 0) {
 		Mesh mesh = GetEntity()->GetMesh();

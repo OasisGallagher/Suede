@@ -49,7 +49,7 @@ public:
 
 	void erase(const value_type& value) {
 		iterator ite = find(value);
-		if (!comp_(value, *ite)) {
+		if (ite != end() && !comp_(value, *ite)) {
 			container_.erase(ite);
 		}
 	}

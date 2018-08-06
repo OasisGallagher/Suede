@@ -36,6 +36,8 @@ public:
 	virtual void SetBounds(const Bounds& value) { bounds_ = value; }
 	virtual const Bounds& GetBounds() const { return bounds_; }
 
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
+
 	virtual void Bind();
 	virtual void Unbind();
 	virtual void ShareStorage(Mesh other);
@@ -96,11 +98,13 @@ public:
 	~TextMeshInternal();
 
 public:
-	virtual void Update();
+	virtual void RenderingUpdate();
 
 public:
 	virtual void SetText(const std::string& value);
 	virtual std::string GetText() { return text_; }
+
+	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
 
 	virtual void SetFont(Font value);
 	virtual Font GetFont() { return font_; }

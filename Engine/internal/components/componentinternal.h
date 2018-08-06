@@ -12,7 +12,8 @@ public:
 	virtual void SetEntity(Entity entity);
 	virtual Entity GetEntity() { return entity_.lock(); }
 
-	virtual void Update() {}
+	virtual void CullingUpdate() {}
+	virtual void RenderingUpdate() {}
 
 protected:
 	std::weak_ptr<Entity::element_type> entity_;

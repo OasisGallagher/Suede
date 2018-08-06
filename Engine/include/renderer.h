@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 #include "mesh.h"
 #include "material.h"
@@ -8,8 +9,12 @@ SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
 class SUEDE_API IRenderer : virtual public IComponent {
 public:
+	typedef SuedeEnumerable<std::vector<Material>::iterator> Enumerable;
+
+public:
 	virtual void AddMaterial(Material material) = 0;
 	virtual Material GetMaterial(uint index) = 0;
+	virtual Enumerable GetMaterials() = 0;
 	virtual void SetMaterial(uint index, Material value) = 0;
 	virtual void RemoveMaterial(Material material) = 0;
 	virtual void RemoveMaterialAt(uint index) = 0;

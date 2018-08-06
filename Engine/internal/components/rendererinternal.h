@@ -14,8 +14,11 @@ public:
 public:
 	virtual void UpdateMaterialProperties() {}
 
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
+
 	virtual void AddMaterial(Material material) { materials_.push_back(material); }
 	virtual Material GetMaterial(uint index) { return materials_[index]; }
+	virtual Enumerable GetMaterials() { return Enumerable(materials_.begin(), materials_.end()); }
 	virtual void SetMaterial(uint index, Material value) { materials_[index] = value; }
 	virtual void RemoveMaterial(Material material);
 	virtual void RemoveMaterialAt(uint index);

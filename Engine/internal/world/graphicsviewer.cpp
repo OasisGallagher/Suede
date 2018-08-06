@@ -20,9 +20,7 @@ GraphicsViewer::~GraphicsViewer() {
 
 void GraphicsViewer::Run() {
 	for (; status_ != ViewerStatusClosed;) {
-		PollEvents();
-
-		if (status_ == ViewerStatusRunning && canvas_ != nullptr) {
+		if (canvas_ != nullptr) {
 			canvas_->MakeCurrent();
 
 			Update();

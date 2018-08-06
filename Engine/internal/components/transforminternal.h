@@ -31,6 +31,7 @@ public:
 
 	virtual int GetChildCount() { return (int)children_.size(); }
 	virtual Transform GetChildAt(int i) { return children_[i]; }
+	virtual Enumerable GetChildren() { return Enumerable(children_.begin(), children_.end()); }
 
 	virtual void SetScale(const glm::vec3& value);
 	virtual void SetPosition(const glm::vec3& value);
@@ -61,6 +62,8 @@ public:
 	virtual glm::vec3 GetUp();
 	virtual glm::vec3 GetRight();
 	virtual glm::vec3 GetForward();
+
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 protected:
 	virtual void SetDirty(int bits);

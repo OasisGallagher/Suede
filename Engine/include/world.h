@@ -14,8 +14,9 @@ enum WorldEventType {
 	WorldEventTypeEntityTagChanged,
 	WorldEventTypeEntityNameChanged,
 	WorldEventTypeEntityParentChanged,
-	WorldEventTypeEntityTransformChanged,
 	WorldEventTypeEntityActiveChanged,
+	WorldEventTypeEntityTransformChanged,
+	WorldEventTypeEntityUpdateStrategyChanged,
 
 	WorldEventTypeCameraDepthChanged,
 
@@ -97,6 +98,12 @@ struct EntityNameChangedEvent : public EntityEvent {
 
 DEFINE_WORLD_EVENT_POINTER(EntityNameChangedEvent);
 
+struct EntityUpdateStrategyChangedEvent : public EntityEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityUpdateStrategyChanged; }
+};
+
+DEFINE_WORLD_EVENT_POINTER(EntityUpdateStrategyChangedEvent);
+
 struct CameraDepthChangedEvent : public EntityEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventTypeCameraDepthChanged; }
 };
@@ -140,7 +147,8 @@ class GizmosPainter;
 class SUEDE_API World : public Singleton2<World> {
 public:
 	virtual void Initialize() = 0;
-	virtual void Update() = 0;
+	virtual void CullingUpdate() = 0;
+	virtual void RenderingUpdate() = 0;
 	virtual void Finalize() = 0;
 
 	virtual Object CreateObject(ObjectType type) = 0;

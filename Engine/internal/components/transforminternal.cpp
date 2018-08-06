@@ -496,8 +496,8 @@ void TransformInternal::SetDirty(int bits) {
 }
 
 void TransformInternal::DirtyChildrenScales() {
-	for (int i = 0; i < GetChildCount(); ++i) {
-		TransformInternal* child = InternalPtr(GetChildAt(i));
+	for(Transform transform : GetChildren()) {
+		TransformInternal* child = InternalPtr(transform);
 		child->GetLocalScale();
 		child->SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
@@ -506,8 +506,8 @@ void TransformInternal::DirtyChildrenScales() {
 }
 
 void TransformInternal::DirtyChildrenPositions() {
-	for (int i = 0; i < GetChildCount(); ++i) {
-		TransformInternal* child = InternalPtr(GetChildAt(i));
+	for (Transform transform : GetChildren()) {
+		TransformInternal* child = InternalPtr(transform);
 		child->GetLocalPosition();
 		child->SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 		child->DirtyChildrenPositions();
@@ -515,8 +515,8 @@ void TransformInternal::DirtyChildrenPositions() {
 }
 
 void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
-	for (int i = 0; i < GetChildCount(); ++i) {
-		TransformInternal* child = InternalPtr(GetChildAt(i));
+	for (Transform transform : GetChildren()) {
+		TransformInternal* child = InternalPtr(transform);
 		child->GetLocalRotation();
 		child->GetLocalEulerAngles();
 		child->SetDirty(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);

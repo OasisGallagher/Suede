@@ -103,6 +103,8 @@ public:
 	virtual void SetMaxParticles(uint value);
 	virtual uint GetMaxParticles() { return maxParticles_; }
 
+	virtual int GetUpdateStrategy() { return UpdateStrategyCulling | UpdateStrategyRendering; }
+
 	virtual void SetDuration(float value) { duration_ = value; }
 	virtual float GetDuration() { return duration_; }
 
@@ -122,7 +124,8 @@ public:
 	virtual ParticleAnimator GetParticleAnimator() { return particleAnimator_; }
 
 public:
-	virtual void Update();
+	virtual void CullingUpdate();
+	virtual void RenderingUpdate();
 
 private:
 	void InitializeMesh();
@@ -138,7 +141,7 @@ private:
 
 	void UpdateParticles();
 
-	void UpdateMesh();
+	void UpdateInstanceBuffers();
 
 	void UpdateAttributes();
 	void UpdateBuffers();

@@ -39,13 +39,13 @@
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-#define MAN
-// #define PARTICLE_SYSTEM
+#define ANIMATION
+#define PARTICLE_SYSTEM
 // #define FONT
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "room.fbx";
+static const char* roomFbxPath = "house.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
@@ -449,7 +449,7 @@ void Game::createScene() {
 
 #endif
 
-#ifdef MAN
+#ifdef ANIMATION
 	Entity man = World::instance()->Import(manFbxPath, this);
 #endif
 }

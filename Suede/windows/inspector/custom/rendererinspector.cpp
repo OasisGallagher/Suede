@@ -70,8 +70,7 @@ RendererInspector::RendererInspector(Object object) : CustomInspector("Renderer"
 	Renderer renderer = suede_dynamic_cast<Renderer>(target_);
 	QListWidget* materialList = new QListWidget(this);
 
-	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		Material material = renderer->GetMaterial(i);
+	for (Material material : renderer->GetMaterials()) {
 		materialList->addItem(material->GetName().c_str());
 	}
 

@@ -147,6 +147,7 @@ void WorldInternal::DestroyEntityRecursively(Transform root) {
 	}
 
 	// TODO: tag entity with destroyed?
+	RemoveEntityFromSequence(entity);
 	entities_.erase(entity->GetInstanceID());
 	entity->GetTransform()->SetParent(nullptr);
 
@@ -154,8 +155,8 @@ void WorldInternal::DestroyEntityRecursively(Transform root) {
 	e->entity = entity;
 	FireEvent(e);
 
-	for (int i = 0; i < root->GetChildCount(); ++i) {
-		DestroyEntityRecursively(root->GetChildAt(i));
+	for(Transform transform : root->GetChildren()) {
+		DestroyEntityRecursively(transform);
 	}
 }
 
@@ -238,19 +239,6 @@ void WorldInternal::GetDecals(std::vector<Decal*>& container) {
 	}
 }
 
-void WorldInternal::RenderUpdate() {
-	// TODO: CLEAR STENCIL BUFFER.
-	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
-
-	UpdateTimeUniformBuffer();
-
-	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
-		if ((*ite)->GetActive()) {
-			(*ite)->Render();
-		}
-	}
-}
-
 void WorldInternal::UpdateDecals() {
 	decals_.clear();
 
@@ -258,18 +246,25 @@ void WorldInternal::UpdateDecals() {
 	if (main) { CreateDecals(main); }
 }
 
-void WorldInternal::UpdateEntities() {
-	for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-		if (ite->second->GetActive()) {
-			ite->second->Update();
+void WorldInternal::CullingUpdateEntities() {
+	for (Entity entity : cullingUpdateSequence_) {
+		if (entity->GetActive()) {
+			entity->CullingUpdate();
+		}
+	}
+}
+
+void WorldInternal::RenderingUpdateEntities() {
+	for (Entity entity : renderingUpdateSequence_) {
+		if (entity->GetActive()) {
+			entity->RenderingUpdate();
 		}
 	}
 }
 
 bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker) {
-	int childCount = root->GetChildCount();
-	for (int i = 0; i < childCount; ++i) {
-		Entity child = root->GetChildAt(i)->GetEntity();
+	for(Transform transform : root->GetChildren()) {
+		Entity child = transform->GetEntity();
 		if (!child) {
 			continue;
 		}
@@ -309,6 +304,10 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 		else {
 			entities_.erase(entity->GetInstanceID());
 		}
+	}
+	else if (e->GetEventType() == WorldEventTypeEntityUpdateStrategyChanged) {
+		Entity entity = suede_static_cast<EntityUpdateStrategyChangedEventPointer>(e)->entity;
+		AddEntityToUpdateSequence(entity);
 	}
 }
 
@@ -422,22 +421,57 @@ bool WorldInternal::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, 
 	return triangles.size() >= 3;
 }
 
-inline void WorldInternal::UpdateTimeUniformBuffer() {
+void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
 	p.time.x = Time::instance()->GetRealTimeSinceStartup();
 	p.time.y = Time::instance()->GetDeltaTime();
 	UniformBufferManager::instance()->UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
-void WorldInternal::Update() {
-	//Debug::StartSample();
-	//Debug::StartSample();
-	FireEvents();
-	//Debug::Output("[events]\t%.3f\n", Debug::EndSample());
-	
-	UpdateEntities();
-	UpdateDecals();
-	RenderUpdate();
+void WorldInternal::RemoveEntityFromSequence(Entity entity) {
+	cullingUpdateSequence_.erase(entity);
+	renderingUpdateSequence_.erase(entity);
+}
 
-	//Debug::Output("[#total]\t%.3f", Debug::EndSample());
+void WorldInternal::AddEntityToUpdateSequence(Entity entity) {
+	int strategy = entity->GetUpdateStrategy();
+	if ((strategy & UpdateStrategyCulling) != 0) {
+		if (!cullingUpdateSequence_.contains(entity)) {
+			cullingUpdateSequence_.insert(entity);
+		}
+	}
+	else {
+		cullingUpdateSequence_.erase(entity);
+	}
+
+	if ((strategy & UpdateStrategyRendering) != 0) {
+		if (!renderingUpdateSequence_.contains(entity)) {
+			renderingUpdateSequence_.insert(entity);
+		}
+	}
+	else {
+		renderingUpdateSequence_.erase(entity);
+	}
+}
+
+void WorldInternal::CullingUpdate() {
+	UpdateDecals();
+	CullingUpdateEntities();
+}
+
+void WorldInternal::RenderingUpdate() {
+	FireEvents();
+
+	RenderingUpdateEntities();
+
+	// TODO: CLEAR STENCIL BUFFER.
+	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
+
+	UpdateTimeUniformBuffer();
+
+	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
+		if ((*ite)->GetActive()) {
+			(*ite)->Render();
+		}
+	}
 }

@@ -21,7 +21,7 @@ MaterialInternal::~MaterialInternal() {
 
 Object MaterialInternal::Clone() {
 	Material clone = NewMaterial();
-	MaterialInternal* clonePtr = dynamic_cast<MaterialInternal*>(clone.get());
+	MaterialInternal* clonePtr = InternalPtr(clone);
 	*clonePtr = *this;
 
 	return clone;

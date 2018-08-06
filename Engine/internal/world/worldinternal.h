@@ -24,7 +24,8 @@ public:
 
 public:
 	virtual void Initialize();
-	virtual void Update();
+	virtual void CullingUpdate();
+	virtual void RenderingUpdate();
 	virtual void Finalize();
 
 	virtual Transform GetRootTransform() { return root_->GetTransform(); }
@@ -55,13 +56,10 @@ public:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private:
-	friend void InitWorld(WorldInternal* world);
-
-private:
 	void FireEvents();
-	void RenderUpdate();
 	void UpdateDecals();
-	void UpdateEntities();
+	void CullingUpdateEntities();
+	void RenderingUpdateEntities();
 
 	void DestroyEntityRecursively(Transform root);
 	bool WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker);
@@ -72,6 +70,9 @@ private:
 	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]);
 
 	void UpdateTimeUniformBuffer();
+
+	void RemoveEntityFromSequence(Entity entity);
+	void AddEntityToUpdateSequence(Entity entity);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
@@ -84,7 +85,7 @@ private:
 	};
 
 	typedef free_list<Decal> DecalContainer;
-	typedef std::vector<Entity> EntityContainer;
+	typedef sorted_vector<Entity> EntitySequence;
 	typedef std::map<uint, Entity> EntityDictionary;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
@@ -104,6 +105,9 @@ private:
 	Plane planes_[6];
 	DecalContainer decals_;
 	ProjectorContainer projectors_;
+
+	EntitySequence cullingUpdateSequence_;
+	EntitySequence renderingUpdateSequence_;
 
 	EntityDictionary entities_;
 	EventListenerContainer listeners_;

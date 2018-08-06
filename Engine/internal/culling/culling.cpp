@@ -5,6 +5,8 @@
 #include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
 
+#include "profiler.h"
+
 Culling::Culling(CullingListener* listener) : listener_(listener), working_(false), stopped_(false) {
 }
 
@@ -12,8 +14,14 @@ void Culling::run() {
 	for (; !stopped_;) {
 		if (working_) {
 			entities_.clear();
+			uint64 start = Profiler::instance()->GetTimeStamp();
+			World::instance()->CullingUpdate();
+			double update = Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start);
+
 			World::instance()->WalkEntityHierarchy(this);
 			listener_->OnCullingFinished();
+
+			double delta = Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start);
 
 			working_ = false;
 		}

@@ -335,15 +335,19 @@ bool AnimationInternal::Play(const std::string& name) {
 	return true;
 }
 
-void AnimationInternal::Update() {
+void AnimationInternal::CullingUpdate() {
 	if (!playing_ || !current_) { return; }
 
 	time_ += Time::instance()->GetDeltaTime();
-	
+
 	if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
 		current_->Sample(0);
 		playing_ = false;
 	}
+}
+
+void AnimationInternal::RenderingUpdate() {
+
 }
 
 bool AnimationCurveInternal::Sample(float time, AnimationFrame& frame) {

@@ -17,7 +17,6 @@ protected:
 
 protected:
 	virtual void Update() = 0;
-	virtual void PollEvents() = 0;
 
 private:
 	int status_;

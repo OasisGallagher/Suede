@@ -65,9 +65,6 @@ void CameraInternal::SetDepth(int value) {
 	}
 }
 
-void CameraInternal::Update() {
-}
-
 void CameraInternal::Render() {
 	if (!culling_->IsWorking()) {
 		traits1_->Clear();

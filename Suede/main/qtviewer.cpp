@@ -32,11 +32,8 @@ QtViewer::~QtViewer() {
 }
 
 void QtViewer::Update() {
-	suede_->tick();
-}
-
-void QtViewer::PollEvents() {
 	app_.processEvents();
+	suede_->tick();
 }
 
 QList<QString> QtViewer::builtinSkinNames() {

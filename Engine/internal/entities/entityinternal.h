@@ -17,13 +17,16 @@ public:
 	virtual void SetActiveSelf(bool value);
 	virtual bool GetActiveSelf() const { return activeSelf_; }
 
+	virtual int GetUpdateStrategy();
+
 	virtual const std::string& GetTag() const { return tag_; }
 	virtual bool SetTag(const std::string& value);
 
 	virtual std::string GetName() const { return name_; }
 	virtual void SetName(const std::string& value);
 
-	virtual void Update();
+	virtual void CullingUpdate();
+	virtual void RenderingUpdate();
 
 	virtual void SetTransform(Transform value);
 	virtual Transform GetTransform() const { return transform_; }
@@ -33,6 +36,8 @@ public:
 
 	virtual const Bounds& GetBounds();
 	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
+
+	virtual void RecalculateUpdateStrategy();
 
 	virtual void SetMesh(Mesh value);
 	virtual Mesh GetMesh() { return mesh_; }
@@ -56,6 +61,9 @@ private:
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
 
+	int GetHierarchyUpdateStrategy(Entity root);
+	bool RecalculateHierarchyUpdateStrategy();
+
 	void SetActive(bool value);
 	void UpdateChildrenActive(Entity parent);
 
@@ -78,6 +86,11 @@ private:
 	Transform transform_;
 
 	Mesh mesh_;
+	
+	uint updateStrategy_;
+	bool updateStrategyDirty_;
+
+	uint frameCullingUpdate_;
 
 	Bounds worldBounds_;
 	// is world space dirty.
@@ -98,6 +111,10 @@ inline void EntityInternal::SetComponent(T& ref, T value) {
 
 	if (ref = value) {
 		ref->SetEntity(SharedThis());
+	}
+
+	if (!value || value->GetUpdateStrategy() != UpdateStrategyNone) {
+		RecalculateUpdateStrategy();
 	}
 }
 

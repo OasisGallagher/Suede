@@ -22,8 +22,8 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterialProperties() {
-	for (int i = 0; i < GetMaterialCount(); ++i) {
-		GetMaterial(i)->SetMatrix4Array(Variables::BoneToRootMatrices, skeleton_->GetBoneToRootMatrices(), MAX_BONE_COUNT);
+	for (Material material : GetMaterials()) {
+		material->SetMatrix4Array(Variables::BoneToRootMatrices, skeleton_->GetBoneToRootMatrices(), MAX_BONE_COUNT);
 	}
 }
 

@@ -178,8 +178,8 @@ void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSe
 }
 
 void Hierarchy::updateRecursively(Entity entity, QStandardItem* parent) {
-	for (int i = 0; i < entity->GetTransform()->GetChildCount(); ++i) {
-		Entity child = entity->GetTransform()->GetChildAt(i)->GetEntity();
+	for (Transform transform : entity->GetTransform()->GetChildren()) {
+		Entity child = transform->GetEntity();
 		QStandardItem* item = appendItem(child, parent);
 		updateRecursively(child, item);
 	}
@@ -283,8 +283,7 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 		return;
 	}
 
-	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		Material material = renderer->GetMaterial(i);
+	for (Material material : renderer->GetMaterials()) {
 		int outline = material->FindPass("Outline");
 		if (outline < 0) { continue; }
 

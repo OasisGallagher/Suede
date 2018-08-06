@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "time2.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "geometryutility.h"
@@ -13,7 +14,8 @@ EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
 }
 
 EntityInternal::EntityInternal(ObjectType entityType)
-	: ObjectInternal(entityType), active_(true),  activeSelf_(true), boundsDirty_(true) {
+	: ObjectInternal(entityType), active_(true),  activeSelf_(true), boundsDirty_(true)
+	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
 	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
@@ -50,6 +52,10 @@ bool EntityInternal::SetTag(const std::string& value) {
 	return true;
 }
 
+int EntityInternal::GetUpdateStrategy() {
+	return GetHierarchyUpdateStrategy(SharedThis());
+}
+
 void EntityInternal::SetName(const std::string& value) {
 	if (value.empty()) {
 		Debug::LogWarning("empty name.");
@@ -62,30 +68,31 @@ void EntityInternal::SetName(const std::string& value) {
 	}
 }
 
-void EntityInternal::Update() {
-	if (animation_) { animation_->Update(); }
-	if (mesh_) { mesh_->Update(); }
-	if (particleSystem_) { particleSystem_->Update(); }
-	if (renderer_) { renderer_->Update(); }
+void EntityInternal::CullingUpdate() {
+	uint frame = Time::instance()->GetFrameCount();
+	if (frameCullingUpdate_ < frame) {
+		frameCullingUpdate_ = frame;
+
+		if (animation_) { animation_->CullingUpdate(); }
+		if (mesh_) { mesh_->CullingUpdate(); }
+		if (particleSystem_) { particleSystem_->CullingUpdate(); }
+		if (renderer_) { renderer_->CullingUpdate(); }
+	}
+}
+
+void EntityInternal::RenderingUpdate() {
+	if (animation_) { animation_->RenderingUpdate(); }
+	if (mesh_) { mesh_->RenderingUpdate(); }
+	if (particleSystem_) { particleSystem_->RenderingUpdate(); }
+	if (renderer_) { renderer_->RenderingUpdate(); }
 }
 
 void EntityInternal::SetTransform(Transform value) {
-	if (transform_ != value) {
-		transform_ = value;
-		transform_->SetEntity(SharedThis());
-	}
+	SetComponent(transform_, value);
 }
 
 void EntityInternal::SetAnimation(Animation value) {
-	if (animation_ == value) { return; }
-
-	if (animation_) {
-		animation_->SetEntity(nullptr);
-	}
-
-	if (animation_ = value) {
-		animation_->SetEntity(SharedThis());
-	}
+	SetComponent(animation_, value);
 }
 
 void EntityInternal::SetMesh(Mesh value) {
@@ -119,6 +126,10 @@ void EntityInternal::RecalculateBounds(int flags) {
 	}
 }
 
+void EntityInternal::RecalculateUpdateStrategy() {
+	RecalculateHierarchyUpdateStrategy();
+}
+
 void EntityInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
@@ -127,9 +138,9 @@ void EntityInternal::SetActive(bool value) {
 }
 
 void EntityInternal::UpdateChildrenActive(Entity parent) {
-	for (int i = 0; i < parent->GetTransform()->GetChildCount(); ++i) {
-		Entity child = parent->GetTransform()->GetChildAt(i)->GetEntity();
-		EntityInternal* childPtr = dynamic_cast<EntityInternal*>(child.get());
+	for (Transform transform : parent->GetTransform()->GetChildren()) {
+		Entity child = transform->GetEntity();
+		EntityInternal* childPtr = InternalPtr(child);
 		childPtr->SetActive(childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
 	}
@@ -164,8 +175,8 @@ void EntityInternal::CalculateHierarchyMeshBounds() {
 		CalculateSelfWorldBounds();
 	}
 
-	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
-		Entity child = transform_->GetChildAt(i)->GetEntity();
+	for (Transform tr : transform_->GetChildren()) {
+		Entity child = tr->GetEntity();
 		if (child->GetActive()) {
 			const Bounds& b = child->GetBounds();
 			worldBounds_.Encapsulate(b);
@@ -216,14 +227,58 @@ void EntityInternal::CalculateBonesWorldBounds() {
 void EntityInternal::DirtyParentBounds() {
 	Transform parent, current = transform_;
 	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-		dynamic_cast<EntityInternal*>(parent->GetEntity().get())->boundsDirty_ = true;
+		InternalPtr(parent->GetEntity())->boundsDirty_ = true;
 		current = parent;
 	}
 }
 
+int EntityInternal::GetHierarchyUpdateStrategy(Entity root) {
+	if (!updateStrategyDirty_) { return updateStrategy_; }
+
+	int strategy = 0;
+	if (animation_) { strategy |= animation_->GetUpdateStrategy(); }
+	if (mesh_) { strategy |= mesh_->GetUpdateStrategy(); }
+	if (particleSystem_) { strategy |= particleSystem_->GetUpdateStrategy(); }
+	if (renderer_) { strategy |= renderer_->GetUpdateStrategy(); }
+
+	for (Transform tr : root->GetTransform()->GetChildren()) {
+		strategy |= GetHierarchyUpdateStrategy(tr->GetEntity());
+	}
+
+	updateStrategy_ = strategy;
+	updateStrategyDirty_ = false;
+
+	return strategy;
+}
+
+bool EntityInternal::RecalculateHierarchyUpdateStrategy() {
+	updateStrategyDirty_ = true;
+	int oldStrategy = updateStrategy_;
+	int newStrategy = GetUpdateStrategy();
+
+	if (oldStrategy != newStrategy) {
+		Transform parent, current = transform_;
+		for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
+			if (!InternalPtr(parent->GetEntity())->RecalculateHierarchyUpdateStrategy()) {
+				break;
+			}
+
+			current = parent;
+		}
+
+		EntityUpdateStrategyChangedEventPointer e = NewWorldEvent<EntityUpdateStrategyChangedEventPointer>();
+		e->entity = SharedThis();
+		World::instance()->FireEvent(e);
+
+		return true;
+	}
+
+	return false;
+}
+
 void EntityInternal::DirtyChildrenBoundses() {
-	for (uint i = 0; i < transform_->GetChildCount(); ++i) {
-		EntityInternal* child = dynamic_cast<EntityInternal*>(transform_->GetChildAt(i)->GetEntity().get());
+	for (Transform tr : transform_->GetChildren()) {
+		EntityInternal* child = InternalPtr(tr->GetEntity());
 		child->DirtyChildrenBoundses();
 		child->boundsDirty_ = true;
 	}

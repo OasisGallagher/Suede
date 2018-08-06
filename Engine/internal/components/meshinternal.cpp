@@ -117,7 +117,7 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 }
 
 void MeshInternal::ShareStorage(Mesh other) {
-	MeshInternal* ptr = dynamic_cast<MeshInternal*>(other.get());
+	MeshInternal* ptr = InternalPtr(other);
 	if (!ptr->storage_) {
 		Debug::LogError("empty storage");
 		return;
@@ -216,7 +216,7 @@ void TextMeshInternal::SetFontSize(uint value) {
 	}
 }
 
-void TextMeshInternal::Update() {
+void TextMeshInternal::RenderingUpdate() {
 	if (dirty_) {
 		RebuildMesh();
 	}

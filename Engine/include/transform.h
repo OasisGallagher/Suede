@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "component.h"
 #include "enginedefines.h"
 
@@ -13,6 +14,9 @@ SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
 class ITransform : virtual public IComponent {
+public:
+	typedef SuedeEnumerable<std::vector<Transform>::iterator> Enumerable;
+
 public:
 	virtual bool IsAttachedToScene() = 0;
 
@@ -33,6 +37,7 @@ public:
 
 	virtual int GetChildCount() = 0;
 	virtual Transform GetChildAt(int i) = 0;
+	virtual Enumerable GetChildren() = 0;
 
 	virtual void SetScale(const glm::vec3& value) = 0;
 	virtual void SetPosition(const glm::vec3& value) = 0;

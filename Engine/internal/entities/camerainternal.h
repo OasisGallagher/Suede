@@ -54,7 +54,6 @@ public:
 	virtual Texture2D Capture();
 
 public:
-	virtual void Update();
 	virtual void Render();
 	virtual void OnBeforeWorldDestroyed();
 
