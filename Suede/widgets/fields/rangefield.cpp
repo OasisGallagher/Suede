@@ -11,6 +11,8 @@ RangeField::RangeField(QWidget* parent) : QWidget(parent), min_(0), max_(1) {
 	layout->setMargin(0);
 
 	edit_ = new FloatField(this, 2);
+	edit_->setFixedWidth(40);
+
 	slider_ = new QSlider(Qt::Horizontal, this);
 	slider_->installEventFilter(this);
 

@@ -14,37 +14,31 @@ namespace Constants {
 	static uint maxOrthographicSize = 20;
 }
 
-namespace Literals {
-	DEFINE_LITERAL(projectorFovSlider);
-	DEFINE_LITERAL(projectorFovSlider2);
-}
-
 ProjectorInspector::ProjectorInspector(Object object) : CustomInspector("Projector", object) {
 	RangeField* slider = new RangeField(this);
 
 	Projector projector = suede_dynamic_cast<Projector>(target_);
 
 	if (projector->GetPerspective()) {
-		slider->setObjectName(Literals::projectorFovSlider);
 		slider->setRange(Constants::minFieldOfView, Constants::maxFieldOfView);
 		slider->setValue(Math::Degrees(projector->GetFieldOfView()));
 		form_->addRow(formatRowName("Fov"), slider);
 	}
 	else {
-		slider->setObjectName(Literals::projectorFovSlider2);
 		slider->setRange(Constants::minOrthographicSize, Constants::maxOrthographicSize);
 		slider->setValue(projector->GetOrthographicSize());
 		form_->addRow(formatRowName("Size"), slider);
 	}
 
-	connect(slider, SIGNAL(valueChanged(const QString&, float)), this, SLOT(onSliderValueChanged(const QString&, float)));
+	connect(slider, SIGNAL(valueChanged(float)), this, SLOT(onSliderValueChanged(float)));
 }
 
-void ProjectorInspector::onSliderValueChanged(const QString& name, float value) {
-	if (name == Literals::projectorFovSlider) {
-		suede_dynamic_cast<Projector>(target_)->SetFieldOfView(Math::Radians(float(value)));
+void ProjectorInspector::onSliderValueChanged(float value) {
+	Projector projector = suede_dynamic_cast<Projector>(target_);
+	if (projector->GetPerspective()) {
+		projector->SetFieldOfView(Math::Radians(float(value)));
 	}
-	else if (name == Literals::projectorFovSlider2) {
-		suede_dynamic_cast<Projector>(target_)->SetOrthographicSize(value);
+	else {
+		projector->SetOrthographicSize(value);
 	}
 }

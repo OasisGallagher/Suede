@@ -666,6 +666,9 @@
     <None Include="resources\shaders\gaussianblur.shader">
       <Filter>resources\shaders</Filter>
     </None>
+    <None Include="resources\shaders\builtin\geom.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

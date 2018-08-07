@@ -32,12 +32,14 @@ struct RenderingMatrices {
 };
 
 struct RenderingMaterials {
+	Material geom;
 	Material depth;
 };
 
 struct RenderingRenderTextures {
 	RenderTexture aux1;
 	RenderTexture aux2;
+	RenderTexture geom;
 	RenderTexture depth;
 	RenderTexture target;
 };
@@ -62,6 +64,7 @@ struct RenderingParameters {
 struct RenderingPipelines {
 	Light forwardBaseLight;
 
+	Pipeline* geom;
 	Pipeline* depth;
 	Pipeline* shadow;
 	Pipeline* rendering;
@@ -87,10 +90,11 @@ private:
 	void OnPostRender();
 	void OnImageEffects();
 
-	void DepthPass(RenderingPipelines &pipelines);
-	void ShadowPass(RenderingPipelines &pipelines);
-	void RenderPass(RenderingPipelines &pipelines);
-	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines &pipelines);
+	void GeomPass(RenderingPipelines& pipelines);
+	void DepthPass(RenderingPipelines& pipelines);
+	void ShadowPass(RenderingPipelines& pipelines);
+	void RenderPass(RenderingPipelines& pipelines);
+	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines& pipelines);
 
 	void UpdateForwardBaseLightUniformBuffer(Light light);
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
@@ -101,6 +105,7 @@ private:
 	RenderingParameters* p_;
 	std::vector<Entity> entities_;
 
+	Sample* geomSample;
 	Sample* depthSample;
 	Sample* shadowSample;
 	Sample* renderingSample;
@@ -128,6 +133,8 @@ private:
 
 	RenderTexture GetActiveRenderTarget();
 
+	void GeomPass(Pipeline* pl);
+
 	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
 	void ForwardDepthPass(Pipeline* pl);
 
@@ -138,6 +145,8 @@ private:
 	void RenderForwardBase(Pipeline* pl, const std::vector<Entity>& entities, Light light);
 
 	void RenderDecals(Pipeline* pl);
+
+	void ReplaceMaterials(Pipeline* pl, Material material);
 
 	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
 

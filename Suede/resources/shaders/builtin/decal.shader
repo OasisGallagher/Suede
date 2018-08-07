@@ -2,7 +2,7 @@ Properties { }
 
 SubShader {
 	Pass {
-		Offset 100 100;
+		Offset -10 0;
 		Cull Back;
 		ZWrite On;
 		ZTest LEqual;

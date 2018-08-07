@@ -7,5 +7,5 @@ public:
 	ProjectorInspector(Object object);
 
 private slots:
-	void onSliderValueChanged(const QString& name, float value);
+	void onSliderValueChanged(float value);
 };

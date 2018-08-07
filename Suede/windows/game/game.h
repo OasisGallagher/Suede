@@ -35,9 +35,6 @@ public:
 public:
 	virtual void OnEntityImported(Entity root, const std::string& path);
 
-// public:
-// 	virtual void OnFrameLeave();
-
 private slots:
 	void updateStatContent();
 	void onToggleStat(int state);

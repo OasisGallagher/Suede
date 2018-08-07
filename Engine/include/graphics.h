@@ -14,6 +14,9 @@ public:
 	virtual void SetShadingMode(ShadingMode value) = 0;
 	virtual ShadingMode GetShadingMode() = 0;
 
+	virtual void EnableAmbientOcclusion(bool value) = 0;
+	virtual bool IsAmbientOcclusionEnabled() = 0;
+
 	virtual void Draw(Mesh mesh, Material material) = 0;
 
 	virtual void Blit(Texture src, RenderTexture dest) = 0;

@@ -11,10 +11,11 @@ typedef unsigned long long uint64;
 #define SUEDE_API __declspec(dllimport)
 #endif
 
-template <class Iterator>
+template <class T>
 class SuedeEnumerable {
 public:
-	typedef Iterator iterator;
+	typedef T iterator;
+
 public:
 	SuedeEnumerable(iterator first, iterator last)
 		: first_(first), last_(last) {}

@@ -310,6 +310,8 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
 
+	Graphics::instance()->EnableAmbientOcclusion(true);
+
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
 	//camera->SetTargetTexture(targetTexture_);

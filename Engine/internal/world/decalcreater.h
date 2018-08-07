@@ -17,8 +17,8 @@ class DecalCreater {
 		std::vector<glm::vec3> positions;
 	};
 
-	typedef std::vector<Decal> DecalContainer;
 	typedef free_list<DecalInfo> DecalInfoContainer;
+
 public:
 	DecalCreater();
 

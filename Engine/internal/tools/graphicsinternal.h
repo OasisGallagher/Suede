@@ -9,6 +9,9 @@ public:
 	virtual void SetShadingMode(ShadingMode value);
 	virtual ShadingMode GetShadingMode() { return mode_; }
 
+	virtual void EnableAmbientOcclusion(bool value) { ambientOcclusionEnabled_ = value; }
+	virtual bool IsAmbientOcclusionEnabled() { return ambientOcclusionEnabled_; }
+
 	virtual void Draw(Mesh mesh, Material material);
 
 	virtual void Blit(Texture src, RenderTexture dest);
@@ -27,4 +30,5 @@ private:
 private:
 	Material material_;
 	ShadingMode mode_;
+	bool ambientOcclusionEnabled_;
 };
