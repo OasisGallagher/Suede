@@ -1,7 +1,7 @@
 #ifndef _SUEDE_INCLUDED
 #define _SUEDE_INCLUDED
 
-// shared uniform buffers.
+// --------- Shared Uniform Buffers ---------
 layout(std140) uniform SharedTimeUniformBuffer {
 	float _Time;
 	float _DeltaTime;
@@ -22,9 +22,14 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	mat4 _CameraToClipMatrix;
 	mat4 _WorldToShadowMatrix;
 
+	vec4 _DepthBufferParams;
 	vec3 _CameraPos;
 };
 
+// --------- Uniforms ---------
+uniform sampler2D _DepthTexture;
+
+// uniforms for vertex shader.
 #ifdef _VERTEX_SHADER
 
 // 8 matches VertexAttribMatrixOffset.
@@ -45,5 +50,14 @@ uniform samplerBuffer _MatrixTextureBuffer;
 									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 7) \
 								)
 #endif	// _VERTEX_SHADER
+
+// --------- Functions ---------
+float _Linear01Depth(float z) {
+	return 2.0 * _DepthBufferParams.x * _DepthBufferParams.y / ((_DepthBufferParams.y + _DepthBufferParams.x - (2 * z - 1) * (_DepthBufferParams.y - _DepthBufferParams.x)) * _DepthBufferParams.y);
+}
+
+float _LinearEyeDepth(float z) {
+	return 2.0 * _DepthBufferParams.x * _DepthBufferParams.y / (_DepthBufferParams.y + _DepthBufferParams.x - (2 * z - 1) * (_DepthBufferParams.y - _DepthBufferParams.x));
+}
 
 #endif	// _SUEDE_INCLUDED

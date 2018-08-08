@@ -74,6 +74,7 @@ void CameraInternal::Render() {
 
 	if (traitsReady_) {
 		RenderingMatrices matrices;
+		matrices.nearFar = glm::vec2(GetNearClipPlane(), GetFarClipPlane());
 		matrices.position = GetTransform()->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();

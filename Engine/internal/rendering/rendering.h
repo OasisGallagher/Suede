@@ -26,20 +26,21 @@ enum RenderPassType {
 };
 
 struct RenderingMatrices {
+	glm::vec2 nearFar;
 	glm::vec3 position;
 	glm::mat4 projectionMatrix;
 	glm::mat4 worldToCameraMatrix;
 };
 
 struct RenderingMaterials {
-	Material geom;
+	Material ssao;
 	Material depth;
 };
 
 struct RenderingRenderTextures {
 	RenderTexture aux1;
 	RenderTexture aux2;
-	RenderTexture geom;
+	RenderTexture ssao;
 	RenderTexture depth;
 	RenderTexture target;
 };
@@ -64,7 +65,7 @@ struct RenderingParameters {
 struct RenderingPipelines {
 	Light forwardBaseLight;
 
-	Pipeline* geom;
+	Pipeline* ssao;
 	Pipeline* depth;
 	Pipeline* shadow;
 	Pipeline* rendering;
@@ -90,8 +91,8 @@ private:
 	void OnPostRender();
 	void OnImageEffects();
 
-	void GeomPass(RenderingPipelines& pipelines);
 	void DepthPass(RenderingPipelines& pipelines);
+	void SSAOPass(RenderingPipelines& pipelines);
 	void ShadowPass(RenderingPipelines& pipelines);
 	void RenderPass(RenderingPipelines& pipelines);
 	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines& pipelines);
@@ -105,7 +106,7 @@ private:
 	RenderingParameters* p_;
 	std::vector<Entity> entities_;
 
-	Sample* geomSample;
+	Sample* ssaoSample;
 	Sample* depthSample;
 	Sample* shadowSample;
 	Sample* renderingSample;
@@ -133,7 +134,7 @@ private:
 
 	RenderTexture GetActiveRenderTarget();
 
-	void GeomPass(Pipeline* pl);
+	void SSAOPass(Pipeline* pl);
 
 	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
 	void ForwardDepthPass(Pipeline* pl);

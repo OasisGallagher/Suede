@@ -41,6 +41,7 @@ bool GLSLParser::CompileShaderSource(const std::string& source, const std::strin
 
 void GLSLParser::AddDefines(const std::string& customDefines) {
 	defines_ += "#define _C_MAX_BONE_COUNT " + std::to_string(MAX_BONE_COUNT) + "\n";
+	defines_ += "#define _C_SSAO_KERNAL_SIZE " + std::to_string(SSAO_KERNAL_SIZE) + "\n";
 	defines_ += FormatDefines(customDefines);
 }
 

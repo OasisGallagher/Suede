@@ -15,7 +15,7 @@ RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTe
 }
 
 Rendering::Rendering(RenderingParameters* p) :p_(p) {
-	CreateAuxMaterial(p_->materials.geom, "builtin/geom", RenderQueueBackground);
+	CreateAuxMaterial(p_->materials.ssao, "builtin/ssao", RenderQueueBackground);
 	CreateAuxMaterial(p_->materials.depth, "builtin/depth", RenderQueueBackground - 300);
 
 	p_->renderTextures.aux1 = NewRenderTexture();
@@ -27,10 +27,10 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	p_->renderTextures.depth = NewRenderTexture();
 	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
-	p_->renderTextures.geom = NewRenderTexture();
-	p_->renderTextures.geom->Create(RenderTextureFormatRgbHDR, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	p_->renderTextures.ssao = NewRenderTexture();
+	p_->renderTextures.ssao->Create(RenderTextureFormatRgbHDR, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
-	geomSample = Profiler::instance()->CreateSample();
+	ssaoSample = Profiler::instance()->CreateSample();
 	depthSample = Profiler::instance()->CreateSample();
 	shadowSample = Profiler::instance()->CreateSample();
 	renderingSample = Profiler::instance()->CreateSample();
@@ -51,8 +51,6 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	
 	DepthPass(pipelines);
 
-	GeomPass(pipelines);
-
 	ShadowPass(pipelines);
 
 	RenderPass(pipelines);
@@ -68,7 +66,7 @@ void Rendering::ClearRenderTextures() {
 	p_->renderTextures.aux1->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 	p_->renderTextures.aux2->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
 
-	p_->renderTextures.geom->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+	p_->renderTextures.ssao->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 	p_->renderTextures.depth->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	RenderTexture target = p_->renderTextures.target;
@@ -83,6 +81,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.cameraToClipMatrix = matrices.projectionMatrix;
 	p.worldToShadowMatrix = Shadows::instance()->GetWorldToShadowMatrix();
 
+	p.depthBufferParams.xy = matrices.nearFar;
 	p.cameraPos = glm::vec4(matrices.position, 1);
 	UniformBufferManager::instance()->UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
@@ -90,8 +89,8 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
 
-	p.fog.color = Environment::instance()->GetFogColor();
-	p.fog.density = Environment::instance()->GetFogDensity();
+	p.fogParams.color = Environment::instance()->GetFogColor();
+	p.fogParams.density = Environment::instance()->GetFogDensity();
 
 	p.ambientColor = glm::vec4(Environment::instance()->GetAmbientColor(), 1);
 	
@@ -127,13 +126,14 @@ void Rendering::OnImageEffects() {
 	}
 }
 
-void Rendering::GeomPass(RenderingPipelines& pipelines) {
-	geomSample->Restart();
-	if (pipelines.geom->GetRenderableCount() > 0) {
-		pipelines.geom->Run();
+void Rendering::SSAOPass(RenderingPipelines& pipelines) {
+	ssaoSample->Restart();
+	if (pipelines.ssao->GetRenderableCount() > 0) {
+		pipelines.ssao->Run();
 	}
-	geomSample->Stop();
-	OutputSample(geomSample);
+
+	ssaoSample->Stop();
+	OutputSample(ssaoSample);
 }
 
 void Rendering::DepthPass(RenderingPipelines& pipelines) {
@@ -172,7 +172,7 @@ void Rendering::RenderPass(RenderingPipelines& pipelines) {
 }
 
 RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
-	pipelines_.geom = MEMORY_NEW(Pipeline);
+	pipelines_.ssao = MEMORY_NEW(Pipeline);
 	pipelines_.depth = MEMORY_NEW(Pipeline);
 	pipelines_.rendering = MEMORY_NEW(Pipeline);
 
@@ -185,7 +185,7 @@ RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* li
 }
 
 RenderableTraits::~RenderableTraits() {
-	MEMORY_DELETE(pipelines_.geom);
+	MEMORY_DELETE(pipelines_.ssao);
 	MEMORY_DELETE(pipelines_.depth);
 	MEMORY_DELETE(pipelines_.shadow);
 	MEMORY_DELETE(pipelines_.rendering);
@@ -208,19 +208,22 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
 
+	bool depthPass = false;
 	if (p_->renderPath == +RenderPath::Forward) {
-		if ((p_->depthTextureMode&  DepthTextureMode::Depth) != 0) {
-			*pipelines_.depth = *pipelines_.shadow;
-			pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
-
-			ForwardDepthPass(pipelines_.depth);
+		if ((p_->depthTextureMode & DepthTextureMode::Depth) != 0) {
+			depthPass = true;
 		}
 	}
 
 	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
-		*pipelines_.geom = *pipelines_.shadow;
-		pipelines_.geom->SetTargetTexture(p_->renderTextures.geom, Rect(0, 0, 1, 1));
-		GeomPass(pipelines_.geom);
+		depthPass = true;
+	}
+
+	if (depthPass) {
+		*pipelines_.depth = *pipelines_.shadow;
+		pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
+
+		ForwardDepthPass(pipelines_.depth);
 	}
 
 	Light forwardBase;
@@ -326,8 +329,8 @@ void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<Entity>
 void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities_, const std::vector<Light>& lights) {
 }
 
-void RenderableTraits::GeomPass(Pipeline* pl) {
-	ReplaceMaterials(pl, p_->materials.geom);
+void RenderableTraits::SSAOPass(Pipeline* pl) {
+	ReplaceMaterials(pl, p_->materials.ssao);
 }
 
 void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
@@ -412,7 +415,6 @@ void RenderableTraits::RenderSubMesh(Pipeline* pl, Entity entity, int subMeshInd
 }
 
 void RenderableTraits::Clear() {
-	pipelines_.geom->Clear();
 	pipelines_.depth->Clear();
 	pipelines_.shadow->Clear();
 	pipelines_.rendering->Clear();

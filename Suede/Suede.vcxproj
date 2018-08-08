@@ -1064,11 +1064,12 @@
     <None Include="resources\shaders\builtin\depth.shader" />
     <None Include="resources\shaders\builtin\directional_light_depth.shader" />
     <None Include="resources\shaders\builtin\gbuffer.shader" />
-    <None Include="resources\shaders\builtin\geom.shader" />
+    <None Include="resources\shaders\builtin\include\post_effect_vertex.inc" />
+    <None Include="resources\shaders\builtin\ssao.shader" />
     <None Include="resources\shaders\builtin\gizmos.shader" />
     <None Include="resources\shaders\builtin\include\lit_fragment.inc" />
     <None Include="resources\shaders\builtin\include\lit_vertex.inc" />
-    <None Include="resources\shaders\builtin\include\post_effect_vertex.inc" />
+    <None Include="resources\shaders\builtin\include\post_effect_vertex_tex.inc" />
     <None Include="resources\shaders\builtin\include\suede.inc" />
     <None Include="resources\shaders\builtin\lit_animated_texture.shader" />
     <None Include="resources\shaders\builtin\lit_bumped_texture.shader" />

@@ -19,7 +19,7 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedLightUniformBuffer,
 	struct {
 		glm::vec3 color;
 		float density;
-	} fog;
+	} fogParams;
 
 	glm::vec4 ambientColor;
 
@@ -33,6 +33,7 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 	glm::mat4 worldToCameraMatrix;
 	glm::mat4 cameraToClipMatrix;
 	glm::mat4 worldToShadowMatrix;
+	glm::vec4 depthBufferParams;
 	glm::vec4 cameraPos;
 );
 

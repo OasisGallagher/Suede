@@ -651,9 +651,6 @@
     <None Include="resources\shaders\builtin\unlit_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\builtin\include\post_effect_vertex.inc">
-      <Filter>resources\shaders\builtin\include</Filter>
-    </None>
     <None Include="resources\shaders\builtin\include\suede.inc">
       <Filter>resources\shaders\builtin\include</Filter>
     </None>
@@ -666,8 +663,14 @@
     <None Include="resources\shaders\gaussianblur.shader">
       <Filter>resources\shaders</Filter>
     </None>
-    <None Include="resources\shaders\builtin\geom.shader">
+    <None Include="resources\shaders\builtin\ssao.shader">
       <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\include\post_effect_vertex_tex.inc">
+      <Filter>resources\shaders\builtin\include</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\include\post_effect_vertex.inc">
+      <Filter>resources\shaders\builtin\include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
