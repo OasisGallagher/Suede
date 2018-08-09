@@ -12,9 +12,6 @@ class Shadows : public Singleton<Shadows> {
 	friend class Singleton<Shadows>;
 
 public:
-	void AttachShadowTexture(Material material);
-
-public:
 	void Clear();
 	RenderTexture GetShadowTexture();
 
@@ -26,7 +23,7 @@ private:
 	Shadows();
 
 private:
-	RenderTexture shadowDepthTexture_;
 	glm::mat4 worldToShadowMatrix_;
+	RenderTexture shadowDepthTexture_;
 	Material directionalLightShadowMaterial_;
 };

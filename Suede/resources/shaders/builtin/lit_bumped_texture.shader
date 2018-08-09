@@ -1,6 +1,7 @@
 Properties { }
 SubShader {
-	GLSLPROGRAM
+	Pass {
+		GLSLPROGRAM
 		#stage vertex
 		in vec3 _Pos;
 		in vec2 _TexCoord;
@@ -51,4 +52,3 @@ SubShader {
 		ENDGLSL
 	}
 }
-

@@ -7,6 +7,9 @@
 #include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
+#include "tools/math2.h"
+#include "sharedtextures.h"
+#include "internal/base/renderdefines.h"
 #include "internal/rendering/shadows.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
@@ -24,11 +27,8 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	p_->renderTextures.aux2 = NewRenderTexture();
 	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
-	p_->renderTextures.depth = NewRenderTexture();
-	p_->renderTextures.depth->Create(RenderTextureFormatDepth, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
-
-	p_->renderTextures.ssao = NewRenderTexture();
-	p_->renderTextures.ssao->Create(RenderTextureFormatRgbHDR, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	p_->renderTextures.ssao = SharedTextures::instance()->GetSSAOTexture();
+	p_->renderTextures.depth = SharedTextures::instance()->GetDepthTexture();
 
 	ssaoSample = Profiler::instance()->CreateSample();
 	depthSample = Profiler::instance()->CreateSample();
@@ -39,6 +39,8 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 void Rendering::Resize(uint width, uint height) {
 	p_->renderTextures.aux1->Resize(width, height);
 	p_->renderTextures.aux2->Resize(width, height);
+
+	p_->renderTextures.ssao->Resize(width, height);
 	p_->renderTextures.depth->Resize(width, height);
 }
 
@@ -51,12 +53,15 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	
 	DepthPass(pipelines);
 
+	SSAOPass(pipelines);
+
 	ShadowPass(pipelines);
 
 	RenderPass(pipelines);
 
 	OnPostRender();
 
+	Graphics::instance()->Blit(p_->renderTextures.ssao, nullptr);
 	if (!p_->imageEffects.empty()) {
 		OnImageEffects();
 	}
@@ -81,9 +86,10 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.cameraToClipMatrix = matrices.projectionMatrix;
 	p.worldToShadowMatrix = Shadows::instance()->GetWorldToShadowMatrix();
 
-	p.depthBufferParams.xy = matrices.nearFar;
-	p.cameraPos = glm::vec4(matrices.position, 1);
-	UniformBufferManager::instance()->UpdateSharedBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
+	p.projParams = matrices.projParams;
+	p.cameraPos = glm::vec4(matrices.cameraPos, 1);
+	p.screenParams = glm::vec4(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), 0, 0);
+	UniformBufferManager::instance()->Update(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
@@ -98,7 +104,7 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
 	p.lightColor = glm::vec4(light->GetColor() * light->GetIntensity(), 1);
 
-	UniformBufferManager::instance()->UpdateSharedBuffer(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
+	UniformBufferManager::instance()->Update(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
@@ -173,7 +179,11 @@ void Rendering::RenderPass(RenderingPipelines& pipelines) {
 
 RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
 	pipelines_.ssao = MEMORY_NEW(Pipeline);
+	pipelines_.ssao->SetTargetTexture(p_->renderTextures.ssao, Rect(0, 0, 1, 1));
+
 	pipelines_.depth = MEMORY_NEW(Pipeline);
+	pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
+
 	pipelines_.rendering = MEMORY_NEW(Pipeline);
 
 	pipelines_.shadow = MEMORY_NEW(Pipeline);
@@ -216,13 +226,13 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	}
 
 	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
+		*pipelines_.ssao = *pipelines_.shadow;
+		SSAOPass(pipelines_.ssao);
 		depthPass = true;
 	}
 
 	if (depthPass) {
 		*pipelines_.depth = *pipelines_.shadow;
-		pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
-
 		ForwardDepthPass(pipelines_.depth);
 	}
 
@@ -331,6 +341,16 @@ void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>&
 
 void RenderableTraits::SSAOPass(Pipeline* pl) {
 	ReplaceMaterials(pl, p_->materials.ssao);
+
+	static glm::vec3 kernel[SSAO_KERNAL_SIZE];
+	for (int i = 0; i < SSAO_KERNAL_SIZE; ++i) {
+		float scale = float(i) / SSAO_KERNAL_SIZE;
+		scale = (0.1f + 0.9f * scale * scale); 
+		glm::vec3 p(Math::Random(-scale, scale), Math::Random(-scale, scale), Math::Random(-scale, scale));
+		kernel[i] = p;
+	}
+
+	p_->materials.ssao->SetVector3Array(Variables::SSAOKernel, kernel, SSAO_KERNAL_SIZE);
 }
 
 void RenderableTraits::ForwardDepthPass(Pipeline* pl) {

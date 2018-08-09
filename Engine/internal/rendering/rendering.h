@@ -26,8 +26,8 @@ enum RenderPassType {
 };
 
 struct RenderingMatrices {
-	glm::vec2 nearFar;
-	glm::vec3 position;
+	glm::vec3 cameraPos;
+	glm::vec4 projParams;
 	glm::mat4 projectionMatrix;
 	glm::mat4 worldToCameraMatrix;
 };

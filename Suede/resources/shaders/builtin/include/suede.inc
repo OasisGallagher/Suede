@@ -22,14 +22,14 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	mat4 _CameraToClipMatrix;
 	mat4 _WorldToShadowMatrix;
 
-	vec4 _DepthBufferParams;
 	vec3 _CameraPos;
+	vec4 _ProjParams;
+	vec4 _ScreenParams;
 };
 
 // --------- Uniforms ---------
 uniform sampler2D _DepthTexture;
 
-// uniforms for vertex shader.
 #ifdef _VERTEX_SHADER
 
 // 8 matches VertexAttribMatrixOffset.
@@ -51,13 +51,26 @@ uniform samplerBuffer _MatrixTextureBuffer;
 								)
 #endif	// _VERTEX_SHADER
 
+#ifdef _FRAGMENT_SHADER
+
+#endif	// _FRAGMENT_SHADER
+
 // --------- Functions ---------
 float _Linear01Depth(float z) {
-	return 2.0 * _DepthBufferParams.x * _DepthBufferParams.y / ((_DepthBufferParams.y + _DepthBufferParams.x - (2 * z - 1) * (_DepthBufferParams.y - _DepthBufferParams.x)) * _DepthBufferParams.y);
+	return 2.0 * _ProjParams.x * _ProjParams.y / ((_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x)) * _ProjParams.y);
 }
 
 float _LinearEyeDepth(float z) {
-	return 2.0 * _DepthBufferParams.x * _DepthBufferParams.y / (_DepthBufferParams.y + _DepthBufferParams.x - (2 * z - 1) * (_DepthBufferParams.y - _DepthBufferParams.x));
+	return 2.0 * _ProjParams.x * _ProjParams.y / (_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x));
 }
 
+#ifdef _FRAGMENT_SHADER
+
+vec2 _FragTexCoord() {
+	return gl_FragCoord.xy / _ScreenParams.xy;
+}
+
+#endif	// _FRAGMENT_SHADER
+
 #endif	// _SUEDE_INCLUDED
+

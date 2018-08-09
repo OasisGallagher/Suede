@@ -98,9 +98,19 @@ glm::quat Variant::GetQuaternion() const {
 	return data_.quatValue;
 }
 
+const glm::vec3* Variant::GetVector3Array() const {
+	CHECK_VARIANT_TYPE(VariantTypeVector3Array, nullptr);
+	return (const glm::vec3*)data_.podArray.ptr;
+}
+
 const glm::mat4* Variant::GetMatrix4Array() const {
 	CHECK_VARIANT_TYPE(VariantTypeMatrix4Array, nullptr);
 	return (const glm::mat4*)data_.podArray.ptr;
+}
+
+uint Variant::GetVector3ArraySize() const {
+	CHECK_VARIANT_TYPE(VariantTypeVector3Array, 0);
+	return data_.podArray.size / sizeof(glm::vec3);
 }
 
 uint Variant::GetMatrix4ArraySize() const {
@@ -166,6 +176,10 @@ void Variant::SetVector4(const glm::vec4& value) {
 void Variant::SetQuaternion(const glm::quat& value) {
 	SetType(VariantTypeQuaternion);
 	data_.quatValue = value;
+}
+
+void Variant::SetVector3Array(const glm::vec3* data, uint size) {
+	SetPodArray(VariantTypeVector3Array, data, sizeof(glm::vec3)* size);
 }
 
 void Variant::SetMatrix4Array(const glm::mat4* data, uint size) {
@@ -262,7 +276,7 @@ bool Variant::SetType(VariantType type) {
 		return false;
 	}
 
-	if (type_ >= VariantTypeMatrix4Array) {
+	if (type_ >= VariantTypeVector3Array) {
 		MEMORY_DELETE_ARRAY(data_.podArray.ptr);
 	}
 

@@ -618,7 +618,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	LoadProperties(semantics.properties);
 
-	UniformBufferManager::instance()->AttachSharedBuffers(SharedThis());
+	UniformBufferManager::instance()->Attach(SharedThis());
 
 	path_ = path;
 	return true;

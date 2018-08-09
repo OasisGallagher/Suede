@@ -7,7 +7,6 @@ class MatrixBuffer : public Singleton<MatrixBuffer> {
 
 public:
 	void Update(uint size, const void* data);
-	void AttachMatrixBuffer(Material material);
 
 private:
 	MatrixBuffer();

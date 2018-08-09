@@ -20,6 +20,7 @@ enum VariantType {
 	VariantTypeQuaternion,
 
 	// Buffer type.
+	VariantTypeVector3Array,
 	VariantTypeMatrix4Array,
 };
 
@@ -45,6 +46,10 @@ public:
 	glm::vec4 GetColor4() const;
 	glm::vec4 GetVector4() const;
 	glm::quat GetQuaternion() const;
+	
+	const glm::vec3* GetVector3Array() const;
+	uint GetVector3ArraySize() const;
+	
 	const glm::mat4* GetMatrix4Array() const;
 	uint GetMatrix4ArraySize() const;
 	Texture GetTexture() const;
@@ -62,6 +67,7 @@ public:
 	void SetColor4(const glm::vec4& value);
 	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
+	void SetVector3Array(const glm::vec3* data, uint size);
 	void SetMatrix4Array(const glm::mat4* data, uint size);
 	void SetTexture(Texture value);
 

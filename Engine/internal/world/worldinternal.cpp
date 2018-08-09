@@ -338,7 +338,7 @@ void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
 	p.time.x = Time::instance()->GetRealTimeSinceStartup();
 	p.time.y = Time::instance()->GetDeltaTime();
-	UniformBufferManager::instance()->UpdateSharedBuffer(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
+	UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void WorldInternal::RemoveEntityFromSequence(Entity entity) {

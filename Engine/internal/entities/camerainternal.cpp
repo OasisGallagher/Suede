@@ -20,10 +20,10 @@ CameraInternal::CameraInternal()
 	culling_ = MEMORY_NEW(Culling, this);
 	cullingThread_ = new ZThread::Thread(culling_);
 
+	rendering_ = MEMORY_NEW(Rendering, &p_);// , this);
+
 	traits0_ = MEMORY_NEW(RenderableTraits, &p_);
 	traits1_ = MEMORY_NEW(RenderableTraits, &p_);
-
-	rendering_ = MEMORY_NEW(Rendering, &p_);// , this);
 
 	Engine::instance()->AddFrameEventListener(this);
 	Screen::instance()->AddScreenSizeChangedListener(this);
@@ -74,8 +74,8 @@ void CameraInternal::Render() {
 
 	if (traitsReady_) {
 		RenderingMatrices matrices;
-		matrices.nearFar = glm::vec2(GetNearClipPlane(), GetFarClipPlane());
-		matrices.position = GetTransform()->GetPosition();
+		matrices.projParams = glm::vec4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
+		matrices.cameraPos = GetTransform()->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 		rendering_->Render(traits0_->GetPipelines(), matrices);
@@ -100,7 +100,7 @@ void CameraInternal::OnProjectionMatrixChanged() {
 
 void CameraInternal::OnCullingFinished() {
 	RenderingMatrices matrices;
-	matrices.position = GetTransform()->GetPosition();
+	matrices.cameraPos = GetTransform()->GetPosition();
 	matrices.projectionMatrix = GetProjectionMatrix();
 	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 

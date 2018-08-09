@@ -6,8 +6,7 @@
 #include "renderdefines.h"
 #include "materialinternal.h"
 
-#include "internal/rendering/shadows.h"
-#include "internal/rendering/matrixbuffer.h"
+#include "internal/rendering/sharedtextures.h"
 
 // TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
@@ -66,6 +65,13 @@ void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& valu
 	Variant* var = GetProperty(name, VariantTypeVector3);
 	if (var != nullptr && var->GetVector3() != value) {
 		var->SetVector3(value);
+	}
+}
+
+void MaterialInternal::SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count) {
+	Variant* var = GetProperty(name, VariantTypeVector3Array);
+	if (var != nullptr) {
+		var->SetVector3Array(ptr, count);
 	}
 }
 
@@ -361,13 +367,7 @@ void MaterialInternal::InitializeProperties() {
 	}
 
 	Material _this = SharedThis();
-	if (properties_.contains(Variables::ShadowDepthTexture)) {
-		Shadows::instance()->AttachShadowTexture(_this);
-	}
-
-	if (properties_.contains(Variables::MatrixTextureBuffer)) {
-		MatrixBuffer::instance()->AttachMatrixBuffer(_this);
-	}
+	SharedTextures::instance()->Attach(_this);
 }
 
 void MaterialInternal::InitializeEnabledState() {

@@ -47,6 +47,7 @@ public:
 	virtual void SetMatrix4(const std::string& name, const glm::mat4& value);
 	virtual void SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count);
 	virtual void SetVector3(const std::string& name, const glm::vec3& value);
+	virtual void SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count);
 	virtual void SetColor3(const std::string& name, const glm::vec3& value);
 	virtual void SetColor4(const std::string& name, const glm::vec4& value);
 	virtual void SetVector4(const std::string& name, const glm::vec4& value);

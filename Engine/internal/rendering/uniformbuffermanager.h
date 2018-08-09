@@ -33,8 +33,9 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 	glm::mat4 worldToCameraMatrix;
 	glm::mat4 cameraToClipMatrix;
 	glm::mat4 worldToShadowMatrix;
-	glm::vec4 depthBufferParams;
 	glm::vec4 cameraPos;
+	glm::vec4 projParams;
+	glm::vec4 screenParams;
 );
 
 #undef DEFINE_SHARED_UNIFORM_BUFFER
@@ -47,8 +48,8 @@ public:
 	uint GetOffsetAlignment() { return offsetAlignment_; }
 
 public:
-	void AttachSharedBuffers(Shader shader);
-	bool UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size);
+	void Attach(Shader shader);
+	bool Update(const std::string& name, const void* data, uint offset, uint size);
 
 private:
 	UniformBufferManager();
@@ -56,7 +57,7 @@ private:
 
 private:
 	template <class T>
-	void CreateSharedUniformBuffer(uint size = 0);
+	void CreateBuffer(uint size = 0);
 
 private:
 	typedef std::map<std::string, UniformBuffer*> SharedUniformBufferContainer;
@@ -67,7 +68,7 @@ private:
 };
 
 template  <class T>
-void UniformBufferManager::CreateSharedUniformBuffer(uint size) {
+void UniformBufferManager::CreateBuffer(uint size) {
 	if (size == 0) { size = sizeof(T); }
 	UniformBuffer* ptr = MEMORY_NEW(UniformBuffer);
 	ptr->Create(T::GetName(), size);

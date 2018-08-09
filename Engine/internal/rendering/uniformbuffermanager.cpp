@@ -1,14 +1,17 @@
+#include "screen.h"
+#include "variables.h"
 #include "tools/math2.h"
 #include "memory/memory.h"
 #include "../api/glutils.h"
 #include "uniformbuffermanager.h"
+#include "internal/base/renderdefines.h"
 
 UniformBufferManager::UniformBufferManager() {
 	GL::GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint*)&offsetAlignment_);
 
-	CreateSharedUniformBuffer<SharedTimeUniformBuffer>();
-	CreateSharedUniformBuffer<SharedLightUniformBuffer>();
-	CreateSharedUniformBuffer<SharedTransformsUniformBuffer>();
+	CreateBuffer<SharedTimeUniformBuffer>();
+	CreateBuffer<SharedLightUniformBuffer>();
+	CreateBuffer<SharedTransformsUniformBuffer>();
 }
 
 UniformBufferManager::~UniformBufferManager() {
@@ -17,13 +20,13 @@ UniformBufferManager::~UniformBufferManager() {
 	}
 }
 
-void UniformBufferManager::AttachSharedBuffers(Shader shader) {
+void UniformBufferManager::Attach(Shader shader) {
 	for (SharedUniformBufferContainer::iterator ite = sharedUniformBuffers_.begin(); ite != sharedUniformBuffers_.end(); ++ite) {
 		ite->second->AttachBuffer(shader);
 	}
 }
 
-bool UniformBufferManager::UpdateSharedBuffer(const std::string& name, const void* data, uint offset, uint size) {
+bool UniformBufferManager::Update(const std::string& name, const void* data, uint offset, uint size) {
 	if (size > GLUtils::GetLimits(GLLimitsMaxUniformBlockSize)) {
 		Debug::LogError("%d exceeds max buffer size.", size);
 		return false;

@@ -34,7 +34,7 @@
 
 #define ROOM
 //#define SKYBOX
-#define PROJECTOR
+//#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
@@ -45,7 +45,7 @@
 //#define BUMPED
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "builtin/cube.fbx";
+static const char* roomFbxPath = "room.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 

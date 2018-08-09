@@ -15,6 +15,7 @@ namespace Variables {
 	DEFINE_VARIABLE(InstanceColor);
 	DEFINE_VARIABLE(InstanceGeometry);
 
+	DEFINE_VARIABLE(SSAOKernel);
 	DEFINE_VARIABLE(BoneToRootMatrices);
 
 	DEFINE_VARIABLE(MainTexture);
@@ -25,6 +26,9 @@ namespace Variables {
 
 	DEFINE_VARIABLE(MatrixTextureBuffer);
 	DEFINE_VARIABLE(MatrixTextureBufferOffset);
+
+	DEFINE_VARIABLE(SSAOTexture);
+	DEFINE_VARIABLE(DepthTexture);
 	DEFINE_VARIABLE(ShadowDepthTexture);
 
 	DEFINE_VARIABLE(Gloss);
