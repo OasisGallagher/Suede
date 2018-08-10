@@ -1,11 +1,11 @@
 #include "variables.h"
 #include "matrixbuffer.h"
-#include "sharedtextures.h"
 #include "../api/glutils.h"
+#include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 
 MatrixBuffer::MatrixBuffer() {
-	textureBuffer_ = SharedTextures::instance()->GetMatrixTextureBuffer();
+	textureBuffer_ = SharedTextureManager::instance()->GetMatrixTextureBuffer();
 }
 
 void MatrixBuffer::Update(uint size, const void* data) {

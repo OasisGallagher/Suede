@@ -418,7 +418,7 @@
     <ClInclude Include="internal\world\decalcreater.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\rendering\sharedtextures.h">
+    <ClInclude Include="internal\rendering\sharedtexturemanager.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -594,7 +594,7 @@
     <ClCompile Include="internal\world\decalcreater.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\rendering\sharedtextures.cpp">
+    <ClCompile Include="internal\rendering\sharedtexturemanager.cpp">
       <Filter>internal\rendering\src</Filter>
     </ClCompile>
   </ItemGroup>

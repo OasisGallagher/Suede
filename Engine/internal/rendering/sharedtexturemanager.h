@@ -3,11 +3,11 @@
 #include "material.h"
 #include "tools/singleton.h"
 
-class SharedTextures : public Singleton<SharedTextures> {
-	friend class Singleton<SharedTextures>;
+class SharedTextureManager : public Singleton<SharedTextureManager> {
+	friend class Singleton<SharedTextureManager>;
 
 public:
-	SharedTextures();
+	SharedTextureManager();
 
 public:
 	void Attach(Material material);

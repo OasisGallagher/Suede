@@ -40,8 +40,6 @@ struct RenderingMaterials {
 struct RenderingRenderTextures {
 	RenderTexture aux1;
 	RenderTexture aux2;
-	RenderTexture ssao;
-	RenderTexture depth;
 	RenderTexture target;
 };
 
@@ -65,7 +63,6 @@ struct RenderingParameters {
 struct RenderingPipelines {
 	Light forwardBaseLight;
 
-	Pipeline* ssao;
 	Pipeline* depth;
 	Pipeline* shadow;
 	Pipeline* rendering;
@@ -134,7 +131,7 @@ private:
 
 	RenderTexture GetActiveRenderTarget();
 
-	void SSAOPass(Pipeline* pl);
+	void SSAOPass();
 
 	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
 	void ForwardDepthPass(Pipeline* pl);

@@ -138,6 +138,7 @@ protected:
 	virtual void ResizeStorage(uint w, uint h);
 
 private:
+	bool VerifyBindStatus();
 	void DestroyFramebuffer();
 	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormatDepth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);

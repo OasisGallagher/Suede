@@ -1,7 +1,6 @@
 #pragma once
 
 #include "material.h"
-#include "containers/ptrmap.h"
 #include "internal/base/objectinternal.h"
 
 class MaterialInternal : public IMaterial, public ObjectInternal {
@@ -81,6 +80,6 @@ private:
 	uint passEnabled_;
 
 	std::string name_;
-	typedef ptr_map<std::string, Property> PropertyContainer;
+	typedef std::map<std::string, ShaderProperty> PropertyContainer;
 	PropertyContainer properties_;
 };

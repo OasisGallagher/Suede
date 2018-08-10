@@ -28,27 +28,17 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 };
 
 // --------- Uniforms ---------
-uniform sampler2D _DepthTexture;
-
 #ifdef _VERTEX_SHADER
 
 // 8 matches VertexAttribMatrixOffset.
 layout(location = 8) in int _MatrixTextureBufferOffset;
 uniform samplerBuffer _MatrixTextureBuffer;
 
-#define _LocalToWorldMatrix		mat4( \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 0), \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 1), \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 2), \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 3) \
-								)
+#define __F(offset)	texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + offset)
 
-#define _LocalToClipMatrix		mat4( \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 4), \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 5), \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 6), \
-									texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + 7) \
-								)
+#define _LocalToWorldMatrix		mat4(__F(0), __F(1), __F(2), __F(3))
+#define _LocalToClipMatrix		mat4(__F(4), __F(5), __F(6), __F(7))
+
 #endif	// _VERTEX_SHADER
 
 #ifdef _FRAGMENT_SHADER
@@ -57,11 +47,14 @@ uniform samplerBuffer _MatrixTextureBuffer;
 
 // --------- Functions ---------
 float _Linear01Depth(float z) {
-	return 2.0 * _ProjParams.x * _ProjParams.y / ((_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x)) * _ProjParams.y);
+	return _ProjParams.x / (z * _ProjParams.x - z * _ProjParams.y + _ProjParams.y);
+	//return 2.0 * _ProjParams.x * _ProjParams.y / ((_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x)) * _ProjParams.y);
 }
 
 float _LinearEyeDepth(float z) {
-	return 2.0 * _ProjParams.x * _ProjParams.y / (_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x));
+	return _CameraToClipMatrix[3][2] / (2 * z - 1 - _CameraToClipMatrix[2][2]);
+	//return _ProjParams.x * _ProjParams.y / (z * _ProjParams.x - z * _ProjParams.y + _ProjParams.y);
+	//return 2.0 * _ProjParams.x * _ProjParams.y / (_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x));
 }
 
 #ifdef _FRAGMENT_SHADER

@@ -2,12 +2,12 @@
 #include "pipeline.h"
 #include "resources.h"
 #include "variables.h"
-#include "sharedtextures.h"
+#include "sharedtexturemanager.h"
 #include "internal/world/worldinternal.h"
 
 Shadows::Shadows() {
 	uint w = Screen::instance()->GetWidth(), h = Screen::instance()->GetHeight();
-	shadowDepthTexture_ = SharedTextures::instance()->GetShadowDepthTexture();
+	shadowDepthTexture_ = SharedTextureManager::instance()->GetShadowDepthTexture();
 
 	directionalLightShadowMaterial_ = NewMaterial();
 	directionalLightShadowMaterial_->SetShader(Resources::instance()->FindShader("builtin/directional_light_depth"));

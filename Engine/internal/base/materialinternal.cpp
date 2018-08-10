@@ -6,7 +6,7 @@
 #include "renderdefines.h"
 #include "materialinternal.h"
 
-#include "internal/rendering/sharedtextures.h"
+#include "internal/rendering/sharedtexturemanager.h"
 
 // TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
@@ -193,7 +193,7 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 
 void MaterialInternal::GetProperties(std::vector<const Property*>& properties) const {
 	for (PropertyContainer::const_iterator ite = properties_.cbegin(); ite != properties_.cend(); ++ite) {
-		properties.push_back(ite->second);
+		properties.push_back(ite->second.property);
 	}
 }
 
@@ -227,9 +227,11 @@ void MaterialInternal::Bind(uint pass) {
 }
 
 void MaterialInternal::Unbind() {
-	UnbindProperties();
-	shader_->Unbind();
-	currentPass_ = -1;
+	if (currentPass_ >= 0) {
+		UnbindProperties();
+		shader_->Unbind();
+		currentPass_ = -1;
+	}
 }
 
 bool MaterialInternal::EnablePass(uint pass) {
@@ -295,9 +297,13 @@ void MaterialInternal::Undefine(const std::string& name) {
 }
 
 Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type) {
-	Property* p = nullptr;
-	if (properties_.get(name, p) && p != nullptr) {
-		return &p->value;
+	PropertyContainer::iterator pos = properties_.find(name);
+	if (pos == properties_.end()) {
+		return nullptr;
+	}
+
+	if (pos->second.property != nullptr) {
+		return &pos->second.property->value;
 	}
 
 	return nullptr;
@@ -320,7 +326,11 @@ Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType t
 void MaterialInternal::BindProperties(uint pass) {
 	int textureIndex = 0;
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		Variant& var = ite->second->value;
+		if (ite->second.pass != -1 && ite->second.pass != pass) {
+			continue;
+		}
+
+		Variant& var = ite->second.property->value;
 		if (var.GetType() != VariantTypeTexture) {
 			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, var.GetData());
 		}
@@ -347,7 +357,11 @@ void MaterialInternal::UnbindProperties() {
 	static float zero[sizeof(glm::mat4)  * MAX_BONE_COUNT];
 
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		Variant& var = ite->second->value;
+		if (ite->second.pass != -1 && ite->second.pass != currentPass_) {
+			continue;
+		}
+
+		Variant& var = ite->second.property->value;
 		if (var.GetType() != VariantTypeTexture) {
 			shader_->SetProperty(SUB_SHADER_INDEX, currentPass_, ite->first, zero);
 		}
@@ -358,16 +372,16 @@ void MaterialInternal::UnbindProperties() {
 }
 
 void MaterialInternal::InitializeProperties() {
-	std::vector<const Property*> container;
+	std::vector<ShaderProperty> container;
 	shader_->GetProperties(container);
 
 	properties_.clear();
 	for (int i = 0; i < container.size(); ++i) {
-		*properties_[container[i]->name] = *container[i];
+		properties_[container[i].property->name] = container[i];
 	}
 
 	Material _this = SharedThis();
-	SharedTextures::instance()->Attach(_this);
+	SharedTextureManager::instance()->Attach(_this);
 }
 
 void MaterialInternal::InitializeEnabledState() {

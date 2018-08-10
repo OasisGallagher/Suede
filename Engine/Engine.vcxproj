@@ -202,7 +202,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\rendering.cpp" />
     <ClCompile Include="internal\rendering\shadows.cpp" />
-    <ClCompile Include="internal\rendering\sharedtextures.cpp" />
+    <ClCompile Include="internal\rendering\sharedtexturemanager.cpp" />
     <ClCompile Include="internal\rendering\uniformbuffermanager.cpp" />
     <ClCompile Include="internal\tools\gizmosinternal.cpp" />
     <ClCompile Include="internal\tools\graphicsinternal.cpp" />
@@ -304,7 +304,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />
     <ClInclude Include="internal\rendering\shadows.h" />
-    <ClInclude Include="internal\rendering\sharedtextures.h" />
+    <ClInclude Include="internal\rendering\sharedtexturemanager.h" />
     <ClInclude Include="internal\rendering\uniformbuffermanager.h" />
     <ClInclude Include="internal\tools\gizmosinternal.h" />
     <ClInclude Include="internal\tools\graphicsinternal.h" />

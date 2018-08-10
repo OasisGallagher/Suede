@@ -510,17 +510,21 @@ SubShader::~SubShader() {
 	MEMORY_DELETE_ARRAY(passes_);
 }
 
-bool SubShader::Initialize(std::vector<Property*>& properties, const Semantics::SubShader& config, const std::string& path) {
+bool SubShader::Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path) {
 	InitializeTags(config.tags);
 
 	passCount_ = config.passes.size();
 	passes_ = MEMORY_NEW_ARRAY(Pass, config.passes.size());
 
+	std::vector<Property*> container;
 	for (uint i = 0; i < passCount_; ++i) {
-		passes_[i].Initialize(properties, config.passes[i], path);
+		passes_[i].Initialize(container, config.passes[i], path);
 		if (!config.passes[i].enabled) {
 			passEnabled_ &= ~(1 << i);
 		}
+
+		AddShaderProperties(properties, container, i);
+		container.clear();
 	}
 
 	return true;
@@ -593,9 +597,29 @@ uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 	return 0;
 }
 
+
+void SubShader::AddShaderProperties(std::vector<ShaderProperty>& properties, const std::vector<Property*> container, uint pass) {
+	for (Property* p : container) {
+		bool contains = false;
+		for (ShaderProperty& pp : properties) {
+			if (pp.property->name == p->name) {
+				contains = true;
+				break;
+			}
+		}
+
+		if (!contains) {
+			ShaderProperty sp = { pass, p };
+			properties.push_back(sp);
+		}
+		else {
+			MEMORY_DELETE(p);
+		}
+	}
+}
+
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)
-	, subShaderCount_(0), subShaders_(nullptr)
-	, propertyCount_(0), properties_(nullptr), currentSubShader_(UINT_MAX) {
+	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
@@ -614,9 +638,15 @@ bool ShaderInternal::Load(const std::string& path) {
 		return false;
 	}
 
-	ParseSubShaders(semantics.properties, semantics.subShaders, path);
+	std::vector<ShaderProperty> properties;
+	for (Property* p : semantics.properties) {
+		ShaderProperty sp = { -1, p };
+		properties.push_back(sp);
+	}
 
-	LoadProperties(semantics.properties);
+	ParseSubShaders(properties, semantics.subShaders, path);
+
+	LoadProperties(properties);
 
 	UniformBufferManager::instance()->Attach(SharedThis());
 
@@ -624,15 +654,12 @@ bool ShaderInternal::Load(const std::string& path) {
 	return true;
 }
 
-void ShaderInternal::LoadProperties(const std::vector<Property*>& properties) {
+void ShaderInternal::LoadProperties(const std::vector<ShaderProperty>& properties) {
 	ReleaseProperties();
-	properties_ = MEMORY_NEW_ARRAY(Property*, properties.size());
-	propertyCount_ = properties.size();
-
-	std::copy(properties.begin(), properties.end(), properties_);
+	properties_ = properties;
 }
 
-void ShaderInternal::ParseSubShaders(std::vector<Property*>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
+void ShaderInternal::ParseSubShaders(std::vector<ShaderProperty>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
 	subShaderCount_ = subShaders.size();
 	subShaders_ = MEMORY_NEW_ARRAY(SubShader, subShaders.size());
 	for (uint i = 0; i < subShaderCount_; ++i) {
@@ -641,12 +668,11 @@ void ShaderInternal::ParseSubShaders(std::vector<Property*>& properties, std::ve
 }
 
 void ShaderInternal::ReleaseProperties() {
-	for (int i = 0; i < propertyCount_; ++i) {
-		MEMORY_DELETE(properties_[i]);
+	for (ShaderProperty& p : properties_) {
+		MEMORY_DELETE(p.property);
 	}
 
-	MEMORY_DELETE_ARRAY(properties_);
-	propertyCount_ = 0;
+	properties_.clear();
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {
@@ -686,8 +712,8 @@ int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {
 	return subShaders_[ssi].GetPassIndex(name);
 }
 
-void ShaderInternal::GetProperties(std::vector<const Property*>& properties) {
-	properties.assign(properties_, properties_ + propertyCount_);
+void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
+	properties = properties_;
 }
 
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {

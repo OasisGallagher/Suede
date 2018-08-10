@@ -8,10 +8,13 @@
 #include "projector.h"
 #include "imageeffect.h"
 #include "tools/math2.h"
-#include "sharedtextures.h"
+#include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/shadows.h"
 #include "internal/rendering/uniformbuffermanager.h"
+
+#define sharedSSAOTexture	SharedTextureManager::instance()->GetSSAOTexture()
+#define sharedDepthTexture	SharedTextureManager::instance()->GetDepthTexture()
 
 RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
 	, clearType(ClearType::Color), renderPath(RenderPath::Forward) {
@@ -27,9 +30,6 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	p_->renderTextures.aux2 = NewRenderTexture();
 	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
-	p_->renderTextures.ssao = SharedTextures::instance()->GetSSAOTexture();
-	p_->renderTextures.depth = SharedTextures::instance()->GetDepthTexture();
-
 	ssaoSample = Profiler::instance()->CreateSample();
 	depthSample = Profiler::instance()->CreateSample();
 	shadowSample = Profiler::instance()->CreateSample();
@@ -40,8 +40,8 @@ void Rendering::Resize(uint width, uint height) {
 	p_->renderTextures.aux1->Resize(width, height);
 	p_->renderTextures.aux2->Resize(width, height);
 
-	p_->renderTextures.ssao->Resize(width, height);
-	p_->renderTextures.depth->Resize(width, height);
+	sharedSSAOTexture->Resize(width, height);
+	sharedDepthTexture->Resize(width, height);
 }
 
 #define OutputSample(sample)	Debug::Output("%s elapsed %.2f seconds", #sample, sample->GetElapsedSeconds())
@@ -61,7 +61,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 
 	OnPostRender();
 
-	Graphics::instance()->Blit(p_->renderTextures.ssao, nullptr);
+	Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
 	if (!p_->imageEffects.empty()) {
 		OnImageEffects();
 	}
@@ -71,8 +71,8 @@ void Rendering::ClearRenderTextures() {
 	p_->renderTextures.aux1->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 	p_->renderTextures.aux2->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
 
-	p_->renderTextures.ssao->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
-	p_->renderTextures.depth->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+	sharedSSAOTexture->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
+	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	RenderTexture target = p_->renderTextures.target;
 	if (!target) { target = RenderTexture::GetDefault(); }
@@ -134,9 +134,14 @@ void Rendering::OnImageEffects() {
 
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
-	if (pipelines.ssao->GetRenderableCount() > 0) {
-		pipelines.ssao->Run();
-	}
+	RenderTexture temp = NewRenderTexture();
+	temp->Create(RenderTextureFormatRgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	
+	p_->materials.ssao->SetPass(0);
+	Graphics::instance()->Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
+
+	p_->materials.ssao->SetPass(1);
+	Graphics::instance()->Blit(temp, sharedSSAOTexture, p_->materials.ssao, p_->normalizedRect);
 
 	ssaoSample->Stop();
 	OutputSample(ssaoSample);
@@ -178,11 +183,8 @@ void Rendering::RenderPass(RenderingPipelines& pipelines) {
 }
 
 RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
-	pipelines_.ssao = MEMORY_NEW(Pipeline);
-	pipelines_.ssao->SetTargetTexture(p_->renderTextures.ssao, Rect(0, 0, 1, 1));
-
 	pipelines_.depth = MEMORY_NEW(Pipeline);
-	pipelines_.depth->SetTargetTexture(p_->renderTextures.depth, Rect(0, 0, 1, 1));
+	pipelines_.depth->SetTargetTexture(sharedDepthTexture, Rect(0, 0, 1, 1));
 
 	pipelines_.rendering = MEMORY_NEW(Pipeline);
 
@@ -195,7 +197,6 @@ RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* li
 }
 
 RenderableTraits::~RenderableTraits() {
-	MEMORY_DELETE(pipelines_.ssao);
 	MEMORY_DELETE(pipelines_.depth);
 	MEMORY_DELETE(pipelines_.shadow);
 	MEMORY_DELETE(pipelines_.rendering);
@@ -226,8 +227,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	}
 
 	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
-		*pipelines_.ssao = *pipelines_.shadow;
-		SSAOPass(pipelines_.ssao);
+		SSAOPass();
 		depthPass = true;
 	}
 
@@ -339,9 +339,7 @@ void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<Entity>
 void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities_, const std::vector<Light>& lights) {
 }
 
-void RenderableTraits::SSAOPass(Pipeline* pl) {
-	ReplaceMaterials(pl, p_->materials.ssao);
-
+void RenderableTraits::SSAOPass() {
 	static glm::vec3 kernel[SSAO_KERNAL_SIZE];
 	for (int i = 0; i < SSAO_KERNAL_SIZE; ++i) {
 		float scale = float(i) / SSAO_KERNAL_SIZE;

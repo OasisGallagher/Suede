@@ -91,7 +91,7 @@ public:
 	~SubShader();
 
 public:
-	bool Initialize(std::vector<Property*>& properties, const Semantics::SubShader& config, const std::string& path);
+	bool Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path);
 
 	void Bind(uint pass);
 	void Unbind();
@@ -115,6 +115,7 @@ private:
 	void InitializeTags(const std::vector<Semantics::Tag>& tags);
 	void InitializeTag(const Semantics::Tag& tag, uint i);
 	uint ParseExpression(TagKey key, const std::string& expression);
+	void AddShaderProperties(std::vector<ShaderProperty>& properties, const std::vector<Property*> container, uint pass);
 
 private:
 	Pass* passes_;
@@ -149,19 +150,17 @@ public:
 	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
 	virtual uint GetSubShaderCount() const { return subShaderCount_; }
 
-	virtual void GetProperties(std::vector<const Property*>& properties);
+	virtual void GetProperties(std::vector<ShaderProperty>& properties);
 	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 
 private:
 	void ReleaseProperties();
-	void LoadProperties(const std::vector<Property*>& properties);
-	void ParseSubShaders(std::vector<Property*>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path);
+	void LoadProperties(const std::vector<ShaderProperty>& properties);
+	void ParseSubShaders(std::vector<ShaderProperty>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:
 	std::string path_;
-	
-	uint propertyCount_;
-	Property** properties_;
+	std::vector<ShaderProperty> properties_;
 
 	SubShader* subShaders_;
 	uint subShaderCount_;

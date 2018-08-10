@@ -10,6 +10,11 @@ struct Property {
 	Variant value;
 };
 
+struct ShaderProperty {
+	int pass;
+	Property* property;
+};
+
 class SUEDE_API IShader : virtual public IObject {
 public:
 	virtual std::string GetName() const = 0;
@@ -34,7 +39,7 @@ public:
 	/**
 	* @param properties return initial properties defined in shader.
 	*/
-	virtual void GetProperties(std::vector<const Property*>& properties) = 0;
+	virtual void GetProperties(std::vector<ShaderProperty>& properties) = 0;
 	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data) = 0;
 };
 

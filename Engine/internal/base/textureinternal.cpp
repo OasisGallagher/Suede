@@ -437,18 +437,23 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 }
 
 void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
+	if (!VerifyBindStatus()) { return; }
+	
 	bindStatus_ = StatusWrite;
-
 	SetViewport(width_, height_, normalizedRect);
 	framebuffer_->BindWrite();
 }
 
 void RenderTextureInternal::Bind(uint index) {
+	if (!VerifyBindStatus()) { return; }
+
 	bindStatus_ = StatusRead;
 	TextureInternal::Bind(index);
 }
 
 void RenderTextureInternal::Unbind() {
+	if (bindStatus_ == StatusNone) { return; }
+
 	if (bindStatus_ == StatusWrite) {
 		framebuffer_->Unbind();
 	}
@@ -457,6 +462,15 @@ void RenderTextureInternal::Unbind() {
 	}
 
 	bindStatus_ = StatusNone;
+}
+
+bool RenderTextureInternal::VerifyBindStatus() {
+	if (bindStatus_ != StatusNone) {
+		Debug::LogError("bind status error");
+		return false;
+	}
+
+	return true;
 }
 
 void RenderTextureInternal::DestroyFramebuffer() {

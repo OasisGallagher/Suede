@@ -141,7 +141,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 
 	if (path == roomFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-		root->GetTransform()->SetEulerAngles(glm::vec3(30, 60, 0));
+		root->GetTransform()->SetEulerAngles(glm::vec3(30, 0, 0));
 		if (path.find("house") != std::string::npos) {
 			root->GetTransform()->SetScale(glm::vec3(0.01f));
 		}

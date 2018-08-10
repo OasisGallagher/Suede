@@ -268,6 +268,8 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	draw_call->Stop();
 
 	++ndrawcalls_;
+
+	// TODO: topology besides triangles... triangle strip for example.
 	ntriangles_ += bias.indexCount / 3;
 }
 
