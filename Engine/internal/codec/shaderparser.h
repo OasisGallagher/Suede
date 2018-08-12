@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include "variant.h"
 #include "renderer.h"
 #include "../api/gl.h"
@@ -16,6 +17,17 @@ enum ShaderStage {
 	ShaderStageGeometry,
 	ShaderStageFragment,
 	ShaderStageCount,
+};
+
+struct ShaderSourceRanges {
+	struct Range {
+		uint first;
+		uint last;
+		uint offset;
+	};
+
+	std::string file;
+	std::vector<Range> ranges;
 };
 
 struct ShaderDescription {
@@ -54,6 +66,8 @@ struct Semantics {
 
 	struct Pass {
 		bool enabled;
+
+		uint lineno;
 		std::string name;
 		std::string source;
 		std::vector<RenderState> renderStates;
@@ -70,31 +84,39 @@ struct Semantics {
 
 class GLSLParser {
 public:
-	bool Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, const std::string& defines);
+	bool Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& defines);
 
 private:
 	void Clear();
-	bool Preprocess(const std::string& line);
-	void SetShaderStageCode(ShaderStage stage);
+	void SetShaderStageCode();
+	void AddShaderSourceRange();
+	bool Preprocess(const std::string& line, uint ln);
 	void AddDefines(const std::string& customDefines);
-	bool ReadShaderSource(const std::string& source);
-	bool PreprocessInclude(const std::string& parameter);
+	bool ReadShaderSource(const std::string& source, uint ln);
+	bool PreprocessInclude(const std::string& parameter, uint ln);
 	ShaderStage ParseShaderStage(const std::string& tag);
 	std::string FormatDefines(const std::string& customDefines);
-	bool PreprocessShaderStage(const std::string& parameter);
+	bool PreprocessShaderStage(const std::string& parameter, uint ln);
 	void CalculateDefinesPermutations(std::vector<std::string>& anwser);
-	bool CompileShaderSource(const std::string& source, const std::string& customDefines);
+	bool CompileShaderSource(const std::string& source, uint ln, const std::string& customDefines);
 
 private:
+	uint startln_;
+	
+	uint srcStart_;
+	uint srcCurrent_;
+
 	ShaderStage type_;
+
 	std::string path_;
 	std::string* answer_;
 	
-	std::string globals_;
 	std::string version_;
 	std::string defines_;
 
 	std::string source_;
+	std::set<std::string> includes_;
+	std::vector<ShaderSourceRanges> ranges_[ShaderStageCount];
 };
 
 class ShaderParser {
@@ -141,7 +163,7 @@ private:
 	void ReadPass(SyntaxNode* node, Semantics::Pass& pass);
 	void ReadPasses(SyntaxNode* node, std::vector<Semantics::Pass>& passes);
 
-	void ReadCode(SyntaxNode* node, std::string& source);
+	void ReadCode(SyntaxNode* node, std::string& source, uint& lineno);
 
 	void ReadSubShaderBlock(SyntaxNode* node, Semantics::Semantics::SubShader& subShader);
 	void ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::Semantics::SubShader>& subShaders);

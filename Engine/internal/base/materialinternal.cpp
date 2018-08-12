@@ -326,7 +326,7 @@ Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType t
 void MaterialInternal::BindProperties(uint pass) {
 	int textureIndex = 0;
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		if (ite->second.pass != -1 && ite->second.pass != pass) {
+		if ((ite->second.mask & (1 << pass)) == 0) {
 			continue;
 		}
 
@@ -357,7 +357,7 @@ void MaterialInternal::UnbindProperties() {
 	static float zero[sizeof(glm::mat4)  * MAX_BONE_COUNT];
 
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		if (ite->second.pass != -1 && ite->second.pass != currentPass_) {
+		if ((ite->second.mask & (1 << currentPass_)) == 0) {
 			continue;
 		}
 

@@ -7,43 +7,7 @@ SubShader {
 	Tags { 
 		Queue = "Transparent";
 	}
-
-	Pass "Outline" false {
-		Cull Front;
-		ZWrite Off;
-		Offset 100 100;
-
-		//StencilTest NotEqual 1 0xFF;
-		//StencilWrite Off;
-
-		GLSLPROGRAM
-
-		#stage vertex
-		#include "builtin/include/suede.inc"
-
-		in vec3 _Pos;
-		in vec3 _Normal;
-
-		uniform float outlineFactor;
-		void main() {
-			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
-
-			vec3 normal = transpose(inverse(mat3(_WorldToCameraMatrix * _LocalToWorldMatrix))) * _Normal;
-			vec2 offset = mat2(_CameraToClipMatrix) * normal.xy;
-			gl_Position.xy += offset * outlineFactor;
-		}
-
-		#stage fragment
-		out vec4 fragColor;
-		
-		uniform vec3 outlineColor;
-		void main() {
-			fragColor = vec4(outlineColor, 1);
-		}
-
-		ENDGLSL
-	}
-
+	
 	Pass {
 		//ZWrite On;
 		ZTest LEqual;
@@ -54,8 +18,6 @@ SubShader {
 		//StencilWrite On;
 
 		GLSLPROGRAM
-		
-		#include "builtin/include/suede.inc"
 
 		#stage vertex
 		in vec3 _Pos;
@@ -65,7 +27,8 @@ SubShader {
 		out vec2 texCoord;
 		out vec3 worldPos;
 		out vec3 normal;
-
+		
+		#include "builtin/include/suede.inc"
 		#include "builtin/include/lit_vertex.inc"
 
 		void main() {
@@ -90,6 +53,7 @@ SubShader {
 		uniform vec4 _MainColor;
 		uniform sampler2D _MainTexture;
 
+		#include "builtin/include/suede.inc"
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {

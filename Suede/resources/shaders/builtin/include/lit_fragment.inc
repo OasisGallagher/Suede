@@ -1,6 +1,8 @@
 #ifndef _LIT_FRAGMENT_INCLUDED
 #define _LIT_FRAGMENT_INCLUDED
 
+#include "builtin/include/suede.inc"
+
 in vec3 _ViewPos;
 in vec4 _ShadowCoord;
 

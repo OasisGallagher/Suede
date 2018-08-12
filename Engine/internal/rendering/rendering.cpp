@@ -71,7 +71,7 @@ void Rendering::ClearRenderTextures() {
 	p_->renderTextures.aux1->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 	p_->renderTextures.aux2->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
 
-	sharedSSAOTexture->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
+	sharedSSAOTexture->Clear(p_->normalizedRect, glm::vec4(1));
 	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
 
 	RenderTexture target = p_->renderTextures.target;

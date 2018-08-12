@@ -6,7 +6,8 @@
 inline bool DebugNodeType(SyntaxNodeType current, SyntaxNodeType expected) {
 #ifdef _DEBUG
 	if (current != expected) {
-		Debug::LogError("invalid syntax node type: %d != %d.", current, expected); return false;
+		Debug::LogError("invalid syntax node type: %d != %d.", current, expected);
+		return false;
 	}
 #endif
 
@@ -20,7 +21,7 @@ SyntaxNode::SyntaxNode(SyntaxNodeType type, const std::string& text)
 
 SyntaxNode::~SyntaxNode() {
 	if (type_ == SyntaxNodeOperation) {
-		delete[] value_.children;
+		delete[] value_.children.ptr;
 	}
 }
 
@@ -33,11 +34,11 @@ void SyntaxNode::AddChildren(SyntaxNode** buffer, int count) {
 		return;
 	}
 
-	value_.children = new SyntaxNode*[count + 1];
-	*value_.children = (SyntaxNode*)(uint64)count;
+	value_.children.ptr = new SyntaxNode*[count];
+	value_.children.count = count;
 
-	for (int i = 1; i <= count; ++i) {
-		value_.children[i] = buffer[i - 1];
+	for (int i = 0; i < count; ++i) {
+		value_.children.ptr[i] = buffer[i];
 	}
 }
 
@@ -47,7 +48,7 @@ SyntaxNode* SyntaxNode::GetChildAt(uint index) {
 	}
 
 	VERIFY_INDEX(index, GetChildCount(), nullptr);
-	return value_.children[index + 1];
+	return value_.children.ptr[index];
 }
 
 const SyntaxNode* SyntaxNode::GetChildAt(uint index) const {
@@ -56,7 +57,7 @@ const SyntaxNode* SyntaxNode::GetChildAt(uint index) const {
 	}
 
 	VERIFY_INDEX(index, GetChildCount(), nullptr);
-	return value_.children[index + 1];
+	return value_.children.ptr[index];
 }
 
 int SyntaxNode::GetChildCount() const {
@@ -64,7 +65,7 @@ int SyntaxNode::GetChildCount() const {
 		return 0;
 	}
 
-	return (int)(uint64)*value_.children;
+	return value_.children.count;
 }
 
 void SyntaxNode::SetIntegerAddress(Integer* addr) {
@@ -97,10 +98,19 @@ void SyntaxNode::SetLiteralAddress(Literal* addr) {
 	}
 }
 
-void SyntaxNode::SetCodeAddress(Code* addr) {
-	if ((type_, SyntaxNodeCode)) {
-		value_.code = addr;
+void SyntaxNode::SetCodeAddress(Code* addr, uint lineno) {
+	if (DebugNodeType(type_, SyntaxNodeCode)) {
+		value_.code.ptr = addr;
+		value_.code.lineno = lineno;
 	}
+}
+
+uint SyntaxNode::GetCodeLineNumber() const {
+	if (DebugNodeType(type_, SyntaxNodeCode)) {
+		return value_.code.lineno;
+	}
+
+	return 0;
 }
 
 const std::string& SyntaxNode::ToString() const {

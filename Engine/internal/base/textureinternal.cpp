@@ -9,6 +9,7 @@
 #include "os/filesystem.h"
 #include "../api/glutils.h"
 #include "textureinternal.h"
+#include "containers/freelist.h"
 
 TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
 	, texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
@@ -349,6 +350,22 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	UnbindTexture();
 	return true;
 }
+
+class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureManager>, public ScreenSizeChangedListener {
+	friend class Singleton<TemporaryRenderTextureManager>;
+
+public:
+	virtual void OnScreenSizeChanged(uint width, uint height) {
+
+	}
+
+private:
+	TemporaryRenderTextureManager() : temporaries_(16) {
+	}
+
+private:
+	free_list<RenderTexture> temporaries_;
+};
 
 RenderTexture RenderTexture::GetDefault() {
 	static RenderTexture screen;

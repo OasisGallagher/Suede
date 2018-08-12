@@ -126,7 +126,7 @@ std::string ActionCode::ToString() const {
 SyntaxNode* ActionCode::Invoke(const std::vector<void*>& container) {
 	Code* code = (Code*)container[container.size() - argument_.parameters.front()];
 	SyntaxNode* ans = new SyntaxNode(SyntaxNodeCode, code->ToString());
-	ans->SetCodeAddress(code);
+	ans->SetCodeAddress(code, code->GetLineNumber());
 	return ans;
 }
 

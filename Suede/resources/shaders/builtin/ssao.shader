@@ -59,7 +59,6 @@ SubShader {
 
 			AO = 1.0 - AO / (_C_SSAO_KERNAL_SIZE / 2.0);
 			fragColor = vec3(pow(AO, 2));
-			//fragColor = vec3(_LinearEyeDepth(texture(_DepthTexture, texCoord).x));
 		}
 
 		ENDGLSL
@@ -88,7 +87,7 @@ SubShader {
 		void main()
 		{
 			vec3 color = vec3(0);
-			vec2 size = vec2(1.0 / textureSize(_MainTexture, 0).x, 1.0 / textureSize(_MainTexture, 0).y);
+			vec2 size = 1.0 / textureSize(_MainTexture, 0);
 
 			for (int i = 0; i < 4; ++i) {
 				for (int j = 0; j < 4; ++j) {
@@ -98,7 +97,7 @@ SubShader {
 			}
 
 			color /= 16.0;
-			fragColor = vec3(size, 0);// color;
+			fragColor = color;
 		}
 
 		ENDGLSL

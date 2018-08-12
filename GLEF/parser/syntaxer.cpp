@@ -190,7 +190,7 @@ bool Syntaxer::CreateSyntaxTree(SyntaxNode*& root, SourceScanner* sourceScanner)
 	return action.type == LRActionAccept;
 }
 
-GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
+GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, const TokenPosition& position, void*& addr) {
 	addr = nullptr;
 
 	GrammarSymbol answer = NativeSymbols::null;
@@ -235,6 +235,7 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, void*& addr) {
 		addr = p.first->second;
 		if (p.second) {
 			p.first->second->SetText(token.tokenText);
+			p.first->second->SetLineNumber(position.lineno + 1);
 		}
 	}
 	else {
@@ -264,7 +265,7 @@ GrammarSymbol Syntaxer::ParseNextSymbol(TokenPosition& position, void*& addr, So
 	GrammarSymbol answer = NativeSymbols::null;
 
 	if (sourceScanner->GetToken(&token, &position)) {
-		answer = FindSymbol(token, addr);
+		answer = FindSymbol(token, position, addr);
 	}
 
 	if (!answer) {

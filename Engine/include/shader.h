@@ -11,7 +11,7 @@ struct Property {
 };
 
 struct ShaderProperty {
-	int pass;
+	int mask;
 	Property* property;
 };
 

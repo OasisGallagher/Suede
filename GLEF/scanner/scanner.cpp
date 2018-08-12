@@ -276,14 +276,14 @@ ScannerTokenType TextScanner::ParseIdentifierType(const std::string& buffer) {
 	return ScannerTokenIdentifier;
 }
 
-SourceScanner::SourceScanner()
-	: lineno_(0) {
+SourceScanner::SourceScanner() {
 }
 
 SourceScanner::~SourceScanner() {
 }
 
 bool SourceScanner::Open(const std::string& path) {
+	lineno_ = 0;
 	text_.clear();
 
 	if (!FileSystem::ReadAllText(path, text_)) {
@@ -297,11 +297,10 @@ bool SourceScanner::Open(const std::string& path) {
 bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 	std::string line, buffer;
 	ScannerTokenType tokenType = textScanner_.GetToken(buffer, &pos->linepos);
-	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile 
+	for (; tokenType == ScannerTokenCode || tokenType == ScannerTokenEndOfFile
 		|| tokenType == ScannerTokenComment; ) {
 		if (tokenType == ScannerTokenCode) {
-			textScanner_.Discard();
-			return ReadCode(token);
+			break;
 		}
 
 		if (!String::SplitLine(start_, line)) {
@@ -322,8 +321,13 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 
 	pos->lineno = lineno_;
 
-	if(tokenType == ScannerTokenError) {
+	if (tokenType == ScannerTokenError) {
 		return false;
+	}
+
+	if (tokenType == ScannerTokenCode) {
+		textScanner_.Discard();
+		return ReadCode(token);
 	}
 
 	token->tokenType = tokenType;
@@ -334,7 +338,7 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 
 bool SourceScanner::ReadCode(ScannerToken* token) {
 	std::string line, code;
-	for (; String::SplitLine(start_, line);) {
+	for (bool first = true; String::SplitLine(start_, line);) {
 		std::string str = String::Trim(line);
 		if (str == GLSL_CODE_END) {
 			token->tokenType = ScannerTokenCode;
@@ -342,11 +346,12 @@ bool SourceScanner::ReadCode(ScannerToken* token) {
 			return true;
 		}
 
-		if (!code.empty()) {
+		if (!first) {
 			code += '\n';
 		}
 
 		code += line;
+		first = false;
 	}
 
 	Debug::LogError("missing %s.", GLSL_CODE_END);

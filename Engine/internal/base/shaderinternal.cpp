@@ -47,11 +47,14 @@ bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass&
 	std::string sources[ShaderStageCount];
 
 	GLSLParser parser;
-	if (!parser.Parse(sources, path, pass.source, "")) {
+	if (!parser.Parse(sources, path, pass.source, pass.lineno, "")) {
 		return false;
 	}
 
 	for (int i = 0; i < ShaderStageCount; ++i) {
+		std::vector<std::string> lines;
+		String::Split(lines, sources[i], '\n');
+
 		if (!sources[i].empty() && !LoadSource((ShaderStage)i, sources[i].c_str())) {
 			return false;
 		}
@@ -600,19 +603,20 @@ uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 
 void SubShader::AddShaderProperties(std::vector<ShaderProperty>& properties, const std::vector<Property*> container, uint pass) {
 	for (Property* p : container) {
-		bool contains = false;
-		for (ShaderProperty& pp : properties) {
-			if (pp.property->name == p->name) {
-				contains = true;
+		ShaderProperty* target = nullptr;
+		for (ShaderProperty& sp : properties) {
+			if (sp.property->name == p->name) {
+				target = &sp;
 				break;
 			}
 		}
 
-		if (!contains) {
-			ShaderProperty sp = { pass, p };
+		if (target == nullptr) {
+			ShaderProperty sp = { 1 << pass, p };
 			properties.push_back(sp);
 		}
 		else {
+			target->mask |= (1 << pass);
 			MEMORY_DELETE(p);
 		}
 	}
@@ -639,14 +643,11 @@ bool ShaderInternal::Load(const std::string& path) {
 	}
 
 	std::vector<ShaderProperty> properties;
-	for (Property* p : semantics.properties) {
-		ShaderProperty sp = { -1, p };
-		properties.push_back(sp);
-	}
 
-	ParseSubShaders(properties, semantics.subShaders, path);
+	ParseSemanticProperties(properties, semantics);
+	ParseSubShader(properties, semantics.subShaders, path);
 
-	LoadProperties(properties);
+	SetProperties(properties);
 
 	UniformBufferManager::instance()->Attach(SharedThis());
 
@@ -654,12 +655,19 @@ bool ShaderInternal::Load(const std::string& path) {
 	return true;
 }
 
-void ShaderInternal::LoadProperties(const std::vector<ShaderProperty>& properties) {
+void ShaderInternal::SetProperties(const std::vector<ShaderProperty>& properties) {
 	ReleaseProperties();
 	properties_ = properties;
 }
 
-void ShaderInternal::ParseSubShaders(std::vector<ShaderProperty>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
+void ShaderInternal::ParseSemanticProperties(std::vector<ShaderProperty>& properties, const Semantics& semantics) {
+	for (Property* p : semantics.properties) {
+		ShaderProperty sp = { -1, p };
+		properties.push_back(sp);
+	}
+}
+
+void ShaderInternal::ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
 	subShaderCount_ = subShaders.size();
 	subShaders_ = MEMORY_NEW_ARRAY(SubShader, subShaders.size());
 	for (uint i = 0; i < subShaderCount_; ++i) {

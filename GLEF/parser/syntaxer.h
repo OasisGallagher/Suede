@@ -44,6 +44,12 @@ class Literal : public SyntaxElement {
 };
 
 class Code : public SyntaxElement {
+public:
+	void SetLineNumber(uint value) { lineno_ = value; }
+	uint GetLineNumber() const { return lineno_; }
+
+private:
+	uint lineno_;
 };
 
 class Integer : public SyntaxElement {
@@ -88,7 +94,7 @@ private:
 
 	void CleanupOnFailure();
 
-	GrammarSymbol FindSymbol(const ScannerToken& token, void*& addr);
+	GrammarSymbol FindSymbol(const ScannerToken& token, const TokenPosition& position, void*& addr);
 	GrammarSymbol ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner);
 
 private:

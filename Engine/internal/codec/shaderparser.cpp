@@ -1,40 +1,48 @@
 #include "glef.h"
 #include "resources.h"
 #include "variables.h"
+#include "tools/math2.h"
 #include "shaderparser.h"
 #include "os/filesystem.h"
 #include "internal/base/renderdefines.h"
 
-bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, const std::string& customDefines) {
+bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& customDefines) {
 	Clear();
 	path_ = path;
 	answer_ = sources;
-	return CompileShaderSource(source, customDefines);
+	return CompileShaderSource(source, ln, customDefines);
 }
 
 void GLSLParser::Clear() {
 	type_ = ShaderStageCount;
 	source_.clear();
 
-	globals_.clear();
 	version_.clear();
 	defines_.clear();
+
+	for (int i = 0; i < ShaderStageCount; ++i) {
+		ranges_[i].clear();
+	}
+
+	includes_.clear();
 
 	answer_ = nullptr;
 }
 
-bool GLSLParser::CompileShaderSource(const std::string& source, const std::string& customDefines) {
+bool GLSLParser::CompileShaderSource(const std::string& source, uint ln, const std::string& customDefines) {
 	version_ = "#version " GLSL_VERSION "\n";
+	includes_.insert(path_);
 
 	AddDefines(customDefines);
-	ReadShaderSource(source);
+	ReadShaderSource(source, ln);
 
 	if (type_ == ShaderStageCount) {
 		Debug::LogError("invalid shader file");
 		return false;
 	}
 
-	SetShaderStageCode(type_);
+	SetShaderStageCode();
+	AddShaderSourceRange();
 
 	return true;
 }
@@ -57,16 +65,25 @@ std::string GLSLParser::FormatDefines(const std::string& defines) {
 	return ans;
 }
 
-bool GLSLParser::ReadShaderSource(const std::string &source) {
+bool GLSLParser::ReadShaderSource(const std::string& source, uint ln) {
 	const char* start = source.c_str();
-	std::string line;
-	for (uint ln = 1; String::SplitLine(start, line); ) {
+	for (std::string line; String::SplitLine(start, line); ++ln) {
 		const char* ptr = String::TrimStart(line.c_str());
-		if (*ptr == '#' && !Preprocess(ptr)) {
+
+		if (type_ != ShaderStageCount) {
+			++srcCurrent_;
+		}
+
+		if (*ptr == '#' && !Preprocess(ptr, ln)) {
 			return false;
 		}
 
-		if (*ptr != '#') {
+		if (type_ == ShaderStageCount && *ptr != 0) {
+			Debug::LogError("%d: invalid shader stage.", ln);
+			return false;
+		}
+
+		if (*ptr != '#' && type_ != ShaderStageCount) {
 			source_ += line + '\n';
 		}
 	}
@@ -74,42 +91,56 @@ bool GLSLParser::ReadShaderSource(const std::string &source) {
 	return true;
 }
 
-bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
+bool GLSLParser::PreprocessShaderStage(const std::string& parameter, uint ln) {
 	ShaderStage newType = ParseShaderStage(parameter);
 
-	if (newType != type_) {
-		if (type_ == ShaderStageCount) {
-			globals_ += source_;
-		}
-		else {
-			if (!answer_[type_].empty()) {
-				Debug::LogError("%s already exists.", GetShaderDescription(type_).name);
-				return false;
-			}
-
-			SetShaderStageCode(type_);
+	if (newType != type_ && type_ != ShaderStageCount) {
+		if (!answer_[type_].empty()) {
+			Debug::LogError("%s already exists.", GetShaderDescription(type_).name);
+			return false;
 		}
 
-		source_.clear();
-		type_ = newType;
+		SetShaderStageCode();
+		AddShaderSourceRange();
 	}
+
+	startln_ = ln + 1;
+	srcStart_ = 1;
+	// TODO: for defines ...
+	srcCurrent_ = 4;
+
+	type_ = newType;
+
+	includes_.clear();
 
 	return true;
 }
 
-bool GLSLParser::PreprocessInclude(const std::string& parameter) {
+bool GLSLParser::PreprocessInclude(const std::string& parameter, uint ln) {
 	std::string source;
+
+	// skip \" and \".
 	std::string path = parameter.substr(1, parameter.length() - 2);
+	if (!includes_.insert(path).second) {
+		return true;
+	}
+
 	if (!FileSystem::ReadAllText(Resources::instance()->GetShaderDirectory() + path, source)) {
 		return false;
 	}
 
 	path_ = path;
+	//source_ += "#line 1\n";
+	if (!ReadShaderSource(source, 1)) {
+		return false;
+	}
 
-	return ReadShaderSource(source);
+	AddShaderSourceRange();
+	//source_ += String::Format("#line %d\n", ln + 1);
+	return true;
 }
 
-bool GLSLParser::Preprocess(const std::string& line) {
+bool GLSLParser::Preprocess(const std::string& line, uint ln) {
 	size_t pos = line.find(' ');
 	std::string cmd = line.substr(1, pos - 1);
 	std::string parameter;
@@ -118,13 +149,22 @@ bool GLSLParser::Preprocess(const std::string& line) {
 	}
 
 	if (cmd == GLSL_TAG_STAGE) {
-		return PreprocessShaderStage(parameter);
+		return PreprocessShaderStage(parameter, ln);
+	}
+
+	if (type_ == ShaderStageCount && !line.empty()) {
+		Debug::LogError("%d: invalid shader stage.", ln);
+		return false;
 	}
 
 	if (cmd == GLSL_TAG_INCLUDE) {
+		AddShaderSourceRange();
 		std::string old = path_;
-		bool status = PreprocessInclude(parameter);
+		int oldSrcStart = srcStart_;
+		bool status = PreprocessInclude(parameter, ln);
+		
 		path_ = old;
+		//srcStart_ = srcCurrent_ = oldSrcStart;
 		return status;
 	}
 
@@ -161,14 +201,50 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 	return ShaderStageCount;
 }
 
-void GLSLParser::SetShaderStageCode(ShaderStage stage) {
+#include <fstream>
+void GLSLParser::SetShaderStageCode() {
 	std::string nameDefine = std::string("#define ") + GetShaderDescription(type_).shaderNameDefine + "\n";
-	answer_[stage] =
+	answer_[type_] =
 		version_		// #version ...
+		//+ String::Format("#line %d\n", startln_)
 		+ nameDefine	// #define _VERTEX_SHADER ...
 		+ defines_		// #define _C_MAX_BONE_COUNT...
-		+ globals_		// global lines shared by every shader.
 		+ source_;		// GLSL source code.
+
+	std::ofstream ofs(FileSystem::GetFileNameWithoutExtension(path_) + "_" + GetShaderDescription(type_).tag + ".txt");
+	ofs << answer_[type_];
+	ofs.close();
+
+	source_.clear();
+}
+
+void GLSLParser::AddShaderSourceRange() {
+	ShaderSourceRanges* ptr = nullptr;
+	ShaderSourceRanges::Range range{ srcStart_, srcCurrent_, startln_ };
+	for (ShaderSourceRanges& r : ranges_[type_]) {
+		if (r.file == path_) {
+			ptr = &r;
+			break;
+		}
+	}
+
+	if (ptr != nullptr) {
+		// merge range if necessary.
+		if (!ptr->ranges.empty() && ptr->ranges.back().last == range.first) {
+			ptr->ranges.back().last = range.last;
+		}
+		else {
+			ptr->ranges.push_back(range);
+		}
+	}
+	else {
+		ShaderSourceRanges r;
+		r.file = path_;
+		r.ranges.push_back(range);
+		ranges_[type_].push_back(r);
+	}
+
+	srcStart_ = srcCurrent_;
 }
 
 bool ShaderParser::Parse(Semantics& semantics, const std::string& path, const std::string& customDefines) {
@@ -370,8 +446,9 @@ void ShaderParser::ReadRenderState(SyntaxNode* node, Semantics::RenderState& sta
 	}
 }
 
-void ShaderParser::ReadCode(SyntaxNode* node, std::string& source) {
+void ShaderParser::ReadCode(SyntaxNode* node, std::string& source, uint& lineno) {
 	source = node->ToString();
+	lineno = node->GetCodeLineNumber();
 }
 
 void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
@@ -390,7 +467,7 @@ void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
 
 	SyntaxNode* c3 = node->GetChildAt(3);
 	if (c3 != nullptr) {
-		ReadCode(c3, pass.source);
+		ReadCode(c3, pass.source, pass.lineno);
 	}
 }
 

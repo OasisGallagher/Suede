@@ -50,6 +50,10 @@ void WorldInternal::Initialize() {
 	GLUtils::Initialize();
 
 	Resources::implement(new ResourcesInternal);
+	
+	// TODO: TEST.
+	Resources::instance()->FindShader("builtin/lit_texture");
+
 	Gizmos::implement(new GizmosInternal);
 	Graphics::implement(new GraphicsInternal);
 	Environment::implement(new EnvironmentInternal);

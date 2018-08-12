@@ -36,9 +36,11 @@ public:
 	SyntaxNode* GetChildAt(uint index);
 	const SyntaxNode* GetChildAt(uint index) const;
 
+	uint GetCodeLineNumber() const;
+
 	void SetSymbolAddress(Sym* addr);
 	void SetLiteralAddress(Literal* addr);
-	void SetCodeAddress(Code* addr);
+	void SetCodeAddress(Code* addr, uint lineno);
 	void SetIntegerAddress(Integer* addr);
 	void SetSingleAddress(Single* addr);
 	void SetBooleanAddress(Boolean* addr);
@@ -51,14 +53,21 @@ private:
 
 	union {
 		Sym* symbol;
-		Code* code;
+		struct {
+			Code* ptr;
+			uint lineno;
+			uint linepos;
+		} code;
+
 		Literal* literal;
 		Integer* integer;
 		Single* single;
 		Boolean* boolean;
 
-		// 子节点, 第一个元素表示子节点个数.
-		SyntaxNode** children;
+		struct {
+			SyntaxNode** ptr;
+			uint count;
+		} children;
 	} value_;
 };
 

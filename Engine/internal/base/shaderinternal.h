@@ -155,8 +155,9 @@ public:
 
 private:
 	void ReleaseProperties();
-	void LoadProperties(const std::vector<ShaderProperty>& properties);
-	void ParseSubShaders(std::vector<ShaderProperty>& properties, std::vector<Semantics::SubShader>& subShaders, const std::string& path);
+	void SetProperties(const std::vector<ShaderProperty>& properties);
+	void ParseSemanticProperties(std::vector<ShaderProperty>& properties, const Semantics& semantics);
+	void ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:
 	std::string path_;
