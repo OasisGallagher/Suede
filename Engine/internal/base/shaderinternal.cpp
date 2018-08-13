@@ -55,7 +55,9 @@ bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass&
 		std::vector<std::string> lines;
 		String::Split(lines, sources[i], '\n');
 
-		if (!sources[i].empty() && !LoadSource((ShaderStage)i, sources[i].c_str())) {
+		std::string shaderError;
+		if (!sources[i].empty() && !(shaderError = LoadSource((ShaderStage)i, sources[i].c_str())).empty()) {
+			Debug::LogError(parser.TranslateErrorMessage((ShaderStage)i, shaderError).c_str());
 			return false;
 		}
 	}
@@ -126,16 +128,12 @@ void Pass::UnbindRenderStates() {
 }
 
 bool Pass::GetErrorMessage(GLuint shaderObj, std::string& answer) {
-	if (shaderObj == 0) {
-		answer = "invalid shader id";
-		return false;
-	}
-
 	GLint length = 0, writen = 0;
 	GL::GetShaderiv(shaderObj, GL_INFO_LOG_LENGTH, &length);
 	if (length > 1) {
 		answer.resize(length);
 		GL::GetShaderInfoLog(shaderObj, length, &writen, &answer[0]);
+		answer.resize(writen);
 		return true;
 	}
 
@@ -262,7 +260,7 @@ void Pass::ClearIntermediateShaders() {
 	}
 }
 
-bool Pass::LoadSource(ShaderStage stage, const char* source) {
+std::string Pass::LoadSource(ShaderStage stage, const char* source) {
 	GLuint shaderObj = GL::CreateShader(GetShaderDescription(stage).glShaderStage);
 
 	GL::ShaderSource(shaderObj, 1, &source, nullptr);
@@ -275,12 +273,11 @@ bool Pass::LoadSource(ShaderStage stage, const char* source) {
 		if (shaderObjs_[stage] != 0) {
 			GL::DeleteShader(shaderObjs_[stage]);
 		}
+
 		shaderObjs_[stage] = shaderObj;
-		return true;
 	}
 
-	Debug::LogError("%s %s.", GetShaderDescription(stage).name, message.c_str());
-	return false;
+	return message;
 }
 
 void Pass::UpdateVertexAttributes() {

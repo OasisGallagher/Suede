@@ -40,7 +40,7 @@ private:
 	bool RenderStateParameterToInteger(const std::string& parameter, int& answer);
 
 	bool Link();
-	bool LoadSource(ShaderStage stage, const char* source);
+	std::string LoadSource(ShaderStage stage, const char* source);
 	bool GetErrorMessage(GLuint shaderObj, std::string& answer);
 	void ClearIntermediateShaders();
 

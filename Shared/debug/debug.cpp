@@ -58,7 +58,7 @@ void Debug::LogWarning(const char* format, ...) {
 void Debug::LogError(const char* format, ...) {
 	if (logReceiver != nullptr) {
 		FORMAT_BUFFER(format, buffer);
-		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace(1, 5);
+		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace(1, 7);
 		logReceiver->OnLogMessage(LogLevelError, text.c_str());
 	}
 }

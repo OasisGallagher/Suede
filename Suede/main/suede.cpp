@@ -28,7 +28,7 @@ namespace PrefsKeys {
 
 Suede::Suede(QWidget *parent) : QMainWindow(parent) {
 	Debug::SetLogReceiver(this);
-	
+
 	setupUI();
 	setStatusBar(new Status(this));
 
@@ -187,8 +187,19 @@ void Suede::OnLogMessage(LogLevel level, const char* message) {
 			break;
 
 		case LogLevelError:
+			onErrorMessage(message);
 			Console::instance()->addMessage(ConsoleMessageType::Error, message);
+			break;
+	}
+}
+
+void Suede::onErrorMessage(const char* message) {
+	switch (QMessageBox::critical(this, "", message, QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore)) {
+		case QMessageBox::Retry:
 			Debug::Break();
+			break;
+		case QMessageBox::Abort:
+			TerminateProcess(GetCurrentProcess(), 0);
 			break;
 	}
 }

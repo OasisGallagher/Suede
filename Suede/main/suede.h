@@ -57,6 +57,8 @@ private:
 	void initializeEditMenu();
 	void initializeWindowMenu();
 
+	void onErrorMessage(const char* message);
+
 private:
 	Ui::Suede ui;
 	QDockWidget** childWindows_;

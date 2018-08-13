@@ -10,10 +10,9 @@ SubShader {
 		ZTest Off;
 
 		GLSLPROGRAM
-		
-		#include "builtin/include/suede.inc"
 
 		#stage vertex
+		#include "builtin/include/suede.inc"
 
 		in vec3 _Pos;
 		in vec2 _TexCoord;
@@ -28,6 +27,8 @@ SubShader {
 		}
 
 		#stage fragment
+		#include "builtin/include/suede.inc"
+
 		in vec2 viewRay;
 		in vec2 texCoord;
 

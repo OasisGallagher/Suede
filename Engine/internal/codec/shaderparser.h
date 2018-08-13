@@ -19,17 +19,6 @@ enum ShaderStage {
 	ShaderStageCount,
 };
 
-struct ShaderSourceRanges {
-	struct Range {
-		uint first;
-		uint last;
-		uint offset;
-	};
-
-	std::string file;
-	std::vector<Range> ranges;
-};
-
 struct ShaderDescription {
 	GLenum glShaderStage;
 	const char* name;
@@ -83,40 +72,80 @@ struct Semantics {
 };
 
 class GLSLParser {
+	struct Block {
+		// first line in expanded file.
+		int first;
+
+		// one pass last line in expanded file.
+		int last;
+
+		// map line number in expanded file to shader file by adding this value.
+		int offset;
+	};
+
+	struct Page {
+		// line number of #stage in shader file, or negative line number of first line expanded in included file.
+		int tagln;
+
+		// file path.
+		std::string file;
+
+		// blocks file splited into.
+		std::vector<Block> blocks;
+	};
+
 public:
 	bool Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& defines);
+	std::string TranslateErrorMessage(ShaderStage stage, const std::string& message);
 
 private:
 	void Clear();
-	void SetShaderStageCode();
-	void AddShaderSourceRange();
-	bool Preprocess(const std::string& line, uint ln);
-	void AddDefines(const std::string& customDefines);
-	bool ReadShaderSource(const std::string& source, uint ln);
-	bool PreprocessInclude(const std::string& parameter, uint ln);
+	void SetCurrentShaderStageCode();
+	
+	void AddCurrentBlock();
+	void AddBlock(Page& container, Block& block);
+
+	void AddPage(const std::string file, int ln);
+
+	std::string TranslateLineNumber(ShaderStage stage, std::string &msgline);
+	bool FindFileAndLineNumber(ShaderStage stage, std::string& file, int &ln);
+
+	bool Preprocess(const std::string& line);
+	void FormatDefines(const std::string& customDefines);
+	bool ReadShaderSource(const std::string& source);
+	bool PreprocessInclude(const std::string& parameter);
 	ShaderStage ParseShaderStage(const std::string& tag);
-	std::string FormatDefines(const std::string& customDefines);
-	bool PreprocessShaderStage(const std::string& parameter, uint ln);
+	int AddCustomDefines(const std::string& customDefines);
+	bool PreprocessShaderStage(const std::string& parameter);
 	void CalculateDefinesPermutations(std::vector<std::string>& anwser);
 	bool CompileShaderSource(const std::string& source, uint ln, const std::string& customDefines);
 
 private:
-	uint startln_;
-	
-	uint srcStart_;
-	uint srcCurrent_;
+	struct {
+		// line number in shader file.
+		int original;
+
+		// line number in expanded file.
+		int expanded;
+
+		// record block line numbers.
+		int start;
+		int cursor;
+	} ln_;
 
 	ShaderStage type_;
 
-	std::string path_;
+	std::string file_;
+	std::string currentFile_;
+
 	std::string* answer_;
 	
-	std::string version_;
+	int ndefines_;
 	std::string defines_;
 
 	std::string source_;
 	std::set<std::string> includes_;
-	std::vector<ShaderSourceRanges> ranges_[ShaderStageCount];
+	std::vector<Page> pages_[ShaderStageCount];
 };
 
 class ShaderParser {

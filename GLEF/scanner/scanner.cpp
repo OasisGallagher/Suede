@@ -338,7 +338,9 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 
 bool SourceScanner::ReadCode(ScannerToken* token) {
 	std::string line, code;
-	for (bool first = true; String::SplitLine(start_, line);) {
+
+	++lineno_;
+	for (bool first = true; String::SplitLine(start_, line); ++lineno_) {
 		std::string str = String::Trim(line);
 		if (str == GLSL_CODE_END) {
 			token->tokenType = ScannerTokenCode;

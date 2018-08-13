@@ -1,10 +1,7 @@
 #ifndef _POST_EFFECT_VERTEX_INCLUDED
 #define _POST_EFFECT_VERTEX_INCLUDED
 
-in vec3 _Pos;
-in vec2 _TexCoord;
-
-out vec2 texCoord;
+#include "builtin/include/test_include_nested.inc"
 
 void main() {
 	texCoord = _TexCoord;
