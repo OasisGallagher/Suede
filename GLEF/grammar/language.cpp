@@ -214,12 +214,14 @@ void Language::LoadSyntaxer(const char* savePath) {
 	SyntaxerSetupParameter p = { env_ };
 	syntaxer_->Setup(p);
 	syntaxer_->Load(file);
+	file.close();
 }
 
 void Language::SaveSyntaxer(const char* savePath) {
 	std::ofstream file(savePath, std::ios::binary);
 	env_->Save(file);
 	syntaxer_->Save(file);
+	file.close();
 }
 
 std::string Language::ToString() const {

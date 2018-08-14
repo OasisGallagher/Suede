@@ -135,6 +135,8 @@ bool FileSystem::ReadAllText(const std::string& file, std::string& text) {
 		text += (seperator + line);
 	}
 
+	ifs.close();
+
 	return true;
 }
 
@@ -149,6 +151,7 @@ bool FileSystem::ReadAllLines(const std::string& file, std::vector<std::string>&
 		lines.push_back(line);
 	}
 
+	ifs.close();
 	return true;
 }
 

@@ -107,12 +107,17 @@ private:
 
 	void AddPage(const std::string file, int ln);
 
-	std::string TranslateLineNumber(ShaderStage stage, std::string &msgline);
-	bool FindFileAndLineNumber(ShaderStage stage, std::string& file, int &ln);
+	std::string TranslateFileNameAndLineNumber(ShaderStage stage, std::string &msgline);
+
+	bool FindFileNameAndLineNumber(ShaderStage stage, std::string& file, int &ln);
+	const char* ParseLineNumberAndMessageBody(const std::string& msgline, int& ln);
 
 	bool Preprocess(const std::string& line);
 	void FormatDefines(const std::string& customDefines);
+
+	bool ReadEmptySource();
 	bool ReadShaderSource(const std::string& source);
+
 	bool PreprocessInclude(const std::string& parameter);
 	ShaderStage ParseShaderStage(const std::string& tag);
 	int AddCustomDefines(const std::string& customDefines);
@@ -128,9 +133,8 @@ private:
 		// line number in expanded file.
 		int expanded;
 
-		// record block line numbers.
+		// record start of block.
 		int start;
-		int cursor;
 	} ln_;
 
 	ShaderStage type_;

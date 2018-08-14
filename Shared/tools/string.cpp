@@ -95,10 +95,14 @@ float String::ToFloat(const std::string& str) {
 
 bool String::SplitLine(const char*& ptr, std::string& line) {
 	if (*ptr == 0) { return false; }
+
+	// handle tailing '\n'.
+	if (*ptr == '\n') { ++ptr; }
+
 	const char* start = ptr;
 	for (; *ptr != 0; ++ptr) {
 		if (*ptr == '\n') {
-			line.assign(start, ptr++);
+			line.assign(start, ptr);
 			break;
 		}
 	}
