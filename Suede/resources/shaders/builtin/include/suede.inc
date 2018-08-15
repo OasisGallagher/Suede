@@ -46,15 +46,17 @@ uniform samplerBuffer _MatrixTextureBuffer;
 #endif	// _FRAGMENT_SHADER
 
 // --------- Functions ---------
+
+float saturate(float x) {
+    return clamp(x, 0, 1);
+}
+
 float _Linear01Depth(float z) {
-	return _ProjParams.x / (z * _ProjParams.x - z * _ProjParams.y + _ProjParams.y);
-	//return 2.0 * _ProjParams.x * _ProjParams.y / ((_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x)) * _ProjParams.y);
+	return (_ProjParams.x + _ProjParams.y) / (_ProjParams.y * ((2 * z - 1) * (_ProjParams.x - _ProjParams.y) - 2));
 }
 
 float _LinearEyeDepth(float z) {
-	return _CameraToClipMatrix[3][2] / (2 * z - 1 - _CameraToClipMatrix[2][2]);
-	//return _ProjParams.x * _ProjParams.y / (z * _ProjParams.x - z * _ProjParams.y + _ProjParams.y);
-	//return 2.0 * _ProjParams.x * _ProjParams.y / (_ProjParams.y + _ProjParams.x - (2 * z - 1) * (_ProjParams.y - _ProjParams.x));
+	return (_ProjParams.x + _ProjParams.y) / ((2 * z - 1) * (_ProjParams.x - _ProjParams.y) - 2);
 }
 
 #ifdef _FRAGMENT_SHADER

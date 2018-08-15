@@ -51,9 +51,6 @@ void WorldInternal::Initialize() {
 
 	Resources::implement(new ResourcesInternal);
 	
-	// TODO: TEST.
-	Resources::instance()->FindShader("builtin/ssao");
-
 	Gizmos::implement(new GizmosInternal);
 	Graphics::implement(new GraphicsInternal);
 	Environment::implement(new EnvironmentInternal);

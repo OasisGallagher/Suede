@@ -44,6 +44,16 @@ SubShader {
 		}
 
 		void main() {
+			float d = texture(_MainTexture, texCoord).x;
+			if (d != 1) {
+				fragColor = viewSpacePos(texCoord);
+			}
+			else {
+				fragColor = vec3(0);
+			}
+
+			return;
+
 			float AO = 0;
 			vec3 pos = viewSpacePos(texCoord);
 
@@ -60,6 +70,7 @@ SubShader {
 
 			AO = 1.0 - AO / (_C_SSAO_KERNAL_SIZE / 2.0);
 			fragColor = vec3(pow(AO, 2));
+			fragColor = vec3(1, 0, 0);
 		}
 
 		ENDGLSL
