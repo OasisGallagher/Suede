@@ -19,8 +19,9 @@ enum VariantType {
 	VariantTypeTexture,
 	VariantTypeQuaternion,
 
-	// Buffer type.
-	VariantTypeVector3Array,
+	// POD array.
+	VARIANT_TYPE_POD_ARRAY_BEGIN,
+	VariantTypeVector3Array = VARIANT_TYPE_POD_ARRAY_BEGIN,
 	VariantTypeMatrix4Array,
 };
 

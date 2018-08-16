@@ -29,7 +29,7 @@ const char* Variant::TypeString(VariantType type) {
 }
 
 Variant::Variant(const Variant& other) : Variant() {
-	if (other.type_ >= VariantTypeMatrix4Array) {
+	if (other.type_ >= VARIANT_TYPE_POD_ARRAY_BEGIN) {
 		SetPodArray(other.type_, other.data_.podArray.ptr, other.data_.podArray.size);
 	}
 	else {
@@ -215,7 +215,7 @@ const void* Variant::GetData() const {
 		return nullptr;
 	}
 
-	if (type_ >= VariantTypeMatrix4Array) {
+	if (type_ >= VARIANT_TYPE_POD_ARRAY_BEGIN) {
 		return data_.podArray.ptr;
 	}
 
@@ -223,7 +223,7 @@ const void* Variant::GetData() const {
 }
 
 uint Variant::GetDataSize() const {
-	if (type_ >= VariantTypeMatrix4Array) {
+	if (type_ >= VARIANT_TYPE_POD_ARRAY_BEGIN) {
 		return data_.podArray.size;
 	}
 
@@ -246,12 +246,12 @@ uint Variant::GetDataSize() const {
 }
 
 Variant& Variant::operator = (const Variant& other) {
-	if (other.type_ >= VariantTypeMatrix4Array) {
+	if (other.type_ >= VARIANT_TYPE_POD_ARRAY_BEGIN) {
 		SetPodArray(other.type_, other.data_.podArray.ptr, other.data_.podArray.size);
 		return *this;
 	}
 
-	if (type_ >= VariantTypeMatrix4Array) {
+	if (type_ >= VARIANT_TYPE_POD_ARRAY_BEGIN) {
 		MEMORY_DELETE_ARRAY(data_.podArray.ptr);
 	}
 
@@ -276,7 +276,7 @@ bool Variant::SetType(VariantType type) {
 		return false;
 	}
 
-	if (type_ >= VariantTypeVector3Array) {
+	if (type_ >= VARIANT_TYPE_POD_ARRAY_BEGIN) {
 		MEMORY_DELETE_ARRAY(data_.podArray.ptr);
 	}
 

@@ -22,9 +22,10 @@ int GLUtils::GetLimits(GLLimits type) {
 
 static GLenum TopologyToGLEnum(MeshTopology topology) {
 	switch (topology) {
+		case MeshTopology::Points: return GL_POINTS;
 		case MeshTopology::Lines: return GL_LINES;
-		case MeshTopology::Triangles: return GL_TRIANGLES;
 		case MeshTopology::LineStripe: return GL_LINE_STRIP;
+		case MeshTopology::Triangles: return GL_TRIANGLES;
 		case MeshTopology::TriangleStripe: return GL_TRIANGLE_STRIP;
 	}
 

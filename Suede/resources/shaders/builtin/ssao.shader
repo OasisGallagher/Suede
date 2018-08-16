@@ -1,5 +1,5 @@
 Properties { 
-	float sampleRadius = 0.5;
+	float sampleRadius = 1.5;
 }
 
 SubShader {
@@ -36,7 +36,7 @@ SubShader {
 
 		uniform float sampleRadius; 
 		uniform sampler2D _MainTexture;
-		uniform vec3 _SSAOKernel[_C_SSAO_KERNAL_SIZE];
+		uniform vec3 _SSAOKernel[_C_SSAO_KERNEL_SIZE];
 
 		vec3 viewSpacePos(vec2 coord) {
 			float z = _LinearEyeDepth(texture(_MainTexture, coord).x);
@@ -44,33 +44,28 @@ SubShader {
 		}
 
 		void main() {
-			float d = texture(_MainTexture, texCoord).x;
-			if (d != 1) {
-				fragColor = viewSpacePos(texCoord);
-			}
-			else {
+			if (texture(_MainTexture, texCoord).x == 1) {
 				fragColor = vec3(0);
+				return;
 			}
 
-			return;
-
-			float AO = 0;
+			float occlusion = 0;
 			vec3 pos = viewSpacePos(texCoord);
 
-			for (int i = 0; i < _C_SSAO_KERNAL_SIZE; ++i) {
+			for (int i = 0; i < _C_SSAO_KERNEL_SIZE; ++i) {
 				vec3 samplePos = pos + _SSAOKernel[i];
 				vec4 offset = _CameraToClipMatrix * vec4(samplePos, 1);
 				offset.xy = offset.xy * 0.5 / offset.w + 0.5;
 
 				float sampleDepth = viewSpacePos(offset.xy).z;
+				//float f = smoothstep(0, 1, sampleRadius / abs(pos.z - sampleDepth));
 				if (abs(pos.z - sampleDepth) < sampleRadius) {
-					AO += step(sampleDepth, samplePos.z);
+					occlusion += step(sampleDepth, samplePos.z);
 				}
 			}
 
-			AO = 1.0 - AO / (_C_SSAO_KERNAL_SIZE / 2.0);
-			fragColor = vec3(pow(AO, 2));
-			fragColor = vec3(1, 0, 0);
+			occlusion = 1.0 - occlusion / _C_SSAO_KERNEL_SIZE;
+			fragColor = vec3(occlusion * occlusion);
 		}
 
 		ENDGLSL

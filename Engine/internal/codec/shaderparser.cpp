@@ -65,7 +65,7 @@ void GLSLParser::FormatDefines(const std::string& customDefines) {
 	defines_ = "#version " GLSL_VERSION "\n";
 	defines_ += "#define %s\n";
 	defines_ += "#define _C_MAX_BONE_COUNT " + std::to_string(MAX_BONE_COUNT) + "\n";
-	defines_ += "#define _C_SSAO_KERNAL_SIZE " + std::to_string(SSAO_KERNAL_SIZE) + "\n";
+	defines_ += "#define _C_SSAO_KERNEL_SIZE " + std::to_string(SSAO_KERNEL_SIZE) + "\n";
 	ndefines_ = 4 + AddCustomDefines(customDefines);
 }
 

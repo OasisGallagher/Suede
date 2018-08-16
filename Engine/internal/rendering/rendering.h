@@ -121,6 +121,8 @@ public:
 	void Clear();
 
 private:
+	void InitializeSSAOKernel();
+
 	void ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 	void DeferredRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
@@ -130,8 +132,6 @@ private:
 	void RenderSkybox(Pipeline* pl);
 
 	RenderTexture GetActiveRenderTarget();
-
-	void SSAOPass();
 
 	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
 	void ForwardDepthPass(Pipeline* pl);

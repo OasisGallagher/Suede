@@ -1,5 +1,6 @@
 /.vs/Suede/v14/*.suo
 /*.opendb
+*.swp
 /Suede.VC.db
 /Suede/GeneratedFiles
 /Engine/lib/GLEF.lib

@@ -47,6 +47,8 @@ struct InstanceAttribute {
 };
 
 BETTER_ENUM(MeshTopology, int,
+	Points,
+
 	Lines,
 	LineStripe,
 

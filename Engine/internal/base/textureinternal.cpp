@@ -378,8 +378,15 @@ RenderTexture RenderTexture::GetDefault() {
 	return screen;
 }
 
-RenderTexture RenderTexture::GetTemporary(uint width, uint height) {
-	return nullptr;
+RenderTexture RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) {
+	// TODO: Get temporary render texture.
+	RenderTexture texture = NewRenderTexture();
+	texture->Create(format, width, height);
+	return texture;
+}
+
+void RenderTexture::ReleaseTemporary(RenderTexture texture) {
+	// TODO: Release temporary render texture.
 }
 
 RenderTextureInternal::RenderTextureInternal() 

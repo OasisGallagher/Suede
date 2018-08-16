@@ -16,6 +16,10 @@
 #define sharedSSAOTexture	SharedTextureManager::instance()->GetSSAOTexture()
 #define sharedDepthTexture	SharedTextureManager::instance()->GetDepthTexture()
 
+// TODO: debug.
+Mesh ssaoKernelMesh;
+Material ssaoKernelMaterial;
+
 RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
 	, clearType(ClearType::Color), renderPath(RenderPath::Forward) {
 }
@@ -62,6 +66,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	OnPostRender();
 
 	Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
+	Graphics::instance()->Draw(ssaoKernelMesh, ssaoKernelMaterial);
 	if (!p_->imageEffects.empty()) {
 		OnImageEffects();
 	}
@@ -134,8 +139,7 @@ void Rendering::OnImageEffects() {
 
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
-	RenderTexture temp = NewRenderTexture();
-	temp->Create(RenderTextureFormatRgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	RenderTexture temp = RenderTexture::GetTemporary(RenderTextureFormatRgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 	
 	p_->materials.ssao->SetPass(0);
 	Graphics::instance()->Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
@@ -191,6 +195,8 @@ RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* li
 	pipelines_.shadow = MEMORY_NEW(Pipeline);
 	pipelines_.shadow->SetTargetTexture(Shadows::instance()->GetShadowTexture(), Rect(0, 0, 1, 1));
 
+	InitializeSSAOKernel();
+
 	forward_pass = Profiler::instance()->CreateSample();
 	push_renderables = Profiler::instance()->CreateSample();
 	get_renderable_entities = Profiler::instance()->CreateSample();
@@ -227,7 +233,6 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	}
 
 	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
-		SSAOPass();
 		depthPass = true;
 	}
 
@@ -339,16 +344,40 @@ void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<Entity>
 void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities_, const std::vector<Light>& lights) {
 }
 
-void RenderableTraits::SSAOPass() {
-	static glm::vec3 kernel[SSAO_KERNAL_SIZE];
-	for (int i = 0; i < SSAO_KERNAL_SIZE; ++i) {
-		float scale = float(i) / SSAO_KERNAL_SIZE;
-		scale = (0.1f + 0.9f * scale * scale); 
-		glm::vec3 p(Math::Random(-scale, scale), Math::Random(-scale, scale), Math::Random(-scale, scale));
-		kernel[i] = p;
+void RenderableTraits::InitializeSSAOKernel() {
+	static glm::vec3 kernel[SSAO_KERNEL_SIZE];
+	for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
+		float scale = float(i) / SSAO_KERNEL_SIZE;
+		scale = (0.1f + 0.9f * scale * scale);
+		kernel[i] = glm::vec3(Math::Random(-scale, scale), Math::Random(-scale, scale), Math::Random(-scale, scale));
 	}
 
-	p_->materials.ssao->SetVector3Array(Variables::SSAOKernel, kernel, SSAO_KERNAL_SIZE);
+	p_->materials.ssao->SetVector3Array(Variables::SSAOKernel, kernel, SSAO_KERNEL_SIZE);
+
+	if (!ssaoKernelMesh) {
+		MeshAttribute attribute{ MeshTopology::Points };
+
+		for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
+			attribute.positions.push_back(/*kernel[i] +*/ glm::vec3(0, 25, -65));
+		}
+
+		for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
+			attribute.indexes.push_back(i);
+		}
+
+		ssaoKernelMesh = NewMesh();
+		ssaoKernelMesh->SetAttribute(attribute);
+
+		ssaoKernelMesh->AddSubMesh(NewSubMesh());
+		TriangleBias bias{ attribute.indexes.size() };
+		ssaoKernelMesh->GetSubMesh(0)->SetTriangleBias(bias);
+	}
+
+	if (!ssaoKernelMaterial) {
+		ssaoKernelMaterial = NewMaterial();
+		ssaoKernelMaterial->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
+		ssaoKernelMaterial->SetColor4(Variables::MainColor, glm::vec4(1, 0, 0, 1));
+	}
 }
 
 void RenderableTraits::ForwardDepthPass(Pipeline* pl) {

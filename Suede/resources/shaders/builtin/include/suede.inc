@@ -47,19 +47,33 @@ uniform samplerBuffer _MatrixTextureBuffer;
 
 // --------- Functions ---------
 
+// --------- Vertex Shader Functions 
+
+#define _TANGENT_SPACE_ROTATION(mat) \
+			mat = mat3((_LocalToWorldMatrix * vec4(_Normal, 0)).xyz, \
+				(_LocalToWorldMatrix * vec4(_Tangent, 0)).xyz, \
+				vec3(0)); \
+			mat[2] = cross(mat[0], mat[1])
+
+#define _DEF_TANGENT_SPACE_ROTATION(variableName) \
+		mat3 variableName; \
+		_TANGENT_SPACE_ROTATION(variableName)
+
+// --------- Fragment Shader Functions ---------
+#ifdef _FRAGMENT_SHADER
+
 float saturate(float x) {
     return clamp(x, 0, 1);
 }
 
-float _Linear01Depth(float z) {
-	return (_ProjParams.x + _ProjParams.y) / (_ProjParams.y * ((2 * z - 1) * (_ProjParams.x - _ProjParams.y) - 2));
-}
-
 float _LinearEyeDepth(float z) {
-	return (_ProjParams.x + _ProjParams.y) / ((2 * z - 1) * (_ProjParams.x - _ProjParams.y) - 2);
+	z = 2 * z - 1;
+	return (_ProjParams.x + _ProjParams.y) / (z * (_ProjParams.x - _ProjParams.y) - 2);
 }
 
-#ifdef _FRAGMENT_SHADER
+float _Linear01Depth(float z) {
+	return _LinearEyeDepth(z) / _ProjParams.y;
+}
 
 vec2 _FragTexCoord() {
 	return gl_FragCoord.xy / _ScreenParams.xy;

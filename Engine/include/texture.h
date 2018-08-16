@@ -109,7 +109,9 @@ SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(RenderTexture) {
 	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(RenderTexture)
 
 	static RenderTexture GetDefault();
-	static RenderTexture GetTemporary(uint width, uint height);
+
+	static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height);
+	static void ReleaseTemporary(RenderTexture texture);
 };
 
 class SUEDE_API ITextureBuffer : virtual public ITexture {

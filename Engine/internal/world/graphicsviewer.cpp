@@ -18,8 +18,14 @@ GraphicsViewer::~GraphicsViewer() {
 	Engine::instance()->Shutdown();
 }
 
+#include <Windows.h>
+#include "debug/debug.h"
 void GraphicsViewer::Run() {
 	for (; status_ != ViewerStatusClosed;) {
+		const int FRAMES_PER_SECOND = 60;
+		const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
+		int next_game_tick = GetTickCount();
+
 		if (canvas_ != nullptr) {
 			canvas_->MakeCurrent();
 
@@ -28,6 +34,15 @@ void GraphicsViewer::Run() {
 
 			canvas_->SwapBuffers();
 			canvas_->DoneCurrent();
+		}
+
+		next_game_tick += SKIP_TICKS;
+		int sleep_time = next_game_tick - GetTickCount();
+		if (sleep_time >= 0) {
+			Sleep(sleep_time);
+		}
+		else {
+			Debug::Output("");
 		}
 	}
 }

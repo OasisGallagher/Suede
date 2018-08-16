@@ -12,11 +12,8 @@ void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Re
 
 	// temporary render texture.
 	RenderTexture buffers[2];
-	buffers[0] = NewRenderTexture();
-	buffers[0]->Create(RenderTextureFormatRgbHDR, width, height);
-
-	buffers[1] = NewRenderTexture();
-	buffers[1]->Create(RenderTextureFormatRgbHDR, width, height);
+	buffers[0] = RenderTexture::GetTemporary(RenderTextureFormatRgbHDR, width, height);
+	buffers[1] = RenderTexture::GetTemporary(RenderTextureFormatRgbHDR, width, height);
 
 	for (int i = 0; i < amount_; ++i) {
 		material_->SetBool("horizontal", horizontal != 0);
@@ -27,4 +24,7 @@ void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Re
 	}
 
 	Graphics::instance()->Blit(buffers[1 - horizontal], dest, normalizedRect);
+
+	RenderTexture::ReleaseTemporary(buffers[0]);
+	RenderTexture::ReleaseTemporary(buffers[1]);
 }
