@@ -60,8 +60,6 @@ SubShader {
 			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
 			float visibility = _CalcShadowVisibility(worldPos);
 			fragColor = albedo * vec4(_CalcDirectionalLight(worldPos, normalize(normal), visibility), 1);
-			//fragColor = vec4(visibility, visibility, visibility, 1);
-			
 			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
 		}
 

@@ -132,6 +132,11 @@ uint FramebufferBase::GetDepthTexture() {
 	return 0;
 }
 
+uint FramebufferBase::GetDepthRenderbuffer() {
+	LogUnsupportedFramebufferOperation();
+	return 0;
+}
+
 uint FramebufferBase::GetRenderTexture(FramebufferAttachment attachment) {
 	LogUnsupportedFramebufferOperation();
 	return 0;
@@ -346,4 +351,8 @@ uint Framebuffer::GetRenderTextureCount() {
 
 uint Framebuffer::GetDepthTexture() {
 	return depthTexture_;
+}
+
+uint Framebuffer::GetDepthRenderbuffer() {
+	return depthRenderbuffer_;
 }

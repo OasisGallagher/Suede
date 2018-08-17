@@ -50,6 +50,9 @@ void GraphicsInternal::Blit(Texture src, RenderTexture dest, Material material, 
 	dest->Unbind();
 }
 
+void GraphicsInternal::SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) {
+}
+
 void GraphicsInternal::Draw(Mesh mesh, Material material) {
 	mesh->Bind();
 	int pass = material->GetPass();

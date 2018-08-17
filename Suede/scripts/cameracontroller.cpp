@@ -9,7 +9,7 @@
 #include "cameracontroller.h"
 #include "windows/hierarchy/hierarchy.h"
 
-CameraController::CameraController() : lpressed_(false), mpressed_(false), rpressed_(false) {
+CameraController::CameraController(QWidget* view) : view_(view), lpressed_(false), mpressed_(false), rpressed_(false) {
 }
 
 void CameraController::setCamera(Transform value) {
@@ -57,6 +57,7 @@ void CameraController::onMouseMove(const QPoint& pos) {
 void CameraController::onMouseRelease(Qt::MouseButton button) {
 	if (button == Qt::MiddleButton) {
 		mpressed_ = false;
+		view_->setCursor(Qt::ArrowCursor);
 	}
 	else if (button == Qt::RightButton) {
 		rpressed_ = false;
@@ -75,6 +76,7 @@ void CameraController::onMousePress(Qt::MouseButton button, const QPoint & pos) 
 	if (button == Qt::MiddleButton) {
 		mpos_ = pos;
 		mpressed_ = true;
+		view_->setCursor(Qt::ClosedHandCursor);
 	}
 
 	if (button == Qt::RightButton) {
@@ -102,7 +104,7 @@ void CameraController::moveCamera(const QPoint& mousePos, QPoint& oldPos) {
 	glm::vec3 right = camera_->GetRight();
 
 	up *= 0.05f * (float)delta.y();
-	right *= 0.05f * (float)delta.x();
+	right *= -0.05f * (float)delta.x();
 
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }

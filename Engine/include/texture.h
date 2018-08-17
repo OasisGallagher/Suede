@@ -69,8 +69,10 @@ enum ColorStreamFormat {
 
 class SUEDE_API ITexture2D : virtual public ITexture {
 public:
-	virtual bool Load(const std::string& path) = 0;
-	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false) = 0;
+	virtual bool Create(const std::string& path) = 0;
+	virtual bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false) = 0;
+
+	virtual TextureFormat GetFormat() = 0;
 
 	virtual bool EncodeToPNG(std::vector<uchar>& data) = 0;
 	virtual bool EncodeToJPG(std::vector<uchar>& data) = 0;
@@ -79,6 +81,13 @@ public:
 class SUEDE_API ITextureCube : virtual public ITexture {
 public:
 	virtual bool Load(const std::string(&textures)[6]) = 0;
+};
+
+class SUEDE_API ITextureBuffer : virtual public ITexture {
+public:
+	virtual uint GetSize() const = 0;
+	virtual bool Create(uint size) = 0;
+	virtual void Update(uint offset, uint size, const void* data) = 0;
 };
 
 enum RenderTextureFormat {
@@ -114,20 +123,22 @@ SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(RenderTexture) {
 	static void ReleaseTemporary(RenderTexture texture);
 };
 
-class SUEDE_API ITextureBuffer : virtual public ITexture {
-public:
-	virtual uint GetSize() const = 0;
-	virtual bool Create(uint size) = 0;
-	virtual void Update(uint offset, uint size, const void* data) = 0;
-};
-
 SUEDE_DEFINE_OBJECT_POINTER(Texture);
 SUEDE_DEFINE_OBJECT_POINTER(Texture2D);
 SUEDE_DEFINE_OBJECT_POINTER(TextureCube);
-//SUEDE_DEFINE_OBJECT_POINTER(RenderTexture);
 SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer);
 
 SUEDE_DECLARE_OBJECT_CREATER(Texture2D);
 SUEDE_DECLARE_OBJECT_CREATER(TextureCube);
 SUEDE_DECLARE_OBJECT_CREATER(RenderTexture);
 SUEDE_DECLARE_OBJECT_CREATER(TextureBuffer);
+
+class SUEDE_API IMRTRenderTexture : virtual public IRenderTexture {
+public:
+	virtual bool AddColorTexture(TextureFormat format) = 0;
+	virtual Texture2D GetColorTexture(uint index) = 0;
+	virtual uint GetColorTextureCount() = 0;
+};
+
+SUEDE_DEFINE_OBJECT_POINTER(MRTRenderTexture);
+SUEDE_DECLARE_OBJECT_CREATER(MRTRenderTexture);

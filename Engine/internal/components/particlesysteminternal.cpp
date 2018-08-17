@@ -185,7 +185,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	material->SetShader(shader);
 
 	Texture2D mainTexture = NewTexture2D();
-	mainTexture->Load("snowflake.png");
+	mainTexture->Create("snowflake.png");
 	material->SetTexture(Variables::MainTexture, mainTexture);
 
 	renderer->AddMaterial(material);

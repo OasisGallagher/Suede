@@ -17,6 +17,8 @@ public:
 	virtual void EnableAmbientOcclusion(bool value) = 0;
 	virtual bool IsAmbientOcclusionEnabled() = 0;
 
+	virtual void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) = 0;
+
 	virtual void Draw(Mesh mesh, Material material) = 0;
 
 	virtual void Blit(Texture src, RenderTexture dest) = 0;

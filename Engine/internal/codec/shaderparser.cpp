@@ -90,10 +90,6 @@ bool GLSLParser::ReadShaderSource(const std::string& source) {
 	for (std::string line; String::SplitLine(start, line); ) {
 		const char* ptr = String::TrimStart(line.c_str());
 
-		if (currentFile_ == file_) {
-			++ln_.original;
-		}
-
 		if (*ptr == '#' && !Preprocess(ptr)) {
 			return false;
 		}
@@ -101,6 +97,10 @@ bool GLSLParser::ReadShaderSource(const std::string& source) {
 		if (type_ == ShaderStageCount && *ptr != 0) {
 			Debug::LogError("%s(%d): invalid shader stage.", file_.c_str(), ln_.original);
 			return false;
+		}
+		
+		if (currentFile_ == file_) {
+			++ln_.original;
 		}
 
 		if (*ptr != '#' && type_ != ShaderStageCount) {
@@ -234,11 +234,15 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 	return ShaderStageCount;
 }
 
+#include <fstream>
 void GLSLParser::SetCurrentShaderStageCode() {
 	answer_[type_] =
 		String::Format(defines_.c_str(), GetShaderDescription(type_).shaderNameDefine)
 		+ source_;		// GLSL source code.
 
+	std::ofstream ofs(FileSystem::GetFileNameWithoutExtension(currentFile_) + "_" + GetShaderDescription(type_).tag + ".txt");
+	ofs << answer_[type_];
+	ofs.close();
 	source_.clear();
 }
 
@@ -310,7 +314,7 @@ bool GLSLParser::FindFileNameAndLineNumber(ShaderStage stage, std::string& file,
 		return false;
 	}
 	
-	if (ln <= ndefines_) {
+	if (String::EndsWith(file, ".shader") && ln <= ndefines_) {
 		Debug::LogError("failed to translate shader error message: internal error.");
 		return false;
 	}
@@ -461,7 +465,7 @@ void ShaderParser::ReadTex2(SyntaxNode* node, Property* property) {
 
 	uchar bytes[] = { uchar(value.x & 0xFF), uchar(value.y & 0xFF), uchar(value.z & 0xFF) };
 	Texture2D texture = NewTexture2D();
-	texture->Load(TextureFormatRgb, bytes, ColorStreamFormatRgb, 1, 1, 4);
+	texture->Create(TextureFormatRgb, bytes, ColorStreamFormatRgb, 1, 1, 4);
 	property->value.SetTexture(texture);
 }
 

@@ -34,6 +34,8 @@ struct RenderingMatrices {
 
 struct RenderingMaterials {
 	Material ssao;
+	Material ssaoTraversal;
+
 	Material depth;
 };
 
@@ -41,6 +43,7 @@ struct RenderingRenderTextures {
 	RenderTexture aux1;
 	RenderTexture aux2;
 	RenderTexture target;
+	MRTRenderTexture ssaoTraversal;
 };
 
 struct RenderingParameters {
@@ -66,6 +69,7 @@ struct RenderingPipelines {
 	Pipeline* depth;
 	Pipeline* shadow;
 	Pipeline* rendering;
+	Pipeline* ssaoTraversal;
 };
 
 class Rendering;
@@ -90,6 +94,7 @@ private:
 
 	void DepthPass(RenderingPipelines& pipelines);
 	void SSAOPass(RenderingPipelines& pipelines);
+	void SSAOTraversalPass(RenderingPipelines& pipelines);
 	void ShadowPass(RenderingPipelines& pipelines);
 	void RenderPass(RenderingPipelines& pipelines);
 	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines& pipelines);
@@ -104,6 +109,8 @@ private:
 	std::vector<Entity> entities_;
 
 	Sample* ssaoSample;
+	Sample* ssaoTraversalSample;
+
 	Sample* depthSample;
 	Sample* shadowSample;
 	Sample* renderingSample;
@@ -132,6 +139,8 @@ private:
 	void RenderSkybox(Pipeline* pl);
 
 	RenderTexture GetActiveRenderTarget();
+
+	void SSAOPass(Pipeline* pl);
 
 	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
 	void ForwardDepthPass(Pipeline* pl);

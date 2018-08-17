@@ -16,25 +16,33 @@
 #define sharedSSAOTexture	SharedTextureManager::instance()->GetSSAOTexture()
 #define sharedDepthTexture	SharedTextureManager::instance()->GetDepthTexture()
 
-// TODO: debug.
-Mesh ssaoKernelMesh;
-Material ssaoKernelMaterial;
-
 RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
 	, clearType(ClearType::Color), renderPath(RenderPath::Forward) {
 }
 
 Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	CreateAuxMaterial(p_->materials.ssao, "builtin/ssao", RenderQueueBackground);
+	CreateAuxMaterial(p_->materials.ssaoTraversal, "builtin/ssao_traversal", RenderQueueBackground);
+
 	CreateAuxMaterial(p_->materials.depth, "builtin/depth", RenderQueueBackground - 300);
 
+	uint w = Screen::instance()->GetWidth(), h = Screen::instance()->GetHeight();
+
 	p_->renderTextures.aux1 = NewRenderTexture();
-	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, w, h);
 
 	p_->renderTextures.aux2 = NewRenderTexture();
-	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, w, h);
+
+	p_->renderTextures.ssaoTraversal = NewMRTRenderTexture();
+	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormatDepth, w, h);
+
+	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32);
+	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32);
 
 	ssaoSample = Profiler::instance()->CreateSample();
+	ssaoTraversalSample = Profiler::instance()->CreateSample();
+
 	depthSample = Profiler::instance()->CreateSample();
 	shadowSample = Profiler::instance()->CreateSample();
 	renderingSample = Profiler::instance()->CreateSample();
@@ -52,11 +60,11 @@ void Rendering::Resize(uint width, uint height) {
 
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
-
 	UpdateUniformBuffers(matrices, pipelines);
 	
 	DepthPass(pipelines);
 
+	SSAOTraversalPass(pipelines);
 	SSAOPass(pipelines);
 
 	ShadowPass(pipelines);
@@ -66,7 +74,6 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	OnPostRender();
 
 	Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
-	Graphics::instance()->Draw(ssaoKernelMesh, ssaoKernelMaterial);
 	if (!p_->imageEffects.empty()) {
 		OnImageEffects();
 	}
@@ -75,6 +82,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 void Rendering::ClearRenderTextures() {
 	p_->renderTextures.aux1->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
 	p_->renderTextures.aux2->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
+	p_->renderTextures.ssaoTraversal->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
 
 	sharedSSAOTexture->Clear(p_->normalizedRect, glm::vec4(1));
 	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
@@ -140,7 +148,7 @@ void Rendering::OnImageEffects() {
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
 	RenderTexture temp = RenderTexture::GetTemporary(RenderTextureFormatRgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
-	
+
 	p_->materials.ssao->SetPass(0);
 	Graphics::instance()->Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
 
@@ -149,6 +157,17 @@ void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 
 	ssaoSample->Stop();
 	OutputSample(ssaoSample);
+}
+
+void Rendering::SSAOTraversalPass(RenderingPipelines& pipelines) {
+	ssaoTraversalSample->Restart();
+
+	if (pipelines.ssaoTraversal->GetRenderableCount() > 0) {
+		pipelines.ssaoTraversal->Run();
+	}
+
+	ssaoTraversalSample->Stop();
+	OutputSample(ssaoTraversalSample);
 }
 
 void Rendering::DepthPass(RenderingPipelines& pipelines) {
@@ -186,9 +205,12 @@ void Rendering::RenderPass(RenderingPipelines& pipelines) {
 	OutputSample(renderingSample);
 }
 
-RenderableTraits::RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/) : p_(p)/*, listener_(listener)*/ {
+RenderableTraits::RenderableTraits(RenderingParameters* p) : p_(p) {
 	pipelines_.depth = MEMORY_NEW(Pipeline);
 	pipelines_.depth->SetTargetTexture(sharedDepthTexture, Rect(0, 0, 1, 1));
+
+	pipelines_.ssaoTraversal = MEMORY_NEW(Pipeline);
+	pipelines_.ssaoTraversal->SetTargetTexture(p_->renderTextures.ssaoTraversal, Rect(0, 0, 1, 1));
 
 	pipelines_.rendering = MEMORY_NEW(Pipeline);
 
@@ -206,6 +228,7 @@ RenderableTraits::~RenderableTraits() {
 	MEMORY_DELETE(pipelines_.depth);
 	MEMORY_DELETE(pipelines_.shadow);
 	MEMORY_DELETE(pipelines_.rendering);
+	MEMORY_DELETE(pipelines_.ssaoTraversal);
 
 	Profiler::instance()->ReleaseSample(forward_pass);
 	Profiler::instance()->ReleaseSample(push_renderables);
@@ -233,6 +256,8 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	}
 
 	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
+		*pipelines_.ssaoTraversal = *pipelines_.shadow;
+		SSAOPass(pipelines_.ssaoTraversal);
 		depthPass = true;
 	}
 
@@ -325,6 +350,7 @@ RenderTexture RenderableTraits::GetActiveRenderTarget() {
 	}
 
 	RenderTexture target = p_->renderTextures.target;
+
 	if (!target) {
 		target = RenderTexture::GetDefault();
 	}
@@ -352,32 +378,12 @@ void RenderableTraits::InitializeSSAOKernel() {
 		kernel[i] = glm::vec3(Math::Random(-scale, scale), Math::Random(-scale, scale), Math::Random(-scale, scale));
 	}
 
-	p_->materials.ssao->SetVector3Array(Variables::SSAOKernel, kernel, SSAO_KERNEL_SIZE);
+	p_->materials.ssao->SetVector3Array("ssaoKernel", kernel, SSAO_KERNEL_SIZE);
+	p_->materials.ssaoTraversal->SetTexture("posTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(0));
+}
 
-	if (!ssaoKernelMesh) {
-		MeshAttribute attribute{ MeshTopology::Points };
-
-		for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
-			attribute.positions.push_back(/*kernel[i] +*/ glm::vec3(0, 25, -65));
-		}
-
-		for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
-			attribute.indexes.push_back(i);
-		}
-
-		ssaoKernelMesh = NewMesh();
-		ssaoKernelMesh->SetAttribute(attribute);
-
-		ssaoKernelMesh->AddSubMesh(NewSubMesh());
-		TriangleBias bias{ attribute.indexes.size() };
-		ssaoKernelMesh->GetSubMesh(0)->SetTriangleBias(bias);
-	}
-
-	if (!ssaoKernelMaterial) {
-		ssaoKernelMaterial = NewMaterial();
-		ssaoKernelMaterial->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
-		ssaoKernelMaterial->SetColor4(Variables::MainColor, glm::vec4(1, 0, 0, 1));
-	}
+void RenderableTraits::SSAOPass(Pipeline* pl) {
+	ReplaceMaterials(pl, p_->materials.ssaoTraversal);
 }
 
 void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
@@ -465,4 +471,5 @@ void RenderableTraits::Clear() {
 	pipelines_.depth->Clear();
 	pipelines_.shadow->Clear();
 	pipelines_.rendering->Clear();
+	pipelines_.ssaoTraversal->Clear();
 }

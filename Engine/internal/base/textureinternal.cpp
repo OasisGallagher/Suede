@@ -5,7 +5,6 @@
 #include "buffer.h"
 #include "resources.h"
 #include "tools/math2.h"
-#include "framebuffer.h"
 #include "os/filesystem.h"
 #include "../api/glutils.h"
 #include "textureinternal.h"
@@ -95,6 +94,10 @@ TextureWrapMode TextureInternal::GetWrapModeT() const {
 }
 
 void TextureInternal::BindTexture() const {
+	if (texture_ == 0) {
+
+	}
+
 	GL::GetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
 	GL::BindTexture(GetGLTextureType(), texture_);
 }
@@ -241,16 +244,16 @@ Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectTypeTexture2D) {
 Texture2DInternal::~Texture2DInternal() {
 }
 
-bool Texture2DInternal::Load(const std::string& path) {
+bool Texture2DInternal::Create(const std::string& path) {
 	TexelMap texelMap;
 	if (!ImageCodec::Decode(texelMap, Resources::instance()->GetTextureDirectory() + path)) {
 		return false;
 	}
 
-	return Load(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height, texelMap.alignment);
+	return Create(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height, texelMap.alignment);
 }
 
-bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
+bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	DestroyTexture();
 
 	width_ = width;
@@ -263,6 +266,8 @@ bool Texture2DInternal::Load(TextureFormat textureFormat, const void* data, Colo
 	GLenum glFormat[2];
 	ColorStreamFormatToGLenum(glFormat, format);
 	GLenum internalFormat = TextureFormatToGLenum(textureFormat);
+
+	format_ = textureFormat;
 
 	GLUtils::PushGLMode(GLModeUnpackAlignment, alignment);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
@@ -356,7 +361,6 @@ class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureMan
 
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height) {
-
 	}
 
 private:
@@ -410,7 +414,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	BindTexture();
 
 	format_ = format;
-	ResizeStorage(width, height);
+	ResizeStorage(width, height, format);
 
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -455,7 +459,7 @@ void RenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& v
 void RenderTextureInternal::Resize(uint width, uint height) {
 	if (width_ != width || height_ != height) {
 		BindTexture();
-		ResizeStorage(width, height);
+		ResizeStorage(width, height, format_);
 		UnbindTexture();
 	}
 }
@@ -504,9 +508,9 @@ void RenderTextureInternal::DestroyFramebuffer() {
 	}
 }
 
-void RenderTextureInternal::ResizeStorage(uint w, uint h) {
+void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat format) {
 	GLenum glFormat[3];
-	RenderTextureFormatToGLenum(format_, glFormat);
+	RenderTextureFormatToGLenum(format, glFormat);
 	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], w, h, 0, glFormat[1], glFormat[2], nullptr);
 	width_ = w;
 	height_ = h;
@@ -591,14 +595,12 @@ void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
 	buffer_->Update(offset, size, data);
 }
 
-inline void TextureBufferInternal::DestroyBuffer() {
+void TextureBufferInternal::DestroyBuffer() {
 	if (buffer_ != nullptr) {
 		MEMORY_DELETE(buffer_);
 		buffer_ = nullptr;
 	}
 }
-
-#define LogUnsupportedRenderTextureOperation()	Debug::LogError("unsupported render texture operation %s.", __func__);
 
 ScreenRenderTextureInternal::ScreenRenderTextureInternal() {
 }
@@ -624,24 +626,6 @@ uint ScreenRenderTextureInternal::GetHeight() const {
 	return Screen::instance()->GetHeight();
 }
 
-GLenum ScreenRenderTextureInternal::GetGLTextureType() const {
-	LogUnsupportedRenderTextureOperation();
-	return 0;
-}
-
-GLenum ScreenRenderTextureInternal::GetGLTextureBindingName() const {
-	LogUnsupportedRenderTextureOperation();
-	return 0;
-}
-
-void ScreenRenderTextureInternal::Resize(uint w, uint h) {
-	LogUnsupportedRenderTextureOperation();
-}
-
-void ScreenRenderTextureInternal::Bind(uint index) {
-	LogUnsupportedRenderTextureOperation();
-}
-
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 	SetViewport(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), normalizedRect);
 	framebuffer_->BindWrite();
@@ -651,8 +635,97 @@ void ScreenRenderTextureInternal::Unbind() {
 	framebuffer_->Unbind();
 }
 
+void ScreenRenderTextureInternal::Resize(uint width, uint height) {
+	Debug::LogError("screen render texture is not resizable.");
+}
+
+GLenum ScreenRenderTextureInternal::GetGLTextureType() const {
+	Debug::LogError("unsupported operation for screen render texture.");
+	return 0;
+}
+
+GLenum ScreenRenderTextureInternal::GetGLTextureBindingName() const {
+	Debug::LogError("unsupported operation for screen render texture.");
+	return 0;
+}
+
 bool RenderTextureInternalBase::SetViewport(uint width, uint height, const Rect& normalizedRect) {
 	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
 	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
 	return (uint)viewport.GetWidth() > 0 && (uint)viewport.GetHeight() > 0;
+}
+
+bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
+	if (format != RenderTextureFormatDepth) {
+		Debug::LogError("only RenderTextureFormatDepth is supported for MRTRenderTexture.");
+		return false;
+	}
+
+	DestroyFramebuffer();
+	DestroyColorTextures();
+
+	width_ = width;
+	height_ = height;
+
+	framebuffer_ = MEMORY_NEW(Framebuffer);
+	framebuffer_->SetViewport(0, 0, width, height);
+	framebuffer_->CreateDepthRenderbuffer();
+
+	return true;
+}
+
+void MRTRenderTextureInternal::Resize(uint width, uint height) {
+	if (width_ == width && height_ == height) {
+		return;
+	}
+
+	width_ = width;
+	height_ = height;
+
+	for (int i = 0; i < index_; ++i) {
+		Texture2D texture = colorTextures_[i];
+		colorTextures_[i]->Create(texture->GetFormat(), nullptr, ColorStreamFormatRgba, width, height, 4);
+	}
+}
+
+void MRTRenderTextureInternal::Bind(uint index) {
+	Debug::LogError("MRTRenderTexture is not readable.");
+}
+
+void MRTRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
+	RenderTextureInternal::BindWrite(normalizedRect);
+}
+
+bool MRTRenderTextureInternal::AddColorTexture(TextureFormat format) {
+	if (index_ >= FramebufferAttachmentMax) {
+		Debug::LogError("only %d color textures are supported.", FramebufferAttachmentMax);
+		return false;
+	}
+
+	colorTextures_[index_] = NewTexture2D();
+	colorTextures_[index_]->Create(format, nullptr, ColorStreamFormatRgba, width_, height_, 4);
+	framebuffer_->SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + index_), colorTextures_[index_]->GetNativePointer());
+	++index_;
+	return true;
+}
+
+Texture2D MRTRenderTextureInternal::GetColorTexture(uint index) {
+	VERIFY_INDEX(index, index_, nullptr);
+	return colorTextures_[index];
+}
+
+GLenum MRTRenderTextureInternal::GetGLTextureType() const {
+	Debug::LogError("unsupported operation for MRT render texture.");
+	return 0;
+}
+
+GLenum MRTRenderTextureInternal::GetGLTextureBindingName() const {
+	Debug::LogError("unsupported operation for MRT render texture.");
+	return 0;
+}
+
+void MRTRenderTextureInternal::DestroyColorTextures() {
+	for (int i = 0; i < index_; ++i) {
+		colorTextures_[i] = nullptr;
+	}
 }

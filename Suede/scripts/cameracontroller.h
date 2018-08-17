@@ -4,7 +4,7 @@
 
 class CameraController {
 public:
-	CameraController();
+	CameraController(QWidget* view);
 
 public:
 	void setCamera(Transform value);
@@ -36,4 +36,5 @@ private:
 	QPoint lpos_;
 	QPoint mpos_;
 	QPoint rpos_;
+	QWidget* view_;
 };

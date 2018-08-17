@@ -37,7 +37,7 @@ float _random(vec3 seed, int i){
 }
 
 vec3 _CalcDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
-	vec3 ambient = /*_AmbientColor * */texture(_SSAOTexture, _FragTexCoord()).rgb;
+	vec3 ambient = _AmbientColor * texture(_SSAOTexture, _FragTexCoord()).rgb;
 
 	float factor = clamp(dot(worldNormal, -_LightDir), 0, 1);
 	vec3 diffuse = vec3(_LightColor * factor);
@@ -48,7 +48,7 @@ vec3 _CalcDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
 	factor = pow(factor, _Gloss);
 	vec3 specular = vec3(_LightColor * factor) * _SpecularColor;
 
-	return ambient; //+ _EmissiveColor + visibility * (diffuse + specular);
+	return ambient;// + _EmissiveColor + visibility * (diffuse + specular);
 }
 
 #define _SHADOW_LEVEL	 0

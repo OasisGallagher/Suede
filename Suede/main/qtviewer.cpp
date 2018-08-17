@@ -67,7 +67,7 @@ bool QtViewer::setSkin(const QString& name) {
 
 void QtViewer::setupSuede() {
 	QGLFormat format;
-	format.setSwapInterval(0);
+	format.setSwapInterval(1);
 	format.setDoubleBuffer(true);
 	format.setSampleBuffers(true);
 

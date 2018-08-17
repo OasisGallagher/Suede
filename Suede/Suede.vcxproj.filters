@@ -672,6 +672,9 @@
     <None Include="resources\shaders\builtin\include\post_effect_vertex.inc">
       <Filter>resources\shaders\builtin\include</Filter>
     </None>
+    <None Include="resources\shaders\builtin\ssao_traversal.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

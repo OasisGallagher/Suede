@@ -47,8 +47,13 @@ uniform samplerBuffer _MatrixTextureBuffer;
 
 // --------- Functions ---------
 
+float saturate(float x) {
+    return clamp(x, 0, 1);
+}
+
 // --------- Vertex Shader Functions 
 
+#ifdef _VERTEX_SHADER
 #define _TANGENT_SPACE_ROTATION(mat) \
 			mat = mat3((_LocalToWorldMatrix * vec4(_Normal, 0)).xyz, \
 				(_LocalToWorldMatrix * vec4(_Tangent, 0)).xyz, \
@@ -58,13 +63,11 @@ uniform samplerBuffer _MatrixTextureBuffer;
 #define _DEF_TANGENT_SPACE_ROTATION(variableName) \
 		mat3 variableName; \
 		_TANGENT_SPACE_ROTATION(variableName)
+		
+#endif
 
 // --------- Fragment Shader Functions ---------
 #ifdef _FRAGMENT_SHADER
-
-float saturate(float x) {
-    return clamp(x, 0, 1);
-}
 
 float _LinearEyeDepth(float z) {
 	z = 2 * z - 1;

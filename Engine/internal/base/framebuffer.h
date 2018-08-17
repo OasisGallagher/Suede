@@ -57,6 +57,7 @@ public:
 
 	virtual uint GetRenderTextureCount();
 	virtual uint GetDepthTexture();
+	virtual uint GetDepthRenderbuffer();
 
 	virtual uint GetRenderTexture(FramebufferAttachment attachment);
 	virtual void SetRenderTexture(FramebufferAttachment attachment, uint texture);
@@ -138,6 +139,7 @@ public:
 
 	virtual uint GetRenderTextureCount();
 	virtual uint GetDepthTexture();
+	virtual uint GetDepthRenderbuffer();
 
 	virtual uint GetRenderTexture(FramebufferAttachment attachment);
 	virtual void SetRenderTexture(FramebufferAttachment attachment, uint texture);

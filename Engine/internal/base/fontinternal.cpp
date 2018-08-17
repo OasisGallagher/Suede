@@ -159,7 +159,7 @@ void FontInternal::RebuildMaterial() {
 	coords_ = atlas.coords;
 
 	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::MainTexture));
-	texture->Load(TextureFormatRgba, &atlas.data[0], ColorStreamFormatLuminanceAlpha, atlas.width, atlas.height, 4);
+	texture->Create(TextureFormatRgba, &atlas.data[0], ColorStreamFormatLuminanceAlpha, atlas.width, atlas.height, 4);
 
 	for (uint i = 0; i < listeners_.size(); ++i) {
 		listeners_[i]->OnMaterialRebuilt();

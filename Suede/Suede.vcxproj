@@ -1076,6 +1076,7 @@
     <None Include="resources\shaders\builtin\lit_texture.shader" />
     <None Include="resources\shaders\builtin\particle.shader" />
     <None Include="resources\shaders\builtin\skybox.shader" />
+    <None Include="resources\shaders\builtin\ssao_traversal.shader" />
     <None Include="resources\shaders\builtin\unlit_texture.shader" />
     <None Include="resources\shaders\gaussianblur.shader" />
     <None Include="resources\shaders\grayscale.shader" />

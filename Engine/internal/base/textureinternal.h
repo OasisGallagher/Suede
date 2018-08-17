@@ -3,6 +3,7 @@
 
 #include "texture.h"
 #include "../api/gl.h"
+#include "framebuffer.h"
 #include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"
 
@@ -70,8 +71,10 @@ public:
 	~Texture2DInternal();
 
 public:
-	virtual bool Load(const std::string& path);
-	virtual bool Load(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+	virtual bool Create(const std::string& path);
+	virtual bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+
+	virtual TextureFormat GetFormat() { return format_; }
 
 	virtual bool EncodeToPNG(std::vector<uchar>& data);
 	virtual bool EncodeToJPG(std::vector<uchar>& data);
@@ -82,6 +85,9 @@ protected:
 
 private:
 	bool EncodeTo(std::vector<uchar>& data, ImageType type);
+
+private:
+	TextureFormat format_;
 };
 
 class TextureCubeInternal : public ITextureCube, public TextureInternal {
@@ -99,9 +105,31 @@ protected:
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_CUBE_MAP; }
 };
 
-class FramebufferBase;
+class Buffer;
+class TextureBufferInternal : public ITextureBuffer, public TextureInternal {
+	DEFINE_FACTORY_METHOD(TextureBuffer)
 
-class RenderTextureInternalBase : public IRenderTexture, public TextureInternal {
+public:
+	TextureBufferInternal();
+	~TextureBufferInternal();
+
+public:
+	bool Create(uint size);
+	uint GetSize() const;
+	void Update(uint offset, uint size, const void* data);
+
+protected:
+	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
+	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
+
+private:
+	void DestroyBuffer();
+
+private:
+	Buffer* buffer_;
+};
+
+class RenderTextureInternalBase : virtual public IRenderTexture, public TextureInternal {
 public:
 	RenderTextureInternalBase() : TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {}
 
@@ -135,11 +163,13 @@ protected:
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
 protected:
-	virtual void ResizeStorage(uint w, uint h);
+	virtual void ResizeStorage(uint w, uint h, RenderTextureFormat format);
+
+protected:
+	void DestroyFramebuffer();
 
 private:
 	bool VerifyBindStatus();
-	void DestroyFramebuffer();
 	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormatDepth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
 
@@ -164,37 +194,41 @@ protected:
 	virtual uint GetWidth() const;
 	virtual uint GetHeight() const;
 
-	virtual void Resize(uint w, uint h);
-
-	virtual void Bind(uint index);
 	virtual void BindWrite(const Rect& normalizedRect);
 	virtual void Unbind();
 
 protected:
+	virtual void Resize(uint width, uint height);
 	virtual GLenum GetGLTextureType() const;
 	virtual GLenum GetGLTextureBindingName() const;
 };
 
-class Buffer;
-class TextureBufferInternal : public ITextureBuffer, public TextureInternal {
-	DEFINE_FACTORY_METHOD(TextureBuffer)
+class MRTRenderTextureInternal : public RenderTextureInternal, public IMRTRenderTexture {
+	DEFINE_FACTORY_METHOD(MRTRenderTexture)
 
 public:
-	TextureBufferInternal();
-	~TextureBufferInternal();
+	MRTRenderTextureInternal() : index_(0) {}
 
 public:
-	bool Create(uint size);
-	uint GetSize() const;
-	void Update(uint offset, uint size, const void* data);
+	virtual bool Create(RenderTextureFormat format, uint width, uint height);
+	virtual void Resize(uint width, uint height);
+
+	virtual void Bind(uint index);
+	virtual void BindWrite(const Rect& normalizedRect);
+
+public:
+	virtual bool AddColorTexture(TextureFormat format);
+	virtual uint GetColorTextureCount() { return index_; }
+	virtual Texture2D GetColorTexture(uint index);
 
 protected:
-	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
-	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
+	virtual GLenum GetGLTextureType() const;
+	virtual GLenum GetGLTextureBindingName() const;
 
 private:
-	void DestroyBuffer();
+	void DestroyColorTextures();
 
 private:
-	Buffer* buffer_;
+	uint index_;
+	Texture2D colorTextures_[FramebufferAttachmentMax];
 };

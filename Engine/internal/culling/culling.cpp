@@ -7,7 +7,7 @@
 
 #include "profiler.h"
 
-Culling::Culling(CullingListener* listener) : listener_(listener), working_(false), stopped_(false) {
+Culling::Culling(CullingListener* listener) : cond_(mutex_), listener_(listener), working_(false), stopped_(false) {
 }
 
 #include <Windows.h>
@@ -39,10 +39,6 @@ private:
 
 void Culling::run() {
 	for (; !stopped_;) {
-		const int FRAMES_PER_SECOND = 60;
-		const int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
-		int next_game_tick = GetTickCount();
-
 		if (working_) {
 			entities_.clear();
 			uint64 start = Profiler::instance()->GetTimeStamp();
@@ -57,25 +53,21 @@ void Culling::run() {
 			working_ = false;
 		}
 
-		next_game_tick += SKIP_TICKS;
-		int sleep_time = next_game_tick - GetTickCount();
-		if (sleep_time >= 0) {
-			Sleep(sleep_time);
-		}
-		else {
-			Debug::Output("");
-		}
+		ZTHREAD_LOCK_SCOPE(mutex_);
+		cond_.wait();
 	}
 }
 
 void Culling::Stop() {
 	stopped_ = true;
+	cond_.broadcast();
 }
 
 void Culling::Cull(const glm::mat4& worldToClipMatrix) {
 	if (!working_) {
 		worldToClipMatrix_ = worldToClipMatrix;
 		working_ = true;
+		cond_.signal();
 	}
 }
 

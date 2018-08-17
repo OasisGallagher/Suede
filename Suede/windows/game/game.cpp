@@ -52,7 +52,7 @@ static const char* lightModelPath = "builtin/sphere.fbx";
 #define FPS_UPDATE_INTERVAL		800
 
 Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullptr) {
-	controller_ = new CameraController;
+	controller_ = new CameraController(this);
 }
 
 Game::~Game() {
@@ -147,7 +147,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		}
 		else if (path.find("suzanne") != std::string::npos) {
 			Texture2D diffuse = NewTexture2D();
-			diffuse->Load("suzanne/diffuse.dds");
+			diffuse->Create("suzanne/diffuse.dds");
 			Entity target = root->GetTransform()->FindChild("suzanne_root/default")->GetEntity();
 			target->GetRenderer()->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
