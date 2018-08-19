@@ -65,11 +65,11 @@ const char* GrammarReader::SplitGrammar(const char*& text) {
 
 void GrammarReader::ReadGrammars() {
 	GrammarText g;
-	std::string line;
-	int lineNumber = 1;
+	std::vector<std::string> lines;
+	String::Split(lines, source_, '\n');
+	for (int i = 0;  i < lines.size(); ++i) {
+		std::string line = lines[i];
 
-	const char* start = source_;
-	for (; String::SplitLine(start, line); ++lineNumber) {
 		if (String::IsBlankText(line.c_str(), nullptr)) {
 			if (!g.Empty()) {
 				grammars_.push_back(g);
@@ -87,7 +87,7 @@ void GrammarReader::ReadGrammars() {
 		const char* ptr = line.c_str();
 		const char* tabpos = SplitGrammar(ptr);
 		if (*tabpos == 0) {
-			Debug::LogError("missing \\t between production and action at line %d.", lineNumber);
+			Debug::LogError("missing \\t between production and action at line %d.", (i + 1));
 			break;
 		}
 

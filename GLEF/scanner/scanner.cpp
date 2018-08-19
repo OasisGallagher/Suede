@@ -283,14 +283,16 @@ SourceScanner::~SourceScanner() {
 }
 
 bool SourceScanner::Open(const std::string& path) {
-	lineno_ = 0;
+	index_ = 0;
 	text_.clear();
 
 	if (!FileSystem::ReadAllText(path, text_)) {
 		return false;
 	}
 
-	start_ = text_.c_str();
+	lines_.clear();
+	String::Split(lines_, text_, '\n');
+
 	return true;
 }
 
@@ -303,12 +305,12 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 			break;
 		}
 
-		if (!String::SplitLine(start_, line)) {
+		if (index_ >= lines_.size()) {
 			tokenType = ScannerTokenEndOfFile;
 			break;
 		}
 
-		++lineno_;
+		line = lines_[index_++];
 
 		const char* nonBlankPtr = nullptr;
 		if (String::IsBlankText(line.c_str(), &nonBlankPtr)) {
@@ -319,7 +321,7 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 		tokenType = textScanner_.GetToken(buffer, &pos->linepos);
 	}
 
-	pos->lineno = lineno_;
+	pos->lineno = index_;
 
 	if (tokenType == ScannerTokenError) {
 		return false;
@@ -339,8 +341,9 @@ bool SourceScanner::GetToken(ScannerToken* token, TokenPosition* pos) {
 bool SourceScanner::ReadCode(ScannerToken* token) {
 	std::string line, code;
 
-	++lineno_;
-	for (bool first = true; String::SplitLine(start_, line); ++lineno_) {
+	for (bool first = true; index_ < lines_.size();) {
+		line = lines_[index_++];
+
 		std::string str = String::Trim(line);
 		if (str == GLSL_CODE_END) {
 			token->tokenType = ScannerTokenCode;

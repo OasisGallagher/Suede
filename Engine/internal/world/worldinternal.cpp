@@ -50,7 +50,7 @@ void WorldInternal::Initialize() {
 	GLUtils::Initialize();
 
 	Resources::implement(new ResourcesInternal);
-	Resources::instance()->FindShader("builtin/ssao_traversal");
+	Resources::instance()->FindShader("builtin/ssao");
 
 	Gizmos::implement(new GizmosInternal);
 	Graphics::implement(new GraphicsInternal);

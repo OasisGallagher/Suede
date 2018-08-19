@@ -4,6 +4,7 @@
 #include "variables.h"
 #include "resources.h"
 #include "tools/math2.h"
+#include "tools/random.h"
 #include "particlesysteminternal.h"
 
 static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
@@ -230,7 +231,7 @@ uint ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	float nextTime = time_ + Time::instance()->GetDeltaTime();
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
-			ans = Math::Random(bursts_[i].min, bursts_[i].max);
+			ans = Random::IntRange(bursts_[i].min, bursts_[i].max);
 		}
 	}
 

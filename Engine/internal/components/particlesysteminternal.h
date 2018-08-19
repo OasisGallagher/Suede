@@ -1,7 +1,7 @@
 #include <vector>
 
 #include "shader.h"
-#include "tools/math2.h"
+#include "tools/random.h"
 #include "particlesystem.h"
 #include "containers/freelist.h"
 #include "internal/components/componentinternal.h"
@@ -62,7 +62,7 @@ public:
 	virtual void SetRadius(float value) { radius_ = value; }
 	virtual float GetRadius() { return radius_; }
 
-	virtual glm::vec3 GetStartPosition() { return Math::RandomInsideSphere(radius_); }
+	virtual glm::vec3 GetStartPosition() { return Random::InsideSphere(radius_); }
 
 private:
 	float radius_;

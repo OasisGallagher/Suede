@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "tokendefine.h"
 
 class TextScanner {
@@ -53,8 +54,8 @@ private:
 	bool ReadCode(ScannerToken* token);
 
 private:
-	int lineno_;
+	int index_;
 	std::string text_;
-	const char* start_;
 	TextScanner textScanner_;
+	std::vector<std::string> lines_;
 };

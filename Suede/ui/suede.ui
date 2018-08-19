@@ -399,7 +399,7 @@
           <x>0</x>
           <y>0</y>
           <width>299</width>
-          <height>209</height>
+          <height>202</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="content">
@@ -639,7 +639,7 @@
    <property name="minimumSize">
     <size>
      <width>317</width>
-     <height>144</height>
+     <height>204</height>
     </size>
    </property>
    <property name="floating">
@@ -676,27 +676,74 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="ColorField" name="ambient" native="true"/>
+         <widget class="QWidget" name="widget_3" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="ColorField" name="ambient" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="occlusion">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Occlusion</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>FogColor:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>FogDensity:</string>
+           <string>Fog Color:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
          <widget class="ColorField" name="fogColor" native="true"/>
         </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Fog Density:</string>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="1">
-         <widget class="FloatField" name="fogDensity" native="true"/>
+         <widget class="FloatField" name="fogDensity"/>
         </item>
        </layout>
       </widget>

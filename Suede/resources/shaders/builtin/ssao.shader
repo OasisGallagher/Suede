@@ -1,5 +1,5 @@
 Properties { 
-	float sampleRadius = 1.5;
+	float radius = 0.5;
 }
 
 SubShader {
@@ -12,6 +12,7 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
+
 		#include "builtin/include/suede.inc"
 
 		in vec3 _Pos;
@@ -27,6 +28,7 @@ SubShader {
 		}
 
 		#stage fragment
+
 		#include "builtin/include/suede.inc"
 
 		//in vec2 viewRay;
@@ -34,37 +36,33 @@ SubShader {
 
 		out vec3 fragColor;
 
-		uniform float sampleRadius; 
+		uniform float radius;
+
 		uniform sampler2D posTexture;
+		uniform sampler2D noiseTexture;
+		uniform sampler2D normalTexture;
 
 		uniform sampler2D _MainTexture;
 		uniform vec3 ssaoKernel[_C_SSAO_KERNEL_SIZE];
 
-		vec3 viewSpacePos(vec2 coord) {
-			return texture(posTexture, coord).xyz;
-			//float z = _LinearEyeDepth(texture(_MainTexture, coord).x);
-			//return vec3(viewRay * z, z);
-		}
-
 		void main() {
-			if (texture(_MainTexture, texCoord).x == 1) {
-				fragColor = vec3(0);
-				return;
-			}
+			vec3 pos = texture(posTexture, texCoord).xyz;
+			vec3 normal = normalize(texture(normalTexture, texCoord).xyz);
+			vec3 random = normalize(texture(noiseTexture, texCoord * _ScreenParams.xy / textureSize(noiseTexture, 0)).xyz);
+			vec3 tangent = normalize(random - normal * dot(random, normal));
+			vec3 bitangent = cross(normal, tangent);
 
 			float occlusion = 0;
-			vec3 pos = viewSpacePos(texCoord);
-
+			mat3 TBN = mat3(tangent, bitangent, normal);
 			for (int i = 0; i < _C_SSAO_KERNEL_SIZE; ++i) {
-				vec3 samplePos = pos + ssaoKernel[i];
+				vec3 samplePos = pos + TBN * ssaoKernel[i] * radius;
 				vec4 offset = _CameraToClipMatrix * vec4(samplePos, 1);
 				offset.xy = offset.xy * 0.5 / offset.w + 0.5;
 
-				float sampleDepth = viewSpacePos(offset.xy).z;
-				//float f = smoothstep(0, 1, sampleRadius / abs(pos.z - sampleDepth));
-				if (abs(pos.z - sampleDepth) < sampleRadius) {
-					occlusion += step(sampleDepth, samplePos.z);
-				}
+				float sampleDepth = texture(posTexture, offset.xy).z;
+				float f = smoothstep(0.0, 1.0, radius / abs(pos.z - sampleDepth));
+
+				occlusion += (sampleDepth >= samplePos.z + 0.025 ? 1 : 0) * f;
 			}
 
 			occlusion = 1.0 - occlusion / _C_SSAO_KERNEL_SIZE;

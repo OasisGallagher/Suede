@@ -8,6 +8,7 @@
 #include "projector.h"
 #include "imageeffect.h"
 #include "tools/math2.h"
+#include "tools/random.h"
 #include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/shadows.h"
@@ -37,8 +38,8 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	p_->renderTextures.ssaoTraversal = NewMRTRenderTexture();
 	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormatDepth, w, h);
 
-	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32);
-	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32);
+	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32F);
+	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32F);
 
 	ssaoSample = Profiler::instance()->CreateSample();
 	ssaoTraversalSample = Profiler::instance()->CreateSample();
@@ -73,7 +74,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 
 	OnPostRender();
 
-	Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
+	//Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
 	if (!p_->imageEffects.empty()) {
 		OnImageEffects();
 	}
@@ -371,15 +372,32 @@ void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>&
 }
 
 void RenderableTraits::InitializeSSAOKernel() {
-	static glm::vec3 kernel[SSAO_KERNEL_SIZE];
-	for (int i = 0; i < SSAO_KERNEL_SIZE; ++i) {
-		float scale = float(i) / SSAO_KERNEL_SIZE;
-		scale = (0.1f + 0.9f * scale * scale);
-		kernel[i] = glm::vec3(Math::Random(-scale, scale), Math::Random(-scale, scale), Math::Random(-scale, scale));
+	glm::vec3 kernel[SSAO_KERNEL_SIZE];
+	for (int i = 0; i < CountOf(kernel); ++i) {
+		float scale = float(i) / CountOf(kernel);
+		scale = Math::Lerp(0.1f, 1.f, scale * scale);
+
+		glm::vec3 sample = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), Random::FloatRange(0.f, 1.f));
+		sample = glm::normalize(sample);
+		sample *= Random::FloatRange(0.f, 1.f);
+		kernel[i] = sample * scale;
 	}
 
+	glm::vec3 noise[4 * 4];
+	for (int i = 0; i < CountOf(noise); ++i) {
+		noise[i] = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
+	}
+
+	Texture2D noiseTexture = NewTexture2D();
+	noiseTexture->Create(TextureFormatRgb32F, &noise, ColorStreamFormatRgbF, 4, 4, 4);
+	noiseTexture->SetWrapModeS(TextureWrapMode::Repeat);
+	noiseTexture->SetWrapModeT(TextureWrapMode::Repeat);
+
 	p_->materials.ssao->SetVector3Array("ssaoKernel", kernel, SSAO_KERNEL_SIZE);
-	p_->materials.ssaoTraversal->SetTexture("posTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(0));
+
+	p_->materials.ssao->SetTexture("noiseTexture", noiseTexture);
+	p_->materials.ssao->SetTexture("posTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(0));
+	p_->materials.ssao->SetTexture("normalTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(1));
 }
 
 void RenderableTraits::SSAOPass(Pipeline* pl) {

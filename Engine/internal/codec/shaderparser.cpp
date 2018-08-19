@@ -86,8 +86,9 @@ bool GLSLParser::ReadShaderSource(const std::string& source) {
 		return ReadEmptySource();
 	}
 
-	const char* start = source.c_str();
-	for (std::string line; String::SplitLine(start, line); ) {
+	std::vector<std::string> lines;
+	String::Split(lines, source, '\n');
+	for (std::string line : lines) {
 		const char* ptr = String::TrimStart(line.c_str());
 
 		if (*ptr == '#' && !Preprocess(ptr)) {

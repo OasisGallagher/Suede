@@ -93,27 +93,6 @@ float String::ToFloat(const std::string& str) {
 	return std::stof(str);
 }
 
-bool String::SplitLine(const char*& ptr, std::string& line) {
-	if (*ptr == 0) { return false; }
-
-	// handle tailing '\n'.
-	if (*ptr == '\n') { ++ptr; }
-
-	const char* start = ptr;
-	for (; *ptr != 0; ++ptr) {
-		if (*ptr == '\n') {
-			line.assign(start, ptr);
-			break;
-		}
-	}
-
-	if (*ptr == 0) {
-		line.assign(start, ptr);
-	}
-
-	return true;
-}
-
 std::string String::Heading(const std::string& text) {
 	if (HEADING_LENGTH < (int)text.length()) {
 		return text;

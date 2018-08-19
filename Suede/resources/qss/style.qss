@@ -37,7 +37,7 @@ QCheckBox {
     spacing: 2px;
     outline: none;
     color: #eff0f1;
-    margin-bottom: 2px;
+    margin-bottom: 0px;
 }
 
 QCheckBox:disabled {

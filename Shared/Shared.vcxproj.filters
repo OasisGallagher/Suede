@@ -531,12 +531,12 @@
     <ClInclude Include="debug\stackwalker.h">
       <Filter>debug\include</Filter>
     </ClInclude>
+    <ClInclude Include="tools\random.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tools\string.cpp">
-      <Filter>tools\src</Filter>
-    </ClCompile>
-    <ClCompile Include="tools\math2.cpp">
       <Filter>tools\src</Filter>
     </ClCompile>
     <ClCompile Include="memory\memory.cpp">

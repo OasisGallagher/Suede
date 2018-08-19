@@ -22,8 +22,6 @@ public:
 	static float ToFloat(const std::string& str);
 	static bool ToFloat(const std::string& str, float* single);
 
-	static bool SplitLine(const char*& ptr, std::string& line);
-
 	static bool IsBlankText(const char* text, const char** pos = nullptr);
 
 	static bool IsDigit(int c);

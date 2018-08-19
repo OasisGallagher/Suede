@@ -131,7 +131,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="memory\memory.cpp" />
     <ClCompile Include="memory\refcount.cpp" />
     <ClCompile Include="os\filesystem.cpp" />
-    <ClCompile Include="tools\math2.cpp" />
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -290,6 +289,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="tools\enum.h" />
     <ClInclude Include="tools\math2.h" />
     <ClInclude Include="tools\noncopyable.h" />
+    <ClInclude Include="tools\random.h" />
     <ClInclude Include="tools\singleton.h" />
     <ClInclude Include="tools\string.h" />
   </ItemGroup>

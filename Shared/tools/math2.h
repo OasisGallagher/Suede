@@ -1,4 +1,5 @@
 #pragma once
+#include <random>
 #include <intrin.h>
 
 #include "../types.h"
@@ -63,10 +64,6 @@ public:
 
 	static float Repeat(float t, float length);
 	static float PingPong(float t, float length);
-
-	template <class T>
-	static T Random(T min, T max);
-	static glm::vec3 RandomInsideSphere(float r);
 
 	template <class T>
 	static T Min(T x, T y);
@@ -228,27 +225,6 @@ inline float Math::PingPong(float t, float length) {
 	float T = fmod(t, L);
 	if (T >= 0 && T < length) { return T; }
 	return L - T;
-}
-
-template <class T>
-inline T Math::Random(T min, T max) {
-	return min + (rand() % (max - min + 1));
-}
-
-template <>
-inline float Math::Random(float min, float max) {
-	float random = ((float)rand()) / (float)RAND_MAX;
-	return (random * (max - min)) + min;
-}
-
-inline glm::vec3 Math::RandomInsideSphere(float r) {
-	// https://stackoverflow.com/questions/5408276/sampling-uniformly-distributed-random-points-inside-a-spherical-volume
-	float phi = Random(0.f, 2 * Math::Pi());
-	float theta = acosf(Random(-1.f, 1.f));
-	float u = Random(0.f, 1.f);
-
-	r *= powf(u, 1 / 3.f);
-	return r * glm::vec3(sinf(theta) * cosf(phi), sinf(theta) * sinf(phi), cosf(theta));
 }
 
 template <class T>

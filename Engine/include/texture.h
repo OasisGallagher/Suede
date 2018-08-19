@@ -52,16 +52,18 @@ enum TextureFormat {
 	TextureFormatRgba,
 	TextureFormatRgbS,
 	TextureFormatRgbaS,
-	TextureFormatRgb16,
-	TextureFormatRgb32,
-	TextureFormatRgba16,
-	TextureFormatRgba32,
+	TextureFormatRgb16F,
+	TextureFormatRgb32F,
+	TextureFormatRgba16F,
+	TextureFormatRgba32F,
 };
 
 enum ColorStreamFormat {
 	ColorStreamFormatRgb,
+	ColorStreamFormatRgbF,
 	ColorStreamFormatBgr,
 	ColorStreamFormatRgba,
+	ColorStreamFormatRgbaF,
 	ColorStreamFormatArgb,
 	ColorStreamFormatBgra,
 	ColorStreamFormatLuminanceAlpha,

@@ -127,11 +127,11 @@ BPPType TextureInternal::GLenumToBpp(GLenum format) const {
 GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
 	switch (textureFormat) {
 		case TextureFormatRgb: return GL_RGB;
-		case TextureFormatRgb16: return GL_RGB16F;
-		case TextureFormatRgb32: return GL_RGB32F;
+		case TextureFormatRgb16F: return GL_RGB16F;
+		case TextureFormatRgb32F: return GL_RGB32F;
 		case TextureFormatRgba: return GL_RGBA;
-		case TextureFormatRgba16: return GL_RGBA16F;
-		case TextureFormatRgba32: return GL_RGBA32F;
+		case TextureFormatRgba16F: return GL_RGBA16F;
+		case TextureFormatRgba32F: return GL_RGBA32F;
 		case TextureFormatRgbaS: return GL_RGBA_SNORM;
 		case TextureFormatRgbS: return GL_RGB_SNORM;
 	}
@@ -146,12 +146,20 @@ void TextureInternal::ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStr
 		case ColorStreamFormatRgb:
 			glFormat = GL_RGB;
 			break;
+		case ColorStreamFormatRgbF:
+			glFormat = GL_RGB;
+			glType = GL_FLOAT;
+			break;
 		case ColorStreamFormatBgr:
 			glFormat = GL_BGR;
 			break;
 		case ColorStreamFormatRgba:
 			glFormat = GL_RGBA;
 			break;
+		case ColorStreamFormatRgbaF:
+			glFormat = GL_RGBA;
+			glType = GL_FLOAT;
+			break; 
 		case ColorStreamFormatArgb:
 			glFormat = GL_BGRA;
 			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
