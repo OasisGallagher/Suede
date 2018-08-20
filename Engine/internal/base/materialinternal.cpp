@@ -27,9 +27,9 @@ Object MaterialInternal::Clone() {
 }
 
 void MaterialInternal::SetShader(Shader value) {
-	shader_ = value;
+	UpdateProperties(shader_, value);
 
-	InitializeProperties();
+	shader_ = value;
 	InitializeEnabledState();
 }
 
@@ -371,17 +371,32 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::InitializeProperties() {
+void MaterialInternal::UpdateProperties(Shader oldShader, Shader newShader) {
+	CopyProperties(oldShader, newShader);
+
+	Material _this = SharedThis();
+	SharedTextureManager::instance()->Attach(_this);
+}
+
+void MaterialInternal::CopyProperties(Shader oldShader, Shader newShader) {
 	std::vector<ShaderProperty> container;
-	shader_->GetProperties(container);
+	newShader->GetProperties(container);
 
 	properties_.clear();
 	for (int i = 0; i < container.size(); ++i) {
 		properties_[container[i].property->name] = container[i];
 	}
 
-	Material _this = SharedThis();
-	SharedTextureManager::instance()->Attach(_this);
+	if (oldShader) { oldShader->GetProperties(container); }
+
+	// TODO: Copy Properties...
+	for (int i = 0; i < container.size(); ++i) {
+		ShaderProperty& key = container[i];
+		PropertyContainer::iterator pos = properties_.find(key.property->name);
+		if (pos != properties_.end() && pos->second.property->value.GetType() == key.property->value.GetType()) {
+			pos->second.property->value = key.property->value;
+		}
+	}
 }
 
 void MaterialInternal::InitializeEnabledState() {

@@ -1,3 +1,7 @@
+#ifndef _FRAGMENT_SHADER
+	#error lit_fragment.inc must be included in fragment shader.
+#endif
+
 #ifndef _LIT_FRAGMENT_INCLUDED
 #define _LIT_FRAGMENT_INCLUDED
 
@@ -36,9 +40,8 @@ float _random(vec3 seed, int i){
 	return fract(sin(dp) * 43758.5453);
 }
 
-vec3 _CalcDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
-	vec3 ambient = /*_AmbientColor * */texture(_SSAOTexture, _FragTexCoord()).rgb;
-	return ambient;
+vec3 _CalcDirectionalLight(vec3 albedo, vec3 worldPos, vec3 worldNormal, float visibility) {
+	vec3 ambient = _AmbientColor * texture(_SSAOTexture, _FragTexCoord()).rgb;
 
 	float factor = clamp(dot(worldNormal, -_LightDir), 0, 1);
 	vec3 diffuse = vec3(_LightColor * factor);
@@ -47,9 +50,9 @@ vec3 _CalcDirectionalLight(vec3 worldPos, vec3 worldNormal, float visibility) {
 	vec3 reflectDir = normalize(reflect(_LightDir, worldNormal));
 	factor = clamp(dot(toEye, reflectDir), 0, 1);
 	factor = pow(factor, _Gloss);
-	vec3 specular = vec3(_LightColor * factor) * _SpecularColor;
+	vec3 specular = _LightColor * factor * _SpecularColor;
 
-	return ambient + _EmissiveColor + visibility * (diffuse + specular);
+	return albedo * (ambient + _EmissiveColor + visibility * diffuse) + visibility * specular;
 }
 
 #define _SHADOW_LEVEL	 0

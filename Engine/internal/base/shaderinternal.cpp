@@ -411,8 +411,9 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 		break;
 	default:
 		if (IsSampler(type)) {
-			if (textureUnitCount_ >= GLUtils::GetLimits(GLLimitsMaxTextureUnits)) {
-				Debug::LogError("too many textures.");
+			int limit = GLUtils::GetLimits(GLLimitsMaxCombinedTextureImageUnits);
+			if (textureUnitCount_ >= limit) {
+				Debug::LogError("too many textures. limit is %d.", limit);
 			}
 			else {
 				++textureUnitCount_;

@@ -1,9 +1,11 @@
 #include <QThread>
 #include <QSplitter>
+#include <QMessageBox>
 #include <QHeaderView>
 
 #include "console.h"
 #include "ui_suede.h"
+#include "debug/debug.h"
 
 Console::Console(QWidget* parent) : QDockWidget(parent) {
 }
@@ -121,4 +123,19 @@ void Console::showMessage(ConsoleMessageType type, const QString &message) {
 	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
 	ui_->table->setItem(r, 0, icon);
 	ui_->table->setItem(r, 1, text);
+
+	if (type == ConsoleMessageType::Error) {
+		onErrorMessage(message);
+	}
+}
+
+void Console::onErrorMessage(const QString& message) {
+	switch (QMessageBox::critical(this, "", message, QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore)) {
+		case QMessageBox::Retry:
+			Debug::Break();
+			break;
+		case QMessageBox::Abort:
+			TerminateProcess(GetCurrentProcess(), 0);
+			break;
+	}
 }

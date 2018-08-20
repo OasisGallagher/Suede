@@ -1,3 +1,7 @@
+#ifndef _VERTEX_SHADER
+	#error lit_vertex.inc must be included in vertex shader.
+#endif
+
 #ifndef _LIT_VERTEX_INCLUDED
 #define _LIT_VERTEX_INCLUDED
 

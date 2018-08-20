@@ -14,7 +14,7 @@
 #include "internal/base/renderdefines.h"
 
 MaterialAsset::MaterialAsset()
-	: twoSided(false), gloss(20), mainColor(1), name(UNNAMED_MATERIAL) {
+	: twoSided(false), gloss(50), mainColor(1), name(UNNAMED_MATERIAL) {
 	material = NewMaterial();
 	mainTexels = bumpTexels = specularTexels = emissiveTexels = lightmapTexels = nullptr;
 }

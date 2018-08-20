@@ -55,10 +55,11 @@ float saturate(float x) {
 
 #ifdef _VERTEX_SHADER
 #define _TANGENT_SPACE_ROTATION(mat) \
-			mat = mat3((_LocalToWorldMatrix * vec4(_Normal, 0)).xyz, \
-				(_LocalToWorldMatrix * vec4(_Tangent, 0)).xyz, \
-				vec3(0)); \
-			mat[2] = cross(mat[0], mat[1])
+			mat = mat3( \
+					normalize(mat3(_LocalToWorldMatrix) * _Tangent), \
+					vec3(0), \
+					normalize(mat3(_LocalToWorldMatrix) * _Normal)); \
+			mat[1] = normalize(cross(mat[2], mat[0]))
 
 #define _DEF_TANGENT_SPACE_ROTATION(variableName) \
 		mat3 variableName; \

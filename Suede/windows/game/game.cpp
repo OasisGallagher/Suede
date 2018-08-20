@@ -32,7 +32,7 @@
 #include "scripts/gaussianblur.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
@@ -42,10 +42,11 @@
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 // #define FONT
-//#define BUMPED
+#define BUMPED
 //#define DEFERRED_RENDERING
 
 static const char* roomFbxPath = "nanosuit.fbx";
+static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
@@ -153,6 +154,23 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}
+	}
+
+	if (path == bumpedFbxPath) {
+		root->GetTransform()->SetPosition(glm::vec3(0, 25, -15));
+
+		Entity target = root->GetTransform()->FindChild("Sphere01")->GetEntity();
+		Material material = target->GetRenderer()->GetMaterial(0);
+
+		material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
+
+		Texture2D diffuse = NewTexture2D();
+		diffuse->Create("bumped/diffuse.jpg");
+		material->SetTexture(Variables::MainTexture, diffuse);
+
+		Texture2D normal = NewTexture2D();
+		normal->Create("bumped/normal.jpg");
+		material->SetTexture(Variables::BumpTexture, normal);
 	}
 }
 
@@ -438,6 +456,10 @@ void Game::createScene() {
 #ifdef ROOM
 	Entity room = World::instance()->Import(roomFbxPath, this);
 	roomEntityID = room->GetInstanceID();
+#endif
+
+#ifdef BUMPED
+	Entity bumped = World::instance()->Import(bumpedFbxPath, this);
 #endif
 
 #ifdef BEAR

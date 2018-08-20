@@ -68,7 +68,9 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void InitializeProperties();
+	void UpdateProperties(Shader oldShader, Shader newShader);
+	void CopyProperties(Shader oldShader, Shader newShader);
+
 	void InitializeEnabledState();
 
 	Variant* GetProperty(const std::string& name, VariantType type);

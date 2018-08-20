@@ -36,9 +36,10 @@ private:
 	void filterMessageByType(int mask);
 	void filterMessageBySubString(const QString& substr);
 
+	void flushMessages();
+	void onErrorMessage(const QString& message);
 	void showMessage(const QString& encodedMessage);
 	void showMessage(ConsoleMessageType type, const QString &message);
-	void flushMessages();
 
 	const char* messageIconPath(ConsoleMessageType type);
 

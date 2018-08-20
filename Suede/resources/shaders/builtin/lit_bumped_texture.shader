@@ -1,6 +1,9 @@
 Properties { }
 SubShader {
 	Pass {
+		ZTest LEqual;
+		Blend SrcAlpha OneMinusSrcAlpha;
+
 		GLSLPROGRAM
 		#stage vertex
 		in vec3 _Pos;
@@ -12,19 +15,17 @@ SubShader {
 		out vec3 worldPos;
 		out mat3 tangentToWorldMatrix;
 
-		uniform mat4 _LocalToClipMatrix;
-		uniform mat4 _LocalToWorldMatrix;
+		#include "builtin/include/suede.inc"
+		#include "builtin/include/lit_vertex.inc"
 
 		void main() {
 			texCoord = _TexCoord;
 			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 
-			vec3 worldNormal = (_LocalToWorldMatrix * vec4(_Normal, 0)).xyz;
-			vec3 worldTangent = (_LocalToWorldMatrix * vec4(_Tangent, 0)).xyz;
-			vec3 worldBitangent = cross(worldNormal, worldTangent);
-			
-			vec3 bitangent = cross(_Normal, _Tangent);
-			tangentToWorldMatrix = mat3(worldTangent, worldBitangent, worldNormal);
+			_CALC_FOG_PARAMS();
+			_CALC_SHADOW_COORD();
+
+			_TANGENT_SPACE_ROTATION(tangentToWorldMatrix);
 
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
@@ -39,14 +40,17 @@ SubShader {
 		uniform sampler2D _MainTexture;
 		uniform sampler2D _BumpTexture;
 
-		#include "builtin/include/light.inc"
+		#include "builtin/include/suede.inc"
+		#include "builtin/include/lit_fragment.inc"
 
 		void main() {
 			vec3 normal = texture(_BumpTexture, texCoord).xyz;
-			normal = tangentToWorldMatrix * normal;
+			normal = normalize(tangentToWorldMatrix * normal);
 
 			vec4 albedo = texture(_MainTexture, texCoord);
-			fragColor = albedo * vec4(_CalcDirectionalLight(worldPos, normalize(normal)), 1);
+			float visibility = _CalcShadowVisibility(worldPos);
+			fragColor = vec4(_CalcDirectionalLight(albedo.xyz, worldPos, normal, visibility), albedo.a);
+			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
 		}
 		
 		ENDGLSL

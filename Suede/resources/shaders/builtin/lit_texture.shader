@@ -7,6 +7,42 @@ SubShader {
 	Tags { 
 		Queue = "Transparent";
 	}
+
+	Pass "Outline" false {
+		Cull Front;
+		ZWrite Off;
+		Offset 100 100;
+
+		//StencilTest NotEqual 1 0xFF;
+		//StencilWrite Off;
+
+		GLSLPROGRAM
+
+		#stage vertex
+		#include "builtin/include/suede.inc"
+
+		in vec3 _Pos;
+		in vec3 _Normal;
+
+		uniform float outlineFactor;
+		void main() {
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
+
+			vec3 normal = transpose(inverse(mat3(_WorldToCameraMatrix * _LocalToWorldMatrix))) * _Normal;
+			vec2 offset = mat2(_CameraToClipMatrix) * normal.xy;
+			gl_Position.xy += offset * outlineFactor;
+		}
+
+		#stage fragment
+		out vec4 fragColor;
+		
+		uniform vec3 outlineColor;
+		void main() {
+			fragColor = vec4(outlineColor, 1);
+		}
+
+		ENDGLSL
+	}
 	
 	Pass {
 		//ZWrite On;
@@ -59,7 +95,7 @@ SubShader {
 		void main() {
 			vec4 albedo = texture(_MainTexture, texCoord) * _MainColor;
 			float visibility = _CalcShadowVisibility(worldPos);
-			fragColor = albedo * vec4(_CalcDirectionalLight(worldPos, normalize(normal), visibility), 1);
+			fragColor = vec4(_CalcDirectionalLight(albedo.xyz, worldPos, normalize(normal), visibility), albedo.a);
 			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
 		}
 

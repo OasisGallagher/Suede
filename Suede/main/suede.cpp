@@ -1,7 +1,6 @@
 #include <QMenuBar>
 #include <QKeyEvent>
 #include <QStatusBar>
-#include <QMessageBox>
 #include <QFileDialog>
 #include <QStandardPaths>
 
@@ -177,31 +176,22 @@ void Suede::onScreenCapture() {
 }
 
 void Suede::OnLogMessage(LogLevel level, const char* message) {
+	ConsoleMessageType type;
 	switch (level) {
 		case LogLevelDebug:
-			Console::instance()->addMessage(ConsoleMessageType::Debug, message);
+			type = ConsoleMessageType::Debug;
 			break;
 
 		case LogLevelWarning:
-			Console::instance()->addMessage(ConsoleMessageType::Warning, message);
+			type = ConsoleMessageType::Warning;
 			break;
 
 		case LogLevelError:
-			onErrorMessage(message);
-			Console::instance()->addMessage(ConsoleMessageType::Error, message);
+			type = ConsoleMessageType::Error;
 			break;
 	}
-}
 
-void Suede::onErrorMessage(const char* message) {
-	switch (QMessageBox::critical(this, "", message, QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore)) {
-		case QMessageBox::Retry:
-			Debug::Break();
-			break;
-		case QMessageBox::Abort:
-			TerminateProcess(GetCurrentProcess(), 0);
-			break;
-	}
+	Console::instance()->addMessage(type, message);
 }
 
 void Suede::initializeFileMenu() {
