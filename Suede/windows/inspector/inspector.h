@@ -20,11 +20,15 @@ public:
 public:
 	virtual void init(Ui::Suede* ui);
 	virtual void awake();
+	virtual void tick() {}
+
+public:
+	void __updateGL();
 
 public:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
 
-private slots:
+	private slots:
 	void onNameChanged();
 
 	void onTagChanged(int index);

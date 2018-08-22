@@ -563,6 +563,9 @@
     <CustomBuild Include="widgets\fields\rangefield.h">
       <Filter>widgets\fields\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\inspector\oglwidget.h">
+      <Filter>windows\inspector\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">

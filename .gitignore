@@ -21,3 +21,5 @@ OGLdpf.log
 /Engine/*.user
 __pycache__
 /Suede/pipeline_dump.txt
+/Suede/lib/Shared.lib
+/Suede/lib/Engine.lib
