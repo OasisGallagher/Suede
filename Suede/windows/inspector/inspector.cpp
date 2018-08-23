@@ -5,16 +5,21 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 
+#include <gl/glew.h>
+#include <qtimgui/QtImGui.h>
+
 #include "custom/meshinspector.h"
 #include "custom/lightinspector.h"
 #include "custom/camerainspector.h"
 #include "custom/rendererinspector.h"
 #include "custom/projectorinspector.h"
 
+ImFont* imguiFont = nullptr;
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
 
 Inspector::~Inspector() {
+	QtImGui::destroy();
 }
 
 void Inspector::init(Ui::Suede* ui) {
@@ -39,11 +44,92 @@ void Inspector::init(Ui::Suede* ui) {
 }
 
 void Inspector::awake() {
+	QtImGui::initialize(ui_->view);
+	
+	imguiFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:/Users/liam.wang/Desktop/tahoma.ttf", 14);
+
 	World::instance()->AddEventListener(this);
 }
 
 void Inspector::__updateGL() {
-	ui_->view->update();
+	bool show_test_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImColor(114, 144, 154);
+
+	ui_->view->makeCurrent();
+
+	glewInit();
+
+	QtImGui::newFrame();
+
+	ImGui::PushFont(imguiFont);
+
+	const int windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar;
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(35 / 255.f, 38 / 255.f, 41 / 255.f, 1));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+	ImGui::SetNextWindowPos(ImVec2(0, 0));
+	ImGui::SetNextWindowSize(ImVec2(ui_->view->width(), ui_->view->height()), ImGuiCond_FirstUseEver);
+	ImGui::Begin("ImGui Demo", nullptr, windowFlags);
+	//ImGui::BeginChild("Child", ImVec2(ui_->view->width(), ui_->view->height()), false, windowFlags);
+
+	if (target_) {
+		static float f = 0;
+		for (int i = 0; i < 20; ++i) {
+			ImGui::Text("Hello, world!");
+			glm::vec3 pos = target_->GetTransform()->GetPosition();
+			if (ImGui::DragFloat3("P", (float*)&pos, 2)) {
+				target_->GetTransform()->SetPosition(pos);
+			}
+
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+		}
+	}
+
+	//ImGui::EndChild();
+	ImGui::End();
+	ImGui::PopStyleColor();
+	ImGui::PopStyleVar();
+	ImGui::PopStyleVar();
+
+	ImGui::PopFont();
+
+	/*
+	// 1. Show a simple window
+	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+	{
+		static float f = 0.0f;
+		ImGui::Text("Hello, world!");
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+		ImGui::ColorEdit3("clear color", (float*)&clear_color);
+		if (ImGui::Button("Test Window")) show_test_window ^= 1;
+		if (ImGui::Button("Another Window")) show_another_window ^= 1;
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	}
+
+	// 2. Show another simple window, this time using an explicit Begin/End pair
+	if (show_another_window) {
+		ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+		ImGui::Begin("Another Window", &show_another_window);
+		ImGui::Text("Hello");
+		ImGui::End();
+	}
+
+	// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+	if (show_test_window) {
+		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
+		ImGui::ShowTestWindow();
+	}
+	*/
+	// Do render before ImGui UI is rendered
+	//glViewport(0, 0, width(), height());
+	//glClearColor(35.f / 255, 38.f / 255, 41.f / 255, 1);
+	//glClear(GL_COLOR_BUFFER_BIT);
+
+	ImGui::Render();
+
+	ui_->view->swapBuffers();
+	ui_->view->doneCurrent();
 }
 
 void Inspector::OnWorldEvent(WorldEventBasePointer e) {

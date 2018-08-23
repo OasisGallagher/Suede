@@ -4,7 +4,7 @@
 #include <QPoint>
 #include <imgui.h>
 #include <memory>
-#include <QOpenGLExtraFunctions>
+#include <GL/glew.h>
 
 class QMouseEvent;
 class QWheelEvent;
@@ -22,7 +22,7 @@ public:
     virtual QPoint mapFromGlobal(const QPoint &p) const = 0;
 };
 
-class ImGuiRenderer : public QObject, QOpenGLExtraFunctions {
+class ImGuiRenderer : public QObject {
     Q_OBJECT
 public:
     void initialize(WindowWrapper *window);

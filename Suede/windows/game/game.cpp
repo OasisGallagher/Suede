@@ -2,8 +2,8 @@
 #include <QToolBar>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "canvas.h"
 #include "ui_suede.h"
+#include "canvas.h"
 #include "widgets/status/status.h"
 #include "widgets/status/statswidget.h"
 

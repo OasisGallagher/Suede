@@ -28,13 +28,12 @@ void GraphicsViewer::Run() {
 
 		if (canvas_ != nullptr) {
 			Update();
-			/*canvas_->MakeCurrent();*/
-
+			canvas_->MakeCurrent();
 			PollEvents();
-			//Engine::instance()->Update();
+			Engine::instance()->Update();
 
-// 			canvas_->SwapBuffers();
-// 			canvas_->DoneCurrent();
+ 			canvas_->SwapBuffers();
+ 			canvas_->DoneCurrent();
 		}
 
 // 		next_game_tick += SKIP_TICKS;
