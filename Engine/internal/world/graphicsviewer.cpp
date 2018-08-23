@@ -27,9 +27,9 @@ void GraphicsViewer::Run() {
 // 		int next_game_tick = GetTickCount();
 
 		if (canvas_ != nullptr) {
-			Update();
 			canvas_->MakeCurrent();
-			PollEvents();
+
+			Update();
 			Engine::instance()->Update();
 
  			canvas_->SwapBuffers();

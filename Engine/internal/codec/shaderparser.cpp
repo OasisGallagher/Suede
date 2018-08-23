@@ -241,9 +241,6 @@ void GLSLParser::SetCurrentShaderStageCode() {
 		String::Format(defines_.c_str(), GetShaderDescription(type_).shaderNameDefine)
 		+ source_;		// GLSL source code.
 
-	std::ofstream ofs(FileSystem::GetFileNameWithoutExtension(currentFile_) + "_" + GetShaderDescription(type_).tag + ".txt");
-	ofs << answer_[type_];
-	ofs.close();
 	source_.clear();
 }
 

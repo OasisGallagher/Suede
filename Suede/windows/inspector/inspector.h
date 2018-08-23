@@ -10,7 +10,7 @@
 
 class CustomInspector;
 
-class Inspector : public QDockWidget, public WinSingleton<Inspector>, public WorldEventListener {
+class Inspector : public QDockWidget, public WinSingleton<Inspector> {
 	Q_OBJECT
 
 public:
@@ -20,42 +20,27 @@ public:
 public:
 	virtual void init(Ui::Suede* ui);
 	virtual void awake();
-	virtual void tick() {}
+	virtual void tick();
 
-public:
-	void __updateGL();
 
-public:
-	virtual void OnWorldEvent(WorldEventBasePointer e);
-
-	private slots:
-	void onNameChanged();
-
-	void onTagChanged(int index);
-	void onActiveChanged(int state);
-
-	void onPositionChanged(const glm::vec3& value);
-	void onRotationChanged(const glm::vec3& value);
-	void onScaleChanged(const glm::vec3& value);
-
+private slots:
 	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
-	void onResetButtonClicked();
 
 private:
-	void showView(bool show);
+	void onGui();
+	void drawGui();
 
 	void addInspector(CustomInspector* inspector);
-	void destroyInspectors();
 
-	void redraw();
-
+	void drawBasics();
 	void drawTags();
 	void drawTransform();
-	void drawInspectors();
+	void drawComponents();
 
-	void onEntityTransformChanged(Entity target, uint prs);
-
+	void drawCamera();
 private:
 	Entity target_;
-	QList<CustomInspector*> inspectors_;
+	char namebuffer_[256];
+
+	struct ImFont* imguiFont_;
 };

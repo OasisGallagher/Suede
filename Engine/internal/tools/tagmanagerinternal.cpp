@@ -4,7 +4,7 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 
-static const char* defaultTags[] = { "" };
+static const char* defaultTags[] = { "DefaultTag0", "DefaultTag1", "DefaultTag2" };
 
 TagManagerInternal::TagManagerInternal() : tagContainer(defaultTags, defaultTags + CountOf(defaultTags)) {
 }

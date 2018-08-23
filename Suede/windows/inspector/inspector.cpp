@@ -14,8 +14,8 @@
 #include "custom/rendererinspector.h"
 #include "custom/projectorinspector.h"
 
-ImFont* imguiFont = nullptr;
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
+	memset(namebuffer_, 0, sizeof(namebuffer_));
 }
 
 Inspector::~Inspector() {
@@ -27,42 +27,26 @@ void Inspector::init(Ui::Suede* ui) {
 
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
-
-	// 	showView(false);
-	// 
-	// 	connect(ui_->name, SIGNAL(editingFinished()), this, SLOT(onNameChanged()));
-	// 	connect(ui_->tag, SIGNAL(currentIndexChanged(int)), this, SLOT(onTagChanged(int)));
-	// 	connect(ui_->active, SIGNAL(stateChanged(int)), this, SLOT(onActiveChanged(int)));
-	// 
-	// 	connect(ui_->position, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onPositionChanged(const glm::vec3&)));
-	// 	connect(ui_->rotation, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onRotationChanged(const glm::vec3&)));
-	// 	connect(ui_->scale, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onScaleChanged(const glm::vec3&)));
-	// 
-	// 	connect(ui_->p0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
-	// 	connect(ui_->r0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
-	// 	connect(ui_->s0, SIGNAL(clicked()), this, SLOT(onResetButtonClicked()));
 }
 
 void Inspector::awake() {
 	QtImGui::initialize(ui_->view);
-	
-	imguiFont = ImGui::GetIO().Fonts->AddFontFromFileTTF("C:/Users/liam.wang/Desktop/tahoma.ttf", 14);
+	ui_->view->setFocusPolicy(Qt::StrongFocus);
 
-	World::instance()->AddEventListener(this);
+	imguiFont_ = ImGui::GetIO().Fonts->AddFontFromFileTTF("resources/fonts/tahoma.ttf", 14);
 }
 
-void Inspector::__updateGL() {
-	bool show_test_window = true;
-	bool show_another_window = false;
-	ImVec4 clear_color = ImColor(114, 144, 154);
+void Inspector::tick() {
+	onGui();
+}
 
+void Inspector::onGui() {
+	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
 	ui_->view->makeCurrent();
-
-	glewInit();
 
 	QtImGui::newFrame();
 
-	ImGui::PushFont(imguiFont);
+	ImGui::PushFont(imguiFont_);
 
 	const int windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar;
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(35 / 255.f, 38 / 255.f, 41 / 255.f, 1));
@@ -70,23 +54,10 @@ void Inspector::__updateGL() {
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(ImVec2(ui_->view->width(), ui_->view->height()), ImGuiCond_FirstUseEver);
-	ImGui::Begin("ImGui Demo", nullptr, windowFlags);
-	//ImGui::BeginChild("Child", ImVec2(ui_->view->width(), ui_->view->height()), false, windowFlags);
+	ImGui::Begin("", nullptr, windowFlags);
 
-	if (target_) {
-		static float f = 0;
-		for (int i = 0; i < 20; ++i) {
-			ImGui::Text("Hello, world!");
-			glm::vec3 pos = target_->GetTransform()->GetPosition();
-			if (ImGui::DragFloat3("P", (float*)&pos, 2)) {
-				target_->GetTransform()->SetPosition(pos);
-			}
+	if (target_) { drawGui(); }
 
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		}
-	}
-
-	//ImGui::EndChild();
 	ImGui::End();
 	ImGui::PopStyleColor();
 	ImGui::PopStyleVar();
@@ -130,173 +101,147 @@ void Inspector::__updateGL() {
 
 	ui_->view->swapBuffers();
 	ui_->view->doneCurrent();
-}
 
-void Inspector::OnWorldEvent(WorldEventBasePointer e) {
-	EntityTransformChangedEventPointer tcp = suede_static_cast<EntityTransformChangedEventPointer>(e);
-	switch (e->GetEventType()) {
-		case WorldEventTypeEntityTransformChanged:
-			onEntityTransformChanged(tcp->entity, tcp->prs);
-			break;
+	if (oldContext != nullptr) {
+		oldContext->makeCurrent();
 	}
 }
 
-void Inspector::onPositionChanged(const glm::vec3& value) {
-	target_->GetTransform()->SetLocalPosition(value);
+void Inspector::drawGui() {
+	drawBasics();
+	drawTransform();
+	drawComponents();
 }
 
-void Inspector::onRotationChanged(const glm::vec3& value) {
-	target_->GetTransform()->SetLocalEulerAngles(value);
-}
-
-void Inspector::onScaleChanged(const glm::vec3& value) {
-	target_->GetTransform()->SetLocalScale(value);
-}
-
-void Inspector::onResetButtonClicked() {
-	// 	QObject* s = sender();
-	// 	if (s == ui_->p0) {
-	// 		target_->GetTransform()->SetLocalPosition(glm::vec3(0));
-	// 	}
-	// 	else if (s == ui_->r0) {
-	// 		target_->GetTransform()->SetLocalEulerAngles(glm::vec3(0));
-	// 	}
-	// 	else {
-	// 		target_->GetTransform()->SetLocalScale(glm::vec3(1));
-	// 	}
-	// 
-	// 	drawTransform();
-}
-
-void Inspector::onNameChanged() {
-	//target_->SetName(ui_->name->text().toStdString());
-}
-
-void Inspector::onTagChanged(int index) {
-	QString tag;
-	if (index >= 0) {
-		std::vector<std::string> tags;
-		TagManager::instance()->GetAllTags(tags);
-
-		tag = tags[index].c_str();
+void Inspector::drawBasics() {
+	bool active = target_->GetActive();
+	if (ImGui::Checkbox("Active", &active)) {
+		target_->SetActiveSelf(active);
 	}
 
-	target_->SetTag(tag.toStdString());
-}
+	ImGui::SameLine();
 
-void Inspector::onActiveChanged(int state) {
-	target_->SetActiveSelf(!!state);
+	strncpy(namebuffer_, target_->GetName().c_str(), CountOf(namebuffer_) - 1);
+	if (ImGui::InputText("Name", namebuffer_, CountOf(namebuffer_))) {
+		target_->SetName(namebuffer_);
+	}
+
+	drawTags();
 }
 
 void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
 	// TODO: multi-selection.
 	if (!selected.empty()) {
 		target_ = selected.front();
-		redraw();
 	}
 	else {
 		target_ = nullptr;
-		showView(false);
-	}
-}
-
-void Inspector::showView(bool show) {
-	const QObjectList& list = ui_->inspectorView->children();
-	for (int i = 0; i < list.size(); ++i) {
-		if (list[i]->isWidgetType()) {
-			((QWidget*)list[i])->setVisible(show);
-		}
 	}
 }
 
 void Inspector::addInspector(CustomInspector* inspector) {
-	// 	ui_->content->insertWidget(ui_->content->count() - 1, inspector);
-	// 	inspectors_.push_back(inspector);
 }
 
-void Inspector::destroyInspectors() {
-	qDeleteAll(inspectors_);
-	inspectors_.clear();
-}
-
-void Inspector::redraw() {
-	// 	showView(true);
-	// 
-	// 	ui_->name->setText(target_->GetName().c_str());
-	// 	ui_->active->setChecked(target_->GetActiveSelf());
-	// 
-	// 	drawTags();
-	// 	drawTransform();
-	// 	drawInspectors();
-}
-
-void Inspector::drawInspectors() {
-	destroyInspectors();
-
+void Inspector::drawComponents() {
 	switch (target_->GetType()) {
 		case ObjectTypeCamera:
-			addInspector(new CameraInspector(target_));
-			break;
-		case ObjectTypeProjector:
-			addInspector(new ProjectorInspector(target_));
-			break;
-		case ObjectTypeSpotLight:
-		case ObjectTypePointLight:
-		case ObjectTypeDirectionalLight:
-			addInspector(new LightInspector(target_));
+			drawCamera();
 			break;
 	}
+	//switch (target_->GetType()) {
+	//	case ObjectTypeCamera:
+	//		addInspector(new CameraInspector(target_));
+	//		break;
+	//	case ObjectTypeProjector:
+	//		addInspector(new ProjectorInspector(target_));
+	//		break;
+	//	case ObjectTypeSpotLight:
+	//	case ObjectTypePointLight:
+	//	case ObjectTypeDirectionalLight:
+	//		addInspector(new LightInspector(target_));
+	//		break;
+	//}
 
-	if (target_->GetMesh()) {
-		addInspector(new MeshInspector(target_->GetMesh()));
+	//if (target_->GetMesh()) {
+	//	addInspector(new MeshInspector(target_->GetMesh()));
+	//}
+
+	//if (target_->GetRenderer()) {
+	//	addInspector(new RendererInspector(target_->GetRenderer()));
+	//}
+}
+
+void Inspector::drawCamera() {
+	Camera camera = suede_dynamic_cast<Camera>(target_);
+
+	int selected = -1;
+	std::vector<char> buffer;
+	for (int i = 0; i < ClearType::size(); ++i) {
+		if (!buffer.empty()) { buffer.push_back(0); }
+		if (camera->GetClearType() == ClearType::value(i)) {
+			selected = i;
+		}
+
+		const char* str = ClearType::value(i).to_string();
+		buffer.insert(buffer.end(), str, str + strlen(str));
 	}
 
-	if (target_->GetRenderer()) {
-		addInspector(new RendererInspector(target_->GetRenderer()));
+	buffer.push_back(0);
+	buffer.push_back(0);
+
+	if (ImGui::Combo("ClearType", &selected, buffer.data())) {
+		camera->SetClearType(ClearType::value(selected));
+	}
+
+	float fieldOfView = camera->GetFieldOfView();
+	if (ImGui::SliderFloat("FieldOfView", &fieldOfView, 1, 179)) {
+		camera->SetFieldOfView(fieldOfView);
 	}
 }
 
 void Inspector::drawTransform() {
-	// 	ui_->position->blockSignals(true);
-	// 	ui_->position->setValue(target_->GetTransform()->GetLocalPosition());
-	// 	ui_->position->blockSignals(false);
-	// 
-	// 	ui_->rotation->blockSignals(true);
-	// 	ui_->rotation->setValue(target_->GetTransform()->GetLocalEulerAngles());
-	// 	ui_->rotation->blockSignals(false);
-	// 
-	// 	ui_->scale->blockSignals(true);
-	// 	ui_->scale->setValue(target_->GetTransform()->GetLocalScale());
-	// 	ui_->scale->blockSignals(false);
-}
+	ImGui::Separator();
+	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+		glm::vec3 v3 = target_->GetTransform()->GetLocalPosition();
+		if (ImGui::DragFloat3("P", (float*)&v3, 2)) {
+			target_->GetTransform()->SetPosition(v3);
+		}
 
-#include "time2.h"
-void Inspector::drawTags() {
-	// 	QStringList items;
-	// 	Time::instance()->GetDeltaTime();
-	// 	int tagIndex = -1;
-	// 	std::vector<std::string> tags;
-	// 	TagManager::instance()->GetAllTags(tags);
-	// 	for (int i = 0; i < tags.size(); ++i) {
-	// 		const std::string& str = tags[i];
-	// 		if (tagIndex == -1 && str == target_->GetTag()) {
-	// 			tagIndex = i;
-	// 		}
-	// 
-	// 		items.push_back(str.c_str());
-	// 	}
-	// 
-	// 	ui_->tag->blockSignals(true);
-	// 
-	// 	ui_->tag->clear();
-	// 	ui_->tag->addItems(items);
-	// 	ui_->tag->setCurrentIndex(tagIndex);
-	// 
-	// 	ui_->tag->blockSignals(false);
-}
+		v3 = target_->GetTransform()->GetLocalEulerAngles();
+		if (ImGui::DragFloat3("R", (float*)&v3, 2)) {
+			target_->GetTransform()->SetLocalEulerAngles(v3);
+		}
 
-void Inspector::onEntityTransformChanged(Entity target, uint prs) {
-	if (target == target_ && Math::Highword(prs) == 1) {
-		drawTransform();
+		v3 = target_->GetTransform()->GetLocalScale();
+		if (ImGui::DragFloat3("S", (float*)&v3, 2)) {
+			target_->GetTransform()->SetLocalScale(v3);
+		}
 	}
+}
+
+void Inspector::drawTags() {
+	/*
+	int tagIndex = -1;
+	std::vector<std::string> tags;
+	TagManager::instance()->GetAllTags(tags);
+	std::vector<char> line;
+	for (int i = 0; i < tags.size(); ++i) {
+		const std::string& str = tags[i];
+		if (tagIndex == -1 && str == target_->GetTag()) {
+			tagIndex = i;
+		}
+		if (i != 0) {
+			line.push_back(0);
+		}
+
+		line.insert(line.end(), str.begin(), str.end());
+	}
+
+	line.push_back(0);
+	line.push_back(0);
+
+	if (ImGui::Combo("Tag", &tagIndex, &line[0])) {
+		target_->SetTag(tags[tagIndex]);
+	}
+	*/
 }

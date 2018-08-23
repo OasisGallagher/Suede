@@ -18,13 +18,7 @@ protected:
 	virtual void resizeGL(int w, int h);
 
 protected:
-	virtual void MakeCurrent() {
-		makeCurrent(); 		
-		GLenum status = glewInit();
-		if (status != GLEW_OK) {
-			return;
-		}
-	}
+	virtual void MakeCurrent() { makeCurrent(); }
 	virtual void DoneCurrent() { doneCurrent(); }
 	virtual void SwapBuffers() { swapBuffers(); }
 	virtual uint GetWidth() { return width(); }

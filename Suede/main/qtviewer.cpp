@@ -32,15 +32,8 @@ QtViewer::~QtViewer() {
 }
 
 void QtViewer::Update() {
-	Inspector::instance()->__updateGL();
-	suede_->tick();
-}
-
-void QtViewer::PollEvents() {
-	glClearColor(1, 1, 1, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	app_.processEvents();
+	suede_->tick();
 }
 
 QList<QString> QtViewer::builtinSkinNames() {
