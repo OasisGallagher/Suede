@@ -444,6 +444,7 @@
     <ClCompile Include="windows\inspector\custom\meshinspector.cpp" />
     <ClCompile Include="windows\inspector\custom\projectorinspector.cpp" />
     <ClCompile Include="windows\inspector\custom\rendererinspector.cpp" />
+    <ClCompile Include="windows\inspector\gui\gui.cpp" />
     <ClCompile Include="windows\inspector\inspector.cpp" />
     <ClCompile Include="windows\lighting\lighting.cpp" />
   </ItemGroup>
@@ -633,6 +634,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
     </CustomBuild>
     <CustomBuild Include="windows\inspector\oglwidget.h" />
+    <ClInclude Include="windows\inspector\gui\gui.h" />
     <ClInclude Include="windows\winbase.h" />
     <ClInclude Include="GeneratedFiles\ui_aboutdialog.h" />
     <ClInclude Include="GeneratedFiles\ui_statswidget.h" />
@@ -1155,6 +1157,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
     </CustomBuild>
+    <None Include="windows\inspector\gui\gui.inl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc" />

@@ -1,5 +1,4 @@
 #pragma once
-#include <gl/glew.h>
 #include <QtOpenGL/QGLWidget>
 #include "graphicscanvas.h"
 
@@ -21,6 +20,7 @@ protected:
 	virtual void MakeCurrent() { makeCurrent(); }
 	virtual void DoneCurrent() { doneCurrent(); }
 	virtual void SwapBuffers() { swapBuffers(); }
+
 	virtual uint GetWidth() { return width(); }
 	virtual uint GetHeight() { return height(); }
 };

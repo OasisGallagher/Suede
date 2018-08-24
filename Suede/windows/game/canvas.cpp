@@ -1,13 +1,9 @@
-#include <QSurfaceFormat>
+#include <gl/glew.h>
 #include "canvas.h"
 
-static bool glInitCalled = false;
 Canvas::Canvas(QWidget *parent) : QGLWidget(parent) {
-	if (!glInitCalled) {
-		glInit();
-		setAutoBufferSwap(false);
-		glInitCalled = true;
-	}
+	glInit();
+	setAutoBufferSwap(false);
 }
 
 void Canvas::resizeGL(int w, int h) {

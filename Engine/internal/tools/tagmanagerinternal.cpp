@@ -6,23 +6,25 @@
 
 static const char* defaultTags[] = { "DefaultTag0", "DefaultTag1", "DefaultTag2" };
 
-TagManagerInternal::TagManagerInternal() : tagContainer(defaultTags, defaultTags + CountOf(defaultTags)) {
+TagManagerInternal::TagManagerInternal() : tags(defaultTags, defaultTags + CountOf(defaultTags)) {
 }
 
 void TagManagerInternal::Register(const std::string& name) {
-	if (!tagContainer.insert(name).second) {
+	if (!IsRegistered(name)) {
 		Debug::LogError("duplicate tag %s.", name.c_str());
+	}
+	else {
+		tags.push_back(name);
 	}
 }
 
 void TagManagerInternal::Unregister(const std::string& name) {
-	tagContainer.erase(name);
+	Tags::iterator pos = std::find(tags.begin(), tags.end(), name);
+	if (pos != tags.end()) {
+		tags.erase(pos);
+	}
 }
 
 bool TagManagerInternal::IsRegistered(const std::string& name) {
-	return tagContainer.count(name) != 0;
-}
-
-void TagManagerInternal::GetAllTags(std::vector<std::string>& container) {
-	container.assign(tagContainer.begin(), tagContainer.end());
+	return std::find(tags.begin(), tags.end(), name) != tags.end();
 }

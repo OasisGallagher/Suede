@@ -151,6 +151,15 @@
     <Filter Include="windows\game\include">
       <UniqueIdentifier>{dd5cf3eb-91ff-4764-8c4b-0d04ecb8853f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="windows\inspector\gui">
+      <UniqueIdentifier>{783e02c0-285d-4f02-a142-e0b65541a130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\gui\include">
+      <UniqueIdentifier>{eebdd089-248e-4583-8c61-3c9da98834de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\gui\src">
+      <UniqueIdentifier>{3f70b34a-11a4-4d32-a2ad-f1b81cb04df5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -450,6 +459,9 @@
     <ClCompile Include="widgets\fields\rangefield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>
+    <ClCompile Include="windows\inspector\gui\gui.cpp">
+      <Filter>windows\inspector\gui\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ui\suede.ui">
@@ -604,6 +616,9 @@
     <ClInclude Include="main\prefs.h">
       <Filter>main\include</Filter>
     </ClInclude>
+    <ClInclude Include="windows\inspector\gui\gui.h">
+      <Filter>windows\inspector\gui\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\grayscale.shader">
@@ -677,6 +692,9 @@
     </None>
     <None Include="resources\shaders\builtin\ssao_traversal.shader">
       <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="windows\inspector\gui\gui.inl">
+      <Filter>windows\inspector\gui\include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

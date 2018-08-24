@@ -1,25 +1,21 @@
 #include "inspector.h"
 
+#include <gl/glew.h>
+
+#include <QFileDialog>
+
+#include "gui/gui.h"
 #include "ui_suede.h"
+
+#include "resources.h"
 #include "tagmanager.h"
-#include "debug/debug.h"
 #include "tools/math2.h"
 
-#include <gl/glew.h>
-#include <qtimgui/QtImGui.h>
-
-#include "custom/meshinspector.h"
-#include "custom/lightinspector.h"
-#include "custom/camerainspector.h"
-#include "custom/rendererinspector.h"
-#include "custom/projectorinspector.h"
-
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
-	memset(namebuffer_, 0, sizeof(namebuffer_));
 }
 
 Inspector::~Inspector() {
-	QtImGui::destroy();
+	GUI::destroy();
 }
 
 void Inspector::init(Ui::Suede* ui) {
@@ -30,10 +26,11 @@ void Inspector::init(Ui::Suede* ui) {
 }
 
 void Inspector::awake() {
-	QtImGui::initialize(ui_->view);
-	ui_->view->setFocusPolicy(Qt::StrongFocus);
+	view_ = new QGLWidget(ui_->inspectorView, Game::instance()->canvas());
+	ui_->inspectorViewLayout->addWidget(view_);
 
-	imguiFont_ = ImGui::GetIO().Fonts->AddFontFromFileTTF("resources/fonts/tahoma.ttf", 14);
+	GUI::initialize(view_);
+	view_->setFocusPolicy(Qt::StrongFocus);
 }
 
 void Inspector::tick() {
@@ -42,65 +39,14 @@ void Inspector::tick() {
 
 void Inspector::onGui() {
 	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
-	ui_->view->makeCurrent();
-
-	QtImGui::newFrame();
-
-	ImGui::PushFont(imguiFont_);
-
-	const int windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar;
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(35 / 255.f, 38 / 255.f, 41 / 255.f, 1));
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
-	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::SetNextWindowSize(ImVec2(ui_->view->width(), ui_->view->height()), ImGuiCond_FirstUseEver);
-	ImGui::Begin("", nullptr, windowFlags);
-
+	view_->makeCurrent();
+	
+	GUI::begin();
 	if (target_) { drawGui(); }
+	GUI::end();
 
-	ImGui::End();
-	ImGui::PopStyleColor();
-	ImGui::PopStyleVar();
-	ImGui::PopStyleVar();
-
-	ImGui::PopFont();
-
-	/*
-	// 1. Show a simple window
-	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-	{
-		static float f = 0.0f;
-		ImGui::Text("Hello, world!");
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		ImGui::ColorEdit3("clear color", (float*)&clear_color);
-		if (ImGui::Button("Test Window")) show_test_window ^= 1;
-		if (ImGui::Button("Another Window")) show_another_window ^= 1;
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	}
-
-	// 2. Show another simple window, this time using an explicit Begin/End pair
-	if (show_another_window) {
-		ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
-		ImGui::Begin("Another Window", &show_another_window);
-		ImGui::Text("Hello");
-		ImGui::End();
-	}
-
-	// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-	if (show_test_window) {
-		ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-		ImGui::ShowTestWindow();
-	}
-	*/
-	// Do render before ImGui UI is rendered
-	//glViewport(0, 0, width(), height());
-	//glClearColor(35.f / 255, 38.f / 255, 41.f / 255, 1);
-	//glClear(GL_COLOR_BUFFER_BIT);
-
-	ImGui::Render();
-
-	ui_->view->swapBuffers();
-	ui_->view->doneCurrent();
+	view_->swapBuffers();
+	view_->doneCurrent();
 
 	if (oldContext != nullptr) {
 		oldContext->makeCurrent();
@@ -115,15 +61,15 @@ void Inspector::drawGui() {
 
 void Inspector::drawBasics() {
 	bool active = target_->GetActive();
-	if (ImGui::Checkbox("Active", &active)) {
+	if (GUI::checkbox("Active", &active)) {
 		target_->SetActiveSelf(active);
 	}
 
-	ImGui::SameLine();
+	GUI::sameline();
 
-	strncpy(namebuffer_, target_->GetName().c_str(), CountOf(namebuffer_) - 1);
-	if (ImGui::InputText("Name", namebuffer_, CountOf(namebuffer_))) {
-		target_->SetName(namebuffer_);
+	std::string name = target_->GetName();
+	if (GUI::input("Name", name)) {
+		target_->SetName(name);
 	}
 
 	drawTags();
@@ -145,103 +91,182 @@ void Inspector::addInspector(CustomInspector* inspector) {
 void Inspector::drawComponents() {
 	switch (target_->GetType()) {
 		case ObjectTypeCamera:
-			drawCamera();
+			drawCamera(suede_dynamic_cast<Camera>(target_));
+			break;
+		case ObjectTypeProjector:
+			drawProjector(suede_dynamic_cast<Projector>(target_));
+			break;
+		case ObjectTypeSpotLight:
+		case ObjectTypePointLight:
+		case ObjectTypeDirectionalLight:
+			drawLight(suede_dynamic_cast<Light>(target_));
 			break;
 	}
-	//switch (target_->GetType()) {
-	//	case ObjectTypeCamera:
-	//		addInspector(new CameraInspector(target_));
-	//		break;
-	//	case ObjectTypeProjector:
-	//		addInspector(new ProjectorInspector(target_));
-	//		break;
-	//	case ObjectTypeSpotLight:
-	//	case ObjectTypePointLight:
-	//	case ObjectTypeDirectionalLight:
-	//		addInspector(new LightInspector(target_));
-	//		break;
-	//}
 
-	//if (target_->GetMesh()) {
-	//	addInspector(new MeshInspector(target_->GetMesh()));
-	//}
+	if (target_->GetMesh()) {
+		drawMesh(target_->GetMesh());
+	}
 
-	//if (target_->GetRenderer()) {
-	//	addInspector(new RendererInspector(target_->GetRenderer()));
-	//}
+	if (target_->GetRenderer()) {
+		drawRenderer(target_->GetRenderer());
+	}
 }
 
-void Inspector::drawCamera() {
-	Camera camera = suede_dynamic_cast<Camera>(target_);
+void Inspector::drawLight(Light light) {
+	GUI::separator();
+	if (GUI::collapsingHeader("Light")) {
+	}
+}
 
-	int selected = -1;
-	std::vector<char> buffer;
-	for (int i = 0; i < ClearType::size(); ++i) {
-		if (!buffer.empty()) { buffer.push_back(0); }
-		if (camera->GetClearType() == ClearType::value(i)) {
-			selected = i;
+void Inspector::drawCamera(Camera camera) {
+	if (GUI::collapsingHeader("Camera")) {
+		int selected = -1;
+		if (GUI::enums("Clear Type", +camera->GetClearType(), selected)) {
+			camera->SetClearType(ClearType::value(selected));
 		}
 
-		const char* str = ClearType::value(i).to_string();
-		buffer.insert(buffer.end(), str, str + strlen(str));
+		float fieldOfView = Math::Degrees(camera->GetFieldOfView());
+		if (GUI::slider("FOV", &fieldOfView, 1, 179)) {
+			camera->SetFieldOfView(Math::Radians(fieldOfView));
+		}
+
+		float nearClipPlane = camera->GetNearClipPlane();
+		if (GUI::single("Near", &nearClipPlane)) {
+			camera->SetNearClipPlane(nearClipPlane);
+		}
+
+		float farClipPlane = camera->GetFarClipPlane();
+		if (GUI::single("Far", &farClipPlane)) {
+			camera->SetFarClipPlane(farClipPlane);
+		}
 	}
+}
 
-	buffer.push_back(0);
-	buffer.push_back(0);
-
-	if (ImGui::Combo("ClearType", &selected, buffer.data())) {
-		camera->SetClearType(ClearType::value(selected));
+void Inspector::drawProjector(Projector projector) {
+	GUI::separator();
+	if (GUI::collapsingHeader("Projector")) {
 	}
+}
 
-	float fieldOfView = camera->GetFieldOfView();
-	if (ImGui::SliderFloat("FieldOfView", &fieldOfView, 1, 179)) {
-		camera->SetFieldOfView(fieldOfView);
+void Inspector::drawMesh(Mesh mesh) {
+	GUI::separator();
+	if (GUI::collapsingHeader("Mesh")) {
+	}
+}
+
+void Inspector::drawRenderer(Renderer renderer) {
+	GUI::separator();
+	if (GUI::collapsingHeader("Renderer")) {
+		for (Material material : renderer->GetMaterials()) {
+			drawMaterial(material);
+		}
+	}
+}
+
+void Inspector::drawMaterial(Material material) {
+	std::vector<const Property*> properties;
+	material->GetProperties(properties);
+
+	for (const Property* p : properties) {
+		switch (p->value.GetType()) {
+			case VariantTypeFloat:
+				drawSingle(material, p);
+				break;
+			case VariantTypeVector3:
+				drawSingle3(material, p);
+				break;
+			case VariantTypeVector4:
+				drawSingle4(material, p);
+				break;
+			case VariantTypeColor3:
+				drawColor3(material, p);
+				break;
+			case VariantTypeColor4:
+				drawColor4(material, p);
+				break;
+			case VariantTypeTexture:
+				drawTexture(material, p);
+				break;
+		}
+	}
+}
+
+void Inspector::drawTexture(Material material, const Property* p) {
+	Texture texture = material->GetTexture(p->name);
+	if (GUI::imageButton(p->name.c_str(), texture->GetNativePointer())) {
+		QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::instance()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
+		if (!path.isEmpty()) {
+			Texture2D newTexture = NewTexture2D();
+			path = QDir(Resources::instance()->GetTextureDirectory().c_str()).relativeFilePath(path);
+
+			if (newTexture->Create(path.toStdString())) {
+				material->SetTexture(p->name, newTexture);
+			}
+		}
+	}
+}
+
+void Inspector::drawColor3(Material material, const Property* p) {
+	glm::vec3 value = material->GetColor3(p->name);
+	if (GUI::color3(p->name.c_str(), (float*)&value)) {
+		material->SetColor3(p->name, value);
+	}
+}
+
+void Inspector::drawColor4(Material material, const Property* p) {
+	glm::vec4 value = material->GetColor4(p->name);
+	if (GUI::color4(p->name.c_str(), (float*)&value)) {
+		material->SetColor4(p->name, value);
+	}
+}
+
+void Inspector::drawSingle(Material material, const Property* p) {
+	float value = material->GetFloat(p->name);
+	if (GUI::single(p->name.c_str(), &value)) {
+		material->SetFloat(p->name, value);
+	}
+}
+
+void Inspector::drawSingle3(Material material, const Property* p) {
+	glm::vec3 value = material->GetVector3(p->name);
+	if (GUI::single3(p->name.c_str(), (float*)&value)) {
+		material->SetVector3(p->name, value);
+	}
+}
+
+void Inspector::drawSingle4(Material material, const Property* p) {
+	glm::vec4 value = material->GetVector4(p->name);
+	if (GUI::single4(p->name.c_str(), (float*)&value)) {
+		material->SetVector4(p->name, value);
 	}
 }
 
 void Inspector::drawTransform() {
-	ImGui::Separator();
-	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+	GUI::separator();
+	if (GUI::collapsingHeader("Transform")) {
 		glm::vec3 v3 = target_->GetTransform()->GetLocalPosition();
-		if (ImGui::DragFloat3("P", (float*)&v3, 2)) {
+		if (GUI::single3("P", (float*)&v3)) {
 			target_->GetTransform()->SetPosition(v3);
 		}
 
 		v3 = target_->GetTransform()->GetLocalEulerAngles();
-		if (ImGui::DragFloat3("R", (float*)&v3, 2)) {
+		if (GUI::single3("R", (float*)&v3)) {
 			target_->GetTransform()->SetLocalEulerAngles(v3);
 		}
 
 		v3 = target_->GetTransform()->GetLocalScale();
-		if (ImGui::DragFloat3("S", (float*)&v3, 2)) {
+		if (GUI::single3("S", (float*)&v3)) {
 			target_->GetTransform()->SetLocalScale(v3);
 		}
 	}
 }
 
 void Inspector::drawTags() {
-	/*
-	int tagIndex = -1;
-	std::vector<std::string> tags;
-	TagManager::instance()->GetAllTags(tags);
-	std::vector<char> line;
-	for (int i = 0; i < tags.size(); ++i) {
-		const std::string& str = tags[i];
-		if (tagIndex == -1 && str == target_->GetTag()) {
-			tagIndex = i;
-		}
-		if (i != 0) {
-			line.push_back(0);
-		}
+	const Tags& tags = TagManager::instance()->GetAllTags();
+	int selected = std::find(tags.begin(), tags.end(), target_->GetTag()) - tags.begin();
+	if (selected >= tags.size()) { selected = -1; }
 
-		line.insert(line.end(), str.begin(), str.end());
+	if (GUI::combo("Tag", &selected, tags.begin(), tags.end())) {
+		target_->SetTag(tags[selected]);
 	}
-
-	line.push_back(0);
-	line.push_back(0);
-
-	if (ImGui::Combo("Tag", &tagIndex, &line[0])) {
-		target_->SetTag(tags[tagIndex]);
-	}
-	*/
 }

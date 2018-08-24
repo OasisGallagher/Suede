@@ -378,7 +378,7 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_4">
+    <layout class="QVBoxLayout" name="inspectorViewLayout">
      <property name="leftMargin">
       <number>0</number>
      </property>
@@ -391,9 +391,6 @@
      <property name="bottomMargin">
       <number>0</number>
      </property>
-     <item>
-      <widget class="Canvas" name="view" native="true"/>
-     </item>
     </layout>
    </widget>
   </widget>

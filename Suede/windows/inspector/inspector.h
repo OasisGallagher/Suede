@@ -1,11 +1,11 @@
 #pragma once
-#include <QLineEdit>
 #include <QDockWidget>
 
 #include <glm/glm.hpp>
 
-#include "world.h"
-#include "profiler.h"
+#include "light.h"
+#include "camera.h"
+#include "projector.h"
 #include "../winbase.h"
 
 class CustomInspector;
@@ -37,10 +37,25 @@ private:
 	void drawTransform();
 	void drawComponents();
 
-	void drawCamera();
-private:
-	Entity target_;
-	char namebuffer_[256];
+	void drawLight(Light light);
+	void drawCamera(Camera camera);
+	void drawProjector(Projector projector);
 
-	struct ImFont* imguiFont_;
+	void drawMesh(Mesh mesh);
+	void drawRenderer(Renderer renderer);
+	void drawMaterial(Material material);
+
+	void drawTexture(Material material, const Property* p);
+
+	void drawColor3(Material material, const Property* p);
+	void drawColor4(Material material, const Property* p);
+
+	void drawSingle(Material material, const Property* p);
+	void drawSingle3(Material material, const Property* p);
+	void drawSingle4(Material material, const Property* p);
+
+private:
+	QGLWidget* view_;
+
+	Entity target_;
 };
