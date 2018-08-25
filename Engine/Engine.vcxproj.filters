@@ -125,6 +125,15 @@
     <Filter Include="internal\api\src">
       <UniqueIdentifier>{9e9d953f-affe-4df5-93a2-3bcde0a5186f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\gui">
+      <UniqueIdentifier>{c4c6c134-4610-4e69-baac-24b7fb760c99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gui\src">
+      <UniqueIdentifier>{cc623631-4310-49ca-9006-42ae82befbc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gui\include">
+      <UniqueIdentifier>{d38eb94f-e50c-4eb4-a03c-b4d5fa1ac575}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -421,6 +430,24 @@
     <ClInclude Include="internal\rendering\sharedtexturemanager.h">
       <Filter>internal\rendering\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\gui.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\gui\imconfig.h">
+      <Filter>internal\gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\gui\imgui_internal.h">
+      <Filter>internal\gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\gui\stb_rect_pack.h">
+      <Filter>internal\gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\gui\stb_textedit.h">
+      <Filter>internal\gui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\gui\stb_truetype.h">
+      <Filter>internal\gui\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -596,6 +623,18 @@
     </ClCompile>
     <ClCompile Include="internal\rendering\sharedtexturemanager.cpp">
       <Filter>internal\rendering\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\gui\imgui.cpp">
+      <Filter>internal\gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\gui\imgui_demo.cpp">
+      <Filter>internal\gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\gui\imgui_draw.cpp">
+      <Filter>internal\gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\gui\gui.cpp">
+      <Filter>internal\gui\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,3 +1,5 @@
+#include <vector>
+
 class GUIPrivate {
 	friend class GUI;
 
@@ -56,17 +58,15 @@ class GUIPrivate {
 
 		return buffer.data();
 	}
-
-	static bool comboImpl(const char* title, int* selected, const char* items);
 };
 
 template <class T>
-inline bool GUI::enums(const char* title, T value, int& selected) {
+inline bool GUI::EnumPopup(const char* title, T value, int& selected) {
 	const char* items = GUIPrivate::joinEnums(value, &selected);
-	return GUIPrivate::comboImpl(title, &selected, items);
+	return Popup(title, &selected, items);
 }
 
 template <class T>
-inline bool GUI::combo(const char* title, int* selected, T first, T last) {
-	return GUIPrivate::comboImpl(title, selected, GUIPrivate::join(first, last));
+inline bool GUI::Popup(const char* title, int* selected, T first, T last) {
+	return Popup(title, selected, GUIPrivate::join(first, last));
 }

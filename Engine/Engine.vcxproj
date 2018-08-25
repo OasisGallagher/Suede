@@ -193,6 +193,10 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\geometry\plane.cpp" />
     <ClCompile Include="internal\geometry\polygon.cpp" />
     <ClCompile Include="internal\geometry\rect.cpp" />
+    <ClCompile Include="internal\gui\gui.cpp" />
+    <ClCompile Include="internal\gui\imgui.cpp" />
+    <ClCompile Include="internal\gui\imgui_demo.cpp" />
+    <ClCompile Include="internal\gui\imgui_draw.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\entities\camerainternal.cpp" />
@@ -241,6 +245,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\gizmospainter.h" />
     <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\graphicscanvas.h" />
+    <ClInclude Include="include\gui.h" />
     <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\material.h" />
@@ -296,6 +301,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="internal\codec\image.h" />
     <ClInclude Include="internal\codec\shaderparser.h" />
     <ClInclude Include="internal\geometry\bsptree.h" />
+    <ClInclude Include="internal\gui\imconfig.h" />
+    <ClInclude Include="internal\gui\imgui_internal.h" />
+    <ClInclude Include="internal\gui\stb_rect_pack.h" />
+    <ClInclude Include="internal\gui\stb_textedit.h" />
+    <ClInclude Include="internal\gui\stb_truetype.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\entities\camerainternal.h" />
     <ClInclude Include="internal\entities\lightinternal.h" />

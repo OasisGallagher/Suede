@@ -5,10 +5,31 @@
 
 #include "light.h"
 #include "camera.h"
+#include "texture.h"
 #include "projector.h"
 #include "../winbase.h"
 
 class CustomInspector;
+
+class Command {
+public:
+	virtual ~Command() {}
+
+public:
+	virtual void Run() = 0;
+};
+
+class TextureCommand  : public Command {
+public:
+	TextureCommand(Texture2D tex, const QString& p) : texture(tex), path(p) { }
+
+public:
+	virtual void Run() { texture->Create(path.toStdString()); }
+
+private:
+	QString path;
+	Texture2D texture;
+};
 
 class Inspector : public QDockWidget, public WinSingleton<Inspector> {
 	Q_OBJECT
@@ -55,7 +76,7 @@ private:
 	void drawSingle4(Material material, const Property* p);
 
 private:
-	QGLWidget* view_;
-
 	Entity target_;
+	QGLWidget* view_;
+	std::vector<Command*> commands_;
 };

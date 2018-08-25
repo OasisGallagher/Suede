@@ -151,14 +151,14 @@
     <Filter Include="windows\game\include">
       <UniqueIdentifier>{dd5cf3eb-91ff-4764-8c4b-0d04ecb8853f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\inspector\gui">
-      <UniqueIdentifier>{783e02c0-285d-4f02-a142-e0b65541a130}</UniqueIdentifier>
+    <Filter Include="qtimgui">
+      <UniqueIdentifier>{ea8eaf39-a86b-46c7-b52a-ae58ee72280f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\inspector\gui\include">
-      <UniqueIdentifier>{eebdd089-248e-4583-8c61-3c9da98834de}</UniqueIdentifier>
+    <Filter Include="qtimgui\include">
+      <UniqueIdentifier>{4add24eb-efa4-4a20-a9d3-efad0453bfc6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\inspector\gui\src">
-      <UniqueIdentifier>{3f70b34a-11a4-4d32-a2ad-f1b81cb04df5}</UniqueIdentifier>
+    <Filter Include="qtimgui\src">
+      <UniqueIdentifier>{34f48506-c7f2-42dc-b0e3-a42d2c781bcf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -459,8 +459,17 @@
     <ClCompile Include="widgets\fields\rangefield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>
-    <ClCompile Include="windows\inspector\gui\gui.cpp">
-      <Filter>windows\inspector\gui\src</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ImGuiRenderer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ImGuiRenderer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="qtimgui\QtImGui.cpp">
+      <Filter>qtimgui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="qtimgui\ImGuiRenderer.cpp">
+      <Filter>qtimgui\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -578,6 +587,9 @@
     <CustomBuild Include="windows\inspector\oglwidget.h">
       <Filter>windows\inspector\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="qtimgui\ImGuiRenderer.h">
+      <Filter>qtimgui\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -616,8 +628,8 @@
     <ClInclude Include="main\prefs.h">
       <Filter>main\include</Filter>
     </ClInclude>
-    <ClInclude Include="windows\inspector\gui\gui.h">
-      <Filter>windows\inspector\gui\include</Filter>
+    <ClInclude Include="qtimgui\QtImGui.h">
+      <Filter>qtimgui\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -692,9 +704,6 @@
     </None>
     <None Include="resources\shaders\builtin\ssao_traversal.shader">
       <Filter>resources\shaders\builtin</Filter>
-    </None>
-    <None Include="windows\inspector\gui\gui.inl">
-      <Filter>windows\inspector\gui\include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

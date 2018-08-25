@@ -4,18 +4,22 @@
 
 #include <QFileDialog>
 
-#include "gui/gui.h"
+#include "gui.h"
 #include "ui_suede.h"
 
 #include "resources.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
+#include "qtimgui/QtImGui.h"
 
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
 
 Inspector::~Inspector() {
-	GUI::destroy();
+	QtImGui::destroy();
+
+	for (Command* cmd : commands_) { delete cmd; }
+	commands_.clear();
 }
 
 void Inspector::init(Ui::Suede* ui) {
@@ -29,7 +33,9 @@ void Inspector::awake() {
 	view_ = new QGLWidget(ui_->inspectorView, Game::instance()->canvas());
 	ui_->inspectorViewLayout->addWidget(view_);
 
-	GUI::initialize(view_);
+	QtImGui::initialize(view_);
+	GUI::LoadFont("resources/fonts/tahoma.ttf");
+
 	view_->setFocusPolicy(Qt::StrongFocus);
 }
 
@@ -41,9 +47,11 @@ void Inspector::onGui() {
 	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
 	view_->makeCurrent();
 	
-	GUI::begin();
+	QtImGui::newFrame();
+
+	GUI::Begin(view_->width(), view_->height());
 	if (target_) { drawGui(); }
-	GUI::end();
+	GUI::End();
 
 	view_->swapBuffers();
 	view_->doneCurrent();
@@ -51,6 +59,13 @@ void Inspector::onGui() {
 	if (oldContext != nullptr) {
 		oldContext->makeCurrent();
 	}
+
+	for (Command* cmd : commands_) {
+		cmd->Run();
+		delete cmd;
+	}
+
+	commands_.clear();
 }
 
 void Inspector::drawGui() {
@@ -61,14 +76,14 @@ void Inspector::drawGui() {
 
 void Inspector::drawBasics() {
 	bool active = target_->GetActive();
-	if (GUI::checkbox("Active", &active)) {
+	if (GUI::Toggle("Active", &active)) {
 		target_->SetActiveSelf(active);
 	}
 
-	GUI::sameline();
+	GUI::Sameline();
 
 	std::string name = target_->GetName();
-	if (GUI::input("Name", name)) {
+	if (GUI::Text("Name", name)) {
 		target_->SetName(name);
 	}
 
@@ -113,50 +128,50 @@ void Inspector::drawComponents() {
 }
 
 void Inspector::drawLight(Light light) {
-	GUI::separator();
-	if (GUI::collapsingHeader("Light")) {
+	GUI::Separator();
+	if (GUI::CollapsingHeader("Light")) {
 	}
 }
 
 void Inspector::drawCamera(Camera camera) {
-	if (GUI::collapsingHeader("Camera")) {
+	if (GUI::CollapsingHeader("Camera")) {
 		int selected = -1;
-		if (GUI::enums("Clear Type", +camera->GetClearType(), selected)) {
+		if (GUI::EnumPopup("Clear Type", +camera->GetClearType(), selected)) {
 			camera->SetClearType(ClearType::value(selected));
 		}
 
 		float fieldOfView = Math::Degrees(camera->GetFieldOfView());
-		if (GUI::slider("FOV", &fieldOfView, 1, 179)) {
+		if (GUI::Slider("FOV", &fieldOfView, 1, 179)) {
 			camera->SetFieldOfView(Math::Radians(fieldOfView));
 		}
 
 		float nearClipPlane = camera->GetNearClipPlane();
-		if (GUI::single("Near", &nearClipPlane)) {
+		if (GUI::Float("Near", &nearClipPlane)) {
 			camera->SetNearClipPlane(nearClipPlane);
 		}
 
 		float farClipPlane = camera->GetFarClipPlane();
-		if (GUI::single("Far", &farClipPlane)) {
+		if (GUI::Float("Far", &farClipPlane)) {
 			camera->SetFarClipPlane(farClipPlane);
 		}
 	}
 }
 
 void Inspector::drawProjector(Projector projector) {
-	GUI::separator();
-	if (GUI::collapsingHeader("Projector")) {
+	GUI::Separator();
+	if (GUI::CollapsingHeader("Projector")) {
 	}
 }
 
 void Inspector::drawMesh(Mesh mesh) {
-	GUI::separator();
-	if (GUI::collapsingHeader("Mesh")) {
+	GUI::Separator();
+	if (GUI::CollapsingHeader("Mesh")) {
 	}
 }
 
 void Inspector::drawRenderer(Renderer renderer) {
-	GUI::separator();
-	if (GUI::collapsingHeader("Renderer")) {
+	GUI::Separator();
+	if (GUI::CollapsingHeader("Renderer")) {
 		for (Material material : renderer->GetMaterials()) {
 			drawMaterial(material);
 		}
@@ -192,70 +207,66 @@ void Inspector::drawMaterial(Material material) {
 }
 
 void Inspector::drawTexture(Material material, const Property* p) {
-	Texture texture = material->GetTexture(p->name);
-	if (GUI::imageButton(p->name.c_str(), texture->GetNativePointer())) {
+	Texture2D texture = suede_dynamic_cast<Texture2D>(material->GetTexture(p->name));
+	if (texture && GUI::ImageButton(p->name.c_str(), texture->GetNativePointer())) {
 		QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::instance()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
 		if (!path.isEmpty()) {
-			Texture2D newTexture = NewTexture2D();
-			path = QDir(Resources::instance()->GetTextureDirectory().c_str()).relativeFilePath(path);
-
-			if (newTexture->Create(path.toStdString())) {
-				material->SetTexture(p->name, newTexture);
-			}
+			Debug::LogWarning("TODO: test loading textures...");
+			commands_.push_back(new TextureCommand(texture, "bricks.jpg"));
 		}
 	}
 }
 
 void Inspector::drawColor3(Material material, const Property* p) {
 	glm::vec3 value = material->GetColor3(p->name);
-	if (GUI::color3(p->name.c_str(), (float*)&value)) {
+	if (GUI::Color3(p->name.c_str(), (float*)&value)) {
 		material->SetColor3(p->name, value);
 	}
 }
 
 void Inspector::drawColor4(Material material, const Property* p) {
 	glm::vec4 value = material->GetColor4(p->name);
-	if (GUI::color4(p->name.c_str(), (float*)&value)) {
+	if (GUI::Color4(p->name.c_str(), (float*)&value)) {
 		material->SetColor4(p->name, value);
 	}
 }
 
 void Inspector::drawSingle(Material material, const Property* p) {
 	float value = material->GetFloat(p->name);
-	if (GUI::single(p->name.c_str(), &value)) {
+	if (GUI::Float(p->name.c_str(), &value)) {
 		material->SetFloat(p->name, value);
 	}
 }
 
 void Inspector::drawSingle3(Material material, const Property* p) {
 	glm::vec3 value = material->GetVector3(p->name);
-	if (GUI::single3(p->name.c_str(), (float*)&value)) {
+	if (GUI::Float3(p->name.c_str(), (float*)&value)) {
 		material->SetVector3(p->name, value);
 	}
 }
 
 void Inspector::drawSingle4(Material material, const Property* p) {
 	glm::vec4 value = material->GetVector4(p->name);
-	if (GUI::single4(p->name.c_str(), (float*)&value)) {
+	if (GUI::Float4(p->name.c_str(), (float*)&value)) {
 		material->SetVector4(p->name, value);
 	}
 }
 
 void Inspector::drawTransform() {
-	GUI::separator();
-	if (GUI::collapsingHeader("Transform")) {
+	GUI::Separator();
+	if (GUI::CollapsingHeader("Transform")) {
 		glm::vec3 v3 = target_->GetTransform()->GetLocalPosition();
-		if (GUI::single3("P", (float*)&v3)) {
+		if (GUI::Float3("P", (float*)&v3)) {
 			target_->GetTransform()->SetPosition(v3);
 		}
 
 		v3 = target_->GetTransform()->GetLocalEulerAngles();
-		if (GUI::single3("R", (float*)&v3)) {
+		if (GUI::Float3("R", (float*)&v3)) {
 			target_->GetTransform()->SetLocalEulerAngles(v3);
 		}
 
 		v3 = target_->GetTransform()->GetLocalScale();
-		if (GUI::single3("S", (float*)&v3)) {
+		if (GUI::Float3("S", (float*)&v3)) {
 			target_->GetTransform()->SetLocalScale(v3);
 		}
 	}
@@ -266,7 +277,7 @@ void Inspector::drawTags() {
 	int selected = std::find(tags.begin(), tags.end(), target_->GetTag()) - tags.begin();
 	if (selected >= tags.size()) { selected = -1; }
 
-	if (GUI::combo("Tag", &selected, tags.begin(), tags.end())) {
+	if (GUI::Popup("Tag", &selected, tags.begin(), tags.end())) {
 		target_->SetTag(tags[selected]);
 	}
 }

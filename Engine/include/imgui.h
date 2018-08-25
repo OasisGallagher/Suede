@@ -12,9 +12,13 @@
 #ifdef IMGUI_USER_CONFIG
 #include IMGUI_USER_CONFIG
 #endif
+
+#define IMGUI_DISABLE_INCLUDE_IMCONFIG_H
+
 #if !defined(IMGUI_DISABLE_INCLUDE_IMCONFIG_H) || defined(IMGUI_INCLUDE_IMCONFIG_H)
 #include "imconfig.h"
 #endif
+#include "types.h"
 
 #include <float.h>                  // FLT_MAX
 #include <stdarg.h>                 // va_list
@@ -28,7 +32,7 @@
 // Define attributes of all API symbols declarations (e.g. for DLL under Windows)
 // IMGUI_API is used for core imgui functions, IMGUI_IMPL_API is used for the default bindings files (imgui_impl_xxx.h)
 #ifndef IMGUI_API
-#define IMGUI_API
+#define IMGUI_API	SUEDE_API
 #endif
 #ifndef IMGUI_IMPL_API
 #define IMGUI_IMPL_API      IMGUI_API
