@@ -1116,7 +1116,7 @@ operator >>(std::basic_istream<Char, Traits>& stream, Enum &value)             \
         BETTER_ENUMS_DEFAULT_DECLARE_INITIALIZE,                               \
         BETTER_ENUMS_DEFAULT_DEFINE_INITIALIZE,                                \
         BETTER_ENUMS_DEFAULT_CALL_INITIALIZE,                                  \
-        Enum, Underlying, None = 0, __VA_ARGS__, Everything = -1))
+        Enum, Underlying, None = 0, Everything = -1, __VA_ARGS__))
 
 #define SLOW_ENUM(Enum, Underlying, ...)                                       \
     BETTER_ENUMS_ID(BETTER_ENUMS_TYPE(                                         \
@@ -1154,7 +1154,7 @@ operator >>(std::basic_istream<Char, Traits>& stream, Enum &value)             \
         BETTER_ENUMS_DO_DECLARE_INITIALIZE,                                    \
         BETTER_ENUMS_DO_DEFINE_INITIALIZE,                                     \
         BETTER_ENUMS_DO_CALL_INITIALIZE,                                       \
-        Enum, Underlying, None = 0, __VA_ARGS__, Everything = -1))
+        Enum, Underlying, None = 0, Everything = -1, __VA_ARGS__))
 
 #endif
 

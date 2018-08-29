@@ -42,11 +42,14 @@
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 // #define FONT
-#define BUMPED
+//#define BUMPED
+#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
 static const char* roomFbxPath = "nanosuit.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
+static const char* normalVisualizerFbxPath = "nanosuit.fbx";
+
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
@@ -171,6 +174,17 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		Texture2D normal = NewTexture2D();
 		normal->Create("bumped/normal.jpg");
 		material->SetTexture(Variables::BumpTexture, normal);
+	}
+
+	if (path == normalVisualizerFbxPath) {
+		root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
+		root->GetTransform()->SetEulerAngles(glm::vec3(0));
+
+		Entity target = root->GetTransform()->FindChild("nanosuit_root/default")->GetEntity();
+
+		for (Material material : target->GetRenderer()->GetMaterials()) {
+			material->SetShader(Resources::instance()->FindShader("builtin/normal_visualizer"));
+		}
 	}
 }
 
@@ -460,6 +474,10 @@ void Game::createScene() {
 
 #ifdef BUMPED
 	Entity bumped = World::instance()->Import(bumpedFbxPath, this);
+#endif
+
+#ifdef NORMAL_VISUALIZER
+	Entity normalVisualizer = World::instance()->Import(normalVisualizerFbxPath, this);
 #endif
 
 #ifdef BEAR

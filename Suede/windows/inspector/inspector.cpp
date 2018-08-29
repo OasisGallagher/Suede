@@ -10,16 +10,15 @@
 #include "resources.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
-#include "qtimgui/QtImGui.h"
+#include "os/filesystem.h"
+#include "gui/qtimgui/QtImGui.h"
 
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
 
 Inspector::~Inspector() {
 	QtImGui::destroy();
-
-	for (Command* cmd : commands_) { delete cmd; }
-	commands_.clear();
+	qDeleteAll(commands_);
 }
 
 void Inspector::init(Ui::Suede* ui) {
@@ -60,6 +59,10 @@ void Inspector::onGui() {
 		oldContext->makeCurrent();
 	}
 
+	flushContextCommands();
+}
+
+void Inspector::flushContextCommands() {
 	for (Command* cmd : commands_) {
 		cmd->Run();
 		delete cmd;
@@ -83,7 +86,7 @@ void Inspector::drawBasics() {
 	GUI::Sameline();
 
 	std::string name = target_->GetName();
-	if (GUI::Text("Name", name)) {
+	if (GUI::TextField("Name", name)) {
 		target_->SetName(name);
 	}
 
@@ -140,18 +143,25 @@ void Inspector::drawCamera(Camera camera) {
 			camera->SetClearType(ClearType::value(selected));
 		}
 
+		if (camera->GetClearType() == ClearType::Color) {
+			glm::vec3 clearColor = camera->GetClearColor();
+			if (GUI::Color3Field("Clear Color", clearColor)) {
+				camera->SetClearColor(clearColor);
+			}
+		}
+
 		float fieldOfView = Math::Degrees(camera->GetFieldOfView());
 		if (GUI::Slider("FOV", &fieldOfView, 1, 179)) {
 			camera->SetFieldOfView(Math::Radians(fieldOfView));
 		}
 
 		float nearClipPlane = camera->GetNearClipPlane();
-		if (GUI::Float("Near", &nearClipPlane)) {
+		if (GUI::FloatField("Near", &nearClipPlane)) {
 			camera->SetNearClipPlane(nearClipPlane);
 		}
 
 		float farClipPlane = camera->GetFarClipPlane();
-		if (GUI::Float("Far", &farClipPlane)) {
+		if (GUI::FloatField("Far", &farClipPlane)) {
 			camera->SetFarClipPlane(farClipPlane);
 		}
 	}
@@ -179,19 +189,60 @@ void Inspector::drawRenderer(Renderer renderer) {
 }
 
 void Inspector::drawMaterial(Material material) {
+	GUI::Separator();
+	if (GUI::CollapsingHeader(material->GetName().c_str())) {
+		drawMaterialShader(material);
+		drawMaterialProperties(material);
+	}
+}
+
+void Inspector::drawMaterialShader(Material material) {
+	GUI::LabelField("Shader", material->GetShader()->GetName().c_str());
+	/*FileTree tree;
+	std::string shaderName = material->GetShader()->GetName();
+	std::string directory = "resources/shaders/", regex = ".*\\.shader";
+
+	if (FileSystem::ListFileTree(tree, directory, regex)) {
+		if (GUI::BeginMenu(shaderName.c_str())) {
+			drawMaterialShaderMenu(tree.GetRoot());
+			GUI::EndMenu();
+		}
+	}*/
+}
+
+void Inspector::drawMaterialShaderMenu(FileEntry* entry) {
+	for (uint i = 0; i < entry->GetChildCount(); ++i) {
+		FileEntry* child = entry->GetChildAt(i);
+		std::string name = child->GetName();
+		if (child->IsDirectory()) {
+			if (GUI::BeginMenu(name.substr(name.length() - 1).c_str())) {
+				drawMaterialShaderMenu(child);
+				GUI::EndMenu();
+			}
+		}
+		else {
+			name = FileSystem::GetFileNameWithoutExtension(name);
+			if (GUI::MenuItem(name.c_str(), false)) {
+
+			}
+		}
+	}
+}
+
+void Inspector::drawMaterialProperties(Material material) {
 	std::vector<const Property*> properties;
 	material->GetProperties(properties);
 
 	for (const Property* p : properties) {
 		switch (p->value.GetType()) {
 			case VariantTypeFloat:
-				drawSingle(material, p);
+				drawFloat(material, p);
 				break;
 			case VariantTypeVector3:
-				drawSingle3(material, p);
+				drawVector3(material, p);
 				break;
 			case VariantTypeVector4:
-				drawSingle4(material, p);
+				drawVector4(material, p);
 				break;
 			case VariantTypeColor3:
 				drawColor3(material, p);
@@ -211,43 +262,43 @@ void Inspector::drawTexture(Material material, const Property* p) {
 	if (texture && GUI::ImageButton(p->name.c_str(), texture->GetNativePointer())) {
 		QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::instance()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
 		if (!path.isEmpty()) {
-			Debug::LogWarning("TODO: test loading textures...");
-			commands_.push_back(new TextureCommand(texture, "bricks.jpg"));
+			path = QDir(Resources::instance()->GetTextureDirectory().c_str()).relativeFilePath(path);
+			commands_.push_back(new LoadTextureCommand(texture, path));
 		}
 	}
 }
 
 void Inspector::drawColor3(Material material, const Property* p) {
 	glm::vec3 value = material->GetColor3(p->name);
-	if (GUI::Color3(p->name.c_str(), (float*)&value)) {
+	if (GUI::Color3Field(p->name.c_str(), value)) {
 		material->SetColor3(p->name, value);
 	}
 }
 
 void Inspector::drawColor4(Material material, const Property* p) {
 	glm::vec4 value = material->GetColor4(p->name);
-	if (GUI::Color4(p->name.c_str(), (float*)&value)) {
+	if (GUI::Color4Field(p->name.c_str(), value)) {
 		material->SetColor4(p->name, value);
 	}
 }
 
-void Inspector::drawSingle(Material material, const Property* p) {
+void Inspector::drawFloat(Material material, const Property* p) {
 	float value = material->GetFloat(p->name);
-	if (GUI::Float(p->name.c_str(), &value)) {
+	if (GUI::FloatField(p->name.c_str(), &value)) {
 		material->SetFloat(p->name, value);
 	}
 }
 
-void Inspector::drawSingle3(Material material, const Property* p) {
+void Inspector::drawVector3(Material material, const Property* p) {
 	glm::vec3 value = material->GetVector3(p->name);
-	if (GUI::Float3(p->name.c_str(), (float*)&value)) {
+	if (GUI::Float3Field(p->name.c_str(), value)) {
 		material->SetVector3(p->name, value);
 	}
 }
 
-void Inspector::drawSingle4(Material material, const Property* p) {
+void Inspector::drawVector4(Material material, const Property* p) {
 	glm::vec4 value = material->GetVector4(p->name);
-	if (GUI::Float4(p->name.c_str(), (float*)&value)) {
+	if (GUI::Float4Field(p->name.c_str(), value)) {
 		material->SetVector4(p->name, value);
 	}
 }
@@ -256,17 +307,17 @@ void Inspector::drawTransform() {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Transform")) {
 		glm::vec3 v3 = target_->GetTransform()->GetLocalPosition();
-		if (GUI::Float3("P", (float*)&v3)) {
+		if (GUI::Float3Field("P", v3)) {
 			target_->GetTransform()->SetPosition(v3);
 		}
 
 		v3 = target_->GetTransform()->GetLocalEulerAngles();
-		if (GUI::Float3("R", (float*)&v3)) {
+		if (GUI::Float3Field("R", v3)) {
 			target_->GetTransform()->SetLocalEulerAngles(v3);
 		}
 
 		v3 = target_->GetTransform()->GetLocalScale();
-		if (GUI::Float3("S", (float*)&v3)) {
+		if (GUI::Float3Field("S", v3)) {
 			target_->GetTransform()->SetLocalScale(v3);
 		}
 	}

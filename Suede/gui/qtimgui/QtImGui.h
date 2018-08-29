@@ -1,6 +1,4 @@
 #pragma once
-#include "imgui.h"
-
 class QWidget;
 class QWindow;
 

@@ -4,7 +4,6 @@
 #include <QMouseEvent>
 #include <QClipboard>
 #include <QCursor>
-#include <QDebug>
 
 namespace QtImGui {
 

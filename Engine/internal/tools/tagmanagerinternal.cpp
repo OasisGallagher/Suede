@@ -10,7 +10,7 @@ TagManagerInternal::TagManagerInternal() : tags(defaultTags, defaultTags + Count
 }
 
 void TagManagerInternal::Register(const std::string& name) {
-	if (!IsRegistered(name)) {
+	if (IsRegistered(name)) {
 		Debug::LogError("duplicate tag %s.", name.c_str());
 	}
 	else {

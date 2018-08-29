@@ -32,7 +32,7 @@ private:
 	void updateEverythingMask(int size);
 	
 	void updateText();
-	uint count1Bits(uint x, int& p);
+	uint count1Bits(uint x);
 
 	void clearAll();
 	enum {
@@ -40,20 +40,23 @@ private:
 	};
 
 private:
+
 	int selected_;
 	int everything_;
-
 	QListWidget* view_;
+	QList<int> values_;
 	QList<QCheckBox*> checkBoxes_;
 };
 
 template <class T>
 void MaskField::setEnums(T selected) {
 	QStringList list;
+	values_.clear();
 
 	// skip None & Everything.
-	for (int i = 1; i < T::size() - 1; ++i) {
+	for (int i = 2; i < T::size(); ++i) {
 		list << T::value(i).to_string();
+		values_.push_back(T::value(i));
 	}
 
 	setItems(list, selected);

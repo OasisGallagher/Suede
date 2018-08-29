@@ -1,7 +1,12 @@
 #pragma once
-#include <string>
 #include "types.h"
 
+#include <string>
+#include <glm/glm.hpp>
+
+/**
+ * @brief immediate mode GUI.
+ */
 class SUEDE_API GUI {
 public:
 	static void LoadFont(const char* file);
@@ -9,8 +14,10 @@ public:
 	static void Begin(uint w, uint h);
 	static void End();
 
-	static void Label(const char* title);
-	static bool Text(const char* title, std::string& v);
+	static void LabelField(const char* text);
+	static void LabelField(const char* title, const char* text);
+
+	static bool TextField(const char* title, std::string& v);
 
 	static void Image(const char* title, uint texture);
 	static bool ImageButton(const char* title, uint texture);
@@ -21,22 +28,33 @@ public:
 	static bool Toggle(const char* title, bool* v);
 
 	template <class T>
+	static bool EnumPopup(const char* title, T value, int& selected);
+
+	template <class T>
 	static bool Popup(const char* title, int* selected, T first, T last);
 
 	/** @param items '\0' separated string, ends with "\0\0". */
 	static bool Popup(const char* title, int* selected, const char* items);
 
-	template <class T> static bool EnumPopup(const char* title, T value, int& selected);
+	/** @param items '\0' separated string, ends with "\0\0". */
+	static bool MaskPopup(const char* title, int mask, const char* items);
+
+	template <class T>
+	static bool EnumMaskPopup(const char* title, T value);
 
 	static bool Slider(const char* title, float* v, float min, float max);
 
-	static bool Float(const char* title, float* v);
-	static bool Float2(const char* title, float* v);
-	static bool Float3(const char* title, float* v);
-	static bool Float4(const char* title, float* v);
+	static bool FloatField(const char* title, float* v);
+	static bool Float2Field(const char* title, glm::vec2& v);
+	static bool Float3Field(const char* title, glm::vec3& v);
+	static bool Float4Field(const char* title, glm::vec4& v);
 
-	static bool Color3(const char* title, float* v);
-	static bool Color4(const char* title, float* v);
+	static bool Color3Field(const char* title, glm::vec3& v);
+	static bool Color4Field(const char* title, glm::vec4& v);
+
+	static bool BeginMenu(const char* title);
+	static bool MenuItem(const char* title, bool selected);
+	static void EndMenu();
 
 	static bool CollapsingHeader(const char* title);
 };

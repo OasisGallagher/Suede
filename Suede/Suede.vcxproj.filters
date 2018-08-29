@@ -151,13 +151,16 @@
     <Filter Include="windows\game\include">
       <UniqueIdentifier>{dd5cf3eb-91ff-4764-8c4b-0d04ecb8853f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="qtimgui">
+    <Filter Include="gui">
+      <UniqueIdentifier>{0e108cf8-5328-489a-be69-26fdf292facc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\qtimgui">
       <UniqueIdentifier>{ea8eaf39-a86b-46c7-b52a-ae58ee72280f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="qtimgui\include">
+    <Filter Include="gui\qtimgui\include">
       <UniqueIdentifier>{4add24eb-efa4-4a20-a9d3-efad0453bfc6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="qtimgui\src">
+    <Filter Include="gui\qtimgui\src">
       <UniqueIdentifier>{34f48506-c7f2-42dc-b0e3-a42d2c781bcf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -465,11 +468,11 @@
     <ClCompile Include="GeneratedFiles\Release\moc_ImGuiRenderer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="qtimgui\QtImGui.cpp">
-      <Filter>qtimgui\src</Filter>
+    <ClCompile Include="gui\qtimgui\ImGuiRenderer.cpp">
+      <Filter>gui\qtimgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="qtimgui\ImGuiRenderer.cpp">
-      <Filter>qtimgui\src</Filter>
+    <ClCompile Include="gui\qtimgui\QtImGui.cpp">
+      <Filter>gui\qtimgui\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -587,8 +590,8 @@
     <CustomBuild Include="windows\inspector\oglwidget.h">
       <Filter>windows\inspector\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="qtimgui\ImGuiRenderer.h">
-      <Filter>qtimgui\include</Filter>
+    <CustomBuild Include="gui\qtimgui\ImGuiRenderer.h">
+      <Filter>gui\qtimgui\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -628,8 +631,8 @@
     <ClInclude Include="main\prefs.h">
       <Filter>main\include</Filter>
     </ClInclude>
-    <ClInclude Include="qtimgui\QtImGui.h">
-      <Filter>qtimgui\include</Filter>
+    <ClInclude Include="gui\qtimgui\QtImGui.h">
+      <Filter>gui\qtimgui\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -703,6 +706,9 @@
       <Filter>resources\shaders\builtin\include</Filter>
     </None>
     <None Include="resources\shaders\builtin\ssao_traversal.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\normal_visualizer.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
   </ItemGroup>

@@ -10,7 +10,7 @@ static ImFont* imfont;
 static char buffer[256];
 
 void GUI::LoadFont(const char* file) {
-	imfont = ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 14);
+	imfont = ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15);
 }
 
 void GUI::Begin(uint w, uint h) {
@@ -44,11 +44,15 @@ void GUI::End() {
 	ImGui::Render();
 }
 
-void GUI::Label(const char* title) {
-	ImGui::Text(title);
+void GUI::LabelField(const char* text) {
+	ImGui::Text(text);
 }
 
-bool GUI::Text(const char* title, std::string& v) {
+void GUI::LabelField(const char* title, const char* text) {
+	ImGui::LabelText(title, text);
+}
+
+bool GUI::TextField(const char* title, std::string& v) {
 	int len = Math::Min(IM_ARRAYSIZE(buffer) - 1, (int)v.length());
 	strncpy(buffer, v.c_str(), len);
 	buffer[len] = 0;
@@ -90,32 +94,88 @@ bool GUI::Popup(const char* title, int* selected, const char* items) {
 	return ImGui::Combo(title, selected, items);
 }
 
+bool GUI::MaskPopup(const char* title, int mask, const char* items_) {
+	throw std::exception("not implemented");
+	/*bool changed = false;
+	int selectedMask = 0;
+	if (ImGui::BeginCombo(title, "TODO")) {
+		int value = 1;
+		bool selected = false;
+		if (ImGui::Selectable("None", &selected)) {
+			mask = -1;
+		}
+
+		if (ImGui::Selectable("Everything", &selected)) {
+			mask = 0;
+		}
+
+		for (int i = 0; *items_ != 0; ++i, mask >>= 1, value <<= 1) {
+			for (; mask != 0; mask >>= 1, value <<= 1) {
+				if ((mask & 1) != 0) {
+					break;
+				}
+			}
+
+			if (mask == 0) {
+				Debug::LogError("invalid mask");
+				return false;
+			}
+
+			selected = (value & (1 << i)) != 0;
+			if (ImGui::Selectable(items_, &selected)) {
+				if (selected) { selectedMask |= (1 << i); }
+				else { selectedMask &= ~(1 << i); }
+
+				changed = true;
+			}
+
+			items_ += strlen(items_) + 1;
+		}
+
+		ImGui::EndCombo();
+	}*/
+
+	//return changed;
+}
+
 bool GUI::Slider(const char* title, float* v, float min, float max) {
 	return ImGui::SliderFloat(title, v, min, max);
 }
 
-bool GUI::Float(const char* title, float* v) {
+bool GUI::FloatField(const char* title, float* v) {
 	return ImGui::DragFloat(title, v);
 }
 
-bool GUI::Float2(const char* title, float* v) {
-	return ImGui::DragFloat2(title, v);
+bool GUI::Float2Field(const char* title, glm::vec2& v) {
+	return ImGui::DragFloat2(title, (float*)&v);
 }
 
-bool GUI::Float3(const char* title, float* v) {
-	return ImGui::DragFloat3(title, v);
+bool GUI::Float3Field(const char* title, glm::vec3& v) {
+	return ImGui::DragFloat3(title, (float*)&v);
 }
 
-bool GUI::Float4(const char* title, float* v) {
-	return ImGui::DragFloat4(title, v);
+bool GUI::Float4Field(const char* title, glm::vec4& v) {
+	return ImGui::DragFloat4(title, (float*)&v);
 }
 
-bool GUI::Color3(const char* title, float* v) {
-	return ImGui::ColorEdit3(title, v);
+bool GUI::Color3Field(const char* title, glm::vec3& v) {
+	return ImGui::ColorEdit3(title, (float*)&v);
 }
 
-bool GUI::Color4(const char* title, float* v) {
-	return ImGui::ColorEdit4(title, v);
+bool GUI::Color4Field(const char* title, glm::vec4& v) {
+	return ImGui::ColorEdit4(title, (float*)&v);
+}
+
+bool GUI::BeginMenu(const char * title) {
+	return ImGui::BeginMenu(title);
+}
+
+bool GUI::MenuItem(const char * title, bool selected) {
+	return ImGui::MenuItem(title, nullptr, selected);
+}
+
+void GUI::EndMenu() {
+	ImGui::EndMenu();
 }
 
 bool GUI::CollapsingHeader(const char* title) {

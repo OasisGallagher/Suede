@@ -13,7 +13,7 @@
 
 #pragma intrinsic(_BitScanForward)
 
-template<class CountofTpe, size_t sizeOfArray>
+template <class CountofTpe, size_t sizeOfArray>
 inline char(*__countof_helper(CountofTpe(&_Array)[sizeOfArray]))[sizeOfArray] {
 	return nullptr;
 }

@@ -56,7 +56,7 @@ public:
 template <class T>
 T* Singleton2<T>::ptr = nullptr;
 
-template<class T>
+template <class T>
 void Singleton2<T>::implement(T * impl) {
 	ptr = impl;
 	static Destroyer<T> destroyer;

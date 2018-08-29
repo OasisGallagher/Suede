@@ -19,9 +19,9 @@ public:
 	virtual void Run() = 0;
 };
 
-class TextureCommand  : public Command {
+class LoadTextureCommand  : public Command {
 public:
-	TextureCommand(Texture2D tex, const QString& p) : texture(tex), path(p) { }
+	LoadTextureCommand(Texture2D tex, const QString& p) : texture(tex), path(p) { }
 
 public:
 	virtual void Run() { texture->Create(path.toStdString()); }
@@ -31,6 +31,7 @@ private:
 	Texture2D texture;
 };
 
+class FileEntry;
 class Inspector : public QDockWidget, public WinSingleton<Inspector> {
 	Q_OBJECT
 
@@ -49,8 +50,10 @@ private slots:
 
 private:
 	void onGui();
+
 	void drawGui();
 
+	void flushContextCommands();
 	void addInspector(CustomInspector* inspector);
 
 	void drawBasics();
@@ -64,19 +67,25 @@ private:
 
 	void drawMesh(Mesh mesh);
 	void drawRenderer(Renderer renderer);
+
 	void drawMaterial(Material material);
+	void drawMaterialShader(Material material);
+	void drawMaterialShaderMenu(FileEntry* entry);
+	void drawMaterialProperties(Material material);
 
 	void drawTexture(Material material, const Property* p);
 
 	void drawColor3(Material material, const Property* p);
 	void drawColor4(Material material, const Property* p);
 
-	void drawSingle(Material material, const Property* p);
-	void drawSingle3(Material material, const Property* p);
-	void drawSingle4(Material material, const Property* p);
+	void drawFloat(Material material, const Property* p);
+	void drawVector3(Material material, const Property* p);
+	void drawVector4(Material material, const Property* p);
 
 private:
 	Entity target_;
 	QGLWidget* view_;
-	std::vector<Command*> commands_;
+
+	// commands need to be executed in default context.
+	QVector<Command*> commands_;
 };

@@ -11,19 +11,19 @@
 																\
 																Ty(nullptr_t) {} \
 																\
-																template<class U> \
+																template <class U> \
 																Ty(U* px) : std::shared_ptr<I ## Ty>(px) {} \
 																\
-																template<class T, class U> \
+																template <class T, class U> \
 																Ty(const std::shared_ptr<U>& right, T *px) : std::shared_ptr<I ## Ty>(right, px) {} \
 																\
 																template <class T, class Deleter, class Allocator> \
 																Ty(T* ptr, Deleter deleter, Allocator allocator) : std::shared_ptr<I ## Ty>(ptr, deleter, allocator) {} \
 																\
-																template<class _Ty2> \
+																template <class _Ty2> \
 																Ty(const shared_ptr<_Ty2>& _Other) : std::shared_ptr<I ## Ty>(_Other) { } \
 																\
-																template<class _Ty2> \
+																template <class _Ty2> \
 																Ty& operator=(const std::shared_ptr<_Ty2>& _Right) { \
 																	std::shared_ptr<I ## Ty>(_Right).swap(*this); \
 																	return (*this);\
@@ -44,7 +44,7 @@
 /**
  * @brief static shared_ptr cast.
  */
-template<class T, class Ptr>
+template <class T, class Ptr>
 inline T suede_static_cast(const Ptr& ptr) {
 	return T(ptr, static_cast<typename T::element_type*>(ptr.get()));
 }
@@ -52,7 +52,7 @@ inline T suede_static_cast(const Ptr& ptr) {
 /**
  * @brief dynamic shared_ptr cast.
  */
-template<class T, class Ptr>
+template <class T, class Ptr>
 inline T suede_dynamic_cast(const Ptr& ptr) {
 	typedef typename T::element_type Element;
 	Element* p = dynamic_cast<Element*>(ptr.get());
