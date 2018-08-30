@@ -10,7 +10,7 @@ public:
 	~StatsWidget() {}
 
 public:
-	void setStats(float fps, uint drawcalls, uint triangles);
+	void updateContent();
 
 private:
 	Ui::StatsWidget ui;

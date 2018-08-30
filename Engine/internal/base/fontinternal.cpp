@@ -10,10 +10,10 @@
 #include "os/filesystem.h"
 
 FontInternal::FontInternal() 
-	: ObjectInternal(ObjectTypeFont) ,size_(10), face_(nullptr), library_(nullptr) {
+	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = NewMaterial();
 	material_->SetShader(Resources::instance()->FindShader("builtin/unlit_texture"));
-	material_->SetRenderQueue(RenderQueueTransparent);
+	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.
 	material_->SetColor4(Variables::MainColor, glm::vec4(1));
@@ -145,8 +145,8 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 
 	answer->width = Math::Max(1u, bitmap.width);
 	answer->height = Math::Max(1u, bitmap.rows);
-	answer->textureFormat = TextureFormatRgba;
-	answer->colorStreamFormat = ColorStreamFormatLuminanceAlpha;
+	answer->textureFormat = TextureFormat::Rgba;
+	answer->colorStreamFormat = ColorStreamFormat::LuminanceAlpha;
 	answer->alignment = 4;
 
 	return true;
@@ -159,7 +159,7 @@ void FontInternal::RebuildMaterial() {
 	coords_ = atlas.coords;
 
 	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::MainTexture));
-	texture->Create(TextureFormatRgba, &atlas.data[0], ColorStreamFormatLuminanceAlpha, atlas.width, atlas.height, 4);
+	texture->Create(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
 
 	for (uint i = 0; i < listeners_.size(); ++i) {
 		listeners_[i]->OnMaterialRebuilt();

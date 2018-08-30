@@ -88,7 +88,7 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 	node = nullptr;
 }
 
-AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectTypeAnimationClip), wrapper_(Math::Min) {
+AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectType::AnimationClip), wrapper_(Math::Min) {
 	frame_ = NewAnimationFrame();
 }
 
@@ -155,7 +155,7 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 	return endFrame;
 }
 
-AnimationKeysInternal::AnimationKeysInternal() :ObjectInternal(ObjectTypeAnimationKeys) {
+AnimationKeysInternal::AnimationKeysInternal() :ObjectInternal(ObjectType::AnimationKeys) {
 	container_.resize(FrameKeyMaxCount);
 }
 
@@ -481,13 +481,13 @@ glm::quat AnimationFrameInternal::GetQuaternion(int id) {
 static void SetVariant(AnimationFrame frame, int id, const Variant& value) {
 	VariantType type = value.GetType();
 	switch (type) {
-		case VariantTypeFloat:
+		case VariantType::Float:
 			frame->SetFloat(id, value.GetFloat());
 			break;
-		case VariantTypeVector3:
+		case VariantType::Vector3:
 			frame->SetVector3(id, value.GetVector3());
 			break;
-		case VariantTypeQuaternion:
+		case VariantType::Quaternion:
 			frame->SetQuaternion(id, value.GetQuaternion());
 			break;
 		default:
@@ -505,13 +505,13 @@ static void LerpVariant(Variant& variant, const Variant& lhs, const Variant& rhs
 	VariantType type = lhs.GetType();
 
 	switch (type) {
-		case VariantTypeFloat:
+		case VariantType::Float:
 			variant.SetFloat(Math::Lerp(lhs.GetFloat(), rhs.GetFloat(), factor));
 			break;
-		case VariantTypeVector3:
+		case VariantType::Vector3:
 			variant.SetVector3(Math::Lerp(lhs.GetVector3(), rhs.GetVector3(), factor));
 			break;
-		case VariantTypeQuaternion:
+		case VariantType::Quaternion:
 			variant.SetQuaternion(Math::Lerp(lhs.GetQuaternion(), rhs.GetQuaternion(), factor));
 			break;
 		default:

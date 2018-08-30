@@ -17,7 +17,7 @@
 OGLdpf.log
 /Viewer/x64/Debug
 /Viewer/GeneratedFiles/Debug
-/Suede/bin/GLEF.bin
+/Suede/resources/data/GLEF.dat
 /Engine/*.user
 __pycache__
 /Suede/pipeline_dump.txt

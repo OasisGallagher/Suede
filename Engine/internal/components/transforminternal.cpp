@@ -7,7 +7,7 @@
 
 ZThread::Mutex TransformInternal::hierarchyMutex;
 
-TransformInternal::TransformInternal() : ComponentInternal(ObjectTypeTransform) {
+TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform) {
 	local_.scale = world_.scale = glm::vec3(1);
 }
 

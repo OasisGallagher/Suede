@@ -131,7 +131,7 @@ private:
 
 class RenderTextureInternalBase : virtual public IRenderTexture, public TextureInternal {
 public:
-	RenderTextureInternalBase() : TextureInternal(ObjectTypeRenderTexture), framebuffer_(nullptr) {}
+	RenderTextureInternalBase() : TextureInternal(ObjectType::RenderTexture), framebuffer_(nullptr) {}
 
 protected:
 	bool SetViewport(uint width, uint height, const Rect& normalizedRect);
@@ -170,7 +170,7 @@ protected:
 
 private:
 	bool VerifyBindStatus();
-	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormatDepth; }
+	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormat::Depth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
 
 private:

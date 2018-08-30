@@ -43,29 +43,12 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 }
 
 Pipeline::Pipeline() 
-	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), timeQuerier_(0)
-	, nrenderables_(0) , oldPass_(-1), ndrawcalls_(0), ntriangles_(0), nmeshChanges_(0), nmaterialChanges_(0) {
-	switch_state = Profiler::instance()->CreateSample();
-	update_ubo = Profiler::instance()->CreateSample();
-	update_tbo = Profiler::instance()->CreateSample();
-	draw_call = Profiler::instance()->CreateSample();
-	update_offset = Profiler::instance()->CreateSample();
-	update_matrices = Profiler::instance()->CreateSample();
-	gather_instances = Profiler::instance()->CreateSample();
-	update_pipeline = Profiler::instance()->CreateSample();
-	stat_and_output = Profiler::instance()->CreateSample();
+	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
+	memset(&counters_, 0, sizeof(counters_));
+	oldStates_.Reset();
 }
 
 Pipeline::~Pipeline() {
- 	Profiler::instance()->ReleaseSample(switch_state);
- 	Profiler::instance()->ReleaseSample(update_ubo);
-	Profiler::instance()->ReleaseSample(update_tbo);
-	Profiler::instance()->ReleaseSample(draw_call);
-	Profiler::instance()->ReleaseSample(update_offset);
-	Profiler::instance()->ReleaseSample(update_matrices);
- 	Profiler::instance()->ReleaseSample(gather_instances);
- 	Profiler::instance()->ReleaseSample(update_pipeline);
-	Profiler::instance()->ReleaseSample(stat_and_output);
 }
 
 static bool MeshComparer(const Renderable& lhs, const Renderable& rhs) {
@@ -127,23 +110,19 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 	}
 }
 
-void Pipeline::Run(bool __tmpIsRendering) {
-	if (__tmpIsRendering) {
-		timeQuerier_ = GpuQuerier::instance()->Start(QueryTypeTimeElapsed, this);
-	}
+void Pipeline::Run() {
+	samples_.update_pipeline->Restart();
 
-	update_pipeline->Restart();
-
-	update_tbo->Restart();
+	samples_.update_tbo->Restart();
 	MatrixBuffer::instance()->Update(nrenderables_, &matrices_[0]);
-	update_tbo->Stop();
+	samples_.update_tbo->Stop();
 
 	targetTexture_->BindWrite(normalizedRect_);
 
 	uint from = 0;
-	draw_call->Reset();
-	switch_state->Reset();
-	update_offset->Reset();
+	samples_.draw_call->Reset();
+	samples_.switch_state->Reset();
+	samples_.update_offset->Reset();
 
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		Renderable& first = renderables_[from];
@@ -159,38 +138,29 @@ void Pipeline::Run(bool __tmpIsRendering) {
 		from = *ite;
 	}
 
-	stat_and_output->Restart();
-	Statistics::instance()->AddTriangles(ntriangles_);
-	Statistics::instance()->AddDrawcalls(ndrawcalls_);
-
-	if (__tmpIsRendering) {
-		debugDumpPipelineAndRanges(ranges_);
-	}
-
-	Debug::Output("[Pipeline::Update::nrenderables]\t%d", nrenderables_);
-	Debug::Output("[Pipeline::Update::ndrawcalls]\t%d", ndrawcalls_);
-	Debug::Output("[Pipeline::Update::nmeshChanges]\t%d", nmeshChanges_);
-	Debug::Output("[Pipeline::Update::nmaterialChanges]\t%d", nmaterialChanges_);
-	Debug::Output("[Pipeline::Update::update_matrices]\t%.5f", update_matrices->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_ubo]\t%.5f", update_ubo->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_tbo]\t%.5f", update_tbo->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_offset]\t%.5f", update_offset->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::draw_call]\t%.5f", draw_call->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::switch_state]\t%.5f", switch_state->GetElapsedSeconds());
-	stat_and_output->Stop();
-
-	ResetState();
 	targetTexture_->Unbind();
 
-	update_pipeline->Stop();
-	Debug::Output("[Pipeline::Update::stat_and_output]\t%.5f", stat_and_output->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_pipeline]\t%.5f", update_pipeline->GetElapsedSeconds());
+	samples_.stat_and_output->Restart();
+	Statistics::instance()->AddTriangles(counters_.triangles);
+	Statistics::instance()->AddDrawcalls(counters_.drawcalls);
+	samples_.stat_and_output->Stop();
+	
+	samples_.update_pipeline->Stop();
 
-	if (__tmpIsRendering) {
-		GpuQuerier::instance()->Stop();
-		uint time = GpuQuerier::instance()->Wait(timeQuerier_);
-		double seconds = time * 10e-9;
-	}
+	Debug::Output("[Pipeline::Update::renderables]\t%d", nrenderables_);
+	Debug::Output("[Pipeline::Update::drawcalls]\t%d", counters_.drawcalls);
+	Debug::Output("[Pipeline::Update::meshChanges]\t%d", counters_.meshChanges);
+	Debug::Output("[Pipeline::Update::materialChanges]\t%d", counters_.materialChanges);
+	Debug::Output("[Pipeline::Update::update_matrices]\t%.5f", samples_.update_matrices->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_ubo]\t%.5f", samples_.update_ubo->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_tbo]\t%.5f", samples_.update_tbo->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_offset]\t%.5f", samples_.update_offset->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::draw_call]\t%.5f", samples_.draw_call->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::switch_state]\t%.5f", samples_.switch_state->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::stat_and_output]\t%.5f", samples_.stat_and_output->GetElapsedSeconds());
+	Debug::Output("[Pipeline::Update::update_pipeline]\t%.5f", samples_.update_pipeline->GetElapsedSeconds());
+
+	ResetState();
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {
@@ -234,10 +204,6 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.material = material;
 	renderable.pass = pass;
 	renderable.localToWorldMatrix = localToWorldMatrix;
-
-	if (mesh->GetTopology() < 0 || mesh->GetTopology() > 3) {
-		Debug::Break();
-	}
 }
 
 void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
@@ -246,63 +212,62 @@ void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const glm:
 	}
 }
 
-void Pipeline::OnQuerierResult(uint id, uint result) {
-	if (id == timeQuerier_) {
-		double seconds = result * 1e-9;
-	}
-}
-
 void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) {
-	switch_state->Start();
+	samples_.switch_state->Start();
 	UpdateState(renderable);
-	switch_state->Stop();
+	samples_.switch_state->Stop();
 
-	update_offset->Start();
+	samples_.update_offset->Start();
 	GL::VertexAttribI1i(VertexAttribMatrixOffset, matrixOffset);
-	update_offset->Stop();
+	samples_.update_offset->Stop();
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
-	draw_call->Start();
+	samples_.draw_call->Start();
 	GLUtils::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
-	draw_call->Stop();
+	samples_.draw_call->Stop();
 
-	++ndrawcalls_;
+	++counters_.drawcalls;
 
-	// TODO: topology besides triangles... triangle strip for example.
-	ntriangles_ += bias.indexCount / 3;
+	MeshTopology topology = renderable.mesh->GetTopology();
+	if (topology == MeshTopology::Triangles) {
+		counters_.triangles += bias.indexCount / 3;
+	}
+	else if(topology == MeshTopology::TriangleStripe) {
+		counters_.triangles += bias.indexCount - 2;
+	}
 }
 
 void Pipeline::UpdateState(Renderable& renderable) {
-	if (renderable.material != oldMaterial_) {
-		if (oldMaterial_) {
-			oldMaterial_->Unbind();
+	if (renderable.material != oldStates_.material) {
+		if (oldStates_.material) {
+			oldStates_.material->Unbind();
 		}
 
-		oldPass_ = renderable.pass;
-		oldMaterial_ = renderable.material;
+		oldStates_.pass = renderable.pass;
+		oldStates_.material = renderable.material;
 
 		renderable.material->Bind(renderable.pass);
-		++nmaterialChanges_;
+		++counters_.materialChanges;
 	}
-	else if (oldPass_ != renderable.pass) {
-		oldMaterial_->Unbind();
-		oldPass_ = renderable.pass;
+	else if (oldStates_.pass != renderable.pass) {
+		oldStates_.material->Unbind();
+		oldStates_.pass = renderable.pass;
 
 		renderable.material->Bind(renderable.pass);
 
-		++nmaterialChanges_;
+		++counters_.materialChanges;
 	}
 
-	if (!oldMesh_ || renderable.mesh->GetNativePointer() != oldMesh_->GetNativePointer()) {
-		if (oldMesh_) {
-			oldMesh_->Unbind();
+	if (!oldStates_.mesh || renderable.mesh->GetNativePointer() != oldStates_.mesh->GetNativePointer()) {
+		if (oldStates_.mesh) {
+			oldStates_.mesh->Unbind();
 		}
 
-		oldMesh_ = renderable.mesh;
+		oldStates_.mesh = renderable.mesh;
 		renderable.mesh->Bind();
 
-		++nmeshChanges_;
+		++counters_.meshChanges;
 	}
 }
 
@@ -335,27 +300,9 @@ Pipeline& Pipeline::operator=(const Pipeline& other) {
 }
 
 void Pipeline::ResetState() {
-	ndrawcalls_ = 0;
-	ntriangles_ = 0;
-	nmeshChanges_ = 0;
-	nmaterialChanges_ = 0;
-
-	switch_state->Reset();
-
-	update_ubo->Reset();
-	update_matrices->Reset();
-
-	if (oldMaterial_) {
-		oldMaterial_->Unbind();
-		oldMaterial_.reset();
-	}
-
-	if (oldMesh_) {
-		oldMesh_->Unbind();
-		oldMesh_.reset();
-	}
-
-	oldPass_ = 0;
+	samples_.Reset();
+	oldStates_.Reset();
+	memset(&counters_, 0, sizeof(counters_));
 }
 
 bool Renderable::IsInstance(const Renderable& other) const {
@@ -382,4 +329,49 @@ bool Renderable::IsMeshInstanced(const Renderable& other) const {
 
 bool Renderable::IsMaterialInstanced(const Renderable& other) const {
 	return material == other.material && pass == other.pass;
+}
+
+void Pipeline::States::Reset() {
+	if (material) {
+		material->Unbind();
+		material.reset();
+	}
+
+	if (mesh) {
+		mesh->Unbind();
+		mesh.reset();
+	}
+
+	pass = -1;
+}
+
+Pipeline::Samples::Samples() {
+	switch_state = Profiler::instance()->CreateSample();
+	update_ubo = Profiler::instance()->CreateSample();
+	update_tbo = Profiler::instance()->CreateSample();
+	draw_call = Profiler::instance()->CreateSample();
+	update_offset = Profiler::instance()->CreateSample();
+	update_matrices = Profiler::instance()->CreateSample();
+	gather_instances = Profiler::instance()->CreateSample();
+	update_pipeline = Profiler::instance()->CreateSample();
+	stat_and_output = Profiler::instance()->CreateSample();
+}
+
+Pipeline::Samples::~Samples() {
+	Profiler::instance()->ReleaseSample(switch_state);
+	Profiler::instance()->ReleaseSample(update_ubo);
+	Profiler::instance()->ReleaseSample(update_tbo);
+	Profiler::instance()->ReleaseSample(draw_call);
+	Profiler::instance()->ReleaseSample(update_offset);
+	Profiler::instance()->ReleaseSample(update_matrices);
+	Profiler::instance()->ReleaseSample(gather_instances);
+	Profiler::instance()->ReleaseSample(update_pipeline);
+	Profiler::instance()->ReleaseSample(stat_and_output);
+}
+
+void Pipeline::Samples::Reset() {
+	switch_state->Reset();
+
+	update_ubo->Reset();
+	update_matrices->Reset();
 }

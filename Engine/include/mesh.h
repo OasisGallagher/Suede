@@ -46,15 +46,15 @@ struct InstanceAttribute {
 	uint divisor;
 };
 
-BETTER_ENUM(MeshTopology, int,
+enum class MeshTopology {
 	Points,
 
 	Lines,
 	LineStripe,
 
 	Triangles,
-	TriangleStripe
-)
+	TriangleStripe,
+};
 
 struct MeshAttribute {
 	MeshTopology topology;

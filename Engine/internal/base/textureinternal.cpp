@@ -126,14 +126,14 @@ BPPType TextureInternal::GLenumToBpp(GLenum format) const {
 
 GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
 	switch (textureFormat) {
-		case TextureFormatRgb: return GL_RGB;
-		case TextureFormatRgb16F: return GL_RGB16F;
-		case TextureFormatRgb32F: return GL_RGB32F;
-		case TextureFormatRgba: return GL_RGBA;
-		case TextureFormatRgba16F: return GL_RGBA16F;
-		case TextureFormatRgba32F: return GL_RGBA32F;
-		case TextureFormatRgbaS: return GL_RGBA_SNORM;
-		case TextureFormatRgbS: return GL_RGB_SNORM;
+		case TextureFormat::Rgb: return GL_RGB;
+		case TextureFormat::Rgb16F: return GL_RGB16F;
+		case TextureFormat::Rgb32F: return GL_RGB32F;
+		case TextureFormat::Rgba: return GL_RGBA;
+		case TextureFormat::Rgba16F: return GL_RGBA16F;
+		case TextureFormat::Rgba32F: return GL_RGBA32F;
+		case TextureFormat::RgbaS: return GL_RGBA_SNORM;
+		case TextureFormat::RgbS: return GL_RGB_SNORM;
 	}
 
 	Debug::LogError("invalid texture format %d.", textureFormat);
@@ -143,31 +143,31 @@ GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const
 void TextureInternal::ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const {
 	GLenum glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
 	switch (format) {
-		case ColorStreamFormatRgb:
+		case ColorStreamFormat::Rgb:
 			glFormat = GL_RGB;
 			break;
-		case ColorStreamFormatRgbF:
+		case ColorStreamFormat::RgbF:
 			glFormat = GL_RGB;
 			glType = GL_FLOAT;
 			break;
-		case ColorStreamFormatBgr:
+		case ColorStreamFormat::Bgr:
 			glFormat = GL_BGR;
 			break;
-		case ColorStreamFormatRgba:
+		case ColorStreamFormat::Rgba:
 			glFormat = GL_RGBA;
 			break;
-		case ColorStreamFormatRgbaF:
+		case ColorStreamFormat::RgbaF:
 			glFormat = GL_RGBA;
 			glType = GL_FLOAT;
 			break; 
-		case ColorStreamFormatArgb:
+		case ColorStreamFormat::Argb:
 			glFormat = GL_BGRA;
 			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
 			break;
-		case ColorStreamFormatBgra:
+		case ColorStreamFormat::Bgra:
 			glFormat = GL_BGRA;
 			break;
-		case ColorStreamFormatLuminanceAlpha:
+		case ColorStreamFormat::LuminanceAlpha:
 			glFormat = GL_LUMINANCE_ALPHA;
 			break;
 	}
@@ -246,7 +246,7 @@ TextureWrapMode TextureInternal::GLenumToTextureWrapMode(GLenum value) const {
 	return TextureWrapMode::Repeat;
 }
 
-Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectTypeTexture2D) {
+Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectType::Texture2D) {
 }
 
 Texture2DInternal::~Texture2DInternal() {
@@ -320,13 +320,13 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	GL::GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
-	texelMap.textureFormat = (bpp == BPPType24) ? TextureFormatRgb : TextureFormatRgba;
-	texelMap.colorStreamFormat = (bpp == BPPType24) ? ColorStreamFormatRgb : ColorStreamFormatRgba;
+	texelMap.textureFormat = (bpp == BPPType24) ? TextureFormat::Rgb : TextureFormat::Rgba;
+	texelMap.colorStreamFormat = (bpp == BPPType24) ? ColorStreamFormat::Rgb : ColorStreamFormat::Rgba;
 
 	return ImageCodec::Encode(data, type, texelMap);
 }
 
-TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectTypeTextureCube) {
+TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectType::TextureCube) {
 }
 
 TextureCubeInternal::~TextureCubeInternal() {
@@ -384,25 +384,25 @@ RenderTexture RenderTexture::GetDefault() {
 	
 	if (!screen) {
 		screen.reset(MEMORY_NEW(ScreenRenderTextureInternal));
-		screen->Create(RenderTextureFormatRgb, 0, 0);
+		screen->Create(RenderTextureFormat::Rgb, 0, 0);
 	}
 
 	return screen;
 }
 
 RenderTexture RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) {
-	// TODO: Get temporary render texture.
+	// SUEDE TODO: Get temporary render texture.
 	RenderTexture texture = NewRenderTexture();
 	texture->Create(format, width, height);
 	return texture;
 }
 
 void RenderTexture::ReleaseTemporary(RenderTexture texture) {
-	// TODO: Release temporary render texture.
+	// SUEDE TODO: Release temporary render texture.
 }
 
 RenderTextureInternal::RenderTextureInternal() 
-	: bindStatus_(StatusNone), format_(RenderTextureFormatRgba) {
+	: bindStatus_(StatusNone), format_(RenderTextureFormat::Rgba) {
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
@@ -429,7 +429,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	if (format == RenderTextureFormatShadow) {
+	if (format == RenderTextureFormat::Shadow) {
 		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	}
@@ -531,34 +531,34 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	GLenum type = GL_UNSIGNED_BYTE;
 
 	switch (input) {
-		case RenderTextureFormatRgb:
+		case RenderTextureFormat::Rgb:
 			internalFormat = GL_RGB;
 			break;
-		case RenderTextureFormatRgbSN:
+		case RenderTextureFormat::RgbS:
 			internalFormat = GL_RGB_SNORM;
 			break;
-		case  RenderTextureFormatRgba:
+		case  RenderTextureFormat::Rgba:
 			internalFormat = GL_RGBA;
 			break;
-		case RenderTextureFormatRgbaSN:
+		case RenderTextureFormat::RgbaS:
 			internalFormat = GL_RGBA_SNORM;
 			break;
-		case RenderTextureFormatRgbHDR:
+		case RenderTextureFormat::RgbF:
 			internalFormat = GL_RGB32F;
 			format = GL_RGB;
 			type = GL_FLOAT;
 			break;
-		case RenderTextureFormatRgbaHDR:
+		case RenderTextureFormat::RgbaF:
 			internalFormat = GL_RGBA32F;
 			type = GL_FLOAT;
 			break;
-		case RenderTextureFormatDepth:
-		case RenderTextureFormatShadow:
+		case RenderTextureFormat::Depth:
+		case RenderTextureFormat::Shadow:
 			internalFormat = GL_DEPTH_COMPONENT16;
 			format = GL_DEPTH_COMPONENT;
 			type = GL_FLOAT;
 			break;
-		case RenderTextureFormatDepthStencil:
+		case RenderTextureFormat::DepthStencil:
 			internalFormat = GL_DEPTH32F_STENCIL8;
 			format = GL_DEPTH_STENCIL;
 			type = GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
@@ -573,7 +573,7 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	parameters[2] = type;
 }
 
-TextureBufferInternal::TextureBufferInternal() : TextureInternal(ObjectTypeTextureBuffer), buffer_(nullptr) {
+TextureBufferInternal::TextureBufferInternal() : TextureInternal(ObjectType::TextureBuffer), buffer_(nullptr) {
 }
 
 TextureBufferInternal::~TextureBufferInternal() {
@@ -664,7 +664,7 @@ bool RenderTextureInternalBase::SetViewport(uint width, uint height, const Rect&
 }
 
 bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	if (format != RenderTextureFormatDepth) {
+	if (format != +RenderTextureFormat::Depth) {
 		Debug::LogError("only RenderTextureFormatDepth is supported for MRTRenderTexture.");
 		return false;
 	}
@@ -692,7 +692,7 @@ void MRTRenderTextureInternal::Resize(uint width, uint height) {
 
 	for (int i = 0; i < index_; ++i) {
 		Texture2D texture = colorTextures_[i];
-		colorTextures_[i]->Create(texture->GetFormat(), nullptr, ColorStreamFormatRgba, width, height, 4);
+		colorTextures_[i]->Create(texture->GetFormat(), nullptr, ColorStreamFormat::Rgba, width, height, 4);
 	}
 }
 
@@ -711,7 +711,7 @@ bool MRTRenderTextureInternal::AddColorTexture(TextureFormat format) {
 	}
 
 	colorTextures_[index_] = NewTexture2D();
-	colorTextures_[index_]->Create(format, nullptr, ColorStreamFormatRgba, width_, height_, 4);
+	colorTextures_[index_]->Create(format, nullptr, ColorStreamFormat::Rgba, width_, height_, 4);
 	framebuffer_->SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + index_), colorTextures_[index_]->GetNativePointer());
 	++index_;
 	return true;

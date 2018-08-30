@@ -20,10 +20,10 @@ Factory Factory::instance;
 
 #define ADD_FACTROY_METHOD(name) \
 	AddFactoryMethod(#name, name ## Internal::Create);  \
-	AddFactoryMethod(ObjectType ## name, name ## Internal::Create)
+	AddFactoryMethod(ObjectType:: ## name, name ## Internal::Create)
 
 Factory::Factory() {
-	std::fill(methodArray_, methodArray_ + ObjectTypeCount, nullptr);
+	std::fill(methodArray_, methodArray_ + (int)ObjectType::_Count, nullptr);
 
 	//ADD_FACTROY_METHOD(World);
 

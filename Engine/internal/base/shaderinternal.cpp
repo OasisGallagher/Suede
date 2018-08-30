@@ -12,10 +12,10 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 std::pair<std::string, float> _variables[] = {
-	std::make_pair("Background", (float)RenderQueueBackground),
-	std::make_pair("Geometry", (float)RenderQueueGeometry),
-	std::make_pair("Transparent", (float)RenderQueueTransparent),
-	std::make_pair("Overlay", (float)RenderQueueOverlay),
+	std::make_pair("Background", (float)RenderQueue::Background),
+	std::make_pair("Geometry", (float)RenderQueue::Geometry),
+	std::make_pair("Transparent", (float)RenderQueue::Transparent),
+	std::make_pair("Overlay", (float)RenderQueue::Overlay),
 };
 
 static std::map<std::string, float> renderQueueVariables(_variables, _variables + CountOf(_variables));
@@ -292,7 +292,7 @@ void Pass::UpdateVertexAttributes() {
 	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::InstanceGeometry);
 
 	// https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
-	// TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
+	// SUEDE TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
 	// int location = glGetAttribLocation(program_, Variables::MatrixBuffer);
 	// GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::MatrixTextureBuffer);
 }
@@ -349,19 +349,19 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 	Property* p = MEMORY_NEW(Property);
 	p->name = name;
 	switch (type) {
-		case VariantTypeInt:
+		case VariantType::Int:
 			p->value.SetInt(0);
 			break;
-		case VariantTypeFloat:
+		case VariantType::Float:
 			p->value.SetFloat(0);
 			break;
-		case VariantTypeMatrix4:
+		case VariantType::Matrix4:
 			p->value.SetMatrix4(glm::mat4(0));
 			break;
-		case VariantTypeBool:
+		case VariantType::Bool:
 			p->value.SetBool(false);
 			break;
-		case VariantTypeVector3:
+		case VariantType::Vector3:
 			if (String::EndsWith(name, "Color")) {
 				p->value.SetColor3(glm::vec3(0));
 			}
@@ -369,7 +369,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 				p->value.SetVector3(glm::vec3(0));
 			}
 			break;
-		case VariantTypeVector4:
+		case VariantType::Vector4:
 			if (String::EndsWith(name, "Color")) {
 				p->value.SetColor4(glm::vec4(0));
 			}
@@ -377,7 +377,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 				p->value.SetVector4(glm::vec4(0));
 			}
 			break;
-		case VariantTypeTexture:
+		case VariantType::Texture:
 			p->value.SetTexture(nullptr);
 			break;
 	}
@@ -392,22 +392,22 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 
 	switch (type) {
 	case GL_INT:
-		uniform->type = VariantTypeInt;
+		uniform->type = VariantType::Int;
 		break;
 	case GL_FLOAT:
-		uniform->type = VariantTypeFloat;
+		uniform->type = VariantType::Float;
 		break;
 	case GL_FLOAT_MAT4:
-		uniform->type = (size == 1) ? VariantTypeMatrix4 : VariantTypeMatrix4Array;
+		uniform->type = (size == 1) ? VariantType::Matrix4 : VariantType::Matrix4Array;
 		break;
 	case GL_BOOL:
-		uniform->type = VariantTypeBool;
+		uniform->type = VariantType::Bool;
 		break;
 	case GL_FLOAT_VEC3:
-		uniform->type = VariantTypeVector3;
+		uniform->type = VariantType::Vector3;
 		break;
 	case GL_FLOAT_VEC4:
-		uniform->type = VariantTypeVector4;
+		uniform->type = VariantType::Vector4;
 		break;
 	default:
 		if (IsSampler(type)) {
@@ -417,7 +417,7 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 			}
 			else {
 				++textureUnitCount_;
-				uniform->type = VariantTypeTexture;
+				uniform->type = VariantType::Texture;
 			}
 		}
 		else {
@@ -434,22 +434,22 @@ void Pass::SetUniform(Uniform* uniform, const void* data) {
 
 void Pass::SetUniform(GLuint location, VariantType type, uint size, const void* data) {
 	switch (type) {
-	case VariantTypeInt:
-	case VariantTypeBool:
-	case VariantTypeTexture:
+	case VariantType::Int:
+	case VariantType::Bool:
+	case VariantType::Texture:
 		GL::ProgramUniform1iv(program_, location, size, (const GLint*)data);
 		break;
-	case VariantTypeFloat:
+	case VariantType::Float:
 		GL::ProgramUniform1fv(program_, location, size, (const GLfloat*)data);
 		break;
-	case VariantTypeMatrix4:
-	case VariantTypeMatrix4Array:
+	case VariantType::Matrix4:
+	case VariantType::Matrix4Array:
 		GL::ProgramUniformMatrix4fv(program_, location, size, false, (const GLfloat*)data);
 		break;
-	case VariantTypeVector3:
+	case VariantType::Vector3:
 		GL::ProgramUniform3fv(program_, location, size, (const GLfloat*)data);
 		break;
-	case VariantTypeVector4:
+	case VariantType::Vector4:
 		GL::ProgramUniform4fv(program_, location, size, (const GLfloat*)data);
 		break;
 	default:
@@ -504,7 +504,7 @@ bool Pass::IsSampler(int type) {
 
 SubShader::SubShader() : passes_(nullptr), passCount_(0)
 	, currentPass_(UINT_MAX), passEnabled_(UINT_MAX) {
-	tags_[TagKeyRenderQueue] = RenderQueueGeometry;
+	tags_[TagKeyRenderQueue] = (int)RenderQueue::Geometry;
 }
 
 SubShader::~SubShader() {
@@ -620,7 +620,7 @@ void SubShader::AddShaderProperties(std::vector<ShaderProperty>& properties, con
 	}
 }
 
-ShaderInternal::ShaderInternal() : ObjectInternal(ObjectTypeShader)
+ShaderInternal::ShaderInternal() : ObjectInternal(ObjectType::Shader)
 	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
 }
 
@@ -693,12 +693,12 @@ void ShaderInternal::Unbind() {
 	currentSubShader_ = UINT_MAX;
 }
 
-void ShaderInternal::SetRenderQueue(uint ssi, uint value) {
+void ShaderInternal::SetRenderQueue(uint ssi, int value) {
 	VERIFY_INDEX(ssi, subShaderCount_, NOARG);
 	return subShaders_[ssi].SetRenderQueue(value);
 }
 
-uint ShaderInternal::GetRenderQueue(uint ssi) const {
+int ShaderInternal::GetRenderQueue(uint ssi) const {
 	VERIFY_INDEX(ssi, subShaderCount_, 0);
 	return subShaders_[ssi].GetRenderQueue();
 }

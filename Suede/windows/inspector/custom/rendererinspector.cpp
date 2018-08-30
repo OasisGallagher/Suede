@@ -35,7 +35,7 @@ namespace Literals {
 #define USER_PROPERTY	"USER_PROPERTY"
 
 struct UserProperty {
-	UserProperty() : UserProperty(0, "", VariantTypeNone) {}
+	UserProperty() : UserProperty(0, "", VariantType::None) {}
 	UserProperty(uint materialIndex, const QString& name, VariantType type, QWidget* sender = nullptr) {
 		this->materialIndex = materialIndex;
 		this->name = name;
@@ -134,25 +134,25 @@ void RendererInspector::drawMaterialProperties(QWidgetList& widgets, Material ma
 
 		QWidget* widget = nullptr;
 		switch (p->value.GetType()) {
-			case VariantTypeInt:
+			case VariantType::Int:
 				widget = drawIntField(materialIndex, p->name.c_str(), p->value.GetInt());
 				break;
-			case VariantTypeFloat:
+			case VariantType::Float:
 				widget = drawFloatField(materialIndex, p->name.c_str(), p->value.GetFloat());
 				break;
-			case VariantTypeColor3:
+			case VariantType::Color3:
 				widget = drawColor3Field(materialIndex, p->name.c_str(), p->value.GetColor3());
 				break;
-			case VariantTypeColor4:
+			case VariantType::Color4:
 				widget = drawColor4Field(materialIndex, p->name.c_str(), p->value.GetColor4());
 				break;
-			case VariantTypeTexture:
+			case VariantType::Texture:
 				widget = drawTextureField(materialIndex, p->name.c_str(), p->value.GetTexture());
 				break;
-			case VariantTypeVector3:
+			case VariantType::Vector3:
 				widget = drawVec3Field(materialIndex, p->name.c_str(), p->value.GetVector3());
 				break;
-			case VariantTypeVector4:
+			case VariantType::Vector4:
 				widget = drawVec4Field(materialIndex, p->name.c_str(), p->value.GetVector4());
 				break;
 		}
@@ -208,7 +208,7 @@ bool RendererInspector::isPropertyVisible(const QString& name) {
 QWidget* RendererInspector::drawIntField(uint materialIndex, const QString& name, int value) {
 	IntField* field = new IntField(this);
 	field->setValue(value);
-	field->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeInt)));
+	field->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantType::Int)));
 	connect(field, SIGNAL(valueChanged(int)), this, SLOT(onEditProperty()));
 	return field;
 }
@@ -216,7 +216,7 @@ QWidget* RendererInspector::drawIntField(uint materialIndex, const QString& name
 QWidget* RendererInspector::drawFloatField(uint materialIndex, const QString& name, float value) {
 	FloatField* field = new FloatField(this);
 	field->setValue(value);
-	field->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeFloat)));
+	field->setProperty(USER_PROPERTY, QVariant::fromValue(UserProperty(materialIndex, name, VariantType::Float)));
 	connect(field, SIGNAL(valueChanged(float)), this, SLOT(onEditProperty()));
 	return field;
 }
@@ -225,24 +225,24 @@ QWidget* RendererInspector::drawTextureField(uint materialIndex, const QString& 
 	TextureField* field = new TextureField(this);
 	field->setTexture(value);
 
-	field->setData(QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeTexture)));
+	field->setData(QVariant::fromValue(UserProperty(materialIndex, name, VariantType::Texture)));
 	connect(field, SIGNAL(currentTextureChanged(Texture)), this, SLOT(onCurrentTextureChanged(Texture)));
 	return field;
 }
 
 QWidget* RendererInspector::drawColor3Field(uint materialIndex, const QString& name, const glm::vec3& value) {
-	return drawColorField(materialIndex, name, VariantTypeColor3, &value);
+	return drawColorField(materialIndex, name, VariantType::Color3, &value);
 }
 
 QWidget* RendererInspector::drawColor4Field(uint materialIndex, const QString& name, const glm::vec4& value) {
-	return drawColorField(materialIndex, name, VariantTypeColor4, &value);
+	return drawColorField(materialIndex, name, VariantType::Color4, &value);
 }
 
 QWidget* RendererInspector::drawColorField(uint materialIndex, const QString& name, VariantType type, const void* value) {
 	ColorField* field = new ColorField(this);
 	field->setProperty("UserProperty", QVariant::fromValue(UserProperty(materialIndex, name, type)));
 
-	if (type == VariantTypeColor3) {
+	if (type == VariantType::Color3) {
 		field->setValue(*(const glm::vec3*)value);
 	}
 	else {
@@ -259,7 +259,7 @@ QWidget* RendererInspector::drawVec3Field(uint materialIndex, const QString& nam
 	field->setValue(value);
 	connect(field, SIGNAL(valueChanged(const glm::vec3&)), this, SLOT(onEditProperty()));
 
-	QVariant variant = QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeVector3));
+	QVariant variant = QVariant::fromValue(UserProperty(materialIndex, name, VariantType::Vector3));
 	field->setProperty(USER_PROPERTY, variant);
 
 	return field;
@@ -270,7 +270,7 @@ QWidget* RendererInspector::drawVec4Field(uint materialIndex, const QString& nam
 	field->setValue(value);
 	connect(field, SIGNAL(valueChanged(const glm::vec4&)), this, SLOT(onEditProperty()));
 
-	QVariant variant = QVariant::fromValue(UserProperty(materialIndex, name, VariantTypeVector4));
+	QVariant variant = QVariant::fromValue(UserProperty(materialIndex, name, VariantType::Vector4));
 	field->setProperty(USER_PROPERTY, variant);
 
 	return field;
@@ -281,15 +281,15 @@ void RendererInspector::onEditProperty() {
 	UserProperty prop = sender()->property(USER_PROPERTY).value<UserProperty>();
 
 	switch (prop.type) {
-		case VariantTypeInt:
+		case VariantType::Int:
 			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex)->SetInt(prop.name.toStdString(), ((IntField*)sender())->value());
 			break;
-		case VariantTypeFloat:
+		case VariantType::Float:
 			suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex)->SetFloat(prop.name.toStdString(), ((FloatField*)sender())->value());
 			break;
-		case VariantTypeVector3:
+		case VariantType::Vector3:
 			break;
-		case VariantTypeVector4:
+		case VariantType::Vector4:
 			break;
 	}
 }
@@ -299,7 +299,7 @@ void RendererInspector::onCurrentColorChanged(const QColor& color) {
 	UserProperty prop = field->property("UserProperty").value<UserProperty>();
 
 	Material material = suede_dynamic_cast<Renderer>(target_)->GetMaterial(prop.materialIndex);
-	if (prop.type == VariantTypeColor4) {
+	if (prop.type == VariantType::Color4) {
 		glm::vec4 newColor = Math::NormalizedColor(glm::ivec4(color.red(), color.green(), color.blue(), color.alpha()));
 		material->SetColor4(prop.name.toStdString(), newColor);
 	}

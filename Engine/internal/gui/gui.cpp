@@ -90,6 +90,14 @@ void GUI::Separator() {
 	ImGui::Separator();
 }
 
+void GUI::Indent(float v) {
+	ImGui::Indent(v);
+}
+
+void GUI::Unindent(float v) {
+	ImGui::Unindent(v);
+}
+
 bool GUI::Popup(const char* title, int* selected, const char* items) {
 	return ImGui::Combo(title, selected, items);
 }

@@ -71,20 +71,20 @@ void Culling::Cull(const glm::mat4& worldToClipMatrix) {
 	}
 }
 
-WorldEntityWalker::WalkCommand Culling::OnWalkEntity(Entity entity) {
+WalkCommand Culling::OnWalkEntity(Entity entity) {
 	if (!IsVisible(entity, worldToClipMatrix_)) {
-		return WorldEntityWalker::WalkCommandContinue;
+		return WalkCommand::Continue;
 	}
 
 	if (!entity->GetActive()) {
-		return WorldEntityWalker::WalkCommandNext;
+		return WalkCommand::Next;
 	}
 
 	if (entity->GetRenderer() && entity->GetMesh()) {
 		entities_.push_back(entity);
 	}
 
-	return WorldEntityWalker::WalkCommandContinue;
+	return WalkCommand::Continue;
 }
 
 bool Culling::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {

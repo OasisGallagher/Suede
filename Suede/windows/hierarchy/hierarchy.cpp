@@ -59,22 +59,22 @@ bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 void Hierarchy::OnWorldEvent(WorldEventBasePointer entit) {
 	EntityEventPointer eep = suede_static_cast<EntityEventPointer>(entit);
 	switch (entit->GetEventType()) {
-//		case WorldEventTypeEntityCreated:
+//		case WorldEventType::EntityCreated:
 //			onEntityCreated(eep->entity);
 //			break;
-		case WorldEventTypeEntityDestroyed:
+		case WorldEventType::EntityDestroyed:
 			onEntityDestroyed(eep->entity);
 			break;
-		case WorldEventTypeEntityTagChanged:
+		case WorldEventType::EntityTagChanged:
 			onEntityTagChanged(eep->entity);
 			break;
-		case WorldEventTypeEntityNameChanged:
+		case WorldEventType::EntityNameChanged:
 			onEntityNameChanged(eep->entity);
 			break;
-		case WorldEventTypeEntityParentChanged:
+		case WorldEventType::EntityParentChanged:
 			onEntityParentChanged(eep->entity);
 			break;
-		case WorldEventTypeEntityActiveChanged:
+		case WorldEventType::EntityActiveChanged:
 			onEntityActiveChanged(eep->entity);
 			break;
 	}

@@ -92,7 +92,7 @@ private:
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
 	typedef std::set<WorldEventBasePointer, WorldEventComparer> WorldEventCollection;
-	typedef WorldEventCollection WorldEventContainer[WorldEventTypeCount];
+	typedef WorldEventCollection WorldEventContainer[(int)WorldEventType::_Count];
 
 private:
 	Entity root_;

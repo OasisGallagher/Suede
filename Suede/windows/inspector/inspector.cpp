@@ -94,7 +94,7 @@ void Inspector::drawBasics() {
 }
 
 void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
-	// TODO: multi-selection.
+	// SUEDE TODO: multi-selection.
 	if (!selected.empty()) {
 		target_ = selected.front();
 	}
@@ -108,15 +108,15 @@ void Inspector::addInspector(CustomInspector* inspector) {
 
 void Inspector::drawComponents() {
 	switch (target_->GetType()) {
-		case ObjectTypeCamera:
+		case ObjectType::Camera:
 			drawCamera(suede_dynamic_cast<Camera>(target_));
 			break;
-		case ObjectTypeProjector:
+		case ObjectType::Projector:
 			drawProjector(suede_dynamic_cast<Projector>(target_));
 			break;
-		case ObjectTypeSpotLight:
-		case ObjectTypePointLight:
-		case ObjectTypeDirectionalLight:
+		case ObjectType::SpotLight:
+		case ObjectType::PointLight:
+		case ObjectType::DirectionalLight:
 			drawLight(suede_dynamic_cast<Light>(target_));
 			break;
 	}
@@ -133,11 +133,15 @@ void Inspector::drawComponents() {
 void Inspector::drawLight(Light light) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Light")) {
+		GUI::Indent();
+		GUI::Unindent();
 	}
 }
 
 void Inspector::drawCamera(Camera camera) {
 	if (GUI::CollapsingHeader("Camera")) {
+		GUI::Indent();
+
 		int selected = -1;
 		if (GUI::EnumPopup("Clear Type", +camera->GetClearType(), selected)) {
 			camera->SetClearType(ClearType::value(selected));
@@ -164,35 +168,46 @@ void Inspector::drawCamera(Camera camera) {
 		if (GUI::FloatField("Far", &farClipPlane)) {
 			camera->SetFarClipPlane(farClipPlane);
 		}
+
+		GUI::Unindent();
 	}
 }
 
 void Inspector::drawProjector(Projector projector) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Projector")) {
+		GUI::Indent();
+		GUI::Unindent();
 	}
 }
 
 void Inspector::drawMesh(Mesh mesh) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Mesh")) {
+		GUI::Indent();
+		GUI::Unindent();
 	}
 }
 
 void Inspector::drawRenderer(Renderer renderer) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Renderer")) {
+		GUI::Indent();
 		for (Material material : renderer->GetMaterials()) {
 			drawMaterial(material);
 		}
+
+		GUI::Unindent();
 	}
 }
 
 void Inspector::drawMaterial(Material material) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader(material->GetName().c_str())) {
+		GUI::Indent();
 		drawMaterialShader(material);
 		drawMaterialProperties(material);
+		GUI::Unindent();
 	}
 }
 
@@ -235,22 +250,22 @@ void Inspector::drawMaterialProperties(Material material) {
 
 	for (const Property* p : properties) {
 		switch (p->value.GetType()) {
-			case VariantTypeFloat:
+			case VariantType::Float:
 				drawFloat(material, p);
 				break;
-			case VariantTypeVector3:
+			case VariantType::Vector3:
 				drawVector3(material, p);
 				break;
-			case VariantTypeVector4:
+			case VariantType::Vector4:
 				drawVector4(material, p);
 				break;
-			case VariantTypeColor3:
+			case VariantType::Color3:
 				drawColor3(material, p);
 				break;
-			case VariantTypeColor4:
+			case VariantType::Color4:
 				drawColor4(material, p);
 				break;
-			case VariantTypeTexture:
+			case VariantType::Texture:
 				drawTexture(material, p);
 				break;
 		}
@@ -306,6 +321,7 @@ void Inspector::drawVector4(Material material, const Property* p) {
 void Inspector::drawTransform() {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Transform")) {
+		GUI::Indent();
 		glm::vec3 v3 = target_->GetTransform()->GetLocalPosition();
 		if (GUI::Float3Field("P", v3)) {
 			target_->GetTransform()->SetPosition(v3);
@@ -320,6 +336,8 @@ void Inspector::drawTransform() {
 		if (GUI::Float3Field("S", v3)) {
 			target_->GetTransform()->SetLocalScale(v3);
 		}
+
+		GUI::Unindent();
 	}
 }
 

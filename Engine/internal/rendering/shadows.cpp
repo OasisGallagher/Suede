@@ -1,4 +1,7 @@
 #include "shadows.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "pipeline.h"
 #include "resources.h"
 #include "variables.h"
@@ -11,7 +14,7 @@ Shadows::Shadows() {
 
 	directionalLightShadowMaterial_ = NewMaterial();
 	directionalLightShadowMaterial_->SetShader(Resources::instance()->FindShader("builtin/directional_light_depth"));
-	directionalLightShadowMaterial_->SetRenderQueue(RenderQueueBackground - 200);
+	directionalLightShadowMaterial_->SetRenderQueue((int)RenderQueue::Background - 200);
 }
 
 void Shadows::Resize(uint width, uint height) {

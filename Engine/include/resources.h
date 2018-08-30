@@ -5,10 +5,11 @@
 #include "renderer.h"
 #include "tools/singleton.h"
 
-enum PrimitiveType {
-	PrimitiveTypeQuad,
-	PrimitiveTypeCube,
-	PrimitiveTypeCount,
+enum class PrimitiveType {
+	Quad,
+	Cube,
+
+	_Count,
 };
 
 class SUEDE_API Resources : public Singleton2<Resources> {

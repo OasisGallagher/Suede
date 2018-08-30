@@ -836,7 +836,7 @@ DefineInitialize(Enum)                                                         \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator ==(const Enum &a, const Enum &b)                          \
-    { return a.to_int() == b.to_int(); }                           \
+    { return a.to_int() == b.to_int(); }							 \
 																			   \
 inline bool operator == (const Enum& a, Enum::_enumerated b)				   \
 	{ return a.to_int() == b; }									       \
@@ -844,22 +844,32 @@ inline bool operator == (const Enum& a, Enum::_enumerated b)				   \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator !=(const Enum &a, const Enum &b)                          \
     { return a.to_int() != b.to_int(); }                           \
+inline bool operator != (const Enum& a, Enum::_enumerated b)				   \
+	{ return a.to_int() != b; }									       \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator <(const Enum &a, const Enum &b)                           \
     { return a.to_int() < b.to_int(); }                            \
+inline bool operator < (const Enum& a, Enum::_enumerated b)				   \
+	{ return a.to_int() < b; }									       \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator <=(const Enum &a, const Enum &b)                          \
     { return a.to_int() <= b.to_int(); }                           \
+inline bool operator <= (const Enum& a, Enum::_enumerated b)				   \
+	{ return a.to_int() <= b; }									       \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator >(const Enum &a, const Enum &b)                           \
     { return a.to_int() > b.to_int(); }                            \
+inline bool operator > (const Enum& a, Enum::_enumerated b)				   \
+	{ return a.to_int() > b; }									       \
                                                                                \
 BETTER_ENUMS_UNUSED BETTER_ENUMS_CONSTEXPR_                                    \
 inline bool operator >=(const Enum &a, const Enum &b)                          \
     { return a.to_int() >= b.to_int(); }                           \
+inline bool operator >= (const Enum& a, Enum::_enumerated b)				   \
+	{ return a.to_int() >= b; }									       \
                                                                                \
                                                                                \
 template <typename Char, typename Traits>                                      \

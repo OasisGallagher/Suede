@@ -30,7 +30,7 @@ private:
 	uint id_;
 	ObjectType type_;
 
-	static uint ObjectIDContainer[ObjectTypeCount];
+	static uint ObjectIDContainer[(int)ObjectType::_Count];
 };
 
 template <class T>

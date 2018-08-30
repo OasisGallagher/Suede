@@ -202,26 +202,40 @@ bool Language::ParseProductions(const char* grammars) {
 	return true;
 }
 
-void Language::BuildSyntaxer(const char* grammars) {
+bool Language::BuildSyntaxer(const char* grammars) {
 	SetupEnvironment(grammars);
 	LRParser parser;
-	parser.Setup(*syntaxer_, env_);
+	return parser.Setup(*syntaxer_, env_);
 }
 
-void Language::LoadSyntaxer(const char* savePath) {
+bool Language::LoadSyntaxer(const char* savePath) {
 	std::ifstream file(savePath, std::ios::binary);
+	if (!file) {
+		Debug::LogError("faild to load syntaxer from \"%s\"", savePath);
+		return false;
+	}
+
 	env_->Load(file);
 	SyntaxerSetupParameter p = { env_ };
 	syntaxer_->Setup(p);
-	syntaxer_->Load(file);
+
+	bool ans = syntaxer_->Load(file);
 	file.close();
+
+	return ans;
 }
 
-void Language::SaveSyntaxer(const char* savePath) {
+bool Language::SaveSyntaxer(const char* savePath) {
 	std::ofstream file(savePath, std::ios::binary);
+	if (!file) {
+		Debug::LogError("failed to save syntaxer to %s.", savePath);
+		return false;
+	}
+
 	env_->Save(file);
 	syntaxer_->Save(file);
 	file.close();
+	return true;
 }
 
 std::string Language::ToString() const {

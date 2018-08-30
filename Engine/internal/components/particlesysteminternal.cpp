@@ -12,7 +12,7 @@ static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 #define MAX_PARTICLE_COUNT	1000
 
 ParticleSystemInternal::ParticleSystemInternal()
-	: ComponentInternal(ObjectTypeParticleSystem), duration_(3)
+	: ComponentInternal(ObjectType::ParticleSystem), duration_(3)
 	, looping_(false), startDelay_(0), time_(0), maxParticles_(MAX_PARTICLE_COUNT)
 	, particles_(MAX_PARTICLE_COUNT), meshDirty_(true), rendererDirty_(true) {
 }
@@ -173,7 +173,7 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute color(maxParticles_, 1);
 	InstanceAttribute geometry(maxParticles_, 1);
-	Mesh mesh = Resources::instance()->CreateInstancedPrimitive(PrimitiveTypeQuad, 1, color, geometry);
+	Mesh mesh = Resources::instance()->CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry);
 	GetEntity()->SetMesh(mesh);
 	meshDirty_ = false;
 }

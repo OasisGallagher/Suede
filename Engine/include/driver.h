@@ -12,7 +12,7 @@ public:
 
 	static bool IsSupported(const char* feature);
 
-public: // TODO:
+public: // SUEDE TODO:
 	static bool Initialize();
 
 private:

@@ -8,19 +8,19 @@
 #include "tools/singleton.h"
 #include "entityloadedlistener.h"
 
-enum WorldEventType {
-	WorldEventTypeEntityCreated,
-	WorldEventTypeEntityDestroyed,
-	WorldEventTypeEntityTagChanged,
-	WorldEventTypeEntityNameChanged,
-	WorldEventTypeEntityParentChanged,
-	WorldEventTypeEntityActiveChanged,
-	WorldEventTypeEntityTransformChanged,
-	WorldEventTypeEntityUpdateStrategyChanged,
+enum class WorldEventType {
+	EntityCreated,
+	EntityDestroyed,
+	EntityTagChanged,
+	EntityNameChanged,
+	EntityParentChanged,
+	EntityActiveChanged,
+	EntityTransformChanged,
+	EntityUpdateStrategyChanged,
 
-	WorldEventTypeCameraDepthChanged,
+	CameraDepthChanged,
 
-	WorldEventTypeCount,
+	_Count,
 };
 
 #define DEFINE_WORLD_EVENT_POINTER(type)	typedef std::shared_ptr<struct type> type ## Pointer
@@ -51,13 +51,13 @@ struct EntityEvent : public WorldEventBase {
 DEFINE_WORLD_EVENT_POINTER(EntityEvent);
 
 struct EntityCreatedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityCreated; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityCreated; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityCreatedEvent);
 
 struct EntityDestroyedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityDestroyed; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityDestroyed; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityDestroyedEvent);
@@ -66,7 +66,7 @@ DEFINE_WORLD_EVENT_POINTER(EntityDestroyedEvent);
  * @warning only entities with non-null parant cound send this event.
  */
 struct EntityParentChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityParentChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityParentChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityParentChangedEvent);
@@ -75,7 +75,7 @@ DEFINE_WORLD_EVENT_POINTER(EntityParentChangedEvent);
  * @warning only entities with non-null parant cound send this event.
  */
 struct EntityActiveChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityActiveChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityActiveChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityActiveChangedEvent);
@@ -84,7 +84,7 @@ DEFINE_WORLD_EVENT_POINTER(EntityActiveChangedEvent);
  * @warning only entities with non-null parant cound send this event.
  */
 struct EntityTagChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityTagChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityTagChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityTagChangedEvent);
@@ -93,26 +93,26 @@ DEFINE_WORLD_EVENT_POINTER(EntityTagChangedEvent);
  * @warning only entities with non-null parant cound send this event.
  */
 struct EntityNameChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityNameChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityNameChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityNameChangedEvent);
 
 struct EntityUpdateStrategyChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityUpdateStrategyChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityUpdateStrategyChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(EntityUpdateStrategyChangedEvent);
 
 struct CameraDepthChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeCameraDepthChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::CameraDepthChanged; }
 };
 
 DEFINE_WORLD_EVENT_POINTER(CameraDepthChangedEvent);
 
 DEFINE_WORLD_EVENT_POINTER(EntityTransformChangedEvent);
 struct EntityTransformChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventTypeEntityTransformChanged; }
+	virtual WorldEventType GetEventType() const { return WorldEventType::EntityTransformChanged; }
 
 	virtual bool Compare(WorldEventBasePointer other) const {
 		return prs < suede_static_cast<EntityTransformChangedEventPointer>(other)->prs;
@@ -130,14 +130,14 @@ public:
 	virtual void OnWorldEvent(WorldEventBasePointer e) = 0;
 };
 
+enum class WalkCommand {
+	Next,
+	Break,
+	Continue,
+};
+
 class WorldEntityWalker {
 public:
-	enum WalkCommand {
-		WalkCommandNext,
-		WalkCommandBreak,
-		WalkCommandContinue,
-	};
-
 	virtual WalkCommand OnWalkEntity(Entity entity) = 0;
 };
 

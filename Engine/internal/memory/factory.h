@@ -30,17 +30,17 @@ public:
 	}
 
 	static Object Create(ObjectType type) {
-		if (type < 0 || type >= ObjectTypeCount) {
+		if ((int)type < 0 || type >= ObjectType::_Count) {
 			Debug::LogError("invalid object type %d.", type);
 			return nullptr;
 		}
 
-		if (instance.methodArray_[type] == nullptr) {
+		if (instance.methodArray_[(int)type] == nullptr) {
 			Debug::LogError("no factroy method exists for type %d.", type);
 			return nullptr;
 		}
 
-		return instance.methodArray_[type]();
+		return instance.methodArray_[(int)type]();
 	}
 
 private:
@@ -51,15 +51,15 @@ private:
 	}
 
 	static void AddFactoryMethod(ObjectType type, FactoryMethod method) {
-		if (instance.methodArray_[type] != nullptr) {
+		if (instance.methodArray_[(int)type] != nullptr) {
 			Debug::LogError("method for type %d already exists.", type);
 			return;
 		}
 
-		instance.methodArray_[type] = method;
+		instance.methodArray_[(int)type] = method;
 	}
 
 	static Factory instance;
 	MethodDictionary methodDictionary_;
-	FactoryMethod methodArray_[ObjectTypeCount];
+	FactoryMethod methodArray_[(int)ObjectType::_Count];
 };

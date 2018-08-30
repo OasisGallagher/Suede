@@ -2,7 +2,7 @@
 #include "debug/debug.h"
 #include "objectinternal.h"
 
-uint ObjectInternal::ObjectIDContainer[ObjectTypeCount];
+uint ObjectInternal::ObjectIDContainer[(int)ObjectType::_Count];
 
 ObjectInternal::ObjectInternal(ObjectType type) {
 	id_ = GenerateInstanceID(type);
@@ -15,12 +15,12 @@ Object ObjectInternal::Clone() {
 }
 
 uint ObjectInternal::GenerateInstanceID(ObjectType type) {
-	if (ObjectIDContainer[type] >= std::numeric_limits<uint>::max()) {
+	if (ObjectIDContainer[(int)type] >= std::numeric_limits<uint>::max()) {
 		Debug::LogError("too many objects with type %d.", type);
 		return 0;
 	}
 
-	return Math::MakeDword(++ObjectIDContainer[type], type);
+	return Math::MakeDword(++ObjectIDContainer[(int)type], (int)type);
 }
 
 void ObjectInternal::DecodeInstanceID(uint value, ObjectType* type, uint* id) {

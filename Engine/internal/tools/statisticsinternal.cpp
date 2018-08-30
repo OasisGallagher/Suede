@@ -25,6 +25,22 @@ void StatisticsInternal::OnFrameEnter() {
 	}
 }
 
+void StatisticsInternal::SetCullingElapsed(double value) {
+	thisFrameStats.cullingElapsed = value;
+}
+
+void StatisticsInternal::SetRenderingElapsed(double value) {
+	thisFrameStats.renderingElapsed = value;
+}
+
+double StatisticsInternal::GetCullingElapsed() {
+	return lastFrameStats.cullingElapsed;
+}
+
+double StatisticsInternal::GetRenderingElapsed() {
+	return lastFrameStats.renderingElapsed;
+}
+
 void StatisticsInternal::AddTriangles(uint n) {
 	thisFrameStats.ntriangles += n;
 }

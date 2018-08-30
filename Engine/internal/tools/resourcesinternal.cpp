@@ -31,10 +31,10 @@ Mesh ResourcesInternal::CreateInstancedPrimitive(PrimitiveType type, float scale
 
 void ResourcesInternal::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) {
 	switch (type) {
-		case PrimitiveTypeQuad:
+		case PrimitiveType::Quad:
 			GetQuadMeshAttribute(attribute, scale);
 			break;
-		case PrimitiveTypeCube:
+		case PrimitiveType::Cube:
 			GetCubeMeshAttribute(attribute, scale);
 			break;
 	}
@@ -168,7 +168,7 @@ Mesh ResourcesInternal::CreateMesh(MeshAttribute &attribute) {
 
 Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
 	Texture2D texture = NewTexture2D();
-	texture->Create(TextureFormatRgba, &color, ColorStreamFormatRgba, 1, 1, 4);
+	texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
 	return texture;
 }
 
@@ -176,7 +176,7 @@ void ResourcesInternal::ImportBuiltinResources() {
 	whiteTexture_ = CreateSolidTexture(0xffffffff);
 	blackTexture_ = CreateSolidTexture(0xff000000);
 
-	for (int type = PrimitiveTypeQuad; type < PrimitiveTypeCount; ++type) {
+	for (int type = (int)PrimitiveType::Quad; type < (int)PrimitiveType::_Count; ++type) {
 		primitives_[type] = CreatePrimitive((PrimitiveType)type, 1);
 	}
 }

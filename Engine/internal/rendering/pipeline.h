@@ -1,6 +1,8 @@
 #pragma once
 #include "../api/gl.h"
 
+#include <glm/glm.hpp>
+
 #include "mesh.h"
 #include "rect.h"
 #include "camera.h"
@@ -8,7 +10,6 @@
 #include "material.h"
 #include "frameeventlistener.h"
 
-#include "internal/base/gpuquerier.h"
 #include "internal/base/framebuffer.h"
 
 struct Renderable {
@@ -36,7 +37,7 @@ enum SortMode {
 };
 
 class Sample;
-class Pipeline : public QuerierResultListener {
+class Pipeline {
 public:
 	Pipeline();
 	~Pipeline();
@@ -44,7 +45,7 @@ public:
 public:
 	void Sort(SortMode mode, const glm::mat4& worldToClipMatrix);
 
-	void Run(bool __tmpIsRendering = false);
+	void Run();
 	void Clear();
 
 	RenderTexture GetTargetTexture();
@@ -73,9 +74,6 @@ public:
 	);
 
 private:
-	virtual void OnQuerierResult(uint id, uint result);
-
-private:
 	void Render(Renderable& renderable, uint instance, uint matrixOffset);
 
 	void ResetState();
@@ -92,31 +90,41 @@ private:
 	std::vector<uint> ranges_;
 	std::vector<glm::mat4> matrices_;
 
-	// states.
-	int oldPass_;
-	Mesh oldMesh_;
-	Material oldMaterial_;
-
-	uint ndrawcalls_;
-	uint ntriangles_;
-
-	uint nmeshChanges_;
-	uint nmaterialChanges_;
-
 	Rect normalizedRect_;
 	RenderTexture targetTexture_;
 
-	uint timeQuerier_;
+	struct States {
+		int pass;
+		Mesh mesh;
+		Material material;
+
+		void Reset();
+	} oldStates_;
+
+	struct {
+		uint drawcalls;
+		uint triangles;
+
+		uint meshChanges;
+		uint materialChanges;
+	} counters_;
 
 	// performance.
-	Sample 
-		*switch_state,
-		*update_ubo, 
-		*update_offset, 
-		*update_matrices, 
-		*update_tbo, 
-		*draw_call,
-		*gather_instances, 
-		*update_pipeline, 
-		*stat_and_output;
+
+	struct Samples {
+		Samples();
+		~Samples();
+
+		Sample* switch_state;
+		Sample*	update_ubo;
+		Sample* update_offset;
+		Sample* update_matrices;
+		Sample* update_tbo;
+		Sample* draw_call;
+		Sample* gather_instances;
+		Sample* update_pipeline;
+		Sample* stat_and_output;
+
+		void Reset();
+	} samples_;
 };

@@ -1,7 +1,10 @@
+#include "worldinternal.h"
+
 #include "time2.h"
+#include "profiler.h"
+#include "statistics.h"
 #include "tools/math2.h"
 #include "decalcreater.h"
-#include "worldinternal.h"
 #include "../api/glutils.h"
 #include "geometryutility.h"
 #include "internal/async/guard.h"
@@ -20,8 +23,8 @@
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
 	ObjectType lt = lhs->GetType(), rt = rhs->GetType();
-	if (lt != rt && (lt == ObjectTypeDirectionalLight || rt == ObjectTypeDirectionalLight)) {
-		return lt == ObjectTypeDirectionalLight;
+	if (lt != rt && (lt == ObjectType::DirectionalLight || rt == ObjectType::DirectionalLight)) {
+		return lt == ObjectType::DirectionalLight;
 	}
 
 	LightImportance lli = lhs->GetImportance(), rli = rhs->GetImportance();
@@ -118,17 +121,17 @@ void WorldInternal::DestroyEntity(Entity entity) {
 void WorldInternal::DestroyEntityRecursively(Transform root) {
 	Entity entity = root->GetEntity();
 
-	if (entity->GetType() == ObjectTypeCamera) {
+	if (entity->GetType() == ObjectType::Camera) {
 		cameras_.erase(suede_dynamic_cast<Camera>(entity));
 	}
-	else if (entity->GetType() == ObjectTypeProjector) {
+	else if (entity->GetType() == ObjectType::Projector) {
 		projectors_.erase(suede_dynamic_cast<Projector>(entity));
 	}
-	else if (entity->GetType() >= ObjectTypeSpotLight && entity->GetType() <= ObjectTypeDirectionalLight) {
+	else if (entity->GetType() >= ObjectType::SpotLight && entity->GetType() <= ObjectType::DirectionalLight) {
 		lights_.erase(suede_dynamic_cast<Light>(entity));
 	}
 
-	// TODO: tag entity with destroyed?
+	// SUEDE TODO: tag entity with destroyed?
 	RemoveEntityFromSequence(entity);
 	entities_.erase(entity->GetInstanceID());
 	entity->GetTransform()->SetParent(nullptr);
@@ -143,7 +146,7 @@ void WorldInternal::DestroyEntityRecursively(Transform root) {
 }
 
 bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) {
-	if (type < ObjectTypeEntity) {
+	if (type < ObjectType::Entity) {
 		Debug::LogError("invalid entity type");
 		return false;
 	}
@@ -171,7 +174,7 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 
 bool WorldInternal::FireEvent(WorldEventBasePointer e) {
 	WorldEventType type = e->GetEventType();
-	WorldEventCollection& collection = events_[type];
+	WorldEventCollection& collection = events_[(int)type];
 
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 	if (collection.find(e) == collection.end()) {
@@ -222,15 +225,15 @@ bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWa
 			continue;
 		}
 
-		WorldEntityWalker::WalkCommand command = walker->OnWalkEntity(child);
+		WalkCommand command = walker->OnWalkEntity(child);
 
 		// next sibling.
-		if (command == WorldEntityWalker::WalkCommandNext) {
+		if (command == WalkCommand::Next) {
 			continue;
 		}
 
 		// 
-		if (command == WorldEntityWalker::WalkCommandBreak) {
+		if (command == WalkCommand::Break) {
 			return false;
 		}
 
@@ -247,13 +250,13 @@ void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 
 void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 	switch (e->GetEventType()) {
-		case WorldEventTypeCameraDepthChanged:
+		case WorldEventType::CameraDepthChanged:
 			cameras_.sort();
 			break;
-		case WorldEventTypeEntityParentChanged:
+		case WorldEventType::EntityParentChanged:
 			OnEntityParentChanged(suede_static_cast<EntityEventPointer>(e)->entity);
 			break;
-		case WorldEventTypeEntityUpdateStrategyChanged:
+		case WorldEventType::EntityUpdateStrategyChanged:
 			AddEntityToUpdateSequence(suede_static_cast<EntityEventPointer>(e)->entity);
 			break;
 	}
@@ -261,7 +264,7 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 
 void WorldInternal::AddObject(Object object) {
 	ObjectType type = object->GetType();
-	if (type >= ObjectTypeEntity) {
+	if (type >= ObjectType::Entity) {
 		Entity entity = suede_dynamic_cast<Entity>(object);
 		Transform transform = Factory::Create<TransformInternal>();
 		entity->SetTransform(transform);
@@ -274,32 +277,32 @@ void WorldInternal::AddObject(Object object) {
 		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
 	}
 
-	if (type >= ObjectTypeSpotLight && type <= ObjectTypeDirectionalLight) {
+	if (type >= ObjectType::SpotLight && type <= ObjectType::DirectionalLight) {
 		lights_.insert(suede_dynamic_cast<Light>(object));
 	}
 
-	if (type == ObjectTypeCamera) {
+	if (type == ObjectType::Camera) {
 		cameras_.insert(suede_dynamic_cast<Camera>(object));
 	}
 
-	if (type == ObjectTypeProjector) {
+	if (type == ObjectType::Projector) {
 		projectors_.insert(suede_dynamic_cast<Projector>(object));
 	}
 }
 
 bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity> &entities) {
-	if (type == ObjectTypeEntity) {
+	if (type == ObjectType::Entity) {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			entities.push_back(ite->second);
 		}
 	}
-	else if (type == ObjectTypeCamera) {
+	else if (type == ObjectType::Camera) {
 		entities.assign(cameras_.begin(), cameras_.end());
 	}
-	else if (type == ObjectTypeLights) {
+	else if (type == ObjectType::AllLights) {
 		entities.assign(lights_.begin(), lights_.end());
 	}
-	else if (type == ObjectTypeProjector) {
+	else if (type == ObjectType::Projector) {
 		entities.assign(projectors_.begin(), projectors_.end());
 	}
 	else {
@@ -323,7 +326,7 @@ void WorldInternal::OnEntityParentChanged(Entity entity) {
 }
 
 void WorldInternal::FireEvents() {
-	for (uint i = 0; i < WorldEventTypeCount; ++i) {
+	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
 		WorldEventCollection collection = events_[i];
 		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {
 			FireEventImmediate(*ite);
@@ -331,7 +334,7 @@ void WorldInternal::FireEvents() {
 	}
 
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
-	for (uint i = 0; i < WorldEventTypeCount; ++i) {
+	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
 		events_[i].clear();
 	}
 }
@@ -370,18 +373,24 @@ void WorldInternal::AddEntityToUpdateSequence(Entity entity) {
 }
 
 void WorldInternal::CullingUpdate() {
+	uint64 start = Profiler::instance()->GetTimeStamp();
 	CullingUpdateEntities();
+
+	Statistics::instance()->SetRenderingElapsed(
+		Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)
+	);
 }
 
 void WorldInternal::RenderingUpdate() {
+	uint64 start = Profiler::instance()->GetTimeStamp();
 	FireEvents();
 
-	// TODO: update decals in rendering thread ?
+	// SUEDE TODO: update decals in rendering thread ?
 	UpdateDecals();
 
 	RenderingUpdateEntities();
 
-	// TODO: CLEAR STENCIL BUFFER.
+	// SUEDE TODO: CLEAR STENCIL BUFFER.
 	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
 
 	UpdateTimeUniformBuffer();
@@ -391,4 +400,8 @@ void WorldInternal::RenderingUpdate() {
 			(*ite)->Render();
 		}
 	}
+
+	Statistics::instance()->SetRenderingElapsed(
+		Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)
+	);
 }

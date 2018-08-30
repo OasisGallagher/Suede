@@ -116,7 +116,7 @@ private:
 	Sample* renderingSample;
 };
 
-// TODO: multi-thread rendering.
+// SUEDE TODO: multi-thread rendering.
 class RenderableTraits/* : public ZThread::Runnable, public DirtyBits*/ {
 public:
 	RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/);

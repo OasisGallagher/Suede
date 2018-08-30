@@ -2,48 +2,48 @@
 #include <string>
 #include "enginedefines.h"
 
-enum ObjectType {
-	ObjectTypeFont,
-	ObjectTypeShader,
-	ObjectTypeSubMesh,
-	ObjectTypeMaterial,
-	ObjectTypeTexture2D,
-	ObjectTypeTextureCube,
-	ObjectTypeRenderTexture,
-	ObjectTypeMRTRenderTexture,
-	ObjectTypeTextureBuffer,
+enum class ObjectType {
+	Font,
+	Shader,
+	SubMesh,
+	Material,
+	Texture2D,
+	TextureCube,
+	RenderTexture,
+	MRTRenderTexture,
+	TextureBuffer,
 
-	ObjectTypeSkeleton,
-	ObjectTypeAnimation,
-	ObjectTypeAnimationClip,
-	ObjectTypeAnimationKeys,
-	ObjectTypeAnimationCurve,
-	ObjectTypeAnimationState,
-	ObjectTypeAnimationFrame,
+	Skeleton,
+	Animation,
+	AnimationClip,
+	AnimationKeys,
+	AnimationCurve,
+	AnimationState,
+	AnimationFrame,
 
-	ObjectTypeParticleAnimator,
-	ObjectTypeSphereParticleEmitter,
+	ParticleAnimator,
+	SphereParticleEmitter,
 
 	// Components
-	ObjectTypeTransform,
-	ObjectTypeParticleSystem,
-	ObjectTypeMesh,
-	ObjectTypeTextMesh,
-	ObjectTypeMeshRenderer,
-	ObjectTypeParticleRenderer,
-	ObjectTypeSkinnedMeshRenderer,
+	Transform,
+	ParticleSystem,
+	Mesh,
+	TextMesh,
+	MeshRenderer,
+	ParticleRenderer,
+	SkinnedMeshRenderer,
 
 	// Entities.
-	ObjectTypeEntity,
-	ObjectTypeCamera,
-	ObjectTypeProjector,
-	ObjectTypeSpotLight,
-	ObjectTypePointLight,
-	ObjectTypeDirectionalLight,
+	Entity,
+	Camera,
+	Projector,
+	SpotLight,
+	PointLight,
+	DirectionalLight,
 
-	ObjectTypeCount,
+	_Count,
 
-	ObjectTypeLights,
+	AllLights,
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Object);

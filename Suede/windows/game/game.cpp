@@ -282,10 +282,7 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
 
 void Game::updateStatContent() {
  	if (stat_->isVisible()) {
- 		stat_->setStats(Statistics::instance()->GetFrameRate(),
- 			Statistics::instance()->GetDrawcalls(),
- 			Statistics::instance()->GetTriangles()
- 		);
+		stat_->updateContent();
  	}
 }
 

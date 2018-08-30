@@ -48,7 +48,9 @@ bool EngineInternal::Startup(uint width, uint height) {
 	if (!Debug::Initialize()) { return false; }
 	if (!Driver::Initialize()) { return false; }
 
-	GLEF::instance();
+	if (!GLEF::instance()->Load("resources/data/GLEF.dat", "bin/GLEF.dll")) {
+		return false;
+	}
 
 	Time::implement(new TimeInternal);
 	Profiler::implement(new ProfilerInternal);

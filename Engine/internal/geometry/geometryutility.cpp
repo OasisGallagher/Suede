@@ -163,7 +163,7 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 	*/
 //}
 
-Side GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint npoints) {
+PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint npoints) {
 	uint npositive = 0, nnegative = 0;
 	for (uint j = 0; j < npoints; ++j) {
 		float f = GeometryUtility::GetDistance(plane, points[j]);
@@ -171,13 +171,13 @@ Side GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint
 		else if (f > 0) { ++npositive; }
 	}
 
-	if (npositive == 0 && nnegative == 0) { return SideCoinciding; }
+	if (npositive == 0 && nnegative == 0) { return PlaneSide::Coinciding; }
 
-	if (npositive == 0) { return SideBehind; }
+	if (npositive == 0) { return PlaneSide::Behind; }
 
-	if (nnegative == 0) { return SideInfront; }
+	if (nnegative == 0) { return PlaneSide::Infront; }
 
-	return SideSpanning;
+	return PlaneSide::Spanning;
 }
 
 void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& container, const glm::vec3& center, const glm::vec3& size) {
@@ -201,7 +201,7 @@ bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const glm::vec3
 	for (uint i = 0; i < npoints; ++i) {
 		bool inside = true;
 		for (uint j = 0; j < nplanes; ++j) {
-			if (TestSide(planes[j], points + i, 1) != SideInfront) {
+			if (TestSide(planes[j], points + i, 1) != PlaneSide::Infront) {
 				inside = false;
 			}
 		}
@@ -217,7 +217,7 @@ uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const glm::ve
 	for (uint i = 0; i < npoints; ++i) {
 		bool inside = true;
 		for (uint j = 0; j < nplanes; ++j) {
-			if (GeometryUtility::TestSide(planes[j], points + i, 1) == SideBehind) {
+			if (GeometryUtility::TestSide(planes[j], points + i, 1) == PlaneSide::Behind) {
 				inside = false;
 			}
 		}

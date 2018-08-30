@@ -28,5 +28,5 @@ void SkinnedMeshRendererInternal::UpdateMaterialProperties() {
 }
 
 ParticleRendererInternal::ParticleRendererInternal()
-	: RendererInternal(ObjectTypeParticleRenderer) {
+	: RendererInternal(ObjectType::ParticleRenderer) {
 }

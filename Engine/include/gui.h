@@ -25,6 +25,9 @@ public:
 	static void Sameline();
 	static void Separator();
 
+	static void Indent(float v = 4);
+	static void Unindent(float v = 4);
+
 	static bool Toggle(const char* title, bool* v);
 
 	template <class T>

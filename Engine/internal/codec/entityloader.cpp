@@ -213,7 +213,7 @@ bool EntityLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh*
 void EntityLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
-	// TODO: multiple texture coords?
+	// SUEDE TODO: multiple texture coords?
 	for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
 		// GetNumUVChannels() > 1.
 		if (aimesh->HasTextureCoords(i)) {
@@ -476,9 +476,9 @@ bool EntityLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 		}
 	}
 	else {
-		texelMap.textureFormat = TextureFormatRgba;
+		texelMap.textureFormat = TextureFormat::Rgba;
 		texelMap.data.assign((uchar*)aitex->pcData, (uchar*)aitex->pcData + aitex->mWidth * aitex->mHeight * sizeof(aiTexel));
-		texelMap.colorStreamFormat = ColorStreamFormatArgb;
+		texelMap.colorStreamFormat = ColorStreamFormat::Argb;
 		texelMap.width = aitex->mWidth;
 		texelMap.height = aitex->mHeight;
 	}

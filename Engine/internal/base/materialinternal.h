@@ -19,8 +19,8 @@ public:
 	virtual void SetShader(Shader value);
 	virtual Shader GetShader() { return shader_; }
 
-	virtual void SetRenderQueue(uint value);
-	virtual uint GetRenderQueue() const;
+	virtual void SetRenderQueue(int value);
+	virtual int GetRenderQueue() const;
 
 	virtual void SetPass(int value) { currentPass_ = value; }
 	virtual int GetPass() const { return currentPass_; }
@@ -70,6 +70,7 @@ private:
 
 	void UpdateProperties(Shader oldShader, Shader newShader);
 	void CopyProperties(Shader oldShader, Shader newShader);
+	void CopyProperties(std::vector<ShaderProperty> &from);
 
 	void InitializeEnabledState();
 

@@ -7,6 +7,7 @@
 #include "gizmospainter.h"
 #include "geometryutility.h"
 
+#include "tools/math2.h"
 #include "internal/async/guard.h"
 #include "internal/entities/camerainternal.h"
 
@@ -15,7 +16,7 @@ Camera Camera::GetMain() { return main_; }
 void Camera::SetMain(Camera value) { main_ = value; }
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectTypeCamera), depth_(0), traitsReady_(false)
+	: EntityInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
 	culling_ = MEMORY_NEW(Culling, this);
 	cullingThread_ = new ZThread::Thread(culling_);
@@ -81,7 +82,7 @@ void CameraInternal::Render() {
 		rendering_->Render(traits0_->GetPipelines(), matrices);
 	}
 	else {
-		// TODO: first frame not ready.
+		// SUEDE TODO: first frame not ready.
 	}
 }
 
@@ -166,7 +167,7 @@ Texture2D CameraInternal::Capture() {
 
 	Texture2D texture = NewTexture2D();
 	const glm::uvec4& viewport = Framebuffer0::Get()->GetViewport();
-	texture->Create(TextureFormatRgb, &data[0], ColorStreamFormatRgb, viewport.z, viewport.w, alignment);
+	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
 
 	return texture;
 }

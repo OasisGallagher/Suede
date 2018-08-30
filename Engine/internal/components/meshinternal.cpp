@@ -4,10 +4,10 @@
 #include "meshinternal.h"
 #include "internal/base/vertexattrib.h"
 
-SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectTypeSubMesh) {
+SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 }
 
-MeshInternal::MeshInternal() : MeshInternal(ObjectTypeMesh) {
+MeshInternal::MeshInternal() : MeshInternal(ObjectType::Mesh) {
 }
 
 MeshInternal::MeshInternal(ObjectType type)
@@ -43,7 +43,7 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 		return;
 	}
 
-	// TODO: update vbo instead.
+	// SUEDE TODO: update vbo instead.
 	storage_->vao.CreateVertexBuffers(vboCount);
 
 	storage_->vao.Bind();
@@ -178,7 +178,7 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectTypeTextMesh), dirty_(false) {
+TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectType::TextMesh), dirty_(false) {
 }
 
 TextMeshInternal::~TextMeshInternal() {

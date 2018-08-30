@@ -96,8 +96,8 @@ public:
 	void Bind(uint pass);
 	void Unbind();
 
-	void SetRenderQueue(uint value) { tags_[TagKeyRenderQueue] = value; }
-	uint GetRenderQueue() const { return tags_[TagKeyRenderQueue]; }
+	void SetRenderQueue(int value) { tags_[TagKeyRenderQueue] = value; }
+	int GetRenderQueue() const { return tags_[TagKeyRenderQueue]; }
 
 	/**
 	* @return initial enabled state of pass `pass`.
@@ -140,8 +140,8 @@ public:
 	virtual void Bind(uint ssi, uint pass);
 	virtual void Unbind();
 
-	virtual void SetRenderQueue(uint ssi, uint value);
-	virtual uint GetRenderQueue(uint ssi) const;
+	virtual void SetRenderQueue(uint ssi, int value);
+	virtual int GetRenderQueue(uint ssi) const;
 
 	virtual bool IsPassEnabled(uint ssi, uint pass) const;
 	virtual int GetPassIndex(uint ssi, const std::string& name) const;

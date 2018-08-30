@@ -8,11 +8,11 @@
 
 #include "internal/rendering/sharedtexturemanager.h"
 
-// TODO: sub shader index.
+// SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
 
 MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectTypeMaterial), currentPass_(-1), name_(UNNAMED_MATERIAL) {
+	: ObjectInternal(ObjectType::Material), currentPass_(-1), name_(UNNAMED_MATERIAL) {
 }
 
 MaterialInternal::~MaterialInternal() {
@@ -34,84 +34,84 @@ void MaterialInternal::SetShader(Shader value) {
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
-	Variant* var = GetProperty(name, VariantTypeInt);
+	Variant* var = GetProperty(name, VariantType::Int);
 	if (var != nullptr && var->GetInt() != value) {
 		var->SetInt(value);
 	}
 }
 
 void MaterialInternal::SetBool(const std::string& name, bool value) {
-	Variant* var = GetProperty(name, VariantTypeBool);
+	Variant* var = GetProperty(name, VariantType::Bool);
 	if (var != nullptr && var->GetBool() != value) {
 		var->SetBool(value);
 	}
 }
 
 void MaterialInternal::SetFloat(const std::string& name, float value) {
-	Variant* var = GetProperty(name, VariantTypeFloat);
+	Variant* var = GetProperty(name, VariantType::Float);
 	if (var != nullptr && !Math::Approximately(var->GetFloat(), value)) {
 		var->SetFloat(value);
 	}
 }
 
 void MaterialInternal::SetTexture(const std::string& name, Texture value) {
-	Variant* var = GetProperty(name, VariantTypeTexture);
+	Variant* var = GetProperty(name, VariantType::Texture);
 	if (var != nullptr && var->GetTexture() != value) {
 		var->SetTexture(value);
 	}
 }
 
 void MaterialInternal::SetVector3(const std::string& name, const glm::vec3& value) {
-	Variant* var = GetProperty(name, VariantTypeVector3);
+	Variant* var = GetProperty(name, VariantType::Vector3);
 	if (var != nullptr && var->GetVector3() != value) {
 		var->SetVector3(value);
 	}
 }
 
 void MaterialInternal::SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count) {
-	Variant* var = GetProperty(name, VariantTypeVector3Array);
+	Variant* var = GetProperty(name, VariantType::Vector3Array);
 	if (var != nullptr) {
 		var->SetVector3Array(ptr, count);
 	}
 }
 
 void MaterialInternal::SetColor3(const std::string& name, const glm::vec3& value) {
-	Variant* var = GetProperty(name, VariantTypeColor3);
+	Variant* var = GetProperty(name, VariantType::Color3);
 	if (var != nullptr && var->GetColor3() != value) {
 		var->SetColor3(value);
 	}
 }
 
 void MaterialInternal::SetColor4(const std::string& name, const glm::vec4& value) {
-	Variant* var = GetProperty(name, VariantTypeColor4);
+	Variant* var = GetProperty(name, VariantType::Color4);
 	if (var != nullptr && var->GetColor4() != value) {
 		var->SetColor4(value);
 	}
 }
 
 void MaterialInternal::SetVector4(const std::string& name, const glm::vec4& value) {
-	Variant* var = GetProperty(name, VariantTypeVector4);
+	Variant* var = GetProperty(name, VariantType::Vector4);
 	if (var != nullptr && var->GetVector4() != value) {
 		var->SetVector4(value);
 	}
 }
 
 void MaterialInternal::SetMatrix4(const std::string& name, const glm::mat4& value) {
-	Variant* var = GetProperty(name, VariantTypeMatrix4);
+	Variant* var = GetProperty(name, VariantType::Matrix4);
 	if (var != nullptr /*&& var->GetMatrix4() != value*/) {
 		var->SetMatrix4(value);
 	}
 }
 
 void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) {
-	Variant* var = GetProperty(name, VariantTypeMatrix4Array);
+	Variant* var = GetProperty(name, VariantType::Matrix4Array);
 	if (var != nullptr) {
 		var->SetMatrix4Array(ptr, count);
 	}
 }
 
 int MaterialInternal::GetInt(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeInt);
+	Variant* var = VerifyProperty(name, VariantType::Int);
 	if (var == nullptr) {
 		return 0;
 	}
@@ -120,7 +120,7 @@ int MaterialInternal::GetInt(const std::string& name) {
 }
 
 bool MaterialInternal::GetBool(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeBool);
+	Variant* var = VerifyProperty(name, VariantType::Bool);
 	if (var == nullptr) {
 		return 0;
 	}
@@ -129,7 +129,7 @@ bool MaterialInternal::GetBool(const std::string& name) {
 }
 
 float MaterialInternal::GetFloat(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeFloat);
+	Variant* var = VerifyProperty(name, VariantType::Float);
 	if (var == nullptr) {
 		return 0.f;
 	}
@@ -138,7 +138,7 @@ float MaterialInternal::GetFloat(const std::string& name) {
 }
 
 Texture MaterialInternal::GetTexture(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeTexture);
+	Variant* var = VerifyProperty(name, VariantType::Texture);
 	if (var == nullptr) {
 		return nullptr;
 	}
@@ -147,7 +147,7 @@ Texture MaterialInternal::GetTexture(const std::string& name) {
 }
 
 glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeMatrix4);
+	Variant* var = VerifyProperty(name, VariantType::Matrix4);
 	if (var == nullptr) {
 		return glm::mat4(0);
 	}
@@ -156,7 +156,7 @@ glm::mat4 MaterialInternal::GetMatrix4(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeVector3);
+	Variant* var = VerifyProperty(name, VariantType::Vector3);
 	if (var == nullptr) {
 		return glm::vec3(0);
 	}
@@ -165,7 +165,7 @@ glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetColor3(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeColor4);
+	Variant* var = VerifyProperty(name, VariantType::Color4);
 	if (var == nullptr) {
 		return glm::vec3(0);
 	}
@@ -174,7 +174,7 @@ glm::vec3 MaterialInternal::GetColor3(const std::string& name) {
 }
 
 glm::vec4 MaterialInternal::GetColor4(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantTypeColor4);
+	Variant* var = VerifyProperty(name, VariantType::Color4);
 	if (var == nullptr) {
 		return glm::vec4(0);
 	}
@@ -183,7 +183,7 @@ glm::vec4 MaterialInternal::GetColor4(const std::string& name) {
 }
 
 glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
-	const Variant* var = VerifyProperty(name, VariantTypeVector4);
+	const Variant* var = VerifyProperty(name, VariantType::Vector4);
 	if (var == nullptr) {
 		return glm::vec4(0);
 	}
@@ -272,7 +272,7 @@ int MaterialInternal::FindPass(const std::string& name) const {
 	return shader_->GetPassIndex(SUB_SHADER_INDEX, name);
 }
 
-void MaterialInternal::SetRenderQueue(uint value) {
+void MaterialInternal::SetRenderQueue(int value) {
 	if (!shader_) {
 		Debug::LogError("invalid shader");
 		return;
@@ -281,7 +281,7 @@ void MaterialInternal::SetRenderQueue(uint value) {
 	return shader_->SetRenderQueue(SUB_SHADER_INDEX, value);
 }
 
-uint MaterialInternal::GetRenderQueue() const {
+int MaterialInternal::GetRenderQueue() const {
 	if (!shader_) {
 		Debug::LogError("invalid shader");
 		return 0;
@@ -331,11 +331,11 @@ void MaterialInternal::BindProperties(uint pass) {
 		}
 
 		Variant& var = ite->second.property->value;
-		if (var.GetType() != VariantTypeTexture) {
+		if (var.GetType() != VariantType::Texture) {
 			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, var.GetData());
 		}
 		else if (var.GetTexture()) {
-			// TODO: for some weird reason...
+			// SUEDE TODO: for some weird reason...
  			//if (ite->first == Variables::MatrixTextureBuffer) {
  			//	textureIndex = 1;
  			//}
@@ -362,7 +362,7 @@ void MaterialInternal::UnbindProperties() {
 		}
 
 		Variant& var = ite->second.property->value;
-		if (var.GetType() != VariantTypeTexture) {
+		if (var.GetType() != VariantType::Texture) {
 			shader_->SetProperty(SUB_SHADER_INDEX, currentPass_, ite->first, zero);
 		}
 		else if (var.GetTexture()) {
@@ -389,11 +389,17 @@ void MaterialInternal::CopyProperties(Shader oldShader, Shader newShader) {
 
 	if (oldShader) { oldShader->GetProperties(container); }
 
-	// TODO: Copy Properties...
-	for (int i = 0; i < container.size(); ++i) {
-		ShaderProperty& key = container[i];
+	CopyProperties(container);
+}
+
+void MaterialInternal::CopyProperties(std::vector<ShaderProperty>& from) {
+	for(ShaderProperty& key : from) {
 		PropertyContainer::iterator pos = properties_.find(key.property->name);
-		if (pos != properties_.end() && pos->second.property->value.GetType() == key.property->value.GetType()) {
+		if (pos == properties_.end()) {
+			continue;
+		}
+		
+		if (pos->second.property->value.GetType() == key.property->value.GetType()) {
 			pos->second.property->value = key.property->value;
 		}
 	}
@@ -410,28 +416,28 @@ void MaterialInternal::InitializeEnabledState() {
 
 void MaterialInternal::SetVariant(const std::string& name, const Variant& value) {
 	switch (value.GetType()) {
-		case VariantTypeInt:
+		case VariantType::Int:
 			SetInt(name, value.GetInt());
 			break;
-		case VariantTypeFloat:
+		case VariantType::Float:
 			SetFloat(name, value.GetFloat());
 			break;
-		case VariantTypeTexture:
+		case VariantType::Texture:
 			SetTexture(name, value.GetTexture());
 			break;
-		case VariantTypeMatrix4:
+		case VariantType::Matrix4:
 			SetMatrix4(name, value.GetMatrix4());
 			break;
-		case VariantTypeVector3:
+		case VariantType::Vector3:
 			SetVector3(name, value.GetVector3());
 			break;
-		case VariantTypeColor3:
+		case VariantType::Color3:
 			SetColor3(name, value.GetColor3());
 			break;
-		case VariantTypeColor4:
+		case VariantType::Color4:
 			SetColor4(name, value.GetColor4());
 			break;
-		case VariantTypeVector4:
+		case VariantType::Vector4:
 			SetVector4(name, value.GetVector4());
 			break;
 		default:

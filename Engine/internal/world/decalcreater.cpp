@@ -25,7 +25,7 @@ bool DecalCreater::CreateEntityDecal(Camera camera, DecalInfo& info, Entity enti
 DecalCreater::DecalCreater() : decalInfos_(SUEDE_MAX_DECALS) {
 	material_ = NewMaterial();
 	material_->SetShader(Resources::instance()->FindShader("builtin/decal"));
-	material_->SetRenderQueue(RenderQueueOverlay - 500);
+	material_->SetRenderQueue((int)RenderQueue::Overlay - 500);
 }
 
 void DecalCreater::GetDecals(std::vector<Decal>& container) {
@@ -97,7 +97,7 @@ bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, E
 	for (SubMesh subMesh : mesh->GetSubMeshes()) {
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
-		// TODO: use triangle strip?
+		// SUEDE TODO: use triangle strip?
 		for (int j = 0; j < bias.indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
 			uint index0 = indexes[bias.baseIndex + j] + bias.baseVertex;

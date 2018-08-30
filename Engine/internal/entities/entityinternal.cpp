@@ -10,13 +10,13 @@
 #include "internal/entities/entityinternal.h"
 #include "internal/components/transforminternal.h"
 
-EntityInternal::EntityInternal() : EntityInternal(ObjectTypeEntity) {
+EntityInternal::EntityInternal() : EntityInternal(ObjectType::Entity) {
 }
 
 EntityInternal::EntityInternal(ObjectType entityType)
 	: ObjectInternal(entityType), active_(true),  activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
-	if (entityType < ObjectTypeEntity || entityType >= ObjectTypeCount) {
+	if (entityType < ObjectType::Entity || entityType >= ObjectType::_Count) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
 
@@ -285,7 +285,7 @@ void EntityInternal::DirtyChildrenBoundses() {
 }
 
 const char* EntityInternal::EntityTypeToString(ObjectType type) {
-#define CASE(name)	case ObjectType ## name: return #name;
+#define CASE(name)	case ObjectType:: ## name: return "ObjectType" #name;
 	switch (type) {
 		CASE(Entity);
 		CASE(Camera);

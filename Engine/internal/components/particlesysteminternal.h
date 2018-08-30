@@ -56,7 +56,7 @@ class SphereParticleEmitterInternal : public ISphereParticleEmitter, public Part
 	DEFINE_FACTORY_METHOD(SphereParticleEmitter)
 
 public:
-	SphereParticleEmitterInternal() : ParticleEmitterInternal(ObjectTypeSphereParticleEmitter) {}
+	SphereParticleEmitterInternal() : ParticleEmitterInternal(ObjectType::SphereParticleEmitter) {}
 
 public:
 	virtual void SetRadius(float value) { radius_ = value; }
@@ -72,7 +72,7 @@ class ParticleAnimatorInternal : public IParticleAnimator, public ObjectInternal
 	DEFINE_FACTORY_METHOD(ParticleAnimator)
 
 public:
-	ParticleAnimatorInternal() : ObjectInternal(ObjectTypeParticleAnimator), gravityScale_(1) {}
+	ParticleAnimatorInternal() : ObjectInternal(ObjectType::ParticleAnimator), gravityScale_(1) {}
 public:
 	virtual void SetForce(const glm::vec3& value) { force_ = value; }
 	virtual glm::vec3 GetForce() { return force_; }

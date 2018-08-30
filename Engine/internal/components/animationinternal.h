@@ -12,7 +12,7 @@ class SkeletonInternal : public ISkeleton, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Skeleton)
 
 public:
-	SkeletonInternal() : ObjectInternal(ObjectTypeSkeleton), current_(0), root_(nullptr) {}
+	SkeletonInternal() : ObjectInternal(ObjectType::Skeleton), current_(0), root_(nullptr) {}
 	~SkeletonInternal() { DestroyNodeHierarchy(root_); }
 
 public:
@@ -80,7 +80,7 @@ class AnimationStateInternal : public IAnimationState, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(AnimationState)
 
 public:
-	AnimationStateInternal() : ObjectInternal(ObjectTypeAnimationState) {}
+	AnimationStateInternal() : ObjectInternal(ObjectType::AnimationState) {}
 };
 
 class AnimationKeysInternal : public IAnimationKeys, public ObjectInternal {
@@ -129,7 +129,7 @@ class AnimationInternal : public IAnimation, public ComponentInternal {
 	DEFINE_FACTORY_METHOD(Animation)
 
 public:
-	AnimationInternal() : ComponentInternal(ObjectTypeAnimation), time_(0), playing_(false) {}
+	AnimationInternal() : ComponentInternal(ObjectType::Animation), time_(0), playing_(false) {}
 
 public:
 	virtual void CullingUpdate();
@@ -168,7 +168,7 @@ class AnimationFrameInternal : public IAnimationFrame, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(AnimationFrame)
 
 public:
-	AnimationFrameInternal() :ObjectInternal(ObjectTypeAnimationFrame) {}
+	AnimationFrameInternal() :ObjectInternal(ObjectType::AnimationFrame) {}
 
 public:
 	virtual void SetTime(float value) { time_ = value; }
@@ -199,7 +199,7 @@ class AnimationCurveInternal : public IAnimationCurve, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(AnimationCurve)
 	
 public:
-	AnimationCurveInternal() :ObjectInternal(ObjectTypeAnimationCurve) {}
+	AnimationCurveInternal() :ObjectInternal(ObjectType::AnimationCurve) {}
 
 public:
 	virtual void SetKeyframes(const std::vector<AnimationFrame>& value) { keyframes_ = value; }

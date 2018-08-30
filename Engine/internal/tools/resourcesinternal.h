@@ -19,7 +19,7 @@ public:
 	virtual std::string GetShaderDirectory() { return GetRootDirectory() + "shaders/"; }
 	virtual std::string GetTextureDirectory() { return GetRootDirectory() + "textures/"; }
 
-	virtual Mesh GetPrimitive(PrimitiveType type) { return primitives_[type]; }
+	virtual Mesh GetPrimitive(PrimitiveType type) { return primitives_[(int)type]; }
 	virtual Mesh CreatePrimitive(PrimitiveType type, float scale);
 	virtual Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
@@ -49,6 +49,6 @@ private:
 	typedef std::map<std::string, Material> MaterialContainer;
 	MaterialContainer materials_;
 
-	Mesh primitives_[PrimitiveTypeCount];
+	Mesh primitives_[(int)PrimitiveType::_Count];
 	Texture2D blackTexture_, whiteTexture_;
 };

@@ -32,19 +32,19 @@ bool Serializer::SaveEnvironment(std::ofstream& file, Environment* env) {
 
 bool Serializer::LoadEnvironment(std::ifstream& file, Environment* env) {
 	if (!LoadSymbols(file, env->terminalSymbols)) {
-		Debug::LogError("failed to save terminal symbols.");
+		Debug::LogError("failed to load terminal symbols.");
 		return false;
 	}
 
 	if (!LoadSymbols(file, env->nonterminalSymbols)) {
-		Debug::LogError("failed to save non-terminal symbols.");
+		Debug::LogError("failed to load non-terminal symbols.");
 		return false;
 	}
 
 	NativeSymbols::Copy(env->terminalSymbols, env->nonterminalSymbols);
 
 	if (!LoadGrammars(file, env->terminalSymbols, env->nonterminalSymbols, env->grammars)) {
-		Debug::LogError("failed to save grammars.");
+		Debug::LogError("failed to load grammars.");
 		return false;
 	}
 

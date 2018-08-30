@@ -4,11 +4,11 @@
 
 #include "polygon.h"
 
-enum Side {
-	SideCoinciding,
-	SideBehind,
-	SideInfront,
-	SideSpanning,
+enum class PlaneSide {
+	Coinciding,
+	Behind,
+	Infront,
+	Spanning,
 };
 
 class Plane;
@@ -24,7 +24,7 @@ public:
 	static void ClampTriangle(std::vector<glm::vec3>& polygon, const Triangle& triangle, const Plane* planes, uint count);
 
 	static bool IsFrontFace(const Triangle& face, const glm::vec3& camera);
-	static Side TestSide(const Plane& plane, const glm::vec3* points, uint npoints);
+	static PlaneSide TestSide(const Plane& plane, const glm::vec3* points, uint npoints);
 
 	static void GetCuboidCoordinates(std::vector<glm::vec3>& container, const glm::vec3& center, const glm::vec3& size);
 

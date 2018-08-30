@@ -9,4 +9,10 @@ public:
 	virtual uint GetTriangles() = 0;
 	virtual uint GetDrawcalls() = 0;
 	virtual float GetFrameRate() = 0;
+
+	virtual void SetCullingElapsed(double value) = 0;
+	virtual void SetRenderingElapsed(double value) = 0;
+
+	virtual double GetCullingElapsed() = 0;
+	virtual double GetRenderingElapsed() = 0;
 };

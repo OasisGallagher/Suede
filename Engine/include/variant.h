@@ -4,30 +4,30 @@
 
 #include "texture.h"
 
-enum VariantType {
-	VariantTypeNone,
-	VariantTypeInt,
-	VariantTypeBool,
-	VariantTypeFloat,
-	VariantTypeMatrix3,
-	VariantTypeMatrix4,
-	VariantTypeIVector3,
-	VariantTypeVector3,
-	VariantTypeColor3,
-	VariantTypeColor4,
-	VariantTypeVector4,
-	VariantTypeTexture,
-	VariantTypeQuaternion,
+enum class VariantType {
+	None,
+	Int,
+	Bool,
+	Float,
+	Matrix3,
+	Matrix4,
+	IVector3,
+	Vector3,
+	Color3,
+	Color4,
+	Vector4,
+	Texture,
+	Quaternion,
 
 	// POD array.
-	VARIANT_TYPE_POD_ARRAY_BEGIN,
-	VariantTypeVector3Array = VARIANT_TYPE_POD_ARRAY_BEGIN,
-	VariantTypeMatrix4Array,
+	_POD_ARRAY_BEGIN,
+	Vector3Array = _POD_ARRAY_BEGIN,
+	Matrix4Array,
 };
 
 class SUEDE_API Variant {
 public:
-	Variant() :type_(VariantTypeNone) { }
+	Variant() :type_(VariantType::None) { }
 	Variant(const Variant& other);
 
 	~Variant();

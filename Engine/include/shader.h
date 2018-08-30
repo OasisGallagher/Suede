@@ -23,8 +23,8 @@ public:
 	virtual void Bind(uint ssi, uint pass) = 0;
 	virtual void Unbind() = 0;
 
-	virtual void SetRenderQueue(uint ssi, uint value) = 0;
-	virtual uint GetRenderQueue(uint ssi) const = 0;
+	virtual void SetRenderQueue(uint ssi, int value) = 0;
+	virtual int GetRenderQueue(uint ssi) const = 0;
 
 	/**
 	 * @return initial enabled state of pass `pass`.

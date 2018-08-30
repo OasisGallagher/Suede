@@ -36,14 +36,14 @@ class MeshRendererInternal : public IMeshRenderer, public RendererInternal {
 	DEFINE_FACTORY_METHOD(MeshRenderer)
 
 public:
-	MeshRendererInternal() : RendererInternal(ObjectTypeMeshRenderer) {}
+	MeshRendererInternal() : RendererInternal(ObjectType::MeshRenderer) {}
 };
 
 class SkinnedMeshRendererInternal : public ISkinnedMeshRenderer, public RendererInternal {
 	DEFINE_FACTORY_METHOD(SkinnedMeshRenderer)
 
 public:
-	SkinnedMeshRendererInternal() : RendererInternal(ObjectTypeSkinnedMeshRenderer) {}
+	SkinnedMeshRendererInternal() : RendererInternal(ObjectType::SkinnedMeshRenderer) {}
 
 public:
 	virtual void UpdateMaterialProperties();

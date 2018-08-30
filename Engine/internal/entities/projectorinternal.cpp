@@ -2,5 +2,5 @@
 #include "projectorinternal.h"
 
 ProjectorInternal::ProjectorInternal()
-	: EntityInternal(ObjectTypeProjector), depth_(0) {
+	: EntityInternal(ObjectType::Projector), depth_(0) {
 }

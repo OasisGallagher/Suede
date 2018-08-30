@@ -2,13 +2,13 @@
 #include "screen.h"
 #include "graphics.h"
 #include "profiler.h"
-#include "variables.h"
 #include "resources.h"
 #include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
 #include "tools/math2.h"
 #include "tools/random.h"
+#include "memory/memory.h"
 #include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/shadows.h"
@@ -22,24 +22,24 @@ RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTe
 }
 
 Rendering::Rendering(RenderingParameters* p) :p_(p) {
-	CreateAuxMaterial(p_->materials.ssao, "builtin/ssao", RenderQueueBackground);
-	CreateAuxMaterial(p_->materials.ssaoTraversal, "builtin/ssao_traversal", RenderQueueBackground);
+	CreateAuxMaterial(p_->materials.ssao, "builtin/ssao", (int)RenderQueue::Background);
+	CreateAuxMaterial(p_->materials.ssaoTraversal, "builtin/ssao_traversal", (int)RenderQueue::Background);
 
-	CreateAuxMaterial(p_->materials.depth, "builtin/depth", RenderQueueBackground - 300);
+	CreateAuxMaterial(p_->materials.depth, "builtin/depth", (int)RenderQueue::Background - 300);
 
 	uint w = Screen::instance()->GetWidth(), h = Screen::instance()->GetHeight();
 
 	p_->renderTextures.aux1 = NewRenderTexture();
-	p_->renderTextures.aux1->Create(RenderTextureFormatRgba, w, h);
+	p_->renderTextures.aux1->Create(RenderTextureFormat::Rgba, w, h);
 
 	p_->renderTextures.aux2 = NewRenderTexture();
-	p_->renderTextures.aux2->Create(RenderTextureFormatRgba, w, h);
+	p_->renderTextures.aux2->Create(RenderTextureFormat::Rgba, w, h);
 
 	p_->renderTextures.ssaoTraversal = NewMRTRenderTexture();
-	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormatDepth, w, h);
+	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormat::Depth, w, h);
 
-	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32F);
-	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormatRgb32F);
+	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
+	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
 
 	ssaoSample = Profiler::instance()->CreateSample();
 	ssaoTraversalSample = Profiler::instance()->CreateSample();
@@ -148,7 +148,7 @@ void Rendering::OnImageEffects() {
 
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
-	RenderTexture temp = RenderTexture::GetTemporary(RenderTextureFormatRgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	RenderTexture temp = RenderTexture::GetTemporary(RenderTextureFormat::Rgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
 	p_->materials.ssao->SetPass(0);
 	Graphics::instance()->Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
@@ -201,7 +201,7 @@ void Rendering::ShadowPass(RenderingPipelines& pipelines) {
 
 void Rendering::RenderPass(RenderingPipelines& pipelines) {
 	renderingSample->Restart();
-	pipelines.rendering->Run(true);
+	pipelines.rendering->Run();
 	renderingSample->Stop();
 	OutputSample(renderingSample);
 }
@@ -341,7 +341,7 @@ void RenderableTraits::RenderSkybox(Pipeline* pl) {
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pl->AddRenderable(Resources::instance()->GetPrimitive(PrimitiveTypeCube), skybox, 0, matrix);
+		pl->AddRenderable(Resources::instance()->GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
 	}
 }
 
@@ -389,7 +389,7 @@ void RenderableTraits::InitializeSSAOKernel() {
 	}
 
 	Texture2D noiseTexture = NewTexture2D();
-	noiseTexture->Create(TextureFormatRgb32F, &noise, ColorStreamFormatRgbF, 4, 4, 4);
+	noiseTexture->Create(TextureFormat::Rgb32F, &noise, ColorStreamFormat::RgbF, 4, 4, 4);
 	noiseTexture->SetWrapModeS(TextureWrapMode::Repeat);
 	noiseTexture->SetWrapModeT(TextureWrapMode::Repeat);
 
@@ -420,7 +420,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& enti
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Entity> lights;
-	if (!World::instance()->GetEntities(ObjectTypeLights, lights)) {
+	if (!World::instance()->GetEntities(ObjectType::AllLights, lights)) {
 		return;
 	}
 

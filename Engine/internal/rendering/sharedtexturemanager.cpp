@@ -8,13 +8,13 @@ SharedTextureManager::SharedTextureManager() {
 	uint h = Screen::instance()->GetHeight();
 
 	depth_ = NewRenderTexture();
-	depth_->Create(RenderTextureFormatDepth, w, h);
+	depth_->Create(RenderTextureFormat::Depth, w, h);
 
 	shadowDepth_ = NewRenderTexture();
-	shadowDepth_->Create(RenderTextureFormatShadow, w, h);
+	shadowDepth_->Create(RenderTextureFormat::Shadow, w, h);
 
 	ssao_ = NewRenderTexture();
-	ssao_->Create(RenderTextureFormatRgbHDR, w, h);
+	ssao_->Create(RenderTextureFormat::RgbF, w, h);
 
 	matrixBuffer_ = NewTextureBuffer();
 	matrixBuffer_->Create(INIT_RENDERABLE_CAPACITY * sizeof(glm::mat4) * 2);

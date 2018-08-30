@@ -47,26 +47,26 @@ public:
 	virtual uint GetHeight() const = 0;
 };
 
-enum TextureFormat {
-	TextureFormatRgb,
-	TextureFormatRgba,
-	TextureFormatRgbS,
-	TextureFormatRgbaS,
-	TextureFormatRgb16F,
-	TextureFormatRgb32F,
-	TextureFormatRgba16F,
-	TextureFormatRgba32F,
+enum class TextureFormat {
+	Rgb,
+	Rgba,
+	RgbS,
+	RgbaS,
+	Rgb16F,
+	Rgb32F,
+	Rgba16F,
+	Rgba32F,
 };
 
-enum ColorStreamFormat {
-	ColorStreamFormatRgb,
-	ColorStreamFormatRgbF,
-	ColorStreamFormatBgr,
-	ColorStreamFormatRgba,
-	ColorStreamFormatRgbaF,
-	ColorStreamFormatArgb,
-	ColorStreamFormatBgra,
-	ColorStreamFormatLuminanceAlpha,
+enum class ColorStreamFormat {
+	Rgb,
+	RgbF,
+	Bgr,
+	Rgba,
+	RgbaF,
+	Argb,
+	Bgra,
+	LuminanceAlpha,
 };
 
 class SUEDE_API ITexture2D : virtual public ITexture {
@@ -92,19 +92,19 @@ public:
 	virtual void Update(uint offset, uint size, const void* data) = 0;
 };
 
-enum RenderTextureFormat {
-	RenderTextureFormatRgb,
-	RenderTextureFormatRgbSN,
-	RenderTextureFormatRgbHDR,
+BETTER_ENUM(RenderTextureFormat, int,
+	Rgb,
+	RgbS,
+	RgbF,
 
-	RenderTextureFormatRgba,
-	RenderTextureFormatRgbaSN,
-	RenderTextureFormatRgbaHDR,
+	Rgba,
+	RgbaS,
+	RgbaF,
 
-	RenderTextureFormatDepth,
-	RenderTextureFormatShadow,
-	RenderTextureFormatDepthStencil,
-};
+	Depth,
+	Shadow,
+	DepthStencil
+);
 
 class SUEDE_API IRenderTexture : virtual public ITexture {
 public:

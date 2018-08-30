@@ -7,7 +7,7 @@ SUEDE_DEFINE_OBJECT_POINTER(Component);
 enum {
 	UpdateStrategyNone = 0,
 	UpdateStrategyCulling = 1,
-	UpdateStrategyRendering = 2,
+	UpdateStrategyRendering = 1 << 1,
 };
 
 class SUEDE_API IComponent : virtual public IObject {

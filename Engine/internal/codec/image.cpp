@@ -9,34 +9,34 @@ static ColorStreamFormat BppToColorStreamFormat(uint bpp) {
 	case 8:
 	case 24:
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		return ColorStreamFormatBgr;
+		return ColorStreamFormat::Bgr;
 #else
-		return ColorStreamFormatRgb;
+		return ColorStreamFormat::Rgb;
 #endif
 	case 32:
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		return ColorStreamFormatBgra;
+		return ColorStreamFormat::Bgra;
 #else
 		return ColorStreamFormatRgba;
 #endif
 	}
 
 	Debug::LogError("invalid bbp number %d.", bpp);
-	return ColorStreamFormatBgr;
+	return ColorStreamFormat::Bgr;
 }
 
 static uint ColorStreamFormatToBpp(ColorStreamFormat format) {
 	switch (format) {
-	case ColorStreamFormatRgb:
-	case ColorStreamFormatBgr:
+	case ColorStreamFormat::Rgb:
+	case ColorStreamFormat::Bgr:
 		return 3 * 8;
 
-	case ColorStreamFormatRgba:
-	case ColorStreamFormatArgb:
-	case ColorStreamFormatBgra:
+	case ColorStreamFormat::Rgba:
+	case ColorStreamFormat::Argb:
+	case ColorStreamFormat::Bgra:
 		return 4 * 8;
 
-	case ColorStreamFormatLuminanceAlpha:
+	case ColorStreamFormat::LuminanceAlpha:
 		return 2 * 8;
 
 	default:
@@ -168,7 +168,7 @@ bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 
 	texelMap.width = width;
 	texelMap.height = height;
-	texelMap.textureFormat = (bpp >= 32) ? TextureFormatRgba : TextureFormatRgb;
+	texelMap.textureFormat = (bpp >= 32) ? TextureFormat::Rgba : TextureFormat::Rgb;
 	texelMap.colorStreamFormat = BppToColorStreamFormat(bpp);
 	texelMap.alignment = 4;
 
@@ -213,13 +213,13 @@ FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
 }
 
 FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
-	if (texelMap.colorStreamFormat != ColorStreamFormatRgb && texelMap.colorStreamFormat != ColorStreamFormatRgba) {
+	if (texelMap.colorStreamFormat != ColorStreamFormat::Rgb && texelMap.colorStreamFormat != ColorStreamFormat::Rgba) {
 		Debug::LogError("invalid format %d.", texelMap.colorStreamFormat);
 		return nullptr;
 	}
 
-	// TODO: 32 bbp jpg.
-	BPPType bpp = texelMap.colorStreamFormat == ColorStreamFormatRgb ? BPPType24 : BPPType32;
+	// SUEDE TODO: 32 bbp jpg.
+	BPPType bpp = texelMap.colorStreamFormat == ColorStreamFormat::Rgb ? BPPType24 : BPPType32;
 	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
 	CopyBitsFrom(dib, texelMap.width, texelMap.height, texelMap.alignment, bpp, texelMap.data);
 

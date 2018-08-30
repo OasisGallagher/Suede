@@ -19,6 +19,12 @@ public:
 	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueueStatistics; }
 
+	virtual void SetCullingElapsed(double value);
+	virtual void SetRenderingElapsed(double value);
+
+	virtual double GetCullingElapsed();
+	virtual double GetRenderingElapsed();
+
 private:
 	float frameRate_;
 	float timeCounter_;
@@ -28,5 +34,8 @@ private:
 		uint ndrawcalls;
 		uint nvertices;
 		uint ntriangles;
+
+		double cullingElapsed;
+		double renderingElapsed;
 	} stats_[2];
 };

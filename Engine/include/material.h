@@ -6,11 +6,11 @@
 #include "variant.h"
 #include "texture.h"
 
-enum RenderQueue {
-	RenderQueueBackground = 1000,
-	RenderQueueGeometry = 2000,
-	RenderQueueTransparent = 4000,
-	RenderQueueOverlay = 6000,
+enum class RenderQueue {
+	Background = 1000,
+	Geometry = 2000,
+	Transparent = 4000,
+	Overlay = 6000,
 };
 
 class SUEDE_API IMaterial : virtual public IObject {
@@ -35,8 +35,8 @@ public:
 	virtual void SetShader(Shader value) = 0;
 	virtual Shader GetShader() = 0;
 
-	virtual void SetRenderQueue(uint value) = 0;
-	virtual uint GetRenderQueue() const = 0;
+	virtual void SetRenderQueue(int value) = 0;
+	virtual int GetRenderQueue() const = 0;
 
 	virtual void Define(const std::string& name) = 0;
 	virtual void Undefine(const std::string& name) = 0;
