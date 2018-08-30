@@ -48,7 +48,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 	if (!Debug::Initialize()) { return false; }
 	if (!Driver::Initialize()) { return false; }
 
-	if (!GLEF::instance()->Load("resources/data/GLEF.dat", "bin/GLEF.dll")) {
+	if (!GLEF::instance()->Load("resources/data/GLEF.dat")) {
 		return false;
 	}
 

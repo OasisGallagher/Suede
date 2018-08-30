@@ -11,17 +11,11 @@
 
 static Language language;
 
-bool GLEF::Load(const char* binpath, const char* dllpath) {
-#ifdef _DEBUG
-	time_t tp = FileSystem::GetFileLastWriteTime(dllpath);
-	time_t to = FileSystem::GetFileLastWriteTime(binpath);
+bool RebuildGLEF(const char* binpath) {
+	return language.BuildSyntaxer(GLEFGrammar) && language.SaveSyntaxer(binpath);
+}
 
-	if (tp > to) {
-		return language.BuildSyntaxer(GLEFGrammar) && language.SaveSyntaxer(binpath);
-	}
-
-#endif
-
+bool GLEF::Load(const char* binpath) {
 	return language.LoadSyntaxer(binpath);
 }
 

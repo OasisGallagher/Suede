@@ -13,7 +13,7 @@ public:
 	bool IsDirectory() const { return name_.back() == '/'; }
 
 	void AddChild(FileEntry* child) { children_.push_back(child); }
-	uint GetChildCount() const { return children_.size(); }
+	uint GetChildCount() const { return (uint)children_.size(); }
 	FileEntry* GetChildAt(uint i) { return children_[i]; }
 
 private:

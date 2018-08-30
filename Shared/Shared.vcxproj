@@ -90,6 +90,8 @@
     </ClCompile>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)GLEF\lib
+copy $(TargetDir)$(TargetName).lib $(SolutionDir)GLEFBuilder\lib
+copy $(TargetDir)$(TargetName).dll $(SolutionDir)GLEFBuilder\bin
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
 copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>

@@ -84,14 +84,14 @@ SubShader {
 		
 		in VS_OUT {
 			vec3 clipNormal;
-		} input[];
+		} inputs[];
 
 		void main() {
 			for (int i = 0; i < 3; ++i) {
 				gl_Position = gl_in[i].gl_Position;
 				EmitVertex();
 
-				gl_Position = gl_in[i].gl_Position + vec4(input[i].clipNormal, 0) * 0.4;
+				gl_Position = gl_in[i].gl_Position + vec4(inputs[i].clipNormal, 0) * 0.4;
 				EmitVertex();
 
 				EndPrimitive();

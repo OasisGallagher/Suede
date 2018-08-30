@@ -21,7 +21,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLEF", "GLEF\GLEF.vcxproj", "{1AD72401-EA15-485A-9CBB-9574AC936ED6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D8B0C160-926F-443A-9F0A-3EEA4309267B} = {D8B0C160-926F-443A-9F0A-3EEA4309267B}
+		{45201EE5-2AE7-4086-A9D4-65B90019943F} = {45201EE5-2AE7-4086-A9D4-65B90019943F}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLEFBuilder", "GLEFBuilder\GLEFBuilder.vcxproj", "{45201EE5-2AE7-4086-A9D4-65B90019943F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +60,14 @@ Global
 		{1AD72401-EA15-485A-9CBB-9574AC936ED6}.Release|x64.Build.0 = Release|x64
 		{1AD72401-EA15-485A-9CBB-9574AC936ED6}.Release|x86.ActiveCfg = Release|Win32
 		{1AD72401-EA15-485A-9CBB-9574AC936ED6}.Release|x86.Build.0 = Release|Win32
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Debug|x64.ActiveCfg = Debug|x64
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Debug|x64.Build.0 = Debug|x64
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Debug|x86.ActiveCfg = Debug|Win32
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Debug|x86.Build.0 = Debug|Win32
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Release|x64.ActiveCfg = Release|x64
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Release|x64.Build.0 = Release|x64
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Release|x86.ActiveCfg = Release|Win32
+		{45201EE5-2AE7-4086-A9D4-65B90019943F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
