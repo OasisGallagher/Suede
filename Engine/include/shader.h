@@ -8,6 +8,10 @@
 struct Property {
 	std::string name;
 	Variant value;
+
+	bool operator == (const Property& other) const {
+		return name == other.name && value == other.value;
+	}
 };
 
 struct ShaderProperty {

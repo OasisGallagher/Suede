@@ -373,12 +373,7 @@ void WorldInternal::AddEntityToUpdateSequence(Entity entity) {
 }
 
 void WorldInternal::CullingUpdate() {
-	uint64 start = Profiler::instance()->GetTimeStamp();
 	CullingUpdateEntities();
-
-	Statistics::instance()->SetRenderingElapsed(
-		Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)
-	);
 }
 
 void WorldInternal::RenderingUpdate() {

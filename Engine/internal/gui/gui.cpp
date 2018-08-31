@@ -10,7 +10,7 @@ static ImFont* imfont;
 static char buffer[256];
 
 void GUI::LoadFont(const char* file) {
-	imfont = ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15);
+	imfont = ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15, nullptr, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 }
 
 void GUI::Begin(uint w, uint h) {

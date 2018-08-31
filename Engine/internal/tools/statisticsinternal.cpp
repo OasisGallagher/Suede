@@ -12,7 +12,7 @@ StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frame
 
 void StatisticsInternal::OnFrameEnter() {
 	lastFrameStats = thisFrameStats;
-	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
+	thisFrameStats.Reset();
 
 	if (timeCounter_ < FPS_REFRESH_TIME) {
 		timeCounter_ += Time::instance()->GetDeltaTime();
@@ -59,4 +59,8 @@ uint StatisticsInternal::GetDrawcalls() {
 
 float StatisticsInternal::GetFrameRate() {
 	return frameRate_;
+}
+
+void StatisticsInternal::FrameStats::Reset() {
+	ndrawcalls = nvertices = ntriangles = 0;
 }

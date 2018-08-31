@@ -42,16 +42,19 @@
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 // #define FONT
-//#define BUMPED
-#define NORMAL_VISUALIZER
+#define BUMPED
+//#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "nanosuit.fbx";
+static const char* roomFbxPath = "house.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
+
+Shader testBumped_shader;
+Material testBumped_material;
 
 #define FPS_UPDATE_INTERVAL		800
 
@@ -142,8 +145,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			animation->Play("");
 		}
 	}
-
-	if (path == roomFbxPath) {
+	else if (path == roomFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
 		root->GetTransform()->SetEulerAngles(glm::vec3(30, 0, 0));
 		if (path.find("house") != std::string::npos) {
@@ -158,12 +160,14 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}
 	}
-
-	if (path == bumpedFbxPath) {
+	else if (path == bumpedFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -15));
 
 		Entity target = root->GetTransform()->FindChild("Sphere01")->GetEntity();
 		Material material = target->GetRenderer()->GetMaterial(0);
+
+		testBumped_shader = material->GetShader();
+		testBumped_material = material;
 
 		material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
 
@@ -175,8 +179,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		normal->Create("bumped/normal.jpg");
 		material->SetTexture(Variables::BumpTexture, normal);
 	}
-
-	if (path == normalVisualizerFbxPath) {
+	else if (path == normalVisualizerFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 		root->GetTransform()->SetEulerAngles(glm::vec3(0));
 
@@ -212,7 +215,18 @@ void Game::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void Game::keyPressEvent(QKeyEvent* event) {
+	static bool toBumped = false;
 	switch (event->key()) {
+		case Qt::Key_Space:
+			if (toBumped) {
+				testBumped_material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
+			}
+			else {
+				testBumped_material->SetShader(testBumped_shader);
+			}
+
+			toBumped = !toBumped;
+			break;
 	}
 }
 

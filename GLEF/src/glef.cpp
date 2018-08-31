@@ -3,8 +3,6 @@
 #endif
 
 #include "glef.h"
-#include "debug/debug.h"
-#include "os/filesystem.h"
 #include "parser/mathexpr.h"
 #include "grammar/language.h"
 #include "grammar/glefgrammar.h"

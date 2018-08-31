@@ -1,7 +1,15 @@
 #pragma once
 
 #include "material.h"
+#include "containers/ptrmap.h"
 #include "internal/base/objectinternal.h"
+
+struct MaterialProperty {
+	MaterialProperty& operator = (const ShaderProperty& p);
+
+	int mask;
+	Property property;
+};
 
 class MaterialInternal : public IMaterial, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Material)
@@ -68,13 +76,15 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void UpdateProperties(Shader oldShader, Shader newShader);
-	void CopyProperties(Shader oldShader, Shader newShader);
-	void CopyProperties(std::vector<ShaderProperty> &from);
+	void UpdateProperties(Shader newShader);
+	void CopyProperties(Shader newShader);
+	void DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties);
 
 	void InitializeEnabledState();
 
 	Variant* GetProperty(const std::string& name, VariantType type);
+	MaterialProperty* GetMaterialProperty(const std::string& name, VariantType type);
+
 	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
@@ -83,6 +93,7 @@ private:
 	uint passEnabled_;
 
 	std::string name_;
-	typedef std::map<std::string, ShaderProperty> PropertyContainer;
+
+	typedef ptr_map<std::string, MaterialProperty> PropertyContainer;
 	PropertyContainer properties_;
 };

@@ -175,7 +175,8 @@
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)GLEFBuilder\bin
-$(SolutionDir)GLEFBuilder\bin\GLEFBuilder.exe $(SolutionDir)$(SolutionName)\resources\data\GLEF.dat $(SolutionDir)$(SolutionName)\bin\GLEF.dll</Command>
+$(SolutionDir)GLEFBuilder\bin\GLEFBuilder.exe $(SolutionDir)$(SolutionName)\resources\data\GLEF.dat $(SolutionDir)$(SolutionName)\bin\GLEF.dll
+if errorlevel 1 exit 1</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

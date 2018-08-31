@@ -13,6 +13,15 @@ public:
 	typedef std::pair<iterator, bool> ib_pair;
 
 public:
+	ptr_map() {}
+
+	ptr_map<Key, Ty>(ptr_map<Key, Ty>& other) {
+		for (iterator ite = other.begin(); ite != other.end(); ++ite) {
+			value_type p = new Ty(*ite->second);
+			cont_.insert(std::make_pair(ite->first, p));
+		}
+	}
+
 	~ptr_map() {
 		clear();
 	}

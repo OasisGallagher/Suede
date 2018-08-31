@@ -27,9 +27,8 @@ Object MaterialInternal::Clone() {
 }
 
 void MaterialInternal::SetShader(Shader value) {
-	UpdateProperties(shader_, value);
-
 	shader_ = value;
+	UpdateProperties(value);
 	InitializeEnabledState();
 }
 
@@ -165,7 +164,7 @@ glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
 }
 
 glm::vec3 MaterialInternal::GetColor3(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::Color4);
+	Variant* var = VerifyProperty(name, VariantType::Color3);
 	if (var == nullptr) {
 		return glm::vec3(0);
 	}
@@ -193,7 +192,9 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 
 void MaterialInternal::GetProperties(std::vector<const Property*>& properties) const {
 	for (PropertyContainer::const_iterator ite = properties_.cbegin(); ite != properties_.cend(); ++ite) {
-		properties.push_back(ite->second.property);
+		if (ite->second->mask != 0) {
+			properties.push_back(&ite->second->property);
+		}
 	}
 }
 
@@ -260,6 +261,10 @@ bool MaterialInternal::IsPassEnabled(uint pass) const {
 		return false;
 	}
 
+	if (pass >= shader_->GetPassCount(SUB_SHADER_INDEX)) {
+		return false;
+	}
+
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 
@@ -297,13 +302,18 @@ void MaterialInternal::Undefine(const std::string& name) {
 }
 
 Variant* MaterialInternal::GetProperty(const std::string& name, VariantType type) {
-	PropertyContainer::iterator pos = properties_.find(name);
-	if (pos == properties_.end()) {
-		return nullptr;
+	MaterialProperty* p = GetMaterialProperty(name, type);
+	if (p != nullptr) {
+		return &p->property.value;
 	}
 
-	if (pos->second.property != nullptr) {
-		return &pos->second.property->value;
+	return nullptr;
+}
+
+MaterialProperty* MaterialInternal::GetMaterialProperty(const std::string& name, VariantType type) {
+	MaterialProperty* p = nullptr;
+	if (properties_.get(name, p) && p != nullptr && p->property.value.GetType() == type) {
+		return p;
 	}
 
 	return nullptr;
@@ -326,11 +336,11 @@ Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType t
 void MaterialInternal::BindProperties(uint pass) {
 	int textureIndex = 0;
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		if ((ite->second.mask & (1 << pass)) == 0) {
+		if ((ite->second->mask & (1 << pass)) == 0) {
 			continue;
 		}
 
-		Variant& var = ite->second.property->value;
+		Variant& var = ite->second->property.value;
 		if (var.GetType() != VariantType::Texture) {
 			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, var.GetData());
 		}
@@ -357,11 +367,11 @@ void MaterialInternal::UnbindProperties() {
 	static float zero[sizeof(glm::mat4)  * MAX_BONE_COUNT];
 
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		if ((ite->second.mask & (1 << currentPass_)) == 0) {
+		if ((ite->second->mask & (1 << currentPass_)) == 0) {
 			continue;
 		}
 
-		Variant& var = ite->second.property->value;
+		Variant& var = ite->second->property.value;
 		if (var.GetType() != VariantType::Texture) {
 			shader_->SetProperty(SUB_SHADER_INDEX, currentPass_, ite->first, zero);
 		}
@@ -371,36 +381,47 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::UpdateProperties(Shader oldShader, Shader newShader) {
-	CopyProperties(oldShader, newShader);
+void MaterialInternal::UpdateProperties(Shader newShader) {
+	CopyProperties(newShader);
 
 	Material _this = SharedThis();
 	SharedTextureManager::instance()->Attach(_this);
 }
 
-void MaterialInternal::CopyProperties(Shader oldShader, Shader newShader) {
-	std::vector<ShaderProperty> container;
-	newShader->GetProperties(container);
+void MaterialInternal::CopyProperties(Shader newShader) {
+	std::vector<ShaderProperty> shaderProperties;
+	newShader->GetProperties(shaderProperties);
 
-	properties_.clear();
-	for (int i = 0; i < container.size(); ++i) {
-		properties_[container[i].property->name] = container[i];
+	// keep redundant properties in case the caller switch the previous shaders back.
+	for (ShaderProperty& shaderProperty : shaderProperties) {
+		const std::string& name = shaderProperty.property->name;
+		MaterialProperty* materialProperty = GetMaterialProperty(name, shaderProperty.property->value.GetType());
+		if (materialProperty == nullptr) {
+			*properties_[name] = shaderProperty;
+		}
+		else {
+			// copy masks and keep properties.
+			materialProperty->mask = shaderProperty.mask;
+		}
 	}
 
-	if (oldShader) { oldShader->GetProperties(container); }
-
-	CopyProperties(container);
+	DeactiveRedundantProperties(shaderProperties);
 }
 
-void MaterialInternal::CopyProperties(std::vector<ShaderProperty>& from) {
-	for(ShaderProperty& key : from) {
-		PropertyContainer::iterator pos = properties_.find(key.property->name);
-		if (pos == properties_.end()) {
-			continue;
+void MaterialInternal::DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties) {
+	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
+		bool isActive = false;
+		for (const ShaderProperty& shaderProperty : shaderProperties) {
+			Property* lp = shaderProperty.property;
+			Property* rp = &ite->second->property;
+			if (lp->name == rp->name && lp->value.GetType() == rp->value.GetType()) {
+				isActive = true;
+				break;
+			}
 		}
-		
-		if (pos->second.property->value.GetType() == key.property->value.GetType()) {
-			pos->second.property->value = key.property->value;
+
+		if (!isActive) {
+			ite->second->mask = 0;
 		}
 	}
 }
@@ -444,4 +465,10 @@ void MaterialInternal::SetVariant(const std::string& name, const Variant& value)
 			Debug::LogError("invalid variant type %d.", value.GetType());
 			break;
 	}
+}
+
+MaterialProperty& MaterialProperty::operator = (const ShaderProperty& p) {
+	mask = p.mask;
+	property = *p.property;
+	return *this;
 }

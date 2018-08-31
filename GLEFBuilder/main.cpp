@@ -10,34 +10,40 @@ enum {
 	FailedToCreateGLEF = 2,
 };
 
-typedef bool(*RebuildFunc)(const char*);
+typedef bool(*RebuildMethod)(const char*);
 
-RebuildFunc GetRebuildFunction() {
-	HANDLE dll = LoadLibrary(L"GLEF.dll");
-	RebuildFunc func = (RebuildFunc)GetProcAddress((HMODULE)dll, "RebuildGLEF");
+bool InvokeRebuildMethod(const char* path) {
+	HANDLE hDLL = LoadLibrary(L"GLEF.dll");
+	if (hDLL == nullptr) {
+		std::cout << "failed to load GLEF.dll." << std::endl;
+		return false;
+	}
+
+	RebuildMethod func = (RebuildMethod)GetProcAddress((HMODULE)hDLL, "RebuildGLEF");
 	if (func == nullptr) {
 		std::cout << "failed to get function RebuildGLEF." << std::endl;
-	}
-
-	return func;
-}
-
-bool Build(const char* binpath, const char* dllpath) {
-	time_t tmdll = FileSystem::GetFileLastWriteTime(dllpath);
-	time_t tmbin = FileSystem::GetFileLastWriteTime(binpath);
-
-	if (tmdll <= tmbin) {
-		std::cout << "no need to build GLEF." << std::endl;
-		return true;
-	}
-
-	RebuildFunc func = GetRebuildFunction();
-	if (func == nullptr) {
 		return false;
 	}
 
 	std::cout << "rebuilding GLEF..." << std::endl;
-	return func(binpath);
+
+	bool status = func(path);
+	FreeLibrary((HMODULE)hDLL);
+
+	return status;
+}
+
+bool Build(const char* exepath, const char* binpath, const char* dllpath) {
+	time_t tmdll = FileSystem::GetFileLastWriteTime(dllpath);
+	time_t tmbin = FileSystem::GetFileLastWriteTime(binpath);
+	time_t tmexe = FileSystem::GetFileLastWriteTime(exepath);
+
+	if (tmexe <= tmbin || tmdll <= tmbin) {
+		std::cout << "no need to build GLEF." << std::endl;
+		return true;
+	}
+
+	return InvokeRebuildMethod(binpath);
 }
 
 int main(int argc, char* argv[]) {
@@ -46,11 +52,8 @@ int main(int argc, char* argv[]) {
 		return InvalidArgument;
 	}
 
-	const char* binpath = argv[1];
-	const char* dllpath = argv[2];
-
-	if (Build(binpath, dllpath)) {
-		std::cout << "GLEF created and saved at " << binpath << "." << std::endl;
+	if (Build(argv[0], argv[1], argv[2])) {
+		std::cout << "GLEF created and saved at " << argv[1] << "." << std::endl;
 		return 0;
 	}
 

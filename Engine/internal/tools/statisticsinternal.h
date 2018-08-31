@@ -31,6 +31,8 @@ private:
 	uint frameCounter_;
 
 	struct FrameStats {
+		void Reset();
+
 		uint ndrawcalls;
 		uint nvertices;
 		uint ntriangles;
