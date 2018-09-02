@@ -63,7 +63,7 @@ void Debug::LogError(const char* format, ...) {
 	}
 }
 
-#define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
+//#define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
 
 void Debug::Output(const char* format, ...) {
 #ifndef SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT

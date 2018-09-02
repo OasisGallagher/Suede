@@ -261,10 +261,6 @@ bool MaterialInternal::IsPassEnabled(uint pass) const {
 		return false;
 	}
 
-	if (pass >= shader_->GetPassCount(SUB_SHADER_INDEX)) {
-		return false;
-	}
-
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 
@@ -427,10 +423,10 @@ void MaterialInternal::DeactiveRedundantProperties(const std::vector<ShaderPrope
 }
 
 void MaterialInternal::InitializeEnabledState() {
-	passEnabled_ = UINT_MAX;
+	passEnabled_ = 0;
 	for (int i = 0; i < shader_->GetPassCount(SUB_SHADER_INDEX); ++i) {
-		if (!shader_->IsPassEnabled(SUB_SHADER_INDEX, i)) {
-			passEnabled_ &= ~(1 << i);
+		if (shader_->IsPassEnabled(SUB_SHADER_INDEX, i)) {
+			passEnabled_ |= (1 << i);
 		}
 	}
 }

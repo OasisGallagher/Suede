@@ -65,8 +65,10 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	
 	DepthPass(pipelines);
 
-	SSAOTraversalPass(pipelines);
-	SSAOPass(pipelines);
+	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
+		SSAOTraversalPass(pipelines);
+		SSAOPass(pipelines);
+	}
 
 	ShadowPass(pipelines);
 
@@ -167,7 +169,7 @@ void Rendering::SSAOTraversalPass(RenderingPipelines& pipelines) {
 		pipelines.ssaoTraversal->Run();
 	}
 
-	ssaoTraversalSample->Stop();
+	ssaoTraversalSample->Stop();55
 	OutputSample(ssaoTraversalSample);
 }
 
