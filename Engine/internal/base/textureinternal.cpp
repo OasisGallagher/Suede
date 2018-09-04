@@ -364,19 +364,26 @@ bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
 	return true;
 }
 
-class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureManager>, public ScreenSizeChangedListener {
+class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureManager> {
 	friend class Singleton<TemporaryRenderTextureManager>;
 
 public:
-	virtual void OnScreenSizeChanged(uint width, uint height) {
+	RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height) {
+		RenderTexture texture = NewRenderTexture();
+		texture->Create(format, width, height);
+		return texture;
+	}
+
+	void ReleaseTemporary(RenderTexture texture) {
+
 	}
 
 private:
-	TemporaryRenderTextureManager() : temporaries_(16) {
+	TemporaryRenderTextureManager() {
 	}
 
-private:
-	free_list<RenderTexture> temporaries_;
+	~TemporaryRenderTextureManager() {
+	}
 };
 
 RenderTexture RenderTexture::GetDefault() {
@@ -391,14 +398,11 @@ RenderTexture RenderTexture::GetDefault() {
 }
 
 RenderTexture RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) {
-	// SUEDE TODO: Get temporary render texture.
-	RenderTexture texture = NewRenderTexture();
-	texture->Create(format, width, height);
-	return texture;
+	return TemporaryRenderTextureManager::instance()->GetTemporary(format, width, height);
 }
 
 void RenderTexture::ReleaseTemporary(RenderTexture texture) {
-	// SUEDE TODO: Release temporary render texture.
+	TemporaryRenderTextureManager::instance()->ReleaseTemporary(texture);
 }
 
 RenderTextureInternal::RenderTextureInternal() 

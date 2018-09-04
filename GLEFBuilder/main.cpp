@@ -10,30 +10,30 @@ enum {
 	FailedToCreateGLEF = 2,
 };
 
-typedef bool(*RebuildMethod)(const char*);
+typedef bool (*RebuildMethod)(const char*);
 
 bool InvokeRebuildMethod(const char* path) {
-	HANDLE hDLL = LoadLibrary(L"GLEF.dll");
-	if (hDLL == nullptr) {
+	HMODULE module = LoadLibrary(L"GLEF.dll");
+	if (module == nullptr) {
 		std::cout << "failed to load GLEF.dll." << std::endl;
 		return false;
 	}
 
-	RebuildMethod func = (RebuildMethod)GetProcAddress((HMODULE)hDLL, "RebuildGLEF");
-	if (func == nullptr) {
+	RebuildMethod rebuild = (RebuildMethod)GetProcAddress(module, "RebuildGLEF");
+	if (rebuild == nullptr) {
 		std::cout << "failed to get function RebuildGLEF." << std::endl;
 		return false;
 	}
 
 	std::cout << "rebuilding GLEF..." << std::endl;
 
-	bool status = func(path);
-	FreeLibrary((HMODULE)hDLL);
+	bool status = rebuild(path);
+	FreeLibrary(module);
 
 	return status;
 }
 
-bool Build(const char* exepath, const char* binpath, const char* dllpath) {
+bool Rebuild(const char* exepath, const char* binpath, const char* dllpath) {
 	time_t tmdll = FileSystem::GetFileLastWriteTime(dllpath);
 	time_t tmbin = FileSystem::GetFileLastWriteTime(binpath);
 	time_t tmexe = FileSystem::GetFileLastWriteTime(exepath);
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 		return InvalidArgument;
 	}
 
-	if (Build(argv[0], argv[1], argv[2])) {
+	if (Rebuild(argv[0], argv[1], argv[2])) {
 		std::cout << "GLEF created and saved at " << argv[1] << "." << std::endl;
 		return 0;
 	}

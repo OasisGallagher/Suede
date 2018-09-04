@@ -10,6 +10,7 @@ public:
 	static std::string Trim(const std::string& text);
 	static const char* TrimStart(const char* text);
 	static std::string Format(const char* format, ...);
+	static std::string VFormat(const char* format, va_list args);
 
 	static bool StartsWith(const std::string& str, const std::string& prefix);
 	static bool EndsWith(const std::string&str, const std::string& suffix);

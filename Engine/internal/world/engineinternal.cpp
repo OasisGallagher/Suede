@@ -3,7 +3,7 @@
 #endif
 
 #include "glef.h"
-#include "driver.h"
+#include "opengldriver.h"
 #include "engineinternal.h"
 
 #include "worldinternal.h"
@@ -46,7 +46,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 	ZThread::ztException = OnZThreadException;
 
 	if (!Debug::Initialize()) { return false; }
-	if (!Driver::Initialize()) { return false; }
+	if (!OpenGLDriver::Load()) { return false; }
 
 	if (!GLEF::instance()->Load("resources/data/GLEF.dat")) {
 		return false;

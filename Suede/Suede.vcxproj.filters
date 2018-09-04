@@ -163,6 +163,15 @@
     <Filter Include="gui\qtimgui\src">
       <UniqueIdentifier>{34f48506-c7f2-42dc-b0e3-a42d2c781bcf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="widgets\statistics">
+      <UniqueIdentifier>{1d782889-cc66-4c21-b196-8456198ec7c6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="widgets\statistics\include">
+      <UniqueIdentifier>{2e5a3e7e-c13a-4276-91f8-8ebb89be001e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="widgets\statistics\src">
+      <UniqueIdentifier>{9e5c37de-8d62-4636-96d3-a21511a8e5a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -201,15 +210,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_custominspector.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="widgets\status\status.cpp">
-      <Filter>widgets\status\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_status.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_status.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="main\qtviewer.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
@@ -218,9 +218,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_qtviewer.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\status\statswidget.cpp">
-      <Filter>widgets\status\src</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_lightinspector.cpp">
       <Filter>Generated Files\Debug</Filter>
@@ -474,6 +471,18 @@
     <ClCompile Include="gui\qtimgui\QtImGui.cpp">
       <Filter>gui\qtimgui\src</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\status\statusbar.cpp">
+      <Filter>widgets\status\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_statusbar.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_statusbar.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\statistics\statswidget.cpp">
+      <Filter>widgets\statistics\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ui\suede.ui">
@@ -481,9 +490,6 @@
     </CustomBuild>
     <CustomBuild Include="main\suede.h">
       <Filter>main\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\status\status.h">
-      <Filter>widgets\status\include</Filter>
     </CustomBuild>
     <CustomBuild Include="main\qtviewer.h">
       <Filter>main\include</Filter>
@@ -593,6 +599,9 @@
     <CustomBuild Include="gui\qtimgui\ImGuiRenderer.h">
       <Filter>gui\qtimgui\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="widgets\status\statusbar.h">
+      <Filter>widgets\status\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -606,9 +615,6 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_suede.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\status\statswidget.h">
-      <Filter>widgets\status\include</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
@@ -633,6 +639,9 @@
     </ClInclude>
     <ClInclude Include="gui\qtimgui\QtImGui.h">
       <Filter>gui\qtimgui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\statistics\statswidget.h">
+      <Filter>widgets\statistics\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

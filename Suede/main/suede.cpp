@@ -5,12 +5,12 @@
 #include <QStandardPaths>
 
 #include "suede.h"
-#include "driver.h"
 #include "camera.h"
+#include "opengldriver.h"
 
 #include "prefs.h"
 
-#include "../widgets/status/status.h"
+#include "../widgets/status/statusbar.h"
 #include "../windows/lighting/lighting.h"
 #include "../widgets/dialogs/aboutdialog.h"
 #include "../widgets/dialogs/colorpicker.h"
@@ -29,7 +29,7 @@ Suede::Suede(QWidget *parent) : QMainWindow(parent) {
 	Debug::SetLogReceiver(this);
 
 	setupUI();
-	setStatusBar(new Status(this));
+	setStatusBar(new StatusBar(this));
 
 	initializeFileMenu();
 	initializeEditMenu();
@@ -126,10 +126,10 @@ void Suede::onAbout() {
 	AboutDialog aboutDialog(this);
 	aboutDialog.setWindowTitle("Suede");
 	aboutDialog.addInformation("Qt", QT_VERSION_STR);
-	aboutDialog.addInformation("Vendor", Driver::GetVendor());
-	aboutDialog.addInformation("Renderer", Driver::GetRenderer());
-	aboutDialog.addInformation("OpenGL", Driver::GetOpenGLVersion());
-	aboutDialog.addInformation("GLSL", Driver::GetGLSLVersion());
+	aboutDialog.addInformation("Vendor", OpenGLDriver::GetVendor());
+	aboutDialog.addInformation("Renderer", OpenGLDriver::GetRenderer());
+	aboutDialog.addInformation("OpenGL", OpenGLDriver::GetOpenGLVersion());
+	aboutDialog.addInformation("GLSL", OpenGLDriver::GetGLSLVersion());
 	aboutDialog.exec();
 }
 

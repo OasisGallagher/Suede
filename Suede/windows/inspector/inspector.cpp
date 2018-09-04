@@ -160,12 +160,12 @@ void Inspector::drawCamera(Camera camera) {
 		}
 
 		float nearClipPlane = camera->GetNearClipPlane();
-		if (GUI::FloatField("Near", &nearClipPlane)) {
+		if (GUI::FloatField("Near", nearClipPlane)) {
 			camera->SetNearClipPlane(nearClipPlane);
 		}
 
 		float farClipPlane = camera->GetFarClipPlane();
-		if (GUI::FloatField("Far", &farClipPlane)) {
+		if (GUI::FloatField("Far", farClipPlane)) {
 			camera->SetFarClipPlane(farClipPlane);
 		}
 
@@ -299,7 +299,7 @@ void Inspector::drawColor4(Material material, const Property* p) {
 
 void Inspector::drawFloat(Material material, const Property* p) {
 	float value = material->GetFloat(p->name);
-	if (GUI::FloatField(p->name.c_str(), &value)) {
+	if (GUI::FloatField(p->name.c_str(), value)) {
 		material->SetFloat(p->name, value);
 	}
 }

@@ -28,6 +28,7 @@ public:
 	static void Output(const char* format, ...);
 	static void SetLogReceiver(LogReceiver* value);
 
+public:
 	static bool Initialize();
 
 private:

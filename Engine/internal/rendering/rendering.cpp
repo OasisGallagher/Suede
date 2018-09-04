@@ -57,7 +57,7 @@ void Rendering::Resize(uint width, uint height) {
 	sharedDepthTexture->Resize(width, height);
 }
 
-#define OutputSample(sample)	Debug::Output("%s elapsed %.2f seconds", #sample, sample->GetElapsedSeconds())
+#define OutputSample(sample)	Debug::Output("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
 
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
@@ -164,12 +164,8 @@ void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 
 void Rendering::SSAOTraversalPass(RenderingPipelines& pipelines) {
 	ssaoTraversalSample->Restart();
-
-	if (pipelines.ssaoTraversal->GetRenderableCount() > 0) {
-		pipelines.ssaoTraversal->Run();
-	}
-
-	ssaoTraversalSample->Stop();55
+	pipelines.ssaoTraversal->Run();
+	ssaoTraversalSample->Stop();
 	OutputSample(ssaoTraversalSample);
 }
 

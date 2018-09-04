@@ -238,9 +238,6 @@
     <ClInclude Include="include\variant.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\driver.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\renderdefines.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
@@ -448,6 +445,9 @@
     <ClInclude Include="internal\gui\stb_truetype.h">
       <Filter>internal\gui\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\opengldriver.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -579,9 +579,6 @@
     <ClCompile Include="internal\geometry\rect.cpp">
       <Filter>internal\geometry\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\driver.cpp">
-      <Filter>internal\world\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\world\graphicsviewer.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
@@ -635,6 +632,9 @@
     </ClCompile>
     <ClCompile Include="internal\gui\gui.cpp">
       <Filter>internal\gui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\opengldriver.cpp">
+      <Filter>internal\world\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

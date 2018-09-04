@@ -3,7 +3,7 @@
 #include "types.h"
 #include "enginedefines.h"
 
-class SUEDE_API Driver {
+class SUEDE_API OpenGLDriver {
 public:
 	static const char* GetVendor();
 	static const char* GetRenderer();
@@ -12,9 +12,12 @@ public:
 
 	static bool IsSupported(const char* feature);
 
-public: // SUEDE TODO:
-	static bool Initialize();
+public:
+	/**
+	 * @brief load GL functions on current context.
+	 */
+	static bool Load();
 
 private:
-	Driver();
+	OpenGLDriver();
 };

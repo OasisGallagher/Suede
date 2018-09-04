@@ -4,13 +4,18 @@
 #define HEADING_LENGTH			48
 
 std::string String::Format(const char* format, ...) {
-	const int formatBufferLength = 512;
-	static char formatBuffer[formatBufferLength];
+	va_list args;
+	va_start(args, format);
+	std::string str = VFormat(format, args);
+	va_end(args);
+	return str;
+}
 
-	va_list ap;
-	va_start(ap, format);
-	int n = vsnprintf(formatBuffer, formatBufferLength, format, ap);
-	va_end(ap);
+std::string String::VFormat(const char* format, va_list args) {
+	const int formatBufferLength = 512;
+	char formatBuffer[formatBufferLength];
+
+	int n = vsnprintf(formatBuffer, formatBufferLength, format, args);
 
 	if (n < 0) {
 		*formatBuffer = 0;

@@ -4,8 +4,8 @@
 
 #include "ui_suede.h"
 #include "canvas.h"
-#include "widgets/status/status.h"
-#include "widgets/status/statswidget.h"
+#include "widgets/status/statusbar.h"
+#include "widgets/statistics/statswidget.h"
 
 #include "game.h"
 #include "font.h"
@@ -353,7 +353,7 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
 
-	Graphics::instance()->EnableAmbientOcclusion(true);
+	Graphics::instance()->EnableAmbientOcclusion(false);
 
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);

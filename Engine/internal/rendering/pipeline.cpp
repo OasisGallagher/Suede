@@ -151,16 +151,20 @@ void Pipeline::Run() {
 	Debug::Output("[Pipeline::Update::drawcalls]\t%d", counters_.drawcalls);
 	Debug::Output("[Pipeline::Update::meshChanges]\t%d", counters_.meshChanges);
 	Debug::Output("[Pipeline::Update::materialChanges]\t%d", counters_.materialChanges);
-	Debug::Output("[Pipeline::Update::update_matrices]\t%.5f", samples_.update_matrices->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_ubo]\t%.5f", samples_.update_ubo->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_tbo]\t%.5f", samples_.update_tbo->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_offset]\t%.5f", samples_.update_offset->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::draw_call]\t%.5f", samples_.draw_call->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::switch_state]\t%.5f", samples_.switch_state->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::stat_and_output]\t%.5f", samples_.stat_and_output->GetElapsedSeconds());
-	Debug::Output("[Pipeline::Update::update_pipeline]\t%.5f", samples_.update_pipeline->GetElapsedSeconds());
 
+	Debug::Output("[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::update_tbo]\t%.2f ms", samples_.update_tbo->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::update_offset]\t%.2f ms", samples_.update_offset->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::draw_call]\t%.2f ms", samples_.draw_call->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::switch_state]\t%.2f ms", samples_.switch_state->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::stat_and_output]\t%.2f ms", samples_.stat_and_output->GetElapsedSeconds() * 1000);
+	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f ms", samples_.update_pipeline->GetElapsedSeconds() * 1000);
+
+	samples_.reset_states->Restart();
 	ResetState();
+	samples_.reset_states->Stop();
+	Debug::Output("[Pipeline::Update::reset_states]\t%.2f ms", samples_.reset_states->GetElapsedSeconds() * 1000);
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {
@@ -355,6 +359,7 @@ Pipeline::Samples::Samples() {
 	gather_instances = Profiler::instance()->CreateSample();
 	update_pipeline = Profiler::instance()->CreateSample();
 	stat_and_output = Profiler::instance()->CreateSample();
+	reset_states = Profiler::instance()->CreateSample();
 }
 
 Pipeline::Samples::~Samples() {
@@ -367,6 +372,7 @@ Pipeline::Samples::~Samples() {
 	Profiler::instance()->ReleaseSample(gather_instances);
 	Profiler::instance()->ReleaseSample(update_pipeline);
 	Profiler::instance()->ReleaseSample(stat_and_output);
+	Profiler::instance()->ReleaseSample(reset_states);
 }
 
 void Pipeline::Samples::Reset() {

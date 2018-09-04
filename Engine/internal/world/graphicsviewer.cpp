@@ -42,7 +42,6 @@ void GraphicsViewer::Run() {
 // 			Sleep(sleep_time);
 // 		}
 // 		else {
-// 			Debug::Output("");
 // 		}
 	}
 }

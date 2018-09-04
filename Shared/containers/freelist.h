@@ -55,7 +55,11 @@ public:
 	typedef free_list_iterator iterator;
 
 public:
-	free_list(size_t capacity) : free_(nullptr), busy_(nullptr), size_(0) {
+	free_list() : free_(nullptr), busy_(nullptr), size_(0), capacity_(0) {
+
+	}
+
+	free_list(size_t capacity) : free_list() {
 		capacity_ = capacity;
 		allocate(capacity_);
 	}

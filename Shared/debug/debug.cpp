@@ -1,7 +1,14 @@
 #include "debug.h"
-#include "stackwalker.h"
 
-static LogReceiver* logReceiver;
+#include <fstream>
+
+#include "stackwalker.h"
+#include "../tools/string.h"
+
+#define DEF_VA_ARGS(_MsgVarName, _Format) \
+	va_list _Args; va_start(_Args, _Format); \
+	std::string _MsgVarName = String::VFormat(_Format, _Args); \
+	va_end(_Args)
 
 class StackTracer : public StackWalker {
 public:
@@ -16,59 +23,55 @@ private:
 };
 
 static StackTracer tracer;
-
-#define MAX_LOG_LENGTH	512
-#define VA_FORMAT(format, bufname) \
-	va_list _Ap; \
-	va_start(_Ap, format); \
-	int _L = vsnprintf(bufname, sizeof(bufname) / sizeof(bufname[0]), format, _Ap); \
-	va_end(_Ap)
-
-#define FORMAT_BUFFER(format, bufname)	\
-	char bufname[MAX_LOG_LENGTH]; \
-	VA_FORMAT(format, bufname)
-
-#define FORMAT_LINE_BUFFER(format, bufname)	\
-	char bufname[MAX_LOG_LENGTH - 1]; \
-	VA_FORMAT(format, bufname); \
-	bufname[_L++] = '\n', bufname[_L] = 0
+static LogReceiver* logReceiver;
+static std::ofstream logFile("suede_engine.log");
 
 bool Debug::Initialize() {
 	return !!tracer.LoadModules();
 }
 
 void Debug::SetLogReceiver(LogReceiver* value) {
-	logReceiver = value; 
+	logReceiver = value;
 }
 
 void Debug::Log(const char* format, ...) {
+	DEF_VA_ARGS(msg, format);
 	if (logReceiver != nullptr) {
-		FORMAT_BUFFER(format, buffer);
-		logReceiver->OnLogMessage(LogLevelDebug, buffer);
+		logReceiver->OnLogMessage(LogLevelDebug, msg.c_str());
 	}
+
+	logFile << "[M] " << msg << "\n";
 }
 
 void Debug::LogWarning(const char* format, ...) {
+	DEF_VA_ARGS(msg, format);
 	if (logReceiver != nullptr) {
-		FORMAT_BUFFER(format, buffer);
-		logReceiver->OnLogMessage(LogLevelWarning, buffer);
+		logReceiver->OnLogMessage(LogLevelWarning, msg.c_str());
 	}
+
+	logFile << "[W] " << msg << "\n";
 }
 
 void Debug::LogError(const char* format, ...) {
+	DEF_VA_ARGS(msg, format);
+	msg += "\n" + tracer.GetStackTrace(1, 7);
+
 	if (logReceiver != nullptr) {
-		FORMAT_BUFFER(format, buffer);
-		std::string text = std::string(buffer) + "\n" + tracer.GetStackTrace(1, 7);
-		logReceiver->OnLogMessage(LogLevelError, text.c_str());
+		logReceiver->OnLogMessage(LogLevelError, msg.c_str());
 	}
+
+	logFile << "[E] " << msg << "\n";
 }
 
 //#define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
 
 void Debug::Output(const char* format, ...) {
 #ifndef SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
-	FORMAT_LINE_BUFFER(format, buffer);
-	OutputDebugStringA(buffer);
+	va_list args;
+	va_start(args, format);
+	std::string msg = String::VFormat(format, args);
+	msg += "\n";
+	OutputDebugStringA(msg.c_str());
 #endif
 }
 
@@ -86,6 +89,12 @@ const std::string& StackTracer::GetStackTrace(uint start, uint depth) {
 	start_ = start + 2;
 
 	ShowCallstack();
+
+	// remove tailing newlines.
+	for (; !text_.empty() && text_.back() == '\n'; ) {
+		text_.pop_back();
+	}
+
 	return text_;
 }
 

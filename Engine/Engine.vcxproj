@@ -217,7 +217,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClCompile Include="internal\tools\tagmanagerinternal.cpp" />
     <ClCompile Include="internal\tools\time2internal.cpp" />
     <ClCompile Include="internal\world\decalcreater.cpp" />
-    <ClCompile Include="internal\world\driver.cpp" />
+    <ClCompile Include="internal\world\opengldriver.cpp" />
     <ClCompile Include="internal\world\engineinternal.cpp" />
     <ClCompile Include="internal\world\environmentinternal.cpp" />
     <ClCompile Include="internal\world\graphicsviewer.cpp" />
@@ -233,7 +233,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
     <ClInclude Include="include\bounds.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\component.h" />
-    <ClInclude Include="include\driver.h" />
+    <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
     <ClInclude Include="include\entityloadedlistener.h" />

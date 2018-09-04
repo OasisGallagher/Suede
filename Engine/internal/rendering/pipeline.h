@@ -109,8 +109,7 @@ private:
 		uint materialChanges;
 	} counters_;
 
-	// performance.
-
+	// profiler samples.
 	struct Samples {
 		Samples();
 		~Samples();
@@ -124,6 +123,7 @@ private:
 		Sample* gather_instances;
 		Sample* update_pipeline;
 		Sample* stat_and_output;
+		Sample* reset_states;
 
 		void Reset();
 	} samples_;

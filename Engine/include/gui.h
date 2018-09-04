@@ -47,7 +47,7 @@ public:
 
 	static bool Slider(const char* title, float* v, float min, float max);
 
-	static bool FloatField(const char* title, float* v);
+	static bool FloatField(const char* title, float& v);
 	static bool Float2Field(const char* title, glm::vec2& v);
 	static bool Float3Field(const char* title, glm::vec3& v);
 	static bool Float4Field(const char* title, glm::vec4& v);
