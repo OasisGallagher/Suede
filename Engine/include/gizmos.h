@@ -12,7 +12,11 @@ public:
 	virtual void SetColor(const glm::vec3& value) = 0;
 
 	virtual void DrawLines(const glm::vec3* points, uint npoints) = 0;
-	virtual void DrawLines(const glm::vec3* points, uint npoints, uint* indexes, uint nindexes) = 0;
+	virtual void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) = 0;
 
+	virtual void DrawLineStripe(const glm::vec3* points, uint npoints) = 0;
+	virtual void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) = 0;
+
+	virtual void DrawSphere(const glm::vec3& center, float radius) = 0;
 	virtual void DrawCuboid(const glm::vec3& center, const glm::vec3& size) = 0;
 };

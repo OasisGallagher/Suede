@@ -111,7 +111,7 @@ void Game::tick() {
 
 void Game::OnDrawGizmos() {
 	int i = 0;
-	glm::vec3 colors[] = { glm::vec3(0, 1, 0), glm::vec3(1, 0, 0) };
+	glm::vec3 colors[] = { glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) };
 	glm::vec3 oldColor = Gizmos::instance()->GetColor();
 	foreach(Entity entity, selection_) {
 		if (!entity->GetActive()) {
@@ -119,11 +119,15 @@ void Game::OnDrawGizmos() {
 		}
 
 		const Bounds& bounds = entity->GetBounds();
+		Gizmos::instance()->SetColor(colors[i % CountOf(colors)]);
 		if (!bounds.IsEmpty()) {
-			Gizmos::instance()->SetColor(colors[i % CountOf(colors)]);
 			Gizmos::instance()->DrawCuboid(bounds.center, bounds.size);
-			++i;
 		}
+		else {
+			Gizmos::instance()->DrawSphere(entity->GetTransform()->GetPosition(), 5);
+		}
+
+		++i;
 	}
 
 	Gizmos::instance()->SetColor(oldColor);
@@ -231,7 +235,6 @@ void Game::keyPressEvent(QKeyEvent* event) {
 }
 
 void Game::resizeEvent(QResizeEvent* event) {
-	controller_->onResize(event->size());
 	updateStatPosition();
 }
 
@@ -299,8 +302,6 @@ void Game::updateStatContent() {
 		stat_->updateContent();
  	}
 }
-
-uint roomEntityID;
 
 void Game::createScene() {
 	Environment::instance()->SetFogColor(glm::vec3(0.5f));
@@ -480,7 +481,6 @@ void Game::createScene() {
 
 #ifdef ROOM
 	Entity room = World::instance()->Import(roomFbxPath, this);
-	roomEntityID = room->GetInstanceID();
 #endif
 
 #ifdef BUMPED

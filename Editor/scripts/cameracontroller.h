@@ -9,8 +9,6 @@ public:
 public:
 	void setCamera(Transform value);
 
-	void onResize(const QSize& size);
-
 	void onMouseWheel(int delta);
 	void onMouseMove(const QPoint& pos);
 
@@ -26,15 +24,12 @@ private:
 private:
 	Transform camera_;
 
-	bool lpressed_;
-	bool mpressed_;
-	bool rpressed_;
+	QPoint pos_;
+	Qt::MouseButtons buttons_;
 
-	float width_;
-	float height_;
-
-	QPoint lpos_;
-	QPoint mpos_;
-	QPoint rpos_;
 	QWidget* view_;
+
+	glm::vec2 orientSpeed_;
+	glm::vec2 rotateSpeed_;
+	glm::vec3 moveSpeed_;
 };

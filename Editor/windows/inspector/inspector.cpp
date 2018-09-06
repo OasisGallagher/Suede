@@ -134,6 +134,16 @@ void Inspector::drawLight(Light light) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Light")) {
 		GUI::Indent();
+		glm::vec3 color = light->GetColor();
+		if (GUI::Color3Field("Color", color)) {
+			light->SetColor(color);
+		}
+
+		float intensity = light->GetIntensity();
+		if (GUI::FloatField("Intensity", intensity)) {
+			light->SetIntensity(intensity);
+		}
+
 		GUI::Unindent();
 	}
 }
