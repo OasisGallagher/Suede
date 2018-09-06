@@ -4,7 +4,7 @@
 #include <QSplashScreen>
 
 #include "prefs.h"
-#include "suede.h"
+#include "editor.h"
 
 QMap<QString, QString> QtViewer::skinResources({
 	std::make_pair("Default", ""),
@@ -21,19 +21,19 @@ QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(a
 	setupRegistry();
 
 	setSkin(skinName());
-	setupSuede();
+	setupEditor();
 
-	//splash->finish(suede_);
+	//splash->finish(editor_);
 	//delete splash;
 }
 
 QtViewer::~QtViewer() {
-	delete suede_;
+	delete editor_;
 }
 
 void QtViewer::Update() {
 	app_.processEvents();
-	suede_->tick();
+	editor_->tick();
 }
 
 QList<QString> QtViewer::builtinSkinNames() {
@@ -65,7 +65,7 @@ bool QtViewer::setSkin(const QString& name) {
 	return true;
 }
 
-void QtViewer::setupSuede() {
+void QtViewer::setupEditor() {
 	QGLFormat format;
 	format.setSwapInterval(1);
 	format.setDoubleBuffer(true);
@@ -73,19 +73,19 @@ void QtViewer::setupSuede() {
 
 	QGLFormat::setDefaultFormat(format);
 
-	suede_ = new Suede();
-	connect(suede_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseSuede()));
+	editor_ = new Editor();
+	connect(editor_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseEditor()));
 
 	Canvas* c = Game::instance()->canvas();
 	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
 
-	suede_->init();
+	editor_->init();
 
 	if (SetCanvas(c)) {
-		suede_->awake();
+		editor_->awake();
 	}
 
-	suede_->show();
+	editor_->show();
 }
 
 void QtViewer::setupRegistry() {

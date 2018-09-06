@@ -2,8 +2,8 @@
 #include <QToolBar>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "ui_suede.h"
 #include "canvas.h"
+#include "ui_editor.h"
 #include "widgets/status/statusbar.h"
 #include "widgets/statistics/statswidget.h"
 
@@ -78,7 +78,7 @@ Canvas* Game::canvas() {
 	return canvas_;
 }
 
-void Game::init(Ui::Suede* ui) {
+void Game::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 	stat_ = new StatsWidget(this);
 	stat_->setVisible(false);

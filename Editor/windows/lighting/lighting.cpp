@@ -2,9 +2,9 @@
 
 #include "world.h"
 #include "graphics.h"
-#include "ui_suede.h"
+#include "ui_editor.h"
 
-void Lighting::init(Ui::Suede* ui) {
+void Lighting::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 	connect(ui_->ambient, SIGNAL(valueChanged(const QColor&)), this, SLOT(onAmbientChanged(const QColor&)));
 	connect(ui_->occlusion, SIGNAL(stateChanged(int)), this, SLOT(onOcclusionChanged(int)));

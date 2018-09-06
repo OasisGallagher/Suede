@@ -1,6 +1,6 @@
 #pragma once
 namespace Ui {
-	class Suede;
+	class Editor;
 }
 
 class WinBase {
@@ -12,7 +12,7 @@ public:
 	/**
 	 * @brief called on qt ready.
 	 */
-	virtual void init(Ui::Suede* ui) { ui_ = ui; }
+	virtual void init(Ui::Editor* ui) { ui_ = ui; }
 
 	/**
 	 * @brief called on engine ready.
@@ -25,7 +25,7 @@ public:
 	virtual void tick() {}
 
 protected:
-	Ui::Suede* ui_;
+	Ui::Editor* ui_;
 };
 
 template <class T>

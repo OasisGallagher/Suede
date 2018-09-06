@@ -117,8 +117,8 @@
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)$(SolutionName)\lib
-copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin</Command>
+      <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Editor\lib
+copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

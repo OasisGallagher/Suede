@@ -10,7 +10,7 @@ public:
 	Lighting(QWidget* parent);
 
 public:
-	virtual void init(Ui::Suede* ui);
+	virtual void init(Ui::Editor* ui);
 
 protected:
 	virtual void showEvent(QShowEvent* event);

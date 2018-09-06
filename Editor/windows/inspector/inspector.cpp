@@ -5,7 +5,7 @@
 #include <QFileDialog>
 
 #include "gui.h"
-#include "ui_suede.h"
+#include "ui_editor.h"
 
 #include "resources.h"
 #include "tagmanager.h"
@@ -21,7 +21,7 @@ Inspector::~Inspector() {
 	qDeleteAll(commands_);
 }
 
-void Inspector::init(Ui::Suede* ui) {
+void Inspector::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),

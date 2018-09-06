@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Suede</class>
- <widget class="QMainWindow" name="Suede">
+ <class>Editor</class>
+ <widget class="QMainWindow" name="Editor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,7 +20,7 @@
    <enum>Qt::StrongFocus</enum>
   </property>
   <property name="windowTitle">
-   <string>Suede</string>
+   <string>Editor</string>
   </property>
   <property name="animated">
    <bool>true</bool>
@@ -707,7 +707,7 @@
   <tabstop>tree</tabstop>
  </tabstops>
  <resources>
-  <include location="../suede.qrc"/>
+  <include location="../editor.qrc"/>
  </resources>
  <connections/>
 </ui>

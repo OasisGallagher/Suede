@@ -20,7 +20,7 @@ public:
 	Console(QWidget* parent);
 
 public:
-	virtual void init(Ui::Suede* ui);
+	virtual void init(Ui::Editor* ui);
 	virtual void tick();
 
 

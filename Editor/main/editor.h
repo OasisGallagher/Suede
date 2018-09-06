@@ -2,7 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 
-#include "ui_suede.h"
+#include "ui_editor.h"
 
 #include "debug/debug.h"
 #include "tools/enum.h"
@@ -16,12 +16,12 @@ BETTER_ENUM(ChildWindowType, int,
 	Lighting
 )
 
-class Suede : public QMainWindow, public LogReceiver {
+class Editor : public QMainWindow, public LogReceiver {
 	Q_OBJECT
 
 public:
-	Suede(QWidget *parent = 0);
-	~Suede();
+	Editor(QWidget *parent = 0);
+	~Editor();
 
 public:
 	void init();
@@ -58,6 +58,6 @@ private:
 	void initializeWindowMenu();
 
 private:
-	Ui::Suede ui;
+	Ui::Editor ui;
 	QDockWidget** childWindows_;
 };

@@ -4,7 +4,7 @@
 
 #include "graphicsviewer.h"
 
-class Suede;
+class Editor;
 class QtViewer : public QObject, public GraphicsViewer {
 	Q_OBJECT
 
@@ -21,15 +21,15 @@ protected:
 	virtual void Update();
 
 private:
-	void setupSuede();
+	void setupEditor();
 	void setupRegistry();
 
 private slots:
-	void onAboutToCloseSuede() { Close(); }
+	void onAboutToCloseEditor() { Close(); }
 	void canvasSizeChanged(uint w, uint h) { OnCanvasSizeChanged(w, h); }
 
 private:
-	Suede* suede_;
+	Editor* editor_;
 	QApplication app_;
 
 private:

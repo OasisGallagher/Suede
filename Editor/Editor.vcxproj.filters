@@ -177,37 +177,10 @@
     <ClCompile Include="scripts\cameracontroller.cpp">
       <Filter>scripts\src</Filter>
     </ClCompile>
-    <ClCompile Include="main\suede.cpp">
-      <Filter>main\src</Filter>
-    </ClCompile>
     <ClCompile Include="main\main.cpp">
       <Filter>main\src</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_labeltexture.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_camerainspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_camerainspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_projectorinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_projectorinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_meshinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_meshinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_custominspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_custominspector.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="main\qtviewer.cpp">
@@ -217,12 +190,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_qtviewer.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_lightinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_lightinspector.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_texturefield.cpp">
@@ -357,12 +324,6 @@
     <ClCompile Include="widgets\fields\vecfield.cpp">
       <Filter>widgets\fields\src</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_rendererinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_rendererinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="scripts\gaussianblur.cpp">
       <Filter>scripts\src</Filter>
     </ClCompile>
@@ -417,9 +378,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_dragdropableitemmodel.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_suede.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
       <Filter>windows\hierarchy\src</Filter>
     </ClCompile>
@@ -430,12 +388,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_preferences.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_suede.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_suede.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="main\prefs.cpp">
@@ -483,22 +435,58 @@
     <ClCompile Include="widgets\statistics\statswidget.cpp">
       <Filter>widgets\statistics\src</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_editor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_editor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_editor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="main\editor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_camerainspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_camerainspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_custominspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_custominspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_lightinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_lightinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_meshinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_meshinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_projectorinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_projectorinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rendererinspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_rendererinspector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="ui\suede.ui">
-      <Filter>ui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="main\suede.h">
-      <Filter>main\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="main\qtviewer.h">
       <Filter>main\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ui\statswidget.ui">
-      <Filter>ui</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ui\aboutdialog.ui">
-      <Filter>ui</Filter>
     </CustomBuild>
     <CustomBuild Include="widgets\dialogs\aboutdialog.h">
       <Filter>widgets\dialogs\include</Filter>
@@ -508,24 +496,6 @@
     </CustomBuild>
     <CustomBuild Include="widgets\dialogs\popupwidget.h">
       <Filter>widgets\dialogs\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\camerainspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\custominspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\rendererinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\lightinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\meshinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\projectorinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
     <CustomBuild Include="widgets\fields\maskfield.h">
       <Filter>widgets\fields\include</Filter>
@@ -578,12 +548,6 @@
     <CustomBuild Include="windows\hierarchy\dragdropableitemmodel.h">
       <Filter>windows\hierarchy\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="suede.qrc">
-      <Filter>resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="ui\preferences.ui">
-      <Filter>ui</Filter>
-    </CustomBuild>
     <CustomBuild Include="widgets\dialogs\preferences.h">
       <Filter>widgets\dialogs\include</Filter>
     </CustomBuild>
@@ -602,6 +566,42 @@
     <CustomBuild Include="widgets\status\statusbar.h">
       <Filter>widgets\status\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="editor.qrc">
+      <Filter>resources</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main\editor.h">
+      <Filter>main\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\aboutdialog.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\editor.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\preferences.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\statswidget.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\camerainspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\custominspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\lightinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\meshinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\projectorinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\rendererinspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scripts\cameracontroller.h">
@@ -613,15 +613,6 @@
     <ClInclude Include="scripts\inversion.h">
       <Filter>scripts\include</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_suede.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_statswidget.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_aboutdialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="scripts\gaussianblur.h">
       <Filter>scripts\include</Filter>
     </ClInclude>
@@ -631,9 +622,6 @@
     <ClInclude Include="windows\winbase.h">
       <Filter>windows\include</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_preferences.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="main\prefs.h">
       <Filter>main\include</Filter>
     </ClInclude>
@@ -642,6 +630,18 @@
     </ClInclude>
     <ClInclude Include="widgets\statistics\statswidget.h">
       <Filter>widgets\statistics\include</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_aboutdialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_editor.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_preferences.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_statswidget.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

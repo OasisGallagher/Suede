@@ -40,7 +40,7 @@ public:
 	~Inspector();
 
 public:
-	virtual void init(Ui::Suede* ui);
+	virtual void init(Ui::Editor* ui);
 	virtual void awake();
 	virtual void tick();
 

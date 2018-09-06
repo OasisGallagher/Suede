@@ -2,7 +2,7 @@
 #include <QMimedata>
 #include <QKeyEvent>
 
-#include "ui_suede.h"
+#include "ui_editor.h"
 
 #include "hierarchy.h"
 #include "os/filesystem.h"
@@ -11,7 +11,7 @@
 Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
 }
 
-void Hierarchy::init(Ui::Suede* ui) {
+void Hierarchy::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 
 	setAcceptDrops(true);

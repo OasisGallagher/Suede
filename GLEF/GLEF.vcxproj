@@ -173,9 +173,9 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Engine\lib
-copy $(TargetDir)$(TargetName).dll $(SolutionDir)$(SolutionName)\bin
+copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)GLEFBuilder\bin
-$(SolutionDir)GLEFBuilder\bin\GLEFBuilder.exe $(SolutionDir)$(SolutionName)\resources\data\GLEF.dat $(SolutionDir)$(SolutionName)\bin\GLEF.dll
+$(SolutionDir)GLEFBuilder\bin\GLEFBuilder.exe $(SolutionDir)Editor\resources\data\GLEF.dat $(SolutionDir)Editor\bin\GLEF.dll
 if errorlevel 1 exit 1</Command>
     </PostBuildEvent>
     <PreBuildEvent>

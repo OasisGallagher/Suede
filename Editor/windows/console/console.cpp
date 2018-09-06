@@ -4,13 +4,13 @@
 #include <QHeaderView>
 
 #include "console.h"
-#include "ui_suede.h"
+#include "ui_editor.h"
 #include "debug/debug.h"
 
 Console::Console(QWidget* parent) : QDockWidget(parent) {
 }
 
-void Console::init(Ui::Suede* ui) {
+void Console::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 	ui_->table = findChild<QTableWidget*>("table");
 	ui_->table->horizontalHeader()->setStretchLastSection(true);
