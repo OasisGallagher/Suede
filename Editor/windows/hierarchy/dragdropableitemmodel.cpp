@@ -13,7 +13,7 @@ QMimeData* DragDropableItemModel::mimeData(const QModelIndexList& indexes) const
 
 	QMimeData* data = new QMimeData;
 	QString targets;
-	foreach(QModelIndex index, indexes) {
+	for (QModelIndex index : indexes) {
 		if (!targets.isEmpty()) { targets += "|"; }
 		targets += QString::number(itemFromIndex(index)->data().toUInt());
 	}
@@ -30,7 +30,7 @@ bool DragDropableItemModel::dropMimeData(const QMimeData* data, Qt::DropAction a
 		parentEntity = World::instance()->GetEntity(item->data().toUInt());
 	}
 
-	foreach(QString target, QString(data->data("targets")).split('|')) {
+	for (QString target : QString(data->data("targets")).split('|')) {
 		Entity entity = World::instance()->GetEntity(target.toUInt());
 		entity->GetTransform()->SetParent(parentEntity->GetTransform());
 	}

@@ -114,7 +114,7 @@ QGroupBox* RendererInspector::createMaterialBox(Renderer renderer, uint material
 	QWidgetList widgets;
 	drawMaterialProperties(widgets, material, materialIndex);
 
-	foreach(QWidget* w, widgets) {
+	for (QWidget* w : widgets) {
 		form->addRow(formatRowName(w->objectName()), w);
 		w->setParent(g);
 	}
@@ -126,8 +126,7 @@ void RendererInspector::drawMaterialProperties(QWidgetList& widgets, Material ma
 	std::vector<const Property*> properties;
 	material->GetProperties(properties);
 
-	for (uint i = 0; i < properties.size(); ++i) {
-		const Property* p = properties[i];
+	for (const Property* p : properties) {
 		if (!isPropertyVisible(p->name.c_str())) {
 			continue;
 		}
@@ -183,8 +182,9 @@ bool RendererInspector::updateMaterial(uint materialIndex, const QString& shader
 
 	std::vector<const Property*> properties;
 	oldMaterial->GetProperties(properties);
-	for (uint i = 0; i < properties.size(); ++i) {
-		material->SetVariant(properties[i]->name, properties[i]->value);
+
+	for (const Property* p : properties) {
+		material->SetVariant(p->name, p->value);
 	}
 
 	renderer->SetMaterial(materialIndex, material);

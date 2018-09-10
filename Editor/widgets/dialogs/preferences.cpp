@@ -19,8 +19,8 @@ void Preferences::onSkinChanged(const QString& name) {
 
 void Preferences::updateUI() {
 	QList<QString> skinNames = QtViewer::builtinSkinNames();
-	for (int i = 0; i < skinNames.count(); ++i) {
-		ui_.skins->addItem(skinNames[i]);
+	for (QString name : skinNames) {
+		ui_.skins->addItem(name);
 	}
 
 	ui_.skins->setCurrentText(QtViewer::skinName());

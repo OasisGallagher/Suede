@@ -75,24 +75,21 @@ void GraphicsInternal::Draw(Mesh mesh, Material material) {
 Mesh GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 	MeshAttribute attribute = { MeshTopology::TriangleStripe };
 
-	glm::vec3 vertices[] = {
+	attribute.positions.assign({
 		glm::vec3(-1.f, -1.f, 0.f),
 		glm::vec3(1.f, -1.f, 0.f),
 		glm::vec3(-1.f, 1.f, 0.f),
 		glm::vec3(1.f, 1.f, 0.f),
-	};
-	attribute.positions.assign(vertices, vertices + CountOf(vertices));
+	});
 
-	glm::vec2 texCoords[] = {
+	attribute.texCoords.assign({
 		rect.GetLeftBottom(),
 		rect.GetRightBottom(),
 		rect.GetLeftTop(),
 		rect.GetRightTop(),
-	};
-	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
+	});
 
-	int indexes[] = { 0, 1, 2, 3 };
-	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
+	attribute.indexes.assign({ 0, 1, 2, 3 });
 
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);

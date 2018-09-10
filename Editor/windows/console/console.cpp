@@ -73,7 +73,7 @@ void Console::flushMessages() {
 void Console::filterMessageByType(int mask) {
 	ui_->table->setRowCount(0);
 
-	foreach(QString msg, messages_) {
+	for (QString msg : messages_) {
 		int type = msg.at(0).toLatin1() - '0';
 		if ((type & mask) != 0) {
 			showMessage(ConsoleMessageType(type), msg.right(msg.length() - 1));
@@ -84,7 +84,7 @@ void Console::filterMessageByType(int mask) {
 void Console::filterMessageBySubString(const QString& substr) {
 	ui_->table->setRowCount(0);
 
-	foreach(QString msg, messages_) {
+	for (QString msg : messages_) {
 		if (substr.isEmpty() || msg.contains(substr)) {
 			int type = msg.at(0).toLatin1() - '0';
 			showMessage(ConsoleMessageType(type), msg.right(msg.length() - 1));
@@ -114,7 +114,7 @@ void Console::showMessage(const QString& encodedMessage) {
 	showMessage(ConsoleMessageType(type), encodedMessage.right(encodedMessage.length() - 1));
 }
 
-void Console::showMessage(ConsoleMessageType type, const QString &message) {
+void Console::showMessage(ConsoleMessageType type, const QString& message) {
 	int r = ui_->table->rowCount();
 	ui_->table->insertRow(r);
 	ui_->table->setColumnWidth(0, 24);

@@ -9,73 +9,65 @@
 GizmosInternal::GizmosInternal() : color_(0, 1, 0) {
 	mesh_ = NewMesh();
 
-	material_ = NewMaterial();
-	material_->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
-	material_->SetColor4(Variables::MainColor, glm::vec4(color_, 1));
+	lineMaterial_ = NewMaterial();
+	lineMaterial_->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
+	lineMaterial_->SetMatrix4("localToWorldMatrix", glm::mat4(1));
 }
 
-GizmosBatch& GizmosInternal::GetBatch(MeshTopology topology) {
-	if (batches_.empty() || batches_.back().color != color_) {
-		GizmosBatch b = { topology, color_ };
+bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material material) {
+	return ref.topology == topology && ref.wireframe == wireframe && ref.color == color_ && ref.material == material;
+}
+
+GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, bool wireframe, Material material) {
+	if (batches_.empty() || !IsBatchable(batches_.back(), topology, wireframe, material)) {
+		Batch b = { topology, wireframe, color_, material };
 		batches_.push_back(b);
 	}
 
 	return batches_.back();
 }
 
-glm::vec3 GizmosInternal::GetColor() {
-	return color_;
-}
-
-void GizmosInternal::SetColor(const glm::vec3& value) {
-	color_ = value;
-}
-
 void GizmosInternal::DrawLines(const glm::vec3* points, uint npoints) {
-	FillBatch(GetBatch(MeshTopology::Lines), points, npoints);
+	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_), points, npoints);
 }
 
 void GizmosInternal::DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) {
-	FillBatch(GetBatch(MeshTopology::Lines), points, npoints, nindexes, indexes);
+	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_), points, npoints, indexes, nindexes);
 }
 
-void GizmosInternal::DrawLineStripe(const glm::vec3 * points, uint npoints) {
-	FillBatch(GetBatch(MeshTopology::LineStripe), points, npoints);
+void GizmosInternal::DrawLineStripe(const glm::vec3* points, uint npoints) {
+	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), points, npoints);
 }
 
-void GizmosInternal::DrawLineStripe(const glm::vec3 * points, uint npoints, const uint * indexes, uint nindexes) {
-	FillBatch(GetBatch(MeshTopology::LineStripe), points, npoints, nindexes, indexes);
+void GizmosInternal::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) {
+	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), points, npoints, indexes, nindexes);
 }
 
-// https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
 void GizmosInternal::DrawSphere(const glm::vec3& center, float radius) {
-	std::vector<glm::vec3> points;
-	GetSphereCoodrinates(points, radius, center, glm::ivec2(12));
-	DrawLines(&points[0], points.size());
+	AddSphereBatch(center, radius, false);
 }
 
 void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
-	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, center, size);
+	AddCuboidBatch(center, size, false);
+}
 
-	uint indexes[] = {
-		0, 1, 1, 2, 2, 3, 3, 0,
-		4, 5, 5, 6, 6, 7, 7, 4,
-		0, 4, 1, 5, 2, 6, 3, 7,
-	};
+void GizmosInternal::DrawWireSphere(const glm::vec3& center, float radius) {
+	AddSphereBatch(center, radius, true);
+}
 
-	DrawLines(&points[0], points.size(), indexes, CountOf(indexes));
+void GizmosInternal::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) {
+	AddCuboidBatch(center, size, true);
 }
 
 void GizmosInternal::Flush() {
-	for (GizmosBatch& b : batches_) {
-		RenderGizmos(b);
+	for (Batch& b : batches_) {
+		DrawGizmos(b);
 	}
 
 	batches_.clear();
 }
 
-void GizmosInternal::FillBatch(GizmosBatch &b, const glm::vec3* points, uint npoints, uint nindexes, const uint* indexes) {
+void GizmosInternal::FillBatch(Batch& b, const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) {
 	uint base = b.points.size();
 	b.points.insert(b.points.end(), points, points + npoints);
 
@@ -84,7 +76,7 @@ void GizmosInternal::FillBatch(GizmosBatch &b, const glm::vec3* points, uint npo
 	}
 }
 
-void GizmosInternal::FillBatch(GizmosBatch &b, const glm::vec3* points, uint npoints) {
+void GizmosInternal::FillBatch(Batch &b, const glm::vec3* points, uint npoints) {
 	uint base = b.points.size();
 	b.points.insert(b.points.end(), points, points + npoints);
 	for (uint i = 0; i < npoints; ++i) {
@@ -92,9 +84,35 @@ void GizmosInternal::FillBatch(GizmosBatch &b, const glm::vec3* points, uint npo
 	}
 }
 
-void GizmosInternal::RenderGizmos(const GizmosBatch& b) {
+/**
+ * @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
+ */
+void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool wireframe) {
+	std::vector<uint> indexes;
+	std::vector<glm::vec3> points;
+	GetSphereCoodrinates(points, indexes, glm::ivec2(15));
+
+	Material material = NewMaterial();
+	material->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
+	material->SetMatrix4("localToWorldMatrix", Math::TRS(center, glm::quat(), glm::vec3(radius)));
+
+	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, material), &points[0], points.size(), &indexes[0], indexes.size());
+}
+
+void GizmosInternal::AddCuboidBatch(const glm::vec3& center, const glm::vec3& size, bool wireframe) {
+	std::vector<uint> indexes;
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCuboidCoordinates(points, center, size, &indexes);
+
+	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
+}
+
+void GizmosInternal::DrawGizmos(const Batch& b) {
+	ShadingMode oldShadingMode = Graphics::instance()->GetShadingMode();
+	Graphics::instance()->SetShadingMode(b.wireframe ? ShadingMode::Wireframe : ShadingMode::Shaded);
+
 	MeshAttribute attribute;
-	attribute.topology = MeshTopology::Lines;
+	attribute.topology = b.topology;
 
 	attribute.positions = b.points;
 	attribute.indexes = b.indexes;
@@ -108,36 +126,39 @@ void GizmosInternal::RenderGizmos(const GizmosBatch& b) {
 	TriangleBias bias{ b.indexes.size(), 0, 0 };
 	mesh_->GetSubMesh(0)->SetTriangleBias(bias);
 
-	material_->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
-	Graphics::instance()->Draw(mesh_, material_);
+	b.material->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
+	Graphics::instance()->Draw(mesh_, b.material);
+
+	Graphics::instance()->SetShadingMode(oldShadingMode);
 }
 
-void GizmosInternal::GetSphereCoodrinates(std::vector<glm::vec3>& points, float radius, const glm::vec3& center, const glm::ivec2& resolution) {
+void GizmosInternal::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
 	// step size between U-points on the grid
 	glm::vec2 step = glm::vec2(Math::Pi() * 2, Math::Pi()) / glm::vec2(resolution);
 
-	for (float i = 0; i < resolution.x; i++) { // U-points
-		for (float j = 0; j < resolution.y; j++) { // V-points
+	for (float i = 0; i < resolution.x; ++i) { // U-points
+		for (float j = 0; j < resolution.y; ++j) { // V-points
 			glm::vec2 uv = glm::vec2(i, j) * step;
 			float un = ((i + 1) == resolution.x) ? Math::Pi() * 2 : (i + 1) * step.x;
 			float vn = ((j + 1) == resolution.y) ? Math::Pi() : (j + 1) * step.y;
 
 			// Find the four points of the grid square by evaluating the parametric urface function.
-			glm::vec3 p0 = SphereCoodrinate(uv.x, uv.y, radius) + center;
-			glm::vec3 p1 = SphereCoodrinate(uv.x, vn, radius) + center;
-			glm::vec3 p2 = SphereCoodrinate(un, uv.y, radius) + center;
-			glm::vec3 p3 = SphereCoodrinate(un, vn, radius) + center;
+			glm::vec3 p[] = {
+				SphereCoodrinate(uv.x, uv.y),
+				SphereCoodrinate(uv.x, vn),
+				SphereCoodrinate(un, uv.y),
+				SphereCoodrinate(un, vn)
+			};
 
-			// NOTE: For spheres, the normal is just the normalized
-			// version of each vertex point; this generally won't be the case for
-			// other parametric surfaces.
-			// Output the first triangle of this grid square
-			// 0 -> 2 -> 1
-			points.push_back(p0); points.push_back(p2); points.push_back(p2); points.push_back(p1); points.push_back(p1); points.push_back(p0);
+			uint c = points.size();
+			indexes.push_back(c + 0);
+			indexes.push_back(c + 2);
+			indexes.push_back(c + 1);
+			indexes.push_back(c + 3);
+			indexes.push_back(c + 1);
+			indexes.push_back(c + 2);
 
-			// Output the other triangle of this grid square
-			// 3 -> 1 -> 2
-			points.push_back(p3); points.push_back(p1); points.push_back(p1); points.push_back(p2); points.push_back(p2); points.push_back(p3);
+			points.insert(points.end(), p, p + CountOf(p));
 		}
 	}
 }

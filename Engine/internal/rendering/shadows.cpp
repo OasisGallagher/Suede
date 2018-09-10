@@ -49,13 +49,6 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
 		r.instance = 0;
 	}
 
-	/*
-	glm::vec3 center(0, 0, -(near + far) / 2);
-	glm::vec3 size(100, 100, far - near);
-	center = glm::vec3(directionalLight->GetTransform()->GetLocalToWorldMatrix() * glm::vec4(center, 1));
-	Gizmos::DrawCuboid(center, size);
-	*/
-
 	glm::mat4 bias(
 		0.5f, 0, 0, 0,
 		0, 0.5f, 0, 0,

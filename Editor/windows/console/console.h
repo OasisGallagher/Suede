@@ -39,7 +39,7 @@ private:
 	void flushMessages();
 	void onErrorMessage(const QString& message);
 	void showMessage(const QString& encodedMessage);
-	void showMessage(ConsoleMessageType type, const QString &message);
+	void showMessage(ConsoleMessageType type, const QString& message);
 
 	const char* messageIconPath(ConsoleMessageType type);
 
@@ -51,4 +51,3 @@ private:
 	QList<QString> messages_;
 	QList<QString> messagesToShow_;
 };
-

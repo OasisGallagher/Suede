@@ -19,4 +19,7 @@ public:
 
 	virtual void DrawSphere(const glm::vec3& center, float radius) = 0;
 	virtual void DrawCuboid(const glm::vec3& center, const glm::vec3& size) = 0;
+
+	virtual void DrawWireSphere(const glm::vec3& center, float radius) = 0;
+	virtual void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) = 0;
 };

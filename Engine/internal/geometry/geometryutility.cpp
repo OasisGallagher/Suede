@@ -180,21 +180,27 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points,
 	return PlaneSide::Spanning;
 }
 
-void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& container, const glm::vec3& center, const glm::vec3& size) {
+void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles) {
 	glm::vec3 half = size / 2.f;
-	glm::vec3 points[] = {
-		center - half,
-		center - glm::vec3(half.x, half.y, -half.z),
-		center - glm::vec3(-half.x, half.y, -half.z),
-		center - glm::vec3(-half.x, half.y, half.z),
 
-		center - glm::vec3(half.x, -half.y, half.z),
-		center - glm::vec3(half.x, -half.y, -half.z),
+	points.assign({
+		center + glm::vec3(half.xy, -half.z),
+		center + glm::vec3(-half.x, half.y, -half.z),
+		center + glm::vec3(-half.x, half.yz),
 		center + half,
-		center - glm::vec3(-half.x, -half.y, half.z),
-	};
+		center + glm::vec3(half.x, glm::vec2(0) - half.yz),
+		center + (-half),
+		center + glm::vec3(glm::vec2(0) - half.xy, half.z),
+		center + glm::vec3(half.x, -half.y, half.z),
+	});
 
-	container.assign(points, points + CountOf(points));
+	if (triangles != nullptr) {
+		triangles->assign({
+			0, 1, 2, 0, 2, 3, 0, 4, 5, 0, 5, 1,
+			1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3,
+			3, 7, 4, 3, 4, 0, 4, 7, 6, 4, 6, 5
+		});
+	}
 }
 
 bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {

@@ -11,7 +11,7 @@ class SUEDE_API GUI {
 public:
 	static void LoadFont(const char* file);
 
-	static void Begin(uint w, uint h);
+	static void Begin(uint w, uint h, glm::vec3 backgroundColor);
 	static void End();
 
 	static void LabelField(const char* text);

@@ -30,8 +30,8 @@ void MaskField::setItems(const QStringList& items, int mask) {
 	width = qMax(width, addItem(NONE_STRING));
 	width = qMax(width, addItem(EVERYTHING_STRING));
 
-	for(uint i = 0; i < items.size(); ++i) {
-		width = qMax(width, addItem(items[i]));
+	for(QString item : items) {
+		width = qMax(width, addItem(item));
 	}
 
 	setSelectedMask(mask);
@@ -90,7 +90,7 @@ void MaskField::setSelectedMask(int value) {
 }
 
 void MaskField::updateCheckBoxes() {
-	foreach(QCheckBox* box, checkBoxes_) {
+	for (QCheckBox* box : checkBoxes_) {
 		box->blockSignals(true);
 	}
 
@@ -108,7 +108,7 @@ void MaskField::updateCheckBoxes() {
 		}
 	}
 
-	foreach(QCheckBox* box, checkBoxes_) {
+	for (QCheckBox* box : checkBoxes_) {
 		box->blockSignals(false);
 	}
 }

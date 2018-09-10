@@ -2,6 +2,7 @@
 
 #include "tools/math2.h"
 #include "os/filesystem.h"
+#include "geometryutility.h"
 
 ResourcesInternal::ResourcesInternal() {
 	ImportBuiltinResources();
@@ -71,65 +72,32 @@ Material ResourcesInternal::FindMaterial(const std::string& name) {
 void ResourcesInternal::GetQuadMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::TriangleStripe;
 
-	glm::vec3 vertices[] = {
+	attribute.positions.assign({
 		glm::vec3(-0.5f * scale, -0.5f * scale, 0.f),
 		glm::vec3(0.5f * scale, -0.5f * scale, 0.f),
 		glm::vec3(-0.5f * scale,  0.5f * scale, 0.f),
 		glm::vec3(0.5f * scale,  0.5f * scale, 0.f),
-	};
-	attribute.positions.assign(vertices, vertices + CountOf(vertices));
+	});
 
-	glm::vec2 texCoords[] = {
+	attribute.texCoords.assign({
 		glm::vec2(0.f, 0.f),
 		glm::vec2(1.f, 0.f),
 		glm::vec2(0.f, 1.f),
 		glm::vec2(1.f, 1.f),
-	};
-	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
+	});
 
-	attribute.normals.resize(CountOf(vertices), glm::vec3(0, 0, -1));
-
-	int indexes[] = { 0, 1, 2, 3 };
-	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
+	attribute.indexes.assign({ 0, 1, 2, 3 });
 }
 
 void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::Triangles;
+	GeometryUtility::GetCuboidCoordinates(attribute.positions, glm::vec3(0), glm::vec3(1), &attribute.indexes);
 
-	glm::vec3 vertices[] = {
-		glm::vec3(0.5f, 0.5f, -0.5f),
-		glm::vec3(-0.5f, 0.5f, -0.5f),
-		glm::vec3(-0.5f, 0.5f, 0.5f),
-		glm::vec3(0.5f, 0.5f, 0.5f),
-		glm::vec3(0.5f, -0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f, -0.5f),
-		glm::vec3(-0.5f, -0.5f, 0.5f),
-		glm::vec3(0.5f, -0.5f, 0.5f),
-	};
-
-	for (int i = 0; i < CountOf(vertices); ++i) {
-		vertices[i] *= scale;
+	for (int i = 0; i < attribute.positions.size(); ++i) {
+		attribute.positions[i] *= scale;
 	}
 
-	attribute.positions.assign(vertices, vertices + CountOf(vertices));
-
-	uint indexes[] = {
-		0, 1, 2,
-		0, 2, 3,
-		0, 4, 5,
-		0, 5, 1,
-		1, 5, 6,
-		1, 6, 2,
-		2, 6, 7,
-		2, 7, 3,
-		3, 7, 4,
-		3, 4, 0,
-		4, 7, 6,
-		4, 6, 5
-	};
-	attribute.indexes.assign(indexes, indexes + CountOf(indexes));
-
-	glm::vec3 normals[] = {
+	attribute.normals.assign({
 		glm::vec3(0.333333f, 0.666667f, -0.666667f),
 		glm::vec3(-0.816497f, 0.408248f, -0.408248f),
 		glm::vec3(-0.333333f, 0.666667f, 0.666667f),
@@ -138,10 +106,9 @@ void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float sca
 		glm::vec3(-0.408248f, -0.408248f, -0.816497f),
 		glm::vec3(-0.666667f, -0.666667f, 0.333333f),
 		glm::vec3(0.408248f, -0.408248f, 0.816497f)
-	};
-	attribute.normals.assign(normals, normals + CountOf(normals));
+	});
 
-	glm::vec2 texCoords[] = {
+	attribute.texCoords.assign({
 		glm::vec2(0.f, 1.f),
 		glm::vec2(1.f, 1.f),
 		glm::vec2(0.f, 1.f),
@@ -150,8 +117,7 @@ void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float sca
 		glm::vec2(1.f, 0.f),
 		glm::vec2(0.f, 0.f),
 		glm::vec2(1.f, 0.f),
-	};
-	attribute.texCoords.assign(texCoords, texCoords + CountOf(texCoords));
+	});
 }
 
 Mesh ResourcesInternal::CreateMesh(MeshAttribute &attribute) {

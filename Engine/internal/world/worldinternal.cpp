@@ -74,8 +74,8 @@ WorldInternal::~WorldInternal() {
 }
 
 void WorldInternal::Finalize() {
-	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
-		(*ite)->OnBeforeWorldDestroyed();
+	for (Camera camera : cameras_) {
+		camera->OnBeforeWorldDestroyed();
 	}
 
 	MEMORY_DELETE(importer_);
@@ -186,8 +186,8 @@ bool WorldInternal::FireEvent(WorldEventBasePointer e) {
 }
 
 void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
-	for (int i = 0; i < listeners_.size(); ++i) {
-		listeners_[i]->OnWorldEvent(e);
+	for (WorldEventListener* listener : listeners_) {
+		listener->OnWorldEvent(e);
 	}
 }
 
@@ -327,9 +327,8 @@ void WorldInternal::OnEntityParentChanged(Entity entity) {
 
 void WorldInternal::FireEvents() {
 	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
-		WorldEventCollection collection = events_[i];
-		for (WorldEventCollection::const_iterator ite = collection.begin(); ite != collection.end(); ++ite) {
-			FireEventImmediate(*ite);
+		for (WorldEventBasePointer pointer : events_[i]) {
+			FireEventImmediate(pointer);
 		}
 	}
 
@@ -390,9 +389,9 @@ void WorldInternal::RenderingUpdate() {
 
 	UpdateTimeUniformBuffer();
 
-	for (CameraContainer::iterator ite = cameras_.begin(); ite != cameras_.end(); ++ite) {
-		if ((*ite)->GetActive()) {
-			(*ite)->Render();
+	for (Camera camera : cameras_) {
+		if (camera->GetActive()) {
+			camera->Render();
 		}
 	}
 

@@ -48,7 +48,7 @@ Entity Hierarchy::selectedEntity() {
 bool Hierarchy::selectedEntities(QList<Entity>& entities) {
 	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
 
-	foreach (QModelIndex index, indexes) {
+	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
 		entities.push_back(World::instance()->GetEntity(id));
 	}
@@ -160,7 +160,7 @@ void Hierarchy::onTreeCustomContextMenu() {
 
 void Hierarchy::onDeleteSelected() {
 	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
-	foreach(QModelIndex index, indexes) {
+	for (QModelIndex index : indexes) {
 		World::instance()->DestroyEntity(model_->itemFromIndex(index)->data().toUInt());
 	}
 }
@@ -196,7 +196,7 @@ void Hierarchy::keyReleaseEvent(QKeyEvent* event) {
 void Hierarchy::dropEvent(QDropEvent* event) {
 	QDockWidget::dropEvent(event);
 	QList<QUrl> urls = event->mimeData()->urls();
-	foreach(QUrl url, urls) {
+	for (QUrl url : urls) {
 		std::string path = FileSystem::GetFileName(url.toString().toStdString());
 		World::instance()->Import(path, this);
 	}
@@ -247,7 +247,7 @@ bool Hierarchy::dropAcceptable(const QMimeData* data) {
 
 	if (!data->hasUrls()) { return false; }
 
-	foreach(QUrl url, data->urls()) {
+	for (QUrl url : data->urls()) {
 		if (!url.toString().endsWith(".fbx") && !url.toString().endsWith(".obj")) {
 			return false;
 		}
@@ -297,7 +297,7 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 }
 
 void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelection& items) {
-	foreach(QModelIndex index, items.indexes()) {
+	for (QModelIndex index : items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
 		Entity entity = World::instance()->GetEntity(id);
 		if (entity) {
@@ -307,7 +307,7 @@ void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelectio
 }
 
 void Hierarchy::enableItemsOutline(const QList<Entity>& entities, bool enable) {
-	foreach (Entity entity, entities) {
+	for (Entity entity : entities) {
 		enableEntityOutline(entity, enable);
 	}
 }

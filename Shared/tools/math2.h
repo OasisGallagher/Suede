@@ -6,7 +6,7 @@
 #include "../debug/debug.h"
 
 // use full relative path here.
-// cos' some projects will not set glm as 'Additional Include Directories'.
+// as some projects may not set glm as 'Additional Include Directories'.
 #include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
 #include "../3rdparty/glm-0.9.7.1/include/glm/gtc/quaternion.hpp"
 #include "../3rdparty/glm-0.9.7.1/include/glm/gtc/matrix_transform.hpp"

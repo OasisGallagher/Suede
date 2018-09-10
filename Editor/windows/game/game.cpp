@@ -113,7 +113,7 @@ void Game::OnDrawGizmos() {
 	int i = 0;
 	glm::vec3 colors[] = { glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) };
 	glm::vec3 oldColor = Gizmos::instance()->GetColor();
-	foreach(Entity entity, selection_) {
+	for (Entity entity : selection_) {
 		if (!entity->GetActive()) {
 			continue;
 		}
@@ -121,10 +121,10 @@ void Game::OnDrawGizmos() {
 		const Bounds& bounds = entity->GetBounds();
 		Gizmos::instance()->SetColor(colors[i % CountOf(colors)]);
 		if (!bounds.IsEmpty()) {
-			Gizmos::instance()->DrawCuboid(bounds.center, bounds.size);
+			Gizmos::instance()->DrawWireCuboid(bounds.center, bounds.size);
 		}
 		else {
-			Gizmos::instance()->DrawSphere(entity->GetTransform()->GetPosition(), 5);
+			Gizmos::instance()->DrawWireSphere(entity->GetTransform()->GetPosition(), 5);
 		}
 
 		++i;
@@ -242,15 +242,13 @@ void Game::timerEvent(QTimerEvent *event) {
 }
 
 void Game::updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected) {
-	container.clear();
-
-	foreach(Entity entity, selected) {
+	for (Entity entity : selected) {
 		if (container.indexOf(entity) < 0) {
 			container.push_back(entity);
 		}
 	}
 
-	foreach(Entity entity, deselected) {
+	for (Entity entity : deselected) {
 		container.removeOne(entity);
 	}
 }

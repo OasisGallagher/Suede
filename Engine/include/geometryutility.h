@@ -26,7 +26,7 @@ public:
 	static bool IsFrontFace(const Triangle& face, const glm::vec3& camera);
 	static PlaneSide TestSide(const Plane& plane, const glm::vec3* points, uint npoints);
 
-	static void GetCuboidCoordinates(std::vector<glm::vec3>& container, const glm::vec3& center, const glm::vec3& size);
+	static void GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles = nullptr);
 
 	/**
 	 * @returns true if one or more points are inside the plane array.

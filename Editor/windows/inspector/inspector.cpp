@@ -48,7 +48,10 @@ void Inspector::onGui() {
 	
 	QtImGui::newFrame();
 
-	GUI::Begin(view_->width(), view_->height());
+	// SUEDE TODO: background color and skin.
+	glm::vec3 backgroundColor = glm::vec3(35.f, 38.f, 41.f) / 255.f;
+
+	GUI::Begin(view_->width(), view_->height(), backgroundColor);
 	if (target_) { drawGui(); }
 	GUI::End();
 
