@@ -123,10 +123,10 @@ void GpuQuerier::RecycleQuerier(Querier* querier) {
 
 GLenum GpuQuerier::QueryTypeToGLenum(QueryType type) {
 	switch (type) {
-		case QueryTypeSamplesPassed: return GL_SAMPLES_PASSED;
-		case QueryTypeAnySamplesPassed: return GL_ANY_SAMPLES_PASSED;
-		case QueryTypeAnySamplesPassedConservative: return GL_ANY_SAMPLES_PASSED_CONSERVATIVE;
-		case QueryTypeTimeElapsed: return GL_TIME_ELAPSED;
+		case QueryType::SamplesPassed: return GL_SAMPLES_PASSED;
+		case QueryType::AnySamplesPassed: return GL_ANY_SAMPLES_PASSED;
+		case QueryType::AnySamplesPassedConservative: return GL_ANY_SAMPLES_PASSED_CONSERVATIVE;
+		case QueryType::TimeElapsed: return GL_TIME_ELAPSED;
 	}
 
 	Debug::LogError("invalid query type.");

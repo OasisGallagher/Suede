@@ -90,7 +90,7 @@ void GizmosInternal::FillBatch(Batch &b, const glm::vec3* points, uint npoints) 
 void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool wireframe) {
 	std::vector<uint> indexes;
 	std::vector<glm::vec3> points;
-	GetSphereCoodrinates(points, indexes, glm::ivec2(15));
+	GeometryUtility::GetSphereCoodrinates(points, indexes, glm::ivec2(15));
 
 	Material material = NewMaterial();
 	material->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
@@ -130,35 +130,4 @@ void GizmosInternal::DrawGizmos(const Batch& b) {
 	Graphics::instance()->Draw(mesh_, b.material);
 
 	Graphics::instance()->SetShadingMode(oldShadingMode);
-}
-
-void GizmosInternal::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
-	// step size between U-points on the grid
-	glm::vec2 step = glm::vec2(Math::Pi() * 2, Math::Pi()) / glm::vec2(resolution);
-
-	for (float i = 0; i < resolution.x; ++i) { // U-points
-		for (float j = 0; j < resolution.y; ++j) { // V-points
-			glm::vec2 uv = glm::vec2(i, j) * step;
-			float un = ((i + 1) == resolution.x) ? Math::Pi() * 2 : (i + 1) * step.x;
-			float vn = ((j + 1) == resolution.y) ? Math::Pi() : (j + 1) * step.y;
-
-			// Find the four points of the grid square by evaluating the parametric urface function.
-			glm::vec3 p[] = {
-				SphereCoodrinate(uv.x, uv.y),
-				SphereCoodrinate(uv.x, vn),
-				SphereCoodrinate(un, uv.y),
-				SphereCoodrinate(un, vn)
-			};
-
-			uint c = points.size();
-			indexes.push_back(c + 0);
-			indexes.push_back(c + 2);
-			indexes.push_back(c + 1);
-			indexes.push_back(c + 3);
-			indexes.push_back(c + 1);
-			indexes.push_back(c + 2);
-
-			points.insert(points.end(), p, p + CountOf(p));
-		}
-	}
 }

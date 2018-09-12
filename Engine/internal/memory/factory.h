@@ -30,7 +30,7 @@ public:
 	}
 
 	static Object Create(ObjectType type) {
-		if ((int)type < 0 || type >= ObjectType::_Count) {
+		if ((int)type < 0 || type >= ObjectType::size()) {
 			Debug::LogError("invalid object type %d.", type);
 			return nullptr;
 		}
@@ -61,5 +61,5 @@ private:
 
 	static Factory instance;
 	MethodDictionary methodDictionary_;
-	FactoryMethod methodArray_[(int)ObjectType::_Count];
+	FactoryMethod methodArray_[ObjectType::size()];
 };

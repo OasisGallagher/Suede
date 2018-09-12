@@ -115,9 +115,6 @@
     <Filter Include="windows\inspector\custom\include">
       <UniqueIdentifier>{83d42b6f-29f7-4a33-9aeb-e48421309e33}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\inspector\custom\src">
-      <UniqueIdentifier>{08948759-06ff-4f97-9641-fe3af5014b10}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows\lighting">
       <UniqueIdentifier>{2de45e3f-4435-4576-b064-28bec29f4dda}</UniqueIdentifier>
     </Filter>
@@ -171,6 +168,9 @@
     </Filter>
     <Filter Include="widgets\statistics\src">
       <UniqueIdentifier>{9e5c37de-8d62-4636-96d3-a21511a8e5a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows\inspector\custom\src">
+      <UniqueIdentifier>{def5eb06-52e6-47c0-a0da-8bf1634d8423}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -272,24 +272,6 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_popupwidget.cpp">
       <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\camerainspector.cpp">
-      <Filter>windows\inspector\custom\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\custominspector.cpp">
-      <Filter>windows\inspector\custom\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\lightinspector.cpp">
-      <Filter>windows\inspector\custom\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\meshinspector.cpp">
-      <Filter>windows\inspector\custom\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\rendererinspector.cpp">
-      <Filter>windows\inspector\custom\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\projectorinspector.cpp">
-      <Filter>windows\inspector\custom\src</Filter>
     </ClCompile>
     <ClCompile Include="windows\game\canvas.cpp">
       <Filter>windows\game\src</Filter>
@@ -447,41 +429,11 @@
     <ClCompile Include="main\editor.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_camerainspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="windows\inspector\custom\meshrendererinspector.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_camerainspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_custominspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_custominspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_lightinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_lightinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_meshinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_meshinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_projectorinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_projectorinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_rendererinspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_rendererinspector.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="windows\inspector\custom\custominspector.cpp">
+      <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -599,7 +551,7 @@
     <CustomBuild Include="windows\inspector\custom\projectorinspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\rendererinspector.h">
+    <CustomBuild Include="windows\inspector\custom\meshrendererinspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -642,6 +594,9 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\inspector\custom\transforminspector.h">
+      <Filter>windows\inspector\custom\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

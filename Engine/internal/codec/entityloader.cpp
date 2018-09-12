@@ -136,14 +136,14 @@ void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, Su
 
 	Renderer renderer = nullptr;
 	if (!HasAnimation()) {
-		renderer = NewMeshRenderer();
+		renderer = SUEDE_ADD_COMPONENT(entity, MeshRenderer);
 	}
 	else {
-		renderer = NewSkinnedMeshRenderer();
+		renderer = SUEDE_ADD_COMPONENT(entity, SkinnedMeshRenderer);
 		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
-	Mesh mesh = NewMesh();
+	Mesh mesh = SUEDE_ADD_COMPONENT(entity, Mesh);
 	mesh->ShareStorage(surface);
 
 	Bounds bounds(boundses[node->mMeshes[0]]);
@@ -162,9 +162,6 @@ void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, Su
 	}
 
 	mesh->SetBounds(bounds);
-
-	entity->SetMesh(mesh);
-	entity->SetRenderer(renderer);
 }
 
 void EntityLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
@@ -352,13 +349,7 @@ void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* m
 	}
 }
 
-bool EntityLoader::LoadAnimation(Animation& animation) {
-	if (!HasAnimation()) {
-		return false;
-	}
-
-	animation = NewAnimation();
-
+void EntityLoader::LoadAnimation(Animation animation) {
 	glm::mat4 rootTransform;
 	animation->SetRootTransform(AIMaterixToGLM(rootTransform, scene_->mRootNode->mTransformation.Inverse()));
 
@@ -378,8 +369,6 @@ bool EntityLoader::LoadAnimation(Animation& animation) {
 
 	animation->SetSkeleton(skeleton_);
 	animation->Play(defaultClipName);
-
-	return true;
 }
 
 void EntityLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
@@ -519,8 +508,8 @@ bool EntityLoader::LoadAsset() {
 	MEMORY_DELETE_ARRAY(boundses);
 
 	Animation animation;
-	if (LoadAnimation(animation)) {
-		root_->SetAnimation(animation);
+	if (HasAnimation()) {
+		LoadAnimation(SUEDE_ADD_COMPONENT(root_, Animation));
 	}
 
 	return true;

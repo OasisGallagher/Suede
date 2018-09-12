@@ -371,8 +371,8 @@ void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>&
 
 void RenderableTraits::InitializeSSAOKernel() {
 	glm::vec3 kernel[SSAO_KERNEL_SIZE];
-	for (int i = 0; i < CountOf(kernel); ++i) {
-		float scale = float(i) / CountOf(kernel);
+	for (int i = 0; i < SUEDE_COUNTOF(kernel); ++i) {
+		float scale = float(i) / SUEDE_COUNTOF(kernel);
 		scale = Math::Lerp(0.1f, 1.f, scale * scale);
 
 		glm::vec3 sample = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), Random::FloatRange(0.f, 1.f));
@@ -382,7 +382,7 @@ void RenderableTraits::InitializeSSAOKernel() {
 	}
 
 	glm::vec3 noise[4 * 4];
-	for (int i = 0; i < CountOf(noise); ++i) {
+	for (int i = 0; i < SUEDE_COUNTOF(noise); ++i) {
 		noise[i] = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
 	}
 

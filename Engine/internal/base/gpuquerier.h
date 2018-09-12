@@ -6,11 +6,11 @@
 #include "tools/singleton.h"
 #include "containers/freelist.h"
 
-enum QueryType {
-	QueryTypeSamplesPassed,
-	QueryTypeAnySamplesPassed,
-	QueryTypeAnySamplesPassedConservative,
-	QueryTypeTimeElapsed,
+enum class QueryType {
+	SamplesPassed,
+	AnySamplesPassed,
+	AnySamplesPassedConservative,
+	TimeElapsed,
 };
 
 class QuerierResultListener {

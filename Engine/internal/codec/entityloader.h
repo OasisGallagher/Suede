@@ -77,7 +77,7 @@ private:
 	void LoadMaterialAssets();
 	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
 
-	bool LoadAnimation(Animation& animation);
+	void LoadAnimation(Animation animation);
 	bool HasAnimation() { return skeleton_ && scene_->mNumAnimations != 0; }
 	void LoadAnimationClip(const aiAnimation* anim, AnimationClip clip);
 	void LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);

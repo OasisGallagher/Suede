@@ -13,13 +13,12 @@
 
 #pragma intrinsic(_BitScanForward)
 
-template <class CountofTpe, size_t sizeOfArray>
-inline char(*__countof_helper(CountofTpe(&_Array)[sizeOfArray]))[sizeOfArray] {
+template <class CountofType, size_t sizeOfArray>
+inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
 	return nullptr;
 }
 
-#define CountOf(array) (sizeof(*__countof_helper(array)) + 0)
-#define Padding(size) char __unused[size]
+#define SUEDE_COUNTOF(array) (sizeof(*__countof_helper(array)) + 0)
 
 class Math {
 public:

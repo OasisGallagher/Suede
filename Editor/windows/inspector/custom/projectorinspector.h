@@ -1,11 +1,9 @@
+#include "projector.h"
 #include "custominspector.h"
 
-class ProjectorInspector : public CustomInspector {
-	Q_OBJECT
-
+class ProjectorInspector : public CustomInspectorT<Projector> {
 public:
-	ProjectorInspector(Object object);
+	virtual void onGui() {
 
-private slots:
-	void onSliderValueChanged(float value);
+	}
 };

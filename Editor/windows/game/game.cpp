@@ -119,7 +119,7 @@ void Game::OnDrawGizmos() {
 		}
 
 		const Bounds& bounds = entity->GetBounds();
-		Gizmos::instance()->SetColor(colors[i % CountOf(colors)]);
+		Gizmos::instance()->SetColor(colors[i % SUEDE_COUNTOF(colors)]);
 		if (!bounds.IsEmpty()) {
 			Gizmos::instance()->DrawWireCuboid(bounds.center, bounds.size);
 		}

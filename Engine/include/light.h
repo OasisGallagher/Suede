@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "entity.h"
+#include "component.h"
 #include "tools/enum.h"
 
 BETTER_ENUM(LightImportance, int,
@@ -10,7 +10,7 @@ BETTER_ENUM(LightImportance, int,
 	Important
 )
 
-class ILight : virtual public IEntity {
+class ILight : virtual public IComponent {
 public:
 	virtual void SetImportance(LightImportance value) = 0;
 	virtual LightImportance GetImportance() = 0;
@@ -44,7 +44,3 @@ SUEDE_DEFINE_OBJECT_POINTER(Light);
 SUEDE_DEFINE_OBJECT_POINTER(SpotLight);
 SUEDE_DEFINE_OBJECT_POINTER(PointLight);
 SUEDE_DEFINE_OBJECT_POINTER(DirectionalLight);
-
-SUEDE_DECLARE_OBJECT_CREATER(SpotLight);
-SUEDE_DECLARE_OBJECT_CREATER(PointLight);
-SUEDE_DECLARE_OBJECT_CREATER(DirectionalLight);

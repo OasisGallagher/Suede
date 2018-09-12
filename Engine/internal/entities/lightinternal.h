@@ -1,9 +1,9 @@
 #include "light.h"
-#include "internal/entities/entityinternal.h"
+#include "internal/components/componentinternal.h"
 
-class LightInternal : virtual public ILight, public EntityInternal {
+class LightInternal : virtual public ILight, public ComponentInternal {
 public:
-	LightInternal(ObjectType type) : EntityInternal(type), intensity_(1) {}
+	LightInternal(ObjectType type) : ComponentInternal(type), intensity_(1) {}
 	~LightInternal() {}
 
 	virtual void SetImportance(LightImportance value) { importance_ = value; }

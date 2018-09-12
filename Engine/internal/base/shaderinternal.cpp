@@ -18,7 +18,7 @@ std::pair<std::string, float> _variables[] = {
 	std::make_pair("Overlay", (float)RenderQueue::Overlay),
 };
 
-static std::map<std::string, float> renderQueueVariables(_variables, _variables + CountOf(_variables));
+static std::map<std::string, float> renderQueueVariables(_variables, _variables + SUEDE_COUNTOF(_variables));
 
 #define BIND(old, new)	if (old == new) { old = -1; } else
 #define UNBIND(old)		if (old == -1) { } else

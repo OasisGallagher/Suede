@@ -79,12 +79,21 @@ public:
 		allocate(n);
 	}
 
+	/**
+	 * @return beginning of the busy list.
+	 */
 	iterator begin() { return iterator(busy_); }
 	iterator end() { return iterator(nullptr); }
 
+	/**
+	 * @return beginning of the free list.
+	 */
 	iterator fbegin() { return iterator(free_); }
 	iterator fend() { return iterator(nullptr); }
 
+	/**
+	 * @return count of busy items.
+	 */
 	size_t size() const { return size_; }
 	size_t capacity() const { return capacity_; }
 

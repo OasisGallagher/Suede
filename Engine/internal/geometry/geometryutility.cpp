@@ -21,6 +21,8 @@ struct EarVertex {
 	glm::vec3 position;
 };
 
+static glm::vec3 SphereCoodrinate(float x, float y);
+
 static void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane);
 static void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane);
 
@@ -180,6 +182,37 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points,
 	return PlaneSide::Spanning;
 }
 
+void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
+	// step size between U-points on the grid
+	glm::vec2 step = glm::vec2(Math::Pi() * 2, Math::Pi()) / glm::vec2(resolution);
+
+	for (float i = 0; i < resolution.x; ++i) { // U-points
+		for (float j = 0; j < resolution.y; ++j) { // V-points
+			glm::vec2 uv = glm::vec2(i, j) * step;
+			float un = ((i + 1) == resolution.x) ? Math::Pi() * 2 : (i + 1) * step.x;
+			float vn = ((j + 1) == resolution.y) ? Math::Pi() : (j + 1) * step.y;
+
+			// Find the four points of the grid square by evaluating the parametric urface function.
+			glm::vec3 p[] = {
+				SphereCoodrinate(uv.x, uv.y),
+				SphereCoodrinate(uv.x, vn),
+				SphereCoodrinate(un, uv.y),
+				SphereCoodrinate(un, vn)
+			};
+
+			uint c = points.size();
+			indexes.push_back(c + 0);
+			indexes.push_back(c + 2);
+			indexes.push_back(c + 1);
+			indexes.push_back(c + 3);
+			indexes.push_back(c + 1);
+			indexes.push_back(c + 2);
+
+			points.insert(points.end(), p, p + SUEDE_COUNTOF(p));
+		}
+	}
+}
+
 void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles) {
 	glm::vec3 half = size / 2.f;
 
@@ -280,6 +313,10 @@ void EarClippingTriangulate(std::vector<glm::vec3>& triangles, const std::vector
 	EarClipping(triangles, vertices, earTips, normal);
 }
 
+glm::vec3 SphereCoodrinate(float x, float y) {
+	return glm::vec3(cosf(x) * sinf(y), cosf(y), sinf(x) * sinf(y));
+}
+
 void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane) {
 	glm::vec3 intersection;
 	std::list<glm::vec3>::iterator prev = list.begin(), next = prev;
@@ -322,7 +359,7 @@ bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal
 			continue;
 		}
 
-		if (GeometryUtility::PolygonContains(points, CountOf(points), vertices[ite->index()].position, normal)) {
+		if (GeometryUtility::PolygonContains(points, SUEDE_COUNTOF(points), vertices[ite->index()].position, normal)) {
 			return false;
 		}
 	}

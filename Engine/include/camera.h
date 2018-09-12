@@ -23,7 +23,7 @@ BETTER_ENUM(DepthTextureMode, int,
 class ImageEffect;
 class GizmosPainter;
 
-class SUEDE_API ICamera : virtual public IEntity {
+class SUEDE_API ICamera : virtual public IComponent {
 public:
 	virtual void SetDepth(int value) = 0;
 	virtual int GetDepth() = 0;
@@ -89,5 +89,3 @@ SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Camera) {
 	static void SetMain(Camera value);
 	static Camera GetMain();
 };
-
-SUEDE_DECLARE_OBJECT_CREATER(Camera);

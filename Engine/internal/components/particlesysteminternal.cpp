@@ -94,7 +94,7 @@ void ParticleSystemInternal::UpdateParticles() {
 void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint count = particles_.size();
 	if (count > 0) {
-		Mesh mesh = GetEntity()->GetMesh();
+		Mesh mesh = SUEDE_GET_COMPONENT(GetEntity(), Mesh);
 		mesh->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
 		mesh->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
 	}
@@ -166,15 +166,14 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 
 	emitter_->Emit(&buffer_[0], count);
 	for (int i = 0; i < count; ++i) {
-		buffer_[i]->position += GetEntity()->GetTransform()->GetPosition();
+		buffer_[i]->position += GetTransform()->GetPosition();
 	}
 }
 
 void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute color(maxParticles_, 1);
 	InstanceAttribute geometry(maxParticles_, 1);
-	Mesh mesh = Resources::instance()->CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry);
-	GetEntity()->SetMesh(mesh);
+	Resources::instance()->CreateInstancedPrimitive(SUEDE_ADD_COMPONENT(GetEntity(), Mesh), PrimitiveType::Quad, 1, color, geometry);
 	meshDirty_ = false;
 }
 

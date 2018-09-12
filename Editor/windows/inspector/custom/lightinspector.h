@@ -1,12 +1,18 @@
+#include "gui.h"
+#include "light.h"
 #include "custominspector.h"
 
-class LightInspector : public CustomInspector {
-	Q_OBJECT
-
+class LightInspector : public CustomInspectorT<Light> {
 public:
-	LightInspector(Object object);
+	virtual void onGui() {
+		glm::vec3 color = target_->GetColor();
+		if (GUI::Color3Field("Color", color)) {
+			target_->SetColor(color);
+		}
 
-private slots:
-	void onIntensityChanged(float intensity);
-	void onCurrentColorChanged(const QColor& color);
+		float intensity = target_->GetIntensity();
+		if (GUI::FloatField("Intensity", intensity)) {
+			target_->SetIntensity(intensity);
+		}
+	}
 };

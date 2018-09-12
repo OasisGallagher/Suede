@@ -9,6 +9,8 @@
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DECLARE_OBJECT_CREATER(Entity);
 
+SUEDE_DEFINE_OBJECT_POINTER(Component);
+
 enum {
 	RecalculateBoundsFlagsSelf = 1,
 	RecalculateBoundsFlagsParent = 2,
@@ -16,12 +18,18 @@ enum {
 	RecalculateBoundsFlagsAll = -1,
 };
 
+#define SUEDE_ADD_COMPONENT(entity, T)	suede_dynamic_cast<T>(entity->AddComponent(ObjectType::T))
+#define SUEDE_GET_COMPONENT(entity, T)	suede_dynamic_cast<T>(entity->GetComponent(ObjectType::T))
+
 class SUEDE_API IEntity : virtual public IObject {
 public:
 	virtual bool GetActive() const = 0;
 
 	virtual void SetActiveSelf(bool value) = 0;
 	virtual bool GetActiveSelf() const = 0;
+
+	virtual Component AddComponent(ObjectType type) = 0;
+	virtual Component GetComponent(ObjectType type) = 0;
 
 	virtual int GetUpdateStrategy() = 0;
 
@@ -36,10 +44,6 @@ public:
 
 	virtual void SetTransform(Transform value) = 0;
 	virtual Transform GetTransform() const = 0;
-
-	virtual void SetAnimation(Animation value) = 0;
-	virtual Animation GetAnimation() = 0;
-
 	/**
 	 * @returns bounds measured in the world space.
 	 */
@@ -47,13 +51,4 @@ public:
 	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll) = 0;
 
 	virtual void RecalculateUpdateStrategy() = 0;
-
-	virtual void SetMesh(Mesh value) = 0;
-	virtual Mesh GetMesh() = 0;
-
-	virtual void SetParticleSystem(ParticleSystem value) = 0;
-	virtual ParticleSystem GetParticleSystem() = 0;
-
-	virtual void SetRenderer(Renderer value) = 0;
-	virtual Renderer GetRenderer() = 0;
 };

@@ -16,7 +16,7 @@ Camera Camera::GetMain() { return main_; }
 void Camera::SetMain(Camera value) { main_ = value; }
 
 CameraInternal::CameraInternal()
-	: EntityInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
+	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
 	culling_ = MEMORY_NEW(Culling, this);
 	cullingThread_ = new ZThread::Thread(culling_);

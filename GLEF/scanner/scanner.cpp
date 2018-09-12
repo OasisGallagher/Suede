@@ -271,8 +271,8 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 }
 
 ScannerTokenType TextScanner::ParseIdentifierType(const std::string& buffer) {
-	if (buffer == GLSL_CODE_BEGIN) { return ScannerTokenCode; }
-	if (buffer == TRUE_TEXT || buffer == FALSE_TEXT) { return ScannerTokenBoolean; }
+	if (buffer == GLEF_GLSL_CODE_BEGIN) { return ScannerTokenCode; }
+	if (buffer == GLEF_TRUE_TEXT || buffer == GLEF_FALSE_TEXT) { return ScannerTokenBoolean; }
 	return ScannerTokenIdentifier;
 }
 
@@ -345,7 +345,7 @@ bool SourceScanner::ReadCode(ScannerToken* token) {
 		line = lines_[index_++];
 
 		std::string str = String::Trim(line);
-		if (str == GLSL_CODE_END) {
+		if (str == GLEF_GLSL_CODE_END) {
 			token->tokenType = ScannerTokenCode;
 			token->tokenText = code;
 			return true;
@@ -359,7 +359,7 @@ bool SourceScanner::ReadCode(ScannerToken* token) {
 		first = false;
 	}
 
-	Debug::LogError("missing %s.", GLSL_CODE_END);
+	Debug::LogError("missing %s.", GLEF_GLSL_CODE_END);
 
 	token->tokenType = ScannerTokenError;
 	return false;

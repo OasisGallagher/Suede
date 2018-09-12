@@ -14,20 +14,20 @@ void ResourcesInternal::Import() {
 	ImportTextureResources();
 }
 
-Mesh ResourcesInternal::CreatePrimitive(PrimitiveType type, float scale) {
+void ResourcesInternal::CreatePrimitive(Mesh mesh, PrimitiveType type, float scale) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 
-	return CreateMesh(attribute);
+	return InitializeMesh(mesh, attribute);
 }
 
-Mesh ResourcesInternal::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+void ResourcesInternal::CreateInstancedPrimitive(Mesh mesh, PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 	attribute.color = color;
 	attribute.geometry = geometry;
 
-	return CreateMesh(attribute);
+	return InitializeMesh(mesh, attribute);
 }
 
 void ResourcesInternal::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) {
@@ -120,7 +120,7 @@ void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float sca
 	});
 }
 
-Mesh ResourcesInternal::CreateMesh(MeshAttribute &attribute) {
+void ResourcesInternal::InitializeMesh(Mesh mesh, MeshAttribute& attribute) {
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
 
@@ -129,7 +129,6 @@ Mesh ResourcesInternal::CreateMesh(MeshAttribute &attribute) {
 	subMesh->SetTriangleBias(base);
 
 	mesh->AddSubMesh(subMesh);
-	return mesh;
 }
 
 Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
@@ -141,10 +140,6 @@ Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
 void ResourcesInternal::ImportBuiltinResources() {
 	whiteTexture_ = CreateSolidTexture(0xffffffff);
 	blackTexture_ = CreateSolidTexture(0xff000000);
-
-	for (int type = (int)PrimitiveType::Quad; type < (int)PrimitiveType::_Count; ++type) {
-		primitives_[type] = CreatePrimitive((PrimitiveType)type, 1);
-	}
 }
 
 void ResourcesInternal::ImportShaderResources() {

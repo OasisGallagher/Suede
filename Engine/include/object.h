@@ -1,8 +1,10 @@
 #pragma once
+#include "tools/enum.h"
+
 #include <string>
 #include "enginedefines.h"
 
-enum class ObjectType {
+BETTER_ENUM(ObjectType, int,
 	Font,
 	Shader,
 	SubMesh,
@@ -39,12 +41,10 @@ enum class ObjectType {
 	Projector,
 	SpotLight,
 	PointLight,
-	DirectionalLight,
+	DirectionalLight
+)
 
-	_Count,
-
-	AllLights,
-};
+#define SUEDE_ALL_LIGHTS	ObjectType::count()
 
 SUEDE_DEFINE_OBJECT_POINTER(Object);
 

@@ -1,24 +1,41 @@
 #pragma once
-#include <QGroupBox>
-#include <QFormLayout>
-#include <QColorDialog>
+#include <vector>
 
 #include "object.h"
 
-#define DEFINE_LITERAL(name)	static const char* name = #name
-
-class QListWidget;
-class CustomInspector : public QGroupBox {
-	Q_OBJECT
+class MainContextCommand {
+public:
+	virtual ~MainContextCommand() {}
 
 public:
-	CustomInspector(const QString& title, Object object);
+	virtual void Run() = 0;
+};
+
+class CustomInspector {
+public:
+	virtual void onGui() = 0;
+	virtual void targetObject(Object object) = 0;
+
+public:
+	virtual ~CustomInspector() {}
+
+public:
+	static void runMainContextCommands();
 
 protected:
-	void resizeGeometryToFit(QListWidget* w);
-	QString formatRowName(const QString& name) const;
+	static void addMainContextCommand(MainContextCommand* command);
+
+private:
+	static std::vector<MainContextCommand*> commands_;
+};
+
+template <class T>
+class CustomInspectorT : public CustomInspector {
+public:
+	virtual void targetObject(Object object) {
+		target_ = suede_dynamic_cast<T>(object);
+	}
 
 protected:
-	Object target_;
-	QFormLayout* form_;
+	T target_;
 };

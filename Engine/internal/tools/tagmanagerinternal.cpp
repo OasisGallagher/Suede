@@ -6,7 +6,7 @@
 
 static const char* defaultTags[] = { "DefaultTag0", "DefaultTag1", "DefaultTag2" };
 
-TagManagerInternal::TagManagerInternal() : tags(defaultTags, defaultTags + CountOf(defaultTags)) {
+TagManagerInternal::TagManagerInternal() : tags(defaultTags, defaultTags + SUEDE_COUNTOF(defaultTags)) {
 }
 
 void TagManagerInternal::Register(const std::string& name) {

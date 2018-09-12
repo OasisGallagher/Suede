@@ -52,9 +52,6 @@ private:
 
 	void DrawGizmos(const Batch& b);
 
-	glm::vec3 SphereCoodrinate(float x, float y);
-	void GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution);
-
 private:
 	Mesh mesh_;
 
@@ -63,7 +60,3 @@ private:
 	glm::vec3 color_;
 	std::vector<Batch> batches_;
 };
-
-inline glm::vec3 GizmosInternal::SphereCoodrinate(float x, float y) {
-	return glm::vec3(cosf(x) * sinf(y), cosf(y), sinf(x) * sinf(y));
-}

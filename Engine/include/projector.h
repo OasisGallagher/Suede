@@ -1,13 +1,13 @@
 #pragma once
-#include "entity.h"
 #include "texture.h"
+#include "component.h"
 
 struct Decal {
 	Mesh mesh;
 	Material material;
 };
 
-class SUEDE_API IProjector : virtual public IEntity {
+class SUEDE_API IProjector : virtual public IComponent {
 public:
 	virtual bool GetPerspective() const = 0;
 	virtual void SetPerspective(bool value) = 0;
@@ -38,4 +38,3 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Projector);
-SUEDE_DECLARE_OBJECT_CREATER(Projector);

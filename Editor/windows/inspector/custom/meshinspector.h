@@ -1,15 +1,9 @@
+#include "mesh.h"
 #include "custominspector.h"
 
-class MeshInspector : public CustomInspector {
-	Q_OBJECT
-
+class MeshInspector : public CustomInspectorT<Mesh> {
 public:
-	MeshInspector(Object object);
+	virtual void onGui() {
 
-private:
-	void drawMesh();
-	void drawTextMesh();
-
-private slots:
-	void onTextChanged();
+	}
 };

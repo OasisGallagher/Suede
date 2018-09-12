@@ -1,8 +1,9 @@
-#include "tools/math2.h"
-#include "debug/debug.h"
 #include "objectinternal.h"
 
-uint ObjectInternal::ObjectIDContainer[(int)ObjectType::_Count];
+#include "tools/math2.h"
+#include "debug/debug.h"
+
+uint ObjectInternal::ObjectIDContainer[ObjectType::size()];
 
 ObjectInternal::ObjectInternal(ObjectType type) {
 	id_ = GenerateInstanceID(type);

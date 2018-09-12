@@ -12,7 +12,7 @@
 #include "internal/culling/culling.h"
 #include "internal/rendering/rendering.h"
 
-#include "internal/entities/entityinternal.h"
+#include "internal/components/componentinternal.h"
 
 //class GBuffer;
 
@@ -21,7 +21,7 @@ class GizmosPainter;
 
 class Sample;
 class CameraInternal : public ICamera
-	, public EntityInternal, public Frustum
+	, public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
 	, public ScreenSizeChangedListener, public FrameEventListener {
 	DEFINE_FACTORY_METHOD(Camera)

@@ -8,7 +8,7 @@
 #define CHECK_PARAMETER(name, value, ...)	\
 	if (true) { \
 		int buffer[] = { __VA_ARGS__ }; \
-		if (!IsValidParameter(value, buffer, CountOf(buffer))) { \
+		if (!IsValidParameter(value, buffer, SUEDE_COUNTOF(buffer))) { \
 			Debug::LogError("invalid paramter for '%s'", #name); \
 		} \
 	} else (void)0

@@ -13,12 +13,22 @@
 #include "os/filesystem.h"
 #include "gui/qtimgui/QtImGui.h"
 
+#include "custom/meshinspector.h"
+#include "custom/lightinspector.h"
+#include "custom/camerainspector.h"
+#include "custom/transforminspector.h"
+#include "custom/projectorinspector.h"
+#include "custom/meshrendererinspector.h"
+
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
 
 Inspector::~Inspector() {
 	QtImGui::destroy();
-	qDeleteAll(commands_);
+
+	for (auto p : inspectors_) {
+		delete p.second;
+	}
 }
 
 void Inspector::init(Ui::Editor* ui) {
@@ -26,6 +36,18 @@ void Inspector::init(Ui::Editor* ui) {
 
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
 		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
+
+	addInspector(ObjectType::Transform, new TransformInspector);
+
+	LightInspector* lightInspector = new LightInspector;
+	addInspector(ObjectType::PointLight, lightInspector);
+	addInspector(ObjectType::DirectionalLight, lightInspector);
+	addInspector(ObjectType::SpotLight, lightInspector);
+
+	addInspector(ObjectType::Camera, new CameraInspector);
+	addInspector(ObjectType::Projector, new ProjectorInspector);
+	addInspector(ObjectType::Mesh, new MeshInspector);
+	addInspector(ObjectType::MeshRenderer, new MeshRendererInspector);
 }
 
 void Inspector::awake() {
@@ -45,7 +67,7 @@ void Inspector::tick() {
 void Inspector::onGui() {
 	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
 	view_->makeCurrent();
-	
+
 	QtImGui::newFrame();
 
 	// SUEDE TODO: background color and skin.
@@ -62,21 +84,11 @@ void Inspector::onGui() {
 		oldContext->makeCurrent();
 	}
 
-	flushContextCommands();
-}
-
-void Inspector::flushContextCommands() {
-	for (Command* cmd : commands_) {
-		cmd->Run();
-		delete cmd;
-	}
-
-	commands_.clear();
+	CustomInspector::runMainContextCommands();
 }
 
 void Inspector::drawGui() {
 	drawBasics();
-	drawTransform();
 	drawComponents();
 }
 
@@ -104,9 +116,14 @@ void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<En
 	else {
 		target_ = nullptr;
 	}
+
+	for (auto p : inspectors_) {
+		p.second->targetObject(target_);
+	}
 }
 
-void Inspector::addInspector(CustomInspector* inspector) {
+void Inspector::addInspector(ObjectType type, CustomInspector* inspector) {
+	inspectors_.push_back(std::make_pair(type, inspector));
 }
 
 void Inspector::drawComponents() {
@@ -137,15 +154,7 @@ void Inspector::drawLight(Light light) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Light")) {
 		GUI::Indent();
-		glm::vec3 color = light->GetColor();
-		if (GUI::Color3Field("Color", color)) {
-			light->SetColor(color);
-		}
-
-		float intensity = light->GetIntensity();
-		if (GUI::FloatField("Intensity", intensity)) {
-			light->SetIntensity(intensity);
-		}
+		
 
 		GUI::Unindent();
 	}
@@ -155,32 +164,7 @@ void Inspector::drawCamera(Camera camera) {
 	if (GUI::CollapsingHeader("Camera")) {
 		GUI::Indent();
 
-		int selected = -1;
-		if (GUI::EnumPopup("Clear Type", +camera->GetClearType(), selected)) {
-			camera->SetClearType(ClearType::value(selected));
-		}
-
-		if (camera->GetClearType() == ClearType::Color) {
-			glm::vec3 clearColor = camera->GetClearColor();
-			if (GUI::Color3Field("Clear Color", clearColor)) {
-				camera->SetClearColor(clearColor);
-			}
-		}
-
-		float fieldOfView = Math::Degrees(camera->GetFieldOfView());
-		if (GUI::Slider("FOV", &fieldOfView, 1, 179)) {
-			camera->SetFieldOfView(Math::Radians(fieldOfView));
-		}
-
-		float nearClipPlane = camera->GetNearClipPlane();
-		if (GUI::FloatField("Near", nearClipPlane)) {
-			camera->SetNearClipPlane(nearClipPlane);
-		}
-
-		float farClipPlane = camera->GetFarClipPlane();
-		if (GUI::FloatField("Far", farClipPlane)) {
-			camera->SetFarClipPlane(farClipPlane);
-		}
+		
 
 		GUI::Unindent();
 	}
@@ -206,128 +190,9 @@ void Inspector::drawRenderer(Renderer renderer) {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Renderer")) {
 		GUI::Indent();
-		for (Material material : renderer->GetMaterials()) {
-			drawMaterial(material);
-		}
+		
 
 		GUI::Unindent();
-	}
-}
-
-void Inspector::drawMaterial(Material material) {
-	GUI::Separator();
-	if (GUI::CollapsingHeader(material->GetName().c_str())) {
-		GUI::Indent();
-		drawMaterialShader(material);
-		drawMaterialProperties(material);
-		GUI::Unindent();
-	}
-}
-
-void Inspector::drawMaterialShader(Material material) {
-	GUI::LabelField("Shader", material->GetShader()->GetName().c_str());
-	/*FileTree tree;
-	std::string shaderName = material->GetShader()->GetName();
-	std::string directory = "resources/shaders/", regex = ".*\\.shader";
-
-	if (FileSystem::ListFileTree(tree, directory, regex)) {
-		if (GUI::BeginMenu(shaderName.c_str())) {
-			drawMaterialShaderMenu(tree.GetRoot());
-			GUI::EndMenu();
-		}
-	}*/
-}
-
-void Inspector::drawMaterialShaderMenu(FileEntry* entry) {
-	for (uint i = 0; i < entry->GetChildCount(); ++i) {
-		FileEntry* child = entry->GetChildAt(i);
-		std::string name = child->GetName();
-		if (child->IsDirectory()) {
-			if (GUI::BeginMenu(name.substr(name.length() - 1).c_str())) {
-				drawMaterialShaderMenu(child);
-				GUI::EndMenu();
-			}
-		}
-		else {
-			name = FileSystem::GetFileNameWithoutExtension(name);
-			if (GUI::MenuItem(name.c_str(), false)) {
-
-			}
-		}
-	}
-}
-
-void Inspector::drawMaterialProperties(Material material) {
-	std::vector<const Property*> properties;
-	material->GetProperties(properties);
-
-	for (const Property* p : properties) {
-		switch (p->value.GetType()) {
-			case VariantType::Float:
-				drawFloat(material, p);
-				break;
-			case VariantType::Vector3:
-				drawVector3(material, p);
-				break;
-			case VariantType::Vector4:
-				drawVector4(material, p);
-				break;
-			case VariantType::Color3:
-				drawColor3(material, p);
-				break;
-			case VariantType::Color4:
-				drawColor4(material, p);
-				break;
-			case VariantType::Texture:
-				drawTexture(material, p);
-				break;
-		}
-	}
-}
-
-void Inspector::drawTexture(Material material, const Property* p) {
-	Texture2D texture = suede_dynamic_cast<Texture2D>(material->GetTexture(p->name));
-	if (texture && GUI::ImageButton(p->name.c_str(), texture->GetNativePointer())) {
-		QString path = QFileDialog::getOpenFileName(this, tr("SelectTexture"), Resources::instance()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
-		if (!path.isEmpty()) {
-			path = QDir(Resources::instance()->GetTextureDirectory().c_str()).relativeFilePath(path);
-			commands_.push_back(new LoadTextureCommand(texture, path));
-		}
-	}
-}
-
-void Inspector::drawColor3(Material material, const Property* p) {
-	glm::vec3 value = material->GetColor3(p->name);
-	if (GUI::Color3Field(p->name.c_str(), value)) {
-		material->SetColor3(p->name, value);
-	}
-}
-
-void Inspector::drawColor4(Material material, const Property* p) {
-	glm::vec4 value = material->GetColor4(p->name);
-	if (GUI::Color4Field(p->name.c_str(), value)) {
-		material->SetColor4(p->name, value);
-	}
-}
-
-void Inspector::drawFloat(Material material, const Property* p) {
-	float value = material->GetFloat(p->name);
-	if (GUI::FloatField(p->name.c_str(), value)) {
-		material->SetFloat(p->name, value);
-	}
-}
-
-void Inspector::drawVector3(Material material, const Property* p) {
-	glm::vec3 value = material->GetVector3(p->name);
-	if (GUI::Float3Field(p->name.c_str(), value)) {
-		material->SetVector3(p->name, value);
-	}
-}
-
-void Inspector::drawVector4(Material material, const Property* p) {
-	glm::vec4 value = material->GetVector4(p->name);
-	if (GUI::Float4Field(p->name.c_str(), value)) {
-		material->SetVector4(p->name, value);
 	}
 }
 
@@ -335,20 +200,7 @@ void Inspector::drawTransform() {
 	GUI::Separator();
 	if (GUI::CollapsingHeader("Transform")) {
 		GUI::Indent();
-		glm::vec3 v3 = target_->GetTransform()->GetLocalPosition();
-		if (GUI::Float3Field("P", v3)) {
-			target_->GetTransform()->SetPosition(v3);
-		}
-
-		v3 = target_->GetTransform()->GetLocalEulerAngles();
-		if (GUI::Float3Field("R", v3)) {
-			target_->GetTransform()->SetLocalEulerAngles(v3);
-		}
-
-		v3 = target_->GetTransform()->GetLocalScale();
-		if (GUI::Float3Field("S", v3)) {
-			target_->GetTransform()->SetLocalScale(v3);
-		}
+		
 
 		GUI::Unindent();
 	}

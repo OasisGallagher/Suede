@@ -111,8 +111,6 @@ public:
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data) = 0;
 };
 
-SUEDE_DECLARE_OBJECT_CREATER(Mesh);
-
 class SUEDE_API ITextMesh : virtual public IMesh {
 public:
 	virtual void SetText(const std::string& value) = 0;
@@ -126,4 +124,3 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
-SUEDE_DECLARE_OBJECT_CREATER(TextMesh);
