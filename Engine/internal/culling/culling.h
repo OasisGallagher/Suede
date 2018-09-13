@@ -3,6 +3,7 @@
 #include <ZThread/Runnable.h>
 #include <ZThread/Condition.h>
 
+#include "world.h"
 #include "entity.h"
 
 class Culling;

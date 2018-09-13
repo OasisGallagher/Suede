@@ -172,9 +172,6 @@
     <ClInclude Include="internal\world\worldinternal.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\entities\camerainternal.h">
-      <Filter>internal\entities\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\renderstate.h">
       <Filter>internal\base\include</Filter>
     </ClInclude>
@@ -189,9 +186,6 @@
     </ClInclude>
     <ClInclude Include="include\light.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\entities\lightinternal.h">
-      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="include\environment.h">
       <Filter>include</Filter>
@@ -267,12 +261,6 @@
     </ClInclude>
     <ClInclude Include="include\projector.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\entities\projectorinternal.h">
-      <Filter>internal\entities\include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\entities\frustum.h">
-      <Filter>internal\entities\include</Filter>
     </ClInclude>
     <ClInclude Include="internal\rendering\pipeline.h">
       <Filter>internal\rendering\include</Filter>
@@ -448,6 +436,18 @@
     <ClInclude Include="include\opengldriver.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\components\camerainternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\frustum.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\lightinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\projectorinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -465,9 +465,6 @@
     <ClCompile Include="internal\world\worldinternal.cpp">
       <Filter>internal\world\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\entities\camerainternal.cpp">
-      <Filter>internal\entities\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\memory\factory.cpp">
       <Filter>internal\memory\src</Filter>
     </ClCompile>
@@ -476,9 +473,6 @@
     </ClCompile>
     <ClCompile Include="internal\base\renderstate.cpp">
       <Filter>internal\base\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\entities\lightinternal.cpp">
-      <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\world\environmentinternal.cpp">
       <Filter>internal\world\src</Filter>
@@ -493,12 +487,6 @@
       <Filter>internal\base\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\entities\entityinternal.cpp">
-      <Filter>internal\entities\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\entities\projectorinternal.cpp">
-      <Filter>internal\entities\src</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\entities\frustum.cpp">
       <Filter>internal\entities\src</Filter>
     </ClCompile>
     <ClCompile Include="internal\rendering\pipeline.cpp">
@@ -635,6 +623,18 @@
     </ClCompile>
     <ClCompile Include="internal\world\opengldriver.cpp">
       <Filter>internal\world\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\lightinternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\frustum.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\camerainternal.cpp">
+      <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\projectorinternal.cpp">
+      <Filter>internal\components\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

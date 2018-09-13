@@ -42,8 +42,7 @@ public:
 	virtual void CullingUpdate() = 0;
 	virtual void RenderingUpdate() = 0;
 
-	virtual void SetTransform(Transform value) = 0;
-	virtual Transform GetTransform() const = 0;
+	virtual Transform GetTransform() = 0;
 	/**
 	 * @returns bounds measured in the world space.
 	 */

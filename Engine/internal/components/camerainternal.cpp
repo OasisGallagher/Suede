@@ -1,3 +1,5 @@
+#include "camerainternal.h"
+
 #include <glm/gtx/transform.hpp>
 
 #include "world.h"
@@ -9,7 +11,6 @@
 
 #include "tools/math2.h"
 #include "internal/async/guard.h"
-#include "internal/entities/camerainternal.h"
 
 static Camera main_;
 Camera Camera::GetMain() { return main_; }

@@ -29,10 +29,14 @@ EntityInternal::~EntityInternal() {
 void EntityInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
-		SetActive(activeSelf_ && transform_->GetParent()->GetEntity()->GetActive());
+		SetActive(activeSelf_ && GetTransform()->GetParent()->GetEntity()->GetActive());
 		UpdateChildrenActive(SharedThis());
 
-		if (renderer_ && mesh_ && !mesh_->GetBounds().IsEmpty()) {
+		// SUEDE TODO: Skinned mesh renderer.
+		Renderer renderer = SUEDE_GET_COMPONENT(SharedThis(), MeshRenderer);
+		MeshFilter meshFilter = SUEDE_GET_COMPONENT(SharedThis(), MeshFilter);
+
+		if (renderer && meshFilter && meshFilter->GetMesh() && !meshFilter->GetMesh()->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -50,6 +54,24 @@ bool EntityInternal::SetTag(const std::string& value) {
 	}
 
 	return true;
+}
+
+Component EntityInternal::AddComponent(ObjectType type) {
+	// SUEDE TODO: Check if component could be added...
+	if (type == ObjectType::MeshFilter) {
+		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	}
+
+	// SUEDE TODO: Renderer type...
+	if (type == ObjectType::MeshRenderer || type == ObjectType::SkinnedMeshRenderer || type == ObjectType::ParticleRenderer) {
+		RecalculateBounds();
+	}
+
+	return nullptr;
+}
+
+Component EntityInternal::GetComponent(ObjectType type) {
+	return nullptr;
 }
 
 int EntityInternal::GetUpdateStrategy() {
@@ -89,29 +111,8 @@ void EntityInternal::RenderingUpdate() {
 	//if (renderer_) { renderer_->RenderingUpdate(); }
 }
 
-void EntityInternal::SetTransform(Transform value) {
-	SetComponent(transform_, value);
-}
-
-void EntityInternal::SetAnimation(Animation value) {
-	SetComponent(animation_, value);
-}
-
-void EntityInternal::SetMesh(Mesh value) {
-	SetComponent(mesh_, value);
-	RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
-}
-
-void EntityInternal::SetParticleSystem(ParticleSystem value) {
-	SetComponent(particleSystem_, value);
-}
-
-void EntityInternal::SetRenderer(Renderer value) {
-	if ((!!renderer_) != (!!value)) {
-		RecalculateBounds();
-	}
-
-	SetComponent(renderer_, value);
+Transform EntityInternal::GetTransform() {
+	return SUEDE_GET_COMPONENT(SharedThis(), Transform);
 }
 
 void EntityInternal::RecalculateBounds(int flags) {
@@ -158,7 +159,7 @@ const Bounds& EntityInternal::GetBounds() {
 }
 
 void EntityInternal::CalculateHierarchyBounds() {
-	if (animation_) {
+	if (SUEDE_GET_COMPONENT(SharedThis(), Animation)) {
 		CalculateBonesWorldBounds();
 	}
 	else {
@@ -166,18 +167,23 @@ void EntityInternal::CalculateHierarchyBounds() {
 		boundsDirty_ = false;
 	}
 
-	if (particleSystem_) {
-		worldBounds_.Encapsulate(particleSystem_->GetMaxBounds());
+	ParticleSystem ps = SUEDE_GET_COMPONENT(SharedThis(), ParticleSystem);
+	if (ps) {
+		worldBounds_.Encapsulate(ps->GetMaxBounds());
 		boundsDirty_ = true;
 	}
 }
 
 void EntityInternal::CalculateHierarchyMeshBounds() {
-	if (renderer_ && mesh_ && !mesh_->GetBounds().IsEmpty()) {
+	// SUEDE TODO: Skinned mesh renderer.
+	Renderer renderer = SUEDE_GET_COMPONENT(SharedThis(), MeshRenderer);
+	MeshFilter meshFilter = SUEDE_GET_COMPONENT(SharedThis(), MeshFilter);
+
+	if (renderer && meshFilter && meshFilter->GetMesh() && !meshFilter->GetMesh()->GetBounds().IsEmpty()) {
 		CalculateSelfWorldBounds();
 	}
 
-	for (Transform tr : transform_->GetChildren()) {
+	for (Transform tr : GetTransform()->GetChildren()) {
 		Entity child = tr->GetEntity();
 		if (child->GetActive()) {
 			const Bounds& b = child->GetBounds();
@@ -188,7 +194,7 @@ void EntityInternal::CalculateHierarchyMeshBounds() {
 
 void EntityInternal::CalculateSelfWorldBounds() {
 	std::vector<glm::vec3> points;
-	const Bounds& localBounds = mesh_->GetBounds();
+	const Bounds& localBounds = SUEDE_GET_COMPONENT(SharedThis(), MeshFilter)->GetMesh()->GetBounds();
 	GeometryUtility::GetCuboidCoordinates(points, localBounds.center, localBounds.size);
 
 	Transform transform = GetTransform();
@@ -208,14 +214,14 @@ void EntityInternal::CalculateBonesWorldBounds() {
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	
 	Bounds boneBounds;
-	Skeleton skeleton = animation_->GetSkeleton();
+	Skeleton skeleton = SUEDE_GET_COMPONENT(SharedThis(), Animation)->GetSkeleton();
 	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
 
 	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
 		SkeletonBone* bone = skeleton->GetBone(i);
 		GeometryUtility::GetCuboidCoordinates(points, bone->bounds.center, bone->bounds.size);
 		for (uint j = 0; j < points.size(); ++j) {
-			points[j] = transform_->TransformPoint(glm::vec3(matrices[i] * glm::vec4(points[j], 1)));
+			points[j] = GetTransform()->TransformPoint(glm::vec3(matrices[i] * glm::vec4(points[j], 1)));
 
 			min = glm::min(min, points[j]);
 			max = glm::max(max, points[j]);
@@ -227,7 +233,7 @@ void EntityInternal::CalculateBonesWorldBounds() {
 }
 
 void EntityInternal::DirtyParentBounds() {
-	Transform parent, current = transform_;
+	Transform parent, current = GetTransform();
 	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
 		InternalPtr(parent->GetEntity())->boundsDirty_ = true;
 		current = parent;
@@ -260,7 +266,7 @@ bool EntityInternal::RecalculateHierarchyUpdateStrategy() {
 	int newStrategy = GetUpdateStrategy();
 
 	if (oldStrategy != newStrategy) {
-		Transform parent, current = transform_;
+		Transform parent, current = GetTransform();
 		for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
 			if (!InternalPtr(parent->GetEntity())->RecalculateHierarchyUpdateStrategy()) {
 				break;
@@ -280,7 +286,7 @@ bool EntityInternal::RecalculateHierarchyUpdateStrategy() {
 }
 
 void EntityInternal::DirtyChildrenBoundses() {
-	for (Transform tr : transform_->GetChildren()) {
+	for (Transform tr : GetTransform()->GetChildren()) {
 		EntityInternal* child = InternalPtr(tr->GetEntity());
 		child->DirtyChildrenBoundses();
 		child->boundsDirty_ = true;

@@ -66,7 +66,7 @@ void WorldInternal::Initialize() {
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
 	root_ = Factory::Create<EntityInternal>();
-	root_->SetTransform(Factory::Create<TransformInternal>());
+	root_->AddComponent(ObjectType::Transform);
 	root_->SetName("Root");
 }
 
@@ -266,8 +266,7 @@ void WorldInternal::AddObject(Object object) {
 	ObjectType type = object->GetType();
 	if (type >= ObjectType::Entity) {
 		Entity entity = suede_dynamic_cast<Entity>(object);
-		Transform transform = Factory::Create<TransformInternal>();
-		entity->SetTransform(transform);
+		entity->AddComponent(ObjectType::Transform);
 
 		EntityCreatedEventPointer e = NewWorldEvent<EntityCreatedEventPointer>();
 		e->entity = entity;
@@ -290,27 +289,34 @@ void WorldInternal::AddObject(Object object) {
 	}
 }
 
-bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity> &entities) {
+bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity>& entities) {
 	if (type == ObjectType::Entity) {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			entities.push_back(ite->second);
 		}
 	}
 	else if (type == ObjectType::Camera) {
-		entities.assign(cameras_.begin(), cameras_.end());
+		for (Camera camera : cameras_) {
+			entities.push_back(camera->GetEntity());
+		}
 	}
 	else if (type == ObjectType::Projector) {
-		entities.assign(projectors_.begin(), projectors_.end());
+		for (Projector projector : projectors_) {
+			entities.push_back(projector->GetEntity());
+		}
 	}
 	else if (type == SUEDE_ALL_LIGHTS) {
-		entities.assign(lights_.begin(), lights_.end());
+		for (Light light : lights_) {
+			entities.push_back(light->GetEntity());
+		}
 	}
 	else {
-		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			if (ite->second->GetType() == type) {
-				entities.push_back(ite->second);
-			}
-		}
+		// SUEDE TODO: Get entities of type.
+//		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+//			if (ite->second->GetType() == type) {
+//				entities.push_back(ite->second);
+//			}
+//		}
 	}
 
 	return !entities.empty();

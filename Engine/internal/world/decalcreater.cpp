@@ -38,8 +38,8 @@ void DecalCreater::GetDecals(std::vector<Decal>& container) {
 
 bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<Entity>& entities, Plane planes[6]) {
 	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
-		Entity entity = *ite;
-		if (entity == p) { continue; }
+		Entity entity = (*ite);
+		if (entity == p->GetEntity()) { continue; }
 
 		DecalInfo* info = decalInfos_.spawn();
 		if (info == nullptr) {

@@ -55,7 +55,8 @@ WalkCommand Culling::OnWalkEntity(Entity entity) {
 		return WalkCommand::Next;
 	}
 
-	if (entity->GetRenderer() && entity->GetMesh()) {
+	// SUEDE TODO: Skinned mesh renderer...
+	if (SUEDE_GET_COMPONENT(entity, MeshRenderer) && SUEDE_GET_COMPONENT(entity, MeshFilter)) {
 		entities_.push_back(entity);
 	}
 

@@ -11,7 +11,7 @@ MeshInternal::MeshInternal() : MeshInternal(ObjectType::Mesh) {
 }
 
 MeshInternal::MeshInternal(ObjectType type)
-	: ComponentInternal(type) {
+	: ObjectInternal(type) {
 }
 
 MeshInternal::~MeshInternal() {
@@ -301,9 +301,24 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	}
 
 	bounds_.SetMinMax(min, max);
-	GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	// SUEDE TODO: Get entity attached...
+	// GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 MeshInternal::Storage::Storage() {
 	memset(bufferIndexes, 0, sizeof(bufferIndexes));
+}
+
+MeshFilterInternal::MeshFilterInternal()
+	: ComponentInternal(ObjectType::MeshFilter) {
+	mesh_ = NewMesh();
+}
+
+void MeshFilterInternal::SetMesh(Mesh value) {
+	if (!value) {
+		Debug::LogError("invalid mesh value.");
+		return;
+	}
+
+	mesh_ = value;
 }

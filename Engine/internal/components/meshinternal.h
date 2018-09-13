@@ -132,10 +132,10 @@ private:
 
 class MeshFilterInternal : virtual public IMeshFilter, public ComponentInternal {
 public:
-	MeshFilterInternal() : ComponentInternal(ObjectType::MeshFilter) {}
+	MeshFilterInternal();
 
 public:
-	virtual void SetMesh(Mesh value) { mesh_ = value; }
+	virtual void SetMesh(Mesh value);
 	virtual Mesh GetMesh() { return mesh_; }
 
 private:

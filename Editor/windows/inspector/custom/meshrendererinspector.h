@@ -1,3 +1,5 @@
+#include <qstring.h>
+
 #include "gui.h"
 #include "renderer.h"
 #include "os/filesystem.h"

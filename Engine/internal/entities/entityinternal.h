@@ -17,6 +17,9 @@ public:
 	virtual void SetActiveSelf(bool value);
 	virtual bool GetActiveSelf() const { return activeSelf_; }
 
+	virtual Component AddComponent(ObjectType type);
+	virtual Component GetComponent(ObjectType type);
+
 	virtual int GetUpdateStrategy();
 
 	virtual const std::string& GetTag() const { return tag_; }
@@ -28,8 +31,7 @@ public:
 	virtual void CullingUpdate();
 	virtual void RenderingUpdate();
 
-	virtual void SetTransform(Transform value);
-	virtual Transform GetTransform() const { return transform_; }
+	virtual Transform GetTransform();
 
 	virtual const Bounds& GetBounds();
 	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
@@ -56,9 +58,6 @@ private:
 	void UpdateChildrenActive(Entity parent);
 
 	template <class T>
-	void SetComponent(T& ref, T value);
-
-	template <class T>
 	void FireWorldEvent(bool attachedToSceneOnly);
 
 private:
@@ -71,8 +70,6 @@ private:
 	std::string tag_;
 	std::string name_;
 
-	Transform transform_;
-
 	uint updateStrategy_;
 	bool updateStrategyDirty_;
 
@@ -84,25 +81,8 @@ private:
 };
 
 template <class T>
-inline void EntityInternal::SetComponent(T& ref, T value) {
-	if (ref == value) { return; }
-
-	if (ref) {
-		ref->SetEntity(nullptr);
-	}
-
-	if (ref = value) {
-		ref->SetEntity(SharedThis());
-	}
-
-	if (!value || value->GetUpdateStrategy() != UpdateStrategyNone) {
-		RecalculateUpdateStrategy();
-	}
-}
-
-template <class T>
 inline void EntityInternal::FireWorldEvent(bool attachedToSceneOnly) {
-	if (!attachedToSceneOnly || transform_->IsAttachedToScene()) {
+	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
 		e->entity = SharedThis();
 		World::instance()->FireEvent(e);

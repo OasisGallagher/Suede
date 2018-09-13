@@ -1,6 +1,7 @@
 #pragma once
+#include "mesh.h"
 #include "texture.h"
-#include "component.h"
+#include "material.h"
 
 struct Decal {
 	Mesh mesh;

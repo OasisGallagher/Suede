@@ -19,7 +19,7 @@ Lighting::Lighting(QWidget* parent)
 
 void Lighting::showEvent(QShowEvent* event) {
 	ui_->ambient->setValue(Environment::instance()->GetAmbientColor());
-	ui_->occlusion->setChecked(Graphics::instance()->IsAmbientOcclusionEnabled());
+	ui_->occlusion->setChecked(Graphics::instance()->GetAmbientOcclusionEnabled());
 
 	ui_->fogColor->setValue(Environment::instance()->GetFogColor());
 	ui_->fogDensity->setValue(Environment::instance()->GetFogDensity());
@@ -30,7 +30,7 @@ void Lighting::onAmbientChanged(const QColor& color) {
 }
 
 void Lighting::onOcclusionChanged(int state) {
-	Graphics::instance()->EnableAmbientOcclusion(!!state);
+	Graphics::instance()->SetAmbientOcclusionEnabled(!!state);
 }
 
 void Lighting::onFogColorChanged(const QColor& color) {

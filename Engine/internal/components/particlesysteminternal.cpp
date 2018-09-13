@@ -173,12 +173,15 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute color(maxParticles_, 1);
 	InstanceAttribute geometry(maxParticles_, 1);
-	Resources::instance()->CreateInstancedPrimitive(SUEDE_ADD_COMPONENT(GetEntity(), Mesh), PrimitiveType::Quad, 1, color, geometry);
+	MeshFilter meshFilter = SUEDE_ADD_COMPONENT(GetEntity(), MeshFilter);
+	meshFilter->SetMesh(
+		Resources::instance()->CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)
+	);
 	meshDirty_ = false;
 }
 
 void ParticleSystemInternal::InitializeRenderer() {
-	ParticleRenderer renderer = NewParticleRenderer();
+	ParticleRenderer renderer = SUEDE_ADD_COMPONENT(GetEntity(), ParticleRenderer);
 
 	Material material = NewMaterial();
 	Shader shader = Resources::instance()->FindShader("builtin/particle");
@@ -189,7 +192,6 @@ void ParticleSystemInternal::InitializeRenderer() {
 	material->SetTexture(Variables::MainTexture, mainTexture);
 
 	renderer->AddMaterial(material);
-	GetEntity()->SetRenderer(renderer);
 
 	rendererDirty_ = false;
 }

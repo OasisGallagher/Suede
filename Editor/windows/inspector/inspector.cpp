@@ -127,7 +127,8 @@ void Inspector::addInspector(ObjectType type, CustomInspector* inspector) {
 }
 
 void Inspector::drawComponents() {
-	switch (target_->GetType()) {
+	// SUEDE TODO: traverse components.
+	/*switch (target_->GetType()) {
 		case ObjectType::Camera:
 			drawCamera(suede_dynamic_cast<Camera>(target_));
 			break;
@@ -147,7 +148,7 @@ void Inspector::drawComponents() {
 
 	if (target_->GetRenderer()) {
 		drawRenderer(target_->GetRenderer());
-	}
+	}*/
 }
 
 void Inspector::drawLight(Light light) {
