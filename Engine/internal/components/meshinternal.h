@@ -6,6 +6,7 @@
 #include "../api/gl.h"
 #include "componentinternal.h"
 #include "internal/base/vertexarray.h"
+#include "internal/base/objectinternal.h"
 
 class SubMeshInternal : public ISubMesh, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(SubMesh)
@@ -21,7 +22,7 @@ private:
 	TriangleBias bias_;
 };
 
-class MeshInternal : virtual public IMesh, public ComponentInternal {
+class MeshInternal : virtual public IMesh, public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Mesh)
 
 public:
@@ -127,4 +128,16 @@ private:
 	Font font_;
 	bool dirty_;
 	std::string text_;
+};
+
+class MeshFilterInternal : virtual public IMeshFilter, public ComponentInternal {
+public:
+	MeshFilterInternal() : ComponentInternal(ObjectType::MeshFilter) {}
+
+public:
+	virtual void SetMesh(Mesh value) { mesh_ = value; }
+	virtual Mesh GetMesh() { return mesh_; }
+
+private:
+	Mesh mesh_;
 };

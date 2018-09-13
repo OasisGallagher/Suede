@@ -62,7 +62,7 @@ void CameraInternal::SetDepth(int value) {
 	if (depth_ != value) {
 		depth_ = value;
 		CameraDepthChangedEventPointer e = NewWorldEvent<CameraDepthChangedEventPointer>();
-		e->entity = SharedThis();
+		e->component = SharedThis();
 		World::instance()->FireEvent(e);
 	}
 }

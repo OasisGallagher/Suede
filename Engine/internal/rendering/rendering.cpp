@@ -65,7 +65,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	
 	DepthPass(pipelines);
 
-	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
+	if (Graphics::instance()->GetAmbientOcclusionEnabled()) {
 		SSAOTraversalPass(pipelines);
 		SSAOPass(pipelines);
 	}
@@ -242,7 +242,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipelines_.shadow->AddRenderable(entity->GetMesh(), nullptr, 0, entity->GetTransform()->GetLocalToWorldMatrix());
+		pipelines_.shadow->AddRenderable(SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh(), nullptr, 0, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
@@ -254,7 +254,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 		}
 	}
 
-	if (Graphics::instance()->IsAmbientOcclusionEnabled()) {
+	if (Graphics::instance()->GetAmbientOcclusionEnabled()) {
 		*pipelines_.ssaoTraversal = *pipelines_.shadow;
 		SSAOPass(pipelines_.ssaoTraversal);
 		depthPass = true;
@@ -409,7 +409,8 @@ void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
 void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& entities_) {
 	for (int i = 0; i < entities_.size(); ++i) {
 		Entity entity = entities_[i];
-		RenderEntity(pl, entity, entity->GetRenderer());
+		// SUEDE TODO: Skinned mesh renderer ?
+		RenderEntity(pl, entity, SUEDE_GET_COMPONENT(entity, MeshRenderer));
 	}
 
 	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
@@ -418,7 +419,8 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& enti
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
 	std::vector<Entity> lights;
-	if (!World::instance()->GetEntities(ObjectType::AllLights, lights)) {
+	// SUEDE TODO: All lights.
+	if (!World::instance()->GetEntities((ObjectType)SUEDE_ALL_LIGHTS, lights)) {
 		return;
 	}
 
@@ -449,7 +451,7 @@ void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material material) {
 void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer renderer) {
 	push_renderables->Start();
 
-	int subMeshCount = entity->GetMesh()->GetSubMeshCount();
+	int subMeshCount = SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh()->GetSubMeshCount();
 	int materialCount = renderer->GetMaterialCount();
 
 	if (materialCount != subMeshCount) {
@@ -478,9 +480,9 @@ void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer render
 }
 
 void RenderableTraits::RenderSubMesh(Pipeline* pl, Entity entity, int subMeshIndex, Material material, int pass) {
-	ParticleSystem p = entity->GetParticleSystem();
+	ParticleSystem p = SUEDE_GET_COMPONENT(entity, ParticleSystem);
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(entity->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
 }
 
 void RenderableTraits::Clear() {

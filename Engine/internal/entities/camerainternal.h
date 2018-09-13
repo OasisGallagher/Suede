@@ -24,7 +24,7 @@ class CameraInternal : public ICamera
 	, public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
 	, public ScreenSizeChangedListener, public FrameEventListener {
-	DEFINE_FACTORY_METHOD(Camera)
+	DEFINE_INTERFACE(Camera)
 
 public:
 	CameraInternal();

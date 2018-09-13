@@ -299,11 +299,11 @@ bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity> &entiti
 	else if (type == ObjectType::Camera) {
 		entities.assign(cameras_.begin(), cameras_.end());
 	}
-	else if (type == ObjectType::AllLights) {
-		entities.assign(lights_.begin(), lights_.end());
-	}
 	else if (type == ObjectType::Projector) {
 		entities.assign(projectors_.begin(), projectors_.end());
+	}
+	else if (type == SUEDE_ALL_LIGHTS) {
+		entities.assign(lights_.begin(), lights_.end());
 	}
 	else {
 		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
@@ -390,7 +390,7 @@ void WorldInternal::RenderingUpdate() {
 	UpdateTimeUniformBuffer();
 
 	for (Camera camera : cameras_) {
-		if (camera->GetActive()) {
+		if (camera->GetEnabled()) {
 			camera->Render();
 		}
 	}

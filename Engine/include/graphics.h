@@ -14,8 +14,8 @@ public:
 	virtual void SetShadingMode(ShadingMode value) = 0;
 	virtual ShadingMode GetShadingMode() = 0;
 
-	virtual void EnableAmbientOcclusion(bool value) = 0;
-	virtual bool IsAmbientOcclusionEnabled() = 0;
+	virtual void SetAmbientOcclusionEnabled(bool value) = 0;
+	virtual bool GetAmbientOcclusionEnabled() = 0;
 
 	virtual void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) = 0;
 

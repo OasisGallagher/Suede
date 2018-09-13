@@ -31,22 +31,10 @@ public:
 	virtual void SetTransform(Transform value);
 	virtual Transform GetTransform() const { return transform_; }
 
-	virtual void SetAnimation(Animation value);
-	virtual Animation GetAnimation() { return animation_; }
-
 	virtual const Bounds& GetBounds();
 	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
 	virtual void RecalculateUpdateStrategy();
-
-	virtual void SetMesh(Mesh value);
-	virtual Mesh GetMesh() { return mesh_; }
-
-	virtual void SetParticleSystem(ParticleSystem value);
-	virtual ParticleSystem GetParticleSystem() { return particleSystem_; }
-
-	virtual void SetRenderer(Renderer value);
-	virtual Renderer GetRenderer() { return renderer_; }
 
 protected:
 	EntityInternal(ObjectType entityType);
@@ -85,8 +73,6 @@ private:
 
 	Transform transform_;
 
-	Mesh mesh_;
-	
 	uint updateStrategy_;
 	bool updateStrategyDirty_;
 
@@ -95,10 +81,6 @@ private:
 	Bounds worldBounds_;
 	// is world space dirty.
 	bool boundsDirty_;
-
-	Renderer renderer_;
-	Animation animation_;
-	ParticleSystem particleSystem_;
 };
 
 template <class T>

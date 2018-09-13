@@ -9,8 +9,8 @@ public:
 	virtual void SetShadingMode(ShadingMode value);
 	virtual ShadingMode GetShadingMode() { return mode_; }
 
-	virtual void EnableAmbientOcclusion(bool value) { ambientOcclusionEnabled_ = value; }
-	virtual bool IsAmbientOcclusionEnabled() { return ambientOcclusionEnabled_; }
+	virtual void SetAmbientOcclusionEnabled(bool value) { ambientOcclusionEnabled_ = value; }
+	virtual bool GetAmbientOcclusionEnabled() { return ambientOcclusionEnabled_; }
 
 	virtual void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 

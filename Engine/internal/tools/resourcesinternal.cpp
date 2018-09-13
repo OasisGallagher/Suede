@@ -14,20 +14,20 @@ void ResourcesInternal::Import() {
 	ImportTextureResources();
 }
 
-void ResourcesInternal::CreatePrimitive(Mesh mesh, PrimitiveType type, float scale) {
+Mesh ResourcesInternal::CreatePrimitive(PrimitiveType type, float scale) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 
-	return InitializeMesh(mesh, attribute);
+	return InitializeMesh(attribute);
 }
 
-void ResourcesInternal::CreateInstancedPrimitive(Mesh mesh, PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+Mesh ResourcesInternal::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 	attribute.color = color;
 	attribute.geometry = geometry;
 
-	return InitializeMesh(mesh, attribute);
+	return InitializeMesh(attribute);
 }
 
 void ResourcesInternal::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) {
@@ -120,7 +120,7 @@ void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float sca
 	});
 }
 
-void ResourcesInternal::InitializeMesh(Mesh mesh, MeshAttribute& attribute) {
+Mesh ResourcesInternal::InitializeMesh(MeshAttribute& attribute) {
 	Mesh mesh = NewMesh();
 	mesh->SetAttribute(attribute);
 
@@ -129,6 +129,8 @@ void ResourcesInternal::InitializeMesh(Mesh mesh, MeshAttribute& attribute) {
 	subMesh->SetTriangleBias(base);
 
 	mesh->AddSubMesh(subMesh);
+
+	return mesh;
 }
 
 Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
@@ -140,6 +142,10 @@ Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
 void ResourcesInternal::ImportBuiltinResources() {
 	whiteTexture_ = CreateSolidTexture(0xffffffff);
 	blackTexture_ = CreateSolidTexture(0xff000000);
+
+	for (int type = (int)PrimitiveType::Quad; type < (int)PrimitiveType::_Count; ++type) {
+		primitives_[type] = CreatePrimitive((PrimitiveType)type, 1);
+	}
 }
 
 void ResourcesInternal::ImportShaderResources() {

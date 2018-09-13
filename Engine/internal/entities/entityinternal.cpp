@@ -16,7 +16,7 @@ EntityInternal::EntityInternal() : EntityInternal(ObjectType::Entity) {
 EntityInternal::EntityInternal(ObjectType entityType)
 	: ObjectInternal(entityType), active_(true),  activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
-	if (entityType < ObjectType::Entity || entityType >= ObjectType::_Count) {
+	if (entityType < ObjectType::Entity || entityType >= ObjectType::size()) {
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
 
@@ -73,18 +73,20 @@ void EntityInternal::CullingUpdate() {
 	if (frameCullingUpdate_ < frame) {
 		frameCullingUpdate_ = frame;
 
-		if (animation_) { animation_->CullingUpdate(); }
-		if (mesh_) { mesh_->CullingUpdate(); }
-		if (particleSystem_) { particleSystem_->CullingUpdate(); }
-		if (renderer_) { renderer_->CullingUpdate(); }
+		// SUEDE TODO: Update components.
+// 		if (animation_) { animation_->CullingUpdate(); }
+// 		if (mesh_) { mesh_->CullingUpdate(); }
+// 		if (particleSystem_) { particleSystem_->CullingUpdate(); }
+// 		if (renderer_) { renderer_->CullingUpdate(); }
 	}
 }
 
 void EntityInternal::RenderingUpdate() {
-	if (animation_) { animation_->RenderingUpdate(); }
-	if (mesh_) { mesh_->RenderingUpdate(); }
-	if (particleSystem_) { particleSystem_->RenderingUpdate(); }
-	if (renderer_) { renderer_->RenderingUpdate(); }
+	// SUEDE TODO: Update components.
+	//if (animation_) { animation_->RenderingUpdate(); }
+	//if (mesh_) { mesh_->RenderingUpdate(); }
+	//if (particleSystem_) { particleSystem_->RenderingUpdate(); }
+	//if (renderer_) { renderer_->RenderingUpdate(); }
 }
 
 void EntityInternal::SetTransform(Transform value) {
@@ -236,10 +238,11 @@ int EntityInternal::GetHierarchyUpdateStrategy(Entity root) {
 	if (!updateStrategyDirty_) { return updateStrategy_; }
 
 	int strategy = 0;
-	if (animation_) { strategy |= animation_->GetUpdateStrategy(); }
-	if (mesh_) { strategy |= mesh_->GetUpdateStrategy(); }
-	if (particleSystem_) { strategy |= particleSystem_->GetUpdateStrategy(); }
-	if (renderer_) { strategy |= renderer_->GetUpdateStrategy(); }
+	// SUEDE TODO: Update components.
+	//if (animation_) { strategy |= animation_->GetUpdateStrategy(); }
+	//if (mesh_) { strategy |= mesh_->GetUpdateStrategy(); }
+	//if (particleSystem_) { strategy |= particleSystem_->GetUpdateStrategy(); }
+	//if (renderer_) { strategy |= renderer_->GetUpdateStrategy(); }
 
 	for (Transform tr : root->GetTransform()->GetChildren()) {
 		strategy |= GetHierarchyUpdateStrategy(tr->GetEntity());

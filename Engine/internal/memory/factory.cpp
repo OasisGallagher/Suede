@@ -23,12 +23,11 @@ Factory Factory::instance;
 	AddFactoryMethod(ObjectType:: ## name, name ## Internal::Create)
 
 Factory::Factory() {
-	std::fill(methodArray_, methodArray_ + (int)ObjectType::_Count, nullptr);
+	std::fill(methodArray_, methodArray_ + ObjectType::size(), nullptr);
 
 	//ADD_FACTROY_METHOD(World);
 
 	ADD_FACTROY_METHOD(Font);
-	ADD_FACTROY_METHOD(Camera);
 	ADD_FACTROY_METHOD(Shader);
 	ADD_FACTROY_METHOD(Entity);
 	ADD_FACTROY_METHOD(Mesh);

@@ -46,8 +46,11 @@ T ObjectInternal::InternalPtrTraits(T, U& obj) {
 #define SharedThis()		SharedThisTraits(this)
 #define InternalPtr(obj)	InternalPtrTraits(this, obj)
 
-#define DEFINE_FACTORY_METHOD(name) \
+#define DEFINE_INTERFACE(name) \
 	public: \
-		typedef name Interface; \
+		typedef name Interface;
+
+#define DEFINE_FACTORY_METHOD(name) \
+		DEFINE_INTERFACE(name) \
 		static Object Create() { return Factory::Create<name ## Internal>(); } \
 	private:

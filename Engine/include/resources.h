@@ -24,8 +24,9 @@ public:
 	virtual std::string GetShaderDirectory() = 0;
 	virtual std::string GetTextureDirectory() = 0;
 
-	virtual void CreatePrimitive(Mesh mesh, PrimitiveType type, float scale = 1) = 0;
-	virtual void CreateInstancedPrimitive(Mesh mesh, PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) = 0;
+	virtual Mesh GetPrimitive(PrimitiveType type) = 0;
+	virtual Mesh CreatePrimitive(PrimitiveType type, float scale) = 0;
+	virtual Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) = 0;
 
 	virtual void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) = 0;
 

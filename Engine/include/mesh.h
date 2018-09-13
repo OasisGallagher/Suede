@@ -70,7 +70,7 @@ struct MeshAttribute {
 	InstanceAttribute geometry;
 };
 
-class SUEDE_API IMesh : virtual public IComponent {
+class SUEDE_API IMesh : virtual public IObject {
 public:
 	typedef SuedeEnumerable<std::vector<SubMesh>::iterator> Enumerable;
 
@@ -111,6 +111,8 @@ public:
 	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data) = 0;
 };
 
+SUEDE_DECLARE_OBJECT_CREATER(Mesh);
+
 class SUEDE_API ITextMesh : virtual public IMesh {
 public:
 	virtual void SetText(const std::string& value) = 0;
@@ -124,3 +126,13 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
+SUEDE_DECLARE_OBJECT_CREATER(TextMesh);
+
+class SUEDE_API IMeshFilter : virtual public IComponent {
+public:
+	virtual void SetMesh(Mesh value) = 0;
+	virtual Mesh GetMesh() = 0;
+};
+
+SUEDE_DEFINE_OBJECT_POINTER(MeshFilter);
+SUEDE_DECLARE_OBJECT_CREATER(MeshFilter);

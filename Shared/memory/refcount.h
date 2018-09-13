@@ -19,7 +19,7 @@ private:
 	int* count_;
 };
 
-#define IMPLEMENT_REFERENCE_COUNTABLE(Wrapper, Impl)	\
+#define IMPLEMENT_REFERENCE_COUNTABLE(Wrapper, Impl) \
 	public: \
 		Wrapper(Impl* impl) : ptr_(impl) { } \
 		~Wrapper() { \
@@ -30,7 +30,7 @@ private:
 		Wrapper& operator = (const Wrapper& other) { \
 			if (counter_.Reattach(other.counter_)) { \
 				delete ptr_; \
-										} \
+			} \
 			ptr_ = other.ptr_; \
 			return *this;\
 		} \

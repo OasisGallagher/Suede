@@ -15,8 +15,10 @@ BETTER_ENUM(ObjectType, int,
 	MRTRenderTexture,
 	TextureBuffer,
 
+	Mesh,
+	TextMesh,
+
 	Skeleton,
-	Animation,
 	AnimationClip,
 	AnimationKeys,
 	AnimationCurve,
@@ -26,17 +28,16 @@ BETTER_ENUM(ObjectType, int,
 	ParticleAnimator,
 	SphereParticleEmitter,
 
+	Entity,
+
 	// Components
 	Transform,
 	ParticleSystem,
-	Mesh,
-	TextMesh,
+	Animation,
+	MeshFilter,
 	MeshRenderer,
 	ParticleRenderer,
 	SkinnedMeshRenderer,
-
-	// Entities.
-	Entity,
 	Camera,
 	Projector,
 	SpotLight,
@@ -44,7 +45,7 @@ BETTER_ENUM(ObjectType, int,
 	DirectionalLight
 )
 
-#define SUEDE_ALL_LIGHTS	ObjectType::count()
+#define SUEDE_ALL_LIGHTS	ObjectType::size()
 
 SUEDE_DEFINE_OBJECT_POINTER(Object);
 

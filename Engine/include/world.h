@@ -48,6 +48,16 @@ struct EntityEvent : public WorldEventBase {
 	}
 };
 
+template <class T>
+struct ComponentEvent : public WorldEventBase {
+	T component;
+
+	virtual bool Compare(WorldEventBasePointer other) const {
+		typedef std::shared_ptr<ComponentEvent<T>> Pointer;
+		return component->GetInstanceID() < suede_static_cast<Pointer>(other)->component->GetInstanceID();
+	}
+};
+
 DEFINE_WORLD_EVENT_POINTER(EntityEvent);
 
 struct EntityCreatedEvent : public EntityEvent {
@@ -104,7 +114,7 @@ struct EntityUpdateStrategyChangedEvent : public EntityEvent {
 
 DEFINE_WORLD_EVENT_POINTER(EntityUpdateStrategyChangedEvent);
 
-struct CameraDepthChangedEvent : public EntityEvent {
+struct CameraDepthChangedEvent : ComponentEvent<Camera> {
 	virtual WorldEventType GetEventType() const { return WorldEventType::CameraDepthChanged; }
 };
 

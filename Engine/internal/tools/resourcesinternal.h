@@ -19,8 +19,9 @@ public:
 	virtual std::string GetShaderDirectory() { return GetRootDirectory() + "shaders/"; }
 	virtual std::string GetTextureDirectory() { return GetRootDirectory() + "textures/"; }
 
-	virtual void CreatePrimitive(Mesh mesh, PrimitiveType type, float scale);
-	virtual void CreateInstancedPrimitive(Mesh mesh, PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	virtual Mesh GetPrimitive(PrimitiveType type) { return primitives_[(int)type]; }
+	virtual Mesh CreatePrimitive(PrimitiveType type, float scale);
+	virtual Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
 	virtual void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 
@@ -35,7 +36,7 @@ private:
 
 	void GetQuadMeshAttribute(MeshAttribute& attribute, float scale);
 	void GetCubeMeshAttribute(MeshAttribute& attribute, float scale);
-	void InitializeMesh(Mesh mesh, MeshAttribute &attribute);
+	Mesh InitializeMesh(MeshAttribute &attribute);
 	Texture2D CreateSolidTexture(uint color);
 
 private:
@@ -49,4 +50,6 @@ private:
 	MaterialContainer materials_;
 
 	Texture2D blackTexture_, whiteTexture_;
+
+	Mesh primitives_[(int)PrimitiveType::_Count];
 };

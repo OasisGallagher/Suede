@@ -88,7 +88,7 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 }
 
 bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]) {
-	Mesh mesh = entity->GetMesh();
+	Mesh mesh = SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh();
 	glm::vec3 cameraPosition = entity->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
 	uint* indexes = mesh->MapIndexes();

@@ -13,6 +13,9 @@ enum {
 
 class SUEDE_API IComponent : virtual public IObject {
 public:
+	virtual bool GetEnabled() const = 0;
+	virtual void SetEnabled(bool value) = 0;
+
 	virtual void SetEntity(Entity entity) = 0;
 	virtual Entity GetEntity() = 0;
 

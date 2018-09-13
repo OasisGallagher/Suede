@@ -6,9 +6,12 @@
 
 class ComponentInternal : virtual public IComponent, public ObjectInternal {
 public:
-	ComponentInternal(ObjectType type) : ObjectInternal(type) {}
+	ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {}
 
 public:
+	virtual bool GetEnabled() const { return enabled_; }
+	virtual void SetEnabled(bool value) { enabled_ = value; }
+
 	virtual void SetEntity(Entity entity);
 	virtual Entity GetEntity() { return entity_.lock(); }
 
@@ -19,4 +22,7 @@ public:
 
 protected:
 	std::weak_ptr<Entity::element_type> entity_;
+
+private:
+	bool enabled_;
 };
