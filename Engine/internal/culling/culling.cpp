@@ -19,7 +19,7 @@ void Culling::run() {
 			uint64 start = Profiler::instance()->GetTimeStamp();
 			World::instance()->CullingUpdate();
 
-			World::instance()->WalkEntityHierarchy(this);
+			World::instance()->WalkGameObjectHierarchy(this);
 			listener_->OnCullingFinished();
 
 			Statistics::instance()->SetCullingElapsed(
@@ -47,24 +47,24 @@ void Culling::Cull(const glm::mat4& worldToClipMatrix) {
 	}
 }
 
-WalkCommand Culling::OnWalkEntity(Entity entity) {
-	if (!IsVisible(entity, worldToClipMatrix_)) {
+WalkCommand Culling::OnWalkGameObject(GameObject go) {
+	if (!IsVisible(go, worldToClipMatrix_)) {
 		return WalkCommand::Continue;
 	}
 
-	if (!entity->GetActive()) {
+	if (!go->GetActive()) {
 		return WalkCommand::Next;
 	}
 
-	if (entity->GetComponent<IRenderer>() && entity->GetComponent<IMeshFilter>()) {
-		entities_.push_back(entity);
+	if (go->GetComponent<IRenderer>() && go->GetComponent<IMeshFilter>()) {
+		entities_.push_back(go);
 	}
 
 	return WalkCommand::Continue;
 }
 
-bool Culling::IsVisible(Entity entity, const glm::mat4& worldToClipMatrix) {
-	const Bounds& bounds = entity->GetBounds();
+bool Culling::IsVisible(GameObject go, const glm::mat4& worldToClipMatrix) {
+	const Bounds& bounds = go->GetBounds();
 	if (bounds.IsEmpty()) {
 		return false;
 	}

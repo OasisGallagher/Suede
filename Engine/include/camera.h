@@ -24,7 +24,7 @@ BETTER_ENUM(DepthTextureMode, int,
 class ImageEffect;
 class GizmosPainter;
 
-SUEDE_DEFINE_OBJECT_POINTER(Entity);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
 class SUEDE_API ICamera : virtual public IComponent {
 	RTTI_CLASS_DECLARATION(ICamera, IComponent)
@@ -74,7 +74,7 @@ public:
 
 	virtual const glm::mat4& GetProjectionMatrix() = 0;
 
-	virtual void GetVisibleEntities(std::vector<Entity>& entities) = 0;
+	virtual void GetVisibleEntities(std::vector<GameObject>& entities) = 0;
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;

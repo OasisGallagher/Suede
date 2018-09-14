@@ -1,9 +1,9 @@
 #pragma once
 #include "light.h"
-#include "entity.h"
 #include "texture.h"
 #include "material.h"
 #include "renderer.h"
+#include "gameobject.h"
 //#include "tools/dirtybits.h"
 #include "internal/rendering/pipeline.h"
 
@@ -107,7 +107,7 @@ private:
 
 private:
 	RenderingParameters* p_;
-	std::vector<Entity> entities_;
+	std::vector<GameObject> entities_;
 
 	Sample* ssaoSample;
 	Sample* ssaoTraversalSample;
@@ -125,17 +125,17 @@ public:
 
 public:
 	RenderingPipelines& GetPipelines() { return pipelines_; }
-	void Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices);
+	void Traits(std::vector<GameObject>& entities, const RenderingMatrices& matrices);
 	void Clear();
 
 private:
 	void InitializeSSAOKernel();
 
-	void ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(Pipeline* pl, const std::vector<Entity>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(Pipeline* pl, const std::vector<GameObject>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(Pipeline* pl, const std::vector<GameObject>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<Entity>& entities);
+	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& entities);
 
 	void RenderSkybox(Pipeline* pl);
 
@@ -143,14 +143,14 @@ private:
 
 	void SSAOPass(Pipeline* pl);
 
-	void ForwardPass(Pipeline* pl, const std::vector<Entity>& entities);
+	void ForwardPass(Pipeline* pl, const std::vector<GameObject>& entities);
 	void ForwardDepthPass(Pipeline* pl);
 
-	void RenderEntity(Pipeline* pl, Entity entity, Renderer renderer);
-	void RenderSubMesh(Pipeline* pl, Entity entity, int subMeshIndex, Material material, int pass);
+	void RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer);
+	void RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass);
 
-	void RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities, const std::vector<Light>& lights);
-	void RenderForwardBase(Pipeline* pl, const std::vector<Entity>& entities, Light light);
+	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& entities, const std::vector<Light>& lights);
+	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& entities, Light light);
 
 	void RenderDecals(Pipeline* pl);
 

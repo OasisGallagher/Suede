@@ -28,7 +28,7 @@ BETTER_ENUM(ObjectType, int,
 	ParticleAnimator,
 	SphereParticleEmitter,
 
-	Entity,
+	GameObject,
 
 	// Components
 	Transform,

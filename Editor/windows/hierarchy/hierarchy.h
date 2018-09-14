@@ -6,13 +6,13 @@
 #include "../winbase.h"
 
 #include "world.h"
-#include "entity.h"
+#include "gameobject.h"
 
 class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener, public EntityLoadedListener {
+class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener, public GameObjectLoadedListener {
 	Q_OBJECT
 
 public:
@@ -23,12 +23,12 @@ public:
 	virtual void awake();
 
 public:
-	virtual void OnEntityImported(Entity root, const std::string& path);
+	virtual void OnGameObjectImported(GameObject root, const std::string& path);
 
 public:
-	Entity selectedEntity();
-	bool selectedEntities(QList<Entity>& entities);
-	void updateRecursively(Entity entity, QStandardItem* parent);
+	GameObject selectedGameObject();
+	bool selectedEntities(QList<GameObject>& entities);
+	void updateRecursively(GameObject go, QStandardItem* parent);
 
 protected:
 	virtual void dropEvent(QDropEvent* event);
@@ -36,8 +36,8 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event);
 
 signals:
-	void focusEntity(Entity entity);
-	void selectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
+	void focusGameObject(GameObject go);
+	void selectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 	
 private:
 	virtual void OnWorldEvent(WorldEventBasePointer e);
@@ -46,27 +46,27 @@ private slots:
 	void reload();
 	void onDeleteSelected();
 	void onTreeCustomContextMenu();
-	void onEntityDoubleClicked(const QModelIndex&);
+	void onGameObjectDoubleClicked(const QModelIndex&);
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-	void appendChildItem(Entity entity);
-	QStandardItem* appendItem(Entity child, QStandardItem* parent);
+	void appendChildItem(GameObject go);
+	QStandardItem* appendItem(GameObject child, QStandardItem* parent);
 	void removeItem(QStandardItem* item);
 	void removeItemRecusively(QStandardItem* item);
 
 	bool dropAcceptable(const QMimeData* data);
 
-	void onEntityCreated(Entity entity);
-	void onEntityDestroyed(Entity entity);
-	void onEntityTagChanged(Entity entity);
-	void onEntityNameChanged(Entity entity);
-	void onEntityParentChanged(Entity entity);
-	void onEntityActiveChanged(Entity entity);
+	void onGameObjectCreated(GameObject go);
+	void onGameObjectDestroyed(GameObject go);
+	void onGameObjectTagChanged(GameObject go);
+	void onGameObjectNameChanged(GameObject go);
+	void onGameObjectParentChanged(GameObject go);
+	void onGameObjectActiveChanged(GameObject go);
 
-	void enableEntityOutline(Entity entity, bool enable);
-	void enableItemsOutline(const QList<Entity>& entities, bool enable);
-	void selectionToEntities(QList<Entity>& entities, const QItemSelection& items);
+	void enableGameObjectOutline(GameObject go, bool enable);
+	void enableItemsOutline(const QList<GameObject>& entities, bool enable);
+	void selectionToEntities(QList<GameObject>& entities, const QItemSelection& items);
 
 private:
 	QStandardItemModel* model_;

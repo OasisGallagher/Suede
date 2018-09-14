@@ -1,23 +1,23 @@
 #pragma once
 #include <vector>
-#include "entity.h"
 #include "object.h"
 #include "camera.h"
 #include "transform.h"
+#include "gameobject.h"
 #include "environment.h"
 #include "tools/singleton.h"
-#include "entityloadedlistener.h"
+#include "gameobjectloadedlistener.h"
 
 enum class WorldEventType {
-	EntityCreated,
-	EntityDestroyed,
-	EntityTagChanged,
-	EntityNameChanged,
-	EntityParentChanged,
-	EntityActiveChanged,
-	EntityTransformChanged,
-	EntityUpdateStrategyChanged,
-
+	GameObjectCreated,
+	GameObjectDestroyed,
+	GameObjectTagChanged,
+	GameObjectNameChanged,
+	GameObjectParentChanged,
+	GameObjectActiveChanged,
+	GameObjectTransformChanged,
+	GameObjectUpdateStrategyChanged,
+	GameObjectComponentChanged,
 	CameraDepthChanged,
 
 	_Count,
@@ -25,94 +25,89 @@ enum class WorldEventType {
 
 #define DEFINE_WORLD_EVENT_POINTER(type)	typedef std::shared_ptr<struct type> type ## Pointer
 
-template <class Ptr>
-Ptr NewWorldEvent() { return std::make_shared<Ptr::element_type>(); }
+template <class Ptr, class... Args>
+Ptr NewWorldEvent(Args... args) { return std::make_shared<Ptr::element_type>(args...); }
 
 DEFINE_WORLD_EVENT_POINTER(WorldEventBase);
 struct WorldEventBase {
 	virtual WorldEventType GetEventType() const = 0;
-	bool operator < (WorldEventBasePointer other) const {
-		return Compare(other);
-	}
-
-	virtual bool Compare(WorldEventBasePointer other) const = 0;
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectEvent);
 
-struct EntityEvent : public WorldEventBase {
-	Entity entity;
-
-	virtual bool Compare(WorldEventBasePointer other) const {
-		return entity->GetInstanceID() < suede_static_cast<EntityEventPointer>(other)->entity->GetInstanceID();
-	}
+struct GameObjectEvent : public WorldEventBase {
+	GameObject go;
 };
 
 template <class T>
 struct ComponentEvent : public WorldEventBase {
 	T component;
-
-	virtual bool Compare(WorldEventBasePointer other) const {
-		typedef std::shared_ptr<ComponentEvent<T>> Pointer;
-		return component->GetInstanceID() < suede_static_cast<Pointer>(other)->component->GetInstanceID();
-	}
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectEvent);
 
-struct EntityCreatedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityCreated; }
+struct GameObjectCreatedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectCreated; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityCreatedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectCreatedEvent);
 
-struct EntityDestroyedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityDestroyed; }
+struct GameObjectDestroyedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectDestroyed; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityDestroyedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectDestroyedEvent);
 
 /**
  * @warning only entities with non-null parant cound send this event.
  */
-struct EntityParentChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityParentChanged; }
+struct GameObjectParentChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectParentChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityParentChangedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectParentChangedEvent);
 
 /**
  * @warning only entities with non-null parant cound send this event.
  */
-struct EntityActiveChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityActiveChanged; }
+struct GameObjectActiveChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectActiveChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityActiveChangedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectActiveChangedEvent);
 
 /**
  * @warning only entities with non-null parant cound send this event.
  */
-struct EntityTagChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityTagChanged; }
+struct GameObjectTagChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTagChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityTagChangedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectTagChangedEvent);
 
 /**
  * @warning only entities with non-null parant cound send this event.
  */
-struct EntityNameChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityNameChanged; }
+struct GameObjectNameChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectNameChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityNameChangedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectNameChangedEvent);
 
-struct EntityUpdateStrategyChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityUpdateStrategyChanged; }
+struct GameObjectUpdateStrategyChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectUpdateStrategyChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(EntityUpdateStrategyChangedEvent);
+DEFINE_WORLD_EVENT_POINTER(GameObjectUpdateStrategyChangedEvent);
+
+struct GameObjectComponentChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectComponentChanged; }
+
+	bool added;
+	Component component;
+};
+
+DEFINE_WORLD_EVENT_POINTER(GameObjectComponentChangedEvent);
 
 struct CameraDepthChangedEvent : ComponentEvent<Camera> {
 	virtual WorldEventType GetEventType() const { return WorldEventType::CameraDepthChanged; }
@@ -120,13 +115,9 @@ struct CameraDepthChangedEvent : ComponentEvent<Camera> {
 
 DEFINE_WORLD_EVENT_POINTER(CameraDepthChangedEvent);
 
-DEFINE_WORLD_EVENT_POINTER(EntityTransformChangedEvent);
-struct EntityTransformChangedEvent : public EntityEvent {
-	virtual WorldEventType GetEventType() const { return WorldEventType::EntityTransformChanged; }
-
-	virtual bool Compare(WorldEventBasePointer other) const {
-		return prs < suede_static_cast<EntityTransformChangedEventPointer>(other)->prs;
-	}
+DEFINE_WORLD_EVENT_POINTER(GameObjectTransformChangedEvent);
+struct GameObjectTransformChangedEvent : public GameObjectEvent {
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTransformChanged; }
 
 	// Hw: local or world(0).
 	// Lw: position rotation or scale.
@@ -146,9 +137,9 @@ enum class WalkCommand {
 	Continue,
 };
 
-class WorldEntityWalker {
+class WorldGameObjectWalker {
 public:
-	virtual WalkCommand OnWalkEntity(Entity entity) = 0;
+	virtual WalkCommand OnWalkGameObject(GameObject go) = 0;
 };
 
 struct Decal;
@@ -163,19 +154,19 @@ public:
 
 	virtual Object CreateObject(ObjectType type) = 0;
 
-	virtual void DestroyEntity(uint id) = 0;
-	virtual void DestroyEntity(Entity entity) = 0;
+	virtual void DestroyGameObject(uint id) = 0;
+	virtual void DestroyGameObject(GameObject go) = 0;
 
-	virtual Entity Import(const std::string& path, EntityLoadedListener* listener) = 0;
-	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener) = 0;
+	virtual GameObject Import(const std::string& path, GameObjectLoadedListener* listener) = 0;
+	virtual bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) = 0;
 
 	virtual Transform GetRootTransform() = 0;
 
-	virtual Entity GetEntity(uint id) = 0;
-	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities) = 0;
-	virtual void WalkEntityHierarchy(WorldEntityWalker* walker) = 0;
+	virtual GameObject GetGameObject(uint id) = 0;
+	virtual bool GetEntities(ObjectType type, std::vector<GameObject>& entities) = 0;
+	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker) = 0;
 
-	virtual bool FireEvent(WorldEventBasePointer e) = 0;
+	virtual void FireEvent(WorldEventBasePointer e) = 0;
 	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;
 	virtual void AddEventListener(WorldEventListener* listener) = 0;
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;

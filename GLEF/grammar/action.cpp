@@ -286,7 +286,7 @@ Action* ActionParser::CreateAction(const std::string& cmd) {
 		}
 
 		action = new ActionIndex();
-		argument.text = "identity";
+		argument.text = "idgameObject";
 		argument.parameters.push_back(integer);
 	}
 	else {

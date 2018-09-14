@@ -84,9 +84,9 @@ void Game::init(Ui::Editor* ui) {
 	stat_->setVisible(false);
 
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-	connect(Hierarchy::instance(), SIGNAL(focusEntity(Entity)), this, SLOT(onFocusEntityBounds(Entity)));
-	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
-		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
+	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject)), this, SLOT(onFocusGameObjectBounds(GameObject)));
+	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
+		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
 
 	timer_ = new QTimer(this);
 	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStatContent()));
@@ -113,18 +113,18 @@ void Game::OnDrawGizmos() {
 	int i = 0;
 	glm::vec3 colors[] = { glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) };
 	glm::vec3 oldColor = Gizmos::instance()->GetColor();
-	for (Entity entity : selection_) {
-		if (!entity->GetActive()) {
+	for (GameObject go : selection_) {
+		if (!go->GetActive()) {
 			continue;
 		}
 
-		const Bounds& bounds = entity->GetBounds();
+		const Bounds& bounds = go->GetBounds();
 		Gizmos::instance()->SetColor(colors[i % SUEDE_COUNTOF(colors)]);
 		if (!bounds.IsEmpty()) {
 			Gizmos::instance()->DrawWireCuboid(bounds.center, bounds.size);
 		}
 		else {
-			Gizmos::instance()->DrawWireSphere(entity->GetTransform()->GetPosition(), 5);
+			Gizmos::instance()->DrawWireSphere(go->GetTransform()->GetPosition(), 5);
 		}
 
 		++i;
@@ -133,7 +133,7 @@ void Game::OnDrawGizmos() {
 	Gizmos::instance()->SetColor(oldColor);
 }
 
-void Game::OnEntityImported(Entity root, const std::string& path) {
+void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
 	root->SetName(path);
 
@@ -141,7 +141,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
 		root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
 		root->GetTransform()->SetScale(glm::vec3(0.2f));
-		//entity->SetParent(camera);
+		//go->SetParent(camera);
 
 		Animation animation = root->AddComponent<IAnimation>();
 		if (animation) {
@@ -158,7 +158,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		else if (path.find("suzanne") != std::string::npos) {
 			Texture2D diffuse = NewTexture2D();
 			diffuse->Create("suzanne/diffuse.dds");
-			Entity target = root->GetTransform()->FindChild("suzanne_root/default")->GetEntity();
+			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
 			target->GetComponent<IMeshRenderer>()->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
@@ -167,7 +167,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 	else if (path == bumpedFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -15));
 
-		Entity target = root->GetTransform()->FindChild("Sphere01")->GetEntity();
+		GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
 		Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
 
 		testBumped_shader = material->GetShader();
@@ -187,7 +187,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 		root->GetTransform()->SetEulerAngles(glm::vec3(0));
 
-		Entity target = root->GetTransform()->FindChild("nanosuit_root/default")->GetEntity();
+		GameObject target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
 
 		for (Material material : target->GetComponent<IMeshRenderer>()->GetMaterials()) {
 			material->SetShader(Resources::instance()->FindShader("builtin/normal_visualizer"));
@@ -241,15 +241,15 @@ void Game::resizeEvent(QResizeEvent* event) {
 void Game::timerEvent(QTimerEvent *event) {
 }
 
-void Game::updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected) {
-	for (Entity entity : selected) {
-		if (container.indexOf(entity) < 0) {
-			container.push_back(entity);
+void Game::updateSelection(QList<GameObject>& container, const QList<GameObject>& selected, const QList<GameObject>& deselected) {
+	for (GameObject go : selected) {
+		if (container.indexOf(go) < 0) {
+			container.push_back(go);
 		}
 	}
 
-	for (Entity entity : deselected) {
-		container.removeOne(entity);
+	for (GameObject go : deselected) {
+		container.removeOne(go);
 	}
 }
 
@@ -273,22 +273,22 @@ void Game::onShadingModeChanged(const QString& str) {
 	Graphics::instance()->SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
-void Game::onFocusEntityBounds(Entity entity) {
+void Game::onFocusGameObjectBounds(GameObject go) {
 	Transform camera = Camera::GetMain()->GetTransform();
-	glm::vec3 position = entity->GetBounds().center;
-	glm::vec3 p = position - entity->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(Camera::GetMain(), entity);
+	glm::vec3 position = go->GetBounds().center;
+	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(Camera::GetMain(), go);
 	camera->SetPosition(p);
 
-	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, entity->GetTransform()->GetUp()))));
+	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()))));
 	camera->SetRotation(glm::normalize(q));
 }
 
-void Game::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
+void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
 	updateSelection(selection_, selected, deselected);
 }
 
-float Game::calculateCameraDistanceFitsBounds(Camera camera, Entity entity) {
-	const Bounds& b = entity->GetBounds();
+float Game::calculateCameraDistanceFitsBounds(Camera camera, GameObject go) {
+	const Bounds& b = go->GetBounds();
 	float f = tanf(camera->GetFieldOfView() / 2.f);
 	float dy = 2 * b.size.y / f;
 	float dx = 2 * b.size.x / (f * camera->GetAspect());
@@ -307,10 +307,10 @@ void Game::createScene() {
 
 	Environment::instance()->SetAmbientColor(glm::vec3(0.15f));
 
-	Entity lightEntity = NewEntity();
-	lightEntity->SetName("light");
+	GameObject lightGameObject = NewGameObject();
+	lightGameObject->SetName("light");
 
-	DirectionalLight light = lightEntity->AddComponent<IDirectionalLight>();
+	DirectionalLight light = lightGameObject->AddComponent<IDirectionalLight>();
 	light->SetColor(glm::vec3(0.7f));
 	light->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
@@ -319,10 +319,10 @@ void Game::createScene() {
 	//targetTexture_ = NewRenderTexture();
 	//targetTexture_->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
-	Entity cameraEntity = NewEntity();
-	cameraEntity->SetName("camera");
+	GameObject cameraGameObject = NewGameObject();
+	cameraGameObject->SetName("camera");
 
-	Camera camera = cameraEntity->AddComponent<ICamera>();
+	Camera camera = cameraGameObject->AddComponent<ICamera>();
 	Camera::SetMain(camera);
 	camera->AddGizmosPainter(this);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
@@ -416,11 +416,11 @@ void Game::createScene() {
 #endif
 
 #ifdef PARTICLE_SYSTEM
-	Entity entity = NewEntity();
+	GameObject go = NewGameObject();
 	ParticleSystem particleSystem = NewParticleSystem();
-	entity->SetParticleSystem(particleSystem);
-	entity->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
-	entity->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	go->SetParticleSystem(particleSystem);
+	go->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
+	go->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -445,11 +445,11 @@ void Game::createScene() {
 	Font font = NewFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
-	Entity redText = NewEntity();
+	GameObject redText = NewGameObject();
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
 	redText->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
-	Entity blueText = NewEntity();
+	GameObject blueText = NewGameObject();
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
 	blueText->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
@@ -482,19 +482,19 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	Entity room = World::instance()->Import(roomFbxPath, this);
+	GameObject room = World::instance()->Import(roomFbxPath, this);
 #endif
 
 #ifdef BUMPED
-	Entity bumped = World::instance()->Import(bumpedFbxPath, this);
+	GameObject bumped = World::instance()->Import(bumpedFbxPath, this);
 #endif
 
 #ifdef NORMAL_VISUALIZER
-	Entity normalVisualizer = World::instance()->Import(normalVisualizerFbxPath, this);
+	GameObject normalVisualizer = World::instance()->Import(normalVisualizerFbxPath, this);
 #endif
 
 #ifdef BEAR
-	Entity bear = World::instance()->Import("teddy_bear.fbx");
+	GameObject bear = World::instance()->Import("teddy_bear.fbx");
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -505,6 +505,6 @@ void Game::createScene() {
 #endif
 
 #ifdef ANIMATION
-	Entity man = World::instance()->Import(manFbxPath, this);
+	GameObject man = World::instance()->Import(manFbxPath, this);
 #endif
 }

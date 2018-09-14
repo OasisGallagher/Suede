@@ -27,7 +27,7 @@ public:
 
 
 private slots:
-	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
+	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 private:
 	void onGui();
@@ -49,7 +49,7 @@ private:
 	void drawRenderer(Renderer renderer);
 
 private:
-	Entity target_;
+	GameObject target_;
 	QGLWidget* view_;
 
 	std::vector<std::pair<ObjectType, CustomInspector*>> inspectors_;

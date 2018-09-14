@@ -13,7 +13,7 @@ struct PRS {
 	glm::vec3 eulerAngles;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Entity);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
 class ITransform : virtual public IComponent {

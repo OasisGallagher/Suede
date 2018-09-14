@@ -79,7 +79,7 @@ public:
 
 	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
-	virtual void GetVisibleEntities(std::vector<Entity>& entities);
+	virtual void GetVisibleEntities(std::vector<GameObject>& entities);
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position);
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
@@ -127,6 +127,6 @@ private:
 	Rendering* rendering_;
 
 	ZThread::Mutex visibleEntitiesMutex_;
-	std::vector<Entity> visibleEntities_;
+	std::vector<GameObject> visibleEntities_;
 	std::vector<GizmosPainter*> gizmosPainters_;
 };

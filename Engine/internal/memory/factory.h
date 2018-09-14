@@ -9,7 +9,7 @@
 
 class Factory {
 	typedef Object (*FactoryMethod)();
-	typedef std::map<suede_typeid, FactoryMethod> TypeIDMethodDictionary;
+	typedef std::map<suede_guid, FactoryMethod> TypeIDMethodDictionary;
 	typedef std::map<std::string, FactoryMethod> NameMethodDictionary;
 
 	Factory();
@@ -30,10 +30,10 @@ public:
 		return pos->second();
 	}
 
-	static Object Create(suede_typeid type) {
+	static Object Create(suede_guid type) {
 		TypeIDMethodDictionary::iterator pos = instance.typeIDMethodDictionary_.find(type);
 		if (pos == instance.typeIDMethodDictionary_.end()) {
-			Debug::LogError("no factroy method exists for type %zu.", type);
+			Debug::LogError("no factroy method exists for type %u.", type);
 			return nullptr;
 		}
 
@@ -70,9 +70,9 @@ private:
 		instance.methodArray_[(int)type] = method;
 	}
 
-	static void AddFactoryMethod(suede_typeid type, FactoryMethod method) {
+	static void AddFactoryMethod(suede_guid type, FactoryMethod method) {
 		if (!instance.typeIDMethodDictionary_.insert(std::make_pair(type, method)).second) {
-			Debug::LogError("failed to add factroy method for %zu.", type);
+			Debug::LogError("failed to add factroy method for %u.", type);
 		}
 	}
 

@@ -1,9 +1,12 @@
-#include "internal/memory/factory.h"
+#include "factory.h"
 
 #include "internal/base/fontinternal.h"
 #include "internal/base/shaderinternal.h"
 #include "internal/base/textureinternal.h"
 #include "internal/base/materialinternal.h"
+
+#include "internal/world/worldinternal.h"
+#include "internal/entities/gameobjectinternal.h"
 
 #include "internal/components/meshinternal.h"
 #include "internal/components/lightinternal.h"
@@ -13,10 +16,6 @@
 #include "internal/components/projectorinternal.h"
 #include "internal/components/animationinternal.h"
 #include "internal/components/particlesysteminternal.h"
-
-#include "internal/entities/entityinternal.h"
-
-#include "internal/world/worldinternal.h"
 
 Factory Factory::instance;
 
@@ -32,7 +31,7 @@ Factory::Factory() {
 
 	//ADD_FACTROY_METHOD(World);
 
-	ADD_FACTROY_METHOD(Entity);
+	ADD_FACTROY_METHOD(GameObject);
 
 	ADD_FACTROY_METHOD(Font);
 	ADD_FACTROY_METHOD(Mesh);

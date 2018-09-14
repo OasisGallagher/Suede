@@ -39,7 +39,7 @@ glm::vec3 CameraController::calculateArcBallVector(const QPoint& pos) {
 
 void CameraController::onMouseMove(const QPoint& pos) {
 	if ((buttons_ & Qt::LeftButton) != 0) {
-		rotateAroundEntity(pos, pos_);
+		rotateAroundGameObject(pos, pos_);
 	}
 	else if ((buttons_ & Qt::MiddleButton) != 0) {
 		moveCamera(pos, pos_);
@@ -89,8 +89,8 @@ void CameraController::moveCamera(const QPoint& mousePos, QPoint& oldPos) {
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }
 
-void CameraController::rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos) {
-	Entity selected = Hierarchy::instance()->selectedEntity();
+void CameraController::rotateAroundGameObject(const QPoint& mousePos, QPoint& oldPos) {
+	GameObject selected = Hierarchy::instance()->selectedGameObject();
 
 	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
 		return;

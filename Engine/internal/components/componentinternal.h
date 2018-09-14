@@ -1,7 +1,7 @@
 #pragma once
 
-#include "entity.h"
 #include "component.h"
+#include "gameobject.h"
 #include "internal/base/objectinternal.h"
 
 class ComponentInternal : virtual public IComponent, public ObjectInternal {
@@ -12,16 +12,16 @@ public:
 	virtual bool GetEnabled() const { return enabled_; }
 	virtual void SetEnabled(bool value) { enabled_ = value; }
 
-	virtual void SetEntity(Entity entity);
-	virtual Entity GetEntity() { return entity_.lock(); }
+	virtual void SetGameObject(GameObject go);
+	virtual GameObject GetGameObject() { return gameObject_.lock(); }
 
-	virtual Transform GetTransform() { return GetEntity()->GetComponent<ITransform>(); }
+	virtual Transform GetTransform() { return GetGameObject()->GetComponent<ITransform>(); }
 
 	virtual void CullingUpdate() {}
 	virtual void RenderingUpdate() {}
 
 protected:
-	std::weak_ptr<Entity::element_type> entity_;
+	std::weak_ptr<GameObject::element_type> gameObject_;
 
 private:
 	bool enabled_;

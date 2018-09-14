@@ -18,7 +18,7 @@ public:
 private:
 	void moveCamera(const QPoint& mousePos, QPoint& oldPos);
 	void rotateCamera(const QPoint& mousePos, QPoint& oldPos);
-	void rotateAroundEntity(const QPoint& mousePos, QPoint& oldPos);
+	void rotateAroundGameObject(const QPoint& mousePos, QPoint& oldPos);
 	glm::vec3 calculateArcBallVector(const QPoint& point);
 
 private:

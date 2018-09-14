@@ -3,7 +3,7 @@
 #include <QStandardItemModel>
 
 #include "world.h"
-#include "entity.h"
+#include "gameobject.h"
 
 class DragDropableItemModel : public QStandardItemModel {
 	Q_OBJECT

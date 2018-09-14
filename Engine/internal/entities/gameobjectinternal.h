@@ -1,18 +1,18 @@
 #pragma once
 #include "mesh.h"
-#include "entity.h"
 #include "animation.h"
+#include "gameobject.h"
 #include "internal/base/objectinternal.h"
 
-class EntityInternal : virtual public IEntity, public ObjectInternal {
-	DEFINE_FACTORY_METHOD(Entity)
+class GameObjectInternal : virtual public IGameObject, public ObjectInternal {
+	DEFINE_FACTORY_METHOD(GameObject)
 
 public:
-	EntityInternal();
-	~EntityInternal();
+	GameObjectInternal();
+	~GameObjectInternal();
 
 protected:
-	EntityInternal(ObjectType entityType);
+	GameObjectInternal(ObjectType gameObjectType);
 
 public:
 	virtual bool GetActive() const { return active_; }
@@ -39,11 +39,11 @@ public:
 	virtual void RecalculateUpdateStrategy();
 
 private:
-	virtual Component AddComponentHelper(suede_typeid type);
+	virtual Component AddComponentHelper(suede_guid type);
 	virtual Component AddComponentHelper(Component component);
 
-	virtual Component GetComponentHelper(suede_typeid type);
-	virtual std::vector<Component> GetComponentsHelper(suede_typeid type);
+	virtual Component GetComponentHelper(suede_guid type);
+	virtual std::vector<Component> GetComponentsHelper(suede_guid type);
 
 private:
 	void CalculateSelfWorldBounds();
@@ -55,19 +55,16 @@ private:
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
 
-	int GetHierarchyUpdateStrategy(Entity root);
+	int GetHierarchyUpdateStrategy(GameObject root);
 	bool RecalculateHierarchyUpdateStrategy();
 
 	void SetActive(bool value);
-	void UpdateChildrenActive(Entity parent);
+	void UpdateChildrenActive(GameObject parent);
 
 	template <class T>
 	void FireWorldEvent(bool attachedToSceneOnly);
 
-	bool CheckComponentDuplicate(suede_typeid type);
-
-private:
-	static const char* EntityTypeToString(ObjectType type);
+	bool CheckComponentDuplicate(suede_guid type);
 
 private:
 	bool active_;
@@ -89,10 +86,10 @@ private:
 };
 
 template <class T>
-inline void EntityInternal::FireWorldEvent(bool attachedToSceneOnly) {
+inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
-		e->entity = SharedThis();
+		e->go = SharedThis();
 		World::instance()->FireEvent(e);
 	}
 }

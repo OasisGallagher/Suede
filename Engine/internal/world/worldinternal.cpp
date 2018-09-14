@@ -9,10 +9,10 @@
 #include "geometryutility.h"
 #include "internal/async/guard.h"
 #include "internal/rendering/shadows.h"
-#include "internal/codec/entityloader.h"
+#include "internal/codec/gameObjectloader.h"
 #include "internal/rendering/matrixbuffer.h"
-#include "internal/entities/entityinternal.h"
 #include "internal/world/environmentinternal.h"
+#include "internal/entities/gameobjectinternal.h"
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
@@ -44,7 +44,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 }
 
 WorldInternal::WorldInternal()
-	: importer_(MEMORY_NEW(EntityLoaderThreadPool)) {
+	: importer_(MEMORY_NEW(GameObjectLoaderThreadPool)) {
 	Screen::instance()->AddScreenSizeChangedListener(this);
 	AddEventListener(this);
 }
@@ -65,7 +65,7 @@ void WorldInternal::Initialize() {
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
-	root_ = Factory::Create<EntityInternal>();
+	root_ = Factory::Create<GameObjectInternal>();
 	root_->AddComponent<ITransform>();
 	root_->SetName("Root");
 }
@@ -91,72 +91,71 @@ Object WorldInternal::CreateObject(ObjectType type) {
 	return object;
 }
 
-Entity WorldInternal::Import(const std::string& path, EntityLoadedListener* listener) {
+GameObject WorldInternal::Import(const std::string& path, GameObjectLoadedListener* listener) {
 	importer_->SetLoadedListener(listener);
 	return importer_->Import(path);
 }
 
-bool WorldInternal::ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener) {
+bool WorldInternal::ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) {
 	importer_->SetLoadedListener(listener);
-	return importer_->ImportTo(entity, path);
+	return importer_->ImportTo(go, path);
 }
 
-Entity WorldInternal::GetEntity(uint id) {
-	EntityDictionary::iterator ite = entities_.find(id);
+GameObject WorldInternal::GetGameObject(uint id) {
+	GameObjectDictionary::iterator ite = entities_.find(id);
 	if (ite == entities_.end()) { return nullptr; }
 	return ite->second;
 }
 
-void WorldInternal::DestroyEntity(uint id) {
-	Entity entity = GetEntity(id);
-	if (entity) {
-		DestroyEntity(entity);
+void WorldInternal::DestroyGameObject(uint id) {
+	GameObject go = GetGameObject(id);
+	if (go) {
+		DestroyGameObject(go);
 	}
 }
 
-void WorldInternal::DestroyEntity(Entity entity) {
-	DestroyEntityRecursively(entity->GetTransform());
+void WorldInternal::DestroyGameObject(GameObject go) {
+	DestroyGameObjectRecursively(go->GetTransform());
 }
 
-void WorldInternal::DestroyEntityRecursively(Transform root) {
-	Entity entity = root->GetEntity();
+void WorldInternal::DestroyGameObjectRecursively(Transform root) {
+	GameObject go = root->GetGameObject();
 
-	if (entity->GetObjectType() == ObjectType::Camera) {
-		cameras_.erase(suede_dynamic_cast<Camera>(entity));
-	}
-	else if (entity->GetObjectType() == ObjectType::Projector) {
-		projectors_.erase(suede_dynamic_cast<Projector>(entity));
-	}
-	else if (entity->GetObjectType() >= ObjectType::SpotLight && entity->GetObjectType() <= ObjectType::DirectionalLight) {
-		lights_.erase(suede_dynamic_cast<Light>(entity));
-	}
+	Camera camera = go->GetComponent<ICamera>();
+	if (camera) { cameras_.erase(camera); }
 
-	// SUEDE TODO: tag entity with destroyed?
-	RemoveEntityFromSequence(entity);
-	entities_.erase(entity->GetInstanceID());
-	entity->GetTransform()->SetParent(nullptr);
+	Light light = go->GetComponent<ILight>();
+	if (light) { lights_.erase(light); }
 
-	EntityDestroyedEventPointer e = NewWorldEvent<EntityDestroyedEventPointer>();
-	e->entity = entity;
+	Projector projector = go->GetComponent<IProjector>();
+	if (projector) { projectors_.erase(projector); }
+
+	// SUEDE TODO: tag go with destroyed?
+	RemoveGameObjectFromSequence(go);
+	entities_.erase(go->GetInstanceID());
+	go->GetTransform()->SetParent(nullptr);
+
+	GameObjectDestroyedEventPointer e = NewWorldEvent<GameObjectDestroyedEventPointer>();
+	e->go = go;
 	FireEvent(e);
 
 	for(Transform transform : root->GetChildren()) {
-		DestroyEntityRecursively(transform);
+		DestroyGameObjectRecursively(transform);
 	}
 }
 
-bool WorldInternal::GetEntities(ObjectType type, std::vector<Entity>& entities) {
-	if (type < ObjectType::Entity) {
-		Debug::LogError("invalid entity type");
+bool WorldInternal::GetEntities(ObjectType type, std::vector<GameObject>& entities) {
+	if (type < ObjectType::GameObject) {
+		Debug::LogError("invalid go type");
 		return false;
 	}
 
 	return CollectEntities(type, entities);
 }
 
-void WorldInternal::WalkEntityHierarchy(WorldEntityWalker* walker) {
+void WorldInternal::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) {
 	ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
-	WalkEntityHierarchyRecursively(GetRootTransform(), walker);
+	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
 }
 
 void WorldInternal::AddEventListener(WorldEventListener* listener) {
@@ -172,17 +171,12 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 	}
 }
 
-bool WorldInternal::FireEvent(WorldEventBasePointer e) {
+void WorldInternal::FireEvent(WorldEventBasePointer e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[(int)type];
 
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
-	if (collection.find(e) == collection.end()) {
-		collection.insert(e);
-		return true;
-	}
-
-	return false;
+	collection.push_back(e);
 }
 
 void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
@@ -203,29 +197,29 @@ void WorldInternal::UpdateDecals() {
 }
 
 void WorldInternal::CullingUpdateEntities() {
-	for (Entity entity : cullingUpdateSequence_) {
-		if (entity->GetActive()) {
-			entity->CullingUpdate();
+	for (GameObject go : cullingUpdateSequence_) {
+		if (go->GetActive()) {
+			go->CullingUpdate();
 		}
 	}
 }
 
 void WorldInternal::RenderingUpdateEntities() {
-	for (Entity entity : renderingUpdateSequence_) {
-		if (entity->GetActive()) {
-			entity->RenderingUpdate();
+	for (GameObject go : renderingUpdateSequence_) {
+		if (go->GetActive()) {
+			go->RenderingUpdate();
 		}
 	}
 }
 
-bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker) {
+bool WorldInternal::WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker) {
 	for(Transform transform : root->GetChildren()) {
-		Entity child = transform->GetEntity();
+		GameObject child = transform->GetGameObject();
 		if (!child) {
 			continue;
 		}
 
-		WalkCommand command = walker->OnWalkEntity(child);
+		WalkCommand command = walker->OnWalkGameObject(child);
 
 		// next sibling.
 		if (command == WalkCommand::Next) {
@@ -237,7 +231,7 @@ bool WorldInternal::WalkEntityHierarchyRecursively(Transform root, WorldEntityWa
 			return false;
 		}
 
-		if (!WalkEntityHierarchyRecursively(child->GetTransform(), walker)) {
+		if (!WalkGameObjectHierarchyRecursively(child->GetTransform(), walker)) {
 			return false;
 		}
 	}
@@ -253,67 +247,58 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 		case WorldEventType::CameraDepthChanged:
 			cameras_.sort();
 			break;
-		case WorldEventType::EntityParentChanged:
-			OnEntityParentChanged(suede_static_cast<EntityEventPointer>(e)->entity);
+		case WorldEventType::GameObjectParentChanged:
+			OnGameObjectParentChanged(suede_static_cast<GameObjectEventPointer>(e)->go);
 			break;
-		case WorldEventType::EntityUpdateStrategyChanged:
-			AddEntityToUpdateSequence(suede_static_cast<EntityEventPointer>(e)->entity);
+		case WorldEventType::GameObjectUpdateStrategyChanged:
+			AddGameObjectToUpdateSequence(suede_static_cast<GameObjectEventPointer>(e)->go);
+			break;
+		case WorldEventType::GameObjectComponentChanged:
+			OnGameObjectComponentChanged(suede_static_cast<GameObjectComponentChangedEventPointer>(e));
 			break;
 	}
 }
 
 void WorldInternal::AddObject(Object object) {
 	ObjectType type = object->GetObjectType();
-	if (type >= ObjectType::Entity) {
-		Entity entity = suede_dynamic_cast<Entity>(object);
-		entity->AddComponent<ITransform>();
+	if (type >= ObjectType::GameObject) {
+		GameObject go = suede_dynamic_cast<GameObject>(object);
+		go->AddComponent<ITransform>();
 
-		EntityCreatedEventPointer e = NewWorldEvent<EntityCreatedEventPointer>();
-		e->entity = entity;
+		GameObjectCreatedEventPointer e = NewWorldEvent<GameObjectCreatedEventPointer>();
+		e->go = go;
 		FireEvent(e);
 
 		ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
-		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
-	}
-
-	if (type >= ObjectType::SpotLight && type <= ObjectType::DirectionalLight) {
-		lights_.insert(suede_dynamic_cast<Light>(object));
-	}
-
-	if (type == ObjectType::Camera) {
-		cameras_.insert(suede_dynamic_cast<Camera>(object));
-	}
-
-	if (type == ObjectType::Projector) {
-		projectors_.insert(suede_dynamic_cast<Projector>(object));
+		entities_.insert(std::make_pair(go->GetInstanceID(), go));
 	}
 }
 
-bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity>& entities) {
-	if (type == ObjectType::Entity) {
-		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+bool WorldInternal::CollectEntities(ObjectType type, std::vector<GameObject>& entities) {
+	if (type == ObjectType::GameObject) {
+		for (GameObjectDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 			entities.push_back(ite->second);
 		}
 	}
 	else if (type == ObjectType::Camera) {
 		for (Camera camera : cameras_) {
-			entities.push_back(camera->GetEntity());
+			entities.push_back(camera->GetGameObject());
 		}
 	}
 	else if (type == ObjectType::Projector) {
 		for (Projector projector : projectors_) {
-			entities.push_back(projector->GetEntity());
+			entities.push_back(projector->GetGameObject());
 		}
 	}
 	else if (type == SUEDE_ALL_LIGHTS) {
 		for (Light light : lights_) {
-			entities.push_back(light->GetEntity());
+			entities.push_back(light->GetGameObject());
 		}
 	}
 	else {
 		Debug::LogError("not implemented");
 		// SUEDE TODO: Get entities of type.
-//		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
+//		for (GameObjectDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 //			if (ite->second->GetType() == type) {
 //				entities.push_back(ite->second);
 //			}
@@ -323,13 +308,19 @@ bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity>& entiti
 	return !entities.empty();
 }
 
-void WorldInternal::OnEntityParentChanged(Entity entity) {
-	if (entity->GetTransform()->GetParent()) {
-		entities_.insert(std::make_pair(entity->GetInstanceID(), entity));
+void WorldInternal::OnGameObjectParentChanged(GameObject go) {
+	if (go->GetTransform()->GetParent()) {
+		entities_.insert(std::make_pair(go->GetInstanceID(), go));
 	}
 	else {
-		entities_.erase(entity->GetInstanceID());
+		entities_.erase(go->GetInstanceID());
 	}
+}
+
+void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPointer e) {
+	ManageGameObjectComponents(lights_, e->component, e->added);
+	ManageGameObjectComponents(cameras_, e->component, e->added);
+	ManageGameObjectComponents(projectors_, e->component, e->added);
 }
 
 void WorldInternal::FireEvents() {
@@ -352,29 +343,29 @@ void WorldInternal::UpdateTimeUniformBuffer() {
 	UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
-void WorldInternal::RemoveEntityFromSequence(Entity entity) {
-	cullingUpdateSequence_.erase(entity);
-	renderingUpdateSequence_.erase(entity);
+void WorldInternal::RemoveGameObjectFromSequence(GameObject go) {
+	cullingUpdateSequence_.erase(go);
+	renderingUpdateSequence_.erase(go);
 }
 
-void WorldInternal::AddEntityToUpdateSequence(Entity entity) {
-	int strategy = entity->GetUpdateStrategy();
+void WorldInternal::AddGameObjectToUpdateSequence(GameObject go) {
+	int strategy = go->GetUpdateStrategy();
 	if ((strategy & UpdateStrategyCulling) != 0) {
-		if (!cullingUpdateSequence_.contains(entity)) {
-			cullingUpdateSequence_.insert(entity);
+		if (!cullingUpdateSequence_.contains(go)) {
+			cullingUpdateSequence_.insert(go);
 		}
 	}
 	else {
-		cullingUpdateSequence_.erase(entity);
+		cullingUpdateSequence_.erase(go);
 	}
 
 	if ((strategy & UpdateStrategyRendering) != 0) {
-		if (!renderingUpdateSequence_.contains(entity)) {
-			renderingUpdateSequence_.insert(entity);
+		if (!renderingUpdateSequence_.contains(go)) {
+			renderingUpdateSequence_.insert(go);
 		}
 	}
 	else {
-		renderingUpdateSequence_.erase(entity);
+		renderingUpdateSequence_.erase(go);
 	}
 }
 

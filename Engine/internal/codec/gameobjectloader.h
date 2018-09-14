@@ -4,11 +4,11 @@
 #include <assimp/postprocess.h>
 
 #include "image.h"
-#include "entity.h"
 #include "engine.h"
 #include "animation.h"
+#include "gameobject.h"
 #include "tools/noncopyable.h"
-#include "entityloadedlistener.h"
+#include "gameobjectloadedlistener.h"
 #include "internal/async/threadpool.h"
 
 struct MaterialAsset {
@@ -38,22 +38,22 @@ struct MaterialAsset {
 
 typedef MeshAttribute MeshAsset;
 
-struct EntityAsset {
+struct GameObjectAsset {
 	MeshAsset meshAsset;
 	std::vector<MaterialAsset> materialAssets;
 };
 
-class EntityLoader : public Worker, private NonCopyable {
+class GameObjectLoader : public Worker, private NonCopyable {
 public:
-	EntityLoader(const std::string& path, Entity entity, WorkerEventListener* receiver);
-	~EntityLoader();
+	GameObjectLoader(const std::string& path, GameObject go, WorkerEventListener* receiver);
+	~GameObjectLoader();
 
 public:
-	Entity GetEntity() { return root_; }
+	GameObject GetGameObject() { return root_; }
 	const std::string& GetPath() { return path_; }
 
 	Mesh GetSurface() { return surface_; }
-	EntityAsset& GetEntityAsset() { return asset_; }
+	GameObjectAsset& GetGameObjectAsset() { return asset_; }
 
 protected:
 	virtual void Run();
@@ -62,11 +62,11 @@ private:
 	bool LoadAsset();
 	bool Initialize(Assimp::Importer& importer);
 
-	void LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
-	void LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
-	void LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	void LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	void LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	void LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
 
-	Entity LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	GameObject LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
 
 	void ReserveMemory(MeshAsset& meshAsset);
 	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses);
@@ -97,9 +97,9 @@ private:
 
 private:
 	Mesh surface_;
-	EntityAsset asset_;
+	GameObjectAsset asset_;
 
-	Entity root_;
+	GameObject root_;
 	std::string path_;
 
 	Skeleton skeleton_;
@@ -110,19 +110,19 @@ private:
 	TexelMapContainer texelMapContainer_;
 };
 
-class EntityLoaderThreadPool : public ThreadPool {
+class GameObjectLoaderThreadPool : public ThreadPool {
 public:
-	EntityLoaderThreadPool() : ThreadPool(16) {}
+	GameObjectLoaderThreadPool() : ThreadPool(16) {}
 
 public:
-	Entity Import(const std::string& path);
-	bool ImportTo(Entity entity, const std::string& path);
+	GameObject Import(const std::string& path);
+	bool ImportTo(GameObject go, const std::string& path);
 
-	void SetLoadedListener(EntityLoadedListener* listener);
+	void SetLoadedListener(GameObjectLoadedListener* listener);
 
 protected:
 	virtual void OnSchedule(ZThread::Task& schedule);
 
 private:
-	EntityLoadedListener* listener_;
+	GameObjectLoadedListener* listener_;
 };

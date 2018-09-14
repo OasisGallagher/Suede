@@ -188,7 +188,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\culling\culling.cpp" />
     <ClCompile Include="internal\codec\image.cpp" />
     <ClCompile Include="internal\codec\shaderparser.cpp" />
-    <ClCompile Include="internal\codec\entityloader.cpp" />
+    <ClCompile Include="internal\codec\gameobjectloader.cpp" />
     <ClCompile Include="internal\geometry\bounds.cpp" />
     <ClCompile Include="internal\geometry\bsptree.cpp" />
     <ClCompile Include="internal\geometry\geometryutility.cpp" />
@@ -201,7 +201,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\gui\imgui_draw.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
-    <ClCompile Include="internal\entities\entityinternal.cpp" />
+    <ClCompile Include="internal\entities\gameobjectinternal.cpp" />
     <ClCompile Include="internal\rendering\matrixbuffer.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\rendering.cpp" />
@@ -236,7 +236,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
-    <ClInclude Include="include\entityloadedlistener.h" />
+    <ClInclude Include="include\gameobjectloadedlistener.h" />
     <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\frameeventlistener.h" />
@@ -260,7 +260,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\resources.h" />
     <ClInclude Include="include\screen.h" />
     <ClInclude Include="include\shader.h" />
-    <ClInclude Include="include\entity.h" />
+    <ClInclude Include="include\gameobject.h" />
     <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\statistics.h" />
     <ClInclude Include="include\texture.h" />
@@ -288,7 +288,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\base\uniformbuffer.h" />
     <ClInclude Include="internal\base\vertexarray.h" />
     <ClInclude Include="internal\base\vertexattrib.h" />
-    <ClInclude Include="internal\codec\entityloader.h" />
+    <ClInclude Include="internal\codec\gameobjectloader.h" />
     <ClInclude Include="internal\components\animationinternal.h" />
     <ClInclude Include="internal\components\camerainternal.h" />
     <ClInclude Include="internal\components\componentinternal.h" />
@@ -309,7 +309,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\gui\stb_textedit.h" />
     <ClInclude Include="internal\gui\stb_truetype.h" />
     <ClInclude Include="internal\memory\factory.h" />
-    <ClInclude Include="internal\entities\entityinternal.h" />
+    <ClInclude Include="internal\entities\gameobjectinternal.h" />
     <ClInclude Include="internal\rendering\matrixbuffer.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />

@@ -144,7 +144,7 @@ void CameraInternal::SetRect(const Rect& value) {
 	}
 }
 
-void CameraInternal::GetVisibleEntities(std::vector<Entity>& entities) {
+void CameraInternal::GetVisibleEntities(std::vector<GameObject>& entities) {
 	ZTHREAD_LOCK_SCOPE(visibleEntitiesMutex_);
 	entities = visibleEntities_;
 }

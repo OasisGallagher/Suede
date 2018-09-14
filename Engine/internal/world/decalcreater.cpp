@@ -3,9 +3,9 @@
 #include "resources.h"
 #include "variables.h"
 
-bool DecalCreater::CreateEntityDecal(Camera camera, DecalInfo& info, Entity entity, Plane planes[6]) {
+bool DecalCreater::CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]) {
 	std::vector<glm::vec3> triangles;
-	if (!ClampMesh(camera, triangles, entity, planes)) {
+	if (!ClampMesh(camera, triangles, go, planes)) {
 		return false;
 	}
 
@@ -36,10 +36,10 @@ void DecalCreater::GetDecals(std::vector<Decal>& container) {
 	}
 }
 
-bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<Entity>& entities, Plane planes[6]) {
-	for (std::vector<Entity>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
-		Entity entity = (*ite);
-		if (entity == p->GetEntity()) { continue; }
+bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& entities, Plane planes[6]) {
+	for (std::vector<GameObject>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
+		GameObject go = (*ite);
+		if (go == p->GetGameObject()) { continue; }
 
 		DecalInfo* info = decalInfos_.spawn();
 		if (info == nullptr) {
@@ -47,7 +47,7 @@ bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<
 			return false;
 		}
 
-		if (!CreateEntityDecal(camera, *info, entity, planes)) {
+		if (!CreateGameObjectDecal(camera, *info, go, planes)) {
 			decalInfos_.recycle(info);
 			continue;
 		}
@@ -87,9 +87,9 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	info->decal.material = decalMaterial;
 }
 
-bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]) {
-	Mesh mesh = entity->GetComponent<IMeshFilter>()->GetMesh();
-	glm::vec3 cameraPosition = entity->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
+bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, GameObject go, Plane planes[6]) {
+	Mesh mesh = go->GetComponent<IMeshFilter>()->GetMesh();
+	glm::vec3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
 	uint* indexes = mesh->MapIndexes();
 	glm::vec3* vertices = mesh->MapVertices();
@@ -110,9 +110,9 @@ bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, E
 				continue;
 			}
 
-			vs[0] = entity->GetTransform()->TransformPoint(vs[0]);
-			vs[1] = entity->GetTransform()->TransformPoint(vs[1]);
-			vs[2] = entity->GetTransform()->TransformPoint(vs[2]);
+			vs[0] = go->GetTransform()->TransformPoint(vs[0]);
+			vs[1] = go->GetTransform()->TransformPoint(vs[1]);
+			vs[2] = go->GetTransform()->TransformPoint(vs[2]);
 
 			GeometryUtility::ClampTriangle(polygon, vs, planes, 6);
 			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));

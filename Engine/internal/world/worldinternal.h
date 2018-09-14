@@ -7,15 +7,15 @@
 #include "light.h"
 #include "camera.h"
 #include "screen.h"
-#include "entity.h"
 #include "projector.h"
+#include "gameobject.h"
 #include "environment.h"
 #include "containers/sortedvector.h"
 #include "internal/base/objectinternal.h"
 
 class Sample;
 class DecalCreater;
-class EntityLoaderThreadPool;
+class GameObjectLoaderThreadPool;
 
 class WorldInternal : public World, public ScreenSizeChangedListener, public WorldEventListener {
 public:
@@ -32,18 +32,18 @@ public:
 
 	virtual Object CreateObject(ObjectType type);
 
-	virtual void DestroyEntity(uint id);
-	virtual void DestroyEntity(Entity entity);
+	virtual void DestroyGameObject(uint id);
+	virtual void DestroyGameObject(GameObject go);
 
-	virtual Entity Import(const std::string& path, EntityLoadedListener* listener);
-	virtual bool ImportTo(Entity entity, const std::string& path, EntityLoadedListener* listener);
+	virtual GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
+	virtual bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
 
-	virtual Entity GetEntity(uint id);
-	virtual bool GetEntities(ObjectType type, std::vector<Entity>& entities);
+	virtual GameObject GetGameObject(uint id);
+	virtual bool GetEntities(ObjectType type, std::vector<GameObject>& entities);
 
-	virtual void WalkEntityHierarchy(WorldEntityWalker* walker);
+	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	virtual bool FireEvent(WorldEventBasePointer e);
+	virtual void FireEvent(WorldEventBasePointer e);
 	virtual void FireEventImmediate(WorldEventBasePointer e);
 	virtual void AddEventListener(WorldEventListener* listener);
 	virtual void RemoveEventListener(WorldEventListener* listener);
@@ -58,57 +58,56 @@ public:
 
 private:
 	void AddObject(Object object);
-	bool CollectEntities(ObjectType type, std::vector<Entity>& entities);
+	bool CollectEntities(ObjectType type, std::vector<GameObject>& entities);
 
-	void OnEntityParentChanged(Entity entity);
+	void OnGameObjectParentChanged(GameObject go);
+	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPointer e);
+
+	template <class Container>
+	void ManageGameObjectComponents(Container& container, Component component, bool added);
 
 	void FireEvents();
 	void UpdateDecals();
 	void CullingUpdateEntities();
 	void RenderingUpdateEntities();
 
-	void DestroyEntityRecursively(Transform root);
-	bool WalkEntityHierarchyRecursively(Transform root, WorldEntityWalker* walker);
+	void DestroyGameObjectRecursively(Transform root);
+	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
 
 	void UpdateTimeUniformBuffer();
 
-	void RemoveEntityFromSequence(Entity entity);
-	void AddEntityToUpdateSequence(Entity entity);
+	void RemoveGameObjectFromSequence(GameObject go);
+	void AddGameObjectToUpdateSequence(GameObject go);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
 	struct ProjectorComparer { bool operator() (const Projector& lhs, const Projector& rhs) const; };
-	struct WorldEventComparer {
-		bool operator () (const WorldEventBasePointer& lhs, const WorldEventBasePointer& rhs) const {
-			return lhs->Compare(rhs);
-		}
-	};
 
-	typedef sorted_vector<Entity> EntitySequence;
-	typedef std::map<uint, Entity> EntityDictionary;
+	typedef sorted_vector<GameObject> GameObjectSequence;
+	typedef std::map<uint, GameObject> GameObjectDictionary;
 	typedef std::set<Light, LightComparer> LightContainer;
 	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
-	typedef std::set<WorldEventBasePointer, WorldEventComparer> WorldEventCollection;
+	typedef std::vector<WorldEventBasePointer> WorldEventCollection;
 	typedef WorldEventCollection WorldEventContainer[(int)WorldEventType::_Count];
 
 private:
-	Entity root_;
+	GameObject root_;
 
 	LightContainer lights_;
 	CameraContainer cameras_;
 
 	DecalCreater* decalCreater_;
-	EntityLoaderThreadPool* importer_;
+	GameObjectLoaderThreadPool* importer_;
 
 	ProjectorContainer projectors_;
 
-	EntitySequence cullingUpdateSequence_;
-	EntitySequence renderingUpdateSequence_;
+	GameObjectSequence cullingUpdateSequence_;
+	GameObjectSequence renderingUpdateSequence_;
 
-	EntityDictionary entities_;
+	GameObjectDictionary entities_;
 	EventListenerContainer listeners_;
 
 	ZThread::Mutex eventsMutex_;
@@ -117,3 +116,18 @@ private:
 	ZThread::Mutex hierarchyMutex_;
 	ZThread::Mutex eventContainerMutex_;
 };
+
+template <class Container>
+void WorldInternal::ManageGameObjectComponents(Container& container, Component component, bool added) {
+	typedef Container::value_type T;
+	typedef typename T::element_type U;
+	if (component->IsClassType(U::GetTypeID())) {
+		T light = suede_dynamic_cast<T>(component);
+		if (added) {
+			container.insert(light);
+		}
+		else {
+			container.erase(light);
+		}
+	}
+}

@@ -534,6 +534,7 @@
     <ClInclude Include="tools\random.h">
       <Filter>tools\include</Filter>
     </ClInclude>
+    <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tools\string.cpp">

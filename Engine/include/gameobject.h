@@ -3,8 +3,8 @@
 #include "bounds.h"
 #include "transform.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(Entity);
-SUEDE_DECLARE_OBJECT_CREATER(Entity);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject);
+SUEDE_DECLARE_OBJECT_CREATER(GameObject);
 
 SUEDE_DEFINE_OBJECT_POINTER(Component);
 
@@ -15,7 +15,7 @@ enum {
 	RecalculateBoundsFlagsAll = -1,
 };
 
-class SUEDE_API IEntity : virtual public IObject {
+class SUEDE_API IGameObject : virtual public IObject {
 public:
 	virtual bool GetActive() const = 0;
 
@@ -50,25 +50,25 @@ public:	// Component system.
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
 private:
-	virtual Component AddComponentHelper(suede_typeid type) = 0;
+	virtual Component AddComponentHelper(suede_guid type) = 0;
 	virtual Component AddComponentHelper(Component component) = 0;
 
-	virtual Component GetComponentHelper(suede_typeid type) = 0;
-	virtual std::vector<Component> GetComponentsHelper(suede_typeid type) = 0;
+	virtual Component GetComponentHelper(suede_guid type) = 0;
+	virtual std::vector<Component> GetComponentsHelper(suede_guid type) = 0;
 };
 
 template <class T>
-std::shared_ptr<T> IEntity::AddComponent() {
+std::shared_ptr<T> IGameObject::AddComponent() {
 	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponentHelper(std::shared_ptr<T>(new T)));
 }
 
 template <class T>
-std::shared_ptr<T> IEntity::GetComponent() {
+std::shared_ptr<T> IGameObject::GetComponent() {
 	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponentHelper(T::GetTypeID()));
 }
 
 template <class T>
-std::vector<std::shared_ptr<T>> IEntity::GetComponents() {
+std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
 	std::vector<std::shared_ptr<T>> components;
 	for (Component component : GetComponentsHelper(T::GetTypeID())) {
 		components.push_back(suede_dynamic_cast<std::shared_ptr<T>>(component));
@@ -86,7 +86,7 @@ std::vector<std::shared_ptr<T>> IEntity::GetComponents() {
 
 #define RTTI_CLASS_SPECIALIZATION(T) \
 	template <> \
-	inline std::shared_ptr<I ## T> IEntity::AddComponent() { \
+	inline std::shared_ptr<I ## T> IGameObject::AddComponent() { \
 		return suede_dynamic_cast<T>(AddComponentHelper(I ## T::GetTypeID())); \
 	}
 

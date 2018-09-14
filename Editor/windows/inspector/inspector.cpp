@@ -34,8 +34,8 @@ Inspector::~Inspector() {
 void Inspector::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 
-	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<Entity>&, const QList<Entity>&)),
-		this, SLOT(onSelectionChanged(const QList<Entity>&, const QList<Entity>&)));
+	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
+		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
 
 	addInspector(ObjectType::Transform, new TransformInspector);
 
@@ -108,7 +108,7 @@ void Inspector::drawBasics() {
 	drawTags();
 }
 
-void Inspector::onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected) {
+void Inspector::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
 	// SUEDE TODO: multi-selection.
 	if (!selected.empty()) {
 		target_ = selected.front();

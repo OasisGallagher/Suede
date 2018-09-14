@@ -1,8 +1,8 @@
 #pragma once
 #include "plane.h"
 #include "camera.h"
-#include "entity.h"
 #include "projector.h"
+#include "gameobject.h"
 #include "geometryutility.h"
 #include "containers/freelist.h"
 
@@ -31,10 +31,10 @@ public:
 private:
 	void CreateDecal(DecalInfo* info);
 
-	bool CreateEntityDecal(Camera camera, DecalInfo& info, Entity entity, Plane planes[6]);
-	bool CreateProjectorDecal(Camera camera, Projector p, std::vector<Entity>& entities, Plane planes[6]);
+	bool CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]);
+	bool CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& entities, Plane planes[6]);
 
-	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, Entity entity, Plane planes[6]);
+	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, GameObject go, Plane planes[6]);
 
 private:
 	Plane planes_[6];
@@ -47,7 +47,7 @@ template <class Projecters>
 void DecalCreater::Update(Camera camera, Projecters& projectors) {
 	decalInfos_.clear();
 
-	std::vector<Entity> entities;
+	std::vector<GameObject> entities;
 	camera->GetVisibleEntities(entities);
 
 	for (Projecters::iterator ite = projectors.begin(); ite != projectors.end(); ++ite) {

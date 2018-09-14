@@ -25,14 +25,14 @@ QMimeData* DragDropableItemModel::mimeData(const QModelIndexList& indexes) const
 
 bool DragDropableItemModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
 	QStandardItem* item = itemFromIndex(parent);
-	Entity parentEntity = World::instance()->GetRootTransform()->GetEntity();
+	GameObject parentGameObject = World::instance()->GetRootTransform()->GetGameObject();
 	if (item != nullptr) {
-		parentEntity = World::instance()->GetEntity(item->data().toUInt());
+		parentGameObject = World::instance()->GetGameObject(item->data().toUInt());
 	}
 
 	for (QString target : QString(data->data("targets")).split('|')) {
-		Entity entity = World::instance()->GetEntity(target.toUInt());
-		entity->GetTransform()->SetParent(parentEntity->GetTransform());
+		GameObject go = World::instance()->GetGameObject(target.toUInt());
+		go->GetTransform()->SetParent(parentGameObject->GetTransform());
 	}
 
 	return true;

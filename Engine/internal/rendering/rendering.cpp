@@ -235,15 +235,15 @@ RenderableTraits::~RenderableTraits() {
 	Profiler::instance()->ReleaseSample(get_renderable_entities);
 }
 
-void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatrices& matrices) {
+void RenderableTraits::Traits(std::vector<GameObject>& entities, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
 	Clear();
 
 	glm::mat4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
 	for (int i = 0; i < entities.size(); ++i) {
-		Entity entity = entities[i];
-		pipelines_.shadow->AddRenderable(entity->GetComponent<IMeshFilter>()->GetMesh(), nullptr, 0, entity->GetTransform()->GetLocalToWorldMatrix());
+		GameObject go = entities[i];
+		pipelines_.shadow->AddRenderable(go->GetComponent<IMeshFilter>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
@@ -287,7 +287,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 	pipelines_.rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
 }
 
-void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObject>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	if (p_->clearType == +ClearType::Skybox) {
 		RenderSkybox(pl);
 	}
@@ -303,7 +303,7 @@ void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<Entity>&
 	RenderDecals(pl);
 }
 
-void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<Entity>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<GameObject>& entities_, Light forwardBase, const std::vector<Light>& forwardAdd) {
 	// 	if (gbuffer_ == nullptr) {
 	// 		InitializeDeferredRender();
 	// 	}
@@ -320,16 +320,16 @@ void RenderableTraits::InitializeDeferredRender() {
 	deferredMaterial_->SetShader(Resources::instance()->FindShader("builtin/gbuffer"));*/
 }
 
-void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<Entity>& entities_) {
+void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& entities_) {
 	// 	gbuffer_->Bind(GBuffer::GeometryPass);
 	// 
 	// 	for (int i = 0; i < entities_.size(); ++i) {
-	// 		Entity entity = entities_[i];
+	// 		GameObject go = entities_[i];
 	// 
-	// 		Texture mainTexture = entity->GetRenderer()->GetMaterial(0)->GetTexture(Variables::MainTexture);
+	// 		Texture mainTexture = go->GetRenderer()->GetMaterial(0)->GetTexture(Variables::MainTexture);
 	// 		Material material = suede_dynamic_cast<Material>(deferredMaterial_->Clone());
 	// 		material->SetTexture(Variables::MainTexture, mainTexture);
-	// 		pipeline_->AddRenderable(entity->GetMesh(), deferredMaterial_, 0, target, entity->GetTransform()->GetLocalToWorldMatrix());
+	// 		pipeline_->AddRenderable(go->GetMesh(), deferredMaterial_, 0, target, go->GetTransform()->GetLocalToWorldMatrix());
 	// 	}
 	// 
 	// 	gbuffer_->Unbind();
@@ -358,7 +358,7 @@ RenderTexture RenderableTraits::GetActiveRenderTarget() {
 	return target;
 }
 
-void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<Entity>& entities_, Light light) {
+void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& entities_, Light light) {
 	pipelines_.forwardBaseLight = light;
 
 	forward_pass->Restart();
@@ -367,7 +367,7 @@ void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<Entity>
 	Debug::Output("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
-void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<Entity>& entities_, const std::vector<Light>& lights) {
+void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& entities_, const std::vector<Light>& lights) {
 }
 
 void RenderableTraits::InitializeSSAOKernel() {
@@ -407,10 +407,10 @@ void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
 	ReplaceMaterials(pl, p_->materials.depth);
 }
 
-void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& entities_) {
+void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& entities_) {
 	for (int i = 0; i < entities_.size(); ++i) {
-		Entity entity = entities_[i];
-		RenderEntity(pl, entity, entity->GetComponent<IRenderer>());
+		GameObject go = entities_[i];
+		RenderGameObject(pl, go, go->GetComponent<IRenderer>());
 	}
 
 	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
@@ -418,7 +418,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& enti
 }
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
-	std::vector<Entity> lights;
+	std::vector<GameObject> lights;
 	// SUEDE TODO: All lights.
 	if (!World::instance()->GetEntities((ObjectType)SUEDE_ALL_LIGHTS, lights)) {
 		return;
@@ -448,10 +448,10 @@ void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material material) {
 	}
 }
 
-void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer renderer) {
+void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer) {
 	push_renderables->Start();
 
-	int subMeshCount = entity->GetComponent<IMeshFilter>()->GetMesh()->GetSubMeshCount();
+	int subMeshCount = go->GetComponent<IMeshFilter>()->GetMesh()->GetSubMeshCount();
 	int materialCount = renderer->GetMaterialCount();
 
 	if (materialCount != subMeshCount) {
@@ -465,12 +465,12 @@ void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer render
 		Material material = renderer->GetMaterial(i);
 		int pass = material->GetPass();
 		if (pass >= 0 && material->IsPassEnabled(pass)) {
-			RenderSubMesh(pl, entity, i, material, pass);
+			RenderSubMesh(pl, go, i, material, pass);
 		}
 		else {
 			for (pass = 0; pass < material->GetPassCount(); ++pass) {
 				if (material->IsPassEnabled(pass)) {
-					RenderSubMesh(pl, entity, i, material, pass);
+					RenderSubMesh(pl, go, i, material, pass);
 				}
 			}
 		}
@@ -479,10 +479,10 @@ void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer render
 	push_renderables->Stop();
 }
 
-void RenderableTraits::RenderSubMesh(Pipeline* pl, Entity entity, int subMeshIndex, Material material, int pass) {
-	ParticleSystem p = entity->GetComponent<IParticleSystem>();
+void RenderableTraits::RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass) {
+	ParticleSystem p = go->GetComponent<IParticleSystem>();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(entity->GetComponent<IMeshFilter>()->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(go->GetComponent<IMeshFilter>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
 }
 
 void RenderableTraits::Clear() {

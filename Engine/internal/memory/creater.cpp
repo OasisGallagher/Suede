@@ -2,7 +2,6 @@
 #include "mesh.h"
 #include "light.h"
 #include "world.h"
-#include "entity.h"
 #include "camera.h"
 #include "shader.h"
 #include "texture.h"
@@ -10,6 +9,7 @@
 #include "renderer.h"
 #include "projector.h"
 #include "animation.h"
+#include "gameobject.h"
 #include "particlesystem.h"
 
 #define DEFINE_OBJECT_CREATER(T)	T New ## T() { \
@@ -38,4 +38,4 @@ DEFINE_OBJECT_CREATER(AnimationFrame)
 DEFINE_OBJECT_CREATER(ParticleAnimator)
 DEFINE_OBJECT_CREATER(SphereParticleEmitter)
 
-DEFINE_OBJECT_CREATER(Entity)
+DEFINE_OBJECT_CREATER(GameObject)

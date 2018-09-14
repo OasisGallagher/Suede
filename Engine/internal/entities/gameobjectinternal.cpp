@@ -7,30 +7,30 @@
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
-#include "internal/entities/entityinternal.h"
+#include "internal/entities/gameobjectinternal.h"
 
 #define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponentHelper(I ## T::GetTypeID()))
 
-EntityInternal::EntityInternal() : EntityInternal(ObjectType::Entity) {
+GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
 }
 
-EntityInternal::EntityInternal(ObjectType entityType)
-	: ObjectInternal(entityType), active_(true),  activeSelf_(true), boundsDirty_(true)
+GameObjectInternal::GameObjectInternal(ObjectType gameObjectType)
+	: ObjectInternal(gameObjectType), active_(true),  activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
-	if (entityType < ObjectType::Entity || entityType >= ObjectType::size()) {
-		Debug::LogError("invalid entity type %d.", entityType);
+	if (gameObjectType < ObjectType::GameObject || gameObjectType >= ObjectType::size()) {
+		Debug::LogError("invalid go type %d.", gameObjectType);
 	}
 
 	name_ = GetObjectType().to_string();
 }
 
-EntityInternal::~EntityInternal() {
+GameObjectInternal::~GameObjectInternal() {
 }
 
-void EntityInternal::SetActiveSelf(bool value) {
+void GameObjectInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
-		SetActive(activeSelf_ && GetTransform()->GetParent()->GetEntity()->GetActive());
+		SetActive(activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(SharedThis());
 
 		Renderer renderer = GET_COMPONENT(Renderer);
@@ -42,7 +42,7 @@ void EntityInternal::SetActiveSelf(bool value) {
 	}
 }
 
-bool EntityInternal::SetTag(const std::string& value) {
+bool GameObjectInternal::SetTag(const std::string& value) {
 	if (!TagManager::instance()->IsRegistered(value)) {
 		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
 		return false;
@@ -50,14 +50,14 @@ bool EntityInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		FireWorldEvent<EntityTagChangedEventPointer>(true);
+		FireWorldEvent<GameObjectTagChangedEventPointer>(true);
 	}
 
 	return true;
 }
 
-Component EntityInternal::AddComponentHelper(Component component) {
-	component->SetEntity(SharedThis());
+Component GameObjectInternal::AddComponentHelper(Component component) {
+	component->SetGameObject(SharedThis());
 	components_.push_back(component);
 
 	if (component->IsClassType(IMeshFilter::GetTypeID())) {
@@ -68,10 +68,16 @@ Component EntityInternal::AddComponentHelper(Component component) {
 		RecalculateBounds();
 	}
 
+	auto e = NewWorldEvent<GameObjectComponentChangedEventPointer>();
+	e->go = SharedThis();
+	e->added = true;
+	e->component = component;
+	World::instance()->FireEvent(e);
+
 	return component;
 }
 
-Component EntityInternal::AddComponentHelper(suede_typeid type) {
+Component GameObjectInternal::AddComponentHelper(suede_guid type) {
 	if (!CheckComponentDuplicate(type)) {
 		return nullptr;
 	}
@@ -79,20 +85,20 @@ Component EntityInternal::AddComponentHelper(suede_typeid type) {
 	return AddComponentHelper(suede_dynamic_cast<Component>(Factory::Create(type)));
 }
 
-bool EntityInternal::CheckComponentDuplicate(suede_typeid type) {
+bool GameObjectInternal::CheckComponentDuplicate(suede_guid type) {
 	if (GetComponentHelper(type)) {
-		Debug::LogError("component with type %zu already exist", type);
+		Debug::LogError("component with type %u already exist", type);
 		return false;
 	}
 
 	return true;
 }
 
-int EntityInternal::GetUpdateStrategy() {
+int GameObjectInternal::GetUpdateStrategy() {
 	return GetHierarchyUpdateStrategy(SharedThis());
 }
 
-void EntityInternal::SetName(const std::string& value) {
+void GameObjectInternal::SetName(const std::string& value) {
 	if (value.empty()) {
 		Debug::LogWarning("empty name.");
 		return;
@@ -100,11 +106,11 @@ void EntityInternal::SetName(const std::string& value) {
 
 	if (name_ != value) {
 		name_ = value;
-		FireWorldEvent<EntityNameChangedEventPointer>(true);
+		FireWorldEvent<GameObjectNameChangedEventPointer>(true);
 	}
 }
 
-void EntityInternal::CullingUpdate() {
+void GameObjectInternal::CullingUpdate() {
 	uint frame = Time::instance()->GetFrameCount();
 	if (frameCullingUpdate_ < frame) {
 		frameCullingUpdate_ = frame;
@@ -115,17 +121,17 @@ void EntityInternal::CullingUpdate() {
 	}
 }
 
-void EntityInternal::RenderingUpdate() {
+void GameObjectInternal::RenderingUpdate() {
 	for (Component component : components_) {
 		component->RenderingUpdate();
 	}
 }
 
-Transform EntityInternal::GetTransform() {
+Transform GameObjectInternal::GetTransform() {
 	return GET_COMPONENT(Transform);
 }
 
-void EntityInternal::RecalculateBounds(int flags) {
+void GameObjectInternal::RecalculateBounds(int flags) {
 	if ((flags & RecalculateBoundsFlagsSelf) != 0) {
 		boundsDirty_ = true;
 	}
@@ -139,27 +145,27 @@ void EntityInternal::RecalculateBounds(int flags) {
 	}
 }
 
-void EntityInternal::RecalculateUpdateStrategy() {
+void GameObjectInternal::RecalculateUpdateStrategy() {
 	RecalculateHierarchyUpdateStrategy();
 }
 
-void EntityInternal::SetActive(bool value) {
+void GameObjectInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
-		FireWorldEvent<EntityActiveChangedEventPointer>(true);
+		FireWorldEvent<GameObjectActiveChangedEventPointer>(true);
 	}
 }
 
-void EntityInternal::UpdateChildrenActive(Entity parent) {
+void GameObjectInternal::UpdateChildrenActive(GameObject parent) {
 	for (Transform transform : parent->GetTransform()->GetChildren()) {
-		Entity child = transform->GetEntity();
-		EntityInternal* childPtr = InternalPtr(child);
+		GameObject child = transform->GetGameObject();
+		GameObjectInternal* childPtr = InternalPtr(child);
 		childPtr->SetActive(childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
 	}
 }
 
-const Bounds& EntityInternal::GetBounds() {
+const Bounds& GameObjectInternal::GetBounds() {
 	if (boundsDirty_) {
 		worldBounds_.Clear();
 		CalculateHierarchyBounds();
@@ -168,7 +174,7 @@ const Bounds& EntityInternal::GetBounds() {
 	return worldBounds_;
 }
 
-Component EntityInternal::GetComponentHelper(suede_typeid type) {
+Component GameObjectInternal::GetComponentHelper(suede_guid type) {
 	for (Component component : components_) {
 		if (component->IsClassType(type)) {
 			return component;
@@ -178,7 +184,7 @@ Component EntityInternal::GetComponentHelper(suede_typeid type) {
 	return nullptr;
 }
 
-std::vector<Component> EntityInternal::GetComponentsHelper(suede_typeid type) {
+std::vector<Component> GameObjectInternal::GetComponentsHelper(suede_guid type) {
 	std::vector<Component> container;
 	for (Component component : components_) {
 		if (component->IsClassType(type)) {
@@ -189,7 +195,7 @@ std::vector<Component> EntityInternal::GetComponentsHelper(suede_typeid type) {
 	return container;
 }
 
-void EntityInternal::CalculateHierarchyBounds() {
+void GameObjectInternal::CalculateHierarchyBounds() {
 	if (GET_COMPONENT(Animation)) {
 		CalculateBonesWorldBounds();
 	}
@@ -205,7 +211,7 @@ void EntityInternal::CalculateHierarchyBounds() {
 	}
 }
 
-void EntityInternal::CalculateHierarchyMeshBounds() {
+void GameObjectInternal::CalculateHierarchyMeshBounds() {
 	Renderer renderer = GET_COMPONENT(Renderer);
 	MeshFilter meshFilter = GET_COMPONENT(MeshFilter);
 
@@ -214,7 +220,7 @@ void EntityInternal::CalculateHierarchyMeshBounds() {
 	}
 
 	for (Transform tr : GetTransform()->GetChildren()) {
-		Entity child = tr->GetEntity();
+		GameObject child = tr->GetGameObject();
 		if (child->GetActive()) {
 			const Bounds& b = child->GetBounds();
 			worldBounds_.Encapsulate(b);
@@ -222,7 +228,7 @@ void EntityInternal::CalculateHierarchyMeshBounds() {
 	}
 }
 
-void EntityInternal::CalculateSelfWorldBounds() {
+void GameObjectInternal::CalculateSelfWorldBounds() {
 	std::vector<glm::vec3> points;
 	const Bounds& localBounds = GET_COMPONENT(MeshFilter)->GetMesh()->GetBounds();
 	GeometryUtility::GetCuboidCoordinates(points, localBounds.center, localBounds.size);
@@ -239,7 +245,7 @@ void EntityInternal::CalculateSelfWorldBounds() {
 	worldBounds_.SetMinMax(min, max);
 }
 
-void EntityInternal::CalculateBonesWorldBounds() {
+void GameObjectInternal::CalculateBonesWorldBounds() {
 	std::vector<glm::vec3> points;
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	
@@ -262,15 +268,15 @@ void EntityInternal::CalculateBonesWorldBounds() {
 	}
 }
 
-void EntityInternal::DirtyParentBounds() {
+void GameObjectInternal::DirtyParentBounds() {
 	Transform parent, current = GetTransform();
 	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-		InternalPtr(parent->GetEntity())->boundsDirty_ = true;
+		InternalPtr(parent->GetGameObject())->boundsDirty_ = true;
 		current = parent;
 	}
 }
 
-int EntityInternal::GetHierarchyUpdateStrategy(Entity root) {
+int GameObjectInternal::GetHierarchyUpdateStrategy(GameObject root) {
 	if (!updateStrategyDirty_) { return updateStrategy_; }
 
 	int strategy = 0;
@@ -279,7 +285,7 @@ int EntityInternal::GetHierarchyUpdateStrategy(Entity root) {
 	}
 
 	for (Transform tr : root->GetTransform()->GetChildren()) {
-		strategy |= GetHierarchyUpdateStrategy(tr->GetEntity());
+		strategy |= GetHierarchyUpdateStrategy(tr->GetGameObject());
 	}
 
 	updateStrategy_ = strategy;
@@ -288,7 +294,7 @@ int EntityInternal::GetHierarchyUpdateStrategy(Entity root) {
 	return strategy;
 }
 
-bool EntityInternal::RecalculateHierarchyUpdateStrategy() {
+bool GameObjectInternal::RecalculateHierarchyUpdateStrategy() {
 	updateStrategyDirty_ = true;
 	int oldStrategy = updateStrategy_;
 	int newStrategy = GetUpdateStrategy();
@@ -296,15 +302,15 @@ bool EntityInternal::RecalculateHierarchyUpdateStrategy() {
 	if (oldStrategy != newStrategy) {
 		Transform parent, current = GetTransform();
 		for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-			if (!InternalPtr(parent->GetEntity())->RecalculateHierarchyUpdateStrategy()) {
+			if (!InternalPtr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy()) {
 				break;
 			}
 
 			current = parent;
 		}
 
-		EntityUpdateStrategyChangedEventPointer e = NewWorldEvent<EntityUpdateStrategyChangedEventPointer>();
-		e->entity = SharedThis();
+		GameObjectUpdateStrategyChangedEventPointer e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPointer>();
+		e->go = SharedThis();
 		World::instance()->FireEvent(e);
 
 		return true;
@@ -313,27 +319,10 @@ bool EntityInternal::RecalculateHierarchyUpdateStrategy() {
 	return false;
 }
 
-void EntityInternal::DirtyChildrenBoundses() {
+void GameObjectInternal::DirtyChildrenBoundses() {
 	for (Transform tr : GetTransform()->GetChildren()) {
-		EntityInternal* child = InternalPtr(tr->GetEntity());
+		GameObjectInternal* child = InternalPtr(tr->GetGameObject());
 		child->DirtyChildrenBoundses();
 		child->boundsDirty_ = true;
 	}
-}
-
-const char* EntityInternal::EntityTypeToString(ObjectType type) {
-#define CASE(name)	case ObjectType:: ## name: return "ObjectType" #name;
-	switch (type) {
-		CASE(Entity);
-		CASE(Camera);
-		CASE(Projector);
-		CASE(SpotLight);
-		CASE(PointLight);
-		CASE(DirectionalLight);
-		CASE(ParticleSystem);
-	}
-#undef CASE
-
-	Debug::LogError("entity name for %d does not exist.", type);
-	return "";
 }

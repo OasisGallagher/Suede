@@ -7,7 +7,7 @@
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "tools/string.h"
-#include "entityloader.h"
+#include "gameobjectloader.h"
 #include "memory/memory.h"
 #include "os/filesystem.h"
 #include "internal/async/guard.h"
@@ -64,22 +64,22 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-EntityLoader::EntityLoader(const std::string& path, Entity entity, WorkerEventListener* receiver)
-	: Worker(receiver), path_(path), root_(entity) {
+GameObjectLoader::GameObjectLoader(const std::string& path, GameObject go, WorkerEventListener* receiver)
+	: Worker(receiver), path_(path), root_(go) {
 }
 
-EntityLoader::~EntityLoader() {
+GameObjectLoader::~GameObjectLoader() {
 	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
 		MEMORY_DELETE(ite->second);
 	}
 }
 
-void EntityLoader::Run() {
+void GameObjectLoader::Run() {
 	if (!LoadAsset()) {
 	}
 }
 
-bool EntityLoader::Initialize(Assimp::Importer& importer) {
+bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 	uint flags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
 		| aiProcess_ImproveCacheLocality | aiProcess_FindInstances | aiProcess_GenSmoothNormals
 		| aiProcess_CalcTangentSpace | aiProcess_FlipUVs | aiProcess_OptimizeMeshes/* | aiProcess_OptimizeGraph*/
@@ -103,50 +103,50 @@ bool EntityLoader::Initialize(Assimp::Importer& importer) {
 	return true;
 }
 
-Entity EntityLoader::LoadHierarchy(Entity parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
-	Entity entity = NewEntity();
-	entity->GetTransform()->SetParent(parent->GetTransform());
+GameObject GameObjectLoader::LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+	GameObject go = NewGameObject();
+	go->GetTransform()->SetParent(parent->GetTransform());
 
-	LoadNodeTo(entity, node, surface, subMeshes, boundses);
-	LoadChildren(entity, node, surface, subMeshes, boundses);
+	LoadNodeTo(go, node, surface, subMeshes, boundses);
+	LoadChildren(go, node, surface, subMeshes, boundses);
 
-	return entity;
+	return go;
 }
 
-void EntityLoader::LoadNodeTo(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
-	entity->SetName(node->mName.C_Str());
+void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+	go->SetName(node->mName.C_Str());
 
-	if (entity != root_) {
+	if (go != root_) {
 		glm::quat rotation;
 		glm::vec3 translation, scale;
 		DecomposeAIMatrix(translation, rotation, scale, node->mTransformation);
 
-		entity->GetTransform()->SetLocalScale(scale);
-		entity->GetTransform()->SetLocalRotation(rotation);
-		entity->GetTransform()->SetLocalPosition(translation);
+		go->GetTransform()->SetLocalScale(scale);
+		go->GetTransform()->SetLocalRotation(rotation);
+		go->GetTransform()->SetLocalPosition(translation);
 	}
 
-	LoadComponents(entity, node, surface, subMeshes, boundses);
+	LoadComponents(go, node, surface, subMeshes, boundses);
 }
 
-void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
 
 	Renderer renderer = nullptr;
 	if (!HasAnimation()) {
-		renderer = entity->AddComponent<IMeshRenderer>();
+		renderer = go->AddComponent<IMeshRenderer>();
 	}
 	else {
-		renderer = entity->AddComponent<ISkinnedMeshRenderer>();
+		renderer = go->AddComponent<ISkinnedMeshRenderer>();
 		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
 	Mesh mesh = NewMesh();
 	mesh->ShareStorage(surface);
 
-	entity->AddComponent<IMeshFilter>()->SetMesh(mesh);
+	go->AddComponent<IMeshFilter>()->SetMesh(mesh);
 
 	Bounds bounds(boundses[node->mMeshes[0]]);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
@@ -166,13 +166,13 @@ void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, Su
 	mesh->SetBounds(bounds);
 }
 
-void EntityLoader::LoadChildren(Entity entity, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void GameObjectLoader::LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		LoadHierarchy(entity, node->mChildren[i], surface, subMeshes, boundses);
+		LoadHierarchy(go, node->mChildren[i], surface, subMeshes, boundses);
 	}
 }
 
-void EntityLoader::ReserveMemory(MeshAsset& meshAsset) {
+void GameObjectLoader::ReserveMemory(MeshAsset& meshAsset) {
 	int indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
@@ -187,7 +187,7 @@ void EntityLoader::ReserveMemory(MeshAsset& meshAsset) {
 	meshAsset.blendAttrs.resize(vertexCount);
 }
 
-bool EntityLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
+bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
@@ -202,14 +202,14 @@ bool EntityLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bound
 	return true;
 }
 
-bool EntityLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
+bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
 	LoadVertexAttribute(meshIndex, meshAsset, boundses);
 	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
 
 	return true;
 }
 
-void EntityLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
+void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	// SUEDE TODO: multiple texture coords?
@@ -254,7 +254,7 @@ void EntityLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Boun
 	}
 }
 
-void EntityLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = NewSkeleton(); }
@@ -287,13 +287,13 @@ void EntityLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMes
 	}
 }
 
-void EntityLoader::LoadMaterialAssets() {
+void GameObjectLoader::LoadMaterialAssets() {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
 		LoadMaterialAsset(asset_.materialAssets[i], scene_->mMaterials[i]);
 	}
 }
 
-void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
+void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
 	int aint;
 	float afloat;
 	aiString astring;
@@ -351,7 +351,7 @@ void EntityLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* m
 	}
 }
 
-void EntityLoader::LoadAnimation(Animation animation) {
+void GameObjectLoader::LoadAnimation(Animation animation) {
 	glm::mat4 rootTransform;
 	animation->SetRootTransform(AIMaterixToGLM(rootTransform, scene_->mRootNode->mTransformation.Inverse()));
 
@@ -373,14 +373,14 @@ void EntityLoader::LoadAnimation(Animation animation) {
 	animation->Play(defaultClipName);
 }
 
-void EntityLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
+void GameObjectLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapMode::Loop);
 	LoadAnimationNode(anim, scene_->mRootNode, nullptr);
 }
 
-void EntityLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
+void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
@@ -418,7 +418,7 @@ void EntityLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiN
 	}
 }
 
-const aiNodeAnim* EntityLoader::FindChannel(const aiAnimation* anim, const char* name) {
+const aiNodeAnim* GameObjectLoader::FindChannel(const aiAnimation* anim, const char* name) {
 	for (int i = 0; i < anim->mNumChannels; ++i) {
 		if (strcmp(anim->mChannels[i]->mNodeName.C_Str(), name) == 0) {
 			return anim->mChannels[i];
@@ -428,7 +428,7 @@ const aiNodeAnim* EntityLoader::FindChannel(const aiAnimation* anim, const char*
 	return nullptr;
 }
 
-TexelMap* EntityLoader::LoadTexels(const std::string& name) {
+TexelMap* GameObjectLoader::LoadTexels(const std::string& name) {
 	TexelMapContainer::iterator pos = texelMapContainer_.find(name);
 	if (pos != texelMapContainer_.end()) {
 		return pos->second;
@@ -453,11 +453,11 @@ TexelMap* EntityLoader::LoadTexels(const std::string& name) {
 	return answer;
 }
 
-bool EntityLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
+bool GameObjectLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
 	return ImageCodec::Decode(texelMap, Resources::instance()->GetTextureDirectory() + name);
 }
 
-bool EntityLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
+bool GameObjectLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	VERIFY_INDEX(index, scene_->mNumTextures, false);
 
 	aiTexture* aitex = scene_->mTextures[index];
@@ -477,7 +477,7 @@ bool EntityLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
 	return true;
 }
 
-bool EntityLoader::LoadAsset() {
+bool GameObjectLoader::LoadAsset() {
 	Assimp::Importer importer;
 	if (!Initialize(importer)) {
 		return false;
@@ -517,7 +517,7 @@ bool EntityLoader::LoadAsset() {
 	return true;
 }
 
-glm::mat4& EntityLoader::AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
+glm::mat4& GameObjectLoader::AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat) {
 	answer = glm::mat4(
 		mat.a1, mat.b1, mat.c1, mat.d1,
 		mat.a2, mat.b2, mat.c2, mat.d2,
@@ -528,12 +528,12 @@ glm::mat4& EntityLoader::AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& ma
 	return answer;
 }
 
-glm::quat& EntityLoader::AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion) {
+glm::quat& GameObjectLoader::AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion) {
 	answer = glm::quat(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
 	return answer;
 }
 
-void EntityLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat) {
+void GameObjectLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat) {
 	glm::vec3 skew;
 	glm::vec4 perspective;
 	glm::mat4 transformation;
@@ -542,33 +542,33 @@ void EntityLoader::DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation
 	rotation = glm::conjugate(rotation);
 }
 
-glm::vec3 EntityLoader::AIVector3ToGLM(const aiVector3D& vec) {
+glm::vec3 GameObjectLoader::AIVector3ToGLM(const aiVector3D& vec) {
 	return glm::vec3(vec.x, vec.y, vec.z);
 }
 
-Entity EntityLoaderThreadPool::Import(const std::string& path) {
-	Entity root = NewEntity();
+GameObject GameObjectLoaderThreadPool::Import(const std::string& path) {
+	GameObject root = NewGameObject();
 	ImportTo(root, path);
 	return root;
 }
 
-bool EntityLoaderThreadPool::ImportTo(Entity entity, const std::string& path) {
-	if (!entity) {
-		Debug::LogError("invalid entity");
+bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path) {
+	if (!go) {
+		Debug::LogError("invalid go");
 		return false;
 	}
 
-	return Execute(new EntityLoader(path, entity, this));
+	return Execute(new GameObjectLoader(path, go, this));
 }
 
-void EntityLoaderThreadPool::SetLoadedListener(EntityLoadedListener * listener) {
+void GameObjectLoaderThreadPool::SetLoadedListener(GameObjectLoadedListener * listener) {
 	listener_ = listener;
 }
 
-void EntityLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
-	EntityLoader* loader = (EntityLoader*)schedule.get();
+void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
+	GameObjectLoader* loader = (GameObjectLoader*)schedule.get();
 
-	EntityAsset asset = loader->GetEntityAsset();
+	GameObjectAsset asset = loader->GetGameObjectAsset();
 	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
 		asset.materialAssets[i].ApplyAsset();
 	}
@@ -576,6 +576,6 @@ void EntityLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	loader->GetSurface()->SetAttribute(asset.meshAsset);
 
 	if (listener_ != nullptr) {
-		listener_->OnEntityImported(loader->GetEntity(), loader->GetPath());
+		listener_->OnGameObjectImported(loader->GetGameObject(), loader->GetPath());
 	}
 }

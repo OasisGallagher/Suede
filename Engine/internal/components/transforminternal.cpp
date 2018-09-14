@@ -94,11 +94,11 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 		SetDirty(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenScales();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(2, 0);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -110,11 +110,11 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 		SetDirty(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenPositions();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(0, 0);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -128,11 +128,11 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 		SetDirty(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenRotationsAndEulerAngles();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 0);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -145,11 +145,11 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 
 		SetDirty(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 		DirtyChildrenRotationsAndEulerAngles();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 0);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -270,11 +270,11 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 		SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenScales();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(2, 1);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -285,11 +285,11 @@ void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 		local_.position = value;
 		SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 		DirtyChildrenPositions();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(0, 1);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -301,11 +301,11 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 		SetDirty(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenRotationsAndEulerAngles();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 1);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -317,11 +317,11 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 		SetDirty(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
 
 		DirtyChildrenRotationsAndEulerAngles();
-		entity_.lock()->RecalculateBounds();
+		gameObject_.lock()->RecalculateBounds();
 
-		EntityTransformChangedEventPointer e = NewWorldEvent<EntityTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
 		e->prs = Math::MakeDword(1, 1);
-		e->entity = entity_.lock();
+		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
 	}
 }
@@ -531,7 +531,7 @@ bool TransformInternal::IsNullOrRoot(Transform transform) {
 
 Transform TransformInternal::FindDirectChild(const std::string& name) {
 	for (int i = 0; i < children_.size(); ++i) {
-		if (name == children_[i]->GetEntity()->GetName()) {
+		if (name == children_[i]->GetGameObject()->GetName()) {
 			return children_[i];
 		}
 	}
@@ -551,11 +551,11 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	}
 
 	if (oldParent) {
-		oldParent->GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+		oldParent->GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}
 
 	if (newParent) {
-		newParent->GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+		newParent->GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}
 
 	parent_ = newParent;
@@ -567,8 +567,8 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	SetDirty(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
 	if (IsAttachedToScene()) {
-		EntityParentChangedEventPointer e = NewWorldEvent<EntityParentChangedEventPointer>();
-		e->entity = thisSp->GetEntity();
+		GameObjectParentChangedEventPointer e = NewWorldEvent<GameObjectParentChangedEventPointer>();
+		e->go = thisSp->GetGameObject();
 		World::instance()->FireEvent(e);
 	}
 }

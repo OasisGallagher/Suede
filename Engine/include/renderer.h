@@ -5,7 +5,7 @@
 #include "material.h"
 #include "animation.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(Entity);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
 class SUEDE_API IRenderer : virtual public IComponent {
 	RTTI_CLASS_DECLARATION(IRenderer, IComponent)

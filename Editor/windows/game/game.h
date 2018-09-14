@@ -2,19 +2,19 @@
 
 #include <QDockWidget>
 
-#include "entity.h"
 #include "camera.h"
 #include "../winbase.h"
+#include "gameobject.h"
 #include "gizmospainter.h"
 #include "frameeventlistener.h"
-#include "entityloadedlistener.h"
+#include "gameobjectloadedlistener.h"
 
 class Canvas;
 class StatsWidget;
 class ImageEffect;
 class CameraController;
 
-class Game : public QDockWidget, public WinSingleton<Game>, public GizmosPainter, public EntityLoadedListener {
+class Game : public QDockWidget, public WinSingleton<Game>, public GizmosPainter, public GameObjectLoadedListener {
 	Q_OBJECT
 
 public:
@@ -33,7 +33,7 @@ public:
 	virtual void OnDrawGizmos();
 
 public:
-	virtual void OnEntityImported(Entity root, const std::string& path);
+	virtual void OnGameObjectImported(GameObject root, const std::string& path);
 
 private slots:
 	void updateStatContent();
@@ -41,8 +41,8 @@ private slots:
 
 	void onShadingModeChanged(const QString& str);
 
-	void onFocusEntityBounds(Entity entity);
-	void onSelectionChanged(const QList<Entity>& selected, const QList<Entity>& deselected);
+	void onFocusGameObjectBounds(GameObject go);
+	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 protected:
 	virtual void wheelEvent(QWheelEvent* event);
@@ -54,17 +54,17 @@ protected:
 	virtual void timerEvent(QTimerEvent *event);
 
 protected:
-	void updateSelection(QList<Entity>& container, const QList<Entity>& selected, const QList<Entity>& deselected);
+	void updateSelection(QList<GameObject>& container, const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 private:
 	void start();
 	void createScene();
-	float calculateCameraDistanceFitsBounds(Camera camera, Entity entity);
+	float calculateCameraDistanceFitsBounds(Camera camera, GameObject go);
 
 	void updateStatPosition();
 
 private:
-	QList<Entity> selection_;
+	QList<GameObject> selection_;
 	/*RenderTexture targetTexture_;*/
 
 	QTimer* timer_;

@@ -26,69 +26,69 @@ void Hierarchy::init(Ui::Editor* ui) {
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
 	connect(ui_->tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
 
-	connect(ui->tree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onEntityDoubleClicked(const QModelIndex&)));
+	connect(ui->tree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onGameObjectDoubleClicked(const QModelIndex&)));
 }
 
 void Hierarchy::awake() {
 	World::instance()->AddEventListener(this);
 }
 
-void Hierarchy::OnEntityImported(Entity root, const std::string& path) {
+void Hierarchy::OnGameObjectImported(GameObject root, const std::string& path) {
 	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
 }
 
-Entity Hierarchy::selectedEntity() {
+GameObject Hierarchy::selectedGameObject() {
 	QModelIndex index = ui_->tree->selectionModel()->currentIndex();
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return World::instance()->GetEntity(id);
+	return World::instance()->GetGameObject(id);
 }
 
-bool Hierarchy::selectedEntities(QList<Entity>& entities) {
+bool Hierarchy::selectedEntities(QList<GameObject>& entities) {
 	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
 
 	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		entities.push_back(World::instance()->GetEntity(id));
+		entities.push_back(World::instance()->GetGameObject(id));
 	}
 
 	return !entities.empty();
 }
 
 void Hierarchy::OnWorldEvent(WorldEventBasePointer entit) {
-	EntityEventPointer eep = suede_static_cast<EntityEventPointer>(entit);
+	GameObjectEventPointer eep = suede_static_cast<GameObjectEventPointer>(entit);
 	switch (entit->GetEventType()) {
-//		case WorldEventType::EntityCreated:
-//			onEntityCreated(eep->entity);
+//		case WorldEventType::GameObjectCreated:
+//			onGameObjectCreated(eep->go);
 //			break;
-		case WorldEventType::EntityDestroyed:
-			onEntityDestroyed(eep->entity);
+		case WorldEventType::GameObjectDestroyed:
+			onGameObjectDestroyed(eep->go);
 			break;
-		case WorldEventType::EntityTagChanged:
-			onEntityTagChanged(eep->entity);
+		case WorldEventType::GameObjectTagChanged:
+			onGameObjectTagChanged(eep->go);
 			break;
-		case WorldEventType::EntityNameChanged:
-			onEntityNameChanged(eep->entity);
+		case WorldEventType::GameObjectNameChanged:
+			onGameObjectNameChanged(eep->go);
 			break;
-		case WorldEventType::EntityParentChanged:
-			onEntityParentChanged(eep->entity);
+		case WorldEventType::GameObjectParentChanged:
+			onGameObjectParentChanged(eep->go);
 			break;
-		case WorldEventType::EntityActiveChanged:
-			onEntityActiveChanged(eep->entity);
+		case WorldEventType::GameObjectActiveChanged:
+			onGameObjectActiveChanged(eep->go);
 			break;
 	}
 }
 
-void Hierarchy::onEntityCreated(Entity entity) {
-	QStandardItem* item = new QStandardItem(entity->GetName().c_str());
-	item->setData(entity->GetInstanceID());
+void Hierarchy::onGameObjectCreated(GameObject go) {
+	QStandardItem* item = new QStandardItem(go->GetName().c_str());
+	item->setData(go->GetInstanceID());
 	model_->appendRow(item);
-	items_[entity->GetInstanceID()] = item;
+	items_[go->GetInstanceID()] = item;
 }
 
-void Hierarchy::onEntityDestroyed(Entity entity) {
-	QStandardItem* item = items_.value(entity->GetInstanceID());
+void Hierarchy::onGameObjectDestroyed(GameObject go) {
+	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
 		removeItem(item);
 	}
@@ -96,37 +96,37 @@ void Hierarchy::onEntityDestroyed(Entity entity) {
 	bool contains = false;
 	for (QModelIndex index : ui_->tree->selectionModel()->selectedIndexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		if (id == entity->GetInstanceID()) {
+		if (id == go->GetInstanceID()) {
 			contains = true;
 			break;
 		}
 	}
 
 	if (contains) {
-		emit selectionChanged(QList<Entity>(), QList<Entity>({ entity }));
+		emit selectionChanged(QList<GameObject>(), QList<GameObject>({ go }));
 	}
 }
 
-void Hierarchy::onEntityTagChanged(Entity entity) {
+void Hierarchy::onGameObjectTagChanged(GameObject go) {
 }
 
-void Hierarchy::onEntityNameChanged(Entity entity) {
-	QStandardItem* item = items_.value(entity->GetInstanceID());
+void Hierarchy::onGameObjectNameChanged(GameObject go) {
+	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
-		item->setText(entity->GetName().c_str());
+		item->setText(go->GetName().c_str());
 	}
 }
 
-void Hierarchy::onEntityParentChanged(Entity entity) {
-	appendChildItem(entity);
+void Hierarchy::onGameObjectParentChanged(GameObject go) {
+	appendChildItem(go);
 }
 
-void Hierarchy::onEntityActiveChanged(Entity entity) {
-	QStandardItem* item = items_.value(entity->GetInstanceID());
+void Hierarchy::onGameObjectActiveChanged(GameObject go) {
+	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
 		static QBrush activeNameBrush(QColor(0xFFFFFF));
 		static QBrush inactiveNameBrush(QColor(0x666666));
-		item->setForeground(entity->GetActive() ? activeNameBrush : inactiveNameBrush);
+		item->setForeground(go->GetActive() ? activeNameBrush : inactiveNameBrush);
 	}
 }
 
@@ -134,14 +134,14 @@ void Hierarchy::reload() {
 	items_.clear();
 	model_->setRowCount(0);
 
-	updateRecursively(World::instance()->GetRootTransform()->GetEntity(), nullptr);
+	updateRecursively(World::instance()->GetRootTransform()->GetGameObject(), nullptr);
 }
 
-void Hierarchy::onEntityDoubleClicked(const QModelIndex& index) {
+void Hierarchy::onGameObjectDoubleClicked(const QModelIndex& index) {
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	Entity entity = World::instance()->GetEntity(id);
+	GameObject go = World::instance()->GetGameObject(id);
 
-	emit focusEntity(entity);
+	emit focusGameObject(go);
 }
 
 void Hierarchy::onTreeCustomContextMenu() {
@@ -161,25 +161,25 @@ void Hierarchy::onTreeCustomContextMenu() {
 void Hierarchy::onDeleteSelected() {
 	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
 	for (QModelIndex index : indexes) {
-		World::instance()->DestroyEntity(model_->itemFromIndex(index)->data().toUInt());
+		World::instance()->DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
 	}
 }
 
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
-	QList<Entity> ss;
+	QList<GameObject> ss;
 	selectionToEntities(ss, selected);
 	enableItemsOutline(ss, true);
 
-	QList<Entity> ds;
+	QList<GameObject> ds;
 	selectionToEntities(ds, deselected);
 	enableItemsOutline(ds, false);
 
 	emit selectionChanged(ss, ds);
 }
 
-void Hierarchy::updateRecursively(Entity entity, QStandardItem* parent) {
-	for (Transform transform : entity->GetTransform()->GetChildren()) {
-		Entity child = transform->GetEntity();
+void Hierarchy::updateRecursively(GameObject go, QStandardItem* parent) {
+	for (Transform transform : go->GetTransform()->GetChildren()) {
+		GameObject child = transform->GetGameObject();
 		QStandardItem* item = appendItem(child, parent);
 		updateRecursively(child, item);
 	}
@@ -209,17 +209,17 @@ void Hierarchy::dragEnterEvent(QDragEnterEvent* event) {
 	}
 }
 
-QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* parent) {
-	QStandardItem* item = items_.value(entity->GetInstanceID());
+QStandardItem* Hierarchy::appendItem(GameObject go, QStandardItem* parent) {
+	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
 		removeItem(item);
 		//QStandardItem* p = item->parent();
-		//items_.remove(entity->GetInstanceID());
+		//items_.remove(go->GetInstanceID());
 		//model_->removeRow(item->row(), p != nullptr ? p->index() : QModelIndex());
 	}
 
-	item = new QStandardItem(entity->GetName().c_str());
-	item->setData(entity->GetInstanceID());
+	item = new QStandardItem(go->GetName().c_str());
+	item->setData(go->GetInstanceID());
 	
 	if (parent != nullptr) {
 		parent->appendRow(item);
@@ -228,7 +228,7 @@ QStandardItem* Hierarchy::appendItem(Entity entity, QStandardItem* parent) {
 		model_->appendRow(item);
 	}
 
-	items_[entity->GetInstanceID()] = item;
+	items_[go->GetInstanceID()] = item;
 	return item;
 }
 
@@ -256,19 +256,19 @@ bool Hierarchy::dropAcceptable(const QMimeData* data) {
 	return true;
 }
 
-void Hierarchy::appendChildItem(Entity entity) {
-	Transform parent = entity->GetTransform()->GetParent();
+void Hierarchy::appendChildItem(GameObject go) {
+	Transform parent = go->GetTransform()->GetParent();
 	if (!parent) { return; }
 
 	QStandardItem* item = nullptr;
 
 	// append child node.
-	if (parent == World::instance()->GetRootTransform() || (item = items_.value(parent->GetEntity()->GetInstanceID())) != nullptr) {
-		QStandardItem* pi = appendItem(entity, item);
-		updateRecursively(entity, pi);
+	if (parent == World::instance()->GetRootTransform() || (item = items_.value(parent->GetGameObject()->GetInstanceID())) != nullptr) {
+		QStandardItem* pi = appendItem(go, item);
+		updateRecursively(go, pi);
 	}
 	// remove orphan node.
-	else if (item == nullptr && (item = items_.value(entity->GetInstanceID())) != nullptr) {
+	else if (item == nullptr && (item = items_.value(go->GetInstanceID())) != nullptr) {
 		removeItem(item);
 	}
 	//else {
@@ -277,10 +277,10 @@ void Hierarchy::appendChildItem(Entity entity) {
 	//}
 }
 
-void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
-	if (!entity) { return; }
+void Hierarchy::enableGameObjectOutline(GameObject go, bool enable) {
+	if (!go) { return; }
 
-	MeshRenderer renderer = entity->GetComponent<IMeshRenderer>();
+	MeshRenderer renderer = go->GetComponent<IMeshRenderer>();
 	if (!renderer) { return; }
 
 	for (Material material : renderer->GetMaterials()) {
@@ -296,19 +296,19 @@ void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 	}
 }
 
-void Hierarchy::selectionToEntities(QList<Entity>& entities, const QItemSelection& items) {
+void Hierarchy::selectionToEntities(QList<GameObject>& entities, const QItemSelection& items) {
 	for (QModelIndex index : items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		Entity entity = World::instance()->GetEntity(id);
-		if (entity) {
-			entities.push_back(entity);
+		GameObject go = World::instance()->GetGameObject(id);
+		if (go) {
+			entities.push_back(go);
 		}
 	}
 }
 
-void Hierarchy::enableItemsOutline(const QList<Entity>& entities, bool enable) {
-	for (Entity entity : entities) {
-		enableEntityOutline(entity, enable);
+void Hierarchy::enableItemsOutline(const QList<GameObject>& entities, bool enable) {
+	for (GameObject go : entities) {
+		enableGameObjectOutline(go, enable);
 	}
 }
 

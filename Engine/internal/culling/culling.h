@@ -4,7 +4,7 @@
 #include <ZThread/Condition.h>
 
 #include "world.h"
-#include "entity.h"
+#include "gameobject.h"
 
 class Culling;
 class CullingListener {
@@ -12,13 +12,13 @@ public:
 	virtual void OnCullingFinished() = 0;
 };
 
-class Culling : public ZThread::Runnable, public WorldEntityWalker {
+class Culling : public ZThread::Runnable, public WorldGameObjectWalker {
 public:
 	Culling(CullingListener* listener);
 	~Culling() {}
 
 public:
-	std::vector<Entity>& GetEntities() { return entities_; }
+	std::vector<GameObject>& GetEntities() { return entities_; }
 
 	void Stop();
 	bool IsWorking() { return !stopped_ && working_; }
@@ -26,13 +26,13 @@ public:
 	void Cull(const glm::mat4& worldToClipMatrix);
 
 public:
-	virtual WalkCommand OnWalkEntity(Entity entity);
+	virtual WalkCommand OnWalkGameObject(GameObject go);
 
 protected:
 	virtual void run();
 
 private:
-	bool IsVisible(Entity entity, const glm::mat4& worldToClipMatrix);
+	bool IsVisible(GameObject go, const glm::mat4& worldToClipMatrix);
 	bool FrustumCulling(const Bounds & bounds, const glm::mat4& worldToClipMatrix);
 
 private:
@@ -42,5 +42,5 @@ private:
 	bool working_, stopped_;
 	CullingListener* listener_;
 	glm::mat4 worldToClipMatrix_;
-	std::vector<Entity> entities_;
+	std::vector<GameObject> entities_;
 };

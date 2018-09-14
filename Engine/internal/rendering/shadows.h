@@ -2,8 +2,8 @@
 #include <glm/glm.hpp>
 
 #include "light.h"
-#include "entity.h"
 #include "material.h"
+#include "gameobject.h"
 #include "tools/singleton.h"
 
 class Pipeline;
