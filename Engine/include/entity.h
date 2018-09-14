@@ -1,10 +1,7 @@
 #pragma once
-#include "mesh.h"
+#include "object.h"
 #include "bounds.h"
-#include "renderer.h"
-#include "animation.h"
 #include "transform.h"
-#include "particlesystem.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 SUEDE_DECLARE_OBJECT_CREATER(Entity);
@@ -18,18 +15,12 @@ enum {
 	RecalculateBoundsFlagsAll = -1,
 };
 
-#define SUEDE_ADD_COMPONENT(entity, T)	suede_dynamic_cast<T>(entity->AddComponent(ObjectType::T))
-#define SUEDE_GET_COMPONENT(entity, T)	suede_dynamic_cast<T>(entity->GetComponent(ObjectType::T))
-
 class SUEDE_API IEntity : virtual public IObject {
 public:
 	virtual bool GetActive() const = 0;
 
 	virtual void SetActiveSelf(bool value) = 0;
 	virtual bool GetActiveSelf() const = 0;
-
-	virtual Component AddComponent(ObjectType type) = 0;
-	virtual Component GetComponent(ObjectType type) = 0;
 
 	virtual int GetUpdateStrategy() = 0;
 
@@ -50,4 +41,62 @@ public:
 	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll) = 0;
 
 	virtual void RecalculateUpdateStrategy() = 0;
+
+public:	// Component system.
+	template <class T>
+	std::shared_ptr<T> AddComponent();
+
+	template <class T> std::shared_ptr<T> GetComponent();
+	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
+
+private:
+	virtual Component AddComponentHelper(suede_typeid type) = 0;
+	virtual Component AddComponentHelper(Component component) = 0;
+
+	virtual Component GetComponentHelper(suede_typeid type) = 0;
+	virtual std::vector<Component> GetComponentsHelper(suede_typeid type) = 0;
 };
+
+template <class T>
+std::shared_ptr<T> IEntity::AddComponent() {
+	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponentHelper(std::shared_ptr<T>(new T)));
+}
+
+template <class T>
+std::shared_ptr<T> IEntity::GetComponent() {
+	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponentHelper(T::GetTypeID()));
+}
+
+template <class T>
+std::vector<std::shared_ptr<T>> IEntity::GetComponents() {
+	std::vector<std::shared_ptr<T>> components;
+	for (Component component : GetComponentsHelper(T::GetTypeID())) {
+		components.push_back(suede_dynamic_cast<std::shared_ptr<T>>(component));
+	}
+
+	return components;
+}
+
+#include "mesh.h"
+#include "light.h"
+#include "camera.h"
+#include "renderer.h"
+#include "animation.h"
+#include "particlesystem.h"
+
+#define RTTI_CLASS_SPECIALIZATION(T) \
+	template <> \
+	inline std::shared_ptr<I ## T> IEntity::AddComponent() { \
+		return suede_dynamic_cast<T>(AddComponentHelper(I ## T::GetTypeID())); \
+	}
+
+RTTI_CLASS_SPECIALIZATION(MeshFilter)
+RTTI_CLASS_SPECIALIZATION(Camera)
+RTTI_CLASS_SPECIALIZATION(MeshRenderer)
+RTTI_CLASS_SPECIALIZATION(SkinnedMeshRenderer)
+RTTI_CLASS_SPECIALIZATION(ParticleRenderer)
+RTTI_CLASS_SPECIALIZATION(Animation)
+RTTI_CLASS_SPECIALIZATION(Transform)
+RTTI_CLASS_SPECIALIZATION(PointLight)
+RTTI_CLASS_SPECIALIZATION(DirectionalLight)
+RTTI_CLASS_SPECIALIZATION(SpotLight)

@@ -6,6 +6,7 @@
 #include "light.h"
 #include "camera.h"
 #include "texture.h"
+#include "renderer.h"
 #include "projector.h"
 #include "../winbase.h"
 

@@ -178,7 +178,9 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-TextMeshInternal::TextMeshInternal() : MeshInternal(ObjectType::TextMesh), dirty_(false) {
+TextMeshInternal::TextMeshInternal() : ComponentInternal(ObjectType::TextMesh), dirty_(false) {
+	mesh_ = NewMesh();
+	mesh_->AddSubMesh(NewSubMesh());
 }
 
 TextMeshInternal::~TextMeshInternal() {
@@ -241,15 +243,11 @@ void TextMeshInternal::RebuildUnicodeTextMesh(std::wstring wtext) {
 	MeshAttribute attribute;
 	InitializeMeshAttribute(attribute, wtext);
 
-	if (GetSubMeshCount() == 0) {
-		AddSubMesh(NewSubMesh());
-	}
-
-	SubMesh subMesh = GetSubMesh(0);
+	SubMesh subMesh = mesh_->GetSubMesh(0);
 	TriangleBias bias{ attribute.indexes.size() };
 	subMesh->SetTriangleBias(bias);
 
-	SetAttribute(attribute);
+	mesh_->SetAttribute(attribute);
 }
 
 void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext) {
@@ -300,9 +298,11 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		max = glm::max(max, attribute.positions[i]);
 	}
 
-	bounds_.SetMinMax(min, max);
-	// SUEDE TODO: Get entity attached...
-	// GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	Bounds bounds;
+	bounds.SetMinMax(min, max);
+	mesh_->SetBounds(bounds);
+
+	GetEntity()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 MeshInternal::Storage::Storage() {
@@ -311,7 +311,6 @@ MeshInternal::Storage::Storage() {
 
 MeshFilterInternal::MeshFilterInternal()
 	: ComponentInternal(ObjectType::MeshFilter) {
-	mesh_ = NewMesh();
 }
 
 void MeshFilterInternal::SetMesh(Mesh value) {
@@ -321,4 +320,9 @@ void MeshFilterInternal::SetMesh(Mesh value) {
 	}
 
 	mesh_ = value;
+}
+
+Mesh MeshFilterInternal::GetMesh() {
+	if (!mesh_) { mesh_ = NewMesh(); }
+	return mesh_;
 }

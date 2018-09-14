@@ -1,10 +1,10 @@
+#include "animationinternal.h"
 
 #include <set>
 #include <algorithm>
 
 #include "time2.h"
 #include "tools/math2.h"
-#include "animationinternal.h"
 
 #define DEFAULT_TICKS_PER_SECOND	25
 

@@ -10,7 +10,7 @@ public:
 
 public:
 	virtual Object Clone();
-	virtual ObjectType GetType() { return type_; }
+	virtual ObjectType GetObjectType() { return type_; }
 	virtual uint GetInstanceID() { return id_; }
 
 public:
@@ -46,11 +46,9 @@ T ObjectInternal::InternalPtrTraits(T, U& obj) {
 #define SharedThis()		SharedThisTraits(this)
 #define InternalPtr(obj)	InternalPtrTraits(this, obj)
 
-#define DEFINE_INTERFACE(name) \
-	public: \
-		typedef name Interface;
-
 #define DEFINE_FACTORY_METHOD(name) \
-		DEFINE_INTERFACE(name) \
+	public: \
+		typedef name Interface; \
 		static Object Create() { return Factory::Create<name ## Internal>(); } \
+		static Object Create(size_t type) { return Factory::Create(type); } \
 	private:

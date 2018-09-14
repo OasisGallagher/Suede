@@ -8,6 +8,8 @@
 SUEDE_DEFINE_OBJECT_POINTER(Entity);
 
 class SUEDE_API IRenderer : virtual public IComponent {
+	RTTI_CLASS_DECLARATION(IRenderer, IComponent)
+
 public:
 	typedef SuedeEnumerable<std::vector<Material>::iterator> Enumerable;
 
@@ -27,12 +29,16 @@ public:
 };
 
 class SUEDE_API IMeshRenderer : virtual public IRenderer {
+	RTTI_CLASS_DECLARATION(IMeshRenderer, IRenderer)
 };
 
 class SUEDE_API IParticleRenderer : virtual public IRenderer {
+	RTTI_CLASS_DECLARATION(IParticleRenderer, IRenderer)
 };
 
 class SUEDE_API ISkinnedMeshRenderer : virtual public IRenderer {
+	RTTI_CLASS_DECLARATION(ISkinnedMeshRenderer, IRenderer)
+
 public:
 	virtual void SetSkeleton(Skeleton value) = 0;
 };

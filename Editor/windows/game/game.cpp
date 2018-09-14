@@ -143,7 +143,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		root->GetTransform()->SetScale(glm::vec3(0.2f));
 		//entity->SetParent(camera);
 
-		Animation animation = SUEDE_GET_COMPONENT(root, Animation);
+		Animation animation = root->AddComponent<IAnimation>();
 		if (animation) {
 			animation->SetWrapMode(AnimationWrapMode::PingPong);
 			animation->Play("");
@@ -159,7 +159,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 			Texture2D diffuse = NewTexture2D();
 			diffuse->Create("suzanne/diffuse.dds");
 			Entity target = root->GetTransform()->FindChild("suzanne_root/default")->GetEntity();
-			SUEDE_GET_COMPONENT(target, MeshRenderer)->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
+			target->GetComponent<IMeshRenderer>()->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}
@@ -168,7 +168,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -15));
 
 		Entity target = root->GetTransform()->FindChild("Sphere01")->GetEntity();
-		Material material = SUEDE_GET_COMPONENT(target, MeshRenderer)->GetMaterial(0);
+		Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
 
 		testBumped_shader = material->GetShader();
 		testBumped_material = material;
@@ -189,7 +189,7 @@ void Game::OnEntityImported(Entity root, const std::string& path) {
 
 		Entity target = root->GetTransform()->FindChild("nanosuit_root/default")->GetEntity();
 
-		for (Material material : SUEDE_GET_COMPONENT(target, MeshRenderer)->GetMaterials()) {
+		for (Material material : target->GetComponent<IMeshRenderer>()->GetMaterials()) {
 			material->SetShader(Resources::instance()->FindShader("builtin/normal_visualizer"));
 		}
 	}
@@ -310,7 +310,7 @@ void Game::createScene() {
 	Entity lightEntity = NewEntity();
 	lightEntity->SetName("light");
 
-	DirectionalLight light = SUEDE_ADD_COMPONENT(lightEntity, DirectionalLight);
+	DirectionalLight light = lightEntity->AddComponent<IDirectionalLight>();
 	light->SetColor(glm::vec3(0.7f));
 	light->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
@@ -322,7 +322,7 @@ void Game::createScene() {
 	Entity cameraEntity = NewEntity();
 	cameraEntity->SetName("camera");
 
-	Camera camera = SUEDE_ADD_COMPONENT(cameraEntity, Camera);
+	Camera camera = cameraEntity->AddComponent<ICamera>();
 	Camera::SetMain(camera);
 	camera->AddGizmosPainter(this);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());

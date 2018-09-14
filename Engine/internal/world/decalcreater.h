@@ -1,6 +1,7 @@
 #pragma once
 #include "plane.h"
 #include "camera.h"
+#include "entity.h"
 #include "projector.h"
 #include "geometryutility.h"
 #include "containers/freelist.h"

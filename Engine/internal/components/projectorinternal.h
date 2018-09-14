@@ -4,6 +4,8 @@
 #include "internal/components/componentinternal.h"
 
 class ProjectorInternal : public IProjector, public ComponentInternal, public Frustum {
+	DEFINE_FACTORY_METHOD(Projector)
+
 public:
 	ProjectorInternal();
 
@@ -34,6 +36,9 @@ public:
 	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
 
 	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
+
+public:
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 private:
 	int depth_;

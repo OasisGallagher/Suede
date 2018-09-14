@@ -9,7 +9,8 @@
 
 class Factory {
 	typedef Object (*FactoryMethod)();
-	typedef std::map<std::string, FactoryMethod> MethodDictionary;
+	typedef std::map<suede_typeid, FactoryMethod> TypeIDMethodDictionary;
+	typedef std::map<std::string, FactoryMethod> NameMethodDictionary;
 
 	Factory();
 
@@ -20,9 +21,19 @@ public:
 	}
 
 	static Object Create(const std::string& name) {
-		MethodDictionary::iterator pos = instance.methodDictionary_.find(name);
-		if (pos == instance.methodDictionary_.end()) {
+		NameMethodDictionary::iterator pos = instance.stringMethodDictionary_.find(name);
+		if (pos == instance.stringMethodDictionary_.end()) {
 			Debug::LogError("no factroy method exists for %s", name.c_str());
+			return nullptr;
+		}
+
+		return pos->second();
+	}
+
+	static Object Create(suede_typeid type) {
+		TypeIDMethodDictionary::iterator pos = instance.typeIDMethodDictionary_.find(type);
+		if (pos == instance.typeIDMethodDictionary_.end()) {
+			Debug::LogError("no factroy method exists for type %zu.", type);
 			return nullptr;
 		}
 
@@ -45,7 +56,7 @@ public:
 
 private:
 	static void AddFactoryMethod(const std::string& name, FactoryMethod method) {
-		if (!instance.methodDictionary_.insert(std::make_pair(name, method)).second) {
+		if (!instance.stringMethodDictionary_.insert(std::make_pair(name, method)).second) {
 			Debug::LogError("failed to add factroy method for %s", name.c_str());
 		}
 	}
@@ -59,7 +70,14 @@ private:
 		instance.methodArray_[(int)type] = method;
 	}
 
+	static void AddFactoryMethod(suede_typeid type, FactoryMethod method) {
+		if (!instance.typeIDMethodDictionary_.insert(std::make_pair(type, method)).second) {
+			Debug::LogError("failed to add factroy method for %zu.", type);
+		}
+	}
+
 	static Factory instance;
-	MethodDictionary methodDictionary_;
+	NameMethodDictionary stringMethodDictionary_;
+	TypeIDMethodDictionary typeIDMethodDictionary_;
 	FactoryMethod methodArray_[ObjectType::size()];
 };

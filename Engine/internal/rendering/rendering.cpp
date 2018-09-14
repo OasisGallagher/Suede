@@ -9,6 +9,7 @@
 #include "tools/math2.h"
 #include "tools/random.h"
 #include "memory/memory.h"
+#include "particlesystem.h"
 #include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/shadows.h"
@@ -242,7 +243,7 @@ void RenderableTraits::Traits(std::vector<Entity>& entities, const RenderingMatr
 
 	for (int i = 0; i < entities.size(); ++i) {
 		Entity entity = entities[i];
-		pipelines_.shadow->AddRenderable(SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh(), nullptr, 0, entity->GetTransform()->GetLocalToWorldMatrix());
+		pipelines_.shadow->AddRenderable(entity->GetComponent<IMeshFilter>()->GetMesh(), nullptr, 0, entity->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
@@ -409,8 +410,7 @@ void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
 void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<Entity>& entities_) {
 	for (int i = 0; i < entities_.size(); ++i) {
 		Entity entity = entities_[i];
-		// SUEDE TODO: Skinned mesh renderer ?
-		RenderEntity(pl, entity, SUEDE_GET_COMPONENT(entity, MeshRenderer));
+		RenderEntity(pl, entity, entity->GetComponent<IRenderer>());
 	}
 
 	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
@@ -451,7 +451,7 @@ void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material material) {
 void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer renderer) {
 	push_renderables->Start();
 
-	int subMeshCount = SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh()->GetSubMeshCount();
+	int subMeshCount = entity->GetComponent<IMeshFilter>()->GetMesh()->GetSubMeshCount();
 	int materialCount = renderer->GetMaterialCount();
 
 	if (materialCount != subMeshCount) {
@@ -480,9 +480,9 @@ void RenderableTraits::RenderEntity(Pipeline* pl, Entity entity, Renderer render
 }
 
 void RenderableTraits::RenderSubMesh(Pipeline* pl, Entity entity, int subMeshIndex, Material material, int pass) {
-	ParticleSystem p = SUEDE_GET_COMPONENT(entity, ParticleSystem);
+	ParticleSystem p = entity->GetComponent<IParticleSystem>();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(SUEDE_GET_COMPONENT(entity, MeshFilter)->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(entity->GetComponent<IMeshFilter>()->GetMesh(), subMeshIndex, material, pass, entity->GetTransform()->GetLocalToWorldMatrix(), instance);
 }
 
 void RenderableTraits::Clear() {

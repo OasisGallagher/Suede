@@ -6,6 +6,7 @@
 #include "image.h"
 #include "entity.h"
 #include "engine.h"
+#include "animation.h"
 #include "tools/noncopyable.h"
 #include "entityloadedlistener.h"
 #include "internal/async/threadpool.h"

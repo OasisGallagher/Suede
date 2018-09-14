@@ -9,6 +9,8 @@ struct Decal {
 };
 
 class SUEDE_API IProjector : virtual public IComponent {
+	RTTI_CLASS_DECLARATION(IProjector, IComponent)
+
 public:
 	virtual bool GetPerspective() const = 0;
 	virtual void SetPerspective(bool value) = 0;

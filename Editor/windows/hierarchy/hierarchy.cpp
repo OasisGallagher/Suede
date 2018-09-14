@@ -280,8 +280,7 @@ void Hierarchy::appendChildItem(Entity entity) {
 void Hierarchy::enableEntityOutline(Entity entity, bool enable) {
 	if (!entity) { return; }
 
-	// SUEDE TODO: Skinned mesh renderer...
-	MeshRenderer renderer = SUEDE_GET_COMPONENT(entity, MeshRenderer);
+	MeshRenderer renderer = entity->GetComponent<IMeshRenderer>();
 	if (!renderer) { return; }
 
 	for (Material material : renderer->GetMaterials()) {

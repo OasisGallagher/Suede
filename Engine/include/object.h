@@ -55,6 +55,6 @@ public:
 
 public:
 	virtual Object Clone() = 0;
-	virtual ObjectType GetType() = 0;
+	virtual ObjectType GetObjectType() = 0;
 	virtual uint GetInstanceID() = 0;
 };

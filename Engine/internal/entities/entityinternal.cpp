@@ -8,7 +8,8 @@
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
 #include "internal/entities/entityinternal.h"
-#include "internal/components/transforminternal.h"
+
+#define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponentHelper(I ## T::GetTypeID()))
 
 EntityInternal::EntityInternal() : EntityInternal(ObjectType::Entity) {
 }
@@ -20,7 +21,7 @@ EntityInternal::EntityInternal(ObjectType entityType)
 		Debug::LogError("invalid entity type %d.", entityType);
 	}
 
-	name_ = EntityTypeToString(GetType());
+	name_ = GetObjectType().to_string();
 }
 
 EntityInternal::~EntityInternal() {
@@ -32,9 +33,8 @@ void EntityInternal::SetActiveSelf(bool value) {
 		SetActive(activeSelf_ && GetTransform()->GetParent()->GetEntity()->GetActive());
 		UpdateChildrenActive(SharedThis());
 
-		// SUEDE TODO: Skinned mesh renderer.
-		Renderer renderer = SUEDE_GET_COMPONENT(SharedThis(), MeshRenderer);
-		MeshFilter meshFilter = SUEDE_GET_COMPONENT(SharedThis(), MeshFilter);
+		Renderer renderer = GET_COMPONENT(Renderer);
+		MeshFilter meshFilter = GET_COMPONENT(MeshFilter);
 
 		if (renderer && meshFilter && meshFilter->GetMesh() && !meshFilter->GetMesh()->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
@@ -56,22 +56,36 @@ bool EntityInternal::SetTag(const std::string& value) {
 	return true;
 }
 
-Component EntityInternal::AddComponent(ObjectType type) {
-	// SUEDE TODO: Check if component could be added...
-	if (type == ObjectType::MeshFilter) {
+Component EntityInternal::AddComponentHelper(Component component) {
+	component->SetEntity(SharedThis());
+	components_.push_back(component);
+
+	if (component->IsClassType(IMeshFilter::GetTypeID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}
 
-	// SUEDE TODO: Renderer type...
-	if (type == ObjectType::MeshRenderer || type == ObjectType::SkinnedMeshRenderer || type == ObjectType::ParticleRenderer) {
+	if (component->IsClassType(IRenderer::GetTypeID())) {
 		RecalculateBounds();
 	}
 
-	return nullptr;
+	return component;
 }
 
-Component EntityInternal::GetComponent(ObjectType type) {
-	return nullptr;
+Component EntityInternal::AddComponentHelper(suede_typeid type) {
+	if (!CheckComponentDuplicate(type)) {
+		return nullptr;
+	}
+
+	return AddComponentHelper(suede_dynamic_cast<Component>(Factory::Create(type)));
+}
+
+bool EntityInternal::CheckComponentDuplicate(suede_typeid type) {
+	if (GetComponentHelper(type)) {
+		Debug::LogError("component with type %zu already exist", type);
+		return false;
+	}
+
+	return true;
 }
 
 int EntityInternal::GetUpdateStrategy() {
@@ -95,24 +109,20 @@ void EntityInternal::CullingUpdate() {
 	if (frameCullingUpdate_ < frame) {
 		frameCullingUpdate_ = frame;
 
-		// SUEDE TODO: Update components.
-// 		if (animation_) { animation_->CullingUpdate(); }
-// 		if (mesh_) { mesh_->CullingUpdate(); }
-// 		if (particleSystem_) { particleSystem_->CullingUpdate(); }
-// 		if (renderer_) { renderer_->CullingUpdate(); }
+		for (Component component : components_) {
+			component->CullingUpdate();
+		}
 	}
 }
 
 void EntityInternal::RenderingUpdate() {
-	// SUEDE TODO: Update components.
-	//if (animation_) { animation_->RenderingUpdate(); }
-	//if (mesh_) { mesh_->RenderingUpdate(); }
-	//if (particleSystem_) { particleSystem_->RenderingUpdate(); }
-	//if (renderer_) { renderer_->RenderingUpdate(); }
+	for (Component component : components_) {
+		component->RenderingUpdate();
+	}
 }
 
 Transform EntityInternal::GetTransform() {
-	return SUEDE_GET_COMPONENT(SharedThis(), Transform);
+	return GET_COMPONENT(Transform);
 }
 
 void EntityInternal::RecalculateBounds(int flags) {
@@ -158,8 +168,29 @@ const Bounds& EntityInternal::GetBounds() {
 	return worldBounds_;
 }
 
+Component EntityInternal::GetComponentHelper(suede_typeid type) {
+	for (Component component : components_) {
+		if (component->IsClassType(type)) {
+			return component;
+		}
+	}
+
+	return nullptr;
+}
+
+std::vector<Component> EntityInternal::GetComponentsHelper(suede_typeid type) {
+	std::vector<Component> container;
+	for (Component component : components_) {
+		if (component->IsClassType(type)) {
+			container.push_back(component);
+		}
+	}
+
+	return container;
+}
+
 void EntityInternal::CalculateHierarchyBounds() {
-	if (SUEDE_GET_COMPONENT(SharedThis(), Animation)) {
+	if (GET_COMPONENT(Animation)) {
 		CalculateBonesWorldBounds();
 	}
 	else {
@@ -167,7 +198,7 @@ void EntityInternal::CalculateHierarchyBounds() {
 		boundsDirty_ = false;
 	}
 
-	ParticleSystem ps = SUEDE_GET_COMPONENT(SharedThis(), ParticleSystem);
+	ParticleSystem ps = GET_COMPONENT(ParticleSystem);
 	if (ps) {
 		worldBounds_.Encapsulate(ps->GetMaxBounds());
 		boundsDirty_ = true;
@@ -175,9 +206,8 @@ void EntityInternal::CalculateHierarchyBounds() {
 }
 
 void EntityInternal::CalculateHierarchyMeshBounds() {
-	// SUEDE TODO: Skinned mesh renderer.
-	Renderer renderer = SUEDE_GET_COMPONENT(SharedThis(), MeshRenderer);
-	MeshFilter meshFilter = SUEDE_GET_COMPONENT(SharedThis(), MeshFilter);
+	Renderer renderer = GET_COMPONENT(Renderer);
+	MeshFilter meshFilter = GET_COMPONENT(MeshFilter);
 
 	if (renderer && meshFilter && meshFilter->GetMesh() && !meshFilter->GetMesh()->GetBounds().IsEmpty()) {
 		CalculateSelfWorldBounds();
@@ -194,7 +224,7 @@ void EntityInternal::CalculateHierarchyMeshBounds() {
 
 void EntityInternal::CalculateSelfWorldBounds() {
 	std::vector<glm::vec3> points;
-	const Bounds& localBounds = SUEDE_GET_COMPONENT(SharedThis(), MeshFilter)->GetMesh()->GetBounds();
+	const Bounds& localBounds = GET_COMPONENT(MeshFilter)->GetMesh()->GetBounds();
 	GeometryUtility::GetCuboidCoordinates(points, localBounds.center, localBounds.size);
 
 	Transform transform = GetTransform();
@@ -214,7 +244,7 @@ void EntityInternal::CalculateBonesWorldBounds() {
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	
 	Bounds boneBounds;
-	Skeleton skeleton = SUEDE_GET_COMPONENT(SharedThis(), Animation)->GetSkeleton();
+	Skeleton skeleton = GET_COMPONENT(Animation)->GetSkeleton();
 	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
 
 	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
@@ -244,11 +274,9 @@ int EntityInternal::GetHierarchyUpdateStrategy(Entity root) {
 	if (!updateStrategyDirty_) { return updateStrategy_; }
 
 	int strategy = 0;
-	// SUEDE TODO: Update components.
-	//if (animation_) { strategy |= animation_->GetUpdateStrategy(); }
-	//if (mesh_) { strategy |= mesh_->GetUpdateStrategy(); }
-	//if (particleSystem_) { strategy |= particleSystem_->GetUpdateStrategy(); }
-	//if (renderer_) { strategy |= renderer_->GetUpdateStrategy(); }
+	for (Component component : components_) {
+		strategy |= component->GetUpdateStrategy();
+	}
 
 	for (Transform tr : root->GetTransform()->GetChildren()) {
 		strategy |= GetHierarchyUpdateStrategy(tr->GetEntity());

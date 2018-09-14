@@ -24,7 +24,7 @@ class CameraInternal : public ICamera
 	, public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
 	, public ScreenSizeChangedListener, public FrameEventListener {
-	DEFINE_INTERFACE(Camera)
+	DEFINE_FACTORY_METHOD(Camera)
 
 public:
 	CameraInternal();
@@ -90,6 +90,9 @@ public:
 
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height);
+
+public:
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 protected:
 	virtual void OnProjectionMatrixChanged();

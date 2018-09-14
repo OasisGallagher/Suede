@@ -33,11 +33,15 @@ private:
 };
 
 class MeshRendererInternal : public IMeshRenderer, public RendererInternal {
+	DEFINE_FACTORY_METHOD(MeshRenderer)
+
 public:
 	MeshRendererInternal() : RendererInternal(ObjectType::MeshRenderer) {}
 };
 
 class SkinnedMeshRendererInternal : public ISkinnedMeshRenderer, public RendererInternal {
+	DEFINE_FACTORY_METHOD(SkinnedMeshRenderer)
+
 public:
 	SkinnedMeshRendererInternal() : RendererInternal(ObjectType::SkinnedMeshRenderer) {}
 
@@ -50,6 +54,8 @@ private:
 };
 
 class ParticleRendererInternal : public IParticleRenderer, public RendererInternal {
+	DEFINE_FACTORY_METHOD(ParticleRenderer)
+
 public:
 	ParticleRendererInternal();
 };

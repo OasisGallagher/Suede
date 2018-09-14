@@ -6,7 +6,7 @@
 #include "internal/components/componentinternal.h"
 
 class TransformInternal : virtual public ITransform, public ComponentInternal, public DirtyBits {
-	DEFINE_INTERFACE(Transform)
+	DEFINE_FACTORY_METHOD(Transform)
 
 public:
 	static ZThread::Mutex hierarchyMutex;

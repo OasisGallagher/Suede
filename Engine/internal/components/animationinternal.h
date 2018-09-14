@@ -126,7 +126,7 @@ private:
 };
 
 class AnimationInternal : public IAnimation, public ComponentInternal {
-	DEFINE_INTERFACE(Animation)
+	DEFINE_FACTORY_METHOD(Animation)
 
 public:
 	AnimationInternal() : ComponentInternal(ObjectType::Animation), time_(0), playing_(false) {}

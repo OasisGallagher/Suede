@@ -1,5 +1,6 @@
 #include "world.h"
 #include "culling.h"
+#include "renderer.h"
 #include "statistics.h"
 #include "tools/math2.h"
 #include "geometryutility.h"
@@ -55,8 +56,7 @@ WalkCommand Culling::OnWalkEntity(Entity entity) {
 		return WalkCommand::Next;
 	}
 
-	// SUEDE TODO: Skinned mesh renderer...
-	if (SUEDE_GET_COMPONENT(entity, MeshRenderer) && SUEDE_GET_COMPONENT(entity, MeshFilter)) {
+	if (entity->GetComponent<IRenderer>() && entity->GetComponent<IMeshFilter>()) {
 		entities_.push_back(entity);
 	}
 

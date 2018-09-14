@@ -11,14 +11,14 @@ public:
 	EntityInternal();
 	~EntityInternal();
 
+protected:
+	EntityInternal(ObjectType entityType);
+
 public:
 	virtual bool GetActive() const { return active_; }
 
 	virtual void SetActiveSelf(bool value);
 	virtual bool GetActiveSelf() const { return activeSelf_; }
-
-	virtual Component AddComponent(ObjectType type);
-	virtual Component GetComponent(ObjectType type);
 
 	virtual int GetUpdateStrategy();
 
@@ -38,8 +38,12 @@ public:
 
 	virtual void RecalculateUpdateStrategy();
 
-protected:
-	EntityInternal(ObjectType entityType);
+private:
+	virtual Component AddComponentHelper(suede_typeid type);
+	virtual Component AddComponentHelper(Component component);
+
+	virtual Component GetComponentHelper(suede_typeid type);
+	virtual std::vector<Component> GetComponentsHelper(suede_typeid type);
 
 private:
 	void CalculateSelfWorldBounds();
@@ -60,6 +64,8 @@ private:
 	template <class T>
 	void FireWorldEvent(bool attachedToSceneOnly);
 
+	bool CheckComponentDuplicate(suede_typeid type);
+
 private:
 	static const char* EntityTypeToString(ObjectType type);
 
@@ -69,6 +75,8 @@ private:
 
 	std::string tag_;
 	std::string name_;
+
+	std::vector<Component> components_;
 
 	uint updateStrategy_;
 	bool updateStrategyDirty_;

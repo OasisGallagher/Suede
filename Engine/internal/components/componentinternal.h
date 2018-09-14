@@ -15,7 +15,7 @@ public:
 	virtual void SetEntity(Entity entity);
 	virtual Entity GetEntity() { return entity_.lock(); }
 
-	virtual Transform GetTransform() { return SUEDE_GET_COMPONENT(GetEntity(), Transform); }
+	virtual Transform GetTransform() { return GetEntity()->GetComponent<ITransform>(); }
 
 	virtual void CullingUpdate() {}
 	virtual void RenderingUpdate() {}

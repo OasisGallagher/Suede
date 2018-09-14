@@ -2,7 +2,8 @@
 #include <glm/glm.hpp>
 
 #include "rect.h"
-#include "entity.h"
+#include "texture.h"
+#include "component.h"
 #include "tools/enum.h"
 
 BETTER_ENUM(ClearType, int,
@@ -23,7 +24,11 @@ BETTER_ENUM(DepthTextureMode, int,
 class ImageEffect;
 class GizmosPainter;
 
+SUEDE_DEFINE_OBJECT_POINTER(Entity);
+
 class SUEDE_API ICamera : virtual public IComponent {
+	RTTI_CLASS_DECLARATION(ICamera, IComponent)
+
 public:
 	virtual void SetDepth(int value) = 0;
 	virtual int GetDepth() = 0;

@@ -1,5 +1,7 @@
 #pragma once
 
+typedef size_t suede_typeid;
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 typedef unsigned long ulong;

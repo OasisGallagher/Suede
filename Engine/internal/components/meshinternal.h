@@ -37,8 +37,6 @@ public:
 	virtual void SetBounds(const Bounds& value) { bounds_ = value; }
 	virtual const Bounds& GetBounds() const { return bounds_; }
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
-
 	virtual void Bind();
 	virtual void Unbind();
 	virtual void ShareStorage(Mesh other);
@@ -92,7 +90,7 @@ private:
 	std::shared_ptr<Storage> storage_;
 };
 
-class TextMeshInternal : public ITextMesh, public MeshInternal, public FontMaterialRebuiltListener {
+class TextMeshInternal : public ITextMesh, public ComponentInternal, public FontMaterialRebuiltListener {
 	DEFINE_FACTORY_METHOD(TextMesh)
 
 public:
@@ -127,16 +125,22 @@ private:
 	uint size_;
 	Font font_;
 	bool dirty_;
+
+	Mesh mesh_;
 	std::string text_;
 };
 
 class MeshFilterInternal : virtual public IMeshFilter, public ComponentInternal {
+	DEFINE_FACTORY_METHOD(MeshFilter)
+
 public:
 	MeshFilterInternal();
 
 public:
 	virtual void SetMesh(Mesh value);
-	virtual Mesh GetMesh() { return mesh_; }
+	virtual Mesh GetMesh();
+
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 private:
 	Mesh mesh_;

@@ -11,6 +11,8 @@ BETTER_ENUM(LightImportance, int,
 )
 
 class ILight : virtual public IComponent {
+	RTTI_CLASS_DECLARATION(ILight, IComponent)
+
 public:
 	virtual void SetImportance(LightImportance value) = 0;
 	virtual LightImportance GetImportance() = 0;
@@ -20,12 +22,17 @@ public:
 
 	virtual void SetIntensity(float value) = 0;
 	virtual float GetIntensity() = 0;
+
+	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
 };
 
 class ISpotLight : virtual public ILight {
+	RTTI_CLASS_DECLARATION(ISpotLight, ILight)
 };
 
 class IPointLight : virtual public ILight {
+	RTTI_CLASS_DECLARATION(IPointLight, ILight)
+
 public:
 	virtual void SetConstant(float value) = 0;
 	virtual float GetConstant() = 0;
@@ -38,6 +45,7 @@ public:
 };
 
 class IDirectionalLight : virtual public ILight {
+	RTTI_CLASS_DECLARATION(IDirectionalLight, ILight)
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Light);

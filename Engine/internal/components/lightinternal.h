@@ -22,11 +22,15 @@ protected:
 };
 
 class SpotLightInternal : public ISpotLight, public LightInternal {
+	DEFINE_FACTORY_METHOD(SpotLight)
+
 public:
 	SpotLightInternal() : LightInternal(ObjectType::SpotLight) {}
 };
 
 class PointLightInternal : public IPointLight, public LightInternal {
+	DEFINE_FACTORY_METHOD(PointLight)
+
 public:
 	PointLightInternal() : LightInternal(ObjectType::PointLight) {}
 
@@ -47,6 +51,8 @@ private:
 };
 
 class DirectionalLightInternal : public IDirectionalLight, public LightInternal {
+	DEFINE_FACTORY_METHOD(DirectionalLight)
+
 public:
 	DirectionalLightInternal() : LightInternal(ObjectType::DirectionalLight) {
 		intensity_ = 0.5f;

@@ -136,15 +136,17 @@ void EntityLoader::LoadComponents(Entity entity, aiNode* node, Mesh& surface, Su
 
 	Renderer renderer = nullptr;
 	if (!HasAnimation()) {
-		renderer = SUEDE_ADD_COMPONENT(entity, MeshRenderer);
+		renderer = entity->AddComponent<IMeshRenderer>();
 	}
 	else {
-		renderer = SUEDE_ADD_COMPONENT(entity, SkinnedMeshRenderer);
+		renderer = entity->AddComponent<ISkinnedMeshRenderer>();
 		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
-	Mesh mesh = SUEDE_ADD_COMPONENT(entity, Mesh);
+	Mesh mesh = NewMesh();
 	mesh->ShareStorage(surface);
+
+	entity->AddComponent<IMeshFilter>()->SetMesh(mesh);
 
 	Bounds bounds(boundses[node->mMeshes[0]]);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
@@ -509,7 +511,7 @@ bool EntityLoader::LoadAsset() {
 
 	Animation animation;
 	if (HasAnimation()) {
-		LoadAnimation(SUEDE_ADD_COMPONENT(root_, Animation));
+		LoadAnimation(root_->AddComponent<IAnimation>());
 	}
 
 	return true;

@@ -1,7 +1,8 @@
+#include "rendererinternal.h"
+
 #include <algorithm>
 
 #include "variables.h"
-#include "rendererinternal.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/pipeline.h"
 

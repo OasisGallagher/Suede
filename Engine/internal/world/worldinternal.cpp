@@ -22,7 +22,7 @@
 
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
-	ObjectType lt = lhs->GetType(), rt = rhs->GetType();
+	ObjectType lt = lhs->GetObjectType(), rt = rhs->GetObjectType();
 	if (lt != rt && (lt == ObjectType::DirectionalLight || rt == ObjectType::DirectionalLight)) {
 		return lt == ObjectType::DirectionalLight;
 	}
@@ -66,7 +66,7 @@ void WorldInternal::Initialize() {
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
 	root_ = Factory::Create<EntityInternal>();
-	root_->AddComponent(ObjectType::Transform);
+	root_->AddComponent<ITransform>();
 	root_->SetName("Root");
 }
 
@@ -121,13 +121,13 @@ void WorldInternal::DestroyEntity(Entity entity) {
 void WorldInternal::DestroyEntityRecursively(Transform root) {
 	Entity entity = root->GetEntity();
 
-	if (entity->GetType() == ObjectType::Camera) {
+	if (entity->GetObjectType() == ObjectType::Camera) {
 		cameras_.erase(suede_dynamic_cast<Camera>(entity));
 	}
-	else if (entity->GetType() == ObjectType::Projector) {
+	else if (entity->GetObjectType() == ObjectType::Projector) {
 		projectors_.erase(suede_dynamic_cast<Projector>(entity));
 	}
-	else if (entity->GetType() >= ObjectType::SpotLight && entity->GetType() <= ObjectType::DirectionalLight) {
+	else if (entity->GetObjectType() >= ObjectType::SpotLight && entity->GetObjectType() <= ObjectType::DirectionalLight) {
 		lights_.erase(suede_dynamic_cast<Light>(entity));
 	}
 
@@ -263,10 +263,10 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 }
 
 void WorldInternal::AddObject(Object object) {
-	ObjectType type = object->GetType();
+	ObjectType type = object->GetObjectType();
 	if (type >= ObjectType::Entity) {
 		Entity entity = suede_dynamic_cast<Entity>(object);
-		entity->AddComponent(ObjectType::Transform);
+		entity->AddComponent<ITransform>();
 
 		EntityCreatedEventPointer e = NewWorldEvent<EntityCreatedEventPointer>();
 		e->entity = entity;
@@ -311,6 +311,7 @@ bool WorldInternal::CollectEntities(ObjectType type, std::vector<Entity>& entiti
 		}
 	}
 	else {
+		Debug::LogError("not implemented");
 		// SUEDE TODO: Get entities of type.
 //		for (EntityDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
 //			if (ite->second->GetType() == type) {

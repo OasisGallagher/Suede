@@ -93,6 +93,8 @@ private:
 };
 
 class ParticleSystemInternal : public IParticleSystem, public ComponentInternal {
+	DEFINE_FACTORY_METHOD(ParticleSystem)
+
 public:
 	ParticleSystemInternal();
 	~ParticleSystemInternal();

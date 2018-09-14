@@ -3,6 +3,7 @@
 #include "entity.h"
 #include "texture.h"
 #include "material.h"
+#include "renderer.h"
 //#include "tools/dirtybits.h"
 #include "internal/rendering/pipeline.h"
 

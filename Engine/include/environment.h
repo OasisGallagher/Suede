@@ -1,4 +1,5 @@
 #pragma once
+#include "material.h"
 #include "tools/singleton.h"
 
 class SUEDE_API Environment : public Singleton2<Environment> {
