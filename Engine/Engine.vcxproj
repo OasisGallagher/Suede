@@ -176,6 +176,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\variant.cpp" />
     <ClCompile Include="internal\base\vertexarray.cpp" />
     <ClCompile Include="internal\components\animationinternal.cpp" />
+    <ClCompile Include="internal\components\behaviour.cpp" />
     <ClCompile Include="internal\components\camerainternal.cpp" />
     <ClCompile Include="internal\components\componentinternal.cpp" />
     <ClCompile Include="internal\components\frustum.cpp" />
@@ -189,6 +190,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\codec\image.cpp" />
     <ClCompile Include="internal\codec\shaderparser.cpp" />
     <ClCompile Include="internal\codec\gameobjectloader.cpp" />
+    <ClCompile Include="internal\gameobject\gameobjectinternal.cpp" />
     <ClCompile Include="internal\geometry\bounds.cpp" />
     <ClCompile Include="internal\geometry\bsptree.cpp" />
     <ClCompile Include="internal\geometry\geometryutility.cpp" />
@@ -201,7 +203,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\gui\imgui_draw.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
-    <ClCompile Include="internal\entities\gameobjectinternal.cpp" />
     <ClCompile Include="internal\rendering\matrixbuffer.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\rendering.cpp" />
@@ -230,6 +231,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="..\Shared\containers\sortedvector.h" />
     <ClInclude Include="..\Shared\containers\table.h" />
     <ClInclude Include="include\animation.h" />
+    <ClInclude Include="include\behaviour.h" />
     <ClInclude Include="include\bounds.h" />
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\component.h" />
@@ -302,6 +304,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\culling\culling.h" />
     <ClInclude Include="internal\codec\image.h" />
     <ClInclude Include="internal\codec\shaderparser.h" />
+    <ClInclude Include="internal\gameobject\gameobjectinternal.h" />
     <ClInclude Include="internal\geometry\bsptree.h" />
     <ClInclude Include="internal\gui\imconfig.h" />
     <ClInclude Include="internal\gui\imgui_internal.h" />
@@ -309,7 +312,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\gui\stb_textedit.h" />
     <ClInclude Include="internal\gui\stb_truetype.h" />
     <ClInclude Include="internal\memory\factory.h" />
-    <ClInclude Include="internal\entities\gameobjectinternal.h" />
     <ClInclude Include="internal\rendering\matrixbuffer.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />

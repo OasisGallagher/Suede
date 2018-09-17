@@ -6,6 +6,8 @@
 #include "time2.h"
 #include "tools/math2.h"
 
+RTTI_CLASS_DEFINITION(IAnimation, IComponent)
+
 #define DEFAULT_TICKS_PER_SECOND	25
 
 static void SetVariant(AnimationFrame frame, int id, const Variant& value);

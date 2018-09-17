@@ -1,20 +1,19 @@
 #pragma once
 #include <vector>
 
-#include "object.h"
+#include "component.h"
 
 class MainContextCommand {
 public:
 	virtual ~MainContextCommand() {}
 
 public:
-	virtual void Run() = 0;
+	virtual void run() = 0;
 };
 
 class CustomInspector {
 public:
-	virtual void onGui() = 0;
-	virtual void targetObject(Object object) = 0;
+	virtual void onGui(Component component) = 0;
 
 public:
 	virtual ~CustomInspector() {}
@@ -27,15 +26,4 @@ protected:
 
 private:
 	static std::vector<MainContextCommand*> commands_;
-};
-
-template <class T>
-class CustomInspectorT : public CustomInspector {
-public:
-	virtual void targetObject(Object object) {
-		target_ = suede_dynamic_cast<T>(object);
-	}
-
-protected:
-	T target_;
 };

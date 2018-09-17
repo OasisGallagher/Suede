@@ -43,34 +43,32 @@ public:
 	virtual void RecalculateUpdateStrategy() = 0;
 
 public:	// Component system.
-	template <class T>
-	std::shared_ptr<T> AddComponent();
-
+	template <class T> std::shared_ptr<T> AddComponent();
 	template <class T> std::shared_ptr<T> GetComponent();
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
-private:
-	virtual Component AddComponentHelper(suede_guid type) = 0;
-	virtual Component AddComponentHelper(Component component) = 0;
+public:	// Component system helper.
+	virtual Component AddComponent(suede_guid guid) = 0;
+	virtual Component AddComponent(Component component) = 0;
 
-	virtual Component GetComponentHelper(suede_guid type) = 0;
-	virtual std::vector<Component> GetComponentsHelper(suede_guid type) = 0;
+	virtual Component GetComponent(suede_guid guid) = 0;
+	virtual std::vector<Component> GetComponents(suede_guid guid) = 0;
 };
 
 template <class T>
 std::shared_ptr<T> IGameObject::AddComponent() {
-	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponentHelper(std::shared_ptr<T>(new T)));
+	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::shared_ptr<T>(new T)));
 }
 
 template <class T>
 std::shared_ptr<T> IGameObject::GetComponent() {
-	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponentHelper(T::GetTypeID()));
+	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponent(T::GetComponentGUID()));
 }
 
 template <class T>
 std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
 	std::vector<std::shared_ptr<T>> components;
-	for (Component component : GetComponentsHelper(T::GetTypeID())) {
+	for (Component component : GetComponents(T::GetComponentGUID())) {
 		components.push_back(suede_dynamic_cast<std::shared_ptr<T>>(component));
 	}
 
@@ -87,7 +85,7 @@ std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
 #define RTTI_CLASS_SPECIALIZATION(T) \
 	template <> \
 	inline std::shared_ptr<I ## T> IGameObject::AddComponent() { \
-		return suede_dynamic_cast<T>(AddComponentHelper(I ## T::GetTypeID())); \
+		return suede_dynamic_cast<T>(AddComponent(I ## T::GetComponentGUID())); \
 	}
 
 RTTI_CLASS_SPECIALIZATION(MeshFilter)

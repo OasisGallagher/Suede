@@ -3,22 +3,23 @@
 #include "transform.h"
 #include "custominspector.h"
 
-class TransformInspector : public CustomInspectorT<Transform> {
+class TransformInspector : public CustomInspector {
 public:
-	virtual void onGui() {
-		glm::vec3 v3 = target_->GetLocalPosition();
+	virtual void onGui(Component component) {
+		Transform transform = suede_dynamic_cast<Transform>(component);
+		glm::vec3 v3 = transform->GetLocalPosition();
 		if (GUI::Float3Field("P", v3)) {
-			target_->SetPosition(v3);
+			transform->SetPosition(v3);
 		}
 
-		v3 = target_->GetLocalEulerAngles();
+		v3 = transform->GetLocalEulerAngles();
 		if (GUI::Float3Field("R", v3)) {
-			target_->SetLocalEulerAngles(v3);
+			transform->SetLocalEulerAngles(v3);
 		}
 
-		v3 = target_->GetLocalScale();
+		v3 = transform->GetLocalScale();
 		if (GUI::Float3Field("S", v3)) {
-			target_->SetLocalScale(v3);
+			transform->SetLocalScale(v3);
 		}
 	}
 };

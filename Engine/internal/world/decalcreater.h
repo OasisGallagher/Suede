@@ -32,7 +32,7 @@ private:
 	void CreateDecal(DecalInfo* info);
 
 	bool CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]);
-	bool CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& entities, Plane planes[6]);
+	bool CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& gameObjects, Plane planes[6]);
 
 	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, GameObject go, Plane planes[6]);
 
@@ -47,14 +47,14 @@ template <class Projecters>
 void DecalCreater::Update(Camera camera, Projecters& projectors) {
 	decalInfos_.clear();
 
-	std::vector<GameObject> entities;
-	camera->GetVisibleEntities(entities);
+	std::vector<GameObject> gameObjects;
+	camera->GetVisibleGameObjects(gameObjects);
 
 	for (Projecters::iterator ite = projectors.begin(); ite != projectors.end(); ++ite) {
 		Projector p = *ite;
 		GeometryUtility::CalculateFrustumPlanes(planes_, p->GetProjectionMatrix() * p->GetTransform()->GetWorldToLocalMatrix());
 
-		if (!CreateProjectorDecal(camera, p, entities, planes_)) {
+		if (!CreateProjectorDecal(camera, p, gameObjects, planes_)) {
 			break;
 		}
 	}

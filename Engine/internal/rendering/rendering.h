@@ -107,7 +107,7 @@ private:
 
 private:
 	RenderingParameters* p_;
-	std::vector<GameObject> entities_;
+	std::vector<GameObject> gameObjects_;
 
 	Sample* ssaoSample;
 	Sample* ssaoTraversalSample;
@@ -125,17 +125,17 @@ public:
 
 public:
 	RenderingPipelines& GetPipelines() { return pipelines_; }
-	void Traits(std::vector<GameObject>& entities, const RenderingMatrices& matrices);
+	void Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices);
 	void Clear();
 
 private:
 	void InitializeSSAOKernel();
 
-	void ForwardRendering(Pipeline* pl, const std::vector<GameObject>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(Pipeline* pl, const std::vector<GameObject>& entities, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void DeferredRendering(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light forwardBase, const std::vector<Light>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& entities);
+	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& gameObjects);
 
 	void RenderSkybox(Pipeline* pl);
 
@@ -143,14 +143,14 @@ private:
 
 	void SSAOPass(Pipeline* pl);
 
-	void ForwardPass(Pipeline* pl, const std::vector<GameObject>& entities);
+	void ForwardPass(Pipeline* pl, const std::vector<GameObject>& gameObjects);
 	void ForwardDepthPass(Pipeline* pl);
 
 	void RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer);
 	void RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass);
 
-	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& entities, const std::vector<Light>& lights);
-	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& entities, Light light);
+	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& gameObjects, const std::vector<Light>& lights);
+	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light light);
 
 	void RenderDecals(Pipeline* pl);
 
@@ -165,5 +165,5 @@ private:
 	/*RenderingListener* listener_;*/
 
 	RenderingPipelines pipelines_;
-	Sample *push_renderables, *forward_pass, *get_renderable_entities;
+	Sample *push_renderables, *forward_pass, *get_renderable_gameObjects;
 };

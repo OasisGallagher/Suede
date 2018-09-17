@@ -36,8 +36,8 @@ void DecalCreater::GetDecals(std::vector<Decal>& container) {
 	}
 }
 
-bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& entities, Plane planes[6]) {
-	for (std::vector<GameObject>::iterator ite = entities.begin(); ite != entities.end(); ++ite) {
+bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& gameObjects, Plane planes[6]) {
+	for (std::vector<GameObject>::iterator ite = gameObjects.begin(); ite != gameObjects.end(); ++ite) {
 		GameObject go = (*ite);
 		if (go == p->GetGameObject()) { continue; }
 

@@ -12,7 +12,7 @@
 #include "internal/codec/gameObjectloader.h"
 #include "internal/rendering/matrixbuffer.h"
 #include "internal/world/environmentinternal.h"
-#include "internal/entities/gameobjectinternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
@@ -102,8 +102,8 @@ bool WorldInternal::ImportTo(GameObject go, const std::string& path, GameObjectL
 }
 
 GameObject WorldInternal::GetGameObject(uint id) {
-	GameObjectDictionary::iterator ite = entities_.find(id);
-	if (ite == entities_.end()) { return nullptr; }
+	GameObjectDictionary::iterator ite = gameObjects_.find(id);
+	if (ite == gameObjects_.end()) { return nullptr; }
 	return ite->second;
 }
 
@@ -132,7 +132,7 @@ void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 
 	// SUEDE TODO: tag go with destroyed?
 	RemoveGameObjectFromSequence(go);
-	entities_.erase(go->GetInstanceID());
+	gameObjects_.erase(go->GetInstanceID());
 	go->GetTransform()->SetParent(nullptr);
 
 	GameObjectDestroyedEventPointer e = NewWorldEvent<GameObjectDestroyedEventPointer>();
@@ -144,13 +144,32 @@ void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	}
 }
 
-bool WorldInternal::GetEntities(ObjectType type, std::vector<GameObject>& entities) {
-	if (type < ObjectType::GameObject) {
-		Debug::LogError("invalid go type");
-		return false;
+std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid) {
+	std::vector<GameObject> gameObjects;
+	if (guid == ICamera::GetComponentGUID()) {
+		for (Camera camera : cameras_) {
+			gameObjects.push_back(camera->GetGameObject());
+		}
+	}
+	else if (guid == IProjector::GetComponentGUID()) {
+		for (Projector projector : projectors_) {
+			gameObjects.push_back(projector->GetGameObject());
+		}
+	}
+	else if (IsLightComponentGUID(guid)) {
+		for (Light light : lights_) {
+			gameObjects.push_back(light->GetGameObject());
+		}
+	}
+	else {
+		for (GameObjectDictionary::iterator ite = gameObjects_.begin(); ite != gameObjects_.end(); ++ite) {
+			if (ite->second->GetComponent(guid)) {
+				gameObjects.push_back(ite->second);
+			}
+		}
 	}
 
-	return CollectEntities(type, entities);
+	return gameObjects;
 }
 
 void WorldInternal::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) {
@@ -196,7 +215,7 @@ void WorldInternal::UpdateDecals() {
 	}
 }
 
-void WorldInternal::CullingUpdateEntities() {
+void WorldInternal::CullingUpdateGameObjects() {
 	for (GameObject go : cullingUpdateSequence_) {
 		if (go->GetActive()) {
 			go->CullingUpdate();
@@ -204,7 +223,7 @@ void WorldInternal::CullingUpdateEntities() {
 	}
 }
 
-void WorldInternal::RenderingUpdateEntities() {
+void WorldInternal::RenderingUpdateGameObjects() {
 	for (GameObject go : renderingUpdateSequence_) {
 		if (go->GetActive()) {
 			go->RenderingUpdate();
@@ -251,7 +270,7 @@ void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
 			OnGameObjectParentChanged(suede_static_cast<GameObjectEventPointer>(e)->go);
 			break;
 		case WorldEventType::GameObjectUpdateStrategyChanged:
-			AddGameObjectToUpdateSequence(suede_static_cast<GameObjectEventPointer>(e)->go);
+			ManageGameObjectUpdateSequence(suede_static_cast<GameObjectEventPointer>(e)->go);
 			break;
 		case WorldEventType::GameObjectComponentChanged:
 			OnGameObjectComponentChanged(suede_static_cast<GameObjectComponentChangedEventPointer>(e));
@@ -270,57 +289,28 @@ void WorldInternal::AddObject(Object object) {
 		FireEvent(e);
 
 		ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
-		entities_.insert(std::make_pair(go->GetInstanceID(), go));
+		gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 	}
-}
-
-bool WorldInternal::CollectEntities(ObjectType type, std::vector<GameObject>& entities) {
-	if (type == ObjectType::GameObject) {
-		for (GameObjectDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-			entities.push_back(ite->second);
-		}
-	}
-	else if (type == ObjectType::Camera) {
-		for (Camera camera : cameras_) {
-			entities.push_back(camera->GetGameObject());
-		}
-	}
-	else if (type == ObjectType::Projector) {
-		for (Projector projector : projectors_) {
-			entities.push_back(projector->GetGameObject());
-		}
-	}
-	else if (type == SUEDE_ALL_LIGHTS) {
-		for (Light light : lights_) {
-			entities.push_back(light->GetGameObject());
-		}
-	}
-	else {
-		Debug::LogError("not implemented");
-		// SUEDE TODO: Get entities of type.
-//		for (GameObjectDictionary::iterator ite = entities_.begin(); ite != entities_.end(); ++ite) {
-//			if (ite->second->GetType() == type) {
-//				entities.push_back(ite->second);
-//			}
-//		}
-	}
-
-	return !entities.empty();
 }
 
 void WorldInternal::OnGameObjectParentChanged(GameObject go) {
 	if (go->GetTransform()->GetParent()) {
-		entities_.insert(std::make_pair(go->GetInstanceID(), go));
+		gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 	}
 	else {
-		entities_.erase(go->GetInstanceID());
+		gameObjects_.erase(go->GetInstanceID());
 	}
 }
 
 void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPointer e) {
+	ManageGameObjectUpdateSequence(e->go);
 	ManageGameObjectComponents(lights_, e->component, e->added);
 	ManageGameObjectComponents(cameras_, e->component, e->added);
 	ManageGameObjectComponents(projectors_, e->component, e->added);
+}
+
+bool WorldInternal::IsLightComponentGUID(suede_guid guid) {
+	return guid == ILight::GetComponentGUID() || guid == IPointLight::GetComponentGUID() || guid == IDirectionalLight::GetComponentGUID() || guid == ISpotLight::GetComponentGUID();
 }
 
 void WorldInternal::FireEvents() {
@@ -348,7 +338,7 @@ void WorldInternal::RemoveGameObjectFromSequence(GameObject go) {
 	renderingUpdateSequence_.erase(go);
 }
 
-void WorldInternal::AddGameObjectToUpdateSequence(GameObject go) {
+void WorldInternal::ManageGameObjectUpdateSequence(GameObject go) {
 	int strategy = go->GetUpdateStrategy();
 	if ((strategy & UpdateStrategyCulling) != 0) {
 		if (!cullingUpdateSequence_.contains(go)) {
@@ -370,7 +360,7 @@ void WorldInternal::AddGameObjectToUpdateSequence(GameObject go) {
 }
 
 void WorldInternal::CullingUpdate() {
-	CullingUpdateEntities();
+	CullingUpdateGameObjects();
 }
 
 void WorldInternal::RenderingUpdate() {
@@ -380,7 +370,7 @@ void WorldInternal::RenderingUpdate() {
 	// SUEDE TODO: update decals in rendering thread ?
 	UpdateDecals();
 
-	RenderingUpdateEntities();
+	RenderingUpdateGameObjects();
 
 	// SUEDE TODO: CLEAR STENCIL BUFFER.
 	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);

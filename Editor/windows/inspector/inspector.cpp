@@ -25,10 +25,6 @@ Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 
 Inspector::~Inspector() {
 	QtImGui::destroy();
-
-	for (auto p : inspectors_) {
-		delete p.second;
-	}
 }
 
 void Inspector::init(Ui::Editor* ui) {
@@ -37,17 +33,17 @@ void Inspector::init(Ui::Editor* ui) {
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
 
-	addInspector(ObjectType::Transform, new TransformInspector);
+	addInspector(ObjectType::Transform, std::make_shared<TransformInspector>());
 
-	LightInspector* lightInspector = new LightInspector;
+	auto lightInspector = std::make_shared<LightInspector>();
 	addInspector(ObjectType::PointLight, lightInspector);
 	addInspector(ObjectType::DirectionalLight, lightInspector);
 	addInspector(ObjectType::SpotLight, lightInspector);
 
-	addInspector(ObjectType::Camera, new CameraInspector);
-	addInspector(ObjectType::Projector, new ProjectorInspector);
-	addInspector(ObjectType::Mesh, new MeshInspector);
-	addInspector(ObjectType::MeshRenderer, new MeshRendererInspector);
+	addInspector(ObjectType::Camera, std::make_shared<CameraInspector>());
+	addInspector(ObjectType::Projector, std::make_shared<ProjectorInspector>());
+	addInspector(ObjectType::Mesh, std::make_shared<MeshInspector>());
+	addInspector(ObjectType::MeshRenderer, std::make_shared<MeshRendererInspector>());
 }
 
 void Inspector::awake() {
@@ -116,94 +112,19 @@ void Inspector::onSelectionChanged(const QList<GameObject>& selected, const QLis
 	else {
 		target_ = nullptr;
 	}
-
-	for (auto p : inspectors_) {
-		p.second->targetObject(target_);
-	}
 }
 
-void Inspector::addInspector(ObjectType type, CustomInspector* inspector) {
-	inspectors_.push_back(std::make_pair(type, inspector));
+void Inspector::addInspector(ObjectType type, std::shared_ptr<CustomInspector> inspector) {
+	inspectors_.insert(std::make_pair(type, inspector));
 }
 
 void Inspector::drawComponents() {
-	// SUEDE TODO: traverse components.
-	/*switch (target_->GetType()) {
-		case ObjectType::Camera:
-			drawCamera(suede_dynamic_cast<Camera>(target_));
-			break;
-		case ObjectType::Projector:
-			drawProjector(suede_dynamic_cast<Projector>(target_));
-			break;
-		case ObjectType::SpotLight:
-		case ObjectType::PointLight:
-		case ObjectType::DirectionalLight:
-			drawLight(suede_dynamic_cast<Light>(target_));
-			break;
-	}
-
-	if (target_->GetMesh()) {
-		drawMesh(target_->GetMesh());
-	}
-
-	if (target_->GetRenderer()) {
-		drawRenderer(target_->GetRenderer());
-	}*/
-}
-
-void Inspector::drawLight(Light light) {
-	GUI::Separator();
-	if (GUI::CollapsingHeader("Light")) {
-		GUI::Indent();
-		
-
-		GUI::Unindent();
-	}
-}
-
-void Inspector::drawCamera(Camera camera) {
-	if (GUI::CollapsingHeader("Camera")) {
-		GUI::Indent();
-
-		
-
-		GUI::Unindent();
-	}
-}
-
-void Inspector::drawProjector(Projector projector) {
-	GUI::Separator();
-	if (GUI::CollapsingHeader("Projector")) {
-		GUI::Indent();
-		GUI::Unindent();
-	}
-}
-
-void Inspector::drawMesh(Mesh mesh) {
-	GUI::Separator();
-	if (GUI::CollapsingHeader("Mesh")) {
-		GUI::Indent();
-		GUI::Unindent();
-	}
-}
-
-void Inspector::drawRenderer(Renderer renderer) {
-	GUI::Separator();
-	if (GUI::CollapsingHeader("Renderer")) {
-		GUI::Indent();
-		
-
-		GUI::Unindent();
-	}
-}
-
-void Inspector::drawTransform() {
-	GUI::Separator();
-	if (GUI::CollapsingHeader("Transform")) {
-		GUI::Indent();
-		
-
-		GUI::Unindent();
+	for (Component component : target_->GetComponents(0)) {
+		ObjectType type = component->GetObjectType();
+		auto pos = inspectors_.find(type);
+		if (pos != inspectors_.end()) {
+			pos->second->onGui(component);
+		}
 	}
 }
 

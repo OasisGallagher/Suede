@@ -3,34 +3,36 @@
 #include "camera.h"
 #include "custominspector.h"
 
-class CameraInspector : public CustomInspectorT<Camera> {
+class CameraInspector : public CustomInspector {
 public:
-	virtual void onGui() {
+	virtual void onGui(Component component) {
+		Camera camera = suede_dynamic_cast<Camera>(component);
+
 		int selected = -1;
-		if (GUI::EnumPopup("Clear Type", +target_->GetClearType(), selected)) {
-			target_->SetClearType(ClearType::value(selected));
+		if (GUI::EnumPopup("Clear Type", +camera->GetClearType(), selected)) {
+			camera->SetClearType(ClearType::value(selected));
 		}
 
-		if (target_->GetClearType() == ClearType::Color) {
-			glm::vec3 clearColor = target_->GetClearColor();
+		if (camera->GetClearType() == ClearType::Color) {
+			glm::vec3 clearColor = camera->GetClearColor();
 			if (GUI::Color3Field("Clear Color", clearColor)) {
-				target_->SetClearColor(clearColor);
+				camera->SetClearColor(clearColor);
 			}
 		}
 
-		float fieldOfView = Math::Degrees(target_->GetFieldOfView());
+		float fieldOfView = Math::Degrees(camera->GetFieldOfView());
 		if (GUI::Slider("FOV", &fieldOfView, 1, 179)) {
-			target_->SetFieldOfView(Math::Radians(fieldOfView));
+			camera->SetFieldOfView(Math::Radians(fieldOfView));
 		}
 
-		float nearClipPlane = target_->GetNearClipPlane();
+		float nearClipPlane = camera->GetNearClipPlane();
 		if (GUI::FloatField("Near", nearClipPlane)) {
-			target_->SetNearClipPlane(nearClipPlane);
+			camera->SetNearClipPlane(nearClipPlane);
 		}
 
-		float farClipPlane = target_->GetFarClipPlane();
+		float farClipPlane = camera->GetFarClipPlane();
 		if (GUI::FloatField("Far", farClipPlane)) {
-			target_->SetFarClipPlane(farClipPlane);
+			camera->SetFarClipPlane(farClipPlane);
 		}
 	}
 };

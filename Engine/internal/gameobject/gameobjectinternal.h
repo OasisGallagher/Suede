@@ -12,7 +12,7 @@ public:
 	~GameObjectInternal();
 
 protected:
-	GameObjectInternal(ObjectType gameObjectType);
+	GameObjectInternal(ObjectType type);
 
 public:
 	virtual bool GetActive() const { return active_; }
@@ -39,11 +39,11 @@ public:
 	virtual void RecalculateUpdateStrategy();
 
 private:
-	virtual Component AddComponentHelper(suede_guid type);
-	virtual Component AddComponentHelper(Component component);
+	virtual Component AddComponent(suede_guid guid);
+	virtual Component AddComponent(Component component);
 
-	virtual Component GetComponentHelper(suede_guid type);
-	virtual std::vector<Component> GetComponentsHelper(suede_guid type);
+	virtual Component GetComponent(suede_guid guid);
+	virtual std::vector<Component> GetComponents(suede_guid guid);
 
 private:
 	void CalculateSelfWorldBounds();
@@ -64,7 +64,7 @@ private:
 	template <class T>
 	void FireWorldEvent(bool attachedToSceneOnly);
 
-	bool CheckComponentDuplicate(suede_guid type);
+	bool CheckComponentDuplicate(suede_guid guid);
 
 private:
 	bool active_;

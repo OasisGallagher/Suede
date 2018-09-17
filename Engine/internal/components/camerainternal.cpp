@@ -16,6 +16,8 @@ static Camera main_;
 Camera Camera::GetMain() { return main_; }
 void Camera::SetMain(Camera value) { main_ = value; }
 
+RTTI_CLASS_DEFINITION(ICamera, IComponent)
+
 CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
@@ -107,11 +109,11 @@ void CameraInternal::OnCullingFinished() {
 	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 
 	{
-		ZTHREAD_LOCK_SCOPE(visibleEntitiesMutex_);
-		visibleEntities_ = culling_->GetEntities();
+		ZTHREAD_LOCK_SCOPE(visibleGameObjectsMutex_);
+		visibleGameObjects_ = culling_->GetGameObjects();
 	}
 
-	traits1_->Traits(visibleEntities_, matrices);
+	traits1_->Traits(visibleGameObjects_, matrices);
 
 	std::swap(traits0_, traits1_);
 	traitsReady_ = true;
@@ -144,9 +146,9 @@ void CameraInternal::SetRect(const Rect& value) {
 	}
 }
 
-void CameraInternal::GetVisibleEntities(std::vector<GameObject>& entities) {
-	ZTHREAD_LOCK_SCOPE(visibleEntitiesMutex_);
-	entities = visibleEntities_;
+void CameraInternal::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) {
+	ZTHREAD_LOCK_SCOPE(visibleGameObjectsMutex_);
+	gameObjects = visibleGameObjects_;
 }
 
 glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {

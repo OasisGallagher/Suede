@@ -15,7 +15,7 @@ Culling::Culling(CullingListener* listener) : cond_(mutex_), listener_(listener)
 void Culling::run() {
 	for (; !stopped_;) {
 		if (working_) {
-			entities_.clear();
+			gameObjects_.clear();
 			uint64 start = Profiler::instance()->GetTimeStamp();
 			World::instance()->CullingUpdate();
 
@@ -57,7 +57,7 @@ WalkCommand Culling::OnWalkGameObject(GameObject go) {
 	}
 
 	if (go->GetComponent<IRenderer>() && go->GetComponent<IMeshFilter>()) {
-		entities_.push_back(go);
+		gameObjects_.push_back(go);
 	}
 
 	return WalkCommand::Continue;

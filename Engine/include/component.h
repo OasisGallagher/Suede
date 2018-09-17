@@ -3,21 +3,23 @@
 
 #define SUPER_CLASS_DECLARATION() \
 public: \
-	static suede_guid GetTypeID() { return 0; } \
-	virtual bool IsClassType(suede_guid classType) const { \
-		return classType == GetTypeID(); \
+	static suede_guid GetComponentGUID() { return 0; } \
+	virtual bool IsComponentType(suede_guid classType) const { \
+		return classType == GetComponentGUID(); \
 	}
 
-// This macro must be included in the declaration of any subclass of Component.
-// It declares variables used in type checking.
-#define RTTI_CLASS_DECLARATION(classname, parentclass) \
+#define RTTI_CLASS_DECLARATION(Class, ParentClass) \
 public: \
-    static suede_guid GetTypeID() { \
-		static suede_guid type = ComponentGUID(#classname); \
-		return type; \
+    static suede_guid GetComponentGUID(); \
+    virtual bool IsComponentType(suede_guid classType) const;
+
+#define RTTI_CLASS_DEFINITION(Class, ParentClass) \
+	suede_guid Class::GetComponentGUID() { \
+		static suede_guid guid = ComponentGUID(#Class); \
+		return guid; \
 	} \
-    virtual bool IsClassType(suede_guid classType) const { \
-		return classType == classname::GetTypeID() || parentclass::IsClassType(classType); \
+    bool Class::IsComponentType(suede_guid classType) const { \
+		return classType == GetComponentGUID() || ParentClass::IsComponentType(classType); \
 	}
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
@@ -37,7 +39,7 @@ public:
 	virtual bool GetEnabled() const = 0;
 	virtual void SetEnabled(bool value) = 0;
 
-	virtual void SetGameObject(GameObject go) = 0;
+	virtual void SetGameObject(GameObject value) = 0;
 	virtual GameObject GetGameObject() = 0;
 
 	virtual Transform GetTransform() = 0;
@@ -48,5 +50,5 @@ public:
 	virtual int GetUpdateStrategy() = 0;
 
 public:
-	static suede_guid ComponentGUID(const char* classname);
+	static suede_guid ComponentGUID(const char* Class);
 };

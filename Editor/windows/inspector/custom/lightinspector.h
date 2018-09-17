@@ -2,17 +2,18 @@
 #include "light.h"
 #include "custominspector.h"
 
-class LightInspector : public CustomInspectorT<Light> {
+class LightInspector : public CustomInspector {
 public:
-	virtual void onGui() {
-		glm::vec3 color = target_->GetColor();
+	virtual void onGui(Component component) {
+		Light light = suede_dynamic_cast<Light>(component);
+		glm::vec3 color = light->GetColor();
 		if (GUI::Color3Field("Color", color)) {
-			target_->SetColor(color);
+			light->SetColor(color);
 		}
 
-		float intensity = target_->GetIntensity();
+		float intensity = light->GetIntensity();
 		if (GUI::FloatField("Intensity", intensity)) {
-			target_->SetIntensity(intensity);
+			light->SetIntensity(intensity);
 		}
 	}
 };

@@ -1,9 +1,9 @@
 #include "mesh.h"
 #include "custominspector.h"
 
-class MeshInspector : public CustomInspectorT<Mesh> {
+class MeshInspector : public CustomInspector {
 public:
-	virtual void onGui() {
+	virtual void onGui(Component component) {
 
 	}
 };

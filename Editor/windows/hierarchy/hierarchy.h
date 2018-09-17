@@ -27,7 +27,7 @@ public:
 
 public:
 	GameObject selectedGameObject();
-	bool selectedEntities(QList<GameObject>& entities);
+	bool selectedGameObjects(QList<GameObject>& gameObjects);
 	void updateRecursively(GameObject go, QStandardItem* parent);
 
 protected:
@@ -65,8 +65,8 @@ private:
 	void onGameObjectActiveChanged(GameObject go);
 
 	void enableGameObjectOutline(GameObject go, bool enable);
-	void enableItemsOutline(const QList<GameObject>& entities, bool enable);
-	void selectionToEntities(QList<GameObject>& entities, const QItemSelection& items);
+	void enableItemsOutline(const QList<GameObject>& gameObjects, bool enable);
+	void selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items);
 
 private:
 	QStandardItemModel* model_;

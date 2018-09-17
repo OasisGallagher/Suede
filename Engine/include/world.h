@@ -59,7 +59,7 @@ struct GameObjectDestroyedEvent : public GameObjectEvent {
 DEFINE_WORLD_EVENT_POINTER(GameObjectDestroyedEvent);
 
 /**
- * @warning only entities with non-null parant cound send this event.
+ * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectParentChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectParentChanged; }
@@ -68,7 +68,7 @@ struct GameObjectParentChangedEvent : public GameObjectEvent {
 DEFINE_WORLD_EVENT_POINTER(GameObjectParentChangedEvent);
 
 /**
- * @warning only entities with non-null parant cound send this event.
+ * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectActiveChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectActiveChanged; }
@@ -77,7 +77,7 @@ struct GameObjectActiveChangedEvent : public GameObjectEvent {
 DEFINE_WORLD_EVENT_POINTER(GameObjectActiveChangedEvent);
 
 /**
- * @warning only entities with non-null parant cound send this event.
+ * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectTagChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTagChanged; }
@@ -86,7 +86,7 @@ struct GameObjectTagChangedEvent : public GameObjectEvent {
 DEFINE_WORLD_EVENT_POINTER(GameObjectTagChangedEvent);
 
 /**
- * @warning only entities with non-null parant cound send this event.
+ * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectNameChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectNameChanged; }
@@ -163,7 +163,6 @@ public:
 	virtual Transform GetRootTransform() = 0;
 
 	virtual GameObject GetGameObject(uint id) = 0;
-	virtual bool GetEntities(ObjectType type, std::vector<GameObject>& entities) = 0;
 	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker) = 0;
 
 	virtual void FireEvent(WorldEventBasePointer e) = 0;
@@ -172,4 +171,18 @@ public:
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
 
 	virtual void GetDecals(std::vector<Decal>& container) = 0;
+
+public:
+	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
+	virtual std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid) = 0;
 };
+
+template <class T>
+std::vector<std::shared_ptr<T>> World::GetComponents() {
+	std::vector<std::shared_ptr<T>> components;
+	for (GameObject go : GetGameObjectsOfComponent(T::GetComponentGUID())) {
+		components.push_back(go->GetComponent<T>());
+	}
+
+	return components;
+}

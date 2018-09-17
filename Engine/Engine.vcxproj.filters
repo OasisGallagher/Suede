@@ -8,9 +8,6 @@
     <Filter Include="internal\base">
       <UniqueIdentifier>{a5ee88c7-9643-440a-be06-26cdb17cb76a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\entities">
-      <UniqueIdentifier>{4d538f95-b8fe-4e72-a8b3-49cb0475678b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\world">
       <UniqueIdentifier>{4ee632eb-cd89-478a-8f7d-9bcbe89b17e0}</UniqueIdentifier>
     </Filter>
@@ -25,12 +22,6 @@
     </Filter>
     <Filter Include="internal\world\src">
       <UniqueIdentifier>{9a204d23-73c2-48ff-8ee8-cefb02aec656}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\entities\include">
-      <UniqueIdentifier>{b1a88a82-1fde-408b-9747-4053423be3b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\entities\src">
-      <UniqueIdentifier>{f5de384c-d5da-45b8-b5d7-4fac3d034669}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{619209de-ca24-4479-bfa3-b62bea17bc96}</UniqueIdentifier>
@@ -133,6 +124,15 @@
     </Filter>
     <Filter Include="internal\gui\include">
       <UniqueIdentifier>{d38eb94f-e50c-4eb4-a03c-b4d5fa1ac575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gameobject">
+      <UniqueIdentifier>{4d538f95-b8fe-4e72-a8b3-49cb0475678b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gameobject\include">
+      <UniqueIdentifier>{b1a88a82-1fde-408b-9747-4053423be3b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="internal\gameobject\src">
+      <UniqueIdentifier>{f5de384c-d5da-45b8-b5d7-4fac3d034669}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -445,8 +445,11 @@
     <ClInclude Include="internal\codec\gameobjectloader.h">
       <Filter>internal\codec\include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\entities\gameobjectinternal.h">
-      <Filter>internal\entities\include</Filter>
+    <ClInclude Include="internal\gameobject\gameobjectinternal.h">
+      <Filter>internal\gameobject\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\behaviour.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -633,8 +636,11 @@
     <ClCompile Include="internal\codec\gameobjectloader.cpp">
       <Filter>internal\codec\src</Filter>
     </ClCompile>
-    <ClCompile Include="internal\entities\gameobjectinternal.cpp">
-      <Filter>internal\entities\src</Filter>
+    <ClCompile Include="internal\gameobject\gameobjectinternal.cpp">
+      <Filter>internal\gameobject\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\behaviour.cpp">
+      <Filter>internal\components\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

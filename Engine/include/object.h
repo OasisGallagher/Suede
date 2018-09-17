@@ -42,10 +42,11 @@ BETTER_ENUM(ObjectType, int,
 	Projector,
 	SpotLight,
 	PointLight,
-	DirectionalLight
-)
+	DirectionalLight,
 
-#define SUEDE_ALL_LIGHTS	ObjectType::size()
+	// 
+	CustomBehaviour
+)
 
 SUEDE_DEFINE_OBJECT_POINTER(Object);
 

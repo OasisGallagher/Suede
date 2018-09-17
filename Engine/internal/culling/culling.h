@@ -18,7 +18,7 @@ public:
 	~Culling() {}
 
 public:
-	std::vector<GameObject>& GetEntities() { return entities_; }
+	std::vector<GameObject>& GetGameObjects() { return gameObjects_; }
 
 	void Stop();
 	bool IsWorking() { return !stopped_ && working_; }
@@ -42,5 +42,5 @@ private:
 	bool working_, stopped_;
 	CullingListener* listener_;
 	glm::mat4 worldToClipMatrix_;
-	std::vector<GameObject> entities_;
+	std::vector<GameObject> gameObjects_;
 };

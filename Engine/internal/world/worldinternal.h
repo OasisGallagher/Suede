@@ -39,7 +39,7 @@ public:
 	virtual bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
 
 	virtual GameObject GetGameObject(uint id);
-	virtual bool GetEntities(ObjectType type, std::vector<GameObject>& entities);
+	virtual std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
 	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
@@ -58,7 +58,6 @@ public:
 
 private:
 	void AddObject(Object object);
-	bool CollectEntities(ObjectType type, std::vector<GameObject>& entities);
 
 	void OnGameObjectParentChanged(GameObject go);
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPointer e);
@@ -66,10 +65,12 @@ private:
 	template <class Container>
 	void ManageGameObjectComponents(Container& container, Component component, bool added);
 
+	bool IsLightComponentGUID(suede_guid guid);
+
 	void FireEvents();
 	void UpdateDecals();
-	void CullingUpdateEntities();
-	void RenderingUpdateEntities();
+	void CullingUpdateGameObjects();
+	void RenderingUpdateGameObjects();
 
 	void DestroyGameObjectRecursively(Transform root);
 	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
@@ -77,7 +78,7 @@ private:
 	void UpdateTimeUniformBuffer();
 
 	void RemoveGameObjectFromSequence(GameObject go);
-	void AddGameObjectToUpdateSequence(GameObject go);
+	void ManageGameObjectUpdateSequence(GameObject go);
 
 private:
 	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
@@ -107,7 +108,7 @@ private:
 	GameObjectSequence cullingUpdateSequence_;
 	GameObjectSequence renderingUpdateSequence_;
 
-	GameObjectDictionary entities_;
+	GameObjectDictionary gameObjects_;
 	EventListenerContainer listeners_;
 
 	ZThread::Mutex eventsMutex_;
@@ -121,13 +122,13 @@ template <class Container>
 void WorldInternal::ManageGameObjectComponents(Container& container, Component component, bool added) {
 	typedef Container::value_type T;
 	typedef typename T::element_type U;
-	if (component->IsClassType(U::GetTypeID())) {
-		T light = suede_dynamic_cast<T>(component);
+	if (component->IsComponentType(U::GetComponentGUID())) {
+		T target = suede_dynamic_cast<T>(component);
 		if (added) {
-			container.insert(light);
+			container.insert(target);
 		}
 		else {
-			container.erase(light);
+			container.erase(target);
 		}
 	}
 }

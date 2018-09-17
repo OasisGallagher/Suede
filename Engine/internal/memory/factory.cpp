@@ -6,7 +6,7 @@
 #include "internal/base/materialinternal.h"
 
 #include "internal/world/worldinternal.h"
-#include "internal/entities/gameobjectinternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 
 #include "internal/components/meshinternal.h"
 #include "internal/components/lightinternal.h"
@@ -24,7 +24,7 @@ Factory Factory::instance;
 	AddFactoryMethod(+ObjectType:: ## name, name ## Internal::Create)
 
 #define ADD_COMPONENT_FACTROY_METHOD(name) \
-	AddFactoryMethod(I ## name::GetTypeID(), name ## Internal::Create)
+	AddFactoryMethod(I ## name::GetComponentGUID(), name ## Internal::Create)
 
 Factory::Factory() {
 	std::fill(methodArray_, methodArray_ + ObjectType::size(), nullptr);

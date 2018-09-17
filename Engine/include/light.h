@@ -10,7 +10,7 @@ BETTER_ENUM(LightImportance, int,
 	Important
 )
 
-class ILight : virtual public IComponent {
+class SUEDE_API ILight : virtual public IComponent {
 	RTTI_CLASS_DECLARATION(ILight, IComponent)
 
 public:
@@ -26,11 +26,11 @@ public:
 	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
 };
 
-class ISpotLight : virtual public ILight {
+class SUEDE_API ISpotLight : virtual public ILight {
 	RTTI_CLASS_DECLARATION(ISpotLight, ILight)
 };
 
-class IPointLight : virtual public ILight {
+class SUEDE_API IPointLight : virtual public ILight {
 	RTTI_CLASS_DECLARATION(IPointLight, ILight)
 
 public:
@@ -44,7 +44,7 @@ public:
 	virtual float GetExp() = 0;
 };
 
-class IDirectionalLight : virtual public ILight {
+class SUEDE_API IDirectionalLight : virtual public ILight {
 	RTTI_CLASS_DECLARATION(IDirectionalLight, ILight)
 };
 

@@ -5,9 +5,9 @@
 #include "os/filesystem.h"
 #include "custominspector.h"
 
-class MeshRendererInspector : public CustomInspectorT<Renderer> {
+class MeshRendererInspector : public CustomInspector {
 public:
-	virtual void onGui();
+	virtual void onGui(Component component);
 
 private:
 	class LoadTextureCommand : public MainContextCommand {
@@ -15,7 +15,7 @@ private:
 		LoadTextureCommand(Texture2D tex, const QString& p) : texture(tex), path(p) {}
 
 	public:
-		virtual void Run() { texture->Create(path.toStdString()); }
+		virtual void run() { texture->Create(path.toStdString()); }
 
 	private:
 		QString path;

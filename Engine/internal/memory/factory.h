@@ -30,10 +30,10 @@ public:
 		return pos->second();
 	}
 
-	static Object Create(suede_guid type) {
-		TypeIDMethodDictionary::iterator pos = instance.typeIDMethodDictionary_.find(type);
+	static Object Create(suede_guid guid) {
+		TypeIDMethodDictionary::iterator pos = instance.typeIDMethodDictionary_.find(guid);
 		if (pos == instance.typeIDMethodDictionary_.end()) {
-			Debug::LogError("no factroy method exists for type %u.", type);
+			Debug::LogError("no factroy method exists for type %zu.", guid);
 			return nullptr;
 		}
 
@@ -70,9 +70,9 @@ private:
 		instance.methodArray_[(int)type] = method;
 	}
 
-	static void AddFactoryMethod(suede_guid type, FactoryMethod method) {
-		if (!instance.typeIDMethodDictionary_.insert(std::make_pair(type, method)).second) {
-			Debug::LogError("failed to add factroy method for %u.", type);
+	static void AddFactoryMethod(suede_guid guid, FactoryMethod method) {
+		if (!instance.typeIDMethodDictionary_.insert(std::make_pair(guid, method)).second) {
+			Debug::LogError("failed to add factroy method for %zu.", guid);
 		}
 	}
 

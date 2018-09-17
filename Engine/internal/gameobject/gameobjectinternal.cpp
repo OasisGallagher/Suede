@@ -7,18 +7,18 @@
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
-#include "internal/entities/gameobjectinternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 
-#define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponentHelper(I ## T::GetTypeID()))
+#define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(I ## T::GetComponentGUID()))
 
 GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
 }
 
-GameObjectInternal::GameObjectInternal(ObjectType gameObjectType)
-	: ObjectInternal(gameObjectType), active_(true),  activeSelf_(true), boundsDirty_(true)
+GameObjectInternal::GameObjectInternal(ObjectType type)
+	: ObjectInternal(type), active_(true),  activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
-	if (gameObjectType < ObjectType::GameObject || gameObjectType >= ObjectType::size()) {
-		Debug::LogError("invalid go type %d.", gameObjectType);
+	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
+		Debug::LogError("invalid go type %d.", type);
 	}
 
 	name_ = GetObjectType().to_string();
@@ -56,15 +56,15 @@ bool GameObjectInternal::SetTag(const std::string& value) {
 	return true;
 }
 
-Component GameObjectInternal::AddComponentHelper(Component component) {
+Component GameObjectInternal::AddComponent(Component component) {
 	component->SetGameObject(SharedThis());
 	components_.push_back(component);
 
-	if (component->IsClassType(IMeshFilter::GetTypeID())) {
+	if (component->IsComponentType(IMeshFilter::GetComponentGUID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}
 
-	if (component->IsClassType(IRenderer::GetTypeID())) {
+	if (component->IsComponentType(IRenderer::GetComponentGUID())) {
 		RecalculateBounds();
 	}
 
@@ -77,17 +77,17 @@ Component GameObjectInternal::AddComponentHelper(Component component) {
 	return component;
 }
 
-Component GameObjectInternal::AddComponentHelper(suede_guid type) {
-	if (!CheckComponentDuplicate(type)) {
+Component GameObjectInternal::AddComponent(suede_guid guid) {
+	if (!CheckComponentDuplicate(guid)) {
 		return nullptr;
 	}
 
-	return AddComponentHelper(suede_dynamic_cast<Component>(Factory::Create(type)));
+	return AddComponent(suede_dynamic_cast<Component>(Factory::Create(guid)));
 }
 
-bool GameObjectInternal::CheckComponentDuplicate(suede_guid type) {
-	if (GetComponentHelper(type)) {
-		Debug::LogError("component with type %u already exist", type);
+bool GameObjectInternal::CheckComponentDuplicate(suede_guid guid) {
+	if (GetComponent(guid)) {
+		Debug::LogError("component with type %u already exist", guid);
 		return false;
 	}
 
@@ -174,9 +174,9 @@ const Bounds& GameObjectInternal::GetBounds() {
 	return worldBounds_;
 }
 
-Component GameObjectInternal::GetComponentHelper(suede_guid type) {
+Component GameObjectInternal::GetComponent(suede_guid guid) {
 	for (Component component : components_) {
-		if (component->IsClassType(type)) {
+		if (component->IsComponentType(guid)) {
 			return component;
 		}
 	}
@@ -184,10 +184,10 @@ Component GameObjectInternal::GetComponentHelper(suede_guid type) {
 	return nullptr;
 }
 
-std::vector<Component> GameObjectInternal::GetComponentsHelper(suede_guid type) {
+std::vector<Component> GameObjectInternal::GetComponents(suede_guid guid) {
 	std::vector<Component> container;
 	for (Component component : components_) {
-		if (component->IsClassType(type)) {
+		if (component->IsComponentType(guid)) {
 			container.push_back(component);
 		}
 	}

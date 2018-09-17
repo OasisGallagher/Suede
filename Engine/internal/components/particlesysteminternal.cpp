@@ -7,6 +7,8 @@
 #include "tools/random.h"
 #include "particlesysteminternal.h"
 
+RTTI_CLASS_DEFINITION(IParticleSystem, IComponent)
+
 static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 
 #define MAX_PARTICLE_COUNT	1000

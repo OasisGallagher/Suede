@@ -45,15 +45,15 @@ GameObject Hierarchy::selectedGameObject() {
 	return World::instance()->GetGameObject(id);
 }
 
-bool Hierarchy::selectedEntities(QList<GameObject>& entities) {
+bool Hierarchy::selectedGameObjects(QList<GameObject>& gameObjects) {
 	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
 
 	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		entities.push_back(World::instance()->GetGameObject(id));
+		gameObjects.push_back(World::instance()->GetGameObject(id));
 	}
 
-	return !entities.empty();
+	return !gameObjects.empty();
 }
 
 void Hierarchy::OnWorldEvent(WorldEventBasePointer entit) {
@@ -167,11 +167,11 @@ void Hierarchy::onDeleteSelected() {
 
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	QList<GameObject> ss;
-	selectionToEntities(ss, selected);
+	selectionToGameObjects(ss, selected);
 	enableItemsOutline(ss, true);
 
 	QList<GameObject> ds;
-	selectionToEntities(ds, deselected);
+	selectionToGameObjects(ds, deselected);
 	enableItemsOutline(ds, false);
 
 	emit selectionChanged(ss, ds);
@@ -296,18 +296,18 @@ void Hierarchy::enableGameObjectOutline(GameObject go, bool enable) {
 	}
 }
 
-void Hierarchy::selectionToEntities(QList<GameObject>& entities, const QItemSelection& items) {
+void Hierarchy::selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items) {
 	for (QModelIndex index : items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
 		GameObject go = World::instance()->GetGameObject(id);
 		if (go) {
-			entities.push_back(go);
+			gameObjects.push_back(go);
 		}
 	}
 }
 
-void Hierarchy::enableItemsOutline(const QList<GameObject>& entities, bool enable) {
-	for (GameObject go : entities) {
+void Hierarchy::enableItemsOutline(const QList<GameObject>& gameObjects, bool enable) {
+	for (GameObject go : gameObjects) {
 		enableGameObjectOutline(go, enable);
 	}
 }

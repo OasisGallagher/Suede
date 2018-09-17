@@ -4,6 +4,9 @@
 #include "meshinternal.h"
 #include "internal/base/vertexattrib.h"
 
+RTTI_CLASS_DEFINITION(ITextMesh, IComponent)
+RTTI_CLASS_DEFINITION(IMeshFilter, IComponent)
+
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 }
 

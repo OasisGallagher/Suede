@@ -25,32 +25,22 @@ public:
 	virtual void awake();
 	virtual void tick();
 
-
 private slots:
 	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 private:
 	void onGui();
-
 	void drawGui();
 
-	void addInspector(ObjectType type, CustomInspector* inspector);
+	void addInspector(ObjectType type, std::shared_ptr<CustomInspector> inspector);
 
 	void drawBasics();
 	void drawTags();
-	void drawTransform();
 	void drawComponents();
-
-	void drawLight(Light light);
-	void drawCamera(Camera camera);
-	void drawProjector(Projector projector);
-
-	void drawMesh(Mesh mesh);
-	void drawRenderer(Renderer renderer);
 
 private:
 	GameObject target_;
 	QGLWidget* view_;
 
-	std::vector<std::pair<ObjectType, CustomInspector*>> inspectors_;
+	std::map<ObjectType, std::shared_ptr<CustomInspector>> inspectors_;
 };

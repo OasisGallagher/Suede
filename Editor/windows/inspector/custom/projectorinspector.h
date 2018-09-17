@@ -1,9 +1,9 @@
 #include "projector.h"
 #include "custominspector.h"
 
-class ProjectorInspector : public CustomInspectorT<Projector> {
+class ProjectorInspector : public CustomInspector {
 public:
-	virtual void onGui() {
+	virtual void onGui(Component component) {
 
 	}
 };

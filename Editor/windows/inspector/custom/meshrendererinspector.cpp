@@ -5,8 +5,8 @@
 #include "resources.h"
 
 
-void MeshRendererInspector::onGui() {
-	for (Material material : target_->GetMaterials()) {
+void MeshRendererInspector::onGui(Component component) {
+	for (Material material : suede_dynamic_cast<Renderer>(component)->GetMaterials()) {
 		drawMaterial(material);
 	}
 }

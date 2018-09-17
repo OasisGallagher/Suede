@@ -8,7 +8,7 @@ void CustomInspector::addMainContextCommand(MainContextCommand* command) {
 
 void CustomInspector::runMainContextCommands() {
 	for (MainContextCommand* cmd : commands_) {
-		cmd->Run();
+		cmd->run();
 		delete cmd;
 	}
 
