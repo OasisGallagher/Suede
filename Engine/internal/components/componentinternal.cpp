@@ -1,9 +1,8 @@
 #include "componentinternal.h"
 
-suede_guid IComponent::ComponentGUID(const char* classname) {
+suede_guid IComponent::ClassNameToGUID(const char* className) {
 	static suede_guid id = 0;
 	return ++id;
-	/*return std::hash<std::string>()(classname);*/
 }
 
 void ComponentInternal::SetGameObject(GameObject go) {

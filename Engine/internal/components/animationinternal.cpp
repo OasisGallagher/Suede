@@ -6,7 +6,7 @@
 #include "time2.h"
 #include "tools/math2.h"
 
-RTTI_CLASS_DEFINITION(IAnimation, IComponent)
+SUEDE_DEFINE_COMPONENT(IAnimation, IComponent)
 
 #define DEFAULT_TICKS_PER_SECOND	25
 

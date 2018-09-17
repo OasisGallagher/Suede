@@ -11,7 +11,7 @@ BETTER_ENUM(LightImportance, int,
 )
 
 class SUEDE_API ILight : virtual public IComponent {
-	RTTI_CLASS_DECLARATION(ILight, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetImportance(LightImportance value) = 0;
@@ -27,11 +27,11 @@ public:
 };
 
 class SUEDE_API ISpotLight : virtual public ILight {
-	RTTI_CLASS_DECLARATION(ISpotLight, ILight)
+	SUEDE_DECLARE_COMPONENT()
 };
 
 class SUEDE_API IPointLight : virtual public ILight {
-	RTTI_CLASS_DECLARATION(IPointLight, ILight)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetConstant(float value) = 0;
@@ -45,7 +45,7 @@ public:
 };
 
 class SUEDE_API IDirectionalLight : virtual public ILight {
-	RTTI_CLASS_DECLARATION(IDirectionalLight, ILight)
+	SUEDE_DECLARE_COMPONENT()
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Light);

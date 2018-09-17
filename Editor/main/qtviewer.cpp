@@ -6,25 +6,27 @@
 #include "prefs.h"
 #include "editor.h"
 
+QString QtViewer::defaultSkin("Default");
+
 QMap<QString, QString> QtViewer::skinResources({
-	std::make_pair("Default", ""),
+	std::make_pair(defaultSkin, ""),
 	std::make_pair("Dark",":/qss/style"),
 });
 
 QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv) {
-	//QSplashScreen* splash = new QSplashScreen;
-	//splash->setPixmap(QPixmap(":/images/splash"));
-	//splash->show();
+	QSplashScreen* splash = new QSplashScreen;
+	splash->setPixmap(QPixmap(":/images/splash"));
+	splash->show();
 
-	//app_.processEvents();
+	app_.processEvents();
 
 	setupRegistry();
 
 	setSkin(skinName());
 	setupEditor();
 
-	//splash->finish(editor_);
-	//delete splash;
+	splash->finish(editor_);
+	delete splash;
 }
 
 QtViewer::~QtViewer() {
@@ -41,7 +43,7 @@ QList<QString> QtViewer::builtinSkinNames() {
 }
 
 QString QtViewer::skinName() {
-	return Prefs::instance()->load("skin").toString();
+	return Prefs::instance()->load("skin", defaultSkin).toString();
 }
 
 bool QtViewer::setSkin(const QString& name) {

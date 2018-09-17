@@ -4,11 +4,14 @@
 class BehaviourImpl;
 
 class SUEDE_API Behaviour : public IComponent {
-	RTTI_CLASS_DECLARATION(Behaviour, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	Behaviour();
 	virtual ~Behaviour();
+
+public:
+	virtual void Update() {}
 
 public:
 	virtual bool GetEnabled() const final;
@@ -27,10 +30,6 @@ public:
 
 	virtual ObjectType GetObjectType() final;
 	virtual uint GetInstanceID() final;
-
-public:
-	virtual void Awake() {}
-	virtual void Update() {}
 
 private:
 	BehaviourImpl* impl;

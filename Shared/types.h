@@ -5,7 +5,7 @@ typedef unsigned char uchar;
 typedef unsigned long ulong;
 typedef unsigned long long uint64;
 
-typedef size_t suede_guid;
+typedef uint suede_guid;
 
 #ifdef SUEDE_EXPORT
 #define SUEDE_API __declspec(dllexport)

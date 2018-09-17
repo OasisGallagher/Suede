@@ -16,7 +16,7 @@ static Camera main_;
 Camera Camera::GetMain() { return main_; }
 void Camera::SetMain(Camera value) { main_ = value; }
 
-RTTI_CLASS_DEFINITION(ICamera, IComponent)
+SUEDE_DEFINE_COMPONENT(ICamera, IComponent)
 
 CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)

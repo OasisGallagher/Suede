@@ -70,7 +70,7 @@ public:
 };
 
 class SUEDE_API IParticleSystem : virtual public IComponent {
-	RTTI_CLASS_DECLARATION(IParticleSystem, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetDuration(float value) = 0;

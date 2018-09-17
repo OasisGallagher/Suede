@@ -3,7 +3,7 @@
 #include "debug/debug.h"
 #include "componentinternal.h"
 
-RTTI_CLASS_DEFINITION(Behaviour, IComponent)
+SUEDE_DEFINE_COMPONENT(Behaviour, IComponent)
 
 class BehaviourImpl : public ComponentInternal {
 public:

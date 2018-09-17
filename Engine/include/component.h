@@ -1,21 +1,14 @@
 #pragma once
 #include "object.h"
 
-#define SUPER_CLASS_DECLARATION() \
-public: \
-	static suede_guid GetComponentGUID() { return 0; } \
-	virtual bool IsComponentType(suede_guid classType) const { \
-		return classType == GetComponentGUID(); \
-	}
-
-#define RTTI_CLASS_DECLARATION(Class, ParentClass) \
+#define SUEDE_DECLARE_COMPONENT() \
 public: \
     static suede_guid GetComponentGUID(); \
     virtual bool IsComponentType(suede_guid classType) const;
 
-#define RTTI_CLASS_DEFINITION(Class, ParentClass) \
+#define SUEDE_DEFINE_COMPONENT(Class, ParentClass) \
 	suede_guid Class::GetComponentGUID() { \
-		static suede_guid guid = ComponentGUID(#Class); \
+		static suede_guid guid = ClassNameToGUID(#Class); \
 		return guid; \
 	} \
     bool Class::IsComponentType(suede_guid classType) const { \
@@ -33,8 +26,6 @@ enum {
 };
 
 class SUEDE_API IComponent : virtual public IObject {
-	SUPER_CLASS_DECLARATION()
-
 public:
 	virtual bool GetEnabled() const = 0;
 	virtual void SetEnabled(bool value) = 0;
@@ -50,5 +41,9 @@ public:
 	virtual int GetUpdateStrategy() = 0;
 
 public:
-	static suede_guid ComponentGUID(const char* Class);
+	static suede_guid ClassNameToGUID(const char* className);
+
+public:
+	static suede_guid GetComponentGUID() { return 0; }
+	virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID(); }
 };

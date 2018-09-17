@@ -133,7 +133,7 @@ public:
 };
 
 class SUEDE_API IAnimation : virtual public IComponent {
-	RTTI_CLASS_DECLARATION(IAnimation, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void AddClip(const std::string& name, AnimationClip value) = 0;

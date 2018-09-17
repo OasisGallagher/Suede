@@ -7,7 +7,7 @@
 #include "tools/random.h"
 #include "particlesysteminternal.h"
 
-RTTI_CLASS_DEFINITION(IParticleSystem, IComponent)
+SUEDE_DEFINE_COMPONENT(IParticleSystem, IComponent)
 
 static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 

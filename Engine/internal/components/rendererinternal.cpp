@@ -6,10 +6,10 @@
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/pipeline.h"
 
-RTTI_CLASS_DEFINITION(IRenderer, IComponent)
-RTTI_CLASS_DEFINITION(IMeshRenderer, IRenderer)
-RTTI_CLASS_DEFINITION(IParticleRenderer, IRenderer)
-RTTI_CLASS_DEFINITION(ISkinnedMeshRenderer, IRenderer)
+SUEDE_DEFINE_COMPONENT(IRenderer, IComponent)
+SUEDE_DEFINE_COMPONENT(IMeshRenderer, IRenderer)
+SUEDE_DEFINE_COMPONENT(IParticleRenderer, IRenderer)
+SUEDE_DEFINE_COMPONENT(ISkinnedMeshRenderer, IRenderer)
 
 RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
 }

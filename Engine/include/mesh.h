@@ -114,7 +114,7 @@ public:
 SUEDE_DECLARE_OBJECT_CREATER(Mesh);
 
 class SUEDE_API ITextMesh : virtual public IComponent {
-	RTTI_CLASS_DECLARATION(ITextMesh, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetText(const std::string& value) = 0;
@@ -131,7 +131,7 @@ SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
 SUEDE_DECLARE_OBJECT_CREATER(TextMesh);
 
 class SUEDE_API IMeshFilter : virtual public IComponent {
-	RTTI_CLASS_DECLARATION(IMeshFilter, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetMesh(Mesh value) = 0;

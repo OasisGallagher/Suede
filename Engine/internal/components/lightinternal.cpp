@@ -1,6 +1,6 @@
 #include "lightinternal.h"
 
-RTTI_CLASS_DEFINITION(ILight, IComponent)
-RTTI_CLASS_DEFINITION(IPointLight, ILight)
-RTTI_CLASS_DEFINITION(IDirectionalLight, ILight)
-RTTI_CLASS_DEFINITION(ISpotLight, ILight)
+SUEDE_DEFINE_COMPONENT(ILight, IComponent)
+SUEDE_DEFINE_COMPONENT(IPointLight, ILight)
+SUEDE_DEFINE_COMPONENT(IDirectionalLight, ILight)
+SUEDE_DEFINE_COMPONENT(ISpotLight, ILight)

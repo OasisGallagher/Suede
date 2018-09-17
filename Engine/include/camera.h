@@ -27,7 +27,7 @@ class GizmosPainter;
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
 class SUEDE_API ICamera : virtual public IComponent {
-	RTTI_CLASS_DECLARATION(ICamera, IComponent)
+	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetDepth(int value) = 0;
