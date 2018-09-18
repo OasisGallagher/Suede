@@ -20,6 +20,7 @@
 #include "gizmos.h"
 #include "texture.h"
 #include "projector.h"
+#include "behaviour.h"
 #include "variables.h"
 #include "statistics.h"
 #include "tagmanager.h"
@@ -33,7 +34,7 @@
 #include "scripts/cameracontroller.h"
 
 //#define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
@@ -301,6 +302,9 @@ void Game::updateStatContent() {
  	}
 }
 
+#include <QMetaProperty>
+#include "testbehaviour.h"
+
 void Game::createScene() {
 	Environment::instance()->SetFogColor(glm::vec3(0.5f));
 	Environment::instance()->SetFogDensity(0);
@@ -321,6 +325,9 @@ void Game::createScene() {
 
 	GameObject cameraGameObject = NewGameObject();
 	cameraGameObject->SetName("camera");
+
+	std::shared_ptr<TestBehaviour> hehaviour = cameraGameObject->AddComponent<TestBehaviour>();
+	hehaviour->setSuedeObject(std::make_shared<ISuedeObject>());
 
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
 	Camera::SetMain(camera);

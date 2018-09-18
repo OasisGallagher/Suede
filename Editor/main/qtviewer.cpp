@@ -14,9 +14,9 @@ QMap<QString, QString> QtViewer::skinResources({
 });
 
 QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv) {
-	QSplashScreen* splash = new QSplashScreen;
-	splash->setPixmap(QPixmap(":/images/splash"));
-	splash->show();
+// 	QSplashScreen* splash = new QSplashScreen;
+// 	splash->setPixmap(QPixmap(":/images/splash"));
+// 	splash->show();
 
 	app_.processEvents();
 
@@ -25,8 +25,8 @@ QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(a
 	setSkin(skinName());
 	setupEditor();
 
-	splash->finish(editor_);
-	delete splash;
+// 	splash->finish(editor_);
+// 	delete splash;
 }
 
 QtViewer::~QtViewer() {

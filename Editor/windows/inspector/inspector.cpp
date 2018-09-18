@@ -118,13 +118,55 @@ void Inspector::addInspector(ObjectType type, std::shared_ptr<CustomInspector> i
 	inspectors_.insert(std::make_pair(type, inspector));
 }
 
+#include <QMetaProperty>
+#include "../game/testbehaviour.h"
+#include "custom/componentmetaobject.h"
+
 void Inspector::drawComponents() {
 	for (Component component : target_->GetComponents(0)) {
 		ObjectType type = component->GetObjectType();
-		auto pos = inspectors_.find(type);
-		if (pos != inspectors_.end()) {
-			pos->second->onGui(component);
+		QObject* object = nullptr;
+		if (type != ObjectType::CustomBehaviour) {
+			if (type == ObjectType::Camera) {
+				CameraMetaObject* cmo = new CameraMetaObject;
+				cmo->setComponent(component);
+				object = cmo;
+			}
 		}
+		else {
+			object = dynamic_cast<QObject*>(component.get());
+		}
+
+		if (object == nullptr) { continue; }
+
+		const QMetaObject* meta = object->metaObject();
+		for (int i = 0; i < meta->propertyCount(); ++i) {
+			QMetaProperty p = meta->property(i);
+			const char* n = p.name();
+			if (strcmp(n, "objectName") == 0) { continue; }
+			if (p.type() != QMetaType::User) {
+				if (p.type() == QMetaType::Float) {
+					float f = object->property(n).toFloat();
+					f = 0;
+				}
+			}
+			else {
+				int userType = p.userType();
+				if (userType == QMetaTypeId<SuedeObject>::qt_metatype_id()) {
+					SuedeObject obj = object->property(n).value<SuedeObject>();
+					obj->name = "meta_suede";
+				}
+				else if (userType == QMetaTypeId<ClearType>::qt_metatype_id()) {
+					ClearType type = object->property(n).value<ClearType>();
+					type = ClearType::Color;
+				}
+			}
+		}
+
+		//auto pos = inspectors_.find(type);
+		//if (pos != inspectors_.end()) {
+		//	pos->second->onGui(component);
+		//}
 	}
 }
 

@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "rect.h"
 #include "camera.h"
+#include "tools/math2.h"
 #include "custominspector.h"
 
 class CameraInspector : public CustomInspector {
