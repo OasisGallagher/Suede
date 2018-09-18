@@ -25,14 +25,25 @@ protected:
 	T target;
 };
 
-#define SUEDE_PROPERTY(type, name)	Q_PROPERTY(type name READ Get ## name WRITE Set ## name) \
-	type Get ## name() { return target->Get ## name(); } \
-	void Set ## name(type value) { target->Set ## name(value); }
+#define SUEDE_NAMED_PROPERTY(type, name, property)	Q_PROPERTY(type name READ Get ## property WRITE Set ## property) \
+	type Get ## property() { return target->Get ## property(); } \
+	void Set ## property(type value) { target->Set ## property(value); }
+
+#define SUEDE_PROPERTY(type, name)	SUEDE_NAMED_PROPERTY(type, name, name)
 
 Q_DECLARE_METATYPE(Color)
 Q_DECLARE_METATYPE(glm::vec2)
 Q_DECLARE_METATYPE(glm::vec3)
 Q_DECLARE_METATYPE(glm::vec4)
+
+#include "transform.h"
+
+class TransformMetaObject : public ComponentMetaObjectT<Transform> {
+	Q_OBJECT
+	SUEDE_NAMED_PROPERTY(glm::vec3, Position, LocalPosition)
+	SUEDE_NAMED_PROPERTY(glm::vec3, Rotation, LocalEulerAngles)
+	SUEDE_NAMED_PROPERTY(glm::vec3, Scale, LocalScale)
+};
 
 #include "camera.h"
 
@@ -69,3 +80,9 @@ class LightMetaObject : public ComponentMetaObjectT<Light> {
 };
 
 Q_DECLARE_METATYPE(LightImportance)
+
+#include "renderer.h"
+
+class MeshRendererMetaObject : public ComponentMetaObjectT<MeshRenderer> {
+
+};

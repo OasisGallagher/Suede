@@ -10,6 +10,8 @@
 #include "projector.h"
 #include "../winbase.h"
 
+#include "custom/componentmetaobject.h"
+
 class CustomInspector;
 
 class FileEntry;
@@ -32,15 +34,21 @@ private:
 	void onGui();
 	void drawGui();
 
-	void addInspector(ObjectType type, std::shared_ptr<CustomInspector> inspector);
+	QObject* componentMetaObject(Component component, std::string& typeName);
+	void addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo);
 
 	void drawBasics();
 	void drawTags();
 	void drawComponents();
 
+	void drawMetaObject(QObject* object);
+
+	void drawUserType(QMetaProperty &p, QObject* object, const char* name);
+	void drawBuiltinType(QMetaProperty &p, QObject* object, const char* name);
+
 private:
 	GameObject target_;
 	QGLWidget* view_;
 
-	std::map<ObjectType, std::shared_ptr<CustomInspector>> inspectors_;
+	std::map<ObjectType, std::shared_ptr<ComponentMetaObject>> suedeMetaObjects_;
 };

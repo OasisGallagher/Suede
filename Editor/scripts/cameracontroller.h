@@ -1,14 +1,32 @@
 #pragma once
 #include "transform.h"
+#include "behaviour.h"
+
 #include <QMouseEvent>
 
-class CameraController {
+class CameraController : public QObject, public Behaviour {
+	Q_OBJECT
+	Q_PROPERTY(glm::vec3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
+	Q_PROPERTY(glm::vec2 OrientSpeed READ orientSpeed WRITE setOrientSpeed)
+	Q_PROPERTY(glm::vec2 RotateSpeed READ rotateSpeed WRITE setRotateSpeed)
+
 public:
 	CameraController(QWidget* view);
 
 public:
-	void setCamera(Transform value);
+	glm::vec3 moveSpeed() { return moveSpeed_; }
+	void setMoveSpeed(const glm::vec3& value) { moveSpeed_ = value; }
 
+	glm::vec2 orientSpeed() { return orientSpeed_; }
+	void setOrientSpeed(const glm::vec2& value) { orientSpeed_ = value; }
+
+	glm::vec2 rotateSpeed() { return rotateSpeed_; }
+	void setRotateSpeed(const glm::vec2& value) { rotateSpeed_ = value; }
+
+public:
+	void Awake() { camera_ = GetTransform(); }
+
+public:
 	void onMouseWheel(int delta);
 	void onMouseMove(const QPoint& pos);
 
@@ -29,7 +47,7 @@ private:
 
 	QWidget* view_;
 
+	glm::vec3 moveSpeed_;
 	glm::vec2 orientSpeed_;
 	glm::vec2 rotateSpeed_;
-	glm::vec3 moveSpeed_;
 };

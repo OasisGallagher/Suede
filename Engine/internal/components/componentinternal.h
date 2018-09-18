@@ -9,6 +9,8 @@ public:
 	ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {}
 
 public:
+	virtual void Awake() {}
+
 	virtual bool GetEnabled() const { return enabled_; }
 	virtual void SetEnabled(bool value) { enabled_ = value; }
 

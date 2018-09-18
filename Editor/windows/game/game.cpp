@@ -59,16 +59,13 @@ Material testBumped_material;
 
 #define FPS_UPDATE_INTERVAL		800
 
-Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullptr) {
-	controller_ = new CameraController(this);
+Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullptr), controller_(nullptr) {
 }
 
 Game::~Game() {
 	delete grayscale_;
 	delete inversion_;
 	delete gaussianBlur_;
-
-	delete controller_;
 }
 
 Canvas* Game::canvas() {
@@ -303,7 +300,6 @@ void Game::updateStatContent() {
 }
 
 #include <QMetaProperty>
-#include "testbehaviour.h"
 
 void Game::createScene() {
 	Environment::instance()->SetFogColor(glm::vec3(0.5f));
@@ -326,15 +322,12 @@ void Game::createScene() {
 	GameObject cameraGameObject = NewGameObject();
 	cameraGameObject->SetName("camera");
 
-	std::shared_ptr<TestBehaviour> hehaviour = cameraGameObject->AddComponent<TestBehaviour>();
-	hehaviour->setSuedeObject(std::make_shared<ISuedeObject>());
-
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
 	Camera::SetMain(camera);
 	camera->AddGizmosPainter(this);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
-	controller_->setCamera(camera->GetTransform());
+	controller_ = cameraGameObject->AddComponent<CameraController>(this).get();
 
 #ifdef PROJECTOR
 	Projector projector = NewProjector();

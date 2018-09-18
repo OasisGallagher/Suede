@@ -429,12 +429,6 @@
     <ClCompile Include="windows\inspector\custom\custominspector.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_testbehaviour.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_testbehaviour.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_texturefield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -445,6 +439,12 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_componentmetaobject.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_cameracontroller.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_cameracontroller.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
@@ -548,35 +548,20 @@
     <CustomBuild Include="ui\statswidget.ui">
       <Filter>ui</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\camerainspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\inspector\custom\custominspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\lightinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\meshinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\projectorinspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\inspector\custom\meshrendererinspector.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\game\testbehaviour.h">
-      <Filter>windows\game\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\inspector\custom\componentmetaobject.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="scripts\cameracontroller.h">
+      <Filter>scripts\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="scripts\cameracontroller.h">
-      <Filter>scripts\include</Filter>
-    </ClInclude>
     <ClInclude Include="scripts\grayscale.h">
       <Filter>scripts\include</Filter>
     </ClInclude>
@@ -612,9 +597,6 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="windows\inspector\custom\transforminspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -43,7 +43,8 @@ public:
 	virtual void RecalculateUpdateStrategy() = 0;
 
 public:	// Component system.
-	template <class T> std::shared_ptr<T> AddComponent();
+	template <class T, class... Args> 
+	std::shared_ptr<T> AddComponent(Args... args);
 	template <class T> std::shared_ptr<T> GetComponent();
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
@@ -55,9 +56,9 @@ public:	// Component system helper.
 	virtual std::vector<Component> GetComponents(suede_guid guid) = 0;
 };
 
-template <class T>
-std::shared_ptr<T> IGameObject::AddComponent() {
-	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::shared_ptr<T>(new T)));
+template <class T, class... Args>
+std::shared_ptr<T> IGameObject::AddComponent(Args... args) {
+	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::make_shared<T>(args...)));
 }
 
 template <class T>

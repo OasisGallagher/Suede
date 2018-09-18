@@ -60,6 +60,8 @@ Component GameObjectInternal::AddComponent(Component component) {
 	component->SetGameObject(SharedThis());
 	components_.push_back(component);
 
+	component->Awake();
+
 	if (component->IsComponentType(IMeshFilter::GetComponentGUID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}

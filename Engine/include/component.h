@@ -27,6 +27,8 @@ enum {
 
 class SUEDE_API IComponent : virtual public IObject {
 public:
+	virtual void Awake() = 0;
+
 	virtual bool GetEnabled() const = 0;
 	virtual void SetEnabled(bool value) = 0;
 

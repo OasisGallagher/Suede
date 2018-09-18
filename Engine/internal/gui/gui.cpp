@@ -78,8 +78,8 @@ bool GUI::ImageButton(const char* title, uint texture) {
 	return clicked;
 }
 
-bool GUI::Toggle(const char* title, bool* v) {
-	return ImGui::Checkbox(title, v);
+bool GUI::Toggle(const char* title, bool& v) {
+	return ImGui::Checkbox(title, &v);
 }
 
 void GUI::Sameline() {
@@ -148,6 +148,10 @@ bool GUI::MaskPopup(const char* title, int mask, const char* items_) {
 
 bool GUI::Slider(const char* title, float* v, float min, float max) {
 	return ImGui::SliderFloat(title, v, min, max);
+}
+
+bool GUI::IntField(const char* title, int& v) {
+	return ImGui::DragInt(title, &v);
 }
 
 bool GUI::FloatField(const char* title, float& v) {

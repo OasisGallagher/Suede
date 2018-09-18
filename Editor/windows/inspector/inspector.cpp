@@ -3,6 +3,7 @@
 #include <gl/glew.h>
 
 #include <QFileDialog>
+#include <QMetaProperty>
 
 #include "gui.h"
 #include "ui_editor.h"
@@ -12,12 +13,6 @@
 #include "tools/math2.h"
 #include "os/filesystem.h"
 #include "gui/qtimgui/QtImGui.h"
-
-#include "custom/meshinspector.h"
-#include "custom/lightinspector.h"
-#include "custom/camerainspector.h"
-#include "custom/transforminspector.h"
-#include "custom/projectorinspector.h"
 #include "custom/meshrendererinspector.h"
 
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
@@ -33,17 +28,17 @@ void Inspector::init(Ui::Editor* ui) {
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
 
-	addInspector(ObjectType::Transform, std::make_shared<TransformInspector>());
+	addSuedeMetaObject(ObjectType::Transform, std::make_shared<TransformMetaObject>());
 
-	auto lightInspector = std::make_shared<LightInspector>();
-	addInspector(ObjectType::PointLight, lightInspector);
-	addInspector(ObjectType::DirectionalLight, lightInspector);
-	addInspector(ObjectType::SpotLight, lightInspector);
+	auto lightMetaObject = std::make_shared<LightMetaObject>();
+	addSuedeMetaObject(ObjectType::PointLight, lightMetaObject);
+	addSuedeMetaObject(ObjectType::DirectionalLight, lightMetaObject);
+	addSuedeMetaObject(ObjectType::SpotLight, lightMetaObject);
 
-	addInspector(ObjectType::Camera, std::make_shared<CameraInspector>());
-	addInspector(ObjectType::Projector, std::make_shared<ProjectorInspector>());
-	addInspector(ObjectType::Mesh, std::make_shared<MeshInspector>());
-	addInspector(ObjectType::MeshRenderer, std::make_shared<MeshRendererInspector>());
+	addSuedeMetaObject(ObjectType::Camera, std::make_shared<CameraMetaObject>());
+	//addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorInspector>());
+	//addSuedeMetaObject(ObjectType::Mesh, std::make_shared<MeshInspector>());
+	//addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<RendererMetaObject>());
 }
 
 void Inspector::awake() {
@@ -90,7 +85,7 @@ void Inspector::drawGui() {
 
 void Inspector::drawBasics() {
 	bool active = target_->GetActive();
-	if (GUI::Toggle("Active", &active)) {
+	if (GUI::Toggle("Active", active)) {
 		target_->SetActiveSelf(active);
 	}
 
@@ -114,64 +109,35 @@ void Inspector::onSelectionChanged(const QList<GameObject>& selected, const QLis
 	}
 }
 
-void Inspector::addInspector(ObjectType type, std::shared_ptr<CustomInspector> inspector) {
-	inspectors_.insert(std::make_pair(type, inspector));
+void Inspector::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo) {
+	suedeMetaObjects_.insert(std::make_pair(type, mo));
 }
 
-#include <QMetaProperty>
-#include "../game/testbehaviour.h"
-#include "custom/componentmetaobject.h"
-
 void Inspector::drawComponents() {
+	GUI::Indent();
 	for (Component component : target_->GetComponents(0)) {
-		ObjectType type = component->GetObjectType();
-		QObject* object = nullptr;
-		if (type != ObjectType::CustomBehaviour) {
-			if (type == ObjectType::Camera) {
-				CameraMetaObject* cmo = new CameraMetaObject;
-				cmo->setComponent(component);
-				object = cmo;
-			}
-		}
-		else {
-			object = dynamic_cast<QObject*>(component.get());
+		std::string typeName;
+		QObject* object = componentMetaObject(component, typeName);
+		if (object == nullptr) {
+			continue;
 		}
 
-		if (object == nullptr) { continue; }
+		bool enabled = component->GetEnabled();
 
-		const QMetaObject* meta = object->metaObject();
-		for (int i = 0; i < meta->propertyCount(); ++i) {
-			QMetaProperty p = meta->property(i);
-			const char* n = p.name();
-			if (strcmp(n, "objectName") == 0) { continue; }
-			if (p.type() != QMetaType::User) {
-				if (p.type() == QMetaType::Float) {
-					float f = object->property(n).toFloat();
-					f = 0;
-				}
-			}
-			else {
-				int userType = p.userType();
-				if (userType == QMetaTypeId<SuedeObject>::qt_metatype_id()) {
-					SuedeObject obj = object->property(n).value<SuedeObject>();
-					obj->name = "meta_suede";
-				}
-				else if (userType == QMetaTypeId<ClearType>::qt_metatype_id()) {
-					ClearType type = object->property(n).value<ClearType>();
-					type = ClearType::Color;
-				}
-				else if (userType == QMetaTypeId<Color>::qt_metatype_id()) {
-					Color color = object->property(n).value<Color>();
-					color = Color::black;
-				}
-			}
+		if (GUI::Toggle(("##" + typeName).c_str(), enabled)) {
+			component->SetEnabled(enabled);
 		}
 
-		//auto pos = inspectors_.find(type);
-		//if (pos != inspectors_.end()) {
-		//	pos->second->onGui(component);
-		//}
+		GUI::Sameline();
+
+		if (GUI::CollapsingHeader(typeName.c_str())) {
+			GUI::Indent();
+			drawMetaObject(object);
+			GUI::Unindent();
+		}
 	}
+
+	GUI::Unindent();
 }
 
 void Inspector::drawTags() {
@@ -182,4 +148,89 @@ void Inspector::drawTags() {
 	if (GUI::Popup("Tag", &selected, tags.begin(), tags.end())) {
 		target_->SetTag(tags[selected]);
 	}
+}
+
+void Inspector::drawMetaObject(QObject* object) {
+	const QMetaObject* meta = object->metaObject();
+	for (int i = 0; i < meta->propertyCount(); ++i) {
+		QMetaProperty p = meta->property(i);
+		const char* name = p.name();
+		if (strcmp(name, "objectName") == 0) { continue; }
+		if (p.type() != QMetaType::User) {
+			drawBuiltinType(p, object, name);
+		}
+		else {
+			drawUserType(p, object, name);
+		}
+	}
+}
+
+void Inspector::drawBuiltinType(QMetaProperty &p, QObject* object, const char* name) {
+	if (p.type() == QMetaType::Float) {
+		float f = object->property(name).toFloat();
+		if (GUI::FloatField(name, f)) {
+			object->setProperty(name, f);
+		}
+	}
+	else if (p.type() == QMetaType::Int) {
+		int i = object->property(name).toInt();
+		if (GUI::IntField(name, i)) {
+			object->setProperty(name, i);
+		}
+	}
+}
+
+void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name) {
+	int userType = p.userType();
+	if (userType == QMetaTypeId<glm::vec2>::qt_metatype_id()) {
+		glm::vec2 v2 = object->property(name).value<glm::vec2>();
+		if (GUI::Float2Field(name, v2)) {
+			object->setProperty(name, QVariant::fromValue(v2));
+		}
+	}
+	else if (userType == QMetaTypeId<glm::vec3>::qt_metatype_id()) {
+		glm::vec3 v3 = object->property(name).value<glm::vec3>();
+		if (GUI::Float3Field(name, v3)) {
+			object->setProperty(name, QVariant::fromValue(v3));
+		}
+	}
+	else if (userType == QMetaTypeId<glm::vec4>::qt_metatype_id()) {
+		glm::vec4 v4 = object->property(name).value<glm::vec4>();
+		if (GUI::Float4Field(name, v4)) {
+			object->setProperty(name, QVariant::fromValue(v4));
+		}
+	}
+	else if (userType == QMetaTypeId<ClearType>::qt_metatype_id()) {
+		int selected = -1;
+		ClearType type = object->property(name).value<ClearType>();
+		if (GUI::EnumPopup(name, +type, selected)) {
+			object->setProperty(name, QVariant::fromValue(ClearType::value(selected)));
+		}
+	}
+	else if (userType == QMetaTypeId<Color>::qt_metatype_id()) {
+		Color color = object->property(name).value<Color>();
+		if (GUI::ColorField(name, color)) {
+			object->setProperty(name, QVariant::fromValue(color));
+		}
+	}
+}
+
+QObject* Inspector::componentMetaObject(Component component, std::string& typeName) {
+	QObject* object = nullptr;
+	ObjectType type = component->GetObjectType();
+	if (type != ObjectType::CustomBehaviour) {
+		auto pos = suedeMetaObjects_.find(type);
+		if (pos != suedeMetaObjects_.end()) {
+			pos->second->setComponent(component);
+			object = pos->second.get();
+		}
+
+		typeName = type.to_string();
+	}
+	else {
+		object = dynamic_cast<QObject*>(component.get());
+		typeName = object->metaObject()->className();
+	}
+
+	return object;
 }

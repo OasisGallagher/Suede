@@ -29,7 +29,7 @@ public:
 	static void Indent(float v = 4);
 	static void Unindent(float v = 4);
 
-	static bool Toggle(const char* title, bool* v);
+	static bool Toggle(const char* title, bool& v);
 
 	template <class T>
 	static bool EnumPopup(const char* title, T value, int& selected);
@@ -47,6 +47,8 @@ public:
 	static bool EnumMaskPopup(const char* title, T value);
 
 	static bool Slider(const char* title, float* v, float min, float max);
+
+	static bool IntField(const char* title, int& v);
 
 	static bool FloatField(const char* title, float& v);
 	static bool Float2Field(const char* title, glm::vec2& v);

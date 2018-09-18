@@ -1,4 +1,6 @@
-Properties { }
+Properties {
+	color _MainColor;
+}
 
 SubShader {
 	Pass {

@@ -11,6 +11,7 @@ public:
 	virtual ~Behaviour();
 
 public:
+	virtual void Awake() {}
 	virtual void Update() {}
 
 public:

@@ -14,10 +14,6 @@ CameraController::CameraController(QWidget* view) :
 	, orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
 }
 
-void CameraController::setCamera(Transform value) {
-	camera_ = value;
-}
-
 void CameraController::onMouseWheel(int delta) {
 	glm::vec3 fwd = camera_->GetForward();
 	camera_->SetPosition(camera_->GetPosition() + fwd * moveSpeed_.z * (float)delta);
