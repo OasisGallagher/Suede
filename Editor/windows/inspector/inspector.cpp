@@ -160,6 +160,10 @@ void Inspector::drawComponents() {
 					ClearType type = object->property(n).value<ClearType>();
 					type = ClearType::Color;
 				}
+				else if (userType == QMetaTypeId<Color>::qt_metatype_id()) {
+					Color color = object->property(n).value<Color>();
+					color = Color::black;
+				}
 			}
 		}
 

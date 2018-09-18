@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "rect.h"
+#include "color.h"
 #include "object.h"
 #include "tools/enum.h"
 
@@ -111,7 +112,7 @@ public:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height) = 0;
 
 	virtual void Resize(uint width, uint height) = 0;
-	virtual void Clear(const Rect& normalizedRect, const glm::vec4& value) = 0;
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth) = 0;
 
 	virtual void BindWrite(const Rect& normalizedRect) = 0;
 };

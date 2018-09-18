@@ -30,8 +30,7 @@ private:
 
 	void drawFloat(Material material, const Property* p);
 	void drawTexture(Material material, const Property* p);
-	void drawColor3(Material material, const Property* p);
-	void drawColor4(Material material, const Property* p);
+	void drawColor(Material material, const Property* p);
 	void drawVector3(Material material, const Property* p);
 	void drawVector4(Material material, const Property* p);
 };

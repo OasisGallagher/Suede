@@ -445,16 +445,10 @@ void ShaderParser::ReadVec4(SyntaxNode* node, Property* property) {
 	property->value.SetVector4(value);
 }
 
-void ShaderParser::ReadColor3(SyntaxNode * node, Property * property) {
-	glm::vec3 value;
-	ReadSingle3(value, node);
-	property->value.SetColor3(value);
-}
-
-void ShaderParser::ReadColor4(SyntaxNode * node, Property * property) {
-	glm::vec4 value;
-	ReadSingle4(value, node);
-	property->value.SetColor4(value);
+void ShaderParser::ReadColor(SyntaxNode * node, Property * property) {
+	Color value = Color::black;
+	ReadSingle4(*(glm::vec4*)&value, node);
+	property->value.SetColor(value);
 }
 
 void ShaderParser::ReadTex2(SyntaxNode* node, Property* property) {
@@ -497,11 +491,8 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	else if (ns == "Vec4") {
 		ReadVec4(node, property);
 	}
-	else if (ns == "Color3") {
-		ReadColor3(node, property);
-	}
-	else if (ns == "Color4") {
-		ReadColor4(node, property);
+	else if (ns == "Color") {
+		ReadColor(node, property);
 	}
 	else if (ns == "Tex2") {
 		ReadTex2(node, property);

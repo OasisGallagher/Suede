@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include "color.h"
 #include "object.h"
 #include "shader.h"
 #include "variant.h"
@@ -49,8 +50,7 @@ public:
 	virtual void SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) = 0;
 	virtual void SetVector3(const std::string& name, const glm::vec3& value) = 0;
 	virtual void SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count) = 0;
-	virtual void SetColor3(const std::string& name, const glm::vec3& value) = 0;
-	virtual void SetColor4(const std::string& name, const glm::vec4& value) = 0;
+	virtual void SetColor(const std::string& name, const Color& value) = 0;
 	virtual void SetVector4(const std::string& name, const glm::vec4& value) = 0;
 	virtual void SetVariant(const std::string& name, const Variant& value) = 0;
 
@@ -60,8 +60,7 @@ public:
 	virtual Texture GetTexture(const std::string& name) = 0;
 	virtual glm::mat4 GetMatrix4(const std::string& name) = 0;
 	virtual glm::vec3 GetVector3(const std::string& name) = 0;
-	virtual glm::vec3 GetColor3(const std::string& name) = 0;
-	virtual glm::vec4 GetColor4(const std::string& name) = 0;
+	virtual Color GetColor(const std::string& name) = 0;
 	virtual glm::vec4 GetVector4(const std::string& name) = 0;
 
 	virtual void GetProperties(std::vector<const Property*>& properties) const = 0;

@@ -15,8 +15,8 @@ public:
 		}
 
 		if (camera->GetClearType() == ClearType::Color) {
-			glm::vec3 clearColor = camera->GetClearColor();
-			if (GUI::Color3Field("Clear Color", clearColor)) {
+			Color clearColor = camera->GetClearColor();
+			if (GUI::ColorField("Clear Color", clearColor)) {
 				camera->SetClearColor(clearColor);
 			}
 		}

@@ -66,8 +66,8 @@ public:
 	void SetViewport(uint x, uint y, uint width, uint height);
 	const glm::uvec4& GetViewport() const { return viewport_; }
 
-	void SetClearColor(const glm::vec3& value) { clearColor_ = value; }
-	glm::vec3 GetClearColor() const { return clearColor_; }
+	void SetClearColor(const Color& value) { clearColor_ = value; }
+	Color GetClearColor() const { return clearColor_; }
 
 	void SetClearDepth(float value) { clearDepth_ = value; }
 	float GetClearDepth() const { return clearDepth_; }
@@ -98,7 +98,7 @@ protected:
 
 	float clearDepth_;
 	int clearStencil_;
-	glm::vec3 clearColor_;
+	Color clearColor_;
 
 private:
 	GLint oldFramebuffer_;

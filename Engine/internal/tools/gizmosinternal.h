@@ -13,8 +13,8 @@ public:
 public:
 	virtual void Flush();
 
-	virtual glm::vec3 GetColor() { return color_; }
-	virtual void SetColor(const glm::vec3& value) { color_ = value; }
+	virtual Color GetColor() { return color_; }
+	virtual void SetColor(const Color& value) { color_ = value; }
 	
 	virtual void DrawLines(const glm::vec3* points, uint npoints);
 	virtual void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
@@ -33,7 +33,7 @@ private:
 		MeshTopology topology;
 
 		bool wireframe;
-		glm::vec3 color;
+		Color color;
 		Material material;
 
 		std::vector<uint> indexes;
@@ -57,6 +57,6 @@ private:
 
 	Material lineMaterial_;
 
-	glm::vec3 color_;
+	Color color_;
 	std::vector<Batch> batches_;
 };

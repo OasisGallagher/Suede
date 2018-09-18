@@ -74,17 +74,10 @@ void MaterialInternal::SetVector3Array(const std::string& name, const glm::vec3*
 	}
 }
 
-void MaterialInternal::SetColor3(const std::string& name, const glm::vec3& value) {
-	Variant* var = GetProperty(name, VariantType::Color3);
-	if (var != nullptr && var->GetColor3() != value) {
-		var->SetColor3(value);
-	}
-}
-
-void MaterialInternal::SetColor4(const std::string& name, const glm::vec4& value) {
-	Variant* var = GetProperty(name, VariantType::Color4);
-	if (var != nullptr && var->GetColor4() != value) {
-		var->SetColor4(value);
+void MaterialInternal::SetColor(const std::string& name, const Color& value) {
+	Variant* var = GetProperty(name, VariantType::Color);
+	if (var != nullptr && var->GetColor() != value) {
+		var->SetColor(value);
 	}
 }
 
@@ -163,22 +156,13 @@ glm::vec3 MaterialInternal::GetVector3(const std::string& name) {
 	return var->GetVector3();
 }
 
-glm::vec3 MaterialInternal::GetColor3(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::Color3);
+Color MaterialInternal::GetColor(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantType::Color);
 	if (var == nullptr) {
-		return glm::vec3(0);
+		return Color::black;
 	}
 
-	return var->GetColor3();
-}
-
-glm::vec4 MaterialInternal::GetColor4(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::Color4);
-	if (var == nullptr) {
-		return glm::vec4(0);
-	}
-
-	return var->GetColor4();
+	return var->GetColor();
 }
 
 glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
@@ -448,11 +432,8 @@ void MaterialInternal::SetVariant(const std::string& name, const Variant& value)
 		case VariantType::Vector3:
 			SetVector3(name, value.GetVector3());
 			break;
-		case VariantType::Color3:
-			SetColor3(name, value.GetColor3());
-			break;
-		case VariantType::Color4:
-			SetColor4(name, value.GetColor4());
+		case VariantType::Color:
+			SetColor(name, value.GetColor());
 			break;
 		case VariantType::Vector4:
 			SetVector4(name, value.GetVector4());

@@ -452,18 +452,18 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	return true;
 }
 
-void RenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
+void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
 	if (!SetViewport(width_, height_, normalizedRect)) {
 		return;
 	}
 
 	if (ContainsDepthInfo()) {
-		framebuffer_->SetClearDepth(value.w);
+		framebuffer_->SetClearDepth(depth);
 		framebuffer_->Clear(FramebufferClearMaskDepth);
 	}
 	else {
-		framebuffer_->SetClearDepth(value.w);
-		framebuffer_->SetClearColor(glm::vec3(value));
+		framebuffer_->SetClearDepth(depth);
+		framebuffer_->SetClearColor(color);
 		framebuffer_->Clear(FramebufferClearMaskColorDepth);
 	}
 }
@@ -622,11 +622,11 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 	return true;
 }
 
-void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const glm::vec4& value) {
+void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
 	SetViewport(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), normalizedRect);
 
-	framebuffer_->SetClearDepth(value.w);
-	framebuffer_->SetClearColor(glm::vec3(value));
+	framebuffer_->SetClearDepth(depth);
+	framebuffer_->SetClearColor(color);
 	framebuffer_->Clear(FramebufferClearMaskColorDepth);
 }
 

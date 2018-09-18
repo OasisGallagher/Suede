@@ -18,8 +18,7 @@ $PropertiesPrefix
 $Property
 	: int $Identifier $IntegerInitializer ;		$$ = make("Int", $3, $2)
 	| float $Identifier $SingleInitializer ;	$$ = make("Single", $3, $2)
-	| color3 $Identifier $Vec3Initializer ;		$$ = make("Color3", $3, $2)
-	| color4 $Identifier $Vec4Initializer ;		$$ = make("Color4", $3, $2)
+	| color $Identifier $Vec4Initializer ;		$$ = make("Color", $3, $2)
 	| vec3 $Identifier $Vec3Initializer ;		$$ = make("Vec3", $3, $2)
 	| vec4 $Identifier $Vec4Initializer ;		$$ = make("Vec4", $3, $2)
 	| tex2 $Identifier $IVec3Initializer ;		$$ = make("Tex2", $3, $2)

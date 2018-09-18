@@ -16,7 +16,7 @@ const char* Variant::TypeString(VariantType type) {
 		CASE(Matrix4);
 		CASE(IVector3);
 		CASE(Vector3);
-		CASE(Color4);
+		CASE(Color);
 		CASE(Vector4);
 		CASE(Texture);
 		CASE(Matrix4Array);
@@ -78,14 +78,9 @@ glm::vec3 Variant::GetVector3() const {
 	return data_.vec3Value;
 }
 
-glm::vec3 Variant::GetColor3() const {
-	CHECK_VARIANT_TYPE(VariantType::Color3, glm::vec3(0));
-	return data_.vec3Value;
-}
-
-glm::vec4 Variant::GetColor4() const {
-	CHECK_VARIANT_TYPE(VariantType::Color4, glm::vec4(0, 0, 0, 1));
-	return data_.vec4Value;
+Color Variant::GetColor() const {
+	CHECK_VARIANT_TYPE(VariantType::Color, Color::black);
+	return data_.colorValue;
 }
 
 glm::vec4 Variant::GetVector4() const {
@@ -158,14 +153,9 @@ void Variant::SetIVector3(const glm::ivec3& value) {
 	data_.ivec3Value = value;
 }
 
-void Variant::SetColor3(const glm::vec3& value) {
-	SetType(VariantType::Color3);
-	data_.vec3Value = value;
-}
-
-void Variant::SetColor4(const glm::vec4& value) {
-	SetType(VariantType::Color4);
-	data_.vec4Value = value;
+void Variant::SetColor(const Color& value) {
+	SetType(VariantType::Color);
+	data_.colorValue = value;
 }
 
 void Variant::SetVector4(const glm::vec4& value) {
@@ -235,8 +225,7 @@ uint Variant::GetDataSize() const {
 		case VariantType::Matrix4: return sizeof(glm::mat4);
 		case VariantType::IVector3: return sizeof(glm::ivec3);
 		case VariantType::Vector3: return sizeof(glm::vec3);
-		case VariantType::Color3: return sizeof(glm::vec3);
-		case VariantType::Color4: return sizeof(glm::vec4);
+		case VariantType::Color: return sizeof(Color);
 		case VariantType::Vector4: return sizeof(glm::vec4);
 		case VariantType::Quaternion: return sizeof(glm::quat);
 	}

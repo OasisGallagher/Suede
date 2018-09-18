@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 
+#include "color.h"
 #include "component.h"
 #include "tools/enum.h"
 
@@ -17,8 +18,8 @@ public:
 	virtual void SetImportance(LightImportance value) = 0;
 	virtual LightImportance GetImportance() = 0;
 
-	virtual void SetColor(const glm::vec3& value) = 0;
-	virtual glm::vec3 GetColor() = 0;
+	virtual void SetColor(const Color& value) = 0;
+	virtual Color GetColor() = 0;
 
 	virtual void SetIntensity(float value) = 0;
 	virtual float GetIntensity() = 0;

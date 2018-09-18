@@ -55,8 +55,7 @@ public:
 	virtual void SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count);
 	virtual void SetVector3(const std::string& name, const glm::vec3& value);
 	virtual void SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count);
-	virtual void SetColor3(const std::string& name, const glm::vec3& value);
-	virtual void SetColor4(const std::string& name, const glm::vec4& value);
+	virtual void SetColor(const std::string& name, const Color& value);
 	virtual void SetVector4(const std::string& name, const glm::vec4& value);
 	virtual void SetVariant(const std::string& name, const Variant& value);
 
@@ -66,8 +65,7 @@ public:
 	virtual Texture GetTexture(const std::string& name);
 	virtual glm::mat4 GetMatrix4(const std::string& name);
 	virtual glm::vec3 GetVector3(const std::string& name);
-	virtual glm::vec3 GetColor3(const std::string& name);
-	virtual glm::vec4 GetColor4(const std::string& name);
+	virtual Color GetColor(const std::string& name);
 	virtual glm::vec4 GetVector4(const std::string& name);
 
 	virtual void GetProperties(std::vector<const Property*>& properties) const;

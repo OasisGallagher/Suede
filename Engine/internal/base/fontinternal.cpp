@@ -16,7 +16,7 @@ FontInternal::FontInternal()
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.
-	material_->SetColor4(Variables::MainColor, glm::vec4(1));
+	material_->SetColor(Variables::MainColor, Color::white);
 	material_->SetTexture(Variables::MainTexture, NewTexture2D());
 }
 

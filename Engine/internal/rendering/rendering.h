@@ -53,7 +53,7 @@ struct RenderingParameters {
 	Rect normalizedRect;
 
 	ClearType clearType;
-	glm::vec3 clearColor;
+	Color clearColor;
 
 	RenderPath renderPath;
 	DepthTextureMode depthTextureMode;

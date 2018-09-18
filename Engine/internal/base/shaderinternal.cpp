@@ -362,8 +362,9 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 			p->value.SetBool(false);
 			break;
 		case VariantType::Vector3:
+			// SUEDE TODO: color uniform...
 			if (String::EndsWith(name, "Color")) {
-				p->value.SetColor3(glm::vec3(0));
+				p->value.SetColor(Color::black);
 			}
 			else{
 				p->value.SetVector3(glm::vec3(0));
@@ -371,7 +372,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 			break;
 		case VariantType::Vector4:
 			if (String::EndsWith(name, "Color")) {
-				p->value.SetColor4(glm::vec4(0));
+				p->value.SetColor(Color::black);
 			}
 			else {
 				p->value.SetVector4(glm::vec4(0));

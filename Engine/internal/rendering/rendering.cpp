@@ -84,16 +84,16 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 }
 
 void Rendering::ClearRenderTextures() {
-	p_->renderTextures.aux1->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
-	p_->renderTextures.aux2->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
-	p_->renderTextures.ssaoTraversal->Clear(p_->normalizedRect, glm::vec4(0, 0, 0, 1));
+	p_->renderTextures.aux1->Clear(p_->normalizedRect, p_->clearColor, 1);
+	p_->renderTextures.aux2->Clear(p_->normalizedRect, Color::black, 1);
+	p_->renderTextures.ssaoTraversal->Clear(p_->normalizedRect, Color::black, 1);
 
-	sharedSSAOTexture->Clear(p_->normalizedRect, glm::vec4(1));
-	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+	sharedSSAOTexture->Clear(p_->normalizedRect, Color::white, 1);
+	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 
 	RenderTexture target = p_->renderTextures.target;
 	if (!target) { target = RenderTexture::GetDefault(); }
-	target->Clear(p_->normalizedRect, glm::vec4(p_->clearColor, 1));
+	target->Clear(p_->normalizedRect, p_->clearColor, 1);
 }
 
 void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
@@ -119,7 +119,8 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	
 	p.lightPos = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
-	p.lightColor = glm::vec4(light->GetColor() * light->GetIntensity(), 1);
+	Color color = light->GetColor() * light->GetIntensity();
+	p.lightColor = glm::vec4(color.r, color.g, color.b, 1);
 
 	UniformBufferManager::instance()->Update(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }

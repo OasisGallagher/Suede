@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "color.h"
 #include "texture.h"
 
 enum class VariantType {
@@ -13,8 +14,7 @@ enum class VariantType {
 	Matrix4,
 	IVector3,
 	Vector3,
-	Color3,
-	Color4,
+	Color,
 	Vector4,
 	Texture,
 	Quaternion,
@@ -43,8 +43,7 @@ public:
 	glm::mat4 GetMatrix4() const;
 	glm::ivec3 GetIVector3() const;
 	glm::vec3 GetVector3() const;
-	glm::vec3 GetColor3() const;
-	glm::vec4 GetColor4() const;
+	Color GetColor() const;
 	glm::vec4 GetVector4() const;
 	glm::quat GetQuaternion() const;
 	
@@ -64,8 +63,7 @@ public:
 	void SetMatrix4(const glm::mat4& value);
 	void SetIVector3(const glm::ivec3& value);
 	void SetVector3(const glm::vec3& value);
-	void SetColor3(const glm::vec3& value);
-	void SetColor4(const glm::vec4& value);
+	void SetColor(const Color& value);
 	void SetVector4(const glm::vec4& value);
 	void SetQuaternion(const glm::quat& value);
 	void SetVector3Array(const glm::vec3* data, uint size);
@@ -97,7 +95,7 @@ private:
 		glm::vec3 vec3Value;
 		glm::vec4 vec4Value;
 		glm::quat quatValue;
-
+		Color colorValue;
 		struct {
 			char* ptr;
 			uint size;

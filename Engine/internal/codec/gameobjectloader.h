@@ -25,9 +25,9 @@ struct MaterialAsset {
 	float gloss;
 	bool twoSided;
 
-	glm::vec4 mainColor;
-	glm::vec3 specularColor;
-	glm::vec3 emissiveColor;
+	Color mainColor;
+	Color specularColor;
+	Color emissiveColor;
 
 	TexelMap* mainTexels;
 	TexelMap* bumpTexels;
