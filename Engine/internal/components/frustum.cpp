@@ -3,11 +3,6 @@
 #include "debug/debug.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-#define DEBUG_PROJECTION_MODE(name, perspective) \
-	if (perspective != perspective_) { \
-		Debug::LogError("%s is only valid in %s mode.", name, perspective ? "perspective" : "orthographic"); \
-	} else (void)0
-
 Frustum::Frustum() : perspective_(true), matrixDirty_(true) {
 	near_ = 1.f;
 	far_ = 1000.f;
@@ -29,12 +24,10 @@ void Frustum::SetPerspective(bool value) {
 }
 
 float Frustum::GetOrthographicSize() const {
-	DEBUG_PROJECTION_MODE("size", false);
 	return orthographicSize_;
 }
 
 void Frustum::SetOrthographicSize(float value) {
-	DEBUG_PROJECTION_MODE("size", false);
 	if (!Math::Approximately(orthographicSize_, value)) {
 		orthographicSize_ = value;
 		DirtyProjectionMatrix();
@@ -63,7 +56,6 @@ void Frustum::SetFarClipPlane(float value) {
 }
 
 void Frustum::SetFieldOfView(float value) {
-	DEBUG_PROJECTION_MODE("fieldOfView", true);
 	if (!Math::Approximately(fieldOfView_, value)) {
 		fieldOfView_ = value;
 		DirtyProjectionMatrix();
@@ -71,7 +63,6 @@ void Frustum::SetFieldOfView(float value) {
 }
 
 float Frustum::GetFieldOfView() const {
-	DEBUG_PROJECTION_MODE("fieldOfView", true);
 	return fieldOfView_;
 }
 

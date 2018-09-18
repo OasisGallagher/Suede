@@ -112,8 +112,8 @@ void Game::tick() {
 
 void Game::OnDrawGizmos() {
 	int i = 0;
-	glm::vec3 colors[] = { glm::vec3(1, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1) };
-	glm::vec3 oldColor = Gizmos::instance()->GetColor();
+	Color colors[] = { Color::red, Color::green, Color::blue };
+	Color oldColor = Gizmos::instance()->GetColor();
 	for (GameObject go : selection_) {
 		if (!go->GetActive()) {
 			continue;
@@ -315,7 +315,7 @@ void Game::createScene() {
 	lightGameObject->SetName("light");
 
 	DirectionalLight light = lightGameObject->AddComponent<IDirectionalLight>();
-	light->SetColor(glm::vec3(0.7f));
+	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
 	light->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	/*World::instance()->ImportTo(light, lightModelPath, this);*/
@@ -389,7 +389,7 @@ void Game::createScene() {
 	//camera->AddImageEffect(inversion_);
 #endif
 
-	camera->SetClearColor(glm::vec3(0, 0.1f, 0.1f));
+	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
 
 	Material skybox = NewMaterial();
 	skybox->SetShader(Resources::instance()->FindShader("builtin/skybox"));
@@ -407,7 +407,7 @@ void Game::createScene() {
 
 	cube->Load(faces);
 	skybox->SetTexture(Variables::MainTexture, cube);
-	skybox->SetColor4(Variables::MainColor, glm::vec4(1));
+	skybox->SetColor(Variables::MainColor, Color::white);
 	Environment::instance()->SetSkybox(skybox);
 
 #ifdef SKYBOX
@@ -475,12 +475,12 @@ void Game::createScene() {
 
 	Renderer redRenderer = NewMeshRenderer();
 	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	redMaterial->SetColor4(Variables::MainColor, glm::vec4(1, 0, 0, 1));
+	redMaterial->SetColor4(Variables::MainColor, Color(1, 0, 0, 1));
 	redRenderer->AddMaterial(redMaterial);
 
 	Renderer blueRenderer = NewMeshRenderer();
 	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	blueMaterial->SetColor4(Variables::MainColor, glm::vec4(0, 0, 1, 1));
+	blueMaterial->SetColor4(Variables::MainColor, Color(0, 0, 1, 1));
 	blueRenderer->AddMaterial(blueMaterial);
 
 	redText->SetRenderer(redRenderer);

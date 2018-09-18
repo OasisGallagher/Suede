@@ -78,8 +78,6 @@ public:
 
 	static bool Approximately(float x, float y = 0.f);
 
-	static float Luminance(const glm::vec3& color);
-
 	static void Orthogonalize(glm::vec3& t, const glm::vec3& n);
 
 private:
@@ -249,10 +247,6 @@ inline T Math::Clamp01(T value) {
 inline bool Math::Approximately(float x, float y) {
 	const float E = 0.000001f;
 	return fabs(x - y) < E;
-}
-
-inline float Math::Luminance(const glm::vec3& color) {
-	return 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
 }
 
 inline void Math::Orthogonalize(glm::vec3& t, const glm::vec3& n) {

@@ -115,6 +115,7 @@ private:
 	void InitializeTags(const std::vector<Semantics::Tag>& tags);
 	void InitializeTag(const Semantics::Tag& tag, uint i);
 	uint ParseExpression(TagKey key, const std::string& expression);
+	bool CheckPropertyCompatible(ShaderProperty* target, Property* p);
 	void AddShaderProperties(std::vector<ShaderProperty>& properties, const std::vector<Property*> container, uint pass);
 
 private:

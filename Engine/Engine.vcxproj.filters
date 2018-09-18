@@ -451,6 +451,9 @@
     <ClInclude Include="include\behaviour.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\color.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -641,6 +644,9 @@
     </ClCompile>
     <ClCompile Include="internal\components\behaviour.cpp">
       <Filter>internal\components\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\color.cpp">
+      <Filter>internal\base\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

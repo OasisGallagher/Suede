@@ -159,32 +159,25 @@ public:
 private:
 	bool ParseSemantics(SyntaxTree& tree, Semantics& semantices);
 
-	void ReadInt(SyntaxNode* node, Property* property);
-
-	void ReadVec3(SyntaxNode* node, Property* property);
-	void ReadVec4(SyntaxNode* node, Property* property);
-
-	void ReadColor3(SyntaxNode* node, Property* property);
-	void ReadColor4(SyntaxNode* node, Property* property);
-
-	void ReadTex2(SyntaxNode* node, Property* property);
-	
-	void ReadMat3(SyntaxNode* node, Property* property);
-	void ReadMat4(SyntaxNode* node, Property* property);
-	
-	void ReadSingle(SyntaxNode* node, Property* property);
-	void ReadInteger(SyntaxNode* node, Property* property);
-
-	void ReadSingle2(glm::vec2& value, SyntaxNode* node);
-	void ReadSingle3(glm::vec3& value, SyntaxNode* node);
-	void ReadSingle4(glm::vec4& value, SyntaxNode* node);
-	void ReadSingles(SyntaxNode* node, float* ptr, int count);
-
-	void ReadInteger3(glm::ivec3& value, SyntaxNode* node);
-
 	void ReadProperty(SyntaxNode* node, Property* property);
 	void ReadProperties(SyntaxNode* node, std::vector<Property*>& properties);
 	void ReadPropertyBlock(SyntaxNode* node, std::vector<Property*>& properties);
+
+	void ReadIntProperty(SyntaxNode* node, Property* property);
+	void ReadVec3Property(SyntaxNode* node, Property* property);
+	void ReadVec4Property(SyntaxNode* node, Property* property);
+	void ReadColorProperty(SyntaxNode* node, Property* property);
+	void ReadTex2Property(SyntaxNode* node, Property* property);
+	void ReadMat3Property(SyntaxNode* node, Property* property);
+	void ReadMat4Property(SyntaxNode* node, Property* property);
+	void ReadFloatProperty(SyntaxNode* node, Property* property);
+
+	void ReadInt3(glm::ivec3& value, SyntaxNode* node);
+	void ReadString(std::string& value, SyntaxNode* node);
+	void ReadVec2(glm::vec2& value, SyntaxNode* node);
+	void ReadVec3(glm::vec3& value, SyntaxNode* node);
+	void ReadVec4(glm::vec4& value, SyntaxNode* node);
+	void ReadFloats(SyntaxNode* node, float* ptr, int count);
 
 	void ReadTag(SyntaxNode* node, Semantics::Tag& tag);
 	void ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags);

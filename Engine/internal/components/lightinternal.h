@@ -9,15 +9,15 @@ public:
 	virtual void SetImportance(LightImportance value) { importance_ = value; }
 	virtual LightImportance GetImportance() { return importance_; }
 
-	virtual void SetColor(const glm::vec3 & value) { color_ = value; }
-	virtual glm::vec3 GetColor() { return color_; }
+	virtual void SetColor(const Color& value) { color_ = value; }
+	virtual Color GetColor() { return color_; }
 
 	virtual void SetIntensity(float value) { intensity_ = value; }
 	virtual float GetIntensity() { return intensity_; }
 
 protected:
+	Color color_;
 	float intensity_;
-	glm::vec3 color_;
 	LightImportance importance_;
 };
 

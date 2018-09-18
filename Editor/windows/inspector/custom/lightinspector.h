@@ -6,8 +6,8 @@ class LightInspector : public CustomInspector {
 public:
 	virtual void onGui(Component component) {
 		Light light = suede_dynamic_cast<Light>(component);
-		glm::vec3 color = light->GetColor();
-		if (GUI::Color3Field("Color", color)) {
+		Color color = light->GetColor();
+		if (GUI::ColorField("Color", color)) {
 			light->SetColor(color);
 		}
 

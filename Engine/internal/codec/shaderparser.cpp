@@ -391,27 +391,37 @@ void ShaderParser::ReadRenderStates(SyntaxNode* node, std::vector<Semantics::Ren
 	ReadTreeRef(node, "RenderStates", &ShaderParser::ReadRenderState, states);
 }
 
-void ShaderParser::ReadInt(SyntaxNode* node, Property* property) {
-	property->value.SetInt(String::ToInteger(node->GetChildAt(1)->ToString()));
+void ShaderParser::ReadInt3(glm::ivec3& value, SyntaxNode* node) {
+	SyntaxNode* c1 = node->GetChildAt(1);
+	if (c1 == nullptr) { return; }
+
+	int* ptr = &value.x;
+	for (int i = 0; i < 3 && c1->GetChildAt(i) != nullptr; ++i) {
+		*ptr++ = String::ToInteger(c1->GetChildAt(i)->ToString());
+	}
 }
 
-void ShaderParser::ReadSingle(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadString(std::string& value, SyntaxNode* node) {
+	value = node->GetChildAt(1)->ToString();
+}
+
+void ShaderParser::ReadFloatProperty(SyntaxNode* node, Property* property) {
 	property->value.SetFloat(String::ToFloat(node->GetChildAt(1)->ToString()));
 }
 
-void ShaderParser::ReadSingle2(glm::vec2& value, SyntaxNode* node) {
-	ReadSingles(node, (float*)&value, 2);
+void ShaderParser::ReadVec2(glm::vec2& value, SyntaxNode* node) {
+	ReadFloats(node, (float*)&value, 2);
 }
 
-void ShaderParser::ReadSingle3(glm::vec3& value, SyntaxNode* node) {
-	ReadSingles(node, (float*)&value, 3);
+void ShaderParser::ReadVec3(glm::vec3& value, SyntaxNode* node) {
+	ReadFloats(node, (float*)&value, 3);
 }
 
-void ShaderParser::ReadSingle4(glm::vec4& value, SyntaxNode* node) {
-	ReadSingles(node, (float*)&value, 4);
+void ShaderParser::ReadVec4(glm::vec4& value, SyntaxNode* node) {
+	ReadFloats(node, (float*)&value, 4);
 }
 
-void ShaderParser::ReadSingles(SyntaxNode* node, float* ptr, int count) {
+void ShaderParser::ReadFloats(SyntaxNode* node, float* ptr, int count) {
 	SyntaxNode* c1 = node->GetChildAt(1);
 	if (c1 == nullptr) { return; }
 	for (int i = 0; i < count && c1->GetChildAt(i) != nullptr; ++i) {
@@ -419,98 +429,83 @@ void ShaderParser::ReadSingles(SyntaxNode* node, float* ptr, int count) {
 	}
 }
 
-void ShaderParser::ReadInteger(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadIntProperty(SyntaxNode* node, Property* property) {
 	property->value.SetInt(String::ToInteger(node->GetChildAt(1)->ToString()));
 }
 
-void ShaderParser::ReadInteger3(glm::ivec3& value, SyntaxNode* node) {
-	SyntaxNode* c1 = node->GetChildAt(1);
-	if (c1 == nullptr) { return; }
-	
-	int* ptr = &value.x;
-	for (int i = 0; i < 3 && c1->GetChildAt(i) != nullptr; ++i) {
-		*ptr++ = String::ToInteger(c1->GetChildAt(i)->ToString());
-	}
-}
-
-void ShaderParser::ReadVec3(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadVec3Property(SyntaxNode* node, Property* property) {
 	glm::vec3 value;
-	ReadSingle3(value, node);
+	ReadVec3(value, node);
 	property->value.SetVector3(value);
 }
 
-void ShaderParser::ReadVec4(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadVec4Property(SyntaxNode* node, Property* property) {
 	glm::vec4 value;
-	ReadSingle4(value, node);
+	ReadVec4(value, node);
 	property->value.SetVector4(value);
 }
 
-void ShaderParser::ReadColor3(SyntaxNode * node, Property * property) {
-	glm::vec3 value;
-	ReadSingle3(value, node);
-	property->value.SetColor3(value);
+void ShaderParser::ReadColorProperty(SyntaxNode * node, Property * property) {
+	Color value = Color::black;
+	ReadVec4(*(glm::vec4*)&value, node);
+	property->value.SetColor(value);
 }
 
-void ShaderParser::ReadColor4(SyntaxNode * node, Property * property) {
-	glm::vec4 value;
-	ReadSingle4(value, node);
-	property->value.SetColor4(value);
+void ShaderParser::ReadTex2Property(SyntaxNode* node, Property* property) {
+	std::string value;
+	ReadString(value, node);
+
+	Texture2D texture;
+	if (value.empty() || value == "black") {
+		texture = Resources::instance()->GetBlackTexture();
+	}
+	else if (value == "white") {
+		texture = Resources::instance()->GetWhiteTexture();
+	}
+
+	if (texture) {
+		property->value.SetTexture(texture);
+	}
+	else {
+		Debug::LogError("invalid tex2 property value %s.", value.c_str());
+	}
 }
 
-void ShaderParser::ReadTex2(SyntaxNode* node, Property* property) {
-	glm::ivec3 value;
-	ReadInteger3(value, node);
-
-	uchar bytes[] = { uchar(value.x & 0xFF), uchar(value.y & 0xFF), uchar(value.z & 0xFF) };
-	Texture2D texture = NewTexture2D();
-	texture->Create(TextureFormat::Rgb, bytes, ColorStreamFormat::Rgb, 1, 1, 4);
-	property->value.SetTexture(texture);
-}
-
-void ShaderParser::ReadMat3(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadMat3Property(SyntaxNode* node, Property* property) {
 	property->value.SetMatrix3(glm::mat3(0));
 }
 
-void ShaderParser::ReadMat4(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadMat4Property(SyntaxNode* node, Property* property) {
 	property->value.SetMatrix4(glm::mat4(0));
 }
 
 void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	const std::string& ns = node->ToString();
-	std::string name = node->GetChildAt(0)->ToString();
-	if (String::StartsWith(name, VARIABLE_PREFIX)) {
-		Debug::LogError("property starts with %s is reserved.", VARIABLE_PREFIX);
-		return;
-	}
-
 	property->name = node->GetChildAt(0)->ToString();
 
 	if (ns == "Int") {
-		ReadInt(node, property);
+		ReadIntProperty(node, property);
 	}
 	else if (ns == "Single") {
-		ReadSingle(node, property);
+		ReadFloatProperty(node, property);
 	}
 	else if (ns == "Vec3") {
-		ReadVec3(node, property);
+		ReadVec3Property(node, property);
 	}
 	else if (ns == "Vec4") {
-		ReadVec4(node, property);
+		ReadVec4Property(node, property);
 	}
-	else if (ns == "Color3") {
-		ReadColor3(node, property);
-	}
-	else if (ns == "Color4") {
-		ReadColor4(node, property);
+	else if (ns == "Color") {
+		ReadColorProperty(node, property);
 	}
 	else if (ns == "Tex2") {
-		ReadTex2(node, property);
+		ReadTex2Property(node, property);
 	}
 	else if (ns == "Mat3") {
-		ReadMat3(node, property);
+		ReadMat3Property(node, property);
 	}
 	else if (ns == "Mat4") {
-		ReadMat4(node, property);
+		ReadMat4Property(node, property);
 	}
 	else {
 		Debug::LogError("invalid property type %s.", ns.c_str());

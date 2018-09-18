@@ -69,11 +69,8 @@ void MeshRendererInspector::drawMaterialProperties(Material material) {
 			case VariantType::Vector4:
 				drawVector4(material, p);
 				break;
-			case VariantType::Color3:
-				drawColor3(material, p);
-				break;
-			case VariantType::Color4:
-				drawColor4(material, p);
+			case VariantType::Color:
+				drawColor(material, p);
 				break;
 			case VariantType::Texture:
 				drawTexture(material, p);
@@ -93,17 +90,10 @@ void MeshRendererInspector::drawTexture(Material material, const Property* p) {
 	}
 }
 
-void MeshRendererInspector::drawColor3(Material material, const Property* p) {
-	glm::vec3 value = material->GetColor3(p->name);
-	if (GUI::Color3Field(p->name.c_str(), value)) {
-		material->SetColor3(p->name, value);
-	}
-}
-
-void MeshRendererInspector::drawColor4(Material material, const Property* p) {
-	glm::vec4 value = material->GetColor4(p->name);
-	if (GUI::Color4Field(p->name.c_str(), value)) {
-		material->SetColor4(p->name, value);
+void MeshRendererInspector::drawColor(Material material, const Property* p) {
+	Color value = material->GetColor(p->name);
+	if (GUI::ColorField(p->name.c_str(), value)) {
+		material->SetColor(p->name, value);
 	}
 }
 

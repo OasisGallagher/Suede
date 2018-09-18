@@ -46,8 +46,8 @@ public:
 	virtual void SetDepthTextureMode(DepthTextureMode value) { p_.depthTextureMode = value; }
 	virtual DepthTextureMode GetDepthTextureMode() { return p_.depthTextureMode; }
 
-	virtual void SetClearColor(const glm::vec3& value) { p_.clearColor = value; }
-	virtual glm::vec3 GetClearColor() { return p_.clearColor; }
+	virtual void SetClearColor(const Color& value) { p_.clearColor = value; }
+	virtual Color GetClearColor() { return p_.clearColor; }
 
 	virtual void SetTargetTexture(RenderTexture value) { p_.renderTextures.target; }
 	virtual RenderTexture GetTargetTexture() { return p_.renderTextures.target; }

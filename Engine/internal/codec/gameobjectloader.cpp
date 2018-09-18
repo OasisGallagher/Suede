@@ -14,7 +14,7 @@
 #include "internal/base/renderdefines.h"
 
 MaterialAsset::MaterialAsset()
-	: twoSided(false), gloss(50), mainColor(1), name(UNNAMED_MATERIAL) {
+	: twoSided(false), gloss(50), mainColor(Color::white), name(UNNAMED_MATERIAL) {
 	material = NewMaterial();
 	mainTexels = bumpTexels = specularTexels = emissiveTexels = lightmapTexels = nullptr;
 }
@@ -25,9 +25,9 @@ void MaterialAsset::ApplyAsset() {
 
 	material->SetFloat(Variables::Gloss, gloss);
 
-	material->SetColor4(Variables::MainColor, mainColor);
-	material->SetColor3(Variables::SpecularColor, specularColor);
-	material->SetColor3(Variables::EmissiveColor, emissiveColor);
+	material->SetColor(Variables::MainColor, mainColor);
+	material->SetColor(Variables::SpecularColor, specularColor);
+	material->SetColor(Variables::EmissiveColor, emissiveColor);
 
 	material->SetName(name);
 
@@ -331,15 +331,15 @@ void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateria
 	}
 
 	if (material->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) == AI_SUCCESS) {
-		materialAsset.mainColor = glm::vec4(acolor.r, acolor.g, acolor.b, materialAsset.mainColor.a);
+		materialAsset.mainColor = Color(acolor.r, acolor.g, acolor.b, materialAsset.mainColor.a);
 	}
 
 	if (material->Get(AI_MATKEY_COLOR_SPECULAR, acolor) == AI_SUCCESS) {
-		materialAsset.specularColor = glm::vec3(acolor.r, acolor.g, acolor.b);
+		materialAsset.specularColor = Color(acolor.r, acolor.g, acolor.b, 1);
 	}
 
 	if (material->Get(AI_MATKEY_COLOR_EMISSIVE, acolor) == AI_SUCCESS) {
-		materialAsset.emissiveColor = glm::vec3(acolor.r, acolor.g, acolor.b);
+		materialAsset.emissiveColor = Color(acolor.r, acolor.g, acolor.b, 1);
 	}
 
 	if (material->Get(AI_MATKEY_SHININESS, afloat) == AI_SUCCESS) {

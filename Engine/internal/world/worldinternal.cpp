@@ -20,6 +20,8 @@
 #include "internal/tools/graphicsinternal.h"
 #include "internal/tools/resourcesinternal.h"
 
+#define ColorLuminance(color)	(0.299f * color.r + 0.587f * color.g + 0.114f * color.b)
+
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
 	ObjectType lt = lhs->GetObjectType(), rt = rhs->GetObjectType();
@@ -32,7 +34,7 @@ bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs
 		return lli > rli;
 	}
 
-	return Math::Luminance(lhs->GetColor()) > Math::Luminance(rhs->GetColor());
+	return ColorLuminance(lhs->GetColor()) > ColorLuminance(rhs->GetColor());
 }
 
 bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera& rhs) const {
@@ -53,7 +55,7 @@ void WorldInternal::Initialize() {
 	GLUtils::Initialize();
 
 	Resources::implement(new ResourcesInternal);
-	Resources::instance()->FindShader("builtin/ssao");
+	Resources::instance()->FindShader("builtin/lit_texture");
 
 	Gizmos::implement(new GizmosInternal);
 	Graphics::implement(new GraphicsInternal);

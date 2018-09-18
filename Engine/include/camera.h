@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 
 #include "rect.h"
+#include "color.h"
 #include "texture.h"
 #include "component.h"
 #include "tools/enum.h"
@@ -51,8 +52,8 @@ public:
 	virtual void SetDepthTextureMode(DepthTextureMode value) = 0;
 	virtual DepthTextureMode GetDepthTextureMode() = 0;
 
-	virtual void SetClearColor(const glm::vec3& value) = 0;
-	virtual glm::vec3 GetClearColor() = 0;
+	virtual void SetClearColor(const Color& value) = 0;
+	virtual Color GetClearColor() = 0;
 
 	virtual void SetTargetTexture(RenderTexture value) = 0;
 	virtual RenderTexture GetTargetTexture() = 0;

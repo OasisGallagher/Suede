@@ -166,11 +166,7 @@ bool GUI::Float4Field(const char* title, glm::vec4& v) {
 	return ImGui::DragFloat4(title, (float*)&v);
 }
 
-bool GUI::Color3Field(const char* title, glm::vec3& v) {
-	return ImGui::ColorEdit3(title, (float*)&v);
-}
-
-bool GUI::Color4Field(const char* title, glm::vec4& v) {
+bool GUI::ColorField(const char* title, Color& v) {
 	return ImGui::ColorEdit4(title, (float*)&v);
 }
 

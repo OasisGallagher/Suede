@@ -6,7 +6,7 @@
 #include "tools/math2.h"
 #include "geometryutility.h"
 
-GizmosInternal::GizmosInternal() : color_(0, 1, 0) {
+GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1) {
 	mesh_ = NewMesh();
 
 	lineMaterial_ = NewMaterial();
@@ -126,7 +126,7 @@ void GizmosInternal::DrawGizmos(const Batch& b) {
 	TriangleBias bias{ b.indexes.size(), 0, 0 };
 	mesh_->GetSubMesh(0)->SetTriangleBias(bias);
 
-	b.material->SetColor4(Variables::MainColor, glm::vec4(b.color, 1));
+	b.material->SetColor(Variables::MainColor, b.color);
 	Graphics::instance()->Draw(mesh_, b.material);
 
 	Graphics::instance()->SetShadingMode(oldShadingMode);

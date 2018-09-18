@@ -1,5 +1,6 @@
 #pragma once
 #include "types.h"
+#include "color.h"
 
 #include <string>
 #include <glm/glm.hpp>
@@ -52,8 +53,7 @@ public:
 	static bool Float3Field(const char* title, glm::vec3& v);
 	static bool Float4Field(const char* title, glm::vec4& v);
 
-	static bool Color3Field(const char* title, glm::vec3& v);
-	static bool Color4Field(const char* title, glm::vec4& v);
+	static bool ColorField(const char* title, Color& v);
 
 	static bool BeginMenu(const char* title);
 	static bool MenuItem(const char* title, bool selected);

@@ -33,13 +33,12 @@ bool InvokeRebuildMethod(const char* path) {
 	return status;
 }
 
-bool Rebuild(const char* exepath, const char* binpath, const char* dllpath) {
+bool Rebuild(const char* binpath, const char* dllpath) {
 	time_t tmdll = FileSystem::GetFileLastWriteTime(dllpath);
 	time_t tmbin = FileSystem::GetFileLastWriteTime(binpath);
-	time_t tmexe = FileSystem::GetFileLastWriteTime(exepath);
 
-	if (tmexe <= tmbin || tmdll <= tmbin) {
-		std::cout << "no need to build GLEF." << std::endl;
+	if (tmdll <= tmbin) {
+		std::cout << "no need to build GLEF (" << tmdll << " " << tmbin << ")." << std::endl;
 		return true;
 	}
 
@@ -52,7 +51,7 @@ int main(int argc, char* argv[]) {
 		return InvalidArgument;
 	}
 
-	if (Rebuild(argv[0], argv[1], argv[2])) {
+	if (Rebuild(argv[1], argv[2])) {
 		std::cout << "GLEF created and saved at " << argv[1] << "." << std::endl;
 		return 0;
 	}

@@ -362,20 +362,10 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 			p->value.SetBool(false);
 			break;
 		case VariantType::Vector3:
-			if (String::EndsWith(name, "Color")) {
-				p->value.SetColor3(glm::vec3(0));
-			}
-			else{
-				p->value.SetVector3(glm::vec3(0));
-			}
+			p->value.SetVector3(glm::vec3(0));
 			break;
 		case VariantType::Vector4:
-			if (String::EndsWith(name, "Color")) {
-				p->value.SetColor4(glm::vec4(0));
-			}
-			else {
-				p->value.SetVector4(glm::vec4(0));
-			}
+			p->value.SetVector4(glm::vec4(0));
 			break;
 		case VariantType::Texture:
 			p->value.SetTexture(nullptr);
@@ -598,7 +588,6 @@ uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 	return 0;
 }
 
-
 void SubShader::AddShaderProperties(std::vector<ShaderProperty>& properties, const std::vector<Property*> container, uint pass) {
 	for (Property* p : container) {
 		ShaderProperty* target = nullptr;
@@ -614,10 +603,25 @@ void SubShader::AddShaderProperties(std::vector<ShaderProperty>& properties, con
 			properties.push_back(sp);
 		}
 		else {
-			target->mask |= (1 << pass);
+			if (CheckPropertyCompatible(target, p)) {
+				target->mask |= (1 << pass);
+			}
+
 			MEMORY_DELETE(p);
 		}
 	}
+}
+
+bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
+	VariantType lhs = target->property->value.GetType();
+	VariantType rhs = p->value.GetType();
+	if (lhs == rhs 
+		|| (lhs == VariantType::Color && (rhs == VariantType::Vector3 || rhs == VariantType::Vector4))) {
+		return true;
+	}
+
+	Debug::LogError("type of property %s %s is incompatible with %s.", p->name.c_str(), Variant::TypeString(lhs), Variant::TypeString(rhs));
+	return false;
 }
 
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectType::Shader)

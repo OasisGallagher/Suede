@@ -151,7 +151,7 @@ public:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
 
 	virtual void Resize(uint width, uint height);
-	virtual void Clear(const Rect& normalizedRect, const glm::vec4& value);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 	virtual void BindWrite(const Rect& normalizedRect);
 
@@ -189,7 +189,7 @@ public:
 
 protected:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
-	virtual void Clear(const Rect& normalizedRect, const glm::vec4& value);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 	virtual uint GetWidth() const;
 	virtual uint GetHeight() const;

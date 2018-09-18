@@ -24,7 +24,7 @@ void Shadows::Resize(uint width, uint height) {
 }
 
 void Shadows::Clear() {
-	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), glm::vec4(0, 0, 0, 1));
+	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 }
 
 RenderTexture Shadows::GetShadowTexture() {

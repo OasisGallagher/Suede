@@ -1,6 +1,7 @@
 Properties {
 	float outlineFactor = 0.1;
-	color3 outlineColor = { 0.98, 0.51, 0.04 };
+	color outlineColor = { 0.98, 0.51, 0.04 };
+	tex2 texture = "white";
 }
 
 SubShader {
