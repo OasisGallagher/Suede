@@ -423,12 +423,6 @@
     <ClCompile Include="main\editor.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="windows\inspector\custom\meshrendererinspector.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\custom\custominspector.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_texturefield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -445,6 +439,36 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_cameracontroller.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_test.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_test.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\materialeditor.cpp">
+      <Filter>windows\inspector\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gaussianblur.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gaussianblur.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_grayscale.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_grayscale.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\inversion.cpp">
+      <Filter>scripts\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_inversion.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_inversion.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
@@ -521,9 +545,6 @@
     <CustomBuild Include="widgets\fields\rangefield.h">
       <Filter>widgets\fields\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector\oglwidget.h">
-      <Filter>windows\inspector\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="gui\qtimgui\ImGuiRenderer.h">
       <Filter>gui\qtimgui\include</Filter>
     </CustomBuild>
@@ -548,29 +569,29 @@
     <CustomBuild Include="ui\statswidget.ui">
       <Filter>ui</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\custominspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\meshrendererinspector.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\inspector\custom\componentmetaobject.h">
       <Filter>windows\inspector\custom\include</Filter>
     </CustomBuild>
     <CustomBuild Include="scripts\cameracontroller.h">
       <Filter>scripts\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="main\test.h">
+      <Filter>main\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\gaussianblur.h">
+      <Filter>scripts\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\grayscale.h">
+      <Filter>scripts\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\grayscale.cpp">
+      <Filter>scripts\src</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\inversion.h">
+      <Filter>scripts\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="scripts\grayscale.h">
-      <Filter>scripts\include</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\inversion.h">
-      <Filter>scripts\include</Filter>
-    </ClInclude>
-    <ClInclude Include="scripts\gaussianblur.h">
-      <Filter>scripts\include</Filter>
-    </ClInclude>
     <ClInclude Include="widgets\fields\enumfield.h">
       <Filter>widgets\fields\include</Filter>
     </ClInclude>
@@ -597,6 +618,9 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_statswidget.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows\inspector\materialeditor.h">
+      <Filter>windows\inspector\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

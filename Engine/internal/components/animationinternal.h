@@ -3,8 +3,8 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "variant.h"
-#include "variables.h"
 #include "animation.h"
+#include "builtinproperties.h"
 #include "componentinternal.h"
 #include "internal/base/renderdefines.h"
 

@@ -19,12 +19,13 @@
 #include "engine.h"
 #include "gizmos.h"
 #include "texture.h"
+#include "resources.h"
 #include "projector.h"
 #include "behaviour.h"
-#include "variables.h"
 #include "statistics.h"
 #include "tagmanager.h"
 #include "particlesystem.h"
+#include "builtinproperties.h"
 
 #include "tools/math2.h"
 
@@ -39,7 +40,7 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-//#define IMAGE_EFFECTS
+#define IMAGE_EFFECTS
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 // #define FONT
@@ -63,9 +64,6 @@ Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullp
 }
 
 Game::~Game() {
-	delete grayscale_;
-	delete inversion_;
-	delete gaussianBlur_;
 }
 
 Canvas* Game::canvas() {
@@ -94,10 +92,6 @@ void Game::init(Ui::Editor* ui) {
 }
 
 void Game::awake() {
-	grayscale_ = new Grayscale;
-	inversion_ = new Inversion;
-	gaussianBlur_ = new GaussianBlur;
-	
 	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
 	
 	createScene();
@@ -157,7 +151,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 			Texture2D diffuse = NewTexture2D();
 			diffuse->Create("suzanne/diffuse.dds");
 			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
-			target->GetComponent<IMeshRenderer>()->GetMaterial(0)->SetTexture(Variables::MainTexture, diffuse);
+			target->GetComponent<IMeshRenderer>()->GetMaterial(0)->SetTexture(BuiltinProperties::MainTexture, diffuse);
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}
@@ -175,11 +169,11 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 
 		Texture2D diffuse = NewTexture2D();
 		diffuse->Create("bumped/diffuse.jpg");
-		material->SetTexture(Variables::MainTexture, diffuse);
+		material->SetTexture(BuiltinProperties::MainTexture, diffuse);
 
 		Texture2D normal = NewTexture2D();
 		normal->Create("bumped/normal.jpg");
-		material->SetTexture(Variables::BumpTexture, normal);
+		material->SetTexture(BuiltinProperties::BumpTexture, normal);
 	}
 	else if (path == normalVisualizerFbxPath) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
@@ -310,7 +304,7 @@ void Game::createScene() {
 	GameObject lightGameObject = NewGameObject();
 	lightGameObject->SetName("light");
 
-	DirectionalLight light = lightGameObject->AddComponent<IDirectionalLight>();
+	Light light = lightGameObject->AddComponent<ILight>();
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
 	light->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
@@ -328,7 +322,7 @@ void Game::createScene() {
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	controller_ = cameraGameObject->AddComponent<CameraController>(this).get();
-
+	cameraGameObject->GetComponent<CameraController>();
 #ifdef PROJECTOR
 	Projector projector = NewProjector();
 	
@@ -377,9 +371,9 @@ void Game::createScene() {
 	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
-	camera->AddImageEffect(gaussianBlur_);
-	//camera->AddImageEffect(grayscale_);
-	//camera->AddImageEffect(inversion_);
+	cameraGameObject->AddComponent<GaussianBlur>();
+	//camera->AddComponent<Grayscale>();
+	//camera->AddComponent<Inversion>();
 #endif
 
 	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
@@ -399,8 +393,8 @@ void Game::createScene() {
 	};
 
 	cube->Load(faces);
-	skybox->SetTexture(Variables::MainTexture, cube);
-	skybox->SetColor(Variables::MainColor, Color::white);
+	skybox->SetTexture(BuiltinProperties::MainTexture, cube);
+	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
 	Environment::instance()->SetSkybox(skybox);
 
 #ifdef SKYBOX
@@ -468,12 +462,12 @@ void Game::createScene() {
 
 	Renderer redRenderer = NewMeshRenderer();
 	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	redMaterial->SetColor4(Variables::MainColor, Color(1, 0, 0, 1));
+	redMaterial->SetColor4(BuiltinProperties::MainColor, Color(1, 0, 0, 1));
 	redRenderer->AddMaterial(redMaterial);
 
 	Renderer blueRenderer = NewMeshRenderer();
 	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	blueMaterial->SetColor4(Variables::MainColor, Color(0, 0, 1, 1));
+	blueMaterial->SetColor4(BuiltinProperties::MainColor, Color(0, 0, 1, 1));
 	blueRenderer->AddMaterial(blueMaterial);
 
 	redText->SetRenderer(redRenderer);

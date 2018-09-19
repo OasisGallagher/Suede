@@ -1,10 +1,10 @@
-#include "variables.h"
 #include "tools/math2.h"
 #include "renderstate.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "renderdefines.h"
 #include "materialinternal.h"
+#include "builtinproperties.h"
 
 #include "internal/rendering/sharedtexturemanager.h"
 
@@ -326,13 +326,13 @@ void MaterialInternal::BindProperties(uint pass) {
 		}
 		else if (var.GetTexture()) {
 			// SUEDE TODO: for some weird reason...
- 			//if (ite->first == Variables::MatrixTextureBuffer) {
+ 			//if (ite->first == BuiltinProperties::MatrixTextureBuffer) {
  			//	textureIndex = 1;
  			//}
- 			//else if (ite->first == Variables::MainTexture) {
+ 			//else if (ite->first == BuiltinProperties::MainTexture) {
  			//	textureIndex = 0;
  			//}
- 			//else if (ite->first == Variables::ShadowDepthTexture) {
+ 			//else if (ite->first == BuiltinProperties::ShadowDepthTexture) {
  			//	textureIndex = 2;
  			//}
 

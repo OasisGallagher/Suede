@@ -1,5 +1,5 @@
 #include "screen.h"
-#include "variables.h"
+#include "builtinproperties.h"
 #include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 
@@ -21,8 +21,8 @@ SharedTextureManager::SharedTextureManager() {
 }
 
 void SharedTextureManager::Attach(Material material) {
-	material->SetTexture(Variables::SSAOTexture, ssao_);
-	material->SetTexture(Variables::DepthTexture, depth_);
-	material->SetTexture(Variables::ShadowDepthTexture, shadowDepth_);
-	material->SetTexture(Variables::MatrixTextureBuffer, matrixBuffer_);
+	material->SetTexture(BuiltinProperties::SSAOTexture, ssao_);
+	material->SetTexture(BuiltinProperties::DepthTexture, depth_);
+	material->SetTexture(BuiltinProperties::ShadowDepthTexture, shadowDepth_);
+	material->SetTexture(BuiltinProperties::MatrixTextureBuffer, matrixBuffer_);
 }

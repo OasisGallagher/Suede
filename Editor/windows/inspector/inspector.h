@@ -12,9 +12,6 @@
 
 #include "custom/componentmetaobject.h"
 
-class CustomInspector;
-
-class FileEntry;
 class Inspector : public QDockWidget, public WinSingleton<Inspector> {
 	Q_OBJECT
 

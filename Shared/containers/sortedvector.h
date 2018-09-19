@@ -33,16 +33,16 @@ public:
 	}
 
 	void sort() {
-		std::sort(container_.begin(), container_.end(), comp_);
+		std::sort(begin(), end(), comp_);
 	}
 
 	iterator find(const value_type& value) {
-		return std::lower_bound(container_.begin(), container_.end(), value, comp_);
+		return std::lower_bound(begin(), end(), value, comp_);
 	}
 
 	bool get(value_type& value) {
 		iterator ite = find(value);
-		if (ite == container_.end()) { return false; }
+		if (ite == end()) { return false; }
 		value = *ite;
 		return true;
 	}
@@ -58,7 +58,7 @@ public:
 
 	bool contains(const value_type& value) {
 		iterator ite = find(value);
-		return ite != container_.end() && !comp_(value, *ite);
+		return ite != end() && !comp_(value, *ite);
 	}
 
 	iterator begin() { return container_.begin(); }

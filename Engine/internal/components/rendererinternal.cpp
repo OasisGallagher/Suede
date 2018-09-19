@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "variables.h"
+#include "builtinproperties.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/pipeline.h"
 
@@ -29,7 +29,7 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 
 void SkinnedMeshRendererInternal::UpdateMaterialProperties() {
 	for (Material material : GetMaterials()) {
-		material->SetMatrix4Array(Variables::BoneToRootMatrices, skeleton_->GetBoneToRootMatrices(), MAX_BONE_COUNT);
+		material->SetMatrix4Array(BuiltinProperties::BoneToRootMatrices, skeleton_->GetBoneToRootMatrices(), MAX_BONE_COUNT);
 	}
 }
 

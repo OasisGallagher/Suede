@@ -1,5 +1,6 @@
 #pragma once
 #include "object.h"
+#include "texture.h"
 
 #define SUEDE_DECLARE_COMPONENT() \
 public: \
@@ -28,6 +29,7 @@ enum {
 class SUEDE_API IComponent : virtual public IObject {
 public:
 	virtual void Awake() = 0;
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) = 0;
 
 	virtual bool GetEnabled() const = 0;
 	virtual void SetEnabled(bool value) = 0;

@@ -5,6 +5,7 @@
 #include "glef.h"
 #include "opengldriver.h"
 #include "engineinternal.h"
+#include "builtinproperties.h"
 
 #include "worldinternal.h"
 #include "../tools/time2internal.h"

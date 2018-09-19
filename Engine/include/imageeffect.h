@@ -1,10 +1,10 @@
 #pragma once
 #include "texture.h"
+#include "behaviour.h"
 
-class ImageEffect {
-public:
-	virtual ~ImageEffect() {}
+class SUEDE_API ImageEffect : public Behaviour {
+	SUEDE_DECLARE_COMPONENT()
 
 public:
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) = 0;
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {}
 };

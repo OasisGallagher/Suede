@@ -1,10 +1,10 @@
 #include "time2.h"
 #include "world.h"
 #include "camera.h"
-#include "variables.h"
 #include "resources.h"
 #include "tools/math2.h"
 #include "tools/random.h"
+#include "builtinproperties.h"
 #include "particlesysteminternal.h"
 
 SUEDE_DEFINE_COMPONENT(IParticleSystem, IComponent)
@@ -191,7 +191,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 
 	Texture2D mainTexture = NewTexture2D();
 	mainTexture->Create("snowflake.png");
-	material->SetTexture(Variables::MainTexture, mainTexture);
+	material->SetTexture(BuiltinProperties::MainTexture, mainTexture);
 
 	renderer->AddMaterial(material);
 

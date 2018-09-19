@@ -3,11 +3,11 @@
 #include <ft2build.h>
 #include <freetype/ftglyph.h>
 
-#include "variables.h"
 #include "resources.h"
 #include "tools/math2.h"
 #include "fontinternal.h"
 #include "os/filesystem.h"
+#include "builtinproperties.h"
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
@@ -16,8 +16,8 @@ FontInternal::FontInternal()
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.
-	material_->SetColor(Variables::MainColor, Color::white);
-	material_->SetTexture(Variables::MainTexture, NewTexture2D());
+	material_->SetColor(BuiltinProperties::MainColor, Color::white);
+	material_->SetTexture(BuiltinProperties::MainTexture, NewTexture2D());
 }
 
 FontInternal::~FontInternal() {
@@ -51,7 +51,7 @@ bool FontInternal::Require(const std::wstring& str) {
 }
 
 Texture2D FontInternal::GetTexture() const {
-	return suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::MainTexture));
+	return suede_dynamic_cast<Texture2D>(material_->GetTexture(BuiltinProperties::MainTexture));
 }
 
 std::string FontInternal::GetFamilyName() const {
@@ -158,7 +158,7 @@ void FontInternal::RebuildMaterial() {
 
 	coords_ = atlas.coords;
 
-	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(Variables::MainTexture));
+	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(BuiltinProperties::MainTexture));
 	texture->Create(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
 
 	for (uint i = 0; i < listeners_.size(); ++i) {

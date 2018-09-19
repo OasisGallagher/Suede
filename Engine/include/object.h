@@ -32,17 +32,15 @@ BETTER_ENUM(ObjectType, int,
 
 	// Components
 	Transform,
+	Light,
+	Camera,
+	Projector,
 	ParticleSystem,
 	Animation,
 	MeshFilter,
 	MeshRenderer,
 	ParticleRenderer,
 	SkinnedMeshRenderer,
-	Camera,
-	Projector,
-	SpotLight,
-	PointLight,
-	DirectionalLight,
 
 	// 
 	CustomBehaviour

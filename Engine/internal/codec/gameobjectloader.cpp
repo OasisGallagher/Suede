@@ -2,14 +2,14 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include "world.h"
-#include "variables.h"
 #include "resources.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "tools/string.h"
-#include "gameobjectloader.h"
 #include "memory/memory.h"
 #include "os/filesystem.h"
+#include "gameobjectloader.h"
+#include "builtinproperties.h"
 #include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
 
@@ -23,35 +23,35 @@ void MaterialAsset::ApplyAsset() {
 	Shader shader = Resources::instance()->FindShader("builtin/" + shaderName);
 	material->SetShader(shader);
 
-	material->SetFloat(Variables::Gloss, gloss);
+	material->SetFloat(BuiltinProperties::Gloss, gloss);
 
-	material->SetColor(Variables::MainColor, mainColor);
-	material->SetColor(Variables::SpecularColor, specularColor);
-	material->SetColor(Variables::EmissiveColor, emissiveColor);
+	material->SetColor(BuiltinProperties::MainColor, mainColor);
+	material->SetColor(BuiltinProperties::SpecularColor, specularColor);
+	material->SetColor(BuiltinProperties::EmissiveColor, emissiveColor);
 
 	material->SetName(name);
 
 	if (mainTexels != nullptr) {
-		material->SetTexture(Variables::MainTexture, CreateTexture2D(mainTexels));
+		material->SetTexture(BuiltinProperties::MainTexture, CreateTexture2D(mainTexels));
 	}
 	else {
-		material->SetTexture(Variables::MainTexture, Resources::instance()->GetWhiteTexture());
+		material->SetTexture(BuiltinProperties::MainTexture, Resources::instance()->GetWhiteTexture());
 	}
 
 	if (bumpTexels != nullptr) {
-		material->SetTexture(Variables::BumpTexture, CreateTexture2D(bumpTexels));
+		material->SetTexture(BuiltinProperties::BumpTexture, CreateTexture2D(bumpTexels));
 	}
 
 	if (specularTexels != nullptr) {
-		material->SetTexture(Variables::SpecularTexture, CreateTexture2D(specularTexels));
+		material->SetTexture(BuiltinProperties::SpecularTexture, CreateTexture2D(specularTexels));
 	}
 
 	if (emissiveTexels != nullptr) {
-		material->SetTexture(Variables::EmissiveTexture, CreateTexture2D(emissiveTexels));
+		material->SetTexture(BuiltinProperties::EmissiveTexture, CreateTexture2D(emissiveTexels));
 	}
 
 	if (lightmapTexels != nullptr) {
-		material->SetTexture(Variables::LightmapTexture, CreateTexture2D(lightmapTexels));
+		material->SetTexture(BuiltinProperties::LightmapTexture, CreateTexture2D(lightmapTexels));
 	}
 }
 

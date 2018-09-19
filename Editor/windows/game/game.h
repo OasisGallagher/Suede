@@ -11,7 +11,6 @@
 
 class Canvas;
 class StatsWidget;
-class ImageEffect;
 class CameraController;
 
 class Game : public QDockWidget, public WinSingleton<Game>, public GizmosPainter, public GameObjectLoadedListener {
@@ -71,10 +70,6 @@ private:
 
 	Canvas* canvas_;
 	StatsWidget* stat_;
-
-	ImageEffect* grayscale_;
-	ImageEffect* inversion_;
-	ImageEffect* gaussianBlur_;
 
 	CameraController* controller_;
 };

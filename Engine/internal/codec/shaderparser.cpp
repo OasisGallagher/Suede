@@ -1,9 +1,9 @@
 #include "glef.h"
 #include "resources.h"
-#include "variables.h"
 #include "tools/math2.h"
 #include "shaderparser.h"
 #include "os/filesystem.h"
+#include "builtinproperties.h"
 #include "internal/base/renderdefines.h"
 
 bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& customDefines) {
@@ -235,7 +235,6 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 	return ShaderStageCount;
 }
 
-#include <fstream>
 void GLSLParser::SetCurrentShaderStageCode() {
 	answer_[type_] =
 		String::Format(defines_.c_str(), GetShaderDescription(type_).shaderNameDefine)

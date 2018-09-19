@@ -65,8 +65,6 @@ private:
 	template <class Container>
 	void ManageGameObjectComponents(Container& container, Component component, bool added);
 
-	bool IsLightComponentGUID(suede_guid guid);
-
 	void FireEvents();
 	void UpdateDecals();
 	void CullingUpdateGameObjects();

@@ -10,6 +10,8 @@ class CameraController : public QObject, public Behaviour {
 	Q_PROPERTY(glm::vec2 OrientSpeed READ orientSpeed WRITE setOrientSpeed)
 	Q_PROPERTY(glm::vec2 RotateSpeed READ rotateSpeed WRITE setRotateSpeed)
 
+	SUEDE_DECLARE_COMPONENT()
+
 public:
 	CameraController(QWidget* view);
 

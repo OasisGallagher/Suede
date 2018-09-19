@@ -193,9 +193,6 @@
     <ClInclude Include="internal\world\environmentinternal.h">
       <Filter>internal\world\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\variables.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\graphics.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -272,9 +269,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\gizmos.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\imageeffect.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\gizmospainter.h">
@@ -452,6 +446,15 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\color.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\builtinproperties.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imageeffect.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ranged.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
@@ -647,6 +650,12 @@
     </ClCompile>
     <ClCompile Include="internal\base\color.cpp">
       <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\builtinproperties.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\imageeffect.cpp">
+      <Filter>internal\rendering\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

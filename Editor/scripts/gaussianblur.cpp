@@ -1,7 +1,10 @@
 #include "resources.h"
 #include "gaussianblur.h"
 
-GaussianBlur::GaussianBlur() : amount_(5) {
+SUEDE_DEFINE_COMPONENT(GaussianBlur, ImageEffect)
+
+void GaussianBlur::Awake() {
+	amount_.reset(5, 1, 10);
 	material_ = NewMaterial();
 	material_->SetShader(Resources::instance()->FindShader("gaussianblur"));
 }

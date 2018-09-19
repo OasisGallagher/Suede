@@ -1,8 +1,8 @@
 #include "screen.h"
-#include "variables.h"
 #include "tools/math2.h"
 #include "memory/memory.h"
 #include "../api/glutils.h"
+#include "builtinproperties.h"
 #include "uniformbuffermanager.h"
 #include "internal/base/renderdefines.h"
 

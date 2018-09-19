@@ -22,7 +22,6 @@ BETTER_ENUM(DepthTextureMode, int,
 	Depth = 1
 )
 
-class ImageEffect;
 class GizmosPainter;
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
@@ -80,7 +79,6 @@ public:
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;
 
-	virtual void AddImageEffect(ImageEffect* effect) = 0;
 	virtual void AddGizmosPainter(GizmosPainter* painter) = 0;
 
 	virtual Texture2D Capture() = 0;

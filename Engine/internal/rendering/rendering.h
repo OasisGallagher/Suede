@@ -9,7 +9,6 @@
 
 class Sample;
 class Pipeline;
-class ImageEffect;
 
 enum RenderPassType {
 	RenderPassTypeNone = -1,
@@ -50,6 +49,7 @@ struct RenderingRenderTextures {
 struct RenderingParameters {
 	RenderingParameters();
 
+	IGameObject* camera;
 	Rect normalizedRect;
 
 	ClearType clearType;
@@ -60,8 +60,6 @@ struct RenderingParameters {
 
 	RenderingMaterials materials;
 	RenderingRenderTextures renderTextures;
-
-	std::vector<ImageEffect*> imageEffects;
 };
 
 struct RenderingPipelines {

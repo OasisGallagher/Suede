@@ -63,7 +63,7 @@ void Rendering::Resize(uint width, uint height) {
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
 	UpdateUniformBuffers(matrices, pipelines);
-	
+
 	DepthPass(pipelines);
 
 	if (Graphics::instance()->GetAmbientOcclusionEnabled()) {
@@ -71,16 +71,16 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 		SSAOPass(pipelines);
 	}
 
-	ShadowPass(pipelines);
+	if (pipelines.forwardBaseLight) {
+		ShadowPass(pipelines);
+	}
 
 	RenderPass(pipelines);
 
 	OnPostRender();
 
 	//Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
-	if (!p_->imageEffects.empty()) {
-		OnImageEffects();
-	}
+	OnImageEffects();
 }
 
 void Rendering::ClearRenderTextures() {
@@ -140,12 +140,13 @@ void Rendering::OnImageEffects() {
 	RenderTexture targets[] = { p_->renderTextures.aux1, p_->renderTextures.aux2 };
 
 	int index = 1;
-	for (int i = 0; i < p_->imageEffects.size(); ++i) {
-		if (i + 1 == p_->imageEffects.size()) {
+	auto effects = p_->camera->GetComponents<ImageEffect>();
+	for (int i = 0; i < effects.size(); ++i) {
+		if (i + 1 == effects.size()) {
 			targets[index] = p_->renderTextures.target;
 		}
 
-		p_->imageEffects[i]->OnRenderImage(targets[1 - index], targets[index], p_->normalizedRect);
+		effects[i]->OnRenderImage(targets[1 - index], targets[index], p_->normalizedRect);
 		index = 1 - index;
 	}
 }
@@ -274,7 +275,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 	RenderTexture target = GetActiveRenderTarget();
 
 	if (forwardBase) {
-		Shadows::instance()->Update(suede_dynamic_cast<DirectionalLight>(forwardBase), pipelines_.shadow);
+		Shadows::instance()->Update(forwardBase, pipelines_.shadow);
 	}
 
 	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
@@ -293,6 +294,7 @@ void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObje
 		RenderSkybox(pl);
 	}
 
+	pipelines_.forwardBaseLight = forwardBase;
 	if (forwardBase) {
 		RenderForwardBase(pl, gameObjects, forwardBase);
 	}
@@ -327,9 +329,9 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 	// 	for (int i = 0; i < gameObjects.size(); ++i) {
 	// 		GameObject go = gameObjects[i];
 	// 
-	// 		Texture mainTexture = go->GetRenderer()->GetMaterial(0)->GetTexture(Variables::MainTexture);
+	// 		Texture mainTexture = go->GetRenderer()->GetMaterial(0)->GetTexture(BuiltinProperties::MainTexture);
 	// 		Material material = suede_dynamic_cast<Material>(deferredMaterial_->Clone());
-	// 		material->SetTexture(Variables::MainTexture, mainTexture);
+	// 		material->SetTexture(BuiltinProperties::MainTexture, mainTexture);
 	// 		pipeline_->AddRenderable(go->GetMesh(), deferredMaterial_, 0, target, go->GetTransform()->GetLocalToWorldMatrix());
 	// 	}
 	// 
@@ -346,7 +348,7 @@ void RenderableTraits::RenderSkybox(Pipeline* pl) {
 }
 
 RenderTexture RenderableTraits::GetActiveRenderTarget() {
-	if (!p_->imageEffects.empty()) {
+	if (!p_->camera->GetComponents<ImageEffect>().empty()) {
 		return p_->renderTextures.aux1;
 	}
 
@@ -360,8 +362,6 @@ RenderTexture RenderableTraits::GetActiveRenderTarget() {
 }
 
 void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light light) {
-	pipelines_.forwardBaseLight = light;
-
 	forward_pass->Restart();
 	ForwardPass(pl, gameObjects);
 	forward_pass->Stop();
@@ -424,7 +424,11 @@ void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forward
 		return;
 	}
 
-	forwardBase = suede_dynamic_cast<Light>(lights.front());
+	Light first = lights.front();
+	if (first->GetType() == LightType::Directional) {
+		forwardBase = first;
+	}
+
 	for (int i = 1; i < lights.size(); ++i) {
 		forwardAdd.push_back(suede_dynamic_cast<Light>(lights[i]));
 	}

@@ -7,13 +7,13 @@
 
 #include "gui.h"
 #include "ui_editor.h"
+#include "materialeditor.h"
 
 #include "resources.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "os/filesystem.h"
 #include "gui/qtimgui/QtImGui.h"
-#include "custom/meshrendererinspector.h"
 
 Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
@@ -30,15 +30,12 @@ void Inspector::init(Ui::Editor* ui) {
 
 	addSuedeMetaObject(ObjectType::Transform, std::make_shared<TransformMetaObject>());
 
-	auto lightMetaObject = std::make_shared<LightMetaObject>();
-	addSuedeMetaObject(ObjectType::PointLight, lightMetaObject);
-	addSuedeMetaObject(ObjectType::DirectionalLight, lightMetaObject);
-	addSuedeMetaObject(ObjectType::SpotLight, lightMetaObject);
-
+	addSuedeMetaObject(ObjectType::Light, std::make_shared<LightMetaObject>());
 	addSuedeMetaObject(ObjectType::Camera, std::make_shared<CameraMetaObject>());
+
 	//addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorInspector>());
 	//addSuedeMetaObject(ObjectType::Mesh, std::make_shared<MeshInspector>());
-	//addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<RendererMetaObject>());
+	addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<MeshRendererMetaObject>());
 }
 
 void Inspector::awake() {
@@ -75,7 +72,7 @@ void Inspector::onGui() {
 		oldContext->makeCurrent();
 	}
 
-	CustomInspector::runMainContextCommands();
+	MaterialEditor::runMainContextCommands();
 }
 
 void Inspector::drawGui() {
@@ -166,7 +163,13 @@ void Inspector::drawMetaObject(QObject* object) {
 }
 
 void Inspector::drawBuiltinType(QMetaProperty &p, QObject* object, const char* name) {
-	if (p.type() == QMetaType::Float) {
+	if (p.type() == QMetaType::Bool) {
+		bool b = object->property(name).toBool();
+		if (GUI::Toggle(name, b)) {
+			object->setProperty(name, b);
+		}
+	}
+	else if (p.type() == QMetaType::Float) {
 		float f = object->property(name).toFloat();
 		if (GUI::FloatField(name, f)) {
 			object->setProperty(name, f);
@@ -177,6 +180,15 @@ void Inspector::drawBuiltinType(QMetaProperty &p, QObject* object, const char* n
 		if (GUI::IntField(name, i)) {
 			object->setProperty(name, i);
 		}
+	}
+	else if (p.type() == QMetaType::UInt) {
+		uint u = object->property(name).toUInt();
+		if (GUI::UIntField(name, u)) {
+			object->setProperty(name, u);
+		}
+	}
+	else {
+		Debug::LogError("unable to draw builtin type %s(%d).", p.typeName(), p.type());
 	}
 }
 
@@ -207,11 +219,73 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 			object->setProperty(name, QVariant::fromValue(ClearType::value(selected)));
 		}
 	}
+	else if (userType == QMetaTypeId<RenderPath>::qt_metatype_id()) {
+		int selected = -1;
+		RenderPath path = object->property(name).value<RenderPath>();
+		if (GUI::EnumPopup(name, +path, selected)) {
+			object->setProperty(name, QVariant::fromValue(RenderPath::value(selected)));
+		}
+	}
+	else if (userType == QMetaTypeId<DepthTextureMode>::qt_metatype_id()) {
+		int selected = -1;
+		DepthTextureMode mode = object->property(name).value<DepthTextureMode>();
+		if (GUI::EnumPopup(name, +mode, selected)) {
+			object->setProperty(name, QVariant::fromValue(DepthTextureMode::value(selected)));
+		}
+	}
+	else if (userType == QMetaTypeId<LightType>::qt_metatype_id()) {
+		int selected = -1;
+		LightType type = object->property(name).value<LightType>();
+		if (GUI::EnumPopup(name, +type, selected)) {
+			object->setProperty(name, QVariant::fromValue(LightType::value(selected)));
+		}
+	}
 	else if (userType == QMetaTypeId<Color>::qt_metatype_id()) {
 		Color color = object->property(name).value<Color>();
 		if (GUI::ColorField(name, color)) {
 			object->setProperty(name, QVariant::fromValue(color));
 		}
+	}
+	else if (userType == QMetaTypeId<QVector<Material>>::qt_metatype_id()) {
+		bool first = true;
+		for (Material material : object->property(name).value<QVector<Material>>()) {
+			if (!first) { GUI::Separator(); }
+			MaterialEditor::draw(material);
+			first = false;
+		}
+	}
+	else if (userType == QMetaTypeId<RenderTexture>::qt_metatype_id()) {
+		static uint blackTextureID = Resources::instance()->GetBlackTexture()->GetNativePointer();
+		RenderTexture texture = object->property(name).value<RenderTexture>();
+		GUI::Image(name, texture ? texture->GetNativePointer() : blackTextureID);
+	}
+	else if (userType == QMetaTypeId<Rect>::qt_metatype_id()) {
+
+	}
+	else if (userType == QMetaTypeId<RangedInt>::qt_metatype_id()) {
+		RangedInt rint = object->property(name).value<RangedInt>();
+		int i = rint.value();
+		if (GUI::IntField(name, i, rint.min(), rint.max())) {
+			object->setProperty(name, i);
+		}
+	}
+	else if (userType == QMetaTypeId<RangedUInt>::qt_metatype_id()) {
+		RangedUInt ruint = object->property(name).value<RangedUInt>();
+		uint u = ruint.value();
+		if (GUI::UIntField(name, u, ruint.min(), ruint.max())) {
+			ruint.setValue(u);
+			object->setProperty(name, QVariant::fromValue(ruint));
+		}
+	}
+	else if (userType == QMetaTypeId<RangedFloat>::qt_metatype_id()) {
+		RangedFloat rfloat = object->property(name).value<RangedFloat>();
+		float f = rfloat.value();
+		if (GUI::FloatField(name, f, rfloat.min(), rfloat.max())) {
+			object->setProperty(name, f);
+		}
+	}
+	else {
+		Debug::LogError("unable to draw user type %s(%d).", p.typeName(), userType);
 	}
 }
 

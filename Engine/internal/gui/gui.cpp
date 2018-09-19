@@ -150,12 +150,16 @@ bool GUI::Slider(const char* title, float* v, float min, float max) {
 	return ImGui::SliderFloat(title, v, min, max);
 }
 
-bool GUI::IntField(const char* title, int& v) {
-	return ImGui::DragInt(title, &v);
+bool GUI::IntField(const char* title, int& v, int min, int max) {
+	return ImGui::DragInt(title, &v, 1.f, min, max);
 }
 
-bool GUI::FloatField(const char* title, float& v) {
-	return ImGui::DragFloat(title, &v);
+bool GUI::UIntField(const char* title, uint& v, uint min, uint max) {
+	return ImGui::DragUInt(title, &v, 1.f, min, max);
+}
+
+bool GUI::FloatField(const char* title, float& v, float min, float max) {
+	return ImGui::DragFloat(title, &v, min, max);
 }
 
 bool GUI::Float2Field(const char* title, glm::vec2& v) {

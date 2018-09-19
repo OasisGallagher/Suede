@@ -2,9 +2,14 @@
 #include "internal/components/componentinternal.h"
 
 class LightInternal : virtual public ILight, public ComponentInternal {
+	DEFINE_FACTORY_METHOD(Light)
+
 public:
-	LightInternal(ObjectType type) : ComponentInternal(type), intensity_(1) {}
+	LightInternal();
 	~LightInternal() {}
+
+	virtual void SetType(LightType value) { type_ = value; }
+	virtual LightType GetType() { return type_; }
 
 	virtual void SetImportance(LightImportance value) { importance_ = value; }
 	virtual LightImportance GetImportance() { return importance_; }
@@ -17,44 +22,7 @@ public:
 
 protected:
 	Color color_;
+	LightType type_;
 	float intensity_;
 	LightImportance importance_;
-};
-
-class SpotLightInternal : public ISpotLight, public LightInternal {
-	DEFINE_FACTORY_METHOD(SpotLight)
-
-public:
-	SpotLightInternal() : LightInternal(ObjectType::SpotLight) {}
-};
-
-class PointLightInternal : public IPointLight, public LightInternal {
-	DEFINE_FACTORY_METHOD(PointLight)
-
-public:
-	PointLightInternal() : LightInternal(ObjectType::PointLight) {}
-
-public:
-	virtual void SetConstant(float value) { constant_ = value; }
-	virtual float GetConstant() { return constant_; }
-
-	virtual void SetLinear(float value) { linear_ = value; }
-	virtual float GetLinear() { return linear_; }
-
-	virtual void SetExp(float value) { exp_ = value; }
-	virtual float GetExp() { return exp_; }
-
-private:
-	float exp_;
-	float linear_;
-	float constant_;
-};
-
-class DirectionalLightInternal : public IDirectionalLight, public LightInternal {
-	DEFINE_FACTORY_METHOD(DirectionalLight)
-
-public:
-	DirectionalLightInternal() : LightInternal(ObjectType::DirectionalLight) {
-		intensity_ = 0.5f;
-	}
 };

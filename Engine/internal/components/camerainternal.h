@@ -16,7 +16,6 @@
 
 //class GBuffer;
 
-class ImageEffect;
 class GizmosPainter;
 
 class Sample;
@@ -31,6 +30,8 @@ public:
 	~CameraInternal();
 
 public:
+	virtual void Awake() { p_.camera = GetGameObject().get(); }
+
 	virtual void SetDepth(int value);
 	virtual int GetDepth() { return depth_;  }
 
@@ -85,7 +86,6 @@ public:
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
 public:
-	virtual void AddImageEffect(ImageEffect* effect) { p_.imageEffects.push_back(effect); }
 	virtual void AddGizmosPainter(GizmosPainter* painter) { gizmosPainters_.push_back(painter); }
 
 public:

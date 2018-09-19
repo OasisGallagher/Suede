@@ -9778,6 +9778,10 @@ bool ImGui::DragInt(const char* label, int* v, float v_speed, int v_min, int v_m
     return DragScalar(label, ImGuiDataType_S32, v, v_speed, &v_min, &v_max, format);
 }
 
+bool ImGui::DragUInt(const char* label, unsigned* v, float v_speed, int v_min, int v_max, const char* format) {
+	return DragScalar(label, ImGuiDataType_U32, v, v_speed, &v_min, &v_max, format);
+}
+
 bool ImGui::DragInt2(const char* label, int v[2], float v_speed, int v_min, int v_max, const char* format)
 {
     return DragScalarN(label, ImGuiDataType_S32, v, 2, v_speed, &v_min, &v_max, format);

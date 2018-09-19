@@ -4,7 +4,7 @@
 
 #include "pipeline.h"
 #include "resources.h"
-#include "variables.h"
+#include "builtinproperties.h"
 #include "sharedtexturemanager.h"
 #include "internal/world/worldinternal.h"
 
@@ -31,7 +31,7 @@ RenderTexture Shadows::GetShadowTexture() {
 	return shadowDepthTexture_;
 }
 
-void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
+void Shadows::Update(Light light, Pipeline* pipeline) {
 	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
 	glm::vec3 lightDirection = light->GetTransform()->GetForward();
 	float near = 1.f, far = 90.f;
@@ -39,7 +39,7 @@ void Shadows::Update(DirectionalLight light, Pipeline* pipeline) {
 	glm::mat4 projection = glm::ortho(-50.f, 50.f, -50.f, 50.f, near, far);
 	glm::mat4 view = glm::lookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
 	glm::mat4 shadowDepthMatrix = projection * view;
-	directionalLightShadowMaterial_->SetMatrix4(Variables::WorldToOrthographicLightMatrix, shadowDepthMatrix);
+	directionalLightShadowMaterial_->SetMatrix4(BuiltinProperties::WorldToOrthographicLightMatrix, shadowDepthMatrix);
 
 	uint nrenderables = pipeline->GetRenderableCount();
 	Rect rect(0, 0, 1, 1);

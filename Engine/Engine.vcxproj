@@ -174,6 +174,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\shaderinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\uniformbuffer.cpp" />
+    <ClCompile Include="internal\base\builtinproperties.cpp" />
     <ClCompile Include="internal\base\variant.cpp" />
     <ClCompile Include="internal\base\vertexarray.cpp" />
     <ClCompile Include="internal\components\animationinternal.cpp" />
@@ -204,6 +205,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\gui\imgui_draw.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
+    <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\matrixbuffer.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\rendering.cpp" />
@@ -237,6 +239,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\color.h" />
     <ClInclude Include="include\component.h" />
+    <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
@@ -250,7 +253,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\graphics.h" />
     <ClInclude Include="include\graphicscanvas.h" />
     <ClInclude Include="include\gui.h" />
-    <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\object.h" />
@@ -259,6 +261,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\polygon.h" />
     <ClInclude Include="include\profiler.h" />
     <ClInclude Include="include\projector.h" />
+    <ClInclude Include="include\ranged.h" />
     <ClInclude Include="include\rect.h" />
     <ClInclude Include="include\renderer.h" />
     <ClInclude Include="include\resources.h" />
@@ -270,7 +273,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\time2.h" />
     <ClInclude Include="include\transform.h" />
-    <ClInclude Include="include\variables.h" />
+    <ClInclude Include="include\builtinproperties.h" />
     <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\graphicsviewer.h" />
     <ClInclude Include="include\world.h" />

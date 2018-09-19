@@ -24,9 +24,9 @@
 
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
-	ObjectType lt = lhs->GetObjectType(), rt = rhs->GetObjectType();
-	if (lt != rt && (lt == ObjectType::DirectionalLight || rt == ObjectType::DirectionalLight)) {
-		return lt == ObjectType::DirectionalLight;
+	LightType lt = lhs->GetType(), rt = rhs->GetType();
+	if (lt != rt && (lt == LightType::Directional || rt == LightType::Directional)) {
+		return lt == LightType::Directional;
 	}
 
 	LightImportance lli = lhs->GetImportance(), rli = rhs->GetImportance();
@@ -158,7 +158,7 @@ std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid
 			gameObjects.push_back(projector->GetGameObject());
 		}
 	}
-	else if (IsLightComponentGUID(guid)) {
+	else if (guid == ILight::GetComponentGUID()) {
 		for (Light light : lights_) {
 			gameObjects.push_back(light->GetGameObject());
 		}
@@ -309,10 +309,6 @@ void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent
 	ManageGameObjectComponents(lights_, e->component, e->added);
 	ManageGameObjectComponents(cameras_, e->component, e->added);
 	ManageGameObjectComponents(projectors_, e->component, e->added);
-}
-
-bool WorldInternal::IsLightComponentGUID(suede_guid guid) {
-	return guid == ILight::GetComponentGUID() || guid == IPointLight::GetComponentGUID() || guid == IDirectionalLight::GetComponentGUID() || guid == ISpotLight::GetComponentGUID();
 }
 
 void WorldInternal::FireEvents() {

@@ -1,7 +1,7 @@
 #include "decalcreater.h"
 
 #include "resources.h"
-#include "variables.h"
+#include "builtinproperties.h"
 
 bool DecalCreater::CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]) {
 	std::vector<glm::vec3> triangles;
@@ -65,8 +65,8 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	glm::mat4 biasMatrix = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5f)), glm::vec3(0.5f));
 	Material decalMaterial = suede_dynamic_cast<Material>(material_->Clone());
 
-	decalMaterial->SetMatrix4(Variables::DecalMatrix, biasMatrix * info->matrix);
-	decalMaterial->SetTexture(Variables::MainTexture, info->texture);
+	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
+	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture);
 
 	Mesh mesh = NewMesh();
 

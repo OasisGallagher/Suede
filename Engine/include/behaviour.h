@@ -13,6 +13,7 @@ public:
 public:
 	virtual void Awake() {}
 	virtual void Update() {}
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
 
 public:
 	virtual bool GetEnabled() const final;

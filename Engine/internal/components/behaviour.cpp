@@ -21,6 +21,10 @@ Behaviour::~Behaviour() {
 	MEMORY_DELETE(impl);
 }
 
+void Behaviour::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
+	Debug::LogError("Behaviour::OnRenderImage not implement");
+}
+
 bool Behaviour::GetEnabled() const {
 	return impl->GetEnabled();
 }

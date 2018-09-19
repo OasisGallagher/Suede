@@ -17,7 +17,7 @@ public:
 
 	void Resize(uint width, uint height);
 	const glm::mat4& GetWorldToShadowMatrix();
-	void Update(DirectionalLight light, Pipeline* pipeline);
+	void Update(Light light, Pipeline* pipeline);
 
 private:
 	Shadows();

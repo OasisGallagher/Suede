@@ -3,9 +3,9 @@
 #include "world.h"
 #include "graphics.h"
 #include "resources.h"
-#include "variables.h"
 #include "tools/math2.h"
 #include "../api/glutils.h"
+#include "builtinproperties.h"
 
 GraphicsInternal::GraphicsInternal() : mode_(ShadingMode::Shaded) {
 	material_ = CreateBlitMaterial();
@@ -42,7 +42,7 @@ void GraphicsInternal::Blit(Texture src, RenderTexture dest, Material material, 
 	if (!dest) { dest = RenderTexture::GetDefault(); }
 
 	dest->BindWrite(destRect);
-	material->SetTexture(Variables::MainTexture, src);
+	material->SetTexture(BuiltinProperties::MainTexture, src);
 
 	Mesh mesh = CreateBlitMesh(srcRect);
 	Draw(mesh, material);

@@ -1,11 +1,11 @@
 #include "glef.h"
-#include "variables.h"
 #include "tools/math2.h"
 #include "vertexattrib.h"
 #include "tools/string.h"
 #include "os/filesystem.h"
 #include "../api/glutils.h"
 #include "shaderinternal.h"
+#include "builtinproperties.h"
 
 #include "internal/base/renderdefines.h"
 
@@ -281,20 +281,20 @@ std::string Pass::LoadSource(ShaderStage stage, const char* source) {
 }
 
 void Pass::UpdateVertexAttributes() {
-	GL::BindAttribLocation(program_, VertexAttribPosition, Variables::Pos);
-	GL::BindAttribLocation(program_, VertexAttribTexCoord, Variables::TexCoord);
-	GL::BindAttribLocation(program_, VertexAttribNormal, Variables::Normal);
-	GL::BindAttribLocation(program_, VertexAttribTangent, Variables::Tangent);
-	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, Variables::BoneIndexes);
-	GL::BindAttribLocation(program_, VertexAttribBoneWeights, Variables::BoneWeights);
+	GL::BindAttribLocation(program_, VertexAttribPosition, "_Pos");
+	GL::BindAttribLocation(program_, VertexAttribTexCoord, "_TexCoord");
+	GL::BindAttribLocation(program_, VertexAttribNormal, "_Normal");
+	GL::BindAttribLocation(program_, VertexAttribTangent, "_Tangent");
+	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, "_BoneIndexes");
+	GL::BindAttribLocation(program_, VertexAttribBoneWeights, "_BoneWeights");
 
-	GL::BindAttribLocation(program_, VertexAttribInstanceColor, Variables::InstanceColor);
-	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, Variables::InstanceGeometry);
+	GL::BindAttribLocation(program_, VertexAttribInstanceColor, "_InstanceColor");
+	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, "_InstanceGeometry");
 
 	// https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
 	// SUEDE TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
-	// int location = glGetAttribLocation(program_, Variables::MatrixBuffer);
-	// GL::BindAttribLocation(program_, VertexAttribMatrixOffset, Variables::MatrixTextureBuffer);
+	// int location = glGetAttribLocation(program_, BuiltinProperties::MatrixBuffer);
+	// GL::BindAttribLocation(program_, VertexAttribMatrixOffset, BuiltinProperties::MatrixTextureBuffer);
 }
 
 void Pass::UpdateFragmentAttributes() {
@@ -362,10 +362,16 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 			p->value.SetBool(false);
 			break;
 		case VariantType::Vector3:
-			p->value.SetVector3(glm::vec3(0));
-			break;
 		case VariantType::Vector4:
-			p->value.SetVector4(glm::vec4(0));
+			if (BuiltinProperties::IsBuiltinColorProperty(name.c_str())) {
+				p->value.SetColor(Color::black);
+			}
+			else if(type == VariantType::Vector3) {
+				p->value.SetVector3(glm::vec3(0));
+			}
+			else {
+				p->value.SetVector4(glm::vec4(0));
+			}
 			break;
 		case VariantType::Texture:
 			p->value.SetTexture(nullptr);

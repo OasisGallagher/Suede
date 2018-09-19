@@ -10,6 +10,7 @@ public:
 
 public:
 	virtual void Awake() {}
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {}
 
 	virtual bool GetEnabled() const { return enabled_; }
 	virtual void SetEnabled(bool value) { enabled_ = value; }
