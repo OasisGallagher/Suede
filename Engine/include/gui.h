@@ -46,7 +46,8 @@ public:
 	template <class T>
 	static bool EnumMaskPopup(const char* title, T value);
 
-	static bool Slider(const char* title, float* v, float min, float max);
+	static bool Slider(const char* title, float& v, float min = -FLT_MAX, float max = FLT_MAX);
+	static bool IntSlider(const char* title, int& v, int min = INT_MIN, int max = INT_MAX);
 
 	static bool IntField(const char* title, int& v, int min = -16, int max = 16);
 	static bool UIntField(const char* title, uint& v, uint min = 0, uint max = 32);

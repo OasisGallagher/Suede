@@ -1,4 +1,6 @@
-Properties { }
+Properties { 
+	franged _Multiplier = { 1, 0.5, 2.0 };
+}
 
 SubShader {
 	Pass {
@@ -17,6 +19,7 @@ SubShader {
 		out vec4 fragColor;
 
 		uniform bool horizontal;
+		uniform float _Multiplier;
 		uniform sampler2D _MainTexture;
 
 		const float weights[5] = float[] (0.2270270270, 0.1945945946, 0.1216216216, 0.0540540541, 0.0162162162);
@@ -38,7 +41,7 @@ SubShader {
 				}
 			}
 			
-			fragColor = vec4(result, 1);
+			fragColor = vec4(result * _Multiplier, 1);
 		}
 
 		ENDGLSL

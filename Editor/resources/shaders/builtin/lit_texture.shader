@@ -1,6 +1,8 @@
 Properties {
-	float outlineFactor = 0.1;
-	color outlineColor = { 0.98, 0.51, 0.04 };
+	franged _RimFactor = { 0.1, 0.01, 0.5 };
+	color _RimColor = { 0.98, 0.51, 0.04 };
+	color _MainColor = { 1, 1, 1, 1 };
+	texture2D _MainTexture = "white";
 }
 
 SubShader {
@@ -24,21 +26,21 @@ SubShader {
 		in vec3 _Pos;
 		in vec3 _Normal;
 
-		uniform float outlineFactor;
+		uniform float _RimFactor;
 		void main() {
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 
 			vec3 normal = transpose(inverse(mat3(_WorldToCameraMatrix * _LocalToWorldMatrix))) * _Normal;
 			vec2 offset = mat2(_CameraToClipMatrix) * normal.xy;
-			gl_Position.xy += offset * outlineFactor;
+			gl_Position.xy += offset * _RimFactor;
 		}
 
 		#stage fragment
 		out vec4 fragColor;
 		
-		uniform vec3 outlineColor;
+		uniform vec3 _RimColor;
 		void main() {
-			fragColor = vec4(outlineColor, 1);
+			fragColor = vec4(_RimColor, 1);
 		}
 
 		ENDGLSL

@@ -246,6 +246,9 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 			object->setProperty(name, QVariant::fromValue(color));
 		}
 	}
+	else if (userType == QMetaTypeId<Material>::qt_metatype_id()) {
+		MaterialEditor::draw(object->property(name).value<Material>());
+	}
 	else if (userType == QMetaTypeId<QVector<Material>>::qt_metatype_id()) {
 		bool first = true;
 		for (Material material : object->property(name).value<QVector<Material>>()) {
@@ -260,28 +263,23 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 		GUI::Image(name, texture ? texture->GetNativePointer() : blackTextureID);
 	}
 	else if (userType == QMetaTypeId<Rect>::qt_metatype_id()) {
-
+		Rect rect = object->property(name).value<Rect>();
+		if (GUI::Float4Field(name, *(glm::vec4*)&rect)) {
+			object->setProperty(name, QVariant::fromValue(rect));
+		}
 	}
-	else if (userType == QMetaTypeId<RangedInt>::qt_metatype_id()) {
-		RangedInt rint = object->property(name).value<RangedInt>();
+	else if (userType == QMetaTypeId<iranged>::qt_metatype_id()) {
+		iranged rint = object->property(name).value<iranged>();
 		int i = rint.value();
-		if (GUI::IntField(name, i, rint.min(), rint.max())) {
-			object->setProperty(name, i);
+		if (GUI::IntSlider(name, i, rint.min(), rint.max())) {
+			object->setProperty(name, QVariant::fromValue(rint = i));
 		}
 	}
-	else if (userType == QMetaTypeId<RangedUInt>::qt_metatype_id()) {
-		RangedUInt ruint = object->property(name).value<RangedUInt>();
-		uint u = ruint.value();
-		if (GUI::UIntField(name, u, ruint.min(), ruint.max())) {
-			ruint.setValue(u);
-			object->setProperty(name, QVariant::fromValue(ruint));
-		}
-	}
-	else if (userType == QMetaTypeId<RangedFloat>::qt_metatype_id()) {
-		RangedFloat rfloat = object->property(name).value<RangedFloat>();
+	else if (userType == QMetaTypeId<franged>::qt_metatype_id()) {
+		franged rfloat = object->property(name).value<franged>();
 		float f = rfloat.value();
-		if (GUI::FloatField(name, f, rfloat.min(), rfloat.max())) {
-			object->setProperty(name, f);
+		if (GUI::Slider(name, f, rfloat.min(), rfloat.max())) {
+			object->setProperty(name, QVariant::fromValue(rfloat = f));
 		}
 	}
 	else {

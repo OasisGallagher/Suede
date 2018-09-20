@@ -34,8 +34,15 @@ void MaterialInternal::SetShader(Shader value) {
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
 	Variant* var = GetProperty(name, VariantType::Int);
-	if (var != nullptr && var->GetInt() != value) {
-		var->SetInt(value);
+	if (var != nullptr) {
+		if (var->GetInt() != value) { var->SetInt(value); }
+	}
+	else if ((var = GetProperty(name, VariantType::RangedInt)) != nullptr) {
+		iranged r = var->GetRangedInt();
+		if (r.value() != value) {
+			r = value;
+			var->SetRangedInt(r);
+		}
 	}
 }
 
@@ -48,8 +55,15 @@ void MaterialInternal::SetBool(const std::string& name, bool value) {
 
 void MaterialInternal::SetFloat(const std::string& name, float value) {
 	Variant* var = GetProperty(name, VariantType::Float);
-	if (var != nullptr && !Math::Approximately(var->GetFloat(), value)) {
-		var->SetFloat(value);
+	if (var != nullptr) {
+		if (!Math::Approximately(var->GetFloat(), value)) { var->SetFloat(value); }
+	}
+	else if ((var = GetProperty(name, VariantType::RangedFloat)) != nullptr) {
+		franged r = var->GetRangedFloat();
+		if (r.value() != value) {
+			r = value;
+			var->SetRangedFloat(r);
+		}
 	}
 }
 
@@ -103,12 +117,17 @@ void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4*
 }
 
 int MaterialInternal::GetInt(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::Int);
+	Variant* var = GetProperty(name, VariantType::Int);
 	if (var == nullptr) {
+		var = GetProperty(name, VariantType::RangedInt);
+	}
+
+	if (var == nullptr) {
+		Debug::LogError("no Int or RangedInt property named %s.", name.c_str());
 		return 0;
 	}
 
-	return var->GetInt();
+	return *(int*)var->GetData();
 }
 
 bool MaterialInternal::GetBool(const std::string& name) {
@@ -120,13 +139,36 @@ bool MaterialInternal::GetBool(const std::string& name) {
 	return var->GetBool();
 }
 
-float MaterialInternal::GetFloat(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::Float);
+iranged MaterialInternal::GetRangedInt(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantType::RangedInt);
 	if (var == nullptr) {
+		return iranged();
+	}
+
+	return var->GetRangedInt();
+}
+
+franged MaterialInternal::GetRangedFloat(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantType::RangedFloat);
+	if (var == nullptr) {
+		return franged();
+	}
+
+	return var->GetRangedFloat();
+}
+
+float MaterialInternal::GetFloat(const std::string& name) {
+	Variant* var = GetProperty(name, VariantType::Float);
+	if (var == nullptr) {
+		var = GetProperty(name, VariantType::RangedFloat);
+	}
+
+	if (var == nullptr) {
+		Debug::LogError("no Float or RangedFloat property named %s.", name.c_str());
 		return 0.f;
 	}
 
-	return var->GetFloat();
+	return *(float*)var->GetData();
 }
 
 Texture MaterialInternal::GetTexture(const std::string& name) {
@@ -176,7 +218,7 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 
 void MaterialInternal::GetProperties(std::vector<const Property*>& properties) const {
 	for (PropertyContainer::const_iterator ite = properties_.cbegin(); ite != properties_.cend(); ++ite) {
-		if (ite->second->mask != 0) {
+		if (ite->second->mask == -1) {
 			properties.push_back(&ite->second->property);
 		}
 	}
@@ -300,14 +342,9 @@ MaterialProperty* MaterialInternal::GetMaterialProperty(const std::string& name,
 }
 
 Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType type) {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return nullptr;
-	}
-
 	Variant* var = GetProperty(name, type);
 	if (var == nullptr) {
-		Debug::LogError("no property named %s.", name.c_str());
+		Debug::LogError("no %s property named %s.", type.to_string(), name.c_str());
 	}
 
 	return var;
@@ -390,17 +427,17 @@ void MaterialInternal::CopyProperties(Shader newShader) {
 
 void MaterialInternal::DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties) {
 	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
-		bool isActive = false;
+		bool active = false;
 		for (const ShaderProperty& shaderProperty : shaderProperties) {
 			Property* lp = shaderProperty.property;
 			Property* rp = &ite->second->property;
 			if (lp->name == rp->name && lp->value.GetType() == rp->value.GetType()) {
-				isActive = true;
+				active = true;
 				break;
 			}
 		}
 
-		if (!isActive) {
+		if (!active) {
 			ite->second->mask = 0;
 		}
 	}

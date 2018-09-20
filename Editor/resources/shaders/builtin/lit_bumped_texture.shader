@@ -1,4 +1,8 @@
-Properties { }
+Properties { 
+	color _MainColor = { 1, 1, 1, 1 };
+	texture2D _MainTexture = "white";
+}
+
 SubShader {
 	Pass {
 		ZTest LEqual;

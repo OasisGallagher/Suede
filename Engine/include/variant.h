@@ -3,13 +3,16 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "color.h"
+#include "ranged.h"
 #include "texture.h"
 
-enum class VariantType {
+BETTER_ENUM(VariantType, int,
 	None,
 	Int,
 	Bool,
 	Float,
+	RangedInt,
+	RangedFloat,
 	Matrix3,
 	Matrix4,
 	IVector3,
@@ -23,23 +26,21 @@ enum class VariantType {
 	_POD_ARRAY_BEGIN,
 	String,
 	Vector3Array = _POD_ARRAY_BEGIN,
-	Matrix4Array,
-};
+	Matrix4Array
+)
 
 class SUEDE_API Variant {
 public:
 	Variant() :type_(VariantType::None) { }
 	Variant(const Variant& other);
-
 	~Variant();
-
-public:
-	static const char* TypeString(VariantType type);
 
 public:
 	int GetInt() const;
 	bool GetBool() const;
 	float GetFloat() const;
+	iranged GetRangedInt() const;
+	franged GetRangedFloat() const;
 	glm::mat3 GetMatrix3() const;
 	glm::mat4 GetMatrix4() const;
 	glm::ivec3 GetIVector3() const;
@@ -62,6 +63,8 @@ public:
 	void SetInt(int value);
 	void SetBool(bool value);
 	void SetFloat(float value);
+	void SetRangedInt(const iranged& value);
+	void SetRangedFloat(const franged& value);
 	void SetMatrix3(const glm::mat3& value);
 	void SetMatrix4(const glm::mat4& value);
 	void SetIVector3(const glm::ivec3& value);

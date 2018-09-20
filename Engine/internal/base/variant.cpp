@@ -5,29 +5,6 @@
 
 #define CHECK_VARIANT_TYPE(T, R)	if (type_ != T) { Debug::LogError("invalid uniform type."); return R; } else (void)0
 
-const char* Variant::TypeString(VariantType type) {
-#define CASE(T)	case VariantType:: ## T: return #T
-	switch (type) {
-		CASE(None);
-		CASE(Int);
-		CASE(Bool);
-		CASE(Float);
-		CASE(Matrix3);
-		CASE(Matrix4);
-		CASE(IVector3);
-		CASE(Vector3);
-		CASE(Color);
-		CASE(Vector4);
-		CASE(Texture);
-		CASE(Matrix4Array);
-		CASE(Quaternion);
-	}
-#undef CASE
-
-	Debug::LogError("invalid variant type %d.", type);
-	return "";
-}
-
 Variant::Variant(const Variant& other) : Variant() {
 	if (other.type_ >= VariantType::_POD_ARRAY_BEGIN) {
 		SetPodArray(other.type_, other.data_.podArray.ptr, other.data_.podArray.size);
@@ -56,6 +33,16 @@ bool Variant::GetBool() const {
 float Variant::GetFloat() const {
 	CHECK_VARIANT_TYPE(VariantType::Float, 0);
 	return data_.floatValue;
+}
+
+iranged Variant::GetRangedInt() const {
+	CHECK_VARIANT_TYPE(VariantType::RangedInt, iranged());
+	return *(iranged*)&data_.ivec3Value;
+}
+
+franged Variant::GetRangedFloat() const {
+	CHECK_VARIANT_TYPE(VariantType::RangedFloat, franged());
+	return *(franged*)&data_.vec3Value;
 }
 
 glm::mat3 Variant::GetMatrix3() const {
@@ -136,6 +123,16 @@ void Variant::SetBool(bool value) {
 void Variant::SetFloat(float value) {
 	SetType(VariantType::Float);
 	data_.floatValue = value;
+}
+
+void Variant::SetRangedInt(const iranged& value) {
+	SetType(VariantType::RangedInt);
+	memcpy(&data_.ivec3Value, &value, sizeof(value));
+}
+
+void Variant::SetRangedFloat(const franged& value) {
+	SetType(VariantType::RangedFloat);
+	memcpy(&data_.vec3Value, &value, sizeof(value));
 }
 
 void Variant::SetMatrix3(const glm::mat3& value) {

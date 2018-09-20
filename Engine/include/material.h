@@ -57,15 +57,19 @@ public:
 	virtual int GetInt(const std::string& name) = 0;
 	virtual bool GetBool(const std::string& name) = 0;
 	virtual float GetFloat(const std::string& name) = 0;
+	virtual iranged GetRangedInt(const std::string& name) = 0;
+	virtual franged GetRangedFloat(const std::string& name) = 0;
 	virtual Texture GetTexture(const std::string& name) = 0;
 	virtual glm::mat4 GetMatrix4(const std::string& name) = 0;
 	virtual glm::vec3 GetVector3(const std::string& name) = 0;
 	virtual Color GetColor(const std::string& name) = 0;
 	virtual glm::vec4 GetVector4(const std::string& name) = 0;
 
+	/**
+	 * @brief get properties defined in Properties block.
+	 */
 	virtual void GetProperties(std::vector<const Property*>& properties) const = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Material);
 SUEDE_DECLARE_OBJECT_CREATER(Material);
-

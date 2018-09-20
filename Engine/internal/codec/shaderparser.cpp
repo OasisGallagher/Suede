@@ -95,7 +95,7 @@ bool GLSLParser::ReadShaderSource(const std::string& source) {
 			return false;
 		}
 
-		if (type_ == ShaderStageCount && *ptr != 0) {
+		if (type_ == ShaderStageCount &&*ptr != 0) {
 			Debug::LogError("%s(%d): invalid shader stage.", file_.c_str(), ln_.original);
 			return false;
 		}
@@ -269,19 +269,19 @@ const char* GLSLParser::ParseLineNumberAndMessageBody(const std::string& msgline
 	ln = 0;
 	const char* ptr = msgline.c_str();
 	// find file number.
-	for (; *ptr != 0 && !isdigit(*ptr); ++ptr) {}
+	for (;*ptr != 0 && !isdigit(*ptr); ++ptr) {}
 
 	// skip file number.
-	for (; *ptr != 0 && isdigit(*ptr); ++ptr) {}
+	for (;*ptr != 0 && isdigit(*ptr); ++ptr) {}
 
 	// find line number.
-	for (; *ptr != 0 && !isdigit(*ptr); ++ptr) {}
+	for (;*ptr != 0 && !isdigit(*ptr); ++ptr) {}
 
 	// parse line number.
-	for (; *ptr != 0 && isdigit(*ptr); ++ptr) { ln = ln * 10 + *ptr - '0'; }
+	for (;*ptr != 0 && isdigit(*ptr); ++ptr) { ln = ln* 10 +*ptr - '0'; }
 
 	// find error message body.
-	for (; *ptr != 0 && !isalpha(*ptr); ++ptr) {}
+	for (;*ptr != 0 && !isalpha(*ptr); ++ptr) {}
 
 	if (ln == 0) {
 		Debug::LogError("failed to translate shader error message: unknown format.");
@@ -408,6 +408,18 @@ void ShaderParser::ReadFloatProperty(SyntaxNode* node, Property* property) {
 	property->value.SetFloat(String::ToFloat(node->GetChildAt(1)->ToString()));
 }
 
+void ShaderParser::ReadRangedInt(SyntaxNode* node, Property* property) {
+	glm::ivec3 value(0, INT_MIN, INT_MAX);
+	ReadInt3(value, node);
+	property->value.SetRangedInt(*(iranged*)&value);
+}
+
+void ShaderParser::ReadRangedFloat(SyntaxNode* node, Property* property) {
+	glm::vec3 value(0, -FLT_MAX, FLT_MAX);
+	ReadVec3(value, node);
+	property->value.SetRangedFloat(*(franged*)&value);
+}
+
 void ShaderParser::ReadVec2(glm::vec2& value, SyntaxNode* node) {
 	ReadFloats(node, (float*)&value, 2);
 }
@@ -444,13 +456,13 @@ void ShaderParser::ReadVec4Property(SyntaxNode* node, Property* property) {
 	property->value.SetVector4(value);
 }
 
-void ShaderParser::ReadColorProperty(SyntaxNode * node, Property * property) {
-	Color value = Color::black;
+void ShaderParser::ReadColorProperty(SyntaxNode* node, Property* property) {
+	Color value = Color::white;
 	ReadVec4(*(glm::vec4*)&value, node);
 	property->value.SetColor(value);
 }
 
-void ShaderParser::ReadTex2Property(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 	std::string value;
 	ReadString(value, node);
 
@@ -497,14 +509,20 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	else if (ns == "Color") {
 		ReadColorProperty(node, property);
 	}
-	else if (ns == "Tex2") {
-		ReadTex2Property(node, property);
+	else if (ns == "Texture2D") {
+		ReadTexture2DProperty(node, property);
 	}
 	else if (ns == "Mat3") {
 		ReadMat3Property(node, property);
 	}
 	else if (ns == "Mat4") {
 		ReadMat4Property(node, property);
+	}
+	else if (ns == "RangedInt") {
+		ReadRangedInt(node, property);
+	}
+	else if (ns == "RangedFloat") {
+		ReadRangedFloat(node, property);
 	}
 	else {
 		Debug::LogError("invalid property type %s.", ns.c_str());

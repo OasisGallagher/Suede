@@ -310,9 +310,6 @@ void Game::createScene() {
 
 	/*World::instance()->ImportTo(light, lightModelPath, this);*/
 
-	//targetTexture_ = NewRenderTexture();
-	//targetTexture_->Create(RenderTextureFormatRgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
-
 	GameObject cameraGameObject = NewGameObject();
 	cameraGameObject->SetName("camera");
 
@@ -321,8 +318,13 @@ void Game::createScene() {
 	camera->AddGizmosPainter(this);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
+	/*RenderTexture targetTexture = NewRenderTexture();
+	targetTexture->Create(RenderTextureFormat::Rgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	camera->SetTargetTexture(targetTexture);*/
+
 	controller_ = cameraGameObject->AddComponent<CameraController>(this).get();
 	cameraGameObject->GetComponent<CameraController>();
+
 #ifdef PROJECTOR
 	Projector projector = NewProjector();
 	

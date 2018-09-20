@@ -167,10 +167,12 @@ private:
 	void ReadVec3Property(SyntaxNode* node, Property* property);
 	void ReadVec4Property(SyntaxNode* node, Property* property);
 	void ReadColorProperty(SyntaxNode* node, Property* property);
-	void ReadTex2Property(SyntaxNode* node, Property* property);
+	void ReadTexture2DProperty(SyntaxNode* node, Property* property);
 	void ReadMat3Property(SyntaxNode* node, Property* property);
 	void ReadMat4Property(SyntaxNode* node, Property* property);
 	void ReadFloatProperty(SyntaxNode* node, Property* property);
+	void ReadRangedInt(SyntaxNode* node, Property* property);
+	void ReadRangedFloat(SyntaxNode* node, Property* property);
 
 	void ReadInt3(glm::ivec3& value, SyntaxNode* node);
 	void ReadString(std::string& value, SyntaxNode* node);

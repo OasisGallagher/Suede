@@ -146,8 +146,12 @@ bool GUI::MaskPopup(const char* title, int mask, const char* items_) {
 	//return changed;
 }
 
-bool GUI::Slider(const char* title, float* v, float min, float max) {
-	return ImGui::SliderFloat(title, v, min, max);
+bool GUI::Slider(const char* title, float& v, float min, float max) {
+	return ImGui::SliderFloat(title, &v, min, max, "%.2f");
+}
+
+bool GUI::IntSlider(const char* title, int& v, int min, int max) {
+	return ImGui::SliderInt(title, &v, min, max, "%.2f");
 }
 
 bool GUI::IntField(const char* title, int& v, int min, int max) {

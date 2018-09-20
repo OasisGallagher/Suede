@@ -16,14 +16,16 @@ $PropertiesPrefix
 	| $Property								$$ = $1
 
 $Property
-	: int $Identifier $IntegerInitializer ;		$$ = make("Int", $3, $2)
-	| float $Identifier $SingleInitializer ;	$$ = make("Single", $3, $2)
-	| color $Identifier $Vec4Initializer ;		$$ = make("Color", $3, $2)
-	| vec3 $Identifier $Vec3Initializer ;		$$ = make("Vec3", $3, $2)
-	| vec4 $Identifier $Vec4Initializer ;		$$ = make("Vec4", $3, $2)
-	| tex2 $Identifier $StringInitializer ;		$$ = make("Tex2", $3, $2)
-	| mat3 $Identifier ;						$$ = make("Mat3", $2)
-	| mat4 $Identifier ;						$$ = make("Mat4", $2)
+	: int $Identifier $IntegerInitializer ;			$$ = make("Int", $3, $2)
+	| float $Identifier $SingleInitializer ;		$$ = make("Single", $3, $2)
+	| color $Identifier $Vec4Initializer ;			$$ = make("Color", $3, $2)
+	| iranged $Identifier $IVec3Initializer ;		$$ = make("RangedInt", $3, $2)
+	| franged $Identifier $Vec3Initializer ;		$$ = make("RangedFloat", $3, $2)
+	| vec3 $Identifier $Vec3Initializer ;			$$ = make("Vec3", $3, $2)
+	| vec4 $Identifier $Vec4Initializer ;			$$ = make("Vec4", $3, $2)
+	| texture2D $Identifier $StringInitializer ;	$$ = make("Texture2D", $3, $2)
+	| mat3 $Identifier ;							$$ = make("Mat3", $2)
+	| mat4 $Identifier ;							$$ = make("Mat4", $2)
 	
 $StringInitializer
 	: epsilon		$$ = $0

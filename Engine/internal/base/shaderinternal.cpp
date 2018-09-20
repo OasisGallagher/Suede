@@ -622,11 +622,13 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 	VariantType lhs = target->property->value.GetType();
 	VariantType rhs = p->value.GetType();
 	if (lhs == rhs 
-		|| (lhs == VariantType::Color && (rhs == VariantType::Vector3 || rhs == VariantType::Vector4))) {
+		|| (lhs == VariantType::Color && (rhs == VariantType::Vector3 || rhs == VariantType::Vector4))
+		|| (lhs == VariantType::RangedInt && rhs == VariantType::Int)
+		|| (lhs == VariantType::RangedFloat && rhs == VariantType::Float)) {
 		return true;
 	}
 
-	Debug::LogError("type of property %s %s is incompatible with %s.", p->name.c_str(), Variant::TypeString(lhs), Variant::TypeString(rhs));
+	Debug::LogError("type of property %s %s is incompatible with %s.", p->name.c_str(), lhs.to_string(), rhs.to_string());
 	return false;
 }
 

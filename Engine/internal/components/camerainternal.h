@@ -50,7 +50,7 @@ public:
 	virtual void SetClearColor(const Color& value) { p_.clearColor = value; }
 	virtual Color GetClearColor() { return p_.clearColor; }
 
-	virtual void SetTargetTexture(RenderTexture value) { p_.renderTextures.target; }
+	virtual void SetTargetTexture(RenderTexture value) { p_.renderTextures.target = value; }
 	virtual RenderTexture GetTargetTexture() { return p_.renderTextures.target; }
 
 	virtual Texture2D Capture();

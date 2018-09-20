@@ -37,6 +37,15 @@ void MaterialEditor::drawProperties(Material material) {
 
 	for (const Property* p : properties) {
 		switch (p->value.GetType()) {
+			case VariantType::Bool:
+				drawBoolProperty(material, p);
+				break;
+			case VariantType::RangedInt:
+				drawRangedIntProperty(material, p);
+				break;
+			case VariantType::RangedFloat:
+				drawRangedFloatProperty(material, p);
+				break;
 			case VariantType::Float:
 				drawFloatProperty(material, p);
 				break;
@@ -66,13 +75,48 @@ void MaterialEditor::runMainContextCommands() {
 }
 
 void MaterialEditor::drawTextureProperty(Material material, const Property* p) {
-	Texture2D texture = suede_dynamic_cast<Texture2D>(material->GetTexture(p->name));
-	if (texture && GUI::ImageButton(p->name.c_str(), texture->GetNativePointer())) {
+	Texture texture = material->GetTexture(p->name);
+	Texture2D texture2D = suede_dynamic_cast<Texture2D>(texture);
+
+	// editable texture.
+	if (texture2D) {
+		drawTexture2DSelector(p, texture2D);
+	}
+	else if (texture) {
+		GUI::Image(p->name.c_str(), texture->GetNativePointer());
+	}
+}
+
+void MaterialEditor::drawTexture2DSelector(const Property* p, Texture2D texture2D) {
+	if (GUI::ImageButton(p->name.c_str(), texture2D->GetNativePointer())) {
 		QString path = QFileDialog::getOpenFileName(nullptr, "Select Texture", Resources::instance()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
 		if (!path.isEmpty()) {
 			path = QDir(Resources::instance()->GetTextureDirectory().c_str()).relativeFilePath(path);
-			commands_.push_back(new LoadTextureCommand(texture, path));
+			commands_.push_back(new LoadTextureCommand(texture2D, path));
 		}
+	}
+}
+
+void MaterialEditor::drawBoolProperty(Material material, const Property* p) {
+	bool value = material->GetBool(p->name);
+	if (GUI::Toggle(p->name.c_str(), value)) {
+		material->SetBool(p->name, value);
+	}
+}
+
+void MaterialEditor::drawRangedIntProperty(Material material, const Property* p) {
+	iranged r = material->GetRangedInt(p->name);
+	int i = r.value();
+	if (GUI::IntSlider(p->name.c_str(), i, r.min(), r.max())) {
+		material->SetInt(p->name, i);
+	}
+}
+
+void MaterialEditor::drawRangedFloatProperty(Material material, const Property* p) {
+	franged r = material->GetRangedFloat(p->name);
+	float f = r.value();
+	if (GUI::Slider(p->name.c_str(), f, r.min(), r.max())) {
+		material->SetFloat(p->name, f);
 	}
 }
 

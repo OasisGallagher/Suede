@@ -43,58 +43,11 @@ Q_DECLARE_METATYPE(glm::vec2)
 Q_DECLARE_METATYPE(glm::vec3)
 Q_DECLARE_METATYPE(glm::vec4)
 
-
-class RangedUInt {
-public:
-	typedef uint value_type;
-
-public:
-	RangedUInt() : RangedUInt(uint()) {}
-
-	RangedUInt(uint value, uint min = std::numeric_limits<uint>::lowest(), uint max = std::numeric_limits<uint>::max()) {
-		reset(value, min, max);
-	}
-
-	RangedUInt& operator= (uint value) {
-		value_ = Math::Clamp(value, min_, max_);
-		return *this;
-	}
-
-	void reset(uint value, uint min, uint max) {
-		value_ = value;
-		setRange(min, max);
-	}
-
-	void setValue(uint value) {
-		value_ = Math::Clamp(value, min_, max_);
-	}
-
-	void setRange(uint min, uint max) {
-		if (min > max) {
-			Debug::LogError("invalid range");
-			max_ = min_ = max;
-		}
-
-		min_ = min; max_ = max;
-		setValue(value_);
-	}
-
-	uint min() const { return min_; }
-	uint max() const { return max_; }
-	uint value() const { return value_; }
-
-	operator uint() const { return value_; }
-
-private:
-	uint min_, max_, value_;
-};
-
+Q_DECLARE_METATYPE(iranged)
+Q_DECLARE_METATYPE(franged)
 
 Q_DECLARE_METATYPE(Rect)
 Q_DECLARE_METATYPE(Color)
-Q_DECLARE_METATYPE(RangedInt)
-Q_DECLARE_METATYPE(RangedUInt)
-Q_DECLARE_METATYPE(RangedFloat)
 
 Q_DECLARE_SMART_POINTER_METATYPE(std::shared_ptr)
 Q_DECLARE_METATYPE(Material)

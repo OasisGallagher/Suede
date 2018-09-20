@@ -61,6 +61,8 @@ public:
 
 	virtual int GetInt(const std::string& name);
 	virtual bool GetBool(const std::string& name);
+	virtual iranged GetRangedInt(const std::string& name);
+	virtual franged GetRangedFloat(const std::string& name);
 	virtual float GetFloat(const std::string& name);
 	virtual Texture GetTexture(const std::string& name);
 	virtual glm::mat4 GetMatrix4(const std::string& name);
