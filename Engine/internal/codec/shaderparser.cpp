@@ -390,14 +390,16 @@ void ShaderParser::ReadRenderStates(SyntaxNode* node, std::vector<Semantics::Ren
 	ReadTreeRef(node, "RenderStates", &ShaderParser::ReadRenderState, states);
 }
 
-void ShaderParser::ReadInt3(glm::ivec3& value, SyntaxNode* node) {
+int ShaderParser::ReadInt3(glm::ivec3& value, SyntaxNode* node) {
 	SyntaxNode* c1 = node->GetChildAt(1);
-	if (c1 == nullptr) { return; }
+	if (c1 == nullptr) { return 0; }
 
-	int* ptr = &value.x;
-	for (int i = 0; i < 3 && c1->GetChildAt(i) != nullptr; ++i) {
+	int* ptr = &value.x, i = 0;
+	for (; i < 3 && c1->GetChildAt(i) != nullptr; ++i) {
 		*ptr++ = String::ToInteger(c1->GetChildAt(i)->ToString());
 	}
+
+	return i;
 }
 
 void ShaderParser::ReadString(std::string& value, SyntaxNode* node) {
@@ -420,24 +422,28 @@ void ShaderParser::ReadRangedFloat(SyntaxNode* node, Property* property) {
 	property->value.SetRangedFloat(*(franged*)&value);
 }
 
-void ShaderParser::ReadVec2(glm::vec2& value, SyntaxNode* node) {
-	ReadFloats(node, (float*)&value, 2);
+int ShaderParser::ReadVec2(glm::vec2& value, SyntaxNode* node) {
+	return ReadFloats(node, (float*)&value, 2);
 }
 
-void ShaderParser::ReadVec3(glm::vec3& value, SyntaxNode* node) {
-	ReadFloats(node, (float*)&value, 3);
+int ShaderParser::ReadVec3(glm::vec3& value, SyntaxNode* node) {
+	return ReadFloats(node, (float*)&value, 3);
 }
 
-void ShaderParser::ReadVec4(glm::vec4& value, SyntaxNode* node) {
-	ReadFloats(node, (float*)&value, 4);
+int ShaderParser::ReadVec4(glm::vec4& value, SyntaxNode* node) {
+	return ReadFloats(node, (float*)&value, 4);
 }
 
-void ShaderParser::ReadFloats(SyntaxNode* node, float* ptr, int count) {
+int ShaderParser::ReadFloats(SyntaxNode* node, float* ptr, int count) {
 	SyntaxNode* c1 = node->GetChildAt(1);
-	if (c1 == nullptr) { return; }
-	for (int i = 0; i < count && c1->GetChildAt(i) != nullptr; ++i) {
+	if (c1 == nullptr) { return 0; }
+
+	int i = 0;
+	for (; i < count && c1->GetChildAt(i) != nullptr; ++i) {
 		*ptr++ = String::ToFloat(c1->GetChildAt(i)->ToString());
 	}
+
+	return i;
 }
 
 void ShaderParser::ReadIntProperty(SyntaxNode* node, Property* property) {
@@ -467,18 +473,18 @@ void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 	ReadString(value, node);
 
 	Texture2D texture;
-	if (value.empty() || value == "black") {
-		texture = Resources::instance()->GetBlackTexture();
-	}
-	else if (value == "white") {
+	if (value.empty() || value == "white") {
 		texture = Resources::instance()->GetWhiteTexture();
+	}
+	else if (value == "black") {
+		texture = Resources::instance()->GetBlackTexture();
 	}
 
 	if (texture) {
 		property->value.SetTexture(texture);
 	}
 	else {
-		Debug::LogError("invalid tex2 property value %s.", value.c_str());
+		Debug::LogError("invalid texture2D property %s.", value.c_str());
 	}
 }
 
@@ -532,9 +538,9 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 void ShaderParser::ReadPropertyBlock(SyntaxNode* node, std::vector<Property*>& properties) {
 	if (node == nullptr) { return; }
 
-	SyntaxNode* c0 = node->GetChildAt(0);
-	if (c0 != nullptr) {
-		ReadProperties(c0, properties);
+	SyntaxNode* c = node->GetChildAt(0);
+	if (c != nullptr) {
+		ReadProperties(c, properties);
 	}
 }
 
@@ -544,9 +550,9 @@ void ShaderParser::ReadTag(SyntaxNode* node, Semantics::Tag& tag) {
 }
 
 void ShaderParser::ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags) {
-	SyntaxNode* c0 = node->GetChildAt(0);
-	if (c0 != nullptr) {
-		ReadTags(c0, tags);
+	SyntaxNode* c = node->GetChildAt(0);
+	if (c != nullptr) {
+		ReadTags(c, tags);
 	}
 }
 

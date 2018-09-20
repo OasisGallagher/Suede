@@ -90,7 +90,7 @@ private:
 	std::shared_ptr<Storage> storage_;
 };
 
-class TextMeshInternal : public ITextMesh, public ComponentInternal, public FontMaterialRebuiltListener {
+class TextMeshInternal : virtual public ITextMesh, public ComponentInternal, public FontMaterialRebuiltListener {
 	DEFINE_FACTORY_METHOD(TextMesh)
 
 public:
@@ -101,6 +101,8 @@ public:
 	virtual void RenderingUpdate();
 
 public:
+	virtual Mesh GetMesh() { return mesh_; }
+
 	virtual void SetText(const std::string& value);
 	virtual std::string GetText() { return text_; }
 

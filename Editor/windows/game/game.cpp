@@ -35,17 +35,17 @@
 #include "scripts/cameracontroller.h"
 
 //#define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
-//#define ANIMATION
+//#define IMAGE_EFFECTS
+#define ANIMATION
 //#define PARTICLE_SYSTEM
-// #define FONT
-#define BUMPED
-//#define NORMAL_VISUALIZER
+//#define FONT
+//#define BUMPED
+#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
 static const char* roomFbxPath = "house.fbx";
@@ -135,7 +135,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		root->GetTransform()->SetScale(glm::vec3(0.2f));
 		//go->SetParent(camera);
 
-		Animation animation = root->AddComponent<IAnimation>();
+		Animation animation = root->GetComponent<IAnimation>();
 		if (animation) {
 			animation->SetWrapMode(AnimationWrapMode::PingPong);
 			animation->Play("");
@@ -182,7 +182,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		GameObject target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
 
 		for (Material material : target->GetComponent<IMeshRenderer>()->GetMaterials()) {
-			material->SetShader(Resources::instance()->FindShader("builtin/normal_visualizer"));
+			//material->SetShader(Resources::instance()->FindShader("builtin/normal_visualizer"));
 		}
 	}
 }
@@ -352,7 +352,7 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
 
-	Graphics::instance()->SetAmbientOcclusionEnabled(false);
+	Graphics::instance()->SetAmbientOcclusionEnabled(true);
 
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
@@ -413,8 +413,7 @@ void Game::createScene() {
 
 #ifdef PARTICLE_SYSTEM
 	GameObject go = NewGameObject();
-	ParticleSystem particleSystem = NewParticleSystem();
-	go->SetParticleSystem(particleSystem);
+	ParticleSystem particleSystem = go->AddComponent<IParticleSystem>();
 	go->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
 	go->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
@@ -442,38 +441,34 @@ void Game::createScene() {
 	font->Load("fonts/ms_yh.ttf", 12);
 
 	GameObject redText = NewGameObject();
+	redText->SetName("RedText");
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
 	redText->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	GameObject blueText = NewGameObject();
+	blueText->SetName("BlueText");
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
 	blueText->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
-	TextMesh redMesh = NewTextMesh();
+	TextMesh redMesh = redText->AddComponent<ITextMesh>();
 	redMesh->SetFont(font);
 	redMesh->SetText("落霞与孤鹜齐飞");
 	redMesh->SetFontSize(12);
 
-	TextMesh blueMesh = NewTextMesh();
+	TextMesh blueMesh = blueText->AddComponent<ITextMesh>();
 	blueMesh->SetFont(font);
 	blueMesh->SetText("秋水共长天一色");
 	blueMesh->SetFontSize(12);
 
-	redText->SetMesh(redMesh);
-	blueText->SetMesh(blueMesh);
-
-	Renderer redRenderer = NewMeshRenderer();
+	Renderer redRenderer = redText->AddComponent<IMeshRenderer>();
 	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	redMaterial->SetColor4(BuiltinProperties::MainColor, Color(1, 0, 0, 1));
+	redMaterial->SetColor(BuiltinProperties::MainColor, Color(1, 0, 0, 1));
 	redRenderer->AddMaterial(redMaterial);
 
-	Renderer blueRenderer = NewMeshRenderer();
+	Renderer blueRenderer = blueText->AddComponent<IMeshRenderer>();
 	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
-	blueMaterial->SetColor4(BuiltinProperties::MainColor, Color(0, 0, 1, 1));
+	blueMaterial->SetColor(BuiltinProperties::MainColor, Color(0, 0, 1, 1));
 	blueRenderer->AddMaterial(blueMaterial);
-
-	redText->SetRenderer(redRenderer);
-	blueText->SetRenderer(blueRenderer);
 
 #endif
 

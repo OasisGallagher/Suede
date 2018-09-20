@@ -358,6 +358,9 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 		case VariantType::Matrix4:
 			p->value.SetMatrix4(glm::mat4(0));
 			break;
+		case VariantType::Matrix4Array:
+			p->value.SetMatrix4Array(nullptr, 0);
+			break;
 		case VariantType::Bool:
 			p->value.SetBool(false);
 			break;
@@ -375,6 +378,9 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 			break;
 		case VariantType::Texture:
 			p->value.SetTexture(nullptr);
+			break;
+		default:
+			Debug::LogError("unknown uniform type %s.", type.to_string());
 			break;
 	}
 
@@ -449,7 +455,7 @@ void Pass::SetUniform(GLuint location, VariantType type, uint size, const void* 
 		GL::ProgramUniform4fv(program_, location, size, (const GLfloat*)data);
 		break;
 	default:
-		Debug::LogError("unable to set uniform (type 0x%x).", type);
+		Debug::LogError("unable to set uniform (type %s).", type.to_string());
 		break;
 	}
 }

@@ -163,7 +163,7 @@ bool GUI::UIntField(const char* title, uint& v, uint min, uint max) {
 }
 
 bool GUI::FloatField(const char* title, float& v, float min, float max) {
-	return ImGui::DragFloat(title, &v, min, max);
+	return ImGui::DragFloat(title, &v, 1.f, min, max);
 }
 
 bool GUI::Float2Field(const char* title, glm::vec2& v) {
@@ -175,6 +175,10 @@ bool GUI::Float3Field(const char* title, glm::vec3& v) {
 }
 
 bool GUI::Float4Field(const char* title, glm::vec4& v) {
+	return ImGui::DragFloat4(title, (float*)&v);
+}
+
+bool GUI::RectField(const char* title, Rect& v) {
 	return ImGui::DragFloat4(title, (float*)&v);
 }
 

@@ -102,7 +102,7 @@ class LightMetaObject : public ComponentMetaObjectT<Light> {
 
 #include "renderer.h"
 
-class MeshRendererMetaObject : public ComponentMetaObjectT<MeshRenderer> {
+class RendererMetaObject : public ComponentMetaObjectT<Renderer> {
 	Q_OBJECT
 	Q_PROPERTY(QVector<Material> Materials READ GetMaterials)
 
@@ -113,4 +113,12 @@ public:
 		std::copy(materials.begin(), materials.end(), std::back_inserter(answer));
 		return answer;
 	}
+};
+
+class MeshRendererMetaObject : public RendererMetaObject {
+	Q_OBJECT
+};
+
+class SkinnedMeshRendererMetaObject : public MeshRendererMetaObject {
+	Q_OBJECT
 };

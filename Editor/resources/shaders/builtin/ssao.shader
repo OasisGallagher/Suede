@@ -1,5 +1,5 @@
 Properties { 
-	float radius = 0.5;
+	float _Radius = 0.5;
 }
 
 SubShader {
@@ -36,7 +36,7 @@ SubShader {
 
 		out vec3 fragColor;
 
-		uniform float radius;
+		uniform float _Radius;
 
 		uniform sampler2D posTexture;
 		uniform sampler2D noiseTexture;
@@ -55,12 +55,12 @@ SubShader {
 			float occlusion = 0;
 			mat3 TBN = mat3(tangent, bitangent, normal);
 			for (int i = 0; i < _C_SSAO_KERNEL_SIZE; ++i) {
-				vec3 samplePos = pos + TBN * ssaoKernel[i] * radius;
+				vec3 samplePos = pos + TBN * ssaoKernel[i] * _Radius;
 				vec4 offset = _CameraToClipMatrix * vec4(samplePos, 1);
 				offset.xy = offset.xy * 0.5 / offset.w + 0.5;
 
 				float sampleDepth = texture(posTexture, offset.xy).z;
-				float f = smoothstep(0.0, 1.0, radius / abs(pos.z - sampleDepth));
+				float f = smoothstep(0.0, 1.0, _Radius / abs(pos.z - sampleDepth));
 
 				occlusion += (sampleDepth >= samplePos.z + 0.025 ? 1 : 0) * f;
 			}

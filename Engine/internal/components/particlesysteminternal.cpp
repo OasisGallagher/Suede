@@ -22,6 +22,11 @@ ParticleSystemInternal::ParticleSystemInternal()
 ParticleSystemInternal::~ParticleSystemInternal() {
 }
 
+void ParticleSystemInternal::Awake() {
+	GetGameObject()->AddComponent<IMeshFilter>();
+	GetGameObject()->AddComponent<IParticleRenderer>();
+}
+
 void ParticleSystemInternal::SetMaxParticles(uint value) {
 	if (maxParticles_ != value) {
 		maxParticles_ = value;

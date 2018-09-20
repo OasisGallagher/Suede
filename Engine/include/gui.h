@@ -1,5 +1,5 @@
 #pragma once
-#include "types.h"
+#include "rect.h"
 #include "color.h"
 
 #include <string>
@@ -46,17 +46,18 @@ public:
 	template <class T>
 	static bool EnumMaskPopup(const char* title, T value);
 
-	static bool Slider(const char* title, float& v, float min = -FLT_MAX, float max = FLT_MAX);
-	static bool IntSlider(const char* title, int& v, int min = INT_MIN, int max = INT_MAX);
+	static bool Slider(const char* title, float& v, float min, float max);
+	static bool IntSlider(const char* title, int& v, int min, int max);
 
-	static bool IntField(const char* title, int& v, int min = -16, int max = 16);
-	static bool UIntField(const char* title, uint& v, uint min = 0, uint max = 32);
+	static bool IntField(const char* title, int& v, int min = std::numeric_limits<int>::lowest(), int max = std::numeric_limits<int>::max());
+	static bool UIntField(const char* title, uint& v, uint min = std::numeric_limits<uint>::lowest(), uint max = std::numeric_limits<uint>::max());
 
-	static bool FloatField(const char* title, float& v, float min = -FLT_MAX, float max = FLT_MAX);
+	static bool FloatField(const char* title, float& v, float min = std::numeric_limits<float>::lowest(), float max = std::numeric_limits<float>::max());
 	static bool Float2Field(const char* title, glm::vec2& v);
 	static bool Float3Field(const char* title, glm::vec3& v);
 	static bool Float4Field(const char* title, glm::vec4& v);
 
+	static bool RectField(const char* title, Rect& v);
 	static bool ColorField(const char* title, Color& v);
 
 	static bool BeginMenu(const char* title);

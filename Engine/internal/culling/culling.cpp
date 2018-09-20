@@ -56,7 +56,7 @@ WalkCommand Culling::OnWalkGameObject(GameObject go) {
 		return WalkCommand::Next;
 	}
 
-	if (go->GetComponent<IRenderer>() && go->GetComponent<IMeshFilter>()) {
+	if (go->GetComponent<IRenderer>() && go->GetComponent<IMeshProvider>()) {
 		gameObjects_.push_back(go);
 	}
 

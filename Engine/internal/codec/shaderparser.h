@@ -174,12 +174,12 @@ private:
 	void ReadRangedInt(SyntaxNode* node, Property* property);
 	void ReadRangedFloat(SyntaxNode* node, Property* property);
 
-	void ReadInt3(glm::ivec3& value, SyntaxNode* node);
+	int ReadInt3(glm::ivec3& value, SyntaxNode* node);
 	void ReadString(std::string& value, SyntaxNode* node);
-	void ReadVec2(glm::vec2& value, SyntaxNode* node);
-	void ReadVec3(glm::vec3& value, SyntaxNode* node);
-	void ReadVec4(glm::vec4& value, SyntaxNode* node);
-	void ReadFloats(SyntaxNode* node, float* ptr, int count);
+	int ReadVec2(glm::vec2& value, SyntaxNode* node);
+	int ReadVec3(glm::vec3& value, SyntaxNode* node);
+	int ReadVec4(glm::vec4& value, SyntaxNode* node);
+	int ReadFloats(SyntaxNode* node, float* ptr, int count);
 
 	void ReadTag(SyntaxNode* node, Semantics::Tag& tag);
 	void ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags);

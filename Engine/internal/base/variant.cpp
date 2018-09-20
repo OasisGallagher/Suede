@@ -196,7 +196,10 @@ void Variant::SetPodArray(VariantType type, const void* data, uint size) {
 		}
 	}
 	
-	memcpy(data_.podArray.ptr, data, size);
+	if (data != nullptr) {
+		memcpy(data_.podArray.ptr, data, size);
+	}
+
 	data_.podArray.size = size;
 }
 

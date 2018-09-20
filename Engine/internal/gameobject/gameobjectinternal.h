@@ -38,7 +38,7 @@ public:
 
 	virtual void RecalculateUpdateStrategy();
 
-private:
+public:
 	virtual Component AddComponent(suede_guid guid);
 	virtual Component AddComponent(Component component);
 
@@ -46,8 +46,8 @@ private:
 	virtual std::vector<Component> GetComponents(suede_guid guid);
 
 private:
-	void CalculateSelfWorldBounds();
 	void CalculateBonesWorldBounds();
+	void CalculateSelfWorldBounds(Mesh mesh);
 
 	void CalculateHierarchyBounds();
 	void CalculateHierarchyMeshBounds();

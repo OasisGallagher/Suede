@@ -24,8 +24,8 @@ BETTER_ENUM(VariantType, int,
 
 	// POD array.
 	_POD_ARRAY_BEGIN,
-	String,
-	Vector3Array = _POD_ARRAY_BEGIN,
+	String = _POD_ARRAY_BEGIN,
+	Vector3Array,
 	Matrix4Array
 )
 

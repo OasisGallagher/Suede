@@ -34,9 +34,9 @@ void GameObjectInternal::SetActiveSelf(bool value) {
 		UpdateChildrenActive(SharedThis());
 
 		Renderer renderer = GET_COMPONENT(Renderer);
-		MeshFilter meshFilter = GET_COMPONENT(MeshFilter);
+		MeshProvider provider = GET_COMPONENT(MeshProvider);
 
-		if (renderer && meshFilter && meshFilter->GetMesh() && !meshFilter->GetMesh()->GetBounds().IsEmpty()) {
+		if (renderer && provider && !provider->GetMesh()->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -215,10 +215,10 @@ void GameObjectInternal::CalculateHierarchyBounds() {
 
 void GameObjectInternal::CalculateHierarchyMeshBounds() {
 	Renderer renderer = GET_COMPONENT(Renderer);
-	MeshFilter meshFilter = GET_COMPONENT(MeshFilter);
+	MeshProvider provider = GET_COMPONENT(MeshProvider);
 
-	if (renderer && meshFilter && meshFilter->GetMesh() && !meshFilter->GetMesh()->GetBounds().IsEmpty()) {
-		CalculateSelfWorldBounds();
+	if (renderer && provider && !provider->GetMesh()->GetBounds().IsEmpty()) {
+		CalculateSelfWorldBounds(provider->GetMesh());
 	}
 
 	for (Transform tr : GetTransform()->GetChildren()) {
@@ -230,9 +230,9 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 	}
 }
 
-void GameObjectInternal::CalculateSelfWorldBounds() {
+void GameObjectInternal::CalculateSelfWorldBounds(Mesh mesh) {
 	std::vector<glm::vec3> points;
-	const Bounds& localBounds = GET_COMPONENT(MeshFilter)->GetMesh()->GetBounds();
+	const Bounds& localBounds = mesh->GetBounds();
 	GeometryUtility::GetCuboidCoordinates(points, localBounds.center, localBounds.size);
 
 	Transform transform = GetTransform();

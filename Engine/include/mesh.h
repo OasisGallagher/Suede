@@ -113,7 +113,16 @@ public:
 
 SUEDE_DECLARE_OBJECT_CREATER(Mesh);
 
-class SUEDE_API ITextMesh : virtual public IComponent {
+class SUEDE_API IMeshProvider : virtual public IComponent {
+	SUEDE_DECLARE_COMPONENT()
+
+public:
+	virtual Mesh GetMesh() = 0;
+};
+
+SUEDE_DEFINE_OBJECT_POINTER(MeshProvider);
+
+class SUEDE_API ITextMesh : virtual public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
 
 public:
@@ -128,15 +137,12 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
-SUEDE_DECLARE_OBJECT_CREATER(TextMesh);
 
-class SUEDE_API IMeshFilter : virtual public IComponent {
+class SUEDE_API IMeshFilter : virtual public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void SetMesh(Mesh value) = 0;
-	virtual Mesh GetMesh() = 0;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(MeshFilter);
-SUEDE_DECLARE_OBJECT_CREATER(MeshFilter);

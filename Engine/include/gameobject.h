@@ -48,11 +48,14 @@ public:	// Component system.
 	template <class T> std::shared_ptr<T> GetComponent();
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
-public:	// Component system helper.
 	virtual Component AddComponent(suede_guid guid) = 0;
 	virtual Component AddComponent(Component component) = 0;
 
 	virtual Component GetComponent(suede_guid guid) = 0;
+
+	/**
+	 * @param guid pass 0 to get all components.
+	 */
 	virtual std::vector<Component> GetComponents(suede_guid guid) = 0;
 };
 
@@ -92,8 +95,10 @@ std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
 SUEDE_COMPONENT_SPECIALIZATION(Transform)
 SUEDE_COMPONENT_SPECIALIZATION(Light)
 SUEDE_COMPONENT_SPECIALIZATION(Camera)
+SUEDE_COMPONENT_SPECIALIZATION(TextMesh)
 SUEDE_COMPONENT_SPECIALIZATION(MeshFilter)
 SUEDE_COMPONENT_SPECIALIZATION(MeshRenderer)
 SUEDE_COMPONENT_SPECIALIZATION(SkinnedMeshRenderer)
 SUEDE_COMPONENT_SPECIALIZATION(ParticleRenderer)
 SUEDE_COMPONENT_SPECIALIZATION(Animation)
+SUEDE_COMPONENT_SPECIALIZATION(ParticleSystem)

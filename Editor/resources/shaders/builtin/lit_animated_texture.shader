@@ -1,10 +1,11 @@
-Properties { }
+Properties { 
+	color _MainColor;
+}
+
 SubShader {
 	Pass {
 		GLSLPROGRAM
 
-		#include "builtin/include/suede.inc"
-		
 		#stage vertex
 
 		in vec3 _Pos;
@@ -18,6 +19,7 @@ SubShader {
 		out vec3 worldPos;
 		out vec3 normal;
 
+		#include "builtin/include/suede.inc"
 		#include "builtin/include/lit_vertex.inc"
 
 		uniform mat4 _BoneToRootMatrices[_C_MAX_BONE_COUNT];
@@ -45,11 +47,11 @@ SubShader {
 		in vec2 texCoord;
 		in vec3 worldPos;
 		in vec3 normal;
-		in mat4 o_matrix;
 
 		uniform vec4 _MainColor;
 		uniform sampler2D _MainTexture;
 
+		#include "builtin/include/suede.inc"
 		#include "builtin/include/lit_fragment.inc"
 
 		void main() {

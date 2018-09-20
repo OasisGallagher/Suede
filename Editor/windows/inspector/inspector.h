@@ -43,9 +43,56 @@ private:
 	void drawUserType(QMetaProperty &p, QObject* object, const char* name);
 	void drawBuiltinType(QMetaProperty &p, QObject* object, const char* name);
 
+	template <class T>
+	void drawBuiltinType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T));
+
+	template <class T>
+	void drawUserEnumType(QObject* object, const char* name);
+
+	template <class T>
+	void drawUserVectorType(QObject* object, const char* name, bool(*draw)(const char*, T&));
+
+	template <class T>
+	void drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T));
+
 private:
 	GameObject target_;
 	QGLWidget* view_;
 
+	uint blackTextureID_;
 	std::map<ObjectType, std::shared_ptr<ComponentMetaObject>> suedeMetaObjects_;
 };
+
+template <class T>
+void Inspector::drawBuiltinType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T)) {
+	T value = object->property(name).value<T>();
+	if (draw(name, value, std::numeric_limits<T>::lowest(), std::numeric_limits<T>::max())) {
+		object->setProperty(name, value);
+	}
+}
+
+template <class T>
+inline void Inspector::drawUserVectorType(QObject* object, const char* name, bool(*draw)(const char*, T&)) {
+	T value = object->property(name).value<T>();
+	if (draw(name, value)) {
+		object->setProperty(name, QVariant::fromValue(value));
+	}
+}
+
+template <class T>
+inline void Inspector::drawUserEnumType(QObject* object, const char* name) {
+	int selected = -1;
+	T value = object->property(name).value<T>();
+	if (GUI::EnumPopup(name, +value, selected)) {
+		object->setProperty(name, QVariant::fromValue(ClearType::value(selected)));
+	}
+}
+
+template <class T>
+inline void Inspector::drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T)) {
+	ranged<T> r = object->property(name).value <ranged<T>>();
+	T value = r.value();
+	if (draw(name, value, r.min(), r.max())) {
+		object->setProperty(name, QVariant::fromValue(r = value));
+	}
+}

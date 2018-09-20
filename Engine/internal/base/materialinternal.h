@@ -20,7 +20,7 @@ public:
 
 public:
 	virtual void SetName(const std::string& value) { name_ = value; }
-	virtual const std::string& GetName() const { return name_; }
+	virtual std::string GetName() const { return name_; }
 
 	virtual Object Clone();
 

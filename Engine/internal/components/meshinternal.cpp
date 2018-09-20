@@ -4,8 +4,9 @@
 #include "meshinternal.h"
 #include "internal/base/vertexattrib.h"
 
-SUEDE_DEFINE_COMPONENT(ITextMesh, IComponent)
-SUEDE_DEFINE_COMPONENT(IMeshFilter, IComponent)
+SUEDE_DEFINE_COMPONENT(IMeshProvider, IComponent)
+SUEDE_DEFINE_COMPONENT(ITextMesh, IMeshProvider)
+SUEDE_DEFINE_COMPONENT(IMeshFilter, IMeshProvider)
 
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 }

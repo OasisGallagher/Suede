@@ -100,6 +100,8 @@ public:
 	~ParticleSystemInternal();
 
 public:
+	virtual void Awake();
+
 	virtual void SetMaxParticles(uint value);
 	virtual uint GetMaxParticles() { return maxParticles_; }
 

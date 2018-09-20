@@ -1,4 +1,5 @@
 Properties {
+	color _NormalColor = { 0, 1, 0 };
 }
 
 SubShader {
@@ -102,9 +103,10 @@ SubShader {
 		out vec4 fragColor;
 
 		#include "builtin/include/suede.inc"
-
+		
+		uniform vec3 _NormalColor;
 		void main() {
-			fragColor = vec4(1, 1, 0, 1);
+			fragColor = vec4(_NormalColor, 1);
 		}
 
 		ENDGLSL
