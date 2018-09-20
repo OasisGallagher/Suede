@@ -8,7 +8,7 @@ public:
 	~FileEntry();
 
 public:
-	const std::string& GetName() const { return name_; }
+	std::string GetName() const { return name_; }
 	void SetName(const std::string& value) { name_ = value; }
 	bool IsDirectory() const { return name_.back() == '/'; }
 

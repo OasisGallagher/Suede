@@ -84,7 +84,7 @@ inline void Inspector::drawUserEnumType(QObject* object, const char* name) {
 	int selected = -1;
 	T value = object->property(name).value<T>();
 	if (GUI::EnumPopup(name, +value, selected)) {
-		object->setProperty(name, QVariant::fromValue(ClearType::value(selected)));
+		object->setProperty(name, QVariant::fromValue(T::value(selected)));
 	}
 }
 

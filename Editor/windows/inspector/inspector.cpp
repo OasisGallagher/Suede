@@ -186,6 +186,8 @@ void Inspector::drawBuiltinType(QMetaProperty &p, QObject* object, const char* n
 	}
 }
 
+#include "imgui.h"
+
 void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name) {
 	int userType = p.userType();
 	if (userType == QMetaTypeId<glm::vec2>::qt_metatype_id()) {
@@ -229,10 +231,13 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 	}
 	else if (userType == QMetaTypeId<QVector<Material>>::qt_metatype_id()) {
 		bool first = true;
+		int __testPushID = 1;
 		for (Material material : object->property(name).value<QVector<Material>>()) {
 			if (!first) { GUI::Separator(); }
+			ImGui::PushID(__testPushID++);
 			MaterialEditor::draw(material);
 			first = false;
+			ImGui::PopID();
 		}
 	}
 	else if (userType == QMetaTypeId<RenderTexture>::qt_metatype_id()) {
