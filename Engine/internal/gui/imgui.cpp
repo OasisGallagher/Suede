@@ -1016,6 +1016,7 @@ ImGuiIO::ImGuiIO()
 
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     RenderDrawListsFn = NULL;
+	renderDrawListsFnParam = NULL;
 #endif
 
     // Input (NB: we already have memset zero the entire structure)
@@ -4397,7 +4398,7 @@ void ImGui::Render()
     // Render. If user hasn't set a callback then they may retrieve the draw data via GetDrawData()
 #ifndef IMGUI_DISABLE_OBSOLETE_FUNCTIONS
     if (g.DrawData.CmdListsCount > 0 && g.IO.RenderDrawListsFn != NULL)
-        g.IO.RenderDrawListsFn(&g.DrawData);
+        g.IO.RenderDrawListsFn(&g.DrawData, g.IO.renderDrawListsFnParam);
 #endif
 }
 

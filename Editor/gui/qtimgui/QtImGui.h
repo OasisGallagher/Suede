@@ -2,14 +2,12 @@
 class QWidget;
 class QWindow;
 
-// TODO: multiple render context...
+// SUEDE TODO: multiple render context...
 namespace QtImGui {
 
-#ifdef QT_WIDGETS_LIB
 void initialize(QWidget *window);
-#endif
+void newFrame(QWidget* widget);
+void destroy(QWidget* widget);
+void destroyAll();
 
-void initialize(QWindow *window);
-void newFrame();
-void destroy();
 }

@@ -25,6 +25,10 @@ public:
 
 class ImGuiRenderer : public QObject {
     Q_OBJECT
+
+public:
+	ImGuiRenderer() {}
+
 public:
     void initialize(WindowWrapper *window);
 	void destroy();
@@ -33,11 +37,7 @@ public:
 
 	bool eventFilter(QObject *watched, QEvent *event);
 
-	static ImGuiRenderer *instance();
-
 private:
-    ImGuiRenderer() {}
-
     void onMousePressedChange(QMouseEvent *event);
     void onWheel(QWheelEvent *event);
     void onKeyPressRelease(QKeyEvent *event);

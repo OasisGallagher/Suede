@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QClipboard>
 #include <QCursor>
+#include <functional>
 
 namespace QtImGui {
 
@@ -45,9 +46,11 @@ void ImGuiRenderer::initialize(WindowWrapper *window) {
         io.KeyMap[key] = key;
     }
 
-	io.RenderDrawListsFn = [](ImDrawData *drawData) {
-        instance()->renderDrawList(drawData);
+	io.RenderDrawListsFn = [](ImDrawData *drawData, void* data) {
+		((ImGuiRenderer*)data)->renderDrawList(drawData);
     };
+	io.renderDrawListsFnParam = this;
+
     io.SetClipboardTextFn = [](void *user_data, const char *text) {
         Q_UNUSED(user_data);
         QGuiApplication::clipboard()->setText(text);
@@ -373,11 +376,6 @@ bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
 
 	return true;
     //return QObject::eventFilter(watched, event);
-}
-
-ImGuiRenderer* ImGuiRenderer::instance() {
-	static ImGuiRenderer instance;
-    return &instance;
 }
 
 }

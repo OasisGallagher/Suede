@@ -19,7 +19,7 @@ Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
 }
 
 Inspector::~Inspector() {
-	QtImGui::destroy();
+	QtImGui::destroy(view_);
 }
 
 void Inspector::init(Ui::Editor* ui) {
@@ -58,7 +58,7 @@ void Inspector::onGui() {
 	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
 	view_->makeCurrent();
 
-	QtImGui::newFrame();
+	QtImGui::newFrame(view_);
 
 	QColor foregrouldColor = palette().color(foregroundRole());
 	QColor backgroundColor = palette().color(backgroundRole());

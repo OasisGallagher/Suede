@@ -35,8 +35,13 @@ private:
 
 }
 
-void initialize(QWidget *window) {
-    ImGuiRenderer::instance()->initialize(new QWidgetWindowWrapper(window));
+static std::map<QWidget*, ImGuiRenderer*> renderers_;
+
+void initialize(QWidget *widget) {
+	if (renderers_.find(widget) == renderers_.end()) {
+		ImGuiRenderer* renderer = renderers_[widget] = new ImGuiRenderer;
+		renderer->initialize(new QWidgetWindowWrapper(widget));
+	}
 }
 
 #endif
@@ -67,16 +72,25 @@ private:
 
 }
 
-void initialize(QWindow *window) {
-    ImGuiRenderer::instance()->initialize(new QWindowWindowWrapper(window));
+void newFrame(QWidget* widget) {
+	IM_ASSERT(renderers_.find(widget) != renderers_.end());
+    renderers_[widget]->newFrame();
 }
 
-void newFrame() {
-    ImGuiRenderer::instance()->newFrame();
+void destroy(QWidget* widget) {
+	renderers_[widget]->destroy();
+
+	delete renderers_[widget];
+	renderers_.erase(widget);
 }
 
-void destroy() {
-	ImGuiRenderer::instance()->destroy();
+void destroyAll() {
+	for (auto p : renderers_) {
+		p.second->destroy();
+		delete p.second;
+	}
+
+	renderers_.clear();
 }
 
 }
