@@ -60,11 +60,16 @@ void Inspector::onGui() {
 
 	QtImGui::newFrame();
 
-	// SUEDE TODO: background color and skin.
-	glm::vec3 backgroundColor = glm::vec3(35.f, 38.f, 41.f) / 255.f;
+	QColor foregrouldColor = palette().color(foregroundRole());
+	QColor backgroundColor = palette().color(backgroundRole());
 
-	GUI::Begin(view_->width(), view_->height(), backgroundColor);
+	GUI::Begin(view_->width(), view_->height(), 
+		Color(foregrouldColor.redF(), foregrouldColor.greenF(), foregrouldColor.blueF()),
+		Color(backgroundColor.redF(), backgroundColor.greenF(), backgroundColor.blueF())
+	);
+
 	if (target_) { drawGui(); }
+
 	GUI::End();
 
 	view_->swapBuffers();
@@ -230,14 +235,17 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 		MaterialEditor::draw(object->property(name).value<Material>());
 	}
 	else if (userType == QMetaTypeId<QVector<Material>>::qt_metatype_id()) {
-		bool first = true;
-		int __testPushID = 1;
+		int materialIndex = 0;
 		for (Material material : object->property(name).value<QVector<Material>>()) {
-			if (!first) { GUI::Separator(); }
-			ImGui::PushID(__testPushID++);
+			if (materialIndex != 0) { GUI::Separator(); }
+
+			GUI::BeginScope(materialIndex);
+
 			MaterialEditor::draw(material);
-			first = false;
-			ImGui::PopID();
+
+			GUI::EndScope();
+
+			++materialIndex;
 		}
 	}
 	else if (userType == QMetaTypeId<RenderTexture>::qt_metatype_id()) {

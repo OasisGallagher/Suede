@@ -16,6 +16,7 @@ BETTER_ENUM(ChildWindowType, int,
 	Lighting
 )
 
+class Preferences;
 class Editor : public QMainWindow, public LogReceiver {
 	Q_OBJECT
 
@@ -59,5 +60,6 @@ private:
 
 private:
 	Ui::Editor ui;
+	Preferences* preferences_;
 	QDockWidget** childWindows_;
 };

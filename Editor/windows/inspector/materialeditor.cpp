@@ -3,6 +3,7 @@
 #include <QFileDialog>
 
 #include "resources.h"
+#include "../widgets/dialogs/shaderselector.h"
 
 QVector<MainContextCommand*> MaterialEditor::commands_;
 
@@ -19,16 +20,37 @@ private:
 };
 
 void MaterialEditor::draw(Material material) {
-	if (GUI::CollapsingHeader(material->GetName().c_str())) {
+	std::string materialName = material->GetName();
+	if (GUI::CollapsingHeader(materialName.c_str())) {
+		GUI::BeginScope(materialName.c_str());
+
 		GUI::Indent();
 		drawShaderSelector(material);
 		drawProperties(material);
 		GUI::Unindent();
+
+		GUI::EndScope();
 	}
 }
 
 void MaterialEditor::drawShaderSelector(Material material) {
-	// SUEDE TODO: shader selector.
+	std::string shaderName = material->GetShader()->GetName();
+	if (GUI::Button(shaderName.c_str())) {
+		ShaderSelector selector(nullptr);
+		std::string fullShaderPath = selector.select(shaderName.c_str()).toStdString();
+		if (!fullShaderPath.empty()) {
+			replaceShader(material, fullShaderPath);
+		}
+	}
+}
+
+void MaterialEditor::replaceShader(Material material, const std::string& fullShaderPath) {
+	std::string shaderName = fullShaderPath.substr(Resources::instance()->GetShaderDirectory().length());
+	shaderName = shaderName.substr(0, shaderName.length() - strlen(".shader"));
+	Shader shader = Resources::instance()->FindShader(shaderName);
+	if (shader) {
+		material->SetShader(shader);
+	}
 }
 
 void MaterialEditor::drawProperties(Material material) {

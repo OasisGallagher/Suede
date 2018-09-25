@@ -4,7 +4,7 @@
 
 struct SUEDE_API Color {
 	Color();
-	Color(float r, float g, float b, float a);
+	Color(float r, float g, float b, float a = 1);
 
 	bool operator!= (const Color other) const;
 	bool operator== (const Color other) const;

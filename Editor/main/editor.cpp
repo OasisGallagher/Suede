@@ -25,7 +25,7 @@ namespace PrefsKeys {
 	static int stateVersion = 3350;
 }
 
-Editor::Editor(QWidget *parent) : QMainWindow(parent) {
+Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr) {
 	Debug::SetLogReceiver(this);
 
 	setupUI();
@@ -141,8 +141,11 @@ void Editor::onShowWindowMenu() {
 }
 
 void Editor::onPreferences() {
-	Preferences* preferences = new Preferences(this);
-	preferences->show();
+	if (preferences_ == nullptr) {
+		preferences_ = new Preferences(this);
+	}
+
+	preferences_->show();
 }
 
 void Editor::onScreenCapture() {

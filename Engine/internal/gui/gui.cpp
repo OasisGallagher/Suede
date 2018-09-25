@@ -9,19 +9,25 @@
 static ImFont* imfont;
 static char buffer[256];
 
+#define FromGLMColor
+
 void GUI::LoadFont(const char* file) {
 	imfont = ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15, nullptr, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 }
 
-void GUI::Begin(uint w, uint h, glm::vec3 backgroundColor) {
+void GUI::Begin(uint w, uint h, const Color& foregroundColor, const Color& backgroundColor) {
 	if (imfont != nullptr) {
 		ImGui::PushFont(imfont);
 	}
 
 	const int flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar;
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(backgroundColor.x, backgroundColor.y, backgroundColor.z, 1));
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1));
+	ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1));
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(foregroundColor.r, foregroundColor.g, foregroundColor.b, 1));
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 
 	ImVec2 size((float)w, (float)h);
@@ -33,9 +39,9 @@ void GUI::Begin(uint w, uint h, glm::vec3 backgroundColor) {
 
 void GUI::End() {
 	ImGui::End();
-	ImGui::PopStyleColor();
-	ImGui::PopStyleVar();
-	ImGui::PopStyleVar();
+
+	ImGui::PopStyleColor(3);
+	ImGui::PopStyleVar(2);
 
 	if (imfont != nullptr) {
 		ImGui::PopFont();
@@ -63,6 +69,10 @@ bool GUI::TextField(const char* title, std::string& v) {
 	}
 
 	return false;
+}
+
+bool GUI::Button(const char* title) {
+	return ImGui::Button(title);
 }
 
 void GUI::Image(const char* title, uint texture) {
@@ -200,4 +210,16 @@ void GUI::EndMenu() {
 
 bool GUI::CollapsingHeader(const char* title) {
 	return ImGui::CollapsingHeader(title, ImGuiTreeNodeFlags_DefaultOpen);
+}
+
+void GUI::BeginScope(int id) {
+	ImGui::PushID(id);
+}
+
+void GUI::BeginScope(const char* id) {
+	ImGui::PushID(id);
+}
+
+void GUI::EndScope() {
+	ImGui::PopID();
 }

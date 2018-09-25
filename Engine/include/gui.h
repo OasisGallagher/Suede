@@ -12,13 +12,15 @@ class SUEDE_API GUI {
 public:
 	static void LoadFont(const char* file);
 
-	static void Begin(uint w, uint h, glm::vec3 backgroundColor);
+	static void Begin(uint w, uint h, const Color& foregroundColor, const Color& backgroundColor);
 	static void End();
 
 	static void LabelField(const char* text);
 	static void LabelField(const char* title, const char* text);
 
 	static bool TextField(const char* title, std::string& v);
+
+	static bool Button(const char* title);
 
 	static void Image(const char* title, uint texture);
 	static bool ImageButton(const char* title, uint texture);
@@ -65,6 +67,11 @@ public:
 	static void EndMenu();
 
 	static bool CollapsingHeader(const char* title);
+
+	static void BeginScope(int id);
+	static void BeginScope(const char* id);
+
+	static void EndScope();
 };
 
 #include "gui.inl"

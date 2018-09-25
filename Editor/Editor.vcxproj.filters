@@ -471,6 +471,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_inversion.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="widgets\dialogs\shaderselector.cpp">
+      <Filter>widgets\dialogs\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_shaderselector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_shaderselector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main\qtviewer.h">
@@ -590,6 +599,12 @@
     <CustomBuild Include="scripts\inversion.h">
       <Filter>scripts\include</Filter>
     </CustomBuild>
+    <CustomBuild Include="shaderselector.ui">
+      <Filter>ui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\shaderselector.h">
+      <Filter>widgets\dialogs\include</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="widgets\fields\enumfield.h">
@@ -621,6 +636,9 @@
     </ClInclude>
     <ClInclude Include="windows\inspector\materialeditor.h">
       <Filter>windows\inspector\include</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_shaderselector.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

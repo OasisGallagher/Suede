@@ -60,11 +60,11 @@ void ColorField::showColorPicker() {
 
 void ColorField::onCurrentColorChanged(const QColor& color) {
 	if (alpha_ != nullptr && alpha_->isVisible()) {
-		setValue(glm::vec4(color.red(), color.green(), color.blue(), color.alpha()) / 255.f);
+		setValue(glm::vec4(color.redF(), color.greenF(), color.blueF(), color.alphaF()));
 		alpha_->setValue(color.alpha());
 	}
 	else {
-		setValue(glm::vec3(color.red(), color.green(), color.blue()) / 255.f);
+		setValue(glm::vec3(color.redF(), color.greenF(), color.blueF()));
 	}
 
 	emit valueChanged(color);

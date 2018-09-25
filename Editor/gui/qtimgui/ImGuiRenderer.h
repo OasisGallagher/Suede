@@ -31,9 +31,9 @@ public:
 
     void newFrame();
 
-    bool eventFilter(QObject *watched, QEvent *event);
+	bool eventFilter(QObject *watched, QEvent *event);
 
-    static ImGuiRenderer *instance();
+	static ImGuiRenderer *instance();
 
 private:
     ImGuiRenderer() {}

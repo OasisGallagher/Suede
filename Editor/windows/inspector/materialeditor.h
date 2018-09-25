@@ -1,6 +1,7 @@
 #pragma once
 #include "gui.h"
 #include "material.h"
+#include "os/filesystem.h"
 
 #include <QVector>
 
@@ -19,6 +20,7 @@ public:
 
 private:
 	static void drawShaderSelector(Material material);
+	static void replaceShader(Material material, const std::string& fullShaderPath);
 
 	static void drawProperties(Material material);
 	typedef void(*DrawMethod)(Material material, const Property* p);

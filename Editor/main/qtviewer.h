@@ -5,6 +5,7 @@
 #include "graphicsviewer.h"
 
 class Editor;
+
 class QtViewer : public QObject, public GraphicsViewer {
 	Q_OBJECT
 

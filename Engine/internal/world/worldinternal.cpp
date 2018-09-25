@@ -132,7 +132,6 @@ void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	Projector projector = go->GetComponent<IProjector>();
 	if (projector) { projectors_.erase(projector); }
 
-	// SUEDE TODO: tag go with destroyed?
 	RemoveGameObjectFromSequence(go);
 	gameObjects_.erase(go->GetInstanceID());
 	go->GetTransform()->SetParent(nullptr);
