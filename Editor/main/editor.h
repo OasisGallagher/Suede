@@ -11,6 +11,7 @@
 BETTER_ENUM(ChildWindowType, int,
 	Game,
 	Console,
+	Project,
 	Inspector,
 	Hierarchy,
 	Lighting

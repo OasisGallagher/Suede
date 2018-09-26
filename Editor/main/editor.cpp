@@ -11,7 +11,10 @@
 #include "prefs.h"
 
 #include "../widgets/status/statusbar.h"
+
+#include "../windows/project/project.h"
 #include "../windows/lighting/lighting.h"
+
 #include "../widgets/dialogs/aboutdialog.h"
 #include "../widgets/dialogs/colorpicker.h"
 #include "../widgets/dialogs/preferences.h"
@@ -57,6 +60,7 @@ void Editor::setupUI() {
 
 	childWindows_[ChildWindowType::Game] = Game::instance();
 	childWindows_[ChildWindowType::Console] = Console::instance();
+	childWindows_[ChildWindowType::Project] = Project::instance();
 	childWindows_[ChildWindowType::Inspector] = Inspector::instance();
 	childWindows_[ChildWindowType::Hierarchy] = Hierarchy::instance();
 	childWindows_[ChildWindowType::Lighting] = Lighting::instance();
@@ -234,6 +238,7 @@ void Editor::initializeLayout() {
 	splitDockWidget(Hierarchy::instance(), Game::instance(), Qt::Horizontal);
 	splitDockWidget(Game::instance(), Inspector::instance(), Qt::Horizontal);
 	splitDockWidget(Game::instance(), Console::instance(), Qt::Vertical);
+	tabifyDockWidget(Console::instance(), Project::instance());
 
 	showChildWindow(ChildWindowType::Lighting, false);
 }

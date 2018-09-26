@@ -18,15 +18,15 @@ void Hierarchy::init(Ui::Editor* ui) {
 
 	model_ = new DragDropableItemModel(this);
 	
-	ui_->tree->setModel(model_);
-	ui_->tree->setHeaderHidden(true);
-	ui_->tree->setDragDropMode(QAbstractItemView::DragDrop);
+	ui_->gameObjectTree->setModel(model_);
+	ui_->gameObjectTree->setHeaderHidden(true);
+	ui_->gameObjectTree->setDragDropMode(QAbstractItemView::DragDrop);
 
-	connect(ui_->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
+	connect(ui_->gameObjectTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
 		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
-	connect(ui_->tree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
+	connect(ui_->gameObjectTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
 
-	connect(ui->tree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onGameObjectDoubleClicked(const QModelIndex&)));
+	connect(ui->gameObjectTree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onGameObjectDoubleClicked(const QModelIndex&)));
 }
 
 void Hierarchy::awake() {
@@ -38,7 +38,7 @@ void Hierarchy::OnGameObjectImported(GameObject root, const std::string& path) {
 }
 
 GameObject Hierarchy::selectedGameObject() {
-	QModelIndex index = ui_->tree->selectionModel()->currentIndex();
+	QModelIndex index = ui_->gameObjectTree->selectionModel()->currentIndex();
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
@@ -46,7 +46,7 @@ GameObject Hierarchy::selectedGameObject() {
 }
 
 bool Hierarchy::selectedGameObjects(QList<GameObject>& gameObjects) {
-	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
+	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
 
 	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
@@ -94,7 +94,7 @@ void Hierarchy::onGameObjectDestroyed(GameObject go) {
 	}
 
 	bool contains = false;
-	for (QModelIndex index : ui_->tree->selectionModel()->selectedIndexes()) {
+	for (QModelIndex index : ui_->gameObjectTree->selectionModel()->selectedIndexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
 		if (id == go->GetInstanceID()) {
 			contains = true;
@@ -146,10 +146,10 @@ void Hierarchy::onGameObjectDoubleClicked(const QModelIndex& index) {
 
 void Hierarchy::onTreeCustomContextMenu() {
 	QMenu menu;
-	QAction* del = new QAction(tr("Delete"), &menu);
+	QAction* del = new QAction("Delete", &menu);
 	connect(del, SIGNAL(triggered()), this, SLOT(onDeleteSelected()));
 
-	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
+	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
 	if (indexes.empty()) {
 		del->setEnabled(false);
 	}
@@ -159,7 +159,7 @@ void Hierarchy::onTreeCustomContextMenu() {
 }
 
 void Hierarchy::onDeleteSelected() {
-	QModelIndexList indexes = ui_->tree->selectionModel()->selectedIndexes();
+	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
 	for (QModelIndex index : indexes) {
 		World::instance()->DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
 	}

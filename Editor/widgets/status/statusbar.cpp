@@ -15,7 +15,7 @@ StatusBar::StatusBar(QWidget* parent) :QStatusBar(parent) {
 
 	QLabel* label = new QLabel(this);
 	addWidget(label);
-	label->setText(tr("Ready"));
+	label->setText("Ready");
 }
 
 StatusBar::~StatusBar() {

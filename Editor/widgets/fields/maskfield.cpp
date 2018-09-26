@@ -3,9 +3,9 @@
 
 #include "maskfield.h"
 
-#define NONE_STRING				tr("None")
-#define MIXED_STRING			tr("Mixed")
-#define EVERYTHING_STRING		tr("Everything")
+#define NONE_STRING				("None")
+#define MIXED_STRING			("Mixed")
+#define EVERYTHING_STRING		("Everything")
 
 MaskField::MaskField(QWidget* parent) : QComboBox(parent), selected_(0), everything_(0) {
 	view_ = new QListWidget(this);

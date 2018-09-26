@@ -203,7 +203,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QTreeView" name="tree">
+      <widget class="QTreeView" name="gameObjectTree">
        <property name="contextMenuPolicy">
         <enum>Qt::CustomContextMenu</enum>
        </property>
@@ -564,6 +564,40 @@
     </layout>
    </widget>
   </widget>
+  <widget class="Project" name="project">
+   <property name="windowTitle">
+    <string>Project</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="projectView">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="spacing">
+      <number>1</number>
+     </property>
+     <property name="leftMargin">
+      <number>1</number>
+     </property>
+     <property name="topMargin">
+      <number>1</number>
+     </property>
+     <property name="rightMargin">
+      <number>1</number>
+     </property>
+     <property name="bottomMargin">
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QTreeView" name="fileTree">
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="exit">
    <property name="text">
     <string>&amp;Exit</string>
@@ -697,6 +731,12 @@
    <extends>QComboBox</extends>
    <header>widgets/fields/enumfield.h</header>
   </customwidget>
+  <customwidget>
+   <class>Project</class>
+   <extends>QDockWidget</extends>
+   <header>windows/project/project.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>clear</tabstop>
@@ -704,7 +744,6 @@
   <tabstop>search</tabstop>
   <tabstop>game</tabstop>
   <tabstop>table</tabstop>
-  <tabstop>tree</tabstop>
  </tabstops>
  <resources>
   <include location="../editor.qrc"/>
