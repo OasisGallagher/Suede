@@ -26,6 +26,7 @@ public:
 	virtual void Initialize();
 	virtual void CullingUpdate();
 	virtual void RenderingUpdate();
+
 	virtual void Finalize();
 
 	virtual Transform GetRootTransform() { return root_->GetTransform(); }

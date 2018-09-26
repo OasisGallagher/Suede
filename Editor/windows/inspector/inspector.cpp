@@ -43,11 +43,11 @@ void Inspector::awake() {
 	view_ = new QGLWidget(ui_->inspectorView, Game::instance()->canvas());
 	ui_->inspectorViewLayout->addWidget(view_);
 
-	QtImGui::initialize(view_);
+	QtImGui::create(view_);
 	GUI::LoadFont("resources/fonts/tahoma.ttf");
 
 	view_->setFocusPolicy(Qt::StrongFocus);
-	blackTextureID_ = Resources::instance()->GetBlackTexture()->GetNativePointer();;
+	blackTextureID_ = Resources::instance()->GetBlackTexture()->GetNativePointer();
 }
 
 void Inspector::tick() {
@@ -169,7 +169,7 @@ void Inspector::drawMetaObject(QObject* object) {
 	}
 }
 
-void Inspector::drawBuiltinType(QMetaProperty &p, QObject* object, const char* name) {
+void Inspector::drawBuiltinType(const QMetaProperty& p, QObject* object, const char* name) {
 	QVariant::Type type = p.type();
 	if (type == QMetaType::Bool) {
 		bool b = object->property(name).toBool();
@@ -191,9 +191,7 @@ void Inspector::drawBuiltinType(QMetaProperty &p, QObject* object, const char* n
 	}
 }
 
-#include "imgui.h"
-
-void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name) {
+void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char* name) {
 	int userType = p.userType();
 	if (userType == QMetaTypeId<glm::vec2>::qt_metatype_id()) {
 		drawUserVectorType(object, name, GUI::Float2Field);
@@ -208,7 +206,7 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 		drawUserVectorType(object, name, GUI::ColorField);
 	}
 	else if (userType == QMetaTypeId<Rect>::qt_metatype_id()) {
-		drawUserVectorType(object, name, GUI::RectField);
+		drawUserVectorType(object, name, GUI::NormalizedRectField);
 	}
 	else if (userType == QMetaTypeId<ClearType>::qt_metatype_id()) {
 		drawUserEnumType<ClearType>(object, name);
@@ -235,18 +233,7 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 		MaterialEditor::draw(object->property(name).value<Material>());
 	}
 	else if (userType == QMetaTypeId<QVector<Material>>::qt_metatype_id()) {
-		int materialIndex = 0;
-		for (Material material : object->property(name).value<QVector<Material>>()) {
-			if (materialIndex != 0) { GUI::Separator(); }
-
-			GUI::BeginScope(materialIndex);
-
-			MaterialEditor::draw(material);
-
-			GUI::EndScope();
-
-			++materialIndex;
-		}
+		drawMaterialVector(object, name);
 	}
 	else if (userType == QMetaTypeId<RenderTexture>::qt_metatype_id()) {
 		RenderTexture texture = object->property(name).value<RenderTexture>();
@@ -254,6 +241,21 @@ void Inspector::drawUserType(QMetaProperty &p, QObject* object, const char* name
 	}
 	else {
 		Debug::LogError("unable to draw user type %s(%d).", p.typeName(), userType);
+	}
+}
+
+void Inspector::drawMaterialVector(QObject* object, const char* name) {
+	int materialIndex = 0;
+	for (Material material : object->property(name).value<QVector<Material>>()) {
+		if (materialIndex != 0) { GUI::Separator(); }
+
+		GUI::BeginScope(materialIndex);
+
+		MaterialEditor::draw(material);
+
+		GUI::EndScope();
+
+		++materialIndex;
 	}
 }
 

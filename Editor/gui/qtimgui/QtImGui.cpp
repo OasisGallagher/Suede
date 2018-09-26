@@ -1,19 +1,14 @@
 #include "QtImGui.h"
 #include "ImGuiRenderer.h"
-#include <QWindow>
-#ifdef QT_WIDGETS_LIB
-#include <QWidget>
-#endif
+#include <QtOpenGL/QGLWidget>
 
 namespace QtImGui {
-
-#ifdef QT_WIDGETS_LIB
 
 namespace {
 
 class QWidgetWindowWrapper : public WindowWrapper {
 public:
-    QWidgetWindowWrapper(QWidget *w) : w(w) {}
+    QWidgetWindowWrapper(QGLWidget *w) : w(w) {}
     void installEventFilter(QObject *object) override {
         return w->installEventFilter(object);
     }
@@ -30,54 +25,26 @@ public:
         return w->mapFromGlobal(p);
     }
 private:
-    QWidget *w;
+	QGLWidget *w;
 };
 
 }
 
-static std::map<QWidget*, ImGuiRenderer*> renderers_;
+static std::map<QGLWidget*, ImGuiRenderer*> renderers_;
 
-void initialize(QWidget *widget) {
+void create(QGLWidget *widget) {
 	if (renderers_.find(widget) == renderers_.end()) {
 		ImGuiRenderer* renderer = renderers_[widget] = new ImGuiRenderer;
 		renderer->initialize(new QWidgetWindowWrapper(widget));
 	}
 }
 
-#endif
-
-namespace {
-
-class QWindowWindowWrapper : public WindowWrapper {
-public:
-    QWindowWindowWrapper(QWindow *w) : w(w) {}
-    void installEventFilter(QObject *object) override {
-        return w->installEventFilter(object);
-    }
-    QSize size() const override {
-        return w->size();
-    }
-    qreal devicePixelRatio() const override {
-        return w->devicePixelRatio();
-    }
-    bool isActive() const override {
-        return w->isActive();
-    }
-    QPoint mapFromGlobal(const QPoint &p) const override {
-        return w->mapFromGlobal(p);
-    }
-private:
-    QWindow *w;
-};
-
-}
-
-void newFrame(QWidget* widget) {
+void newFrame(QGLWidget* widget) {
 	IM_ASSERT(renderers_.find(widget) != renderers_.end());
     renderers_[widget]->newFrame();
 }
 
-void destroy(QWidget* widget) {
+void destroy(QGLWidget* widget) {
 	renderers_[widget]->destroy();
 
 	delete renderers_[widget];
@@ -93,4 +60,4 @@ void destroyAll() {
 	renderers_.clear();
 }
 
-}
+} // namespace QtImGui

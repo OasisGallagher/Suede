@@ -59,7 +59,7 @@ void ParticleSystemInternal::RenderingUpdate() {
 }
 
 void ParticleSystemInternal::SortBuffers() {
-	SortParticlesByDepth(Camera::GetMain()->GetTransform()->GetPosition());
+	SortParticlesByDepth(Camera::main()->GetTransform()->GetPosition());
 }
 
 void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {

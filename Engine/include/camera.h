@@ -90,6 +90,9 @@ public:
 SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Camera) {
 	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Camera)
 
-	static void SetMain(Camera value);
-	static Camera GetMain();
+	static void main(Camera value);
+	static Camera main();
+
+	static void OnPreRender();
+	static void OnPostRender();
 };

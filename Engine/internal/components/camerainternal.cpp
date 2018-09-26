@@ -13,8 +13,20 @@
 #include "internal/async/guard.h"
 
 static Camera main_;
-Camera Camera::GetMain() { return main_; }
-void Camera::SetMain(Camera value) { main_ = value; }
+Camera Camera::main() { return main_; }
+void Camera::main(Camera value) { main_ = value; }
+
+void Camera::OnPreRender() {
+	Framebuffer0::Get()->SetViewport(0, 0, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	Framebuffer0::Get()->SetClearDepth(1);
+	Framebuffer0::Get()->SetClearStencil(1);
+	Framebuffer0::Get()->SetClearColor(Color::black);
+	Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
+}
+
+void Camera::OnPostRender() {
+
+}
 
 SUEDE_DEFINE_COMPONENT(ICamera, IComponent)
 
@@ -49,7 +61,7 @@ CameraInternal::~CameraInternal() {
 
 void CameraInternal::OnBeforeWorldDestroyed() {
 	CancelThreads();
-	Camera::SetMain(nullptr);
+	Camera::main(nullptr);
 }
 
 void CameraInternal::CancelThreads() {
@@ -71,6 +83,10 @@ void CameraInternal::SetDepth(int value) {
 }
 
 void CameraInternal::Render() {
+	if (!IsValidViewRect()) {
+		return;
+	}
+
 	if (!culling_->IsWorking()) {
 		traits1_->Clear();
 		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
@@ -135,15 +151,20 @@ void CameraInternal::OnFrameLeave() {
 	}
 }
 
-bool CameraInternal::IsMainCamera() const {
-	return Camera::GetMain().get() == this;
+bool CameraInternal::IsValidViewRect() {
+	const Rect& r = p_.normalizedRect;
+	if (r.GetXMin() >= 1 || r.GetYMin() >= 1) { return false; }
+	if (r.GetWidth() <= 0 || r.GetHeight() <= 0) { return false; }
+
+	return true;
+}
+
+bool CameraInternal::IsMainCamera() {
+	return Camera::main().get() == this;
 }
 
 void CameraInternal::SetRect(const Rect& value) {
-	if (p_.normalizedRect != value) {
-		p_.normalizedRect = value;
-		rendering_->ClearRenderTextures();
-	}
+	p_.normalizedRect = value;
 }
 
 void CameraInternal::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) {

@@ -266,9 +266,9 @@ void Game::onShadingModeChanged(const QString& str) {
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {
-	Transform camera = Camera::GetMain()->GetTransform();
+	Transform camera = Camera::main()->GetTransform();
 	glm::vec3 position = go->GetBounds().center;
-	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(Camera::GetMain(), go);
+	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(Camera::main(), go);
 	camera->SetPosition(p);
 
 	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()))));
@@ -293,8 +293,6 @@ void Game::updateStatContent() {
  	}
 }
 
-#include <QMetaProperty>
-
 void Game::createScene() {
 	Environment::instance()->SetFogColor(glm::vec3(0.5f));
 	Environment::instance()->SetFogDensity(0);
@@ -314,7 +312,7 @@ void Game::createScene() {
 	cameraGameObject->SetName("camera");
 
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
-	Camera::SetMain(camera);
+	Camera::main(camera);
 	camera->AddGizmosPainter(this);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 

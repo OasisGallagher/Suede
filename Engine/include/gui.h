@@ -18,7 +18,7 @@ public:
 	static void LabelField(const char* text);
 	static void LabelField(const char* title, const char* text);
 
-	static bool TextField(const char* title, std::string& v);
+	static bool TextField(const char* title, std::string& value);
 
 	static bool Button(const char* title);
 
@@ -28,10 +28,10 @@ public:
 	static void Sameline();
 	static void Separator();
 
-	static void Indent(float v = 4);
-	static void Unindent(float v = 4);
+	static void Indent(float value = 4);
+	static void Unindent(float value = 4);
 
-	static bool Toggle(const char* title, bool& v);
+	static bool Toggle(const char* title, bool& value);
 
 	template <class T>
 	static bool EnumPopup(const char* title, T value, int& selected);
@@ -48,19 +48,21 @@ public:
 	template <class T>
 	static bool EnumMaskPopup(const char* title, T value);
 
-	static bool Slider(const char* title, float& v, float min, float max);
-	static bool IntSlider(const char* title, int& v, int min, int max);
+	static bool Slider(const char* title, float& value, float min, float max);
+	static bool IntSlider(const char* title, int& value, int min, int max);
 
-	static bool IntField(const char* title, int& v, int min = std::numeric_limits<int>::lowest(), int max = std::numeric_limits<int>::max());
-	static bool UIntField(const char* title, uint& v, uint min = std::numeric_limits<uint>::lowest(), uint max = std::numeric_limits<uint>::max());
+	static bool IntField(const char* title, int& value, int min = std::numeric_limits<int>::lowest(), int max = std::numeric_limits<int>::max());
+	static bool UIntField(const char* title, uint& value, uint min = std::numeric_limits<uint>::lowest(), uint max = std::numeric_limits<uint>::max());
 
-	static bool FloatField(const char* title, float& v, float min = std::numeric_limits<float>::lowest(), float max = std::numeric_limits<float>::max());
-	static bool Float2Field(const char* title, glm::vec2& v);
-	static bool Float3Field(const char* title, glm::vec3& v);
-	static bool Float4Field(const char* title, glm::vec4& v);
+	static bool FloatField(const char* title, float& value, float min = std::numeric_limits<float>::lowest(), float max = std::numeric_limits<float>::max());
+	static bool Float2Field(const char* title, glm::vec2& value);
+	static bool Float3Field(const char* title, glm::vec3& value);
+	static bool Float4Field(const char* title, glm::vec4& value);
 
-	static bool RectField(const char* title, Rect& v);
-	static bool ColorField(const char* title, Color& v);
+	static bool ColorField(const char* title, Color& value);
+
+	static bool RectField(const char* title, Rect& value);
+	static bool NormalizedRectField(const char* title, Rect& value);
 
 	static bool BeginMenu(const char* title);
 	static bool MenuItem(const char* title, bool selected);

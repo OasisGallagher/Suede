@@ -379,11 +379,8 @@ public:
 	}
 
 private:
-	TemporaryRenderTextureManager() {
-	}
-
-	~TemporaryRenderTextureManager() {
-	}
+	TemporaryRenderTextureManager() { }
+	~TemporaryRenderTextureManager() { }
 };
 
 RenderTexture RenderTexture::GetDefault() {

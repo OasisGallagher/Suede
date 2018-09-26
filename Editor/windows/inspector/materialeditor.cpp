@@ -128,17 +128,17 @@ void MaterialEditor::drawBoolProperty(Material material, const Property* p) {
 
 void MaterialEditor::drawRangedIntProperty(Material material, const Property* p) {
 	iranged r = material->GetRangedInt(p->name);
-	int i = r.value();
-	if (GUI::IntSlider(p->name.c_str(), i, r.min(), r.max())) {
-		material->SetInt(p->name, i);
+	int value = r.get_value();
+	if (GUI::IntSlider(p->name.c_str(), value, r.min(), r.max())) {
+		material->SetInt(p->name, value);
 	}
 }
 
 void MaterialEditor::drawRangedFloatProperty(Material material, const Property* p) {
 	franged r = material->GetRangedFloat(p->name);
-	float f = r.value();
-	if (GUI::Slider(p->name.c_str(), f, r.min(), r.max())) {
-		material->SetFloat(p->name, f);
+	float value = r.get_value();
+	if (GUI::Slider(p->name.c_str(), value, r.min(), r.max())) {
+		material->SetFloat(p->name, value);
 	}
 }
 

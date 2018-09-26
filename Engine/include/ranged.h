@@ -27,26 +27,26 @@ public:
 
 	void reset(T value, T min, T max) {
 		value_ = value;
-		setRange(min, max);
+		set_range(min, max);
 	}
 
-	void setValue(T value) {
+	void set_value(T value) {
 		value_ = Math::Clamp(value, min_, max_);
 	}
 
-	void setRange(T min, T max) {
+	void set_range(T min, T max) {
 		if (min > max) {
 			Debug::LogError("invalid range");
 			max_ = min_ = max;
 		}
 
 		min_ = min; max_ = max;
-		setValue(value_);
+		set_value(value_);
 	}
 
 	T min() const { return min_; }
 	T max() const { return max_; }
-	T value() const { return value_; }
+	T get_value() const { return value_; }
 
 private:
 	// do NOT change the order.

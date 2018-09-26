@@ -106,9 +106,10 @@ public:
 	virtual void OnFrameLeave();
 
 private:
-	bool IsMainCamera() const;
+	bool IsMainCamera();
 	void OnDrawGizmos();
 	void CancelThreads();
+	bool IsValidViewRect();
 
 private:
 	int depth_;

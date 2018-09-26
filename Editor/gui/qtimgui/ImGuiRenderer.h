@@ -46,7 +46,9 @@ private:
     bool createFontsTexture();
     bool createDeviceObjects();
 
-    std::unique_ptr<WindowWrapper> m_window;
+	ImGuiContext* m_context;
+	std::unique_ptr<WindowWrapper> m_window;
+
     double       g_Time = 0.0f;
     bool         g_MousePressed[3] = { false, false, false };
     float        g_MouseWheel;

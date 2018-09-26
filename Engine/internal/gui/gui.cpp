@@ -58,13 +58,13 @@ void GUI::LabelField(const char* title, const char* text) {
 	ImGui::LabelText(title, text);
 }
 
-bool GUI::TextField(const char* title, std::string& v) {
-	int len = Math::Min(IM_ARRAYSIZE(buffer) - 1, (int)v.length());
-	strncpy(buffer, v.c_str(), len);
+bool GUI::TextField(const char* title, std::string& value) {
+	int len = Math::Min(IM_ARRAYSIZE(buffer) - 1, (int)value.length());
+	strncpy(buffer, value.c_str(), len);
 	buffer[len] = 0;
 
 	if (ImGui::InputText(title, buffer, IM_ARRAYSIZE(buffer))) {
-		v = buffer;
+		value = buffer;
 		return true;
 	}
 
@@ -88,8 +88,8 @@ bool GUI::ImageButton(const char* title, uint texture) {
 	return clicked;
 }
 
-bool GUI::Toggle(const char* title, bool& v) {
-	return ImGui::Checkbox(title, &v);
+bool GUI::Toggle(const char* title, bool& value) {
+	return ImGui::Checkbox(title, &value);
 }
 
 void GUI::Sameline() {
@@ -100,12 +100,12 @@ void GUI::Separator() {
 	ImGui::Separator();
 }
 
-void GUI::Indent(float v) {
-	ImGui::Indent(v);
+void GUI::Indent(float value) {
+	ImGui::Indent(value);
 }
 
-void GUI::Unindent(float v) {
-	ImGui::Unindent(v);
+void GUI::Unindent(float value) {
+	ImGui::Unindent(value);
 }
 
 bool GUI::Popup(const char* title, int* selected, const char* items) {
@@ -156,44 +156,48 @@ bool GUI::MaskPopup(const char* title, int mask, const char* items_) {
 	//return changed;
 }
 
-bool GUI::Slider(const char* title, float& v, float min, float max) {
-	return ImGui::SliderFloat(title, &v, min, max, "%.2f");
+bool GUI::Slider(const char* title, float& value, float min, float max) {
+	return ImGui::SliderFloat(title, &value, min, max, "%.2f");
 }
 
-bool GUI::IntSlider(const char* title, int& v, int min, int max) {
-	return ImGui::SliderInt(title, &v, min, max, "%.2f");
+bool GUI::IntSlider(const char* title, int& value, int min, int max) {
+	return ImGui::SliderInt(title, &value, min, max, "%.2f");
 }
 
-bool GUI::IntField(const char* title, int& v, int min, int max) {
-	return ImGui::DragInt(title, &v, 1.f, min, max);
+bool GUI::IntField(const char* title, int& value, int min, int max) {
+	return ImGui::DragInt(title, &value, 1.f, min, max);
 }
 
-bool GUI::UIntField(const char* title, uint& v, uint min, uint max) {
-	return ImGui::DragUInt(title, &v, 1.f, min, max);
+bool GUI::UIntField(const char* title, uint& value, uint min, uint max) {
+	return ImGui::DragUInt(title, &value, 1.f, min, max);
 }
 
-bool GUI::FloatField(const char* title, float& v, float min, float max) {
-	return ImGui::DragFloat(title, &v, 1.f, min, max);
+bool GUI::FloatField(const char* title, float& value, float min, float max) {
+	return ImGui::DragFloat(title, &value, 1.f, min, max);
 }
 
-bool GUI::Float2Field(const char* title, glm::vec2& v) {
-	return ImGui::DragFloat2(title, (float*)&v);
+bool GUI::Float2Field(const char* title, glm::vec2& value) {
+	return ImGui::DragFloat2(title, (float*)&value);
 }
 
-bool GUI::Float3Field(const char* title, glm::vec3& v) {
-	return ImGui::DragFloat3(title, (float*)&v);
+bool GUI::Float3Field(const char* title, glm::vec3& value) {
+	return ImGui::DragFloat3(title, (float*)&value);
 }
 
-bool GUI::Float4Field(const char* title, glm::vec4& v) {
-	return ImGui::DragFloat4(title, (float*)&v);
+bool GUI::Float4Field(const char* title, glm::vec4& value) {
+	return ImGui::DragFloat4(title, (float*)&value);
 }
 
-bool GUI::RectField(const char* title, Rect& v) {
-	return ImGui::DragFloat4(title, (float*)&v);
+bool GUI::RectField(const char* title, Rect& value) {
+	return ImGui::DragFloat4(title, (float*)&value);
 }
 
-bool GUI::ColorField(const char* title, Color& v) {
-	return ImGui::ColorEdit4(title, (float*)&v);
+bool GUI::NormalizedRectField(const char* title, Rect& value) {
+	return ImGui::DragFloat4(title, (float*)&value, 0.1f, 0, 1);
+}
+
+bool GUI::ColorField(const char* title, Color& value) {
+	return ImGui::ColorEdit4(title, (float*)&value);
 }
 
 bool GUI::BeginMenu(const char * title) {

@@ -18,7 +18,7 @@ void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Re
 	buffers[0] = RenderTexture::GetTemporary(RenderTextureFormat::RgbF, width, height);
 	buffers[1] = RenderTexture::GetTemporary(RenderTextureFormat::RgbF, width, height);
 
-	for (int i = 0; i < amount_.value(); ++i) {
+	for (int i = 0; i < amount_.get_value(); ++i) {
 		material_->SetBool("horizontal", horizontal != 0);
 		Graphics::instance()->Blit(src, buffers[horizontal], material_, normalizedRect);
 

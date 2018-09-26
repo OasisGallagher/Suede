@@ -39,7 +39,7 @@ QByteArray g_currentClipboardText;
 void ImGuiRenderer::initialize(WindowWrapper *window) {
     m_window.reset(window);
 
-    ImGui::CreateContext();
+    m_context = ImGui::CreateContext();
 
     ImGuiIO &io = ImGui::GetIO();
     for (ImGuiKey key : keyMap.values()) {
@@ -55,6 +55,7 @@ void ImGuiRenderer::initialize(WindowWrapper *window) {
         Q_UNUSED(user_data);
         QGuiApplication::clipboard()->setText(text);
     };
+
     io.GetClipboardTextFn = [](void *user_data) {
         Q_UNUSED(user_data);
         g_currentClipboardText = QGuiApplication::clipboard()->text().toUtf8();
@@ -266,13 +267,15 @@ bool ImGuiRenderer::createDeviceObjects()
 }
 
 void ImGuiRenderer::destroy() {
-	ImGui::DestroyContext();
+	ImGui::DestroyContext(m_context);
 }
 
 void ImGuiRenderer::newFrame()
 {
     if (!g_FontTexture)
         createDeviceObjects();
+
+	ImGui::SetCurrentContext(m_context);
 
     ImGuiIO& io = ImGui::GetIO();
 

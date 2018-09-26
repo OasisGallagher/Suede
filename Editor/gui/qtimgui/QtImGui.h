@@ -1,13 +1,12 @@
 #pragma once
-class QWidget;
-class QWindow;
+class QGLWidget;
 
 // SUEDE TODO: multiple render context...
 namespace QtImGui {
 
-void initialize(QWidget *window);
-void newFrame(QWidget* widget);
-void destroy(QWidget* widget);
+void create(QGLWidget *window);
+void newFrame(QGLWidget* widget);
+void destroy(QGLWidget* widget);
 void destroyAll();
 
 }

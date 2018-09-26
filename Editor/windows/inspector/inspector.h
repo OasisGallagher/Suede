@@ -40,8 +40,11 @@ private:
 
 	void drawMetaObject(QObject* object);
 
-	void drawUserType(QMetaProperty &p, QObject* object, const char* name);
-	void drawBuiltinType(QMetaProperty &p, QObject* object, const char* name);
+	void drawUserType(const QMetaProperty& p, QObject* object, const char* name);
+
+	void drawMaterialVector(QObject* object, const char* name);
+
+	void drawBuiltinType(const QMetaProperty& p, QObject* object, const char* name);
 
 	template <class T>
 	void drawBuiltinType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T));
@@ -91,7 +94,7 @@ inline void Inspector::drawUserEnumType(QObject* object, const char* name) {
 template <class T>
 inline void Inspector::drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T)) {
 	ranged<T> r = object->property(name).value <ranged<T>>();
-	T value = r.value();
+	T value = r.get_value();
 	if (draw(name, value, r.min(), r.max())) {
 		object->setProperty(name, QVariant::fromValue(r = value));
 	}

@@ -39,7 +39,7 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 	}
 	else if ((var = GetProperty(name, VariantType::RangedInt)) != nullptr) {
 		iranged r = var->GetRangedInt();
-		if (r.value() != value) {
+		if (r.get_value() != value) {
 			r = value;
 			var->SetRangedInt(r);
 		}
@@ -60,7 +60,7 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 	}
 	else if ((var = GetProperty(name, VariantType::RangedFloat)) != nullptr) {
 		franged r = var->GetRangedFloat();
-		if (r.value() != value) {
+		if (r.get_value() != value) {
 			r = value;
 			var->SetRangedFloat(r);
 		}

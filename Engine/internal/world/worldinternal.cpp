@@ -8,6 +8,7 @@
 #include "../api/glutils.h"
 #include "geometryutility.h"
 #include "internal/async/guard.h"
+#include "internal/base/framebuffer.h"
 #include "internal/rendering/shadows.h"
 #include "internal/codec/gameObjectloader.h"
 #include "internal/rendering/matrixbuffer.h"
@@ -210,7 +211,7 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	Camera main = Camera::GetMain();
+	Camera main = Camera::main();
 	if (main) {
 		decalCreater_->Update(main, projectors_);
 	}
@@ -369,16 +370,17 @@ void WorldInternal::RenderingUpdate() {
 
 	RenderingUpdateGameObjects();
 
-	// SUEDE TODO: CLEAR STENCIL BUFFER.
-	//Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
-
 	UpdateTimeUniformBuffer();
+
+	Camera::OnPreRender();
 
 	for (Camera camera : cameras_) {
 		if (camera->GetEnabled()) {
 			camera->Render();
 		}
 	}
+
+	Camera::OnPostRender();
 
 	Statistics::instance()->SetRenderingElapsed(
 		Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)
