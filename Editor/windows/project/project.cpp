@@ -119,6 +119,7 @@ void Project::onCreateFolder(const QStringList& selected) {
 		item->setFlags(item->flags() | Qt::ItemIsEditable);
 
 		ui_->listWidget->sortItems();
+		ui_->listWidget->setCurrentItem(item);
 		ui_->listWidget->editItem(item);
 	}
 }

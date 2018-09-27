@@ -7,6 +7,9 @@
 #define FPS_REFRESH_TIME	0.2f
 
 StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
+	memset(&lastFrameStats, 0, sizeof(lastFrameStats));
+	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
+
 	Engine::instance()->AddFrameEventListener(this);
 }
 

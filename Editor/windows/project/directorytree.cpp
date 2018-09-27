@@ -58,7 +58,11 @@ void DirectoryTree::selectDirectory(const QString& path) {
 }
 
 void DirectoryTree::setupFileSystemWatcher(const QString& path) {
-	watcher_.removePaths(watcher_.directories());
+	QStringList list = watcher_.directories();
+	if (!list.empty()) {
+		watcher_.removePaths(list);
+	}
+
 	watcher_.addPath(path);
 }
 
@@ -66,6 +70,7 @@ void DirectoryTree::onDirectoryChanged(const QString& path) {
 	QList<QStandardItem*> list = findItem(path);
 
 	if (list.empty()) {
+		watcher_.removePath(path);
 		return;
 	}
 
