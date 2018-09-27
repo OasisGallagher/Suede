@@ -589,10 +589,63 @@
       <number>1</number>
      </property>
      <item>
-      <widget class="QTreeView" name="fileTree">
-       <property name="contextMenuPolicy">
-        <enum>Qt::CustomContextMenu</enum>
+      <widget class="QSplitter" name="splitter">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
+       <property name="handleWidth">
+        <number>1</number>
+       </property>
+       <widget class="DirectoryTree" name="directoryTree">
+        <property name="contextMenuPolicy">
+         <enum>Qt::CustomContextMenu</enum>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+       </widget>
+       <widget class="QWidget" name="widget_2" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <property name="spacing">
+          <number>1</number>
+         </property>
+         <property name="leftMargin">
+          <number>1</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="address"/>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QListWidget" name="listWidget">
+           <property name="contextMenuPolicy">
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <property name="editTriggers">
+            <set>QAbstractItemView::EditKeyPressed</set>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::ExtendedSelection</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -736,6 +789,11 @@
    <extends>QDockWidget</extends>
    <header>windows/project/project.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DirectoryTree</class>
+   <extends>QTreeView</extends>
+   <header>../../windows/project/directorytree.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
