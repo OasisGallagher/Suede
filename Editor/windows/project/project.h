@@ -1,11 +1,12 @@
 #pragma once
 
+#include <QDir>
 #include <QDockWidget>
 #include <QItemSelection>
+#include <QAbstractItemDelegate>
 
 #include "../winbase.h"
 
-class QSignalMapper;
 class QListWidgetItem;
 class QFileSystemModel;
 class Project : public QDockWidget, public WinSingleton<Project> {
@@ -21,12 +22,14 @@ public:
 private slots:
 	void onAddressChanged();
 
+	void onItemEdited(QWidget* widget, QAbstractItemDelegate::EndEditHint hint);
+
 	void onItemClicked(QListWidgetItem* item);
 	void onItemDoubleClicked(QListWidgetItem* item);
 
 	void onItemChanged(QListWidgetItem* item);
-
 	void onCreateFolder(const QStringList& selected);
+
 	void onCreateEmptyShader(const QStringList& selected);
 	void onCreateImageEffectShader(const QStringList& selected);
 
@@ -39,10 +42,30 @@ private slots:
 	void onSelectionChanged(const QStringList& directories);
 
 private:
-	QString newFolderName(const QString& parent);
+	QString folderPath(const QString& path);
+	QSet<QString> entriesInFolder(const QString& folder, QDir::Filters filter);
+
+	bool hasBuiltinEntry(const QStringList& selected);
+
+	QString newFolderName(const QString& folder);
+	QString newShaderName(const QString& folder);
+	QString newEntryName(const QString& base, const QString& postfix, const QSet<QString>& used);
+
 	QStringList selectedEntries(QWidget* sender);
+
+	void createEmptyShader(const QString& path);
+	void createImageEffectShader(const QString& path);
+
+	void createFile(const QString &path, const QString& templatePath);
+	void createEntryListItem(const QString& folder, const QString& name, const QString& magic, const QIcon& icon);
+
+	bool createEntry(QListWidgetItem* item);
+	bool tryRenameEntry(QListWidgetItem* item);
 
 	void openEntries(const QStringList& entries);
 	void removeEntries(const QStringList& selected);
-	void showContents(const QStringList& directories);
+	void showDirectortiesContent(const QStringList& directories);
+
+private:
+	QSet<QString> builtinEntries_;
 };

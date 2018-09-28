@@ -6,9 +6,13 @@
 #include <QProcess>
 #include <QMessageBox>
 #include <QMouseEvent>
-#include <QFileSystemModel>
 #include <QDesktopServices>
 #include <QFileIconProvider>
+
+#define NEW_FOLDER_MAGIC					"*d"
+#define NEW_EMPTY_SHADER_MAGIC				"*e"
+#define NEW_IMAGE_EFFECT_SHADER_MAGIC		"*i"
+#define IGNORE_FILE_PATH					"resources/ignore.txt"
 
 Project::Project(QWidget* parent) :QDockWidget(parent) {
 }
@@ -18,6 +22,11 @@ void Project::init(Ui::Editor* ui) {
 	ui->splitter->setStretchFactor(0, 1);
 	ui->splitter->setStretchFactor(1, 4);
 
+	QFile file(IGNORE_FILE_PATH);
+	if (file.open(QFile::ReadOnly | QFile::Text)) {
+		builtinEntries_ = QSet<QString>::fromList(QString(file.readAll()).split('\n'));
+	}
+
 	ui->directoryTree->setRootPath("resources");
 
 	connect(ui_->address, SIGNAL(editingFinished()), this, SLOT(onAddressChanged()));
@@ -26,27 +35,10 @@ void Project::init(Ui::Editor* ui) {
 	connect(ui_->listWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(onItemChanged(QListWidgetItem*)));
 	connect(ui_->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(onItemDoubleClicked(QListWidgetItem*)));
 	connect(ui_->listWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onCustomContextMenu()));
+	connect(ui_->listWidget->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)), this, SLOT(onItemEdited(QWidget*, QAbstractItemDelegate::EndEditHint)));
 
 	connect(ui_->directoryTree, SIGNAL(selectionChanged(const QStringList&)), this, SLOT(onSelectionChanged(const QStringList&)));
 	connect(ui_->directoryTree, SIGNAL(requestContextMenuOnItems(const QStringList&)), this, SLOT(onCustomContextMenu()));
-}
-
-QString Project::newFolderName(const QString& parent) {
-	QDir dir(parent);
-	QString untitled = "New Folder";
-	QSet<QString> set = QSet<QString>::fromList(dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot));
-	if (!set.contains(untitled)) {
-		return untitled;
-	}
-
-	for (int i = 1; ; ++i) {
-		QString name = untitled + QString::number(i);
-		if (!set.contains(name)) {
-			return name;
-		}
-	}
-
-	return "";
 }
 
 QStringList Project::selectedEntries(QWidget* sender) {
@@ -68,6 +60,10 @@ void Project::onAddressChanged() {
 	ui_->directoryTree->selectDirectory(ui_->address->text());
 }
 
+void Project::onItemEdited(QWidget* widget, QAbstractItemDelegate::EndEditHint hint) {
+	createEntry(ui_->listWidget->currentItem());
+}
+
 void Project::onItemClicked(QListWidgetItem* item) {
 }
 
@@ -82,54 +78,24 @@ void Project::onItemDoubleClicked(QListWidgetItem* item) {
 }
 
 void Project::onItemChanged(QListWidgetItem* item) {
-	QString path = item->data(Qt::UserRole).toString();
-	QFileInfo info(path);
-	if (info.fileName() == item->text()) {
-		return;
-	}
-
-	bool ok = false;
-	if (info.isDir()) {
-		ok = QDir(path).rename(info.path(), info.dir().path() + "/" + item->text());
-	}
-	else {
-		ok = QFile(path).rename(info.dir().path() + "/" + item->text());
-	}
-
-	if (!ok) {
-		item->setText(info.fileName());
-	}
+	// the signal is sent for everything:
+	// inserts, changing colors, checking boxes, and anything else that "changes" the item..
+	tryRenameEntry(item);
 }
 
 void Project::onCreateFolder(const QStringList& selected) {
-	QString path = selected.front();
-	QFileInfo info(path);
-
-	if (!info.isDir()) {
-		path = info.dir().path();
-	}
-
-	ui_->directoryTree->selectDirectory(path);
-
-	QString name = newFolderName(path);
-	if (QDir(path).mkdir(name)) {
-		QFileIconProvider ip;
-		QListWidgetItem* item = new QListWidgetItem(ip.icon(QFileIconProvider::Folder), name);
-		ui_->listWidget->addItem(item);
-		item->setFlags(item->flags() | Qt::ItemIsEditable);
-
-		ui_->listWidget->sortItems();
-		ui_->listWidget->setCurrentItem(item);
-		ui_->listWidget->editItem(item);
-	}
+	QString folder = folderPath(selected.front());
+	createEntryListItem(folder, newFolderName(folder), NEW_FOLDER_MAGIC, QFileIconProvider().icon(QFileIconProvider::Folder));
 }
 
 void Project::onCreateEmptyShader(const QStringList& selected) {
-	Debug::Log("onCreateEmptyShader");
+	QString folder = folderPath(selected.front());
+	createEntryListItem(folder, newShaderName(folder), NEW_EMPTY_SHADER_MAGIC, QFileIconProvider().icon(QFileIconProvider::File));
 }
 
 void Project::onCreateImageEffectShader(const QStringList& selected) {
-	Debug::Log("onCreateImageEffectShader");
+	QString folder = folderPath(selected.front());
+	createEntryListItem(folder, newShaderName(folder), NEW_IMAGE_EFFECT_SHADER_MAGIC, QFileIconProvider().icon(QFileIconProvider::File));
 }
 
 void Project::onOpenSelected(const QStringList& selected) {
@@ -155,48 +121,38 @@ void Project::onDeleteSelected(const QStringList& selected) {
  	}
 }
 
-void Project::removeEntries(const QStringList& selected) {
-	for (const QString& path : selected) {
-		if (QFileInfo(path).isDir()) {
-			QDir(path).removeRecursively();
-		}
-		else {
-			QFile::remove(path);
-		}
-	}
-}
-
 void Project::onShowSelectedInExplorer(const QStringList& selected) {
- 	QStringList args({ "/select,", "" });
- 	QProcess* process = new QProcess(this);
+	QStringList args({ "/select,", "" });
+	QProcess* process = new QProcess(this);
 
- 	for (const QString& path : selected) {
- 		args.back() = QDir::toNativeSeparators(path);
- 		process->start("explorer.exe", args);
- 	}
+	for (const QString& path : selected) {
+		args.back() = QDir::toNativeSeparators(path);
+		process->start("explorer.exe", args);
+	}
 }
 
 void Project::onCustomContextMenu() {
 	QMenu menu;
-
 	QStringList selected = selectedEntries((QWidget*)sender());
 
-	QMenu* create = menu.addMenu("Create");
-	QAction* createFolder = new QAction("Folder", create);
-	connect(createFolder, &QAction::triggered, this, std::bind(&Project::onCreateFolder, this, selected));
-	create->addAction(createFolder);
+	// "create" sub menu.
+	QMenu* create = menu.addMenu("Create"); {
+		QAction* createFolder = new QAction("Folder", create);
+		connect(createFolder, &QAction::triggered, this, std::bind(&Project::onCreateFolder, this, selected));
+		create->addAction(createFolder);
 
-	create->addSeparator();
+		create->addSeparator();
 
-	QMenu* createShader = create->addMenu("Shader");
-	QAction* emptyShader = new QAction("Empty Shader", createShader);
-	connect(emptyShader, &QAction::triggered, this, std::bind(&Project::onCreateEmptyShader, this, selected));
+		QMenu* createShader = create->addMenu("Shader");
+		QAction* emptyShader = new QAction("Empty Shader", createShader);
+		connect(emptyShader, &QAction::triggered, this, std::bind(&Project::onCreateEmptyShader, this, selected));
 
-	QAction* imageEffectShader = new QAction("Image Effect Shader", createShader);
-	connect(imageEffectShader, &QAction::triggered, this, std::bind(&Project::onCreateImageEffectShader, this, selected));
+		QAction* imageEffectShader = new QAction("Image Effect Shader", createShader);
+		connect(imageEffectShader, &QAction::triggered, this, std::bind(&Project::onCreateImageEffectShader, this, selected));
 
-	createShader->addAction(emptyShader);
-	createShader->addAction(imageEffectShader);
+		createShader->addAction(emptyShader);
+		createShader->addAction(imageEffectShader);
+	}
 
 	QAction* showInExplorer = new QAction("Show In Explorer", &menu);
 	connect(showInExplorer, &QAction::triggered, this, std::bind(&Project::onShowSelectedInExplorer, this, selected));
@@ -206,6 +162,9 @@ void Project::onCustomContextMenu() {
 
 	QAction* del = new QAction("Delete", &menu);
 	connect(del, &QAction::triggered, this, std::bind(&Project::onDeleteSelected, this, selected));
+	if (hasBuiltinEntry(selected)) {
+		del->setEnabled(false);
+	}
 
 	menu.addAction(showInExplorer);
 	menu.addAction(open);
@@ -219,22 +178,85 @@ void Project::onSelectionChanged(const QStringList& directories) {
 		ui_->address->setReadOnly(directories.size() > 1);
 	}
 
-	showContents(directories);
+	showDirectortiesContent(directories);
+}
+
+void Project::removeEntries(const QStringList& selected) {
+	for (const QString& path : selected) {
+		if (QFileInfo(path).isDir()) {
+			QDir(path).removeRecursively();
+		}
+		else {
+			QFile::remove(path);
+		}
+	}
+}
+
+bool Project::tryRenameEntry(QListWidgetItem* item) {
+	QString path = item->data(Qt::UserRole).toString();
+	QFileInfo info(path);
+	if (info.fileName() == item->text()) {
+		return false;
+	}
+
+	bool ok = false;
+	if (info.isDir()) {
+		ok = QDir(path).rename(info.path(), info.dir().path() + "/" + item->text());
+	}
+	else {
+		ok = QFile(path).rename(info.dir().path() + "/" + item->text());
+	}
+
+	if (!ok) {
+		item->setText(info.fileName());
+	}
+
+	return true;
+}
+
+bool Project::createEntry(QListWidgetItem* item) {
+	QString path = item->data(Qt::UserRole).toString();
+	if (!path.startsWith("*")) {
+		return false;
+	}
+
+	QString magic = path.left(2);
+	path = path.right(path.length() - 2);
+	
+	if (magic == NEW_FOLDER_MAGIC) {
+		QDir().mkpath(path);
+	}
+	else if (magic == NEW_EMPTY_SHADER_MAGIC) {
+		createEmptyShader(path);
+	}
+	else if (magic == NEW_IMAGE_EFFECT_SHADER_MAGIC) {
+		createImageEffectShader(path);
+	}
+	else {
+		Debug::LogError("invalid magic %s.", magic.toLatin1());
+	}
+
+	item->setData(Qt::UserRole, path);
+	return true;
 }
 
 void Project::openEntries(const QStringList& entries) {
 	for (const QString& entry : entries) {
-		QDesktopServices::openUrl(QDir::currentPath() + "/" + entry);
+		QDesktopServices::openUrl(QUrl::fromLocalFile(entry));
 	}
 }
 
-void Project::showContents(const QStringList& directories) {
+void Project::showDirectortiesContent(const QStringList& directories) {
 	ui_->listWidget->clear();
 
 	QSet<QString> set;
 	QFileIconProvider ip;
 	for (const QString& path : directories) {
 		for (const QFileInfo& info : QDir(path).entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+			if (info.filePath() == IGNORE_FILE_PATH) {
+				continue;
+			}
+
 			if (set.contains(info.filePath())) {
 				continue;
 			}
@@ -246,4 +268,75 @@ void Project::showContents(const QStringList& directories) {
 			set.insert(info.filePath());
 		}
 	}
+}
+
+void Project::createEmptyShader(const QString& path) {
+	createFile(path, "resources/templates/empty_shader.txt");
+}
+
+void Project::createImageEffectShader(const QString& path) {
+	createFile(path, "resources/templates/image_effect_shader.txt");
+}
+
+void Project::createEntryListItem(const QString& folder, const QString& name, const QString& magic, const QIcon& icon) {
+	ui_->directoryTree->selectDirectory(folder);
+
+	QFileIconProvider ip;
+
+	QListWidgetItem* item = new QListWidgetItem(icon, name);
+	item->setFlags(item->flags() | Qt::ItemIsEditable);
+	ui_->listWidget->addItem(item);
+
+	ui_->listWidget->sortItems();
+	ui_->listWidget->editItem(item);
+
+	// add magic prefix to indicate the entry type.
+	item->setData(Qt::UserRole, magic + folder + "/" + name);
+}
+
+void Project::createFile(const QString &path, const QString& templatePath) {
+	if (!QFile::copy(templatePath, path)) {
+		Debug::LogError("failed to create %s.", path.toLatin1());
+	}
+}
+
+QString Project::folderPath(const QString& path) {
+	QFileInfo info(path);
+	return info.isDir() ? path : info.dir().path();
+}
+
+QSet<QString> Project::entriesInFolder(const QString& folder, QDir::Filters filter) {
+	return QSet<QString>::fromList(QDir(folder).entryList(filter));
+}
+
+bool Project::hasBuiltinEntry(const QStringList& selected) {
+	for (const QString& item : selected) {
+		if (builtinEntries_.contains(item)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+QString Project::newShaderName(const QString& folder) {
+	return newEntryName("New Shader", ".shader", entriesInFolder(folder, QDir::Files));
+}
+
+QString Project::newFolderName(const QString& folder) {
+	return newEntryName("New Folder", "", entriesInFolder(folder, QDir::Dirs | QDir::NoDotAndDotDot));
+}
+
+QString Project::newEntryName(const QString& base, const QString& postfix, const QSet<QString>& used) {
+	QString name = base + postfix;
+	if (!used.contains(name)) { return name; }
+
+	for (int i = 1; ; ++i) {
+		name = base + " " + QString::number(i) + postfix;
+		if (!used.contains(name)) {
+			return name;
+		}
+	}
+
+	return "";
 }

@@ -22,11 +22,13 @@ private:
 	uint ln_, depth_, start_;
 };
 
+static std::ofstream logFile;
+
 static StackTracer tracer;
 static LogReceiver* logReceiver;
-static std::ofstream logFile("suede_engine.log");
 
 bool Debug::Initialize() {
+	logFile.open("suede_engine.log");
 	return !!tracer.LoadModules();
 }
 
@@ -80,8 +82,8 @@ void Debug::Break() {
 }
 
 const std::string& StackTracer::GetStackTrace(uint start, uint depth) {
-	text_.clear();
 	ln_ = 0;
+	text_.clear();
 
 	depth_ = depth;
 

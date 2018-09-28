@@ -69,6 +69,7 @@ void DirectoryTree::setupFileSystemWatcher(const QString& path) {
 void DirectoryTree::onDirectoryChanged(const QString& path) {
 	QList<QStandardItem*> list = findItem(path);
 
+	// file does not exist.
 	if (list.empty()) {
 		watcher_.removePath(path);
 		return;
@@ -126,9 +127,9 @@ void DirectoryTree::onCustomContextMenu() {
 void DirectoryTree::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	for (const QModelIndex& index : selected.indexes()) {
 		QStandardItem* item = model_->itemFromIndex(index);
-		QString path = item->data().toString();
 		initializeChildren(item);
 
+		QString path = item->data().toString();
 		if (!directories_.contains(path)) {
 			directories_.push_back(path);
 		}

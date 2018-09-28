@@ -626,9 +626,6 @@
     <CustomBuild Include="scripts\inversion.h">
       <Filter>scripts\include</Filter>
     </CustomBuild>
-    <CustomBuild Include="shaderselector.ui">
-      <Filter>ui</Filter>
-    </CustomBuild>
     <CustomBuild Include="widgets\dialogs\shaderselector.h">
       <Filter>widgets\dialogs\include</Filter>
     </CustomBuild>
@@ -637,6 +634,9 @@
     </CustomBuild>
     <CustomBuild Include="windows\project\directorytree.h">
       <Filter>windows\project\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ui\shaderselector.ui">
+      <Filter>ui</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
