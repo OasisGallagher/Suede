@@ -1,11 +1,11 @@
 #pragma once
 #include <QLabel>
-#include <QVariant>
 #include <QVBoxLayout>
 #include <QProgressBar>
-#include <QColorDialog>
 
 #include <glm/glm.hpp>
+
+#include "color.h"
 
 class ColorField : public QWidget {
 	Q_OBJECT
@@ -14,8 +14,7 @@ public:
 	ColorField(QWidget* parent);
 
 public:
-	void setValue(const glm::vec4& value);
-	void setValue(const glm::vec3& value);
+	void setValue(const Color& value);
 
 protected:
 	virtual void mousePressEvent(QMouseEvent* event);
@@ -28,7 +27,7 @@ private slots:
 	void onCurrentColorChanged(const QColor& color);
 
 private:
-	glm::vec4 color_;
+	Color color_;
 
 	QLabel* label_;
 	QVBoxLayout* layout_;

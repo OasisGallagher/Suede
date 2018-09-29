@@ -9,24 +9,24 @@
 #include "internal/base/renderdefines.h"
 
 template <class T>
-inline int __compare(T lhs, T rhs) {
+inline int Compare(T lhs, T rhs) {
 	if (lhs == rhs) { return 0; }
 	return lhs < rhs ? -1 : 1;
 }
 
 typedef bool(*RenderableComparer)(const Renderable& lhs, const Renderable& rhs);
 
-#define COMPARE(lhs, rhs)	{ int n = __compare(lhs, rhs); if (n != 0) { return n; } }
+#define COMPARE_RETURN(lhs, rhs)	{ int n = Compare(lhs, rhs); if (n != 0) { return n; } }
 
 static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
-	COMPARE(lhs.mesh->GetNativePointer(), rhs.mesh->GetNativePointer());
-	COMPARE(lhs.subMeshIndex, rhs.subMeshIndex);
+	COMPARE_RETURN(lhs.mesh->GetNativePointer(), rhs.mesh->GetNativePointer());
+	COMPARE_RETURN(lhs.subMeshIndex, rhs.subMeshIndex);
 
 	const TriangleBias& bias = lhs.mesh->GetSubMesh(lhs.subMeshIndex)->GetTriangleBias();
 	const TriangleBias& otherBias = rhs.mesh->GetSubMesh(rhs.subMeshIndex)->GetTriangleBias();
-	COMPARE(bias.indexCount, otherBias.indexCount);
-	COMPARE(bias.baseIndex, otherBias.baseIndex);
-	COMPARE(bias.baseVertex, otherBias.baseVertex);
+	COMPARE_RETURN(bias.indexCount, otherBias.indexCount);
+	COMPARE_RETURN(bias.baseIndex, otherBias.baseIndex);
+	COMPARE_RETURN(bias.baseVertex, otherBias.baseVertex);
 
 	return 0;
 }
@@ -34,10 +34,10 @@ static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
 static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 	const Material& lm = lhs.material, &rm = rhs.material;
 
-	COMPARE(lm->GetRenderQueue(), rm->GetRenderQueue());
-	COMPARE(lm, rm);
-	COMPARE(lhs.pass, rhs.pass);
-	COMPARE(lm->GetPassNativePointer(lhs.pass), rm->GetPassNativePointer(rhs.pass));
+	COMPARE_RETURN(lm->GetRenderQueue(), rm->GetRenderQueue());
+	COMPARE_RETURN(lm, rm);
+	COMPARE_RETURN(lhs.pass, rhs.pass);
+	COMPARE_RETURN(lm->GetPassNativePointer(lhs.pass), rm->GetPassNativePointer(rhs.pass));
 
 	return 0;
 }

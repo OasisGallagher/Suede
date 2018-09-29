@@ -14,6 +14,7 @@ class Project : public QDockWidget, public WinSingleton<Project> {
 
 public:
 	Project(QWidget* parent);
+	~Project();
 
 public:
 	virtual void init(Ui::Editor* ui);

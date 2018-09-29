@@ -36,12 +36,6 @@ public:
 
 	static float Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal);
 
-	static glm::ivec4 IntColor(const glm::vec4& color);
-	static glm::vec4 NormalizedColor(const glm::ivec4& color);
-
-	static glm::ivec3 IntColor(const glm::vec3& color);
-	static glm::vec3 NormalizedColor(const glm::ivec3& color);
-
 	static bool IsPowerOfTwo(uint x);
 	static uint NextPowerOfTwo(uint x);
 	static uint RoundUpToPowerOfTwo(uint x, uint target);
@@ -107,40 +101,6 @@ inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3
 	}
 
 	return r;
-}
-
-inline glm::ivec4 Math::IntColor(const glm::vec4& color) {
-	return glm::ivec4(
-		Clamp(int(color.x * 255), 0, 255),
-		Clamp(int(color.y * 255), 0, 255),
-		Clamp(int(color.z * 255), 0, 255),
-		Clamp(int(color.w * 255), 0, 255)
-	);
-}
-
-inline glm::vec4 Math::NormalizedColor(const glm::ivec4& color) {
-	return glm::vec4(
-		Clamp01(color.x / 255.f),
-		Clamp01(color.y / 255.f),
-		Clamp01(color.z / 255.f),
-		Clamp01(color.w / 255.f)
-	);
-}
-
-inline glm::ivec3 Math::IntColor(const glm::vec3& color) {
-	return glm::ivec3(
-		Clamp(int(color.x * 255), 0, 255),
-		Clamp(int(color.y * 255), 0, 255),
-		Clamp(int(color.z * 255), 0, 255)
-	);
-}
-
-inline glm::vec3 Math::NormalizedColor(const glm::ivec3& color) {
-	return glm::vec3(
-		Clamp01(color.x / 255.f),
-		Clamp01(color.y / 255.f),
-		Clamp01(color.z / 255.f)
-	);
 }
 
 template <class T>

@@ -3,25 +3,21 @@
 #include "time2.h"
 #include "profiler.h"
 #include "statistics.h"
-#include "tools/math2.h"
 #include "decalcreater.h"
 #include "../api/glutils.h"
-#include "geometryutility.h"
-#include "internal/async/guard.h"
-#include "internal/base/framebuffer.h"
-#include "internal/rendering/shadows.h"
-#include "internal/codec/gameObjectloader.h"
-#include "internal/rendering/matrixbuffer.h"
-#include "internal/world/environmentinternal.h"
-#include "internal/gameobject/gameobjectinternal.h"
-#include "internal/components/transforminternal.h"
-#include "internal/rendering/uniformbuffermanager.h"
 
 #include "internal/tools/gizmosinternal.h"
 #include "internal/tools/graphicsinternal.h"
 #include "internal/tools/resourcesinternal.h"
 
-#define ColorLuminance(color)	(0.299f * color.r + 0.587f * color.g + 0.114f * color.b)
+#include "internal/async/guard.h"
+#include "internal/rendering/shadows.h"
+#include "internal/codec/gameObjectloader.h"
+#include "internal/rendering/matrixbuffer.h"
+#include "internal/world/environmentinternal.h"
+#include "internal/components/transforminternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
@@ -35,7 +31,7 @@ bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs
 		return lli > rli;
 	}
 
-	return ColorLuminance(lhs->GetColor()) > ColorLuminance(rhs->GetColor());
+	return lhs->GetColor().GetLuminance() > rhs->GetColor().GetLuminance();
 }
 
 bool WorldInternal::CameraComparer::operator() (const Camera& lhs, const Camera& rhs) const {
@@ -312,13 +308,14 @@ void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent
 }
 
 void WorldInternal::FireEvents() {
+	ZTHREAD_LOCK_SCOPE(eventsMutex_);
+
 	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
 		for (WorldEventBasePointer pointer : events_[i]) {
 			FireEventImmediate(pointer);
 		}
 	}
 
-	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
 		events_[i].clear();
 	}

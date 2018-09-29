@@ -13,7 +13,7 @@ QMimeData* DragDropableItemModel::mimeData(const QModelIndexList& indexes) const
 
 	QMimeData* data = new QMimeData;
 	QString targets;
-	for (QModelIndex index : indexes) {
+	for (const QModelIndex& index : indexes) {
 		if (!targets.isEmpty()) { targets += "|"; }
 		targets += QString::number(itemFromIndex(index)->data().toUInt());
 	}
@@ -25,12 +25,15 @@ QMimeData* DragDropableItemModel::mimeData(const QModelIndexList& indexes) const
 
 bool DragDropableItemModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
 	QStandardItem* item = itemFromIndex(parent);
-	GameObject parentGameObject = World::instance()->GetRootTransform()->GetGameObject();
+	GameObject parentGameObject;
 	if (item != nullptr) {
 		parentGameObject = World::instance()->GetGameObject(item->data().toUInt());
 	}
+	else {
+		parentGameObject = World::instance()->GetRootTransform()->GetGameObject();
+	}
 
-	for (QString target : QString(data->data("targets")).split('|')) {
+	for (const QString& target : QString(data->data("targets")).split('|')) {
 		GameObject go = World::instance()->GetGameObject(target.toUInt());
 		go->GetTransform()->SetParent(parentGameObject->GetTransform());
 	}

@@ -17,8 +17,8 @@ static ColorPicker* colorDialog() {
 	return instance;
 }
 
-static void showDialog(const QColor& color, bool alpha, QObject* receiver, const char* member) {
-	colorDialog()->setOption(QColorDialog::ShowAlphaChannel, alpha);
+static void showDialog(const QColor& color, QObject* receiver, const char* member) {
+	colorDialog()->setOption(QColorDialog::ShowAlphaChannel, true);
 
 	colorDialog()->blockSignals(true);
 	colorDialog()->setCurrentColor(color);
@@ -28,14 +28,9 @@ static void showDialog(const QColor& color, bool alpha, QObject* receiver, const
 	colorDialog()->show();
 }
 
-void ColorPicker::display(const glm::vec3& color, QObject* receiver, const char* member) {
-	glm::ivec3 ic = Math::IntColor(color);
-	showDialog(QColor(ic.r, ic.g, ic.b), false, receiver, member);
-}
-
-void ColorPicker::display(const glm::vec4& color, QObject* receiver, const char* member) {
-	glm::ivec4 ic = Math::IntColor(color);
-	showDialog(QColor(ic.r, ic.g, ic.b, ic.a), true, receiver, member);
+void ColorPicker::display(const Color& color, QObject* receiver, const char* member) {
+	Color icolor = color * 255;
+	showDialog(QColor(icolor.r, icolor.g, icolor.b), receiver, member);
 }
 
 void ColorPicker::destroy() {

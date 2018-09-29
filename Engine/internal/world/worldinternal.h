@@ -1,17 +1,15 @@
 #pragma once
 #include <set>
+#include <map>
 #include <ZThread/Mutex.h>
 
-#include "plane.h"
 #include "world.h"
 #include "light.h"
 #include "camera.h"
 #include "screen.h"
 #include "projector.h"
 #include "gameobject.h"
-#include "environment.h"
 #include "containers/sortedvector.h"
-#include "internal/base/objectinternal.h"
 
 class Sample;
 class DecalCreater;

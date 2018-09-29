@@ -112,10 +112,10 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
 
-	p.fogParams.color = Environment::instance()->GetFogColor();
+	memcpy(&p.fogParams.color, &Environment::instance()->GetFogColor(), sizeof(p.fogParams.color));
 	p.fogParams.density = Environment::instance()->GetFogDensity();
 
-	p.ambientColor = glm::vec4(Environment::instance()->GetAmbientColor(), 1);
+	memcpy(&p.ambientColor, &Environment::instance()->GetAmbientColor(), sizeof(p.ambientColor));
 	
 	p.lightPos = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);

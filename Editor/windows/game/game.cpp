@@ -34,29 +34,26 @@
 #include "scripts/gaussianblur.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-#define ANIMATION
+//#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
-#define NORMAL_VISUALIZER
+//#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "house.fbx";
+static const char* roomFbxPath = "room.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
-
-Shader testBumped_shader;
-Material testBumped_material;
 
 #define FPS_UPDATE_INTERVAL		800
 
@@ -161,10 +158,6 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 
 		GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
 		Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
-
-		testBumped_shader = material->GetShader();
-		testBumped_material = material;
-
 		material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
 
 		Texture2D diffuse = NewTexture2D();
@@ -211,17 +204,8 @@ void Game::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void Game::keyPressEvent(QKeyEvent* event) {
-	static bool toBumped = false;
 	switch (event->key()) {
 		case Qt::Key_Space:
-			if (toBumped) {
-				testBumped_material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
-			}
-			else {
-				testBumped_material->SetShader(testBumped_shader);
-			}
-
-			toBumped = !toBumped;
 			break;
 	}
 }
@@ -294,10 +278,10 @@ void Game::updateStatContent() {
 }
 
 void Game::createScene() {
-	Environment::instance()->SetFogColor(glm::vec3(0.5f));
+	Environment::instance()->SetFogColor(Color::white * 0.5f);
 	Environment::instance()->SetFogDensity(0);
 
-	Environment::instance()->SetAmbientColor(glm::vec3(0.15f));
+	Environment::instance()->SetAmbientColor(Color::white * 0.15f);
 
 	GameObject lightGameObject = NewGameObject();
 	lightGameObject->SetName("light");

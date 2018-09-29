@@ -9,21 +9,27 @@ namespace {
 class QWidgetWindowWrapper : public WindowWrapper {
 public:
     QWidgetWindowWrapper(QGLWidget *w) : w(w) {}
+
     void installEventFilter(QObject *object) override {
         return w->installEventFilter(object);
     }
+
     QSize size() const override {
         return w->size();
     }
+
     qreal devicePixelRatio() const override {
         return w->devicePixelRatioF();
     }
+
     bool isActive() const override {
         return w->isActiveWindow();
     }
+
     QPoint mapFromGlobal(const QPoint &p) const override {
         return w->mapFromGlobal(p);
     }
+
 private:
 	QGLWidget *w;
 };

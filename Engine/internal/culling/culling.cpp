@@ -1,13 +1,11 @@
-#include "world.h"
 #include "culling.h"
-#include "renderer.h"
+
+#include "world.h"
+#include "profiler.h"
 #include "statistics.h"
-#include "tools/math2.h"
 #include "geometryutility.h"
 #include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
-
-#include "profiler.h"
 
 Culling::Culling(CullingListener* listener) : cond_(mutex_), listener_(listener), working_(false), stopped_(false) {
 }

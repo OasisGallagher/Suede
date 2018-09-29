@@ -5,13 +5,13 @@
 
 #include <glm/glm.hpp>
 
+#include "color.h"
+
 class ColorPicker : public QColorDialog {
 	Q_OBJECT
 
 public:
-	static void display(const glm::vec3& color, QObject* receiver, const char* member);
-	static void display(const glm::vec4& color, QObject* receiver, const char* member);
-
+	static void display(const Color& color, QObject* receiver, const char* member);
 	static void destroy();
 
 protected:

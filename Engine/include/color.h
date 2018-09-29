@@ -1,19 +1,14 @@
 #pragma once
-#include "types.h"
 #include "tools/math2.h"
 
 struct SUEDE_API Color {
 	Color();
 	Color(float r, float g, float b, float a = 1);
 
+	float GetLuminance() const;
+
 	bool operator!= (const Color other) const;
 	bool operator== (const Color other) const;
-
-	Color operator* (float amount) const;
-	Color& operator*= (float amount);
-
-	Color operator/ (float amount) const;
-	Color& operator/= (float amount);
 
 	Color operator+ (const Color& other) const;
 	Color& operator+= (const Color& other);
@@ -21,8 +16,14 @@ struct SUEDE_API Color {
 	Color operator- (const Color& other) const;
 	Color& operator-= (const Color& other);
 
+	Color operator* (float amount) const;
+	Color& operator*= (float amount);
+
 	Color operator* (const Color& other) const;
 	Color& operator*= (const Color& other);
+
+	Color operator/ (float amount) const;
+	Color& operator/= (float amount);
 
 	Color operator/ (const Color& other) const;
 	Color& operator/= (const Color& other);
@@ -40,6 +41,10 @@ inline Color::Color() :r(0), g(0), b(0), a(0) {
 }
 
 inline Color::Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {
+}
+
+inline float Color::GetLuminance() const {
+	return 0.299f * r + 0.587f * g + 0.114f * b;
 }
 
 inline bool Color::operator!= (const Color other) const {

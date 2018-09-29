@@ -12,7 +12,7 @@ enum VertexAttrib {
 	VertexAttribInstanceGeometry,
 
 	/**
-	 * @warning Match location of suede.inc -> c_matrixBufferOffset.
+	 * @warning match the location of _MatrixTextureBufferOffset defined in suede.inc.
 	 */
 	VertexAttribMatrixOffset,
 };

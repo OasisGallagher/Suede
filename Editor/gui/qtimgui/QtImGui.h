@@ -1,7 +1,6 @@
 #pragma once
 class QGLWidget;
 
-// SUEDE TODO: multiple render context...
 namespace QtImGui {
 
 void create(QGLWidget *window);

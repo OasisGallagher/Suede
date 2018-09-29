@@ -22,6 +22,23 @@ ThreadPool::ThreadPool(int type) {
 	CreateExecutor(type);
 }
 
+ThreadPool::~ThreadPool() {
+	Engine::instance()->RemoveFrameEventListener(this);
+
+	try {
+		executor_->interrupt();
+		executor_->wait();
+	}
+	catch (const ZThread::Synchronization_Exception& e) {
+		Debug::LogError(e.what());
+	}
+	catch (const std::exception& e) {
+		Debug::LogError(e.what());
+	}
+
+	MEMORY_DELETE(executor_);
+}
+
 void ThreadPool::CreateExecutor(int type) {
 	if (type == Threaded) {
 		executor_ = MEMORY_NEW(ZThread::ThreadedExecutor);
@@ -39,23 +56,6 @@ void ThreadPool::CreateExecutor(int type) {
 
 		executor_ = MEMORY_NEW(ZThread::PoolExecutor, type);
 	}
-}
-
-ThreadPool::~ThreadPool() {
-	Engine::instance()->RemoveFrameEventListener(this);
-
-	try {
-		executor_->interrupt();
-		executor_->wait();
-	}
-	catch (const ZThread::Synchronization_Exception& e) {
-		Debug::LogError(e.what());
-	}
-	catch (const std::exception& e) {
-		Debug::LogError(e.what());
-	}
-
-	MEMORY_DELETE(executor_);
 }
 
 void ThreadPool::OnWorkFinished(Worker* runnable) {

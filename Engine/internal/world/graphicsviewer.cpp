@@ -24,7 +24,7 @@ void GraphicsViewer::Run() {
 			canvas_->MakeCurrent();
 
 			Update();
-			//Engine::instance()->Update();
+			Engine::instance()->Update();
 
  			canvas_->SwapBuffers();
  			canvas_->DoneCurrent();

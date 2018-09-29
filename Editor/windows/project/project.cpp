@@ -19,6 +19,9 @@
 
 class CustomItemDelegate : public QStyledItemDelegate {
 public:
+	CustomItemDelegate(QObject* parent) : QStyledItemDelegate(parent) {}
+
+public:
 	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
 		index_ = index;
 		return QStyledItemDelegate::createEditor(parent, option, index);
@@ -32,6 +35,9 @@ private:
 };
 
 Project::Project(QWidget* parent) :QDockWidget(parent) {
+}
+
+Project::~Project() {
 }
 
 void Project::init(Ui::Editor* ui) {
@@ -49,7 +55,7 @@ void Project::init(Ui::Editor* ui) {
 	ui_->address->setText(ROOT_PATH);
 	connect(ui_->address, SIGNAL(editingFinished()), this, SLOT(onAddressChanged()));
 
-	ui_->listWidget->setItemDelegate(new CustomItemDelegate());
+	ui_->listWidget->setItemDelegate(new CustomItemDelegate(ui_->listWidget));
 
 	connect(ui_->listWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(onItemChanged(QListWidgetItem*)));
 	connect(ui_->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(onItemDoubleClicked(QListWidgetItem*)));

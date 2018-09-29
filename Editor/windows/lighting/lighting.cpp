@@ -26,7 +26,7 @@ void Lighting::showEvent(QShowEvent* event) {
 }
 
 void Lighting::onAmbientChanged(const QColor& color) {
-	Environment::instance()->SetAmbientColor(glm::vec3(color.redF(), color.greenF(), color.blueF()));
+	Environment::instance()->SetAmbientColor(Color(color.redF(), color.greenF(), color.blueF()));
 }
 
 void Lighting::onOcclusionChanged(int state) {
@@ -34,7 +34,7 @@ void Lighting::onOcclusionChanged(int state) {
 }
 
 void Lighting::onFogColorChanged(const QColor& color) {
-	Environment::instance()->SetFogColor(glm::vec3(color.redF(), color.greenF(), color.blueF()));
+	Environment::instance()->SetFogColor(Color(color.redF(), color.greenF(), color.blueF()));
 }
 
 void Lighting::onFogDensityChanged(float density) {

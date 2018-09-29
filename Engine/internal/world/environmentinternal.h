@@ -1,3 +1,4 @@
+#include "color.h"
 #include "material.h"
 #include "environment.h"
 
@@ -9,19 +10,19 @@ public:
 	virtual void SetSkybox(Material value);
 	virtual Material GetSkybox() { return skybox_; }
 
-	virtual void SetAmbientColor(const glm::vec3& value) { ambientColor_ = value; }
-	virtual glm::vec3 GetAmbientColor() { return ambientColor_; }
+	virtual void SetAmbientColor(const Color& value) { ambientColor_ = value; }
+	virtual Color GetAmbientColor() { return ambientColor_; }
 
-	virtual void SetFogColor(const glm::vec3& value) { fogColor_ = value; }
-	virtual glm::vec3 GetFogColor() { return fogColor_; }
+	virtual void SetFogColor(const Color& value) { fogColor_ = value; }
+	virtual Color GetFogColor() { return fogColor_; }
 
 	virtual void SetFogDensity(float value) { fogDensity_ = value; }
 	virtual float GetFogDensity() { return fogDensity_; }
 
 private:
 	Material skybox_;
-	glm::vec3 ambientColor_;
+	Color ambientColor_;
 
 	float fogDensity_;
-	glm::vec3 fogColor_;
+	Color fogColor_;
 };
