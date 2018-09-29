@@ -741,6 +741,8 @@ void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
 }
 
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {
+	if (data == nullptr) { return false; }
+
 	VERIFY_INDEX(ssi, subShaderCount_, false);
 	return subShaders_[ssi].GetPass(pass)->SetProperty(name, data);
 }

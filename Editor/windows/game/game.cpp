@@ -34,7 +34,7 @@
 #include "scripts/gaussianblur.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
@@ -44,7 +44,7 @@
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
-//#define BUMPED
+#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 

@@ -6,13 +6,11 @@
 #include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
-#include "tools/math2.h"
 #include "tools/random.h"
 #include "memory/memory.h"
-#include "particlesystem.h"
 #include "sharedtexturemanager.h"
-#include "internal/base/renderdefines.h"
 #include "internal/rendering/shadows.h"
+#include "internal/base/renderdefines.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
 #define sharedSSAOTexture	SharedTextureManager::instance()->GetSSAOTexture()

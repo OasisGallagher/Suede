@@ -561,7 +561,7 @@ bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path
 	return Execute(new GameObjectLoader(path, go, this));
 }
 
-void GameObjectLoaderThreadPool::SetLoadedListener(GameObjectLoadedListener * listener) {
+void GameObjectLoaderThreadPool::SetLoadedListener(GameObjectLoadedListener* listener) {
 	listener_ = listener;
 }
 

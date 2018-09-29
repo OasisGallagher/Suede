@@ -64,8 +64,6 @@
     </layout>
    </item>
   </layout>
-  <zorder>comboBox</zorder>
-  <zorder></zorder>
  </widget>
  <customwidgets>
   <customwidget>
