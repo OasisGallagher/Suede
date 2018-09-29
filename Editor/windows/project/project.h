@@ -22,14 +22,11 @@ public:
 private slots:
 	void onAddressChanged();
 
-	void onItemEdited(QWidget* widget, QAbstractItemDelegate::EndEditHint hint);
-
-	void onItemClicked(QListWidgetItem* item);
+	void onItemEdited(QWidget* widget);
+	void onItemChanged(QListWidgetItem* item);
 	void onItemDoubleClicked(QListWidgetItem* item);
 
-	void onItemChanged(QListWidgetItem* item);
 	void onCreateFolder(const QStringList& selected);
-
 	void onCreateEmptyShader(const QStringList& selected);
 	void onCreateImageEffectShader(const QStringList& selected);
 
@@ -60,7 +57,7 @@ private:
 	void createEntryListItem(const QString& folder, const QString& name, const QString& magic, const QIcon& icon);
 
 	bool createEntry(QListWidgetItem* item);
-	bool tryRenameEntry(QListWidgetItem* item);
+	bool renameEntry(QListWidgetItem* item);
 
 	void openEntries(const QStringList& entries);
 	void removeEntries(const QStringList& selected);

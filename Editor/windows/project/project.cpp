@@ -8,11 +8,28 @@
 #include <QMouseEvent>
 #include <QDesktopServices>
 #include <QFileIconProvider>
+#include <QStyledItemDelegate>
 
 #define NEW_FOLDER_MAGIC					"*d"
 #define NEW_EMPTY_SHADER_MAGIC				"*e"
 #define NEW_IMAGE_EFFECT_SHADER_MAGIC		"*i"
+
+#define ROOT_PATH							"resources"
 #define IGNORE_FILE_PATH					"resources/ignore.txt"
+
+class CustomItemDelegate : public QStyledItemDelegate {
+public:
+	virtual QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
+		index_ = index;
+		return QStyledItemDelegate::createEditor(parent, option, index);
+	}
+
+public:
+	const QModelIndex& editedItemIndex() const { return index_; }
+
+private:
+	mutable QModelIndex index_;
+};
 
 Project::Project(QWidget* parent) :QDockWidget(parent) {
 }
@@ -27,15 +44,17 @@ void Project::init(Ui::Editor* ui) {
 		builtinEntries_ = QSet<QString>::fromList(QString(file.readAll()).split('\n'));
 	}
 
-	ui->directoryTree->setRootPath("resources");
+	ui->directoryTree->setRootPath(ROOT_PATH);
 
+	ui_->address->setText(ROOT_PATH);
 	connect(ui_->address, SIGNAL(editingFinished()), this, SLOT(onAddressChanged()));
 
-	connect(ui_->listWidget, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(onItemClicked(QListWidgetItem*)));
+	ui_->listWidget->setItemDelegate(new CustomItemDelegate());
+
 	connect(ui_->listWidget, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(onItemChanged(QListWidgetItem*)));
 	connect(ui_->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(onItemDoubleClicked(QListWidgetItem*)));
 	connect(ui_->listWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onCustomContextMenu()));
-	connect(ui_->listWidget->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)), this, SLOT(onItemEdited(QWidget*, QAbstractItemDelegate::EndEditHint)));
+	connect(ui_->listWidget->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onItemEdited(QWidget*)));
 
 	connect(ui_->directoryTree, SIGNAL(selectionChanged(const QStringList&)), this, SLOT(onSelectionChanged(const QStringList&)));
 	connect(ui_->directoryTree, SIGNAL(requestContextMenuOnItems(const QStringList&)), this, SLOT(onCustomContextMenu()));
@@ -57,14 +76,16 @@ QStringList Project::selectedEntries(QWidget* sender) {
 }
 
 void Project::onAddressChanged() {
-	ui_->directoryTree->selectDirectory(ui_->address->text());
+	if (!ui_->directoryTree->selectDirectory(ui_->address->text())) {
+		Debug::LogWarning("invalid path %s.", ui_->address->text().toLatin1().data());
+
+		ui_->address->undo();
+	}
 }
 
-void Project::onItemEdited(QWidget* widget, QAbstractItemDelegate::EndEditHint hint) {
-	createEntry(ui_->listWidget->currentItem());
-}
-
-void Project::onItemClicked(QListWidgetItem* item) {
+void Project::onItemEdited(QWidget* widget) {
+	CustomItemDelegate* delegate = (CustomItemDelegate*)ui_->listWidget->itemDelegate();
+	createEntry(ui_->listWidget->item(delegate->editedItemIndex().row()));
 }
 
 void Project::onItemDoubleClicked(QListWidgetItem* item) {
@@ -80,7 +101,7 @@ void Project::onItemDoubleClicked(QListWidgetItem* item) {
 void Project::onItemChanged(QListWidgetItem* item) {
 	// the signal is sent for everything:
 	// inserts, changing colors, checking boxes, and anything else that "changes" the item..
-	tryRenameEntry(item);
+	renameEntry(item);
 }
 
 void Project::onCreateFolder(const QStringList& selected) {
@@ -135,7 +156,7 @@ void Project::onCustomContextMenu() {
 	QMenu menu;
 	QStringList selected = selectedEntries((QWidget*)sender());
 
-	// "create" sub menu.
+	// sub menu: "Create".
 	QMenu* create = menu.addMenu("Create"); {
 		QAction* createFolder = new QAction("Folder", create);
 		connect(createFolder, &QAction::triggered, this, std::bind(&Project::onCreateFolder, this, selected));
@@ -183,16 +204,17 @@ void Project::onSelectionChanged(const QStringList& directories) {
 
 void Project::removeEntries(const QStringList& selected) {
 	for (const QString& path : selected) {
-		if (QFileInfo(path).isDir()) {
-			QDir(path).removeRecursively();
+		QFileInfo info(path);
+		if (info.isDir() && QDir(path).removeRecursively()) {
+			ui_->directoryTree->selectDirectory(info.dir().path());
 		}
-		else {
+		else if(!info.isDir()) {
 			QFile::remove(path);
 		}
 	}
 }
 
-bool Project::tryRenameEntry(QListWidgetItem* item) {
+bool Project::renameEntry(QListWidgetItem* item) {
 	QString path = item->data(Qt::UserRole).toString();
 	QFileInfo info(path);
 	if (info.fileName() == item->text()) {
@@ -201,12 +223,14 @@ bool Project::tryRenameEntry(QListWidgetItem* item) {
 
 	bool ok = false;
 	if (info.isDir()) {
-		ok = QDir(path).rename(info.path(), info.dir().path() + "/" + item->text());
+		QString target = info.path() + "/" + item->text();
+		ok = QDir().rename(path, target);
 	}
 	else {
 		ok = QFile(path).rename(info.dir().path() + "/" + item->text());
 	}
 
+	// revert text changes.
 	if (!ok) {
 		item->setText(info.fileName());
 	}
@@ -233,7 +257,7 @@ bool Project::createEntry(QListWidgetItem* item) {
 		createImageEffectShader(path);
 	}
 	else {
-		Debug::LogError("invalid magic %s.", magic.toLatin1());
+		Debug::LogError("invalid magic %s.", magic.toLatin1().data());
 	}
 
 	item->setData(Qt::UserRole, path);
@@ -281,22 +305,20 @@ void Project::createImageEffectShader(const QString& path) {
 void Project::createEntryListItem(const QString& folder, const QString& name, const QString& magic, const QIcon& icon) {
 	ui_->directoryTree->selectDirectory(folder);
 
-	QFileIconProvider ip;
-
 	QListWidgetItem* item = new QListWidgetItem(icon, name);
 	item->setFlags(item->flags() | Qt::ItemIsEditable);
-	ui_->listWidget->addItem(item);
 
+	ui_->listWidget->addItem(item);
 	ui_->listWidget->sortItems();
-	ui_->listWidget->editItem(item);
 
 	// add magic prefix to indicate the entry type.
 	item->setData(Qt::UserRole, magic + folder + "/" + name);
+	ui_->listWidget->editItem(item);
 }
 
 void Project::createFile(const QString &path, const QString& templatePath) {
 	if (!QFile::copy(templatePath, path)) {
-		Debug::LogError("failed to create %s.", path.toLatin1());
+		Debug::LogError("failed to create %s.", path.toLatin1().data());
 	}
 }
 

@@ -49,7 +49,7 @@ QString QtViewer::skinName() {
 bool QtViewer::setSkin(const QString& name) {
 	QMap<QString, QString>::iterator ite = skinResources.find(name);
 	if (ite == skinResources.end()) {
-		Debug::LogError(("invalid skin name " + name).toLatin1());
+		Debug::LogError(("invalid skin name " + name).toLatin1().data());
 		return false;
 	}
 

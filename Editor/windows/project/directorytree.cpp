@@ -46,7 +46,7 @@ void DirectoryTree::setRootPath(const QString& path) {
 	initializeChildren(root);
 }
 
-void DirectoryTree::selectDirectory(const QString& path) {
+bool DirectoryTree::selectDirectory(const QString& path) {
 	QList<QStandardItem*> list = findItem(path);
 	for (QStandardItem* item : list) {
 		expand(item->index());
@@ -54,7 +54,10 @@ void DirectoryTree::selectDirectory(const QString& path) {
 
 	if (!list.empty()) {
 		selectionModel()->select(list.back()->index(), QItemSelectionModel::ClearAndSelect);
+		return true;
 	}
+
+	return false;
 }
 
 void DirectoryTree::setupFileSystemWatcher(const QString& path) {

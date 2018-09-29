@@ -19,6 +19,7 @@
 #include "../widgets/dialogs/colorpicker.h"
 #include "../widgets/dialogs/preferences.h"
 
+#define LOG_PATH		"editor.log"
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
 namespace PrefsKeys {
@@ -28,8 +29,11 @@ namespace PrefsKeys {
 	static int stateVersion = 3350;
 }
 
-Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr) {
+Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr), flush_(false), logFile_(LOG_PATH) {
 	Debug::SetLogReceiver(this);
+
+	logFile_.open(QFile::WriteOnly);
+	logStream_.setDevice(&logFile_);
 
 	setupUI();
 	setStatusBar(new StatusBar(this));
@@ -41,6 +45,7 @@ Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr) {
 }
 
 Editor::~Editor() {
+	logFile_.close();
 	delete[] childWindows_;
 	ColorPicker::destroy();
 	Debug::SetLogReceiver(nullptr);
@@ -93,6 +98,11 @@ void Editor::awake() {
 void Editor::tick() {
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		dynamic_cast<WinBase*>(childWindows_[i])->tick();
+	}
+
+	if (flush_) {
+		logStream_.flush();
+		flush_ = false;
 	}
 }
 
@@ -198,6 +208,7 @@ void Editor::OnLogMessage(LogLevel level, const char* message) {
 			break;
 	}
 
+	writeLog(type, message);
 	Console::instance()->addMessage(type, message);
 }
 
@@ -257,4 +268,9 @@ void Editor::onToggleWindowVisible() {
 			break;
 		}
 	}
+}
+
+void Editor::writeLog(ConsoleMessageType type, const char* message) {
+	logStream_ << QString::asprintf("[%c] %s\n", *type.to_string(), message);
+	flush_ = true;
 }

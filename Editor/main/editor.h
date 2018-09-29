@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QTextStream>
 #include <QtWidgets/QMainWindow>
 
 #include "ui_editor.h"
@@ -52,6 +53,7 @@ private slots:
 
 private:
 	void setupUI();
+	void writeLog(ConsoleMessageType type, const char* message);
 
 	void initializeLayout();
 	void initializeHelpMenu();
@@ -61,6 +63,11 @@ private:
 
 private:
 	Ui::Editor ui;
+
+	bool flush_;
+	QFile logFile_;
+	QTextStream logStream_;
+
 	Preferences* preferences_;
 	QDockWidget** childWindows_;
 };

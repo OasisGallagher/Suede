@@ -622,7 +622,24 @@
           <number>1</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="address"/>
+          <layout class="QHBoxLayout" name="horizontalLayout" stretch="5,1">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="address"/>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="searchFile">
+             <property name="placeholderText">
+              <string>Search...</string>
+             </property>
+             <property name="clearButtonEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="Line" name="line">

@@ -22,13 +22,10 @@ private:
 	uint ln_, depth_, start_;
 };
 
-static std::ofstream logFile;
-
 static StackTracer tracer;
 static LogReceiver* logReceiver;
 
 bool Debug::Initialize() {
-	logFile.open("suede_engine.log");
 	return !!tracer.LoadModules();
 }
 
@@ -41,8 +38,6 @@ void Debug::Log(const char* format, ...) {
 	if (logReceiver != nullptr) {
 		logReceiver->OnLogMessage(LogLevelDebug, msg.c_str());
 	}
-
-	logFile << "[M] " << msg << "\n";
 }
 
 void Debug::LogWarning(const char* format, ...) {
@@ -50,8 +45,6 @@ void Debug::LogWarning(const char* format, ...) {
 	if (logReceiver != nullptr) {
 		logReceiver->OnLogMessage(LogLevelWarning, msg.c_str());
 	}
-
-	logFile << "[W] " << msg << "\n";
 }
 
 void Debug::LogError(const char* format, ...) {
@@ -61,8 +54,6 @@ void Debug::LogError(const char* format, ...) {
 	if (logReceiver != nullptr) {
 		logReceiver->OnLogMessage(LogLevelError, msg.c_str());
 	}
-
-	logFile << "[E] " << msg << "\n";
 }
 
 #define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT

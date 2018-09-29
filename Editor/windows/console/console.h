@@ -23,7 +23,6 @@ public:
 	virtual void init(Ui::Editor* ui);
 	virtual void tick();
 
-
 public:
 	void addMessage(ConsoleMessageType type, const QString& message);
 

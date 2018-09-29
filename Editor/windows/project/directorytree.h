@@ -12,15 +12,12 @@ public:
 
 public:
 	void setRootPath(const QString& path);
-	void selectDirectory(const QString& path);
+	bool selectDirectory(const QString& path);
 	const QStringList& selectedDirectories() { return directories_; }
 
 signals:
 	void selectionChanged(const QStringList& directories);
 	void requestContextMenuOnItems(const QStringList& directories);
-
-protected:
-	//virtual void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 	 
 private slots:
 	void onCustomContextMenu();
