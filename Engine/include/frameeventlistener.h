@@ -7,6 +7,9 @@ enum {
 	FrameEventQueueStatistics = -1000,
 
 	FrameEventQueueUser = 0,
+
+	FrameEventQueueMax = INT_MAX,
+	FrameEventQueueGizmos = FrameEventQueueMax
 };
 
 class SUEDE_API FrameEventListener {

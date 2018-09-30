@@ -11,6 +11,17 @@ namespace fs = std::experimental::filesystem::v1;
 static char intBuffer[sizeof(int)];
 static char strBuffer[FileSystem::kMaxStringLength];
 
+FileEntry::~FileEntry() {
+	for (uint i = 0; i < children_.size(); ++i) {
+		MEMORY_DELETE(children_[i]);
+	}
+}
+
+void FileEntry::SetPath(const std::string& path, bool directory) {
+	directory_ = directory;
+	path_ = path;
+}
+
 FileTree::FileTree() : root_(nullptr) {
 }
 
@@ -18,19 +29,13 @@ FileTree::~FileTree() {
 	MEMORY_DELETE(root_);
 }
 
-FileEntry::~FileEntry() {
-	for (uint i = 0; i < children_.size(); ++i) {
-		MEMORY_DELETE(children_[i]);
-	}
-}
-
 bool FileTree::Create(const std::string& directory, const std::string& reg) {
 	MEMORY_DELETE(root_);
 
 	root_ = MEMORY_NEW(FileEntry);
-	root_->SetName(EnsureDirectory(directory));
+	root_->SetPath(directory, true);
 
-	if (CreateRecursively(root_, root_->GetName(), "", std::regex(reg))) {
+	if (CreateRecursively(root_, root_->GetPath(), std::regex(reg))) {
 		MEMORY_DELETE(root_);
 		root_ = nullptr;
 		return false;
@@ -39,24 +44,82 @@ bool FileTree::Create(const std::string& directory, const std::string& reg) {
 	return true;
 }
 
-std::string FileTree::EnsureDirectory(const std::string& directory) {
-	if (directory.back() == '/') { return directory; };
-	return directory + '/';
+bool FileTree::Reload(const std::string& path, const std::string& reg) {
+	FileEntry* entry = FindEntryAlongPath(path);
+	if (entry == nullptr) {
+		return false;
+	}
+
+	BeforeRemoveChildEntiries(entry);
+
+	for (uint i = 0; i < entry->children_.size(); ++i) {
+		MEMORY_DELETE(entry->children_[i]);
+	}
+
+	entry->children_.clear();
+
+	CreateRecursively(entry, entry->GetPath(), std::regex(reg));
+	return true;
 }
 
-bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& parentDirectory, const std::string& directory, const std::regex& r) {
+void FileTree::BeforeRemoveChildEntiries(FileEntry* entry) {
+	for (uint i = 0; i < entry->GetChildCount(); ++i) {
+		FileEntry* child = entry->GetChildAt(i);
+		entries_.erase(child);
+
+		BeforeRemoveChildEntiries(child);
+	}
+}
+
+const FileTree::EntryContainer& FileTree::GetAllEntries() const {
+	return entries_;
+}
+
+FileEntry* FileTree::FindEntryAlongPath(const std::string& path) {
+	std::vector<std::string> names;
+	String::Split(names, path, '/');
+
+	FileEntry* entry = nullptr;
+	for (const std::string& p : names) {
+		if (entry != nullptr) {
+			entry = FindDirectChild(entry, p);
+		}
+		else if (p == FileSystem::GetFileName(root_->GetPath())) {
+			entry = root_;
+		}
+
+		if (entry == nullptr) { break; }
+	}
+
+	return entry;
+}
+
+FileEntry* FileTree::FindDirectChild(FileEntry* entry, const std::string& p) {
+	FileEntry* answer = nullptr;
+	for (uint i = 0; i < entry->GetChildCount(); ++i) {
+		FileEntry* child = entry->GetChildAt(i);
+		if (FileSystem::GetFileName(child->GetPath()) == p) {
+			answer = child;
+			break;
+		}
+	}
+
+	return answer;
+}
+
+bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& path, const std::regex& r) {
 	bool empty = true;
-	std::string path = parentDirectory + directory;
 
 	for (auto& p : fs::directory_iterator(path)) {
-		std::string name = p.path().filename().string();
 		FileEntry* entry;
+		std::string name = p.path().filename().string();
+		std::string childPath = path + "/" + name;
 		if (fs::is_directory(p)) {
 			entry = MEMORY_NEW(FileEntry);
-			name += "/";
-			entry->SetName(name);
+			entry->SetPath(childPath, true);
 
-			if (!CreateRecursively(entry, path, name, r)) {
+			if (!CreateRecursively(entry, childPath, r)) {
+				entries_.insert(entry);
 				parentNode->AddChild(entry);
 			}
 			else {
@@ -65,8 +128,11 @@ bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& paren
 		}
 		else if (fs::is_regular_file(p) && std::regex_match(name, r)) {
 			empty = false;
+
 			entry = MEMORY_NEW(FileEntry);
-			entry->SetName(path + name);
+			entry->SetPath(childPath, false);
+
+			entries_.insert(entry);
 			parentNode->AddChild(entry);
 		}
 	}

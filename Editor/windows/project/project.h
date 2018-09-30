@@ -6,9 +6,12 @@
 #include <QAbstractItemDelegate>
 
 #include "../winbase.h"
+#include "os/filesystem.h"
 
+class FileFinder;
 class QListWidgetItem;
 class QFileSystemModel;
+
 class Project : public QDockWidget, public WinSingleton<Project> {
 	Q_OBJECT
 
@@ -22,6 +25,8 @@ public:
 
 private slots:
 	void onAddressChanged();
+
+	void onFindFileFieldChanged();
 
 	void onItemEdited(QWidget* widget);
 	void onItemChanged(QListWidgetItem* item);
@@ -37,11 +42,15 @@ private slots:
 	void onShowSelectedInExplorer(const QStringList& selected);
 
 	void onCustomContextMenu();
-	void onSelectionChanged(const QStringList& directories);
+	void onDirectoryChanged(const QString& directory);
+	void onSelectedDirectoriesChanged(const QStringList& directories);
 
 private:
 	QString folderPath(const QString& path);
 	QSet<QString> entriesInFolder(const QString& folder, QDir::Filters filter);
+
+	void reloadFindResults();
+	void reloadSelectedDirectoriesContent();
 
 	bool hasBuiltinEntry(const QStringList& selected);
 
@@ -62,8 +71,11 @@ private:
 
 	void openEntries(const QStringList& entries);
 	void removeEntries(const QStringList& selected);
+
+	void showFindResult(const QStringList& paths);
 	void showDirectortiesContent(const QStringList& directories);
 
 private:
+	FileTree tree_;
 	QSet<QString> builtinEntries_;
 };

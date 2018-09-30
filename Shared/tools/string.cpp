@@ -3,6 +3,52 @@
 
 #define HEADING_LENGTH			48
 
+BoyerMoor::BoyerMoor(const char* needle, size_t length) {
+	// initialize a table of UCHAR_MAX+1 elements to value needle_length
+	occ.assign(UCHAR_MAX + 1, length);
+	needle_.assign(needle, needle + length);
+
+	// Populate it with the analysis of the needle.
+	// But ignoring the last letter.
+	if (length >= 1) {
+		const size_t needle_length_minus_1 = length - 1;
+		for (size_t a = 0; a < needle_length_minus_1; ++a) {
+			occ[(unsigned char)needle[a]] = needle_length_minus_1 - a;
+		}
+	}
+}
+
+size_t BoyerMoor::Search(const char* haystack, size_t length) {
+	if (needle_.length() > length) return length;
+	if (needle_.length() == 1) {
+		const char* result = (const char*)std::memchr(haystack, *needle_.c_str(), length);
+		return result ? size_t(result - haystack) : length;
+	}
+
+	const size_t needle_length_minus_1 = needle_.length() - 1;
+
+	const char last_needle_char = needle_[needle_length_minus_1];
+
+	size_t haystack_position = 0;
+	while (haystack_position <= length - needle_.length()) {
+		const char occ_char = haystack[haystack_position + needle_length_minus_1];
+
+		// The author modified this part. Original algorithm matches needle right-to-left.
+		// This code calls memcmp() (usually matches left-to-right) after matching the last
+		// character, thereby incorporating some ideas from
+		// "Tuning the Boyer-Moore-Horspool String Searching Algorithm"
+		// by Timo Raita, 1992.
+		if (last_needle_char == occ_char
+			&& _strnicmp(needle_.c_str(), haystack + haystack_position, needle_length_minus_1) == 0) {
+			return haystack_position;
+		}
+
+		haystack_position += occ[(unsigned char)occ_char];
+	}
+
+	return length;
+}
+
 std::string String::Format(const char* format, ...) {
 	va_list args;
 	va_start(args, format);

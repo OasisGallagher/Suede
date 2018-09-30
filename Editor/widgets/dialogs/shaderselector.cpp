@@ -7,7 +7,7 @@ ShaderSelector::ShaderSelector(QWidget* parent) :QDialog(parent) {
 
 QString ShaderSelector::select(const QString& current) {
 	selected_.clear();
-	ui.comboBox->setDirectory("resources/shaders/", current, ".*\\.shader");
+	ui.comboBox->setDirectory("resources/shaders", current, ".*\\.shader");
 	if (exec() == 0) {
 		selected_.clear();
 	}

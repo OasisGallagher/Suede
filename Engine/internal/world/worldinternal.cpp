@@ -159,6 +159,11 @@ std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid
 			gameObjects.push_back(light->GetGameObject());
 		}
 	}
+	else if (guid == GizmosPainter::GetComponentGUID()) {
+		for (GizmosPainterPtr painter : gizmosPainters_) {
+			gameObjects.push_back(painter->GetGameObject());
+		}
+	}
 	else {
 		for (GameObjectDictionary::iterator ite = gameObjects_.begin(); ite != gameObjects_.end(); ++ite) {
 			if (ite->second->GetComponent(guid)) {
@@ -305,6 +310,7 @@ void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent
 	ManageGameObjectComponents(lights_, e->component, e->added);
 	ManageGameObjectComponents(cameras_, e->component, e->added);
 	ManageGameObjectComponents(projectors_, e->component, e->added);
+	ManageGameObjectComponents(gizmosPainters_, e->component, e->added);
 }
 
 void WorldInternal::FireEvents() {

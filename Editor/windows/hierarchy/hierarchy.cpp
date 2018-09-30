@@ -1,5 +1,4 @@
 #include <QTreeView>
-#include <QMimedata>
 #include <QKeyEvent>
 
 #include "ui_editor.h"
@@ -45,15 +44,18 @@ GameObject Hierarchy::selectedGameObject() {
 	return World::instance()->GetGameObject(id);
 }
 
-bool Hierarchy::selectedGameObjects(QList<GameObject>& gameObjects) {
+QList<GameObject> Hierarchy::selectedGameObjects() {
 	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
+
+	QList<GameObject> gameObjects;
+	gameObjects.reserve(indexes.size());
 
 	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
 		gameObjects.push_back(World::instance()->GetGameObject(id));
 	}
 
-	return !gameObjects.empty();
+	return gameObjects;
 }
 
 void Hierarchy::OnWorldEvent(WorldEventBasePointer entit) {
@@ -168,11 +170,11 @@ void Hierarchy::onDeleteSelected() {
 void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
 	QList<GameObject> ss;
 	selectionToGameObjects(ss, selected);
-	enableItemsOutline(ss, true);
+	enableGameObjectsOutline(ss, true);
 
 	QList<GameObject> ds;
 	selectionToGameObjects(ds, deselected);
-	enableItemsOutline(ds, false);
+	enableGameObjectsOutline(ds, false);
 
 	emit selectionChanged(ss, ds);
 }
@@ -306,7 +308,7 @@ void Hierarchy::selectionToGameObjects(QList<GameObject>& gameObjects, const QIt
 	}
 }
 
-void Hierarchy::enableItemsOutline(const QList<GameObject>& gameObjects, bool enable) {
+void Hierarchy::enableGameObjectsOutline(const QList<GameObject>& gameObjects, bool enable) {
 	for (GameObject go : gameObjects) {
 		enableGameObjectOutline(go, enable);
 	}

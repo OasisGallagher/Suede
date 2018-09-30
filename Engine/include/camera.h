@@ -22,8 +22,6 @@ BETTER_ENUM(DepthTextureMode, int,
 	Depth = 1
 )
 
-class GizmosPainter;
-
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
 class SUEDE_API ICamera : virtual public IComponent {
@@ -78,8 +76,6 @@ public:
 
 	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;
-
-	virtual void AddGizmosPainter(GizmosPainter* painter) = 0;
 
 	virtual Texture2D Capture() = 0;
 

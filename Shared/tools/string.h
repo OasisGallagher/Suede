@@ -5,6 +5,18 @@
 
 #include "../types.h"
 
+class SUEDE_API BoyerMoor {
+public:
+	BoyerMoor(const char* needle, size_t length);
+
+public:
+	size_t Search(const char* haystack, size_t length);
+
+private:
+	std::string needle_;
+	std::vector<size_t> occ;
+};
+
 class SUEDE_API String {
 public:
 	static std::string Trim(const std::string& text);

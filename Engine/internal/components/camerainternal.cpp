@@ -25,7 +25,14 @@ void Camera::OnPreRender() {
 }
 
 void Camera::OnPostRender() {
+	RenderTexture target = RenderTexture::GetDefault();
+	target->BindWrite(main()->GetRect());
 
+	for (std::shared_ptr<GizmosPainter>& painter : World::instance()->GetComponents<GizmosPainter>()) {
+		painter->OnDrawGizmos();
+	}
+
+	target->Unbind();
 }
 
 SUEDE_DEFINE_COMPONENT(ICamera, IComponent)
@@ -41,7 +48,6 @@ CameraInternal::CameraInternal()
 	traits0_ = MEMORY_NEW(RenderableTraits, &p_);
 	traits1_ = MEMORY_NEW(RenderableTraits, &p_);
 
-	Engine::instance()->AddFrameEventListener(this);
 	Screen::instance()->AddScreenSizeChangedListener(this);
 
 	SetAspect((float)Screen::instance()->GetWidth() / Screen::instance()->GetHeight());
@@ -55,7 +61,6 @@ CameraInternal::~CameraInternal() {
 	MEMORY_DELETE(traits1_);
 
 	MEMORY_DELETE(rendering_);
-	Engine::instance()->RemoveFrameEventListener(this);
 	Screen::instance()->RemoveScreenSizeChangedListener(this);
 }
 
@@ -83,7 +88,7 @@ void CameraInternal::SetDepth(int value) {
 }
 
 void CameraInternal::Render() {
-	if (!IsValidViewRect()) {
+	if (!IsValidViewportRect()) {
 		return;
 	}
 
@@ -138,29 +143,12 @@ void CameraInternal::OnCullingFinished() {
 // void CameraInternal::OnRenderingFinished() {
 // }
 
-int CameraInternal::GetFrameEventQueue() {
-	return IsMainCamera() ? std::numeric_limits<int>::max() : FrameEventListener::GetFrameEventQueue();
-}
-
-void CameraInternal::OnFrameLeave() {
-	if (IsMainCamera()) {
-		RenderTexture target = RenderTexture::GetDefault();
-		target->BindWrite(GetRect());
-		OnDrawGizmos();
-		target->Unbind();
-	}
-}
-
-bool CameraInternal::IsValidViewRect() {
+bool CameraInternal::IsValidViewportRect() {
 	const Rect& r = p_.normalizedRect;
 	if (r.GetXMin() >= 1 || r.GetYMin() >= 1) { return false; }
 	if (r.GetWidth() <= 0 || r.GetHeight() <= 0) { return false; }
 
 	return true;
-}
-
-bool CameraInternal::IsMainCamera() {
-	return Camera::main().get() == this;
 }
 
 void CameraInternal::SetRect(const Rect& value) {
@@ -194,12 +182,4 @@ Texture2D CameraInternal::Capture() {
 	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
 
 	return texture;
-}
-
-void CameraInternal::OnDrawGizmos() {
-	for (int i = 0; i < gizmosPainters_.size(); ++i) {
-		gizmosPainters_[i]->OnDrawGizmos();
-	}
-
-	Gizmos::instance()->Flush();
 }

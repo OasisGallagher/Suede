@@ -205,6 +205,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\gui\imgui_draw.cpp" />
     <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
+    <ClCompile Include="internal\rendering\gizmospainter.cpp" />
     <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\matrixbuffer.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />

@@ -507,14 +507,14 @@
     <ClCompile Include="GeneratedFiles\Release\moc_directorytree.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="windows\project\filefinder.cpp">
-      <Filter>windows\project\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_filefinder.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_selectiongizmos.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_filefinder.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_selectiongizmos.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="scripts\selectiongizmos.cpp">
+      <Filter>scripts\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -647,8 +647,8 @@
     <CustomBuild Include="ui\shaderselector.ui">
       <Filter>ui</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\project\filefinder.h">
-      <Filter>windows\project\include</Filter>
+    <CustomBuild Include="scripts\selectiongizmos.h">
+      <Filter>scripts\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

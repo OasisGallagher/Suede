@@ -3,39 +3,60 @@
 #include <vector>
 #include "../types.h"
 
+#include "../containers/sortedvector.h"
+
+class FileTree;
 class SUEDE_API FileEntry {
+	friend class FileTree;
+
 public:
 	~FileEntry();
 
 public:
-	std::string GetName() const { return name_; }
-	void SetName(const std::string& value) { name_ = value; }
-	bool IsDirectory() const { return name_.back() == '/'; }
+	std::string GetPath() const { return path_; }
+	void SetPath(const std::string& path, bool directory);
+	bool IsDirectory() const { return directory_; }
 
 	void AddChild(FileEntry* child) { children_.push_back(child); }
 	uint GetChildCount() const { return (uint)children_.size(); }
 	FileEntry* GetChildAt(uint i) { return children_[i]; }
 
 private:
-	std::string name_;
+	bool directory_;
+	std::string path_;
 	std::vector<FileEntry*> children_;
 };
 
+struct FileEntryPtrComparer {
+	bool operator ()(FileEntry* lhs, FileEntry* rhs) const {
+		return lhs->GetPath() < rhs->GetPath();
+	}
+};
+
 class SUEDE_API FileTree {
+public:
+	typedef sorted_vector<FileEntry*, FileEntryPtrComparer> EntryContainer;
+
 public:
 	FileTree();
 	~FileTree();
 
 public:
 	bool Create(const std::string& directory, const std::string& reg);
+	bool Reload(const std::string& path, const std::string& reg);
 	FileEntry* GetRoot() { return root_; }
+	const EntryContainer& GetAllEntries() const;
 
 private:
-	std::string EnsureDirectory(const std::string& directory);
-	bool CreateRecursively(FileEntry* parentNode, const std::string& parentDirectory, const std::string& name, const std::regex& r);
+	FileEntry* FindEntryAlongPath(const std::string& path);
+	FileEntry* FindDirectChild(FileEntry* entry, const std::string& p);
+
+	void BeforeRemoveChildEntiries(FileEntry* entry);
+	bool CreateRecursively(FileEntry* parentNode, const std::string& path, const std::regex& r);
 
 private:
 	FileEntry* root_;
+	EntryContainer entries_;
 };
 
 class SUEDE_API FileSystem {

@@ -5,6 +5,8 @@
 
 SUEDE_DEFINE_COMPONENT(Behaviour, IComponent)
 
+#define impl	((BehaviourImpl*)impl_)
+
 class BehaviourImpl : public ComponentInternal {
 public:
 	BehaviourImpl() : ComponentInternal(ObjectType::CustomBehaviour) {}
@@ -13,8 +15,7 @@ public:
 	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
 };
 
-Behaviour::Behaviour() {
-	impl = MEMORY_NEW(BehaviourImpl);
+Behaviour::Behaviour() : impl_(MEMORY_NEW(BehaviourImpl)) {
 }
 
 Behaviour::~Behaviour() {

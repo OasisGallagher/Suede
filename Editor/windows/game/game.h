@@ -11,9 +11,10 @@
 
 class Canvas;
 class StatsWidget;
+class SelectionGizmos;
 class CameraController;
 
-class Game : public QDockWidget, public WinSingleton<Game>, public GizmosPainter, public GameObjectLoadedListener {
+class Game : public QDockWidget, public WinSingleton<Game>, public GameObjectLoadedListener {
 	Q_OBJECT
 
 public:
@@ -27,9 +28,6 @@ public:
 	virtual void init(Ui::Editor* ui);
 	virtual void awake();
 	virtual void tick();
-
-public:
-	virtual void OnDrawGizmos();
 
 public:
 	virtual void OnGameObjectImported(GameObject root, const std::string& path);
@@ -52,9 +50,6 @@ protected:
 	virtual void keyPressEvent(QKeyEvent* event);
 	virtual void timerEvent(QTimerEvent *event);
 
-protected:
-	void updateSelection(QList<GameObject>& container, const QList<GameObject>& selected, const QList<GameObject>& deselected);
-
 private:
 	void start();
 	void createScene();
@@ -63,7 +58,6 @@ private:
 	void updateStatPosition();
 
 private:
-	QList<GameObject> selection_;
 	/*RenderTexture targetTexture_;*/
 
 	QTimer* timer_;
@@ -71,5 +65,6 @@ private:
 	Canvas* canvas_;
 	StatsWidget* stat_;
 
+	SelectionGizmos* gizmos_;
 	CameraController* controller_;
 };

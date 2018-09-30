@@ -1,5 +1,6 @@
 #include "project.h"
 #include "ui_editor.h"
+#include "tools/string.h"
 
 #include <functional>
 
@@ -50,10 +51,13 @@ void Project::init(Ui::Editor* ui) {
 		builtinEntries_ = QSet<QString>::fromList(QString(file.readAll()).split('\n'));
 	}
 
+	tree_.Create(ROOT_PATH, ".*");
 	ui->directoryTree->setRootPath(ROOT_PATH);
 
 	ui_->address->setText(ROOT_PATH);
 	connect(ui_->address, SIGNAL(editingFinished()), this, SLOT(onAddressChanged()));
+
+	connect(ui_->searchFile, SIGNAL(textChanged(const QString&)), this, SLOT(onFindFileFieldChanged()));
 
 	ui_->listWidget->setItemDelegate(new CustomItemDelegate(ui_->listWidget));
 
@@ -62,8 +66,12 @@ void Project::init(Ui::Editor* ui) {
 	connect(ui_->listWidget, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onCustomContextMenu()));
 	connect(ui_->listWidget->itemDelegate(), SIGNAL(commitData(QWidget*)), this, SLOT(onItemEdited(QWidget*)));
 
-	connect(ui_->directoryTree, SIGNAL(selectionChanged(const QStringList&)), this, SLOT(onSelectionChanged(const QStringList&)));
+	connect(ui_->directoryTree, SIGNAL(directoryChanged(const QString&)), this, SLOT(onDirectoryChanged(const QString&)));
+	connect(ui_->directoryTree, SIGNAL(contentChanged(const QStringList&)), this, SLOT(onSelectedDirectoriesChanged(const QStringList&)));
+	connect(ui_->directoryTree, SIGNAL(selectionChanged(const QStringList&)), this, SLOT(onSelectedDirectoriesChanged(const QStringList&)));
 	connect(ui_->directoryTree, SIGNAL(requestContextMenuOnItems(const QStringList&)), this, SLOT(onCustomContextMenu()));
+
+	ui_->directoryTree->selectDirectory("resources");
 }
 
 QStringList Project::selectedEntries(QWidget* sender) {
@@ -87,6 +95,10 @@ void Project::onAddressChanged() {
 
 		ui_->address->undo();
 	}
+}
+
+void Project::onFindFileFieldChanged() {
+	reloadFindResults();
 }
 
 void Project::onItemEdited(QWidget* widget) {
@@ -199,11 +211,20 @@ void Project::onCustomContextMenu() {
 	menu.exec(QCursor::pos());
 }
 
-void Project::onSelectionChanged(const QStringList& directories) {
+void Project::onDirectoryChanged(const QString& directory) {
+	tree_.Reload(directory.toStdString(), ".*");
+	reloadFindResults();
+}
+
+void Project::onSelectedDirectoriesChanged(const QStringList& directories) {
 	if (!directories.empty()) {
 		ui_->address->setText(directories.size() > 1 ? "Showing multiple folders..." : directories.front());
 		ui_->address->setReadOnly(directories.size() > 1);
 	}
+
+	ui_->searchFile->blockSignals(true);
+	ui_->searchFile->clear();
+	ui_->searchFile->blockSignals(false);
 
 	showDirectortiesContent(directories);
 }
@@ -276,13 +297,31 @@ void Project::openEntries(const QStringList& entries) {
 	}
 }
 
+void Project::showFindResult(const QStringList& paths) {
+	ui_->listWidget->clear();
+	QFileIconProvider ip;
+
+	for (const QString& p : paths) {
+		QFileInfo info(p);
+		if (p == IGNORE_FILE_PATH) {
+			continue;
+		}
+
+		QListWidgetItem* item = new QListWidgetItem(ip.icon(info), info.fileName());
+		item->setFlags(item->flags() | Qt::ItemIsEditable);
+		ui_->listWidget->addItem(item);
+		item->setData(Qt::UserRole, info.filePath());
+	}
+}
+
 void Project::showDirectortiesContent(const QStringList& directories) {
 	ui_->listWidget->clear();
 
 	QSet<QString> set;
 	QFileIconProvider ip;
 	for (const QString& path : directories) {
-		for (const QFileInfo& info : QDir(path).entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+		QFileInfoList& infos = QDir(path).entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+		for (const QFileInfo& info : infos) {
 			if (info.filePath() == IGNORE_FILE_PATH) {
 				continue;
 			}
@@ -335,6 +374,31 @@ QString Project::folderPath(const QString& path) {
 
 QSet<QString> Project::entriesInFolder(const QString& folder, QDir::Filters filter) {
 	return QSet<QString>::fromList(QDir(folder).entryList(filter));
+}
+
+void Project::reloadFindResults() {
+	QStringList results;
+	QString pattern = ui_->searchFile->text();
+
+	if (pattern.isEmpty()) {
+		reloadSelectedDirectoriesContent();
+	}
+	else {
+		BoyerMoor bm(pattern.toLatin1().data(), pattern.length());
+		for (const FileEntry* entry : tree_.GetAllEntries()) {
+			std::string path = entry->GetPath();
+			std::string name = FileSystem::GetFileName(path);
+			if (bm.Search(name.c_str(), name.length()) != name.length()) {
+				results.push_back(path.c_str());
+			}
+		}
+
+		showFindResult(results);
+	}
+}
+
+void Project::reloadSelectedDirectoriesContent() {
+	onSelectedDirectoriesChanged(ui_->directoryTree->selectedDirectories());
 }
 
 bool Project::hasBuiltinEntry(const QStringList& selected) {

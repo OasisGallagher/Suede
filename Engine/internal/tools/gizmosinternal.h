@@ -5,8 +5,9 @@
 
 #include "mesh.h"
 #include "material.h"
+#include "frameeventlistener.h"
 
-class GizmosInternal : public Gizmos {
+class GizmosInternal : public Gizmos, public FrameEventListener {
 public:
 	GizmosInternal();
 
@@ -27,6 +28,10 @@ public:
 
 	virtual void DrawWireSphere(const glm::vec3& center, float radius);
 	virtual void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size);
+
+public:
+	virtual void OnFrameLeave() { Flush(); }
+	virtual int GetFrameEventQueue() { return FrameEventQueueGizmos; }
 
 private:
 	struct Batch {

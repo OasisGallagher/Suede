@@ -1,5 +1,6 @@
 #include "gizmosinternal.h"
 
+#include "engine.h"
 #include "graphics.h"
 #include "resources.h"
 #include "tools/math2.h"
@@ -12,6 +13,8 @@ GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1) {
 	lineMaterial_ = NewMaterial();
 	lineMaterial_->SetShader(Resources::instance()->FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", glm::mat4(1));
+
+	Engine::instance()->AddFrameEventListener(this);
 }
 
 bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material material) {

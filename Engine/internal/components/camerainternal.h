@@ -6,7 +6,6 @@
 #include "screen.h"
 #include "camera.h"
 #include "frustum.h"
-#include "frameeventlistener.h"
 
 #include <ZThread/ThreadedExecutor.h>
 #include "internal/culling/culling.h"
@@ -16,13 +15,11 @@
 
 //class GBuffer;
 
-class GizmosPainter;
-
 class Sample;
 class CameraInternal : public ICamera
 	, public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
-	, public ScreenSizeChangedListener, public FrameEventListener {
+	, public ScreenSizeChangedListener {
 	DEFINE_FACTORY_METHOD(Camera)
 
 public:
@@ -86,9 +83,6 @@ public:
 	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
 public:
-	virtual void AddGizmosPainter(GizmosPainter* painter) { gizmosPainters_.push_back(painter); }
-
-public:
 	virtual void OnScreenSizeChanged(uint width, uint height);
 
 public:
@@ -101,15 +95,9 @@ protected:
 	virtual void OnCullingFinished();
 	//virtual void OnRenderingFinished();
 
-public:
-	virtual int GetFrameEventQueue();
-	virtual void OnFrameLeave();
-
 private:
-	bool IsMainCamera();
-	void OnDrawGizmos();
 	void CancelThreads();
-	bool IsValidViewRect();
+	bool IsValidViewportRect();
 
 private:
 	int depth_;
@@ -129,5 +117,4 @@ private:
 
 	ZThread::Mutex visibleGameObjectsMutex_;
 	std::vector<GameObject> visibleGameObjects_;
-	std::vector<GizmosPainter*> gizmosPainters_;
 };

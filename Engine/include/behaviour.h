@@ -1,8 +1,6 @@
 #pragma once
 #include "component.h"
 
-class BehaviourImpl;
-
 class SUEDE_API Behaviour : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
 
@@ -34,5 +32,5 @@ public:
 	virtual uint GetInstanceID() final;
 
 private:
-	BehaviourImpl* impl;
+	void* impl_;
 };

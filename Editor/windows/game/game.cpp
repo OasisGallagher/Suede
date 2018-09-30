@@ -32,6 +32,7 @@
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
 #include "scripts/gaussianblur.h"
+#include "scripts/selectiongizmos.h"
 #include "scripts/cameracontroller.h"
 
 //#define ROOM
@@ -96,30 +97,6 @@ void Game::awake() {
 
 void Game::tick() {
 
-}
-
-void Game::OnDrawGizmos() {
-	int i = 0;
-	Color colors[] = { Color::red, Color::green, Color::blue };
-	Color oldColor = Gizmos::instance()->GetColor();
-	for (GameObject go : selection_) {
-		if (!go->GetActive()) {
-			continue;
-		}
-
-		const Bounds& bounds = go->GetBounds();
-		Gizmos::instance()->SetColor(colors[i % SUEDE_COUNTOF(colors)]);
-		if (!bounds.IsEmpty()) {
-			Gizmos::instance()->DrawWireCuboid(bounds.center, bounds.size);
-		}
-		else {
-			Gizmos::instance()->DrawWireSphere(go->GetTransform()->GetPosition(), 5);
-		}
-
-		++i;
-	}
-
-	Gizmos::instance()->SetColor(oldColor);
 }
 
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
@@ -217,18 +194,6 @@ void Game::resizeEvent(QResizeEvent* event) {
 void Game::timerEvent(QTimerEvent *event) {
 }
 
-void Game::updateSelection(QList<GameObject>& container, const QList<GameObject>& selected, const QList<GameObject>& deselected) {
-	for (GameObject go : selected) {
-		if (container.indexOf(go) < 0) {
-			container.push_back(go);
-		}
-	}
-
-	for (GameObject go : deselected) {
-		container.removeOne(go);
-	}
-}
-
 void Game::onToggleStat(int state) {
 	stat_->setVisible(!!state);
 
@@ -260,7 +225,7 @@ void Game::onFocusGameObjectBounds(GameObject go) {
 }
 
 void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
-	updateSelection(selection_, selected, deselected);
+	gizmos_->setSelection(Hierarchy::instance()->selectedGameObjects());
 }
 
 float Game::calculateCameraDistanceFitsBounds(Camera camera, GameObject go) {
@@ -297,7 +262,6 @@ void Game::createScene() {
 
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
 	Camera::main(camera);
-	camera->AddGizmosPainter(this);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	/*RenderTexture targetTexture = NewRenderTexture();
@@ -306,6 +270,8 @@ void Game::createScene() {
 
 	controller_ = cameraGameObject->AddComponent<CameraController>(this).get();
 	cameraGameObject->GetComponent<CameraController>();
+
+	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>().get();
 
 #ifdef PROJECTOR
 	Projector projector = NewProjector();

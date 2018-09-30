@@ -24,6 +24,10 @@ public:
 		}
 	}
 
+	void insert(iterator hint, value_type& value) {
+		container_.insert(find(value), value);
+	}
+
 	void insert(const value_type& value) {
 		container_.insert(find(value), value);
 	}
@@ -63,6 +67,9 @@ public:
 
 	iterator begin() { return container_.begin(); }
 	iterator end() { return container_.end(); }
+
+	const_iterator begin() const { return container_.begin(); }
+	const_iterator end() const { return container_.end(); }
 
 	size_t size() const { return container_.size(); }
 

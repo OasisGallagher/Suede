@@ -27,7 +27,7 @@ public:
 
 public:
 	GameObject selectedGameObject();
-	bool selectedGameObjects(QList<GameObject>& gameObjects);
+	QList<GameObject> selectedGameObjects();
 	void updateRecursively(GameObject go, QStandardItem* parent);
 
 protected:
@@ -38,9 +38,6 @@ protected:
 signals:
 	void focusGameObject(GameObject go);
 	void selectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
-	
-private:
-	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private slots:
 	void reload();
@@ -48,6 +45,9 @@ private slots:
 	void onTreeCustomContextMenu();
 	void onGameObjectDoubleClicked(const QModelIndex&);
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
+private:
+	virtual void OnWorldEvent(WorldEventBasePointer e);
 
 private:
 	void appendChildItem(GameObject go);
@@ -65,7 +65,7 @@ private:
 	void onGameObjectActiveChanged(GameObject go);
 
 	void enableGameObjectOutline(GameObject go, bool enable);
-	void enableItemsOutline(const QList<GameObject>& gameObjects, bool enable);
+	void enableGameObjectsOutline(const QList<GameObject>& gameObjects, bool enable);
 	void selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items);
 
 private:

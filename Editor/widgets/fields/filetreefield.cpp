@@ -61,13 +61,14 @@ void FileTreeField::onSelectItem() {
 void FileTreeField::createSubMenu(QMenu* parent, FileEntry* entry) {
 	for (uint i = 0; i < entry->GetChildCount(); ++i) {
 		FileEntry* child = entry->GetChildAt(i);
-		QString path = child->GetName().c_str();
+		QString path = child->GetPath().c_str();
+		QString name = FileSystem::GetFileNameWithoutExtension(child->GetPath()).c_str();
 		if (child->IsDirectory()) {
-			QMenu* subMenu = parent->addMenu(path.left(path.length() - 1));
+			QMenu* subMenu = parent->addMenu(name);
 			createSubMenu(subMenu, child);
 		}
 		else {
-			QAction* action = parent->addAction(FileSystem::GetFileNameWithoutExtension(path.toStdString()).c_str());
+			QAction* action = parent->addAction(name);
 			action->setData(path);
 			connect(action, SIGNAL(triggered()), this, SLOT(onSelectItem()));
 		}

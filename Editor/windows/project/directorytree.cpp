@@ -47,7 +47,7 @@ void DirectoryTree::setRootPath(const QString& path) {
 }
 
 bool DirectoryTree::selectDirectory(const QString& path) {
-	QList<QStandardItem*> list = findItem(path);
+	QList<QStandardItem*> list = findItemsAlongPath(path);
 	for (QStandardItem* item : list) {
 		expand(item->index());
 	}
@@ -70,7 +70,7 @@ void DirectoryTree::setupFileSystemWatcher(const QString& path) {
 }
 
 void DirectoryTree::onDirectoryChanged(const QString& path) {
-	QList<QStandardItem*> list = findItem(path);
+	QList<QStandardItem*> list = findItemsAlongPath(path);
 
 	// file does not exist.
 	if (list.empty()) {
@@ -83,41 +83,54 @@ void DirectoryTree::onDirectoryChanged(const QString& path) {
 		list.back()->setData("*" + str);
 		initializeChildren(list.back());
 
+		// update expanded state.
+		QModelIndex index = list.back()->index();
+		if (isExpanded(index)) {
+			onExpanded(index);
+		}
+
 		if (directories_.contains(str)) {
-			emit selectionChanged(directories_);
+			emit contentChanged(directories_);
 		}
 	}
+
+	emit directoryChanged(path);
 }
 
-QList<QStandardItem*> DirectoryTree::findItem(const QString& path) {
+QList<QStandardItem*> DirectoryTree::findItemsAlongPath(const QString& path) {
 	QList<QStandardItem*> list;
-	if (!QFileInfo(path).exists()) {
-		return list;
-	}
+	if (!QFileInfo(path).exists()) { return list; }
 
 	QStandardItem* item = nullptr;
 	for (const QString& p : path.split("/")) {
+		if (item != nullptr) {
+			item = findDirectChildItem(item, p);
+			list.push_back(item);
+		}
+		else if (p == model_->item(0)->text()) {
+			item = model_->item(0);
+			list.push_back(item);
+		}
+
 		if (item == nullptr) {
-			list.push_back(item = model_->item(0));
-			continue;
-		}
-
-		int n = list.size();
-		for (int i = 0; i < item->rowCount(); ++i) {
-			if (item->child(i)->text() == p) {
-				list.push_back(item = item->child(i));
-				break;
-			}
-		}
-
-		// item at path does not exist.
-		if (list.size() == n) {
 			list.clear();
 			break;
 		}
 	}
 
 	return list;
+}
+
+QStandardItem* DirectoryTree::findDirectChildItem(QStandardItem* parent, const QString& text) {
+	QStandardItem* answer = nullptr;
+	for (int i = 0; i < parent->rowCount(); ++i) {
+		if (parent->child(i)->text() == text) {
+			answer = parent->child(i);
+			break;
+		}
+	}
+
+	return answer;
 }
 
 void DirectoryTree::onCustomContextMenu() {

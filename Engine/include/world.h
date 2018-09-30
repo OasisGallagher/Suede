@@ -143,7 +143,6 @@ public:
 };
 
 struct Decal;
-class GizmosPainter;
 
 class SUEDE_API World : public Singleton2<World> {
 public:

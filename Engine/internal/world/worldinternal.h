@@ -9,6 +9,7 @@
 #include "screen.h"
 #include "projector.h"
 #include "gameobject.h"
+#include "gizmospainter.h"
 #include "containers/sortedvector.h"
 
 class Sample;
@@ -82,6 +83,9 @@ private:
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
 	struct ProjectorComparer { bool operator() (const Projector& lhs, const Projector& rhs) const; };
 
+	typedef std::shared_ptr<GizmosPainter> GizmosPainterPtr;
+	typedef sorted_vector<GizmosPainterPtr> GizmosPainterContainer;
+
 	typedef sorted_vector<GameObject> GameObjectSequence;
 	typedef std::map<uint, GameObject> GameObjectDictionary;
 	typedef std::set<Light, LightComparer> LightContainer;
@@ -96,6 +100,7 @@ private:
 
 	LightContainer lights_;
 	CameraContainer cameras_;
+	GizmosPainterContainer gizmosPainters_;
 
 	DecalCreater* decalCreater_;
 	GameObjectLoaderThreadPool* importer_;
@@ -119,10 +124,11 @@ template <class Container>
 void WorldInternal::ManageGameObjectComponents(Container& container, Component component, bool added) {
 	typedef Container::value_type T;
 	typedef typename T::element_type U;
+
 	if (component->IsComponentType(U::GetComponentGUID())) {
 		T target = suede_dynamic_cast<T>(component);
 		if (added) {
-			container.insert(target);
+			container.insert(container.end(), target);
 		}
 		else {
 			container.erase(target);

@@ -657,6 +657,9 @@
     <ClCompile Include="internal\rendering\imageeffect.cpp">
       <Filter>internal\rendering\src</Filter>
     </ClCompile>
+    <ClCompile Include="internal\rendering\gizmospainter.cpp">
+      <Filter>internal\rendering\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h">
