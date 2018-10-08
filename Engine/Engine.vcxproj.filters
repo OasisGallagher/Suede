@@ -134,6 +134,9 @@
     <Filter Include="internal\gameobject\src">
       <UniqueIdentifier>{f5de384c-d5da-45b8-b5d7-4fac3d034669}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\lua">
+      <UniqueIdentifier>{37dfc3b5-6f16-4e4e-87a8-365131c2d6c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -456,6 +459,9 @@
     </ClInclude>
     <ClInclude Include="include\ranged.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\luastate.h">
+      <Filter>internal\lua</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

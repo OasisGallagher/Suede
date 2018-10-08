@@ -125,7 +125,10 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 			Texture2D diffuse = NewTexture2D();
 			diffuse->Create("suzanne/diffuse.dds");
 			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
-			target->GetComponent<IMeshRenderer>()->GetMaterial(0)->SetTexture(BuiltinProperties::MainTexture, diffuse);
+
+			Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
+			material->SetTexture(BuiltinProperties::MainTexture, diffuse);
+
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(glm::vec3(0));
 		}

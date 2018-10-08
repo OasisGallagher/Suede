@@ -19,12 +19,12 @@
 
 Factory Factory::instance;
 
-#define ADD_FACTROY_METHOD(name) \
-	AddFactoryMethod(#name, name ## Internal::Create);  \
-	AddFactoryMethod(+ObjectType:: ## name, name ## Internal::Create)
+#define ADD_FACTROY_METHOD(T) \
+	AddFactoryMethod(#T, T ## Internal::Create);  \
+	AddFactoryMethod(+ObjectType:: ## T, T ## Internal::Create)
 
-#define ADD_COMPONENT_FACTROY_METHOD(name) \
-	AddFactoryMethod(I ## name::GetComponentGUID(), name ## Internal::Create)
+#define ADD_COMPONENT_FACTROY_METHOD(T) \
+	AddFactoryMethod(T::element_type::GetComponentGUID(), T ## Internal::Create)
 
 Factory::Factory() {
 	std::fill(methodArray_, methodArray_ + ObjectType::size(), nullptr);

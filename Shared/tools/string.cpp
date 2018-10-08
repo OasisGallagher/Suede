@@ -3,30 +3,43 @@
 
 #define HEADING_LENGTH			48
 
+// https://github.com/FooBarWidget/boyer-moore-horspool
+// https://softwareengineering.stackexchange.com/questions/183725/which-string-search-algorithm-is-actually-the-fastest
+// 
+// Boyer-Moore: 
+//   works by pre-analyzing the pattern and comparing from right-to-left. 
+//   If a mismatch occurs, the initial analysis is used to determine how far
+//   the pattern can be shifted w.r.t. the text being searched. This works 
+//   particularly well for long search patterns. In particular, it can be 
+//   sub-linear, as you do not need to read every single character of your text.
+// Knuth-Morris-Pratt: 
+//   also pre-analyzes the pattern, but tries to re-use whatever was already
+//   matched in the initial part of the pattern to avoid having to rematch that. 
+//   This can work quite well, if your alphabet is small (f.ex. DNA bases), as 
+//   you get a higher chance that your search patterns contain reuseable subpatterns.
 BoyerMoor::BoyerMoor(const char* needle, size_t length) {
 	// initialize a table of UCHAR_MAX+1 elements to value needle_length
-	occ.assign(UCHAR_MAX + 1, length);
+	occ_.assign(UCHAR_MAX + 1, length);
 	needle_.assign(needle, needle + length);
 
 	// Populate it with the analysis of the needle.
 	// But ignoring the last letter.
 	if (length >= 1) {
 		const size_t needle_length_minus_1 = length - 1;
-		for (size_t a = 0; a < needle_length_minus_1; ++a) {
-			occ[(unsigned char)needle[a]] = needle_length_minus_1 - a;
+		for (size_t i = 0; i < needle_length_minus_1; ++i) {
+			occ_[(unsigned char)needle[i]] = needle_length_minus_1 - i;
 		}
 	}
 }
 
 size_t BoyerMoor::Search(const char* haystack, size_t length) {
-	if (needle_.length() > length) return length;
+	if (needle_.length() > length) { return length; }
 	if (needle_.length() == 1) {
-		const char* result = (const char*)std::memchr(haystack, *needle_.c_str(), length);
+		const char* result = (const char*)memchr(haystack, *needle_.c_str(), length);
 		return result ? size_t(result - haystack) : length;
 	}
 
 	const size_t needle_length_minus_1 = needle_.length() - 1;
-
 	const char last_needle_char = needle_[needle_length_minus_1];
 
 	size_t haystack_position = 0;
@@ -43,7 +56,7 @@ size_t BoyerMoor::Search(const char* haystack, size_t length) {
 			return haystack_position;
 		}
 
-		haystack_position += occ[(unsigned char)occ_char];
+		haystack_position += occ_[(unsigned char)occ_char];
 	}
 
 	return length;
@@ -84,14 +97,14 @@ bool String::ToBool(const std::string& str) {
 	return ans;
 }
 
-bool String::ToBool(const std::string& str, bool* boolean) {
+bool String::ToBool(const std::string& str, bool* value) {
 	if (str == "true") {
-		if (boolean != nullptr) *boolean = true;
+		if (value != nullptr) *value = true;
 		return true;
 	}
 
 	if (str == "false") {
-		if (boolean != nullptr) *boolean = false;
+		if (value != nullptr) *value = false;
 		return true;
 	}
 
@@ -104,7 +117,7 @@ int String::ToInteger(const std::string& str) {
 	return ans;
 }
 
-bool String::ToInteger(const std::string& str, int* integer) {
+bool String::ToInteger(const std::string& str, int* value) {
 	if (str.empty() || ((!IsDigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
 		return false;
 	}
@@ -119,22 +132,22 @@ bool String::ToInteger(const std::string& str, int* integer) {
 	}
 	
 	int ans = strtol(ptr, &p, base);
-	if (integer != nullptr) {
-		*integer = ans;
+	if (value != nullptr) {
+		*value = ans;
 	}
 
 	return (*p == 0);
 }
 
-bool String::ToFloat(const std::string& str, float* single) {
+bool String::ToFloat(const std::string& str, float* value) {
 	if (str.empty() || ((!IsDigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
 		return false;
 	}
 
 	char* p = nullptr;
 	float ans = strtof(str.c_str(), &p);
-	if (single != nullptr) {
-		*single = ans;
+	if (value != nullptr) {
+		*value = ans;
 	}
 
 	return (*p == 0 || *p == 'f' || *p == 'F');

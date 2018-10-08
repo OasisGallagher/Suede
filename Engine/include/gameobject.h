@@ -88,8 +88,8 @@ std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
 
 #define SUEDE_COMPONENT_SPECIALIZATION(T) \
 	template <> \
-	inline std::shared_ptr<I ## T> IGameObject::AddComponent() { \
-		return suede_dynamic_cast<T>(AddComponent(I ## T::GetComponentGUID())); \
+	inline std::shared_ptr<T::element_type> IGameObject::AddComponent() { \
+		return suede_dynamic_cast<T>(AddComponent(T::element_type::GetComponentGUID())); \
 	}
 
 SUEDE_COMPONENT_SPECIALIZATION(Transform)

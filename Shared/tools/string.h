@@ -14,7 +14,7 @@ public:
 
 private:
 	std::string needle_;
-	std::vector<size_t> occ;
+	std::vector<size_t> occ_;
 };
 
 class SUEDE_API String {
@@ -28,12 +28,12 @@ public:
 	static bool EndsWith(const std::string&str, const std::string& suffix);
 
 	static bool ToBool(const std::string& str);
-	static bool ToBool(const std::string& str, bool* boolean);
+	static bool ToBool(const std::string& str, bool* value);
 
 	static int ToInteger(const std::string& str);
-	static bool ToInteger(const std::string& str, int* integer);
+	static bool ToInteger(const std::string& str, int* value);
 	static float ToFloat(const std::string& str);
-	static bool ToFloat(const std::string& str, float* single);
+	static bool ToFloat(const std::string& str, float* value);
 
 	static bool IsBlankText(const char* text, const char** pos = nullptr);
 

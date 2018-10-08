@@ -9,7 +9,7 @@
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-#define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(I ## T::GetComponentGUID()))
+#define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()))
 
 GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
 }
