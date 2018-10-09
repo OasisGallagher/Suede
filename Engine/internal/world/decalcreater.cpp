@@ -97,7 +97,6 @@ bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, G
 	for (SubMesh subMesh : mesh->GetSubMeshes()) {
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
-		// SUEDE TODO: use triangle strip?
 		for (int j = 0; j < bias.indexCount; j += 3) {
 			std::vector<glm::vec3> polygon;
 			uint index0 = indexes[bias.baseIndex + j] + bias.baseVertex;

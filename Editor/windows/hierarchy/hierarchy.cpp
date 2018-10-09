@@ -58,8 +58,8 @@ QList<GameObject> Hierarchy::selectedGameObjects() {
 	return gameObjects;
 }
 
-void Hierarchy::OnWorldEvent(WorldEventBasePointer entit) {
-	GameObjectEventPointer eep = suede_static_cast<GameObjectEventPointer>(entit);
+void Hierarchy::OnWorldEvent(WorldEventBasePtr entit) {
+	GameObjectEventPtr eep = suede_static_cast<GameObjectEventPtr>(entit);
 	switch (entit->GetEventType()) {
 //		case WorldEventType::GameObjectCreated:
 //			onGameObjectCreated(eep->go);

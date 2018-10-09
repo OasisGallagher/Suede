@@ -1,7 +1,7 @@
 #pragma once
 
 // SUEDE TODO: Thread safe.
-// uncomment these two line will bring ZThread out....
+// uncomment these two line will take ZThread out....
 //#include "../3rdparty/zthread-2.3.2/include/ZThread/Guard.h"
 //#include "../3rdparty/zthread-2.3.2/include/ZThread/FastMutex.h"
 

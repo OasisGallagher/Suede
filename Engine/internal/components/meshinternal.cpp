@@ -42,14 +42,12 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
-	if (vboCount == 0) {
+	if (vboCount == 1) {
 		Debug::LogWarning("empty mesh attribute.");
 		return;
 	}
 
-	// SUEDE TODO: update vbo instead.
 	storage_->vao.CreateVertexBuffers(vboCount);
-
 	storage_->vao.Bind();
 
 	uint vboIndex = 0;
@@ -60,10 +58,12 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 		storage_->bufferIndexes[VertexBuffer] = vboIndex++;
 	}
 
-	if (!attribute.texCoords.empty()) {
-		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.texCoords, GL_STATIC_DRAW);
-		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribTexCoord, 2, GL_FLOAT, false, 0, 0);
-		++vboIndex;
+	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+		if (!attribute.texCoords[i].empty()) {
+			storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.texCoords[i], GL_STATIC_DRAW);
+			storage_->vao.SetVertexDataSource(vboIndex, VertexAttribTexCoord0 + i, 2, GL_FLOAT, false, 0, 0);
+			++vboIndex;
+		}
 	}
 
 	if (!attribute.normals.empty()) {
@@ -107,10 +107,15 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 }
 
 int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
-	int count = 0;
+	int count = 1;	// for VertexAttribMatrixOffset.
 	count += int(!attribute.positions.empty());
+	
+	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+		count += int(!attribute.texCoords[i].empty());
+	}
+
 	count += int(!attribute.normals.empty());
-	count += int(!attribute.texCoords.empty());
+
 	count += int(!attribute.tangents.empty());
 	count += int(!attribute.blendAttrs.empty());
 	count += int(!attribute.indexes.empty());
@@ -262,7 +267,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 
 	uint cap = 6 * wtext.length();
 	attribute.positions.reserve(cap);
-	attribute.texCoords.reserve(cap);
+	attribute.texCoords[0].reserve(cap);
 	attribute.indexes.reserve(cap);
 
 	uint x = 0;
@@ -281,13 +286,13 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / -2.f, 0));
 		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / 2.f, 0));
 
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.xy));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.zy));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.xw));
+		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.xy));
+		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.zy));
+		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.xw));
 
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.xw));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.zy));
-		attribute.texCoords.push_back(glm::vec2(info.texCoord.zw));
+		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.xw));
+		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.zy));
+		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.zw));
 
 		x += info.width;
 		x += space;

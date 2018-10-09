@@ -133,7 +133,7 @@ void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	gameObjects_.erase(go->GetInstanceID());
 	go->GetTransform()->SetParent(nullptr);
 
-	GameObjectDestroyedEventPointer e = NewWorldEvent<GameObjectDestroyedEventPointer>();
+	GameObjectDestroyedEventPtr e = NewWorldEvent<GameObjectDestroyedEventPtr>();
 	e->go = go;
 	FireEvent(e);
 
@@ -193,7 +193,7 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 	}
 }
 
-void WorldInternal::FireEvent(WorldEventBasePointer e) {
+void WorldInternal::FireEvent(WorldEventBasePtr e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[(int)type];
 
@@ -201,7 +201,7 @@ void WorldInternal::FireEvent(WorldEventBasePointer e) {
 	collection.push_back(e);
 }
 
-void WorldInternal::FireEventImmediate(WorldEventBasePointer e) {
+void WorldInternal::FireEventImmediate(WorldEventBasePtr e) {
 	for (WorldEventListener* listener : listeners_) {
 		listener->OnWorldEvent(e);
 	}
@@ -264,19 +264,19 @@ bool WorldInternal::WalkGameObjectHierarchyRecursively(Transform root, WorldGame
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 }
 
-void WorldInternal::OnWorldEvent(WorldEventBasePointer e) {
+void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::CameraDepthChanged:
 			cameras_.sort();
 			break;
 		case WorldEventType::GameObjectParentChanged:
-			OnGameObjectParentChanged(suede_static_cast<GameObjectEventPointer>(e)->go);
+			OnGameObjectParentChanged(suede_static_cast<GameObjectEventPtr>(e)->go);
 			break;
 		case WorldEventType::GameObjectUpdateStrategyChanged:
-			ManageGameObjectUpdateSequence(suede_static_cast<GameObjectEventPointer>(e)->go);
+			ManageGameObjectUpdateSequence(suede_static_cast<GameObjectEventPtr>(e)->go);
 			break;
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(suede_static_cast<GameObjectComponentChangedEventPointer>(e));
+			OnGameObjectComponentChanged(suede_static_cast<GameObjectComponentChangedEventPtr>(e));
 			break;
 	}
 }
@@ -287,7 +287,7 @@ void WorldInternal::AddObject(Object object) {
 		GameObject go = suede_dynamic_cast<GameObject>(object);
 		go->AddComponent<ITransform>();
 
-		GameObjectCreatedEventPointer e = NewWorldEvent<GameObjectCreatedEventPointer>();
+		GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
 		e->go = go;
 		FireEvent(e);
 
@@ -305,7 +305,7 @@ void WorldInternal::OnGameObjectParentChanged(GameObject go) {
 	}
 }
 
-void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPointer e) {
+void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
 	ManageGameObjectUpdateSequence(e->go);
 	ManageGameObjectComponents(lights_, e->component, e->added);
 	ManageGameObjectComponents(cameras_, e->component, e->added);
@@ -316,14 +316,14 @@ void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent
 void WorldInternal::FireEvents() {
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 
-	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
-		for (WorldEventBasePointer pointer : events_[i]) {
+	for (WorldEventCollection& collection : events_) {
+		for (WorldEventBasePtr pointer : collection) {
 			FireEventImmediate(pointer);
 		}
 	}
 
-	for (uint i = 0; i < (int)WorldEventType::_Count; ++i) {
-		events_[i].clear();
+	for (WorldEventCollection& collection : events_) {
+		collection.clear();
 	}
 }
 

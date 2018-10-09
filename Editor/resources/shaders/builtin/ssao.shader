@@ -16,13 +16,13 @@ SubShader {
 		#include "builtin/include/suede.inc"
 
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 
 	//	out vec2 viewRay;
 		out vec2 texCoord;
 
 		void main() {
-			texCoord = _TexCoord;
+			texCoord = _TexCoord0;
 			//viewRay = vec2(_Pos.x * _ProjParams.z * _ProjParams.w, _Pos.y * _ProjParams.w);
 			gl_Position = vec4(_Pos, 1);
 		}

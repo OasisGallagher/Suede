@@ -47,7 +47,7 @@ private slots:
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-	virtual void OnWorldEvent(WorldEventBasePointer e);
+	virtual void OnWorldEvent(WorldEventBasePtr e);
 
 private:
 	void appendChildItem(GameObject go);

@@ -11,7 +11,7 @@ SubShader {
 
 		#stage vertex
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 		in vec3 _Normal;
 		
 		out vec2 texCoord;
@@ -22,7 +22,7 @@ SubShader {
 		#include "builtin/include/lit_vertex.inc"
 
 		void main() {
-			texCoord = _TexCoord;
+			texCoord = _TexCoord0;
 
 			normal = transpose(inverse(mat3(_LocalToWorldMatrix))) * _Normal;
 			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;

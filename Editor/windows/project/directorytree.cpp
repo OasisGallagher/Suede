@@ -112,6 +112,7 @@ QList<QStandardItem*> DirectoryTree::findItemsAlongPath(const QString& path) {
 			list.push_back(item);
 		}
 
+		// item not found.
 		if (item == nullptr) {
 			list.clear();
 			break;

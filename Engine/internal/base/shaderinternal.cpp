@@ -282,7 +282,11 @@ std::string Pass::LoadSource(ShaderStage stage, const char* source) {
 
 void Pass::UpdateVertexAttributes() {
 	GL::BindAttribLocation(program_, VertexAttribPosition, "_Pos");
-	GL::BindAttribLocation(program_, VertexAttribTexCoord, "_TexCoord");
+
+	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+		GL::BindAttribLocation(program_, VertexAttribTexCoord0 + i, ("_TexCoord" + std::to_string(i)).c_str());
+	}
+
 	GL::BindAttribLocation(program_, VertexAttribNormal, "_Normal");
 	GL::BindAttribLocation(program_, VertexAttribTangent, "_Tangent");
 	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, "_BoneIndexes");
@@ -290,11 +294,6 @@ void Pass::UpdateVertexAttributes() {
 
 	GL::BindAttribLocation(program_, VertexAttribInstanceColor, "_InstanceColor");
 	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, "_InstanceGeometry");
-
-	// https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
-	// SUEDE TODO: layout(location) must be set explicitly for glVertexAttrib* usage?
-	// int location = glGetAttribLocation(program_, BuiltinProperties::MatrixBuffer);
-	// GL::BindAttribLocation(program_, VertexAttribMatrixOffset, BuiltinProperties::MatrixTextureBuffer);
 }
 
 void Pass::UpdateFragmentAttributes() {

@@ -1,7 +1,7 @@
 #ifndef _SUEDE_INCLUDED
 #define _SUEDE_INCLUDED
 
-// --------- Shared Uniform Buffers ---------
+// ========= Shared Uniform Buffers =========
 layout(std140) uniform SharedTimeUniformBuffer {
 	float _Time;
 	float _DeltaTime;
@@ -27,11 +27,10 @@ layout(std140) uniform SharedTransformsUniformBuffer {
 	vec4 _ScreenParams;
 };
 
-// --------- Uniforms ---------
+// ========= Uniforms =========
 #ifdef _VERTEX_SHADER
 
-// 8 matches VertexAttribMatrixOffset.
-layout(location = 8) in int _MatrixTextureBufferOffset;
+in int _MatrixTextureBufferOffset;
 uniform samplerBuffer _MatrixTextureBuffer;
 
 #define __F(offset)	texelFetch(_MatrixTextureBuffer, _MatrixTextureBufferOffset + gl_InstanceID * 8 + offset)
@@ -45,13 +44,13 @@ uniform samplerBuffer _MatrixTextureBuffer;
 
 #endif	// _FRAGMENT_SHADER
 
-// --------- Functions ---------
+// ========= Functions =========
 
 float saturate(float x) {
     return clamp(x, 0, 1);
 }
 
-// --------- Vertex Shader Functions 
+// --------- Vertex Shader Functions ---------
 
 #ifdef _VERTEX_SHADER
 #define _TANGENT_SPACE_ROTATION(mat) \
@@ -65,7 +64,7 @@ float saturate(float x) {
 		mat3 variableName; \
 		_TANGENT_SPACE_ROTATION(variableName)
 		
-#endif
+#endif	// _VERTEX_SHADER
 
 // --------- Fragment Shader Functions ---------
 #ifdef _FRAGMENT_SHADER

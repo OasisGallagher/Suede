@@ -127,6 +127,9 @@ void InitializeGLLimits() {
 			case GLLimitsMaxUniformBufferBindings:
 				GL::GetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &value);
 				break;
+			case GLLimitsMaxVertexAttribs:
+				GL::GetIntegerv(GL_MAX_VERTEX_ATTRIBS, &value);
+				break;
 			case GLLimitsMaxUniformBlockSize:
 				GL::GetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &value);
 				break;

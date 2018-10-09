@@ -81,7 +81,7 @@ void CameraInternal::CancelThreads() {
 void CameraInternal::SetDepth(int value) {
 	if (depth_ != value) {
 		depth_ = value;
-		CameraDepthChangedEventPointer e = NewWorldEvent<CameraDepthChangedEventPointer>();
+		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
 		e->component = SharedThis();
 		World::instance()->FireEvent(e);
 	}
@@ -106,7 +106,7 @@ void CameraInternal::Render() {
 		rendering_->Render(traits0_->GetPipelines(), matrices);
 	}
 	else {
-		// SUEDE TODO: first frame not ready.
+		// Debug::Log("Waiting for first frame...");
 	}
 }
 

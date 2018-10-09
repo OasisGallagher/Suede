@@ -56,7 +56,7 @@ SubShader {
 
 		#stage vertex
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 		in vec3 _Normal;
 		
 		out vec2 texCoord;
@@ -69,7 +69,7 @@ SubShader {
 		uniform mat4 _LocalToWorldMatrix;
 
 		void main() {
-			texCoord = _TexCoord;
+			texCoord = _TexCoord0;
 
 			normal = (_LocalToWorldMatrix * vec4(_Normal, 0)).xyz;
 			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;

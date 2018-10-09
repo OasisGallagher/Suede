@@ -12,7 +12,7 @@ SubShader {
 		#stage vertex
 
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 		in vec3 _Normal;
 
 		uniform mat4 _LocalToClipMatrix;
@@ -27,7 +27,7 @@ SubShader {
 		void main() {
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 			vo.worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
-			vo.texCoord = _TexCoord;
+			vo.texCoord = _TexCoord0;
 
 			mat3 m = inverse(transpose(mat3(_LocalToWorldMatrix)));
 			vo.worldNormal = m * _Normal;

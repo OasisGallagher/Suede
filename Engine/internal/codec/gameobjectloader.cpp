@@ -173,7 +173,7 @@ void GameObjectLoader::LoadChildren(GameObject go, aiNode* node, Mesh& surface, 
 }
 
 void GameObjectLoader::ReserveMemory(MeshAsset& meshAsset) {
-	int indexCount = 0, vertexCount = 0;
+	uint indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
 		vertexCount += scene_->mMeshes[i]->mNumVertices;
@@ -181,7 +181,11 @@ void GameObjectLoader::ReserveMemory(MeshAsset& meshAsset) {
 
 	meshAsset.positions.reserve(vertexCount);
 	meshAsset.normals.reserve(vertexCount);
-	meshAsset.texCoords.reserve(vertexCount);
+
+	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+		meshAsset.texCoords[i].reserve(vertexCount);
+	}
+
 	meshAsset.tangents.reserve(vertexCount);
 	meshAsset.indexes.reserve(indexCount);
 	meshAsset.blendAttrs.resize(vertexCount);
@@ -212,28 +216,32 @@ bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubM
 void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
-	// SUEDE TODO: multiple texture coords?
-	for (int i = 1; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
-		// GetNumUVChannels() > 1.
-		if (aimesh->HasTextureCoords(i)) {
-			Debug::LogWarning("multiple texture coordinates");
-		}
-	}
-
-	const aiVector3D zero(0);
-
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
 		glm::vec3 pos = AIVector3ToGLM(aimesh->mVertices[i]);
 		glm::vec3 normal = AIVector3ToGLM(aimesh->mNormals[i]);
 
-		const aiVector3D* texCoord = aimesh->HasTextureCoords(0) ? &(aimesh->mTextureCoords[0][i]) : &zero;
-		const aiVector3D* tangent = (aimesh->mTangents != nullptr) ? &aimesh->mTangents[i] : &zero;
+		for (int j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j) {
+			if (!aimesh->HasTextureCoords(j)) {
+				continue;
+			}
+
+			if (j > MeshAttribute::TexCoordsCount) {
+				Debug::LogWarning("only %d texture coordinates are supported.", MeshAttribute::TexCoordsCount);
+				break;
+			}
+
+			const aiVector3D& v3 = aimesh->mTextureCoords[j][i];
+			meshAsset.texCoords[j].push_back(glm::vec2(v3.x, v3.y));
+		}
+
+		if (aimesh->mTangents != nullptr) {
+			const aiVector3D& v3 = aimesh->mTangents[i];
+			meshAsset.tangents.push_back(glm::vec3(v3.x, v3.y, v3.z));
+		}
 
 		meshAsset.positions.push_back(pos);
 		meshAsset.normals.push_back(normal);
-		meshAsset.texCoords.push_back(glm::vec2(texCoord->x, texCoord->y));
-		meshAsset.tangents.push_back(glm::vec3(tangent->x, tangent->y, tangent->z));
 
 		min = glm::min(min, pos);
 		max = glm::max(max, pos);
@@ -554,7 +562,7 @@ GameObject GameObjectLoaderThreadPool::Import(const std::string& path) {
 
 bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path) {
 	if (!go) {
-		Debug::LogError("invalid go");
+		Debug::LogError("invalid gameObject");
 		return false;
 	}
 

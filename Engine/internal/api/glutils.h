@@ -7,6 +7,8 @@ enum GLLimits {
 	GLLimitsMaxUniformBlockSize,
 	GLLimitsMaxUniformBufferBindings,
 
+	GLLimitsMaxVertexAttribs,
+
 	// https://www.khronos.org/opengl/wiki/Common_Mistakes#Texture_Unit
 	// number of texture units was introduced as well which you can get with
 	// you should not use the above because it will give a low number on modern GPUs.

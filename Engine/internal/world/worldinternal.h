@@ -43,8 +43,8 @@ public:
 
 	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	virtual void FireEvent(WorldEventBasePointer e);
-	virtual void FireEventImmediate(WorldEventBasePointer e);
+	virtual void FireEvent(WorldEventBasePtr e);
+	virtual void FireEventImmediate(WorldEventBasePtr e);
 	virtual void AddEventListener(WorldEventListener* listener);
 	virtual void RemoveEventListener(WorldEventListener* listener);
 
@@ -54,13 +54,13 @@ public:
 	virtual void OnScreenSizeChanged(uint width, uint height);
 
 public:
-	virtual void OnWorldEvent(WorldEventBasePointer e);
+	virtual void OnWorldEvent(WorldEventBasePtr e);
 
 private:
 	void AddObject(Object object);
 
 	void OnGameObjectParentChanged(GameObject go);
-	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPointer e);
+	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
 
 	template <class Container>
 	void ManageGameObjectComponents(Container& container, Component component, bool added);
@@ -92,7 +92,7 @@ private:
 	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
-	typedef std::vector<WorldEventBasePointer> WorldEventCollection;
+	typedef std::vector<WorldEventBasePtr> WorldEventCollection;
 	typedef WorldEventCollection WorldEventContainer[(int)WorldEventType::_Count];
 
 private:

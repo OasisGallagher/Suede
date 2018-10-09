@@ -57,11 +57,15 @@ enum class MeshTopology {
 };
 
 struct MeshAttribute {
+	enum {
+		TexCoordsCount = 4,
+	};
+
 	MeshTopology topology;
 
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;
-	std::vector<glm::vec2> texCoords;
+	std::vector<glm::vec2> texCoords[TexCoordsCount];
 	std::vector<glm::vec3> tangents;
 	std::vector<BlendAttribute> blendAttrs;
 	std::vector<uint> indexes;

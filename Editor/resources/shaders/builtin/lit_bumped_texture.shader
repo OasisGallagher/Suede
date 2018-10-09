@@ -11,7 +11,7 @@ SubShader {
 		GLSLPROGRAM
 		#stage vertex
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 		in vec3 _Normal;
 		in vec3 _Tangent;
 
@@ -23,7 +23,7 @@ SubShader {
 		#include "builtin/include/lit_vertex.inc"
 
 		void main() {
-			texCoord = _TexCoord;
+			texCoord = _TexCoord0;
 			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 
 			_CALC_FOG_PARAMS();

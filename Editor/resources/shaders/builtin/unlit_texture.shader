@@ -10,12 +10,12 @@ SubShader {
 		#include "builtin/include/suede.inc"
 
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 
 		out vec2 texCoord;
 
 		void main() {
-			texCoord = _TexCoord;
+			texCoord = _TexCoord0;
 			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
 		}
 

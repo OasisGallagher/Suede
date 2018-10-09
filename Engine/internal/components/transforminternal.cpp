@@ -96,7 +96,7 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 		DirtyChildrenScales();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(2, 0);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -112,7 +112,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 		DirtyChildrenPositions();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(0, 0);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -130,7 +130,7 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 0);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -147,7 +147,7 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 0);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -272,7 +272,7 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 		DirtyChildrenScales();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(2, 1);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -287,7 +287,7 @@ void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 		DirtyChildrenPositions();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(0, 1);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -303,7 +303,7 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 1);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -319,7 +319,7 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_.lock()->RecalculateBounds();
 
-		GameObjectTransformChangedEventPointer e = NewWorldEvent<GameObjectTransformChangedEventPointer>();
+		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 1);
 		e->go = gameObject_.lock();
 		World::instance()->FireEvent(e);
@@ -567,7 +567,7 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	SetDirty(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
 	if (IsAttachedToScene()) {
-		GameObjectParentChangedEventPointer e = NewWorldEvent<GameObjectParentChangedEventPointer>();
+		GameObjectParentChangedEventPtr e = NewWorldEvent<GameObjectParentChangedEventPtr>();
 		e->go = thisSp->GetGameObject();
 		World::instance()->FireEvent(e);
 	}

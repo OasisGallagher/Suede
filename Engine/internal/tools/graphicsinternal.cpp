@@ -82,7 +82,7 @@ Mesh GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 		glm::vec3(1.f, 1.f, 0.f),
 	});
 
-	attribute.texCoords.assign({
+	attribute.texCoords[0].assign({
 		rect.GetLeftBottom(),
 		rect.GetRightBottom(),
 		rect.GetLeftTop(),

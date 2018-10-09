@@ -9,7 +9,7 @@ SubShader {
 		#stage vertex
 
 		in vec3 _Pos;
-		in vec2 _TexCoord;
+		in vec2 _TexCoord0;
 		in vec3 _Normal;
 
 		in ivec4 _BoneIndexes;
@@ -30,7 +30,7 @@ SubShader {
 			mat += _BoneToRootMatrices[_BoneIndexes[2]] * _BoneWeights[2];
 			mat += _BoneToRootMatrices[_BoneIndexes[3]] * _BoneWeights[3];
 
-			texCoord = _TexCoord;
+			texCoord = _TexCoord0;
 
 			normal = (_LocalToWorldMatrix * mat * vec4(_Normal, 0)).xyz;
 			worldPos = (_LocalToWorldMatrix * mat * vec4(_Pos, 1)).xyz;

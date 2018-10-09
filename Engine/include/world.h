@@ -23,17 +23,17 @@ enum class WorldEventType {
 	_Count,
 };
 
-#define DEFINE_WORLD_EVENT_POINTER(type)	typedef std::shared_ptr<struct type> type ## Pointer
+#define DEFINE_WORLD_EVENT_PTR(type)	typedef std::shared_ptr<struct type> type ## Ptr
 
 template <class Ptr, class... Args>
 Ptr NewWorldEvent(Args... args) { return std::make_shared<Ptr::element_type>(args...); }
 
-DEFINE_WORLD_EVENT_POINTER(WorldEventBase);
+DEFINE_WORLD_EVENT_PTR(WorldEventBase);
 struct WorldEventBase {
 	virtual WorldEventType GetEventType() const = 0;
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
 
 struct GameObjectEvent : public WorldEventBase {
 	GameObject go;
@@ -44,19 +44,19 @@ struct ComponentEvent : public WorldEventBase {
 	T component;
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
 
 struct GameObjectCreatedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectCreated; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectCreatedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectCreatedEvent);
 
 struct GameObjectDestroyedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectDestroyed; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectDestroyedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectDestroyedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
@@ -65,7 +65,7 @@ struct GameObjectParentChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectParentChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectParentChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectParentChangedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
@@ -74,7 +74,7 @@ struct GameObjectActiveChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectActiveChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectActiveChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectActiveChangedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
@@ -83,7 +83,7 @@ struct GameObjectTagChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTagChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectTagChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectTagChangedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
@@ -92,13 +92,13 @@ struct GameObjectNameChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectNameChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectNameChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectNameChangedEvent);
 
 struct GameObjectUpdateStrategyChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectUpdateStrategyChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectUpdateStrategyChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectUpdateStrategyChangedEvent);
 
 struct GameObjectComponentChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectComponentChanged; }
@@ -107,15 +107,15 @@ struct GameObjectComponentChangedEvent : public GameObjectEvent {
 	Component component;
 };
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectComponentChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectComponentChangedEvent);
 
 struct CameraDepthChangedEvent : ComponentEvent<Camera> {
 	virtual WorldEventType GetEventType() const { return WorldEventType::CameraDepthChanged; }
 };
 
-DEFINE_WORLD_EVENT_POINTER(CameraDepthChangedEvent);
+DEFINE_WORLD_EVENT_PTR(CameraDepthChangedEvent);
 
-DEFINE_WORLD_EVENT_POINTER(GameObjectTransformChangedEvent);
+DEFINE_WORLD_EVENT_PTR(GameObjectTransformChangedEvent);
 struct GameObjectTransformChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTransformChanged; }
 
@@ -128,7 +128,7 @@ struct GameObjectTransformChangedEvent : public GameObjectEvent {
 
 class WorldEventListener {
 public:
-	virtual void OnWorldEvent(WorldEventBasePointer e) = 0;
+	virtual void OnWorldEvent(WorldEventBasePtr e) = 0;
 };
 
 enum class WalkCommand {
@@ -164,8 +164,8 @@ public:
 	virtual GameObject GetGameObject(uint id) = 0;
 	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker) = 0;
 
-	virtual void FireEvent(WorldEventBasePointer e) = 0;
-	virtual void FireEventImmediate(WorldEventBasePointer e) = 0;
+	virtual void FireEvent(WorldEventBasePtr e) = 0;
+	virtual void FireEventImmediate(WorldEventBasePtr e) = 0;
 	virtual void AddEventListener(WorldEventListener* listener) = 0;
 	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
 

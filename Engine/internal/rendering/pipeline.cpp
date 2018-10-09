@@ -222,7 +222,7 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	samples_.switch_state->Stop();
 
 	samples_.update_offset->Start();
-	GL::VertexAttribI1i(VertexAttribMatrixOffset, matrixOffset);
+	GL::VertexAttribI1i(VertexAttribMatrixTextureBufferOffset, matrixOffset);
 	samples_.update_offset->Stop();
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();

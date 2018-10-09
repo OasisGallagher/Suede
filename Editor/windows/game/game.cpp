@@ -35,7 +35,7 @@
 #include "scripts/selectiongizmos.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
@@ -45,11 +45,11 @@
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
-#define BUMPED
+//#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "room.fbx";
+static const char* roomFbxPath = "house.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 

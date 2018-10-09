@@ -50,7 +50,7 @@ bool GameObjectInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		FireWorldEvent<GameObjectTagChangedEventPointer>(true);
+		FireWorldEvent<GameObjectTagChangedEventPtr>(true);
 	}
 
 	return true;
@@ -70,7 +70,7 @@ Component GameObjectInternal::AddComponent(Component component) {
 		RecalculateBounds();
 	}
 
-	auto e = NewWorldEvent<GameObjectComponentChangedEventPointer>();
+	auto e = NewWorldEvent<GameObjectComponentChangedEventPtr>();
 	e->go = SharedThis();
 	e->added = true;
 	e->component = component;
@@ -108,7 +108,7 @@ void GameObjectInternal::SetName(const std::string& value) {
 
 	if (name_ != value) {
 		name_ = value;
-		FireWorldEvent<GameObjectNameChangedEventPointer>(true);
+		FireWorldEvent<GameObjectNameChangedEventPtr>(true);
 	}
 }
 
@@ -154,7 +154,7 @@ void GameObjectInternal::RecalculateUpdateStrategy() {
 void GameObjectInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
-		FireWorldEvent<GameObjectActiveChangedEventPointer>(true);
+		FireWorldEvent<GameObjectActiveChangedEventPtr>(true);
 	}
 }
 
@@ -311,7 +311,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy() {
 			current = parent;
 		}
 
-		GameObjectUpdateStrategyChangedEventPointer e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPointer>();
+		GameObjectUpdateStrategyChangedEventPtr e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPtr>();
 		e->go = SharedThis();
 		World::instance()->FireEvent(e);
 

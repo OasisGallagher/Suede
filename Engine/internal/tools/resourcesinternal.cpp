@@ -79,7 +79,7 @@ void ResourcesInternal::GetQuadMeshAttribute(MeshAttribute& attribute, float sca
 		glm::vec3(0.5f * scale,  0.5f * scale, 0.f),
 	});
 
-	attribute.texCoords.assign({
+	attribute.texCoords[0].assign({
 		glm::vec2(0.f, 0.f),
 		glm::vec2(1.f, 0.f),
 		glm::vec2(0.f, 1.f),
@@ -108,7 +108,7 @@ void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float sca
 		glm::vec3(0.408248f, -0.408248f, 0.816497f)
 	});
 
-	attribute.texCoords.assign({
+	attribute.texCoords[0].assign({
 		glm::vec2(0.f, 1.f),
 		glm::vec2(1.f, 1.f),
 		glm::vec2(0.f, 1.f),
