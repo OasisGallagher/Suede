@@ -14,6 +14,8 @@
 #include "../tools/tagmanagerinternal.h"
 #include "../tools/statisticsinternal.h"
 
+#include "../lua/wrappers/luaconfig.h"
+
 static void OnTerminate() {
 	Debug::Break();
 }
@@ -61,17 +63,44 @@ bool EngineInternal::Startup(uint width, uint height) {
 
 	World::implement(new WorldInternal);
 	World::instance()->Initialize();
+
+	luaL_Reg lualibs[] = {
+		{ "Suede", Lua::configure },
+		{ nullptr, nullptr }
+	};
+
+	L = luaL_newstate();
+	Lua::initialize(L, lualibs, "resources/lua/main.lua");
+
+// 	for (;;) {
+// 		lua_getfield(L, -1, "update");
+// 		lua_call(L, 0, 0);
+// 	}
+
+	return true;
 }
 
 void EngineInternal::Shutdown() {
 	World::instance()->Finalize();
+	lua_close(L);
+	L = nullptr;
 }
 
 void EngineInternal::Update() {
+	LuaUpdate();
+
+
 	SortFrameEventListeners();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
 	World::instance()->RenderingUpdate();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameLeave);
+}
+
+void EngineInternal::LuaUpdate() {
+	lua_getglobal(L, "SuedeGlobal");
+	lua_getfield(L, -1, "update");
+	lua_call(L, 0, 0);
+	lua_pop(L, 1);
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

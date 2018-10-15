@@ -1,6 +1,7 @@
 #include "engine.h"
 #include <vector>
 
+struct lua_State;
 class SUEDE_API EngineInternal : public Engine {
 public:
 	EngineInternal() {}
@@ -15,9 +16,13 @@ public:
 	virtual void RemoveFrameEventListener(FrameEventListener* listener);
 
 private:
+	void LuaUpdate();
 	void SortFrameEventListeners();
 
 private:
 	typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
 	FrameEventListenerContainer frameEventListeners_;
+
+private:
+	lua_State* L;
 };

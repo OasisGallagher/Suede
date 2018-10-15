@@ -98,7 +98,7 @@ public:
 	~TextureCubeInternal();
 
 public:
-	bool Load(const std::string (&textures)[6]);
+	bool Load(const std::string textures[6]);
 
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_CUBE_MAP; }

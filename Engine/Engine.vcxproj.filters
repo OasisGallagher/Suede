@@ -137,6 +137,9 @@
     <Filter Include="internal\lua">
       <UniqueIdentifier>{37dfc3b5-6f16-4e4e-87a8-365131c2d6c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\lua\wrappers">
+      <UniqueIdentifier>{b9958a7d-a2c5-4800-bb74-6dcc3a7403ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -460,8 +463,101 @@
     <ClInclude Include="include\ranged.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\lua\luastate.h">
+    <ClInclude Include="internal\lua\luax.h">
       <Filter>internal\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\animation_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\camera_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\component_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\engine_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\environment_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\font_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\light_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\luaconfig.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\material_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\mesh_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\object_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\particlesystem_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\plane_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\projector_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\rect_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\renderer_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\resources_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\screen_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\shader_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\statistics_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\tagmanager_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\texture_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\time2_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\transform_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\variant_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\world_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

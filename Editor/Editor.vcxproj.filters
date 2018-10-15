@@ -181,6 +181,9 @@
     <Filter Include="windows\project\src">
       <UniqueIdentifier>{b406efe5-64a6-4bfe-a1b3-6a5a70f1164e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resources\lua">
+      <UniqueIdentifier>{f8b24b1c-aa31-458f-ace8-99ef35976734}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scripts\cameracontroller.cpp">
@@ -761,6 +764,9 @@
     </None>
     <None Include="resources\shaders\builtin\normal_visualizer.shader">
       <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\lua\main.lua">
+      <Filter>resources\lua</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

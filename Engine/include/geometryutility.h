@@ -2,6 +2,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include "plane.h"
 #include "polygon.h"
 
 enum class PlaneSide {
@@ -11,7 +12,6 @@ enum class PlaneSide {
 	Spanning,
 };
 
-class Plane;
 class GeometryUtility {
 public:
 	static bool AARectContains(const glm::vec3& position, const glm::vec3& tl, const glm::vec3& rb);

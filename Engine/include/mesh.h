@@ -38,12 +38,8 @@ struct BlendAttribute {
 };
 
 struct InstanceAttribute {
-	InstanceAttribute(uint c = 0, uint d = 0) 
-		: count(c), divisor(d) {
-	}
-
-	uint count;
-	uint divisor;
+	uint count = 0;
+	uint divisor = 0;
 };
 
 enum class MeshTopology {

@@ -49,5 +49,7 @@ public:
 
 public:
 	static suede_guid GetComponentGUID() { return 0; }
-	virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID(); }
+	virtual bool IsComponentType(suede_guid guid) const {
+		return guid == GetComponentGUID();
+	}
 };

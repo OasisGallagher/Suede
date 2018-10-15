@@ -7,6 +7,8 @@
 
 ZThread::Mutex TransformInternal::hierarchyMutex;
 
+SUEDE_DEFINE_COMPONENT(ITransform, IComponent)
+
 TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform) {
 	local_.scale = world_.scale = glm::vec3(1);
 }

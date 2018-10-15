@@ -83,7 +83,7 @@ public:
 
 class SUEDE_API ITextureCube : virtual public ITexture {
 public:
-	virtual bool Load(const std::string(&textures)[6]) = 0;
+	virtual bool Load(const std::string textures[6]) = 0;
 };
 
 class SUEDE_API ITextureBuffer : virtual public ITexture {

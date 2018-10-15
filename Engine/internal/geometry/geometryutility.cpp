@@ -1,6 +1,5 @@
 #include <list>
 
-#include "plane.h"
 #include "tools/math2.h"
 #include "geometryutility.h"
 #include "containers/arraylist.h"

@@ -1174,6 +1174,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\lua\main.lua" />
     <None Include="resources\qss\style.qss" />
     <None Include="resources\shaders\builtin\blit.shader" />
     <None Include="resources\shaders\builtin\decal.shader" />

@@ -113,7 +113,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
-      <AdditionalDependencies>opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;ZThread.lib;pugixml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lua.lib;opengl32.lib;glew32.lib;assimp.lib;freetype.lib;FreeImage.lib;Shared.lib;GLEF.lib;ZThread.lib;pugixml.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
@@ -317,7 +317,38 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\gui\stb_rect_pack.h" />
     <ClInclude Include="internal\gui\stb_textedit.h" />
     <ClInclude Include="internal\gui\stb_truetype.h" />
-    <ClInclude Include="internal\lua\luastate.h" />
+    <ClInclude Include="internal\lua\luax.h" />
+    <ClInclude Include="internal\lua\wrappers\animation_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\camera_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\component_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\engine_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\environment_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\font_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\light_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\luaconfig.h" />
+    <ClInclude Include="internal\lua\wrappers\material_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\mesh_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\object_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\particlesystem_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\plane_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\projector_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\rect_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\renderer_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\resources_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\screen_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\shader_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\statistics_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\tagmanager_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\texture_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\time2_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\transform_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\variant_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\world_wrapper.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\rendering\matrixbuffer.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />

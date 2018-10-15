@@ -332,7 +332,7 @@ TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectType::Texture
 TextureCubeInternal::~TextureCubeInternal() {
 }
 
-bool TextureCubeInternal::Load(const std::string(&textures)[6]) {
+bool TextureCubeInternal::Load(const std::string textures[6]) {
 	TexelMap texelMaps[6];
 	for (int i = 0; i < 6; ++i) {
 		if (!ImageCodec::Decode(texelMaps[i], Resources::instance()->GetTextureDirectory() + textures[i])) {

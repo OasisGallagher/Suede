@@ -178,8 +178,12 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 }
 
 void ParticleSystemInternal::InitializeMesh() {
-	InstanceAttribute color(maxParticles_, 1);
-	InstanceAttribute geometry(maxParticles_, 1);
+	InstanceAttribute color; 
+	color.count = maxParticles_, color.divisor = 1;
+
+	InstanceAttribute geometry;
+	geometry.count = maxParticles_, geometry.divisor = 1;
+
 	MeshFilter meshFilter = GetGameObject()->GetComponent<IMeshFilter>();
 	meshFilter->SetMesh(
 		Resources::instance()->CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)

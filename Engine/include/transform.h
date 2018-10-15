@@ -17,6 +17,8 @@ SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
 class ITransform : virtual public IComponent {
+	SUEDE_DECLARE_COMPONENT()
+
 public:
 	typedef SuedeEnumerable<std::vector<Transform>::iterator> Enumerable;
 

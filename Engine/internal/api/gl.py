@@ -1,7 +1,7 @@
 ﻿import os;
 import sys;
 
-sys.path.append("../../Shared/generator");
+sys.path.append("../../../Shared/generator");
 import generator;
 
 class Argument:
@@ -26,8 +26,7 @@ class Method:
 			if i != 0: answer = answer + ", ";
 			answer += self._arguments[i].type + " " + self._arguments[i].value;
 
-		answer += ")"
-		answer = self._name + "(" + answer
+		answer = self._name + "(" + answer + ")";
 		return answer
 
 	def Def(self):
