@@ -8,21 +8,21 @@
 #include "internal/base/vertexarray.h"
 #include "internal/base/objectinternal.h"
 
-class SubMeshInternal : public ISubMesh, public ObjectInternal {
+class SubMeshInternal : public ObjectInternal {
 	DEFINE_FACTORY_METHOD(SubMesh)
 
 public:
 	SubMeshInternal();
 
 public:
-	virtual void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
-	virtual const TriangleBias& GetTriangleBias() const { return bias_; }
+	void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
+	const TriangleBias& GetTriangleBias() const { return bias_; }
 
 private:
 	TriangleBias bias_;
 };
 
-class MeshInternal : virtual public IMesh, public ObjectInternal {
+class MeshInternal : public ObjectInternal {
 	DEFINE_FACTORY_METHOD(Mesh)
 
 public:
@@ -31,34 +31,34 @@ public:
 	~MeshInternal();
 
 public:
-	virtual void CreateStorage();
-	virtual void SetAttribute(const MeshAttribute& value);
+	void CreateStorage();
+	void SetAttribute(const MeshAttribute& value);
 
-	virtual void SetBounds(const Bounds& value) { bounds_ = value; }
-	virtual const Bounds& GetBounds() const { return bounds_; }
+	void SetBounds(const Bounds& value) { bounds_ = value; }
+	const Bounds& GetBounds() const { return bounds_; }
 
-	virtual void Bind();
-	virtual void Unbind();
-	virtual void ShareStorage(Mesh other);
+	void Bind();
+	void Unbind();
+	void ShareStorage(Mesh other);
 
-	virtual void AddSubMesh(SubMesh subMesh);
-	virtual int GetSubMeshCount() { return subMeshes_.size(); }
-	virtual SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
-	virtual Enumerable GetSubMeshes() { return Enumerable(subMeshes_.begin(), subMeshes_.end()); }
-	virtual void RemoveSubMesh(uint index);
+	void AddSubMesh(SubMesh subMesh);
+	int GetSubMeshCount() { return subMeshes_.size(); }
+	SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
+	IMesh::Enumerable GetSubMeshes() { return IMesh::Enumerable(subMeshes_.begin(), subMeshes_.end()); }
+	void RemoveSubMesh(uint index);
 
-	virtual MeshTopology GetTopology() { return storage_->topology; }
-	virtual uint GetNativePointer() const { return storage_->vao.GetNativePointer(); }
+	MeshTopology GetTopology() { return storage_->topology; }
+	uint GetNativePointer() const { return storage_->vao.GetNativePointer(); }
 
-	virtual uint* MapIndexes();
-	virtual void UnmapIndexes();
-	virtual uint GetIndexCount();
+	uint* MapIndexes();
+	void UnmapIndexes();
+	uint GetIndexCount();
 
-	virtual glm::vec3* MapVertices();
-	virtual void UnmapVertices();
-	virtual uint GetVertexCount();
+	glm::vec3* MapVertices();
+	void UnmapVertices();
+	uint GetVertexCount();
 
-	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data);
+	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
 private:
 	void Destroy();
@@ -90,7 +90,18 @@ private:
 	std::shared_ptr<Storage> storage_;
 };
 
-class TextMeshInternal : virtual public ITextMesh, public ComponentInternal, public FontMaterialRebuiltListener {
+class MeshProviderInternal : public ComponentInternal {
+public:
+	MeshProviderInternal(ObjectType type);
+
+public:
+	Mesh GetMesh() { return mesh_; }
+
+protected:
+	Mesh mesh_;
+};
+
+class TextMeshInternal : public MeshProviderInternal, public FontMaterialRebuiltListener {
 	DEFINE_FACTORY_METHOD(TextMesh)
 
 public:
@@ -98,24 +109,24 @@ public:
 	~TextMeshInternal();
 
 public:
-	virtual void RenderingUpdate();
+	void RenderingUpdate();
 
 public:
-	virtual Mesh GetMesh() { return mesh_; }
+	Mesh GetMesh() { return mesh_; }
 
-	virtual void SetText(const std::string& value);
-	virtual std::string GetText() { return text_; }
+	void SetText(const std::string& value);
+	std::string GetText() { return text_; }
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
+	int GetUpdateStrategy() { return UpdateStrategyRendering; }
 
-	virtual void SetFont(Font value);
-	virtual Font GetFont() { return font_; }
+	void SetFont(Font value);
+	Font GetFont() { return font_; }
 
-	virtual void SetFontSize(uint value);
-	virtual uint GetFontSize() { return size_; }
+	void SetFontSize(uint value);
+	uint GetFontSize() { return size_; }
 
 public:
-	virtual void OnMaterialRebuilt();
+	void OnMaterialRebuilt();
 
 private:
 	void RebuildMesh();
@@ -128,22 +139,18 @@ private:
 	Font font_;
 	bool dirty_;
 
-	Mesh mesh_;
 	std::string text_;
 };
 
-class MeshFilterInternal : virtual public IMeshFilter, public ComponentInternal {
+class MeshFilterInternal : public MeshProviderInternal {
 	DEFINE_FACTORY_METHOD(MeshFilter)
 
 public:
 	MeshFilterInternal();
 
 public:
-	virtual void SetMesh(Mesh value);
-	virtual Mesh GetMesh();
+	void SetMesh(Mesh value);
+	Mesh GetMesh();
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
-
-private:
-	Mesh mesh_;
+	int GetUpdateStrategy() { return UpdateStrategyNone; }
 };

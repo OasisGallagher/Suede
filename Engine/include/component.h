@@ -5,7 +5,7 @@
 #define SUEDE_DECLARE_COMPONENT() \
 public: \
     static suede_guid GetComponentGUID(); \
-    virtual bool IsComponentType(suede_guid classType) const;
+    bool IsComponentType(suede_guid classType) const;
 
 #define SUEDE_DEFINE_COMPONENT(Class, ParentClass) \
 	suede_guid Class::GetComponentGUID() { \
@@ -21,35 +21,40 @@ SUEDE_DEFINE_OBJECT_POINTER(Transform);
 SUEDE_DEFINE_OBJECT_POINTER(Component);
 
 enum {
-	UpdateStrategyNone = 0,
+	UpdateStrategyNone,
 	UpdateStrategyCulling = 1,
 	UpdateStrategyRendering = 1 << 1,
 };
 
-class SUEDE_API IComponent : virtual public IObject {
+class SUEDE_API IComponent : public IObject {
+	SUEDE_DECLARE_IMPL(Component)
+
 public:
-	virtual void Awake() = 0;
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) = 0;
+	void Awake();
+	void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
 
-	virtual bool GetEnabled() const = 0;
-	virtual void SetEnabled(bool value) = 0;
+	bool GetEnabled() const;
+	void SetEnabled(bool value);
 
-	virtual void SetGameObject(GameObject value) = 0;
-	virtual GameObject GetGameObject() = 0;
+	void SetGameObject(GameObject value);
+	GameObject GetGameObject();
 
-	virtual Transform GetTransform() = 0;
+	Transform GetTransform();
 
-	virtual void CullingUpdate() = 0;
-	virtual void RenderingUpdate() = 0;
+	void CullingUpdate();
+	void RenderingUpdate();
 
-	virtual int GetUpdateStrategy() = 0;
+	int GetUpdateStrategy();
 
 public:
 	static suede_guid ClassNameToGUID(const char* className);
 
 public:
 	static suede_guid GetComponentGUID() { return 0; }
-	virtual bool IsComponentType(suede_guid guid) const {
+	bool IsComponentType(suede_guid guid) const {
 		return guid == GetComponentGUID();
 	}
+
+protected:
+	IComponent(void* d);
 };

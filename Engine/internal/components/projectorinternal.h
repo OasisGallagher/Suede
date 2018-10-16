@@ -3,7 +3,7 @@
 #include "projector.h"
 #include "internal/components/componentinternal.h"
 
-class ProjectorInternal : public IProjector, public ComponentInternal, public Frustum {
+class ProjectorInternal : public ComponentInternal, public Frustum {
 	DEFINE_FACTORY_METHOD(Projector)
 
 public:

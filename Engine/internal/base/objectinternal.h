@@ -3,25 +3,18 @@
 #include "object.h"
 #include "internal/memory/factory.h"
 
-class ObjectInternal : virtual public IObject, public std::enable_shared_from_this<ObjectInternal> {
+class ObjectInternal {
 public:
 	ObjectInternal(ObjectType type);
-	virtual ~ObjectInternal() {}
+	~ObjectInternal() {}
 
 public:
-	virtual Object Clone();
-	virtual ObjectType GetObjectType() { return type_; }
-	virtual uint GetInstanceID() { return id_; }
+	Object Clone();
+	ObjectType GetObjectType() { return type_; }
+	uint GetInstanceID() { return id_; }
 
 public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
-
-protected:
-	template <class T>
-	typename T::Interface SharedThisTraits(T*);
-
-	template <class T, class U>
-	T InternalPtrTraits(T, U& obj);
 
 private:
 	static uint GenerateInstanceID(ObjectType type);
@@ -33,22 +26,11 @@ private:
 	static uint ObjectIDContainer[ObjectType::size()];
 };
 
-template <class T>
-typename T::Interface ObjectInternal::SharedThisTraits(T*) {
-	return suede_dynamic_cast<T::Interface>(shared_from_this());
-}
-
-template <class T, class U>
-T ObjectInternal::InternalPtrTraits(T, U& obj) {
-	return dynamic_cast<T>(obj.get());
-}
-
-#define SharedThis()		SharedThisTraits(this)
-#define InternalPtr(obj)	InternalPtrTraits(this, obj)
+#define dptr()	dptr_impl(this)
 
 #define DEFINE_FACTORY_METHOD(name) \
 	public: \
 		typedef name Interface; \
-		static Object Create() { return Factory::Create<name ## Internal>(); } \
+		static Object Create() { return Factory::Create<name>(); } \
 		static Object Create(size_t type) { return Factory::Create(type); } \
 	private:

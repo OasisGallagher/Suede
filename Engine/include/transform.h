@@ -16,61 +16,65 @@ struct PRS {
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
-class ITransform : virtual public IComponent {
+class ITransform : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(Transform)
+
+public:
+	ITransform();
 
 public:
 	typedef SuedeEnumerable<std::vector<Transform>::iterator> Enumerable;
 
 public:
-	virtual bool IsAttachedToScene() = 0;
+	bool IsAttachedToScene();
 
-	virtual void AddChild(Transform child) = 0;
-	virtual void RemoveChild(Transform child) = 0;
-	virtual void RemoveChildAt(uint index) = 0;
+	void AddChild(Transform child);
+	void RemoveChild(Transform child);
+	void RemoveChildAt(uint index);
 
-	virtual void SetParent(Transform value) = 0;
-	virtual Transform GetParent() const = 0;
+	void SetParent(Transform value);
+	Transform GetParent() const;
 
-	virtual glm::vec3 TransformPoint(const glm::vec3& point) = 0;
-	virtual glm::vec3 TransformDirection(const glm::vec3& direction) = 0;
+	glm::vec3 TransformPoint(const glm::vec3& point);
+	glm::vec3 TransformDirection(const glm::vec3& direction);
 
-	virtual glm::vec3 InverseTransformPoint(const glm::vec3& point) = 0;
-	virtual glm::vec3 InverseTransformDirection(const glm::vec3& direction) = 0;
+	glm::vec3 InverseTransformPoint(const glm::vec3& point);
+	glm::vec3 InverseTransformDirection(const glm::vec3& direction);
 
-	virtual Transform FindChild(const std::string& path) = 0;
+	Transform FindChild(const std::string& path);
 
-	virtual int GetChildCount() = 0;
-	virtual Transform GetChildAt(int i) = 0;
-	virtual Enumerable GetChildren() = 0;
+	int GetChildCount();
+	Transform GetChildAt(int i);
+	Enumerable GetChildren();
 
-	virtual void SetScale(const glm::vec3& value) = 0;
-	virtual void SetPosition(const glm::vec3& value) = 0;
-	virtual void SetRotation(const glm::quat& value) = 0;
-	virtual void SetEulerAngles(const glm::vec3& value) = 0;
+	void SetScale(const glm::vec3& value);
+	void SetPosition(const glm::vec3& value);
+	void SetRotation(const glm::quat& value);
+	void SetEulerAngles(const glm::vec3& value);
 
-	virtual glm::vec3 GetScale() = 0;
-	virtual glm::vec3 GetPosition() = 0;
-	virtual glm::quat GetRotation() = 0;
-	virtual glm::vec3 GetEulerAngles() = 0;
+	glm::vec3 GetScale();
+	glm::vec3 GetPosition();
+	glm::quat GetRotation();
+	glm::vec3 GetEulerAngles();
 
-	virtual void SetLocalScale(const glm::vec3& value) = 0;
-	virtual void SetLocalPosition(const glm::vec3& value) = 0;
-	virtual void SetLocalRotation(const glm::quat& value) = 0;
-	virtual void SetLocalEulerAngles(const glm::vec3& value) = 0;
+	void SetLocalScale(const glm::vec3& value);
+	void SetLocalPosition(const glm::vec3& value);
+	void SetLocalRotation(const glm::quat& value);
+	void SetLocalEulerAngles(const glm::vec3& value);
 
-	virtual glm::vec3 GetLocalScale() = 0;
-	virtual glm::vec3 GetLocalPosition() = 0;
-	virtual glm::quat GetLocalRotation() = 0;
-	virtual glm::vec3 GetLocalEulerAngles() = 0;
+	glm::vec3 GetLocalScale();
+	glm::vec3 GetLocalPosition();
+	glm::quat GetLocalRotation();
+	glm::vec3 GetLocalEulerAngles();
 
-	virtual glm::mat4 GetLocalToWorldMatrix() = 0;
-	virtual glm::mat4 GetWorldToLocalMatrix() = 0;
+	glm::mat4 GetLocalToWorldMatrix();
+	glm::mat4 GetWorldToLocalMatrix();
 
-	virtual glm::vec3 GetLocalToWorldPosition(const glm::vec3& position) = 0;
-	virtual glm::vec3 GetWorldToLocalPosition(const glm::vec3& position) = 0;
+	glm::vec3 GetLocalToWorldPosition(const glm::vec3& position);
+	glm::vec3 GetWorldToLocalPosition(const glm::vec3& position);
 
-	virtual glm::vec3 GetUp() = 0;
-	virtual glm::vec3 GetRight() = 0;
-	virtual glm::vec3 GetForward() = 0;
+	glm::vec3 GetUp();
+	glm::vec3 GetRight();
+	glm::vec3 GetForward();
 };

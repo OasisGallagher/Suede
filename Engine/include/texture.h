@@ -26,26 +26,31 @@ BETTER_ENUM(TextureWrapMode, int,
 	Repeat
 )
 
-class SUEDE_API ITexture : virtual public IObject {
+class SUEDE_API ITexture : public IObject {
+	SUEDE_DECLARE_IMPL(Texture)
+
 public:
-	virtual void Bind(uint index) = 0;
-	virtual void Unbind() = 0;
-	virtual uint GetNativePointer() = 0;
+	void Bind(uint index);
+	void Unbind();
+	uint GetNativePointer();
 
-	virtual void SetMinFilterMode(TextureMinFilterMode value) = 0;
-	virtual TextureMinFilterMode GetMinFilterMode() const = 0;
+	void SetMinFilterMode(TextureMinFilterMode value);
+	TextureMinFilterMode GetMinFilterMode() const;
 
-	virtual void SetMagFilterMode(TextureMagFilterMode value) = 0;
-	virtual TextureMagFilterMode GetMagFilterMode() const = 0;
+	void SetMagFilterMode(TextureMagFilterMode value);
+	TextureMagFilterMode GetMagFilterMode() const;
 
-	virtual void SetWrapModeS(TextureWrapMode value) = 0;
-	virtual TextureWrapMode GetWrapModeS() const = 0;
+	void SetWrapModeS(TextureWrapMode value);
+	TextureWrapMode GetWrapModeS() const;
 
-	virtual void SetWrapModeT(TextureWrapMode value) = 0;
-	virtual TextureWrapMode GetWrapModeT() const = 0;
+	void SetWrapModeT(TextureWrapMode value);
+	TextureWrapMode GetWrapModeT() const;
 
-	virtual uint GetWidth() const = 0;
-	virtual uint GetHeight() const = 0;
+	uint GetWidth() const;
+	uint GetHeight() const;
+
+protected:
+	ITexture(void* d);
 };
 
 enum class TextureFormat {
@@ -70,27 +75,42 @@ enum class ColorStreamFormat {
 	LuminanceAlpha,
 };
 
-class SUEDE_API ITexture2D : virtual public ITexture {
+class SUEDE_API ITexture2D : public ITexture {
+	SUEDE_DECLARE_IMPL(Texture2D)
+
 public:
-	virtual bool Create(const std::string& path) = 0;
-	virtual bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false) = 0;
+	ITexture2D();
 
-	virtual TextureFormat GetFormat() = 0;
+public:
+	bool Create(const std::string& path);
+	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
 
-	virtual bool EncodeToPNG(std::vector<uchar>& data) = 0;
-	virtual bool EncodeToJPG(std::vector<uchar>& data) = 0;
+	TextureFormat GetFormat();
+
+	bool EncodeToPNG(std::vector<uchar>& data);
+	bool EncodeToJPG(std::vector<uchar>& data);
 };
 
-class SUEDE_API ITextureCube : virtual public ITexture {
+class SUEDE_API ITextureCube : public ITexture {
+	SUEDE_DECLARE_IMPL(TextureCube)
+
 public:
-	virtual bool Load(const std::string textures[6]) = 0;
+	ITextureCube();
+
+public:
+	bool Load(const std::string textures[6]);
 };
 
-class SUEDE_API ITextureBuffer : virtual public ITexture {
+class SUEDE_API ITextureBuffer : public ITexture {
+	SUEDE_DECLARE_IMPL(TextureBuffer)
+
 public:
-	virtual uint GetSize() const = 0;
-	virtual bool Create(uint size) = 0;
-	virtual void Update(uint offset, uint size, const void* data) = 0;
+	ITextureBuffer();
+
+public:
+	uint GetSize() const;
+	bool Create(uint size);
+	void Update(uint offset, uint size, const void* data);
 };
 
 BETTER_ENUM(RenderTextureFormat, int,
@@ -107,14 +127,22 @@ BETTER_ENUM(RenderTextureFormat, int,
 	DepthStencil
 );
 
-class SUEDE_API IRenderTexture : virtual public ITexture {
+class SUEDE_API IRenderTexture : public ITexture {
+	SUEDE_DECLARE_IMPL(RenderTexture)
+
 public:
-	virtual bool Create(RenderTextureFormat format, uint width, uint height) = 0;
+	IRenderTexture();
 
-	virtual void Resize(uint width, uint height) = 0;
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth) = 0;
+public:
+	bool Create(RenderTextureFormat format, uint width, uint height);
 
-	virtual void BindWrite(const Rect& normalizedRect) = 0;
+	void Resize(uint width, uint height);
+	void Clear(const Rect& normalizedRect, const Color& color, float depth);
+
+	void BindWrite(const Rect& normalizedRect);
+
+protected:
+	IRenderTexture(void* d);
 };
 
 SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(RenderTexture) {
@@ -136,11 +164,16 @@ SUEDE_DECLARE_OBJECT_CREATER(TextureCube);
 SUEDE_DECLARE_OBJECT_CREATER(RenderTexture);
 SUEDE_DECLARE_OBJECT_CREATER(TextureBuffer);
 
-class SUEDE_API IMRTRenderTexture : virtual public IRenderTexture {
+class SUEDE_API IMRTRenderTexture : public IRenderTexture {
+	SUEDE_DECLARE_IMPL(MRTRenderTexture)
+
 public:
-	virtual bool AddColorTexture(TextureFormat format) = 0;
-	virtual Texture2D GetColorTexture(uint index) = 0;
-	virtual uint GetColorTextureCount() = 0;
+	IMRTRenderTexture();
+
+public:
+	bool AddColorTexture(TextureFormat format);
+	Texture2D GetColorTexture(uint index);
+	uint GetColorTextureCount();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(MRTRenderTexture);

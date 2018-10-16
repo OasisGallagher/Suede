@@ -17,23 +17,27 @@ BETTER_ENUM(LightType, int,
 	Directional
 )
 
-class SUEDE_API ILight : virtual public IComponent {
+class SUEDE_API ILight : public IComponent {
+	SUEDE_DECLARE_IMPL(Light)
 	SUEDE_DECLARE_COMPONENT()
 
 public:
-	virtual void SetType(LightType value) = 0;
-	virtual LightType GetType() = 0;
+	ILight();
 
-	virtual void SetImportance(LightImportance value) = 0;
-	virtual LightImportance GetImportance() = 0;
+public:
+	void SetType(LightType value);
+	LightType GetType();
 
-	virtual void SetColor(const Color& value) = 0;
-	virtual Color GetColor() = 0;
+	void SetImportance(LightImportance value);
+	LightImportance GetImportance();
 
-	virtual void SetIntensity(float value) = 0;
-	virtual float GetIntensity() = 0;
+	void SetColor(const Color& value);
+	Color GetColor();
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
+	void SetIntensity(float value);
+	float GetIntensity();
+
+	int GetUpdateStrategy();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Light);

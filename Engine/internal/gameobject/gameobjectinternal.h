@@ -4,7 +4,7 @@
 #include "gameobject.h"
 #include "internal/base/objectinternal.h"
 
-class GameObjectInternal : virtual public IGameObject, public ObjectInternal {
+class GameObjectInternal : public ObjectInternal {
 	DEFINE_FACTORY_METHOD(GameObject)
 
 public:
@@ -15,35 +15,35 @@ protected:
 	GameObjectInternal(ObjectType type);
 
 public:
-	virtual bool GetActive() const { return active_; }
+	bool GetActive() const { return active_; }
 
-	virtual void SetActiveSelf(bool value);
-	virtual bool GetActiveSelf() const { return activeSelf_; }
+	void SetActiveSelf(GameObject self, bool value);
+	bool GetActiveSelf() const { return activeSelf_; }
 
-	virtual int GetUpdateStrategy();
+	int GetUpdateStrategy(GameObject self);
 
-	virtual const std::string& GetTag() const { return tag_; }
-	virtual bool SetTag(const std::string& value);
+	const std::string& GetTag() const { return tag_; }
+	bool SetTag(GameObject self, const std::string& value);
 
-	virtual std::string GetName() const { return name_; }
-	virtual void SetName(const std::string& value);
+	std::string GetName() const { return name_; }
+	void SetName(GameObject self, const std::string& value);
 
-	virtual void CullingUpdate();
-	virtual void RenderingUpdate();
+	void CullingUpdate();
+	void RenderingUpdate();
 
-	virtual Transform GetTransform();
+	Transform GetTransform();
 
-	virtual const Bounds& GetBounds();
-	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
+	const Bounds& GetBounds();
+	void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
-	virtual void RecalculateUpdateStrategy();
+	void RecalculateUpdateStrategy(GameObject self);
 
 public:
-	virtual Component AddComponent(suede_guid guid);
-	virtual Component AddComponent(Component component);
+	Component AddComponent(GameObject self, suede_guid guid);
+	Component AddComponent(GameObject self, Component component);
 
-	virtual Component GetComponent(suede_guid guid);
-	virtual std::vector<Component> GetComponents(suede_guid guid);
+	Component GetComponent(suede_guid guid);
+	std::vector<Component> GetComponents(suede_guid guid);
 
 private:
 	void CalculateBonesWorldBounds();
@@ -56,13 +56,13 @@ private:
 	void DirtyChildrenBoundses();
 
 	int GetHierarchyUpdateStrategy(GameObject root);
-	bool RecalculateHierarchyUpdateStrategy();
+	bool RecalculateHierarchyUpdateStrategy(GameObject self);
 
-	void SetActive(bool value);
+	void SetActive(GameObject self, bool value);
 	void UpdateChildrenActive(GameObject parent);
 
 	template <class T>
-	void FireWorldEvent(bool attachedToSceneOnly);
+	void FireWorldEvent(GameObject self, bool attachedToSceneOnly);
 
 	bool CheckComponentDuplicate(suede_guid guid);
 
@@ -86,10 +86,10 @@ private:
 };
 
 template <class T>
-inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly) {
+inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
-		e->go = SharedThis();
+		e->go = self;
 		World::instance()->FireEvent(e);
 	}
 }

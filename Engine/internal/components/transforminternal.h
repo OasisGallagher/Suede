@@ -5,7 +5,7 @@
 #include "tools/dirtybits.h"
 #include "internal/components/componentinternal.h"
 
-class TransformInternal : virtual public ITransform, public ComponentInternal, public DirtyBits {
+class TransformInternal : public ComponentInternal, public DirtyBits {
 	DEFINE_FACTORY_METHOD(Transform)
 
 public:
@@ -16,61 +16,61 @@ public:
 	~TransformInternal();
 
 public:
-	virtual bool IsAttachedToScene();
+	bool IsAttachedToScene(Transform transform);
 
-	virtual void AddChild(Transform child);
-	virtual void RemoveChild(Transform child);
-	virtual void RemoveChildAt(uint index);
+	void AddChild(Transform self, Transform child);
+	void RemoveChild(Transform child);
+	void RemoveChildAt(uint index);
 
-	virtual void SetParent(Transform value);
-	virtual Transform GetParent() const { return parent_.lock(); }
+	void SetParent(Transform self, Transform value);
+	Transform GetParent() const { return parent_.lock(); }
 
-	virtual glm::vec3 TransformPoint(const glm::vec3& point);
-	virtual glm::vec3 TransformDirection(const glm::vec3& direction);
+	glm::vec3 TransformPoint(Transform self, const glm::vec3& point);
+	glm::vec3 TransformDirection(Transform self, const glm::vec3& direction);
 
-	virtual glm::vec3 InverseTransformPoint(const glm::vec3& point);
-	virtual glm::vec3 InverseTransformDirection(const glm::vec3& direction);
+	glm::vec3 InverseTransformPoint(Transform self, const glm::vec3& point);
+	glm::vec3 InverseTransformDirection(Transform self, const glm::vec3& direction);
 
-	virtual Transform FindChild(const std::string& path);
+	Transform FindChild(const std::string& path);
 
-	virtual int GetChildCount() { return (int)children_.size(); }
-	virtual Transform GetChildAt(int i) { return children_[i]; }
-	virtual Enumerable GetChildren() { return Enumerable(children_.begin(), children_.end()); }
+	int GetChildCount() { return (int)children_.size(); }
+	Transform GetChildAt(int i) { return children_[i]; }
+	ITransform::Enumerable GetChildren() { return ITransform::Enumerable(children_.begin(), children_.end()); }
 
-	virtual void SetScale(const glm::vec3& value);
-	virtual void SetPosition(const glm::vec3& value);
-	virtual void SetRotation(const glm::quat& value);
-	virtual void SetEulerAngles(const glm::vec3& value);
+	void SetScale(const glm::vec3& value);
+	void SetPosition(const glm::vec3& value);
+	void SetRotation(const glm::quat& value);
+	void SetEulerAngles(const glm::vec3& value);
 
-	virtual glm::vec3 GetScale();
-	virtual glm::vec3 GetPosition();
-	virtual glm::quat GetRotation();
-	virtual glm::vec3 GetEulerAngles();
+	glm::vec3 GetScale(Transform self);
+	glm::vec3 GetPosition(Transform self);
+	glm::quat GetRotation(Transform self);
+	glm::vec3 GetEulerAngles(Transform self);
 
-	virtual void SetLocalScale(const glm::vec3& value);
-	virtual void SetLocalPosition(const glm::vec3& value);
-	virtual void SetLocalRotation(const glm::quat& value);
-	virtual void SetLocalEulerAngles(const glm::vec3& value);
+	void SetLocalScale(const glm::vec3& value);
+	void SetLocalPosition(const glm::vec3& value);
+	void SetLocalRotation(const glm::quat& value);
+	void SetLocalEulerAngles(const glm::vec3& value);
 
-	virtual glm::vec3 GetLocalScale();
-	virtual glm::vec3 GetLocalPosition();
-	virtual glm::quat GetLocalRotation();
-	virtual glm::vec3 GetLocalEulerAngles();
+	glm::vec3 GetLocalScale(Transform self);
+	glm::vec3 GetLocalPosition(Transform self);
+	glm::quat GetLocalRotation(Transform self);
+	glm::vec3 GetLocalEulerAngles(Transform self);
 
-	virtual glm::mat4 GetLocalToWorldMatrix();
-	virtual glm::mat4 GetWorldToLocalMatrix();
+	glm::mat4 GetLocalToWorldMatrix(Transform self);
+	glm::mat4 GetWorldToLocalMatrix(Transform self);
 
-	virtual glm::vec3 GetLocalToWorldPosition(const glm::vec3& position);
-	virtual glm::vec3 GetWorldToLocalPosition(const glm::vec3& position);
+	glm::vec3 GetLocalToWorldPosition(Transform self, const glm::vec3& position);
+	glm::vec3 GetWorldToLocalPosition(Transform self, const glm::vec3& position);
 
-	virtual glm::vec3 GetUp();
-	virtual glm::vec3 GetRight();
-	virtual glm::vec3 GetForward();
+	glm::vec3 GetUp(Transform self);
+	glm::vec3 GetRight(Transform self);
+	glm::vec3 GetForward(Transform self);
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
+	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 protected:
-	virtual void SetDirty(int bits);
+	void SetDirty(int bits);
 
 private:
 	void DirtyChildrenScales();
@@ -79,7 +79,7 @@ private:
 
 	bool IsNullOrRoot(Transform transform);
 	Transform FindDirectChild(const std::string& name);
-	void ChangeParent(Transform oldParent, Transform newParent);
+	void ChangeParent(Transform self, Transform oldParent, Transform newParent);
 
 	typedef std::vector<Transform> Children;
 

@@ -16,8 +16,7 @@
 //class GBuffer;
 
 class Sample;
-class CameraInternal : public ICamera
-	, public ComponentInternal, public Frustum
+class CameraInternal : public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
 	, public ScreenSizeChangedListener {
 	DEFINE_FACTORY_METHOD(Camera)
@@ -27,73 +26,73 @@ public:
 	~CameraInternal();
 
 public:
-	virtual void Awake() { p_.camera = GetGameObject().get(); }
+	void Awake() { p_.camera = GetGameObject().get(); }
 
-	virtual void SetDepth(int value);
-	virtual int GetDepth() { return depth_;  }
+	void SetDepth(Camera self, int value);
+	int GetDepth() { return depth_;  }
 
-	virtual void SetRect(const Rect& value);
-	virtual const Rect& GetRect() const { return p_.normalizedRect; }
+	void SetRect(const Rect& value);
+	const Rect& GetRect() const { return p_.normalizedRect; }
 
-	virtual void SetClearType(ClearType value) { p_.clearType = value; }
-	virtual ClearType GetClearType() { return p_.clearType; }
+	void SetClearType(ClearType value) { p_.clearType = value; }
+	ClearType GetClearType() { return p_.clearType; }
 
-	virtual void SetRenderPath(RenderPath value) { p_.renderPath = value; }
-	virtual RenderPath GetRenderPath() { return p_.renderPath; }
+	void SetRenderPath(RenderPath value) { p_.renderPath = value; }
+	RenderPath GetRenderPath() { return p_.renderPath; }
 
-	virtual void SetDepthTextureMode(DepthTextureMode value) { p_.depthTextureMode = value; }
-	virtual DepthTextureMode GetDepthTextureMode() { return p_.depthTextureMode; }
+	void SetDepthTextureMode(DepthTextureMode value) { p_.depthTextureMode = value; }
+	DepthTextureMode GetDepthTextureMode() { return p_.depthTextureMode; }
 
-	virtual void SetClearColor(const Color& value) { p_.clearColor = value; }
-	virtual Color GetClearColor() { return p_.clearColor; }
+	void SetClearColor(const Color& value) { p_.clearColor = value; }
+	Color GetClearColor() { return p_.clearColor; }
 
-	virtual void SetTargetTexture(RenderTexture value) { p_.renderTextures.target = value; }
-	virtual RenderTexture GetTargetTexture() { return p_.renderTextures.target; }
+	void SetTargetTexture(RenderTexture value) { p_.renderTextures.target = value; }
+	RenderTexture GetTargetTexture() { return p_.renderTextures.target; }
 
-	virtual Texture2D Capture();
-
-public:
-	virtual void Render();
-	virtual void OnBeforeWorldDestroyed();
+	Texture2D Capture();
 
 public:
-	virtual bool GetPerspective() const { return Frustum::GetPerspective(); }
-	virtual void SetPerspective(bool value) { return Frustum::SetPerspective(value); }
-
-	virtual float GetOrthographicSize() const { return Frustum::GetOrthographicSize(); }
-	virtual void SetOrthographicSize(float value) { return Frustum::SetOrthographicSize(value); }
-
-	virtual void SetAspect(float value) { return Frustum::SetAspect(value); }
-	virtual float GetAspect() const { return Frustum::GetAspect(); }
-
-	virtual void SetNearClipPlane(float value) { return Frustum::SetNearClipPlane(value); }
-	virtual float GetNearClipPlane() const { return Frustum::GetNearClipPlane(); }
-
-	virtual void SetFarClipPlane(float value) { return Frustum::SetFarClipPlane(value); }
-	virtual float GetFarClipPlane() const { return Frustum::GetFarClipPlane(); }
-
-	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
-	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
-
-	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
-
-	virtual void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
-
-	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position);
-	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
+	void Render();
+	void OnBeforeWorldDestroyed();
 
 public:
-	virtual void OnScreenSizeChanged(uint width, uint height);
+	bool GetPerspective() const { return Frustum::GetPerspective(); }
+	void SetPerspective(bool value) { return Frustum::SetPerspective(value); }
+
+	float GetOrthographicSize() const { return Frustum::GetOrthographicSize(); }
+	void SetOrthographicSize(float value) { return Frustum::SetOrthographicSize(value); }
+
+	void SetAspect(float value) { return Frustum::SetAspect(value); }
+	float GetAspect() const { return Frustum::GetAspect(); }
+
+	void SetNearClipPlane(float value) { return Frustum::SetNearClipPlane(value); }
+	float GetNearClipPlane() const { return Frustum::GetNearClipPlane(); }
+
+	void SetFarClipPlane(float value) { return Frustum::SetFarClipPlane(value); }
+	float GetFarClipPlane() const { return Frustum::GetFarClipPlane(); }
+
+	void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
+	float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
+
+	const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
+
+	void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
+
+	glm::vec3 WorldToScreenPoint(const glm::vec3& position);
+	glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
 public:
-	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
+	void OnScreenSizeChanged(uint width, uint height);
+
+public:
+	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 protected:
-	virtual void OnProjectionMatrixChanged();
+	void OnProjectionMatrixChanged();
 
 protected:
-	virtual void OnCullingFinished();
-	//virtual void OnRenderingFinished();
+	void OnCullingFinished();
+	//void OnRenderingFinished();
 
 private:
 	void CancelThreads();

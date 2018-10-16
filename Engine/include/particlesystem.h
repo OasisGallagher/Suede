@@ -23,76 +23,95 @@ SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator);
 SUEDE_DECLARE_OBJECT_CREATER(SphereParticleEmitter);
 SUEDE_DECLARE_OBJECT_CREATER(ParticleAnimator);
 
-class SUEDE_API IParticleEmitter : virtual public IObject {
+class SUEDE_API IParticleEmitter : public IObject {
+	SUEDE_DECLARE_IMPL(ParticleEmitter)
+
 public:
-	virtual void Emit(Particle** particles, uint& count) = 0;
+	void Emit(Particle** particles, uint& count);
 
-	virtual void SetRate(uint value) = 0;
-	virtual uint GetRate() = 0;
+	void SetRate(uint value);
+	uint GetRate();
 
-	virtual void SetStartDuration(float value) = 0;
-	virtual float GetStartDuration() = 0;
+	void SetStartDuration(float value);
+	float GetStartDuration();
 
-	virtual void SetStartSize(float value) = 0;
-	virtual float GetStartSize() = 0;
+	void SetStartSize(float value);
+	float GetStartSize();
 
-	virtual void SetStartVelocity(const glm::vec3& value) = 0;
-	virtual glm::vec3 GetStartVelocity() = 0;
+	void SetStartVelocity(const glm::vec3& value);
+	glm::vec3 GetStartVelocity();
 
-	virtual void SetStartColor(const glm::vec4& value) = 0;
-	virtual glm::vec4 GetStartColor() = 0;
+	void SetStartColor(const glm::vec4& value);
+	glm::vec4 GetStartColor();
 
-	virtual void AddBurst(const ParticleBurst& value) = 0;
-	virtual void SetBurst(int i, const ParticleBurst& value) = 0;
-	virtual ParticleBurst GetBurst(int i) = 0;
-	virtual void RemoveBurst(int i) = 0;
-	virtual int GetBurstCount() = 0;
+	void AddBurst(const ParticleBurst& value);
+	void SetBurst(int i, const ParticleBurst& value);
+	ParticleBurst GetBurst(int i);
+	void RemoveBurst(int i);
+	int GetBurstCount();
+
+protected:
+	IParticleEmitter(void* d);
 };
 
-class SUEDE_API ISphereParticleEmitter : virtual public IParticleEmitter {
+class SUEDE_API ISphereParticleEmitter : public IParticleEmitter {
+	SUEDE_DECLARE_IMPL(SphereParticleEmitter)
+
 public:
-	virtual void SetRadius(float value) = 0;
-	virtual float GetRadius() = 0;
+	ISphereParticleEmitter();
+
+public:
+	void SetRadius(float value);
+	float GetRadius();
 };
 
-class SUEDE_API IParticleAnimator : virtual public IObject {
+class SUEDE_API IParticleAnimator : public IObject {
+	SUEDE_DECLARE_IMPL(ParticleAnimator)
+
 public:
-	virtual void SetForce(const glm::vec3& value) = 0;
-	virtual glm::vec3 GetForce() = 0;
+	IParticleAnimator();
 
-	virtual void SetRandomForce(const glm::vec3& value) = 0;
-	virtual glm::vec3 GetRandomForce() = 0;
+public:
+	void SetForce(const glm::vec3& value);
+	glm::vec3 GetForce();
 
-	virtual void SetGravityScale(float value) = 0;
-	virtual float GetGravityScale() = 0;
+	void SetRandomForce(const glm::vec3& value);
+	glm::vec3 GetRandomForce();
 
-	virtual void Update(Particle& particle) = 0;
+	void SetGravityScale(float value);
+	float GetGravityScale();
+
+	void Update(Particle& particle);
 };
 
-class SUEDE_API IParticleSystem : virtual public IComponent {
+class SUEDE_API IParticleSystem : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(ParticleSystem)
 
 public:
-	virtual void SetDuration(float value) = 0;
-	virtual float GetDuration() = 0;
+	IParticleSystem();
 
-	virtual void SetLooping(bool value) = 0;
-	virtual bool GetLooping() = 0;
+public:
+	void SetDuration(float value);
+	float GetDuration();
 
-	virtual void SetStartDelay(float value) = 0;
-	virtual float GetStartDelay() = 0;
+	void SetLooping(bool value);
+	bool GetLooping();
 
-	virtual void SetMaxParticles(uint value) = 0;
-	virtual uint GetMaxParticles() = 0;
+	void SetStartDelay(float value);
+	float GetStartDelay();
 
-	virtual uint GetParticlesCount() const = 0;
-	virtual const Bounds& GetMaxBounds() = 0;
+	void SetMaxParticles(uint value);
+	uint GetMaxParticles();
 
-	virtual void SetEmitter(ParticleEmitter value) = 0;
-	virtual ParticleEmitter GetEmitter() = 0;
+	uint GetParticlesCount() const;
+	const Bounds& GetMaxBounds();
 
-	virtual void SetParticleAnimator(ParticleAnimator value) = 0;
-	virtual ParticleAnimator GetParticleAnimator() = 0;
+	void SetEmitter(ParticleEmitter value);
+	ParticleEmitter GetEmitter();
+
+	void SetParticleAnimator(ParticleAnimator value);
+	ParticleAnimator GetParticleAnimator();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(ParticleSystem);

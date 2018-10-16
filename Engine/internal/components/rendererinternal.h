@@ -6,54 +6,54 @@
 
 class RenderState;
 
-class RendererInternal : virtual public IRenderer, public ComponentInternal {
+class RendererInternal : public ComponentInternal {
 public:
 	RendererInternal(ObjectType type);
 	~RendererInternal();
 
 public:
-	virtual void UpdateMaterialProperties() {}
+	void UpdateMaterialProperties() {}
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }
+	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
-	virtual void AddMaterial(Material material) { materials_.push_back(material); }
-	virtual Material GetMaterial(uint index) { return materials_[index]; }
-	virtual Enumerable GetMaterials() { return Enumerable(materials_.begin(), materials_.end()); }
-	virtual void SetMaterial(uint index, Material value) { materials_[index] = value; }
-	virtual void RemoveMaterial(Material material);
-	virtual void RemoveMaterialAt(uint index);
-	virtual uint GetMaterialCount() { return materials_.size(); }
+	void AddMaterial(Material material) { materials_.push_back(material); }
+	Material GetMaterial(uint index) { return materials_[index]; }
+	IRenderer::Enumerable GetMaterials() { return IRenderer::Enumerable(materials_.begin(), materials_.end()); }
+	void SetMaterial(uint index, Material value) { materials_[index] = value; }
+	void RemoveMaterial(Material material);
+	void RemoveMaterialAt(uint index);
+	uint GetMaterialCount() { return materials_.size(); }
 
-	virtual uint GetRenderQueue() { return queue_; }
-	virtual void SetRenderQueue(uint value) { queue_ = value; }
+	uint GetRenderQueue() { return queue_; }
+	void SetRenderQueue(uint value) { queue_ = value; }
 
 private:
 	uint queue_;
 	std::vector<Material> materials_;
 };
 
-class MeshRendererInternal : public IMeshRenderer, public RendererInternal {
+class MeshRendererInternal : public RendererInternal {
 	DEFINE_FACTORY_METHOD(MeshRenderer)
 
 public:
 	MeshRendererInternal() : RendererInternal(ObjectType::MeshRenderer) {}
 };
 
-class SkinnedMeshRendererInternal : public ISkinnedMeshRenderer, public RendererInternal {
+class SkinnedMeshRendererInternal :public RendererInternal {
 	DEFINE_FACTORY_METHOD(SkinnedMeshRenderer)
 
 public:
 	SkinnedMeshRendererInternal() : RendererInternal(ObjectType::SkinnedMeshRenderer) {}
 
 public:
-	virtual void UpdateMaterialProperties();
-	virtual void SetSkeleton(Skeleton value) { skeleton_ = value; }
+	void UpdateMaterialProperties();
+	void SetSkeleton(Skeleton value) { skeleton_ = value; }
 
 private:
 	Skeleton skeleton_;
 };
 
-class ParticleRendererInternal : public IParticleRenderer, public RendererInternal {
+class ParticleRendererInternal : public RendererInternal {
 	DEFINE_FACTORY_METHOD(ParticleRenderer)
 
 public:

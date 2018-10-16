@@ -24,63 +24,67 @@ BETTER_ENUM(DepthTextureMode, int,
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
-class SUEDE_API ICamera : virtual public IComponent {
+class SUEDE_API ICamera : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(Camera)
 
 public:
-	virtual void SetDepth(int value) = 0;
-	virtual int GetDepth() = 0;
+	ICamera();
 
-	virtual bool GetPerspective() const = 0;
-	virtual void SetPerspective(bool value) = 0;
+public:
+	void SetDepth(int value);
+	int GetDepth();
+
+	bool GetPerspective() const;
+	void SetPerspective(bool value);
 
 	/**
 	 * @return half-size when in orthographic mode.
 	 */
-	virtual float GetOrthographicSize() const = 0;
-	virtual void SetOrthographicSize(float value) = 0;
+	float GetOrthographicSize() const;
+	void SetOrthographicSize(float value);
 
-	virtual void SetClearType(ClearType value) = 0;
-	virtual ClearType GetClearType() = 0;
+	void SetClearType(ClearType value);
+	ClearType GetClearType();
 
-	virtual void SetRenderPath(RenderPath value) = 0;
-	virtual RenderPath GetRenderPath() = 0;
+	void SetRenderPath(RenderPath value);
+	RenderPath GetRenderPath();
 
-	virtual void SetDepthTextureMode(DepthTextureMode value) = 0;
-	virtual DepthTextureMode GetDepthTextureMode() = 0;
+	void SetDepthTextureMode(DepthTextureMode value);
+	DepthTextureMode GetDepthTextureMode();
 
-	virtual void SetClearColor(const Color& value) = 0;
-	virtual Color GetClearColor() = 0;
+	void SetClearColor(const Color& value);
+	Color GetClearColor();
 
-	virtual void SetTargetTexture(RenderTexture value) = 0;
-	virtual RenderTexture GetTargetTexture() = 0;
+	void SetTargetTexture(RenderTexture value);
+	RenderTexture GetTargetTexture();
 
-	virtual void SetAspect(float value) = 0;
-	virtual float GetAspect() const = 0;
+	void SetAspect(float value);
+	float GetAspect() const;
 
-	virtual void SetNearClipPlane(float value) = 0;
-	virtual float GetNearClipPlane() const = 0;
+	void SetNearClipPlane(float value);
+	float GetNearClipPlane() const;
 
-	virtual void SetFarClipPlane(float value) = 0;
-	virtual float GetFarClipPlane() const = 0;
+	void SetFarClipPlane(float value);
+	float GetFarClipPlane() const;
 	
-	virtual void SetFieldOfView(float value) = 0;
-	virtual float GetFieldOfView() const = 0;
+	void SetFieldOfView(float value);
+	float GetFieldOfView() const;
 
-	virtual void SetRect(const Rect& value) = 0;
-	virtual const Rect& GetRect() const = 0;
+	void SetRect(const Rect& value);
+	const Rect& GetRect() const;
 
-	virtual const glm::mat4& GetProjectionMatrix() = 0;
+	const glm::mat4& GetProjectionMatrix();
 
-	virtual void GetVisibleGameObjects(std::vector<GameObject>& gameObjects) = 0;
+	void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
 
-	virtual glm::vec3 WorldToScreenPoint(const glm::vec3& position) = 0;
-	virtual glm::vec3 ScreenToWorldPoint(const glm::vec3& position) = 0;
+	glm::vec3 WorldToScreenPoint(const glm::vec3& position);
+	glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
-	virtual Texture2D Capture() = 0;
+	Texture2D Capture();
 
-	virtual void Render() = 0;
-	virtual void OnBeforeWorldDestroyed() = 0;
+	void Render();
+	void OnBeforeWorldDestroyed();
 };
 
 SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Camera) {

@@ -8,36 +8,40 @@ struct Decal {
 	Material material;
 };
 
-class SUEDE_API IProjector : virtual public IComponent {
+class SUEDE_API IProjector : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(Projector)
 
 public:
-	virtual bool GetPerspective() const = 0;
-	virtual void SetPerspective(bool value) = 0;
+	IProjector();
+
+public:
+	bool GetPerspective() const;
+	void SetPerspective(bool value);
 
 	/** 
 	 * Half-size when in orthographic mode.
 	 */
-	virtual float GetOrthographicSize() const = 0;
-	virtual void SetOrthographicSize(float value) = 0;
+	float GetOrthographicSize() const;
+	void SetOrthographicSize(float value);
 
-	virtual Texture GetTexture() const = 0;
-	virtual void SetTexture(Texture value) = 0;
+	Texture GetTexture() const;
+	void SetTexture(Texture value);
 
-	virtual void SetDepth(int value) = 0;
-	virtual int GetDepth() const = 0;
+	void SetDepth(int value);
+	int GetDepth() const;
 
-	virtual void SetAspect(float value) = 0;
-	virtual void SetNearClipPlane(float value) = 0;
-	virtual void SetFarClipPlane(float value) = 0;
-	virtual void SetFieldOfView(float value) = 0;
+	void SetAspect(float value);
+	void SetNearClipPlane(float value);
+	void SetFarClipPlane(float value);
+	void SetFieldOfView(float value);
 
-	virtual float GetAspect() const = 0;
-	virtual float GetNearClipPlane() const = 0;
-	virtual float GetFarClipPlane() const = 0;
-	virtual float GetFieldOfView() const = 0;
+	float GetAspect() const;
+	float GetNearClipPlane() const;
+	float GetFarClipPlane() const;
+	float GetFieldOfView() const;
 
-	virtual const glm::mat4& GetProjectionMatrix() = 0;
+	const glm::mat4& GetProjectionMatrix();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Projector);

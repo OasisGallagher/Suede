@@ -6,6 +6,23 @@
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/pipeline.h"
 
+IRenderer::IRenderer(void* d) : IComponent(d) {}
+void IRenderer::AddMaterial(Material material) { dptr()->AddMaterial(material); }
+Material IRenderer::GetMaterial(uint index) { return dptr()->GetMaterial(index); }
+IRenderer::Enumerable IRenderer::GetMaterials() { return dptr()->GetMaterials(); }
+void IRenderer::SetMaterial(uint index, Material value) { dptr()->SetMaterial(index, value); }
+void IRenderer::RemoveMaterial(Material material) { dptr()->RemoveMaterial(material); }
+void IRenderer::RemoveMaterialAt(uint index) { dptr()->RemoveMaterialAt(index); }
+uint IRenderer::GetMaterialCount() { return dptr()->GetMaterialCount(); }
+void IRenderer::UpdateMaterialProperties() { dptr()->UpdateMaterialProperties(); }
+
+IMeshRenderer::IMeshRenderer() : IRenderer(MEMORY_NEW(MeshRendererInternal)) {}
+
+IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
+
+ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
+void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { dptr()->SetSkeleton(value); }
+
 SUEDE_DEFINE_COMPONENT(IRenderer, IComponent)
 SUEDE_DEFINE_COMPONENT(IMeshRenderer, IRenderer)
 SUEDE_DEFINE_COMPONENT(IParticleRenderer, IRenderer)

@@ -15,10 +15,15 @@ struct TriangleBias {
 
 SUEDE_DEFINE_OBJECT_POINTER(Mesh);
 
-class ISubMesh : virtual public IObject {
+class ISubMesh : public IObject {
+	SUEDE_DECLARE_IMPL(SubMesh)
+
 public:
-	virtual const TriangleBias& GetTriangleBias() const = 0;
-	virtual void SetTriangleBias(const TriangleBias& value) = 0;
+	ISubMesh();
+
+public:
+	const TriangleBias& GetTriangleBias() const;
+	void SetTriangleBias(const TriangleBias& value);
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh);
@@ -70,7 +75,12 @@ struct MeshAttribute {
 	InstanceAttribute geometry;
 };
 
-class SUEDE_API IMesh : virtual public IObject {
+class SUEDE_API IMesh : public IObject {
+	SUEDE_DECLARE_IMPL(Mesh)
+
+public:
+	IMesh();
+
 public:
 	typedef SuedeEnumerable<std::vector<SubMesh>::iterator> Enumerable;
 
@@ -78,71 +88,83 @@ public:
 	/**
 	 * @brief: create an empty storage for sharing.
 	 */
-	virtual void CreateStorage() = 0;
-	virtual void SetAttribute(const MeshAttribute& value) = 0;
+	void CreateStorage();
+	void SetAttribute(const MeshAttribute& value);
 
 	/**
 	 * @returns bounds measured in the world space.
 	 */
-	virtual const Bounds& GetBounds() const = 0;
-	virtual void SetBounds(const Bounds& value) = 0;
+	const Bounds& GetBounds() const;
+	void SetBounds(const Bounds& value);
 
-	virtual void AddSubMesh(SubMesh subMesh) = 0;
-	virtual int GetSubMeshCount() = 0;
-	virtual SubMesh GetSubMesh(uint index) = 0;
-	virtual Enumerable GetSubMeshes() = 0;
-	virtual void RemoveSubMesh(uint index) = 0;
+	void AddSubMesh(SubMesh subMesh);
+	int GetSubMeshCount();
+	SubMesh GetSubMesh(uint index);
+	Enumerable GetSubMeshes();
+	void RemoveSubMesh(uint index);
 
-	virtual MeshTopology GetTopology() = 0;
-	virtual uint GetNativePointer() const = 0;
+	MeshTopology GetTopology();
+	uint GetNativePointer() const;
 
-	virtual uint* MapIndexes() = 0;
-	virtual void UnmapIndexes() = 0;
-	virtual uint GetIndexCount() = 0;
+	uint* MapIndexes();
+	void UnmapIndexes();
+	uint GetIndexCount();
 
-	virtual glm::vec3* MapVertices() = 0;
-	virtual void UnmapVertices() = 0;
-	virtual uint GetVertexCount() = 0;
+	glm::vec3* MapVertices();
+	void UnmapVertices();
+	uint GetVertexCount();
 
-	virtual void Bind() = 0;
-	virtual void Unbind() = 0;
-	virtual void ShareStorage(Mesh other) = 0;
+	void Bind();
+	void Unbind();
+	void ShareStorage(Mesh other);
 
-	virtual void UpdateInstanceBuffer(uint i, size_t size, void* data) = 0;
+	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 };
 
 SUEDE_DECLARE_OBJECT_CREATER(Mesh);
 
-class SUEDE_API IMeshProvider : virtual public IComponent {
+class SUEDE_API IMeshProvider : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(MeshProvider)
 
 public:
-	virtual Mesh GetMesh() = 0;
+	Mesh GetMesh();
+
+public:
+	IMeshProvider(void * d);
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(MeshProvider);
 
-class SUEDE_API ITextMesh : virtual public IMeshProvider {
+class SUEDE_API ITextMesh : public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(TextMesh)
 
 public:
-	virtual void SetText(const std::string& value) = 0;
-	virtual std::string GetText() = 0;
+	ITextMesh();
 
-	virtual void SetFont(Font value) = 0;
-	virtual Font GetFont() = 0;
+public:
+	void SetText(const std::string& value);
+	std::string GetText();
+
+	void SetFont(Font value);
+	Font GetFont();
 	
-	virtual void SetFontSize(uint value) = 0;
-	virtual uint GetFontSize() = 0;
+	void SetFontSize(uint value);
+	uint GetFontSize();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
 
-class SUEDE_API IMeshFilter : virtual public IMeshProvider {
+class SUEDE_API IMeshFilter : public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(MeshFilter)
 
 public:
-	virtual void SetMesh(Mesh value) = 0;
+	IMeshFilter();
+
+public:
+	void SetMesh(Mesh value);
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(MeshFilter);

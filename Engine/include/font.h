@@ -18,20 +18,25 @@ public:
 	virtual void OnMaterialRebuilt() = 0;
 };
 
-class SUEDE_API IFont : virtual public IObject {
+class SUEDE_API IFont : public IObject {
+	SUEDE_DECLARE_IMPL(Font)
+
 public:
-	virtual bool Load(const std::string& path, int size) = 0;
-	virtual bool Require(const std::wstring& str) = 0;
+	IFont();
 
-	virtual uint GetFontSize() const = 0;
-	virtual Texture2D GetTexture() const = 0;
+public:
+	bool Load(const std::string& path, int size);
+	bool Require(const std::wstring& str);
+
+	uint GetFontSize() const;
+	Texture2D GetTexture() const;
 	
-	virtual std::string GetFamilyName() const = 0;
-	virtual std::string GetStyleName() const = 0;
+	std::string GetFamilyName() const;
+	std::string GetStyleName() const;
 
-	virtual Material GetMaterial() = 0;
-	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info) = 0;
+	Material GetMaterial();
+	bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
 
-	virtual void AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) = 0;
-	virtual void RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) = 0;
+	void AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
+	void RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
 };

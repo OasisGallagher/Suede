@@ -38,21 +38,26 @@ struct SkeletonNode {
 	std::vector<SkeletonNode*> children;
 };
 
-class ISkeleton : virtual public IObject {
+class ISkeleton : public IObject {
+	SUEDE_DECLARE_IMPL(Skeleton)
+
 public:
-	virtual bool AddBone(const SkeletonBone& bone) = 0;
-	virtual SkeletonBone* GetBone(uint index) = 0;
-	virtual SkeletonBone* GetBone(const std::string& name) = 0;
+	ISkeleton();
 
-	virtual SkeletonNode* CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) = 0;
-	virtual void AddNode(SkeletonNode* parent, SkeletonNode* child) = 0;
-	virtual SkeletonNode* GetRootNode() = 0;
+public:
+	bool AddBone(const SkeletonBone& bone);
+	SkeletonBone* GetBone(uint index);
+	SkeletonBone* GetBone(const std::string& name);
+
+	SkeletonNode* CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve);
+	void AddNode(SkeletonNode* parent, SkeletonNode* child);
+	SkeletonNode* GetRootNode();
 	
-	virtual void SetBoneToRootMatrix(uint index, const glm::mat4& value) = 0;
-	virtual glm::mat4* GetBoneToRootMatrices() = 0;
+	void SetBoneToRootMatrix(uint index, const glm::mat4& value);
+	glm::mat4* GetBoneToRootMatrices();
 
-	virtual int GetBoneIndex(const std::string& name) = 0;
-	virtual int GetBoneCount() = 0;
+	int GetBoneIndex(const std::string& name);
+	int GetBoneCount();
 };
 
 BETTER_ENUM(AnimationWrapMode, int, 
@@ -62,38 +67,52 @@ BETTER_ENUM(AnimationWrapMode, int,
 	ClampForever
 )
 
-class SUEDE_API IAnimationClip : virtual public IObject {
-public:
-	virtual void SetWrapMode(AnimationWrapMode value) = 0;
-	virtual AnimationWrapMode GetWrapMode() = 0;
+class SUEDE_API IAnimationClip : public IObject {
+	SUEDE_DECLARE_IMPL(AnimationClip)
 
-	virtual void SetTicksPerSecond(float value) = 0;
-	virtual float GetTicksPerSecond() = 0;
+public:
+	IAnimationClip();
+
+public:
+	void SetWrapMode(AnimationWrapMode value);
+	AnimationWrapMode GetWrapMode();
+
+	void SetTicksPerSecond(float value);
+	float GetTicksPerSecond();
 
 	/**
 	 * @param value: duration of the animation in ticks.
 	 */
-	virtual void SetDuration(float value) = 0;
-	virtual float GetDuration() = 0;
+	void SetDuration(float value);
+	float GetDuration();
 
-	virtual void SetAnimation(Animation value) = 0;
-	virtual Animation GetAnimation() = 0;
+	void SetAnimation(Animation value);
+	Animation GetAnimation();
 
-	virtual bool Sample(float time) = 0;
+	bool Sample(float time);
 };
 
-class SUEDE_API IAnimationState : virtual public IObject {
-};
+class SUEDE_API IAnimationState : public IObject {
+	SUEDE_DECLARE_IMPL(AnimationState)
 
-class SUEDE_API IAnimationKeys : virtual public IObject {
 public:
-	virtual void AddFloat(float time, int id, float value) = 0;
-	virtual void AddVector3(float time, int id, const glm::vec3& value) = 0;
-	virtual void AddQuaternion(float time, int id, const glm::quat& value) = 0;
+	IAnimationState();
+};
 
-	virtual void Remove(float time, int id) = 0;
+class SUEDE_API IAnimationKeys : public IObject {
+	SUEDE_DECLARE_IMPL(AnimationKeys)
 
-	virtual void ToKeyframes(std::vector<AnimationFrame>& keyframes) = 0;
+public:
+	IAnimationKeys();
+
+public:
+	void AddFloat(float time, int id, float value);
+	void AddVector3(float time, int id, const glm::vec3& value);
+	void AddQuaternion(float time, int id, const glm::quat& value);
+
+	void Remove(float time, int id);
+
+	void ToKeyframes(std::vector<AnimationFrame>& keyframes);
 };
 
 enum {
@@ -105,47 +124,61 @@ enum {
 	FrameKeyMaxCount = 8,
 };
 
-class SUEDE_API IAnimationFrame : virtual public IObject {
+class SUEDE_API IAnimationFrame : public IObject {
+	SUEDE_DECLARE_IMPL(AnimationFrame)
+
 public:
-	virtual void SetTime(float value) = 0;
-	virtual float GetTime() = 0;
+	IAnimationFrame();
 
-	virtual void Assign(AnimationFrame other) = 0;
-	virtual void Lerp(AnimationFrame result, AnimationFrame other, float factor) = 0;
+public:
+	void SetTime(float value);
+	float GetTime();
 
-	virtual void SetFloat(int id, float value) = 0;
-	virtual void SetVector3(int id, const glm::vec3& value) = 0;
-	virtual void SetQuaternion(int id, const glm::quat& value) = 0;
+	void Assign(AnimationFrame other);
+	void Lerp(AnimationFrame result, AnimationFrame other, float factor);
 
-	virtual float GetFloat(int id) = 0;
-	virtual glm::vec3 GetVector3(int id) = 0;
-	virtual glm::quat GetQuaternion(int id) = 0;
+	void SetFloat(int id, float value);
+	void SetVector3(int id, const glm::vec3& value);
+	void SetQuaternion(int id, const glm::quat& value);
+
+	float GetFloat(int id);
+	glm::vec3 GetVector3(int id);
+	glm::quat GetQuaternion(int id);
 };
 
-class SUEDE_API IAnimationCurve : virtual public IObject {
+class SUEDE_API IAnimationCurve : public IObject {
+	SUEDE_DECLARE_IMPL(AnimationCurve)
+
 public:
-	virtual void SetKeyframes(const std::vector<AnimationFrame>& value) = 0;
+	IAnimationCurve();
+
+public:
+	void SetKeyframes(const std::vector<AnimationFrame>& value);
 
 	/**
 	 * @returns whether time reaches the last frame.
 	 */
-	virtual bool Sample(float time, AnimationFrame& frame) = 0;
+	bool Sample(float time, AnimationFrame& frame);
 };
 
-class SUEDE_API IAnimation : virtual public IComponent {
+class SUEDE_API IAnimation : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(Animation)
 
 public:
-	virtual void AddClip(const std::string& name, AnimationClip value) = 0;
-	virtual AnimationClip GetClip(const std::string& name) = 0;
+	IAnimation();
 
-	virtual void SetSkeleton(Skeleton value) = 0;
-	virtual Skeleton GetSkeleton() = 0;
+public:
+	void AddClip(const std::string& name, AnimationClip value);
+	AnimationClip GetClip(const std::string& name);
+
+	void SetSkeleton(Skeleton value);
+	Skeleton GetSkeleton();
 	
-	virtual void SetRootTransform(const glm::mat4& value) = 0;
-	virtual glm::mat4 GetRootTransform() = 0;
+	void SetRootTransform(const glm::mat4& value);
+	glm::mat4 GetRootTransform();
 
-	virtual void SetWrapMode(AnimationWrapMode value) = 0;
+	void SetWrapMode(AnimationWrapMode value);
 
-	virtual bool Play(const std::string& name) = 0;
+	bool Play(const std::string& name);
 };

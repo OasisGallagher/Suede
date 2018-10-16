@@ -4,6 +4,48 @@
 #include "meshinternal.h"
 #include "internal/base/vertexattrib.h"
 
+ISubMesh::ISubMesh() : IObject(MEMORY_NEW(SubMeshInternal)) {}
+const TriangleBias& ISubMesh::GetTriangleBias() const { return dptr()->GetTriangleBias(); }
+void ISubMesh::SetTriangleBias(const TriangleBias& value) { dptr()->SetTriangleBias(value); }
+
+IMesh::IMesh() : IObject(MEMORY_NEW(MeshInternal)) {}
+void IMesh::CreateStorage() { dptr()->CreateStorage(); }
+void IMesh::SetAttribute(const MeshAttribute& value) { dptr()->SetAttribute(value); }
+const Bounds& IMesh::GetBounds() const { return dptr()->GetBounds(); }
+void IMesh::SetBounds(const Bounds& value) { dptr()->SetBounds(value); }
+
+void IMesh::AddSubMesh(SubMesh subMesh) { dptr()->AddSubMesh(subMesh); }
+int IMesh::GetSubMeshCount() { return dptr()->GetSubMeshCount(); }
+SubMesh IMesh::GetSubMesh(uint index) { return dptr()->GetSubMesh(index); }
+IMesh::Enumerable IMesh::GetSubMeshes() { return dptr()->GetSubMeshes(); }
+void IMesh::RemoveSubMesh(uint index) { dptr()->RemoveSubMesh(index); }
+MeshTopology IMesh::GetTopology() { return dptr()->GetTopology(); }
+uint IMesh::GetNativePointer() const { return dptr()->GetNativePointer(); }
+uint* IMesh::MapIndexes() { return dptr()->MapIndexes(); }
+void IMesh::UnmapIndexes() { dptr()->UnmapIndexes(); }
+uint IMesh::GetIndexCount() { return dptr()->GetIndexCount(); }
+glm::vec3* IMesh::MapVertices() { return dptr()->MapVertices(); }
+void IMesh::UnmapVertices() { dptr()->UnmapVertices(); }
+uint IMesh::GetVertexCount() { return dptr()->GetVertexCount(); }
+void IMesh::Bind() { dptr()->Bind(); }
+void IMesh::Unbind() { dptr()->Unbind(); }
+void IMesh::ShareStorage(Mesh other) { dptr()->ShareStorage(other); }
+void IMesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { dptr()->UpdateInstanceBuffer(i, size, data); }
+
+IMeshProvider::IMeshProvider(void* d) : IComponent(d) {}
+Mesh IMeshProvider::GetMesh() { return dptr()->GetMesh(); }
+
+ITextMesh::ITextMesh() : IMeshProvider(MEMORY_NEW(TextMeshInternal)) {}
+void ITextMesh::SetText(const std::string& value) { dptr()->SetText(value); }
+std::string ITextMesh::GetText() { return dptr()->GetText(); }
+void ITextMesh::SetFont(Font value) { dptr()->SetFont(value); }
+Font ITextMesh::GetFont() { return dptr()->GetFont(); }
+void ITextMesh::SetFontSize(uint value) { dptr()->SetFontSize(value); }
+uint ITextMesh::GetFontSize() { return dptr()->GetFontSize(); }
+
+IMeshFilter::IMeshFilter() : IMeshProvider(MEMORY_NEW(MeshFilterInternal)) {}
+void IMeshFilter::SetMesh(Mesh value) { dptr()->SetMesh(value); }
+
 SUEDE_DEFINE_COMPONENT(IMeshProvider, IComponent)
 SUEDE_DEFINE_COMPONENT(ITextMesh, IMeshProvider)
 SUEDE_DEFINE_COMPONENT(IMeshFilter, IMeshProvider)
@@ -126,7 +168,7 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 }
 
 void MeshInternal::ShareStorage(Mesh other) {
-	MeshInternal* ptr = InternalPtr(other);
+	MeshInternal* ptr = rptr(other);
 	if (!ptr->storage_) {
 		Debug::LogError("empty storage");
 		return;
@@ -187,7 +229,10 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-TextMeshInternal::TextMeshInternal() : ComponentInternal(ObjectType::TextMesh), dirty_(false) {
+MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(type) {
+}
+
+TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), dirty_(false) {
 	mesh_ = NewMesh();
 	mesh_->AddSubMesh(NewSubMesh());
 }
@@ -318,8 +363,7 @@ MeshInternal::Storage::Storage() {
 	memset(bufferIndexes, 0, sizeof(bufferIndexes));
 }
 
-MeshFilterInternal::MeshFilterInternal()
-	: ComponentInternal(ObjectType::MeshFilter) {
+MeshFilterInternal::MeshFilterInternal() : MeshProviderInternal(ObjectType::MeshFilter) {
 }
 
 void MeshFilterInternal::SetMesh(Mesh value) {

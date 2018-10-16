@@ -15,32 +15,37 @@ struct ShaderProperty {
 	Property* property;
 };
 
-class SUEDE_API IShader : virtual public IObject {
+class SUEDE_API IShader : public IObject {
+	SUEDE_DECLARE_IMPL(Shader)
+
 public:
-	virtual std::string GetName() const = 0;
-	virtual bool Load(const std::string& path) = 0;
+	IShader();
 
-	virtual void Bind(uint ssi, uint pass) = 0;
-	virtual void Unbind() = 0;
+public:
+	std::string GetName() const;
+	bool Load(const std::string& path);
 
-	virtual void SetRenderQueue(uint ssi, int value) = 0;
-	virtual int GetRenderQueue(uint ssi) const = 0;
+	void Bind(uint ssi, uint pass);
+	void Unbind();
+
+	void SetRenderQueue(uint ssi, int value);
+	int GetRenderQueue(uint ssi) const;
 
 	/**
 	 * @return initial enabled state of pass `pass`.
 	 */
-	virtual bool IsPassEnabled(uint ssi, uint pass) const = 0;
-	virtual int GetPassIndex(uint ssi, const std::string& name) const = 0;
-	virtual uint GetNativePointer(uint ssi, uint pass) const = 0;
+	bool IsPassEnabled(uint ssi, uint pass) const;
+	int GetPassIndex(uint ssi, const std::string& name) const;
+	uint GetNativePointer(uint ssi, uint pass) const;
 
-	virtual uint GetPassCount(uint ssi) const = 0;
-	virtual uint GetSubShaderCount() const = 0;
+	uint GetPassCount(uint ssi) const;
+	uint GetSubShaderCount() const;
 
 	/**
 	* @param properties return initial properties defined in shader.
 	*/
-	virtual void GetProperties(std::vector<ShaderProperty>& properties) = 0;
-	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data) = 0;
+	void GetProperties(std::vector<ShaderProperty>& properties);
+	bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Shader);

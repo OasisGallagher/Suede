@@ -3,6 +3,13 @@
 #include "tools/math2.h"
 #include "debug/debug.h"
 
+IObject::IObject(void* d) : d_(d) { }
+IObject::~IObject() { MEMORY_DELETE(dptr()); }
+Object IObject::Clone() { return dptr()->Clone(); }
+ObjectType IObject::GetObjectType() { return dptr()->GetObjectType(); }
+uint IObject::GetInstanceID() { return dptr()->GetInstanceID(); }\
+bool IObject::d_equals(void* d) { return d_ == d; }
+
 uint ObjectInternal::ObjectIDContainer[ObjectType::size()];
 
 ObjectInternal::ObjectInternal(ObjectType type) {

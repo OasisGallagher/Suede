@@ -5,66 +5,17 @@
 
 SUEDE_DEFINE_COMPONENT(Behaviour, IComponent)
 
-#define impl	((BehaviourImpl*)impl_)
-
-class BehaviourImpl : public ComponentInternal {
+class BehaviourInternal : public ComponentInternal {
 public:
-	BehaviourImpl() : ComponentInternal(ObjectType::CustomBehaviour) {}
+	BehaviourInternal() : ComponentInternal(ObjectType::CustomBehaviour) {}
 
 public:
 	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
 };
 
-Behaviour::Behaviour() : impl_(MEMORY_NEW(BehaviourImpl)) {
-}
-
-Behaviour::~Behaviour() {
-	MEMORY_DELETE(impl);
+Behaviour::Behaviour() : IComponent(MEMORY_NEW(BehaviourInternal)) {
 }
 
 void Behaviour::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
 	Debug::LogError("Behaviour::OnRenderImage not implement");
-}
-
-bool Behaviour::GetEnabled() const {
-	return impl->GetEnabled();
-}
-
-void Behaviour::SetEnabled(bool value) {
-	impl->SetEnabled(value);
-}
-
-void Behaviour::SetGameObject(GameObject value) {
-	impl->SetGameObject(value);
-}
-
-GameObject Behaviour::GetGameObject() {
-	return impl->GetGameObject();
-}
-
-Transform Behaviour::GetTransform() {
-	return impl->GetTransform();
-}
-
-void Behaviour::CullingUpdate() {
-}
-
-void Behaviour::RenderingUpdate() {
-	Update();
-}
-
-int Behaviour::GetUpdateStrategy() {
-	return impl->GetUpdateStrategy();
-}
-
-Object Behaviour::Clone() {
-	return impl->Clone();
-}
-
-ObjectType Behaviour::GetObjectType() {
-	return impl->GetObjectType();
-}
-
-uint Behaviour::GetInstanceID() {
-	return impl->GetInstanceID();
 }

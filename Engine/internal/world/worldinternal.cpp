@@ -64,7 +64,7 @@ void WorldInternal::Initialize() {
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
-	root_ = Factory::Create<GameObjectInternal>();
+	root_ = Factory::Create<GameObject>();
 	root_->AddComponent<ITransform>();
 	root_->SetName("Root");
 }

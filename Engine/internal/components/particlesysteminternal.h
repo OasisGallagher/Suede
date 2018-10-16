@@ -6,7 +6,7 @@
 #include "containers/freelist.h"
 #include "internal/components/componentinternal.h"
 
-class ParticleEmitterInternal : virtual public IParticleEmitter, public ObjectInternal {
+class ParticleEmitterInternal : public ObjectInternal {
 public:
 	ParticleEmitterInternal(ObjectType type);
 
@@ -52,7 +52,7 @@ private:
 	std::vector<ParticleBurst> bursts_;
 };
 
-class SphereParticleEmitterInternal : public ISphereParticleEmitter, public ParticleEmitterInternal {
+class SphereParticleEmitterInternal : public ParticleEmitterInternal {
 	DEFINE_FACTORY_METHOD(SphereParticleEmitter)
 
 public:
@@ -68,7 +68,7 @@ private:
 	float radius_;
 };
 
-class ParticleAnimatorInternal : public IParticleAnimator, public ObjectInternal {
+class ParticleAnimatorInternal : public ObjectInternal {
 	DEFINE_FACTORY_METHOD(ParticleAnimator)
 
 public:
@@ -92,7 +92,7 @@ private:
 	glm::vec3 randomForce_;
 };
 
-class ParticleSystemInternal : public IParticleSystem, public ComponentInternal {
+class ParticleSystemInternal : public ComponentInternal {
 	DEFINE_FACTORY_METHOD(ParticleSystem)
 
 public:

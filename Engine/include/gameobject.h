@@ -15,32 +15,37 @@ enum {
 	RecalculateBoundsFlagsAll = -1,
 };
 
-class SUEDE_API IGameObject : virtual public IObject {
+class SUEDE_API IGameObject : public IObject {
+	SUEDE_DECLARE_IMPL(GameObject)
+
 public:
-	virtual bool GetActive() const = 0;
+	IGameObject();
 
-	virtual void SetActiveSelf(bool value) = 0;
-	virtual bool GetActiveSelf() const = 0;
+public:
+	bool GetActive() const;
 
-	virtual int GetUpdateStrategy() = 0;
+	void SetActiveSelf(bool value);
+	bool GetActiveSelf() const;
 
-	virtual const std::string& GetTag() const = 0;
-	virtual bool SetTag(const std::string& value) = 0;
+	int GetUpdateStrategy();
 
-	virtual std::string GetName() const = 0;
-	virtual void SetName(const std::string& value) = 0;
+	const std::string& GetTag() const;
+	bool SetTag(const std::string& value);
 
-	virtual void CullingUpdate() = 0;
-	virtual void RenderingUpdate() = 0;
+	std::string GetName() const;
+	void SetName(const std::string& value);
 
-	virtual Transform GetTransform() = 0;
+	void CullingUpdate();
+	void RenderingUpdate();
+
+	Transform GetTransform();
 	/**
 	 * @returns bounds measured in the world space.
 	 */
-	virtual const Bounds& GetBounds() = 0;
-	virtual void RecalculateBounds(int flags = RecalculateBoundsFlagsAll) = 0;
+	const Bounds& GetBounds();
+	void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
-	virtual void RecalculateUpdateStrategy() = 0;
+	void RecalculateUpdateStrategy();
 
 public:	// Component system.
 	template <class T, class... Args> 
@@ -48,15 +53,15 @@ public:	// Component system.
 	template <class T> std::shared_ptr<T> GetComponent();
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
-	virtual Component AddComponent(suede_guid guid) = 0;
-	virtual Component AddComponent(Component component) = 0;
+	Component AddComponent(suede_guid guid);
+	Component AddComponent(Component component);
 
-	virtual Component GetComponent(suede_guid guid) = 0;
+	Component GetComponent(suede_guid guid);
 
 	/**
 	 * @param guid pass 0 to get all components.
 	 */
-	virtual std::vector<Component> GetComponents(suede_guid guid) = 0;
+	std::vector<Component> GetComponents(suede_guid guid);
 };
 
 template <class T, class... Args>

@@ -9,6 +9,18 @@
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
+IFont::IFont() : IObject(MEMORY_NEW(FontInternal)) {}
+bool IFont::Load(const std::string& path, int size) { return dptr()->Load(path, size); }
+bool IFont::Require(const std::wstring& str) { return dptr()->Require(str); }
+uint IFont::GetFontSize() const { return dptr()->GetFontSize(); }
+Texture2D IFont::GetTexture() const { return dptr()->GetTexture(); }
+std::string IFont::GetFamilyName() const { return dptr()->GetFamilyName(); }
+std::string IFont::GetStyleName() const { return dptr()->GetStyleName(); }
+Material IFont::GetMaterial() { return dptr()->GetMaterial(); }
+bool IFont::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return dptr()->GetCharacterInfo(wch, info); }
+void IFont::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { dptr()->AddMaterialRebuiltListener(listener); }
+void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { dptr()->RemoveMaterialRebuiltListener(listener); }
+
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = NewMaterial();

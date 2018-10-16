@@ -15,9 +15,9 @@ class Factory {
 	Factory();
 
 public:
-	template <class Internal>
-	static typename Internal::Interface Create() {
-		return typename Internal::Interface(MEMORY_NEW(Internal), Deleter(), Allocator<Internal>());
+	template <class T>
+	static typename T Create() {
+		return typename T(MEMORY_NEW(T::element_type), Deleter(), Allocator<T::element_type>());
 	}
 
 	static Object Create(const std::string& name) {

@@ -4,7 +4,7 @@
 #include "gameobject.h"
 #include "internal/base/objectinternal.h"
 
-class ComponentInternal : virtual public IComponent, public ObjectInternal {
+class ComponentInternal : public ObjectInternal {
 public:
 	ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {}
 
@@ -22,6 +22,8 @@ public:
 
 	virtual void CullingUpdate() {}
 	virtual void RenderingUpdate() {}
+
+	virtual int GetUpdateStrategy() { return 0; }
 
 protected:
 	std::weak_ptr<GameObject::element_type> gameObject_;

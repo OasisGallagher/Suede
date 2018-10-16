@@ -5,6 +5,10 @@
 #define SUEDE_DEFINE_OBJECT_POINTER(Ty)	typedef std::shared_ptr<class I ## Ty> Ty
 #define SUEDE_DECLARE_OBJECT_CREATER(Ty)	SUEDE_API Ty New ## Ty()
 
+#define SUEDE_DECLARE_IMPL(name)	public: \
+	typedef class name ## Internal Internal; \
+	private:
+
 #define SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Ty)			class SUEDE_API Ty : public std::shared_ptr<I ## Ty>
 #define SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Ty)		public: \
 																Ty() {} \

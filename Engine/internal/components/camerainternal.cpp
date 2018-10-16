@@ -12,6 +12,41 @@
 #include "tools/math2.h"
 #include "internal/async/guard.h"
 
+ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
+void ICamera::SetDepth(int value) { dptr()->SetDepth(SharedThis(), value); }
+int ICamera::GetDepth() { return dptr()->GetDepth(); }
+bool ICamera::GetPerspective() const { return dptr()->GetPerspective(); }
+void ICamera::SetPerspective(bool value) { dptr()->SetPerspective(value); }
+float ICamera::GetOrthographicSize() const { return dptr()->GetOrthographicSize(); }
+void ICamera::SetOrthographicSize(float value) { dptr()->SetOrthographicSize(value); }
+void ICamera::SetClearType(ClearType value) { dptr()->SetClearType(value); }
+ClearType ICamera::GetClearType() { return dptr()->GetClearType(); }
+void ICamera::SetRenderPath(RenderPath value) { dptr()->SetRenderPath(value); }
+RenderPath ICamera::GetRenderPath() { return dptr()->GetRenderPath(); }
+void ICamera::SetDepthTextureMode(DepthTextureMode value) { dptr()->SetDepthTextureMode(value); }
+DepthTextureMode ICamera::GetDepthTextureMode() { return dptr()->GetDepthTextureMode(); }
+void ICamera::SetClearColor(const Color& value) { dptr()->SetClearColor(value); }
+Color ICamera::GetClearColor() { return dptr()->GetClearColor(); }
+void ICamera::SetTargetTexture(RenderTexture value) { dptr()->SetTargetTexture(value); }
+RenderTexture ICamera::GetTargetTexture() { return dptr()->GetTargetTexture(); }
+void ICamera::SetAspect(float value) { dptr()->SetAspect(value); }
+float ICamera::GetAspect() const { return dptr()->GetAspect(); }
+void ICamera::SetNearClipPlane(float value) { dptr()->SetNearClipPlane(value); }
+float ICamera::GetNearClipPlane() const { return dptr()->GetNearClipPlane(); }
+void ICamera::SetFarClipPlane(float value) { dptr()->SetFarClipPlane(value); }
+float ICamera::GetFarClipPlane() const { return dptr()->GetFarClipPlane(); }
+void ICamera::SetFieldOfView(float value) { dptr()->SetFieldOfView(value); }
+float ICamera::GetFieldOfView() const { return dptr()->GetFieldOfView(); }
+void ICamera::SetRect(const Rect& value) { dptr()->SetRect(value); }
+const Rect& ICamera::GetRect() const { return dptr()->GetRect(); }
+const glm::mat4& ICamera::GetProjectionMatrix() { return dptr()->GetProjectionMatrix(); }
+void ICamera::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) { return dptr()->GetVisibleGameObjects(gameObjects); }
+glm::vec3 ICamera::WorldToScreenPoint(const glm::vec3& position) { return dptr()->WorldToScreenPoint(position); }
+glm::vec3 ICamera::ScreenToWorldPoint(const glm::vec3& position) { return dptr()->ScreenToWorldPoint(position); }
+Texture2D ICamera::Capture() { return dptr()->Capture(); }
+void ICamera::Render() { dptr()->Render(); }
+void ICamera::OnBeforeWorldDestroyed() { dptr()->OnBeforeWorldDestroyed(); }
+
 static Camera main_;
 Camera Camera::main() { return main_; }
 void Camera::main(Camera value) { main_ = value; }
@@ -78,11 +113,11 @@ void CameraInternal::CancelThreads() {
 	}
 }
 
-void CameraInternal::SetDepth(int value) {
+void CameraInternal::SetDepth(Camera self, int value) {
 	if (depth_ != value) {
 		depth_ = value;
 		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
-		e->component = SharedThis();
+		e->component = self;
 		World::instance()->FireEvent(e);
 	}
 }

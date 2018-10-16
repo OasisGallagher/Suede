@@ -7,7 +7,7 @@
 #include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"
 
-class TextureInternal : virtual public ITexture, public ObjectInternal {
+class TextureInternal : public ObjectInternal {
 public:
 	TextureInternal(ObjectType type);
 	~TextureInternal();
@@ -15,22 +15,24 @@ public:
 public:
 	virtual void Bind(uint index);
 	virtual void Unbind();
-	virtual uint GetNativePointer() { return texture_; }
-	
+
 	virtual uint GetWidth() const { return width_; }
 	virtual uint GetHeight() const { return height_; }
 
-	virtual void SetMinFilterMode(TextureMinFilterMode value);
-	virtual TextureMinFilterMode GetMinFilterMode() const;
+public:
+	uint GetNativePointer() { return texture_; }
 
-	virtual void SetMagFilterMode(TextureMagFilterMode value);
-	virtual TextureMagFilterMode GetMagFilterMode() const;
+	void SetMinFilterMode(TextureMinFilterMode value);
+	TextureMinFilterMode GetMinFilterMode() const;
+	
+	void SetMagFilterMode(TextureMagFilterMode value);
+	TextureMagFilterMode GetMagFilterMode() const;
 
-	virtual void SetWrapModeS(TextureWrapMode value);
-	virtual TextureWrapMode GetWrapModeS() const;
+	void SetWrapModeS(TextureWrapMode value);
+	TextureWrapMode GetWrapModeS() const;
 
-	virtual void SetWrapModeT(TextureWrapMode value);
-	virtual TextureWrapMode GetWrapModeT() const;
+	void SetWrapModeT(TextureWrapMode value);
+	TextureWrapMode GetWrapModeT() const;
 
 protected:
 	void DestroyTexture();
@@ -63,7 +65,7 @@ protected:
 	GLenum internalFormat_;
 };
 
-class Texture2DInternal : public ITexture2D, public TextureInternal {
+class Texture2DInternal : public TextureInternal {
 	DEFINE_FACTORY_METHOD(Texture2D)
 
 public:
@@ -71,13 +73,13 @@ public:
 	~Texture2DInternal();
 
 public:
-	virtual bool Create(const std::string& path);
-	virtual bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+	bool Create(const std::string& path);
+	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
 
-	virtual TextureFormat GetFormat() { return format_; }
+	TextureFormat GetFormat() { return format_; }
 
-	virtual bool EncodeToPNG(std::vector<uchar>& data);
-	virtual bool EncodeToJPG(std::vector<uchar>& data);
+	bool EncodeToPNG(std::vector<uchar>& data);
+	bool EncodeToJPG(std::vector<uchar>& data);
 
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
@@ -90,7 +92,7 @@ private:
 	TextureFormat format_;
 };
 
-class TextureCubeInternal : public ITextureCube, public TextureInternal {
+class TextureCubeInternal : public TextureInternal {
 	DEFINE_FACTORY_METHOD(TextureCube)
 
 public:
@@ -106,7 +108,7 @@ protected:
 };
 
 class Buffer;
-class TextureBufferInternal : public ITextureBuffer, public TextureInternal {
+class TextureBufferInternal : public TextureInternal {
 	DEFINE_FACTORY_METHOD(TextureBuffer)
 
 public:
@@ -129,7 +131,7 @@ private:
 	Buffer* buffer_;
 };
 
-class RenderTextureInternalBase : virtual public IRenderTexture, public TextureInternal {
+class RenderTextureInternalBase : public TextureInternal {
 public:
 	RenderTextureInternalBase() : TextureInternal(ObjectType::RenderTexture), framebuffer_(nullptr) {}
 
@@ -148,15 +150,16 @@ public:
 	~RenderTextureInternal();
 
 public:
-	virtual bool Create(RenderTextureFormat format, uint width, uint height);
+	virtual void Bind(uint index);
+	virtual void Unbind();
 
+	virtual bool Create(RenderTextureFormat format, uint width, uint height);
 	virtual void Resize(uint width, uint height);
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 	virtual void BindWrite(const Rect& normalizedRect);
 
-	virtual void Bind(uint index);
-	virtual void Unbind();
+public:
+	void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
@@ -183,19 +186,28 @@ private:
 	RenderTextureFormat format_;
 };
 
+class IScreenRenderTexture : public IRenderTexture {
+	SUEDE_DECLARE_IMPL(ScreenRenderTexture);
+public:
+	IScreenRenderTexture();
+};
+
+SUEDE_DEFINE_OBJECT_POINTER(ScreenRenderTexture);
+
 class ScreenRenderTextureInternal : public RenderTextureInternalBase {
 public:
 	ScreenRenderTextureInternal();
 
-protected:
-	virtual bool Create(RenderTextureFormat format, uint width, uint height);
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
-
+public:
 	virtual uint GetWidth() const;
 	virtual uint GetHeight() const;
 
 	virtual void BindWrite(const Rect& normalizedRect);
 	virtual void Unbind();
+
+public:
+	bool Create(RenderTextureFormat format, uint width, uint height);
+	void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 protected:
 	virtual void Resize(uint width, uint height);
@@ -203,7 +215,7 @@ protected:
 	virtual GLenum GetGLTextureBindingName() const;
 };
 
-class MRTRenderTextureInternal : public RenderTextureInternal, public IMRTRenderTexture {
+class MRTRenderTextureInternal : public RenderTextureInternal {
 	DEFINE_FACTORY_METHOD(MRTRenderTexture)
 
 public:

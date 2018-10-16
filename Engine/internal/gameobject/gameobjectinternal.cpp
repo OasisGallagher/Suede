@@ -9,6 +9,26 @@
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
+IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal)) {}
+bool IGameObject::GetActive() const { return dptr()->GetActive(); }
+void IGameObject::SetActiveSelf(bool value) { dptr()->SetActiveSelf(SharedThis(), value); }
+bool IGameObject::GetActiveSelf() const { return dptr()->GetActiveSelf(); }
+int IGameObject::GetUpdateStrategy() { return dptr()->GetUpdateStrategy(SharedThis()); }
+const std::string& IGameObject::GetTag() const { return dptr()->GetTag(); }
+bool IGameObject::SetTag(const std::string& value) { return dptr()->SetTag(SharedThis(), value); }
+std::string IGameObject::GetName() const { return dptr()->GetName(); }
+void IGameObject::SetName(const std::string& value) { dptr()->SetName(SharedThis(), value); }
+void IGameObject::CullingUpdate() { dptr()->CullingUpdate(); }
+void IGameObject::RenderingUpdate() { dptr()->RenderingUpdate(); }
+Transform IGameObject::GetTransform() { return dptr()->GetTransform(); }
+const Bounds& IGameObject::GetBounds() { return dptr()->GetBounds(); }
+void IGameObject::RecalculateBounds(int flags) { return dptr()->RecalculateBounds(); }
+void IGameObject::RecalculateUpdateStrategy() { dptr()->RecalculateUpdateStrategy(SharedThis()); }
+Component IGameObject::AddComponent(suede_guid guid) { return dptr()->AddComponent(SharedThis(), guid); }
+Component IGameObject::AddComponent(Component component) { return dptr()->AddComponent(SharedThis(), component); }
+Component IGameObject::GetComponent(suede_guid guid) { return dptr()->GetComponent(guid); }
+std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return dptr()->GetComponents(guid); }
+
 #define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()))
 
 GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
@@ -27,11 +47,11 @@ GameObjectInternal::GameObjectInternal(ObjectType type)
 GameObjectInternal::~GameObjectInternal() {
 }
 
-void GameObjectInternal::SetActiveSelf(bool value) {
+void GameObjectInternal::SetActiveSelf(GameObject self, bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
-		SetActive(activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
-		UpdateChildrenActive(SharedThis());
+		SetActive(self, activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
+		UpdateChildrenActive(self);
 
 		Renderer renderer = GET_COMPONENT(Renderer);
 		MeshProvider provider = GET_COMPONENT(MeshProvider);
@@ -42,7 +62,7 @@ void GameObjectInternal::SetActiveSelf(bool value) {
 	}
 }
 
-bool GameObjectInternal::SetTag(const std::string& value) {
+bool GameObjectInternal::SetTag(GameObject self, const std::string& value) {
 	if (!TagManager::instance()->IsRegistered(value)) {
 		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
 		return false;
@@ -50,14 +70,14 @@ bool GameObjectInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		FireWorldEvent<GameObjectTagChangedEventPtr>(true);
+		FireWorldEvent<GameObjectTagChangedEventPtr>(self, true);
 	}
 
 	return true;
 }
 
-Component GameObjectInternal::AddComponent(Component component) {
-	component->SetGameObject(SharedThis());
+Component GameObjectInternal::AddComponent(GameObject self, Component component) {
+	component->SetGameObject(self);
 	components_.push_back(component);
 
 	component->Awake();
@@ -71,7 +91,7 @@ Component GameObjectInternal::AddComponent(Component component) {
 	}
 
 	auto e = NewWorldEvent<GameObjectComponentChangedEventPtr>();
-	e->go = SharedThis();
+	e->go = self;
 	e->added = true;
 	e->component = component;
 	World::instance()->FireEvent(e);
@@ -79,12 +99,12 @@ Component GameObjectInternal::AddComponent(Component component) {
 	return component;
 }
 
-Component GameObjectInternal::AddComponent(suede_guid guid) {
+Component GameObjectInternal::AddComponent(GameObject self, suede_guid guid) {
 	if (!CheckComponentDuplicate(guid)) {
 		return nullptr;
 	}
 
-	return AddComponent(suede_dynamic_cast<Component>(Factory::Create(guid)));
+	return AddComponent(self, suede_dynamic_cast<Component>(Factory::Create(guid)));
 }
 
 bool GameObjectInternal::CheckComponentDuplicate(suede_guid guid) {
@@ -96,11 +116,11 @@ bool GameObjectInternal::CheckComponentDuplicate(suede_guid guid) {
 	return true;
 }
 
-int GameObjectInternal::GetUpdateStrategy() {
-	return GetHierarchyUpdateStrategy(SharedThis());
+int GameObjectInternal::GetUpdateStrategy(GameObject self) {
+	return GetHierarchyUpdateStrategy(self);
 }
 
-void GameObjectInternal::SetName(const std::string& value) {
+void GameObjectInternal::SetName(GameObject self, const std::string& value) {
 	if (value.empty()) {
 		Debug::LogWarning("empty name.");
 		return;
@@ -108,7 +128,7 @@ void GameObjectInternal::SetName(const std::string& value) {
 
 	if (name_ != value) {
 		name_ = value;
-		FireWorldEvent<GameObjectNameChangedEventPtr>(true);
+		FireWorldEvent<GameObjectNameChangedEventPtr>(self, true);
 	}
 }
 
@@ -147,22 +167,22 @@ void GameObjectInternal::RecalculateBounds(int flags) {
 	}
 }
 
-void GameObjectInternal::RecalculateUpdateStrategy() {
-	RecalculateHierarchyUpdateStrategy();
+void GameObjectInternal::RecalculateUpdateStrategy(GameObject self) {
+	RecalculateHierarchyUpdateStrategy(self);
 }
 
-void GameObjectInternal::SetActive(bool value) {
+void GameObjectInternal::SetActive(GameObject self, bool value) {
 	if (active_ != value) {
 		active_ = value;
-		FireWorldEvent<GameObjectActiveChangedEventPtr>(true);
+		FireWorldEvent<GameObjectActiveChangedEventPtr>(self, true);
 	}
 }
 
 void GameObjectInternal::UpdateChildrenActive(GameObject parent) {
 	for (Transform transform : parent->GetTransform()->GetChildren()) {
 		GameObject child = transform->GetGameObject();
-		GameObjectInternal* childPtr = InternalPtr(child);
-		childPtr->SetActive(childPtr->activeSelf_ && parent->GetActive());
+		GameObjectInternal* childPtr = rptr(child);
+		childPtr->SetActive(child, childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
 	}
 }
@@ -273,7 +293,7 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 void GameObjectInternal::DirtyParentBounds() {
 	Transform parent, current = GetTransform();
 	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-		InternalPtr(parent->GetGameObject())->boundsDirty_ = true;
+		rptr(parent->GetGameObject())->boundsDirty_ = true;
 		current = parent;
 	}
 }
@@ -296,15 +316,15 @@ int GameObjectInternal::GetHierarchyUpdateStrategy(GameObject root) {
 	return strategy;
 }
 
-bool GameObjectInternal::RecalculateHierarchyUpdateStrategy() {
+bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 	updateStrategyDirty_ = true;
 	int oldStrategy = updateStrategy_;
-	int newStrategy = GetUpdateStrategy();
+	int newStrategy = GetUpdateStrategy(self);
 
 	if (oldStrategy != newStrategy) {
 		Transform parent, current = GetTransform();
 		for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-			if (!InternalPtr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy()) {
+			if (!rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
 				break;
 			}
 
@@ -312,7 +332,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy() {
 		}
 
 		GameObjectUpdateStrategyChangedEventPtr e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPtr>();
-		e->go = SharedThis();
+		e->go = self;
 		World::instance()->FireEvent(e);
 
 		return true;
@@ -323,7 +343,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy() {
 
 void GameObjectInternal::DirtyChildrenBoundses() {
 	for (Transform tr : GetTransform()->GetChildren()) {
-		GameObjectInternal* child = InternalPtr(tr->GetGameObject());
+		GameObjectInternal* child = rptr(tr->GetGameObject());
 		child->DirtyChildrenBoundses();
 		child->boundsDirty_ = true;
 	}

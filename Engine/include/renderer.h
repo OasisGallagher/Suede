@@ -7,40 +7,56 @@
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
-class SUEDE_API IRenderer : virtual public IComponent {
+class SUEDE_API IRenderer : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(Renderer)
 
 public:
 	typedef SuedeEnumerable<std::vector<Material>::iterator> Enumerable;
 
 public:
-	virtual void AddMaterial(Material material) = 0;
-	virtual Material GetMaterial(uint index) = 0;
-	virtual Enumerable GetMaterials() = 0;
-	virtual void SetMaterial(uint index, Material value) = 0;
-	virtual void RemoveMaterial(Material material) = 0;
-	virtual void RemoveMaterialAt(uint index) = 0;
-	virtual uint GetMaterialCount() = 0;
+	void AddMaterial(Material material);
+	Material GetMaterial(uint index);
+	Enumerable GetMaterials();
+	void SetMaterial(uint index, Material value);
+	void RemoveMaterial(Material material);
+	void RemoveMaterialAt(uint index);
+	uint GetMaterialCount();
 	
 	/**
 	 * @brief update renderer properties to materials.
 	 */
-	virtual void UpdateMaterialProperties() = 0;
+	void UpdateMaterialProperties();
+
+protected:
+	IRenderer(void* d);
 };
 
-class SUEDE_API IMeshRenderer : virtual public IRenderer {
+class SUEDE_API IMeshRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
-};
-
-class SUEDE_API IParticleRenderer : virtual public IRenderer {
-	SUEDE_DECLARE_COMPONENT()
-};
-
-class SUEDE_API ISkinnedMeshRenderer : virtual public IRenderer {
-	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(MeshRenderer)
 
 public:
-	virtual void SetSkeleton(Skeleton value) = 0;
+	IMeshRenderer();
+};
+
+class SUEDE_API IParticleRenderer : public IRenderer {
+	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(ParticleRenderer)
+
+public:
+	IParticleRenderer();
+};
+
+class SUEDE_API ISkinnedMeshRenderer : public IRenderer {
+	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DECLARE_IMPL(SkinnedMeshRenderer)
+
+public:
+	ISkinnedMeshRenderer();
+
+public:
+	void SetSkeleton(Skeleton value);
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Renderer);
