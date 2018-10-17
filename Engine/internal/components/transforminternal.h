@@ -6,8 +6,6 @@
 #include "internal/components/componentinternal.h"
 
 class TransformInternal : public ComponentInternal, public DirtyBits {
-	DEFINE_FACTORY_METHOD(Transform)
-
 public:
 	static ZThread::Mutex hierarchyMutex;
 

@@ -20,16 +20,14 @@
 Factory Factory::instance;
 
 #define ADD_FACTROY_METHOD(T) \
-	AddFactoryMethod(#T, T ## Internal::Create);  \
-	AddFactoryMethod(+ObjectType:: ## T, T ## Internal::Create)
+	AddFactoryMethod(#T, FactoryCreate<T>);  \
+	AddFactoryMethod(+ObjectType:: ## T, FactoryCreate<T>)
 
 #define ADD_COMPONENT_FACTROY_METHOD(T) \
-	AddFactoryMethod(T::element_type::GetComponentGUID(), T ## Internal::Create)
+	AddFactoryMethod(T::element_type::GetComponentGUID(), FactoryCreate<T>)
 
 Factory::Factory() {
 	std::fill(methodArray_, methodArray_ + ObjectType::size(), nullptr);
-
-	//ADD_FACTROY_METHOD(World);
 
 	ADD_FACTROY_METHOD(GameObject);
 

@@ -16,7 +16,7 @@ class Factory {
 
 public:
 	template <class T>
-	static typename T Create() {
+	static T Create() {
 		return typename T(MEMORY_NEW(T::element_type), Deleter(), Allocator<T::element_type>());
 	}
 
@@ -74,6 +74,11 @@ private:
 		if (!instance.typeIDMethodDictionary_.insert(std::make_pair(guid, method)).second) {
 			Debug::LogError("failed to add factroy method for %zu.", guid);
 		}
+	}
+
+	template <class T>
+	static Object FactoryCreate() {
+		return typename T(MEMORY_NEW(T::element_type), Deleter(), Allocator<T::element_type>());
 	}
 
 	static Factory instance;

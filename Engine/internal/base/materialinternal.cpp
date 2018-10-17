@@ -9,46 +9,46 @@
 #include "internal/rendering/sharedtexturemanager.h"
 
 IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) {}
-void IMaterial::SetName(const std::string& value) { dptr()->SetName(value); }
-std::string IMaterial::GetName() const { return dptr()->GetName(); }
-void IMaterial::Bind(uint pass) { dptr()->Bind(pass); }
-void IMaterial::Unbind() { dptr()->Unbind(); }
-bool IMaterial::EnablePass(uint pass) { return dptr()->EnablePass(pass); }
-bool IMaterial::DisablePass(uint pass) { return dptr()->DisablePass(pass); }
-bool IMaterial::IsPassEnabled(uint pass) const { return dptr()->IsPassEnabled(pass); }
-int IMaterial::FindPass(const std::string& name) const { return dptr()->FindPass(name); }
-void IMaterial::SetPass(int pass) { dptr()->SetPass(pass); }
-int IMaterial::GetPass() const { return dptr()->GetPass(); }
-uint IMaterial::GetPassCount() const { return dptr()->GetPassCount(); }
-uint IMaterial::GetPassNativePointer(uint pass) const { return dptr()->GetPassNativePointer(pass); }
-void IMaterial::SetShader(Shader value) { dptr()->SetShader(value); }
-Shader IMaterial::GetShader() { return dptr()->GetShader(); }
-void IMaterial::SetRenderQueue(int value) { dptr()->SetRenderQueue(value); }
-int IMaterial::GetRenderQueue() const { return dptr()->GetRenderQueue(); }
-void IMaterial::Define(const std::string& name) { dptr()->Define(name); }
-void IMaterial::Undefine(const std::string& name) { dptr()->Undefine(name); }
-void IMaterial::SetInt(const std::string& name, int value) { dptr()->SetInt(name, value); }
-void IMaterial::SetBool(const std::string& name, bool value) { dptr()->SetBool(name, value); }
-void IMaterial::SetFloat(const std::string& name, float value) { dptr()->SetFloat(name, value); }
-void IMaterial::SetTexture(const std::string& name, Texture value) { dptr()->SetTexture(name, value); }
-void IMaterial::SetMatrix4(const std::string& name, const glm::mat4& value) { dptr()->SetMatrix4(name, value); }
-void IMaterial::SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) { dptr()->SetMatrix4Array(name, ptr, count); }
-void IMaterial::SetVector3(const std::string& name, const glm::vec3& value) { dptr()->SetVector3(name, value); }
-void IMaterial::SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count) { dptr()->SetVector3Array(name, ptr, count); }
-void IMaterial::SetColor(const std::string& name, const Color& value) { dptr()->SetColor(name, value); }
-void IMaterial::SetVector4(const std::string& name, const glm::vec4& value) { dptr()->SetVector4(name, value); }
-void IMaterial::SetVariant(const std::string& name, const Variant& value) { dptr()->SetVariant(name, value); }
-int IMaterial::GetInt(const std::string& name) { return dptr()->GetInt(name); }
-bool IMaterial::GetBool(const std::string& name) { return dptr()->GetBool(name); }
-float IMaterial::GetFloat(const std::string& name) { return dptr()->GetFloat(name); }
-iranged IMaterial::GetRangedInt(const std::string& name) { return dptr()->GetRangedInt(name); }
-franged IMaterial::GetRangedFloat(const std::string& name) { return dptr()->GetRangedFloat(name); }
-Texture IMaterial::GetTexture(const std::string& name) { return dptr()->GetTexture(name); }
-glm::mat4 IMaterial::GetMatrix4(const std::string& name) { return dptr()->GetMatrix4(name); }
-glm::vec3 IMaterial::GetVector3(const std::string& name) { return dptr()->GetVector3(name); }
-Color IMaterial::GetColor(const std::string& name) { return dptr()->GetColor(name); }
-glm::vec4 IMaterial::GetVector4(const std::string& name) { return dptr()->GetVector4(name); }
-void IMaterial::GetProperties(std::vector<const Property*>& properties) const { dptr()->GetProperties(properties); }
+void IMaterial::SetName(const std::string& value) { _dptr()->SetName(value); }
+std::string IMaterial::GetName() const { return _dptr()->GetName(); }
+void IMaterial::Bind(uint pass) { _dptr()->Bind(pass); }
+void IMaterial::Unbind() { _dptr()->Unbind(); }
+bool IMaterial::EnablePass(uint pass) { return _dptr()->EnablePass(pass); }
+bool IMaterial::DisablePass(uint pass) { return _dptr()->DisablePass(pass); }
+bool IMaterial::IsPassEnabled(uint pass) const { return _dptr()->IsPassEnabled(pass); }
+int IMaterial::FindPass(const std::string& name) const { return _dptr()->FindPass(name); }
+void IMaterial::SetPass(int pass) { _dptr()->SetPass(pass); }
+int IMaterial::GetPass() const { return _dptr()->GetPass(); }
+uint IMaterial::GetPassCount() const { return _dptr()->GetPassCount(); }
+uint IMaterial::GetPassNativePointer(uint pass) const { return _dptr()->GetPassNativePointer(pass); }
+void IMaterial::SetShader(Shader value) { _dptr()->SetShader(_shared_this(), value); }
+Shader IMaterial::GetShader() { return _dptr()->GetShader(); }
+void IMaterial::SetRenderQueue(int value) { _dptr()->SetRenderQueue(value); }
+int IMaterial::GetRenderQueue() const { return _dptr()->GetRenderQueue(); }
+void IMaterial::Define(const std::string& name) { _dptr()->Define(name); }
+void IMaterial::Undefine(const std::string& name) { _dptr()->Undefine(name); }
+void IMaterial::SetInt(const std::string& name, int value) { _dptr()->SetInt(name, value); }
+void IMaterial::SetBool(const std::string& name, bool value) { _dptr()->SetBool(name, value); }
+void IMaterial::SetFloat(const std::string& name, float value) { _dptr()->SetFloat(name, value); }
+void IMaterial::SetTexture(const std::string& name, Texture value) { _dptr()->SetTexture(name, value); }
+void IMaterial::SetMatrix4(const std::string& name, const glm::mat4& value) { _dptr()->SetMatrix4(name, value); }
+void IMaterial::SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count) { _dptr()->SetMatrix4Array(name, ptr, count); }
+void IMaterial::SetVector3(const std::string& name, const glm::vec3& value) { _dptr()->SetVector3(name, value); }
+void IMaterial::SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count) { _dptr()->SetVector3Array(name, ptr, count); }
+void IMaterial::SetColor(const std::string& name, const Color& value) { _dptr()->SetColor(name, value); }
+void IMaterial::SetVector4(const std::string& name, const glm::vec4& value) { _dptr()->SetVector4(name, value); }
+void IMaterial::SetVariant(const std::string& name, const Variant& value) { _dptr()->SetVariant(name, value); }
+int IMaterial::GetInt(const std::string& name) { return _dptr()->GetInt(name); }
+bool IMaterial::GetBool(const std::string& name) { return _dptr()->GetBool(name); }
+float IMaterial::GetFloat(const std::string& name) { return _dptr()->GetFloat(name); }
+iranged IMaterial::GetRangedInt(const std::string& name) { return _dptr()->GetRangedInt(name); }
+franged IMaterial::GetRangedFloat(const std::string& name) { return _dptr()->GetRangedFloat(name); }
+Texture IMaterial::GetTexture(const std::string& name) { return _dptr()->GetTexture(name); }
+glm::mat4 IMaterial::GetMatrix4(const std::string& name) { return _dptr()->GetMatrix4(name); }
+glm::vec3 IMaterial::GetVector3(const std::string& name) { return _dptr()->GetVector3(name); }
+Color IMaterial::GetColor(const std::string& name) { return _dptr()->GetColor(name); }
+glm::vec4 IMaterial::GetVector4(const std::string& name) { return _dptr()->GetVector4(name); }
+void IMaterial::GetProperties(std::vector<const Property*>& properties) const { _dptr()->GetProperties(properties); }
 
 // SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
@@ -62,15 +62,15 @@ MaterialInternal::~MaterialInternal() {
 
 Object MaterialInternal::Clone() {
 	Material clone = NewMaterial();
-	MaterialInternal* clonePtr = rptr(clone);
+	MaterialInternal* clonePtr = _rptr(clone);
 	*clonePtr = *this;
 
 	return clone;
 }
 
-void MaterialInternal::SetShader(Shader value) {
+void MaterialInternal::SetShader(Material self, Shader value) {
 	shader_ = value;
-	UpdateProperties(value);
+	UpdateProperties(self, value);
 	InitializeEnabledState();
 }
 
@@ -429,11 +429,9 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::UpdateProperties(Shader newShader) {
+void MaterialInternal::UpdateProperties(Material self, Shader newShader) {
 	CopyProperties(newShader);
-
-	Material _this = SharedThis();
-	SharedTextureManager::instance()->Attach(_this);
+	SharedTextureManager::instance()->Attach(self);
 }
 
 void MaterialInternal::CopyProperties(Shader newShader) {

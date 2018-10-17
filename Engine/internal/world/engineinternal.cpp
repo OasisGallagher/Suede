@@ -89,7 +89,6 @@ void EngineInternal::Shutdown() {
 void EngineInternal::Update() {
 	LuaUpdate();
 
-
 	SortFrameEventListeners();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
 	World::instance()->RenderingUpdate();

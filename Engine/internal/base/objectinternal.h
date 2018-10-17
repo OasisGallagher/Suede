@@ -6,7 +6,7 @@
 class ObjectInternal {
 public:
 	ObjectInternal(ObjectType type);
-	~ObjectInternal() {}
+	virtual ~ObjectInternal() {}
 
 public:
 	Object Clone();
@@ -25,12 +25,3 @@ private:
 
 	static uint ObjectIDContainer[ObjectType::size()];
 };
-
-#define dptr()	dptr_impl(this)
-
-#define DEFINE_FACTORY_METHOD(name) \
-	public: \
-		typedef name Interface; \
-		static Object Create() { return Factory::Create<name>(); } \
-		static Object Create(size_t type) { return Factory::Create(type); } \
-	private:

@@ -8,51 +8,51 @@
 #include "particlesysteminternal.h"
 
 IParticleEmitter::IParticleEmitter(void* d) : IObject(d) {}
-void IParticleEmitter::Emit(Particle** particles, uint& count) { dptr()->Emit(particles, count); }
-void IParticleEmitter::SetRate(uint value) { dptr()->SetRate(value); }
-uint IParticleEmitter::GetRate() { return dptr()->GetRate(); }
-void IParticleEmitter::SetStartDuration(float value) { dptr()->SetStartDuration(value); }
-float IParticleEmitter::GetStartDuration() { return dptr()->GetStartDuration(); }
-void IParticleEmitter::SetStartSize(float value) { dptr()->SetStartSize(value); }
-float IParticleEmitter::GetStartSize() { return dptr()->GetStartSize(); }
-void IParticleEmitter::SetStartVelocity(const glm::vec3& value) { dptr()->SetStartVelocity(value); }
-glm::vec3 IParticleEmitter::GetStartVelocity() { return dptr()->GetStartVelocity(); }
-void IParticleEmitter::SetStartColor(const glm::vec4& value) { return dptr()->SetStartColor(value); }
-glm::vec4 IParticleEmitter::GetStartColor() { return dptr()->GetStartColor(); }
-void IParticleEmitter::AddBurst(const ParticleBurst& value) { dptr()->AddBurst(value); }
-void IParticleEmitter::SetBurst(int i, const ParticleBurst& value) { dptr()->SetBurst(i, value); }
-ParticleBurst IParticleEmitter::GetBurst(int i) { return dptr()->GetBurst(i); }
-void IParticleEmitter::RemoveBurst(int i) { dptr()->RemoveBurst(i); }
-int IParticleEmitter::GetBurstCount() { return dptr()->GetBurstCount(); }
+void IParticleEmitter::Emit(Particle** particles, uint& count) { _dptr()->Emit(particles, count); }
+void IParticleEmitter::SetRate(uint value) { _dptr()->SetRate(value); }
+uint IParticleEmitter::GetRate() { return _dptr()->GetRate(); }
+void IParticleEmitter::SetStartDuration(float value) { _dptr()->SetStartDuration(value); }
+float IParticleEmitter::GetStartDuration() { return _dptr()->GetStartDuration(); }
+void IParticleEmitter::SetStartSize(float value) { _dptr()->SetStartSize(value); }
+float IParticleEmitter::GetStartSize() { return _dptr()->GetStartSize(); }
+void IParticleEmitter::SetStartVelocity(const glm::vec3& value) { _dptr()->SetStartVelocity(value); }
+glm::vec3 IParticleEmitter::GetStartVelocity() { return _dptr()->GetStartVelocity(); }
+void IParticleEmitter::SetStartColor(const glm::vec4& value) { return _dptr()->SetStartColor(value); }
+glm::vec4 IParticleEmitter::GetStartColor() { return _dptr()->GetStartColor(); }
+void IParticleEmitter::AddBurst(const ParticleBurst& value) { _dptr()->AddBurst(value); }
+void IParticleEmitter::SetBurst(int i, const ParticleBurst& value) { _dptr()->SetBurst(i, value); }
+ParticleBurst IParticleEmitter::GetBurst(int i) { return _dptr()->GetBurst(i); }
+void IParticleEmitter::RemoveBurst(int i) { _dptr()->RemoveBurst(i); }
+int IParticleEmitter::GetBurstCount() { return _dptr()->GetBurstCount(); }
 
 ISphereParticleEmitter::ISphereParticleEmitter() : IParticleEmitter(MEMORY_NEW(SphereParticleEmitterInternal)) {}
-void ISphereParticleEmitter::SetRadius(float value) { dptr()->SetRadius(value); }
-float ISphereParticleEmitter::GetRadius() { return dptr()->GetRadius(); }
+void ISphereParticleEmitter::SetRadius(float value) { _dptr()->SetRadius(value); }
+float ISphereParticleEmitter::GetRadius() { return _dptr()->GetRadius(); }
 
 IParticleAnimator::IParticleAnimator() : IObject(MEMORY_NEW(ParticleAnimatorInternal)) {}
-void IParticleAnimator::SetForce(const glm::vec3& value) { dptr()->SetForce(value); }
-glm::vec3 IParticleAnimator::GetForce() { return dptr()->GetForce(); }
-void IParticleAnimator::SetRandomForce(const glm::vec3& value) { dptr()->SetRandomForce(value); }
-glm::vec3 IParticleAnimator::GetRandomForce() { return dptr()->GetRandomForce(); }
-void IParticleAnimator::SetGravityScale(float value) { dptr()->SetGravityScale(value); }
-float IParticleAnimator::GetGravityScale() { return dptr()->GetGravityScale(); }
-void IParticleAnimator::Update(Particle& particle) { dptr()->Update(particle); }
+void IParticleAnimator::SetForce(const glm::vec3& value) { _dptr()->SetForce(value); }
+glm::vec3 IParticleAnimator::GetForce() { return _dptr()->GetForce(); }
+void IParticleAnimator::SetRandomForce(const glm::vec3& value) { _dptr()->SetRandomForce(value); }
+glm::vec3 IParticleAnimator::GetRandomForce() { return _dptr()->GetRandomForce(); }
+void IParticleAnimator::SetGravityScale(float value) { _dptr()->SetGravityScale(value); }
+float IParticleAnimator::GetGravityScale() { return _dptr()->GetGravityScale(); }
+void IParticleAnimator::Update(Particle& particle) { _dptr()->Update(particle); }
 
 IParticleSystem::IParticleSystem() : IComponent(MEMORY_NEW(ParticleSystemInternal)) {}
-void IParticleSystem::SetDuration(float value) { dptr()->SetDuration(value); }
-float IParticleSystem::GetDuration() { return dptr()->GetDuration(); }
-void IParticleSystem::SetLooping(bool value) { dptr()->SetLooping(value); }
-bool IParticleSystem::GetLooping() { return dptr()->GetLooping(); }
-void IParticleSystem::SetStartDelay(float value) { dptr()->SetStartDelay(value); }
-float IParticleSystem::GetStartDelay() { return dptr()->GetStartDelay(); }
-void IParticleSystem::SetMaxParticles(uint value) { dptr()->SetMaxParticles(value); }
-uint IParticleSystem::GetMaxParticles() { return dptr()->GetMaxParticles(); }
-uint IParticleSystem::GetParticlesCount() const { return dptr()->GetParticlesCount(); }
-const Bounds& IParticleSystem::GetMaxBounds() { return dptr()->GetMaxBounds(); }
-void IParticleSystem::SetEmitter(ParticleEmitter value) { dptr()->SetEmitter(value); }
-ParticleEmitter IParticleSystem::GetEmitter() { return dptr()->GetEmitter(); }
-void IParticleSystem::SetParticleAnimator(ParticleAnimator value) { dptr()->SetParticleAnimator(value); }
-ParticleAnimator IParticleSystem::GetParticleAnimator() { return dptr()-> GetParticleAnimator(); }
+void IParticleSystem::SetDuration(float value) { _dptr()->SetDuration(value); }
+float IParticleSystem::GetDuration() { return _dptr()->GetDuration(); }
+void IParticleSystem::SetLooping(bool value) { _dptr()->SetLooping(value); }
+bool IParticleSystem::GetLooping() { return _dptr()->GetLooping(); }
+void IParticleSystem::SetStartDelay(float value) { _dptr()->SetStartDelay(value); }
+float IParticleSystem::GetStartDelay() { return _dptr()->GetStartDelay(); }
+void IParticleSystem::SetMaxParticles(uint value) { _dptr()->SetMaxParticles(value); }
+uint IParticleSystem::GetMaxParticles() { return _dptr()->GetMaxParticles(); }
+uint IParticleSystem::GetParticlesCount() const { return _dptr()->GetParticlesCount(); }
+const Bounds& IParticleSystem::GetMaxBounds() { return _dptr()->GetMaxBounds(); }
+void IParticleSystem::SetEmitter(ParticleEmitter value) { _dptr()->SetEmitter(value); }
+ParticleEmitter IParticleSystem::GetEmitter() { return _dptr()->GetEmitter(); }
+void IParticleSystem::SetParticleAnimator(ParticleAnimator value) { _dptr()->SetParticleAnimator(value); }
+ParticleAnimator IParticleSystem::GetParticleAnimator() { return _dptr()-> GetParticleAnimator(); }
 
 SUEDE_DEFINE_COMPONENT(IParticleSystem, IComponent)
 

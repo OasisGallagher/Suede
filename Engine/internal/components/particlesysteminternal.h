@@ -53,8 +53,6 @@ private:
 };
 
 class SphereParticleEmitterInternal : public ParticleEmitterInternal {
-	DEFINE_FACTORY_METHOD(SphereParticleEmitter)
-
 public:
 	SphereParticleEmitterInternal() : ParticleEmitterInternal(ObjectType::SphereParticleEmitter) {}
 
@@ -69,10 +67,9 @@ private:
 };
 
 class ParticleAnimatorInternal : public ObjectInternal {
-	DEFINE_FACTORY_METHOD(ParticleAnimator)
-
 public:
 	ParticleAnimatorInternal() : ObjectInternal(ObjectType::ParticleAnimator), gravityScale_(1) {}
+
 public:
 	virtual void SetForce(const glm::vec3& value) { force_ = value; }
 	virtual glm::vec3 GetForce() { return force_; }
@@ -93,8 +90,6 @@ private:
 };
 
 class ParticleSystemInternal : public ComponentInternal {
-	DEFINE_FACTORY_METHOD(ParticleSystem)
-
 public:
 	ParticleSystemInternal();
 	~ParticleSystemInternal();

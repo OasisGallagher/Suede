@@ -166,9 +166,9 @@ void FramebufferBase::ClearCurrent(FramebufferClearMask clearMask) {
 	if (bitfield != 0) { GL::Clear(bitfield); }
 }
 
-Framebuffer0* Framebuffer0::Get() {
-	static Framebuffer0 fb0;
-	return &fb0;
+std::shared_ptr<Framebuffer0> Framebuffer0::Get() {
+	static std::shared_ptr<Framebuffer0> fb0(new Framebuffer0);
+	return fb0;
 }
 
 Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRenderTextureCount_(0) {

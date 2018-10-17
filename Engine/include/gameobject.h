@@ -53,7 +53,6 @@ public:	// Component system.
 	template <class T> std::shared_ptr<T> GetComponent();
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
-	Component AddComponent(suede_guid guid);
 	Component AddComponent(Component component);
 
 	Component GetComponent(suede_guid guid);
@@ -62,6 +61,9 @@ public:	// Component system.
 	 * @param guid pass 0 to get all components.
 	 */
 	std::vector<Component> GetComponents(suede_guid guid);
+
+private:
+	Component AddComponent(suede_guid guid);
 };
 
 template <class T, class... Args>

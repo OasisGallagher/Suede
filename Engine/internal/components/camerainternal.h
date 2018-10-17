@@ -19,14 +19,13 @@ class Sample;
 class CameraInternal : public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
 	, public ScreenSizeChangedListener {
-	DEFINE_FACTORY_METHOD(Camera)
 
 public:
 	CameraInternal();
 	~CameraInternal();
 
 public:
-	void Awake() { p_.camera = GetGameObject().get(); }
+	void Awake();
 
 	void SetDepth(Camera self, int value);
 	int GetDepth() { return depth_;  }

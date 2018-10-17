@@ -7,7 +7,7 @@ kFilePostfix = "_wrapper";
 kClassPostfix = "_Wrapper";
 kDestFolder = "F:/GitHub/Suede/Engine/internal/lua/wrappers/";
 kContainer = "std::vector<";
-kClassPattern = re.compile(r"\s*class\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:virtual )?(?:public )?([A-Za-z0-9_]*)");
+kClassPattern = re.compile(r"\s*class\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)");
 kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
 kExcludeFiles = [
 	"gui.h",
@@ -138,26 +138,14 @@ class Interface:
 		self._notNewable = (className in kNotNewables);
 		names = { };
 		public = False;
+		prev = "";
 		for line in defination:
 			if line.startswith("public:") or line.startswith("protected:") or line.startswith("private:"):
 				public = line.startswith("public:");
 			
 			m = public and kMethodPattern.match(line);
-			if not m: continue;
-			method = Method(m.groups());
-			self._abstract = self._abstract or method.IsPureVirtual();
-			if self._methodWrapable(method):
-				n = names.get(method.Name(), 0);
-				names[method.Name()] = n + 1;
-				
-				if n > 0: 
-					newName = method.Name() + str(n + 1);
-					method.SetOverloadedName(newName);
-					names[method.Name()] = 1;
-				
-				self._methods.append(method);
-			else:
-				Warning("  Skip unwrappable method: %s" % method.Def());
+			if m: self._parseMethod(m, names, prev);
+			prev = line;
 
 	def Methods(self):
 		return self._methods
@@ -168,12 +156,27 @@ class Interface:
 	def IsNotNewable(self):
 		return self._notNewable;
 		
-	def _methodWrapable(self, method):
+	def _parseMethod(self, m, names, prev):
+		method = Method(m.groups());
+		self._abstract = self._abstract or method.IsPureVirtual();
+		if self._methodWrapable(prev, method):
+			n = names.get(method.Name(), 0);
+			names[method.Name()] = n + 1;
+			
+			if n > 0: 
+				newName = method.Name() + str(n + 1);
+				method.SetOverloadedName(newName);
+				names[method.Name()] = 1;
+			
+			self._methods.append(method);
+		else:
+			Warning("  Skip unwrappable method: %s" % method.Def());
+		
+	def _methodWrapable(self, prev, method):
 		if "*" in method.Return(): return False;
 		for arg in method.Arguments():
 			if "*" in arg.type: return False;
-			# TODO: template method does not support.
-			if "..." in arg.type: return False;
+			if "template" in prev: return False;
 		return True;
 
 def Warning(message):
@@ -353,6 +356,7 @@ def CollectClasses(filePath):
 			if name: classes.append((name, base, body, instance));
 			name = m.group(2);
 			base = m.group(3);
+			if "std::" in base: base = "";
 			instance = ("Singleton" in line);
 			if not ClassWrapable(name): name = "";
 			body = [];

@@ -9,8 +9,6 @@
 #include "internal/base/objectinternal.h"
 
 class SubMeshInternal : public ObjectInternal {
-	DEFINE_FACTORY_METHOD(SubMesh)
-
 public:
 	SubMeshInternal();
 
@@ -23,8 +21,6 @@ private:
 };
 
 class MeshInternal : public ObjectInternal {
-	DEFINE_FACTORY_METHOD(Mesh)
-
 public:
 	MeshInternal();
 	MeshInternal(ObjectType type);
@@ -102,8 +98,6 @@ protected:
 };
 
 class TextMeshInternal : public MeshProviderInternal, public FontMaterialRebuiltListener {
-	DEFINE_FACTORY_METHOD(TextMesh)
-
 public:
 	TextMeshInternal();
 	~TextMeshInternal();
@@ -143,8 +137,6 @@ private:
 };
 
 class MeshFilterInternal : public MeshProviderInternal {
-	DEFINE_FACTORY_METHOD(MeshFilter)
-
 public:
 	MeshFilterInternal();
 

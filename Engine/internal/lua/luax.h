@@ -316,7 +316,8 @@ static int fromShared(lua_State* L, T ptr) {
 
 template <class T>
 static int deleteSharedPtr(lua_State* L) {
-	callerSharedPtr<T>(L, 0)->reset();
+	T* ptr = callerSharedPtr<T>(L, 0);
+	if (ptr != nullptr) { ptr->reset(); }
 	return 0;
 }
 

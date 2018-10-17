@@ -60,16 +60,16 @@ public:
 	uint GetInstanceID();
 
 public:
-	bool d_equals(void* d);
 	template <class T>
-	typename T::Internal* dptr_impl(T*) const { return (T::Internal*)d_; }
-
-	template <class T>
-	T* rptr_impl(T*) const { return (T*)d_; }
+	T* _rptr_impl(T*) const { return (T*)d_; }
+	bool _d_equals_impl(void* d) { return d_ == d; }
 
 protected:
 	template <class T>
-	typename std::shared_ptr<T> SharedThisTraits(T*);
+	typename T::Internal* _dptr_impl(T*) const { return (T::Internal*)d_; }
+
+	template <class T>
+	typename std::shared_ptr<T> _shared_this_impl(T*) { return suede_dynamic_cast<std::shared_ptr<T>>(shared_from_this()); }
 
 protected:
 	IObject(void* d);
@@ -78,12 +78,7 @@ private:
 	void* d_;
 };
 
-#define dptr()	dptr_impl(this)
-#define rptr(o)	(o).get()->rptr_impl(this)	
-
-template <class T>
-typename std::shared_ptr<T> IObject::SharedThisTraits(T*) {
-	return suede_dynamic_cast<std::shared_ptr<T>>(shared_from_this());
-}
-
-#define SharedThis()		SharedThisTraits(this)
+#define _dptr()			_dptr_impl(this)
+#define _d_equals(o)	(o).get()->_d_equals_impl(this)
+#define _rptr(o)		(o).get()->_rptr_impl(this)
+#define _shared_this()	_shared_this_impl(this)

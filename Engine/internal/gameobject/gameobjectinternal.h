@@ -5,8 +5,6 @@
 #include "internal/base/objectinternal.h"
 
 class GameObjectInternal : public ObjectInternal {
-	DEFINE_FACTORY_METHOD(GameObject)
-
 public:
 	GameObjectInternal();
 	~GameObjectInternal();

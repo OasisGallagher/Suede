@@ -2,23 +2,23 @@
 #include "projectorinternal.h"
 
 IProjector::IProjector() : IComponent(MEMORY_NEW(ProjectorInternal)) {}
-bool IProjector::GetPerspective() const { return dptr()->GetPerspective(); }
-void IProjector::SetPerspective(bool value) { dptr()->SetPerspective(value); }
-float IProjector::GetOrthographicSize() const { return dptr()->GetOrthographicSize(); }
-void IProjector::SetOrthographicSize(float value) { dptr()->SetOrthographicSize(value); }
-Texture IProjector::GetTexture() const { return dptr()->GetTexture(); }
-void IProjector::SetTexture(Texture value) { dptr()->SetTexture(value); }
-void IProjector::SetDepth(int value) { dptr()->SetDepth(value); }
-int IProjector::GetDepth() const { return dptr()->GetDepth(); }
-void IProjector::SetAspect(float value) { dptr()->SetAspect(value); }
-void IProjector::SetNearClipPlane(float value) { dptr()->SetNearClipPlane(value); }
-void IProjector::SetFarClipPlane(float value) { dptr()->SetFarClipPlane(value); }
-void IProjector::SetFieldOfView(float value) { dptr()->SetFieldOfView(value); }
-float IProjector::GetAspect() const { return dptr()->GetAspect(); }
-float IProjector::GetNearClipPlane() const { return dptr()->GetNearClipPlane(); }
-float IProjector::GetFarClipPlane() const { return dptr()->GetFarClipPlane(); }
-float IProjector::GetFieldOfView() const { return dptr()->GetFieldOfView(); }
-const glm::mat4& IProjector::GetProjectionMatrix() { return dptr()->GetProjectionMatrix(); }
+bool IProjector::GetPerspective() const { return _dptr()->GetPerspective(); }
+void IProjector::SetPerspective(bool value) { _dptr()->SetPerspective(value); }
+float IProjector::GetOrthographicSize() const { return _dptr()->GetOrthographicSize(); }
+void IProjector::SetOrthographicSize(float value) { _dptr()->SetOrthographicSize(value); }
+Texture IProjector::GetTexture() const { return _dptr()->GetTexture(); }
+void IProjector::SetTexture(Texture value) { _dptr()->SetTexture(value); }
+void IProjector::SetDepth(int value) { _dptr()->SetDepth(value); }
+int IProjector::GetDepth() const { return _dptr()->GetDepth(); }
+void IProjector::SetAspect(float value) { _dptr()->SetAspect(value); }
+void IProjector::SetNearClipPlane(float value) { _dptr()->SetNearClipPlane(value); }
+void IProjector::SetFarClipPlane(float value) { _dptr()->SetFarClipPlane(value); }
+void IProjector::SetFieldOfView(float value) { _dptr()->SetFieldOfView(value); }
+float IProjector::GetAspect() const { return _dptr()->GetAspect(); }
+float IProjector::GetNearClipPlane() const { return _dptr()->GetNearClipPlane(); }
+float IProjector::GetFarClipPlane() const { return _dptr()->GetFarClipPlane(); }
+float IProjector::GetFieldOfView() const { return _dptr()->GetFieldOfView(); }
+const glm::mat4& IProjector::GetProjectionMatrix() { return _dptr()->GetProjectionMatrix(); }
 
 SUEDE_DEFINE_COMPONENT(IProjector, IComponent)
 

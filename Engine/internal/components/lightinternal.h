@@ -2,8 +2,6 @@
 #include "internal/components/componentinternal.h"
 
 class LightInternal : public ComponentInternal {
-	DEFINE_FACTORY_METHOD(Light)
-
 public:
 	LightInternal();
 	~LightInternal() {}

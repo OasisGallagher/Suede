@@ -15,8 +15,6 @@ DECL_FT_TYPE(FT_BitmapGlyph);
 #undef DECL_FT_TYPE
 
 class FontInternal : public IFont, public ObjectInternal {
-	DEFINE_FACTORY_METHOD(Font)
-
 public:
 	FontInternal();
 	~FontInternal();

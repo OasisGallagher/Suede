@@ -66,8 +66,6 @@ protected:
 };
 
 class Texture2DInternal : public TextureInternal {
-	DEFINE_FACTORY_METHOD(Texture2D)
-
 public:
 	Texture2DInternal();
 	~Texture2DInternal();
@@ -93,8 +91,6 @@ private:
 };
 
 class TextureCubeInternal : public TextureInternal {
-	DEFINE_FACTORY_METHOD(TextureCube)
-
 public:
 	TextureCubeInternal();
 	~TextureCubeInternal();
@@ -109,8 +105,6 @@ protected:
 
 class Buffer;
 class TextureBufferInternal : public TextureInternal {
-	DEFINE_FACTORY_METHOD(TextureBuffer)
-
 public:
 	TextureBufferInternal();
 	~TextureBufferInternal();
@@ -133,21 +127,19 @@ private:
 
 class RenderTextureInternalBase : public TextureInternal {
 public:
-	RenderTextureInternalBase() : TextureInternal(ObjectType::RenderTexture), framebuffer_(nullptr) {}
+	RenderTextureInternalBase() : TextureInternal(ObjectType::RenderTexture) {}
 
 protected:
 	bool SetViewport(uint width, uint height, const Rect& normalizedRect);
 
 protected:
-	FramebufferBase* framebuffer_;
+	std::shared_ptr<FramebufferBase> framebuffer_;
 };
 
 class RenderTextureInternal : public RenderTextureInternalBase {
-	DEFINE_FACTORY_METHOD(RenderTexture)
-
 public:
 	RenderTextureInternal();
-	~RenderTextureInternal();
+	virtual ~RenderTextureInternal();
 
 public:
 	virtual void Bind(uint index);
@@ -157,9 +149,7 @@ public:
 	virtual void Resize(uint width, uint height);
 
 	virtual void BindWrite(const Rect& normalizedRect);
-
-public:
-	void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
@@ -194,9 +184,10 @@ public:
 
 SUEDE_DEFINE_OBJECT_POINTER(ScreenRenderTexture);
 
-class ScreenRenderTextureInternal : public RenderTextureInternalBase {
+class ScreenRenderTextureInternal : public RenderTextureInternal {
 public:
 	ScreenRenderTextureInternal();
+	virtual ~ScreenRenderTextureInternal();
 
 public:
 	virtual uint GetWidth() const;
@@ -205,9 +196,8 @@ public:
 	virtual void BindWrite(const Rect& normalizedRect);
 	virtual void Unbind();
 
-public:
-	bool Create(RenderTextureFormat format, uint width, uint height);
-	void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	virtual bool Create(RenderTextureFormat format, uint width, uint height);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 protected:
 	virtual void Resize(uint width, uint height);
@@ -216,8 +206,6 @@ protected:
 };
 
 class MRTRenderTextureInternal : public RenderTextureInternal {
-	DEFINE_FACTORY_METHOD(MRTRenderTexture)
-
 public:
 	MRTRenderTextureInternal() : index_(0) {}
 

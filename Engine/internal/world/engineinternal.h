@@ -2,7 +2,7 @@
 #include <vector>
 
 struct lua_State;
-class SUEDE_API EngineInternal : public Engine {
+class EngineInternal : public Engine {
 public:
 	EngineInternal() {}
 

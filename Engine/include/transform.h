@@ -16,7 +16,7 @@ struct PRS {
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
-class ITransform : public IComponent {
+class SUEDE_API ITransform : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DECLARE_IMPL(Transform)
 

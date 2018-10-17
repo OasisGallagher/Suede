@@ -86,12 +86,6 @@ class World_Wrapper {
 		return 0;
 	}
 
-	static int GetGameObjectsOfComponent(lua_State* L) {
-		World* _p = World::instance();
-		suede_guid guid = Lua::get<suede_guid>(L, -1);
-		return Lua::pushList(L, _p->GetGameObjectsOfComponent(guid));
-	}
-
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<World>(L);
@@ -113,7 +107,6 @@ public:
 			{ "FireEvent", FireEvent },
 			{ "FireEventImmediate", FireEventImmediate },
 			{ "GetDecals", GetDecals },
-			{ "GetGameObjectsOfComponent", GetGameObjectsOfComponent },
 			{ nullptr, nullptr }
 		};
 

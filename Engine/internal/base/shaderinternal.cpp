@@ -12,19 +12,19 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 IShader::IShader() : IObject(MEMORY_NEW(ShaderInternal)) {}
-std::string IShader::GetName() const { return dptr()->GetName(); }
-bool IShader::Load(const std::string& path) { return dptr()->Load(path); }
-void IShader::Bind(uint ssi, uint pass) { dptr()->Bind(ssi, pass); }
-void IShader::Unbind() { dptr()->Unbind(); }
-void IShader::SetRenderQueue(uint ssi, int value) { return dptr()->SetRenderQueue(ssi, value); }
-int IShader::GetRenderQueue(uint ssi) const { return dptr()->GetRenderQueue(ssi); }
-bool IShader::IsPassEnabled(uint ssi, uint pass) const { return dptr()->IsPassEnabled(ssi, pass); }
-int IShader::GetPassIndex(uint ssi, const std::string& name) const { return dptr()->GetPassIndex(ssi, name); }
-uint IShader::GetNativePointer(uint ssi, uint pass) const { return dptr()->GetNativePointer(ssi, pass); }
-uint IShader::GetPassCount(uint ssi) const { return dptr()->GetPassCount(ssi); }
-uint IShader::GetSubShaderCount() const { return dptr()->GetSubShaderCount(); }
-void IShader::GetProperties(std::vector<ShaderProperty>& properties) { return dptr()->GetProperties(properties); }
-bool IShader::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) { return dptr()->SetProperty(ssi, pass, name, data); }
+std::string IShader::GetName() const { return _dptr()->GetName(); }
+bool IShader::Load(const std::string& path) { return _dptr()->Load(_shared_this(), path); }
+void IShader::Bind(uint ssi, uint pass) { _dptr()->Bind(ssi, pass); }
+void IShader::Unbind() { _dptr()->Unbind(); }
+void IShader::SetRenderQueue(uint ssi, int value) { return _dptr()->SetRenderQueue(ssi, value); }
+int IShader::GetRenderQueue(uint ssi) const { return _dptr()->GetRenderQueue(ssi); }
+bool IShader::IsPassEnabled(uint ssi, uint pass) const { return _dptr()->IsPassEnabled(ssi, pass); }
+int IShader::GetPassIndex(uint ssi, const std::string& name) const { return _dptr()->GetPassIndex(ssi, name); }
+uint IShader::GetNativePointer(uint ssi, uint pass) const { return _dptr()->GetNativePointer(ssi, pass); }
+uint IShader::GetPassCount(uint ssi) const { return _dptr()->GetPassCount(ssi); }
+uint IShader::GetSubShaderCount() const { return _dptr()->GetSubShaderCount(); }
+void IShader::GetProperties(std::vector<ShaderProperty>& properties) { return _dptr()->GetProperties(properties); }
+bool IShader::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) { return _dptr()->SetProperty(ssi, pass, name, data); }
 
 std::pair<std::string, float> _variables[] = {
 	std::make_pair("Background", (float)RenderQueue::Background),
@@ -665,7 +665,7 @@ std::string ShaderInternal::GetName() const {
 	return FileSystem::GetFileNameWithoutExtension(path_);
 }
 
-bool ShaderInternal::Load(const std::string& path) {
+bool ShaderInternal::Load(Shader self, const std::string& path) {
 	Semantics semantics;
 	ShaderParser parser;
 	if (!parser.Parse(semantics, path + GLSL_POSTFIX, "")) {
@@ -679,7 +679,7 @@ bool ShaderInternal::Load(const std::string& path) {
 
 	SetProperties(properties);
 
-	UniformBufferManager::instance()->Attach(SharedThis());
+	UniformBufferManager::instance()->Attach(self);
 
 	path_ = path;
 	return true;

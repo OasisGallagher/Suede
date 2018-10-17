@@ -127,32 +127,30 @@ private:
 	int tags_[TagKeyCount];
 };
 
-class ShaderInternal : public IShader, public ObjectInternal {
-	DEFINE_FACTORY_METHOD(Shader)
-
+class ShaderInternal : public ObjectInternal {
 public:
 	ShaderInternal();
 	~ShaderInternal();
 
 public:
-	virtual std::string GetName() const;
-	virtual bool Load(const std::string& path);
+	std::string GetName() const;
+	bool Load(Shader self, const std::string& path);
 
-	virtual void Bind(uint ssi, uint pass);
-	virtual void Unbind();
+	void Bind(uint ssi, uint pass);
+	void Unbind();
 
-	virtual void SetRenderQueue(uint ssi, int value);
-	virtual int GetRenderQueue(uint ssi) const;
+	void SetRenderQueue(uint ssi, int value);
+	int GetRenderQueue(uint ssi) const;
 
-	virtual bool IsPassEnabled(uint ssi, uint pass) const;
-	virtual int GetPassIndex(uint ssi, const std::string& name) const;
-	virtual uint GetNativePointer(uint ssi, uint pass) const;
+	bool IsPassEnabled(uint ssi, uint pass) const;
+	int GetPassIndex(uint ssi, const std::string& name) const;
+	uint GetNativePointer(uint ssi, uint pass) const;
 
-	virtual uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
-	virtual uint GetSubShaderCount() const { return subShaderCount_; }
+	uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
+	uint GetSubShaderCount() const { return subShaderCount_; }
 
-	virtual void GetProperties(std::vector<ShaderProperty>& properties);
-	virtual bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
+	void GetProperties(std::vector<ShaderProperty>& properties);
+	bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 
 private:
 	void ReleaseProperties();

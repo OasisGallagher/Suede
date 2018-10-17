@@ -2,7 +2,7 @@
 #include <memory>
 #include "types.h"
 
-#define SUEDE_DEFINE_OBJECT_POINTER(Ty)	typedef std::shared_ptr<class I ## Ty> Ty
+#define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef std::shared_ptr<class I ## Ty> Ty
 #define SUEDE_DECLARE_OBJECT_CREATER(Ty)	SUEDE_API Ty New ## Ty()
 
 #define SUEDE_DECLARE_IMPL(name)	public: \

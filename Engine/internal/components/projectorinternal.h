@@ -4,8 +4,6 @@
 #include "internal/components/componentinternal.h"
 
 class ProjectorInternal : public ComponentInternal, public Frustum {
-	DEFINE_FACTORY_METHOD(Projector)
-
 public:
 	ProjectorInternal();
 

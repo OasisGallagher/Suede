@@ -5,46 +5,46 @@
 #include "internal/base/vertexattrib.h"
 
 ISubMesh::ISubMesh() : IObject(MEMORY_NEW(SubMeshInternal)) {}
-const TriangleBias& ISubMesh::GetTriangleBias() const { return dptr()->GetTriangleBias(); }
-void ISubMesh::SetTriangleBias(const TriangleBias& value) { dptr()->SetTriangleBias(value); }
+const TriangleBias& ISubMesh::GetTriangleBias() const { return _dptr()->GetTriangleBias(); }
+void ISubMesh::SetTriangleBias(const TriangleBias& value) { _dptr()->SetTriangleBias(value); }
 
 IMesh::IMesh() : IObject(MEMORY_NEW(MeshInternal)) {}
-void IMesh::CreateStorage() { dptr()->CreateStorage(); }
-void IMesh::SetAttribute(const MeshAttribute& value) { dptr()->SetAttribute(value); }
-const Bounds& IMesh::GetBounds() const { return dptr()->GetBounds(); }
-void IMesh::SetBounds(const Bounds& value) { dptr()->SetBounds(value); }
+void IMesh::CreateStorage() { _dptr()->CreateStorage(); }
+void IMesh::SetAttribute(const MeshAttribute& value) { _dptr()->SetAttribute(value); }
+const Bounds& IMesh::GetBounds() const { return _dptr()->GetBounds(); }
+void IMesh::SetBounds(const Bounds& value) { _dptr()->SetBounds(value); }
 
-void IMesh::AddSubMesh(SubMesh subMesh) { dptr()->AddSubMesh(subMesh); }
-int IMesh::GetSubMeshCount() { return dptr()->GetSubMeshCount(); }
-SubMesh IMesh::GetSubMesh(uint index) { return dptr()->GetSubMesh(index); }
-IMesh::Enumerable IMesh::GetSubMeshes() { return dptr()->GetSubMeshes(); }
-void IMesh::RemoveSubMesh(uint index) { dptr()->RemoveSubMesh(index); }
-MeshTopology IMesh::GetTopology() { return dptr()->GetTopology(); }
-uint IMesh::GetNativePointer() const { return dptr()->GetNativePointer(); }
-uint* IMesh::MapIndexes() { return dptr()->MapIndexes(); }
-void IMesh::UnmapIndexes() { dptr()->UnmapIndexes(); }
-uint IMesh::GetIndexCount() { return dptr()->GetIndexCount(); }
-glm::vec3* IMesh::MapVertices() { return dptr()->MapVertices(); }
-void IMesh::UnmapVertices() { dptr()->UnmapVertices(); }
-uint IMesh::GetVertexCount() { return dptr()->GetVertexCount(); }
-void IMesh::Bind() { dptr()->Bind(); }
-void IMesh::Unbind() { dptr()->Unbind(); }
-void IMesh::ShareStorage(Mesh other) { dptr()->ShareStorage(other); }
-void IMesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { dptr()->UpdateInstanceBuffer(i, size, data); }
+void IMesh::AddSubMesh(SubMesh subMesh) { _dptr()->AddSubMesh(subMesh); }
+int IMesh::GetSubMeshCount() { return _dptr()->GetSubMeshCount(); }
+SubMesh IMesh::GetSubMesh(uint index) { return _dptr()->GetSubMesh(index); }
+IMesh::Enumerable IMesh::GetSubMeshes() { return _dptr()->GetSubMeshes(); }
+void IMesh::RemoveSubMesh(uint index) { _dptr()->RemoveSubMesh(index); }
+MeshTopology IMesh::GetTopology() { return _dptr()->GetTopology(); }
+uint IMesh::GetNativePointer() const { return _dptr()->GetNativePointer(); }
+uint* IMesh::MapIndexes() { return _dptr()->MapIndexes(); }
+void IMesh::UnmapIndexes() { _dptr()->UnmapIndexes(); }
+uint IMesh::GetIndexCount() { return _dptr()->GetIndexCount(); }
+glm::vec3* IMesh::MapVertices() { return _dptr()->MapVertices(); }
+void IMesh::UnmapVertices() { _dptr()->UnmapVertices(); }
+uint IMesh::GetVertexCount() { return _dptr()->GetVertexCount(); }
+void IMesh::Bind() { _dptr()->Bind(); }
+void IMesh::Unbind() { _dptr()->Unbind(); }
+void IMesh::ShareStorage(Mesh other) { _dptr()->ShareStorage(other); }
+void IMesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { _dptr()->UpdateInstanceBuffer(i, size, data); }
 
 IMeshProvider::IMeshProvider(void* d) : IComponent(d) {}
-Mesh IMeshProvider::GetMesh() { return dptr()->GetMesh(); }
+Mesh IMeshProvider::GetMesh() { return _dptr()->GetMesh(); }
 
 ITextMesh::ITextMesh() : IMeshProvider(MEMORY_NEW(TextMeshInternal)) {}
-void ITextMesh::SetText(const std::string& value) { dptr()->SetText(value); }
-std::string ITextMesh::GetText() { return dptr()->GetText(); }
-void ITextMesh::SetFont(Font value) { dptr()->SetFont(value); }
-Font ITextMesh::GetFont() { return dptr()->GetFont(); }
-void ITextMesh::SetFontSize(uint value) { dptr()->SetFontSize(value); }
-uint ITextMesh::GetFontSize() { return dptr()->GetFontSize(); }
+void ITextMesh::SetText(const std::string& value) { _dptr()->SetText(value); }
+std::string ITextMesh::GetText() { return _dptr()->GetText(); }
+void ITextMesh::SetFont(Font value) { _dptr()->SetFont(value); }
+Font ITextMesh::GetFont() { return _dptr()->GetFont(); }
+void ITextMesh::SetFontSize(uint value) { _dptr()->SetFontSize(value); }
+uint ITextMesh::GetFontSize() { return _dptr()->GetFontSize(); }
 
 IMeshFilter::IMeshFilter() : IMeshProvider(MEMORY_NEW(MeshFilterInternal)) {}
-void IMeshFilter::SetMesh(Mesh value) { dptr()->SetMesh(value); }
+void IMeshFilter::SetMesh(Mesh value) { _dptr()->SetMesh(value); }
 
 SUEDE_DEFINE_COMPONENT(IMeshProvider, IComponent)
 SUEDE_DEFINE_COMPONENT(ITextMesh, IMeshProvider)
@@ -168,7 +168,7 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 }
 
 void MeshInternal::ShareStorage(Mesh other) {
-	MeshInternal* ptr = rptr(other);
+	MeshInternal* ptr = _rptr(other);
 	if (!ptr->storage_) {
 		Debug::LogError("empty storage");
 		return;

@@ -283,7 +283,8 @@ void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
 
 void WorldInternal::AddObject(Object object) {
 	ObjectType type = object->GetObjectType();
-	if (type >= ObjectType::GameObject) {
+	if (type == ObjectType::GameObject) {
+		// add default component and fire event.
 		GameObject go = suede_dynamic_cast<GameObject>(object);
 		go->AddComponent<ITransform>();
 

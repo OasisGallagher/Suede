@@ -5,7 +5,7 @@
 #define SUEDE_DECLARE_COMPONENT() \
 public: \
     static suede_guid GetComponentGUID(); \
-    bool IsComponentType(suede_guid classType) const;
+    bool IsComponentType(suede_guid classType) const; \
 
 #define SUEDE_DEFINE_COMPONENT(Class, ParentClass) \
 	suede_guid Class::GetComponentGUID() { \
@@ -30,9 +30,10 @@ class SUEDE_API IComponent : public IObject {
 	SUEDE_DECLARE_IMPL(Component)
 
 public:
-	void Awake();
-	void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
+	virtual void Awake();
+	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
 
+public:
 	bool GetEnabled() const;
 	void SetEnabled(bool value);
 
@@ -51,7 +52,7 @@ public:
 
 public:
 	static suede_guid GetComponentGUID() { return 0; }
-	bool IsComponentType(suede_guid guid) const {
+	virtual bool IsComponentType(suede_guid guid) const {
 		return guid == GetComponentGUID();
 	}
 
