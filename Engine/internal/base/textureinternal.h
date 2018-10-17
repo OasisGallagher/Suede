@@ -125,18 +125,7 @@ private:
 	Buffer* buffer_;
 };
 
-class RenderTextureInternalBase : public TextureInternal {
-public:
-	RenderTextureInternalBase() : TextureInternal(ObjectType::RenderTexture) {}
-
-protected:
-	bool SetViewport(uint width, uint height, const Rect& normalizedRect);
-
-protected:
-	std::shared_ptr<FramebufferBase> framebuffer_;
-};
-
-class RenderTextureInternal : public RenderTextureInternalBase {
+class RenderTextureInternal : public TextureInternal {
 public:
 	RenderTextureInternal();
 	virtual ~RenderTextureInternal();
@@ -161,10 +150,16 @@ protected:
 protected:
 	void DestroyFramebuffer();
 
+protected:
+	bool SetViewport(uint width, uint height, const Rect& normalizedRect);
+
 private:
 	bool VerifyBindStatus();
 	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormat::Depth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
+
+protected:
+	FramebufferBase* framebuffer_;
 
 private:
 	enum {

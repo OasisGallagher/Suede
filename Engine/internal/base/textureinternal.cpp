@@ -449,7 +449,7 @@ void RenderTexture::ReleaseTemporary(RenderTexture texture) {
 }
 
 RenderTextureInternal::RenderTextureInternal() 
-	: bindStatus_(StatusNone), format_(RenderTextureFormat::Rgba) {
+	: TextureInternal(ObjectType::RenderTexture), bindStatus_(StatusNone), format_(RenderTextureFormat::Rgba), framebuffer_(nullptr) {
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
@@ -463,7 +463,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	width_ = width;
 	height_ = height;
 
-	framebuffer_.reset(MEMORY_NEW(Framebuffer));
+	framebuffer_ = MEMORY_NEW(Framebuffer);
 
 	GL::GenTextures(1, &texture_);
 	BindTexture();
@@ -557,7 +557,13 @@ bool RenderTextureInternal::VerifyBindStatus() {
 }
 
 void RenderTextureInternal::DestroyFramebuffer() {
-	framebuffer_.reset();
+	MEMORY_DELETE(framebuffer_);
+}
+
+bool RenderTextureInternal::SetViewport(uint width, uint height, const Rect& normalizedRect) {
+	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
+	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
+	return (uint)viewport.GetWidth() > 0 && (uint)viewport.GetHeight() > 0;
 }
 
 void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat format) {
@@ -658,6 +664,7 @@ ScreenRenderTextureInternal::ScreenRenderTextureInternal() {
 }
 
 ScreenRenderTextureInternal::~ScreenRenderTextureInternal() {
+	framebuffer_ = nullptr;
 }
 
 bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
@@ -704,12 +711,6 @@ GLenum ScreenRenderTextureInternal::GetGLTextureBindingName() const {
 	return 0;
 }
 
-bool RenderTextureInternalBase::SetViewport(uint width, uint height, const Rect& normalizedRect) {
-	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
-	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
-	return (uint)viewport.GetWidth() > 0 && (uint)viewport.GetHeight() > 0;
-}
-
 bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
 	if (format != +RenderTextureFormat::Depth) {
 		Debug::LogError("only RenderTextureFormatDepth is supported for MRTRenderTexture.");
@@ -722,7 +723,7 @@ bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, ui
 	width_ = width;
 	height_ = height;
 
-	framebuffer_ = std::unique_ptr<Framebuffer>(MEMORY_NEW(Framebuffer));
+	framebuffer_ = MEMORY_NEW(Framebuffer);
 	framebuffer_->SetViewport(0, 0, width, height);
 	framebuffer_->CreateDepthRenderbuffer();
 

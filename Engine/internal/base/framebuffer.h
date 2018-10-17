@@ -107,7 +107,7 @@ private:
 
 class Framebuffer0 : public FramebufferBase {
 public:
-	static std::shared_ptr<Framebuffer0> Get();
+	static Framebuffer0* Get();
 
 private:
 	Framebuffer0() {}
