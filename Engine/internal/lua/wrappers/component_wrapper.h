@@ -79,6 +79,11 @@ class Component_Wrapper {
 		return Lua::push(L, _p->IsComponentType(name));
 	}
 
+	static int GetComponentInstanceGUID(lua_State* L) {
+		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		return Lua::push(L, _p->GetComponentInstanceGUID());
+	}
+
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<Component>(L);
@@ -99,6 +104,7 @@ public:
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "IsComponentType", IsComponentType },
 			{ "IsComponentType2", IsComponentType2 },
+			{ "GetComponentInstanceGUID", GetComponentInstanceGUID },
 			{ nullptr, nullptr }
 		};
 

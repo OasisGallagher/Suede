@@ -4,7 +4,7 @@ end
 
 SuedeGlobal = { }
 
-function SuedeGlobal.Awak2e()
+function SuedeGlobal.Awake()
 	print("lua Awake");
 	local go = Suede.NewGameObject();
 	go:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());

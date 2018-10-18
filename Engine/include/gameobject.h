@@ -55,10 +55,9 @@ public:	// Component system.
 	Component AddComponent(Component component);
 
 	Component AddComponent(const char* name);
-	Component AddComponent(const std::string& name);
 
 	Component GetComponent(suede_guid guid);
-	Component GetComponent(const std::string& name);
+	Component GetComponent(const char* name);
 
 	/**
 	 * @param guid pass 0 to get all components.
@@ -68,15 +67,11 @@ public:	// Component system.
 	/**
 	* @param guid pass "" to get all components.
 	*/
-	std::vector<Component> GetComponents(const std::string& name);
+	std::vector<Component> GetComponents(const char* name);
 
 private:
 	Component AddComponent(suede_guid guid);
 };
-
-inline Component IGameObject::AddComponent(const char* name) {
-	return AddComponent(std::string(name));
-}
 
 template <class T>
 std::shared_ptr<T> IGameObject::AddComponent() {

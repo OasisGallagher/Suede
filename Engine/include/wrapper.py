@@ -6,7 +6,8 @@ import re;
 kFilePostfix = "_wrapper";
 kClassPostfix = "_Wrapper";
 kDestFolder = "F:/GitHub/Suede/Engine/internal/lua/wrappers/";
-kContainer = "std::vector<";
+kPyCStr = "py_cstr";
+kGenericContainer = "std::vector<";
 kClassPattern = re.compile(r"\s*class\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)");
 kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
 kExcludeFiles = [
@@ -101,6 +102,8 @@ class Method:	# void Print(const char* message) for example.
 	def _split(self, arg):
 		equals = arg.find("=");
 		if equals >= 0: arg = arg[:equals];
+		
+		arg = arg.replace("const char*", kPyCStr);
 		
 		# remove & and const.
 		arg = arg.replace("&", "").replace("const ", "").strip();
@@ -203,6 +206,8 @@ def CallMethod(method):
 		ans += (arg.value);
 		if method.Arguments()[i].array:
 			ans += ".data()";
+		elif method.Arguments()[i].type == kPyCStr:
+			ans += ".c_str()";
 
 	ans += ")";
 	return ans;
@@ -246,10 +251,13 @@ def WriteMethods(f, className, instance, sharedPtr, interface):
 
 		for i in range(len(method.Arguments())):
 			argument = method.Arguments()[i];
-			if kContainer in argument.type:
-				element = argument.type[len(kContainer):argument.type.find(">")];
+			if kGenericContainer in argument.type:
+				element = argument.type[len(kGenericContainer):argument.type.find(">")];
 				f.write('''
 		std::vector<%s> %s = Lua::getList<%s>(L, %d);''' % (element, argument.value, element, -(i + 1)));
+			elif kPyCStr in argument.type:
+				f.write('''
+		std::string %s = Lua::get<std::string>(L, %d);''' % (argument.value, -(i + 1)));
 			else:
 				f.write('''
 		%s %s = Lua::get<%s>(L, %d);''' % (argument.type, argument.value, argument.type, -(i + 1)));
@@ -259,7 +267,7 @@ def WriteMethods(f, className, instance, sharedPtr, interface):
 			f.write('''
 		%s;
 		return 0;''' % call);
-		elif kContainer in method.Return():
+		elif kGenericContainer in method.Return():
 			f.write('''
 		return Lua::pushList(L, %s);''' % call);
 		else:

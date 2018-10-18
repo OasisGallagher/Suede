@@ -89,7 +89,7 @@ class GameObject_Wrapper {
 	static int AddComponent2(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
 		std::string name = Lua::get<std::string>(L, -1);
-		return Lua::push(L, _p->AddComponent(name));
+		return Lua::push(L, _p->AddComponent(name.c_str()));
 	}
 
 	static int GetComponent(lua_State* L) {
@@ -101,7 +101,7 @@ class GameObject_Wrapper {
 	static int GetComponent2(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
 		std::string name = Lua::get<std::string>(L, -1);
-		return Lua::push(L, _p->GetComponent(name));
+		return Lua::push(L, _p->GetComponent(name.c_str()));
 	}
 
 	static int GetComponents(lua_State* L) {
@@ -113,7 +113,7 @@ class GameObject_Wrapper {
 	static int GetComponents2(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
 		std::string name = Lua::get<std::string>(L, -1);
-		return Lua::pushList(L, _p->GetComponents(name));
+		return Lua::pushList(L, _p->GetComponents(name.c_str()));
 	}
 
 public:

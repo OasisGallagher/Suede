@@ -26,12 +26,12 @@ const Bounds& IGameObject::GetBounds() { return _dptr()->GetBounds(); }
 void IGameObject::RecalculateBounds(int flags) { return _dptr()->RecalculateBounds(); }
 void IGameObject::RecalculateUpdateStrategy() { _dptr()->RecalculateUpdateStrategy(_shared_this()); }
 Component IGameObject::AddComponent(suede_guid guid) { return _dptr()->AddComponent(_shared_this(), guid); }
-Component IGameObject::AddComponent(const std::string& name) { return _dptr()->AddComponent(_shared_this(), name); }
+Component IGameObject::AddComponent(const char* name) { return _dptr()->AddComponent(_shared_this(), name); }
 Component IGameObject::AddComponent(Component component) { return _dptr()->AddComponent(_shared_this(), component); }
 Component IGameObject::GetComponent(suede_guid guid) { return _dptr()->GetComponent(guid); }
-Component IGameObject::GetComponent(const std::string& name) { return _dptr()->GetComponent(name); }
+Component IGameObject::GetComponent(const char* name) { return _dptr()->GetComponent(name); }
 std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _dptr()->GetComponents(guid); }
-std::vector<Component> IGameObject::GetComponents(const std::string& name) { return _dptr()->GetComponents(name); }
+std::vector<Component> IGameObject::GetComponents(const char* name) { return _dptr()->GetComponents(name); }
 
 #define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()))
 

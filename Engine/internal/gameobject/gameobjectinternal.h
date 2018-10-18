@@ -38,15 +38,15 @@ public:
 
 public:
 	template <class T>
-	Component AddComponent(GameObject self, const T& key);
+	Component AddComponent(GameObject self, T key);
 	Component AddComponent(GameObject self, Component component);
 
 
 	template <class T>
-	Component GetComponent(const T& key);
+	Component GetComponent(T key);
 
 	template <class T>
-	std::vector<Component> GetComponents(const T& key);
+	std::vector<Component> GetComponents(T key);
 
 private:
 	void CalculateBonesWorldBounds();
@@ -70,7 +70,7 @@ private:
 	void FireWorldEvent(GameObject self, bool attachedToSceneOnly);
 
 	template <class T>
-	bool CheckComponentDuplicate(const T& key);
+	bool CheckComponentDuplicate(T key);
 
 private:
 	bool active_;
@@ -101,7 +101,7 @@ inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToS
 }
 
 template <class T>
-bool GameObjectInternal::CheckComponentDuplicate(const T& key) {
+bool GameObjectInternal::CheckComponentDuplicate(T key) {
 	if (GetComponent(key)) {
 		Debug::LogError("component with type %s already exist", std::to_string(key).c_str());
 		return false;
@@ -111,7 +111,7 @@ bool GameObjectInternal::CheckComponentDuplicate(const T& key) {
 }
 
 template <class T>
-Component GameObjectInternal::AddComponent(GameObject self, const T& key) {
+Component GameObjectInternal::AddComponent(GameObject self, T key) {
 	if (!CheckComponentDuplicate(key)) {
 		return nullptr;
 	}
@@ -121,7 +121,7 @@ Component GameObjectInternal::AddComponent(GameObject self, const T& key) {
 }
 
 template <class T>
-Component GameObjectInternal::GetComponent(const T& key) {
+Component GameObjectInternal::GetComponent(T key) {
 	for (Component component : components_) {
 		if (component->IsComponentType(key)) {
 			return component;
@@ -132,7 +132,7 @@ Component GameObjectInternal::GetComponent(const T& key) {
 }
 
 template <class T>
-std::vector<Component> GameObjectInternal::GetComponents(const T& key) {
+std::vector<Component> GameObjectInternal::GetComponents(T key) {
 	std::vector<Component> container;
 	for (Component component : components_) {
 		if (component->IsComponentType(key)) {
