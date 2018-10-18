@@ -76,7 +76,7 @@ CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
 	culling_ = MEMORY_NEW(Culling, this);
-	cullingThread_ = new ZThread::Thread(culling_);
+	cullingThread_ = MEMORY_NEW(ZThread::Thread, culling_);
 
 	rendering_ = MEMORY_NEW(Rendering, &p_);// , this);
 

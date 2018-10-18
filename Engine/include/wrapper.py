@@ -173,10 +173,12 @@ class Interface:
 			Warning("  Skip unwrappable method: %s" % method.Def());
 		
 	def _methodWrapable(self, prev, method):
+		if "template" in prev: return False;
 		if "*" in method.Return(): return False;
+		
 		for arg in method.Arguments():
 			if "*" in arg.type: return False;
-			if "template" in prev: return False;
+			
 		return True;
 
 def Warning(message):

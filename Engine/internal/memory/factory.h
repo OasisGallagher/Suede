@@ -54,26 +54,38 @@ public:
 		return instance.methodArray_[(int)type]();
 	}
 
-private:
-	static void AddFactoryMethod(const std::string& name, FactoryMethod method) {
-		if (!instance.stringMethodDictionary_.insert(std::make_pair(name, method)).second) {
-			Debug::LogError("failed to add factroy method for %s", name.c_str());
-		}
+	template <class T>
+	static bool RegisterComponent(const T& key, FactoryMethod method) {
+		return AddFactoryMethod(key, method);
 	}
 
-	static void AddFactoryMethod(ObjectType type, FactoryMethod method) {
+private:
+	static bool AddFactoryMethod(const std::string& name, FactoryMethod method) {
+		if (!instance.stringMethodDictionary_.insert(std::make_pair(name, method)).second) {
+			Debug::LogError("failed to add factroy method for %s", name.c_str());
+			return false;
+		}
+
+		return true;
+	}
+
+	static bool AddFactoryMethod(ObjectType type, FactoryMethod method) {
 		if (instance.methodArray_[(int)type] != nullptr) {
 			Debug::LogError("method for type %d already exists.", type);
-			return;
+			return false;
 		}
 
 		instance.methodArray_[(int)type] = method;
+		return true;
 	}
 
-	static void AddFactoryMethod(suede_guid guid, FactoryMethod method) {
+	static bool AddFactoryMethod(suede_guid guid, FactoryMethod method) {
 		if (!instance.typeIDMethodDictionary_.insert(std::make_pair(guid, method)).second) {
 			Debug::LogError("failed to add factroy method for %zu.", guid);
+			return false;
 		}
+
+		return true;
 	}
 
 	template <class T>
@@ -81,8 +93,9 @@ private:
 		return typename T(MEMORY_NEW(T::element_type), Deleter(), Allocator<T::element_type>());
 	}
 
-	static Factory instance;
 	NameMethodDictionary stringMethodDictionary_;
 	TypeIDMethodDictionary typeIDMethodDictionary_;
 	FactoryMethod methodArray_[ObjectType::size()];
+
+	static Factory instance;
 };

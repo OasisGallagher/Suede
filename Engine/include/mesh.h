@@ -16,7 +16,7 @@ struct TriangleBias {
 SUEDE_DEFINE_OBJECT_POINTER(Mesh);
 
 class ISubMesh : public IObject {
-	SUEDE_DECLARE_IMPL(SubMesh)
+	SUEDE_DECLARE_IMPLEMENTATION(SubMesh)
 
 public:
 	ISubMesh();
@@ -76,7 +76,7 @@ struct MeshAttribute {
 };
 
 class SUEDE_API IMesh : public IObject {
-	SUEDE_DECLARE_IMPL(Mesh)
+	SUEDE_DECLARE_IMPLEMENTATION(Mesh)
 
 public:
 	IMesh();
@@ -125,7 +125,7 @@ SUEDE_DECLARE_OBJECT_CREATER(Mesh);
 
 class SUEDE_API IMeshProvider : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(MeshProvider)
+	SUEDE_DECLARE_IMPLEMENTATION(MeshProvider)
 
 public:
 	Mesh GetMesh();
@@ -138,7 +138,7 @@ SUEDE_DEFINE_OBJECT_POINTER(MeshProvider);
 
 class SUEDE_API ITextMesh : public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(TextMesh)
+	SUEDE_DECLARE_IMPLEMENTATION(TextMesh)
 
 public:
 	ITextMesh();
@@ -158,7 +158,7 @@ SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
 
 class SUEDE_API IMeshFilter : public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(MeshFilter)
+	SUEDE_DECLARE_IMPLEMENTATION(MeshFilter)
 
 public:
 	IMeshFilter();

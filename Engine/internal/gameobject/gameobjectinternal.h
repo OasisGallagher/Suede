@@ -37,11 +37,16 @@ public:
 	void RecalculateUpdateStrategy(GameObject self);
 
 public:
-	Component AddComponent(GameObject self, suede_guid guid);
+	template <class T>
+	Component AddComponent(GameObject self, const T& key);
 	Component AddComponent(GameObject self, Component component);
 
-	Component GetComponent(suede_guid guid);
-	std::vector<Component> GetComponents(suede_guid guid);
+
+	template <class T>
+	Component GetComponent(const T& key);
+
+	template <class T>
+	std::vector<Component> GetComponents(const T& key);
 
 private:
 	void CalculateBonesWorldBounds();
@@ -53,6 +58,8 @@ private:
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
 
+	Component ActivateComponent(GameObject self, Component component);
+
 	int GetHierarchyUpdateStrategy(GameObject root);
 	bool RecalculateHierarchyUpdateStrategy(GameObject self);
 
@@ -62,7 +69,8 @@ private:
 	template <class T>
 	void FireWorldEvent(GameObject self, bool attachedToSceneOnly);
 
-	bool CheckComponentDuplicate(suede_guid guid);
+	template <class T>
+	bool CheckComponentDuplicate(const T& key);
 
 private:
 	bool active_;
@@ -90,4 +98,47 @@ inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToS
 		e->go = self;
 		World::instance()->FireEvent(e);
 	}
+}
+
+template <class T>
+bool GameObjectInternal::CheckComponentDuplicate(const T& key) {
+	if (GetComponent(key)) {
+		Debug::LogError("component with type %s already exist", std::to_string(key).c_str());
+		return false;
+	}
+
+	return true;
+}
+
+template <class T>
+Component GameObjectInternal::AddComponent(GameObject self, const T& key) {
+	if (!CheckComponentDuplicate(key)) {
+		return nullptr;
+	}
+
+	Component component = suede_dynamic_cast<Component>(Factory::Create(key));
+	return ActivateComponent(self, component);
+}
+
+template <class T>
+Component GameObjectInternal::GetComponent(const T& key) {
+	for (Component component : components_) {
+		if (component->IsComponentType(key)) {
+			return component;
+		}
+	}
+
+	return nullptr;
+}
+
+template <class T>
+std::vector<Component> GameObjectInternal::GetComponents(const T& key) {
+	std::vector<Component> container;
+	for (Component component : components_) {
+		if (component->IsComponentType(key)) {
+			container.push_back(component);
+		}
+	}
+
+	return container;
 }

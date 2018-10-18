@@ -10,7 +10,7 @@ struct Decal {
 
 class SUEDE_API IProjector : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(Projector)
+	SUEDE_DECLARE_IMPLEMENTATION(Projector)
 
 public:
 	IProjector();

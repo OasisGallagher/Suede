@@ -13,9 +13,11 @@ class CameraController : public QObject, public Behaviour {
 	SUEDE_DECLARE_COMPONENT()
 
 public:
-	CameraController(QWidget* view);
+	CameraController();
 
 public:
+	void setView(QWidget* view);
+
 	glm::vec3 moveSpeed() { return moveSpeed_; }
 	void setMoveSpeed(const glm::vec3& value) { moveSpeed_ = value; }
 

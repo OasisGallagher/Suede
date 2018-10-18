@@ -16,8 +16,8 @@ public:
 	virtual void RemoveFrameEventListener(FrameEventListener* listener);
 
 private:
-	void LuaUpdate();
 	void SortFrameEventListeners();
+	void InvokeLuaMethod(const char* name);
 
 private:
 	typedef std::vector<FrameEventListener*> FrameEventListenerContainer;

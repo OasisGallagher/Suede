@@ -27,7 +27,7 @@ BETTER_ENUM(TextureWrapMode, int,
 )
 
 class SUEDE_API ITexture : public IObject {
-	SUEDE_DECLARE_IMPL(Texture)
+	SUEDE_DECLARE_IMPLEMENTATION(Texture)
 
 public:
 	void Bind(uint index);
@@ -76,7 +76,7 @@ enum class ColorStreamFormat {
 };
 
 class SUEDE_API ITexture2D : public ITexture {
-	SUEDE_DECLARE_IMPL(Texture2D)
+	SUEDE_DECLARE_IMPLEMENTATION(Texture2D)
 
 public:
 	ITexture2D();
@@ -92,7 +92,7 @@ public:
 };
 
 class SUEDE_API ITextureCube : public ITexture {
-	SUEDE_DECLARE_IMPL(TextureCube)
+	SUEDE_DECLARE_IMPLEMENTATION(TextureCube)
 
 public:
 	ITextureCube();
@@ -102,7 +102,7 @@ public:
 };
 
 class SUEDE_API ITextureBuffer : public ITexture {
-	SUEDE_DECLARE_IMPL(TextureBuffer)
+	SUEDE_DECLARE_IMPLEMENTATION(TextureBuffer)
 
 public:
 	ITextureBuffer();
@@ -128,7 +128,7 @@ BETTER_ENUM(RenderTextureFormat, int,
 );
 
 class SUEDE_API IRenderTexture : public ITexture {
-	SUEDE_DECLARE_IMPL(RenderTexture)
+	SUEDE_DECLARE_IMPLEMENTATION(RenderTexture)
 
 public:
 	IRenderTexture();
@@ -165,7 +165,7 @@ SUEDE_DECLARE_OBJECT_CREATER(RenderTexture);
 SUEDE_DECLARE_OBJECT_CREATER(TextureBuffer);
 
 class SUEDE_API IMRTRenderTexture : public IRenderTexture {
-	SUEDE_DECLARE_IMPL(MRTRenderTexture)
+	SUEDE_DECLARE_IMPLEMENTATION(MRTRenderTexture)
 
 public:
 	IMRTRenderTexture();

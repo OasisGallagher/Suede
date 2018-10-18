@@ -15,7 +15,7 @@ enum class RenderQueue {
 };
 
 class SUEDE_API IMaterial : public IObject {
-	SUEDE_DECLARE_IMPL(Material)
+	SUEDE_DECLARE_IMPLEMENTATION(Material)
 
 public:
 	IMaterial();

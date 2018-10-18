@@ -55,13 +55,13 @@ bool EngineInternal::Startup(uint width, uint height) {
 		return false;
 	}
 
-	Time::implement(new TimeInternal);
-	Profiler::implement(new ProfilerInternal);
-	TagManager::implement(new TagManagerInternal);
-	Statistics::implement(new StatisticsInternal);
-	Screen::implement(new ScreenInternal(width, height));
+	Time::implement(MEMORY_NEW(TimeInternal));
+	Profiler::implement(MEMORY_NEW(ProfilerInternal));
+	TagManager::implement(MEMORY_NEW(TagManagerInternal));
+	Statistics::implement(MEMORY_NEW(StatisticsInternal));
+	Screen::implement(MEMORY_NEW(ScreenInternal, width, height));
 
-	World::implement(new WorldInternal);
+	World::implement(MEMORY_NEW(WorldInternal));
 	World::instance()->Initialize();
 
 	luaL_Reg lualibs[] = {
@@ -71,11 +71,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 
 	L = luaL_newstate();
 	Lua::initialize(L, lualibs, "resources/lua/main.lua");
-
-// 	for (;;) {
-// 		lua_getfield(L, -1, "update");
-// 		lua_call(L, 0, 0);
-// 	}
+	InvokeLuaMethod("Awake");
 
 	return true;
 }
@@ -87,7 +83,7 @@ void EngineInternal::Shutdown() {
 }
 
 void EngineInternal::Update() {
-	LuaUpdate();
+	InvokeLuaMethod("Update");
 
 	SortFrameEventListeners();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
@@ -95,10 +91,15 @@ void EngineInternal::Update() {
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameLeave);
 }
 
-void EngineInternal::LuaUpdate() {
+void EngineInternal::InvokeLuaMethod(const char* name) {
 	lua_getglobal(L, "SuedeGlobal");
-	lua_getfield(L, -1, "update");
-	lua_call(L, 0, 0);
+	lua_getfield(L, -1, name);
+	int n = lua_pcall(L, 0, 0, 0);
+	if (n != LUA_OK) {
+		Debug::LogError("invoke \"%s\" failed(%d): %s.", name, n, lua_tostring(L, -1));
+		lua_pop(L, 1);
+	}
+
 	lua_pop(L, 1);
 }
 

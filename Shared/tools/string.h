@@ -17,6 +17,11 @@ private:
 	std::vector<size_t> occ_;
 };
 
+namespace std {
+// for completeness.
+inline std::string to_string(const std::string& str) { return str; }
+}	// namespace std
+
 class SUEDE_API String {
 public:
 	static std::string Trim(const std::string& text);

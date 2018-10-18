@@ -18,7 +18,7 @@ BETTER_ENUM(LightType, int,
 )
 
 class SUEDE_API ILight : public IComponent {
-	SUEDE_DECLARE_IMPL(Light)
+	SUEDE_DECLARE_IMPLEMENTATION(Light)
 	SUEDE_DECLARE_COMPONENT()
 
 public:

@@ -6,8 +6,6 @@
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 SUEDE_DECLARE_OBJECT_CREATER(GameObject);
 
-SUEDE_DEFINE_OBJECT_POINTER(Component);
-
 enum {
 	RecalculateBoundsFlagsSelf = 1,
 	RecalculateBoundsFlagsParent = 2,
@@ -16,7 +14,7 @@ enum {
 };
 
 class SUEDE_API IGameObject : public IObject {
-	SUEDE_DECLARE_IMPL(GameObject)
+	SUEDE_DECLARE_IMPLEMENTATION(GameObject)
 
 public:
 	IGameObject();
@@ -39,6 +37,7 @@ public:
 	void RenderingUpdate();
 
 	Transform GetTransform();
+
 	/**
 	 * @returns bounds measured in the world space.
 	 */
@@ -48,27 +47,40 @@ public:
 	void RecalculateUpdateStrategy();
 
 public:	// Component system.
-	template <class T, class... Args> 
-	std::shared_ptr<T> AddComponent(Args... args);
+	template <class T> 
+	std::shared_ptr<T> AddComponent();
 	template <class T> std::shared_ptr<T> GetComponent();
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
 	Component AddComponent(Component component);
 
+	Component AddComponent(const char* name);
+	Component AddComponent(const std::string& name);
+
 	Component GetComponent(suede_guid guid);
+	Component GetComponent(const std::string& name);
 
 	/**
 	 * @param guid pass 0 to get all components.
 	 */
 	std::vector<Component> GetComponents(suede_guid guid);
 
+	/**
+	* @param guid pass "" to get all components.
+	*/
+	std::vector<Component> GetComponents(const std::string& name);
+
 private:
 	Component AddComponent(suede_guid guid);
 };
 
-template <class T, class... Args>
-std::shared_ptr<T> IGameObject::AddComponent(Args... args) {
-	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::make_shared<T>(args...)));
+inline Component IGameObject::AddComponent(const char* name) {
+	return AddComponent(std::string(name));
+}
+
+template <class T>
+std::shared_ptr<T> IGameObject::AddComponent() {
+	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::make_shared<T>()));
 }
 
 template <class T>

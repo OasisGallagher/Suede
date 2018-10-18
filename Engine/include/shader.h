@@ -16,7 +16,7 @@ struct ShaderProperty {
 };
 
 class SUEDE_API IShader : public IObject {
-	SUEDE_DECLARE_IMPL(Shader)
+	SUEDE_DECLARE_IMPLEMENTATION(Shader)
 
 public:
 	IShader();

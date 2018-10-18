@@ -13,6 +13,14 @@ void IComponent::CullingUpdate() { _dptr()->CullingUpdate(); }
 void IComponent::RenderingUpdate() { _dptr()->RenderingUpdate(); }
 int IComponent::GetUpdateStrategy() { return _dptr()->GetUpdateStrategy(); }
 
+bool Component::Register(suede_guid guid, Object(*method)()) {
+	return Factory::RegisterComponent(guid, method);
+}
+
+bool Component::Register(const std::string& name, Object(*method)()) {
+	return Factory::RegisterComponent(name, method);
+}
+
 suede_guid IComponent::ClassNameToGUID(const char* className) {
 	static suede_guid id = 0;
 	return ++id;

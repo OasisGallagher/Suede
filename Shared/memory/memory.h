@@ -11,7 +11,6 @@ class Memory {
 public:
 	template <class T, class... Args>
 	static T* New(Args... args) {
-		auto name = typeid(T).name();
 		return new T(args...);
 	}
 

@@ -12,58 +12,74 @@ extern "C" {
 
 namespace LuaPrivate {
 
-static int _panic(lua_State* L) {
+static int panic(lua_State* L) {
 	Debug::LogError("onPanic: %s", lua_tostring(L, -1));
+	lua_pop(L, 1);
 
-	// TODO: lua will call abort() anyway.
+	// SUEDE TODO: lua will call abort() anyway.
 	return 0;
 }
 
-static void _error(lua_State *L) {
+static void error(lua_State *L) {
 	Debug::LogError("onError: %s", lua_tostring(L, -1));
+	lua_pop(L, 1);
 }
 
-static int _print(lua_State *L) {
+static void extractMsg(lua_State* L, std::string& message, int i) {
+	switch (lua_type(L, i)) {
+		case LUA_TNIL:
+			message += "nil";
+			break;
+		case LUA_TBOOLEAN:
+			message += lua_toboolean(L, i) != 0 ? "true" : "false";
+			break;
+		case LUA_TLIGHTUSERDATA:
+			message += "lightuserdata";
+			break;
+		case LUA_TNUMBER:
+			message += std::to_string(lua_tonumber(L, i));
+			break;
+		case LUA_TSTRING:
+			message += lua_tostring(L, i);
+			break;
+		case LUA_TTABLE:
+			message += "table";
+			break;
+		case LUA_TFUNCTION:
+			message += "function";
+			break;
+		case LUA_TUSERDATA:
+			message += "userdata";
+			break;
+		case LUA_TTHREAD:
+			message += "thread";
+			break;
+	}
+}
+
+static int print(lua_State *L) {
 	std::string message;
 	int nargs = lua_gettop(L);
 
 	for (int i = 1; i <= nargs; i++) {
-		if (i != 1) { message = message + " "; }
-
-		switch (lua_type(L, i)) {
-			case LUA_TNIL:
-				message += "nil";
-				break;
-			case LUA_TBOOLEAN:
-				message += lua_toboolean(L, i) != 0 ? "true" : "false";
-				break;
-			case LUA_TLIGHTUSERDATA:
-				message += "lightuserdata";
-				break;
-			case LUA_TNUMBER:
-				message += std::to_string(lua_tonumber(L, i));
-				break;
-			case LUA_TSTRING:
-				message += lua_tostring(L, i);
-				break;
-			case LUA_TTABLE:
-				message += "table";
-				break;
-			case LUA_TFUNCTION:
-				message += "function";
-				break;
-			case LUA_TUSERDATA:
-				message += "userdata";
-				break;
-			case LUA_TTHREAD:
-				message += "thread";
-				break;
-		}
+		if (i != 1) { message += " "; }
+		extractMsg(L, message, i);
 	}
 
 	Debug::Log(message.c_str());
 
 	return 0;
+}
+
+static void registerGlobals(lua_State* L) {
+	luaL_Reg globals[] = {
+		{ "print", LuaPrivate::print },
+		{ nullptr, nullptr }
+	};
+
+	lua_getglobal(L, "_G");
+	luaL_setfuncs(L, globals, 0);
+	lua_pop(L, 1);
 }
 
 }	// namespace LuaPrivate
@@ -87,21 +103,12 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 		lua_pop(L, 1);
 	}
 
-	lua_atpanic(L, LuaPrivate::_panic);
+	lua_atpanic(L, LuaPrivate::panic);
 
-	// register print
-	luaL_Reg printlib[] = {
-		{ "print", LuaPrivate::_print },
-		{ nullptr, nullptr }
-	};
-
-	lua_getglobal(L, "_G");
-	luaL_setfuncs(L, printlib, 0);
-	lua_pop(L, 1);
-	//
-
+	LuaPrivate::registerGlobals(L);
+	
 	if (luaL_dofile(L, entry) != 0) {
-		LuaPrivate::_error(L);
+		LuaPrivate::error(L);
 	}
 }
 
@@ -115,7 +122,7 @@ static T* userdataPtr(lua_State* L, int index, const char* metatable) {
 	//T** p = (T**)luaL_checkudata(L, 1, Lua::metatableName<T>());
 	T** p = (T**)lua_touserdata(L, 1);
 	if (p == nullptr) { return nullptr; }
-
+	
 	return *p;
 }
 
@@ -324,7 +331,7 @@ static int deleteSharedPtr(lua_State* L) {
 template <class T>
 static int newObject(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = new T;
+	*memory = MEMORY_NEW(T);
 
 	luaL_getmetatable(L, Lua::metatableName<T>());
 	lua_setmetatable(L, -2);
@@ -334,7 +341,7 @@ static int newObject(lua_State* L) {
 template <class T>
 static int newInterface(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = new T;
+	*memory = MEMORY_NEW(T);
 
 	luaL_getmetatable(L, Lua::metatableName<T::Interface>());
 	lua_setmetatable(L, -2);

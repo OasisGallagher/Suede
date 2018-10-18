@@ -19,7 +19,7 @@ public:
 };
 
 class SUEDE_API IFont : public IObject {
-	SUEDE_DECLARE_IMPL(Font)
+	SUEDE_DECLARE_IMPLEMENTATION(Font)
 
 public:
 	IFont();

@@ -24,7 +24,7 @@ SUEDE_DECLARE_OBJECT_CREATER(SphereParticleEmitter);
 SUEDE_DECLARE_OBJECT_CREATER(ParticleAnimator);
 
 class SUEDE_API IParticleEmitter : public IObject {
-	SUEDE_DECLARE_IMPL(ParticleEmitter)
+	SUEDE_DECLARE_IMPLEMENTATION(ParticleEmitter)
 
 public:
 	void Emit(Particle** particles, uint& count);
@@ -55,7 +55,7 @@ protected:
 };
 
 class SUEDE_API ISphereParticleEmitter : public IParticleEmitter {
-	SUEDE_DECLARE_IMPL(SphereParticleEmitter)
+	SUEDE_DECLARE_IMPLEMENTATION(SphereParticleEmitter)
 
 public:
 	ISphereParticleEmitter();
@@ -66,7 +66,7 @@ public:
 };
 
 class SUEDE_API IParticleAnimator : public IObject {
-	SUEDE_DECLARE_IMPL(ParticleAnimator)
+	SUEDE_DECLARE_IMPLEMENTATION(ParticleAnimator)
 
 public:
 	IParticleAnimator();
@@ -86,7 +86,7 @@ public:
 
 class SUEDE_API IParticleSystem : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(ParticleSystem)
+	SUEDE_DECLARE_IMPLEMENTATION(ParticleSystem)
 
 public:
 	IParticleSystem();

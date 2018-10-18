@@ -26,7 +26,7 @@ SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
 class SUEDE_API ICamera : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(Camera)
+	SUEDE_DECLARE_IMPLEMENTATION(Camera)
 
 public:
 	ICamera();

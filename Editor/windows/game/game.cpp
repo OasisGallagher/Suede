@@ -89,9 +89,14 @@ void Game::init(Ui::Editor* ui) {
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
 }
 
+template <class T>
+Object CreateComponent() { return std::make_shared<T>(); }
+#define REGISTER_COMPONENT(T)	Component::Register(#T, CreateComponent<T>)
+
 void Game::awake() {
+	REGISTER_COMPONENT(CameraController);
+
 	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
-	
 	createScene();
 }
 
@@ -271,8 +276,8 @@ void Game::createScene() {
 	targetTexture->Create(RenderTextureFormat::Rgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 	camera->SetTargetTexture(targetTexture);*/
 
-	controller_ = cameraGameObject->AddComponent<CameraController>(this).get();
-	cameraGameObject->GetComponent<CameraController>();
+	controller_ = cameraGameObject->AddComponent<CameraController>().get();
+	controller_->setView(this);
 
 	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>().get();
 

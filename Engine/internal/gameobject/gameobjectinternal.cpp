@@ -4,6 +4,7 @@
 #include "time2.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
+#include "tools/string.h"
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
@@ -25,9 +26,12 @@ const Bounds& IGameObject::GetBounds() { return _dptr()->GetBounds(); }
 void IGameObject::RecalculateBounds(int flags) { return _dptr()->RecalculateBounds(); }
 void IGameObject::RecalculateUpdateStrategy() { _dptr()->RecalculateUpdateStrategy(_shared_this()); }
 Component IGameObject::AddComponent(suede_guid guid) { return _dptr()->AddComponent(_shared_this(), guid); }
+Component IGameObject::AddComponent(const std::string& name) { return _dptr()->AddComponent(_shared_this(), name); }
 Component IGameObject::AddComponent(Component component) { return _dptr()->AddComponent(_shared_this(), component); }
 Component IGameObject::GetComponent(suede_guid guid) { return _dptr()->GetComponent(guid); }
+Component IGameObject::GetComponent(const std::string& name) { return _dptr()->GetComponent(name); }
 std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _dptr()->GetComponents(guid); }
+std::vector<Component> IGameObject::GetComponents(const std::string& name) { return _dptr()->GetComponents(name); }
 
 #define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()))
 
@@ -77,6 +81,14 @@ bool GameObjectInternal::SetTag(GameObject self, const std::string& value) {
 }
 
 Component GameObjectInternal::AddComponent(GameObject self, Component component) {
+	if (CheckComponentDuplicate(component->GetComponentInstanceGUID())) {
+		return ActivateComponent(self, component);
+	}
+
+	return nullptr;
+}
+
+Component GameObjectInternal::ActivateComponent(GameObject self, Component component) {
 	component->SetGameObject(self);
 	components_.push_back(component);
 
@@ -97,23 +109,6 @@ Component GameObjectInternal::AddComponent(GameObject self, Component component)
 	World::instance()->FireEvent(e);
 
 	return component;
-}
-
-Component GameObjectInternal::AddComponent(GameObject self, suede_guid guid) {
-	if (!CheckComponentDuplicate(guid)) {
-		return nullptr;
-	}
-
-	return AddComponent(self, suede_dynamic_cast<Component>(Factory::Create(guid)));
-}
-
-bool GameObjectInternal::CheckComponentDuplicate(suede_guid guid) {
-	if (GetComponent(guid)) {
-		Debug::LogError("component with type %u already exist", guid);
-		return false;
-	}
-
-	return true;
 }
 
 int GameObjectInternal::GetUpdateStrategy(GameObject self) {
@@ -194,27 +189,6 @@ const Bounds& GameObjectInternal::GetBounds() {
 	}
 
 	return worldBounds_;
-}
-
-Component GameObjectInternal::GetComponent(suede_guid guid) {
-	for (Component component : components_) {
-		if (component->IsComponentType(guid)) {
-			return component;
-		}
-	}
-
-	return nullptr;
-}
-
-std::vector<Component> GameObjectInternal::GetComponents(suede_guid guid) {
-	std::vector<Component> container;
-	for (Component component : components_) {
-		if (component->IsComponentType(guid)) {
-			container.push_back(component);
-		}
-	}
-
-	return container;
 }
 
 void GameObjectInternal::CalculateHierarchyBounds() {

@@ -24,6 +24,7 @@ Factory Factory::instance;
 	AddFactoryMethod(+ObjectType:: ## T, FactoryCreate<T>)
 
 #define ADD_COMPONENT_FACTROY_METHOD(T) \
+	AddFactoryMethod(#T, FactoryCreate<T>); \
 	AddFactoryMethod(T::element_type::GetComponentGUID(), FactoryCreate<T>)
 
 Factory::Factory() {

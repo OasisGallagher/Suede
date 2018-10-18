@@ -4,6 +4,8 @@
 #include "graphicscanvas.h"
 #include "engineinternal.h"
 
+#include "memory/memory.h"
+
 enum {
 	ViewerStatusUninitialized,
 	ViewerStatusRunning,
@@ -36,7 +38,7 @@ bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	canvas_ = value;
 
 	if (status_ == ViewerStatusUninitialized) {
-		Engine::implement(new EngineInternal);
+		Engine::implement(MEMORY_NEW(EngineInternal));
 		if (Engine::instance()->Startup(value->GetWidth(), value->GetHeight())) {
 			status_ = ViewerStatusRunning;
 		}

@@ -18,7 +18,7 @@ SUEDE_DEFINE_OBJECT_POINTER(Transform);
 
 class SUEDE_API ITransform : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(Transform)
+	SUEDE_DECLARE_IMPLEMENTATION(Transform)
 
 public:
 	ITransform();

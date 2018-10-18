@@ -51,12 +51,12 @@ WorldInternal::WorldInternal()
 void WorldInternal::Initialize() {
 	GLUtils::Initialize();
 
-	Resources::implement(new ResourcesInternal);
+	Resources::implement(MEMORY_NEW(ResourcesInternal));
 	Resources::instance()->FindShader("builtin/lit_texture");
 
-	Gizmos::implement(new GizmosInternal);
-	Graphics::implement(new GraphicsInternal);
-	Environment::implement(new EnvironmentInternal);
+	Gizmos::implement(MEMORY_NEW(GizmosInternal));
+	Graphics::implement(MEMORY_NEW(GraphicsInternal));
+	Environment::implement(MEMORY_NEW(EnvironmentInternal));
 
 	UniformBufferManager::instance();
 	Shadows::instance();

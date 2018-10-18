@@ -11,9 +11,12 @@
 
 SUEDE_DEFINE_COMPONENT(CameraController, Behaviour)
 
-CameraController::CameraController(QWidget* view) :
-	view_(view), buttons_(0)
-	, orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
+CameraController::CameraController() 
+	: buttons_(0), orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
+}
+
+void CameraController::setView(QWidget* view) {
+	view_ = view;
 }
 
 void CameraController::onMouseWheel(int delta) {

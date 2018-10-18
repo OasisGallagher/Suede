@@ -39,7 +39,7 @@ struct SkeletonNode {
 };
 
 class ISkeleton : public IObject {
-	SUEDE_DECLARE_IMPL(Skeleton)
+	SUEDE_DECLARE_IMPLEMENTATION(Skeleton)
 
 public:
 	ISkeleton();
@@ -68,7 +68,7 @@ BETTER_ENUM(AnimationWrapMode, int,
 )
 
 class SUEDE_API IAnimationClip : public IObject {
-	SUEDE_DECLARE_IMPL(AnimationClip)
+	SUEDE_DECLARE_IMPLEMENTATION(AnimationClip)
 
 public:
 	IAnimationClip();
@@ -93,14 +93,14 @@ public:
 };
 
 class SUEDE_API IAnimationState : public IObject {
-	SUEDE_DECLARE_IMPL(AnimationState)
+	SUEDE_DECLARE_IMPLEMENTATION(AnimationState)
 
 public:
 	IAnimationState();
 };
 
 class SUEDE_API IAnimationKeys : public IObject {
-	SUEDE_DECLARE_IMPL(AnimationKeys)
+	SUEDE_DECLARE_IMPLEMENTATION(AnimationKeys)
 
 public:
 	IAnimationKeys();
@@ -125,7 +125,7 @@ enum {
 };
 
 class SUEDE_API IAnimationFrame : public IObject {
-	SUEDE_DECLARE_IMPL(AnimationFrame)
+	SUEDE_DECLARE_IMPLEMENTATION(AnimationFrame)
 
 public:
 	IAnimationFrame();
@@ -147,7 +147,7 @@ public:
 };
 
 class SUEDE_API IAnimationCurve : public IObject {
-	SUEDE_DECLARE_IMPL(AnimationCurve)
+	SUEDE_DECLARE_IMPLEMENTATION(AnimationCurve)
 
 public:
 	IAnimationCurve();
@@ -163,7 +163,7 @@ public:
 
 class SUEDE_API IAnimation : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(Animation)
+	SUEDE_DECLARE_IMPLEMENTATION(Animation)
 
 public:
 	IAnimation();

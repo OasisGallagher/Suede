@@ -9,7 +9,7 @@ SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 
 class SUEDE_API IRenderer : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(Renderer)
+	SUEDE_DECLARE_IMPLEMENTATION(Renderer)
 
 public:
 	typedef SuedeEnumerable<std::vector<Material>::iterator> Enumerable;
@@ -34,7 +34,7 @@ protected:
 
 class SUEDE_API IMeshRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(MeshRenderer)
+	SUEDE_DECLARE_IMPLEMENTATION(MeshRenderer)
 
 public:
 	IMeshRenderer();
@@ -42,7 +42,7 @@ public:
 
 class SUEDE_API IParticleRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(ParticleRenderer)
+	SUEDE_DECLARE_IMPLEMENTATION(ParticleRenderer)
 
 public:
 	IParticleRenderer();
@@ -50,7 +50,7 @@ public:
 
 class SUEDE_API ISkinnedMeshRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
-	SUEDE_DECLARE_IMPL(SkinnedMeshRenderer)
+	SUEDE_DECLARE_IMPLEMENTATION(SkinnedMeshRenderer)
 
 public:
 	ISkinnedMeshRenderer();

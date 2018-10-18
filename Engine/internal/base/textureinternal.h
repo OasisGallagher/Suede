@@ -172,7 +172,7 @@ private:
 };
 
 class IScreenRenderTexture : public IRenderTexture {
-	SUEDE_DECLARE_IMPL(ScreenRenderTexture);
+	SUEDE_DECLARE_IMPLEMENTATION(ScreenRenderTexture);
 public:
 	IScreenRenderTexture();
 };

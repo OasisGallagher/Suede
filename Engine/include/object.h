@@ -49,7 +49,7 @@ BETTER_ENUM(ObjectType, int,
 SUEDE_DEFINE_OBJECT_POINTER(Object);
 
 class SUEDE_API IObject : public std::enable_shared_from_this<IObject> {
-	SUEDE_DECLARE_IMPL(Object)
+	SUEDE_DECLARE_IMPLEMENTATION(Object)
 
 public:
 	virtual ~IObject();
@@ -78,7 +78,9 @@ private:
 	void* d_;
 };
 
+// internal helpers
 #define _dptr()			_dptr_impl(this)
 #define _d_equals(o)	(o).get()->_d_equals_impl(this)
 #define _rptr(o)		(o).get()->_rptr_impl(this)
 #define _shared_this()	_shared_this_impl(this)
+//
