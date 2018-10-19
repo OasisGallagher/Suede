@@ -1,6 +1,16 @@
 #include "screeninternal.h"
 
 #include "debug/debug.h"
+#include "memory/memory.h"
+
+#undef _dptr
+#define _dptr()	((ScreenInternal*)d_)
+Screen::Screen() : Singleton2<Screen>(MEMORY_NEW(ScreenInternal)) {}
+uint Screen::GetWidth() { return _dptr()->GetWidth(); }
+uint Screen::GetHeight() { return _dptr()->GetHeight(); }
+void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _dptr()->AddScreenSizeChangedListener(listener); }
+void Screen::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _dptr()->RemoveScreenSizeChangedListener(listener); }
+void Screen::Resize(uint width, uint height) { _dptr()->Resize(width, height); }
 
 void ScreenInternal::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 	if (listener == nullptr) {

@@ -10,22 +10,27 @@ BETTER_ENUM(ShadingMode, int,
 )
 
 class SUEDE_API Graphics : public Singleton2<Graphics> {
+	friend class Singleton2<Graphics>;
+
 public:
-	virtual void SetShadingMode(ShadingMode value) = 0;
-	virtual ShadingMode GetShadingMode() = 0;
+	void SetShadingMode(ShadingMode value);
+	ShadingMode GetShadingMode();
 
-	virtual void SetAmbientOcclusionEnabled(bool value) = 0;
-	virtual bool GetAmbientOcclusionEnabled() = 0;
+	void SetAmbientOcclusionEnabled(bool value);
+	bool GetAmbientOcclusionEnabled();
 
-	virtual void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) = 0;
+	void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 
-	virtual void Draw(Mesh mesh, Material material) = 0;
+	void Draw(Mesh mesh, Material material);
 
-	virtual void Blit(Texture src, RenderTexture dest) = 0;
-	virtual void Blit(Texture src, RenderTexture dest, const Rect& rect) = 0;
-	virtual void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect) = 0;
+	void Blit(Texture src, RenderTexture dest);
+	void Blit(Texture src, RenderTexture dest, const Rect& rect);
+	void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect);
 
-	virtual void Blit(Texture src, RenderTexture dest, Material material) = 0;
-	virtual void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect) = 0;
-	virtual void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) = 0;
+	void Blit(Texture src, RenderTexture dest, Material material);
+	void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect);
+	void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect);
+
+private:
+	Graphics();
 };

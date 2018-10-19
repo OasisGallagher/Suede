@@ -1,7 +1,7 @@
 #pragma once
 #include "tagmanager.h"
 
-class TagManagerInternal : public TagManager {
+class TagManagerInternal {
 public:
 	TagManagerInternal();
 

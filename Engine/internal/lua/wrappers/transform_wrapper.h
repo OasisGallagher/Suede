@@ -87,7 +87,8 @@ class Transform_Wrapper {
 
 	static int GetChildren(lua_State* L) {
 		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
-		return Lua::push(L, _p->GetChildren());
+		ITransform::Enumerable _r = _p->GetChildren();
+		return Lua::pushList(L, std::vector<ITransform::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	static int SetScale(lua_State* L) {

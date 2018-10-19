@@ -1,4 +1,5 @@
 #pragma once
+#include <iterator>
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -17,6 +18,7 @@ template <class T>
 class SuedeEnumerable {
 public:
 	typedef T iterator;
+	typedef typename std::iterator_traits<T>::value_type value_type;
 
 public:
 	SuedeEnumerable(iterator first, iterator last)

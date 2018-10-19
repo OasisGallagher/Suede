@@ -6,21 +6,26 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Gizmos : public Singleton2<Gizmos> {
+	friend class Singleton2<Gizmos>;
+
 public:
-	virtual void Flush() = 0;
+	void Flush();
 
-	virtual Color GetColor() = 0;
-	virtual void SetColor(const Color& value) = 0;
+	Color GetColor();
+	void SetColor(const Color& value);
 
-	virtual void DrawLines(const glm::vec3* points, uint npoints) = 0;
-	virtual void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) = 0;
+	void DrawLines(const glm::vec3* points, uint npoints);
+	void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
-	virtual void DrawLineStripe(const glm::vec3* points, uint npoints) = 0;
-	virtual void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) = 0;
+	void DrawLineStripe(const glm::vec3* points, uint npoints);
+	void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
-	virtual void DrawSphere(const glm::vec3& center, float radius) = 0;
-	virtual void DrawCuboid(const glm::vec3& center, const glm::vec3& size) = 0;
+	void DrawSphere(const glm::vec3& center, float radius);
+	void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
 
-	virtual void DrawWireSphere(const glm::vec3& center, float radius) = 0;
-	virtual void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) = 0;
+	void DrawWireSphere(const glm::vec3& center, float radius);
+	void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size);
+
+private:
+	Gizmos();
 };

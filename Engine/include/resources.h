@@ -13,24 +13,29 @@ enum class PrimitiveType {
 };
 
 class SUEDE_API Resources : public Singleton2<Resources> {
+	friend class Singleton2<Resources>;
+
 public:
-	virtual void Import() = 0;
+	void Import();
 
-	virtual Texture2D GetBlackTexture() = 0;
-	virtual Texture2D GetWhiteTexture() = 0;
+	Texture2D GetBlackTexture();
+	Texture2D GetWhiteTexture();
 
-	virtual std::string GetRootDirectory() = 0;
-	virtual std::string GetModelDirectory() = 0;
-	virtual std::string GetShaderDirectory() = 0;
-	virtual std::string GetTextureDirectory() = 0;
+	std::string GetRootDirectory();
+	std::string GetModelDirectory();
+	std::string GetShaderDirectory();
+	std::string GetTextureDirectory();
 
-	virtual Mesh GetPrimitive(PrimitiveType type) = 0;
-	virtual Mesh CreatePrimitive(PrimitiveType type, float scale) = 0;
-	virtual Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) = 0;
+	Mesh GetPrimitive(PrimitiveType type);
+	Mesh CreatePrimitive(PrimitiveType type, float scale);
+	Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
-	virtual void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) = 0;
+	void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 
-	virtual Shader FindShader(const std::string& path) = 0;
-	virtual Texture FindTexture(const std::string& path) = 0;
-	virtual Material FindMaterial(const std::string& name) = 0;
+	Shader FindShader(const std::string& path);
+	Texture FindTexture(const std::string& path);
+	Material FindMaterial(const std::string& name);
+
+private:
+	Resources();
 };

@@ -6,10 +6,15 @@
 
 typedef std::vector<std::string> Tags;
 class SUEDE_API TagManager : public Singleton2<TagManager> {
-public:
-	virtual const Tags& GetAllTags() = 0;
+	friend class Singleton2<TagManager>;
 
-	virtual void Register(const std::string& name) = 0;
-	virtual void Unregister(const std::string& name) = 0;
-	virtual bool IsRegistered(const std::string& name) = 0;
+public:
+	const Tags& GetAllTags();
+
+	void Register(const std::string& name);
+	void Unregister(const std::string& name);
+	bool IsRegistered(const std::string& name);
+
+private:
+	TagManager();
 };

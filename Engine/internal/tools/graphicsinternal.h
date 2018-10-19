@@ -1,28 +1,28 @@
 #pragma once
 #include "graphics.h"
 
-class GraphicsInternal : public Graphics {
+class GraphicsInternal {
 public:
 	GraphicsInternal();
 
 public:
-	virtual void SetShadingMode(ShadingMode value);
-	virtual ShadingMode GetShadingMode() { return mode_; }
+	void SetShadingMode(ShadingMode value);
+	ShadingMode GetShadingMode() { return mode_; }
 
-	virtual void SetAmbientOcclusionEnabled(bool value) { ambientOcclusionEnabled_ = value; }
-	virtual bool GetAmbientOcclusionEnabled() { return ambientOcclusionEnabled_; }
+	void SetAmbientOcclusionEnabled(bool value) { ambientOcclusionEnabled_ = value; }
+	bool GetAmbientOcclusionEnabled() { return ambientOcclusionEnabled_; }
 
-	virtual void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
+	void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 
-	virtual void Draw(Mesh mesh, Material material);
+	void Draw(Mesh mesh, Material material);
 
-	virtual void Blit(Texture src, RenderTexture dest);
-	virtual void Blit(Texture src, RenderTexture dest, const Rect& rect);
-	virtual void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect);
+	void Blit(Texture src, RenderTexture dest);
+	void Blit(Texture src, RenderTexture dest, const Rect& rect);
+	void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect);
 
-	virtual void Blit(Texture src, RenderTexture dest, Material material);
-	virtual void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect);
-	virtual void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect);
+	void Blit(Texture src, RenderTexture dest, Material material);
+	void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect);
+	void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect);
 
 private:
 	void DrawSubMeshes(Mesh mesh);

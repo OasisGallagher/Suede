@@ -1,6 +1,20 @@
 #include "statisticsinternal.h"
 
 #include "time2.h"
+#include "memory/memory.h"
+
+#undef _dptr
+#define _dptr()	((StatisticsInternal*)d_)
+Statistics::Statistics() : Singleton2<Statistics>(MEMORY_NEW(StatisticsInternal)) {}
+void Statistics::AddTriangles(uint n) { _dptr()->AddTriangles(n); }
+void Statistics::AddDrawcalls(uint n) { _dptr()->AddDrawcalls(n); }
+uint Statistics::GetTriangles() { return _dptr()->GetTriangles(); }
+uint Statistics::GetDrawcalls() { return _dptr()->GetDrawcalls(); }
+float Statistics::GetFrameRate() { return _dptr()->GetFrameRate(); }
+void Statistics::SetCullingElapsed(double value) { _dptr()->SetCullingElapsed(value); }
+void Statistics::SetRenderingElapsed(double value) { _dptr()->SetRenderingElapsed(value); }
+double Statistics::GetCullingElapsed() { return _dptr()->GetCullingElapsed(); }
+double Statistics::GetRenderingElapsed() { return _dptr()->GetRenderingElapsed(); }
 
 #define lastFrameStats	stats_[0]
 #define thisFrameStats	stats_[1]

@@ -4,30 +4,30 @@
 #include <map>
 #include <vector>
 
-class ResourcesInternal : public Resources {
+class ResourcesInternal {
 public:
 	ResourcesInternal();
 
 public:
-	virtual void Import();
+	void Import();
 
-	virtual Texture2D GetBlackTexture() { return blackTexture_; }
-	virtual Texture2D GetWhiteTexture() { return whiteTexture_; }
+	Texture2D GetBlackTexture() { return blackTexture_; }
+	Texture2D GetWhiteTexture() { return whiteTexture_; }
 
-	virtual std::string GetRootDirectory() { return "resources/"; }
-	virtual std::string GetModelDirectory() { return GetRootDirectory() + "models/"; }
-	virtual std::string GetShaderDirectory() { return GetRootDirectory() + "shaders/"; }
-	virtual std::string GetTextureDirectory() { return GetRootDirectory() + "textures/"; }
+	std::string GetRootDirectory() { return "resources/"; }
+	std::string GetModelDirectory() { return GetRootDirectory() + "models/"; }
+	std::string GetShaderDirectory() { return GetRootDirectory() + "shaders/"; }
+	std::string GetTextureDirectory() { return GetRootDirectory() + "textures/"; }
 
-	virtual Mesh GetPrimitive(PrimitiveType type) { return primitives_[(int)type]; }
-	virtual Mesh CreatePrimitive(PrimitiveType type, float scale);
-	virtual Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	Mesh GetPrimitive(PrimitiveType type) { return primitives_[(int)type]; }
+	Mesh CreatePrimitive(PrimitiveType type, float scale);
+	Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
-	virtual void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
+	void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 
-	virtual Shader FindShader(const std::string& path);
-	virtual Texture FindTexture(const std::string& path);
-	virtual Material FindMaterial(const std::string& name);
+	Shader FindShader(const std::string& path);
+	Texture FindTexture(const std::string& path);
+	Material FindMaterial(const std::string& name);
 
 private:
 	void ImportShaderResources();

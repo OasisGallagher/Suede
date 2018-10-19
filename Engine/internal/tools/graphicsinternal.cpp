@@ -5,7 +5,26 @@
 #include "resources.h"
 #include "tools/math2.h"
 #include "../api/glutils.h"
+
+#include "memory/memory.h"
 #include "builtinproperties.h"
+
+#undef _dptr
+#define _dptr()	((GraphicsInternal*)d_)
+Graphics::Graphics() : Singleton2<Graphics>(MEMORY_NEW(GraphicsInternal)) {}
+
+void Graphics::SetShadingMode(ShadingMode value) { _dptr()->SetShadingMode(value); }
+ShadingMode Graphics::GetShadingMode() { return _dptr()->GetShadingMode(); }
+void Graphics::SetAmbientOcclusionEnabled(bool value) { _dptr()->SetAmbientOcclusionEnabled(value); }
+bool Graphics::GetAmbientOcclusionEnabled() { return _dptr()->GetAmbientOcclusionEnabled(); }
+void Graphics::SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) { _dptr()->SetRenderTarget(colorBuffers, depthBuffer); }
+void Graphics::Draw(Mesh mesh, Material material) { _dptr()->Draw(mesh, material); }
+void Graphics::Blit(Texture src, RenderTexture dest) { _dptr()->Blit(src, dest); }
+void Graphics::Blit(Texture src, RenderTexture dest, const Rect& rect) { _dptr()->Blit(src, dest, rect); }
+void Graphics::Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect) { _dptr()->Blit(src, dest, srcRect, destRect); }
+void Graphics::Blit(Texture src, RenderTexture dest, Material material) { _dptr()->Blit(src, dest, material); }
+void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& rect) { _dptr()->Blit(src, dest, material, rect); }
+void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) { _dptr()->Blit(src, dest, material, srcRect, destRect); }
 
 GraphicsInternal::GraphicsInternal() : mode_(ShadingMode::Shaded) {
 	material_ = CreateBlitMaterial();

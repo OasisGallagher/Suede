@@ -112,17 +112,19 @@ private:
 
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
-	GameObjectLoaderThreadPool() : ThreadPool(16) {}
+	GameObjectLoaderThreadPool() : ThreadPool(16), listener_(nullptr) {}
 
 public:
 	GameObject Import(const std::string& path);
 	bool ImportTo(GameObject go, const std::string& path);
 
+	void SetLoadedCallback(GameObjectLoadedCallback callback);
 	void SetLoadedListener(GameObjectLoadedListener* listener);
 
 protected:
 	virtual void OnSchedule(ZThread::Task& schedule);
 
 private:
+	GameObjectLoadedCallback callback_;
 	GameObjectLoadedListener* listener_;
 };

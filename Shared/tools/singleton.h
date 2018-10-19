@@ -7,21 +7,17 @@
 
 #include "noncopyable.h"
 
-#define __SUEDE_DEFINE_DESTROYER__(T, Name) \
-template <class T> \
-class Name { \
-	T* doomed; \
-public: \
-	Destroyer(T* p = nullptr) : doomed(p) {} \
-	~Destroyer() { reset(nullptr); } \
-public: \
-	void reset(T* p) { delete doomed; doomed = p; }\
-}
-
 template <class T>
 class Singleton : private NonCopyable {
 	static T* ptr;
-	__SUEDE_DEFINE_DESTROYER__(T, Destroyer);
+	class Destroyer {
+		T* doomed;
+	public:
+		Destroyer(T* p = nullptr) : doomed(p) {}
+		~Destroyer() { reset(nullptr); }
+	public:
+		void reset(T* p) { delete doomed; doomed = p; }
+	};
 
 public:
 	virtual ~Singleton() {}
@@ -30,7 +26,7 @@ public:
 	static T* instance() {
 		if (ptr == nullptr) {
 			ptr = new T;
-			static Destroyer<T> destroyer(ptr);
+			static Destroyer destroyer(ptr);
 		}
 
 		return ptr;
@@ -41,24 +37,10 @@ template <class T>
 T* Singleton<T>::ptr = nullptr;
 
 template <class T>
-class Singleton2 : private NonCopyable {
-	static T* ptr;
-	__SUEDE_DEFINE_DESTROYER__(T, Destroyer);
+class Singleton2 : public Singleton<T> {
+protected:
+	void *d_;
 
 public:
-	virtual ~Singleton2() {}
-
-public:
-	static T* instance() { return ptr; }
-	static void implement(T* impl);
+	Singleton2(void* d) : d_(d) {}
 };
-
-template <class T>
-T* Singleton2<T>::ptr = nullptr;
-
-template <class T>
-void Singleton2<T>::implement(T * impl) {
-	ptr = impl;
-	static Destroyer<T> destroyer;
-	destroyer.reset(ptr);
-}

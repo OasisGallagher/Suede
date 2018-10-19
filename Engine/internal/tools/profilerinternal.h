@@ -4,19 +4,18 @@
 #include "engine.h"
 #include "containers/freelist.h"
 
-class SampleInternal : public Sample {
+class SampleInternal {
 public:
 	SampleInternal() { Reset(); }
-	friend class free_list<SampleInternal>;
 
 public:
-	virtual void Start();
-	virtual void Restart();
+	void Start();
+	void Restart();
 
-	virtual void Stop();
+	void Stop();
 
-	virtual void Reset();
-	virtual double GetElapsedSeconds() const;
+	void Reset();
+	double GetElapsedSeconds() const;
 
 private:
 	bool started_;
@@ -24,21 +23,21 @@ private:
 	uint64 timeStamp_;
 };
 
-class ProfilerInternal : public Profiler, public FrameEventListener {
+class ProfilerInternal : public FrameEventListener {
 public:
 	ProfilerInternal();
 	~ProfilerInternal();
 
 public:
-	virtual Sample* CreateSample();
-	virtual void ReleaseSample(Sample* value);
+	Sample* CreateSample();
+	void ReleaseSample(Sample* value);
 
-	virtual uint64 GetTimeStamp();
-	virtual double TimeStampToSeconds(uint64 timeStamp);
+	uint64 GetTimeStamp();
+	double TimeStampToSeconds(uint64 timeStamp);
 
 public:
-	virtual void OnFrameEnter();
-	virtual int GetFrameEventQueue() { return FrameEventQueueProfiler; }
+	void OnFrameEnter();
+	int GetFrameEventQueue() { return FrameEventQueueProfiler; }
 
 private:
 	enum {

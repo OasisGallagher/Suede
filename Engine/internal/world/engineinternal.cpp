@@ -16,6 +16,16 @@
 
 #include "../lua/wrappers/luaconfig.h"
 
+#undef _dptr
+#define _dptr()	((EngineInternal*)d_)
+Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal)) {}
+
+bool Engine::Startup(uint width, uint height) { _dptr()->Startup(width, height); }
+void Engine::Shutdown() { _dptr()->Shutdown(); }
+void Engine::Update() { _dptr()->Update(); }
+void Engine::AddFrameEventListener(FrameEventListener* listener) { _dptr()->AddFrameEventListener(listener); }
+void Engine::RemoveFrameEventListener(FrameEventListener* listener) { _dptr()->RemoveFrameEventListener(listener); }
+
 static void OnTerminate() {
 	Debug::Break();
 }
@@ -55,13 +65,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 		return false;
 	}
 
-	Time::implement(MEMORY_NEW(TimeInternal));
-	Profiler::implement(MEMORY_NEW(ProfilerInternal));
-	TagManager::implement(MEMORY_NEW(TagManagerInternal));
-	Statistics::implement(MEMORY_NEW(StatisticsInternal));
-	Screen::implement(MEMORY_NEW(ScreenInternal, width, height));
-
-	World::implement(MEMORY_NEW(WorldInternal));
+	Screen::instance()->Resize(width, height);
 	World::instance()->Initialize();
 
 	luaL_Reg lualibs[] = {

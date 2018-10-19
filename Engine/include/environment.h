@@ -3,16 +3,21 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Environment : public Singleton2<Environment> {
+	friend class Singleton2<Environment>;
+
 public:
-	virtual void SetSkybox(Material value) = 0;
-	virtual Material GetSkybox() = 0;
+	void SetSkybox(Material value);
+	Material GetSkybox();
 
-	virtual void SetAmbientColor(const Color& value) = 0;
-	virtual Color GetAmbientColor() = 0;
+	void SetAmbientColor(const Color& value);
+	Color GetAmbientColor();
 
-	virtual void SetFogColor(const Color& value) = 0;
-	virtual Color GetFogColor() = 0;
+	void SetFogColor(const Color& value);
+	Color GetFogColor();
 
-	virtual void SetFogDensity(float value) = 0;
-	virtual float GetFogDensity() = 0;
+	void SetFogDensity(float value);
+	float GetFogDensity();
+
+private:
+	Environment();
 };

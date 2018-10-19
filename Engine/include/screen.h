@@ -9,11 +9,16 @@ public:
 };
 
 class SUEDE_API Screen : public Singleton2<Screen> {
-public:
-	virtual uint GetWidth() = 0;
-	virtual uint GetHeight() = 0;
+	friend class Singleton2<Screen>;
 
-	virtual void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) = 0;
-	virtual void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) = 0;
-	virtual void Resize(uint width, uint height) = 0;
+public:
+	uint GetWidth();
+	uint GetHeight();
+
+	void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void Resize(uint width, uint height);
+
+private:
+	Screen();
 };

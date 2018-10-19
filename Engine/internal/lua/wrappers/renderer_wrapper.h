@@ -21,7 +21,8 @@ class Renderer_Wrapper {
 
 	static int GetMaterials(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
-		return Lua::push(L, _p->GetMaterials());
+		IRenderer::Enumerable _r = _p->GetMaterials();
+		return Lua::pushList(L, std::vector<IRenderer::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	static int SetMaterial(lua_State* L) {

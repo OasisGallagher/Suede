@@ -19,6 +19,29 @@
 #include "internal/gameobject/gameobjectinternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
+#undef _dptr
+#define _dptr()	((WorldInternal*)d_)
+World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal)) {}
+
+void World::Initialize() { _dptr()->Initialize(); }
+void World::CullingUpdate() { _dptr()->CullingUpdate(); }
+void World::RenderingUpdate() { _dptr()->RenderingUpdate(); }
+void World::Finalize() { _dptr()->Finalize(); }
+Object World::CreateObject(ObjectType type) { return _dptr()->CreateObject(type); }
+void World::DestroyGameObject(uint id) { _dptr()->DestroyGameObject(id); }
+void World::DestroyGameObject(GameObject go) { _dptr()->DestroyGameObject(go); }
+GameObject World::Import(const std::string& path, GameObjectLoadedCallback callback) { return _dptr()->Import(path, callback); }
+GameObject World::Import(const std::string& path, GameObjectLoadedListener* listener) { return _dptr()->Import(path, listener); }
+bool World::ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) { return _dptr()->ImportTo(go, path,listener); }
+Transform World::GetRootTransform() { return _dptr()->GetRootTransform(); }
+GameObject World::GetGameObject(uint id) { return _dptr()->GetGameObject(id); }
+void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _dptr()->Finalize(); }
+void World::FireEvent(WorldEventBasePtr e) { _dptr()->FireEvent(e); }
+void World::FireEventImmediate(WorldEventBasePtr e) { _dptr()->FireEventImmediate(e); }
+void World::AddEventListener(WorldEventListener* listener) { _dptr()->AddEventListener(listener); }
+void World::RemoveEventListener(WorldEventListener* listener) { _dptr()->RemoveEventListener(listener); }
+void World::GetDecals(std::vector<Decal>& container) { _dptr()->GetDecals(container); }
+
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
 	LightType lt = lhs->GetType(), rt = rhs->GetType();
@@ -50,13 +73,9 @@ WorldInternal::WorldInternal()
 
 void WorldInternal::Initialize() {
 	GLUtils::Initialize();
-
-	Resources::implement(MEMORY_NEW(ResourcesInternal));
 	Resources::instance()->FindShader("builtin/lit_texture");
 
-	Gizmos::implement(MEMORY_NEW(GizmosInternal));
 	Graphics::implement(MEMORY_NEW(GraphicsInternal));
-	Environment::implement(MEMORY_NEW(EnvironmentInternal));
 
 	UniformBufferManager::instance();
 	Shadows::instance();
@@ -88,6 +107,11 @@ Object WorldInternal::CreateObject(ObjectType type) {
 	Object object = Factory::Create(type);
 	AddObject(object);
 	return object;
+}
+
+GameObject WorldInternal::Import(const std::string& path, GameObjectLoadedCallback callback) {
+	importer_->SetLoadedCallback(callback);
+	return importer_->Import(path);
 }
 
 GameObject WorldInternal::Import(const std::string& path, GameObjectLoadedListener* listener) {

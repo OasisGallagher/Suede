@@ -7,31 +7,31 @@
 #include "material.h"
 #include "frameeventlistener.h"
 
-class GizmosInternal : public Gizmos, public FrameEventListener {
+class GizmosInternal : public FrameEventListener {
 public:
 	GizmosInternal();
 
 public:
-	virtual void Flush();
+	void Flush();
 
-	virtual Color GetColor() { return color_; }
-	virtual void SetColor(const Color& value) { color_ = value; }
+	Color GetColor() { return color_; }
+	void SetColor(const Color& value) { color_ = value; }
 	
-	virtual void DrawLines(const glm::vec3* points, uint npoints);
-	virtual void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
+	void DrawLines(const glm::vec3* points, uint npoints);
+	void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
-	virtual void DrawLineStripe(const glm::vec3* points, uint npoints);
-	virtual void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
+	void DrawLineStripe(const glm::vec3* points, uint npoints);
+	void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
-	virtual void DrawSphere(const glm::vec3& center, float radius);
-	virtual void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
+	void DrawSphere(const glm::vec3& center, float radius);
+	void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
 
-	virtual void DrawWireSphere(const glm::vec3& center, float radius);
-	virtual void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size);
+	void DrawWireSphere(const glm::vec3& center, float radius);
+	void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size);
 
 public:
-	virtual void OnFrameLeave() { Flush(); }
-	virtual int GetFrameEventQueue() { return FrameEventQueueGizmos; }
+	void OnFrameLeave() { Flush(); }
+	int GetFrameEventQueue() { return FrameEventQueueGizmos; }
 
 private:
 	struct Batch {

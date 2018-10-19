@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+
 #include "object.h"
 #include "camera.h"
 #include "transform.h"
@@ -145,35 +146,42 @@ public:
 struct Decal;
 
 class SUEDE_API World : public Singleton2<World> {
+	friend class Singleton2<World>;
+
 public:
-	virtual void Initialize() = 0;
-	virtual void CullingUpdate() = 0;
-	virtual void RenderingUpdate() = 0;
-	virtual void Finalize() = 0;
+	void Initialize();
+	void CullingUpdate();
+	void RenderingUpdate();
+	void Finalize();
 
-	virtual Object CreateObject(ObjectType type) = 0;
+	Object CreateObject(ObjectType type);
 
-	virtual void DestroyGameObject(uint id) = 0;
-	virtual void DestroyGameObject(GameObject go) = 0;
+	void DestroyGameObject(uint id);
+	void DestroyGameObject(GameObject go);
 
-	virtual GameObject Import(const std::string& path, GameObjectLoadedListener* listener) = 0;
-	virtual bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) = 0;
+	GameObject Import(const std::string& path, GameObjectLoadedCallback callback);
+	GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
 
-	virtual Transform GetRootTransform() = 0;
+	bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
 
-	virtual GameObject GetGameObject(uint id) = 0;
-	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker) = 0;
+	Transform GetRootTransform();
 
-	virtual void FireEvent(WorldEventBasePtr e) = 0;
-	virtual void FireEventImmediate(WorldEventBasePtr e) = 0;
-	virtual void AddEventListener(WorldEventListener* listener) = 0;
-	virtual void RemoveEventListener(WorldEventListener* listener) = 0;
+	GameObject GetGameObject(uint id);
+	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	virtual void GetDecals(std::vector<Decal>& container) = 0;
+	void FireEvent(WorldEventBasePtr e);
+	void FireEventImmediate(WorldEventBasePtr e);
+	void AddEventListener(WorldEventListener* listener);
+	void RemoveEventListener(WorldEventListener* listener);
+
+	void GetDecals(std::vector<Decal>& container);
 
 public:
 	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
-	virtual std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid) = 0;
+	std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
+
+private:
+	World();
 };
 
 template <class T>

@@ -2,17 +2,22 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Statistics : public Singleton2<Statistics> {
+	friend class Singleton2<Statistics>;
+
 public:
-	virtual void AddTriangles(uint n) = 0;
-	virtual void AddDrawcalls(uint n) = 0;
+	void AddTriangles(uint n);
+	void AddDrawcalls(uint n);
 
-	virtual uint GetTriangles() = 0;
-	virtual uint GetDrawcalls() = 0;
-	virtual float GetFrameRate() = 0;
+	uint GetTriangles();
+	uint GetDrawcalls();
+	float GetFrameRate();
 
-	virtual void SetCullingElapsed(double value) = 0;
-	virtual void SetRenderingElapsed(double value) = 0;
+	void SetCullingElapsed(double value);
+	void SetRenderingElapsed(double value);
 
-	virtual double GetCullingElapsed() = 0;
-	virtual double GetRenderingElapsed() = 0;
+	double GetCullingElapsed();
+	double GetRenderingElapsed();
+
+private:
+	Statistics();
 };

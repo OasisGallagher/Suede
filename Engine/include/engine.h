@@ -4,12 +4,17 @@
 #include "frameeventlistener.h"
 
 class SUEDE_API Engine : public Singleton2<Engine> {
+	friend class Singleton2<Engine>;
+
 public:
-	virtual bool Startup(uint width, uint height) = 0;
-	virtual void Shutdown() = 0;
+	bool Startup(uint width, uint height);
+	void Shutdown();
 
-	virtual void Update() = 0;
+	void Update();
 
-	virtual void AddFrameEventListener(FrameEventListener* listener) = 0;
-	virtual void RemoveFrameEventListener(FrameEventListener* listener) = 0;
+	void AddFrameEventListener(FrameEventListener* listener);
+	void RemoveFrameEventListener(FrameEventListener* listener);
+
+private:
+	Engine();
 };

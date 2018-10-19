@@ -6,10 +6,13 @@ import re;
 kFilePostfix = "_wrapper";
 kClassPostfix = "_Wrapper";
 kDestFolder = "F:/GitHub/Suede/Engine/internal/lua/wrappers/";
+kArray = "[]";
 kPyCStr = "py_cstr";
-kGenericContainer = "std::vector<";
+kEnumerable = "Enumerable";
+kGenericContainer = "std::vector";
 kClassPattern = re.compile(r"\s*class\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)");
-kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+
 kExcludeFiles = [
 	"gui.h",
 	"imgui.h",
@@ -52,10 +55,9 @@ kNotNewables = [
 ];
 
 class Argument:
-	def __init__(self, type, value, array = False):
+	def __init__(self, type, value):
 		self.type = type;
 		self.value = value;
-		self.array = array;
 
 class Method:	# void Print(const char* message) for example.
 	def __init__(self, groups):
@@ -113,17 +115,24 @@ class Method:	# void Print(const char* message) for example.
 		type = arg[:space];
 		value = arg[space + 1:];
 		
+		type = self._parseGenericContainer(type);
+		
 		# is array.
-		array = False;
 		if "[" in value:
-			array = True;
-			type = "std::vector<" + type + ">";
+			type = kArray + "#" + type;
 			value = value[:value.find("[")];
 			
-		return (type, value, array);
+		return (type, value);
+	
+	def _parseGenericContainer(self, type):
+		if kGenericContainer in type:
+			type = kGenericContainer + "#" + type[type.find("<") + 1:type.rfind(">")];
+		return type;
 
 	def _initialize(self, groups):
 		self._r = groups[0];
+		self._r = self._parseGenericContainer(self._r);
+		
 		self._name = groups[1];
 		self._pureVirtual = groups[3] != None;
 		
@@ -132,7 +141,7 @@ class Method:	# void Print(const char* message) for example.
 
 		for arg in ("," not in args) and [ args ] or args.split(","):
 			fields = self._split(arg);
-			self._arguments.append(Argument(fields[0], fields[1], fields[2]));
+			self._arguments.append(Argument(fields[0], fields[1]));
 
 class Interface:
 	def __init__(self, className, defination):
@@ -204,9 +213,9 @@ def CallMethod(method):
 		if i != 0: ans += ", ";
 		arg = method.Arguments()[i];
 		ans += (arg.value);
-		if method.Arguments()[i].array:
+		if kArray in arg.type:
 			ans += ".data()";
-		elif method.Arguments()[i].type == kPyCStr:
+		elif arg.type == kPyCStr:
 			ans += ".c_str()";
 
 	ans += ")";
@@ -251,8 +260,9 @@ def WriteMethods(f, className, instance, sharedPtr, interface):
 
 		for i in range(len(method.Arguments())):
 			argument = method.Arguments()[i];
-			if kGenericContainer in argument.type:
-				element = argument.type[len(kGenericContainer):argument.type.find(">")];
+			if (kArray in argument.type) or (kGenericContainer in argument.type):
+				key = (kArray in argument.type) and kArray or kGenericContainer;
+				element = argument.type[len(key)+1:];
 				f.write('''
 		std::vector<%s> %s = Lua::getList<%s>(L, %d);''' % (element, argument.value, element, -(i + 1)));
 			elif kPyCStr in argument.type:
@@ -270,6 +280,12 @@ def WriteMethods(f, className, instance, sharedPtr, interface):
 		elif kGenericContainer in method.Return():
 			f.write('''
 		return Lua::pushList(L, %s);''' % call);
+		elif kEnumerable in method.Return():
+			etype = "I%s::%s" % (className, method.Return());
+			f.write('''
+		%s _r = %s;
+		return Lua::pushList(L, std::vector<%s::value_type>(_r.begin(), _r.end()));'''
+			% (etype, call, etype));
 		else:
 			f.write('''
 		return Lua::push(L, %s);''' % call);

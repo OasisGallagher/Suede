@@ -1,18 +1,18 @@
 #pragma once
 #include "screen.h"
 
-class ScreenInternal : public Screen {
+class ScreenInternal {
 public:
-	ScreenInternal(uint width, uint height) :width_(width), height_(height) {
+	ScreenInternal() :width_(0), height_(0) {
 	}
 
 public:
-	virtual uint GetWidth() { return width_; }
-	virtual uint GetHeight() { return height_; }
+	uint GetWidth() { return width_; }
+	uint GetHeight() { return height_; }
 
-	virtual void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	virtual void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	virtual void Resize(uint width, uint height);
+	void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void Resize(uint width, uint height);
 
 private:
 	uint width_;

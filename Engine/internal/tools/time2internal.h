@@ -4,20 +4,20 @@
 #include "engine.h"
 #include "enginedefines.h"
 
-class TimeInternal : public Time, public FrameEventListener {
+class TimeInternal : public FrameEventListener {
 public:
 	TimeInternal();
 
 public:
-	virtual float GetTime() { return time_; }
-	virtual float GetDeltaTime() { return deltaTime_; }
+	float GetTime() { return time_; }
+	float GetDeltaTime() { return deltaTime_; }
 
-	virtual float GetRealTimeSinceStartup();
-	virtual uint GetFrameCount() { return frameCount_; }
+	float GetRealTimeSinceStartup();
+	uint GetFrameCount() { return frameCount_; }
 
 public:
-	virtual void OnFrameEnter();
-	virtual int GetFrameEventQueue() { return FrameEventQueueTime; }
+	void OnFrameEnter();
+	int GetFrameEventQueue() { return FrameEventQueueTime; }
 
 private:
 	float time_;

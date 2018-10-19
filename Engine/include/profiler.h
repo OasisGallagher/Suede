@@ -3,20 +3,31 @@
 
 class SUEDE_API Sample {
 public:
-	virtual void Start() = 0;
-	virtual void Restart() = 0;
+	Sample();
 
-	virtual void Stop() = 0;
+public:
+	void Start();
+	void Restart();
 
-	virtual void Reset() = 0;
-	virtual double GetElapsedSeconds() const = 0;
+	void Stop();
+
+	void Reset();
+	double GetElapsedSeconds() const;
+
+private:
+	void* d_;
 };
 
 class SUEDE_API Profiler : public Singleton2<Profiler> {
-public:
-	virtual Sample* CreateSample() = 0;
-	virtual void ReleaseSample(Sample* value) = 0;
+	friend class Singleton2<Profiler>;
 
-	virtual uint64 GetTimeStamp() = 0;
-	virtual double TimeStampToSeconds(uint64 timeStamp) = 0;
+public:
+	Sample* CreateSample();
+	void ReleaseSample(Sample* value);
+
+	uint64 GetTimeStamp();
+	double TimeStampToSeconds(uint64 timeStamp);
+
+private:
+	Profiler();
 };

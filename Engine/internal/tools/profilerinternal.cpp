@@ -3,6 +3,24 @@
 #include <Windows.h>
 #include "debug/debug.h"
 
+#undef _dptr
+#define _dptr()	((SampleInternal*)d_)
+Sample::Sample() : d_(MEMORY_NEW(SampleInternal)) {}
+void Sample::Start() { _dptr()->Start(); }
+void Sample::Restart() { _dptr()->Restart(); }
+void Sample::Stop() { _dptr()->Stop(); }
+void Sample::Reset() { _dptr()->Reset(); }
+double Sample::GetElapsedSeconds() const { return _dptr()->GetElapsedSeconds(); }
+
+#undef _dptr
+#define _dptr()	((ProfilerInternal*)d_)
+
+Profiler::Profiler() : Singleton2<Profiler>(MEMORY_NEW(ProfilerInternal)) {}
+Sample* Profiler::CreateSample() { return _dptr()->CreateSample(); }
+void Profiler::ReleaseSample(Sample* value) { _dptr()->ReleaseSample(value); }
+uint64 Profiler::GetTimeStamp() { return _dptr()->GetTimeStamp(); }
+double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _dptr()->TimeStampToSeconds(timeStamp); }
+
 ProfilerInternal::ProfilerInternal() : samples_(MaxProfilterSamples) {
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency)) {

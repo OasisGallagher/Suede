@@ -2,18 +2,18 @@
 #include <vector>
 
 struct lua_State;
-class EngineInternal : public Engine {
+class EngineInternal {
 public:
 	EngineInternal() {}
 
 public:
-	virtual bool Startup(uint width, uint height);
-	virtual void Shutdown();
+	bool Startup(uint width, uint height);
+	void Shutdown();
 
-	virtual void Update();
+	void Update();
 
-	virtual void AddFrameEventListener(FrameEventListener* listener);
-	virtual void RemoveFrameEventListener(FrameEventListener* listener);
+	void AddFrameEventListener(FrameEventListener* listener);
+	void RemoveFrameEventListener(FrameEventListener* listener);
 
 private:
 	void SortFrameEventListeners();

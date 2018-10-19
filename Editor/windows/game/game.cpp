@@ -429,7 +429,13 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	GameObject room = World::instance()->Import(roomFbxPath, this);
+	//GameObject room = World::instance()->Import(roomFbxPath, this);
+	GameObject room = World::instance()->Import(roomFbxPath, [](GameObject root, const std::string& path) {
+		root->SetName(path);
+		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
+		root->GetTransform()->SetEulerAngles(glm::vec3(30, 0, 0));
+		root->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	});
 #endif
 
 #ifdef BUMPED

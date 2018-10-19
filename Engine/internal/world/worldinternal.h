@@ -22,39 +22,40 @@ public:
 	~WorldInternal();
 
 public:
-	virtual void Initialize();
-	virtual void CullingUpdate();
-	virtual void RenderingUpdate();
+	void Initialize();
+	void CullingUpdate();
+	void RenderingUpdate();
 
-	virtual void Finalize();
+	void Finalize();
 
-	virtual Transform GetRootTransform() { return root_->GetTransform(); }
+	Transform GetRootTransform() { return root_->GetTransform(); }
 
-	virtual Object CreateObject(ObjectType type);
+	Object CreateObject(ObjectType type);
 
-	virtual void DestroyGameObject(uint id);
-	virtual void DestroyGameObject(GameObject go);
+	void DestroyGameObject(uint id);
+	void DestroyGameObject(GameObject go);
 
-	virtual GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
-	virtual bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
+	GameObject Import(const std::string& path, GameObjectLoadedCallback callback);
+	GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
+	bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
 
-	virtual GameObject GetGameObject(uint id);
-	virtual std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
+	GameObject GetGameObject(uint id);
+	std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
-	virtual void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
+	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	virtual void FireEvent(WorldEventBasePtr e);
-	virtual void FireEventImmediate(WorldEventBasePtr e);
-	virtual void AddEventListener(WorldEventListener* listener);
-	virtual void RemoveEventListener(WorldEventListener* listener);
+	void FireEvent(WorldEventBasePtr e);
+	void FireEventImmediate(WorldEventBasePtr e);
+	void AddEventListener(WorldEventListener* listener);
+	void RemoveEventListener(WorldEventListener* listener);
 
-	virtual void GetDecals(std::vector<Decal>& container);
-
-public:
-	virtual void OnScreenSizeChanged(uint width, uint height);
+	void GetDecals(std::vector<Decal>& container);
 
 public:
-	virtual void OnWorldEvent(WorldEventBasePtr e);
+	void OnScreenSizeChanged(uint width, uint height);
+
+public:
+	void OnWorldEvent(WorldEventBasePtr e);
 
 private:
 	void AddObject(Object object);

@@ -67,6 +67,11 @@ class Component_Wrapper {
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
+	static int AllowMultiple(lua_State* L) {
+		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		return Lua::push(L, _p->AllowMultiple());
+	}
+
 	static int IsComponentType(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
 		suede_guid guid = Lua::get<suede_guid>(L, -1);
@@ -76,7 +81,7 @@ class Component_Wrapper {
 	static int IsComponentType2(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
 		std::string name = Lua::get<std::string>(L, -1);
-		return Lua::push(L, _p->IsComponentType(name));
+		return Lua::push(L, _p->IsComponentType(name.c_str()));
 	}
 
 	static int GetComponentInstanceGUID(lua_State* L) {
@@ -102,6 +107,7 @@ public:
 			{ "CullingUpdate", CullingUpdate },
 			{ "RenderingUpdate", RenderingUpdate },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
+			{ "AllowMultiple", AllowMultiple },
 			{ "IsComponentType", IsComponentType },
 			{ "IsComponentType2", IsComponentType2 },
 			{ "GetComponentInstanceGUID", GetComponentInstanceGUID },

@@ -3,27 +3,27 @@
 
 #include "engine.h"
 
-class StatisticsInternal : public Statistics, public FrameEventListener {
+class StatisticsInternal : public FrameEventListener {
 public:
 	StatisticsInternal();
 
 public:
-	virtual void AddTriangles(uint n);
-	virtual void AddDrawcalls(uint n);
+	void AddTriangles(uint n);
+	void AddDrawcalls(uint n);
 
-	virtual uint GetTriangles();
-	virtual uint GetDrawcalls();
-	virtual float GetFrameRate();
+	uint GetTriangles();
+	uint GetDrawcalls();
+	float GetFrameRate();
 
 public:
-	virtual void OnFrameEnter();
-	virtual int GetFrameEventQueue() { return FrameEventQueueStatistics; }
+	void OnFrameEnter();
+	int GetFrameEventQueue() { return FrameEventQueueStatistics; }
 
-	virtual void SetCullingElapsed(double value);
-	virtual void SetRenderingElapsed(double value);
+	void SetCullingElapsed(double value);
+	void SetRenderingElapsed(double value);
 
-	virtual double GetCullingElapsed();
-	virtual double GetRenderingElapsed();
+	double GetCullingElapsed();
+	double GetRenderingElapsed();
 
 private:
 	float frameRate_;
