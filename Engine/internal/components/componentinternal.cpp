@@ -17,7 +17,7 @@ bool Component::Register(suede_guid guid, Object(*method)()) {
 	return Factory::RegisterComponent(guid, method);
 }
 
-bool Component::Register(const std::string& name, Object(*method)()) {
+bool Component::Register(const char* name, Object(*method)()) {
 	return Factory::RegisterComponent(name, method);
 }
 

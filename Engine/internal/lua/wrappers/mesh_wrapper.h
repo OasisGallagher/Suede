@@ -80,7 +80,8 @@ class Mesh_Wrapper {
 
 	static int GetSubMeshes(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 0);
-		return Lua::push(L, _p->GetSubMeshes());
+		IMesh::Enumerable _r = _p->GetSubMeshes();
+		return Lua::pushList(L, std::vector<IMesh::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	static int RemoveSubMesh(lua_State* L) {

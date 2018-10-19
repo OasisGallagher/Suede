@@ -39,8 +39,6 @@ public:
 public:
 	template <class T>
 	Component AddComponent(GameObject self, T key);
-	Component AddComponent(GameObject self, Component component);
-
 
 	template <class T>
 	Component GetComponent(T key);
@@ -101,7 +99,7 @@ inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToS
 }
 
 template <class T>
-bool GameObjectInternal::CheckComponentDuplicate(T key) {
+inline bool GameObjectInternal::CheckComponentDuplicate(T key) {
 	if (GetComponent(key)) {
 		Debug::LogError("component with type %s already exist", std::to_string(key).c_str());
 		return false;
@@ -111,13 +109,22 @@ bool GameObjectInternal::CheckComponentDuplicate(T key) {
 }
 
 template <class T>
-Component GameObjectInternal::AddComponent(GameObject self, T key) {
-	if (!CheckComponentDuplicate(key)) {
-		return nullptr;
+inline Component GameObjectInternal::AddComponent(GameObject self, T key) {
+	Component component = suede_dynamic_cast<Component>(Factory::Create(key));
+	if (component->AllowMultiple() || CheckComponentDuplicate(key)) {
+		return ActivateComponent(self, component);
 	}
 
-	Component component = suede_dynamic_cast<Component>(Factory::Create(key));
-	return ActivateComponent(self, component);
+	return nullptr;
+}
+
+template <>
+inline Component GameObjectInternal::AddComponent(GameObject self, Component key) {
+	if (key->AllowMultiple() || CheckComponentDuplicate(key->GetComponentInstanceGUID())) {
+		return ActivateComponent(self, key);
+	}
+
+	return nullptr;
 }
 
 template <class T>

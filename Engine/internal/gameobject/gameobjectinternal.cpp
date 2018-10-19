@@ -80,14 +80,6 @@ bool GameObjectInternal::SetTag(GameObject self, const std::string& value) {
 	return true;
 }
 
-Component GameObjectInternal::AddComponent(GameObject self, Component component) {
-	if (CheckComponentDuplicate(component->GetComponentInstanceGUID())) {
-		return ActivateComponent(self, component);
-	}
-
-	return nullptr;
-}
-
 Component GameObjectInternal::ActivateComponent(GameObject self, Component component) {
 	component->SetGameObject(self);
 	components_.push_back(component);

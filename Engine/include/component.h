@@ -7,7 +7,7 @@ public: \
     static suede_guid GetComponentGUID(); \
 	static const char* GetComponentName(); \
     bool IsComponentType(suede_guid guid) const; \
-    bool IsComponentType(const std::string& name) const; \
+    bool IsComponentType(const char* name) const; \
 	suede_guid GetComponentInstanceGUID() const;
 
 #define SUEDE_DEFINE_COMPONENT(Class, ParentClass) \
@@ -21,10 +21,12 @@ public: \
     bool Class::IsComponentType(suede_guid guid) const { \
 		return guid == GetComponentGUID() || ParentClass::IsComponentType(guid); \
 	} \
-	bool Class::IsComponentType(const std::string& name) const { \
-		return name == GetComponentName() || ParentClass::IsComponentType(name); \
+	bool Class::IsComponentType(const char* name) const { \
+		return strcmp(name, GetComponentName()) == 0 || ParentClass::IsComponentType(name); \
 	} \
-	suede_guid Class::GetComponentInstanceGUID() const { return Class::GetComponentGUID(); }
+	suede_guid Class::GetComponentInstanceGUID() const { \
+		return Class::GetComponentGUID(); \
+	}
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject);
 SUEDE_DEFINE_OBJECT_POINTER(Transform);
@@ -57,24 +59,23 @@ public:
 	int GetUpdateStrategy();
 
 public:
+	static suede_guid GetComponentGUID() { return 0; }
+	static const char* GetComponentName() { return ""; }
 	static suede_guid ClassNameToGUID(const char* className);
 
 public:
-	static suede_guid GetComponentGUID() { return 0; }
-	static const char* GetComponentName() { return ""; }
+	/**
+	* @brief whether components of same type (or subtype) could be added more than once to a GameObject.
+	*/
+	virtual bool AllowMultiple() const { return false; }
 
-public:
-	virtual bool IsComponentType(suede_guid guid) const {
-		return guid == GetComponentGUID();
-	}
+	virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID(); }
+	virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName()) == 0; }
 
-	virtual bool IsComponentType(const std::string& name) const {
-		return name == GetComponentName();
-	}
-
-	virtual suede_guid GetComponentInstanceGUID() const {
-		return IComponent::GetComponentGUID();
-	}
+	/**
+	 * @brief polymorphism version to get component GUID.
+	 */
+	virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID(); }
 
 protected:
 	IComponent(void* d);
@@ -84,5 +85,5 @@ SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Component) {
 	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Component)
 
 	static bool Register(suede_guid guid, Object(*)());
-	static bool Register(const std::string& name, Object(*)());
+	static bool Register(const char* name, Object(*)());
 };

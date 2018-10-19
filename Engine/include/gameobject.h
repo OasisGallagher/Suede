@@ -47,17 +47,13 @@ public:
 	void RecalculateUpdateStrategy();
 
 public:	// Component system.
-	template <class T> 
-	std::shared_ptr<T> AddComponent();
-	template <class T> std::shared_ptr<T> GetComponent();
-	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
-
-	Component AddComponent(Component component);
-
 	Component AddComponent(const char* name);
+	template <class T> std::shared_ptr<T> AddComponent();
 
 	Component GetComponent(suede_guid guid);
 	Component GetComponent(const char* name);
+	template <class T> std::shared_ptr<T> GetComponent();
+	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
 
 	/**
 	 * @param guid pass 0 to get all components.
@@ -71,15 +67,16 @@ public:	// Component system.
 
 private:
 	Component AddComponent(suede_guid guid);
+	Component AddComponent(Component component);
 };
 
 template <class T>
-std::shared_ptr<T> IGameObject::AddComponent() {
+inline std::shared_ptr<T> IGameObject::AddComponent() {
 	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::make_shared<T>()));
 }
 
 template <class T>
-std::shared_ptr<T> IGameObject::GetComponent() {
+inline std::shared_ptr<T> IGameObject::GetComponent() {
 	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponent(T::GetComponentGUID()));
 }
 

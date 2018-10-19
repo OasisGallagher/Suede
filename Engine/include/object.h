@@ -59,17 +59,17 @@ public:
 	ObjectType GetObjectType();
 	uint GetInstanceID();
 
-public:
+public: // internal ptr helpers
 	template <class T>
-	T* _rptr_impl(T*) const { return (T*)d_; }
-	bool _d_equals_impl(void* d) { return d_ == d; }
+	T* _rptr_impl(T*) const;
+	bool _d_equals_impl(void* d);
 
 protected:
 	template <class T>
-	typename T::Internal* _dptr_impl(T*) const { return (T::Internal*)d_; }
+	typename T::Internal* _dptr_impl(T*) const;
 
 	template <class T>
-	typename std::shared_ptr<T> _shared_this_impl(T*) { return suede_dynamic_cast<std::shared_ptr<T>>(shared_from_this()); }
+	std::shared_ptr<T> _shared_this_impl(T*);
 
 protected:
 	IObject(void* d);
@@ -77,10 +77,3 @@ protected:
 private:
 	void* d_;
 };
-
-// internal helpers
-#define _dptr()			_dptr_impl(this)
-#define _d_equals(o)	(o).get()->_d_equals_impl(this)
-#define _rptr(o)		(o).get()->_rptr_impl(this)
-#define _shared_this()	_shared_this_impl(this)
-//

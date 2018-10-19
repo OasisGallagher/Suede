@@ -7,9 +7,11 @@ kFilePostfix = "_wrapper";
 kClassPostfix = "_Wrapper";
 kDestFolder = "F:/GitHub/Suede/Engine/internal/lua/wrappers/";
 kPyCStr = "py_cstr";
-kGenericContainer = "std::vector<";
+kEnumerable = "Enumerable";
+kGenericContainer = "std::vector";
 kClassPattern = re.compile(r"\s*class\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)");
-kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+
 kExcludeFiles = [
 	"gui.h",
 	"imgui.h",
@@ -113,17 +115,27 @@ class Method:	# void Print(const char* message) for example.
 		type = arg[:space];
 		value = arg[space + 1:];
 		
+		type = self._parseGenericContainer(type);
+		
 		# is array.
 		array = False;
 		if "[" in value:
 			array = True;
-			type = "std::vector<" + type + ">";
+			type = kGenericContainer + "#" + type;
 			value = value[:value.find("[")];
 			
 		return (type, value, array);
+	
+	def _parseGenericContainer(self, type):
+		if kGenericContainer in type:
+			old = type;
+			type = kGenericContainer + "#" + type[type.find("<") + 1:type.rfind(">")];
+		return type;
 
 	def _initialize(self, groups):
 		self._r = groups[0];
+		self._r = self._parseGenericContainer(self._r);
+		
 		self._name = groups[1];
 		self._pureVirtual = groups[3] != None;
 		
@@ -252,7 +264,7 @@ def WriteMethods(f, className, instance, sharedPtr, interface):
 		for i in range(len(method.Arguments())):
 			argument = method.Arguments()[i];
 			if kGenericContainer in argument.type:
-				element = argument.type[len(kGenericContainer):argument.type.find(">")];
+				element = argument.type[len(kGenericContainer)+1:];
 				f.write('''
 		std::vector<%s> %s = Lua::getList<%s>(L, %d);''' % (element, argument.value, element, -(i + 1)));
 			elif kPyCStr in argument.type:
@@ -270,6 +282,12 @@ def WriteMethods(f, className, instance, sharedPtr, interface):
 		elif kGenericContainer in method.Return():
 			f.write('''
 		return Lua::pushList(L, %s);''' % call);
+		elif kEnumerable in method.Return():
+			etype = "I%s::%s" % (className, method.Return());
+			f.write('''
+		%s _r = %s;
+		return Lua::pushList(L, std::vector<%s::value_type>(_r.begin(), _r.end()));'''
+			% (etype, call, etype));
 		else:
 			f.write('''
 		return Lua::push(L, %s);''' % call);
