@@ -7,62 +7,62 @@
 #include "tools/math2.h"
 
 ISkeleton::ISkeleton() : IObject(MEMORY_NEW(SkeletonInternal)) { }
-bool ISkeleton::AddBone(const SkeletonBone& bone) { return _dptr()->AddBone(bone); }
-SkeletonBone* ISkeleton::GetBone(uint index) { return _dptr()->GetBone(index); }
-SkeletonBone* ISkeleton::GetBone(const std::string& name) { return _dptr()->GetBone(name); }
-SkeletonNode* ISkeleton::CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) { return _dptr()->CreateNode(name, matrix, curve); }
-void ISkeleton::AddNode(SkeletonNode* parent, SkeletonNode* child) { return _dptr()->AddNode(parent, child); }
-SkeletonNode* ISkeleton::GetRootNode() { return _dptr()->GetRootNode(); }
-void ISkeleton::SetBoneToRootMatrix(uint index, const glm::mat4& value) { return _dptr()->SetBoneToRootMatrix(index, value); }
-glm::mat4* ISkeleton::GetBoneToRootMatrices() { return _dptr()->GetBoneToRootMatrices(); }
-int ISkeleton::GetBoneIndex(const std::string& name) { return _dptr()->GetBoneIndex(name); }
-int ISkeleton::GetBoneCount() { return _dptr()->GetBoneCount(); }
+bool ISkeleton::AddBone(const SkeletonBone& bone) { return _suede_dptr()->AddBone(bone); }
+SkeletonBone* ISkeleton::GetBone(uint index) { return _suede_dptr()->GetBone(index); }
+SkeletonBone* ISkeleton::GetBone(const std::string& name) { return _suede_dptr()->GetBone(name); }
+SkeletonNode* ISkeleton::CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) { return _suede_dptr()->CreateNode(name, matrix, curve); }
+void ISkeleton::AddNode(SkeletonNode* parent, SkeletonNode* child) { return _suede_dptr()->AddNode(parent, child); }
+SkeletonNode* ISkeleton::GetRootNode() { return _suede_dptr()->GetRootNode(); }
+void ISkeleton::SetBoneToRootMatrix(uint index, const glm::mat4& value) { return _suede_dptr()->SetBoneToRootMatrix(index, value); }
+glm::mat4* ISkeleton::GetBoneToRootMatrices() { return _suede_dptr()->GetBoneToRootMatrices(); }
+int ISkeleton::GetBoneIndex(const std::string& name) { return _suede_dptr()->GetBoneIndex(name); }
+int ISkeleton::GetBoneCount() { return _suede_dptr()->GetBoneCount(); }
 
 IAnimationClip::IAnimationClip() :IObject(MEMORY_NEW(AnimationClipInternal)) {}
-void IAnimationClip::SetWrapMode(AnimationWrapMode value) { _dptr()->SetWrapMode(value); }
-AnimationWrapMode IAnimationClip::GetWrapMode() { return _dptr()->GetWrapMode(); }
-void IAnimationClip::SetTicksPerSecond(float value) { _dptr()->SetTicksPerSecond(value); }
-float IAnimationClip::GetTicksPerSecond() { return _dptr()->GetTicksPerSecond(); }
-void IAnimationClip::SetDuration(float value) { _dptr()->SetDuration(value); }
-float IAnimationClip::GetDuration() { return _dptr()->GetDuration(); }
-void IAnimationClip::SetAnimation(Animation value) { _dptr()->SetAnimation(value); }
-Animation IAnimationClip::GetAnimation() { return _dptr()->GetAnimation(); }
-bool IAnimationClip::Sample(float time) { return _dptr()->Sample(time); }
+void IAnimationClip::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
+AnimationWrapMode IAnimationClip::GetWrapMode() { return _suede_dptr()->GetWrapMode(); }
+void IAnimationClip::SetTicksPerSecond(float value) { _suede_dptr()->SetTicksPerSecond(value); }
+float IAnimationClip::GetTicksPerSecond() { return _suede_dptr()->GetTicksPerSecond(); }
+void IAnimationClip::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
+float IAnimationClip::GetDuration() { return _suede_dptr()->GetDuration(); }
+void IAnimationClip::SetAnimation(Animation value) { _suede_dptr()->SetAnimation(value); }
+Animation IAnimationClip::GetAnimation() { return _suede_dptr()->GetAnimation(); }
+bool IAnimationClip::Sample(float time) { return _suede_dptr()->Sample(time); }
 
 IAnimationState::IAnimationState() : IObject(MEMORY_NEW(AnimationStateInternal)) {}
 
 IAnimationKeys::IAnimationKeys() : IObject(MEMORY_NEW(AnimationKeysInternal)) {}
-void IAnimationKeys::AddFloat(float time, int id, float value) { _dptr()->AddFloat(time, id, value); }
-void IAnimationKeys::AddVector3(float time, int id, const glm::vec3& value) { _dptr()->AddVector3(time, id, value); }
-void IAnimationKeys::AddQuaternion(float time, int id, const glm::quat& value) { _dptr()->AddQuaternion(time, id, value); }
-void IAnimationKeys::Remove(float time, int id) { _dptr()->Remove(time, id); }
-void IAnimationKeys::ToKeyframes(std::vector<AnimationFrame>& keyframes) { _dptr()->ToKeyframes(keyframes); }
+void IAnimationKeys::AddFloat(float time, int id, float value) { _suede_dptr()->AddFloat(time, id, value); }
+void IAnimationKeys::AddVector3(float time, int id, const glm::vec3& value) { _suede_dptr()->AddVector3(time, id, value); }
+void IAnimationKeys::AddQuaternion(float time, int id, const glm::quat& value) { _suede_dptr()->AddQuaternion(time, id, value); }
+void IAnimationKeys::Remove(float time, int id) { _suede_dptr()->Remove(time, id); }
+void IAnimationKeys::ToKeyframes(std::vector<AnimationFrame>& keyframes) { _suede_dptr()->ToKeyframes(keyframes); }
 
 IAnimationFrame::IAnimationFrame() : IObject(MEMORY_NEW(AnimationFrameInternal)) {}
-void IAnimationFrame::SetTime(float value) { _dptr()->SetTime(value); }
-float IAnimationFrame::GetTime() { return _dptr()->GetTime(); }
-void IAnimationFrame::Assign(AnimationFrame other) { _dptr()->Assign(other); }
-void IAnimationFrame::Lerp(AnimationFrame result, AnimationFrame other, float factor) { _dptr()->Lerp(result, other, factor); }
-void IAnimationFrame::SetFloat(int id, float value) { _dptr()->SetFloat(id, value); }
-void IAnimationFrame::SetVector3(int id, const glm::vec3& value) { _dptr()->SetVector3(id, value); }
-void IAnimationFrame::SetQuaternion(int id, const glm::quat& value) { _dptr()->SetQuaternion(id, value); }
-float IAnimationFrame::GetFloat(int id) { return _dptr()->GetFloat(id); }
-glm::vec3 IAnimationFrame::GetVector3(int id) { return _dptr()->GetVector3(id); }
-glm::quat IAnimationFrame::GetQuaternion(int id) { return _dptr()->GetQuaternion(id); }
+void IAnimationFrame::SetTime(float value) { _suede_dptr()->SetTime(value); }
+float IAnimationFrame::GetTime() { return _suede_dptr()->GetTime(); }
+void IAnimationFrame::Assign(AnimationFrame other) { _suede_dptr()->Assign(other); }
+void IAnimationFrame::Lerp(AnimationFrame result, AnimationFrame other, float factor) { _suede_dptr()->Lerp(result, other, factor); }
+void IAnimationFrame::SetFloat(int id, float value) { _suede_dptr()->SetFloat(id, value); }
+void IAnimationFrame::SetVector3(int id, const glm::vec3& value) { _suede_dptr()->SetVector3(id, value); }
+void IAnimationFrame::SetQuaternion(int id, const glm::quat& value) { _suede_dptr()->SetQuaternion(id, value); }
+float IAnimationFrame::GetFloat(int id) { return _suede_dptr()->GetFloat(id); }
+glm::vec3 IAnimationFrame::GetVector3(int id) { return _suede_dptr()->GetVector3(id); }
+glm::quat IAnimationFrame::GetQuaternion(int id) { return _suede_dptr()->GetQuaternion(id); }
 
 IAnimationCurve::IAnimationCurve() : IObject(MEMORY_NEW(AnimationCurveInternal)) {}
-void IAnimationCurve::SetKeyframes(const std::vector<AnimationFrame>& value) { _dptr()->SetKeyframes(value); }
-bool IAnimationCurve::Sample(float time, AnimationFrame& frame) { return _dptr()->Sample(time, frame); }
+void IAnimationCurve::SetKeyframes(const std::vector<AnimationFrame>& value) { _suede_dptr()->SetKeyframes(value); }
+bool IAnimationCurve::Sample(float time, AnimationFrame& frame) { return _suede_dptr()->Sample(time, frame); }
 
 IAnimation::IAnimation() : IComponent(MEMORY_NEW(AnimationInternal)) {}
-void IAnimation::AddClip(const std::string& name, AnimationClip value) { _dptr()->AddClip(name, value); }
-AnimationClip IAnimation::GetClip(const std::string& name) { return _dptr()->GetClip(name); }
-void IAnimation::SetSkeleton(Skeleton value) { _dptr()->SetSkeleton(value); }
-Skeleton IAnimation::GetSkeleton() { return _dptr()->GetSkeleton(); }
-void IAnimation::SetRootTransform(const glm::mat4& value) { _dptr()->SetRootTransform(value); }
-glm::mat4 IAnimation::GetRootTransform() { return _dptr()->GetRootTransform(); }
-void IAnimation::SetWrapMode(AnimationWrapMode value) { _dptr()->SetWrapMode(value); }
-bool IAnimation::Play(const std::string& name) { return _dptr()->Play(name); }
+void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_dptr()->AddClip(name, value); }
+AnimationClip IAnimation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
+void IAnimation::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
+Skeleton IAnimation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
+void IAnimation::SetRootTransform(const glm::mat4& value) { _suede_dptr()->SetRootTransform(value); }
+glm::mat4 IAnimation::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
+void IAnimation::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
+bool IAnimation::Play(const std::string& name) { return _suede_dptr()->Play(name); }
 
 SUEDE_DEFINE_COMPONENT(IAnimation, IComponent)
 

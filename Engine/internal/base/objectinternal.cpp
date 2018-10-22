@@ -5,12 +5,10 @@
 
 #include "textureinternal.h"
 
-IObject::IObject(void* d) : d_(d) {}
-IObject::~IObject() { MEMORY_DELETE(_dptr()); }
-Object IObject::Clone() { return _dptr()->Clone(); }
-ObjectType IObject::GetObjectType() { return _dptr()->GetObjectType(); }
-uint IObject::GetInstanceID() { return _dptr()->GetInstanceID(); }
-bool IObject::_d_equals_impl(void* d) { return d_ == d; }
+IObject::IObject(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
+Object IObject::Clone() { return _suede_dptr()->Clone(); }
+ObjectType IObject::GetObjectType() { return _suede_dptr()->GetObjectType(); }
+uint IObject::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
 
 uint ObjectInternal::objectIDContainer[ObjectType::size()];
 

@@ -7,21 +7,21 @@
 #include "internal/rendering/pipeline.h"
 
 IRenderer::IRenderer(void* d) : IComponent(d) {}
-void IRenderer::AddMaterial(Material material) { _dptr()->AddMaterial(material); }
-Material IRenderer::GetMaterial(uint index) { return _dptr()->GetMaterial(index); }
-IRenderer::Enumerable IRenderer::GetMaterials() { return _dptr()->GetMaterials(); }
-void IRenderer::SetMaterial(uint index, Material value) { _dptr()->SetMaterial(index, value); }
-void IRenderer::RemoveMaterial(Material material) { _dptr()->RemoveMaterial(material); }
-void IRenderer::RemoveMaterialAt(uint index) { _dptr()->RemoveMaterialAt(index); }
-uint IRenderer::GetMaterialCount() { return _dptr()->GetMaterialCount(); }
-void IRenderer::UpdateMaterialProperties() { _dptr()->UpdateMaterialProperties(); }
+void IRenderer::AddMaterial(Material material) { _suede_dptr()->AddMaterial(material); }
+Material IRenderer::GetMaterial(uint index) { return _suede_dptr()->GetMaterial(index); }
+IRenderer::Enumerable IRenderer::GetMaterials() { return _suede_dptr()->GetMaterials(); }
+void IRenderer::SetMaterial(uint index, Material value) { _suede_dptr()->SetMaterial(index, value); }
+void IRenderer::RemoveMaterial(Material material) { _suede_dptr()->RemoveMaterial(material); }
+void IRenderer::RemoveMaterialAt(uint index) { _suede_dptr()->RemoveMaterialAt(index); }
+uint IRenderer::GetMaterialCount() { return _suede_dptr()->GetMaterialCount(); }
+void IRenderer::UpdateMaterialProperties() { _suede_dptr()->UpdateMaterialProperties(); }
 
 IMeshRenderer::IMeshRenderer() : IRenderer(MEMORY_NEW(MeshRendererInternal)) {}
 
 IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
 
 ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
-void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { _dptr()->SetSkeleton(value); }
+void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 
 SUEDE_DEFINE_COMPONENT(IRenderer, IComponent)
 SUEDE_DEFINE_COMPONENT(IMeshRenderer, IRenderer)

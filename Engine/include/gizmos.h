@@ -3,10 +3,12 @@
 
 #include "types.h"
 #include "color.h"
+#include "enginedefines.h"
 #include "tools/singleton.h"
 
 class SUEDE_API Gizmos : public Singleton2<Gizmos> {
-	friend class Singleton2<Gizmos>;
+	friend class Singleton<Gizmos>;
+	SUEDE_DECLARE_IMPLEMENTATION(Gizmos)
 
 public:
 	void Flush();

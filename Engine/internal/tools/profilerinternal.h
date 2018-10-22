@@ -44,7 +44,7 @@ private:
 		MaxProfilterSamples = 1024,
 	};
 
-	typedef free_list<SampleInternal> SampleContainer;
+	typedef free_list<Sample> SampleContainer;
 	SampleContainer samples_;
 	double timeStampToSeconds_;
 };

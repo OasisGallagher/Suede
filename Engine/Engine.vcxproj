@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;internal\3rdparty\lua-5.3.5\include;internal\3rdparty\free-type\include;internal\3rdparty\glew-2.1.0\include;internal\3rdparty\assimp-3.0\include;internal\3rdparty\image-magick-6\include;internal\3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\glew-2.1.0\include;..\Shared\3rdparty\glm-0.9.7.1\include;..\Shared\3rdparty\vld-2.5.1\include;..\Shared\3rdparty\zthread-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;internal\3rdparty\LuaBridge2.1;internal\3rdparty\lua-5.3.5\include;internal\3rdparty\free-type\include;internal\3rdparty\glew-2.1.0\include;internal\3rdparty\assimp-3.0\include;internal\3rdparty\image-magick-6\include;internal\3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\glew-2.1.0\include;..\Shared\3rdparty\glm-0.9.7.1\include;..\Shared\3rdparty\vld-2.5.1\include;..\Shared\3rdparty\zthread-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018;4838;4091</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>

@@ -10,6 +10,8 @@ extern "C" {
 #include "lualib.h"
 }
 
+#include "LuaBridge/LuaBridge.h"
+
 namespace LuaPrivate {
 
 static int panic(lua_State* L) {

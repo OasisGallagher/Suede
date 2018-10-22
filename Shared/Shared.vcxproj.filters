@@ -535,6 +535,9 @@
       <Filter>tools\include</Filter>
     </ClInclude>
     <ClInclude Include="types.h" />
+    <ClInclude Include="tools\pimplidiom.h">
+      <Filter>tools\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tools\string.cpp">

@@ -20,6 +20,11 @@ public:
 	}
 
 	template <class T>
+	static void DeleteRaw(void* ptr) {
+		MEMORY_DELETE((T*)ptr);
+	}
+
+	template <class T>
 	static T* NewArray(size_t n) {
 		return new T[n];
 	}

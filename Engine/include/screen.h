@@ -9,7 +9,8 @@ public:
 };
 
 class SUEDE_API Screen : public Singleton2<Screen> {
-	friend class Singleton2<Screen>;
+	friend class Singleton<Screen>;
+	SUEDE_DECLARE_IMPLEMENTATION(Screen)
 
 public:
 	uint GetWidth();

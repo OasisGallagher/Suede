@@ -9,20 +9,18 @@
 
 #include "memory/memory.h"
 
-#undef _dptr
-#define _dptr()	((GizmosInternal*)d_)
-Gizmos::Gizmos() : Singleton2<Gizmos>(MEMORY_NEW(GizmosInternal)) {}
-void Gizmos::Flush() { _dptr()->Flush(); }
-Color Gizmos::GetColor() { return _dptr()->GetColor(); }
-void Gizmos::SetColor(const Color& value) { _dptr()->SetColor(value); }
-void Gizmos::DrawLines(const glm::vec3* points, uint npoints) { _dptr()->DrawLines(points, npoints); }
-void Gizmos::DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _dptr()->DrawLines(points, npoints, indexes, nindexes); }
-void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints) { _dptr()->DrawLineStripe(points, npoints); }
-void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _dptr()->DrawLineStripe(points, npoints, indexes, nindexes); }
-void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _dptr()->DrawSphere(center, radius); }
-void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _dptr()->DrawCuboid(center, size); }
-void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _dptr()->DrawWireSphere(center, radius); }
-void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _dptr()->DrawWireCuboid(center, size); }
+Gizmos::Gizmos() : Singleton2<Gizmos>(MEMORY_NEW(GizmosInternal), Memory::DeleteRaw<GizmosInternal>) {}
+void Gizmos::Flush() { _suede_dptr()->Flush(); }
+Color Gizmos::GetColor() { return _suede_dptr()->GetColor(); }
+void Gizmos::SetColor(const Color& value) { _suede_dptr()->SetColor(value); }
+void Gizmos::DrawLines(const glm::vec3* points, uint npoints) { _suede_dptr()->DrawLines(points, npoints); }
+void Gizmos::DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dptr()->DrawLines(points, npoints, indexes, nindexes); }
+void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints) { _suede_dptr()->DrawLineStripe(points, npoints); }
+void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dptr()->DrawLineStripe(points, npoints, indexes, nindexes); }
+void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _suede_dptr()->DrawSphere(center, radius); }
+void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dptr()->DrawCuboid(center, size); }
+void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _suede_dptr()->DrawWireSphere(center, radius); }
+void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dptr()->DrawWireCuboid(center, size); }
 
 GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1) {
 	mesh_ = NewMesh();

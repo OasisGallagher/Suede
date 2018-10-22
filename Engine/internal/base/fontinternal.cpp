@@ -10,16 +10,16 @@
 #include "builtinproperties.h"
 
 IFont::IFont() : IObject(MEMORY_NEW(FontInternal)) {}
-bool IFont::Load(const std::string& path, int size) { return _dptr()->Load(path, size); }
-bool IFont::Require(const std::wstring& str) { return _dptr()->Require(str); }
-uint IFont::GetFontSize() const { return _dptr()->GetFontSize(); }
-Texture2D IFont::GetTexture() const { return _dptr()->GetTexture(); }
-std::string IFont::GetFamilyName() const { return _dptr()->GetFamilyName(); }
-std::string IFont::GetStyleName() const { return _dptr()->GetStyleName(); }
-Material IFont::GetMaterial() { return _dptr()->GetMaterial(); }
-bool IFont::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _dptr()->GetCharacterInfo(wch, info); }
-void IFont::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _dptr()->AddMaterialRebuiltListener(listener); }
-void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _dptr()->RemoveMaterialRebuiltListener(listener); }
+bool IFont::Load(const std::string& path, int size) { return _suede_dptr()->Load(path, size); }
+bool IFont::Require(const std::wstring& str) { return _suede_dptr()->Require(str); }
+uint IFont::GetFontSize() const { return _suede_dptr()->GetFontSize(); }
+Texture2D IFont::GetTexture() const { return _suede_dptr()->GetTexture(); }
+std::string IFont::GetFamilyName() const { return _suede_dptr()->GetFamilyName(); }
+std::string IFont::GetStyleName() const { return _suede_dptr()->GetStyleName(); }
+Material IFont::GetMaterial() { return _suede_dptr()->GetMaterial(); }
+bool IFont::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _suede_dptr()->GetCharacterInfo(wch, info); }
+void IFont::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->AddMaterialRebuiltListener(listener); }
+void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->RemoveMaterialRebuiltListener(listener); }
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {

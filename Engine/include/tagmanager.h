@@ -2,11 +2,13 @@
 #include <vector>
 
 #include "types.h"
+#include "enginedefines.h"
 #include "tools/singleton.h"
 
 typedef std::vector<std::string> Tags;
 class SUEDE_API TagManager : public Singleton2<TagManager> {
-	friend class Singleton2<TagManager>;
+	friend class Singleton<TagManager>;
+	SUEDE_DECLARE_IMPLEMENTATION(TagManager)
 
 public:
 	const Tags& GetAllTags();

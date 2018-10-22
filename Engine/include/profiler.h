@@ -1,7 +1,10 @@
 #pragma once
+#include "enginedefines.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Sample {
+class SUEDE_API Sample : public PimplIdiom {
+	SUEDE_DECLARE_IMPLEMENTATION(Sample)
+
 public:
 	Sample();
 
@@ -13,13 +16,11 @@ public:
 
 	void Reset();
 	double GetElapsedSeconds() const;
-
-private:
-	void* d_;
 };
 
 class SUEDE_API Profiler : public Singleton2<Profiler> {
-	friend class Singleton2<Profiler>;
+	friend class Singleton<Profiler>;
+	SUEDE_DECLARE_IMPLEMENTATION(Profiler)
 
 public:
 	Sample* CreateSample();

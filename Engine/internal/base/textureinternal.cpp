@@ -11,48 +11,48 @@
 #include "containers/freelist.h"
 
 ITexture::ITexture(void* d) : IObject(d) {}
-void ITexture::Bind(uint index) { _dptr()->Bind(index); }
-void ITexture::Unbind() { _dptr()->Unbind(); }
-uint ITexture::GetNativePointer() { return _dptr()->GetNativePointer(); }
-void ITexture::SetMinFilterMode(TextureMinFilterMode value) { _dptr()->SetMinFilterMode(value); }
-TextureMinFilterMode ITexture::GetMinFilterMode() const { return _dptr()->GetMinFilterMode(); }
-void ITexture::SetMagFilterMode(TextureMagFilterMode value) { _dptr()->SetMagFilterMode(value); }
-TextureMagFilterMode ITexture::GetMagFilterMode() const { return _dptr()->GetMagFilterMode(); }
-void ITexture::SetWrapModeS(TextureWrapMode value) { _dptr()->SetWrapModeS(value); }
-TextureWrapMode ITexture::GetWrapModeS() const { return _dptr()->GetWrapModeS(); }
-void ITexture::SetWrapModeT(TextureWrapMode value) { _dptr()->SetWrapModeT(value); }
-TextureWrapMode ITexture::GetWrapModeT() const { return _dptr()->GetWrapModeT(); }
-uint ITexture::GetWidth() const { return _dptr()->GetWidth(); }
-uint ITexture::GetHeight() const { return _dptr()->GetHeight(); }
+void ITexture::Bind(uint index) { _suede_dptr()->Bind(index); }
+void ITexture::Unbind() { _suede_dptr()->Unbind(); }
+uint ITexture::GetNativePointer() { return _suede_dptr()->GetNativePointer(); }
+void ITexture::SetMinFilterMode(TextureMinFilterMode value) { _suede_dptr()->SetMinFilterMode(value); }
+TextureMinFilterMode ITexture::GetMinFilterMode() const { return _suede_dptr()->GetMinFilterMode(); }
+void ITexture::SetMagFilterMode(TextureMagFilterMode value) { _suede_dptr()->SetMagFilterMode(value); }
+TextureMagFilterMode ITexture::GetMagFilterMode() const { return _suede_dptr()->GetMagFilterMode(); }
+void ITexture::SetWrapModeS(TextureWrapMode value) { _suede_dptr()->SetWrapModeS(value); }
+TextureWrapMode ITexture::GetWrapModeS() const { return _suede_dptr()->GetWrapModeS(); }
+void ITexture::SetWrapModeT(TextureWrapMode value) { _suede_dptr()->SetWrapModeT(value); }
+TextureWrapMode ITexture::GetWrapModeT() const { return _suede_dptr()->GetWrapModeT(); }
+uint ITexture::GetWidth() const { return _suede_dptr()->GetWidth(); }
+uint ITexture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
 ITexture2D::ITexture2D() : ITexture(MEMORY_NEW(Texture2DInternal)) {}
-bool ITexture2D::Create(const std::string& path) { return _dptr()->Create(path); }
+bool ITexture2D::Create(const std::string& path) { return _suede_dptr()->Create(path); }
 bool ITexture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
-	return _dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
+	return _suede_dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
 }
-TextureFormat ITexture2D::GetFormat() { return _dptr()->GetFormat(); }
-bool ITexture2D::EncodeToPNG(std::vector<uchar>& data) { return _dptr()->EncodeToPNG(data); }
-bool ITexture2D::EncodeToJPG(std::vector<uchar>& data) { return _dptr()->EncodeToJPG(data); }
+TextureFormat ITexture2D::GetFormat() { return _suede_dptr()->GetFormat(); }
+bool ITexture2D::EncodeToPNG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToPNG(data); }
+bool ITexture2D::EncodeToJPG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToJPG(data); }
 
 ITextureCube::ITextureCube() : ITexture(MEMORY_NEW(TextureCubeInternal)) {}
-bool ITextureCube::Load(const std::string textures[6]) { return _dptr()->Load(textures); }
+bool ITextureCube::Load(const std::string textures[6]) { return _suede_dptr()->Load(textures); }
 
 ITextureBuffer::ITextureBuffer() : ITexture(MEMORY_NEW(TextureBufferInternal)) {}
-uint ITextureBuffer::GetSize() const { return _dptr()->GetSize(); }
-bool ITextureBuffer::Create(uint size) { return _dptr()->Create(size); }
-void ITextureBuffer::Update(uint offset, uint size, const void* data) { _dptr()->Update(offset, size, data); }
+uint ITextureBuffer::GetSize() const { return _suede_dptr()->GetSize(); }
+bool ITextureBuffer::Create(uint size) { return _suede_dptr()->Create(size); }
+void ITextureBuffer::Update(uint offset, uint size, const void* data) { _suede_dptr()->Update(offset, size, data); }
 
 IRenderTexture::IRenderTexture() : ITexture(MEMORY_NEW(RenderTextureInternal)) {}
 IRenderTexture::IRenderTexture(void* d) : ITexture(d) {}
-bool IRenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _dptr()->Create(format, width, height); }
-void IRenderTexture::Resize(uint width, uint height) { _dptr()->Resize(width, height); }
-void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _dptr()->Clear(normalizedRect, color, depth); }
-void IRenderTexture::BindWrite(const Rect& normalizedRect) { _dptr()->BindWrite(normalizedRect); }
+bool IRenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
+void IRenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
+void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth); }
+void IRenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
 
 IMRTRenderTexture::IMRTRenderTexture() : IRenderTexture(MEMORY_NEW(MRTRenderTextureInternal)) {}
-bool IMRTRenderTexture::AddColorTexture(TextureFormat format) { return _dptr()->AddColorTexture(format); }
-Texture2D IMRTRenderTexture::GetColorTexture(uint index) { return _dptr()->GetColorTexture(index); }
-uint IMRTRenderTexture::GetColorTextureCount() { return _dptr()->GetColorTextureCount(); }
+bool IMRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dptr()->AddColorTexture(format); }
+Texture2D IMRTRenderTexture::GetColorTexture(uint index) { return _suede_dptr()->GetColorTexture(index); }
+uint IMRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTextureCount(); }
 
 IScreenRenderTexture::IScreenRenderTexture() : IRenderTexture(MEMORY_NEW(ScreenRenderTextureInternal)){}
 

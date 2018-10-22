@@ -3,7 +3,8 @@
 #include "tools/singleton.h"
 
 class SUEDE_API Environment : public Singleton2<Environment> {
-	friend class Singleton2<Environment>;
+	friend class Singleton<Environment>;
+	SUEDE_DECLARE_IMPLEMENTATION(Environment)
 
 public:
 	void SetSkybox(Material value);

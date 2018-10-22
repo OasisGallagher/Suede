@@ -54,13 +54,6 @@ class World_Wrapper {
 		return 0;
 	}
 
-	static int Import(lua_State* L) {
-		World* _p = World::instance();
-		std::string path = Lua::get<std::string>(L, -1);
-		GameObjectLoadedCallback callback = Lua::get<GameObjectLoadedCallback>(L, -2);
-		return Lua::push(L, _p->Import(path, callback));
-	}
-
 	static int GetRootTransform(lua_State* L) {
 		World* _p = World::instance();
 		return Lua::push(L, _p->GetRootTransform());
@@ -109,7 +102,6 @@ public:
 			{ "CreateObject", CreateObject },
 			{ "DestroyGameObject", DestroyGameObject },
 			{ "DestroyGameObject2", DestroyGameObject2 },
-			{ "Import", Import },
 			{ "GetRootTransform", GetRootTransform },
 			{ "GetGameObject", GetGameObject },
 			{ "FireEvent", FireEvent },

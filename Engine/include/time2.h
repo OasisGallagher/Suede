@@ -1,8 +1,10 @@
 #pragma once
+#include "enginedefines.h"
 #include "tools/singleton.h"
 
 class SUEDE_API Time : public Singleton2<Time> {
-	friend class Singleton2<Time>;
+	friend class Singleton<Time>;
+	SUEDE_DECLARE_IMPLEMENTATION(Time)
 
 public:
 	/**

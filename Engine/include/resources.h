@@ -13,7 +13,8 @@ enum class PrimitiveType {
 };
 
 class SUEDE_API Resources : public Singleton2<Resources> {
-	friend class Singleton2<Resources>;
+	friend class Singleton<Resources>;
+	SUEDE_DECLARE_IMPLEMENTATION(Resources)
 
 public:
 	void Import();

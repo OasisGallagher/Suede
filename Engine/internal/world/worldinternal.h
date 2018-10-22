@@ -16,7 +16,7 @@ class Sample;
 class DecalCreater;
 class GameObjectLoaderThreadPool;
 
-class WorldInternal : public World, public ScreenSizeChangedListener, public WorldEventListener {
+class WorldInternal : public ScreenSizeChangedListener, public WorldEventListener {
 public:
 	WorldInternal();
 	~WorldInternal();
@@ -35,7 +35,6 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject go);
 
-	GameObject Import(const std::string& path, GameObjectLoadedCallback callback);
 	GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
 	bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
 

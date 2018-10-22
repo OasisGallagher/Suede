@@ -289,6 +289,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="os\filesystem.h" />
     <ClInclude Include="tools\dirtybits.h" />
     <ClInclude Include="tools\enum.h" />
+    <ClInclude Include="tools\pimplidiom.h" />
     <ClInclude Include="tools\math2.h" />
     <ClInclude Include="tools\noncopyable.h" />
     <ClInclude Include="tools\random.h" />

@@ -3,23 +3,18 @@
 #include <Windows.h>
 #include "debug/debug.h"
 
-#undef _dptr
-#define _dptr()	((SampleInternal*)d_)
-Sample::Sample() : d_(MEMORY_NEW(SampleInternal)) {}
-void Sample::Start() { _dptr()->Start(); }
-void Sample::Restart() { _dptr()->Restart(); }
-void Sample::Stop() { _dptr()->Stop(); }
-void Sample::Reset() { _dptr()->Reset(); }
-double Sample::GetElapsedSeconds() const { return _dptr()->GetElapsedSeconds(); }
+Sample::Sample() : PimplIdiom(MEMORY_NEW(SampleInternal), Memory::DeleteRaw<SampleInternal>) {}
+void Sample::Start() { _suede_dptr()->Start(); }
+void Sample::Restart() { _suede_dptr()->Restart(); }
+void Sample::Stop() { _suede_dptr()->Stop(); }
+void Sample::Reset() { _suede_dptr()->Reset(); }
+double Sample::GetElapsedSeconds() const { return _suede_dptr()->GetElapsedSeconds(); }
 
-#undef _dptr
-#define _dptr()	((ProfilerInternal*)d_)
-
-Profiler::Profiler() : Singleton2<Profiler>(MEMORY_NEW(ProfilerInternal)) {}
-Sample* Profiler::CreateSample() { return _dptr()->CreateSample(); }
-void Profiler::ReleaseSample(Sample* value) { _dptr()->ReleaseSample(value); }
-uint64 Profiler::GetTimeStamp() { return _dptr()->GetTimeStamp(); }
-double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _dptr()->TimeStampToSeconds(timeStamp); }
+Profiler::Profiler() : Singleton2<Profiler>(MEMORY_NEW(ProfilerInternal), Memory::DeleteRaw<ProfilerInternal>) {}
+Sample* Profiler::CreateSample() { return _suede_dptr()->CreateSample(); }
+void Profiler::ReleaseSample(Sample* value) { _suede_dptr()->ReleaseSample(value); }
+uint64 Profiler::GetTimeStamp() { return _suede_dptr()->GetTimeStamp(); }
+double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dptr()->TimeStampToSeconds(timeStamp); }
 
 ProfilerInternal::ProfilerInternal() : samples_(MaxProfilterSamples) {
 	LARGE_INTEGER frequency;
@@ -49,7 +44,7 @@ Sample* ProfilerInternal::CreateSample() {
 
 void ProfilerInternal::ReleaseSample(Sample* sample) {
 	sample->Reset();
-	samples_.recycle((SampleInternal*)sample);
+	samples_.recycle(sample);
 }
 
 double ProfilerInternal::TimeStampToSeconds(uint64 timeStamp) {
@@ -68,7 +63,7 @@ uint64 ProfilerInternal::GetTimeStamp() {
 
 void SampleInternal::Start() {
 	started_ = true;
-	timeStamp_ = ProfilerInternal::instance()->GetTimeStamp();
+	timeStamp_ = Profiler::instance()->GetTimeStamp();
 }
 
 void SampleInternal::Restart() {
@@ -78,7 +73,7 @@ void SampleInternal::Restart() {
 
 void SampleInternal::Stop() {
 	started_ = false;
-	elapsed_ += (ProfilerInternal::instance()->GetTimeStamp() - timeStamp_);
+	elapsed_ += (Profiler::instance()->GetTimeStamp() - timeStamp_);
 }
 
 void SampleInternal::Reset() {
@@ -92,5 +87,5 @@ double SampleInternal::GetElapsedSeconds() const {
 		return 0.0;
 	}
 
-	return ProfilerInternal::instance()->TimeStampToSeconds(elapsed_);
+	return Profiler::instance()->TimeStampToSeconds(elapsed_);
 }

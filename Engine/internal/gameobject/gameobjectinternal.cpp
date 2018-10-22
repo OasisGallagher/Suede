@@ -11,27 +11,27 @@
 #include "internal/gameobject/gameobjectinternal.h"
 
 IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal)) {}
-bool IGameObject::GetActive() const { return _dptr()->GetActive(); }
-void IGameObject::SetActiveSelf(bool value) { _dptr()->SetActiveSelf(_shared_this(), value); }
-bool IGameObject::GetActiveSelf() const { return _dptr()->GetActiveSelf(); }
-int IGameObject::GetUpdateStrategy() { return _dptr()->GetUpdateStrategy(_shared_this()); }
-const std::string& IGameObject::GetTag() const { return _dptr()->GetTag(); }
-bool IGameObject::SetTag(const std::string& value) { return _dptr()->SetTag(_shared_this(), value); }
-std::string IGameObject::GetName() const { return _dptr()->GetName(); }
-void IGameObject::SetName(const std::string& value) { _dptr()->SetName(_shared_this(), value); }
-void IGameObject::CullingUpdate() { _dptr()->CullingUpdate(); }
-void IGameObject::RenderingUpdate() { _dptr()->RenderingUpdate(); }
-Transform IGameObject::GetTransform() { return _dptr()->GetTransform(); }
-const Bounds& IGameObject::GetBounds() { return _dptr()->GetBounds(); }
-void IGameObject::RecalculateBounds(int flags) { return _dptr()->RecalculateBounds(); }
-void IGameObject::RecalculateUpdateStrategy() { _dptr()->RecalculateUpdateStrategy(_shared_this()); }
-Component IGameObject::AddComponent(suede_guid guid) { return _dptr()->AddComponent(_shared_this(), guid); }
-Component IGameObject::AddComponent(const char* name) { return _dptr()->AddComponent(_shared_this(), name); }
-Component IGameObject::AddComponent(Component component) { return _dptr()->AddComponent(_shared_this(), component); }
-Component IGameObject::GetComponent(suede_guid guid) { return _dptr()->GetComponent(guid); }
-Component IGameObject::GetComponent(const char* name) { return _dptr()->GetComponent(name); }
-std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _dptr()->GetComponents(guid); }
-std::vector<Component> IGameObject::GetComponents(const char* name) { return _dptr()->GetComponents(name); }
+bool IGameObject::GetActive() const { return _suede_dptr()->GetActive(); }
+void IGameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(_shared_this(), value); }
+bool IGameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
+int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(_shared_this()); }
+const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
+bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(_shared_this(), value); }
+std::string IGameObject::GetName() const { return _suede_dptr()->GetName(); }
+void IGameObject::SetName(const std::string& value) { _suede_dptr()->SetName(_shared_this(), value); }
+void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
+void IGameObject::RenderingUpdate() { _suede_dptr()->RenderingUpdate(); }
+Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
+const Bounds& IGameObject::GetBounds() { return _suede_dptr()->GetBounds(); }
+void IGameObject::RecalculateBounds(int flags) { return _suede_dptr()->RecalculateBounds(); }
+void IGameObject::RecalculateUpdateStrategy() { _suede_dptr()->RecalculateUpdateStrategy(_shared_this()); }
+Component IGameObject::AddComponent(suede_guid guid) { return _suede_dptr()->AddComponent(_shared_this(), guid); }
+Component IGameObject::AddComponent(const char* name) { return _suede_dptr()->AddComponent(_shared_this(), name); }
+Component IGameObject::AddComponent(Component component) { return _suede_dptr()->AddComponent(_shared_this(), component); }
+Component IGameObject::GetComponent(suede_guid guid) { return _suede_dptr()->GetComponent(guid); }
+Component IGameObject::GetComponent(const char* name) { return _suede_dptr()->GetComponent(name); }
+std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
+std::vector<Component> IGameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
 #define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()))
 
@@ -39,7 +39,7 @@ GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameOb
 }
 
 GameObjectInternal::GameObjectInternal(ObjectType type)
-	: ObjectInternal(type), active_(true),  activeSelf_(true), boundsDirty_(true)
+	: ObjectInternal(type), active_(true), activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
 	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
 		Debug::LogError("invalid go type %d.", type);
@@ -168,7 +168,7 @@ void GameObjectInternal::SetActive(GameObject self, bool value) {
 void GameObjectInternal::UpdateChildrenActive(GameObject parent) {
 	for (Transform transform : parent->GetTransform()->GetChildren()) {
 		GameObject child = transform->GetGameObject();
-		GameObjectInternal* childPtr = _rptr(child);
+		GameObjectInternal* childPtr = _suede_rptr(child);
 		childPtr->SetActive(child, childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
 	}
@@ -236,7 +236,7 @@ void GameObjectInternal::CalculateSelfWorldBounds(Mesh mesh) {
 void GameObjectInternal::CalculateBonesWorldBounds() {
 	std::vector<glm::vec3> points;
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-	
+
 	Bounds boneBounds;
 	Skeleton skeleton = GET_COMPONENT(Animation)->GetSkeleton();
 	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
@@ -259,7 +259,7 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 void GameObjectInternal::DirtyParentBounds() {
 	Transform parent, current = GetTransform();
 	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-		_rptr(parent->GetGameObject())->boundsDirty_ = true;
+		_suede_rptr(parent->GetGameObject())->boundsDirty_ = true;
 		current = parent;
 	}
 }
@@ -290,7 +290,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 	if (oldStrategy != newStrategy) {
 		Transform parent, current = GetTransform();
 		for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
-			if (!_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
+			if (!_suede_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
 				break;
 			}
 
@@ -309,7 +309,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 
 void GameObjectInternal::DirtyChildrenBoundses() {
 	for (Transform tr : GetTransform()->GetChildren()) {
-		GameObjectInternal* child = _rptr(tr->GetGameObject());
+		GameObjectInternal* child = _suede_rptr(tr->GetGameObject());
 		child->DirtyChildrenBoundses();
 		child->boundsDirty_ = true;
 	}

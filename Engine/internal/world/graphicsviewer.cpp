@@ -38,7 +38,6 @@ bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	canvas_ = value;
 
 	if (status_ == ViewerStatusUninitialized) {
-		Engine::implement(MEMORY_NEW(EngineInternal));
 		if (Engine::instance()->Startup(value->GetWidth(), value->GetHeight())) {
 			status_ = ViewerStatusRunning;
 		}

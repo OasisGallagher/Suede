@@ -146,7 +146,8 @@ public:
 struct Decal;
 
 class SUEDE_API World : public Singleton2<World> {
-	friend class Singleton2<World>;
+	friend class Singleton<World>;
+	SUEDE_DECLARE_IMPLEMENTATION(World)
 
 public:
 	void Initialize();
@@ -159,7 +160,6 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject go);
 
-	GameObject Import(const std::string& path, GameObjectLoadedCallback callback);
 	GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
 
 	bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
@@ -182,6 +182,7 @@ public:
 
 private:
 	World();
+	~World();
 };
 
 template <class T>

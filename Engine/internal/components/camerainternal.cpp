@@ -13,39 +13,39 @@
 #include "internal/async/guard.h"
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
-void ICamera::SetDepth(int value) { _dptr()->SetDepth(_shared_this(), value); }
-int ICamera::GetDepth() { return _dptr()->GetDepth(); }
-bool ICamera::GetPerspective() const { return _dptr()->GetPerspective(); }
-void ICamera::SetPerspective(bool value) { _dptr()->SetPerspective(value); }
-float ICamera::GetOrthographicSize() const { return _dptr()->GetOrthographicSize(); }
-void ICamera::SetOrthographicSize(float value) { _dptr()->SetOrthographicSize(value); }
-void ICamera::SetClearType(ClearType value) { _dptr()->SetClearType(value); }
-ClearType ICamera::GetClearType() { return _dptr()->GetClearType(); }
-void ICamera::SetRenderPath(RenderPath value) { _dptr()->SetRenderPath(value); }
-RenderPath ICamera::GetRenderPath() { return _dptr()->GetRenderPath(); }
-void ICamera::SetDepthTextureMode(DepthTextureMode value) { _dptr()->SetDepthTextureMode(value); }
-DepthTextureMode ICamera::GetDepthTextureMode() { return _dptr()->GetDepthTextureMode(); }
-void ICamera::SetClearColor(const Color& value) { _dptr()->SetClearColor(value); }
-Color ICamera::GetClearColor() { return _dptr()->GetClearColor(); }
-void ICamera::SetTargetTexture(RenderTexture value) { _dptr()->SetTargetTexture(value); }
-RenderTexture ICamera::GetTargetTexture() { return _dptr()->GetTargetTexture(); }
-void ICamera::SetAspect(float value) { _dptr()->SetAspect(value); }
-float ICamera::GetAspect() const { return _dptr()->GetAspect(); }
-void ICamera::SetNearClipPlane(float value) { _dptr()->SetNearClipPlane(value); }
-float ICamera::GetNearClipPlane() const { return _dptr()->GetNearClipPlane(); }
-void ICamera::SetFarClipPlane(float value) { _dptr()->SetFarClipPlane(value); }
-float ICamera::GetFarClipPlane() const { return _dptr()->GetFarClipPlane(); }
-void ICamera::SetFieldOfView(float value) { _dptr()->SetFieldOfView(value); }
-float ICamera::GetFieldOfView() const { return _dptr()->GetFieldOfView(); }
-void ICamera::SetRect(const Rect& value) { _dptr()->SetRect(value); }
-const Rect& ICamera::GetRect() const { return _dptr()->GetRect(); }
-const glm::mat4& ICamera::GetProjectionMatrix() { return _dptr()->GetProjectionMatrix(); }
-void ICamera::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) { return _dptr()->GetVisibleGameObjects(gameObjects); }
-glm::vec3 ICamera::WorldToScreenPoint(const glm::vec3& position) { return _dptr()->WorldToScreenPoint(position); }
-glm::vec3 ICamera::ScreenToWorldPoint(const glm::vec3& position) { return _dptr()->ScreenToWorldPoint(position); }
-Texture2D ICamera::Capture() { return _dptr()->Capture(); }
-void ICamera::Render() { _dptr()->Render(); }
-void ICamera::OnBeforeWorldDestroyed() { _dptr()->OnBeforeWorldDestroyed(); }
+void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(_shared_this(), value); }
+int ICamera::GetDepth() { return _suede_dptr()->GetDepth(); }
+bool ICamera::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
+void ICamera::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
+float ICamera::GetOrthographicSize() const { return _suede_dptr()->GetOrthographicSize(); }
+void ICamera::SetOrthographicSize(float value) { _suede_dptr()->SetOrthographicSize(value); }
+void ICamera::SetClearType(ClearType value) { _suede_dptr()->SetClearType(value); }
+ClearType ICamera::GetClearType() { return _suede_dptr()->GetClearType(); }
+void ICamera::SetRenderPath(RenderPath value) { _suede_dptr()->SetRenderPath(value); }
+RenderPath ICamera::GetRenderPath() { return _suede_dptr()->GetRenderPath(); }
+void ICamera::SetDepthTextureMode(DepthTextureMode value) { _suede_dptr()->SetDepthTextureMode(value); }
+DepthTextureMode ICamera::GetDepthTextureMode() { return _suede_dptr()->GetDepthTextureMode(); }
+void ICamera::SetClearColor(const Color& value) { _suede_dptr()->SetClearColor(value); }
+Color ICamera::GetClearColor() { return _suede_dptr()->GetClearColor(); }
+void ICamera::SetTargetTexture(RenderTexture value) { _suede_dptr()->SetTargetTexture(value); }
+RenderTexture ICamera::GetTargetTexture() { return _suede_dptr()->GetTargetTexture(); }
+void ICamera::SetAspect(float value) { _suede_dptr()->SetAspect(value); }
+float ICamera::GetAspect() const { return _suede_dptr()->GetAspect(); }
+void ICamera::SetNearClipPlane(float value) { _suede_dptr()->SetNearClipPlane(value); }
+float ICamera::GetNearClipPlane() const { return _suede_dptr()->GetNearClipPlane(); }
+void ICamera::SetFarClipPlane(float value) { _suede_dptr()->SetFarClipPlane(value); }
+float ICamera::GetFarClipPlane() const { return _suede_dptr()->GetFarClipPlane(); }
+void ICamera::SetFieldOfView(float value) { _suede_dptr()->SetFieldOfView(value); }
+float ICamera::GetFieldOfView() const { return _suede_dptr()->GetFieldOfView(); }
+void ICamera::SetRect(const Rect& value) { _suede_dptr()->SetRect(value); }
+const Rect& ICamera::GetRect() const { return _suede_dptr()->GetRect(); }
+const glm::mat4& ICamera::GetProjectionMatrix() { return _suede_dptr()->GetProjectionMatrix(); }
+void ICamera::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) { return _suede_dptr()->GetVisibleGameObjects(gameObjects); }
+glm::vec3 ICamera::WorldToScreenPoint(const glm::vec3& position) { return _suede_dptr()->WorldToScreenPoint(position); }
+glm::vec3 ICamera::ScreenToWorldPoint(const glm::vec3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
+Texture2D ICamera::Capture() { return _suede_dptr()->Capture(); }
+void ICamera::Render() { _suede_dptr()->Render(); }
+void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
 
 static Camera main_;
 Camera Camera::main() { return main_; }
@@ -105,7 +105,6 @@ void CameraInternal::Awake() {
 
 void CameraInternal::OnBeforeWorldDestroyed() {
 	CancelThreads();
-	Camera::main(nullptr);
 }
 
 void CameraInternal::CancelThreads() {

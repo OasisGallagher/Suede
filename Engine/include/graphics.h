@@ -10,7 +10,8 @@ BETTER_ENUM(ShadingMode, int,
 )
 
 class SUEDE_API Graphics : public Singleton2<Graphics> {
-	friend class Singleton2<Graphics>;
+	friend class Singleton<Graphics>;
+	SUEDE_DECLARE_IMPLEMENTATION(Graphics)
 
 public:
 	void SetShadingMode(ShadingMode value);

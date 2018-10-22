@@ -5,24 +5,22 @@
 #include "memory/memory.h"
 #include "geometryutility.h"
 
-#undef _dptr
-#define _dptr()	((ResourcesInternal*)d_)
-Resources::Resources() : Singleton2<Resources>(MEMORY_NEW(ResourcesInternal)) {}
-void Resources::Import() { _dptr()->Import(); }
-Texture2D Resources::GetBlackTexture() { return _dptr()->GetBlackTexture(); }
-Texture2D Resources::GetWhiteTexture() { return _dptr()->GetWhiteTexture(); }
-std::string Resources::GetRootDirectory() { return _dptr()->GetRootDirectory(); }
-std::string Resources::GetModelDirectory() { return _dptr()->GetModelDirectory(); }
-std::string Resources::GetShaderDirectory() { return _dptr()->GetShaderDirectory(); }
-std::string Resources::GetTextureDirectory() { return _dptr()->GetTextureDirectory(); }
-Mesh Resources::GetPrimitive(PrimitiveType type) { return _dptr()->GetPrimitive(type); }
-Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) { return _dptr()->CreatePrimitive(type, scale); }
+Resources::Resources() : Singleton2<Resources>(MEMORY_NEW(ResourcesInternal), Memory::DeleteRaw<ResourcesInternal>) {}
+void Resources::Import() { _suede_dptr()->Import(); }
+Texture2D Resources::GetBlackTexture() { return _suede_dptr()->GetBlackTexture(); }
+Texture2D Resources::GetWhiteTexture() { return _suede_dptr()->GetWhiteTexture(); }
+std::string Resources::GetRootDirectory() { return _suede_dptr()->GetRootDirectory(); }
+std::string Resources::GetModelDirectory() { return _suede_dptr()->GetModelDirectory(); }
+std::string Resources::GetShaderDirectory() { return _suede_dptr()->GetShaderDirectory(); }
+std::string Resources::GetTextureDirectory() { return _suede_dptr()->GetTextureDirectory(); }
+Mesh Resources::GetPrimitive(PrimitiveType type) { return _suede_dptr()->GetPrimitive(type); }
+Mesh Resources::CreatePrimitive(PrimitiveType type, float scale) { return _suede_dptr()->CreatePrimitive(type, scale); }
 Mesh Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry)
-{ return _dptr()->CreateInstancedPrimitive(type, scale, color, geometry); }
-void Resources::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) { _dptr()->GetPrimitiveAttribute(attribute, type, scale); }
-Shader Resources::FindShader(const std::string& path) { return _dptr()->FindShader(path); }
-Texture Resources::FindTexture(const std::string& path) { return _dptr()->FindTexture(path); }
-Material Resources::FindMaterial(const std::string& name) { return _dptr()->FindMaterial(name); }
+{ return _suede_dptr()->CreateInstancedPrimitive(type, scale, color, geometry); }
+void Resources::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) { _suede_dptr()->GetPrimitiveAttribute(attribute, type, scale); }
+Shader Resources::FindShader(const std::string& path) { return _suede_dptr()->FindShader(path); }
+Texture Resources::FindTexture(const std::string& path) { return _suede_dptr()->FindTexture(path); }
+Material Resources::FindMaterial(const std::string& name) { return _suede_dptr()->FindMaterial(name); }
 
 ResourcesInternal::ResourcesInternal() {
 	ImportBuiltinResources();

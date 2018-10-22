@@ -101,7 +101,6 @@ void Game::awake() {
 }
 
 void Game::tick() {
-
 }
 
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
@@ -429,13 +428,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	//GameObject room = World::instance()->Import(roomFbxPath, this);
-	GameObject room = World::instance()->Import(roomFbxPath, [](GameObject root, const std::string& path) {
-		root->SetName(path);
-		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-		root->GetTransform()->SetEulerAngles(glm::vec3(30, 0, 0));
-		root->GetTransform()->SetParent(World::instance()->GetRootTransform());
-	});
+	GameObject room = World::instance()->Import(roomFbxPath, this);
 #endif
 
 #ifdef BUMPED
@@ -460,4 +453,6 @@ void Game::createScene() {
 #ifdef ANIMATION
 	GameObject man = World::instance()->Import(manFbxPath, this);
 #endif
+
+	camera = nullptr;
 }

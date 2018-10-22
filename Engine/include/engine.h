@@ -4,7 +4,8 @@
 #include "frameeventlistener.h"
 
 class SUEDE_API Engine : public Singleton2<Engine> {
-	friend class Singleton2<Engine>;
+	friend class Singleton<Engine>;
+	SUEDE_DECLARE_IMPLEMENTATION(Engine)
 
 public:
 	bool Startup(uint width, uint height);

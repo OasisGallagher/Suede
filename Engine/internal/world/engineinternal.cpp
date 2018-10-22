@@ -16,15 +16,13 @@
 
 #include "../lua/wrappers/luaconfig.h"
 
-#undef _dptr
-#define _dptr()	((EngineInternal*)d_)
-Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal)) {}
+Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
 
-bool Engine::Startup(uint width, uint height) { _dptr()->Startup(width, height); }
-void Engine::Shutdown() { _dptr()->Shutdown(); }
-void Engine::Update() { _dptr()->Update(); }
-void Engine::AddFrameEventListener(FrameEventListener* listener) { _dptr()->AddFrameEventListener(listener); }
-void Engine::RemoveFrameEventListener(FrameEventListener* listener) { _dptr()->RemoveFrameEventListener(listener); }
+bool Engine::Startup(uint width, uint height) { return _suede_dptr()->Startup(width, height); }
+void Engine::Shutdown() { _suede_dptr()->Shutdown(); }
+void Engine::Update() { _suede_dptr()->Update(); }
+void Engine::AddFrameEventListener(FrameEventListener* listener) { _suede_dptr()->AddFrameEventListener(listener); }
+void Engine::RemoveFrameEventListener(FrameEventListener* listener) { _suede_dptr()->RemoveFrameEventListener(listener); }
 
 static void OnTerminate() {
 	Debug::Break();
@@ -64,6 +62,9 @@ bool EngineInternal::Startup(uint width, uint height) {
 	if (!GLEF::instance()->Load("resources/data/GLEF.dat")) {
 		return false;
 	}
+
+	// create profiler first to ensure it'll be destroyed last.
+	Profiler::instance();
 
 	Screen::instance()->Resize(width, height);
 	World::instance()->Initialize();

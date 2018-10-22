@@ -19,28 +19,27 @@
 #include "internal/gameobject/gameobjectinternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-#undef _dptr
-#define _dptr()	((WorldInternal*)d_)
-World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal)) {}
+World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
+World::~World() {}
 
-void World::Initialize() { _dptr()->Initialize(); }
-void World::CullingUpdate() { _dptr()->CullingUpdate(); }
-void World::RenderingUpdate() { _dptr()->RenderingUpdate(); }
-void World::Finalize() { _dptr()->Finalize(); }
-Object World::CreateObject(ObjectType type) { return _dptr()->CreateObject(type); }
-void World::DestroyGameObject(uint id) { _dptr()->DestroyGameObject(id); }
-void World::DestroyGameObject(GameObject go) { _dptr()->DestroyGameObject(go); }
-GameObject World::Import(const std::string& path, GameObjectLoadedCallback callback) { return _dptr()->Import(path, callback); }
-GameObject World::Import(const std::string& path, GameObjectLoadedListener* listener) { return _dptr()->Import(path, listener); }
-bool World::ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) { return _dptr()->ImportTo(go, path,listener); }
-Transform World::GetRootTransform() { return _dptr()->GetRootTransform(); }
-GameObject World::GetGameObject(uint id) { return _dptr()->GetGameObject(id); }
-void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _dptr()->Finalize(); }
-void World::FireEvent(WorldEventBasePtr e) { _dptr()->FireEvent(e); }
-void World::FireEventImmediate(WorldEventBasePtr e) { _dptr()->FireEventImmediate(e); }
-void World::AddEventListener(WorldEventListener* listener) { _dptr()->AddEventListener(listener); }
-void World::RemoveEventListener(WorldEventListener* listener) { _dptr()->RemoveEventListener(listener); }
-void World::GetDecals(std::vector<Decal>& container) { _dptr()->GetDecals(container); }
+void World::Initialize() { _suede_dptr()->Initialize(); }
+void World::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
+void World::RenderingUpdate() { _suede_dptr()->RenderingUpdate(); }
+void World::Finalize() { _suede_dptr()->Finalize(); }
+Object World::CreateObject(ObjectType type) { return _suede_dptr()->CreateObject(type); }
+void World::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
+void World::DestroyGameObject(GameObject go) { _suede_dptr()->DestroyGameObject(go); }
+GameObject World::Import(const std::string& path, GameObjectLoadedListener* listener) { return _suede_dptr()->Import(path, listener); }
+bool World::ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) { return _suede_dptr()->ImportTo(go, path,listener); }
+Transform World::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
+GameObject World::GetGameObject(uint id) { return _suede_dptr()->GetGameObject(id); }
+void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dptr()->WalkGameObjectHierarchy(walker); }
+void World::FireEvent(WorldEventBasePtr e) { _suede_dptr()->FireEvent(e); }
+void World::FireEventImmediate(WorldEventBasePtr e) { _suede_dptr()->FireEventImmediate(e); }
+void World::AddEventListener(WorldEventListener* listener) { _suede_dptr()->AddEventListener(listener); }
+void World::RemoveEventListener(WorldEventListener* listener) { _suede_dptr()->RemoveEventListener(listener); }
+void World::GetDecals(std::vector<Decal>& container) { _suede_dptr()->GetDecals(container); }
+std::vector<GameObject> World::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dptr()->GetGameObjectsOfComponent(guid); }
 
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
@@ -75,8 +74,6 @@ void WorldInternal::Initialize() {
 	GLUtils::Initialize();
 	Resources::instance()->FindShader("builtin/lit_texture");
 
-	Graphics::implement(MEMORY_NEW(GraphicsInternal));
-
 	UniformBufferManager::instance();
 	Shadows::instance();
 	MatrixBuffer::instance();
@@ -107,11 +104,6 @@ Object WorldInternal::CreateObject(ObjectType type) {
 	Object object = Factory::Create(type);
 	AddObject(object);
 	return object;
-}
-
-GameObject WorldInternal::Import(const std::string& path, GameObjectLoadedCallback callback) {
-	importer_->SetLoadedCallback(callback);
-	return importer_->Import(path);
 }
 
 GameObject WorldInternal::Import(const std::string& path, GameObjectLoadedListener* listener) {
@@ -236,9 +228,8 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	Camera main = Camera::main();
-	if (main) {
-		decalCreater_->Update(main, projectors_);
+	if (Camera::main()) {
+		decalCreater_->Update(Camera::main(), projectors_);
 	}
 }
 

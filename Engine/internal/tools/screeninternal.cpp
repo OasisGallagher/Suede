@@ -3,14 +3,12 @@
 #include "debug/debug.h"
 #include "memory/memory.h"
 
-#undef _dptr
-#define _dptr()	((ScreenInternal*)d_)
-Screen::Screen() : Singleton2<Screen>(MEMORY_NEW(ScreenInternal)) {}
-uint Screen::GetWidth() { return _dptr()->GetWidth(); }
-uint Screen::GetHeight() { return _dptr()->GetHeight(); }
-void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _dptr()->AddScreenSizeChangedListener(listener); }
-void Screen::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _dptr()->RemoveScreenSizeChangedListener(listener); }
-void Screen::Resize(uint width, uint height) { _dptr()->Resize(width, height); }
+Screen::Screen() : Singleton2<Screen>(MEMORY_NEW(ScreenInternal), Memory::DeleteRaw<ScreenInternal>) {}
+uint Screen::GetWidth() { return _suede_dptr()->GetWidth(); }
+uint Screen::GetHeight() { return _suede_dptr()->GetHeight(); }
+void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _suede_dptr()->AddScreenSizeChangedListener(listener); }
+void Screen::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _suede_dptr()->RemoveScreenSizeChangedListener(listener); }
+void Screen::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
 
 void ScreenInternal::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
 	if (listener == nullptr) {
@@ -30,13 +28,13 @@ void ScreenInternal::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* 
 	}
 }
 
-void ScreenInternal::Resize(uint _width, uint _height) {
-	if (width_ == _width && height_ == _height) {
+void ScreenInternal::Resize(uint width, uint height) {
+	if (width_ == width && height_ == height) {
 		return;
 	}
 
-	width_ = _width;
-	height_ = _height;
+	width_ = width;
+	height_ = height;
 
 	for (uint i = 0; i < listeners_.size(); ++i) {
 		listeners_[i]->OnScreenSizeChanged(width_, height_);

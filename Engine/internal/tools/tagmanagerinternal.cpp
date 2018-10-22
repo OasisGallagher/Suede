@@ -5,13 +5,11 @@
 #include "tools/math2.h"
 #include "memory/memory.h"
 
-#undef _dptr
-#define _dptr()	((TagManagerInternal*)d_)
-TagManager::TagManager() : Singleton2<TagManager>(MEMORY_NEW(TagManagerInternal)) {}
-const Tags& TagManager::GetAllTags() { return _dptr()->GetAllTags(); }
-void TagManager::Register(const std::string& name) { _dptr()->Register(name); }
-void TagManager::Unregister(const std::string& name) { _dptr()->Unregister(name); }
-bool TagManager::IsRegistered(const std::string& name) { return _dptr()->IsRegistered(name); }
+TagManager::TagManager() : Singleton2<TagManager>(MEMORY_NEW(TagManagerInternal), Memory::DeleteRaw<TagManagerInternal>) {}
+const Tags& TagManager::GetAllTags() { return _suede_dptr()->GetAllTags(); }
+void TagManager::Register(const std::string& name) { _suede_dptr()->Register(name); }
+void TagManager::Unregister(const std::string& name) { _suede_dptr()->Unregister(name); }
+bool TagManager::IsRegistered(const std::string& name) { return _suede_dptr()->IsRegistered(name); }
 
 static const char* defaultTags[] = { "DefaultTag0", "DefaultTag1", "DefaultTag2" };
 

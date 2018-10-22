@@ -573,10 +573,6 @@ void GameObjectLoaderThreadPool::SetLoadedListener(GameObjectLoadedListener* lis
 	listener_ = listener;
 }
 
-void GameObjectLoaderThreadPool::SetLoadedCallback(GameObjectLoadedCallback callback) {
-	callback_ = callback;
-}
-
 void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	GameObjectLoader* loader = (GameObjectLoader*)schedule.get();
 
@@ -589,9 +585,5 @@ void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 
 	if (listener_ != nullptr) {
 		listener_->OnGameObjectImported(loader->GetGameObject(), loader->GetPath());
-	}
-
-	if (callback_) {
-		callback_(loader->GetGameObject(), loader->GetPath());
 	}
 }
