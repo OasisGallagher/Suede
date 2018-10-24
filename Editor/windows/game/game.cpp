@@ -428,7 +428,7 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	GameObject room = World::instance()->Import(roomFbxPath, this);
+	//GameObject room = World::instance()->Import(roomFbxPath, this);
 #endif
 
 #ifdef BUMPED
@@ -453,6 +453,4 @@ void Game::createScene() {
 #ifdef ANIMATION
 	GameObject man = World::instance()->Import(manFbxPath, this);
 #endif
-
-	camera = nullptr;
 }

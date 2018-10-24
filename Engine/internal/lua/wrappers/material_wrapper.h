@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "material.h"
 
 class Material_Wrapper {
@@ -12,7 +12,7 @@ class Material_Wrapper {
 
 	static int SetName(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string value = Lua::get<std::string>(L, -1);
+		std::string value = Lua::get<std::string>(L, 2);
 		_p->SetName(value);
 		return 0;
 	}
@@ -24,7 +24,7 @@ class Material_Wrapper {
 
 	static int Bind(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		uint pass = Lua::get<uint>(L, -1);
+		uint pass = Lua::get<uint>(L, 2);
 		_p->Bind(pass);
 		return 0;
 	}
@@ -37,31 +37,31 @@ class Material_Wrapper {
 
 	static int EnablePass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		uint pass = Lua::get<uint>(L, -1);
+		uint pass = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->EnablePass(pass));
 	}
 
 	static int DisablePass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		uint pass = Lua::get<uint>(L, -1);
+		uint pass = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->DisablePass(pass));
 	}
 
 	static int IsPassEnabled(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		uint pass = Lua::get<uint>(L, -1);
+		uint pass = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->IsPassEnabled(pass));
 	}
 
 	static int FindPass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->FindPass(name));
 	}
 
 	static int SetPass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		int pass = Lua::get<int>(L, -1);
+		int pass = Lua::get<int>(L, 2);
 		_p->SetPass(pass);
 		return 0;
 	}
@@ -78,13 +78,13 @@ class Material_Wrapper {
 
 	static int GetPassNativePointer(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		uint pass = Lua::get<uint>(L, -1);
+		uint pass = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetPassNativePointer(pass));
 	}
 
 	static int SetShader(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		Shader value = Lua::get<Shader>(L, -1);
+		Shader value = Lua::get<Shader>(L, 2);
 		_p->SetShader(value);
 		return 0;
 	}
@@ -96,7 +96,7 @@ class Material_Wrapper {
 
 	static int SetRenderQueue(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		int value = Lua::get<int>(L, -1);
+		int value = Lua::get<int>(L, 2);
 		_p->SetRenderQueue(value);
 		return 0;
 	}
@@ -108,147 +108,147 @@ class Material_Wrapper {
 
 	static int Define(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->Define(name);
 		return 0;
 	}
 
 	static int Undefine(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->Undefine(name);
 		return 0;
 	}
 
 	static int SetInt(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		int value = Lua::get<int>(L, -2);
+		int value = Lua::get<int>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetInt(name, value);
 		return 0;
 	}
 
 	static int SetBool(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		bool value = Lua::get<bool>(L, -2);
+		bool value = Lua::get<bool>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetBool(name, value);
 		return 0;
 	}
 
 	static int SetFloat(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		float value = Lua::get<float>(L, -2);
+		float value = Lua::get<float>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetFloat(name, value);
 		return 0;
 	}
 
 	static int SetTexture(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		Texture value = Lua::get<Texture>(L, -2);
+		Texture value = Lua::get<Texture>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetTexture(name, value);
 		return 0;
 	}
 
 	static int SetMatrix4(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		glm::mat4 value = Lua::get<glm::mat4>(L, -2);
+		glm::mat4 value = Lua::get<glm::mat4>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetMatrix4(name, value);
 		return 0;
 	}
 
 	static int SetVector3(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		glm::vec3 value = Lua::get<glm::vec3>(L, -2);
+		glm::vec3 value = Lua::get<glm::vec3>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetVector3(name, value);
 		return 0;
 	}
 
 	static int SetColor(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		Color value = Lua::get<Color>(L, -2);
+		Color value = Lua::get<Color>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetColor(name, value);
 		return 0;
 	}
 
 	static int SetVector4(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		glm::vec4 value = Lua::get<glm::vec4>(L, -2);
+		glm::vec4 value = Lua::get<glm::vec4>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetVector4(name, value);
 		return 0;
 	}
 
 	static int SetVariant(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 2);
-		std::string name = Lua::get<std::string>(L, -1);
-		Variant value = Lua::get<Variant>(L, -2);
+		Variant value = Lua::get<Variant>(L, 3);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->SetVariant(name, value);
 		return 0;
 	}
 
 	static int GetInt(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetInt(name));
 	}
 
 	static int GetBool(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetBool(name));
 	}
 
 	static int GetFloat(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetFloat(name));
 	}
 
 	static int GetRangedInt(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetRangedInt(name));
 	}
 
 	static int GetRangedFloat(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetRangedFloat(name));
 	}
 
 	static int GetTexture(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetTexture(name));
 	}
 
 	static int GetMatrix4(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetMatrix4(name));
 	}
 
 	static int GetVector3(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetVector3(name));
 	}
 
 	static int GetColor(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetColor(name));
 	}
 
 	static int GetVector4(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetVector4(name));
 	}
 

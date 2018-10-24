@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "font.h"
 
 class Font_Wrapper {
@@ -12,14 +12,14 @@ class Font_Wrapper {
 
 	static int Load(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 2);
-		std::string path = Lua::get<std::string>(L, -1);
-		int size = Lua::get<int>(L, -2);
+		int size = Lua::get<int>(L, 3);
+		std::string path = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->Load(path, size));
 	}
 
 	static int Require(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 1);
-		std::wstring str = Lua::get<std::wstring>(L, -1);
+		std::wstring str = Lua::get<std::wstring>(L, 2);
 		return Lua::push(L, _p->Require(str));
 	}
 

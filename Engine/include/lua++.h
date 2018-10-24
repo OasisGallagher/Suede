@@ -2,15 +2,14 @@
 
 #include <string>
 #include <vector>
-#include <cassert>
+#include <memory>
+#include "debug/debug.h"
 
 extern "C" {
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
+#include "lua/lua.h"
+#include "lua/lauxlib.h"
+#include "lua/lualib.h"
 }
-
-#include "LuaBridge/LuaBridge.h"
 
 namespace LuaPrivate {
 
@@ -84,6 +83,49 @@ static void registerGlobals(lua_State* L) {
 	lua_pop(L, 1);
 }
 
+template <class T>
+class MetatableID {
+	static const int dummy = 0;
+
+public:
+	static intptr_t value() { return (intptr_t)&dummy; }
+};
+
+template <class R, class... Args>
+class FBase {
+public:
+	FBase(lua_State* L) : L(L) {
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+
+	virtual ~FBase() {
+		luaL_unref(L, LUA_REGISTRYINDEX, ref_);
+	}
+
+	R operator()(Args... args) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, ref_);
+
+		lua_pushvalue(L, -1);
+		Lua::push(L, args...);
+
+		R _r();
+		if (lua_pcall(L, sizeof...(Args), 1, 0) != 0) {
+			error(L);
+		}
+		else {
+			r = Lua::get<R>(L, -1);
+			lua_pop(L, 1);
+		}
+
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+		return _r;
+	}
+
+protected:
+	int ref_;
+	lua_State* L;
+};
+
 }	// namespace LuaPrivate
 
 namespace Lua {
@@ -116,7 +158,9 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 
 template <class T>
 static const char* metatableName() {
-	return typeid(T).name();
+	//return typeid(T).name();
+	static std::string str = std::to_string(LuaPrivate::MetatableID<T>::value());
+	return str.c_str();
 }
 
 template <class T>
@@ -137,13 +181,21 @@ static T* userdataSharedPtr(lua_State* L, int index, const char* metatable) {
 
 template <class T>
 static T* callerSharedPtr(lua_State* L, int nargs) {
-	assert(lua_gettop(L) == nargs + 1 && "invalid function call");
+	if (lua_gettop(L) != nargs + 1) {
+		Debug::LogError("invalid function call");
+		return nullptr;
+	}
+
 	return userdataSharedPtr<T>(L, 1, metatableName<T>());
 }
 
 template <class T>
 static T* callerPtr(lua_State* L, int nargs) {
-	assert(lua_gettop(L) == nargs + 1 && "invalid function call");
+	if (lua_gettop(L) != nargs + 1) {
+		Debug::LogError("invalid function call");
+		return nullptr;
+	}
+
 	return userdataPtr<T>(L, 1, metatableName<T>());
 }
 
@@ -154,6 +206,10 @@ static int copyUserdata(lua_State* L, const T& value) {
 	luaL_getmetatable(L, metatableName<T>());
 	lua_setmetatable(L, -2);
 	return 1;
+}
+
+static int push(lua_State* L) {
+	return 0;
 }
 
 template <class T>
@@ -219,6 +275,13 @@ template <>
 static int push(lua_State* L, const std::string& value) {
 	lua_pushstring(L, value.c_str());
 	return 1;
+}
+
+template <class T, class... R>
+static int push(lua_State* L, T arg, R... args) {
+	int n = push(L, arg);
+	n += push(L, args...);
+	return n;
 }
 
 template <class T>
@@ -333,7 +396,7 @@ static int deleteSharedPtr(lua_State* L) {
 template <class T>
 static int newObject(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = MEMORY_NEW(T);
+	*memory = new T;
 
 	luaL_getmetatable(L, Lua::metatableName<T>());
 	lua_setmetatable(L, -2);
@@ -343,7 +406,7 @@ static int newObject(lua_State* L) {
 template <class T>
 static int newInterface(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = MEMORY_NEW(T);
+	*memory = new T;
 
 	luaL_getmetatable(L, Lua::metatableName<T::Interface>());
 	lua_setmetatable(L, -2);
@@ -389,6 +452,44 @@ static void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 	}
 
 	lua_pop(L, 1);
+}
+
+template <class R, class... Args>
+class IFunction : public LuaPrivate::FBase <R, Args...> {
+public:
+	IFunction(lua_State* L) : FBase(L) {}
+};
+
+template <class... Args>
+class IFunction<void, Args...> : public LuaPrivate::FBase<void, Args...> {
+public:
+	IFunction(lua_State* L) : FBase(L) {}
+
+public:
+	void operator()(Args... args) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, ref_);
+
+		lua_pushvalue(L, -1);
+		Lua::push(L, args...);
+		if (lua_pcall(L, sizeof...(Args), 0, 0) != 0) {
+			LuaPrivate::error(L);
+		}
+
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+};
+
+template <class R, class... Args>
+using Func = std::shared_ptr<IFunction<R, Args...>>;
+
+template <class R, class... Args>
+Func<R, Args...> make_func(lua_State* L) {
+	if (lua_type(L, -1) != LUA_TFUNCTION) {
+		Debug::LogError("top of stack must be a function");
+		return nullptr;
+	}
+
+	return std::make_shared<Func<R, Args...>::element_type>(L);
 }
 
 }	// namespace Lua

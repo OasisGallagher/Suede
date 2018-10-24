@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "gameobject.h"
 
 class GameObject_Wrapper {
@@ -17,7 +17,7 @@ class GameObject_Wrapper {
 
 	static int SetActiveSelf(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		bool value = Lua::get<bool>(L, -1);
+		bool value = Lua::get<bool>(L, 2);
 		_p->SetActiveSelf(value);
 		return 0;
 	}
@@ -34,7 +34,7 @@ class GameObject_Wrapper {
 
 	static int SetTag(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		std::string value = Lua::get<std::string>(L, -1);
+		std::string value = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->SetTag(value));
 	}
 
@@ -45,7 +45,7 @@ class GameObject_Wrapper {
 
 	static int SetName(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		std::string value = Lua::get<std::string>(L, -1);
+		std::string value = Lua::get<std::string>(L, 2);
 		_p->SetName(value);
 		return 0;
 	}
@@ -69,7 +69,7 @@ class GameObject_Wrapper {
 
 	static int RecalculateBounds(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		int flags = Lua::get<int>(L, -1);
+		int flags = Lua::get<int>(L, 2);
 		_p->RecalculateBounds(flags);
 		return 0;
 	}
@@ -82,31 +82,31 @@ class GameObject_Wrapper {
 
 	static int AddComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->AddComponent(name.c_str()));
 	}
 
 	static int GetComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		suede_guid guid = Lua::get<suede_guid>(L, -1);
+		suede_guid guid = Lua::get<suede_guid>(L, 2);
 		return Lua::push(L, _p->GetComponent(guid));
 	}
 
 	static int GetComponent2(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->GetComponent(name.c_str()));
 	}
 
 	static int GetComponents(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		suede_guid guid = Lua::get<suede_guid>(L, -1);
+		suede_guid guid = Lua::get<suede_guid>(L, 2);
 		return Lua::pushList(L, _p->GetComponents(guid));
 	}
 
 	static int GetComponents2(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::pushList(L, _p->GetComponents(name.c_str()));
 	}
 

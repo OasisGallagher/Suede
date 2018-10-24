@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "object.h"
 
 class Object_Wrapper {

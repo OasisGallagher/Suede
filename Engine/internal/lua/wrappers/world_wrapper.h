@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "world.h"
 
 class World_Wrapper {
@@ -36,22 +36,29 @@ class World_Wrapper {
 
 	static int CreateObject(lua_State* L) {
 		World* _p = World::instance();
-		ObjectType type = Lua::get<ObjectType>(L, -1);
+		ObjectType type = Lua::get<ObjectType>(L, 2);
 		return Lua::push(L, _p->CreateObject(type));
 	}
 
 	static int DestroyGameObject(lua_State* L) {
 		World* _p = World::instance();
-		uint id = Lua::get<uint>(L, -1);
+		uint id = Lua::get<uint>(L, 2);
 		_p->DestroyGameObject(id);
 		return 0;
 	}
 
 	static int DestroyGameObject2(lua_State* L) {
 		World* _p = World::instance();
-		GameObject go = Lua::get<GameObject>(L, -1);
+		GameObject go = Lua::get<GameObject>(L, 2);
 		_p->DestroyGameObject(go);
 		return 0;
+	}
+
+	static int Import(lua_State* L) {
+		World* _p = World::instance();
+		auto callback = lua_isnil(L, -1) ? nullptr : Lua::make_func<void, GameObject, const std::string&>(L);
+		std::string path = Lua::get<std::string>(L, 2);
+		return Lua::push(L, _p->Import(path, callback));
 	}
 
 	static int GetRootTransform(lua_State* L) {
@@ -61,27 +68,27 @@ class World_Wrapper {
 
 	static int GetGameObject(lua_State* L) {
 		World* _p = World::instance();
-		uint id = Lua::get<uint>(L, -1);
+		uint id = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetGameObject(id));
 	}
 
 	static int FireEvent(lua_State* L) {
 		World* _p = World::instance();
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, -1);
+		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 2);
 		_p->FireEvent(e);
 		return 0;
 	}
 
 	static int FireEventImmediate(lua_State* L) {
 		World* _p = World::instance();
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, -1);
+		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 2);
 		_p->FireEventImmediate(e);
 		return 0;
 	}
 
 	static int GetDecals(lua_State* L) {
 		World* _p = World::instance();
-		std::vector<Decal> container = Lua::getList<Decal>(L, -1);
+		std::vector<Decal> container = Lua::getList<Decal>(L, 2);
 		_p->GetDecals(container);
 		return 0;
 	}
@@ -102,6 +109,7 @@ public:
 			{ "CreateObject", CreateObject },
 			{ "DestroyGameObject", DestroyGameObject },
 			{ "DestroyGameObject2", DestroyGameObject2 },
+			{ "Import", Import },
 			{ "GetRootTransform", GetRootTransform },
 			{ "GetGameObject", GetGameObject },
 			{ "FireEvent", FireEvent },

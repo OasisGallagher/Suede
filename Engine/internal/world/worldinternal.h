@@ -35,8 +35,9 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject go);
 
-	GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
-	bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
+	GameObject Import(const std::string& path, GameObjectImportedListener* listener);
+	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
+	bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
 
 	GameObject GetGameObject(uint id);
 	std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);

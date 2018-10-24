@@ -63,7 +63,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 		return false;
 	}
 
-	// create profiler first to ensure it'll be destroyed last.
+	// create profiler first to ensure it's destroyed last.
 	Profiler::instance();
 
 	Screen::instance()->Resize(width, height);
@@ -88,6 +88,11 @@ void EngineInternal::Shutdown() {
 }
 
 void EngineInternal::Update() {
+	if (!started_) {
+		InvokeLuaMethod("Start");
+		started_ = true;
+	}
+
 	InvokeLuaMethod("Update");
 
 	SortFrameEventListeners();

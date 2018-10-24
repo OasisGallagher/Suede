@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "imageeffect.h"
 
 class ImageEffect_Wrapper {
@@ -12,9 +12,9 @@ class ImageEffect_Wrapper {
 
 	static int OnRenderImage(lua_State* L) {
 		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L, 3);
-		RenderTexture src = Lua::get<RenderTexture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Rect normalizedRect = Lua::get<Rect>(L, -3);
+		Rect normalizedRect = Lua::get<Rect>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		RenderTexture src = Lua::get<RenderTexture>(L, 2);
 		_p->OnRenderImage(src, dest, normalizedRect);
 		return 0;
 	}

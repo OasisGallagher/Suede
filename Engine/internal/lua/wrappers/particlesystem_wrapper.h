@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "particlesystem.h"
 
 class ParticleEmitter_Wrapper {
 	static int SetRate(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		uint value = Lua::get<uint>(L, -1);
+		uint value = Lua::get<uint>(L, 2);
 		_p->SetRate(value);
 		return 0;
 	}
@@ -20,7 +20,7 @@ class ParticleEmitter_Wrapper {
 
 	static int SetStartDuration(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetStartDuration(value);
 		return 0;
 	}
@@ -32,7 +32,7 @@ class ParticleEmitter_Wrapper {
 
 	static int SetStartSize(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetStartSize(value);
 		return 0;
 	}
@@ -44,7 +44,7 @@ class ParticleEmitter_Wrapper {
 
 	static int SetStartVelocity(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		glm::vec3 value = Lua::get<glm::vec3>(L, -1);
+		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetStartVelocity(value);
 		return 0;
 	}
@@ -56,7 +56,7 @@ class ParticleEmitter_Wrapper {
 
 	static int SetStartColor(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		glm::vec4 value = Lua::get<glm::vec4>(L, -1);
+		glm::vec4 value = Lua::get<glm::vec4>(L, 2);
 		_p->SetStartColor(value);
 		return 0;
 	}
@@ -68,28 +68,28 @@ class ParticleEmitter_Wrapper {
 
 	static int AddBurst(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		ParticleBurst value = Lua::get<ParticleBurst>(L, -1);
+		ParticleBurst value = Lua::get<ParticleBurst>(L, 2);
 		_p->AddBurst(value);
 		return 0;
 	}
 
 	static int SetBurst(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 2);
-		int i = Lua::get<int>(L, -1);
-		ParticleBurst value = Lua::get<ParticleBurst>(L, -2);
+		ParticleBurst value = Lua::get<ParticleBurst>(L, 3);
+		int i = Lua::get<int>(L, 2);
 		_p->SetBurst(i, value);
 		return 0;
 	}
 
 	static int GetBurst(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		int i = Lua::get<int>(L, -1);
+		int i = Lua::get<int>(L, 2);
 		return Lua::push(L, _p->GetBurst(i));
 	}
 
 	static int RemoveBurst(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
-		int i = Lua::get<int>(L, -1);
+		int i = Lua::get<int>(L, 2);
 		_p->RemoveBurst(i);
 		return 0;
 	}
@@ -136,7 +136,7 @@ class SphereParticleEmitter_Wrapper {
 
 	static int SetRadius(lua_State* L) {
 		SphereParticleEmitter& _p = *Lua::callerSharedPtr<SphereParticleEmitter>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetRadius(value);
 		return 0;
 	}
@@ -172,7 +172,7 @@ class ParticleAnimator_Wrapper {
 
 	static int SetForce(lua_State* L) {
 		ParticleAnimator& _p = *Lua::callerSharedPtr<ParticleAnimator>(L, 1);
-		glm::vec3 value = Lua::get<glm::vec3>(L, -1);
+		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetForce(value);
 		return 0;
 	}
@@ -184,7 +184,7 @@ class ParticleAnimator_Wrapper {
 
 	static int SetRandomForce(lua_State* L) {
 		ParticleAnimator& _p = *Lua::callerSharedPtr<ParticleAnimator>(L, 1);
-		glm::vec3 value = Lua::get<glm::vec3>(L, -1);
+		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetRandomForce(value);
 		return 0;
 	}
@@ -196,7 +196,7 @@ class ParticleAnimator_Wrapper {
 
 	static int SetGravityScale(lua_State* L) {
 		ParticleAnimator& _p = *Lua::callerSharedPtr<ParticleAnimator>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetGravityScale(value);
 		return 0;
 	}
@@ -208,7 +208,7 @@ class ParticleAnimator_Wrapper {
 
 	static int Update(lua_State* L) {
 		ParticleAnimator& _p = *Lua::callerSharedPtr<ParticleAnimator>(L, 1);
-		Particle particle = Lua::get<Particle>(L, -1);
+		Particle particle = Lua::get<Particle>(L, 2);
 		_p->Update(particle);
 		return 0;
 	}
@@ -240,7 +240,7 @@ public:
 class ParticleSystem_Wrapper {
 	static int SetDuration(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetDuration(value);
 		return 0;
 	}
@@ -252,7 +252,7 @@ class ParticleSystem_Wrapper {
 
 	static int SetLooping(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
-		bool value = Lua::get<bool>(L, -1);
+		bool value = Lua::get<bool>(L, 2);
 		_p->SetLooping(value);
 		return 0;
 	}
@@ -264,7 +264,7 @@ class ParticleSystem_Wrapper {
 
 	static int SetStartDelay(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetStartDelay(value);
 		return 0;
 	}
@@ -276,7 +276,7 @@ class ParticleSystem_Wrapper {
 
 	static int SetMaxParticles(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
-		uint value = Lua::get<uint>(L, -1);
+		uint value = Lua::get<uint>(L, 2);
 		_p->SetMaxParticles(value);
 		return 0;
 	}
@@ -293,7 +293,7 @@ class ParticleSystem_Wrapper {
 
 	static int SetEmitter(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
-		ParticleEmitter value = Lua::get<ParticleEmitter>(L, -1);
+		ParticleEmitter value = Lua::get<ParticleEmitter>(L, 2);
 		_p->SetEmitter(value);
 		return 0;
 	}
@@ -305,7 +305,7 @@ class ParticleSystem_Wrapper {
 
 	static int SetParticleAnimator(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
-		ParticleAnimator value = Lua::get<ParticleAnimator>(L, -1);
+		ParticleAnimator value = Lua::get<ParticleAnimator>(L, 2);
 		_p->SetParticleAnimator(value);
 		return 0;
 	}

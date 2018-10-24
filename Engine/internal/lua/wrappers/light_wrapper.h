@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "light.h"
 
 class Light_Wrapper {
 	static int SetType(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L, 1);
-		LightType value = Lua::get<LightType>(L, -1);
+		LightType value = Lua::get<LightType>(L, 2);
 		_p->SetType(value);
 		return 0;
 	}
@@ -20,7 +20,7 @@ class Light_Wrapper {
 
 	static int SetImportance(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L, 1);
-		LightImportance value = Lua::get<LightImportance>(L, -1);
+		LightImportance value = Lua::get<LightImportance>(L, 2);
 		_p->SetImportance(value);
 		return 0;
 	}
@@ -32,7 +32,7 @@ class Light_Wrapper {
 
 	static int SetColor(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L, 1);
-		Color value = Lua::get<Color>(L, -1);
+		Color value = Lua::get<Color>(L, 2);
 		_p->SetColor(value);
 		return 0;
 	}
@@ -44,7 +44,7 @@ class Light_Wrapper {
 
 	static int SetIntensity(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetIntensity(value);
 		return 0;
 	}

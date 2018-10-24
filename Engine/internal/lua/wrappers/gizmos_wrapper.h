@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "gizmos.h"
 
 class Gizmos_Wrapper {
@@ -23,39 +23,39 @@ class Gizmos_Wrapper {
 
 	static int SetColor(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
-		Color value = Lua::get<Color>(L, -1);
+		Color value = Lua::get<Color>(L, 2);
 		_p->SetColor(value);
 		return 0;
 	}
 
 	static int DrawSphere(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
-		glm::vec3 center = Lua::get<glm::vec3>(L, -1);
-		float radius = Lua::get<float>(L, -2);
+		float radius = Lua::get<float>(L, 3);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
 		_p->DrawSphere(center, radius);
 		return 0;
 	}
 
 	static int DrawCuboid(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
-		glm::vec3 center = Lua::get<glm::vec3>(L, -1);
-		glm::vec3 size = Lua::get<glm::vec3>(L, -2);
+		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
 		_p->DrawCuboid(center, size);
 		return 0;
 	}
 
 	static int DrawWireSphere(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
-		glm::vec3 center = Lua::get<glm::vec3>(L, -1);
-		float radius = Lua::get<float>(L, -2);
+		float radius = Lua::get<float>(L, 3);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
 		_p->DrawWireSphere(center, radius);
 		return 0;
 	}
 
 	static int DrawWireCuboid(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
-		glm::vec3 center = Lua::get<glm::vec3>(L, -1);
-		glm::vec3 size = Lua::get<glm::vec3>(L, -2);
+		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
 		_p->DrawWireCuboid(center, size);
 		return 0;
 	}

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "environment.h"
 
 class Environment_Wrapper {
@@ -12,7 +12,7 @@ class Environment_Wrapper {
 
 	static int SetSkybox(lua_State* L) {
 		Environment* _p = Environment::instance();
-		Material value = Lua::get<Material>(L, -1);
+		Material value = Lua::get<Material>(L, 2);
 		_p->SetSkybox(value);
 		return 0;
 	}
@@ -24,7 +24,7 @@ class Environment_Wrapper {
 
 	static int SetAmbientColor(lua_State* L) {
 		Environment* _p = Environment::instance();
-		Color value = Lua::get<Color>(L, -1);
+		Color value = Lua::get<Color>(L, 2);
 		_p->SetAmbientColor(value);
 		return 0;
 	}
@@ -36,7 +36,7 @@ class Environment_Wrapper {
 
 	static int SetFogColor(lua_State* L) {
 		Environment* _p = Environment::instance();
-		Color value = Lua::get<Color>(L, -1);
+		Color value = Lua::get<Color>(L, 2);
 		_p->SetFogColor(value);
 		return 0;
 	}
@@ -48,7 +48,7 @@ class Environment_Wrapper {
 
 	static int SetFogDensity(lua_State* L) {
 		Environment* _p = Environment::instance();
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetFogDensity(value);
 		return 0;
 	}

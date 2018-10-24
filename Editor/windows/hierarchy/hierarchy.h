@@ -12,7 +12,7 @@ class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener, public GameObjectLoadedListener {
+class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener, public GameObjectImportedListener {
 	Q_OBJECT
 
 public:

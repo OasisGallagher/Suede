@@ -1,13 +1,15 @@
 #pragma once
 #include <vector>
 
+#include "lua++.h"
+
 #include "object.h"
 #include "camera.h"
 #include "transform.h"
 #include "gameobject.h"
 #include "environment.h"
 #include "tools/singleton.h"
-#include "gameobjectloadedlistener.h"
+#include "gameobjectimportedlistener.h"
 
 enum class WorldEventType {
 	GameObjectCreated,
@@ -160,9 +162,10 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject go);
 
-	GameObject Import(const std::string& path, GameObjectLoadedListener* listener);
+	GameObject Import(const std::string& path, GameObjectImportedListener* listener);
+	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
 
-	bool ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener);
+	bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
 
 	Transform GetRootTransform();
 

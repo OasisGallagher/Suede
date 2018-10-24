@@ -569,10 +569,6 @@ bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path
 	return Execute(MEMORY_NEW(GameObjectLoader, path, go, this));
 }
 
-void GameObjectLoaderThreadPool::SetLoadedListener(GameObjectLoadedListener* listener) {
-	listener_ = listener;
-}
-
 void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	GameObjectLoader* loader = (GameObjectLoader*)schedule.get();
 
@@ -582,6 +578,10 @@ void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	}
 
 	loader->GetSurface()->SetAttribute(asset.meshAsset);
+
+	if (callback_) {
+		(*callback_)(loader->GetGameObject(), loader->GetPath());
+	}
 
 	if (listener_ != nullptr) {
 		listener_->OnGameObjectImported(loader->GetGameObject(), loader->GetPath());

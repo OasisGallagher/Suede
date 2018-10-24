@@ -29,8 +29,9 @@ void World::Finalize() { _suede_dptr()->Finalize(); }
 Object World::CreateObject(ObjectType type) { return _suede_dptr()->CreateObject(type); }
 void World::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
 void World::DestroyGameObject(GameObject go) { _suede_dptr()->DestroyGameObject(go); }
-GameObject World::Import(const std::string& path, GameObjectLoadedListener* listener) { return _suede_dptr()->Import(path, listener); }
-bool World::ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) { return _suede_dptr()->ImportTo(go, path,listener); }
+GameObject World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dptr()->Import(path, listener); }
+GameObject World::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) { return _suede_dptr()->Import(path, callback); }
+bool World::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) { return _suede_dptr()->ImportTo(go, path,listener); }
 Transform World::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
 GameObject World::GetGameObject(uint id) { return _suede_dptr()->GetGameObject(id); }
 void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dptr()->WalkGameObjectHierarchy(walker); }
@@ -93,6 +94,8 @@ void WorldInternal::Finalize() {
 		camera->OnBeforeWorldDestroyed();
 	}
 
+	Camera::main(nullptr);
+
 	MEMORY_DELETE(importer_);
 	MEMORY_DELETE(decalCreater_);
 
@@ -106,13 +109,18 @@ Object WorldInternal::CreateObject(ObjectType type) {
 	return object;
 }
 
-GameObject WorldInternal::Import(const std::string& path, GameObjectLoadedListener* listener) {
-	importer_->SetLoadedListener(listener);
+GameObject WorldInternal::Import(const std::string& path, GameObjectImportedListener* listener) {
+	importer_->SetImportedListener(listener);
 	return importer_->Import(path);
 }
 
-bool WorldInternal::ImportTo(GameObject go, const std::string& path, GameObjectLoadedListener* listener) {
-	importer_->SetLoadedListener(listener);
+GameObject WorldInternal::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
+	importer_->SetImportedCallback(callback);
+	return importer_->Import(path);
+}
+
+bool WorldInternal::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) {
+	importer_->SetImportedListener(listener);
 	return importer_->ImportTo(go, path);
 }
 

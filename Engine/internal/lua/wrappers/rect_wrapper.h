@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "rect.h"
 
 class Rect_Wrapper {
@@ -32,7 +32,7 @@ class Rect_Wrapper {
 
 	static int SetWidth(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetWidth(value);
 		return 0;
 	}
@@ -44,7 +44,7 @@ class Rect_Wrapper {
 
 	static int SetHeight(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetHeight(value);
 		return 0;
 	}
@@ -56,7 +56,7 @@ class Rect_Wrapper {
 
 	static int SetXMin(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetXMin(value);
 		return 0;
 	}
@@ -68,7 +68,7 @@ class Rect_Wrapper {
 
 	static int SetYMin(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetYMin(value);
 		return 0;
 	}

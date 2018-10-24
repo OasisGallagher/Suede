@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "mesh.h"
 
 class SubMesh_Wrapper {
@@ -12,7 +12,7 @@ class SubMesh_Wrapper {
 
 	static int SetTriangleBias(lua_State* L) {
 		SubMesh& _p = *Lua::callerSharedPtr<SubMesh>(L, 1);
-		TriangleBias value = Lua::get<TriangleBias>(L, -1);
+		TriangleBias value = Lua::get<TriangleBias>(L, 2);
 		_p->SetTriangleBias(value);
 		return 0;
 	}
@@ -48,21 +48,21 @@ class Mesh_Wrapper {
 
 	static int SetAttribute(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 1);
-		MeshAttribute value = Lua::get<MeshAttribute>(L, -1);
+		MeshAttribute value = Lua::get<MeshAttribute>(L, 2);
 		_p->SetAttribute(value);
 		return 0;
 	}
 
 	static int SetBounds(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 1);
-		Bounds value = Lua::get<Bounds>(L, -1);
+		Bounds value = Lua::get<Bounds>(L, 2);
 		_p->SetBounds(value);
 		return 0;
 	}
 
 	static int AddSubMesh(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 1);
-		SubMesh subMesh = Lua::get<SubMesh>(L, -1);
+		SubMesh subMesh = Lua::get<SubMesh>(L, 2);
 		_p->AddSubMesh(subMesh);
 		return 0;
 	}
@@ -74,7 +74,7 @@ class Mesh_Wrapper {
 
 	static int GetSubMesh(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 1);
-		uint index = Lua::get<uint>(L, -1);
+		uint index = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetSubMesh(index));
 	}
 
@@ -86,7 +86,7 @@ class Mesh_Wrapper {
 
 	static int RemoveSubMesh(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 1);
-		uint index = Lua::get<uint>(L, -1);
+		uint index = Lua::get<uint>(L, 2);
 		_p->RemoveSubMesh(index);
 		return 0;
 	}
@@ -137,7 +137,7 @@ class Mesh_Wrapper {
 
 	static int ShareStorage(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L, 1);
-		Mesh other = Lua::get<Mesh>(L, -1);
+		Mesh other = Lua::get<Mesh>(L, 2);
 		_p->ShareStorage(other);
 		return 0;
 	}
@@ -201,7 +201,7 @@ public:
 class TextMesh_Wrapper {
 	static int SetText(lua_State* L) {
 		TextMesh& _p = *Lua::callerSharedPtr<TextMesh>(L, 1);
-		std::string value = Lua::get<std::string>(L, -1);
+		std::string value = Lua::get<std::string>(L, 2);
 		_p->SetText(value);
 		return 0;
 	}
@@ -213,7 +213,7 @@ class TextMesh_Wrapper {
 
 	static int SetFont(lua_State* L) {
 		TextMesh& _p = *Lua::callerSharedPtr<TextMesh>(L, 1);
-		Font value = Lua::get<Font>(L, -1);
+		Font value = Lua::get<Font>(L, 2);
 		_p->SetFont(value);
 		return 0;
 	}
@@ -225,7 +225,7 @@ class TextMesh_Wrapper {
 
 	static int SetFontSize(lua_State* L) {
 		TextMesh& _p = *Lua::callerSharedPtr<TextMesh>(L, 1);
-		uint value = Lua::get<uint>(L, -1);
+		uint value = Lua::get<uint>(L, 2);
 		_p->SetFontSize(value);
 		return 0;
 	}
@@ -259,7 +259,7 @@ public:
 class MeshFilter_Wrapper {
 	static int SetMesh(lua_State* L) {
 		MeshFilter& _p = *Lua::callerSharedPtr<MeshFilter>(L, 1);
-		Mesh value = Lua::get<Mesh>(L, -1);
+		Mesh value = Lua::get<Mesh>(L, 2);
 		_p->SetMesh(value);
 		return 0;
 	}

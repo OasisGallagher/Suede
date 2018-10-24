@@ -2,20 +2,20 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "renderer.h"
 
 class Renderer_Wrapper {
 	static int AddMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
-		Material material = Lua::get<Material>(L, -1);
+		Material material = Lua::get<Material>(L, 2);
 		_p->AddMaterial(material);
 		return 0;
 	}
 
 	static int GetMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
-		uint index = Lua::get<uint>(L, -1);
+		uint index = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetMaterial(index));
 	}
 
@@ -27,22 +27,22 @@ class Renderer_Wrapper {
 
 	static int SetMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 2);
-		uint index = Lua::get<uint>(L, -1);
-		Material value = Lua::get<Material>(L, -2);
+		Material value = Lua::get<Material>(L, 3);
+		uint index = Lua::get<uint>(L, 2);
 		_p->SetMaterial(index, value);
 		return 0;
 	}
 
 	static int RemoveMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
-		Material material = Lua::get<Material>(L, -1);
+		Material material = Lua::get<Material>(L, 2);
 		_p->RemoveMaterial(material);
 		return 0;
 	}
 
 	static int RemoveMaterialAt(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
-		uint index = Lua::get<uint>(L, -1);
+		uint index = Lua::get<uint>(L, 2);
 		_p->RemoveMaterialAt(index);
 		return 0;
 	}
@@ -116,7 +116,7 @@ public:
 class SkinnedMeshRenderer_Wrapper {
 	static int SetSkeleton(lua_State* L) {
 		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L, 1);
-		Skeleton value = Lua::get<Skeleton>(L, -1);
+		Skeleton value = Lua::get<Skeleton>(L, 2);
 		_p->SetSkeleton(value);
 		return 0;
 	}

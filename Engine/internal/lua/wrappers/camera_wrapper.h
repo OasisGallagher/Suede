@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "camera.h"
 
 class Camera_Wrapper {
 	static int SetDepth(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		int value = Lua::get<int>(L, -1);
+		int value = Lua::get<int>(L, 2);
 		_p->SetDepth(value);
 		return 0;
 	}
@@ -25,7 +25,7 @@ class Camera_Wrapper {
 
 	static int SetPerspective(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		bool value = Lua::get<bool>(L, -1);
+		bool value = Lua::get<bool>(L, 2);
 		_p->SetPerspective(value);
 		return 0;
 	}
@@ -37,14 +37,14 @@ class Camera_Wrapper {
 
 	static int SetOrthographicSize(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetOrthographicSize(value);
 		return 0;
 	}
 
 	static int SetClearType(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		ClearType value = Lua::get<ClearType>(L, -1);
+		ClearType value = Lua::get<ClearType>(L, 2);
 		_p->SetClearType(value);
 		return 0;
 	}
@@ -56,7 +56,7 @@ class Camera_Wrapper {
 
 	static int SetRenderPath(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		RenderPath value = Lua::get<RenderPath>(L, -1);
+		RenderPath value = Lua::get<RenderPath>(L, 2);
 		_p->SetRenderPath(value);
 		return 0;
 	}
@@ -68,7 +68,7 @@ class Camera_Wrapper {
 
 	static int SetDepthTextureMode(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		DepthTextureMode value = Lua::get<DepthTextureMode>(L, -1);
+		DepthTextureMode value = Lua::get<DepthTextureMode>(L, 2);
 		_p->SetDepthTextureMode(value);
 		return 0;
 	}
@@ -80,7 +80,7 @@ class Camera_Wrapper {
 
 	static int SetClearColor(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		Color value = Lua::get<Color>(L, -1);
+		Color value = Lua::get<Color>(L, 2);
 		_p->SetClearColor(value);
 		return 0;
 	}
@@ -92,7 +92,7 @@ class Camera_Wrapper {
 
 	static int SetTargetTexture(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		RenderTexture value = Lua::get<RenderTexture>(L, -1);
+		RenderTexture value = Lua::get<RenderTexture>(L, 2);
 		_p->SetTargetTexture(value);
 		return 0;
 	}
@@ -104,7 +104,7 @@ class Camera_Wrapper {
 
 	static int SetAspect(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetAspect(value);
 		return 0;
 	}
@@ -116,7 +116,7 @@ class Camera_Wrapper {
 
 	static int SetNearClipPlane(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetNearClipPlane(value);
 		return 0;
 	}
@@ -128,7 +128,7 @@ class Camera_Wrapper {
 
 	static int SetFarClipPlane(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetFarClipPlane(value);
 		return 0;
 	}
@@ -140,7 +140,7 @@ class Camera_Wrapper {
 
 	static int SetFieldOfView(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		float value = Lua::get<float>(L, -1);
+		float value = Lua::get<float>(L, 2);
 		_p->SetFieldOfView(value);
 		return 0;
 	}
@@ -152,27 +152,27 @@ class Camera_Wrapper {
 
 	static int SetRect(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		Rect value = Lua::get<Rect>(L, -1);
+		Rect value = Lua::get<Rect>(L, 2);
 		_p->SetRect(value);
 		return 0;
 	}
 
 	static int GetVisibleGameObjects(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		std::vector<GameObject> gameObjects = Lua::getList<GameObject>(L, -1);
+		std::vector<GameObject> gameObjects = Lua::getList<GameObject>(L, 2);
 		_p->GetVisibleGameObjects(gameObjects);
 		return 0;
 	}
 
 	static int WorldToScreenPoint(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		glm::vec3 position = Lua::get<glm::vec3>(L, -1);
+		glm::vec3 position = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->WorldToScreenPoint(position));
 	}
 
 	static int ScreenToWorldPoint(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
-		glm::vec3 position = Lua::get<glm::vec3>(L, -1);
+		glm::vec3 position = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->ScreenToWorldPoint(position));
 	}
 

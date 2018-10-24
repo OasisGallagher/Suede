@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "component.h"
 
 class Component_Wrapper {
@@ -14,9 +14,9 @@ class Component_Wrapper {
 
 	static int OnRenderImage(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 3);
-		RenderTexture src = Lua::get<RenderTexture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Rect normalizedRect = Lua::get<Rect>(L, -3);
+		Rect normalizedRect = Lua::get<Rect>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		RenderTexture src = Lua::get<RenderTexture>(L, 2);
 		_p->OnRenderImage(src, dest, normalizedRect);
 		return 0;
 	}
@@ -28,14 +28,14 @@ class Component_Wrapper {
 
 	static int SetEnabled(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
-		bool value = Lua::get<bool>(L, -1);
+		bool value = Lua::get<bool>(L, 2);
 		_p->SetEnabled(value);
 		return 0;
 	}
 
 	static int SetGameObject(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
-		GameObject value = Lua::get<GameObject>(L, -1);
+		GameObject value = Lua::get<GameObject>(L, 2);
 		_p->SetGameObject(value);
 		return 0;
 	}
@@ -74,13 +74,13 @@ class Component_Wrapper {
 
 	static int IsComponentType(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
-		suede_guid guid = Lua::get<suede_guid>(L, -1);
+		suede_guid guid = Lua::get<suede_guid>(L, 2);
 		return Lua::push(L, _p->IsComponentType(guid));
 	}
 
 	static int IsComponentType2(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->IsComponentType(name.c_str()));
 	}
 

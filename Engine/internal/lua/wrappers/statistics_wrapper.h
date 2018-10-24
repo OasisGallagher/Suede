@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "statistics.h"
 
 class Statistics_Wrapper {
@@ -12,14 +12,14 @@ class Statistics_Wrapper {
 
 	static int AddTriangles(lua_State* L) {
 		Statistics* _p = Statistics::instance();
-		uint n = Lua::get<uint>(L, -1);
+		uint n = Lua::get<uint>(L, 2);
 		_p->AddTriangles(n);
 		return 0;
 	}
 
 	static int AddDrawcalls(lua_State* L) {
 		Statistics* _p = Statistics::instance();
-		uint n = Lua::get<uint>(L, -1);
+		uint n = Lua::get<uint>(L, 2);
 		_p->AddDrawcalls(n);
 		return 0;
 	}
@@ -41,14 +41,14 @@ class Statistics_Wrapper {
 
 	static int SetCullingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
-		double value = Lua::get<double>(L, -1);
+		double value = Lua::get<double>(L, 2);
 		_p->SetCullingElapsed(value);
 		return 0;
 	}
 
 	static int SetRenderingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
-		double value = Lua::get<double>(L, -1);
+		double value = Lua::get<double>(L, 2);
 		_p->SetRenderingElapsed(value);
 		return 0;
 	}

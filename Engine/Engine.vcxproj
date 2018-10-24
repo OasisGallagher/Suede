@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;SUEDE_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;internal\3rdparty\LuaBridge2.1;internal\3rdparty\lua-5.3.5\include;internal\3rdparty\free-type\include;internal\3rdparty\glew-2.1.0\include;internal\3rdparty\assimp-3.0\include;internal\3rdparty\image-magick-6\include;internal\3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\glew-2.1.0\include;..\Shared\3rdparty\glm-0.9.7.1\include;..\Shared\3rdparty\vld-2.5.1\include;..\Shared\3rdparty\zthread-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\include;..\Shared;..\GLEF\include;$(SolutionDir)Engine;internal\3rdparty\free-type\include;internal\3rdparty\glew-2.1.0\include;internal\3rdparty\assimp-3.0\include;internal\3rdparty\image-magick-6\include;internal\3rdparty\free-image-3.10.7\include;..\Shared\3rdparty\glew-2.1.0\include;..\Shared\3rdparty\glm-0.9.7.1\include;..\Shared\3rdparty\vld-2.5.1\include;..\Shared\3rdparty\zthread-2.3.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4251;4996;4267;4250;4018;4838;4091</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
@@ -241,10 +241,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\color.h" />
     <ClInclude Include="include\component.h" />
     <ClInclude Include="include\imageeffect.h" />
+    <ClInclude Include="include\lua++.h" />
     <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
-    <ClInclude Include="include\gameobjectloadedlistener.h" />
+    <ClInclude Include="include\gameobjectimportedlistener.h" />
     <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\frameeventlistener.h" />
@@ -317,7 +318,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\gui\stb_rect_pack.h" />
     <ClInclude Include="internal\gui\stb_textedit.h" />
     <ClInclude Include="internal\gui\stb_truetype.h" />
-    <ClInclude Include="internal\lua\luax.h" />
     <ClInclude Include="internal\lua\wrappers\animation_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\camera_wrapper.h" />

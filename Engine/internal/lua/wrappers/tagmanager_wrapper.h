@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "tagmanager.h"
 
 class TagManager_Wrapper {
@@ -12,21 +12,21 @@ class TagManager_Wrapper {
 
 	static int Register(lua_State* L) {
 		TagManager* _p = TagManager::instance();
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->Register(name);
 		return 0;
 	}
 
 	static int Unregister(lua_State* L) {
 		TagManager* _p = TagManager::instance();
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		_p->Unregister(name);
 		return 0;
 	}
 
 	static int IsRegistered(lua_State* L) {
 		TagManager* _p = TagManager::instance();
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->IsRegistered(name));
 	}
 

@@ -7,14 +7,14 @@
 #include "gameobject.h"
 #include "gizmospainter.h"
 #include "frameeventlistener.h"
-#include "gameobjectloadedlistener.h"
+#include "gameobjectimportedlistener.h"
 
 class Canvas;
 class StatsWidget;
 class SelectionGizmos;
 class CameraController;
 
-class Game : public QDockWidget, public WinSingleton<Game>, public GameObjectLoadedListener {
+class Game : public QDockWidget, public WinSingleton<Game>, public GameObjectImportedListener {
 	Q_OBJECT
 
 public:

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "graphics.h"
 
 class Graphics_Wrapper {
@@ -12,7 +12,7 @@ class Graphics_Wrapper {
 
 	static int SetShadingMode(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		ShadingMode value = Lua::get<ShadingMode>(L, -1);
+		ShadingMode value = Lua::get<ShadingMode>(L, 2);
 		_p->SetShadingMode(value);
 		return 0;
 	}
@@ -24,7 +24,7 @@ class Graphics_Wrapper {
 
 	static int SetAmbientOcclusionEnabled(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		bool value = Lua::get<bool>(L, -1);
+		bool value = Lua::get<bool>(L, 2);
 		_p->SetAmbientOcclusionEnabled(value);
 		return 0;
 	}
@@ -36,73 +36,73 @@ class Graphics_Wrapper {
 
 	static int SetRenderTarget(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		std::vector<uint> colorBuffers = Lua::getList<uint>(L, -1);
-		uint depthBuffer = Lua::get<uint>(L, -2);
+		uint depthBuffer = Lua::get<uint>(L, 3);
+		std::vector<uint> colorBuffers = Lua::getList<uint>(L, 2);
 		_p->SetRenderTarget(colorBuffers, depthBuffer);
 		return 0;
 	}
 
 	static int Draw(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Mesh mesh = Lua::get<Mesh>(L, -1);
-		Material material = Lua::get<Material>(L, -2);
+		Material material = Lua::get<Material>(L, 3);
+		Mesh mesh = Lua::get<Mesh>(L, 2);
 		_p->Draw(mesh, material);
 		return 0;
 	}
 
 	static int Blit(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Texture src = Lua::get<Texture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		Texture src = Lua::get<Texture>(L, 2);
 		_p->Blit(src, dest);
 		return 0;
 	}
 
 	static int Blit2(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Texture src = Lua::get<Texture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Rect rect = Lua::get<Rect>(L, -3);
+		Rect rect = Lua::get<Rect>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		Texture src = Lua::get<Texture>(L, 2);
 		_p->Blit(src, dest, rect);
 		return 0;
 	}
 
 	static int Blit3(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Texture src = Lua::get<Texture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Rect srcRect = Lua::get<Rect>(L, -3);
-		Rect destRect = Lua::get<Rect>(L, -4);
+		Rect destRect = Lua::get<Rect>(L, 5);
+		Rect srcRect = Lua::get<Rect>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		Texture src = Lua::get<Texture>(L, 2);
 		_p->Blit(src, dest, srcRect, destRect);
 		return 0;
 	}
 
 	static int Blit4(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Texture src = Lua::get<Texture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Material material = Lua::get<Material>(L, -3);
+		Material material = Lua::get<Material>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		Texture src = Lua::get<Texture>(L, 2);
 		_p->Blit(src, dest, material);
 		return 0;
 	}
 
 	static int Blit5(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Texture src = Lua::get<Texture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Material material = Lua::get<Material>(L, -3);
-		Rect rect = Lua::get<Rect>(L, -4);
+		Rect rect = Lua::get<Rect>(L, 5);
+		Material material = Lua::get<Material>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		Texture src = Lua::get<Texture>(L, 2);
 		_p->Blit(src, dest, material, rect);
 		return 0;
 	}
 
 	static int Blit6(lua_State* L) {
 		Graphics* _p = Graphics::instance();
-		Texture src = Lua::get<Texture>(L, -1);
-		RenderTexture dest = Lua::get<RenderTexture>(L, -2);
-		Material material = Lua::get<Material>(L, -3);
-		Rect srcRect = Lua::get<Rect>(L, -4);
-		Rect destRect = Lua::get<Rect>(L, -5);
+		Rect destRect = Lua::get<Rect>(L, 6);
+		Rect srcRect = Lua::get<Rect>(L, 5);
+		Material material = Lua::get<Material>(L, 4);
+		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
+		Texture src = Lua::get<Texture>(L, 2);
 		_p->Blit(src, dest, material, srcRect, destRect);
 		return 0;
 	}

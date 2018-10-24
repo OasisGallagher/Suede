@@ -4,7 +4,7 @@
 struct lua_State;
 class EngineInternal {
 public:
-	EngineInternal() {}
+	EngineInternal() : started_(false) {}
 
 public:
 	bool Startup(uint width, uint height);
@@ -24,5 +24,6 @@ private:
 	FrameEventListenerContainer frameEventListeners_;
 
 private:
+	bool started_;
 	lua_State* L;
 };

@@ -8,7 +8,7 @@
 #include "animation.h"
 #include "gameobject.h"
 #include "tools/noncopyable.h"
-#include "gameobjectloadedlistener.h"
+#include "gameobjectimportedlistener.h"
 #include "internal/async/threadpool.h"
 
 struct MaterialAsset {
@@ -118,11 +118,13 @@ public:
 	GameObject Import(const std::string& path);
 	bool ImportTo(GameObject go, const std::string& path);
 
-	void SetLoadedListener(GameObjectLoadedListener* listener);
+	void SetImportedListener(GameObjectImportedListener* value) { listener_ = value; }
+	void SetImportedCallback(Lua::Func<void, GameObject, const std::string&> value) { callback_ = value; }
 
 protected:
 	virtual void OnSchedule(ZThread::Task& schedule);
 
 private:
-	GameObjectLoadedListener* listener_;
+	GameObjectImportedListener* listener_;
+	Lua::Func<void, GameObject, const std::string&> callback_;
 };

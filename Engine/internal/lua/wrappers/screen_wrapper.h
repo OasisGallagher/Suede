@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "screen.h"
 
 class Screen_Wrapper {
@@ -22,8 +22,8 @@ class Screen_Wrapper {
 
 	static int Resize(lua_State* L) {
 		Screen* _p = Screen::instance();
-		uint width = Lua::get<uint>(L, -1);
-		uint height = Lua::get<uint>(L, -2);
+		uint height = Lua::get<uint>(L, 3);
+		uint width = Lua::get<uint>(L, 2);
 		_p->Resize(width, height);
 		return 0;
 	}

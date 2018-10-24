@@ -439,9 +439,6 @@
     <ClInclude Include="include\gameobject.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\gameobjectloadedlistener.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\codec\gameobjectloader.h">
       <Filter>internal\codec\include</Filter>
     </ClInclude>
@@ -462,9 +459,6 @@
     </ClInclude>
     <ClInclude Include="include\ranged.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\luax.h">
-      <Filter>internal\lua</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\animation_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
@@ -558,6 +552,12 @@
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\world_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\gameobjectimportedlistener.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua++.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

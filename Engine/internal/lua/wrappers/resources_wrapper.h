@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "../luax.h"
+#include "lua++.h"
 #include "resources.h"
 
 class Resources_Wrapper {
@@ -48,50 +48,50 @@ class Resources_Wrapper {
 
 	static int GetPrimitive(lua_State* L) {
 		Resources* _p = Resources::instance();
-		PrimitiveType type = Lua::get<PrimitiveType>(L, -1);
+		PrimitiveType type = Lua::get<PrimitiveType>(L, 2);
 		return Lua::push(L, _p->GetPrimitive(type));
 	}
 
 	static int CreatePrimitive(lua_State* L) {
 		Resources* _p = Resources::instance();
-		PrimitiveType type = Lua::get<PrimitiveType>(L, -1);
-		float scale = Lua::get<float>(L, -2);
+		float scale = Lua::get<float>(L, 3);
+		PrimitiveType type = Lua::get<PrimitiveType>(L, 2);
 		return Lua::push(L, _p->CreatePrimitive(type, scale));
 	}
 
 	static int CreateInstancedPrimitive(lua_State* L) {
 		Resources* _p = Resources::instance();
-		PrimitiveType type = Lua::get<PrimitiveType>(L, -1);
-		float scale = Lua::get<float>(L, -2);
-		InstanceAttribute color = Lua::get<InstanceAttribute>(L, -3);
-		InstanceAttribute geometry = Lua::get<InstanceAttribute>(L, -4);
+		InstanceAttribute geometry = Lua::get<InstanceAttribute>(L, 5);
+		InstanceAttribute color = Lua::get<InstanceAttribute>(L, 4);
+		float scale = Lua::get<float>(L, 3);
+		PrimitiveType type = Lua::get<PrimitiveType>(L, 2);
 		return Lua::push(L, _p->CreateInstancedPrimitive(type, scale, color, geometry));
 	}
 
 	static int GetPrimitiveAttribute(lua_State* L) {
 		Resources* _p = Resources::instance();
-		MeshAttribute attribute = Lua::get<MeshAttribute>(L, -1);
-		PrimitiveType type = Lua::get<PrimitiveType>(L, -2);
-		float scale = Lua::get<float>(L, -3);
+		float scale = Lua::get<float>(L, 4);
+		PrimitiveType type = Lua::get<PrimitiveType>(L, 3);
+		MeshAttribute attribute = Lua::get<MeshAttribute>(L, 2);
 		_p->GetPrimitiveAttribute(attribute, type, scale);
 		return 0;
 	}
 
 	static int FindShader(lua_State* L) {
 		Resources* _p = Resources::instance();
-		std::string path = Lua::get<std::string>(L, -1);
+		std::string path = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->FindShader(path));
 	}
 
 	static int FindTexture(lua_State* L) {
 		Resources* _p = Resources::instance();
-		std::string path = Lua::get<std::string>(L, -1);
+		std::string path = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->FindTexture(path));
 	}
 
 	static int FindMaterial(lua_State* L) {
 		Resources* _p = Resources::instance();
-		std::string name = Lua::get<std::string>(L, -1);
+		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->FindMaterial(name));
 	}
 
