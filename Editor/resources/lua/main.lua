@@ -11,6 +11,8 @@ function SuedeGlobal.Start()
 	print("lua Start");
 	local f = function (go, path)
 		print("loaded " .. path);
+		go:GetTransform():SetEulerAngles({ 30, 0, 0 });
+		go:GetTransform():SetPosition({ 0, 25, -65 });
 		go:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());	
 	end
 

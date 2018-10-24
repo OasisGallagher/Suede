@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+
+#include "tools/math2.h"
 #include "debug/debug.h"
 
 extern "C" {
@@ -11,9 +13,8 @@ extern "C" {
 #include "lua/lualib.h"
 }
 
-namespace LuaPrivate {
-
-static int panic(lua_State* L) {
+namespace Lua {
+static int _panic(lua_State* L) {
 	Debug::LogError("onPanic: %s", lua_tostring(L, -1));
 	lua_pop(L, 1);
 
@@ -21,12 +22,12 @@ static int panic(lua_State* L) {
 	return 0;
 }
 
-static void error(lua_State *L) {
+static void _error(lua_State *L) {
 	Debug::LogError("onError: %s", lua_tostring(L, -1));
 	lua_pop(L, 1);
 }
 
-static void extractMsg(lua_State* L, std::string& message, int i) {
+static void _extractMsg(lua_State* L, std::string& message, int i) {
 	switch (lua_type(L, i)) {
 		case LUA_TNIL:
 			message += "nil";
@@ -58,13 +59,13 @@ static void extractMsg(lua_State* L, std::string& message, int i) {
 	}
 }
 
-static int print(lua_State *L) {
+static int _print(lua_State *L) {
 	std::string message;
 	int nargs = lua_gettop(L);
 
 	for (int i = 1; i <= nargs; i++) {
 		if (i != 1) { message += " "; }
-		extractMsg(L, message, i);
+		_extractMsg(L, message, i);
 	}
 
 	Debug::Log(message.c_str());
@@ -72,9 +73,9 @@ static int print(lua_State *L) {
 	return 0;
 }
 
-static void registerGlobals(lua_State* L) {
+static void _registerGlobals(lua_State* L) {
 	luaL_Reg globals[] = {
-		{ "print", LuaPrivate::print },
+		{ "print", _print },
 		{ nullptr, nullptr }
 	};
 
@@ -84,7 +85,7 @@ static void registerGlobals(lua_State* L) {
 }
 
 template <class T>
-class MetatableID {
+class _MetatableID {
 	static const int dummy = 0;
 
 public:
@@ -92,13 +93,13 @@ public:
 };
 
 template <class R, class... Args>
-class FBase {
+class _FBase {
 public:
-	FBase(lua_State* L) : L(L) {
+	_FBase(lua_State* L) : L(L) {
 		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 
-	virtual ~FBase() {
+	virtual ~_FBase() {
 		luaL_unref(L, LUA_REGISTRYINDEX, ref_);
 	}
 
@@ -110,7 +111,7 @@ public:
 
 		R _r();
 		if (lua_pcall(L, sizeof...(Args), 1, 0) != 0) {
-			error(L);
+			_error(L);
 		}
 		else {
 			r = Lua::get<R>(L, -1);
@@ -125,10 +126,6 @@ protected:
 	int ref_;
 	lua_State* L;
 };
-
-}	// namespace LuaPrivate
-
-namespace Lua {
 
 static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 	std::vector<luaL_Reg> regs {
@@ -147,19 +144,19 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 		lua_pop(L, 1);
 	}
 
-	lua_atpanic(L, LuaPrivate::panic);
+	lua_atpanic(L, _panic);
 
-	LuaPrivate::registerGlobals(L);
+	_registerGlobals(L);
 	
 	if (luaL_dofile(L, entry) != 0) {
-		LuaPrivate::error(L);
+		_error(L);
 	}
 }
 
 template <class T>
 static const char* metatableName() {
 	//return typeid(T).name();
-	static std::string str = std::to_string(LuaPrivate::MetatableID<T>::value());
+	static std::string str = std::to_string(_MetatableID<T>::value());
 	return str.c_str();
 }
 
@@ -382,6 +379,53 @@ static std::vector<T> getList(lua_State* L, int index) {
 }
 
 template <class T>
+static T _glmConvert(lua_State* L, int index) {
+	T ans;
+	float* ptr = (float*)&ans;
+	std::vector<float> values = getList<float>(L, index);
+	for (int i = 0; i < Math::Min(sizeof(T) / sizeof(float), values.size()); ++i) {
+		*ptr++ = values[i];
+	}
+
+	return ans;
+}
+
+template <>
+static glm::vec2 get(lua_State* L, int index) {
+	return _glmConvert<glm::vec2>(L, index);
+}
+
+template <>
+static glm::vec3 get(lua_State* L, int index) {
+	return _glmConvert<glm::vec3>(L, index);
+}
+
+template <>
+static glm::vec4 get(lua_State* L, int index) {
+	return _glmConvert<glm::vec4>(L, index);
+}
+
+template <>
+static glm::quat get(lua_State* L, int index) {
+	return _glmConvert<glm::quat>(L, index);
+}
+
+template <>
+static glm::mat2 get(lua_State* L, int index) {
+	return _glmConvert<glm::mat2>(L, index);
+}
+
+template <>
+static glm::mat3 get(lua_State* L, int index) {
+	return _glmConvert<glm::mat3>(L, index);
+}
+
+template <>
+static glm::mat4 get(lua_State* L, int index) {
+	return _glmConvert<glm::mat4>(L, index);
+}
+
+template <class T>
 static int fromShared(lua_State* L, T ptr) {
 	return copyUserdata(L, ptr);
 }
@@ -455,15 +499,15 @@ static void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 }
 
 template <class R, class... Args>
-class IFunction : public LuaPrivate::FBase <R, Args...> {
+class IFunction : public _FBase <R, Args...> {
 public:
 	IFunction(lua_State* L) : FBase(L) {}
 };
 
 template <class... Args>
-class IFunction<void, Args...> : public LuaPrivate::FBase<void, Args...> {
+class IFunction<void, Args...> : public _FBase<void, Args...> {
 public:
-	IFunction(lua_State* L) : FBase(L) {}
+	IFunction(lua_State* L) : _FBase(L) {}
 
 public:
 	void operator()(Args... args) {
@@ -472,7 +516,7 @@ public:
 		lua_pushvalue(L, -1);
 		Lua::push(L, args...);
 		if (lua_pcall(L, sizeof...(Args), 0, 0) != 0) {
-			LuaPrivate::error(L);
+			_error(L);
 		}
 
 		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
