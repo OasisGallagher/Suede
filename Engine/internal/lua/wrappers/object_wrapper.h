@@ -6,16 +6,19 @@
 #include "object.h"
 
 class Object_Wrapper {
+	// Object Clone()
 	static int Clone(lua_State* L) {
 		Object& _p = *Lua::callerSharedPtr<Object>(L, 0);
 		return Lua::push(L, _p->Clone());
 	}
 
+	// ObjectType GetObjectType()
 	static int GetObjectType(lua_State* L) {
 		Object& _p = *Lua::callerSharedPtr<Object>(L, 0);
 		return Lua::push(L, _p->GetObjectType());
 	}
 
+	// uint GetInstanceID()
 	static int GetInstanceID(lua_State* L) {
 		Object& _p = *Lua::callerSharedPtr<Object>(L, 0);
 		return Lua::push(L, _p->GetInstanceID());

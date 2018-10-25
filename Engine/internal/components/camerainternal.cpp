@@ -48,10 +48,10 @@ void ICamera::Render() { _suede_dptr()->Render(); }
 void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
 
 static Camera main_;
-Camera Camera::main() { return main_; }
-void Camera::main(Camera value) { main_ = value; }
+Camera CameraUtility::main() { return main_; }
+void CameraUtility::main(Camera value) { main_ = value; }
 
-void Camera::OnPreRender() {
+void CameraUtility::OnPreRender() {
 	Framebuffer0::Get()->SetViewport(0, 0, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 	Framebuffer0::Get()->SetClearDepth(1);
 	Framebuffer0::Get()->SetClearStencil(1);
@@ -59,8 +59,8 @@ void Camera::OnPreRender() {
 	Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
 }
 
-void Camera::OnPostRender() {
-	RenderTexture target = RenderTexture::GetDefault();
+void CameraUtility::OnPostRender() {
+	RenderTexture target = RenderTextureUtility::GetDefault();
 	target->BindWrite(main()->GetRect());
 
 	for (std::shared_ptr<GizmosPainter>& painter : World::instance()->GetComponents<GizmosPainter>()) {

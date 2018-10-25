@@ -10,6 +10,7 @@ class Statistics_Wrapper {
 		return Lua::reference<Statistics>(L);
 	}
 
+	// void AddTriangles(uint n)
 	static int AddTriangles(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		uint n = Lua::get<uint>(L, 2);
@@ -17,6 +18,7 @@ class Statistics_Wrapper {
 		return 0;
 	}
 
+	// void AddDrawcalls(uint n)
 	static int AddDrawcalls(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		uint n = Lua::get<uint>(L, 2);
@@ -24,21 +26,25 @@ class Statistics_Wrapper {
 		return 0;
 	}
 
+	// uint GetTriangles()
 	static int GetTriangles(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		return Lua::push(L, _p->GetTriangles());
 	}
 
+	// uint GetDrawcalls()
 	static int GetDrawcalls(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		return Lua::push(L, _p->GetDrawcalls());
 	}
 
+	// float GetFrameRate()
 	static int GetFrameRate(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		return Lua::push(L, _p->GetFrameRate());
 	}
 
+	// void SetCullingElapsed(double value)
 	static int SetCullingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		double value = Lua::get<double>(L, 2);
@@ -46,6 +52,7 @@ class Statistics_Wrapper {
 		return 0;
 	}
 
+	// void SetRenderingElapsed(double value)
 	static int SetRenderingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		double value = Lua::get<double>(L, 2);
@@ -53,11 +60,13 @@ class Statistics_Wrapper {
 		return 0;
 	}
 
+	// double GetCullingElapsed()
 	static int GetCullingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		return Lua::push(L, _p->GetCullingElapsed());
 	}
 
+	// double GetRenderingElapsed()
 	static int GetRenderingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		return Lua::push(L, _p->GetRenderingElapsed());

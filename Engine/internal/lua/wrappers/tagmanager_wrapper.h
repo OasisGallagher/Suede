@@ -10,6 +10,7 @@ class TagManager_Wrapper {
 		return Lua::reference<TagManager>(L);
 	}
 
+	// void Register(const std::string& name)
 	static int Register(lua_State* L) {
 		TagManager* _p = TagManager::instance();
 		std::string name = Lua::get<std::string>(L, 2);
@@ -17,6 +18,7 @@ class TagManager_Wrapper {
 		return 0;
 	}
 
+	// void Unregister(const std::string& name)
 	static int Unregister(lua_State* L) {
 		TagManager* _p = TagManager::instance();
 		std::string name = Lua::get<std::string>(L, 2);
@@ -24,6 +26,7 @@ class TagManager_Wrapper {
 		return 0;
 	}
 
+	// bool IsRegistered(const std::string& name)
 	static int IsRegistered(lua_State* L) {
 		TagManager* _p = TagManager::instance();
 		std::string name = Lua::get<std::string>(L, 2);

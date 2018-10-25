@@ -10,18 +10,21 @@ class Behaviour_Wrapper {
 		return Lua::newObject<Behaviour>(L);
 	}
 
+	// virtual void Awake() {}
 	static int Awake(lua_State* L) {
 		Behaviour* _p = Lua::callerPtr<Behaviour>(L, 0);
 		_p->Awake();
 		return 0;
 	}
 
+	// virtual void Update() {}
 	static int Update(lua_State* L) {
 		Behaviour* _p = Lua::callerPtr<Behaviour>(L, 0);
 		_p->Update();
 		return 0;
 	}
 
+	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
 		Behaviour* _p = Lua::callerPtr<Behaviour>(L, 3);
 		Rect normalizedRect = Lua::get<Rect>(L, 4);

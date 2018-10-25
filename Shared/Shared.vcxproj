@@ -295,6 +295,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="tools\random.h" />
     <ClInclude Include="tools\singleton.h" />
     <ClInclude Include="tools\string.h" />
+    <ClInclude Include="tools\typeid.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <ItemGroup>

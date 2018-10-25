@@ -13,9 +13,10 @@ struct TriangleBias {
 	uint baseVertex;
 }; 
 
-SUEDE_DEFINE_OBJECT_POINTER(Mesh);
+SUEDE_DEFINE_OBJECT_POINTER(Mesh)
 
 class ISubMesh : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(SubMesh)
 	SUEDE_DECLARE_IMPLEMENTATION(SubMesh)
 
 public:
@@ -26,8 +27,8 @@ public:
 	void SetTriangleBias(const TriangleBias& value);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(SubMesh);
-SUEDE_DECLARE_OBJECT_CREATER(SubMesh);
+SUEDE_DEFINE_OBJECT_POINTER(SubMesh)
+SUEDE_DECLARE_OBJECT_CREATER(SubMesh)
 
 struct BlendAttribute {
 	enum {
@@ -76,6 +77,7 @@ struct MeshAttribute {
 };
 
 class SUEDE_API IMesh : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(Mesh)
 	SUEDE_DECLARE_IMPLEMENTATION(Mesh)
 
 public:
@@ -121,10 +123,11 @@ public:
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 };
 
-SUEDE_DECLARE_OBJECT_CREATER(Mesh);
+SUEDE_DECLARE_OBJECT_CREATER(Mesh)
 
 class SUEDE_API IMeshProvider : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(MeshProvider)
 	SUEDE_DECLARE_IMPLEMENTATION(MeshProvider)
 
 public:
@@ -134,10 +137,11 @@ public:
 	IMeshProvider(void * d);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(MeshProvider);
+SUEDE_DEFINE_OBJECT_POINTER(MeshProvider)
 
 class SUEDE_API ITextMesh : public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(TextMesh)
 	SUEDE_DECLARE_IMPLEMENTATION(TextMesh)
 
 public:
@@ -154,10 +158,11 @@ public:
 	uint GetFontSize();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(TextMesh);
+SUEDE_DEFINE_OBJECT_POINTER(TextMesh)
 
 class SUEDE_API IMeshFilter : public IMeshProvider {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(MeshFilter)
 	SUEDE_DECLARE_IMPLEMENTATION(MeshFilter)
 
 public:
@@ -167,4 +172,4 @@ public:
 	void SetMesh(Mesh value);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(MeshFilter);
+SUEDE_DEFINE_OBJECT_POINTER(MeshFilter)

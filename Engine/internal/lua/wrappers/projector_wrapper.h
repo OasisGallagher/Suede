@@ -6,11 +6,13 @@
 #include "projector.h"
 
 class Projector_Wrapper {
+	// bool GetPerspective() const
 	static int GetPerspective(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetPerspective());
 	}
 
+	// void SetPerspective(bool value)
 	static int SetPerspective(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		bool value = Lua::get<bool>(L, 2);
@@ -18,11 +20,13 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// float GetOrthographicSize() const
 	static int GetOrthographicSize(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetOrthographicSize());
 	}
 
+	// void SetOrthographicSize(float value)
 	static int SetOrthographicSize(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		float value = Lua::get<float>(L, 2);
@@ -30,11 +34,13 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// Texture GetTexture() const
 	static int GetTexture(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetTexture());
 	}
 
+	// void SetTexture(Texture value)
 	static int SetTexture(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		Texture value = Lua::get<Texture>(L, 2);
@@ -42,6 +48,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// void SetDepth(int value)
 	static int SetDepth(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		int value = Lua::get<int>(L, 2);
@@ -49,11 +56,13 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// int GetDepth() const
 	static int GetDepth(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetDepth());
 	}
 
+	// void SetAspect(float value)
 	static int SetAspect(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		float value = Lua::get<float>(L, 2);
@@ -61,6 +70,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// void SetNearClipPlane(float value)
 	static int SetNearClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		float value = Lua::get<float>(L, 2);
@@ -68,6 +78,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// void SetFarClipPlane(float value)
 	static int SetFarClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		float value = Lua::get<float>(L, 2);
@@ -75,6 +86,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// void SetFieldOfView(float value)
 	static int SetFieldOfView(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 1);
 		float value = Lua::get<float>(L, 2);
@@ -82,21 +94,25 @@ class Projector_Wrapper {
 		return 0;
 	}
 
+	// float GetAspect() const
 	static int GetAspect(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetAspect());
 	}
 
+	// float GetNearClipPlane() const
 	static int GetNearClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetNearClipPlane());
 	}
 
+	// float GetFarClipPlane() const
 	static int GetFarClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetFarClipPlane());
 	}
 
+	// float GetFieldOfView() const
 	static int GetFieldOfView(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetFieldOfView());

@@ -18,8 +18,9 @@ BETTER_ENUM(LightType, int,
 )
 
 class SUEDE_API ILight : public IComponent {
-	SUEDE_DECLARE_IMPLEMENTATION(Light)
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(Light)
+	SUEDE_DECLARE_IMPLEMENTATION(Light)
 
 public:
 	ILight();
@@ -40,4 +41,4 @@ public:
 	int GetUpdateStrategy();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Light);
+SUEDE_DEFINE_OBJECT_POINTER(Light)

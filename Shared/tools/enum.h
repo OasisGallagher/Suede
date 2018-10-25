@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iosfwd>
 #include <stdexcept>
+#include "typeid.h"
 
 #ifndef BETTER_ENUMS_NO_EXCEPTIONS
 #   define BETTER_ENUMS_IF_EXCEPTIONS(x) x
@@ -547,6 +548,12 @@ class Enum {                                                                   \
     from_int_nothrow(_int value);                                   \
                                                                                \
     ToStringConstexpr const char* to_string() const;                          \
+	const char* metatableName() const { \
+		static std::string str = std::to_string(TypeID<Enum>::value()); \
+		return str.c_str(); \
+	} \
+	const Enum* operator->() const { return this; }						\
+	const char* __tmpMetatableName() const { return ""; }	\
     BETTER_ENUMS_IF_EXCEPTIONS(                                                \
     static Enum from_string(const char *name);        \
     )                                                                          \

@@ -15,6 +15,7 @@ enum class RenderQueue {
 };
 
 class SUEDE_API IMaterial : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(Material)
 	SUEDE_DECLARE_IMPLEMENTATION(Material)
 
 public:
@@ -76,5 +77,5 @@ public:
 	void GetProperties(std::vector<const Property*>& properties) const;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Material);
-SUEDE_DECLARE_OBJECT_CREATER(Material);
+SUEDE_DEFINE_OBJECT_POINTER(Material)
+SUEDE_DECLARE_OBJECT_CREATER(Material)

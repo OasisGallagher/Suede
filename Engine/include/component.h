@@ -28,8 +28,8 @@ public: \
 		return Class::GetComponentGUID(); \
 	}
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject);
-SUEDE_DEFINE_OBJECT_POINTER(Transform);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject)
+SUEDE_DEFINE_OBJECT_POINTER(Transform)
 
 enum {
 	UpdateStrategyNone,
@@ -38,6 +38,7 @@ enum {
 };
 
 class SUEDE_API IComponent : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(Component)
 	SUEDE_DECLARE_IMPLEMENTATION(Component)
 
 public:
@@ -81,9 +82,9 @@ protected:
 	IComponent(void* d);
 };
 
-SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Component) {
-	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Component)
+SUEDE_DEFINE_OBJECT_POINTER(Component)
 
+struct SUEDE_API ComponentUtility {
 	static bool Register(suede_guid guid, Object(*)());
 	static bool Register(const char* name, Object(*)());
 };

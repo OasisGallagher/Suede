@@ -94,7 +94,7 @@ void WorldInternal::Finalize() {
 		camera->OnBeforeWorldDestroyed();
 	}
 
-	Camera::main(nullptr);
+	CameraUtility::main(nullptr);
 
 	MEMORY_DELETE(importer_);
 	MEMORY_DELETE(decalCreater_);
@@ -236,8 +236,8 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	if (Camera::main()) {
-		decalCreater_->Update(Camera::main(), projectors_);
+	if (CameraUtility::main()) {
+		decalCreater_->Update(CameraUtility::main(), projectors_);
 	}
 }
 
@@ -399,7 +399,7 @@ void WorldInternal::RenderingUpdate() {
 
 	UpdateTimeUniformBuffer();
 
-	Camera::OnPreRender();
+	CameraUtility::OnPreRender();
 
 	for (Camera camera : cameras_) {
 		if (camera->GetEnabled()) {
@@ -407,7 +407,7 @@ void WorldInternal::RenderingUpdate() {
 		}
 	}
 
-	Camera::OnPostRender();
+	CameraUtility::OnPostRender();
 
 	Statistics::instance()->SetRenderingElapsed(
 		Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)

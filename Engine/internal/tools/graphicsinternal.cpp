@@ -56,7 +56,7 @@ void GraphicsInternal::Blit(Texture src, RenderTexture dest, Material material, 
 }
 
 void GraphicsInternal::Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) {
-	if (!dest) { dest = RenderTexture::GetDefault(); }
+	if (!dest) { dest = RenderTextureUtility::GetDefault(); }
 
 	dest->BindWrite(destRect);
 	material->SetTexture(BuiltinProperties::MainTexture, src);

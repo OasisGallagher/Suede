@@ -3,8 +3,8 @@
 #include "bounds.h"
 #include "transform.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject);
-SUEDE_DECLARE_OBJECT_CREATER(GameObject);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject)
+SUEDE_DECLARE_OBJECT_CREATER(GameObject)
 
 enum {
 	RecalculateBoundsFlagsSelf = 1,
@@ -14,6 +14,7 @@ enum {
 };
 
 class SUEDE_API IGameObject : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(GameObject)
 	SUEDE_DECLARE_IMPLEMENTATION(GameObject)
 
 public:

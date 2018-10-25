@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "tools/typeid.h"
 #include "enginedefines.h"
 #include "tools/pimplidiom.h"
 
@@ -48,9 +49,18 @@ BETTER_ENUM(ObjectType, int,
 	CustomBehaviour
 )
 
-SUEDE_DEFINE_OBJECT_POINTER(Object);
+SUEDE_DEFINE_OBJECT_POINTER(Object)
+
+#define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
+public: \
+	virtual const char* metatableName() const { \
+		static std::string str = std::to_string(TypeID<std::shared_ptr<I ## _Name>>::value()); \
+		return str.c_str(); \
+	} \
+private:
 
 class SUEDE_API IObject : public std::enable_shared_from_this<IObject>, public PimplIdiom {
+	SUEDE_DEFINE_METATABLE_NAME(Object)
 	SUEDE_DECLARE_IMPLEMENTATION(Object)
 
 public:

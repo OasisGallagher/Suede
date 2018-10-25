@@ -177,7 +177,7 @@ public:
 	IScreenRenderTexture();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(ScreenRenderTexture);
+SUEDE_DEFINE_OBJECT_POINTER(ScreenRenderTexture)
 
 class ScreenRenderTextureInternal : public RenderTextureInternal {
 public:

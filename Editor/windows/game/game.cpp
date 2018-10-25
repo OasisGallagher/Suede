@@ -91,7 +91,7 @@ void Game::init(Ui::Editor* ui) {
 
 template <class T>
 Object CreateComponent() { return std::make_shared<T>(); }
-#define REGISTER_COMPONENT(T)	Component::Register(#T, CreateComponent<T>)
+#define REGISTER_COMPONENT(T)	ComponentUtility::Register(#T, CreateComponent<T>)
 
 void Game::awake() {
 	REGISTER_COMPONENT(CameraController);
@@ -102,6 +102,8 @@ void Game::awake() {
 
 void Game::tick() {
 }
+
+
 
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
@@ -222,9 +224,9 @@ void Game::onShadingModeChanged(const QString& str) {
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {
-	Transform camera = Camera::main()->GetTransform();
+	Transform camera = CameraUtility::main()->GetTransform();
 	glm::vec3 position = go->GetBounds().center;
-	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(Camera::main(), go);
+	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::main(), go);
 	camera->SetPosition(p);
 
 	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()))));
@@ -268,7 +270,7 @@ void Game::createScene() {
 	cameraGameObject->SetName("camera");
 
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
-	Camera::main(camera);
+	CameraUtility::main(camera);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	/*RenderTexture targetTexture = NewRenderTexture();

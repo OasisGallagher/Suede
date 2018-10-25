@@ -27,6 +27,7 @@ BETTER_ENUM(TextureWrapMode, int,
 )
 
 class SUEDE_API ITexture : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(Texture)
 	SUEDE_DECLARE_IMPLEMENTATION(Texture)
 
 public:
@@ -76,6 +77,7 @@ enum class ColorStreamFormat {
 };
 
 class SUEDE_API ITexture2D : public ITexture {
+	SUEDE_DEFINE_METATABLE_NAME(Texture2D)
 	SUEDE_DECLARE_IMPLEMENTATION(Texture2D)
 
 public:
@@ -92,6 +94,7 @@ public:
 };
 
 class SUEDE_API ITextureCube : public ITexture {
+	SUEDE_DEFINE_METATABLE_NAME(TextureCube)
 	SUEDE_DECLARE_IMPLEMENTATION(TextureCube)
 
 public:
@@ -102,6 +105,7 @@ public:
 };
 
 class SUEDE_API ITextureBuffer : public ITexture {
+	SUEDE_DEFINE_METATABLE_NAME(TextureBuffer)
 	SUEDE_DECLARE_IMPLEMENTATION(TextureBuffer)
 
 public:
@@ -128,6 +132,7 @@ BETTER_ENUM(RenderTextureFormat, int,
 );
 
 class SUEDE_API IRenderTexture : public ITexture {
+	SUEDE_DEFINE_METATABLE_NAME(RenderTexture)
 	SUEDE_DECLARE_IMPLEMENTATION(RenderTexture)
 
 public:
@@ -145,26 +150,27 @@ protected:
 	IRenderTexture(void* d);
 };
 
-SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(RenderTexture) {
-	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(RenderTexture)
+SUEDE_DEFINE_OBJECT_POINTER(RenderTexture)
 
+struct SUEDE_API RenderTextureUtility {
 	static RenderTexture GetDefault();
 
 	static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height);
 	static void ReleaseTemporary(RenderTexture texture);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Texture);
-SUEDE_DEFINE_OBJECT_POINTER(Texture2D);
-SUEDE_DEFINE_OBJECT_POINTER(TextureCube);
-SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer);
+SUEDE_DEFINE_OBJECT_POINTER(Texture)
+SUEDE_DEFINE_OBJECT_POINTER(Texture2D)
+SUEDE_DEFINE_OBJECT_POINTER(TextureCube)
+SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer)
 
-SUEDE_DECLARE_OBJECT_CREATER(Texture2D);
-SUEDE_DECLARE_OBJECT_CREATER(TextureCube);
-SUEDE_DECLARE_OBJECT_CREATER(RenderTexture);
-SUEDE_DECLARE_OBJECT_CREATER(TextureBuffer);
+SUEDE_DECLARE_OBJECT_CREATER(Texture2D)
+SUEDE_DECLARE_OBJECT_CREATER(TextureCube)
+SUEDE_DECLARE_OBJECT_CREATER(RenderTexture)
+SUEDE_DECLARE_OBJECT_CREATER(TextureBuffer)
 
 class SUEDE_API IMRTRenderTexture : public IRenderTexture {
+	SUEDE_DEFINE_METATABLE_NAME(MRTRenderTexture)
 	SUEDE_DECLARE_IMPLEMENTATION(MRTRenderTexture)
 
 public:
@@ -176,5 +182,5 @@ public:
 	uint GetColorTextureCount();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(MRTRenderTexture);
-SUEDE_DECLARE_OBJECT_CREATER(MRTRenderTexture);
+SUEDE_DEFINE_OBJECT_POINTER(MRTRenderTexture)
+SUEDE_DECLARE_OBJECT_CREATER(MRTRenderTexture)

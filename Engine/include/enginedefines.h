@@ -2,32 +2,8 @@
 #include <memory>
 #include "types.h"
 
-#define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef std::shared_ptr<class I ## Ty> Ty
-#define SUEDE_DECLARE_OBJECT_CREATER(Ty)	SUEDE_API Ty New ## Ty()
-
-#define SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Ty)			class SUEDE_API Ty : public std::shared_ptr<I ## Ty>
-#define SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Ty)		public: \
-																Ty() {} \
-																\
-																Ty(nullptr_t) {} \
-																\
-																template <class U> \
-																Ty(U* px) : std::shared_ptr<I ## Ty>(px) {} \
-																\
-																template <class T, class U> \
-																Ty(const std::shared_ptr<U>& right, T *px) : std::shared_ptr<I ## Ty>(right, px) {} \
-																\
-																template <class T, class Deleter, class Allocator> \
-																Ty(T* ptr, Deleter deleter, Allocator allocator) : std::shared_ptr<I ## Ty>(ptr, deleter, allocator) {} \
-																\
-																template <class _Ty2> \
-																Ty(const shared_ptr<_Ty2>& _Other) : std::shared_ptr<I ## Ty>(_Other) { } \
-																\
-																template <class _Ty2> \
-																Ty& operator=(const std::shared_ptr<_Ty2>& _Right) { \
-																	std::shared_ptr<I ## Ty>(_Right).swap(*this); \
-																	return (*this);\
-																}
+#define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef std::shared_ptr<class I ## Ty> Ty;
+#define SUEDE_DECLARE_OBJECT_CREATER(Ty)	SUEDE_API Ty New ## Ty();
 
 #define SUEDE_USE_NAMESPACE
 

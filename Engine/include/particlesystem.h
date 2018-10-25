@@ -16,14 +16,15 @@ struct Particle {
 	glm::vec3 position;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter);
-SUEDE_DEFINE_OBJECT_POINTER(SphereParticleEmitter);
-SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator);
+SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter)
+SUEDE_DEFINE_OBJECT_POINTER(SphereParticleEmitter)
+SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator)
 
-SUEDE_DECLARE_OBJECT_CREATER(SphereParticleEmitter);
-SUEDE_DECLARE_OBJECT_CREATER(ParticleAnimator);
+SUEDE_DECLARE_OBJECT_CREATER(SphereParticleEmitter)
+SUEDE_DECLARE_OBJECT_CREATER(ParticleAnimator)
 
 class SUEDE_API IParticleEmitter : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(ParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleEmitter)
 
 public:
@@ -55,6 +56,7 @@ protected:
 };
 
 class SUEDE_API ISphereParticleEmitter : public IParticleEmitter {
+	SUEDE_DEFINE_METATABLE_NAME(SphereParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(SphereParticleEmitter)
 
 public:
@@ -66,6 +68,7 @@ public:
 };
 
 class SUEDE_API IParticleAnimator : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(ParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleAnimator)
 
 public:
@@ -86,6 +89,7 @@ public:
 
 class SUEDE_API IParticleSystem : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(ParticleSystem)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleSystem)
 
 public:
@@ -114,4 +118,4 @@ public:
 	ParticleAnimator GetParticleAnimator();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(ParticleSystem);
+SUEDE_DEFINE_OBJECT_POINTER(ParticleSystem)

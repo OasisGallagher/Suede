@@ -4,8 +4,8 @@
 #include "object.h"
 #include "material.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(Font);
-SUEDE_DECLARE_OBJECT_CREATER(Font);
+SUEDE_DEFINE_OBJECT_POINTER(Font)
+SUEDE_DECLARE_OBJECT_CREATER(Font)
 
 struct CharacterInfo {
 	uint width;
@@ -19,6 +19,7 @@ public:
 };
 
 class SUEDE_API IFont : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(Font)
 	SUEDE_DECLARE_IMPLEMENTATION(Font)
 
 public:

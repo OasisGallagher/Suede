@@ -13,11 +13,12 @@ struct PRS {
 	glm::vec3 eulerAngles;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject);
-SUEDE_DEFINE_OBJECT_POINTER(Transform);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject)
+SUEDE_DEFINE_OBJECT_POINTER(Transform)
 
 class SUEDE_API ITransform : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(Transform)
 	SUEDE_DECLARE_IMPLEMENTATION(Transform)
 
 public:

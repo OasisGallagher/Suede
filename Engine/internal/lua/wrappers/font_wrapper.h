@@ -10,6 +10,7 @@ class Font_Wrapper {
 		return Lua::fromShared(L, ::NewFont());
 	}
 
+	// bool Load(const std::string& path, int size)
 	static int Load(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 2);
 		int size = Lua::get<int>(L, 3);
@@ -17,32 +18,38 @@ class Font_Wrapper {
 		return Lua::push(L, _p->Load(path, size));
 	}
 
+	// bool Require(const std::wstring& str)
 	static int Require(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 1);
 		std::wstring str = Lua::get<std::wstring>(L, 2);
 		return Lua::push(L, _p->Require(str));
 	}
 
+	// uint GetFontSize() const
 	static int GetFontSize(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetFontSize());
 	}
 
+	// Texture2D GetTexture() const
 	static int GetTexture(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetTexture());
 	}
 
+	// std::string GetFamilyName() const
 	static int GetFamilyName(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetFamilyName());
 	}
 
+	// std::string GetStyleName() const
 	static int GetStyleName(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetStyleName());
 	}
 
+	// Material GetMaterial()
 	static int GetMaterial(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetMaterial());

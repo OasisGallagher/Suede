@@ -1,22 +1,24 @@
 SuedeGlobal = { }
 
 function SuedeGlobal.Awake()
-	print("lua Awake");
-	local go = Suede.NewGameObject();
-	go:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
-	go:SetName("luaGameObject");
 end
 
 function SuedeGlobal.Start()
-	print("lua Start");
-	local f = function (go, path)
+	Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
 		print("loaded " .. path);
-		go:GetTransform():SetEulerAngles({ 30, 0, 0 });
-		go:GetTransform():SetPosition({ 0, 25, -65 });
-		go:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());	
-	end
+		root:GetTransform():SetEulerAngles({ });
+		root:GetTransform():SetPosition({ 0, 25, -5 });
+		root:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
 
-	Suede.WorldInstance():Import("room.fbx", f);
+		local diffuse = Suede.NewTexture2D();
+		diffuse:Create("suzanne/diffuse.dds");
+		local target = root:GetTransform():FindChild("suzanne_root/default"):GetGameObject();
+
+		local renderer = target:GetComponent2("IMeshRenderer");
+		print(renderer);
+		local material = renderer:GetMaterial(0);
+		material:SetTexture("_MainTexture", diffuse);
+	end);
 end
 
 function SuedeGlobal.Update()

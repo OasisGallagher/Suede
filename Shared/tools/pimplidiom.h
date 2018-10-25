@@ -1,4 +1,4 @@
-// suede internal header.
+// suede internal header
 #pragma once
 #include "../types.h"
 

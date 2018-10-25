@@ -10,6 +10,7 @@ class Graphics_Wrapper {
 		return Lua::reference<Graphics>(L);
 	}
 
+	// void SetShadingMode(ShadingMode value)
 	static int SetShadingMode(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		ShadingMode value = Lua::get<ShadingMode>(L, 2);
@@ -17,11 +18,13 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// ShadingMode GetShadingMode()
 	static int GetShadingMode(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		return Lua::push(L, _p->GetShadingMode());
 	}
 
+	// void SetAmbientOcclusionEnabled(bool value)
 	static int SetAmbientOcclusionEnabled(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		bool value = Lua::get<bool>(L, 2);
@@ -29,11 +32,13 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// bool GetAmbientOcclusionEnabled()
 	static int GetAmbientOcclusionEnabled(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		return Lua::push(L, _p->GetAmbientOcclusionEnabled());
 	}
 
+	// void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer)
 	static int SetRenderTarget(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		uint depthBuffer = Lua::get<uint>(L, 3);
@@ -42,6 +47,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Draw(Mesh mesh, Material material)
 	static int Draw(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		Material material = Lua::get<Material>(L, 3);
@@ -50,6 +56,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Blit(Texture src, RenderTexture dest)
 	static int Blit(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
@@ -58,6 +65,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Blit(Texture src, RenderTexture dest, const Rect& rect)
 	static int Blit2(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		Rect rect = Lua::get<Rect>(L, 4);
@@ -67,6 +75,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect)
 	static int Blit3(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		Rect destRect = Lua::get<Rect>(L, 5);
@@ -77,6 +86,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Blit(Texture src, RenderTexture dest, Material material)
 	static int Blit4(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		Material material = Lua::get<Material>(L, 4);
@@ -86,6 +96,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect)
 	static int Blit5(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		Rect rect = Lua::get<Rect>(L, 5);
@@ -96,6 +107,7 @@ class Graphics_Wrapper {
 		return 0;
 	}
 
+	// void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect)
 	static int Blit6(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		Rect destRect = Lua::get<Rect>(L, 6);

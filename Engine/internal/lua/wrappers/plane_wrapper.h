@@ -10,11 +10,13 @@ class Plane_Wrapper {
 		return Lua::newObject<Plane>(L);
 	}
 
+	// float GetDistance() const
 	static int GetDistance(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L, 0);
 		return Lua::push(L, _p->GetDistance());
 	}
 
+	// glm::vec3 GetNormal() const
 	static int GetNormal(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L, 0);
 		return Lua::push(L, _p->GetNormal());

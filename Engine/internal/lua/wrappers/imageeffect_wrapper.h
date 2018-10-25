@@ -10,6 +10,7 @@ class ImageEffect_Wrapper {
 		return Lua::newObject<ImageEffect>(L);
 	}
 
+	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {}
 	static int OnRenderImage(lua_State* L) {
 		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L, 3);
 		Rect normalizedRect = Lua::get<Rect>(L, 4);

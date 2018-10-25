@@ -10,21 +10,25 @@ class Time_Wrapper {
 		return Lua::reference<Time>(L);
 	}
 
+	// float GetTime()
 	static int GetTime(lua_State* L) {
 		Time* _p = Time::instance();
 		return Lua::push(L, _p->GetTime());
 	}
 
+	// float GetDeltaTime()
 	static int GetDeltaTime(lua_State* L) {
 		Time* _p = Time::instance();
 		return Lua::push(L, _p->GetDeltaTime());
 	}
 
+	// float GetRealTimeSinceStartup()
 	static int GetRealTimeSinceStartup(lua_State* L) {
 		Time* _p = Time::instance();
 		return Lua::push(L, _p->GetRealTimeSinceStartup());
 	}
 
+	// uint GetFrameCount()
 	static int GetFrameCount(lua_State* L) {
 		Time* _p = Time::instance();
 		return Lua::push(L, _p->GetFrameCount());

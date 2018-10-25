@@ -10,6 +10,7 @@ struct Decal {
 
 class SUEDE_API IProjector : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(Projector)
 	SUEDE_DECLARE_IMPLEMENTATION(Projector)
 
 public:
@@ -44,4 +45,4 @@ public:
 	const glm::mat4& GetProjectionMatrix();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Projector);
+SUEDE_DEFINE_OBJECT_POINTER(Projector)

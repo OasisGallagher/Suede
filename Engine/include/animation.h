@@ -4,20 +4,20 @@
 #include "component.h"
 #include "tools/enum.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(Skeleton);
-SUEDE_DEFINE_OBJECT_POINTER(Animation);
-SUEDE_DEFINE_OBJECT_POINTER(AnimationClip);
-SUEDE_DEFINE_OBJECT_POINTER(AnimationKeys);
-SUEDE_DEFINE_OBJECT_POINTER(AnimationCurve);
-SUEDE_DEFINE_OBJECT_POINTER(AnimationState);
-SUEDE_DEFINE_OBJECT_POINTER(AnimationFrame);
+SUEDE_DEFINE_OBJECT_POINTER(Skeleton)
+SUEDE_DEFINE_OBJECT_POINTER(Animation)
+SUEDE_DEFINE_OBJECT_POINTER(AnimationClip)
+SUEDE_DEFINE_OBJECT_POINTER(AnimationKeys)
+SUEDE_DEFINE_OBJECT_POINTER(AnimationCurve)
+SUEDE_DEFINE_OBJECT_POINTER(AnimationState)
+SUEDE_DEFINE_OBJECT_POINTER(AnimationFrame)
 
-SUEDE_DECLARE_OBJECT_CREATER(Skeleton);
-SUEDE_DECLARE_OBJECT_CREATER(AnimationClip);
-SUEDE_DECLARE_OBJECT_CREATER(AnimationKeys);
-SUEDE_DECLARE_OBJECT_CREATER(AnimationCurve);
-SUEDE_DECLARE_OBJECT_CREATER(AnimationState);
-SUEDE_DECLARE_OBJECT_CREATER(AnimationFrame);
+SUEDE_DECLARE_OBJECT_CREATER(Skeleton)
+SUEDE_DECLARE_OBJECT_CREATER(AnimationClip)
+SUEDE_DECLARE_OBJECT_CREATER(AnimationKeys)
+SUEDE_DECLARE_OBJECT_CREATER(AnimationCurve)
+SUEDE_DECLARE_OBJECT_CREATER(AnimationState)
+SUEDE_DECLARE_OBJECT_CREATER(AnimationFrame)
 
 struct SkeletonBone {
 	std::string name;
@@ -39,6 +39,7 @@ struct SkeletonNode {
 };
 
 class ISkeleton : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(Skeleton)
 	SUEDE_DECLARE_IMPLEMENTATION(Skeleton)
 
 public:
@@ -68,6 +69,7 @@ BETTER_ENUM(AnimationWrapMode, int,
 )
 
 class SUEDE_API IAnimationClip : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(AnimationClip)
 	SUEDE_DECLARE_IMPLEMENTATION(AnimationClip)
 
 public:
@@ -93,6 +95,7 @@ public:
 };
 
 class SUEDE_API IAnimationState : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(AnimationState)
 	SUEDE_DECLARE_IMPLEMENTATION(AnimationState)
 
 public:
@@ -100,6 +103,7 @@ public:
 };
 
 class SUEDE_API IAnimationKeys : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(AnimationKeys)
 	SUEDE_DECLARE_IMPLEMENTATION(AnimationKeys)
 
 public:
@@ -125,6 +129,7 @@ enum {
 };
 
 class SUEDE_API IAnimationFrame : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(AnimationFrame)
 	SUEDE_DECLARE_IMPLEMENTATION(AnimationFrame)
 
 public:
@@ -147,6 +152,7 @@ public:
 };
 
 class SUEDE_API IAnimationCurve : public IObject {
+	SUEDE_DEFINE_METATABLE_NAME(AnimationCurve)
 	SUEDE_DECLARE_IMPLEMENTATION(AnimationCurve)
 
 public:
@@ -163,6 +169,7 @@ public:
 
 class SUEDE_API IAnimation : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(Animation)
 	SUEDE_DECLARE_IMPLEMENTATION(Animation)
 
 public:

@@ -22,10 +22,11 @@ BETTER_ENUM(DepthTextureMode, int,
 	Depth = 1
 )
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject)
 
 class SUEDE_API ICamera : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(Camera)
 	SUEDE_DECLARE_IMPLEMENTATION(Camera)
 
 public:
@@ -87,9 +88,9 @@ public:
 	void OnBeforeWorldDestroyed();
 };
 
-SUEDE_DEFINE_CUSTOM_OBJECT_POINTER(Camera) {
-	SUEDE_IMPLEMENT_CUSTOM_OBJECT_POINTER(Camera)
+SUEDE_DEFINE_OBJECT_POINTER(Camera)
 
+struct SUEDE_API CameraUtility {
 	static void main(Camera value);
 	static Camera main();
 

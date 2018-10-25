@@ -5,10 +5,11 @@
 #include "material.h"
 #include "animation.h"
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject);
+SUEDE_DEFINE_OBJECT_POINTER(GameObject)
 
 class SUEDE_API IRenderer : public IComponent {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(Renderer)
 	SUEDE_DECLARE_IMPLEMENTATION(Renderer)
 
 public:
@@ -34,6 +35,7 @@ protected:
 
 class SUEDE_API IMeshRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(MeshRenderer)
 	SUEDE_DECLARE_IMPLEMENTATION(MeshRenderer)
 
 public:
@@ -42,6 +44,7 @@ public:
 
 class SUEDE_API IParticleRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(ParticleRenderer)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleRenderer)
 
 public:
@@ -50,6 +53,7 @@ public:
 
 class SUEDE_API ISkinnedMeshRenderer : public IRenderer {
 	SUEDE_DECLARE_COMPONENT()
+	SUEDE_DEFINE_METATABLE_NAME(SkinnedMeshRenderer)
 	SUEDE_DECLARE_IMPLEMENTATION(SkinnedMeshRenderer)
 
 public:
@@ -59,7 +63,7 @@ public:
 	void SetSkeleton(Skeleton value);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(Renderer);
-SUEDE_DEFINE_OBJECT_POINTER(MeshRenderer);
-SUEDE_DEFINE_OBJECT_POINTER(ParticleRenderer);
-SUEDE_DEFINE_OBJECT_POINTER(SkinnedMeshRenderer);
+SUEDE_DEFINE_OBJECT_POINTER(Renderer)
+SUEDE_DEFINE_OBJECT_POINTER(MeshRenderer)
+SUEDE_DEFINE_OBJECT_POINTER(ParticleRenderer)
+SUEDE_DEFINE_OBJECT_POINTER(SkinnedMeshRenderer)

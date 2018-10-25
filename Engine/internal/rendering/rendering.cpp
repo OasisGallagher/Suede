@@ -90,7 +90,7 @@ void Rendering::ClearRenderTextures() {
 	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 
 	RenderTexture target = p_->renderTextures.target;
-	if (!target) { target = RenderTexture::GetDefault(); }
+	if (!target) { target = RenderTextureUtility::GetDefault(); }
 	target->Clear(p_->normalizedRect, p_->clearColor, 1);
 }
 
@@ -151,7 +151,7 @@ void Rendering::OnImageEffects() {
 
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
-	RenderTexture temp = RenderTexture::GetTemporary(RenderTextureFormat::Rgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	RenderTexture temp = RenderTextureUtility::GetTemporary(RenderTextureFormat::Rgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
 
 	p_->materials.ssao->SetPass(0);
 	Graphics::instance()->Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
@@ -353,7 +353,7 @@ RenderTexture RenderableTraits::GetActiveRenderTarget() {
 	RenderTexture target = p_->renderTextures.target;
 
 	if (!target) {
-		target = RenderTexture::GetDefault();
+		target = RenderTextureUtility::GetDefault();
 	}
 
 	return target;

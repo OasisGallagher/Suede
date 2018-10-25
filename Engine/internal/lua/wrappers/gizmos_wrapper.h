@@ -10,17 +10,20 @@ class Gizmos_Wrapper {
 		return Lua::reference<Gizmos>(L);
 	}
 
+	// void Flush()
 	static int Flush(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		_p->Flush();
 		return 0;
 	}
 
+	// Color GetColor()
 	static int GetColor(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		return Lua::push(L, _p->GetColor());
 	}
 
+	// void SetColor(const Color& value)
 	static int SetColor(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		Color value = Lua::get<Color>(L, 2);
@@ -28,6 +31,7 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
+	// void DrawSphere(const glm::vec3& center, float radius)
 	static int DrawSphere(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		float radius = Lua::get<float>(L, 3);
@@ -36,6 +40,7 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
+	// void DrawCuboid(const glm::vec3& center, const glm::vec3& size)
 	static int DrawCuboid(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
@@ -44,6 +49,7 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
+	// void DrawWireSphere(const glm::vec3& center, float radius)
 	static int DrawWireSphere(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		float radius = Lua::get<float>(L, 3);
@@ -52,6 +58,7 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
+	// void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size)
 	static int DrawWireCuboid(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		glm::vec3 size = Lua::get<glm::vec3>(L, 3);

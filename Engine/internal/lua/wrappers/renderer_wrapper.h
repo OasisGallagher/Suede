@@ -6,6 +6,7 @@
 #include "renderer.h"
 
 class Renderer_Wrapper {
+	// void AddMaterial(Material material)
 	static int AddMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
 		Material material = Lua::get<Material>(L, 2);
@@ -13,18 +14,21 @@ class Renderer_Wrapper {
 		return 0;
 	}
 
+	// Material GetMaterial(uint index)
 	static int GetMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
 		uint index = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetMaterial(index));
 	}
 
+	// Enumerable GetMaterials()
 	static int GetMaterials(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
 		IRenderer::Enumerable _r = _p->GetMaterials();
 		return Lua::pushList(L, std::vector<IRenderer::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
+	// void SetMaterial(uint index, Material value)
 	static int SetMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 2);
 		Material value = Lua::get<Material>(L, 3);
@@ -33,6 +37,7 @@ class Renderer_Wrapper {
 		return 0;
 	}
 
+	// void RemoveMaterial(Material material)
 	static int RemoveMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
 		Material material = Lua::get<Material>(L, 2);
@@ -40,6 +45,7 @@ class Renderer_Wrapper {
 		return 0;
 	}
 
+	// void RemoveMaterialAt(uint index)
 	static int RemoveMaterialAt(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
 		uint index = Lua::get<uint>(L, 2);
@@ -47,11 +53,13 @@ class Renderer_Wrapper {
 		return 0;
 	}
 
+	// uint GetMaterialCount()
 	static int GetMaterialCount(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
 		return Lua::push(L, _p->GetMaterialCount());
 	}
 
+	// void UpdateMaterialProperties()
 	static int UpdateMaterialProperties(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
 		_p->UpdateMaterialProperties();
@@ -114,6 +122,7 @@ public:
 };
 
 class SkinnedMeshRenderer_Wrapper {
+	// void SetSkeleton(Skeleton value)
 	static int SetSkeleton(lua_State* L) {
 		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L, 1);
 		Skeleton value = Lua::get<Skeleton>(L, 2);

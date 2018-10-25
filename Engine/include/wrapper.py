@@ -61,7 +61,8 @@ class Argument:
 		self.value = value;
 
 class Method:	# void Print(const char* message) for example.
-	def __init__(self, groups):
+	def __init__(self, text, groups):
+		self._text = text.strip().replace(";", "");
 		self._arguments = [];
 		self._overloaded = "";
 		self._pureVirtual = False;
@@ -77,6 +78,9 @@ class Method:	# void Print(const char* message) for example.
 		
 	def SetOverloadedName(self, value):
 		self._overloaded = value;
+		
+	def Text(self):
+		return self._text;
 
 	def Return(self):
 		'''void'''
@@ -156,11 +160,6 @@ class Method:	# void Print(const char* message) for example.
 		if arg:
 			fields = self._split(arg);
 			self._arguments.append(Argument(fields[0], fields[1]));
-		'''
-		for arg in ("," not in args) and [ args ] or args.split(","):
-			fields = self._split(arg);
-			self._arguments.append(Argument(fields[0], fields[1]));
-		'''
 
 class Interface:
 	def __init__(self, className, defination):
@@ -175,7 +174,7 @@ class Interface:
 				public = line.startswith("public:");
 			
 			m = public and kMethodPattern.match(line);
-			if m: self._parseMethod(m, names, prev);
+			if m: self._parseMethod(line, m, names, prev);
 			prev = line;
 
 	def Methods(self):
@@ -187,8 +186,8 @@ class Interface:
 	def IsNotNewable(self):
 		return self._notNewable;
 		
-	def _parseMethod(self, m, names, prev):
-		method = Method(m.groups());
+	def _parseMethod(self, line, m, names, prev):
+		method = Method(line, m.groups());
 		self._abstract = self._abstract or method.IsPureVirtual();
 		if self._methodWrapable(prev, method):
 			n = names.get(method.Name(), 0);
@@ -201,7 +200,7 @@ class Interface:
 			
 			self._methods.append(method);
 		else:
-			Warning("  Skip unwrappable method: %s" % method.Def());
+			Warning("  Skip unwrappable method: %s" % method.Text());
 		
 	def _methodWrapable(self, prev, method):
 		if "template" in prev: return False;
@@ -264,6 +263,7 @@ def WriteConstructor(f, className, instance, sharedPtr, abstract):
 
 def WriteMethods(f, className, instance, sharedPtr, interface):
 	for method in interface.Methods():
+		f.write("\t// " + method.Text() + "\n");
 		if instance:
 			f.write(
 '''	static int %s(lua_State* L) {

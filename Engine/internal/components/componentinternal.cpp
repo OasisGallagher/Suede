@@ -13,11 +13,11 @@ void IComponent::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 void IComponent::RenderingUpdate() { _suede_dptr()->RenderingUpdate(); }
 int IComponent::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 
-bool Component::Register(suede_guid guid, Object(*method)()) {
+bool ComponentUtility::Register(suede_guid guid, Object(*method)()) {
 	return Factory::RegisterComponent(guid, method);
 }
 
-bool Component::Register(const char* name, Object(*method)()) {
+bool ComponentUtility::Register(const char* name, Object(*method)()) {
 	return Factory::RegisterComponent(name, method);
 }
 

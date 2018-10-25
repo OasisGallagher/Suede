@@ -429,7 +429,7 @@ private:
 	~TemporaryRenderTextureManager() { }
 };
 
-RenderTexture RenderTexture::GetDefault() {
+RenderTexture RenderTextureUtility::GetDefault() {
 	static RenderTexture screen;
 	
 	if (!screen) {
@@ -440,11 +440,11 @@ RenderTexture RenderTexture::GetDefault() {
 	return screen;
 }
 
-RenderTexture RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) {
+RenderTexture RenderTextureUtility::GetTemporary(RenderTextureFormat format, uint width, uint height) {
 	return TemporaryRenderTextureManager::instance()->GetTemporary(format, width, height);
 }
 
-void RenderTexture::ReleaseTemporary(RenderTexture texture) {
+void RenderTextureUtility::ReleaseTemporary(RenderTexture texture) {
 	TemporaryRenderTextureManager::instance()->ReleaseTemporary(texture);
 }
 

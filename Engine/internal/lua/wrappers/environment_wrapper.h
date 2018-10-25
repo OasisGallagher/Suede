@@ -10,6 +10,7 @@ class Environment_Wrapper {
 		return Lua::reference<Environment>(L);
 	}
 
+	// void SetSkybox(Material value)
 	static int SetSkybox(lua_State* L) {
 		Environment* _p = Environment::instance();
 		Material value = Lua::get<Material>(L, 2);
@@ -17,11 +18,13 @@ class Environment_Wrapper {
 		return 0;
 	}
 
+	// Material GetSkybox()
 	static int GetSkybox(lua_State* L) {
 		Environment* _p = Environment::instance();
 		return Lua::push(L, _p->GetSkybox());
 	}
 
+	// void SetAmbientColor(const Color& value)
 	static int SetAmbientColor(lua_State* L) {
 		Environment* _p = Environment::instance();
 		Color value = Lua::get<Color>(L, 2);
@@ -29,11 +32,13 @@ class Environment_Wrapper {
 		return 0;
 	}
 
+	// Color GetAmbientColor()
 	static int GetAmbientColor(lua_State* L) {
 		Environment* _p = Environment::instance();
 		return Lua::push(L, _p->GetAmbientColor());
 	}
 
+	// void SetFogColor(const Color& value)
 	static int SetFogColor(lua_State* L) {
 		Environment* _p = Environment::instance();
 		Color value = Lua::get<Color>(L, 2);
@@ -41,11 +46,13 @@ class Environment_Wrapper {
 		return 0;
 	}
 
+	// Color GetFogColor()
 	static int GetFogColor(lua_State* L) {
 		Environment* _p = Environment::instance();
 		return Lua::push(L, _p->GetFogColor());
 	}
 
+	// void SetFogDensity(float value)
 	static int SetFogDensity(lua_State* L) {
 		Environment* _p = Environment::instance();
 		float value = Lua::get<float>(L, 2);
@@ -53,6 +60,7 @@ class Environment_Wrapper {
 		return 0;
 	}
 
+	// float GetFogDensity()
 	static int GetFogDensity(lua_State* L) {
 		Environment* _p = Environment::instance();
 		return Lua::push(L, _p->GetFogDensity());

@@ -10,6 +10,7 @@ class Engine_Wrapper {
 		return Lua::reference<Engine>(L);
 	}
 
+	// bool Startup(uint width, uint height)
 	static int Startup(lua_State* L) {
 		Engine* _p = Engine::instance();
 		uint height = Lua::get<uint>(L, 3);
@@ -17,12 +18,14 @@ class Engine_Wrapper {
 		return Lua::push(L, _p->Startup(width, height));
 	}
 
+	// void Shutdown()
 	static int Shutdown(lua_State* L) {
 		Engine* _p = Engine::instance();
 		_p->Shutdown();
 		return 0;
 	}
 
+	// void Update()
 	static int Update(lua_State* L) {
 		Engine* _p = Engine::instance();
 		_p->Update();

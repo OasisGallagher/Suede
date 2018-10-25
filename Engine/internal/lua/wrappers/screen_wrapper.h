@@ -10,16 +10,19 @@ class Screen_Wrapper {
 		return Lua::reference<Screen>(L);
 	}
 
+	// uint GetWidth()
 	static int GetWidth(lua_State* L) {
 		Screen* _p = Screen::instance();
 		return Lua::push(L, _p->GetWidth());
 	}
 
+	// uint GetHeight()
 	static int GetHeight(lua_State* L) {
 		Screen* _p = Screen::instance();
 		return Lua::push(L, _p->GetHeight());
 	}
 
+	// void Resize(uint width, uint height)
 	static int Resize(lua_State* L) {
 		Screen* _p = Screen::instance();
 		uint height = Lua::get<uint>(L, 3);
