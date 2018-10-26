@@ -79,7 +79,7 @@ public:
 		Lua::createMetatable<Renderer>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Renderer> },
 			{ "__tostring", ToString }, 
@@ -94,7 +94,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Renderer>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Renderer>(L, metalib, TypeID<Component>::string());
 	}
 };
 
@@ -110,14 +110,14 @@ public:
 		Lua::createMetatable<MeshRenderer>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<MeshRenderer> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<MeshRenderer>(L, metalib, TypeID<Renderer>::name());
+		Lua::initMetatable<MeshRenderer>(L, metalib, TypeID<Renderer>::string());
 	}
 };
 
@@ -133,14 +133,14 @@ public:
 		Lua::createMetatable<ParticleRenderer>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleRenderer> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleRenderer>(L, metalib, TypeID<Renderer>::name());
+		Lua::initMetatable<ParticleRenderer>(L, metalib, TypeID<Renderer>::string());
 	}
 };
 
@@ -164,7 +164,7 @@ public:
 		Lua::createMetatable<SkinnedMeshRenderer>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<SkinnedMeshRenderer> },
 			{ "__tostring", ToString }, 
@@ -172,6 +172,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<SkinnedMeshRenderer>(L, metalib, TypeID<Renderer>::name());
+		Lua::initMetatable<SkinnedMeshRenderer>(L, metalib, TypeID<Renderer>::string());
 	}
 };

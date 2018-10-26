@@ -47,8 +47,8 @@ public:
 		Lua::createMetatable<Time>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "TimeInstance", TimeInstance });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "TimeInstance", TimeInstance });
 
 		luaL_Reg metalib[] = {
 			{ "GetTime", GetTime },

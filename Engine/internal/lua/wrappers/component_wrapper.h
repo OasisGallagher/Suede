@@ -14,7 +14,28 @@ class Component_Wrapper {
 		return 1;
 	}
 
-	// virtual void Awake()
+	static int ComponentStatic(lua_State* L) {
+		lua_newtable(L);
+		luaL_newmetatable(L, "ComponentStatic");
+
+		luaL_Reg funcs[] = {
+			{ "GetComponentGUID", GetComponentGUID },
+			{ "ClassNameToGUID", ClassNameToGUID },
+			{"__tostring", ToString },
+			{ nullptr, nullptr }
+		};
+		
+		luaL_setfuncs(L, funcs, 0);
+
+		// duplicate metatable.
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_setmetatable(L, -2);
+
+		return 1;
+	}
+		// virtual void Awake()
 	static int Awake(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
 		_p->Awake();
@@ -85,6 +106,17 @@ class Component_Wrapper {
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
+	// static suede_guid GetComponentGUID()
+	static int GetComponentGUID(lua_State* L) {
+		return Lua::push(L, IComponent::GetComponentGUID());
+	}
+
+	// static suede_guid ClassNameToGUID(const char* className)
+	static int ClassNameToGUID(lua_State* L) {
+		std::string className = Lua::get<std::string>(L, 2);
+		return Lua::push(L, IComponent::ClassNameToGUID(className.c_str()));
+	}
+
 	// virtual bool AllowMultiple()
 	static int AllowMultiple(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
@@ -116,7 +148,9 @@ public:
 		Lua::createMetatable<Component>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		fields.push_back(luaL_Reg{ "Component", ComponentStatic });
+
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Component> },
 			{ "__tostring", ToString }, 
@@ -137,6 +171,50 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Component>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<Component>(L, metalib, TypeID<Object>::string());
+	}
+};
+
+class ComponentUtility_Wrapper {
+	static int ToString(lua_State* L) {
+		ComponentUtility* _p = Lua::callerPtr<ComponentUtility>(L, 0);
+		lua_pushstring(L, String::Format("ComponentUtility@0x%p", _p).c_str());
+		return 1;
+	}
+
+	static int ComponentUtilityStatic(lua_State* L) {
+		lua_newtable(L);
+		luaL_newmetatable(L, "ComponentUtilityStatic");
+
+		luaL_Reg funcs[] = {
+			{"__tostring", ToString },
+			{ nullptr, nullptr }
+		};
+		
+		luaL_setfuncs(L, funcs, 0);
+
+		// duplicate metatable.
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_setmetatable(L, -2);
+
+		return 1;
+	}
+	public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<ComponentUtility>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		fields.push_back(luaL_Reg{ "ComponentUtility", ComponentUtilityStatic });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<ComponentUtility> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<ComponentUtility>(L, metalib, nullptr);
 	}
 };

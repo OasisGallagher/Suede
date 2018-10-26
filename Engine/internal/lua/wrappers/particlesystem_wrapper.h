@@ -7,6 +7,64 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class ParticleBurst_Wrapper {
+	static int NewParticleBurst(lua_State* L) {
+		return Lua::newObject<ParticleBurst>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		ParticleBurst* _p = Lua::callerPtr<ParticleBurst>(L, 0);
+		lua_pushstring(L, String::Format("ParticleBurst@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<ParticleBurst>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewParticleBurst", NewParticleBurst });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<ParticleBurst> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<ParticleBurst>(L, metalib, nullptr);
+	}
+};
+
+class Particle_Wrapper {
+	static int NewParticle(lua_State* L) {
+		return Lua::newObject<Particle>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Particle* _p = Lua::callerPtr<Particle>(L, 0);
+		lua_pushstring(L, String::Format("Particle@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<Particle>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewParticle", NewParticle });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<Particle> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<Particle>(L, metalib, nullptr);
+	}
+};
+
 class ParticleEmitter_Wrapper {
 	static int ToString(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 0);
@@ -127,7 +185,7 @@ public:
 		Lua::createMetatable<ParticleEmitter>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleEmitter> },
 			{ "__tostring", ToString }, 
@@ -149,7 +207,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleEmitter>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<ParticleEmitter>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -183,8 +241,8 @@ public:
 		Lua::createMetatable<SphereParticleEmitter>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewSphereParticleEmitter", NewSphereParticleEmitter });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewSphereParticleEmitter", NewSphereParticleEmitter });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<SphereParticleEmitter> },
@@ -194,7 +252,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<SphereParticleEmitter>(L, metalib, TypeID<ParticleEmitter>::name());
+		Lua::initMetatable<SphereParticleEmitter>(L, metalib, TypeID<ParticleEmitter>::string());
 	}
 };
 
@@ -264,8 +322,8 @@ public:
 		Lua::createMetatable<ParticleAnimator>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewParticleAnimator", NewParticleAnimator });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewParticleAnimator", NewParticleAnimator });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleAnimator> },
@@ -280,7 +338,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleAnimator>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<ParticleAnimator>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -386,7 +444,7 @@ public:
 		Lua::createMetatable<ParticleSystem>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleSystem> },
 			{ "__tostring", ToString }, 
@@ -406,6 +464,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleSystem>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<ParticleSystem>(L, metalib, TypeID<Component>::string());
 	}
 };

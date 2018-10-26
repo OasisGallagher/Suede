@@ -81,7 +81,7 @@ public:
 		Lua::createMetatable<Light>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Light> },
 			{ "__tostring", ToString }, 
@@ -97,6 +97,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Light>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Light>(L, metalib, TypeID<Component>::string());
 	}
 };

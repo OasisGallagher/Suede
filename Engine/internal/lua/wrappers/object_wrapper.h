@@ -37,7 +37,7 @@ public:
 		Lua::createMetatable<Object>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Object> },
 			{ "__tostring", ToString }, 

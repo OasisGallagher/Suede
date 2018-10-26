@@ -222,9 +222,9 @@ void Game::onShadingModeChanged(const QString& str) {
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {
-	Transform camera = CameraUtility::main()->GetTransform();
+	Transform camera = CameraUtility::GetMain()->GetTransform();
 	glm::vec3 position = go->GetBounds().center;
-	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::main(), go);
+	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go);
 	camera->SetPosition(p);
 
 	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()))));
@@ -268,7 +268,7 @@ void Game::createScene() {
 	cameraGameObject->SetName("camera");
 
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
-	CameraUtility::main(camera);
+	CameraUtility::SetMain(camera);
 	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
 
 	/*RenderTexture targetTexture = NewRenderTexture();

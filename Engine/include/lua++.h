@@ -136,7 +136,7 @@ inline int newObject(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
 	*memory = new T;
 
-	luaL_getmetatable(L, TypeID<T>::name());
+	luaL_getmetatable(L, TypeID<T>::string());
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -146,7 +146,7 @@ inline int newInterface(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
 	*memory = new T;
 
-	luaL_getmetatable(L, TypeID<T::Interface>::name());
+	luaL_getmetatable(L, TypeID<T::Interface>::string());
 	lua_setmetatable(L, -2);
 	return 1;
 }
@@ -162,7 +162,7 @@ inline int reference(lua_State* L) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
 	*memory = T::instance();
 
-	luaL_getmetatable(L, TypeID<T>::name());
+	luaL_getmetatable(L, TypeID<T>::string());
 	lua_setmetatable(L, -2);
 
 	return 1;
@@ -178,7 +178,7 @@ template<typename T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type 
 template <class T>
 inline typename std::enable_if<!_is_shared_ptr<T>::value && !std::is_pointer<T>::value, const char*>::type
 metatableName(const T&) {
-	return TypeID<T>::name();
+	return TypeID<T>::string();
 }
 
 // get real metatable by virtual function.
@@ -190,7 +190,7 @@ metatableName(const T& o) {
 
 template <class T>
 inline void createMetatable(lua_State* L) {
-	luaL_newmetatable(L, TypeID<T>::name());
+	luaL_newmetatable(L, TypeID<T>::string());
 
 	// duplicate metatable.
 	lua_pushvalue(L, -1);
@@ -201,7 +201,7 @@ inline void createMetatable(lua_State* L) {
 
 template <class T>
 inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
-	luaL_getmetatable(L, TypeID<T>::name());
+	luaL_getmetatable(L, TypeID<T>::string());
 	luaL_setfuncs(L, lib, 0);
 
 	if (baseClass != nullptr) {

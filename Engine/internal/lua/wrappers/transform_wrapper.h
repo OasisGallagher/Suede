@@ -7,6 +7,35 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class PRS_Wrapper {
+	static int NewPRS(lua_State* L) {
+		return Lua::newObject<PRS>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		PRS* _p = Lua::callerPtr<PRS>(L, 0);
+		lua_pushstring(L, String::Format("PRS@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<PRS>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewPRS", NewPRS });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<PRS> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<PRS>(L, metalib, nullptr);
+	}
+};
+
 class Transform_Wrapper {
 	static int ToString(lua_State* L) {
 		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
@@ -274,7 +303,7 @@ public:
 		Lua::createMetatable<Transform>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Transform> },
 			{ "__tostring", ToString }, 
@@ -318,6 +347,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Transform>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Transform>(L, metalib, TypeID<Component>::string());
 	}
 };

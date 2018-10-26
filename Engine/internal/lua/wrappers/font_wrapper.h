@@ -7,6 +7,35 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class CharacterInfo_Wrapper {
+	static int NewCharacterInfo(lua_State* L) {
+		return Lua::newObject<CharacterInfo>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		CharacterInfo* _p = Lua::callerPtr<CharacterInfo>(L, 0);
+		lua_pushstring(L, String::Format("CharacterInfo@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<CharacterInfo>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewCharacterInfo", NewCharacterInfo });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<CharacterInfo> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<CharacterInfo>(L, metalib, nullptr);
+	}
+};
+
 class Font_Wrapper {
 	static int NewFont(lua_State* L) {
 		return Lua::fromShared(L, ::NewFont());
@@ -68,8 +97,8 @@ public:
 		Lua::createMetatable<Font>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewFont", NewFont });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewFont", NewFont });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Font> },
@@ -84,6 +113,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Font>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<Font>(L, metalib, TypeID<Object>::string());
 	}
 };

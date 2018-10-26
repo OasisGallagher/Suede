@@ -127,7 +127,7 @@ struct GameObjectTransformChangedEvent : public GameObjectEvent {
 	uint prs;
 };
 
-#undef DEFINE_WORLD_EVENT_POINTER
+#undef DEFINE_WORLD_EVENT_PTR
 
 class WorldEventListener {
 public:

@@ -140,8 +140,8 @@ public:
 		Lua::createMetatable<GameObject>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewGameObject", NewGameObject });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewGameObject", NewGameObject });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<GameObject> },
@@ -166,6 +166,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<GameObject>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<GameObject>(L, metalib, TypeID<Object>::string());
 	}
 };

@@ -11,8 +11,8 @@ kPyCStr = "py_cstr";
 kEnumerable = "Enumerable";
 kLuaFunction = "Lua::Func";
 kGenericContainer = "std::vector";
-kClassPattern = re.compile(r"\s*class\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)");
-kMethodPattern = re.compile(r"\s*(?:virtual)?\s*([A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+kClassPattern = re.compile(r"\s*(struct|class)\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)\s*\{");
+kMethodPattern = re.compile(r"\s*(static|virtual)?\s*((?!return)[A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
 
 kExcludeFiles = [
 	"gui.h",
@@ -27,6 +27,20 @@ kExcludeFiles = [
 ];
 
 kExcludeClasses = [
+	"WorldEventBase",
+	"GameObjectEvent",
+	"ComponentEvent",
+	"GameObjectCreatedEvent",
+	"GameObjectDestroyedEvent",
+	"GameObjectParentChangedEvent",
+	"GameObjectActiveChangedEvent",
+	"GameObjectTagChangedEvent",
+	"GameObjectNameChangedEvent",
+	"GameObjectUpdateStrategyChangedEvent",
+	"GameObjectComponentChangedEvent",
+	"CameraDepthChangedEvent",
+	"GameObjectTransformChangedEvent",
+	
 	"WorldEventListener",
 	"FrameEventListener",
 	"GameObjectImportedListener",
@@ -36,6 +50,11 @@ kExcludeClasses = [
 ];
 
 kNotNewables = [
+	"CameraUtility",
+	"ComponentUtility",
+	"GeometryUtility",
+	"RenderTextureUtility",
+	
 	"IObject",
 	"IComponent",
 	"ITransform",
@@ -102,6 +121,9 @@ class Method:	# void Print(const char* message) for example.
 		'''void Print(const char* message)'''
 		return self.Return() + " " + self.DefBody();
 
+	def IsStatic(self):
+		return self._static;
+		
 	def IsPureVirtual(self):
 		return self._pureVirtual;
 
@@ -138,13 +160,17 @@ class Method:	# void Print(const char* message) for example.
 		return type;
 
 	def _initialize(self, groups):
-		self._r = groups[0];
+		self._r = groups[1];
 		self._r = self._parseGenericContainer(self._r);
 		
-		self._name = groups[1];
-		self._pureVirtual = groups[3] != None;
+		self._static = groups[0] and "static" in groups[0];
 		
-		args = groups[2];
+		if self._static: Warning(self._text);
+		
+		self._name = groups[2];
+		self._pureVirtual = groups[4] != None;
+		
+		args = groups[3];
 		if args == "": return;
 
 		arg = "";
@@ -164,18 +190,21 @@ class Method:	# void Print(const char* message) for example.
 			self._arguments.append(Argument(fields[0], fields[1]));
 
 class Interface:
-	def __init__(self, className, defination):
+	def __init__(self, className, defination, struct):
 		self._methods = [ ];
 		self._abstract = False;
+		self._hasStatic = False;
 		self._notNewable = (className in kNotNewables);
 		names = { };
-		public = False;
+		public = struct;
 		prev = "";
+		
 		for line in defination:
 			if line.startswith("public:") or line.startswith("protected:") or line.startswith("private:"):
 				public = line.startswith("public:");
-			
+		
 			m = public and kMethodPattern.match(line);
+			
 			if m: self._parseMethod(line, m, names, prev);
 			prev = line;
 
@@ -185,12 +214,16 @@ class Interface:
 	def Abstract(self):
 		return self._abstract;
 		
+	def HasStatic(self):
+		return self._hasStatic;
+		
 	def IsNotNewable(self):
 		return self._notNewable;
 		
 	def _parseMethod(self, line, m, names, prev):
 		method = Method(line, m.groups());
 		self._abstract = self._abstract or method.IsPureVirtual();
+		self._hasStatic = self._hasStatic or method.IsStatic();
 		if self._methodWrapable(prev, method):
 			n = names.get(method.Name(), 0);
 			names[method.Name()] = n + 1;
@@ -207,6 +240,7 @@ class Interface:
 	def _methodWrapable(self, prev, method):
 		if "template" in prev: return False;
 		if "*" in method.Return(): return False;
+		if "operator" in method.Text(): return False;
 		
 		for arg in method.Arguments():
 			if "*" in arg.type: return False;
@@ -226,8 +260,11 @@ def WrapFileName(name):
 	p = name.rfind(".");
 	return name[:p] + kFilePostfix + name[p:];
 
-def CallMethod(method):
-	ans = "_p->%s(" % method.RawName();
+def CallMethod(className, method, sharedPtr):
+	if method.IsStatic():
+		ans = "%s::%s(" % (sharedPtr and "I" + className or className, method.RawName());
+	else:
+		ans = "_p->%s(" % method.RawName();
 
 	for i in range(len(method.Arguments())):
 		if i != 0: ans += ", ";
@@ -263,8 +300,8 @@ def WriteConstructor(f, className, instance, sharedPtr, abstract):
 		return Lua::newObject<%s>(L);
 	}\n''' % (className, className));
 	
-def WriteMethodCall(f, method, className):
-	call = CallMethod(method);
+def WriteMethodCall(f, method, className, sharedPtr):
+	call = CallMethod(className, method, sharedPtr);
 	if method.Return() == "void":
 		f.write('''
 		%s;
@@ -282,8 +319,11 @@ def WriteMethodCall(f, method, className):
 		f.write('''
 		return Lua::push(L, %s);''' % call);
 		
-def BeginCaller(f, methodName, nargs, className, instance, sharedPtr):
-	if instance:
+def BeginCaller(f, static, methodName, nargs, className, instance, sharedPtr):
+	if static:
+		f.write(
+'''	static int %s(lua_State* L) {''' % methodName);
+	elif instance:
 		f.write(
 '''	static int %s(lua_State* L) {
 		%s* _p = %s::instance();''' % (methodName, className, className));
@@ -302,7 +342,7 @@ def EndCaller(f):
 
 def WriteMethod(f, method, className, instance, sharedPtr, interface):
 	f.write("\t// " + method.Text() + "\n");
-	BeginCaller(f, method.Name(), len(method.Arguments()), className, instance, sharedPtr);
+	BeginCaller(f, method.IsStatic(), method.Name(), len(method.Arguments()), className, instance, sharedPtr);
 	
 	pps = nargs = len(method.Arguments());
 	for i in range(len(method.Arguments())):
@@ -328,21 +368,54 @@ def WriteMethod(f, method, className, instance, sharedPtr, interface):
 			f.write('''
 		%s %s = Lua::get<%s>(L, %d);''' % (argument.type, argument.value, argument.type, (nargs - i + 1)));
 	
-	WriteMethodCall(f, method, className);
+	WriteMethodCall(f, method, className, sharedPtr);
 
 	EndCaller(f);
 	
 def WriteToString(f, className, instance, sharedPtr):
-	BeginCaller(f, "ToString", 0, className, instance, sharedPtr);
+	BeginCaller(f, False, "ToString", 0, className, instance, sharedPtr);
 	
 	f.write('''
 		lua_pushstring(L, String::Format("%s@0x%%p", %s).c_str());
 		return 1;''' % (className, sharedPtr and "_p.get()" or "_p"));
 
 	EndCaller(f);
+	
+def WriteStaticMethods(f, className, interface):
+	f.write(
+'''	static int %sStatic(lua_State* L) {
+		lua_newtable(L);
+		luaL_newmetatable(L, "%sStatic");
+
+		luaL_Reg funcs[] = {''' % (className, className));
+		
+	for method in interface.Methods():
+		if method.IsStatic():
+			f.write('''
+			{ "%s", %s },''' % (method.Name(), method.Name()));
+		
+	f.write('''
+			{"__tostring", ToString },
+			{ nullptr, nullptr }
+		};
+		
+		luaL_setfuncs(L, funcs, 0);
+
+		// duplicate metatable.
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_setmetatable(L, -2);
+
+		return 1;
+	}
+	''');
 
 def WriteMethods(f, className, instance, sharedPtr, interface):
 	WriteToString(f, className, instance, sharedPtr);
+	
+	if interface.HasStatic():
+		WriteStaticMethods(f, className, interface);
 	
 	for method in interface.Methods():
 		WriteMethod(f, method, className, instance, sharedPtr, interface);
@@ -355,14 +428,18 @@ def WriteRegister(f, className, baseName, instance, sharedPtr, interface):
 	}
 	''' % className);
 	f.write('''
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {''');
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {''');
 
 	if instance:
 		f.write('''
-		regs.push_back(luaL_Reg { "%sInstance", %sInstance });\n''' % (className, className));
+		funcs.push_back(luaL_Reg { "%sInstance", %sInstance });\n''' % (className, className));
 	elif not interface.IsNotNewable():
 		f.write('''
-		regs.push_back(luaL_Reg { "New%s", New%s });\n''' % (className, className));
+		funcs.push_back(luaL_Reg { "New%s", New%s });\n''' % (className, className));
+		
+	if interface.HasStatic():
+		f.write('''
+		fields.push_back(luaL_Reg{ "%s", %sStatic });\n''' % (className, className));
 
 	f.write('''
 		luaL_Reg metalib[] = {''');
@@ -379,7 +456,8 @@ def WriteRegister(f, className, baseName, instance, sharedPtr, interface):
 			{ "__tostring", ToString }, ''');
 
 	for method in interface.Methods():
-		f.write('''
+		if not method.IsStatic():
+			f.write('''
 			{ "%s", %s },''' % (method.Name(), method.Name()));
 
 	f.write('''
@@ -388,10 +466,10 @@ def WriteRegister(f, className, baseName, instance, sharedPtr, interface):
 
 		Lua::initMetatable<%s>(L, metalib, %s);
 	}
-''' % (className, (baseName and not instance) and ("TypeID<%s>::name()" % WrapClassName(baseName)[1])  or "nullptr"));
+''' % (className, (baseName and not instance) and ("TypeID<%s>::string()" % WrapClassName(baseName)[1])  or "nullptr"));
 
-def WrapClass(f, className, baseName, defination, instance, wrappers):
-	interface = Interface(className, defination);
+def WrapClass(f, className, baseName, defination, instance, struct, wrappers):
+	interface = Interface(className, defination, struct);
 	abstract = interface.Abstract();
 	print("  Parsing class %s(%d)..." % (className, len(interface.Methods())));
 	sharedPtr, className = WrapClassName(className);
@@ -421,7 +499,7 @@ def WrapClasses(name, classes, wrappers):
 	f.write('#include "tools/string.h"\n');
 
 	for c in classes:
-		WrapClass(f, c[0], c[1], c[2], c[3], wrappers);
+		WrapClass(f, c[0], c[1], c[2], c[3], c[4], wrappers);
 		
 	f.close();
 
@@ -430,7 +508,7 @@ def ClassWrapable(className):
 
 def CollectClasses(filePath):
 	classes = [];
-	name = ""; base = ""; body = []; instance = False;
+	name = ""; base = ""; body = []; instance = False; struct = False;
 
 	prev = "";
 	for line in open(filePath).readlines():
@@ -438,9 +516,10 @@ def CollectClasses(filePath):
 		if not m: 
 			body.append(line);
 		else:
-			if name: classes.append((name, base, body, instance));
-			name = m.group(2);
-			base = m.group(3);
+			if name: classes.append((name, base, body, instance, struct));
+			struct = "struct" in m.group(0);
+			name = m.group(3);
+			base = m.group(4);
 			if "std::" in base: base = "";
 			instance = ("Singleton" in line);
 			if not ClassWrapable(name): name = "";
@@ -448,7 +527,7 @@ def CollectClasses(filePath):
 		
 		prev = line;
 
-	if name: classes.append((name, base, body, instance));
+	if name: classes.append((name, base, body, instance, struct));
 	return classes;
 
 def BeginConfigure(config):
@@ -456,7 +535,7 @@ def BeginConfigure(config):
 namespace Lua {
 
 static int configure(lua_State* L) {
-	std::vector<luaL_Reg> regs;
+	std::vector<luaL_Reg> funcs, fields;
 	
 ''');
 
@@ -464,11 +543,16 @@ def EndConfigure(config):
 	config.append('''
 	// register constructors or getters.
 	luaL_checkversion(L);
-	lua_createtable(L, 0, (int)regs.size());
+	lua_createtable(L, 0, (int)funcs.size());
 
-	regs.push_back(luaL_Reg{ nullptr, nullptr });
-	luaL_setfuncs(L, regs.data(), 0);
+	funcs.push_back(luaL_Reg{ nullptr, nullptr });
+	luaL_setfuncs(L, funcs.data(), 0);
 
+	for (luaL_Reg& field : fields) {
+		field.func(L);
+		lua_setfield(L, -2, field.name);
+	}
+	
 	return 1;
 }
 
@@ -521,7 +605,7 @@ for w in wrappers:
 config.append("\n");
 
 for w in wrappers:
-	config.append("\t%s::initialize(L, regs);\n" % w);
+	config.append("\t%s::initialize(L, funcs, fields);\n" % w);
 
 EndConfigure(config);
 
@@ -531,4 +615,3 @@ f.writelines(config);
 f.close();
 
 input("Done. Press enter to exit...");
-

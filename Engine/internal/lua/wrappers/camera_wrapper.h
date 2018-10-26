@@ -237,7 +237,7 @@ public:
 		Lua::createMetatable<Camera>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Camera> },
 			{ "__tostring", ToString }, 
@@ -275,6 +275,78 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Camera>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Camera>(L, metalib, TypeID<Component>::string());
+	}
+};
+
+class CameraUtility_Wrapper {
+	static int ToString(lua_State* L) {
+		CameraUtility* _p = Lua::callerPtr<CameraUtility>(L, 0);
+		lua_pushstring(L, String::Format("CameraUtility@0x%p", _p).c_str());
+		return 1;
+	}
+
+	static int CameraUtilityStatic(lua_State* L) {
+		lua_newtable(L);
+		luaL_newmetatable(L, "CameraUtilityStatic");
+
+		luaL_Reg funcs[] = {
+			{ "SetMain", SetMain },
+			{ "GetMain", GetMain },
+			{ "OnPreRender", OnPreRender },
+			{ "OnPostRender", OnPostRender },
+			{"__tostring", ToString },
+			{ nullptr, nullptr }
+		};
+		
+		luaL_setfuncs(L, funcs, 0);
+
+		// duplicate metatable.
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_setmetatable(L, -2);
+
+		return 1;
+	}
+		// static void SetMain(Camera value)
+	static int SetMain(lua_State* L) {
+		Camera value = Lua::get<Camera>(L, 2);
+		CameraUtility::SetMain(value);
+		return 0;
+	}
+
+	// static Camera GetMain()
+	static int GetMain(lua_State* L) {
+		return Lua::push(L, CameraUtility::GetMain());
+	}
+
+	// static void OnPreRender()
+	static int OnPreRender(lua_State* L) {
+		CameraUtility::OnPreRender();
+		return 0;
+	}
+
+	// static void OnPostRender()
+	static int OnPostRender(lua_State* L) {
+		CameraUtility::OnPostRender();
+		return 0;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<CameraUtility>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		fields.push_back(luaL_Reg{ "CameraUtility", CameraUtilityStatic });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<CameraUtility> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<CameraUtility>(L, metalib, nullptr);
 	}
 };

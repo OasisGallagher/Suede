@@ -80,8 +80,8 @@ public:
 		Lua::createMetatable<Gizmos>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "GizmosInstance", GizmosInstance });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "GizmosInstance", GizmosInstance });
 
 		luaL_Reg metalib[] = {
 			{ "Flush", Flush },

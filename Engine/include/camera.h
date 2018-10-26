@@ -91,8 +91,8 @@ public:
 SUEDE_DEFINE_OBJECT_POINTER(Camera)
 
 struct SUEDE_API CameraUtility {
-	static void main(Camera value);
-	static Camera main();
+	static void SetMain(Camera value);
+	static Camera GetMain();
 
 	static void OnPreRender();
 	static void OnPostRender();

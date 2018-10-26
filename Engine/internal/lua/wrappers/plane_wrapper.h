@@ -35,8 +35,8 @@ public:
 		Lua::createMetatable<Plane>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewPlane", NewPlane });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewPlane", NewPlane });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Plane> },

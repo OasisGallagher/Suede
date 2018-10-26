@@ -4,9 +4,14 @@
 #include "memory/memory.h"
 #include "geometryutility.h"
 
-Polygon::Polygon(const glm::vec3 * p, uint n) {
+Polygon::Polygon() : points(nullptr), npoints(1) {
+}
+
+Polygon::Polygon(const glm::vec3* p, uint n) {
 	points = MEMORY_NEW_ARRAY(glm::vec3, n);
-	memcpy(points, p, sizeof(glm::vec3) * n);
+	if (p != nullptr) {
+		memcpy(points, p, sizeof(glm::vec3) * n);
+	}
 
 	npoints = n;
 }
@@ -33,6 +38,9 @@ glm::vec3& Polygon::operator[](uint index) {
 const glm::vec3& Polygon::operator[](uint index) const {
 	VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
+}
+
+Triangle::Triangle() : Polygon(nullptr, 3) {
 }
 
 Triangle::Triangle(const glm::vec3* p) : Polygon(p, 3) {

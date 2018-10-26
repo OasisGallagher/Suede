@@ -7,6 +7,35 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class Decal_Wrapper {
+	static int NewDecal(lua_State* L) {
+		return Lua::newObject<Decal>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Decal* _p = Lua::callerPtr<Decal>(L, 0);
+		lua_pushstring(L, String::Format("Decal@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<Decal>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewDecal", NewDecal });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<Decal> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<Decal>(L, metalib, nullptr);
+	}
+};
+
 class Projector_Wrapper {
 	static int ToString(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
@@ -131,7 +160,7 @@ public:
 		Lua::createMetatable<Projector>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Projector> },
 			{ "__tostring", ToString }, 
@@ -154,6 +183,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Projector>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Projector>(L, metalib, TypeID<Component>::string());
 	}
 };

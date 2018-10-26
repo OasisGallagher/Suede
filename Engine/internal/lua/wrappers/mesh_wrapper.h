@@ -7,6 +7,35 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class TriangleBias_Wrapper {
+	static int NewTriangleBias(lua_State* L) {
+		return Lua::newObject<TriangleBias>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		TriangleBias* _p = Lua::callerPtr<TriangleBias>(L, 0);
+		lua_pushstring(L, String::Format("TriangleBias@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<TriangleBias>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewTriangleBias", NewTriangleBias });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<TriangleBias> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<TriangleBias>(L, metalib, nullptr);
+	}
+};
+
 class SubMesh_Wrapper {
 	static int NewSubMesh(lua_State* L) {
 		return Lua::fromShared(L, ::NewSubMesh());
@@ -31,8 +60,8 @@ public:
 		Lua::createMetatable<SubMesh>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewSubMesh", NewSubMesh });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewSubMesh", NewSubMesh });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<SubMesh> },
@@ -41,7 +70,94 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<SubMesh>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<SubMesh>(L, metalib, TypeID<Object>::string());
+	}
+};
+
+class BlendAttribute_Wrapper {
+	static int NewBlendAttribute(lua_State* L) {
+		return Lua::newObject<BlendAttribute>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		BlendAttribute* _p = Lua::callerPtr<BlendAttribute>(L, 0);
+		lua_pushstring(L, String::Format("BlendAttribute@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<BlendAttribute>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewBlendAttribute", NewBlendAttribute });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<BlendAttribute> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<BlendAttribute>(L, metalib, nullptr);
+	}
+};
+
+class InstanceAttribute_Wrapper {
+	static int NewInstanceAttribute(lua_State* L) {
+		return Lua::newObject<InstanceAttribute>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		InstanceAttribute* _p = Lua::callerPtr<InstanceAttribute>(L, 0);
+		lua_pushstring(L, String::Format("InstanceAttribute@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<InstanceAttribute>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewInstanceAttribute", NewInstanceAttribute });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<InstanceAttribute> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<InstanceAttribute>(L, metalib, nullptr);
+	}
+};
+
+class MeshAttribute_Wrapper {
+	static int NewMeshAttribute(lua_State* L) {
+		return Lua::newObject<MeshAttribute>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		MeshAttribute* _p = Lua::callerPtr<MeshAttribute>(L, 0);
+		lua_pushstring(L, String::Format("MeshAttribute@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<MeshAttribute>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewMeshAttribute", NewMeshAttribute });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<MeshAttribute> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<MeshAttribute>(L, metalib, nullptr);
 	}
 };
 
@@ -180,8 +296,8 @@ public:
 		Lua::createMetatable<Mesh>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewMesh", NewMesh });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewMesh", NewMesh });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Mesh> },
@@ -206,7 +322,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Mesh>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<Mesh>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -228,7 +344,7 @@ public:
 		Lua::createMetatable<MeshProvider>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<MeshProvider> },
 			{ "__tostring", ToString }, 
@@ -236,7 +352,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<MeshProvider>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<MeshProvider>(L, metalib, TypeID<Component>::string());
 	}
 };
 
@@ -294,7 +410,7 @@ public:
 		Lua::createMetatable<TextMesh>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<TextMesh> },
 			{ "__tostring", ToString }, 
@@ -307,7 +423,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<TextMesh>(L, metalib, TypeID<MeshProvider>::name());
+		Lua::initMetatable<TextMesh>(L, metalib, TypeID<MeshProvider>::string());
 	}
 };
 
@@ -331,7 +447,7 @@ public:
 		Lua::createMetatable<MeshFilter>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<MeshFilter> },
 			{ "__tostring", ToString }, 
@@ -339,6 +455,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<MeshFilter>(L, metalib, TypeID<MeshProvider>::name());
+		Lua::initMetatable<MeshFilter>(L, metalib, TypeID<MeshProvider>::string());
 	}
 };

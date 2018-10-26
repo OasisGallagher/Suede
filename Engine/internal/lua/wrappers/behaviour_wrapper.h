@@ -47,8 +47,8 @@ public:
 		Lua::createMetatable<Behaviour>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewBehaviour", NewBehaviour });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewBehaviour", NewBehaviour });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Behaviour> },
@@ -59,6 +59,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Behaviour>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Behaviour>(L, metalib, TypeID<Component>::string());
 	}
 };

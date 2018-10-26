@@ -18,7 +18,27 @@ class Rect_Wrapper {
 		return 1;
 	}
 
-	// glm::vec2 GetLeftTop()
+	static int RectStatic(lua_State* L) {
+		lua_newtable(L);
+		luaL_newmetatable(L, "RectStatic");
+
+		luaL_Reg funcs[] = {
+			{ "NormalizedToRect", NormalizedToRect },
+			{"__tostring", ToString },
+			{ nullptr, nullptr }
+		};
+		
+		luaL_setfuncs(L, funcs, 0);
+
+		// duplicate metatable.
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_setmetatable(L, -2);
+
+		return 1;
+	}
+		// glm::vec2 GetLeftTop()
 	static int GetLeftTop(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetLeftTop());
@@ -98,13 +118,22 @@ class Rect_Wrapper {
 		return Lua::push(L, _p->GetYMin());
 	}
 
+	// static Rect NormalizedToRect(const Rect& rect, const Rect& normalized)
+	static int NormalizedToRect(lua_State* L) {
+		Rect normalized = Lua::get<Rect>(L, 3);
+		Rect rect = Lua::get<Rect>(L, 2);
+		return Lua::push(L, Rect::NormalizedToRect(rect, normalized));
+	}
+
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<Rect>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewRect", NewRect });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewRect", NewRect });
+
+		fields.push_back(luaL_Reg{ "Rect", RectStatic });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Rect> },

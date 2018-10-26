@@ -85,8 +85,8 @@ public:
 		Lua::createMetatable<Statistics>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "StatisticsInstance", StatisticsInstance });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "StatisticsInstance", StatisticsInstance });
 
 		luaL_Reg metalib[] = {
 			{ "AddTriangles", AddTriangles },

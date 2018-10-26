@@ -7,6 +7,64 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class Property_Wrapper {
+	static int NewProperty(lua_State* L) {
+		return Lua::newObject<Property>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Property* _p = Lua::callerPtr<Property>(L, 0);
+		lua_pushstring(L, String::Format("Property@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<Property>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewProperty", NewProperty });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<Property> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<Property>(L, metalib, nullptr);
+	}
+};
+
+class ShaderProperty_Wrapper {
+	static int NewShaderProperty(lua_State* L) {
+		return Lua::newObject<ShaderProperty>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		ShaderProperty* _p = Lua::callerPtr<ShaderProperty>(L, 0);
+		lua_pushstring(L, String::Format("ShaderProperty@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<ShaderProperty>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewShaderProperty", NewShaderProperty });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<ShaderProperty> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<ShaderProperty>(L, metalib, nullptr);
+	}
+};
+
 class Shader_Wrapper {
 	static int NewShader(lua_State* L) {
 		return Lua::fromShared(L, ::NewShader());
@@ -113,8 +171,8 @@ public:
 		Lua::createMetatable<Shader>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewShader", NewShader });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewShader", NewShader });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Shader> },
@@ -134,6 +192,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Shader>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<Shader>(L, metalib, TypeID<Object>::string());
 	}
 };

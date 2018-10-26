@@ -94,7 +94,7 @@ void WorldInternal::Finalize() {
 		camera->OnBeforeWorldDestroyed();
 	}
 
-	CameraUtility::main(nullptr);
+	CameraUtility::SetMain(nullptr);
 
 	MEMORY_DELETE(importer_);
 	MEMORY_DELETE(decalCreater_);
@@ -236,8 +236,8 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	if (CameraUtility::main()) {
-		decalCreater_->Update(CameraUtility::main(), projectors_);
+	if (CameraUtility::GetMain()) {
+		decalCreater_->Update(CameraUtility::GetMain(), projectors_);
 	}
 }
 

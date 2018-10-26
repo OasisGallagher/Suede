@@ -33,8 +33,8 @@ public:
 		Lua::createMetatable<ImageEffect>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewImageEffect", NewImageEffect });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewImageEffect", NewImageEffect });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<ImageEffect> },
@@ -43,6 +43,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ImageEffect>(L, metalib, TypeID<Behaviour>::name());
+		Lua::initMetatable<ImageEffect>(L, metalib, TypeID<Behaviour>::string());
 	}
 };

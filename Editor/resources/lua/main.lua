@@ -4,6 +4,9 @@ function SuedeGlobal.Awake()
 end
 
 function SuedeGlobal.Start()
+	Suede.WorldInstance():CullingUpdate();
+	print(Suede.CameraUtility);
+
 	Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
 		print("loaded " .. path);
 		root:GetTransform():SetEulerAngles({ });

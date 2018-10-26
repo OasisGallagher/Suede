@@ -460,13 +460,25 @@
     <ClInclude Include="include\ranged.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\gameobjectimportedlistener.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lua++.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="internal\lua\wrappers\animation_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\bounds_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
     <ClInclude Include="internal\lua\wrappers\camera_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\color_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\component_wrapper.h">
@@ -482,6 +494,9 @@
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\gameobjectimportedlistener_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h">
@@ -512,6 +527,9 @@
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\plane_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\polygon_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\projector_wrapper.h">
@@ -552,12 +570,6 @@
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\world_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\gameobjectimportedlistener.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\lua++.h">
-      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

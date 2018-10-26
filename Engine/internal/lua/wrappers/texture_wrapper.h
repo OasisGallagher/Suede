@@ -108,7 +108,7 @@ public:
 		Lua::createMetatable<Texture>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Texture> },
 			{ "__tostring", ToString }, 
@@ -128,7 +128,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Texture>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<Texture>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -175,8 +175,8 @@ public:
 		Lua::createMetatable<Texture2D>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewTexture2D", NewTexture2D });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewTexture2D", NewTexture2D });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Texture2D> },
@@ -188,7 +188,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Texture2D>(L, metalib, TypeID<Texture>::name());
+		Lua::initMetatable<Texture2D>(L, metalib, TypeID<Texture>::string());
 	}
 };
 
@@ -215,8 +215,8 @@ public:
 		Lua::createMetatable<TextureCube>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewTextureCube", NewTextureCube });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewTextureCube", NewTextureCube });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<TextureCube> },
@@ -225,7 +225,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<TextureCube>(L, metalib, TypeID<Texture>::name());
+		Lua::initMetatable<TextureCube>(L, metalib, TypeID<Texture>::string());
 	}
 };
 
@@ -258,8 +258,8 @@ public:
 		Lua::createMetatable<TextureBuffer>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewTextureBuffer", NewTextureBuffer });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewTextureBuffer", NewTextureBuffer });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<TextureBuffer> },
@@ -269,7 +269,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<TextureBuffer>(L, metalib, TypeID<Texture>::name());
+		Lua::initMetatable<TextureBuffer>(L, metalib, TypeID<Texture>::string());
 	}
 };
 
@@ -325,8 +325,8 @@ public:
 		Lua::createMetatable<RenderTexture>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewRenderTexture", NewRenderTexture });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewRenderTexture", NewRenderTexture });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<RenderTexture> },
@@ -338,7 +338,74 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<RenderTexture>(L, metalib, TypeID<Texture>::name());
+		Lua::initMetatable<RenderTexture>(L, metalib, TypeID<Texture>::string());
+	}
+};
+
+class RenderTextureUtility_Wrapper {
+	static int ToString(lua_State* L) {
+		RenderTextureUtility* _p = Lua::callerPtr<RenderTextureUtility>(L, 0);
+		lua_pushstring(L, String::Format("RenderTextureUtility@0x%p", _p).c_str());
+		return 1;
+	}
+
+	static int RenderTextureUtilityStatic(lua_State* L) {
+		lua_newtable(L);
+		luaL_newmetatable(L, "RenderTextureUtilityStatic");
+
+		luaL_Reg funcs[] = {
+			{ "GetDefault", GetDefault },
+			{ "GetTemporary", GetTemporary },
+			{ "ReleaseTemporary", ReleaseTemporary },
+			{"__tostring", ToString },
+			{ nullptr, nullptr }
+		};
+		
+		luaL_setfuncs(L, funcs, 0);
+
+		// duplicate metatable.
+		lua_pushvalue(L, -1);
+		lua_setfield(L, -2, "__index");
+
+		lua_setmetatable(L, -2);
+
+		return 1;
+	}
+		// static RenderTexture GetDefault()
+	static int GetDefault(lua_State* L) {
+		return Lua::push(L, RenderTextureUtility::GetDefault());
+	}
+
+	// static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height)
+	static int GetTemporary(lua_State* L) {
+		uint height = Lua::get<uint>(L, 4);
+		uint width = Lua::get<uint>(L, 3);
+		RenderTextureFormat format = Lua::get<RenderTextureFormat>(L, 2);
+		return Lua::push(L, RenderTextureUtility::GetTemporary(format, width, height));
+	}
+
+	// static void ReleaseTemporary(RenderTexture texture)
+	static int ReleaseTemporary(lua_State* L) {
+		RenderTexture texture = Lua::get<RenderTexture>(L, 2);
+		RenderTextureUtility::ReleaseTemporary(texture);
+		return 0;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<RenderTextureUtility>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		fields.push_back(luaL_Reg{ "RenderTextureUtility", RenderTextureUtilityStatic });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<RenderTextureUtility> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<RenderTextureUtility>(L, metalib, nullptr);
 	}
 };
 
@@ -378,8 +445,8 @@ public:
 		Lua::createMetatable<MRTRenderTexture>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewMRTRenderTexture", NewMRTRenderTexture });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewMRTRenderTexture", NewMRTRenderTexture });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<MRTRenderTexture> },
@@ -390,6 +457,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<MRTRenderTexture>(L, metalib, TypeID<RenderTexture>::name());
+		Lua::initMetatable<MRTRenderTexture>(L, metalib, TypeID<RenderTexture>::string());
 	}
 };

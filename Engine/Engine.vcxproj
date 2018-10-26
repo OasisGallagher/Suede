@@ -320,11 +320,14 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\gui\stb_truetype.h" />
     <ClInclude Include="internal\lua\wrappers\animation_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\bounds_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\camera_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\color_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\component_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\engine_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\environment_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\font_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\gameobjectimportedlistener_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h" />
@@ -336,6 +339,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\lua\wrappers\object_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\particlesystem_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\plane_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\polygon_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\projector_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\rect_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\renderer_wrapper.h" />

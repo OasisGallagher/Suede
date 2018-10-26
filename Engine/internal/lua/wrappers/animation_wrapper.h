@@ -7,6 +7,64 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class SkeletonBone_Wrapper {
+	static int NewSkeletonBone(lua_State* L) {
+		return Lua::newObject<SkeletonBone>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		SkeletonBone* _p = Lua::callerPtr<SkeletonBone>(L, 0);
+		lua_pushstring(L, String::Format("SkeletonBone@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<SkeletonBone>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewSkeletonBone", NewSkeletonBone });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<SkeletonBone> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<SkeletonBone>(L, metalib, nullptr);
+	}
+};
+
+class SkeletonNode_Wrapper {
+	static int NewSkeletonNode(lua_State* L) {
+		return Lua::newObject<SkeletonNode>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		SkeletonNode* _p = Lua::callerPtr<SkeletonNode>(L, 0);
+		lua_pushstring(L, String::Format("SkeletonNode@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<SkeletonNode>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewSkeletonNode", NewSkeletonNode });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<SkeletonNode> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<SkeletonNode>(L, metalib, nullptr);
+	}
+};
+
 class Skeleton_Wrapper {
 	static int NewSkeleton(lua_State* L) {
 		return Lua::fromShared(L, ::NewSkeleton());
@@ -52,8 +110,8 @@ public:
 		Lua::createMetatable<Skeleton>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewSkeleton", NewSkeleton });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewSkeleton", NewSkeleton });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Skeleton> },
@@ -65,7 +123,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Skeleton>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<Skeleton>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -148,8 +206,8 @@ public:
 		Lua::createMetatable<AnimationClip>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewAnimationClip", NewAnimationClip });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewAnimationClip", NewAnimationClip });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationClip> },
@@ -166,7 +224,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationClip>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<AnimationClip>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -186,8 +244,8 @@ public:
 		Lua::createMetatable<AnimationState>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewAnimationState", NewAnimationState });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewAnimationState", NewAnimationState });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationState> },
@@ -195,7 +253,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationState>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<AnimationState>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -262,8 +320,8 @@ public:
 		Lua::createMetatable<AnimationKeys>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewAnimationKeys", NewAnimationKeys });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewAnimationKeys", NewAnimationKeys });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationKeys> },
@@ -276,7 +334,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationKeys>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<AnimationKeys>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -376,8 +434,8 @@ public:
 		Lua::createMetatable<AnimationFrame>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewAnimationFrame", NewAnimationFrame });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewAnimationFrame", NewAnimationFrame });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationFrame> },
@@ -395,7 +453,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationFrame>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<AnimationFrame>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -431,8 +489,8 @@ public:
 		Lua::createMetatable<AnimationCurve>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
-		regs.push_back(luaL_Reg { "NewAnimationCurve", NewAnimationCurve });
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewAnimationCurve", NewAnimationCurve });
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationCurve> },
@@ -442,7 +500,7 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationCurve>(L, metalib, TypeID<Object>::name());
+		Lua::initMetatable<AnimationCurve>(L, metalib, TypeID<Object>::string());
 	}
 };
 
@@ -517,7 +575,7 @@ public:
 		Lua::createMetatable<Animation>(L);
 	}
 	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Animation> },
 			{ "__tostring", ToString }, 
@@ -532,6 +590,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Animation>(L, metalib, TypeID<Component>::name());
+		Lua::initMetatable<Animation>(L, metalib, TypeID<Component>::string());
 	}
 };

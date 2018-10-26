@@ -4,7 +4,9 @@
 
 #include "animation_wrapper.h"
 #include "behaviour_wrapper.h"
+#include "bounds_wrapper.h"
 #include "camera_wrapper.h"
+#include "color_wrapper.h"
 #include "component_wrapper.h"
 #include "engine_wrapper.h"
 #include "environment_wrapper.h"
@@ -16,9 +18,9 @@
 #include "light_wrapper.h"
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
-#include "object_wrapper.h"
 #include "particlesystem_wrapper.h"
 #include "plane_wrapper.h"
+#include "polygon_wrapper.h"
 #include "projector_wrapper.h"
 #include "rect_wrapper.h"
 #include "renderer_wrapper.h"
@@ -36,8 +38,10 @@
 namespace Lua {
 
 static int configure(lua_State* L) {
-	std::vector<luaL_Reg> regs;
+	std::vector<luaL_Reg> funcs, fields;
 	
+	SkeletonBone_Wrapper::create(L);
+	SkeletonNode_Wrapper::create(L);
 	Skeleton_Wrapper::create(L);
 	AnimationClip_Wrapper::create(L);
 	AnimationState_Wrapper::create(L);
@@ -46,10 +50,15 @@ static int configure(lua_State* L) {
 	AnimationCurve_Wrapper::create(L);
 	Animation_Wrapper::create(L);
 	Behaviour_Wrapper::create(L);
+	Bounds_Wrapper::create(L);
 	Camera_Wrapper::create(L);
+	CameraUtility_Wrapper::create(L);
+	Color_Wrapper::create(L);
 	Component_Wrapper::create(L);
+	ComponentUtility_Wrapper::create(L);
 	Engine_Wrapper::create(L);
 	Environment_Wrapper::create(L);
+	CharacterInfo_Wrapper::create(L);
 	Font_Wrapper::create(L);
 	GameObject_Wrapper::create(L);
 	Gizmos_Wrapper::create(L);
@@ -57,17 +66,25 @@ static int configure(lua_State* L) {
 	ImageEffect_Wrapper::create(L);
 	Light_Wrapper::create(L);
 	Material_Wrapper::create(L);
+	TriangleBias_Wrapper::create(L);
 	SubMesh_Wrapper::create(L);
+	BlendAttribute_Wrapper::create(L);
+	InstanceAttribute_Wrapper::create(L);
+	MeshAttribute_Wrapper::create(L);
 	Mesh_Wrapper::create(L);
 	MeshProvider_Wrapper::create(L);
 	TextMesh_Wrapper::create(L);
 	MeshFilter_Wrapper::create(L);
-	Object_Wrapper::create(L);
+	ParticleBurst_Wrapper::create(L);
+	Particle_Wrapper::create(L);
 	ParticleEmitter_Wrapper::create(L);
 	SphereParticleEmitter_Wrapper::create(L);
 	ParticleAnimator_Wrapper::create(L);
 	ParticleSystem_Wrapper::create(L);
 	Plane_Wrapper::create(L);
+	Polygon_Wrapper::create(L);
+	Triangle_Wrapper::create(L);
+	Decal_Wrapper::create(L);
 	Projector_Wrapper::create(L);
 	Rect_Wrapper::create(L);
 	Renderer_Wrapper::create(L);
@@ -76,6 +93,8 @@ static int configure(lua_State* L) {
 	SkinnedMeshRenderer_Wrapper::create(L);
 	Resources_Wrapper::create(L);
 	Screen_Wrapper::create(L);
+	Property_Wrapper::create(L);
+	ShaderProperty_Wrapper::create(L);
 	Shader_Wrapper::create(L);
 	Statistics_Wrapper::create(L);
 	TagManager_Wrapper::create(L);
@@ -84,71 +103,97 @@ static int configure(lua_State* L) {
 	TextureCube_Wrapper::create(L);
 	TextureBuffer_Wrapper::create(L);
 	RenderTexture_Wrapper::create(L);
+	RenderTextureUtility_Wrapper::create(L);
 	MRTRenderTexture_Wrapper::create(L);
 	Time_Wrapper::create(L);
+	PRS_Wrapper::create(L);
 	Transform_Wrapper::create(L);
 	Variant_Wrapper::create(L);
 	World_Wrapper::create(L);
 
-	Skeleton_Wrapper::initialize(L, regs);
-	AnimationClip_Wrapper::initialize(L, regs);
-	AnimationState_Wrapper::initialize(L, regs);
-	AnimationKeys_Wrapper::initialize(L, regs);
-	AnimationFrame_Wrapper::initialize(L, regs);
-	AnimationCurve_Wrapper::initialize(L, regs);
-	Animation_Wrapper::initialize(L, regs);
-	Behaviour_Wrapper::initialize(L, regs);
-	Camera_Wrapper::initialize(L, regs);
-	Component_Wrapper::initialize(L, regs);
-	Engine_Wrapper::initialize(L, regs);
-	Environment_Wrapper::initialize(L, regs);
-	Font_Wrapper::initialize(L, regs);
-	GameObject_Wrapper::initialize(L, regs);
-	Gizmos_Wrapper::initialize(L, regs);
-	Graphics_Wrapper::initialize(L, regs);
-	ImageEffect_Wrapper::initialize(L, regs);
-	Light_Wrapper::initialize(L, regs);
-	Material_Wrapper::initialize(L, regs);
-	SubMesh_Wrapper::initialize(L, regs);
-	Mesh_Wrapper::initialize(L, regs);
-	MeshProvider_Wrapper::initialize(L, regs);
-	TextMesh_Wrapper::initialize(L, regs);
-	MeshFilter_Wrapper::initialize(L, regs);
-	Object_Wrapper::initialize(L, regs);
-	ParticleEmitter_Wrapper::initialize(L, regs);
-	SphereParticleEmitter_Wrapper::initialize(L, regs);
-	ParticleAnimator_Wrapper::initialize(L, regs);
-	ParticleSystem_Wrapper::initialize(L, regs);
-	Plane_Wrapper::initialize(L, regs);
-	Projector_Wrapper::initialize(L, regs);
-	Rect_Wrapper::initialize(L, regs);
-	Renderer_Wrapper::initialize(L, regs);
-	MeshRenderer_Wrapper::initialize(L, regs);
-	ParticleRenderer_Wrapper::initialize(L, regs);
-	SkinnedMeshRenderer_Wrapper::initialize(L, regs);
-	Resources_Wrapper::initialize(L, regs);
-	Screen_Wrapper::initialize(L, regs);
-	Shader_Wrapper::initialize(L, regs);
-	Statistics_Wrapper::initialize(L, regs);
-	TagManager_Wrapper::initialize(L, regs);
-	Texture_Wrapper::initialize(L, regs);
-	Texture2D_Wrapper::initialize(L, regs);
-	TextureCube_Wrapper::initialize(L, regs);
-	TextureBuffer_Wrapper::initialize(L, regs);
-	RenderTexture_Wrapper::initialize(L, regs);
-	MRTRenderTexture_Wrapper::initialize(L, regs);
-	Time_Wrapper::initialize(L, regs);
-	Transform_Wrapper::initialize(L, regs);
-	Variant_Wrapper::initialize(L, regs);
-	World_Wrapper::initialize(L, regs);
+	SkeletonBone_Wrapper::initialize(L, funcs, fields);
+	SkeletonNode_Wrapper::initialize(L, funcs, fields);
+	Skeleton_Wrapper::initialize(L, funcs, fields);
+	AnimationClip_Wrapper::initialize(L, funcs, fields);
+	AnimationState_Wrapper::initialize(L, funcs, fields);
+	AnimationKeys_Wrapper::initialize(L, funcs, fields);
+	AnimationFrame_Wrapper::initialize(L, funcs, fields);
+	AnimationCurve_Wrapper::initialize(L, funcs, fields);
+	Animation_Wrapper::initialize(L, funcs, fields);
+	Behaviour_Wrapper::initialize(L, funcs, fields);
+	Bounds_Wrapper::initialize(L, funcs, fields);
+	Camera_Wrapper::initialize(L, funcs, fields);
+	CameraUtility_Wrapper::initialize(L, funcs, fields);
+	Color_Wrapper::initialize(L, funcs, fields);
+	Component_Wrapper::initialize(L, funcs, fields);
+	ComponentUtility_Wrapper::initialize(L, funcs, fields);
+	Engine_Wrapper::initialize(L, funcs, fields);
+	Environment_Wrapper::initialize(L, funcs, fields);
+	CharacterInfo_Wrapper::initialize(L, funcs, fields);
+	Font_Wrapper::initialize(L, funcs, fields);
+	GameObject_Wrapper::initialize(L, funcs, fields);
+	Gizmos_Wrapper::initialize(L, funcs, fields);
+	Graphics_Wrapper::initialize(L, funcs, fields);
+	ImageEffect_Wrapper::initialize(L, funcs, fields);
+	Light_Wrapper::initialize(L, funcs, fields);
+	Material_Wrapper::initialize(L, funcs, fields);
+	TriangleBias_Wrapper::initialize(L, funcs, fields);
+	SubMesh_Wrapper::initialize(L, funcs, fields);
+	BlendAttribute_Wrapper::initialize(L, funcs, fields);
+	InstanceAttribute_Wrapper::initialize(L, funcs, fields);
+	MeshAttribute_Wrapper::initialize(L, funcs, fields);
+	Mesh_Wrapper::initialize(L, funcs, fields);
+	MeshProvider_Wrapper::initialize(L, funcs, fields);
+	TextMesh_Wrapper::initialize(L, funcs, fields);
+	MeshFilter_Wrapper::initialize(L, funcs, fields);
+	ParticleBurst_Wrapper::initialize(L, funcs, fields);
+	Particle_Wrapper::initialize(L, funcs, fields);
+	ParticleEmitter_Wrapper::initialize(L, funcs, fields);
+	SphereParticleEmitter_Wrapper::initialize(L, funcs, fields);
+	ParticleAnimator_Wrapper::initialize(L, funcs, fields);
+	ParticleSystem_Wrapper::initialize(L, funcs, fields);
+	Plane_Wrapper::initialize(L, funcs, fields);
+	Polygon_Wrapper::initialize(L, funcs, fields);
+	Triangle_Wrapper::initialize(L, funcs, fields);
+	Decal_Wrapper::initialize(L, funcs, fields);
+	Projector_Wrapper::initialize(L, funcs, fields);
+	Rect_Wrapper::initialize(L, funcs, fields);
+	Renderer_Wrapper::initialize(L, funcs, fields);
+	MeshRenderer_Wrapper::initialize(L, funcs, fields);
+	ParticleRenderer_Wrapper::initialize(L, funcs, fields);
+	SkinnedMeshRenderer_Wrapper::initialize(L, funcs, fields);
+	Resources_Wrapper::initialize(L, funcs, fields);
+	Screen_Wrapper::initialize(L, funcs, fields);
+	Property_Wrapper::initialize(L, funcs, fields);
+	ShaderProperty_Wrapper::initialize(L, funcs, fields);
+	Shader_Wrapper::initialize(L, funcs, fields);
+	Statistics_Wrapper::initialize(L, funcs, fields);
+	TagManager_Wrapper::initialize(L, funcs, fields);
+	Texture_Wrapper::initialize(L, funcs, fields);
+	Texture2D_Wrapper::initialize(L, funcs, fields);
+	TextureCube_Wrapper::initialize(L, funcs, fields);
+	TextureBuffer_Wrapper::initialize(L, funcs, fields);
+	RenderTexture_Wrapper::initialize(L, funcs, fields);
+	RenderTextureUtility_Wrapper::initialize(L, funcs, fields);
+	MRTRenderTexture_Wrapper::initialize(L, funcs, fields);
+	Time_Wrapper::initialize(L, funcs, fields);
+	PRS_Wrapper::initialize(L, funcs, fields);
+	Transform_Wrapper::initialize(L, funcs, fields);
+	Variant_Wrapper::initialize(L, funcs, fields);
+	World_Wrapper::initialize(L, funcs, fields);
 
 	// register constructors or getters.
 	luaL_checkversion(L);
-	lua_createtable(L, 0, (int)regs.size());
+	lua_createtable(L, 0, (int)funcs.size());
 
-	regs.push_back(luaL_Reg{ nullptr, nullptr });
-	luaL_setfuncs(L, regs.data(), 0);
+	funcs.push_back(luaL_Reg{ nullptr, nullptr });
+	luaL_setfuncs(L, funcs.data(), 0);
 
+	for (luaL_Reg& field : fields) {
+		field.func(L);
+		lua_setfield(L, -2, field.name);
+	}
+	
 	return 1;
 }
 

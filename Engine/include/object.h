@@ -55,7 +55,7 @@ SUEDE_DEFINE_OBJECT_POINTER(Object)
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
 public: \
 	virtual const char* metatableName() const { \
-		return TypeID<std::shared_ptr<I ## _Name>>::name(); \
+		return TypeID<std::shared_ptr<I ## _Name>>::string(); \
 	} \
 private:
 

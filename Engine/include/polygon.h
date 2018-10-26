@@ -3,6 +3,7 @@
 #include "enginedefines.h"
 
 struct SUEDE_API Polygon {
+	Polygon();
 	Polygon(const Polygon& other);
 	Polygon(const glm::vec3* p, uint n);
 
@@ -18,5 +19,6 @@ struct SUEDE_API Polygon {
 };
 
 struct Triangle : Polygon {
+	Triangle();
 	Triangle(const glm::vec3* p);
 };

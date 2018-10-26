@@ -163,7 +163,7 @@ void Editor::onPreferences() {
 }
 
 void Editor::onScreenCapture() {
-	Texture2D tex = CameraUtility::main()->Capture();
+	Texture2D tex = CameraUtility::GetMain()->Capture();
 
 	QString filter = "*.jpg;;*.png";
 	
