@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "camera.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Camera_Wrapper {
+	static int ToString(lua_State* L) {
+		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
+		lua_pushstring(L, String::Format("Camera@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void SetDepth(int value)
 	static int SetDepth(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 1);
@@ -20,7 +28,7 @@ class Camera_Wrapper {
 		return Lua::push(L, _p->GetDepth());
 	}
 
-	// bool GetPerspective() const
+	// bool GetPerspective()
 	static int GetPerspective(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
 		return Lua::push(L, _p->GetPerspective());
@@ -34,7 +42,7 @@ class Camera_Wrapper {
 		return 0;
 	}
 
-	// float GetOrthographicSize() const
+	// float GetOrthographicSize()
 	static int GetOrthographicSize(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
 		return Lua::push(L, _p->GetOrthographicSize());
@@ -126,7 +134,7 @@ class Camera_Wrapper {
 		return 0;
 	}
 
-	// float GetAspect() const
+	// float GetAspect()
 	static int GetAspect(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
 		return Lua::push(L, _p->GetAspect());
@@ -140,7 +148,7 @@ class Camera_Wrapper {
 		return 0;
 	}
 
-	// float GetNearClipPlane() const
+	// float GetNearClipPlane()
 	static int GetNearClipPlane(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
 		return Lua::push(L, _p->GetNearClipPlane());
@@ -154,7 +162,7 @@ class Camera_Wrapper {
 		return 0;
 	}
 
-	// float GetFarClipPlane() const
+	// float GetFarClipPlane()
 	static int GetFarClipPlane(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
 		return Lua::push(L, _p->GetFarClipPlane());
@@ -168,7 +176,7 @@ class Camera_Wrapper {
 		return 0;
 	}
 
-	// float GetFieldOfView() const
+	// float GetFieldOfView()
 	static int GetFieldOfView(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L, 0);
 		return Lua::push(L, _p->GetFieldOfView());
@@ -232,6 +240,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Camera> },
+			{ "__tostring", ToString }, 
 			{ "SetDepth", SetDepth },
 			{ "GetDepth", GetDepth },
 			{ "GetPerspective", GetPerspective },
@@ -266,6 +275,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Camera>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Camera>(L, metalib, TypeID<Component>::name());
 	}
 };

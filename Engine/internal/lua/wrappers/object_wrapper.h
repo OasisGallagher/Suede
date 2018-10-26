@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "object.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Object_Wrapper {
+	static int ToString(lua_State* L) {
+		Object& _p = *Lua::callerSharedPtr<Object>(L, 0);
+		lua_pushstring(L, String::Format("Object@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// Object Clone()
 	static int Clone(lua_State* L) {
 		Object& _p = *Lua::callerSharedPtr<Object>(L, 0);
@@ -32,6 +40,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Object> },
+			{ "__tostring", ToString }, 
 			{ "Clone", Clone },
 			{ "GetObjectType", GetObjectType },
 			{ "GetInstanceID", GetInstanceID },

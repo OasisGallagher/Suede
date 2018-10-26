@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "engine.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Engine_Wrapper {
 	static int EngineInstance(lua_State* L) {
 		return Lua::reference<Engine>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Engine* _p = Engine::instance();
+		lua_pushstring(L, String::Format("Engine@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// bool Startup(uint width, uint height)

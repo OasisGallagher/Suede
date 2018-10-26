@@ -2,21 +2,29 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "plane.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Plane_Wrapper {
 	static int NewPlane(lua_State* L) {
 		return Lua::newObject<Plane>(L);
 	}
 
-	// float GetDistance() const
+	static int ToString(lua_State* L) {
+		Plane* _p = Lua::callerPtr<Plane>(L, 0);
+		lua_pushstring(L, String::Format("Plane@0x%p", _p).c_str());
+		return 1;
+	}
+
+	// float GetDistance()
 	static int GetDistance(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L, 0);
 		return Lua::push(L, _p->GetDistance());
 	}
 
-	// glm::vec3 GetNormal() const
+	// glm::vec3 GetNormal()
 	static int GetNormal(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L, 0);
 		return Lua::push(L, _p->GetNormal());
@@ -32,6 +40,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Plane> },
+			{ "__tostring", ToString }, 
 			{ "GetDistance", GetDistance },
 			{ "GetNormal", GetNormal },
 			{ nullptr, nullptr }

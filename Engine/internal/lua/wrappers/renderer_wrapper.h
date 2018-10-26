@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "renderer.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Renderer_Wrapper {
+	static int ToString(lua_State* L) {
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
+		lua_pushstring(L, String::Format("Renderer@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void AddMaterial(Material material)
 	static int AddMaterial(lua_State* L) {
 		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
@@ -74,6 +82,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Renderer> },
+			{ "__tostring", ToString }, 
 			{ "AddMaterial", AddMaterial },
 			{ "GetMaterial", GetMaterial },
 			{ "GetMaterials", GetMaterials },
@@ -85,11 +94,17 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Renderer>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Renderer>(L, metalib, TypeID<Component>::name());
 	}
 };
 
 class MeshRenderer_Wrapper {
+	static int ToString(lua_State* L) {
+		MeshRenderer& _p = *Lua::callerSharedPtr<MeshRenderer>(L, 0);
+		lua_pushstring(L, String::Format("MeshRenderer@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<MeshRenderer>(L);
@@ -98,14 +113,21 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<MeshRenderer> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<MeshRenderer>(L, metalib, Lua::metatableName<Renderer>());
+		Lua::initMetatable<MeshRenderer>(L, metalib, TypeID<Renderer>::name());
 	}
 };
 
 class ParticleRenderer_Wrapper {
+	static int ToString(lua_State* L) {
+		ParticleRenderer& _p = *Lua::callerSharedPtr<ParticleRenderer>(L, 0);
+		lua_pushstring(L, String::Format("ParticleRenderer@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<ParticleRenderer>(L);
@@ -114,14 +136,21 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleRenderer> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleRenderer>(L, metalib, Lua::metatableName<Renderer>());
+		Lua::initMetatable<ParticleRenderer>(L, metalib, TypeID<Renderer>::name());
 	}
 };
 
 class SkinnedMeshRenderer_Wrapper {
+	static int ToString(lua_State* L) {
+		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L, 0);
+		lua_pushstring(L, String::Format("SkinnedMeshRenderer@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void SetSkeleton(Skeleton value)
 	static int SetSkeleton(lua_State* L) {
 		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L, 1);
@@ -138,10 +167,11 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<SkinnedMeshRenderer> },
+			{ "__tostring", ToString }, 
 			{ "SetSkeleton", SetSkeleton },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<SkinnedMeshRenderer>(L, metalib, Lua::metatableName<Renderer>());
+		Lua::initMetatable<SkinnedMeshRenderer>(L, metalib, TypeID<Renderer>::name());
 	}
 };

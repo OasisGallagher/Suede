@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "tagmanager.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class TagManager_Wrapper {
 	static int TagManagerInstance(lua_State* L) {
 		return Lua::reference<TagManager>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		TagManager* _p = TagManager::instance();
+		lua_pushstring(L, String::Format("TagManager@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void Register(const std::string& name)

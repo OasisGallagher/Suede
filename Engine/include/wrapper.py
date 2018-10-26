@@ -62,7 +62,9 @@ class Argument:
 
 class Method:	# void Print(const char* message) for example.
 	def __init__(self, text, groups):
-		self._text = text.strip().replace(";", "");
+		self._text = text.strip();
+		self._text = self._text[:self._text.rfind(")") + 1];
+		
 		self._arguments = [];
 		self._overloaded = "";
 		self._pureVirtual = False;
@@ -260,67 +262,90 @@ def WriteConstructor(f, className, instance, sharedPtr, abstract):
 '''	static int New%s(lua_State* L) {
 		return Lua::newObject<%s>(L);
 	}\n''' % (className, className));
-
-def WriteMethods(f, className, instance, sharedPtr, interface):
-	for method in interface.Methods():
-		f.write("\t// " + method.Text() + "\n");
-		if instance:
-			f.write(
-'''	static int %s(lua_State* L) {
-		%s* _p = %s::instance();''' % (method.Name(), className, className));
-		elif sharedPtr:
-			f.write(
-'''	static int %s(lua_State* L) {
-		%s& _p = *Lua::callerSharedPtr<%s>(L, %d);''' % (method.Name(), className, className, len(method.Arguments())));
-		else:
-			f.write(
-'''	static int %s(lua_State* L) {
-		%s* _p = Lua::callerPtr<%s>(L, %d);''' % (method.Name(), className, className, len(method.Arguments())));
-
-		pps = nargs = len(method.Arguments());
-		for i in range(len(method.Arguments())):
-			argument = method.Arguments()[nargs - i - 1];
-			if (kArray in argument.type) or (kGenericContainer in argument.type):
-				key = (kArray in argument.type) and kArray or kGenericContainer;
-				element = argument.type[len(key)+1:];
-				f.write('''
-		std::vector<%s> %s = Lua::getList<%s>(L, %d);''' % (element, argument.value, element, (nargs - i + 1)));
-			elif kPyCStr in argument.type:
-				f.write('''
-		std::string %s = Lua::get<std::string>(L, %d);''' % (argument.value, (nargs - i + 1)));
-			elif kLuaFunction in argument.type:
-				type = argument.type[argument.type.find("<") + 1:argument.type.rfind(">")];
-				if pps - (nargs - i) > 0:
-					f.write('''
-		lua_pop(L, %d);	// ensure function at top of stack.''' % (pps - (nargs - i)));
-
-				f.write('''
-		auto %s = lua_isnil(L, -1) ? nullptr : Lua::make_func<%s>(L);''' % (argument.value, type));
-				pps = nargs - i - 1;
-			else:
-				f.write('''
-		%s %s = Lua::get<%s>(L, %d);''' % (argument.type, argument.value, argument.type, (nargs - i + 1)));
-
-		call = CallMethod(method);
-		if method.Return() == "void":
-			f.write('''
+	
+def WriteMethodCall(f, method, className):
+	call = CallMethod(method);
+	if method.Return() == "void":
+		f.write('''
 		%s;
 		return 0;''' % call);
-		elif kGenericContainer in method.Return():
-			f.write('''
+	elif kGenericContainer in method.Return():
+		f.write('''
 		return Lua::pushList(L, %s);''' % call);
-		elif kEnumerable in method.Return():
-			etype = "I%s::%s" % (className, method.Return());
-			f.write('''
+	elif kEnumerable in method.Return():
+		etype = "I%s::%s" % (className, method.Return());
+		f.write('''
 		%s _r = %s;
 		return Lua::pushList(L, std::vector<%s::value_type>(_r.begin(), _r.end()));'''
-			% (etype, call, etype));
+		% (etype, call, etype));
+	else:
+		f.write('''
+		return Lua::push(L, %s);''' % call);
+		
+def BeginCaller(f, methodName, nargs, className, instance, sharedPtr):
+	if instance:
+		f.write(
+'''	static int %s(lua_State* L) {
+		%s* _p = %s::instance();''' % (methodName, className, className));
+	elif sharedPtr:
+		f.write(
+'''	static int %s(lua_State* L) {
+		%s& _p = *Lua::callerSharedPtr<%s>(L, %d);''' % (methodName, className, className, nargs));
+	else:
+		f.write(
+'''	static int %s(lua_State* L) {
+		%s* _p = Lua::callerPtr<%s>(L, %d);''' % (methodName, className, className, nargs));
+		
+def EndCaller(f):
+	f.write('''
+	}\n\n''');
+
+def WriteMethod(f, method, className, instance, sharedPtr, interface):
+	f.write("\t// " + method.Text() + "\n");
+	BeginCaller(f, method.Name(), len(method.Arguments()), className, instance, sharedPtr);
+	
+	pps = nargs = len(method.Arguments());
+	for i in range(len(method.Arguments())):
+		argument = method.Arguments()[nargs - i - 1];
+		if (kArray in argument.type) or (kGenericContainer in argument.type):
+			key = (kArray in argument.type) and kArray or kGenericContainer;
+			element = argument.type[len(key)+1:];
+			f.write('''
+		std::vector<%s> %s = Lua::getList<%s>(L, %d);''' % (element, argument.value, element, (nargs - i + 1)));
+		elif kPyCStr in argument.type:
+			f.write('''
+		std::string %s = Lua::get<std::string>(L, %d);''' % (argument.value, (nargs - i + 1)));
+		elif kLuaFunction in argument.type:
+			type = argument.type[argument.type.find("<") + 1:argument.type.rfind(">")];
+			if pps - (nargs - i) > 0:
+				f.write('''
+		lua_pop(L, %d);	// ensure function at top of stack.''' % (pps - (nargs - i)));
+
+			f.write('''
+		auto %s = lua_isnil(L, -1) ? nullptr : Lua::make_func<%s>(L);''' % (argument.value, type));
+			pps = nargs - i - 1;
 		else:
 			f.write('''
-		return Lua::push(L, %s);''' % call);
+		%s %s = Lua::get<%s>(L, %d);''' % (argument.type, argument.value, argument.type, (nargs - i + 1)));
+	
+	WriteMethodCall(f, method, className);
 
-		f.write('''
-	}\n\n''');
+	EndCaller(f);
+	
+def WriteToString(f, className, instance, sharedPtr):
+	BeginCaller(f, "ToString", 0, className, instance, sharedPtr);
+	
+	f.write('''
+		lua_pushstring(L, String::Format("%s@0x%%p", %s).c_str());
+		return 1;''' % (className, sharedPtr and "_p.get()" or "_p"));
+
+	EndCaller(f);
+
+def WriteMethods(f, className, instance, sharedPtr, interface):
+	WriteToString(f, className, instance, sharedPtr);
+	
+	for method in interface.Methods():
+		WriteMethod(f, method, className, instance, sharedPtr, interface);
 
 def WriteRegister(f, className, baseName, instance, sharedPtr, interface):
 	f.write("public:");
@@ -349,6 +374,9 @@ def WriteRegister(f, className, baseName, instance, sharedPtr, interface):
 		else:
 			f.write('''
 			{ "__gc", Lua::deletePtr<%s> },''' % className);
+			
+		f.write('''
+			{ "__tostring", ToString }, ''');
 
 	for method in interface.Methods():
 		f.write('''
@@ -360,7 +388,7 @@ def WriteRegister(f, className, baseName, instance, sharedPtr, interface):
 
 		Lua::initMetatable<%s>(L, metalib, %s);
 	}
-''' % (className, (baseName and not instance) and ("Lua::metatableName<%s>()" % WrapClassName(baseName)[1])  or "nullptr"));
+''' % (className, (baseName and not instance) and ("TypeID<%s>::name()" % WrapClassName(baseName)[1])  or "nullptr"));
 
 def WrapClass(f, className, baseName, defination, instance, wrappers):
 	interface = Interface(className, defination);
@@ -387,8 +415,10 @@ def WrapClasses(name, classes, wrappers):
 	# common headers.
 	f.write("// Warning: this file is generated by wrapper.py.\n\n");
 	f.write("#pragma once\n\n");
+	f.write('#include "' + name + '"\n\n');
+	
 	f.write('#include "lua++.h"\n');
-	f.write('#include "' + name + '"\n');
+	f.write('#include "tools/string.h"\n');
 
 	for c in classes:
 		WrapClass(f, c[0], c[1], c[2], c[3], wrappers);

@@ -2,111 +2,119 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "variant.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Variant_Wrapper {
 	static int NewVariant(lua_State* L) {
 		return Lua::newObject<Variant>(L);
 	}
 
-	// int GetInt() const
+	static int ToString(lua_State* L) {
+		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		lua_pushstring(L, String::Format("Variant@0x%p", _p).c_str());
+		return 1;
+	}
+
+	// int GetInt()
 	static int GetInt(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetInt());
 	}
 
-	// bool GetBool() const
+	// bool GetBool()
 	static int GetBool(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetBool());
 	}
 
-	// float GetFloat() const
+	// float GetFloat()
 	static int GetFloat(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetFloat());
 	}
 
-	// iranged GetRangedInt() const
+	// iranged GetRangedInt()
 	static int GetRangedInt(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetRangedInt());
 	}
 
-	// franged GetRangedFloat() const
+	// franged GetRangedFloat()
 	static int GetRangedFloat(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetRangedFloat());
 	}
 
-	// glm::mat3 GetMatrix3() const
+	// glm::mat3 GetMatrix3()
 	static int GetMatrix3(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetMatrix3());
 	}
 
-	// glm::mat4 GetMatrix4() const
+	// glm::mat4 GetMatrix4()
 	static int GetMatrix4(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetMatrix4());
 	}
 
-	// glm::ivec3 GetIVector3() const
+	// glm::ivec3 GetIVector3()
 	static int GetIVector3(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetIVector3());
 	}
 
-	// glm::vec3 GetVector3() const
+	// glm::vec3 GetVector3()
 	static int GetVector3(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetVector3());
 	}
 
-	// Color GetColor() const
+	// Color GetColor()
 	static int GetColor(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetColor());
 	}
 
-	// glm::vec4 GetVector4() const
+	// glm::vec4 GetVector4()
 	static int GetVector4(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetVector4());
 	}
 
-	// glm::quat GetQuaternion() const
+	// glm::quat GetQuaternion()
 	static int GetQuaternion(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetQuaternion());
 	}
 
-	// std::string GetString() const
+	// std::string GetString()
 	static int GetString(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetString());
 	}
 
-	// uint GetVector3ArraySize() const
+	// uint GetVector3ArraySize()
 	static int GetVector3ArraySize(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetVector3ArraySize());
 	}
 
-	// uint GetMatrix4ArraySize() const
+	// uint GetMatrix4ArraySize()
 	static int GetMatrix4ArraySize(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetMatrix4ArraySize());
 	}
 
-	// Texture GetTexture() const
+	// Texture GetTexture()
 	static int GetTexture(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetTexture());
 	}
 
-	// VariantType GetType() const { return type_ }
+	// VariantType GetType()
 	static int GetType(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetType());
@@ -224,7 +232,7 @@ class Variant_Wrapper {
 		return 0;
 	}
 
-	// uint GetDataSize() const
+	// uint GetDataSize()
 	static int GetDataSize(lua_State* L) {
 		Variant* _p = Lua::callerPtr<Variant>(L, 0);
 		return Lua::push(L, _p->GetDataSize());
@@ -240,6 +248,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Variant> },
+			{ "__tostring", ToString }, 
 			{ "GetInt", GetInt },
 			{ "GetBool", GetBool },
 			{ "GetFloat", GetFloat },

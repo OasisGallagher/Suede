@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "resources.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Resources_Wrapper {
 	static int ResourcesInstance(lua_State* L) {
 		return Lua::reference<Resources>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Resources* _p = Resources::instance();
+		lua_pushstring(L, String::Format("Resources@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void Import()

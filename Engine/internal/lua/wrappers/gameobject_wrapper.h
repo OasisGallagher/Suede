@@ -2,15 +2,23 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "gameobject.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class GameObject_Wrapper {
 	static int NewGameObject(lua_State* L) {
 		return Lua::fromShared(L, ::NewGameObject());
 	}
 
-	// bool GetActive() const
+	static int ToString(lua_State* L) {
+		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 0);
+		lua_pushstring(L, String::Format("GameObject@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
+	// bool GetActive()
 	static int GetActive(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 0);
 		return Lua::push(L, _p->GetActive());
@@ -24,7 +32,7 @@ class GameObject_Wrapper {
 		return 0;
 	}
 
-	// bool GetActiveSelf() const
+	// bool GetActiveSelf()
 	static int GetActiveSelf(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 0);
 		return Lua::push(L, _p->GetActiveSelf());
@@ -43,7 +51,7 @@ class GameObject_Wrapper {
 		return Lua::push(L, _p->SetTag(value));
 	}
 
-	// std::string GetName() const
+	// std::string GetName()
 	static int GetName(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L, 0);
 		return Lua::push(L, _p->GetName());
@@ -137,6 +145,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<GameObject> },
+			{ "__tostring", ToString }, 
 			{ "GetActive", GetActive },
 			{ "SetActiveSelf", SetActiveSelf },
 			{ "GetActiveSelf", GetActiveSelf },
@@ -157,6 +166,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<GameObject>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<GameObject>(L, metalib, TypeID<Object>::name());
 	}
 };

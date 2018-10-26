@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "environment.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Environment_Wrapper {
 	static int EnvironmentInstance(lua_State* L) {
 		return Lua::reference<Environment>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Environment* _p = Environment::instance();
+		lua_pushstring(L, String::Format("Environment@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void SetSkybox(Material value)

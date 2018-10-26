@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "texture.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Texture_Wrapper {
+	static int ToString(lua_State* L) {
+		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
+		lua_pushstring(L, String::Format("Texture@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void Bind(uint index)
 	static int Bind(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 1);
@@ -35,7 +43,7 @@ class Texture_Wrapper {
 		return 0;
 	}
 
-	// TextureMinFilterMode GetMinFilterMode() const
+	// TextureMinFilterMode GetMinFilterMode()
 	static int GetMinFilterMode(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
 		return Lua::push(L, _p->GetMinFilterMode());
@@ -49,7 +57,7 @@ class Texture_Wrapper {
 		return 0;
 	}
 
-	// TextureMagFilterMode GetMagFilterMode() const
+	// TextureMagFilterMode GetMagFilterMode()
 	static int GetMagFilterMode(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
 		return Lua::push(L, _p->GetMagFilterMode());
@@ -63,7 +71,7 @@ class Texture_Wrapper {
 		return 0;
 	}
 
-	// TextureWrapMode GetWrapModeS() const
+	// TextureWrapMode GetWrapModeS()
 	static int GetWrapModeS(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
 		return Lua::push(L, _p->GetWrapModeS());
@@ -77,19 +85,19 @@ class Texture_Wrapper {
 		return 0;
 	}
 
-	// TextureWrapMode GetWrapModeT() const
+	// TextureWrapMode GetWrapModeT()
 	static int GetWrapModeT(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
 		return Lua::push(L, _p->GetWrapModeT());
 	}
 
-	// uint GetWidth() const
+	// uint GetWidth()
 	static int GetWidth(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
 		return Lua::push(L, _p->GetWidth());
 	}
 
-	// uint GetHeight() const
+	// uint GetHeight()
 	static int GetHeight(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L, 0);
 		return Lua::push(L, _p->GetHeight());
@@ -103,6 +111,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Texture> },
+			{ "__tostring", ToString }, 
 			{ "Bind", Bind },
 			{ "Unbind", Unbind },
 			{ "GetNativePointer", GetNativePointer },
@@ -119,13 +128,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Texture>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<Texture>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class Texture2D_Wrapper {
 	static int NewTexture2D(lua_State* L) {
 		return Lua::fromShared(L, ::NewTexture2D());
+	}
+
+	static int ToString(lua_State* L) {
+		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L, 0);
+		lua_pushstring(L, String::Format("Texture2D@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// bool Create(const std::string& path)
@@ -165,6 +180,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Texture2D> },
+			{ "__tostring", ToString }, 
 			{ "Create", Create },
 			{ "GetFormat", GetFormat },
 			{ "EncodeToPNG", EncodeToPNG },
@@ -172,13 +188,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Texture2D>(L, metalib, Lua::metatableName<Texture>());
+		Lua::initMetatable<Texture2D>(L, metalib, TypeID<Texture>::name());
 	}
 };
 
 class TextureCube_Wrapper {
 	static int NewTextureCube(lua_State* L) {
 		return Lua::fromShared(L, ::NewTextureCube());
+	}
+
+	static int ToString(lua_State* L) {
+		TextureCube& _p = *Lua::callerSharedPtr<TextureCube>(L, 0);
+		lua_pushstring(L, String::Format("TextureCube@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// bool Load(const std::string textures[6])
@@ -198,11 +220,12 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<TextureCube> },
+			{ "__tostring", ToString }, 
 			{ "Load", Load },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<TextureCube>(L, metalib, Lua::metatableName<Texture>());
+		Lua::initMetatable<TextureCube>(L, metalib, TypeID<Texture>::name());
 	}
 };
 
@@ -211,7 +234,13 @@ class TextureBuffer_Wrapper {
 		return Lua::fromShared(L, ::NewTextureBuffer());
 	}
 
-	// uint GetSize() const
+	static int ToString(lua_State* L) {
+		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L, 0);
+		lua_pushstring(L, String::Format("TextureBuffer@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
+	// uint GetSize()
 	static int GetSize(lua_State* L) {
 		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L, 0);
 		return Lua::push(L, _p->GetSize());
@@ -234,18 +263,25 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<TextureBuffer> },
+			{ "__tostring", ToString }, 
 			{ "GetSize", GetSize },
 			{ "Create", Create },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<TextureBuffer>(L, metalib, Lua::metatableName<Texture>());
+		Lua::initMetatable<TextureBuffer>(L, metalib, TypeID<Texture>::name());
 	}
 };
 
 class RenderTexture_Wrapper {
 	static int NewRenderTexture(lua_State* L) {
 		return Lua::fromShared(L, ::NewRenderTexture());
+	}
+
+	static int ToString(lua_State* L) {
+		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L, 0);
+		lua_pushstring(L, String::Format("RenderTexture@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// bool Create(RenderTextureFormat format, uint width, uint height)
@@ -294,6 +330,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<RenderTexture> },
+			{ "__tostring", ToString }, 
 			{ "Create", Create },
 			{ "Resize", Resize },
 			{ "Clear", Clear },
@@ -301,13 +338,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<RenderTexture>(L, metalib, Lua::metatableName<Texture>());
+		Lua::initMetatable<RenderTexture>(L, metalib, TypeID<Texture>::name());
 	}
 };
 
 class MRTRenderTexture_Wrapper {
 	static int NewMRTRenderTexture(lua_State* L) {
 		return Lua::fromShared(L, ::NewMRTRenderTexture());
+	}
+
+	static int ToString(lua_State* L) {
+		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L, 0);
+		lua_pushstring(L, String::Format("MRTRenderTexture@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// bool AddColorTexture(TextureFormat format)
@@ -340,12 +383,13 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<MRTRenderTexture> },
+			{ "__tostring", ToString }, 
 			{ "AddColorTexture", AddColorTexture },
 			{ "GetColorTexture", GetColorTexture },
 			{ "GetColorTextureCount", GetColorTextureCount },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<MRTRenderTexture>(L, metalib, Lua::metatableName<RenderTexture>());
+		Lua::initMetatable<MRTRenderTexture>(L, metalib, TypeID<RenderTexture>::name());
 	}
 };

@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "gizmos.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Gizmos_Wrapper {
 	static int GizmosInstance(lua_State* L) {
 		return Lua::reference<Gizmos>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Gizmos* _p = Gizmos::instance();
+		lua_pushstring(L, String::Format("Gizmos@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void Flush()

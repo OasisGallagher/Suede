@@ -20,6 +20,9 @@ extern "C" {
 }
 
 namespace Lua {
+
+#pragma region internal helpers
+
 inline int _panic(lua_State* L) {
 	Debug::LogError("onPanic: %s", lua_tostring(L, -1));
 	lua_pop(L, 1);
@@ -33,45 +36,13 @@ inline void _error(lua_State *L) {
 	lua_pop(L, 1);
 }
 
-static void _extractMsg(lua_State* L, std::string& message, int i) {
-	switch (lua_type(L, i)) {
-		case LUA_TNIL:
-			message += "nil";
-			break;
-		case LUA_TBOOLEAN:
-			message += lua_toboolean(L, i) != 0 ? "true" : "false";
-			break;
-		case LUA_TLIGHTUSERDATA:
-			message += "lightuserdata";
-			break;
-		case LUA_TNUMBER:
-			message += std::to_string(lua_tonumber(L, i));
-			break;
-		case LUA_TSTRING:
-			message += lua_tostring(L, i);
-			break;
-		case LUA_TTABLE:
-			message += "table";
-			break;
-		case LUA_TFUNCTION:
-			message += "function";
-			break;
-		case LUA_TUSERDATA:
-			message += "userdata";
-			break;
-		case LUA_TTHREAD:
-			message += "thread";
-			break;
-	}
-}
-
 static int _print(lua_State *L) {
 	std::string message;
 	int nargs = lua_gettop(L);
 
 	for (int i = 1; i <= nargs; i++) {
 		if (i != 1) { message += " "; }
-		_extractMsg(L, message, i);
+		message += luaL_tolstring(L, i, nullptr);
 	}
 
 	Debug::Log(message.c_str());
@@ -90,40 +61,37 @@ inline void _registerGlobals(lua_State* L) {
 	lua_pop(L, 1);
 }
 
-template <class R, class... Args>
-class _FBase {
-public:
-	_FBase(lua_State* L) : L(L) {
-		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+template <class T>
+inline T* _userdataPtr(lua_State* L, int index/*, const char* metatable*/) {
+	//T** p = (T**)luaL_checkudata(L, 1, Lua::metatableName<T>());
+	T** p = (T**)lua_touserdata(L, 1);
+	if (p == nullptr) { return nullptr; }
+
+	return *p;
+}
+
+template <class T>
+inline T* _userdataSharedPtr(lua_State* L, int index/*, const char* metatable*/) {
+	//T* p = (T*)luaL_checkudata(L, index, metatable);
+	T* p = (T*)lua_touserdata(L, index);
+	return p;
+}
+
+template <class T>
+static T _glmConvert(lua_State* L, int index) {
+	T ans;
+	float* ptr = (float*)&ans;
+	std::vector<float> values = getList<float>(L, index);
+	for (int i = 0; i < Math::Min(sizeof(T) / sizeof(float), values.size()); ++i) {
+		*ptr++ = values[i];
 	}
 
-	virtual ~_FBase() {
-		luaL_unref(L, LUA_REGISTRYINDEX, ref_);
-	}
+	return ans;
+}
 
-	R operator()(Args... args) {
-		lua_rawgeti(L, LUA_REGISTRYINDEX, ref_);
+#pragma endregion
 
-		lua_pushvalue(L, -1);
-		Lua::push(L, args...);
-
-		R _r();
-		if (lua_pcall(L, sizeof...(Args), 1, 0) != 0) {
-			_error(L);
-		}
-		else {
-			r = Lua::get<R>(L, -1);
-			lua_pop(L, 1);
-		}
-
-		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
-		return _r;
-	}
-
-protected:
-	int ref_;
-	lua_State* L;
-};
+#pragma region con/destructor
 
 static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 	std::vector<luaL_Reg> regs {
@@ -152,10 +120,57 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 }
 
 template <class T>
-inline const char* metatableName() {
-	static std::string str = std::to_string(TypeID<T>::value());
-	return str.c_str();
+inline int fromShared(lua_State* L, T ptr) {
+	return copyUserdata(L, ptr);
 }
+
+template <class T>
+inline int deleteSharedPtr(lua_State* L) {
+	T* ptr = callerSharedPtr<T>(L, 0);
+	if (ptr != nullptr) { ptr->reset(); }
+	return 0;
+}
+
+template <class T>
+inline int newObject(lua_State* L) {
+	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
+	*memory = new T;
+
+	luaL_getmetatable(L, TypeID<T>::name());
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+template <class T>
+inline int newInterface(lua_State* L) {
+	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
+	*memory = new T;
+
+	luaL_getmetatable(L, TypeID<T::Interface>::name());
+	lua_setmetatable(L, -2);
+	return 1;
+}
+
+template <class T>
+inline int deletePtr(lua_State* L) {
+	delete callerPtr<T>(L, 0);
+	return 0;
+}
+
+template <class T>
+inline int reference(lua_State* L) {
+	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
+	*memory = T::instance();
+
+	luaL_getmetatable(L, TypeID<T>::name());
+	lua_setmetatable(L, -2);
+
+	return 1;
+}
+
+#pragma endregion
+
+#pragma region meta system
 
 template<typename T> struct _is_shared_ptr : std::false_type {};
 template<typename T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
@@ -163,7 +178,7 @@ template<typename T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type 
 template <class T>
 inline typename std::enable_if<!_is_shared_ptr<T>::value && !std::is_pointer<T>::value, const char*>::type
 metatableName(const T&) {
-	return metatableName<T>();
+	return TypeID<T>::name();
 }
 
 // get real metatable by virtual function.
@@ -174,20 +189,30 @@ metatableName(const T& o) {
 }
 
 template <class T>
-inline T* _userdataPtr(lua_State* L, int index/*, const char* metatable*/) {
-	//T** p = (T**)luaL_checkudata(L, 1, Lua::metatableName<T>());
-	T** p = (T**)lua_touserdata(L, 1);
-	if (p == nullptr) { return nullptr; }
-	
-	return *p;
+inline void createMetatable(lua_State* L) {
+	luaL_newmetatable(L, TypeID<T>::name());
+
+	// duplicate metatable.
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+
+	lua_pop(L, 1);
 }
 
 template <class T>
-inline T* _userdataSharedPtr(lua_State* L, int index/*, const char* metatable*/) {
-	//T* p = (T*)luaL_checkudata(L, index, metatable);
-	T* p = (T*)lua_touserdata(L, index);
-	return p;
+inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
+	luaL_getmetatable(L, TypeID<T>::name());
+	luaL_setfuncs(L, lib, 0);
+
+	if (baseClass != nullptr) {
+		luaL_getmetatable(L, baseClass);
+		lua_setmetatable(L, -2);
+	}
+
+	lua_pop(L, 1);
 }
+
+#pragma endregion
 
 template <class T>
 inline T* callerSharedPtr(lua_State* L, int nargs) {
@@ -196,7 +221,7 @@ inline T* callerSharedPtr(lua_State* L, int nargs) {
 		return nullptr;
 	}
 
-	return _userdataSharedPtr<T>(L, 1);//, metatableName<T>());
+	return _userdataSharedPtr<T>(L, 1);
 }
 
 template <class T>
@@ -206,7 +231,7 @@ inline T* callerPtr(lua_State* L, int nargs) {
 		return nullptr;
 	}
 
-	return _userdataPtr<T>(L, 1);// , metatableName<T>());
+	return _userdataPtr<T>(L, 1);
 }
 
 template <class T>
@@ -217,6 +242,8 @@ inline int copyUserdata(lua_State* L, const T& value) {
 	lua_setmetatable(L, -2);
 	return 1;
 }
+
+#pragma region push
 
 inline int push(lua_State* L) {
 	return 0;
@@ -362,10 +389,14 @@ inline int push(lua_State* L, T arg, R... args) {
 	return n;
 }
 
+#pragma endregion
+
+#pragma region get
+
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value, T>::type
 get(lua_State* L, int index) {
-	return *_userdataSharedPtr<T>(L, -1);// , metatableName<T>());
+	return *_userdataSharedPtr<T>(L, -1);
 }
 
 template <>
@@ -455,18 +486,6 @@ static std::vector<T> getList(lua_State* L, int index) {
 	return container;
 }
 
-template <class T>
-static T _glmConvert(lua_State* L, int index) {
-	T ans;
-	float* ptr = (float*)&ans;
-	std::vector<float> values = getList<float>(L, index);
-	for (int i = 0; i < Math::Min(sizeof(T) / sizeof(float), values.size()); ++i) {
-		*ptr++ = values[i];
-	}
-
-	return ans;
-}
-
 template <>
 inline glm::vec2 get<glm::vec2>(lua_State* L, int index) {
 	return _glmConvert<glm::vec2>(L, index);
@@ -502,78 +521,44 @@ inline glm::mat4 get<glm::mat4>(lua_State* L, int index) {
 	return _glmConvert<glm::mat4>(L, index);
 }
 
-template <class T>
-inline int fromShared(lua_State* L, T ptr) {
-	return copyUserdata(L, ptr);
-}
+#pragma endregion
 
-template <class T>
-inline int deleteSharedPtr(lua_State* L) {
-	T* ptr = callerSharedPtr<T>(L, 0);
-	if (ptr != nullptr) { ptr->reset(); }
-	return 0;
-}
+#pragma region function
 
-template <class T>
-inline int newObject(lua_State* L) {
-	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = new T;
-
-	luaL_getmetatable(L, Lua::metatableName<T>());
-	lua_setmetatable(L, -2);
-	return 1;
-}
-
-template <class T>
-inline int newInterface(lua_State* L) {
-	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = new T;
-
-	luaL_getmetatable(L, Lua::metatableName<T::Interface>());
-	lua_setmetatable(L, -2);
-	return 1;
-}
-
-template <class T>
-inline int deletePtr(lua_State* L) {
-	delete callerPtr<T>(L, 0);
-	return 0;
-}
-
-template <class T>
-inline int reference(lua_State* L) {
-	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = T::instance();
-
-	luaL_getmetatable(L, Lua::metatableName<T>());
-	lua_setmetatable(L, -2);
-
-	return 1;
-}
-
-template <class T>
-inline void createMetatable(lua_State* L) {
-	luaL_newmetatable(L, metatableName<T>());
-
-	// duplicate metatable.
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-
-	lua_pop(L, 1);
-}
-
-template <class T>
-inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
-	luaL_getmetatable(L, metatableName<T>());
-	luaL_setfuncs(L, lib, 0);
-
-	if (baseClass != nullptr) {
-		luaL_getmetatable(L, baseClass);
-		lua_setmetatable(L, -2);
+template <class R, class... Args>
+class _FBase {
+public:
+	_FBase(lua_State* L) : L(L) {
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
 
-	lua_pop(L, 1);
-}
+	virtual ~_FBase() {
+		luaL_unref(L, LUA_REGISTRYINDEX, ref_);
+	}
+
+	R operator()(Args... args) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, ref_);
+
+		lua_pushvalue(L, -1);
+		Lua::push(L, args...);
+
+		R _r();
+		if (lua_pcall(L, sizeof...(Args), 1, 0) != 0) {
+			_error(L);
+		}
+		else {
+			r = Lua::get<R>(L, -1);
+			lua_pop(L, 1);
+		}
+
+		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
+		return _r;
+	}
+
+protected:
+	int ref_;
+	lua_State* L;
+};
 
 template <class R, class... Args>
 class IFunc : public _FBase <R, Args...> {
@@ -612,5 +597,7 @@ Func<R, Args...> make_func(lua_State* L) {
 
 	return std::make_shared<Func<R, Args...>::element_type>(L);
 }
+
+#pragma endregion
 
 }	// namespace Lua

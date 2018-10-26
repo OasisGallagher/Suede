@@ -2,33 +2,41 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "rect.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Rect_Wrapper {
 	static int NewRect(lua_State* L) {
 		return Lua::newObject<Rect>(L);
 	}
 
-	// glm::vec2 GetLeftTop() const
+	static int ToString(lua_State* L) {
+		Rect* _p = Lua::callerPtr<Rect>(L, 0);
+		lua_pushstring(L, String::Format("Rect@0x%p", _p).c_str());
+		return 1;
+	}
+
+	// glm::vec2 GetLeftTop()
 	static int GetLeftTop(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetLeftTop());
 	}
 
-	// glm::vec2 GetLeftBottom() const
+	// glm::vec2 GetLeftBottom()
 	static int GetLeftBottom(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetLeftBottom());
 	}
 
-	// glm::vec2 GetRightTop() const
+	// glm::vec2 GetRightTop()
 	static int GetRightTop(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetRightTop());
 	}
 
-	// glm::vec2 GetRightBottom() const
+	// glm::vec2 GetRightBottom()
 	static int GetRightBottom(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetRightBottom());
@@ -42,7 +50,7 @@ class Rect_Wrapper {
 		return 0;
 	}
 
-	// float GetWidth() const
+	// float GetWidth()
 	static int GetWidth(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetWidth());
@@ -56,7 +64,7 @@ class Rect_Wrapper {
 		return 0;
 	}
 
-	// float GetHeight() const
+	// float GetHeight()
 	static int GetHeight(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetHeight());
@@ -70,7 +78,7 @@ class Rect_Wrapper {
 		return 0;
 	}
 
-	// float GetXMin() const
+	// float GetXMin()
 	static int GetXMin(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetXMin());
@@ -84,7 +92,7 @@ class Rect_Wrapper {
 		return 0;
 	}
 
-	// float GetYMin() const
+	// float GetYMin()
 	static int GetYMin(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L, 0);
 		return Lua::push(L, _p->GetYMin());
@@ -100,6 +108,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Rect> },
+			{ "__tostring", ToString }, 
 			{ "GetLeftTop", GetLeftTop },
 			{ "GetLeftBottom", GetLeftBottom },
 			{ "GetRightTop", GetRightTop },

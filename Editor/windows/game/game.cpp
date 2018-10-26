@@ -103,8 +103,6 @@ void Game::awake() {
 void Game::tick() {
 }
 
-
-
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
 	root->SetName(path);

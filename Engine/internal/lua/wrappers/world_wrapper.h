@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "world.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class World_Wrapper {
 	static int WorldInstance(lua_State* L) {
 		return Lua::reference<World>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		World* _p = World::instance();
+		lua_pushstring(L, String::Format("World@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void Initialize()

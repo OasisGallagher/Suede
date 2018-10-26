@@ -9,6 +9,7 @@ class TypeID {
 
 public:
 	static intptr_t value() { return (intptr_t)&dummy_; }
+	static const char* name() { return typeid(T).name(); }
 };
 
 template <class T>

@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "light.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Light_Wrapper {
+	static int ToString(lua_State* L) {
+		Light& _p = *Lua::callerSharedPtr<Light>(L, 0);
+		lua_pushstring(L, String::Format("Light@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void SetType(LightType value)
 	static int SetType(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L, 1);
@@ -76,6 +84,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Light> },
+			{ "__tostring", ToString }, 
 			{ "SetType", SetType },
 			{ "GetType", GetType },
 			{ "SetImportance", SetImportance },
@@ -88,6 +97,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Light>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Light>(L, metalib, TypeID<Component>::name());
 	}
 };

@@ -2,15 +2,23 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "shader.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Shader_Wrapper {
 	static int NewShader(lua_State* L) {
 		return Lua::fromShared(L, ::NewShader());
 	}
 
-	// std::string GetName() const
+	static int ToString(lua_State* L) {
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
+		lua_pushstring(L, String::Format("Shader@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
+	// std::string GetName()
 	static int GetName(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
 		return Lua::push(L, _p->GetName());
@@ -48,14 +56,14 @@ class Shader_Wrapper {
 		return 0;
 	}
 
-	// int GetRenderQueue(uint ssi) const
+	// int GetRenderQueue(uint ssi)
 	static int GetRenderQueue(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 1);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetRenderQueue(ssi));
 	}
 
-	// bool IsPassEnabled(uint ssi, uint pass) const
+	// bool IsPassEnabled(uint ssi, uint pass)
 	static int IsPassEnabled(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
 		uint pass = Lua::get<uint>(L, 3);
@@ -63,7 +71,7 @@ class Shader_Wrapper {
 		return Lua::push(L, _p->IsPassEnabled(ssi, pass));
 	}
 
-	// int GetPassIndex(uint ssi, const std::string& name) const
+	// int GetPassIndex(uint ssi, const std::string& name)
 	static int GetPassIndex(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
 		std::string name = Lua::get<std::string>(L, 3);
@@ -71,7 +79,7 @@ class Shader_Wrapper {
 		return Lua::push(L, _p->GetPassIndex(ssi, name));
 	}
 
-	// uint GetNativePointer(uint ssi, uint pass) const
+	// uint GetNativePointer(uint ssi, uint pass)
 	static int GetNativePointer(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
 		uint pass = Lua::get<uint>(L, 3);
@@ -79,14 +87,14 @@ class Shader_Wrapper {
 		return Lua::push(L, _p->GetNativePointer(ssi, pass));
 	}
 
-	// uint GetPassCount(uint ssi) const
+	// uint GetPassCount(uint ssi)
 	static int GetPassCount(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 1);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetPassCount(ssi));
 	}
 
-	// uint GetSubShaderCount() const
+	// uint GetSubShaderCount()
 	static int GetSubShaderCount(lua_State* L) {
 		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
 		return Lua::push(L, _p->GetSubShaderCount());
@@ -110,6 +118,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Shader> },
+			{ "__tostring", ToString }, 
 			{ "GetName", GetName },
 			{ "Load", Load },
 			{ "Bind", Bind },
@@ -125,6 +134,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Shader>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<Shader>(L, metalib, TypeID<Object>::name());
 	}
 };

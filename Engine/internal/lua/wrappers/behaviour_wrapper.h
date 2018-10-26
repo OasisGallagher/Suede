@@ -2,22 +2,30 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "behaviour.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Behaviour_Wrapper {
 	static int NewBehaviour(lua_State* L) {
 		return Lua::newObject<Behaviour>(L);
 	}
 
-	// virtual void Awake() {}
+	static int ToString(lua_State* L) {
+		Behaviour* _p = Lua::callerPtr<Behaviour>(L, 0);
+		lua_pushstring(L, String::Format("Behaviour@0x%p", _p).c_str());
+		return 1;
+	}
+
+	// virtual void Awake()
 	static int Awake(lua_State* L) {
 		Behaviour* _p = Lua::callerPtr<Behaviour>(L, 0);
 		_p->Awake();
 		return 0;
 	}
 
-	// virtual void Update() {}
+	// virtual void Update()
 	static int Update(lua_State* L) {
 		Behaviour* _p = Lua::callerPtr<Behaviour>(L, 0);
 		_p->Update();
@@ -44,12 +52,13 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Behaviour> },
+			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
 			{ "OnRenderImage", OnRenderImage },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Behaviour>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Behaviour>(L, metalib, TypeID<Component>::name());
 	}
 };

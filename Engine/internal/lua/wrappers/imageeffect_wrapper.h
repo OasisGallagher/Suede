@@ -2,15 +2,23 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "imageeffect.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class ImageEffect_Wrapper {
 	static int NewImageEffect(lua_State* L) {
 		return Lua::newObject<ImageEffect>(L);
 	}
 
-	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {}
+	static int ToString(lua_State* L) {
+		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L, 0);
+		lua_pushstring(L, String::Format("ImageEffect@0x%p", _p).c_str());
+		return 1;
+	}
+
+	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
 		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L, 3);
 		Rect normalizedRect = Lua::get<Rect>(L, 4);
@@ -30,10 +38,11 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<ImageEffect> },
+			{ "__tostring", ToString }, 
 			{ "OnRenderImage", OnRenderImage },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ImageEffect>(L, metalib, Lua::metatableName<Behaviour>());
+		Lua::initMetatable<ImageEffect>(L, metalib, TypeID<Behaviour>::name());
 	}
 };

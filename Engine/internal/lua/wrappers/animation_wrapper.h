@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "animation.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Skeleton_Wrapper {
 	static int NewSkeleton(lua_State* L) {
 		return Lua::fromShared(L, ::NewSkeleton());
+	}
+
+	static int ToString(lua_State* L) {
+		Skeleton& _p = *Lua::callerSharedPtr<Skeleton>(L, 0);
+		lua_pushstring(L, String::Format("Skeleton@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// bool AddBone(const SkeletonBone& bone)
@@ -49,6 +57,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Skeleton> },
+			{ "__tostring", ToString }, 
 			{ "AddBone", AddBone },
 			{ "SetBoneToRootMatrix", SetBoneToRootMatrix },
 			{ "GetBoneIndex", GetBoneIndex },
@@ -56,13 +65,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Skeleton>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<Skeleton>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class AnimationClip_Wrapper {
 	static int NewAnimationClip(lua_State* L) {
 		return Lua::fromShared(L, ::NewAnimationClip());
+	}
+
+	static int ToString(lua_State* L) {
+		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L, 0);
+		lua_pushstring(L, String::Format("AnimationClip@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void SetWrapMode(AnimationWrapMode value)
@@ -138,6 +153,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationClip> },
+			{ "__tostring", ToString }, 
 			{ "SetWrapMode", SetWrapMode },
 			{ "GetWrapMode", GetWrapMode },
 			{ "SetTicksPerSecond", SetTicksPerSecond },
@@ -150,13 +166,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationClip>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<AnimationClip>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class AnimationState_Wrapper {
 	static int NewAnimationState(lua_State* L) {
 		return Lua::fromShared(L, ::NewAnimationState());
+	}
+
+	static int ToString(lua_State* L) {
+		AnimationState& _p = *Lua::callerSharedPtr<AnimationState>(L, 0);
+		lua_pushstring(L, String::Format("AnimationState@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 public:
@@ -169,16 +191,23 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationState> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationState>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<AnimationState>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class AnimationKeys_Wrapper {
 	static int NewAnimationKeys(lua_State* L) {
 		return Lua::fromShared(L, ::NewAnimationKeys());
+	}
+
+	static int ToString(lua_State* L) {
+		AnimationKeys& _p = *Lua::callerSharedPtr<AnimationKeys>(L, 0);
+		lua_pushstring(L, String::Format("AnimationKeys@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void AddFloat(float time, int id, float value)
@@ -238,6 +267,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationKeys> },
+			{ "__tostring", ToString }, 
 			{ "AddFloat", AddFloat },
 			{ "AddVector3", AddVector3 },
 			{ "AddQuaternion", AddQuaternion },
@@ -246,13 +276,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationKeys>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<AnimationKeys>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class AnimationFrame_Wrapper {
 	static int NewAnimationFrame(lua_State* L) {
 		return Lua::fromShared(L, ::NewAnimationFrame());
+	}
+
+	static int ToString(lua_State* L) {
+		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L, 0);
+		lua_pushstring(L, String::Format("AnimationFrame@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void SetTime(float value)
@@ -345,6 +381,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationFrame> },
+			{ "__tostring", ToString }, 
 			{ "SetTime", SetTime },
 			{ "GetTime", GetTime },
 			{ "Assign", Assign },
@@ -358,13 +395,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationFrame>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<AnimationFrame>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class AnimationCurve_Wrapper {
 	static int NewAnimationCurve(lua_State* L) {
 		return Lua::fromShared(L, ::NewAnimationCurve());
+	}
+
+	static int ToString(lua_State* L) {
+		AnimationCurve& _p = *Lua::callerSharedPtr<AnimationCurve>(L, 0);
+		lua_pushstring(L, String::Format("AnimationCurve@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void SetKeyframes(const std::vector<AnimationFrame>& value)
@@ -393,16 +436,23 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<AnimationCurve> },
+			{ "__tostring", ToString }, 
 			{ "SetKeyframes", SetKeyframes },
 			{ "Sample", Sample },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<AnimationCurve>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<AnimationCurve>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class Animation_Wrapper {
+	static int ToString(lua_State* L) {
+		Animation& _p = *Lua::callerSharedPtr<Animation>(L, 0);
+		lua_pushstring(L, String::Format("Animation@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void AddClip(const std::string& name, AnimationClip value)
 	static int AddClip(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L, 2);
@@ -470,6 +520,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Animation> },
+			{ "__tostring", ToString }, 
 			{ "AddClip", AddClip },
 			{ "GetClip", GetClip },
 			{ "SetSkeleton", SetSkeleton },
@@ -481,6 +532,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Animation>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Animation>(L, metalib, TypeID<Component>::name());
 	}
 };

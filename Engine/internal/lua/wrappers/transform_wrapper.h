@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "transform.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Transform_Wrapper {
+	static int ToString(lua_State* L) {
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		lua_pushstring(L, String::Format("Transform@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// bool IsAttachedToScene()
 	static int IsAttachedToScene(lua_State* L) {
 		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
@@ -44,7 +52,7 @@ class Transform_Wrapper {
 		return 0;
 	}
 
-	// Transform GetParent() const
+	// Transform GetParent()
 	static int GetParent(lua_State* L) {
 		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
 		return Lua::push(L, _p->GetParent());
@@ -269,6 +277,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Transform> },
+			{ "__tostring", ToString }, 
 			{ "IsAttachedToScene", IsAttachedToScene },
 			{ "AddChild", AddChild },
 			{ "RemoveChild", RemoveChild },
@@ -309,6 +318,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Transform>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Transform>(L, metalib, TypeID<Component>::name());
 	}
 };

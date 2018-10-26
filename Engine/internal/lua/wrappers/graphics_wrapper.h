@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "graphics.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Graphics_Wrapper {
 	static int GraphicsInstance(lua_State* L) {
 		return Lua::reference<Graphics>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Graphics* _p = Graphics::instance();
+		lua_pushstring(L, String::Format("Graphics@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void SetShadingMode(ShadingMode value)

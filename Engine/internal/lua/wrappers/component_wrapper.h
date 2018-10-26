@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "component.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Component_Wrapper {
+	static int ToString(lua_State* L) {
+		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		lua_pushstring(L, String::Format("Component@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// virtual void Awake()
 	static int Awake(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
@@ -23,7 +31,7 @@ class Component_Wrapper {
 		return 0;
 	}
 
-	// bool GetEnabled() const
+	// bool GetEnabled()
 	static int GetEnabled(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
 		return Lua::push(L, _p->GetEnabled());
@@ -77,27 +85,27 @@ class Component_Wrapper {
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
-	// virtual bool AllowMultiple() const { return false }
+	// virtual bool AllowMultiple()
 	static int AllowMultiple(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
 		return Lua::push(L, _p->AllowMultiple());
 	}
 
-	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID() }
+	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID()
 	static int IsComponentType(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
 		suede_guid guid = Lua::get<suede_guid>(L, 2);
 		return Lua::push(L, _p->IsComponentType(guid));
 	}
 
-	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName()) == 0 }
+	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
 	static int IsComponentType2(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
 		std::string name = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->IsComponentType(name.c_str()));
 	}
 
-	// virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID() }
+	// virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID()
 	static int GetComponentInstanceGUID(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
 		return Lua::push(L, _p->GetComponentInstanceGUID());
@@ -111,6 +119,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Component> },
+			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "OnRenderImage", OnRenderImage },
 			{ "GetEnabled", GetEnabled },
@@ -128,6 +137,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Component>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<Component>(L, metalib, TypeID<Object>::name());
 	}
 };

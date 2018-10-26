@@ -4,6 +4,7 @@
 #include <string>
 
 #include "tools/typeid.h"
+#include "tools/string.h"
 #include "enginedefines.h"
 #include "tools/pimplidiom.h"
 
@@ -54,8 +55,7 @@ SUEDE_DEFINE_OBJECT_POINTER(Object)
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
 public: \
 	virtual const char* metatableName() const { \
-		static std::string str = std::to_string(TypeID<std::shared_ptr<I ## _Name>>::value()); \
-		return str.c_str(); \
+		return TypeID<std::shared_ptr<I ## _Name>>::name(); \
 	} \
 private:
 

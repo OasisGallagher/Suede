@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "material.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Material_Wrapper {
 	static int NewMaterial(lua_State* L) {
 		return Lua::fromShared(L, ::NewMaterial());
+	}
+
+	static int ToString(lua_State* L) {
+		Material& _p = *Lua::callerSharedPtr<Material>(L, 0);
+		lua_pushstring(L, String::Format("Material@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void SetName(const std::string& value)
@@ -18,7 +26,7 @@ class Material_Wrapper {
 		return 0;
 	}
 
-	// std::string GetName() const
+	// std::string GetName()
 	static int GetName(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 0);
 		return Lua::push(L, _p->GetName());
@@ -53,14 +61,14 @@ class Material_Wrapper {
 		return Lua::push(L, _p->DisablePass(pass));
 	}
 
-	// bool IsPassEnabled(uint pass) const
+	// bool IsPassEnabled(uint pass)
 	static int IsPassEnabled(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
 		uint pass = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->IsPassEnabled(pass));
 	}
 
-	// int FindPass(const std::string& name) const
+	// int FindPass(const std::string& name)
 	static int FindPass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
 		std::string name = Lua::get<std::string>(L, 2);
@@ -75,19 +83,19 @@ class Material_Wrapper {
 		return 0;
 	}
 
-	// int GetPass() const
+	// int GetPass()
 	static int GetPass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 0);
 		return Lua::push(L, _p->GetPass());
 	}
 
-	// uint GetPassCount() const
+	// uint GetPassCount()
 	static int GetPassCount(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 0);
 		return Lua::push(L, _p->GetPassCount());
 	}
 
-	// uint GetPassNativePointer(uint pass) const
+	// uint GetPassNativePointer(uint pass)
 	static int GetPassNativePointer(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 1);
 		uint pass = Lua::get<uint>(L, 2);
@@ -116,7 +124,7 @@ class Material_Wrapper {
 		return 0;
 	}
 
-	// int GetRenderQueue() const
+	// int GetRenderQueue()
 	static int GetRenderQueue(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L, 0);
 		return Lua::push(L, _p->GetRenderQueue());
@@ -299,6 +307,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Material> },
+			{ "__tostring", ToString }, 
 			{ "SetName", SetName },
 			{ "GetName", GetName },
 			{ "Bind", Bind },
@@ -339,6 +348,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Material>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<Material>(L, metalib, TypeID<Object>::name());
 	}
 };

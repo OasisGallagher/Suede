@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "screen.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Screen_Wrapper {
 	static int ScreenInstance(lua_State* L) {
 		return Lua::reference<Screen>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Screen* _p = Screen::instance();
+		lua_pushstring(L, String::Format("Screen@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// uint GetWidth()

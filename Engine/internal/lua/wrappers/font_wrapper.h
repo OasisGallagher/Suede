@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "font.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Font_Wrapper {
 	static int NewFont(lua_State* L) {
 		return Lua::fromShared(L, ::NewFont());
+	}
+
+	static int ToString(lua_State* L) {
+		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		lua_pushstring(L, String::Format("Font@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// bool Load(const std::string& path, int size)
@@ -25,25 +33,25 @@ class Font_Wrapper {
 		return Lua::push(L, _p->Require(str));
 	}
 
-	// uint GetFontSize() const
+	// uint GetFontSize()
 	static int GetFontSize(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetFontSize());
 	}
 
-	// Texture2D GetTexture() const
+	// Texture2D GetTexture()
 	static int GetTexture(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetTexture());
 	}
 
-	// std::string GetFamilyName() const
+	// std::string GetFamilyName()
 	static int GetFamilyName(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetFamilyName());
 	}
 
-	// std::string GetStyleName() const
+	// std::string GetStyleName()
 	static int GetStyleName(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
 		return Lua::push(L, _p->GetStyleName());
@@ -65,6 +73,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Font> },
+			{ "__tostring", ToString }, 
 			{ "Load", Load },
 			{ "Require", Require },
 			{ "GetFontSize", GetFontSize },
@@ -75,6 +84,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Font>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<Font>(L, metalib, TypeID<Object>::name());
 	}
 };

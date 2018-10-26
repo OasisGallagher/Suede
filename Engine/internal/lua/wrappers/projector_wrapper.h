@@ -2,11 +2,19 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "projector.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class Projector_Wrapper {
-	// bool GetPerspective() const
+	static int ToString(lua_State* L) {
+		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
+		lua_pushstring(L, String::Format("Projector@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
+	// bool GetPerspective()
 	static int GetPerspective(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetPerspective());
@@ -20,7 +28,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
-	// float GetOrthographicSize() const
+	// float GetOrthographicSize()
 	static int GetOrthographicSize(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetOrthographicSize());
@@ -34,7 +42,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
-	// Texture GetTexture() const
+	// Texture GetTexture()
 	static int GetTexture(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetTexture());
@@ -56,7 +64,7 @@ class Projector_Wrapper {
 		return 0;
 	}
 
-	// int GetDepth() const
+	// int GetDepth()
 	static int GetDepth(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetDepth());
@@ -94,25 +102,25 @@ class Projector_Wrapper {
 		return 0;
 	}
 
-	// float GetAspect() const
+	// float GetAspect()
 	static int GetAspect(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetAspect());
 	}
 
-	// float GetNearClipPlane() const
+	// float GetNearClipPlane()
 	static int GetNearClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetNearClipPlane());
 	}
 
-	// float GetFarClipPlane() const
+	// float GetFarClipPlane()
 	static int GetFarClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetFarClipPlane());
 	}
 
-	// float GetFieldOfView() const
+	// float GetFieldOfView()
 	static int GetFieldOfView(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L, 0);
 		return Lua::push(L, _p->GetFieldOfView());
@@ -126,6 +134,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Projector> },
+			{ "__tostring", ToString }, 
 			{ "GetPerspective", GetPerspective },
 			{ "SetPerspective", SetPerspective },
 			{ "GetOrthographicSize", GetOrthographicSize },
@@ -145,6 +154,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Projector>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<Projector>(L, metalib, TypeID<Component>::name());
 	}
 };

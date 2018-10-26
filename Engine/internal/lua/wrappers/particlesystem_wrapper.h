@@ -2,10 +2,18 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "particlesystem.h"
 
+#include "lua++.h"
+#include "tools/string.h"
+
 class ParticleEmitter_Wrapper {
+	static int ToString(lua_State* L) {
+		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 0);
+		lua_pushstring(L, String::Format("ParticleEmitter@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void SetRate(uint value)
 	static int SetRate(lua_State* L) {
 		ParticleEmitter& _p = *Lua::callerSharedPtr<ParticleEmitter>(L, 1);
@@ -122,6 +130,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleEmitter> },
+			{ "__tostring", ToString }, 
 			{ "SetRate", SetRate },
 			{ "GetRate", GetRate },
 			{ "SetStartDuration", SetStartDuration },
@@ -140,13 +149,19 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleEmitter>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<ParticleEmitter>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class SphereParticleEmitter_Wrapper {
 	static int NewSphereParticleEmitter(lua_State* L) {
 		return Lua::fromShared(L, ::NewSphereParticleEmitter());
+	}
+
+	static int ToString(lua_State* L) {
+		SphereParticleEmitter& _p = *Lua::callerSharedPtr<SphereParticleEmitter>(L, 0);
+		lua_pushstring(L, String::Format("SphereParticleEmitter@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void SetRadius(float value)
@@ -173,18 +188,25 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<SphereParticleEmitter> },
+			{ "__tostring", ToString }, 
 			{ "SetRadius", SetRadius },
 			{ "GetRadius", GetRadius },
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<SphereParticleEmitter>(L, metalib, Lua::metatableName<ParticleEmitter>());
+		Lua::initMetatable<SphereParticleEmitter>(L, metalib, TypeID<ParticleEmitter>::name());
 	}
 };
 
 class ParticleAnimator_Wrapper {
 	static int NewParticleAnimator(lua_State* L) {
 		return Lua::fromShared(L, ::NewParticleAnimator());
+	}
+
+	static int ToString(lua_State* L) {
+		ParticleAnimator& _p = *Lua::callerSharedPtr<ParticleAnimator>(L, 0);
+		lua_pushstring(L, String::Format("ParticleAnimator@0x%p", _p.get()).c_str());
+		return 1;
 	}
 
 	// void SetForce(const glm::vec3& value)
@@ -247,6 +269,7 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleAnimator> },
+			{ "__tostring", ToString }, 
 			{ "SetForce", SetForce },
 			{ "GetForce", GetForce },
 			{ "SetRandomForce", SetRandomForce },
@@ -257,11 +280,17 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleAnimator>(L, metalib, Lua::metatableName<Object>());
+		Lua::initMetatable<ParticleAnimator>(L, metalib, TypeID<Object>::name());
 	}
 };
 
 class ParticleSystem_Wrapper {
+	static int ToString(lua_State* L) {
+		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 0);
+		lua_pushstring(L, String::Format("ParticleSystem@0x%p", _p.get()).c_str());
+		return 1;
+	}
+
 	// void SetDuration(float value)
 	static int SetDuration(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 1);
@@ -318,7 +347,7 @@ class ParticleSystem_Wrapper {
 		return Lua::push(L, _p->GetMaxParticles());
 	}
 
-	// uint GetParticlesCount() const
+	// uint GetParticlesCount()
 	static int GetParticlesCount(lua_State* L) {
 		ParticleSystem& _p = *Lua::callerSharedPtr<ParticleSystem>(L, 0);
 		return Lua::push(L, _p->GetParticlesCount());
@@ -360,6 +389,7 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& regs) {
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<ParticleSystem> },
+			{ "__tostring", ToString }, 
 			{ "SetDuration", SetDuration },
 			{ "GetDuration", GetDuration },
 			{ "SetLooping", SetLooping },
@@ -376,6 +406,6 @@ public:
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<ParticleSystem>(L, metalib, Lua::metatableName<Component>());
+		Lua::initMetatable<ParticleSystem>(L, metalib, TypeID<Component>::name());
 	}
 };

@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "time2.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Time_Wrapper {
 	static int TimeInstance(lua_State* L) {
 		return Lua::reference<Time>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Time* _p = Time::instance();
+		lua_pushstring(L, String::Format("Time@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// float GetTime()

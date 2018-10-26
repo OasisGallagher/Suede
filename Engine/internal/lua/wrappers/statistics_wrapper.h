@@ -2,12 +2,20 @@
 
 #pragma once
 
-#include "lua++.h"
 #include "statistics.h"
+
+#include "lua++.h"
+#include "tools/string.h"
 
 class Statistics_Wrapper {
 	static int StatisticsInstance(lua_State* L) {
 		return Lua::reference<Statistics>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		Statistics* _p = Statistics::instance();
+		lua_pushstring(L, String::Format("Statistics@0x%p", _p).c_str());
+		return 1;
 	}
 
 	// void AddTriangles(uint n)
