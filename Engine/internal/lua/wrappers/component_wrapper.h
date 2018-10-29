@@ -14,6 +14,11 @@ class Component_Wrapper {
 		return 1;
 	}
 
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Component");
+		return 1;
+	}
+
 	static int ComponentStatic(lua_State* L) {
 		lua_newtable(L);
 		luaL_newmetatable(L, "ComponentStatic");
@@ -21,7 +26,7 @@ class Component_Wrapper {
 		luaL_Reg funcs[] = {
 			{ "GetComponentGUID", GetComponentGUID },
 			{ "ClassNameToGUID", ClassNameToGUID },
-			{"__tostring", ToString },
+			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
 		
@@ -182,12 +187,17 @@ class ComponentUtility_Wrapper {
 		return 1;
 	}
 
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static ComponentUtility");
+		return 1;
+	}
+
 	static int ComponentUtilityStatic(lua_State* L) {
 		lua_newtable(L);
 		luaL_newmetatable(L, "ComponentUtilityStatic");
 
 		luaL_Reg funcs[] = {
-			{"__tostring", ToString },
+			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
 		

@@ -194,8 +194,9 @@ class Interface:
 		self._methods = [ ];
 		self._abstract = False;
 		self._hasStatic = False;
+		self._overloads = {};
 		self._notNewable = (className in kNotNewables);
-		names = { };
+		
 		public = struct;
 		prev = "";
 		
@@ -205,7 +206,7 @@ class Interface:
 		
 			m = public and kMethodPattern.match(line);
 			
-			if m: self._parseMethod(line, m, names, prev);
+			if m: self._parseMethod(line, m, prev);
 			prev = line;
 
 	def Methods(self):
@@ -220,18 +221,21 @@ class Interface:
 	def IsNotNewable(self):
 		return self._notNewable;
 		
-	def _parseMethod(self, line, m, names, prev):
+	def Overloads(method):
+		return self._overloads.get(method.Name()) or [];
+		
+	def _parseMethod(self, line, m, prev):
 		method = Method(line, m.groups());
 		self._abstract = self._abstract or method.IsPureVirtual();
 		self._hasStatic = self._hasStatic or method.IsStatic();
 		if self._methodWrapable(prev, method):
-			n = names.get(method.Name(), 0);
-			names[method.Name()] = n + 1;
+			list = self._overloads.get(method.Name(), None);
+			if not list: self._overloads[method.Name()] = list = [];
+			list.append(method);
 			
-			if n > 0: 
-				newName = method.Name() + str(n + 1);
+			if len(list) > 1:
+				newName = method.Name() + str(len(list));
 				method.SetOverloadedName(newName);
-				names[method.Name()] = 1;
 			
 			self._methods.append(method);
 		else:
@@ -372,7 +376,7 @@ def WriteMethod(f, method, className, instance, sharedPtr, interface):
 
 	EndCaller(f);
 	
-def WriteToString(f, className, instance, sharedPtr):
+def WriteToString(f, className, instance, sharedPtr, interface):
 	BeginCaller(f, False, "ToString", 0, className, instance, sharedPtr);
 	
 	f.write('''
@@ -380,6 +384,13 @@ def WriteToString(f, className, instance, sharedPtr):
 		return 1;''' % (className, sharedPtr and "_p.get()" or "_p"));
 
 	EndCaller(f);
+	
+	if interface.HasStatic():
+		BeginCaller(f, True, "ToStringStatic", 0, className, instance, sharedPtr);
+		f.write('''
+		lua_pushstring(L, "static %s");
+		return 1;''' % (className));
+		EndCaller(f);
 	
 def WriteStaticMethods(f, className, interface):
 	f.write(
@@ -395,7 +406,7 @@ def WriteStaticMethods(f, className, interface):
 			{ "%s", %s },''' % (method.Name(), method.Name()));
 		
 	f.write('''
-			{"__tostring", ToString },
+			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
 		
@@ -412,7 +423,7 @@ def WriteStaticMethods(f, className, interface):
 	''');
 
 def WriteMethods(f, className, instance, sharedPtr, interface):
-	WriteToString(f, className, instance, sharedPtr);
+	WriteToString(f, className, instance, sharedPtr, interface);
 	
 	if interface.HasStatic():
 		WriteStaticMethods(f, className, interface);

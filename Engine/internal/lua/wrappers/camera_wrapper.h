@@ -286,6 +286,11 @@ class CameraUtility_Wrapper {
 		return 1;
 	}
 
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static CameraUtility");
+		return 1;
+	}
+
 	static int CameraUtilityStatic(lua_State* L) {
 		lua_newtable(L);
 		luaL_newmetatable(L, "CameraUtilityStatic");
@@ -295,7 +300,7 @@ class CameraUtility_Wrapper {
 			{ "GetMain", GetMain },
 			{ "OnPreRender", OnPreRender },
 			{ "OnPostRender", OnPostRender },
-			{"__tostring", ToString },
+			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
 		

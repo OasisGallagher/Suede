@@ -18,13 +18,18 @@ class Rect_Wrapper {
 		return 1;
 	}
 
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Rect");
+		return 1;
+	}
+
 	static int RectStatic(lua_State* L) {
 		lua_newtable(L);
 		luaL_newmetatable(L, "RectStatic");
 
 		luaL_Reg funcs[] = {
 			{ "NormalizedToRect", NormalizedToRect },
-			{"__tostring", ToString },
+			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
 		

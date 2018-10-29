@@ -62,8 +62,13 @@ inline void _registerGlobals(lua_State* L) {
 }
 
 template <class T>
-inline T* _userdataPtr(lua_State* L, int index/*, const char* metatable*/) {
-	//T** p = (T**)luaL_checkudata(L, 1, Lua::metatableName<T>());
+inline T* _userdataPtr(lua_State* L, int index, const char* metatable) {
+#ifdef _DEBUG
+	if (!checkMetatable(L, index, metatable)) {
+		return nullptr;
+	}
+#endif
+
 	T** p = (T**)lua_touserdata(L, 1);
 	if (p == nullptr) { return nullptr; }
 
@@ -71,8 +76,13 @@ inline T* _userdataPtr(lua_State* L, int index/*, const char* metatable*/) {
 }
 
 template <class T>
-inline T* _userdataSharedPtr(lua_State* L, int index/*, const char* metatable*/) {
-	//T* p = (T*)luaL_checkudata(L, index, metatable);
+inline T* _userdataSharedPtr(lua_State* L, int index, const char* metatable) {
+#ifdef _DEBUG
+	if (!checkMetatable(L, index, metatable)) {
+		return nullptr;
+	}
+#endif
+
 	T* p = (T*)lua_touserdata(L, index);
 	return p;
 }
@@ -172,6 +182,29 @@ inline int reference(lua_State* L) {
 
 #pragma region meta system
 
+inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
+	luaL_getmetatable(L, metatable);
+	if (index < 0) { --index; }
+	int n = 1, status = 0;
+
+	for (; ; ) {
+		if (!lua_getmetatable(L, index)) { break; }
+		++n;
+
+		if (lua_rawequal(L, -1, -n)) { status = 1; break; }
+		index = -1;
+	}
+
+	lua_pop(L, n);
+
+	if (!status) {
+		Debug::LogError("metatable type error %s.", metatable);
+		return false;
+	}
+
+	return true;
+}
+
 template<typename T> struct _is_shared_ptr : std::false_type {};
 template<typename T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
 
@@ -215,23 +248,31 @@ inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 #pragma endregion
 
 template <class T>
-inline T* callerSharedPtr(lua_State* L, int nargs) {
+inline T* callerSharedPtr(lua_State* L, int nargs, const char* metatable = nullptr) {
 	if (lua_gettop(L) != nargs + 1) {
 		Debug::LogError("invalid function call");
 		return nullptr;
 	}
 
-	return _userdataSharedPtr<T>(L, 1);
+	if (metatable == nullptr) {
+		metatable = TypeID<T>::string();
+	}
+
+	return _userdataSharedPtr<T>(L, 1, metatable);
 }
 
 template <class T>
-inline T* callerPtr(lua_State* L, int nargs) {
+inline T* callerPtr(lua_State* L, int nargs, const char* metatable = nullptr) {
 	if (lua_gettop(L) != nargs + 1) {
 		Debug::LogError("invalid function call");
 		return nullptr;
 	}
 
-	return _userdataPtr<T>(L, 1);
+	if (metatable == nullptr) {
+		metatable = TypeID<T>::string();
+	}
+
+	return _userdataPtr<T>(L, 1, metatable);
 }
 
 template <class T>
@@ -396,7 +437,7 @@ inline int push(lua_State* L, T arg, R... args) {
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value, T>::type
 get(lua_State* L, int index) {
-	return *_userdataSharedPtr<T>(L, -1);
+	return *_userdataSharedPtr<T>(L, -1, TypeID<T>::string());
 }
 
 template <>

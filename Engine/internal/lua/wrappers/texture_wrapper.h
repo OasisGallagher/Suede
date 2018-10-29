@@ -349,6 +349,11 @@ class RenderTextureUtility_Wrapper {
 		return 1;
 	}
 
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static RenderTextureUtility");
+		return 1;
+	}
+
 	static int RenderTextureUtilityStatic(lua_State* L) {
 		lua_newtable(L);
 		luaL_newmetatable(L, "RenderTextureUtilityStatic");
@@ -357,7 +362,7 @@ class RenderTextureUtility_Wrapper {
 			{ "GetDefault", GetDefault },
 			{ "GetTemporary", GetTemporary },
 			{ "ReleaseTemporary", ReleaseTemporary },
-			{"__tostring", ToString },
+			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
 		
