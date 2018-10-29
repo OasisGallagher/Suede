@@ -13,7 +13,7 @@ class PRS_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		PRS* _p = Lua::callerPtr<PRS>(L, 0);
+		PRS* _p = Lua::callerPtr<PRS>(L);
 		lua_pushstring(L, String::Format("PRS@0x%p", _p).c_str());
 		return 1;
 	}
@@ -38,20 +38,20 @@ public:
 
 class Transform_Wrapper {
 	static int ToString(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		lua_pushstring(L, String::Format("Transform@0x%p", _p.get()).c_str());
 		return 1;
 	}
 
 	// bool IsAttachedToScene()
 	static int IsAttachedToScene(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->IsAttachedToScene());
 	}
 
 	// void AddChild(Transform child)
 	static int AddChild(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		Transform child = Lua::get<Transform>(L, 2);
 		_p->AddChild(child);
 		return 0;
@@ -59,7 +59,7 @@ class Transform_Wrapper {
 
 	// void RemoveChild(Transform child)
 	static int RemoveChild(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		Transform child = Lua::get<Transform>(L, 2);
 		_p->RemoveChild(child);
 		return 0;
@@ -67,7 +67,7 @@ class Transform_Wrapper {
 
 	// void RemoveChildAt(uint index)
 	static int RemoveChildAt(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		uint index = Lua::get<uint>(L, 2);
 		_p->RemoveChildAt(index);
 		return 0;
@@ -75,7 +75,7 @@ class Transform_Wrapper {
 
 	// void SetParent(Transform value)
 	static int SetParent(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		Transform value = Lua::get<Transform>(L, 2);
 		_p->SetParent(value);
 		return 0;
@@ -83,68 +83,68 @@ class Transform_Wrapper {
 
 	// Transform GetParent()
 	static int GetParent(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetParent());
 	}
 
 	// glm::vec3 TransformPoint(const glm::vec3& point)
 	static int TransformPoint(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 point = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->TransformPoint(point));
 	}
 
 	// glm::vec3 TransformDirection(const glm::vec3& direction)
 	static int TransformDirection(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 direction = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->TransformDirection(direction));
 	}
 
 	// glm::vec3 InverseTransformPoint(const glm::vec3& point)
 	static int InverseTransformPoint(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 point = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->InverseTransformPoint(point));
 	}
 
 	// glm::vec3 InverseTransformDirection(const glm::vec3& direction)
 	static int InverseTransformDirection(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 direction = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->InverseTransformDirection(direction));
 	}
 
 	// Transform FindChild(const std::string& path)
 	static int FindChild(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		std::string path = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->FindChild(path));
 	}
 
 	// int GetChildCount()
 	static int GetChildCount(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetChildCount());
 	}
 
 	// Transform GetChildAt(int i)
 	static int GetChildAt(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		int i = Lua::get<int>(L, 2);
 		return Lua::push(L, _p->GetChildAt(i));
 	}
 
 	// Enumerable GetChildren()
 	static int GetChildren(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		ITransform::Enumerable _r = _p->GetChildren();
 		return Lua::pushList(L, std::vector<ITransform::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	// void SetScale(const glm::vec3& value)
 	static int SetScale(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetScale(value);
 		return 0;
@@ -152,7 +152,7 @@ class Transform_Wrapper {
 
 	// void SetPosition(const glm::vec3& value)
 	static int SetPosition(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetPosition(value);
 		return 0;
@@ -160,7 +160,7 @@ class Transform_Wrapper {
 
 	// void SetRotation(const glm::quat& value)
 	static int SetRotation(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::quat value = Lua::get<glm::quat>(L, 2);
 		_p->SetRotation(value);
 		return 0;
@@ -168,7 +168,7 @@ class Transform_Wrapper {
 
 	// void SetEulerAngles(const glm::vec3& value)
 	static int SetEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetEulerAngles(value);
 		return 0;
@@ -176,31 +176,31 @@ class Transform_Wrapper {
 
 	// glm::vec3 GetScale()
 	static int GetScale(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetScale());
 	}
 
 	// glm::vec3 GetPosition()
 	static int GetPosition(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetPosition());
 	}
 
 	// glm::quat GetRotation()
 	static int GetRotation(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetRotation());
 	}
 
 	// glm::vec3 GetEulerAngles()
 	static int GetEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetEulerAngles());
 	}
 
 	// void SetLocalScale(const glm::vec3& value)
 	static int SetLocalScale(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetLocalScale(value);
 		return 0;
@@ -208,7 +208,7 @@ class Transform_Wrapper {
 
 	// void SetLocalPosition(const glm::vec3& value)
 	static int SetLocalPosition(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetLocalPosition(value);
 		return 0;
@@ -216,7 +216,7 @@ class Transform_Wrapper {
 
 	// void SetLocalRotation(const glm::quat& value)
 	static int SetLocalRotation(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::quat value = Lua::get<glm::quat>(L, 2);
 		_p->SetLocalRotation(value);
 		return 0;
@@ -224,7 +224,7 @@ class Transform_Wrapper {
 
 	// void SetLocalEulerAngles(const glm::vec3& value)
 	static int SetLocalEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetLocalEulerAngles(value);
 		return 0;
@@ -232,69 +232,69 @@ class Transform_Wrapper {
 
 	// glm::vec3 GetLocalScale()
 	static int GetLocalScale(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalScale());
 	}
 
 	// glm::vec3 GetLocalPosition()
 	static int GetLocalPosition(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalPosition());
 	}
 
 	// glm::quat GetLocalRotation()
 	static int GetLocalRotation(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalRotation());
 	}
 
 	// glm::vec3 GetLocalEulerAngles()
 	static int GetLocalEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalEulerAngles());
 	}
 
 	// glm::mat4 GetLocalToWorldMatrix()
 	static int GetLocalToWorldMatrix(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalToWorldMatrix());
 	}
 
 	// glm::mat4 GetWorldToLocalMatrix()
 	static int GetWorldToLocalMatrix(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetWorldToLocalMatrix());
 	}
 
 	// glm::vec3 GetLocalToWorldPosition(const glm::vec3& position)
 	static int GetLocalToWorldPosition(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 position = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->GetLocalToWorldPosition(position));
 	}
 
 	// glm::vec3 GetWorldToLocalPosition(const glm::vec3& position)
 	static int GetWorldToLocalPosition(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 1);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		glm::vec3 position = Lua::get<glm::vec3>(L, 2);
 		return Lua::push(L, _p->GetWorldToLocalPosition(position));
 	}
 
 	// glm::vec3 GetUp()
 	static int GetUp(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetUp());
 	}
 
 	// glm::vec3 GetRight()
 	static int GetRight(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetRight());
 	}
 
 	// glm::vec3 GetForward()
 	static int GetForward(lua_State* L) {
-		Transform& _p = *Lua::callerSharedPtr<Transform>(L, 0);
+		Transform& _p = *Lua::callerSharedPtr<Transform>(L);
 		return Lua::push(L, _p->GetForward());
 	}
 

@@ -13,14 +13,14 @@ class Color_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Color* _p = Lua::callerPtr<Color>(L, 0);
+		Color* _p = Lua::callerPtr<Color>(L);
 		lua_pushstring(L, String::Format("Color@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// float GetLuminance()
 	static int GetLuminance(lua_State* L) {
-		Color* _p = Lua::callerPtr<Color>(L, 0);
+		Color* _p = Lua::callerPtr<Color>(L);
 		return Lua::push(L, _p->GetLuminance());
 	}
 

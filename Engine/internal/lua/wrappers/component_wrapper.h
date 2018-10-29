@@ -9,7 +9,7 @@
 
 class Component_Wrapper {
 	static int ToString(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		lua_pushstring(L, String::Format("Component@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -21,7 +21,6 @@ class Component_Wrapper {
 
 	static int ComponentStatic(lua_State* L) {
 		lua_newtable(L);
-		luaL_newmetatable(L, "ComponentStatic");
 
 		luaL_Reg funcs[] = {
 			{ "GetComponentGUID", GetComponentGUID },
@@ -29,27 +28,21 @@ class Component_Wrapper {
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
-		
+
 		luaL_setfuncs(L, funcs, 0);
-
-		// duplicate metatable.
-		lua_pushvalue(L, -1);
-		lua_setfield(L, -2, "__index");
-
-		lua_setmetatable(L, -2);
 
 		return 1;
 	}
 		// virtual void Awake()
 	static int Awake(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		_p->Awake();
 		return 0;
 	}
 
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 3);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		Rect normalizedRect = Lua::get<Rect>(L, 4);
 		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 		RenderTexture src = Lua::get<RenderTexture>(L, 2);
@@ -59,13 +52,13 @@ class Component_Wrapper {
 
 	// bool GetEnabled()
 	static int GetEnabled(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		return Lua::push(L, _p->GetEnabled());
 	}
 
 	// void SetEnabled(bool value)
 	static int SetEnabled(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		bool value = Lua::get<bool>(L, 2);
 		_p->SetEnabled(value);
 		return 0;
@@ -73,7 +66,7 @@ class Component_Wrapper {
 
 	// void SetGameObject(GameObject value)
 	static int SetGameObject(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		GameObject value = Lua::get<GameObject>(L, 2);
 		_p->SetGameObject(value);
 		return 0;
@@ -81,33 +74,33 @@ class Component_Wrapper {
 
 	// GameObject GetGameObject()
 	static int GetGameObject(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		return Lua::push(L, _p->GetGameObject());
 	}
 
 	// Transform GetTransform()
 	static int GetTransform(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		return Lua::push(L, _p->GetTransform());
 	}
 
 	// void CullingUpdate()
 	static int CullingUpdate(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		_p->CullingUpdate();
 		return 0;
 	}
 
 	// void RenderingUpdate()
 	static int RenderingUpdate(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		_p->RenderingUpdate();
 		return 0;
 	}
 
 	// int GetUpdateStrategy()
 	static int GetUpdateStrategy(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
@@ -124,27 +117,32 @@ class Component_Wrapper {
 
 	// virtual bool AllowMultiple()
 	static int AllowMultiple(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		return Lua::push(L, _p->AllowMultiple());
 	}
 
 	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID()
-	static int IsComponentType(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
-		suede_guid guid = Lua::get<suede_guid>(L, 2);
-		return Lua::push(L, _p->IsComponentType(guid));
-	}
-
 	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
-	static int IsComponentType2(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 1);
-		std::string name = Lua::get<std::string>(L, 2);
-		return Lua::push(L, _p->IsComponentType(name.c_str()));
+	static int IsComponentType(lua_State* L) {
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
+
+		if (Lua::checkArguments<suede_guid>(L, 2)) {
+			suede_guid guid = Lua::get<suede_guid>(L, 2);
+			return Lua::push(L, _p->IsComponentType(guid));
+		}
+
+		if (Lua::checkArguments<std::string>(L, 2)) {
+			std::string name = Lua::get<std::string>(L, 2);
+			return Lua::push(L, _p->IsComponentType(name.c_str()));
+		}
+
+		Debug::LogError("failed to call \"IsComponentType\", invalid arguments.");
+		return 0;
 	}
 
 	// virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID()
 	static int GetComponentInstanceGUID(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L, 0);
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		return Lua::push(L, _p->GetComponentInstanceGUID());
 	}
 
@@ -171,7 +169,6 @@ public:
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "AllowMultiple", AllowMultiple },
 			{ "IsComponentType", IsComponentType },
-			{ "IsComponentType2", IsComponentType2 },
 			{ "GetComponentInstanceGUID", GetComponentInstanceGUID },
 			{ nullptr, nullptr }
 		};
@@ -182,7 +179,7 @@ public:
 
 class ComponentUtility_Wrapper {
 	static int ToString(lua_State* L) {
-		ComponentUtility* _p = Lua::callerPtr<ComponentUtility>(L, 0);
+		ComponentUtility* _p = Lua::callerPtr<ComponentUtility>(L);
 		lua_pushstring(L, String::Format("ComponentUtility@0x%p", _p).c_str());
 		return 1;
 	}
@@ -194,20 +191,13 @@ class ComponentUtility_Wrapper {
 
 	static int ComponentUtilityStatic(lua_State* L) {
 		lua_newtable(L);
-		luaL_newmetatable(L, "ComponentUtilityStatic");
 
 		luaL_Reg funcs[] = {
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
-		
+
 		luaL_setfuncs(L, funcs, 0);
-
-		// duplicate metatable.
-		lua_pushvalue(L, -1);
-		lua_setfield(L, -2, "__index");
-
-		lua_setmetatable(L, -2);
 
 		return 1;
 	}

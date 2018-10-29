@@ -5,11 +5,11 @@
 #include <memory>
 #include <type_traits>
 
-#include "color.h"
-
 #include <glm/glm.hpp>
 
+#include "tools/enum.h"
 #include "tools/math2.h"
+
 #include "debug/debug.h"
 #include "tools/typeid.h"
 
@@ -182,6 +182,117 @@ inline int reference(lua_State* L) {
 
 #pragma region meta system
 
+template <class T>
+inline typename std::enable_if<!std::is_enum<T>::value, bool>::type
+_checkArgument(lua_State* L, int index) {
+	return checkMetatable(L, index, TypeID<T>::string());
+}
+
+inline bool _checkArgument(lua_State* L, int index) {
+	return true;
+}
+
+template <>
+inline bool _checkArgument<std::string>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TSTRING;
+}
+
+template <>
+inline bool _checkArgument<bool>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TBOOLEAN;
+}
+
+template <>
+inline bool _checkArgument<int>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<unsigned>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<long>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<unsigned long>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<long long>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<unsigned long long>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<float>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+template <>
+inline bool _checkArgument<glm::vec2>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <>
+inline bool _checkArgument<glm::vec3>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <>
+inline bool _checkArgument<glm::vec4>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <>
+inline bool _checkArgument<glm::quat>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <>
+inline bool _checkArgument<glm::mat2>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <>
+inline bool _checkArgument<glm::mat3>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <>
+inline bool _checkArgument<glm::mat4>(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TTABLE;
+}
+
+template <class T>
+inline typename std::enable_if<std::is_enum<T>::value, bool>::type
+_checkArgument(lua_State* L, int index) {
+	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+inline bool checkArguments(lua_State* L, int index) {
+	return (lua_gettop(L) == 1);
+}
+
+template <class T>
+inline bool checkArguments(lua_State* L, int index) {
+	return (lua_gettop(L) == 2) && _checkArgument<T>(L, index);
+}
+
+template <class T, class U, class... R>
+inline bool checkArguments(lua_State* L, int index) {
+	return (lua_gettop(L) == sizeof...(R) + 2 + 1)
+		&& checkArguments<T>(L, index) && checkArguments<U, R...>(L, index + 1);
+}
+
 inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 	luaL_getmetatable(L, metatable);
 	if (index < 0) { --index; }
@@ -197,26 +308,26 @@ inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 
 	lua_pop(L, n);
 
-	if (!status) {
-		Debug::LogError("metatable type error %s.", metatable);
-		return false;
-	}
-
-	return true;
+	return !!status;
 }
 
-template<typename T> struct _is_shared_ptr : std::false_type {};
-template<typename T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
+template<class T> struct _is_shared_ptr : std::false_type {};
+template<class T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
+
+// is raw ptr or shared_ptr.
+template <class T> struct _is_ptr {
+	static const bool value = std::is_pointer<T>::value || _is_shared_ptr<T>::value;
+};
 
 template <class T>
-inline typename std::enable_if<!_is_shared_ptr<T>::value && !std::is_pointer<T>::value, const char*>::type
+inline typename std::enable_if<!_is_ptr<T>::value, const char*>::type
 metatableName(const T&) {
 	return TypeID<T>::string();
 }
 
 // get real metatable by virtual function.
 template <class T>
-inline typename std::enable_if<_is_shared_ptr<T>::value || std::is_pointer<T>::value, const char*>::type
+inline typename std::enable_if<_is_ptr<T>::value, const char*>::type
 metatableName(const T& o) {
 	return o->metatableName();
 }
@@ -248,12 +359,7 @@ inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 #pragma endregion
 
 template <class T>
-inline T* callerSharedPtr(lua_State* L, int nargs, const char* metatable = nullptr) {
-	if (lua_gettop(L) != nargs + 1) {
-		Debug::LogError("invalid function call");
-		return nullptr;
-	}
-
+inline T* callerSharedPtr(lua_State* L, const char* metatable = nullptr) {
 	if (metatable == nullptr) {
 		metatable = TypeID<T>::string();
 	}
@@ -262,12 +368,7 @@ inline T* callerSharedPtr(lua_State* L, int nargs, const char* metatable = nullp
 }
 
 template <class T>
-inline T* callerPtr(lua_State* L, int nargs, const char* metatable = nullptr) {
-	if (lua_gettop(L) != nargs + 1) {
-		Debug::LogError("invalid function call");
-		return nullptr;
-	}
-
+inline T* callerPtr(lua_State* L, const char* metatable = nullptr) {
 	if (metatable == nullptr) {
 		metatable = TypeID<T>::string();
 	}
@@ -384,11 +485,6 @@ static int pushArray(lua_State* L, const float* ptr, int count) {
 }
 
 template <>
-inline int push(lua_State* L, const Color& value) {
-	return pushArray(L, (const float*)&value, 4);
-}
-
-template <>
 inline int push<glm::vec2>(lua_State* L, const glm::vec2& value) {
 	return pushArray(L, (const float*)&value, 2);
 }
@@ -435,9 +531,23 @@ inline int push(lua_State* L, T arg, R... args) {
 #pragma region get
 
 template <class T>
-inline typename std::enable_if<!std::is_enum<T>::value, T>::type
+inline typename std::enable_if<!std::is_enum<T>::value && _is_ptr<T>::value, T>::type
 get(lua_State* L, int index) {
-	return *_userdataSharedPtr<T>(L, -1, TypeID<T>::string());
+	T* p = _userdataSharedPtr<T>(L, -1, TypeID<T>::string());
+	if (p == nullptr) { return nullptr; }
+	return *p;
+}
+
+template <class T>
+inline typename std::enable_if<!std::is_enum<T>::value && !_is_ptr<T>::value && !std::is_base_of<BetterEnumBase, T>::value, T>::type
+get(lua_State* L, int index) {
+	T* p = _userdataSharedPtr<T>(L, -1, TypeID<T>::string());
+	if (p == nullptr) {
+		Debug::LogError("argument at %d does not has metatable %s.", index, TypeID<T>::string());
+		return T();
+	}
+
+	return *p;
 }
 
 template <>
@@ -500,10 +610,16 @@ inline double get<double>(lua_State* L, int index) {
 	return lua_tonumber(L, index);
 }
 
-template <typename T>
+template <class T>
 inline typename std::enable_if<std::is_enum<T>::value, T>::type
 get(lua_State* L, int index) {
 	return (T)get<int>(L, index);
+}
+
+template <class T>
+inline typename std::enable_if<std::is_base_of<BetterEnumBase, T>::value, T>::type
+get(lua_State* L, int index) {
+	return T::from_int(get<int>(L, index));
 }
 
 template <class T>

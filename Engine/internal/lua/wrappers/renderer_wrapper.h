@@ -9,14 +9,14 @@
 
 class Renderer_Wrapper {
 	static int ToString(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		lua_pushstring(L, String::Format("Renderer@0x%p", _p.get()).c_str());
 		return 1;
 	}
 
 	// void AddMaterial(Material material)
 	static int AddMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		Material material = Lua::get<Material>(L, 2);
 		_p->AddMaterial(material);
 		return 0;
@@ -24,21 +24,21 @@ class Renderer_Wrapper {
 
 	// Material GetMaterial(uint index)
 	static int GetMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		uint index = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetMaterial(index));
 	}
 
 	// Enumerable GetMaterials()
 	static int GetMaterials(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		IRenderer::Enumerable _r = _p->GetMaterials();
 		return Lua::pushList(L, std::vector<IRenderer::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	// void SetMaterial(uint index, Material value)
 	static int SetMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 2);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		Material value = Lua::get<Material>(L, 3);
 		uint index = Lua::get<uint>(L, 2);
 		_p->SetMaterial(index, value);
@@ -47,7 +47,7 @@ class Renderer_Wrapper {
 
 	// void RemoveMaterial(Material material)
 	static int RemoveMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		Material material = Lua::get<Material>(L, 2);
 		_p->RemoveMaterial(material);
 		return 0;
@@ -55,7 +55,7 @@ class Renderer_Wrapper {
 
 	// void RemoveMaterialAt(uint index)
 	static int RemoveMaterialAt(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 1);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		uint index = Lua::get<uint>(L, 2);
 		_p->RemoveMaterialAt(index);
 		return 0;
@@ -63,13 +63,13 @@ class Renderer_Wrapper {
 
 	// uint GetMaterialCount()
 	static int GetMaterialCount(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		return Lua::push(L, _p->GetMaterialCount());
 	}
 
 	// void UpdateMaterialProperties()
 	static int UpdateMaterialProperties(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L, 0);
+		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
 		_p->UpdateMaterialProperties();
 		return 0;
 	}
@@ -100,7 +100,7 @@ public:
 
 class MeshRenderer_Wrapper {
 	static int ToString(lua_State* L) {
-		MeshRenderer& _p = *Lua::callerSharedPtr<MeshRenderer>(L, 0);
+		MeshRenderer& _p = *Lua::callerSharedPtr<MeshRenderer>(L);
 		lua_pushstring(L, String::Format("MeshRenderer@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -123,7 +123,7 @@ public:
 
 class ParticleRenderer_Wrapper {
 	static int ToString(lua_State* L) {
-		ParticleRenderer& _p = *Lua::callerSharedPtr<ParticleRenderer>(L, 0);
+		ParticleRenderer& _p = *Lua::callerSharedPtr<ParticleRenderer>(L);
 		lua_pushstring(L, String::Format("ParticleRenderer@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -146,14 +146,14 @@ public:
 
 class SkinnedMeshRenderer_Wrapper {
 	static int ToString(lua_State* L) {
-		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L, 0);
+		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L);
 		lua_pushstring(L, String::Format("SkinnedMeshRenderer@0x%p", _p.get()).c_str());
 		return 1;
 	}
 
 	// void SetSkeleton(Skeleton value)
 	static int SetSkeleton(lua_State* L) {
-		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L, 1);
+		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L);
 		Skeleton value = Lua::get<Skeleton>(L, 2);
 		_p->SetSkeleton(value);
 		return 0;

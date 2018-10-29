@@ -13,116 +13,116 @@ class Variant_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		lua_pushstring(L, String::Format("Variant@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// int GetInt()
 	static int GetInt(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetInt());
 	}
 
 	// bool GetBool()
 	static int GetBool(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetBool());
 	}
 
 	// float GetFloat()
 	static int GetFloat(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetFloat());
 	}
 
 	// iranged GetRangedInt()
 	static int GetRangedInt(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetRangedInt());
 	}
 
 	// franged GetRangedFloat()
 	static int GetRangedFloat(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetRangedFloat());
 	}
 
 	// glm::mat3 GetMatrix3()
 	static int GetMatrix3(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetMatrix3());
 	}
 
 	// glm::mat4 GetMatrix4()
 	static int GetMatrix4(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetMatrix4());
 	}
 
 	// glm::ivec3 GetIVector3()
 	static int GetIVector3(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetIVector3());
 	}
 
 	// glm::vec3 GetVector3()
 	static int GetVector3(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetVector3());
 	}
 
 	// Color GetColor()
 	static int GetColor(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetColor());
 	}
 
 	// glm::vec4 GetVector4()
 	static int GetVector4(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetVector4());
 	}
 
 	// glm::quat GetQuaternion()
 	static int GetQuaternion(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetQuaternion());
 	}
 
 	// std::string GetString()
 	static int GetString(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetString());
 	}
 
 	// uint GetVector3ArraySize()
 	static int GetVector3ArraySize(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetVector3ArraySize());
 	}
 
 	// uint GetMatrix4ArraySize()
 	static int GetMatrix4ArraySize(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetMatrix4ArraySize());
 	}
 
 	// Texture GetTexture()
 	static int GetTexture(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetTexture());
 	}
 
 	// VariantType GetType()
 	static int GetType(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetType());
 	}
 
 	// void SetInt(int value)
 	static int SetInt(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		int value = Lua::get<int>(L, 2);
 		_p->SetInt(value);
 		return 0;
@@ -130,7 +130,7 @@ class Variant_Wrapper {
 
 	// void SetBool(bool value)
 	static int SetBool(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		bool value = Lua::get<bool>(L, 2);
 		_p->SetBool(value);
 		return 0;
@@ -138,7 +138,7 @@ class Variant_Wrapper {
 
 	// void SetFloat(float value)
 	static int SetFloat(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		float value = Lua::get<float>(L, 2);
 		_p->SetFloat(value);
 		return 0;
@@ -146,7 +146,7 @@ class Variant_Wrapper {
 
 	// void SetRangedInt(const iranged& value)
 	static int SetRangedInt(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		iranged value = Lua::get<iranged>(L, 2);
 		_p->SetRangedInt(value);
 		return 0;
@@ -154,7 +154,7 @@ class Variant_Wrapper {
 
 	// void SetRangedFloat(const franged& value)
 	static int SetRangedFloat(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		franged value = Lua::get<franged>(L, 2);
 		_p->SetRangedFloat(value);
 		return 0;
@@ -162,7 +162,7 @@ class Variant_Wrapper {
 
 	// void SetMatrix3(const glm::mat3& value)
 	static int SetMatrix3(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		glm::mat3 value = Lua::get<glm::mat3>(L, 2);
 		_p->SetMatrix3(value);
 		return 0;
@@ -170,7 +170,7 @@ class Variant_Wrapper {
 
 	// void SetMatrix4(const glm::mat4& value)
 	static int SetMatrix4(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		glm::mat4 value = Lua::get<glm::mat4>(L, 2);
 		_p->SetMatrix4(value);
 		return 0;
@@ -178,7 +178,7 @@ class Variant_Wrapper {
 
 	// void SetIVector3(const glm::ivec3& value)
 	static int SetIVector3(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		glm::ivec3 value = Lua::get<glm::ivec3>(L, 2);
 		_p->SetIVector3(value);
 		return 0;
@@ -186,7 +186,7 @@ class Variant_Wrapper {
 
 	// void SetVector3(const glm::vec3& value)
 	static int SetVector3(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
 		_p->SetVector3(value);
 		return 0;
@@ -194,7 +194,7 @@ class Variant_Wrapper {
 
 	// void SetColor(const Color& value)
 	static int SetColor(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		Color value = Lua::get<Color>(L, 2);
 		_p->SetColor(value);
 		return 0;
@@ -202,7 +202,7 @@ class Variant_Wrapper {
 
 	// void SetVector4(const glm::vec4& value)
 	static int SetVector4(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		glm::vec4 value = Lua::get<glm::vec4>(L, 2);
 		_p->SetVector4(value);
 		return 0;
@@ -210,7 +210,7 @@ class Variant_Wrapper {
 
 	// void SetQuaternion(const glm::quat& value)
 	static int SetQuaternion(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		glm::quat value = Lua::get<glm::quat>(L, 2);
 		_p->SetQuaternion(value);
 		return 0;
@@ -218,7 +218,7 @@ class Variant_Wrapper {
 
 	// void SetString(const std::string& value)
 	static int SetString(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		std::string value = Lua::get<std::string>(L, 2);
 		_p->SetString(value);
 		return 0;
@@ -226,7 +226,7 @@ class Variant_Wrapper {
 
 	// void SetTexture(Texture value)
 	static int SetTexture(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 1);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		Texture value = Lua::get<Texture>(L, 2);
 		_p->SetTexture(value);
 		return 0;
@@ -234,7 +234,7 @@ class Variant_Wrapper {
 
 	// uint GetDataSize()
 	static int GetDataSize(lua_State* L) {
-		Variant* _p = Lua::callerPtr<Variant>(L, 0);
+		Variant* _p = Lua::callerPtr<Variant>(L);
 		return Lua::push(L, _p->GetDataSize());
 	}
 

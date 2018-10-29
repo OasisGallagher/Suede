@@ -13,7 +13,7 @@ class Polygon_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Polygon* _p = Lua::callerPtr<Polygon>(L, 0);
+		Polygon* _p = Lua::callerPtr<Polygon>(L);
 		lua_pushstring(L, String::Format("Polygon@0x%p", _p).c_str());
 		return 1;
 	}
@@ -42,7 +42,7 @@ class Triangle_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Triangle* _p = Lua::callerPtr<Triangle>(L, 0);
+		Triangle* _p = Lua::callerPtr<Triangle>(L);
 		lua_pushstring(L, String::Format("Triangle@0x%p", _p).c_str());
 		return 1;
 	}

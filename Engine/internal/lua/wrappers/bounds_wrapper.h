@@ -13,43 +13,48 @@ class Bounds_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 0);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		lua_pushstring(L, String::Format("Bounds@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// bool IsEmpty()
 	static int IsEmpty(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 0);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		return Lua::push(L, _p->IsEmpty());
 	}
 
 	// void Clear()
 	static int Clear(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 0);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		_p->Clear();
 		return 0;
 	}
 
 	// void Encapsulate(const Bounds& other)
-	static int Encapsulate(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 1);
-		Bounds other = Lua::get<Bounds>(L, 2);
-		_p->Encapsulate(other);
-		return 0;
-	}
-
 	// void Encapsulate(const glm::vec3& point)
-	static int Encapsulate2(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 1);
-		glm::vec3 point = Lua::get<glm::vec3>(L, 2);
-		_p->Encapsulate(point);
+	static int Encapsulate(lua_State* L) {
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
+
+		if (Lua::checkArguments<Bounds>(L, 2)) {
+			Bounds other = Lua::get<Bounds>(L, 2);
+			_p->Encapsulate(other);
+			return 0;
+		}
+
+		if (Lua::checkArguments<glm::vec3>(L, 2)) {
+			glm::vec3 point = Lua::get<glm::vec3>(L, 2);
+			_p->Encapsulate(point);
+			return 0;
+		}
+
+		Debug::LogError("failed to call \"Encapsulate\", invalid arguments.");
 		return 0;
 	}
 
 	// void SetMinMax(const glm::vec3& min, const glm::vec3& max)
 	static int SetMinMax(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 2);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		glm::vec3 max = Lua::get<glm::vec3>(L, 3);
 		glm::vec3 min = Lua::get<glm::vec3>(L, 2);
 		_p->SetMinMax(min, max);
@@ -58,7 +63,7 @@ class Bounds_Wrapper {
 
 	// void Expand(const glm::vec3& amount)
 	static int Expand(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 1);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		glm::vec3 amount = Lua::get<glm::vec3>(L, 2);
 		_p->Expand(amount);
 		return 0;
@@ -66,7 +71,7 @@ class Bounds_Wrapper {
 
 	// void Translate(const glm::vec3& amount)
 	static int Translate(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 1);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		glm::vec3 amount = Lua::get<glm::vec3>(L, 2);
 		_p->Translate(amount);
 		return 0;
@@ -74,19 +79,19 @@ class Bounds_Wrapper {
 
 	// glm::vec3 GetMin()
 	static int GetMin(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 0);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		return Lua::push(L, _p->GetMin());
 	}
 
 	// glm::vec3 GetMax()
 	static int GetMax(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 0);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		return Lua::push(L, _p->GetMax());
 	}
 
 	// glm::vec3 GetSize()
 	static int GetSize(lua_State* L) {
-		Bounds* _p = Lua::callerPtr<Bounds>(L, 0);
+		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		return Lua::push(L, _p->GetSize());
 	}
 
@@ -104,7 +109,6 @@ public:
 			{ "IsEmpty", IsEmpty },
 			{ "Clear", Clear },
 			{ "Encapsulate", Encapsulate },
-			{ "Encapsulate2", Encapsulate2 },
 			{ "SetMinMax", SetMinMax },
 			{ "Expand", Expand },
 			{ "Translate", Translate },

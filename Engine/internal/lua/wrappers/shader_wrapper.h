@@ -13,7 +13,7 @@ class Property_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Property* _p = Lua::callerPtr<Property>(L, 0);
+		Property* _p = Lua::callerPtr<Property>(L);
 		lua_pushstring(L, String::Format("Property@0x%p", _p).c_str());
 		return 1;
 	}
@@ -42,7 +42,7 @@ class ShaderProperty_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		ShaderProperty* _p = Lua::callerPtr<ShaderProperty>(L, 0);
+		ShaderProperty* _p = Lua::callerPtr<ShaderProperty>(L);
 		lua_pushstring(L, String::Format("ShaderProperty@0x%p", _p).c_str());
 		return 1;
 	}
@@ -71,27 +71,27 @@ class Shader_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		lua_pushstring(L, String::Format("Shader@0x%p", _p.get()).c_str());
 		return 1;
 	}
 
 	// std::string GetName()
 	static int GetName(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		return Lua::push(L, _p->GetName());
 	}
 
 	// bool Load(const std::string& path)
 	static int Load(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 1);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		std::string path = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->Load(path));
 	}
 
 	// void Bind(uint ssi, uint pass)
 	static int Bind(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		uint pass = Lua::get<uint>(L, 3);
 		uint ssi = Lua::get<uint>(L, 2);
 		_p->Bind(ssi, pass);
@@ -100,14 +100,14 @@ class Shader_Wrapper {
 
 	// void Unbind()
 	static int Unbind(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		_p->Unbind();
 		return 0;
 	}
 
 	// void SetRenderQueue(uint ssi, int value)
 	static int SetRenderQueue(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		int value = Lua::get<int>(L, 3);
 		uint ssi = Lua::get<uint>(L, 2);
 		_p->SetRenderQueue(ssi, value);
@@ -116,14 +116,14 @@ class Shader_Wrapper {
 
 	// int GetRenderQueue(uint ssi)
 	static int GetRenderQueue(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 1);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetRenderQueue(ssi));
 	}
 
 	// bool IsPassEnabled(uint ssi, uint pass)
 	static int IsPassEnabled(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		uint pass = Lua::get<uint>(L, 3);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->IsPassEnabled(ssi, pass));
@@ -131,7 +131,7 @@ class Shader_Wrapper {
 
 	// int GetPassIndex(uint ssi, const std::string& name)
 	static int GetPassIndex(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		std::string name = Lua::get<std::string>(L, 3);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetPassIndex(ssi, name));
@@ -139,7 +139,7 @@ class Shader_Wrapper {
 
 	// uint GetNativePointer(uint ssi, uint pass)
 	static int GetNativePointer(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 2);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		uint pass = Lua::get<uint>(L, 3);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetNativePointer(ssi, pass));
@@ -147,20 +147,20 @@ class Shader_Wrapper {
 
 	// uint GetPassCount(uint ssi)
 	static int GetPassCount(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 1);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		uint ssi = Lua::get<uint>(L, 2);
 		return Lua::push(L, _p->GetPassCount(ssi));
 	}
 
 	// uint GetSubShaderCount()
 	static int GetSubShaderCount(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 0);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		return Lua::push(L, _p->GetSubShaderCount());
 	}
 
 	// void GetProperties(std::vector<ShaderProperty>& properties)
 	static int GetProperties(lua_State* L) {
-		Shader& _p = *Lua::callerSharedPtr<Shader>(L, 1);
+		Shader& _p = *Lua::callerSharedPtr<Shader>(L);
 		std::vector<ShaderProperty> properties = Lua::getList<ShaderProperty>(L, 2);
 		_p->GetProperties(properties);
 		return 0;

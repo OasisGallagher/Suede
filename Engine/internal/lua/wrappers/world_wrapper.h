@@ -54,18 +54,23 @@ class World_Wrapper {
 	}
 
 	// void DestroyGameObject(uint id)
+	// void DestroyGameObject(GameObject go)
 	static int DestroyGameObject(lua_State* L) {
 		World* _p = World::instance();
-		uint id = Lua::get<uint>(L, 2);
-		_p->DestroyGameObject(id);
-		return 0;
-	}
 
-	// void DestroyGameObject(GameObject go)
-	static int DestroyGameObject2(lua_State* L) {
-		World* _p = World::instance();
-		GameObject go = Lua::get<GameObject>(L, 2);
-		_p->DestroyGameObject(go);
+		if (Lua::checkArguments<uint>(L, 2)) {
+			uint id = Lua::get<uint>(L, 2);
+			_p->DestroyGameObject(id);
+			return 0;
+		}
+
+		if (Lua::checkArguments<GameObject>(L, 2)) {
+			GameObject go = Lua::get<GameObject>(L, 2);
+			_p->DestroyGameObject(go);
+			return 0;
+		}
+
+		Debug::LogError("failed to call \"DestroyGameObject\", invalid arguments.");
 		return 0;
 	}
 
@@ -129,7 +134,6 @@ public:
 			{ "Finalize", Finalize },
 			{ "CreateObject", CreateObject },
 			{ "DestroyGameObject", DestroyGameObject },
-			{ "DestroyGameObject2", DestroyGameObject2 },
 			{ "Import", Import },
 			{ "GetRootTransform", GetRootTransform },
 			{ "GetGameObject", GetGameObject },

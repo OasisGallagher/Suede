@@ -39,7 +39,7 @@ namespace Lua {
 
 static int configure(lua_State* L) {
 	std::vector<luaL_Reg> funcs, fields;
-	
+
 	SkeletonBone_Wrapper::create(L);
 	SkeletonNode_Wrapper::create(L);
 	Skeleton_Wrapper::create(L);
@@ -193,7 +193,7 @@ static int configure(lua_State* L) {
 		field.func(L);
 		lua_setfield(L, -2, field.name);
 	}
-	
+
 	return 1;
 }
 

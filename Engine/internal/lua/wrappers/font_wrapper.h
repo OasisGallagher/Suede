@@ -13,7 +13,7 @@ class CharacterInfo_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		CharacterInfo* _p = Lua::callerPtr<CharacterInfo>(L, 0);
+		CharacterInfo* _p = Lua::callerPtr<CharacterInfo>(L);
 		lua_pushstring(L, String::Format("CharacterInfo@0x%p", _p).c_str());
 		return 1;
 	}
@@ -42,14 +42,14 @@ class Font_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		lua_pushstring(L, String::Format("Font@0x%p", _p.get()).c_str());
 		return 1;
 	}
 
 	// bool Load(const std::string& path, int size)
 	static int Load(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 2);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		int size = Lua::get<int>(L, 3);
 		std::string path = Lua::get<std::string>(L, 2);
 		return Lua::push(L, _p->Load(path, size));
@@ -57,38 +57,38 @@ class Font_Wrapper {
 
 	// bool Require(const std::wstring& str)
 	static int Require(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 1);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		std::wstring str = Lua::get<std::wstring>(L, 2);
 		return Lua::push(L, _p->Require(str));
 	}
 
 	// uint GetFontSize()
 	static int GetFontSize(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		return Lua::push(L, _p->GetFontSize());
 	}
 
 	// Texture2D GetTexture()
 	static int GetTexture(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		return Lua::push(L, _p->GetTexture());
 	}
 
 	// std::string GetFamilyName()
 	static int GetFamilyName(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		return Lua::push(L, _p->GetFamilyName());
 	}
 
 	// std::string GetStyleName()
 	static int GetStyleName(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		return Lua::push(L, _p->GetStyleName());
 	}
 
 	// Material GetMaterial()
 	static int GetMaterial(lua_State* L) {
-		Font& _p = *Lua::callerSharedPtr<Font>(L, 0);
+		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		return Lua::push(L, _p->GetMaterial());
 	}
 

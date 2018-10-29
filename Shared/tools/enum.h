@@ -508,6 +508,8 @@ const char    *_final_ ## index =                                    \
 
 #endif
 
+class BetterEnumBase {};
+
 #define BETTER_ENUMS_TYPE(SetUnderlyingType, SwitchType, GenerateSwitchType,   \
                           GenerateStrings, ToStringConstexpr,                  \
                           DeclareInitialize, DefineInitialize, CallInitialize, \
@@ -519,7 +521,7 @@ BETTER_ENUMS_ID(GenerateSwitchType(Underlying, __VA_ARGS__))                   \
                                                                                \
 }                                                                              \
                                                                                \
-class Enum {                                                                   \
+class Enum : public BetterEnumBase {                                           \
   private:                                                                     \
     typedef ::better_enums::optional<Enum>                  _optional;         \
     typedef ::better_enums::optional<std::size_t>           _optional_index;   \

@@ -13,14 +13,14 @@ class ImageEffect_Wrapper {
 	}
 
 	static int ToString(lua_State* L) {
-		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L, 0);
+		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L);
 		lua_pushstring(L, String::Format("ImageEffect@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
-		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L, 3);
+		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L);
 		Rect normalizedRect = Lua::get<Rect>(L, 4);
 		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 		RenderTexture src = Lua::get<RenderTexture>(L, 2);
