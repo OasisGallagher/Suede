@@ -9,7 +9,29 @@
 
 class Color_Wrapper {
 	static int NewColor(lua_State* L) {
-		return Lua::newObject<Color>(L);
+		if (Lua::checkArguments(L, 1)) {
+			return Lua::newObject<Color>(L);
+		}
+
+		if (Lua::checkArguments<float, float, float, float>(L, 1)) {
+			float a = Lua::get<float>(L, 4);
+			float b = Lua::get<float>(L, 3);
+			float g = Lua::get<float>(L, 2);
+			float r = Lua::get<float>(L, 1);
+		
+			return Lua::newObject<Color>(L, r, g, b, a);
+		}
+
+		if (Lua::checkArguments<float, float, float>(L, 1)) {
+			float b = Lua::get<float>(L, 3);
+			float g = Lua::get<float>(L, 2);
+			float r = Lua::get<float>(L, 1);
+		
+			return Lua::newObject<Color>(L, r, g, b);
+		}
+
+		Debug::LogError("failed to call \"Color\", invalid arguments.");
+		return 0;
 	}
 
 	static int ToString(lua_State* L) {

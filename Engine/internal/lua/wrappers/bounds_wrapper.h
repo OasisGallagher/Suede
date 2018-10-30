@@ -9,7 +9,19 @@
 
 class Bounds_Wrapper {
 	static int NewBounds(lua_State* L) {
-		return Lua::newObject<Bounds>(L);
+		if (Lua::checkArguments(L, 1)) {
+			return Lua::newObject<Bounds>(L);
+		}
+
+		if (Lua::checkArguments<glm::vec3, glm::vec3>(L, 1)) {
+			glm::vec3 size = Lua::get<glm::vec3>(L, 2);
+			glm::vec3 center = Lua::get<glm::vec3>(L, 1);
+		
+			return Lua::newObject<Bounds>(L, center, size);
+		}
+
+		Debug::LogError("failed to call \"Bounds\", invalid arguments.");
+		return 0;
 	}
 
 	static int ToString(lua_State* L) {

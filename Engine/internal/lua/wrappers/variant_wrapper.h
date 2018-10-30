@@ -9,7 +9,20 @@
 
 class Variant_Wrapper {
 	static int NewVariant(lua_State* L) {
-		return Lua::newObject<Variant>(L);
+		if (Lua::checkArguments<)>(L, 2)) {
+			) :type_(VariantType::None = Lua::get<)>(L, 2);
+		
+			return Lua::newObject<Variant>(L, :type_(VariantType::None);
+		}
+
+		if (Lua::checkArguments<Variant>(L, 2)) {
+			Variant other = Lua::get<Variant>(L, 2);
+		
+			return Lua::newObject<Variant>(L, other);
+		}
+
+		Debug::LogError("failed to call \"Variant\", invalid arguments.");
+		return 0;
 	}
 
 	static int ToString(lua_State* L) {

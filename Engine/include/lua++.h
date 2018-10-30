@@ -173,10 +173,10 @@ inline int deleteSharedPtr(lua_State* L) {
 	return 0;
 }
 
-template <class T>
-inline int newObject(lua_State* L) {
+template <class T, class... R>
+inline int newObject(lua_State* L, R... args) {
 	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = new T;
+	*memory = new T(args...);
 
 	luaL_getmetatable(L, TypeID<T>::string());
 	lua_setmetatable(L, -2);
@@ -325,17 +325,17 @@ inline bool _checkArgumentsTypes(lua_State* L, int index) {
 }
 
 inline bool checkArguments(lua_State* L, int index) {
-	return (lua_gettop(L) == 1);
+	return (lua_gettop(L) == index - 1);
 }
 
 template <class T>
 inline bool checkArguments(lua_State* L, int index) {
-	return (lua_gettop(L) == 2) && _checkArgumentsTypes<T>(L, index);
+	return (lua_gettop(L) == index) && _checkArgumentsTypes<T>(L, index);
 }
 
 template <class T, class U, class... R>
 inline bool checkArguments(lua_State* L, int index) {
-	return (lua_gettop(L) == sizeof...(R) + 2 + 1) && _checkArgumentsTypes<T, U, R...>(L, index);
+	return (lua_gettop(L) == sizeof...(R) + 2 + (index - 1)) && _checkArgumentsTypes<T, U, R...>(L, index);
 }
 
 inline bool checkMetatable(lua_State* L, int index, const char* metatable) {

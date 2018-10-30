@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+#
+# TODO: better way to handle indent. count "{" and "}" for example.
+#
+
 import os;
 import re;
 from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWRITE;
@@ -16,12 +20,15 @@ kGenericContainer = "std::vector";
 kEnumPattern = re.compile(r"enum\s+class\s+([a-zA-Z0-9_]+)");
 kBetterEnumPattern = re.compile(r"BETTER_ENUM\(([a-zA-Z0-9_]+)");
 kClassPattern = re.compile(r"\s*(struct|class)\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)\s*\{");
-kMethodPattern = re.compile(r"\s*(static|virtual)?\s*((?!return)[A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+# old kMethodPattern = re.compile(r"\s*(static|virtual)?\s*((?!return)[A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+kMethodPattern = re.compile(r"\s*(static|virtual)?\s*((?!return)[A-Za-z0-9:<>_\*]*?)\s*([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
 
 kExcludeFiles = [
 	"gui.h",
 	"imgui.h",
 	"lua++.h",
+	"plane.h",	# TODO: Plane(const glm::vec3 points[3]); error.
+	"variant.h",
 	"gizmospainter.h",
 	"graphicsviewer.h",
 	"graphicscanvas.h",
@@ -86,6 +93,12 @@ def Warning(message):
 def Success(message):
 	color = '\033[92m'; endc = '\033[0m';
 	print((color + message + endc).center(os.get_terminal_size().columns, "-"));
+	
+def Chmod(file, mode):
+	try:
+		os.chmod(file, mode);
+	except Exception as e:
+		print(e);
 
 def WrapperFileName(name):
 	p = name.rfind(".");
@@ -116,6 +129,9 @@ class Method:	# void Print(const char* message) for example.
 	def Return(self):
 		'''void'''
 		return self._r;
+		
+	def IsConstructor(self):
+		return not self._r;
 
 	def DefBody(self):
 		'''Print(const char* message)'''
@@ -272,7 +288,7 @@ class Wrapper:
 		wrappers = [];
 		dest = WrapperFileName(name);
 		
-		os.chmod(kDestFolder + dest, S_IWRITE);
+		Chmod(kDestFolder + dest, S_IWRITE);
 		self._f = open(kDestFolder + dest, "w", encoding = "utf-8");
 		print('Parsing "%s", write to "%s"...' % (name, dest));
 
@@ -288,7 +304,7 @@ class Wrapper:
 			wrappers.append(self._wrapClass(c[0], c[1], c[2], c[3], c[4]));
 
 		self._f.close();
-		os.chmod(kDestFolder + dest, S_IREAD | S_IRGRP | S_IROTH);
+		Chmod(kDestFolder + dest, S_IREAD | S_IRGRP | S_IROTH);
 		
 		return wrappers;
 
@@ -296,13 +312,9 @@ class Wrapper:
 		sharedPtr = className[0] == "I" and className[1].isupper();
 		if sharedPtr: className = className[1:];
 		return (sharedPtr, className)
-
-	def _callMethod(self, className, method, sharedPtr, maxArgs):
-		if method.IsStatic():
-			ans = "%s::%s(" % (sharedPtr and "I" + className or className, method.Name());
-		else:
-			ans = "_p->%s(" % method.Name();
-
+		
+	def _argumentList(self, method, maxArgs):
+		ans = "";
 		for i in range(min(maxArgs, len(method.Arguments()))):
 			if i != 0: ans += ", ";
 			arg = method.Arguments()[i];
@@ -311,11 +323,22 @@ class Wrapper:
 				ans += ".data()";
 			elif arg.type == kPyCStr:
 				ans += ".c_str()";
+		
+		return ans;
 
+	def _callMethod(self, className, method, sharedPtr, maxArgs):
+		ans = "";
+		if method.IsStatic():
+			ans = "%s::%s(" % (sharedPtr and "I" + className or className, method.Name());
+		elif not method.IsConstructor():
+			ans = "_p->%s(" % method.Name();
+
+		ans += self._argumentList(method, maxArgs);
+		
 		ans += ")";
 		return ans;
 
-	def _writeConstructor(self, className, instance, sharedPtr, abstract):
+	def _writeConstructor(self, className, instance, sharedPtr, abstract, interface):
 		if instance:
 			self._w(
 '''	static int %sInstance(lua_State* L) {
@@ -332,22 +355,22 @@ class Wrapper:
 		return Lua::newInterface<%sInternal>(L);
 	}\n''' % (className, className));
 		else:
-			self._w(
-'''	static int New%s(lua_State* L) {
-		return Lua::newObject<%s>(L);
-	}\n''' % (className, className));
-
-	def _formatMethodCall(self, method, className, sharedPtr, maxArgs = float("inf"), ntabs = 2):
+			self._beginOverloadConstructor(className);
+			self._writeOverloadConstructors(className, interface);
+			self._endOverloadConstructor();
+			
+	def _formatExactArguments(self, method, maxArgs, argstart = 2):
 		code = [];
 		pps = nargs = min(maxArgs, len(method.Arguments()));
 		for i in range(nargs):
+			argpos = nargs - i + 1 + (argstart - 2);
 			argument = method.Arguments()[nargs - i - 1];
 			if (kArray in argument.type) or (kGenericContainer in argument.type):
 				key = (kArray in argument.type) and kArray or kGenericContainer;
 				element = argument.type[len(key)+1:];
-				code.append("std::vector<%s> %s = Lua::getList<%s>(L, %d);\n" % (element, argument.value, element, (nargs - i + 1)));
+				code.append("std::vector<%s> %s = Lua::getList<%s>(L, %d);\n" % (element, argument.value, element, argpos));
 			elif kPyCStr in argument.type:
-				code.append("std::string %s = Lua::get<std::string>(L, %d);\n" % (argument.value, (nargs - i + 1)));
+				code.append("std::string %s = Lua::get<std::string>(L, %d);\n" % (argument.value, argpos));
 			elif kLuaFunction in argument.type:
 				type = argument.type[argument.type.find("<") + 1:argument.type.rfind(">")];
 				if pps - (nargs - i) > 0:
@@ -356,12 +379,16 @@ class Wrapper:
 				code.append("auto %s = lua_isnil(L, -1) ? nullptr : Lua::make_func<%s>(L);\n" % (argument.value, type));
 				pps = nargs - i - 1;
 			else:
-				code.append("%s %s = Lua::get<%s>(L, %d);\n" % (argument.type, argument.value, argument.type, (nargs - i + 1)));
-
-		call = self._callMethod(className, method, sharedPtr, maxArgs);
-		if nargs > 0: code.append("\n");
+				code.append("%s %s = Lua::get<%s>(L, %d);\n" % (argument.type, argument.value, argument.type, argpos));
+			
+		return code;
 		
-		if method.Return() == "void":	
+	def _formatMethodCall(self, method, className, sharedPtr, maxArgs = float("inf"), ntabs = 2):
+		code = self._formatExactArguments(method, maxArgs);
+		call = self._callMethod(className, method, sharedPtr, maxArgs);
+		if min(maxArgs, len(method.Arguments())) > 0: code.append("\n");
+		
+		if method.Return() == "void":
 			code.append(call + ";\n");
 			code.append("return 0;\n");
 		elif kGenericContainer in method.Return():
@@ -375,6 +402,36 @@ class Wrapper:
 
 		for i in range(len(code)):
 			if code[i]: code[i] = ntabs * "\t" + code[i];
+
+		return code;
+		
+	def _beginOverloadConstructor(self, className):
+		self._w(
+'''	static int New%s(lua_State* L) {\n''' % className);
+
+	def _endOverloadConstructor(self):
+		self._w(
+'''	}\n''');
+		
+	def _formatOverloadConstructorCall(self, method, className, indent, maxArgs = float("inf")):
+		code = [];
+		arglist = None;
+		
+		if method:
+			code.extend(["\t" + t for t in self._formatExactArguments(method, maxArgs, 1)]);
+			arglist = self._argumentList(method, maxArgs);
+			if min(maxArgs, len(method.Arguments())) > 0: code.append("\n");
+		
+		indent = indent and "\t" or "";
+		if arglist:
+			code.append(
+'''%sreturn Lua::newObject<%s>(L, %s);\n''' % (indent, className, arglist));
+		else:
+			code.append(
+'''%sreturn Lua::newObject<%s>(L);\n''' % (indent, className));
+
+		for i in range(len(code)):
+			if code[i]: code[i] = 2 * "\t" + code[i];
 
 		return code;
 
@@ -441,6 +498,38 @@ class Wrapper:
 		return 0;
 ''' % methodName);
 
+	def _writeOverloadConstructors(self, className, interface):
+		overloads = interface.Overloads(className);
+		# no explict constructor.
+		if len(overloads) == 0:
+			return self._ws(self._formatOverloadConstructorCall(None, className, False));
+
+		# no overloads. do not check argument type for performance.
+		if len(overloads) == 1 and (len(overloads[0].Arguments()) == 0 or not overloads[0].Arguments()[-1].optional):
+			return self._ws(self._formatOverloadConstructorCall(overloads[0], className, False));
+
+		for method in overloads:
+			n = len(method.Arguments());
+			for i in range(n, -1, -1):
+				self._w(
+'''		%s''' % "if (Lua::checkArguments");
+
+				if i != 0:
+					self._w("<" + self._argumentsTypes(method.Arguments(), i) + ">");
+				self._w('''(L, 1)) {\n''');
+				self._ws(self._formatOverloadConstructorCall(method, className, True, i));
+				self._w(
+'''		}\n\n''');
+
+				# break if the argument index i - 1 is not optional.
+				if i != 0 and not method.Arguments()[i - 1].optional:
+					break;
+
+		self._w(
+'''		Debug::LogError("failed to call \\"%s\\", invalid arguments.");
+		return 0;
+''' % className);
+
 	def _writeMethod(self, method, className, instance, sharedPtr, interface):
 		for overload in interface.Overloads(method.Name()):
 			self._w("\t// " + overload.Text() + "\n");
@@ -497,6 +586,7 @@ class Wrapper:
 			self._writeStaticMethods(className, interface);
 
 		for method in interface.Methods():
+			if method.IsConstructor(): continue;
 			self._writeMethod(method, className, instance, sharedPtr, interface);
 
 	def _writeRegister(self, className, baseName, instance, sharedPtr, interface):
@@ -535,7 +625,7 @@ class Wrapper:
 			{ "__tostring", ToString }, ''');
 
 		for method in interface.Methods():
-			if not method.IsStatic():
+			if not method.IsStatic() and not method.IsConstructor():
 				self._w('''
 			{ "%s", %s },''' % (method.Name(), method.Name()));
 
@@ -555,7 +645,7 @@ class Wrapper:
 
 		self._w("\nclass " + className + kClassPostfix + " {\n");
 		if not interface.IsNotNewable():
-			self._writeConstructor(className, instance, sharedPtr, abstract);
+			self._writeConstructor(className, instance, sharedPtr, abstract, interface);
 			self._w("\n");
 
 		self._writeMethods(className, instance, sharedPtr, interface);
@@ -636,7 +726,7 @@ class Configure:
 	def Write(self, enums, wrapperClasses, wrapperFiles):
 		dest = kDestFolder + "luaconfig.h";
 		
-		os.chmod(dest, S_IWRITE);
+		Chmod(dest, S_IWRITE);
 		
 		self._f = open(dest, "w", encoding = "utf-8");
 		self._f.write("// Warning: this file is generated by %s.\n\n" % os.path.basename(__file__));
@@ -654,7 +744,7 @@ class Configure:
 		self._writeConfigEnd();
 
 		self._f.close();
-		os.chmod(dest, S_IREAD | S_IRGRP | S_IROTH);
+		Chmod(dest, S_IREAD | S_IRGRP | S_IROTH);
 		
 	def _writeConfigBegin(self):
 		self._f.write('''

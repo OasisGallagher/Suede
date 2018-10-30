@@ -19,7 +19,6 @@
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
 #include "particlesystem_wrapper.h"
-#include "plane_wrapper.h"
 #include "polygon_wrapper.h"
 #include "projector_wrapper.h"
 #include "rect_wrapper.h"
@@ -32,7 +31,6 @@
 #include "texture_wrapper.h"
 #include "time2_wrapper.h"
 #include "transform_wrapper.h"
-#include "variant_wrapper.h"
 #include "world_wrapper.h"
 
 namespace Lua {
@@ -83,7 +81,6 @@ static int configure(lua_State* L) {
 	SphereParticleEmitter_Wrapper::create(L);
 	ParticleAnimator_Wrapper::create(L);
 	ParticleSystem_Wrapper::create(L);
-	Plane_Wrapper::create(L);
 	Polygon_Wrapper::create(L);
 	Triangle_Wrapper::create(L);
 	Decal_Wrapper::create(L);
@@ -110,7 +107,6 @@ static int configure(lua_State* L) {
 	Time_Wrapper::create(L);
 	PRS_Wrapper::create(L);
 	Transform_Wrapper::create(L);
-	Variant_Wrapper::create(L);
 	World_Wrapper::create(L);
 
 	std::vector<luaL_Reg> funcs, fields;
@@ -156,7 +152,6 @@ static int configure(lua_State* L) {
 	SphereParticleEmitter_Wrapper::initialize(L, funcs, fields);
 	ParticleAnimator_Wrapper::initialize(L, funcs, fields);
 	ParticleSystem_Wrapper::initialize(L, funcs, fields);
-	Plane_Wrapper::initialize(L, funcs, fields);
 	Polygon_Wrapper::initialize(L, funcs, fields);
 	Triangle_Wrapper::initialize(L, funcs, fields);
 	Decal_Wrapper::initialize(L, funcs, fields);
@@ -183,7 +178,6 @@ static int configure(lua_State* L) {
 	Time_Wrapper::initialize(L, funcs, fields);
 	PRS_Wrapper::initialize(L, funcs, fields);
 	Transform_Wrapper::initialize(L, funcs, fields);
-	Variant_Wrapper::initialize(L, funcs, fields);
 	World_Wrapper::initialize(L, funcs, fields);
 
 	lua_createtable(L, 0, (int)funcs.size());
@@ -378,15 +372,6 @@ static int configure(lua_State* L) {
 	}
 
 	lua_setfield(L, -2, "RenderTextureFormat");
-
-	// VariantType
-	lua_newtable(L);
-	for (int i = 0; i < VariantType::size(); ++i) {
-		lua_pushinteger(L, VariantType::value(i));
-		lua_setfield(L, -2, VariantType::value(i).to_string());
-	}
-
-	lua_setfield(L, -2, "VariantType");
 
 	// WorldEventType
 	lua_newtable(L);

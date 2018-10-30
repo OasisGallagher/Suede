@@ -31,7 +31,7 @@ BETTER_ENUM(VariantType, int,
 
 class SUEDE_API Variant {
 public:
-	Variant() :type_(VariantType::None) { }
+	Variant() : type_(VariantType::None) { }
 	Variant(const Variant& other);
 	~Variant();
 

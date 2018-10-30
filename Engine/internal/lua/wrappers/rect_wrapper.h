@@ -9,7 +9,28 @@
 
 class Rect_Wrapper {
 	static int NewRect(lua_State* L) {
-		return Lua::newObject<Rect>(L);
+		if (Lua::checkArguments(L, 1)) {
+			return Lua::newObject<Rect>(L);
+		}
+
+		if (Lua::checkArguments<glm::vec2, glm::vec2>(L, 1)) {
+			glm::vec2 size = Lua::get<glm::vec2>(L, 2);
+			glm::vec2 p = Lua::get<glm::vec2>(L, 1);
+		
+			return Lua::newObject<Rect>(L, p, size);
+		}
+
+		if (Lua::checkArguments<float, float, float, float>(L, 1)) {
+			float height = Lua::get<float>(L, 4);
+			float width = Lua::get<float>(L, 3);
+			float y = Lua::get<float>(L, 2);
+			float x = Lua::get<float>(L, 1);
+		
+			return Lua::newObject<Rect>(L, x, y, width, height);
+		}
+
+		Debug::LogError("failed to call \"Rect\", invalid arguments.");
+		return 0;
 	}
 
 	static int ToString(lua_State* L) {

@@ -4,13 +4,10 @@ function SuedeGlobal.Awake()
 end
 
 function SuedeGlobal.Start()
-	local color = Suede.NewColor();
-	color:Set(0.5, 0.5, 0.5);
-	Suede.EnvironmentInstance():SetFogColor(color);
+	Suede.EnvironmentInstance():SetFogColor(Suede.NewColor(0.5, 0.5, 0.5));
 	Suede.EnvironmentInstance():SetFogDensity(0);
 
-	color:Set(0.15, 0.15, 0.15);
-	Suede.EnvironmentInstance():SetAmbientColor(color);
+	Suede.EnvironmentInstance():SetAmbientColor(Suede.NewColor(0.15, 0.15, 0.15));
 
 	Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
 		print("loaded " .. path);
