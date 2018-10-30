@@ -9,7 +9,31 @@
 
 class Plane_Wrapper {
 	static int NewPlane(lua_State* L) {
-		return Lua::newObject<Plane>(L);
+		if (Lua::checkArguments(L, 1)) {
+			return Lua::newObject<Plane>(L);
+		}
+
+		if (Lua::checkArguments<glm::vec4>(L, 1)) {
+			glm::vec4 abcd = Lua::get<glm::vec4>(L, 1);
+		
+			return Lua::newObject<Plane>(L, abcd);
+		}
+
+		if (Lua::checkArguments<std::vector<glm::vec3>>(L, 1)) {
+			std::vector<glm::vec3> points = Lua::getList<glm::vec3>(L, 1);
+		
+			return Lua::newObject<Plane>(L, points.data());
+		}
+
+		if (Lua::checkArguments<glm::vec3, float>(L, 1)) {
+			float d = Lua::get<float>(L, 2);
+			glm::vec3 normal = Lua::get<glm::vec3>(L, 1);
+		
+			return Lua::newObject<Plane>(L, normal, d);
+		}
+
+		Debug::LogError("failed to call \"Plane\", invalid arguments.");
+		return 0;
 	}
 
 	static int ToString(lua_State* L) {

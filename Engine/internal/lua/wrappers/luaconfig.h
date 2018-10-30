@@ -32,7 +32,6 @@
 #include "texture_wrapper.h"
 #include "time2_wrapper.h"
 #include "transform_wrapper.h"
-#include "variant_wrapper.h"
 #include "world_wrapper.h"
 
 namespace Lua {
@@ -110,7 +109,6 @@ static int configure(lua_State* L) {
 	Time_Wrapper::create(L);
 	PRS_Wrapper::create(L);
 	Transform_Wrapper::create(L);
-	Variant_Wrapper::create(L);
 	World_Wrapper::create(L);
 
 	std::vector<luaL_Reg> funcs, fields;
@@ -183,7 +181,6 @@ static int configure(lua_State* L) {
 	Time_Wrapper::initialize(L, funcs, fields);
 	PRS_Wrapper::initialize(L, funcs, fields);
 	Transform_Wrapper::initialize(L, funcs, fields);
-	Variant_Wrapper::initialize(L, funcs, fields);
 	World_Wrapper::initialize(L, funcs, fields);
 
 	lua_createtable(L, 0, (int)funcs.size());
@@ -378,15 +375,6 @@ static int configure(lua_State* L) {
 	}
 
 	lua_setfield(L, -2, "RenderTextureFormat");
-
-	// VariantType
-	lua_newtable(L);
-	for (int i = 0; i < VariantType::size(); ++i) {
-		lua_pushinteger(L, VariantType::value(i));
-		lua_setfield(L, -2, VariantType::value(i).to_string());
-	}
-
-	lua_setfield(L, -2, "VariantType");
 
 	// WorldEventType
 	lua_newtable(L);

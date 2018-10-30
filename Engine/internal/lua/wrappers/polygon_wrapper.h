@@ -9,7 +9,18 @@
 
 class Polygon_Wrapper {
 	static int NewPolygon(lua_State* L) {
-		return Lua::newObject<Polygon>(L);
+		if (Lua::checkArguments(L, 1)) {
+			return Lua::newObject<Polygon>(L);
+		}
+
+		if (Lua::checkArguments<Polygon>(L, 1)) {
+			Polygon other = Lua::get<Polygon>(L, 1);
+		
+			return Lua::newObject<Polygon>(L, other);
+		}
+
+		Debug::LogError("failed to call \"Polygon\", invalid arguments.");
+		return 0;
 	}
 
 	static int ToString(lua_State* L) {
