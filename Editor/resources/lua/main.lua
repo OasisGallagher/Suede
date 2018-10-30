@@ -4,13 +4,17 @@ function SuedeGlobal.Awake()
 end
 
 function SuedeGlobal.Start()
-	Suede.WorldInstance():CullingUpdate();
-	print(Suede.CameraUtility);
-	Suede.CameraUtility.GetMain();
+	local color = Suede.NewColor();
+	color:Set(0.5, 0.5, 0.5);
+	Suede.EnvironmentInstance():SetFogColor(color);
+	Suede.EnvironmentInstance():SetFogDensity(0);
+
+	color:Set(0.15, 0.15, 0.15);
+	Suede.EnvironmentInstance():SetAmbientColor(color);
 
 	Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
 		print("loaded " .. path);
-		root:GetTransform():SetEulerAngles({ });
+		root:GetTransform():SetEulerAngles({ Suede.DepthTextureMode.Depth, Suede.MeshTopology.TriangleStripe });
 		root:GetTransform():SetPosition({ 0, 25, -5 });
 		root:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
 

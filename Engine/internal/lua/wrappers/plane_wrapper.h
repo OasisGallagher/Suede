@@ -14,6 +14,7 @@ class Plane_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L);
+
 		lua_pushstring(L, String::Format("Plane@0x%p", _p).c_str());
 		return 1;
 	}

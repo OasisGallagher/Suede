@@ -129,7 +129,7 @@ BETTER_ENUM(RenderTextureFormat, int,
 	Depth,
 	Shadow,
 	DepthStencil
-);
+)
 
 class SUEDE_API IRenderTexture : public ITexture {
 	SUEDE_DEFINE_METATABLE_NAME(RenderTexture)

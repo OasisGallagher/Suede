@@ -14,6 +14,7 @@ class Material_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
+
 		lua_pushstring(L, String::Format("Material@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -22,6 +23,7 @@ class Material_Wrapper {
 	static int SetName(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string value = Lua::get<std::string>(L, 2);
+		
 		_p->SetName(value);
 		return 0;
 	}
@@ -36,6 +38,7 @@ class Material_Wrapper {
 	static int Bind(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		uint pass = Lua::get<uint>(L, 2);
+		
 		_p->Bind(pass);
 		return 0;
 	}
@@ -51,6 +54,7 @@ class Material_Wrapper {
 	static int EnablePass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		uint pass = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->EnablePass(pass));
 	}
 
@@ -58,6 +62,7 @@ class Material_Wrapper {
 	static int DisablePass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		uint pass = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->DisablePass(pass));
 	}
 
@@ -65,6 +70,7 @@ class Material_Wrapper {
 	static int IsPassEnabled(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		uint pass = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->IsPassEnabled(pass));
 	}
 
@@ -72,6 +78,7 @@ class Material_Wrapper {
 	static int FindPass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->FindPass(name));
 	}
 
@@ -79,6 +86,7 @@ class Material_Wrapper {
 	static int SetPass(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		int pass = Lua::get<int>(L, 2);
+		
 		_p->SetPass(pass);
 		return 0;
 	}
@@ -99,6 +107,7 @@ class Material_Wrapper {
 	static int GetPassNativePointer(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		uint pass = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->GetPassNativePointer(pass));
 	}
 
@@ -106,6 +115,7 @@ class Material_Wrapper {
 	static int SetShader(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		Shader value = Lua::get<Shader>(L, 2);
+		
 		_p->SetShader(value);
 		return 0;
 	}
@@ -120,6 +130,7 @@ class Material_Wrapper {
 	static int SetRenderQueue(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		int value = Lua::get<int>(L, 2);
+		
 		_p->SetRenderQueue(value);
 		return 0;
 	}
@@ -134,6 +145,7 @@ class Material_Wrapper {
 	static int Define(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->Define(name);
 		return 0;
 	}
@@ -142,6 +154,7 @@ class Material_Wrapper {
 	static int Undefine(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->Undefine(name);
 		return 0;
 	}
@@ -151,6 +164,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		int value = Lua::get<int>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetInt(name, value);
 		return 0;
 	}
@@ -160,6 +174,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		bool value = Lua::get<bool>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetBool(name, value);
 		return 0;
 	}
@@ -169,6 +184,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		float value = Lua::get<float>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetFloat(name, value);
 		return 0;
 	}
@@ -178,6 +194,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		Texture value = Lua::get<Texture>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetTexture(name, value);
 		return 0;
 	}
@@ -187,6 +204,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		glm::mat4 value = Lua::get<glm::mat4>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetMatrix4(name, value);
 		return 0;
 	}
@@ -196,6 +214,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetVector3(name, value);
 		return 0;
 	}
@@ -205,6 +224,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		Color value = Lua::get<Color>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetColor(name, value);
 		return 0;
 	}
@@ -214,6 +234,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		glm::vec4 value = Lua::get<glm::vec4>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetVector4(name, value);
 		return 0;
 	}
@@ -223,6 +244,7 @@ class Material_Wrapper {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		Variant value = Lua::get<Variant>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->SetVariant(name, value);
 		return 0;
 	}
@@ -231,6 +253,7 @@ class Material_Wrapper {
 	static int GetInt(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetInt(name));
 	}
 
@@ -238,6 +261,7 @@ class Material_Wrapper {
 	static int GetBool(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetBool(name));
 	}
 
@@ -245,6 +269,7 @@ class Material_Wrapper {
 	static int GetFloat(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetFloat(name));
 	}
 
@@ -252,6 +277,7 @@ class Material_Wrapper {
 	static int GetRangedInt(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetRangedInt(name));
 	}
 
@@ -259,6 +285,7 @@ class Material_Wrapper {
 	static int GetRangedFloat(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetRangedFloat(name));
 	}
 
@@ -266,6 +293,7 @@ class Material_Wrapper {
 	static int GetTexture(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetTexture(name));
 	}
 
@@ -273,6 +301,7 @@ class Material_Wrapper {
 	static int GetMatrix4(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetMatrix4(name));
 	}
 
@@ -280,6 +309,7 @@ class Material_Wrapper {
 	static int GetVector3(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetVector3(name));
 	}
 
@@ -287,6 +317,7 @@ class Material_Wrapper {
 	static int GetColor(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetColor(name));
 	}
 
@@ -294,6 +325,7 @@ class Material_Wrapper {
 	static int GetVector4(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetVector4(name));
 	}
 

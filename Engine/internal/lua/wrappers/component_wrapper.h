@@ -10,6 +10,7 @@
 class Component_Wrapper {
 	static int ToString(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
+
 		lua_pushstring(L, String::Format("Component@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -33,7 +34,7 @@ class Component_Wrapper {
 
 		return 1;
 	}
-		// virtual void Awake()
+	// virtual void Awake()
 	static int Awake(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		_p->Awake();
@@ -46,6 +47,7 @@ class Component_Wrapper {
 		Rect normalizedRect = Lua::get<Rect>(L, 4);
 		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 		RenderTexture src = Lua::get<RenderTexture>(L, 2);
+		
 		_p->OnRenderImage(src, dest, normalizedRect);
 		return 0;
 	}
@@ -60,6 +62,7 @@ class Component_Wrapper {
 	static int SetEnabled(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		bool value = Lua::get<bool>(L, 2);
+		
 		_p->SetEnabled(value);
 		return 0;
 	}
@@ -68,6 +71,7 @@ class Component_Wrapper {
 	static int SetGameObject(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		GameObject value = Lua::get<GameObject>(L, 2);
+		
 		_p->SetGameObject(value);
 		return 0;
 	}
@@ -105,13 +109,12 @@ class Component_Wrapper {
 	}
 
 	// static suede_guid GetComponentGUID()
-	static int GetComponentGUID(lua_State* L) {
-		return Lua::push(L, IComponent::GetComponentGUID());
+	static int GetComponentGUID(lua_State* L) {		return Lua::push(L, IComponent::GetComponentGUID());
 	}
 
 	// static suede_guid ClassNameToGUID(const char* className)
-	static int ClassNameToGUID(lua_State* L) {
-		std::string className = Lua::get<std::string>(L, 2);
+	static int ClassNameToGUID(lua_State* L) {		std::string className = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, IComponent::ClassNameToGUID(className.c_str()));
 	}
 
@@ -128,11 +131,13 @@ class Component_Wrapper {
 
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
+			
 			return Lua::push(L, _p->IsComponentType(guid));
 		}
 
 		if (Lua::checkArguments<std::string>(L, 2)) {
 			std::string name = Lua::get<std::string>(L, 2);
+			
 			return Lua::push(L, _p->IsComponentType(name.c_str()));
 		}
 
@@ -180,6 +185,7 @@ public:
 class ComponentUtility_Wrapper {
 	static int ToString(lua_State* L) {
 		ComponentUtility* _p = Lua::callerPtr<ComponentUtility>(L);
+
 		lua_pushstring(L, String::Format("ComponentUtility@0x%p", _p).c_str());
 		return 1;
 	}
@@ -201,7 +207,7 @@ class ComponentUtility_Wrapper {
 
 		return 1;
 	}
-	public:
+public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<ComponentUtility>(L);
 	}

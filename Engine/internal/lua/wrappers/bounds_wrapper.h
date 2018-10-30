@@ -14,6 +14,7 @@ class Bounds_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Bounds* _p = Lua::callerPtr<Bounds>(L);
+
 		lua_pushstring(L, String::Format("Bounds@0x%p", _p).c_str());
 		return 1;
 	}
@@ -38,12 +39,14 @@ class Bounds_Wrapper {
 
 		if (Lua::checkArguments<Bounds>(L, 2)) {
 			Bounds other = Lua::get<Bounds>(L, 2);
+			
 			_p->Encapsulate(other);
 			return 0;
 		}
 
 		if (Lua::checkArguments<glm::vec3>(L, 2)) {
 			glm::vec3 point = Lua::get<glm::vec3>(L, 2);
+			
 			_p->Encapsulate(point);
 			return 0;
 		}
@@ -57,6 +60,7 @@ class Bounds_Wrapper {
 		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		glm::vec3 max = Lua::get<glm::vec3>(L, 3);
 		glm::vec3 min = Lua::get<glm::vec3>(L, 2);
+		
 		_p->SetMinMax(min, max);
 		return 0;
 	}
@@ -65,6 +69,7 @@ class Bounds_Wrapper {
 	static int Expand(lua_State* L) {
 		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		glm::vec3 amount = Lua::get<glm::vec3>(L, 2);
+		
 		_p->Expand(amount);
 		return 0;
 	}
@@ -73,6 +78,7 @@ class Bounds_Wrapper {
 	static int Translate(lua_State* L) {
 		Bounds* _p = Lua::callerPtr<Bounds>(L);
 		glm::vec3 amount = Lua::get<glm::vec3>(L, 2);
+		
 		_p->Translate(amount);
 		return 0;
 	}

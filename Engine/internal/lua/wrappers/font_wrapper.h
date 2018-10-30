@@ -14,6 +14,7 @@ class CharacterInfo_Wrapper {
 
 	static int ToString(lua_State* L) {
 		CharacterInfo* _p = Lua::callerPtr<CharacterInfo>(L);
+
 		lua_pushstring(L, String::Format("CharacterInfo@0x%p", _p).c_str());
 		return 1;
 	}
@@ -43,6 +44,7 @@ class Font_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L);
+
 		lua_pushstring(L, String::Format("Font@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -52,6 +54,7 @@ class Font_Wrapper {
 		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		int size = Lua::get<int>(L, 3);
 		std::string path = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->Load(path, size));
 	}
 
@@ -59,6 +62,7 @@ class Font_Wrapper {
 	static int Require(lua_State* L) {
 		Font& _p = *Lua::callerSharedPtr<Font>(L);
 		std::wstring str = Lua::get<std::wstring>(L, 2);
+		
 		return Lua::push(L, _p->Require(str));
 	}
 

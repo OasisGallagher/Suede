@@ -23,20 +23,33 @@ namespace Lua {
 
 #pragma region internal helpers
 
+class _StackChecker {
+	int top;
+	lua_State* L;
+
+public:
+	_StackChecker(lua_State* L) : L(L) {
+		top = lua_gettop(L);
+	}
+
+	~_StackChecker() {
+		int n = lua_gettop(L);
+		assert(top == n && "lua stack unblanced");
+	}
+};
+
+#ifdef _DEBUG
+#define _CHECK_LUA_STACK(L)	_StackChecker _checker(L);
+#else
+#define _CHECK_STACK(L)
+#endif
+
 inline int _panic(lua_State* L) {
 	Debug::LogError("onPanic: %s", lua_tostring(L, -1));
-	lua_pop(L, 1);
-
-	// SUEDE TODO: lua will call abort() anyway.
 	return 0;
 }
 
-inline void _error(lua_State *L) {
-	Debug::LogError("onError: %s", lua_tostring(L, -1));
-	lua_pop(L, 1);
-}
-
-static int _print(lua_State *L) {
+inline std::string _message(lua_State* L) {
 	std::string message;
 	int nargs = lua_gettop(L);
 
@@ -45,14 +58,30 @@ static int _print(lua_State *L) {
 		message += luaL_tolstring(L, i, nullptr);
 	}
 
-	Debug::Log(message.c_str());
+	return message;
+}
 
+
+inline int _log(lua_State *L) {
+	Debug::Log(_message(L).c_str());
+	return 0;
+}
+
+inline int _warning(lua_State *L) {
+	Debug::LogWarning(_message(L).c_str());
+	return 0;
+}
+
+inline int _error(lua_State *L) {
+	Debug::LogError(_message(L).c_str());
 	return 0;
 }
 
 inline void _registerGlobals(lua_State* L) {
 	luaL_Reg globals[] = {
-		{ "print", _print },
+		{ "print", _log },
+		{ "warning", _warning },
+		{ "error", _error },
 		{ nullptr, nullptr }
 	};
 
@@ -69,7 +98,7 @@ inline T* _userdataPtr(lua_State* L, int index, const char* metatable) {
 	}
 #endif
 
-	T** p = (T**)lua_touserdata(L, 1);
+	T** p = (T**)lua_touserdata(L, index);
 	if (p == nullptr) { return nullptr; }
 
 	return *p;
@@ -101,9 +130,11 @@ static T _glmConvert(lua_State* L, int index) {
 
 #pragma endregion
 
-#pragma region con/destructor
+#pragma region con/destructors
 
 static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
+	_CHECK_LUA_STACK(L);
+
 	std::vector<luaL_Reg> regs {
 		{ "base", luaopen_base },
 		{ "io", luaopen_io, },
@@ -126,6 +157,7 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 	
 	if (luaL_dofile(L, entry) != 0) {
 		_error(L);
+		lua_pop(L, 1);
 	}
 }
 
@@ -184,98 +216,112 @@ inline int reference(lua_State* L) {
 
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value, bool>::type
-_checkArgument(lua_State* L, int index) {
+_checkArgumentType(lua_State* L, int index) {
 	return checkMetatable(L, index, TypeID<T>::string());
 }
 
-inline bool _checkArgument(lua_State* L, int index) {
+inline bool _checkArgumentType(lua_State* L, int index) {
 	return true;
 }
 
 template <>
-inline bool _checkArgument<std::string>(lua_State* L, int index) {
+inline bool _checkArgumentType<std::string>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TSTRING;
 }
 
 template <>
-inline bool _checkArgument<bool>(lua_State* L, int index) {
+inline bool _checkArgumentType<bool>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TBOOLEAN;
 }
 
 template <>
-inline bool _checkArgument<int>(lua_State* L, int index) {
+inline bool _checkArgumentType<int>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<unsigned>(lua_State* L, int index) {
+inline bool _checkArgumentType<unsigned>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<long>(lua_State* L, int index) {
+inline bool _checkArgumentType<long>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<unsigned long>(lua_State* L, int index) {
+inline bool _checkArgumentType<unsigned long>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<long long>(lua_State* L, int index) {
+inline bool _checkArgumentType<long long>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<unsigned long long>(lua_State* L, int index) {
+inline bool _checkArgumentType<unsigned long long>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<float>(lua_State* L, int index) {
+inline bool _checkArgumentType<float>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
 template <>
-inline bool _checkArgument<glm::vec2>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::vec2>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <>
-inline bool _checkArgument<glm::vec3>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::vec3>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <>
-inline bool _checkArgument<glm::vec4>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::vec4>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <>
-inline bool _checkArgument<glm::quat>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::quat>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <>
-inline bool _checkArgument<glm::mat2>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::mat2>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <>
-inline bool _checkArgument<glm::mat3>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::mat3>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <>
-inline bool _checkArgument<glm::mat4>(lua_State* L, int index) {
+inline bool _checkArgumentType<glm::mat4>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TTABLE;
 }
 
 template <class T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type
-_checkArgument(lua_State* L, int index) {
+_checkArgumentType(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
+}
+
+inline bool _checkArgumentsTypes(lua_State* L, int index) {
+	return true;
+}
+
+template <class T>
+inline bool _checkArgumentsTypes(lua_State* L, int index) {
+	return _checkArgumentType<T>(L, index);
+}
+
+template <class T, class U, class... R>
+inline bool _checkArgumentsTypes(lua_State* L, int index) {
+	return _checkArgumentsTypes<T>(L, index) && _checkArgumentsTypes<U, R...>(L, index + 1);
 }
 
 inline bool checkArguments(lua_State* L, int index) {
@@ -284,13 +330,12 @@ inline bool checkArguments(lua_State* L, int index) {
 
 template <class T>
 inline bool checkArguments(lua_State* L, int index) {
-	return (lua_gettop(L) == 2) && _checkArgument<T>(L, index);
+	return (lua_gettop(L) == 2) && _checkArgumentsTypes<T>(L, index);
 }
 
 template <class T, class U, class... R>
 inline bool checkArguments(lua_State* L, int index) {
-	return (lua_gettop(L) == sizeof...(R) + 2 + 1)
-		&& checkArguments<T>(L, index) && checkArguments<U, R...>(L, index + 1);
+	return (lua_gettop(L) == sizeof...(R) + 2 + 1) && _checkArgumentsTypes<T, U, R...>(L, index);
 }
 
 inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
@@ -385,7 +430,7 @@ inline int copyUserdata(lua_State* L, const T& value) {
 	return 1;
 }
 
-#pragma region push
+#pragma region pushers
 
 inline int push(lua_State* L) {
 	return 0;
@@ -528,12 +573,12 @@ inline int push(lua_State* L, T arg, R... args) {
 
 #pragma endregion
 
-#pragma region get
+#pragma region getters
 
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value && _is_ptr<T>::value, T>::type
 get(lua_State* L, int index) {
-	T* p = _userdataSharedPtr<T>(L, -1, TypeID<T>::string());
+	T* p = _userdataSharedPtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) { return nullptr; }
 	return *p;
 }
@@ -541,7 +586,7 @@ get(lua_State* L, int index) {
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value && !_is_ptr<T>::value && !std::is_base_of<BetterEnumBase, T>::value, T>::type
 get(lua_State* L, int index) {
-	T* p = _userdataSharedPtr<T>(L, -1, TypeID<T>::string());
+	T* p = _userdataPtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) {
 		Debug::LogError("argument at %d does not has metatable %s.", index, TypeID<T>::string());
 		return T();
@@ -699,7 +744,7 @@ public:
 		lua_pushvalue(L, -1);
 		Lua::push(L, args...);
 
-		R _r();
+		R r;
 		if (lua_pcall(L, sizeof...(Args), 1, 0) != 0) {
 			_error(L);
 		}
@@ -709,7 +754,7 @@ public:
 		}
 
 		ref_ = luaL_ref(L, LUA_REGISTRYINDEX);
-		return _r;
+		return r;
 	}
 
 protected:

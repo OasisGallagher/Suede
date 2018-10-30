@@ -14,6 +14,7 @@ class Screen_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Screen* _p = Screen::instance();
+
 		lua_pushstring(L, String::Format("Screen@0x%p", _p).c_str());
 		return 1;
 	}
@@ -35,6 +36,7 @@ class Screen_Wrapper {
 		Screen* _p = Screen::instance();
 		uint height = Lua::get<uint>(L, 3);
 		uint width = Lua::get<uint>(L, 2);
+		
 		_p->Resize(width, height);
 		return 0;
 	}

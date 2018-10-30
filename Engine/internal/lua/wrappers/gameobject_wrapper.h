@@ -14,6 +14,7 @@ class GameObject_Wrapper {
 
 	static int ToString(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
+
 		lua_pushstring(L, String::Format("GameObject@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -28,6 +29,7 @@ class GameObject_Wrapper {
 	static int SetActiveSelf(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
 		bool value = Lua::get<bool>(L, 2);
+		
 		_p->SetActiveSelf(value);
 		return 0;
 	}
@@ -48,6 +50,7 @@ class GameObject_Wrapper {
 	static int SetTag(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
 		std::string value = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->SetTag(value));
 	}
 
@@ -61,6 +64,7 @@ class GameObject_Wrapper {
 	static int SetName(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
 		std::string value = Lua::get<std::string>(L, 2);
+		
 		_p->SetName(value);
 		return 0;
 	}
@@ -91,6 +95,7 @@ class GameObject_Wrapper {
 
 		if (Lua::checkArguments<int>(L, 2)) {
 			int flags = Lua::get<int>(L, 2);
+			
 			_p->RecalculateBounds(flags);
 			return 0;
 		}
@@ -115,6 +120,7 @@ class GameObject_Wrapper {
 	static int AddComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->AddComponent(name.c_str()));
 	}
 
@@ -125,11 +131,13 @@ class GameObject_Wrapper {
 
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
+			
 			return Lua::push(L, _p->GetComponent(guid));
 		}
 
 		if (Lua::checkArguments<std::string>(L, 2)) {
 			std::string name = Lua::get<std::string>(L, 2);
+			
 			return Lua::push(L, _p->GetComponent(name.c_str()));
 		}
 
@@ -144,11 +152,13 @@ class GameObject_Wrapper {
 
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
+			
 			return Lua::pushList(L, _p->GetComponents(guid));
 		}
 
 		if (Lua::checkArguments<std::string>(L, 2)) {
 			std::string name = Lua::get<std::string>(L, 2);
+			
 			return Lua::pushList(L, _p->GetComponents(name.c_str()));
 		}
 

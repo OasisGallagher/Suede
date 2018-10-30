@@ -14,6 +14,7 @@ class Behaviour_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Behaviour* _p = Lua::callerPtr<Behaviour>(L);
+
 		lua_pushstring(L, String::Format("Behaviour@0x%p", _p).c_str());
 		return 1;
 	}
@@ -38,6 +39,7 @@ class Behaviour_Wrapper {
 		Rect normalizedRect = Lua::get<Rect>(L, 4);
 		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 		RenderTexture src = Lua::get<RenderTexture>(L, 2);
+		
 		_p->OnRenderImage(src, dest, normalizedRect);
 		return 0;
 	}

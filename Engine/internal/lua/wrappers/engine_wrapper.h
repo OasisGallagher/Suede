@@ -14,6 +14,7 @@ class Engine_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Engine* _p = Engine::instance();
+
 		lua_pushstring(L, String::Format("Engine@0x%p", _p).c_str());
 		return 1;
 	}
@@ -23,6 +24,7 @@ class Engine_Wrapper {
 		Engine* _p = Engine::instance();
 		uint height = Lua::get<uint>(L, 3);
 		uint width = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->Startup(width, height));
 	}
 

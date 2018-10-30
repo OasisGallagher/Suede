@@ -250,11 +250,6 @@ void Game::updateStatContent() {
 }
 
 void Game::createScene() {
-	Environment::instance()->SetFogColor(Color::white * 0.5f);
-	Environment::instance()->SetFogDensity(0);
-
-	Environment::instance()->SetAmbientColor(Color::white * 0.15f);
-
 	GameObject lightGameObject = NewGameObject();
 	lightGameObject->SetName("light");
 

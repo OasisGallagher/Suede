@@ -14,6 +14,7 @@ class Time_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Time* _p = Time::instance();
+
 		lua_pushstring(L, String::Format("Time@0x%p", _p).c_str());
 		return 1;
 	}

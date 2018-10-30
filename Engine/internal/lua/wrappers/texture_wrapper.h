@@ -10,6 +10,7 @@
 class Texture_Wrapper {
 	static int ToString(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+
 		lua_pushstring(L, String::Format("Texture@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -18,6 +19,7 @@ class Texture_Wrapper {
 	static int Bind(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
 		uint index = Lua::get<uint>(L, 2);
+		
 		_p->Bind(index);
 		return 0;
 	}
@@ -39,6 +41,7 @@ class Texture_Wrapper {
 	static int SetMinFilterMode(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
 		TextureMinFilterMode value = Lua::get<TextureMinFilterMode>(L, 2);
+		
 		_p->SetMinFilterMode(value);
 		return 0;
 	}
@@ -53,6 +56,7 @@ class Texture_Wrapper {
 	static int SetMagFilterMode(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
 		TextureMagFilterMode value = Lua::get<TextureMagFilterMode>(L, 2);
+		
 		_p->SetMagFilterMode(value);
 		return 0;
 	}
@@ -67,6 +71,7 @@ class Texture_Wrapper {
 	static int SetWrapModeS(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
 		TextureWrapMode value = Lua::get<TextureWrapMode>(L, 2);
+		
 		_p->SetWrapModeS(value);
 		return 0;
 	}
@@ -81,6 +86,7 @@ class Texture_Wrapper {
 	static int SetWrapModeT(lua_State* L) {
 		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
 		TextureWrapMode value = Lua::get<TextureWrapMode>(L, 2);
+		
 		_p->SetWrapModeT(value);
 		return 0;
 	}
@@ -139,6 +145,7 @@ class Texture2D_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
+
 		lua_pushstring(L, String::Format("Texture2D@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -147,6 +154,7 @@ class Texture2D_Wrapper {
 	static int Create(lua_State* L) {
 		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
 		std::string path = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->Create(path));
 	}
 
@@ -160,6 +168,7 @@ class Texture2D_Wrapper {
 	static int EncodeToPNG(lua_State* L) {
 		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
 		std::vector<uchar> data = Lua::getList<uchar>(L, 2);
+		
 		return Lua::push(L, _p->EncodeToPNG(data));
 	}
 
@@ -167,6 +176,7 @@ class Texture2D_Wrapper {
 	static int EncodeToJPG(lua_State* L) {
 		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
 		std::vector<uchar> data = Lua::getList<uchar>(L, 2);
+		
 		return Lua::push(L, _p->EncodeToJPG(data));
 	}
 
@@ -199,6 +209,7 @@ class TextureCube_Wrapper {
 
 	static int ToString(lua_State* L) {
 		TextureCube& _p = *Lua::callerSharedPtr<TextureCube>(L);
+
 		lua_pushstring(L, String::Format("TextureCube@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -207,6 +218,7 @@ class TextureCube_Wrapper {
 	static int Load(lua_State* L) {
 		TextureCube& _p = *Lua::callerSharedPtr<TextureCube>(L);
 		std::vector<std::string> textures = Lua::getList<std::string>(L, 2);
+		
 		return Lua::push(L, _p->Load(textures.data()));
 	}
 
@@ -236,6 +248,7 @@ class TextureBuffer_Wrapper {
 
 	static int ToString(lua_State* L) {
 		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L);
+
 		lua_pushstring(L, String::Format("TextureBuffer@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -250,6 +263,7 @@ class TextureBuffer_Wrapper {
 	static int Create(lua_State* L) {
 		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L);
 		uint size = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->Create(size));
 	}
 
@@ -280,6 +294,7 @@ class RenderTexture_Wrapper {
 
 	static int ToString(lua_State* L) {
 		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
+
 		lua_pushstring(L, String::Format("RenderTexture@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -290,6 +305,7 @@ class RenderTexture_Wrapper {
 		uint height = Lua::get<uint>(L, 4);
 		uint width = Lua::get<uint>(L, 3);
 		RenderTextureFormat format = Lua::get<RenderTextureFormat>(L, 2);
+		
 		return Lua::push(L, _p->Create(format, width, height));
 	}
 
@@ -298,6 +314,7 @@ class RenderTexture_Wrapper {
 		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
 		uint height = Lua::get<uint>(L, 3);
 		uint width = Lua::get<uint>(L, 2);
+		
 		_p->Resize(width, height);
 		return 0;
 	}
@@ -308,6 +325,7 @@ class RenderTexture_Wrapper {
 		float depth = Lua::get<float>(L, 4);
 		Color color = Lua::get<Color>(L, 3);
 		Rect normalizedRect = Lua::get<Rect>(L, 2);
+		
 		_p->Clear(normalizedRect, color, depth);
 		return 0;
 	}
@@ -316,6 +334,7 @@ class RenderTexture_Wrapper {
 	static int BindWrite(lua_State* L) {
 		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
 		Rect normalizedRect = Lua::get<Rect>(L, 2);
+		
 		_p->BindWrite(normalizedRect);
 		return 0;
 	}
@@ -345,6 +364,7 @@ public:
 class RenderTextureUtility_Wrapper {
 	static int ToString(lua_State* L) {
 		RenderTextureUtility* _p = Lua::callerPtr<RenderTextureUtility>(L);
+
 		lua_pushstring(L, String::Format("RenderTextureUtility@0x%p", _p).c_str());
 		return 1;
 	}
@@ -369,22 +389,21 @@ class RenderTextureUtility_Wrapper {
 
 		return 1;
 	}
-		// static RenderTexture GetDefault()
-	static int GetDefault(lua_State* L) {
-		return Lua::push(L, RenderTextureUtility::GetDefault());
+	// static RenderTexture GetDefault()
+	static int GetDefault(lua_State* L) {		return Lua::push(L, RenderTextureUtility::GetDefault());
 	}
 
 	// static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height)
-	static int GetTemporary(lua_State* L) {
-		uint height = Lua::get<uint>(L, 4);
+	static int GetTemporary(lua_State* L) {		uint height = Lua::get<uint>(L, 4);
 		uint width = Lua::get<uint>(L, 3);
 		RenderTextureFormat format = Lua::get<RenderTextureFormat>(L, 2);
+		
 		return Lua::push(L, RenderTextureUtility::GetTemporary(format, width, height));
 	}
 
 	// static void ReleaseTemporary(RenderTexture texture)
-	static int ReleaseTemporary(lua_State* L) {
-		RenderTexture texture = Lua::get<RenderTexture>(L, 2);
+	static int ReleaseTemporary(lua_State* L) {		RenderTexture texture = Lua::get<RenderTexture>(L, 2);
+		
 		RenderTextureUtility::ReleaseTemporary(texture);
 		return 0;
 	}
@@ -414,6 +433,7 @@ class MRTRenderTexture_Wrapper {
 
 	static int ToString(lua_State* L) {
 		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
+
 		lua_pushstring(L, String::Format("MRTRenderTexture@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -422,6 +442,7 @@ class MRTRenderTexture_Wrapper {
 	static int AddColorTexture(lua_State* L) {
 		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
 		TextureFormat format = Lua::get<TextureFormat>(L, 2);
+		
 		return Lua::push(L, _p->AddColorTexture(format));
 	}
 
@@ -429,6 +450,7 @@ class MRTRenderTexture_Wrapper {
 	static int GetColorTexture(lua_State* L) {
 		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
 		uint index = Lua::get<uint>(L, 2);
+		
 		return Lua::push(L, _p->GetColorTexture(index));
 	}
 

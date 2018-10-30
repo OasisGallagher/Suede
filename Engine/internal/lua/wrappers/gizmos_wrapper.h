@@ -14,6 +14,7 @@ class Gizmos_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
+
 		lua_pushstring(L, String::Format("Gizmos@0x%p", _p).c_str());
 		return 1;
 	}
@@ -35,6 +36,7 @@ class Gizmos_Wrapper {
 	static int SetColor(lua_State* L) {
 		Gizmos* _p = Gizmos::instance();
 		Color value = Lua::get<Color>(L, 2);
+		
 		_p->SetColor(value);
 		return 0;
 	}
@@ -44,6 +46,7 @@ class Gizmos_Wrapper {
 		Gizmos* _p = Gizmos::instance();
 		float radius = Lua::get<float>(L, 3);
 		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		
 		_p->DrawSphere(center, radius);
 		return 0;
 	}
@@ -53,6 +56,7 @@ class Gizmos_Wrapper {
 		Gizmos* _p = Gizmos::instance();
 		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
 		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		
 		_p->DrawCuboid(center, size);
 		return 0;
 	}
@@ -62,6 +66,7 @@ class Gizmos_Wrapper {
 		Gizmos* _p = Gizmos::instance();
 		float radius = Lua::get<float>(L, 3);
 		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		
 		_p->DrawWireSphere(center, radius);
 		return 0;
 	}
@@ -71,6 +76,7 @@ class Gizmos_Wrapper {
 		Gizmos* _p = Gizmos::instance();
 		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
 		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		
 		_p->DrawWireCuboid(center, size);
 		return 0;
 	}

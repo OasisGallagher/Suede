@@ -14,6 +14,7 @@ class Color_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Color* _p = Lua::callerPtr<Color>(L);
+
 		lua_pushstring(L, String::Format("Color@0x%p", _p).c_str());
 		return 1;
 	}
@@ -22,6 +23,33 @@ class Color_Wrapper {
 	static int GetLuminance(lua_State* L) {
 		Color* _p = Lua::callerPtr<Color>(L);
 		return Lua::push(L, _p->GetLuminance());
+	}
+
+	// void Set(float r, float g, float b, float a = 1)
+	static int Set(lua_State* L) {
+		Color* _p = Lua::callerPtr<Color>(L);
+
+		if (Lua::checkArguments<float, float, float, float>(L, 2)) {
+			float a = Lua::get<float>(L, 5);
+			float b = Lua::get<float>(L, 4);
+			float g = Lua::get<float>(L, 3);
+			float r = Lua::get<float>(L, 2);
+			
+			_p->Set(r, g, b, a);
+			return 0;
+		}
+
+		if (Lua::checkArguments<float, float, float>(L, 2)) {
+			float b = Lua::get<float>(L, 4);
+			float g = Lua::get<float>(L, 3);
+			float r = Lua::get<float>(L, 2);
+			
+			_p->Set(r, g, b);
+			return 0;
+		}
+
+		Debug::LogError("failed to call \"Set\", invalid arguments.");
+		return 0;
 	}
 
 public:
@@ -36,6 +64,7 @@ public:
 			{ "__gc", Lua::deletePtr<Color> },
 			{ "__tostring", ToString }, 
 			{ "GetLuminance", GetLuminance },
+			{ "Set", Set },
 			{ nullptr, nullptr }
 		};
 

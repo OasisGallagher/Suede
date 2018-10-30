@@ -14,6 +14,7 @@ class Graphics_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Graphics* _p = Graphics::instance();
+
 		lua_pushstring(L, String::Format("Graphics@0x%p", _p).c_str());
 		return 1;
 	}
@@ -22,6 +23,7 @@ class Graphics_Wrapper {
 	static int SetShadingMode(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		ShadingMode value = Lua::get<ShadingMode>(L, 2);
+		
 		_p->SetShadingMode(value);
 		return 0;
 	}
@@ -36,6 +38,7 @@ class Graphics_Wrapper {
 	static int SetAmbientOcclusionEnabled(lua_State* L) {
 		Graphics* _p = Graphics::instance();
 		bool value = Lua::get<bool>(L, 2);
+		
 		_p->SetAmbientOcclusionEnabled(value);
 		return 0;
 	}
@@ -51,6 +54,7 @@ class Graphics_Wrapper {
 		Graphics* _p = Graphics::instance();
 		uint depthBuffer = Lua::get<uint>(L, 3);
 		std::vector<uint> colorBuffers = Lua::getList<uint>(L, 2);
+		
 		_p->SetRenderTarget(colorBuffers, depthBuffer);
 		return 0;
 	}
@@ -60,6 +64,7 @@ class Graphics_Wrapper {
 		Graphics* _p = Graphics::instance();
 		Material material = Lua::get<Material>(L, 3);
 		Mesh mesh = Lua::get<Mesh>(L, 2);
+		
 		_p->Draw(mesh, material);
 		return 0;
 	}
@@ -76,6 +81,7 @@ class Graphics_Wrapper {
 		if (Lua::checkArguments<Texture, RenderTexture>(L, 2)) {
 			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 			Texture src = Lua::get<Texture>(L, 2);
+			
 			_p->Blit(src, dest);
 			return 0;
 		}
@@ -84,6 +90,7 @@ class Graphics_Wrapper {
 			Rect rect = Lua::get<Rect>(L, 4);
 			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 			Texture src = Lua::get<Texture>(L, 2);
+			
 			_p->Blit(src, dest, rect);
 			return 0;
 		}
@@ -93,6 +100,7 @@ class Graphics_Wrapper {
 			Rect srcRect = Lua::get<Rect>(L, 4);
 			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 			Texture src = Lua::get<Texture>(L, 2);
+			
 			_p->Blit(src, dest, srcRect, destRect);
 			return 0;
 		}
@@ -101,6 +109,7 @@ class Graphics_Wrapper {
 			Material material = Lua::get<Material>(L, 4);
 			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 			Texture src = Lua::get<Texture>(L, 2);
+			
 			_p->Blit(src, dest, material);
 			return 0;
 		}
@@ -110,6 +119,7 @@ class Graphics_Wrapper {
 			Material material = Lua::get<Material>(L, 4);
 			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 			Texture src = Lua::get<Texture>(L, 2);
+			
 			_p->Blit(src, dest, material, rect);
 			return 0;
 		}
@@ -120,6 +130,7 @@ class Graphics_Wrapper {
 			Material material = Lua::get<Material>(L, 4);
 			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 			Texture src = Lua::get<Texture>(L, 2);
+			
 			_p->Blit(src, dest, material, srcRect, destRect);
 			return 0;
 		}

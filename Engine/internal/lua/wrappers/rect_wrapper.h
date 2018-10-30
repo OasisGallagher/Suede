@@ -14,6 +14,7 @@ class Rect_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
+
 		lua_pushstring(L, String::Format("Rect@0x%p", _p).c_str());
 		return 1;
 	}
@@ -36,7 +37,7 @@ class Rect_Wrapper {
 
 		return 1;
 	}
-		// glm::vec2 GetLeftTop()
+	// glm::vec2 GetLeftTop()
 	static int GetLeftTop(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		return Lua::push(L, _p->GetLeftTop());
@@ -64,6 +65,7 @@ class Rect_Wrapper {
 	static int SetWidth(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetWidth(value);
 		return 0;
 	}
@@ -78,6 +80,7 @@ class Rect_Wrapper {
 	static int SetHeight(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetHeight(value);
 		return 0;
 	}
@@ -92,6 +95,7 @@ class Rect_Wrapper {
 	static int SetXMin(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetXMin(value);
 		return 0;
 	}
@@ -106,6 +110,7 @@ class Rect_Wrapper {
 	static int SetYMin(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetYMin(value);
 		return 0;
 	}
@@ -117,9 +122,9 @@ class Rect_Wrapper {
 	}
 
 	// static Rect NormalizedToRect(const Rect& rect, const Rect& normalized)
-	static int NormalizedToRect(lua_State* L) {
-		Rect normalized = Lua::get<Rect>(L, 3);
+	static int NormalizedToRect(lua_State* L) {		Rect normalized = Lua::get<Rect>(L, 3);
 		Rect rect = Lua::get<Rect>(L, 2);
+		
 		return Lua::push(L, Rect::NormalizedToRect(rect, normalized));
 	}
 

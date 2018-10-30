@@ -14,6 +14,7 @@ class SkeletonBone_Wrapper {
 
 	static int ToString(lua_State* L) {
 		SkeletonBone* _p = Lua::callerPtr<SkeletonBone>(L);
+
 		lua_pushstring(L, String::Format("SkeletonBone@0x%p", _p).c_str());
 		return 1;
 	}
@@ -43,6 +44,7 @@ class SkeletonNode_Wrapper {
 
 	static int ToString(lua_State* L) {
 		SkeletonNode* _p = Lua::callerPtr<SkeletonNode>(L);
+
 		lua_pushstring(L, String::Format("SkeletonNode@0x%p", _p).c_str());
 		return 1;
 	}
@@ -72,6 +74,7 @@ class Skeleton_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Skeleton& _p = *Lua::callerSharedPtr<Skeleton>(L);
+
 		lua_pushstring(L, String::Format("Skeleton@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -80,6 +83,7 @@ class Skeleton_Wrapper {
 	static int AddBone(lua_State* L) {
 		Skeleton& _p = *Lua::callerSharedPtr<Skeleton>(L);
 		SkeletonBone bone = Lua::get<SkeletonBone>(L, 2);
+		
 		return Lua::push(L, _p->AddBone(bone));
 	}
 
@@ -88,6 +92,7 @@ class Skeleton_Wrapper {
 		Skeleton& _p = *Lua::callerSharedPtr<Skeleton>(L);
 		glm::mat4 value = Lua::get<glm::mat4>(L, 3);
 		uint index = Lua::get<uint>(L, 2);
+		
 		_p->SetBoneToRootMatrix(index, value);
 		return 0;
 	}
@@ -96,6 +101,7 @@ class Skeleton_Wrapper {
 	static int GetBoneIndex(lua_State* L) {
 		Skeleton& _p = *Lua::callerSharedPtr<Skeleton>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetBoneIndex(name));
 	}
 
@@ -134,6 +140,7 @@ class AnimationClip_Wrapper {
 
 	static int ToString(lua_State* L) {
 		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L);
+
 		lua_pushstring(L, String::Format("AnimationClip@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -142,6 +149,7 @@ class AnimationClip_Wrapper {
 	static int SetWrapMode(lua_State* L) {
 		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L);
 		AnimationWrapMode value = Lua::get<AnimationWrapMode>(L, 2);
+		
 		_p->SetWrapMode(value);
 		return 0;
 	}
@@ -156,6 +164,7 @@ class AnimationClip_Wrapper {
 	static int SetTicksPerSecond(lua_State* L) {
 		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetTicksPerSecond(value);
 		return 0;
 	}
@@ -170,6 +179,7 @@ class AnimationClip_Wrapper {
 	static int SetDuration(lua_State* L) {
 		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetDuration(value);
 		return 0;
 	}
@@ -184,6 +194,7 @@ class AnimationClip_Wrapper {
 	static int SetAnimation(lua_State* L) {
 		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L);
 		Animation value = Lua::get<Animation>(L, 2);
+		
 		_p->SetAnimation(value);
 		return 0;
 	}
@@ -198,6 +209,7 @@ class AnimationClip_Wrapper {
 	static int Sample(lua_State* L) {
 		AnimationClip& _p = *Lua::callerSharedPtr<AnimationClip>(L);
 		float time = Lua::get<float>(L, 2);
+		
 		return Lua::push(L, _p->Sample(time));
 	}
 
@@ -235,6 +247,7 @@ class AnimationState_Wrapper {
 
 	static int ToString(lua_State* L) {
 		AnimationState& _p = *Lua::callerSharedPtr<AnimationState>(L);
+
 		lua_pushstring(L, String::Format("AnimationState@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -264,6 +277,7 @@ class AnimationKeys_Wrapper {
 
 	static int ToString(lua_State* L) {
 		AnimationKeys& _p = *Lua::callerSharedPtr<AnimationKeys>(L);
+
 		lua_pushstring(L, String::Format("AnimationKeys@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -274,6 +288,7 @@ class AnimationKeys_Wrapper {
 		float value = Lua::get<float>(L, 4);
 		int id = Lua::get<int>(L, 3);
 		float time = Lua::get<float>(L, 2);
+		
 		_p->AddFloat(time, id, value);
 		return 0;
 	}
@@ -284,6 +299,7 @@ class AnimationKeys_Wrapper {
 		glm::vec3 value = Lua::get<glm::vec3>(L, 4);
 		int id = Lua::get<int>(L, 3);
 		float time = Lua::get<float>(L, 2);
+		
 		_p->AddVector3(time, id, value);
 		return 0;
 	}
@@ -294,6 +310,7 @@ class AnimationKeys_Wrapper {
 		glm::quat value = Lua::get<glm::quat>(L, 4);
 		int id = Lua::get<int>(L, 3);
 		float time = Lua::get<float>(L, 2);
+		
 		_p->AddQuaternion(time, id, value);
 		return 0;
 	}
@@ -303,6 +320,7 @@ class AnimationKeys_Wrapper {
 		AnimationKeys& _p = *Lua::callerSharedPtr<AnimationKeys>(L);
 		int id = Lua::get<int>(L, 3);
 		float time = Lua::get<float>(L, 2);
+		
 		_p->Remove(time, id);
 		return 0;
 	}
@@ -311,6 +329,7 @@ class AnimationKeys_Wrapper {
 	static int ToKeyframes(lua_State* L) {
 		AnimationKeys& _p = *Lua::callerSharedPtr<AnimationKeys>(L);
 		std::vector<AnimationFrame> keyframes = Lua::getList<AnimationFrame>(L, 2);
+		
 		_p->ToKeyframes(keyframes);
 		return 0;
 	}
@@ -345,6 +364,7 @@ class AnimationFrame_Wrapper {
 
 	static int ToString(lua_State* L) {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
+
 		lua_pushstring(L, String::Format("AnimationFrame@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -353,6 +373,7 @@ class AnimationFrame_Wrapper {
 	static int SetTime(lua_State* L) {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetTime(value);
 		return 0;
 	}
@@ -367,6 +388,7 @@ class AnimationFrame_Wrapper {
 	static int Assign(lua_State* L) {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		AnimationFrame other = Lua::get<AnimationFrame>(L, 2);
+		
 		_p->Assign(other);
 		return 0;
 	}
@@ -377,6 +399,7 @@ class AnimationFrame_Wrapper {
 		float factor = Lua::get<float>(L, 4);
 		AnimationFrame other = Lua::get<AnimationFrame>(L, 3);
 		AnimationFrame result = Lua::get<AnimationFrame>(L, 2);
+		
 		_p->Lerp(result, other, factor);
 		return 0;
 	}
@@ -386,6 +409,7 @@ class AnimationFrame_Wrapper {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		float value = Lua::get<float>(L, 3);
 		int id = Lua::get<int>(L, 2);
+		
 		_p->SetFloat(id, value);
 		return 0;
 	}
@@ -395,6 +419,7 @@ class AnimationFrame_Wrapper {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		glm::vec3 value = Lua::get<glm::vec3>(L, 3);
 		int id = Lua::get<int>(L, 2);
+		
 		_p->SetVector3(id, value);
 		return 0;
 	}
@@ -404,6 +429,7 @@ class AnimationFrame_Wrapper {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		glm::quat value = Lua::get<glm::quat>(L, 3);
 		int id = Lua::get<int>(L, 2);
+		
 		_p->SetQuaternion(id, value);
 		return 0;
 	}
@@ -412,6 +438,7 @@ class AnimationFrame_Wrapper {
 	static int GetFloat(lua_State* L) {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		int id = Lua::get<int>(L, 2);
+		
 		return Lua::push(L, _p->GetFloat(id));
 	}
 
@@ -419,6 +446,7 @@ class AnimationFrame_Wrapper {
 	static int GetVector3(lua_State* L) {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		int id = Lua::get<int>(L, 2);
+		
 		return Lua::push(L, _p->GetVector3(id));
 	}
 
@@ -426,6 +454,7 @@ class AnimationFrame_Wrapper {
 	static int GetQuaternion(lua_State* L) {
 		AnimationFrame& _p = *Lua::callerSharedPtr<AnimationFrame>(L);
 		int id = Lua::get<int>(L, 2);
+		
 		return Lua::push(L, _p->GetQuaternion(id));
 	}
 
@@ -464,6 +493,7 @@ class AnimationCurve_Wrapper {
 
 	static int ToString(lua_State* L) {
 		AnimationCurve& _p = *Lua::callerSharedPtr<AnimationCurve>(L);
+
 		lua_pushstring(L, String::Format("AnimationCurve@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -472,6 +502,7 @@ class AnimationCurve_Wrapper {
 	static int SetKeyframes(lua_State* L) {
 		AnimationCurve& _p = *Lua::callerSharedPtr<AnimationCurve>(L);
 		std::vector<AnimationFrame> value = Lua::getList<AnimationFrame>(L, 2);
+		
 		_p->SetKeyframes(value);
 		return 0;
 	}
@@ -481,6 +512,7 @@ class AnimationCurve_Wrapper {
 		AnimationCurve& _p = *Lua::callerSharedPtr<AnimationCurve>(L);
 		AnimationFrame frame = Lua::get<AnimationFrame>(L, 3);
 		float time = Lua::get<float>(L, 2);
+		
 		return Lua::push(L, _p->Sample(time, frame));
 	}
 
@@ -507,6 +539,7 @@ public:
 class Animation_Wrapper {
 	static int ToString(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
+
 		lua_pushstring(L, String::Format("Animation@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -516,6 +549,7 @@ class Animation_Wrapper {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
 		AnimationClip value = Lua::get<AnimationClip>(L, 3);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		_p->AddClip(name, value);
 		return 0;
 	}
@@ -524,6 +558,7 @@ class Animation_Wrapper {
 	static int GetClip(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->GetClip(name));
 	}
 
@@ -531,6 +566,7 @@ class Animation_Wrapper {
 	static int SetSkeleton(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
 		Skeleton value = Lua::get<Skeleton>(L, 2);
+		
 		_p->SetSkeleton(value);
 		return 0;
 	}
@@ -545,6 +581,7 @@ class Animation_Wrapper {
 	static int SetRootTransform(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
 		glm::mat4 value = Lua::get<glm::mat4>(L, 2);
+		
 		_p->SetRootTransform(value);
 		return 0;
 	}
@@ -559,6 +596,7 @@ class Animation_Wrapper {
 	static int SetWrapMode(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
 		AnimationWrapMode value = Lua::get<AnimationWrapMode>(L, 2);
+		
 		_p->SetWrapMode(value);
 		return 0;
 	}
@@ -567,6 +605,7 @@ class Animation_Wrapper {
 	static int Play(lua_State* L) {
 		Animation& _p = *Lua::callerSharedPtr<Animation>(L);
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->Play(name));
 	}
 

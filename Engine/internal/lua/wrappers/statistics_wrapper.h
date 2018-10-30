@@ -14,6 +14,7 @@ class Statistics_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Statistics* _p = Statistics::instance();
+
 		lua_pushstring(L, String::Format("Statistics@0x%p", _p).c_str());
 		return 1;
 	}
@@ -22,6 +23,7 @@ class Statistics_Wrapper {
 	static int AddTriangles(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		uint n = Lua::get<uint>(L, 2);
+		
 		_p->AddTriangles(n);
 		return 0;
 	}
@@ -30,6 +32,7 @@ class Statistics_Wrapper {
 	static int AddDrawcalls(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		uint n = Lua::get<uint>(L, 2);
+		
 		_p->AddDrawcalls(n);
 		return 0;
 	}
@@ -56,6 +59,7 @@ class Statistics_Wrapper {
 	static int SetCullingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		double value = Lua::get<double>(L, 2);
+		
 		_p->SetCullingElapsed(value);
 		return 0;
 	}
@@ -64,6 +68,7 @@ class Statistics_Wrapper {
 	static int SetRenderingElapsed(lua_State* L) {
 		Statistics* _p = Statistics::instance();
 		double value = Lua::get<double>(L, 2);
+		
 		_p->SetRenderingElapsed(value);
 		return 0;
 	}

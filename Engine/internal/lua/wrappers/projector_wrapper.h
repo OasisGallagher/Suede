@@ -14,6 +14,7 @@ class Decal_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Decal* _p = Lua::callerPtr<Decal>(L);
+
 		lua_pushstring(L, String::Format("Decal@0x%p", _p).c_str());
 		return 1;
 	}
@@ -39,6 +40,7 @@ public:
 class Projector_Wrapper {
 	static int ToString(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
+
 		lua_pushstring(L, String::Format("Projector@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -53,6 +55,7 @@ class Projector_Wrapper {
 	static int SetPerspective(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		bool value = Lua::get<bool>(L, 2);
+		
 		_p->SetPerspective(value);
 		return 0;
 	}
@@ -67,6 +70,7 @@ class Projector_Wrapper {
 	static int SetOrthographicSize(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetOrthographicSize(value);
 		return 0;
 	}
@@ -81,6 +85,7 @@ class Projector_Wrapper {
 	static int SetTexture(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		Texture value = Lua::get<Texture>(L, 2);
+		
 		_p->SetTexture(value);
 		return 0;
 	}
@@ -89,6 +94,7 @@ class Projector_Wrapper {
 	static int SetDepth(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		int value = Lua::get<int>(L, 2);
+		
 		_p->SetDepth(value);
 		return 0;
 	}
@@ -103,6 +109,7 @@ class Projector_Wrapper {
 	static int SetAspect(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetAspect(value);
 		return 0;
 	}
@@ -111,6 +118,7 @@ class Projector_Wrapper {
 	static int SetNearClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetNearClipPlane(value);
 		return 0;
 	}
@@ -119,6 +127,7 @@ class Projector_Wrapper {
 	static int SetFarClipPlane(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetFarClipPlane(value);
 		return 0;
 	}
@@ -127,6 +136,7 @@ class Projector_Wrapper {
 	static int SetFieldOfView(lua_State* L) {
 		Projector& _p = *Lua::callerSharedPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetFieldOfView(value);
 		return 0;
 	}

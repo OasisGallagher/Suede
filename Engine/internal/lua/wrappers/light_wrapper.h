@@ -10,6 +10,7 @@
 class Light_Wrapper {
 	static int ToString(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L);
+
 		lua_pushstring(L, String::Format("Light@0x%p", _p.get()).c_str());
 		return 1;
 	}
@@ -18,6 +19,7 @@ class Light_Wrapper {
 	static int SetType(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L);
 		LightType value = Lua::get<LightType>(L, 2);
+		
 		_p->SetType(value);
 		return 0;
 	}
@@ -32,6 +34,7 @@ class Light_Wrapper {
 	static int SetImportance(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L);
 		LightImportance value = Lua::get<LightImportance>(L, 2);
+		
 		_p->SetImportance(value);
 		return 0;
 	}
@@ -46,6 +49,7 @@ class Light_Wrapper {
 	static int SetColor(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L);
 		Color value = Lua::get<Color>(L, 2);
+		
 		_p->SetColor(value);
 		return 0;
 	}
@@ -60,6 +64,7 @@ class Light_Wrapper {
 	static int SetIntensity(lua_State* L) {
 		Light& _p = *Lua::callerSharedPtr<Light>(L);
 		float value = Lua::get<float>(L, 2);
+		
 		_p->SetIntensity(value);
 		return 0;
 	}

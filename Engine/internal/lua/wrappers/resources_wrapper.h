@@ -14,6 +14,7 @@ class Resources_Wrapper {
 
 	static int ToString(lua_State* L) {
 		Resources* _p = Resources::instance();
+
 		lua_pushstring(L, String::Format("Resources@0x%p", _p).c_str());
 		return 1;
 	}
@@ -65,6 +66,7 @@ class Resources_Wrapper {
 	static int GetPrimitive(lua_State* L) {
 		Resources* _p = Resources::instance();
 		PrimitiveType type = Lua::get<PrimitiveType>(L, 2);
+		
 		return Lua::push(L, _p->GetPrimitive(type));
 	}
 
@@ -73,6 +75,7 @@ class Resources_Wrapper {
 		Resources* _p = Resources::instance();
 		float scale = Lua::get<float>(L, 3);
 		PrimitiveType type = Lua::get<PrimitiveType>(L, 2);
+		
 		return Lua::push(L, _p->CreatePrimitive(type, scale));
 	}
 
@@ -83,6 +86,7 @@ class Resources_Wrapper {
 		InstanceAttribute color = Lua::get<InstanceAttribute>(L, 4);
 		float scale = Lua::get<float>(L, 3);
 		PrimitiveType type = Lua::get<PrimitiveType>(L, 2);
+		
 		return Lua::push(L, _p->CreateInstancedPrimitive(type, scale, color, geometry));
 	}
 
@@ -92,6 +96,7 @@ class Resources_Wrapper {
 		float scale = Lua::get<float>(L, 4);
 		PrimitiveType type = Lua::get<PrimitiveType>(L, 3);
 		MeshAttribute attribute = Lua::get<MeshAttribute>(L, 2);
+		
 		_p->GetPrimitiveAttribute(attribute, type, scale);
 		return 0;
 	}
@@ -100,6 +105,7 @@ class Resources_Wrapper {
 	static int FindShader(lua_State* L) {
 		Resources* _p = Resources::instance();
 		std::string path = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->FindShader(path));
 	}
 
@@ -107,6 +113,7 @@ class Resources_Wrapper {
 	static int FindTexture(lua_State* L) {
 		Resources* _p = Resources::instance();
 		std::string path = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->FindTexture(path));
 	}
 
@@ -114,6 +121,7 @@ class Resources_Wrapper {
 	static int FindMaterial(lua_State* L) {
 		Resources* _p = Resources::instance();
 		std::string name = Lua::get<std::string>(L, 2);
+		
 		return Lua::push(L, _p->FindMaterial(name));
 	}
 

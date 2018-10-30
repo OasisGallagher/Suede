@@ -6,6 +6,7 @@ struct SUEDE_API Color {
 	Color(float r, float g, float b, float a = 1);
 
 	float GetLuminance() const;
+	void Set(float r, float g, float b, float a = 1);
 
 	bool operator!= (const Color other) const;
 	bool operator== (const Color other) const;
@@ -41,6 +42,10 @@ inline Color::Color() :r(0), g(0), b(0), a(0) {
 }
 
 inline Color::Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {
+}
+
+inline void Color::Set(float r, float g, float b, float a) {
+	this->r = r, this->g = g, this->b = b, this->a = a;
 }
 
 inline float Color::GetLuminance() const {
