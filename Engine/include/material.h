@@ -22,6 +22,8 @@ public:
 	IMaterial();
 
 public:
+	Object Clone();
+
 	void SetName(const std::string& value);
 	std::string GetName() const;
 
