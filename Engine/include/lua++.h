@@ -58,11 +58,7 @@ template <class T> struct _is_vector : public std::false_type {};
 template <class T, class A> struct _is_vector<std::vector<T, A>> : public std::true_type {};
 //
 
-inline int _panic(lua_State* L) {
-	Debug::LogError("onPanic: %s.", lua_tostring(L, -1));
-	return 0;
-}
-
+// get message from stack.
 inline std::string _message(lua_State* L) {
 	std::string message;
 	int nargs = lua_gettop(L);
@@ -168,7 +164,7 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 		lua_pop(L, 1);
 	}
 
-	lua_atpanic(L, _panic);
+	lua_atpanic(L, _error);
 
 	_registerGlobals(L);
 	
@@ -190,16 +186,6 @@ inline int deleteSharedPtr(lua_State* L) {
 	T* ptr = callerSharedPtr<T>(L, 0);
 	if (ptr != nullptr) { ptr->reset(); }
 	return 0;
-}
-
-template <class T, class... R>
-inline int newRawObject(lua_State* L, const char* metatable, R... args) {
-	T** memory = (T**)lua_newuserdata(L, sizeof(T*));
-	*memory = new T(args...);
-
-	luaL_getmetatable(L, metatable);
-	lua_setmetatable(L, -2);
-	return 1;
 }
 
 // construct userdata from raw pointer.
@@ -236,6 +222,7 @@ inline int reference(lua_State* L) {
 
 #pragma region meta system
 
+// check non-enum and non-vector argument type.
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value && !_is_vector<T>::value, bool>::type
 _checkArgumentType(lua_State* L, int index) {
@@ -291,6 +278,7 @@ inline bool _checkArgumentType<float>(lua_State* L, int index) {
 	return lua_type(L, index) == LUA_TNUMBER;
 }
 
+// check enum argument type.
 template <class T>
 inline typename std::enable_if<std::is_enum<T>::value, bool>::type
 _checkArgumentType(lua_State* L, int index) {
@@ -356,6 +344,7 @@ inline bool _checkArgumentType<glm::mat4>(lua_State* L, int index) {
 	return _checkListElementType<float>(L, index, 16);
 }
 
+// check list argument type.
 template <class T>
 inline typename std::enable_if<_is_vector<T>::value, bool>::type
 _checkArgumentType(lua_State* L, int index) {
@@ -376,20 +365,24 @@ inline bool _checkArgumentsTypes(lua_State* L, int index) {
 	return _checkArgumentsTypes<T>(L, index) && _checkArgumentsTypes<U, R...>(L, index + 1);
 }
 
+// check arguments count and types.
 inline bool checkArguments(lua_State* L, int index) {
 	return (lua_gettop(L) == index - 1);
 }
 
+// check arguments count and types.
 template <class T>
 inline bool checkArguments(lua_State* L, int index) {
 	return (lua_gettop(L) == index) && _checkArgumentsTypes<T>(L, index);
 }
 
+// check arguments count and types.
 template <class T, class U, class... R>
 inline bool checkArguments(lua_State* L, int index) {
 	return (lua_gettop(L) == sizeof...(R) + 2 + (index - 1)) && _checkArgumentsTypes<T, U, R...>(L, index);
 }
 
+// check whether `metatable` is userdata's metatable or base metatable.
 inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 	luaL_getmetatable(L, metatable);
 	if (index < 0) { --index; }
@@ -400,6 +393,8 @@ inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 		++n;
 
 		if (lua_rawequal(L, -1, -n)) { status = 1; break; }
+
+		// check base "class" metatable.
 		index = -1;
 	}
 
@@ -408,6 +403,7 @@ inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 	return !!status;
 }
 
+// get non-pointer metatable name.
 template <class T>
 inline typename std::enable_if<!_is_ptr<T>::value, const char*>::type
 metatableName(const T&) {
@@ -447,6 +443,7 @@ inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 
 #pragma endregion
 
+// get caller as std::shared_ptr.
 template <class T>
 inline T* callerSharedPtr(lua_State* L, const char* metatable = nullptr) {
 	if (metatable == nullptr) {
@@ -456,6 +453,7 @@ inline T* callerSharedPtr(lua_State* L, const char* metatable = nullptr) {
 	return _userdataSharedPtr<T>(L, 1, metatable);
 }
 
+// get caller as raw pointer.
 template <class T>
 inline T* callerPtr(lua_State* L, const char* metatable = nullptr) {
 	if (metatable == nullptr) {
@@ -465,6 +463,7 @@ inline T* callerPtr(lua_State* L, const char* metatable = nullptr) {
 	return _userdataPtr<T>(L, 1, metatable);
 }
 
+// copy construct userdata.
 template <class T>
 inline int copyUserdata(lua_State* L, const T& value) {
 	new(lua_newuserdata(L, sizeof(T))) T(value);
@@ -480,12 +479,14 @@ inline int push(lua_State* L) {
 	return 0;
 }
 
+// push enum value.
 template <class T>
 inline typename std::enable_if<std::is_enum<T>::value, int>::type
 push(lua_State* L, const T& value) {
 	return push<int>(L, (int)value);
 }
 
+// push non-enum userdata value.
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value, int>::type
 push(lua_State* L, const T& value) {
@@ -619,14 +620,16 @@ inline int push(lua_State* L, T arg, R... args) {
 
 #pragma region getters
 
+// get std::shared_ptr/raw pointer value.
 template <class T>
-inline typename std::enable_if<!std::is_enum<T>::value && _is_ptr<T>::value, T>::type
+inline typename std::enable_if<_is_ptr<T>::value, T>::type
 get(lua_State* L, int index) {
 	T* p = _userdataSharedPtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) { return nullptr; }
 	return *p;
 }
 
+// get object value(non-enum, non-better-enum, non-pointer).
 template <class T>
 inline typename std::enable_if<!std::is_enum<T>::value && !_is_ptr<T>::value && !std::is_base_of<BetterEnumBase, T>::value, T>::type
 get(lua_State* L, int index) {
@@ -699,12 +702,14 @@ inline double get<double>(lua_State* L, int index) {
 	return lua_tonumber(L, index);
 }
 
+// get enum value.
 template <class T>
 inline typename std::enable_if<std::is_enum<T>::value, T>::type
 get(lua_State* L, int index) {
 	return (T)get<int>(L, index);
 }
 
+// get better-enum value.
 template <class T>
 inline typename std::enable_if<std::is_base_of<BetterEnumBase, T>::value, T>::type
 get(lua_State* L, int index) {
@@ -775,6 +780,7 @@ inline glm::mat4 get<glm::mat4>(lua_State* L, int index) {
 
 #pragma region function
 
+// lua function wrapper base.
 template <class R, class... Args>
 class _FBase {
 public:
@@ -810,12 +816,14 @@ protected:
 	lua_State* L;
 };
 
+// lua function wrapper.
 template <class R, class... Args>
 class IFunc : public _FBase <R, Args...> {
 public:
 	IFunc(lua_State* L) : _FBase(L) {}
 };
 
+// lua function wrapper(return = void).
 template <class... Args>
 class IFunc<void, Args...> : public _FBase<void, Args...> {
 public:
@@ -838,6 +846,7 @@ public:
 template <class R, class... Args>
 using Func = std::shared_ptr<IFunc<R, Args...>>;
 
+// create lua function wrapper.
 template <class R, class... Args>
 Func<R, Args...> make_func(lua_State* L) {
 	if (lua_type(L, -1) != LUA_TFUNCTION) {
