@@ -9,6 +9,7 @@
 #include "internal/rendering/sharedtexturemanager.h"
 
 IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) {}
+Object IMaterial::Clone() { return _suede_dptr()->Clone(); }
 void IMaterial::SetName(const std::string& value) { _suede_dptr()->SetName(value); }
 std::string IMaterial::GetName() const { return _suede_dptr()->GetName(); }
 void IMaterial::Bind(uint pass) { _suede_dptr()->Bind(pass); }

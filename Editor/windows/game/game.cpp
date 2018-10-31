@@ -36,15 +36,15 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
 //#define ANIMATION
-//#define PARTICLE_SYSTEM
-//#define FONT
+#define PARTICLE_SYSTEM
+#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING

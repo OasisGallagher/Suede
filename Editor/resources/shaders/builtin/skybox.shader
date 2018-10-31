@@ -1,4 +1,5 @@
 Properties {
+	color _MainColor = { 1, 1, 1, 1 };
 }
 
 SubShader {
