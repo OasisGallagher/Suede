@@ -1,11 +1,14 @@
 # Suede
-
 ## ScreenShots
 ![Suede Overview][overview]
-
 ## Projects
-- **Editor** Qt制作的UI界面，内含Game，Inspector，Console等窗口。
- 其中Inspector使用ImGUI进行渲染。可是实时显示选择对象中的Component，并可以实时修改对象的材质信息以及其他属性。
+- **Editor** 基于Qt5的编辑器界面。
+  - *Game:* 图形显示窗口，可使用GUI接口进行Immediate模式的UI绘制。
+  - *Hierarchy:* 场景内GameObject显示层级，支持拖拽节点改变结构，拖拽模型文件加载模型。
+  - *Project:* 工程目录窗口，支持文件搜索，打开，显示所在文件夹等常用功能。
+  - *Inspector:* 使用ImGUI进行渲染。可实时显示/修改选择对象所包含的Component的属性，对象的材质信息。
+  - *Console:* 显示/过滤/查找日志信息。
+  - *Lighting:* 环境光，闭塞等光照相关信息配置。
 - **Engine** 基于OpenGL的渲染引擎，对OpenGL底层接口进行C++封装。
   - 主线程渲染，工作线程通过AABB拣选。
   - 支持Mesh, Texture，Shader，Camera，Material等常用类，隔离OpenGL底层接口。
@@ -13,12 +16,14 @@
   - 使用模块化的组件模式，可以方便的通过名称，GUID，类型来增删改查GameObject上的组件。
   - 支持Lua作为脚本语言并自动生成转换文件。可访问引擎对象，注册回调函数。支持重载函数，枚举等。
   - 支持文字，Decal，简单的骨骼动画和粒子效果。
-- **GLEF** Shader语法解析器。语法与解析过程分离，使用LALR进行语法分析，构造语法树。
+- **GLEF** Shader语法解析器。
+  - 使用LALR进行语法分析，构造语法树。
+  - 语法与解析过程分离，使语法可独立修改。
 - **GLEFBuilder** 对比文件修改时间，在编译器自动构建GLEF解析器。
 - **Shared** 一些常用工具，容器，内存分配，Log等。
-
 ## Examples
-加载图片：
+**加载图片**
+
 C++
 ```c++
 Texture2D diffuse = NewTexture2D();
@@ -60,7 +65,8 @@ local faces = {
 cube:Load(faces);
 ```
 
-加载模型(C++)：
+**加载模型**
+
 C++
 ```c++
 // 模型加载以resources/models为根目录。
@@ -80,7 +86,8 @@ Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
 	root:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
 end
 ```
-创建组件：
+**创建组件**
+
 C++
 ```c++
 GameObject cameraGameObject = NewGameObject();
@@ -105,7 +112,8 @@ Suede.CameraUtility.SetMain(camera);
 -- !!! 将GameObject添加到场景中。.
 camera:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
 ```
-替换/修改材质
+**替换/修改材质**
+
 C++
 ```c++
 GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
@@ -130,7 +138,7 @@ local diffuse = Suede.NewTexture2D();
 diffuse:Create("bumped/diffuse.jpg");
 material:SetTexture("_MainTexture", diffuse);
 ```
-自定义组件（只支持C++定义组件）
+**自定义组件（只支持C++定义组件）**
 ```c++
 // header
 class CameraController : public QObject, public Behaviour {
@@ -152,7 +160,7 @@ public:
 // source
 SUEDE_DEFINE_COMPONENT(CameraController, Behaviour)
 ```
-创建Shader
+**创建Shader**
 ```c++
 Properties {
 	// 颜色属性, 与下面的uniform _MainColor对应。
