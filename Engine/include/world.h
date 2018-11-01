@@ -153,8 +153,10 @@ class SUEDE_API World : public Singleton2<World> {
 
 public:
 	void Initialize();
+
+	void Update();
 	void CullingUpdate();
-	void RenderingUpdate();
+
 	void Finalize();
 
 	Object CreateObject(ObjectType type);

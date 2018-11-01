@@ -3,6 +3,7 @@
 #include <QDockWidget>
 
 #include "camera.h"
+#include "qinput.h"
 #include "../winbase.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
@@ -42,10 +43,6 @@ private slots:
 	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 protected:
-	virtual void wheelEvent(QWheelEvent* event);
-	virtual void mousePressEvent(QMouseEvent* event);
-	virtual void mouseReleaseEvent(QMouseEvent* event);
-	virtual void mouseMoveEvent(QMouseEvent* event);
 	virtual void resizeEvent(QResizeEvent* event);
 	virtual void keyPressEvent(QKeyEvent* event);
 	virtual void timerEvent(QTimerEvent *event);
@@ -62,6 +59,7 @@ private:
 
 	QTimer* timer_;
 
+	QInput* input_;
 	Canvas* canvas_;
 	StatsWidget* stat_;
 

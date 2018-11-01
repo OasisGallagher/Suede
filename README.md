@@ -34,12 +34,12 @@ bool status = diffuse->Create("suzanne/diffuse.dds");
 TextureCube cube = NewTextureCube();
 
 std::string faces[] = {
-	"lake_skybox/right.jpg",
-	"lake_skybox/left.jpg",
-	"lake_skybox/top.jpg",
-	"lake_skybox/bottom.jpg",
-	"lake_skybox/back.jpg",
-	"lake_skybox/front.jpg",
+    "lake_skybox/right.jpg",
+    "lake_skybox/left.jpg",
+    "lake_skybox/top.jpg",
+    "lake_skybox/bottom.jpg",
+    "lake_skybox/back.jpg",
+    "lake_skybox/front.jpg",
 };
 
 cube->Load(faces);
@@ -54,12 +54,12 @@ diffuse:Create("suzanne/diffuse.dds");
 local cube = Suede.NewTextureCube();
 
 local faces = {
-	"lake_skybox/right.jpg",
-	"lake_skybox/left.jpg",
-	"lake_skybox/top.jpg",
-	"lake_skybox/bottom.jpg",
-	"lake_skybox/back.jpg",
-	"lake_skybox/front.jpg",
+    "lake_skybox/right.jpg",
+    "lake_skybox/left.jpg",
+    "lake_skybox/top.jpg",
+    "lake_skybox/bottom.jpg",
+    "lake_skybox/back.jpg",
+    "lake_skybox/front.jpg",
 };
 
 cube:Load(faces);
@@ -74,17 +74,17 @@ World::instance()->Import("suzanne.fbx", this);
 
 // 继承GameObjectImportedListener, 重写回调函数。
 void Scene::OnGameObjectImported(GameObject root, const std::string& path) {
-	// !!! 将GameObject添加到场景中。.
-	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
+    // !!! 将GameObject添加到场景中。.
+    root->GetTransform()->SetParent(World::instance()->GetRootTransform());
 }
 ```
 Lua
 ```lua
 -- 模型加载以resources/models为根目录。
 Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
-	-- !!! 将GameObject添加到场景中。.
-	root:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
-end
+    -- !!! 将GameObject添加到场景中。.
+    root:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
+end);
 ```
 **创建组件**
 
@@ -142,19 +142,19 @@ material:SetTexture("_MainTexture", diffuse);
 ```c++
 // header
 class CameraController : public QObject, public Behaviour {
-	Q_OBJECT
-	
-	// 下列属性，可以在Inspector中查看并修改.
-	Q_PROPERTY(glm::vec3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
-	Q_PROPERTY(glm::vec2 OrientSpeed READ orientSpeed WRITE setOrientSpeed)
-	Q_PROPERTY(glm::vec2 RotateSpeed READ rotateSpeed WRITE setRotateSpeed)
+    Q_OBJECT
+    
+    // 下列属性，可以在Inspector中查看并修改.
+    Q_PROPERTY(glm::vec3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
+    Q_PROPERTY(glm::vec2 OrientSpeed READ orientSpeed WRITE setOrientSpeed)
+    Q_PROPERTY(glm::vec2 RotateSpeed READ rotateSpeed WRITE setRotateSpeed)
 
-	SUEDE_DECLARE_COMPONENT()
-	...
-	
+    SUEDE_DECLARE_COMPONENT()
+    ...
+    
 public:
-	virtual void Awake() { }	// 创建成功调用。
-	virtual void Update() { }	// 每一帧调用。
+    virtual void Awake() { }    // 创建成功调用。
+    virtual void Update() { }    // 每一帧调用。
 };
 
 // source
@@ -163,60 +163,60 @@ SUEDE_DEFINE_COMPONENT(CameraController, Behaviour)
 **创建Shader**
 ```c++
 Properties {
-	// 颜色属性, 与下面的uniform _MainColor对应。
-	color _MainColor = { 1, 1, 1, 1 };
+    // 颜色属性, 与下面的uniform vec4 _MainColor对应。
+    color _MainColor = { 1, 1, 1, 1 };
 }
 
 SubShader {
-	// 如果选中的SubShader含有多个Pass，渲染时会逐个执行。
-	Pass "PassName" true {	// 可以指定名称和是否启用，也可以忽略，默认为启用。
-		// 设置渲染状态，该Pass结束之后，会重置这些状态。
-		Cull Front;
-		ZTest LEqual;
+    // 如果选中的SubShader含有多个Pass，渲染时会逐个执行。
+    Pass "PassName" true {    // 可以指定名称和是否启用，也可以忽略，默认为启用。
+        // 设置渲染状态，该Pass结束之后，会重置这些状态。
+        Cull Front;
+        ZTest LEqual;
 
-		// 开始GLSL代码块。
-		GLSLPROGRAM
+        // 开始GLSL代码块。
+        GLSLPROGRAM
 
-		// 截止到下一个#stage标签之前，为顶点着色器。
-		#stage vertex
-		
-		// 包含文件，以resources目录为根目录。
-		#include "builtin/include/suede.inc"
+        // 截止到下一个#stage标签之前，为顶点着色器。
+        #stage vertex
+        
+        // 包含文件，以resources/shaders目录为根目录。
+        #include "builtin/include/suede.inc"
 
-		in vec3 _Pos;
-		out vec3 texCoord;
+        in vec3 _Pos;
+        out vec3 texCoord;
 
-		void main() {
-			vec4 pos = _CameraToClipMatrix * vec4(mat3(_WorldToCameraMatrix) * _Pos, 1);
-			gl_Position = pos.xyww;
-			texCoord = _Pos;
-		}
+        void main() {
+            vec4 pos = _CameraToClipMatrix * vec4(mat3(_WorldToCameraMatrix) * _Pos, 1);
+            gl_Position = pos.xyww;
+            texCoord = _Pos;
+        }
 
-		#stage fragment
+        #stage fragment
 
-		in vec3 texCoord;
-		out vec4 fragColor;
+        in vec3 texCoord;
+        out vec4 fragColor;
 
-		uniform vec4 _MainColor;
-		uniform samplerCube _MainTexture;
+        uniform vec4 _MainColor;
+        uniform samplerCube _MainTexture;
 
-		void main() {
-			fragColor = texture(_MainTexture, texCoord) * _MainColor;
-		}
+        void main() {
+            fragColor = texture(_MainTexture, texCoord) * _MainColor;
+        }
 
-		ENDGLSL
-	}
+        ENDGLSL
+    }
 }
 ```
 ## Dependencies
 - *Lua* 引擎脚本语言。
-- *Python* 自动生成C++ Wrapper文件，实现C++和Lua的互相调用。
-- *Assimp* 加载模型，材质。
-- *ZThread* Engine中的线程。
-- *better-enum* 枚举字符串转换。
+- *Python* 生成C++ Lua Wrappers。
 - *Glew* 加载OpenGL API。
+- *Assimp* 加载模型，材质。
 - *FreeType* 加载字体。
 - *FreeImage* 加载图片。
+- *ZThread* Engine中的线程。
+- *better-enum* 枚举与字符串转换，遍历枚举内容。
 - *Visual Leak Detector* 检查内存泄漏。
 
 [overview]: ScreenShots/overview.png

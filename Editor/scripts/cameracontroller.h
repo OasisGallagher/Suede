@@ -16,7 +16,7 @@ public:
 	CameraController();
 
 public:
-	void setView(QWidget* view);
+	void setView(QWidget* value) { view_ = value; }
 
 	glm::vec3 moveSpeed() { return moveSpeed_; }
 	void setMoveSpeed(const glm::vec3& value) { moveSpeed_ = value; }
@@ -29,27 +29,20 @@ public:
 
 public:
 	void Awake() { camera_ = GetTransform(); }
-
-public:
-	void onMouseWheel(int delta);
-	void onMouseMove(const QPoint& pos);
-
-	void onMouseRelease(Qt::MouseButton button);
-	void onMousePress(Qt::MouseButton button, const QPoint& pos);
+	void Update();
 
 private:
-	void moveCamera(const QPoint& mousePos, QPoint& oldPos);
-	void rotateCamera(const QPoint& mousePos, QPoint& oldPos);
-	void rotateAroundGameObject(const QPoint& mousePos, QPoint& oldPos);
-	glm::vec3 calculateArcBallVector(const QPoint& point);
+	void moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
+	void rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
+	void rotateAroundGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos);
+	glm::vec3 calculateArcBallVector(const glm::ivec2& point);
 
 private:
 	Transform camera_;
 
-	QPoint pos_;
-	Qt::MouseButtons buttons_;
-
 	QWidget* view_;
+	glm::ivec2 pos_;
+	bool moving_ = false;
 
 	glm::vec3 moveSpeed_;
 	glm::vec2 orientSpeed_;

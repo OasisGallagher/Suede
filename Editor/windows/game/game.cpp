@@ -11,6 +11,7 @@
 #include "font.h"
 #include "mesh.h"
 #include "light.h"
+#include "input.h"
 #include "time2.h"
 #include "world.h"
 #include "screen.h"
@@ -36,15 +37,15 @@
 #include "scripts/cameracontroller.h"
 
 #define ROOM
-#define SKYBOX
+//#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
 //#define ANIMATION
-#define PARTICLE_SYSTEM
-#define FONT
+//#define PARTICLE_SYSTEM
+//#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
@@ -55,8 +56,6 @@ static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
-
-#define FPS_UPDATE_INTERVAL		800
 
 Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullptr), controller_(nullptr) {
 }
@@ -84,7 +83,7 @@ void Game::init(Ui::Editor* ui) {
 
 	timer_ = new QTimer(this);
 	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStatContent()));
-	timer_->start(FPS_UPDATE_INTERVAL);
+	timer_->start(800);
 
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
 }
@@ -98,6 +97,9 @@ void Game::awake() {
 
 	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
 	createScene();
+
+	input_ = new QInput(this);
+	Input::instance()->SetImplementation(input_);
 }
 
 void Game::tick() {
@@ -169,22 +171,6 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 // }
 
 void Game::start() {
-}
-
-void Game::wheelEvent(QWheelEvent* event) {
-	controller_->onMouseWheel(event->delta());
-}
-
-void Game::mousePressEvent(QMouseEvent *event) {
-	controller_->onMousePress(event->button(), event->pos());
-}
-
-void Game::mouseReleaseEvent(QMouseEvent* event) {
-	controller_->onMouseRelease(event->button());
-}
-
-void Game::mouseMoveEvent(QMouseEvent *event) {
-	controller_->onMouseMove(event->pos());
 }
 
 void Game::keyPressEvent(QKeyEvent* event) {
@@ -360,7 +346,7 @@ void Game::createScene() {
 	renderTexture->Load(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
-
+	
 #ifdef PARTICLE_SYSTEM
 	GameObject go = NewGameObject();
 	ParticleSystem particleSystem = go->AddComponent<IParticleSystem>();

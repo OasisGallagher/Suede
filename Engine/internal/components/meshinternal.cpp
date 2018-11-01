@@ -272,7 +272,7 @@ void TextMeshInternal::SetFontSize(uint value) {
 	}
 }
 
-void TextMeshInternal::RenderingUpdate() {
+void TextMeshInternal::Update() {
 	if (dirty_) {
 		RebuildMesh();
 	}

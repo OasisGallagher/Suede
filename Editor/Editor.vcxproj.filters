@@ -519,6 +519,15 @@
     <ClCompile Include="scripts\selectiongizmos.cpp">
       <Filter>scripts\src</Filter>
     </ClCompile>
+    <ClCompile Include="windows\game\qinput.cpp">
+      <Filter>windows\game\src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qinput.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_qinput.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main\qtviewer.h">
@@ -652,6 +661,9 @@
     </CustomBuild>
     <CustomBuild Include="scripts\selectiongizmos.h">
       <Filter>scripts\include</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\game\qinput.h">
+      <Filter>windows\game\include</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

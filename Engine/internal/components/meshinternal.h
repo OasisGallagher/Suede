@@ -103,7 +103,7 @@ public:
 	~TextMeshInternal();
 
 public:
-	void RenderingUpdate();
+	virtual void Update();
 
 public:
 	Mesh GetMesh() { return mesh_; }

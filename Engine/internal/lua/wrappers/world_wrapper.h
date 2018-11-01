@@ -26,17 +26,17 @@ class World_Wrapper {
 		return 0;
 	}
 
+	// void Update()
+	static int Update(lua_State* L) {
+		World* _p = World::instance();
+		_p->Update();
+		return 0;
+	}
+
 	// void CullingUpdate()
 	static int CullingUpdate(lua_State* L) {
 		World* _p = World::instance();
 		_p->CullingUpdate();
-		return 0;
-	}
-
-	// void RenderingUpdate()
-	static int RenderingUpdate(lua_State* L) {
-		World* _p = World::instance();
-		_p->RenderingUpdate();
 		return 0;
 	}
 
@@ -138,8 +138,8 @@ public:
 
 		luaL_Reg metalib[] = {
 			{ "Initialize", Initialize },
+			{ "Update", Update },
 			{ "CullingUpdate", CullingUpdate },
-			{ "RenderingUpdate", RenderingUpdate },
 			{ "Finalize", Finalize },
 			{ "CreateObject", CreateObject },
 			{ "DestroyGameObject", DestroyGameObject },

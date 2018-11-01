@@ -23,8 +23,9 @@ public:
 
 public:
 	void Initialize();
+
+	void Update();
 	void CullingUpdate();
-	void RenderingUpdate();
 
 	void Finalize();
 

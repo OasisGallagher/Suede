@@ -123,7 +123,6 @@ public:
 
 public:
 	virtual void CullingUpdate();
-	virtual void RenderingUpdate();
 
 public:
 	virtual void AddClip(const std::string& name, AnimationClip value);

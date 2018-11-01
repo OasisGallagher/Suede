@@ -93,7 +93,7 @@ void ParticleSystemInternal::CullingUpdate() {
 	}
 }
 
-void ParticleSystemInternal::RenderingUpdate() {
+void ParticleSystemInternal::Update() {
 	if (meshDirty_) {
 		InitializeMesh();
 	}

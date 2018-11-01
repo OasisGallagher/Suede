@@ -410,10 +410,6 @@ void AnimationInternal::CullingUpdate() {
 	}
 }
 
-void AnimationInternal::RenderingUpdate() {
-
-}
-
 bool AnimationCurveInternal::Sample(float time, AnimationFrame& frame) {
 	int index = FindInterpolateIndex(time);
 	if (index + 1 >= keyframes_.size()) {

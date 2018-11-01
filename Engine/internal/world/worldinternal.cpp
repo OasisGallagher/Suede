@@ -24,7 +24,7 @@ World::~World() {}
 
 void World::Initialize() { _suede_dptr()->Initialize(); }
 void World::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
-void World::RenderingUpdate() { _suede_dptr()->RenderingUpdate(); }
+void World::Update() { _suede_dptr()->Update(); }
 void World::Finalize() { _suede_dptr()->Finalize(); }
 Object World::CreateObject(ObjectType type) { return _suede_dptr()->CreateObject(type); }
 void World::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
@@ -252,7 +252,7 @@ void WorldInternal::CullingUpdateGameObjects() {
 void WorldInternal::RenderingUpdateGameObjects() {
 	for (GameObject go : renderingUpdateSequence_) {
 		if (go->GetActive()) {
-			go->RenderingUpdate();
+			go->Update();
 		}
 	}
 }
@@ -388,7 +388,7 @@ void WorldInternal::CullingUpdate() {
 	CullingUpdateGameObjects();
 }
 
-void WorldInternal::RenderingUpdate() {
+void WorldInternal::Update() {
 	uint64 start = Profiler::instance()->GetTimeStamp();
 	FireEvents();
 

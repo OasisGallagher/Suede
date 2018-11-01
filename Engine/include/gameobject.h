@@ -34,8 +34,8 @@ public:
 	std::string GetName() const;
 	void SetName(const std::string& value);
 
+	void Update();
 	void CullingUpdate();
-	void RenderingUpdate();
 
 	Transform GetTransform();
 

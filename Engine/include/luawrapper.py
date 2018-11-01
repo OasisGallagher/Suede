@@ -40,6 +40,8 @@ kExcludeFiles = [
 ];
 
 kExcludeClasses = [
+	"InputInternal",
+	
 	"WorldEventBase",
 	"GameObjectEvent",
 	"ComponentEvent",

@@ -121,8 +121,8 @@ public:
 	virtual ParticleAnimator GetParticleAnimator() { return particleAnimator_; }
 
 public:
+	virtual void Update();
 	virtual void CullingUpdate();
-	virtual void RenderingUpdate();
 
 private:
 	void InitializeMesh();

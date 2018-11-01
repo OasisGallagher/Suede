@@ -41,6 +41,13 @@ class Component_Wrapper {
 		return 0;
 	}
 
+	// virtual void Update()
+	static int Update(lua_State* L) {
+		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		_p->Update();
+		return 0;
+	}
+
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
@@ -92,13 +99,6 @@ class Component_Wrapper {
 	static int CullingUpdate(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
 		_p->CullingUpdate();
-		return 0;
-	}
-
-	// void RenderingUpdate()
-	static int RenderingUpdate(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
-		_p->RenderingUpdate();
 		return 0;
 	}
 
@@ -163,6 +163,7 @@ public:
 			{ "__gc", Lua::deleteSharedPtr<Component> },
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
+			{ "Update", Update },
 			{ "OnRenderImage", OnRenderImage },
 			{ "GetEnabled", GetEnabled },
 			{ "SetEnabled", SetEnabled },
@@ -170,7 +171,6 @@ public:
 			{ "GetGameObject", GetGameObject },
 			{ "GetTransform", GetTransform },
 			{ "CullingUpdate", CullingUpdate },
-			{ "RenderingUpdate", RenderingUpdate },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "AllowMultiple", AllowMultiple },
 			{ "IsComponentType", IsComponentType },

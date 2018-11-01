@@ -9,9 +9,6 @@ public:
 	ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {}
 
 public:
-	virtual void Awake() {}
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {}
-
 	virtual bool GetEnabled() const { return enabled_; }
 	virtual void SetEnabled(bool value) { enabled_ = value; }
 
@@ -20,8 +17,9 @@ public:
 
 	virtual Transform GetTransform() { return GetGameObject()->GetComponent<ITransform>(); }
 
+	virtual void Awake() {}
+	virtual void Update() {}
 	virtual void CullingUpdate() {}
-	virtual void RenderingUpdate() {}
 
 	virtual int GetUpdateStrategy() { return 0; }
 

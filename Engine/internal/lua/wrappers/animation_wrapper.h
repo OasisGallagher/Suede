@@ -69,7 +69,6 @@ public:
 
 class Skeleton_Wrapper {
 	static int NewSkeleton(lua_State* L) {
-		Lua::get<Rect*>(nullptr, 0);
 		return Lua::fromShared(L, ::NewSkeleton());
 	}
 

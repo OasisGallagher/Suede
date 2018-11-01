@@ -2,14 +2,15 @@
 #include "enginedefines.h"
 
 enum {
-	FrameEventQueueTime = -3000,
-	FrameEventQueueProfiler = -2000,
-	FrameEventQueueStatistics = -1000,
+	FrameEventQueueTime = -1000,
+	FrameEventQueueProfiler,
+	FrameEventQueueStatistics,
 
 	FrameEventQueueUser = 0,
 
-	FrameEventQueueMax = INT_MAX,
-	FrameEventQueueGizmos = FrameEventQueueMax
+	FrameEventQueueMax = 1000,
+	FrameEventQueueGizmos,
+	FrameEventQueueInputs,
 };
 
 class SUEDE_API FrameEventListener {

@@ -19,8 +19,8 @@ const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag();
 bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(_shared_this(), value); }
 std::string IGameObject::GetName() const { return _suede_dptr()->GetName(); }
 void IGameObject::SetName(const std::string& value) { _suede_dptr()->SetName(_shared_this(), value); }
+void IGameObject::Update() { _suede_dptr()->Update(); }
 void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
-void IGameObject::RenderingUpdate() { _suede_dptr()->RenderingUpdate(); }
 Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
 const Bounds& IGameObject::GetBounds() { return _suede_dptr()->GetBounds(); }
 void IGameObject::RecalculateBounds(int flags) { return _suede_dptr()->RecalculateBounds(); }
@@ -130,9 +130,9 @@ void GameObjectInternal::CullingUpdate() {
 	}
 }
 
-void GameObjectInternal::RenderingUpdate() {
+void GameObjectInternal::Update() {
 	for (Component component : components_) {
-		component->RenderingUpdate();
+		component->Update();
 	}
 }
 

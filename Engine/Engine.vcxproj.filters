@@ -466,6 +466,9 @@
     <ClInclude Include="include\lua++.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\input.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="internal\lua\wrappers\animation_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
@@ -496,9 +499,6 @@
     <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\gameobjectimportedlistener_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
@@ -506,6 +506,9 @@
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\input_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\light_wrapper.h">
@@ -518,9 +521,6 @@
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\mesh_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\object_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\particlesystem_wrapper.h">
@@ -563,9 +563,6 @@
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\transform_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\variant_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="internal\lua\wrappers\world_wrapper.h">
@@ -773,6 +770,9 @@
     </ClCompile>
     <ClCompile Include="internal\rendering\gizmospainter.cpp">
       <Filter>internal\rendering\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\inputinternal.cpp">
+      <Filter>internal\tools\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

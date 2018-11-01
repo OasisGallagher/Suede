@@ -69,17 +69,17 @@ class GameObject_Wrapper {
 		return 0;
 	}
 
+	// void Update()
+	static int Update(lua_State* L) {
+		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
+		_p->Update();
+		return 0;
+	}
+
 	// void CullingUpdate()
 	static int CullingUpdate(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
 		_p->CullingUpdate();
-		return 0;
-	}
-
-	// void RenderingUpdate()
-	static int RenderingUpdate(lua_State* L) {
-		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-		_p->RenderingUpdate();
 		return 0;
 	}
 
@@ -184,8 +184,8 @@ public:
 			{ "SetTag", SetTag },
 			{ "GetName", GetName },
 			{ "SetName", SetName },
+			{ "Update", Update },
 			{ "CullingUpdate", CullingUpdate },
-			{ "RenderingUpdate", RenderingUpdate },
 			{ "GetTransform", GetTransform },
 			{ "RecalculateBounds", RecalculateBounds },
 			{ "RecalculateUpdateStrategy", RecalculateUpdateStrategy },

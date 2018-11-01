@@ -15,6 +15,7 @@
 #include "gizmos_wrapper.h"
 #include "graphics_wrapper.h"
 #include "imageeffect_wrapper.h"
+#include "input_wrapper.h"
 #include "light_wrapper.h"
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
@@ -65,6 +66,7 @@ static int configure(lua_State* L) {
 	Gizmos_Wrapper::create(L);
 	Graphics_Wrapper::create(L);
 	ImageEffect_Wrapper::create(L);
+	Input_Wrapper::create(L);
 	Light_Wrapper::create(L);
 	Material_Wrapper::create(L);
 	TriangleBias_Wrapper::create(L);
@@ -137,6 +139,7 @@ static int configure(lua_State* L) {
 	Gizmos_Wrapper::initialize(L, funcs, fields);
 	Graphics_Wrapper::initialize(L, funcs, fields);
 	ImageEffect_Wrapper::initialize(L, funcs, fields);
+	Input_Wrapper::initialize(L, funcs, fields);
 	Light_Wrapper::initialize(L, funcs, fields);
 	Material_Wrapper::initialize(L, funcs, fields);
 	TriangleBias_Wrapper::initialize(L, funcs, fields);
@@ -233,6 +236,89 @@ static int configure(lua_State* L) {
 	}
 
 	lua_setfield(L, -2, "ShadingMode");
+
+	// KeyCode
+	lua_newtable(L);
+	lua_pushinteger(L, (int)KeyCode::A);
+	lua_setfield(L, -2, "A");
+	lua_pushinteger(L, (int)KeyCode::B);
+	lua_setfield(L, -2, "B");
+	lua_pushinteger(L, (int)KeyCode::C);
+	lua_setfield(L, -2, "C");
+	lua_pushinteger(L, (int)KeyCode::D);
+	lua_setfield(L, -2, "D");
+	lua_pushinteger(L, (int)KeyCode::E);
+	lua_setfield(L, -2, "E");
+	lua_pushinteger(L, (int)KeyCode::F);
+	lua_setfield(L, -2, "F");
+	lua_pushinteger(L, (int)KeyCode::G);
+	lua_setfield(L, -2, "G");
+	lua_pushinteger(L, (int)KeyCode::H);
+	lua_setfield(L, -2, "H");
+	lua_pushinteger(L, (int)KeyCode::I);
+	lua_setfield(L, -2, "I");
+	lua_pushinteger(L, (int)KeyCode::J);
+	lua_setfield(L, -2, "J");
+	lua_pushinteger(L, (int)KeyCode::K);
+	lua_setfield(L, -2, "K");
+	lua_pushinteger(L, (int)KeyCode::L);
+	lua_setfield(L, -2, "L");
+	lua_pushinteger(L, (int)KeyCode::M);
+	lua_setfield(L, -2, "M");
+	lua_pushinteger(L, (int)KeyCode::N);
+	lua_setfield(L, -2, "N");
+	lua_pushinteger(L, (int)KeyCode::O);
+	lua_setfield(L, -2, "O");
+	lua_pushinteger(L, (int)KeyCode::P);
+	lua_setfield(L, -2, "P");
+	lua_pushinteger(L, (int)KeyCode::Q);
+	lua_setfield(L, -2, "Q");
+	lua_pushinteger(L, (int)KeyCode::R);
+	lua_setfield(L, -2, "R");
+	lua_pushinteger(L, (int)KeyCode::S);
+	lua_setfield(L, -2, "S");
+	lua_pushinteger(L, (int)KeyCode::T);
+	lua_setfield(L, -2, "T");
+	lua_pushinteger(L, (int)KeyCode::U);
+	lua_setfield(L, -2, "U");
+	lua_pushinteger(L, (int)KeyCode::V);
+	lua_setfield(L, -2, "V");
+	lua_pushinteger(L, (int)KeyCode::W);
+	lua_setfield(L, -2, "W");
+	lua_pushinteger(L, (int)KeyCode::X);
+	lua_setfield(L, -2, "X");
+	lua_pushinteger(L, (int)KeyCode::Y);
+	lua_setfield(L, -2, "Y");
+	lua_pushinteger(L, (int)KeyCode::Z);
+	lua_setfield(L, -2, "Z");
+	lua_pushinteger(L, (int)KeyCode::F1);
+	lua_setfield(L, -2, "F1");
+	lua_pushinteger(L, (int)KeyCode::F2);
+	lua_setfield(L, -2, "F2");
+	lua_pushinteger(L, (int)KeyCode::F3);
+	lua_setfield(L, -2, "F3");
+	lua_pushinteger(L, (int)KeyCode::F4);
+	lua_setfield(L, -2, "F4");
+	lua_pushinteger(L, (int)KeyCode::F5);
+	lua_setfield(L, -2, "F5");
+	lua_pushinteger(L, (int)KeyCode::F6);
+	lua_setfield(L, -2, "F6");
+	lua_pushinteger(L, (int)KeyCode::F7);
+	lua_setfield(L, -2, "F7");
+	lua_pushinteger(L, (int)KeyCode::F8);
+	lua_setfield(L, -2, "F8");
+	lua_pushinteger(L, (int)KeyCode::F9);
+	lua_setfield(L, -2, "F9");
+	lua_pushinteger(L, (int)KeyCode::F10);
+	lua_setfield(L, -2, "F10");
+	lua_pushinteger(L, (int)KeyCode::F11);
+	lua_setfield(L, -2, "F11");
+	lua_pushinteger(L, (int)KeyCode::F12);
+	lua_setfield(L, -2, "F12");
+	lua_pushinteger(L, (int)KeyCode::Space);
+	lua_setfield(L, -2, "Space");
+
+	lua_setfield(L, -2, "KeyCode");
 
 	// LightImportance
 	lua_newtable(L);

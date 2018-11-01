@@ -26,8 +26,8 @@ public:
 	std::string GetName() const { return name_; }
 	void SetName(GameObject self, const std::string& value);
 
+	void Update();
 	void CullingUpdate();
-	void RenderingUpdate();
 
 	Transform GetTransform();
 

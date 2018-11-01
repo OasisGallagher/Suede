@@ -97,7 +97,7 @@ void EngineInternal::Update() {
 
 	SortFrameEventListeners();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
-	World::instance()->RenderingUpdate();
+	World::instance()->Update();
 	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameLeave);
 }
 
