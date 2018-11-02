@@ -19,10 +19,13 @@ public:
 	void OnFrameEnter();
 	int GetFrameEventQueue() { return FrameEventQueueStatistics; }
 
-	void SetCullingElapsed(double value);
-	void SetRenderingElapsed(double value);
+	void SetScriptElapsed(double value);
+	double GetScripeElapsed();
 
+	void SetCullingElapsed(double value);
 	double GetCullingElapsed();
+
+	void SetRenderingElapsed(double value);
 	double GetRenderingElapsed();
 
 private:
@@ -37,6 +40,7 @@ private:
 		uint nvertices;
 		uint ntriangles;
 
+		double scriptElapsed;
 		double cullingElapsed;
 		double renderingElapsed;
 	} stats_[2];

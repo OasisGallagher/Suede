@@ -7,8 +7,6 @@
 
 template <class T>
 class Singleton : private NonCopyable {
-	static T* ptr;
-
 public:
 	virtual ~Singleton() {}
 
@@ -18,8 +16,6 @@ public:
 		return &object;
 	}
 };
-
-template <class T> T* Singleton<T>::ptr = nullptr;
 
 template <class T>
 class Singleton2 : public Singleton<T>, public PimplIdiom {

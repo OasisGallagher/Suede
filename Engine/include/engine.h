@@ -3,18 +3,18 @@
 #include "tools/singleton.h"
 #include "frameeventlistener.h"
 
-class SUEDE_API Engine : public Singleton2<Engine> {
+class SUEDE_API Engine : private Singleton2<Engine> {
 	friend class Singleton<Engine>;
 	SUEDE_DECLARE_IMPLEMENTATION(Engine)
 
 public:
-	bool Startup(uint width, uint height);
-	void Shutdown();
+	static bool Startup(uint width, uint height);
+	static void Shutdown();
 
-	void Update();
+	static void Update();
 
-	void AddFrameEventListener(FrameEventListener* listener);
-	void RemoveFrameEventListener(FrameEventListener* listener);
+	static void AddFrameEventListener(FrameEventListener* listener);
+	static void RemoveFrameEventListener(FrameEventListener* listener);
 
 private:
 	Engine();

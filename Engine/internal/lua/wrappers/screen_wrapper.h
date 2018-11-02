@@ -8,36 +8,49 @@
 #include "tools/string.h"
 
 class Screen_Wrapper {
-	static int ScreenInstance(lua_State* L) {
-		return Lua::reference<Screen>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Screen* _p = Screen::instance();
+		Screen* _p = Lua::callerPtr<Screen>(L);
 
 		lua_pushstring(L, String::Format("Screen@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// uint GetWidth()
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Screen");
+		return 1;
+	}
+
+	static int ScreenStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "GetWidth", GetWidth },
+			{ "GetHeight", GetHeight },
+			{ "Resize", Resize },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static uint GetWidth()
 	static int GetWidth(lua_State* L) {
-		Screen* _p = Screen::instance();
-		return Lua::push(L, _p->GetWidth());
+		return Lua::push(L, Screen::GetWidth());
 	}
 
-	// uint GetHeight()
+	// static uint GetHeight()
 	static int GetHeight(lua_State* L) {
-		Screen* _p = Screen::instance();
-		return Lua::push(L, _p->GetHeight());
+		return Lua::push(L, Screen::GetHeight());
 	}
 
-	// void Resize(uint width, uint height)
+	// static void Resize(uint width, uint height)
 	static int Resize(lua_State* L) {
-		Screen* _p = Screen::instance();
-		uint height = Lua::get<uint>(L, 3);
-		uint width = Lua::get<uint>(L, 2);
+		uint height = Lua::get<uint>(L, 2);
+		uint width = Lua::get<uint>(L, 1);
 		
-		_p->Resize(width, height);
+		Screen::Resize(width, height);
 		return 0;
 	}
 
@@ -47,12 +60,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "ScreenInstance", ScreenInstance });
+		fields.push_back(luaL_Reg{ "Screen", ScreenStatic });
 
 		luaL_Reg metalib[] = {
-			{ "GetWidth", GetWidth },
-			{ "GetHeight", GetHeight },
-			{ "Resize", Resize },
+			{ "__gc", Lua::deletePtr<Screen> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

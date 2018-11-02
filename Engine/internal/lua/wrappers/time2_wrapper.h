@@ -8,39 +8,52 @@
 #include "tools/string.h"
 
 class Time_Wrapper {
-	static int TimeInstance(lua_State* L) {
-		return Lua::reference<Time>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Time* _p = Time::instance();
+		Time* _p = Lua::callerPtr<Time>(L);
 
 		lua_pushstring(L, String::Format("Time@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// float GetTime()
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Time");
+		return 1;
+	}
+
+	static int TimeStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "GetTime", GetTime },
+			{ "GetDeltaTime", GetDeltaTime },
+			{ "GetRealTimeSinceStartup", GetRealTimeSinceStartup },
+			{ "GetFrameCount", GetFrameCount },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static float GetTime()
 	static int GetTime(lua_State* L) {
-		Time* _p = Time::instance();
-		return Lua::push(L, _p->GetTime());
+		return Lua::push(L, Time::GetTime());
 	}
 
-	// float GetDeltaTime()
+	// static float GetDeltaTime()
 	static int GetDeltaTime(lua_State* L) {
-		Time* _p = Time::instance();
-		return Lua::push(L, _p->GetDeltaTime());
+		return Lua::push(L, Time::GetDeltaTime());
 	}
 
-	// float GetRealTimeSinceStartup()
+	// static float GetRealTimeSinceStartup()
 	static int GetRealTimeSinceStartup(lua_State* L) {
-		Time* _p = Time::instance();
-		return Lua::push(L, _p->GetRealTimeSinceStartup());
+		return Lua::push(L, Time::GetRealTimeSinceStartup());
 	}
 
-	// uint GetFrameCount()
+	// static uint GetFrameCount()
 	static int GetFrameCount(lua_State* L) {
-		Time* _p = Time::instance();
-		return Lua::push(L, _p->GetFrameCount());
+		return Lua::push(L, Time::GetFrameCount());
 	}
 
 public:
@@ -49,13 +62,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "TimeInstance", TimeInstance });
+		fields.push_back(luaL_Reg{ "Time", TimeStatic });
 
 		luaL_Reg metalib[] = {
-			{ "GetTime", GetTime },
-			{ "GetDeltaTime", GetDeltaTime },
-			{ "GetRealTimeSinceStartup", GetRealTimeSinceStartup },
-			{ "GetFrameCount", GetFrameCount },
+			{ "__gc", Lua::deletePtr<Time> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

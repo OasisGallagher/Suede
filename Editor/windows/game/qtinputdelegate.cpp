@@ -1,4 +1,4 @@
-#include "qinput.h"
+#include "qtinputdelegate.h"
 #include "tools/math2.h"
 
 static QHash<int, KeyCode> keyMap = {
@@ -42,7 +42,17 @@ static QHash<int, KeyCode> keyMap = {
 	{ Qt::Key_F11, KeyCode::F11 },
 	{ Qt::Key_F12, KeyCode::F12 },
 
+	{ Qt::Key_Enter, KeyCode::KeypadEnter },
+
 	{ Qt::Key_Space, KeyCode::Space },
+	{ Qt::Key_Return, KeyCode::Return },
+	{ Qt::Key_Backspace, KeyCode::Backspace },
+	{ Qt::Key_Tab, KeyCode::Tab },
+	{ Qt::Key_Escape, KeyCode::Escape },
+	{ Qt::Key_Up, KeyCode::UpArrow },
+	{ Qt::Key_Down, KeyCode::DownArrow },
+	{ Qt::Key_Left, KeyCode::LeftArrow },
+	{ Qt::Key_Right, KeyCode::RightArrow },
 };
 
 template <class T>
@@ -51,51 +61,51 @@ inline void ResetUpDown(T& state) {
 	std::fill(state.down, state.down + T::Size, false);
 }
 
-QInput::QInput(QWidget* view) : view_(view) {
+QtInputDelegate::QtInputDelegate(QWidget* view) : view_(view) {
 	view_->installEventFilter(this);
 }
 
-void QInput::OnFrameLeave() {
+void QtInputDelegate::OnFrameLeave() {
 	wheelDelta_ = 0;
 
 	ResetUpDown(keyStates_);
 	ResetUpDown(mouseStates_);
 }
 
-bool QInput::GetKey(KeyCode key) {
-	return keyStates_.pressed[(int)key];
+bool QtInputDelegate::GetKey(KeyCode key) {
+	return keyStates_.pressed[key];
 }
 
-bool QInput::GetKeyUp(KeyCode key) {
-	return keyStates_.up[(int)key];
+bool QtInputDelegate::GetKeyUp(KeyCode key) {
+	return keyStates_.up[key];
 }
 
-bool QInput::GetKeyDown(KeyCode key) {
-	return keyStates_.down[(int)key];
+bool QtInputDelegate::GetKeyDown(KeyCode key) {
+	return keyStates_.down[key];
 }
 
-bool QInput::GetMouseButton(int button) {
+bool QtInputDelegate::GetMouseButton(int button) {
 	return mouseStates_.pressed[button];
 }
 
-bool QInput::GetMouseButtonUp(int button) {
+bool QtInputDelegate::GetMouseButtonUp(int button) {
 	return mouseStates_.up[button];
 }
 
-bool QInput::GetMouseButtonDown(int button) {
+bool QtInputDelegate::GetMouseButtonDown(int button) {
 	return mouseStates_.down[button];
 }
 
-int QInput::GetMouseWheelDelta() {
+float QtInputDelegate::GetMouseWheelDelta() {
 	return wheelDelta_;
 }
 
-glm::ivec2 QInput::GetMousePosition() {
+glm::ivec2 QtInputDelegate::GetMousePosition() {
 	QPoint p = view_->mapFromGlobal(QCursor::pos());
 	return glm::ivec2(p.x(), p.y());
 }
 
-bool QInput::eventFilter(QObject * watched, QEvent * event) {
+bool QtInputDelegate::eventFilter(QObject * watched, QEvent * event) {
 	switch (event->type()) {
 		case QEvent::MouseButtonPress:
 		case QEvent::MouseButtonRelease:
@@ -113,24 +123,24 @@ bool QInput::eventFilter(QObject * watched, QEvent * event) {
 	return true;
 }
 
-void QInput::onKeyPress(QKeyEvent * event) {
+void QtInputDelegate::onKeyPress(QKeyEvent * event) {
 	if (event->isAutoRepeat()) { return; }
 
 	auto ite = keyMap.find(event->key());
 	if (ite == keyMap.end()) { return; }
 
 	bool pressed = (event->type() == QEvent::KeyPress);
-	if (pressed != keyStates_.pressed[(int)ite.value()]) {
-		keyStates_.pressed[(int)ite.value()] = pressed;
-		pressed ? (keyStates_.down[(int)ite.value()] = true) : (keyStates_.up[(int)ite.value()] = true);
+	if (pressed != keyStates_.pressed[ite.value()]) {
+		keyStates_.pressed[ite.value()] = pressed;
+		pressed ? (keyStates_.down[ite.value()] = true) : (keyStates_.up[ite.value()] = true);
 	}
 }
 
-void QInput::onMouseWheel(QWheelEvent* e) {
+void QtInputDelegate::onMouseWheel(QWheelEvent* e) {
 	wheelDelta_ = e->delta();
 }
 
-void QInput::onMousePress(QMouseEvent* e) {
+void QtInputDelegate::onMousePress(QMouseEvent* e) {
 	bool pressed[] = { 
 		e->buttons() & Qt::LeftButton,
 		e->buttons() & Qt::MiddleButton,

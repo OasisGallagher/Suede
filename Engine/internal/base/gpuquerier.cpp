@@ -1,7 +1,7 @@
 #include "gpuquerier.h"
 
 GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
-	Engine::instance()->AddFrameEventListener(this);
+	Engine::AddFrameEventListener(this);
 
 	GL::GenQueries(MaxQueries, ids_);
 

@@ -24,7 +24,7 @@ void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener)
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = NewMaterial();
-	material_->SetShader(Resources::instance()->FindShader("builtin/unlit_texture"));
+	material_->SetShader(Resources::FindShader("builtin/unlit_texture"));
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.

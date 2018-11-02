@@ -67,7 +67,7 @@ void GameObjectInternal::SetActiveSelf(GameObject self, bool value) {
 }
 
 bool GameObjectInternal::SetTag(GameObject self, const std::string& value) {
-	if (!TagManager::instance()->IsRegistered(value)) {
+	if (!TagManager::IsRegistered(value)) {
 		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
 		return false;
 	}
@@ -98,7 +98,7 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 	e->go = self;
 	e->added = true;
 	e->component = component;
-	World::instance()->FireEvent(e);
+	World::FireEvent(e);
 
 	return component;
 }
@@ -120,7 +120,7 @@ void GameObjectInternal::SetName(GameObject self, const std::string& value) {
 }
 
 void GameObjectInternal::CullingUpdate() {
-	uint frame = Time::instance()->GetFrameCount();
+	uint frame = Time::GetFrameCount();
 	if (frameCullingUpdate_ < frame) {
 		frameCullingUpdate_ = frame;
 
@@ -258,7 +258,7 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 
 void GameObjectInternal::DirtyParentBounds() {
 	Transform parent, current = GetTransform();
-	for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
+	for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
 		_suede_rptr(parent->GetGameObject())->boundsDirty_ = true;
 		current = parent;
 	}
@@ -289,7 +289,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 
 	if (oldStrategy != newStrategy) {
 		Transform parent, current = GetTransform();
-		for (; (parent = current->GetParent()) && parent != World::instance()->GetRootTransform();) {
+		for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
 			if (!_suede_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
 				break;
 			}
@@ -299,7 +299,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 
 		GameObjectUpdateStrategyChangedEventPtr e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPtr>();
 		e->go = self;
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 
 		return true;
 	}

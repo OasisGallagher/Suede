@@ -3,10 +3,10 @@
 #include <QDockWidget>
 
 #include "camera.h"
-#include "qinput.h"
 #include "../winbase.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
+#include "qtinputdelegate.h"
 #include "frameeventlistener.h"
 #include "gameobjectimportedlistener.h"
 
@@ -59,7 +59,7 @@ private:
 
 	QTimer* timer_;
 
-	QInput* input_;
+	QtInputDelegate* input_;
 	Canvas* canvas_;
 	StatsWidget* stat_;
 

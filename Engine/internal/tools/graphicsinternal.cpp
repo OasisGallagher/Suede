@@ -11,18 +11,18 @@
 
 Graphics::Graphics() : Singleton2<Graphics>(MEMORY_NEW(GraphicsInternal), Memory::DeleteRaw<GraphicsInternal>) {}
 
-void Graphics::SetShadingMode(ShadingMode value) { _suede_dptr()->SetShadingMode(value); }
-ShadingMode Graphics::GetShadingMode() { return _suede_dptr()->GetShadingMode(); }
-void Graphics::SetAmbientOcclusionEnabled(bool value) { _suede_dptr()->SetAmbientOcclusionEnabled(value); }
-bool Graphics::GetAmbientOcclusionEnabled() { return _suede_dptr()->GetAmbientOcclusionEnabled(); }
-void Graphics::SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) { _suede_dptr()->SetRenderTarget(colorBuffers, depthBuffer); }
-void Graphics::Draw(Mesh mesh, Material material) { _suede_dptr()->Draw(mesh, material); }
-void Graphics::Blit(Texture src, RenderTexture dest) { _suede_dptr()->Blit(src, dest); }
-void Graphics::Blit(Texture src, RenderTexture dest, const Rect& rect) { _suede_dptr()->Blit(src, dest, rect); }
-void Graphics::Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect) { _suede_dptr()->Blit(src, dest, srcRect, destRect); }
-void Graphics::Blit(Texture src, RenderTexture dest, Material material) { _suede_dptr()->Blit(src, dest, material); }
-void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& rect) { _suede_dptr()->Blit(src, dest, material, rect); }
-void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) { _suede_dptr()->Blit(src, dest, material, srcRect, destRect); }
+void Graphics::SetShadingMode(ShadingMode value) { _suede_dinstance()->SetShadingMode(value); }
+ShadingMode Graphics::GetShadingMode() { return _suede_dinstance()->GetShadingMode(); }
+void Graphics::SetAmbientOcclusionEnabled(bool value) { _suede_dinstance()->SetAmbientOcclusionEnabled(value); }
+bool Graphics::GetAmbientOcclusionEnabled() { return _suede_dinstance()->GetAmbientOcclusionEnabled(); }
+void Graphics::SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) { _suede_dinstance()->SetRenderTarget(colorBuffers, depthBuffer); }
+void Graphics::Draw(Mesh mesh, Material material) { _suede_dinstance()->Draw(mesh, material); }
+void Graphics::Blit(Texture src, RenderTexture dest) { _suede_dinstance()->Blit(src, dest); }
+void Graphics::Blit(Texture src, RenderTexture dest, const Rect& rect) { _suede_dinstance()->Blit(src, dest, rect); }
+void Graphics::Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect) { _suede_dinstance()->Blit(src, dest, srcRect, destRect); }
+void Graphics::Blit(Texture src, RenderTexture dest, Material material) { _suede_dinstance()->Blit(src, dest, material); }
+void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& rect) { _suede_dinstance()->Blit(src, dest, material, rect); }
+void Graphics::Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect) { _suede_dinstance()->Blit(src, dest, material, srcRect, destRect); }
 
 GraphicsInternal::GraphicsInternal() : mode_(ShadingMode::Shaded) {
 	material_ = CreateBlitMaterial();

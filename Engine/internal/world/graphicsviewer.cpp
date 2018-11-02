@@ -17,7 +17,7 @@ GraphicsViewer::GraphicsViewer(int argc, char * argv[])
 }
 
 GraphicsViewer::~GraphicsViewer() {
-	Engine::instance()->Shutdown();
+	Engine::Shutdown();
 }
 
 void GraphicsViewer::Run() {
@@ -26,7 +26,7 @@ void GraphicsViewer::Run() {
 			canvas_->MakeCurrent();
 
 			Update();
-			Engine::instance()->Update();
+			Engine::Update();
 
  			canvas_->SwapBuffers();
  			canvas_->DoneCurrent();
@@ -38,7 +38,7 @@ bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	canvas_ = value;
 
 	if (status_ == ViewerStatusUninitialized) {
-		if (Engine::instance()->Startup(value->GetWidth(), value->GetHeight())) {
+		if (Engine::Startup(value->GetWidth(), value->GetHeight())) {
 			status_ = ViewerStatusRunning;
 		}
 	}
@@ -47,9 +47,7 @@ bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 }
 
 void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
-	if (Screen::instance()) {
-		Screen::instance()->Resize(width, height);
-	}
+	Screen::Resize(width, height);
 }
 
 void GraphicsViewer::Close() {

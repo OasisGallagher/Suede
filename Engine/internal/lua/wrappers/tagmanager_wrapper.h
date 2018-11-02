@@ -8,41 +8,54 @@
 #include "tools/string.h"
 
 class TagManager_Wrapper {
-	static int TagManagerInstance(lua_State* L) {
-		return Lua::reference<TagManager>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		TagManager* _p = TagManager::instance();
+		TagManager* _p = Lua::callerPtr<TagManager>(L);
 
 		lua_pushstring(L, String::Format("TagManager@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// void Register(const std::string& name)
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static TagManager");
+		return 1;
+	}
+
+	static int TagManagerStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "Register", Register },
+			{ "Unregister", Unregister },
+			{ "IsRegistered", IsRegistered },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static void Register(const std::string& name)
 	static int Register(lua_State* L) {
-		TagManager* _p = TagManager::instance();
-		std::string name = Lua::get<std::string>(L, 2);
+		std::string name = Lua::get<std::string>(L, 1);
 		
-		_p->Register(name);
+		TagManager::Register(name);
 		return 0;
 	}
 
-	// void Unregister(const std::string& name)
+	// static void Unregister(const std::string& name)
 	static int Unregister(lua_State* L) {
-		TagManager* _p = TagManager::instance();
-		std::string name = Lua::get<std::string>(L, 2);
+		std::string name = Lua::get<std::string>(L, 1);
 		
-		_p->Unregister(name);
+		TagManager::Unregister(name);
 		return 0;
 	}
 
-	// bool IsRegistered(const std::string& name)
+	// static bool IsRegistered(const std::string& name)
 	static int IsRegistered(lua_State* L) {
-		TagManager* _p = TagManager::instance();
-		std::string name = Lua::get<std::string>(L, 2);
+		std::string name = Lua::get<std::string>(L, 1);
 		
-		return Lua::push(L, _p->IsRegistered(name));
+		return Lua::push(L, TagManager::IsRegistered(name));
 	}
 
 public:
@@ -51,12 +64,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "TagManagerInstance", TagManagerInstance });
+		fields.push_back(luaL_Reg{ "TagManager", TagManagerStatic });
 
 		luaL_Reg metalib[] = {
-			{ "Register", Register },
-			{ "Unregister", Unregister },
-			{ "IsRegistered", IsRegistered },
+			{ "__gc", Lua::deletePtr<TagManager> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

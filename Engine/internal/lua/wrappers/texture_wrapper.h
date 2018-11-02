@@ -390,19 +390,22 @@ class RenderTextureUtility_Wrapper {
 		return 1;
 	}
 	// static RenderTexture GetDefault()
-	static int GetDefault(lua_State* L) {		return Lua::push(L, RenderTextureUtility::GetDefault());
+	static int GetDefault(lua_State* L) {
+		return Lua::push(L, RenderTextureUtility::GetDefault());
 	}
 
 	// static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height)
-	static int GetTemporary(lua_State* L) {		uint height = Lua::get<uint>(L, 4);
-		uint width = Lua::get<uint>(L, 3);
-		RenderTextureFormat format = Lua::get<RenderTextureFormat>(L, 2);
+	static int GetTemporary(lua_State* L) {
+		uint height = Lua::get<uint>(L, 3);
+		uint width = Lua::get<uint>(L, 2);
+		RenderTextureFormat format = Lua::get<RenderTextureFormat>(L, 1);
 		
 		return Lua::push(L, RenderTextureUtility::GetTemporary(format, width, height));
 	}
 
 	// static void ReleaseTemporary(RenderTexture texture)
-	static int ReleaseTemporary(lua_State* L) {		RenderTexture texture = Lua::get<RenderTexture>(L, 2);
+	static int ReleaseTemporary(lua_State* L) {
+		RenderTexture texture = Lua::get<RenderTexture>(L, 1);
 		
 		RenderTextureUtility::ReleaseTemporary(texture);
 		return 0;

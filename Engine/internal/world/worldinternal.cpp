@@ -20,27 +20,26 @@
 #include "internal/rendering/uniformbuffermanager.h"
 
 World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
-World::~World() {}
 
-void World::Initialize() { _suede_dptr()->Initialize(); }
-void World::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
-void World::Update() { _suede_dptr()->Update(); }
-void World::Finalize() { _suede_dptr()->Finalize(); }
-Object World::CreateObject(ObjectType type) { return _suede_dptr()->CreateObject(type); }
-void World::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
-void World::DestroyGameObject(GameObject go) { _suede_dptr()->DestroyGameObject(go); }
-GameObject World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dptr()->Import(path, listener); }
-GameObject World::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) { return _suede_dptr()->Import(path, callback); }
-bool World::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) { return _suede_dptr()->ImportTo(go, path,listener); }
-Transform World::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
-GameObject World::GetGameObject(uint id) { return _suede_dptr()->GetGameObject(id); }
-void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dptr()->WalkGameObjectHierarchy(walker); }
-void World::FireEvent(WorldEventBasePtr e) { _suede_dptr()->FireEvent(e); }
-void World::FireEventImmediate(WorldEventBasePtr e) { _suede_dptr()->FireEventImmediate(e); }
-void World::AddEventListener(WorldEventListener* listener) { _suede_dptr()->AddEventListener(listener); }
-void World::RemoveEventListener(WorldEventListener* listener) { _suede_dptr()->RemoveEventListener(listener); }
-void World::GetDecals(std::vector<Decal>& container) { _suede_dptr()->GetDecals(container); }
-std::vector<GameObject> World::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dptr()->GetGameObjectsOfComponent(guid); }
+void World::Initialize() { _suede_dinstance()->Initialize(); }
+void World::Finalize() { _suede_dinstance()->Finalize(); }
+void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
+void World::Update() { _suede_dinstance()->Update(); }
+Object World::CreateObject(ObjectType type) { return _suede_dinstance()->CreateObject(type); }
+void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(id); }
+void World::DestroyGameObject(GameObject go) { _suede_dinstance()->DestroyGameObject(go); }
+GameObject World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->Import(path, listener); }
+GameObject World::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
+bool World::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->ImportTo(go, path,listener); }
+Transform World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
+GameObject World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
+void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
+void World::FireEvent(WorldEventBasePtr e) { _suede_dinstance()->FireEvent(e); }
+void World::FireEventImmediate(WorldEventBasePtr e) { _suede_dinstance()->FireEventImmediate(e); }
+void World::AddEventListener(WorldEventListener* listener) { _suede_dinstance()->AddEventListener(listener); }
+void World::RemoveEventListener(WorldEventListener* listener) { _suede_dinstance()->RemoveEventListener(listener); }
+void World::GetDecals(std::vector<Decal>& container) { _suede_dinstance()->GetDecals(container); }
+std::vector<GameObject> World::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dinstance()->GetGameObjectsOfComponent(guid); }
 
 bool WorldInternal::LightComparer::operator()(const Light& lhs, const Light& rhs) const {
 	// Directional light > Importance > Luminance.
@@ -67,13 +66,13 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 
 WorldInternal::WorldInternal()
 	: importer_(MEMORY_NEW(GameObjectLoaderThreadPool)) {
-	Screen::instance()->AddScreenSizeChangedListener(this);
+	Screen::AddScreenSizeChangedListener(this);
 	AddEventListener(this);
 }
 
 void WorldInternal::Initialize() {
 	GLUtils::Initialize();
-	Resources::instance()->FindShader("builtin/lit_texture");
+	Resources::FindShader("builtin/lit_texture");
 
 	UniformBufferManager::instance();
 	Shadows::instance();
@@ -100,7 +99,7 @@ void WorldInternal::Finalize() {
 	MEMORY_DELETE(decalCreater_);
 
 	RemoveEventListener(this);
-	Screen::instance()->RemoveScreenSizeChangedListener(this);
+	Screen::RemoveScreenSizeChangedListener(this);
 }
 
 Object WorldInternal::CreateObject(ObjectType type) {
@@ -219,7 +218,7 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 
 void WorldInternal::FireEvent(WorldEventBasePtr e) {
 	WorldEventType type = e->GetEventType();
-	WorldEventCollection& collection = events_[(int)type];
+	WorldEventCollection& collection = events_[type];
 
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 	collection.push_back(e);
@@ -353,8 +352,8 @@ void WorldInternal::FireEvents() {
 
 void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
-	p.time.x = Time::instance()->GetRealTimeSinceStartup();
-	p.time.y = Time::instance()->GetDeltaTime();
+	p.time.x = Time::GetRealTimeSinceStartup();
+	p.time.y = Time::GetDeltaTime();
 	UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
@@ -389,7 +388,7 @@ void WorldInternal::CullingUpdate() {
 }
 
 void WorldInternal::Update() {
-	uint64 start = Profiler::instance()->GetTimeStamp();
+	uint64 start = Profiler::GetTimeStamp();
 	FireEvents();
 
 	// SUEDE TODO: update decals in rendering thread ?
@@ -409,7 +408,7 @@ void WorldInternal::Update() {
 
 	CameraUtility::OnPostRender();
 
-	Statistics::instance()->SetRenderingElapsed(
-		Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)
+	Statistics::SetRenderingElapsed(
+		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 	);
 }

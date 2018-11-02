@@ -18,25 +18,25 @@ Lighting::Lighting(QWidget* parent)
 }
 
 void Lighting::showEvent(QShowEvent* event) {
-	ui_->ambient->setValue(Environment::instance()->GetAmbientColor());
-	ui_->occlusion->setChecked(Graphics::instance()->GetAmbientOcclusionEnabled());
+	ui_->ambient->setValue(Environment::GetAmbientColor());
+	ui_->occlusion->setChecked(Graphics::GetAmbientOcclusionEnabled());
 
-	ui_->fogColor->setValue(Environment::instance()->GetFogColor());
-	ui_->fogDensity->setValue(Environment::instance()->GetFogDensity());
+	ui_->fogColor->setValue(Environment::GetFogColor());
+	ui_->fogDensity->setValue(Environment::GetFogDensity());
 }
 
 void Lighting::onAmbientChanged(const QColor& color) {
-	Environment::instance()->SetAmbientColor(Color(color.redF(), color.greenF(), color.blueF()));
+	Environment::SetAmbientColor(Color(color.redF(), color.greenF(), color.blueF()));
 }
 
 void Lighting::onOcclusionChanged(int state) {
-	Graphics::instance()->SetAmbientOcclusionEnabled(!!state);
+	Graphics::SetAmbientOcclusionEnabled(!!state);
 }
 
 void Lighting::onFogColorChanged(const QColor& color) {
-	Environment::instance()->SetFogColor(Color(color.redF(), color.greenF(), color.blueF()));
+	Environment::SetFogColor(Color(color.redF(), color.greenF(), color.blueF()));
 }
 
 void Lighting::onFogDensityChanged(float density) {
-	Environment::instance()->SetFogDensity(density);
+	Environment::SetFogDensity(density);
 }

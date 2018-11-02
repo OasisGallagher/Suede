@@ -143,8 +143,9 @@ class Rect_Wrapper {
 	}
 
 	// static Rect NormalizedToRect(const Rect& rect, const Rect& normalized)
-	static int NormalizedToRect(lua_State* L) {		Rect normalized = Lua::get<Rect>(L, 3);
-		Rect rect = Lua::get<Rect>(L, 2);
+	static int NormalizedToRect(lua_State* L) {
+		Rect normalized = Lua::get<Rect>(L, 2);
+		Rect rect = Lua::get<Rect>(L, 1);
 		
 		return Lua::push(L, Rect::NormalizedToRect(rect, normalized));
 	}

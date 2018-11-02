@@ -94,7 +94,7 @@ inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToS
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
 		e->go = self;
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 

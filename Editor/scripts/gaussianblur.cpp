@@ -6,7 +6,7 @@ SUEDE_DEFINE_COMPONENT(GaussianBlur, ImageEffect)
 void GaussianBlur::Awake() {
 	amount_.reset(5, 1, 10);
 	material_ = NewMaterial();
-	material_->SetShader(Resources::instance()->FindShader("gaussianblur"));
+	material_->SetShader(Resources::FindShader("gaussianblur"));
 }
 
 void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
@@ -20,13 +20,13 @@ void GaussianBlur::OnRenderImage(RenderTexture src, RenderTexture dest, const Re
 
 	for (int i = 0; i < amount_.get_value(); ++i) {
 		material_->SetBool("horizontal", horizontal != 0);
-		Graphics::instance()->Blit(src, buffers[horizontal], material_, normalizedRect);
+		Graphics::Blit(src, buffers[horizontal], material_, normalizedRect);
 
 		src = buffers[horizontal];
 		horizontal = 1 - horizontal;
 	}
 
-	Graphics::instance()->Blit(buffers[1 - horizontal], dest, normalizedRect);
+	Graphics::Blit(buffers[1 - horizontal], dest, normalizedRect);
 
 	RenderTextureUtility::ReleaseTemporary(buffers[0]);
 	RenderTextureUtility::ReleaseTemporary(buffers[1]);

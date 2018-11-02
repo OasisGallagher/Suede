@@ -26,7 +26,7 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 
 	CreateAuxMaterial(p_->materials.depth, "builtin/depth", (int)RenderQueue::Background - 300);
 
-	uint w = Screen::instance()->GetWidth(), h = Screen::instance()->GetHeight();
+	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 
 	p_->renderTextures.aux1 = NewRenderTexture();
 	p_->renderTextures.aux1->Create(RenderTextureFormat::Rgba, w, h);
@@ -40,12 +40,12 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
 	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
 
-	ssaoSample = Profiler::instance()->CreateSample();
-	ssaoTraversalSample = Profiler::instance()->CreateSample();
+	ssaoSample = Profiler::CreateSample();
+	ssaoTraversalSample = Profiler::CreateSample();
 
-	depthSample = Profiler::instance()->CreateSample();
-	shadowSample = Profiler::instance()->CreateSample();
-	renderingSample = Profiler::instance()->CreateSample();
+	depthSample = Profiler::CreateSample();
+	shadowSample = Profiler::CreateSample();
+	renderingSample = Profiler::CreateSample();
 }
 
 void Rendering::Resize(uint width, uint height) {
@@ -64,7 +64,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 
 	DepthPass(pipelines);
 
-	if (Graphics::instance()->GetAmbientOcclusionEnabled()) {
+	if (Graphics::GetAmbientOcclusionEnabled()) {
 		SSAOTraversalPass(pipelines);
 		SSAOPass(pipelines);
 	}
@@ -77,7 +77,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 
 	OnPostRender();
 
-	//Graphics::instance()->Blit(sharedSSAOTexture, nullptr);
+	//Graphics::Blit(sharedSSAOTexture, nullptr);
 	OnImageEffects();
 }
 
@@ -103,17 +103,17 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 
 	p.projParams = matrices.projParams;
 	p.cameraPos = glm::vec4(matrices.cameraPos, 1);
-	p.screenParams = glm::vec4(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), 0, 0);
+	p.screenParams = glm::vec4(Screen::GetWidth(), Screen::GetHeight(), 0, 0);
 	UniformBufferManager::instance()->Update(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	static SharedLightUniformBuffer p;
 
-	memcpy(&p.fogParams.color, &Environment::instance()->GetFogColor(), sizeof(p.fogParams.color));
-	p.fogParams.density = Environment::instance()->GetFogDensity();
+	memcpy(&p.fogParams.color, &Environment::GetFogColor(), sizeof(p.fogParams.color));
+	p.fogParams.density = Environment::GetFogDensity();
 
-	memcpy(&p.ambientColor, &Environment::instance()->GetAmbientColor(), sizeof(p.ambientColor));
+	memcpy(&p.ambientColor, &Environment::GetAmbientColor(), sizeof(p.ambientColor));
 	
 	p.lightPos = glm::vec4(light->GetTransform()->GetPosition(), 1);
 	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
@@ -124,7 +124,7 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 }
 
 void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
-	Shader shader = Resources::instance()->FindShader(shaderPath);
+	Shader shader = Resources::FindShader(shaderPath);
 	material = NewMaterial();
 	material->SetShader(shader);
 	material->SetRenderQueue(renderQueue);
@@ -151,13 +151,13 @@ void Rendering::OnImageEffects() {
 
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
-	RenderTexture temp = RenderTextureUtility::GetTemporary(RenderTextureFormat::Rgb, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	RenderTexture temp = RenderTextureUtility::GetTemporary(RenderTextureFormat::Rgb, Screen::GetWidth(), Screen::GetHeight());
 
 	p_->materials.ssao->SetPass(0);
-	Graphics::instance()->Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
+	Graphics::Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
 
 	p_->materials.ssao->SetPass(1);
-	Graphics::instance()->Blit(temp, sharedSSAOTexture, p_->materials.ssao, p_->normalizedRect);
+	Graphics::Blit(temp, sharedSSAOTexture, p_->materials.ssao, p_->normalizedRect);
 
 	ssaoSample->Stop();
 	OutputSample(ssaoSample);
@@ -219,9 +219,9 @@ RenderableTraits::RenderableTraits(RenderingParameters* p) : p_(p) {
 
 	InitializeSSAOKernel();
 
-	forward_pass = Profiler::instance()->CreateSample();
-	push_renderables = Profiler::instance()->CreateSample();
-	get_renderable_gameObjects = Profiler::instance()->CreateSample();
+	forward_pass = Profiler::CreateSample();
+	push_renderables = Profiler::CreateSample();
+	get_renderable_gameObjects = Profiler::CreateSample();
 }
 
 RenderableTraits::~RenderableTraits() {
@@ -230,9 +230,9 @@ RenderableTraits::~RenderableTraits() {
 	MEMORY_DELETE(pipelines_.rendering);
 	MEMORY_DELETE(pipelines_.ssaoTraversal);
 
-	Profiler::instance()->ReleaseSample(forward_pass);
-	Profiler::instance()->ReleaseSample(push_renderables);
-	Profiler::instance()->ReleaseSample(get_renderable_gameObjects);
+	Profiler::ReleaseSample(forward_pass);
+	Profiler::ReleaseSample(push_renderables);
+	Profiler::ReleaseSample(get_renderable_gameObjects);
 }
 
 void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices) {
@@ -255,7 +255,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 		}
 	}
 
-	if (Graphics::instance()->GetAmbientOcclusionEnabled()) {
+	if (Graphics::GetAmbientOcclusionEnabled()) {
 		*pipelines_.ssaoTraversal = *pipelines_.shadow;
 		SSAOPass(pipelines_.ssaoTraversal);
 		depthPass = true;
@@ -318,7 +318,7 @@ void RenderableTraits::InitializeDeferredRender() {
 
 	deferredMaterial_ = NewMaterial();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
-	deferredMaterial_->SetShader(Resources::instance()->FindShader("builtin/gbuffer"));*/
+	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
 }
 
 void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& gameObjects) {
@@ -337,11 +337,11 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 }
 
 void RenderableTraits::RenderSkybox(Pipeline* pl) {
-	Material skybox = Environment::instance()->GetSkybox();
+	Material skybox = Environment::GetSkybox();
 	if (skybox) {
 		glm::mat4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = glm::vec4(0, 0, 0, 1);
-		pl->AddRenderable(Resources::instance()->GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
+		pl->AddRenderable(Resources::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
 	}
 }
 
@@ -417,7 +417,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& 
 }
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
-	std::vector<Light> lights = World::instance()->GetComponents<ILight>();
+	std::vector<Light> lights = World::GetComponents<ILight>();
 	if (lights.empty()) {
 		return;
 	}
@@ -434,7 +434,7 @@ void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forward
 
 void RenderableTraits::RenderDecals(Pipeline* pl) {
 	std::vector<Decal> decals;
-	World::instance()->GetDecals(decals);
+	World::GetDecals(decals);
 
 	for (Decal& d : decals) {
 		pl->AddRenderable(d.mesh, d.material, 0, glm::mat4(1));

@@ -8,37 +8,50 @@
 #include "tools/string.h"
 
 class Engine_Wrapper {
-	static int EngineInstance(lua_State* L) {
-		return Lua::reference<Engine>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Engine* _p = Engine::instance();
+		Engine* _p = Lua::callerPtr<Engine>(L);
 
 		lua_pushstring(L, String::Format("Engine@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// bool Startup(uint width, uint height)
-	static int Startup(lua_State* L) {
-		Engine* _p = Engine::instance();
-		uint height = Lua::get<uint>(L, 3);
-		uint width = Lua::get<uint>(L, 2);
-		
-		return Lua::push(L, _p->Startup(width, height));
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Engine");
+		return 1;
 	}
 
-	// void Shutdown()
+	static int EngineStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "Startup", Startup },
+			{ "Shutdown", Shutdown },
+			{ "Update", Update },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static bool Startup(uint width, uint height)
+	static int Startup(lua_State* L) {
+		uint height = Lua::get<uint>(L, 2);
+		uint width = Lua::get<uint>(L, 1);
+		
+		return Lua::push(L, Engine::Startup(width, height));
+	}
+
+	// static void Shutdown()
 	static int Shutdown(lua_State* L) {
-		Engine* _p = Engine::instance();
-		_p->Shutdown();
+		Engine::Shutdown();
 		return 0;
 	}
 
-	// void Update()
+	// static void Update()
 	static int Update(lua_State* L) {
-		Engine* _p = Engine::instance();
-		_p->Update();
+		Engine::Update();
 		return 0;
 	}
 
@@ -48,12 +61,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "EngineInstance", EngineInstance });
+		fields.push_back(luaL_Reg{ "Engine", EngineStatic });
 
 		luaL_Reg metalib[] = {
-			{ "Startup", Startup },
-			{ "Shutdown", Shutdown },
-			{ "Update", Update },
+			{ "__gc", Lua::deletePtr<Engine> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

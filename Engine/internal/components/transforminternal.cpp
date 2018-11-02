@@ -56,7 +56,7 @@ TransformInternal::~TransformInternal() {
 }
 
 bool TransformInternal::IsAttachedToScene(Transform self) {
-	for (; self && self != World::instance()->GetRootTransform(); self = self->GetParent())
+	for (; self && self != World::GetRootTransform(); self = self->GetParent())
 		;
 
 	return !!self;
@@ -70,7 +70,7 @@ void TransformInternal::AddChild(Transform self, Transform child) {
 
 void TransformInternal::RemoveChild(Transform child) {
 	if (std::find(children_.begin(), children_.end(), child) != children_.end()) {
-		child->SetParent(World::instance()->GetRootTransform());
+		child->SetParent(World::GetRootTransform());
 	}
 }
 
@@ -139,7 +139,7 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(2, 0);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -155,7 +155,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(0, 0);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -173,7 +173,7 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 0);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -190,7 +190,7 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 0);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -311,7 +311,7 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(2, 1);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -326,7 +326,7 @@ void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(0, 1);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -342,7 +342,7 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 1);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -358,7 +358,7 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
 		e->prs = Math::MakeDword(1, 1);
 		e->go = gameObject_.lock();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 
@@ -558,7 +558,7 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 }
 
 bool TransformInternal::IsNullOrRoot(Transform transform) {
-	return !transform || transform == World::instance()->GetRootTransform();
+	return !transform || transform == World::GetRootTransform();
 }
 
 Transform TransformInternal::FindDirectChild(const std::string& name) {
@@ -601,7 +601,7 @@ void TransformInternal::ChangeParent(Transform self, Transform oldParent, Transf
 	if (IsAttachedToScene(self)) {
 		GameObjectParentChangedEventPtr e = NewWorldEvent<GameObjectParentChangedEventPtr>();
 		e->go = self->GetGameObject();
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 

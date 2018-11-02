@@ -45,9 +45,9 @@ void MaterialEditor::drawShaderSelector(Material material) {
 }
 
 void MaterialEditor::replaceShader(Material material, const std::string& fullShaderPath) {
-	std::string shaderName = fullShaderPath.substr(Resources::instance()->GetShaderDirectory().length());
+	std::string shaderName = fullShaderPath.substr(Resources::GetShaderDirectory().length());
 	shaderName = shaderName.substr(0, shaderName.length() - strlen(".shader"));
-	Shader shader = Resources::instance()->FindShader(shaderName);
+	Shader shader = Resources::FindShader(shaderName);
 	if (shader) {
 		material->SetShader(shader);
 	}
@@ -111,9 +111,9 @@ void MaterialEditor::drawTextureProperty(Material material, const Property* p) {
 
 void MaterialEditor::drawTexture2DSelector(const Property* p, Texture2D texture2D) {
 	if (GUI::ImageButton(p->name.c_str(), texture2D->GetNativePointer())) {
-		QString path = QFileDialog::getOpenFileName(nullptr, "Select Texture", Resources::instance()->GetTextureDirectory().c_str(), "*.jpg;;*.png");
+		QString path = QFileDialog::getOpenFileName(nullptr, "Select Texture", Resources::GetTextureDirectory().c_str(), "*.jpg;;*.png");
 		if (!path.isEmpty()) {
-			path = QDir(Resources::instance()->GetTextureDirectory().c_str()).relativeFilePath(path);
+			path = QDir(Resources::GetTextureDirectory().c_str()).relativeFilePath(path);
 			commands_.push_back(new LoadTextureCommand(texture2D, path));
 		}
 	}

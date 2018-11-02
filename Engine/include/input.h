@@ -1,10 +1,11 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include "tools/enum.h"
 #include "tools/singleton.h"
 #include "frameeventlistener.h"
 
-enum class KeyCode {
+BETTER_ENUM(KeyCode, int,
 	A,
 	B,
 	C,
@@ -45,10 +46,18 @@ enum class KeyCode {
 	F11,
 	F12,
 
-	Space,
+	KeypadEnter,
 
-	_Count,
-};
+	Space,
+	Return,
+	Backspace,
+	Tab,
+	Escape,
+	UpArrow,
+	DownArrow,
+	LeftArrow,
+	RightArrow
+)
 
 class SUEDE_API InputInternal : public FrameEventListener {
 public:
@@ -69,28 +78,28 @@ public:
 	virtual bool GetMouseButtonUp(int button) = 0;
 	virtual bool GetMouseButtonDown(int button) = 0;
 
-	virtual int GetMouseWheelDelta() = 0;
+	virtual float GetMouseWheelDelta() = 0;
 	virtual glm::ivec2 GetMousePosition() = 0;
 };
 
-class SUEDE_API Input : public Singleton2<Input> {
+class SUEDE_API Input : private Singleton2<Input> {
 	friend class Singleton<Input>;
 	SUEDE_DECLARE_IMPLEMENTATION(Input)
 
 public:
-	void SetImplementation(InputInternal* impl);
+	static void SetDelegate(InputInternal* impl);
 
 public:
-	bool GetKey(KeyCode key);
-	bool GetKeyUp(KeyCode key);
-	bool GetKeyDown(KeyCode key);
+	static bool GetKey(KeyCode key);
+	static bool GetKeyUp(KeyCode key);
+	static bool GetKeyDown(KeyCode key);
 
-	bool GetMouseButton(int button);
-	bool GetMouseButtonUp(int button);
-	bool GetMouseButtonDown(int button);
+	static bool GetMouseButton(int button);
+	static bool GetMouseButtonUp(int button);
+	static bool GetMouseButtonDown(int button);
 
-	int GetMouseWheelDelta();
-	glm::ivec2 GetMousePosition();
+	static float GetMouseWheelDelta();
+	static glm::ivec2 GetMousePosition();
 
 private:
 	Input();

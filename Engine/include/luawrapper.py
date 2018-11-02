@@ -20,8 +20,7 @@ kGenericContainer = "std::vector";
 
 kEnumPattern = re.compile(r"enum\s+class\s+([a-zA-Z0-9_]+)");
 kBetterEnumPattern = re.compile(r"BETTER_ENUM\(([a-zA-Z0-9_]+)");
-kClassPattern = re.compile(r"\s*(struct|class)\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(?:public )?([A-Za-z0-9_:<>]*)\s*\{");
-# old kMethodPattern = re.compile(r"\s*(static|virtual)?\s*((?!return)[A-Za-z0-9:<>_\*]+)\s+([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
+kClassPattern = re.compile(r"\s*(struct|class)\s+([A-Z_]+\s+)?\s*([A-Za-z0-9_]+)\s*\:?\s*(public|private)?\s*([A-Za-z0-9_:<>]*)\s*\{");
 kMethodPattern = re.compile(r"\s*(static|virtual)?\s*((?!return)[A-Za-z0-9:<>_\*]*?)\s*([A-Za-z0-9]+)\s*\((.*?)\)\s*(?:const)?\s*(=\s*0)?[;\{]\s*");
 
 kExcludeFiles = [
@@ -69,6 +68,19 @@ kNotNewables = [
 	"ComponentUtility",
 	"GeometryUtility",
 	"RenderTextureUtility",
+	
+	"Engine",
+	"Environment",
+	"Gizmos",
+	"Graphics",
+	"Input",
+	"Profiler",
+	"Resources",
+	"Screen",
+	"Statistics",
+	"TagManager",
+	"Time",
+	"World",
 
 	"IObject",
 	"IComponent",
@@ -360,7 +372,7 @@ class Wrapper:
 			self._writeOverloadConstructors(className, interface);
 			self._endOverloadConstructor();
 			
-	def _formatExactArguments(self, method, maxArgs, argstart = 2):
+	def _formatExactArguments(self, method, argstart, maxArgs):
 		code = [];
 		pps = nargs = min(maxArgs, len(method.Arguments()));
 		for i in range(nargs):
@@ -384,8 +396,8 @@ class Wrapper:
 			
 		return code;
 		
-	def _formatMethodCall(self, method, className, sharedPtr, maxArgs = float("inf"), ntabs = 2):
-		code = self._formatExactArguments(method, maxArgs);
+	def _formatMethodCall(self, method, className, sharedPtr, argstart, maxArgs = float("inf"), ntabs = 2):
+		code = self._formatExactArguments(method, argstart, maxArgs);
 		call = self._callMethod(className, method, sharedPtr, maxArgs);
 		if min(maxArgs, len(method.Arguments())) > 0: code.append("\n");
 		
@@ -419,7 +431,7 @@ class Wrapper:
 		arglist = None;
 		
 		if method:
-			code.extend(["\t" + t for t in self._formatExactArguments(method, maxArgs, 1)]);
+			code.extend(["\t" + t for t in self._formatExactArguments(method, 1, maxArgs)]);
 			arglist = self._argumentList(method, maxArgs);
 			if min(maxArgs, len(method.Arguments())) > 0: code.append("\n");
 		
@@ -439,7 +451,7 @@ class Wrapper:
 	def _beginCaller(self, static, methodName, className, instance, sharedPtr):
 		if static:
 			self._w(
-'''	static int %s(lua_State* L) {''' % methodName);
+'''	static int %s(lua_State* L) {\n''' % methodName);
 		elif instance:
 			self._w(
 '''	static int %s(lua_State* L) {
@@ -479,7 +491,7 @@ class Wrapper:
 		overloads = interface.Overloads(methodName);
 		# no overloads. do not check argument type for performance.
 		if len(overloads) == 1 and (len(overloads[0].Arguments()) == 0 or not overloads[0].Arguments()[-1].optional):
-			return self._ws(self._formatMethodCall(overloads[0], className, sharedPtr));
+			return self._ws(self._formatMethodCall(overloads[0], className, sharedPtr, overloads[0].IsStatic() and 1 or 2));
 
 		for method in overloads:
 			n = len(method.Arguments());
@@ -490,7 +502,7 @@ class Wrapper:
 				if i != 0:
 					self._w("<" + self._argumentsTypes(method.Arguments(), i) + ">");
 				self._w('''(L, 2)) {\n''');
-				self._ws(self._formatMethodCall(method, className, sharedPtr, i, 3));
+				self._ws(self._formatMethodCall(method, className, sharedPtr, overloads[0].IsStatic() and 1 or 2, i, 3));
 				self._w(
 '''		}\n''');
 
@@ -556,8 +568,8 @@ class Wrapper:
 
 		if interface.HasStatic():
 			self._beginCaller(True, "ToStringStatic", className, instance, sharedPtr);
-			self._w('''
-		lua_pushstring(L, "static %s");
+			self._w(
+'''		lua_pushstring(L, "static %s");
 		return 1;\n''' % (className));
 			self._endCaller();
 
@@ -634,13 +646,15 @@ class Wrapper:
 				self._w('''
 			{ "%s", %s },''' % (method.Name(), method.Name()));
 
+		baseMetatable = baseName and ("TypeID<%s>::string()" % self._wrapClassName(baseName)[1]) or "nullptr";
+		
 		self._w('''
 			{ nullptr, nullptr }
 		};
 
 		Lua::initMetatable<%s>(L, metalib, %s);
 	}
-''' % (className, (baseName and not instance) and ("TypeID<%s>::string()" % self._wrapClassName(baseName)[1])  or "nullptr"));
+''' % (className, baseMetatable));
 
 	def _wrapClass(self, className, baseName, defination, instance, struct):
 		interface = Interface(className, defination, struct);
@@ -711,11 +725,17 @@ class Environment:
 				body.append(line);
 			else:
 				if name: classes.append((name, base, body, instance, struct));
-				struct = "struct" in m.group(0);
+				struct = "struct" in m.group(1);
 				name = m.group(3);
-				base = m.group(4);
-				if "std::" in base: base = "";
-				instance = ("Singleton" in line);
+				base = m.group(5);
+
+				if "std::enable_shared_from_this" in base: base = "";
+
+				# protected or private inheritance, base class is inaccessible.
+				if ("public" not in (m.group(4) or "")) and (not struct): base = "";
+
+				instance = ("Singleton" in base);
+
 				if not self._classWrapable(name): name = "";
 				body = [];
 

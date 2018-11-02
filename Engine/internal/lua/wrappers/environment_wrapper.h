@@ -8,86 +8,22 @@
 #include "tools/string.h"
 
 class Environment_Wrapper {
-	static int EnvironmentInstance(lua_State* L) {
-		return Lua::reference<Environment>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Environment* _p = Environment::instance();
+		Environment* _p = Lua::callerPtr<Environment>(L);
 
 		lua_pushstring(L, String::Format("Environment@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// void SetSkybox(Material value)
-	static int SetSkybox(lua_State* L) {
-		Environment* _p = Environment::instance();
-		Material value = Lua::get<Material>(L, 2);
-		
-		_p->SetSkybox(value);
-		return 0;
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Environment");
+		return 1;
 	}
 
-	// Material GetSkybox()
-	static int GetSkybox(lua_State* L) {
-		Environment* _p = Environment::instance();
-		return Lua::push(L, _p->GetSkybox());
-	}
+	static int EnvironmentStatic(lua_State* L) {
+		lua_newtable(L);
 
-	// void SetAmbientColor(const Color& value)
-	static int SetAmbientColor(lua_State* L) {
-		Environment* _p = Environment::instance();
-		Color value = Lua::get<Color>(L, 2);
-		
-		_p->SetAmbientColor(value);
-		return 0;
-	}
-
-	// Color GetAmbientColor()
-	static int GetAmbientColor(lua_State* L) {
-		Environment* _p = Environment::instance();
-		return Lua::push(L, _p->GetAmbientColor());
-	}
-
-	// void SetFogColor(const Color& value)
-	static int SetFogColor(lua_State* L) {
-		Environment* _p = Environment::instance();
-		Color value = Lua::get<Color>(L, 2);
-		
-		_p->SetFogColor(value);
-		return 0;
-	}
-
-	// Color GetFogColor()
-	static int GetFogColor(lua_State* L) {
-		Environment* _p = Environment::instance();
-		return Lua::push(L, _p->GetFogColor());
-	}
-
-	// void SetFogDensity(float value)
-	static int SetFogDensity(lua_State* L) {
-		Environment* _p = Environment::instance();
-		float value = Lua::get<float>(L, 2);
-		
-		_p->SetFogDensity(value);
-		return 0;
-	}
-
-	// float GetFogDensity()
-	static int GetFogDensity(lua_State* L) {
-		Environment* _p = Environment::instance();
-		return Lua::push(L, _p->GetFogDensity());
-	}
-
-public:
-	static void create(lua_State* L) {
-		Lua::createMetatable<Environment>(L);
-	}
-	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "EnvironmentInstance", EnvironmentInstance });
-
-		luaL_Reg metalib[] = {
+		luaL_Reg funcs[] = {
 			{ "SetSkybox", SetSkybox },
 			{ "GetSkybox", GetSkybox },
 			{ "SetAmbientColor", SetAmbientColor },
@@ -96,6 +32,77 @@ public:
 			{ "GetFogColor", GetFogColor },
 			{ "SetFogDensity", SetFogDensity },
 			{ "GetFogDensity", GetFogDensity },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static void SetSkybox(Material value)
+	static int SetSkybox(lua_State* L) {
+		Material value = Lua::get<Material>(L, 1);
+		
+		Environment::SetSkybox(value);
+		return 0;
+	}
+
+	// static Material GetSkybox()
+	static int GetSkybox(lua_State* L) {
+		return Lua::push(L, Environment::GetSkybox());
+	}
+
+	// static void SetAmbientColor(const Color& value)
+	static int SetAmbientColor(lua_State* L) {
+		Color value = Lua::get<Color>(L, 1);
+		
+		Environment::SetAmbientColor(value);
+		return 0;
+	}
+
+	// static Color GetAmbientColor()
+	static int GetAmbientColor(lua_State* L) {
+		return Lua::push(L, Environment::GetAmbientColor());
+	}
+
+	// static void SetFogColor(const Color& value)
+	static int SetFogColor(lua_State* L) {
+		Color value = Lua::get<Color>(L, 1);
+		
+		Environment::SetFogColor(value);
+		return 0;
+	}
+
+	// static Color GetFogColor()
+	static int GetFogColor(lua_State* L) {
+		return Lua::push(L, Environment::GetFogColor());
+	}
+
+	// static void SetFogDensity(float value)
+	static int SetFogDensity(lua_State* L) {
+		float value = Lua::get<float>(L, 1);
+		
+		Environment::SetFogDensity(value);
+		return 0;
+	}
+
+	// static float GetFogDensity()
+	static int GetFogDensity(lua_State* L) {
+		return Lua::push(L, Environment::GetFogDensity());
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<Environment>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		fields.push_back(luaL_Reg{ "Environment", EnvironmentStatic });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<Environment> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

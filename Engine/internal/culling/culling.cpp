@@ -14,14 +14,14 @@ void Culling::run() {
 	for (; !stopped_;) {
 		if (working_) {
 			gameObjects_.clear();
-			uint64 start = Profiler::instance()->GetTimeStamp();
-			World::instance()->CullingUpdate();
+			uint64 start = Profiler::GetTimeStamp();
+			World::CullingUpdate();
 
-			World::instance()->WalkGameObjectHierarchy(this);
+			World::WalkGameObjectHierarchy(this);
 			listener_->OnCullingFinished();
 
-			Statistics::instance()->SetCullingElapsed(
-				Profiler::instance()->TimeStampToSeconds(Profiler::instance()->GetTimeStamp() - start)
+			Statistics::SetCullingElapsed(
+				Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 			);
 
 			working_ = false;

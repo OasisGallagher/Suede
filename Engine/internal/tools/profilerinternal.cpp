@@ -11,10 +11,10 @@ void Sample::Reset() { _suede_dptr()->Reset(); }
 double Sample::GetElapsedSeconds() const { return _suede_dptr()->GetElapsedSeconds(); }
 
 Profiler::Profiler() : Singleton2<Profiler>(MEMORY_NEW(ProfilerInternal), Memory::DeleteRaw<ProfilerInternal>) {}
-Sample* Profiler::CreateSample() { return _suede_dptr()->CreateSample(); }
-void Profiler::ReleaseSample(Sample* value) { _suede_dptr()->ReleaseSample(value); }
-uint64 Profiler::GetTimeStamp() { return _suede_dptr()->GetTimeStamp(); }
-double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dptr()->TimeStampToSeconds(timeStamp); }
+Sample* Profiler::CreateSample() { return _suede_dinstance()->CreateSample(); }
+void Profiler::ReleaseSample(Sample* value) { _suede_dinstance()->ReleaseSample(value); }
+uint64 Profiler::GetTimeStamp() { return _suede_dinstance()->GetTimeStamp(); }
+double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dinstance()->TimeStampToSeconds(timeStamp); }
 
 ProfilerInternal::ProfilerInternal() : samples_(MaxProfilterSamples) {
 	LARGE_INTEGER frequency;
@@ -26,7 +26,7 @@ ProfilerInternal::ProfilerInternal() : samples_(MaxProfilterSamples) {
 		Debug::LogError("failed to initialize ProfilerInternal: %d.", GetLastError());
 	}
 
-	Engine::instance()->AddFrameEventListener(this);
+	Engine::AddFrameEventListener(this);
 }
 
 ProfilerInternal::~ProfilerInternal() {
@@ -63,7 +63,7 @@ uint64 ProfilerInternal::GetTimeStamp() {
 
 void SampleInternal::Start() {
 	started_ = true;
-	timeStamp_ = Profiler::instance()->GetTimeStamp();
+	timeStamp_ = Profiler::GetTimeStamp();
 }
 
 void SampleInternal::Restart() {
@@ -73,7 +73,7 @@ void SampleInternal::Restart() {
 
 void SampleInternal::Stop() {
 	started_ = false;
-	elapsed_ += (Profiler::instance()->GetTimeStamp() - timeStamp_);
+	elapsed_ += (Profiler::GetTimeStamp() - timeStamp_);
 }
 
 void SampleInternal::Reset() {
@@ -87,5 +87,5 @@ double SampleInternal::GetElapsedSeconds() const {
 		return 0.0;
 	}
 
-	return Profiler::instance()->TimeStampToSeconds(elapsed_);
+	return Profiler::TimeStampToSeconds(elapsed_);
 }

@@ -95,18 +95,18 @@ Object CreateComponent() { return std::make_shared<T>(); }
 void Game::awake() {
 	REGISTER_COMPONENT(CameraController);
 
-	ui_->shadingMode->setEnums(+Graphics::instance()->GetShadingMode());
+	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
 	createScene();
 
-	input_ = new QInput(this);
-	Input::instance()->SetImplementation(input_);
+	input_ = new QtInputDelegate(this);
+	Input::SetDelegate(input_);
 }
 
 void Game::tick() {
 }
 
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
-	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	root->GetTransform()->SetParent(World::GetRootTransform());
 	root->SetName(path);
 
 	if (path == manFbxPath) {
@@ -144,7 +144,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 
 		GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
 		Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
-		material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
+		material->SetShader(Resources::FindShader("builtin/lit_bumped_texture"));
 
 		Texture2D diffuse = NewTexture2D();
 		diffuse->Create("bumped/diffuse.jpg");
@@ -161,7 +161,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		GameObject target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
 
 		for (Material material : target->GetComponent<IMeshRenderer>()->GetMaterials()) {
-			//material->SetShader(Resources::instance()->FindShader("builtin/normal_visualizer"));
+			//material->SetShader(Resources::FindShader("builtin/normal_visualizer"));
 		}
 	}
 }
@@ -204,7 +204,7 @@ void Game::updateStatPosition() {
 }
 
 void Game::onShadingModeChanged(const QString& str) {
-	Graphics::instance()->SetShadingMode(ShadingMode::from_string(str.toLatin1()));
+	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {
@@ -241,7 +241,7 @@ void Game::createScene() {
 
 	Light light = lightGameObject->AddComponent<ILight>();
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
-	light->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	light->GetTransform()->SetParent(World::GetRootTransform());
 
 	/*World::instance()->ImportTo(light, lightModelPath, this);*/
 
@@ -250,7 +250,7 @@ void Game::createScene() {
 
 	Camera camera = cameraGameObject->AddComponent<ICamera>();
 	CameraUtility::SetMain(camera);
-	camera->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	camera->GetTransform()->SetParent(World::GetRootTransform());
 
 	/*RenderTexture targetTexture = NewRenderTexture();
 	targetTexture->Create(RenderTextureFormat::Rgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
@@ -288,7 +288,7 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
 
-	Graphics::instance()->SetAmbientOcclusionEnabled(true);
+	Graphics::SetAmbientOcclusionEnabled(true);
 
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
@@ -317,7 +317,7 @@ void Game::createScene() {
 	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
 
 	Material skybox = NewMaterial();
-	skybox->SetShader(Resources::instance()->FindShader("builtin/skybox"));
+	skybox->SetShader(Resources::FindShader("builtin/skybox"));
 
 	TextureCube cube = NewTextureCube();
 
@@ -333,7 +333,7 @@ void Game::createScene() {
 	cube->Load(faces);
 	skybox->SetTexture(BuiltinProperties::MainTexture, cube);
 	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
-	Environment::instance()->SetSkybox(skybox);
+	Environment::SetSkybox(skybox);
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
@@ -425,7 +425,7 @@ void Game::createScene() {
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
-	Shader shader = Resources::instance()->FindShader("xray");
+	Shader shader = Resources::FindShader("xray");
 	materail->SetShader(shader);
 #endif
 

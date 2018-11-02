@@ -5,16 +5,21 @@
 class SUEDE_API PimplIdiom {
 public:
 	PimplIdiom(void* d, void(*destroyer)(void*)) : d_(d), destroyer_(destroyer) {}
-	virtual ~PimplIdiom() { destroyer_(d_); }
+	virtual ~PimplIdiom() { _destroy(); }
 
 public: // internal ptr helpers
 	template <class T>
+	T* _rptr_impl() const { return (T*)d_; }
+
+	template <class T>
 	T* _rptr_impl(T*) const { return (T*)d_; }
+
 	bool _d_equals_impl(void* d) { return d_ == d; }
 
 protected:
 	template <class T>
 	typename T::Internal* _dptr_impl(T*) const { return (T::Internal*)d_; }
+	void _destroy() { destroyer_(d_); d_ = nullptr; }
 
 protected:
 	void* d_;
@@ -28,6 +33,8 @@ protected:
 /** internal macro helpers */
 // internal implementation ptr of this.
 #define _suede_dptr()		_dptr_impl(this)
+
+#define _suede_dinstance()	instance()->_dptr_impl(instance())
 
 // implementation equals.
 #define _suede_d_equals(o)	(o).get()->_d_equals_impl(this)

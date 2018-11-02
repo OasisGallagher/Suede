@@ -4,15 +4,17 @@
 #include "memory/memory.h"
 
 Statistics::Statistics() : Singleton2<Statistics>(MEMORY_NEW(StatisticsInternal), Memory::DeleteRaw<StatisticsInternal>) {}
-void Statistics::AddTriangles(uint n) { _suede_dptr()->AddTriangles(n); }
-void Statistics::AddDrawcalls(uint n) { _suede_dptr()->AddDrawcalls(n); }
-uint Statistics::GetTriangles() { return _suede_dptr()->GetTriangles(); }
-uint Statistics::GetDrawcalls() { return _suede_dptr()->GetDrawcalls(); }
-float Statistics::GetFrameRate() { return _suede_dptr()->GetFrameRate(); }
-void Statistics::SetCullingElapsed(double value) { _suede_dptr()->SetCullingElapsed(value); }
-void Statistics::SetRenderingElapsed(double value) { _suede_dptr()->SetRenderingElapsed(value); }
-double Statistics::GetCullingElapsed() { return _suede_dptr()->GetCullingElapsed(); }
-double Statistics::GetRenderingElapsed() { return _suede_dptr()->GetRenderingElapsed(); }
+void Statistics::AddTriangles(uint n) { _suede_dinstance()->AddTriangles(n); }
+void Statistics::AddDrawcalls(uint n) { _suede_dinstance()->AddDrawcalls(n); }
+uint Statistics::GetTriangles() { return _suede_dinstance()->GetTriangles(); }
+uint Statistics::GetDrawcalls() { return _suede_dinstance()->GetDrawcalls(); }
+float Statistics::GetFrameRate() { return _suede_dinstance()->GetFrameRate(); }
+void Statistics::SetScriptElapsed(double value) { _suede_dinstance()->SetScriptElapsed(value); }
+double Statistics::GetScripeElapsed() { return _suede_dinstance()->GetScripeElapsed(); }
+void Statistics::SetCullingElapsed(double value) { _suede_dinstance()->SetCullingElapsed(value); }
+double Statistics::GetCullingElapsed() { return _suede_dinstance()->GetCullingElapsed(); }
+void Statistics::SetRenderingElapsed(double value) { _suede_dinstance()->SetRenderingElapsed(value); }
+double Statistics::GetRenderingElapsed() { return _suede_dinstance()->GetRenderingElapsed(); }
 
 #define lastFrameStats	stats_[0]
 #define thisFrameStats	stats_[1]
@@ -22,7 +24,7 @@ StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frame
 	memset(&lastFrameStats, 0, sizeof(lastFrameStats));
 	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
 
-	Engine::instance()->AddFrameEventListener(this);
+	Engine::AddFrameEventListener(this);
 }
 
 void StatisticsInternal::OnFrameEnter() {
@@ -30,7 +32,7 @@ void StatisticsInternal::OnFrameEnter() {
 	thisFrameStats.Reset();
 
 	if (timeCounter_ < FPS_REFRESH_TIME) {
-		timeCounter_ += Time::instance()->GetDeltaTime();
+		timeCounter_ += Time::GetDeltaTime();
 		frameCounter_++;
 	}
 	else {
@@ -38,6 +40,14 @@ void StatisticsInternal::OnFrameEnter() {
 		frameCounter_ = 0;
 		timeCounter_ = 0.0f;
 	}
+}
+
+void StatisticsInternal::SetScriptElapsed(double value) {
+	thisFrameStats.scriptElapsed = value;
+}
+
+double StatisticsInternal::GetScripeElapsed() {
+	return thisFrameStats.scriptElapsed;
 }
 
 void StatisticsInternal::SetCullingElapsed(double value) {

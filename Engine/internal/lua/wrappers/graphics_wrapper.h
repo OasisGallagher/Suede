@@ -8,130 +8,143 @@
 #include "tools/string.h"
 
 class Graphics_Wrapper {
-	static int GraphicsInstance(lua_State* L) {
-		return Lua::reference<Graphics>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Graphics* _p = Graphics::instance();
+		Graphics* _p = Lua::callerPtr<Graphics>(L);
 
 		lua_pushstring(L, String::Format("Graphics@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// void SetShadingMode(ShadingMode value)
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Graphics");
+		return 1;
+	}
+
+	static int GraphicsStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "SetShadingMode", SetShadingMode },
+			{ "GetShadingMode", GetShadingMode },
+			{ "SetAmbientOcclusionEnabled", SetAmbientOcclusionEnabled },
+			{ "GetAmbientOcclusionEnabled", GetAmbientOcclusionEnabled },
+			{ "SetRenderTarget", SetRenderTarget },
+			{ "Draw", Draw },
+			{ "Blit", Blit },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static void SetShadingMode(ShadingMode value)
 	static int SetShadingMode(lua_State* L) {
-		Graphics* _p = Graphics::instance();
-		ShadingMode value = Lua::get<ShadingMode>(L, 2);
+		ShadingMode value = Lua::get<ShadingMode>(L, 1);
 		
-		_p->SetShadingMode(value);
+		Graphics::SetShadingMode(value);
 		return 0;
 	}
 
-	// ShadingMode GetShadingMode()
+	// static ShadingMode GetShadingMode()
 	static int GetShadingMode(lua_State* L) {
-		Graphics* _p = Graphics::instance();
-		return Lua::push(L, _p->GetShadingMode());
+		return Lua::push(L, Graphics::GetShadingMode());
 	}
 
-	// void SetAmbientOcclusionEnabled(bool value)
+	// static void SetAmbientOcclusionEnabled(bool value)
 	static int SetAmbientOcclusionEnabled(lua_State* L) {
-		Graphics* _p = Graphics::instance();
-		bool value = Lua::get<bool>(L, 2);
+		bool value = Lua::get<bool>(L, 1);
 		
-		_p->SetAmbientOcclusionEnabled(value);
+		Graphics::SetAmbientOcclusionEnabled(value);
 		return 0;
 	}
 
-	// bool GetAmbientOcclusionEnabled()
+	// static bool GetAmbientOcclusionEnabled()
 	static int GetAmbientOcclusionEnabled(lua_State* L) {
-		Graphics* _p = Graphics::instance();
-		return Lua::push(L, _p->GetAmbientOcclusionEnabled());
+		return Lua::push(L, Graphics::GetAmbientOcclusionEnabled());
 	}
 
-	// void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer)
+	// static void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer)
 	static int SetRenderTarget(lua_State* L) {
-		Graphics* _p = Graphics::instance();
-		uint depthBuffer = Lua::get<uint>(L, 3);
-		std::vector<uint> colorBuffers = Lua::getList<uint>(L, 2);
+		uint depthBuffer = Lua::get<uint>(L, 2);
+		std::vector<uint> colorBuffers = Lua::getList<uint>(L, 1);
 		
-		_p->SetRenderTarget(colorBuffers, depthBuffer);
+		Graphics::SetRenderTarget(colorBuffers, depthBuffer);
 		return 0;
 	}
 
-	// void Draw(Mesh mesh, Material material)
+	// static void Draw(Mesh mesh, Material material)
 	static int Draw(lua_State* L) {
-		Graphics* _p = Graphics::instance();
-		Material material = Lua::get<Material>(L, 3);
-		Mesh mesh = Lua::get<Mesh>(L, 2);
+		Material material = Lua::get<Material>(L, 2);
+		Mesh mesh = Lua::get<Mesh>(L, 1);
 		
-		_p->Draw(mesh, material);
+		Graphics::Draw(mesh, material);
 		return 0;
 	}
 
-	// void Blit(Texture src, RenderTexture dest)
-	// void Blit(Texture src, RenderTexture dest, const Rect& rect)
-	// void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect)
-	// void Blit(Texture src, RenderTexture dest, Material material)
-	// void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect)
-	// void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect)
+	// static void Blit(Texture src, RenderTexture dest)
+	// static void Blit(Texture src, RenderTexture dest, const Rect& rect)
+	// static void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect)
+	// static void Blit(Texture src, RenderTexture dest, Material material)
+	// static void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect)
+	// static void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect)
 	static int Blit(lua_State* L) {
-		Graphics* _p = Graphics::instance();
 
 		if (Lua::checkArguments<Texture, RenderTexture>(L, 2)) {
-			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-			Texture src = Lua::get<Texture>(L, 2);
+			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
+			Texture src = Lua::get<Texture>(L, 1);
 			
-			_p->Blit(src, dest);
+			Graphics::Blit(src, dest);
 			return 0;
 		}
 
 		if (Lua::checkArguments<Texture, RenderTexture, Rect>(L, 2)) {
-			Rect rect = Lua::get<Rect>(L, 4);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-			Texture src = Lua::get<Texture>(L, 2);
+			Rect rect = Lua::get<Rect>(L, 3);
+			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
+			Texture src = Lua::get<Texture>(L, 1);
 			
-			_p->Blit(src, dest, rect);
+			Graphics::Blit(src, dest, rect);
 			return 0;
 		}
 
 		if (Lua::checkArguments<Texture, RenderTexture, Rect, Rect>(L, 2)) {
-			Rect destRect = Lua::get<Rect>(L, 5);
-			Rect srcRect = Lua::get<Rect>(L, 4);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-			Texture src = Lua::get<Texture>(L, 2);
+			Rect destRect = Lua::get<Rect>(L, 4);
+			Rect srcRect = Lua::get<Rect>(L, 3);
+			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
+			Texture src = Lua::get<Texture>(L, 1);
 			
-			_p->Blit(src, dest, srcRect, destRect);
+			Graphics::Blit(src, dest, srcRect, destRect);
 			return 0;
 		}
 
 		if (Lua::checkArguments<Texture, RenderTexture, Material>(L, 2)) {
-			Material material = Lua::get<Material>(L, 4);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-			Texture src = Lua::get<Texture>(L, 2);
+			Material material = Lua::get<Material>(L, 3);
+			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
+			Texture src = Lua::get<Texture>(L, 1);
 			
-			_p->Blit(src, dest, material);
+			Graphics::Blit(src, dest, material);
 			return 0;
 		}
 
 		if (Lua::checkArguments<Texture, RenderTexture, Material, Rect>(L, 2)) {
-			Rect rect = Lua::get<Rect>(L, 5);
-			Material material = Lua::get<Material>(L, 4);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-			Texture src = Lua::get<Texture>(L, 2);
+			Rect rect = Lua::get<Rect>(L, 4);
+			Material material = Lua::get<Material>(L, 3);
+			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
+			Texture src = Lua::get<Texture>(L, 1);
 			
-			_p->Blit(src, dest, material, rect);
+			Graphics::Blit(src, dest, material, rect);
 			return 0;
 		}
 
 		if (Lua::checkArguments<Texture, RenderTexture, Material, Rect, Rect>(L, 2)) {
-			Rect destRect = Lua::get<Rect>(L, 6);
-			Rect srcRect = Lua::get<Rect>(L, 5);
-			Material material = Lua::get<Material>(L, 4);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-			Texture src = Lua::get<Texture>(L, 2);
+			Rect destRect = Lua::get<Rect>(L, 5);
+			Rect srcRect = Lua::get<Rect>(L, 4);
+			Material material = Lua::get<Material>(L, 3);
+			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
+			Texture src = Lua::get<Texture>(L, 1);
 			
-			_p->Blit(src, dest, material, srcRect, destRect);
+			Graphics::Blit(src, dest, material, srcRect, destRect);
 			return 0;
 		}
 
@@ -145,16 +158,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "GraphicsInstance", GraphicsInstance });
+		fields.push_back(luaL_Reg{ "Graphics", GraphicsStatic });
 
 		luaL_Reg metalib[] = {
-			{ "SetShadingMode", SetShadingMode },
-			{ "GetShadingMode", GetShadingMode },
-			{ "SetAmbientOcclusionEnabled", SetAmbientOcclusionEnabled },
-			{ "GetAmbientOcclusionEnabled", GetAmbientOcclusionEnabled },
-			{ "SetRenderTarget", SetRenderTarget },
-			{ "Draw", Draw },
-			{ "Blit", Blit },
+			{ "__gc", Lua::deletePtr<Graphics> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

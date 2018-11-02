@@ -51,5 +51,5 @@ private:
 
 	Texture2D blackTexture_, whiteTexture_;
 
-	Mesh primitives_[(int)PrimitiveType::_Count];
+	Mesh primitives_[PrimitiveType::size()];
 };

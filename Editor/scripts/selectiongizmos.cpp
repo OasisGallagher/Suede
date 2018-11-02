@@ -3,8 +3,8 @@
 SUEDE_DEFINE_COMPONENT(SelectionGizmos, GizmosPainter)
 
 void SelectionGizmos::OnDrawGizmos() {
-	Color oldColor = Gizmos::instance()->GetColor();
-	Gizmos::instance()->SetColor(Color::green);
+	Color oldColor = Gizmos::GetColor();
+	Gizmos::SetColor(Color::green);
 
 	for (GameObject go : selection_) {
 		if (!go->GetActive()) {
@@ -13,12 +13,12 @@ void SelectionGizmos::OnDrawGizmos() {
 
 		const Bounds& bounds = go->GetBounds();
 		if (!bounds.IsEmpty()) {
-			Gizmos::instance()->DrawWireCuboid(bounds.center, bounds.size);
+			Gizmos::DrawWireCuboid(bounds.center, bounds.size);
 		}
 		else {
-			Gizmos::instance()->DrawWireSphere(go->GetTransform()->GetPosition(), 5);
+			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 5);
 		}
 	}
 
-	Gizmos::instance()->SetColor(oldColor);
+	Gizmos::SetColor(oldColor);
 }

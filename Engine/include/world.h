@@ -11,7 +11,7 @@
 #include "tools/singleton.h"
 #include "gameobjectimportedlistener.h"
 
-enum class WorldEventType {
+BETTER_ENUM(WorldEventType, int,
 	GameObjectCreated,
 	GameObjectDestroyed,
 	GameObjectTagChanged,
@@ -21,10 +21,8 @@ enum class WorldEventType {
 	GameObjectTransformChanged,
 	GameObjectUpdateStrategyChanged,
 	GameObjectComponentChanged,
-	CameraDepthChanged,
-
-	_Count,
-};
+	CameraDepthChanged
+)
 
 #define DEFINE_WORLD_EVENT_PTR(type)	typedef std::shared_ptr<struct type> type ## Ptr
 
@@ -147,47 +145,45 @@ public:
 
 struct Decal;
 
-class SUEDE_API World : public Singleton2<World> {
+class SUEDE_API World : private Singleton2<World> {
 	friend class Singleton<World>;
 	SUEDE_DECLARE_IMPLEMENTATION(World)
 
 public:
-	void Initialize();
+	static void Initialize();
+	static void Finalize();
 
-	void Update();
-	void CullingUpdate();
+	static void Update();
+	static void CullingUpdate();
 
-	void Finalize();
+	static Object CreateObject(ObjectType type);
 
-	Object CreateObject(ObjectType type);
+	static void DestroyGameObject(uint id);
+	static void DestroyGameObject(GameObject go);
 
-	void DestroyGameObject(uint id);
-	void DestroyGameObject(GameObject go);
+	static GameObject Import(const std::string& path, GameObjectImportedListener* listener);
+	static GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
 
-	GameObject Import(const std::string& path, GameObjectImportedListener* listener);
-	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
+	static bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
 
-	bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
+	static Transform GetRootTransform();
 
-	Transform GetRootTransform();
+	static GameObject GetGameObject(uint id);
+	static void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	GameObject GetGameObject(uint id);
-	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
+	static void FireEvent(WorldEventBasePtr e);
+	static void FireEventImmediate(WorldEventBasePtr e);
+	static void AddEventListener(WorldEventListener* listener);
+	static void RemoveEventListener(WorldEventListener* listener);
 
-	void FireEvent(WorldEventBasePtr e);
-	void FireEventImmediate(WorldEventBasePtr e);
-	void AddEventListener(WorldEventListener* listener);
-	void RemoveEventListener(WorldEventListener* listener);
-
-	void GetDecals(std::vector<Decal>& container);
+	static void GetDecals(std::vector<Decal>& container);
 
 public:
-	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
-	std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
+	template <class T> static std::vector<std::shared_ptr<T>> GetComponents();
+	static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
 private:
 	World();
-	~World();
 };
 
 template <class T>

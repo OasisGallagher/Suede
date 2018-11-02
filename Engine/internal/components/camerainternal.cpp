@@ -52,7 +52,7 @@ Camera CameraUtility::GetMain() { return main_; }
 void CameraUtility::SetMain(Camera value) { main_ = value; }
 
 void CameraUtility::OnPreRender() {
-	Framebuffer0::Get()->SetViewport(0, 0, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	Framebuffer0::Get()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
 	Framebuffer0::Get()->SetClearDepth(1);
 	Framebuffer0::Get()->SetClearStencil(1);
 	Framebuffer0::Get()->SetClearColor(Color::black);
@@ -63,7 +63,7 @@ void CameraUtility::OnPostRender() {
 	RenderTexture target = RenderTextureUtility::GetDefault();
 	target->BindWrite(GetMain()->GetRect());
 
-	for (std::shared_ptr<GizmosPainter>& painter : World::instance()->GetComponents<GizmosPainter>()) {
+	for (std::shared_ptr<GizmosPainter>& painter : World::GetComponents<GizmosPainter>()) {
 		painter->OnDrawGizmos();
 	}
 
@@ -83,9 +83,9 @@ CameraInternal::CameraInternal()
 	traits0_ = MEMORY_NEW(RenderableTraits, &p_);
 	traits1_ = MEMORY_NEW(RenderableTraits, &p_);
 
-	Screen::instance()->AddScreenSizeChangedListener(this);
+	Screen::AddScreenSizeChangedListener(this);
 
-	SetAspect((float)Screen::instance()->GetWidth() / Screen::instance()->GetHeight());
+	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
 }
 
 CameraInternal::~CameraInternal() {
@@ -96,7 +96,7 @@ CameraInternal::~CameraInternal() {
 	MEMORY_DELETE(traits1_);
 
 	MEMORY_DELETE(rendering_);
-	Screen::instance()->RemoveScreenSizeChangedListener(this);
+	Screen::RemoveScreenSizeChangedListener(this);
 }
 
 void CameraInternal::Awake() {
@@ -121,7 +121,7 @@ void CameraInternal::SetDepth(Camera self, int value) {
 		depth_ = value;
 		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
 		e->component = self;
-		World::instance()->FireEvent(e);
+		World::FireEvent(e);
 	}
 }
 

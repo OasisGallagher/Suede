@@ -18,16 +18,16 @@ public:
 	double GetElapsedSeconds() const;
 };
 
-class SUEDE_API Profiler : public Singleton2<Profiler> {
+class SUEDE_API Profiler : private Singleton2<Profiler> {
 	friend class Singleton<Profiler>;
 	SUEDE_DECLARE_IMPLEMENTATION(Profiler)
 
 public:
-	Sample* CreateSample();
-	void ReleaseSample(Sample* value);
+	static Sample* CreateSample();
+	static void ReleaseSample(Sample* value);
 
-	uint64 GetTimeStamp();
-	double TimeStampToSeconds(uint64 timeStamp);
+	static uint64 GetTimeStamp();
+	static double TimeStampToSeconds(uint64 timeStamp);
 
 private:
 	Profiler();

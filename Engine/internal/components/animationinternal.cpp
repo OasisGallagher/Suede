@@ -402,7 +402,7 @@ bool AnimationInternal::Play(const std::string& name) {
 void AnimationInternal::CullingUpdate() {
 	if (!playing_ || !current_) { return; }
 
-	time_ += Time::instance()->GetDeltaTime();
+	time_ += Time::GetDeltaTime();
 
 	if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
 		current_->Sample(0);

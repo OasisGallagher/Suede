@@ -3,39 +3,39 @@
 #include "shader.h"
 #include "material.h"
 #include "renderer.h"
+
+#include "tools/enum.h"
 #include "tools/singleton.h"
 
-enum class PrimitiveType {
+BETTER_ENUM(PrimitiveType, int,
 	Quad,
-	Cube,
+	Cube
+)
 
-	_Count,
-};
-
-class SUEDE_API Resources : public Singleton2<Resources> {
+class SUEDE_API Resources : private Singleton2<Resources> {
 	friend class Singleton<Resources>;
 	SUEDE_DECLARE_IMPLEMENTATION(Resources)
 
 public:
-	void Import();
+	static void Import();
 
-	Texture2D GetBlackTexture();
-	Texture2D GetWhiteTexture();
+	static Texture2D GetBlackTexture();
+	static Texture2D GetWhiteTexture();
 
-	std::string GetRootDirectory();
-	std::string GetModelDirectory();
-	std::string GetShaderDirectory();
-	std::string GetTextureDirectory();
+	static std::string GetRootDirectory();
+	static std::string GetModelDirectory();
+	static std::string GetShaderDirectory();
+	static std::string GetTextureDirectory();
 
-	Mesh GetPrimitive(PrimitiveType type);
-	Mesh CreatePrimitive(PrimitiveType type, float scale);
-	Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	static Mesh GetPrimitive(PrimitiveType type);
+	static Mesh CreatePrimitive(PrimitiveType type, float scale);
+	static Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
-	void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
+	static void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 
-	Shader FindShader(const std::string& path);
-	Texture FindTexture(const std::string& path);
-	Material FindMaterial(const std::string& name);
+	static Shader FindShader(const std::string& path);
+	static Texture FindTexture(const std::string& path);
+	static Material FindMaterial(const std::string& name);
 
 private:
 	Resources();

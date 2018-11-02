@@ -2,22 +2,22 @@
 #include "material.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Environment : public Singleton2<Environment> {
+class SUEDE_API Environment : private Singleton2<Environment> {
 	friend class Singleton<Environment>;
 	SUEDE_DECLARE_IMPLEMENTATION(Environment)
 
 public:
-	void SetSkybox(Material value);
-	Material GetSkybox();
+	static void SetSkybox(Material value);
+	static Material GetSkybox();
 
-	void SetAmbientColor(const Color& value);
-	Color GetAmbientColor();
+	static void SetAmbientColor(const Color& value);
+	static Color GetAmbientColor();
 
-	void SetFogColor(const Color& value);
-	Color GetFogColor();
+	static void SetFogColor(const Color& value);
+	static Color GetFogColor();
 
-	void SetFogDensity(float value);
-	float GetFogDensity();
+	static void SetFogDensity(float value);
+	static float GetFogDensity();
 
 private:
 	Environment();

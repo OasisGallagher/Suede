@@ -9,11 +9,11 @@
 #include "internal/world/worldinternal.h"
 
 Shadows::Shadows() {
-	uint w = Screen::instance()->GetWidth(), h = Screen::instance()->GetHeight();
+	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 	shadowDepthTexture_ = SharedTextureManager::instance()->GetShadowDepthTexture();
 
 	directionalLightShadowMaterial_ = NewMaterial();
-	directionalLightShadowMaterial_->SetShader(Resources::instance()->FindShader("builtin/directional_light_depth"));
+	directionalLightShadowMaterial_->SetShader(Resources::FindShader("builtin/directional_light_depth"));
 	directionalLightShadowMaterial_->SetRenderQueue((int)RenderQueue::Background - 200);
 }
 

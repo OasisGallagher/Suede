@@ -2,23 +2,26 @@
 #include "enginedefines.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Statistics : public Singleton2<Statistics> {
+class SUEDE_API Statistics : private Singleton2<Statistics> {
 	friend class Singleton<Statistics>;
 	SUEDE_DECLARE_IMPLEMENTATION(Statistics)
 
 public:
-	void AddTriangles(uint n);
-	void AddDrawcalls(uint n);
+	static void AddTriangles(uint n);
+	static void AddDrawcalls(uint n);
 
-	uint GetTriangles();
-	uint GetDrawcalls();
-	float GetFrameRate();
+	static uint GetTriangles();
+	static uint GetDrawcalls();
+	static float GetFrameRate();
 
-	void SetCullingElapsed(double value);
-	void SetRenderingElapsed(double value);
+	static void SetScriptElapsed(double value);
+	static double GetScripeElapsed();
 
-	double GetCullingElapsed();
-	double GetRenderingElapsed();
+	static void SetCullingElapsed(double value);
+	static double GetCullingElapsed();
+
+	static void SetRenderingElapsed(double value);
+	static double GetRenderingElapsed();
 
 private:
 	Statistics();

@@ -3,11 +3,11 @@
 #include "memory/memory.h"
 
 InputInternal::InputInternal() {
-	Engine::instance()->AddFrameEventListener(this);
+	Engine::AddFrameEventListener(this);
 }
 
 InputInternal::~InputInternal() {
-	Engine::instance()->RemoveFrameEventListener(this);
+	Engine::RemoveFrameEventListener(this);
 }
 
 void InputInternal::OnFrameLeave() {
@@ -19,18 +19,18 @@ int InputInternal::GetFrameEventQueue() {
 
 Input::Input() : Singleton2<Input>(nullptr, Memory::DeleteRaw<InputInternal>) {}
 
-void Input::SetImplementation(InputInternal* impl) {
-	if (destroyer_ != nullptr) { destroyer_(d_); };
-	d_ = impl;
+void Input::SetDelegate(InputInternal* delegate) {
+	instance()->_destroy();
+	instance()->d_ = delegate;
 }
 
-bool Input::GetKey(KeyCode key) { return _suede_dptr()->GetKey(key); }
-bool Input::GetKeyUp(KeyCode key) { return _suede_dptr()->GetKeyUp(key); }
-bool Input::GetKeyDown(KeyCode key) { return _suede_dptr()->GetKeyDown(key); }
+bool Input::GetKey(KeyCode key) { return _suede_dinstance()->GetKey(key); }
+bool Input::GetKeyUp(KeyCode key) { return _suede_dinstance()->GetKeyUp(key); }
+bool Input::GetKeyDown(KeyCode key) { return _suede_dinstance()->GetKeyDown(key); }
 
-bool Input::GetMouseButton(int button) { return  _suede_dptr()->GetMouseButton(button); }
-bool Input::GetMouseButtonUp(int button) { return _suede_dptr()->GetMouseButtonUp(button); }
-bool Input::GetMouseButtonDown(int button) { return _suede_dptr()->GetMouseButtonDown(button); }
+bool Input::GetMouseButton(int button) { return  _suede_dinstance()->GetMouseButton(button); }
+bool Input::GetMouseButtonUp(int button) { return _suede_dinstance()->GetMouseButtonUp(button); }
+bool Input::GetMouseButtonDown(int button) { return _suede_dinstance()->GetMouseButtonDown(button); }
 
-int Input::GetMouseWheelDelta() { return _suede_dptr()->GetMouseWheelDelta(); }
-glm::ivec2 Input::GetMousePosition() { return _suede_dptr()->GetMousePosition(); }
+float Input::GetMouseWheelDelta() { return _suede_dinstance()->GetMouseWheelDelta(); }
+glm::ivec2 Input::GetMousePosition() { return _suede_dinstance()->GetMousePosition(); }

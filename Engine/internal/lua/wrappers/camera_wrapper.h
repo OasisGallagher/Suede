@@ -326,23 +326,27 @@ class CameraUtility_Wrapper {
 		return 1;
 	}
 	// static void SetMain(Camera value)
-	static int SetMain(lua_State* L) {		Camera value = Lua::get<Camera>(L, 2);
+	static int SetMain(lua_State* L) {
+		Camera value = Lua::get<Camera>(L, 1);
 		
 		CameraUtility::SetMain(value);
 		return 0;
 	}
 
 	// static Camera GetMain()
-	static int GetMain(lua_State* L) {		return Lua::push(L, CameraUtility::GetMain());
+	static int GetMain(lua_State* L) {
+		return Lua::push(L, CameraUtility::GetMain());
 	}
 
 	// static void OnPreRender()
-	static int OnPreRender(lua_State* L) {		CameraUtility::OnPreRender();
+	static int OnPreRender(lua_State* L) {
+		CameraUtility::OnPreRender();
 		return 0;
 	}
 
 	// static void OnPostRender()
-	static int OnPostRender(lua_State* L) {		CameraUtility::OnPostRender();
+	static int OnPostRender(lua_State* L) {
+		CameraUtility::OnPostRender();
 		return 0;
 	}
 

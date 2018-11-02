@@ -8,69 +8,88 @@
 #include "tools/string.h"
 
 class World_Wrapper {
-	static int WorldInstance(lua_State* L) {
-		return Lua::reference<World>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		World* _p = World::instance();
+		World* _p = Lua::callerPtr<World>(L);
 
 		lua_pushstring(L, String::Format("World@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// void Initialize()
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static World");
+		return 1;
+	}
+
+	static int WorldStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "Initialize", Initialize },
+			{ "Finalize", Finalize },
+			{ "Update", Update },
+			{ "CullingUpdate", CullingUpdate },
+			{ "CreateObject", CreateObject },
+			{ "DestroyGameObject", DestroyGameObject },
+			{ "Import", Import },
+			{ "GetRootTransform", GetRootTransform },
+			{ "GetGameObject", GetGameObject },
+			{ "FireEvent", FireEvent },
+			{ "FireEventImmediate", FireEventImmediate },
+			{ "GetDecals", GetDecals },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static void Initialize()
 	static int Initialize(lua_State* L) {
-		World* _p = World::instance();
-		_p->Initialize();
+		World::Initialize();
 		return 0;
 	}
 
-	// void Update()
-	static int Update(lua_State* L) {
-		World* _p = World::instance();
-		_p->Update();
-		return 0;
-	}
-
-	// void CullingUpdate()
-	static int CullingUpdate(lua_State* L) {
-		World* _p = World::instance();
-		_p->CullingUpdate();
-		return 0;
-	}
-
-	// void Finalize()
+	// static void Finalize()
 	static int Finalize(lua_State* L) {
-		World* _p = World::instance();
-		_p->Finalize();
+		World::Finalize();
 		return 0;
 	}
 
-	// Object CreateObject(ObjectType type)
-	static int CreateObject(lua_State* L) {
-		World* _p = World::instance();
-		ObjectType type = Lua::get<ObjectType>(L, 2);
-		
-		return Lua::push(L, _p->CreateObject(type));
+	// static void Update()
+	static int Update(lua_State* L) {
+		World::Update();
+		return 0;
 	}
 
-	// void DestroyGameObject(uint id)
-	// void DestroyGameObject(GameObject go)
+	// static void CullingUpdate()
+	static int CullingUpdate(lua_State* L) {
+		World::CullingUpdate();
+		return 0;
+	}
+
+	// static Object CreateObject(ObjectType type)
+	static int CreateObject(lua_State* L) {
+		ObjectType type = Lua::get<ObjectType>(L, 1);
+		
+		return Lua::push(L, World::CreateObject(type));
+	}
+
+	// static void DestroyGameObject(uint id)
+	// static void DestroyGameObject(GameObject go)
 	static int DestroyGameObject(lua_State* L) {
-		World* _p = World::instance();
 
 		if (Lua::checkArguments<uint>(L, 2)) {
-			uint id = Lua::get<uint>(L, 2);
+			uint id = Lua::get<uint>(L, 1);
 			
-			_p->DestroyGameObject(id);
+			World::DestroyGameObject(id);
 			return 0;
 		}
 
 		if (Lua::checkArguments<GameObject>(L, 2)) {
-			GameObject go = Lua::get<GameObject>(L, 2);
+			GameObject go = Lua::get<GameObject>(L, 1);
 			
-			_p->DestroyGameObject(go);
+			World::DestroyGameObject(go);
 			return 0;
 		}
 
@@ -78,53 +97,47 @@ class World_Wrapper {
 		return 0;
 	}
 
-	// GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback)
+	// static GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback)
 	static int Import(lua_State* L) {
-		World* _p = World::instance();
 		auto callback = lua_isnil(L, -1) ? nullptr : Lua::make_func<void, GameObject, const std::string&>(L);
-		std::string path = Lua::get<std::string>(L, 2);
+		std::string path = Lua::get<std::string>(L, 1);
 		
-		return Lua::push(L, _p->Import(path, callback));
+		return Lua::push(L, World::Import(path, callback));
 	}
 
-	// Transform GetRootTransform()
+	// static Transform GetRootTransform()
 	static int GetRootTransform(lua_State* L) {
-		World* _p = World::instance();
-		return Lua::push(L, _p->GetRootTransform());
+		return Lua::push(L, World::GetRootTransform());
 	}
 
-	// GameObject GetGameObject(uint id)
+	// static GameObject GetGameObject(uint id)
 	static int GetGameObject(lua_State* L) {
-		World* _p = World::instance();
-		uint id = Lua::get<uint>(L, 2);
+		uint id = Lua::get<uint>(L, 1);
 		
-		return Lua::push(L, _p->GetGameObject(id));
+		return Lua::push(L, World::GetGameObject(id));
 	}
 
-	// void FireEvent(WorldEventBasePtr e)
+	// static void FireEvent(WorldEventBasePtr e)
 	static int FireEvent(lua_State* L) {
-		World* _p = World::instance();
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 2);
+		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 1);
 		
-		_p->FireEvent(e);
+		World::FireEvent(e);
 		return 0;
 	}
 
-	// void FireEventImmediate(WorldEventBasePtr e)
+	// static void FireEventImmediate(WorldEventBasePtr e)
 	static int FireEventImmediate(lua_State* L) {
-		World* _p = World::instance();
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 2);
+		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 1);
 		
-		_p->FireEventImmediate(e);
+		World::FireEventImmediate(e);
 		return 0;
 	}
 
-	// void GetDecals(std::vector<Decal>& container)
+	// static void GetDecals(std::vector<Decal>& container)
 	static int GetDecals(lua_State* L) {
-		World* _p = World::instance();
-		std::vector<Decal> container = Lua::getList<Decal>(L, 2);
+		std::vector<Decal> container = Lua::getList<Decal>(L, 1);
 		
-		_p->GetDecals(container);
+		World::GetDecals(container);
 		return 0;
 	}
 
@@ -134,21 +147,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "WorldInstance", WorldInstance });
+		fields.push_back(luaL_Reg{ "World", WorldStatic });
 
 		luaL_Reg metalib[] = {
-			{ "Initialize", Initialize },
-			{ "Update", Update },
-			{ "CullingUpdate", CullingUpdate },
-			{ "Finalize", Finalize },
-			{ "CreateObject", CreateObject },
-			{ "DestroyGameObject", DestroyGameObject },
-			{ "Import", Import },
-			{ "GetRootTransform", GetRootTransform },
-			{ "GetGameObject", GetGameObject },
-			{ "FireEvent", FireEvent },
-			{ "FireEventImmediate", FireEventImmediate },
-			{ "GetDecals", GetDecals },
+			{ "__gc", Lua::deletePtr<World> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

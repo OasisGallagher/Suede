@@ -9,28 +9,28 @@ BETTER_ENUM(ShadingMode, int,
 	Wireframe
 )
 
-class SUEDE_API Graphics : public Singleton2<Graphics> {
+class SUEDE_API Graphics : private Singleton2<Graphics> {
 	friend class Singleton<Graphics>;
 	SUEDE_DECLARE_IMPLEMENTATION(Graphics)
 
 public:
-	void SetShadingMode(ShadingMode value);
-	ShadingMode GetShadingMode();
+	static void SetShadingMode(ShadingMode value);
+	static ShadingMode GetShadingMode();
 
-	void SetAmbientOcclusionEnabled(bool value);
-	bool GetAmbientOcclusionEnabled();
+	static void SetAmbientOcclusionEnabled(bool value);
+	static bool GetAmbientOcclusionEnabled();
 
-	void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
+	static void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 
-	void Draw(Mesh mesh, Material material);
+	static void Draw(Mesh mesh, Material material);
 
-	void Blit(Texture src, RenderTexture dest);
-	void Blit(Texture src, RenderTexture dest, const Rect& rect);
-	void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect);
+	static void Blit(Texture src, RenderTexture dest);
+	static void Blit(Texture src, RenderTexture dest, const Rect& rect);
+	static void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect);
 
-	void Blit(Texture src, RenderTexture dest, Material material);
-	void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect);
-	void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect);
+	static void Blit(Texture src, RenderTexture dest, Material material);
+	static void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect);
+	static void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect);
 
 private:
 	Graphics();

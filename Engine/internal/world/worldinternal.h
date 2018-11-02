@@ -95,7 +95,7 @@ private:
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
 	typedef std::vector<WorldEventBasePtr> WorldEventCollection;
-	typedef WorldEventCollection WorldEventContainer[(int)WorldEventType::_Count];
+	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:
 	GameObject root_;

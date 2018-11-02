@@ -159,7 +159,7 @@ bool GLSLParser::PreprocessInclude(const std::string& parameter) {
 		return false;
 	}
 
-	if (!FileSystem::ReadAllText(Resources::instance()->GetShaderDirectory() + target, source)) {
+	if (!FileSystem::ReadAllText(Resources::GetShaderDirectory() + target, source)) {
 		return false;
 	}
 
@@ -352,7 +352,7 @@ void GLSLParser::AddPage(const std::string file, int ln) {
 
 bool ShaderParser::Parse(Semantics& semantics, const std::string& file, const std::string& customDefines) {
 	SyntaxTree tree;
-	return GLEF::instance()->Parse((Resources::instance()->GetShaderDirectory() + file).c_str(), tree)
+	return GLEF::instance()->Parse((Resources::GetShaderDirectory() + file).c_str(), tree)
 		&& ParseSemantics(tree, semantics);
 }
 
@@ -474,10 +474,10 @@ void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 
 	Texture2D texture;
 	if (value.empty() || value == "white") {
-		texture = Resources::instance()->GetWhiteTexture();
+		texture = Resources::GetWhiteTexture();
 	}
 	else if (value == "black") {
-		texture = Resources::instance()->GetBlackTexture();
+		texture = Resources::GetBlackTexture();
 	}
 
 	if (texture) {

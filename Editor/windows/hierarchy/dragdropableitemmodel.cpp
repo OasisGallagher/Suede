@@ -27,14 +27,14 @@ bool DragDropableItemModel::dropMimeData(const QMimeData* data, Qt::DropAction a
 	QStandardItem* item = itemFromIndex(parent);
 	GameObject parentGameObject;
 	if (item != nullptr) {
-		parentGameObject = World::instance()->GetGameObject(item->data().toUInt());
+		parentGameObject = World::GetGameObject(item->data().toUInt());
 	}
 	else {
-		parentGameObject = World::instance()->GetRootTransform()->GetGameObject();
+		parentGameObject = World::GetRootTransform()->GetGameObject();
 	}
 
 	for (const QString& target : QString(data->data("targets")).split('|')) {
-		GameObject go = World::instance()->GetGameObject(target.toUInt());
+		GameObject go = World::GetGameObject(target.toUInt());
 		go->GetTransform()->SetParent(parentGameObject->GetTransform());
 	}
 

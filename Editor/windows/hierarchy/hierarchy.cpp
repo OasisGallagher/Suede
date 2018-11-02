@@ -29,11 +29,11 @@ void Hierarchy::init(Ui::Editor* ui) {
 }
 
 void Hierarchy::awake() {
-	World::instance()->AddEventListener(this);
+	World::AddEventListener(this);
 }
 
 void Hierarchy::OnGameObjectImported(GameObject root, const std::string& path) {
-	root->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	root->GetTransform()->SetParent(World::GetRootTransform());
 }
 
 GameObject Hierarchy::selectedGameObject() {
@@ -41,7 +41,7 @@ GameObject Hierarchy::selectedGameObject() {
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return World::instance()->GetGameObject(id);
+	return World::GetGameObject(id);
 }
 
 QList<GameObject> Hierarchy::selectedGameObjects() {
@@ -52,7 +52,7 @@ QList<GameObject> Hierarchy::selectedGameObjects() {
 
 	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		gameObjects.push_back(World::instance()->GetGameObject(id));
+		gameObjects.push_back(World::GetGameObject(id));
 	}
 
 	return gameObjects;
@@ -136,12 +136,12 @@ void Hierarchy::reload() {
 	items_.clear();
 	model_->setRowCount(0);
 
-	updateRecursively(World::instance()->GetRootTransform()->GetGameObject(), nullptr);
+	updateRecursively(World::GetRootTransform()->GetGameObject(), nullptr);
 }
 
 void Hierarchy::onGameObjectDoubleClicked(const QModelIndex& index) {
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	GameObject go = World::instance()->GetGameObject(id);
+	GameObject go = World::GetGameObject(id);
 
 	emit focusGameObject(go);
 }
@@ -163,7 +163,7 @@ void Hierarchy::onTreeCustomContextMenu() {
 void Hierarchy::onDeleteSelected() {
 	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
 	for (QModelIndex index : indexes) {
-		World::instance()->DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
+		World::DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
 	}
 }
 
@@ -200,7 +200,7 @@ void Hierarchy::dropEvent(QDropEvent* event) {
 	QList<QUrl> urls = event->mimeData()->urls();
 	for (QUrl url : urls) {
 		std::string path = FileSystem::GetFileName(url.toString().toStdString());
-		World::instance()->Import(path, this);
+		World::Import(path, this);
 	}
 }
 
@@ -265,7 +265,7 @@ void Hierarchy::appendChildItem(GameObject go) {
 	QStandardItem* item = nullptr;
 
 	// append child node.
-	if (parent == World::instance()->GetRootTransform() || (item = items_.value(parent->GetGameObject()->GetInstanceID())) != nullptr) {
+	if (parent == World::GetRootTransform() || (item = items_.value(parent->GetGameObject()->GetInstanceID())) != nullptr) {
 		QStandardItem* pi = appendItem(go, item);
 		updateRecursively(go, pi);
 	}
@@ -301,7 +301,7 @@ void Hierarchy::enableGameObjectOutline(GameObject go, bool enable) {
 void Hierarchy::selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items) {
 	for (QModelIndex index : items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		GameObject go = World::instance()->GetGameObject(id);
+		GameObject go = World::GetGameObject(id);
 		if (go) {
 			gameObjects.push_back(go);
 		}

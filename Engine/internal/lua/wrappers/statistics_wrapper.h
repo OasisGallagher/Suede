@@ -8,92 +8,22 @@
 #include "tools/string.h"
 
 class Statistics_Wrapper {
-	static int StatisticsInstance(lua_State* L) {
-		return Lua::reference<Statistics>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Statistics* _p = Statistics::instance();
+		Statistics* _p = Lua::callerPtr<Statistics>(L);
 
 		lua_pushstring(L, String::Format("Statistics@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// void AddTriangles(uint n)
-	static int AddTriangles(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		uint n = Lua::get<uint>(L, 2);
-		
-		_p->AddTriangles(n);
-		return 0;
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Statistics");
+		return 1;
 	}
 
-	// void AddDrawcalls(uint n)
-	static int AddDrawcalls(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		uint n = Lua::get<uint>(L, 2);
-		
-		_p->AddDrawcalls(n);
-		return 0;
-	}
+	static int StatisticsStatic(lua_State* L) {
+		lua_newtable(L);
 
-	// uint GetTriangles()
-	static int GetTriangles(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		return Lua::push(L, _p->GetTriangles());
-	}
-
-	// uint GetDrawcalls()
-	static int GetDrawcalls(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		return Lua::push(L, _p->GetDrawcalls());
-	}
-
-	// float GetFrameRate()
-	static int GetFrameRate(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		return Lua::push(L, _p->GetFrameRate());
-	}
-
-	// void SetCullingElapsed(double value)
-	static int SetCullingElapsed(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		double value = Lua::get<double>(L, 2);
-		
-		_p->SetCullingElapsed(value);
-		return 0;
-	}
-
-	// void SetRenderingElapsed(double value)
-	static int SetRenderingElapsed(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		double value = Lua::get<double>(L, 2);
-		
-		_p->SetRenderingElapsed(value);
-		return 0;
-	}
-
-	// double GetCullingElapsed()
-	static int GetCullingElapsed(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		return Lua::push(L, _p->GetCullingElapsed());
-	}
-
-	// double GetRenderingElapsed()
-	static int GetRenderingElapsed(lua_State* L) {
-		Statistics* _p = Statistics::instance();
-		return Lua::push(L, _p->GetRenderingElapsed());
-	}
-
-public:
-	static void create(lua_State* L) {
-		Lua::createMetatable<Statistics>(L);
-	}
-	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "StatisticsInstance", StatisticsInstance });
-
-		luaL_Reg metalib[] = {
+		luaL_Reg funcs[] = {
 			{ "AddTriangles", AddTriangles },
 			{ "AddDrawcalls", AddDrawcalls },
 			{ "GetTriangles", GetTriangles },
@@ -103,6 +33,82 @@ public:
 			{ "SetRenderingElapsed", SetRenderingElapsed },
 			{ "GetCullingElapsed", GetCullingElapsed },
 			{ "GetRenderingElapsed", GetRenderingElapsed },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static void AddTriangles(uint n)
+	static int AddTriangles(lua_State* L) {
+		uint n = Lua::get<uint>(L, 1);
+		
+		Statistics::AddTriangles(n);
+		return 0;
+	}
+
+	// static void AddDrawcalls(uint n)
+	static int AddDrawcalls(lua_State* L) {
+		uint n = Lua::get<uint>(L, 1);
+		
+		Statistics::AddDrawcalls(n);
+		return 0;
+	}
+
+	// static uint GetTriangles()
+	static int GetTriangles(lua_State* L) {
+		return Lua::push(L, Statistics::GetTriangles());
+	}
+
+	// static uint GetDrawcalls()
+	static int GetDrawcalls(lua_State* L) {
+		return Lua::push(L, Statistics::GetDrawcalls());
+	}
+
+	// static float GetFrameRate()
+	static int GetFrameRate(lua_State* L) {
+		return Lua::push(L, Statistics::GetFrameRate());
+	}
+
+	// static void SetCullingElapsed(double value)
+	static int SetCullingElapsed(lua_State* L) {
+		double value = Lua::get<double>(L, 1);
+		
+		Statistics::SetCullingElapsed(value);
+		return 0;
+	}
+
+	// static void SetRenderingElapsed(double value)
+	static int SetRenderingElapsed(lua_State* L) {
+		double value = Lua::get<double>(L, 1);
+		
+		Statistics::SetRenderingElapsed(value);
+		return 0;
+	}
+
+	// static double GetCullingElapsed()
+	static int GetCullingElapsed(lua_State* L) {
+		return Lua::push(L, Statistics::GetCullingElapsed());
+	}
+
+	// static double GetRenderingElapsed()
+	static int GetRenderingElapsed(lua_State* L) {
+		return Lua::push(L, Statistics::GetRenderingElapsed());
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<Statistics>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		fields.push_back(luaL_Reg{ "Statistics", StatisticsStatic });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<Statistics> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

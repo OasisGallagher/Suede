@@ -141,8 +141,8 @@ void Pipeline::Run() {
 	targetTexture_->Unbind();
 
 	samples_.stat_and_output->Restart();
-	Statistics::instance()->AddTriangles(counters_.triangles);
-	Statistics::instance()->AddDrawcalls(counters_.drawcalls);
+	Statistics::AddTriangles(counters_.triangles);
+	Statistics::AddDrawcalls(counters_.drawcalls);
 	samples_.stat_and_output->Stop();
 	
 	samples_.update_pipeline->Stop();
@@ -350,29 +350,29 @@ void Pipeline::States::Reset() {
 }
 
 Pipeline::Samples::Samples() {
-	switch_state = Profiler::instance()->CreateSample();
-	update_ubo = Profiler::instance()->CreateSample();
-	update_tbo = Profiler::instance()->CreateSample();
-	draw_call = Profiler::instance()->CreateSample();
-	update_offset = Profiler::instance()->CreateSample();
-	update_matrices = Profiler::instance()->CreateSample();
-	gather_instances = Profiler::instance()->CreateSample();
-	update_pipeline = Profiler::instance()->CreateSample();
-	stat_and_output = Profiler::instance()->CreateSample();
-	reset_states = Profiler::instance()->CreateSample();
+	switch_state = Profiler::CreateSample();
+	update_ubo = Profiler::CreateSample();
+	update_tbo = Profiler::CreateSample();
+	draw_call = Profiler::CreateSample();
+	update_offset = Profiler::CreateSample();
+	update_matrices = Profiler::CreateSample();
+	gather_instances = Profiler::CreateSample();
+	update_pipeline = Profiler::CreateSample();
+	stat_and_output = Profiler::CreateSample();
+	reset_states = Profiler::CreateSample();
 }
 
 Pipeline::Samples::~Samples() {
-	Profiler::instance()->ReleaseSample(switch_state);
-	Profiler::instance()->ReleaseSample(update_ubo);
-	Profiler::instance()->ReleaseSample(update_tbo);
-	Profiler::instance()->ReleaseSample(draw_call);
-	Profiler::instance()->ReleaseSample(update_offset);
-	Profiler::instance()->ReleaseSample(update_matrices);
-	Profiler::instance()->ReleaseSample(gather_instances);
-	Profiler::instance()->ReleaseSample(update_pipeline);
-	Profiler::instance()->ReleaseSample(stat_and_output);
-	Profiler::instance()->ReleaseSample(reset_states);
+	Profiler::ReleaseSample(switch_state);
+	Profiler::ReleaseSample(update_ubo);
+	Profiler::ReleaseSample(update_tbo);
+	Profiler::ReleaseSample(draw_call);
+	Profiler::ReleaseSample(update_offset);
+	Profiler::ReleaseSample(update_matrices);
+	Profiler::ReleaseSample(gather_instances);
+	Profiler::ReleaseSample(update_pipeline);
+	Profiler::ReleaseSample(stat_and_output);
+	Profiler::ReleaseSample(reset_states);
 }
 
 void Pipeline::Samples::Reset() {

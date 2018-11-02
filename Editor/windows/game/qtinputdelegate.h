@@ -3,11 +3,11 @@
 #include <QWidget>
 #include <QMouseEvent>
 
-class QInput : public QObject, public InputInternal {
+class QtInputDelegate : public QObject, public InputInternal {
 	Q_OBJECT
 
 public:
-	QInput(QWidget* view);
+	QtInputDelegate(QWidget* view);
 
 public:
 	virtual void OnFrameLeave();
@@ -20,7 +20,7 @@ public:
 	virtual bool GetMouseButtonUp(int button);
 	virtual bool GetMouseButtonDown(int button);
 
-	virtual int GetMouseWheelDelta();
+	virtual float GetMouseWheelDelta();
 	virtual glm::ivec2 GetMousePosition();
 
 protected:
@@ -41,7 +41,7 @@ private:
 
 	QWidget* view_;
 
-	int wheelDelta_ = 0;
+	float wheelDelta_ = 0;
 	States<3> mouseStates_;
-	States<(int)KeyCode::_Count> keyStates_;
+	States<KeyCode::size()> keyStates_;
 };

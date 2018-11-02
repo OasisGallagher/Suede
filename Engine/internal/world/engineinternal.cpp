@@ -18,11 +18,11 @@
 
 Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
 
-bool Engine::Startup(uint width, uint height) { return _suede_dptr()->Startup(width, height); }
-void Engine::Shutdown() { _suede_dptr()->Shutdown(); }
-void Engine::Update() { _suede_dptr()->Update(); }
-void Engine::AddFrameEventListener(FrameEventListener* listener) { _suede_dptr()->AddFrameEventListener(listener); }
-void Engine::RemoveFrameEventListener(FrameEventListener* listener) { _suede_dptr()->RemoveFrameEventListener(listener); }
+bool Engine::Startup(uint width, uint height) { return _suede_dinstance()->Startup(width, height); }
+void Engine::Shutdown() { _suede_dinstance()->Shutdown(); }
+void Engine::Update() { _suede_dinstance()->Update(); }
+void Engine::AddFrameEventListener(FrameEventListener* listener) { _suede_dinstance()->AddFrameEventListener(listener); }
+void Engine::RemoveFrameEventListener(FrameEventListener* listener) { _suede_dinstance()->RemoveFrameEventListener(listener); }
 
 static void OnTerminate() {
 	Debug::Break();
@@ -31,24 +31,6 @@ static void OnTerminate() {
 static void OnZThreadException(const std::exception& exception) {
 	Debug::Output("!!! Thread Exception %s\n", exception.what());
 	throw exception;
-}
-
-template <class T, class MemFunc>
-static void ForEachFrameEventListener(T& container, MemFunc func) {
-	for (T::iterator ite = container.begin(); ite != container.end(); ++ite) {
-		((*ite)->*func)();
-	}
-}
-
-void EngineInternal::SortFrameEventListeners() {
-	struct FrameEventComparer {
-		bool operator()(FrameEventListener* lhs, FrameEventListener* rhs) const {
-			return lhs->GetFrameEventQueue() < rhs->GetFrameEventQueue();
-		}
-	};
-
-	static FrameEventComparer comparer;
-	std::sort(frameEventListeners_.begin(), frameEventListeners_.end(), comparer);
 }
 
 bool EngineInternal::Startup(uint width, uint height) {
@@ -64,10 +46,10 @@ bool EngineInternal::Startup(uint width, uint height) {
 	}
 
 	// create profiler first to ensure it's destroyed last.
-	Profiler::instance();
+	Profiler::TimeStampToSeconds(0);
 
-	Screen::instance()->Resize(width, height);
-	World::instance()->Initialize();
+	Screen::Resize(width, height);
+	World::Initialize();
 
 	luaL_Reg lualibs[] = {
 		{ "Suede", Lua::configure },
@@ -82,7 +64,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 }
 
 void EngineInternal::Shutdown() {
-	World::instance()->Finalize();
+	World::Finalize();
 	lua_close(L);
 	L = nullptr;
 }
@@ -93,12 +75,16 @@ void EngineInternal::Update() {
 		started_ = true;
 	}
 
+	uint64 start = Profiler::GetTimeStamp();
 	InvokeLuaMethod("Update");
+	Statistics::SetScriptElapsed(
+		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+	);
 
-	SortFrameEventListeners();
-	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameEnter);
-	World::instance()->Update();
-	ForEachFrameEventListener(frameEventListeners_, &FrameEventListener::OnFrameLeave);
+	FrameEventListenerContainer cont(listeners_);
+	WalkAllListeners(cont, &FrameEventListener::OnFrameEnter);
+	World::Update();
+	WalkAllListeners(cont, &FrameEventListener::OnFrameLeave);
 }
 
 void EngineInternal::InvokeLuaMethod(const char* name) {
@@ -114,14 +100,14 @@ void EngineInternal::InvokeLuaMethod(const char* name) {
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {
-	if (std::find(frameEventListeners_.begin(), frameEventListeners_.end(), listener) == frameEventListeners_.end()) {
-		frameEventListeners_.push_back(listener);
+	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
+		listeners_.push_back(listener);
 	}
 }
 
 void EngineInternal::RemoveFrameEventListener(FrameEventListener* listener) {
-	std::vector<FrameEventListener*>::iterator ite = std::find(frameEventListeners_.begin(), frameEventListeners_.end(), listener);
-	if (ite != frameEventListeners_.end()) {
-		frameEventListeners_.erase(ite);
+	std::vector<FrameEventListener*>::iterator ite = std::find(listeners_.begin(), listeners_.end(), listener);
+	if (ite != listeners_.end()) {
+		listeners_.erase(ite);
 	}
 }

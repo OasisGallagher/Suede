@@ -109,11 +109,13 @@ class Component_Wrapper {
 	}
 
 	// static suede_guid GetComponentGUID()
-	static int GetComponentGUID(lua_State* L) {		return Lua::push(L, IComponent::GetComponentGUID());
+	static int GetComponentGUID(lua_State* L) {
+		return Lua::push(L, IComponent::GetComponentGUID());
 	}
 
 	// static suede_guid ClassNameToGUID(const char* className)
-	static int ClassNameToGUID(lua_State* L) {		std::string className = Lua::get<std::string>(L, 2);
+	static int ClassNameToGUID(lua_State* L) {
+		std::string className = Lua::get<std::string>(L, 1);
 		
 		return Lua::push(L, IComponent::ClassNameToGUID(className.c_str()));
 	}

@@ -4,8 +4,8 @@
 #include "internal/base/renderdefines.h"
 
 SharedTextureManager::SharedTextureManager() {
-	uint w = Screen::instance()->GetWidth();
-	uint h = Screen::instance()->GetHeight();
+	uint w = Screen::GetWidth();
+	uint h = Screen::GetHeight();
 
 	depth_ = NewRenderTexture();
 	depth_->Create(RenderTextureFormat::Depth, w, h);

@@ -300,7 +300,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Create(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::instance()->GetTextureDirectory() + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + path)) {
 		return false;
 	}
 
@@ -381,7 +381,7 @@ TextureCubeInternal::~TextureCubeInternal() {
 bool TextureCubeInternal::Load(const std::string textures[6]) {
 	TexelMap texelMaps[6];
 	for (int i = 0; i < 6; ++i) {
-		if (!ImageCodec::Decode(texelMaps[i], Resources::instance()->GetTextureDirectory() + textures[i])) {
+		if (!ImageCodec::Decode(texelMaps[i], Resources::GetTextureDirectory() + textures[i])) {
 			return false;
 		}
 	}
@@ -673,7 +673,7 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 }
 
 void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
-	SetViewport(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), normalizedRect);
+	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 
 	framebuffer_->SetClearDepth(depth);
 	framebuffer_->SetClearColor(color);
@@ -681,15 +681,15 @@ void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color&
 }
 
 uint ScreenRenderTextureInternal::GetWidth() const {
-	return Screen::instance()->GetWidth();
+	return Screen::GetWidth();
 }
 
 uint ScreenRenderTextureInternal::GetHeight() const {
-	return Screen::instance()->GetHeight();
+	return Screen::GetHeight();
 }
 
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	SetViewport(Screen::instance()->GetWidth(), Screen::instance()->GetHeight(), normalizedRect);
+	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 	framebuffer_->BindWrite();
 }
 

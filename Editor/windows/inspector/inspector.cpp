@@ -47,7 +47,7 @@ void Inspector::awake() {
 	GUI::LoadFont("resources/fonts/tahoma.ttf");
 
 	view_->setFocusPolicy(Qt::StrongFocus);
-	blackTextureID_ = Resources::instance()->GetBlackTexture()->GetNativePointer();
+	blackTextureID_ = Resources::GetBlackTexture()->GetNativePointer();
 }
 
 void Inspector::tick() {
@@ -145,7 +145,7 @@ void Inspector::drawComponents() {
 }
 
 void Inspector::drawTags() {
-	const Tags& tags = TagManager::instance()->GetAllTags();
+	const Tags& tags = TagManager::GetAllTags();
 	int selected = std::find(tags.begin(), tags.end(), target_->GetTag()) - tags.begin();
 	if (selected >= tags.size()) { selected = -1; }
 

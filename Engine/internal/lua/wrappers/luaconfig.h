@@ -239,84 +239,10 @@ static int configure(lua_State* L) {
 
 	// KeyCode
 	lua_newtable(L);
-	lua_pushinteger(L, (int)KeyCode::A);
-	lua_setfield(L, -2, "A");
-	lua_pushinteger(L, (int)KeyCode::B);
-	lua_setfield(L, -2, "B");
-	lua_pushinteger(L, (int)KeyCode::C);
-	lua_setfield(L, -2, "C");
-	lua_pushinteger(L, (int)KeyCode::D);
-	lua_setfield(L, -2, "D");
-	lua_pushinteger(L, (int)KeyCode::E);
-	lua_setfield(L, -2, "E");
-	lua_pushinteger(L, (int)KeyCode::F);
-	lua_setfield(L, -2, "F");
-	lua_pushinteger(L, (int)KeyCode::G);
-	lua_setfield(L, -2, "G");
-	lua_pushinteger(L, (int)KeyCode::H);
-	lua_setfield(L, -2, "H");
-	lua_pushinteger(L, (int)KeyCode::I);
-	lua_setfield(L, -2, "I");
-	lua_pushinteger(L, (int)KeyCode::J);
-	lua_setfield(L, -2, "J");
-	lua_pushinteger(L, (int)KeyCode::K);
-	lua_setfield(L, -2, "K");
-	lua_pushinteger(L, (int)KeyCode::L);
-	lua_setfield(L, -2, "L");
-	lua_pushinteger(L, (int)KeyCode::M);
-	lua_setfield(L, -2, "M");
-	lua_pushinteger(L, (int)KeyCode::N);
-	lua_setfield(L, -2, "N");
-	lua_pushinteger(L, (int)KeyCode::O);
-	lua_setfield(L, -2, "O");
-	lua_pushinteger(L, (int)KeyCode::P);
-	lua_setfield(L, -2, "P");
-	lua_pushinteger(L, (int)KeyCode::Q);
-	lua_setfield(L, -2, "Q");
-	lua_pushinteger(L, (int)KeyCode::R);
-	lua_setfield(L, -2, "R");
-	lua_pushinteger(L, (int)KeyCode::S);
-	lua_setfield(L, -2, "S");
-	lua_pushinteger(L, (int)KeyCode::T);
-	lua_setfield(L, -2, "T");
-	lua_pushinteger(L, (int)KeyCode::U);
-	lua_setfield(L, -2, "U");
-	lua_pushinteger(L, (int)KeyCode::V);
-	lua_setfield(L, -2, "V");
-	lua_pushinteger(L, (int)KeyCode::W);
-	lua_setfield(L, -2, "W");
-	lua_pushinteger(L, (int)KeyCode::X);
-	lua_setfield(L, -2, "X");
-	lua_pushinteger(L, (int)KeyCode::Y);
-	lua_setfield(L, -2, "Y");
-	lua_pushinteger(L, (int)KeyCode::Z);
-	lua_setfield(L, -2, "Z");
-	lua_pushinteger(L, (int)KeyCode::F1);
-	lua_setfield(L, -2, "F1");
-	lua_pushinteger(L, (int)KeyCode::F2);
-	lua_setfield(L, -2, "F2");
-	lua_pushinteger(L, (int)KeyCode::F3);
-	lua_setfield(L, -2, "F3");
-	lua_pushinteger(L, (int)KeyCode::F4);
-	lua_setfield(L, -2, "F4");
-	lua_pushinteger(L, (int)KeyCode::F5);
-	lua_setfield(L, -2, "F5");
-	lua_pushinteger(L, (int)KeyCode::F6);
-	lua_setfield(L, -2, "F6");
-	lua_pushinteger(L, (int)KeyCode::F7);
-	lua_setfield(L, -2, "F7");
-	lua_pushinteger(L, (int)KeyCode::F8);
-	lua_setfield(L, -2, "F8");
-	lua_pushinteger(L, (int)KeyCode::F9);
-	lua_setfield(L, -2, "F9");
-	lua_pushinteger(L, (int)KeyCode::F10);
-	lua_setfield(L, -2, "F10");
-	lua_pushinteger(L, (int)KeyCode::F11);
-	lua_setfield(L, -2, "F11");
-	lua_pushinteger(L, (int)KeyCode::F12);
-	lua_setfield(L, -2, "F12");
-	lua_pushinteger(L, (int)KeyCode::Space);
-	lua_setfield(L, -2, "Space");
+	for (int i = 0; i < KeyCode::size(); ++i) {
+		lua_pushinteger(L, KeyCode::value(i));
+		lua_setfield(L, -2, KeyCode::value(i).to_string());
+	}
 
 	lua_setfield(L, -2, "KeyCode");
 
@@ -377,10 +303,10 @@ static int configure(lua_State* L) {
 
 	// PrimitiveType
 	lua_newtable(L);
-	lua_pushinteger(L, (int)PrimitiveType::Quad);
-	lua_setfield(L, -2, "Quad");
-	lua_pushinteger(L, (int)PrimitiveType::Cube);
-	lua_setfield(L, -2, "Cube");
+	for (int i = 0; i < PrimitiveType::size(); ++i) {
+		lua_pushinteger(L, PrimitiveType::value(i));
+		lua_setfield(L, -2, PrimitiveType::value(i).to_string());
+	}
 
 	lua_setfield(L, -2, "PrimitiveType");
 
@@ -464,26 +390,10 @@ static int configure(lua_State* L) {
 
 	// WorldEventType
 	lua_newtable(L);
-	lua_pushinteger(L, (int)WorldEventType::GameObjectCreated);
-	lua_setfield(L, -2, "GameObjectCreated");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectDestroyed);
-	lua_setfield(L, -2, "GameObjectDestroyed");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectTagChanged);
-	lua_setfield(L, -2, "GameObjectTagChanged");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectNameChanged);
-	lua_setfield(L, -2, "GameObjectNameChanged");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectParentChanged);
-	lua_setfield(L, -2, "GameObjectParentChanged");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectActiveChanged);
-	lua_setfield(L, -2, "GameObjectActiveChanged");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectTransformChanged);
-	lua_setfield(L, -2, "GameObjectTransformChanged");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectUpdateStrategyChanged);
-	lua_setfield(L, -2, "GameObjectUpdateStrategyChanged");
-	lua_pushinteger(L, (int)WorldEventType::GameObjectComponentChanged);
-	lua_setfield(L, -2, "GameObjectComponentChanged");
-	lua_pushinteger(L, (int)WorldEventType::CameraDepthChanged);
-	lua_setfield(L, -2, "CameraDepthChanged");
+	for (int i = 0; i < WorldEventType::size(); ++i) {
+		lua_pushinteger(L, WorldEventType::value(i));
+		lua_setfield(L, -2, WorldEventType::value(i).to_string());
+	}
 
 	lua_setfield(L, -2, "WorldEventType");
 

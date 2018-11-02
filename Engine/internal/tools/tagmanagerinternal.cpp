@@ -6,10 +6,10 @@
 #include "memory/memory.h"
 
 TagManager::TagManager() : Singleton2<TagManager>(MEMORY_NEW(TagManagerInternal), Memory::DeleteRaw<TagManagerInternal>) {}
-const Tags& TagManager::GetAllTags() { return _suede_dptr()->GetAllTags(); }
-void TagManager::Register(const std::string& name) { _suede_dptr()->Register(name); }
-void TagManager::Unregister(const std::string& name) { _suede_dptr()->Unregister(name); }
-bool TagManager::IsRegistered(const std::string& name) { return _suede_dptr()->IsRegistered(name); }
+const Tags& TagManager::GetAllTags() { return _suede_dinstance()->GetAllTags(); }
+void TagManager::Register(const std::string& name) { _suede_dinstance()->Register(name); }
+void TagManager::Unregister(const std::string& name) { _suede_dinstance()->Unregister(name); }
+bool TagManager::IsRegistered(const std::string& name) { return _suede_dinstance()->IsRegistered(name); }
 
 static const char* defaultTags[] = { "DefaultTag0", "DefaultTag1", "DefaultTag2" };
 

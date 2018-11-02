@@ -8,76 +8,89 @@
 #include "tools/string.h"
 
 class Gizmos_Wrapper {
-	static int GizmosInstance(lua_State* L) {
-		return Lua::reference<Gizmos>(L);
-	}
-
 	static int ToString(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
+		Gizmos* _p = Lua::callerPtr<Gizmos>(L);
 
 		lua_pushstring(L, String::Format("Gizmos@0x%p", _p).c_str());
 		return 1;
 	}
 
-	// void Flush()
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Gizmos");
+		return 1;
+	}
+
+	static int GizmosStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "Flush", Flush },
+			{ "GetColor", GetColor },
+			{ "SetColor", SetColor },
+			{ "DrawSphere", DrawSphere },
+			{ "DrawCuboid", DrawCuboid },
+			{ "DrawWireSphere", DrawWireSphere },
+			{ "DrawWireCuboid", DrawWireCuboid },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
+	// static void Flush()
 	static int Flush(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		_p->Flush();
+		Gizmos::Flush();
 		return 0;
 	}
 
-	// Color GetColor()
+	// static Color GetColor()
 	static int GetColor(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		return Lua::push(L, _p->GetColor());
+		return Lua::push(L, Gizmos::GetColor());
 	}
 
-	// void SetColor(const Color& value)
+	// static void SetColor(const Color& value)
 	static int SetColor(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		Color value = Lua::get<Color>(L, 2);
+		Color value = Lua::get<Color>(L, 1);
 		
-		_p->SetColor(value);
+		Gizmos::SetColor(value);
 		return 0;
 	}
 
-	// void DrawSphere(const glm::vec3& center, float radius)
+	// static void DrawSphere(const glm::vec3& center, float radius)
 	static int DrawSphere(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		float radius = Lua::get<float>(L, 3);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		float radius = Lua::get<float>(L, 2);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
 		
-		_p->DrawSphere(center, radius);
+		Gizmos::DrawSphere(center, radius);
 		return 0;
 	}
 
-	// void DrawCuboid(const glm::vec3& center, const glm::vec3& size)
+	// static void DrawCuboid(const glm::vec3& center, const glm::vec3& size)
 	static int DrawCuboid(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		glm::vec3 size = Lua::get<glm::vec3>(L, 2);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
 		
-		_p->DrawCuboid(center, size);
+		Gizmos::DrawCuboid(center, size);
 		return 0;
 	}
 
-	// void DrawWireSphere(const glm::vec3& center, float radius)
+	// static void DrawWireSphere(const glm::vec3& center, float radius)
 	static int DrawWireSphere(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		float radius = Lua::get<float>(L, 3);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		float radius = Lua::get<float>(L, 2);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
 		
-		_p->DrawWireSphere(center, radius);
+		Gizmos::DrawWireSphere(center, radius);
 		return 0;
 	}
 
-	// void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size)
+	// static void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size)
 	static int DrawWireCuboid(lua_State* L) {
-		Gizmos* _p = Gizmos::instance();
-		glm::vec3 size = Lua::get<glm::vec3>(L, 3);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 2);
+		glm::vec3 size = Lua::get<glm::vec3>(L, 2);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
 		
-		_p->DrawWireCuboid(center, size);
+		Gizmos::DrawWireCuboid(center, size);
 		return 0;
 	}
 
@@ -87,16 +100,11 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "GizmosInstance", GizmosInstance });
+		fields.push_back(luaL_Reg{ "Gizmos", GizmosStatic });
 
 		luaL_Reg metalib[] = {
-			{ "Flush", Flush },
-			{ "GetColor", GetColor },
-			{ "SetColor", SetColor },
-			{ "DrawSphere", DrawSphere },
-			{ "DrawCuboid", DrawCuboid },
-			{ "DrawWireSphere", DrawWireSphere },
-			{ "DrawWireCuboid", DrawWireCuboid },
+			{ "__gc", Lua::deletePtr<Gizmos> },
+			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 

@@ -89,7 +89,7 @@ void ParticleSystemInternal::CullingUpdate() {
 		}
 
 		UpdateParticles();
-		time_ += Time::instance()->GetDeltaTime();
+		time_ += Time::GetDeltaTime();
 	}
 }
 
@@ -155,7 +155,7 @@ void ParticleSystemInternal::UpdateInstanceBuffers() {
 }
 
 void ParticleSystemInternal::UpdateAttributes() {
-	float deltaTime = Time::instance()->GetDeltaTime();
+	float deltaTime = Time::GetDeltaTime();
 
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
@@ -233,7 +233,7 @@ void ParticleSystemInternal::InitializeMesh() {
 
 	MeshFilter meshFilter = GetGameObject()->GetComponent<IMeshFilter>();
 	meshFilter->SetMesh(
-		Resources::instance()->CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)
+		Resources::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)
 	);
 	meshDirty_ = false;
 }
@@ -242,7 +242,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	ParticleRenderer renderer = GetGameObject()->GetComponent<IParticleRenderer>();
 
 	Material material = NewMaterial();
-	Shader shader = Resources::instance()->FindShader("builtin/particle");
+	Shader shader = Resources::FindShader("builtin/particle");
 	material->SetShader(shader);
 
 	Texture2D mainTexture = NewTexture2D();
@@ -287,21 +287,21 @@ void ParticleEmitterInternal::EmitParticles(Particle** particles, uint count) {
 
 uint ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
 	uint ans = rate_;
-	float nextTime = time_ + Time::instance()->GetDeltaTime();
+	float nextTime = time_ + Time::GetDeltaTime();
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
 			ans = Random::IntRange(bursts_[i].min, bursts_[i].max);
 		}
 	}
 
-	remainder_ += ans * Time::instance()->GetDeltaTime();
+	remainder_ += ans * Time::GetDeltaTime();
 	ans = (uint)remainder_;
 	remainder_ -= ans;
 	return ans;
 }
 
 void ParticleAnimatorInternal::Update(Particle& particle) {
-	float deltaTime = Time::instance()->GetDeltaTime();
+	float deltaTime = Time::GetDeltaTime();
 	particle.position += particle.velocity * deltaTime;
 	particle.velocity += kGravitationalAcceleration * gravityScale_ * deltaTime;
 }
