@@ -41,7 +41,7 @@ public:
 #ifdef _DEBUG
 #define _CHECK_LUA_STACK(L)	_StackChecker _checker(L);
 #else
-#define _CHECK_STACK(L)
+#define _CHECK_LUA_STACK(L)
 #endif
 
 // is std::shared_ptr.
@@ -779,6 +779,70 @@ inline glm::mat4 get<glm::mat4>(lua_State* L, int index) {
 #pragma endregion
 
 #pragma region function
+
+template <class... Args>
+static bool _invokeCurrentFunction(lua_State* L, Args... args) {
+	push(L, args...);
+	int r = lua_pcall(L, sizeof...(Args), 0, 0);
+	if (r != LUA_OK) {
+		Debug::LogError("invoke function failed(%d): %s.", r, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return false;
+	}
+
+	return true;
+}
+
+static int _getGlobalFunction(lua_State* L, const std::string& name) {
+	size_t pos = 0, n = 0;
+	for (; ; ) {
+		size_t current = name.find('.', pos);
+
+		std::string substr = name.substr(pos, current);
+		if (pos == 0) {
+			lua_getglobal(L, substr.c_str());
+		}
+		else {
+			lua_getfield(L, -1, substr.c_str());
+		}
+
+		++n;
+
+		if (current == std::string::npos) {
+			break;
+		}
+
+		pos = current + 1;
+	}
+
+	return (int)n;
+}
+
+static int getGlobalFunctionRef(lua_State* L, const std::string& name) {
+	assert(!name.empty() && "invalid name");
+	_CHECK_LUA_STACK(L);
+
+	int n = _getGlobalFunction(L, name);
+	int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	lua_pop(L, n - 1);
+
+	return ref;
+}
+
+template <class... Args>
+inline void invokeGlobalFunction(lua_State* L, int ref, Args... args) {
+	_CHECK_LUA_STACK(L);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+	_invokeCurrentFunction(L, args...);
+}
+
+template <class... Args>
+inline void invokeGlobalFunction(lua_State* L, const char* name, Args... args) {
+	_CHECK_LUA_STACK(L);
+	int n = _getGlobalFunction(L, name);
+	_invokeCurrentFunction(L, args...);
+	lua_pop(L, n - 1);
+}
 
 // lua function wrapper base.
 template <class R, class... Args>

@@ -81,9 +81,9 @@ void Scene::OnGameObjectImported(GameObject root, const std::string& path) {
 Lua
 ```lua
 -- 模型加载以resources/models为根目录。
-Suede.WorldInstance():Import("suzanne.fbx", function (root, path)
+Suede.World.Import("suzanne.fbx", function (root, path)
     -- !!! 将GameObject添加到场景中。.
-    root:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
+    root:GetTransform():SetParent(Suede.World.GetRootTransform());
 end);
 ```
 **创建组件**
@@ -110,7 +110,7 @@ local camera = cameraGameObject:AddComponent("ICamera");
 Suede.CameraUtility.SetMain(camera);
 
 -- !!! 将GameObject添加到场景中。.
-camera:GetTransform():SetParent(Suede.WorldInstance():GetRootTransform());
+camera:GetTransform():SetParent(Suede.World.GetRootTransform());
 ```
 **替换/修改材质**
 
@@ -132,7 +132,7 @@ local target = root:GetTransform():FindChild("Sphere01"):GetGameObject();
 local material = target:GetComponent("IMeshRenderer"):GetMaterial(0);
 
 -- Shader加载以resources/shaders为根目录。
-material:SetShader(Suede.ResourcesInstance():FindShader("builtin/lit_bumped_texture"));
+material:SetShader(Suede.Resources.FindShader("builtin/lit_bumped_texture"));
 
 local diffuse = Suede.NewTexture2D();
 diffuse:Create("bumped/diffuse.jpg");

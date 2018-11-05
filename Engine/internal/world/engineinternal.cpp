@@ -33,6 +33,23 @@ static void OnZThreadException(const std::exception& exception) {
 	throw exception;
 }
 
+EngineInternal::EngineInternal() : started_(false), updateRef_(LUA_REFNIL) {
+
+}
+
+template <class... Args>
+bool EngineInternal::InvokeCurrentLuaMethod(Args... args) {
+	Lua::push(L, args...);
+	int r = lua_pcall(L, sizeof...(Args), 0, 0);
+	if (r != LUA_OK) {
+		Debug::LogError("invoke function failed(%d): %s.", r, lua_tostring(L, -1));
+		lua_pop(L, 1);
+		return false;
+	}
+
+	return true;
+}
+
 bool EngineInternal::Startup(uint width, uint height) {
 	setlocale(LC_ALL, "");
 	std::set_terminate(OnTerminate);
@@ -58,7 +75,9 @@ bool EngineInternal::Startup(uint width, uint height) {
 
 	L = luaL_newstate();
 	Lua::initialize(L, lualibs, "resources/lua/main.lua");
-	InvokeLuaMethod("Awake");
+	Lua::invokeGlobalFunction(L, "SuedeGlobal.Awake");
+
+	updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
 
 	return true;
 }
@@ -71,12 +90,12 @@ void EngineInternal::Shutdown() {
 
 void EngineInternal::Update() {
 	if (!started_) {
-		InvokeLuaMethod("Start");
+		Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
 		started_ = true;
 	}
 
 	uint64 start = Profiler::GetTimeStamp();
-	InvokeLuaMethod("Update");
+	Lua::invokeGlobalFunction(L, updateRef_);
 	Statistics::SetScriptElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 	);
@@ -85,18 +104,6 @@ void EngineInternal::Update() {
 	WalkAllListeners(cont, &FrameEventListener::OnFrameEnter);
 	World::Update();
 	WalkAllListeners(cont, &FrameEventListener::OnFrameLeave);
-}
-
-void EngineInternal::InvokeLuaMethod(const char* name) {
-	lua_getglobal(L, "SuedeGlobal");
-	lua_getfield(L, -1, name);
-	int n = lua_pcall(L, 0, 0, 0);
-	if (n != LUA_OK) {
-		Debug::LogError("invoke \"%s\" failed(%d): %s.", name, n, lua_tostring(L, -1));
-		lua_pop(L, 1);
-	}
-
-	lua_pop(L, 1);
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

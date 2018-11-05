@@ -4,7 +4,7 @@
 struct lua_State;
 class EngineInternal {
 public:
-	EngineInternal() : started_(false) {}
+	EngineInternal();
 
 public:
 	bool Startup(uint width, uint height);
@@ -22,10 +22,10 @@ private:
 private:
 	template <class MemFunc>
 	void WalkAllListeners(FrameEventListenerContainer& container, MemFunc f);
-	void InvokeLuaMethod(const char* name);
 
 private:
 	bool started_;
+	int updateRef_;
 	lua_State* L;
 
 	FrameEventListenerContainer listeners_;

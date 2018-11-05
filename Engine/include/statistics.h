@@ -15,7 +15,7 @@ public:
 	static float GetFrameRate();
 
 	static void SetScriptElapsed(double value);
-	static double GetScripeElapsed();
+	static double GetScriptElapsed();
 
 	static void SetCullingElapsed(double value);
 	static double GetCullingElapsed();

@@ -20,7 +20,7 @@ public:
 	int GetFrameEventQueue() { return FrameEventQueueStatistics; }
 
 	void SetScriptElapsed(double value);
-	double GetScripeElapsed();
+	double GetScriptElapsed();
 
 	void SetCullingElapsed(double value);
 	double GetCullingElapsed();

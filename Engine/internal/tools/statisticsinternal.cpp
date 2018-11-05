@@ -10,7 +10,7 @@ uint Statistics::GetTriangles() { return _suede_dinstance()->GetTriangles(); }
 uint Statistics::GetDrawcalls() { return _suede_dinstance()->GetDrawcalls(); }
 float Statistics::GetFrameRate() { return _suede_dinstance()->GetFrameRate(); }
 void Statistics::SetScriptElapsed(double value) { _suede_dinstance()->SetScriptElapsed(value); }
-double Statistics::GetScripeElapsed() { return _suede_dinstance()->GetScripeElapsed(); }
+double Statistics::GetScriptElapsed() { return _suede_dinstance()->GetScriptElapsed(); }
 void Statistics::SetCullingElapsed(double value) { _suede_dinstance()->SetCullingElapsed(value); }
 double Statistics::GetCullingElapsed() { return _suede_dinstance()->GetCullingElapsed(); }
 void Statistics::SetRenderingElapsed(double value) { _suede_dinstance()->SetRenderingElapsed(value); }
@@ -46,7 +46,7 @@ void StatisticsInternal::SetScriptElapsed(double value) {
 	thisFrameStats.scriptElapsed = value;
 }
 
-double StatisticsInternal::GetScripeElapsed() {
+double StatisticsInternal::GetScriptElapsed() {
 	return thisFrameStats.scriptElapsed;
 }
 
