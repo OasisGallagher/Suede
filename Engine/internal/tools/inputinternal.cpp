@@ -10,9 +10,6 @@ InputInternal::~InputInternal() {
 	Engine::RemoveFrameEventListener(this);
 }
 
-void InputInternal::OnFrameLeave() {
-}
-
 int InputInternal::GetFrameEventQueue() {
 	return FrameEventQueueInputs;
 }

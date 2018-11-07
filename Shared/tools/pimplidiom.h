@@ -34,6 +34,7 @@ protected:
 // internal implementation ptr of this.
 #define _suede_dptr()		_dptr_impl(this)
 
+// internal implementation ptr of instance.
 #define _suede_dinstance()	instance()->_dptr_impl(instance())
 
 // implementation equals.

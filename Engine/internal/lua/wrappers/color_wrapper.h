@@ -50,7 +50,6 @@ class Color_Wrapper {
 	// void Set(float r, float g, float b, float a = 1)
 	static int Set(lua_State* L) {
 		Color* _p = Lua::callerPtr<Color>(L);
-
 		if (Lua::checkArguments<float, float, float, float>(L, 2)) {
 			float a = Lua::get<float>(L, 5);
 			float b = Lua::get<float>(L, 4);

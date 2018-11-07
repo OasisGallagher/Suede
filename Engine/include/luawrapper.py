@@ -27,7 +27,6 @@ kExcludeFiles = [
 	"gui.h",
 	"imgui.h",
 	"lua++.h",
-	#"plane.h",	# TODO: Plane(const glm::vec3 points[3]); error.
 	"variant.h",
 	"gizmospainter.h",
 	"graphicsviewer.h",
@@ -497,21 +496,21 @@ class Wrapper:
 			n = len(method.Arguments());
 			for i in range(n, -1, -1):
 				self._w(
-'''\n		%s''' % "if (Lua::checkArguments");
+'''		%s''' % "if (Lua::checkArguments");
 
 				if i != 0:
 					self._w("<" + self._argumentsTypes(method.Arguments(), i) + ">");
 				self._w('''(L, 2)) {\n''');
 				self._ws(self._formatMethodCall(method, className, sharedPtr, overloads[0].IsStatic() and 1 or 2, i, 3));
 				self._w(
-'''		}\n''');
+'''		}\n\n''');
 
 				# break if the argument index i - 1 is not optional.
 				if i != 0 and not method.Arguments()[i - 1].optional:
 					break;
 
-		self._w('''
-		Debug::LogError("failed to call \\"%s\\", invalid arguments.");
+		self._w(
+'''		Debug::LogError("failed to call \\"%s\\", invalid arguments.");
 		return 0;
 ''' % methodName);
 

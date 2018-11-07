@@ -48,7 +48,6 @@ class Bounds_Wrapper {
 	// void Encapsulate(const glm::vec3& point)
 	static int Encapsulate(lua_State* L) {
 		Bounds* _p = Lua::callerPtr<Bounds>(L);
-
 		if (Lua::checkArguments<Bounds>(L, 2)) {
 			Bounds other = Lua::get<Bounds>(L, 2);
 			

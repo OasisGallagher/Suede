@@ -130,7 +130,6 @@ class Component_Wrapper {
 	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
 	static int IsComponentType(lua_State* L) {
 		Component& _p = *Lua::callerSharedPtr<Component>(L);
-
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			

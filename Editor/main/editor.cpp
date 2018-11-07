@@ -195,15 +195,15 @@ void Editor::onScreenCapture() {
 void Editor::OnLogMessage(LogLevel level, const char* message) {
 	ConsoleMessageType type;
 	switch (level) {
-		case LogLevelDebug:
+		case LogLevel::Debug:
 			type = ConsoleMessageType::Debug;
 			break;
 
-		case LogLevelWarning:
+		case LogLevel::Warning:
 			type = ConsoleMessageType::Warning;
 			break;
 
-		case LogLevelError:
+		case LogLevel::Error:
 			type = ConsoleMessageType::Error;
 			break;
 	}

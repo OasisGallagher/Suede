@@ -90,7 +90,6 @@ class Graphics_Wrapper {
 	// static void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect)
 	// static void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect)
 	static int Blit(lua_State* L) {
-
 		if (Lua::checkArguments<Texture, RenderTexture>(L, 2)) {
 			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
 			Texture src = Lua::get<Texture>(L, 1);

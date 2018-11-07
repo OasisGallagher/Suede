@@ -41,7 +41,7 @@ public:
 
 private:
 	enum {
-		MaxProfilterSamples = 1024,
+		MaxProfilerSamples = 1024,
 	};
 
 	typedef free_list<Sample> SampleContainer;

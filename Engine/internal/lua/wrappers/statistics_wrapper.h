@@ -29,9 +29,11 @@ class Statistics_Wrapper {
 			{ "GetTriangles", GetTriangles },
 			{ "GetDrawcalls", GetDrawcalls },
 			{ "GetFrameRate", GetFrameRate },
+			{ "SetScriptElapsed", SetScriptElapsed },
+			{ "GetScriptElapsed", GetScriptElapsed },
 			{ "SetCullingElapsed", SetCullingElapsed },
-			{ "SetRenderingElapsed", SetRenderingElapsed },
 			{ "GetCullingElapsed", GetCullingElapsed },
+			{ "SetRenderingElapsed", SetRenderingElapsed },
 			{ "GetRenderingElapsed", GetRenderingElapsed },
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
@@ -72,6 +74,19 @@ class Statistics_Wrapper {
 		return Lua::push(L, Statistics::GetFrameRate());
 	}
 
+	// static void SetScriptElapsed(double value)
+	static int SetScriptElapsed(lua_State* L) {
+		double value = Lua::get<double>(L, 1);
+		
+		Statistics::SetScriptElapsed(value);
+		return 0;
+	}
+
+	// static double GetScriptElapsed()
+	static int GetScriptElapsed(lua_State* L) {
+		return Lua::push(L, Statistics::GetScriptElapsed());
+	}
+
 	// static void SetCullingElapsed(double value)
 	static int SetCullingElapsed(lua_State* L) {
 		double value = Lua::get<double>(L, 1);
@@ -80,17 +95,17 @@ class Statistics_Wrapper {
 		return 0;
 	}
 
+	// static double GetCullingElapsed()
+	static int GetCullingElapsed(lua_State* L) {
+		return Lua::push(L, Statistics::GetCullingElapsed());
+	}
+
 	// static void SetRenderingElapsed(double value)
 	static int SetRenderingElapsed(lua_State* L) {
 		double value = Lua::get<double>(L, 1);
 		
 		Statistics::SetRenderingElapsed(value);
 		return 0;
-	}
-
-	// static double GetCullingElapsed()
-	static int GetCullingElapsed(lua_State* L) {
-		return Lua::push(L, Statistics::GetCullingElapsed());
 	}
 
 	// static double GetRenderingElapsed()

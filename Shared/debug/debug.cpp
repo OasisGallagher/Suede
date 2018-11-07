@@ -5,6 +5,7 @@
 #include "stackwalker.h"
 #include "../tools/string.h"
 
+// declare an std::string variable named `_MsgVarName` and format it with message.
 #define DEF_VA_ARGS(_MsgVarName, _Format) \
 	va_list _Args; va_start(_Args, _Format); \
 	std::string _MsgVarName = String::VFormat(_Format, _Args); \
@@ -36,14 +37,14 @@ void Debug::SetLogReceiver(LogReceiver* value) {
 void Debug::Log(const char* format, ...) {
 	DEF_VA_ARGS(msg, format);
 	if (logReceiver != nullptr) {
-		logReceiver->OnLogMessage(LogLevelDebug, msg.c_str());
+		logReceiver->OnLogMessage(LogLevel::Debug, msg.c_str());
 	}
 }
 
 void Debug::LogWarning(const char* format, ...) {
 	DEF_VA_ARGS(msg, format);
 	if (logReceiver != nullptr) {
-		logReceiver->OnLogMessage(LogLevelWarning, msg.c_str());
+		logReceiver->OnLogMessage(LogLevel::Warning, msg.c_str());
 	}
 }
 
@@ -52,7 +53,7 @@ void Debug::LogError(const char* format, ...) {
 	msg += "\n" + tracer.GetStackTrace(1, 7);
 
 	if (logReceiver != nullptr) {
-		logReceiver->OnLogMessage(LogLevelError, msg.c_str());
+		logReceiver->OnLogMessage(LogLevel::Error, msg.c_str());
 	}
 }
 

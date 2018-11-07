@@ -382,7 +382,7 @@ inline bool checkArguments(lua_State* L, int index) {
 	return (lua_gettop(L) == sizeof...(R) + 2 + (index - 1)) && _checkArgumentsTypes<T, U, R...>(L, index);
 }
 
-// check whether `metatable` is userdata's metatable or base metatable.
+// check whether `metatable` is userdata's metatable or base.
 inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 	luaL_getmetatable(L, metatable);
 	if (index < 0) { --index; }
@@ -918,7 +918,7 @@ Func<R, Args...> make_func(lua_State* L) {
 		return nullptr;
 	}
 
-	return std::make_shared<Func<R, Args...>::element_type>(L);
+	return std::make_shared<IFunc<R, Args...>>(L);
 }
 
 #pragma endregion

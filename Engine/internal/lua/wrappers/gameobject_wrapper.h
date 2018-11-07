@@ -92,7 +92,6 @@ class GameObject_Wrapper {
 	// void RecalculateBounds(int flags = RecalculateBoundsFlagsAll)
 	static int RecalculateBounds(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-
 		if (Lua::checkArguments<int>(L, 2)) {
 			int flags = Lua::get<int>(L, 2);
 			
@@ -128,7 +127,6 @@ class GameObject_Wrapper {
 	// Component GetComponent(const char* name)
 	static int GetComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			
@@ -149,7 +147,6 @@ class GameObject_Wrapper {
 	// std::vector<Component> GetComponents(const char* name)
 	static int GetComponents(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			

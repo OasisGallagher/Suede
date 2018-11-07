@@ -78,7 +78,6 @@ class World_Wrapper {
 	// static void DestroyGameObject(uint id)
 	// static void DestroyGameObject(GameObject go)
 	static int DestroyGameObject(lua_State* L) {
-
 		if (Lua::checkArguments<uint>(L, 2)) {
 			uint id = Lua::get<uint>(L, 1);
 			

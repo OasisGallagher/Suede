@@ -16,14 +16,14 @@ void Profiler::ReleaseSample(Sample* value) { _suede_dinstance()->ReleaseSample(
 uint64 Profiler::GetTimeStamp() { return _suede_dinstance()->GetTimeStamp(); }
 double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dinstance()->TimeStampToSeconds(timeStamp); }
 
-ProfilerInternal::ProfilerInternal() : samples_(MaxProfilterSamples) {
+ProfilerInternal::ProfilerInternal() : samples_(MaxProfilerSamples) {
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency)) {
 		timeStampToSeconds_ = 1.0 / frequency.QuadPart;
 	}
 	else {
 		timeStampToSeconds_ = 1.0;
-		Debug::LogError("failed to initialize ProfilerInternal: %d.", GetLastError());
+		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
 	}
 
 	Engine::AddFrameEventListener(this);

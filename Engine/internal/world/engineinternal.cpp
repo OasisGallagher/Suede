@@ -33,7 +33,7 @@ static void OnZThreadException(const std::exception& exception) {
 	throw exception;
 }
 
-EngineInternal::EngineInternal() : started_(false), updateRef_(LUA_REFNIL) {
+EngineInternal::EngineInternal() : updateRef_(LUA_NOREF) {
 
 }
 
@@ -77,7 +77,6 @@ bool EngineInternal::Startup(uint width, uint height) {
 	Lua::initialize(L, lualibs, "resources/lua/main.lua");
 	Lua::invokeGlobalFunction(L, "SuedeGlobal.Awake");
 
-	updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
 
 	return true;
 }
@@ -89,9 +88,9 @@ void EngineInternal::Shutdown() {
 }
 
 void EngineInternal::Update() {
-	if (!started_) {
+	if (updateRef_ == LUA_NOREF) {
 		Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
-		started_ = true;
+		updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
 	}
 
 	uint64 start = Profiler::GetTimeStamp();
@@ -101,15 +100,22 @@ void EngineInternal::Update() {
 	);
 
 	FrameEventListenerContainer cont(listeners_);
-	WalkAllListeners(cont, &FrameEventListener::OnFrameEnter);
+	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameEnter));
+	
 	World::Update();
-	WalkAllListeners(cont, &FrameEventListener::OnFrameLeave);
+
+	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameLeave));
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {
-	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
-		listeners_.push_back(listener);
-	}
+	struct FrameEventComparer {
+		bool operator()(FrameEventListener* lhs, FrameEventListener* rhs) const {
+			return lhs->GetFrameEventQueue() < rhs->GetFrameEventQueue();
+		}
+	};
+
+	auto pos = std::upper_bound(listeners_.begin(), listeners_.end(), listener, FrameEventComparer());
+	listeners_.insert(pos, listener);
 }
 
 void EngineInternal::RemoveFrameEventListener(FrameEventListener* listener) {
