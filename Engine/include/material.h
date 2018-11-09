@@ -74,9 +74,9 @@ public:
 	glm::vec4 GetVector4(const std::string& name);
 
 	/**
-	 * @brief get properties defined in Properties block.
+	 * @brief get explicit properties defined in Properties block.
 	 */
-	void GetProperties(std::vector<const Property*>& properties) const;
+	const std::vector<const Property*>& GetExplicitProperties();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Material)

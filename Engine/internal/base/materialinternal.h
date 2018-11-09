@@ -5,9 +5,7 @@
 #include "internal/base/objectinternal.h"
 
 struct MaterialProperty {
-	MaterialProperty& operator = (const ShaderProperty& p);
-
-	int mask;
+	int i, mask;
 	Property property;
 };
 
@@ -68,7 +66,7 @@ public:
 	Color GetColor(const std::string& name);
 	glm::vec4 GetVector4(const std::string& name);
 
-	void GetProperties(std::vector<const Property*>& properties) const;
+	const std::vector<const Property*>& GetExplicitProperties();
 
 private:
 	void BindProperties(uint pass);
@@ -88,10 +86,12 @@ private:
 private:
 	Shader shader_;
 	int currentPass_;
+
 	uint passEnabled_;
 
 	std::string name_;
 
 	typedef ptr_map<std::string, MaterialProperty> PropertyContainer;
 	PropertyContainer properties_;
+	std::vector<const Property*> explicitProperties_;
 };

@@ -53,16 +53,18 @@ float saturate(float x) {
 // --------- Vertex Shader Functions ---------
 
 #ifdef _VERTEX_SHADER
-#define _TANGENT_SPACE_ROTATION(mat) \
+
+// initialize tangent to world space matrix.
+#define _TANGENT_TO_WORLD_ROTATION(mat) \
 			mat = mat3( \
 					normalize(mat3(_LocalToWorldMatrix) * _Tangent), \
 					vec3(0), \
 					normalize(mat3(_LocalToWorldMatrix) * _Normal)); \
 			mat[1] = normalize(cross(mat[2], mat[0]))
 
-#define _DEF_TANGENT_SPACE_ROTATION(variableName) \
+#define _DEF_TANGENT_TO_WORLD_ROTATION(variableName) \
 		mat3 variableName; \
-		_TANGENT_SPACE_ROTATION(variableName)
+		_TANGENT_TO_WORLD_ROTATION(variableName)
 		
 #endif	// _VERTEX_SHADER
 

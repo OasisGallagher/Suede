@@ -1,5 +1,6 @@
 Properties {
 	color _NormalColor = { 0, 1, 0 };
+	franged _NormalLength = { 0.4, 0.1, 2 };
 }
 
 SubShader {
@@ -87,12 +88,14 @@ SubShader {
 			vec3 clipNormal;
 		} inputs[];
 
+		uniform float _NormalLength;
+
 		void main() {
 			for (int i = 0; i < 3; ++i) {
 				gl_Position = gl_in[i].gl_Position;
 				EmitVertex();
 
-				gl_Position = gl_in[i].gl_Position + vec4(inputs[i].clipNormal, 0) * 0.4;
+				gl_Position = gl_in[i].gl_Position + vec4(inputs[i].clipNormal, 0) * _NormalLength;
 				EmitVertex();
 
 				EndPrimitive();

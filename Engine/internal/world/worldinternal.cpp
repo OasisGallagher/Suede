@@ -110,17 +110,16 @@ Object WorldInternal::CreateObject(ObjectType type) {
 
 GameObject WorldInternal::Import(const std::string& path, GameObjectImportedListener* listener) {
 	importer_->SetImportedListener(listener);
-	return importer_->Import(path);
+	return importer_->Import(path, nullptr);
 }
 
 GameObject WorldInternal::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
-	importer_->SetImportedCallback(callback);
-	return importer_->Import(path);
+	return importer_->Import(path, callback);
 }
 
 bool WorldInternal::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) {
 	importer_->SetImportedListener(listener);
-	return importer_->ImportTo(go, path);
+	return importer_->ImportTo(go, path, nullptr);
 }
 
 GameObject WorldInternal::GetGameObject(uint id) {

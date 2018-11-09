@@ -36,7 +36,7 @@
 #include "scripts/selectiongizmos.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
@@ -106,7 +106,7 @@ void Game::tick() {
 }
 
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
-	root->GetTransform()->SetParent(World::GetRootTransform());
+	//root->GetTransform()->SetParent(World::GetRootTransform());
 	root->SetName(path);
 
 	if (path == manFbxPath) {
@@ -129,7 +129,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		}
 		else if (path.find("suzanne") != std::string::npos) {
 			Texture2D diffuse = NewTexture2D();
-			diffuse->Create("suzanne/diffuse.dds");
+			diffuse->Load("suzanne/diffuse.dds");
 			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
 
 			Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
@@ -147,11 +147,11 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		material->SetShader(Resources::FindShader("builtin/lit_bumped_texture"));
 
 		Texture2D diffuse = NewTexture2D();
-		diffuse->Create("bumped/diffuse.jpg");
+		diffuse->Load("bumped/diffuse.jpg");
 		material->SetTexture(BuiltinProperties::MainTexture, diffuse);
 
 		Texture2D normal = NewTexture2D();
-		normal->Create("bumped/normal.jpg");
+		normal->Load("bumped/normal.jpg");
 		material->SetTexture(BuiltinProperties::BumpTexture, normal);
 	}
 	else if (path == normalVisualizerFbxPath) {
@@ -409,11 +409,11 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	//GameObject room = World::instance()->Import(roomFbxPath, this);
+	GameObject room = World::Import(roomFbxPath, this);
 #endif
 
 #ifdef BUMPED
-	GameObject bumped = World::instance()->Import(bumpedFbxPath, this);
+	GameObject bumped = World::Import(bumpedFbxPath, this);
 #endif
 
 #ifdef NORMAL_VISUALIZER

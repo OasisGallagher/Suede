@@ -26,7 +26,7 @@ uint ITexture::GetWidth() const { return _suede_dptr()->GetWidth(); }
 uint ITexture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
 ITexture2D::ITexture2D() : ITexture(MEMORY_NEW(Texture2DInternal)) {}
-bool ITexture2D::Create(const std::string& path) { return _suede_dptr()->Create(path); }
+bool ITexture2D::Load(const std::string& path) { return _suede_dptr()->Load(path); }
 bool ITexture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	return _suede_dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
 }
@@ -140,10 +140,6 @@ TextureWrapMode TextureInternal::GetWrapModeT() const {
 }
 
 void TextureInternal::BindTexture() const {
-	if (texture_ == 0) {
-
-	}
-
 	GL::GetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
 	GL::BindTexture(GetGLTextureType(), texture_);
 }
@@ -298,7 +294,7 @@ Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectType::Texture2D) 
 Texture2DInternal::~Texture2DInternal() {
 }
 
-bool Texture2DInternal::Create(const std::string& path) {
+bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
 	if (!ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + path)) {
 		return false;

@@ -64,8 +64,8 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-GameObjectLoader::GameObjectLoader(const std::string& path, GameObject go, WorkerEventListener* receiver)
-	: Worker(receiver), path_(path), root_(go) {
+GameObjectLoader::GameObjectLoader(const std::string& path, GameObject root, WorkerEventListener* receiver)
+	: Worker(receiver), path_(path), root_(root) {
 }
 
 GameObjectLoader::~GameObjectLoader() {
@@ -554,23 +554,18 @@ glm::vec3 GameObjectLoader::AIVector3ToGLM(const aiVector3D& vec) {
 	return glm::vec3(vec.x, vec.y, vec.z);
 }
 
-GameObject GameObjectLoaderThreadPool::Import(const std::string& path) {
+GameObject GameObjectLoaderThreadPool::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
 	GameObject root = NewGameObject();
-	ImportTo(root, path);
+	ImportTo(root, path, callback);
 	return root;
 }
 
-bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path) {
-	if (!go) {
-		Debug::LogError("invalid gameObject");
-		return false;
-	}
-
-	return Execute(MEMORY_NEW(GameObjectLoader, path, go, this));
+bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
+	return Execute(MEMORY_NEW(GameObjectLoaderWithCallback, path, go, this, callback));
 }
 
 void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
-	GameObjectLoader* loader = (GameObjectLoader*)schedule.get();
+	GameObjectLoaderWithCallback* loader = (GameObjectLoaderWithCallback*)schedule.get();
 
 	GameObjectAsset asset = loader->GetGameObjectAsset();
 	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
@@ -579,11 +574,14 @@ void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 
 	loader->GetSurface()->SetAttribute(asset.meshAsset);
 
-	if (callback_) {
-		(*callback_)(loader->GetGameObject(), loader->GetPath());
+	GameObject root = loader->GetGameObject();
+	root->GetTransform()->SetParent(World::GetRootTransform());
+
+	if (loader->GetParameter()) {
+		(*loader->GetParameter())(root, loader->GetPath());
 	}
 
 	if (listener_ != nullptr) {
-		listener_->OnGameObjectImported(loader->GetGameObject(), loader->GetPath());
+		listener_->OnGameObjectImported(root, loader->GetPath());
 	}
 }

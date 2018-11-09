@@ -118,7 +118,7 @@ Transform TransformInternal::FindChild(const std::string& path) {
 		if (!child) {
 			return nullptr;
 		}
-		dynamic_cast<TransformInternal*>(child.get());
+
 		current = _suede_rptr(child);
 	}
 
@@ -563,6 +563,7 @@ bool TransformInternal::IsNullOrRoot(Transform transform) {
 
 Transform TransformInternal::FindDirectChild(const std::string& name) {
 	for (int i = 0; i < children_.size(); ++i) {
+		std::string __test = children_[i]->GetGameObject()->GetName();
 		if (name == children_[i]->GetGameObject()->GetName()) {
 			return children_[i];
 		}

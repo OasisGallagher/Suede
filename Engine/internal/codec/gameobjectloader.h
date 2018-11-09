@@ -45,7 +45,7 @@ struct GameObjectAsset {
 
 class GameObjectLoader : public Worker, private NonCopyable {
 public:
-	GameObjectLoader(const std::string& path, GameObject go, WorkerEventListener* receiver);
+	GameObjectLoader(const std::string& path, GameObject root, WorkerEventListener* receiver);
 	~GameObjectLoader();
 
 public:
@@ -110,21 +110,36 @@ private:
 	TexelMapContainer texelMapContainer_;
 };
 
+template <class T>
+class GameObjectLoaderParameterized : public GameObjectLoader {
+public:
+public:
+	GameObjectLoaderParameterized(const std::string& path, GameObject root, WorkerEventListener* receiver, const T& value) 
+		: GameObjectLoader(path, root, receiver), parameter_(value) {
+	}
+
+public:
+	T& GetParameter() { return parameter_; }
+
+private:
+	T parameter_;
+};
+
+typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject, const std::string&>> GameObjectLoaderWithCallback;
+
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
 	GameObjectLoaderThreadPool() : ThreadPool(16), listener_(nullptr) {}
 
 public:
-	GameObject Import(const std::string& path);
-	bool ImportTo(GameObject go, const std::string& path);
+	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
+	bool ImportTo(GameObject go, const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
 
 	void SetImportedListener(GameObjectImportedListener* value) { listener_ = value; }
-	void SetImportedCallback(Lua::Func<void, GameObject, const std::string&> value) { callback_ = value; }
 
 protected:
 	virtual void OnSchedule(ZThread::Task& schedule);
 
 private:
 	GameObjectImportedListener* listener_;
-	Lua::Func<void, GameObject, const std::string&> callback_;
 };

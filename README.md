@@ -74,16 +74,12 @@ World::instance()->Import("suzanne.fbx", this);
 
 // 继承GameObjectImportedListener, 重写回调函数。
 void Scene::OnGameObjectImported(GameObject root, const std::string& path) {
-    // !!! 将GameObject添加到场景中。.
-    root->GetTransform()->SetParent(World::instance()->GetRootTransform());
 }
 ```
 Lua
 ```lua
 -- 模型加载以resources/models为根目录。
 Suede.World.Import("suzanne.fbx", function (root, path)
-    -- !!! 将GameObject添加到场景中。.
-    root:GetTransform():SetParent(Suede.World.GetRootTransform());
 end);
 ```
 **创建组件**

@@ -49,7 +49,7 @@ glm::mat4 IMaterial::GetMatrix4(const std::string& name) { return _suede_dptr()-
 glm::vec3 IMaterial::GetVector3(const std::string& name) { return _suede_dptr()->GetVector3(name); }
 Color IMaterial::GetColor(const std::string& name) { return _suede_dptr()->GetColor(name); }
 glm::vec4 IMaterial::GetVector4(const std::string& name) { return _suede_dptr()->GetVector4(name); }
-void IMaterial::GetProperties(std::vector<const Property*>& properties) const { _suede_dptr()->GetProperties(properties); }
+const std::vector<const Property*>& IMaterial::GetExplicitProperties() { return _suede_dptr()->GetExplicitProperties(); }
 
 // SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
@@ -259,12 +259,8 @@ glm::vec4 MaterialInternal::GetVector4(const std::string& name) {
 	return var->GetVector4();
 }
 
-void MaterialInternal::GetProperties(std::vector<const Property*>& properties) const {
-	for (PropertyContainer::const_iterator ite = properties_.cbegin(); ite != properties_.cend(); ++ite) {
-		if (ite->second->mask == -1) {
-			properties.push_back(&ite->second->property);
-		}
-	}
+const std::vector<const Property*>& MaterialInternal::GetExplicitProperties() {
+	return explicitProperties_;
 }
 
 uint MaterialInternal::GetPassCount() const {
@@ -439,16 +435,28 @@ void MaterialInternal::CopyProperties(Shader newShader) {
 	std::vector<ShaderProperty> shaderProperties;
 	newShader->GetProperties(shaderProperties);
 
+	explicitProperties_.clear();
+
 	// keep redundant properties in case the caller switch the previous shaders back.
-	for (ShaderProperty& shaderProperty : shaderProperties) {
+	for (int i = 0; i < shaderProperties.size(); ++i) {
+		ShaderProperty& shaderProperty = shaderProperties[i];
 		const std::string& name = shaderProperty.property->name;
 		MaterialProperty* materialProperty = GetMaterialProperty(name, shaderProperty.property->value.GetType());
 		if (materialProperty == nullptr) {
-			*properties_[name] = shaderProperty;
+			materialProperty = properties_[name];
+
+			materialProperty->i = i;
+			materialProperty->mask = shaderProperty.mask;
+			materialProperty->property = *shaderProperty.property;
 		}
 		else {
 			// copy masks and keep properties.
+			materialProperty->i = i;
 			materialProperty->mask = shaderProperty.mask;
+		}
+
+		if (shaderProperty.mask == -1) {
+			explicitProperties_.push_back(&materialProperty->property);
 		}
 	}
 
@@ -509,10 +517,4 @@ void MaterialInternal::SetVariant(const std::string& name, const Variant& value)
 			Debug::LogError("invalid variant type %d.", value.GetType());
 			break;
 	}
-}
-
-MaterialProperty& MaterialProperty::operator = (const ShaderProperty& p) {
-	mask = p.mask;
-	property = *p.property;
-	return *this;
 }

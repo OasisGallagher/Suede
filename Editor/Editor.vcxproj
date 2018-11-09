@@ -1210,6 +1210,7 @@
     <None Include="resources\shaders\builtin\directional_light_depth.shader" />
     <None Include="resources\shaders\builtin\gbuffer.shader" />
     <None Include="resources\shaders\builtin\include\post_effect_vertex.inc" />
+    <None Include="resources\shaders\builtin\lit_parallactic_texture.shader" />
     <None Include="resources\shaders\builtin\normal_visualizer.shader" />
     <None Include="resources\shaders\builtin\ssao.shader" />
     <None Include="resources\shaders\builtin\gizmos.shader" />

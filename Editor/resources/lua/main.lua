@@ -8,19 +8,43 @@ function SuedeGlobal.Start()
 	Suede.Environment.SetFogDensity(0);
 	Suede.Environment.SetAmbientColor(Suede.NewColor(0.15, 0.15, 0.15));
 
-	Suede.World.Import("suzanne.fbx", function (root, path)
-		print("loaded " .. path);
-		root:GetTransform():SetEulerAngles({ Suede.DepthTextureMode.Depth, Suede.MeshTopology.TriangleStripe });
-		root:GetTransform():SetPosition({ 0, 25, -5 });
-		root:GetTransform():SetParent(Suede.World.GetRootTransform());
+	Suede.World.Import("builtin/quad.fbx", function (root, path)
+		local target = root:GetTransform():FindChild("quad_root/default"):GetGameObject();
+		root:GetTransform():SetEulerAngles({ 0, 180, 0 });
+		
+		local shader = Suede.NewShader();
+		shader:Load("builtin/lit_parallactic_texture");
+
+		local material = target:GetComponent("IMeshRenderer"):GetMaterial(0);
+		material:SetShader(shader);
 
 		local diffuse = Suede.NewTexture2D();
-		diffuse:Create("suzanne/diffuse.dds");
+		diffuse:Load("parallax/diffuse.jpg");
+
+		local normal = Suede.NewTexture2D();
+		normal:Load("parallax/normal.jpg");
+
+		local depth = Suede.NewTexture2D();
+		depth:Load("parallax/depth.jpg");
+
+		material:SetTexture("_MainTexture", diffuse);
+		material:SetTexture("_BumpTexture", normal);
+		material:SetTexture("_DepthTexture", depth);
+	end);
+
+	--[[
+	Suede.World.Import("suzanne.fbx", function (root, path)
+		print("loaded " .. path);
+		root:GetTransform():SetPosition({ 0, 25, -5 });
+
+		local diffuse = Suede.NewTexture2D();
+		diffuse:Load("suzanne/diffuse.dds");
 		local target = root:GetTransform():FindChild("suzanne_root/default"):GetGameObject();
 
 		local material = target:GetComponent("IMeshRenderer"):GetMaterial(0);
 		material:SetTexture("_MainTexture", diffuse);
 	end);
+	]]
 end
 
 function SuedeGlobal.Update()

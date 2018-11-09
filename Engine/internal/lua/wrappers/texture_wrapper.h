@@ -150,12 +150,12 @@ class Texture2D_Wrapper {
 		return 1;
 	}
 
-	// bool Create(const std::string& path)
-	static int Create(lua_State* L) {
+	// bool Load(const std::string& path)
+	static int Load(lua_State* L) {
 		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
 		std::string path = Lua::get<std::string>(L, 2);
 		
-		return Lua::push(L, _p->Create(path));
+		return Lua::push(L, _p->Load(path));
 	}
 
 	// TextureFormat GetFormat()
@@ -191,7 +191,7 @@ public:
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteSharedPtr<Texture2D> },
 			{ "__tostring", ToString }, 
-			{ "Create", Create },
+			{ "Load", Load },
 			{ "GetFormat", GetFormat },
 			{ "EncodeToPNG", EncodeToPNG },
 			{ "EncodeToJPG", EncodeToJPG },

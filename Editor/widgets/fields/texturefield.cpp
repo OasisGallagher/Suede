@@ -47,7 +47,7 @@ void TextureField::showTextureExplorer() {
 		Texture2D texture = NewTexture2D();
 		path = QDir(Resources::GetTextureDirectory().c_str()).relativeFilePath(path);
 
-		if (texture->Create(path.toStdString())) {
+		if (texture->Load(path.toStdString())) {
 			setTexture(texture);
 			emit currentTextureChanged(texture);
 		}

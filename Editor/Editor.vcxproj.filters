@@ -780,6 +780,9 @@
     <None Include="resources\lua\main.lua">
       <Filter>resources\lua</Filter>
     </None>
+    <None Include="resources\shaders\builtin\lit_parallactic_texture.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

@@ -12,7 +12,7 @@ public:
 	LoadTextureCommand(Texture2D tex, const QString& p) : texture(tex), path(p) {}
 
 public:
-	virtual void run() { texture->Create(path.toStdString()); }
+	virtual void run() { texture->Load(path.toStdString()); }
 
 private:
 	QString path;
@@ -54,10 +54,7 @@ void MaterialEditor::replaceShader(Material material, const std::string& fullSha
 }
 
 void MaterialEditor::drawProperties(Material material) {
-	std::vector<const Property*> properties;
-	material->GetProperties(properties);
-
-	for (const Property* p : properties) {
+	for (const Property* p : material->GetExplicitProperties()) {
 		switch (p->value.GetType()) {
 			case VariantType::Bool:
 				drawBoolProperty(material, p);
