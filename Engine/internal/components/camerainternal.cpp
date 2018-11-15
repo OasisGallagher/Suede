@@ -216,7 +216,7 @@ Texture2D CameraInternal::Capture() {
 	Framebuffer0::Get()->ReadBuffer(data, &alignment);
 
 	Texture2D texture = NewTexture2D();
-	const glm::uvec4& viewport = Framebuffer0::Get()->GetViewport();
+	const glm::ivec4& viewport = Framebuffer0::Get()->GetViewport();
 	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
 
 	return texture;

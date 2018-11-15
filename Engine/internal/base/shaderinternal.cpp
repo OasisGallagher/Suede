@@ -41,12 +41,12 @@ static std::map<std::string, float> renderQueueVariables(_variables, _variables 
 Pass::Pass() : program_(0), oldProgram_(0) {
 	program_ = GL::CreateProgram();
 
-	std::fill(states_, states_ + RenderStateCount, nullptr);
+	std::fill(states_, states_ + SUEDE_COUNTOF(states_), nullptr);
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
 
 Pass::~Pass() {
-	for (int i = 0; i < RenderStateCount; ++i) {
+	for (int i = 0; i < SUEDE_COUNTOF(states_); ++i) {
 		MEMORY_DELETE(states_[i]);
 	}
 
@@ -127,7 +127,7 @@ void Pass::InitializeRenderStates(const std::vector<Semantics::RenderState>& sta
 }
 
 void Pass::BindRenderStates() {
-	for (int i = 0; i < RenderStateCount; ++i) {
+	for (int i = 0; i < SUEDE_COUNTOF(states_); ++i) {
 		if (states_[i] != nullptr) {
 			states_[i]->Bind();
 		}
@@ -135,7 +135,7 @@ void Pass::BindRenderStates() {
 }
 
 void Pass::UnbindRenderStates() {
-	for (int i = 0; i < RenderStateCount; ++i) {
+	for (int i = 0; i < SUEDE_COUNTOF(states_); ++i) {
 		if (states_[i] != nullptr) {
 			states_[i]->Unbind();
 		}
@@ -220,40 +220,40 @@ bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters
 
 bool Pass::RenderStateParameterToInteger(const std::string& parameter, int& answer) {
 	if (parameter.empty()) {
-		answer = None;
+		answer = RenderStateParameter::None;
 		return true;
 	}
 
 #define CASE(value)	if (parameter == #value) { answer = value; return true; } else (void)0
-	CASE(None);
-	CASE(Front); 
-	CASE(Back);
-	CASE(FrontAndBack); 
-	CASE(On); 
-	CASE(Off);
-	CASE(Never);
-	CASE(Less);
-	CASE(LEqual);
-	CASE(Equal); 
-	CASE(Greater);
-	CASE(NotEqual); 
-	CASE(GEqual); 
-	CASE(Always);
-	CASE(Zero); 
-	CASE(One);
-	CASE(SrcColor); 
-	CASE(OneMinusSrcColor);
-	CASE(SrcAlpha);
-	CASE(OneMinusSrcAlpha);
-	CASE(DestAlpha);
-	CASE(OneMinusDestAlpha);
-	CASE(Keep); 
-	CASE(Replace);
-	CASE(Incr);
-	CASE(IncrWrap); 
-	CASE(Decr);
-	CASE(DecrWrap);
-	CASE(Invert);
+	CASE(RenderStateParameter::None);
+	CASE(RenderStateParameter::Front); 
+	CASE(RenderStateParameter::Back);
+	CASE(RenderStateParameter::FrontAndBack); 
+	CASE(RenderStateParameter::On); 
+	CASE(RenderStateParameter::Off);
+	CASE(RenderStateParameter::Never);
+	CASE(RenderStateParameter::Less);
+	CASE(RenderStateParameter::LEqual);
+	CASE(RenderStateParameter::Equal); 
+	CASE(RenderStateParameter::Greater);
+	CASE(RenderStateParameter::NotEqual); 
+	CASE(RenderStateParameter::GEqual); 
+	CASE(RenderStateParameter::Always);
+	CASE(RenderStateParameter::Zero); 
+	CASE(RenderStateParameter::One);
+	CASE(RenderStateParameter::SrcColor); 
+	CASE(RenderStateParameter::OneMinusSrcColor);
+	CASE(RenderStateParameter::SrcAlpha);
+	CASE(RenderStateParameter::OneMinusSrcAlpha);
+	CASE(RenderStateParameter::DestAlpha);
+	CASE(RenderStateParameter::OneMinusDestAlpha);
+	CASE(RenderStateParameter::Keep); 
+	CASE(RenderStateParameter::Replace);
+	CASE(RenderStateParameter::Incr);
+	CASE(RenderStateParameter::IncrWrap); 
+	CASE(RenderStateParameter::Decr);
+	CASE(RenderStateParameter::DecrWrap);
+	CASE(RenderStateParameter::Invert);
 #undef CASE
 
 	int integer = -1;

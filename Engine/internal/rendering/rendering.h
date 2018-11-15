@@ -163,5 +163,5 @@ private:
 	/*RenderingListener* listener_;*/
 
 	RenderingPipelines pipelines_;
-	Sample *push_renderables, *forward_pass, *get_renderable_gameObjects;
+	Sample *push_renderables, *forward_pass, *get_renderable_game_objects;
 };

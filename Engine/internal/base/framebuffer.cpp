@@ -95,8 +95,8 @@ void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, GLenum
 	if (bind != nullptr) { *bind = glBind; }
 }
 
-void FramebufferBase::SetViewport(uint x, uint y, uint width, uint height) {
-	glm::uvec4 value(x, y, width, height);
+void FramebufferBase::SetViewport(int x, int y, uint width, uint height) {
+	glm::ivec4 value(x, y, width, height);
 	if (viewport_ != value) {
 		viewport_ = value;
 		OnViewportChanged();

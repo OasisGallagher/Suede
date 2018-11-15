@@ -7,14 +7,19 @@
 
 #define CHECK_PARAMETER(name, value, ...)	\
 	if (true) { \
-		int buffer[] = { __VA_ARGS__ }; \
+		RenderStateParameter buffer[] = { __VA_ARGS__ }; \
 		if (!IsValidParameter(value, buffer, SUEDE_COUNTOF(buffer))) { \
 			Debug::LogError("invalid paramter for '%s'", #name); \
 		} \
 	} else (void)0
 
 void CullState::Initialize(int parameter0, int, int) {
-	CHECK_PARAMETER(Cull, parameter0, Front, Back, Off);
+	CHECK_PARAMETER(RenderStateType::Cull, parameter0, 
+		RenderStateParameter::Front, 
+		RenderStateParameter::Back, 
+		RenderStateParameter::Off
+	);
+
 	parameter_ = parameter0;
 }
 
@@ -22,8 +27,8 @@ void CullState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_CULL_FACE);
 	GL::GetIntegerv(GL_CULL_FACE_MODE, &oldMode_);
 
-	Enable(GL_CULL_FACE, parameter_ != Off);
-	if (parameter_ != Off) {
+	Enable(GL_CULL_FACE, parameter_ != RenderStateParameter::Off);
+	if (parameter_ != RenderStateParameter::Off) {
 		GL::CullFace(RenderParamterToGLEnum(parameter_));
 	}
 }
@@ -38,15 +43,26 @@ RenderState* CullState::Clone() {
 }
 
 void ZTestState::Initialize(int parameter0, int, int) {
-	CHECK_PARAMETER(ZTest, parameter0, Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off);
+	CHECK_PARAMETER(RenderStateType::ZTest, parameter0,
+		RenderStateParameter::Never, 
+		RenderStateParameter::Less, 
+		RenderStateParameter::LEqual, 
+		RenderStateParameter::Equal, 
+		RenderStateParameter::Greater, 
+		RenderStateParameter::NotEqual, 
+		RenderStateParameter::GEqual, 
+		RenderStateParameter::Always, 
+		RenderStateParameter::Off
+	);
+
 	parameter_ = parameter0;
 }
 
 void ZTestState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_DEPTH_TEST);
 
-	Enable(GL_DEPTH_TEST, parameter_ != Off);
-	if (parameter_ != Off) {
+	Enable(GL_DEPTH_TEST, parameter_ != RenderStateParameter::Off);
+	if (parameter_ != RenderStateParameter::Off) {
 		GL::GetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
 		GL::DepthFunc(RenderParamterToGLEnum(parameter_));
 	}
@@ -54,7 +70,7 @@ void ZTestState::Bind() {
 
 void ZTestState::Unbind() {
 	Enable(GL_DEPTH_TEST, oldEnabled_);
-	if (parameter_ != Off) {
+	if (parameter_ != RenderStateParameter::Off) {
 		GL::DepthFunc(oldMode_);
 	}
 }
@@ -64,13 +80,13 @@ RenderState* ZTestState::Clone() {
 }
 
 void ZWriteState::Initialize(int parameter0, int, int) {
-	CHECK_PARAMETER(ZWrite, parameter0, On, Off);
+	CHECK_PARAMETER(RenderStateType::ZWrite, parameter0, RenderStateParameter::On, RenderStateParameter::Off);
 	parameter_ = parameter0;
 }
 
 void ZWriteState::Bind() {
 	GL::GetIntegerv(GL_DEPTH_WRITEMASK, &oldMask_);
-	GL::DepthMask(parameter_ == On);
+	GL::DepthMask(parameter_ == RenderStateParameter::On);
 }
 
 void ZWriteState::Unbind() {
@@ -110,9 +126,19 @@ RenderState* OffsetState::Clone() {
 }
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
-	CHECK_PARAMETER(StencilTest, parameter0, Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off);
+	CHECK_PARAMETER(RenderStateType::StencilTest, parameter0,
+		RenderStateParameter::Never, 
+		RenderStateParameter::Less, 
+		RenderStateParameter::LEqual, 
+		RenderStateParameter::Equal, 
+		RenderStateParameter::Greater, 
+		RenderStateParameter::NotEqual, 
+		RenderStateParameter::GEqual, 
+		RenderStateParameter::Always, 
+		RenderStateParameter::Off
+	);
 
-	if (parameter0 != Off && (parameter1 > 0xFF || parameter1 < 0x00)) {
+	if (parameter0 != RenderStateParameter::Off && (parameter1 > 0xFF || parameter1 < 0x00)) {
 		Debug::LogError("invalid parameter1 for 'StencilTest'.");
 		return;
 	}
@@ -124,8 +150,8 @@ void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2
 void StencilTestState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_STENCIL_TEST);
 
-	Enable(GL_STENCIL_TEST, parameter0_ != Off);
-	if (parameter0_ != Off) {
+	Enable(GL_STENCIL_TEST, parameter0_ != RenderStateParameter::Off);
+	if (parameter0_ != RenderStateParameter::Off) {
 		GL::GetIntegerv(GL_STENCIL_REF, (GLint*)&oldRef_);
 		GL::GetIntegerv(GL_STENCIL_FUNC, (GLint*)&oldFunc_);
 		GL::GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint*)&oldMask_);
@@ -136,7 +162,7 @@ void StencilTestState::Bind() {
 
 void StencilTestState::Unbind() {
 	Enable(GL_STENCIL_TEST, oldEnabled_);
-	if (parameter0_ != Off) {
+	if (parameter0_ != RenderStateParameter::Off) {
 		GL::StencilFunc(oldFunc_, oldRef_, oldMask_);
 	}
 }
@@ -146,7 +172,7 @@ RenderState* StencilTestState::Clone() {
 }
 
 void StencilWriteState::Initialize(int parameter0, int, int) {
-	CHECK_PARAMETER(StencilWrite, parameter0, On, Off);
+	CHECK_PARAMETER(RenderStateType::StencilWrite, parameter0, RenderStateParameter::On, RenderStateParameter::Off);
 
 	parameter0_ = parameter0;
 }
@@ -155,7 +181,7 @@ void StencilWriteState::Bind() {
 	GL::GetIntegerv(GL_STENCIL_WRITEMASK, (GLint*)&oldFrontMask_);
 	GL::GetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint*)&oldBackMask_);
 
-	GL::StencilMask(parameter0_ == On ? 0xFF : 0);
+	GL::StencilMask(parameter0_ == RenderStateParameter::On ? 0xFF : 0);
 }
 
 void StencilWriteState::Unbind() {
@@ -168,9 +194,37 @@ RenderState* StencilWriteState::Clone() {
 }
 
 void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) {
-	CHECK_PARAMETER(StencilOp, parameter0, Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert);
-	CHECK_PARAMETER(StencilOp, parameter1, Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert);
-	CHECK_PARAMETER(StencilOp, parameter2, Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert);
+	CHECK_PARAMETER(RenderStateType::StencilOp, parameter0,
+		RenderStateParameter::Keep, 
+		RenderStateParameter::Zero, 
+		RenderStateParameter::Replace, 
+		RenderStateParameter::Incr, 
+		RenderStateParameter::IncrWrap, 
+		RenderStateParameter::Decr, 
+		RenderStateParameter::DecrWrap, 
+		RenderStateParameter::Invert);
+
+	CHECK_PARAMETER(RenderStateType::StencilOp, parameter1,
+		RenderStateParameter::Keep, 
+		RenderStateParameter::Zero, 
+		RenderStateParameter::Replace, 
+		RenderStateParameter::Incr, 
+		RenderStateParameter::IncrWrap, 
+		RenderStateParameter::Decr, 
+		RenderStateParameter::DecrWrap, 
+		RenderStateParameter::Invert
+	);
+
+	CHECK_PARAMETER(RenderStateType::StencilOp, parameter2,
+		RenderStateParameter::Keep, 
+		RenderStateParameter::Zero, 
+		RenderStateParameter::Replace, 
+		RenderStateParameter::Incr, 
+		RenderStateParameter::IncrWrap, 
+		RenderStateParameter::Decr, 
+		RenderStateParameter::DecrWrap, 
+		RenderStateParameter::Invert
+	);
 
 	parameter0_ = parameter0;
 	parameter1_ = parameter1;
@@ -194,13 +248,13 @@ RenderState* StencilOpState::Clone() {
 }
 
 void RasterizerDiscardState::Initialize(int parameter0, int, int) {
-	CHECK_PARAMETER(RasterizerDiscard, parameter0, On, Off);
+	CHECK_PARAMETER(RenderStateType::RasterizerDiscard, parameter0, RenderStateParameter::On, RenderStateParameter::Off);
 	parameter_ = parameter0;
 }
 
 void RasterizerDiscardState::Bind() {
 	oldEnabled_ = GL::IsEnabled(GL_RASTERIZER_DISCARD);
-	Enable(GL_RASTERIZER_DISCARD, parameter_ == On);
+	Enable(GL_RASTERIZER_DISCARD, parameter_ == RenderStateParameter::On);
 }
 
 void RasterizerDiscardState::Unbind() {
@@ -212,10 +266,30 @@ RenderState* RasterizerDiscardState::Clone() {
 }
 
 void BlendState::Initialize(int parameter0, int parameter1, int) {
-	CHECK_PARAMETER(Blend, parameter0, Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha);
+	CHECK_PARAMETER(RenderStateType::Blend, parameter0,
+		RenderStateParameter::Off, 
+		RenderStateParameter::Zero, 
+		RenderStateParameter::One, 
+		RenderStateParameter::SrcColor, 
+		RenderStateParameter::OneMinusSrcColor, 
+		RenderStateParameter::SrcAlpha, 
+		RenderStateParameter::OneMinusSrcAlpha, 
+		RenderStateParameter::DestAlpha, 
+		RenderStateParameter::OneMinusDestAlpha
+	);
 
-	if (parameter0 != Off) {
-		CHECK_PARAMETER(Blend, parameter0, None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha);
+	if (parameter0 != RenderStateParameter::Off) {
+		CHECK_PARAMETER(RenderStateType::Blend, parameter0,
+			RenderStateParameter::None, 
+			RenderStateParameter::Zero, 
+			RenderStateParameter::One, 
+			RenderStateParameter::SrcColor, 
+			RenderStateParameter::OneMinusSrcColor, 
+			RenderStateParameter::SrcAlpha, 
+			RenderStateParameter::OneMinusSrcAlpha, 
+			RenderStateParameter::DestAlpha, 
+			RenderStateParameter::OneMinusDestAlpha
+		);
 	}
 
 	src_ = parameter0;
@@ -227,8 +301,8 @@ void BlendState::Bind() {
 	GL::GetIntegerv(GL_BLEND_SRC, &oldSrc_);
 	GL::GetIntegerv(GL_BLEND_DST, &oldDest_);
 
-	Enable(GL_BLEND, src_ != Off);
-	if (src_ != Off) {
+	Enable(GL_BLEND, src_ != RenderStateParameter::Off);
+	if (src_ != RenderStateParameter::Off) {
 		GL::BlendFunc(RenderParamterToGLEnum(src_), RenderParamterToGLEnum(dest_));
 	}
 }
@@ -247,7 +321,7 @@ void RenderState::Enable(GLenum cap, GLboolean enable) {
 	else { GL::Disable(cap); }
 }
 
-bool RenderState::IsValidParameter(int value, const int* buffer, int count) {
+bool RenderState::IsValidParameter(int value, const RenderStateParameter* buffer, int count) {
 	int i = 0;
 	for (; i < count; ++i) {
 		if (value == buffer[i]) {
@@ -261,82 +335,82 @@ bool RenderState::IsValidParameter(int value, const int* buffer, int count) {
 GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
 	GLenum value = 0;
 	switch (parameter0) {
-		case Front:
+		case RenderStateParameter::Front:
 			value = GL_FRONT;
 			break;
-		case Back:
+		case RenderStateParameter::Back:
 			value = GL_BACK;
 			break;
-		case FrontAndBack:
+		case RenderStateParameter::FrontAndBack:
 			value = GL_FRONT_AND_BACK;
 			break;
-		case Never:
+		case RenderStateParameter::Never:
 			value = GL_NEVER;
 			break;
-		case Less:
+		case RenderStateParameter::Less:
 			value = GL_LESS;
 			break;
-		case LEqual:
+		case RenderStateParameter::LEqual:
 			value = GL_LEQUAL;
 			break;
-		case Equal:
+		case RenderStateParameter::Equal:
 			value = GL_EQUAL;
 			break;
-		case Greater:
+		case RenderStateParameter::Greater:
 			value = GL_GREATER;
 			break;
-		case NotEqual:
+		case RenderStateParameter::NotEqual:
 			value = GL_NOTEQUAL;
 			break;
-		case GEqual:
+		case RenderStateParameter::GEqual:
 			value = GL_GEQUAL;
 			break;
-		case Always:
+		case RenderStateParameter::Always:
 			value = GL_ALWAYS;
 			break;
-		case Zero:
+		case RenderStateParameter::Zero:
 			value = GL_ZERO;
 			break;
-		case One:
+		case RenderStateParameter::One:
 			value = GL_ONE;
 			break;
-		case SrcColor:
+		case RenderStateParameter::SrcColor:
 			value = GL_SRC_COLOR;
 			break;
-		case OneMinusSrcColor:
+		case RenderStateParameter::OneMinusSrcColor:
 			value = GL_ONE_MINUS_SRC_COLOR;
 			break;
-		case SrcAlpha:
+		case RenderStateParameter::SrcAlpha:
 			value = GL_SRC_ALPHA;
 			break;
-		case OneMinusSrcAlpha:
+		case RenderStateParameter::OneMinusSrcAlpha:
 			value = GL_ONE_MINUS_SRC_ALPHA;
 			break;
-		case DestAlpha:
+		case RenderStateParameter::DestAlpha:
 			value = GL_DST_ALPHA;
 			break;
-		case OneMinusDestAlpha:
+		case RenderStateParameter::OneMinusDestAlpha:
 			value = GL_ONE_MINUS_DST_ALPHA;
 			break;
-		case Keep:
+		case RenderStateParameter::Keep:
 			value = GL_KEEP;
 			break;
-		case Replace:
+		case RenderStateParameter::Replace:
 			value = GL_REPLACE;
 			break;
-		case Incr:
+		case RenderStateParameter::Incr:
 			value = GL_INCR;
 			break;
-		case IncrWrap:
+		case RenderStateParameter::IncrWrap:
 			value = GL_INCR_WRAP;
 			break;
-		case Decr:
+		case RenderStateParameter::Decr:
 			value = GL_DECR;
 			break;
-		case DecrWrap:
+		case RenderStateParameter::DecrWrap:
 			value = GL_DECR_WRAP;
 			break;
-		case Invert:
+		case RenderStateParameter::Invert:
 			value = GL_INVERT;
 			break;
 	}

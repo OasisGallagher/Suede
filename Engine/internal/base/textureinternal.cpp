@@ -558,8 +558,8 @@ void RenderTextureInternal::DestroyFramebuffer() {
 
 bool RenderTextureInternal::SetViewport(uint width, uint height, const Rect& normalizedRect) {
 	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
-	framebuffer_->SetViewport((uint)viewport.GetXMin(), (uint)viewport.GetYMin(), (uint)viewport.GetWidth(), (uint)viewport.GetHeight());
-	return (uint)viewport.GetWidth() > 0 && (uint)viewport.GetHeight() > 0;
+	framebuffer_->SetViewport((int)viewport.GetXMin(), (int)viewport.GetYMin(), (uint)Math::Max(0.f, viewport.GetWidth()), (uint)Math::Max(0.f, viewport.GetHeight()));
+	return viewport.GetWidth() > 0 && viewport.GetHeight() > 0;
 }
 
 void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat format) {

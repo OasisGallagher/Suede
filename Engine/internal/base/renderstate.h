@@ -1,6 +1,6 @@
 #pragma once
 #include "../api/gl.h"
-
+#include "tools/enum.h"
 /**
  * @param Cull: Front, Back, Off.
  * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
@@ -17,7 +17,7 @@
  * @param StencilOp2: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
  * @param RasterizerDiscard: On, Off
  */
-enum RenderStateType {
+BETTER_ENUM(RenderStateType, int,
 	Cull,
 	Blend,
 	RasterizerDiscard,
@@ -28,19 +28,10 @@ enum RenderStateType {
 
 	StencilOp,
 	StencilTest,
-	StencilWrite,
+	StencilWrite
+)
 
-	RenderStateCount,
-};
-
-class RenderStateParameter {
-	struct Parameter {
-		int value;
-		const char* text;
-	};
-};
-
-enum {
+BETTER_ENUM(RenderStateParameter, int,
 	None,
 	Front,
 	Back,
@@ -73,8 +64,8 @@ enum {
 	IncrWrap,
 	Decr,
 	DecrWrap,
-	Invert,
-};
+	Invert
+)
 
 class RenderState {
 public:
@@ -88,7 +79,7 @@ public:
 protected:
 	void Enable(GLenum cap, GLboolean enable);
 	GLenum RenderParamterToGLEnum(int parameter);
-	bool IsValidParameter(int value, const int* buffer, int count);
+	bool IsValidParameter(int value, const RenderStateParameter* buffer, int count);
 };
 
 class CullState : public RenderState {
@@ -97,7 +88,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return Cull; }
+	virtual RenderStateType GetType() const { return RenderStateType::Cull; }
 private:
 	int oldMode_;
 	GLboolean oldEnabled_;
@@ -110,7 +101,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return ZTest; }
+	virtual RenderStateType GetType() const { return RenderStateType::ZTest; }
 
 private:
 	GLenum oldMode_;
@@ -124,7 +115,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return ZWrite; }
+	virtual RenderStateType GetType() const { return RenderStateType::ZWrite; }
 
 private:
 	GLint oldMask_;
@@ -142,7 +133,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return Offset; }
+	virtual RenderStateType GetType() const { return RenderStateType::Offset; }
 
 private:
 	GLfloat oldUnits_;
@@ -159,7 +150,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return StencilTest; }
+	virtual RenderStateType GetType() const { return RenderStateType::StencilTest; }
 
 private:
 	GLint oldRef_;
@@ -178,7 +169,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return StencilWrite; }
+	virtual RenderStateType GetType() const { return RenderStateType::StencilWrite; }
 
 private:
 	GLuint oldBackMask_;
@@ -194,7 +185,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return StencilOp; }
+	virtual RenderStateType GetType() const { return RenderStateType::StencilOp; }
 
 private:
 	GLenum oldSfail_;
@@ -212,7 +203,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return RasterizerDiscard; }
+	virtual RenderStateType GetType() const { return RenderStateType::RasterizerDiscard; }
 
 private:
 	GLboolean oldEnabled_;
@@ -225,7 +216,7 @@ public:
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
-	virtual RenderStateType GetType() const { return Blend; }
+	virtual RenderStateType GetType() const { return RenderStateType::Blend; }
 
 private:
 	GLboolean oldEnabled_;

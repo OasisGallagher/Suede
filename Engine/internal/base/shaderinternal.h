@@ -71,7 +71,7 @@ private:
 
 	int textureUnitCount_;
 	UniformContainer uniforms_;
-	RenderState* states_[RenderStateCount];
+	RenderState* states_[RenderStateType::size()];
 };
 
 class SubShader {

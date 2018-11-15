@@ -8,6 +8,8 @@
 #include "internal/base/vertexattrib.h"
 #include "internal/base/renderdefines.h"
 
+#undef DEBUG_SAMPLES
+
 template <class T>
 inline int Compare(T lhs, T rhs) {
 	if (lhs == rhs) { return 0; }
@@ -120,9 +122,12 @@ void Pipeline::Run() {
 	targetTexture_->BindWrite(normalizedRect_);
 
 	uint from = 0;
+
+#ifdef DEBUG_SAMPLES
 	samples_.draw_call->Reset();
 	samples_.switch_state->Reset();
 	samples_.update_offset->Reset();
+#endif
 
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		Renderable& first = renderables_[from];
@@ -147,10 +152,11 @@ void Pipeline::Run() {
 	
 	samples_.update_pipeline->Stop();
 
-	Debug::Output("[Pipeline::Update::renderables]\t%d", nrenderables_);
-	Debug::Output("[Pipeline::Update::drawcalls]\t%d", counters_.drawcalls);
-	Debug::Output("[Pipeline::Update::meshChanges]\t%d", counters_.meshChanges);
-	Debug::Output("[Pipeline::Update::materialChanges]\t%d", counters_.materialChanges);
+#ifdef DEBUG_SAMPLES
+	Debug::Output("[Pipeline::Update::renderables]\t%d ms", nrenderables_);
+	Debug::Output("[Pipeline::Update::drawcalls]\t%d ms", counters_.drawcalls);
+	Debug::Output("[Pipeline::Update::meshChanges]\t%d ms", counters_.meshChanges);
+	Debug::Output("[Pipeline::Update::materialChanges]\t%d ms", counters_.materialChanges);
 
 	Debug::Output("[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
 	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);
@@ -160,11 +166,15 @@ void Pipeline::Run() {
 	Debug::Output("[Pipeline::Update::switch_state]\t%.2f ms", samples_.switch_state->GetElapsedSeconds() * 1000);
 	Debug::Output("[Pipeline::Update::stat_and_output]\t%.2f ms", samples_.stat_and_output->GetElapsedSeconds() * 1000);
 	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f ms", samples_.update_pipeline->GetElapsedSeconds() * 1000);
+#endif
 
 	samples_.reset_states->Restart();
 	ResetState();
 	samples_.reset_states->Stop();
+
+#ifdef DEBUG_SAMPLES
 	Debug::Output("[Pipeline::Update::reset_states]\t%.2f ms", samples_.reset_states->GetElapsedSeconds() * 1000);
+#endif
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {

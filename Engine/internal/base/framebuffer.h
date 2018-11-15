@@ -63,8 +63,8 @@ public:
 	virtual void SetRenderTexture(FramebufferAttachment attachment, uint texture);
 
 public:
-	void SetViewport(uint x, uint y, uint width, uint height);
-	const glm::uvec4& GetViewport() const { return viewport_; }
+	void SetViewport(int x, int y, uint width, uint height);
+	const glm::ivec4& GetViewport() const { return viewport_; }
 
 	void SetClearColor(const Color& value) { clearColor_ = value; }
 	Color GetClearColor() const { return clearColor_; }
@@ -94,7 +94,7 @@ protected:
 
 protected:
 	uint fbo_;
-	glm::uvec4 viewport_;
+	glm::ivec4 viewport_;
 
 	float clearDepth_;
 	int clearStencil_;

@@ -159,6 +159,8 @@ void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	p_->materials.ssao->SetPass(1);
 	Graphics::Blit(temp, sharedSSAOTexture, p_->materials.ssao, p_->normalizedRect);
 
+	RenderTextureUtility::ReleaseTemporary(temp);
+
 	ssaoSample->Stop();
 	OutputSample(ssaoSample);
 }
@@ -221,7 +223,7 @@ RenderableTraits::RenderableTraits(RenderingParameters* p) : p_(p) {
 
 	forward_pass = Profiler::CreateSample();
 	push_renderables = Profiler::CreateSample();
-	get_renderable_gameObjects = Profiler::CreateSample();
+	get_renderable_game_objects = Profiler::CreateSample();
 }
 
 RenderableTraits::~RenderableTraits() {
@@ -232,7 +234,7 @@ RenderableTraits::~RenderableTraits() {
 
 	Profiler::ReleaseSample(forward_pass);
 	Profiler::ReleaseSample(push_renderables);
-	Profiler::ReleaseSample(get_renderable_gameObjects);
+	Profiler::ReleaseSample(get_renderable_game_objects);
 }
 
 void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices) {

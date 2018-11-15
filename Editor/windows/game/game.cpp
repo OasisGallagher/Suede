@@ -379,12 +379,12 @@ void Game::createScene() {
 	GameObject redText = NewGameObject();
 	redText->SetName("RedText");
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
-	redText->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	redText->GetTransform()->SetParent(World::GetRootTransform());
 
 	GameObject blueText = NewGameObject();
 	blueText->SetName("BlueText");
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
-	blueText->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	blueText->GetTransform()->SetParent(World::GetRootTransform());
 
 	TextMesh redMesh = redText->AddComponent<ITextMesh>();
 	redMesh->SetFont(font);
