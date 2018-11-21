@@ -17,8 +17,6 @@ bool IGameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf();
 int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(_shared_this()); }
 const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
 bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(_shared_this(), value); }
-std::string IGameObject::GetName() const { return _suede_dptr()->GetName(); }
-void IGameObject::SetName(const std::string& value) { _suede_dptr()->SetName(_shared_this(), value); }
 void IGameObject::Update() { _suede_dptr()->Update(); }
 void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
@@ -44,8 +42,6 @@ GameObjectInternal::GameObjectInternal(ObjectType type)
 	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
 		Debug::LogError("invalid go type %d.", type);
 	}
-
-	name_ = GetObjectType().to_string();
 }
 
 GameObjectInternal::~GameObjectInternal() {
@@ -94,29 +90,16 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 		RecalculateBounds();
 	}
 
-	auto e = NewWorldEvent<GameObjectComponentChangedEventPtr>();
-	e->go = self;
-	e->added = true;
-	e->component = component;
-	World::FireEvent(e);
+	FireWorldEvent<GameObjectComponentChangedEventPtr>(self, false, [=](GameObjectComponentChangedEventPtr& event) {
+		event->added = true;
+		event->component = component;
+	});
 
 	return component;
 }
 
 int GameObjectInternal::GetUpdateStrategy(GameObject self) {
 	return GetHierarchyUpdateStrategy(self);
-}
-
-void GameObjectInternal::SetName(GameObject self, const std::string& value) {
-	if (value.empty()) {
-		Debug::LogWarning("empty name.");
-		return;
-	}
-
-	if (name_ != value) {
-		name_ = value;
-		FireWorldEvent<GameObjectNameChangedEventPtr>(self, true);
-	}
 }
 
 void GameObjectInternal::CullingUpdate() {
@@ -156,6 +139,10 @@ void GameObjectInternal::RecalculateBounds(int flags) {
 
 void GameObjectInternal::RecalculateUpdateStrategy(GameObject self) {
 	RecalculateHierarchyUpdateStrategy(self);
+}
+
+void GameObjectInternal::OnNameChanged(Object self) {
+	FireWorldEvent<GameObjectNameChangedEventPtr>(suede_dynamic_cast<GameObject>(self), true);
 }
 
 void GameObjectInternal::SetActive(GameObject self, bool value) {
@@ -297,9 +284,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 			current = parent;
 		}
 
-		GameObjectUpdateStrategyChangedEventPtr e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPtr>();
-		e->go = self;
-		World::FireEvent(e);
+		FireWorldEvent<GameObjectUpdateStrategyChangedEventPtr>(self, false);
 
 		return true;
 	}

@@ -8,10 +8,8 @@
 
 #include "internal/rendering/sharedtexturemanager.h"
 
-IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) {}
+IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) { SetName(UNNAMED_MATERIAL); }
 Object IMaterial::Clone() { return _suede_dptr()->Clone(); }
-void IMaterial::SetName(const std::string& value) { _suede_dptr()->SetName(value); }
-std::string IMaterial::GetName() const { return _suede_dptr()->GetName(); }
 void IMaterial::Bind(uint pass) { _suede_dptr()->Bind(pass); }
 void IMaterial::Unbind() { _suede_dptr()->Unbind(); }
 bool IMaterial::EnablePass(uint pass) { return _suede_dptr()->EnablePass(pass); }
@@ -55,7 +53,7 @@ const std::vector<const Property*>& IMaterial::GetExplicitProperties() { return 
 #define SUB_SHADER_INDEX	0
 
 MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectType::Material), currentPass_(-1), name_(UNNAMED_MATERIAL) {
+	: ObjectInternal(ObjectType::Material), currentPass_(-1) {
 }
 
 MaterialInternal::~MaterialInternal() {

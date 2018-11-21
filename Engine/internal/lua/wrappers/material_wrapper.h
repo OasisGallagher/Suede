@@ -25,21 +25,6 @@ class Material_Wrapper {
 		return Lua::push(L, _p->Clone());
 	}
 
-	// void SetName(const std::string& value)
-	static int SetName(lua_State* L) {
-		Material& _p = *Lua::callerSharedPtr<Material>(L);
-		std::string value = Lua::get<std::string>(L, 2);
-		
-		_p->SetName(value);
-		return 0;
-	}
-
-	// std::string GetName()
-	static int GetName(lua_State* L) {
-		Material& _p = *Lua::callerSharedPtr<Material>(L);
-		return Lua::push(L, _p->GetName());
-	}
-
 	// void Bind(uint pass)
 	static int Bind(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
@@ -347,8 +332,6 @@ public:
 			{ "__gc", Lua::deleteSharedPtr<Material> },
 			{ "__tostring", ToString }, 
 			{ "Clone", Clone },
-			{ "SetName", SetName },
-			{ "GetName", GetName },
 			{ "Bind", Bind },
 			{ "Unbind", Unbind },
 			{ "EnablePass", EnablePass },

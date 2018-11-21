@@ -31,9 +31,6 @@ public:
 	const std::string& GetTag() const;
 	bool SetTag(const std::string& value);
 
-	std::string GetName() const;
-	void SetName(const std::string& value);
-
 	void Update();
 	void CullingUpdate();
 

@@ -224,36 +224,36 @@ bool Pass::RenderStateParameterToInteger(const std::string& parameter, int& answ
 		return true;
 	}
 
-#define CASE(value)	if (parameter == #value) { answer = value; return true; } else (void)0
-	CASE(RenderStateParameter::None);
-	CASE(RenderStateParameter::Front); 
-	CASE(RenderStateParameter::Back);
-	CASE(RenderStateParameter::FrontAndBack); 
-	CASE(RenderStateParameter::On); 
-	CASE(RenderStateParameter::Off);
-	CASE(RenderStateParameter::Never);
-	CASE(RenderStateParameter::Less);
-	CASE(RenderStateParameter::LEqual);
-	CASE(RenderStateParameter::Equal); 
-	CASE(RenderStateParameter::Greater);
-	CASE(RenderStateParameter::NotEqual); 
-	CASE(RenderStateParameter::GEqual); 
-	CASE(RenderStateParameter::Always);
-	CASE(RenderStateParameter::Zero); 
-	CASE(RenderStateParameter::One);
-	CASE(RenderStateParameter::SrcColor); 
-	CASE(RenderStateParameter::OneMinusSrcColor);
-	CASE(RenderStateParameter::SrcAlpha);
-	CASE(RenderStateParameter::OneMinusSrcAlpha);
-	CASE(RenderStateParameter::DestAlpha);
-	CASE(RenderStateParameter::OneMinusDestAlpha);
-	CASE(RenderStateParameter::Keep); 
-	CASE(RenderStateParameter::Replace);
-	CASE(RenderStateParameter::Incr);
-	CASE(RenderStateParameter::IncrWrap); 
-	CASE(RenderStateParameter::Decr);
-	CASE(RenderStateParameter::DecrWrap);
-	CASE(RenderStateParameter::Invert);
+#define CASE(value)	if (parameter == #value) { answer = RenderStateParameter::value; return true; } else (void)0
+	CASE(None);
+	CASE(Front); 
+	CASE(Back);
+	CASE(FrontAndBack); 
+	CASE(On); 
+	CASE(Off);
+	CASE(Never);
+	CASE(Less);
+	CASE(LEqual);
+	CASE(Equal); 
+	CASE(Greater);
+	CASE(NotEqual); 
+	CASE(GEqual); 
+	CASE(Always);
+	CASE(Zero); 
+	CASE(One);
+	CASE(SrcColor); 
+	CASE(OneMinusSrcColor);
+	CASE(SrcAlpha);
+	CASE(OneMinusSrcAlpha);
+	CASE(DestAlpha);
+	CASE(OneMinusDestAlpha);
+	CASE(Keep); 
+	CASE(Replace);
+	CASE(Incr);
+	CASE(IncrWrap); 
+	CASE(Decr);
+	CASE(DecrWrap);
+	CASE(Invert);
 #undef CASE
 
 	int integer = -1;

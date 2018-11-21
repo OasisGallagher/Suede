@@ -15,9 +15,6 @@ public:
 	~MaterialInternal();
 
 public:
-	void SetName(const std::string& value) { name_ = value; }
-	std::string GetName() const { return name_; }
-
 	Object Clone();
 
 	void SetShader(Material self, Shader value);
@@ -88,8 +85,6 @@ private:
 	int currentPass_;
 
 	uint passEnabled_;
-
-	std::string name_;
 
 	typedef ptr_map<std::string, MaterialProperty> PropertyContainer;
 	PropertyContainer properties_;

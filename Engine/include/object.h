@@ -64,6 +64,9 @@ class SUEDE_API IObject : public std::enable_shared_from_this<IObject>, public P
 	SUEDE_DECLARE_IMPLEMENTATION(Object)
 
 public:
+	std::string GetName() const;
+	void SetName(const std::string& value);
+
 	Object Clone();
 	ObjectType GetObjectType();
 	uint GetInstanceID();

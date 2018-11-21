@@ -243,7 +243,7 @@ void Game::createScene() {
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
 	light->GetTransform()->SetParent(World::GetRootTransform());
 
-	/*World::instance()->ImportTo(light, lightModelPath, this);*/
+	/*World::ImportTo(light, lightModelPath, this);*/
 
 	GameObject cameraGameObject = NewGameObject();
 	cameraGameObject->SetName("camera");
@@ -253,7 +253,7 @@ void Game::createScene() {
 	camera->GetTransform()->SetParent(World::GetRootTransform());
 
 	/*RenderTexture targetTexture = NewRenderTexture();
-	targetTexture->Create(RenderTextureFormat::Rgba, Screen::instance()->GetWidth(), Screen::instance()->GetHeight());
+	targetTexture->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
 	camera->SetTargetTexture(targetTexture);*/
 
 	controller_ = cameraGameObject->AddComponent<CameraController>().get();
@@ -270,7 +270,7 @@ void Game::createScene() {
 #else
 	projector->SetFieldOfView(Math::Radians(9.f));
 #endif
-	projector->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	projector->GetTransform()->SetParent(World::GetRootTransform());
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
 	Texture2D texture = NewTexture2D();
@@ -351,7 +351,7 @@ void Game::createScene() {
 	GameObject go = NewGameObject();
 	ParticleSystem particleSystem = go->AddComponent<IParticleSystem>();
 	go->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
-	go->GetTransform()->SetParent(World::instance()->GetRootTransform());
+	go->GetTransform()->SetParent(World::GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -417,11 +417,11 @@ void Game::createScene() {
 #endif
 
 #ifdef NORMAL_VISUALIZER
-	GameObject normalVisualizer = World::instance()->Import(normalVisualizerFbxPath, this);
+	GameObject normalVisualizer = World::Import(normalVisualizerFbxPath, this);
 #endif
 
 #ifdef BEAR
-	GameObject bear = World::instance()->Import("teddy_bear.fbx");
+	GameObject bear = World::Import("teddy_bear.fbx");
 	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -432,6 +432,6 @@ void Game::createScene() {
 #endif
 
 #ifdef ANIMATION
-	GameObject man = World::instance()->Import(manFbxPath, this);
+	GameObject man = World::Import(manFbxPath, this);
 #endif
 }

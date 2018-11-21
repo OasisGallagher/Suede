@@ -9,9 +9,15 @@ public:
 	virtual ~ObjectInternal() {}
 
 public:
+	std::string GetName() const { return name_; }
+	void SetName(Object self, const std::string& value);
+
 	Object Clone();
 	ObjectType GetObjectType() { return type_; }
 	uint GetInstanceID() { return id_; }
+
+protected:
+	virtual void OnNameChanged(Object self) {}
 
 public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
@@ -22,6 +28,7 @@ private:
 private:
 	uint id_;
 	ObjectType type_;
+	std::string name_;
 
 	static uint objectIDContainer[ObjectType::size()];
 };

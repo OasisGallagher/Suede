@@ -54,21 +54,6 @@ class GameObject_Wrapper {
 		return Lua::push(L, _p->SetTag(value));
 	}
 
-	// std::string GetName()
-	static int GetName(lua_State* L) {
-		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-		return Lua::push(L, _p->GetName());
-	}
-
-	// void SetName(const std::string& value)
-	static int SetName(lua_State* L) {
-		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-		std::string value = Lua::get<std::string>(L, 2);
-		
-		_p->SetName(value);
-		return 0;
-	}
-
 	// void Update()
 	static int Update(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
@@ -179,8 +164,6 @@ public:
 			{ "GetActiveSelf", GetActiveSelf },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "SetTag", SetTag },
-			{ "GetName", GetName },
-			{ "SetName", SetName },
 			{ "Update", Update },
 			{ "CullingUpdate", CullingUpdate },
 			{ "GetTransform", GetTransform },

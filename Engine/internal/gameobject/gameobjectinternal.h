@@ -23,9 +23,6 @@ public:
 	const std::string& GetTag() const { return tag_; }
 	bool SetTag(GameObject self, const std::string& value);
 
-	std::string GetName() const { return name_; }
-	void SetName(GameObject self, const std::string& value);
-
 	void Update();
 	void CullingUpdate();
 
@@ -35,6 +32,9 @@ public:
 	void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
 	void RecalculateUpdateStrategy(GameObject self);
+
+protected:
+	virtual void OnNameChanged(Object self);
 
 public:
 	template <class T>
@@ -65,7 +65,7 @@ private:
 	void UpdateChildrenActive(GameObject parent);
 
 	template <class T>
-	void FireWorldEvent(GameObject self, bool attachedToSceneOnly);
+	void FireWorldEvent(GameObject self, bool attachedToSceneOnly, std::function<void(T& event)> f = nullptr);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -75,7 +75,6 @@ private:
 	bool activeSelf_;
 
 	std::string tag_;
-	std::string name_;
 
 	std::vector<Component> components_;
 
@@ -85,15 +84,15 @@ private:
 	uint frameCullingUpdate_;
 
 	Bounds worldBounds_;
-	// is world space dirty.
 	bool boundsDirty_;
 };
 
 template <class T>
-inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly) {
+inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly, std::function<void(T& event)> f) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
 		e->go = self;
+		if (f) { f(e); }
 		World::FireEvent(e);
 	}
 }

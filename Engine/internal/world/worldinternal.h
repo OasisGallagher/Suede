@@ -16,6 +16,12 @@ class Sample;
 class DecalCreater;
 class GameObjectLoaderThreadPool;
 
+class btConstraintSolver;
+class btCollisionDispatcher;
+class btBroadphaseInterface;
+class btDiscreteDynamicsWorld;
+class btDefaultCollisionConfiguration;
+
 class WorldInternal : public ScreenSizeChangedListener, public WorldEventListener {
 public:
 	WorldInternal();
@@ -120,6 +126,14 @@ private:
 
 	ZThread::Mutex hierarchyMutex_;
 	ZThread::Mutex eventContainerMutex_;
+
+	struct Physics {
+		btConstraintSolver* solver;
+		btCollisionDispatcher* dispatcher;
+		btBroadphaseInterface* broadphase;
+		btDiscreteDynamicsWorld* world;
+		btDefaultCollisionConfiguration* config;
+	} physics_;
 };
 
 template <class Container>
