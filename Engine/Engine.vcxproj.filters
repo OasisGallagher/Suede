@@ -1639,6 +1639,9 @@
     <ClInclude Include="internal\physics\btBulletDynamicsCommon.h">
       <Filter>internal\physics\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\physics\rigidbody.h">
+      <Filter>internal\physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -2372,6 +2375,12 @@
     </ClCompile>
     <ClCompile Include="internal\physics\LinearMath\btVector3.cpp">
       <Filter>internal\physics\LinearMath</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\physics\physics.cpp">
+      <Filter>internal\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\physics\rigidbody.cpp">
+      <Filter>internal\physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

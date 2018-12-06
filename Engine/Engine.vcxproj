@@ -381,6 +381,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\physics\LinearMath\btSerializer64.cpp" />
     <ClCompile Include="internal\physics\LinearMath\btThreads.cpp" />
     <ClCompile Include="internal\physics\LinearMath\btVector3.cpp" />
+    <ClCompile Include="internal\physics\physics.cpp" />
+    <ClCompile Include="internal\physics\rigidbody.cpp" />
     <ClCompile Include="internal\rendering\gizmospainter.cpp" />
     <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\matrixbuffer.cpp" />
@@ -854,6 +856,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\physics\LinearMath\btTransform.h" />
     <ClInclude Include="internal\physics\LinearMath\btTransformUtil.h" />
     <ClInclude Include="internal\physics\LinearMath\btVector3.h" />
+    <ClInclude Include="internal\physics\rigidbody.h" />
     <ClInclude Include="internal\rendering\matrixbuffer.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />
