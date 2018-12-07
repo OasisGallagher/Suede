@@ -15,12 +15,12 @@ class Camera_Wrapper {
 		return 1;
 	}
 
-	// void SetDepth(int value)
+	// void SetDepth(int vaue)
 	static int SetDepth(lua_State* L) {
 		Camera& _p = *Lua::callerSharedPtr<Camera>(L);
-		int value = Lua::get<int>(L, 2);
+		int vaue = Lua::get<int>(L, 2);
 		
-		_p->SetDepth(value);
+		_p->SetDepth(vaue);
 		return 0;
 	}
 

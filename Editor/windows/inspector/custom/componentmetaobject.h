@@ -86,6 +86,14 @@ class CameraMetaObject : public ComponentMetaObjectT<Camera> {
 	SUEDE_PROPERTY(Rect, Rect)
 };
 
+#include "rigidbody.h"
+
+class RigidbodyMetaObject : public ComponentMetaObjectT<Rigidbody> {
+	Q_OBJECT
+	SUEDE_PROPERTY(float, Mass)
+	SUEDE_PROPERTY(glm::vec3, Velocity)
+};
+
 #include "light.h"
 
 Q_DECLARE_METATYPE(LightType)

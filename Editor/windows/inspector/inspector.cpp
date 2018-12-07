@@ -33,6 +33,8 @@ void Inspector::init(Ui::Editor* ui) {
 	addSuedeMetaObject(ObjectType::Light, std::make_shared<LightMetaObject>());
 	addSuedeMetaObject(ObjectType::Camera, std::make_shared<CameraMetaObject>());
 
+	addSuedeMetaObject(ObjectType::Rigidbody, std::make_shared<RigidbodyMetaObject>());
+
 	//addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorInspector>());
 	//addSuedeMetaObject(ObjectType::Mesh, std::make_shared<MeshInspector>());
 	addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<MeshRendererMetaObject>());

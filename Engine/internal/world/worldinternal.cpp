@@ -1,6 +1,7 @@
 #include "worldinternal.h"
 
 #include "time2.h"
+#include "physics.h"
 #include "profiler.h"
 #include "statistics.h"
 #include "decalcreater.h"
@@ -77,6 +78,8 @@ void WorldInternal::Initialize() {
 	UniformBufferManager::instance();
 	Shadows::instance();
 	MatrixBuffer::instance();
+
+	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 

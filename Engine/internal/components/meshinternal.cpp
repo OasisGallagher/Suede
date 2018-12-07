@@ -21,10 +21,10 @@ IMesh::Enumerable IMesh::GetSubMeshes() { return _suede_dptr()->GetSubMeshes(); 
 void IMesh::RemoveSubMesh(uint index) { _suede_dptr()->RemoveSubMesh(index); }
 MeshTopology IMesh::GetTopology() { return _suede_dptr()->GetTopology(); }
 uint IMesh::GetNativePointer() const { return _suede_dptr()->GetNativePointer(); }
-uint* IMesh::MapIndexes() { return _suede_dptr()->MapIndexes(); }
+const uint* IMesh::MapIndexes() { return _suede_dptr()->MapIndexes(); }
 void IMesh::UnmapIndexes() { _suede_dptr()->UnmapIndexes(); }
 uint IMesh::GetIndexCount() { return _suede_dptr()->GetIndexCount(); }
-glm::vec3* IMesh::MapVertices() { return _suede_dptr()->MapVertices(); }
+const glm::vec3* IMesh::MapVertices() { return _suede_dptr()->MapVertices(); }
 void IMesh::UnmapVertices() { _suede_dptr()->UnmapVertices(); }
 uint IMesh::GetVertexCount() { return _suede_dptr()->GetVertexCount(); }
 void IMesh::Bind() { _suede_dptr()->Bind(); }
@@ -200,7 +200,7 @@ void MeshInternal::RemoveSubMesh(uint index) {
 	subMeshes_.erase(subMeshes_.begin() + index);
 }
 
-uint* MeshInternal::MapIndexes() {
+const uint* MeshInternal::MapIndexes() {
 	return (uint*)storage_->vao.MapBuffer(storage_->bufferIndexes[IndexBuffer]);
 }
 
@@ -212,7 +212,7 @@ uint MeshInternal::GetIndexCount() {
 	return storage_->vao.GetBufferSize(storage_->bufferIndexes[IndexBuffer]) / sizeof(uint);
 }
 
-glm::vec3* MeshInternal::MapVertices() {
+const glm::vec3* MeshInternal::MapVertices() {
 	return (glm::vec3*)storage_->vao.MapBuffer(storage_->bufferIndexes[VertexBuffer]);
 }
 

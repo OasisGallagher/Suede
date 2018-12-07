@@ -28,22 +28,22 @@ public:
 	void Awake();
 
 	void SetDepth(Camera self, int value);
-	int GetDepth() { return depth_;  }
+	int GetDepth() const { return depth_;  }
 
 	void SetRect(const Rect& value);
 	const Rect& GetRect() const { return p_.normalizedRect; }
 
 	void SetClearType(ClearType value) { p_.clearType = value; }
-	ClearType GetClearType() { return p_.clearType; }
+	ClearType GetClearType() const { return p_.clearType; }
 
 	void SetRenderPath(RenderPath value) { p_.renderPath = value; }
-	RenderPath GetRenderPath() { return p_.renderPath; }
+	RenderPath GetRenderPath() const { return p_.renderPath; }
 
 	void SetDepthTextureMode(DepthTextureMode value) { p_.depthTextureMode = value; }
-	DepthTextureMode GetDepthTextureMode() { return p_.depthTextureMode; }
+	DepthTextureMode GetDepthTextureMode() const { return p_.depthTextureMode; }
 
 	void SetClearColor(const Color& value) { p_.clearColor = value; }
-	Color GetClearColor() { return p_.clearColor; }
+	Color GetClearColor() const { return p_.clearColor; }
 
 	void SetTargetTexture(RenderTexture value) { p_.renderTextures.target = value; }
 	RenderTexture GetTargetTexture() { return p_.renderTextures.target; }

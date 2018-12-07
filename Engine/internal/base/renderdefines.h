@@ -8,8 +8,6 @@
 
 #define GLSL_MAX_PASSES		8
 
-#define UNNAMED_MATERIAL	"UnnamedMaterial"
-
 #define MIN_NDC_RADIUS_SQUARED		0.0016f
 
 #define MAX_BONE_COUNT				128

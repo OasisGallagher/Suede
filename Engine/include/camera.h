@@ -33,8 +33,8 @@ public:
 	ICamera();
 
 public:
-	void SetDepth(int value);
-	int GetDepth();
+	void SetDepth(int vaue);
+	int GetDepth() const;
 
 	bool GetPerspective() const;
 	void SetPerspective(bool value);
@@ -46,16 +46,16 @@ public:
 	void SetOrthographicSize(float value);
 
 	void SetClearType(ClearType value);
-	ClearType GetClearType();
+	ClearType GetClearType() const;
 
 	void SetRenderPath(RenderPath value);
-	RenderPath GetRenderPath();
+	RenderPath GetRenderPath() const;
 
 	void SetDepthTextureMode(DepthTextureMode value);
-	DepthTextureMode GetDepthTextureMode();
+	DepthTextureMode GetDepthTextureMode() const;
 
 	void SetClearColor(const Color& value);
-	Color GetClearColor();
+	Color GetClearColor() const;
 
 	void SetTargetTexture(RenderTexture value);
 	RenderTexture GetTargetTexture();

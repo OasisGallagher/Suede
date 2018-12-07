@@ -8,7 +8,7 @@
 
 #include "internal/rendering/sharedtexturemanager.h"
 
-IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) { SetName(UNNAMED_MATERIAL); }
+IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) { }
 Object IMaterial::Clone() { return _suede_dptr()->Clone(); }
 void IMaterial::Bind(uint pass) { _suede_dptr()->Bind(pass); }
 void IMaterial::Unbind() { _suede_dptr()->Unbind(); }

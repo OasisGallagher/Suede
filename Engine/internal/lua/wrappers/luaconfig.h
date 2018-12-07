@@ -20,12 +20,14 @@
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
 #include "particlesystem_wrapper.h"
+#include "physics_wrapper.h"
 #include "plane_wrapper.h"
 #include "polygon_wrapper.h"
 #include "projector_wrapper.h"
 #include "rect_wrapper.h"
 #include "renderer_wrapper.h"
 #include "resources_wrapper.h"
+#include "rigidbody_wrapper.h"
 #include "screen_wrapper.h"
 #include "shader_wrapper.h"
 #include "statistics_wrapper.h"
@@ -84,6 +86,7 @@ static int configure(lua_State* L) {
 	SphereParticleEmitter_Wrapper::create(L);
 	ParticleAnimator_Wrapper::create(L);
 	ParticleSystem_Wrapper::create(L);
+	Physics_Wrapper::create(L);
 	Plane_Wrapper::create(L);
 	Polygon_Wrapper::create(L);
 	Triangle_Wrapper::create(L);
@@ -95,6 +98,7 @@ static int configure(lua_State* L) {
 	ParticleRenderer_Wrapper::create(L);
 	SkinnedMeshRenderer_Wrapper::create(L);
 	Resources_Wrapper::create(L);
+	Rigidbody_Wrapper::create(L);
 	Screen_Wrapper::create(L);
 	Property_Wrapper::create(L);
 	ShaderProperty_Wrapper::create(L);
@@ -157,6 +161,7 @@ static int configure(lua_State* L) {
 	SphereParticleEmitter_Wrapper::initialize(L, funcs, fields);
 	ParticleAnimator_Wrapper::initialize(L, funcs, fields);
 	ParticleSystem_Wrapper::initialize(L, funcs, fields);
+	Physics_Wrapper::initialize(L, funcs, fields);
 	Plane_Wrapper::initialize(L, funcs, fields);
 	Polygon_Wrapper::initialize(L, funcs, fields);
 	Triangle_Wrapper::initialize(L, funcs, fields);
@@ -168,6 +173,7 @@ static int configure(lua_State* L) {
 	ParticleRenderer_Wrapper::initialize(L, funcs, fields);
 	SkinnedMeshRenderer_Wrapper::initialize(L, funcs, fields);
 	Resources_Wrapper::initialize(L, funcs, fields);
+	Rigidbody_Wrapper::initialize(L, funcs, fields);
 	Screen_Wrapper::initialize(L, funcs, fields);
 	Property_Wrapper::initialize(L, funcs, fields);
 	ShaderProperty_Wrapper::initialize(L, funcs, fields);

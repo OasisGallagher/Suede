@@ -14,19 +14,19 @@
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
 void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(_shared_this(), value); }
-int ICamera::GetDepth() { return _suede_dptr()->GetDepth(); }
+int ICamera::GetDepth() const { return _suede_dptr()->GetDepth(); }
 bool ICamera::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
 void ICamera::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
 float ICamera::GetOrthographicSize() const { return _suede_dptr()->GetOrthographicSize(); }
 void ICamera::SetOrthographicSize(float value) { _suede_dptr()->SetOrthographicSize(value); }
 void ICamera::SetClearType(ClearType value) { _suede_dptr()->SetClearType(value); }
-ClearType ICamera::GetClearType() { return _suede_dptr()->GetClearType(); }
+ClearType ICamera::GetClearType() const { return _suede_dptr()->GetClearType(); }
 void ICamera::SetRenderPath(RenderPath value) { _suede_dptr()->SetRenderPath(value); }
-RenderPath ICamera::GetRenderPath() { return _suede_dptr()->GetRenderPath(); }
+RenderPath ICamera::GetRenderPath() const { return _suede_dptr()->GetRenderPath(); }
 void ICamera::SetDepthTextureMode(DepthTextureMode value) { _suede_dptr()->SetDepthTextureMode(value); }
-DepthTextureMode ICamera::GetDepthTextureMode() { return _suede_dptr()->GetDepthTextureMode(); }
+DepthTextureMode ICamera::GetDepthTextureMode() const { return _suede_dptr()->GetDepthTextureMode(); }
 void ICamera::SetClearColor(const Color& value) { _suede_dptr()->SetClearColor(value); }
-Color ICamera::GetClearColor() { return _suede_dptr()->GetClearColor(); }
+Color ICamera::GetClearColor() const { return _suede_dptr()->GetClearColor(); }
 void ICamera::SetTargetTexture(RenderTexture value) { _suede_dptr()->SetTargetTexture(value); }
 RenderTexture ICamera::GetTargetTexture() { return _suede_dptr()->GetTargetTexture(); }
 void ICamera::SetAspect(float value) { _suede_dptr()->SetAspect(value); }
@@ -46,6 +46,8 @@ glm::vec3 ICamera::ScreenToWorldPoint(const glm::vec3& position) { return _suede
 Texture2D ICamera::Capture() { return _suede_dptr()->Capture(); }
 void ICamera::Render() { _suede_dptr()->Render(); }
 void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
+
+SUEDE_DEFINE_COMPONENT(ICamera, IComponent)
 
 static Camera main_;
 Camera CameraUtility::GetMain() { return main_; }
@@ -69,8 +71,6 @@ void CameraUtility::OnPostRender() {
 
 	target->Unbind();
 }
-
-SUEDE_DEFINE_COMPONENT(ICamera, IComponent)
 
 CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)

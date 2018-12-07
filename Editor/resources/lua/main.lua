@@ -10,7 +10,9 @@ function SuedeGlobal.Start()
 	Suede.Environment.SetFogDensity(0);
 	Suede.Environment.SetAmbientColor(Suede.NewColor(0.15, 0.15, 0.15));
 
-	Suede.World.Import("house.fbx", function (root, path)
+	Suede.World.Import("room.fbx", function (root, path)
+		-- local body = root:GetTransform():FindChild("room_root/default"):GetGameObject():AddComponent("Rigidbody");
+
 		root:GetTransform():SetPosition({ 0, 25, -65 });
 		root:GetTransform():SetEulerAngles({ 30, 0, 0 });
 		if string.find(path, "house") then

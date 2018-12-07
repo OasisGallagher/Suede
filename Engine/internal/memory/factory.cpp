@@ -1,21 +1,22 @@
 #include "factory.h"
 
-#include "internal/base/fontinternal.h"
-#include "internal/base/shaderinternal.h"
-#include "internal/base/textureinternal.h"
-#include "internal/base/materialinternal.h"
+#include "font.h"
+#include "shader.h"
+#include "texture.h"
+#include "material.h"
 
-#include "internal/world/worldinternal.h"
-#include "internal/gameobject/gameobjectinternal.h"
+#include "world.h"
+#include "gameobject.h"
 
-#include "internal/components/meshinternal.h"
-#include "internal/components/lightinternal.h"
-#include "internal/components/camerainternal.h"
-#include "internal/components/rendererinternal.h"
-#include "internal/components/transforminternal.h"
-#include "internal/components/projectorinternal.h"
-#include "internal/components/animationinternal.h"
-#include "internal/components/particlesysteminternal.h"
+#include "mesh.h"
+#include "light.h"
+#include "camera.h"
+#include "renderer.h"
+#include "rigidbody.h"
+#include "transform.h"
+#include "projector.h"
+#include "animation.h"
+#include "particlesystem.h"
 
 Factory Factory::instance;
 
@@ -54,6 +55,7 @@ Factory::Factory() {
 	ADD_FACTROY_METHOD(SphereParticleEmitter);
 
 	ADD_COMPONENT_FACTROY_METHOD(Camera);
+	ADD_COMPONENT_FACTROY_METHOD(Rigidbody);
 	ADD_COMPONENT_FACTROY_METHOD(Transform);
 	ADD_COMPONENT_FACTROY_METHOD(Animation);
 	ADD_COMPONENT_FACTROY_METHOD(Projector);

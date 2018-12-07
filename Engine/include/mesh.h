@@ -108,11 +108,11 @@ public:
 	MeshTopology GetTopology();
 	uint GetNativePointer() const;
 
-	uint* MapIndexes();
+	const uint* MapIndexes();
 	void UnmapIndexes();
 	uint GetIndexCount();
 
-	glm::vec3* MapVertices();
+	const glm::vec3* MapVertices();
 	void UnmapVertices();
 	uint GetVertexCount();
 

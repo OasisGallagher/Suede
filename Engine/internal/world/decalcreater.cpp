@@ -91,8 +91,8 @@ bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, G
 	Mesh mesh = go->GetComponent<IMeshFilter>()->GetMesh();
 	glm::vec3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
-	uint* indexes = mesh->MapIndexes();
-	glm::vec3* vertices = mesh->MapVertices();
+	const uint* indexes = mesh->MapIndexes();
+	const glm::vec3* vertices = mesh->MapVertices();
 
 	for (SubMesh subMesh : mesh->GetSubMeshes()) {
 		const TriangleBias& bias = subMesh->GetTriangleBias();

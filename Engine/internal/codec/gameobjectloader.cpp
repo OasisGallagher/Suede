@@ -13,6 +13,8 @@
 #include "internal/async/guard.h"
 #include "internal/base/renderdefines.h"
 
+#define UNNAMED_MATERIAL	"New Material"
+
 MaterialAsset::MaterialAsset()
 	: twoSided(false), gloss(50), mainColor(Color::white), name(UNNAMED_MATERIAL) {
 	material = NewMaterial();
