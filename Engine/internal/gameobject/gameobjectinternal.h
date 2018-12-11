@@ -82,6 +82,7 @@ private:
 	uint updateStrategy_;
 	bool updateStrategyDirty_;
 
+	// ensure culling update once per frame.
 	uint frameCullingUpdate_;
 
 	Bounds worldBounds_;

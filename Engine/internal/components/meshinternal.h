@@ -47,7 +47,7 @@ public:
 	void RemoveMeshModifiedListener(IMeshModifiedListener* listener);
 
 	void AddSubMesh(SubMesh subMesh);
-	int GetSubMeshCount() { return subMeshes_.size(); }
+	uint GetSubMeshCount() { return subMeshes_.size(); }
 	SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
 	IMesh::Enumerable GetSubMeshes() { return IMesh::Enumerable(subMeshes_.begin(), subMeshes_.end()); }
 	void RemoveSubMesh(uint index);

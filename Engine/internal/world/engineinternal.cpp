@@ -69,7 +69,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 	Screen::Resize(width, height);
 	World::Initialize();
 
-	Physics::SetDebugDrawEnabled(true);
+	//Physics::SetDebugDrawEnabled(true);
 	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
 
 	luaL_Reg lualibs[] = {

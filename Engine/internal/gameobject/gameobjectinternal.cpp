@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "time2.h"
+#include "rigidbody.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "tools/string.h"
@@ -85,6 +86,9 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 
 	if (component->IsComponentType(IMeshFilter::GetComponentGUID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+		if (!GetComponent(IRigidbody::GetComponentGUID())) {
+			AddComponent(self, IRigidbody::GetComponentGUID());
+		}
 	}
 
 	if (component->IsComponentType(IRenderer::GetComponentGUID())) {

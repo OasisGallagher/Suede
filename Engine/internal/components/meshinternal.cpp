@@ -15,7 +15,7 @@ const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
 void IMesh::SetBounds(const Bounds& value) { _suede_dptr()->SetBounds(value); }
 
 void IMesh::AddSubMesh(SubMesh subMesh) { _suede_dptr()->AddSubMesh(subMesh); }
-int IMesh::GetSubMeshCount() { return _suede_dptr()->GetSubMeshCount(); }
+uint IMesh::GetSubMeshCount() { return _suede_dptr()->GetSubMeshCount(); }
 SubMesh IMesh::GetSubMesh(uint index) { return _suede_dptr()->GetSubMesh(index); }
 IMesh::Enumerable IMesh::GetSubMeshes() { return _suede_dptr()->GetSubMeshes(); }
 void IMesh::RemoveSubMesh(uint index) { _suede_dptr()->RemoveSubMesh(index); }

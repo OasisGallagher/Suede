@@ -59,6 +59,8 @@ QList<GameObject> Hierarchy::selectedGameObjects() {
 }
 
 void Hierarchy::setSelectedGameObject(const QList<GameObject>& objects) {
+	ui_->gameObjectTree->clearSelection();
+
 	QStandardItem* item = nullptr;
 	for (GameObject go : objects) {
 		if ((item = items_.value(go->GetInstanceID())) != nullptr) {

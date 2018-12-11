@@ -100,7 +100,7 @@ public:
 	void SetBounds(const Bounds& value);
 
 	void AddSubMesh(SubMesh subMesh);
-	int GetSubMeshCount();
+	uint GetSubMeshCount();
 	SubMesh GetSubMesh(uint index);
 	Enumerable GetSubMeshes();
 	void RemoveSubMesh(uint index);

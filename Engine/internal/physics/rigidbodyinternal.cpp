@@ -89,16 +89,14 @@ bool RigidbodyInternal::RebuildShape() {
 	DestroyShape();
 
 	MeshProvider mp = GetGameObject()->GetComponent<IMeshProvider>();
-	if (!mp) {
-		Debug::LogWarning("failed to create shape, no MeshProvider attached.");
+	if (!mp || !mp->GetMesh() || mp->GetMesh()->GetSubMeshCount() == 0) {
 		return false;
 	}
 
-	CreateShapeFromMesh(mp->GetMesh());
-	return true;
+	return CreateShapeFromMesh(mp->GetMesh());
 }
 
-void RigidbodyInternal::CreateShapeFromMesh(Mesh mesh) {
+bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh) {
 	ASSERT(shape_ == nullptr);
 
 	// In case of a convex object, you use btConvexHullShape.
@@ -140,6 +138,7 @@ void RigidbodyInternal::CreateShapeFromMesh(Mesh mesh) {
 	mesh_ = indexedMesh;
 	shape_ = MEMORY_NEW(btBvhTriangleMeshShape, mesh_, true);
 	//}
+	return true;
 }
 
 void RigidbodyInternal::DestroyShape() {

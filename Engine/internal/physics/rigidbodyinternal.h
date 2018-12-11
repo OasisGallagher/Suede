@@ -37,7 +37,7 @@ private:
 	void DestroyBody();
 
 	bool RebuildShape();
-	void CreateShapeFromMesh(Mesh mesh);
+	bool CreateShapeFromMesh(Mesh mesh);
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();
