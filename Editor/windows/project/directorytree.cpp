@@ -48,11 +48,13 @@ void DirectoryTree::setRootPath(const QString& path) {
 
 bool DirectoryTree::selectDirectory(const QString& path) {
 	QList<QStandardItem*> list = findItemsAlongPath(path);
+	/*
 	for (QStandardItem* item : list) {
 		expand(item->index());
 	}
-
+	*/
 	if (!list.empty()) {
+		scrollTo(list.back()->index());
 		selectionModel()->select(list.back()->index(), QItemSelectionModel::ClearAndSelect);
 		return true;
 	}

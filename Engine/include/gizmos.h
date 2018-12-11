@@ -13,6 +13,9 @@ class SUEDE_API Gizmos : private Singleton2<Gizmos> {
 public:
 	static void Flush();
 
+	static glm::mat4 GetMatrix();
+	static void SetMatrix(const glm::mat4& value);
+
 	static Color GetColor();
 	static void SetColor(const Color& value);
 

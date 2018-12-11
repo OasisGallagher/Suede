@@ -18,6 +18,11 @@ public:
 	static float GetDeltaTime();
 
 	/**
+	 * @brief the interval in seconds at which physics and other fixed frame rate updates are performed.
+	 */
+	static float GetFixedDeltaTime();
+
+	/**
 	 * @brief the real time in seconds since the engine started.
 	 */
 	static float GetRealTimeSinceStartup();

@@ -12,6 +12,9 @@ public:
 	float GetTime() { return time_; }
 	float GetDeltaTime() { return deltaTime_; }
 
+	// SUEDE TODO: Fixed delta time.
+	float GetFixedDeltaTime() { return deltaTime_; }
+
 	float GetRealTimeSinceStartup();
 	uint GetFrameCount() { return frameCount_; }
 

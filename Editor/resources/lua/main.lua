@@ -11,10 +11,12 @@ function SuedeGlobal.Start()
 	Suede.Environment.SetAmbientColor(Suede.NewColor(0.15, 0.15, 0.15));
 
 	Suede.World.Import("room.fbx", function (root, path)
-		-- local body = root:GetTransform():FindChild("room_root/default"):GetGameObject():AddComponent("Rigidbody");
+		--root:GetTransform():SetPosition({ 0, 25, -65 });
+		--root:GetTransform():SetEulerAngles({ 30, 0, 0 });
 
-		root:GetTransform():SetPosition({ 0, 25, -65 });
-		root:GetTransform():SetEulerAngles({ 30, 0, 0 });
+		local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("IRigidbody");
+		body:SetMass(0);
+
 		if string.find(path, "house") then
 			root:GetTransform():SetScale({ 0.01, 0.01, 0.01 });
 		end

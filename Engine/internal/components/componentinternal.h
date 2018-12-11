@@ -15,6 +15,7 @@ public:
 	virtual void SetGameObject(GameObject go);
 	virtual GameObject GetGameObject() { return gameObject_.lock(); }
 
+	virtual void OnMessage(int messageID, void* parameter) {}
 	virtual Transform GetTransform() { return GetGameObject()->GetComponent<ITransform>(); }
 
 	virtual void Awake() {}

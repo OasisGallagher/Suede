@@ -3,6 +3,7 @@
 #endif
 
 #include "glef.h"
+#include "physics.h"
 #include "opengldriver.h"
 #include "engineinternal.h"
 #include "builtinproperties.h"
@@ -68,6 +69,9 @@ bool EngineInternal::Startup(uint width, uint height) {
 	Screen::Resize(width, height);
 	World::Initialize();
 
+	Physics::SetDebugDrawEnabled(true);
+	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
+
 	luaL_Reg lualibs[] = {
 		{ "Suede", Lua::configure },
 		{ nullptr, nullptr }
@@ -76,7 +80,6 @@ bool EngineInternal::Startup(uint width, uint height) {
 	L = luaL_newstate();
 	Lua::initialize(L, lualibs, "resources/lua/main.lua");
 	Lua::invokeGlobalFunction(L, "SuedeGlobal.Awake");
-
 
 	return true;
 }

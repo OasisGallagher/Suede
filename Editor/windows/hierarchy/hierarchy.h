@@ -28,6 +28,7 @@ public:
 public:
 	GameObject selectedGameObject();
 	QList<GameObject> selectedGameObjects();
+	void setSelectedGameObject(const QList<GameObject>& objects);
 	void updateRecursively(GameObject go, QStandardItem* parent);
 
 protected:
@@ -74,4 +75,3 @@ private:
 	typedef QMap<uint, QStandardItem*> ItemContainer;
 	ItemContainer items_;
 };
-

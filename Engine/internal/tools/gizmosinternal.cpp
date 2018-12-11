@@ -11,6 +11,8 @@
 
 Gizmos::Gizmos() : Singleton2<Gizmos>(MEMORY_NEW(GizmosInternal), Memory::DeleteRaw<GizmosInternal>) {}
 void Gizmos::Flush() { _suede_dinstance()->Flush(); }
+glm::mat4 Gizmos::GetMatrix() { return _suede_dinstance()->GetMatrix(); }
+void Gizmos::SetMatrix(const glm::mat4& value) { _suede_dinstance()->SetMatrix(value); }
 Color Gizmos::GetColor() { return _suede_dinstance()->GetColor(); }
 void Gizmos::SetColor(const Color& value) { _suede_dinstance()->SetColor(value); }
 void Gizmos::DrawLines(const glm::vec3* points, uint npoints) { _suede_dinstance()->DrawLines(points, npoints); }
@@ -22,7 +24,7 @@ void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _suede
 void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawWireSphere(center, radius); }
 void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawWireCuboid(center, size); }
 
-GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1) {
+GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	mesh_ = NewMesh();
 
 	lineMaterial_ = NewMaterial();
@@ -87,8 +89,13 @@ void GizmosInternal::Flush() {
 
 void GizmosInternal::FillBatch(Batch& b, const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) {
 	uint base = b.points.size();
-	b.points.insert(b.points.end(), points, points + npoints);
+	//b.points.reserve(base + npoints);
 
+	for (uint i = 0; i < npoints; ++i) {
+		b.points.push_back((matrix_ * glm::vec4(points[i], 1)).xyz);
+	}
+
+	//b.indexes.reserve(b.indexes.size() + nindexes);
 	for (uint i = 0; i < nindexes; ++i) {
 		b.indexes.push_back(base + indexes[i]);
 	}
@@ -96,7 +103,13 @@ void GizmosInternal::FillBatch(Batch& b, const glm::vec3* points, uint npoints, 
 
 void GizmosInternal::FillBatch(Batch &b, const glm::vec3* points, uint npoints) {
 	uint base = b.points.size();
-	b.points.insert(b.points.end(), points, points + npoints);
+	//b.points.reserve(base + npoints);
+
+	for (uint i = 0; i < npoints; ++i) {
+		b.points.push_back((matrix_ * glm::vec4(points[i], 1)).xyz);
+	}
+
+	//b.indexes.reserve(b.indexes.size() + npoints);
 	for (uint i = 0; i < npoints; ++i) {
 		b.indexes.push_back(base + i);
 	}

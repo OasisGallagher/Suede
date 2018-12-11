@@ -13,6 +13,12 @@ enum {
 	RecalculateBoundsFlagsAll = -1,
 };
 
+enum {
+	GameObjectMessageMeshModified,
+
+	GameObjectMessageUser = 1024,
+};
+
 class SUEDE_API IGameObject : public IObject {
 	SUEDE_DEFINE_METATABLE_NAME(GameObject)
 	SUEDE_DECLARE_IMPLEMENTATION(GameObject)
@@ -27,6 +33,8 @@ public:
 	bool GetActiveSelf() const;
 
 	int GetUpdateStrategy();
+
+	void SendMessage(int messageID, void* parameter);
 
 	const std::string& GetTag() const;
 	bool SetTag(const std::string& value);

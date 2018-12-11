@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include <vector>
 
 #include "mesh.h"
@@ -20,6 +21,11 @@ private:
 	TriangleBias bias_;
 };
 
+class IMeshModifiedListener {
+public:
+	virtual void OnMeshModified() = 0;
+};
+
 class MeshInternal : public ObjectInternal {
 public:
 	MeshInternal();
@@ -36,6 +42,9 @@ public:
 	void Bind();
 	void Unbind();
 	void ShareStorage(Mesh other);
+
+	void AddMeshModifiedListener(IMeshModifiedListener* listener);
+	void RemoveMeshModifiedListener(IMeshModifiedListener* listener);
 
 	void AddSubMesh(SubMesh subMesh);
 	int GetSubMeshCount() { return subMeshes_.size(); }
@@ -76,6 +85,8 @@ private:
 		VertexArray vao;
 		MeshTopology topology;
 		uint bufferIndexes[BufferIndexCount];
+
+		std::set<IMeshModifiedListener*> listeners;
 	};
 
 protected:
@@ -86,14 +97,19 @@ private:
 	std::shared_ptr<Storage> storage_;
 };
 
-class MeshProviderInternal : public ComponentInternal {
+class MeshProviderInternal : public ComponentInternal, public IMeshModifiedListener {
 public:
 	MeshProviderInternal(ObjectType type);
+	~MeshProviderInternal();
 
 public:
 	Mesh GetMesh() { return mesh_; }
+	void SetMesh(Mesh value);
 
-protected:
+public:
+	virtual void OnMeshModified();
+
+private:
 	Mesh mesh_;
 };
 
@@ -106,8 +122,6 @@ public:
 	virtual void Update();
 
 public:
-	Mesh GetMesh() { return mesh_; }
-
 	void SetText(const std::string& value);
 	std::string GetText() { return text_; }
 
@@ -141,8 +155,5 @@ public:
 	MeshFilterInternal();
 
 public:
-	void SetMesh(Mesh value);
-	Mesh GetMesh();
-
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 };

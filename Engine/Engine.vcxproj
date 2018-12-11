@@ -445,9 +445,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\profiler.h" />
     <ClInclude Include="include\projector.h" />
     <ClInclude Include="include\ranged.h" />
+    <ClInclude Include="include\ray.h" />
     <ClInclude Include="include\rect.h" />
     <ClInclude Include="include\renderer.h" />
     <ClInclude Include="include\resources.h" />
+    <ClInclude Include="include\rigidbody.h" />
     <ClInclude Include="include\screen.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\gameobject.h" />
@@ -522,6 +524,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\lua\wrappers\plane_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\polygon_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\projector_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\ray_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\rect_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\renderer_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\resources_wrapper.h" />

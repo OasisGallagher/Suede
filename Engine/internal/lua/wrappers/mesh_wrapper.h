@@ -295,15 +295,6 @@ class Mesh_Wrapper {
 		return 0;
 	}
 
-	// void ShareStorage(Mesh other)
-	static int ShareStorage(lua_State* L) {
-		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L);
-		Mesh other = Lua::get<Mesh>(L, 2);
-		
-		_p->ShareStorage(other);
-		return 0;
-	}
-
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<Mesh>(L);
@@ -331,7 +322,6 @@ public:
 			{ "GetVertexCount", GetVertexCount },
 			{ "Bind", Bind },
 			{ "Unbind", Unbind },
-			{ "ShareStorage", ShareStorage },
 			{ nullptr, nullptr }
 		};
 

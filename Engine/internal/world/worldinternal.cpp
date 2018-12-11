@@ -1,23 +1,24 @@
 #include "worldinternal.h"
 
 #include "time2.h"
-#include "physics.h"
 #include "profiler.h"
 #include "statistics.h"
 #include "decalcreater.h"
 #include "../api/glutils.h"
 
-#include "internal/tools/gizmosinternal.h"
-#include "internal/tools/graphicsinternal.h"
-#include "internal/tools/resourcesinternal.h"
+#include "rigidbody.h"
+#include "gameobject.h"
+#include "environment.h"
+
+#include "gizmos.h"
+#include "graphics.h"
+#include "resources.h"
 
 #include "internal/async/guard.h"
 #include "internal/rendering/shadows.h"
 #include "internal/codec/gameObjectloader.h"
 #include "internal/rendering/matrixbuffer.h"
-#include "internal/world/environmentinternal.h"
 #include "internal/components/transforminternal.h"
-#include "internal/gameobject/gameobjectinternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
 World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
@@ -78,8 +79,6 @@ void WorldInternal::Initialize() {
 	UniformBufferManager::instance();
 	Shadows::instance();
 	MatrixBuffer::instance();
-
-	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
@@ -310,7 +309,9 @@ void WorldInternal::AddObject(Object object) {
 	if (type == ObjectType::GameObject) {
 		// add default component and fire event.
 		GameObject go = suede_dynamic_cast<GameObject>(object);
+
 		go->AddComponent<ITransform>();
+		go->AddComponent<IRigidbody>();
 
 		GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
 		e->go = go;

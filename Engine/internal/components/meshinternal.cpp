@@ -34,7 +34,6 @@ void IMesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { _suede_dptr(
 
 IMeshProvider::IMeshProvider(void* d) : IComponent(d) {}
 Mesh IMeshProvider::GetMesh() { return _suede_dptr()->GetMesh(); }
-
 ITextMesh::ITextMesh() : IMeshProvider(MEMORY_NEW(TextMeshInternal)) {}
 void ITextMesh::SetText(const std::string& value) { _suede_dptr()->SetText(value); }
 std::string ITextMesh::GetText() { return _suede_dptr()->GetText(); }
@@ -69,17 +68,19 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::CreateStorage() {
-	storage_.reset(MEMORY_NEW(Storage));
+	if (!storage_) { storage_.reset(MEMORY_NEW(Storage)); }
 }
 
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
-	if (!storage_) {
-		storage_.reset(MEMORY_NEW(Storage));
-	}
+	CreateStorage();
 
 	storage_->vao.Initialize();
 	storage_->topology = value.topology;
 	UpdateGLBuffers(value);
+
+	for (IMeshModifiedListener* listener : storage_->listeners) {
+		listener->OnMeshModified();
+	}
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -169,12 +170,27 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 
 void MeshInternal::ShareStorage(Mesh other) {
 	MeshInternal* ptr = _suede_rptr(other);
-	if (!ptr->storage_) {
-		Debug::LogError("empty storage");
-		return;
+	if (ptr->storage_) {
+		storage_ = ptr->storage_; 
 	}
+	else {
+		Debug::LogError("empty storage");
+	}
+}
 
-	storage_ = ptr->storage_;
+void MeshInternal::AddMeshModifiedListener(IMeshModifiedListener* listener) {
+	if (storage_) {
+		storage_->listeners.insert(listener);
+	}
+	else {
+		Debug::LogError("failed to add mesh modified listener, empty storage");
+	}
+}
+
+void MeshInternal::RemoveMeshModifiedListener(IMeshModifiedListener* listener) {
+	if (storage_) {
+		storage_->listeners.erase(listener);
+	}
 }
 
 void MeshInternal::AddSubMesh(SubMesh subMesh) {
@@ -229,12 +245,29 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
+#define GetMeshInternal(mesh)	((mesh).get()->_rptr_impl<MeshInternal>())
+
 MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(type) {
 }
 
+MeshProviderInternal::~MeshProviderInternal() {
+	GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this);
+}
+
+void MeshProviderInternal::SetMesh(Mesh value) {
+	if (mesh_ != nullptr) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
+	if (value != nullptr) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
+
+	mesh_ = value;
+}
+
+void MeshProviderInternal::OnMeshModified() {
+	GetGameObject()->SendMessage(GameObjectMessageMeshModified, nullptr);
+}
+
 TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), dirty_(false) {
-	mesh_ = NewMesh();
-	mesh_->AddSubMesh(NewSubMesh());
+	SetMesh(NewMesh());
+	GetMesh()->AddSubMesh(NewSubMesh());
 }
 
 TextMeshInternal::~TextMeshInternal() {
@@ -297,11 +330,11 @@ void TextMeshInternal::RebuildUnicodeTextMesh(std::wstring wtext) {
 	MeshAttribute attribute;
 	InitializeMeshAttribute(attribute, wtext);
 
-	SubMesh subMesh = mesh_->GetSubMesh(0);
+	SubMesh subMesh = GetMesh()->GetSubMesh(0);
 	TriangleBias bias{ attribute.indexes.size() };
 	subMesh->SetTriangleBias(bias);
 
-	mesh_->SetAttribute(attribute);
+	GetMesh()->SetAttribute(attribute);
 }
 
 void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext) {
@@ -354,7 +387,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 
 	Bounds bounds;
 	bounds.SetMinMax(min, max);
-	mesh_->SetBounds(bounds);
+	GetMesh()->SetBounds(bounds);
 
 	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
@@ -364,18 +397,4 @@ MeshInternal::Storage::Storage() {
 }
 
 MeshFilterInternal::MeshFilterInternal() : MeshProviderInternal(ObjectType::MeshFilter) {
-}
-
-void MeshFilterInternal::SetMesh(Mesh value) {
-	if (!value) {
-		Debug::LogError("invalid mesh value.");
-		return;
-	}
-
-	mesh_ = value;
-}
-
-Mesh MeshFilterInternal::GetMesh() {
-	if (!mesh_) { mesh_ = NewMesh(); }
-	return mesh_;
 }

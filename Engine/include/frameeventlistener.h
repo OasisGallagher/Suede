@@ -5,6 +5,7 @@ enum {
 	FrameEventQueueTime = -1000,
 	FrameEventQueueProfiler,
 	FrameEventQueueStatistics,
+	FrameEventQueuePhysics,
 
 	FrameEventQueueUser = 0,
 

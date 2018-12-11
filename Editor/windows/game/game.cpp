@@ -14,12 +14,14 @@
 #include "input.h"
 #include "time2.h"
 #include "world.h"
+#include "input.h"
 #include "screen.h"
 #include "camera.h"
 #include "shader.h"
 #include "engine.h"
 #include "gizmos.h"
 #include "texture.h"
+#include "physics.h"
 #include "resources.h"
 #include "projector.h"
 #include "behaviour.h"
@@ -98,11 +100,21 @@ void Game::awake() {
 	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
 	createScene();
 
-	input_ = new QtInputDelegate(this);
+	input_ = new QtInputDelegate(ui_->gameView);
 	Input::SetDelegate(input_);
 }
 
 void Game::tick() {
+	if (Input::GetMouseButtonUp(0)) {
+		glm::vec3 start = CameraUtility::GetMain()->GetTransform()->GetPosition();
+		glm::vec3 end = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
+		RaycastHit hitInfo;
+		if (Physics::Raycast(Ray(start, end - start), 1000, &hitInfo)) {
+			Hierarchy::instance()->setSelectedGameObject(QList<GameObject>({ hitInfo.gameObject }));
+		}
+		else {
+		}
+	}
 }
 
 void Game::OnGameObjectImported(GameObject root, const std::string& path) {
@@ -213,7 +225,7 @@ void Game::onFocusGameObjectBounds(GameObject go) {
 	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go);
 	camera->SetPosition(p);
 
-	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()))));
+	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, glm::vec3(0, 1, 0)))));
 	camera->SetRotation(glm::normalize(q));
 }
 

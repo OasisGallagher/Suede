@@ -55,7 +55,7 @@ void GLUtils::Initialize() {
 	InitializeGLLimits();
 }
 
-void GLUtils::DrawElementsBaseVertex(MeshTopology topology, const TriangleBias & bias) {
+void GLUtils::DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias) {
 	GL::DrawElementsBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
 }
 

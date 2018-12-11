@@ -19,6 +19,7 @@ public:
 	bool GetActiveSelf() const { return activeSelf_; }
 
 	int GetUpdateStrategy(GameObject self);
+	void SendMessage(int messageID, void* parameter);
 
 	const std::string& GetTag() const { return tag_; }
 	bool SetTag(GameObject self, const std::string& value);

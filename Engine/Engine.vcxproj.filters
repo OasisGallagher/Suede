@@ -1663,6 +1663,15 @@
     <ClInclude Include="internal\lua\wrappers\world_wrapper.h">
       <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
+    <ClInclude Include="include\ray.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\ray_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rigidbody.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">

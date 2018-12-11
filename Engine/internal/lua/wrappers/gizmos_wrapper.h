@@ -25,6 +25,8 @@ class Gizmos_Wrapper {
 
 		luaL_Reg funcs[] = {
 			{ "Flush", Flush },
+			{ "GetMatrix", GetMatrix },
+			{ "SetMatrix", SetMatrix },
 			{ "GetColor", GetColor },
 			{ "SetColor", SetColor },
 			{ "DrawSphere", DrawSphere },
@@ -42,6 +44,19 @@ class Gizmos_Wrapper {
 	// static void Flush()
 	static int Flush(lua_State* L) {
 		Gizmos::Flush();
+		return 0;
+	}
+
+	// static glm::mat4 GetMatrix()
+	static int GetMatrix(lua_State* L) {
+		return Lua::push(L, Gizmos::GetMatrix());
+	}
+
+	// static void SetMatrix(const glm::mat4& value)
+	static int SetMatrix(lua_State* L) {
+		glm::mat4 value = Lua::get<glm::mat4>(L, 1);
+		
+		Gizmos::SetMatrix(value);
 		return 0;
 	}
 

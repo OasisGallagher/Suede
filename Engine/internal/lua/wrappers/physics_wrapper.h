@@ -7,6 +7,36 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class RaycastHit_Wrapper {
+	static int NewRaycastHit(lua_State* L) {
+		return Lua::newObject<RaycastHit>(L);
+	}
+
+	static int ToString(lua_State* L) {
+		RaycastHit* _p = Lua::callerPtr<RaycastHit>(L);
+
+		lua_pushstring(L, String::Format("RaycastHit@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<RaycastHit>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewRaycastHit", NewRaycastHit });
+
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<RaycastHit> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<RaycastHit>(L, metalib, nullptr);
+	}
+};
+
 class Physics_Wrapper {
 	static int ToString(lua_State* L) {
 		Physics* _p = Lua::callerPtr<Physics>(L);

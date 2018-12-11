@@ -58,6 +58,19 @@ QList<GameObject> Hierarchy::selectedGameObjects() {
 	return gameObjects;
 }
 
+void Hierarchy::setSelectedGameObject(const QList<GameObject>& objects) {
+	QStandardItem* item = nullptr;
+	for (GameObject go : objects) {
+		if ((item = items_.value(go->GetInstanceID())) != nullptr) {
+			ui_->gameObjectTree->selectionModel()->select(item->index(), QItemSelectionModel::Select);
+		}
+	}
+
+	if (!objects.empty() && (item = items_.value(objects.front()->GetInstanceID())) != nullptr) {
+		ui_->gameObjectTree->scrollTo(item->index());
+	}
+}
+
 void Hierarchy::OnWorldEvent(WorldEventBasePtr entit) {
 	GameObjectEventPtr eep = suede_static_cast<GameObjectEventPtr>(entit);
 	switch (entit->GetEventType()) {

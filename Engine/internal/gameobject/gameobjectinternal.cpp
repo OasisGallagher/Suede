@@ -15,6 +15,7 @@ bool IGameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 void IGameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(_shared_this(), value); }
 bool IGameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
 int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(_shared_this()); }
+void IGameObject::SendMessage(int messageID, void* parameter) { _suede_dptr()->SendMessage(messageID, parameter); }
 const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
 bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(_shared_this(), value); }
 void IGameObject::Update() { _suede_dptr()->Update(); }
@@ -100,6 +101,12 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 
 int GameObjectInternal::GetUpdateStrategy(GameObject self) {
 	return GetHierarchyUpdateStrategy(self);
+}
+
+void GameObjectInternal::SendMessage(int messageID, void* parameter) {
+	for (Component component : components_) {
+		component->OnMessage(messageID, parameter);
+	}
 }
 
 void GameObjectInternal::CullingUpdate() {

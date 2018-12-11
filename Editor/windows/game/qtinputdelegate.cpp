@@ -102,7 +102,7 @@ float QtInputDelegate::GetMouseWheelDelta() {
 
 glm::ivec2 QtInputDelegate::GetMousePosition() {
 	QPoint p = view_->mapFromGlobal(QCursor::pos());
-	return glm::ivec2(p.x(), p.y());
+	return glm::ivec2(p.x(), view_->height() - p.y());
 }
 
 bool QtInputDelegate::eventFilter(QObject * watched, QEvent * event) {

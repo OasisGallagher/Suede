@@ -24,6 +24,7 @@
 #include "plane_wrapper.h"
 #include "polygon_wrapper.h"
 #include "projector_wrapper.h"
+#include "ray_wrapper.h"
 #include "rect_wrapper.h"
 #include "renderer_wrapper.h"
 #include "resources_wrapper.h"
@@ -86,12 +87,14 @@ static int configure(lua_State* L) {
 	SphereParticleEmitter_Wrapper::create(L);
 	ParticleAnimator_Wrapper::create(L);
 	ParticleSystem_Wrapper::create(L);
+	RaycastHit_Wrapper::create(L);
 	Physics_Wrapper::create(L);
 	Plane_Wrapper::create(L);
 	Polygon_Wrapper::create(L);
 	Triangle_Wrapper::create(L);
 	Decal_Wrapper::create(L);
 	Projector_Wrapper::create(L);
+	Ray_Wrapper::create(L);
 	Rect_Wrapper::create(L);
 	Renderer_Wrapper::create(L);
 	MeshRenderer_Wrapper::create(L);
@@ -161,12 +164,14 @@ static int configure(lua_State* L) {
 	SphereParticleEmitter_Wrapper::initialize(L, funcs, fields);
 	ParticleAnimator_Wrapper::initialize(L, funcs, fields);
 	ParticleSystem_Wrapper::initialize(L, funcs, fields);
+	RaycastHit_Wrapper::initialize(L, funcs, fields);
 	Physics_Wrapper::initialize(L, funcs, fields);
 	Plane_Wrapper::initialize(L, funcs, fields);
 	Polygon_Wrapper::initialize(L, funcs, fields);
 	Triangle_Wrapper::initialize(L, funcs, fields);
 	Decal_Wrapper::initialize(L, funcs, fields);
 	Projector_Wrapper::initialize(L, funcs, fields);
+	Ray_Wrapper::initialize(L, funcs, fields);
 	Rect_Wrapper::initialize(L, funcs, fields);
 	Renderer_Wrapper::initialize(L, funcs, fields);
 	MeshRenderer_Wrapper::initialize(L, funcs, fields);

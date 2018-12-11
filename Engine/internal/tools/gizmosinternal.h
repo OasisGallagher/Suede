@@ -14,6 +14,9 @@ public:
 public:
 	void Flush();
 
+	glm::mat4 GetMatrix() { return matrix_; }
+	void SetMatrix(const glm::mat4& value) { matrix_ = value; }
+
 	Color GetColor() { return color_; }
 	void SetColor(const Color& value) { color_ = value; }
 	
@@ -63,5 +66,6 @@ private:
 	Material lineMaterial_;
 
 	Color color_;
+	glm::mat4 matrix_;
 	std::vector<Batch> batches_;
 };

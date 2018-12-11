@@ -6,9 +6,10 @@
 public: \
     static suede_guid GetComponentGUID(); \
 	static const char* GetComponentName(); \
-    bool IsComponentType(suede_guid guid) const; \
-    bool IsComponentType(const char* name) const; \
-	suede_guid GetComponentInstanceGUID() const;
+    bool IsComponentType(suede_guid guid) const override; \
+    bool IsComponentType(const char* name) const override; \
+	suede_guid GetComponentInstanceGUID() const override; \
+	const char* GetComponentInstanceName() const override;
 
 #define SUEDE_DEFINE_COMPONENT(Class, ParentClass) \
 	suede_guid Class::GetComponentGUID() { \
@@ -26,6 +27,9 @@ public: \
 	} \
 	suede_guid Class::GetComponentInstanceGUID() const { \
 		return Class::GetComponentGUID(); \
+	} \
+	const char* Class::GetComponentInstanceName() const { \
+		return Class::GetComponentName(); \
 	}
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject)
@@ -54,6 +58,7 @@ public:
 	GameObject GetGameObject();
 
 	Transform GetTransform();
+	void OnMessage(int messageID, void* parameter);
 
 	void CullingUpdate();
 
@@ -66,8 +71,8 @@ public:
 
 public:
 	/**
-	* @brief whether components of same type (or subtype) could be added more than once to a GameObject.
-	*/
+	 * @brief whether components of same type (or subtype) could be added more than once to a GameObject.
+	 */
 	virtual bool AllowMultiple() const { return false; }
 
 	virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID(); }
@@ -77,6 +82,11 @@ public:
 	 * @brief polymorphism version to get component GUID.
 	 */
 	virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID(); }
+
+	/**
+	* @brief polymorphism version to get component name.
+	*/
+	virtual const char* GetComponentInstanceName() const { return GetComponentName(); }
 
 protected:
 	IComponent(void* d);

@@ -7,6 +7,7 @@
 Time::Time() : Singleton2<Time>(MEMORY_NEW(TimeInternal), Memory::DeleteRaw<TimeInternal>) {}
 float Time::GetTime() { return _suede_dinstance()->GetTime(); }
 float Time::GetDeltaTime() { return _suede_dinstance()->GetDeltaTime(); }
+float Time::GetFixedDeltaTime() { return _suede_dinstance()->GetFixedDeltaTime(); }
 float Time::GetRealTimeSinceStartup() { return _suede_dinstance()->GetRealTimeSinceStartup(); }
 uint Time::GetFrameCount() { return _suede_dinstance()->GetFrameCount(); }
 

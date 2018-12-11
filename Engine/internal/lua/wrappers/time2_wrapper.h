@@ -26,6 +26,7 @@ class Time_Wrapper {
 		luaL_Reg funcs[] = {
 			{ "GetTime", GetTime },
 			{ "GetDeltaTime", GetDeltaTime },
+			{ "GetFixedDeltaTime", GetFixedDeltaTime },
 			{ "GetRealTimeSinceStartup", GetRealTimeSinceStartup },
 			{ "GetFrameCount", GetFrameCount },
 			{"__tostring", ToStringStatic },
@@ -44,6 +45,11 @@ class Time_Wrapper {
 	// static float GetDeltaTime()
 	static int GetDeltaTime(lua_State* L) {
 		return Lua::push(L, Time::GetDeltaTime());
+	}
+
+	// static float GetFixedDeltaTime()
+	static int GetFixedDeltaTime(lua_State* L) {
+		return Lua::push(L, Time::GetFixedDeltaTime());
 	}
 
 	// static float GetRealTimeSinceStartup()
