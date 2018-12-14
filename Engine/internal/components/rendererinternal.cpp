@@ -20,7 +20,7 @@ IMeshRenderer::IMeshRenderer() : IRenderer(MEMORY_NEW(MeshRendererInternal)) {}
 
 IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
 
-ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
+ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(SkinnedMeshRendererInternal)) {}
 void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 
 SUEDE_DEFINE_COMPONENT(IRenderer, IComponent)
@@ -40,7 +40,7 @@ void RendererInternal::RemoveMaterial(Material material) {
 }
 
 void RendererInternal::RemoveMaterialAt(uint index) {
-	VERIFY_INDEX(index, materials_.size(), NOARG);
+	SUEDE_VERIFY_INDEX(index, materials_.size(), SUEDE_NOARG);
 	materials_.erase(materials_.begin() + index);
 }
 

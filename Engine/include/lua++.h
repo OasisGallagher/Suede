@@ -464,8 +464,32 @@ inline T* callerPtr(lua_State* L, const char* metatable = nullptr) {
 }
 
 // copy construct userdata.
+/*
 template <class T>
 inline int copyUserdata(lua_State* L, const T& value) {
+	new(lua_newuserdata(L, sizeof(T))) T(value);
+
+	luaL_getmetatable(L, metatableName(value));
+	lua_setmetatable(L, -2);
+	return 1;
+}*/
+
+template <class T>
+inline typename std::enable_if<_is_ptr<T>::value, int>::type
+copyUserdata(lua_State* L, const T& value) {
+	if (!value) { lua_pushnil(L); }
+	else {
+		new(lua_newuserdata(L, sizeof(T))) T(value);
+		luaL_getmetatable(L, metatableName(value));
+		lua_setmetatable(L, -2);
+	}
+
+	return 1;
+}
+
+template <class T>
+inline typename std::enable_if<!_is_ptr<T>::value, int>::type
+copyUserdata(lua_State* L, const T& value) {
 	new(lua_newuserdata(L, sizeof(T))) T(value);
 
 	luaL_getmetatable(L, metatableName(value));

@@ -68,7 +68,9 @@ void CameraController::rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldP
 }
 
 void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
-	glm::ivec2 delta = mousePos - oldPos;
+	glm::ivec2 delta = oldPos - mousePos;
+	delta.x = -delta.x;
+
 	oldPos = mousePos;
 	glm::vec3 up = camera_->GetUp();
 	glm::vec3 right = camera_->GetRight();

@@ -123,7 +123,7 @@ bool QtInputDelegate::eventFilter(QObject * watched, QEvent * event) {
 	return true;
 }
 
-void QtInputDelegate::onKeyPress(QKeyEvent * event) {
+void QtInputDelegate::onKeyPress(QKeyEvent* event) {
 	if (event->isAutoRepeat()) { return; }
 
 	auto ite = keyMap.find(event->key());

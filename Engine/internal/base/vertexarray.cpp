@@ -30,7 +30,7 @@ void VertexArray::CreateVertexBuffers(size_t n) {
 }
 
 void VertexArray::SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage) {
-	VERIFY_INDEX(index, vboCount_, NOARG);
+	SUEDE_VERIFY_INDEX(index, vboCount_, SUEDE_NOARG);
 	vbos_[index].Create(target, size, data, usage);
 }
 
@@ -53,27 +53,27 @@ void VertexArray::SetVertexDataSource(int index, int location, int size, GLenum 
 }
 
 void* VertexArray::MapBuffer(int index) {
-	VERIFY_INDEX(index, vboCount_, nullptr);
+	SUEDE_VERIFY_INDEX(index, vboCount_, nullptr);
 	return vbos_[index].Map();
 }
 
 void VertexArray::UnmapBuffer(int index) {
-	VERIFY_INDEX(index, vboCount_, NOARG);
+	SUEDE_VERIFY_INDEX(index, vboCount_, SUEDE_NOARG);
 	vbos_[index].Unmap();
 }
 
 size_t VertexArray::GetBufferSize(int index) {
-	VERIFY_INDEX(index, vboCount_, 0);
+	SUEDE_VERIFY_INDEX(index, vboCount_, 0);
 	return vbos_[index].GetSize();
 }
 
 uint VertexArray::GetBufferNativePointer(uint index) const {
-	VERIFY_INDEX(index, vboCount_, 0);
+	SUEDE_VERIFY_INDEX(index, vboCount_, 0);
 	return vbos_[index].GetNativePointer();
 }
 
 void VertexArray::UpdateBuffer(uint index, int offset, size_t size, const void* data) {
-	VERIFY_INDEX(index, vboCount_, NOARG);
+	SUEDE_VERIFY_INDEX(index, vboCount_, SUEDE_NOARG);
 	vbos_[index].Update(offset, size, data);
 }
 
@@ -104,12 +104,12 @@ void VertexArray::Unbind() {
 }
 
 void VertexArray::BindBuffer(uint index) {
-	VERIFY_INDEX(index, vboCount_, NOARG);
+	SUEDE_VERIFY_INDEX(index, vboCount_, SUEDE_NOARG);
 	vbos_[index].Bind();
 }
 
 void VertexArray::UnbindBuffer(uint index) {
-	VERIFY_INDEX(index, vboCount_, NOARG);
+	SUEDE_VERIFY_INDEX(index, vboCount_, SUEDE_NOARG);
 	vbos_[index].Unbind();
 }
 

@@ -8,7 +8,7 @@
 #include "componentinternal.h"
 #include "internal/base/renderdefines.h"
 
-class SkeletonInternal : public ISkeleton, public ObjectInternal {
+class SkeletonInternal : public ObjectInternal {
 public:
 	SkeletonInternal() : ObjectInternal(ObjectType::Skeleton), current_(0), root_(nullptr) {}
 	~SkeletonInternal() { DestroyNodeHierarchy(root_); }
@@ -41,7 +41,7 @@ private:
 	std::map<std::string, int> boneMap_;
 };
 
-class AnimationClipInternal : public IAnimationClip, public ObjectInternal {
+class AnimationClipInternal : public ObjectInternal {
 public:
 	AnimationClipInternal();
 
@@ -72,12 +72,12 @@ private:
 	std::weak_ptr<Animation::element_type> animation_;
 };
 
-class AnimationStateInternal : public IAnimationState, public ObjectInternal {
+class AnimationStateInternal : public ObjectInternal {
 public:
 	AnimationStateInternal() : ObjectInternal(ObjectType::AnimationState) {}
 };
 
-class AnimationKeysInternal : public IAnimationKeys, public ObjectInternal {
+class AnimationKeysInternal : public ObjectInternal {
 public:
 	AnimationKeysInternal();
 	~AnimationKeysInternal();
@@ -117,7 +117,7 @@ private:
 	KeysContainer container_;
 };
 
-class AnimationInternal : public IAnimation, public ComponentInternal {
+class AnimationInternal : public ComponentInternal {
 public:
 	AnimationInternal() : ComponentInternal(ObjectType::Animation), time_(0), playing_(false) {}
 
@@ -125,7 +125,7 @@ public:
 	virtual void CullingUpdate();
 
 public:
-	virtual void AddClip(const std::string& name, AnimationClip value);
+	virtual void AddClip(Animation self, const std::string& name, AnimationClip value);
 	virtual AnimationClip GetClip(const std::string& name);
 
 	virtual void SetRootTransform(const glm::mat4& value) { rootTransform_ = value; }
@@ -153,9 +153,9 @@ private:
 	ClipContainer clips_;
 };
 
-class AnimationFrameInternal : public IAnimationFrame, public ObjectInternal {
+class AnimationFrameInternal : public ObjectInternal {
 public:
-	AnimationFrameInternal() :ObjectInternal(ObjectType::AnimationFrame) {}
+	AnimationFrameInternal() :ObjectInternal(ObjectType::AnimationFrame), time_(0) {}
 
 public:
 	virtual void SetTime(float value) { time_ = value; }
@@ -182,7 +182,7 @@ private:
 	AttributeContainer attributes_;
 };
 
-class AnimationCurveInternal : public IAnimationCurve, public ObjectInternal {
+class AnimationCurveInternal : public ObjectInternal {
 public:
 	AnimationCurveInternal() :ObjectInternal(ObjectType::AnimationCurve) {}
 

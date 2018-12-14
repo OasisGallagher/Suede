@@ -102,9 +102,15 @@ struct GameObjectUpdateStrategyChangedEvent : public GameObjectEvent {
 DEFINE_WORLD_EVENT_PTR(GameObjectUpdateStrategyChangedEvent);
 
 struct GameObjectComponentChangedEvent : public GameObjectEvent {
+	enum {
+		ComponentAdded,
+		ComponentRemoved,
+		ComponentModified,
+	};
+
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectComponentChanged; }
 
-	bool added;
+	int state;
 	Component component;
 };
 

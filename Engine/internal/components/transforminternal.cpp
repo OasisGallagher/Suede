@@ -3,7 +3,7 @@
 #include "world.h"
 #include "tools/math2.h"
 #include "transforminternal.h"
-#include "internal/async/guard.h"
+#include "internal/async/async.h"
 
 ITransform::ITransform() : IComponent(MEMORY_NEW(TransformInternal)) {}
 bool ITransform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(_shared_this()); }
@@ -75,7 +75,7 @@ void TransformInternal::RemoveChild(Transform child) {
 }
 
 void TransformInternal::RemoveChildAt(uint index) {
-	VERIFY_INDEX(index, children_.size(), NOARG);
+	SUEDE_VERIFY_INDEX(index, children_.size(), SUEDE_NOARG);
 	Transform child = children_[index];
 	RemoveChild(child);
 }
@@ -477,6 +477,8 @@ glm::mat4 TransformInternal::GetLocalToWorldMatrix(Transform self) {
 
 		localToWorldMatrix_ = matrix;
 		ClearDirty(LocalToWorldMatrix);
+
+		GetGameObject()->SendMessage(GameObjectMessageLocalToWorldMatrixModified, nullptr);
 	}
 
 	return localToWorldMatrix_;

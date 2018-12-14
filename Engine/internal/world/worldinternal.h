@@ -65,7 +65,7 @@ private:
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
 
 	template <class Container>
-	void ManageGameObjectComponents(Container& container, Component component, bool added);
+	void ManageGameObjectComponents(Container& container, Component component, int state);
 
 	void FireEvents();
 	void UpdateDecals();
@@ -123,16 +123,16 @@ private:
 };
 
 template <class Container>
-void WorldInternal::ManageGameObjectComponents(Container& container, Component component, bool added) {
+void WorldInternal::ManageGameObjectComponents(Container& container, Component component, int state) {
 	typedef Container::value_type T;
 	typedef typename T::element_type U;
 
 	if (component->IsComponentType(U::GetComponentGUID())) {
 		T target = suede_dynamic_cast<T>(component);
-		if (added) {
+		if (state == GameObjectComponentChangedEvent::ComponentAdded) {
 			container.insert(container.end(), target);
 		}
-		else {
+		else if (state == GameObjectComponentChangedEvent::ComponentRemoved) {
 			container.erase(target);
 		}
 	}

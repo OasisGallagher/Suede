@@ -307,7 +307,7 @@ void Framebuffer::ResizeDepthRenderbuffer() {
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	VERIFY_INDEX(attachment, GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
+	SUEDE_VERIFY_INDEX(attachment, GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
 	return renderTextures_[attachment];
 }
 

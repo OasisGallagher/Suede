@@ -15,6 +15,7 @@ enum {
 
 enum {
 	GameObjectMessageMeshModified,
+	GameObjectMessageLocalToWorldMatrixModified,
 
 	GameObjectMessageUser = 1024,
 };
@@ -54,6 +55,7 @@ public:
 
 public:	// Component system.
 	Component AddComponent(const char* name);
+	Component AddComponent(Component component);
 	template <class T> std::shared_ptr<T> AddComponent();
 
 	Component GetComponent(suede_guid guid);
@@ -67,13 +69,12 @@ public:	// Component system.
 	std::vector<Component> GetComponents(suede_guid guid);
 
 	/**
-	* @param guid pass "" to get all components.
+	* @param name pass "" to get all components.
 	*/
 	std::vector<Component> GetComponents(const char* name);
 
 private:
 	Component AddComponent(suede_guid guid);
-	Component AddComponent(Component component);
 };
 
 template <class T>

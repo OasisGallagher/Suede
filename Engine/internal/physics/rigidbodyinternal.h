@@ -16,28 +16,26 @@ public:
 	virtual void OnMessage(int messageID, void* parameter);
 
 public:
+	// SUEDE TODO: DEBUG.
+	void ShowCollisionShape(bool value) { showCollisionShape_ = value; }
+
 	void SetMass(float value);
 	float GetMass() const { return mass_; }
 
 	void SetVelocity(const glm::vec3& value);
 	glm::vec3 GetVelocity() const;
 
-	void SetPosition(const glm::vec3& value);
-	glm::vec3 GetPosition() const;
-
-	void SetRotation(const glm::quat& value);
-	glm::quat GetRotation() const;
-
-	btRigidBody* GetNativePointer() { return body_; }
+	const Bounds& GetBounds() const { return bounds_; }
 
 private:
-
-	void CreateBody(float mass, const btVector3& intertia);
-	void UpdateBody();
+	void CreateBody();
 	void DestroyBody();
+	void UpdateBody(bool updateWorldRigidbody);
+
+	void UpdateBounds();
 
 	bool RebuildShape();
-	bool CreateShapeFromMesh(Mesh mesh);
+	bool CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale);
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();
@@ -54,6 +52,15 @@ private:
 	//   When the ball hits a border or a brick, it will bounce back, but it can never affect the positions of the border, 
 	//   brick or paddle since they are immovable.
 	float mass_;
+	bool showCollisionShape_;
+
+	enum {
+		Normal,
+		InvalidBody,
+		InvalidShape,
+	} shapeState_;
+
+	Bounds bounds_;
 
 	// The reference to a rigid body.
 	// Using this property, you’ll allow the game scene to work with the physics body of the node.

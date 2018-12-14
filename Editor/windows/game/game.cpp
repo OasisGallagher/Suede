@@ -100,21 +100,21 @@ void Game::awake() {
 	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
 	createScene();
 
-	input_ = new QtInputDelegate(ui_->gameView);
+	input_ = new QtInputDelegate(ui_->canvas);
 	Input::SetDelegate(input_);
 }
 
 void Game::tick() {
 	if (Input::GetMouseButtonUp(0)) {
-		glm::vec3 start = CameraUtility::GetMain()->GetTransform()->GetPosition();
-		glm::vec3 end = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 		RaycastHit hitInfo;
-		QList<GameObject> gameObjects;
-		if (Physics::Raycast(Ray(start, end - start), 1000, &hitInfo)) {
-			gameObjects.push_back(hitInfo.gameObject);
-		}
+		glm::vec3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
+		glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 
-		Hierarchy::instance()->setSelectedGameObject(gameObjects);
+		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
+			QList<GameObject> gameObjects;
+			gameObjects.push_back(hitInfo.gameObject);
+			Hierarchy::instance()->setSelectedGameObjects(gameObjects);
+		}
 	}
 }
 
@@ -223,7 +223,7 @@ void Game::onShadingModeChanged(const QString& str) {
 void Game::onFocusGameObjectBounds(GameObject go) {
 	Transform camera = CameraUtility::GetMain()->GetTransform();
 	glm::vec3 position = go->GetBounds().center;
-	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go);
+	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
 	camera->SetPosition(p);
 
 	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, glm::vec3(0, 1, 0)))));
@@ -234,12 +234,11 @@ void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<Gam
 	gizmos_->setSelection(Hierarchy::instance()->selectedGameObjects());
 }
 
-float Game::calculateCameraDistanceFitsBounds(Camera camera, GameObject go) {
-	const Bounds& b = go->GetBounds();
+float Game::calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bounds) {
 	float f = tanf(camera->GetFieldOfView() / 2.f);
-	float dy = 2 * b.size.y / f;
-	float dx = 2 * b.size.x / (f * camera->GetAspect());
-	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + b.size.z * 2, camera->GetFarClipPlane() - b.size.z * 2);
+	float dy = 2 * bounds.size.y / f;
+	float dx = 2 * bounds.size.x / (f * camera->GetAspect());
+	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
 }
 
 void Game::updateStatContent() {

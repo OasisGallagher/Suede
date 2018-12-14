@@ -33,8 +33,6 @@ Component IGameObject::GetComponent(const char* name) { return _suede_dptr()->Ge
 std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
 std::vector<Component> IGameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
-#define GET_COMPONENT(T) suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()))
-
 GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
 }
 
@@ -55,8 +53,8 @@ void GameObjectInternal::SetActiveSelf(GameObject self, bool value) {
 		SetActive(self, activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(self);
 
-		Renderer renderer = GET_COMPONENT(Renderer);
-		MeshProvider provider = GET_COMPONENT(MeshProvider);
+		Renderer renderer = GetComponent<IRenderer>();
+		MeshProvider provider = GetComponent<IMeshProvider>();
 
 		if (renderer && provider && !provider->GetMesh()->GetBounds().IsEmpty()) {
 			DirtyParentBounds();
@@ -86,6 +84,7 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 
 	if (component->IsComponentType(IMeshFilter::GetComponentGUID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+
 		if (!GetComponent(IRigidbody::GetComponentGUID())) {
 			AddComponent(self, IRigidbody::GetComponentGUID());
 		}
@@ -95,10 +94,12 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 		RecalculateBounds();
 	}
 
-	FireWorldEvent<GameObjectComponentChangedEventPtr>(self, false, [=](GameObjectComponentChangedEventPtr& event) {
-		event->added = true;
+	FireWorldEvent<GameObjectComponentChangedEventPtr>(self, false, false, [=](GameObjectComponentChangedEventPtr& event) {
+		event->state = GameObjectComponentChangedEvent::ComponentAdded;
 		event->component = component;
 	});
+
+	RecalculateUpdateStrategy(self);
 
 	return component;
 }
@@ -131,7 +132,7 @@ void GameObjectInternal::Update() {
 }
 
 Transform GameObjectInternal::GetTransform() {
-	return GET_COMPONENT(Transform);
+	return GetComponent<ITransform>();
 }
 
 void GameObjectInternal::RecalculateBounds(int flags) {
@@ -182,7 +183,7 @@ const Bounds& GameObjectInternal::GetBounds() {
 }
 
 void GameObjectInternal::CalculateHierarchyBounds() {
-	if (GET_COMPONENT(Animation)) {
+	if (GetComponent<IAnimation>()) {
 		CalculateBonesWorldBounds();
 	}
 	else {
@@ -190,7 +191,7 @@ void GameObjectInternal::CalculateHierarchyBounds() {
 		boundsDirty_ = false;
 	}
 
-	ParticleSystem ps = GET_COMPONENT(ParticleSystem);
+	ParticleSystem ps = GetComponent<IParticleSystem>();
 	if (ps) {
 		worldBounds_.Encapsulate(ps->GetMaxBounds());
 		boundsDirty_ = true;
@@ -198,8 +199,8 @@ void GameObjectInternal::CalculateHierarchyBounds() {
 }
 
 void GameObjectInternal::CalculateHierarchyMeshBounds() {
-	Renderer renderer = GET_COMPONENT(Renderer);
-	MeshProvider provider = GET_COMPONENT(MeshProvider);
+	Renderer renderer = GetComponent<IRenderer>();
+	MeshProvider provider = GetComponent<IMeshProvider>();
 
 	if (renderer && provider && !provider->GetMesh()->GetBounds().IsEmpty()) {
 		CalculateSelfWorldBounds(provider->GetMesh());
@@ -236,7 +237,7 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
 	Bounds boneBounds;
-	Skeleton skeleton = GET_COMPONENT(Animation)->GetSkeleton();
+	Skeleton skeleton = GetComponent<IAnimation>()->GetSkeleton();
 	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
 
 	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
@@ -270,9 +271,9 @@ int GameObjectInternal::GetHierarchyUpdateStrategy(GameObject root) {
 		strategy |= component->GetUpdateStrategy();
 	}
 
-	for (Transform tr : root->GetTransform()->GetChildren()) {
-		strategy |= GetHierarchyUpdateStrategy(tr->GetGameObject());
-	}
+	//for (Transform tr : root->GetTransform()->GetChildren()) {
+	//	strategy |= GetHierarchyUpdateStrategy(tr->GetGameObject());
+	//}
 
 	updateStrategy_ = strategy;
 	updateStrategyDirty_ = false;
@@ -286,14 +287,14 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject self) {
 	int newStrategy = GetUpdateStrategy(self);
 
 	if (oldStrategy != newStrategy) {
-		Transform parent, current = GetTransform();
-		for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
-			if (!_suede_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
-				break;
-			}
-
-			current = parent;
-		}
+// 		Transform parent, current = GetTransform();
+// 		for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
+// 			if (!_suede_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
+// 				break;
+// 			}
+// 
+// 			current = parent;
+// 		}
 
 		FireWorldEvent<GameObjectUpdateStrategyChangedEventPtr>(self, false);
 

@@ -3,10 +3,11 @@
 #include "../types.h"
 #include "../tools/singleton.h"
 
-#define NOARG
-#define VERIFY_INDEX(index, bounds, returns) if (index >= bounds) { Debug::LogError("index out of range"); return returns; } else (void)0
+#define SUEDE_NOARG
+#define SUEDE_VERIFY_INDEX(index, bounds, returns) \
+	if (index >= bounds) { Debug::LogError("index out of range"); return returns; } else (void)0
 
-#define ASSERT(expression)	assert(expression)
+#define SUEDE_ASSERT(expression)	assert(expression)
 
 enum class LogLevel {
 	Debug,

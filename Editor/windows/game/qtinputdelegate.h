@@ -27,7 +27,7 @@ protected:
 	virtual bool eventFilter(QObject *watched, QEvent *event);
 
 private:
-	void onKeyPress(QKeyEvent * e);
+	void onKeyPress(QKeyEvent* e);
 	void onMousePress(QMouseEvent* e);
 	void onMouseWheel(QWheelEvent* e);
 

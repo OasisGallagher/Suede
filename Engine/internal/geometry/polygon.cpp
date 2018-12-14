@@ -31,12 +31,12 @@ Polygon& Polygon::operator=(const Polygon& other) {
 }
 
 glm::vec3& Polygon::operator[](uint index) {
-	VERIFY_INDEX(index, npoints, points[0]);
+	SUEDE_VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
 }
 
 const glm::vec3& Polygon::operator[](uint index) const {
-	VERIFY_INDEX(index, npoints, points[0]);
+	SUEDE_VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
 }
 

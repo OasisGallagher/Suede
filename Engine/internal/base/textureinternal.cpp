@@ -762,7 +762,7 @@ bool MRTRenderTextureInternal::AddColorTexture(TextureFormat format) {
 }
 
 Texture2D MRTRenderTextureInternal::GetColorTexture(uint index) {
-	VERIFY_INDEX(index, index_, nullptr);
+	SUEDE_VERIFY_INDEX(index, index_, nullptr);
 	return colorTextures_[index];
 }
 

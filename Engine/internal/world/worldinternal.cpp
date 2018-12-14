@@ -14,7 +14,7 @@
 #include "graphics.h"
 #include "resources.h"
 
-#include "internal/async/guard.h"
+#include "internal/async/async.h"
 #include "internal/rendering/shadows.h"
 #include "internal/codec/gameObjectloader.h"
 #include "internal/rendering/matrixbuffer.h"
@@ -332,10 +332,11 @@ void WorldInternal::OnGameObjectParentChanged(GameObject go) {
 
 void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
 	ManageGameObjectUpdateSequence(e->go);
-	ManageGameObjectComponents(lights_, e->component, e->added);
-	ManageGameObjectComponents(cameras_, e->component, e->added);
-	ManageGameObjectComponents(projectors_, e->component, e->added);
-	ManageGameObjectComponents(gizmosPainters_, e->component, e->added);
+
+	ManageGameObjectComponents(lights_, e->component, e->state);
+	ManageGameObjectComponents(cameras_, e->component, e->state);
+	ManageGameObjectComponents(projectors_, e->component, e->state);
+	ManageGameObjectComponents(gizmosPainters_, e->component, e->state);
 }
 
 void WorldInternal::FireEvents() {

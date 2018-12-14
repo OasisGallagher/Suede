@@ -50,7 +50,7 @@ protected:
 private:
 	void start();
 	void createScene();
-	float calculateCameraDistanceFitsBounds(Camera camera, GameObject go);
+	float calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bounds);
 
 	void updateStatPosition();
 

@@ -12,7 +12,7 @@ public:
 	~RendererInternal();
 
 public:
-	void UpdateMaterialProperties() {}
+	virtual void UpdateMaterialProperties() {}
 
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
@@ -42,7 +42,9 @@ public:
 	SkinnedMeshRendererInternal() : RendererInternal(ObjectType::SkinnedMeshRenderer) {}
 
 public:
-	void UpdateMaterialProperties();
+	virtual void UpdateMaterialProperties();
+
+public:
 	void SetSkeleton(Skeleton value) { skeleton_ = value; }
 
 private:

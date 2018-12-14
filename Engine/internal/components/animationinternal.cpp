@@ -55,7 +55,7 @@ void IAnimationCurve::SetKeyframes(const std::vector<AnimationFrame>& value) { _
 bool IAnimationCurve::Sample(float time, AnimationFrame& frame) { return _suede_dptr()->Sample(time, frame); }
 
 IAnimation::IAnimation() : IComponent(MEMORY_NEW(AnimationInternal)) {}
-void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_dptr()->AddClip(name, value); }
+void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_dptr()->AddClip(_shared_this(), name, value); }
 AnimationClip IAnimation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
 void IAnimation::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 Skeleton IAnimation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
@@ -90,7 +90,7 @@ bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 }
 
 SkeletonBone* SkeletonInternal::GetBone(uint index) {
-	VERIFY_INDEX(index, current_, nullptr);
+	SUEDE_VERIFY_INDEX(index, current_, nullptr);
 	return bones_ + index;
 }
 
@@ -104,7 +104,7 @@ SkeletonBone* SkeletonInternal::GetBone(const std::string& name) {
 }
 
 void SkeletonInternal::SetBoneToRootMatrix(uint index, const glm::mat4& value) {
-	VERIFY_INDEX(index, current_, NOARG);
+	SUEDE_VERIFY_INDEX(index, current_, SUEDE_NOARG);
 	boneToRootMatrices_[index] = value;
 }
 
@@ -365,9 +365,9 @@ bool AnimationKeysInternal::FloatCamparer::operator()(float lhs, float rhs) cons
 	return !Math::Approximately(lhs, rhs) && lhs < rhs;
 }
 
-void AnimationInternal::AddClip(const std::string& name, AnimationClip value) {
+void AnimationInternal::AddClip(Animation self, const std::string& name, AnimationClip value) {
 	clips_.insert(std::make_pair(name, value));
-	value->SetAnimation(_shared_this());
+	value->SetAnimation(self);
 }
 
 AnimationClip AnimationInternal::GetClip(const std::string& name) {
@@ -448,7 +448,7 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 }
 
 void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
-	AttributeContainer& otherAttributes = ((AnimationFrameInternal*)(other.get()))->attributes_;
+	AttributeContainer& otherAttributes = _suede_rptr(other)->attributes_;
 	if (attributes_.size() != otherAttributes.size()) {
 		Debug::LogError("attribute count mismatch");
 		return;
@@ -473,9 +473,8 @@ void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, f
 }
 
 void AnimationFrameInternal::Assign(AnimationFrame other) {
-	AnimationFrameInternal* ptr = ((AnimationFrameInternal*)(other.get()));
-	time_ = ptr->time_;
-	attributes_ = ptr->attributes_;
+ 	time_ = _suede_rptr(other)->time_;
+ 	attributes_ = _suede_rptr(other)->attributes_;
 }
 
 void AnimationFrameInternal::LerpAttribute(AnimationFrame ans, int id, const Variant& lhs, const Variant& rhs, float factor) {

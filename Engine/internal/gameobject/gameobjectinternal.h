@@ -45,6 +45,9 @@ public:
 	Component GetComponent(T key);
 
 	template <class T>
+	std::shared_ptr<T> GetComponent();
+
+	template <class T>
 	std::vector<Component> GetComponents(T key);
 
 private:
@@ -66,7 +69,7 @@ private:
 	void UpdateChildrenActive(GameObject parent);
 
 	template <class T>
-	void FireWorldEvent(GameObject self, bool attachedToSceneOnly, std::function<void(T& event)> f = nullptr);
+	void FireWorldEvent(GameObject self, bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -82,7 +85,7 @@ private:
 	uint updateStrategy_;
 	bool updateStrategyDirty_;
 
-	// ensure culling update once per frame.
+	// ensure CullingUpdate to be called once per frame.
 	uint frameCullingUpdate_;
 
 	Bounds worldBounds_;
@@ -90,12 +93,13 @@ private:
 };
 
 template <class T>
-inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly, std::function<void(T& event)> f) {
+inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
 		e->go = self;
 		if (f) { f(e); }
-		World::FireEvent(e);
+		if (immediate) { World::FireEventImmediate(e); }
+		else { World::FireEvent(e); }
 	}
 }
 
@@ -126,6 +130,11 @@ inline Component GameObjectInternal::AddComponent(GameObject self, Component key
 	}
 
 	return nullptr;
+}
+
+template <class T>
+inline std::shared_ptr<T> GameObjectInternal::GetComponent() {
+	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponent(T::GetComponentGUID()));
 }
 
 template <class T>

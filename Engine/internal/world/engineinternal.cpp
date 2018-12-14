@@ -2,6 +2,8 @@
 #include "vld/vld.h"
 #endif
 
+#include <ZThread/Thread.h>
+
 #include "glef.h"
 #include "physics.h"
 #include "opengldriver.h"
@@ -16,6 +18,7 @@
 #include "../tools/statisticsinternal.h"
 
 #include "../lua/wrappers/luaconfig.h"
+
 
 Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
 
@@ -55,6 +58,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 	setlocale(LC_ALL, "");
 	std::set_terminate(OnTerminate);
 	ZThread::ztException = OnZThreadException;
+	ZThread::Thread::markMainThread();
 
 	if (!Debug::Initialize()) { return false; }
 	if (!OpenGLDriver::Load()) { return false; }

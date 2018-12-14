@@ -5,7 +5,7 @@
 class Random {
 public:
 	/**
-	 * @return a integer between and min [inclusive] and max [inclusive].
+	 * @return a random integer between and min [inclusive] and max [inclusive].
 	 */
 	static int IntRange(int min, int max);
 

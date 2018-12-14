@@ -202,6 +202,10 @@ namespace ZThread {
     ThreadImpl* _impl;
 
   public:
+	  static void markMainThread();
+	  static bool isMainThread();
+
+  public:
 
     /**
      * Create a Thread that represents the current thread.

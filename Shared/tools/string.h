@@ -17,11 +17,6 @@ private:
 	std::vector<size_t> occ_;
 };
 
-namespace std {
-// for completeness.
-inline std::string to_string(const std::string& str) { return str; }
-}	// namespace std
-
 class SUEDE_API String {
 public:
 	static std::string Trim(const std::string& text);
@@ -77,3 +72,13 @@ std::string String::Concat(Iterator first, Iterator last, const char* seperator)
 
 	return oss.str();
 }
+
+#include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
+
+namespace std {
+	// for completeness.
+	inline std::string to_string(const std::string& value) { return value; }
+	inline std::string to_string(const glm::vec2& value) { return String::Format("(%.2f, %.2f)", value.x, value.y); }
+	inline std::string to_string(const glm::vec3& value) { return String::Format("(%.2f, %.2f, %.2f)", value.x, value.y, value.z); }
+	inline std::string to_string(const glm::vec4& value) { return String::Format("(%.2f, %.2f, %.2f, %.2f)", value.x, value.y, value.z, value.w); }
+}	// namespace std

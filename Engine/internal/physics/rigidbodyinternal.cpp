@@ -1,16 +1,24 @@
 #include "rigidbodyinternal.h"
 
 #include "mathconvert.h"
+#include "physicsinternal.h"
 
 IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal)) {}
+void IRigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float IRigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
+const Bounds& IRigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
 void IRigidbody::SetVelocity(const glm::vec3& value) { _suede_dptr()->SetVelocity(value); }
 glm::vec3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
 
 SUEDE_DEFINE_COMPONENT(IRigidbody, IComponent)
 
-RigidbodyInternal::RigidbodyInternal() : ComponentInternal(ObjectType::Rigidbody), mass_(1.f), body_(nullptr), mesh_(nullptr), shape_(nullptr) {
+#define btWorld()	PhysicsInternal::btWorld()
+
+RigidbodyInternal::RigidbodyInternal()
+	: ComponentInternal(ObjectType::Rigidbody)
+	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr), showCollisionShape_(false) {
+	CreateBody();
 }
 
 RigidbodyInternal::~RigidbodyInternal() {
@@ -19,62 +27,65 @@ RigidbodyInternal::~RigidbodyInternal() {
 }
 
 void RigidbodyInternal::Awake() {
-	if (RebuildShape()) {
-		UpdateBody();
-		ApplyGameObjectTransform();
-	}
 }
 
 // SUEDE TODO: FixedUpdate.
 void RigidbodyInternal::Update() {
+	if (shapeState_ != Normal) {
+		if (shapeState_ != InvalidShape || RebuildShape()) {
+			UpdateBody(true);
+			ApplyGameObjectTransform();
+			UpdateBounds();
+		}
+
+		shapeState_ = Normal;
+	}
+
 	// SUEDE TODO: empty body.
-	if (body_ != nullptr && (body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) != 0) {
+	if (body_ != nullptr && (body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) == 0) {
 		ApplyPhysicsTransform();
+	}
+
+	if (showCollisionShape_) {
+		btWorld()->debugDrawObject(body_->getWorldTransform(), shape_, btVector3(1, 0, 0));
 	}
 }
 
 void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 	if (messageID == GameObjectMessageMeshModified) {
-		if (RebuildShape()) {
-			UpdateBody();
-			ApplyGameObjectTransform();
-		}
+		shapeState_ = InvalidShape;
+	}
+	else if( messageID == GameObjectMessageLocalToWorldMatrixModified) {
+		shapeState_ = InvalidBody;
 	}
 }
 
 void RigidbodyInternal::SetMass(float value) {
 	if (!Math::Approximately(mass_, value)) {
 		mass_ = value;
-		UpdateBody();
+		UpdateBody(false);
 	}
 }
 
-// A transform is a translation [vector] plus a rotation [quaternion].
-// A "transform" alone is usually sufficient to describe everything you need to 
-// use to map a physics body [in Bullet] into your graphical rendering system.
-void RigidbodyInternal::SetPosition(const glm::vec3& value) {
-	btTransform transform = body_->getWorldTransform();
-	transform.setOrigin(btConvert(value));
-	body_->setWorldTransform(transform);
-}
+void RigidbodyInternal::UpdateBounds() {
+	btVector3 minAabb, maxAabb;
+	shape_->getAabb(body_->getWorldTransform(), minAabb, maxAabb);
+	btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
+	minAabb -= contactThreshold;
+	maxAabb += contactThreshold;
+	
+	if (btWorld()->getDispatchInfo().m_useContinuous && body_->getInternalType() == btCollisionObject::CO_RIGID_BODY && !body_->isStaticOrKinematicObject()) {
+		btVector3 minAabb2, maxAabb2;
+		shape_->getAabb(body_->getInterpolationWorldTransform(), minAabb2, maxAabb2);
 
-// It¡¯s time to change the getter method by implementing backwards synchronization. 
-// This means when you get the position property in order to understand where you need to draw the object, 
-// you get the position of the physics body and draw the object right at that location.
-glm::vec3 RigidbodyInternal::GetPosition() const {
-	const btVector3& pos = body_->getWorldTransform().getOrigin();
-	return btConvert(pos);
-}
+		minAabb2 -= contactThreshold;
+		maxAabb2 += contactThreshold;
 
-void RigidbodyInternal::SetRotation(const glm::quat& value) {
-	btTransform transform = body_->getWorldTransform();
-	transform.setRotation(btConvert(value));
-	body_->setWorldTransform(transform);
-}
+		minAabb.setMin(minAabb2);
+		maxAabb.setMax(maxAabb2);
+	}
 
-glm::quat RigidbodyInternal::GetRotation() const {
-	const btQuaternion& rotation = body_->getWorldTransform().getRotation();
-	return btConvert(rotation);
+	bounds_.SetMinMax(btConvert(minAabb), btConvert(maxAabb));
 }
 
 void RigidbodyInternal::SetVelocity(const glm::vec3& value) {
@@ -93,11 +104,11 @@ bool RigidbodyInternal::RebuildShape() {
 		return false;
 	}
 
-	return CreateShapeFromMesh(mp->GetMesh());
+	return CreateShapeFromMesh(mp->GetMesh(), GetTransform()->GetScale());
 }
 
-bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh) {
-	ASSERT(shape_ == nullptr);
+bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
+	SUEDE_ASSERT(shape_ == nullptr);
 
 	// In case of a convex object, you use btConvexHullShape.
 	// This class allows you to add all points of the object and uses them to automatically create the minimum convex hull for it.
@@ -137,6 +148,7 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh) {
 
 	mesh_ = indexedMesh;
 	shape_ = MEMORY_NEW(btBvhTriangleMeshShape, mesh_, true);
+	shape_->setLocalScaling(btConvert(scale));
 	//}
 	return true;
 }
@@ -161,34 +173,34 @@ void RigidbodyInternal::ApplyPhysicsTransform() {
 
 void RigidbodyInternal::ApplyGameObjectTransform() {
 	btTransform& transform = body_->getWorldTransform();
-	transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
+	transform.setOrigin(btConvert(GetTransform()->GetPosition()));
+	transform.setRotation(btConvert(GetTransform()->GetRotation()));
+	//transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
 }
 
-void RigidbodyInternal::UpdateBody() {
+void RigidbodyInternal::UpdateBody(bool updateWorldRigidbody) {
 	// You set the mass and inertia values for the shape. You don¡¯t have to calculate inertia for your shape manually.
 	// Instead you are using a utility function that takes a reference, btVector3, and sets the correct inertia value using the shape¡¯s data.
 	btVector3 intertia;
 	shape_->calculateLocalInertia(mass_, intertia);
 
-	if (body_ != nullptr) {
-		body_->setMassProps(mass_, intertia);
-	}
-	else {
-		CreateBody(mass_, intertia);
+	body_->setCollisionShape(shape_);
+	body_->setMassProps(mass_, intertia);
+
+	if (updateWorldRigidbody) {
+		btWorld()->removeRigidBody(body_);
+		btWorld()->addRigidBody(body_);
 	}
 }
 
-void RigidbodyInternal::CreateBody(float mass, const btVector3& intertia) {
-	ASSERT(body_ == nullptr);
-
-	Transform transform = GetGameObject()->GetComponent<ITransform>();
+void RigidbodyInternal::CreateBody() {
+	SUEDE_ASSERT(body_ == nullptr);
 
 	// MotionState is a convenient class that allows you to sync a physical body and with your drawable objects.
 	// You don¡¯t have to use motion states to set/get the position and rotation of the object, but doing so will
 	// get you several benefits, including interpolation and callbacks.
-	btDefaultMotionState* motionState = MEMORY_NEW(btDefaultMotionState, btTransform(btConvert(transform->GetRotation()), btConvert(transform->GetPosition())));
-
-	btRigidBody::btRigidBodyConstructionInfo bodyCI(mass, motionState, shape_, intertia);
+	btDefaultMotionState* motionState = MEMORY_NEW(btDefaultMotionState);
+	btRigidBody::btRigidBodyConstructionInfo bodyCI(mass_, motionState, nullptr);
 
 	// bodyCI.m_restitution sets an object¡¯s bounciness. Imagine dropping a ball ¨C a sphere ¨C to the floor:
 	// - With a value of 0.0, it doesn¡¯t bounce at all. The sphere will stick to the floor on the first touch.

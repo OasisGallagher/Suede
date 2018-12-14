@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bounds.h"
 #include "component.h"
 
 // A "rigid body" is what it sounds like ¨C an item of fixed mass, size, and other physical properties. 
@@ -13,8 +14,12 @@ public:
 	IRigidbody();
 
 public:
+	void ShowCollisionShape(bool value);
+
 	void SetMass(float value);
 	float GetMass() const;
+
+	const Bounds& GetBounds() const;
 
 	void SetVelocity(const glm::vec3& value);
 	glm::vec3 GetVelocity() const;

@@ -548,19 +548,19 @@ bool SubShader::Initialize(std::vector<ShaderProperty>& properties, const Semant
 }
 
 void SubShader::Bind(uint pass) {
-	VERIFY_INDEX(pass, passCount_, NOARG);
+	SUEDE_VERIFY_INDEX(pass, passCount_, SUEDE_NOARG);
 	passes_[pass].Bind();
 	currentPass_ = pass;
 }
 
 void SubShader::Unbind() {
-	VERIFY_INDEX(currentPass_, passCount_, NOARG);
+	SUEDE_VERIFY_INDEX(currentPass_, passCount_, SUEDE_NOARG);
 	passes_[currentPass_].Unbind();
 	currentPass_ = UINT_MAX;
 }
 
 bool SubShader::IsPassEnabled(uint pass) const {
-	VERIFY_INDEX(pass, passCount_, false);
+	SUEDE_VERIFY_INDEX(pass, passCount_, false);
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 
@@ -575,12 +575,12 @@ int SubShader::GetPassIndex(const std::string& name) const {
 }
 
 Pass* SubShader::GetPass(uint pass) {
-	VERIFY_INDEX(pass, passCount_, nullptr);
+	SUEDE_VERIFY_INDEX(pass, passCount_, nullptr);
 	return passes_ + pass;
 }
 
 const Pass* SubShader::GetPass(uint pass) const {
-	VERIFY_INDEX(pass, passCount_, nullptr);
+	SUEDE_VERIFY_INDEX(pass, passCount_, nullptr);
 	return passes_ + pass;
 }
 
@@ -714,39 +714,39 @@ void ShaderInternal::ReleaseProperties() {
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {
-	VERIFY_INDEX(ssi, subShaderCount_, NOARG);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, SUEDE_NOARG);
 	subShaders_[ssi].Bind(pass);
 	currentSubShader_ = ssi;
 }
 
 void ShaderInternal::Unbind() {
-	VERIFY_INDEX(currentSubShader_, subShaderCount_, NOARG);
+	SUEDE_VERIFY_INDEX(currentSubShader_, subShaderCount_, SUEDE_NOARG);
 	subShaders_[currentSubShader_].Unbind();
 	currentSubShader_ = UINT_MAX;
 }
 
 void ShaderInternal::SetRenderQueue(uint ssi, int value) {
-	VERIFY_INDEX(ssi, subShaderCount_, NOARG);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, SUEDE_NOARG);
 	return subShaders_[ssi].SetRenderQueue(value);
 }
 
 int ShaderInternal::GetRenderQueue(uint ssi) const {
-	VERIFY_INDEX(ssi, subShaderCount_, 0);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, 0);
 	return subShaders_[ssi].GetRenderQueue();
 }
 
 bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
-	VERIFY_INDEX(ssi, subShaderCount_, false);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, false);
 	return subShaders_[ssi].IsPassEnabled(pass);
 }
 
 uint ShaderInternal::GetNativePointer(uint ssi, uint pass) const {
-	VERIFY_INDEX(ssi, subShaderCount_, 0);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, 0);
 	return subShaders_[ssi].GetNativePointer(pass);
 }
 
 int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {
-	VERIFY_INDEX(ssi, subShaderCount_, -1);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, -1);
 	return subShaders_[ssi].GetPassIndex(name);
 }
 
@@ -757,6 +757,6 @@ void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {
 	if (data == nullptr) { return false; }
 
-	VERIFY_INDEX(ssi, subShaderCount_, false);
+	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, false);
 	return subShaders_[ssi].GetPass(pass)->SetProperty(name, data);
 }

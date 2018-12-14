@@ -10,18 +10,32 @@ function SuedeGlobal.Start()
 	Suede.Environment.SetFogDensity(0);
 	Suede.Environment.SetAmbientColor(Suede.NewColor(0.15, 0.15, 0.15));
 
-	Suede.World.Import("house.fbx", function (root, path)
-		--root:GetTransform():SetPosition({ 0, 25, -65 });
-		--root:GetTransform():SetEulerAngles({ 30, 0, 0 });
+	--[[
+	Suede.World.Import("boblampclean.md5mesh", function (root, path)
+		root:GetTransform():SetPosition({ 0, 0, -70 });
+		root:GetTransform():SetEulerAngles({ 270, 180, 180 });
+		root:GetTransform():SetScale({ 0.2, 0.2, 0.2 });
 
-		local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("IRigidbody");
-		body:SetMass(0);
-
-		if string.find(path, "house") then
-			root:GetTransform():SetScale({ 0.01, 0.01, 0.01 });
+		local animation = root:GetComponent("IAnimation");
+		if animation then
+			animation:SetWrapMode(Suede.AnimationWrapMode.PingPong);
+			animation:Play("");
 		end
 	end);
+	]]
 
+	Suede.World.Import("house.fbx", function (root, path)
+		if string.find(path, "house") then
+			root:GetTransform():SetScale({ 0.01, 0.01, 0.01 });
+		elseif string.find(path, "room") then
+			root:GetTransform():SetScale({ 0.1, 0.1, 0.1 });
+			root:GetTransform():SetEulerAngles({ 30, 0, 0 });
+
+			local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("IRigidbody");
+			body:SetMass(0);
+		end
+	end);
+	
 	--[[
 	Suede.World.Import("builtin/quad.fbx", function (root, path)
 		local target = root:GetTransform():FindChild("quad_root/default"):GetGameObject();

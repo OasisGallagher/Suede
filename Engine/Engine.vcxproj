@@ -464,7 +464,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\world.h" />
     <ClInclude Include="internal\api\gl.h" />
     <ClInclude Include="internal\api\glutils.h" />
-    <ClInclude Include="internal\async\guard.h" />
+    <ClInclude Include="internal\async\async.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\buffer.h" />
     <ClInclude Include="internal\base\fontinternal.h" />

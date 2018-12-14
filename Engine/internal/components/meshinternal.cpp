@@ -241,7 +241,7 @@ uint MeshInternal::GetVertexCount() {
 }
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
-	VERIFY_INDEX(i, BufferIndexCount - InstanceBuffer0, NOARG);
+	SUEDE_VERIFY_INDEX(i, BufferIndexCount - InstanceBuffer0, SUEDE_NOARG);
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
@@ -392,7 +392,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
-MeshInternal::Storage::Storage() {
+MeshInternal::Storage::Storage() : topology(MeshTopology::Triangles) {
 	memset(bufferIndexes, 0, sizeof(bufferIndexes));
 }
 

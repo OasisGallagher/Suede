@@ -58,7 +58,7 @@ QList<GameObject> Hierarchy::selectedGameObjects() {
 	return gameObjects;
 }
 
-void Hierarchy::setSelectedGameObject(const QList<GameObject>& objects) {
+void Hierarchy::setSelectedGameObjects(const QList<GameObject>& objects) {
 	ui_->gameObjectTree->clearSelection();
 
 	QStandardItem* item = nullptr;
@@ -295,6 +295,8 @@ void Hierarchy::appendChildItem(GameObject go) {
 }
 
 void Hierarchy::enableGameObjectOutline(GameObject go, bool enable) {
+	return;
+	// SUEDE TODO: DEBUG.
 	if (!go) { return; }
 
 	MeshRenderer renderer = go->GetComponent<IMeshRenderer>();

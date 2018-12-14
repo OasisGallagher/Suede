@@ -10,7 +10,7 @@
 #include "geometryutility.h"
 
 #include "tools/math2.h"
-#include "internal/async/guard.h"
+#include "internal/async/async.h"
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
 void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(_shared_this(), value); }

@@ -23,6 +23,9 @@ public:
 	~PhysicsInternal();
 
 public:
+	static btDiscreteDynamicsWorld* btWorld() { return world_; }
+
+public:
 	void FixedUpdate();
 
 	bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
@@ -46,9 +49,10 @@ private:
 private:
 	bool debugDrawEnabled_;
 
-	btDiscreteDynamicsWorld* world_;
 	btBroadphaseInterface* broadphase_;
 	btCollisionDispatcher* dispatcher_;
 	btSequentialImpulseConstraintSolver* solver_;
 	btDefaultCollisionConfiguration* collisionConfiguration_;
+
+	static btDiscreteDynamicsWorld* world_;
 };

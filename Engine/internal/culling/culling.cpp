@@ -4,7 +4,7 @@
 #include "profiler.h"
 #include "statistics.h"
 #include "geometryutility.h"
-#include "internal/async/guard.h"
+#include "internal/async/async.h"
 #include "internal/base/renderdefines.h"
 
 Culling::Culling(CullingListener* listener) : cond_(mutex_), listener_(listener), working_(false), stopped_(false) {

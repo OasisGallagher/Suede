@@ -29,6 +29,8 @@ glm::vec3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
 void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDrawEnabled(value); }
 bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEnabled(); }
 
+btDiscreteDynamicsWorld* PhysicsInternal::world_;
+
 PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	// You instantiate the broad phase algorithm implementation.
 	// Collision detection is done in two phases : broad and narrow.
@@ -122,13 +124,4 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hit
 }
 
 void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
-	if (e->component->IsComponentType(IRigidbody::GetComponentGUID())) {
-		Rigidbody body = suede_dynamic_cast<Rigidbody>(e->component);
-		btRigidBody* native = body.get()->_rptr_impl<RigidbodyInternal>()->GetNativePointer();
-		// SUEDE TODO: empty body.
-		if (native != nullptr) {
-			if (e->added) { world_->addRigidBody(native); }
-			else { world_->removeRigidBody(native); }
-		}
-	}
 }

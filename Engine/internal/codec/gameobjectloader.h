@@ -1,7 +1,6 @@
 #pragma once
-#include <assimp/scene.h>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
+
+#include "lua++.h"
 
 #include "image.h"
 #include "engine.h"
@@ -10,6 +9,14 @@
 #include "tools/noncopyable.h"
 #include "gameobjectimportedlistener.h"
 #include "internal/async/threadpool.h"
+
+struct aiNode;
+struct aiScene;
+struct aiMaterial;
+struct aiNodeAnim;
+struct aiAnimation;
+
+namespace Assimp { class Importer; }
 
 struct MaterialAsset {
 	MaterialAsset();
@@ -41,6 +48,7 @@ typedef MeshAttribute MeshAsset;
 struct GameObjectAsset {
 	MeshAsset meshAsset;
 	std::vector<MaterialAsset> materialAssets;
+	std::vector<std::pair<GameObject, Component>> components;
 };
 
 class GameObjectLoader : public Worker, private NonCopyable {
@@ -78,8 +86,8 @@ private:
 	void LoadMaterialAssets();
 	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
 
+	bool HasAnimation();
 	void LoadAnimation(Animation animation);
-	bool HasAnimation() { return skeleton_ && scene_->mNumAnimations != 0; }
 	void LoadAnimationClip(const aiAnimation* anim, AnimationClip clip);
 	void LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
 	const aiNodeAnim* FindChannel(const aiAnimation* anim, const char* name);
@@ -88,12 +96,6 @@ private:
 
 	bool LoadEmbeddedTexels(TexelMap& texelMap, uint index);
 	bool LoadExternalTexels(TexelMap& texelMap, const std::string& name);
-
-private:
-	static glm::vec3 AIVector3ToGLM(const aiVector3D& vec);
-	static glm::mat4& AIMaterixToGLM(glm::mat4& answer, const aiMatrix4x4& mat);
-	static glm::quat& AIQuaternionToGLM(glm::quat& answer, const aiQuaternion& quaternion);
-	static void DecomposeAIMatrix(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat);
 
 private:
 	Mesh surface_;

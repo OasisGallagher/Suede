@@ -28,7 +28,7 @@ public:
 public:
 	GameObject selectedGameObject();
 	QList<GameObject> selectedGameObjects();
-	void setSelectedGameObject(const QList<GameObject>& objects);
+	void setSelectedGameObjects(const QList<GameObject>& objects);
 	void updateRecursively(GameObject go, QStandardItem* parent);
 
 protected:
