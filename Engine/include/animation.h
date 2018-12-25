@@ -26,7 +26,11 @@ struct SkeletonBone {
 	 * @brief AABB in bone space.
 	 */
 	Bounds bounds;
-	glm::mat4 localToBoneMatrix;
+
+	/**
+	 * @brief matrix that transforms from mesh space to bone space in bind pose.
+	 */
+	glm::mat4 meshToBoneMatrix;
 };
 
 struct SkeletonNode {
