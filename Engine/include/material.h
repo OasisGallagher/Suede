@@ -47,6 +47,8 @@ public:
 	void Define(const std::string& name);
 	void Undefine(const std::string& name);
 
+	bool HasProperty(const std::string& name) const;
+
 	void SetInt(const std::string& name, int value);
 	void SetBool(const std::string& name, bool value);
 	void SetFloat(const std::string& name, float value);

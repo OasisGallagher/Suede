@@ -96,8 +96,8 @@ public:
 	/**
 	 * @returns bounds measured in the world space.
 	 */
-	const Bounds& GetBounds() const;
-	void SetBounds(const Bounds& value);
+	//const Bounds& GetBounds() const;
+	//void SetBounds(const Bounds& value);
 
 	void AddSubMesh(SubMesh subMesh);
 	uint GetSubMeshCount();

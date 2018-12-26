@@ -86,6 +86,7 @@ void RigidbodyInternal::UpdateBounds() {
 	}
 
 	bounds_.SetMinMax(btConvert(minAabb), btConvert(maxAabb));
+	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 void RigidbodyInternal::SetVelocity(const glm::vec3& value) {

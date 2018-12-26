@@ -195,15 +195,6 @@ class Mesh_Wrapper {
 		return 0;
 	}
 
-	// void SetBounds(const Bounds& value)
-	static int SetBounds(lua_State* L) {
-		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L);
-		Bounds value = Lua::get<Bounds>(L, 2);
-		
-		_p->SetBounds(value);
-		return 0;
-	}
-
 	// void AddSubMesh(SubMesh subMesh)
 	static int AddSubMesh(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L);
@@ -213,7 +204,7 @@ class Mesh_Wrapper {
 		return 0;
 	}
 
-	// int GetSubMeshCount()
+	// uint GetSubMeshCount()
 	static int GetSubMeshCount(lua_State* L) {
 		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L);
 		return Lua::push(L, _p->GetSubMeshCount());
@@ -295,6 +286,15 @@ class Mesh_Wrapper {
 		return 0;
 	}
 
+	// void ShareStorage(Mesh other)
+	static int ShareStorage(lua_State* L) {
+		Mesh& _p = *Lua::callerSharedPtr<Mesh>(L);
+		Mesh other = Lua::get<Mesh>(L, 2);
+		
+		_p->ShareStorage(other);
+		return 0;
+	}
+
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<Mesh>(L);
@@ -308,7 +308,6 @@ public:
 			{ "__tostring", ToString }, 
 			{ "CreateStorage", CreateStorage },
 			{ "SetAttribute", SetAttribute },
-			{ "SetBounds", SetBounds },
 			{ "AddSubMesh", AddSubMesh },
 			{ "GetSubMeshCount", GetSubMeshCount },
 			{ "GetSubMesh", GetSubMesh },
@@ -322,6 +321,7 @@ public:
 			{ "GetVertexCount", GetVertexCount },
 			{ "Bind", Bind },
 			{ "Unbind", Unbind },
+			{ "ShareStorage", ShareStorage },
 			{ nullptr, nullptr }
 		};
 

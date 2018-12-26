@@ -8,6 +8,7 @@ class SharedTextureManager : public Singleton<SharedTextureManager> {
 
 public:
 	SharedTextureManager();
+	~SharedTextureManager();
 
 public:
 	void Attach(Material material);

@@ -16,6 +16,9 @@ CameraController::CameraController()
 	: orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
 }
 
+CameraController::~CameraController() {
+}
+
 void CameraController::Update() {
 	if (Input::GetMouseWheelDelta() != 0) {
 		glm::vec3 fwd = camera_->GetForward();

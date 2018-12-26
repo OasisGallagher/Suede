@@ -70,18 +70,18 @@ private:
 	bool LoadAsset();
 	bool Initialize(Assimp::Importer& importer);
 
-	void LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
-	void LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
-	void LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	void LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes);
 
-	GameObject LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses);
+	GameObject LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes);
 
 	void ReserveMemory(MeshAsset& meshAsset);
-	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses);
-	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses);
+	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes);
+	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes);
 
 	void LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes);
-	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses);
+	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset);
 
 	void LoadMaterialAssets();
 	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
@@ -132,6 +132,7 @@ typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject, const std::str
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
 	GameObjectLoaderThreadPool() : ThreadPool(16), listener_(nullptr) {}
+	~GameObjectLoaderThreadPool() {}
 
 public:
 	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);

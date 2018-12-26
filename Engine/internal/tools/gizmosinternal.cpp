@@ -16,7 +16,9 @@ void Gizmos::SetMatrix(const glm::mat4& value) { _suede_dinstance()->SetMatrix(v
 Color Gizmos::GetColor() { return _suede_dinstance()->GetColor(); }
 void Gizmos::SetColor(const Color& value) { _suede_dinstance()->SetColor(value); }
 void Gizmos::DrawLines(const glm::vec3* points, uint npoints) { _suede_dinstance()->DrawLines(points, npoints); }
+void Gizmos::DrawLines(const std::initializer_list<glm::vec3>& points) { _suede_dinstance()->DrawLines(points.begin(), points.size()); }
 void Gizmos::DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dinstance()->DrawLines(points, npoints, indexes, nindexes); }
+void Gizmos::DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes) { _suede_dinstance()->DrawLines(points.begin(), points.size(), indexes.begin(), indexes.size()); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints) { _suede_dinstance()->DrawLineStripe(points, npoints); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dinstance()->DrawLineStripe(points, npoints, indexes, nindexes); }
 void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawSphere(center, radius); }

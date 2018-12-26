@@ -101,11 +101,23 @@ class GameObject_Wrapper {
 	}
 
 	// Component AddComponent(const char* name)
+	// Component AddComponent(Component component)
 	static int AddComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerSharedPtr<GameObject>(L);
-		std::string name = Lua::get<std::string>(L, 2);
-		
-		return Lua::push(L, _p->AddComponent(name.c_str()));
+		if (Lua::checkArguments<std::string>(L, 2)) {
+			std::string name = Lua::get<std::string>(L, 2);
+			
+			return Lua::push(L, _p->AddComponent(name.c_str()));
+		}
+
+		if (Lua::checkArguments<Component>(L, 2)) {
+			Component component = Lua::get<Component>(L, 2);
+			
+			return Lua::push(L, _p->AddComponent(component));
+		}
+
+		Debug::LogError("failed to call \"AddComponent\", invalid arguments.");
+		return 0;
 	}
 
 	// Component GetComponent(suede_guid guid)

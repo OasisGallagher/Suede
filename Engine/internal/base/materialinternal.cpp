@@ -27,6 +27,7 @@ int IMaterial::GetRenderQueue() const { return _suede_dptr()->GetRenderQueue(); 
 void IMaterial::Define(const std::string& name) { _suede_dptr()->Define(name); }
 void IMaterial::Undefine(const std::string& name) { _suede_dptr()->Undefine(name); }
 void IMaterial::SetInt(const std::string& name, int value) { _suede_dptr()->SetInt(name, value); }
+bool IMaterial::HasProperty(const std::string& name) const { return _suede_dptr()->HasProperty(name); }
 void IMaterial::SetBool(const std::string& name, bool value) { _suede_dptr()->SetBool(name, value); }
 void IMaterial::SetFloat(const std::string& name, float value) { _suede_dptr()->SetFloat(name, value); }
 void IMaterial::SetTexture(const std::string& name, Texture value) { _suede_dptr()->SetTexture(name, value); }

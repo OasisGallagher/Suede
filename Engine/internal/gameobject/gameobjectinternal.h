@@ -52,7 +52,7 @@ public:
 
 private:
 	void CalculateBonesWorldBounds();
-	void CalculateSelfWorldBounds(Mesh mesh);
+	void CalculateSelfWorldBounds(const Bounds& bounds);
 
 	void CalculateHierarchyBounds();
 	void CalculateHierarchyMeshBounds();

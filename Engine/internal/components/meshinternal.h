@@ -36,8 +36,8 @@ public:
 	void CreateStorage();
 	void SetAttribute(const MeshAttribute& value);
 
-	void SetBounds(const Bounds& value) { bounds_ = value; }
-	const Bounds& GetBounds() const { return bounds_; }
+	//void SetBounds(const Bounds& value) { bounds_ = value; }
+	//const Bounds& GetBounds() const { return bounds_; }
 
 	void Bind();
 	void Unbind();
@@ -89,8 +89,8 @@ private:
 		std::set<IMeshModifiedListener*> listeners;
 	};
 
-protected:
-	Bounds bounds_;
+//protected:
+//	Bounds bounds_;
 
 private:
 	std::vector<SubMesh> subMeshes_;

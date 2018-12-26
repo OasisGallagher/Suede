@@ -9,6 +9,7 @@
 #include "color.h"
 #include "ranged.h"
 #include "component.h"
+#include "gameobject.h"
 
 #include "texture.h"
 #include "material.h"
@@ -53,6 +54,8 @@ Q_DECLARE_SMART_POINTER_METATYPE(std::shared_ptr)
 Q_DECLARE_METATYPE(Material)
 Q_DECLARE_METATYPE(RenderTexture)
 
+Q_DECLARE_METATYPE(GameObject)
+
 #include "transform.h"
 
 class TransformMetaObject : public ComponentMetaObjectT<Transform> {
@@ -64,6 +67,7 @@ class TransformMetaObject : public ComponentMetaObjectT<Transform> {
 
 #include "camera.h"
 
+Q_DECLARE_METATYPE(Camera)
 Q_DECLARE_METATYPE(ClearType)
 Q_DECLARE_METATYPE(RenderPath)
 Q_DECLARE_METATYPE(DepthTextureMode)

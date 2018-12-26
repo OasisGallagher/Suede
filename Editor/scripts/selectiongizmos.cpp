@@ -19,10 +19,7 @@ void SelectionGizmos::OnDrawGizmos() {
 			continue;
 		}
 
-		Rigidbody body = go->GetComponent<IRigidbody>();
-		if (!body) { continue; }
-
-		const Bounds& bounds = body->GetBounds();
+		const Bounds& bounds = go->GetBounds();
 		if (!bounds.IsEmpty()) {
 			//body->ShowCollisionShape(true);
 			Gizmos::DrawWireCuboid(bounds.center, bounds.size);
@@ -30,6 +27,8 @@ void SelectionGizmos::OnDrawGizmos() {
 		else {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
 		}
+
+		Gizmos::DrawLines({ go->GetTransform()->GetPosition() ,go->GetTransform()->GetPosition() + go->GetTransform()->GetForward() * 10.f });
 	}
 
 	Gizmos::SetColor(oldColor);

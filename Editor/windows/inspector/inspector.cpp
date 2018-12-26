@@ -107,12 +107,12 @@ void Inspector::drawBasics() {
 
 void Inspector::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
 	// SUEDE TODO: multi-selection.
-	if (!selected.empty()) {
-		target_ = selected.front();
-	}
-	else {
-		target_ = nullptr;
-	}
+	//if (!selected.empty()) {
+	//	target_ = selected.front();
+	//}
+	//else {
+	//	target_ = nullptr;
+	//}
 }
 
 void Inspector::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo) {

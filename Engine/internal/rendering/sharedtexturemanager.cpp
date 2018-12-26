@@ -20,6 +20,9 @@ SharedTextureManager::SharedTextureManager() {
 	matrixBuffer_->Create(INIT_RENDERABLE_CAPACITY * sizeof(glm::mat4) * 2);
 }
 
+SharedTextureManager::~SharedTextureManager() {
+}
+
 void SharedTextureManager::Attach(Material material) {
 	material->SetTexture(BuiltinProperties::SSAOTexture, ssao_);
 	material->SetTexture(BuiltinProperties::DepthTexture, depth_);

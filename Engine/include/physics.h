@@ -7,6 +7,9 @@
 #include "tools/singleton.h"
 
 struct SUEDE_API RaycastHit {
+	glm::vec3 point;
+	glm::vec3 normal;
+
 	GameObject gameObject;
 };
 
