@@ -133,17 +133,17 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 	return true;
 }
 
-GameObject GameObjectLoader::LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+GameObject GameObjectLoader::LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	GameObject go = NewGameObject();
 	go->GetTransform()->SetParent(parent->GetTransform());
 
-	LoadNodeTo(go, node, surface, subMeshes, boundses);
-	LoadChildren(go, node, surface, subMeshes, boundses);
+	LoadNodeTo(go, node, surface, subMeshes);
+	LoadChildren(go, node, surface, subMeshes);
 
 	return go;
 }
 
-void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	go->SetName(node->mName.C_Str());
 
 	if (go != root_) {
@@ -156,10 +156,10 @@ void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, Su
 		go->GetTransform()->SetLocalPosition(translation);
 	}
 
-	LoadComponents(go, node, surface, subMeshes, boundses);
+	LoadComponents(go, node, surface, subMeshes);
 }
 
-void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
@@ -182,27 +182,20 @@ void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface
 	meshFilter->SetMesh(mesh);
 	asset_.components.push_back(std::make_pair(go, meshFilter));
 
-	Bounds bounds(boundses[node->mMeshes[0]]);
 	for (int i = 0; i < node->mNumMeshes; ++i) {
 		uint meshIndex = node->mMeshes[i];
 		mesh->AddSubMesh(subMeshes[meshIndex]);
-
-		if (i > 0) {
-			bounds.Encapsulate(boundses[meshIndex]);
-		}
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
 			renderer->AddMaterial(asset_.materialAssets[materialIndex].material);
 		}
 	}
-
-	mesh->SetBounds(bounds);
 }
 
-void GameObjectLoader::LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes, const Bounds* boundses) {
+void GameObjectLoader::LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		LoadHierarchy(go, node->mChildren[i], surface, subMeshes, boundses);
+		LoadHierarchy(go, node->mChildren[i], surface, subMeshes);
 	}
 }
 
@@ -225,7 +218,7 @@ void GameObjectLoader::ReserveMemory(MeshAsset& meshAsset) {
 	meshAsset.blendAttrs.resize(vertexCount);
 }
 
-bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
+bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
@@ -234,20 +227,20 @@ bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes, B
 			scene_->mMeshes[i]->mNumFaces * 3, meshAsset.indexes.size(), meshAsset.positions.size()
 		};
 		subMeshes[i]->SetTriangleBias(bias);
-		LoadAttributeAt(i, meshAsset, subMeshes, boundses);
+		LoadAttributeAt(i, meshAsset, subMeshes);
 	}
 
 	return true;
 }
 
-bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes, Bounds* boundses) {
-	LoadVertexAttribute(meshIndex, meshAsset, boundses);
+bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+	LoadVertexAttribute(meshIndex, meshAsset);
 	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
 
 	return true;
 }
 
-void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, Bounds* boundses) {
+void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -281,8 +274,6 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset, 
 		max = glm::max(max, pos);
 	}
 
-	boundses[meshIndex].SetMinMax(min, max);
-
 	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
 		const aiFace& face = aimesh->mFaces[i];
 		if (face.mNumIndices != 3) {
@@ -305,7 +296,7 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 		int index = skeleton_->GetBoneIndex(name);
 		if (index < 0) {
 			SkeletonBone bone{ name };
-			AIConvert(bone.localToBoneMatrix, aimesh->mBones[i]->mOffsetMatrix);
+			AIConvert(bone.meshToBoneMatrix, aimesh->mBones[i]->mOffsetMatrix);
 			index = skeleton_->GetBoneCount();
 			skeleton_->AddBone(bone);
 		}
@@ -320,7 +311,7 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 					meshAsset.blendAttrs[vertexID].weights[k] = weight;
 
 					SkeletonBone* bone = skeleton_->GetBone(index);
-					bone->bounds.Encapsulate(glm::vec3(bone->localToBoneMatrix * glm::vec4(meshAsset.positions[vertexID], 1)));
+					bone->bounds.Encapsulate(glm::vec3(bone->meshToBoneMatrix * glm::vec4(meshAsset.positions[vertexID], 1)));
 					break;
 				}
 			}
@@ -529,13 +520,11 @@ bool GameObjectLoader::LoadAsset() {
 	}
 
 	SubMesh* subMeshes = nullptr;
-	Bounds* boundses = nullptr;
 	asset_.meshAsset.topology = MeshTopology::Triangles;
 
 	if (scene_->mNumMeshes > 0) {
 		subMeshes = MEMORY_NEW_ARRAY(SubMesh, scene_->mNumMeshes);
-		boundses = MEMORY_NEW_ARRAY(Bounds, scene_->mNumMeshes);
-		if (!LoadAttribute(asset_.meshAsset, subMeshes, boundses)) {
+		if (!LoadAttribute(asset_.meshAsset, subMeshes)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
 	}
@@ -548,11 +537,10 @@ bool GameObjectLoader::LoadAsset() {
 	surface_ = NewMesh();
 	surface_->CreateStorage();
 
-	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes, boundses);
-	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes, boundses);
+	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes);
+	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes);
 
 	MEMORY_DELETE_ARRAY(subMeshes);
-	MEMORY_DELETE_ARRAY(boundses);
 
 	if (HasAnimation()) {
 		Animation animation = std::make_shared<IAnimation>();

@@ -40,6 +40,10 @@ public:
 		std::sort(begin(), end(), comp_);
 	}
 
+	void clear() {
+		container_.clear();
+	}
+
 	iterator find(const value_type& value) {
 		return std::lower_bound(begin(), end(), value, comp_);
 	}

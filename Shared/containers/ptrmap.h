@@ -27,7 +27,7 @@ public:
 	}
 
 public:
-	bool contains(const key_type& key) {
+	bool contains(const key_type& key) const {
 		return cont_.find(key) != cont_.end();
 	}
 

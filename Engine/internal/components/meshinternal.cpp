@@ -11,8 +11,8 @@ void ISubMesh::SetTriangleBias(const TriangleBias& value) { _suede_dptr()->SetTr
 IMesh::IMesh() : IObject(MEMORY_NEW(MeshInternal)) {}
 void IMesh::CreateStorage() { _suede_dptr()->CreateStorage(); }
 void IMesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(value); }
-const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
-void IMesh::SetBounds(const Bounds& value) { _suede_dptr()->SetBounds(value); }
+//const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
+//void IMesh::SetBounds(const Bounds& value) { _suede_dptr()->SetBounds(value); }
 
 void IMesh::AddSubMesh(SubMesh subMesh) { _suede_dptr()->AddSubMesh(subMesh); }
 uint IMesh::GetSubMeshCount() { return _suede_dptr()->GetSubMeshCount(); }
@@ -385,11 +385,12 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		max = glm::max(max, attribute.positions[i]);
 	}
 
-	Bounds bounds;
-	bounds.SetMinMax(min, max);
-	GetMesh()->SetBounds(bounds);
-
-	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+	// SUEDE TODO: Text bounds
+// 	Bounds bounds;
+// 	bounds.SetMinMax(min, max);
+// 	GetMesh()->SetBounds(bounds);
+//
+//	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 MeshInternal::Storage::Storage() : topology(MeshTopology::Triangles) {

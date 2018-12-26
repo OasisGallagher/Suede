@@ -10,8 +10,7 @@
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 	Color oldColor = Gizmos::GetColor();
 	Gizmos::SetColor(Color(color.x(), color.y(), color.z()));
-	glm::vec3 points[] = { btConvert(from), btConvert(to) };
-	Gizmos::DrawLines(points, SUEDE_COUNTOF(points));
+	Gizmos::DrawLines({ btConvert(from), btConvert(to) });
 	Gizmos::SetColor(oldColor);
 }
 
@@ -117,6 +116,9 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hit
 
 	RigidbodyInternal* rigidbody = (RigidbodyInternal*)callback.m_collisionObject->getUserPointer();
 	if (rigidbody != nullptr && hitInfo != nullptr) {
+		hitInfo->point = btConvert(callback.m_hitPointWorld);
+		hitInfo->normal = btConvert(callback.m_hitNormalWorld);
+
 		hitInfo->gameObject = rigidbody->GetGameObject();
 	}
 

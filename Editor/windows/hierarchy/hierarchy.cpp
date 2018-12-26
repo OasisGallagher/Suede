@@ -295,8 +295,6 @@ void Hierarchy::appendChildItem(GameObject go) {
 }
 
 void Hierarchy::enableGameObjectOutline(GameObject go, bool enable) {
-	return;
-	// SUEDE TODO: DEBUG.
 	if (!go) { return; }
 
 	MeshRenderer renderer = go->GetComponent<IMeshRenderer>();

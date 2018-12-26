@@ -14,6 +14,7 @@ class CameraController : public QObject, public Behaviour {
 
 public:
 	CameraController();
+	~CameraController();
 
 public:
 	void setView(QWidget* value) { view_ = value; }

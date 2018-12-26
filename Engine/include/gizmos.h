@@ -20,7 +20,9 @@ public:
 	static void SetColor(const Color& value);
 
 	static void DrawLines(const glm::vec3* points, uint npoints);
+	static void DrawLines(const std::initializer_list<glm::vec3>& points);
 	static void DrawLines(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
+	static void DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes);
 
 	static void DrawLineStripe(const glm::vec3* points, uint npoints);
 	static void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);

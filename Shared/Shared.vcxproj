@@ -130,7 +130,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp" />
     <ClCompile Include="debug\stackwalker.cpp" />
-    <ClCompile Include="memory\memory.cpp" />
     <ClCompile Include="memory\refcount.cpp" />
     <ClCompile Include="os\filesystem.cpp" />
     <ClCompile Include="tools\string.cpp" />

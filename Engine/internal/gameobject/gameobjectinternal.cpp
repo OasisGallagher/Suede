@@ -53,10 +53,7 @@ void GameObjectInternal::SetActiveSelf(GameObject self, bool value) {
 		SetActive(self, activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(self);
 
-		Renderer renderer = GetComponent<IRenderer>();
-		MeshProvider provider = GetComponent<IMeshProvider>();
-
-		if (renderer && provider && !provider->GetMesh()->GetBounds().IsEmpty()) {
+		if (!GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -200,10 +197,10 @@ void GameObjectInternal::CalculateHierarchyBounds() {
 
 void GameObjectInternal::CalculateHierarchyMeshBounds() {
 	Renderer renderer = GetComponent<IRenderer>();
-	MeshProvider provider = GetComponent<IMeshProvider>();
+	Rigidbody rigidbody = GetComponent<IRigidbody>();
 
-	if (renderer && provider && !provider->GetMesh()->GetBounds().IsEmpty()) {
-		CalculateSelfWorldBounds(provider->GetMesh());
+	if (renderer && rigidbody && !rigidbody->GetBounds().IsEmpty()) {
+		CalculateSelfWorldBounds(rigidbody->GetBounds());
 	}
 
 	for (Transform tr : GetTransform()->GetChildren()) {
@@ -215,16 +212,13 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 	}
 }
 
-void GameObjectInternal::CalculateSelfWorldBounds(Mesh mesh) {
+void GameObjectInternal::CalculateSelfWorldBounds(const Bounds& bounds) {
 	std::vector<glm::vec3> points;
-	const Bounds& localBounds = mesh->GetBounds();
-	GeometryUtility::GetCuboidCoordinates(points, localBounds.center, localBounds.size);
+	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 
 	Transform transform = GetTransform();
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < points.size(); ++i) {
-		points[i] = transform->TransformPoint(points[i]);
-
 		min = glm::min(min, points[i]);
 		max = glm::max(max, points[i]);
 	}

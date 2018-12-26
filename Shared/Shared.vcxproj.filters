@@ -546,9 +546,6 @@
     <ClCompile Include="tools\string.cpp">
       <Filter>tools\src</Filter>
     </ClCompile>
-    <ClCompile Include="memory\memory.cpp">
-      <Filter>memory\src</Filter>
-    </ClCompile>
     <ClCompile Include="memory\refcount.cpp">
       <Filter>memory\src</Filter>
     </ClCompile>

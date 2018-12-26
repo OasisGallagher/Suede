@@ -79,7 +79,7 @@ void Game::init(Ui::Editor* ui) {
 	stat_->setVisible(false);
 
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject)), this, SLOT(onFocusGameObjectBounds(GameObject)));
+	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject&)), this, SLOT(onFocusGameObjectBounds(GameObject&)));
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
 
@@ -111,9 +111,7 @@ void Game::tick() {
 		glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 
 		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
-			QList<GameObject> gameObjects;
-			gameObjects.push_back(hitInfo.gameObject);
-			Hierarchy::instance()->setSelectedGameObjects(gameObjects);
+			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject>{ hitInfo.gameObject });
 		}
 	}
 }
@@ -220,13 +218,18 @@ void Game::onShadingModeChanged(const QString& str) {
 	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
-void Game::onFocusGameObjectBounds(GameObject go) {
+void Game::onFocusGameObjectBounds(GameObject& go) {
 	Transform camera = CameraUtility::GetMain()->GetTransform();
+	glm::vec3 goPos = go->GetTransform()->GetPosition();
 	glm::vec3 position = go->GetBounds().center;
-	glm::vec3 p = position - go->GetTransform()->GetForward() * calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
+	glm::vec3 fwd = go->GetTransform()->GetForward();
+
+	float distance = calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
+	glm::vec3 p = position + go->GetTransform()->GetForward() * distance;
 	camera->SetPosition(p);
 
-	glm::quat q(glm::transpose(glm::mat3(glm::lookAt(camera->GetPosition(), position, glm::vec3(0, 1, 0)))));
+	glm::quat q(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()));
+	//q = glm::inverse(q);
 	camera->SetRotation(glm::normalize(q));
 }
 
