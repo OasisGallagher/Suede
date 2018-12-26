@@ -5,6 +5,9 @@
 #define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef std::shared_ptr<class I ## Ty> Ty;
 #define SUEDE_DECLARE_OBJECT_CREATER(Ty)	SUEDE_API Ty New ## Ty();
 
+template <class T>
+using suede_weak_ref = std::weak_ptr<typename T::element_type>;
+
 #define SUEDE_USE_NAMESPACE
 
 #ifdef  SUEDE_USE_NAMESPACE

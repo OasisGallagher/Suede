@@ -25,7 +25,7 @@ public:
 	virtual int GetUpdateStrategy() { return 0; }
 
 protected:
-	std::weak_ptr<GameObject::element_type> gameObject_;
+	suede_weak_ref<GameObject> gameObject_;
 
 private:
 	bool enabled_;

@@ -100,7 +100,7 @@ private:
 
 private:
 	Children children_;
-	std::weak_ptr<Transform::element_type> parent_;
+	suede_weak_ref<Transform> parent_;
 
 	PRS local_;
 	PRS world_;

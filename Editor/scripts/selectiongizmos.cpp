@@ -14,7 +14,14 @@ void SelectionGizmos::OnDrawGizmos() {
 	Color oldColor = Gizmos::GetColor();
 	Gizmos::SetColor(Color::green);
 
-	for (GameObject go : selection_) {
+	for (suede_weak_ref<GameObject> ref : selection_) {
+		GameObject go = ref.lock();
+
+		if (!go) {
+			Debug::LogError("invalid weak reference");
+			continue;
+		}
+
 		if (!go->GetActive()) {
 			continue;
 		}
@@ -32,4 +39,13 @@ void SelectionGizmos::OnDrawGizmos() {
 	}
 
 	Gizmos::SetColor(oldColor);
+}
+
+void SelectionGizmos::setSelection(const QList<GameObject>& value) {
+	selection_.clear();
+	selection_.reserve(value.size());
+
+	for (const GameObject& go : value) {
+		selection_.push_back(go);
+	}
 }

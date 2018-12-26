@@ -3,8 +3,6 @@
 #include "mathconvert.h"
 #include "physicsinternal.h"
 
-#define btWorld()	PhysicsInternal::btWorld()
-
 IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal)) {}
 void IRigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
@@ -15,24 +13,32 @@ glm::vec3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity();
 
 SUEDE_DEFINE_COMPONENT(IRigidbody, IComponent)
 
-Figure::Figure(void* userPointer) : mass_(0), state_(Normal), body_(nullptr), userPointer_(userPointer), mesh_(nullptr), shape_(nullptr), showCollisionShape_(false) {
+#define btWorld()	PhysicsInternal::btWorld()
+
+RigidbodyInternal::RigidbodyInternal()
+	: ComponentInternal(ObjectType::Rigidbody)
+	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr), showCollisionShape_(false) {
 	CreateBody();
 }
 
-Figure::~Figure() {
+RigidbodyInternal::~RigidbodyInternal() {
 	DestroyBody();
 	DestroyShape();
 }
 
-void Figure::Update() {
-	if (state_ != Normal) {
-		if (state_ != InvalidShape || RebuildShape()) {
+void RigidbodyInternal::Awake() {
+}
+
+// SUEDE TODO: FixedUpdate.
+void RigidbodyInternal::Update() {
+	if (shapeState_ != Normal) {
+		if (shapeState_ != InvalidShape || RebuildShape()) {
 			UpdateBody(true);
 			ApplyGameObjectTransform();
 			UpdateBounds();
 		}
 
-		state_ = Normal;
+		shapeState_ = Normal;
 	}
 
 	// SUEDE TODO: empty body.
@@ -45,35 +51,23 @@ void Figure::Update() {
 	}
 }
 
-void Figure::Invalidate(FigureState state) {
-	state_ = state;
-}
-
-RigidbodyInternal::RigidbodyInternal() : ComponentInternal(ObjectType::Rigidbody) {
-	figure_ = MEMORY_NEW(Figure);
-}
-
-RigidbodyInternal::~RigidbodyInternal() {
-	MEMORY_DELETE(figure_);
-}
-
 void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 	if (messageID == GameObjectMessageMeshModified) {
-		figure_->Invalidate(InvalidShape);
+		shapeState_ = InvalidShape;
 	}
 	else if( messageID == GameObjectMessageLocalToWorldMatrixModified) {
-		figure_->Invalidate(InvalidBody);
+		shapeState_ = InvalidBody;
 	}
 }
 
-void Figure::SetMass(float value) {
+void RigidbodyInternal::SetMass(float value) {
 	if (!Math::Approximately(mass_, value)) {
 		mass_ = value;
 		UpdateBody(false);
 	}
 }
 
-void Figure::UpdateBounds() {
+void RigidbodyInternal::UpdateBounds() {
 	btVector3 minAabb, maxAabb;
 	shape_->getAabb(body_->getWorldTransform(), minAabb, maxAabb);
 	btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
@@ -95,26 +89,26 @@ void Figure::UpdateBounds() {
 	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
-void Figure::SetVelocity(const glm::vec3& value) {
+void RigidbodyInternal::SetVelocity(const glm::vec3& value) {
 	body_->setLinearVelocity(btConvert(value));
 }
 
-glm::vec3 Figure::GetVelocity() const {
+glm::vec3 RigidbodyInternal::GetVelocity() const {
 	return btConvert(body_->getLinearVelocity());
 }
 
-bool Figure::RebuildShape(Mesh mesh, const glm::vec3& scale) {
+bool RigidbodyInternal::RebuildShape() {
 	DestroyShape();
 
-	/*MeshProvider mp = GetGameObject()->GetComponent<IMeshProvider>();
+	MeshProvider mp = GetGameObject()->GetComponent<IMeshProvider>();
 	if (!mp || !mp->GetMesh() || mp->GetMesh()->GetSubMeshCount() == 0) {
 		return false;
-	}*/
+	}
 
-	return CreateShapeFromMesh(mesh, scale);
+	return CreateShapeFromMesh(mp->GetMesh(), GetTransform()->GetScale());
 }
 
-bool Figure::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
+bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	SUEDE_ASSERT(shape_ == nullptr);
 
 	// In case of a convex object, you use btConvexHullShape.
@@ -160,7 +154,7 @@ bool Figure::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	return true;
 }
 
-void Figure::DestroyShape() {
+void RigidbodyInternal::DestroyShape() {
 	if (mesh_ != nullptr) {
 		MEMORY_DELETE(mesh_);
 		mesh_ = nullptr;
@@ -172,20 +166,20 @@ void Figure::DestroyShape() {
 	}
 }
 
-void Figure::ApplyPhysicsTransform() {
+void RigidbodyInternal::ApplyPhysicsTransform() {
 	const btTransform& transform = body_->getWorldTransform();
 	GetTransform()->SetPosition(btConvert(transform.getOrigin()));
 	GetTransform()->SetRotation(btConvert(transform.getRotation()));
 }
 
-void Figure::ApplyGameObjectTransform() {
+void RigidbodyInternal::ApplyGameObjectTransform() {
 	btTransform& transform = body_->getWorldTransform();
 	transform.setOrigin(btConvert(GetTransform()->GetPosition()));
 	transform.setRotation(btConvert(GetTransform()->GetRotation()));
 	//transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
 }
 
-void Figure::UpdateBody(bool updateWorldRigidbody) {
+void RigidbodyInternal::UpdateBody(bool updateWorldRigidbody) {
 	// You set the mass and inertia values for the shape. You don¡¯t have to calculate inertia for your shape manually.
 	// Instead you are using a utility function that takes a reference, btVector3, and sets the correct inertia value using the shape¡¯s data.
 	btVector3 intertia;
@@ -200,7 +194,7 @@ void Figure::UpdateBody(bool updateWorldRigidbody) {
 	}
 }
 
-void Figure::CreateBody() {
+void RigidbodyInternal::CreateBody() {
 	SUEDE_ASSERT(body_ == nullptr);
 
 	// MotionState is a convenient class that allows you to sync a physical body and with your drawable objects.
@@ -227,7 +221,7 @@ void Figure::CreateBody() {
 	// This is important moment. Sometimes you only have access to a physics body ¨C for example, 
 	// when Bullet calls your callback and passes you the body ¨C but you want to get the node object that holds this body.
 	// In this line, you¡¯re making that possible.
-	body_->setUserPointer(userPointer_);
+	body_->setUserPointer(this);
 
 	// You¡¯re limiting object movement to a 2D plane (x,y).
 	// This keeps your ball and other objects from bouncing somewhere along the z-axis.
@@ -235,7 +229,7 @@ void Figure::CreateBody() {
 	body_->setLinearFactor(btVector3(1, 1, 1));
 }
 
-void Figure::DestroyBody() {
+void RigidbodyInternal::DestroyBody() {
 	if (body_ != nullptr) {
 		MEMORY_DELETE(body_->getMotionState());
 		MEMORY_DELETE(body_);

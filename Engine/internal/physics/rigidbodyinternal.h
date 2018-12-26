@@ -3,23 +3,21 @@
 
 #include "bullet/btBulletDynamicsCommon.h"
 
-enum FigureState {
-	Normal,
-	InvalidBody,
-	InvalidShape,
-};
-
-class Figure {
+class RigidbodyInternal : public ComponentInternal {
 public:
-	Figure(void* userPointer);
-	~Figure();
+	RigidbodyInternal();
+	~RigidbodyInternal();
+
+public:
+	virtual void Awake();
+	virtual void Update();
+
+	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
+	virtual void OnMessage(int messageID, void* parameter);
 
 public:
 	// SUEDE TODO: DEBUG.
 	void ShowCollisionShape(bool value) { showCollisionShape_ = value; }
-
-	void Update();
-	void Invalidate(FigureState state);
 
 	void SetMass(float value);
 	float GetMass() const { return mass_; }
@@ -36,7 +34,7 @@ private:
 
 	void UpdateBounds();
 
-	bool RebuildShape(Mesh mesh, const glm::vec3& scale);
+	bool RebuildShape();
 	bool CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale);
 	void DestroyShape();
 
@@ -56,14 +54,17 @@ private:
 	float mass_;
 	bool showCollisionShape_;
 
+	enum {
+		Normal,
+		InvalidBody,
+		InvalidShape,
+	} shapeState_;
+
 	Bounds bounds_;
-	FigureState state_;
 
 	// The reference to a rigid body.
 	// Using this property, you’ll allow the game scene to work with the physics body of the node.
 	btRigidBody* body_;
-
-	void* userPointer_;
 
 	// The shape of the physics body. 
 	// btCollisionShape is an abstract class, and there are several different implementations of collision shapes. 
@@ -72,34 +73,4 @@ private:
 	// complex objects in OpenGL.
 	btCollisionShape* shape_;
 	btStridingMeshInterface* mesh_;
-};
-
-class RigidbodyInternal : public ComponentInternal {
-public:
-	RigidbodyInternal();
-	~RigidbodyInternal();
-
-public:
-	virtual void Awake() {}
-
-	// SUEDE TODO: FixedUpdate.
-	virtual void Update() { figure_->Update(); }
-
-	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
-	virtual void OnMessage(int messageID, void* parameter);
-
-public:
-	// SUEDE TODO: DEBUG.
-	void ShowCollisionShape(bool value) { figure_->ShowCollisionShape(value); }
-
-	void SetMass(float value) { figure_->SetMass(value); }
-	float GetMass() const { return figure_->GetMass(); }
-
-	void SetVelocity(const glm::vec3& value) { figure_->SetVelocity(value); }
-	glm::vec3 GetVelocity() const { return figure_->GetVelocity(); }
-
-	const Bounds& GetBounds() const { return figure_->GetBounds(); }
-
-private:
-	Figure* figure_;
 };

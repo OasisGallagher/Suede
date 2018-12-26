@@ -69,7 +69,7 @@ private:
 	float(*wrapper_)(float, float);
 	AnimationFrame frame_;
 	AnimationWrapMode wrapMode_;
-	std::weak_ptr<Animation::element_type> animation_;
+	suede_weak_ref<Animation> animation_;
 };
 
 class AnimationStateInternal : public ObjectInternal {
