@@ -296,7 +296,7 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 		int index = skeleton_->GetBoneIndex(name);
 		if (index < 0) {
 			SkeletonBone bone{ name };
-			AIConvert(bone.localToBoneMatrix, aimesh->mBones[i]->mOffsetMatrix);
+			AIConvert(bone.meshToBoneMatrix, aimesh->mBones[i]->mOffsetMatrix);
 			index = skeleton_->GetBoneCount();
 			skeleton_->AddBone(bone);
 		}
@@ -311,7 +311,7 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 					meshAsset.blendAttrs[vertexID].weights[k] = weight;
 
 					SkeletonBone* bone = skeleton_->GetBone(index);
-					bone->bounds.Encapsulate(glm::vec3(bone->localToBoneMatrix * glm::vec4(meshAsset.positions[vertexID], 1)));
+					bone->bounds.Encapsulate(glm::vec3(bone->meshToBoneMatrix * glm::vec4(meshAsset.positions[vertexID], 1)));
 					break;
 				}
 			}

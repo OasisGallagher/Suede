@@ -203,7 +203,7 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 	int index = skeleton->GetBoneIndex(node->name);
 	if (index >= 0) {
 		glm::mat4 boneToRootMatrix = GetAnimation()->GetRootTransform();
-		boneToRootMatrix *= transform * skeleton->GetBone(index)->localToBoneMatrix;
+		boneToRootMatrix *= transform * skeleton->GetBone(index)->meshToBoneMatrix;
 
 		skeleton->SetBoneToRootMatrix(index, boneToRootMatrix);
 	}
