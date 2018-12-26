@@ -48,7 +48,6 @@ protected:
 	virtual void timerEvent(QTimerEvent *event);
 
 private:
-	void start();
 	void createScene();
 	float calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bounds);
 

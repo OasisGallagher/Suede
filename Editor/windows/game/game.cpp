@@ -181,9 +181,6 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 // //	Graphics::Blit(targetTexture_, nullptr);
 // }
 
-void Game::start() {
-}
-
 void Game::keyPressEvent(QKeyEvent* event) {
 	switch (event->key()) {
 		case Qt::Key_Space:
@@ -229,7 +226,7 @@ void Game::onFocusGameObjectBounds(GameObject& go) {
 	camera->SetPosition(p);
 
 	glm::quat q(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()));
-	//q = glm::inverse(q);
+	q = glm::inverse(q);
 	camera->SetRotation(glm::normalize(q));
 }
 
