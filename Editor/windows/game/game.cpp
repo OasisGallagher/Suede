@@ -224,7 +224,7 @@ void Game::onFocusGameObjectBounds(GameObject go) {
 	Transform camera = CameraUtility::GetMain()->GetTransform();
 
 	float distance = calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
-	camera->SetPosition(center + go->GetTransform()->GetForward() * distance);
+	camera->SetPosition(center + glm::vec3(0, 0, -1) * distance);
 
 	glm::quat q(glm::lookAt(camera->GetPosition(), center, glm::vec3(0, 1, 0)));
 	camera->SetRotation(glm::conjugate(q));
