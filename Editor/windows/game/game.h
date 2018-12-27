@@ -39,7 +39,7 @@ private slots:
 
 	void onShadingModeChanged(const QString& str);
 
-	void onFocusGameObjectBounds(GameObject& go);
+	void onFocusGameObjectBounds(GameObject go);
 	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 protected:
@@ -48,7 +48,6 @@ protected:
 	virtual void timerEvent(QTimerEvent *event);
 
 private:
-	void start();
 	void createScene();
 	float calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bounds);
 

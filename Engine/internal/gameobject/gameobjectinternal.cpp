@@ -2,10 +2,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "time2.h"
+#include "renderer.h"
 #include "rigidbody.h"
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "tools/string.h"
+#include "particlesystem.h"
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
@@ -129,7 +131,7 @@ void GameObjectInternal::Update() {
 }
 
 Transform GameObjectInternal::GetTransform() {
-	return GetComponent<ITransform>();
+	return GetComponent<Transform>();
 }
 
 void GameObjectInternal::RecalculateBounds(int flags) {
@@ -180,7 +182,7 @@ const Bounds& GameObjectInternal::GetBounds() {
 }
 
 void GameObjectInternal::CalculateHierarchyBounds() {
-	if (GetComponent<IAnimation>()) {
+	if (GetComponent<Animation>()) {
 		CalculateBonesWorldBounds();
 	}
 	else {
@@ -188,7 +190,7 @@ void GameObjectInternal::CalculateHierarchyBounds() {
 		boundsDirty_ = false;
 	}
 
-	ParticleSystem ps = GetComponent<IParticleSystem>();
+	ParticleSystem ps = GetComponent<ParticleSystem>();
 	if (ps) {
 		worldBounds_.Encapsulate(ps->GetMaxBounds());
 		boundsDirty_ = true;
@@ -196,8 +198,8 @@ void GameObjectInternal::CalculateHierarchyBounds() {
 }
 
 void GameObjectInternal::CalculateHierarchyMeshBounds() {
-	Renderer renderer = GetComponent<IRenderer>();
-	Rigidbody rigidbody = GetComponent<IRigidbody>();
+	Renderer renderer = GetComponent<Renderer>();
+	Rigidbody rigidbody = GetComponent<Rigidbody>();
 
 	if (renderer && rigidbody && !rigidbody->GetBounds().IsEmpty()) {
 		CalculateSelfWorldBounds(rigidbody->GetBounds());
@@ -231,7 +233,7 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
 	Bounds boneBounds;
-	Skeleton skeleton = GetComponent<IAnimation>()->GetSkeleton();
+	Skeleton skeleton = GetComponent<Animation>()->GetSkeleton();
 	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
 
 	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {

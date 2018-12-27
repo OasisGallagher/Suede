@@ -47,7 +47,7 @@ Texture2D ICamera::Capture() { return _suede_dptr()->Capture(); }
 void ICamera::Render() { _suede_dptr()->Render(); }
 void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
 
-SUEDE_DEFINE_COMPONENT(ICamera, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
 static Camera main_;
 Camera CameraUtility::GetMain() { return main_; }
@@ -65,7 +65,7 @@ void CameraUtility::OnPostRender() {
 	RenderTexture target = RenderTextureUtility::GetDefault();
 	target->BindWrite(GetMain()->GetRect());
 
-	for (std::shared_ptr<GizmosPainter>& painter : World::GetComponents<GizmosPainter>()) {
+	for (GizmosPainter painter : World::GetComponents<GizmosPainter>()) {
 		painter->OnDrawGizmos();
 	}
 

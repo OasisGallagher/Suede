@@ -54,7 +54,7 @@ ParticleEmitter IParticleSystem::GetEmitter() { return _suede_dptr()->GetEmitter
 void IParticleSystem::SetParticleAnimator(ParticleAnimator value) { _suede_dptr()->SetParticleAnimator(value); }
 ParticleAnimator IParticleSystem::GetParticleAnimator() { return _suede_dptr()-> GetParticleAnimator(); }
 
-SUEDE_DEFINE_COMPONENT(IParticleSystem, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(ParticleSystem, Component)
 
 static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 
@@ -148,7 +148,7 @@ void ParticleSystemInternal::UpdateParticles() {
 void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint count = particles_.size();
 	if (count > 0) {
-		Mesh mesh = GetGameObject()->GetComponent<IMeshFilter>()->GetMesh();
+		Mesh mesh = GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
 		mesh->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
 		mesh->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
 	}
@@ -231,7 +231,7 @@ void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute geometry;
 	geometry.count = maxParticles_, geometry.divisor = 1;
 
-	MeshFilter meshFilter = GetGameObject()->GetComponent<IMeshFilter>();
+	MeshFilter meshFilter = GetGameObject()->GetComponent<MeshFilter>();
 	meshFilter->SetMesh(
 		Resources::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)
 	);
@@ -239,7 +239,7 @@ void ParticleSystemInternal::InitializeMesh() {
 }
 
 void ParticleSystemInternal::InitializeRenderer() {
-	ParticleRenderer renderer = GetGameObject()->GetComponent<IParticleRenderer>();
+	ParticleRenderer renderer = GetGameObject()->GetComponent<ParticleRenderer>();
 
 	Material material = NewMaterial();
 	Shader shader = Resources::FindShader("builtin/particle");

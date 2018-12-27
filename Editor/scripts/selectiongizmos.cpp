@@ -1,12 +1,8 @@
 #include "selectiongizmos.h"
 
-#include "input.h"
-#include "rigidbody.h"
+#include "gizmos.h"
 
-SUEDE_DEFINE_COMPONENT(SelectionGizmos, GizmosPainter)
-
-#include <windows.h>
-#include "tools/string.h"
+SUEDE_DEFINE_COMPONENT(SelectionGizmos, IGizmosPainter)
 
 void SelectionGizmos::OnDrawGizmos() {
 	if (selection_.empty()) { return; }
@@ -34,8 +30,6 @@ void SelectionGizmos::OnDrawGizmos() {
 		else {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
 		}
-
-		Gizmos::DrawLines({ go->GetTransform()->GetPosition() ,go->GetTransform()->GetPosition() + go->GetTransform()->GetForward() * 10.f });
 	}
 
 	Gizmos::SetColor(oldColor);

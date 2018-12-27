@@ -85,8 +85,7 @@ private:
 	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
 	struct ProjectorComparer { bool operator() (const Projector& lhs, const Projector& rhs) const; };
 
-	typedef std::shared_ptr<GizmosPainter> GizmosPainterPtr;
-	typedef sorted_vector<GizmosPainterPtr> GizmosPainterContainer;
+	typedef sorted_vector<GizmosPainter> GizmosPainterContainer;
 
 	typedef sorted_vector<GameObject> GameObjectSequence;
 	typedef std::map<uint, GameObject> GameObjectDictionary;

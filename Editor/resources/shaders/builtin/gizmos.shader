@@ -6,6 +6,7 @@ SubShader {
 		GLSLPROGRAM
 
 		#stage vertex
+
 		#include "builtin/include/suede.inc"
 
 		in vec3 _Pos;

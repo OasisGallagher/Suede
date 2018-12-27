@@ -144,13 +144,13 @@ void WorldInternal::DestroyGameObject(GameObject go) {
 void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	GameObject go = root->GetGameObject();
 
-	Camera camera = go->GetComponent<ICamera>();
+	Camera camera = go->GetComponent<Camera>();
 	if (camera) { cameras_.erase(camera); }
 
-	Light light = go->GetComponent<ILight>();
+	Light light = go->GetComponent<Light>();
 	if (light) { lights_.erase(light); }
 
-	Projector projector = go->GetComponent<IProjector>();
+	Projector projector = go->GetComponent<Projector>();
 	if (projector) { projectors_.erase(projector); }
 
 	RemoveGameObjectFromSequence(go);
@@ -183,8 +183,8 @@ std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid
 			gameObjects.push_back(light->GetGameObject());
 		}
 	}
-	else if (guid == GizmosPainter::GetComponentGUID()) {
-		for (GizmosPainterPtr painter : gizmosPainters_) {
+	else if (guid == IGizmosPainter::GetComponentGUID()) {
+		for (GizmosPainter painter : gizmosPainters_) {
 			gameObjects.push_back(painter->GetGameObject());
 		}
 	}

@@ -4,7 +4,7 @@
 
 #include <QMouseEvent>
 
-class CameraController : public QObject, public Behaviour {
+class CameraController : public QObject, public IBehaviour {
 	Q_OBJECT
 	Q_PROPERTY(glm::vec3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
 	Q_PROPERTY(glm::vec2 OrientSpeed READ orientSpeed WRITE setOrientSpeed)

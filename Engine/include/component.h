@@ -6,10 +6,10 @@
 public: \
     static suede_guid GetComponentGUID(); \
 	static const char* GetComponentName(); \
-    bool IsComponentType(suede_guid guid) const override; \
-    bool IsComponentType(const char* name) const override; \
-	suede_guid GetComponentInstanceGUID() const override; \
-	const char* GetComponentInstanceName() const override;
+    bool IsComponentType(suede_guid guid) const; \
+    bool IsComponentType(const char* name) const; \
+	suede_guid GetComponentInstanceGUID() const; \
+	const char* GetComponentInstanceName() const;
 
 #define SUEDE_DEFINE_COMPONENT(Class, ParentClass) \
 	suede_guid Class::GetComponentGUID() { \

@@ -16,7 +16,7 @@ function SuedeGlobal.Start()
 		root:GetTransform():SetEulerAngles({ 270, 180, 180 });
 		root:GetTransform():SetScale({ 0.2, 0.2, 0.2 });
 
-		local animation = root:GetComponent("IAnimation");
+		local animation = root:GetComponent("Animation");
 		if animation then
 			animation:SetWrapMode(Suede.AnimationWrapMode.PingPong);
 			animation:Play("");
@@ -31,7 +31,7 @@ function SuedeGlobal.Start()
 			root:GetTransform():SetScale({ 0.1, 0.1, 0.1 });
 			root:GetTransform():SetEulerAngles({ 30, 0, 0 });
 
-			local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("IRigidbody");
+			local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("Rigidbody");
 			body:SetMass(0);
 		end
 	end);
@@ -44,7 +44,7 @@ function SuedeGlobal.Start()
 		local shader = Suede.NewShader();
 		shader:Load("builtin/lit_parallactic_texture");
 
-		local material = target:GetComponent("IMeshRenderer"):GetMaterial(0);
+		local material = target:GetComponent("MeshRenderer"):GetMaterial(0);
 		material:SetShader(shader);
 
 		local diffuse = Suede.NewTexture2D();
@@ -71,7 +71,7 @@ function SuedeGlobal.Start()
 		diffuse:Load("suzanne/diffuse.dds");
 		local target = root:GetTransform():FindChild("suzanne_root/default"):GetGameObject();
 
-		local material = target:GetComponent("IMeshRenderer"):GetMaterial(0);
+		local material = target:GetComponent("MeshRenderer"):GetMaterial(0);
 		material:SetTexture("_MainTexture", diffuse);
 	end);
 	]]

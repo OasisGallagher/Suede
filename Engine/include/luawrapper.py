@@ -84,6 +84,7 @@ kNotNewables = [
 
 	"IObject",
 	"IComponent",
+        "IBehaviour",
 	"ITransform",
 	"IRenderer",
 	"IRigidbody",

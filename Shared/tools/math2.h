@@ -27,6 +27,7 @@ public:
 	static int Highword(int dword);
 
 	static float Pi();
+	static float Epsilon();
 
 	template <class T>
 	static T Degrees(const T& radians);
@@ -70,7 +71,8 @@ public:
 	template <class T>
 	static T Clamp01(T value);
 
-	static bool Approximately(float x, float y = 0.f);
+	static bool Approximately(float x, float y);
+	static bool Approximately(const glm::quat& x, const glm::quat& y);
 
 	static void Orthogonalize(glm::vec3& t, const glm::vec3& n);
 
@@ -92,6 +94,10 @@ inline int Math::MakeDword(int low, int high) {
 
 inline float Math::Pi() {
 	return 3.1415926f;
+}
+
+inline float Math::Epsilon() {
+	return 0.000001f;
 }
 
 inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal) {
@@ -205,8 +211,11 @@ inline T Math::Clamp01(T value) {
 }
 
 inline bool Math::Approximately(float x, float y) {
-	const float E = 0.000001f;
-	return fabs(x - y) < E;
+	return fabs(x - y) < Epsilon();
+}
+
+inline bool Math::Approximately(const glm::quat& x, const glm::quat& y) {
+	return 1.f - fabs(glm::dot(x, y)) < Epsilon();
 }
 
 inline void Math::Orthogonalize(glm::vec3& t, const glm::vec3& n) {

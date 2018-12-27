@@ -306,7 +306,7 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {
-				if (Math::Approximately(meshAsset.blendAttrs[vertexID].weights[k])) {
+				if (Math::Approximately(meshAsset.blendAttrs[vertexID].weights[k], 0)) {
 					meshAsset.blendAttrs[vertexID].indexes[k] = index;
 					meshAsset.blendAttrs[vertexID].weights[k] = weight;
 
@@ -358,7 +358,7 @@ void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateria
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
-		if (Math::Approximately(afloat)) { afloat = 1; }
+		if (Math::Approximately(afloat, 0)) { afloat = 1; }
 		materialAsset.mainColor.a = afloat;
 	}
 

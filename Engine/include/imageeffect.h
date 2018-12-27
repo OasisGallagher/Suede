@@ -2,7 +2,7 @@
 #include "texture.h"
 #include "behaviour.h"
 
-class SUEDE_API ImageEffect : public Behaviour {
+class SUEDE_API ImageEffect : public IBehaviour {
 	SUEDE_DECLARE_COMPONENT()
 
 public:

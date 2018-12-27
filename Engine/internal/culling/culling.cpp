@@ -1,6 +1,7 @@
 #include "culling.h"
 
 #include "world.h"
+#include "renderer.h"
 #include "profiler.h"
 #include "statistics.h"
 #include "geometryutility.h"
@@ -54,7 +55,7 @@ WalkCommand Culling::OnWalkGameObject(GameObject go) {
 		return WalkCommand::Next;
 	}
 
-	if (go->GetComponent<IRenderer>() && go->GetComponent<IMeshProvider>()) {
+	if (go->GetComponent<Renderer>() && go->GetComponent<MeshProvider>()) {
 		gameObjects_.push_back(go);
 	}
 

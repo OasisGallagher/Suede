@@ -20,7 +20,7 @@ float IProjector::GetFarClipPlane() const { return _suede_dptr()->GetFarClipPlan
 float IProjector::GetFieldOfView() const { return _suede_dptr()->GetFieldOfView(); }
 const glm::mat4& IProjector::GetProjectionMatrix() { return _suede_dptr()->GetProjectionMatrix(); }
 
-SUEDE_DEFINE_COMPONENT(IProjector, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Projector, Component)
 
 ProjectorInternal::ProjectorInternal()
 	: ComponentInternal(ObjectType::Projector), depth_(0) {
