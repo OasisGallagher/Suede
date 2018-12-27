@@ -36,6 +36,7 @@ class World_Wrapper {
 			{ "FireEvent", FireEvent },
 			{ "FireEventImmediate", FireEventImmediate },
 			{ "GetDecals", GetDecals },
+			{ "GetGameObjectsOfComponent", GetGameObjectsOfComponent },
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
@@ -138,6 +139,13 @@ class World_Wrapper {
 		
 		World::GetDecals(container);
 		return 0;
+	}
+
+	// static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid)
+	static int GetGameObjectsOfComponent(lua_State* L) {
+		suede_guid guid = Lua::get<suede_guid>(L, 1);
+		
+		return Lua::pushList(L, World::GetGameObjectsOfComponent(guid));
 	}
 
 public:

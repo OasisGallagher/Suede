@@ -81,7 +81,7 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 
 	component->Awake();
 
-	if (component->IsComponentType(IMeshFilter::GetComponentGUID())) {
+	if (component->IsComponentType(IMeshProvider::GetComponentGUID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 
 		if (!GetComponent(IRigidbody::GetComponentGUID())) {

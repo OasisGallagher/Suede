@@ -36,6 +36,7 @@ struct SUEDE_API Color {
 	static Color blue;
 	static Color black;
 	static Color white;
+	static Color yellow;
 };
 
 inline Color::Color() :r(0), g(0), b(0), a(0) {

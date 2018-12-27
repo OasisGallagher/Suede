@@ -56,6 +56,7 @@ enum class MeshTopology {
 
 	Triangles,
 	TriangleStripe,
+	TriangleFan,
 };
 
 struct MeshAttribute {

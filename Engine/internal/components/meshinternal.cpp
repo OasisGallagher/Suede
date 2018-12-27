@@ -266,7 +266,10 @@ void MeshProviderInternal::OnMeshModified() {
 }
 
 TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), dirty_(false) {
-	SetMesh(NewMesh());
+	Mesh mesh = NewMesh();
+	mesh->CreateStorage();
+
+	SetMesh(mesh);
 	GetMesh()->AddSubMesh(NewSubMesh());
 }
 
@@ -384,13 +387,6 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		min = glm::min(min, attribute.positions[i]);
 		max = glm::max(max, attribute.positions[i]);
 	}
-
-	// SUEDE TODO: Text bounds
-// 	Bounds bounds;
-// 	bounds.SetMinMax(min, max);
-// 	GetMesh()->SetBounds(bounds);
-//
-//	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
 MeshInternal::Storage::Storage() : topology(MeshTopology::Triangles) {

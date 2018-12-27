@@ -8,7 +8,6 @@ void SelectionGizmos::OnDrawGizmos() {
 	if (selection_.empty()) { return; }
 
 	Color oldColor = Gizmos::GetColor();
-	Gizmos::SetColor(Color::green);
 
 	for (suede_weak_ref<GameObject> ref : selection_) {
 		GameObject go = ref.lock();
@@ -22,6 +21,8 @@ void SelectionGizmos::OnDrawGizmos() {
 			continue;
 		}
 
+		Gizmos::SetColor(Color::yellow);
+
 		const Bounds& bounds = go->GetBounds();
 		if (!bounds.IsEmpty()) {
 			//body->ShowCollisionShape(true);
@@ -30,6 +31,17 @@ void SelectionGizmos::OnDrawGizmos() {
 		else {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
 		}
+
+		glm::vec3 pos = go->GetTransform()->GetPosition();
+
+		Gizmos::SetColor(Color::red);
+		Gizmos::DrawLines({pos, pos + go->GetTransform()->GetRight() * 5.f});
+
+		Gizmos::SetColor(Color::green);
+		Gizmos::DrawLines({ pos, pos + go->GetTransform()->GetUp() * 5.f });
+
+		Gizmos::SetColor(Color::blue);
+		Gizmos::DrawLines({ pos, pos + go->GetTransform()->GetForward() * 5.f });
 	}
 
 	Gizmos::SetColor(oldColor);

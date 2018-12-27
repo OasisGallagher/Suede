@@ -300,6 +300,8 @@ static int configure(lua_State* L) {
 	lua_setfield(L, -2, "Triangles");
 	lua_pushinteger(L, (int)MeshTopology::TriangleStripe);
 	lua_setfield(L, -2, "TriangleStripe");
+	lua_pushinteger(L, (int)MeshTopology::TriangleFan);
+	lua_setfield(L, -2, "TriangleFan");
 
 	lua_setfield(L, -2, "MeshTopology");
 

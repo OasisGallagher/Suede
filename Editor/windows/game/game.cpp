@@ -47,7 +47,7 @@
 //#define IMAGE_EFFECTS
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
-//#define FONT
+#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
