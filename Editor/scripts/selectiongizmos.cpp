@@ -30,6 +30,8 @@ void SelectionGizmos::OnDrawGizmos() {
 		else {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
 		}
+
+		Gizmos::DrawLines({ go->GetTransform()->GetPosition() ,go->GetTransform()->GetPosition() + go->GetTransform()->GetForward() * 10.f });
 	}
 
 	Gizmos::SetColor(oldColor);

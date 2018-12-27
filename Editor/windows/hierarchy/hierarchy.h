@@ -37,7 +37,7 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event);
 
 signals:
-	void focusGameObject(GameObject go);
+	void focusGameObject(GameObject& go);
 	void selectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 private slots:
