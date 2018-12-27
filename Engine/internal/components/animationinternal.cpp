@@ -64,7 +64,7 @@ glm::mat4 IAnimation::GetRootTransform() { return _suede_dptr()->GetRootTransfor
 void IAnimation::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
 bool IAnimation::Play(const std::string& name) { return _suede_dptr()->Play(name); }
 
-SUEDE_DEFINE_COMPONENT(IAnimation, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Animation, Component)
 
 #define DEFAULT_TICKS_PER_SECOND	25
 
@@ -168,7 +168,7 @@ void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
 }
 
 void AnimationClipInternal::SetTicksPerSecond(float value) {
-	if (Math::Approximately(value)) {
+	if (Math::Approximately(value, 0)) {
 		value = DEFAULT_TICKS_PER_SECOND;
 	}
 

@@ -44,8 +44,7 @@ public:
 	template <class T>
 	Component GetComponent(T key);
 
-	template <class T>
-	std::shared_ptr<T> GetComponent();
+	template <class T> T GetComponent();
 
 	template <class T>
 	std::vector<Component> GetComponents(T key);
@@ -133,8 +132,8 @@ inline Component GameObjectInternal::AddComponent(GameObject self, Component key
 }
 
 template <class T>
-inline std::shared_ptr<T> GameObjectInternal::GetComponent() {
-	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponent(T::GetComponentGUID()));
+inline T GameObjectInternal::GetComponent() {
+	return suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()));
 }
 
 template <class T>

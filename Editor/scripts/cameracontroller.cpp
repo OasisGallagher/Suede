@@ -10,7 +10,7 @@
 #include "cameracontroller.h"
 #include "windows/hierarchy/hierarchy.h"
 
-SUEDE_DEFINE_COMPONENT(CameraController, Behaviour)
+SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
 
 CameraController::CameraController() 
 	: orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {

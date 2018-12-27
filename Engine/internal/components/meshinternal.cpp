@@ -45,9 +45,9 @@ uint ITextMesh::GetFontSize() { return _suede_dptr()->GetFontSize(); }
 IMeshFilter::IMeshFilter() : IMeshProvider(MEMORY_NEW(MeshFilterInternal)) {}
 void IMeshFilter::SetMesh(Mesh value) { _suede_dptr()->SetMesh(value); }
 
-SUEDE_DEFINE_COMPONENT(IMeshProvider, IComponent)
-SUEDE_DEFINE_COMPONENT(ITextMesh, IMeshProvider)
-SUEDE_DEFINE_COMPONENT(IMeshFilter, IMeshProvider)
+SUEDE_DEFINE_COMPONENT_INTERNAL(MeshProvider, Component)
+SUEDE_DEFINE_COMPONENT_INTERNAL(TextMesh, MeshProvider)
+SUEDE_DEFINE_COMPONENT_INTERNAL(MeshFilter, MeshProvider)
 
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 }

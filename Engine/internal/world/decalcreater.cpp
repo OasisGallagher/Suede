@@ -88,7 +88,7 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 }
 
 bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, GameObject go, Plane planes[6]) {
-	Mesh mesh = go->GetComponent<IMeshFilter>()->GetMesh();
+	Mesh mesh = go->GetComponent<MeshFilter>()->GetMesh();
 	glm::vec3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
 	const uint* indexes = mesh->MapIndexes();

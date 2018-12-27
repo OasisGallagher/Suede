@@ -37,14 +37,14 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event);
 
 signals:
-	void focusGameObject(GameObject& go);
+	void focusGameObject(GameObject go);
 	void selectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
 
 private slots:
 	void reload();
 	void onDeleteSelected();
 	void onTreeCustomContextMenu();
-	void onGameObjectDoubleClicked(const QModelIndex&);
+	void onGameObjectDoubleClicked(const QModelIndex& index);
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:

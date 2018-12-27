@@ -29,6 +29,7 @@ class Gizmos_Wrapper {
 			{ "SetMatrix", SetMatrix },
 			{ "GetColor", GetColor },
 			{ "SetColor", SetColor },
+			{ "DrawLines", DrawLines },
 			{ "DrawSphere", DrawSphere },
 			{ "DrawCuboid", DrawCuboid },
 			{ "DrawWireSphere", DrawWireSphere },
@@ -70,6 +71,28 @@ class Gizmos_Wrapper {
 		Color value = Lua::get<Color>(L, 1);
 		
 		Gizmos::SetColor(value);
+		return 0;
+	}
+
+	// static void DrawLines(const std::initializer_list<glm::vec3>& points)
+	// static void DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes)
+	static int DrawLines(lua_State* L) {
+		if (Lua::checkArguments<std::initializer_list<glm::vec3>>(L, 2)) {
+			std::initializer_list<glm::vec3> points = Lua::get<std::initializer_list<glm::vec3>>(L, 1);
+			
+			Gizmos::DrawLines(points);
+			return 0;
+		}
+
+		if (Lua::checkArguments<std::initializer_list<glm::vec3>, std::initializer_list<uint>>(L, 2)) {
+			std::initializer_list<uint> indexes = Lua::get<std::initializer_list<uint>>(L, 2);
+			std::initializer_list<glm::vec3> points = Lua::get<std::initializer_list<glm::vec3>>(L, 1);
+			
+			Gizmos::DrawLines(points, indexes);
+			return 0;
+		}
+
+		Debug::LogError("failed to call \"DrawLines\", invalid arguments.");
 		return 0;
 	}
 

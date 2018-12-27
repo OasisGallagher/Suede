@@ -10,6 +10,7 @@ public:
 public:
 	void Run();
 	bool SetCanvas(GraphicsCanvas* value);
+	GraphicsCanvas* GetCanvas() { return canvas_; }
 	void OnCanvasSizeChanged(uint width, uint height);
 
 protected:

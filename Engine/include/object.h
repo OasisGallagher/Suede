@@ -53,6 +53,8 @@ BETTER_ENUM(ObjectType, int,
 
 SUEDE_DEFINE_OBJECT_POINTER(Object)
 
+#define SUEDE_DECLARE_PROPERTY	__declspec(property(get = GetTransform, put = SetTransform)) Transform transform;
+
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
 public: \
 	virtual const char* metatableName() const { \

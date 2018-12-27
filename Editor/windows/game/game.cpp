@@ -79,7 +79,7 @@ void Game::init(Ui::Editor* ui) {
 	stat_->setVisible(false);
 
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject&)), this, SLOT(onFocusGameObjectBounds(GameObject&)));
+	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject)), this, SLOT(onFocusGameObjectBounds(GameObject)));
 	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
 
@@ -126,7 +126,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		root->GetTransform()->SetScale(glm::vec3(0.2f));
 		//go->SetParent(camera);
 
-		Animation animation = root->GetComponent<IAnimation>();
+		Animation animation = root->GetComponent<Animation>();
 		if (animation) {
 			animation->SetWrapMode(AnimationWrapMode::PingPong);
 			animation->Play("");
@@ -143,7 +143,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 			diffuse->Load("suzanne/diffuse.dds");
 			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
 
-			Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
+			Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 			material->SetTexture(BuiltinProperties::MainTexture, diffuse);
 
 			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
@@ -154,7 +154,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		root->GetTransform()->SetPosition(glm::vec3(0, 25, -15));
 
 		GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
-		Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
+		Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 		material->SetShader(Resources::FindShader("builtin/lit_bumped_texture"));
 
 		Texture2D diffuse = NewTexture2D();
@@ -171,7 +171,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 
 		GameObject target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
 
-		for (Material material : target->GetComponent<IMeshRenderer>()->GetMaterials()) {
+		for (Material material : target->GetComponent<MeshRenderer>()->GetMaterials()) {
 			//material->SetShader(Resources::FindShader("builtin/normal_visualizer"));
 		}
 	}
@@ -190,6 +190,10 @@ void Game::keyPressEvent(QKeyEvent* event) {
 
 void Game::resizeEvent(QResizeEvent* event) {
 	updateStatPosition();
+
+	// SUEDE TODO: Canvas::resizeGL not called when game window resized.
+	const QSize& size = event->size();
+	canvas()->sizeChanged(size.width(), size.height());
 }
 
 void Game::timerEvent(QTimerEvent *event) {
@@ -215,19 +219,15 @@ void Game::onShadingModeChanged(const QString& str) {
 	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
-void Game::onFocusGameObjectBounds(GameObject& go) {
+void Game::onFocusGameObjectBounds(GameObject go) {
+	glm::vec3 center = go->GetBounds().center;
 	Transform camera = CameraUtility::GetMain()->GetTransform();
-	glm::vec3 goPos = go->GetTransform()->GetPosition();
-	glm::vec3 position = go->GetBounds().center;
-	glm::vec3 fwd = go->GetTransform()->GetForward();
 
 	float distance = calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
-	glm::vec3 p = position + go->GetTransform()->GetForward() * distance;
-	camera->SetPosition(p);
+	camera->SetPosition(center + go->GetTransform()->GetForward() * distance);
 
-	glm::quat q(glm::lookAt(camera->GetPosition(), position, go->GetTransform()->GetUp()));
-	q = glm::inverse(q);
-	camera->SetRotation(glm::normalize(q));
+	glm::quat q(glm::lookAt(camera->GetPosition(), center, glm::vec3(0, 1, 0)));
+	camera->SetRotation(glm::conjugate(q));
 }
 
 void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
@@ -251,7 +251,7 @@ void Game::createScene() {
 	GameObject lightGameObject = NewGameObject();
 	lightGameObject->SetName("light");
 
-	Light light = lightGameObject->AddComponent<ILight>();
+	Light light = lightGameObject->AddComponent<Light>();
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
 	light->GetTransform()->SetParent(World::GetRootTransform());
 
@@ -260,7 +260,7 @@ void Game::createScene() {
 	GameObject cameraGameObject = NewGameObject();
 	cameraGameObject->SetName("camera");
 
-	Camera camera = cameraGameObject->AddComponent<ICamera>();
+	Camera camera = cameraGameObject->AddComponent<Camera>();
 	CameraUtility::SetMain(camera);
 	camera->GetTransform()->SetParent(World::GetRootTransform());
 

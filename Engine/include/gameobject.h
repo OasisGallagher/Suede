@@ -43,6 +43,9 @@ public:
 	void Update();
 	void CullingUpdate();
 
+	/**
+	 * @brief shortcut for GetComponent<Transform>().
+	 */
 	Transform GetTransform();
 
 	/**
@@ -56,12 +59,27 @@ public:
 public:	// Component system.
 	Component AddComponent(const char* name);
 	Component AddComponent(Component component);
-	template <class T> std::shared_ptr<T> AddComponent();
+
+	template <class T>
+	typename std::enable_if<suede_is_shared_ptr<T>::value, T>::type AddComponent();
+
+	template <class T>
+	typename std::enable_if<!suede_is_shared_ptr<T>::value, std::shared_ptr<T>>::type AddComponent();
 
 	Component GetComponent(suede_guid guid);
 	Component GetComponent(const char* name);
-	template <class T> std::shared_ptr<T> GetComponent();
-	template <class T> std::vector<std::shared_ptr<T>> GetComponents();
+
+	template <class T>
+	typename std::enable_if<suede_is_shared_ptr<T>::value, T>::type GetComponent();
+
+	template <class T>
+	typename std::enable_if<!suede_is_shared_ptr<T>::value, std::shared_ptr<T>>::type GetComponent();
+
+	template <class T>
+	typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type GetComponents();
+
+	template <class T>
+	typename std::enable_if<!suede_is_shared_ptr<T>::value, std::vector<std::shared_ptr<T>>>::type GetComponents();
 
 	/**
 	 * @param guid pass 0 to get all components.
@@ -78,17 +96,37 @@ private:
 };
 
 template <class T>
-inline std::shared_ptr<T> IGameObject::AddComponent() {
+inline typename std::enable_if<suede_is_shared_ptr<T>::value, T>::type IGameObject::AddComponent() {
+	return suede_dynamic_cast<T>(AddComponent(T::element_type::GetComponentGUID()));
+}
+
+template <class T>
+inline typename std::enable_if<!suede_is_shared_ptr<T>::value, std::shared_ptr<T>>::type IGameObject::AddComponent() {
 	return suede_dynamic_cast<std::shared_ptr<T>>(AddComponent(std::make_shared<T>()));
 }
 
 template <class T>
-inline std::shared_ptr<T> IGameObject::GetComponent() {
+inline typename std::enable_if<suede_is_shared_ptr<T>::value, T>::type IGameObject::GetComponent() {
+	return suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()));
+}
+
+template <class T>
+inline typename std::enable_if<!suede_is_shared_ptr<T>::value, std::shared_ptr<T>>::type IGameObject::GetComponent() {
 	return suede_dynamic_cast<std::shared_ptr<T>>(GetComponent(T::GetComponentGUID()));
 }
 
 template <class T>
-std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
+typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type IGameObject::GetComponents() {
+	std::vector<T> components;
+	for (Component component : GetComponents(T::element_type::GetComponentGUID())) {
+		components.push_back(suede_dynamic_cast<T>(component));
+	}
+
+	return components;
+}
+
+template <class T>
+typename std::enable_if<!suede_is_shared_ptr<T>::value, std::vector<std::shared_ptr<T>>>::type IGameObject::GetComponents() {
 	std::vector<std::shared_ptr<T>> components;
 	for (Component component : GetComponents(T::GetComponentGUID())) {
 		components.push_back(suede_dynamic_cast<std::shared_ptr<T>>(component));
@@ -96,27 +134,3 @@ std::vector<std::shared_ptr<T>> IGameObject::GetComponents() {
 
 	return components;
 }
-
-#include "mesh.h"
-#include "light.h"
-#include "camera.h"
-#include "renderer.h"
-#include "animation.h"
-#include "particlesystem.h"
-
-#define SUEDE_COMPONENT_SPECIALIZATION(T) \
-	template <> \
-	inline std::shared_ptr<T::element_type> IGameObject::AddComponent() { \
-		return suede_dynamic_cast<T>(AddComponent(T::element_type::GetComponentGUID())); \
-	}
-
-SUEDE_COMPONENT_SPECIALIZATION(Transform)
-SUEDE_COMPONENT_SPECIALIZATION(Light)
-SUEDE_COMPONENT_SPECIALIZATION(Camera)
-SUEDE_COMPONENT_SPECIALIZATION(TextMesh)
-SUEDE_COMPONENT_SPECIALIZATION(MeshFilter)
-SUEDE_COMPONENT_SPECIALIZATION(MeshRenderer)
-SUEDE_COMPONENT_SPECIALIZATION(SkinnedMeshRenderer)
-SUEDE_COMPONENT_SPECIALIZATION(ParticleRenderer)
-SUEDE_COMPONENT_SPECIALIZATION(Animation)
-SUEDE_COMPONENT_SPECIALIZATION(ParticleSystem)

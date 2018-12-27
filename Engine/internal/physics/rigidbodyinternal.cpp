@@ -11,7 +11,7 @@ const Bounds& IRigidbody::GetBounds() const { return _suede_dptr()->GetBounds();
 void IRigidbody::SetVelocity(const glm::vec3& value) { _suede_dptr()->SetVelocity(value); }
 glm::vec3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
 
-SUEDE_DEFINE_COMPONENT(IRigidbody, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
 #define btWorld()	PhysicsInternal::btWorld()
 
@@ -100,7 +100,7 @@ glm::vec3 RigidbodyInternal::GetVelocity() const {
 bool RigidbodyInternal::RebuildShape() {
 	DestroyShape();
 
-	MeshProvider mp = GetGameObject()->GetComponent<IMeshProvider>();
+	MeshProvider mp = GetGameObject()->GetComponent<MeshProvider>();
 	if (!mp || !mp->GetMesh() || mp->GetMesh()->GetSubMeshCount() == 0) {
 		return false;
 	}

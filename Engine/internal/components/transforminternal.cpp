@@ -46,7 +46,7 @@ glm::vec3 ITransform::GetForward() { return _suede_dptr()->GetForward(_shared_th
 
 ZThread::Mutex TransformInternal::hierarchyMutex;
 
-SUEDE_DEFINE_COMPONENT(ITransform, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Transform, Component)
 
 TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform) {
 	local_.scale = world_.scale = glm::vec3(1);
@@ -162,7 +162,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 void TransformInternal::SetRotation(const glm::quat& value) {
 	ClearDirty(WorldRotation);
 
-	if (!Math::Approximately(glm::dot(world_.rotation, value), 0)) {
+	if (!Math::Approximately(world_.rotation, value)) {
 		world_.rotation = value;
 
 		SetDirty(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);

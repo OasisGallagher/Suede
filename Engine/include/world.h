@@ -185,7 +185,12 @@ public:
 	static void GetDecals(std::vector<Decal>& container);
 
 public:
-	template <class T> static std::vector<std::shared_ptr<T>> GetComponents();
+	template <class T>
+	static typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type GetComponents();
+
+	template <class T>
+	static typename std::enable_if<!suede_is_shared_ptr<T>::value, std::vector<std::shared_ptr<T>>>::type GetComponents();
+
 	static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
 private:
@@ -193,7 +198,17 @@ private:
 };
 
 template <class T>
-std::vector<std::shared_ptr<T>> World::GetComponents() {
+typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type World::GetComponents() {
+	std::vector<T> components;
+	for (GameObject go : GetGameObjectsOfComponent(T::element_type::GetComponentGUID())) {
+		components.push_back(go->GetComponent<T>());
+	}
+
+	return components;
+}
+
+template <class T>
+typename std::enable_if<!suede_is_shared_ptr<T>::value, std::vector<std::shared_ptr<T>>>::type World::GetComponents() {
 	std::vector<std::shared_ptr<T>> components;
 	for (GameObject go : GetGameObjectsOfComponent(T::GetComponentGUID())) {
 		components.push_back(go->GetComponent<T>());

@@ -150,6 +150,14 @@ class Material_Wrapper {
 		return 0;
 	}
 
+	// bool HasProperty(const std::string& name)
+	static int HasProperty(lua_State* L) {
+		Material& _p = *Lua::callerSharedPtr<Material>(L);
+		std::string name = Lua::get<std::string>(L, 2);
+		
+		return Lua::push(L, _p->HasProperty(name));
+	}
+
 	// void SetInt(const std::string& name, int value)
 	static int SetInt(lua_State* L) {
 		Material& _p = *Lua::callerSharedPtr<Material>(L);
@@ -348,6 +356,7 @@ public:
 			{ "GetRenderQueue", GetRenderQueue },
 			{ "Define", Define },
 			{ "Undefine", Undefine },
+			{ "HasProperty", HasProperty },
 			{ "SetInt", SetInt },
 			{ "SetBool", SetBool },
 			{ "SetFloat", SetFloat },

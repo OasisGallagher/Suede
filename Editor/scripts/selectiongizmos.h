@@ -1,11 +1,10 @@
 #pragma once
 #include <QObject>
 
-#include "gizmos.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
 
-class SelectionGizmos : public QObject, public GizmosPainter {
+class SelectionGizmos : public QObject, public IGizmosPainter {
 	Q_OBJECT
 	SUEDE_DECLARE_COMPONENT()
 public:

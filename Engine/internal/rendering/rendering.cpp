@@ -8,6 +8,7 @@
 #include "imageeffect.h"
 #include "tools/random.h"
 #include "memory/memory.h"
+#include "particlesystem.h"
 #include "sharedtexturemanager.h"
 #include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
@@ -245,7 +246,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject go = gameObjects[i];
-		pipelines_.shadow->AddRenderable(go->GetComponent<IMeshProvider>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
+		pipelines_.shadow->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
@@ -411,7 +412,7 @@ void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
 void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& gameObjects) {
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject go = gameObjects[i];
-		RenderGameObject(pl, go, go->GetComponent<IRenderer>());
+		RenderGameObject(pl, go, go->GetComponent<Renderer>());
 	}
 
 	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
@@ -455,7 +456,7 @@ void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material material) {
 void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer) {
 	push_renderables->Start();
 
-	int subMeshCount = go->GetComponent<IMeshProvider>()->GetMesh()->GetSubMeshCount();
+	int subMeshCount = go->GetComponent<MeshProvider>()->GetMesh()->GetSubMeshCount();
 	int materialCount = renderer->GetMaterialCount();
 
 	if (materialCount != subMeshCount) {
@@ -484,9 +485,9 @@ void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer re
 }
 
 void RenderableTraits::RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass) {
-	ParticleSystem p = go->GetComponent<IParticleSystem>();
+	ParticleSystem p = go->GetComponent<ParticleSystem>();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(go->GetComponent<IMeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
 }
 
 void RenderableTraits::Clear() {

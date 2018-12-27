@@ -23,10 +23,10 @@ IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererIn
 ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(SkinnedMeshRendererInternal)) {}
 void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 
-SUEDE_DEFINE_COMPONENT(IRenderer, IComponent)
-SUEDE_DEFINE_COMPONENT(IMeshRenderer, IRenderer)
-SUEDE_DEFINE_COMPONENT(IParticleRenderer, IRenderer)
-SUEDE_DEFINE_COMPONENT(ISkinnedMeshRenderer, IRenderer)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Renderer, Component)
+SUEDE_DEFINE_COMPONENT_INTERNAL(MeshRenderer, Renderer)
+SUEDE_DEFINE_COMPONENT_INTERNAL(ParticleRenderer, Renderer)
+SUEDE_DEFINE_COMPONENT_INTERNAL(SkinnedMeshRenderer, Renderer)
 
 RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
 }

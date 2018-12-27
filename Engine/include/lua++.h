@@ -13,6 +13,8 @@
 #include "debug/debug.h"
 #include "tools/typeid.h"
 
+#include "enginedefines.h"
+
 extern "C" {
 #include "lua/lua.h"
 #include "lua/lauxlib.h"
@@ -43,20 +45,6 @@ public:
 #else
 #define _CHECK_LUA_STACK(L)
 #endif
-
-// is std::shared_ptr.
-template<class T> struct _is_shared_ptr : std::false_type {};
-template<class T> struct _is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
-
-// is raw ptr or shared_ptr.
-template <class T> struct _is_ptr {
-	static const bool value = std::is_pointer<T>::value || _is_shared_ptr<T>::value;
-};
-
-// is std::vector.
-template <class T> struct _is_vector : public std::false_type {};
-template <class T, class A> struct _is_vector<std::vector<T, A>> : public std::true_type {};
-//
 
 // get message from stack.
 inline std::string _message(lua_State* L) {
@@ -224,7 +212,7 @@ inline int reference(lua_State* L) {
 
 // check non-enum and non-vector argument type.
 template <class T>
-inline typename std::enable_if<!std::is_enum<T>::value && !_is_vector<T>::value, bool>::type
+inline typename std::enable_if<!std::is_enum<T>::value && !suede_is_vector<T>::value, bool>::type
 _checkArgumentType(lua_State* L, int index) {
 	return checkMetatable(L, index, TypeID<T>::string());
 }
@@ -300,7 +288,7 @@ static bool _checkListElementType(lua_State* L, int index, int count = -1) {
 		
 		bool nil = lua_isnil(L, -1);
 
-		if (nil && !_is_ptr<T>::value) { valid = false; }
+		if (nil && !suede_is_ptr<T>::value) { valid = false; }
 		if (!nil && !_checkArgumentType<T>(L, -1)) { valid = false; }
 
 		lua_pop(L, 1);
@@ -346,7 +334,7 @@ inline bool _checkArgumentType<glm::mat4>(lua_State* L, int index) {
 
 // check list argument type.
 template <class T>
-inline typename std::enable_if<_is_vector<T>::value, bool>::type
+inline typename std::enable_if<suede_is_vector<T>::value, bool>::type
 _checkArgumentType(lua_State* L, int index) {
 	return _checkListElementType<typename T::value_type>(L, index);
 }
@@ -405,14 +393,14 @@ inline bool checkMetatable(lua_State* L, int index, const char* metatable) {
 
 // get non-pointer metatable name.
 template <class T>
-inline typename std::enable_if<!_is_ptr<T>::value, const char*>::type
+inline typename std::enable_if<!suede_is_ptr<T>::value, const char*>::type
 metatableName(const T&) {
 	return TypeID<T>::string();
 }
 
 // get real metatable by virtual function.
 template <class T>
-inline typename std::enable_if<_is_ptr<T>::value, const char*>::type
+inline typename std::enable_if<suede_is_ptr<T>::value, const char*>::type
 metatableName(const T& o) {
 	return o->metatableName();
 }
@@ -475,7 +463,7 @@ inline int copyUserdata(lua_State* L, const T& value) {
 }*/
 
 template <class T>
-inline typename std::enable_if<_is_ptr<T>::value, int>::type
+inline typename std::enable_if<suede_is_ptr<T>::value, int>::type
 copyUserdata(lua_State* L, const T& value) {
 	if (!value) { lua_pushnil(L); }
 	else {
@@ -488,7 +476,7 @@ copyUserdata(lua_State* L, const T& value) {
 }
 
 template <class T>
-inline typename std::enable_if<!_is_ptr<T>::value, int>::type
+inline typename std::enable_if<!suede_is_ptr<T>::value, int>::type
 copyUserdata(lua_State* L, const T& value) {
 	new(lua_newuserdata(L, sizeof(T))) T(value);
 
@@ -646,7 +634,7 @@ inline int push(lua_State* L, T arg, R... args) {
 
 // get std::shared_ptr/raw pointer value.
 template <class T>
-inline typename std::enable_if<_is_ptr<T>::value, T>::type
+inline typename std::enable_if<suede_is_ptr<T>::value, T>::type
 get(lua_State* L, int index) {
 	T* p = _userdataSharedPtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) { return nullptr; }
@@ -655,7 +643,7 @@ get(lua_State* L, int index) {
 
 // get object value(non-enum, non-better-enum, non-pointer).
 template <class T>
-inline typename std::enable_if<!std::is_enum<T>::value && !_is_ptr<T>::value && !std::is_base_of<BetterEnumBase, T>::value, T>::type
+inline typename std::enable_if<!std::is_enum<T>::value && !suede_is_ptr<T>::value && !std::is_base_of<BetterEnumBase, T>::value, T>::type
 get(lua_State* L, int index) {
 	T* p = _userdataPtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) {
@@ -753,7 +741,7 @@ static std::vector<T> getList(lua_State* L, int index) {
 	for (int i = 1; i <= size; ++i) {
 		lua_geti(L, -1, i);
 
-		if (lua_isnil(L, -1) && !_is_ptr<T>::value) {
+		if (lua_isnil(L, -1) && !suede_is_ptr<T>::value) {
 			size = i - 1;	// exit loop.
 			Debug::LogWarning("list truncated at #%d.", i);
 		}

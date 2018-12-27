@@ -11,7 +11,7 @@ void ILight::SetIntensity(float value) { _suede_dptr()->SetIntensity(value); }
 float ILight::GetIntensity() { return _suede_dptr()->GetIntensity(); }
 int ILight::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 
-SUEDE_DEFINE_COMPONENT(ILight, IComponent)
+SUEDE_DEFINE_COMPONENT_INTERNAL(Light, Component)
 
 LightInternal::LightInternal() :
 	ComponentInternal(ObjectType::Light), type_(LightType::Directional), intensity_(1) {
