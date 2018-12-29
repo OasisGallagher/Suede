@@ -29,13 +29,13 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 
-	p_->renderTextures.aux1 = NewRenderTexture();
+	p_->renderTextures.aux1 = new IRenderTexture();
 	p_->renderTextures.aux1->Create(RenderTextureFormat::Rgba, w, h);
 
-	p_->renderTextures.aux2 = NewRenderTexture();
+	p_->renderTextures.aux2 = new IRenderTexture();
 	p_->renderTextures.aux2->Create(RenderTextureFormat::Rgba, w, h);
 
-	p_->renderTextures.ssaoTraversal = NewMRTRenderTexture();
+	p_->renderTextures.ssaoTraversal = new IMRTRenderTexture();
 	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormat::Depth, w, h);
 
 	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
@@ -126,7 +126,7 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 
 void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
 	Shader shader = Resources::FindShader(shaderPath);
-	material = NewMaterial();
+	material = new IMaterial();
 	material->SetShader(shader);
 	material->SetRenderQueue(renderQueue);
 }
@@ -319,7 +319,7 @@ void RenderableTraits::InitializeDeferredRender() {
 	/*gbuffer_ = MEMORY_NEW(GBuffer);
 	gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
-	deferredMaterial_ = NewMaterial();
+	deferredMaterial_ = new IMaterial();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
 	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
 }
@@ -389,7 +389,7 @@ void RenderableTraits::InitializeSSAOKernel() {
 		noise[i] = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
 	}
 
-	Texture2D noiseTexture = NewTexture2D();
+	Texture2D noiseTexture = new ITexture2D();
 	noiseTexture->Create(TextureFormat::Rgb32F, &noise, ColorStreamFormat::RgbF, 4, 4, 4);
 	noiseTexture->SetWrapModeS(TextureWrapMode::Repeat);
 	noiseTexture->SetWrapModeT(TextureWrapMode::Repeat);

@@ -75,7 +75,7 @@ PhysicsInternal::~PhysicsInternal() {
 void PhysicsInternal::OnWorldEvent(WorldEventBasePtr e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(suede_static_cast<GameObjectComponentChangedEventPtr>(e));
+			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
 			break;
 	}
 }

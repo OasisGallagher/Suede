@@ -90,12 +90,8 @@ void Game::init(Ui::Editor* ui) {
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
 }
 
-template <class T>
-Object CreateComponent() { return std::make_shared<T>(); }
-#define REGISTER_COMPONENT(T)	ComponentUtility::Register(#T, CreateComponent<T>)
-
 void Game::awake() {
-	REGISTER_COMPONENT(CameraController);
+	ComponentUtility::Register<CameraController>();
 
 	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
 	createScene();
@@ -139,7 +135,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 			root->GetTransform()->SetScale(glm::vec3(0.01f));
 		}
 		else if (path.find("suzanne") != std::string::npos) {
-			Texture2D diffuse = NewTexture2D();
+			Texture2D diffuse = new ITexture2D();
 			diffuse->Load("suzanne/diffuse.dds");
 			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
 
@@ -157,11 +153,11 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 		material->SetShader(Resources::FindShader("builtin/lit_bumped_texture"));
 
-		Texture2D diffuse = NewTexture2D();
+		Texture2D diffuse = new ITexture2D();
 		diffuse->Load("bumped/diffuse.jpg");
 		material->SetTexture(BuiltinProperties::MainTexture, diffuse);
 
-		Texture2D normal = NewTexture2D();
+		Texture2D normal = new ITexture2D();
 		normal->Load("bumped/normal.jpg");
 		material->SetTexture(BuiltinProperties::BumpTexture, normal);
 	}
@@ -248,7 +244,7 @@ void Game::updateStatContent() {
 }
 
 void Game::createScene() {
-	GameObject lightGameObject = NewGameObject();
+	GameObject lightGameObject = new IGameObject();
 	lightGameObject->SetName("light");
 
 	Light light = lightGameObject->AddComponent<Light>();
@@ -257,14 +253,14 @@ void Game::createScene() {
 
 	/*World::ImportTo(light, lightModelPath, this);*/
 
-	GameObject cameraGameObject = NewGameObject();
+	GameObject cameraGameObject = new IGameObject();
 	cameraGameObject->SetName("camera");
 
 	Camera camera = cameraGameObject->AddComponent<Camera>();
 	CameraUtility::SetMain(camera);
 	camera->GetTransform()->SetParent(World::GetRootTransform());
 
-	/*RenderTexture targetTexture = NewRenderTexture();
+	/*RenderTexture targetTexture = new IRenderTexture();
 	targetTexture->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
 	camera->SetTargetTexture(targetTexture);*/
 
@@ -285,7 +281,7 @@ void Game::createScene() {
 	projector->GetTransform()->SetParent(World::GetRootTransform());
 	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
 
-	Texture2D texture = NewTexture2D();
+	Texture2D texture = new ITexture2D();
 	texture->Load("brick_diffuse.jpg");
 	projector->SetTexture(texture);
 #endif // PROJECTOR
@@ -328,10 +324,10 @@ void Game::createScene() {
 
 	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
 
-	Material skybox = NewMaterial();
+	Material skybox = new IMaterial();
 	skybox->SetShader(Resources::FindShader("builtin/skybox"));
 
-	TextureCube cube = NewTextureCube();
+	TextureCube cube = new ITextureCube();
 
 	std::string faces[] = {
 		"lake_skybox/right.jpg",
@@ -354,14 +350,14 @@ void Game::createScene() {
 #endif
 	
 #ifdef RENDER_TEXTURE
-	RenderTexture renderTexture = NewRenderTexture();
+	RenderTexture renderTexture = new IRenderTexture();
 	renderTexture->Load(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
 	
 #ifdef PARTICLE_SYSTEM
 	GameObject go = NewGameObject();
-	ParticleSystem particleSystem = go->AddComponent<IParticleSystem>();
+	ParticleSystem particleSystem = go->AddComponent<ParticleSystem>();
 	go->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
 	go->GetTransform()->SetParent(World::GetRootTransform());
 
@@ -385,35 +381,35 @@ void Game::createScene() {
 #endif
 
 #if defined(FONT)
-	Font font = NewFont();
+	Font font = new IFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
-	GameObject redText = NewGameObject();
+	GameObject redText = new IGameObject();
 	redText->SetName("RedText");
 	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
 	redText->GetTransform()->SetParent(World::GetRootTransform());
 
-	GameObject blueText = NewGameObject();
+	GameObject blueText = new IGameObject();
 	blueText->SetName("BlueText");
 	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
 	blueText->GetTransform()->SetParent(World::GetRootTransform());
 
-	TextMesh redMesh = redText->AddComponent<ITextMesh>();
+	TextMesh redMesh = redText->AddComponent<TextMesh>();
 	redMesh->SetFont(font);
 	redMesh->SetText("落霞与孤鹜齐飞");
 	redMesh->SetFontSize(12);
 
-	TextMesh blueMesh = blueText->AddComponent<ITextMesh>();
+	TextMesh blueMesh = blueText->AddComponent<TextMesh>();
 	blueMesh->SetFont(font);
 	blueMesh->SetText("秋水共长天一色");
 	blueMesh->SetFontSize(12);
 
-	Renderer redRenderer = redText->AddComponent<IMeshRenderer>();
+	Renderer redRenderer = redText->AddComponent<MeshRenderer>();
 	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
 	redMaterial->SetColor(BuiltinProperties::MainColor, Color(1, 0, 0, 1));
 	redRenderer->AddMaterial(redMaterial);
 
-	Renderer blueRenderer = blueText->AddComponent<IMeshRenderer>();
+	Renderer blueRenderer = blueText->AddComponent<MeshRenderer>();
 	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
 	blueMaterial->SetColor(BuiltinProperties::MainColor, Color(0, 0, 1, 1));
 	blueRenderer->AddMaterial(blueMaterial);

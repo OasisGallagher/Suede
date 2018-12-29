@@ -45,7 +45,7 @@ inline void AIConvert(glm::vec3& translation, glm::quat& rotation, glm::vec3& sc
 
 MaterialAsset::MaterialAsset()
 	: twoSided(false), gloss(50), mainColor(Color::white), name(UNNAMED_MATERIAL) {
-	material = NewMaterial();
+	material = new IMaterial();
 	mainTexels = bumpTexels = specularTexels = emissiveTexels = lightmapTexels = nullptr;
 }
 
@@ -86,7 +86,7 @@ void MaterialAsset::ApplyAsset() {
 }
 
 Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
-	Texture2D texture = NewTexture2D();
+	Texture2D texture = new ITexture2D();
 	if (!texture->Create(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, 4, false)) {
 		return nullptr;
 	}
@@ -134,7 +134,7 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 }
 
 GameObject GameObjectLoader::LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
-	GameObject go = NewGameObject();
+	GameObject go = new IGameObject();
 	go->GetTransform()->SetParent(parent->GetTransform());
 
 	LoadNodeTo(go, node, surface, subMeshes);
@@ -166,19 +166,19 @@ void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface
 
 	Renderer renderer = nullptr;
 	if (!HasAnimation()) {
-		renderer = std::make_shared<IMeshRenderer>();
+		renderer = new IMeshRenderer();
 	}
 	else {
-		renderer = std::make_shared<ISkinnedMeshRenderer>();
+		renderer = new ISkinnedMeshRenderer();
 		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
 	}
 
 	asset_.components.push_back(std::make_pair(go, renderer));
 
-	Mesh mesh = NewMesh();
+	Mesh mesh = new IMesh();
 	mesh->ShareStorage(surface);
 
-	MeshFilter meshFilter = std::make_shared<IMeshFilter>();
+	MeshFilter meshFilter = new IMeshFilter();
 	meshFilter->SetMesh(mesh);
 	asset_.components.push_back(std::make_pair(go, meshFilter));
 
@@ -222,7 +222,7 @@ bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
-		subMeshes[i] = NewSubMesh();
+		subMeshes[i] = new ISubMesh();
 		TriangleBias bias{
 			scene_->mMeshes[i]->mNumFaces * 3, meshAsset.indexes.size(), meshAsset.positions.size()
 		};
@@ -290,7 +290,7 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) 
 void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
-		if (!skeleton_) { skeleton_ = NewSkeleton(); }
+		if (!skeleton_) { skeleton_ = new ISkeleton(); }
 		std::string name(aimesh->mBones[i]->mName.data);
 
 		int index = skeleton_->GetBoneIndex(name);
@@ -392,7 +392,7 @@ void GameObjectLoader::LoadAnimation(Animation animation) {
 		aiAnimation* anim = scene_->mAnimations[i];
 		std::string name = anim->mName.C_Str();
 
-		AnimationClip clip = NewAnimationClip();
+		AnimationClip clip = new IAnimationClip();
 		if (defaultClipName == nullptr) {
 			defaultClipName = anim->mName.C_Str();
 		}
@@ -420,7 +420,7 @@ void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* 
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
 	AnimationCurve curve;
-	AnimationKeys keys = NewAnimationKeys();
+	AnimationKeys keys = new IAnimationKeys();
 	if (channel != nullptr) {
 		for (int i = 0; i < channel->mNumPositionKeys; ++i) {
 			const aiVectorKey& key = channel->mPositionKeys[i];
@@ -441,7 +441,7 @@ void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* 
 		std::vector<AnimationFrame> keyframes;
 		keys->ToKeyframes(keyframes);
 
-		curve = NewAnimationCurve();
+		curve = new IAnimationCurve();
 		curve->SetKeyframes(keyframes);
 	}
 
@@ -534,7 +534,7 @@ bool GameObjectLoader::LoadAsset() {
 		LoadMaterialAssets();
 	}
 
-	surface_ = NewMesh();
+	surface_ = new IMesh();
 	surface_->CreateStorage();
 
 	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes);
@@ -543,7 +543,7 @@ bool GameObjectLoader::LoadAsset() {
 	MEMORY_DELETE_ARRAY(subMeshes);
 
 	if (HasAnimation()) {
-		Animation animation = std::make_shared<IAnimation>();
+		Animation animation = new IAnimation();
 		asset_.components.push_back(std::make_pair(root_, animation));
 		LoadAnimation(animation);
 	}
@@ -552,7 +552,7 @@ bool GameObjectLoader::LoadAsset() {
 }
 
 GameObject GameObjectLoaderThreadPool::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
-	GameObject root = NewGameObject();
+	GameObject root = new IGameObject();
 	ImportTo(root, path, callback);
 	return root;
 }

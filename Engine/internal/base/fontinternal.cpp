@@ -23,13 +23,13 @@ void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener)
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
-	material_ = NewMaterial();
+	material_ = new IMaterial();
 	material_->SetShader(Resources::FindShader("builtin/unlit_texture"));
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.
 	material_->SetColor(BuiltinProperties::MainColor, Color::white);
-	material_->SetTexture(BuiltinProperties::MainTexture, NewTexture2D());
+	material_->SetTexture(BuiltinProperties::MainTexture, new ITexture2D());
 }
 
 FontInternal::~FontInternal() {

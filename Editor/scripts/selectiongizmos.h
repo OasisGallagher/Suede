@@ -17,5 +17,5 @@ public:
 	virtual void OnDrawGizmos();
 
 private:
-	QList<suede_weak_ref<GameObject>> selection_;
+	QList<IGameObject*> selection_;
 };

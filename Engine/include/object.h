@@ -58,11 +58,11 @@ SUEDE_DEFINE_OBJECT_POINTER(Object)
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
 public: \
 	virtual const char* metatableName() const { \
-		return TypeID<std::shared_ptr<I ## _Name>>::string(); \
+		return TypeID<intrusive_ptr<I ## _Name>>::string(); \
 	} \
 private:
 
-class SUEDE_API IObject : public std::enable_shared_from_this<IObject>, public PimplIdiom {
+class SUEDE_API IObject : public intrusive_ref_counter, public PimplIdiom {
 	SUEDE_DEFINE_METATABLE_NAME(Object)
 	SUEDE_DECLARE_IMPLEMENTATION(Object)
 
@@ -73,10 +73,6 @@ public:
 	Object Clone();
 	ObjectType GetObjectType();
 	uint GetInstanceID();
-
-protected:
-	template <class T>
-	std::shared_ptr<T> _shared_this_impl(T*);
 
 protected:
 	IObject(void* d);

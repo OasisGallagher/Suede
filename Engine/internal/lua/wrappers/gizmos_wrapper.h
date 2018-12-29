@@ -32,6 +32,7 @@ class Gizmos_Wrapper {
 			{ "DrawLines", DrawLines },
 			{ "DrawSphere", DrawSphere },
 			{ "DrawCuboid", DrawCuboid },
+			{ "DrawCone", DrawCone },
 			{ "DrawWireSphere", DrawWireSphere },
 			{ "DrawWireCuboid", DrawWireCuboid },
 			{"__tostring", ToStringStatic },
@@ -111,6 +112,12 @@ class Gizmos_Wrapper {
 		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
 		
 		Gizmos::DrawCuboid(center, size);
+		return 0;
+	}
+
+	// static void DrawCone()
+	static int DrawCone(lua_State* L) {
+		Gizmos::DrawCone();
 		return 0;
 	}
 

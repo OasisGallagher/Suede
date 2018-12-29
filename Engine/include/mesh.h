@@ -28,7 +28,6 @@ public:
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh)
-SUEDE_DECLARE_OBJECT_CREATER(SubMesh)
 
 struct BlendAttribute {
 	enum {
@@ -123,8 +122,6 @@ public:
 
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 };
-
-SUEDE_DECLARE_OBJECT_CREATER(Mesh)
 
 class SUEDE_API IMeshProvider : public IComponent {
 	SUEDE_DECLARE_COMPONENT()

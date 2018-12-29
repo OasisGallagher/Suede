@@ -266,11 +266,11 @@ void MeshProviderInternal::OnMeshModified() {
 }
 
 TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), dirty_(false) {
-	Mesh mesh = NewMesh();
+	Mesh mesh = new IMesh();
 	mesh->CreateStorage();
 
 	SetMesh(mesh);
-	GetMesh()->AddSubMesh(NewSubMesh());
+	GetMesh()->AddSubMesh(new ISubMesh());
 }
 
 TextMeshInternal::~TextMeshInternal() {

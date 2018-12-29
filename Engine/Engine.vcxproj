@@ -203,7 +203,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\gui\imgui.cpp" />
     <ClCompile Include="internal\gui\imgui_demo.cpp" />
     <ClCompile Include="internal\gui\imgui_draw.cpp" />
-    <ClCompile Include="internal\memory\creater.cpp" />
     <ClCompile Include="internal\memory\factory.cpp" />
     <ClCompile Include="internal\physics\bullet\Bullet3Collision\BroadPhaseCollision\b3DynamicBvh.cpp" />
     <ClCompile Include="internal\physics\bullet\Bullet3Collision\BroadPhaseCollision\b3DynamicBvhBroadphase.cpp" />

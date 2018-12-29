@@ -55,7 +55,7 @@ void IAnimationCurve::SetKeyframes(const std::vector<AnimationFrame>& value) { _
 bool IAnimationCurve::Sample(float time, AnimationFrame& frame) { return _suede_dptr()->Sample(time, frame); }
 
 IAnimation::IAnimation() : IComponent(MEMORY_NEW(AnimationInternal)) {}
-void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_dptr()->AddClip(_shared_this(), name, value); }
+void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_dptr()->AddClip(this, name, value); }
 AnimationClip IAnimation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
 void IAnimation::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 Skeleton IAnimation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
@@ -149,7 +149,7 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 }
 
 AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectType::AnimationClip), wrapper_(Math::Min) {
-	frame_ = NewAnimationFrame();
+	frame_ = new IAnimationFrame();
 }
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
@@ -269,7 +269,7 @@ void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<Animation
 			const Key& key = p->second;
 
 			if (!keyframe) {
-				keyframe = NewAnimationFrame();
+				keyframe = new IAnimationFrame();
 				keyframe->SetTime(p->first);
 				keyframes.push_back(keyframe);
 			}
@@ -365,7 +365,7 @@ bool AnimationKeysInternal::FloatCamparer::operator()(float lhs, float rhs) cons
 	return !Math::Approximately(lhs, rhs) && lhs < rhs;
 }
 
-void AnimationInternal::AddClip(Animation self, const std::string& name, AnimationClip value) {
+void AnimationInternal::AddClip(IAnimation* self, const std::string& name, AnimationClip value) {
 	clips_.insert(std::make_pair(name, value));
 	value->SetAnimation(self);
 }

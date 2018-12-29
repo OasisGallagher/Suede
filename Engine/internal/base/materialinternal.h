@@ -17,7 +17,7 @@ public:
 public:
 	Object Clone();
 
-	void SetShader(Material self, Shader value);
+	void SetShader(IMaterial* self, Shader value);
 	Shader GetShader() { return shader_; }
 
 	void SetRenderQueue(int value);
@@ -71,7 +71,7 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void UpdateProperties(Material self, Shader newShader);
+	void UpdateProperties(IMaterial* self, Shader newShader);
 	void CopyProperties(Shader newShader);
 	void DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties);
 

@@ -283,6 +283,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="glm\vec3.hpp" />
     <ClInclude Include="glm\vec4.hpp" />
     <ClInclude Include="glm\vector_relational.hpp" />
+    <ClInclude Include="memory\intrusiveptr.h" />
     <ClInclude Include="memory\memory.h" />
     <ClInclude Include="memory\refcount.h" />
     <ClInclude Include="os\filesystem.h" />

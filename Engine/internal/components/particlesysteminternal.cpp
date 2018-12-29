@@ -70,8 +70,8 @@ ParticleSystemInternal::~ParticleSystemInternal() {
 }
 
 void ParticleSystemInternal::Awake() {
-	GetGameObject()->AddComponent<IMeshFilter>();
-	GetGameObject()->AddComponent<IParticleRenderer>();
+	GetGameObject()->AddComponent<MeshFilter>();
+	GetGameObject()->AddComponent<ParticleRenderer>();
 }
 
 void ParticleSystemInternal::SetMaxParticles(uint value) {
@@ -241,11 +241,11 @@ void ParticleSystemInternal::InitializeMesh() {
 void ParticleSystemInternal::InitializeRenderer() {
 	ParticleRenderer renderer = GetGameObject()->GetComponent<ParticleRenderer>();
 
-	Material material = NewMaterial();
+	Material material = new IMaterial();
 	Shader shader = Resources::FindShader("builtin/particle");
 	material->SetShader(shader);
 
-	Texture2D mainTexture = NewTexture2D();
+	Texture2D mainTexture = new ITexture2D();
 	mainTexture->Load("snowflake.png");
 	material->SetTexture(BuiltinProperties::MainTexture, mainTexture);
 

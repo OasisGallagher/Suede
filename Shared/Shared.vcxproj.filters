@@ -541,6 +541,9 @@
     <ClInclude Include="tools\typeid.h">
       <Filter>tools\include</Filter>
     </ClInclude>
+    <ClInclude Include="memory\intrusiveptr.h">
+      <Filter>memory\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tools\string.cpp">

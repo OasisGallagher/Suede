@@ -23,7 +23,7 @@ bool DecalCreater::CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObj
 }
 
 DecalCreater::DecalCreater() : decalInfos_(SUEDE_MAX_DECALS) {
-	material_ = NewMaterial();
+	material_ = new IMaterial();
 	material_->SetShader(Resources::FindShader("builtin/decal"));
 	material_->SetRenderQueue((int)RenderQueue::Overlay - 500);
 }
@@ -68,7 +68,7 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
 	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture);
 
-	Mesh mesh = NewMesh();
+	Mesh mesh = new IMesh();
 
 	MeshAttribute attribute;
 	attribute.topology = info->topology;
@@ -77,7 +77,7 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 
 	mesh->SetAttribute(attribute);
 
-	SubMesh subMesh = NewSubMesh();
+	SubMesh subMesh = new ISubMesh();
 	TriangleBias bias{ info->indexes.size() };
 	subMesh->SetTriangleBias(bias);
 

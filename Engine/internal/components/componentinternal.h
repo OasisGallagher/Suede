@@ -35,7 +35,7 @@ public:
 	virtual void SetEnabled(bool value) { enabled_ = value; }
 
 	virtual void SetGameObject(GameObject go);
-	virtual GameObject GetGameObject() { return gameObject_.lock(); }
+	virtual GameObject GetGameObject() { return gameObject_; }
 
 	virtual void OnMessage(int messageID, void* parameter) {}
 	virtual Transform GetTransform() { return GetGameObject()->GetComponent<Transform>(); }
@@ -47,7 +47,7 @@ public:
 	virtual int GetUpdateStrategy() { return 0; }
 
 protected:
-	suede_weak_ref<GameObject> gameObject_;
+	IGameObject* gameObject_;
 
 private:
 	bool enabled_;

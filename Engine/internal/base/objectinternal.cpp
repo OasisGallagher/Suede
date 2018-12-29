@@ -8,7 +8,7 @@
 
 IObject::IObject(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
 std::string IObject::GetName() const { return _suede_dptr()->GetName(); }
-void IObject::SetName(const std::string& value) { _suede_dptr()->SetName(_shared_this(), value); }
+void IObject::SetName(const std::string& value) { _suede_dptr()->SetName(this, value); }
 Object IObject::Clone() { return _suede_dptr()->Clone(); }
 ObjectType IObject::GetObjectType() { return _suede_dptr()->GetObjectType(); }
 uint IObject::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
@@ -20,7 +20,7 @@ ObjectInternal::ObjectInternal(ObjectType type) {
 	type_ = type;
 }
 
-void ObjectInternal::SetName(Object self, const std::string& value) {
+void ObjectInternal::SetName(IObject* self, const std::string& value) {
 	if (value.empty()) {
 		Debug::LogWarning("empty name.");
 		return;

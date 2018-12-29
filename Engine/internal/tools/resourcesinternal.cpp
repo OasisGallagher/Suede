@@ -65,7 +65,7 @@ Shader ResourcesInternal::FindShader(const std::string& path) {
 		return ite->second;
 	}
 
-	Shader shader = NewShader();
+	Shader shader = new IShader();
 	shaders_.insert(std::make_pair(path, shader));
 	if (shader->Load(path)) {
 		return shader;
@@ -139,10 +139,10 @@ void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float sca
 }
 
 Mesh ResourcesInternal::InitializeMesh(MeshAttribute& attribute) {
-	Mesh mesh = NewMesh();
+	Mesh mesh = new IMesh();
 	mesh->SetAttribute(attribute);
 
-	SubMesh subMesh = NewSubMesh();
+	SubMesh subMesh = new ISubMesh();
 	TriangleBias base{ attribute.indexes.size() };
 	subMesh->SetTriangleBias(base);
 
@@ -152,7 +152,7 @@ Mesh ResourcesInternal::InitializeMesh(MeshAttribute& attribute) {
 }
 
 Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
-	Texture2D texture = NewTexture2D();
+	Texture2D texture = new ITexture2D();
 	texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
 	return texture;
 }

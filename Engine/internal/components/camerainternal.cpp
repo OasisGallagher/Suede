@@ -13,7 +13,7 @@
 #include "internal/async/async.h"
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
-void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(_shared_this(), value); }
+void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
 int ICamera::GetDepth() const { return _suede_dptr()->GetDepth(); }
 bool ICamera::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
 void ICamera::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
@@ -116,7 +116,7 @@ void CameraInternal::CancelThreads() {
 	}
 }
 
-void CameraInternal::SetDepth(Camera self, int value) {
+void CameraInternal::SetDepth(ICamera* self, int value) {
 	if (depth_ != value) {
 		depth_ = value;
 		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
@@ -215,7 +215,7 @@ Texture2D CameraInternal::Capture() {
 	std::vector<uchar> data;
 	Framebuffer0::Get()->ReadBuffer(data, &alignment);
 
-	Texture2D texture = NewTexture2D();
+	Texture2D texture = new ITexture2D();
 	const glm::ivec4& viewport = Framebuffer0::Get()->GetViewport();
 	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
 

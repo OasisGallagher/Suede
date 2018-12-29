@@ -1,4 +1,6 @@
 #pragma once
+#include <functional>
+
 #include "object.h"
 #include "texture.h"
 
@@ -94,7 +96,17 @@ protected:
 
 SUEDE_DEFINE_OBJECT_POINTER(Component)
 
-struct SUEDE_API ComponentUtility {
-	static bool Register(suede_guid guid, Object(*)());
-	static bool Register(const char* name, Object(*)());
+class SUEDE_API ComponentUtility {
+public:
+	template <class T> static bool Register();
+
+private:
+	static bool Register(suede_guid guid, const std::function<Object()>& creater);
+	static bool Register(const char* name, const std::function<Object()>& creater);
 };
+
+template <class T>
+bool ComponentUtility::Register() {
+	std::function<Object()> creater = []() -> Object { return new T(); };
+	return Register(T::GetComponentGUID(), creater) && Register(T::GetComponentName(), creater);
+}

@@ -27,7 +27,7 @@ public:
 public:
 	void Awake();
 
-	void SetDepth(Camera self, int value);
+	void SetDepth(ICamera* self, int value);
 	int GetDepth() const { return depth_;  }
 
 	void SetRect(const Rect& value);

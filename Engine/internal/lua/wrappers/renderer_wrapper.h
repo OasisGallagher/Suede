@@ -9,7 +9,7 @@
 
 class Renderer_Wrapper {
 	static int ToString(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 
 		lua_pushstring(L, String::Format("Renderer@0x%p", _p.get()).c_str());
 		return 1;
@@ -17,7 +17,7 @@ class Renderer_Wrapper {
 
 	// void AddMaterial(Material material)
 	static int AddMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		Material material = Lua::get<Material>(L, 2);
 		
 		_p->AddMaterial(material);
@@ -26,7 +26,7 @@ class Renderer_Wrapper {
 
 	// Material GetMaterial(uint index)
 	static int GetMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		return Lua::push(L, _p->GetMaterial(index));
@@ -34,14 +34,14 @@ class Renderer_Wrapper {
 
 	// Enumerable GetMaterials()
 	static int GetMaterials(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		IRenderer::Enumerable _r = _p->GetMaterials();
 		return Lua::pushList(L, std::vector<IRenderer::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	// void SetMaterial(uint index, Material value)
 	static int SetMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		Material value = Lua::get<Material>(L, 3);
 		uint index = Lua::get<uint>(L, 2);
 		
@@ -51,7 +51,7 @@ class Renderer_Wrapper {
 
 	// void RemoveMaterial(Material material)
 	static int RemoveMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		Material material = Lua::get<Material>(L, 2);
 		
 		_p->RemoveMaterial(material);
@@ -60,7 +60,7 @@ class Renderer_Wrapper {
 
 	// void RemoveMaterialAt(uint index)
 	static int RemoveMaterialAt(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		_p->RemoveMaterialAt(index);
@@ -69,13 +69,13 @@ class Renderer_Wrapper {
 
 	// uint GetMaterialCount()
 	static int GetMaterialCount(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		return Lua::push(L, _p->GetMaterialCount());
 	}
 
 	// void UpdateMaterialProperties()
 	static int UpdateMaterialProperties(lua_State* L) {
-		Renderer& _p = *Lua::callerSharedPtr<Renderer>(L);
+		Renderer& _p = *Lua::callerIntrusivePtr<Renderer>(L);
 		_p->UpdateMaterialProperties();
 		return 0;
 	}
@@ -87,7 +87,7 @@ public:
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<Renderer> },
+			{ "__gc", Lua::deleteIntrusivePtr<Renderer> },
 			{ "__tostring", ToString }, 
 			{ "AddMaterial", AddMaterial },
 			{ "GetMaterial", GetMaterial },
@@ -105,8 +105,12 @@ public:
 };
 
 class MeshRenderer_Wrapper {
+	static int NewMeshRenderer(lua_State* L) {
+		return Lua::fromIntrusive(L, new IMeshRenderer());
+	}
+
 	static int ToString(lua_State* L) {
-		MeshRenderer& _p = *Lua::callerSharedPtr<MeshRenderer>(L);
+		MeshRenderer& _p = *Lua::callerIntrusivePtr<MeshRenderer>(L);
 
 		lua_pushstring(L, String::Format("MeshRenderer@0x%p", _p.get()).c_str());
 		return 1;
@@ -118,8 +122,10 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewMeshRenderer", NewMeshRenderer });
+
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<MeshRenderer> },
+			{ "__gc", Lua::deleteIntrusivePtr<MeshRenderer> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
@@ -129,8 +135,12 @@ public:
 };
 
 class ParticleRenderer_Wrapper {
+	static int NewParticleRenderer(lua_State* L) {
+		return Lua::fromIntrusive(L, new IParticleRenderer());
+	}
+
 	static int ToString(lua_State* L) {
-		ParticleRenderer& _p = *Lua::callerSharedPtr<ParticleRenderer>(L);
+		ParticleRenderer& _p = *Lua::callerIntrusivePtr<ParticleRenderer>(L);
 
 		lua_pushstring(L, String::Format("ParticleRenderer@0x%p", _p.get()).c_str());
 		return 1;
@@ -142,8 +152,10 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewParticleRenderer", NewParticleRenderer });
+
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<ParticleRenderer> },
+			{ "__gc", Lua::deleteIntrusivePtr<ParticleRenderer> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
@@ -153,8 +165,12 @@ public:
 };
 
 class SkinnedMeshRenderer_Wrapper {
+	static int NewSkinnedMeshRenderer(lua_State* L) {
+		return Lua::fromIntrusive(L, new ISkinnedMeshRenderer());
+	}
+
 	static int ToString(lua_State* L) {
-		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L);
+		SkinnedMeshRenderer& _p = *Lua::callerIntrusivePtr<SkinnedMeshRenderer>(L);
 
 		lua_pushstring(L, String::Format("SkinnedMeshRenderer@0x%p", _p.get()).c_str());
 		return 1;
@@ -162,7 +178,7 @@ class SkinnedMeshRenderer_Wrapper {
 
 	// void SetSkeleton(Skeleton value)
 	static int SetSkeleton(lua_State* L) {
-		SkinnedMeshRenderer& _p = *Lua::callerSharedPtr<SkinnedMeshRenderer>(L);
+		SkinnedMeshRenderer& _p = *Lua::callerIntrusivePtr<SkinnedMeshRenderer>(L);
 		Skeleton value = Lua::get<Skeleton>(L, 2);
 		
 		_p->SetSkeleton(value);
@@ -175,8 +191,10 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewSkinnedMeshRenderer", NewSkinnedMeshRenderer });
+
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<SkinnedMeshRenderer> },
+			{ "__gc", Lua::deleteIntrusivePtr<SkinnedMeshRenderer> },
 			{ "__tostring", ToString }, 
 			{ "SetSkeleton", SetSkeleton },
 			{ nullptr, nullptr }

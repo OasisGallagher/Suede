@@ -8,8 +8,12 @@
 #include "tools/string.h"
 
 class Light_Wrapper {
+	static int NewLight(lua_State* L) {
+		return Lua::fromIntrusive(L, new ILight());
+	}
+
 	static int ToString(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 
 		lua_pushstring(L, String::Format("Light@0x%p", _p.get()).c_str());
 		return 1;
@@ -17,7 +21,7 @@ class Light_Wrapper {
 
 	// void SetType(LightType value)
 	static int SetType(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		LightType value = Lua::get<LightType>(L, 2);
 		
 		_p->SetType(value);
@@ -26,13 +30,13 @@ class Light_Wrapper {
 
 	// LightType GetType()
 	static int GetType(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		return Lua::push(L, _p->GetType());
 	}
 
 	// void SetImportance(LightImportance value)
 	static int SetImportance(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		LightImportance value = Lua::get<LightImportance>(L, 2);
 		
 		_p->SetImportance(value);
@@ -41,13 +45,13 @@ class Light_Wrapper {
 
 	// LightImportance GetImportance()
 	static int GetImportance(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		return Lua::push(L, _p->GetImportance());
 	}
 
 	// void SetColor(const Color& value)
 	static int SetColor(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		Color value = Lua::get<Color>(L, 2);
 		
 		_p->SetColor(value);
@@ -56,13 +60,13 @@ class Light_Wrapper {
 
 	// Color GetColor()
 	static int GetColor(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		return Lua::push(L, _p->GetColor());
 	}
 
 	// void SetIntensity(float value)
 	static int SetIntensity(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetIntensity(value);
@@ -71,13 +75,13 @@ class Light_Wrapper {
 
 	// float GetIntensity()
 	static int GetIntensity(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		return Lua::push(L, _p->GetIntensity());
 	}
 
 	// int GetUpdateStrategy()
 	static int GetUpdateStrategy(lua_State* L) {
-		Light& _p = *Lua::callerSharedPtr<Light>(L);
+		Light& _p = *Lua::callerIntrusivePtr<Light>(L);
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
@@ -87,8 +91,10 @@ public:
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		funcs.push_back(luaL_Reg { "NewLight", NewLight });
+
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<Light> },
+			{ "__gc", Lua::deleteIntrusivePtr<Light> },
 			{ "__tostring", ToString }, 
 			{ "SetType", SetType },
 			{ "GetType", GetType },
