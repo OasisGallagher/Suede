@@ -41,8 +41,8 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 #undef DEFINE_SHARED_UNIFORM_BUFFER
 
 class UniformBuffer;
-class UniformBufferManager : public Singleton<UniformBufferManager> {
-	friend Singleton<UniformBufferManager>;
+class UniformBufferManager : public singleton<UniformBufferManager> {
+	friend singleton<UniformBufferManager>;
 
 public:
 	uint GetOffsetAlignment() { return offsetAlignment_; }

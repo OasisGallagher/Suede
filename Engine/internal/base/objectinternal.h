@@ -9,10 +9,12 @@ public:
 	virtual ~ObjectInternal() {}
 
 public:
+	virtual Object Clone();
+
+public:
 	std::string GetName() const { return name_; }
 	void SetName(IObject* self, const std::string& value);
 
-	Object Clone();
 	ObjectType GetObjectType() { return type_; }
 	uint GetInstanceID() { return id_; }
 

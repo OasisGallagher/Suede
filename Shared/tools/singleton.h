@@ -6,9 +6,9 @@
 #include "noncopyable.h"
 
 template <class T>
-class Singleton : private NonCopyable {
+class singleton : private NonCopyable {
 public:
-	virtual ~Singleton() {}
+	virtual ~singleton() {}
 
 public:
 	static T* instance() {
@@ -18,7 +18,7 @@ public:
 };
 
 template <class T>
-class Singleton2 : public Singleton<T>, public PimplIdiom {
+class singleton2 : public singleton<T>, public PimplIdiom {
 public:
-	Singleton2(void* d, void(*destroyer)(void*)) : PimplIdiom(d, destroyer) {}
+	singleton2(void* d, void(*destroyer)(void*)) : PimplIdiom(d, destroyer) {}
 };

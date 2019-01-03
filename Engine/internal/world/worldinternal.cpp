@@ -21,7 +21,7 @@
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
+World::World() : singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
 
 void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
@@ -76,8 +76,6 @@ void WorldInternal::Initialize() {
 	Resources::FindShader("builtin/lit_texture");
 
 	UniformBufferManager::instance();
-	Shadows::instance();
-	MatrixBuffer::instance();
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 

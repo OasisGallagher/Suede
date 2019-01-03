@@ -9,8 +9,8 @@ extern "C" {
 	SUEDE_API bool RebuildGLEF(const char* binpath);
 }
 
-class SUEDE_API GLEF : public Singleton<GLEF> {
-	friend class Singleton<GLEF>;
+class SUEDE_API GLEF : public singleton<GLEF> {
+	friend class singleton<GLEF>;
 
 public:
 	bool Load(const char* binpath);

@@ -406,8 +406,8 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 	return true;
 }
 
-class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureManager> {
-	friend class Singleton<TemporaryRenderTextureManager>;
+class TemporaryRenderTextureManager : public singleton<TemporaryRenderTextureManager> {
+	friend class singleton<TemporaryRenderTextureManager>;
 
 public:
 	RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height) {
@@ -664,7 +664,7 @@ ScreenRenderTextureInternal::~ScreenRenderTextureInternal() {
 }
 
 bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	framebuffer_ = Framebuffer0::Get();
+	framebuffer_ = Framebuffer0::instance();
 	return true;
 }
 

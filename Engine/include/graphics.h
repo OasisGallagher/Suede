@@ -9,8 +9,8 @@ BETTER_ENUM(ShadingMode, int,
 	Wireframe
 )
 
-class SUEDE_API Graphics : private Singleton2<Graphics> {
-	friend class Singleton<Graphics>;
+class SUEDE_API Graphics : private singleton2<Graphics> {
+	friend class singleton<Graphics>;
 	SUEDE_DECLARE_IMPLEMENTATION(Graphics)
 
 public:

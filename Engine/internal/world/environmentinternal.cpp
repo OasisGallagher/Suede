@@ -2,7 +2,7 @@
 
 #include "memory/memory.h"
 
-Environment::Environment() : Singleton2<Environment>(MEMORY_NEW(EnvironmentInternal), Memory::DeleteRaw<EnvironmentInternal>) {}
+Environment::Environment() : singleton2<Environment>(MEMORY_NEW(EnvironmentInternal), Memory::DeleteRaw<EnvironmentInternal>) {}
 void Environment::SetSkybox(Material value) { _suede_dinstance()->SetSkybox(value); }
 Material Environment::GetSkybox() { return _suede_dinstance()->GetSkybox(); }
 void Environment::SetAmbientColor(const Color& value) { _suede_dinstance()->SetAmbientColor(value); }

@@ -151,8 +151,8 @@ public:
 
 struct Decal;
 
-class SUEDE_API World : private Singleton2<World> {
-	friend class Singleton<World>;
+class SUEDE_API World : private singleton2<World> {
+	friend class singleton<World>;
 	SUEDE_DECLARE_IMPLEMENTATION(World)
 
 public:

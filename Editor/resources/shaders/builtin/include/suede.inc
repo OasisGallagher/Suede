@@ -87,4 +87,3 @@ vec2 _FragTexCoord() {
 #endif	// _FRAGMENT_SHADER
 
 #endif	// _SUEDE_INCLUDED
-

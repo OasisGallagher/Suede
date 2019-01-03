@@ -8,8 +8,8 @@ public:
 	virtual void OnScreenSizeChanged(uint width, uint height) = 0;
 };
 
-class SUEDE_API Screen : private Singleton2<Screen> {
-	friend class Singleton<Screen>;
+class SUEDE_API Screen : private singleton2<Screen> {
+	friend class singleton<Screen>;
 	SUEDE_DECLARE_IMPLEMENTATION(Screen)
 
 public:

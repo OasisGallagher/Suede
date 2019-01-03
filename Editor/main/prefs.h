@@ -2,8 +2,8 @@
 #include <QSettings>
 #include "tools/singleton.h"
 
-class Prefs : public Singleton<Prefs> {
-	friend class Singleton<Prefs>;
+class Prefs : public singleton<Prefs> {
+	friend class singleton<Prefs>;
 
 public:
 	void save(const QString& key, const QVariant& value);

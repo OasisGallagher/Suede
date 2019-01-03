@@ -10,7 +10,7 @@
 #include "cameracontroller.h"
 #include "windows/hierarchy/hierarchy.h"
 
-#define ARC_BALL
+//#define ARC_BALL
 
 SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
 

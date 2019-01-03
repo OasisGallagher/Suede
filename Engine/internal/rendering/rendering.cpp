@@ -10,15 +10,16 @@
 #include "memory/memory.h"
 #include "particlesystem.h"
 #include "sharedtexturemanager.h"
-#include "internal/rendering/shadows.h"
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-#define sharedSSAOTexture	SharedTextureManager::instance()->GetSSAOTexture()
-#define sharedDepthTexture	SharedTextureManager::instance()->GetDepthTexture()
-
-RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
+RenderingParameters::RenderingParameters(Shadows* shadows) : shadows(shadows), normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
 	, clearType(ClearType::Color), renderPath(RenderPath::Forward) {
+	matrixBuffer = MEMORY_NEW(MatrixBuffer, SharedTextureManager::instance()->GetMatrixTextureBuffer());
+}
+
+RenderingParameters::~RenderingParameters() {
+	MEMORY_DELETE(matrixBuffer);
 }
 
 Rendering::Rendering(RenderingParameters* p) :p_(p) {
@@ -53,8 +54,8 @@ void Rendering::Resize(uint width, uint height) {
 	p_->renderTextures.aux1->Resize(width, height);
 	p_->renderTextures.aux2->Resize(width, height);
 
-	sharedSSAOTexture->Resize(width, height);
-	sharedDepthTexture->Resize(width, height);
+	SharedTextureManager::instance()->GetSSAOTexture()->Resize(width, height);
+	SharedTextureManager::instance()->GetDepthTexture()->Resize(width, height);
 }
 
 #define OutputSample(sample)	Debug::Output("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
@@ -78,7 +79,7 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 
 	OnPostRender();
 
-	//Graphics::Blit(sharedSSAOTexture, nullptr);
+	//Graphics::Blit(SharedTextureManager::instance()->GetSSAOTexture(), nullptr);
 	OnImageEffects();
 }
 
@@ -87,8 +88,8 @@ void Rendering::ClearRenderTextures() {
 	p_->renderTextures.aux2->Clear(p_->normalizedRect, Color::black, 1);
 	p_->renderTextures.ssaoTraversal->Clear(p_->normalizedRect, Color::black, 1);
 
-	sharedSSAOTexture->Clear(p_->normalizedRect, Color::white, 1);
-	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
+	SharedTextureManager::instance()->GetSSAOTexture()->Clear(p_->normalizedRect, Color::white, 1);
+	SharedTextureManager::instance()->GetDepthTexture()->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 
 	RenderTexture target = p_->renderTextures.target;
 	if (!target) { target = RenderTextureUtility::GetDefault(); }
@@ -100,7 +101,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	p.worldToCameraMatrix = matrices.worldToCameraMatrix;
 	p.cameraToClipMatrix = matrices.projectionMatrix;
-	p.worldToShadowMatrix = Shadows::instance()->GetWorldToShadowMatrix();
+	p.worldToShadowMatrix = p_->shadows->GetWorldToShadowMatrix();
 
 	p.projParams = matrices.projParams;
 	p.cameraPos = glm::vec4(matrices.cameraPos, 1);
@@ -155,10 +156,10 @@ void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	RenderTexture temp = RenderTextureUtility::GetTemporary(RenderTextureFormat::Rgb, Screen::GetWidth(), Screen::GetHeight());
 
 	p_->materials.ssao->SetPass(0);
-	Graphics::Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
+	Graphics::Blit(SharedTextureManager::instance()->GetDepthTexture(), temp, p_->materials.ssao, p_->normalizedRect);
 
 	p_->materials.ssao->SetPass(1);
-	Graphics::Blit(temp, sharedSSAOTexture, p_->materials.ssao, p_->normalizedRect);
+	Graphics::Blit(temp, SharedTextureManager::instance()->GetSSAOTexture(), p_->materials.ssao, p_->normalizedRect);
 
 	RenderTextureUtility::ReleaseTemporary(temp);
 
@@ -192,8 +193,8 @@ void Rendering::UpdateUniformBuffers(const RenderingMatrices& matrices, Renderin
 
 void Rendering::ShadowPass(RenderingPipelines& pipelines) {
 	RenderTexture target = pipelines.rendering->GetTargetTexture();
-	Shadows::instance()->Resize(target->GetWidth(), target->GetHeight());
-	Shadows::instance()->Clear();
+	p_->shadows->Resize(target->GetWidth(), target->GetHeight());
+	p_->shadows->Clear();
 
 	shadowSample->Restart();
 	pipelines.shadow->Run();
@@ -209,16 +210,16 @@ void Rendering::RenderPass(RenderingPipelines& pipelines) {
 }
 
 RenderableTraits::RenderableTraits(RenderingParameters* p) : p_(p) {
-	pipelines_.depth = MEMORY_NEW(Pipeline);
-	pipelines_.depth->SetTargetTexture(sharedDepthTexture, Rect(0, 0, 1, 1));
+	pipelines_.depth = MEMORY_NEW(Pipeline, p_->matrixBuffer);
+	pipelines_.depth->SetTargetTexture(SharedTextureManager::instance()->GetDepthTexture(), Rect(0, 0, 1, 1));
 
-	pipelines_.ssaoTraversal = MEMORY_NEW(Pipeline);
+	pipelines_.ssaoTraversal = MEMORY_NEW(Pipeline, p_->matrixBuffer);
 	pipelines_.ssaoTraversal->SetTargetTexture(p_->renderTextures.ssaoTraversal, Rect(0, 0, 1, 1));
 
-	pipelines_.rendering = MEMORY_NEW(Pipeline);
+	pipelines_.rendering = MEMORY_NEW(Pipeline, p_->matrixBuffer);
 
-	pipelines_.shadow = MEMORY_NEW(Pipeline);
-	pipelines_.shadow->SetTargetTexture(Shadows::instance()->GetShadowTexture(), Rect(0, 0, 1, 1));
+	pipelines_.shadow = MEMORY_NEW(Pipeline, p_->matrixBuffer);
+	pipelines_.shadow->SetTargetTexture(p_->shadows->GetShadowTexture(), Rect(0, 0, 1, 1));
 
 	InitializeSSAOKernel();
 
@@ -238,7 +239,7 @@ RenderableTraits::~RenderableTraits() {
 	Profiler::ReleaseSample(get_renderable_game_objects);
 }
 
-void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices) {
+void RenderableTraits::Traits(const std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
 	Clear();
 
@@ -252,7 +253,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
 
 	bool depthPass = false;
-	if (p_->renderPath == +RenderPath::Forward) {
+	if (p_->renderPath == RenderPath::Forward) {
 		if ((p_->depthTextureMode & DepthTextureMode::Depth) != 0) {
 			depthPass = true;
 		}
@@ -276,7 +277,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 	RenderTexture target = GetActiveRenderTarget();
 
 	if (forwardBase) {
-		Shadows::instance()->Update(forwardBase, pipelines_.shadow);
+		p_->shadows->Update(forwardBase, pipelines_.shadow);
 	}
 
 	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
@@ -420,7 +421,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& 
 }
 
 void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
-	std::vector<Light> lights = World::GetComponents<ILight>();
+	std::vector<Light> lights = World::GetComponents<Light>();
 	if (lights.empty()) {
 		return;
 	}

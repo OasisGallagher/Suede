@@ -1,6 +1,4 @@
 #pragma once
-#include <vector>
-
 #include "types.h"
 
 #define DECLARE_BUILTIN_PROPERTY(name)			SUEDE_API extern const char* name;

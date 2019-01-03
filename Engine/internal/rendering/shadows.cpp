@@ -8,19 +8,14 @@
 #include "sharedtexturemanager.h"
 #include "internal/world/worldinternal.h"
 
-Shadows::Shadows() {
-	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-	shadowDepthTexture_ = SharedTextureManager::instance()->GetShadowDepthTexture();
-
+Shadows::Shadows(RenderTexture dest) : shadowDepthTexture_(dest) {
 	directionalLightShadowMaterial_ = new IMaterial();
 	directionalLightShadowMaterial_->SetShader(Resources::FindShader("builtin/directional_light_depth"));
 	directionalLightShadowMaterial_->SetRenderQueue((int)RenderQueue::Background - 200);
 }
 
 void Shadows::Resize(uint width, uint height) {
-	if (width != shadowDepthTexture_->GetWidth() || height != shadowDepthTexture_->GetHeight()) {
-		shadowDepthTexture_->Resize(width, height);
-	}
+	shadowDepthTexture_->Resize(width, height);
 }
 
 void Shadows::Clear() {
@@ -28,6 +23,7 @@ void Shadows::Clear() {
 }
 
 RenderTexture Shadows::GetShadowTexture() {
+	SUEDE_ASSERT(shadowDepthTexture_);
 	return shadowDepthTexture_;
 }
 

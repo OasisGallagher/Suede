@@ -4,8 +4,10 @@
 #include "material.h"
 #include "renderer.h"
 #include "gameobject.h"
-//#include "tools/dirtybits.h"
+
+#include "internal/rendering/shadows.h"
 #include "internal/rendering/pipeline.h"
+#include "internal/rendering/matrixbuffer.h"
 
 class Sample;
 class Pipeline;
@@ -47,7 +49,11 @@ struct RenderingRenderTextures {
 };
 
 struct RenderingParameters {
-	RenderingParameters();
+	RenderingParameters(Shadows* shadows);
+	~RenderingParameters();
+
+	Shadows* shadows;
+	MatrixBuffer* matrixBuffer;
 
 	IGameObject* camera;
 	Rect normalizedRect;
@@ -71,7 +77,6 @@ struct RenderingPipelines {
 	Pipeline* ssaoTraversal;
 };
 
-class Rendering;
 class RenderingListener {
 public:
 	virtual void OnRenderingFinished() = 0;
@@ -123,7 +128,7 @@ public:
 
 public:
 	RenderingPipelines& GetPipelines() { return pipelines_; }
-	void Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices);
+	void Traits(const std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices);
 	void Clear();
 
 private:

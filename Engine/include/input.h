@@ -82,8 +82,8 @@ public:
 	virtual glm::ivec2 GetMousePosition() = 0;
 };
 
-class SUEDE_API Input : private Singleton2<Input> {
-	friend class Singleton<Input>;
+class SUEDE_API Input : private singleton2<Input> {
+	friend class singleton<Input>;
 	SUEDE_DECLARE_IMPLEMENTATION(Input)
 
 public:

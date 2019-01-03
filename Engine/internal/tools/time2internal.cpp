@@ -4,7 +4,7 @@
 #include "debug/debug.h"
 #include "memory/memory.h"
 
-Time::Time() : Singleton2<Time>(MEMORY_NEW(TimeInternal), Memory::DeleteRaw<TimeInternal>) {}
+Time::Time() : singleton2<Time>(MEMORY_NEW(TimeInternal), Memory::DeleteRaw<TimeInternal>) {}
 float Time::GetTime() { return _suede_dinstance()->GetTime(); }
 float Time::GetDeltaTime() { return _suede_dinstance()->GetDeltaTime(); }
 float Time::GetFixedDeltaTime() { return _suede_dinstance()->GetFixedDeltaTime(); }

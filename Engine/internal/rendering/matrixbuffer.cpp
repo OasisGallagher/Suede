@@ -4,8 +4,7 @@
 #include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 
-MatrixBuffer::MatrixBuffer() {
-	textureBuffer_ = SharedTextureManager::instance()->GetMatrixTextureBuffer();
+MatrixBuffer::MatrixBuffer(TextureBuffer buffer) : textureBuffer_(buffer) {
 }
 
 void MatrixBuffer::Update(uint size, const void* data) {

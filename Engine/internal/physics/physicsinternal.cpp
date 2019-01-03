@@ -21,7 +21,7 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 	Debug::LogError(warningString);
 }
 
-Physics::Physics() : Singleton2<Physics>(MEMORY_NEW(PhysicsInternal), Memory::DeleteRaw<PhysicsInternal>) {}
+Physics::Physics() : singleton2<Physics>(MEMORY_NEW(PhysicsInternal), Memory::DeleteRaw<PhysicsInternal>) {}
 bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, hitInfo); }
 void Physics::SetGravity(const glm::vec3& value) { _suede_dinstance()->SetGravity(value); }
 glm::vec3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }

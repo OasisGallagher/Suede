@@ -10,7 +10,7 @@ void Sample::Stop() { _suede_dptr()->Stop(); }
 void Sample::Reset() { _suede_dptr()->Reset(); }
 double Sample::GetElapsedSeconds() const { return _suede_dptr()->GetElapsedSeconds(); }
 
-Profiler::Profiler() : Singleton2<Profiler>(MEMORY_NEW(ProfilerInternal), Memory::DeleteRaw<ProfilerInternal>) {}
+Profiler::Profiler() : singleton2<Profiler>(MEMORY_NEW(ProfilerInternal), Memory::DeleteRaw<ProfilerInternal>) {}
 Sample* Profiler::CreateSample() { return _suede_dinstance()->CreateSample(); }
 void Profiler::ReleaseSample(Sample* value) { _suede_dinstance()->ReleaseSample(value); }
 uint64 Profiler::GetTimeStamp() { return _suede_dinstance()->GetTimeStamp(); }

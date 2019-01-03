@@ -14,7 +14,7 @@ int InputInternal::GetFrameEventQueue() {
 	return FrameEventQueueInputs;
 }
 
-Input::Input() : Singleton2<Input>(nullptr, Memory::DeleteRaw<InputInternal>) {}
+Input::Input() : singleton2<Input>(nullptr, Memory::DeleteRaw<InputInternal>) {}
 
 void Input::SetDelegate(InputInternal* delegate) {
 	instance()->_destroy();

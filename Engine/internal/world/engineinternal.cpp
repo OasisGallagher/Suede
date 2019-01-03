@@ -19,7 +19,7 @@
 
 #include "../lua/wrappers/luaconfig.h"
 
-Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
+Engine::Engine() : singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
 
 bool Engine::Startup(uint width, uint height) { return _suede_dinstance()->Startup(width, height); }
 void Engine::Shutdown() { _suede_dinstance()->Shutdown(); }

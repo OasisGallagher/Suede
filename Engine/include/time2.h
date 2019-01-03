@@ -2,8 +2,8 @@
 #include "enginedefines.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Time : private Singleton2<Time> {
-	friend class Singleton<Time>;
+class SUEDE_API Time : private singleton2<Time> {
+	friend class singleton<Time>;
 	SUEDE_DECLARE_IMPLEMENTATION(Time)
 
 public:

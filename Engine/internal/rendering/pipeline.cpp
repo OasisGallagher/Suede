@@ -44,8 +44,8 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 	return 0;
 }
 
-Pipeline::Pipeline() 
-	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
+Pipeline::Pipeline(MatrixBuffer* matrixBuffer)
+	: matrixBuffer_(matrixBuffer), renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
 	memset(&counters_, 0, sizeof(counters_));
 	oldStates_.Reset();
 }
@@ -116,7 +116,7 @@ void Pipeline::Run() {
 	samples_.update_pipeline->Restart();
 
 	samples_.update_tbo->Restart();
-	MatrixBuffer::instance()->Update(nrenderables_, &matrices_[0]);
+	matrixBuffer_->Update(nrenderables_, &matrices_[0]);
 	samples_.update_tbo->Stop();
 
 	targetTexture_->BindWrite(normalizedRect_);
@@ -310,6 +310,8 @@ Pipeline& Pipeline::operator=(const Pipeline& other) {
 
 	renderables_ = other.renderables_;
 	nrenderables_ = other.nrenderables_;
+
+	matrixBuffer_ = other.matrixBuffer_;
 	return *this;
 }
 

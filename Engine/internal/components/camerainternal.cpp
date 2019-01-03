@@ -10,7 +10,9 @@
 #include "geometryutility.h"
 
 #include "tools/math2.h"
+
 #include "internal/async/async.h"
+#include "internal/rendering/sharedtexturemanager.h"
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
 void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
@@ -54,11 +56,11 @@ Camera CameraUtility::GetMain() { return main_; }
 void CameraUtility::SetMain(Camera value) { main_ = value; }
 
 void CameraUtility::OnPreRender() {
-	Framebuffer0::Get()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
-	Framebuffer0::Get()->SetClearDepth(1);
-	Framebuffer0::Get()->SetClearStencil(1);
-	Framebuffer0::Get()->SetClearColor(Color::black);
-	Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
+	Framebuffer0::instance()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	Framebuffer0::instance()->SetClearDepth(1);
+	Framebuffer0::instance()->SetClearStencil(1);
+	Framebuffer0::instance()->SetClearColor(Color::black);
+	Framebuffer0::instance()->Clear(FramebufferClearMaskColorDepthStencil);
 }
 
 void CameraUtility::OnPostRender() {
@@ -72,16 +74,24 @@ void CameraUtility::OnPostRender() {
 	target->Unbind();
 }
 
+std::shared_ptr<Shadows> CameraInternal::shadows_;
+
 CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
 	 /*, gbuffer_(nullptr) */{
+	if (!shadows_) {
+		shadows_ = std::make_shared<Shadows>(SharedTextureManager::instance()->GetShadowDepthTexture());
+	}
+
+	p_ = MEMORY_NEW(RenderingParameters, shadows_.get());
+
 	culling_ = MEMORY_NEW(Culling, this);
 	cullingThread_ = MEMORY_NEW(ZThread::Thread, culling_);
 
-	rendering_ = MEMORY_NEW(Rendering, &p_);// , this);
+	rendering_ = MEMORY_NEW(Rendering, p_);
 
-	traits0_ = MEMORY_NEW(RenderableTraits, &p_);
-	traits1_ = MEMORY_NEW(RenderableTraits, &p_);
+	traits0_ = MEMORY_NEW(RenderableTraits, p_);
+	traits1_ = MEMORY_NEW(RenderableTraits, p_);
 
 	Screen::AddScreenSizeChangedListener(this);
 
@@ -92,15 +102,17 @@ CameraInternal::~CameraInternal() {
 	//MEMORY_DELETE(gbuffer_);
 	CancelThreads();
 
+	MEMORY_DELETE(p_);
 	MEMORY_DELETE(traits0_);
 	MEMORY_DELETE(traits1_);
 
 	MEMORY_DELETE(rendering_);
+
 	Screen::RemoveScreenSizeChangedListener(this);
 }
 
 void CameraInternal::Awake() {
-	p_.camera = GetGameObject().get();
+	p_->camera = GetGameObject().get();
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {
@@ -182,7 +194,7 @@ void CameraInternal::OnCullingFinished() {
 // }
 
 bool CameraInternal::IsValidViewportRect() {
-	const Rect& r = p_.normalizedRect;
+	const Rect& r = p_->normalizedRect;
 	if (r.GetXMin() >= 1 || r.GetYMin() >= 1) { return false; }
 	if (r.GetWidth() <= 0 || r.GetHeight() <= 0) { return false; }
 
@@ -190,7 +202,7 @@ bool CameraInternal::IsValidViewportRect() {
 }
 
 void CameraInternal::SetRect(const Rect& value) {
-	p_.normalizedRect = value;
+	p_->normalizedRect = value;
 }
 
 void CameraInternal::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) {
@@ -213,10 +225,10 @@ glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 Texture2D CameraInternal::Capture() {
 	uint alignment = 4;
 	std::vector<uchar> data;
-	Framebuffer0::Get()->ReadBuffer(data, &alignment);
+	Framebuffer0::instance()->ReadBuffer(data, &alignment);
 
 	Texture2D texture = new ITexture2D();
-	const glm::ivec4& viewport = Framebuffer0::Get()->GetViewport();
+	const glm::ivec4& viewport = Framebuffer0::instance()->GetViewport();
 	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
 
 	return texture;

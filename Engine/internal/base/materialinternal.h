@@ -15,8 +15,9 @@ public:
 	~MaterialInternal();
 
 public:
-	Object Clone();
+	virtual Object Clone();
 
+public:
 	void SetShader(IMaterial* self, Shader value);
 	Shader GetShader() { return shader_; }
 

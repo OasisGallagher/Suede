@@ -12,8 +12,8 @@ BETTER_ENUM(PrimitiveType, int,
 	Cube
 )
 
-class SUEDE_API Resources : private Singleton2<Resources> {
-	friend class Singleton<Resources>;
+class SUEDE_API Resources : private singleton2<Resources> {
+	friend class singleton<Resources>;
 	SUEDE_DECLARE_IMPLEMENTATION(Resources)
 
 public:

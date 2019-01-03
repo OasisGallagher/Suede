@@ -3,7 +3,7 @@
 #include "time2.h"
 #include "memory/memory.h"
 
-Statistics::Statistics() : Singleton2<Statistics>(MEMORY_NEW(StatisticsInternal), Memory::DeleteRaw<StatisticsInternal>) {}
+Statistics::Statistics() : singleton2<Statistics>(MEMORY_NEW(StatisticsInternal), Memory::DeleteRaw<StatisticsInternal>) {}
 void Statistics::AddTriangles(uint n) { _suede_dinstance()->AddTriangles(n); }
 void Statistics::AddDrawcalls(uint n) { _suede_dinstance()->AddDrawcalls(n); }
 uint Statistics::GetTriangles() { return _suede_dinstance()->GetTriangles(); }

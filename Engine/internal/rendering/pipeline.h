@@ -8,6 +8,8 @@
 #include "camera.h"
 #include "texture.h"
 #include "material.h"
+#include "matrixbuffer.h"
+
 #include "frameeventlistener.h"
 
 #include "internal/base/framebuffer.h"
@@ -39,7 +41,7 @@ enum SortMode {
 class Sample;
 class Pipeline {
 public:
-	Pipeline();
+	Pipeline(MatrixBuffer* matrixBuffer);
 	~Pipeline();
 
 public:
@@ -84,6 +86,8 @@ private:
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
 private:
+	MatrixBuffer* matrixBuffer_;
+
 	uint nrenderables_;
 	std::vector<Renderable> renderables_;
 

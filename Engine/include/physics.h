@@ -13,8 +13,8 @@ struct SUEDE_API RaycastHit {
 	GameObject gameObject;
 };
 
-class SUEDE_API Physics : private Singleton2<Physics> {
-	friend class Singleton<Physics>;
+class SUEDE_API Physics : private singleton2<Physics> {
+	friend class singleton<Physics>;
 	SUEDE_DECLARE_IMPLEMENTATION(Physics)
 
 public:

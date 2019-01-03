@@ -6,8 +6,8 @@
 #include "enginedefines.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Gizmos : private Singleton2<Gizmos> {
-	friend class Singleton<Gizmos>;
+class SUEDE_API Gizmos : private singleton2<Gizmos> {
+	friend class singleton<Gizmos>;
 	SUEDE_DECLARE_IMPLEMENTATION(Gizmos)
 
 public:

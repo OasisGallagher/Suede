@@ -31,22 +31,22 @@ public:
 	int GetDepth() const { return depth_;  }
 
 	void SetRect(const Rect& value);
-	const Rect& GetRect() const { return p_.normalizedRect; }
+	const Rect& GetRect() const { return p_->normalizedRect; }
 
-	void SetClearType(ClearType value) { p_.clearType = value; }
-	ClearType GetClearType() const { return p_.clearType; }
+	void SetClearType(ClearType value) { p_->clearType = value; }
+	ClearType GetClearType() const { return p_->clearType; }
 
-	void SetRenderPath(RenderPath value) { p_.renderPath = value; }
-	RenderPath GetRenderPath() const { return p_.renderPath; }
+	void SetRenderPath(RenderPath value) { p_->renderPath = value; }
+	RenderPath GetRenderPath() const { return p_->renderPath; }
 
-	void SetDepthTextureMode(DepthTextureMode value) { p_.depthTextureMode = value; }
-	DepthTextureMode GetDepthTextureMode() const { return p_.depthTextureMode; }
+	void SetDepthTextureMode(DepthTextureMode value) { p_->depthTextureMode = value; }
+	DepthTextureMode GetDepthTextureMode() const { return p_->depthTextureMode; }
 
-	void SetClearColor(const Color& value) { p_.clearColor = value; }
-	Color GetClearColor() const { return p_.clearColor; }
+	void SetClearColor(const Color& value) { p_->clearColor = value; }
+	Color GetClearColor() const { return p_->clearColor; }
 
-	void SetTargetTexture(RenderTexture value) { p_.renderTextures.target = value; }
-	RenderTexture GetTargetTexture() { return p_.renderTextures.target; }
+	void SetTargetTexture(RenderTexture value) { p_->renderTextures.target = value; }
+	RenderTexture GetTargetTexture() { return p_->renderTextures.target; }
 
 	Texture2D Capture();
 
@@ -98,12 +98,14 @@ private:
 	bool IsValidViewportRect();
 
 private:
+	static std::shared_ptr<Shadows> shadows_;
+
 	int depth_;
 
 	//GBuffer* gbuffer_;
 
 	Plane planes_[6];
-	RenderingParameters p_;
+	RenderingParameters* p_;
 
 	Culling* culling_;
 	ZThread::Thread* cullingThread_;

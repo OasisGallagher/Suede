@@ -9,7 +9,7 @@
 #include "memory/memory.h"
 #include "builtinproperties.h"
 
-Graphics::Graphics() : Singleton2<Graphics>(MEMORY_NEW(GraphicsInternal), Memory::DeleteRaw<GraphicsInternal>) {}
+Graphics::Graphics() : singleton2<Graphics>(MEMORY_NEW(GraphicsInternal), Memory::DeleteRaw<GraphicsInternal>) {}
 
 void Graphics::SetShadingMode(ShadingMode value) { _suede_dinstance()->SetShadingMode(value); }
 ShadingMode Graphics::GetShadingMode() { return _suede_dinstance()->GetShadingMode(); }

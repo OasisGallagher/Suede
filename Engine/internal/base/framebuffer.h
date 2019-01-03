@@ -105,11 +105,8 @@ private:
 	GLenum bindTarget_;
 };
 
-class Framebuffer0 : public FramebufferBase {
-public:
-	static Framebuffer0* Get();
-
-private:
+class Framebuffer0 : public FramebufferBase, public singleton<Framebuffer0> {
+	friend class singleton<Framebuffer0>;
 	Framebuffer0() {}
 };
 

@@ -5,7 +5,7 @@
 #include "memory/memory.h"
 #include "geometryutility.h"
 
-Resources::Resources() : Singleton2<Resources>(MEMORY_NEW(ResourcesInternal), Memory::DeleteRaw<ResourcesInternal>) {}
+Resources::Resources() : singleton2<Resources>(MEMORY_NEW(ResourcesInternal), Memory::DeleteRaw<ResourcesInternal>) {}
 void Resources::Import() { _suede_dinstance()->Import(); }
 Texture2D Resources::GetBlackTexture() { return _suede_dinstance()->GetBlackTexture(); }
 Texture2D Resources::GetWhiteTexture() { return _suede_dinstance()->GetWhiteTexture(); }

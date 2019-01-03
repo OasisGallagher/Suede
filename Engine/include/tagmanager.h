@@ -6,8 +6,8 @@
 #include "tools/singleton.h"
 
 typedef std::vector<std::string> Tags;
-class SUEDE_API TagManager : private Singleton2<TagManager> {
-	friend class Singleton<TagManager>;
+class SUEDE_API TagManager : private singleton2<TagManager> {
+	friend class singleton<TagManager>;
 	SUEDE_DECLARE_IMPLEMENTATION(TagManager)
 
 public:

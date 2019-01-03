@@ -3,8 +3,8 @@
 #include "material.h"
 #include "tools/singleton.h"
 
-class SharedTextureManager : public Singleton<SharedTextureManager> {
-	friend class Singleton<SharedTextureManager>;
+class SharedTextureManager : public singleton<SharedTextureManager> {
+	friend class singleton<SharedTextureManager>;
 
 public:
 	SharedTextureManager();

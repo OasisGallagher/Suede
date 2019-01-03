@@ -5,7 +5,7 @@
 #include "tools/math2.h"
 #include "memory/memory.h"
 
-TagManager::TagManager() : Singleton2<TagManager>(MEMORY_NEW(TagManagerInternal), Memory::DeleteRaw<TagManagerInternal>) {}
+TagManager::TagManager() : singleton2<TagManager>(MEMORY_NEW(TagManagerInternal), Memory::DeleteRaw<TagManagerInternal>) {}
 const Tags& TagManager::GetAllTags() { return _suede_dinstance()->GetAllTags(); }
 void TagManager::Register(const std::string& name) { _suede_dinstance()->Register(name); }
 void TagManager::Unregister(const std::string& name) { _suede_dinstance()->Unregister(name); }

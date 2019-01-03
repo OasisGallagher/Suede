@@ -1,5 +1,6 @@
-#include "types.h"
 #include "builtinproperties.h"
+
+#include <vector>
 
 #define BUILTIN_PROPERTY_PREFIX					"_"
 #define BUILTIN_PROPERTY_NAME(name)				(BUILTIN_PROPERTY_PREFIX #name)

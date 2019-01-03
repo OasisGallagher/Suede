@@ -2,8 +2,8 @@
 #include "enginedefines.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Statistics : private Singleton2<Statistics> {
-	friend class Singleton<Statistics>;
+class SUEDE_API Statistics : private singleton2<Statistics> {
+	friend class singleton<Statistics>;
 	SUEDE_DECLARE_IMPLEMENTATION(Statistics)
 
 public:

@@ -18,8 +18,8 @@ public:
 	virtual void OnQuerierResult(uint id, uint result) = 0;
 };
 
-class GpuQuerier : public FrameEventListener, public Singleton<GpuQuerier> {
-	friend class Singleton<GpuQuerier>;
+class GpuQuerier : public FrameEventListener, public singleton<GpuQuerier> {
+	friend class singleton<GpuQuerier>;
 
 public:
 	uint Start(QueryType type, QuerierResultListener* listener);

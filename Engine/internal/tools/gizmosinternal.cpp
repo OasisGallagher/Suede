@@ -9,7 +9,7 @@
 
 #include "memory/memory.h"
 
-Gizmos::Gizmos() : Singleton2<Gizmos>(MEMORY_NEW(GizmosInternal), Memory::DeleteRaw<GizmosInternal>) {}
+Gizmos::Gizmos() : singleton2<Gizmos>(MEMORY_NEW(GizmosInternal), Memory::DeleteRaw<GizmosInternal>) {}
 void Gizmos::Flush() { _suede_dinstance()->Flush(); }
 glm::mat4 Gizmos::GetMatrix() { return _suede_dinstance()->GetMatrix(); }
 void Gizmos::SetMatrix(const glm::mat4& value) { _suede_dinstance()->SetMatrix(value); }

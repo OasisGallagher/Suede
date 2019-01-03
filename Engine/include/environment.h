@@ -2,8 +2,8 @@
 #include "material.h"
 #include "tools/singleton.h"
 
-class SUEDE_API Environment : private Singleton2<Environment> {
-	friend class Singleton<Environment>;
+class SUEDE_API Environment : private singleton2<Environment> {
+	friend class singleton<Environment>;
 	SUEDE_DECLARE_IMPLEMENTATION(Environment)
 
 public:

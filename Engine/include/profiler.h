@@ -18,8 +18,8 @@ public:
 	double GetElapsedSeconds() const;
 };
 
-class SUEDE_API Profiler : private Singleton2<Profiler> {
-	friend class Singleton<Profiler>;
+class SUEDE_API Profiler : private singleton2<Profiler> {
+	friend class singleton<Profiler>;
 	SUEDE_DECLARE_IMPLEMENTATION(Profiler)
 
 public:
