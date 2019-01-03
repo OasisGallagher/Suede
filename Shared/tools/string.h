@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <functional>
 
 #include "../types.h"
 
@@ -42,6 +43,10 @@ public:
 
 	template <class Iterator>
 	static std::string Concat(Iterator first, Iterator last, const char* seperator = " ");
+
+	template <class Iterator, class ToStringF>
+	static std::string Concat(Iterator first, Iterator last, const ToStringF& tostring, const char* seperator = " ");
+
 	static std::string Heading(const std::string& text);
 
 	static void Split(std::vector<std::string>& answer, const std::string& str, char seperator);
@@ -61,12 +66,17 @@ inline bool String::IsLetter(int c) {
 
 template <class Iterator>
 std::string String::Concat(Iterator first, Iterator last, const char* seperator) {
+	return Concat(first, last, [](typename std::iterator_traits<Iterator>::reference x) { return x.ToString(); });
+}
+
+template <class Iterator, class ToStringF>
+std::string String::Concat(Iterator first, Iterator last, const ToStringF& tostring, const char* seperator) {
 	const char* sep = "";
 	std::ostringstream oss;
 
 	for (; first != last; ++first) {
 		oss << sep;
-		oss << first->ToString();
+		oss << tostring(*first);
 		sep = seperator;
 	}
 

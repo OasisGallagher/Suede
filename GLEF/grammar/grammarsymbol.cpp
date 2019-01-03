@@ -5,17 +5,17 @@
 #include "grammarsymbol.h"
 #include "scanner/tokendefine.h"
 
-GrammarSymbol NativeSymbols::null = nullptr;
-GrammarSymbol NativeSymbols::zero = new TerminalSymbol("zero");
-GrammarSymbol NativeSymbols::code = new TerminalSymbol("code");
-GrammarSymbol NativeSymbols::unknown = new TerminalSymbol("#");
-GrammarSymbol NativeSymbols::integer = new TerminalSymbol("integer");
-GrammarSymbol NativeSymbols::single = new TerminalSymbol("single");
-GrammarSymbol NativeSymbols::boolean = new TerminalSymbol("boolean");
-GrammarSymbol NativeSymbols::string = new TerminalSymbol("string");
-GrammarSymbol NativeSymbols::epsilon = new TerminalSymbol("epsilon");
-GrammarSymbol NativeSymbols::identifier = new TerminalSymbol("identifier");
-GrammarSymbol NativeSymbols::program = new NonterminalSymbol("$Program");
+GrammarSymbolPtr NativeSymbols::null = nullptr;
+GrammarSymbolPtr NativeSymbols::zero = new TerminalSymbol("zero");
+GrammarSymbolPtr NativeSymbols::code = new TerminalSymbol("code");
+GrammarSymbolPtr NativeSymbols::unknown = new TerminalSymbol("#");
+GrammarSymbolPtr NativeSymbols::integer = new TerminalSymbol("integer");
+GrammarSymbolPtr NativeSymbols::single = new TerminalSymbol("single");
+GrammarSymbolPtr NativeSymbols::boolean = new TerminalSymbol("boolean");
+GrammarSymbolPtr NativeSymbols::string = new TerminalSymbol("string");
+GrammarSymbolPtr NativeSymbols::epsilon = new TerminalSymbol("epsilon");
+GrammarSymbolPtr NativeSymbols::identifier = new TerminalSymbol("identifier");
+GrammarSymbolPtr NativeSymbols::program = new NonterminalSymbol("$Program");
 
 std::string GrammarSymbolContainer::ToString() const {
 	std::ostringstream oss;
@@ -23,7 +23,7 @@ std::string GrammarSymbolContainer::ToString() const {
 	for (const_iterator ite = begin(); ite != end(); ++ite) {
 		oss << seperator;
 		seperator = " ";
-		oss << ite->second.ToString();
+		oss << ite->second->ToString();
 	}
 
 	return oss.str();
@@ -34,7 +34,7 @@ std::string GrammarSymbolSetTable::ToString() const {
 
 	const char* newline = "";
 	for (const_iterator ite = begin(); ite != end(); ++ite) {
-		if (ite->first.SymbolType() == GrammarSymbolTerminal) {
+		if (ite->first->SymbolType() == GrammarSymbolTerminal) {
 			continue;
 		}
 
@@ -44,14 +44,14 @@ std::string GrammarSymbolSetTable::ToString() const {
 		oss.width(32);
 		oss.setf(std::ios::left);
 
-		oss << ite->first.ToString();
+		oss << ite->first->ToString();
 		oss << "{ ";
 
 		const char* seperator = "";
 		for (GrammarSymbolSet::const_iterator ite2 = ite->second.begin(); ite2 != ite->second.end(); ++ite2) {
 			oss << seperator;
 			seperator = " ";
-			oss << ite2->ToString();
+			oss << (*ite2)->ToString();
 		}
 
 		oss << " }";
@@ -64,8 +64,8 @@ void FirstSetTable::GetFirstSet(GrammarSymbolSet& answer, SymbolVector::iterator
 	for (; first != last; ++first) {
 		iterator pos = find(*first);
 		if (pos == end()) {
-			if (first->SymbolType() != GrammarSymbolTerminal) {
-				Debug::LogError("invalid symbol %s.", first->ToString().c_str());
+			if ((*first)->SymbolType() != GrammarSymbolTerminal) {
+				Debug::LogError("invalid symbol %s.", (*first)->ToString().c_str());
 				break;
 			}
 
@@ -94,7 +94,7 @@ void FirstSetTable::GetFirstSet(GrammarSymbolSet& answer, SymbolVector::iterator
 	}
 }
 
-GrammarSymbol SymbolFactory::Create(const std::string& text) {
+GrammarSymbolPtr SymbolFactory::Create(const std::string& text) {
 	if (GrammarSymbol::IsTerminal(text)) {
 		return new TerminalSymbol(text);
 	}
@@ -103,19 +103,19 @@ GrammarSymbol SymbolFactory::Create(const std::string& text) {
 }
 
 void NativeSymbols::Copy(GrammarSymbolContainer& terminalSymbols, GrammarSymbolContainer& nonterminalSymbols) {
-	terminalSymbols.insert(std::make_pair(zero.ToString(), zero));
-	terminalSymbols.insert(std::make_pair(code.ToString(), code));
-	terminalSymbols.insert(std::make_pair(integer.ToString(), integer));
-	terminalSymbols.insert(std::make_pair(single.ToString(), single));
-	terminalSymbols.insert(std::make_pair(boolean.ToString(), boolean));
-	terminalSymbols.insert(std::make_pair(string.ToString(), string));
-	terminalSymbols.insert(std::make_pair(epsilon.ToString(), epsilon));
-	terminalSymbols.insert(std::make_pair(identifier.ToString(), identifier));
+	terminalSymbols.insert(std::make_pair(zero->ToString(), zero));
+	terminalSymbols.insert(std::make_pair(code->ToString(), code));
+	terminalSymbols.insert(std::make_pair(integer->ToString(), integer));
+	terminalSymbols.insert(std::make_pair(single->ToString(), single));
+	terminalSymbols.insert(std::make_pair(boolean->ToString(), boolean));
+	terminalSymbols.insert(std::make_pair(string->ToString(), string));
+	terminalSymbols.insert(std::make_pair(epsilon->ToString(), epsilon));
+	terminalSymbols.insert(std::make_pair(identifier->ToString(), identifier));
 
-	nonterminalSymbols.insert(std::make_pair(program.ToString(), program));
+	nonterminalSymbols.insert(std::make_pair(program->ToString(), program));
 }
 
-bool NativeSymbols::IsNative(const GrammarSymbol& symbol) {
+bool NativeSymbols::IsNative(const GrammarSymbolPtr& symbol) {
 	return symbol == null
 		|| symbol == zero
 		|| symbol == code

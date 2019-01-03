@@ -17,12 +17,12 @@ public:
 	bool CreateLR0Itemsets(LR1ItemsetContainer& itemsets, LR1EdgeTable& edges);
 
 private:
-	void CalculateClosure(LR1Itemset& answer);
-	bool IsNullable(const GrammarSymbol& symbol);
-	void AddLR1Items(LR1Itemset& answer, const GrammarSymbol& lhs);
-	bool CalculateClosureOnePass(LR1Itemset& answer);
-	bool CalculateLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const GrammarSymbol& symbol);
-	bool GetLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const GrammarSymbol& symbol);
+	void CalculateClosure(LR1ItemsetPtr& answer);
+	bool IsNullable(const GrammarSymbolPtr& symbol);
+	void AddLR1Items(LR1ItemsetPtr& answer, const GrammarSymbolPtr& lhs);
+	bool CalculateClosureOnePass(LR1ItemsetPtr& answer);
+	bool CalculateLR1EdgeTarget(LR1ItemsetPtr& answer, const LR1ItemsetPtr& src, const GrammarSymbolPtr& symbol);
+	bool GetLR1EdgeTarget(LR1ItemsetPtr& answer, const LR1ItemsetPtr& src, const GrammarSymbolPtr& symbol);
 	bool CreateLR1ItemsetsOnePass();
 
 private:

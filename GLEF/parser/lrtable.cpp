@@ -10,13 +10,13 @@ LRTable::LRTable() {
 LRTable::~LRTable() {
 }
 
-LRAction LRTable::GetAction(int current, const GrammarSymbol& symbol) {
+LRAction LRTable::GetAction(int current, const GrammarSymbolPtr& symbol) {
 	LRAction action = { LRActionError };
 	actionTable_.get(current, symbol, action);
 	return action;
 }
 
-int LRTable::GetGoto(int current, const GrammarSymbol& symbol) {
+int LRTable::GetGoto(int current, const GrammarSymbolPtr& symbol) {
 	int answer = -1;
 	gotoTable_.get(current, symbol, answer);
 	return answer;

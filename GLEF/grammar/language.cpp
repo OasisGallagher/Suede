@@ -100,7 +100,7 @@ void GrammarReader::ReadGrammars() {
 }
 
 
-static GrammarSymbol CreateSymbol(Environment* env, const std::string& text) {
+static GrammarSymbolPtr CreateSymbol(Environment* env, const std::string& text) {
 	GrammarSymbolContainer* target = nullptr;
 	if (GrammarSymbol::IsTerminal(text)) {
 		target = &env->terminalSymbols;
@@ -110,7 +110,7 @@ static GrammarSymbol CreateSymbol(Environment* env, const std::string& text) {
 	}
 
 	GrammarSymbolContainer::iterator ite = target->find(text);
-	GrammarSymbol ans = nullptr;
+	GrammarSymbolPtr ans = nullptr;
 
 	if (ite == target->end()) {
 		ans = SymbolFactory::Create(text);

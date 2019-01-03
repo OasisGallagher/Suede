@@ -30,6 +30,9 @@ public:
 	static float Epsilon();
 
 	template <class T>
+	static T Sign(T x);
+
+	template <class T>
 	static T Degrees(const T& radians);
 
 	template <class T>
@@ -98,6 +101,11 @@ inline float Math::Pi() {
 
 inline float Math::Epsilon() {
 	return 0.000001f;
+}
+
+template <class T>
+inline T Math::Sign(T x) {
+	return Math::Approximately(x, 0) ? 0 : (x > 0 ? 1 : -1);
 }
 
 inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal) {

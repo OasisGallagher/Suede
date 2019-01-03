@@ -87,15 +87,15 @@ private:
 	void Clear();
 
 	int Reduce(int cpos);
-	void Shift(int state, void* addr, const GrammarSymbol& symbol);
-	bool Error(const GrammarSymbol& symbol, const TokenPosition& position);
+	void Shift(int state, void* addr, const GrammarSymbolPtr& symbol);
+	bool Error(const GrammarSymbolPtr& symbol, const TokenPosition& position);
 
 	bool CreateSyntaxTree(SyntaxNode*& root, SourceScanner* sourceScanner);
 
 	void CleanupOnFailure();
 
-	GrammarSymbol FindSymbol(const ScannerToken& token, const TokenPosition& position, void*& addr);
-	GrammarSymbol ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner);
+	GrammarSymbolPtr FindSymbol(const ScannerToken& token, const TokenPosition& position, void*& addr);
+	GrammarSymbolPtr ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner);
 
 private:
 	SyntaxerStack* stack_;
