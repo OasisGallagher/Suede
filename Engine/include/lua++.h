@@ -103,9 +103,9 @@ inline T* _userdataPtr(lua_State* L, int index, const char* metatable) {
 	return *p;
 }
 
-// get caller as std::shared_ptr.
+// get caller as intrusive_ptr.
 template <class T>
-inline T* _userdataSharedPtr(lua_State* L, int index, const char* metatable) {
+inline T* _userdataIntrusivePtr(lua_State* L, int index, const char* metatable) {
 #ifdef _DEBUG
 	if (!checkMetatable(L, index, metatable)) {
 		return nullptr;
@@ -162,16 +162,16 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 	}
 }
 
-// construct userdata from std::shared_ptr.
+// construct userdata from intrusive_ptr.
 template <class T>
-inline int fromShared(lua_State* L, T ptr) {
+inline int fromIntrusive(lua_State* L, T ptr) {
 	return copyUserdata(L, ptr);
 }
 
-// unref caller std::shared_ptr.
+// unref caller intrusive_ptr.
 template <class T>
-inline int deleteSharedPtr(lua_State* L) {
-	T* ptr = callerSharedPtr<T>(L, 0);
+inline int deleteIntrusivePtr(lua_State* L) {
+	T* ptr = callerIntrusivePtr<T>(L, 0);
 	if (ptr != nullptr) { ptr->reset(); }
 	return 0;
 }
@@ -431,14 +431,14 @@ inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 
 #pragma endregion
 
-// get caller as std::shared_ptr.
+// get caller as intrusive_ptr.
 template <class T>
-inline T* callerSharedPtr(lua_State* L, const char* metatable = nullptr) {
+inline T* callerIntrusivePtr(lua_State* L, const char* metatable = nullptr) {
 	if (metatable == nullptr) {
 		metatable = TypeID<T>::string();
 	}
 
-	return _userdataSharedPtr<T>(L, 1, metatable);
+	return _userdataIntrusivePtr<T>(L, 1, metatable);
 }
 
 // get caller as raw pointer.
@@ -632,11 +632,11 @@ inline int push(lua_State* L, T arg, R... args) {
 
 #pragma region getters
 
-// get std::shared_ptr/raw pointer value.
+// get std::shared_ptr/intrusive_ptr/raw pointer value.
 template <class T>
 inline typename std::enable_if<suede_is_ptr<T>::value, T>::type
 get(lua_State* L, int index) {
-	T* p = _userdataSharedPtr<T>(L, index, TypeID<T>::string());
+	T* p = _userdataIntrusivePtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) { return nullptr; }
 	return *p;
 }

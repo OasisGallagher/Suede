@@ -16,9 +16,9 @@ void LR0::Setup(Environment* env, FirstSetTable* firstSets) {
 }
 
 bool LR0::CreateLR0Itemsets(LR1ItemsetContainer& itemsets, LR1EdgeTable& edges) {
-	LR1Itemset itemset;
+	LR1ItemsetPtr itemset = new LR1Itemset;
 	AddLR1Items(itemset, env_->grammars.front()->GetLhs());
-	itemset.SetName("0");
+	itemset->SetName("0");
 	CalculateClosure(itemset);
 	itemsets_.insert(itemset);
 
@@ -36,7 +36,7 @@ bool LR0::CreateLR1ItemsetsOnePass() {
 	LR1ItemsetContainer cont = itemsets_;
 	for (LR1ItemsetContainer::iterator ite = cont.begin(); ite != cont.end(); ++ite) {
 		for (GrammarSymbolContainer::iterator ite2 = env_->terminalSymbols.begin(); ite2 != env_->terminalSymbols.end(); ++ite2) {
-			LR1Itemset itemset;
+			LR1ItemsetPtr itemset = new LR1Itemset;
 			setChanged = GetLR1EdgeTarget(itemset, *ite, ite2->second) || setChanged;
 		}
 
@@ -45,7 +45,7 @@ bool LR0::CreateLR1ItemsetsOnePass() {
 				continue;
 			}
 
-			LR1Itemset itemset;
+			LR1ItemsetPtr itemset = new LR1Itemset;
 			setChanged = GetLR1EdgeTarget(itemset, *ite, ite2->second) || setChanged;
 		}
 	}
@@ -53,7 +53,7 @@ bool LR0::CreateLR1ItemsetsOnePass() {
 	return setChanged;
 }
 
-void LR0::AddLR1Items(LR1Itemset& answer, const GrammarSymbol& lhs) {
+void LR0::AddLR1Items(LR1ItemsetPtr& answer, const GrammarSymbolPtr& lhs) {
 	int index = 0, gi = 0;
 	Grammar* g = env_->grammars.FindGrammar(lhs, &gi);
 	const CondinateContainer& conds = g->GetCondinates();
@@ -64,8 +64,8 @@ void LR0::AddLR1Items(LR1Itemset& answer, const GrammarSymbol& lhs) {
 		int dpos = 0;
 
 		for (; ite != tc->symbols.end(); ++ite, ++dpos) {
-			LR1Item newItem(Math::MakeDword(index, gi), dpos);
-			answer.insert(newItem);
+			LR1ItemPtr newItem = new LR1Item(Math::MakeDword(index, gi), dpos);
+			answer->insert(newItem);
 
 			if (*ite == NativeSymbols::epsilon || !IsNullable(*ite)) {
 				break;
@@ -73,35 +73,35 @@ void LR0::AddLR1Items(LR1Itemset& answer, const GrammarSymbol& lhs) {
 		}
 
 		if (ite == tc->symbols.end()) {
-			LR1Item newItem(Math::MakeDword(index, gi), dpos);
-			answer.insert(newItem);
+			LR1ItemPtr newItem = new LR1Item(Math::MakeDword(index, gi), dpos);
+			answer->insert(newItem);
 		}
 	}
 }
 
-bool LR0::IsNullable(const GrammarSymbol& symbol) {
+bool LR0::IsNullable(const GrammarSymbolPtr& symbol) {
 	GrammarSymbolSet& firsts = firstSets_->at(symbol);
 	return firsts.find(NativeSymbols::epsilon) != firsts.end();
 }
 
-void LR0::CalculateClosure(LR1Itemset& answer) {
+void LR0::CalculateClosure(LR1ItemsetPtr& answer) {
 	for (; CalculateClosureOnePass(answer);) {
 	}
 }
 
-bool LR0::CalculateClosureOnePass(LR1Itemset& answer) {
-	LR1Itemset newItems;
-	for (LR1Itemset::iterator isi = answer.begin(); isi != answer.end(); ++isi) {
-		const LR1Item& current = *isi;
-		const Condinate* cond = env_->grammars.GetTargetCondinate(current.GetCpos(), nullptr);
+bool LR0::CalculateClosureOnePass(LR1ItemsetPtr& answer) {
+	LR1ItemsetPtr newItems = new LR1Itemset;
+	for (LR1Itemset::iterator isi = answer->begin(); isi != answer->end(); ++isi) {
+		const LR1ItemPtr& current = *isi;
+		const Condinate* cond = env_->grammars.GetTargetCondinate(current->GetCpos(), nullptr);
 
-		if (current.GetDpos() >= (int)cond->symbols.size()) {
+		if (current->GetDpos() >= (int)cond->symbols.size()) {
 			continue;
 		}
 
-		const GrammarSymbol& b = cond->symbols[current.GetDpos()];
+		const GrammarSymbolPtr& b = cond->symbols[current->GetDpos()];
 
-		if (b.SymbolType() == GrammarSymbolTerminal) {
+		if (b->SymbolType() == GrammarSymbolTerminal) {
 			continue;
 		}
 
@@ -109,14 +109,14 @@ bool LR0::CalculateClosureOnePass(LR1Itemset& answer) {
 	}
 
 	bool setChanged = false;
-	for (LR1Itemset::const_iterator ite = newItems.begin(); ite != newItems.end(); ++ite) {
-		setChanged = answer.insert(*ite) || setChanged;
+	for (LR1Itemset::const_iterator ite = newItems->begin(); ite != newItems->end(); ++ite) {
+		setChanged = answer->insert(*ite) || setChanged;
 	}
 
 	return setChanged;
 }
 
-bool LR0::GetLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const GrammarSymbol& symbol) {
+bool LR0::GetLR1EdgeTarget(LR1ItemsetPtr& answer, const LR1ItemsetPtr& src, const GrammarSymbolPtr& symbol) {
 	LR1EdgeTable::iterator pos = edges_.find(src, symbol);
 	if (pos != edges_.end()) {
 		answer = pos->second;
@@ -124,7 +124,7 @@ bool LR0::GetLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const Gram
 	}
 
 	bool newSetCreated = CalculateLR1EdgeTarget(answer, src, symbol);
-	if (!answer.empty()) {
+	if (!answer->empty()) {
 		edges_.insert(src, symbol, answer);
 		return newSetCreated;
 	}
@@ -132,32 +132,32 @@ bool LR0::GetLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const Gram
 	return false;
 }
 
-bool LR0::CalculateLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const GrammarSymbol& symbol) {
-	for (LR1Itemset::const_iterator ite = src.begin(); ite != src.end(); ++ite) {
-		const Condinate* cond = env_->grammars.GetTargetCondinate(ite->GetCpos(), nullptr);
+bool LR0::CalculateLR1EdgeTarget(LR1ItemsetPtr& answer, const LR1ItemsetPtr& src, const GrammarSymbolPtr& symbol) {
+	for (LR1Itemset::const_iterator ite = src->begin(); ite != src->end(); ++ite) {
+		const Condinate* cond = env_->grammars.GetTargetCondinate((*ite)->GetCpos(), nullptr);
 
 		if (cond->symbols.front() == NativeSymbols::epsilon) {
 			continue;
 		}
 
-		if (ite->GetDpos() >= (int)cond->symbols.size() || cond->symbols[ite->GetDpos()] != symbol) {
+		if ((*ite)->GetDpos() >= (int)cond->symbols.size() || cond->symbols[(*ite)->GetDpos()] != symbol) {
 			continue;
 		}
 
-		LR1Item item(ite->GetCpos(), ite->GetDpos() + 1);
-		answer.insert(item);
+		LR1ItemPtr item = new LR1Item((*ite)->GetCpos(), (*ite)->GetDpos() + 1);
+		answer->insert(item);
 	}
 
-	if (answer.empty()) {
+	if (answer->empty()) {
 		return false;
 	}
 
 	CalculateClosure(answer);
 
 	std::pair<LR1ItemsetContainer::iterator, bool> status = itemsets_.insert(answer);
-	if (answer.GetName().empty()) {
+	if (answer->GetName().empty()) {
 		if (status.second) {
-			answer.SetName(std::to_string(itemsets_.size() - 1));
+			answer->SetName(std::to_string(itemsets_.size() - 1));
 		}
 		else {
 			answer = *status.first;

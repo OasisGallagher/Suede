@@ -411,7 +411,7 @@ class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureMan
 
 public:
 	RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height) {
-		RenderTexture texture = NewRenderTexture();
+		RenderTexture texture = new IRenderTexture();
 		texture->Create(format, width, height);
 		return texture;
 	}
@@ -429,7 +429,7 @@ RenderTexture RenderTextureUtility::GetDefault() {
 	static RenderTexture screen;
 	
 	if (!screen) {
-		screen = Factory::Create<ScreenRenderTexture>();
+		screen = new IScreenRenderTexture();
 		screen->Create(RenderTextureFormat::Rgb, 0, 0);
 	}
 
@@ -754,7 +754,7 @@ bool MRTRenderTextureInternal::AddColorTexture(TextureFormat format) {
 		return false;
 	}
 
-	colorTextures_[index_] = NewTexture2D();
+	colorTextures_[index_] = new ITexture2D();
 	colorTextures_[index_]->Create(format, nullptr, ColorStreamFormat::Rgba, width_, height_, 4);
 	framebuffer_->SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + index_), colorTextures_[index_]->GetNativePointer());
 	++index_;

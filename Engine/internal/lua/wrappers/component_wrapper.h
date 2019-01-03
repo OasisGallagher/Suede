@@ -9,7 +9,7 @@
 
 class Component_Wrapper {
 	static int ToString(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 
 		lua_pushstring(L, String::Format("Component@0x%p", _p.get()).c_str());
 		return 1;
@@ -36,21 +36,21 @@ class Component_Wrapper {
 	}
 	// virtual void Awake()
 	static int Awake(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		_p->Awake();
 		return 0;
 	}
 
 	// virtual void Update()
 	static int Update(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		_p->Update();
 		return 0;
 	}
 
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		Rect normalizedRect = Lua::get<Rect>(L, 4);
 		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
 		RenderTexture src = Lua::get<RenderTexture>(L, 2);
@@ -61,13 +61,13 @@ class Component_Wrapper {
 
 	// bool GetEnabled()
 	static int GetEnabled(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		return Lua::push(L, _p->GetEnabled());
 	}
 
 	// void SetEnabled(bool value)
 	static int SetEnabled(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		bool value = Lua::get<bool>(L, 2);
 		
 		_p->SetEnabled(value);
@@ -76,7 +76,7 @@ class Component_Wrapper {
 
 	// void SetGameObject(GameObject value)
 	static int SetGameObject(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		GameObject value = Lua::get<GameObject>(L, 2);
 		
 		_p->SetGameObject(value);
@@ -85,26 +85,26 @@ class Component_Wrapper {
 
 	// GameObject GetGameObject()
 	static int GetGameObject(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		return Lua::push(L, _p->GetGameObject());
 	}
 
 	// Transform GetTransform()
 	static int GetTransform(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		return Lua::push(L, _p->GetTransform());
 	}
 
 	// void CullingUpdate()
 	static int CullingUpdate(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		_p->CullingUpdate();
 		return 0;
 	}
 
 	// int GetUpdateStrategy()
 	static int GetUpdateStrategy(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
@@ -122,14 +122,14 @@ class Component_Wrapper {
 
 	// virtual bool AllowMultiple()
 	static int AllowMultiple(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		return Lua::push(L, _p->AllowMultiple());
 	}
 
 	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID()
 	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
 	static int IsComponentType(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			
@@ -148,7 +148,7 @@ class Component_Wrapper {
 
 	// virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID()
 	static int GetComponentInstanceGUID(lua_State* L) {
-		Component& _p = *Lua::callerSharedPtr<Component>(L);
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
 		return Lua::push(L, _p->GetComponentInstanceGUID());
 	}
 
@@ -161,7 +161,7 @@ public:
 		fields.push_back(luaL_Reg{ "Component", ComponentStatic });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<Component> },
+			{ "__gc", Lua::deleteIntrusivePtr<Component> },
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
@@ -191,31 +191,12 @@ class ComponentUtility_Wrapper {
 		return 1;
 	}
 
-	static int ToStringStatic(lua_State* L) {
-		lua_pushstring(L, "static ComponentUtility");
-		return 1;
-	}
-
-	static int ComponentUtilityStatic(lua_State* L) {
-		lua_newtable(L);
-
-		luaL_Reg funcs[] = {
-			{"__tostring", ToStringStatic },
-			{ nullptr, nullptr }
-		};
-
-		luaL_setfuncs(L, funcs, 0);
-
-		return 1;
-	}
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<ComponentUtility>(L);
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		fields.push_back(luaL_Reg{ "ComponentUtility", ComponentUtilityStatic });
-
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<ComponentUtility> },
 			{ "__tostring", ToString }, 

@@ -28,7 +28,6 @@ class World_Wrapper {
 			{ "Finalize", Finalize },
 			{ "Update", Update },
 			{ "CullingUpdate", CullingUpdate },
-			{ "CreateObject", CreateObject },
 			{ "DestroyGameObject", DestroyGameObject },
 			{ "Import", Import },
 			{ "GetRootTransform", GetRootTransform },
@@ -36,6 +35,7 @@ class World_Wrapper {
 			{ "FireEvent", FireEvent },
 			{ "FireEventImmediate", FireEventImmediate },
 			{ "GetDecals", GetDecals },
+			{ "GetGameObjectsOfComponent", GetGameObjectsOfComponent },
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
@@ -66,13 +66,6 @@ class World_Wrapper {
 	static int CullingUpdate(lua_State* L) {
 		World::CullingUpdate();
 		return 0;
-	}
-
-	// static Object CreateObject(ObjectType type)
-	static int CreateObject(lua_State* L) {
-		ObjectType type = Lua::get<ObjectType>(L, 1);
-		
-		return Lua::push(L, World::CreateObject(type));
 	}
 
 	// static void DestroyGameObject(uint id)
@@ -138,6 +131,13 @@ class World_Wrapper {
 		
 		World::GetDecals(container);
 		return 0;
+	}
+
+	// static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid)
+	static int GetGameObjectsOfComponent(lua_State* L) {
+		suede_guid guid = Lua::get<suede_guid>(L, 1);
+		
+		return Lua::pushList(L, World::GetGameObjectsOfComponent(guid));
 	}
 
 public:

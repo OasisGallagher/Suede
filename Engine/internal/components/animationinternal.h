@@ -55,8 +55,8 @@ public:
 	virtual void SetDuration(float value) { duration_ = value; }
 	virtual float GetDuration() { return duration_; }
 
-	virtual void SetAnimation(Animation value) { animation_ = value; }
-	virtual Animation GetAnimation() { return animation_.lock(); }
+	virtual void SetAnimation(Animation value) { animation_ = value.get(); }
+	virtual Animation GetAnimation() { return animation_; }
 
 	virtual bool Sample(float time);
 
@@ -69,7 +69,7 @@ private:
 	float(*wrapper_)(float, float);
 	AnimationFrame frame_;
 	AnimationWrapMode wrapMode_;
-	suede_weak_ref<Animation> animation_;
+	IAnimation* animation_;
 };
 
 class AnimationStateInternal : public ObjectInternal {
@@ -125,7 +125,7 @@ public:
 	virtual void CullingUpdate();
 
 public:
-	virtual void AddClip(Animation self, const std::string& name, AnimationClip value);
+	virtual void AddClip(IAnimation* self, const std::string& name, AnimationClip value);
 	virtual AnimationClip GetClip(const std::string& name);
 
 	virtual void SetRootTransform(const glm::mat4& value) { rootTransform_ = value; }

@@ -3,12 +3,12 @@
 #include "containers/table.h"
 #include "grammar/grammarsymbol.h"
 
-class LRGotoTable : public table <int, GrammarSymbol, int> {
+class LRGotoTable : public table <int, GrammarSymbolPtr, int> {
 public:
 	std::string ToString() const;
 };
 
-class LRActionTable : public table <int, GrammarSymbol, LRAction> {
+class LRActionTable : public table <int, GrammarSymbolPtr, LRAction> {
 public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };
@@ -23,8 +23,8 @@ public:
 	friend class LRParser;
 
 public:
-	int GetGoto(int current, const GrammarSymbol& symbol);
-	LRAction GetAction(int current, const GrammarSymbol& symbol);
+	int GetGoto(int current, const GrammarSymbolPtr& symbol);
+	LRAction GetAction(int current, const GrammarSymbolPtr& symbol);
 	
 	std::string ToString(const GrammarContainer& grammars) const;
 

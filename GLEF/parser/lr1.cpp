@@ -7,9 +7,6 @@
 #include "glefdefines.h"
 #include "grammar/grammar.h"
 
-Forwards::Forwards() {
-}
-
 bool Forwards::operator <(const Forwards& other) const {
 	const_iterator first1 = begin(), first2 = other.begin();
 	for (; first1 != end() && first2 != other.end(); ++first1, ++first2) {
@@ -25,135 +22,97 @@ bool Forwards::operator <(const Forwards& other) const {
 	return first1 == end();
 }
 
-void Forwards::erase(const GrammarSymbol& symbol) {
+void Forwards::erase(const GrammarSymbolPtr& symbol) {
 	iterator pos = cont_.find(symbol);
 	if (pos != cont_.end()) {
 		cont_.erase(pos);
 	}
 }
 
-bool Forwards::insert(const GrammarSymbol& symbol) {
+bool Forwards::insert(const GrammarSymbolPtr& symbol) {
 	return cont_.insert(symbol).second;
 }
 
-LR1Item::LR1Item() {
-	ptr_ = new Impl;
-	ptr_->cpos = 0;
-	ptr_->dpos = 0;
-}
-
-LR1Item::LR1Item(int cpos, int dpos) {
-	ptr_ = new Impl;
-	ptr_->cpos = cpos;
-	ptr_->dpos = dpos;
-}
-
-LR1Item::LR1Item(int cpos, int dpos, const Forwards& forwards) {
-	ptr_ = new Impl;
-	ptr_->cpos = cpos;
-	ptr_->dpos = dpos;
-	ptr_->forwards = forwards;
-}
-
-bool LR1Item::operator < (const LR1Item& other) const {
-	if (ptr_->cpos == other.ptr_->cpos) {
-		return ptr_->dpos < other.ptr_->dpos;
+int LR1Item::Compare(const LR1Item& other) const {
+	int c = cpos_ - other.cpos_;
+	if (c != 0) {
+		return Math::Sign(c);
 	}
 
-	return ptr_->cpos < other.ptr_->cpos;
-}
-
-bool LR1Item::operator ==(const LR1Item& other) const {
-	return ptr_->cpos == other.ptr_->cpos && ptr_->dpos == other.ptr_->dpos;
+	return Math::Sign(dpos_ - other.dpos_);
 }
 
 std::string LR1Item::ToRawString() const {
-	return String::Format("(%d, %d, %d)", Math::Highword(ptr_->cpos), Math::Loword(ptr_->cpos), ptr_->dpos);
+	return String::Format("(%d, %d, %d)", Math::Highword(cpos_), Math::Loword(cpos_), dpos_);
 }
 
 std::string LR1Item::ToString(const GrammarContainer& grammars) const {
 	Grammar* g = nullptr;
-	const Condinate* cond = grammars.GetTargetCondinate(ptr_->cpos, &g);
+	const Condinate* cond = grammars.GetTargetCondinate(cpos_, &g);
 
 	std::ostringstream oss;
-	oss << g->GetLhs().ToString() << " : ";
+	oss << g->GetLhs()->ToString() << " : ";
 
 	const char* seperator = "";
 	for (size_t i = 0; i < cond->symbols.size(); ++i) {
-		if (i == ptr_->dpos) {
+		if (i == dpos_) {
 			oss << seperator;
 			seperator = " ";
 			oss << "¡¤";
 		}
 
 		oss << seperator;
-		oss << cond->symbols[i].ToString();
+		oss << cond->symbols[i]->ToString();
 		seperator = " ";
 	}
 
-	if (ptr_->dpos == (int)cond->symbols.size()) {
+	if (dpos_ == (int)cond->symbols.size()) {
 		oss << seperator << "¡¤";
 	}
 
 	oss << ", ";
-	oss << "( " << String::Concat(ptr_->forwards.begin(), ptr_->forwards.end(), "/") << " )";
+	oss << "( " << String::Concat(forwards_.begin(), forwards_.end(), [](const GrammarSymbolPtr& x) { return x->ToString(); }, "/") << " )";
 
 	return oss.str();
 }
 
-LR1Itemset::LR1Itemset() {
-	ptr_ = new container_type;
-}
-
-bool LR1Itemset::operator < (const LR1Itemset& other) const {
+int LR1Itemset::Compare(const LR1Itemset& other) const {
 	const_iterator first1 = begin(), first2 = other.begin();
 	for (; first1 != end() && first2 != other.end(); ++first1, ++first2) {
-		if (!(*first1 == *first2)) {
-			return *first1 < *first2;
-		}
+		int c = (*first1)->Compare(**first2);
+		if (c != 0) { return c; }
 	}
 
 	if (first1 == end() && first2 == other.end()) {
-		return false;
+		return 0;
 	}
 
-	return first1 == end();
+	return first1 == end() ? -1 : 1;
 }
 
-bool LR1Itemset::operator == (const LR1Itemset& other) const {
-	const_iterator first1 = begin(), first2 = other.begin();
-	for (; first1 != end() && first2 != other.end(); ++first1, ++first2) {
-		if (!(*first1 == *first2)) {
-			return false;
-		}
-	}
-
-	return first1 == end() && first2 == other.end();
-}
-
-bool LR1Itemset::insert(const LR1Item& item) {
-	std::pair<iterator, bool> state = ptr_->insert(item);
+bool LR1Itemset::insert(const LR1ItemPtr& item) {
+	std::pair<iterator, bool> state = container_.insert(item);
 	if (state.second) {
 		return true;
 	}
 
 	bool result = false;
 
-	LR1Item& old = (LR1Item&)*state.first;
-	const Forwards& forwards = item.GetForwards();
+	LR1ItemPtr& old = (LR1ItemPtr&)*state.first;
+	const Forwards& forwards = item->GetForwards();
 	for (Forwards::const_iterator ite = forwards.begin(); ite != forwards.end(); ++ite) {
-		result = old.GetForwards().insert(*ite) || result;
+		result = old->GetForwards().insert(*ite) || result;
 	}
 
 	return result;
 }
 
 const std::string& LR1Itemset::GetName() const {
-	return ptr_->name_;
+	return name_;
 }
 
 void LR1Itemset::SetName(const std::string& name) {
-	ptr_->name_ = name;
+	name_ = name;
 }
 
 std::string LR1Itemset::ToString(const GrammarContainer& grammars) const {
@@ -164,13 +123,13 @@ std::string LR1Itemset::ToString(const GrammarContainer& grammars) const {
 
 	const char* seperator = "";
 	for (const_iterator ite = begin(); ite != end(); ++ite) {
-		if (!ite->IsCore()) {
+		if (!(*ite)->IsCore()) {
 			continue;
 		}
 
 		oss << seperator;
 		seperator = ", ";
-		oss << "{ " << ite->ToString(grammars) << " }";
+		oss << "{ " << (*ite)->ToString(grammars) << " }";
 	}
 
 	oss << " }";
@@ -185,7 +144,7 @@ std::string LR1ItemsetContainer::ToString(const GrammarContainer& grammars) cons
 	for (const_iterator ite = begin(); ite != end(); ++ite) {
 		oss << seperator;
 		seperator = "\n";
-		oss << ite->ToString(grammars);
+		oss << (*ite)->ToString(grammars);
 	}
 
 	return oss.str();
@@ -198,13 +157,13 @@ std::string Propagations::ToString(const GrammarContainer& grammars) const {
 	for (const_iterator ite = begin(); ite != end(); ++ite) {
 		oss << seperator;
 		seperator = "\n";
-		oss << ite->first.ToString(grammars) << " >> ( ";
+		oss << ite->first->ToString(grammars) << " >> ( ";
 		const char* seperator2 = "";
-		for (LR1Itemset::const_iterator ite2 = ite->second.begin();
-			ite2 != ite->second.end(); ++ite2) {
+		for (LR1Itemset::const_iterator ite2 = ite->second->begin();
+			ite2 != ite->second->end(); ++ite2) {
 			oss << seperator2;
 			seperator2 = ", ";
-			oss << ite2->ToString(grammars);
+			oss << (*ite2)->ToString(grammars);
 		}
 
 		oss << " )";
@@ -222,13 +181,13 @@ std::string LR1EdgeTable::ToString(const GrammarContainer& grammars) const {
 		seperator = "\n";
 
 		oss << "( ";
-		oss << ite->first.first.GetName();
+		oss << ite->first.first->GetName();
 		oss << ", ";
-		oss << ite->first.second.ToString();
+		oss << (*ite->first.second).ToString();
 		oss << " )";
 
 		oss << " => ";
-		oss << ite->second.GetName();
+		oss << ite->second->GetName();
 	}
 
 	return oss.str();

@@ -35,8 +35,8 @@ protected:
 	virtual void Clear();
 
 protected:
-	Grammar* FindGrammar(const GrammarSymbol& lhs, int* index = nullptr);
-	GrammarSymbol CreateSymbol(const std::string& text);
+	Grammar* FindGrammar(const GrammarSymbolPtr& lhs, int* index = nullptr);
+	GrammarSymbolPtr CreateSymbol(const std::string& text);
 	bool MergeNonEpsilonElements(GrammarSymbolSet& dest, const GrammarSymbolSet& src);
 
 	void CreateFirstSets();

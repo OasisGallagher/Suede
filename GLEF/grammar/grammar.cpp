@@ -12,7 +12,7 @@ std::string Condinate::ToString() const {
 
 	const char* space = "";
 	for (SymbolVector::const_iterator ite = symbols.begin(); ite != symbols.end(); ++ite) {
-		oss << space << ite->ToString();
+		oss << space << (*ite)->ToString();
 		space = " ";
 	}
 
@@ -50,7 +50,7 @@ std::string CondinateContainer::ToString() const {
 Grammar::Grammar() {
 }
 
-Grammar::Grammar(const GrammarSymbol& lhs)
+Grammar::Grammar(const GrammarSymbolPtr& lhs)
 	: lhs_(lhs) {
 }
 
@@ -61,11 +61,11 @@ Grammar::~Grammar() {
 	}
 }
 
-void Grammar::SetLhs(const GrammarSymbol& symbol) {
+void Grammar::SetLhs(const GrammarSymbolPtr& symbol) {
 	lhs_ = symbol;
 }
 
-const GrammarSymbol& Grammar::GetLhs() const {
+const GrammarSymbolPtr& Grammar::GetLhs() const {
 	return lhs_;
 }
 
@@ -88,7 +88,7 @@ std::string Grammar::ToString() const {
 	std::ostringstream oss;
 	oss.width(22);
 	oss.setf(std::ios::left);
-	oss << lhs_.ToString();
+	oss << lhs_->ToString();
 
 	oss << "\n";
 	oss << "\t: ";
@@ -97,7 +97,7 @@ std::string Grammar::ToString() const {
 	return oss.str();
 }
 
-Grammar* GrammarContainer::FindGrammar(const GrammarSymbol& lhs, int* index) {
+Grammar* GrammarContainer::FindGrammar(const GrammarSymbolPtr& lhs, int* index) {
 	Grammar* g = nullptr;
 	int pos = 0;
 	for (GrammarContainer::iterator ite = begin(); ite != end(); ++ite, ++pos) {
@@ -112,7 +112,7 @@ Grammar* GrammarContainer::FindGrammar(const GrammarSymbol& lhs, int* index) {
 	}
 
 	if (g == nullptr) {
-		Debug::LogError("can not find grammar with lhs = %s.", lhs.ToString().c_str());
+		Debug::LogError("can not find grammar with lhs = %s.", lhs->ToString().c_str());
 	}
 
 	return g;

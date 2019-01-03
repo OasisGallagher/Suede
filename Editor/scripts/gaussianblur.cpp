@@ -5,7 +5,7 @@ SUEDE_DEFINE_COMPONENT(GaussianBlur, ImageEffect)
 
 void GaussianBlur::Awake() {
 	amount_.reset(5, 1, 10);
-	material_ = NewMaterial();
+	material_ = new IMaterial();
 	material_->SetShader(Resources::FindShader("gaussianblur"));
 }
 

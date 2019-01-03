@@ -27,9 +27,9 @@ void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _suede_dins
 void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawWireCuboid(center, size); }
 
 GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
-	mesh_ = NewMesh();
+	mesh_ = new IMesh();
 
-	lineMaterial_ = NewMaterial();
+	lineMaterial_ = new IMaterial();
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", glm::mat4(1));
 
@@ -125,7 +125,7 @@ void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool 
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetSphereCoodrinates(points, indexes, glm::ivec2(15));
 
-	Material material = NewMaterial();
+	Material material = new IMaterial();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));
 	material->SetMatrix4("localToWorldMatrix", Math::TRS(center, glm::quat(), glm::vec3(radius)));
 
@@ -153,7 +153,7 @@ void GizmosInternal::DrawGizmos(const Batch& b) {
 	mesh_->SetAttribute(attribute);
 
 	if (mesh_->GetSubMeshCount() == 0) {
-		mesh_->AddSubMesh(NewSubMesh());
+		mesh_->AddSubMesh(new ISubMesh());
 	}
 
 	TriangleBias bias{ b.indexes.size(), 0, 0 };

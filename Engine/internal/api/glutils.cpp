@@ -27,6 +27,7 @@ static GLenum TopologyToGLEnum(MeshTopology topology) {
 		case MeshTopology::LineStripe: return GL_LINE_STRIP;
 		case MeshTopology::Triangles: return GL_TRIANGLES;
 		case MeshTopology::TriangleStripe: return GL_TRIANGLE_STRIP;
+		case MeshTopology::TriangleFan: return GL_TRIANGLE_FAN;
 	}
 
 	Debug::LogError("unsupported mesh topology  %d.", topology);

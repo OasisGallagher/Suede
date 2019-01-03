@@ -9,7 +9,7 @@
 
 class Texture_Wrapper {
 	static int ToString(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 
 		lua_pushstring(L, String::Format("Texture@0x%p", _p.get()).c_str());
 		return 1;
@@ -17,7 +17,7 @@ class Texture_Wrapper {
 
 	// void Bind(uint index)
 	static int Bind(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		_p->Bind(index);
@@ -26,20 +26,20 @@ class Texture_Wrapper {
 
 	// void Unbind()
 	static int Unbind(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		_p->Unbind();
 		return 0;
 	}
 
 	// uint GetNativePointer()
 	static int GetNativePointer(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetNativePointer());
 	}
 
 	// void SetMinFilterMode(TextureMinFilterMode value)
 	static int SetMinFilterMode(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		TextureMinFilterMode value = Lua::get<TextureMinFilterMode>(L, 2);
 		
 		_p->SetMinFilterMode(value);
@@ -48,13 +48,13 @@ class Texture_Wrapper {
 
 	// TextureMinFilterMode GetMinFilterMode()
 	static int GetMinFilterMode(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetMinFilterMode());
 	}
 
 	// void SetMagFilterMode(TextureMagFilterMode value)
 	static int SetMagFilterMode(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		TextureMagFilterMode value = Lua::get<TextureMagFilterMode>(L, 2);
 		
 		_p->SetMagFilterMode(value);
@@ -63,13 +63,13 @@ class Texture_Wrapper {
 
 	// TextureMagFilterMode GetMagFilterMode()
 	static int GetMagFilterMode(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetMagFilterMode());
 	}
 
 	// void SetWrapModeS(TextureWrapMode value)
 	static int SetWrapModeS(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		TextureWrapMode value = Lua::get<TextureWrapMode>(L, 2);
 		
 		_p->SetWrapModeS(value);
@@ -78,13 +78,13 @@ class Texture_Wrapper {
 
 	// TextureWrapMode GetWrapModeS()
 	static int GetWrapModeS(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetWrapModeS());
 	}
 
 	// void SetWrapModeT(TextureWrapMode value)
 	static int SetWrapModeT(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		TextureWrapMode value = Lua::get<TextureWrapMode>(L, 2);
 		
 		_p->SetWrapModeT(value);
@@ -93,19 +93,19 @@ class Texture_Wrapper {
 
 	// TextureWrapMode GetWrapModeT()
 	static int GetWrapModeT(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetWrapModeT());
 	}
 
 	// uint GetWidth()
 	static int GetWidth(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetWidth());
 	}
 
 	// uint GetHeight()
 	static int GetHeight(lua_State* L) {
-		Texture& _p = *Lua::callerSharedPtr<Texture>(L);
+		Texture& _p = *Lua::callerIntrusivePtr<Texture>(L);
 		return Lua::push(L, _p->GetHeight());
 	}
 
@@ -116,7 +116,7 @@ public:
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<Texture> },
+			{ "__gc", Lua::deleteIntrusivePtr<Texture> },
 			{ "__tostring", ToString }, 
 			{ "Bind", Bind },
 			{ "Unbind", Unbind },
@@ -140,11 +140,11 @@ public:
 
 class Texture2D_Wrapper {
 	static int NewTexture2D(lua_State* L) {
-		return Lua::fromShared(L, ::NewTexture2D());
+		return Lua::fromIntrusive(L, new ITexture2D());
 	}
 
 	static int ToString(lua_State* L) {
-		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
+		Texture2D& _p = *Lua::callerIntrusivePtr<Texture2D>(L);
 
 		lua_pushstring(L, String::Format("Texture2D@0x%p", _p.get()).c_str());
 		return 1;
@@ -152,7 +152,7 @@ class Texture2D_Wrapper {
 
 	// bool Load(const std::string& path)
 	static int Load(lua_State* L) {
-		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
+		Texture2D& _p = *Lua::callerIntrusivePtr<Texture2D>(L);
 		std::string path = Lua::get<std::string>(L, 2);
 		
 		return Lua::push(L, _p->Load(path));
@@ -160,13 +160,13 @@ class Texture2D_Wrapper {
 
 	// TextureFormat GetFormat()
 	static int GetFormat(lua_State* L) {
-		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
+		Texture2D& _p = *Lua::callerIntrusivePtr<Texture2D>(L);
 		return Lua::push(L, _p->GetFormat());
 	}
 
 	// bool EncodeToPNG(std::vector<uchar>& data)
 	static int EncodeToPNG(lua_State* L) {
-		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
+		Texture2D& _p = *Lua::callerIntrusivePtr<Texture2D>(L);
 		std::vector<uchar> data = Lua::getList<uchar>(L, 2);
 		
 		return Lua::push(L, _p->EncodeToPNG(data));
@@ -174,7 +174,7 @@ class Texture2D_Wrapper {
 
 	// bool EncodeToJPG(std::vector<uchar>& data)
 	static int EncodeToJPG(lua_State* L) {
-		Texture2D& _p = *Lua::callerSharedPtr<Texture2D>(L);
+		Texture2D& _p = *Lua::callerIntrusivePtr<Texture2D>(L);
 		std::vector<uchar> data = Lua::getList<uchar>(L, 2);
 		
 		return Lua::push(L, _p->EncodeToJPG(data));
@@ -189,7 +189,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewTexture2D", NewTexture2D });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<Texture2D> },
+			{ "__gc", Lua::deleteIntrusivePtr<Texture2D> },
 			{ "__tostring", ToString }, 
 			{ "Load", Load },
 			{ "GetFormat", GetFormat },
@@ -204,11 +204,11 @@ public:
 
 class TextureCube_Wrapper {
 	static int NewTextureCube(lua_State* L) {
-		return Lua::fromShared(L, ::NewTextureCube());
+		return Lua::fromIntrusive(L, new ITextureCube());
 	}
 
 	static int ToString(lua_State* L) {
-		TextureCube& _p = *Lua::callerSharedPtr<TextureCube>(L);
+		TextureCube& _p = *Lua::callerIntrusivePtr<TextureCube>(L);
 
 		lua_pushstring(L, String::Format("TextureCube@0x%p", _p.get()).c_str());
 		return 1;
@@ -216,7 +216,7 @@ class TextureCube_Wrapper {
 
 	// bool Load(const std::string textures[6])
 	static int Load(lua_State* L) {
-		TextureCube& _p = *Lua::callerSharedPtr<TextureCube>(L);
+		TextureCube& _p = *Lua::callerIntrusivePtr<TextureCube>(L);
 		std::vector<std::string> textures = Lua::getList<std::string>(L, 2);
 		
 		return Lua::push(L, _p->Load(textures.data()));
@@ -231,7 +231,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewTextureCube", NewTextureCube });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<TextureCube> },
+			{ "__gc", Lua::deleteIntrusivePtr<TextureCube> },
 			{ "__tostring", ToString }, 
 			{ "Load", Load },
 			{ nullptr, nullptr }
@@ -243,11 +243,11 @@ public:
 
 class TextureBuffer_Wrapper {
 	static int NewTextureBuffer(lua_State* L) {
-		return Lua::fromShared(L, ::NewTextureBuffer());
+		return Lua::fromIntrusive(L, new ITextureBuffer());
 	}
 
 	static int ToString(lua_State* L) {
-		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L);
+		TextureBuffer& _p = *Lua::callerIntrusivePtr<TextureBuffer>(L);
 
 		lua_pushstring(L, String::Format("TextureBuffer@0x%p", _p.get()).c_str());
 		return 1;
@@ -255,13 +255,13 @@ class TextureBuffer_Wrapper {
 
 	// uint GetSize()
 	static int GetSize(lua_State* L) {
-		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L);
+		TextureBuffer& _p = *Lua::callerIntrusivePtr<TextureBuffer>(L);
 		return Lua::push(L, _p->GetSize());
 	}
 
 	// bool Create(uint size)
 	static int Create(lua_State* L) {
-		TextureBuffer& _p = *Lua::callerSharedPtr<TextureBuffer>(L);
+		TextureBuffer& _p = *Lua::callerIntrusivePtr<TextureBuffer>(L);
 		uint size = Lua::get<uint>(L, 2);
 		
 		return Lua::push(L, _p->Create(size));
@@ -276,7 +276,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewTextureBuffer", NewTextureBuffer });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<TextureBuffer> },
+			{ "__gc", Lua::deleteIntrusivePtr<TextureBuffer> },
 			{ "__tostring", ToString }, 
 			{ "GetSize", GetSize },
 			{ "Create", Create },
@@ -289,11 +289,11 @@ public:
 
 class RenderTexture_Wrapper {
 	static int NewRenderTexture(lua_State* L) {
-		return Lua::fromShared(L, ::NewRenderTexture());
+		return Lua::fromIntrusive(L, new IRenderTexture());
 	}
 
 	static int ToString(lua_State* L) {
-		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
+		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
 
 		lua_pushstring(L, String::Format("RenderTexture@0x%p", _p.get()).c_str());
 		return 1;
@@ -301,7 +301,7 @@ class RenderTexture_Wrapper {
 
 	// bool Create(RenderTextureFormat format, uint width, uint height)
 	static int Create(lua_State* L) {
-		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
+		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
 		uint height = Lua::get<uint>(L, 4);
 		uint width = Lua::get<uint>(L, 3);
 		RenderTextureFormat format = Lua::get<RenderTextureFormat>(L, 2);
@@ -311,7 +311,7 @@ class RenderTexture_Wrapper {
 
 	// void Resize(uint width, uint height)
 	static int Resize(lua_State* L) {
-		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
+		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
 		uint height = Lua::get<uint>(L, 3);
 		uint width = Lua::get<uint>(L, 2);
 		
@@ -321,7 +321,7 @@ class RenderTexture_Wrapper {
 
 	// void Clear(const Rect& normalizedRect, const Color& color, float depth)
 	static int Clear(lua_State* L) {
-		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
+		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
 		float depth = Lua::get<float>(L, 4);
 		Color color = Lua::get<Color>(L, 3);
 		Rect normalizedRect = Lua::get<Rect>(L, 2);
@@ -332,7 +332,7 @@ class RenderTexture_Wrapper {
 
 	// void BindWrite(const Rect& normalizedRect)
 	static int BindWrite(lua_State* L) {
-		RenderTexture& _p = *Lua::callerSharedPtr<RenderTexture>(L);
+		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
 		Rect normalizedRect = Lua::get<Rect>(L, 2);
 		
 		_p->BindWrite(normalizedRect);
@@ -348,7 +348,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewRenderTexture", NewRenderTexture });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<RenderTexture> },
+			{ "__gc", Lua::deleteIntrusivePtr<RenderTexture> },
 			{ "__tostring", ToString }, 
 			{ "Create", Create },
 			{ "Resize", Resize },
@@ -431,11 +431,11 @@ public:
 
 class MRTRenderTexture_Wrapper {
 	static int NewMRTRenderTexture(lua_State* L) {
-		return Lua::fromShared(L, ::NewMRTRenderTexture());
+		return Lua::fromIntrusive(L, new IMRTRenderTexture());
 	}
 
 	static int ToString(lua_State* L) {
-		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
+		MRTRenderTexture& _p = *Lua::callerIntrusivePtr<MRTRenderTexture>(L);
 
 		lua_pushstring(L, String::Format("MRTRenderTexture@0x%p", _p.get()).c_str());
 		return 1;
@@ -443,7 +443,7 @@ class MRTRenderTexture_Wrapper {
 
 	// bool AddColorTexture(TextureFormat format)
 	static int AddColorTexture(lua_State* L) {
-		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
+		MRTRenderTexture& _p = *Lua::callerIntrusivePtr<MRTRenderTexture>(L);
 		TextureFormat format = Lua::get<TextureFormat>(L, 2);
 		
 		return Lua::push(L, _p->AddColorTexture(format));
@@ -451,7 +451,7 @@ class MRTRenderTexture_Wrapper {
 
 	// Texture2D GetColorTexture(uint index)
 	static int GetColorTexture(lua_State* L) {
-		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
+		MRTRenderTexture& _p = *Lua::callerIntrusivePtr<MRTRenderTexture>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		return Lua::push(L, _p->GetColorTexture(index));
@@ -459,7 +459,7 @@ class MRTRenderTexture_Wrapper {
 
 	// uint GetColorTextureCount()
 	static int GetColorTextureCount(lua_State* L) {
-		MRTRenderTexture& _p = *Lua::callerSharedPtr<MRTRenderTexture>(L);
+		MRTRenderTexture& _p = *Lua::callerIntrusivePtr<MRTRenderTexture>(L);
 		return Lua::push(L, _p->GetColorTextureCount());
 	}
 
@@ -472,7 +472,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewMRTRenderTexture", NewMRTRenderTexture });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteSharedPtr<MRTRenderTexture> },
+			{ "__gc", Lua::deleteIntrusivePtr<MRTRenderTexture> },
 			{ "__tostring", ToString }, 
 			{ "AddColorTexture", AddColorTexture },
 			{ "GetColorTexture", GetColorTexture },

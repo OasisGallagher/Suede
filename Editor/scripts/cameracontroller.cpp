@@ -10,6 +10,8 @@
 #include "cameracontroller.h"
 #include "windows/hierarchy/hierarchy.h"
 
+#define ARC_BALL
+
 SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
 
 CameraController::CameraController() 
@@ -92,17 +94,17 @@ void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::i
 	}
 
 	if (oldPos != mousePos) {
-#if ARC_BALL
+#ifdef ARC_BALL
 		glm::vec3 va = calculateArcBallVector(oldPos);
 		glm::vec3 vb = calculateArcBallVector(mousePos);
 
 		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
 		rot = glm::pow(rot, 1 / 5.f);
 
-		glm::vec3 dir = camera_->GetPosition() - selected->GetPosition();
-		camera_->SetPosition(selected->GetPosition() + rot * dir);
+		glm::vec3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
+		camera_->SetPosition(selected->GetTransform()->GetPosition() + rot * dir);
 
-		glm::vec3 forward = -normalize(selected->GetPosition() - camera_->GetPosition());
+		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
 		glm::vec3 up = rot * camera_->GetUp();
 		glm::vec3 right = glm::cross(up, forward);
 		up = glm::cross(forward, right);
@@ -122,17 +124,18 @@ void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::i
 
 		camera_->SetPosition(bp);
 
-		glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
+		glm::quat q(glm::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), glm::vec3(0, 1, 0)));
+		camera_->SetRotation(glm::conjugate(q));
+
+		/*glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
 		glm::vec3 right = qx * camera_->GetRight();
 		right.y = 0;
 		Math::Orthogonalize(right, forward);
 
 		glm::vec3 up = glm::cross(forward, right);
-		
+
 		glm::quat q(glm::mat3(right, up, forward));
-		camera_->SetRotation(glm::normalize(q));
-		
-		//camera_->SetRotation(glm::normalize(qy * qx * camera_->GetRotation()));
+		camera_->SetRotation(glm::normalize(q));*/
 #endif
 
 		oldPos = mousePos;

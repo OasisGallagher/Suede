@@ -81,9 +81,6 @@
     <ClInclude Include="containers\table.h">
       <Filter>containers\include</Filter>
     </ClInclude>
-    <ClInclude Include="memory\refcount.h">
-      <Filter>memory\include</Filter>
-    </ClInclude>
     <ClInclude Include="memory\memory.h">
       <Filter>memory\include</Filter>
     </ClInclude>
@@ -541,13 +538,13 @@
     <ClInclude Include="tools\typeid.h">
       <Filter>tools\include</Filter>
     </ClInclude>
+    <ClInclude Include="memory\intrusiveptr.h">
+      <Filter>memory\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tools\string.cpp">
       <Filter>tools\src</Filter>
-    </ClCompile>
-    <ClCompile Include="memory\refcount.cpp">
-      <Filter>memory\src</Filter>
     </ClCompile>
     <ClCompile Include="os\filesystem.cpp">
       <Filter>os\src</Filter>

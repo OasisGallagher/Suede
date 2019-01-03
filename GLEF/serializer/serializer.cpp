@@ -107,8 +107,8 @@ bool Serializer::LoadSymbols(std::ifstream& file, GrammarSymbolContainer& cont) 
 			return false;
 		}
 
-		GrammarSymbol symbol = SymbolFactory::Create(text);
-		cont.insert(std::make_pair(symbol.ToString(), symbol));
+		GrammarSymbolPtr symbol = SymbolFactory::Create(text);
+		cont.insert(std::make_pair(symbol->ToString(), symbol));
 	}
 
 	return true;
@@ -119,7 +119,7 @@ bool Serializer::SaveGrammars(std::ofstream& file, const GrammarContainer& cont)
 
 	for (GrammarContainer::const_iterator ite = cont.begin(); ite != cont.end(); ++ite) {
 		const Grammar* g = *ite;
-		if (!FileSystem::WriteString(file, g->GetLhs().ToString())) {
+		if (!FileSystem::WriteString(file, g->GetLhs()->ToString())) {
 			return false;
 		}
 
@@ -135,7 +135,7 @@ bool Serializer::SaveGrammars(std::ofstream& file, const GrammarContainer& cont)
 			}
 
 			for (SymbolVector::const_iterator ite2 = c->symbols.begin(); ite2 != c->symbols.end(); ++ite2) {
-				if (!FileSystem::WriteString(file, ite2->ToString())) {
+				if (!FileSystem::WriteString(file, (*ite2)->ToString())) {
 					return false;
 				}
 			}
@@ -161,7 +161,7 @@ bool Serializer::LoadGrammars(std::ifstream& file, GrammarSymbolContainer& termi
 			return false;
 		}
 
-		GrammarSymbol lhs = nonterminalSymbols[ltext];
+		GrammarSymbolPtr lhs = nonterminalSymbols[ltext];
 		if (lhs == NativeSymbols::null) {
 			Debug::LogError("can not find non-terminal symbol %s.", ltext.c_str());
 			return false;
@@ -220,7 +220,7 @@ bool Serializer::LoadCondinates(GrammarSymbolContainer& terminalSymbols, Grammar
 				return false;
 			}
 
-			GrammarSymbol symbol = pos->second;
+			GrammarSymbolPtr symbol = pos->second;
 			symbols.push_back(symbol);
 		}
 
@@ -243,7 +243,7 @@ bool Serializer::SaveLRActionTable(std::ofstream& file, const LRActionTable &act
 			return false;
 		}
 
-		if (!FileSystem::WriteString(file, ite->first.second.ToString())) {
+		if (!FileSystem::WriteString(file, ite->first.second->ToString())) {
 			return false;
 		}
 
@@ -266,7 +266,7 @@ bool Serializer::SaveLRGotoTable(std::ofstream& file, const LRGotoTable &gotoTab
 			return false;
 		}
 
-		if (!FileSystem::WriteString(file, ite->first.second.ToString())) {
+		if (!FileSystem::WriteString(file, ite->first.second->ToString())) {
 			return false;
 		}
 
@@ -295,7 +295,7 @@ bool Serializer::LoadLRActionTable(std::ifstream& file, GrammarSymbolContainer& 
 			return false;
 		}
 
-		GrammarSymbol symbol = terminalSymbols[stext];
+		GrammarSymbolPtr symbol = terminalSymbols[stext];
 		if (symbol == NativeSymbols::null) {
 			Debug::LogError("invalid terminal symbol %s.", stext.c_str());
 			return false;
@@ -333,7 +333,7 @@ bool Serializer::LoadLRGotoTable(std::ifstream& file, GrammarSymbolContainer& no
 			return false;
 		}
 
-		GrammarSymbol symbol = nonterminalSymbols[stext];
+		GrammarSymbolPtr symbol = nonterminalSymbols[stext];
 		if (symbol == NativeSymbols::null) {
 			Debug::LogError("invalid terminal symbol %s.", stext.c_str());
 			return false;

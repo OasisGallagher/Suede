@@ -13,23 +13,29 @@
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal)) {}
+IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal)) {
+	GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
+	e->go = this;
+	World::FireEventImmediate(e);
+}
+
+IGameObject::~IGameObject() {}
 bool IGameObject::GetActive() const { return _suede_dptr()->GetActive(); }
-void IGameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(_shared_this(), value); }
+void IGameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(this, value); }
 bool IGameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
-int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(_shared_this()); }
+int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(this); }
 void IGameObject::SendMessage(int messageID, void* parameter) { _suede_dptr()->SendMessage(messageID, parameter); }
 const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
-bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(_shared_this(), value); }
+bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(this, value); }
 void IGameObject::Update() { _suede_dptr()->Update(); }
 void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
 const Bounds& IGameObject::GetBounds() { return _suede_dptr()->GetBounds(); }
 void IGameObject::RecalculateBounds(int flags) { return _suede_dptr()->RecalculateBounds(); }
-void IGameObject::RecalculateUpdateStrategy() { _suede_dptr()->RecalculateUpdateStrategy(_shared_this()); }
-Component IGameObject::AddComponent(suede_guid guid) { return _suede_dptr()->AddComponent(_shared_this(), guid); }
-Component IGameObject::AddComponent(const char* name) { return _suede_dptr()->AddComponent(_shared_this(), name); }
-Component IGameObject::AddComponent(Component component) { return _suede_dptr()->AddComponent(_shared_this(), component); }
+void IGameObject::RecalculateUpdateStrategy() { _suede_dptr()->RecalculateUpdateStrategy(this); }
+Component IGameObject::AddComponent(suede_guid guid) { return _suede_dptr()->AddComponent(this, guid); }
+Component IGameObject::AddComponent(const char* name) { return _suede_dptr()->AddComponent(this, name); }
+Component IGameObject::AddComponent(Component component) { return _suede_dptr()->AddComponent(this, component); }
 Component IGameObject::GetComponent(suede_guid guid) { return _suede_dptr()->GetComponent(guid); }
 Component IGameObject::GetComponent(const char* name) { return _suede_dptr()->GetComponent(name); }
 std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
@@ -81,7 +87,7 @@ Component GameObjectInternal::ActivateComponent(GameObject self, Component compo
 
 	component->Awake();
 
-	if (component->IsComponentType(IMeshFilter::GetComponentGUID())) {
+	if (component->IsComponentType(IMeshProvider::GetComponentGUID())) {
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 
 		if (!GetComponent(IRigidbody::GetComponentGUID())) {

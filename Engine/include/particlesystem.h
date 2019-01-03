@@ -20,9 +20,6 @@ SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter)
 SUEDE_DEFINE_OBJECT_POINTER(SphereParticleEmitter)
 SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator)
 
-SUEDE_DECLARE_OBJECT_CREATER(SphereParticleEmitter)
-SUEDE_DECLARE_OBJECT_CREATER(ParticleAnimator)
-
 class SUEDE_API IParticleEmitter : public IObject {
 	SUEDE_DEFINE_METATABLE_NAME(ParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleEmitter)

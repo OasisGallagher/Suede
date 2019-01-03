@@ -26,35 +26,33 @@ protected:
 
 	bool CreateGotoTable(LRGotoTable &gotoTable);
 	bool CreateActionTable(LRActionTable &actionTable);
-	bool InsertActionTable(LRActionTable &actionTable, const LR1Itemset& src, const GrammarSymbol& symbol, const LRAction& action);
+	bool InsertActionTable(LRActionTable &actionTable, const LR1ItemsetPtr& src, const GrammarSymbolPtr& symbol, const LRAction& action);
 
 private:
-	bool IsNullable(const GrammarSymbol& symbol);
+	bool IsNullable(const GrammarSymbolPtr& symbol);
 
 	void PropagateSymbols();
 	bool PropagateSymbolsOnePass();
-	bool PropagateFrom(const LR1Item& src);
+	bool PropagateFrom(const LR1ItemPtr& src);
 
-	LR1Item FindItem(int cpos, int dpos, LR1Itemset& dict);
+	LR1ItemPtr FindItem(int cpos, int dpos, LR1ItemsetPtr& dict);
 
 	void CalculateForwardsAndPropagations();
-	void AddForwardsAndPropagations(LR1Item& item, const LR1Itemset& itemset, LR1Itemset& dict, const GrammarSymbol& symbol);
+	void AddForwardsAndPropagations(LR1ItemPtr& item, const LR1ItemsetPtr& itemset, LR1ItemsetPtr& dict, const GrammarSymbolPtr& symbol);
 
-	void CalculateLR1Itemset(LR1Itemset& answer, LR1Itemset& itemset);
-	bool CalculateLR1ItemsetOnePass(LR1Itemset& answer, LR1Itemset& itemset);
+	void CalculateLR1Itemset(LR1ItemsetPtr& answer, LR1ItemsetPtr& itemset);
+	bool CalculateLR1ItemsetOnePass(LR1ItemsetPtr& answer, LR1ItemsetPtr& itemset);
 
-	bool CalculateLR1EdgeTarget(LR1Itemset& answer, const LR1Itemset& src, const GrammarSymbol& symbol);
+	void AddLR1Items(LR1ItemsetPtr &answer, const GrammarSymbolPtr& lhs, const LR1ItemPtr &current, LR1ItemsetPtr& itemset);
 
-	void AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1Item &current, LR1Itemset& itemset);
-
-	bool ParseLRAction(LRActionTable & actionTable, const LR1Itemset& itemset, const LR1Item &item);
+	bool ParseLRAction(LRActionTable & actionTable, const LR1ItemsetPtr& itemset, const LR1ItemPtr &item);
 
 private:
 	Environment* env_;
 	Ambiguities* ambiguities_;
 	FirstSetTable* firstSets_;
 
-	LR1Item tmp_;
+	LR1ItemPtr tmp_;
 	LR1EdgeTable edges_;
 
 	int coreItemsCount_;

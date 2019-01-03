@@ -7,10 +7,10 @@ class GrammarContainer;
 
 class Forwards {
 public:
-	Forwards();
+	Forwards() {}
 
 public:
-	typedef std::set<GrammarSymbol> container_type;
+	typedef std::set<GrammarSymbolPtr> container_type;
 	typedef container_type::iterator iterator;
 	typedef container_type::const_iterator const_iterator;
 
@@ -25,84 +25,76 @@ public:
 	const_iterator begin() const { return cont_.begin(); }
 	const_iterator end() const { return cont_.end(); }
 
-	void erase(const GrammarSymbol& symbol);
-	bool insert(const GrammarSymbol& symbol);
+	void erase(const GrammarSymbolPtr& symbol);
+	bool insert(const GrammarSymbolPtr& symbol);
 
 private:
 	container_type cont_;
 };
 
-class LR1Item {
-	struct Impl {
-		int cpos, dpos;
-		Forwards forwards;
-	};
-	IMPLEMENT_REFERENCE_COUNTABLE(LR1Item, Impl);
-	
+class LR1Item : public intrusive_ref_counter {
 public:
-	LR1Item();
-	LR1Item(int cpos, int dpos);
-	LR1Item(int cpos, int dpos, const Forwards& forwards);
+	LR1Item() : cpos_(0), dpos_(0) {}
+	LR1Item(int cpos, int dpos) : cpos_(cpos), dpos_(dpos) {}
+	LR1Item(int cpos, int dpos, const Forwards& forwards) : cpos_(cpos), dpos_(dpos), forwards_(forwards) {}
 
-	bool operator < (const LR1Item& other) const;
-	bool operator == (const LR1Item& other) const;
+	int Compare(const LR1Item& other) const;
 
-	int GetCpos() const { return ptr_->cpos; }
-	void SetCpos(int pos) { ptr_->cpos = pos; }
+	int GetCpos() const { return cpos_; }
+	void SetCpos(int pos) { cpos_ = pos; }
 
-	int GetDpos() const { return ptr_->dpos; }
-	int SetDpos(int pos) { return ptr_->dpos = pos; }
+	int GetDpos() const { return dpos_; }
+	int SetDpos(int pos) { return dpos_ = pos; }
 
-	Forwards& GetForwards() { return ptr_->forwards; }
-	const Forwards& GetForwards() const { return ptr_->forwards; }
+	Forwards& GetForwards() { return forwards_; }
+	const Forwards& GetForwards() const { return forwards_; }
 
-	bool IsCore() const { return ptr_->dpos != 0 || ptr_->cpos == 0; }
+	bool IsCore() const { return dpos_ != 0 || cpos_ == 0; }
 
 	std::string ToRawString() const;
 	std::string ToString(const GrammarContainer& grammars) const;
 
 private:
-#pragma push_macro("new")
-#undef new
-	// LR1Item不可以通过new分配.
-	void* operator new(size_t);
-#pragma pop_macro("new")
+	int cpos_, dpos_;
+	Forwards forwards_;
 };
 
-class LR1Itemset {
-	typedef class : public std::set <LR1Item> {
-		friend class LR1Itemset;
-		std::string name_;
-	} container_type;
+typedef intrusive_ptr<LR1Item> LR1ItemPtr;
 
-	IMPLEMENT_REFERENCE_COUNTABLE(LR1Itemset, container_type);
+struct LR1ItemComparer {
+	bool operator () (const LR1ItemPtr& lhs, const LR1ItemPtr& rhs)const {
+		return lhs->Compare(*rhs) < 0;
+	}
+};
+
+class LR1Itemset : public intrusive_ref_counter {
+public:
+	LR1Itemset() {}
 
 public:
-	LR1Itemset();
+	typedef std::set<LR1ItemPtr, LR1ItemComparer> container_type;
 
-public:
 	typedef container_type::iterator iterator;
 	typedef container_type::const_iterator const_iterator;
 
 public:
-	iterator begin() { return ptr_->begin(); }
-	const_iterator begin() const { return ptr_->begin(); }
+	iterator begin() { return container_.begin(); }
+	const_iterator begin() const { return container_.begin(); }
 
-	iterator end() { return ptr_->end(); }
-	const_iterator end() const { return ptr_->end(); }
+	iterator end() { return container_.end(); }
+	const_iterator end() const { return container_.end(); }
 
-	iterator find(const LR1Item& item) { return ptr_->find(item); }
-	const_iterator find(const LR1Item& item) const { return ptr_->find(item); }
+	iterator find(const LR1ItemPtr& item) { return container_.find(item); }
+	const_iterator find(const LR1ItemPtr& item) const { return container_.find(item); }
 
-	void clear() { ptr_->clear(); }
-	int size() const { return ptr_->size(); }
-	bool empty() const { return ptr_->empty(); }
+	void clear() { container_.clear(); }
+	int size() const { return container_.size(); }
+	bool empty() const { return container_.empty(); }
 
-	bool insert(const LR1Item& item);
+	bool insert(const LR1ItemPtr& item);
 
 public:
-	bool operator < (const LR1Itemset& other) const;
-	bool operator == (const LR1Itemset& other) const;
+	int Compare(const LR1Itemset& other) const;
 
 public:
 	const std::string& GetName() const;
@@ -111,24 +103,40 @@ public:
 	std::string ToString(const GrammarContainer& grammars) const;
 
 private:
-#pragma push_macro("new")
-#undef new
-	// LR1Itemset不可以通过new分配.
-	void* operator new(size_t);
-#pragma pop_macro("new")
+	std::string name_;
+	container_type container_;
 };
 
-class LR1ItemsetContainer : public std::set <LR1Itemset> {
+typedef intrusive_ptr<LR1Itemset> LR1ItemsetPtr;
+
+struct LR1ItemsetComparer {
+	bool operator () (const LR1ItemsetPtr& lhs, const LR1ItemsetPtr& rhs)const {
+		return lhs->Compare(*rhs) < 0;
+	}
+};
+
+class LR1ItemsetContainer : public std::set <LR1ItemsetPtr, LR1ItemsetComparer> {
 public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };
 
-class Propagations : public std::map <LR1Item, LR1Itemset> {
+class Propagations : public std::map <LR1ItemPtr, LR1ItemsetPtr, LR1ItemComparer> {
 public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };
 
-class LR1EdgeTable : public table <LR1Itemset, GrammarSymbol, LR1Itemset> {
+struct LR1EdgeComparer {
+	bool operator() (const std::pair<LR1ItemsetPtr, GrammarSymbolPtr>& lhs, const std::pair<LR1ItemsetPtr, GrammarSymbolPtr>& rhs) const {
+		int c = lhs.first->Compare(*rhs.first);
+		if (c != 0) {
+			return c < 0;
+		}
+
+		return lhs.second < rhs.second;
+	}
+};
+
+class LR1EdgeTable : public table <LR1ItemsetPtr, GrammarSymbolPtr, LR1ItemsetPtr, LR1EdgeComparer> {
 public:
 	std::string ToString(const GrammarContainer& grammars) const;
 };

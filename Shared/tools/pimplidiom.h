@@ -19,7 +19,10 @@ public: // internal ptr helpers
 protected:
 	template <class T>
 	typename T::Internal* _dptr_impl(T*) const { return (T::Internal*)d_; }
-	void _destroy() { destroyer_(d_); d_ = nullptr; }
+	void _destroy() {
+		destroyer_(d_);
+		d_ = nullptr;
+	}
 
 protected:
 	void* d_;
@@ -34,11 +37,11 @@ protected:
 // internal implementation ptr of this.
 #define _suede_dptr()		_dptr_impl(this)
 
+// implementation ptr of o.
+#define _suede_rptr(o)		(o).get()->_rptr_impl(this)
+
 // internal implementation ptr of instance.
 #define _suede_dinstance()	instance()->_dptr_impl(instance())
 
 // implementation equals.
-#define _suede_d_equals(o)	(o).get()->_d_equals_impl(this)
-
-// implementation ptr of o.
-#define _suede_rptr(o)		(o).get()->_rptr_impl(this)
+#define _suede_d_equals(o)	(((o).get() != nullptr) && (o).get()->_d_equals_impl(this))

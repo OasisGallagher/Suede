@@ -5,7 +5,6 @@
 #include "material.h"
 
 SUEDE_DEFINE_OBJECT_POINTER(Font)
-SUEDE_DECLARE_OBJECT_CREATER(Font)
 
 struct CharacterInfo {
 	uint width;

@@ -18,15 +18,20 @@
 #include "animation.h"
 #include "particlesystem.h"
 
+#include <memory>
+#include "enginedefines.h"
+
 Factory Factory::instance;
 
+#define FACTORY_METHOD(T)	([]() -> Object { return new I ## T(); })
+
 #define ADD_FACTROY_METHOD(T) \
-	AddFactoryMethod(#T, FactoryCreate<T>);  \
-	AddFactoryMethod(+ObjectType:: ## T, FactoryCreate<T>)
+	AddFactoryMethod(#T, FACTORY_METHOD(T));  \
+	AddFactoryMethod(+ObjectType:: ## T, FACTORY_METHOD(T))
 
 #define ADD_COMPONENT_FACTROY_METHOD(T) \
-	AddFactoryMethod(#T, FactoryCreate<T>); \
-	AddFactoryMethod(T::element_type::GetComponentGUID(), FactoryCreate<T>)
+	AddFactoryMethod(#T, FACTORY_METHOD(T)); \
+	AddFactoryMethod(T::element_type::GetComponentGUID(), FACTORY_METHOD(T))
 
 Factory::Factory() {
 	std::fill(methodArray_, methodArray_ + ObjectType::size(), nullptr);

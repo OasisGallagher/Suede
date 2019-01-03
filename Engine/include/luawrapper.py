@@ -84,21 +84,21 @@ kNotNewables = [
 
 	"IObject",
 	"IComponent",
-        "IBehaviour",
-	"ITransform",
+	"IBehaviour",
+	#"ITransform",
 	"IRenderer",
-	"IRigidbody",
-	"IProjector",
-	"ILight",
-	"ICamera",
-	"ITextMesh",
+	#"IRigidbody",
+	#"IProjector",
+	#"ILight",
+	#"ICamera",
+	#"ITextMesh",
 	"IMeshProvider",
-	"IMeshFilter",
-	"IMeshRenderer",
-	"ISkinnedMeshRenderer",
-	"IParticleRenderer",
-	"IAnimation",
-	"IParticleSystem",
+	#"IMeshFilter",
+	#"IMeshRenderer",
+	#"ISkinnedMeshRenderer",
+	#"IParticleRenderer",
+	#"IAnimation",
+	#"IParticleSystem",
 	"ITexture",
 	"IParticleEmitter",
 ];
@@ -367,7 +367,7 @@ class Wrapper:
 		elif sharedPtr:
 			self._w(
 '''	static int New%s(lua_State* L) {
-		return Lua::fromShared(L, ::New%s());
+		return Lua::fromIntrusive(L, new I%s());
 	}\n''' % (className, className));
 		else:
 			self._beginOverloadConstructor(className);
@@ -461,7 +461,7 @@ class Wrapper:
 		elif sharedPtr:
 			self._w(
 '''	static int %s(lua_State* L) {
-		%s& _p = *Lua::callerSharedPtr<%s>(L);\n''' % (methodName, className, className));
+		%s& _p = *Lua::callerIntrusivePtr<%s>(L);\n''' % (methodName, className, className));
 		else:
 			self._w(
 '''	static int %s(lua_State* L) {
@@ -635,7 +635,7 @@ class Wrapper:
 		if not instance:
 			if sharedPtr:
 				self._w('''
-			{ "__gc", Lua::deleteSharedPtr<%s> },''' % className);
+			{ "__gc", Lua::deleteIntrusivePtr<%s> },''' % className);
 			else:
 				self._w('''
 			{ "__gc", Lua::deletePtr<%s> },''' % className);

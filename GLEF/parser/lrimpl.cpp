@@ -50,7 +50,7 @@ std::string LRGotoTable::ToString() const {
 		oss << "(";
 		oss << ite->first.first;
 		oss << ", ";
-		oss << ite->first.second.ToString();
+		oss << ite->first.second->ToString();
 		oss << ")";
 		oss << " => ";
 		oss << ite->second;
@@ -68,7 +68,7 @@ std::string LRActionTable::ToString(const GrammarContainer& grammars) const {
 		oss << "(";
 		oss << ite->first.first;
 		oss << ", ";
-		oss << ite->first.second.ToString();
+		oss << ite->first.second->ToString();
 		oss << ")";
 		oss << " => ";
 		oss << ite->second.ToString(grammars);

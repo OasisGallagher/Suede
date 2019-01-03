@@ -48,9 +48,9 @@ void Boolean::SetText(const std::string& text) {
 struct SyntaxerStack {
 	std::vector<int> states;
 	std::vector<void*> values;
-	std::vector<GrammarSymbol> symbols;
+	std::vector<GrammarSymbolPtr> symbols;
 
-	void push(int state, void* value, const GrammarSymbol& symbol);
+	void push(int state, void* value, const GrammarSymbolPtr& symbol);
 	void pop(int count);
 	void clear();
 };
@@ -129,7 +129,7 @@ int Syntaxer::Reduce(int cpos) {
 	//Debug::Log("%s Goto state %d.", log.c_str(), nextState);
 
 	if (nextState < 0) {
-		Debug::LogError("empty goto item(%d, %s).", stack_->states.back(), g->GetLhs().ToString().c_str());
+		Debug::LogError("empty goto item(%d, %s).", stack_->states.back(), g->GetLhs()->ToString().c_str());
 		return nextState;
 	}
 
@@ -137,12 +137,12 @@ int Syntaxer::Reduce(int cpos) {
 	return nextState;
 }
 
-bool Syntaxer::Error(const GrammarSymbol& symbol, const TokenPosition& position) {
-	Debug::LogError("unexpected symbol %s at %s.", symbol.ToString().c_str(), position.ToString().c_str());
+bool Syntaxer::Error(const GrammarSymbolPtr& symbol, const TokenPosition& position) {
+	Debug::LogError("unexpected symbol %s at %s.", symbol->ToString().c_str(), position.ToString().c_str());
 	return false;
 }
 
-void Syntaxer::Shift(int state, void* addr, const GrammarSymbol& symbol) {
+void Syntaxer::Shift(int state, void* addr, const GrammarSymbolPtr& symbol) {
 	//Debug::Log(">> [S] `%s`. Goto state %d.", symbol.ToString(), state);
 	stack_->push(state, addr, symbol);
 }
@@ -154,7 +154,7 @@ bool Syntaxer::CreateSyntaxTree(SyntaxNode*& root, SourceScanner* sourceScanner)
 	LRAction action = { LRActionShift };
 
 	void* addr = nullptr;
-	GrammarSymbol symbol = nullptr;
+	GrammarSymbolPtr symbol = nullptr;
 
 	do {
 		if (action.type == LRActionShift && !(symbol = ParseNextSymbol(position, addr, sourceScanner))) {
@@ -190,10 +190,10 @@ bool Syntaxer::CreateSyntaxTree(SyntaxNode*& root, SourceScanner* sourceScanner)
 	return action.type == LRActionAccept;
 }
 
-GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, const TokenPosition& position, void*& addr) {
+GrammarSymbolPtr Syntaxer::FindSymbol(const ScannerToken& token, const TokenPosition& position, void*& addr) {
 	addr = nullptr;
 
-	GrammarSymbol answer = NativeSymbols::null;
+	GrammarSymbolPtr answer = NativeSymbols::null;
 	if (token.tokenType == ScannerTokenEndOfFile) {
 		answer = NativeSymbols::zero;
 	}
@@ -260,9 +260,9 @@ GrammarSymbol Syntaxer::FindSymbol(const ScannerToken& token, const TokenPositio
 	return answer;
 }
 
-GrammarSymbol Syntaxer::ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner) {
+GrammarSymbolPtr Syntaxer::ParseNextSymbol(TokenPosition& position, void*& addr, SourceScanner* sourceScanner) {
 	ScannerToken token;
-	GrammarSymbol answer = NativeSymbols::null;
+	GrammarSymbolPtr answer = NativeSymbols::null;
 
 	if (sourceScanner->GetToken(&token, &position)) {
 		answer = FindSymbol(token, position, addr);
@@ -278,14 +278,14 @@ GrammarSymbol Syntaxer::ParseNextSymbol(TokenPosition& position, void*& addr, So
 void Syntaxer::CleanupOnFailure() {
 	SyntaxTree tree;
 	for (int i = 0; i < (int)stack_->symbols.size(); ++i) {
-		if (stack_->symbols[i].SymbolType() == GrammarSymbolNonterminal) {
+		if (stack_->symbols[i]->SymbolType() == GrammarSymbolNonterminal) {
 			tree.SetRoot((SyntaxNode*)stack_->values[i]);
 			tree.Destroy();
 		}
 	}
 }
 
-void SyntaxerStack::push(int state, void* value, const GrammarSymbol& symbol) {
+void SyntaxerStack::push(int state, void* value, const GrammarSymbolPtr& symbol) {
 	states.push_back(state);
 	values.push_back(value);
 	symbols.push_back(symbol);

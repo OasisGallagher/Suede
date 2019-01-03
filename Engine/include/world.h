@@ -47,7 +47,7 @@ struct ComponentEvent : public WorldEventBase {
 
 DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
 
-struct GameObjectCreatedEvent : public GameObjectEvent {
+struct GameObjectCreatedEvent : GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectCreated; }
 };
 
@@ -162,8 +162,6 @@ public:
 	static void Update();
 	static void CullingUpdate();
 
-	static Object CreateObject(ObjectType type);
-
 	static void DestroyGameObject(uint id);
 	static void DestroyGameObject(GameObject go);
 
@@ -186,10 +184,10 @@ public:
 
 public:
 	template <class T>
-	static typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type GetComponents();
+	static typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type GetComponents();
 
 	template <class T>
-	static typename std::enable_if<!suede_is_shared_ptr<T>::value, std::vector<std::shared_ptr<T>>>::type GetComponents();
+	static typename std::enable_if<!suede_is_intrusive_ptr<T>::value, std::vector<intrusive_ptr<T>>>::type GetComponents();
 
 	static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
@@ -198,7 +196,7 @@ private:
 };
 
 template <class T>
-typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type World::GetComponents() {
+typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type World::GetComponents() {
 	std::vector<T> components;
 	for (GameObject go : GetGameObjectsOfComponent(T::element_type::GetComponentGUID())) {
 		components.push_back(go->GetComponent<T>());
@@ -208,8 +206,8 @@ typename std::enable_if<suede_is_shared_ptr<T>::value, std::vector<T>>::type Wor
 }
 
 template <class T>
-typename std::enable_if<!suede_is_shared_ptr<T>::value, std::vector<std::shared_ptr<T>>>::type World::GetComponents() {
-	std::vector<std::shared_ptr<T>> components;
+typename std::enable_if<!suede_is_intrusive_ptr<T>::value, std::vector<intrusive_ptr<T>>>::type World::GetComponents() {
+	std::vector<intrusive_ptr<T>> components;
 	for (GameObject go : GetGameObjectsOfComponent(T::GetComponentGUID())) {
 		components.push_back(go->GetComponent<T>());
 	}

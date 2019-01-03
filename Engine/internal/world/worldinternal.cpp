@@ -27,7 +27,6 @@ void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
 void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
 void World::Update() { _suede_dinstance()->Update(); }
-Object World::CreateObject(ObjectType type) { return _suede_dinstance()->CreateObject(type); }
 void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(id); }
 void World::DestroyGameObject(GameObject go) { _suede_dinstance()->DestroyGameObject(go); }
 GameObject World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->Import(path, listener); }
@@ -82,8 +81,7 @@ void WorldInternal::Initialize() {
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
-	root_ = Factory::Create<GameObject>();
-	root_->AddComponent<ITransform>();
+	root_ = new IGameObject();
 	root_->SetName("Root");
 }
 
@@ -102,12 +100,6 @@ void WorldInternal::Finalize() {
 
 	RemoveEventListener(this);
 	Screen::RemoveScreenSizeChangedListener(this);
-}
-
-Object WorldInternal::CreateObject(ObjectType type) {
-	Object object = Factory::Create(type);
-	AddObject(object);
-	return object;
 }
 
 GameObject WorldInternal::Import(const std::string& path, GameObjectImportedListener* listener) {
@@ -143,7 +135,18 @@ void WorldInternal::DestroyGameObject(GameObject go) {
 
 void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	GameObject go = root->GetGameObject();
+	RemoveGameObject(go);
 
+	GameObjectDestroyedEventPtr e = NewWorldEvent<GameObjectDestroyedEventPtr>();
+	e->go = go;
+	FireEvent(e);
+
+	for(Transform transform : root->GetChildren()) {
+		DestroyGameObjectRecursively(transform);
+	}
+}
+
+void WorldInternal::RemoveGameObject(GameObject go) {
 	Camera camera = go->GetComponent<Camera>();
 	if (camera) { cameras_.erase(camera); }
 
@@ -156,14 +159,6 @@ void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	RemoveGameObjectFromSequence(go);
 	gameObjects_.erase(go->GetInstanceID());
 	go->GetTransform()->SetParent(nullptr);
-
-	GameObjectDestroyedEventPtr e = NewWorldEvent<GameObjectDestroyedEventPtr>();
-	e->go = go;
-	FireEvent(e);
-
-	for(Transform transform : root->GetChildren()) {
-		DestroyGameObjectRecursively(transform);
-	}
 }
 
 std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid) {
@@ -289,36 +284,29 @@ void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 
 void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
 	switch (e->GetEventType()) {
+		case WorldEventType::GameObjectCreated:
+			AddGameObject(std::static_pointer_cast<GameObjectCreatedEvent>(e)->go);
+			break;
 		case WorldEventType::CameraDepthChanged:
 			cameras_.sort();
 			break;
 		case WorldEventType::GameObjectParentChanged:
-			OnGameObjectParentChanged(suede_static_cast<GameObjectEventPtr>(e)->go);
+			OnGameObjectParentChanged(std::static_pointer_cast<GameObjectEvent>(e)->go);
 			break;
 		case WorldEventType::GameObjectUpdateStrategyChanged:
-			ManageGameObjectUpdateSequence(suede_static_cast<GameObjectEventPtr>(e)->go);
+			ManageGameObjectUpdateSequence(std::static_pointer_cast<GameObjectEvent>(e)->go);
 			break;
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(suede_static_cast<GameObjectComponentChangedEventPtr>(e));
+			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
 			break;
 	}
 }
 
-void WorldInternal::AddObject(Object object) {
-	ObjectType type = object->GetObjectType();
-	if (type == ObjectType::GameObject) {
-		// add default components and fire event.
-		GameObject go = suede_dynamic_cast<GameObject>(object);
+void WorldInternal::AddGameObject(GameObject go) {
+	go->AddComponent<Transform>();
 
-		go->AddComponent<ITransform>();
-
-		GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
-		e->go = go;
-		FireEvent(e);
-
-		ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
-		gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
-	}
+	ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
+	gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 }
 
 void WorldInternal::OnGameObjectParentChanged(GameObject go) {
@@ -392,6 +380,7 @@ void WorldInternal::CullingUpdate() {
 
 void WorldInternal::Update() {
 	uint64 start = Profiler::GetTimeStamp();
+
 	FireEvents();
 
 	// SUEDE TODO: update decals in rendering thread ?

@@ -72,7 +72,7 @@ bool Parser::CreateFirstSetsOnePass() {
 			SymbolVector::iterator ite3 = c->symbols.begin();
 
 			for (; ite3 != c->symbols.end(); ++ite3) {
-				GrammarSymbol& current = *ite3;
+				GrammarSymbolPtr& current = *ite3;
 
 				anySetModified = MergeNonEpsilonElements(firstSet, firstSetContainer_[current]) || anySetModified;
 
@@ -109,8 +109,8 @@ bool Parser::CreateFollowSetsOnePass() {
 		for (CondinateContainer::const_iterator ite2 = conds.begin(); ite2 != conds.end(); ++ite2) {
 			Condinate* current = *ite2;
 			for (SymbolVector::iterator ite3 = current->symbols.begin(); ite3 != current->symbols.end(); ++ite3) {
-				GrammarSymbol& symbol = *ite3;
-				if (symbol.SymbolType() == GrammarSymbolTerminal) {
+				GrammarSymbolPtr& symbol = *ite3;
+				if (symbol->SymbolType() == GrammarSymbolTerminal) {
 					continue;
 				}
 

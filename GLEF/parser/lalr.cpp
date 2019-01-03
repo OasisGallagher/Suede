@@ -13,7 +13,7 @@
 
 struct Ambiguity {
 	int state;
-	GrammarSymbol symbol;
+	GrammarSymbolPtr symbol;
 	LRAction first;
 	LRAction second;
 
@@ -31,6 +31,7 @@ private:
 };
 
 LALR::LALR() :coreItemsCount_(0){
+	tmp_ = new LR1Item;
 	ambiguities_ = new Ambiguities;
 }
 
@@ -51,11 +52,11 @@ bool LALR::Parse(LRActionTable& actionTable, LRGotoTable& gotoTable) {
 	
 	coreItemsCount_ = 0;
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
-		coreItemsCount_ += std::count_if(ite->begin(), ite->end(), std::mem_fun_ref(&LR1Item::IsCore));
+		coreItemsCount_ += std::count_if((*ite)->begin(), (*ite)->end(), [](const LR1ItemPtr& item) { return item->IsCore(); });
 	}
 
-	LR1Item init = *itemsets_.begin()->begin();
-	init.GetForwards().insert(NativeSymbols::zero);
+	LR1ItemPtr init = *(*itemsets_.begin())->begin();
+	init->GetForwards().insert(NativeSymbols::zero);
 
 	//Debug::Log("calculate forwards and propagations");
 	CalculateForwardsAndPropagations();
@@ -80,9 +81,9 @@ bool LALR::CreateLRParsingTable(LRGotoTable& gotoTable, LRActionTable& actionTab
 
 bool LALR::CreateActionTable(LRActionTable &actionTable) {
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
-		const LR1Itemset& itemset = *ite;
-		for (LR1Itemset::const_iterator ite2 = itemset.begin(); ite2 != itemset.end(); ++ite2) {
-			const LR1Item& item = *ite2;
+		const LR1ItemsetPtr& itemset = *ite;
+		for (LR1Itemset::const_iterator ite2 = itemset->begin(); ite2 != itemset->end(); ++ite2) {
+			const LR1ItemPtr& item = *ite2;
 			ParseLRAction(actionTable, itemset, item);
 		}
 	}
@@ -90,8 +91,8 @@ bool LALR::CreateActionTable(LRActionTable &actionTable) {
 	return true;
 }
 
-bool LALR::InsertActionTable(LRActionTable& actionTable, const LR1Itemset& src, const GrammarSymbol& symbol, const LRAction& action) {
-	int state = String::ToInteger(src.GetName());
+bool LALR::InsertActionTable(LRActionTable& actionTable, const LR1ItemsetPtr& src, const GrammarSymbolPtr& symbol, const LRAction& action) {
+	int state = String::ToInteger(src->GetName());
 	LRActionTable::ib_pair status = actionTable.insert(state, symbol, action);
 	if (!status.second && status.first->second != action) {
 		Ambiguity ambiguity = { state, symbol, status.first->second, action };
@@ -99,7 +100,7 @@ bool LALR::InsertActionTable(LRActionTable& actionTable, const LR1Itemset& src, 
 		// ambiguity does not exist.
 		if (ambiguities_->insert(ambiguity)) {
 			std::string prompt = String::Format("CONFLICT at (%d, %s). Replace %s with %s ?",
-				state, symbol.ToString().c_str(), 
+				state, symbol->ToString().c_str(), 
 				status.first->second.ToString(env_->grammars).c_str(), 
 				action.ToString(env_->grammars).c_str());
 			
@@ -112,22 +113,22 @@ bool LALR::InsertActionTable(LRActionTable& actionTable, const LR1Itemset& src, 
 	return true;
 }
 
-bool LALR::ParseLRAction(LRActionTable & actionTable, const LR1Itemset& itemset, const LR1Item &item) {
+bool LALR::ParseLRAction(LRActionTable & actionTable, const LR1ItemsetPtr& itemset, const LR1ItemPtr &item) {
 	Grammar* g = nullptr;
-	const Condinate* cond = env_->grammars.GetTargetCondinate(item.GetCpos(), &g);
+	const Condinate* cond = env_->grammars.GetTargetCondinate(item->GetCpos(), &g);
 
-	if (g->GetLhs() == NativeSymbols::program && item.GetDpos() == 1 
-		&& item.GetForwards().size() == 1 && *item.GetForwards().begin() == NativeSymbols::zero) {
+	if (g->GetLhs() == NativeSymbols::program && item->GetDpos() == 1
+		&& item->GetForwards().size() == 1 && *item->GetForwards().begin() == NativeSymbols::zero) {
 		LRAction action = { LRActionAccept };
 		return InsertActionTable(actionTable, itemset, NativeSymbols::zero, action);
 	}
 
-	if (item.GetDpos() >= (int)cond->symbols.size() || cond->symbols.front() == NativeSymbols::epsilon) {
+	if (item->GetDpos() >= (int)cond->symbols.size() || cond->symbols.front() == NativeSymbols::epsilon) {
 		bool status = true;
 
 		if (g->GetLhs() != NativeSymbols::program) {
-			LRAction action = { LRActionReduce, item.GetCpos() };
-			for (Forwards::const_iterator fi = item.GetForwards().begin(); fi != item.GetForwards().end(); ++fi) {
+			LRAction action = { LRActionReduce, item->GetCpos() };
+			for (Forwards::const_iterator fi = item->GetForwards().begin(); fi != item->GetForwards().end(); ++fi) {
 				status = InsertActionTable(actionTable, itemset, *fi, action) || status;
 			}
 		}
@@ -135,11 +136,11 @@ bool LALR::ParseLRAction(LRActionTable & actionTable, const LR1Itemset& itemset,
 		return status;
 	}
 
-	const GrammarSymbol& symbol = cond->symbols[item.GetDpos()];
-	if (symbol.SymbolType() == GrammarSymbolTerminal) {
-		LR1Itemset target;
+	const GrammarSymbolPtr& symbol = cond->symbols[item->GetDpos()];
+	if (symbol->SymbolType() == GrammarSymbolTerminal) {
+		LR1ItemsetPtr target = new LR1Itemset;
 		if (edges_.get(itemset, symbol, target)) {
-			int j = String::ToInteger(target.GetName());
+			int j = String::ToInteger(target->GetName());
 			LRAction action = { LRActionShift, j };
 			return InsertActionTable(actionTable, itemset, symbol, action);
 		}
@@ -151,10 +152,10 @@ bool LALR::ParseLRAction(LRActionTable & actionTable, const LR1Itemset& itemset,
 
 bool LALR::CreateGotoTable(LRGotoTable &gotoTable) {
 	for (LR1EdgeTable::const_iterator ite = edges_.begin(); ite != edges_.end(); ++ite) {
-		const GrammarSymbol& symbol = ite->first.second;
-		if (symbol.SymbolType() == GrammarSymbolNonterminal) {
-			int i = String::ToInteger(ite->first.first.GetName());
-			int j = String::ToInteger(ite->second.GetName());
+		const GrammarSymbolPtr& symbol = ite->first.second;
+		if (symbol->SymbolType() == GrammarSymbolNonterminal) {
+			int i = String::ToInteger(ite->first.first->GetName());
+			int j = String::ToInteger(ite->second->GetName());
 			gotoTable.insert(i, symbol, j);
 		}
 	}
@@ -162,25 +163,25 @@ bool LALR::CreateGotoTable(LRGotoTable &gotoTable) {
 	return true;
 }
 
-void LALR::CalculateLR1Itemset(LR1Itemset& answer, LR1Itemset& itemset) {
+void LALR::CalculateLR1Itemset(LR1ItemsetPtr& answer, LR1ItemsetPtr& itemset) {
 	for (; CalculateLR1ItemsetOnePass(answer, itemset);) {
 	}
 }
 
-bool LALR::CalculateLR1ItemsetOnePass(LR1Itemset& answer, LR1Itemset& itemset) {
-	LR1Itemset newItems;
+bool LALR::CalculateLR1ItemsetOnePass(LR1ItemsetPtr& answer, LR1ItemsetPtr& itemset) {
+	LR1ItemsetPtr newItems = new LR1Itemset;
 
-	for (LR1Itemset::iterator isi = answer.begin(); isi != answer.end(); ++isi) {
-		const LR1Item& current = *isi;
-		const Condinate* cond = env_->grammars.GetTargetCondinate(current.GetCpos(), nullptr);
+	for (LR1Itemset::iterator isi = answer->begin(); isi != answer->end(); ++isi) {
+		const LR1ItemPtr& current = *isi;
+		const Condinate* cond = env_->grammars.GetTargetCondinate(current->GetCpos(), nullptr);
 
-		if (current.GetDpos() >= (int)cond->symbols.size()) {
+		if (current->GetDpos() >= (int)cond->symbols.size()) {
 			continue;
 		}
 
-		const GrammarSymbol& lhs = cond->symbols[current.GetDpos()];
+		const GrammarSymbolPtr& lhs = cond->symbols[current->GetDpos()];
 
-		if (lhs.SymbolType() == GrammarSymbolTerminal) {
+		if (lhs->SymbolType() == GrammarSymbolTerminal) {
 			continue;
 		}
 
@@ -188,21 +189,21 @@ bool LALR::CalculateLR1ItemsetOnePass(LR1Itemset& answer, LR1Itemset& itemset) {
 	}
 
 	bool setChanged = false;
-	for (LR1Itemset::const_iterator ite = newItems.begin(); ite != newItems.end(); ++ite) {
-		setChanged = answer.insert(*ite) || setChanged;
+	for (LR1Itemset::const_iterator ite = newItems->begin(); ite != newItems->end(); ++ite) {
+		setChanged = answer->insert(*ite) || setChanged;
 	}
 
 	return setChanged;
 }
 
-void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1Item &current, LR1Itemset& itemset) {
+void LALR::AddLR1Items(LR1ItemsetPtr &answer, const GrammarSymbolPtr& lhs, const LR1ItemPtr &current, LR1ItemsetPtr& itemset) {
 	int gi = 1;
 	GrammarSymbolSet firstSet;
 	
 	Grammar* grammar = env_->grammars.FindGrammar(lhs, &gi);
-	const Condinate* srcCond = env_->grammars.GetTargetCondinate(current.GetCpos(), nullptr);
+	const Condinate* srcCond = env_->grammars.GetTargetCondinate(current->GetCpos(), nullptr);
 
-	SymbolVector beta(srcCond->symbols.begin() + current.GetDpos() + 1, srcCond->symbols.end());
+	SymbolVector beta(srcCond->symbols.begin() + current->GetDpos() + 1, srcCond->symbols.end());
 	beta.push_back(NativeSymbols::null);
 
 	int condinateIndex = 0;
@@ -210,7 +211,7 @@ void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1It
 
 	for (CondinateContainer::const_iterator ci = conds.begin(); ci != conds.end(); ++ci, ++condinateIndex) {
 		const Condinate* tc = *ci;
-		Forwards forwards = current.GetForwards();
+		Forwards forwards = current->GetForwards();
 		for (Forwards::const_iterator fi = forwards.begin(); fi != forwards.end(); ++fi) {
 			beta.back() = *fi;
 			firstSets_->GetFirstSet(firstSet, beta.begin(), beta.end());
@@ -220,9 +221,9 @@ void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1It
 				int dpos = 0;
 
 				for (; ite != tc->symbols.end(); ++ite, ++dpos) {
-					LR1Item newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
-					newItem.GetForwards().insert(*fsi);
-					answer.insert(newItem);
+					LR1ItemPtr newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
+					newItem->GetForwards().insert(*fsi);
+					answer->insert(newItem);
 
 					if (*ite == NativeSymbols::epsilon || !IsNullable(*ite)) {
 						break;
@@ -230,9 +231,9 @@ void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1It
 				}
 
 				if (ite == tc->symbols.end()) {
-					LR1Item newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
-					newItem.GetForwards().insert(*fsi);
-					answer.insert(newItem);
+					LR1ItemPtr newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
+					newItem->GetForwards().insert(*fsi);
+					answer->insert(newItem);
 				}
 			}
 
@@ -241,18 +242,18 @@ void LALR::AddLR1Items(LR1Itemset &answer, const GrammarSymbol& lhs, const LR1It
 	}
 }
 
-bool LALR::IsNullable(const GrammarSymbol& symbol) {
+bool LALR::IsNullable(const GrammarSymbolPtr& symbol) {
 	GrammarSymbolSet& firsts = firstSets_->at(symbol);
 	return firsts.find(NativeSymbols::epsilon) != firsts.end();
 }
 
-LR1Item LALR::FindItem(int cpos, int dpos, LR1Itemset& dict) {
-	tmp_.SetCpos(cpos);
-	tmp_.SetDpos(dpos);
-	LR1Itemset::iterator pos = dict.find(tmp_);
-	if (pos == dict.end()) {
+LR1ItemPtr LALR::FindItem(int cpos, int dpos, LR1ItemsetPtr& dict) {
+	tmp_->SetCpos(cpos);
+	tmp_->SetDpos(dpos);
+	LR1Itemset::iterator pos = dict->find(tmp_);
+	if (pos == dict->end()) {
 		Debug::LogError("can not find item.");
-		return LR1Item();
+		return new LR1Item;
 	}
 
 	return *pos;
@@ -281,7 +282,7 @@ bool LALR::PropagateSymbolsOnePass() {
 	bool propagated = false;
 
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
-		for (LR1Itemset::iterator ii = ite->begin(); ii != ite->end(); ++ii) {
+		for (LR1Itemset::iterator ii = (*ite)->begin(); ii != (*ite)->end(); ++ii) {
 			propagated = PropagateFrom(*ii) || propagated;
 		}
 	}
@@ -289,20 +290,20 @@ bool LALR::PropagateSymbolsOnePass() {
 	return propagated;
 }
 
-bool LALR::PropagateFrom(const LR1Item &src) {
+bool LALR::PropagateFrom(const LR1ItemPtr &src) {
 	Propagations::iterator pos = propagations_.find(src);
 	if (pos == propagations_.end()) {
 		return false;
 	}
 
 	bool propagated = false;
-	const Forwards& forwards = src.GetForwards();
+	const Forwards& forwards = src->GetForwards();
 	
-	LR1Itemset& itemset = (LR1Itemset&)pos->second;
-	for (LR1Itemset::iterator is = itemset.begin(); is != itemset.end(); ++is) {
-		LR1Item& target = (LR1Item&)*is;
+	LR1ItemsetPtr& itemset = (LR1ItemsetPtr&)pos->second;
+	for (LR1Itemset::iterator is = itemset->begin(); is != itemset->end(); ++is) {
+		LR1ItemPtr& target = (LR1ItemPtr&)*is;
 		for (Forwards::const_iterator fi = forwards.begin(); fi != forwards.end(); ++fi) {
-			propagated = target.GetForwards().insert(*fi) || propagated;
+			propagated = target->GetForwards().insert(*fi) || propagated;
 		}
 	}
 
@@ -312,20 +313,20 @@ bool LALR::PropagateFrom(const LR1Item &src) {
 void LALR::CalculateForwardsAndPropagations() {
 	//Debug::Log("add forwards and propagations");
 	int index = 1;
-	LR1Itemset target = nullptr;
+	LR1ItemsetPtr target = nullptr;
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
-		LR1Itemset& dict = (LR1Itemset&)*ite;
+		LR1ItemsetPtr& dict = (LR1ItemsetPtr&)*ite;
 		
-		for (LR1Itemset::iterator ii = dict.begin(); ii != dict.end(); ++ii) {
-			LR1Item item = *ii;
-			if (!item.IsCore()) {
+		for (LR1Itemset::iterator ii = dict->begin(); ii != dict->end(); ++ii) {
+			LR1ItemPtr item = *ii;
+			if (!item->IsCore()) {
 				continue;
 			}
 
-			LR1Itemset itemset;
+			LR1ItemsetPtr itemset = new LR1Itemset;
 
-			item.GetForwards().insert(NativeSymbols::unknown);
-			itemset.insert(item);
+			item->GetForwards().insert(NativeSymbols::unknown);
+			itemset->insert(item);
 
 			CalculateLR1Itemset(itemset, dict);
 
@@ -349,17 +350,18 @@ void LALR::CalculateForwardsAndPropagations() {
 
 	//Debug::Log("clean up");
 	for (LR1ItemsetContainer::iterator ite = itemsets_.begin(); ite != itemsets_.end(); ++ite) {
-		for (LR1Itemset::iterator ii = ite->begin(); ii != ite->end(); ++ii) {
-			Forwards& forwards = (Forwards&)ii->GetForwards();
+		for (LR1Itemset::iterator ii = (*ite)->begin(); ii != (*ite)->end(); ++ii) {
+			Forwards& forwards = (Forwards&)(*ii)->GetForwards();
 			forwards.erase(NativeSymbols::unknown);
 		}
 	}
 }
 
-void LALR::AddForwardsAndPropagations(LR1Item& src, const LR1Itemset& itemset, LR1Itemset& dict, const GrammarSymbol& symbol) {
-	for (LR1Itemset::iterator ite = itemset.begin(); ite != itemset.end(); ++ite) {
-		const Condinate* cond = env_->grammars.GetTargetCondinate(ite->GetCpos(), nullptr);
-		if (ite->GetDpos() >= (int)cond->symbols.size()) {
+void LALR::AddForwardsAndPropagations(LR1ItemPtr& src, const LR1ItemsetPtr& itemset, LR1ItemsetPtr& dict, const GrammarSymbolPtr& symbol) {
+	for (LR1Itemset::iterator ite = itemset->begin(); ite != itemset->end(); ++ite) {
+		const LR1ItemPtr& item = *ite;
+		const Condinate* cond = env_->grammars.GetTargetCondinate(item->GetCpos(), nullptr);
+		if (item->GetDpos() >= (int)cond->symbols.size()) {
 			continue;
 		}
 
@@ -367,18 +369,23 @@ void LALR::AddForwardsAndPropagations(LR1Item& src, const LR1Itemset& itemset, L
 			continue;
 		}
 
-		if (cond->symbols[ite->GetDpos()] != symbol) {
+		if (cond->symbols[item->GetDpos()] != symbol) {
 			continue;
 		}
 
-		LR1Item target = FindItem(ite->GetCpos(), ite->GetDpos() + 1, dict);
-		const Forwards& forwards = ite->GetForwards();
+		LR1ItemPtr target = FindItem(item->GetCpos(), item->GetDpos() + 1, dict);
+		const Forwards& forwards = item->GetForwards();
 		for (Forwards::const_iterator ite2 = forwards.begin(); ite2 != forwards.end(); ++ite2) {
 			if (*ite2 == NativeSymbols::unknown) {
-				propagations_[src].insert(target);
+				LR1ItemsetPtr& itemset = propagations_[src];
+				if (!itemset) {
+					itemset = new LR1Itemset;
+				}
+
+				itemset->insert(target);
 			}
 			else {
-				target.GetForwards().insert(*ite2);
+				target->GetForwards().insert(*ite2);
 			}
 		}
 	}

@@ -31,8 +31,6 @@ public:
 
 	Transform GetRootTransform() { return root_->GetTransform(); }
 
-	Object CreateObject(ObjectType type);
-
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject go);
 
@@ -41,6 +39,7 @@ public:
 	bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
 
 	GameObject GetGameObject(uint id);
+
 	std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
 	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
@@ -59,7 +58,7 @@ public:
 	void OnWorldEvent(WorldEventBasePtr e);
 
 private:
-	void AddObject(Object object);
+	void AddGameObject(GameObject go);
 
 	void OnGameObjectParentChanged(GameObject go);
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
@@ -72,7 +71,9 @@ private:
 	void CullingUpdateGameObjects();
 	void RenderingUpdateGameObjects();
 
+	void RemoveGameObject(GameObject go);
 	void DestroyGameObjectRecursively(Transform root);
+
 	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
 
 	void UpdateTimeUniformBuffer();

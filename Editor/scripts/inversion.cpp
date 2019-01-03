@@ -6,7 +6,7 @@
 SUEDE_DEFINE_COMPONENT(Inversion, ImageEffect)
 
 void Inversion::Awake() {
-	material_ = NewMaterial();
+	material_ = new IMaterial();
 	material_->SetShader(Resources::FindShader("inversion"));
 }
 

@@ -1,28 +1,44 @@
 #pragma once
-#include <memory>
 #include <vector>
+#include <memory>
 
 #include "types.h"
+#include "memory/intrusiveptr.h"
 
-#define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef std::shared_ptr<class I ## Ty> Ty;
-#define SUEDE_DECLARE_OBJECT_CREATER(Ty)	SUEDE_API Ty New ## Ty();
-
-template <class T>
-using suede_weak_ref = std::weak_ptr<typename T::element_type>;
+#define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef intrusive_ptr<class I ## Ty> Ty;
 
 // is std::shared_ptr.
 template<class T> struct suede_is_shared_ptr : std::false_type {};
 template<class T> struct suede_is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
 
-// is raw ptr or shared_ptr.
+// is intrusive_ptr
+template<class T> struct suede_is_intrusive_ptr : std::false_type {};
+template<class T> struct suede_is_intrusive_ptr<intrusive_ptr<T>> : std::true_type {};
+
+// is raw ptr or shared_ptr or intrusive_ptr.
 template <class T> struct suede_is_ptr {
-	static const bool value = std::is_pointer<T>::value || suede_is_shared_ptr<T>::value;
+	static const bool value = std::is_pointer<T>::value || suede_is_shared_ptr<T>::value || suede_is_intrusive_ptr<T>::value;
 };
 
 // is std::vector.
 template <class T> struct suede_is_vector : public std::false_type {};
 template <class T, class A> struct suede_is_vector<std::vector<T, A>> : public std::true_type {};
 //
+
+/**
+ * @brief static intrusive_ptr cast.
+ */
+template <class T, class Ptr>
+inline T suede_static_cast(const Ptr& p) {
+	return static_cast<T::element_type*>(p.get());
+}
+
+/**
+ * @brief dynamic intrusive_ptr cast.
+ */
+template<class T, class Ptr> T suede_dynamic_cast(const Ptr& p) {
+	return dynamic_cast<T::element_type*>(p.get());
+}
 
 #define SUEDE_USE_NAMESPACE
 
@@ -35,25 +51,3 @@ template <class T, class A> struct suede_is_vector<std::vector<T, A>> : public s
 #endif
 
 #define SUEDE_MAX_DECALS		256
-
-/**
- * @brief static shared_ptr cast.
- */
-template <class T, class Ptr>
-inline T suede_static_cast(const Ptr& ptr) {
-	return T(ptr, static_cast<typename T::element_type*>(ptr.get()));
-}
-
-/**
- * @brief dynamic shared_ptr cast.
- */
-template <class T, class Ptr>
-inline T suede_dynamic_cast(const Ptr& ptr) {
-	typedef typename T::element_type Element;
-	Element* p = dynamic_cast<Element*>(ptr.get());
-	if (p != nullptr) {
-		return T(ptr, p);
-	}
-
-	return T();
-}

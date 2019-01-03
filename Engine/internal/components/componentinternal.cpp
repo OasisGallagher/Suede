@@ -15,12 +15,12 @@ void IComponent::OnMessage(int messageID, void* parameter) { _suede_dptr()->OnMe
 void IComponent::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 int IComponent::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 
-bool ComponentUtility::Register(suede_guid guid, Object(*method)()) {
-	return Factory::RegisterComponent(guid, method);
+bool ComponentUtility::Register(suede_guid guid, const std::function<Object()>& creater) {
+	return Factory::AddFactoryMethod(guid, creater);
 }
 
-bool ComponentUtility::Register(const char* name, Object(*method)()) {
-	return Factory::RegisterComponent(name, method);
+bool ComponentUtility::Register(const char* name, const std::function<Object()>& creater) {
+	return Factory::AddFactoryMethod(name, creater);
 }
 
 suede_guid IComponent::ClassNameToGUID(const char* className) {
@@ -29,10 +29,5 @@ suede_guid IComponent::ClassNameToGUID(const char* className) {
 }
 
 void ComponentInternal::SetGameObject(GameObject go) {
-	if (gameObject_.lock()) {
-		Debug::LogError("component could not be shared.");
-		return;
-	}
-
-	gameObject_ = go;
+	gameObject_ = go.get();
 }

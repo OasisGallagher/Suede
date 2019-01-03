@@ -20,7 +20,7 @@ void IMaterial::SetPass(int pass) { _suede_dptr()->SetPass(pass); }
 int IMaterial::GetPass() const { return _suede_dptr()->GetPass(); }
 uint IMaterial::GetPassCount() const { return _suede_dptr()->GetPassCount(); }
 uint IMaterial::GetPassNativePointer(uint pass) const { return _suede_dptr()->GetPassNativePointer(pass); }
-void IMaterial::SetShader(Shader value) { _suede_dptr()->SetShader(_shared_this(), value); }
+void IMaterial::SetShader(Shader value) { _suede_dptr()->SetShader(this, value); }
 Shader IMaterial::GetShader() { return _suede_dptr()->GetShader(); }
 void IMaterial::SetRenderQueue(int value) { _suede_dptr()->SetRenderQueue(value); }
 int IMaterial::GetRenderQueue() const { return _suede_dptr()->GetRenderQueue(); }
@@ -61,14 +61,14 @@ MaterialInternal::~MaterialInternal() {
 }
 
 Object MaterialInternal::Clone() {
-	Material clone = NewMaterial();
+	Material clone = new IMaterial();
 	MaterialInternal* clonePtr = _suede_rptr(clone);
 	*clonePtr = *this;
 
 	return clone;
 }
 
-void MaterialInternal::SetShader(Material self, Shader value) {
+void MaterialInternal::SetShader(IMaterial* self, Shader value) {
 	shader_ = value;
 	UpdateProperties(self, value);
 	InitializeEnabledState();
@@ -425,7 +425,7 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::UpdateProperties(Material self, Shader newShader) {
+void MaterialInternal::UpdateProperties(IMaterial* self, Shader newShader) {
 	CopyProperties(newShader);
 	SharedTextureManager::instance()->Attach(self);
 }
