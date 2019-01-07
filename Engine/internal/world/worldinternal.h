@@ -76,8 +76,6 @@ private:
 
 	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
 
-	void UpdateTimeUniformBuffer();
-
 	void RemoveGameObjectFromSequence(GameObject go);
 	void ManageGameObjectUpdateSequence(GameObject go);
 
@@ -125,7 +123,7 @@ private:
 template <class Container>
 void WorldInternal::ManageGameObjectComponents(Container& container, Component component, int state) {
 	typedef Container::value_type T;
-	typedef typename T::element_type U;
+	typedef T::element_type U;
 
 	if (component->IsComponentType(U::GetComponentGUID())) {
 		T target = suede_dynamic_cast<T>(component);

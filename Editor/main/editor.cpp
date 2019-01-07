@@ -163,8 +163,6 @@ void Editor::onPreferences() {
 }
 
 void Editor::onScreenCapture() {
-	Texture2D tex = CameraUtility::GetMain()->Capture();
-
 	QString filter = "*.jpg;;*.png";
 	
 	QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -173,6 +171,8 @@ void Editor::onScreenCapture() {
 	if (path.isEmpty()) {
 		return;
 	}
+
+	Texture2D tex = RenderTextureUtility::GetDefault()->ToTexture2D();
 
 	std::vector<uchar> data;
 	if (path.endsWith(".jpg")) {

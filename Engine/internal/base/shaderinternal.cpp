@@ -9,7 +9,7 @@
 
 #include "internal/base/renderdefines.h"
 
-#include "internal/rendering/uniformbuffermanager.h"
+#include "internal/rendering/rendering.h"
 
 IShader::IShader() : IObject(MEMORY_NEW(ShaderInternal)) {}
 std::string IShader::GetName() const { return _suede_dptr()->GetName(); }
@@ -679,7 +679,7 @@ bool ShaderInternal::Load(IShader* self, const std::string& path) {
 
 	SetProperties(properties);
 
-	UniformBufferManager::instance()->Attach(self);
+	Rendering::GetUniformBufferManager()->Attach(self);
 
 	path_ = path;
 	return true;

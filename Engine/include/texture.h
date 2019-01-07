@@ -54,6 +54,8 @@ protected:
 	ITexture(void* d);
 };
 
+SUEDE_DEFINE_OBJECT_POINTER(Texture)
+
 enum class TextureFormat {
 	Rgb,
 	Rgba,
@@ -93,6 +95,8 @@ public:
 	bool EncodeToJPG(std::vector<uchar>& data);
 };
 
+SUEDE_DEFINE_OBJECT_POINTER(Texture2D)
+
 class SUEDE_API ITextureCube : public ITexture {
 	SUEDE_DEFINE_METATABLE_NAME(TextureCube)
 	SUEDE_DECLARE_IMPLEMENTATION(TextureCube)
@@ -103,6 +107,8 @@ public:
 public:
 	bool Load(const std::string textures[6]);
 };
+
+SUEDE_DEFINE_OBJECT_POINTER(TextureCube)
 
 class SUEDE_API ITextureBuffer : public ITexture {
 	SUEDE_DEFINE_METATABLE_NAME(TextureBuffer)
@@ -116,6 +122,8 @@ public:
 	bool Create(uint size);
 	void Update(uint offset, uint size, const void* data);
 };
+
+SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer)
 
 BETTER_ENUM(RenderTextureFormat, int,
 	Rgb,
@@ -141,8 +149,11 @@ public:
 public:
 	bool Create(RenderTextureFormat format, uint width, uint height);
 
+	Texture2D ToTexture2D();
+
 	void Resize(uint width, uint height);
 	void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 	void BindWrite(const Rect& normalizedRect);
 
@@ -158,11 +169,6 @@ struct SUEDE_API RenderTextureUtility {
 	static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height);
 	static void ReleaseTemporary(RenderTexture texture);
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Texture)
-SUEDE_DEFINE_OBJECT_POINTER(Texture2D)
-SUEDE_DEFINE_OBJECT_POINTER(TextureCube)
-SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer)
 
 class SUEDE_API IMRTRenderTexture : public IRenderTexture {
 	SUEDE_DEFINE_METATABLE_NAME(MRTRenderTexture)

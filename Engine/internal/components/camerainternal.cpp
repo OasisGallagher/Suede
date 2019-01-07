@@ -9,10 +9,11 @@
 #include "gizmospainter.h"
 #include "geometryutility.h"
 
+#include "time2.h"
 #include "tools/math2.h"
 
 #include "internal/async/async.h"
-#include "internal/rendering/sharedtexturemanager.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
 void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
@@ -45,7 +46,6 @@ const glm::mat4& ICamera::GetProjectionMatrix() { return _suede_dptr()->GetProje
 void ICamera::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) { return _suede_dptr()->GetVisibleGameObjects(gameObjects); }
 glm::vec3 ICamera::WorldToScreenPoint(const glm::vec3& position) { return _suede_dptr()->WorldToScreenPoint(position); }
 glm::vec3 ICamera::ScreenToWorldPoint(const glm::vec3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
-Texture2D ICamera::Capture() { return _suede_dptr()->Capture(); }
 void ICamera::Render() { _suede_dptr()->Render(); }
 void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
 
@@ -56,34 +56,27 @@ Camera CameraUtility::GetMain() { return main_; }
 void CameraUtility::SetMain(Camera value) { main_ = value; }
 
 void CameraUtility::OnPreRender() {
-	Framebuffer0::instance()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
-	Framebuffer0::instance()->SetClearDepth(1);
-	Framebuffer0::instance()->SetClearStencil(1);
-	Framebuffer0::instance()->SetClearColor(Color::black);
-	Framebuffer0::instance()->Clear(FramebufferClearMaskColorDepthStencil);
+	static SharedTimeUniformBuffer p;
+	p.time.x = Time::GetRealTimeSinceStartup();
+	p.time.y = Time::GetDeltaTime();
+	Rendering::GetUniformBufferManager()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
+
+	RenderTextureUtility::GetDefault()->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 }
 
 void CameraUtility::OnPostRender() {
-	RenderTexture target = RenderTextureUtility::GetDefault();
-	target->BindWrite(GetMain()->GetRect());
+	RenderTextureUtility::GetDefault()->BindWrite(GetMain()->GetRect());
 
 	for (GizmosPainter painter : World::GetComponents<GizmosPainter>()) {
 		painter->OnDrawGizmos();
 	}
 
-	target->Unbind();
+	RenderTextureUtility::GetDefault()->Unbind();
 }
 
-std::shared_ptr<Shadows> CameraInternal::shadows_;
-
 CameraInternal::CameraInternal()
-	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
-	 /*, gbuffer_(nullptr) */{
-	if (!shadows_) {
-		shadows_ = std::make_shared<Shadows>(SharedTextureManager::instance()->GetShadowDepthTexture());
-	}
-
-	p_ = MEMORY_NEW(RenderingParameters, shadows_.get());
+	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false) /*, gbuffer_(nullptr) */{
+	p_ = MEMORY_NEW(RenderingParameters);
 
 	culling_ = MEMORY_NEW(Culling, this);
 	cullingThread_ = MEMORY_NEW(ZThread::Thread, culling_);
@@ -103,6 +96,7 @@ CameraInternal::~CameraInternal() {
 	CancelThreads();
 
 	MEMORY_DELETE(p_);
+
 	MEMORY_DELETE(traits0_);
 	MEMORY_DELETE(traits1_);
 
@@ -220,16 +214,4 @@ glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
 	glm::ivec4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
 	return glm::unProject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
-}
-
-Texture2D CameraInternal::Capture() {
-	uint alignment = 4;
-	std::vector<uchar> data;
-	Framebuffer0::instance()->ReadBuffer(data, &alignment);
-
-	Texture2D texture = new ITexture2D();
-	const glm::ivec4& viewport = Framebuffer0::instance()->GetViewport();
-	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
-
-	return texture;
 }

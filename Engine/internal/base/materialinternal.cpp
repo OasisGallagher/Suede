@@ -6,7 +6,7 @@
 #include "materialinternal.h"
 #include "builtinproperties.h"
 
-#include "internal/rendering/sharedtexturemanager.h"
+#include "internal/rendering/rendering.h"
 
 IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) { }
 Object IMaterial::Clone() { return _suede_dptr()->Clone(); }
@@ -427,7 +427,11 @@ void MaterialInternal::UnbindProperties() {
 
 void MaterialInternal::UpdateProperties(IMaterial* self, Shader newShader) {
 	CopyProperties(newShader);
-	SharedTextureManager::instance()->Attach(self);
+
+	SetTexture(BuiltinProperties::SSAOTexture, Rendering::GetSSAOTexture());
+	SetTexture(BuiltinProperties::DepthTexture, Rendering::GetDepthTexture());
+	SetTexture(BuiltinProperties::ShadowDepthTexture, Rendering::GetShadowDepthTexture());
+	SetTexture(BuiltinProperties::MatrixTextureBuffer, Rendering::GetMatrixTextureBuffer());
 }
 
 void MaterialInternal::CopyProperties(Shader newShader) {

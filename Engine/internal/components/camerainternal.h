@@ -48,8 +48,6 @@ public:
 	void SetTargetTexture(RenderTexture value) { p_->renderTextures.target = value; }
 	RenderTexture GetTargetTexture() { return p_->renderTextures.target; }
 
-	Texture2D Capture();
-
 public:
 	void Render();
 	void OnBeforeWorldDestroyed();
@@ -98,8 +96,6 @@ private:
 	bool IsValidViewportRect();
 
 private:
-	static std::shared_ptr<Shadows> shadows_;
-
 	int depth_;
 
 	//GBuffer* gbuffer_;

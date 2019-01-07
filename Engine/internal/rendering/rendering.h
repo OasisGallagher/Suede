@@ -5,9 +5,9 @@
 #include "renderer.h"
 #include "gameobject.h"
 
-#include "internal/rendering/shadows.h"
 #include "internal/rendering/pipeline.h"
 #include "internal/rendering/matrixbuffer.h"
+#include "internal/rendering/uniformbuffermanager.h"
 
 class Sample;
 class Pipeline;
@@ -48,11 +48,26 @@ struct RenderingRenderTextures {
 	MRTRenderTexture ssaoTraversal;
 };
 
+class ShadowParameters {
+public:
+	ShadowParameters();
+
+public:
+	void Update(Light light);
+
+	Material GetMaterial();
+	const glm::mat4& GetWorldToShadowMatrix();
+
+private:
+	glm::mat4 worldToShadowMatrix_;
+	Material directionalLightShadowMaterial_;
+};
+
 struct RenderingParameters {
-	RenderingParameters(Shadows* shadows);
+	RenderingParameters();
 	~RenderingParameters();
 
-	Shadows* shadows;
+	ShadowParameters* shadow;
 	MatrixBuffer* matrixBuffer;
 
 	IGameObject* camera;
@@ -91,6 +106,13 @@ public:
 
 	void Resize(uint width, uint height);
 	void ClearRenderTextures();
+
+public:
+	static RenderTexture GetSSAOTexture();
+	static RenderTexture GetDepthTexture();
+	static RenderTexture GetShadowDepthTexture();
+	static TextureBuffer GetMatrixTextureBuffer();
+	static UniformBufferManager* GetUniformBufferManager();
 
 private:
 	void OnPostRender();

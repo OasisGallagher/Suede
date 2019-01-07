@@ -60,7 +60,7 @@ struct GameObjectDestroyedEvent : public GameObjectEvent {
 DEFINE_WORLD_EVENT_PTR(GameObjectDestroyedEvent);
 
 /**
- * @warning only gameObjects with non-null parant cound send this event.
+ * @warning only gameObjects with non-null parant could send this event.
  */
 struct GameObjectParentChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectParentChanged; }

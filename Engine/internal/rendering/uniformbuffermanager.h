@@ -40,9 +40,10 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 
 #undef DEFINE_SHARED_UNIFORM_BUFFER
 
-class UniformBuffer;
-class UniformBufferManager : public singleton<UniformBufferManager> {
-	friend singleton<UniformBufferManager>;
+class UniformBufferManager {
+public:
+	UniformBufferManager();
+	~UniformBufferManager();
 
 public:
 	uint GetOffsetAlignment() { return offsetAlignment_; }
@@ -50,10 +51,6 @@ public:
 public:
 	void Attach(Shader shader);
 	bool Update(const std::string& name, const void* data, uint offset, uint size);
-
-private:
-	UniformBufferManager();
-	~UniformBufferManager();
 
 private:
 	template <class T>
@@ -66,11 +63,3 @@ private:
 	uint offsetAlignment_;
 	SharedUniformBufferContainer sharedUniformBuffers_;
 };
-
-template  <class T>
-void UniformBufferManager::CreateBuffer(uint size) {
-	if (size == 0) { size = sizeof(T); }
-	UniformBuffer* ptr = MEMORY_NEW(UniformBuffer);
-	ptr->Create(T::GetName(), size);
-	sharedUniformBuffers_.insert(std::make_pair(T::GetName(), ptr));
-}

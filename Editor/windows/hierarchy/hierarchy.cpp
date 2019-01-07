@@ -295,6 +295,8 @@ void Hierarchy::appendChildItem(GameObject go) {
 }
 
 void Hierarchy::enableGameObjectOutline(GameObject go, bool enable) {
+	return;
+
 	if (!go) { return; }
 
 	MeshRenderer renderer = go->GetComponent<MeshRenderer>();

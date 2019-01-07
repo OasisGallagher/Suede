@@ -23,12 +23,17 @@ bool UniformBuffer::Create(const std::string& name, uint size) {
 }
 
 void UniformBuffer::AttachBuffer(Shader shader) {
-	Attach(shader);
+	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
+		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
+			uint program = shader->GetNativePointer(i, j);
+			AttachProgram(program);
+		}
+	}
 }
 
 void UniformBuffer::AttachSubBuffer(Shader shader, uint offset, uint size) {
 	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer(), offset, size);
-	Attach(shader);
+	AttachBuffer(shader);
 }
 
 void UniformBuffer::AttachProgram(uint program) {
@@ -38,6 +43,7 @@ void UniformBuffer::AttachProgram(uint program) {
 	if (pos != nullptr) {
 		newName.assign(ptr, pos);
 	}
+
 	GLuint index = GL::GetUniformBlockIndex(program, newName.c_str());
 
 	if (index == GL_INVALID_INDEX) {
@@ -71,13 +77,4 @@ void UniformBuffer::Initialize(const std::string& name, uint size) {
 
 void UniformBuffer::Destroy() {
 	MEMORY_DELETE(ubo_);
-}
-
-void UniformBuffer::Attach(Shader shader) {
-	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
-		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
-			uint program = shader->GetNativePointer(i, j);
-			AttachProgram(program);
-		}
-	}
 }

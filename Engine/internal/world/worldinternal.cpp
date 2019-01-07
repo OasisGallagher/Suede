@@ -6,20 +6,11 @@
 #include "decalcreater.h"
 #include "../api/glutils.h"
 
-#include "rigidbody.h"
-#include "gameobject.h"
-#include "environment.h"
-
-#include "gizmos.h"
-#include "graphics.h"
 #include "resources.h"
 
 #include "internal/async/async.h"
-#include "internal/rendering/shadows.h"
 #include "internal/codec/gameObjectloader.h"
-#include "internal/rendering/matrixbuffer.h"
 #include "internal/components/transforminternal.h"
-#include "internal/rendering/uniformbuffermanager.h"
 
 World::World() : singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
 
@@ -74,8 +65,6 @@ WorldInternal::WorldInternal()
 void WorldInternal::Initialize() {
 	GLUtils::Initialize();
 	Resources::FindShader("builtin/lit_texture");
-
-	UniformBufferManager::instance();
 
 	decalCreater_ = MEMORY_NEW(DecalCreater);
 
@@ -339,13 +328,6 @@ void WorldInternal::FireEvents() {
 	}
 }
 
-void WorldInternal::UpdateTimeUniformBuffer() {
-	static SharedTimeUniformBuffer p;
-	p.time.x = Time::GetRealTimeSinceStartup();
-	p.time.y = Time::GetDeltaTime();
-	UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
-}
-
 void WorldInternal::RemoveGameObjectFromSequence(GameObject go) {
 	cullingUpdateSequence_.erase(go);
 	renderingUpdateSequence_.erase(go);
@@ -385,8 +367,6 @@ void WorldInternal::Update() {
 	UpdateDecals();
 
 	RenderingUpdateGameObjects();
-
-	UpdateTimeUniformBuffer();
 
 	CameraUtility::OnPreRender();
 

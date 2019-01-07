@@ -21,7 +21,6 @@ public:
 
 private:
 	void Destroy();
-	void Attach(Shader shader);
 	void AttachProgram(uint program);
 	void Initialize(const std::string& name, uint size);
 

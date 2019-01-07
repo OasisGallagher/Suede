@@ -155,15 +155,8 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 }
 
 void RigidbodyInternal::DestroyShape() {
-	if (mesh_ != nullptr) {
-		MEMORY_DELETE(mesh_);
-		mesh_ = nullptr;
-	}
-
-	if (shape_ != nullptr) {
-		MEMORY_DELETE(shape_);
-		shape_ = nullptr;
-	}
+	MEMORY_DELETE(mesh_);
+	MEMORY_DELETE(shape_);
 }
 
 void RigidbodyInternal::ApplyPhysicsTransform() {

@@ -82,8 +82,6 @@ public:
 	glm::vec3 WorldToScreenPoint(const glm::vec3& position);
 	glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
 
-	Texture2D Capture();
-
 	void Render();
 	void OnBeforeWorldDestroyed();
 };

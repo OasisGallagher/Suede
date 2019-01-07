@@ -45,8 +45,10 @@ void ITextureBuffer::Update(uint offset, uint size, const void* data) { _suede_d
 IRenderTexture::IRenderTexture() : ITexture(MEMORY_NEW(RenderTextureInternal)) {}
 IRenderTexture::IRenderTexture(void* d) : ITexture(d) {}
 bool IRenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
+Texture2D IRenderTexture::ToTexture2D() { return _suede_dptr()->ToTexture2D(); }
 void IRenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
-void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth); }
+void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth, (1 << GLUtils::GetLimits(GLLimitsStencilBits)) - 1); }
+void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) { _suede_dptr()->Clear(normalizedRect, color, depth, stencil); }
 void IRenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
 
 IMRTRenderTexture::IMRTRenderTexture() : IRenderTexture(MEMORY_NEW(MRTRenderTextureInternal)) {}
@@ -406,6 +408,7 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 	return true;
 }
 
+// for RenderTextureUtility::GetTemporary/ReleaseTemporary.
 class TemporaryRenderTextureManager : public singleton<TemporaryRenderTextureManager> {
 	friend class singleton<TemporaryRenderTextureManager>;
 
@@ -419,10 +422,6 @@ public:
 	void ReleaseTemporary(RenderTexture texture) {
 
 	}
-
-private:
-	TemporaryRenderTextureManager() { }
-	~TemporaryRenderTextureManager() { }
 };
 
 RenderTexture RenderTextureUtility::GetDefault() {
@@ -491,18 +490,20 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	return true;
 }
 
-void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
+void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
 	if (!SetViewport(width_, height_, normalizedRect)) {
 		return;
 	}
 
 	if (ContainsDepthInfo()) {
 		framebuffer_->SetClearDepth(depth);
+		framebuffer_->SetClearStencil(stencil);
 		framebuffer_->Clear(FramebufferClearMaskDepth);
 	}
 	else {
 		framebuffer_->SetClearDepth(depth);
 		framebuffer_->SetClearColor(color);
+		framebuffer_->SetClearStencil(stencil);
 		framebuffer_->Clear(FramebufferClearMaskColorDepth);
 	}
 }
@@ -521,6 +522,18 @@ void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 	bindStatus_ = StatusWrite;
 	SetViewport(width_, height_, normalizedRect);
 	framebuffer_->BindWrite();
+}
+
+Texture2D RenderTextureInternal::ToTexture2D() {
+	uint alignment = 4;
+	std::vector<uchar> data;
+	framebuffer_->ReadBuffer(data, &alignment);
+
+	Texture2D texture = new ITexture2D();
+	const glm::ivec4& viewport = framebuffer_->GetViewport();
+	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
+
+	return texture;
 }
 
 void RenderTextureInternal::Bind(uint index) {
@@ -660,20 +673,20 @@ ScreenRenderTextureInternal::ScreenRenderTextureInternal() {
 }
 
 ScreenRenderTextureInternal::~ScreenRenderTextureInternal() {
-	framebuffer_ = nullptr;
 }
 
 bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	framebuffer_ = Framebuffer0::instance();
+	framebuffer_ = MEMORY_NEW(Framebuffer0);
 	return true;
 }
 
-void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
+void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
 	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
 
 	framebuffer_->SetClearDepth(depth);
 	framebuffer_->SetClearColor(color);
-	framebuffer_->Clear(FramebufferClearMaskColorDepth);
+	framebuffer_->SetClearStencil(stencil);
+	framebuffer_->Clear(FramebufferClearMaskColorDepthStencil);
 }
 
 uint ScreenRenderTextureInternal::GetWidth() const {

@@ -233,12 +233,6 @@ class Camera_Wrapper {
 		return Lua::push(L, _p->ScreenToWorldPoint(position));
 	}
 
-	// Texture2D Capture()
-	static int Capture(lua_State* L) {
-		Camera& _p = *Lua::callerIntrusivePtr<Camera>(L);
-		return Lua::push(L, _p->Capture());
-	}
-
 	// void Render()
 	static int Render(lua_State* L) {
 		Camera& _p = *Lua::callerIntrusivePtr<Camera>(L);
@@ -292,7 +286,6 @@ public:
 			{ "GetVisibleGameObjects", GetVisibleGameObjects },
 			{ "WorldToScreenPoint", WorldToScreenPoint },
 			{ "ScreenToWorldPoint", ScreenToWorldPoint },
-			{ "Capture", Capture },
 			{ "Render", Render },
 			{ "OnBeforeWorldDestroyed", OnBeforeWorldDestroyed },
 			{ nullptr, nullptr }

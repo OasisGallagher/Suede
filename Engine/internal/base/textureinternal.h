@@ -131,6 +131,9 @@ public:
 	virtual ~RenderTextureInternal();
 
 public:
+	Texture2D ToTexture2D();
+
+public:
 	virtual void Bind(uint index);
 	virtual void Unbind();
 
@@ -138,7 +141,7 @@ public:
 	virtual void Resize(uint width, uint height);
 
 	virtual void BindWrite(const Rect& normalizedRect);
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
@@ -192,7 +195,7 @@ public:
 	virtual void Unbind();
 
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 protected:
 	virtual void Resize(uint width, uint height);

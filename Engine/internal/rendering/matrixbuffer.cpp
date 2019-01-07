@@ -1,7 +1,6 @@
 #include "matrixbuffer.h"
 #include "../api/glutils.h"
 #include "builtinproperties.h"
-#include "sharedtexturemanager.h"
 #include "internal/base/renderdefines.h"
 
 MatrixBuffer::MatrixBuffer(TextureBuffer buffer) : textureBuffer_(buffer) {

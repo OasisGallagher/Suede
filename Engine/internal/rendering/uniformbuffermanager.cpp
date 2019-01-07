@@ -1,10 +1,19 @@
+#include "uniformbuffermanager.h"
+
 #include "screen.h"
 #include "tools/math2.h"
 #include "memory/memory.h"
 #include "../api/glutils.h"
 #include "builtinproperties.h"
-#include "uniformbuffermanager.h"
 #include "internal/base/renderdefines.h"
+
+template  <class T>
+void UniformBufferManager::CreateBuffer(uint size) {
+	if (size == 0) { size = sizeof(T); }
+	UniformBuffer* ptr = MEMORY_NEW(UniformBuffer);
+	ptr->Create(T::GetName(), size);
+	sharedUniformBuffers_.insert(std::make_pair(T::GetName(), ptr));
+}
 
 UniformBufferManager::UniformBufferManager() {
 	GL::GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, (GLint*)&offsetAlignment_);

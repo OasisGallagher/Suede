@@ -309,6 +309,12 @@ class RenderTexture_Wrapper {
 		return Lua::push(L, _p->Create(format, width, height));
 	}
 
+	// Texture2D ToTexture2D()
+	static int ToTexture2D(lua_State* L) {
+		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
+		return Lua::push(L, _p->ToTexture2D());
+	}
+
 	// void Resize(uint width, uint height)
 	static int Resize(lua_State* L) {
 		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
@@ -320,13 +326,29 @@ class RenderTexture_Wrapper {
 	}
 
 	// void Clear(const Rect& normalizedRect, const Color& color, float depth)
+	// void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil)
 	static int Clear(lua_State* L) {
 		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
-		float depth = Lua::get<float>(L, 4);
-		Color color = Lua::get<Color>(L, 3);
-		Rect normalizedRect = Lua::get<Rect>(L, 2);
-		
-		_p->Clear(normalizedRect, color, depth);
+		if (Lua::checkArguments<Rect, Color, float>(L, 2)) {
+			float depth = Lua::get<float>(L, 4);
+			Color color = Lua::get<Color>(L, 3);
+			Rect normalizedRect = Lua::get<Rect>(L, 2);
+			
+			_p->Clear(normalizedRect, color, depth);
+			return 0;
+		}
+
+		if (Lua::checkArguments<Rect, Color, float, int>(L, 2)) {
+			int stencil = Lua::get<int>(L, 5);
+			float depth = Lua::get<float>(L, 4);
+			Color color = Lua::get<Color>(L, 3);
+			Rect normalizedRect = Lua::get<Rect>(L, 2);
+			
+			_p->Clear(normalizedRect, color, depth, stencil);
+			return 0;
+		}
+
+		Debug::LogError("failed to call \"Clear\", invalid arguments.");
 		return 0;
 	}
 
@@ -351,6 +373,7 @@ public:
 			{ "__gc", Lua::deleteIntrusivePtr<RenderTexture> },
 			{ "__tostring", ToString }, 
 			{ "Create", Create },
+			{ "ToTexture2D", ToTexture2D },
 			{ "Resize", Resize },
 			{ "Clear", Clear },
 			{ "BindWrite", BindWrite },
