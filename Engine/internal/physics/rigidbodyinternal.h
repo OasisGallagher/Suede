@@ -6,9 +6,10 @@
 #include "bullet/btBulletDynamicsCommon.h"
 
 class RigidbodyInternal : public ComponentInternal {
+	SUEDE_DECLARE_SELF_TYPE(IRigidbody)
+
 public:
-	RigidbodyInternal();
-	~RigidbodyInternal();
+	RigidbodyInternal(IRigidbody* self);	~RigidbodyInternal();
 
 public:
 	virtual void Awake();

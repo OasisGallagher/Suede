@@ -128,13 +128,15 @@ private:
 };
 
 class ShaderInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IShader)
+
 public:
-	ShaderInternal();
+	ShaderInternal(IShader* self);
 	~ShaderInternal();
 
 public:
 	std::string GetName() const;
-	bool Load(IShader* self, const std::string& path);
+	bool Load(const std::string& path);
 
 	void Bind(uint ssi, uint pass);
 	void Unbind();

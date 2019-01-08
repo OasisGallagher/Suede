@@ -3,8 +3,7 @@
 #include "environment.h"
 
 class EnvironmentInternal {
-public:
-	EnvironmentInternal() : fogDensity_(0.0001f) {}
+public:	EnvironmentInternal() : fogDensity_(0.0001f) {}
 
 public:
 	void SetSkybox(Material value);

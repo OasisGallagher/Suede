@@ -5,8 +5,7 @@
 #include "containers/freelist.h"
 
 class SampleInternal {
-public:
-	SampleInternal() { Reset(); }
+public:	SampleInternal() { Reset(); }
 
 public:
 	void Start();
@@ -24,9 +23,7 @@ private:
 };
 
 class ProfilerInternal : public FrameEventListener {
-public:
-	ProfilerInternal();
-	~ProfilerInternal();
+public:	ProfilerInternal();	~ProfilerInternal();
 
 public:
 	Sample* CreateSample();

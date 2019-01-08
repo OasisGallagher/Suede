@@ -5,12 +5,14 @@
 #include "internal/base/objectinternal.h"
 
 class GameObjectInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IGameObject)
+
 public:
-	GameObjectInternal();
+	GameObjectInternal(IGameObject* self);
 	~GameObjectInternal();
 
 protected:
-	GameObjectInternal(ObjectType type);
+	GameObjectInternal(IGameObject* self, ObjectType type);
 
 public:
 	bool GetActive() const { return active_; }
@@ -35,7 +37,7 @@ public:
 	void RecalculateUpdateStrategy(GameObject self);
 
 protected:
-	virtual void OnNameChanged(Object self);
+	virtual void OnNameChanged();
 
 public:
 	template <class T>

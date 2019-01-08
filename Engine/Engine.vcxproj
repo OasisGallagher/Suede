@@ -192,6 +192,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\codec\image.cpp" />
     <ClCompile Include="internal\codec\shaderparser.cpp" />
     <ClCompile Include="internal\codec\gameobjectloader.cpp" />
+    <ClCompile Include="internal\culling\dbvtculling.cpp" />
+    <ClCompile Include="internal\culling\occlusionbuffer.cpp" />
     <ClCompile Include="internal\gameobject\gameobjectinternal.cpp" />
     <ClCompile Include="internal\geometry\bounds.cpp" />
     <ClCompile Include="internal\geometry\bsptree.cpp" />
@@ -491,6 +493,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\culling\culling.h" />
     <ClInclude Include="internal\codec\image.h" />
     <ClInclude Include="internal\codec\shaderparser.h" />
+    <ClInclude Include="internal\culling\dbvtculling.h" />
+    <ClInclude Include="internal\culling\occlusionbuffer.h" />
     <ClInclude Include="internal\gameobject\gameobjectinternal.h" />
     <ClInclude Include="internal\geometry\bsptree.h" />
     <ClInclude Include="internal\gui\imconfig.h" />

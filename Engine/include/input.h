@@ -60,9 +60,7 @@ BETTER_ENUM(KeyCode, int,
 )
 
 class SUEDE_API InputInternal : public FrameEventListener {
-public:
-	InputInternal();
-	virtual ~InputInternal();
+public:	InputInternal();	virtual ~InputInternal();
 
 public:
 	virtual int GetFrameEventQueue() final;

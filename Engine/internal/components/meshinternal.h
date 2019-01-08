@@ -10,8 +10,10 @@
 #include "internal/base/objectinternal.h"
 
 class SubMeshInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(ISubMesh)
+
 public:
-	SubMeshInternal();
+	SubMeshInternal(ISubMesh* self);
 
 public:
 	void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
@@ -27,9 +29,11 @@ public:
 };
 
 class MeshInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IMesh)
+
 public:
-	MeshInternal();
-	MeshInternal(ObjectType type);
+	MeshInternal(IMesh* self);
+	MeshInternal(IMesh* self, ObjectType type);
 	~MeshInternal();
 
 public:
@@ -98,8 +102,10 @@ private:
 };
 
 class MeshProviderInternal : public ComponentInternal, public IMeshModifiedListener {
+	SUEDE_DECLARE_SELF_TYPE(IMeshProvider)
+
 public:
-	MeshProviderInternal(ObjectType type);
+	MeshProviderInternal(IMeshProvider* self, ObjectType type);
 	~MeshProviderInternal();
 
 public:
@@ -114,8 +120,10 @@ private:
 };
 
 class TextMeshInternal : public MeshProviderInternal, public FontMaterialRebuiltListener {
+	SUEDE_DECLARE_SELF_TYPE(ITextMesh)
+
 public:
-	TextMeshInternal();
+	TextMeshInternal(ITextMesh* self);
 	~TextMeshInternal();
 
 public:
@@ -151,8 +159,10 @@ private:
 };
 
 class MeshFilterInternal : public MeshProviderInternal {
+	SUEDE_DECLARE_SELF_TYPE(IMeshFilter)
+
 public:
-	MeshFilterInternal();
+	MeshFilterInternal(IMeshFilter* self);
 
 public:
 	int GetUpdateStrategy() { return UpdateStrategyNone; }

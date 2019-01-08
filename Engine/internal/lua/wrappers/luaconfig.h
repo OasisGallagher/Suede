@@ -368,6 +368,8 @@ static int configure(lua_State* L) {
 	lua_setfield(L, -2, "Rgba16F");
 	lua_pushinteger(L, (int)TextureFormat::Rgba32F);
 	lua_setfield(L, -2, "Rgba32F");
+	lua_pushinteger(L, (int)TextureFormat::Luminance);
+	lua_setfield(L, -2, "Luminance");
 
 	lua_setfield(L, -2, "TextureFormat");
 
@@ -387,6 +389,8 @@ static int configure(lua_State* L) {
 	lua_setfield(L, -2, "Argb");
 	lua_pushinteger(L, (int)ColorStreamFormat::Bgra);
 	lua_setfield(L, -2, "Bgra");
+	lua_pushinteger(L, (int)ColorStreamFormat::Luminance);
+	lua_setfield(L, -2, "Luminance");
 	lua_pushinteger(L, (int)ColorStreamFormat::LuminanceAlpha);
 	lua_setfield(L, -2, "LuminanceAlpha");
 

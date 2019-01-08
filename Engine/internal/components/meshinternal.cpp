@@ -4,11 +4,11 @@
 #include "meshinternal.h"
 #include "internal/base/vertexattrib.h"
 
-ISubMesh::ISubMesh() : IObject(MEMORY_NEW(SubMeshInternal)) {}
+ISubMesh::ISubMesh() : IObject(MEMORY_NEW(SubMeshInternal, this)) {}
 const TriangleBias& ISubMesh::GetTriangleBias() const { return _suede_dptr()->GetTriangleBias(); }
 void ISubMesh::SetTriangleBias(const TriangleBias& value) { _suede_dptr()->SetTriangleBias(value); }
 
-IMesh::IMesh() : IObject(MEMORY_NEW(MeshInternal)) {}
+IMesh::IMesh() : IObject(MEMORY_NEW(MeshInternal, this)) {}
 void IMesh::CreateStorage() { _suede_dptr()->CreateStorage(); }
 void IMesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(value); }
 //const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
@@ -34,7 +34,7 @@ void IMesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { _suede_dptr(
 
 IMeshProvider::IMeshProvider(void* d) : IComponent(d) {}
 Mesh IMeshProvider::GetMesh() { return _suede_dptr()->GetMesh(); }
-ITextMesh::ITextMesh() : IMeshProvider(MEMORY_NEW(TextMeshInternal)) {}
+ITextMesh::ITextMesh() : IMeshProvider(MEMORY_NEW(TextMeshInternal, this)) {}
 void ITextMesh::SetText(const std::string& value) { _suede_dptr()->SetText(value); }
 std::string ITextMesh::GetText() { return _suede_dptr()->GetText(); }
 void ITextMesh::SetFont(Font value) { _suede_dptr()->SetFont(value); }
@@ -42,21 +42,20 @@ Font ITextMesh::GetFont() { return _suede_dptr()->GetFont(); }
 void ITextMesh::SetFontSize(uint value) { _suede_dptr()->SetFontSize(value); }
 uint ITextMesh::GetFontSize() { return _suede_dptr()->GetFontSize(); }
 
-IMeshFilter::IMeshFilter() : IMeshProvider(MEMORY_NEW(MeshFilterInternal)) {}
+IMeshFilter::IMeshFilter() : IMeshProvider(MEMORY_NEW(MeshFilterInternal, this)) {}
 void IMeshFilter::SetMesh(Mesh value) { _suede_dptr()->SetMesh(value); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(MeshProvider, Component)
 SUEDE_DEFINE_COMPONENT_INTERNAL(TextMesh, MeshProvider)
 SUEDE_DEFINE_COMPONENT_INTERNAL(MeshFilter, MeshProvider)
 
-SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
+SubMeshInternal::SubMeshInternal(ISubMesh* self) :ObjectInternal(self, ObjectType::SubMesh) {
 }
 
-MeshInternal::MeshInternal() : MeshInternal(ObjectType::Mesh) {
+MeshInternal::MeshInternal(IMesh* self) : MeshInternal(self, ObjectType::Mesh) {
 }
 
-MeshInternal::MeshInternal(ObjectType type)
-	: ObjectInternal(type) {
+MeshInternal::MeshInternal(IMesh* self, ObjectType type) : ObjectInternal(self, type) {
 }
 
 MeshInternal::~MeshInternal() {
@@ -245,9 +244,9 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-#define GetMeshInternal(mesh)	((mesh).get()->_rptr_impl<MeshInternal>())
+#define GetMeshInternal(mesh)	((MeshInternal*)(mesh)->d_)
 
-MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(type) {
+MeshProviderInternal::MeshProviderInternal(IMeshProvider* self, ObjectType type) : ComponentInternal(self, type) {
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
@@ -265,7 +264,7 @@ void MeshProviderInternal::OnMeshModified() {
 	GetGameObject()->SendMessage(GameObjectMessageMeshModified, nullptr);
 }
 
-TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), dirty_(false) {
+TextMeshInternal::TextMeshInternal(ITextMesh* self) : MeshProviderInternal(self, ObjectType::TextMesh), dirty_(false) {
 	Mesh mesh = new IMesh();
 	mesh->CreateStorage();
 
@@ -393,5 +392,5 @@ MeshInternal::Storage::Storage() : topology(MeshTopology::Triangles) {
 	memset(bufferIndexes, 0, sizeof(bufferIndexes));
 }
 
-MeshFilterInternal::MeshFilterInternal() : MeshProviderInternal(ObjectType::MeshFilter) {
+MeshFilterInternal::MeshFilterInternal(IMeshFilter* self) : MeshProviderInternal(self, ObjectType::MeshFilter) {
 }

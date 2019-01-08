@@ -2,9 +2,9 @@
 #include "internal/components/componentinternal.h"
 
 class LightInternal : public ComponentInternal {
-public:
-	LightInternal();
-	~LightInternal() {}
+	SUEDE_DECLARE_SELF_TYPE(ILight)
+
+public:	LightInternal(ILight* self);	~LightInternal() {}
 
 public:
 	void SetType(LightType value) { type_ = value; }

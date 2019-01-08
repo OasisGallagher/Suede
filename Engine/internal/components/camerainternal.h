@@ -19,15 +19,14 @@ class Sample;
 class CameraInternal : public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
 	, public ScreenSizeChangedListener {
+	SUEDE_DECLARE_SELF_TYPE(ICamera)
 
-public:
-	CameraInternal();
-	~CameraInternal();
+public:	CameraInternal(ICamera* self);	~CameraInternal();
 
 public:
 	void Awake();
 
-	void SetDepth(ICamera* self, int value);
+	void SetDepth(int value);
 	int GetDepth() const { return depth_;  }
 
 	void SetRect(const Rect& value);
@@ -104,6 +103,7 @@ private:
 	RenderingParameters* p_;
 
 	Culling* culling_;
+	Texture2D cullingBuffer_;
 	ZThread::Thread* cullingThread_;
 
 	bool traitsReady_;

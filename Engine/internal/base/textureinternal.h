@@ -8,8 +8,10 @@
 #include "internal/base/objectinternal.h"
 
 class TextureInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(ITexture)
+
 public:
-	TextureInternal(ObjectType type);
+	TextureInternal(ITexture* self, ObjectType type);
 	~TextureInternal();
 
 public:
@@ -66,13 +68,15 @@ protected:
 };
 
 class Texture2DInternal : public TextureInternal {
+	SUEDE_DECLARE_SELF_TYPE(ITexture2D)
+
 public:
-	Texture2DInternal();
+	Texture2DInternal(ITexture2D* self);
 	~Texture2DInternal();
 
 public:
 	bool Load(const std::string& path);
-	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+	bool SetPixels(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
 
 	TextureFormat GetFormat() { return format_; }
 
@@ -91,8 +95,10 @@ private:
 };
 
 class TextureCubeInternal : public TextureInternal {
+	SUEDE_DECLARE_SELF_TYPE(ITextureCube)
+
 public:
-	TextureCubeInternal();
+	TextureCubeInternal(ITextureCube* self);
 	~TextureCubeInternal();
 
 public:
@@ -105,8 +111,10 @@ protected:
 
 class Buffer;
 class TextureBufferInternal : public TextureInternal {
+	SUEDE_DECLARE_SELF_TYPE(ITextureBuffer)
+
 public:
-	TextureBufferInternal();
+	TextureBufferInternal(ITextureBuffer* self);
 	~TextureBufferInternal();
 
 public:
@@ -126,8 +134,10 @@ private:
 };
 
 class RenderTextureInternal : public TextureInternal {
+	SUEDE_DECLARE_SELF_TYPE(IRenderTexture)
+
 public:
-	RenderTextureInternal();
+	RenderTextureInternal(IRenderTexture* self);
 	virtual ~RenderTextureInternal();
 
 public:
@@ -183,8 +193,10 @@ public:
 SUEDE_DEFINE_OBJECT_POINTER(ScreenRenderTexture)
 
 class ScreenRenderTextureInternal : public RenderTextureInternal {
+	SUEDE_DECLARE_SELF_TYPE(IScreenRenderTexture)
+
 public:
-	ScreenRenderTextureInternal();
+	ScreenRenderTextureInternal(IScreenRenderTexture* self);
 	virtual ~ScreenRenderTextureInternal();
 
 public:
@@ -204,8 +216,10 @@ protected:
 };
 
 class MRTRenderTextureInternal : public RenderTextureInternal {
+	SUEDE_DECLARE_SELF_TYPE(IMRTRenderTexture)
+
 public:
-	MRTRenderTextureInternal() : index_(0) {}
+	MRTRenderTextureInternal(IMRTRenderTexture* self) : RenderTextureInternal(self), index_(0) {}
 
 public:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);

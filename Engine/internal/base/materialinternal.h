@@ -10,15 +10,15 @@ struct MaterialProperty {
 };
 
 class MaterialInternal : public ObjectInternal {
-public:
-	MaterialInternal();
-	~MaterialInternal();
+	SUEDE_DECLARE_SELF_TYPE(IMaterial)
+
+public:	MaterialInternal(IMaterial* self);	~MaterialInternal();
 
 public:
 	virtual Object Clone();
 
 public:
-	void SetShader(IMaterial* self, Shader value);
+	void SetShader(Shader value);
 	Shader GetShader() { return shader_; }
 
 	void SetRenderQueue(int value);
@@ -72,7 +72,7 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void UpdateProperties(IMaterial* self, Shader newShader);
+	void UpdateProperties(Shader newShader);
 	void CopyProperties(Shader newShader);
 	void DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties);
 

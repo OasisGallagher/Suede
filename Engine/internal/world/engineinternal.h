@@ -3,8 +3,7 @@
 
 struct lua_State;
 class EngineInternal {
-public:
-	EngineInternal();
+public:	EngineInternal();
 
 public:
 	bool Startup(uint width, uint height);

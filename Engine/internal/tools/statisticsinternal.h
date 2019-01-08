@@ -4,8 +4,7 @@
 #include "engine.h"
 
 class StatisticsInternal : public FrameEventListener {
-public:
-	StatisticsInternal();
+public:	StatisticsInternal();
 
 public:
 	void AddTriangles(uint n);

@@ -7,8 +7,10 @@
 #include "internal/components/componentinternal.h"
 
 class ParticleEmitterInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IParticleEmitter)
+
 public:
-	ParticleEmitterInternal(ObjectType type);
+	ParticleEmitterInternal(IParticleEmitter* self, ObjectType type);
 
 	virtual void SetRate(uint value) { rate_ = value; }
 	virtual uint GetRate() { return rate_; }
@@ -53,8 +55,9 @@ private:
 };
 
 class SphereParticleEmitterInternal : public ParticleEmitterInternal {
-public:
-	SphereParticleEmitterInternal() : ParticleEmitterInternal(ObjectType::SphereParticleEmitter) {}
+	SUEDE_DECLARE_SELF_TYPE(ISphereParticleEmitter)
+
+public:	SphereParticleEmitterInternal(ISphereParticleEmitter* self) : ParticleEmitterInternal(self, ObjectType::SphereParticleEmitter) {}
 
 public:
 	virtual void SetRadius(float value) { radius_ = value; }
@@ -67,8 +70,9 @@ private:
 };
 
 class ParticleAnimatorInternal : public ObjectInternal {
-public:
-	ParticleAnimatorInternal() : ObjectInternal(ObjectType::ParticleAnimator), gravityScale_(1) {}
+	SUEDE_DECLARE_SELF_TYPE(IParticleAnimator)
+
+public:	ParticleAnimatorInternal(IParticleAnimator* self) : ObjectInternal(self, ObjectType::ParticleAnimator), gravityScale_(1) {}
 
 public:
 	virtual void SetForce(const glm::vec3& value) { force_ = value; }
@@ -90,9 +94,9 @@ private:
 };
 
 class ParticleSystemInternal : public ComponentInternal {
-public:
-	ParticleSystemInternal();
-	~ParticleSystemInternal();
+	SUEDE_DECLARE_SELF_TYPE(IParticleSystem)
+
+public:	ParticleSystemInternal(IParticleSystem* self);	~ParticleSystemInternal();
 
 public:
 	virtual void Awake();

@@ -8,8 +8,7 @@
 #include "frameeventlistener.h"
 
 class GizmosInternal : public FrameEventListener {
-public:
-	GizmosInternal();
+public:	GizmosInternal();
 
 public:
 	void Flush();

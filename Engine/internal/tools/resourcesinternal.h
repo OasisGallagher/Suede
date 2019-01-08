@@ -5,8 +5,7 @@
 #include <vector>
 
 class ResourcesInternal {
-public:
-	ResourcesInternal();
+public:	ResourcesInternal();
 
 public:
 	void Import();

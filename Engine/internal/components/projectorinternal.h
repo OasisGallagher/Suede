@@ -4,8 +4,9 @@
 #include "internal/components/componentinternal.h"
 
 class ProjectorInternal : public ComponentInternal, public Frustum {
-public:
-	ProjectorInternal();
+	SUEDE_DECLARE_SELF_TYPE(IProjector)
+
+public:	ProjectorInternal(IProjector* self);
 
 public:
 	virtual Texture GetTexture() const { return texture_; }

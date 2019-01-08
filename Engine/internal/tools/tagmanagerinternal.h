@@ -2,8 +2,7 @@
 #include "tagmanager.h"
 
 class TagManagerInternal {
-public:
-	TagManagerInternal();
+public:	TagManagerInternal();
 
 public:
 	virtual const Tags& GetAllTags() { return tags; }

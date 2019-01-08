@@ -25,8 +25,7 @@ void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _suede_dinstanc
 void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawCuboid(center, size); }
 void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawWireSphere(center, radius); }
 void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawWireCuboid(center, size); }
-
-GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
+GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	mesh_ = new IMesh();
 
 	lineMaterial_ = new IMaterial();

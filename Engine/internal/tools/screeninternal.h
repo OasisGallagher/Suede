@@ -2,8 +2,7 @@
 #include "screen.h"
 
 class ScreenInternal {
-public:
-	ScreenInternal() :width_(0), height_(0) {
+public:	ScreenInternal() :width_(0), height_(0) {
 	}
 
 public:

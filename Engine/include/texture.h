@@ -65,6 +65,8 @@ enum class TextureFormat {
 	Rgb32F,
 	Rgba16F,
 	Rgba32F,
+
+	Luminance,
 };
 
 enum class ColorStreamFormat {
@@ -75,6 +77,7 @@ enum class ColorStreamFormat {
 	RgbaF,
 	Argb,
 	Bgra,
+	Luminance,
 	LuminanceAlpha,
 };
 
@@ -87,7 +90,7 @@ public:
 
 public:
 	bool Load(const std::string& path);
-	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+	bool SetPixels(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
 
 	TextureFormat GetFormat();
 

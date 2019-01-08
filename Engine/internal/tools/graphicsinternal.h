@@ -2,8 +2,7 @@
 #include "graphics.h"
 
 class GraphicsInternal {
-public:
-	GraphicsInternal();
+public:	GraphicsInternal();
 
 public:
 	void SetShadingMode(ShadingMode value);

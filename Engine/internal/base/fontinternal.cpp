@@ -9,7 +9,7 @@
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
-IFont::IFont() : IObject(MEMORY_NEW(FontInternal)) {}
+IFont::IFont() : IObject(MEMORY_NEW(FontInternal, this)) {}
 bool IFont::Load(const std::string& path, int size) { return _suede_dptr()->Load(path, size); }
 bool IFont::Require(const std::wstring& str) { return _suede_dptr()->Require(str); }
 uint IFont::GetFontSize() const { return _suede_dptr()->GetFontSize(); }
@@ -21,8 +21,8 @@ bool IFont::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _suede_d
 void IFont::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->AddMaterialRebuiltListener(listener); }
 void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->RemoveMaterialRebuiltListener(listener); }
 
-FontInternal::FontInternal() 
-	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
+FontInternal::FontInternal(IFont* self) 
+	: ObjectInternal(self, ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = new IMaterial();
 	material_->SetShader(Resources::FindShader("builtin/unlit_texture"));
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
@@ -171,7 +171,7 @@ void FontInternal::RebuildMaterial() {
 	coords_ = atlas.coords;
 
 	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(BuiltinProperties::MainTexture));
-	texture->Create(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
+	texture->SetPixels(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
 
 	for (uint i = 0; i < listeners_.size(); ++i) {
 		listeners_[i]->OnMaterialRebuilt();

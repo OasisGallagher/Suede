@@ -9,8 +9,10 @@
 #include "internal/base/renderdefines.h"
 
 class SkeletonInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(ISkeleton)
+
 public:
-	SkeletonInternal() : ObjectInternal(ObjectType::Skeleton), current_(0), root_(nullptr) {}
+	SkeletonInternal(ISkeleton* self) : ObjectInternal(self, ObjectType::Skeleton), current_(0), root_(nullptr) {}
 	~SkeletonInternal() { DestroyNodeHierarchy(root_); }
 
 public:
@@ -42,8 +44,10 @@ private:
 };
 
 class AnimationClipInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IAnimationClip)
+
 public:
-	AnimationClipInternal();
+	AnimationClipInternal(IAnimationClip* self);
 
 public:
 	virtual void SetWrapMode(AnimationWrapMode value);
@@ -73,13 +77,17 @@ private:
 };
 
 class AnimationStateInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IAnimationState)
+
 public:
-	AnimationStateInternal() : ObjectInternal(ObjectType::AnimationState) {}
+	AnimationStateInternal(IAnimationState* self) : ObjectInternal(self, ObjectType::AnimationState) {}
 };
 
 class AnimationKeysInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IAnimationKeys)
+
 public:
-	AnimationKeysInternal();
+	AnimationKeysInternal(IAnimationKeys* self);
 	~AnimationKeysInternal();
 
 public:
@@ -118,14 +126,16 @@ private:
 };
 
 class AnimationInternal : public ComponentInternal {
+	SUEDE_DECLARE_SELF_TYPE(IAnimation)
+
 public:
-	AnimationInternal() : ComponentInternal(ObjectType::Animation), time_(0), playing_(false) {}
+	AnimationInternal(IAnimation* self) : ComponentInternal(self, ObjectType::Animation), time_(0), playing_(false) {}
 
 public:
 	virtual void CullingUpdate();
 
 public:
-	virtual void AddClip(IAnimation* self, const std::string& name, AnimationClip value);
+	virtual void AddClip(const std::string& name, AnimationClip value);
 	virtual AnimationClip GetClip(const std::string& name);
 
 	virtual void SetRootTransform(const glm::mat4& value) { rootTransform_ = value; }
@@ -154,8 +164,10 @@ private:
 };
 
 class AnimationFrameInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IAnimationFrame)
+
 public:
-	AnimationFrameInternal() :ObjectInternal(ObjectType::AnimationFrame), time_(0) {}
+	AnimationFrameInternal(IAnimationFrame* self) :ObjectInternal(self, ObjectType::AnimationFrame), time_(0) {}
 
 public:
 	virtual void SetTime(float value) { time_ = value; }
@@ -183,8 +195,10 @@ private:
 };
 
 class AnimationCurveInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IAnimationCurve)
+
 public:
-	AnimationCurveInternal() :ObjectInternal(ObjectType::AnimationCurve) {}
+	AnimationCurveInternal(IAnimationCurve* self) :ObjectInternal(self, ObjectType::AnimationCurve) {}
 
 public:
 	virtual void SetKeyframes(const std::vector<AnimationFrame>& value) { keyframes_ = value; }

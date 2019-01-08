@@ -5,6 +5,7 @@
 
 #include "world.h"
 #include "gameobject.h"
+#include "internal/codec/image.h"
 
 class Culling;
 class CullingListener {
@@ -12,13 +13,19 @@ public:
 	virtual void OnCullingFinished() = 0;
 };
 
+struct DBVTCulling;
+struct OcclusionBuffer;
+class btCollisionObject;
+
 class Culling : public ZThread::Runnable, public WorldGameObjectWalker {
 public:
 	Culling(CullingListener* listener);
-	~Culling() {}
+	~Culling();
 
 public:
 	std::vector<GameObject>& GetGameObjects() { return gameObjects_; }
+
+	void GetCullingBuffer(TexelMap& texels);
 
 	void Stop();
 	bool IsWorking() { return !stopped_ && working_; }
@@ -34,6 +41,8 @@ protected:
 private:
 	bool IsVisible(GameObject go, const glm::mat4& worldToClipMatrix);
 	bool FrustumCulling(const Bounds & bounds, const glm::mat4& worldToClipMatrix);
+	void OcclusionCulling();
+	void Matrix16Multiply(const float* a, const float* b, float* res);
 
 private:
 	ZThread::Mutex mutex_;
@@ -43,4 +52,11 @@ private:
 	CullingListener* listener_;
 	glm::mat4 worldToClipMatrix_;
 	std::vector<GameObject> gameObjects_;
+
+	DBVTCulling* dbvtCulling_;
+	OcclusionBuffer* occlusionBuffer_;
+	std::vector<btCollisionObject*> objectsInFrustum_;
+
+	bool occlusionCullingEnabled_;
+	glm::ivec2 occlusionBufferSize_;
 };

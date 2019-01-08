@@ -87,7 +87,7 @@ void MaterialAsset::ApplyAsset() {
 
 Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	Texture2D texture = new ITexture2D();
-	if (!texture->Create(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, 4, false)) {
+	if (!texture->SetPixels(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, 4, false)) {
 		return nullptr;
 	}
 

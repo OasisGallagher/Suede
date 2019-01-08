@@ -153,7 +153,7 @@ Mesh ResourcesInternal::InitializeMesh(MeshAttribute& attribute) {
 
 Texture2D ResourcesInternal::CreateSolidTexture(uint color) {
 	Texture2D texture = new ITexture2D();
-	texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
+	texture->SetPixels(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
 	return texture;
 }
 

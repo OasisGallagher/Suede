@@ -1,6 +1,9 @@
 #pragma once
 
 // boost intrusive_ptr
+// add <Function><Name>intrusive_ptr&lt;.*&gt;::operator-&gt;</Name><Action>NoStepInto</Action></Function>
+// to $(VSFolder)\Common7\Packages\Debugger\Visualizers\default.natstepfilter
+// to keep debugger from stepping into operator->.
 template<class T> class intrusive_ptr {
 	typedef intrusive_ptr this_type;
 

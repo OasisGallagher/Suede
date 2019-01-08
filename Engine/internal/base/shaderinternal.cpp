@@ -11,9 +11,9 @@
 
 #include "internal/rendering/rendering.h"
 
-IShader::IShader() : IObject(MEMORY_NEW(ShaderInternal)) {}
+IShader::IShader() : IObject(MEMORY_NEW(ShaderInternal, this)) {}
 std::string IShader::GetName() const { return _suede_dptr()->GetName(); }
-bool IShader::Load(const std::string& path) { return _suede_dptr()->Load(this, path); }
+bool IShader::Load(const std::string& path) { return _suede_dptr()->Load(path); }
 void IShader::Bind(uint ssi, uint pass) { _suede_dptr()->Bind(ssi, pass); }
 void IShader::Unbind() { _suede_dptr()->Unbind(); }
 void IShader::SetRenderQueue(uint ssi, int value) { return _suede_dptr()->SetRenderQueue(ssi, value); }
@@ -652,7 +652,7 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 	return false;
 }
 
-ShaderInternal::ShaderInternal() : ObjectInternal(ObjectType::Shader)
+ShaderInternal::ShaderInternal(IShader* self) : ObjectInternal(self, ObjectType::Shader)
 	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
 }
 
@@ -665,7 +665,7 @@ std::string ShaderInternal::GetName() const {
 	return FileSystem::GetFileNameWithoutExtension(path_);
 }
 
-bool ShaderInternal::Load(IShader* self, const std::string& path) {
+bool ShaderInternal::Load(const std::string& path) {
 	Semantics semantics;
 	ShaderParser parser;
 	if (!parser.Parse(semantics, path + GLSL_POSTFIX, "")) {
@@ -679,7 +679,7 @@ bool ShaderInternal::Load(IShader* self, const std::string& path) {
 
 	SetProperties(properties);
 
-	Rendering::GetUniformBufferManager()->Attach(self);
+	Rendering::GetUniformBufferManager()->Attach(_suede_self());
 
 	path_ = path;
 	return true;

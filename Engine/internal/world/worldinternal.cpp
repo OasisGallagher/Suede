@@ -12,8 +12,7 @@
 #include "internal/codec/gameObjectloader.h"
 #include "internal/components/transforminternal.h"
 
-World::World() : singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
-
+World::World() : singleton2<World>(MEMORY_NEW(WorldInternal,), Memory::DeleteRaw<WorldInternal>) {}
 void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
 void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }

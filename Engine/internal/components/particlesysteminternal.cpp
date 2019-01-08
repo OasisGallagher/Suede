@@ -25,11 +25,11 @@ ParticleBurst IParticleEmitter::GetBurst(int i) { return _suede_dptr()->GetBurst
 void IParticleEmitter::RemoveBurst(int i) { _suede_dptr()->RemoveBurst(i); }
 int IParticleEmitter::GetBurstCount() { return _suede_dptr()->GetBurstCount(); }
 
-ISphereParticleEmitter::ISphereParticleEmitter() : IParticleEmitter(MEMORY_NEW(SphereParticleEmitterInternal)) {}
+ISphereParticleEmitter::ISphereParticleEmitter() : IParticleEmitter(MEMORY_NEW(SphereParticleEmitterInternal, this)) {}
 void ISphereParticleEmitter::SetRadius(float value) { _suede_dptr()->SetRadius(value); }
 float ISphereParticleEmitter::GetRadius() { return _suede_dptr()->GetRadius(); }
 
-IParticleAnimator::IParticleAnimator() : IObject(MEMORY_NEW(ParticleAnimatorInternal)) {}
+IParticleAnimator::IParticleAnimator() : IObject(MEMORY_NEW(ParticleAnimatorInternal, this)) {}
 void IParticleAnimator::SetForce(const glm::vec3& value) { _suede_dptr()->SetForce(value); }
 glm::vec3 IParticleAnimator::GetForce() { return _suede_dptr()->GetForce(); }
 void IParticleAnimator::SetRandomForce(const glm::vec3& value) { _suede_dptr()->SetRandomForce(value); }
@@ -38,7 +38,7 @@ void IParticleAnimator::SetGravityScale(float value) { _suede_dptr()->SetGravity
 float IParticleAnimator::GetGravityScale() { return _suede_dptr()->GetGravityScale(); }
 void IParticleAnimator::Update(Particle& particle) { _suede_dptr()->Update(particle); }
 
-IParticleSystem::IParticleSystem() : IComponent(MEMORY_NEW(ParticleSystemInternal)) {}
+IParticleSystem::IParticleSystem() : IComponent(MEMORY_NEW(ParticleSystemInternal, this)) {}
 void IParticleSystem::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
 float IParticleSystem::GetDuration() { return _suede_dptr()->GetDuration(); }
 void IParticleSystem::SetLooping(bool value) { _suede_dptr()->SetLooping(value); }
@@ -60,8 +60,8 @@ static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
 
 #define MAX_PARTICLE_COUNT	1000
 
-ParticleSystemInternal::ParticleSystemInternal()
-	: ComponentInternal(ObjectType::ParticleSystem), duration_(3)
+ParticleSystemInternal::ParticleSystemInternal(IParticleSystem* self)
+	: ComponentInternal(self, ObjectType::ParticleSystem), duration_(3)
 	, looping_(false), startDelay_(0), time_(0), maxParticles_(MAX_PARTICLE_COUNT)
 	, particles_(MAX_PARTICLE_COUNT), meshDirty_(true), rendererDirty_(true) {
 }
@@ -258,7 +258,7 @@ uint ParticleSystemInternal::GetParticlesCount() const {
 	return particles_.size();
 }
 
-ParticleEmitterInternal::ParticleEmitterInternal(ObjectType type) : ObjectInternal(type)
+ParticleEmitterInternal::ParticleEmitterInternal(IParticleEmitter* self, ObjectType type) : ObjectInternal(self, type)
 	, rate_(1), time_(-1), remainder_(0) {
 }
 

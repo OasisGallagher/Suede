@@ -1666,6 +1666,12 @@
     <ClInclude Include="internal\async\async.h">
       <Filter>internal\async\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\culling\occlusionbuffer.h">
+      <Filter>internal\culling\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\culling\dbvtculling.h">
+      <Filter>internal\culling\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">
@@ -2396,6 +2402,12 @@
     </ClCompile>
     <ClCompile Include="internal\physics\physicsinternal.cpp">
       <Filter>internal\physics\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\occlusionbuffer.cpp">
+      <Filter>internal\culling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\culling\dbvtculling.cpp">
+      <Filter>internal\culling\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

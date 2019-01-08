@@ -6,28 +6,28 @@
 #include "internal/components/componentinternal.h"
 
 class TransformInternal : public ComponentInternal, public DirtyBits {
+	SUEDE_DECLARE_SELF_TYPE(ITransform)
+
 public:
 	static ZThread::Mutex hierarchyMutex;
 
-public:
-	TransformInternal();
-	~TransformInternal();
+public:	TransformInternal(ITransform* self);	~TransformInternal();
 
 public:
-	bool IsAttachedToScene(ITransform* transform);
+	bool IsAttachedToScene();
 
-	void AddChild(ITransform* self, Transform child);
+	void AddChild(Transform child);
 	void RemoveChild(Transform child);
 	void RemoveChildAt(uint index);
 
-	void SetParent(ITransform* self, Transform value);
+	void SetParent(Transform value);
 	Transform GetParent() const { return parent_; }
 
-	glm::vec3 TransformPoint(ITransform* self, const glm::vec3& point);
-	glm::vec3 TransformDirection(ITransform* self, const glm::vec3& direction);
+	glm::vec3 TransformPoint(const glm::vec3& point);
+	glm::vec3 TransformDirection(const glm::vec3& direction);
 
-	glm::vec3 InverseTransformPoint(ITransform* self, const glm::vec3& point);
-	glm::vec3 InverseTransformDirection(ITransform* self, const glm::vec3& direction);
+	glm::vec3 InverseTransformPoint(const glm::vec3& point);
+	glm::vec3 InverseTransformDirection(const glm::vec3& direction);
 
 	Transform FindChild(const std::string& path);
 
@@ -40,30 +40,30 @@ public:
 	void SetRotation(const glm::quat& value);
 	void SetEulerAngles(const glm::vec3& value);
 
-	glm::vec3 GetScale(ITransform* self);
-	glm::vec3 GetPosition(ITransform* self);
-	glm::quat GetRotation(ITransform* self);
-	glm::vec3 GetEulerAngles(ITransform* self);
+	glm::vec3 GetScale();
+	glm::vec3 GetPosition();
+	glm::quat GetRotation();
+	glm::vec3 GetEulerAngles();
 
 	void SetLocalScale(const glm::vec3& value);
 	void SetLocalPosition(const glm::vec3& value);
 	void SetLocalRotation(const glm::quat& value);
 	void SetLocalEulerAngles(const glm::vec3& value);
 
-	glm::vec3 GetLocalScale(ITransform* self);
-	glm::vec3 GetLocalPosition(ITransform* self);
-	glm::quat GetLocalRotation(ITransform* self);
-	glm::vec3 GetLocalEulerAngles(ITransform* self);
+	glm::vec3 GetLocalScale();
+	glm::vec3 GetLocalPosition();
+	glm::quat GetLocalRotation();
+	glm::vec3 GetLocalEulerAngles();
 
-	glm::mat4 GetLocalToWorldMatrix(ITransform* self);
-	glm::mat4 GetWorldToLocalMatrix(ITransform* self);
+	glm::mat4 GetLocalToWorldMatrix();
+	glm::mat4 GetWorldToLocalMatrix();
 
-	glm::vec3 GetLocalToWorldPosition(ITransform* self, const glm::vec3& position);
-	glm::vec3 GetWorldToLocalPosition(ITransform* self, const glm::vec3& position);
+	glm::vec3 GetLocalToWorldPosition(const glm::vec3& position);
+	glm::vec3 GetWorldToLocalPosition(const glm::vec3& position);
 
-	glm::vec3 GetUp(ITransform* self);
-	glm::vec3 GetRight(ITransform* self);
-	glm::vec3 GetForward(ITransform* self);
+	glm::vec3 GetUp();
+	glm::vec3 GetRight();
+	glm::vec3 GetForward();
 
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
@@ -77,7 +77,7 @@ private:
 
 	bool IsNullOrRoot(Transform transform);
 	Transform FindDirectChild(const std::string& name);
-	void ChangeParent(ITransform* self, Transform oldParent, Transform newParent);
+	void ChangeParent(Transform oldParent, Transform newParent);
 
 	typedef std::vector<Transform> Children;
 

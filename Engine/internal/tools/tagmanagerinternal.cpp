@@ -12,8 +12,7 @@ void TagManager::Unregister(const std::string& name) { _suede_dinstance()->Unreg
 bool TagManager::IsRegistered(const std::string& name) { return _suede_dinstance()->IsRegistered(name); }
 
 static const char* defaultTags[] = { "DefaultTag0", "DefaultTag1", "DefaultTag2" };
-
-TagManagerInternal::TagManagerInternal() : tags(defaultTags, defaultTags + SUEDE_COUNTOF(defaultTags)) {
+TagManagerInternal::TagManagerInternal() : tags(defaultTags, defaultTags + SUEDE_COUNTOF(defaultTags)) {
 }
 
 void TagManagerInternal::Register(const std::string& name) {

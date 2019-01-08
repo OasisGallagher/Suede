@@ -3,7 +3,7 @@
 #include "mathconvert.h"
 #include "physicsinternal.h"
 
-IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal)) {}
+IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal, this)) {}
 void IRigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float IRigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
@@ -15,13 +15,12 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
 #define btWorld()	PhysicsInternal::btWorld()
 
-RigidbodyInternal::RigidbodyInternal()
-	: ComponentInternal(ObjectType::Rigidbody)
+RigidbodyInternal::RigidbodyInternal(IRigidbody* self)
+	: ComponentInternal(self, ObjectType::Rigidbody)
 	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr), showCollisionShape_(false) {
 	CreateBody();
 }
-
-RigidbodyInternal::~RigidbodyInternal() {
+RigidbodyInternal::~RigidbodyInternal() {
 	DestroyBody();
 	DestroyShape();
 }
@@ -214,12 +213,14 @@ void RigidbodyInternal::CreateBody() {
 	// This is important moment. Sometimes you only have access to a physics body ¨C for example, 
 	// when Bullet calls your callback and passes you the body ¨C but you want to get the node object that holds this body.
 	// In this line, you¡¯re making that possible.
-	body_->setUserPointer(this);
+	body_->setUserPointer(_suede_self());
 
 	// You¡¯re limiting object movement to a 2D plane (x,y).
 	// This keeps your ball and other objects from bouncing somewhere along the z-axis.
 	// body->setLinearFactor(btVector3(1, 1, 0));
 	body_->setLinearFactor(btVector3(1, 1, 1));
+
+	body_->setCollisionFlags(body_->getCollisionFlags() | btCollisionObject::CF_OCCLUDER_OBJECT);
 }
 
 void RigidbodyInternal::DestroyBody() {

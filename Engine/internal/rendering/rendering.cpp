@@ -474,7 +474,7 @@ void RenderableTraits::InitializeSSAOKernel() {
 	}
 
 	Texture2D noiseTexture = new ITexture2D();
-	noiseTexture->Create(TextureFormat::Rgb32F, &noise, ColorStreamFormat::RgbF, 4, 4, 4);
+	noiseTexture->SetPixels(TextureFormat::Rgb32F, &noise, ColorStreamFormat::RgbF, 4, 4, 4);
 	noiseTexture->SetWrapModeS(TextureWrapMode::Repeat);
 	noiseTexture->SetWrapModeT(TextureWrapMode::Repeat);
 

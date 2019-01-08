@@ -15,8 +15,8 @@
 #include "internal/async/async.h"
 #include "internal/rendering/uniformbuffermanager.h"
 
-ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
-void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
+ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal, this)) {}
+void ICamera::SetDepth(int value) { _suede_dptr()->SetDepth(value); }
 int ICamera::GetDepth() const { return _suede_dptr()->GetDepth(); }
 bool ICamera::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
 void ICamera::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
@@ -74,11 +74,12 @@ void CameraUtility::OnPostRender() {
 	RenderTextureUtility::GetDefault()->Unbind();
 }
 
-CameraInternal::CameraInternal()
-	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false) /*, gbuffer_(nullptr) */{
+CameraInternal::CameraInternal(ICamera* self)
+	: ComponentInternal(self, ObjectType::Camera), depth_(0), traitsReady_(false) /*, gbuffer_(nullptr) */{
 	p_ = MEMORY_NEW(RenderingParameters);
 
 	culling_ = MEMORY_NEW(Culling, this);
+	cullingBuffer_ = new ITexture2D();
 	cullingThread_ = MEMORY_NEW(ZThread::Thread, culling_);
 
 	rendering_ = MEMORY_NEW(Rendering, p_);
@@ -122,14 +123,16 @@ void CameraInternal::CancelThreads() {
 	}
 }
 
-void CameraInternal::SetDepth(ICamera* self, int value) {
+void CameraInternal::SetDepth(int value) {
 	if (depth_ != value) {
 		depth_ = value;
 		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
-		e->component = self;
+		e->component = _suede_self();
 		World::FireEvent(e);
 	}
 }
+
+//#include "graphics.h"
 
 void CameraInternal::Render() {
 	if (!IsValidViewportRect()) {
@@ -148,6 +151,12 @@ void CameraInternal::Render() {
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 		rendering_->Render(traits0_->GetPipelines(), matrices);
+
+		//TexelMap texels;
+		//culling_->GetCullingBuffer(texels);
+		//cullingBuffer_->SetPixels(texels.textureFormat, &texels.data[0], texels.colorStreamFormat, texels.width, texels.height, texels.alignment);
+
+		//Graphics::Blit(cullingBuffer_, RenderTextureUtility::GetDefault());
 	}
 	else {
 		// Debug::Log("Waiting for first frame...");

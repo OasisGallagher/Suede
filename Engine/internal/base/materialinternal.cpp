@@ -8,7 +8,7 @@
 
 #include "internal/rendering/rendering.h"
 
-IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) { }
+IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal, this)) { }
 Object IMaterial::Clone() { return _suede_dptr()->Clone(); }
 void IMaterial::Bind(uint pass) { _suede_dptr()->Bind(pass); }
 void IMaterial::Unbind() { _suede_dptr()->Unbind(); }
@@ -20,7 +20,7 @@ void IMaterial::SetPass(int pass) { _suede_dptr()->SetPass(pass); }
 int IMaterial::GetPass() const { return _suede_dptr()->GetPass(); }
 uint IMaterial::GetPassCount() const { return _suede_dptr()->GetPassCount(); }
 uint IMaterial::GetPassNativePointer(uint pass) const { return _suede_dptr()->GetPassNativePointer(pass); }
-void IMaterial::SetShader(Shader value) { _suede_dptr()->SetShader(this, value); }
+void IMaterial::SetShader(Shader value) { _suede_dptr()->SetShader(value); }
 Shader IMaterial::GetShader() { return _suede_dptr()->GetShader(); }
 void IMaterial::SetRenderQueue(int value) { _suede_dptr()->SetRenderQueue(value); }
 int IMaterial::GetRenderQueue() const { return _suede_dptr()->GetRenderQueue(); }
@@ -53,8 +53,8 @@ const std::vector<const Property*>& IMaterial::GetExplicitProperties() { return 
 // SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
 
-MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectType::Material), currentPass_(-1) {
+MaterialInternal::MaterialInternal(IMaterial* self)
+	: ObjectInternal(self, ObjectType::Material), currentPass_(-1) {
 }
 
 MaterialInternal::~MaterialInternal() {
@@ -68,9 +68,9 @@ Object MaterialInternal::Clone() {
 	return clone;
 }
 
-void MaterialInternal::SetShader(IMaterial* self, Shader value) {
+void MaterialInternal::SetShader(Shader value) {
 	shader_ = value;
-	UpdateProperties(self, value);
+	UpdateProperties(value);
 	InitializeEnabledState();
 }
 
@@ -425,7 +425,7 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::UpdateProperties(IMaterial* self, Shader newShader) {
+void MaterialInternal::UpdateProperties(Shader newShader) {
 	CopyProperties(newShader);
 
 	SetTexture(BuiltinProperties::SSAOTexture, Rendering::GetSSAOTexture());

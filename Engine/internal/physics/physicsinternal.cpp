@@ -29,8 +29,7 @@ void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDraw
 bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEnabled(); }
 
 btDiscreteDynamicsWorld* PhysicsInternal::world_;
-
-PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
+PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	// You instantiate the broad phase algorithm implementation.
 	// Collision detection is done in two phases : broad and narrow.
 	// In the broad phase, the physics engine quickly eliminates objects that cannot collide.
@@ -58,8 +57,7 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	World::AddEventListener(this);
 	Engine::AddFrameEventListener(this);
 }
-
-PhysicsInternal::~PhysicsInternal() {
+PhysicsInternal::~PhysicsInternal() {
 	World::RemoveEventListener(this);
 	Engine::RemoveFrameEventListener(this);
 
@@ -114,7 +112,7 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hit
 		return false;
 	}
 
-	RigidbodyInternal* rigidbody = (RigidbodyInternal*)callback.m_collisionObject->getUserPointer();
+	IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObject->getUserPointer();
 	if (rigidbody != nullptr && hitInfo != nullptr) {
 		hitInfo->point = btConvert(callback.m_hitPointWorld);
 		hitInfo->normal = btConvert(callback.m_hitNormalWorld);

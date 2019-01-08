@@ -5,17 +5,17 @@
 #include "transforminternal.h"
 #include "internal/async/async.h"
 
-ITransform::ITransform() : IComponent(MEMORY_NEW(TransformInternal)) {}
-bool ITransform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
-void ITransform::AddChild(Transform child) { _suede_dptr()->AddChild(this, child); }
+ITransform::ITransform() : IComponent(MEMORY_NEW(TransformInternal, this)) {}
+bool ITransform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(); }
+void ITransform::AddChild(Transform child) { _suede_dptr()->AddChild(child); }
 void ITransform::RemoveChild(Transform child) { _suede_dptr()->RemoveChild(child); }
 void ITransform::RemoveChildAt(uint index) { _suede_dptr()->RemoveChildAt(index); }
-void ITransform::SetParent(Transform value) { _suede_dptr()->SetParent(this, value); }
+void ITransform::SetParent(Transform value) { _suede_dptr()->SetParent(value); }
 Transform ITransform::GetParent() const { return _suede_dptr()->GetParent(); }
-glm::vec3 ITransform::TransformPoint(const glm::vec3& point) { return _suede_dptr()->TransformPoint(this, point); }
-glm::vec3 ITransform::TransformDirection(const glm::vec3& direction) { return _suede_dptr()->TransformDirection(this, direction); }
-glm::vec3 ITransform::InverseTransformPoint(const glm::vec3& point) { return _suede_dptr()->InverseTransformPoint(this, point); }
-glm::vec3 ITransform::InverseTransformDirection(const glm::vec3& direction) { return _suede_dptr()->InverseTransformDirection(this, direction); }
+glm::vec3 ITransform::TransformPoint(const glm::vec3& point) { return _suede_dptr()->TransformPoint(point); }
+glm::vec3 ITransform::TransformDirection(const glm::vec3& direction) { return _suede_dptr()->TransformDirection(direction); }
+glm::vec3 ITransform::InverseTransformPoint(const glm::vec3& point) { return _suede_dptr()->InverseTransformPoint(point); }
+glm::vec3 ITransform::InverseTransformDirection(const glm::vec3& direction) { return _suede_dptr()->InverseTransformDirection(direction); }
 Transform ITransform::FindChild(const std::string& path) { return _suede_dptr()->FindChild(path); }
 int ITransform::GetChildCount() { return _suede_dptr()->GetChildCount(); }
 Transform ITransform::GetChildAt(int i) { return _suede_dptr()->GetChildAt(i); }
@@ -24,47 +24,48 @@ void ITransform::SetScale(const glm::vec3& value) { _suede_dptr()->SetScale(valu
 void ITransform::SetPosition(const glm::vec3& value) { _suede_dptr()->SetPosition(value); }
 void ITransform::SetRotation(const glm::quat& value) { _suede_dptr()->SetRotation(value); }
 void ITransform::SetEulerAngles(const glm::vec3& value) { _suede_dptr()->SetEulerAngles(value); }
-glm::vec3 ITransform::GetScale() { return _suede_dptr()->GetScale(this); }
-glm::vec3 ITransform::GetPosition() { return _suede_dptr()->GetPosition(this); }
-glm::quat ITransform::GetRotation() { return _suede_dptr()->GetRotation(this); }
-glm::vec3 ITransform::GetEulerAngles() { return _suede_dptr()->GetEulerAngles(this); }
+glm::vec3 ITransform::GetScale() { return _suede_dptr()->GetScale(); }
+glm::vec3 ITransform::GetPosition() { return _suede_dptr()->GetPosition(); }
+glm::quat ITransform::GetRotation() { return _suede_dptr()->GetRotation(); }
+glm::vec3 ITransform::GetEulerAngles() { return _suede_dptr()->GetEulerAngles(); }
 void ITransform::SetLocalScale(const glm::vec3& value) { _suede_dptr()->SetLocalScale(value); }
 void ITransform::SetLocalPosition(const glm::vec3& value) { _suede_dptr()->SetLocalPosition(value); }
 void ITransform::SetLocalRotation(const glm::quat& value) { _suede_dptr()->SetLocalRotation(value); }
 void ITransform::SetLocalEulerAngles(const glm::vec3& value) { _suede_dptr()->SetLocalEulerAngles(value); }
-glm::vec3 ITransform::GetLocalScale() { return _suede_dptr()->GetLocalScale(this); }
-glm::vec3 ITransform::GetLocalPosition() { return _suede_dptr()->GetLocalPosition(this); }
-glm::quat ITransform::GetLocalRotation() { return _suede_dptr()->GetLocalRotation(this); }
-glm::vec3 ITransform::GetLocalEulerAngles() { return _suede_dptr()->GetLocalEulerAngles(this); }
-glm::mat4 ITransform::GetLocalToWorldMatrix() { return _suede_dptr()->GetLocalToWorldMatrix(this); }
-glm::mat4 ITransform::GetWorldToLocalMatrix() { return _suede_dptr()->GetWorldToLocalMatrix(this); }
-glm::vec3 ITransform::GetLocalToWorldPosition(const glm::vec3& position) { return _suede_dptr()->GetLocalToWorldPosition(this, position); }
-glm::vec3 ITransform::GetWorldToLocalPosition(const glm::vec3& position) { return _suede_dptr()->GetWorldToLocalPosition(this, position); }
-glm::vec3 ITransform::GetUp() { return _suede_dptr()->GetUp(this); }
-glm::vec3 ITransform::GetRight() { return _suede_dptr()->GetRight(this); }
-glm::vec3 ITransform::GetForward() { return _suede_dptr()->GetForward(this); }
+glm::vec3 ITransform::GetLocalScale() { return _suede_dptr()->GetLocalScale(); }
+glm::vec3 ITransform::GetLocalPosition() { return _suede_dptr()->GetLocalPosition(); }
+glm::quat ITransform::GetLocalRotation() { return _suede_dptr()->GetLocalRotation(); }
+glm::vec3 ITransform::GetLocalEulerAngles() { return _suede_dptr()->GetLocalEulerAngles(); }
+glm::mat4 ITransform::GetLocalToWorldMatrix() { return _suede_dptr()->GetLocalToWorldMatrix(); }
+glm::mat4 ITransform::GetWorldToLocalMatrix() { return _suede_dptr()->GetWorldToLocalMatrix(); }
+glm::vec3 ITransform::GetLocalToWorldPosition(const glm::vec3& position) { return _suede_dptr()->GetLocalToWorldPosition(position); }
+glm::vec3 ITransform::GetWorldToLocalPosition(const glm::vec3& position) { return _suede_dptr()->GetWorldToLocalPosition(position); }
+glm::vec3 ITransform::GetUp() { return _suede_dptr()->GetUp(); }
+glm::vec3 ITransform::GetRight() { return _suede_dptr()->GetRight(); }
+glm::vec3 ITransform::GetForward() { return _suede_dptr()->GetForward(); }
 
 ZThread::Mutex TransformInternal::hierarchyMutex;
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Transform, Component)
 
-TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform), parent_(nullptr) {
+TransformInternal::TransformInternal(ITransform* self) : ComponentInternal(self, ObjectType::Transform), parent_(nullptr) {
 	local_.scale = world_.scale = glm::vec3(1);
 }
 
 TransformInternal::~TransformInternal() {
 }
 
-bool TransformInternal::IsAttachedToScene(ITransform* self) {
+bool TransformInternal::IsAttachedToScene() {
+	ITransform* self = _suede_self();
 	for (; self && self != World::GetRootTransform(); self = self->GetParent().get())
 		;
 
 	return !!self;
 }
 
-void TransformInternal::AddChild(ITransform* self, Transform child) {
+void TransformInternal::AddChild(Transform child) {
 	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
-		child->SetParent(self);
+		child->SetParent(_suede_self());
 	}
 }
 
@@ -80,8 +81,8 @@ void TransformInternal::RemoveChildAt(uint index) {
 	RemoveChild(child);
 }
 
-void TransformInternal::SetParent(ITransform* self, Transform value) {
-	if (_suede_d_equals(value)) {
+void TransformInternal::SetParent(Transform value) {
+	if (value && value == self_) {
 		Debug::LogError("parent can not be itself.");
 		return;
 	}
@@ -89,24 +90,24 @@ void TransformInternal::SetParent(ITransform* self, Transform value) {
 	ITransform* oldParent = parent_;
 	if (oldParent != value) {
 		ZTHREAD_LOCK_SCOPE(hierarchyMutex);
-		ChangeParent(self, oldParent, value);
+		ChangeParent(oldParent, value);
 	}
 }
 
-glm::vec3 TransformInternal::TransformPoint(ITransform* self, const glm::vec3& point) {
-	return glm::vec3(GetLocalToWorldMatrix(self) * glm::vec4(point, 1));
+glm::vec3 TransformInternal::TransformPoint(const glm::vec3& point) {
+	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(point, 1));
 }
 
-glm::vec3 TransformInternal::TransformDirection(ITransform* self, const glm::vec3& direction) {
-	return glm::vec3(GetLocalToWorldMatrix(self) * glm::vec4(direction, 0));
+glm::vec3 TransformInternal::TransformDirection(const glm::vec3& direction) {
+	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(direction, 0));
 }
 
-glm::vec3 TransformInternal::InverseTransformPoint(ITransform* self, const glm::vec3& point) {
-	return glm::vec3(GetWorldToLocalMatrix(self) * glm::vec4(point, 1));
+glm::vec3 TransformInternal::InverseTransformPoint(const glm::vec3& point) {
+	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(point, 1));
 }
 
-glm::vec3 TransformInternal::InverseTransformDirection(ITransform* self, const glm::vec3& direction) {
-	return glm::vec3(GetWorldToLocalMatrix(self) * glm::vec4(direction, 0));
+glm::vec3 TransformInternal::InverseTransformDirection(const glm::vec3& direction) {
+	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(direction, 0));
 }
 
 Transform TransformInternal::FindChild(const std::string& path) {
@@ -194,13 +195,14 @@ void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 	}
 }
 
-glm::vec3 TransformInternal::GetScale(ITransform* self) {
+glm::vec3 TransformInternal::GetScale() {
 	if (IsDirty(WorldScale)) {
 		if (IsDirty(LocalScale)) {
 			Debug::LogError("invalid state");
 		}
 
-		glm::vec3 scale = GetLocalScale(self);
+		ITransform* self = _suede_self();
+		glm::vec3 scale = GetLocalScale();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			scale *= self->GetScale();
 		}
@@ -212,13 +214,14 @@ glm::vec3 TransformInternal::GetScale(ITransform* self) {
 	return world_.scale;
 }
 
-glm::vec3 TransformInternal::GetPosition(ITransform* self) {
+glm::vec3 TransformInternal::GetPosition() {
 	if (IsDirty(WorldPosition)) {
 		if (IsDirty(LocalPosition)) {
 			Debug::LogError("invalid state");
 		}
 
-		glm::vec3 position = GetLocalPosition(self);
+		ITransform* self = _suede_self();
+		glm::vec3 position = GetLocalPosition();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			position = self->TransformPoint(position);
 		}
@@ -230,7 +233,7 @@ glm::vec3 TransformInternal::GetPosition(ITransform* self) {
 	return world_.position;
 }
 
-glm::quat TransformInternal::GetRotation(ITransform* self) {
+glm::quat TransformInternal::GetRotation() {
 	if (!IsDirty(WorldRotation)) { return world_.rotation; }
 
 	if (!IsDirty(WorldEulerAngles)) {
@@ -239,7 +242,7 @@ glm::quat TransformInternal::GetRotation(ITransform* self) {
 	else {
 		glm::quat localRotation;
 		if (!IsDirty(LocalRotation)) {
-			localRotation = GetLocalRotation(self);
+			localRotation = GetLocalRotation();
 		}
 		else {
 			if (IsDirty(LocalEulerAngles)) {
@@ -250,6 +253,7 @@ glm::quat TransformInternal::GetRotation(ITransform* self) {
 			ClearDirty(LocalRotation);
 		}
 
+		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			localRotation = self->GetRotation() * localRotation;
 		}
@@ -262,18 +266,18 @@ glm::quat TransformInternal::GetRotation(ITransform* self) {
 	return world_.rotation;
 }
 
-glm::vec3 TransformInternal::GetEulerAngles(ITransform* self) {
+glm::vec3 TransformInternal::GetEulerAngles() {
 	if (!IsDirty(WorldEulerAngles)) { return world_.eulerAngles; }
 
 	glm::quat worldRotation;
 	if (!IsDirty(WorldRotation)) {
-		worldRotation = GetRotation(self);
+		worldRotation = GetRotation();
 	}
 	else {
 		glm::quat localRotation;
 
 		if (!IsDirty(LocalRotation)) {
-			localRotation = GetLocalRotation(self);
+			localRotation = GetLocalRotation();
 		}
 		else {
 			if (IsDirty(LocalEulerAngles)) {
@@ -284,6 +288,7 @@ glm::vec3 TransformInternal::GetEulerAngles(ITransform* self) {
 			ClearDirty(LocalRotation);
 		}
 
+		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			localRotation = self->GetRotation() * localRotation;
 		}
@@ -362,13 +367,14 @@ void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	}
 }
 
-glm::vec3 TransformInternal::GetLocalScale(ITransform* self) {
+glm::vec3 TransformInternal::GetLocalScale() {
 	if (IsDirty(LocalScale)) {
 		if (IsDirty(WorldScale)) {
 			Debug::LogError("invalid state");
 		}
 
-		glm::vec3 scale = GetScale(self);
+		ITransform* self = _suede_self();
+		glm::vec3 scale = GetScale();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			scale /= self->GetScale();
 		}
@@ -380,13 +386,14 @@ glm::vec3 TransformInternal::GetLocalScale(ITransform* self) {
 	return local_.scale;
 }
 
-glm::vec3 TransformInternal::GetLocalPosition(ITransform* self) {
+glm::vec3 TransformInternal::GetLocalPosition() {
 	if (IsDirty(LocalPosition)) {
 		if (IsDirty(WorldPosition)) {
 			Debug::LogError("invalid state");
 		}
 
-		glm::vec3 position = GetPosition(self);
+		ITransform* self = _suede_self();
+		glm::vec3 position = GetPosition();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			position = self->InverseTransformPoint(position);
 		}
@@ -398,7 +405,7 @@ glm::vec3 TransformInternal::GetLocalPosition(ITransform* self) {
 	return local_.position;
 }
 
-glm::quat TransformInternal::GetLocalRotation(ITransform* self) {
+glm::quat TransformInternal::GetLocalRotation() {
 	if (!IsDirty(LocalRotation)) { return local_.rotation; }
 
 	if (!IsDirty(LocalEulerAngles)) {
@@ -407,7 +414,7 @@ glm::quat TransformInternal::GetLocalRotation(ITransform* self) {
 	else {
 		glm::quat worldRotation;
 		if (!IsDirty(WorldRotation)) {
-			worldRotation = GetRotation(self);
+			worldRotation = GetRotation();
 		}
 		else {
 			if (IsDirty(WorldEulerAngles)) {
@@ -418,6 +425,7 @@ glm::quat TransformInternal::GetLocalRotation(ITransform* self) {
 			ClearDirty(WorldRotation);
 		}
 
+		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			worldRotation = glm::inverse(self->GetRotation()) * worldRotation;
 		}
@@ -430,18 +438,18 @@ glm::quat TransformInternal::GetLocalRotation(ITransform* self) {
 	return local_.rotation;
 }
 
-glm::vec3 TransformInternal::GetLocalEulerAngles(ITransform* self) {
+glm::vec3 TransformInternal::GetLocalEulerAngles() {
 	if (!IsDirty(LocalEulerAngles)) { return local_.eulerAngles; }
 
 	glm::quat localRotation;
 	if (!IsDirty(LocalRotation)) {
-		localRotation = GetLocalRotation(self);
+		localRotation = GetLocalRotation();
 	}
 	else {
 		glm::quat worldRotation;
 
 		if (!IsDirty(WorldRotation)) {
-			worldRotation = GetRotation(self);
+			worldRotation = GetRotation();
 		}
 		else {
 			if (IsDirty(WorldEulerAngles)) {
@@ -452,6 +460,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles(ITransform* self) {
 			ClearDirty(WorldRotation);
 		}
 
+		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			worldRotation = glm::inverse(self->GetRotation()) * worldRotation;
 		}
@@ -468,9 +477,11 @@ glm::vec3 TransformInternal::GetLocalEulerAngles(ITransform* self) {
 	return local_.eulerAngles;
 }
 
-glm::mat4 TransformInternal::GetLocalToWorldMatrix(ITransform* self) {
+glm::mat4 TransformInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
-		glm::mat4 matrix = Math::TRS(GetLocalPosition(self), GetLocalRotation(self), GetLocalScale(self));
+		glm::mat4 matrix = Math::TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
+
+		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			matrix = self->GetLocalToWorldMatrix() * matrix;
 		}
@@ -484,33 +495,33 @@ glm::mat4 TransformInternal::GetLocalToWorldMatrix(ITransform* self) {
 	return localToWorldMatrix_;
 }
 
-glm::mat4 TransformInternal::GetWorldToLocalMatrix(ITransform* self) {
+glm::mat4 TransformInternal::GetWorldToLocalMatrix() {
 	if (IsDirty(WorldToLocalMatrix)) {
-		worldToLocalMatrix_ = glm::inverse(GetLocalToWorldMatrix(self));
+		worldToLocalMatrix_ = glm::inverse(GetLocalToWorldMatrix());
 		ClearDirty(WorldToLocalMatrix);
 	}
 
 	return worldToLocalMatrix_;
 }
 
-glm::vec3 TransformInternal::GetLocalToWorldPosition(ITransform* self, const glm::vec3& position) {
-	return glm::vec3(GetLocalToWorldMatrix(self) * glm::vec4(position, 1));
+glm::vec3 TransformInternal::GetLocalToWorldPosition(const glm::vec3& position) {
+	return glm::vec3(GetLocalToWorldMatrix() * glm::vec4(position, 1));
 }
 
-glm::vec3 TransformInternal::GetWorldToLocalPosition(ITransform* self, const glm::vec3& position) {
-	return glm::vec3(GetWorldToLocalMatrix(self) * glm::vec4(position, 1));
+glm::vec3 TransformInternal::GetWorldToLocalPosition(const glm::vec3& position) {
+	return glm::vec3(GetWorldToLocalMatrix() * glm::vec4(position, 1));
 }
 
-glm::vec3 TransformInternal::GetUp(ITransform* self) {
-	return GetRotation(self) * glm::vec3(0, 1, 0);
+glm::vec3 TransformInternal::GetUp() {
+	return GetRotation() * glm::vec3(0, 1, 0);
 }
 
-glm::vec3 TransformInternal::GetRight(ITransform* self) {
-	return GetRotation(self) * glm::vec3(1, 0, 0);
+glm::vec3 TransformInternal::GetRight() {
+	return GetRotation() * glm::vec3(1, 0, 0);
 }
 
-glm::vec3 TransformInternal::GetForward(ITransform* self) {
-	return GetRotation(self) * glm::vec3(0, 0, -1);
+glm::vec3 TransformInternal::GetForward() {
+	return GetRotation() * glm::vec3(0, 0, -1);
 }
 
 void TransformInternal::SetDirty(int bits) {
@@ -573,15 +584,15 @@ Transform TransformInternal::FindDirectChild(const std::string& name) {
 	return nullptr;
 }
 
-void TransformInternal::ChangeParent(ITransform* self, Transform oldParent, Transform newParent) {
+void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	if (oldParent) { // remove from old parent.
 		TransformInternal* optr = _suede_rptr(oldParent);
-		RemoveChildItem(optr->children_, self);
+		RemoveChildItem(optr->children_, _suede_self());
 	}
 
 	if (newParent) {
 		TransformInternal* nptr = _suede_rptr(newParent);
-		AddChildItem(nptr->children_, self);
+		AddChildItem(nptr->children_, _suede_self());
 	}
 
 	if (oldParent) {
@@ -595,14 +606,14 @@ void TransformInternal::ChangeParent(ITransform* self, Transform oldParent, Tran
 	parent_ = newParent.get();
 
 	// Clear dirty flags.
-	GetScale(self);
-	GetRotation(self);
-	GetPosition(self);
+	GetScale();
+	GetRotation();
+	GetPosition();
 	SetDirty(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
-	if (IsAttachedToScene(self)) {
+	if (IsAttachedToScene()) {
 		GameObjectParentChangedEventPtr e = NewWorldEvent<GameObjectParentChangedEventPtr>();
-		e->go = self->GetGameObject();
+		e->go = GetGameObject();
 		World::FireEvent(e);
 	}
 }

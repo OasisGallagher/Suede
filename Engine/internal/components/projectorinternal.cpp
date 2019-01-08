@@ -1,7 +1,7 @@
 #include "frustum.h"
 #include "projectorinternal.h"
 
-IProjector::IProjector() : IComponent(MEMORY_NEW(ProjectorInternal)) {}
+IProjector::IProjector() : IComponent(MEMORY_NEW(ProjectorInternal, this)) {}
 bool IProjector::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
 void IProjector::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
 float IProjector::GetOrthographicSize() const { return _suede_dptr()->GetOrthographicSize(); }
@@ -22,6 +22,6 @@ const glm::mat4& IProjector::GetProjectionMatrix() { return _suede_dptr()->GetPr
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Projector, Component)
 
-ProjectorInternal::ProjectorInternal()
-	: ComponentInternal(ObjectType::Projector), depth_(0) {
+ProjectorInternal::ProjectorInternal(IProjector* self)
+	: ComponentInternal(self, ObjectType::Projector), depth_(0) {
 }

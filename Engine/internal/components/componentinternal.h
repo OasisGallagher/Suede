@@ -27,8 +27,10 @@
 	}
 
 class ComponentInternal : public ObjectInternal {
+	SUEDE_DECLARE_SELF_TYPE(IComponent)
+
 public:
-	ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {}
+	ComponentInternal(IComponent* self, ObjectType type) : ObjectInternal(self, type), enabled_(true) {}
 
 public:
 	virtual bool GetEnabled() const { return enabled_; }

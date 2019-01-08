@@ -16,11 +16,11 @@ void IRenderer::RemoveMaterialAt(uint index) { _suede_dptr()->RemoveMaterialAt(i
 uint IRenderer::GetMaterialCount() { return _suede_dptr()->GetMaterialCount(); }
 void IRenderer::UpdateMaterialProperties() { _suede_dptr()->UpdateMaterialProperties(); }
 
-IMeshRenderer::IMeshRenderer() : IRenderer(MEMORY_NEW(MeshRendererInternal)) {}
+IMeshRenderer::IMeshRenderer() : IRenderer(MEMORY_NEW(MeshRendererInternal, this)) {}
 
-IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
+IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal, this)) {}
 
-ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(SkinnedMeshRendererInternal)) {}
+ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(SkinnedMeshRendererInternal, this)) {}
 void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Renderer, Component)
@@ -28,7 +28,7 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(MeshRenderer, Renderer)
 SUEDE_DEFINE_COMPONENT_INTERNAL(ParticleRenderer, Renderer)
 SUEDE_DEFINE_COMPONENT_INTERNAL(SkinnedMeshRenderer, Renderer)
 
-RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
+RendererInternal::RendererInternal(IRenderer* self, ObjectType type) : ComponentInternal(self, type) {
 }
 
 RendererInternal::~RendererInternal() {
@@ -50,6 +50,6 @@ void SkinnedMeshRendererInternal::UpdateMaterialProperties() {
 	}
 }
 
-ParticleRendererInternal::ParticleRendererInternal()
-	: RendererInternal(ObjectType::ParticleRenderer) {
+ParticleRendererInternal::ParticleRendererInternal(IParticleRenderer* self)
+	: RendererInternal(self, ObjectType::ParticleRenderer) {
 }

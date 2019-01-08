@@ -15,9 +15,9 @@ DECL_FT_TYPE(FT_BitmapGlyph);
 #undef DECL_FT_TYPE
 
 class FontInternal : public ObjectInternal {
-public:
-	FontInternal();
-	~FontInternal();
+	SUEDE_DECLARE_SELF_TYPE(IFont)
+
+public:	FontInternal(IFont* self);	~FontInternal();
 
 public:
 	virtual bool Load(const std::string& path, int size);

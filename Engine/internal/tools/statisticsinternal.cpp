@@ -19,8 +19,7 @@ double Statistics::GetRenderingElapsed() { return _suede_dinstance()->GetRenderi
 #define lastFrameStats	stats_[0]
 #define thisFrameStats	stats_[1]
 #define FPS_REFRESH_TIME	0.2f
-
-StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
+StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
 	memset(&lastFrameStats, 0, sizeof(lastFrameStats));
 	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
 

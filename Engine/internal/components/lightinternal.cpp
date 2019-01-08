@@ -1,6 +1,6 @@
 #include "lightinternal.h"
 
-ILight::ILight() : IComponent(MEMORY_NEW(LightInternal)) {}
+ILight::ILight() : IComponent(MEMORY_NEW(LightInternal, this)) {}
 void ILight::SetType(LightType value) { _suede_dptr()->SetType(value); }
 LightType ILight::GetType() { return _suede_dptr()->GetType(); }
 void ILight::SetImportance(LightImportance value) { _suede_dptr()->SetImportance(value); }
@@ -13,7 +13,6 @@ int ILight::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Light, Component)
 
-LightInternal::LightInternal() :
-	ComponentInternal(ObjectType::Light), type_(LightType::Directional), intensity_(1) {
-
+LightInternal::LightInternal(ILight* self) 
+	: ComponentInternal(self, ObjectType::Light), type_(LightType::Directional), intensity_(1) {
 }

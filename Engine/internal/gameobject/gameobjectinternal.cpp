@@ -13,7 +13,7 @@
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal)) {
+IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal, this)) {
 	GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
 	e->go = this;
 	World::FireEventImmediate(e);
@@ -41,11 +41,11 @@ Component IGameObject::GetComponent(const char* name) { return _suede_dptr()->Ge
 std::vector<Component> IGameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
 std::vector<Component> IGameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
-GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
+GameObjectInternal::GameObjectInternal(IGameObject* self) : GameObjectInternal(self, ObjectType::GameObject) {
 }
 
-GameObjectInternal::GameObjectInternal(ObjectType type)
-	: ObjectInternal(type), active_(true), activeSelf_(true), boundsDirty_(true)
+GameObjectInternal::GameObjectInternal(IGameObject* self, ObjectType type)
+	: ObjectInternal(self, type), active_(true), activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
 	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
 		Debug::LogError("invalid go type %d.", type);
@@ -158,8 +158,8 @@ void GameObjectInternal::RecalculateUpdateStrategy(GameObject self) {
 	RecalculateHierarchyUpdateStrategy(self);
 }
 
-void GameObjectInternal::OnNameChanged(Object self) {
-	FireWorldEvent<GameObjectNameChangedEventPtr>(suede_dynamic_cast<GameObject>(self), true);
+void GameObjectInternal::OnNameChanged() {
+	FireWorldEvent<GameObjectNameChangedEventPtr>(_suede_self(), true);
 }
 
 void GameObjectInternal::SetActive(GameObject self, bool value) {

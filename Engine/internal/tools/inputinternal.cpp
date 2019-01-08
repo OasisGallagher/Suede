@@ -1,12 +1,10 @@
 #include "input.h"
 #include "engine.h"
 #include "memory/memory.h"
-
-InputInternal::InputInternal() {
+InputInternal::InputInternal() {
 	Engine::AddFrameEventListener(this);
 }
-
-InputInternal::~InputInternal() {
+InputInternal::~InputInternal() {
 	Engine::RemoveFrameEventListener(this);
 }
 

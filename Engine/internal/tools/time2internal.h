@@ -5,8 +5,7 @@
 #include "enginedefines.h"
 
 class TimeInternal : public FrameEventListener {
-public:
-	TimeInternal();
+public:	TimeInternal();
 
 public:
 	float GetTime() { return time_; }
