@@ -32,7 +32,7 @@ private:
 	container_type cont_;
 };
 
-class LR1Item : public intrusive_ref_counter {
+class LR1Item : public intrusive_ref_counter<> {
 public:
 	LR1Item() : cpos_(0), dpos_(0) {}
 	LR1Item(int cpos, int dpos) : cpos_(cpos), dpos_(dpos) {}
@@ -67,7 +67,7 @@ struct LR1ItemComparer {
 	}
 };
 
-class LR1Itemset : public intrusive_ref_counter {
+class LR1Itemset : public intrusive_ref_counter<> {
 public:
 	LR1Itemset() {}
 

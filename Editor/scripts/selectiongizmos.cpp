@@ -1,5 +1,6 @@
 #include "selectiongizmos.h"
 
+#include "light.h"
 #include "gizmos.h"
 
 SUEDE_DEFINE_COMPONENT(SelectionGizmos, IGizmosPainter)
@@ -27,6 +28,14 @@ void SelectionGizmos::OnDrawGizmos() {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
 		}
 
+		Light light = go->GetComponent<Light>();
+		if (light && light->GetType() == LightType::Directional) {
+			glm::vec3 pos = go->GetTransform()->GetPosition();
+			Gizmos::DrawLines({ pos , pos + light->GetTransform()->GetForward() * 3.f });
+		}
+
+		// draw axises.
+		/*
 		glm::vec3 pos = go->GetTransform()->GetPosition();
 
 		Gizmos::SetColor(Color::red);
@@ -37,6 +46,7 @@ void SelectionGizmos::OnDrawGizmos() {
 
 		Gizmos::SetColor(Color::blue);
 		Gizmos::DrawLines({ pos, pos + go->GetTransform()->GetForward() * 5.f });
+		*/
 	}
 
 	Gizmos::SetColor(oldColor);

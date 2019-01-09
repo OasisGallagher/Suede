@@ -60,7 +60,7 @@ public: \
 	} \
 private:
 
-class SUEDE_API IObject : public intrusive_ref_counter, public PimplIdiom {
+class SUEDE_API IObject : public intrusive_ref_counter<>, public PimplIdiom {
 	SUEDE_DEFINE_METATABLE_NAME(Object)
 	SUEDE_DECLARE_IMPLEMENTATION(Object)
 

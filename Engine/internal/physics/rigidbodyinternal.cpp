@@ -147,8 +147,11 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	mesh->UnmapVertices();
 
 	mesh_ = indexedMesh;
+
+	// SUEDE TODO: slow operation.
 	shape_ = MEMORY_NEW(btBvhTriangleMeshShape, mesh_, true);
 	shape_->setLocalScaling(btConvert(scale));
+
 	//}
 	return true;
 }

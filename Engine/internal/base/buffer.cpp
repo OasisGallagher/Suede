@@ -55,7 +55,8 @@ void Buffer::Unmap() {
 
 void Buffer::Update(int offset, size_t size, const void* data) {
 	Bind();
-	GL::BufferData(attribute_.target, attribute_.size, nullptr, attribute_.usage);
+	// buffer orphaning.
+	//GL::BufferData(attribute_.target, attribute_.size, nullptr, attribute_.usage);
 	GL::BufferSubData(attribute_.target, offset, size, data);
 	Unbind();
 }

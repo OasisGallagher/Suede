@@ -7,6 +7,8 @@ MatrixBuffer::MatrixBuffer(TextureBuffer buffer) : textureBuffer_(buffer) {
 }
 
 void MatrixBuffer::Update(uint size, const void* data) {
+	if (size == 0) { return; }
+
 	size *= sizeof(glm::mat4) * 2;
 
 	if (size > GLUtils::GetLimits(GLLimitsMaxTextureBufferSize)) {

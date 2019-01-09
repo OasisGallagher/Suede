@@ -1,10 +1,11 @@
 #pragma once
 
 // boost intrusive_ptr
-// add <Function><Name>intrusive_ptr&lt;.*&gt;::operator-&gt;</Name><Action>NoStepInto</Action></Function>
+// add 
+// <Function><Name>intrusive_ptr&lt;.*&gt;::.*</Name><Action>NoStepInto</Action></Function>
 // to $(VSFolder)\Common7\Packages\Debugger\Visualizers\default.natstepfilter
-// to keep debugger from stepping into operator->.
-template<class T> class intrusive_ptr {
+// to keep debugger from stepping into intrusive_ptr member functions.
+template <class T> class intrusive_ptr {
 	typedef intrusive_ptr this_type;
 
 public:
@@ -17,7 +18,7 @@ public:
 		if (px != 0 && add_ref) intrusive_ptr_add_ref(px);
 	}
 
-	template<class U>
+	template <class U>
 	intrusive_ptr(intrusive_ptr<U> const & rhs)
 		: px(rhs.get()) {
 		if (px != 0) intrusive_ptr_add_ref(px);
@@ -31,7 +32,7 @@ public:
 		if (px != 0) intrusive_ptr_release(px);
 	}
 
-	template<class U> intrusive_ptr & operator=(intrusive_ptr<U> const & rhs) {
+	template <class U> intrusive_ptr & operator=(intrusive_ptr<U> const & rhs) {
 		this_type(rhs).swap(*this);
 		return *this;
 	}
@@ -46,15 +47,15 @@ public:
 		return *this;
 	}
 
-	template<class U> friend class intrusive_ptr;
+	template <class U> friend class intrusive_ptr;
 
-	template<class U>
+	template <class U>
 	intrusive_ptr(intrusive_ptr<U> && rhs)
 		: px(rhs.px) {
 		rhs.px = 0;
 	}
 
-	template<class U>
+	template <class U>
 	intrusive_ptr & operator=(intrusive_ptr<U> && rhs) {
 		this_type(static_cast<intrusive_ptr<U> &&>(rhs)).swap(*this);
 		return *this;
@@ -114,70 +115,111 @@ private:
 	T * px;
 };
 
-template<class T> inline bool operator==(intrusive_ptr<T> const & a, std::nullptr_t b) {
+template <class T> inline bool operator==(intrusive_ptr<T> const & a, std::nullptr_t b) {
 	return a.get() == 0;
 }
 
-template<class T> inline bool operator!=(intrusive_ptr<T> const & a, std::nullptr_t b) {
+template <class T> inline bool operator!=(intrusive_ptr<T> const & a, std::nullptr_t b) {
 	return a.get() != 0;
 }
 
-template<class T, class U> inline bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) {
+template <class T, class U> inline bool operator==(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) {
 	return a.get() == b.get();
 }
 
-template<class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) {
+template <class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, intrusive_ptr<U> const & b) {
 	return a.get() != b.get();
 }
 
-template<class T, class U> inline bool operator==(intrusive_ptr<T> const & a, U * b) {
+template <class T, class U> inline bool operator==(intrusive_ptr<T> const & a, U * b) {
 	return a.get() == b;
 }
 
-template<class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, U * b) {
+template <class T, class U> inline bool operator!=(intrusive_ptr<T> const & a, U * b) {
 	return a.get() != b;
 }
 
-template<class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const & b) {
+template <class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const & b) {
 	return a == b.get();
 }
 
-template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const & b) {
+template <class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const & b) {
 	return a != b.get();
 }
 
-template<class T> inline bool operator<(intrusive_ptr<T> const & a, intrusive_ptr<T> const & b) {
+template <class T> inline bool operator<(intrusive_ptr<T> const & a, intrusive_ptr<T> const & b) {
 	return std::less<T *>()(a.get(), b.get());
 }
 
-template<class T> void swap(intrusive_ptr<T> & lhs, intrusive_ptr<T> & rhs) {
+template <class T> void swap(intrusive_ptr<T> & lhs, intrusive_ptr<T> & rhs) {
 	lhs.swap(rhs);
 }
 
 // mem_fn support
 
-template<class T> T * get_pointer(intrusive_ptr<T> const & p) {
+template <class T> T * get_pointer(intrusive_ptr<T> const & p) {
 	return p.get();
 }
 
+#include <atomic>
 #include "../types.h"
 
-class SUEDE_API intrusive_ref_counter {
-	int refs_ = 0;
+struct thread_unsafe_counter {
+	typedef int underlying;
 
-	friend void intrusive_ptr_add_ref(intrusive_ref_counter* counter);
-	friend void intrusive_ptr_release(intrusive_ref_counter* counter);
+	static int load(underlying const& counter) {
+		return counter;
+	}
+
+	static void increment(underlying& counter) {
+		++counter;
+	}
+
+	static int decrement(underlying& counter) {
+		return --counter;
+	}
+};
+
+struct thread_safe_counter {
+	typedef std::atomic_int underlying;
+
+	static int load(underlying const& counter) {
+		return counter;
+	}
+
+	static void increment(underlying& counter) {
+		++counter;
+	}
+
+	static int decrement(underlying& counter) {
+		return --counter;
+	}
+};
+
+template <class CounterPolicy = thread_safe_counter>
+class SUEDE_API intrusive_ref_counter {
+	typedef typename CounterPolicy::underlying underlying;
+
+	template <class CounterPolicy>
+	friend void intrusive_ptr_add_ref(intrusive_ref_counter<CounterPolicy>* counter);
+
+	template <class CounterPolicy> 
+	friend void intrusive_ptr_release(intrusive_ref_counter<CounterPolicy>* counter);
+
+	underlying refs_ = 0;
 
 public:
 	virtual ~intrusive_ref_counter() {}
 };
 
-inline void intrusive_ptr_add_ref(intrusive_ref_counter* counter) {
-	++counter->refs_;
+template <class CounterPolicy>
+inline void intrusive_ptr_add_ref(intrusive_ref_counter<CounterPolicy>* counter) {
+	CounterPolicy::increment(counter->refs_);
 }
 
-inline void intrusive_ptr_release(intrusive_ref_counter* counter) {
-	if (counter->refs_ > 0 && --counter->refs_ == 0) {
+template <class CounterPolicy>
+inline void intrusive_ptr_release(intrusive_ref_counter<CounterPolicy>* counter) {
+	if (CounterPolicy::load(counter->refs_) > 0 && CounterPolicy::decrement(counter->refs_) == 0) {
 		delete counter;
 	}
 }

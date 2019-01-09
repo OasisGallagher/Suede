@@ -12,7 +12,7 @@ enum GrammarSymbolType {
 
 struct ScannerToken;
 
-class GrammarSymbol : public intrusive_ref_counter {
+class GrammarSymbol : public intrusive_ref_counter<> {
 public:
 	friend class SymbolFactory;
 

@@ -369,21 +369,13 @@ void WorldInternal::Update() {
 
 	CameraUtility::OnPreRender();
 
-	float seconds = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
-	start = Profiler::GetTimeStamp();
-
 	for (Camera camera : cameras_) {
 		if (camera->GetEnabled()) {
 			camera->Render();
 		}
 	}
 
-	seconds = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
-	start = Profiler::GetTimeStamp();
-
 	CameraUtility::OnPostRender();
-
-	seconds = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
 
 	Statistics::SetRenderingElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)

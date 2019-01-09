@@ -8,7 +8,7 @@
 #include "internal/base/vertexattrib.h"
 #include "internal/base/renderdefines.h"
 
-#undef DEBUG_SAMPLES
+#define DEBUG_SAMPLES
 
 template <class T>
 inline int Compare(T lhs, T rhs) {
@@ -113,6 +113,8 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 }
 
 void Pipeline::Run() {
+	if (nrenderables_ == 0) { return; }
+
 	samples_.update_pipeline->Restart();
 
 	samples_.update_tbo->Restart();
