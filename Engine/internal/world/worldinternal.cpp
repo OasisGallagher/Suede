@@ -362,20 +362,39 @@ void WorldInternal::Update() {
 
 	FireEvents();
 
+	uint64 now = Profiler::GetTimeStamp();
+	double seconds = Profiler::TimeStampToSeconds(now - start);
+	start = now;
+
 	// SUEDE TODO: update decals in rendering thread ?
 	UpdateDecals();
+	now = Profiler::GetTimeStamp();
+	double seconds_2 = Profiler::TimeStampToSeconds(now - start);
+	start = now;
 
 	RenderingUpdateGameObjects();
+	now = Profiler::GetTimeStamp();
+	double seconds_3 = Profiler::TimeStampToSeconds(now - start);
+	start = now;
 
 	CameraUtility::OnPreRender();
+	now = Profiler::GetTimeStamp();
+	double seconds_4 = Profiler::TimeStampToSeconds(now - start);
+	start = now;
 
 	for (Camera camera : cameras_) {
 		if (camera->GetEnabled()) {
 			camera->Render();
 		}
 	}
+	now = Profiler::GetTimeStamp();
+	double seconds_5 = Profiler::TimeStampToSeconds(now - start);
+	start = now;
 
 	CameraUtility::OnPostRender();
+	now = Profiler::GetTimeStamp();
+	double seconds_6 = Profiler::TimeStampToSeconds(now - start);
+	start = now;
 
 	Statistics::SetRenderingElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)

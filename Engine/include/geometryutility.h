@@ -43,7 +43,7 @@ public:
      * Ordering: [0] = Left, [1] = Right, [2] = Down, [3] = Up, [4] = Near, [5] = Far
 	 */
 	static void CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix);
-	static void CalculateFrustumPlanes(float* normals, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix);
+	static void CalculateFrustumPlanes(float* normals, int normalOffset, int normalStride, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix);
 
 private:
 	GeometryUtility();

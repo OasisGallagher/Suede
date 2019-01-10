@@ -94,12 +94,12 @@ void EngineInternal::Shutdown() {
 }
 
 void EngineInternal::Update() {
+	uint64 start = Profiler::GetTimeStamp();
 	if (updateRef_ == LUA_NOREF) {
 		Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
 		updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
 	}
 
-	uint64 start = Profiler::GetTimeStamp();
 	Lua::invokeGlobalFunction(L, updateRef_);
 	Statistics::SetScriptElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)

@@ -108,10 +108,10 @@ bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plan
 }
 
 void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix) {
-	CalculateFrustumPlanes((float*)planes, (float*)planes, 3, 4, (float*)&worldToClipMatrix);
+	CalculateFrustumPlanes((float*)planes, 0, 4, (float*)planes, 3, 4, (float*)&worldToClipMatrix);
 }
 
-void GeometryUtility::CalculateFrustumPlanes(float* normals, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix) {
+void GeometryUtility::CalculateFrustumPlanes(float* normals, int normalOffset, int normalStride, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix) {
 	// https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
 	//
 	// Compared to the pdf paper named: "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix":
@@ -122,40 +122,40 @@ void GeometryUtility::CalculateFrustumPlanes(float* normals, float* distances, i
 	// Good paper, after all. The main drawback is that the matrix elements here have a (very) different convention. It should be handy to fully rewrite it with this convention...
 
 	// Extract the LEFT clipping plane	
-	normals[0] = worldToClipMatrix[3] + worldToClipMatrix[0];
-	normals[0] = worldToClipMatrix[7] + worldToClipMatrix[4];
-	normals[0] = worldToClipMatrix[11] + worldToClipMatrix[8];
+	normals[normalOffset] = worldToClipMatrix[3] + worldToClipMatrix[0];
+	normals[normalOffset + 1] = worldToClipMatrix[7] + worldToClipMatrix[4];
+	normals[normalOffset + 2] = worldToClipMatrix[11] + worldToClipMatrix[8];
 	distances[distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[12];
 
 	// Extract the RIGHT clipping plane
-	normals[1] = worldToClipMatrix[3] - worldToClipMatrix[0];
-	normals[1] = worldToClipMatrix[7] - worldToClipMatrix[4];
-	normals[1] = worldToClipMatrix[11] - worldToClipMatrix[8];
+	normals[normalStride + normalOffset] = worldToClipMatrix[3] - worldToClipMatrix[0];
+	normals[normalStride + normalOffset + 1] = worldToClipMatrix[7] - worldToClipMatrix[4];
+	normals[normalStride + normalOffset + 2] = worldToClipMatrix[11] - worldToClipMatrix[8];
 	distances[distanceStride + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[12];
 
 	// Extract the DOWN clipping plane
-	normals[2] = worldToClipMatrix[3] + worldToClipMatrix[1];
-	normals[2] = worldToClipMatrix[7] + worldToClipMatrix[5];
-	normals[2] = worldToClipMatrix[11] + worldToClipMatrix[9];
-	distances[(distanceStride * 2) + distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[13];
+	normals[normalStride * 2 + normalOffset] = worldToClipMatrix[3] + worldToClipMatrix[1];
+	normals[normalStride * 2 + normalOffset + 1] = worldToClipMatrix[7] + worldToClipMatrix[5];
+	normals[normalStride * 2 + normalOffset + 2] = worldToClipMatrix[11] + worldToClipMatrix[9];
+	distances[distanceStride * 2 + distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[13];
 
 	// Extract the TOP clipping plane
-	normals[3] = worldToClipMatrix[3] - worldToClipMatrix[1];
-	normals[3] = worldToClipMatrix[7] - worldToClipMatrix[5];
-	normals[3] = worldToClipMatrix[11] - worldToClipMatrix[9];
-	distances[(distanceStride * 3) + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[13];
+	normals[normalStride * 3 + normalOffset] = worldToClipMatrix[3] - worldToClipMatrix[1];
+	normals[normalStride * 3 + normalOffset + 1] = worldToClipMatrix[7] - worldToClipMatrix[5];
+	normals[normalStride * 3 + normalOffset + 2] = worldToClipMatrix[11] - worldToClipMatrix[9];
+	distances[distanceStride * 3 + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[13];
 
 	// Extract the NEAR clipping plane
-	normals[4] = worldToClipMatrix[2];
-	normals[4] = worldToClipMatrix[6];
-	normals[4] = worldToClipMatrix[10];
-	distances[(distanceStride * 4) + distanceOffset] = worldToClipMatrix[14];
+	normals[normalStride * 4 + normalOffset] = worldToClipMatrix[2];
+	normals[normalStride * 4 + normalOffset + 1] = worldToClipMatrix[6];
+	normals[normalStride * 4 + normalOffset + 2] = worldToClipMatrix[10];
+	distances[distanceStride * 4 + distanceOffset] = worldToClipMatrix[14];
 
 	// Extract the FAR clipping plane
-	normals[5] = worldToClipMatrix[3] - worldToClipMatrix[2];
-	normals[5] = worldToClipMatrix[7] - worldToClipMatrix[6];
-	normals[5] = worldToClipMatrix[11] - worldToClipMatrix[10];
-	distances[(distanceStride * 5) + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[14];
+	normals[normalStride * 5 + normalOffset] = worldToClipMatrix[3] - worldToClipMatrix[2];
+	normals[normalStride * 5 + normalOffset + 1] = worldToClipMatrix[7] - worldToClipMatrix[6];
+	normals[normalStride * 5 + normalOffset + 2] = worldToClipMatrix[11] - worldToClipMatrix[10];
+	distances[distanceStride * 5 + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[14];
 }
 
 PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint npoints) {
