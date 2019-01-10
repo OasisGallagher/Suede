@@ -132,31 +132,32 @@ void CameraInternal::SetDepth(int value) {
 	}
 }
 
-//#include "graphics.h"
+#include "graphics.h"
 
 void CameraInternal::Render() {
 	if (!IsValidViewportRect()) {
 		return;
 	}
 
+	Transform transform = GetTransform();
 	if (!culling_->IsWorking()) {
 		traits1_->Clear();
-		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+		culling_->Cull(transform->GetPosition(), transform->GetForward(), GetFarClipPlane(), GetProjectionMatrix() * transform->GetWorldToLocalMatrix());
 	}
 
 	if (traitsReady_) {
 		RenderingMatrices matrices;
 		matrices.projParams = glm::vec4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
-		matrices.cameraPos = GetTransform()->GetPosition();
+		matrices.cameraPos = transform->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
-		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+		matrices.worldToCameraMatrix = transform->GetWorldToLocalMatrix();
 		rendering_->Render(traits0_->GetPipelines(), matrices);
 
-		//TexelMap texels;
-		//culling_->GetCullingBuffer(texels);
-		//cullingBuffer_->SetPixels(texels.textureFormat, &texels.data[0], texels.colorStreamFormat, texels.width, texels.height, texels.alignment);
+		TexelMap texels;
+		culling_->GetCullingBuffer(texels);
+		cullingBuffer_->SetPixels(texels.textureFormat, &texels.data[0], texels.colorStreamFormat, texels.width, texels.height, texels.alignment);
 
-		//Graphics::Blit(cullingBuffer_, RenderTextureUtility::GetDefault());
+		Graphics::Blit(cullingBuffer_, RenderTextureUtility::GetDefault(), Rect(0, 0, 1, 1), Rect(0, 0, 0.32f, 0.32f / GetAspect()));
 	}
 	else {
 		// Debug::Log("Waiting for first frame...");

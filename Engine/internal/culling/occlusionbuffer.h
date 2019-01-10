@@ -26,7 +26,7 @@ struct OcclusionBuffer {
 	void reset() {}
 
 	void initialize(const float* modelViewProjMatrix, int bufferWidth = 128, int bufferHeight = 128);
-	void bufferImage(std::vector<unsigned char>& data);
+	void getBufferTextureData(std::vector<unsigned char>& data);
 
 	btVector4 transform(const btVector3& x) const;
 

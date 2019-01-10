@@ -31,7 +31,7 @@ void SelectionGizmos::OnDrawGizmos() {
 		Light light = go->GetComponent<Light>();
 		if (light && light->GetType() == LightType::Directional) {
 			glm::vec3 pos = go->GetTransform()->GetPosition();
-			Gizmos::DrawLines({ pos , pos + light->GetTransform()->GetForward() * 3.f });
+			Gizmos::DrawLines({ pos , pos + light->GetTransform()->GetForward() * 9.f });
 		}
 
 		// draw axises.

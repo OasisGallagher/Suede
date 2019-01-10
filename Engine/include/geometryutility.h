@@ -36,7 +36,14 @@ public:
 
 	static float GetDistance(const Plane& plane, const glm::vec3& p);
 	static bool GetIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& p0, const glm::vec3& p1);
+
+	/**
+	 * @brief Calculates frustum planes.
+     * This function takes the given camera's view frustum and returns six planes that form it.
+     * Ordering: [0] = Left, [1] = Right, [2] = Down, [3] = Up, [4] = Near, [5] = Far
+	 */
 	static void CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix);
+	static void CalculateFrustumPlanes(float* normals, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix);
 
 private:
 	GeometryUtility();

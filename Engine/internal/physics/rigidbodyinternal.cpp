@@ -4,7 +4,6 @@
 #include "physicsinternal.h"
 
 IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal, this)) {}
-void IRigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float IRigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
 const Bounds& IRigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
@@ -17,10 +16,10 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
 RigidbodyInternal::RigidbodyInternal(IRigidbody* self)
 	: ComponentInternal(self, ObjectType::Rigidbody)
-	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr), showCollisionShape_(false) {
+	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr) {
 	CreateBody();
 }
-RigidbodyInternal::~RigidbodyInternal() {
+RigidbodyInternal::~RigidbodyInternal() {
 	DestroyBody();
 	DestroyShape();
 }
@@ -38,25 +37,44 @@ void RigidbodyInternal::Update() {
 		}
 
 		shapeState_ = Normal;
+		RequestRecalculateUpdateStrategy();
 	}
 
-	// SUEDE TODO: empty body.
-	if (body_ != nullptr && (body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) == 0) {
+	if ((body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) == 0) {
 		ApplyPhysicsTransform();
-	}
-
-	if (showCollisionShape_) {
-		btWorld()->debugDrawObject(body_->getWorldTransform(), shape_, btVector3(1, 0, 0));
 	}
 }
 
+int RigidbodyInternal::GetUpdateStrategy() {
+	if (shapeState_ != Normal || (body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) == 0) {
+		return UpdateStrategyRendering;
+	}
+
+	return UpdateStrategyNone;
+}
+
 void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
+	bool needUpdate = false;
 	if (messageID == GameObjectMessageMeshModified) {
+		needUpdate = true;
 		shapeState_ = InvalidShape;
 	}
-	else if( messageID == GameObjectMessageLocalToWorldMatrixModified) {
+	else if (messageID == GameObjectMessageLocalToWorldMatrixModified) {
+		needUpdate = true;
 		shapeState_ = InvalidBody;
 	}
+
+	if (needUpdate) {
+		RequestRecalculateUpdateStrategy();
+	}
+}
+
+void RigidbodyInternal::RequestRecalculateUpdateStrategy() {
+	GameObjectUpdateStrategyChangedEventPtr e = NewWorldEvent<GameObjectUpdateStrategyChangedEventPtr>();
+	e->go = GetGameObject();
+	World::FireEvent(e);
+
+	GetGameObject()->RecalculateUpdateStrategy();
 }
 
 void RigidbodyInternal::SetMass(float value) {
@@ -72,7 +90,7 @@ void RigidbodyInternal::UpdateBounds() {
 	btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
 	minAabb -= contactThreshold;
 	maxAabb += contactThreshold;
-	
+
 	if (btWorld()->getDispatchInfo().m_useContinuous && body_->getInternalType() == btCollisionObject::CO_RIGID_BODY && !body_->isStaticOrKinematicObject()) {
 		btVector3 minAabb2, maxAabb2;
 		shape_->getAabb(body_->getInterpolationWorldTransform(), minAabb2, maxAabb2);
@@ -120,10 +138,10 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	//	}
 	//}
 	//else {
-		// In case of a concave object, you use a more complicated class called btBvhTriangleMeshShape.
-		// This class requires the creation of a mesh object consisting of triangles. In this step,
-		// you gather triangles by grouping vertices from the list of vertices. 
-		// Then you create a mesh and create a shape object from this mesh.
+	// In case of a concave object, you use a more complicated class called btBvhTriangleMeshShape.
+	// This class requires the creation of a mesh object consisting of triangles. In this step,
+	// you gather triangles by grouping vertices from the list of vertices. 
+	// Then you create a mesh and create a shape object from this mesh.
 	btTriangleIndexVertexArray* indexedMesh = MEMORY_NEW(btTriangleIndexVertexArray);
 
 	const uint* indexes = mesh->MapIndexes();
@@ -175,8 +193,8 @@ void RigidbodyInternal::ApplyGameObjectTransform() {
 }
 
 void RigidbodyInternal::UpdateBody(bool updateWorldRigidbody) {
-	// You set the mass and inertia values for the shape. You don＊t have to calculate inertia for your shape manually.
-	// Instead you are using a utility function that takes a reference, btVector3, and sets the correct inertia value using the shape＊s data.
+	// You set the mass and inertia values for the shape. You don't have to calculate inertia for your shape manually.
+	// Instead you are using a utility function that takes a reference, btVector3, and sets the correct inertia value using the shape's data.
 	btVector3 intertia;
 	shape_->calculateLocalInertia(mass_, intertia);
 
@@ -193,17 +211,17 @@ void RigidbodyInternal::CreateBody() {
 	SUEDE_ASSERT(body_ == nullptr);
 
 	// MotionState is a convenient class that allows you to sync a physical body and with your drawable objects.
-	// You don＊t have to use motion states to set/get the position and rotation of the object, but doing so will
+	// You don't have to use motion states to set/get the position and rotation of the object, but doing so will
 	// get you several benefits, including interpolation and callbacks.
 	btDefaultMotionState* motionState = MEMORY_NEW(btDefaultMotionState);
 	btRigidBody::btRigidBodyConstructionInfo bodyCI(mass_, motionState, nullptr);
 
-	// bodyCI.m_restitution sets an object＊s bounciness. Imagine dropping a ball 每 a sphere 每 to the floor:
-	// - With a value of 0.0, it doesn＊t bounce at all. The sphere will stick to the floor on the first touch.
+	// bodyCI.m_restitution sets an object's bounciness. Imagine dropping a ball - a sphere - to the floor:
+	// - With a value of 0.0, it doesn't bounce at all. The sphere will stick to the floor on the first touch.
 	// - With a value between 0 and 1, the object bounces, but with each bounce loses part of its energy. 
 	//   The sphere will bounce several times, each time lower than the previous bounce until finally it stops.
 	// - With a value of more than 1, the object gains energy with each bounce. This is not very realistic, 
-	//   or at least I can＊t think of a real-life object that behaves this way. Your sphere will bounce higher
+	//   or at least I can't think of a real-life object that behaves this way. Your sphere will bounce higher
 	//   than the point from which it was dropped, then it will bounce even higher and so on, until it bounces right into space.
 	bodyCI.m_restitution = 1.f;
 
@@ -213,12 +231,12 @@ void RigidbodyInternal::CreateBody() {
 
 	body_ = MEMORY_NEW(btRigidBody, bodyCI);
 
-	// This is important moment. Sometimes you only have access to a physics body 每 for example, 
-	// when Bullet calls your callback and passes you the body 每 but you want to get the node object that holds this body.
-	// In this line, you＊re making that possible.
+	// This is important moment. Sometimes you only have access to a physics body - for example, 
+	// when Bullet calls your callback and passes you the body - but you want to get the node object that holds this body.
+	// In this line, you're making that possible.
 	body_->setUserPointer(_suede_self());
 
-	// You＊re limiting object movement to a 2D plane (x,y).
+	// You're limiting object movement to a 2D plane (x,y).
 	// This keeps your ball and other objects from bouncing somewhere along the z-axis.
 	// body->setLinearFactor(btVector3(1, 1, 0));
 	body_->setLinearFactor(btVector3(1, 1, 1));

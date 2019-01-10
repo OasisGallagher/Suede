@@ -173,6 +173,8 @@ public:
 	static Transform GetRootTransform();
 
 	static GameObject GetGameObject(uint id);
+	static const std::vector<GameObject>& GetAllGameObjects();
+
 	static void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
 	static void FireEvent(WorldEventBasePtr e);

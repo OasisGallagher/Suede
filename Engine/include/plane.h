@@ -20,6 +20,5 @@ private:
 	void Normalize();
 
 private:
-	float d_;
-	glm::vec3 normal_;
+	glm::vec4 abcd_;
 };

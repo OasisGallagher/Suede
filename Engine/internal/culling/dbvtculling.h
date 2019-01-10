@@ -1,13 +1,12 @@
 #pragma once
+#include <functional>
 #include "occlusionbuffer.h"
 
 struct	DBVTCulling : btDbvt::ICollide {
-	std::vector<btCollisionObject*>* m_pCollisionObjectArray;
-	short int m_collisionFilterMask;
-	btCollisionObject* m_additionalCollisionObjectToExclude;
-	OcclusionBuffer* m_ocb;
-
-	DBVTCulling(std::vector<btCollisionObject*>* _pArray = NULL);
+	OcclusionBuffer* m_ocb = NULL;
+	std::vector<btCollisionObject*>* m_pCollisionObjectArray = NULL;
+	int m_collisionFilterMask = (btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger);
+	std::function<bool(btCollisionObject*)> m_checkCollisionObject;
 
 	bool Descent(const btDbvtNode* node);
 
@@ -15,9 +14,10 @@ struct	DBVTCulling : btDbvt::ICollide {
 	void Process(const btDbvtNode* node, btScalar depth) { Process(node); }
 
 private:
-	bool IsOccluder(const btCollisionObject* o);
+	bool isOccluder(const btCollisionObject* o);
+	void applyOccluder(btCollisionObject* collisionObject, btBroadphaseProxy* proxy);
 };
 
-inline bool DBVTCulling::IsOccluder(const btCollisionObject* o) {
+inline bool DBVTCulling::isOccluder(const btCollisionObject* o) {
 	return (o && (o->getCollisionFlags() & btCollisionObject::CF_OCCLUDER_OBJECT));
 }

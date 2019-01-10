@@ -19,15 +19,6 @@ class Rigidbody_Wrapper {
 		return 1;
 	}
 
-	// void ShowCollisionShape(bool value)
-	static int ShowCollisionShape(lua_State* L) {
-		Rigidbody& _p = *Lua::callerIntrusivePtr<Rigidbody>(L);
-		bool value = Lua::get<bool>(L, 2);
-		
-		_p->ShowCollisionShape(value);
-		return 0;
-	}
-
 	// void SetMass(float value)
 	static int SetMass(lua_State* L) {
 		Rigidbody& _p = *Lua::callerIntrusivePtr<Rigidbody>(L);
@@ -69,7 +60,6 @@ public:
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deleteIntrusivePtr<Rigidbody> },
 			{ "__tostring", ToString }, 
-			{ "ShowCollisionShape", ShowCollisionShape },
 			{ "SetMass", SetMass },
 			{ "GetMass", GetMass },
 			{ "SetVelocity", SetVelocity },

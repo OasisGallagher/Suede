@@ -30,16 +30,10 @@ public:
 SUEDE_DEFINE_OBJECT_POINTER(SubMesh)
 
 struct BlendAttribute {
-	enum {
-		Quality = 4,
-	};
+	enum { Quality = 4, };
 
-	BlendAttribute() {
-		memset(this, 0, sizeof(BlendAttribute));
-	}
-
-	uint indexes[Quality];
-	float weights[Quality];
+	uint indexes[Quality] = { 0 };
+	float weights[Quality] = { 0 };
 };
 
 struct InstanceAttribute {
@@ -59,11 +53,9 @@ enum class MeshTopology {
 };
 
 struct MeshAttribute {
-	enum {
-		TexCoordsCount = 4,
-	};
+	enum { TexCoordsCount = 4, };
 
-	MeshTopology topology;
+	MeshTopology topology = MeshTopology::Triangles;
 
 	std::vector<glm::vec3> positions;
 	std::vector<glm::vec3> normals;

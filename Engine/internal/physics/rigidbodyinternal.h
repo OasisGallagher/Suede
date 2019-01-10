@@ -15,13 +15,10 @@ public:
 	virtual void Awake();
 	virtual void Update();
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
+	virtual int GetUpdateStrategy();
 	virtual void OnMessage(int messageID, void* parameter);
 
 public:
-	// SUEDE TODO: DEBUG.
-	void ShowCollisionShape(bool value) { showCollisionShape_ = value; }
-
 	void SetMass(float value);
 	float GetMass() const { return mass_; }
 
@@ -43,6 +40,7 @@ private:
 
 	void ApplyPhysicsTransform();
 	void ApplyGameObjectTransform();
+	void RequestRecalculateUpdateStrategy();
 
 private:
 	// mass is pretty obviously the mass of the object, but it has another not-so-obvious significance. 
@@ -55,7 +53,6 @@ private:
 	//   When the ball hits a border or a brick, it will bounce back, but it can never affect the positions of the border, 
 	//   brick or paddle since they are immovable.
 	float mass_;
-	bool showCollisionShape_;
 
 	enum {
 		Normal,

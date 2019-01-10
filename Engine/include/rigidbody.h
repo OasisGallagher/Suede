@@ -14,8 +14,6 @@ public:
 	IRigidbody();
 
 public:
-	void ShowCollisionShape(bool value);
-
 	void SetMass(float value);
 	float GetMass() const;
 

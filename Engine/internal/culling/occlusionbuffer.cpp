@@ -21,7 +21,7 @@ void OcclusionBuffer::initialize(const float* modelViewProjMatrix, int bufferWid
 	clear();
 }
 
-void OcclusionBuffer::bufferImage(std::vector<unsigned char>& data) {
+void OcclusionBuffer::getBufferTextureData(std::vector<unsigned char>& data) {
 	data.resize(buffer.size());
 	// Very slow, but good quality
 	float bufferMax = data[0], bufferMin = data[0], bufferExtentFactor;

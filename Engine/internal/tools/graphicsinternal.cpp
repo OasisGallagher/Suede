@@ -90,7 +90,8 @@ void GraphicsInternal::Draw(Mesh mesh, Material material) {
 }
 
 Mesh GraphicsInternal::CreateBlitMesh(const Rect& rect) {
-	MeshAttribute attribute = { MeshTopology::TriangleStripe };
+	MeshAttribute attribute;
+	attribute.topology = MeshTopology::TriangleStripe;
 
 	attribute.positions.assign({
 		glm::vec3(-1.f, -1.f, 0.f),

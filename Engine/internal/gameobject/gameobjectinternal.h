@@ -17,14 +17,14 @@ protected:
 public:
 	bool GetActive() const { return active_; }
 
-	void SetActiveSelf(GameObject self, bool value);
+	void SetActiveSelf(bool value);
 	bool GetActiveSelf() const { return activeSelf_; }
 
-	int GetUpdateStrategy(GameObject self);
+	int GetUpdateStrategy();
 	void SendMessage(int messageID, void* parameter);
 
 	const std::string& GetTag() const { return tag_; }
-	bool SetTag(GameObject self, const std::string& value);
+	bool SetTag(const std::string& value);
 
 	void Update();
 	void CullingUpdate();
@@ -34,14 +34,14 @@ public:
 	const Bounds& GetBounds();
 	void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
-	void RecalculateUpdateStrategy(GameObject self);
+	void RecalculateUpdateStrategy();
 
 protected:
 	virtual void OnNameChanged();
 
 public:
 	template <class T>
-	Component AddComponent(GameObject self, T key);
+	Component AddComponent(T key);
 
 	template <class T>
 	Component GetComponent(T key);
@@ -61,16 +61,13 @@ private:
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
 
-	Component ActivateComponent(GameObject self, Component component);
+	Component ActivateComponent(Component component);
 
-	int GetHierarchyUpdateStrategy(GameObject root);
-	bool RecalculateHierarchyUpdateStrategy(GameObject self);
-
-	void SetActive(GameObject self, bool value);
+	void SetActive(bool value);
 	void UpdateChildrenActive(GameObject parent);
 
 	template <class T>
-	void FireWorldEvent(GameObject self, bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
+	void FireWorldEvent(bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -94,10 +91,10 @@ private:
 };
 
 template <class T>
-inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
+inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
-		e->go = self;
+		e->go = _suede_self();
 		if (f) { f(e); }
 		if (immediate) { World::FireEventImmediate(e); }
 		else { World::FireEvent(e); }
@@ -115,19 +112,19 @@ inline bool GameObjectInternal::CheckComponentDuplicate(T key) {
 }
 
 template <class T>
-inline Component GameObjectInternal::AddComponent(GameObject self, T key) {
+inline Component GameObjectInternal::AddComponent(T key) {
 	Component component = suede_dynamic_cast<Component>(Factory::Create(key));
 	if (component->AllowMultiple() || CheckComponentDuplicate(key)) {
-		return ActivateComponent(self, component);
+		return ActivateComponent(component);
 	}
 
 	return nullptr;
 }
 
 template <>
-inline Component GameObjectInternal::AddComponent(GameObject self, Component key) {
+inline Component GameObjectInternal::AddComponent(Component key) {
 	if (key->AllowMultiple() || CheckComponentDuplicate(key->GetComponentInstanceGUID())) {
-		return ActivateComponent(self, key);
+		return ActivateComponent(key);
 	}
 
 	return nullptr;

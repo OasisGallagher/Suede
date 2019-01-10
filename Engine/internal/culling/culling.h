@@ -17,32 +17,28 @@ struct DBVTCulling;
 struct OcclusionBuffer;
 class btCollisionObject;
 
-class Culling : public ZThread::Runnable, public WorldGameObjectWalker {
+class Culling : public ZThread::Runnable {
 public:
 	Culling(CullingListener* listener);
 	~Culling();
 
 public:
-	std::vector<GameObject>& GetGameObjects() { return gameObjects_; }
-
 	void GetCullingBuffer(TexelMap& texels);
+	const std::vector<GameObject>& GetGameObjects() { return gameObjects_; }
 
 	void Stop();
 	bool IsWorking() { return !stopped_ && working_; }
 
-	void Cull(const glm::mat4& worldToClipMatrix);
-
-public:
-	virtual WalkCommand OnWalkGameObject(GameObject go);
+	void Cull(const glm::vec3& cameraPos, const glm::vec3& cameraForward, float farClipPlane, const glm::mat4& worldToClipMatrix);
 
 protected:
 	virtual void run();
 
 private:
-	bool IsVisible(GameObject go, const glm::mat4& worldToClipMatrix);
-	bool FrustumCulling(const Bounds & bounds, const glm::mat4& worldToClipMatrix);
+	bool IsVisible(btCollisionObject* co);
+
 	void OcclusionCulling();
-	void Matrix16Multiply(const float* a, const float* b, float* res);
+	void BulletDBVTCulling(const float* cameraPos, const float* cameraForward, float farClipPlane, const float* worldToClipMatrix);
 
 private:
 	ZThread::Mutex mutex_;
@@ -50,13 +46,17 @@ private:
 
 	bool working_, stopped_;
 	CullingListener* listener_;
+
+	glm::vec3 cameraPos_;
+	glm::vec3 cameraForward_;
+	float farClipPlane_;
 	glm::mat4 worldToClipMatrix_;
+
 	std::vector<GameObject> gameObjects_;
 
 	DBVTCulling* dbvtCulling_;
 	OcclusionBuffer* occlusionBuffer_;
 	std::vector<btCollisionObject*> objectsInFrustum_;
 
-	bool occlusionCullingEnabled_;
 	glm::ivec2 occlusionBufferSize_;
 };

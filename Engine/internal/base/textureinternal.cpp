@@ -523,11 +523,11 @@ void RenderTextureInternal::Resize(uint width, uint height) {
 }
 
 void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	if (!VerifyBindStatus()) { return; }
-	
-	bindStatus_ = StatusWrite;
-	SetViewport(width_, height_, normalizedRect);
-	framebuffer_->BindWrite();
+	if (VerifyBindStatus()) {
+		bindStatus_ = StatusWrite;
+		SetViewport(width_, height_, normalizedRect);
+		framebuffer_->BindWrite();
+	}
 }
 
 Texture2D RenderTextureInternal::ToTexture2D() {
@@ -543,23 +543,23 @@ Texture2D RenderTextureInternal::ToTexture2D() {
 }
 
 void RenderTextureInternal::Bind(uint index) {
-	if (!VerifyBindStatus()) { return; }
-
-	bindStatus_ = StatusRead;
-	TextureInternal::Bind(index);
+	if (VerifyBindStatus()) {
+		bindStatus_ = StatusRead;
+		TextureInternal::Bind(index);
+	}
 }
 
 void RenderTextureInternal::Unbind() {
-	if (bindStatus_ == StatusNone) { return; }
+	if (bindStatus_ != StatusNone) {
+		if (bindStatus_ == StatusWrite) {
+			framebuffer_->Unbind();
+		}
+		else {
+			TextureInternal::Unbind();
+		}
 
-	if (bindStatus_ == StatusWrite) {
-		framebuffer_->Unbind();
+		bindStatus_ = StatusNone;
 	}
-	else {
-		TextureInternal::Unbind();
-	}
-
-	bindStatus_ = StatusNone;
 }
 
 bool RenderTextureInternal::VerifyBindStatus() {

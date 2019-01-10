@@ -217,7 +217,7 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	if (CameraUtility::GetMain()) {
+	if (!projectors_.empty()  && CameraUtility::GetMain()) {
 		decalCreater_->Update(CameraUtility::GetMain(), projectors_);
 	}
 }

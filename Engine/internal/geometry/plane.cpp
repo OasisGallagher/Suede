@@ -8,23 +8,20 @@ Plane::Plane(const glm::vec4& abcd) : Plane(glm::vec3(abcd), abcd.w) {
 }
 
 Plane::Plane(const glm::vec3 points[3]) 
-	: Plane(glm::cross(points[1] - points[0], points[2] - points[1]), -glm::dot(normal_, points[0])) {
+	: Plane(glm::cross(points[1] - points[0], points[2] - points[1]), -glm::dot(glm::vec3(abcd_.xyz), points[0])) {
 }
 
-
-Plane::Plane(const glm::vec3& normal, float d) : normal_(normal), d_(d) {
-}
+Plane::Plane(const glm::vec3& normal, float d) : abcd_(glm::vec4(normal, d)) { }
 
 float Plane::GetDistance() const {
-	return d_;
+	return abcd_.w;
 }
 
 glm::vec3 Plane::GetNormal() const {
-	return normal_;
+	return abcd_.xyz;
 }
 
 void Plane::Normalize() {
-	float mag = glm::length(normal_);
-	normal_ /= mag;
-	d_ /= mag;
+	float mag = glm::length(glm::vec3(abcd_.xyz));
+	abcd_ /= mag;
 }

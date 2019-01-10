@@ -108,61 +108,55 @@ bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plan
 }
 
 void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix) {
-#define EXTRACT_PLANE(index, sign, row)	\
-	planes[index] = Plane(glm::vec4(worldToClipMatrix[0][3] sign worldToClipMatrix[0][row], \
-		worldToClipMatrix[1][3] sign worldToClipMatrix[1][row], \
-		worldToClipMatrix[2][3] sign worldToClipMatrix[2][row], \
-		worldToClipMatrix[3][3] sign worldToClipMatrix[3][row]))
-
-	EXTRACT_PLANE(0, +, 0);
-	EXTRACT_PLANE(1, -, 0);
-	EXTRACT_PLANE(2, +, 1);
-	EXTRACT_PLANE(3, -, 1);
-	EXTRACT_PLANE(4, +, 2);
-	EXTRACT_PLANE(5, -, 2);
-
-#undef EXTRACT_PLANE
+	CalculateFrustumPlanes((float*)planes, (float*)planes, 3, 4, (float*)&worldToClipMatrix);
 }
 
-//void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], Camera camera) {
-//	CalculateFrustumPlanes(planes, camera->GetProjectionMatrix() * camera->GetTransform()->GetWorldToLocalMatrix());
-/*
-	vec3 nearCenter = camPos - camForward * nearDistance;
-	vec3 farCenter = camPos - camForward * farDistance;
+void GeometryUtility::CalculateFrustumPlanes(float* normals, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix) {
+	// https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+	//
+	// Compared to the pdf paper named: "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix":
+	// Here, for example, the first coefficient of the RIGHT plane is (worldToClipMatrix[ 3]-worldToClipMatrix[ 0]), that in the paper is referenced as (m41-m11), since my matrices are stored in column major order and their index range is in [0,3].
+	// Here, for example, the offset for the right plane is (worldToClipMatrix[15]-worldToClipMatrix[12]), and in the paper is (m44-m14).
+	// Here the plane equations are in the form: planes_n[i].x()*x + planes_n[i].y()*y + planes_n[i].z()*z + planes_o[i] = 0
+	// According to the paper, plane normalization isn't needed if we just want to test if a point is inside or outside the plane, so we don't normalize them.
+	// Good paper, after all. The main drawback is that the matrix elements here have a (very) different convention. It should be handy to fully rewrite it with this convention...
 
-	float nearHeight = 2 * tanf(fovRadians/ 2) * nearDistance;
-	float farHeight = 2 * tanf(fovRadians / 2) * farDistance;
-	float nearWidth = nearHeight * viewRatio;
-	float farWidth = farHeight * viewRatio;
+	// Extract the LEFT clipping plane	
+	normals[0] = worldToClipMatrix[3] + worldToClipMatrix[0];
+	normals[0] = worldToClipMatrix[7] + worldToClipMatrix[4];
+	normals[0] = worldToClipMatrix[11] + worldToClipMatrix[8];
+	distances[distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[12];
 
-	vec3 farTopLeft = farCenter + camUp * (farHeight*0.5) - camRight * (farWidth*0.5);
-	vec3 farTopRight = farCenter + camUp * (farHeight*0.5) + camRight * (farWidth*0.5);
-	vec3 farBottomLeft = farCenter - camUp * (farHeight*0.5) - camRight * (farWidth*0.5);
-	vec3 farBottomRight = farCenter - camUp * (farHeight*0.5) + camRight * (farWidth*0.5);
+	// Extract the RIGHT clipping plane
+	normals[1] = worldToClipMatrix[3] - worldToClipMatrix[0];
+	normals[1] = worldToClipMatrix[7] - worldToClipMatrix[4];
+	normals[1] = worldToClipMatrix[11] - worldToClipMatrix[8];
+	distances[distanceStride + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[12];
 
-	vec3 nearTopLeft = nearCenter + camY * (nearHeight*0.5) - camX * (nearWidth*0.5);
-	vec3 nearTopRight = nearCenter + camY * (nearHeight*0.5) + camX * (nearWidth*0.5);
-	vec3 nearBottomLeft = nearCenter - camY * (nearHeight*0.5) - camX * (nearWidth*0.5);
-	vec3 nearBottomRight = nearCenter - camY * (nearHeight*0.5) + camX * (nearWidth*0.5);
-	vec3 p0, p1, p2;
+	// Extract the DOWN clipping plane
+	normals[2] = worldToClipMatrix[3] + worldToClipMatrix[1];
+	normals[2] = worldToClipMatrix[7] + worldToClipMatrix[5];
+	normals[2] = worldToClipMatrix[11] + worldToClipMatrix[9];
+	distances[(distanceStride * 2) + distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[13];
 
-	p0 = nearBottomLeft; p1 = farBottomLeft; p2 = farTopLeft;
-	vec3 leftPlaneNormal = Normalize(Cross(p1-p0, p2-p1));
-	vec3 leftPlaneOffset = Dot(leftPlaneNormal, p0);
+	// Extract the TOP clipping plane
+	normals[3] = worldToClipMatrix[3] - worldToClipMatrix[1];
+	normals[3] = worldToClipMatrix[7] - worldToClipMatrix[5];
+	normals[3] = worldToClipMatrix[11] - worldToClipMatrix[9];
+	distances[(distanceStride * 3) + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[13];
 
-	p0 = nearTopLeft; p1 = farTopLeft; p2 = farTopRight;
-	vec3 topPlaneNormal = Normalize(Cross(p1-p0, p2-p1));
-	vec3 topPlaneNormal = Dot(topPlaneNormal , p0);
+	// Extract the NEAR clipping plane
+	normals[4] = worldToClipMatrix[2];
+	normals[4] = worldToClipMatrix[6];
+	normals[4] = worldToClipMatrix[10];
+	distances[(distanceStride * 4) + distanceOffset] = worldToClipMatrix[14];
 
-	p0 = nearTopRight; p1 = farTopRight; p2 = farBottomRight;
-	vec3 rightPlaneNormal = Normalize(Cross(p1-p0, p2-p1));
-	vec3 rightPlaneNormal = Dot(rightPlaneNormal , p0);
-
-	p0 = nearBottomRight; p1 = farBottomRight; p2 = farBottomLeft;
-	vec3 bottomPlaneNormal = Normalize(Cross(p1-p0, p2-p1));
-	vec3 bottomPlaneNormal = Dot(bottomPlaneNormal , p0);
-	*/
-//}
+	// Extract the FAR clipping plane
+	normals[5] = worldToClipMatrix[3] - worldToClipMatrix[2];
+	normals[5] = worldToClipMatrix[7] - worldToClipMatrix[6];
+	normals[5] = worldToClipMatrix[11] - worldToClipMatrix[10];
+	distances[(distanceStride * 5) + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[14];
+}
 
 PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint npoints) {
 	uint npositive = 0, nnegative = 0;
