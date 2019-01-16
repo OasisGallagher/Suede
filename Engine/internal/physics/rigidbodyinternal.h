@@ -49,7 +49,7 @@ private:
 	// - The mass of a kinematic object also equals zero, but you can move such objects with code by explicitly setting 
 	//   their position and rotation. In your game, the paddle and bricks are kinematic objects.
 	// - The mass of a dynamic object is non - zero.You move such objects by applying a force to them.In your game, 
-	//   the ball is a dynamic object.You’ll set its direction and velocity and let the physics engine do the work.
+	//   the ball is a dynamic object.You'll set its direction and velocity and let the physics engine do the work.
 	//   When the ball hits a border or a brick, it will bounce back, but it can never affect the positions of the border, 
 	//   brick or paddle since they are immovable.
 	float mass_;
@@ -63,7 +63,7 @@ private:
 	Bounds bounds_;
 
 	// The reference to a rigid body.
-	// Using this property, you’ll allow the game scene to work with the physics body of the node.
+	// Using this property, you'll allow the game scene to work with the physics body of the node.
 	btRigidBody* body_;
 
 	// The shape of the physics body. 

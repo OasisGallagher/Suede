@@ -27,6 +27,9 @@ public:
 	static int Highword(int dword);
 
 	static float Pi();
+	static float Pi2();
+	static float PiOver2();
+
 	static float Epsilon();
 
 	template <class T>
@@ -75,6 +78,9 @@ public:
 	static T Clamp01(T value);
 
 	static bool Approximately(float x, float y);
+	static bool Approximately(const glm::vec2& x, const glm::vec2& y);
+	static bool Approximately(const glm::vec3& x, const glm::vec3& y);
+	static bool Approximately(const glm::vec4& x, const glm::vec4& y);
 	static bool Approximately(const glm::quat& x, const glm::quat& y);
 
 	static void Orthogonalize(glm::vec3& t, const glm::vec3& n);
@@ -97,6 +103,14 @@ inline int Math::MakeDword(int low, int high) {
 
 inline float Math::Pi() {
 	return 3.1415926f;
+}
+
+inline float Math::Pi2() {
+	return 6.2831853f;
+}
+
+inline float Math::PiOver2() {
+	return 1.5707963f;
 }
 
 inline float Math::Epsilon() {
@@ -220,6 +234,18 @@ inline T Math::Clamp01(T value) {
 
 inline bool Math::Approximately(float x, float y) {
 	return fabs(x - y) < Epsilon();
+}
+
+inline bool Math::Approximately(const glm::vec2& x, const glm::vec2& y) {
+	return Math::Approximately(x.x, y.x) && Math::Approximately(x.y, y.y);
+}
+
+inline bool Math::Approximately(const glm::vec3& x, const glm::vec3& y) {
+	return Math::Approximately(x.x, y.x) && Math::Approximately(x.y, y.y) && Math::Approximately(x.z, y.z);
+}
+
+inline bool Math::Approximately(const glm::vec4& x, const glm::vec4& y) {
+	return Math::Approximately(x.x, y.x) && Math::Approximately(x.y, y.y) && Math::Approximately(x.z, y.z) && Math::Approximately(x.w, y.w);
 }
 
 inline bool Math::Approximately(const glm::quat& x, const glm::quat& y) {

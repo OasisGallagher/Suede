@@ -112,46 +112,40 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 }
 
 void GeometryUtility::CalculateFrustumPlanes(float* normals, int normalOffset, int normalStride, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix) {
-	// https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
-	//
-	// Compared to the pdf paper named: "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix":
-	// Here, for example, the first coefficient of the RIGHT plane is (worldToClipMatrix[ 3]-worldToClipMatrix[ 0]), that in the paper is referenced as (m41-m11), since my matrices are stored in column major order and their index range is in [0,3].
-	// Here, for example, the offset for the right plane is (worldToClipMatrix[15]-worldToClipMatrix[12]), and in the paper is (m44-m14).
-	// Here the plane equations are in the form: planes_n[i].x()*x + planes_n[i].y()*y + planes_n[i].z()*z + planes_o[i] = 0
-	// According to the paper, plane normalization isn't needed if we just want to test if a point is inside or outside the plane, so we don't normalize them.
-	// Good paper, after all. The main drawback is that the matrix elements here have a (very) different convention. It should be handy to fully rewrite it with this convention...
+	// According to the paper(https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf), 
+	// plane normalization isn't needed if we just want to test if a point is inside or outside the plane, so we don't normalize them.
 
-	// Extract the LEFT clipping plane	
+	// LEFT
 	normals[normalOffset] = worldToClipMatrix[3] + worldToClipMatrix[0];
 	normals[normalOffset + 1] = worldToClipMatrix[7] + worldToClipMatrix[4];
 	normals[normalOffset + 2] = worldToClipMatrix[11] + worldToClipMatrix[8];
 	distances[distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[12];
 
-	// Extract the RIGHT clipping plane
+	// RIGHT
 	normals[normalStride + normalOffset] = worldToClipMatrix[3] - worldToClipMatrix[0];
 	normals[normalStride + normalOffset + 1] = worldToClipMatrix[7] - worldToClipMatrix[4];
 	normals[normalStride + normalOffset + 2] = worldToClipMatrix[11] - worldToClipMatrix[8];
 	distances[distanceStride + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[12];
 
-	// Extract the DOWN clipping plane
+	// DOWN
 	normals[normalStride * 2 + normalOffset] = worldToClipMatrix[3] + worldToClipMatrix[1];
 	normals[normalStride * 2 + normalOffset + 1] = worldToClipMatrix[7] + worldToClipMatrix[5];
 	normals[normalStride * 2 + normalOffset + 2] = worldToClipMatrix[11] + worldToClipMatrix[9];
 	distances[distanceStride * 2 + distanceOffset] = worldToClipMatrix[15] + worldToClipMatrix[13];
 
-	// Extract the TOP clipping plane
+	// TOP
 	normals[normalStride * 3 + normalOffset] = worldToClipMatrix[3] - worldToClipMatrix[1];
 	normals[normalStride * 3 + normalOffset + 1] = worldToClipMatrix[7] - worldToClipMatrix[5];
 	normals[normalStride * 3 + normalOffset + 2] = worldToClipMatrix[11] - worldToClipMatrix[9];
 	distances[distanceStride * 3 + distanceOffset] = worldToClipMatrix[15] - worldToClipMatrix[13];
 
-	// Extract the NEAR clipping plane
+	// NEAR
 	normals[normalStride * 4 + normalOffset] = worldToClipMatrix[2];
 	normals[normalStride * 4 + normalOffset + 1] = worldToClipMatrix[6];
 	normals[normalStride * 4 + normalOffset + 2] = worldToClipMatrix[10];
 	distances[distanceStride * 4 + distanceOffset] = worldToClipMatrix[14];
 
-	// Extract the FAR clipping plane
+	// FAR
 	normals[normalStride * 5 + normalOffset] = worldToClipMatrix[3] - worldToClipMatrix[2];
 	normals[normalStride * 5 + normalOffset + 1] = worldToClipMatrix[7] - worldToClipMatrix[6];
 	normals[normalStride * 5 + normalOffset + 2] = worldToClipMatrix[11] - worldToClipMatrix[10];
@@ -177,12 +171,12 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points,
 
 void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
 	// step size between U-points on the grid
-	glm::vec2 step = glm::vec2(Math::Pi() * 2, Math::Pi()) / glm::vec2(resolution);
+	glm::vec2 step = glm::vec2(Math::Pi2(), Math::Pi()) / glm::vec2(resolution);
 
 	for (float i = 0; i < resolution.x; ++i) { // U-points
 		for (float j = 0; j < resolution.y; ++j) { // V-points
 			glm::vec2 uv = glm::vec2(i, j) * step;
-			float un = ((i + 1) == resolution.x) ? Math::Pi() * 2 : (i + 1) * step.x;
+			float un = ((i + 1) == resolution.x) ? Math::Pi2() : (i + 1) * step.x;
 			float vn = ((j + 1) == resolution.y) ? Math::Pi() : (j + 1) * step.y;
 
 			// Find the four points of the grid square by evaluating the parametric urface function.

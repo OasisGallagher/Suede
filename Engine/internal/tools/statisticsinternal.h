@@ -21,6 +21,9 @@ public:
 	void SetScriptElapsed(double value);
 	double GetScriptElapsed();
 
+	void SetPhysicsElapsed(double value);
+	double GetPhysicsElapsed();
+
 	void SetCullingElapsed(double value);
 	double GetCullingElapsed();
 
@@ -40,6 +43,7 @@ private:
 		uint ntriangles;
 
 		double scriptElapsed;
+		double physicsElapsed;
 		double cullingElapsed;
 		double renderingElapsed;
 	} stats_[2];

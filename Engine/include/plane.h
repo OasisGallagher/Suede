@@ -13,11 +13,9 @@ public:
 	Plane(const glm::vec3& normal, float d);
 
 public:
+	void Normalize();
 	float GetDistance() const;
 	glm::vec3 GetNormal() const;
-
-private:
-	void Normalize();
 
 private:
 	glm::vec4 abcd_;

@@ -11,6 +11,8 @@ uint Statistics::GetDrawcalls() { return _suede_dinstance()->GetDrawcalls(); }
 float Statistics::GetFrameRate() { return _suede_dinstance()->GetFrameRate(); }
 void Statistics::SetScriptElapsed(double value) { _suede_dinstance()->SetScriptElapsed(value); }
 double Statistics::GetScriptElapsed() { return _suede_dinstance()->GetScriptElapsed(); }
+void Statistics::SetPhysicsElapsed(double value) { _suede_dinstance()->SetPhysicsElapsed(value); }
+double Statistics::GetPhysicsElapsed() { return _suede_dinstance()->GetPhysicsElapsed(); }
 void Statistics::SetCullingElapsed(double value) { _suede_dinstance()->SetCullingElapsed(value); }
 double Statistics::GetCullingElapsed() { return _suede_dinstance()->GetCullingElapsed(); }
 void Statistics::SetRenderingElapsed(double value) { _suede_dinstance()->SetRenderingElapsed(value); }
@@ -19,7 +21,8 @@ double Statistics::GetRenderingElapsed() { return _suede_dinstance()->GetRenderi
 #define lastFrameStats	stats_[0]
 #define thisFrameStats	stats_[1]
 #define FPS_REFRESH_TIME	0.2f
-StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
+
+StatisticsInternal::StatisticsInternal() : frameRate_(0), timeCounter_(0), frameCounter_(0) {
 	memset(&lastFrameStats, 0, sizeof(lastFrameStats));
 	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
 
@@ -47,6 +50,14 @@ void StatisticsInternal::SetScriptElapsed(double value) {
 
 double StatisticsInternal::GetScriptElapsed() {
 	return thisFrameStats.scriptElapsed;
+}
+
+void StatisticsInternal::SetPhysicsElapsed(double value) {
+	thisFrameStats.physicsElapsed = value;
+}
+
+double StatisticsInternal::GetPhysicsElapsed() {
+	return thisFrameStats.physicsElapsed;
 }
 
 void StatisticsInternal::SetCullingElapsed(double value) {

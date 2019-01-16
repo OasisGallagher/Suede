@@ -17,6 +17,9 @@ public:
 	static void SetScriptElapsed(double value);
 	static double GetScriptElapsed();
 
+	static void SetPhysicsElapsed(double value);
+	static double GetPhysicsElapsed();
+
 	static void SetCullingElapsed(double value);
 	static double GetCullingElapsed();
 

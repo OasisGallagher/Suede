@@ -10,7 +10,8 @@ float Time::GetDeltaTime() { return _suede_dinstance()->GetDeltaTime(); }
 float Time::GetFixedDeltaTime() { return _suede_dinstance()->GetFixedDeltaTime(); }
 float Time::GetRealTimeSinceStartup() { return _suede_dinstance()->GetRealTimeSinceStartup(); }
 uint Time::GetFrameCount() { return _suede_dinstance()->GetFrameCount(); }
-TimeInternal::TimeInternal() : deltaTime_(0), frameCount_(0), lastFrameTimeStamp_(0) {
+
+TimeInternal::TimeInternal() : deltaTime_(0), frameCount_(0), lastFrameTimeStamp_(0) {
 	Engine::AddFrameEventListener(this);
 }
 

@@ -15,7 +15,8 @@
 SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
 
 CameraController::CameraController() 
-	: orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
+	: orientSpeed_(0.005f, 0.005f), rotateSpeed_(0.02f, 0.02f)
+	, moveSpeed_(-0.05f, 0.05f, 0.05f), cameraOrient_(Math::PiOver2(), Math::PiOver2()) {
 }
 
 CameraController::~CameraController() {
@@ -61,15 +62,39 @@ glm::vec3 CameraController::calculateArcBallVector(const glm::ivec2& pos) {
 	return p;
 }
 
+glm::vec2 CartesianToSphericalCoordinate(const glm::vec3& dir) {
+	glm::vec2 orient(acosf(dir.y), atan2f(dir.z, dir.x) + Math::PiOver2());
+	return orient;
+}
+
 void CameraController::rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
-	glm::ivec2 delta = oldPos - mousePos;
+	glm::ivec2 delta = mousePos - oldPos;
 	oldPos = mousePos;
 
-	glm::vec3 eulerAngles = camera_->GetEulerAngles();
-	eulerAngles.x += delta.y * orientSpeed_.x;
-	eulerAngles.y += delta.x * orientSpeed_.y;
-	eulerAngles.z = 0;
-	camera_->SetEulerAngles(eulerAngles);
+	glm::vec2 orient = CartesianToSphericalCoordinate(camera_->GetForward());
+
+	/*cameraOrient_ = orient;*/
+	cameraOrient_ += glm::vec2(delta.y, delta.x) * orientSpeed_;
+
+	glm::vec3 forward(
+		sinf(cameraOrient_.x) * cosf(cameraOrient_.y),
+		cosf(cameraOrient_.x),
+		sinf(cameraOrient_.x) * sinf(cameraOrient_.y)
+	);
+
+	glm::vec3 right(
+		cosf(cameraOrient_.y + Math::PiOver2()),
+		0,
+		sinf(cameraOrient_.y + Math::PiOver2())
+	);
+
+	glm::vec3 up = glm::cross(right, forward);
+	camera_->SetRotation(glm::quat(glm::mat3(-right, up, forward)));
+
+	//glm::vec2 orient2 = CartesianToSphericalCoordinate(camera_->GetForward());
+	//glm::vec2 p(glm::polar(camera_->GetForward()));
+
+	//cameraOrient_ = p;
 }
 
 void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
@@ -94,49 +119,54 @@ void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::i
 	}
 
 	if (oldPos != mousePos) {
-#ifdef ARC_BALL
-		glm::vec3 va = calculateArcBallVector(oldPos);
-		glm::vec3 vb = calculateArcBallVector(mousePos);
-
-		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
-		rot = glm::pow(rot, 1 / 5.f);
-
-		glm::vec3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
-		camera_->SetPosition(selected->GetTransform()->GetPosition() + rot * dir);
-
-		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
-		glm::vec3 up = rot * camera_->GetUp();
-		glm::vec3 right = glm::cross(up, forward);
-		up = glm::cross(forward, right);
-
-		glm::mat3 m3(right, up, forward);
-		camera_->SetRotation(glm::normalize(glm::quat(m3)));
-#else
-		glm::vec3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
-
-		glm::ivec2 delta = mousePos - oldPos;
-		glm::quat qx = glm::angleAxis(rotateSpeed_.x * delta.x, camera_->GetUp());
-		glm::quat qy = glm::angleAxis(rotateSpeed_.y * delta.y, camera_->GetRight());
-
-		qx *= qy;
-		
-		bp = qx * bp + selected->GetTransform()->GetPosition();
-
-		camera_->SetPosition(bp);
-
-		glm::quat q(glm::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), glm::vec3(0, 1, 0)));
-		camera_->SetRotation(glm::conjugate(q));
-
-		/*glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
-		glm::vec3 right = qx * camera_->GetRight();
-		right.y = 0;
-		Math::Orthogonalize(right, forward);
-
-		glm::vec3 up = glm::cross(forward, right);
-
-		glm::quat q(glm::mat3(right, up, forward));
-		camera_->SetRotation(glm::normalize(q));*/
-#endif
+		glm::vec2 delta = mousePos - oldPos;
+		Transform transform = selected->GetTransform();
+		transform->SetRotation(
+			glm::angleAxis(delta.y * rotateSpeed_.x, glm::vec3(1, 0, 0)) * glm::angleAxis(delta.x * rotateSpeed_.y, glm::vec3(0, 1, 0)) * transform->GetRotation()
+		);
+//#ifdef ARC_BALL
+//		glm::vec3 va = calculateArcBallVector(oldPos);
+//		glm::vec3 vb = calculateArcBallVector(mousePos);
+//
+//		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
+//		rot = glm::pow(rot, 1 / 5.f);
+//
+//		glm::vec3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
+//		camera_->SetPosition(selected->GetTransform()->GetPosition() + rot * dir);
+//
+//		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
+//		glm::vec3 up = rot * camera_->GetUp();
+//		glm::vec3 right = glm::cross(up, forward);
+//		up = glm::cross(forward, right);
+//
+//		glm::mat3 m3(right, up, forward);
+//		camera_->SetRotation(glm::normalize(glm::quat(m3)));
+//#else
+//		glm::vec3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
+//
+//		glm::ivec2 delta = mousePos - oldPos;
+//		glm::quat qx = glm::angleAxis(rotateSpeed_.x * delta.x, camera_->GetUp());
+//		glm::quat qy = glm::angleAxis(rotateSpeed_.y * delta.y, camera_->GetRight());
+//
+//		qx *= qy;
+//		
+//		bp = qx * bp + selected->GetTransform()->GetPosition();
+//
+//		camera_->SetPosition(bp);
+//
+//		glm::quat q(glm::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), glm::vec3(0, 1, 0)));
+//		camera_->SetRotation(glm::conjugate(q));
+//
+//		/*glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
+//		glm::vec3 right = qx * camera_->GetRight();
+//		right.y = 0;
+//		Math::Orthogonalize(right, forward);
+//
+//		glm::vec3 up = glm::cross(forward, right);
+//
+//		glm::quat q(glm::mat3(right, up, forward));
+//		camera_->SetRotation(glm::normalize(q));*/
+//#endif
 
 		oldPos = mousePos;
 	}

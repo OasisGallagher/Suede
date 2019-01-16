@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "engine.h"
+#include "profiler.h"
 #include "graphicsviewer.h"
 #include "graphicscanvas.h"
 #include "engineinternal.h"
@@ -20,16 +21,30 @@ GraphicsViewer::~GraphicsViewer() {
 	Engine::Shutdown();
 }
 
+#include "debug/debug.h"
+
 void GraphicsViewer::Run() {
 	for (; status_ != ViewerStatusClosed;) {
 		if (canvas_ != nullptr) {
 			canvas_->MakeCurrent();
 
+			uint64 start = Profiler::GetTimeStamp();
 			Update();
-			Engine::Update();
+			uint64 now = Profiler::GetTimeStamp();
+			double qt = Profiler::TimeStampToSeconds(now - start);
 
+			start = now;
+			Engine::Update();
+			now = Profiler::GetTimeStamp();
+			double engine = Profiler::TimeStampToSeconds(now - start);
+
+			start = now;
  			canvas_->SwapBuffers();
  			canvas_->DoneCurrent();
+			now = Profiler::GetTimeStamp();
+			double swap = Profiler::TimeStampToSeconds(now - start);
+
+			Debug::Output("qt: %.2f, engine: %.2f, swap: %.2f", qt * 1000, engine * 1000, swap * 1000);
 		}
 	}
 }

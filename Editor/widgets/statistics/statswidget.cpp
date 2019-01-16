@@ -12,6 +12,7 @@ void StatsWidget::updateContent() {
 
 	ui.script->setText(QString::asprintf("%.2f ms", Statistics::GetScriptElapsed() * 1000));
 	ui.culling->setText(QString::asprintf("%.2f ms", Statistics::GetCullingElapsed() * 1000));
+	ui.physics->setText(QString::asprintf("%.2f ms", Statistics::GetPhysicsElapsed() * 1000));
 	ui.rendering->setText(QString::asprintf("%.2f ms", Statistics::GetRenderingElapsed() * 1000));
 
 	ui.drawcalls->setText(QString::number(Statistics::GetDrawcalls()));

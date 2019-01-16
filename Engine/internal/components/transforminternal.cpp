@@ -163,7 +163,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 void TransformInternal::SetRotation(const glm::quat& value) {
 	ClearDirty(WorldRotation);
 
-	if (!Math::Approximately(world_.rotation, value)) {
+	/*if (!Math::Approximately(world_.rotation, value))*/ {
 		world_.rotation = value;
 
 		SetDirty(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);

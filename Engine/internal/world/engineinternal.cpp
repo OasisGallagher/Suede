@@ -101,16 +101,25 @@ void EngineInternal::Update() {
 	}
 
 	Lua::invokeGlobalFunction(L, updateRef_);
+	uint64 now = Profiler::GetTimeStamp();
 	Statistics::SetScriptElapsed(
-		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+		Profiler::TimeStampToSeconds(now - start)
 	);
 
+	start = now;
 	FrameEventListenerContainer cont(listeners_);
 	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameEnter));
+	now = Profiler::GetTimeStamp();
+	double frameEnter = Profiler::TimeStampToSeconds(now - start);
 	
 	World::Update();
 
+	start = now;
 	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameLeave));
+	now = Profiler::GetTimeStamp();
+	double frameLeave = Profiler::TimeStampToSeconds(now - start);
+
+	Debug::Output("frameEnter: %.2f, frameLeave: %.2f", frameEnter * 1000, frameLeave * 1000);
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

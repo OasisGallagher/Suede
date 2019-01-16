@@ -39,7 +39,7 @@
 #include "scripts/cameracontroller.h"
 
 //#define ROOM
-//#define SKYBOX
+#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
@@ -250,6 +250,7 @@ void Game::createScene() {
 	Light light = lightGameObject->AddComponent<Light>();
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
 	light->GetTransform()->SetParent(World::GetRootTransform());
+	light->GetTransform()->SetEulerAngles(glm::vec3(90, 0, 0));
 
 	/*World::ImportTo(light, lightModelPath, this);*/
 

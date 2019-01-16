@@ -15,7 +15,8 @@ Sample* Profiler::CreateSample() { return _suede_dinstance()->CreateSample(); }
 void Profiler::ReleaseSample(Sample* value) { _suede_dinstance()->ReleaseSample(value); }
 uint64 Profiler::GetTimeStamp() { return _suede_dinstance()->GetTimeStamp(); }
 double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dinstance()->TimeStampToSeconds(timeStamp); }
-ProfilerInternal::ProfilerInternal() : samples_(MaxProfilerSamples) {
+
+ProfilerInternal::ProfilerInternal() : samples_(MaxProfilerSamples) {
 	LARGE_INTEGER frequency;
 	if (QueryPerformanceFrequency(&frequency)) {
 		timeStampToSeconds_ = 1.0 / frequency.QuadPart;
@@ -27,7 +28,8 @@ double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dinstance(
 
 	Engine::AddFrameEventListener(this);
 }
-ProfilerInternal::~ProfilerInternal() {
+
+ProfilerInternal::~ProfilerInternal() {
 }
 
 void ProfilerInternal::OnFrameEnter() {

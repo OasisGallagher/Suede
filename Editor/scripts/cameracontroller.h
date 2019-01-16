@@ -45,6 +45,9 @@ private:
 	glm::ivec2 pos_;
 	bool moving_ = false;
 
+	// theta, phi.
+	glm::vec2 cameraOrient_;
+
 	glm::vec3 moveSpeed_;
 	glm::vec2 orientSpeed_;
 	glm::vec2 rotateSpeed_;

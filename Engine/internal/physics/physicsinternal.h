@@ -38,7 +38,7 @@ public:
 
 public:
 	// SUEDE TODO: FixedUpdate sould be called every fixed framerate frame.
-	virtual void OnFrameEnter() { FixedUpdate(); }
+	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueuePhysics; }
 
 	virtual void OnWorldEvent(WorldEventBasePtr e);
