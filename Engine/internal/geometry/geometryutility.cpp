@@ -169,7 +169,7 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points,
 	return PlaneSide::Spanning;
 }
 
-void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
+void GeometryUtility::GetSphereCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
 	// step size between U-points on the grid
 	glm::vec2 step = glm::vec2(Math::Pi2, Math::Pi) / glm::vec2(resolution);
 
@@ -197,6 +197,20 @@ void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::
 
 			points.insert(points.end(), p, p + SUEDE_COUNTOF(p));
 		}
+	}
+}
+
+void GeometryUtility::GetCircleCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution) {
+	float step = Math::Pi2 / resolution;
+	glm::vec3 forward(0, 0, 1);
+	if (!Math::Approximately(normal.z, 0)) {
+		forward = glm::normalize(glm::vec3(-normal.z / normal.x, 0, 1));
+	}
+
+	points.reserve(resolution);
+	for (int i = 0; i < resolution; ++i) {
+		glm::quat q = glm::angleAxis(i * step, normal);
+		points.push_back(q * forward + center);
 	}
 }
 

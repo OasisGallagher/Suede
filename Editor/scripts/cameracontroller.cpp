@@ -16,7 +16,7 @@ SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
 
 CameraController::CameraController() 
 	: orientSpeed_(0.005f, 0.005f), rotateSpeed_(0.02f, 0.02f)
-	, moveSpeed_(-0.05f, 0.05f, 0.05f), moving_(false) {
+	, moveSpeed_(-0.1f, 0.1f, 0.1f), moving_(false) {
 }
 
 void CameraController::Update() {

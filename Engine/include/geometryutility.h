@@ -26,7 +26,8 @@ public:
 	static bool IsFrontFace(const Triangle& face, const glm::vec3& camera);
 	static PlaneSide TestSide(const Plane& plane, const glm::vec3* points, uint npoints);
 
-	static void GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution);
+	static void GetSphereCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution);
+	static void GetCircleCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution);
 	static void GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles = nullptr);
 
 	/**

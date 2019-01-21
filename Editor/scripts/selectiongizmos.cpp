@@ -23,6 +23,9 @@ void SelectionGizmos::OnDrawGizmos() {
 		if (!bounds.IsEmpty()) {
 			//body->ShowCollisionShape(true);
 			Gizmos::DrawWireCuboid(bounds.center, bounds.size);
+
+			float radius = glm::length(bounds.size) / 2.f;
+			Gizmos::DrawLines({ bounds.center, bounds.center + go->GetTransform()->GetUp() * radius });
 		}
 		else {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);

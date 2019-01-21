@@ -23,6 +23,7 @@ void Gizmos::DrawLines(const glm::vec3* points, uint npoints, const uint* indexe
 void Gizmos::DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes) { _suede_dinstance()->DrawLines(points.begin(), points.size(), indexes.begin(), indexes.size()); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints) { _suede_dinstance()->DrawLineStripe(points, npoints); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dinstance()->DrawLineStripe(points, npoints, indexes, nindexes); }
+void Gizmos::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) { _suede_dinstance()->DrawCircle(center, radius, normal); }
 void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawSphere(center, radius); }
 void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawCuboid(center, size); }
 void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawWireSphere(center, radius); }
@@ -74,6 +75,14 @@ void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) 
 	AddCuboidBatch(center, size, false);
 }
 
+void GizmosInternal::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) {
+	std::vector<glm::vec3> points;
+	GeometryUtility::GetCircleCoordinates(points, center, radius, normal, 36);
+	points.push_back(points.front());
+
+	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), &points[0], points.size());
+}
+
 void GizmosInternal::DrawWireSphere(const glm::vec3& center, float radius) {
 	AddSphereBatch(center, radius, true);
 }
@@ -119,12 +128,12 @@ void GizmosInternal::FillBatch(Batch &b, const glm::vec3* points, uint npoints) 
 }
 
 /**
- * @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
- */
+* @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
+*/
 void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool wireframe) {
 	std::vector<uint> indexes;
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetSphereCoodrinates(points, indexes, glm::ivec2(15));
+	GeometryUtility::GetSphereCoordinates(points, indexes, glm::ivec2(15));
 
 	Material material = new IMaterial();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));
@@ -145,46 +154,19 @@ void GizmosInternal::AddArrowBatch(const glm::vec3& from, const glm::vec3& to) {
 	const uint resolution = 32;
 	float step = Math::Pi2 / resolution;
 	glm::vec3 normal = glm::normalize(to - from);
+	glm::vec3 forward(0, 0, 1);
+	if (!Math::Approximately(normal.z, 0)) {
+		forward = glm::vec3(-normal.z / normal.x, 0, 1);
+	}
 
+	std::vector<glm::vec3> points;
 	for (int i = 0; i < resolution + 1; ++i) {
 		glm::quat q = glm::angleAxis(i * step, normal);
-
-	}
-	glm::vec3 c = a + (-d * h);
-	glm::vec3 e0 = perp(d);
-	glm::vec3 e1 = glm::cross(e0, d);
-	float inc = Math::Pi2 / resolution;
-	glm::orthogonalize
-	// calculate points around directrix
-	std::vector<glm::vec3> points;
-	points.reserve(resolution + 1);
-
-	points.push_back(a);
-	for (int i = 0; i < resolution; ++i) {
-		float rad = inc * i;
-		glm::vec3 p = c + (((e0 * Math::Cos(rad)) + (e1 * Math::Sin(rad))) * r);
-		points.push_back(p);
+		glm::vec3 p = q * forward;
+		points.push_back(p + from);
 	}
 
-	std::vector<uint> indexes;
-
-	// draw cone top
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex3f(a.x(), a.y(), a.z());
-	for (int i = 0; i < n; ++i) {
-		glVertex3f(pts[i].x(), pts[i].y(), pts[i].z());
-	}
-	glEnd();
-
-	// draw cone bottom
-	glBegin(GL_TRIANGLE_FAN);
-	glVertex3f(c.x(), c.y(), c.z());
-	for (int i = n - 1; i >= 0; --i) {
-		glVertex3f(pts[i].x(), pts[i].y(), pts[i].z());
-	}
-	glEnd();
-
-	FillBatch(GetBatch(MeshTopology::TriangleFan, false, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
+	FillBatch(GetBatch(MeshTopology::Lines, false, lineMaterial_), &points[0], points.size());
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {

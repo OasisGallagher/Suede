@@ -27,6 +27,7 @@ public:
 
 	void DrawSphere(const glm::vec3& center, float radius);
 	void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
+	void DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal);
 
 	void DrawWireSphere(const glm::vec3& center, float radius);
 	void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size);
