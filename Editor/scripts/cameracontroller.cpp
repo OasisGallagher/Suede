@@ -16,10 +16,7 @@ SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
 
 CameraController::CameraController() 
 	: orientSpeed_(0.005f, 0.005f), rotateSpeed_(0.02f, 0.02f)
-	, moveSpeed_(-0.05f, 0.05f, 0.05f), cameraOrient_(Math::PiOver2(), Math::PiOver2()) {
-}
-
-CameraController::~CameraController() {
+	, moveSpeed_(-0.05f, 0.05f, 0.05f), moving_(false) {
 }
 
 void CameraController::Update() {
@@ -48,53 +45,17 @@ void CameraController::Update() {
 	}
 }
 
-glm::vec3 CameraController::calculateArcBallVector(const glm::ivec2& pos) {
-	glm::vec3 p = glm::vec3(pos.x * view_->width() - 1.f, pos.y * view_->height() - 1.f, 0);
-
-	float squared = glm::dot(p, p);
-	if (squared <= 1 * 1) {
-		p.z = sqrtf(1 * 1 - squared);
-	}
-	else {
-		p = glm::normalize(p);
-	}
-
-	return p;
-}
-
-glm::vec2 CartesianToSphericalCoordinate(const glm::vec3& dir) {
-	glm::vec2 orient(acosf(dir.y), atan2f(dir.z, dir.x) + Math::PiOver2());
-	return orient;
-}
-
 void CameraController::rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
 	glm::ivec2 delta = mousePos - oldPos;
 	oldPos = mousePos;
 
-	glm::vec2 orient = CartesianToSphericalCoordinate(camera_->GetForward());
+	glm::vec2 polar = Math::EuclideanToPolar(-camera_->GetForward(), camera_->GetUp());
+	polar += glm::vec2(delta.y, delta.x) * orientSpeed_;
 
-	/*cameraOrient_ = orient;*/
-	cameraOrient_ += glm::vec2(delta.y, delta.x) * orientSpeed_;
+	glm::vec3 dir = Math::PolarToEuclidean(polar);
+	glm::vec3 right = glm::vec3(Math::Sin(polar.y), 0, -Math::Cos(polar.y));
 
-	glm::vec3 forward(
-		sinf(cameraOrient_.x) * cosf(cameraOrient_.y),
-		cosf(cameraOrient_.x),
-		sinf(cameraOrient_.x) * sinf(cameraOrient_.y)
-	);
-
-	glm::vec3 right(
-		cosf(cameraOrient_.y + Math::PiOver2()),
-		0,
-		sinf(cameraOrient_.y + Math::PiOver2())
-	);
-
-	glm::vec3 up = glm::cross(right, forward);
-	camera_->SetRotation(glm::quat(glm::mat3(-right, up, forward)));
-
-	//glm::vec2 orient2 = CartesianToSphericalCoordinate(camera_->GetForward());
-	//glm::vec2 p(glm::polar(camera_->GetForward()));
-
-	//cameraOrient_ = p;
+	camera_->SetRotation(glm::lookRotation(dir, glm::cross(dir, right)));
 }
 
 void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {

@@ -479,7 +479,7 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 
 glm::mat4 TransformInternal::GetLocalToWorldMatrix() {
 	if (IsDirty(LocalToWorldMatrix)) {
-		glm::mat4 matrix = Math::TRS(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
+		glm::mat4 matrix = glm::trs(GetLocalPosition(), GetLocalRotation(), GetLocalScale());
 
 		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {

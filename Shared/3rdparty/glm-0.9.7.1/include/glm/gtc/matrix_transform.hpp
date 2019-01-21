@@ -362,6 +362,13 @@ namespace glm
 		tvec3<T, P> const & center,
 		tvec3<T, P> const & up);
 
+	/// Creates a translation, rotation and scaling matrix.
+	template <typename T, precision P>
+	GLM_FUNC_DECL tmat4x4<T, P> trs(
+		const tvec3<T, P>& t, 
+		const tquat<T, P>& r, 
+		const tvec3<T, P>& s);
+
 	/// Build a right handed look at view matrix.
 	///
 	/// @param eye Position of the camera

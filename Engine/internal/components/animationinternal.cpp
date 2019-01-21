@@ -3,6 +3,8 @@
 #include <set>
 #include <algorithm>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "time2.h"
 #include "tools/math2.h"
 
@@ -195,7 +197,7 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 		glm::vec3 position = frame_->GetVector3(FrameKeyPosition);
 		glm::vec3 scale = frame_->GetVector3(FrameKeyScale);
 
-		transform = Math::TRS(position, rotation, scale);
+		transform = glm::trs(position, rotation, scale);
 	}
 
 	transform = matrix * transform;

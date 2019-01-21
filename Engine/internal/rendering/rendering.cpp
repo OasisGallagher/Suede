@@ -1,9 +1,12 @@
+#include "rendering.h"
+
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "world.h"
 #include "screen.h"
 #include "graphics.h"
 #include "profiler.h"
 #include "resources.h"
-#include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
 #include "tools/random.h"

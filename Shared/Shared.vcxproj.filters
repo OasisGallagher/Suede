@@ -555,6 +555,9 @@
     <ClCompile Include="debug\debug.cpp">
       <Filter>debug\src</Filter>
     </ClCompile>
+    <ClCompile Include="tools\math2.cpp">
+      <Filter>tools\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="glm\detail\func_common.inl">

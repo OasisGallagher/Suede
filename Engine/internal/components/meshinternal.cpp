@@ -383,8 +383,8 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < attribute.positions.size(); ++i) {
-		min = glm::min(min, attribute.positions[i]);
-		max = glm::max(max, attribute.positions[i]);
+		min = Math::Min(min, attribute.positions[i]);
+		max = Math::Max(max, attribute.positions[i]);
 	}
 }
 

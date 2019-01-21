@@ -33,20 +33,6 @@ void SelectionGizmos::OnDrawGizmos() {
 			glm::vec3 pos = go->GetTransform()->GetPosition();
 			Gizmos::DrawLines({ pos , pos + light->GetTransform()->GetForward() * 9.f });
 		}
-
-		// draw axises.
-		/*
-		glm::vec3 pos = go->GetTransform()->GetPosition();
-
-		Gizmos::SetColor(Color::red);
-		Gizmos::DrawLines({pos, pos + go->GetTransform()->GetRight() * 5.f});
-
-		Gizmos::SetColor(Color::green);
-		Gizmos::DrawLines({ pos, pos + go->GetTransform()->GetUp() * 5.f });
-
-		Gizmos::SetColor(Color::blue);
-		Gizmos::DrawLines({ pos, pos + go->GetTransform()->GetForward() * 5.f });
-		*/
 	}
 
 	Gizmos::SetColor(oldColor);

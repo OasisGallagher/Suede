@@ -1,5 +1,7 @@
 #include "gizmosinternal.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "engine.h"
 #include "graphics.h"
 #include "resources.h"
@@ -126,7 +128,7 @@ void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool 
 
 	Material material = new IMaterial();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));
-	material->SetMatrix4("localToWorldMatrix", Math::TRS(center, glm::quat(), glm::vec3(radius)));
+	material->SetMatrix4("localToWorldMatrix", glm::trs(center, glm::quat(), glm::vec3(radius)));
 
 	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, material), &points[0], points.size(), &indexes[0], indexes.size());
 }
@@ -137,6 +139,52 @@ void GizmosInternal::AddCuboidBatch(const glm::vec3& center, const glm::vec3& si
 	GeometryUtility::GetCuboidCoordinates(points, center, size, &indexes);
 
 	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
+}
+
+void GizmosInternal::AddArrowBatch(const glm::vec3& from, const glm::vec3& to) {
+	const uint resolution = 32;
+	float step = Math::Pi2 / resolution;
+	glm::vec3 normal = glm::normalize(to - from);
+
+	for (int i = 0; i < resolution + 1; ++i) {
+		glm::quat q = glm::angleAxis(i * step, normal);
+
+	}
+	glm::vec3 c = a + (-d * h);
+	glm::vec3 e0 = perp(d);
+	glm::vec3 e1 = glm::cross(e0, d);
+	float inc = Math::Pi2 / resolution;
+	glm::orthogonalize
+	// calculate points around directrix
+	std::vector<glm::vec3> points;
+	points.reserve(resolution + 1);
+
+	points.push_back(a);
+	for (int i = 0; i < resolution; ++i) {
+		float rad = inc * i;
+		glm::vec3 p = c + (((e0 * Math::Cos(rad)) + (e1 * Math::Sin(rad))) * r);
+		points.push_back(p);
+	}
+
+	std::vector<uint> indexes;
+
+	// draw cone top
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex3f(a.x(), a.y(), a.z());
+	for (int i = 0; i < n; ++i) {
+		glVertex3f(pts[i].x(), pts[i].y(), pts[i].z());
+	}
+	glEnd();
+
+	// draw cone bottom
+	glBegin(GL_TRIANGLE_FAN);
+	glVertex3f(c.x(), c.y(), c.z());
+	for (int i = n - 1; i >= 0; --i) {
+		glVertex3f(pts[i].x(), pts[i].y(), pts[i].z());
+	}
+	glEnd();
+
+	FillBatch(GetBatch(MeshTopology::TriangleFan, false, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {

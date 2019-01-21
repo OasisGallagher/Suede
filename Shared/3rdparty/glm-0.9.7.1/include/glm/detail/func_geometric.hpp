@@ -98,6 +98,18 @@ namespace glm
 	GLM_FUNC_DECL vecType<T, P> normalize(
 		vecType<T, P> const & x);
 
+	/// Returns the angle in radians between from and to.
+	template <typename T, precision P, template <typename, precision> class vecType>
+	GLM_FUNC_DECL T angle(
+		vecType<T, P> const & from, 
+		vecType<T, P> const & to,
+		vecType<T, P> const & normal);
+
+	/// Gram-Schmidt orthogonalize
+	template <typename T, precision P, template <typename, precision> class vecType>
+	GLM_FUNC_DECL vecType<T, P> orthogonalize(
+		vecType<T, P> const & x, vecType<T, P> const & normal);
+
 	/// If dot(Nref, I) < 0.0, return N, otherwise, return -N.
 	///
 	/// @tparam genType Floating-point vector types.

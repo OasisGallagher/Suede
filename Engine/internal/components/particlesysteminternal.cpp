@@ -184,9 +184,9 @@ void ParticleSystemInternal::UpdateBuffers() {
 		colors_[index] = particle->color;
 		geometries_[index++] = glm::vec4(particle->position, particle->size);
 
-		min = glm::min(min, particle->position);
-		max = glm::max(max, particle->position);
-		maxSize = glm::max(maxSize, particle->size);
+		min = Math::Min(min, particle->position);
+		max = Math::Max(max, particle->position);
+		maxSize = Math::Max(maxSize, particle->size);
 	}
 
 	bounds_.SetMinMax(min, max);

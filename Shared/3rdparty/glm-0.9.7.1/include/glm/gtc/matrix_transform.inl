@@ -466,6 +466,17 @@ namespace glm
 	}
 
 	template <typename T, precision P>
+	GLM_FUNC_QUALIFIER tmat4x4<T, P> trs
+	(
+		const tvec3<T, P>& t, 
+		const tquat<T, P>& r, 
+		const tvec3<T, P>& s
+	)
+	{
+		return translate(tmat4x4<T, P>(1), t) * scale(mat4_cast(r), s);
+	}
+
+	template <typename T, precision P>
 	GLM_FUNC_QUALIFIER tmat4x4<T, P> lookAt
 	(
 		tvec3<T, P> const & eye,

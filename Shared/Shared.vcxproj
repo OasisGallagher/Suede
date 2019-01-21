@@ -83,7 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;SUEDE_EXPORT;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CRT_SECURE_NO_WARNINGS;SUEDE_EXPORT;SUEDE_EXPORT_MATH;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <DisableSpecificWarnings>4267;4996;4251;4091</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>3rdparty\zthread-2.3.2\include</AdditionalIncludeDirectories>
@@ -131,6 +131,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="debug\debug.cpp" />
     <ClCompile Include="debug\stackwalker.cpp" />
     <ClCompile Include="os\filesystem.cpp" />
+    <ClCompile Include="tools\math2.cpp" />
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>

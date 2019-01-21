@@ -240,7 +240,6 @@ void RigidbodyInternal::CreateBody() {
 	// This keeps your ball and other objects from bouncing somewhere along the z-axis.
 	// body->setLinearFactor(btVector3(1, 1, 0));
 	body_->setLinearFactor(btVector3(1, 1, 1));
-
 	body_->setCollisionFlags(body_->getCollisionFlags() | btCollisionObject::CF_OCCLUDER_OBJECT);
 }
 

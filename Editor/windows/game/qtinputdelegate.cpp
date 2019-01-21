@@ -62,6 +62,7 @@ inline void ResetUpDown(T& state) {
 }
 
 QtInputDelegate::QtInputDelegate(QWidget* view) : view_(view) {
+	view_->setFocusPolicy(Qt::StrongFocus);
 	view_->installEventFilter(this);
 }
 

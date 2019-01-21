@@ -202,6 +202,12 @@ namespace glm
 		tvec3<T, P> const & orig, 
 		tvec3<T, P> const & dest);
 
+	/// Creates a rotation with the specified dir and upwards directions.
+	template<typename T, precision P>
+	GLM_FUNC_DECL tquat<T, P> lookRotation(
+		tvec3<T, P> const& dir,
+		tvec3<T, P> const& up);
+
 	/// Returns the squared length of x.
 	/// 
 	/// @see gtx_quaternion

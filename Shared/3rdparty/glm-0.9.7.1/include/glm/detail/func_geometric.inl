@@ -158,6 +158,29 @@ namespace detail
 		return x * inversesqrt(dot(x, x));
 	}
 
+	template <typename T, precision P, template <typename, precision> class vecType>
+	GLM_FUNC_QUALIFIER T angle
+	(
+		vecType<T, P> const & from,
+		vecType<T, P> const & to,
+		vecType<T, P> const & normal
+	) 
+	{
+		T r = acos(dot(from, to));
+		if (dot(normal, cross(from, to)) < 0) {
+			r = -r;
+		}
+
+		return r;
+	}
+
+	template <typename T, precision P, template <typename, precision> class vecType>
+	GLM_FUNC_QUALIFIER vecType<T, P> orthogonalize(vecType<T, P> const & x, vecType<T, P> const & normal) {
+		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'normalize' only accept floating-point inputs");
+
+		return normalize(x - normal * dot(normal, x));
+	}
+
 	// faceforward
 	template <typename genType>
 	GLM_FUNC_QUALIFIER genType faceforward(genType const & N, genType const & I, genType const & Nref)

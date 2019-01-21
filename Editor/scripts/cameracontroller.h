@@ -14,7 +14,7 @@ class CameraController : public QObject, public IBehaviour {
 
 public:
 	CameraController();
-	~CameraController();
+	~CameraController() {}
 
 public:
 	void setView(QWidget* value) { view_ = value; }
@@ -36,7 +36,6 @@ private:
 	void moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
 	void rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
 	void rotateAroundGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos);
-	glm::vec3 calculateArcBallVector(const glm::ivec2& point);
 
 private:
 	Transform camera_;
@@ -44,9 +43,6 @@ private:
 	QWidget* view_;
 	glm::ivec2 pos_;
 	bool moving_ = false;
-
-	// theta, phi.
-	glm::vec2 cameraOrient_;
 
 	glm::vec3 moveSpeed_;
 	glm::vec2 orientSpeed_;

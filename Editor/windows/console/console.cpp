@@ -123,6 +123,7 @@ void Console::showMessage(ConsoleMessageType type, const QString& message) {
 	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
 	ui_->table->setItem(r, 0, icon);
 	ui_->table->setItem(r, 1, text);
+	ui_->table->scrollToBottom();
 
 	if (type == ConsoleMessageType::Error) {
 		onErrorMessage(message);

@@ -57,6 +57,8 @@ private:
 	void AddSphereBatch(const glm::vec3& center, float radius, bool wireframe);
 	void AddCuboidBatch(const glm::vec3& center, const glm::vec3& size, bool wireframe);
 
+	void AddArrowBatch(const glm::vec3& from, const glm::vec3& to);
+
 	void DrawGizmos(const Batch& b);
 
 private:

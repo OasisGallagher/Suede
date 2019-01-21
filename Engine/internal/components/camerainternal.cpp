@@ -147,7 +147,7 @@ void CameraInternal::Render() {
 
 	if (traitsReady_) {
 		RenderingMatrices matrices;
-		matrices.projParams = glm::vec4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
+		matrices.projParams = glm::vec4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), Math::Tan(GetFieldOfView() / 2));
 		matrices.cameraPos = transform->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = transform->GetWorldToLocalMatrix();

@@ -243,8 +243,8 @@ void GameObjectInternal::CalculateSelfWorldBounds(const Bounds& bounds) {
 	Transform transform = GetTransform();
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < points.size(); ++i) {
-		min = glm::min(min, points[i]);
-		max = glm::max(max, points[i]);
+		min = Math::Min(min, points[i]);
+		max = Math::Max(max, points[i]);
 	}
 
 	worldBounds_.SetMinMax(min, max);
@@ -264,8 +264,8 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 		for (uint j = 0; j < points.size(); ++j) {
 			points[j] = GetTransform()->TransformPoint(glm::vec3(matrices[i] * glm::vec4(points[j], 1)));
 
-			min = glm::min(min, points[j]);
-			max = glm::max(max, points[j]);
+			min = Math::Min(min, points[j]);
+			max = Math::Max(max, points[j]);
 		}
 
 		boneBounds.SetMinMax(min, max);

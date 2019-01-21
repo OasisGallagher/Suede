@@ -91,8 +91,8 @@ bool Culling::IsVisible(btCollisionObject* co) {
 		glm::vec4 p = worldToClipMatrix_ * glm::vec4(points[i], 1);
 		glm::vec2 p2(Math::Clamp(p.x / p.w, -1.f, 1.f), Math::Clamp(p.y / p.w, -1.f, 1.f));
 
-		min = glm::min(min, p2);
-		max = glm::max(max, p2);
+		min = Math::Min(min, p2);
+		max = Math::Max(max, p2);
 	}
 
 	glm::vec2 size(max - min);

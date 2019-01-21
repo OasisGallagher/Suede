@@ -48,7 +48,7 @@ bool GeometryUtility::AARectContains(const glm::vec3& point, const glm::vec3& tl
 bool GeometryUtility::PolygonContains(const glm::vec3* vertices, uint nvertices, const glm::vec3& point, const glm::vec3& normal, bool onEdge) {
 	for (uint i = 1; i <= nvertices; ++i) {
 		const glm::vec3& currentPosition = i < nvertices ? vertices[i] : vertices[0];
-		float cr = Math::Angle(glm::normalize(currentPosition - vertices[i - 1]), glm::normalize(point - vertices[i - 1]), normal);
+		float cr = glm::angle(glm::normalize(currentPosition - vertices[i - 1]), glm::normalize(point - vertices[i - 1]), normal);
 		if (IsZero(cr) && AARectContains(point, currentPosition, vertices[i - 1])) {
 			return onEdge;
 		}
@@ -171,13 +171,13 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points,
 
 void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
 	// step size between U-points on the grid
-	glm::vec2 step = glm::vec2(Math::Pi2(), Math::Pi()) / glm::vec2(resolution);
+	glm::vec2 step = glm::vec2(Math::Pi2, Math::Pi) / glm::vec2(resolution);
 
 	for (float i = 0; i < resolution.x; ++i) { // U-points
 		for (float j = 0; j < resolution.y; ++j) { // V-points
 			glm::vec2 uv = glm::vec2(i, j) * step;
-			float un = ((i + 1) == resolution.x) ? Math::Pi2() : (i + 1) * step.x;
-			float vn = ((j + 1) == resolution.y) ? Math::Pi() : (j + 1) * step.y;
+			float un = ((i + 1) == resolution.x) ? Math::Pi2 : (i + 1) * step.x;
+			float vn = ((j + 1) == resolution.y) ? Math::Pi : (j + 1) * step.y;
 
 			// Find the four points of the grid square by evaluating the parametric urface function.
 			glm::vec3 p[] = {
@@ -301,7 +301,7 @@ void EarClippingTriangulate(std::vector<glm::vec3>& triangles, const std::vector
 }
 
 glm::vec3 SphereCoodrinate(float x, float y) {
-	return glm::vec3(cosf(x) * sinf(y), cosf(y), sinf(x) * sinf(y));
+	return glm::vec3(Math::Cos(x) * Math::Sin(y), Math::Cos(y), Math::Sin(x) * Math::Sin(y));
 }
 
 void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane) {
@@ -358,7 +358,7 @@ bool IsReflex(array_list<EarVertex>& vertices, int index, const glm::vec3& norma
 	glm::vec3 current = vertices[index].position;
 	glm::vec3 prev = vertices.prev_value(index).position;
 	glm::vec3 next = vertices.next_value(index).position;
-	return Math::Angle(glm::normalize(next - current), glm::normalize(prev - current), normal) < 0;
+	return glm::angle(glm::normalize(next - current), glm::normalize(prev - current), normal) < 0;
 }
 
 void EarClipping(std::vector<glm::vec3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const glm::vec3& normal) {

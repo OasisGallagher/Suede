@@ -9,7 +9,10 @@
 
 static Language language;
 
+#include "tools/math2.h"
+
 bool RebuildGLEF(const char* binpath) {
+	float f = Math::Pi;
 	return language.BuildSyntaxer(GLEFGrammar) && language.SaveSyntaxer(binpath);
 }
 

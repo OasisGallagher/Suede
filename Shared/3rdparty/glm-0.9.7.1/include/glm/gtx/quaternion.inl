@@ -280,4 +280,15 @@ namespace glm
 			rotationAxis.z * invs);
 	}
 
+	template <typename T, precision P>
+	GLM_FUNC_QUALIFIER tquat<T, P> lookRotation
+	(
+		tvec3<T, P> const & dir,
+		tvec3<T, P> const & up
+	)
+	{
+		tvec3<T, P> right = cross(up, dir);
+		return tquat<T, P>(tmat3x3<T, P>(right, cross(dir, right), dir));
+	}
+
 }//namespace glm

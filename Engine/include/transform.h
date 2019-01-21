@@ -77,5 +77,9 @@ public:
 
 	glm::vec3 GetUp();
 	glm::vec3 GetRight();
+
+	/**
+	 * @returns negative z-axis direction in local coordinate system.
+	 */
 	glm::vec3 GetForward();
 };

@@ -37,11 +37,13 @@ void Hierarchy::OnGameObjectImported(GameObject root, const std::string& path) {
 }
 
 GameObject Hierarchy::selectedGameObject() {
-	QModelIndex index = ui_->gameObjectTree->selectionModel()->currentIndex();
-	if (!index.isValid()) { return nullptr; }
+	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
+	if (!indexes.empty()) {
+		uint id = model_->itemFromIndex(indexes.front())->data().toUInt();
+		return World::GetGameObject(id);
+	}
 
-	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return World::GetGameObject(id);
+	return nullptr;
 }
 
 QList<GameObject> Hierarchy::selectedGameObjects() {

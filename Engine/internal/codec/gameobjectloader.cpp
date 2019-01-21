@@ -270,8 +270,8 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) 
 		meshAsset.positions.push_back(pos);
 		meshAsset.normals.push_back(normal);
 
-		min = glm::min(min, pos);
-		max = glm::max(max, pos);
+		min = Math::Min(min, pos);
+		max = Math::Max(max, pos);
 	}
 
 	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
