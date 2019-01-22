@@ -1,4 +1,4 @@
-#include "inspector.h"
+﻿#include "inspector.h"
 
 #include <gl/glew.h>
 

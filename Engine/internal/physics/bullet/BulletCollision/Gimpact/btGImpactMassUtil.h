@@ -1,4 +1,4 @@
-/*! \file btGImpactMassUtil.h
+﻿/*! \file btGImpactMassUtil.h
 \author Francisco Leon Najera
 */
 /*

@@ -1,4 +1,4 @@
-/*
+﻿/*
 Stan Melax Convex Hull Computation
 Copyright (c) 2003-2006 Stan Melax http://www.melax.com/
 

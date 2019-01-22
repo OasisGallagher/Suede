@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QtOpenGL/QGLWidget>
 #include "graphicscanvas.h"
 

@@ -1,4 +1,4 @@
-#include "rendererinternal.h"
+﻿#include "rendererinternal.h"
 
 #include <algorithm>
 

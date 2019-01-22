@@ -1,4 +1,4 @@
-#include "uniformbuffermanager.h"
+﻿#include "uniformbuffermanager.h"
 
 #include "screen.h"
 #include "tools/math2.h"

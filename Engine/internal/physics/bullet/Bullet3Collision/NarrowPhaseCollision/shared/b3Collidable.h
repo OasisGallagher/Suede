@@ -1,4 +1,4 @@
-
+﻿
 #ifndef B3_COLLIDABLE_H
 #define B3_COLLIDABLE_H
 

@@ -1,4 +1,4 @@
-#include <QTreeView>
+﻿#include <QTreeView>
 #include <QKeyEvent>
 
 #include "ui_editor.h"

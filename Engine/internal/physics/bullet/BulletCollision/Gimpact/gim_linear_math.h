@@ -1,4 +1,4 @@
-#ifndef GIM_LINEAR_H_INCLUDED
+﻿#ifndef GIM_LINEAR_H_INCLUDED
 #define GIM_LINEAR_H_INCLUDED
 
 /*! \file gim_linear_math.h

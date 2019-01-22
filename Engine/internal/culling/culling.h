@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <ZThread/Mutex.h>
 #include <ZThread/Runnable.h>
 #include <ZThread/Condition.h>

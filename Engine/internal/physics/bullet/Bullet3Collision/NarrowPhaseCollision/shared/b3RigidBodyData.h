@@ -1,4 +1,4 @@
-#ifndef B3_RIGIDBODY_DATA_H
+﻿#ifndef B3_RIGIDBODY_DATA_H
 #define B3_RIGIDBODY_DATA_H
 
 #include "internal/physics/bullet/Bullet3Common/shared/b3Float4.h"

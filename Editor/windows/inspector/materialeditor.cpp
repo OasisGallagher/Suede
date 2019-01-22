@@ -1,4 +1,4 @@
-#include "materialeditor.h"
+﻿#include "materialeditor.h"
 
 #include <QFileDialog>
 

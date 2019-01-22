@@ -1,4 +1,4 @@
-#ifndef GIM_HASH_TABLE_H_INCLUDED
+﻿#ifndef GIM_HASH_TABLE_H_INCLUDED
 #define GIM_HASH_TABLE_H_INCLUDED
 /*! \file gim_trimesh_data.h
 \author Francisco Leon Najera

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "tools/math2.h"
 
 struct SUEDE_API Color {

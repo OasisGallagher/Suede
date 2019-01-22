@@ -1,4 +1,4 @@
-#include "vecfield.h"
+﻿#include "vecfield.h"
 
 #include <QLabel>
 #include <QHBoxLayout>

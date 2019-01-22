@@ -1,4 +1,4 @@
-#include <sstream>
+ï»¿#include <sstream>
 #include <algorithm>
 
 #include "lr1.h"
@@ -58,7 +58,7 @@ std::string LR1Item::ToString(const GrammarContainer& grammars) const {
 		if (i == dpos_) {
 			oss << seperator;
 			seperator = " ";
-			oss << "¡¤";
+			oss << "Â·";
 		}
 
 		oss << seperator;
@@ -67,7 +67,7 @@ std::string LR1Item::ToString(const GrammarContainer& grammars) const {
 	}
 
 	if (dpos_ == (int)cond->symbols.size()) {
-		oss << seperator << "¡¤";
+		oss << seperator << "Â·";
 	}
 
 	oss << ", ";

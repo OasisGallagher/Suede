@@ -1,4 +1,4 @@
-#include "camerainternal.h"
+﻿#include "camerainternal.h"
 
 #include <glm/gtx/transform.hpp>
 

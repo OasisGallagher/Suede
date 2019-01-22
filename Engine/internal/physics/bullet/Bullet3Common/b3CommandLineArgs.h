@@ -1,4 +1,4 @@
-#ifndef COMMAND_LINE_ARGS_H
+﻿#ifndef COMMAND_LINE_ARGS_H
 #define COMMAND_LINE_ARGS_H
 
 /******************************************************************************

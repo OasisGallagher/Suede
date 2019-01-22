@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <ZThread/Mutex.h>
 #include <ZThread/Guard.h>
 

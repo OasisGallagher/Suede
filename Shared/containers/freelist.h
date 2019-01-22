@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../debug/debug.h"
 #include "../tools/math2.h"
 #include "../memory/memory.h"

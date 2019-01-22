@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2003-2013 Gino van den Bergen / Erwin Coumans  http://bulletphysics.org
 
 This software is provided 'as-is', without any express or implied warranty.

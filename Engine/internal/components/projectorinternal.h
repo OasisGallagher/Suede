@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "frustum.h"
 #include "projector.h"
 #include "internal/components/componentinternal.h"

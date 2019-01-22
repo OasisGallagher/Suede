@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QTimer>
 #include <QCheckBox>
 #include <QStatusBar>

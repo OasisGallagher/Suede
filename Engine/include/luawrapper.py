@@ -702,7 +702,7 @@ class Environment:
 		name = ""; base = ""; body = []; instance = False; struct = False;
 
 		prev = "";
-		for text in open(filePath).readlines():
+		for text in open(filePath, encoding = "utf-8").readlines():
 			line = text.strip();
 
 			if enum and (line == ")" or line == ");" or line == "};"):

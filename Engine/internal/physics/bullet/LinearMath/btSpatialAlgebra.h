@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2003-2015 Erwin Coumans, Jakub Stepien
 
 This software is provided 'as-is', without any express or implied warranty.

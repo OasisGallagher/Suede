@@ -1,4 +1,4 @@
-#ifndef B3_CONTACT4DATA_H
+﻿#ifndef B3_CONTACT4DATA_H
 #define B3_CONTACT4DATA_H
 
 #include "internal/physics/bullet/Bullet3Common/shared/b3Float4.h"

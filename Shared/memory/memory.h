@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define MEMORY_NEW(T, ...)				Memory::New<T>(__VA_ARGS__)
 #define MEMORY_NEW_ARRAY(T, count)		Memory::NewArray<T>(count)

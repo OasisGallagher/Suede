@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2013 Advanced Micro Devices, Inc.  
 
 This software is provided 'as-is', without any express or implied warranty.

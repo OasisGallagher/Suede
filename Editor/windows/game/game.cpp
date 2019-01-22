@@ -1,4 +1,4 @@
-#include <QWidget>
+ï»¿#include <QWidget>
 #include <QToolBar>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -397,12 +397,12 @@ void Game::createScene() {
 
 	TextMesh redMesh = redText->AddComponent<TextMesh>();
 	redMesh->SetFont(font);
-	redMesh->SetText("ÂäÏ¼Óë¹ÂðÍÆë·É");
+	redMesh->SetText("è½éœžä¸Žå­¤é¹œé½é£ž");
 	redMesh->SetFontSize(12);
 
 	TextMesh blueMesh = blueText->AddComponent<TextMesh>();
 	blueMesh->SetFont(font);
-	blueMesh->SetText("ÇïË®¹²³¤ÌìÒ»É«");
+	blueMesh->SetText("ç§‹æ°´å…±é•¿å¤©ä¸€è‰²");
 	blueMesh->SetFontSize(12);
 
 	Renderer redRenderer = redText->AddComponent<MeshRenderer>();

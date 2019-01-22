@@ -1,4 +1,4 @@
-#include "animationinternal.h"
+﻿#include "animationinternal.h"
 
 #include <set>
 #include <algorithm>

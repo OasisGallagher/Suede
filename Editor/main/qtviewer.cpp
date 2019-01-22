@@ -1,4 +1,4 @@
-#include "qtviewer.h"
+﻿#include "qtviewer.h"
 
 #include <QFile>
 #include <QSplashScreen>

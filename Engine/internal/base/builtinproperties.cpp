@@ -1,4 +1,4 @@
-#include "builtinproperties.h"
+﻿#include "builtinproperties.h"
 
 #include <vector>
 

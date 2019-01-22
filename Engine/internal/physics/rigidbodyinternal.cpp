@@ -1,4 +1,4 @@
-#include "rigidbodyinternal.h"
+﻿#include "rigidbodyinternal.h"
 
 #include "mathconvert.h"
 #include "physicsinternal.h"

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * PURPOSE:
  *   Class representing an articulated rigid body. Stores the body's
  *   current state, allows forces and torques to be set, handles

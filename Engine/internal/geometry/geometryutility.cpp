@@ -1,10 +1,8 @@
-#include <list>
+﻿#include <list>
 
 #include "tools/math2.h"
 #include "geometryutility.h"
 #include "containers/arraylist.h"
-
-#define IsZero(f)	(fabs((f)) < 1e-5)
 
 struct EarVertex {
 	enum { Reflex = 1, Ear = 2, };
@@ -49,7 +47,7 @@ bool GeometryUtility::PolygonContains(const glm::vec3* vertices, uint nvertices,
 	for (uint i = 1; i <= nvertices; ++i) {
 		const glm::vec3& currentPosition = i < nvertices ? vertices[i] : vertices[0];
 		float cr = glm::angle(glm::normalize(currentPosition - vertices[i - 1]), glm::normalize(point - vertices[i - 1]), normal);
-		if (IsZero(cr) && AARectContains(point, currentPosition, vertices[i - 1])) {
+		if (Math::Approximately(cr, 0) && AARectContains(point, currentPosition, vertices[i - 1])) {
 			return onEdge;
 		}
 
@@ -98,7 +96,7 @@ bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plan
 	float d0 = GetDistance(plane, p0);
 	float d1 = GetDistance(plane, p1);
 
-	if (IsZero(d0 * d1) || d0 * d1 >= 0) {
+	if (Math::Approximately(d0 * d1, 0) || d0 * d1 >= 0) {
 		return false;
 	}
 
@@ -112,9 +110,6 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 }
 
 void GeometryUtility::CalculateFrustumPlanes(float* normals, int normalOffset, int normalStride, float* distances, int distanceOffset, int distanceStride, const float* worldToClipMatrix) {
-	// According to the paper(https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf), 
-	// plane normalization isn't needed if we just want to test if a point is inside or outside the plane, so we don't normalize them.
-
 	// LEFT
 	normals[normalOffset] = worldToClipMatrix[3] + worldToClipMatrix[0];
 	normals[normalOffset + 1] = worldToClipMatrix[7] + worldToClipMatrix[4];
@@ -207,11 +202,40 @@ void GeometryUtility::GetCircleCoordinates(std::vector<glm::vec3>& points, const
 		forward = glm::normalize(glm::vec3(-normal.z / normal.x, 0, 1));
 	}
 
-	points.reserve(resolution);
+	points.reserve(points.size() + resolution);
 	for (int i = 0; i < resolution; ++i) {
 		glm::quat q = glm::angleAxis(i * step, normal);
 		points.push_back(q * forward + center);
 	}
+}
+
+void GeometryUtility::GetConeCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution) {
+	int base = points.size();
+
+	glm::vec3 normal = glm::normalize(to - from);
+
+	points.insert(points.end(), { from, to });
+
+	GetCircleCoordinates(points, from, radius, normal, resolution);
+
+	indexes.reserve(indexes.size() + (points.size() - base - 2) * 3 * 2 + 2);
+	for (int i = base + 2; i < points.size(); ++i) {
+		indexes.push_back(base);
+		indexes.push_back(i - 1);
+		indexes.push_back(i);
+
+		indexes.push_back(base + 1);
+		indexes.push_back(i - 1);
+		indexes.push_back(i);
+	}
+
+	indexes.push_back(base);
+	indexes.push_back(points.size() - 1);
+	indexes.push_back(base + 2);
+
+	indexes.push_back(base + 1);
+	indexes.push_back(points.size() - 1);
+	indexes.push_back(base + 2);
 }
 
 void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles) {
@@ -284,7 +308,7 @@ bool GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const gl
 void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane) {
 	for (std::list<glm::vec3>::iterator current = list.begin(); current != list.end();) {
 		float f = GeometryUtility::GetDistance(plane, *current);
-		if (!IsZero(f) && f < 0) {
+		if (!Math::Approximately(f, 0) && f < 0) {
 			current = list.erase(current);
 		}
 		else {
@@ -351,7 +375,7 @@ bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal
 
 	glm::vec3 c = glm::cross(points[0] - points[1], points[2] - points[1]);
 	// Collinear.
-	if (IsZero(glm::dot(c, c))) {
+	if (Math::Approximately(glm::dot(c, c), 0)) {
 		return false;
 	}
 

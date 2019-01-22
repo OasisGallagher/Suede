@@ -1,4 +1,4 @@
-#include "IDMath.hpp"
+﻿#include "IDMath.hpp"
 
 #include <cmath>
 #include <limits>

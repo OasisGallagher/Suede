@@ -1,4 +1,4 @@
-#ifndef B3_PGS_JACOBI_SOLVER
+﻿#ifndef B3_PGS_JACOBI_SOLVER
 #define B3_PGS_JACOBI_SOLVER
 
 

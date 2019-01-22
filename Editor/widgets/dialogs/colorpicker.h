@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QHideEvent>
 #include <QMouseEvent>
 #include <QColorDialog>

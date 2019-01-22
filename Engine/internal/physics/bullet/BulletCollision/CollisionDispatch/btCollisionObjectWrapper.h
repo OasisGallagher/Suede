@@ -1,4 +1,4 @@
-#ifndef BT_COLLISION_OBJECT_WRAPPER_H
+﻿#ifndef BT_COLLISION_OBJECT_WRAPPER_H
 #define BT_COLLISION_OBJECT_WRAPPER_H
 
 ///btCollisionObjectWrapperis an internal data structure. 

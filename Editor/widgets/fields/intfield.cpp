@@ -1,4 +1,4 @@
-#include "intfield.h"
+﻿#include "intfield.h"
 
 #include <QMouseEvent>
 #include <QDoubleValidator>

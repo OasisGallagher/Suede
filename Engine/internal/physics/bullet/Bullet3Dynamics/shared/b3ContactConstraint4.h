@@ -1,4 +1,4 @@
-#ifndef B3_CONTACT_CONSTRAINT5_H
+﻿#ifndef B3_CONTACT_CONSTRAINT5_H
 #define B3_CONTACT_CONSTRAINT5_H
 
 #include "internal/physics/bullet/Bullet3Common/shared/b3Float4.h"

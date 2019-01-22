@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2005 Erwin Coumans http://continuousphysics.com/Bullet/
  *
  * Permission to use, copy, modify, distribute and sell this software

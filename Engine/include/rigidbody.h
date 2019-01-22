@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "bounds.h"
 #include "component.h"

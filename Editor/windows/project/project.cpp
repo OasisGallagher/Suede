@@ -1,4 +1,4 @@
-#include "project.h"
+﻿#include "project.h"
 #include "ui_editor.h"
 #include "tools/string.h"
 

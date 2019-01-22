@@ -1,4 +1,4 @@
-/*
+﻿/*
 bParse
 Copyright (c) 2006-2010 Charlie C & Erwin Coumans  http://gamekit.googlecode.com
 

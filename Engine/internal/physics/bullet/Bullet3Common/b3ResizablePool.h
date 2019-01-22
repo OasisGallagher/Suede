@@ -1,4 +1,4 @@
-
+﻿
 #ifndef B3_RESIZABLE_POOL_H
 #define B3_RESIZABLE_POOL_H
 

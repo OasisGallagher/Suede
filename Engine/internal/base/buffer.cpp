@@ -1,4 +1,4 @@
-#include "buffer.h"
+﻿#include "buffer.h"
 
 Buffer::Buffer() : old_(0), buffer_(0) {
 	memset(&attribute_, 0, sizeof(attribute_));

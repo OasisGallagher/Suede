@@ -1,4 +1,4 @@
-
+﻿
 
 #ifndef B3_INERTIA_H
 #define B3_INERTIA_H

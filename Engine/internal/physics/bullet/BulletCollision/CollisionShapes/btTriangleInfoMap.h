@@ -1,4 +1,4 @@
-/*
+﻿/*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2010 Erwin Coumans  http://bulletphysics.org
 

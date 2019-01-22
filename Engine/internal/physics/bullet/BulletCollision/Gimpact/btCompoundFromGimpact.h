@@ -1,4 +1,4 @@
-#ifndef BT_COMPOUND_FROM_GIMPACT
+﻿#ifndef BT_COMPOUND_FROM_GIMPACT
 #define BT_COMPOUND_FROM_GIMPACT
 
 #include "internal/physics/bullet/BulletCollision/CollisionShapes/btCompoundShape.h"

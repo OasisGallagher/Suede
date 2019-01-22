@@ -1,4 +1,4 @@
-#include "qtinputdelegate.h"
+﻿#include "qtinputdelegate.h"
 #include "tools/math2.h"
 
 static QHash<int, KeyCode> keyMap = {

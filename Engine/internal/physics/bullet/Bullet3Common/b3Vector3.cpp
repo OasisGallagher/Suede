@@ -1,4 +1,4 @@
-/*
+﻿/*
  Copyright (c) 2011-213 Apple Inc. http://bulletphysics.org
 
  This software is provided 'as-is', without any express or implied warranty.

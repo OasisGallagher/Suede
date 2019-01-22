@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "input.h"
 #include <QWidget>
 #include <QMouseEvent>

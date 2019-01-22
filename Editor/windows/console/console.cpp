@@ -1,4 +1,4 @@
-#include <QThread>
+﻿#include <QThread>
 #include <QSplitter>
 #include <QMessageBox>
 #include <QHeaderView>

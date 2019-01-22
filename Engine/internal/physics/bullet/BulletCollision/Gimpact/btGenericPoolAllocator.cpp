@@ -1,4 +1,4 @@
-/*! \file btGenericPoolAllocator.cpp
+﻿/*! \file btGenericPoolAllocator.cpp
 \author Francisco Leon Najera. email projectileman@yahoo.com
 
 General purpose allocator class

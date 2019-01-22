@@ -1,4 +1,4 @@
-#include "gpuquerier.h"
+﻿#include "gpuquerier.h"
 
 GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
 	Engine::AddFrameEventListener(this);

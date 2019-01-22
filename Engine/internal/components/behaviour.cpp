@@ -1,4 +1,4 @@
-#include "behaviour.h"
+﻿#include "behaviour.h"
 
 #include "debug/debug.h"
 #include "componentinternal.h"

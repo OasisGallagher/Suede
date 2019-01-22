@@ -1,4 +1,4 @@
-/*
+﻿/*
 This source file is part of GIMPACT Library.
 
 For the latest info, see http://gimpact.sourceforge.net/

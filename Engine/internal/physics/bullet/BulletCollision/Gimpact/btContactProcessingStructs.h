@@ -1,4 +1,4 @@
-#ifndef BT_CONTACT_H_STRUCTS_INCLUDED
+﻿#ifndef BT_CONTACT_H_STRUCTS_INCLUDED
 #define BT_CONTACT_H_STRUCTS_INCLUDED
 
 /*! \file gim_contact.h

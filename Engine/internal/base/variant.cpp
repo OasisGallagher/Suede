@@ -1,4 +1,4 @@
-#include "variant.h"
+﻿#include "variant.h"
 #include "debug/debug.h"
 #include "tools/math2.h"
 #include "memory/memory.h"

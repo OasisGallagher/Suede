@@ -1,4 +1,4 @@
-#ifndef GIM_BOX_SET_H_INCLUDED
+﻿#ifndef GIM_BOX_SET_H_INCLUDED
 #define GIM_BOX_SET_H_INCLUDED
 
 /*! \file gim_box_set.h

@@ -1,4 +1,4 @@
-#include "btPolarDecomposition.h"
+﻿#include "btPolarDecomposition.h"
 #include "btMinMax.h"
 
 namespace

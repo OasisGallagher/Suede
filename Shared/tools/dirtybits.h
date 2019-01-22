@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class DirtyBits {
 protected:
 	DirtyBits() : bits_(0) {}

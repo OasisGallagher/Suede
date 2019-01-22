@@ -1,4 +1,4 @@
-#include "dragdropableitemmodel.h"
+﻿#include "dragdropableitemmodel.h"
 
 DragDropableItemModel::DragDropableItemModel(QObject* parent) : QStandardItemModel(parent) {
 

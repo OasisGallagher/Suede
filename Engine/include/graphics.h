@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "material.h"
 #include "renderer.h"
 #include "tools/enum.h"

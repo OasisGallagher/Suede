@@ -1,4 +1,4 @@
-#include "directorytree.h"
+﻿#include "directorytree.h"
 
 #include <QDir>
 #include <QHeaderView>

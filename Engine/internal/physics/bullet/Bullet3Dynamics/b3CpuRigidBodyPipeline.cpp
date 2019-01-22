@@ -1,4 +1,4 @@
-#include "b3CpuRigidBodyPipeline.h"
+﻿#include "b3CpuRigidBodyPipeline.h"
 
 #include "internal/physics/bullet/Bullet3Dynamics/shared/b3IntegrateTransforms.h"
 #include "internal/physics/bullet/Bullet3Collision/NarrowPhaseCollision/shared/b3RigidBodyData.h"

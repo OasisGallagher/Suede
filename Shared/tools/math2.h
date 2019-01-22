@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <intrin.h>
 #pragma intrinsic(_BitScanForward)
@@ -80,8 +80,8 @@ public:
 	static uint Log2PowerOfTwo(uint x);
 
 	/**
-	* @brief count the number of binary "1" bits in x.
-	*/
+	 * @brief count the number of binary "1" bits in x.
+	 */
 	static uint PopulationCount(uint x);
 
 	template <class T>
@@ -102,7 +102,7 @@ public:
 	template <class T>
 	static T Clamp01(T value);
 
-	static bool Approximately(float x, float y);
+	static bool Approximately(float lhs, float rhs);
 	static bool Approximately(const glm::vec2& lhs, const glm::vec2& rhs);
 	static bool Approximately(const glm::vec3& lhs, const glm::vec3& rhs);
 	static bool Approximately(const glm::vec4& lhs, const glm::vec4& rhs);
@@ -223,13 +223,6 @@ inline float Math::Repeat(float t, float length) {
 	return fmod(t, length);
 }
 
-inline float Math::PingPong(float t, float length) {
-	float L = 2 * length;
-	float T = fmod(t, L);
-	if (T >= 0 && T < length) { return T; }
-	return L - T;
-}
-
 template <class T>
 inline T Math::Min(T x, T y) { return glm::min(x, y); }
 
@@ -250,8 +243,8 @@ inline T Math::Clamp01(T value) {
 	return value;
 }
 
-inline bool Math::Approximately(float x, float y) {
-	return fabs(x - y) < Epsilon;
+inline bool Math::Approximately(float lhs, float rhs) {
+	return Abs(lhs - rhs) < Epsilon;
 }
 
 inline bool Math::Approximately(const glm::vec2& lhs, const glm::vec2& rhs) {
@@ -267,5 +260,5 @@ inline bool Math::Approximately(const glm::vec4& lhs, const glm::vec4& rhs) {
 }
 
 inline bool Math::Approximately(const glm::quat& lhs, const glm::quat& rhs) {
-	return 1.f - fabs(glm::dot(lhs, rhs)) < Epsilon;
+	return 1.f - Abs(glm::dot(lhs, rhs)) < Epsilon;
 }

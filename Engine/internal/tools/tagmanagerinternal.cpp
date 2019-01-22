@@ -1,4 +1,4 @@
-#include "tagmanagerinternal.h"
+﻿#include "tagmanagerinternal.h"
 
 #include <set>
 #include "debug/debug.h"

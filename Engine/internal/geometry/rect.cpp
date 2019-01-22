@@ -1,4 +1,4 @@
-#include "rect.h"
+﻿#include "rect.h"
 #include "tools/math2.h"
 
 Rect::Rect(const glm::vec2& p, const glm::vec2& size) : Rect(p.x, p.y, size.x, size.y) {

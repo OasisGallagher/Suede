@@ -1,4 +1,4 @@
-#include "light.h"
+﻿#include "light.h"
 #include "internal/components/componentinternal.h"
 
 class LightInternal : public ComponentInternal {

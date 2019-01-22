@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <glm/glm.hpp>
 
 #include "types.h"
@@ -27,13 +27,11 @@ public:
 	static void DrawLineStripe(const glm::vec3* points, uint npoints);
 	static void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
+	static void DrawCone(const glm::vec3& from, const glm::vec3& to, float radius);
 	static void DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal);
 
 	static void DrawSphere(const glm::vec3& center, float radius);
 	static void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
-
-	// http://www.freemancw.com/2012/06/opengl-cone-function/
-	static void DrawCone() {}
 
 	static void DrawWireSphere(const glm::vec3& center, float radius);
 	static void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size);

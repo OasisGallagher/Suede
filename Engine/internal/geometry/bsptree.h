@@ -1,4 +1,4 @@
-//#include <vector>
+ï»¿//#include <vector>
 //#include <glm/glm.hpp>
 //
 //#include "types.h"
@@ -53,8 +53,8 @@
 //
 //	/**
 //	 * @brief checks each polygon against each other polygon, to see if they are
-//	 *        in front of each other, if any two polygons doesn¡¯t fulfill that
-//	 *        criteria the set isn¡¯t convex.
+//	 *        in front of each other, if any two polygons doesnâ€™t fulfill that
+//	 *        criteria the set isnâ€™t convex.
 //	 */
 //	bool IsConvexSet(const Polygon** polygons, uint count);
 //

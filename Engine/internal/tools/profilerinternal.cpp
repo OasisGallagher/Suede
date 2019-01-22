@@ -1,4 +1,4 @@
-#include "profilerinternal.h"
+﻿#include "profilerinternal.h"
 
 #include <Windows.h>
 #include "debug/debug.h"

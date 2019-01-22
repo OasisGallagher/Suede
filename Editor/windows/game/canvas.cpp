@@ -1,4 +1,4 @@
-// glew.h must be included before gl.h.
+﻿// glew.h must be included before gl.h.
 #include <gl/glew.h>
 
 #include "canvas.h"

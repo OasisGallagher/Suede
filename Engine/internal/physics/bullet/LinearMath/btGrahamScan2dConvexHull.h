@@ -1,4 +1,4 @@
-/*
+﻿/*
 Bullet Continuous Collision Detection and Physics Library
 Copyright (c) 2011 Advanced Micro Devices, Inc.  http://bulletphysics.org
 

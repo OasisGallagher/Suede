@@ -1,4 +1,4 @@
-#include <QMouseEvent>
+﻿#include <QMouseEvent>
 #include <QFileDialog>
 
 #include "resources.h"

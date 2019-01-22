@@ -1,4 +1,4 @@
-#include "statisticsinternal.h"
+﻿#include "statisticsinternal.h"
 
 #include "time2.h"
 #include "memory/memory.h"

@@ -1,4 +1,4 @@
-#include "componentinternal.h"
+﻿#include "componentinternal.h"
 
 IComponent::IComponent(void* d) : IObject(d) {}
 

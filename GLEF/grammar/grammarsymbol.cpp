@@ -1,4 +1,4 @@
-#include <sstream>
+﻿#include <sstream>
 
 #include "debug/debug.h"
 #include "tools/math2.h"

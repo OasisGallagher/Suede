@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cfloat>
 #include "types.h"
 #include "tools/math2.h"

@@ -1,4 +1,4 @@
-#ifndef B3_QUAT_H
+﻿#ifndef B3_QUAT_H
 #define B3_QUAT_H
 
 #include "internal/physics/bullet/Bullet3Common/shared/b3PlatformDefinitions.h"

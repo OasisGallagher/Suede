@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "grammar/grammar.h"
 
 class Syntaxer;
@@ -45,7 +45,7 @@ protected:
 protected:
 	Environment* env_;
 
-	// VnµÄfirst/follow¼¯ºÏ.
+	// Vnçš„first/followé›†åˆ.
 	FirstSetTable firstSetContainer_;
 	GrammarSymbolSetTable followSetContainer_;
 

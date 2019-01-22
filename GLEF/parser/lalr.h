@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "lr1.h"
 #include "lrimpl.h"
 #include "parser.h"

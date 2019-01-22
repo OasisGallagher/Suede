@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "enginedefines.h"
 #include "tools/singleton.h"
 

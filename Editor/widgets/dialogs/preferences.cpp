@@ -1,4 +1,4 @@
-#include "preferences.h"
+﻿#include "preferences.h"
 
 #include <QFile>
 

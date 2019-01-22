@@ -1,4 +1,4 @@
-#include "culling.h"
+﻿#include "culling.h"
 
 #include "world.h"
 #include "renderer.h"
@@ -116,6 +116,9 @@ void Culling::OcclusionCulling() {
 void Culling::BulletDBVTCulling(const float* cameraPos, const float* cameraForward, float farClipPlane, const float* worldToClipMatrix) {
 	btVector3 planes_n[6];
 	btScalar  planes_o[6];
+
+	// According to the paper(https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf), 
+	// plane normalization isn't needed if we just want to test if a point is inside or outside the plane, so we don't normalize them.
 	GeometryUtility::CalculateFrustumPlanes((float*)planes_n, 0, sizeof(btVector3) / sizeof(btScalar), (float*)planes_o, 0, 1, worldToClipMatrix);
 
 	dbvtCulling_->m_pCollisionObjectArray = &objectsInFrustum_;

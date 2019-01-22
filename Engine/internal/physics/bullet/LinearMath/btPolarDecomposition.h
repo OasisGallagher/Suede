@@ -1,4 +1,4 @@
-#ifndef POLARDECOMPOSITION_H
+﻿#ifndef POLARDECOMPOSITION_H
 #define POLARDECOMPOSITION_H
 
 #include "btMatrix3x3.h"

@@ -1,4 +1,4 @@
-#include "statswidget.h"
+﻿#include "statswidget.h"
 
 #include "statistics.h"
 

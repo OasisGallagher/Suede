@@ -1,4 +1,4 @@
-#include <cstdarg>
+﻿#include <cstdarg>
 #include "tools/math2.h"
 #include "debug/debug.h"
 #include "renderstate.h"

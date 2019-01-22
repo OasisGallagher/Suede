@@ -1,4 +1,4 @@
-#include <QLabel>
+﻿#include <QLabel>
 
 #include "time2.h"
 #include "statusbar.h"

@@ -1,4 +1,4 @@
-#ifndef GIM_GEOMETRY_H_INCLUDED
+﻿#ifndef GIM_GEOMETRY_H_INCLUDED
 #define GIM_GEOMETRY_H_INCLUDED
 
 /*! \file gim_geometry.h

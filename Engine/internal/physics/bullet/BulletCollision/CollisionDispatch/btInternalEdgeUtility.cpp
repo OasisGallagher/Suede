@@ -1,4 +1,4 @@
-#include "btInternalEdgeUtility.h"
+﻿#include "btInternalEdgeUtility.h"
 
 #include "internal/physics/bullet/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "internal/physics/bullet/BulletCollision/CollisionShapes/btScaledBvhTriangleMeshShape.h"

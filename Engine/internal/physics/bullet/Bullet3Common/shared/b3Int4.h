@@ -1,4 +1,4 @@
-#ifndef B3_INT4_H
+﻿#ifndef B3_INT4_H
 #define B3_INT4_H
 
 #ifdef __cplusplus

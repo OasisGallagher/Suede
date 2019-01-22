@@ -1,4 +1,4 @@
-#include "plane.h"
+﻿#include "plane.h"
 
 Plane::Plane() : Plane(glm::vec4(0, 0, 1, 0)) {
 }

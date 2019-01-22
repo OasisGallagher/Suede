@@ -1,4 +1,4 @@
-#include "lightinternal.h"
+﻿#include "lightinternal.h"
 
 ILight::ILight() : IComponent(MEMORY_NEW(LightInternal, this)) {}
 void ILight::SetType(LightType value) { _suede_dptr()->SetType(value); }

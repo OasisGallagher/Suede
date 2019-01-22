@@ -1,4 +1,4 @@
-#include <QLineEdit>
+﻿#include <QLineEdit>
 #include <QListWidgetItem>
 
 #include "maskfield.h"

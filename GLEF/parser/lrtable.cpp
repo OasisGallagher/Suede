@@ -1,4 +1,4 @@
-#include <sstream>
+﻿#include <sstream>
 
 #include "lalr.h"
 #include "lrtable.h"

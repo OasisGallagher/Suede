@@ -1,4 +1,4 @@
-
+﻿
 #ifndef B3_NEW_CONTACT_REDUCTION_H
 #define B3_NEW_CONTACT_REDUCTION_H
 

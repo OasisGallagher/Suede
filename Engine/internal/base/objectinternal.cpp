@@ -1,4 +1,4 @@
-#include "objectinternal.h"
+﻿#include "objectinternal.h"
 
 #include "tools/math2.h"
 #include "debug/debug.h"

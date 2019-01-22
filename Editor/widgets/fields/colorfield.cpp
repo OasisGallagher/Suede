@@ -1,4 +1,4 @@
-#include <QMouseEvent>
+﻿#include <QMouseEvent>
 
 #include "colorfield.h"
 #include "../dialogs/colorpicker.h"

@@ -1,4 +1,4 @@
-#include "grayscale.h"
+﻿#include "grayscale.h"
 
 #include "graphics.h"
 #include "resources.h"

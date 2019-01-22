@@ -1,4 +1,4 @@
-#ifndef GIM_ARRAY_H_INCLUDED
+﻿#ifndef GIM_ARRAY_H_INCLUDED
 #define GIM_ARRAY_H_INCLUDED
 /*! \file gim_array.h
 \author Francisco Leon Najera

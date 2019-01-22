@@ -1,4 +1,4 @@
-#ifndef B3_CPU_NARROWPHASE_H
+﻿#ifndef B3_CPU_NARROWPHASE_H
 #define B3_CPU_NARROWPHASE_H
 
 #include "internal/physics/bullet/Bullet3Collision/NarrowPhaseCollision/shared/b3Collidable.h"

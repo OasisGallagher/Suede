@@ -1,4 +1,4 @@
-
+﻿
 #ifndef B3_CONTACT_SPHERE_SPHERE_H
 #define B3_CONTACT_SPHERE_SPHERE_H
 

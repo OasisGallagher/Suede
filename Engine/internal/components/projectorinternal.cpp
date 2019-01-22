@@ -1,4 +1,4 @@
-#include "frustum.h"
+﻿#include "frustum.h"
 #include "projectorinternal.h"
 
 IProjector::IProjector() : IComponent(MEMORY_NEW(ProjectorInternal, this)) {}

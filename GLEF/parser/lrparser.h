@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "parser.h"
 
 class LRImpl;

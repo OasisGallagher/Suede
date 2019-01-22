@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <random>
 #include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
 

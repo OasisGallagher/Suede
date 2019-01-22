@@ -1,4 +1,4 @@
-#include "inversion.h"
+﻿#include "inversion.h"
 
 #include "graphics.h"
 #include "resources.h"

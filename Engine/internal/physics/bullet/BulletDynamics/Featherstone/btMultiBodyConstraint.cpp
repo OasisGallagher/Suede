@@ -1,4 +1,4 @@
-#include "btMultiBodyConstraint.h"
+﻿#include "btMultiBodyConstraint.h"
 #include "internal/physics/bullet/BulletDynamics/Dynamics/btRigidBody.h"
 #include "btMultiBodyPoint2Point.h"				//for testing (BTMBP2PCONSTRAINT_BLOCK_ANGULAR_MOTION_TEST macro)
 

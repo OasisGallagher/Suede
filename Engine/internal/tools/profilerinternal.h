@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "profiler.h"
 
 #include "engine.h"

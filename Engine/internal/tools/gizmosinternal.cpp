@@ -1,4 +1,4 @@
-#include "gizmosinternal.h"
+﻿#include "gizmosinternal.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -23,6 +23,7 @@ void Gizmos::DrawLines(const glm::vec3* points, uint npoints, const uint* indexe
 void Gizmos::DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes) { _suede_dinstance()->DrawLines(points.begin(), points.size(), indexes.begin(), indexes.size()); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints) { _suede_dinstance()->DrawLineStripe(points, npoints); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dinstance()->DrawLineStripe(points, npoints, indexes, nindexes); }
+void Gizmos::DrawCone(const glm::vec3& from, const glm::vec3& to, float radius) { _suede_dinstance()->DrawCone(from, to, radius); }
 void Gizmos::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) { _suede_dinstance()->DrawCircle(center, radius, normal); }
 void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawSphere(center, radius); }
 void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawCuboid(center, size); }
@@ -34,6 +35,8 @@ void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _s
 	lineMaterial_ = new IMaterial();
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", glm::mat4(1));
+
+	GeometryUtility::GetSphereCoordinates(sphere_.points, sphere_.indexes, glm::ivec2(15));
 
 	Engine::AddFrameEventListener(this);
 }
@@ -75,6 +78,14 @@ void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) 
 	AddCuboidBatch(center, size, false);
 }
 
+void GizmosInternal::DrawCone(const glm::vec3& from, const glm::vec3& to, float radius) {
+	std::vector<glm::vec3> points;
+	std::vector<uint> indexes;
+
+	GeometryUtility::GetConeCoordinates(points, indexes, from, to, radius, 36);
+	FillBatch(GetBatch(MeshTopology::Triangles, false, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
+}
+
 void GizmosInternal::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) {
 	std::vector<glm::vec3> points;
 	GeometryUtility::GetCircleCoordinates(points, center, radius, normal, 36);
@@ -113,6 +124,10 @@ void GizmosInternal::FillBatch(Batch& b, const glm::vec3* points, uint npoints, 
 	}
 }
 
+void GizmosInternal::FillBatch(Batch& b, const Geometry& geomety) {
+	FillBatch(b, &geomety.points[0], geomety.points.size(), &geomety.indexes[0], geomety.indexes.size());
+}
+
 void GizmosInternal::FillBatch(Batch &b, const glm::vec3* points, uint npoints) {
 	uint base = b.points.size();
 	//b.points.reserve(base + npoints);
@@ -128,18 +143,14 @@ void GizmosInternal::FillBatch(Batch &b, const glm::vec3* points, uint npoints) 
 }
 
 /**
-* @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
-*/
+ * @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
+ */
 void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool wireframe) {
-	std::vector<uint> indexes;
-	std::vector<glm::vec3> points;
-	GeometryUtility::GetSphereCoordinates(points, indexes, glm::ivec2(15));
-
 	Material material = new IMaterial();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));
 	material->SetMatrix4("localToWorldMatrix", glm::trs(center, glm::quat(), glm::vec3(radius)));
 
-	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, material), &points[0], points.size(), &indexes[0], indexes.size());
+	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, material), sphere_);
 }
 
 void GizmosInternal::AddCuboidBatch(const glm::vec3& center, const glm::vec3& size, bool wireframe) {
@@ -151,22 +162,6 @@ void GizmosInternal::AddCuboidBatch(const glm::vec3& center, const glm::vec3& si
 }
 
 void GizmosInternal::AddArrowBatch(const glm::vec3& from, const glm::vec3& to) {
-	const uint resolution = 32;
-	float step = Math::Pi2 / resolution;
-	glm::vec3 normal = glm::normalize(to - from);
-	glm::vec3 forward(0, 0, 1);
-	if (!Math::Approximately(normal.z, 0)) {
-		forward = glm::vec3(-normal.z / normal.x, 0, 1);
-	}
-
-	std::vector<glm::vec3> points;
-	for (int i = 0; i < resolution + 1; ++i) {
-		glm::quat q = glm::angleAxis(i * step, normal);
-		glm::vec3 p = q * forward;
-		points.push_back(p + from);
-	}
-
-	FillBatch(GetBatch(MeshTopology::Lines, false, lineMaterial_), &points[0], points.size());
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {

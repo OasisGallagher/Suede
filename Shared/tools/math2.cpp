@@ -1,4 +1,4 @@
-#include "math2.h"
+﻿#include "math2.h"
 
 const float Math::Pi = 3.1415926f;
 const float Math::Pi2 = 6.2831853f;
@@ -39,4 +39,11 @@ uint Math::PopulationCount(uint x) {
 	x = x * 0x01010101;
 
 	return x >> 24;
+}
+
+float Math::PingPong(float t, float length) {
+	float L = 2 * length;
+	float T = fmod(t, L);
+	if (T >= 0 && T < length) { return T; }
+	return L - T;
 }

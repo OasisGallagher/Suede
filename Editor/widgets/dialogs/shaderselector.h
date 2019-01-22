@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "popupwidget.h"
 #include "ui_shaderselector.h"
 

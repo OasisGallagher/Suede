@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../debug/debug.h"
 
 template <class T>

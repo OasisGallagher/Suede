@@ -1,4 +1,4 @@
-#ifndef BT_DEFAULT_MOTION_STATE_H
+﻿#ifndef BT_DEFAULT_MOTION_STATE_H
 #define BT_DEFAULT_MOTION_STATE_H
 
 #include "btMotionState.h"

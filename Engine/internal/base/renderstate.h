@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../api/gl.h"
 #include "tools/enum.h"
 /**

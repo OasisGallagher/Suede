@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "plane.h"
 #include "camera.h"
 #include "projector.h"

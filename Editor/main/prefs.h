@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QSettings>
 #include "tools/singleton.h"
 

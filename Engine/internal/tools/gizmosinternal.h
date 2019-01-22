@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "gizmos.h"
 
 #include <vector>
@@ -27,6 +27,7 @@ public:
 
 	void DrawSphere(const glm::vec3& center, float radius);
 	void DrawCuboid(const glm::vec3& center, const glm::vec3& size);
+	void DrawCone(const glm::vec3& from, const glm::vec3& to, float radius);
 	void DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal);
 
 	void DrawWireSphere(const glm::vec3& center, float radius);
@@ -49,9 +50,16 @@ private:
 	};
 
 private:
+	struct Geometry {
+		std::vector<glm::vec3> points;
+		std::vector<uint> indexes;
+	};
+
+private:
 	Batch& GetBatch(MeshTopology topology, bool wireframe, Material material);
 	bool IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material material);
 
+	void FillBatch(Batch& b, const Geometry& geomety);
 	void FillBatch(Batch& b, const glm::vec3* points, uint npoints);
 	void FillBatch(Batch& b, const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
@@ -70,4 +78,6 @@ private:
 	Color color_;
 	glm::mat4 matrix_;
 	std::vector<Batch> batches_;
+
+	Geometry sphere_, cubiod_;
 };

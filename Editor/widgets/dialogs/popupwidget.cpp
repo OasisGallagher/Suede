@@ -1,4 +1,4 @@
-#include "popupwidget.h"
+﻿#include "popupwidget.h"
 
 #include <QMouseEvent>
 

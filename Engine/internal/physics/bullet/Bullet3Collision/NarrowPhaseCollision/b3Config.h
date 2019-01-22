@@ -1,4 +1,4 @@
-#ifndef B3_CONFIG_H
+﻿#ifndef B3_CONFIG_H
 #define B3_CONFIG_H
 
 struct	b3Config

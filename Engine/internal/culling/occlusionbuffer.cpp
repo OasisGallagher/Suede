@@ -1,4 +1,4 @@
-#include "occlusionbuffer.h"
+﻿#include "occlusionbuffer.h"
 
 void OcclusionBuffer::setup(int w, int h) {
 	reset();

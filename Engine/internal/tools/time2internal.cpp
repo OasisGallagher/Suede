@@ -1,4 +1,4 @@
-#include "time2internal.h"
+﻿#include "time2internal.h"
 
 #include "profiler.h"
 #include "debug/debug.h"

@@ -1,4 +1,4 @@
-#ifndef B3_FILE_UTILS_H
+﻿#ifndef B3_FILE_UTILS_H
 #define B3_FILE_UTILS_H
 
 #include <stdio.h>

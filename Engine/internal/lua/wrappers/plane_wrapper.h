@@ -43,6 +43,13 @@ class Plane_Wrapper {
 		return 1;
 	}
 
+	// void Normalize()
+	static int Normalize(lua_State* L) {
+		Plane* _p = Lua::callerPtr<Plane>(L);
+		_p->Normalize();
+		return 0;
+	}
+
 	// float GetDistance()
 	static int GetDistance(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L);
@@ -66,6 +73,7 @@ public:
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<Plane> },
 			{ "__tostring", ToString }, 
+			{ "Normalize", Normalize },
 			{ "GetDistance", GetDistance },
 			{ "GetNormal", GetNormal },
 			{ nullptr, nullptr }

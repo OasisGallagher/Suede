@@ -24,7 +24,7 @@ function SuedeGlobal.Start()
 	end);
 	]]
 
-	Suede.World.Import("pyramob.fbx", function (root, path)
+	Suede.World.Import("room.fbx", function (root, path)
 		if string.find(path, "house") then
 			root:GetTransform():SetScale({ 0.01, 0.01, 0.01 });
 		elseif string.find(path, "room") then

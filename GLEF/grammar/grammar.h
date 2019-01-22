@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include "grammarsymbol.h"
 #include "tools/noncopyable.h"

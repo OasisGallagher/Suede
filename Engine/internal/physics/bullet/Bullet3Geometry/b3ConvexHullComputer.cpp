@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2011 Ole Kniemeyer, MAXON, www.maxon.net
 
 This software is provided 'as-is', without any express or implied warranty.

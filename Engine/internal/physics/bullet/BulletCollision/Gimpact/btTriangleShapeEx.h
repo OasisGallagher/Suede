@@ -1,4 +1,4 @@
-/*! \file btGImpactShape.h
+﻿/*! \file btGImpactShape.h
 \author Francisco Leon Najera
 */
 /*

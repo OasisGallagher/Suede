@@ -31,6 +31,8 @@ class Statistics_Wrapper {
 			{ "GetFrameRate", GetFrameRate },
 			{ "SetScriptElapsed", SetScriptElapsed },
 			{ "GetScriptElapsed", GetScriptElapsed },
+			{ "SetPhysicsElapsed", SetPhysicsElapsed },
+			{ "GetPhysicsElapsed", GetPhysicsElapsed },
 			{ "SetCullingElapsed", SetCullingElapsed },
 			{ "GetCullingElapsed", GetCullingElapsed },
 			{ "SetRenderingElapsed", SetRenderingElapsed },
@@ -85,6 +87,19 @@ class Statistics_Wrapper {
 	// static double GetScriptElapsed()
 	static int GetScriptElapsed(lua_State* L) {
 		return Lua::push(L, Statistics::GetScriptElapsed());
+	}
+
+	// static void SetPhysicsElapsed(double value)
+	static int SetPhysicsElapsed(lua_State* L) {
+		double value = Lua::get<double>(L, 1);
+		
+		Statistics::SetPhysicsElapsed(value);
+		return 0;
+	}
+
+	// static double GetPhysicsElapsed()
+	static int GetPhysicsElapsed(lua_State* L) {
+		return Lua::push(L, Statistics::GetPhysicsElapsed());
 	}
 
 	// static void SetCullingElapsed(double value)

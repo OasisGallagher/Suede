@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define GLSL_VERSION		"400"
 #define GLSL_POSTFIX		".shader"

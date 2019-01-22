@@ -1,4 +1,4 @@
-#include <QEvent>
+﻿#include <QEvent>
 #include <QMouseEvent>
 #include <QHBoxLayout>
 

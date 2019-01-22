@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "lrtable.h"
 #include "containers/table.h"

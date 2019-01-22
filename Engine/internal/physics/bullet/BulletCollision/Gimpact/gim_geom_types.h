@@ -1,4 +1,4 @@
-#ifndef GIM_GEOM_TYPES_H_INCLUDED
+﻿#ifndef GIM_GEOM_TYPES_H_INCLUDED
 #define GIM_GEOM_TYPES_H_INCLUDED
 
 /*! \file gim_geom_types.h

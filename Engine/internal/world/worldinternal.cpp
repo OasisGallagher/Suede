@@ -1,4 +1,4 @@
-#include "worldinternal.h"
+﻿#include "worldinternal.h"
 
 #include "time2.h"
 #include "profiler.h"

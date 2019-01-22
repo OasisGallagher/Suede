@@ -1,4 +1,4 @@
-
+﻿
 /*
 This source file is part of GIMPACT Library.
 

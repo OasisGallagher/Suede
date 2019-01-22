@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <QTextStream>
 #include <QtWidgets/QMainWindow>

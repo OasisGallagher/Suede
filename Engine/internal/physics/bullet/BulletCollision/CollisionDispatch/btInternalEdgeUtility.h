@@ -1,4 +1,4 @@
-
+﻿
 #ifndef BT_INTERNAL_EDGE_UTILITY_H
 #define BT_INTERNAL_EDGE_UTILITY_H
 

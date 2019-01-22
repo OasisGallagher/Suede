@@ -1,4 +1,4 @@
-
+﻿
 #ifndef B3_FIXED_CONSTRAINT_H
 #define B3_FIXED_CONSTRAINT_H
 

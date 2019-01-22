@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include <glm/glm.hpp>
 
@@ -28,6 +28,7 @@ public:
 
 	static void GetSphereCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution);
 	static void GetCircleCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution);
+	static void GetConeCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution);
 	static void GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles = nullptr);
 
 	/**

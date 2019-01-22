@@ -1,4 +1,4 @@
-#ifndef BT_CLIP_POLYGON_H_INCLUDED
+﻿#ifndef BT_CLIP_POLYGON_H_INCLUDED
 #define BT_CLIP_POLYGON_H_INCLUDED
 
 /*! \file btClipPolygon.h

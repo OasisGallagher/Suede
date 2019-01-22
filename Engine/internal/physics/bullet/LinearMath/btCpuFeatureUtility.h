@@ -1,4 +1,4 @@
-
+﻿
 #ifndef BT_CPU_UTILITY_H
 #define BT_CPU_UTILITY_H
 

@@ -1,4 +1,4 @@
-#ifndef GIM_QUANTIZED_SET_H_INCLUDED
+﻿#ifndef GIM_QUANTIZED_SET_H_INCLUDED
 #define GIM_QUANTIZED_SET_H_INCLUDED
 
 /*! \file btGImpactQuantizedBvh.h

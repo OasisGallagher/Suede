@@ -1,4 +1,4 @@
-#include <QClipboard>
+﻿#include <QClipboard>
 
 #include "aboutDialog.h"
 

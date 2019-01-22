@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QProgressBar>

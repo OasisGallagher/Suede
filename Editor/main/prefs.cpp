@@ -1,4 +1,4 @@
-#include "prefs.h"
+﻿#include "prefs.h"
 
 #define PREFS_PATH	("resources/settings/prefs.ini")
 

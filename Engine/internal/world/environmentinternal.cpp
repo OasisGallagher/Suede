@@ -1,4 +1,4 @@
-#include "environmentinternal.h"
+﻿#include "environmentinternal.h"
 
 #include "memory/memory.h"
 

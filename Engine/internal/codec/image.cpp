@@ -1,4 +1,4 @@
-#include <FreeImage.h>
+﻿#include <FreeImage.h>
 
 #include "image.h"
 #include "tools/math2.h"

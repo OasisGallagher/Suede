@@ -1,4 +1,4 @@
-#ifndef BT_BOX_COLLISION_H_INCLUDED
+﻿#ifndef BT_BOX_COLLISION_H_INCLUDED
 #define BT_BOX_COLLISION_H_INCLUDED
 
 /*! \file gim_box_collision.h

@@ -1,4 +1,4 @@
-#include "shaderselector.h"
+﻿#include "shaderselector.h"
 
 ShaderSelector::ShaderSelector(QWidget* parent) :QDialog(parent) {
 	ui.setupUi(this);

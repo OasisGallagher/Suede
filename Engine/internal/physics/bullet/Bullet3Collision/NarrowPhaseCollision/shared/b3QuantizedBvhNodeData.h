@@ -1,4 +1,4 @@
-
+﻿
 
 #ifndef B3_QUANTIZED_BVH_NODE_H
 #define B3_QUANTIZED_BVH_NODE_H

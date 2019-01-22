@@ -1,4 +1,4 @@
-/*
+﻿/*
 This source file is part of GIMPACT Library.
 
 For the latest info, see http://gimpact.sourceforge.net/
@@ -18,7 +18,7 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 /*
-Author: Francisco Len N�jera
+Author: Francisco Len N遤era
 Concave-Concave Collision
 
 */

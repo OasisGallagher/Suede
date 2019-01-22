@@ -1,4 +1,4 @@
-#include "resourcesinternal.h"
+﻿#include "resourcesinternal.h"
 
 #include "tools/math2.h"
 #include "os/filesystem.h"

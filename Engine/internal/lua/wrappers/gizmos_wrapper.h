@@ -30,9 +30,10 @@ class Gizmos_Wrapper {
 			{ "GetColor", GetColor },
 			{ "SetColor", SetColor },
 			{ "DrawLines", DrawLines },
+			{ "DrawCone", DrawCone },
+			{ "DrawCircle", DrawCircle },
 			{ "DrawSphere", DrawSphere },
 			{ "DrawCuboid", DrawCuboid },
-			{ "DrawCone", DrawCone },
 			{ "DrawWireSphere", DrawWireSphere },
 			{ "DrawWireCuboid", DrawWireCuboid },
 			{"__tostring", ToStringStatic },
@@ -97,6 +98,26 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
+	// static void DrawCone(const glm::vec3& from, const glm::vec3& to, float radius)
+	static int DrawCone(lua_State* L) {
+		float radius = Lua::get<float>(L, 3);
+		glm::vec3 to = Lua::get<glm::vec3>(L, 2);
+		glm::vec3 from = Lua::get<glm::vec3>(L, 1);
+		
+		Gizmos::DrawCone(from, to, radius);
+		return 0;
+	}
+
+	// static void DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal)
+	static int DrawCircle(lua_State* L) {
+		glm::vec3 normal = Lua::get<glm::vec3>(L, 3);
+		float radius = Lua::get<float>(L, 2);
+		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
+		
+		Gizmos::DrawCircle(center, radius, normal);
+		return 0;
+	}
+
 	// static void DrawSphere(const glm::vec3& center, float radius)
 	static int DrawSphere(lua_State* L) {
 		float radius = Lua::get<float>(L, 2);
@@ -112,12 +133,6 @@ class Gizmos_Wrapper {
 		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
 		
 		Gizmos::DrawCuboid(center, size);
-		return 0;
-	}
-
-	// static void DrawCone()
-	static int DrawCone(lua_State* L) {
-		Gizmos::DrawCone();
 		return 0;
 	}
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "lrimpl.h"
 #include "containers/table.h"
 #include "grammar/grammarsymbol.h"

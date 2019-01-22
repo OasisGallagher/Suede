@@ -1,4 +1,4 @@
-#include "floatfield.h"
+﻿#include "floatfield.h"
 
 #include <QMouseEvent>
 #include <QDoubleValidator>

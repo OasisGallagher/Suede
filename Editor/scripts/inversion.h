@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <QObject>
 #include "material.h"
 #include "imageeffect.h"

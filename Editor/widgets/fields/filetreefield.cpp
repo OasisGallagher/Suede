@@ -1,4 +1,4 @@
-#include <QLineEdit>
+﻿#include <QLineEdit>
 
 #include "os/filesystem.h"
 #include "filetreefield.h"

@@ -1,4 +1,4 @@
-#include "resources.h"
+﻿#include "resources.h"
 #include "tools/math2.h"
 #include "tools/string.h"
 #include "meshinternal.h"
