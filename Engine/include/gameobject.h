@@ -41,6 +41,7 @@ public:
 	bool SetTag(const std::string& value);
 
 	void Update();
+	void OnPostRender();
 	void CullingUpdate();
 
 	/**

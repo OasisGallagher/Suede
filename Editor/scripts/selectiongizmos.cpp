@@ -23,8 +23,6 @@ void SelectionGizmos::OnDrawGizmos() {
 		if (!bounds.IsEmpty()) {
 			//body->ShowCollisionShape(true);
 			Gizmos::DrawWireCuboid(bounds.center, bounds.size);
-
-			Gizmos::DrawCone(bounds.center + go->GetTransform()->GetUp() * 2.f, bounds.center + go->GetTransform()->GetUp() * 3.f, 0.4f);
 		}
 		else {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
@@ -40,11 +38,16 @@ void SelectionGizmos::OnDrawGizmos() {
 	Gizmos::SetColor(oldColor);
 }
 
+#include "handles.h"
+
 void SelectionGizmos::setSelection(const QList<GameObject>& value) {
 	selection_.clear();
 	selection_.reserve(value.size());
 
 	for (const GameObject& go : value) {
 		selection_.push_back(go.get());
+		if (!go->GetComponent<Handles>()) {
+			go->AddComponent<Handles>();
+		}
 	}
 }

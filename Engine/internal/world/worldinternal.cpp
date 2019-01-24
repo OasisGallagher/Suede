@@ -238,6 +238,14 @@ void WorldInternal::RenderingUpdateGameObjects() {
 	}
 }
 
+void WorldInternal::PostRenderUpdateGameObjects() {
+	for (GameObject go : renderingUpdateSequence_) {
+		if (go->GetActive()) {
+			go->OnPostRender();
+		}
+	}
+}
+
 bool WorldInternal::WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker) {
 	for(Transform transform : root->GetChildren()) {
 		GameObject child = transform->GetGameObject();
@@ -391,6 +399,8 @@ void WorldInternal::Update() {
 	now = Profiler::GetTimeStamp();
 	double seconds_5 = Profiler::TimeStampToSeconds(now - start0);
 	start0 = now;
+
+	PostRenderUpdateGameObjects();
 
 	CameraUtility::OnPostRender();
 	now = Profiler::GetTimeStamp();

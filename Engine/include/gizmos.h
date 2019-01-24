@@ -27,7 +27,6 @@ public:
 	static void DrawLineStripe(const glm::vec3* points, uint npoints);
 	static void DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes);
 
-	static void DrawCone(const glm::vec3& from, const glm::vec3& to, float radius);
 	static void DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal);
 
 	static void DrawSphere(const glm::vec3& center, float radius);

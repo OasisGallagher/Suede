@@ -4,6 +4,9 @@
 #include "geometryutility.h"
 #include "containers/arraylist.h"
 
+#define ADD_TRIANGLE(c, i, j, k)	\
+	c.push_back(i);	c.push_back(j); c.push_back(k)
+
 struct EarVertex {
 	enum { Reflex = 1, Ear = 2, };
 
@@ -183,12 +186,8 @@ void GeometryUtility::GetSphereCoordinates(std::vector<glm::vec3>& points, std::
 			};
 
 			uint c = points.size();
-			indexes.push_back(c + 0);
-			indexes.push_back(c + 2);
-			indexes.push_back(c + 1);
-			indexes.push_back(c + 3);
-			indexes.push_back(c + 1);
-			indexes.push_back(c + 2);
+			ADD_TRIANGLE(indexes, c + 0, c + 2, c + 1);
+			ADD_TRIANGLE(indexes, c + 3, c + 1, c + 2);
 
 			points.insert(points.end(), p, p + SUEDE_COUNTOF(p));
 		}
@@ -197,45 +196,58 @@ void GeometryUtility::GetSphereCoordinates(std::vector<glm::vec3>& points, std::
 
 void GeometryUtility::GetCircleCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution) {
 	float step = Math::Pi2 / resolution;
-	glm::vec3 forward(0, 0, 1);
-	if (!Math::Approximately(normal.z, 0)) {
-		forward = glm::normalize(glm::vec3(-normal.z / normal.x, 0, 1));
+	glm::vec3 forward(0, 1, 0);
+	if (!Math::Approximately(normal.y, 0) || !Math::Approximately(normal.z, 0)) {
+		forward = glm::vec3(1, 0, 0);
 	}
 
-	points.reserve(points.size() + resolution);
+	forward = glm::normalize(glm::cross(forward, normal));
+
 	for (int i = 0; i < resolution; ++i) {
 		glm::quat q = glm::angleAxis(i * step, normal);
-		points.push_back(q * forward + center);
+		points.push_back(q * forward * radius + center);
 	}
 }
 
 void GeometryUtility::GetConeCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution) {
-	int base = points.size();
-
 	glm::vec3 normal = glm::normalize(to - from);
-
-	points.insert(points.end(), { from, to });
-
 	GetCircleCoordinates(points, from, radius, normal, resolution);
 
-	indexes.reserve(indexes.size() + (points.size() - base - 2) * 3 * 2 + 2);
-	for (int i = base + 2; i < points.size(); ++i) {
-		indexes.push_back(base);
-		indexes.push_back(i - 1);
-		indexes.push_back(i);
+	int last = points.size();
+	points.insert(points.end(), { from, to });
 
-		indexes.push_back(base + 1);
-		indexes.push_back(i - 1);
-		indexes.push_back(i);
+	for (int i = 1; i < last; ++i) {
+		ADD_TRIANGLE(indexes, last + 1, i - 1, i);
+		ADD_TRIANGLE(indexes, last, i, i - 1);
 	}
 
-	indexes.push_back(base);
-	indexes.push_back(points.size() - 1);
-	indexes.push_back(base + 2);
+	ADD_TRIANGLE(indexes, last, last - 1, 0);
+	ADD_TRIANGLE(indexes, last + 1, 0, last - 1);
+}
 
-	indexes.push_back(base + 1);
-	indexes.push_back(points.size() - 1);
-	indexes.push_back(base + 2);
+void GeometryUtility::GetCylinderCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution) 	{
+	glm::vec3 dir = to - from;
+	GetCircleCoordinates(points, from, radius, glm::normalize(dir), resolution);
+
+	int last = points.size();
+	for (int i = 0; i < last; ++i) {
+		points.push_back(points[i] + dir);
+	}
+
+	int last2 = points.size();
+	points.insert(points.end(), { from, to });
+
+	for (int i = 1; i < last; ++i) {
+		ADD_TRIANGLE(indexes, i - 1, last + i - 1, i);
+		ADD_TRIANGLE(indexes, i, last + i - 1, last + i);
+		ADD_TRIANGLE(indexes, last2, i - 1, i);
+		ADD_TRIANGLE(indexes, last2 + 1, last + i - 1, last + i);
+	}
+
+	ADD_TRIANGLE(indexes, last - 1, last2 - 1, last);
+	ADD_TRIANGLE(indexes, 0, last - 1, last);
+	ADD_TRIANGLE(indexes, last2, last - 1, 0);
+	ADD_TRIANGLE(indexes, last2 + 1, last2 - 1, last);
 }
 
 void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles) {
@@ -415,9 +427,7 @@ void EarClipping(std::vector<glm::vec3>& triangles, array_list<EarVertex>& verti
 		int nextVertexIndex = vertices.next_index(earTipVertexIndex);
 		EarVertex& nextVertex = vertices.next_value(earTipVertexIndex);
 
-		triangles.push_back(prevVertex.position);
-		triangles.push_back(earTipVertex.position);
-		triangles.push_back(nextVertex.position);
+		ADD_TRIANGLE(triangles, prevVertex.position, earTipVertex.position, nextVertex.position);
 
 		vertices.erase(earTipVertexIndex);
 

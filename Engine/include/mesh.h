@@ -15,7 +15,7 @@ struct TriangleBias {
 
 SUEDE_DEFINE_OBJECT_POINTER(Mesh)
 
-class ISubMesh : public IObject {
+class SUEDE_API ISubMesh : public IObject {
 	SUEDE_DEFINE_METATABLE_NAME(SubMesh)
 	SUEDE_DECLARE_IMPLEMENTATION(SubMesh)
 

@@ -556,14 +556,13 @@ void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer re
 	for (int i = 0; i < subMeshCount; ++i) {
 		Material material = renderer->GetMaterial(i);
 		int pass = material->GetPass();
-		if (pass >= 0 && material->IsPassEnabled(pass)) {
-			RenderSubMesh(pl, go, i, material, pass);
+		if (pass >= 0) {
+			RenderSubMeshIfPassEnabled(pl, go, i, material, pass);
 		}
 		else {
+			// for each pass.
 			for (pass = 0; pass < material->GetPassCount(); ++pass) {
-				if (material->IsPassEnabled(pass)) {
-					RenderSubMesh(pl, go, i, material, pass);
-				}
+				RenderSubMeshIfPassEnabled(pl, go, i, material, pass);
 			}
 		}
 	}
@@ -571,10 +570,12 @@ void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer re
 	push_renderables->Stop();
 }
 
-void RenderableTraits::RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass) {
-	ParticleSystem p = go->GetComponent<ParticleSystem>();
-	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
+void RenderableTraits::RenderSubMeshIfPassEnabled(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass) {
+	if (material->IsPassEnabled(pass)) {
+		ParticleSystem p = go->GetComponent<ParticleSystem>();
+		uint instance = p ? p->GetParticlesCount() : 0;
+		pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
+	}
 }
 
 void RenderableTraits::Clear() {
