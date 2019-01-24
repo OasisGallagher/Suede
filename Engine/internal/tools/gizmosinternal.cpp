@@ -5,7 +5,6 @@
 #include "engine.h"
 #include "graphics.h"
 #include "resources.h"
-#include "tools/math2.h"
 #include "geometryutility.h"
 #include "builtinproperties.h"
 
@@ -23,14 +22,15 @@ void Gizmos::DrawLines(const glm::vec3* points, uint npoints, const uint* indexe
 void Gizmos::DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes) { _suede_dinstance()->DrawLines(points.begin(), points.size(), indexes.begin(), indexes.size()); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints) { _suede_dinstance()->DrawLineStripe(points, npoints); }
 void Gizmos::DrawLineStripe(const glm::vec3* points, uint npoints, const uint* indexes, uint nindexes) { _suede_dinstance()->DrawLineStripe(points, npoints, indexes, nindexes); }
-void Gizmos::DrawCone(const glm::vec3& from, const glm::vec3& to, float radius) { _suede_dinstance()->DrawCone(from, to, radius); }
 void Gizmos::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) { _suede_dinstance()->DrawCircle(center, radius, normal); }
 void Gizmos::DrawSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawSphere(center, radius); }
 void Gizmos::DrawCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawCuboid(center, size); }
 void Gizmos::DrawWireSphere(const glm::vec3& center, float radius) { _suede_dinstance()->DrawWireSphere(center, radius); }
 void Gizmos::DrawWireCuboid(const glm::vec3& center, const glm::vec3& size) { _suede_dinstance()->DrawWireCuboid(center, size); }
-GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
+
+GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	mesh_ = new IMesh();
+	mesh_->AddSubMesh(new ISubMesh());
 
 	lineMaterial_ = new IMaterial();
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
@@ -76,14 +76,6 @@ void GizmosInternal::DrawSphere(const glm::vec3& center, float radius) {
 
 void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) {
 	AddCuboidBatch(center, size, false);
-}
-
-void GizmosInternal::DrawCone(const glm::vec3& from, const glm::vec3& to, float radius) {
-	std::vector<glm::vec3> points;
-	std::vector<uint> indexes;
-
-	GeometryUtility::GetConeCoordinates(points, indexes, from, to, radius, 36);
-	FillBatch(GetBatch(MeshTopology::Triangles, false, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
 }
 
 void GizmosInternal::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) {
@@ -175,10 +167,6 @@ void GizmosInternal::DrawGizmos(const Batch& b) {
 	attribute.indexes = b.indexes;
 
 	mesh_->SetAttribute(attribute);
-
-	if (mesh_->GetSubMeshCount() == 0) {
-		mesh_->AddSubMesh(new ISubMesh());
-	}
 
 	TriangleBias bias{ b.indexes.size(), 0, 0 };
 	mesh_->GetSubMesh(0)->SetTriangleBias(bias);

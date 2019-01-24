@@ -30,7 +30,6 @@ class Gizmos_Wrapper {
 			{ "GetColor", GetColor },
 			{ "SetColor", SetColor },
 			{ "DrawLines", DrawLines },
-			{ "DrawCone", DrawCone },
 			{ "DrawCircle", DrawCircle },
 			{ "DrawSphere", DrawSphere },
 			{ "DrawCuboid", DrawCuboid },
@@ -95,16 +94,6 @@ class Gizmos_Wrapper {
 		}
 
 		Debug::LogError("failed to call \"DrawLines\", invalid arguments.");
-		return 0;
-	}
-
-	// static void DrawCone(const glm::vec3& from, const glm::vec3& to, float radius)
-	static int DrawCone(lua_State* L) {
-		float radius = Lua::get<float>(L, 3);
-		glm::vec3 to = Lua::get<glm::vec3>(L, 2);
-		glm::vec3 from = Lua::get<glm::vec3>(L, 1);
-		
-		Gizmos::DrawCone(from, to, radius);
 		return 0;
 	}
 

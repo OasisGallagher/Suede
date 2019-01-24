@@ -122,6 +122,10 @@ void Inspector::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMet
 void Inspector::drawComponents() {
 	GUI::Indent();
 	for (Component component : target_->GetComponents("")) {
+		if (component->HideInInspector()) {
+			continue;
+		}
+
 		std::string typeName;
 		QObject* object = componentMetaObject(component, typeName);
 		if (object == nullptr) {

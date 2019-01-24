@@ -14,6 +14,7 @@ public:
 	void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 
 	void Draw(Mesh mesh, Material material);
+	void Draw(Mesh mesh, Material* materials, uint materialCount);
 
 	void Blit(Texture src, RenderTexture dest);
 	void Blit(Texture src, RenderTexture dest, const Rect& rect);
@@ -24,7 +25,9 @@ public:
 	void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect);
 
 private:
-	void DrawSubMeshes(Mesh mesh);
+	void DrawSubMeshesIfPassEnabled(Mesh mesh, Material material, uint pass);
+	void DrawSubMeshIfPassEnabled(Mesh mesh, uint subMeshIndex, Material material, uint pass);
+
 	Material CreateBlitMaterial();
 	Mesh CreateBlitMesh(const Rect& rect);
 

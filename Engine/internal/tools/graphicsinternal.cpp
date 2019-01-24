@@ -17,6 +17,7 @@ void Graphics::SetAmbientOcclusionEnabled(bool value) { _suede_dinstance()->SetA
 bool Graphics::GetAmbientOcclusionEnabled() { return _suede_dinstance()->GetAmbientOcclusionEnabled(); }
 void Graphics::SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer) { _suede_dinstance()->SetRenderTarget(colorBuffers, depthBuffer); }
 void Graphics::Draw(Mesh mesh, Material material) { _suede_dinstance()->Draw(mesh, material); }
+void Graphics::Draw(Mesh mesh, Material* materials, uint materialCount) { _suede_dinstance()->Draw(mesh, materials, materialCount); }
 void Graphics::Blit(Texture src, RenderTexture dest) { _suede_dinstance()->Blit(src, dest); }
 void Graphics::Blit(Texture src, RenderTexture dest, const Rect& rect) { _suede_dinstance()->Blit(src, dest, rect); }
 void Graphics::Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect) { _suede_dinstance()->Blit(src, dest, srcRect, destRect); }
@@ -74,15 +75,35 @@ void GraphicsInternal::Draw(Mesh mesh, Material material) {
 	mesh->Bind();
 	int pass = material->GetPass();
 	if (pass >= 0) {
-		material->Bind(pass);
-		DrawSubMeshes(mesh);
-		material->Unbind();
+		DrawSubMeshesIfPassEnabled(mesh, material, pass);
 	}
 	else {
+		// for each pass.
 		for (pass = 0; pass < material->GetPassCount(); ++pass) {
-			material->Bind(pass);
-			DrawSubMeshes(mesh);
-			material->Unbind();
+			DrawSubMeshesIfPassEnabled(mesh, material, pass);
+		}
+	}
+
+	mesh->Unbind();
+}
+
+void GraphicsInternal::Draw(Mesh mesh, Material* materials, uint materialCount) {
+	if (mesh->GetSubMeshCount() != materialCount) {
+		return Debug::LogError("material count mismatch with sub mesh count");
+	}
+
+	mesh->Bind();
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		Material material = materials[i];
+		int pass = material->GetPass();
+		if (pass >= 0) {
+			DrawSubMeshIfPassEnabled(mesh, i, material, pass);
+		}
+		else {
+			// for each pass.
+			for (pass = 0; pass < material->GetPassCount(); ++pass) {
+				DrawSubMeshIfPassEnabled(mesh, i, material, pass);
+			}
 		}
 	}
 
@@ -119,9 +140,23 @@ Mesh GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 	return mesh;
 }
 
-void GraphicsInternal::DrawSubMeshes(Mesh mesh) {
-	for (SubMesh subMesh : mesh->GetSubMeshes()) {
-		GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), subMesh->GetTriangleBias());
+void GraphicsInternal::DrawSubMeshesIfPassEnabled(Mesh mesh, Material material, uint pass) {
+	if (material->IsPassEnabled(pass)) {
+		material->Bind(pass);
+
+		for (SubMesh subMesh : mesh->GetSubMeshes()) {
+			GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), subMesh->GetTriangleBias());
+		}
+
+		material->Unbind();
+	}
+}
+
+void GraphicsInternal::DrawSubMeshIfPassEnabled(Mesh mesh, uint subMeshIndex, Material material, uint pass) {
+	if (material->IsPassEnabled(pass)) {
+		material->Bind(pass);
+		GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(subMeshIndex)->GetTriangleBias());
+		material->Unbind();
 	}
 }
 

@@ -28,6 +28,7 @@ void IGameObject::SendMessage(int messageID, void* parameter) { _suede_dptr()->S
 const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
 bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(value); }
 void IGameObject::Update() { _suede_dptr()->Update(); }
+void IGameObject::OnPostRender() { _suede_dptr()->OnPostRender(); }
 void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
 const Bounds& IGameObject::GetBounds() { return _suede_dptr()->GetBounds(); }
@@ -142,7 +143,17 @@ void GameObjectInternal::CullingUpdate() {
 
 void GameObjectInternal::Update() {
 	for (Component component : components_) {
-		component->Update();
+		if (component->GetEnabled()) {
+			component->Update();
+		}
+	}
+}
+
+void GameObjectInternal::OnPostRender() {
+	for (Component component : components_) {
+		if (component->GetEnabled()) {
+			component->OnPostRender();
+		}
 	}
 }
 

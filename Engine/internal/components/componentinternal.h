@@ -44,6 +44,7 @@ public:
 
 	virtual void Awake() {}
 	virtual void Update() {}
+	virtual void OnPostRender() {}
 	virtual void CullingUpdate() {}
 
 	virtual int GetUpdateStrategy() { return 0; }

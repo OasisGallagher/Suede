@@ -172,7 +172,7 @@ private:
 	void ForwardDepthPass(Pipeline* pl);
 
 	void RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer);
-	void RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass);
+	void RenderSubMeshIfPassEnabled(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass);
 
 	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& gameObjects, const std::vector<Light>& lights);
 	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light light);

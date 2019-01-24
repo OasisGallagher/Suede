@@ -23,6 +23,7 @@ public:
 	static void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 
 	static void Draw(Mesh mesh, Material material);
+	static void Draw(Mesh mesh, Material* materials, uint materialCount);
 
 	static void Blit(Texture src, RenderTexture dest);
 	static void Blit(Texture src, RenderTexture dest, const Rect& rect);

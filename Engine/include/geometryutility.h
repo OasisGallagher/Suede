@@ -12,7 +12,7 @@ enum class PlaneSide {
 	Spanning,
 };
 
-class GeometryUtility {
+class SUEDE_API GeometryUtility {
 public:
 	static bool AARectContains(const glm::vec3& position, const glm::vec3& tl, const glm::vec3& rb);
 	static bool PolygonContains(const glm::vec3* vertices, uint nvertices, const glm::vec3& position, const glm::vec3& normal, bool onEdge = true);
@@ -29,6 +29,7 @@ public:
 	static void GetSphereCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution);
 	static void GetCircleCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution);
 	static void GetConeCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution);
+	static void GetCylinderCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution);
 	static void GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles = nullptr);
 
 	/**

@@ -50,6 +50,7 @@ class SUEDE_API IComponent : public IObject {
 public:
 	virtual void Awake();
 	virtual void Update();
+	virtual void OnPostRender();
 	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
 
 public:
@@ -76,6 +77,11 @@ public:
 	 * @brief whether components of same type (or subtype) could be added more than once to a GameObject.
 	 */
 	virtual bool AllowMultiple() const { return false; }
+
+	/**
+	 * @brief makes a variable not show up in the inspector.
+	 */
+	virtual bool HideInInspector() const { return false; }
 
 	virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID(); }
 	virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName()) == 0; }
