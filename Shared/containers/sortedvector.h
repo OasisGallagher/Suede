@@ -32,6 +32,13 @@ public:
 		container_.insert(find(value), value);
 	}
 
+	bool insert_unique(const value_type& value) {
+		iterator ite = find(value);
+		if (ite != end() && !comp_(value, *ite)) { return false; }
+		container_.insert(ite, value);
+		return true;
+	}
+
 	const container_type& container() const {
 		return container_;
 	}

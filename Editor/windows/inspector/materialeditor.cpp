@@ -59,11 +59,11 @@ void MaterialEditor::drawProperties(Material material) {
 			case VariantType::Bool:
 				drawBoolProperty(material, p);
 				break;
-			case VariantType::RangedInt:
-				drawRangedIntProperty(material, p);
+			case VariantType::IntRange:
+				drawIntRangeProperty(material, p);
 				break;
-			case VariantType::RangedFloat:
-				drawRangedFloatProperty(material, p);
+			case VariantType::FloatRange:
+				drawFloatRangeProperty(material, p);
 				break;
 			case VariantType::Float:
 				drawFloatProperty(material, p);
@@ -123,16 +123,16 @@ void MaterialEditor::drawBoolProperty(Material material, const Property* p) {
 	}
 }
 
-void MaterialEditor::drawRangedIntProperty(Material material, const Property* p) {
-	iranged r = material->GetRangedInt(p->name);
+void MaterialEditor::drawIntRangeProperty(Material material, const Property* p) {
+	irange r = material->GetIntRange(p->name);
 	int value = r.get_value();
 	if (GUI::IntSlider(p->name.c_str(), value, r.min(), r.max())) {
 		material->SetInt(p->name, value);
 	}
 }
 
-void MaterialEditor::drawRangedFloatProperty(Material material, const Property* p) {
-	franged r = material->GetRangedFloat(p->name);
+void MaterialEditor::drawFloatRangeProperty(Material material, const Property* p) {
+	frange r = material->GetFloatRange(p->name);
 	float value = r.get_value();
 	if (GUI::Slider(p->name.c_str(), value, r.min(), r.max())) {
 		material->SetFloat(p->name, value);

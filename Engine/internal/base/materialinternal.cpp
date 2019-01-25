@@ -41,8 +41,8 @@ void IMaterial::SetVariant(const std::string& name, const Variant& value) { _sue
 int IMaterial::GetInt(const std::string& name) { return _suede_dptr()->GetInt(name); }
 bool IMaterial::GetBool(const std::string& name) { return _suede_dptr()->GetBool(name); }
 float IMaterial::GetFloat(const std::string& name) { return _suede_dptr()->GetFloat(name); }
-iranged IMaterial::GetRangedInt(const std::string& name) { return _suede_dptr()->GetRangedInt(name); }
-franged IMaterial::GetRangedFloat(const std::string& name) { return _suede_dptr()->GetRangedFloat(name); }
+irange IMaterial::GetIntRange(const std::string& name) { return _suede_dptr()->GetIntRange(name); }
+frange IMaterial::GetFloatRange(const std::string& name) { return _suede_dptr()->GetFloatRange(name); }
 Texture IMaterial::GetTexture(const std::string& name) { return _suede_dptr()->GetTexture(name); }
 glm::mat4 IMaterial::GetMatrix4(const std::string& name) { return _suede_dptr()->GetMatrix4(name); }
 glm::vec3 IMaterial::GetVector3(const std::string& name) { return _suede_dptr()->GetVector3(name); }
@@ -79,11 +79,11 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 	if (var != nullptr) {
 		if (var->GetInt() != value) { var->SetInt(value); }
 	}
-	else if ((var = GetProperty(name, VariantType::RangedInt)) != nullptr) {
-		iranged r = var->GetRangedInt();
+	else if ((var = GetProperty(name, VariantType::IntRange)) != nullptr) {
+		irange r = var->GetIntRange();
 		if (r.get_value() != value) {
 			r = value;
-			var->SetRangedInt(r);
+			var->SetIntRange(r);
 		}
 	}
 }
@@ -100,11 +100,11 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 	if (var != nullptr) {
 		if (!Math::Approximately(var->GetFloat(), value)) { var->SetFloat(value); }
 	}
-	else if ((var = GetProperty(name, VariantType::RangedFloat)) != nullptr) {
-		franged r = var->GetRangedFloat();
+	else if ((var = GetProperty(name, VariantType::FloatRange)) != nullptr) {
+		frange r = var->GetFloatRange();
 		if (r.get_value() != value) {
 			r = value;
-			var->SetRangedFloat(r);
+			var->SetFloatRange(r);
 		}
 	}
 }
@@ -161,11 +161,11 @@ void MaterialInternal::SetMatrix4Array(const std::string& name, const glm::mat4*
 int MaterialInternal::GetInt(const std::string& name) {
 	Variant* var = GetProperty(name, VariantType::Int);
 	if (var == nullptr) {
-		var = GetProperty(name, VariantType::RangedInt);
+		var = GetProperty(name, VariantType::IntRange);
 	}
 
 	if (var == nullptr) {
-		Debug::LogError("no Int or RangedInt property named %s.", name.c_str());
+		Debug::LogError("no Int or IntRange property named %s.", name.c_str());
 		return 0;
 	}
 
@@ -181,32 +181,32 @@ bool MaterialInternal::GetBool(const std::string& name) {
 	return var->GetBool();
 }
 
-iranged MaterialInternal::GetRangedInt(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::RangedInt);
+irange MaterialInternal::GetIntRange(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantType::IntRange);
 	if (var == nullptr) {
-		return iranged();
+		return irange();
 	}
 
-	return var->GetRangedInt();
+	return var->GetIntRange();
 }
 
-franged MaterialInternal::GetRangedFloat(const std::string& name) {
-	Variant* var = VerifyProperty(name, VariantType::RangedFloat);
+frange MaterialInternal::GetFloatRange(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantType::FloatRange);
 	if (var == nullptr) {
-		return franged();
+		return frange();
 	}
 
-	return var->GetRangedFloat();
+	return var->GetFloatRange();
 }
 
 float MaterialInternal::GetFloat(const std::string& name) {
 	Variant* var = GetProperty(name, VariantType::Float);
 	if (var == nullptr) {
-		var = GetProperty(name, VariantType::RangedFloat);
+		var = GetProperty(name, VariantType::FloatRange);
 	}
 
 	if (var == nullptr) {
-		Debug::LogError("no Float or RangedFloat property named %s.", name.c_str());
+		Debug::LogError("no Float or FloatRange property named %s.", name.c_str());
 		return 0.f;
 	}
 

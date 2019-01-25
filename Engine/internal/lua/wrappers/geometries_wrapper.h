@@ -2,31 +2,31 @@
 
 #pragma once
 
-#include "behaviour.h"
+#include "geometries.h"
 
 #include "lua++.h"
 #include "tools/string.h"
 
-class Behaviour_Wrapper {
+class Geometries_Wrapper {
 	static int ToString(lua_State* L) {
-		Behaviour& _p = *Lua::callerIntrusivePtr<Behaviour>(L);
+		Geometries* _p = Lua::callerPtr<Geometries>(L);
 
-		lua_pushstring(L, String::Format("Behaviour@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("Geometries@0x%p", _p).c_str());
 		return 1;
 	}
 
 public:
 	static void create(lua_State* L) {
-		Lua::createMetatable<Behaviour>(L);
+		Lua::createMetatable<Geometries>(L);
 	}
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteIntrusivePtr<Behaviour> },
+			{ "__gc", Lua::deletePtr<Geometries> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
 
-		Lua::initMetatable<Behaviour>(L, metalib, TypeID<Component>::string());
+		Lua::initMetatable<Geometries>(L, metalib, nullptr);
 	}
 };

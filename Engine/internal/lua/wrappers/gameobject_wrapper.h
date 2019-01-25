@@ -40,6 +40,21 @@ class GameObject_Wrapper {
 		return Lua::push(L, _p->GetActiveSelf());
 	}
 
+	// void SetLayer(uint value)
+	static int SetLayer(lua_State* L) {
+		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		uint value = Lua::get<uint>(L, 2);
+		
+		_p->SetLayer(value);
+		return 0;
+	}
+
+	// uint GetLayer()
+	static int GetLayer(lua_State* L) {
+		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		return Lua::push(L, _p->GetLayer());
+	}
+
 	// int GetUpdateStrategy()
 	static int GetUpdateStrategy(lua_State* L) {
 		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
@@ -58,6 +73,20 @@ class GameObject_Wrapper {
 	static int Update(lua_State* L) {
 		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
 		_p->Update();
+		return 0;
+	}
+
+	// void OnPreRender()
+	static int OnPreRender(lua_State* L) {
+		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		_p->OnPreRender();
+		return 0;
+	}
+
+	// void OnPostRender()
+	static int OnPostRender(lua_State* L) {
+		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		_p->OnPostRender();
 		return 0;
 	}
 
@@ -100,10 +129,17 @@ class GameObject_Wrapper {
 		return 0;
 	}
 
+	// Component AddComponent(suede_guid guid)
 	// Component AddComponent(const char* name)
 	// Component AddComponent(Component component)
 	static int AddComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		if (Lua::checkArguments<suede_guid>(L, 2)) {
+			suede_guid guid = Lua::get<suede_guid>(L, 2);
+			
+			return Lua::push(L, _p->AddComponent(guid));
+		}
+
 		if (Lua::checkArguments<std::string>(L, 2)) {
 			std::string name = Lua::get<std::string>(L, 2);
 			
@@ -174,9 +210,13 @@ public:
 			{ "GetActive", GetActive },
 			{ "SetActiveSelf", SetActiveSelf },
 			{ "GetActiveSelf", GetActiveSelf },
+			{ "SetLayer", SetLayer },
+			{ "GetLayer", GetLayer },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "SetTag", SetTag },
 			{ "Update", Update },
+			{ "OnPreRender", OnPreRender },
+			{ "OnPostRender", OnPostRender },
 			{ "CullingUpdate", CullingUpdate },
 			{ "GetTransform", GetTransform },
 			{ "RecalculateBounds", RecalculateBounds },

@@ -12,6 +12,8 @@
 #include "gameobjectimportedlistener.h"
 
 BETTER_ENUM(WorldEventType, int,
+	HideFlagsChanged,
+
 	GameObjectCreated,
 	GameObjectDestroyed,
 	GameObjectTagChanged,
@@ -24,106 +26,77 @@ BETTER_ENUM(WorldEventType, int,
 	CameraDepthChanged
 )
 
-#define DEFINE_WORLD_EVENT_PTR(type)	typedef std::shared_ptr<struct type> type ## Ptr
-
-template <class Ptr, class... Args>
-Ptr NewWorldEvent(Args... args) { return std::make_shared<Ptr::element_type>(args...); }
-
-DEFINE_WORLD_EVENT_PTR(WorldEventBase);
-struct WorldEventBase {
+struct WorldEventBase : public intrusive_ref_counter<> {
 	virtual WorldEventType GetEventType() const = 0;
 };
 
-DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
+struct HideFlagsChangedEvent : public WorldEventBase {
+	Object object;
+	HideFlags oldHideFlags;
+	HideFlagsChangedEvent(Object object, HideFlags oldHideFlags) : object(object), oldHideFlags(oldHideFlags) {}
+	virtual WorldEventType GetEventType() const { return WorldEventType::HideFlagsChanged; }
+};
 
 struct GameObjectEvent : public WorldEventBase {
 	GameObject go;
+	GameObjectEvent(GameObject go) : go(go) {}
 };
 
 template <class T>
 struct ComponentEvent : public WorldEventBase {
 	T component;
+	ComponentEvent(T component) : component(component) {}
 };
 
-DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
-
 struct GameObjectCreatedEvent : GameObjectEvent {
+	GameObjectCreatedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectCreated; }
 };
 
-DEFINE_WORLD_EVENT_PTR(GameObjectCreatedEvent);
-
 struct GameObjectDestroyedEvent : public GameObjectEvent {
+	GameObjectDestroyedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectDestroyed; }
 };
-
-DEFINE_WORLD_EVENT_PTR(GameObjectDestroyedEvent);
 
 /**
  * @warning only gameObjects with non-null parant could send this event.
  */
 struct GameObjectParentChangedEvent : public GameObjectEvent {
+	GameObjectParentChangedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectParentChanged; }
 };
-
-DEFINE_WORLD_EVENT_PTR(GameObjectParentChangedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectActiveChangedEvent : public GameObjectEvent {
+	GameObjectActiveChangedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectActiveChanged; }
 };
-
-DEFINE_WORLD_EVENT_PTR(GameObjectActiveChangedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectTagChangedEvent : public GameObjectEvent {
+	GameObjectTagChangedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTagChanged; }
 };
-
-DEFINE_WORLD_EVENT_PTR(GameObjectTagChangedEvent);
 
 /**
  * @warning only gameObjects with non-null parant cound send this event.
  */
 struct GameObjectNameChangedEvent : public GameObjectEvent {
+	GameObjectNameChangedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectNameChanged; }
 };
 
-DEFINE_WORLD_EVENT_PTR(GameObjectNameChangedEvent);
-
 struct GameObjectUpdateStrategyChangedEvent : public GameObjectEvent {
+	GameObjectUpdateStrategyChangedEvent(GameObject go) : GameObjectEvent(go) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectUpdateStrategyChanged; }
 };
 
-DEFINE_WORLD_EVENT_PTR(GameObjectUpdateStrategyChangedEvent);
-
-struct GameObjectComponentChangedEvent : public GameObjectEvent {
-	enum {
-		ComponentAdded,
-		ComponentRemoved,
-		ComponentModified,
-	};
-
-	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectComponentChanged; }
-
-	int state;
-	Component component;
-};
-
-DEFINE_WORLD_EVENT_PTR(GameObjectComponentChangedEvent);
-
-struct CameraDepthChangedEvent : ComponentEvent<Camera> {
-	virtual WorldEventType GetEventType() const { return WorldEventType::CameraDepthChanged; }
-};
-
-DEFINE_WORLD_EVENT_PTR(CameraDepthChangedEvent);
-
-DEFINE_WORLD_EVENT_PTR(GameObjectTransformChangedEvent);
 struct GameObjectTransformChangedEvent : public GameObjectEvent {
+	GameObjectTransformChangedEvent(GameObject go, uint prs) : GameObjectEvent(go), prs(prs) {}
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectTransformChanged; }
 
 	// Hw: local or world(0).
@@ -131,11 +104,28 @@ struct GameObjectTransformChangedEvent : public GameObjectEvent {
 	uint prs;
 };
 
-#undef DEFINE_WORLD_EVENT_PTR
+struct GameObjectComponentChangedEvent : public GameObjectEvent {
+	GameObjectComponentChangedEvent(GameObject go, int state, Component component) :GameObjectEvent(go), state(state), component(component) {}
+	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectComponentChanged; }
+
+	enum {
+		ComponentAdded,
+		ComponentRemoved,
+		ComponentModified,
+	};
+
+	int state;
+	Component component;
+};
+
+struct CameraDepthChangedEvent : ComponentEvent<Camera> {
+	CameraDepthChangedEvent(Camera camera) : ComponentEvent(camera) {}
+	virtual WorldEventType GetEventType() const { return WorldEventType::CameraDepthChanged; }
+};
 
 class WorldEventListener {
 public:
-	virtual void OnWorldEvent(WorldEventBasePtr e) = 0;
+	virtual void OnWorldEvent(WorldEventBase* e) = 0;
 };
 
 enum class WalkCommand {
@@ -162,8 +152,7 @@ public:
 	static void Update();
 	static void CullingUpdate();
 
-	static void DestroyGameObject(uint id);
-	static void DestroyGameObject(GameObject go);
+	static void DestroyObject(Object object);
 
 	static GameObject Import(const std::string& path, GameObjectImportedListener* listener);
 	static GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
@@ -173,12 +162,11 @@ public:
 	static Transform GetRootTransform();
 
 	static GameObject GetGameObject(uint id);
-	static const std::vector<GameObject>& GetAllGameObjects();
 
 	static void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	static void FireEvent(WorldEventBasePtr e);
-	static void FireEventImmediate(WorldEventBasePtr e);
+	static void FireEvent(WorldEventBase* e);
+	static void FireEventImmediate(WorldEventBase& e);
 	static void AddEventListener(WorldEventListener* listener);
 	static void RemoveEventListener(WorldEventListener* listener);
 

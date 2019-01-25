@@ -1,6 +1,6 @@
 Properties {
 	color _NormalColor = { 0, 1, 0 };
-	franged _NormalLength = { 0.4, 0.1, 2 };
+	frange _NormalLength = { 0.4, 0.1, 2 };
 }
 
 SubShader {

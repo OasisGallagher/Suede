@@ -643,8 +643,8 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 	VariantType rhs = p->value.GetType();
 	if (lhs == rhs 
 		|| (lhs == VariantType::Color && (rhs == VariantType::Vector3 || rhs == VariantType::Vector4))
-		|| (lhs == VariantType::RangedInt && rhs == VariantType::Int)
-		|| (lhs == VariantType::RangedFloat && rhs == VariantType::Float)) {
+		|| (lhs == VariantType::IntRange && rhs == VariantType::Int)
+		|| (lhs == VariantType::FloatRange && rhs == VariantType::Float)) {
 		return true;
 	}
 

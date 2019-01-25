@@ -122,7 +122,7 @@ void Inspector::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMet
 void Inspector::drawComponents() {
 	GUI::Indent();
 	for (Component component : target_->GetComponents("")) {
-		if (component->HideInInspector()) {
+		if ((component->GetHideFlags() & HideFlags::HideInInspector) != 0) {
 			continue;
 		}
 
@@ -229,10 +229,10 @@ void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char
 	else if (userType == QMetaTypeId<LightImportance>::qt_metatype_id()) {
 		drawUserEnumType<LightImportance>(object, name);
 	}
-	else if (userType == QMetaTypeId<iranged>::qt_metatype_id()) {
+	else if (userType == QMetaTypeId<irange>::qt_metatype_id()) {
 		drawUserRangeType(object, name, GUI::IntSlider);
 	}
-	else if (userType == QMetaTypeId<franged>::qt_metatype_id()) {
+	else if (userType == QMetaTypeId<frange>::qt_metatype_id()) {
 		drawUserRangeType(object, name, GUI::Slider);
 	}
 	else if (userType == QMetaTypeId<Material>::qt_metatype_id()) {

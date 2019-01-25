@@ -1212,6 +1212,7 @@
     <None Include="resources\shaders\builtin\depth.shader" />
     <None Include="resources\shaders\builtin\directional_light_depth.shader" />
     <None Include="resources\shaders\builtin\gbuffer.shader" />
+    <None Include="resources\shaders\builtin\handles.shader" />
     <None Include="resources\shaders\builtin\include\post_effect_vertex.inc" />
     <None Include="resources\shaders\builtin\lit_parallactic_texture.shader" />
     <None Include="resources\shaders\builtin\normal_visualizer.shader" />
@@ -1227,10 +1228,10 @@
     <None Include="resources\shaders\builtin\particle.shader" />
     <None Include="resources\shaders\builtin\skybox.shader" />
     <None Include="resources\shaders\builtin\ssao_traversal.shader" />
+    <None Include="resources\shaders\builtin\unlit_colored.shader" />
     <None Include="resources\shaders\builtin\unlit_texture.shader" />
     <None Include="resources\shaders\gaussianblur.shader" />
     <None Include="resources\shaders\grayscale.shader" />
-    <None Include="resources\shaders\handles.shader" />
     <None Include="resources\shaders\inversion.shader" />
     <None Include="resources\shaders\xray.shader" />
     <CustomBuild Include="editor.qrc">

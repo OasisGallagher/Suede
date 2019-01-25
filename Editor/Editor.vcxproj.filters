@@ -786,8 +786,11 @@
     <None Include="resources\shaders\builtin\lit_parallactic_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
-    <None Include="resources\shaders\handles.shader">
-      <Filter>resources\shaders</Filter>
+    <None Include="resources\shaders\builtin\unlit_colored.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\handles.shader">
+      <Filter>resources\shaders\builtin</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

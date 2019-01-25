@@ -7,14 +7,8 @@
 
 #include "memory/memory.h"
 
-enum {
-	ViewerStatusUninitialized,
-	ViewerStatusRunning,
-	ViewerStatusClosed,
-};
-
 GraphicsViewer::GraphicsViewer(int argc, char * argv[]) 
-	: canvas_(nullptr), status_(ViewerStatusUninitialized) {
+	: canvas_(nullptr), status_(Uninitialized) {
 }
 
 GraphicsViewer::~GraphicsViewer() {
@@ -24,7 +18,7 @@ GraphicsViewer::~GraphicsViewer() {
 #include "debug/debug.h"
 
 void GraphicsViewer::Run() {
-	for (; status_ != ViewerStatusClosed;) {
+	for (; status_ != Closed;) {
 		if (canvas_ != nullptr) {
 			canvas_->MakeCurrent();
 
@@ -44,7 +38,7 @@ void GraphicsViewer::Run() {
 			now = Profiler::GetTimeStamp();
 			double swap = Profiler::TimeStampToSeconds(now - start);
 
-			Debug::Output("qt: %.2f, engine: %.2f, swap: %.2f", qt * 1000, engine * 1000, swap * 1000);
+			Debug::Output(0, "qt: %.2f, engine: %.2f, swap: %.2f", qt * 1000, engine * 1000, swap * 1000);
 		}
 	}
 }
@@ -52,13 +46,13 @@ void GraphicsViewer::Run() {
 bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	canvas_ = value;
 
-	if (status_ == ViewerStatusUninitialized) {
+	if (status_ == Uninitialized) {
 		if (Engine::Startup(value->GetWidth(), value->GetHeight())) {
-			status_ = ViewerStatusRunning;
+			status_ = Running;
 		}
 	}
 
-	return status_ == ViewerStatusRunning;
+	return status_ == Running;
 }
 
 void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
@@ -66,5 +60,5 @@ void GraphicsViewer::OnCanvasSizeChanged(uint width, uint height) {
 }
 
 void GraphicsViewer::Close() {
-	status_ = ViewerStatusClosed;
+	status_ = Closed;
 }

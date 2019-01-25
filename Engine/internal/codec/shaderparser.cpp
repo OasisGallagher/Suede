@@ -410,16 +410,16 @@ void ShaderParser::ReadFloatProperty(SyntaxNode* node, Property* property) {
 	property->value.SetFloat(String::ToFloat(node->GetChildAt(1)->ToString()));
 }
 
-void ShaderParser::ReadRangedInt(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadIntRange(SyntaxNode* node, Property* property) {
 	glm::ivec3 value(0, INT_MIN, INT_MAX);
 	ReadInt3(value, node);
-	property->value.SetRangedInt(*(iranged*)&value);
+	property->value.SetIntRange(*(irange*)&value);
 }
 
-void ShaderParser::ReadRangedFloat(SyntaxNode* node, Property* property) {
+void ShaderParser::ReadFloatRange(SyntaxNode* node, Property* property) {
 	glm::vec3 value(0, -FLT_MAX, FLT_MAX);
 	ReadVec3(value, node);
-	property->value.SetRangedFloat(*(franged*)&value);
+	property->value.SetFloatRange(*(frange*)&value);
 }
 
 int ShaderParser::ReadVec2(glm::vec2& value, SyntaxNode* node) {
@@ -524,11 +524,11 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	else if (ns == "Mat4") {
 		ReadMat4Property(node, property);
 	}
-	else if (ns == "RangedInt") {
-		ReadRangedInt(node, property);
+	else if (ns == "IntRange") {
+		ReadIntRange(node, property);
 	}
-	else if (ns == "RangedFloat") {
-		ReadRangedFloat(node, property);
+	else if (ns == "FloatRange") {
+		ReadFloatRange(node, property);
 	}
 	else {
 		Debug::LogError("invalid property type %s.", ns.c_str());

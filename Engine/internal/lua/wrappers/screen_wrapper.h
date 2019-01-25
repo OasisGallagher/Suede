@@ -7,6 +7,30 @@
 #include "lua++.h"
 #include "tools/string.h"
 
+class ScreenSizeListener_Wrapper {
+	static int ToString(lua_State* L) {
+		ScreenSizeListener* _p = Lua::callerPtr<ScreenSizeListener>(L);
+
+		lua_pushstring(L, String::Format("ScreenSizeListener@0x%p", _p).c_str());
+		return 1;
+	}
+
+public:
+	static void create(lua_State* L) {
+		Lua::createMetatable<ScreenSizeListener>(L);
+	}
+	
+	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
+		luaL_Reg metalib[] = {
+			{ "__gc", Lua::deletePtr<ScreenSizeListener> },
+			{ "__tostring", ToString }, 
+			{ nullptr, nullptr }
+		};
+
+		Lua::initMetatable<ScreenSizeListener>(L, metalib, nullptr);
+	}
+};
+
 class Screen_Wrapper {
 	static int ToString(lua_State* L) {
 		Screen* _p = Lua::callerPtr<Screen>(L);

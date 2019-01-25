@@ -6,6 +6,7 @@
 #include "mesh.h"
 #include "../api/gl.h"
 #include "componentinternal.h"
+#include "containers/sortedvector.h"
 #include "internal/base/vertexarray.h"
 #include "internal/base/objectinternal.h"
 
@@ -16,7 +17,8 @@ public:
 	SubMeshInternal(ISubMesh* self);
 
 public:
-	void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
+	// SUEDE TODO: trigger OnMeshModified ?
+	void SetTriangleBias(const TriangleBias& value);
 	const TriangleBias& GetTriangleBias() const { return bias_; }
 
 private:
@@ -39,6 +41,8 @@ public:
 public:
 	void CreateStorage();
 	void SetAttribute(const MeshAttribute& value);
+
+	void NotifyMeshModified();
 
 	//void SetBounds(const Bounds& value) { bounds_ = value; }
 	//const Bounds& GetBounds() const { return bounds_; }
@@ -70,7 +74,6 @@ public:
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
 private:
-	void Destroy();
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
 
@@ -83,14 +86,15 @@ private:
 		BufferIndexCount,
 	};
 
+	typedef sorted_vector<IMeshModifiedListener*> ListenerContainer;
+
 	struct Storage {
 		Storage();
 
 		VertexArray vao;
 		MeshTopology topology;
 		uint bufferIndexes[BufferIndexCount];
-
-		std::set<IMeshModifiedListener*> listeners;
+		ListenerContainer listeners;
 	};
 
 //protected:
@@ -99,6 +103,7 @@ private:
 private:
 	std::vector<SubMesh> subMeshes_;
 	std::shared_ptr<Storage> storage_;
+	sorted_vector<IMeshModifiedListener*> listeners_;
 };
 
 class MeshProviderInternal : public ComponentInternal, public IMeshModifiedListener {

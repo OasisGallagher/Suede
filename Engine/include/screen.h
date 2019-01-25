@@ -3,7 +3,7 @@
 #include "enginedefines.h"
 #include "tools/singleton.h"
 
-class ScreenSizeChangedListener {
+class ScreenSizeListener {
 public:
 	virtual void OnScreenSizeChanged(uint width, uint height) = 0;
 };
@@ -16,8 +16,8 @@ public:
 	static uint GetWidth();
 	static uint GetHeight();
 
-	static void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	static void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	static void AddScreenSizeListener(ScreenSizeListener* listener);
+	static void RemoveScreenSizeListener(ScreenSizeListener* listener);
 	static void Resize(uint width, uint height);
 
 private:

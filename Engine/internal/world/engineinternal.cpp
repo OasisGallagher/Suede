@@ -32,7 +32,7 @@ static void OnTerminate() {
 }
 
 static void OnZThreadException(const std::exception& exception) {
-	Debug::Output("!!! Thread Exception %s\n", exception.what());
+	Debug::Output(0, "!!! Thread Exception %s\n", exception.what());
 	throw exception;
 }
 
@@ -69,11 +69,11 @@ bool EngineInternal::Startup(uint width, uint height) {
 	// create profiler first to ensure it's destroyed last.
 	Profiler::TimeStampToSeconds(0);
 
-	Screen::Resize(width, height);
-	World::Initialize();
-
 	//Physics::SetDebugDrawEnabled(true);
 	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
+
+	Screen::Resize(width, height);
+	World::Initialize();
 
 	luaL_Reg lualibs[] = {
 		{ "Suede", Lua::configure },
@@ -119,7 +119,7 @@ void EngineInternal::Update() {
 	now = Profiler::GetTimeStamp();
 	double frameLeave = Profiler::TimeStampToSeconds(now - start);
 
-	Debug::Output("frameEnter: %.2f, frameLeave: %.2f", frameEnter * 1000, frameLeave * 1000);
+	Debug::Output(0, "frameEnter: %.2f, frameLeave: %.2f", frameEnter * 1000, frameLeave * 1000);
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

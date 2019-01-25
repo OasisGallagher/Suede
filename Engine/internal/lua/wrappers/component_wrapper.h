@@ -48,6 +48,27 @@ class Component_Wrapper {
 		return 0;
 	}
 
+	// virtual void OnDestroy()
+	static int OnDestroy(lua_State* L) {
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
+		_p->OnDestroy();
+		return 0;
+	}
+
+	// virtual void OnPreRender()
+	static int OnPreRender(lua_State* L) {
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
+		_p->OnPreRender();
+		return 0;
+	}
+
+	// virtual void OnPostRender()
+	static int OnPostRender(lua_State* L) {
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
+		_p->OnPostRender();
+		return 0;
+	}
+
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
 		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
@@ -126,12 +147,6 @@ class Component_Wrapper {
 		return Lua::push(L, _p->AllowMultiple());
 	}
 
-	// virtual bool HideInInspector()
-	static int HideInInspector(lua_State* L) {
-		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
-		return Lua::push(L, _p->HideInInspector());
-	}
-
 	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID()
 	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
 	static int IsComponentType(lua_State* L) {
@@ -171,6 +186,9 @@ public:
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
+			{ "OnDestroy", OnDestroy },
+			{ "OnPreRender", OnPreRender },
+			{ "OnPostRender", OnPostRender },
 			{ "OnRenderImage", OnRenderImage },
 			{ "GetEnabled", GetEnabled },
 			{ "SetEnabled", SetEnabled },
@@ -180,7 +198,6 @@ public:
 			{ "CullingUpdate", CullingUpdate },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "AllowMultiple", AllowMultiple },
-			{ "HideInInspector", HideInInspector },
 			{ "IsComponentType", IsComponentType },
 			{ "GetComponentInstanceGUID", GetComponentInstanceGUID },
 			{ nullptr, nullptr }

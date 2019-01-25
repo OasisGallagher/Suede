@@ -5,7 +5,7 @@
 #include "engine.h"
 #include "graphics.h"
 #include "resources.h"
-#include "geometryutility.h"
+#include "geometries.h"
 #include "builtinproperties.h"
 
 #include "memory/memory.h"
@@ -36,7 +36,7 @@ GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", glm::mat4(1));
 
-	GeometryUtility::GetSphereCoordinates(sphere_.points, sphere_.indexes, glm::ivec2(15));
+	Geometries::Sphere(sphere_.points, sphere_.indexes, glm::vec3(0), 1, glm::ivec2(15));
 
 	Engine::AddFrameEventListener(this);
 }
@@ -80,7 +80,7 @@ void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) 
 
 void GizmosInternal::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) {
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetCircleCoordinates(points, center, radius, normal, 36);
+	Geometries::CirclePoints(points, center, radius, normal, 36);
 	points.push_back(points.front());
 
 	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), &points[0], points.size());
@@ -148,7 +148,7 @@ void GizmosInternal::AddSphereBatch(const glm::vec3& center, float radius, bool 
 void GizmosInternal::AddCuboidBatch(const glm::vec3& center, const glm::vec3& size, bool wireframe) {
 	std::vector<uint> indexes;
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, center, size, &indexes);
+	Geometries::Cuboid(points, indexes, center, size);
 
 	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
 }

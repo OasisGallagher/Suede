@@ -1,5 +1,5 @@
 Properties {
-	franged _RimFactor = { 0.1, 0.01, 0.5 };
+	frange _RimFactor = { 0.1, 0.01, 0.5 };
 	color _RimColor = { 0.98, 0.51, 0.04 };
 	color _MainColor = { 1, 1, 1, 1 };
 	texture2D _MainTexture = "white";

@@ -27,6 +27,7 @@
 #include "behaviour.h"
 #include "statistics.h"
 #include "tagmanager.h"
+#include "layermanager.h"
 #include "particlesystem.h"
 #include "builtinproperties.h"
 
@@ -106,7 +107,7 @@ void Game::tick() {
 		glm::vec3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
 		glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 
-		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
+		if (Physics::Raycast(Ray(src, dest - src), 1000, ~LayerManager::IgnoreRaycast, &hitInfo)) {
 			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject>{ hitInfo.gameObject });
 		}
 	}

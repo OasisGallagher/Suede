@@ -6,11 +6,11 @@
 Screen::Screen() : singleton2<Screen>(MEMORY_NEW(ScreenInternal), Memory::DeleteRaw<ScreenInternal>) {}
 uint Screen::GetWidth() { return _suede_dinstance()->GetWidth(); }
 uint Screen::GetHeight() { return _suede_dinstance()->GetHeight(); }
-void Screen::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _suede_dinstance()->AddScreenSizeChangedListener(listener); }
-void Screen::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) { _suede_dinstance()->RemoveScreenSizeChangedListener(listener); }
+void Screen::AddScreenSizeListener(ScreenSizeListener* listener) { _suede_dinstance()->AddScreenSizeChangedListener(listener); }
+void Screen::RemoveScreenSizeListener(ScreenSizeListener* listener) { _suede_dinstance()->RemoveScreenSizeChangedListener(listener); }
 void Screen::Resize(uint width, uint height) { _suede_dinstance()->Resize(width, height); }
 
-void ScreenInternal::AddScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
+void ScreenInternal::AddScreenSizeChangedListener(ScreenSizeListener* listener) {
 	if (listener == nullptr) {
 		Debug::LogError("invalid screen event listener.");
 		return;
@@ -21,8 +21,8 @@ void ScreenInternal::AddScreenSizeChangedListener(ScreenSizeChangedListener* lis
 	}
 }
 
-void ScreenInternal::RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener) {
-	std::vector<ScreenSizeChangedListener*>::iterator pos = std::find(listeners_.begin(), listeners_.end(), listener);
+void ScreenInternal::RemoveScreenSizeChangedListener(ScreenSizeListener* listener) {
+	std::vector<ScreenSizeListener*>::iterator pos = std::find(listeners_.begin(), listeners_.end(), listener);
 	if (pos != listeners_.end()) {
 		listeners_.erase(pos);
 	}

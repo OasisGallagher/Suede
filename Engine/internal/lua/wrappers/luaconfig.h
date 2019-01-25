@@ -12,10 +12,12 @@
 #include "environment_wrapper.h"
 #include "font_wrapper.h"
 #include "gameobject_wrapper.h"
+#include "geometries_wrapper.h"
 #include "gizmos_wrapper.h"
 #include "graphics_wrapper.h"
 #include "imageeffect_wrapper.h"
 #include "input_wrapper.h"
+#include "layermanager_wrapper.h"
 #include "light_wrapper.h"
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
@@ -66,10 +68,13 @@ static int configure(lua_State* L) {
 	CharacterInfo_Wrapper::create(L);
 	Font_Wrapper::create(L);
 	GameObject_Wrapper::create(L);
+	Geometries_Wrapper::create(L);
 	Gizmos_Wrapper::create(L);
 	Graphics_Wrapper::create(L);
 	ImageEffect_Wrapper::create(L);
 	Input_Wrapper::create(L);
+	Layer_Wrapper::create(L);
+	LayerManager_Wrapper::create(L);
 	Light_Wrapper::create(L);
 	Material_Wrapper::create(L);
 	TriangleBias_Wrapper::create(L);
@@ -102,6 +107,7 @@ static int configure(lua_State* L) {
 	SkinnedMeshRenderer_Wrapper::create(L);
 	Resources_Wrapper::create(L);
 	Rigidbody_Wrapper::create(L);
+	ScreenSizeListener_Wrapper::create(L);
 	Screen_Wrapper::create(L);
 	Property_Wrapper::create(L);
 	ShaderProperty_Wrapper::create(L);
@@ -143,10 +149,13 @@ static int configure(lua_State* L) {
 	CharacterInfo_Wrapper::initialize(L, funcs, fields);
 	Font_Wrapper::initialize(L, funcs, fields);
 	GameObject_Wrapper::initialize(L, funcs, fields);
+	Geometries_Wrapper::initialize(L, funcs, fields);
 	Gizmos_Wrapper::initialize(L, funcs, fields);
 	Graphics_Wrapper::initialize(L, funcs, fields);
 	ImageEffect_Wrapper::initialize(L, funcs, fields);
 	Input_Wrapper::initialize(L, funcs, fields);
+	Layer_Wrapper::initialize(L, funcs, fields);
+	LayerManager_Wrapper::initialize(L, funcs, fields);
 	Light_Wrapper::initialize(L, funcs, fields);
 	Material_Wrapper::initialize(L, funcs, fields);
 	TriangleBias_Wrapper::initialize(L, funcs, fields);
@@ -179,6 +188,7 @@ static int configure(lua_State* L) {
 	SkinnedMeshRenderer_Wrapper::initialize(L, funcs, fields);
 	Resources_Wrapper::initialize(L, funcs, fields);
 	Rigidbody_Wrapper::initialize(L, funcs, fields);
+	ScreenSizeListener_Wrapper::initialize(L, funcs, fields);
 	Screen_Wrapper::initialize(L, funcs, fields);
 	Property_Wrapper::initialize(L, funcs, fields);
 	ShaderProperty_Wrapper::initialize(L, funcs, fields);
@@ -313,6 +323,15 @@ static int configure(lua_State* L) {
 	}
 
 	lua_setfield(L, -2, "ObjectType");
+
+	// HideFlags
+	lua_newtable(L);
+	for (int i = 0; i < HideFlags::size(); ++i) {
+		lua_pushinteger(L, HideFlags::value(i));
+		lua_setfield(L, -2, HideFlags::value(i).to_string());
+	}
+
+	lua_setfield(L, -2, "HideFlags");
 
 	// PrimitiveType
 	lua_newtable(L);

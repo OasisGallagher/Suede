@@ -5,22 +5,22 @@
 #include "debug/debug.h"
 
 template <class T>
-class ranged {
+class range {
 public:
 	typedef T value_type;
 
 public:
-	ranged() : ranged(T()) {}
+	range() : range(T()) {}
 
-	explicit ranged(T value, T min = std::numeric_limits<T>::lowest(), T max = std::numeric_limits<T>::max()) {
+	explicit range(T value, T min = std::numeric_limits<T>::lowest(), T max = std::numeric_limits<T>::max()) {
 		reset(value, min, max);
 	}
 
-	ranged(const ranged& other) {
+	range(const range& other) {
 		min_ = other.min_; max_ = other.max_; value_ = other.value_;
 	}
 
-	ranged& operator= (T value) {
+	range& operator= (T value) {
 		value_ = Math::Clamp(value, min_, max_);
 		return *this;
 	}
@@ -53,5 +53,5 @@ private:
 	T value_, min_, max_;
 };
 
-typedef ranged<int> iranged;
-typedef ranged<float> franged;
+typedef range<int> irange;
+typedef range<float> frange;

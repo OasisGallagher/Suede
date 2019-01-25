@@ -130,68 +130,60 @@ Transform TransformInternal::FindChild(const std::string& path) {
 void TransformInternal::SetScale(const glm::vec3& value) {
 	ClearDirty(WorldScale);
 
-	if (world_.scale != value) {
+	if (!Math::Approximately(world_.scale, value)) {
+		DirtyChildrenScales();
+
 		world_.scale = value;
 		SetDirty(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
-		DirtyChildrenScales();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(2, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(2, 0)));
 	}
 }
 
 void TransformInternal::SetPosition(const glm::vec3& value) {
 	ClearDirty(WorldPosition);
-	if (world_.position != value) {
+	if (!Math::Approximately(world_.position, value)) {
+		DirtyChildrenPositions();
+
 		world_.position = value;
 		SetDirty(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
-		DirtyChildrenPositions();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(0, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(0, 0)));
 	}
 }
 
 void TransformInternal::SetRotation(const glm::quat& value) {
 	ClearDirty(WorldRotation);
 
-	/*if (!Math::Approximately(world_.rotation, value))*/ {
+	if (!Math::Approximately(world_.rotation, value)) {
+		DirtyChildrenRotationsAndEulerAngles();
+
 		world_.rotation = value;
 
 		SetDirty(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
-		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(1, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(1, 0)));
 	}
 }
 
 void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 	ClearDirty(WorldEulerAngles);
 
-	if (world_.eulerAngles != value) {
+	if (!Math::Approximately(world_.eulerAngles, value)) {
+		DirtyChildrenRotationsAndEulerAngles();
+
 		world_.eulerAngles = value;
 
 		SetDirty(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
-		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(1, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(1, 0)));
 	}
 }
 
@@ -306,64 +298,57 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 
 void TransformInternal::SetLocalScale(const glm::vec3& value) {
 	ClearDirty(LocalScale);
-	if (local_.scale != value) {
+	if (!Math::Approximately(local_.scale, value)) {
+		DirtyChildrenScales();
+
 		local_.scale = value;
 		SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
-		DirtyChildrenScales();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(2, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(2, 1)));
 	}
 }
 
 void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 	ClearDirty(LocalPosition);
-	if (local_.position != value) {
-		local_.position = value;
-		SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
+	if (!Math::Approximately(local_.position, value)) {
 		DirtyChildrenPositions();
+
+		local_.position = value;
+
+		SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(0, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(0, 1)));
 	}
 }
 
 void TransformInternal::SetLocalRotation(const glm::quat& value) {
 	ClearDirty(LocalRotation);
 	if (!Math::Approximately(glm::dot(local_.rotation, value), 0)) {
+		DirtyChildrenRotationsAndEulerAngles();
+
 		local_.rotation = value;
 		SetDirty(WorldRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 
-		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(1, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(1, 1)));
 	}
 }
 
 void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	ClearDirty(LocalEulerAngles);
-	if (local_.eulerAngles != value) {
+	if (!Math::Approximately(local_.eulerAngles, value)) {
+		DirtyChildrenRotationsAndEulerAngles();
+
 		local_.eulerAngles = value;
 		SetDirty(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
 
-		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Math::MakeDword(1, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectTransformChangedEvent(gameObject_, Math::MakeDword(1, 1)));
 	}
 }
 
@@ -612,9 +597,7 @@ void TransformInternal::ChangeParent(Transform oldParent, Transform newParent) {
 	SetDirty(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
 	if (IsAttachedToScene()) {
-		GameObjectParentChangedEventPtr e = NewWorldEvent<GameObjectParentChangedEventPtr>();
-		e->go = GetGameObject();
-		World::FireEvent(e);
+		World::FireEvent(new GameObjectParentChangedEvent(GetGameObject()));
 	}
 }
 

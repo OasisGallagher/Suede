@@ -57,8 +57,8 @@ public:
 
 	int GetInt(const std::string& name);
 	bool GetBool(const std::string& name);
-	iranged GetRangedInt(const std::string& name);
-	franged GetRangedFloat(const std::string& name);
+	irange GetIntRange(const std::string& name);
+	frange GetFloatRange(const std::string& name);
 	float GetFloat(const std::string& name);
 	Texture GetTexture(const std::string& name);
 	glm::mat4 GetMatrix4(const std::string& name);

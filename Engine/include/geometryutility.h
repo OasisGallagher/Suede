@@ -26,12 +26,6 @@ public:
 	static bool IsFrontFace(const Triangle& face, const glm::vec3& camera);
 	static PlaneSide TestSide(const Plane& plane, const glm::vec3* points, uint npoints);
 
-	static void GetSphereCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution);
-	static void GetCircleCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution);
-	static void GetConeCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution);
-	static void GetCylinderCoordinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, float radius, uint resolution);
-	static void GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles = nullptr);
-
 	/**
 	 * @returns true if one or more points are inside the plane array.
 	 */

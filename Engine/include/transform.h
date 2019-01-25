@@ -52,21 +52,37 @@ public:
 	void SetScale(const glm::vec3& value);
 	void SetPosition(const glm::vec3& value);
 	void SetRotation(const glm::quat& value);
+
+	/**
+	 * @brief set the rotation as euler angles in degrees.
+	 */
 	void SetEulerAngles(const glm::vec3& value);
 
 	glm::vec3 GetScale();
 	glm::vec3 GetPosition();
 	glm::quat GetRotation();
+
+	/**
+	 * @brief get the rotation as euler angles in degrees.
+	 */
 	glm::vec3 GetEulerAngles();
 
 	void SetLocalScale(const glm::vec3& value);
 	void SetLocalPosition(const glm::vec3& value);
 	void SetLocalRotation(const glm::quat& value);
+
+	/**
+	 * @brief set the local rotation as euler angles in degrees.
+	 */
 	void SetLocalEulerAngles(const glm::vec3& value);
 
 	glm::vec3 GetLocalScale();
 	glm::vec3 GetLocalPosition();
 	glm::quat GetLocalRotation();
+
+	/**
+	 * @brief get the local rotation as euler angles in degrees.
+	 */
 	glm::vec3 GetLocalEulerAngles();
 
 	glm::mat4 GetLocalToWorldMatrix();

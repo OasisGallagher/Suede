@@ -1,19 +1,20 @@
 ﻿#include "rigidbody.h"
 
 #include "mesh.h"
-#include "internal/components/componentinternal.h"
+#include "componentinternal.h"
 
-#include "bullet/btBulletDynamicsCommon.h"
+#include "internal/physics/bullet/btBulletDynamicsCommon.h"
 
 class RigidbodyInternal : public ComponentInternal {
 	SUEDE_DECLARE_SELF_TYPE(IRigidbody)
 
 public:
-	RigidbodyInternal(IRigidbody* self);	~RigidbodyInternal();
+	RigidbodyInternal(IRigidbody* self);
+	~RigidbodyInternal();
 
 public:
-	virtual void Awake();
 	virtual void Update();
+	virtual void OnDestroy();
 
 	virtual int GetUpdateStrategy();
 	virtual void OnMessage(int messageID, void* parameter);
@@ -36,6 +37,10 @@ private:
 
 	bool RebuildShape();
 	bool CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale);
+
+	void CreateShapeFromPoints(Mesh mesh);
+	void CreateShapeFromTriangles(Mesh mesh);
+
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();
@@ -55,10 +60,12 @@ private:
 	float mass_;
 
 	enum {
-		Normal,
-		InvalidBody,
-		InvalidShape,
-	} shapeState_;
+		Normal = 0,
+		InvalidBody = 1 << 0,
+		InvalidShape = 1 << 1,
+	};
+
+	int shapeState_;
 
 	Bounds bounds_;
 
@@ -72,5 +79,5 @@ private:
 	// complicated shapes with btBvhTriangleMeshShape, specifying vertices of triangles just like you do when rendering 
 	// complex objects in OpenGL.
 	btCollisionShape* shape_;
-	btStridingMeshInterface* mesh_;
+	btStridingMeshInterface* indexedMesh_;
 };

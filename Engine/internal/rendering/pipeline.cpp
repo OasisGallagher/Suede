@@ -155,19 +155,19 @@ void Pipeline::Run() {
 	samples_.update_pipeline->Stop();
 
 #ifdef DEBUG_SAMPLES
-	Debug::Output("[Pipeline::Update::renderables]\t%d ms", nrenderables_);
-	Debug::Output("[Pipeline::Update::drawcalls]\t%d ms", counters_.drawcalls);
-	Debug::Output("[Pipeline::Update::meshChanges]\t%d ms", counters_.meshChanges);
-	Debug::Output("[Pipeline::Update::materialChanges]\t%d ms", counters_.materialChanges);
+	Debug::Output(0, "[Pipeline::Update::renderables]\t%d ms", nrenderables_);
+	Debug::Output(0, "[Pipeline::Update::drawcalls]\t%d ms", counters_.drawcalls);
+	Debug::Output(0, "[Pipeline::Update::meshChanges]\t%d ms", counters_.meshChanges);
+	Debug::Output(0, "[Pipeline::Update::materialChanges]\t%d ms", counters_.materialChanges);
 
-	Debug::Output("[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_tbo]\t%.2f ms", samples_.update_tbo->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_offset]\t%.2f ms", samples_.update_offset->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::draw_call]\t%.2f ms", samples_.draw_call->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::switch_state]\t%.2f ms", samples_.switch_state->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::stat_and_output]\t%.2f ms", samples_.stat_and_output->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f ms", samples_.update_pipeline->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::update_tbo]\t%.2f ms", samples_.update_tbo->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::update_offset]\t%.2f ms", samples_.update_offset->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::draw_call]\t%.2f ms", samples_.draw_call->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::switch_state]\t%.2f ms", samples_.switch_state->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::stat_and_output]\t%.2f ms", samples_.stat_and_output->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::update_pipeline]\t%.2f ms", samples_.update_pipeline->GetElapsedSeconds() * 1000);
 #endif
 
 	samples_.reset_states->Restart();
@@ -175,7 +175,7 @@ void Pipeline::Run() {
 	samples_.reset_states->Stop();
 
 #ifdef DEBUG_SAMPLES
-	Debug::Output("[Pipeline::Update::reset_states]\t%.2f ms", samples_.reset_states->GetElapsedSeconds() * 1000);
+	Debug::Output(0, "[Pipeline::Update::reset_states]\t%.2f ms", samples_.reset_states->GetElapsedSeconds() * 1000);
 #endif
 }
 

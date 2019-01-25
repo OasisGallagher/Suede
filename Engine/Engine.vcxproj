@@ -120,6 +120,10 @@
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Editor\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)include
+python $(ProjectDir)include\luawrapper.py 1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -168,6 +172,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
     <ClCompile Include="internal\base\gpuquerier.cpp" />
+    <ClCompile Include="internal\base\layermanager.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
@@ -187,6 +192,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\components\particlesysteminternal.cpp" />
     <ClCompile Include="internal\components\projectorinternal.cpp" />
     <ClCompile Include="internal\components\rendererinternal.cpp" />
+    <ClCompile Include="internal\components\rigidbodyinternal.cpp" />
     <ClCompile Include="internal\components\transforminternal.cpp" />
     <ClCompile Include="internal\culling\culling.cpp" />
     <ClCompile Include="internal\codec\image.cpp" />
@@ -200,6 +206,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\geometry\geometryutility.cpp" />
     <ClCompile Include="internal\geometry\plane.cpp" />
     <ClCompile Include="internal\geometry\polygon.cpp" />
+    <ClCompile Include="internal\geometry\geometries.cpp" />
     <ClCompile Include="internal\geometry\rect.cpp" />
     <ClCompile Include="internal\gui\gui.cpp" />
     <ClCompile Include="internal\gui\imgui.cpp" />
@@ -383,7 +390,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\physics\bullet\LinearMath\btThreads.cpp" />
     <ClCompile Include="internal\physics\bullet\LinearMath\btVector3.cpp" />
     <ClCompile Include="internal\physics\physicsinternal.cpp" />
-    <ClCompile Include="internal\physics\rigidbodyinternal.cpp" />
     <ClCompile Include="internal\rendering\gizmospainter.cpp" />
     <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\matrixbuffer.cpp" />
@@ -420,6 +426,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\component.h" />
     <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\input.h" />
+    <ClInclude Include="include\layer.h" />
+    <ClInclude Include="include\layermanager.h" />
     <ClInclude Include="include\lua++.h" />
     <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
@@ -441,9 +449,10 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\physics.h" />
     <ClInclude Include="include\plane.h" />
     <ClInclude Include="include\polygon.h" />
+    <ClInclude Include="include\geometries.h" />
     <ClInclude Include="include\profiler.h" />
     <ClInclude Include="include\projector.h" />
-    <ClInclude Include="include\ranged.h" />
+    <ClInclude Include="include\range.h" />
     <ClInclude Include="include\ray.h" />
     <ClInclude Include="include\rect.h" />
     <ClInclude Include="include\renderer.h" />
@@ -489,6 +498,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\components\particlesysteminternal.h" />
     <ClInclude Include="internal\components\projectorinternal.h" />
     <ClInclude Include="internal\components\rendererinternal.h" />
+    <ClInclude Include="internal\components\rigidbodyinternal.h" />
     <ClInclude Include="internal\components\transforminternal.h" />
     <ClInclude Include="internal\culling\culling.h" />
     <ClInclude Include="internal\codec\image.h" />
@@ -512,10 +522,12 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\lua\wrappers\environment_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\font_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\geometries_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\input_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\layermanager_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\light_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\luaconfig.h" />
     <ClInclude Include="internal\lua\wrappers\material_wrapper.h" />
@@ -865,7 +877,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\physics\bullet\LinearMath\btVector3.h" />
     <ClInclude Include="internal\physics\mathconvert.h" />
     <ClInclude Include="internal\physics\physicsinternal.h" />
-    <ClInclude Include="internal\physics\rigidbodyinternal.h" />
     <ClInclude Include="internal\rendering\matrixbuffer.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />

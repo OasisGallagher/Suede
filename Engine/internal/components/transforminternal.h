@@ -5,7 +5,7 @@
 #include "tools/dirtybits.h"
 #include "internal/components/componentinternal.h"
 
-class TransformInternal : public ComponentInternal, public DirtyBits {
+class TransformInternal : public ComponentInternal, private DirtyBits {
 	SUEDE_DECLARE_SELF_TYPE(ITransform)
 
 public:

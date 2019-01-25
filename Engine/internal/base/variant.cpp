@@ -35,14 +35,14 @@ float Variant::GetFloat() const {
 	return data_.floatValue;
 }
 
-iranged Variant::GetRangedInt() const {
-	CHECK_VARIANT_TYPE(VariantType::RangedInt, iranged());
-	return *(iranged*)&data_.ivec3Value;
+irange Variant::GetIntRange() const {
+	CHECK_VARIANT_TYPE(VariantType::IntRange, irange());
+	return *(irange*)&data_.ivec3Value;
 }
 
-franged Variant::GetRangedFloat() const {
-	CHECK_VARIANT_TYPE(VariantType::RangedFloat, franged());
-	return *(franged*)&data_.vec3Value;
+frange Variant::GetFloatRange() const {
+	CHECK_VARIANT_TYPE(VariantType::FloatRange, frange());
+	return *(frange*)&data_.vec3Value;
 }
 
 glm::mat3 Variant::GetMatrix3() const {
@@ -125,13 +125,13 @@ void Variant::SetFloat(float value) {
 	data_.floatValue = value;
 }
 
-void Variant::SetRangedInt(const iranged& value) {
-	SetType(VariantType::RangedInt);
+void Variant::SetIntRange(const irange& value) {
+	SetType(VariantType::IntRange);
 	memcpy(&data_.ivec3Value, &value, sizeof(value));
 }
 
-void Variant::SetRangedFloat(const franged& value) {
-	SetType(VariantType::RangedFloat);
+void Variant::SetFloatRange(const frange& value) {
+	SetType(VariantType::FloatRange);
 	memcpy(&data_.vec3Value, &value, sizeof(value));
 }
 

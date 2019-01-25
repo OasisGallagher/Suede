@@ -7,27 +7,34 @@
 #include "textureinternal.h"
 
 IObject::IObject(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
+bool IObject::IsDestroyed() const { return _suede_dptr()->IsDestroyed(); }
 std::string IObject::GetName() const { return _suede_dptr()->GetName(); }
 void IObject::SetName(const std::string& value) { _suede_dptr()->SetName(value); }
 Object IObject::Clone() { return _suede_dptr()->Clone(); }
 ObjectType IObject::GetObjectType() { return _suede_dptr()->GetObjectType(); }
 uint IObject::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
+void IObject::Destroy() { _suede_dptr()->Destroy(); }
+void IObject::SetHideFlags(HideFlags value) { _suede_dptr()->SetHideFlags(value); }
+HideFlags IObject::GetHideFlags() const { return _suede_dptr()->GetHideFlags(); }
 
-uint ObjectInternal::objectIDContainer[ObjectType::size()];
+uint ObjectInternal::s_objectIDContainer[ObjectType::size()];
 
-ObjectInternal::ObjectInternal(IObject* self, ObjectType type) : type_(type), self_(self) {
+ObjectInternal::ObjectInternal(IObject* self, ObjectType type) 
+	: type_(type), self_(self), destroyed_(false), hideFlags_(HideFlags::None) {
 	id_ = GenerateInstanceID(type);
 }
 
 void ObjectInternal::SetName(const std::string& value) {
-	if (value.empty()) {
-		Debug::LogWarning("empty name.");
-		return;
-	}
-
 	if (name_ != value) {
 		name_ = value;
 		OnNameChanged();
+	}
+}
+
+void ObjectInternal::SetHideFlags(HideFlags value) {
+	if (hideFlags_ != value) {
+		World::FireEvent(new HideFlagsChangedEvent(_suede_self(), hideFlags_));
+		hideFlags_ = value;
 	}
 }
 
@@ -36,13 +43,21 @@ Object ObjectInternal::Clone() {
 	return nullptr;
 }
 
+void ObjectInternal::Destroy() {
+	if (destroyed_) {
+		Debug::LogError("object has already been destroyed");
+	}
+
+	destroyed_ = true;
+}
+
 uint ObjectInternal::GenerateInstanceID(ObjectType type) {
-	if (objectIDContainer[(int)type] >= std::numeric_limits<uint>::max()) {
+	if (s_objectIDContainer[(int)type] >= 65535) {
 		Debug::LogError("too many objects with type %d.", type);
 		return 0;
 	}
 
-	return Math::MakeDword(++objectIDContainer[(int)type], (int)type);
+	return Math::MakeDword(++s_objectIDContainer[(int)type], (int)type);
 }
 
 void ObjectInternal::DecodeInstanceID(uint value, ObjectType* type, uint* id) {

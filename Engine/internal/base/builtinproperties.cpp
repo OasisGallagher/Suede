@@ -7,9 +7,9 @@
 #define DEFINE_BUILTIN_PROPERTY(name)			const char* name = BUILTIN_PROPERTY_NAME(name);
 #define DEFINE_BUILTIN_COLOR_PROPERTY(name)		const char* name = DefineBuiltinColorProperty(BUILTIN_PROPERTY_NAME(name))
 
-static std::vector<std::string> colorProperties;
+static std::vector<std::string> s_colorProperties;
 static const char* DefineBuiltinColorProperty(const char* name) {
-	colorProperties.push_back(name);
+	s_colorProperties.push_back(name);
 	return name;
 }
 
@@ -41,6 +41,6 @@ namespace BuiltinProperties {
 	DEFINE_BUILTIN_PROPERTY(WorldToOrthographicLightMatrix);
 
 	bool IsBuiltinColorProperty(const char* name) {
-		return std::find(colorProperties.begin(), colorProperties.end(), name) != colorProperties.end();
+		return std::find(s_colorProperties.begin(), s_colorProperties.end(), name) != s_colorProperties.end();
 	}
 }

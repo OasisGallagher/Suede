@@ -28,12 +28,10 @@ class World_Wrapper {
 			{ "Finalize", Finalize },
 			{ "Update", Update },
 			{ "CullingUpdate", CullingUpdate },
-			{ "DestroyGameObject", DestroyGameObject },
+			{ "DestroyObject", DestroyObject },
 			{ "Import", Import },
 			{ "GetRootTransform", GetRootTransform },
 			{ "GetGameObject", GetGameObject },
-			{ "FireEvent", FireEvent },
-			{ "FireEventImmediate", FireEventImmediate },
 			{ "GetDecals", GetDecals },
 			{ "GetGameObjectsOfComponent", GetGameObjectsOfComponent },
 			{"__tostring", ToStringStatic },
@@ -68,24 +66,11 @@ class World_Wrapper {
 		return 0;
 	}
 
-	// static void DestroyGameObject(uint id)
-	// static void DestroyGameObject(GameObject go)
-	static int DestroyGameObject(lua_State* L) {
-		if (Lua::checkArguments<uint>(L, 2)) {
-			uint id = Lua::get<uint>(L, 1);
-			
-			World::DestroyGameObject(id);
-			return 0;
-		}
-
-		if (Lua::checkArguments<GameObject>(L, 2)) {
-			GameObject go = Lua::get<GameObject>(L, 1);
-			
-			World::DestroyGameObject(go);
-			return 0;
-		}
-
-		Debug::LogError("failed to call \"DestroyGameObject\", invalid arguments.");
+	// static void DestroyObject(Object object)
+	static int DestroyObject(lua_State* L) {
+		Object object = Lua::get<Object>(L, 1);
+		
+		World::DestroyObject(object);
 		return 0;
 	}
 
@@ -107,22 +92,6 @@ class World_Wrapper {
 		uint id = Lua::get<uint>(L, 1);
 		
 		return Lua::push(L, World::GetGameObject(id));
-	}
-
-	// static void FireEvent(WorldEventBasePtr e)
-	static int FireEvent(lua_State* L) {
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 1);
-		
-		World::FireEvent(e);
-		return 0;
-	}
-
-	// static void FireEventImmediate(WorldEventBasePtr e)
-	static int FireEventImmediate(lua_State* L) {
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 1);
-		
-		World::FireEventImmediate(e);
-		return 0;
 	}
 
 	// static void GetDecals(std::vector<Decal>& container)

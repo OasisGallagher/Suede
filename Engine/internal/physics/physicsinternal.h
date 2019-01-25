@@ -28,7 +28,7 @@ public:
 public:
 	void FixedUpdate();
 
-	bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
+	bool Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo);
 
 	void SetGravity(const glm::vec3& value) { world_->setGravity(btConvert(value)); }
 	glm::vec3 GetGravity() const { return btConvert(world_->getGravity()); }
@@ -41,10 +41,13 @@ public:
 	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueuePhysics; }
 
-	virtual void OnWorldEvent(WorldEventBasePtr e);
+	virtual void OnWorldEvent(WorldEventBase* e);
 
 private:
-	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
+	void OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e);
+
+private:
+	int FilterClosestGameObject(const btCollisionWorld::AllHitsRayResultCallback& callback, uint layerMask);
 
 private:
 	bool debugDrawEnabled_;

@@ -1,5 +1,5 @@
 Properties { 
-	franged _Multiplier = { 1, 0.5, 2.0 };
+	frange _Multiplier = { 1, 0.5, 2.0 };
 }
 
 SubShader {

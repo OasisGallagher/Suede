@@ -553,9 +553,6 @@
     <ClInclude Include="include\imageeffect.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\ranged.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\gameobjectimportedlistener.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -1537,9 +1534,6 @@
     <ClInclude Include="internal\physics\bullet\btBulletDynamicsCommon.h">
       <Filter>internal\physics\bullet</Filter>
     </ClInclude>
-    <ClInclude Include="internal\physics\rigidbodyinternal.h">
-      <Filter>internal\physics\include</Filter>
-    </ClInclude>
     <ClInclude Include="internal\physics\physicsinternal.h">
       <Filter>internal\physics\include</Filter>
     </ClInclude>
@@ -1671,6 +1665,27 @@
     </ClInclude>
     <ClInclude Include="internal\culling\dbvtculling.h">
       <Filter>internal\culling\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\layer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\layermanager.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\layermanager_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\geometries.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\components\rigidbodyinternal.h">
+      <Filter>internal\components\include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\geometries_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\range.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2397,9 +2412,6 @@
     <ClCompile Include="internal\physics\bullet\LinearMath\btVector3.cpp">
       <Filter>internal\physics\bullet\LinearMath</Filter>
     </ClCompile>
-    <ClCompile Include="internal\physics\rigidbodyinternal.cpp">
-      <Filter>internal\physics\src</Filter>
-    </ClCompile>
     <ClCompile Include="internal\physics\physicsinternal.cpp">
       <Filter>internal\physics\src</Filter>
     </ClCompile>
@@ -2408,6 +2420,15 @@
     </ClCompile>
     <ClCompile Include="internal\culling\dbvtculling.cpp">
       <Filter>internal\culling\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\layermanager.cpp">
+      <Filter>internal\base\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\geometry\geometries.cpp">
+      <Filter>internal\geometry\src</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\components\rigidbodyinternal.cpp">
+      <Filter>internal\components\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

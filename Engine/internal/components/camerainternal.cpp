@@ -51,9 +51,9 @@ void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed()
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
-static Camera main_;
-Camera CameraUtility::GetMain() { return main_; }
-void CameraUtility::SetMain(Camera value) { main_ = value; }
+static Camera s_mainCamera;
+Camera CameraUtility::GetMain() { return s_mainCamera; }
+void CameraUtility::SetMain(Camera value) { s_mainCamera = value; }
 
 void CameraUtility::OnPreRender() {
 	static SharedTimeUniformBuffer p;
@@ -75,7 +75,7 @@ void CameraUtility::OnPostRender() {
 }
 
 CameraInternal::CameraInternal(ICamera* self)
-	: ComponentInternal(self, ObjectType::Camera), depth_(0), traitsReady_(false) /*, gbuffer_(nullptr) */{
+	: ComponentInternal(self, ObjectType::Camera), depth_(0), traitsReady_(false), traitsDirty_(false) /*, gbuffer_(nullptr) */{
 	p_ = MEMORY_NEW(RenderingParameters);
 
 	culling_ = MEMORY_NEW(Culling, this);
@@ -87,7 +87,7 @@ CameraInternal::CameraInternal(ICamera* self)
 	traits0_ = MEMORY_NEW(RenderableTraits, p_);
 	traits1_ = MEMORY_NEW(RenderableTraits, p_);
 
-	Screen::AddScreenSizeChangedListener(this);
+	Screen::AddScreenSizeListener(this);
 
 	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
 }
@@ -103,7 +103,7 @@ CameraInternal::~CameraInternal() {
 
 	MEMORY_DELETE(rendering_);
 
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::RemoveScreenSizeListener(this);
 }
 
 void CameraInternal::Awake() {
@@ -126,13 +126,9 @@ void CameraInternal::CancelThreads() {
 void CameraInternal::SetDepth(int value) {
 	if (depth_ != value) {
 		depth_ = value;
-		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
-		e->component = _suede_self();
-		World::FireEvent(e);
+		World::FireEvent(new CameraDepthChangedEvent(_suede_self()));
 	}
 }
-
-#include "graphics.h"
 
 void CameraInternal::Render() {
 	if (!IsValidViewportRect()) {
@@ -151,6 +147,13 @@ void CameraInternal::Render() {
 		matrices.cameraPos = transform->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = transform->GetWorldToLocalMatrix();
+
+		if (traitsDirty_) {
+			traits1_->Traits(visibleGameObjects_, matrices);
+			std::swap(traits0_, traits1_);
+			traitsDirty_ = false;
+		}
+
 		rendering_->Render(traits0_->GetPipelines(), matrices);
 
 		/*TexelMap texels;
@@ -189,10 +192,13 @@ void CameraInternal::OnCullingFinished() {
 		visibleGameObjects_ = culling_->GetGameObjects();
 	}
 
+	/*uint64 start = Profiler::GetTimeStamp();
 	traits1_->Traits(visibleGameObjects_, matrices);
+	double delta = Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
+	Debug::Output(1, "traits costs %.2f ms", delta * 1000);
 
-	std::swap(traits0_, traits1_);
-	traitsReady_ = true;
+	//std::swap(traits0_, traits1_);*/
+	traitsReady_ = traitsDirty_ = true;
 }
 
 // void CameraInternal::OnRenderingFinished() {

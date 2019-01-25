@@ -55,14 +55,16 @@ SubMeshInternal::SubMeshInternal(ISubMesh* self) :ObjectInternal(self, ObjectTyp
 MeshInternal::MeshInternal(IMesh* self) : MeshInternal(self, ObjectType::Mesh) {
 }
 
+void SubMeshInternal::SetTriangleBias(const TriangleBias& value) {
+	if (memcmp(&bias_, &value, sizeof(bias_) != 0)) {
+		bias_ = value;
+	}
+}
+
 MeshInternal::MeshInternal(IMesh* self, ObjectType type) : ObjectInternal(self, type) {
 }
 
 MeshInternal::~MeshInternal() {
-	Destroy();
-}
-
-void MeshInternal::Destroy() {
 	subMeshes_.clear();
 }
 
@@ -77,6 +79,14 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	storage_->topology = value.topology;
 	UpdateGLBuffers(value);
 
+	NotifyMeshModified();
+}
+
+void MeshInternal::NotifyMeshModified() {
+	for (IMeshModifiedListener* listener : listeners_) {
+		listener->OnMeshModified();
+	}
+
 	for (IMeshModifiedListener* listener : storage_->listeners) {
 		listener->OnMeshModified();
 	}
@@ -85,7 +95,7 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
 	if (vboCount == 1) {
-		Debug::LogWarning("empty mesh attribute.");
+		Debug::LogError("empty mesh attribute.");
 		return;
 	}
 
@@ -170,7 +180,8 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 void MeshInternal::ShareStorage(Mesh other) {
 	MeshInternal* ptr = _suede_rptr(other);
 	if (ptr->storage_) {
-		storage_ = ptr->storage_; 
+		storage_ = ptr->storage_;
+		NotifyMeshModified();
 	}
 	else {
 		Debug::LogError("empty storage");
@@ -179,17 +190,17 @@ void MeshInternal::ShareStorage(Mesh other) {
 
 void MeshInternal::AddMeshModifiedListener(IMeshModifiedListener* listener) {
 	if (storage_) {
-		storage_->listeners.insert(listener);
+		storage_->listeners.insert_unique(listener);
 	}
-	else {
-		Debug::LogError("failed to add mesh modified listener, empty storage");
+
+	if (!listeners_.insert_unique(listener)) {
+		Debug::LogError("failed to add mesh modified listener, already exist");
 	}
 }
 
 void MeshInternal::RemoveMeshModifiedListener(IMeshModifiedListener* listener) {
-	if (storage_) {
-		storage_->listeners.erase(listener);
-	}
+	listeners_.erase(listener);
+	storage_->listeners.erase(listener);
 }
 
 void MeshInternal::AddSubMesh(SubMesh subMesh) {
@@ -244,24 +255,26 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-#define GetMeshInternal(mesh)	((MeshInternal*)(mesh)->d_)
-
 MeshProviderInternal::MeshProviderInternal(IMeshProvider* self, ObjectType type) : ComponentInternal(self, type) {
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this);
+	_suede_rptr(mesh_)->RemoveMeshModifiedListener(this);
 }
 
 void MeshProviderInternal::SetMesh(Mesh value) {
-	if (mesh_ != nullptr) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
-	if (value != nullptr) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
+	if (mesh_ != value) {
+		if (mesh_) { _suede_rptr(mesh_)->RemoveMeshModifiedListener(this); }
+		if (value) { _suede_rptr(value)->AddMeshModifiedListener(this); }
 
-	mesh_ = value;
+		mesh_ = value;
+		OnMeshModified();
+	}
 }
 
 void MeshProviderInternal::OnMeshModified() {
-	GetGameObject()->SendMessage(GameObjectMessageMeshModified, nullptr);
+	GameObject go = GetGameObject();
+	if (go) { go->SendMessage(GameObjectMessageMeshModified, nullptr); }
 }
 
 TextMeshInternal::TextMeshInternal(ITextMesh* self) : MeshProviderInternal(self, ObjectType::TextMesh), dirty_(false) {

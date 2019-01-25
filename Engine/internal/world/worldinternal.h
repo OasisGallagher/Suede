@@ -16,23 +16,20 @@ class Sample;
 class DecalCreater;
 class GameObjectLoaderThreadPool;
 
-class WorldInternal : public ScreenSizeChangedListener, public WorldEventListener {
+class WorldInternal : public ScreenSizeListener, public WorldEventListener {
 public:
 	WorldInternal();
 	~WorldInternal();
 
 public:
 	void Initialize();
+	void Finalize();
 
 	void Update();
 	void CullingUpdate();
-
-	void Finalize();
+	void DestroyObject(Object object);
 
 	Transform GetRootTransform() { return root_->GetTransform(); }
-
-	void DestroyGameObject(uint id);
-	void DestroyGameObject(GameObject go);
 
 	GameObject Import(const std::string& path, GameObjectImportedListener* listener);
 	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
@@ -44,8 +41,8 @@ public:
 
 	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	void FireEvent(WorldEventBasePtr e);
-	void FireEventImmediate(WorldEventBasePtr e);
+	void FireEvent(WorldEventBase* e);
+	void FireEventImmediate(WorldEventBase& e);
 	void AddEventListener(WorldEventListener* listener);
 	void RemoveEventListener(WorldEventListener* listener);
 
@@ -55,13 +52,14 @@ public:
 	void OnScreenSizeChanged(uint width, uint height);
 
 public:
-	void OnWorldEvent(WorldEventBasePtr e);
+	void OnWorldEvent(WorldEventBase* e);
 
 private:
 	void AddGameObject(GameObject go);
+	void DestroyGameObject(GameObject go);
 
 	void OnGameObjectParentChanged(GameObject go);
-	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
+	void OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e);
 
 	template <class Container>
 	void ManageGameObjectComponents(Container& container, Component component, int state);
@@ -70,10 +68,11 @@ private:
 	void UpdateDecals();
 	void CullingUpdateGameObjects();
 	void RenderingUpdateGameObjects();
+	void PreRenderUpdateGameObjects();
 	void PostRenderUpdateGameObjects();
 
 	void RemoveGameObject(GameObject go);
-	void DestroyGameObjectRecursively(Transform root);
+	void DestroyGameObjectRecursively(GameObject go);
 
 	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
 
@@ -93,7 +92,7 @@ private:
 	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
-	typedef std::vector<WorldEventBasePtr> WorldEventCollection;
+	typedef std::vector<intrusive_ptr<WorldEventBase>> WorldEventCollection;
 	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:

@@ -11,22 +11,22 @@
 #include "internal/async/async.h"
 #include "internal/codec/gameObjectloader.h"
 #include "internal/components/transforminternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 
-World::World() : singleton2<World>(MEMORY_NEW(WorldInternal,), Memory::DeleteRaw<WorldInternal>) {}
+World::World() : singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
 void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
 void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
 void World::Update() { _suede_dinstance()->Update(); }
-void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(id); }
-void World::DestroyGameObject(GameObject go) { _suede_dinstance()->DestroyGameObject(go); }
+void World::DestroyObject(Object object) { _suede_dinstance()->DestroyObject(object); }
 GameObject World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->Import(path, listener); }
 GameObject World::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
 bool World::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->ImportTo(go, path,listener); }
 Transform World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
 GameObject World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
 void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
-void World::FireEvent(WorldEventBasePtr e) { _suede_dinstance()->FireEvent(e); }
-void World::FireEventImmediate(WorldEventBasePtr e) { _suede_dinstance()->FireEventImmediate(e); }
+void World::FireEvent(WorldEventBase* e) { _suede_dinstance()->FireEvent(e); }
+void World::FireEventImmediate(WorldEventBase& e) { _suede_dinstance()->FireEventImmediate(e); }
 void World::AddEventListener(WorldEventListener* listener) { _suede_dinstance()->AddEventListener(listener); }
 void World::RemoveEventListener(WorldEventListener* listener) { _suede_dinstance()->RemoveEventListener(listener); }
 void World::GetDecals(std::vector<Decal>& container) { _suede_dinstance()->GetDecals(container); }
@@ -57,7 +57,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 
 WorldInternal::WorldInternal()
 	: importer_(MEMORY_NEW(GameObjectLoaderThreadPool)) {
-	Screen::AddScreenSizeChangedListener(this);
+	Screen::AddScreenSizeListener(this);
 	AddEventListener(this);
 }
 
@@ -81,11 +81,20 @@ void WorldInternal::Finalize() {
 
 	CameraUtility::SetMain(nullptr);
 
+	root_.reset();
+	lights_.clear();
+	cameras_.clear();
+	gizmosPainters_.clear();
+	projectors_.clear();
+	cullingUpdateSequence_.clear();
+	renderingUpdateSequence_.clear();
+	gameObjects_.clear();
+
 	MEMORY_DELETE(importer_);
 	MEMORY_DELETE(decalCreater_);
 
 	RemoveEventListener(this);
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::RemoveScreenSizeListener(this);
 }
 
 GameObject WorldInternal::Import(const std::string& path, GameObjectImportedListener* listener) {
@@ -108,28 +117,33 @@ GameObject WorldInternal::GetGameObject(uint id) {
 	return ite->second;
 }
 
-void WorldInternal::DestroyGameObject(uint id) {
-	GameObject go = GetGameObject(id);
+void WorldInternal::DestroyObject(Object object) {
+	GameObject go = suede_dynamic_cast<GameObject>(object);
 	if (go) {
-		DestroyGameObject(go);
+		return DestroyGameObject(go);
+	}
+
+	Component component = suede_dynamic_cast<Component>(object);
+	if (component) {
+		return component->Destroy();
 	}
 }
 
 void WorldInternal::DestroyGameObject(GameObject go) {
-	DestroyGameObjectRecursively(go->GetTransform());
+	go->GetTransform()->SetParent(nullptr);
+	DestroyGameObjectRecursively(go);
 }
 
-void WorldInternal::DestroyGameObjectRecursively(Transform root) {
-	GameObject go = root->GetGameObject();
+void WorldInternal::DestroyGameObjectRecursively(GameObject go) {
 	RemoveGameObject(go);
 
-	GameObjectDestroyedEventPtr e = NewWorldEvent<GameObjectDestroyedEventPtr>();
-	e->go = go;
-	FireEvent(e);
+	FireEventImmediate(GameObjectDestroyedEvent(go));
 
-	for(Transform transform : root->GetChildren()) {
-		DestroyGameObjectRecursively(transform);
+	for (Transform transform : go->GetTransform()->GetChildren()) {
+		DestroyGameObjectRecursively(transform->GetGameObject());
 	}
+
+	go->Destroy();
 }
 
 void WorldInternal::RemoveGameObject(GameObject go) {
@@ -144,7 +158,6 @@ void WorldInternal::RemoveGameObject(GameObject go) {
 
 	RemoveGameObjectFromSequence(go);
 	gameObjects_.erase(go->GetInstanceID());
-	go->GetTransform()->SetParent(nullptr);
 }
 
 std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid) {
@@ -198,7 +211,7 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 	}
 }
 
-void WorldInternal::FireEvent(WorldEventBasePtr e) {
+void WorldInternal::FireEvent(WorldEventBase* e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
 
@@ -206,9 +219,9 @@ void WorldInternal::FireEvent(WorldEventBasePtr e) {
 	collection.push_back(e);
 }
 
-void WorldInternal::FireEventImmediate(WorldEventBasePtr e) {
+void WorldInternal::FireEventImmediate(WorldEventBase& e) {
 	for (WorldEventListener* listener : listeners_) {
-		listener->OnWorldEvent(e);
+		listener->OnWorldEvent(&e);
 	}
 }
 
@@ -217,7 +230,7 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	if (!projectors_.empty()  && CameraUtility::GetMain()) {
+	if (!projectors_.empty() && CameraUtility::GetMain()) {
 		decalCreater_->Update(CameraUtility::GetMain(), projectors_);
 	}
 }
@@ -234,6 +247,14 @@ void WorldInternal::RenderingUpdateGameObjects() {
 	for (GameObject go : renderingUpdateSequence_) {
 		if (go->GetActive()) {
 			go->Update();
+		}
+	}
+}
+
+void WorldInternal::PreRenderUpdateGameObjects() {
+	for (GameObject go : renderingUpdateSequence_) {
+		if (go->GetActive()) {
+			go->OnPreRender();
 		}
 	}
 }
@@ -276,22 +297,22 @@ bool WorldInternal::WalkGameObjectHierarchyRecursively(Transform root, WorldGame
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 }
 
-void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
+void WorldInternal::OnWorldEvent(WorldEventBase* e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::GameObjectCreated:
-			AddGameObject(std::static_pointer_cast<GameObjectCreatedEvent>(e)->go);
+			AddGameObject(((GameObjectCreatedEvent*)e)->go);
 			break;
 		case WorldEventType::CameraDepthChanged:
 			cameras_.sort();
 			break;
 		case WorldEventType::GameObjectParentChanged:
-			OnGameObjectParentChanged(std::static_pointer_cast<GameObjectEvent>(e)->go);
+			OnGameObjectParentChanged(((GameObjectEvent*)e)->go);
 			break;
 		case WorldEventType::GameObjectUpdateStrategyChanged:
-			ManageGameObjectUpdateSequence(std::static_pointer_cast<GameObjectEvent>(e)->go);
+			ManageGameObjectUpdateSequence(((GameObjectEvent*)e)->go);
 			break;
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
+			OnGameObjectComponentChanged((GameObjectComponentChangedEvent*)e);
 			break;
 	}
 }
@@ -312,7 +333,7 @@ void WorldInternal::OnGameObjectParentChanged(GameObject go) {
 	}
 }
 
-void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
+void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e) {
 	ManageGameObjectUpdateSequence(e->go);
 
 	ManageGameObjectComponents(lights_, e->component, e->state);
@@ -325,8 +346,8 @@ void WorldInternal::FireEvents() {
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 
 	for (WorldEventCollection& collection : events_) {
-		for (WorldEventBasePtr pointer : collection) {
-			FireEventImmediate(pointer);
+		for (intrusive_ptr<WorldEventBase>& pointer : collection) {
+			FireEventImmediate(*pointer);
 		}
 	}
 
@@ -367,45 +388,27 @@ void WorldInternal::CullingUpdate() {
 
 void WorldInternal::Update() {
 	uint64 start = Profiler::GetTimeStamp();
-	uint64 start0 = start;
 
 	FireEvents();
 
-	uint64 now = Profiler::GetTimeStamp();
-	double seconds = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
-
 	// SUEDE TODO: update decals in rendering thread ?
 	UpdateDecals();
-	now = Profiler::GetTimeStamp();
-	double seconds_2 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	RenderingUpdateGameObjects();
-	now = Profiler::GetTimeStamp();
-	double seconds_3 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	CameraUtility::OnPreRender();
-	now = Profiler::GetTimeStamp();
-	double seconds_4 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
+
+	PreRenderUpdateGameObjects();
 
 	for (Camera camera : cameras_) {
 		if (camera->GetEnabled()) {
 			camera->Render();
 		}
 	}
-	now = Profiler::GetTimeStamp();
-	double seconds_5 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	PostRenderUpdateGameObjects();
 
 	CameraUtility::OnPostRender();
-	now = Profiler::GetTimeStamp();
-	double seconds_6 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	Statistics::SetRenderingElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)

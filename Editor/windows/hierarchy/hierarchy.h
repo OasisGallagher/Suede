@@ -48,17 +48,21 @@ private slots:
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-	virtual void OnWorldEvent(WorldEventBasePtr e);
+	virtual void OnWorldEvent(WorldEventBase* e);
 
 private:
 	void appendChildItem(GameObject go);
 	QStandardItem* appendItem(GameObject child, QStandardItem* parent);
+
+	void removeGameObject(GameObject go);
 	void removeItem(QStandardItem* item);
 	void removeItemRecusively(QStandardItem* item);
 
 	bool dropAcceptable(const QMimeData* data);
 
-	void onGameObjectCreated(GameObject go);
+	void onHideFlagsChanged(Object object, HideFlags oldHideFlags);
+
+	//void onGameObjectCreated(GameObject go);
 	void onGameObjectDestroyed(GameObject go);
 	void onGameObjectTagChanged(GameObject go);
 	void onGameObjectNameChanged(GameObject go);
@@ -67,6 +71,7 @@ private:
 
 	void enableGameObjectOutline(GameObject go, bool enable);
 	void enableGameObjectsOutline(const QList<GameObject>& gameObjects, bool enable);
+	void enableGameObjectsHandles(const QList<GameObject>& gameObjects, bool enable);
 	void selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items);
 
 private:

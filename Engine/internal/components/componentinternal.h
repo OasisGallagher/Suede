@@ -30,9 +30,11 @@ class ComponentInternal : public ObjectInternal {
 	SUEDE_DECLARE_SELF_TYPE(IComponent)
 
 public:
-	ComponentInternal(IComponent* self, ObjectType type) : ObjectInternal(self, type), enabled_(true) {}
+	ComponentInternal(IComponent* self, ObjectType type) : ObjectInternal(self, type), enabled_(true), gameObject_(nullptr) {}
 
 public:
+	virtual void Destroy();
+
 	virtual bool GetEnabled() const { return enabled_; }
 	virtual void SetEnabled(bool value) { enabled_ = value; }
 
@@ -44,6 +46,8 @@ public:
 
 	virtual void Awake() {}
 	virtual void Update() {}
+	virtual void OnDestroy() {}
+	virtual void OnPreRender() {}
 	virtual void OnPostRender() {}
 	virtual void CullingUpdate() {}
 

@@ -1,6 +1,6 @@
 Properties {
 	color _MainColor = { 1, 1, 1, 1 };
-	franged _HeightScale = { 0.1, 0.1, 2 };
+	frange _HeightScale = { 0.1, 0.1, 2 };
 
 	texture2D _MainTexture = "white";
 	texture2D _BumpTexture = "white";

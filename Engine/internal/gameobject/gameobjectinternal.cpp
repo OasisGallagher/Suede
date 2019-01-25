@@ -5,29 +5,31 @@
 #include "renderer.h"
 #include "rigidbody.h"
 #include "tagmanager.h"
+#include "geometries.h"
 #include "tools/math2.h"
 #include "tools/string.h"
+#include "layermanager.h"
 #include "particlesystem.h"
-#include "geometryutility.h"
 #include "internal/memory/factory.h"
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
 IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal, this)) {
-	GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
-	e->go = this;
-	World::FireEventImmediate(e);
+	World::FireEventImmediate(GameObjectCreatedEvent(this));
 }
 
 IGameObject::~IGameObject() {}
 bool IGameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 void IGameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(value); }
 bool IGameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
+void IGameObject::SetLayer(uint value) { _suede_dptr()->SetLayer(value); }
+uint IGameObject::GetLayer() const { return _suede_dptr()->GetLayer(); }
 int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 void IGameObject::SendMessage(int messageID, void* parameter) { _suede_dptr()->SendMessage(messageID, parameter); }
 const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
 bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(value); }
 void IGameObject::Update() { _suede_dptr()->Update(); }
+void IGameObject::OnPreRender() { _suede_dptr()->OnPreRender(); }
 void IGameObject::OnPostRender() { _suede_dptr()->OnPostRender(); }
 void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
@@ -51,9 +53,32 @@ GameObjectInternal::GameObjectInternal(IGameObject* self, ObjectType type)
 	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
 		Debug::LogError("invalid go type %d.", type);
 	}
+
+	layer_ = LayerManager::Default;
 }
 
 GameObjectInternal::~GameObjectInternal() {
+}
+
+void GameObjectInternal::Destroy() {
+	ObjectInternal::Destroy();
+
+	for (Component component : components_) {
+		component->Destroy();
+	}
+
+	components_.clear();
+}
+
+void GameObjectInternal::RemoveComponent(Component component) {
+	if (IsDestroyed()) { return; }
+
+	for (std::vector<Component>::iterator ite = components_.begin(); ite != components_.end(); ++ite) {
+		if ((*ite) == component) {
+			components_.erase(ite);
+			break;
+		}
+	}
 }
 
 void GameObjectInternal::SetActiveSelf(bool value) {
@@ -62,7 +87,7 @@ void GameObjectInternal::SetActiveSelf(bool value) {
 		SetActive(activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(_suede_self());
 
-		if (!GetBounds().IsEmpty()) {
+		if ((GetLayer() & ~LayerManager::IgnoreRaycast) != 0 && !GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -76,7 +101,7 @@ bool GameObjectInternal::SetTag(const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		FireWorldEvent<GameObjectTagChangedEventPtr>(true);
+		FireWorldEvent<GameObjectTagChangedEvent>(true, false);
 	}
 
 	return true;
@@ -100,10 +125,7 @@ Component GameObjectInternal::ActivateComponent(Component component) {
 		RecalculateBounds();
 	}
 
-	FireWorldEvent<GameObjectComponentChangedEventPtr>(false, false, [=](GameObjectComponentChangedEventPtr& event) {
-		event->state = GameObjectComponentChangedEvent::ComponentAdded;
-		event->component = component;
-	});
+	FireWorldEvent<GameObjectComponentChangedEvent>(false, false, GameObjectComponentChangedEvent::ComponentAdded, component);
 
 	RecalculateUpdateStrategy();
 
@@ -149,6 +171,14 @@ void GameObjectInternal::Update() {
 	}
 }
 
+void GameObjectInternal::OnPreRender() {
+	for (Component component : components_) {
+		if (component->GetEnabled()) {
+			component->OnPreRender();
+		}
+	}
+}
+
 void GameObjectInternal::OnPostRender() {
 	for (Component component : components_) {
 		if (component->GetEnabled()) {
@@ -181,18 +211,18 @@ void GameObjectInternal::RecalculateUpdateStrategy() {
 	int newStrategy = GetUpdateStrategy();
 
 	if (oldStrategy != newStrategy) {
-		FireWorldEvent<GameObjectUpdateStrategyChangedEventPtr>(false);
+		FireWorldEvent<GameObjectUpdateStrategyChangedEvent>(false, false);
 	}
 }
 
 void GameObjectInternal::OnNameChanged() {
-	FireWorldEvent<GameObjectNameChangedEventPtr>(true);
+	FireWorldEvent<GameObjectNameChangedEvent>(true, false);
 }
 
 void GameObjectInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;
-		FireWorldEvent<GameObjectActiveChangedEventPtr>(true);
+		FireWorldEvent<GameObjectActiveChangedEvent>(true, false);
 	}
 }
 
@@ -240,7 +270,7 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 
 	for (Transform tr : GetTransform()->GetChildren()) {
 		GameObject child = tr->GetGameObject();
-		if (child->GetActive()) {
+		if (child->GetActive() && (GetLayer() & ~LayerManager::IgnoreRaycast) != 0) {
 			const Bounds& b = child->GetBounds();
 			worldBounds_.Encapsulate(b);
 		}
@@ -249,7 +279,8 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 
 void GameObjectInternal::CalculateSelfWorldBounds(const Bounds& bounds) {
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
+	std::vector<uint> indexes;
+	Geometries::Cuboid(points, indexes, bounds.center, bounds.size);
 
 	Transform transform = GetTransform();
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -263,6 +294,7 @@ void GameObjectInternal::CalculateSelfWorldBounds(const Bounds& bounds) {
 
 void GameObjectInternal::CalculateBonesWorldBounds() {
 	std::vector<glm::vec3> points;
+	std::vector<uint> indexes;
 	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
 	Bounds boneBounds;
@@ -271,7 +303,7 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 
 	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
 		SkeletonBone* bone = skeleton->GetBone(i);
-		GeometryUtility::GetCuboidCoordinates(points, bone->bounds.center, bone->bounds.size);
+		Geometries::Cuboid(points, indexes, bone->bounds.center, bone->bounds.size);
 		for (uint j = 0; j < points.size(); ++j) {
 			points[j] = GetTransform()->TransformPoint(glm::vec3(matrices[i] * glm::vec4(points[j], 1)));
 
@@ -281,6 +313,9 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 
 		boneBounds.SetMinMax(min, max);
 		worldBounds_.Encapsulate(boneBounds);
+
+		points.clear();
+		indexes.clear();
 	}
 }
 

@@ -55,7 +55,6 @@ private:
 
 private:
 	/*RenderTexture targetTexture_;*/
-
 	QTimer* timer_;
 
 	QtInputDelegate* input_;

@@ -25,6 +25,7 @@ private:
 
 static StackTracer tracer;
 static LogReceiver* logReceiver;
+static int consoleOutputMinLevel;
 
 bool Debug::Initialize() {
 	return !!tracer.LoadModules();
@@ -32,6 +33,10 @@ bool Debug::Initialize() {
 
 void Debug::SetLogReceiver(LogReceiver* value) {
 	logReceiver = value;
+}
+
+void Debug::SetConsoleOutputMinLevel(int value) {
+	consoleOutputMinLevel = value;
 }
 
 void Debug::Log(const char* format, ...) {
@@ -59,13 +64,15 @@ void Debug::LogError(const char* format, ...) {
 
 //#define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
 
-void Debug::Output(const char* format, ...) {
+void Debug::Output(int level, const char* format, ...) {
 #ifndef SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
-	va_list args;
-	va_start(args, format);
-	std::string msg = String::VFormat(format, args);
-	msg += "\n";
-	OutputDebugStringA(msg.c_str());
+	if (level >= consoleOutputMinLevel) {
+		va_list args;
+		va_start(args, format);
+		std::string msg = String::VFormat(format, args);
+		msg += "\n";
+		OutputDebugStringA(msg.c_str());
+	}
 #endif
 }
 

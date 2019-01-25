@@ -7,7 +7,7 @@
 #include "rigidbody.h"
 #include "statistics.h"
 #include "memory/memory.h"
-#include "rigidbodyinternal.h"
+#include "internal/components/rigidbodyinternal.h"
 
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 	Color oldColor = Gizmos::GetColor();
@@ -24,7 +24,7 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 }
 
 Physics::Physics() : singleton2<Physics>(MEMORY_NEW(PhysicsInternal), Memory::DeleteRaw<PhysicsInternal>) {}
-bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, hitInfo); }
+bool Physics::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, layerMask, hitInfo); }
 void Physics::SetGravity(const glm::vec3& value) { _suede_dinstance()->SetGravity(value); }
 glm::vec3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
 void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDrawEnabled(value); }
@@ -61,7 +61,6 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	Engine::AddFrameEventListener(this);
 }
 
-
 PhysicsInternal::~PhysicsInternal() {
 	World::RemoveEventListener(this);
 	Engine::RemoveFrameEventListener(this);
@@ -83,10 +82,10 @@ void PhysicsInternal::OnFrameEnter() {
 	);
 }
 
-void PhysicsInternal::OnWorldEvent(WorldEventBasePtr e) {
+void PhysicsInternal::OnWorldEvent(WorldEventBase* e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
+			OnGameObjectComponentChanged((GameObjectComponentChangedEvent*)e);
 			break;
 	}
 }
@@ -119,23 +118,37 @@ void PhysicsInternal::FixedUpdate() {
 	*/
 }
 
-bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) {
-	btCollisionWorld::ClosestRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
+bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) {
+	btCollisionWorld::AllHitsRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
 	world_->rayTest(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)), callback);
-	if (!callback.hasHit()) {
-		return false;
+
+	if (callback.hasHit() && hitInfo != nullptr) {
+		int index = FilterClosestGameObject(callback, layerMask);
+		hitInfo->point = btConvert(callback.m_hitPointWorld[index]);
+		hitInfo->normal = btConvert(callback.m_hitNormalWorld[index]);
+		hitInfo->gameObject = ((IRigidbody*)callback.m_collisionObjects[index]->getUserPointer())->GetGameObject();
 	}
 
-	IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObject->getUserPointer();
-	if (rigidbody != nullptr && hitInfo != nullptr) {
-		hitInfo->point = btConvert(callback.m_hitPointWorld);
-		hitInfo->normal = btConvert(callback.m_hitNormalWorld);
-
-		hitInfo->gameObject = rigidbody->GetGameObject();
-	}
-
-	return true;
+	return callback.hasHit();
 }
 
-void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
+int PhysicsInternal::FilterClosestGameObject(const btCollisionWorld::AllHitsRayResultCallback& callback, uint layerMask) {
+	int index = 0;
+	float minFraction = 1.f;
+	for (int i = 0; i < callback.m_collisionObjects.size(); ++i) {
+		IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObjects[i]->getUserPointer();
+		if ((rigidbody->GetGameObject()->GetLayer() & layerMask) == 0) {
+			continue;
+		}
+
+		if (callback.m_hitFractions[i] < minFraction) {
+			index = i;
+			minFraction = callback.m_hitFractions[i];
+		}
+	}
+
+	return index;
+}
+
+void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e) {
 }

@@ -18,7 +18,7 @@
 class Sample;
 class CameraInternal : public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
-	, public ScreenSizeChangedListener {
+	, public ScreenSizeListener {
 	SUEDE_DECLARE_SELF_TYPE(ICamera)
 
 public:	CameraInternal(ICamera* self);	~CameraInternal();
@@ -107,6 +107,7 @@ private:
 	ZThread::Thread* cullingThread_;
 
 	bool traitsReady_;
+	bool traitsDirty_;
 	RenderableTraits* traits0_, *traits1_;
 
 	Rendering* rendering_;

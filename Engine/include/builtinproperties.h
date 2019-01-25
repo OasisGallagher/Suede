@@ -2,7 +2,6 @@
 #include "types.h"
 
 #define DECLARE_BUILTIN_PROPERTY(name)			SUEDE_API extern const char* name;
-#define DECLARE_BUILTIN_COLOR_PROPERTY(name)	SUEDE_API extern const char* name;
 
 namespace BuiltinProperties {
 	bool IsBuiltinColorProperty(const char* name);
@@ -15,24 +14,24 @@ namespace BuiltinProperties {
 	DECLARE_BUILTIN_PROPERTY(EmissiveTexture);
 	DECLARE_BUILTIN_PROPERTY(LightmapTexture);
 
-	DECLARE_BUILTIN_PROPERTY(MatrixTextureBuffer);
-	DECLARE_BUILTIN_PROPERTY(MatrixTextureBufferOffset);
-
 	DECLARE_BUILTIN_PROPERTY(SSAOTexture);
 	DECLARE_BUILTIN_PROPERTY(DepthTexture);
 	DECLARE_BUILTIN_PROPERTY(ShadowDepthTexture);
 
-	DECLARE_BUILTIN_PROPERTY(Gloss);
-
-	DECLARE_BUILTIN_COLOR_PROPERTY(MainColor);
-	DECLARE_BUILTIN_COLOR_PROPERTY(SpecularColor);
-	DECLARE_BUILTIN_COLOR_PROPERTY(EmissiveColor);
+	DECLARE_BUILTIN_PROPERTY(MatrixTextureBuffer);
+	DECLARE_BUILTIN_PROPERTY(MatrixTextureBufferOffset);
 
 	DECLARE_BUILTIN_PROPERTY(DecalMatrix);
 	DECLARE_BUILTIN_PROPERTY(LocalToClipMatrix);
 	DECLARE_BUILTIN_PROPERTY(LocalToWorldMatrix);
 	DECLARE_BUILTIN_PROPERTY(WorldToOrthographicLightMatrix);
+
+	DECLARE_BUILTIN_PROPERTY(Gloss);
+
+	// color properties.
+	DECLARE_BUILTIN_PROPERTY(MainColor);
+	DECLARE_BUILTIN_PROPERTY(SpecularColor);
+	DECLARE_BUILTIN_PROPERTY(EmissiveColor);
 };
 
 #undef DECLARE_BUILTIN_PROPERTY
-#undef DECLARE_BUILTIN_COLOR_PROPERTY

@@ -15,10 +15,16 @@ protected:
 	GameObjectInternal(IGameObject* self, ObjectType type);
 
 public:
+	virtual void Destroy();
+
+public:
 	bool GetActive() const { return active_; }
 
 	void SetActiveSelf(bool value);
 	bool GetActiveSelf() const { return activeSelf_; }
+
+	void SetLayer(uint value) { layer_ = value; }
+	uint GetLayer() const { return layer_; }
 
 	int GetUpdateStrategy();
 	void SendMessage(int messageID, void* parameter);
@@ -27,6 +33,7 @@ public:
 	bool SetTag(const std::string& value);
 
 	void Update();
+	void OnPreRender();
 	void OnPostRender();
 	void CullingUpdate();
 
@@ -43,6 +50,8 @@ protected:
 public:
 	template <class T>
 	Component AddComponent(T key);
+
+	void RemoveComponent(Component component);
 
 	template <class T>
 	Component GetComponent(T key);
@@ -67,8 +76,8 @@ private:
 	void SetActive(bool value);
 	void UpdateChildrenActive(GameObject parent);
 
-	template <class T>
-	void FireWorldEvent(bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
+	template <class T, class... Args>
+	void FireWorldEvent(bool attachedToSceneOnly, bool immediate, Args... args);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -77,6 +86,7 @@ private:
 	bool active_;
 	bool activeSelf_;
 
+	uint layer_;
 	std::string tag_;
 
 	std::vector<Component> components_;
@@ -91,14 +101,11 @@ private:
 	bool boundsDirty_;
 };
 
-template <class T>
-inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
+template <class T, class... Args>
+inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly, bool immediate, Args... args) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
-		T e = NewWorldEvent<T>();
-		e->go = _suede_self();
-		if (f) { f(e); }
-		if (immediate) { World::FireEventImmediate(e); }
-		else { World::FireEvent(e); }
+		if (immediate) { World::FireEventImmediate(T(_suede_self(), args...)); }
+		else { World::FireEvent(new T(_suede_self(), args...)); }
 	}
 }
 
@@ -124,6 +131,11 @@ inline Component GameObjectInternal::AddComponent(T key) {
 
 template <>
 inline Component GameObjectInternal::AddComponent(Component key) {
+	if (key->GetGameObject()) {
+		Debug::LogError("component %s is in use", key->GetComponentInstanceName());
+		return nullptr;
+	}
+
 	if (key->AllowMultiple() || CheckComponentDuplicate(key->GetComponentInstanceGUID())) {
 		return ActivateComponent(key);
 	}
