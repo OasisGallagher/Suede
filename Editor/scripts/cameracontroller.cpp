@@ -35,7 +35,7 @@ void CameraController::Update() {
 	}
 
 	if (Input::GetMouseButton(0)) {
-		rotateAroundGameObject(Input::GetMousePosition(), pos_);
+		//rotateGameObject(Input::GetMousePosition(), pos_);
 	}
 	else if (Input::GetMouseButton(1)) {
 		moveCamera(Input::GetMousePosition(), pos_);
@@ -72,7 +72,7 @@ void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }
 
-void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
+void CameraController::rotateGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
 	GameObject selected = Hierarchy::instance()->selectedGameObject();
 
 	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {

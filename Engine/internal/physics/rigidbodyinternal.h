@@ -53,6 +53,7 @@ private:
 	//   When the ball hits a border or a brick, it will bounce back, but it can never affect the positions of the border, 
 	//   brick or paddle since they are immovable.
 	float mass_;
+	glm::vec3 scale_;
 
 	enum {
 		Normal,

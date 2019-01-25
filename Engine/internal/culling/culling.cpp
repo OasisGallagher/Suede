@@ -108,6 +108,8 @@ void Culling::OcclusionCulling() {
 	for (btCollisionObject* object : *dbvtCulling_->m_pCollisionObjectArray) {
 		IRigidbody* body = (IRigidbody*)object->getUserPointer();
 		gameObjects_.push_back(body->GetGameObject());
+		std::string name = gameObjects_.back()->GetName();
+		name.c_str();
 	}
 
 	listener_->OnCullingFinished();

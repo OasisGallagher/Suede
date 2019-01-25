@@ -16,7 +16,8 @@ public:
 	SubMeshInternal(ISubMesh* self);
 
 public:
-	void SetTriangleBias(const TriangleBias& value) { bias_ = value; }
+	// SUEDE TODO: trigger OnMeshModified ?
+	void SetTriangleBias(const TriangleBias& value);
 	const TriangleBias& GetTriangleBias() const { return bias_; }
 
 private:
@@ -39,6 +40,8 @@ public:
 public:
 	void CreateStorage();
 	void SetAttribute(const MeshAttribute& value);
+
+	void NotifyMeshModified();
 
 	//void SetBounds(const Bounds& value) { bounds_ = value; }
 	//const Bounds& GetBounds() const { return bounds_; }

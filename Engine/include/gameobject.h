@@ -33,6 +33,9 @@ public:
 	void SetActiveSelf(bool value);
 	bool GetActiveSelf() const;
 
+	void SetLayer(uint value);
+	uint GetLayer() const;
+
 	int GetUpdateStrategy();
 
 	void SendMessage(int messageID, void* parameter);
@@ -41,6 +44,7 @@ public:
 	bool SetTag(const std::string& value);
 
 	void Update();
+	void OnPreRender();
 	void OnPostRender();
 	void CullingUpdate();
 

@@ -28,7 +28,7 @@ public:
 public:
 	void FixedUpdate();
 
-	bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
+	bool Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo);
 
 	void SetGravity(const glm::vec3& value) { world_->setGravity(btConvert(value)); }
 	glm::vec3 GetGravity() const { return btConvert(world_->getGravity()); }

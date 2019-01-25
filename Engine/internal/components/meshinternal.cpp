@@ -49,10 +49,19 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(MeshProvider, Component)
 SUEDE_DEFINE_COMPONENT_INTERNAL(TextMesh, MeshProvider)
 SUEDE_DEFINE_COMPONENT_INTERNAL(MeshFilter, MeshProvider)
 
+#define GetMeshInternal(mesh)			((MeshInternal*)(mesh)->d_)
+#define GetSubMeshInternal(subMesh)		((SubMeshInternal*)(subMesh)->d_)
+
 SubMeshInternal::SubMeshInternal(ISubMesh* self) :ObjectInternal(self, ObjectType::SubMesh) {
 }
 
 MeshInternal::MeshInternal(IMesh* self) : MeshInternal(self, ObjectType::Mesh) {
+}
+
+void SubMeshInternal::SetTriangleBias(const TriangleBias& value) {
+	if (memcmp(&bias_, &value, sizeof(bias_) != 0)) {
+		bias_ = value;
+	}
 }
 
 MeshInternal::MeshInternal(IMesh* self, ObjectType type) : ObjectInternal(self, type) {
@@ -77,6 +86,10 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	storage_->topology = value.topology;
 	UpdateGLBuffers(value);
 
+	NotifyMeshModified();
+}
+
+void MeshInternal::NotifyMeshModified() {
 	for (IMeshModifiedListener* listener : storage_->listeners) {
 		listener->OnMeshModified();
 	}
@@ -244,8 +257,6 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-#define GetMeshInternal(mesh)	((MeshInternal*)(mesh)->d_)
-
 MeshProviderInternal::MeshProviderInternal(IMeshProvider* self, ObjectType type) : ComponentInternal(self, type) {
 }
 
@@ -254,14 +265,18 @@ MeshProviderInternal::~MeshProviderInternal() {
 }
 
 void MeshProviderInternal::SetMesh(Mesh value) {
-	if (mesh_ != nullptr) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
-	if (value != nullptr) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
+	if (mesh_ != value) {
+		if (mesh_ != nullptr) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
+		if (value != nullptr) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
 
-	mesh_ = value;
+		mesh_ = value;
+		OnMeshModified();
+	}
 }
 
 void MeshProviderInternal::OnMeshModified() {
-	GetGameObject()->SendMessage(GameObjectMessageMeshModified, nullptr);
+	GameObject go = GetGameObject();
+	if (go) { go->SendMessage(GameObjectMessageMeshModified, nullptr); }
 }
 
 TextMeshInternal::TextMeshInternal(ITextMesh* self) : MeshProviderInternal(self, ObjectType::TextMesh), dirty_(false) {

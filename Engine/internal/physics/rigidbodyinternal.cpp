@@ -25,6 +25,7 @@ RigidbodyInternal::~RigidbodyInternal() {
 }
 
 void RigidbodyInternal::Awake() {
+	scale_ = GetTransform()->GetScale();
 }
 
 // SUEDE TODO: FixedUpdate.
@@ -62,6 +63,11 @@ void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 	else if (messageID == GameObjectMessageLocalToWorldMatrixModified) {
 		needUpdate = true;
 		shapeState_ = InvalidBody;
+
+		if (!Math::Approximately(GetTransform()->GetScale(), scale_)) {
+			shapeState_ = InvalidShape;
+			scale_ = GetTransform()->GetScale();
+		}
 	}
 
 	if (needUpdate) {
@@ -175,8 +181,8 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 }
 
 void RigidbodyInternal::DestroyShape() {
-	MEMORY_DELETE(mesh_);
-	MEMORY_DELETE(shape_);
+	MEMORY_DELETE(mesh_); mesh_ = nullptr;
+	MEMORY_DELETE(shape_); shape_ = nullptr;
 }
 
 void RigidbodyInternal::ApplyPhysicsTransform() {

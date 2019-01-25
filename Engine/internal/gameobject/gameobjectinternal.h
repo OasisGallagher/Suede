@@ -20,6 +20,9 @@ public:
 	void SetActiveSelf(bool value);
 	bool GetActiveSelf() const { return activeSelf_; }
 
+	void SetLayer(uint value) { layer_ = value; }
+	uint GetLayer() const { return layer_; }
+
 	int GetUpdateStrategy();
 	void SendMessage(int messageID, void* parameter);
 
@@ -27,6 +30,7 @@ public:
 	bool SetTag(const std::string& value);
 
 	void Update();
+	void OnPreRender();
 	void OnPostRender();
 	void CullingUpdate();
 
@@ -77,6 +81,7 @@ private:
 	bool active_;
 	bool activeSelf_;
 
+	uint layer_;
 	std::string tag_;
 
 	std::vector<Component> components_;

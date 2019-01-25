@@ -50,6 +50,7 @@ class SUEDE_API IComponent : public IObject {
 public:
 	virtual void Awake();
 	virtual void Update();
+	virtual void OnPreRender();
 	virtual void OnPostRender();
 	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
 

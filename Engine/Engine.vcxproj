@@ -168,6 +168,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
     <ClCompile Include="internal\base\gpuquerier.cpp" />
+    <ClCompile Include="internal\base\layermanager.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
@@ -420,6 +421,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\component.h" />
     <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\input.h" />
+    <ClInclude Include="include\layer.h" />
+    <ClInclude Include="include\layermanager.h" />
     <ClInclude Include="include\lua++.h" />
     <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />

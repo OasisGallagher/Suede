@@ -238,6 +238,14 @@ void WorldInternal::RenderingUpdateGameObjects() {
 	}
 }
 
+void WorldInternal::PreRenderUpdateGameObjects() {
+	for (GameObject go : renderingUpdateSequence_) {
+		if (go->GetActive()) {
+			go->OnPreRender();
+		}
+	}
+}
+
 void WorldInternal::PostRenderUpdateGameObjects() {
 	for (GameObject go : renderingUpdateSequence_) {
 		if (go->GetActive()) {
@@ -387,6 +395,9 @@ void WorldInternal::Update() {
 	start0 = now;
 
 	CameraUtility::OnPreRender();
+
+	PreRenderUpdateGameObjects();
+
 	now = Profiler::GetTimeStamp();
 	double seconds_4 = Profiler::TimeStampToSeconds(now - start0);
 	start0 = now;

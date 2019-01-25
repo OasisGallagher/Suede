@@ -1227,10 +1227,10 @@
     <None Include="resources\shaders\builtin\particle.shader" />
     <None Include="resources\shaders\builtin\skybox.shader" />
     <None Include="resources\shaders\builtin\ssao_traversal.shader" />
+    <None Include="resources\shaders\builtin\unlit_colored.shader" />
     <None Include="resources\shaders\builtin\unlit_texture.shader" />
     <None Include="resources\shaders\gaussianblur.shader" />
     <None Include="resources\shaders\grayscale.shader" />
-    <None Include="resources\shaders\handles.shader" />
     <None Include="resources\shaders\inversion.shader" />
     <None Include="resources\shaders\xray.shader" />
     <CustomBuild Include="editor.qrc">

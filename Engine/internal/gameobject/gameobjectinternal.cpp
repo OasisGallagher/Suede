@@ -7,6 +7,7 @@
 #include "tagmanager.h"
 #include "tools/math2.h"
 #include "tools/string.h"
+#include "layermanager.h"
 #include "particlesystem.h"
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
@@ -23,11 +24,14 @@ IGameObject::~IGameObject() {}
 bool IGameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 void IGameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(value); }
 bool IGameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
+void IGameObject::SetLayer(uint value) { _suede_dptr()->SetLayer(value); }
+uint IGameObject::GetLayer() const { return _suede_dptr()->GetLayer(); }
 int IGameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 void IGameObject::SendMessage(int messageID, void* parameter) { _suede_dptr()->SendMessage(messageID, parameter); }
 const std::string& IGameObject::GetTag() const { return _suede_dptr()->GetTag(); }
 bool IGameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(value); }
 void IGameObject::Update() { _suede_dptr()->Update(); }
+void IGameObject::OnPreRender() { _suede_dptr()->OnPreRender(); }
 void IGameObject::OnPostRender() { _suede_dptr()->OnPostRender(); }
 void IGameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 Transform IGameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
@@ -51,6 +55,8 @@ GameObjectInternal::GameObjectInternal(IGameObject* self, ObjectType type)
 	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
 		Debug::LogError("invalid go type %d.", type);
 	}
+
+	layer_ = LayerManager::Default;
 }
 
 GameObjectInternal::~GameObjectInternal() {
@@ -62,7 +68,7 @@ void GameObjectInternal::SetActiveSelf(bool value) {
 		SetActive(activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(_suede_self());
 
-		if (!GetBounds().IsEmpty()) {
+		if ((GetLayer() & ~LayerManager::IgnoreRaycast) != 0 && !GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -145,6 +151,14 @@ void GameObjectInternal::Update() {
 	for (Component component : components_) {
 		if (component->GetEnabled()) {
 			component->Update();
+		}
+	}
+}
+
+void GameObjectInternal::OnPreRender() {
+	for (Component component : components_) {
+		if (component->GetEnabled()) {
+			component->OnPreRender();
 		}
 	}
 }
@@ -240,7 +254,7 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 
 	for (Transform tr : GetTransform()->GetChildren()) {
 		GameObject child = tr->GetGameObject();
-		if (child->GetActive()) {
+		if (child->GetActive() && (GetLayer() & ~LayerManager::IgnoreRaycast) != 0) {
 			const Bounds& b = child->GetBounds();
 			worldBounds_.Encapsulate(b);
 		}

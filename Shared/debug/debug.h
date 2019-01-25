@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <string>
+#include <cassert>
+
 #include "../types.h"
 #include "../tools/singleton.h"
 

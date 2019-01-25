@@ -35,7 +35,7 @@ public:
 private:
 	void moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
 	void rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
-	void rotateAroundGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos);
+	void rotateGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos);
 
 private:
 	Transform camera_;

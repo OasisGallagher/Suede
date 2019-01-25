@@ -14,18 +14,30 @@ class Handles : public QObject, public IBehaviour {
 
 public:
 	virtual void Awake();
-	virtual void OnPostRender();
+	virtual void Update();
+
+	virtual void OnPreRender();
 
 private:
 	void Initialize();
-	void InitializeMesh();
-	void InitializeMaterial();
+	void UpdateCurrentAxis();
+
+	glm::vec3 FindAxis(GameObject current);
+
+	void InitializeMaterials(Material* materials);
+	void SetupAxises(Mesh storage, Material* materials);
+
+	void MoveHandles(const glm::vec3& axis, const glm::ivec2& mousePos, glm::ivec2& oldPos);
 
 	void CalculateHandlesGeometry(std::vector<glm::vec3>& points, std::vector<uint>& indexes);
 
 private:
-	glm::vec3 scale_;
+	float time_;
+	Color color_;
+	glm::ivec2 pos_;
 
-	static Mesh mesh_;
-	static Material materials_[3];
+	glm::vec3 axis_;
+	GameObject current_;
+
+	static GameObject handles_;
 };

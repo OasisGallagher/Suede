@@ -18,7 +18,7 @@ class SUEDE_API Physics : private singleton2<Physics> {
 	SUEDE_DECLARE_IMPLEMENTATION(Physics)
 
 public:
-	static bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
+	static bool Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo);
 
 	static void SetGravity(const glm::vec3& value);
 	static glm::vec3 GetGravity();

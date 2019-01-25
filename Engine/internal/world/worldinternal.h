@@ -70,6 +70,7 @@ private:
 	void UpdateDecals();
 	void CullingUpdateGameObjects();
 	void RenderingUpdateGameObjects();
+	void PreRenderUpdateGameObjects();
 	void PostRenderUpdateGameObjects();
 
 	void RemoveGameObject(GameObject go);

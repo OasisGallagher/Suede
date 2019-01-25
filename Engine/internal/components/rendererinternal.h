@@ -10,7 +10,8 @@ class RendererInternal : public ComponentInternal {
 	SUEDE_DECLARE_SELF_TYPE(IRenderer)
 
 public:
-	RendererInternal(IRenderer* self, ObjectType type);	~RendererInternal();
+	RendererInternal(IRenderer* self, ObjectType type);
+	~RendererInternal();
 
 public:
 	virtual void UpdateMaterialProperties() {}
@@ -36,13 +37,15 @@ private:
 class MeshRendererInternal : public RendererInternal {
 	SUEDE_DECLARE_SELF_TYPE(IMeshRenderer)
 
-public:	MeshRendererInternal(IMeshRenderer* self) : RendererInternal(self, ObjectType::MeshRenderer) {}
+public:
+	MeshRendererInternal(IMeshRenderer* self) : RendererInternal(self, ObjectType::MeshRenderer) {}
 };
 
 class SkinnedMeshRendererInternal :public RendererInternal {
 	SUEDE_DECLARE_SELF_TYPE(ISkinnedMeshRenderer)
 
-public:	SkinnedMeshRendererInternal(ISkinnedMeshRenderer* self) : RendererInternal(self, ObjectType::SkinnedMeshRenderer) {}
+public:
+	SkinnedMeshRendererInternal(ISkinnedMeshRenderer* self) : RendererInternal(self, ObjectType::SkinnedMeshRenderer) {}
 
 public:
 	virtual void UpdateMaterialProperties();
@@ -57,5 +60,6 @@ private:
 class ParticleRendererInternal : public RendererInternal {
 	SUEDE_DECLARE_SELF_TYPE(IParticleRenderer)
 
-public:	ParticleRendererInternal(IParticleRenderer* self);
+public:
+	ParticleRendererInternal(IParticleRenderer* self);
 };

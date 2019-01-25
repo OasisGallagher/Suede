@@ -24,7 +24,7 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 }
 
 Physics::Physics() : singleton2<Physics>(MEMORY_NEW(PhysicsInternal), Memory::DeleteRaw<PhysicsInternal>) {}
-bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, hitInfo); }
+bool Physics::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, layerMask, hitInfo); }
 void Physics::SetGravity(const glm::vec3& value) { _suede_dinstance()->SetGravity(value); }
 glm::vec3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
 void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDrawEnabled(value); }
@@ -119,7 +119,7 @@ void PhysicsInternal::FixedUpdate() {
 	*/
 }
 
-bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) {
+bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) {
 	btCollisionWorld::ClosestRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
 	world_->rayTest(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)), callback);
 	if (!callback.hasHit()) {
@@ -127,6 +127,10 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hit
 	}
 
 	IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObject->getUserPointer();
+	if ((rigidbody->GetGameObject()->GetLayer() & layerMask) == 0) {
+		return false;
+	}
+
 	if (rigidbody != nullptr && hitInfo != nullptr) {
 		hitInfo->point = btConvert(callback.m_hitPointWorld);
 		hitInfo->normal = btConvert(callback.m_hitNormalWorld);

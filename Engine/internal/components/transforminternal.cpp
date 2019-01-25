@@ -130,7 +130,7 @@ Transform TransformInternal::FindChild(const std::string& path) {
 void TransformInternal::SetScale(const glm::vec3& value) {
 	ClearDirty(WorldScale);
 
-	if (world_.scale != value) {
+	if (!Math::Approximately(world_.scale, value)) {
 		world_.scale = value;
 		SetDirty(LocalScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
@@ -146,7 +146,7 @@ void TransformInternal::SetScale(const glm::vec3& value) {
 
 void TransformInternal::SetPosition(const glm::vec3& value) {
 	ClearDirty(WorldPosition);
-	if (world_.position != value) {
+	if (!Math::Approximately(world_.position, value)) {
 		world_.position = value;
 		SetDirty(LocalPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 
@@ -163,7 +163,7 @@ void TransformInternal::SetPosition(const glm::vec3& value) {
 void TransformInternal::SetRotation(const glm::quat& value) {
 	ClearDirty(WorldRotation);
 
-	/*if (!Math::Approximately(world_.rotation, value))*/ {
+	if (!Math::Approximately(world_.rotation, value)) {
 		world_.rotation = value;
 
 		SetDirty(LocalRotation | LocalEulerAngles | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
@@ -181,7 +181,7 @@ void TransformInternal::SetRotation(const glm::quat& value) {
 void TransformInternal::SetEulerAngles(const glm::vec3& value) {
 	ClearDirty(WorldEulerAngles);
 
-	if (world_.eulerAngles != value) {
+	if (!Math::Approximately(world_.eulerAngles, value)) {
 		world_.eulerAngles = value;
 
 		SetDirty(WorldRotation | LocalRotation | LocalEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
@@ -306,7 +306,7 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 
 void TransformInternal::SetLocalScale(const glm::vec3& value) {
 	ClearDirty(LocalScale);
-	if (local_.scale != value) {
+	if (!Math::Approximately(local_.scale, value)) {
 		local_.scale = value;
 		SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 
@@ -322,7 +322,7 @@ void TransformInternal::SetLocalScale(const glm::vec3& value) {
 
 void TransformInternal::SetLocalPosition(const glm::vec3& value) {
 	ClearDirty(LocalPosition);
-	if (local_.position != value) {
+	if (!Math::Approximately(local_.position, value)) {
 		local_.position = value;
 		SetDirty(WorldPosition | LocalToWorldMatrix | WorldToLocalMatrix);
 		DirtyChildrenPositions();
@@ -353,7 +353,7 @@ void TransformInternal::SetLocalRotation(const glm::quat& value) {
 
 void TransformInternal::SetLocalEulerAngles(const glm::vec3& value) {
 	ClearDirty(LocalEulerAngles);
-	if (local_.eulerAngles != value) {
+	if (!Math::Approximately(local_.eulerAngles, value)) {
 		local_.eulerAngles = value;
 		SetDirty(WorldEulerAngles | LocalRotation | WorldRotation | LocalToWorldMatrix | WorldToLocalMatrix);
 
