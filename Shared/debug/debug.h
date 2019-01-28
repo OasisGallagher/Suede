@@ -24,12 +24,15 @@ public:
 
 class SUEDE_API Debug {
 public:
+	static void SetConsoleOutputMinLevel(int value);
+
+public:
 	static void Log(const char* format, ...);
 	static void LogWarning(const char* format, ...);
 	static void LogError(const char* format, ...);
 
 	static void Break();
-	static void Output(const char* format, ...);
+	static void Output(int level, const char* format, ...);
 	static void SetLogReceiver(LogReceiver* value);
 
 public:

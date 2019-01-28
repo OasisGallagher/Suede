@@ -1,9 +1,9 @@
 ﻿#include "rigidbody.h"
 
 #include "mesh.h"
-#include "internal/components/componentinternal.h"
+#include "componentinternal.h"
 
-#include "bullet/btBulletDynamicsCommon.h"
+#include "internal/physics/bullet/btBulletDynamicsCommon.h"
 
 class RigidbodyInternal : public ComponentInternal {
 	SUEDE_DECLARE_SELF_TYPE(IRigidbody)
@@ -12,7 +12,6 @@ public:
 	RigidbodyInternal(IRigidbody* self);	~RigidbodyInternal();
 
 public:
-	virtual void Awake();
 	virtual void Update();
 
 	virtual int GetUpdateStrategy();
@@ -53,7 +52,6 @@ private:
 	//   When the ball hits a border or a brick, it will bounce back, but it can never affect the positions of the border, 
 	//   brick or paddle since they are immovable.
 	float mass_;
-	glm::vec3 scale_;
 
 	enum {
 		Normal,

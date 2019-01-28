@@ -7,7 +7,7 @@
 #include "rigidbody.h"
 #include "statistics.h"
 #include "memory/memory.h"
-#include "rigidbodyinternal.h"
+#include "internal/components/rigidbodyinternal.h"
 
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 	Color oldColor = Gizmos::GetColor();
@@ -83,10 +83,10 @@ void PhysicsInternal::OnFrameEnter() {
 	);
 }
 
-void PhysicsInternal::OnWorldEvent(WorldEventBasePtr e) {
+void PhysicsInternal::OnWorldEvent(WorldEventBase* e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
+			OnGameObjectComponentChanged((GameObjectComponentChangedEvent*)e);
 			break;
 	}
 }
@@ -120,26 +120,29 @@ void PhysicsInternal::FixedUpdate() {
 }
 
 bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) {
-	btCollisionWorld::ClosestRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
+	btCollisionWorld::AllHitsRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
 	world_->rayTest(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)), callback);
 	if (!callback.hasHit()) {
 		return false;
 	}
 
-	IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObject->getUserPointer();
-	if ((rigidbody->GetGameObject()->GetLayer() & layerMask) == 0) {
-		return false;
+	int size = callback.m_collisionObjects.size();
+	for (int i = 0; i < size; ++i) {
+		IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObjects[i]->getUserPointer();
+		if ((rigidbody->GetGameObject()->GetLayer() & layerMask) != 0) {
+			if (rigidbody != nullptr && hitInfo != nullptr) {
+				hitInfo->point = btConvert(callback.m_hitPointWorld[i]);
+				hitInfo->normal = btConvert(callback.m_hitNormalWorld[i]);
+
+				hitInfo->gameObject = rigidbody->GetGameObject();
+			}
+
+			return true;
+		}
 	}
 
-	if (rigidbody != nullptr && hitInfo != nullptr) {
-		hitInfo->point = btConvert(callback.m_hitPointWorld);
-		hitInfo->normal = btConvert(callback.m_hitNormalWorld);
-
-		hitInfo->gameObject = rigidbody->GetGameObject();
-	}
-
-	return true;
+	return false;
 }
 
-void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
+void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e) {
 }

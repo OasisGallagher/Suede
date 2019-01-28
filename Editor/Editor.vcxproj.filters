@@ -789,6 +789,9 @@
     <None Include="resources\shaders\builtin\unlit_colored.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
+    <None Include="resources\shaders\builtin\handles.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

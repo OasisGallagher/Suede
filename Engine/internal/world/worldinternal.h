@@ -44,8 +44,8 @@ public:
 
 	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
-	void FireEvent(WorldEventBasePtr e);
-	void FireEventImmediate(WorldEventBasePtr e);
+	void FireEvent(WorldEventBase* e);
+	void FireEventImmediate(WorldEventBase& e);
 	void AddEventListener(WorldEventListener* listener);
 	void RemoveEventListener(WorldEventListener* listener);
 
@@ -55,13 +55,13 @@ public:
 	void OnScreenSizeChanged(uint width, uint height);
 
 public:
-	void OnWorldEvent(WorldEventBasePtr e);
+	void OnWorldEvent(WorldEventBase* e);
 
 private:
 	void AddGameObject(GameObject go);
 
 	void OnGameObjectParentChanged(GameObject go);
-	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
+	void OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e);
 
 	template <class Container>
 	void ManageGameObjectComponents(Container& container, Component component, int state);
@@ -94,7 +94,7 @@ private:
 	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
 	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
-	typedef std::vector<WorldEventBasePtr> WorldEventCollection;
+	typedef std::vector<intrusive_ptr<WorldEventBase>> WorldEventCollection;
 	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:

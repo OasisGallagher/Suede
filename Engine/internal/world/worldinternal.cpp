@@ -25,8 +25,8 @@ bool World::ImportTo(GameObject go, const std::string& path, GameObjectImportedL
 Transform World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
 GameObject World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
 void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
-void World::FireEvent(WorldEventBasePtr e) { _suede_dinstance()->FireEvent(e); }
-void World::FireEventImmediate(WorldEventBasePtr e) { _suede_dinstance()->FireEventImmediate(e); }
+void World::FireEvent(WorldEventBase* e) { _suede_dinstance()->FireEvent(e); }
+void World::FireEventImmediate(WorldEventBase& e) { _suede_dinstance()->FireEventImmediate(e); }
 void World::AddEventListener(WorldEventListener* listener) { _suede_dinstance()->AddEventListener(listener); }
 void World::RemoveEventListener(WorldEventListener* listener) { _suede_dinstance()->RemoveEventListener(listener); }
 void World::GetDecals(std::vector<Decal>& container) { _suede_dinstance()->GetDecals(container); }
@@ -123,9 +123,7 @@ void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	GameObject go = root->GetGameObject();
 	RemoveGameObject(go);
 
-	GameObjectDestroyedEventPtr e = NewWorldEvent<GameObjectDestroyedEventPtr>();
-	e->go = go;
-	FireEvent(e);
+	FireEvent(new GameObjectDestroyedEvent(go));
 
 	for(Transform transform : root->GetChildren()) {
 		DestroyGameObjectRecursively(transform);
@@ -198,7 +196,7 @@ void WorldInternal::RemoveEventListener(WorldEventListener* listener) {
 	}
 }
 
-void WorldInternal::FireEvent(WorldEventBasePtr e) {
+void WorldInternal::FireEvent(WorldEventBase* e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
 
@@ -206,9 +204,9 @@ void WorldInternal::FireEvent(WorldEventBasePtr e) {
 	collection.push_back(e);
 }
 
-void WorldInternal::FireEventImmediate(WorldEventBasePtr e) {
+void WorldInternal::FireEventImmediate(WorldEventBase& e) {
 	for (WorldEventListener* listener : listeners_) {
-		listener->OnWorldEvent(e);
+		listener->OnWorldEvent(&e);
 	}
 }
 
@@ -284,22 +282,22 @@ bool WorldInternal::WalkGameObjectHierarchyRecursively(Transform root, WorldGame
 void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
 }
 
-void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
+void WorldInternal::OnWorldEvent(WorldEventBase* e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::GameObjectCreated:
-			AddGameObject(std::static_pointer_cast<GameObjectCreatedEvent>(e)->go);
+			AddGameObject(((GameObjectCreatedEvent*)e)->go);
 			break;
 		case WorldEventType::CameraDepthChanged:
 			cameras_.sort();
 			break;
 		case WorldEventType::GameObjectParentChanged:
-			OnGameObjectParentChanged(std::static_pointer_cast<GameObjectEvent>(e)->go);
+			OnGameObjectParentChanged(((GameObjectEvent*)e)->go);
 			break;
 		case WorldEventType::GameObjectUpdateStrategyChanged:
-			ManageGameObjectUpdateSequence(std::static_pointer_cast<GameObjectEvent>(e)->go);
+			ManageGameObjectUpdateSequence(((GameObjectEvent*)e)->go);
 			break;
 		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
+			OnGameObjectComponentChanged((GameObjectComponentChangedEvent*)e);
 			break;
 	}
 }
@@ -320,7 +318,7 @@ void WorldInternal::OnGameObjectParentChanged(GameObject go) {
 	}
 }
 
-void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
+void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e) {
 	ManageGameObjectUpdateSequence(e->go);
 
 	ManageGameObjectComponents(lights_, e->component, e->state);
@@ -333,8 +331,8 @@ void WorldInternal::FireEvents() {
 	ZTHREAD_LOCK_SCOPE(eventsMutex_);
 
 	for (WorldEventCollection& collection : events_) {
-		for (WorldEventBasePtr pointer : collection) {
-			FireEventImmediate(pointer);
+		for (intrusive_ptr<WorldEventBase>& pointer : collection) {
+			FireEventImmediate(*pointer);
 		}
 	}
 
@@ -421,4 +419,9 @@ void WorldInternal::Update() {
 	Statistics::SetRenderingElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 	);
+
+	//double max = 0.1;
+	//if (seconds > max || seconds_2 > max || seconds_3 > max || seconds_4 > max || seconds_5 > max || seconds_6 > max) {
+	//	__debugbreak();
+	//}
 }

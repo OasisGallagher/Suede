@@ -8,32 +8,33 @@
 #include "camera.h"
 #include "physics.h"
 #include "resources.h"
+#include "geometries.h"
 #include "gameobject.h"
 #include "layermanager.h"
-#include "geometryutility.h"
 #include "builtinproperties.h"
 
 SUEDE_DEFINE_COMPONENT(Handles, IBehaviour)
 
-#define N_AXISES				3
-#define RAYCAST_INTERVAL		0.1f
-#define CONE_LENGTH				1.2f
-#define ARROW_LENGTH			7.f
-#define GetMaterial0(go)		go->GetComponent<MeshRenderer>()->GetMaterial(0)
+#define N_AXISES				(3)
+#define RESOLUTION				(27)
+#define CONE_LENGTH				(1.2f)
+#define ARROW_LENGTH			(7.f)
+#define MOVE_SPEED				(0.02f)
+#define GetMaterial0(go)		(go->GetComponent<MeshRenderer>()->GetMaterial(0))
 
 GameObject Handles::handles_;
 
 void Handles::Awake() {
-	time_ = RAYCAST_INTERVAL;
 	if (!handles_) { Initialize(); }
 	handles_->GetTransform()->SetParent(World::GetRootTransform());
 }
 
 void Handles::Update() {
-	if ((time_ -= Time::GetDeltaTime()) < 0) {
-		time_ = RAYCAST_INTERVAL;
+	if (!Input::GetMouseButton(0)) {
 		UpdateCurrentAxis();
 	}
+
+	handles_->GetTransform()->SetPosition(GetTransform()->GetPosition());
 
 	if (Input::GetMouseButtonDown(0) && current_) {
 		pos_ = Input::GetMousePosition();
@@ -77,7 +78,7 @@ void Handles::UpdateCurrentAxis() {
 
 		if (current_ && !Math::Approximately(axis_ = FindAxis(current_), glm::vec3(0))) {
 			color_ = GetMaterial0(current_)->GetColor(BuiltinProperties::MainColor);
-			GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, Color::yellow);
+			GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, Color(128 / 255.f, 128 / 255.f, 0));
 		}
 	}
 }
@@ -92,6 +93,8 @@ glm::vec3 Handles::FindAxis(GameObject current) {
 
 void Handles::SetupAxises(Mesh storage, Material * materials) {
 	const char* names[] = { "X", "Y", "Z" };
+	glm::vec3 eulers[] = { glm::vec3(0, -90, 0), glm::vec3(-90, 0, 0), glm::vec3(0) };
+
 	uint pointCount = storage->GetVertexCount();
 	uint indexCount = storage->GetIndexCount();
 
@@ -106,20 +109,23 @@ void Handles::SetupAxises(Mesh storage, Material * materials) {
 		SubMesh subMesh = new ISubMesh;
 		mesh->AddSubMesh(subMesh);
 
-		TriangleBias bias{ indexCount, 0, pointCount / 3 * i };
+		TriangleBias bias{ indexCount };
 		subMesh->SetTriangleBias(bias);
 
 		go->AddComponent<MeshFilter>()->SetMesh(mesh);
 		go->AddComponent<MeshRenderer>()->AddMaterial(materials[i]);
 
 		go->GetTransform()->SetParent(handles_->GetTransform());
+		go->GetTransform()->SetEulerAngles(eulers[i]);
 	}
 }
 
 void Handles::MoveHandles(const glm::vec3& axis, const glm::ivec2& mousePos, glm::ivec2& oldPos) {
 	if (mousePos != oldPos) {
-		glm::vec3 dir = axis * glm::dot(axis, glm::vec3(mousePos - oldPos, 0));
-		GetTransform()->SetPosition(GetTransform()->GetPosition() + dir);
+		Transform camera = CameraUtility::GetMain()->GetTransform();
+		glm::vec3 axisCameraSpace = (camera->GetWorldToLocalMatrix() * glm::vec4(axis, 0)).xyz;
+		glm::vec3 dir = axis * glm::dot(axisCameraSpace, glm::vec3(mousePos - oldPos, 0));
+		GetTransform()->SetPosition(GetTransform()->GetPosition() + dir * MOVE_SPEED);
 
 		oldPos = mousePos;
 	}
@@ -130,38 +136,19 @@ void Handles::InitializeMaterials(Material* materials) {
 
 	for (int i = 0; i < N_AXISES; ++i) {
 		materials[i] = new IMaterial();
-		materials[i]->SetShader(Resources::FindShader("builtin/unlit_colored"));
+		materials[i]->SetShader(Resources::FindShader("builtin/handles"));
 		materials[i]->SetColor(BuiltinProperties::MainColor, colors[i]);
 	}
 }
 
 void Handles::CalculateHandlesGeometry(std::vector<glm::vec3>& points, std::vector<uint>& indexes) {
-	glm::vec3 dir(1, 0, 0);
-
-	std::vector<glm::vec3> cylinderPoints, conePoints;
-	std::vector<uint> cylinderIndexes, coneIndexes;
-
-	GeometryUtility::GetConeCoordinates(conePoints, coneIndexes, dir * (ARROW_LENGTH - CONE_LENGTH), dir * ARROW_LENGTH, 0.2f, 36);
-	GeometryUtility::GetCylinderCoordinates(cylinderPoints, cylinderIndexes, glm::vec3(0), dir * (ARROW_LENGTH - CONE_LENGTH), 0.05f, 36);
-
-	std::transform(cylinderIndexes.begin(), cylinderIndexes.end(), cylinderIndexes.begin(), [&](uint x) { return x + (uint)conePoints.size(); });
-
-	int pointCount = conePoints.size() + cylinderPoints.size();
-	int indexCount = coneIndexes.size() + cylinderIndexes.size();
-
-	points.resize(pointCount * 3);
-	indexes.resize(indexCount);
-
-	std::copy(conePoints.begin(), conePoints.end(), points.begin());
-	std::copy(cylinderPoints.begin(), cylinderPoints.end(), points.begin() + conePoints.size());
-
-	std::copy(coneIndexes.begin(), coneIndexes.end(), indexes.begin());
-	std::copy(cylinderIndexes.begin(), cylinderIndexes.end(), indexes.begin() + coneIndexes.size());
-	
-	glm::quat ry = glm::angleAxis(Math::PiOver2, glm::vec3(0, 0, 1));
-	glm::quat rz = glm::angleAxis(-Math::PiOver2, glm::vec3(0, 1, 0));
-	for (int i = 0; i < pointCount; ++i) {
-		points[pointCount + i] = (ry * points[i]);
-		points[pointCount * 2 + i] = (rz * points[i]);
+	bool rotation = true;
+	if (rotation) {
+		Geometries::Ring(points, indexes, glm::vec3(0), 5, 5.1f, glm::vec3(0, 0, 1), RESOLUTION);
+	}
+	else {
+		glm::vec3 dir(0, 0, 1);
+		Geometries::Cone(points, indexes, dir * (ARROW_LENGTH - CONE_LENGTH), dir * ARROW_LENGTH, 0.2f, RESOLUTION);
+		Geometries::Cylinder(points, indexes, glm::vec3(0), dir * (ARROW_LENGTH - CONE_LENGTH), 0.05f, RESOLUTION);
 	}
 }

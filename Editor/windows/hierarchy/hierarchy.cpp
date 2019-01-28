@@ -75,9 +75,9 @@ void Hierarchy::setSelectedGameObjects(const QList<GameObject>& objects) {
 	}
 }
 
-void Hierarchy::OnWorldEvent(WorldEventBasePtr entit) {
-	GameObjectEventPtr eep = std::static_pointer_cast<GameObjectEvent>(entit);
-	switch (entit->GetEventType()) {
+void Hierarchy::OnWorldEvent(WorldEventBase* e) {
+	GameObjectEvent* eep = (GameObjectEvent*)e;
+	switch (eep->GetEventType()) {
 //		case WorldEventType::GameObjectCreated:
 //			onGameObjectCreated(eep->go);
 //			break;

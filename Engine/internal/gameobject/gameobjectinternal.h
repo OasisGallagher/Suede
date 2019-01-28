@@ -71,8 +71,8 @@ private:
 	void SetActive(bool value);
 	void UpdateChildrenActive(GameObject parent);
 
-	template <class T>
-	void FireWorldEvent(bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
+	template <class T, class... Args>
+	void FireWorldEvent(bool attachedToSceneOnly, bool immediate, Args... args);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -96,14 +96,11 @@ private:
 	bool boundsDirty_;
 };
 
-template <class T>
-inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
+template <class T, class... Args>
+inline void GameObjectInternal::FireWorldEvent(bool attachedToSceneOnly, bool immediate, Args... args) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
-		T e = NewWorldEvent<T>();
-		e->go = _suede_self();
-		if (f) { f(e); }
-		if (immediate) { World::FireEventImmediate(e); }
-		else { World::FireEvent(e); }
+		if (immediate) { World::FireEventImmediate(T(_suede_self(), args...)); }
+		else { World::FireEvent(new T(_suede_self(), args...)); }
 	}
 }
 

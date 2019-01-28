@@ -37,6 +37,10 @@ kExcludeFiles = [
 	"geometryutility.h",
 ];
 
+kExcludeParamters = [
+	"WorldEventBase",
+];
+
 kExcludeClasses = [
 	"InputInternal",
 	
@@ -292,9 +296,10 @@ class Interface:
 		if "*" in method.Return(): return "c style pointer";
 		if "operator" in method.Text(): return "operator overload";
 		if method.IsPureVirtual(): return "pure virtual";
-
+		
 		for arg in method.Arguments():
 			if "*" in arg.type: return "c style pointer";
+			if arg.type in kExcludeParamters: return "invalid parameter";
 
 		return "";
 

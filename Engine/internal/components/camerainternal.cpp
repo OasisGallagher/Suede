@@ -126,9 +126,7 @@ void CameraInternal::CancelThreads() {
 void CameraInternal::SetDepth(int value) {
 	if (depth_ != value) {
 		depth_ = value;
-		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
-		e->component = _suede_self();
-		World::FireEvent(e);
+		World::FireEvent(new CameraDepthChangedEvent(_suede_self()));
 	}
 }
 

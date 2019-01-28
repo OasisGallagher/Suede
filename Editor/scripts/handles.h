@@ -32,7 +32,6 @@ private:
 	void CalculateHandlesGeometry(std::vector<glm::vec3>& points, std::vector<uint>& indexes);
 
 private:
-	float time_;
 	Color color_;
 	glm::ivec2 pos_;
 

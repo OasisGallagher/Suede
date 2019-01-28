@@ -88,15 +88,41 @@ public:
 	static void SetDelegate(InputInternal* impl);
 
 public:
+	/**
+	 * @returns true while the user holds down the key identified by the key KeyCode enum parameter.
+	 */
 	static bool GetKey(KeyCode key);
+
+	/**
+	 * @returns true during the frame the user releases the key identified by the key KeyCode enum parameter.
+	 */
 	static bool GetKeyUp(KeyCode key);
+
+	/**
+	 * @returns true during the frame the user starts pressing down the key identified by the key KeyCode enum parameter.
+	 */
 	static bool GetKeyDown(KeyCode key);
 
+	/**
+	 * @returns whether the given mouse button is held down.
+	 */
 	static bool GetMouseButton(int button);
+
+	/**
+	 * @returns true during the frame the user pressed the given mouse button.
+	 */
 	static bool GetMouseButtonUp(int button);
+
+	/**
+	 * @returns true during the frame the user releases the given mouse button.
+	 */
 	static bool GetMouseButtonDown(int button);
 
 	static float GetMouseWheelDelta();
+
+	/**
+	 * @returns the current mouse position in pixel coordinates(0 at the bottom and increases upward).
+	 */
 	static glm::ivec2 GetMousePosition();
 
 private:

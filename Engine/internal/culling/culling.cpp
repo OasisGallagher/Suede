@@ -4,6 +4,7 @@
 #include "renderer.h"
 #include "profiler.h"
 #include "rigidbody.h"
+#include "geometries.h"
 #include "statistics.h"
 #include "dbvtculling.h"
 #include "memory/memory.h"
@@ -83,7 +84,8 @@ bool Culling::IsVisible(btCollisionObject* co) {
 	const Bounds& bounds = rigidbody->GetBounds();
 
 	std::vector<glm::vec3> points;
-	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
+	std::vector<uint> indexes;
+	Geometries::Cuboid(points, indexes, bounds.center, bounds.size);
 
 	glm::vec2 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
@@ -133,8 +135,12 @@ void Culling::BulletDBVTCulling(const float* cameraPos, const float* cameraForwa
 	occlusionBuffer_->eye.setValue(cameraPos[0], cameraPos[1], cameraPos[2]);
 	dbvtCulling_->m_ocb = occlusionBuffer_;
 
-	btDbvt::collideOCL(broadphase->m_sets[1].m_root, planes_n, planes_o, *(btVector3*)cameraForward, SUEDE_COUNTOF(planes_n), *dbvtCulling_);
-	btDbvt::collideOCL(broadphase->m_sets[0].m_root, planes_n, planes_o, *(btVector3*)cameraForward, SUEDE_COUNTOF(planes_n), *dbvtCulling_);
+	// exclude near clip plane.
+	planes_n[4] = planes_n[5];
+	planes_o[4] = planes_o[5];
+
+	btDbvt::collideOCL(broadphase->m_sets[1].m_root, planes_n, planes_o, *(btVector3*)cameraForward, SUEDE_COUNTOF(planes_n) - 1, *dbvtCulling_);
+	btDbvt::collideOCL(broadphase->m_sets[0].m_root, planes_n, planes_o, *(btVector3*)cameraForward, SUEDE_COUNTOF(planes_n) - 1, *dbvtCulling_);
 	// btDbvt::collideOCL(root,normals,offsets,sortaxis,count,icollide): 
 	// same of btDbvt::collideKDOP but with leaves sorted (min/max) along 'sortaxis'.
 #else

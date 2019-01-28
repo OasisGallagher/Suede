@@ -142,7 +142,7 @@ void Rendering::Resize(uint width, uint height) {
 	GetDepthTexture()->Resize(width, height);
 }
 
-#define OutputSample(sample)	Debug::Output("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
+#define OutputSample(sample)	Debug::Output(0, "%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
 
 void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
 	ClearRenderTextures();
@@ -453,7 +453,7 @@ void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObj
 	forward_pass->Restart();
 	ForwardPass(pl, gameObjects);
 	forward_pass->Stop();
-	Debug::Output("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
+	Debug::Output(0, "[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
 void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& gameObjects, const std::vector<Light>& lights) {
@@ -502,7 +502,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& 
 		RenderGameObject(pl, go, go->GetComponent<Renderer>());
 	}
 
-	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
+	Debug::Output(0, "[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
 	push_renderables->Reset();
 }
 

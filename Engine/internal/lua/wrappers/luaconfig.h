@@ -16,6 +16,7 @@
 #include "graphics_wrapper.h"
 #include "imageeffect_wrapper.h"
 #include "input_wrapper.h"
+#include "layermanager_wrapper.h"
 #include "light_wrapper.h"
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
@@ -70,6 +71,8 @@ static int configure(lua_State* L) {
 	Graphics_Wrapper::create(L);
 	ImageEffect_Wrapper::create(L);
 	Input_Wrapper::create(L);
+	Layer_Wrapper::create(L);
+	LayerManager_Wrapper::create(L);
 	Light_Wrapper::create(L);
 	Material_Wrapper::create(L);
 	TriangleBias_Wrapper::create(L);
@@ -147,6 +150,8 @@ static int configure(lua_State* L) {
 	Graphics_Wrapper::initialize(L, funcs, fields);
 	ImageEffect_Wrapper::initialize(L, funcs, fields);
 	Input_Wrapper::initialize(L, funcs, fields);
+	Layer_Wrapper::initialize(L, funcs, fields);
+	LayerManager_Wrapper::initialize(L, funcs, fields);
 	Light_Wrapper::initialize(L, funcs, fields);
 	Material_Wrapper::initialize(L, funcs, fields);
 	TriangleBias_Wrapper::initialize(L, funcs, fields);

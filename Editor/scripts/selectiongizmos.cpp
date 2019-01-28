@@ -45,13 +45,14 @@ void SelectionGizmos::setSelection(const QList<GameObject>& value) {
 	selection_.reserve(value.size());
 
 	for (const GameObject& go : value) {
+		selection_.push_back(go.get());
+
 		// <DEBUG>
 		if (go->GetName() != "RootNode") {
 			continue;
 		}
 		// </DEBUG>
 
-		selection_.push_back(go.get());
 		if (!go->GetComponent<Handles>()) {
 			go->AddComponent<Handles>();
 		}

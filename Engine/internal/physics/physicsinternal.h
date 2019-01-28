@@ -41,10 +41,10 @@ public:
 	virtual void OnFrameEnter();
 	virtual int GetFrameEventQueue() { return FrameEventQueuePhysics; }
 
-	virtual void OnWorldEvent(WorldEventBasePtr e);
+	virtual void OnWorldEvent(WorldEventBase* e);
 
 private:
-	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
+	void OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e);
 
 private:
 	bool debugDrawEnabled_;

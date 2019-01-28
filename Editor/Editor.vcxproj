@@ -1212,6 +1212,7 @@
     <None Include="resources\shaders\builtin\depth.shader" />
     <None Include="resources\shaders\builtin\directional_light_depth.shader" />
     <None Include="resources\shaders\builtin\gbuffer.shader" />
+    <None Include="resources\shaders\builtin\handles.shader" />
     <None Include="resources\shaders\builtin\include\post_effect_vertex.inc" />
     <None Include="resources\shaders\builtin\lit_parallactic_texture.shader" />
     <None Include="resources\shaders\builtin\normal_visualizer.shader" />

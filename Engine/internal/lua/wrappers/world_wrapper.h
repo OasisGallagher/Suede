@@ -32,8 +32,6 @@ class World_Wrapper {
 			{ "Import", Import },
 			{ "GetRootTransform", GetRootTransform },
 			{ "GetGameObject", GetGameObject },
-			{ "FireEvent", FireEvent },
-			{ "FireEventImmediate", FireEventImmediate },
 			{ "GetDecals", GetDecals },
 			{ "GetGameObjectsOfComponent", GetGameObjectsOfComponent },
 			{"__tostring", ToStringStatic },
@@ -107,22 +105,6 @@ class World_Wrapper {
 		uint id = Lua::get<uint>(L, 1);
 		
 		return Lua::push(L, World::GetGameObject(id));
-	}
-
-	// static void FireEvent(WorldEventBasePtr e)
-	static int FireEvent(lua_State* L) {
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 1);
-		
-		World::FireEvent(e);
-		return 0;
-	}
-
-	// static void FireEventImmediate(WorldEventBasePtr e)
-	static int FireEventImmediate(lua_State* L) {
-		WorldEventBasePtr e = Lua::get<WorldEventBasePtr>(L, 1);
-		
-		World::FireEventImmediate(e);
-		return 0;
 	}
 
 	// static void GetDecals(std::vector<Decal>& container)

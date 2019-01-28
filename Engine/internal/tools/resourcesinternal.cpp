@@ -1,9 +1,9 @@
 ﻿#include "resourcesinternal.h"
 
+#include "geometries.h"
 #include "tools/math2.h"
 #include "os/filesystem.h"
 #include "memory/memory.h"
-#include "geometryutility.h"
 
 Resources::Resources() : singleton2<Resources>(MEMORY_NEW(ResourcesInternal), Memory::DeleteRaw<ResourcesInternal>) {}
 void Resources::Import() { _suede_dinstance()->Import(); }
@@ -109,7 +109,7 @@ void ResourcesInternal::GetQuadMeshAttribute(MeshAttribute& attribute, float sca
 
 void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::Triangles;
-	GeometryUtility::GetCuboidCoordinates(attribute.positions, glm::vec3(0), glm::vec3(1), &attribute.indexes);
+	Geometries::Cuboid(attribute.positions, attribute.indexes, glm::vec3(0), glm::vec3(1));
 
 	for (int i = 0; i < attribute.positions.size(); ++i) {
 		attribute.positions[i] *= scale;

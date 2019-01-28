@@ -44,7 +44,7 @@ void GraphicsViewer::Run() {
 			now = Profiler::GetTimeStamp();
 			double swap = Profiler::TimeStampToSeconds(now - start);
 
-			Debug::Output("qt: %.2f, engine: %.2f, swap: %.2f", qt * 1000, engine * 1000, swap * 1000);
+			Debug::Output(0, "qt: %.2f, engine: %.2f, swap: %.2f", qt * 1000, engine * 1000, swap * 1000);
 		}
 	}
 }

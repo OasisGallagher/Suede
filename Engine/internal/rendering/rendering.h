@@ -143,7 +143,7 @@ private:
 };
 
 // SUEDE TODO: multi-thread rendering.
-class RenderableTraits/* : public ZThread::Runnable, public DirtyBits*/ {
+class RenderableTraits/* : public ZThread::Runnable, private DirtyBits*/ {
 public:
 	RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/);
 	~RenderableTraits();

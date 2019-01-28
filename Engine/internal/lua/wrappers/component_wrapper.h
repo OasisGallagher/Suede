@@ -48,6 +48,20 @@ class Component_Wrapper {
 		return 0;
 	}
 
+	// virtual void OnPreRender()
+	static int OnPreRender(lua_State* L) {
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
+		_p->OnPreRender();
+		return 0;
+	}
+
+	// virtual void OnPostRender()
+	static int OnPostRender(lua_State* L) {
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
+		_p->OnPostRender();
+		return 0;
+	}
+
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
 		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
@@ -171,6 +185,8 @@ public:
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
+			{ "OnPreRender", OnPreRender },
+			{ "OnPostRender", OnPostRender },
 			{ "OnRenderImage", OnRenderImage },
 			{ "GetEnabled", GetEnabled },
 			{ "SetEnabled", SetEnabled },
