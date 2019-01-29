@@ -6,6 +6,7 @@
 #include "mesh.h"
 #include "../api/gl.h"
 #include "componentinternal.h"
+#include "containers/sortedvector.h"
 #include "internal/base/vertexarray.h"
 #include "internal/base/objectinternal.h"
 
@@ -86,14 +87,15 @@ private:
 		BufferIndexCount,
 	};
 
+	typedef sorted_vector<IMeshModifiedListener*> ListenerContainer;
+
 	struct Storage {
 		Storage();
 
 		VertexArray vao;
 		MeshTopology topology;
 		uint bufferIndexes[BufferIndexCount];
-
-		std::set<IMeshModifiedListener*> listeners;
+		ListenerContainer listeners;
 	};
 
 //protected:
@@ -102,6 +104,7 @@ private:
 private:
 	std::vector<SubMesh> subMeshes_;
 	std::shared_ptr<Storage> storage_;
+	sorted_vector<IMeshModifiedListener*> listeners_;
 };
 
 class MeshProviderInternal : public ComponentInternal, public IMeshModifiedListener {

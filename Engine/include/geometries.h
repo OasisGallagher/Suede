@@ -14,9 +14,28 @@ public:
 		uint resolution
 	);
 
+	static void Circle(
+		std::vector<glm::vec3>& points,
+		std::vector<uint>& indexes,
+		const glm::vec3& center,
+		float radius,
+		float width,
+		const glm::vec3& normal,
+		uint resolution
+	);
+
+	static void Rectangle(
+		std::vector<glm::vec3>& points,
+		std::vector<uint>& indexes,
+		const glm::vec3& from,
+		const glm::vec3& to,
+		const glm::vec3& normal,
+		float width
+	);
+
 	static void Sphere(
 		std::vector<glm::vec3>& points, 
-		std::vector<uint>& indexes, 
+		std::vector<uint>& indexes,
 		const glm::ivec2& resolution
 	);
 
@@ -54,4 +73,7 @@ public:
 		const glm::vec3& center, 
 		const glm::vec3& size
 	);
+
+private:
+	Geometries();
 };

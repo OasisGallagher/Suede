@@ -8,6 +8,47 @@
 #define SPHERE_COODRINATE(x, y) \
 	glm::vec3(Math::Cos(x) * Math::Sin(y), Math::Cos(y), Math::Sin(x) * Math::Sin(y))
 
+static void CircleSegment(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, const glm::vec3& normal, const glm::vec2& size) {
+	glm::vec3 up = to - from;
+	float height = glm::length(up);
+	up /= 2;
+
+	glm::vec3 right = normal;
+	right *= size.x / 2;
+
+	glm::vec3 forward = glm::normalize(glm::cross(right, up));
+	forward *= size.y / 2;
+
+	uint first = points.size();
+	glm::vec3 center = (from + to) / 2.f;
+
+	points.insert(points.end(), {
+		center + up + right - forward,
+		center + up - right - forward,
+		center + up - right + forward,
+		center + up + right + forward,
+		center - up + right - forward,
+		center - up - right - forward,
+		center - up - right + forward,
+		center - up + right + forward,
+	});
+
+	indexes.insert(indexes.end(), {
+		//0 + first, 1 + first, 2 + first,
+		//0 + first, 2 + first, 3 + first,
+		0 + first, 4 + first, 5 + first,
+		0 + first, 5 + first, 1 + first,
+		1 + first, 5 + first, 6 + first,
+		1 + first, 6 + first, 2 + first,
+		2 + first, 6 + first, 7 + first,
+		2 + first, 7 + first, 3 + first,
+		3 + first, 7 + first, 4 + first,
+		3 + first, 4 + first, 0 + first,
+		//4 + first, 7 + first, 6 + first,
+		//4 + first, 6 + first, 5 + first
+	});
+}
+
 void Geometries::Circle(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution) {
 	float step = Math::Pi2 / resolution;
 	glm::vec3 forward(0, 1, 0);
@@ -21,6 +62,25 @@ void Geometries::Circle(std::vector<glm::vec3>& points, const glm::vec3& center,
 		glm::quat q = glm::angleAxis(i * step, normal);
 		points.push_back(q * forward * radius + center);
 	}
+}
+
+void Geometries::Rectangle(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, const glm::vec3& normal, float width) {
+	glm::vec3 forward = to - from;
+	float height = glm::length(forward);
+	forward /= 2;
+
+	glm::vec3 right = glm::normalize(glm::cross(forward, normal)) * width / 2.f;
+
+	uint first = points.size();
+
+	glm::vec3 center = (from + to) / 2.f;
+	points.push_back(center + forward - right);
+	points.push_back(center + forward + right);
+	points.push_back(center - forward - right);
+	points.push_back(center - forward + right);
+
+	ADD_TRIANGLE(indexes, first, first + 2, first + 3);
+	ADD_TRIANGLE(indexes, first + 1, first, first + 3);
 }
 
 void Geometries::Sphere(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
@@ -66,6 +126,24 @@ void Geometries::Ring(std::vector<glm::vec3>& points, std::vector<uint>& indexes
 		glm::quat q = glm::angleAxis(i * step, normal);
 		glm::vec3 current = q * forward * radius + center;
 		Cylinder(points, indexes, from, current, cylinderRadius, resolution);
+		from = current;
+	}
+}
+
+void Geometries::Circle(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& center, float radius, float width, const glm::vec3& normal, uint resolution) {
+	float step = Math::Pi2 / resolution;
+	glm::vec3 forward(0, 1, 0);
+	if (!Math::Approximately(normal.y, 0) || !Math::Approximately(normal.z, 0)) {
+		forward = glm::vec3(1, 0, 0);
+	}
+
+	forward = glm::normalize(glm::cross(forward, normal));
+
+	glm::vec3 from = forward * radius + center;
+	for (int i = 1; i < resolution + 1; ++i) {
+		glm::quat q = glm::angleAxis(i * step, normal);
+		glm::vec3 current = q * forward * radius + center;
+		CircleSegment(points, indexes, from, current, glm::normalize(glm::cross(normal, current - from)), glm::vec2(width));
 		from = current;
 	}
 }
@@ -118,6 +196,7 @@ void Geometries::Cylinder(std::vector<glm::vec3>& points, std::vector<uint>& ind
 
 void Geometries::Cuboid(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& center, const glm::vec3& size) {
 	glm::vec3 half = size / 2.f;
+	uint first = points.size();
 
 	points.insert(points.end(), {
 		center + glm::vec3(half.xy, -half.z),
@@ -131,8 +210,17 @@ void Geometries::Cuboid(std::vector<glm::vec3>& points, std::vector<uint>& index
 	});
 
 	indexes.insert(indexes.end(), {
-		0, 1, 2, 0, 2, 3, 0, 4, 5, 0, 5, 1,
-		1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3,
-		3, 7, 4, 3, 4, 0, 4, 7, 6, 4, 6, 5
+		0 + first, 1 + first, 2 + first, 
+		0 + first, 2 + first, 3 + first, 
+		0 + first, 4 + first, 5 + first, 
+		0 + first, 5 + first, 1 + first,
+		1 + first, 5 + first, 6 + first, 
+		1 + first, 6 + first, 2 + first, 
+		2 + first, 6 + first, 7 + first,
+		2 + first, 7 + first, 3 + first,
+		3 + first, 7 + first, 4 + first,
+		3 + first, 4 + first, 0 + first,
+		4 + first, 7 + first, 6 + first,
+		4 + first, 6 + first, 5 + first
 	});
 }

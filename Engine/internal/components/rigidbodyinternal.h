@@ -35,6 +35,10 @@ private:
 
 	bool RebuildShape();
 	bool CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale);
+
+	void CreateShapeFromPoints(Mesh mesh);
+	void CreateShapeFromTriangles(Mesh mesh);
+
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();
@@ -71,5 +75,5 @@ private:
 	// complicated shapes with btBvhTriangleMeshShape, specifying vertices of triangles just like you do when rendering 
 	// complex objects in OpenGL.
 	btCollisionShape* shape_;
-	btStridingMeshInterface* mesh_;
+	btStridingMeshInterface* indexedMesh_;
 };

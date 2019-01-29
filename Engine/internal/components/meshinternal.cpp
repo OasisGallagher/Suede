@@ -90,6 +90,10 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 }
 
 void MeshInternal::NotifyMeshModified() {
+	for (IMeshModifiedListener* listener : listeners_) {
+		listener->OnMeshModified();
+	}
+
 	for (IMeshModifiedListener* listener : storage_->listeners) {
 		listener->OnMeshModified();
 	}
@@ -98,7 +102,7 @@ void MeshInternal::NotifyMeshModified() {
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	int vboCount = CalculateVBOCount(attribute);
 	if (vboCount == 1) {
-		Debug::LogWarning("empty mesh attribute.");
+		Debug::LogError("empty mesh attribute.");
 		return;
 	}
 
@@ -183,7 +187,8 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 void MeshInternal::ShareStorage(Mesh other) {
 	MeshInternal* ptr = _suede_rptr(other);
 	if (ptr->storage_) {
-		storage_ = ptr->storage_; 
+		storage_ = ptr->storage_;
+		NotifyMeshModified();
 	}
 	else {
 		Debug::LogError("empty storage");
@@ -192,17 +197,17 @@ void MeshInternal::ShareStorage(Mesh other) {
 
 void MeshInternal::AddMeshModifiedListener(IMeshModifiedListener* listener) {
 	if (storage_) {
-		storage_->listeners.insert(listener);
+		storage_->listeners.insert_unique(listener);
 	}
-	else {
-		Debug::LogError("failed to add mesh modified listener, empty storage");
+
+	if (!listeners_.insert_unique(listener)) {
+		Debug::LogError("failed to add mesh modified listener, already exist");
 	}
 }
 
 void MeshInternal::RemoveMeshModifiedListener(IMeshModifiedListener* listener) {
-	if (storage_) {
-		storage_->listeners.erase(listener);
-	}
+	listeners_.erase(listener);
+	storage_->listeners.erase(listener);
 }
 
 void MeshInternal::AddSubMesh(SubMesh subMesh) {
@@ -266,8 +271,8 @@ MeshProviderInternal::~MeshProviderInternal() {
 
 void MeshProviderInternal::SetMesh(Mesh value) {
 	if (mesh_ != value) {
-		if (mesh_ != nullptr) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
-		if (value != nullptr) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
+		if (mesh_) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
+		if (value) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
 
 		mesh_ = value;
 		OnMeshModified();

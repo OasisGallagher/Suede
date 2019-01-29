@@ -75,7 +75,7 @@ void CameraUtility::OnPostRender() {
 }
 
 CameraInternal::CameraInternal(ICamera* self)
-	: ComponentInternal(self, ObjectType::Camera), depth_(0), traitsReady_(false) /*, gbuffer_(nullptr) */{
+	: ComponentInternal(self, ObjectType::Camera), depth_(0), traitsReady_(false), traitsDirty_(false) /*, gbuffer_(nullptr) */{
 	p_ = MEMORY_NEW(RenderingParameters);
 
 	culling_ = MEMORY_NEW(Culling, this);
@@ -149,6 +149,13 @@ void CameraInternal::Render() {
 		matrices.cameraPos = transform->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = transform->GetWorldToLocalMatrix();
+
+		if (traitsDirty_) {
+			traits1_->Traits(visibleGameObjects_, matrices);
+			std::swap(traits0_, traits1_);
+			traitsDirty_ = false;
+		}
+
 		rendering_->Render(traits0_->GetPipelines(), matrices);
 
 		/*TexelMap texels;
@@ -187,10 +194,13 @@ void CameraInternal::OnCullingFinished() {
 		visibleGameObjects_ = culling_->GetGameObjects();
 	}
 
+	/*uint64 start = Profiler::GetTimeStamp();
 	traits1_->Traits(visibleGameObjects_, matrices);
+	double delta = Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
+	Debug::Output(1, "traits costs %.2f ms", delta * 1000);
 
-	std::swap(traits0_, traits1_);
-	traitsReady_ = true;
+	//std::swap(traits0_, traits1_);*/
+	traitsReady_ = traitsDirty_ = true;
 }
 
 // void CameraInternal::OnRenderingFinished() {

@@ -107,6 +107,7 @@ private:
 	ZThread::Thread* cullingThread_;
 
 	bool traitsReady_;
+	bool traitsDirty_;
 	RenderableTraits* traits0_, *traits1_;
 
 	Rendering* rendering_;

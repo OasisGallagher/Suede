@@ -20,6 +20,11 @@ protected:
 	virtual void Update() = 0;
 
 private:
-	int status_;
+	enum {
+		Uninitialized,
+		Running,
+		Closed,
+	} status_;
+
 	GraphicsCanvas* canvas_;
 };

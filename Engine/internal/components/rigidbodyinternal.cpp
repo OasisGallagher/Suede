@@ -16,7 +16,7 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
 RigidbodyInternal::RigidbodyInternal(IRigidbody* self)
 	: ComponentInternal(self, ObjectType::Rigidbody)
-	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr) {
+	, mass_(0), shapeState_(Normal), body_(nullptr), indexedMesh_(nullptr), shape_(nullptr) {
 	CreateBody();
 }
 RigidbodyInternal::~RigidbodyInternal() {
@@ -138,6 +138,38 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	// This class requires the creation of a mesh object consisting of triangles. In this step,
 	// you gather triangles by grouping vertices from the list of vertices. 
 	// Then you create a mesh and create a shape object from this mesh.
+	if (mesh->GetTopology() != MeshTopology::Triangles) {
+		CreateShapeFromPoints(mesh);
+	}
+	else {
+		CreateShapeFromTriangles(mesh);
+	}
+
+	shape_->setMargin(0.1f);
+	shape_->setLocalScaling(btConvert(scale));
+
+	//}
+	return true;
+}
+
+void RigidbodyInternal::CreateShapeFromPoints(Mesh mesh) {
+	btConvexHullShape* convexHullShape = MEMORY_NEW(btConvexHullShape);
+	const glm::vec3* vertices = mesh->MapVertices();
+	uint nvertex = mesh->GetVertexCount();
+
+	for (uint i = 0; i < nvertex; ++i) {
+		convexHullShape->addPoint(btConvert(vertices[i]), false);
+	}
+
+	mesh->UnmapVertices();
+
+	convexHullShape->optimizeConvexHull();
+	convexHullShape->recalcLocalAabb();
+
+	shape_ = convexHullShape;
+}
+
+void RigidbodyInternal::CreateShapeFromTriangles(Mesh mesh) {
 	btTriangleIndexVertexArray* indexedMesh = MEMORY_NEW(btTriangleIndexVertexArray);
 
 	const uint* indexes = mesh->MapIndexes();
@@ -160,18 +192,14 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	mesh->UnmapIndexes();
 	mesh->UnmapVertices();
 
-	mesh_ = indexedMesh;
+	indexedMesh_ = indexedMesh;
 
 	// SUEDE TODO: slow operation.
-	shape_ = MEMORY_NEW(btBvhTriangleMeshShape, mesh_, true);
-	shape_->setLocalScaling(btConvert(scale));
-
-	//}
-	return true;
+	shape_ = MEMORY_NEW(btBvhTriangleMeshShape, indexedMesh_, true);
 }
 
 void RigidbodyInternal::DestroyShape() {
-	MEMORY_DELETE(mesh_); mesh_ = nullptr;
+	MEMORY_DELETE(indexedMesh_); indexedMesh_ = nullptr;
 	MEMORY_DELETE(shape_); shape_ = nullptr;
 }
 

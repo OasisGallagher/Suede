@@ -7,7 +7,8 @@ SubShader {
 	}
 
 	Pass {
-		ZTest Off;
+		Cull Off;
+		//ZTest Off;
 
 		GLSLPROGRAM
 
