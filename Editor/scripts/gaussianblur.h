@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <QObject>
 
-#include "ranged.h"
+#include "range.h"
 #include "graphics.h"
 #include "imageeffect.h"
 
@@ -10,7 +10,7 @@
 class GaussianBlur : public QObject, public ImageEffect {
 	Q_OBJECT
 	Q_PROPERTY(Material Material READ material)
-	Q_PROPERTY(iranged Amount READ amount WRITE setAmount)
+	Q_PROPERTY(irange Amount READ amount WRITE setAmount)
 	SUEDE_DECLARE_COMPONENT()
 
 public:
@@ -20,10 +20,10 @@ public:
 public:
 	Material material() { return material_; }
 
-	void setAmount(const iranged& value) { amount_ = value; }
-	iranged amount() const { return amount_; }
+	void setAmount(const irange& value) { amount_ = value; }
+	irange amount() const { return amount_; }
 
 private:
 	Material material_;
-	iranged amount_;
+	irange amount_;
 };

@@ -25,8 +25,8 @@ private:
 	static void drawProperties(Material material);
 	typedef void(*DrawMethod)(Material material, const Property* p);
 	static void drawBoolProperty(Material material, const Property* p);
-	static void drawRangedIntProperty(Material material, const Property* p);
-	static void drawRangedFloatProperty(Material material, const Property* p);
+	static void drawIntRangeProperty(Material material, const Property* p);
+	static void drawFloatRangeProperty(Material material, const Property* p);
 	static void drawTextureProperty(Material material, const Property* p);
 	static void drawColorProperty(Material material, const Property* p);
 	static void drawFloatProperty(Material material, const Property* p);

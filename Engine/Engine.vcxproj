@@ -452,7 +452,7 @@ python $(ProjectDir)include\luawrapper.py 1</Command>
     <ClInclude Include="include\geometries.h" />
     <ClInclude Include="include\profiler.h" />
     <ClInclude Include="include\projector.h" />
-    <ClInclude Include="include\ranged.h" />
+    <ClInclude Include="include\range.h" />
     <ClInclude Include="include\ray.h" />
     <ClInclude Include="include\rect.h" />
     <ClInclude Include="include\renderer.h" />

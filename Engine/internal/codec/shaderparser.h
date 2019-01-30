@@ -171,8 +171,8 @@ private:
 	void ReadMat3Property(SyntaxNode* node, Property* property);
 	void ReadMat4Property(SyntaxNode* node, Property* property);
 	void ReadFloatProperty(SyntaxNode* node, Property* property);
-	void ReadRangedInt(SyntaxNode* node, Property* property);
-	void ReadRangedFloat(SyntaxNode* node, Property* property);
+	void ReadIntRange(SyntaxNode* node, Property* property);
+	void ReadFloatRange(SyntaxNode* node, Property* property);
 
 	int ReadInt3(glm::ivec3& value, SyntaxNode* node);
 	void ReadString(std::string& value, SyntaxNode* node);

@@ -93,7 +93,7 @@ inline void Inspector::drawUserEnumType(QObject* object, const char* name) {
 
 template <class T>
 inline void Inspector::drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T)) {
-	ranged<T> r = object->property(name).value <ranged<T>>();
+	range<T> r = object->property(name).value <range<T>>();
 	T value = r.get_value();
 	if (draw(name, value, r.min(), r.max())) {
 		object->setProperty(name, QVariant::fromValue(r = value));

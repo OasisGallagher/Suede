@@ -272,20 +272,20 @@ class Material_Wrapper {
 		return Lua::push(L, _p->GetFloat(name));
 	}
 
-	// iranged GetRangedInt(const std::string& name)
-	static int GetRangedInt(lua_State* L) {
+	// irange GetIntRange(const std::string& name)
+	static int GetIntRange(lua_State* L) {
 		Material& _p = *Lua::callerIntrusivePtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
 		
-		return Lua::push(L, _p->GetRangedInt(name));
+		return Lua::push(L, _p->GetIntRange(name));
 	}
 
-	// franged GetRangedFloat(const std::string& name)
-	static int GetRangedFloat(lua_State* L) {
+	// frange GetFloatRange(const std::string& name)
+	static int GetFloatRange(lua_State* L) {
 		Material& _p = *Lua::callerIntrusivePtr<Material>(L);
 		std::string name = Lua::get<std::string>(L, 2);
 		
-		return Lua::push(L, _p->GetRangedFloat(name));
+		return Lua::push(L, _p->GetFloatRange(name));
 	}
 
 	// Texture GetTexture(const std::string& name)
@@ -369,8 +369,8 @@ public:
 			{ "GetInt", GetInt },
 			{ "GetBool", GetBool },
 			{ "GetFloat", GetFloat },
-			{ "GetRangedInt", GetRangedInt },
-			{ "GetRangedFloat", GetRangedFloat },
+			{ "GetIntRange", GetIntRange },
+			{ "GetFloatRange", GetFloatRange },
 			{ "GetTexture", GetTexture },
 			{ "GetMatrix4", GetMatrix4 },
 			{ "GetVector3", GetVector3 },

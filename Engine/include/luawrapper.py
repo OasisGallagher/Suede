@@ -14,7 +14,7 @@ RunAsExternal = False;
 
 kFilePostfix = "_wrapper";
 kClassPostfix = "_Wrapper";
-kDestFolder = "F:/GitHub/Suede/Engine/internal/lua/wrappers/";
+kDestFolder = "../internal/lua/wrappers/";
 kArray = "[]";
 kPyCStr = "py_cstr";
 kEnumerable = "Enumerable";
@@ -705,7 +705,7 @@ class Environment:
 			if enums: self.enums.extend(enums);
 	
 	def _sourceFiles(self):
-		paths = os.listdir("f:/github/suede/engine/include");
+		paths = os.listdir("./");
 
 		paths = [f for f in paths if f.endswith(".h") and f not in kExcludeFiles];
 		#paths = [ "student.h" ]; # , "class.h", "imageeffect.h", "rect.h" ];

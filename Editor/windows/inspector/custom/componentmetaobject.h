@@ -7,7 +7,7 @@
 
 #include "rect.h"
 #include "color.h"
-#include "ranged.h"
+#include "range.h"
 #include "component.h"
 #include "gameobject.h"
 
@@ -44,8 +44,8 @@ Q_DECLARE_METATYPE(glm::vec2)
 Q_DECLARE_METATYPE(glm::vec3)
 Q_DECLARE_METATYPE(glm::vec4)
 
-Q_DECLARE_METATYPE(iranged)
-Q_DECLARE_METATYPE(franged)
+Q_DECLARE_METATYPE(irange)
+Q_DECLARE_METATYPE(frange)
 
 Q_DECLARE_METATYPE(Rect)
 Q_DECLARE_METATYPE(Color)
