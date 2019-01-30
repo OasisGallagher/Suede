@@ -129,10 +129,17 @@ class GameObject_Wrapper {
 		return 0;
 	}
 
+	// Component AddComponent(suede_guid guid)
 	// Component AddComponent(const char* name)
 	// Component AddComponent(Component component)
 	static int AddComponent(lua_State* L) {
 		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		if (Lua::checkArguments<suede_guid>(L, 2)) {
+			suede_guid guid = Lua::get<suede_guid>(L, 2);
+			
+			return Lua::push(L, _p->AddComponent(guid));
+		}
+
 		if (Lua::checkArguments<std::string>(L, 2)) {
 			std::string name = Lua::get<std::string>(L, 2);
 			

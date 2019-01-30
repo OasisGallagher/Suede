@@ -5,6 +5,7 @@
 
 #include "hierarchy.h"
 #include "os/filesystem.h"
+#include "scripts/handles.h"
 #include "dragdropableitemmodel.h"
 
 Hierarchy::Hierarchy(QWidget* parent) : model_(nullptr), QDockWidget(parent) {
@@ -180,7 +181,7 @@ void Hierarchy::onTreeCustomContextMenu() {
 void Hierarchy::onDeleteSelected() {
 	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
 	for (QModelIndex index : indexes) {
-		World::DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
+		World::DestroyObject(World::GetGameObject(model_->itemFromIndex(index)->data().toUInt()));
 	}
 }
 
@@ -188,10 +189,12 @@ void Hierarchy::onSelectionChanged(const QItemSelection& selected, const QItemSe
 	QList<GameObject> ss;
 	selectionToGameObjects(ss, selected);
 	enableGameObjectsOutline(ss, true);
+	enableGameObjectsHandles(ss, true);
 
 	QList<GameObject> ds;
 	selectionToGameObjects(ds, deselected);
 	enableGameObjectsOutline(ds, false);
+	enableGameObjectsHandles(ss, false);
 
 	emit selectionChanged(ss, ds);
 }
@@ -238,17 +241,17 @@ QStandardItem* Hierarchy::appendItem(GameObject go, QStandardItem* parent) {
 	}
 
 	item = new QStandardItem(go->GetName().c_str());
-	item->setData(go->GetInstanceID());
-	
-	if (parent != nullptr) {
-		parent->appendRow(item);
-	}
-	else {
-		model_->appendRow(item);
-	}
+item->setData(go->GetInstanceID());
 
-	items_[go->GetInstanceID()] = item;
-	return item;
+if (parent != nullptr) {
+	parent->appendRow(item);
+}
+else {
+	model_->appendRow(item);
+}
+
+items_[go->GetInstanceID()] = item;
+return item;
 }
 
 void Hierarchy::removeItem(QStandardItem* item) {
@@ -260,7 +263,7 @@ void Hierarchy::removeItem(QStandardItem* item) {
 }
 
 bool Hierarchy::dropAcceptable(const QMimeData* data) {
-	if(data->hasFormat("targets")) {
+	if (data->hasFormat("targets")) {
 		return true;
 	}
 
@@ -330,6 +333,18 @@ void Hierarchy::selectionToGameObjects(QList<GameObject>& gameObjects, const QIt
 void Hierarchy::enableGameObjectsOutline(const QList<GameObject>& gameObjects, bool enable) {
 	for (GameObject go : gameObjects) {
 		enableGameObjectOutline(go, enable);
+	}
+}
+
+void Hierarchy::enableGameObjectsHandles(const QList<GameObject>& gameObjects, bool enable) {
+	for (GameObject go : gameObjects) {
+		Handles* handles = go->GetComponent<Handles>().get();
+		if (!enable) {
+			if (handles != nullptr) { World::DestroyObject(handles); }
+		}
+		else if (handles == nullptr) {
+			go->AddComponent<Handles>();
+		}
 	}
 }
 

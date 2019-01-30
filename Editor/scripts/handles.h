@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "mesh.h"
+#include "physics.h"
 #include "material.h"
 #include "transform.h"
 #include "behaviour.h"
@@ -23,45 +24,56 @@ class Handles : public QObject, public IBehaviour {
 public:
 	virtual void Awake();
 	virtual void Update();
-
+	virtual void OnDestroy();
 	virtual void OnPreRender();
 
 public:
 	void SetMode(HandlesMode value);
-	HandlesMode GetMode() const { return mode_; }
+	HandlesMode GetMode() { return mode_; }
 
 private:
 	void Initialize();
-	void UpdateCurrentAxis();
 
-	glm::vec3 FindAxis(GameObject current);
-	glm::vec3 Project(const glm::vec3& axis, glm::ivec2 delta);
+	void InitializeMeshes();
+	void InitializeMaterials();
 
 	void SetupAxises();
-	void InitializeMaterials(Material* materials);
+	void UpdateCurrentAxis();
 
-	void SetHandlesMesh(Mesh storage);
-
-	void MoveHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
-	void RotateHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
-
-	void ScaleHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
+	void SetHandlesMesh(Mesh storage); 
+	bool RaycastUnderCursor(RaycastHit& hitInfo);
+	
+	glm::vec3 FindAxis(GameObject current);
+	glm::vec3 Project(const glm::vec3& axis, const glm::ivec2& delta);
 
 	void InitializeMoveHandlesMesh(Mesh mesh);
 	void InitializeRotateHandlesMesh(Mesh mesh);
 	void InitializeScaleHandlesMesh(Mesh mesh);
 
+	typedef void (Handles::*Handler)(const glm::vec3&, const glm::ivec2&, const glm::ivec2&);
+
+	void MoveHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
+	void RotateHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
+	void ScaleHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
+
 private:
-	HandlesMode mode_;
-	void (Handles::*method_)(const glm::vec3&, const glm::ivec2&, const glm::ivec2&);
-
-	Mesh meshes_[HandlesMode::size()];
-
 	Color color_;
-	glm::ivec2 pos_;
+	glm::vec3 tangent_;
+	glm::ivec2 screenPos_;
+	glm::vec3 collisionPos_;
 
 	glm::vec3 axis_;
 	GameObject current_;
 
-	static GameObject handles_;
+	Handler handler_;
+	GameObject handles_;
+	HandlesMode mode_;
+
+	enum {
+		AxisCount = 3,
+		Resolution = 27,
+	};
+
+	static Mesh s_meshes[AxisCount];
+	static Material s_materials[AxisCount];
 };

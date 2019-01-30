@@ -12,6 +12,7 @@
 #include "environment_wrapper.h"
 #include "font_wrapper.h"
 #include "gameobject_wrapper.h"
+#include "geometries_wrapper.h"
 #include "gizmos_wrapper.h"
 #include "graphics_wrapper.h"
 #include "imageeffect_wrapper.h"
@@ -67,6 +68,7 @@ static int configure(lua_State* L) {
 	CharacterInfo_Wrapper::create(L);
 	Font_Wrapper::create(L);
 	GameObject_Wrapper::create(L);
+	Geometries_Wrapper::create(L);
 	Gizmos_Wrapper::create(L);
 	Graphics_Wrapper::create(L);
 	ImageEffect_Wrapper::create(L);
@@ -105,6 +107,7 @@ static int configure(lua_State* L) {
 	SkinnedMeshRenderer_Wrapper::create(L);
 	Resources_Wrapper::create(L);
 	Rigidbody_Wrapper::create(L);
+	ScreenSizeListener_Wrapper::create(L);
 	Screen_Wrapper::create(L);
 	Property_Wrapper::create(L);
 	ShaderProperty_Wrapper::create(L);
@@ -146,6 +149,7 @@ static int configure(lua_State* L) {
 	CharacterInfo_Wrapper::initialize(L, funcs, fields);
 	Font_Wrapper::initialize(L, funcs, fields);
 	GameObject_Wrapper::initialize(L, funcs, fields);
+	Geometries_Wrapper::initialize(L, funcs, fields);
 	Gizmos_Wrapper::initialize(L, funcs, fields);
 	Graphics_Wrapper::initialize(L, funcs, fields);
 	ImageEffect_Wrapper::initialize(L, funcs, fields);
@@ -184,6 +188,7 @@ static int configure(lua_State* L) {
 	SkinnedMeshRenderer_Wrapper::initialize(L, funcs, fields);
 	Resources_Wrapper::initialize(L, funcs, fields);
 	Rigidbody_Wrapper::initialize(L, funcs, fields);
+	ScreenSizeListener_Wrapper::initialize(L, funcs, fields);
 	Screen_Wrapper::initialize(L, funcs, fields);
 	Property_Wrapper::initialize(L, funcs, fields);
 	ShaderProperty_Wrapper::initialize(L, funcs, fields);

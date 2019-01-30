@@ -62,7 +62,12 @@ public:
 	void RecalculateUpdateStrategy();
 
 public:	// Component system.
+	Component AddComponent(suede_guid guid);
 	Component AddComponent(const char* name);
+
+	/**
+	 * @warning component can NOT be shared.
+	 */
 	Component AddComponent(Component component);
 
 	template <class T>
@@ -92,12 +97,9 @@ public:	// Component system.
 	std::vector<Component> GetComponents(suede_guid guid);
 
 	/**
-	* @param name pass "" to get all components.
-	*/
+	 * @param name pass "" to get all components.
+	 */
 	std::vector<Component> GetComponents(const char* name);
-
-private:
-	Component AddComponent(suede_guid guid);
 };
 
 template <class T>

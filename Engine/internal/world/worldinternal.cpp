@@ -11,14 +11,14 @@
 #include "internal/async/async.h"
 #include "internal/codec/gameObjectloader.h"
 #include "internal/components/transforminternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 
 World::World() : singleton2<World>(MEMORY_NEW(WorldInternal,), Memory::DeleteRaw<WorldInternal>) {}
 void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
 void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
 void World::Update() { _suede_dinstance()->Update(); }
-void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(id); }
-void World::DestroyGameObject(GameObject go) { _suede_dinstance()->DestroyGameObject(go); }
+void World::DestroyObject(Object object) { _suede_dinstance()->DestroyObject(object); }
 GameObject World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->Import(path, listener); }
 GameObject World::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
 bool World::ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->ImportTo(go, path,listener); }
@@ -57,7 +57,7 @@ bool WorldInternal::ProjectorComparer::operator() (const Projector& lhs, const P
 
 WorldInternal::WorldInternal()
 	: importer_(MEMORY_NEW(GameObjectLoaderThreadPool)) {
-	Screen::AddScreenSizeChangedListener(this);
+	Screen::AddScreenSizeListener(this);
 	AddEventListener(this);
 }
 
@@ -85,7 +85,7 @@ void WorldInternal::Finalize() {
 	MEMORY_DELETE(decalCreater_);
 
 	RemoveEventListener(this);
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::RemoveScreenSizeListener(this);
 }
 
 GameObject WorldInternal::Import(const std::string& path, GameObjectImportedListener* listener) {
@@ -108,10 +108,16 @@ GameObject WorldInternal::GetGameObject(uint id) {
 	return ite->second;
 }
 
-void WorldInternal::DestroyGameObject(uint id) {
-	GameObject go = GetGameObject(id);
+void WorldInternal::DestroyObject(Object object) {
+	GameObject go = suede_dynamic_cast<GameObject>(object);
 	if (go) {
-		DestroyGameObject(go);
+		return DestroyGameObject(go);
+	}
+
+	Component component = suede_dynamic_cast<Component>(object);
+	if (component) {
+		component->OnDestroy();
+		return ((GameObjectInternal*)component->GetGameObject()->d_)->RemoveComponent(component);
 	}
 }
 
@@ -121,6 +127,10 @@ void WorldInternal::DestroyGameObject(GameObject go) {
 
 void WorldInternal::DestroyGameObjectRecursively(Transform root) {
 	GameObject go = root->GetGameObject();
+	for (Component component : go->GetComponents("")) {
+		component->OnDestroy();
+	}
+
 	RemoveGameObject(go);
 
 	FireEvent(new GameObjectDestroyedEvent(go));

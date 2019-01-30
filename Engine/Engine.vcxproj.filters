@@ -1684,6 +1684,9 @@
     <ClInclude Include="internal\components\rigidbodyinternal.h">
       <Filter>internal\components\include</Filter>
     </ClInclude>
+    <ClInclude Include="internal\lua\wrappers\geometries_wrapper.h">
+      <Filter>internal\lua\wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\base\objectinternal.cpp">

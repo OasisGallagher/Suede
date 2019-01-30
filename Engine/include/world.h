@@ -143,8 +143,7 @@ public:
 	static void Update();
 	static void CullingUpdate();
 
-	static void DestroyGameObject(uint id);
-	static void DestroyGameObject(GameObject go);
+	static void DestroyObject(Object object);
 
 	static GameObject Import(const std::string& path, GameObjectImportedListener* listener);
 	static GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);

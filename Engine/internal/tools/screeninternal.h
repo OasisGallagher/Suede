@@ -9,12 +9,12 @@ public:
 	uint GetWidth() { return width_; }
 	uint GetHeight() { return height_; }
 
-	void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
+	void AddScreenSizeChangedListener(ScreenSizeListener* listener);
+	void RemoveScreenSizeChangedListener(ScreenSizeListener* listener);
 	void Resize(uint width, uint height);
 
 private:
 	uint width_;
 	uint height_;
-	std::vector<ScreenSizeChangedListener*> listeners_;
+	std::vector<ScreenSizeListener*> listeners_;
 };

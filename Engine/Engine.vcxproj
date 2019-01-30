@@ -120,6 +120,10 @@
       <Command>copy $(TargetDir)$(TargetName).lib $(SolutionDir)Editor\lib
 copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(ProjectDir)include
+python $(ProjectDir)include\luawrapper.py 1</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -518,6 +522,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\lua\wrappers\environment_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\font_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h" />
+    <ClInclude Include="internal\lua\wrappers\geometries_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h" />
     <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h" />

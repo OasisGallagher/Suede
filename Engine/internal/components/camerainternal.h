@@ -18,7 +18,7 @@
 class Sample;
 class CameraInternal : public ComponentInternal, public Frustum
 	, public CullingListener/*, public RenderingListener */
-	, public ScreenSizeChangedListener {
+	, public ScreenSizeListener {
 	SUEDE_DECLARE_SELF_TYPE(ICamera)
 
 public:	CameraInternal(ICamera* self);	~CameraInternal();

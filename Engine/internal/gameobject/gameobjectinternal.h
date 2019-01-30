@@ -48,6 +48,8 @@ public:
 	template <class T>
 	Component AddComponent(T key);
 
+	void RemoveComponent(Component component);
+
 	template <class T>
 	Component GetComponent(T key);
 
@@ -126,6 +128,11 @@ inline Component GameObjectInternal::AddComponent(T key) {
 
 template <>
 inline Component GameObjectInternal::AddComponent(Component key) {
+	if (key->GetGameObject()) {
+		Debug::LogError("component %s is in use", key->GetComponentInstanceName());
+		return nullptr;
+	}
+
 	if (key->AllowMultiple() || CheckComponentDuplicate(key->GetComponentInstanceGUID())) {
 		return ActivateComponent(key);
 	}

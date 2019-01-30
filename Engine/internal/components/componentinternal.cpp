@@ -4,6 +4,7 @@ IComponent::IComponent(void* d) : IObject(d) {}
 
 void IComponent::Awake() { _suede_dptr()->Awake(); }
 void IComponent::Update() { _suede_dptr()->Update(); }
+void IComponent::OnDestroy() { _suede_dptr()->OnDestroy(); }
 void IComponent::OnPreRender() { _suede_dptr()->OnPreRender(); }
 void IComponent::OnPostRender() { _suede_dptr()->OnPostRender(); }
 void IComponent::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {}

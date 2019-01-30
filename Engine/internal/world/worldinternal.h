@@ -16,23 +16,20 @@ class Sample;
 class DecalCreater;
 class GameObjectLoaderThreadPool;
 
-class WorldInternal : public ScreenSizeChangedListener, public WorldEventListener {
+class WorldInternal : public ScreenSizeListener, public WorldEventListener {
 public:
 	WorldInternal();
 	~WorldInternal();
 
 public:
 	void Initialize();
+	void Finalize();
 
 	void Update();
 	void CullingUpdate();
-
-	void Finalize();
+	void DestroyObject(Object object);
 
 	Transform GetRootTransform() { return root_->GetTransform(); }
-
-	void DestroyGameObject(uint id);
-	void DestroyGameObject(GameObject go);
 
 	GameObject Import(const std::string& path, GameObjectImportedListener* listener);
 	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
@@ -59,6 +56,7 @@ public:
 
 private:
 	void AddGameObject(GameObject go);
+	void DestroyGameObject(GameObject go);
 
 	void OnGameObjectParentChanged(GameObject go);
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e);

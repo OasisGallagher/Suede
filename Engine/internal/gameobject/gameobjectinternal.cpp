@@ -198,6 +198,15 @@ void GameObjectInternal::OnNameChanged() {
 	FireWorldEvent<GameObjectNameChangedEvent>(true, false);
 }
 
+void GameObjectInternal::RemoveComponent(Component component) {
+	for (std::vector<Component>::iterator ite = components_.begin(); ite != components_.end(); ++ite) {
+		if ((*ite) == component) {
+			components_.erase(ite);
+			break;
+		}
+	}
+}
+
 void GameObjectInternal::SetActive(bool value) {
 	if (active_ != value) {
 		active_ = value;

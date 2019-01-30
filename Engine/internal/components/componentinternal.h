@@ -44,6 +44,7 @@ public:
 
 	virtual void Awake() {}
 	virtual void Update() {}
+	virtual void OnDestroy() {}
 	virtual void OnPreRender() {}
 	virtual void OnPostRender() {}
 	virtual void CullingUpdate() {}

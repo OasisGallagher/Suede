@@ -67,6 +67,7 @@ private:
 
 	void enableGameObjectOutline(GameObject go, bool enable);
 	void enableGameObjectsOutline(const QList<GameObject>& gameObjects, bool enable);
+	void enableGameObjectsHandles(const QList<GameObject>& gameObjects, bool enable);
 	void selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items);
 
 private:

@@ -29,6 +29,13 @@ class Behaviour_Wrapper {
 		return 0;
 	}
 
+	// virtual void OnDestroy()
+	static int OnDestroy(lua_State* L) {
+		Behaviour& _p = *Lua::callerIntrusivePtr<Behaviour>(L);
+		_p->OnDestroy();
+		return 0;
+	}
+
 	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
 	static int OnRenderImage(lua_State* L) {
 		Behaviour& _p = *Lua::callerIntrusivePtr<Behaviour>(L);
@@ -51,6 +58,7 @@ public:
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
+			{ "OnDestroy", OnDestroy },
 			{ "OnRenderImage", OnRenderImage },
 			{ nullptr, nullptr }
 		};

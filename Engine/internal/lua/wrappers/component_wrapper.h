@@ -48,6 +48,13 @@ class Component_Wrapper {
 		return 0;
 	}
 
+	// virtual void OnDestroy()
+	static int OnDestroy(lua_State* L) {
+		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
+		_p->OnDestroy();
+		return 0;
+	}
+
 	// virtual void OnPreRender()
 	static int OnPreRender(lua_State* L) {
 		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
@@ -185,6 +192,7 @@ public:
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
+			{ "OnDestroy", OnDestroy },
 			{ "OnPreRender", OnPreRender },
 			{ "OnPostRender", OnPostRender },
 			{ "OnRenderImage", OnRenderImage },

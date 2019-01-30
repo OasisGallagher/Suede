@@ -87,7 +87,7 @@ CameraInternal::CameraInternal(ICamera* self)
 	traits0_ = MEMORY_NEW(RenderableTraits, p_);
 	traits1_ = MEMORY_NEW(RenderableTraits, p_);
 
-	Screen::AddScreenSizeChangedListener(this);
+	Screen::AddScreenSizeListener(this);
 
 	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
 }
@@ -103,7 +103,7 @@ CameraInternal::~CameraInternal() {
 
 	MEMORY_DELETE(rendering_);
 
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::RemoveScreenSizeListener(this);
 }
 
 void CameraInternal::Awake() {

@@ -107,6 +107,9 @@ public:
 	static bool Approximately(const glm::vec3& lhs, const glm::vec3& rhs);
 	static bool Approximately(const glm::vec4& lhs, const glm::vec4& rhs);
 	static bool Approximately(const glm::quat& lhs, const glm::quat& rhs);
+	static bool Approximately(const glm::mat2& lhs, const glm::mat2& rhs);
+	static bool Approximately(const glm::mat3& lhs, const glm::mat3& rhs);
+	static bool Approximately(const glm::mat4& lhs, const glm::mat4& rhs);
 
 private:
 	Math();
@@ -261,4 +264,16 @@ inline bool Math::Approximately(const glm::vec4& lhs, const glm::vec4& rhs) {
 
 inline bool Math::Approximately(const glm::quat& lhs, const glm::quat& rhs) {
 	return 1.f - Abs(glm::dot(lhs, rhs)) < Epsilon;
+}
+
+inline bool Math::Approximately(const glm::mat2& lhs, const glm::mat2& rhs) {
+	return Approximately(lhs[0], rhs[0]) && Approximately(lhs[1], rhs[1]);
+}
+
+inline bool Math::Approximately(const glm::mat3& lhs, const glm::mat3& rhs) {
+	return Approximately(lhs[0], rhs[0]) && Approximately(lhs[1], rhs[1]) && Approximately(lhs[2], rhs[2]);
+}
+
+inline bool Math::Approximately(const glm::mat4& lhs, const glm::mat4& rhs) {
+	return Approximately(lhs[0], rhs[0]) && Approximately(lhs[1], rhs[1]) && Approximately(lhs[2], rhs[2]) && Approximately(lhs[3], rhs[3]);
 }

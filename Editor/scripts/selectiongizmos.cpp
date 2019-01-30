@@ -38,23 +38,11 @@ void SelectionGizmos::OnDrawGizmos() {
 	Gizmos::SetColor(oldColor);
 }
 
-#include "handles.h"
-
 void SelectionGizmos::setSelection(const QList<GameObject>& value) {
 	selection_.clear();
 	selection_.reserve(value.size());
 
 	for (const GameObject& go : value) {
 		selection_.push_back(go.get());
-
-		// <DEBUG>
-		if (go->GetName() != "RootNode") {
-			continue;
-		}
-		// </DEBUG>
-
-		if (!go->GetComponent<Handles>()) {
-			go->AddComponent<Handles>();
-		}
 	}
 }
