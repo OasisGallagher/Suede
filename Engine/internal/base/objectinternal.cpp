@@ -7,33 +7,48 @@
 #include "textureinternal.h"
 
 IObject::IObject(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
+bool IObject::IsDestroyed() const { return _suede_dptr()->IsDestroyed(); }
 std::string IObject::GetName() const { return _suede_dptr()->GetName(); }
 void IObject::SetName(const std::string& value) { _suede_dptr()->SetName(value); }
 Object IObject::Clone() { return _suede_dptr()->Clone(); }
 ObjectType IObject::GetObjectType() { return _suede_dptr()->GetObjectType(); }
 uint IObject::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
+void IObject::Destroy() { _suede_dptr()->Destroy(); }
+void IObject::SetHideFlags(HideFlags value) { _suede_dptr()->SetHideFlags(value); }
+HideFlags IObject::GetHideFlags() const { return _suede_dptr()->GetHideFlags(); }
 
 uint ObjectInternal::objectIDContainer[ObjectType::size()];
 
-ObjectInternal::ObjectInternal(IObject* self, ObjectType type) : type_(type), self_(self) {
+ObjectInternal::ObjectInternal(IObject* self, ObjectType type) 
+	: type_(type), self_(self), destroyed_(false), hideFlags_(HideFlags::None) {
 	id_ = GenerateInstanceID(type);
 }
 
 void ObjectInternal::SetName(const std::string& value) {
-	if (value.empty()) {
-		Debug::LogWarning("empty name.");
-		return;
-	}
-
 	if (name_ != value) {
 		name_ = value;
 		OnNameChanged();
 	}
 }
 
+void ObjectInternal::SetHideFlags(HideFlags value) {
+	if (hideFlags_ != value) {
+		World::FireEvent(new HideFlagsChangedEvent(_suede_self(), hideFlags_));
+		hideFlags_ = value;
+	}
+}
+
 Object ObjectInternal::Clone() {
 	Debug::LogError("unable to clone.");
 	return nullptr;
+}
+
+void ObjectInternal::Destroy() {
+	if (destroyed_) {
+		Debug::LogError("object has already been destroyed");
+	}
+
+	destroyed_ = true;
 }
 
 uint ObjectInternal::GenerateInstanceID(ObjectType type) {

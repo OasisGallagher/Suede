@@ -19,7 +19,12 @@ RigidbodyInternal::RigidbodyInternal(IRigidbody* self)
 	, mass_(0), shapeState_(Normal), body_(nullptr), indexedMesh_(nullptr), shape_(nullptr) {
 	CreateBody();
 }
+
 RigidbodyInternal::~RigidbodyInternal() {
+	OnDestroy();
+}
+
+void RigidbodyInternal::OnDestroy() {
 	DestroyBody();
 	DestroyShape();
 }
@@ -27,11 +32,13 @@ RigidbodyInternal::~RigidbodyInternal() {
 // SUEDE TODO: FixedUpdate.
 void RigidbodyInternal::Update() {
 	if (shapeState_ != Normal) {
-		if (shapeState_ != InvalidShape || RebuildShape()) {
-			UpdateBody(true);
-			ApplyGameObjectTransform();
-			UpdateBounds();
+		if ((shapeState_ & InvalidShape) != 0) {
+			RebuildShape();
 		}
+
+		UpdateBody(true);
+		ApplyGameObjectTransform();
+		UpdateBounds();
 
 		shapeState_ = Normal;
 		RequestRecalculateUpdateStrategy();
@@ -54,12 +61,11 @@ void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 	bool needUpdate = false;
 	if (messageID == GameObjectMessageMeshModified) {
 		needUpdate = true;
-		shapeState_ = InvalidShape;
+		shapeState_ |= InvalidShape;
 	}
 	else if (messageID == GameObjectMessageLocalToWorldMatrixModified) {
 		needUpdate = true;
-		shapeState_ = InvalidBody;
-
+		shapeState_ |= InvalidBody;
 		shape_->setLocalScaling(btConvert(GetTransform()->GetScale()));
 	}
 
@@ -269,7 +275,9 @@ void RigidbodyInternal::CreateBody() {
 
 void RigidbodyInternal::DestroyBody() {
 	if (body_ != nullptr) {
+		btWorld()->removeRigidBody(body_);
 		MEMORY_DELETE(body_->getMotionState());
 		MEMORY_DELETE(body_);
+		body_ = nullptr;
 	}
 }

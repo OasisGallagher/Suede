@@ -24,17 +24,19 @@ function SuedeGlobal.Start()
 	end);
 	]]
 
-	Suede.World.Import("room.fbx", function (root, path)
-		if string.find(path, "house") then
-			root:GetTransform():SetScale({ 0.01, 0.01, 0.01 });
-		elseif string.find(path, "room") then
-			root:GetTransform():SetScale({ 0.1, 0.1, 0.1 });
-			root:GetTransform():SetEulerAngles({ 30, 0, 0 });
+	for i = 1, 1 do
+		Suede.World.Import("room.fbx", function (root, path)
+			if string.find(path, "house") then
+				root:GetTransform():SetScale({ 0.01, 0.01, 0.01 });
+			elseif string.find(path, "room") then
+				root:GetTransform():SetScale({ 0.1, 0.1, 0.1 });
+				root:GetTransform():SetEulerAngles({ 30, 0, 0 });
 
-			local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("Rigidbody");
-			body:SetMass(0);
-		end
-	end);
+				local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("Rigidbody");
+				body:SetMass(0);
+			end
+		end);
+	end
 	
 	--[[
 	Suede.World.Import("builtin/quad.fbx", function (root, path)

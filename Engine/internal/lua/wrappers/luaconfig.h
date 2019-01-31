@@ -324,6 +324,15 @@ static int configure(lua_State* L) {
 
 	lua_setfield(L, -2, "ObjectType");
 
+	// HideFlags
+	lua_newtable(L);
+	for (int i = 0; i < HideFlags::size(); ++i) {
+		lua_pushinteger(L, HideFlags::value(i));
+		lua_setfield(L, -2, HideFlags::value(i).to_string());
+	}
+
+	lua_setfield(L, -2, "HideFlags");
+
 	// PrimitiveType
 	lua_newtable(L);
 	for (int i = 0; i < PrimitiveType::size(); ++i) {

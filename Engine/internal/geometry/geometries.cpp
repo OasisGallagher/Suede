@@ -83,7 +83,7 @@ void Geometries::Rectangle(std::vector<glm::vec3>& points, std::vector<uint>& in
 	ADD_TRIANGLE(indexes, first + 1, first, first + 3);
 }
 
-void Geometries::Sphere(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
+void Geometries::Sphere(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& center, float radius, const glm::ivec2& resolution) {
 	// step size between U-points on the grid
 	glm::vec2 step = glm::vec2(Math::Pi2, Math::Pi) / glm::vec2(resolution);
 
@@ -95,10 +95,10 @@ void Geometries::Sphere(std::vector<glm::vec3>& points, std::vector<uint>& index
 
 			// Find the four points of the grid square by evaluating the parametric urface function.
 			glm::vec3 p[] = {
-				SPHERE_COODRINATE(uv.x, uv.y),
-				SPHERE_COODRINATE(uv.x, vn),
-				SPHERE_COODRINATE(un, uv.y),
-				SPHERE_COODRINATE(un, vn)
+				SPHERE_COODRINATE(uv.x, uv.y) * radius + center,
+				SPHERE_COODRINATE(uv.x, vn) * radius + center,
+				SPHERE_COODRINATE(un, uv.y) * radius + center,
+				SPHERE_COODRINATE(un, vn) * radius + center
 			};
 
 			uint c = points.size();

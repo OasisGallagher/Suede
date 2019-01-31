@@ -74,6 +74,7 @@ private:
 		Resolution = 27,
 	};
 
-	static Mesh s_meshes[AxisCount];
+	static Mesh s_gizmoMeshes[AxisCount];
+	static Mesh s_handleMeshes[AxisCount];
 	static Material s_materials[AxisCount];
 };

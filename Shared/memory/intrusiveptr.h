@@ -213,8 +213,15 @@ public:
 };
 
 template <class CounterPolicy>
+inline void intrusive_ptr_load(intrusive_ref_counter<CounterPolicy>* counter) {
+	return CounterPolicy::load(counter->refs_);
+}
+
+template <class CounterPolicy>
 inline void intrusive_ptr_add_ref(intrusive_ref_counter<CounterPolicy>* counter) {
-	CounterPolicy::increment(counter->refs_);
+	if (counter->refs_ >= 0) {
+		CounterPolicy::increment(counter->refs_);
+	}
 }
 
 template <class CounterPolicy>

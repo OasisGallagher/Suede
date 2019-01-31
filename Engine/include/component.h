@@ -80,11 +80,6 @@ public:
 	 */
 	virtual bool AllowMultiple() const { return false; }
 
-	/**
-	 * @brief makes a variable not show up in the inspector.
-	 */
-	virtual bool HideInInspector() const { return false; }
-
 	virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID(); }
 	virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName()) == 0; }
 

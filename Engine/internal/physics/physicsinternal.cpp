@@ -61,7 +61,6 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	Engine::AddFrameEventListener(this);
 }
 
-
 PhysicsInternal::~PhysicsInternal() {
 	World::RemoveEventListener(this);
 	Engine::RemoveFrameEventListener(this);

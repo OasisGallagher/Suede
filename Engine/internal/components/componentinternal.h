@@ -33,6 +33,8 @@ public:
 	ComponentInternal(IComponent* self, ObjectType type) : ObjectInternal(self, type), enabled_(true), gameObject_(nullptr) {}
 
 public:
+	virtual void Destroy();
+
 	virtual bool GetEnabled() const { return enabled_; }
 	virtual void SetEnabled(bool value) { enabled_ = value; }
 

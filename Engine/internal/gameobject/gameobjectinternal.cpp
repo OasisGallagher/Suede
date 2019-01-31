@@ -60,6 +60,27 @@ GameObjectInternal::GameObjectInternal(IGameObject* self, ObjectType type)
 GameObjectInternal::~GameObjectInternal() {
 }
 
+void GameObjectInternal::Destroy() {
+	ObjectInternal::Destroy();
+
+	for (Component component : components_) {
+		component->Destroy();
+	}
+
+	components_.clear();
+}
+
+void GameObjectInternal::RemoveComponent(Component component) {
+	if (IsDestroyed()) { return; }
+
+	for (std::vector<Component>::iterator ite = components_.begin(); ite != components_.end(); ++ite) {
+		if ((*ite) == component) {
+			components_.erase(ite);
+			break;
+		}
+	}
+}
+
 void GameObjectInternal::SetActiveSelf(bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
@@ -196,15 +217,6 @@ void GameObjectInternal::RecalculateUpdateStrategy() {
 
 void GameObjectInternal::OnNameChanged() {
 	FireWorldEvent<GameObjectNameChangedEvent>(true, false);
-}
-
-void GameObjectInternal::RemoveComponent(Component component) {
-	for (std::vector<Component>::iterator ite = components_.begin(); ite != components_.end(); ++ite) {
-		if ((*ite) == component) {
-			components_.erase(ite);
-			break;
-		}
-	}
 }
 
 void GameObjectInternal::SetActive(bool value) {

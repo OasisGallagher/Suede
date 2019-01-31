@@ -147,12 +147,6 @@ class Component_Wrapper {
 		return Lua::push(L, _p->AllowMultiple());
 	}
 
-	// virtual bool HideInInspector()
-	static int HideInInspector(lua_State* L) {
-		Component& _p = *Lua::callerIntrusivePtr<Component>(L);
-		return Lua::push(L, _p->HideInInspector());
-	}
-
 	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID()
 	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
 	static int IsComponentType(lua_State* L) {
@@ -204,7 +198,6 @@ public:
 			{ "CullingUpdate", CullingUpdate },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "AllowMultiple", AllowMultiple },
-			{ "HideInInspector", HideInInspector },
 			{ "IsComponentType", IsComponentType },
 			{ "GetComponentInstanceGUID", GetComponentInstanceGUID },
 			{ nullptr, nullptr }

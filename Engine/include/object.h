@@ -51,6 +51,12 @@ BETTER_ENUM(ObjectType, int,
 	CustomBehaviour
 )
 
+BETTER_ENUM(HideFlags, int,
+	None = 0, 
+	HideInHierarchy = 1 << 0,
+	HideInInspector = 1 << 1
+)
+
 SUEDE_DEFINE_OBJECT_POINTER(Object)
 
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
@@ -71,6 +77,12 @@ public:
 	Object Clone();
 	ObjectType GetObjectType();
 	uint GetInstanceID();
+
+	void SetHideFlags(HideFlags value);
+	HideFlags GetHideFlags() const;
+
+	void Destroy();
+	bool IsDestroyed() const;
 
 protected:
 	IObject(void* d);

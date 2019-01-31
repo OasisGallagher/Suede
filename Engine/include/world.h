@@ -12,6 +12,8 @@
 #include "gameobjectimportedlistener.h"
 
 BETTER_ENUM(WorldEventType, int,
+	HideFlagsChanged,
+
 	GameObjectCreated,
 	GameObjectDestroyed,
 	GameObjectTagChanged,
@@ -26,6 +28,13 @@ BETTER_ENUM(WorldEventType, int,
 
 struct WorldEventBase : public intrusive_ref_counter<> {
 	virtual WorldEventType GetEventType() const = 0;
+};
+
+struct HideFlagsChangedEvent : public WorldEventBase {
+	Object object;
+	HideFlags oldHideFlags;
+	HideFlagsChangedEvent(Object object, HideFlags oldHideFlags) : object(object), oldHideFlags(oldHideFlags) {}
+	virtual WorldEventType GetEventType() const { return WorldEventType::HideFlagsChanged; }
 };
 
 struct GameObjectEvent : public WorldEventBase {

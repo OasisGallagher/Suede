@@ -49,9 +49,6 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(MeshProvider, Component)
 SUEDE_DEFINE_COMPONENT_INTERNAL(TextMesh, MeshProvider)
 SUEDE_DEFINE_COMPONENT_INTERNAL(MeshFilter, MeshProvider)
 
-#define GetMeshInternal(mesh)			((MeshInternal*)(mesh)->d_)
-#define GetSubMeshInternal(subMesh)		((SubMeshInternal*)(subMesh)->d_)
-
 SubMeshInternal::SubMeshInternal(ISubMesh* self) :ObjectInternal(self, ObjectType::SubMesh) {
 }
 
@@ -266,13 +263,13 @@ MeshProviderInternal::MeshProviderInternal(IMeshProvider* self, ObjectType type)
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this);
+	_suede_rptr(mesh_)->RemoveMeshModifiedListener(this);
 }
 
 void MeshProviderInternal::SetMesh(Mesh value) {
 	if (mesh_ != value) {
-		if (mesh_) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
-		if (value) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
+		if (mesh_) { _suede_rptr(mesh_)->RemoveMeshModifiedListener(this); }
+		if (value) { _suede_rptr(value)->AddMeshModifiedListener(this); }
 
 		mesh_ = value;
 		OnMeshModified();

@@ -9,10 +9,12 @@ class RigidbodyInternal : public ComponentInternal {
 	SUEDE_DECLARE_SELF_TYPE(IRigidbody)
 
 public:
-	RigidbodyInternal(IRigidbody* self);	~RigidbodyInternal();
+	RigidbodyInternal(IRigidbody* self);
+	~RigidbodyInternal();
 
 public:
 	virtual void Update();
+	virtual void OnDestroy();
 
 	virtual int GetUpdateStrategy();
 	virtual void OnMessage(int messageID, void* parameter);
@@ -58,10 +60,12 @@ private:
 	float mass_;
 
 	enum {
-		Normal,
-		InvalidBody,
-		InvalidShape,
-	} shapeState_;
+		Normal = 0,
+		InvalidBody = 1 << 0,
+		InvalidShape = 1 << 1,
+	};
+
+	int shapeState_;
 
 	Bounds bounds_;
 

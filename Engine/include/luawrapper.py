@@ -48,6 +48,7 @@ kExcludeClasses = [
 	"InputInternal",
 	
 	"WorldEventBase",
+	"HideFlagsChangedEvent",
 	"GameObjectEvent",
 	"ComponentEvent",
 	"GameObjectCreatedEvent",

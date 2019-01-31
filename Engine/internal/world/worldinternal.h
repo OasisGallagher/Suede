@@ -72,7 +72,7 @@ private:
 	void PostRenderUpdateGameObjects();
 
 	void RemoveGameObject(GameObject go);
-	void DestroyGameObjectRecursively(Transform root);
+	void DestroyGameObjectRecursively(GameObject go);
 
 	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
 

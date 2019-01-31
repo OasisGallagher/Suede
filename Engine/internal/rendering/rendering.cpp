@@ -332,7 +332,9 @@ void RenderableTraits::Traits(const std::vector<GameObject>& gameObjects, const 
 
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject go = gameObjects[i];
-		pipelines_.shadow->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
+		if (!go->IsDestroyed()) {
+			pipelines_.shadow->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
+		}
 	}
 
 	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
@@ -499,7 +501,9 @@ void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
 void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& gameObjects) {
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject go = gameObjects[i];
-		RenderGameObject(pl, go, go->GetComponent<Renderer>());
+		if (!go->IsDestroyed()) {
+			RenderGameObject(pl, go, go->GetComponent<Renderer>());
+		}
 	}
 
 	Debug::Output(0, "[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());

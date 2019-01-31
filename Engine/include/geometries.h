@@ -36,6 +36,8 @@ public:
 	static void Sphere(
 		std::vector<glm::vec3>& points, 
 		std::vector<uint>& indexes,
+		const glm::vec3& center, 
+		float radius,
 		const glm::ivec2& resolution
 	);
 

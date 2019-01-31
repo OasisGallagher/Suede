@@ -17,7 +17,3 @@ public:
 
 IBehaviour::IBehaviour() : IComponent(MEMORY_NEW(BehaviourInternal, this)) {
 }
-
-void IBehaviour::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
-	Debug::LogError("Behaviour::OnRenderImage not implement");
-}

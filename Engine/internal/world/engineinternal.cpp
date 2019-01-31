@@ -69,11 +69,11 @@ bool EngineInternal::Startup(uint width, uint height) {
 	// create profiler first to ensure it's destroyed last.
 	Profiler::TimeStampToSeconds(0);
 
-	Screen::Resize(width, height);
-	World::Initialize();
-
 	//Physics::SetDebugDrawEnabled(true);
 	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
+
+	Screen::Resize(width, height);
+	World::Initialize();
 
 	luaL_Reg lualibs[] = {
 		{ "Suede", Lua::configure },

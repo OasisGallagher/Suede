@@ -36,7 +36,7 @@ GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", glm::mat4(1));
 
-	Geometries::Sphere(sphere_.points, sphere_.indexes, glm::ivec2(15));
+	Geometries::Sphere(sphere_.points, sphere_.indexes, glm::vec3(0), 1, glm::ivec2(15));
 
 	Engine::AddFrameEventListener(this);
 }

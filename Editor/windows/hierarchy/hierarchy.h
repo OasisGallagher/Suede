@@ -53,12 +53,16 @@ private:
 private:
 	void appendChildItem(GameObject go);
 	QStandardItem* appendItem(GameObject child, QStandardItem* parent);
+
+	void removeGameObject(GameObject go);
 	void removeItem(QStandardItem* item);
 	void removeItemRecusively(QStandardItem* item);
 
 	bool dropAcceptable(const QMimeData* data);
 
-	void onGameObjectCreated(GameObject go);
+	void onHideFlagsChanged(Object object, HideFlags oldHideFlags);
+
+	//void onGameObjectCreated(GameObject go);
 	void onGameObjectDestroyed(GameObject go);
 	void onGameObjectTagChanged(GameObject go);
 	void onGameObjectNameChanged(GameObject go);

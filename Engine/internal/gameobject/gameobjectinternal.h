@@ -15,6 +15,9 @@ protected:
 	GameObjectInternal(IGameObject* self, ObjectType type);
 
 public:
+	virtual void Destroy();
+
+public:
 	bool GetActive() const { return active_; }
 
 	void SetActiveSelf(bool value);

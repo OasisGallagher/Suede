@@ -13,7 +13,7 @@
 #include "internal/components/transforminternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-World::World() : singleton2<World>(MEMORY_NEW(WorldInternal,), Memory::DeleteRaw<WorldInternal>) {}
+World::World() : singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
 void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
 void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
@@ -81,6 +81,15 @@ void WorldInternal::Finalize() {
 
 	CameraUtility::SetMain(nullptr);
 
+	root_.reset();
+	lights_.clear();
+	cameras_.clear();
+	gizmosPainters_.clear();
+	projectors_.clear();
+	cullingUpdateSequence_.clear();
+	renderingUpdateSequence_.clear();
+	gameObjects_.clear();
+
 	MEMORY_DELETE(importer_);
 	MEMORY_DELETE(decalCreater_);
 
@@ -116,28 +125,25 @@ void WorldInternal::DestroyObject(Object object) {
 
 	Component component = suede_dynamic_cast<Component>(object);
 	if (component) {
-		component->OnDestroy();
-		return ((GameObjectInternal*)component->GetGameObject()->d_)->RemoveComponent(component);
+		return component->Destroy();
 	}
 }
 
 void WorldInternal::DestroyGameObject(GameObject go) {
-	DestroyGameObjectRecursively(go->GetTransform());
+	go->GetTransform()->SetParent(nullptr);
+	DestroyGameObjectRecursively(go);
 }
 
-void WorldInternal::DestroyGameObjectRecursively(Transform root) {
-	GameObject go = root->GetGameObject();
-	for (Component component : go->GetComponents("")) {
-		component->OnDestroy();
-	}
-
+void WorldInternal::DestroyGameObjectRecursively(GameObject go) {
 	RemoveGameObject(go);
 
-	FireEvent(new GameObjectDestroyedEvent(go));
+	FireEventImmediate(GameObjectDestroyedEvent(go));
 
-	for(Transform transform : root->GetChildren()) {
-		DestroyGameObjectRecursively(transform);
+	for (Transform transform : go->GetTransform()->GetChildren()) {
+		DestroyGameObjectRecursively(transform->GetGameObject());
 	}
+
+	go->Destroy();
 }
 
 void WorldInternal::RemoveGameObject(GameObject go) {
@@ -152,7 +158,6 @@ void WorldInternal::RemoveGameObject(GameObject go) {
 
 	RemoveGameObjectFromSequence(go);
 	gameObjects_.erase(go->GetInstanceID());
-	go->GetTransform()->SetParent(nullptr);
 }
 
 std::vector<GameObject> WorldInternal::GetGameObjectsOfComponent(suede_guid guid) {
@@ -225,7 +230,7 @@ void WorldInternal::GetDecals(std::vector<Decal>& container) {
 }
 
 void WorldInternal::UpdateDecals() {
-	if (!projectors_.empty()  && CameraUtility::GetMain()) {
+	if (!projectors_.empty() && CameraUtility::GetMain()) {
 		decalCreater_->Update(CameraUtility::GetMain(), projectors_);
 	}
 }
@@ -383,55 +388,29 @@ void WorldInternal::CullingUpdate() {
 
 void WorldInternal::Update() {
 	uint64 start = Profiler::GetTimeStamp();
-	uint64 start0 = start;
 
 	FireEvents();
 
-	uint64 now = Profiler::GetTimeStamp();
-	double seconds = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
-
 	// SUEDE TODO: update decals in rendering thread ?
 	UpdateDecals();
-	now = Profiler::GetTimeStamp();
-	double seconds_2 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	RenderingUpdateGameObjects();
-	now = Profiler::GetTimeStamp();
-	double seconds_3 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	CameraUtility::OnPreRender();
 
 	PreRenderUpdateGameObjects();
-
-	now = Profiler::GetTimeStamp();
-	double seconds_4 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	for (Camera camera : cameras_) {
 		if (camera->GetEnabled()) {
 			camera->Render();
 		}
 	}
-	now = Profiler::GetTimeStamp();
-	double seconds_5 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	PostRenderUpdateGameObjects();
 
 	CameraUtility::OnPostRender();
-	now = Profiler::GetTimeStamp();
-	double seconds_6 = Profiler::TimeStampToSeconds(now - start0);
-	start0 = now;
 
 	Statistics::SetRenderingElapsed(
 		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 	);
-
-	//double max = 0.1;
-	//if (seconds > max || seconds_2 > max || seconds_3 > max || seconds_4 > max || seconds_5 > max || seconds_6 > max) {
-	//	__debugbreak();
-	//}
 }

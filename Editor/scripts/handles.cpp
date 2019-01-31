@@ -2,6 +2,7 @@
 
 #include "input.h"
 #include "world.h"
+#include "rigidbody.h"
 #include "resources.h"
 #include "geometries.h"
 #include "layermanager.h"
@@ -17,12 +18,12 @@ SUEDE_DEFINE_COMPONENT(Handles, IBehaviour)
 #define SCALE_SPEED				(0.02f)
 #define GetMaterial0(go)		(go->GetComponent<MeshRenderer>()->GetMaterial(0))
 
-Mesh Handles::s_meshes[Handles::AxisCount];
+Mesh Handles::s_handleMeshes[Handles::AxisCount];
 Material Handles::s_materials[Handles::AxisCount];
 
 void Handles::Awake() {
 	mode_ = (HandlesMode)-1;
-	if (!s_meshes[0]) {
+	if (!s_handleMeshes[0]) {
 		InitializeMeshes();
 		InitializeMaterials();
 	}
@@ -81,6 +82,7 @@ void Handles::Initialize() {
 	handles_ = new IGameObject();
 	handles_->SetName("_SuedeHandles");
 	handles_->SetLayer(LayerManager::IgnoreRaycast);
+	handles_->SetHideFlags(HideFlags::HideInHierarchy);
 
 	SetupAxises();
 	SetMode(HandlesMode::Rotate);
@@ -88,12 +90,12 @@ void Handles::Initialize() {
 
 void Handles::InitializeMeshes() {
 	for (int i = 0; i < HandlesMode::size(); ++i) {
-		s_meshes[i] = new IMesh();
+		s_handleMeshes[i] = new IMesh();
 	}
 
-	InitializeMoveHandlesMesh(s_meshes[HandlesMode::Move]);
-	InitializeRotateHandlesMesh(s_meshes[HandlesMode::Rotate]);
-	InitializeScaleHandlesMesh(s_meshes[HandlesMode::Scale]);
+	InitializeMoveHandlesMesh(s_handleMeshes[HandlesMode::Move]);
+	InitializeRotateHandlesMesh(s_handleMeshes[HandlesMode::Rotate]);
+	InitializeScaleHandlesMesh(s_handleMeshes[HandlesMode::Scale]);
 }
 
 void Handles::InitializeMaterials() {
@@ -109,7 +111,7 @@ void Handles::InitializeMaterials() {
 void Handles::SetMode(HandlesMode value) {
 	if (mode_ != value) {
 		mode_ = value;
-		SetHandlesMesh(s_meshes[mode_]);
+		SetHandlesMesh(s_handleMeshes[mode_]);
 
 		if (mode_ != HandlesMode::Rotate) {
 			handles_->GetTransform()->SetRotation(glm::quat());
@@ -222,7 +224,6 @@ void Handles::InitializeMoveHandlesMesh(Mesh mesh) {
 void Handles::InitializeRotateHandlesMesh(Mesh mesh) {
 	MeshAttribute attribute;
 	Geometries::Circle(attribute.positions, attribute.indexes, glm::vec3(0), 5, 0.12f, glm::vec3(0, 0, 1), Resolution);
-
 	mesh->SetAttribute(attribute);
 }
 
