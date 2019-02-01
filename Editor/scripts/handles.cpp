@@ -19,7 +19,8 @@ SUEDE_DEFINE_COMPONENT(Handles, IBehaviour)
 #define GetMaterial0(go)		(go->GetComponent<MeshRenderer>()->GetMaterial(0))
 
 Mesh Handles::s_handleMeshes[Handles::AxisCount];
-Material Handles::s_materials[Handles::AxisCount];
+Mesh Handles::s_gizmoMeshes[Handles::AxisCount];
+Material Handles::s_materials[Handles::AxisCount + 1];
 
 void Handles::Awake() {
 	mode_ = (HandlesMode)-1;
@@ -91,17 +92,18 @@ void Handles::Initialize() {
 void Handles::InitializeMeshes() {
 	for (int i = 0; i < HandlesMode::size(); ++i) {
 		s_handleMeshes[i] = new IMesh();
+		s_gizmoMeshes[i] = new IMesh();
 	}
 
-	InitializeMoveHandlesMesh(s_handleMeshes[HandlesMode::Move]);
-	InitializeRotateHandlesMesh(s_handleMeshes[HandlesMode::Rotate]);
-	InitializeScaleHandlesMesh(s_handleMeshes[HandlesMode::Scale]);
+	InitializeMoveHandlesMesh(s_handleMeshes[HandlesMode::Move], s_gizmoMeshes[HandlesMode::Move]);
+	InitializeRotateHandlesMesh(s_handleMeshes[HandlesMode::Rotate], s_gizmoMeshes[HandlesMode::Rotate]);
+	InitializeScaleHandlesMesh(s_handleMeshes[HandlesMode::Scale], s_gizmoMeshes[HandlesMode::Scale]);
 }
 
 void Handles::InitializeMaterials() {
-	Color colors[] = { Color::red, Color::green, Color::blue };
+	Color colors[] = { Color::red, Color::green, Color::blue, Color::clear };
 
-	for (int i = 0; i < AxisCount; ++i) {
+	for (int i = 0; i < SUEDE_COUNTOF(s_materials); ++i) {
 		s_materials[i] = new IMaterial();
 		s_materials[i]->SetShader(Resources::FindShader("builtin/handles"));
 		s_materials[i]->SetColor(BuiltinProperties::MainColor, colors[i]);
@@ -111,7 +113,7 @@ void Handles::InitializeMaterials() {
 void Handles::SetMode(HandlesMode value) {
 	if (mode_ != value) {
 		mode_ = value;
-		SetHandlesMesh(s_handleMeshes[mode_]);
+		SetHandlesMesh(s_handleMeshes[mode_], s_gizmoMeshes[mode_]);
 
 		if (mode_ != HandlesMode::Rotate) {
 			handles_->GetTransform()->SetRotation(glm::quat());
@@ -123,13 +125,24 @@ void Handles::SetMode(HandlesMode value) {
 	}
 }
 
-void Handles::SetHandlesMesh(Mesh storage) {
+void Handles::SetHandlesMesh(Mesh handle, Mesh gizmo) {
+	int i = 0;
 	for (Transform transform : handles_->GetTransform()->GetChildren()) {
+		uint indexCount = 0;
 		Mesh mesh = transform->GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
-		mesh->ShareStorage(storage);
-
-		TriangleBias bias{ storage->GetIndexCount() };
+		if (i < AxisCount) {
+			mesh->ShareStorage(handle);
+			indexCount = handle->GetIndexCount();
+		}
+		else {
+			mesh->ShareStorage(gizmo);
+			indexCount = gizmo->GetIndexCount();
+		}
+		
+		TriangleBias bias{ indexCount };
 		mesh->GetSubMesh(0)->SetTriangleBias(bias);
+
+		++i;
 	}
 }
 
@@ -145,13 +158,17 @@ void Handles::UpdateCurrentAxis() {
 	RaycastUnderCursor(hitInfo);
 
 	if (current_ != hitInfo.gameObject) {
-		if (current_) { GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, color_); }
+		if (current_) { GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, oldColor_); }
 		current_ = hitInfo.gameObject;
 
 		if (current_ && !Math::Approximately(axis_ = FindAxis(current_), glm::vec3(0))) {
 			collisionPos_ = hitInfo.point;
-			color_ = GetMaterial0(current_)->GetColor(BuiltinProperties::MainColor);
-			GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, Color(128 / 255.f, 128 / 255.f, 0));
+			oldColor_ = GetMaterial0(current_)->GetColor(BuiltinProperties::MainColor);
+
+			//GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, 
+			//	Math::Approximately(axis_, glm::vec3(1)) ? Color(0.5f, 0.5f, 0.5f, 0.4f) : Color(128 / 255.f, 128 / 255.f, 0));
+
+			Debug::LogWarning("selected %s", current_ ? current_->GetName().c_str() : "null");
 		}
 	}
 }
@@ -161,6 +178,7 @@ glm::vec3 Handles::FindAxis(GameObject current) {
 	if (ht->GetChildAt(0) == ct) { return glm::vec3(1, 0, 0); }
 	if (ht->GetChildAt(1) == ct) { return glm::vec3(0, 1, 0); }
 	if (ht->GetChildAt(2) == ct) { return glm::vec3(0, 0, 1); }
+	if (ht->GetChildAt(3) == ct) { return glm::vec3(1); }
 	return glm::vec3(0);
 }
 
@@ -171,10 +189,10 @@ glm::vec3 Handles::Project(const glm::vec3& axis, const glm::ivec2& delta) {
 }
 
 void Handles::SetupAxises() {
-	const char* names[] = { "X", "Y", "Z" };
-	glm::vec3 eulers[] = { glm::vec3(0, -90, 0), glm::vec3(-90, 0, 0), glm::vec3(0) };
+	const char* names[] = { "X", "Y", "Z", "Gizmo" };
+	glm::vec3 eulers[] = { glm::vec3(0, -90, 0), glm::vec3(-90, 0, 0), glm::vec3(0), glm::vec3(0) };
 
-	for (int i = 0; i < AxisCount; ++i) {
+	for (int i = 0; i < AxisCount + 1; ++i) {
 		GameObject go = new IGameObject();
 		go->SetName(names[i]);
 		go->SetLayer(LayerManager::IgnoreRaycast);
@@ -211,28 +229,40 @@ void Handles::ScaleHandles(const glm::vec3& axis, const glm::ivec2& mousePos, co
 	GetTransform()->SetScale(GetTransform()->GetScale() + dir * SCALE_SPEED);
 }
 
-void Handles::InitializeMoveHandlesMesh(Mesh mesh) {
+void Handles::InitializeMoveHandlesMesh(Mesh handle, Mesh gizmo) {
 	MeshAttribute attribute;
 
 	glm::vec3 dir(0, 0, 1);
 	Geometries::Cone(attribute.positions, attribute.indexes, dir * (ARROW_LENGTH - CONE_LENGTH), dir * ARROW_LENGTH, 0.2f, Resolution);
 	Geometries::Cylinder(attribute.positions, attribute.indexes, glm::vec3(0), dir * (ARROW_LENGTH - CONE_LENGTH), 0.05f, Resolution);
 
-	mesh->SetAttribute(attribute);
+	handle->SetAttribute(attribute);
+
+	attribute.positions.clear();
+	attribute.indexes.clear();
 }
 
-void Handles::InitializeRotateHandlesMesh(Mesh mesh) {
+void Handles::InitializeRotateHandlesMesh(Mesh handle, Mesh gizmo) {
 	MeshAttribute attribute;
-	Geometries::Circle(attribute.positions, attribute.indexes, glm::vec3(0), 5, 0.12f, glm::vec3(0, 0, 1), Resolution);
-	mesh->SetAttribute(attribute);
+	Geometries::Circle(attribute.positions, attribute.indexes, glm::vec3(0), 5, 0.5f, glm::vec3(0, 0, 1), 8);
+	handle->SetAttribute(attribute);
+
+	attribute.positions.clear();
+	attribute.indexes.clear();
+
+	Geometries::Sphere(attribute.positions, attribute.indexes, glm::vec3(0), 4.7f, glm::ivec2(Resolution));
+	gizmo->SetAttribute(attribute);
 }
 
-void Handles::InitializeScaleHandlesMesh(Mesh mesh) {
+void Handles::InitializeScaleHandlesMesh(Mesh handle, Mesh gizmo) {
 	MeshAttribute attribute;
 
 	glm::vec3 dir(0, 0, 1);
 	Geometries::Cuboid(attribute.positions, attribute.indexes, dir * (ARROW_LENGTH - CUBOID_SIZE / 2), glm::vec3(CUBOID_SIZE));
 	Geometries::Cylinder(attribute.positions, attribute.indexes, glm::vec3(0), dir * (ARROW_LENGTH - CUBOID_SIZE), 0.05f, Resolution);
 
-	mesh->SetAttribute(attribute);
+	handle->SetAttribute(attribute);
+
+	attribute.positions.clear();
+	attribute.indexes.clear();
 }

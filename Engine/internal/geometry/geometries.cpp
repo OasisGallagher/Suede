@@ -49,35 +49,17 @@ static void CircleSegment(std::vector<glm::vec3>& points, std::vector<uint>& ind
 	});
 }
 
-void Geometries::Circle(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution) {
-	float step = Math::Pi2 / resolution;
-	glm::vec3 forward(0, 1, 0);
-	if (!Math::Approximately(normal.y, 0) || !Math::Approximately(normal.z, 0)) {
-		forward = glm::vec3(1, 0, 0);
-	}
-
-	forward = glm::normalize(glm::cross(forward, normal));
-
-	for (int i = 0; i < resolution; ++i) {
-		glm::quat q = glm::angleAxis(i * step, normal);
-		points.push_back(q * forward * radius + center);
-	}
-}
-
 void Geometries::Rectangle(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::vec3& from, const glm::vec3& to, const glm::vec3& normal, float width) {
-	glm::vec3 forward = to - from;
-	float height = glm::length(forward);
-	forward /= 2;
-
-	glm::vec3 right = glm::normalize(glm::cross(forward, normal)) * width / 2.f;
+	glm::vec3 up = (to - from) / 2.f;
+	glm::vec3 right = glm::normalize(glm::cross(up, normal)) * width / 2.f;
 
 	uint first = points.size();
 
 	glm::vec3 center = (from + to) / 2.f;
-	points.push_back(center + forward - right);
-	points.push_back(center + forward + right);
-	points.push_back(center - forward - right);
-	points.push_back(center - forward + right);
+	points.push_back(center + up - right);
+	points.push_back(center + up + right);
+	points.push_back(center - up - right);
+	points.push_back(center - up + right);
 
 	ADD_TRIANGLE(indexes, first, first + 2, first + 3);
 	ADD_TRIANGLE(indexes, first + 1, first, first + 3);
@@ -143,8 +125,23 @@ void Geometries::Circle(std::vector<glm::vec3>& points, std::vector<uint>& index
 	for (int i = 1; i < resolution + 1; ++i) {
 		glm::quat q = glm::angleAxis(i * step, normal);
 		glm::vec3 current = q * forward * radius + center;
-		CircleSegment(points, indexes, from, current, glm::normalize(glm::cross(normal, current - from)), glm::vec2(width));
+		Rectangle(points, indexes, from, current, glm::normalize(glm::cross(normal, current - from)), width);
 		from = current;
+	}
+}
+
+void Geometries::CirclePoints(std::vector<glm::vec3>& points, const glm::vec3& center, float radius, const glm::vec3& normal, uint resolution) {
+	float step = Math::Pi2 / resolution;
+	glm::vec3 forward(0, 1, 0);
+	if (!Math::Approximately(normal.y, 0) || !Math::Approximately(normal.z, 0)) {
+		forward = glm::vec3(1, 0, 0);
+	}
+
+	forward = glm::normalize(glm::cross(forward, normal));
+
+	for (int i = 0; i < resolution; ++i) {
+		glm::quat q = glm::angleAxis(i * step, normal);
+		points.push_back(q * forward * radius + center);
 	}
 }
 
@@ -152,7 +149,7 @@ void Geometries::Cone(std::vector<glm::vec3>& points, std::vector<uint>& indexes
 	glm::vec3 normal = glm::normalize(to - from);
 
 	int first = points.size();
-	Circle(points, from, radius, normal, resolution);
+	CirclePoints(points, from, radius, normal, resolution);
 
 	int last = points.size();
 	points.insert(points.end(), { from, to });
@@ -170,7 +167,7 @@ void Geometries::Cylinder(std::vector<glm::vec3>& points, std::vector<uint>& ind
 	glm::vec3 dir = to - from;
 
 	int first = points.size();
-	Circle(points, from, radius, glm::normalize(dir), resolution);
+	CirclePoints(points, from, radius, glm::normalize(dir), resolution);
 
 	int last = points.size();
 	for (int i = first; i < last; ++i) {

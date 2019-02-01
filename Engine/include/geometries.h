@@ -8,18 +8,18 @@ class SUEDE_API Geometries {
 public:
 	static void Circle(
 		std::vector<glm::vec3>& points,
-		const glm::vec3& center,
-		float radius,
-		const glm::vec3& normal,
-		uint resolution
-	);
-
-	static void Circle(
-		std::vector<glm::vec3>& points,
 		std::vector<uint>& indexes,
 		const glm::vec3& center,
 		float radius,
 		float width,
+		const glm::vec3& normal,
+		uint resolution
+	);
+
+	static void CirclePoints(
+		std::vector<glm::vec3>& points,
+		const glm::vec3& center,
+		float radius,
 		const glm::vec3& normal,
 		uint resolution
 	);

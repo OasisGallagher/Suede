@@ -80,7 +80,7 @@ void GizmosInternal::DrawCuboid(const glm::vec3& center, const glm::vec3& size) 
 
 void GizmosInternal::DrawCircle(const glm::vec3& center, float radius, const glm::vec3& normal) {
 	std::vector<glm::vec3> points;
-	Geometries::Circle(points, center, radius, normal, 36);
+	Geometries::CirclePoints(points, center, radius, normal, 36);
 	points.push_back(points.front());
 
 	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), &points[0], points.size());

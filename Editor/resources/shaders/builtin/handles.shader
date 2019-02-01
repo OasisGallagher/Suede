@@ -9,6 +9,7 @@ SubShader {
 	Pass {
 		Cull Off;
 		//ZTest Off;
+		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
 
@@ -23,11 +24,11 @@ SubShader {
 		}
 
 		#stage fragment
-		out vec3 fragColor;
+		out vec4 fragColor;
 		uniform vec4 _MainColor;
 
 		void main() {
-			fragColor = _MainColor.xyz;
+			fragColor = _MainColor;
 		}
 
 		ENDGLSL

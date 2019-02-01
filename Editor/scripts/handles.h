@@ -40,15 +40,15 @@ private:
 	void SetupAxises();
 	void UpdateCurrentAxis();
 
-	void SetHandlesMesh(Mesh storage); 
+	void SetHandlesMesh(Mesh handle, Mesh gizmo); 
 	bool RaycastUnderCursor(RaycastHit& hitInfo);
 	
 	glm::vec3 FindAxis(GameObject current);
 	glm::vec3 Project(const glm::vec3& axis, const glm::ivec2& delta);
 
-	void InitializeMoveHandlesMesh(Mesh mesh);
-	void InitializeRotateHandlesMesh(Mesh mesh);
-	void InitializeScaleHandlesMesh(Mesh mesh);
+	void InitializeMoveHandlesMesh(Mesh handle, Mesh gizmo);
+	void InitializeRotateHandlesMesh(Mesh handle, Mesh gizmo);
+	void InitializeScaleHandlesMesh(Mesh handle, Mesh gizmo);
 
 	typedef void (Handles::*Handler)(const glm::vec3&, const glm::ivec2&, const glm::ivec2&);
 
@@ -57,7 +57,7 @@ private:
 	void ScaleHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
 
 private:
-	Color color_;
+	Color oldColor_;
 	glm::vec3 tangent_;
 	glm::ivec2 screenPos_;
 	glm::vec3 collisionPos_;
@@ -76,5 +76,5 @@ private:
 
 	static Mesh s_gizmoMeshes[AxisCount];
 	static Mesh s_handleMeshes[AxisCount];
-	static Material s_materials[AxisCount];
+	static Material s_materials[AxisCount + 1];
 };
