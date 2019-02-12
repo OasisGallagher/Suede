@@ -89,7 +89,7 @@ C++
 GameObject cameraGameObject = NewGameObject();
 cameraGameObject->SetName("camera");
 
-Camera camera = cameraGameObject->AddComponent<ICamera>();
+Camera camera = cameraGameObject->AddComponent<Camera>();
 CameraUtility::SetMain(camera);
 
 // !!! 将GameObject添加到场景中。.
@@ -100,7 +100,7 @@ Lua
 local cameraGameObject = Suede.NewGameObject();
 cameraGameObject:SetName("camera");
 
-local camera = cameraGameObject:AddComponent("ICamera");
+local camera = cameraGameObject:AddComponent("Camera");
 
 -- 调用静态成员函数。
 Suede.CameraUtility.SetMain(camera);
@@ -113,7 +113,7 @@ camera:GetTransform():SetParent(Suede.World.GetRootTransform());
 C++
 ```c++
 GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
-Material material = target->GetComponent<IMeshRenderer>()->GetMaterial(0);
+Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 
 // Shader加载以resources/shaders为根目录。
 material->SetShader(Resources::instance()->FindShader("builtin/lit_bumped_texture"));
@@ -125,7 +125,7 @@ material->SetTexture(BuiltinProperties::MainTexture, diffuse);
 Lua
 ```lua
 local target = root:GetTransform():FindChild("Sphere01"):GetGameObject();
-local material = target:GetComponent("IMeshRenderer"):GetMaterial(0);
+local material = target:GetComponent("MeshRenderer"):GetMaterial(0);
 
 -- Shader加载以resources/shaders为根目录。
 material:SetShader(Suede.Resources.FindShader("builtin/lit_bumped_texture"));

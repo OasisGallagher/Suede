@@ -128,21 +128,13 @@ void Handles::SetMode(HandlesMode value) {
 void Handles::SetHandlesMesh(Mesh handle, Mesh gizmo) {
 	int i = 0;
 	for (Transform transform : handles_->GetTransform()->GetChildren()) {
-		uint indexCount = 0;
 		Mesh mesh = transform->GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
-		if (i < AxisCount) {
-			mesh->ShareStorage(handle);
-			indexCount = handle->GetIndexCount();
-		}
-		else {
-			mesh->ShareStorage(gizmo);
-			indexCount = gizmo->GetIndexCount();
-		}
-		
-		TriangleBias bias{ indexCount };
-		mesh->GetSubMesh(0)->SetTriangleBias(bias);
+		Mesh storage = (i++ < AxisCount) ? handle : gizmo;
 
-		++i;
+		mesh->ShareStorage(storage);
+		
+		TriangleBias bias{ storage->GetIndexCount() };
+		mesh->GetSubMesh(0)->SetTriangleBias(bias);
 	}
 }
 
@@ -151,6 +143,10 @@ bool Handles::RaycastUnderCursor(RaycastHit& hitInfo) {
 	glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 
 	return Physics::Raycast(Ray(src, dest - src), 1000, LayerManager::IgnoreRaycast, &hitInfo);
+}
+
+Color Handles::GetActiveAxisColor(const glm::vec3& axis) {
+	return Math::Approximately(axis, glm::vec3(1)) ? Color(0.5f, 0.5f, 0.5f, 0.4f) : Color(128 / 255.f, 128 / 255.f, 0);
 }
 
 void Handles::UpdateCurrentAxis() {
@@ -165,9 +161,7 @@ void Handles::UpdateCurrentAxis() {
 			collisionPos_ = hitInfo.point;
 			oldColor_ = GetMaterial0(current_)->GetColor(BuiltinProperties::MainColor);
 
-			//GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, 
-			//	Math::Approximately(axis_, glm::vec3(1)) ? Color(0.5f, 0.5f, 0.5f, 0.4f) : Color(128 / 255.f, 128 / 255.f, 0));
-
+			GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, GetActiveAxisColor(axis_));
 			Debug::LogWarning("selected %s", current_ ? current_->GetName().c_str() : "null");
 		}
 	}
@@ -244,7 +238,7 @@ void Handles::InitializeMoveHandlesMesh(Mesh handle, Mesh gizmo) {
 
 void Handles::InitializeRotateHandlesMesh(Mesh handle, Mesh gizmo) {
 	MeshAttribute attribute;
-	Geometries::Circle(attribute.positions, attribute.indexes, glm::vec3(0), 5, 0.5f, glm::vec3(0, 0, 1), 8);
+	Geometries::Circle(attribute.positions, attribute.indexes, glm::vec3(0), 5, 0.12f, glm::vec3(0, 0, 1), Resolution);
 	handle->SetAttribute(attribute);
 
 	attribute.positions.clear();

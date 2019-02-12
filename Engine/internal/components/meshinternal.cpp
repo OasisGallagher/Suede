@@ -65,10 +65,6 @@ MeshInternal::MeshInternal(IMesh* self, ObjectType type) : ObjectInternal(self, 
 }
 
 MeshInternal::~MeshInternal() {
-	Destroy();
-}
-
-void MeshInternal::Destroy() {
 	subMeshes_.clear();
 }
 

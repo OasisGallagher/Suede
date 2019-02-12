@@ -17,7 +17,7 @@ void IObject::Destroy() { _suede_dptr()->Destroy(); }
 void IObject::SetHideFlags(HideFlags value) { _suede_dptr()->SetHideFlags(value); }
 HideFlags IObject::GetHideFlags() const { return _suede_dptr()->GetHideFlags(); }
 
-uint ObjectInternal::objectIDContainer[ObjectType::size()];
+uint ObjectInternal::s_objectIDContainer[ObjectType::size()];
 
 ObjectInternal::ObjectInternal(IObject* self, ObjectType type) 
 	: type_(type), self_(self), destroyed_(false), hideFlags_(HideFlags::None) {
@@ -52,12 +52,12 @@ void ObjectInternal::Destroy() {
 }
 
 uint ObjectInternal::GenerateInstanceID(ObjectType type) {
-	if (objectIDContainer[(int)type] >= std::numeric_limits<uint>::max()) {
+	if (s_objectIDContainer[(int)type] >= 65535) {
 		Debug::LogError("too many objects with type %d.", type);
 		return 0;
 	}
 
-	return Math::MakeDword(++objectIDContainer[(int)type], (int)type);
+	return Math::MakeDword(++s_objectIDContainer[(int)type], (int)type);
 }
 
 void ObjectInternal::DecodeInstanceID(uint value, ObjectType* type, uint* id) {

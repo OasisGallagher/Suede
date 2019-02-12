@@ -74,7 +74,6 @@ public:
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
 private:
-	void Destroy();
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
 

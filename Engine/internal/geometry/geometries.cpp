@@ -125,7 +125,7 @@ void Geometries::Circle(std::vector<glm::vec3>& points, std::vector<uint>& index
 	for (int i = 1; i < resolution + 1; ++i) {
 		glm::quat q = glm::angleAxis(i * step, normal);
 		glm::vec3 current = q * forward * radius + center;
-		Rectangle(points, indexes, from, current, glm::normalize(glm::cross(normal, current - from)), width);
+		CircleSegment(points, indexes, from, current, glm::normalize(glm::cross(normal, current - from)), glm::vec2(width));
 		from = current;
 	}
 }

@@ -39,6 +39,7 @@ private:
 
 	void SetupAxises();
 	void UpdateCurrentAxis();
+	Color GetActiveAxisColor(const glm::vec3& axis);
 
 	void SetHandlesMesh(Mesh handle, Mesh gizmo); 
 	bool RaycastUnderCursor(RaycastHit& hitInfo);

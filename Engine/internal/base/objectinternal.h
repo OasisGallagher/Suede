@@ -48,7 +48,7 @@ private:
 	bool destroyed_;
 	HideFlags hideFlags_;
 
-	static uint objectIDContainer[ObjectType::size()];
+	static uint s_objectIDContainer[ObjectType::size()];
 };
 
 #define _suede_self()	((Self*)self_)

@@ -51,9 +51,9 @@ void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed()
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
-static Camera main_;
-Camera CameraUtility::GetMain() { return main_; }
-void CameraUtility::SetMain(Camera value) { main_ = value; }
+static Camera s_mainCamera;
+Camera CameraUtility::GetMain() { return s_mainCamera; }
+void CameraUtility::SetMain(Camera value) { s_mainCamera = value; }
 
 void CameraUtility::OnPreRender() {
 	static SharedTimeUniformBuffer p;
@@ -129,8 +129,6 @@ void CameraInternal::SetDepth(int value) {
 		World::FireEvent(new CameraDepthChangedEvent(_suede_self()));
 	}
 }
-
-#include "graphics.h"
 
 void CameraInternal::Render() {
 	if (!IsValidViewportRect()) {
