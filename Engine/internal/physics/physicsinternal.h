@@ -47,6 +47,9 @@ private:
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e);
 
 private:
+	int FilterClosestGameObject(const btCollisionWorld::AllHitsRayResultCallback& callback, uint layerMask);
+
+private:
 	bool debugDrawEnabled_;
 
 	btBroadphaseInterface* broadphase_;

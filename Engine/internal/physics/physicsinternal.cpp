@@ -121,26 +121,33 @@ void PhysicsInternal::FixedUpdate() {
 bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) {
 	btCollisionWorld::AllHitsRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
 	world_->rayTest(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)), callback);
-	if (!callback.hasHit()) {
-		return false;
+
+	if (callback.hasHit() && hitInfo != nullptr) {
+		int index = FilterClosestGameObject(callback, layerMask);
+		hitInfo->point = btConvert(callback.m_hitPointWorld[index]);
+		hitInfo->normal = btConvert(callback.m_hitNormalWorld[index]);
+		hitInfo->gameObject = ((IRigidbody*)callback.m_collisionObjects[index]->getUserPointer())->GetGameObject();
 	}
 
-	int size = callback.m_collisionObjects.size();
-	for (int i = 0; i < size; ++i) {
+	return callback.hasHit();
+}
+
+int PhysicsInternal::FilterClosestGameObject(const btCollisionWorld::AllHitsRayResultCallback& callback, uint layerMask) {
+	int index = 0;
+	float minFraction = 1.f;
+	for (int i = 0; i < callback.m_collisionObjects.size(); ++i) {
 		IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObjects[i]->getUserPointer();
-		if ((rigidbody->GetGameObject()->GetLayer() & layerMask) != 0) {
-			if (rigidbody != nullptr && hitInfo != nullptr) {
-				hitInfo->point = btConvert(callback.m_hitPointWorld[i]);
-				hitInfo->normal = btConvert(callback.m_hitNormalWorld[i]);
+		if ((rigidbody->GetGameObject()->GetLayer() & layerMask) == 0) {
+			continue;
+		}
 
-				hitInfo->gameObject = rigidbody->GetGameObject();
-			}
-
-			return true;
+		if (callback.m_hitFractions[i] < minFraction) {
+			index = i;
+			minFraction = callback.m_hitFractions[i];
 		}
 	}
 
-	return false;
+	return index;
 }
 
 void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e) {

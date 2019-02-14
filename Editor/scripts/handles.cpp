@@ -14,7 +14,7 @@ SUEDE_DEFINE_COMPONENT(Handles, IBehaviour)
 #define ARROW_LENGTH			(7.f)
 #define CUBOID_SIZE				(0.4f)
 #define MOVE_SPEED				(0.02f)
-#define ROTATE_SPEED			(0.08f)
+#define ROTATE_SPEED			(0.12f)
 #define SCALE_SPEED				(0.02f)
 #define GetMaterial0(go)		(go->GetComponent<MeshRenderer>()->GetMaterial(0))
 
@@ -162,7 +162,6 @@ void Handles::UpdateCurrentAxis() {
 			oldColor_ = GetMaterial0(current_)->GetColor(BuiltinProperties::MainColor);
 
 			GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, GetActiveAxisColor(axis_));
-			Debug::LogWarning("selected %s", current_ ? current_->GetName().c_str() : "null");
 		}
 	}
 }
@@ -193,8 +192,7 @@ void Handles::SetupAxises() {
 
 		Mesh mesh = new IMesh();
 
-		SubMesh subMesh = new ISubMesh;
-		mesh->AddSubMesh(subMesh);
+		mesh->AddSubMesh(new ISubMesh);
 
 		go->AddComponent<MeshFilter>()->SetMesh(mesh);
 		go->AddComponent<MeshRenderer>()->AddMaterial(s_materials[i]);
