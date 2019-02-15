@@ -32,6 +32,39 @@ bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEna
 
 btDiscreteDynamicsWorld* PhysicsInternal::world_;
 
+struct LayerMaskedClosestHitResultCallback : btCollisionWorld::RayResultCallback {
+	LayerMaskedClosestHitResultCallback(int layerMask) : layerMask(layerMask) { }
+
+	int layerMask;
+	glm::vec3 normal;
+
+	virtual	btScalar addSingleResult(btCollisionWorld::LocalRayResult& result, bool worldSpaceNormal) {
+		if (result.m_hitFraction > m_closestHitFraction) {
+			return result.m_hitFraction;
+		}
+
+		m_closestHitFraction = result.m_hitFraction;
+		m_collisionObject = result.m_collisionObject;
+		if (worldSpaceNormal) {
+			normal = btConvert(result.m_hitNormalLocal);
+		}
+		else {
+			normal = btConvert(m_collisionObject->getWorldTransform().getBasis() * result.m_hitNormalLocal);
+		}
+
+		return result.m_hitFraction;
+	}
+
+	virtual bool needsCollision(btBroadphaseProxy* proxy0) const {
+		if (!btCollisionWorld::RayResultCallback::needsCollision(proxy0)) {
+			return false;
+		}
+
+		IRigidbody* rigidbody = ((IRigidbody*)((btCollisionObject*)proxy0->m_clientObject)->getUserPointer());
+		return (rigidbody->GetGameObject()->GetLayer() & layerMask) != 0;
+	}
+};
+
 PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	// You instantiate the broad phase algorithm implementation.
 	// Collision detection is done in two phases : broad and narrow.
@@ -119,35 +152,17 @@ void PhysicsInternal::FixedUpdate() {
 }
 
 bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, uint layerMask, RaycastHit* hitInfo) {
-	btCollisionWorld::AllHitsRayResultCallback callback(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)));
-	world_->rayTest(btConvert(ray.GetOrigin()), btConvert(ray.GetPoint(maxDistance)), callback);
+	glm::vec3 from = ray.GetOrigin(), to = ray.GetPoint(maxDistance);
+	LayerMaskedClosestHitResultCallback callback(layerMask);
+	world_->rayTest(btConvert(from), btConvert(to), callback);
 
 	if (callback.hasHit() && hitInfo != nullptr) {
-		int index = FilterClosestGameObject(callback, layerMask);
-		hitInfo->point = btConvert(callback.m_hitPointWorld[index]);
-		hitInfo->normal = btConvert(callback.m_hitNormalWorld[index]);
-		hitInfo->gameObject = ((IRigidbody*)callback.m_collisionObjects[index]->getUserPointer())->GetGameObject();
+		hitInfo->point = Math::Lerp(from, to, callback.m_closestHitFraction);
+		hitInfo->normal = callback.normal;
+		hitInfo->gameObject = ((IRigidbody*)callback.m_collisionObject->getUserPointer())->GetGameObject();
 	}
 
 	return callback.hasHit();
-}
-
-int PhysicsInternal::FilterClosestGameObject(const btCollisionWorld::AllHitsRayResultCallback& callback, uint layerMask) {
-	int index = 0;
-	float minFraction = 1.f;
-	for (int i = 0; i < callback.m_collisionObjects.size(); ++i) {
-		IRigidbody* rigidbody = (IRigidbody*)callback.m_collisionObjects[i]->getUserPointer();
-		if ((rigidbody->GetGameObject()->GetLayer() & layerMask) == 0) {
-			continue;
-		}
-
-		if (callback.m_hitFractions[i] < minFraction) {
-			index = i;
-			minFraction = callback.m_hitFractions[i];
-		}
-	}
-
-	return index;
 }
 
 void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent* e) {

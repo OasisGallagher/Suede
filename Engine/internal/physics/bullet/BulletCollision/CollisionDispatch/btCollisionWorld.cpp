@@ -1001,6 +1001,7 @@ struct btSingleRayCallback : public btBroadphaseRayCallback
 					m_resultCallback);
 			}
 		}
+
 		return true;
 	}
 };
