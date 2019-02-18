@@ -113,8 +113,7 @@ bool WorldInternal::ImportTo(GameObject go, const std::string& path, GameObjectI
 
 GameObject WorldInternal::GetGameObject(uint id) {
 	GameObjectDictionary::iterator ite = gameObjects_.find(id);
-	if (ite == gameObjects_.end()) { return nullptr; }
-	return ite->second;
+	return (ite != gameObjects_.end()) ? ite->second : nullptr;
 }
 
 void WorldInternal::DestroyObject(Object object) {

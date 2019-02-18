@@ -6,6 +6,8 @@
 IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal, this)) {}
 void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float IRigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
+void IRigidbody::SetOccluderEnabled(bool value) { _suede_dptr()->SetOccluderEnabled(value); }
+bool IRigidbody::GetOccluderEnabled() const { return _suede_dptr()->GetOccluderEnabled(); }
 const Bounds& IRigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
 void IRigidbody::SetVelocity(const glm::vec3& value) { _suede_dptr()->SetVelocity(value); }
 glm::vec3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
@@ -114,6 +116,17 @@ void RigidbodyInternal::SetVelocity(const glm::vec3& value) {
 
 glm::vec3 RigidbodyInternal::GetVelocity() const {
 	return btConvert(body_->getLinearVelocity());
+}
+
+void RigidbodyInternal::SetOccluderEnabled(bool value) {
+	body_->setCollisionFlags(
+		value ? (body_->getCollisionFlags() | btCollisionObject::CF_OCCLUDER_OBJECT)
+			: (body_->getCollisionFlags() & ~btCollisionObject::CF_OCCLUDER_OBJECT)
+	);
+}
+
+bool RigidbodyInternal::GetOccluderEnabled() const {
+	return body_ != nullptr && (body_->getCollisionFlags() & btCollisionObject::CF_OCCLUDER_OBJECT) != 0;
 }
 
 bool RigidbodyInternal::RebuildShape() {

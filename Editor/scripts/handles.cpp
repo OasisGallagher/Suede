@@ -2,6 +2,7 @@
 
 #include "input.h"
 #include "world.h"
+#include "screen.h"
 #include "rigidbody.h"
 #include "resources.h"
 #include "geometries.h"
@@ -14,16 +15,23 @@ SUEDE_DEFINE_COMPONENT(Handles, IBehaviour)
 #define ARROW_LENGTH			(7.f)
 #define CUBOID_SIZE				(0.4f)
 #define MOVE_SPEED				(0.02f)
-#define ROTATE_SPEED			(0.12f)
+#define AXIS_ROTATE_SPEED		(0.25f)
+#define ARCBALL_ROTATE_SPEED	(0.1f)
 #define SCALE_SPEED				(0.02f)
 #define GetMaterial0(go)		(go->GetComponent<MeshRenderer>()->GetMaterial(0))
 
-Mesh Handles::s_handleMeshes[Handles::AxisCount];
-Mesh Handles::s_gizmoMeshes[Handles::AxisCount];
+Mesh Handles::s_gizmoMeshes[HandlesMode::size()];
+Color Handles::s_gizmoColors[HandlesMode::size()] = {
+	Color(0.82f, 0.82f, 0.82f, 0.8f), Color(0.2f, 0.2f, 0.2f, 0.2f), Color(0.82f, 0.82f, 0.82f, 0.8f)
+};
+
+Mesh Handles::s_handleMeshes[HandlesMode::size()];
 Material Handles::s_materials[Handles::AxisCount + 1];
 
 void Handles::Awake() {
 	mode_ = (HandlesMode)-1;
+	SetHideFlags(HideFlags::HideInInspector);
+
 	if (!s_handleMeshes[0]) {
 		InitializeMeshes();
 		InitializeMaterials();
@@ -82,7 +90,7 @@ void Handles::OnPreRender() {
 void Handles::Initialize() {
 	handles_ = new IGameObject();
 	handles_->SetName("_SuedeHandles");
-	handles_->SetLayer(LayerManager::IgnoreRaycast);
+	handles_->SetLayer(LayerManager::IgnorePick);
 	handles_->SetHideFlags(HideFlags::HideInHierarchy);
 
 	SetupAxises();
@@ -113,7 +121,7 @@ void Handles::InitializeMaterials() {
 void Handles::SetMode(HandlesMode value) {
 	if (mode_ != value) {
 		mode_ = value;
-		SetHandlesMesh(s_handleMeshes[mode_], s_gizmoMeshes[mode_]);
+		SetHandlesMesh(s_handleMeshes[mode_], s_gizmoMeshes[mode_], s_gizmoColors[mode_]);
 
 		if (mode_ != HandlesMode::Rotate) {
 			handles_->GetTransform()->SetRotation(glm::quat());
@@ -125,16 +133,22 @@ void Handles::SetMode(HandlesMode value) {
 	}
 }
 
-void Handles::SetHandlesMesh(Mesh handle, Mesh gizmo) {
+void Handles::SetHandlesMesh(Mesh handle, Mesh gizmo, const Color& color) {
 	int i = 0;
 	for (Transform transform : handles_->GetTransform()->GetChildren()) {
 		Mesh mesh = transform->GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
-		Mesh storage = (i++ < AxisCount) ? handle : gizmo;
+		Mesh storage = (i < AxisCount) ? handle : gizmo;
 
 		mesh->ShareStorage(storage);
 		
 		TriangleBias bias{ storage->GetIndexCount() };
 		mesh->GetSubMesh(0)->SetTriangleBias(bias);
+
+		if (i == AxisCount) {
+			GetMaterial0(transform->GetGameObject())->SetColor(BuiltinProperties::MainColor, color);
+		}
+
+		++i;
 	}
 }
 
@@ -142,11 +156,7 @@ bool Handles::RaycastUnderCursor(RaycastHit& hitInfo) {
 	glm::vec3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
 	glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 
-	return Physics::Raycast(Ray(src, dest - src), 1000, LayerManager::IgnoreRaycast, &hitInfo);
-}
-
-Color Handles::GetActiveAxisColor(const glm::vec3& axis) {
-	return Math::Approximately(axis, glm::vec3(1)) ? Color(0.5f, 0.5f, 0.5f, 0.4f) : Color(128 / 255.f, 128 / 255.f, 0);
+	return Physics::Raycast(Ray(src, dest - src), 1000, LayerManager::IgnorePick, &hitInfo);
 }
 
 void Handles::UpdateCurrentAxis() {
@@ -161,7 +171,9 @@ void Handles::UpdateCurrentAxis() {
 			collisionPos_ = hitInfo.point;
 			oldColor_ = GetMaterial0(current_)->GetColor(BuiltinProperties::MainColor);
 
-			GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, GetActiveAxisColor(axis_));
+			if (!Math::Approximately(axis_, glm::vec3(1))) {
+				GetMaterial0(current_)->SetColor(BuiltinProperties::MainColor, Color(0.8f, 0.8f, 0.8f, 0.4f));
+			}
 		}
 	}
 }
@@ -188,7 +200,8 @@ void Handles::SetupAxises() {
 	for (int i = 0; i < AxisCount + 1; ++i) {
 		GameObject go = new IGameObject();
 		go->SetName(names[i]);
-		go->SetLayer(LayerManager::IgnoreRaycast);
+
+		go->SetLayer(LayerManager::IgnorePick);
 
 		Mesh mesh = new IMesh();
 
@@ -199,6 +212,8 @@ void Handles::SetupAxises() {
 
 		go->GetTransform()->SetParent(handles_->GetTransform());
 		go->GetTransform()->SetEulerAngles(eulers[i]);
+
+		go->GetComponent<Rigidbody>()->SetOccluderEnabled(false);
 	}
 }
 
@@ -207,12 +222,43 @@ void Handles::MoveHandles(const glm::vec3& axis, const glm::ivec2& mousePos, con
 	GetTransform()->SetPosition(GetTransform()->GetPosition() + dir * MOVE_SPEED);
 }
 
-void Handles::RotateHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos) {
-	glm::ivec2 delta = (mousePos - oldPos);
+glm::vec3 Handles::GetArcballVector(const glm::ivec2& pos, const glm::ivec2& screenSize) {
+	glm::vec3 p(2.f * glm::vec2(pos) / glm::vec2(screenSize) - 1.f, 0);
 
-	glm::vec3 dir = Project(tangent_, delta);
-	float speed = Math::Radians(glm::length(dir) * Math::Sign(glm::dot(dir, tangent_)) * ROTATE_SPEED);
-	GetTransform()->SetRotation(glm::angleAxis(speed, handles_->GetTransform()->GetRotation() * axis) * GetTransform()->GetRotation());
+	float squared = glm::dot(p, p);
+	if (squared <= 1.f) {
+		p.z = Math::Sqrt(1.f - squared);
+	}
+	else {
+		p = glm::normalize(p);
+	}
+
+	return p;
+}
+
+glm::vec4 Handles::CalculateArcballRotation(const glm::ivec2& mousePos, const glm::ivec2& oldPos, const glm::ivec2& screenSize) {
+	glm::vec3 va = GetArcballVector(oldPos, screenSize);
+	glm::vec3 vb = GetArcballVector(mousePos, screenSize);
+	float angle = Math::ACos(Math::Min(1.0f, glm::dot(va, vb)));
+
+	return glm::vec4(glm::cross(va, vb), angle);
+}
+
+void Handles::RotateHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos) {
+	glm::quat q;
+	if (!Math::Approximately(axis, glm::vec3(1))) {
+		glm::vec3 dir = Project(tangent_, mousePos - oldPos);
+		float speed = Math::Radians(glm::length(dir) * Math::Sign(glm::dot(dir, tangent_)) * AXIS_ROTATE_SPEED);
+		q = glm::rotate(GetTransform()->GetRotation(), -speed, handles_->GetTransform()->GetRotation() * axis);
+	}
+	else {
+		glm::vec4 param = CalculateArcballRotation(mousePos, oldPos, glm::ivec2(Screen::GetWidth(), Screen::GetHeight()));
+		glm::mat3 mv = glm::mat3(CameraUtility::GetMain()->GetTransform()->GetWorldToLocalMatrix()) * glm::mat3(GetTransform()->GetLocalToWorldMatrix());
+		glm::vec3 axisModelSpace = glm::inverse(mv) * param.xyz;
+		q = glm::rotate(GetTransform()->GetRotation(), Math::Degrees(param.w) * ARCBALL_ROTATE_SPEED, axisModelSpace);
+	}
+
+	GetTransform()->SetRotation(q);
 }
 
 void Handles::ScaleHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos) {
@@ -232,6 +278,9 @@ void Handles::InitializeMoveHandlesMesh(Mesh handle, Mesh gizmo) {
 
 	attribute.positions.clear();
 	attribute.indexes.clear();
+
+	Geometries::Cuboid(attribute.positions, attribute.indexes, glm::vec3(0), glm::vec3(0.5f));
+	gizmo->SetAttribute(attribute);
 }
 
 void Handles::InitializeRotateHandlesMesh(Mesh handle, Mesh gizmo) {
@@ -257,4 +306,7 @@ void Handles::InitializeScaleHandlesMesh(Mesh handle, Mesh gizmo) {
 
 	attribute.positions.clear();
 	attribute.indexes.clear();
+
+	Geometries::Cuboid(attribute.positions, attribute.indexes, glm::vec3(0), glm::vec3(0.5f));
+	gizmo->SetAttribute(attribute);
 }

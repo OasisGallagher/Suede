@@ -107,7 +107,7 @@ void Game::tick() {
 		glm::vec3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
 		glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
 
-		if (Physics::Raycast(Ray(src, dest - src), 1000, ~LayerManager::IgnoreRaycast, &hitInfo)) {
+		if (Physics::Raycast(Ray(src, dest - src), 1000, ~(LayerManager::IgnorePick), &hitInfo)) {
 			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject>{ hitInfo.gameObject });
 		}
 	}

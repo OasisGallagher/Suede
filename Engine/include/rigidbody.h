@@ -17,6 +17,9 @@ public:
 	void SetMass(float value);
 	float GetMass() const;
 
+	void SetOccluderEnabled(bool value);
+	bool GetOccluderEnabled() const;
+
 	const Bounds& GetBounds() const;
 
 	void SetVelocity(const glm::vec3& value);

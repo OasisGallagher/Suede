@@ -26,6 +26,9 @@ public:
 	void SetVelocity(const glm::vec3& value);
 	glm::vec3 GetVelocity() const;
 
+	void SetOccluderEnabled(bool value);
+	bool GetOccluderEnabled() const;
+
 	const Bounds& GetBounds() const { return bounds_; }
 
 private:

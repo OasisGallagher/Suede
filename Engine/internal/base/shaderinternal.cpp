@@ -26,17 +26,12 @@ uint IShader::GetSubShaderCount() const { return _suede_dptr()->GetSubShaderCoun
 void IShader::GetProperties(std::vector<ShaderProperty>& properties) { return _suede_dptr()->GetProperties(properties); }
 bool IShader::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) { return _suede_dptr()->SetProperty(ssi, pass, name, data); }
 
-std::pair<std::string, float> _variables[] = {
+static std::map<std::string, float> s_renderQueueVariables({
 	std::make_pair("Background", (float)RenderQueue::Background),
 	std::make_pair("Geometry", (float)RenderQueue::Geometry),
 	std::make_pair("Transparent", (float)RenderQueue::Transparent),
 	std::make_pair("Overlay", (float)RenderQueue::Overlay),
-};
-
-static std::map<std::string, float> renderQueueVariables(_variables, _variables + SUEDE_COUNTOF(_variables));
-
-#define BIND(old, new)	if (old == new) { old = -1; } else
-#define UNBIND(old)		if (old == -1) { } else
+});
 
 Pass::Pass() : program_(0), oldProgram_(0) {
 	program_ = GL::CreateProgram();
@@ -106,14 +101,17 @@ bool Pass::SetProperty(const std::string& name, const void* data) {
 void Pass::Bind() {
 	BindRenderStates();
 	GL::GetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&oldProgram_);
-	BIND(oldProgram_, program_) {
+	if (oldProgram_ == program_) {
+		oldProgram_ = -1;
+	}
+	else {
 		GL::UseProgram(program_);
 	}
 }
 
 void Pass::Unbind() {
 	UnbindRenderStates();
-	UNBIND(oldProgram_) {
+	if (oldProgram_ != -1) {
 		GL::UseProgram(oldProgram_);
 	}
 }
@@ -607,7 +605,7 @@ void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
 
 uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 	if (key == TagKeyRenderQueue) {
-		return (uint)GLEF::instance()->Evaluate(expression.c_str(), &renderQueueVariables);
+		return (uint)GLEF::instance()->Evaluate(expression.c_str(), &s_renderQueueVariables);
 	}
 
 	Debug::LogError("invalid tag key %d.", key);

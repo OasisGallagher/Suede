@@ -34,6 +34,21 @@ class Rigidbody_Wrapper {
 		return Lua::push(L, _p->GetMass());
 	}
 
+	// void SetOccluderEnabled(bool value)
+	static int SetOccluderEnabled(lua_State* L) {
+		Rigidbody& _p = *Lua::callerIntrusivePtr<Rigidbody>(L);
+		bool value = Lua::get<bool>(L, 2);
+		
+		_p->SetOccluderEnabled(value);
+		return 0;
+	}
+
+	// bool GetOccluderEnabled()
+	static int GetOccluderEnabled(lua_State* L) {
+		Rigidbody& _p = *Lua::callerIntrusivePtr<Rigidbody>(L);
+		return Lua::push(L, _p->GetOccluderEnabled());
+	}
+
 	// void SetVelocity(const glm::vec3& value)
 	static int SetVelocity(lua_State* L) {
 		Rigidbody& _p = *Lua::callerIntrusivePtr<Rigidbody>(L);
@@ -62,6 +77,8 @@ public:
 			{ "__tostring", ToString }, 
 			{ "SetMass", SetMass },
 			{ "GetMass", GetMass },
+			{ "SetOccluderEnabled", SetOccluderEnabled },
+			{ "GetOccluderEnabled", GetOccluderEnabled },
 			{ "SetVelocity", SetVelocity },
 			{ "GetVelocity", GetVelocity },
 			{ nullptr, nullptr }

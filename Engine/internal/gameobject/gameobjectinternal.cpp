@@ -87,7 +87,7 @@ void GameObjectInternal::SetActiveSelf(bool value) {
 		SetActive(activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(_suede_self());
 
-		if ((GetLayer() & ~LayerManager::IgnoreRaycast) != 0 && !GetBounds().IsEmpty()) {
+		if (!GetBounds().IsEmpty()) {
 			DirtyParentBounds();
 		}
 	}
@@ -270,7 +270,7 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 
 	for (Transform tr : GetTransform()->GetChildren()) {
 		GameObject child = tr->GetGameObject();
-		if (child->GetActive() && (GetLayer() & ~LayerManager::IgnoreRaycast) != 0) {
+		if (child->GetActive()) {
 			const Bounds& b = child->GetBounds();
 			worldBounds_.Encapsulate(b);
 		}

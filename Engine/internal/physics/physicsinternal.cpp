@@ -9,6 +9,8 @@
 #include "memory/memory.h"
 #include "internal/components/rigidbodyinternal.h"
 
+#define UserPtrToGameObject(o)	(((IRigidbody*)((btCollisionObject*)o)->getUserPointer())->GetGameObject())
+
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 	Color oldColor = Gizmos::GetColor();
 	Gizmos::SetColor(Color(color.x(), color.y(), color.z()));
@@ -33,37 +35,39 @@ bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEna
 btDiscreteDynamicsWorld* PhysicsInternal::world_;
 
 struct LayerMaskedClosestHitResultCallback : btCollisionWorld::RayResultCallback {
-	LayerMaskedClosestHitResultCallback(int layerMask) : layerMask(layerMask) { }
+	LayerMaskedClosestHitResultCallback(int layerMask) : m_layerMask(layerMask) { }
 
-	int layerMask;
-	glm::vec3 normal;
+	int m_layerMask;
+	glm::vec3 m_hitNormalWorld;
 
-	virtual	btScalar addSingleResult(btCollisionWorld::LocalRayResult& result, bool worldSpaceNormal) {
-		if (result.m_hitFraction > m_closestHitFraction) {
-			return result.m_hitFraction;
-		}
-
-		m_closestHitFraction = result.m_hitFraction;
-		m_collisionObject = result.m_collisionObject;
-		if (worldSpaceNormal) {
-			normal = btConvert(result.m_hitNormalLocal);
-		}
-		else {
-			normal = btConvert(m_collisionObject->getWorldTransform().getBasis() * result.m_hitNormalLocal);
-		}
-
-		return result.m_hitFraction;
-	}
-
-	virtual bool needsCollision(btBroadphaseProxy* proxy0) const {
-		if (!btCollisionWorld::RayResultCallback::needsCollision(proxy0)) {
-			return false;
-		}
-
-		IRigidbody* rigidbody = ((IRigidbody*)((btCollisionObject*)proxy0->m_clientObject)->getUserPointer());
-		return (rigidbody->GetGameObject()->GetLayer() & layerMask) != 0;
-	}
+	virtual bool needsCollision(btBroadphaseProxy* proxy0) const;
+	virtual	btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace);
 };
+
+bool LayerMaskedClosestHitResultCallback::needsCollision(btBroadphaseProxy* proxy0) const {
+	if (!btCollisionWorld::RayResultCallback::needsCollision(proxy0)) {
+		return false;
+	}
+
+	return (UserPtrToGameObject(proxy0->m_clientObject)->GetLayer() & m_layerMask) != 0;
+}
+
+btScalar LayerMaskedClosestHitResultCallback::addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) {
+	if (rayResult.m_hitFraction > m_closestHitFraction) {
+		return rayResult.m_hitFraction;
+	}
+
+	m_closestHitFraction = rayResult.m_hitFraction;
+	m_collisionObject = rayResult.m_collisionObject;
+	if (normalInWorldSpace) {
+		m_hitNormalWorld = btConvert(rayResult.m_hitNormalLocal);
+	}
+	else {
+		m_hitNormalWorld = btConvert(m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal);
+	}
+
+	return rayResult.m_hitFraction;
+}
 
 PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	// You instantiate the broad phase algorithm implementation.
@@ -158,8 +162,8 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, uint layerMask,
 
 	if (callback.hasHit() && hitInfo != nullptr) {
 		hitInfo->point = Math::Lerp(from, to, callback.m_closestHitFraction);
-		hitInfo->normal = callback.normal;
-		hitInfo->gameObject = ((IRigidbody*)callback.m_collisionObject->getUserPointer())->GetGameObject();
+		hitInfo->normal = callback.m_hitNormalWorld;
+		hitInfo->gameObject = UserPtrToGameObject(callback.m_collisionObject);
 	}
 
 	return callback.hasHit();

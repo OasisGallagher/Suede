@@ -8,7 +8,7 @@ struct Layer {
 
 struct SUEDE_API LayerManager {
 	static uint Default;
-	static uint IgnoreRaycast;
+	static uint IgnorePick;
 
 	static uint NameToLayer(const std::string& name);
 	static std::string LayerToName(uint layer);

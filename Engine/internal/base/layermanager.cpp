@@ -16,7 +16,7 @@ struct LayerComparer {
 static sorted_vector<Layer, LayerComparer> s_layerMasks;
 
 DEFINE_BUILTIN_LAYER(Default);
-DEFINE_BUILTIN_LAYER(IgnoreRaycast);
+DEFINE_BUILTIN_LAYER(IgnorePick);
 
 uint LayerManager::NameToLayer(const std::string& name) {
 	Layer layerMask = { name };

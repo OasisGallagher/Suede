@@ -39,9 +39,8 @@ private:
 
 	void SetupAxises();
 	void UpdateCurrentAxis();
-	Color GetActiveAxisColor(const glm::vec3& axis);
 
-	void SetHandlesMesh(Mesh handle, Mesh gizmo); 
+	void SetHandlesMesh(Mesh handle, Mesh gizmo, const Color& color); 
 	bool RaycastUnderCursor(RaycastHit& hitInfo);
 	
 	glm::vec3 FindAxis(GameObject current);
@@ -56,6 +55,10 @@ private:
 	void MoveHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
 	void RotateHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
 	void ScaleHandles(const glm::vec3& axis, const glm::ivec2& mousePos, const glm::ivec2& oldPos);
+
+	// arcball rotation: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
+	glm::vec3 GetArcballVector(const glm::ivec2& pos, const glm::ivec2& screenSize);
+	glm::vec4 CalculateArcballRotation(const glm::ivec2& mousePos, const glm::ivec2& oldPos, const glm::ivec2& screenSize);
 
 private:
 	Color oldColor_;
@@ -75,7 +78,8 @@ private:
 		Resolution = 27,
 	};
 
-	static Mesh s_gizmoMeshes[AxisCount];
-	static Mesh s_handleMeshes[AxisCount];
+	static Mesh s_gizmoMeshes[HandlesMode::size()];
+	static Color s_gizmoColors[HandlesMode::size()];
+	static Mesh s_handleMeshes[HandlesMode::size()];
 	static Material s_materials[AxisCount + 1];
 };
