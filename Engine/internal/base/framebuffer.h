@@ -19,6 +19,7 @@ enum FramebufferClearMask {
 	FramebufferClearMaskStencil = 4,
 
 	FramebufferClearMaskColorDepth = FramebufferClearMaskColor | FramebufferClearMaskDepth,
+	FramebufferClearMaskDepthStencil = FramebufferClearMaskDepth | FramebufferClearMaskStencil,
 	FramebufferClearMaskColorDepthStencil = FramebufferClearMaskColorDepth | FramebufferClearMaskStencil,
 };
 

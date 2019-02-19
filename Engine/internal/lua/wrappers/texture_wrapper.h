@@ -325,10 +325,19 @@ class RenderTexture_Wrapper {
 		return 0;
 	}
 
+	// void Clear(const Rect& normalizedRect, float depth)
 	// void Clear(const Rect& normalizedRect, const Color& color, float depth)
 	// void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil)
 	static int Clear(lua_State* L) {
 		RenderTexture& _p = *Lua::callerIntrusivePtr<RenderTexture>(L);
+		if (Lua::checkArguments<Rect, float>(L, 2)) {
+			float depth = Lua::get<float>(L, 3);
+			Rect normalizedRect = Lua::get<Rect>(L, 2);
+			
+			_p->Clear(normalizedRect, depth);
+			return 0;
+		}
+
 		if (Lua::checkArguments<Rect, Color, float>(L, 2)) {
 			float depth = Lua::get<float>(L, 4);
 			Color color = Lua::get<Color>(L, 3);

@@ -47,23 +47,27 @@ void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data, uint* alignmen
 }
 
 void FramebufferBase::BindFramebuffer(FramebufferTarget target) {
-	if (bindTarget_ != 0) {
+	GLenum query, bind;
+	FramebufferTargetToGLenum(target, &query, &bind);
+
+	if (bindTarget_ != 0 && bindTarget_ != bind) {
 		Debug::LogError("framebuffer already bound.");
 		return;
 	}
 
-	GLenum query, bind;
-	FramebufferTargetToGLenum(target, &query, &bind);
+	if (bindTarget_ == 0) {
+		GL::GetIntegerv(query, &oldFramebuffer_);
+		GL::BindFramebuffer(bind, fbo_);
 
-	GL::GetIntegerv(query, &oldFramebuffer_);
-	GL::BindFramebuffer(bind, fbo_);
-
-	bindTarget_ = bind;
+		bindTarget_ = bind;
+	}
 }
 
 void FramebufferBase::UnbindFramebuffer() {
-	GL::BindFramebuffer(bindTarget_, oldFramebuffer_);
-	bindTarget_ = oldFramebuffer_ = 0;
+	if (bindTarget_ != 0) {
+		GL::BindFramebuffer(bindTarget_, oldFramebuffer_);
+		bindTarget_ = oldFramebuffer_ = 0;
+	}
 }
 
 void FramebufferBase::BindViewport() {

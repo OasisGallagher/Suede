@@ -131,8 +131,15 @@ void Pipeline::Run() {
 	samples_.update_offset->Reset();
 #endif
 
+	int queue = 0;
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		Renderable& first = renderables_[from];
+		if (queue < RenderQueue::Overlay && first.material->GetRenderQueue() >= RenderQueue::Overlay) {
+			targetTexture_->Clear(normalizedRect_, 1);
+		}
+
+		queue = first.material->GetRenderQueue();
+
 		if (first.material->IsPassEnabled(first.pass)) {
 			if (renderables_[from].instance != 0) {
 				Render(renderables_[from], renderables_[from].instance, 0);
@@ -155,10 +162,10 @@ void Pipeline::Run() {
 	samples_.update_pipeline->Stop();
 
 #ifdef DEBUG_SAMPLES
-	Debug::Output(0, "[Pipeline::Update::renderables]\t%d ms", nrenderables_);
-	Debug::Output(0, "[Pipeline::Update::drawcalls]\t%d ms", counters_.drawcalls);
-	Debug::Output(0, "[Pipeline::Update::meshChanges]\t%d ms", counters_.meshChanges);
-	Debug::Output(0, "[Pipeline::Update::materialChanges]\t%d ms", counters_.materialChanges);
+	Debug::Output(0, "[Pipeline::Update::renderables]\t%d", nrenderables_);
+	Debug::Output(0, "[Pipeline::Update::drawcalls]\t%d", counters_.drawcalls);
+	Debug::Output(0, "[Pipeline::Update::meshChanges]\t%d", counters_.meshChanges);
+	Debug::Output(0, "[Pipeline::Update::materialChanges]\t%d", counters_.materialChanges);
 
 	Debug::Output(0, "[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
 	Debug::Output(0, "[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);

@@ -37,6 +37,10 @@ private slots:
 	void updateStatContent();
 	void onToggleStat(int state);
 
+	void onHandlesModeChanged(bool checked);
+
+	void updateHandlesMode(QObject* checked);
+
 	void onShadingModeChanged(const QString& str);
 
 	void onFocusGameObjectBounds(GameObject go);

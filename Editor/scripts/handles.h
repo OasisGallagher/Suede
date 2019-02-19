@@ -28,8 +28,14 @@ public:
 	virtual void OnPreRender();
 
 public:
+	static Handles* GetCurrent() { return s_current; }
+
+public:
 	void SetMode(HandlesMode value);
-	HandlesMode GetMode() { return mode_; }
+
+	void RefreshHandles();
+
+	HandlesMode GetMode() { return s_mode; }
 
 private:
 	void Initialize();
@@ -67,16 +73,18 @@ private:
 	glm::vec3 collisionPos_;
 
 	glm::vec3 axis_;
-	GameObject current_;
+	GameObject selected_;
 
 	Handler handler_;
 	GameObject handles_;
-	HandlesMode mode_;
 
 	enum {
 		AxisCount = 3,
 		Resolution = 27,
 	};
+
+	static HandlesMode s_mode;
+	static Handles* s_current;
 
 	static Mesh s_gizmoMeshes[HandlesMode::size()];
 	static Color s_gizmoColors[HandlesMode::size()];

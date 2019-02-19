@@ -33,6 +33,7 @@
 
 #include "tools/math2.h"
 
+#include "scripts/handles.h"
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
 #include "scripts/gaussianblur.h"
@@ -88,13 +89,18 @@ void Game::init(Ui::Editor* ui) {
 	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStatContent()));
 	timer_->start(800);
 
+	connect(ui_->move, SIGNAL(clicked(bool)), this, SLOT(onHandlesModeChanged(bool)));
+	connect(ui_->rotate, SIGNAL(clicked(bool)), this, SLOT(onHandlesModeChanged(bool)));
+	connect(ui_->scale, SIGNAL(clicked(bool)), this, SLOT(onHandlesModeChanged(bool)));
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
 }
 
 void Game::awake() {
 	ComponentUtility::Register<CameraController>();
 
+	//ui_->handles->setEnums(+HandlesMode::Move);
 	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
+
 	createScene();
 
 	input_ = new QtInputDelegate(ui_->canvas);
@@ -102,6 +108,12 @@ void Game::awake() {
 }
 
 void Game::tick() {
+	//Handles* current = Handles::GetCurrent();
+	//ui_->handles->setEnabled(current != nullptr);
+	//if (current != nullptr) {
+	//	ui_->handles->setCurrentIndex(current->GetMode());
+	//}
+
 	if (Input::GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
 		glm::vec3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
@@ -214,6 +226,22 @@ void Game::updateStatPosition() {
 
 void Game::onShadingModeChanged(const QString& str) {
 	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
+}
+
+void Game::onHandlesModeChanged(bool checked) {
+	if (checked) {
+		updateHandlesMode(sender());
+	}
+}
+
+void Game::updateHandlesMode(QObject* checked) {
+	Handles* current = Handles::GetCurrent();
+	if (current != nullptr) {
+		current->SetMode(
+			checked == ui_->move ? HandlesMode::Move
+			: checked == ui_->rotate ? HandlesMode::Rotate : HandlesMode::Scale
+		);
+	}
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {

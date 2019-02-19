@@ -32,15 +32,12 @@ Culling::~Culling() {
 void Culling::run() {
 	for (; !stopped_;) {
 		if (working_) {
-			uint64 start = Profiler::GetTimeStamp();
-
- 			OcclusionCulling();
-			World::CullingUpdate();
-
-			Statistics::SetCullingElapsed(
-				Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+			PROFILER_RECORD(elapsed,
+ 				OcclusionCulling();
+				World::CullingUpdate();
 			);
 
+			Statistics::SetCullingElapsed(elapsed);
 			working_ = false;
 		}
 

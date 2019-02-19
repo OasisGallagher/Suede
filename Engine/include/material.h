@@ -7,12 +7,12 @@
 #include "variant.h"
 #include "texture.h"
 
-enum class RenderQueue {
+BETTER_ENUM(RenderQueue, int,
 	Background = 1000,
 	Geometry = 2000,
 	Transparent = 4000,
-	Overlay = 6000,
-};
+	Overlay = 6000
+)
 
 class SUEDE_API IMaterial : public IObject {
 	SUEDE_DEFINE_METATABLE_NAME(Material)

@@ -45,6 +45,7 @@ IRenderTexture::IRenderTexture(void* d) : ITexture(d) {}
 bool IRenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
 Texture2D IRenderTexture::ToTexture2D() { return _suede_dptr()->ToTexture2D(); }
 void IRenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
+void IRenderTexture::Clear(const Rect& normalizedRect, float depth) { _suede_dptr()->Clear(normalizedRect, depth); }
 void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth, (1 << GLUtils::GetLimits(GLLimitsStencilBits)) - 1); }
 void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) { _suede_dptr()->Clear(normalizedRect, color, depth, stencil); }
 void IRenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
@@ -496,21 +497,27 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	return true;
 }
 
-void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
-	if (!SetViewport(width_, height_, normalizedRect)) {
-		return;
-	}
 
-	if (ContainsDepthInfo()) {
+void RenderTextureInternal::Clear(const Rect& normalizedRect, float depth) {
+	if (SetViewport(width_, height_, normalizedRect)) {
 		framebuffer_->SetClearDepth(depth);
-		framebuffer_->SetClearStencil(stencil);
 		framebuffer_->Clear(FramebufferClearMaskDepth);
 	}
-	else {
-		framebuffer_->SetClearDepth(depth);
-		framebuffer_->SetClearColor(color);
-		framebuffer_->SetClearStencil(stencil);
-		framebuffer_->Clear(FramebufferClearMaskColorDepth);
+}
+
+void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
+	if (!SetViewport(width_, height_, normalizedRect)) {
+		if (ContainsDepthInfo()) {
+			framebuffer_->SetClearDepth(depth);
+			framebuffer_->SetClearStencil(stencil);
+			framebuffer_->Clear(FramebufferClearMaskDepthStencil);
+		}
+		else {
+			framebuffer_->SetClearDepth(depth);
+			framebuffer_->SetClearColor(color);
+			framebuffer_->SetClearStencil(stencil);
+			framebuffer_->Clear(FramebufferClearMaskColorDepth);
+		}
 	}
 }
 
@@ -687,13 +694,20 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 	return true;
 }
 
-void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
-	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, float depth) {
+	if (SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect)) {
+		framebuffer_->SetClearDepth(depth);
+		framebuffer_->Clear(FramebufferClearMaskDepth);
+	}
+}
 
-	framebuffer_->SetClearDepth(depth);
-	framebuffer_->SetClearColor(color);
-	framebuffer_->SetClearStencil(stencil);
-	framebuffer_->Clear(FramebufferClearMaskColorDepthStencil);
+void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
+	if (SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect)) {
+		framebuffer_->SetClearDepth(depth);
+		framebuffer_->SetClearColor(color);
+		framebuffer_->SetClearStencil(stencil);
+		framebuffer_->Clear(FramebufferClearMaskColorDepthStencil);
+	}
 }
 
 uint ScreenRenderTextureInternal::GetWidth() const {

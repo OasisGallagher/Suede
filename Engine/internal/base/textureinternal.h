@@ -151,6 +151,7 @@ public:
 	virtual void Resize(uint width, uint height);
 
 	virtual void BindWrite(const Rect& normalizedRect);
+	virtual void Clear(const Rect& normalizedRect, float depth);
 	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 protected:
@@ -207,6 +208,8 @@ public:
 	virtual void Unbind();
 
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
+
+	virtual void Clear(const Rect& normalizedRect, float depth);
 	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 protected:

@@ -192,12 +192,6 @@ void CameraInternal::OnCullingFinished() {
 		visibleGameObjects_ = culling_->GetGameObjects();
 	}
 
-	/*uint64 start = Profiler::GetTimeStamp();
-	traits1_->Traits(visibleGameObjects_, matrices);
-	double delta = Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
-	Debug::Output(1, "traits costs %.2f ms", delta * 1000);
-
-	//std::swap(traits0_, traits1_);*/
 	traitsReady_ = traitsDirty_ = true;
 }
 

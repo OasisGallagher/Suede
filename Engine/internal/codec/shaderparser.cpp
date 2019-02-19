@@ -278,7 +278,7 @@ const char* GLSLParser::ParseLineNumberAndMessageBody(const std::string& msgline
 	for (;*ptr != 0 && !isdigit(*ptr); ++ptr) {}
 
 	// parse line number.
-	for (;*ptr != 0 && isdigit(*ptr); ++ptr) { ln = ln* 10 +*ptr - '0'; }
+	for (;*ptr != 0 && isdigit(*ptr); ++ptr) { ln = ln* 10 + *ptr - '0'; }
 
 	// find error message body.
 	for (;*ptr != 0 && !isalpha(*ptr); ++ptr) {}

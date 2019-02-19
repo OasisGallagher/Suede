@@ -62,7 +62,7 @@ float saturate(float x) {
 					normalize(mat3(_LocalToWorldMatrix) * _Normal)); \
 			mat[1] = normalize(cross(mat[2], mat[0]))
 
-#define _DEF_TANGENT_TO_WORLD_ROTATION(variableName) \
+#define _DEFINE_TANGENT_TO_WORLD_ROTATION(variableName) \
 		mat3 variableName; \
 		_TANGENT_TO_WORLD_ROTATION(variableName)
 		

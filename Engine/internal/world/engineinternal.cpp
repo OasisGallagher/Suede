@@ -94,32 +94,34 @@ void EngineInternal::Shutdown() {
 }
 
 void EngineInternal::Update() {
-	uint64 start = Profiler::GetTimeStamp();
-	if (updateRef_ == LUA_NOREF) {
-		Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
-		updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
-	}
+	PROFILER_RECORD(script,
+		if (updateRef_ == LUA_NOREF) {
+			Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
+			updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
+		}
 
-	Lua::invokeGlobalFunction(L, updateRef_);
-	uint64 now = Profiler::GetTimeStamp();
-	Statistics::SetScriptElapsed(
-		Profiler::TimeStampToSeconds(now - start)
+		Lua::invokeGlobalFunction(L, updateRef_);
 	);
 
-	start = now;
+	Statistics::SetScriptElapsed(script);
+
 	FrameEventListenerContainer cont(listeners_);
-	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameEnter));
-	now = Profiler::GetTimeStamp();
-	double frameEnter = Profiler::TimeStampToSeconds(now - start);
+
+	PROFILER_RECORD(frameEnter,
+		std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameEnter));
+	);
 	
-	World::Update();
+	PROFILER_RECORD(rendering,
+		World::Update();
+	);
 
-	start = now;
-	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameLeave));
-	now = Profiler::GetTimeStamp();
-	double frameLeave = Profiler::TimeStampToSeconds(now - start);
+	Statistics::SetRenderingElapsed(rendering);
 
-	Debug::Output(0, "frameEnter: %.2f, frameLeave: %.2f", frameEnter * 1000, frameLeave * 1000);
+	PROFILER_RECORD(frameLeave,
+		std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameLeave));
+	);
+
+	Debug::Output(0, "frameEnter: %.2f ms, frameLeave: %.2f ms", frameEnter * 1000, frameLeave * 1000);
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

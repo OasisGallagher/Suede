@@ -386,8 +386,6 @@ void WorldInternal::CullingUpdate() {
 }
 
 void WorldInternal::Update() {
-	uint64 start = Profiler::GetTimeStamp();
-
 	FireEvents();
 
 	// SUEDE TODO: update decals in rendering thread ?
@@ -408,8 +406,4 @@ void WorldInternal::Update() {
 	PostRenderUpdateGameObjects();
 
 	CameraUtility::OnPostRender();
-
-	Statistics::SetRenderingElapsed(
-		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
-	);
 }

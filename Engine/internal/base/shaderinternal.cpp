@@ -584,8 +584,7 @@ const Pass* SubShader::GetPass(uint pass) const {
 
 uint SubShader::GetNativePointer(uint pass) const {
 	const Pass* p = GetPass(pass);
-	if (p == nullptr) { return 0; }
-	return p->GetNativePointer();
+	return (p != nullptr) ? p->GetNativePointer() : 0;
 }
 
 void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {

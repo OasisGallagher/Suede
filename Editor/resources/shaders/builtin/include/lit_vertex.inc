@@ -7,9 +7,9 @@
 
 // position in view space.
 out vec3 _ViewPos;
-#define _CALC_FOG_PARAMS()		_ViewPos = (_WorldToCameraMatrix * _LocalToWorldMatrix * vec4(_Pos, 1)).xyz
+#define _CALCULATE_FOG_PARAMS()		_ViewPos = (_WorldToCameraMatrix * _LocalToWorldMatrix * vec4(_Pos, 1)).xyz
 
 out vec4 _ShadowCoord;
-#define _CALC_SHADOW_COORD()	_ShadowCoord = _WorldToShadowMatrix * _LocalToWorldMatrix * vec4(_Pos, 1)
+#define _CALCULATE_SHADOW_COORD()	_ShadowCoord = _WorldToShadowMatrix * _LocalToWorldMatrix * vec4(_Pos, 1)
 
 #endif // _LIT_VERTEX_INCLUDED

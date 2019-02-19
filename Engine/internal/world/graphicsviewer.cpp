@@ -22,23 +22,21 @@ void GraphicsViewer::Run() {
 		if (canvas_ != nullptr) {
 			canvas_->MakeCurrent();
 
-			uint64 start = Profiler::GetTimeStamp();
-			Update();
-			uint64 now = Profiler::GetTimeStamp();
-			double qt = Profiler::TimeStampToSeconds(now - start);
+			PROFILER_RECORD(qt,
+				Update()
+			);
 
-			start = now;
-			Engine::Update();
-			now = Profiler::GetTimeStamp();
-			double engine = Profiler::TimeStampToSeconds(now - start);
+			PROFILER_RECORD(engine,
+				Engine::Update()
+			);
 
-			start = now;
- 			canvas_->SwapBuffers();
- 			canvas_->DoneCurrent();
-			now = Profiler::GetTimeStamp();
-			double swap = Profiler::TimeStampToSeconds(now - start);
+			PROFILER_RECORD(swap,
+ 				canvas_->SwapBuffers();
+ 				canvas_->DoneCurrent();
+			);
 
-			Debug::Output(0, "qt: %.2f, engine: %.2f, swap: %.2f", qt * 1000, engine * 1000, swap * 1000);
+			Debug::Output(0, "qt: %.2f ms, engine: %.2f ms, swap: %.2f ms", qt * 1000, engine * 1000, swap * 1000);
+			Debug::Output(0, "=========================================================");
 		}
 	}
 }

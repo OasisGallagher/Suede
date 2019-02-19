@@ -32,3 +32,11 @@ public:
 private:
 	Profiler();
 };
+
+#define PROFILER_RECORD(var, ...) \
+	double var = 0;  \
+	if (true) {\
+		uint64 start = Profiler::GetTimeStamp(); \
+		__VA_ARGS__; \
+		var = Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start); \
+	} else (void)0

@@ -112,11 +112,11 @@ PhysicsInternal::~PhysicsInternal() {
 }
 
 void PhysicsInternal::OnFrameEnter() {
-	uint64 start = Profiler::GetTimeStamp();
-	FixedUpdate();
-	Statistics::SetPhysicsElapsed(
-		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+	PROFILER_RECORD(elapsed,
+		FixedUpdate();
 	);
+
+	Statistics::SetPhysicsElapsed(elapsed);
 }
 
 void PhysicsInternal::OnWorldEvent(WorldEventBase* e) {

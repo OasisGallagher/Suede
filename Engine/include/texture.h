@@ -155,6 +155,7 @@ public:
 	Texture2D ToTexture2D();
 
 	void Resize(uint width, uint height);
+	void Clear(const Rect& normalizedRect, float depth);
 	void Clear(const Rect& normalizedRect, const Color& color, float depth);
 	void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 

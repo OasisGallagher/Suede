@@ -26,8 +26,8 @@ SubShader {
 			texCoord = _TexCoord0;
 			worldPos = (_LocalToWorldMatrix * vec4(_Pos, 1)).xyz;
 
-			_CALC_FOG_PARAMS();
-			_CALC_SHADOW_COORD();
+			_CALCULATE_FOG_PARAMS();
+			_CALCULATE_SHADOW_COORD();
 
 			_TANGENT_TO_WORLD_ROTATION(tangentToWorldMatrix);
 
@@ -52,8 +52,8 @@ SubShader {
 			normal = normalize(tangentToWorldMatrix * normal);
 
 			vec4 albedo = texture(_MainTexture, texCoord);
-			float visibility = _CalcShadowVisibility(worldPos);
-			fragColor = vec4(_CalcDirectionalLight(albedo.xyz, worldPos, normal, visibility), albedo.a);
+			float visibility = _CalculateShadowVisibility(worldPos);
+			fragColor = vec4(_CalculateDirectionalLight(albedo.xyz, worldPos, normal, visibility), albedo.a);
 			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
 		}
 		

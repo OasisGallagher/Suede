@@ -40,7 +40,7 @@ float _random(vec3 seed, int i){
 	return fract(sin(dp) * 43758.5453);
 }
 
-vec3 _CalcDirectionalLight(vec3 albedo, vec3 worldPos, vec3 worldNormal, float visibility) {
+vec3 _CalculateDirectionalLight(vec3 albedo, vec3 worldPos, vec3 worldNormal, float visibility) {
 	vec3 ambient = _AmbientColor * texture(_SSAOTexture, _FragTexCoord()).rgb;
 
 	float factor = clamp(dot(worldNormal, -_LightDir), 0, 1);
@@ -56,7 +56,7 @@ vec3 _CalcDirectionalLight(vec3 albedo, vec3 worldPos, vec3 worldNormal, float v
 }
 
 #define _SHADOW_LEVEL	 0
-float _CalcShadowVisibility(vec3 worldPos) {
+float _CalculateShadowVisibility(vec3 worldPos) {
 	float visibility = 1;
 	float bias = 0.005;
 

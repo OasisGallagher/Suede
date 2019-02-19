@@ -4,10 +4,12 @@ Properties {
 
 SubShader {
 	Tags {
-		Queue = "Overlay + 1";
+		Queue = "Overlay";
 	}
 
 	Pass {
+		Blend SrcAlpha OneMinusSrcAlpha;
+
 		GLSLPROGRAM
 
 		#stage vertex
@@ -32,3 +34,4 @@ SubShader {
 		ENDGLSL
 	}
 }
+

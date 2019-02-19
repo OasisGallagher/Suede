@@ -287,14 +287,10 @@ static int configure(lua_State* L) {
 
 	// RenderQueue
 	lua_newtable(L);
-	lua_pushinteger(L, (int)RenderQueue::Background);
-	lua_setfield(L, -2, "Background");
-	lua_pushinteger(L, (int)RenderQueue::Geometry);
-	lua_setfield(L, -2, "Geometry");
-	lua_pushinteger(L, (int)RenderQueue::Transparent);
-	lua_setfield(L, -2, "Transparent");
-	lua_pushinteger(L, (int)RenderQueue::Overlay);
-	lua_setfield(L, -2, "Overlay");
+	for (int i = 0; i < RenderQueue::size(); ++i) {
+		lua_pushinteger(L, RenderQueue::value(i));
+		lua_setfield(L, -2, RenderQueue::value(i).to_string());
+	}
 
 	lua_setfield(L, -2, "RenderQueue");
 
