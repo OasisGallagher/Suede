@@ -34,6 +34,6 @@ private:
 	QApplication app_;
 
 private:
-	static QString defaultSkin;
-	static QMap<QString, QString> skinResources;
+	static QString s_defaultSkin;
+	static QMap<QString, QString> s_skinResources;
 };

@@ -121,7 +121,7 @@ void EngineInternal::Update() {
 		std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameLeave));
 	);
 
-	Debug::Output(0, "frameEnter: %.2f ms, frameLeave: %.2f ms", frameEnter * 1000, frameLeave * 1000);
+	Debug::Output(0, "frameEnter: %.2f ms, rendering %.2f ms, frameLeave: %.2f ms", frameEnter * 1000, rendering * 1000, frameLeave * 1000);
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

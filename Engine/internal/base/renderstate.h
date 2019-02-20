@@ -1,21 +1,30 @@
 ﻿#pragma once
 #include "../api/gl.h"
 #include "tools/enum.h"
+
 /**
  * @param Cull: Front, Back, Off.
- * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
- * @param ZWrite: On, Off.
- * @param Offset0: int(scale Offset::Scale).
- * @param Offset1: int(scale Offset::Scale).
+ *
  * @param Blend0: Off, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha
  * @param Blend1: None, Zero, One, SrcColor, OneMinusSrcColor, SrcAlpha, OneMinusSrcAlpha, DestAlpha, OneMinusDestAlpha.
- * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
- * @param StencilTest1: [0x00, 0xFF].
- * @param StencilMask: On, Off.
+ *
+ * @param RasterizerDiscard: On, Off
+ *
+ * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
+ *
+ * @param ZWrite: On, Off.
+ *
+ * @param Offset0: int(scale Offset::Scale).
+ * @param Offset1: int(scale Offset::Scale).
+ *
  * @param StencilOp0: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
  * @param StencilOp1: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
  * @param StencilOp2: Keep, Zero, Replace, Incr, IncrWrap, Decr, DecrWrap, Invert.
- * @param RasterizerDiscard: On, Off
+ *
+ * @param StencilTest0: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
+ * @param StencilTest1: [0x00, 0xFF].
+ *
+ * @param StencilWrite: On, Off.
  */
 BETTER_ENUM(RenderStateType, int,
 	Cull,

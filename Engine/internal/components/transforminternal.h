@@ -98,6 +98,13 @@ private:
 		WorldToLocalMatrix = 1 << 9,
 	};
 
+	struct PRS {
+		glm::vec3 position;
+		glm::quat rotation;
+		glm::vec3 eulerAngles;
+		glm::vec3 scale = glm::vec3(1);
+	};
+
 private:
 	Children children_;
 	ITransform* parent_;

@@ -6,13 +6,6 @@
 #include "component.h"
 #include "enginedefines.h"
 
-struct PRS {
-	glm::vec3 position;
-	glm::quat rotation;
-	glm::vec3 scale;
-	glm::vec3 eulerAngles;
-};
-
 SUEDE_DEFINE_OBJECT_POINTER(GameObject)
 SUEDE_DEFINE_OBJECT_POINTER(Transform)
 

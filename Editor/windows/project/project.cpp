@@ -16,7 +16,7 @@
 #define NEW_IMAGE_EFFECT_SHADER_MAGIC		"*i"
 
 #define ROOT_PATH							"resources"
-#define IGNORE_FILE_PATH					"resources/ignore.txt"
+#define IGNORE_FILE_PATH					"resources/project_window_ignores.txt"
 
 class CustomItemDelegate : public QStyledItemDelegate {
 public:

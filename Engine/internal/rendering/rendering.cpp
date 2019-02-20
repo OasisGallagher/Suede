@@ -455,7 +455,7 @@ void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObj
 	forward_pass->Restart();
 	ForwardPass(pl, gameObjects);
 	forward_pass->Stop();
-	Debug::Output(0, "[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
+	Debug::Output(0, "[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f ms", forward_pass->GetElapsedSeconds());
 }
 
 void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& gameObjects, const std::vector<Light>& lights) {
@@ -506,7 +506,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& 
 		}
 	}
 
-	Debug::Output(0, "[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
+	Debug::Output(0, "[RenderableTraits::ForwardPass::push_renderables]\t%.2f ms", push_renderables->GetElapsedSeconds());
 	push_renderables->Reset();
 }
 

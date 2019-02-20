@@ -6,10 +6,10 @@
 #include "prefs.h"
 #include "editor.h"
 
-QString QtViewer::defaultSkin("Default");
+QString QtViewer::s_defaultSkin("Default");
 
-QMap<QString, QString> QtViewer::skinResources({
-	std::make_pair(defaultSkin, ""),
+QMap<QString, QString> QtViewer::s_skinResources({
+	std::make_pair(s_defaultSkin, ""),
 	std::make_pair("Dark",":/qss/style"),
 });
 
@@ -39,16 +39,16 @@ void QtViewer::Update() {
 }
 
 QList<QString> QtViewer::builtinSkinNames() {
-	return skinResources.keys();
+	return s_skinResources.keys();
 }
 
 QString QtViewer::skinName() {
-	return Prefs::instance()->load("skin", defaultSkin).toString();
+	return Prefs::instance()->load("skin", s_defaultSkin).toString();
 }
 
 bool QtViewer::setSkin(const QString& name) {
-	QMap<QString, QString>::iterator ite = skinResources.find(name);
-	if (ite == skinResources.end()) {
+	QMap<QString, QString>::iterator ite = s_skinResources.find(name);
+	if (ite == s_skinResources.end()) {
 		Debug::LogError(("invalid skin name " + name).toLatin1().data());
 		return false;
 	}

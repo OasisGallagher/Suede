@@ -386,24 +386,43 @@ void WorldInternal::CullingUpdate() {
 }
 
 void WorldInternal::Update() {
-	FireEvents();
+	PROFILER_RECORD(fireEvents,
+		FireEvents();
+	);
 
 	// SUEDE TODO: update decals in rendering thread ?
-	UpdateDecals();
+	PROFILER_RECORD(updateDecals,
+		UpdateDecals();
+	);
 
-	RenderingUpdateGameObjects();
+	PROFILER_RECORD(renderingUpdate,
+		RenderingUpdateGameObjects();
+	);
 
-	CameraUtility::OnPreRender();
+	PROFILER_RECORD(cameraPreRender,
+		CameraUtility::OnPreRender();
+	);
 
-	PreRenderUpdateGameObjects();
+	PROFILER_RECORD(preRenderUpdate,
+		PreRenderUpdateGameObjects();
+	);
 
-	for (Camera camera : cameras_) {
-		if (camera->GetEnabled()) {
-			camera->Render();
+	PROFILER_RECORD(cameraRender,
+		for (Camera camera : cameras_) {
+			if (camera->GetEnabled()) {
+				camera->Render();
+			}
 		}
-	}
+	);
 
-	PostRenderUpdateGameObjects();
+	PROFILER_RECORD(postRenderUpdate,
+		PostRenderUpdateGameObjects();
+	);
 
-	CameraUtility::OnPostRender();
+	PROFILER_RECORD(cameraPostRender,
+		CameraUtility::OnPostRender();
+	);
+
+	Debug::Output(0, "fireEvents %.2f ms, updateDecals %.2f ms, renderingUpdate %.2f ms, cameraPreRender %.2f ms, preRenderUpdate %.2f ms, cameraRender %.2f ms, postRenderUpdate %.2f ms, cameraPostRender %.2f ms",
+		fireEvents * 1000, updateDecals * 1000, renderingUpdate * 1000, cameraPreRender * 1000, preRenderUpdate * 1000, cameraRender * 1000, postRenderUpdate * 1000, cameraPostRender * 1000);
 }

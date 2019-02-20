@@ -122,7 +122,6 @@ static int configure(lua_State* L) {
 	RenderTextureUtility_Wrapper::create(L);
 	MRTRenderTexture_Wrapper::create(L);
 	Time_Wrapper::create(L);
-	PRS_Wrapper::create(L);
 	Transform_Wrapper::create(L);
 	World_Wrapper::create(L);
 
@@ -203,7 +202,6 @@ static int configure(lua_State* L) {
 	RenderTextureUtility_Wrapper::initialize(L, funcs, fields);
 	MRTRenderTexture_Wrapper::initialize(L, funcs, fields);
 	Time_Wrapper::initialize(L, funcs, fields);
-	PRS_Wrapper::initialize(L, funcs, fields);
 	Transform_Wrapper::initialize(L, funcs, fields);
 	World_Wrapper::initialize(L, funcs, fields);
 

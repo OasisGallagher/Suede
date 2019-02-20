@@ -5,17 +5,16 @@
 #include "graphicscanvas.h"
 #include "engineinternal.h"
 
+#include "debug/debug.h"
 #include "memory/memory.h"
 
-GraphicsViewer::GraphicsViewer(int argc, char * argv[]) 
+GraphicsViewer::GraphicsViewer(int argc, char* argv[]) 
 	: canvas_(nullptr), status_(Uninitialized) {
 }
 
 GraphicsViewer::~GraphicsViewer() {
 	Engine::Shutdown();
 }
-
-#include "debug/debug.h"
 
 void GraphicsViewer::Run() {
 	for (; status_ != Closed;) {

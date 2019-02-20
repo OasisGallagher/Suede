@@ -161,11 +161,10 @@ void GraphicsInternal::DrawSubMeshIfPassEnabled(Mesh mesh, uint subMeshIndex, Ma
 }
 
 Material GraphicsInternal::CreateBlitMaterial() {
-	Material material = new IMaterial();
 	Shader shader = new IShader();
 	shader->Load("builtin/blit");
 
-	material = new IMaterial();
+	Material material = new IMaterial();
 	material->SetShader(shader);
 
 	return material;

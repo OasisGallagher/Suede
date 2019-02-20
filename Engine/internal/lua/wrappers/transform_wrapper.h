@@ -7,36 +7,6 @@
 #include "lua++.h"
 #include "tools/string.h"
 
-class PRS_Wrapper {
-	static int NewPRS(lua_State* L) {
-		return Lua::newObject<PRS>(L);
-	}
-
-	static int ToString(lua_State* L) {
-		PRS* _p = Lua::callerPtr<PRS>(L);
-
-		lua_pushstring(L, String::Format("PRS@0x%p", _p).c_str());
-		return 1;
-	}
-
-public:
-	static void create(lua_State* L) {
-		Lua::createMetatable<PRS>(L);
-	}
-	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		funcs.push_back(luaL_Reg { "NewPRS", NewPRS });
-
-		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deletePtr<PRS> },
-			{ "__tostring", ToString }, 
-			{ nullptr, nullptr }
-		};
-
-		Lua::initMetatable<PRS>(L, metalib, nullptr);
-	}
-};
-
 class Transform_Wrapper {
 	static int NewTransform(lua_State* L) {
 		return Lua::fromIntrusive(L, new ITransform());

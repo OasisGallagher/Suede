@@ -8,8 +8,8 @@
 
 namespace fs = std::experimental::filesystem::v1;
 
-static char intBuffer[sizeof(int)];
-static char strBuffer[FileSystem::kMaxStringLength];
+static char s_intBuffer[sizeof(int)];
+static char s_strBuffer[FileSystem::kMaxStringLength];
 
 FileEntry::~FileEntry() {
 	for (uint i = 0; i < children_.size(); ++i) {
@@ -236,12 +236,12 @@ bool FileSystem::WriteString(std::ofstream& file, const std::string& str) {
 }
 
 bool FileSystem::ReadInteger(std::ifstream& file, int* x) {
-	if (!file.read(intBuffer, sizeof(int))) {
+	if (!file.read(s_intBuffer, sizeof(int))) {
 		return false;
 	}
 
 	if (x != nullptr) {
-		*x = *(int*)intBuffer;
+		*x = *(int*)s_intBuffer;
 	}
 
 	return true;
@@ -258,13 +258,13 @@ bool FileSystem::ReadString(std::ifstream& file, std::string* str) {
 		return false;
 	}
 
-	if (!file.read(strBuffer, length)) {
+	if (!file.read(s_strBuffer, length)) {
 		return false;
 	}
 
 	if (str != nullptr) {
-		strBuffer[length] = 0;
-		str->assign(strBuffer);
+		s_strBuffer[length] = 0;
+		str->assign(s_strBuffer);
 	}
 
 	return true;

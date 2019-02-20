@@ -49,7 +49,6 @@ ZThread::Mutex TransformInternal::hierarchyMutex;
 SUEDE_DEFINE_COMPONENT_INTERNAL(Transform, Component)
 
 TransformInternal::TransformInternal(ITransform* self) : ComponentInternal(self, ObjectType::Transform), parent_(nullptr) {
-	local_.scale = world_.scale = glm::vec3(1);
 }
 
 TransformInternal::~TransformInternal() {
@@ -57,10 +56,10 @@ TransformInternal::~TransformInternal() {
 
 bool TransformInternal::IsAttachedToScene() {
 	ITransform* self = _suede_self();
-	for (; self && self != World::GetRootTransform(); self = self->GetParent().get())
+	for (; self != nullptr && self != World::GetRootTransform(); self = self->GetParent().get())
 		;
 
-	return !!self;
+	return self != nullptr;
 }
 
 void TransformInternal::AddChild(Transform child) {
@@ -77,8 +76,7 @@ void TransformInternal::RemoveChild(Transform child) {
 
 void TransformInternal::RemoveChildAt(uint index) {
 	SUEDE_VERIFY_INDEX(index, children_.size(), SUEDE_NOARG);
-	Transform child = children_[index];
-	RemoveChild(child);
+	RemoveChild(children_[index]);
 }
 
 void TransformInternal::SetParent(Transform value) {
@@ -233,16 +231,16 @@ glm::quat TransformInternal::GetRotation() {
 	}
 	else {
 		glm::quat localRotation;
-		if (!IsDirty(LocalRotation)) {
-			localRotation = GetLocalRotation();
+		if (!IsDirty(LocalEulerAngles)) {
+			localRotation = local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
+			ClearDirty(LocalRotation);
 		}
 		else {
-			if (IsDirty(LocalEulerAngles)) {
+			if (IsDirty(LocalRotation)) {
 				Debug::LogError("invalid state");
 			}
 
-			localRotation = local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
-			ClearDirty(LocalRotation);
+			localRotation = GetLocalRotation();
 		}
 
 		ITransform* self = _suede_self();
@@ -262,34 +260,41 @@ glm::vec3 TransformInternal::GetEulerAngles() {
 	if (!IsDirty(WorldEulerAngles)) { return world_.eulerAngles; }
 
 	glm::quat worldRotation;
+
+	// there are 2 ways to represent the same rotation with Euler angles.
+	// see https://stackoverflow.com/questions/11103683/euler-angle-to-quaternion-then-quaternion-to-euler-angle
+	bool fromLocalEulerAngles = false;
+
 	if (!IsDirty(WorldRotation)) {
 		worldRotation = GetRotation();
 	}
 	else {
 		glm::quat localRotation;
 
-		if (!IsDirty(LocalRotation)) {
-			localRotation = GetLocalRotation();
+		if (!IsDirty(LocalEulerAngles)) {
+			localRotation = local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
+			ClearDirty(LocalRotation);
+			fromLocalEulerAngles = true;
 		}
 		else {
-			if (IsDirty(LocalEulerAngles)) {
+			if (IsDirty(LocalRotation)) {
 				Debug::LogError("invalid state");
 			}
 
-			localRotation = local_.rotation = glm::quat(Math::Radians(local_.eulerAngles));
-			ClearDirty(LocalRotation);
+			localRotation = GetLocalRotation();
 		}
 
 		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			localRotation = self->GetRotation() * localRotation;
+			fromLocalEulerAngles = fromLocalEulerAngles && Math::Approximately(self->GetRotation(), glm::quat());
 		}
 
 		worldRotation = world_.rotation = localRotation;
 		ClearDirty(WorldRotation);
 	}
 
-	world_.eulerAngles = Math::Degrees(glm::eulerAngles(worldRotation));
+	world_.eulerAngles = fromLocalEulerAngles ? local_.eulerAngles : Math::Degrees(glm::eulerAngles(worldRotation));
 
 	ClearDirty(WorldEulerAngles);
 
@@ -398,16 +403,17 @@ glm::quat TransformInternal::GetLocalRotation() {
 	}
 	else {
 		glm::quat worldRotation;
-		if (!IsDirty(WorldRotation)) {
-			worldRotation = GetRotation();
+
+		if (!IsDirty(WorldEulerAngles)) {
+			worldRotation = world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
+			ClearDirty(WorldRotation);
 		}
 		else {
-			if (IsDirty(WorldEulerAngles)) {
+			if (IsDirty(WorldRotation)) {
 				Debug::LogError("invalid state");
 			}
 
-			worldRotation = world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
-			ClearDirty(WorldRotation);
+			worldRotation = GetRotation();
 		}
 
 		ITransform* self = _suede_self();
@@ -427,35 +433,41 @@ glm::vec3 TransformInternal::GetLocalEulerAngles() {
 	if (!IsDirty(LocalEulerAngles)) { return local_.eulerAngles; }
 
 	glm::quat localRotation;
+
+	// there are 2 ways to represent the same rotation with Euler angles.
+	// see https://stackoverflow.com/questions/11103683/euler-angle-to-quaternion-then-quaternion-to-euler-angle
+	bool fromWorldEulerAngles = false;
+
 	if (!IsDirty(LocalRotation)) {
 		localRotation = GetLocalRotation();
 	}
 	else {
 		glm::quat worldRotation;
 
-		if (!IsDirty(WorldRotation)) {
-			worldRotation = GetRotation();
+		if (!IsDirty(WorldEulerAngles)) {
+			worldRotation = world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
+			ClearDirty(WorldRotation);
+			fromWorldEulerAngles = true;
 		}
 		else {
-			if (IsDirty(WorldEulerAngles)) {
+			if (IsDirty(WorldRotation)) {
 				Debug::LogError("invalid state");
 			}
 
-			worldRotation = world_.rotation = glm::quat(Math::Radians(world_.eulerAngles));
-			ClearDirty(WorldRotation);
+			worldRotation = GetRotation();
 		}
 
 		ITransform* self = _suede_self();
 		if (!IsNullOrRoot(self = self->GetParent().get())) {
 			worldRotation = glm::inverse(self->GetRotation()) * worldRotation;
+			fromWorldEulerAngles = fromWorldEulerAngles && Math::Approximately(self->GetRotation(), glm::quat());
 		}
 
 		localRotation = local_.rotation = worldRotation;
 		ClearDirty(LocalRotation);
 	}
 
-	glm::vec3 angles = glm::eulerAngles(localRotation);
-	local_.eulerAngles = Math::Degrees(angles);
+	local_.eulerAngles = fromWorldEulerAngles ? world_.eulerAngles : Math::Degrees(glm::eulerAngles(localRotation));
 
 	ClearDirty(LocalEulerAngles);
 
@@ -512,15 +524,9 @@ glm::vec3 TransformInternal::GetForward() {
 void TransformInternal::SetDirty(int bits) {
 	DirtyBits::SetDirty(bits);
 
-	if (IsDirty(LocalScale) && IsDirty(WorldScale)) {
-		Debug::LogError("invalid state");
-	}
-
-	if (IsDirty(LocalPosition) && IsDirty(WorldPosition)) {
-		Debug::LogError("invalid state");
-	}
-
-	if (IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles)) {
+	if ((IsDirty(LocalScale) && IsDirty(WorldScale))
+		|| (IsDirty(LocalPosition) && IsDirty(WorldPosition))
+		|| (IsDirty(LocalRotation) && IsDirty(WorldRotation) && IsDirty(LocalEulerAngles) && IsDirty(WorldEulerAngles))) {
 		Debug::LogError("invalid state");
 	}
 }
