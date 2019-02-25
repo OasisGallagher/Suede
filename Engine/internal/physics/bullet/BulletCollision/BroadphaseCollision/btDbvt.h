@@ -179,6 +179,7 @@ struct	btDbvtNode
 {
 	btDbvtVolume	volume;
 	btDbvtNode*		parent;
+	~btDbvtNode() { parent = childs[0] = childs[1] = nullptr; }
 	DBVT_INLINE bool	isleaf() const		{ return(childs[1]==0); }
 	DBVT_INLINE bool	isinternal() const	{ return(!isleaf()); }
 	union
@@ -217,6 +218,7 @@ struct	btDbvt
 		int			mask;
 		btScalar	value;
 		sStkNPS() {}
+		~sStkNPS() { node = nullptr; }
 		sStkNPS(const btDbvtNode* n,unsigned m,btScalar v) : node(n),mask(m),value(v) {}
 	};
 	struct	sStkCLN

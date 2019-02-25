@@ -313,10 +313,6 @@ bool Texture2DInternal::SetPixels(TextureFormat textureFormat, const void* data,
 		GL::GenTextures(1, &texture_);
 	}
 
-	if (texture_ == 0) {
-		return false;
-	}
-
 	width_ = width;
 	height_ = height;
 
@@ -497,7 +493,6 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	return true;
 }
 
-
 void RenderTextureInternal::Clear(const Rect& normalizedRect, float depth) {
 	if (SetViewport(width_, height_, normalizedRect)) {
 		framebuffer_->SetClearDepth(depth);
@@ -506,7 +501,7 @@ void RenderTextureInternal::Clear(const Rect& normalizedRect, float depth) {
 }
 
 void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
-	if (!SetViewport(width_, height_, normalizedRect)) {
+	if (SetViewport(width_, height_, normalizedRect)) {
 		if (ContainsDepthInfo()) {
 			framebuffer_->SetClearDepth(depth);
 			framebuffer_->SetClearStencil(stencil);
@@ -742,7 +737,7 @@ GLenum ScreenRenderTextureInternal::GetGLTextureBindingName() const {
 }
 
 bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	if (format != +RenderTextureFormat::Depth) {
+	if (format != RenderTextureFormat::Depth) {
 		Debug::LogError("only RenderTextureFormatDepth is supported for MRTRenderTexture.");
 		return false;
 	}

@@ -67,6 +67,6 @@ public:
 	static bool Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uint space);
 
 private:
-	static uint Calculate(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space);
+	static uint CalculateAtlasSize(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space);
 	static void PasteTexels(uchar* ptr, const TexelMap* texelMap, int stride);
 };

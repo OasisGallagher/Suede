@@ -17,14 +17,13 @@ void DBVTCulling::Process(const btDbvtNode* leaf) {
 
 void DBVTCulling::applyOccluder(btCollisionObject* collisionObject, btBroadphaseProxy* proxy) {
 	if (m_ocb && isOccluder(collisionObject) && collisionObject->getCollisionShape()) {
-		static btVector3 aabbMin;
-		static btVector3 aabbMax;
+		static btVector3 aabbMin, aabbMax;
 
 		// Actually here I should get the MINIMAL aabb that can be nested INSIDE the shape (ie. only btBoxShapes work)
 		collisionObject->getCollisionShape()->getAabb(btTransform::getIdentity(), aabbMin, aabbMax);
 
 		// Note that only a btVector3 (the inner box shape half extent) seems to be necessary here.
-		m_ocb->appendOccluder((aabbMax - aabbMin)*btScalar(0.5f), collisionObject->getWorldTransform());
+		m_ocb->appendOccluder((aabbMax - aabbMin) * btScalar(0.5f), collisionObject->getWorldTransform());
 	}
 
 	if ((proxy->m_collisionFilterGroup & m_collisionFilterMask) != 0) {

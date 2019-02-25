@@ -245,14 +245,18 @@ void Game::updateHandlesMode(QObject* checked) {
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {
-	glm::vec3 center = go->GetBounds().center;
 	Transform camera = CameraUtility::GetMain()->GetTransform();
+	if (camera != go->GetTransform()) {
+		Bounds bounds = go->GetBounds();
 
-	float distance = calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
-	camera->SetPosition(center + glm::vec3(0, 0, -1) * distance);
+		float distance = bounds.IsEmpty() ? 5 : calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), bounds);
+		glm::vec3 center = bounds.IsEmpty() ? go->GetTransform()->GetPosition() : go->GetBounds().center;
 
-	glm::quat q(glm::lookAt(camera->GetPosition(), center, glm::vec3(0, 1, 0)));
-	camera->SetRotation(glm::conjugate(q));
+		camera->SetPosition(center + glm::vec3(0, 0, -1) * distance);
+
+		glm::quat q(glm::lookAt(camera->GetPosition(), center, glm::vec3(0, 1, 0)));
+		camera->SetRotation(glm::conjugate(q));
+	}
 }
 
 void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
@@ -263,7 +267,7 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bound
 	float f = tanf(camera->GetFieldOfView() / 2.f);
 	float dy = 2 * bounds.size.y / f;
 	float dx = 2 * bounds.size.x / (f * camera->GetAspect());
-	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
+	return Math::Clamp(Math::Max(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
 }
 
 void Game::updateStatContent() {

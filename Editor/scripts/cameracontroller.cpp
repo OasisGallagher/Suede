@@ -34,10 +34,7 @@ void CameraController::Update() {
 		pos_ = Input::GetMousePosition();
 	}
 
-	if (Input::GetMouseButton(0)) {
-		//rotateGameObject(Input::GetMousePosition(), pos_);
-	}
-	else if (Input::GetMouseButton(1)) {
+	if (Input::GetMouseButton(1)) {
 		moveCamera(Input::GetMousePosition(), pos_);
 	}
 	else if (Input::GetMouseButton(2)) {
@@ -72,63 +69,3 @@ void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }
 
-void CameraController::rotateGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
-	GameObject selected = Hierarchy::instance()->selectedGameObject();
-
-	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
-		return;
-	}
-
-	if (oldPos != mousePos) {
-		glm::vec2 delta = mousePos - oldPos;
-		Transform transform = selected->GetTransform();
-		transform->SetRotation(
-			glm::angleAxis(delta.y * rotateSpeed_.x, glm::vec3(1, 0, 0)) * glm::angleAxis(delta.x * rotateSpeed_.y, glm::vec3(0, 1, 0)) * transform->GetRotation()
-		);
-//#ifdef ARC_BALL
-//		glm::vec3 va = calculateArcBallVector(oldPos);
-//		glm::vec3 vb = calculateArcBallVector(mousePos);
-//
-//		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
-//		rot = glm::pow(rot, 1 / 5.f);
-//
-//		glm::vec3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
-//		camera_->SetPosition(selected->GetTransform()->GetPosition() + rot * dir);
-//
-//		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
-//		glm::vec3 up = rot * camera_->GetUp();
-//		glm::vec3 right = glm::cross(up, forward);
-//		up = glm::cross(forward, right);
-//
-//		glm::mat3 m3(right, up, forward);
-//		camera_->SetRotation(glm::normalize(glm::quat(m3)));
-//#else
-//		glm::vec3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
-//
-//		glm::ivec2 delta = mousePos - oldPos;
-//		glm::quat qx = glm::angleAxis(rotateSpeed_.x * delta.x, camera_->GetUp());
-//		glm::quat qy = glm::angleAxis(rotateSpeed_.y * delta.y, camera_->GetRight());
-//
-//		qx *= qy;
-//		
-//		bp = qx * bp + selected->GetTransform()->GetPosition();
-//
-//		camera_->SetPosition(bp);
-//
-//		glm::quat q(glm::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), glm::vec3(0, 1, 0)));
-//		camera_->SetRotation(glm::conjugate(q));
-//
-//		/*glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
-//		glm::vec3 right = qx * camera_->GetRight();
-//		right.y = 0;
-//		Math::Orthogonalize(right, forward);
-//
-//		glm::vec3 up = glm::cross(forward, right);
-//
-//		glm::quat q(glm::mat3(right, up, forward));
-//		camera_->SetRotation(glm::normalize(q));*/
-//#endif
-
-		oldPos = mousePos;
-	}
-}

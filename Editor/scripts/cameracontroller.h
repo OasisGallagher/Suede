@@ -29,20 +29,19 @@ public:
 	void setRotateSpeed(const glm::vec2& value) { rotateSpeed_ = value; }
 
 public:
-	void Awake() { camera_ = GetTransform(); }
-	void Update();
+	virtual void Awake() { camera_ = GetTransform(); }
+	virtual void Update();
 
 private:
 	void moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
 	void rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos);
-	void rotateGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos);
 
 private:
 	Transform camera_;
 
+	bool moving_;
 	QWidget* view_;
 	glm::ivec2 pos_;
-	bool moving_ = false;
 
 	glm::vec3 moveSpeed_;
 	glm::vec2 orientSpeed_;

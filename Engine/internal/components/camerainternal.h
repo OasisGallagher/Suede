@@ -24,8 +24,19 @@ class CameraInternal : public ComponentInternal, public Frustum
 public:	CameraInternal(ICamera* self);	~CameraInternal();
 
 public:
-	void Awake();
+	virtual void Awake();
+	virtual int GetUpdateStrategy() override { return UpdateStrategyNone; }
 
+public:
+	virtual void OnScreenSizeChanged(uint width, uint height);
+
+public:
+	virtual void OnProjectionMatrixChanged();
+
+public:
+	virtual void OnCullingFinished();
+
+public:
 	void SetDepth(int value);
 	int GetDepth() const { return depth_;  }
 
@@ -76,19 +87,6 @@ public:
 
 	glm::vec3 WorldToScreenPoint(const glm::vec3& position);
 	glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
-
-public:
-	void OnScreenSizeChanged(uint width, uint height);
-
-public:
-	int GetUpdateStrategy() { return UpdateStrategyNone; }
-
-protected:
-	void OnProjectionMatrixChanged();
-
-protected:
-	void OnCullingFinished();
-	//void OnRenderingFinished();
 
 private:
 	void CancelThreads();

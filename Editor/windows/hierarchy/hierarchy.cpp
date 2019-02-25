@@ -361,7 +361,7 @@ void Hierarchy::enableGameObjectsOutline(const QList<GameObject>& gameObjects, b
 }
 
 void Hierarchy::enableGameObjectsHandles(const QList<GameObject>& gameObjects, bool enable) {
-	for (GameObject go : gameObjects) {
+	/*for (GameObject go : gameObjects) {
 		Handles* handles = go->GetComponent<Handles>().get();
 		if (!enable) {
 			if (handles != nullptr) { World::DestroyObject(handles); }
@@ -369,7 +369,7 @@ void Hierarchy::enableGameObjectsHandles(const QList<GameObject>& gameObjects, b
 		else if (handles == nullptr) {
 			go->AddComponent<Handles>();
 		}
-	}
+	}*/
 }
 
 void Hierarchy::removeItemRecusively(QStandardItem* item) {

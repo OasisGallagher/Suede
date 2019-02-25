@@ -38,7 +38,7 @@ void OcclusionBuffer::getBufferTextureData(std::vector<unsigned char>& data) {
 }
 
 btVector4 OcclusionBuffer::transform(const btVector3& x) const {
-	btVector4	t;
+	btVector4 t;
 	t[0] = x[0] * wtrs[0] + x[1] * wtrs[4] + x[2] * wtrs[8] + wtrs[12];
 	t[1] = x[0] * wtrs[1] + x[1] * wtrs[5] + x[2] * wtrs[9] + wtrs[13];
 	t[2] = x[0] * wtrs[2] + x[1] * wtrs[6] + x[2] * wtrs[10] + wtrs[14];
@@ -72,13 +72,13 @@ void OcclusionBuffer::appendOccluder(const btVector3& occluderInnerBoxCollisionS
 		transform(c + basis*btVector3(-e[0],+e[1],+e[2]))
 	};
 
-	static const int	d[] = {
-		1,0,3,2,
-		4,5,6,7,
-		4,7,3,0,
-		6,5,1,2,
-		7,6,2,3,
-		5,4,0,1
+	static const int d[] = {
+		1, 0, 3, 2,
+		4, 5, 6, 7,
+		4, 7, 3, 0,
+		6, 5, 1, 2,
+		7, 6, 2, 3,
+		5, 4, 0, 1
 	};
 
 	for (int i = 0; i < (sizeof(d) / sizeof(d[0]));) {
@@ -95,21 +95,24 @@ void OcclusionBuffer::appendOccluder(const btVector3& occluderInnerBoxCollisionS
 
 void OcclusionBuffer::appendOccluder(const btVector3& c, const btVector3& e) // in this class 'e' seems to actually be a half extent...
 {
-	const btVector4	x[] = { transform(btVector3(c[0] - e[0],c[1] - e[1],c[2] - e[2])),
+	const btVector4	x[] = { 
+		transform(btVector3(c[0] - e[0],c[1] - e[1],c[2] - e[2])),
 		transform(btVector3(c[0] + e[0],c[1] - e[1],c[2] - e[2])),
 		transform(btVector3(c[0] + e[0],c[1] + e[1],c[2] - e[2])),
 		transform(btVector3(c[0] - e[0],c[1] + e[1],c[2] - e[2])),
 		transform(btVector3(c[0] - e[0],c[1] - e[1],c[2] + e[2])),
 		transform(btVector3(c[0] + e[0],c[1] - e[1],c[2] + e[2])),
 		transform(btVector3(c[0] + e[0],c[1] + e[1],c[2] + e[2])),
-		transform(btVector3(c[0] - e[0],c[1] + e[1],c[2] + e[2])) };
+		transform(btVector3(c[0] - e[0],c[1] + e[1],c[2] + e[2])) 
+	};
+
 	static const int d[] = {
-		1,0,3,2,
-		4,5,6,7,
-		4,7,3,0,
-		6,5,1,2,
-		7,6,2,3,
-		5,4,0,1
+		1, 0, 3, 2,
+		4, 5, 6, 7,
+		4, 7, 3, 0,
+		6, 5, 1, 2,
+		7, 6, 2, 3,
+		5, 4, 0, 1
 	};
 
 	for (int i = 0; i < (sizeof(d) / sizeof(d[0]));) {
@@ -141,12 +144,12 @@ bool OcclusionBuffer::queryOccluder(const btVector3& c, const btVector3& e) {
 	}
 
 	static const int d[] = {
-		1,0,3,2,
-		4,5,6,7,
-		4,7,3,0,
-		6,5,1,2,
-		7,6,2,3,
-		5,4,0,1
+		1, 0, 3, 2,
+		4, 5, 6, 7,
+		4, 7, 3, 0,
+		6, 5, 1, 2,
+		7, 6, 2, 3,
+		5, 4, 0, 1
 	};
 
 	for (int i = 0; i < (sizeof(d) / sizeof(d[0]));) {

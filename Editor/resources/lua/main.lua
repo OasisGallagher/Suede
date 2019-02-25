@@ -35,6 +35,8 @@ function SuedeGlobal.Start()
 				local body = root:GetTransform():FindChild("Sphere"):GetGameObject():GetComponent("Rigidbody");
 				body:SetMass(0);
 			end
+
+			root:GetTransform():SetPosition({ 0, 25, -8 });
 		end);
 	end
 	

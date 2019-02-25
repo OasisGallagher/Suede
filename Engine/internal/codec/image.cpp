@@ -127,6 +127,7 @@ bool ImageCodec::SwapRedBlue(FIBITMAP* dib) {
 	uchar* line = FreeImage_GetBits(dib);
 	for(int y = 0; y < height; ++y, line += pitch) {
 		for(BYTE* pixel = line; pixel < line + lineSize ; pixel += bpp) {
+			// swap pixel[0] and pixel[2].
 			pixel[0] ^= pixel[2];
 			pixel[2] ^= pixel[0];
 			pixel[0] ^= pixel[2];
@@ -256,7 +257,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	}
 
 	uint width, height;
-	uint columnCount = Calculate(width, height, texelMaps, space);
+	uint columnCount = CalculateAtlasSize(width, height, texelMaps, space);
 
 	uint bpp = ColorStreamFormatToBpp(texelMaps.front()->colorStreamFormat);
 	atlas.data.resize(width * height * (bpp / 8));
@@ -293,7 +294,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	return true;
 }
 
-uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space) {
+uint AtlasMaker::CalculateAtlasSize(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space) {
 	uint columnCount = 16;
 	uint maxWidth = 0, maxHeight = 0;
 

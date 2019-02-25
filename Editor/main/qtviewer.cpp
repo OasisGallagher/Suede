@@ -87,7 +87,8 @@ void QtViewer::setupEditor() {
 		editor_->awake();
 	}
 
-	editor_->show();
+	//editor_->show();
+	editor_->showMinimized();
 }
 
 void QtViewer::setupRegistry() {

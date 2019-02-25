@@ -39,5 +39,9 @@ void ComponentInternal::Destroy() {
 }
 
 void ComponentInternal::SetGameObject(GameObject go) {
+	if (gameObject_ != nullptr) {
+		return Debug::LogError("component can not be shared.");
+	}
+
 	gameObject_ = go.get();
 }

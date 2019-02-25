@@ -128,7 +128,7 @@ void PhysicsInternal::OnWorldEvent(WorldEventBase* e) {
 }
 
 void PhysicsInternal::FixedUpdate() {
-	world_->stepSimulation(Time::GetFixedDeltaTime());
+	//world_->stepSimulation(Time::GetFixedDeltaTime());
 	/*
 	// The best way to determine if collisions happened between existing objects in the world
 	// is to iterate over all contact manifolds.

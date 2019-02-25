@@ -585,4 +585,6 @@ void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	if (listener_ != nullptr) {
 		listener_->OnGameObjectImported(root, loader->GetPath());
 	}
+
+	Debug::Log("%s loaded", loader->GetPath().c_str());
 }
