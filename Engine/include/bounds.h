@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include <glm/glm.hpp>
 
+#include "math/vector3.h"
 #include "enginedefines.h"
 
 /**
@@ -9,24 +9,24 @@
  */
 struct SUEDE_API Bounds {
 	Bounds();
-	Bounds(const glm::vec3& center, const glm::vec3& size);
+	Bounds(const Vector3& center, const Vector3& size);
 
 	bool IsEmpty() const;
 
 	void Clear();
 	void Encapsulate(const Bounds& other);
-	void Encapsulate(const glm::vec3& point);
-	void SetMinMax(const glm::vec3& min, const glm::vec3& max);
+	void Encapsulate(const Vector3& point);
+	void SetMinMax(const Vector3& min, const Vector3& max);
 
-	void Expand(const glm::vec3& amount);
-	void Translate(const glm::vec3& amount);
+	void Expand(const Vector3& amount);
+	void Translate(const Vector3& amount);
 
-	glm::vec3 GetMin() const;
-	glm::vec3 GetMax() const;
-	glm::vec3 GetSize() const;
+	Vector3 GetMin() const;
+	Vector3 GetMax() const;
+	Vector3 GetSize() const;
 
-	glm::vec3 size;
-	glm::vec3 center;
+	Vector3 size;
+	Vector3 center;
 
 	static const Bounds empty;
 };

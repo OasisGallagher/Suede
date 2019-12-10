@@ -18,7 +18,7 @@ float IProjector::GetAspect() const { return _suede_dptr()->GetAspect(); }
 float IProjector::GetNearClipPlane() const { return _suede_dptr()->GetNearClipPlane(); }
 float IProjector::GetFarClipPlane() const { return _suede_dptr()->GetFarClipPlane(); }
 float IProjector::GetFieldOfView() const { return _suede_dptr()->GetFieldOfView(); }
-const glm::mat4& IProjector::GetProjectionMatrix() { return _suede_dptr()->GetProjectionMatrix(); }
+const Matrix4& IProjector::GetProjectionMatrix() { return _suede_dptr()->GetProjectionMatrix(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Projector, Component)
 

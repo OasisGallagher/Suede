@@ -27,7 +27,7 @@ void SelectionGizmos::OnDrawGizmos() {
 			Gizmos::DrawWireSphere(go->GetTransform()->GetPosition(), 1);
 		}
 
-		glm::vec3 pos = go->GetTransform()->GetPosition();
+		Vector3 pos = go->GetTransform()->GetPosition();
 
 		Gizmos::SetColor(Color::red);
 		Gizmos::DrawLines({pos, pos + go->GetTransform()->GetRight() * 5.f});

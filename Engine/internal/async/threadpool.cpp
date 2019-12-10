@@ -11,7 +11,6 @@
 
 void Worker::run() {
 	Run();
-
 	if (listener_ != nullptr) {
 		listener_->OnWorkFinished(this);
 	}

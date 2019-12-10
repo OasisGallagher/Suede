@@ -1,6 +1,7 @@
 #include <list>
 
-#include "tools/math2.h"
+#include "math/mathf.h"
+#include "math/vector2.h"
 #include "geometryutility.h"
 #include "containers/arraylist.h"
 
@@ -10,32 +11,32 @@ struct EarVertex {
 	enum { Reflex = 1, Ear = 2, };
 
 	EarVertex() : mask(0), earListIndex(-1) {}
-	EarVertex(const glm::vec3& value) : EarVertex() { position = value; }
+	EarVertex(const Vector3& value) : EarVertex() { position = value; }
 
 	bool SetMask(int value, bool addMask);
 	bool TestMask(int value) const { return (mask & value) != 0; }
 
 	int mask;
 	int earListIndex;
-	glm::vec3 position;
+	Vector3 position;
 };
 
-static glm::vec3 SphereCoodrinate(float x, float y);
+static Vector3 SphereCoodrinate(float x, float y);
 
-static void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane);
-static void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane);
+static void ClampPolygon(std::list<Vector3>& list, const Plane& plane);
+static void RemovePointsBehindPlane(std::list<Vector3>& list, const Plane& plane);
 
-static uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints);
-static bool GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next);
+static uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const Vector3* points, uint npoints);
+static bool GetUniqueIntersection(Vector3& intersection, const Plane& plane, const Vector3& prev, const Vector3& next);
 
-static bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal);
-static bool IsReflex(array_list<EarVertex>& vertices, int index, const glm::vec3& normal);
-static int UpdateEarVertexState(array_list<EarVertex>& vertices, int vertexIndex, const glm::vec3& normal);
+static bool IsEar(array_list<EarVertex>& vertices, int current, const Vector3& normal);
+static bool IsReflex(array_list<EarVertex>& vertices, int index, const Vector3& normal);
+static int UpdateEarVertexState(array_list<EarVertex>& vertices, int vertexIndex, const Vector3& normal);
 
-static void EarClipping(std::vector<glm::vec3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const glm::vec3& normal);
-static void EarClippingTriangulate(std::vector<glm::vec3>& triangles, const std::vector<glm::vec3>& polygon, const glm::vec3& normal);
+static void EarClipping(std::vector<Vector3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const Vector3& normal);
+static void EarClippingTriangulate(std::vector<Vector3>& triangles, const std::vector<Vector3>& polygon, const Vector3& normal);
 
-bool GeometryUtility::AARectContains(const glm::vec3& point, const glm::vec3& tl, const glm::vec3& rb) {
+bool GeometryUtility::AARectContains(const Vector3& point, const Vector3& tl, const Vector3& rb) {
 	float xMin = tl.x, xMax = rb.x;
 	if (xMin > xMax) { float tmp = xMin; xMin = xMax; xMax = tmp; }
 
@@ -45,10 +46,10 @@ bool GeometryUtility::AARectContains(const glm::vec3& point, const glm::vec3& tl
 	return point.x >= xMin && point.x <= xMax && point.z >= zMin && point.z <= zMax;
 }
 
-bool GeometryUtility::PolygonContains(const glm::vec3* vertices, uint nvertices, const glm::vec3& point, const glm::vec3& normal, bool onEdge) {
+bool GeometryUtility::PolygonContains(const Vector3* vertices, uint nvertices, const Vector3& point, const Vector3& normal, bool onEdge) {
 	for (uint i = 1; i <= nvertices; ++i) {
-		const glm::vec3& currentPosition = i < nvertices ? vertices[i] : vertices[0];
-		float cr = Math::Angle(glm::normalize(currentPosition - vertices[i - 1]), glm::normalize(point - vertices[i - 1]), normal);
+		const Vector3& currentPosition = i < nvertices ? vertices[i] : vertices[0];
+		float cr = Mathf::Angle((currentPosition - vertices[i - 1]).GetNormalized(), (point - vertices[i - 1]).GetNormalized(), normal);
 		if (IsZero(cr) && AARectContains(point, currentPosition, vertices[i - 1])) {
 			return onEdge;
 		}
@@ -61,7 +62,7 @@ bool GeometryUtility::PolygonContains(const glm::vec3* vertices, uint nvertices,
 	return true;
 }
 
-void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::vector<glm::vec3>& polygon, const glm::vec3& normal) {
+void GeometryUtility::Triangulate(std::vector<Vector3>& triangles, const std::vector<Vector3>& polygon, const Vector3& normal) {
 	if (polygon.size() == 3) {
 		triangles.insert(triangles.end(), polygon.begin(), polygon.end());
 	}
@@ -70,12 +71,12 @@ void GeometryUtility::Triangulate(std::vector<glm::vec3>& triangles, const std::
 	}
 }
 
-void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const Triangle& triangle, const Plane* planes, uint count) {
+void GeometryUtility::ClampTriangle(std::vector<Vector3>& polygon, const Triangle& triangle, const Plane* planes, uint count) {
 	if (CountPointsNotBehindPlanes(planes, count, triangle.points, 3) == 3) {
 		polygon.insert(polygon.end(), triangle.points, triangle.points + 3);
 	}
 	else {
-		std::list<glm::vec3> list(triangle.points, triangle.points + 3);
+		std::list<Vector3> list(triangle.points, triangle.points + 3);
 
 		for (int pi = 0; list.size() >= 3 && pi < count; ++pi) {
 			ClampPolygon(list, planes[pi]);
@@ -85,16 +86,16 @@ void GeometryUtility::ClampTriangle(std::vector<glm::vec3>& polygon, const Trian
 	}
 }
 
-bool GeometryUtility::IsFrontFace(const Triangle& face, const glm::vec3& camera) {
-	glm::vec3 normal = glm::cross(face[1] - face[0], face[2] - face[1]);
-	return glm::dot(normal, face[1] - camera) < 0;
+bool GeometryUtility::IsFrontFace(const Triangle& face, const Vector3& camera) {
+	Vector3 normal = Vector3::Cross(face[1] - face[0], face[2] - face[1]);
+	return Vector3::Dot(normal, face[1] - camera) < 0;
 }
 
-float GeometryUtility::GetDistance(const Plane& plane, const glm::vec3& p) {
-	return glm::dot(plane.GetNormal(), p) + plane.GetDistance();
+float GeometryUtility::GetDistance(const Plane& plane, const Vector3& p) {
+	return Vector3::Dot(plane.GetNormal(), p) + plane.GetDistance();
 }
 
-bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& p0, const glm::vec3& p1) {
+bool GeometryUtility::GetIntersection(Vector3& intersection, const Plane& plane, const Vector3& p0, const Vector3& p1) {
 	float d0 = GetDistance(plane, p0);
 	float d1 = GetDistance(plane, p1);
 
@@ -107,9 +108,9 @@ bool GeometryUtility::GetIntersection(glm::vec3& intersection, const Plane& plan
 	return true;
 }
 
-void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4& worldToClipMatrix) {
+void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const Matrix4& worldToClipMatrix) {
 #define EXTRACT_PLANE(index, sign, row)	\
-	planes[index] = Plane(glm::vec4(worldToClipMatrix[0][3] sign worldToClipMatrix[0][row], \
+	planes[index] = Plane(Vector4(worldToClipMatrix[0][3] sign worldToClipMatrix[0][row], \
 		worldToClipMatrix[1][3] sign worldToClipMatrix[1][row], \
 		worldToClipMatrix[2][3] sign worldToClipMatrix[2][row], \
 		worldToClipMatrix[3][3] sign worldToClipMatrix[3][row]))
@@ -164,7 +165,7 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const glm::mat4&
 	*/
 //}
 
-PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points, uint npoints) {
+PlaneSide GeometryUtility::TestSide(const Plane& plane, const Vector3* points, uint npoints) {
 	uint npositive = 0, nnegative = 0;
 	for (uint j = 0; j < npoints; ++j) {
 		float f = GeometryUtility::GetDistance(plane, points[j]);
@@ -181,18 +182,18 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const glm::vec3* points,
 	return PlaneSide::Spanning;
 }
 
-void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::vector<uint>& indexes, const glm::ivec2& resolution) {
+void GeometryUtility::GetSphereCoodrinates(std::vector<Vector3>& points, std::vector<uint>& indexes, const Vector2& resolution) {
 	// step size between U-points on the grid
-	glm::vec2 step = glm::vec2(Math::Pi() * 2, Math::Pi()) / glm::vec2(resolution);
+	Vector2 step = Vector2(Mathf::Pi() * 2, Mathf::Pi()) / Vector2(resolution);
 
 	for (float i = 0; i < resolution.x; ++i) { // U-points
 		for (float j = 0; j < resolution.y; ++j) { // V-points
-			glm::vec2 uv = glm::vec2(i, j) * step;
-			float un = ((i + 1) == resolution.x) ? Math::Pi() * 2 : (i + 1) * step.x;
-			float vn = ((j + 1) == resolution.y) ? Math::Pi() : (j + 1) * step.y;
+			Vector2 uv = Vector2(i, j) * step;
+			float un = ((i + 1) == resolution.x) ? Mathf::Pi() * 2 : (i + 1) * step.x;
+			float vn = ((j + 1) == resolution.y) ? Mathf::Pi() : (j + 1) * step.y;
 
 			// Find the four points of the grid square by evaluating the parametric urface function.
-			glm::vec3 p[] = {
+			Vector3 p[] = {
 				SphereCoodrinate(uv.x, uv.y),
 				SphereCoodrinate(uv.x, vn),
 				SphereCoodrinate(un, uv.y),
@@ -212,18 +213,18 @@ void GeometryUtility::GetSphereCoodrinates(std::vector<glm::vec3>& points, std::
 	}
 }
 
-void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& points, const glm::vec3& center, const glm::vec3& size, std::vector<uint>* triangles) {
-	glm::vec3 half = size / 2.f;
+void GeometryUtility::GetCuboidCoordinates(std::vector<Vector3>& points, const Vector3& center, const Vector3& size, std::vector<uint>* triangles) {
+	Vector3 half = size / 2.f;
 
 	points.assign({
-		center + glm::vec3(half.xy, -half.z),
-		center + glm::vec3(-half.x, half.y, -half.z),
-		center + glm::vec3(-half.x, half.yz),
+		center + Vector3(half.x, half.y, -half.z),
+		center + Vector3(-half.x, half.y, -half.z),
+		center + Vector3(-half.x, half.y, half.z),
 		center + half,
-		center + glm::vec3(half.x, glm::vec2(0) - half.yz),
+		center + Vector3(half.x, - half.y, -half.z),
 		center + (-half),
-		center + glm::vec3(glm::vec2(0) - half.xy, half.z),
-		center + glm::vec3(half.x, -half.y, half.z),
+		center + Vector3(- half.x, -half.y, half.z),
+		center + Vector3(half.x, -half.y, half.z),
 	});
 
 	if (triangles != nullptr) {
@@ -235,7 +236,7 @@ void GeometryUtility::GetCuboidCoordinates(std::vector<glm::vec3>& points, const
 	}
 }
 
-bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {
+bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const Vector3* points, uint npoints) {
 	for (uint i = 0; i < npoints; ++i) {
 		bool inside = true;
 		for (uint j = 0; j < nplanes; ++j) {
@@ -250,7 +251,7 @@ bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const glm::vec3
 	return false;
 }
 
-uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const glm::vec3* points, uint npoints) {
+uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const Vector3* points, uint npoints) {
 	uint count = 0;
 	for (uint i = 0; i < npoints; ++i) {
 		bool inside = true;
@@ -266,7 +267,7 @@ uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const glm::ve
 	return count;
 }
 
-bool GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const glm::vec3& prev, const glm::vec3& next) {
+bool GetUniqueIntersection(Vector3& intersection, const Plane& plane, const Vector3& prev, const Vector3& next) {
 	if (!GeometryUtility::GetIntersection(intersection, plane, prev, next)) {
 		return false;
 	}
@@ -279,8 +280,8 @@ bool GetUniqueIntersection(glm::vec3& intersection, const Plane& plane, const gl
 	return true;
 }
 
-void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane) {
-	for (std::list<glm::vec3>::iterator current = list.begin(); current != list.end();) {
+void RemovePointsBehindPlane(std::list<Vector3>& list, const Plane& plane) {
+	for (std::list<Vector3>::iterator current = list.begin(); current != list.end();) {
 		float f = GeometryUtility::GetDistance(plane, *current);
 		if (!IsZero(f) && f < 0) {
 			current = list.erase(current);
@@ -291,7 +292,7 @@ void RemovePointsBehindPlane(std::list<glm::vec3>& list, const Plane& plane) {
 	}
 }
 
-void EarClippingTriangulate(std::vector<glm::vec3>& triangles, const std::vector<glm::vec3>& polygon, const glm::vec3& normal) {
+void EarClippingTriangulate(std::vector<Vector3>& triangles, const std::vector<Vector3>& polygon, const Vector3& normal) {
 	array_list<EarVertex> vertices(polygon.size());
 	for (int i = 0; i < polygon.size(); ++i) {
 		vertices.add(EarVertex(polygon[i]));
@@ -312,13 +313,13 @@ void EarClippingTriangulate(std::vector<glm::vec3>& triangles, const std::vector
 	EarClipping(triangles, vertices, earTips, normal);
 }
 
-glm::vec3 SphereCoodrinate(float x, float y) {
-	return glm::vec3(cosf(x) * sinf(y), cosf(y), sinf(x) * sinf(y));
+Vector3 SphereCoodrinate(float x, float y) {
+	return Vector3(cosf(x) * sinf(y), cosf(y), sinf(x) * sinf(y));
 }
 
-void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane) {
-	glm::vec3 intersection;
-	std::list<glm::vec3>::iterator prev = list.begin(), next = prev;
+void ClampPolygon(std::list<Vector3>& list, const Plane& plane) {
+	Vector3 intersection;
+	std::list<Vector3>::iterator prev = list.begin(), next = prev;
 
 	for (++next; next != list.end(); ) {
 		if (GetUniqueIntersection(intersection, plane, *prev, *next)) {
@@ -335,21 +336,21 @@ void ClampPolygon(std::list<glm::vec3>& list, const Plane& plane) {
 	RemovePointsBehindPlane(list, plane);
 }
 
-bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal) {
+bool IsEar(array_list<EarVertex>& vertices, int current, const Vector3& normal) {
 	if (vertices.size() < 3) { return false; }
 
 	int prev = vertices.prev_index(current);
 	int next = vertices.next_index(current);
 
-	glm::vec3 points[] = {
+	Vector3 points[] = {
 		vertices[prev].position,
 		vertices[current].position,
 		vertices[next].position,
 	};
 
-	glm::vec3 c = glm::cross(points[0] - points[1], points[2] - points[1]);
+	Vector3 c = Vector3::Cross(points[0] - points[1], points[2] - points[1]);
 	// Collinear.
-	if (IsZero(glm::dot(c, c))) {
+	if (IsZero(c.GetSqrMagnitude())) {
 		return false;
 	}
 
@@ -366,14 +367,14 @@ bool IsEar(array_list<EarVertex>& vertices, int current, const glm::vec3& normal
 	return true;
 }
 
-bool IsReflex(array_list<EarVertex>& vertices, int index, const glm::vec3& normal) {
-	glm::vec3 current = vertices[index].position;
-	glm::vec3 prev = vertices.prev_value(index).position;
-	glm::vec3 next = vertices.next_value(index).position;
-	return Math::Angle(glm::normalize(next - current), glm::normalize(prev - current), normal) < 0;
+bool IsReflex(array_list<EarVertex>& vertices, int index, const Vector3& normal) {
+	Vector3 current = vertices[index].position;
+	Vector3 prev = vertices.prev_value(index).position;
+	Vector3 next = vertices.next_value(index).position;
+	return Mathf::Angle((next - current).GetNormalized(), (prev - current).GetNormalized(), normal) < 0;
 }
 
-void EarClipping(std::vector<glm::vec3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const glm::vec3& normal) {
+void EarClipping(std::vector<Vector3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const Vector3& normal) {
 	int earTipIndex = -1;
 	for (array_list<int>::iterator ite = earTips.begin(); ite != earTips.end(); ++ite) {
 		if (earTipIndex >= 0) { earTips.erase(earTipIndex); }
@@ -415,7 +416,7 @@ void EarClipping(std::vector<glm::vec3>& triangles, array_list<EarVertex>& verti
 	if (earTipIndex >= 0) { earTips.erase(earTipIndex); }
 }
 
-int UpdateEarVertexState(array_list<EarVertex>& vertices, int vertexIndex, const glm::vec3& normal) {
+int UpdateEarVertexState(array_list<EarVertex>& vertices, int vertexIndex, const Vector3& normal) {
 	EarVertex& earVertex = vertices[vertexIndex];
 
 	int result = 0;

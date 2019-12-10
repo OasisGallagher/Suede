@@ -3,7 +3,7 @@
 #include "world.h"
 #include "graphics.h"
 #include "resources.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "../api/glutils.h"
 
 #include "memory/memory.h"
@@ -93,10 +93,10 @@ Mesh GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 	MeshAttribute attribute = { MeshTopology::TriangleStripe };
 
 	attribute.positions.assign({
-		glm::vec3(-1.f, -1.f, 0.f),
-		glm::vec3(1.f, -1.f, 0.f),
-		glm::vec3(-1.f, 1.f, 0.f),
-		glm::vec3(1.f, 1.f, 0.f),
+		Vector3(-1.f, -1.f, 0.f),
+		Vector3(1.f, -1.f, 0.f),
+		Vector3(-1.f, 1.f, 0.f),
+		Vector3(1.f, 1.f, 0.f),
 	});
 
 	attribute.texCoords[0].assign({

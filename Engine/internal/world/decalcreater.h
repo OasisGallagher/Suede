@@ -11,11 +11,11 @@ class DecalCreater {
 		Decal decal;
 
 		Texture texture;
-		glm::mat4 matrix;
+		Matrix4 matrix;
 
 		MeshTopology topology;
 		std::vector<uint> indexes;
-		std::vector<glm::vec3> positions;
+		std::vector<Vector3> positions;
 	};
 
 	typedef free_list<DecalInfo> DecalInfoContainer;
@@ -34,7 +34,7 @@ private:
 	bool CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]);
 	bool CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& gameObjects, Plane planes[6]);
 
-	bool ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, GameObject go, Plane planes[6]);
+	bool ClampMesh(Camera camera, std::vector<Vector3>& triangles, GameObject go, Plane planes[6]);
 
 private:
 	Plane planes_[6];

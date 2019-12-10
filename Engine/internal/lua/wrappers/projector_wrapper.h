@@ -39,11 +39,11 @@ public:
 
 class Projector_Wrapper {
 	static int NewProjector(lua_State* L) {
-		return Lua::fromIntrusive(L, new IProjector());
+		return Lua::fromRef(L, make_ref<IProjector>());
 	}
 
 	static int ToString(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 
 		lua_pushstring(L, String::Format("Projector@0x%p", _p.get()).c_str());
 		return 1;
@@ -51,13 +51,13 @@ class Projector_Wrapper {
 
 	// bool GetPerspective()
 	static int GetPerspective(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetPerspective());
 	}
 
 	// void SetPerspective(bool value)
 	static int SetPerspective(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		bool value = Lua::get<bool>(L, 2);
 		
 		_p->SetPerspective(value);
@@ -66,13 +66,13 @@ class Projector_Wrapper {
 
 	// float GetOrthographicSize()
 	static int GetOrthographicSize(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetOrthographicSize());
 	}
 
 	// void SetOrthographicSize(float value)
 	static int SetOrthographicSize(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetOrthographicSize(value);
@@ -81,13 +81,13 @@ class Projector_Wrapper {
 
 	// Texture GetTexture()
 	static int GetTexture(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetTexture());
 	}
 
 	// void SetTexture(Texture value)
 	static int SetTexture(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		Texture value = Lua::get<Texture>(L, 2);
 		
 		_p->SetTexture(value);
@@ -96,7 +96,7 @@ class Projector_Wrapper {
 
 	// void SetDepth(int value)
 	static int SetDepth(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		int value = Lua::get<int>(L, 2);
 		
 		_p->SetDepth(value);
@@ -105,13 +105,13 @@ class Projector_Wrapper {
 
 	// int GetDepth()
 	static int GetDepth(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetDepth());
 	}
 
 	// void SetAspect(float value)
 	static int SetAspect(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetAspect(value);
@@ -120,7 +120,7 @@ class Projector_Wrapper {
 
 	// void SetNearClipPlane(float value)
 	static int SetNearClipPlane(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetNearClipPlane(value);
@@ -129,7 +129,7 @@ class Projector_Wrapper {
 
 	// void SetFarClipPlane(float value)
 	static int SetFarClipPlane(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetFarClipPlane(value);
@@ -138,7 +138,7 @@ class Projector_Wrapper {
 
 	// void SetFieldOfView(float value)
 	static int SetFieldOfView(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetFieldOfView(value);
@@ -147,25 +147,25 @@ class Projector_Wrapper {
 
 	// float GetAspect()
 	static int GetAspect(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetAspect());
 	}
 
 	// float GetNearClipPlane()
 	static int GetNearClipPlane(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetNearClipPlane());
 	}
 
 	// float GetFarClipPlane()
 	static int GetFarClipPlane(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetFarClipPlane());
 	}
 
 	// float GetFieldOfView()
 	static int GetFieldOfView(lua_State* L) {
-		Projector& _p = *Lua::callerIntrusivePtr<Projector>(L);
+		Projector& _p = *Lua::callerRefPtr<Projector>(L);
 		return Lua::push(L, _p->GetFieldOfView());
 	}
 
@@ -178,7 +178,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewProjector", NewProjector });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteIntrusivePtr<Projector> },
+			{ "__gc", Lua::deleteRefPtr<Projector> },
 			{ "__tostring", ToString }, 
 			{ "GetPerspective", GetPerspective },
 			{ "SetPerspective", SetPerspective },

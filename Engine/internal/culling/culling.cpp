@@ -38,7 +38,7 @@ void Culling::Stop() {
 	cond_.broadcast();
 }
 
-void Culling::Cull(const glm::mat4& worldToClipMatrix) {
+void Culling::Cull(const Matrix4& worldToClipMatrix) {
 	if (!working_) {
 		worldToClipMatrix_ = worldToClipMatrix;
 		working_ = true;
@@ -62,7 +62,7 @@ WalkCommand Culling::OnWalkGameObject(GameObject go) {
 	return WalkCommand::Continue;
 }
 
-bool Culling::IsVisible(GameObject go, const glm::mat4& worldToClipMatrix) {
+bool Culling::IsVisible(GameObject go, const Matrix4& worldToClipMatrix) {
 	const Bounds& bounds = go->GetBounds();
 	if (bounds.IsEmpty()) {
 		return false;
@@ -71,16 +71,16 @@ bool Culling::IsVisible(GameObject go, const glm::mat4& worldToClipMatrix) {
 	return FrustumCulling(bounds, worldToClipMatrix);
 }
 
-bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipMatrix) {
-	glm::ivec2 outx, outy, outz;
+bool Culling::FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix) {
+	Vector2 outx, outy, outz;
 
-	std::vector<glm::vec3> points;
+	std::vector<Vector3> points;
 	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 
-	glm::vec2 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	Vector2 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
 	for (int i = 0; i < points.size(); ++i) {
-		glm::vec4 p = worldToClipMatrix * glm::vec4(points[i], 1);
+		Vector4 p = worldToClipMatrix * Vector4(points[i].x, points[i].y, points[i].z, 1);
 
 		// Note that the frustum culling(clipping) is performed in the clip coordinates,
 		// just before dividing.
@@ -94,16 +94,16 @@ bool Culling::FrustumCulling(const Bounds& bounds, const glm::mat4& worldToClipM
 		if (p.z < -p.w) { ++outz.x; }
 		else if (p.z > p.w) { ++outz.y; }
 
-		glm::vec2 p2(Math::Clamp(p.x / p.w, -1.f, 1.f), Math::Clamp(p.y / p.w, -1.f, 1.f));
+		Vector2 p2(Mathf::Clamp(p.x / p.w, -1.f, 1.f), Mathf::Clamp(p.y / p.w, -1.f, 1.f));
 
-		min = glm::min(min, p2);
-		max = glm::max(max, p2);
+		min = Vector2::Min(min, p2);
+		max = Vector2::Max(max, p2);
 	}
 
 	if (outx.x == 8 || outx.y == 8 || outy.x == 8 || outy.y == 8 || outz.x == 8 || outz.y == 8) {
 		return false;
 	}
 
-	glm::vec2 size(max - min);
-	return glm::dot(size, size) > MIN_NDC_RADIUS_SQUARED;
+	Vector2 size(max - min);
+	return size.GetSqrMagnitude() > MIN_NDC_RADIUS_SQUARED;
 }

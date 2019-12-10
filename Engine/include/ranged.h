@@ -1,7 +1,7 @@
 #pragma once
 #include <cfloat>
 #include "types.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 
 template <class T>
@@ -21,7 +21,7 @@ public:
 	}
 
 	ranged& operator= (T value) {
-		value_ = Math::Clamp(value, min_, max_);
+		value_ = Mathf::Clamp(value, min_, max_);
 		return *this;
 	}
 
@@ -31,7 +31,7 @@ public:
 	}
 
 	void set_value(T value) {
-		value_ = Math::Clamp(value, min_, max_);
+		value_ = Mathf::Clamp(value, min_, max_);
 	}
 
 	void set_range(T min, T max) {

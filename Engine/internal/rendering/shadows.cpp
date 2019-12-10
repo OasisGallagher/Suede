@@ -1,7 +1,5 @@
 #include "shadows.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "pipeline.h"
 #include "resources.h"
 #include "builtinproperties.h"
@@ -32,13 +30,13 @@ RenderTexture Shadows::GetShadowTexture() {
 }
 
 void Shadows::Update(Light light, Pipeline* pipeline) {
-	glm::vec3 lightPosition = light->GetTransform()->GetPosition();
-	glm::vec3 lightDirection = light->GetTransform()->GetForward();
+	Vector3 lightPosition = light->GetTransform()->GetPosition();
+	Vector3 lightDirection = light->GetTransform()->GetForward();
 	float near = 1.f, far = 90.f;
 
-	glm::mat4 projection = glm::ortho(-50.f, 50.f, -50.f, 50.f, near, far);
-	glm::mat4 view = glm::lookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
-	glm::mat4 shadowDepthMatrix = projection * view;
+	Matrix4 projection = Matrix4::Ortho(-50.f, 50.f, -50.f, 50.f, near, far);
+	Matrix4 view = Matrix4::LookAt(lightPosition, lightPosition + lightDirection, light->GetTransform()->GetUp());
+	Matrix4 shadowDepthMatrix = projection * view;
 	directionalLightShadowMaterial_->SetMatrix4(BuiltinProperties::WorldToOrthographicLightMatrix, shadowDepthMatrix);
 
 	uint nrenderables = pipeline->GetRenderableCount();
@@ -49,7 +47,7 @@ void Shadows::Update(Light light, Pipeline* pipeline) {
 		r.instance = 0;
 	}
 
-	glm::mat4 bias(
+	Matrix4 bias(
 		0.5f, 0, 0, 0,
 		0, 0.5f, 0, 0,
 		0, 0, 0.5f, 0,
@@ -59,6 +57,6 @@ void Shadows::Update(Light light, Pipeline* pipeline) {
 	worldToShadowMatrix_ = bias * shadowDepthMatrix;
 }
 
-const glm::mat4& Shadows::GetWorldToShadowMatrix() {
+const Matrix4& Shadows::GetWorldToShadowMatrix() {
 	return worldToShadowMatrix_;
 }

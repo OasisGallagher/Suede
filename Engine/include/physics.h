@@ -1,14 +1,11 @@
 #pragma once
-
-#include <glm/glm.hpp>
-
 #include "ray.h"
 #include "gameobject.h"
 #include "tools/singleton.h"
 
 struct SUEDE_API RaycastHit {
-	glm::vec3 point;
-	glm::vec3 normal;
+	Vector3 point;
+	Vector3 normal;
 
 	GameObject gameObject;
 };
@@ -20,8 +17,8 @@ class SUEDE_API Physics : private Singleton2<Physics> {
 public:
 	static bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
 
-	static void SetGravity(const glm::vec3& value);
-	static glm::vec3 GetGravity();
+	static void SetGravity(const Vector3& value);
+	static Vector3 GetGravity();
 
 	static void SetDebugDrawEnabled(bool value);
 	static bool GetDebugDrawEnabled();

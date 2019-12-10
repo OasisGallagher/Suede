@@ -21,7 +21,7 @@ public:
 	virtual bool GetMouseButtonDown(int button);
 
 	virtual float GetMouseWheelDelta();
-	virtual glm::ivec2 GetMousePosition();
+	virtual Vector2 GetMousePosition();
 
 protected:
 	virtual bool eventFilter(QObject *watched, QEvent *event);

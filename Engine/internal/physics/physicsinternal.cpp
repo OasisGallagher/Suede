@@ -23,8 +23,8 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 
 Physics::Physics() : Singleton2<Physics>(MEMORY_NEW(PhysicsInternal), Memory::DeleteRaw<PhysicsInternal>) {}
 bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, hitInfo); }
-void Physics::SetGravity(const glm::vec3& value) { _suede_dinstance()->SetGravity(value); }
-glm::vec3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
+void Physics::SetGravity(const Vector3& value) { _suede_dinstance()->SetGravity(value); }
+Vector3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
 void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDrawEnabled(value); }
 bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEnabled(); }
 

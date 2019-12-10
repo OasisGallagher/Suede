@@ -59,7 +59,7 @@ public:
 	void UnmapIndexes();
 	uint GetIndexCount();
 
-	const glm::vec3* MapVertices();
+	const Vector3* MapVertices();
 	void UnmapVertices();
 	uint GetVertexCount();
 

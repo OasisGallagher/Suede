@@ -23,12 +23,12 @@ struct SkeletonBone {
 	/**
 	 * @brief matrix that transforms from mesh space to bone space in bind pose.
 	 */
-	glm::mat4 meshToBoneMatrix;
+	Matrix4 meshToBoneMatrix;
 };
 
 struct SkeletonNode {
 	std::string name;
-	glm::mat4 matrix;
+	Matrix4 matrix;
 	AnimationCurve curve;
 
 	SkeletonNode* parent;
@@ -47,12 +47,12 @@ public:
 	SkeletonBone* GetBone(uint index);
 	SkeletonBone* GetBone(const std::string& name);
 
-	SkeletonNode* CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve);
+	SkeletonNode* CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve curve);
 	void AddNode(SkeletonNode* parent, SkeletonNode* child);
 	SkeletonNode* GetRootNode();
 	
-	void SetBoneToRootMatrix(uint index, const glm::mat4& value);
-	glm::mat4* GetBoneToRootMatrices();
+	void SetBoneToRootMatrix(uint index, const Matrix4& value);
+	Matrix4* GetBoneToRootMatrices();
 
 	int GetBoneIndex(const std::string& name);
 	int GetBoneCount();
@@ -108,8 +108,8 @@ public:
 
 public:
 	void AddFloat(float time, int id, float value);
-	void AddVector3(float time, int id, const glm::vec3& value);
-	void AddQuaternion(float time, int id, const glm::quat& value);
+	void AddVector3(float time, int id, const Vector3& value);
+	void AddQuaternion(float time, int id, const Quaternion& value);
 
 	void Remove(float time, int id);
 
@@ -140,12 +140,12 @@ public:
 	void Lerp(AnimationFrame result, AnimationFrame other, float factor);
 
 	void SetFloat(int id, float value);
-	void SetVector3(int id, const glm::vec3& value);
-	void SetQuaternion(int id, const glm::quat& value);
+	void SetVector3(int id, const Vector3& value);
+	void SetQuaternion(int id, const Quaternion& value);
 
 	float GetFloat(int id);
-	glm::vec3 GetVector3(int id);
-	glm::quat GetQuaternion(int id);
+	Vector3 GetVector3(int id);
+	Quaternion GetQuaternion(int id);
 };
 
 class SUEDE_API IAnimationCurve : public IObject {
@@ -179,8 +179,8 @@ public:
 	void SetSkeleton(Skeleton value);
 	Skeleton GetSkeleton();
 	
-	void SetRootTransform(const glm::mat4& value);
-	glm::mat4 GetRootTransform();
+	void SetRootTransform(const Matrix4& value);
+	Matrix4 GetRootTransform();
 
 	void SetWrapMode(AnimationWrapMode value);
 

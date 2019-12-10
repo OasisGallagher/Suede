@@ -49,14 +49,14 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
-	// static glm::mat4 GetMatrix()
+	// static Matrix4 GetMatrix()
 	static int GetMatrix(lua_State* L) {
 		return Lua::push(L, Gizmos::GetMatrix());
 	}
 
-	// static void SetMatrix(const glm::mat4& value)
+	// static void SetMatrix(const Matrix4& value)
 	static int SetMatrix(lua_State* L) {
-		glm::mat4 value = Lua::get<glm::mat4>(L, 1);
+		Matrix4 value = Lua::get<Matrix4>(L, 1);
 		
 		Gizmos::SetMatrix(value);
 		return 0;
@@ -75,19 +75,19 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
-	// static void DrawLines(const std::initializer_list<glm::vec3>& points)
-	// static void DrawLines(const std::initializer_list<glm::vec3>& points, const std::initializer_list<uint>& indexes)
+	// static void DrawLines(const std::initializer_list<Vector3>& points)
+	// static void DrawLines(const std::initializer_list<Vector3>& points, const std::initializer_list<uint>& indexes)
 	static int DrawLines(lua_State* L) {
-		if (Lua::checkArguments<std::initializer_list<glm::vec3>>(L, 2)) {
-			std::initializer_list<glm::vec3> points = Lua::get<std::initializer_list<glm::vec3>>(L, 1);
+		if (Lua::checkArguments<std::initializer_list<Vector3>>(L, 2)) {
+			std::initializer_list<Vector3> points = Lua::get<std::initializer_list<Vector3>>(L, 1);
 			
 			Gizmos::DrawLines(points);
 			return 0;
 		}
 
-		if (Lua::checkArguments<std::initializer_list<glm::vec3>, std::initializer_list<uint>>(L, 2)) {
+		if (Lua::checkArguments<std::initializer_list<Vector3>, std::initializer_list<uint>>(L, 2)) {
 			std::initializer_list<uint> indexes = Lua::get<std::initializer_list<uint>>(L, 2);
-			std::initializer_list<glm::vec3> points = Lua::get<std::initializer_list<glm::vec3>>(L, 1);
+			std::initializer_list<Vector3> points = Lua::get<std::initializer_list<Vector3>>(L, 1);
 			
 			Gizmos::DrawLines(points, indexes);
 			return 0;
@@ -97,19 +97,19 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
-	// static void DrawSphere(const glm::vec3& center, float radius)
+	// static void DrawSphere(const Vector3& center, float radius)
 	static int DrawSphere(lua_State* L) {
 		float radius = Lua::get<float>(L, 2);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
+		Vector3 center = Lua::get<Vector3>(L, 1);
 		
 		Gizmos::DrawSphere(center, radius);
 		return 0;
 	}
 
-	// static void DrawCuboid(const glm::vec3& center, const glm::vec3& size)
+	// static void DrawCuboid(const Vector3& center, const Vector3& size)
 	static int DrawCuboid(lua_State* L) {
-		glm::vec3 size = Lua::get<glm::vec3>(L, 2);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
+		Vector3 size = Lua::get<Vector3>(L, 2);
+		Vector3 center = Lua::get<Vector3>(L, 1);
 		
 		Gizmos::DrawCuboid(center, size);
 		return 0;
@@ -121,19 +121,19 @@ class Gizmos_Wrapper {
 		return 0;
 	}
 
-	// static void DrawWireSphere(const glm::vec3& center, float radius)
+	// static void DrawWireSphere(const Vector3& center, float radius)
 	static int DrawWireSphere(lua_State* L) {
 		float radius = Lua::get<float>(L, 2);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
+		Vector3 center = Lua::get<Vector3>(L, 1);
 		
 		Gizmos::DrawWireSphere(center, radius);
 		return 0;
 	}
 
-	// static void DrawWireCuboid(const glm::vec3& center, const glm::vec3& size)
+	// static void DrawWireCuboid(const Vector3& center, const Vector3& size)
 	static int DrawWireCuboid(lua_State* L) {
-		glm::vec3 size = Lua::get<glm::vec3>(L, 2);
-		glm::vec3 center = Lua::get<glm::vec3>(L, 1);
+		Vector3 size = Lua::get<Vector3>(L, 2);
+		Vector3 center = Lua::get<Vector3>(L, 1);
 		
 		Gizmos::DrawWireCuboid(center, size);
 		return 0;

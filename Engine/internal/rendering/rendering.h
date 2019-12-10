@@ -26,10 +26,10 @@ enum RenderPassType {
 };
 
 struct RenderingMatrices {
-	glm::vec3 cameraPos;
-	glm::vec4 projParams;
-	glm::mat4 projectionMatrix;
-	glm::mat4 worldToCameraMatrix;
+	Vector3 cameraPos;
+	Vector4 projParams;
+	Matrix4 projectionMatrix;
+	Matrix4 worldToCameraMatrix;
 };
 
 struct RenderingMaterials {

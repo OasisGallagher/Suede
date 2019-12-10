@@ -4,7 +4,7 @@
 
 #include "tokens.h"
 #include "scanner.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "glefdefines.h"
@@ -129,7 +129,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 					tokenType = Tokens::Type(low);
 				}
 				else {
-					state = Math::MakeDword(low, high);
+					state = Mathf::MakeDword(low, high);
 				}
 
 				savech = true;
@@ -206,7 +206,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 			break;
 
 		default:
-			int low = Math::Loword(state), high = Math::Highword(state);
+			int low = Mathf::Loword(state), high = Mathf::Highword(state);
 			
 			savech = false;
 			if (ch == 0) {
@@ -244,7 +244,7 @@ ScannerTokenType TextScanner::GetNextToken(std::string& token, int* pos) {
 					tokenType = Tokens::Type(low);
 				}
 				else {
-					state = Math::MakeDword(low, high);
+					state = Mathf::MakeDword(low, high);
 				}
 			}
 

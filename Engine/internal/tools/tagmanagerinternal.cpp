@@ -2,7 +2,7 @@
 
 #include <set>
 #include "debug/debug.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "memory/memory.h"
 
 TagManager::TagManager() : Singleton2<TagManager>(MEMORY_NEW(TagManagerInternal), Memory::DeleteRaw<TagManagerInternal>) {}

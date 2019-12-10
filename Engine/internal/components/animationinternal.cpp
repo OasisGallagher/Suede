@@ -4,17 +4,17 @@
 #include <algorithm>
 
 #include "time2.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 ISkeleton::ISkeleton() : IObject(MEMORY_NEW(SkeletonInternal)) { }
 bool ISkeleton::AddBone(const SkeletonBone& bone) { return _suede_dptr()->AddBone(bone); }
 SkeletonBone* ISkeleton::GetBone(uint index) { return _suede_dptr()->GetBone(index); }
 SkeletonBone* ISkeleton::GetBone(const std::string& name) { return _suede_dptr()->GetBone(name); }
-SkeletonNode* ISkeleton::CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) { return _suede_dptr()->CreateNode(name, matrix, curve); }
+SkeletonNode* ISkeleton::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve curve) { return _suede_dptr()->CreateNode(name, matrix, curve); }
 void ISkeleton::AddNode(SkeletonNode* parent, SkeletonNode* child) { return _suede_dptr()->AddNode(parent, child); }
 SkeletonNode* ISkeleton::GetRootNode() { return _suede_dptr()->GetRootNode(); }
-void ISkeleton::SetBoneToRootMatrix(uint index, const glm::mat4& value) { return _suede_dptr()->SetBoneToRootMatrix(index, value); }
-glm::mat4* ISkeleton::GetBoneToRootMatrices() { return _suede_dptr()->GetBoneToRootMatrices(); }
+void ISkeleton::SetBoneToRootMatrix(uint index, const Matrix4& value) { return _suede_dptr()->SetBoneToRootMatrix(index, value); }
+Matrix4* ISkeleton::GetBoneToRootMatrices() { return _suede_dptr()->GetBoneToRootMatrices(); }
 int ISkeleton::GetBoneIndex(const std::string& name) { return _suede_dptr()->GetBoneIndex(name); }
 int ISkeleton::GetBoneCount() { return _suede_dptr()->GetBoneCount(); }
 
@@ -33,8 +33,8 @@ IAnimationState::IAnimationState() : IObject(MEMORY_NEW(AnimationStateInternal))
 
 IAnimationKeys::IAnimationKeys() : IObject(MEMORY_NEW(AnimationKeysInternal)) {}
 void IAnimationKeys::AddFloat(float time, int id, float value) { _suede_dptr()->AddFloat(time, id, value); }
-void IAnimationKeys::AddVector3(float time, int id, const glm::vec3& value) { _suede_dptr()->AddVector3(time, id, value); }
-void IAnimationKeys::AddQuaternion(float time, int id, const glm::quat& value) { _suede_dptr()->AddQuaternion(time, id, value); }
+void IAnimationKeys::AddVector3(float time, int id, const Vector3& value) { _suede_dptr()->AddVector3(time, id, value); }
+void IAnimationKeys::AddQuaternion(float time, int id, const Quaternion& value) { _suede_dptr()->AddQuaternion(time, id, value); }
 void IAnimationKeys::Remove(float time, int id) { _suede_dptr()->Remove(time, id); }
 void IAnimationKeys::ToKeyframes(std::vector<AnimationFrame>& keyframes) { _suede_dptr()->ToKeyframes(keyframes); }
 
@@ -44,11 +44,11 @@ float IAnimationFrame::GetTime() { return _suede_dptr()->GetTime(); }
 void IAnimationFrame::Assign(AnimationFrame other) { _suede_dptr()->Assign(other); }
 void IAnimationFrame::Lerp(AnimationFrame result, AnimationFrame other, float factor) { _suede_dptr()->Lerp(result, other, factor); }
 void IAnimationFrame::SetFloat(int id, float value) { _suede_dptr()->SetFloat(id, value); }
-void IAnimationFrame::SetVector3(int id, const glm::vec3& value) { _suede_dptr()->SetVector3(id, value); }
-void IAnimationFrame::SetQuaternion(int id, const glm::quat& value) { _suede_dptr()->SetQuaternion(id, value); }
+void IAnimationFrame::SetVector3(int id, const Vector3& value) { _suede_dptr()->SetVector3(id, value); }
+void IAnimationFrame::SetQuaternion(int id, const Quaternion& value) { _suede_dptr()->SetQuaternion(id, value); }
 float IAnimationFrame::GetFloat(int id) { return _suede_dptr()->GetFloat(id); }
-glm::vec3 IAnimationFrame::GetVector3(int id) { return _suede_dptr()->GetVector3(id); }
-glm::quat IAnimationFrame::GetQuaternion(int id) { return _suede_dptr()->GetQuaternion(id); }
+Vector3 IAnimationFrame::GetVector3(int id) { return _suede_dptr()->GetVector3(id); }
+Quaternion IAnimationFrame::GetQuaternion(int id) { return _suede_dptr()->GetQuaternion(id); }
 
 IAnimationCurve::IAnimationCurve() : IObject(MEMORY_NEW(AnimationCurveInternal)) {}
 void IAnimationCurve::SetKeyframes(const std::vector<AnimationFrame>& value) { _suede_dptr()->SetKeyframes(value); }
@@ -59,8 +59,8 @@ void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_
 AnimationClip IAnimation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
 void IAnimation::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
 Skeleton IAnimation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
-void IAnimation::SetRootTransform(const glm::mat4& value) { _suede_dptr()->SetRootTransform(value); }
-glm::mat4 IAnimation::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
+void IAnimation::SetRootTransform(const Matrix4& value) { _suede_dptr()->SetRootTransform(value); }
+Matrix4 IAnimation::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
 void IAnimation::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
 bool IAnimation::Play(const std::string& name) { return _suede_dptr()->Play(name); }
 
@@ -103,7 +103,7 @@ SkeletonBone* SkeletonInternal::GetBone(const std::string& name) {
 	return bones_ + pos->second;
 }
 
-void SkeletonInternal::SetBoneToRootMatrix(uint index, const glm::mat4& value) {
+void SkeletonInternal::SetBoneToRootMatrix(uint index, const Matrix4& value) {
 	SUEDE_VERIFY_INDEX(index, current_, SUEDE_NOARG);
 	boneToRootMatrices_[index] = value;
 }
@@ -117,7 +117,7 @@ int SkeletonInternal::GetBoneIndex(const std::string& name) {
 	return pos->second;
 }
 
-SkeletonNode* SkeletonInternal::CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve) {
+SkeletonNode* SkeletonInternal::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve curve) {
 	SkeletonNode* node = MEMORY_NEW(SkeletonNode);
 	node->name = name;
 	node->matrix = matrix;
@@ -148,27 +148,27 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 	node = nullptr;
 }
 
-AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectType::AnimationClip), wrapper_(Math::Min) {
+AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectType::AnimationClip), wrapper_(Mathf::Min) {
 	frame_ = new IAnimationFrame();
 }
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
 	switch (wrapMode_ = value) {
 	case AnimationWrapMode::Loop:
-		wrapper_ = Math::Repeat;
+		wrapper_ = Mathf::Repeat;
 		break;
 	case AnimationWrapMode::PingPong:
-		wrapper_ = Math::PingPong;
+		wrapper_ = Mathf::PingPong;
 		break;
 	case AnimationWrapMode::Once:
 	case AnimationWrapMode::ClampForever:
-		wrapper_ = Math::Min;
+		wrapper_ = Mathf::Min;
 		break;
 	}
 }
 
 void AnimationClipInternal::SetTicksPerSecond(float value) {
-	if (Math::Approximately(value, 0)) {
+	if (Mathf::Approximately(value, 0)) {
 		value = DEFAULT_TICKS_PER_SECOND;
 	}
 
@@ -181,20 +181,20 @@ bool AnimationClipInternal::Sample(float time) {
 	Skeleton skeleton = GetAnimation()->GetSkeleton();
 	SkeletonNode* root = skeleton->GetRootNode();
 
-	return SampleHierarchy(time, root, glm::mat4(1));
+	return SampleHierarchy(time, root, Matrix4(1));
 }
 
-bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, const glm::mat4& matrix) {
+bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, const Matrix4& matrix) {
 	bool endFrame = true;
-	glm::mat4 transform = node->matrix;
+	Matrix4 transform = node->matrix;
 	if (node->curve) {
 		endFrame = node->curve->Sample(time, frame_);
 
-		glm::quat rotation = frame_->GetQuaternion(FrameKeyRotation);
-		glm::vec3 position = frame_->GetVector3(FrameKeyPosition);
-		glm::vec3 scale = frame_->GetVector3(FrameKeyScale);
+		Quaternion rotation = frame_->GetQuaternion(FrameKeyRotation);
+		Vector3 position = frame_->GetVector3(FrameKeyPosition);
+		Vector3 scale = frame_->GetVector3(FrameKeyScale);
 
-		transform = Math::TRS(position, rotation, scale);
+		transform = Matrix4::TRS(position, rotation, scale);
 	}
 
 	transform = matrix * transform;
@@ -202,7 +202,7 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 	Skeleton skeleton = GetAnimation()->GetSkeleton();
 	int index = skeleton->GetBoneIndex(node->name);
 	if (index >= 0) {
-		glm::mat4 boneToRootMatrix = GetAnimation()->GetRootTransform();
+		Matrix4 boneToRootMatrix = GetAnimation()->GetRootTransform();
 		boneToRootMatrix *= transform * skeleton->GetBone(index)->meshToBoneMatrix;
 
 		skeleton->SetBoneToRootMatrix(index, boneToRootMatrix);
@@ -231,13 +231,13 @@ void AnimationKeysInternal::AddFloat(float time, int id, float value) {
 	InsertKey(time, key);
 }
 
-void AnimationKeysInternal::AddVector3(float time, int id, const glm::vec3& value) {
+void AnimationKeysInternal::AddVector3(float time, int id, const Vector3& value) {
 	Key key{ id };
 	key.value.SetVector3(value);
 	InsertKey(time, key);
 }
 
-void AnimationKeysInternal::AddQuaternion(float time, int id, const glm::quat& value) {
+void AnimationKeysInternal::AddQuaternion(float time, int id, const Quaternion& value) {
 	Key key{ id };
 	key.value.SetQuaternion(value);
 	InsertKey(time, key);
@@ -353,7 +353,7 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 			Keys::iterator prev = pos;
 			--prev;
 
-			float t = Math::Clamp01((time - prev->first) / (pos->first - prev->first));
+			float t = Mathf::Clamp01((time - prev->first) / (pos->first - prev->first));
 			LerpVariant(key.value, prev->second.value, pos->second.value, t);
 		}
 	}
@@ -362,7 +362,7 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 }
 
 bool AnimationKeysInternal::FloatCamparer::operator()(float lhs, float rhs) const {
-	return !Math::Approximately(lhs, rhs) && lhs < rhs;
+	return !Mathf::Approximately(lhs, rhs) && lhs < rhs;
 }
 
 void AnimationInternal::AddClip(IAnimation* self, const std::string& name, AnimationClip value) {
@@ -443,7 +443,7 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) 
 	float deltaTime = keyframes_[next]->GetTime() - keyframes_[index]->GetTime();
 	float factor = (time - keyframes_[index]->GetTime()) / deltaTime;
 
-	factor = Math::Clamp01(factor);
+	factor = Mathf::Clamp01(factor);
 	keyframes_[index]->Lerp(frame, keyframes_[next], factor);
 }
 
@@ -467,7 +467,7 @@ void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, f
 			continue;
 		}
 
-		result->SetTime(Math::Lerp(time_, other->GetTime(), factor));
+		result->SetTime(Mathf::Lerp(time_, other->GetTime(), factor));
 		LerpAttribute(result, id, variant, variant2, factor);
 	}
 }
@@ -490,13 +490,13 @@ void AnimationFrameInternal::SetFloat(int id, float value) {
 	attributes_[id] = variant;
 }
 
-void AnimationFrameInternal::SetVector3(int id, const glm::vec3& value) {
+void AnimationFrameInternal::SetVector3(int id, const Vector3& value) {
 	Variant variant;
 	variant.SetVector3(value);
 	attributes_[id] = variant;
 }
 
-void AnimationFrameInternal::SetQuaternion(int id, const glm::quat& value) {
+void AnimationFrameInternal::SetQuaternion(int id, const Quaternion& value) {
 	Variant variant;
 	variant.SetQuaternion(value);
 	attributes_[id] = variant;
@@ -513,21 +513,21 @@ float AnimationFrameInternal::GetFloat(int id) {
 }
 
 
-glm::vec3 AnimationFrameInternal::GetVector3(int id) {
+Vector3 AnimationFrameInternal::GetVector3(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
-		return glm::vec3(0);
+		return Vector3(0);
 	}
 
 	return pos->second.GetVector3();
 }
 
-glm::quat AnimationFrameInternal::GetQuaternion(int id) {
+Quaternion AnimationFrameInternal::GetQuaternion(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
 		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
-		return glm::quat();
+		return Quaternion();
 	}
 
 	return pos->second.GetQuaternion();
@@ -561,13 +561,13 @@ static void LerpVariant(Variant& variant, const Variant& lhs, const Variant& rhs
 
 	switch (type) {
 		case VariantType::Float:
-			variant.SetFloat(Math::Lerp(lhs.GetFloat(), rhs.GetFloat(), factor));
+			variant.SetFloat(Mathf::Lerp(lhs.GetFloat(), rhs.GetFloat(), factor));
 			break;
 		case VariantType::Vector3:
-			variant.SetVector3(Math::Lerp(lhs.GetVector3(), rhs.GetVector3(), factor));
+			variant.SetVector3(Vector3::Lerp(lhs.GetVector3(), rhs.GetVector3(), factor));
 			break;
 		case VariantType::Quaternion:
-			variant.SetQuaternion(Math::Lerp(lhs.GetQuaternion(), rhs.GetQuaternion(), factor));
+			variant.SetQuaternion(Quaternion::Lerp(lhs.GetQuaternion(), rhs.GetQuaternion(), factor));
 			break;
 		default:
 			Debug::LogError("can not lerp attribute type %d.", type);

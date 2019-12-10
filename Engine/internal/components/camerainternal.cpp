@@ -1,7 +1,5 @@
 #include "camerainternal.h"
 
-#include <glm/gtx/transform.hpp>
-
 #include "world.h"
 #include "engine.h"
 #include "gizmos.h"
@@ -9,7 +7,7 @@
 #include "gizmospainter.h"
 #include "geometryutility.h"
 
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "internal/async/async.h"
 
 ICamera::ICamera() : IComponent(MEMORY_NEW(CameraInternal)) {}
@@ -39,10 +37,10 @@ void ICamera::SetFieldOfView(float value) { _suede_dptr()->SetFieldOfView(value)
 float ICamera::GetFieldOfView() const { return _suede_dptr()->GetFieldOfView(); }
 void ICamera::SetRect(const Rect& value) { _suede_dptr()->SetRect(value); }
 const Rect& ICamera::GetRect() const { return _suede_dptr()->GetRect(); }
-const glm::mat4& ICamera::GetProjectionMatrix() { return _suede_dptr()->GetProjectionMatrix(); }
+const Matrix4& ICamera::GetProjectionMatrix() { return _suede_dptr()->GetProjectionMatrix(); }
 void ICamera::GetVisibleGameObjects(std::vector<GameObject>& gameObjects) { return _suede_dptr()->GetVisibleGameObjects(gameObjects); }
-glm::vec3 ICamera::WorldToScreenPoint(const glm::vec3& position) { return _suede_dptr()->WorldToScreenPoint(position); }
-glm::vec3 ICamera::ScreenToWorldPoint(const glm::vec3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
+Vector3 ICamera::WorldToScreenPoint(const Vector3& position) { return _suede_dptr()->WorldToScreenPoint(position); }
+Vector3 ICamera::ScreenToWorldPoint(const Vector3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
 Texture2D ICamera::Capture() { return _suede_dptr()->Capture(); }
 void ICamera::Render() { _suede_dptr()->Render(); }
 void ICamera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
@@ -54,11 +52,11 @@ Camera CameraUtility::GetMain() { return main_; }
 void CameraUtility::SetMain(Camera value) { main_ = value; }
 
 void CameraUtility::OnPreRender() {
-	Framebuffer0::Get()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
-	Framebuffer0::Get()->SetClearDepth(1);
-	Framebuffer0::Get()->SetClearStencil(1);
-	Framebuffer0::Get()->SetClearColor(Color::black);
-	Framebuffer0::Get()->Clear(FramebufferClearMaskColorDepthStencil);
+	Framebuffer::GetDefault()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	Framebuffer::GetDefault()->SetClearDepth(1);
+	Framebuffer::GetDefault()->SetClearStencil(1);
+	Framebuffer::GetDefault()->SetClearColor(Color::black);
+	Framebuffer::GetDefault()->Clear(FramebufferClearMaskColorDepthStencil);
 }
 
 void CameraUtility::OnPostRender() {
@@ -137,7 +135,7 @@ void CameraInternal::Render() {
 
 	if (traitsReady_) {
 		RenderingMatrices matrices;
-		matrices.projParams = glm::vec4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
+		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
 		matrices.cameraPos = GetTransform()->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
@@ -152,7 +150,7 @@ void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
 	rendering_->Resize(width, height);
 
 	float aspect = (float)width / height;
-	if (!Math::Approximately(aspect, GetAspect())) {
+	if (!Mathf::Approximately(aspect, GetAspect())) {
 		SetAspect(aspect);
 	}
 }
@@ -198,26 +196,26 @@ void CameraInternal::GetVisibleGameObjects(std::vector<GameObject>& gameObjects)
 	gameObjects = visibleGameObjects_;
 }
 
-glm::vec3 CameraInternal::WorldToScreenPoint(const glm::vec3& position) {
-	glm::ivec4 viewport;
+Vector3 CameraInternal::WorldToScreenPoint(const Vector3& position) {
+	Vector4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
-	return glm::project(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+	return Matrix4::Project(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
-glm::vec3 CameraInternal::ScreenToWorldPoint(const glm::vec3& position) {
-	glm::ivec4 viewport;
+Vector3 CameraInternal::ScreenToWorldPoint(const Vector3& position) {
+	Vector4 viewport;
 	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
-	return glm::unProject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+	return Matrix4::Unproject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 Texture2D CameraInternal::Capture() {
 	uint alignment = 4;
 	std::vector<uchar> data;
-	Framebuffer0::Get()->ReadBuffer(data, &alignment);
+	Framebuffer::GetDefault()->ReadBuffer(data, &alignment);
 
 	Texture2D texture = new ITexture2D();
-	const glm::ivec4& viewport = Framebuffer0::Get()->GetViewport();
-	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, viewport.z, viewport.w, alignment);
+	const IVector4& viewport = Framebuffer::GetDefault()->GetViewport();
+	texture->Create(TextureFormat::Rgb, &data[0], ColorStreamFormat::Rgb, (uint)viewport.z, (uint)viewport.w, alignment);
 
 	return texture;
 }

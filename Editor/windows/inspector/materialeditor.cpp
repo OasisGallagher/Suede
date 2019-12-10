@@ -154,14 +154,14 @@ void MaterialEditor::drawFloatProperty(Material material, const Property* p) {
 }
 
 void MaterialEditor::drawVector3Property(Material material, const Property* p) {
-	glm::vec3 value = material->GetVector3(p->name);
+	Vector3 value = material->GetVector3(p->name);
 	if (GUI::Float3Field(p->name.c_str(), value)) {
 		material->SetVector3(p->name, value);
 	}
 }
 
 void MaterialEditor::drawVector4Property(Material material, const Property* p) {
-	glm::vec4 value = material->GetVector4(p->name);
+	Vector4 value = material->GetVector4(p->name);
 	if (GUI::Float4Field(p->name.c_str(), value)) {
 		material->SetVector4(p->name, value);
 	}

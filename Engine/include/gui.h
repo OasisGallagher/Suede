@@ -3,7 +3,6 @@
 #include "color.h"
 
 #include <string>
-#include <glm/glm.hpp>
 
 /**
  * @brief immediate mode GUI.
@@ -55,9 +54,9 @@ public:
 	static bool UIntField(const char* title, uint& value, uint min = std::numeric_limits<uint>::lowest(), uint max = std::numeric_limits<uint>::max());
 
 	static bool FloatField(const char* title, float& value, float min = std::numeric_limits<float>::lowest(), float max = std::numeric_limits<float>::max());
-	static bool Float2Field(const char* title, glm::vec2& value);
-	static bool Float3Field(const char* title, glm::vec3& value);
-	static bool Float4Field(const char* title, glm::vec4& value);
+	static bool Float2Field(const char* title, Vector2& value);
+	static bool Float3Field(const char* title, Vector3& value);
+	static bool Float4Field(const char* title, Vector4& value);
 
 	static bool ColorField(const char* title, Color& value);
 

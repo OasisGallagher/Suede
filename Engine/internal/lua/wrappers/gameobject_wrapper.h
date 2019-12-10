@@ -9,11 +9,11 @@
 
 class GameObject_Wrapper {
 	static int NewGameObject(lua_State* L) {
-		return Lua::fromIntrusive(L, new IGameObject());
+		return Lua::fromRef(L, make_ref<IGameObject>());
 	}
 
 	static int ToString(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 
 		lua_pushstring(L, String::Format("GameObject@0x%p", _p.get()).c_str());
 		return 1;
@@ -21,13 +21,13 @@ class GameObject_Wrapper {
 
 	// bool GetActive()
 	static int GetActive(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		return Lua::push(L, _p->GetActive());
 	}
 
 	// void SetActiveSelf(bool value)
 	static int SetActiveSelf(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		bool value = Lua::get<bool>(L, 2);
 		
 		_p->SetActiveSelf(value);
@@ -36,19 +36,19 @@ class GameObject_Wrapper {
 
 	// bool GetActiveSelf()
 	static int GetActiveSelf(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		return Lua::push(L, _p->GetActiveSelf());
 	}
 
 	// int GetUpdateStrategy()
 	static int GetUpdateStrategy(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
 	// bool SetTag(const std::string& value)
 	static int SetTag(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		std::string value = Lua::get<std::string>(L, 2);
 		
 		return Lua::push(L, _p->SetTag(value));
@@ -56,27 +56,27 @@ class GameObject_Wrapper {
 
 	// void Update()
 	static int Update(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		_p->Update();
 		return 0;
 	}
 
 	// void CullingUpdate()
 	static int CullingUpdate(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		_p->CullingUpdate();
 		return 0;
 	}
 
 	// Transform GetTransform()
 	static int GetTransform(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		return Lua::push(L, _p->GetTransform());
 	}
 
 	// void RecalculateBounds(int flags = RecalculateBoundsFlagsAll)
 	static int RecalculateBounds(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		if (Lua::checkArguments<int>(L, 2)) {
 			int flags = Lua::get<int>(L, 2);
 			
@@ -95,7 +95,7 @@ class GameObject_Wrapper {
 
 	// void RecalculateUpdateStrategy()
 	static int RecalculateUpdateStrategy(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		_p->RecalculateUpdateStrategy();
 		return 0;
 	}
@@ -103,7 +103,7 @@ class GameObject_Wrapper {
 	// Component AddComponent(const char* name)
 	// Component AddComponent(Component component)
 	static int AddComponent(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		if (Lua::checkArguments<std::string>(L, 2)) {
 			std::string name = Lua::get<std::string>(L, 2);
 			
@@ -123,7 +123,7 @@ class GameObject_Wrapper {
 	// Component GetComponent(suede_guid guid)
 	// Component GetComponent(const char* name)
 	static int GetComponent(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			
@@ -143,7 +143,7 @@ class GameObject_Wrapper {
 	// std::vector<Component> GetComponents(suede_guid guid)
 	// std::vector<Component> GetComponents(const char* name)
 	static int GetComponents(lua_State* L) {
-		GameObject& _p = *Lua::callerIntrusivePtr<GameObject>(L);
+		GameObject& _p = *Lua::callerRefPtr<GameObject>(L);
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			
@@ -169,7 +169,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewGameObject", NewGameObject });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteIntrusivePtr<GameObject> },
+			{ "__gc", Lua::deleteRefPtr<GameObject> },
 			{ "__tostring", ToString }, 
 			{ "GetActive", GetActive },
 			{ "SetActiveSelf", SetActiveSelf },

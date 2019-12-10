@@ -33,7 +33,7 @@ public:
 	virtual void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
 	virtual float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
 
-	virtual const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
+	virtual const Matrix4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
 public:
 	virtual int GetUpdateStrategy() { return UpdateStrategyNone; }

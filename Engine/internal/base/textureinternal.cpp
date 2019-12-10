@@ -1,10 +1,8 @@
-#include <glm/glm.hpp>
-
 #include "rect.h"
 #include "screen.h"
 #include "buffer.h"
 #include "resources.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "os/filesystem.h"
 #include "../api/glutils.h"
 #include "textureinternal.h"
@@ -358,7 +356,7 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	texelMap.alignment = alignment;
 	BPPType bpp = GLenumToBpp(internalFormat_);
 
-	texelMap.data.resize((bpp / 8) * Math::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight());
+	texelMap.data.resize((bpp / 8) * Mathf::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight());
 	GL::GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
@@ -558,7 +556,7 @@ void RenderTextureInternal::DestroyFramebuffer() {
 
 bool RenderTextureInternal::SetViewport(uint width, uint height, const Rect& normalizedRect) {
 	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
-	framebuffer_->SetViewport((int)viewport.GetXMin(), (int)viewport.GetYMin(), (uint)Math::Max(0.f, viewport.GetWidth()), (uint)Math::Max(0.f, viewport.GetHeight()));
+	framebuffer_->SetViewport((int)viewport.GetXMin(), (int)viewport.GetYMin(), (uint)Mathf::Max(0.f, viewport.GetWidth()), (uint)Mathf::Max(0.f, viewport.GetHeight()));
 	return viewport.GetWidth() > 0 && viewport.GetHeight() > 0;
 }
 
@@ -664,7 +662,7 @@ ScreenRenderTextureInternal::~ScreenRenderTextureInternal() {
 }
 
 bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	framebuffer_ = Framebuffer0::Get();
+	framebuffer_ = Framebuffer::GetDefault();
 	return true;
 }
 

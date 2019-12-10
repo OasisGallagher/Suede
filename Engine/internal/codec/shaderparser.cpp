@@ -1,6 +1,6 @@
 #include "glef.h"
 #include "resources.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "shaderparser.h"
 #include "os/filesystem.h"
 #include "builtinproperties.h"
@@ -208,7 +208,7 @@ bool GLSLParser::Preprocess(const std::string& line) {
 
 void GLSLParser::CalculateDefinesPermutations(std::vector<std::string>& anwser) {
 	std::vector<std::string> defines_;
-	int max = 1 << 0; defines_.size();
+	int max = 1 << 0;
 	for (int i = 0; i < max; ++i) {
 		std::string perm;
 		const char* sep = "";
@@ -390,7 +390,7 @@ void ShaderParser::ReadRenderStates(SyntaxNode* node, std::vector<Semantics::Ren
 	ReadTreeRef(node, "RenderStates", &ShaderParser::ReadRenderState, states);
 }
 
-int ShaderParser::ReadInt3(glm::ivec3& value, SyntaxNode* node) {
+int ShaderParser::ReadInt3(IVector3& value, SyntaxNode* node) {
 	SyntaxNode* c1 = node->GetChildAt(1);
 	if (c1 == nullptr) { return 0; }
 
@@ -411,26 +411,26 @@ void ShaderParser::ReadFloatProperty(SyntaxNode* node, Property* property) {
 }
 
 void ShaderParser::ReadRangedInt(SyntaxNode* node, Property* property) {
-	glm::ivec3 value(0, INT_MIN, INT_MAX);
+	IVector3 value(0, INT_MIN, INT_MAX);
 	ReadInt3(value, node);
 	property->value.SetRangedInt(*(iranged*)&value);
 }
 
 void ShaderParser::ReadRangedFloat(SyntaxNode* node, Property* property) {
-	glm::vec3 value(0, -FLT_MAX, FLT_MAX);
+	Vector3 value(0, -FLT_MAX, FLT_MAX);
 	ReadVec3(value, node);
 	property->value.SetRangedFloat(*(franged*)&value);
 }
 
-int ShaderParser::ReadVec2(glm::vec2& value, SyntaxNode* node) {
+int ShaderParser::ReadVec2(Vector2& value, SyntaxNode* node) {
 	return ReadFloats(node, (float*)&value, 2);
 }
 
-int ShaderParser::ReadVec3(glm::vec3& value, SyntaxNode* node) {
+int ShaderParser::ReadVec3(Vector3& value, SyntaxNode* node) {
 	return ReadFloats(node, (float*)&value, 3);
 }
 
-int ShaderParser::ReadVec4(glm::vec4& value, SyntaxNode* node) {
+int ShaderParser::ReadVec4(Vector4& value, SyntaxNode* node) {
 	return ReadFloats(node, (float*)&value, 4);
 }
 
@@ -451,20 +451,20 @@ void ShaderParser::ReadIntProperty(SyntaxNode* node, Property* property) {
 }
 
 void ShaderParser::ReadVec3Property(SyntaxNode* node, Property* property) {
-	glm::vec3 value;
+	Vector3 value;
 	ReadVec3(value, node);
 	property->value.SetVector3(value);
 }
 
 void ShaderParser::ReadVec4Property(SyntaxNode* node, Property* property) {
-	glm::vec4 value;
+	Vector4 value;
 	ReadVec4(value, node);
 	property->value.SetVector4(value);
 }
 
 void ShaderParser::ReadColorProperty(SyntaxNode* node, Property* property) {
 	Color value = Color::white;
-	ReadVec4(*(glm::vec4*)&value, node);
+	ReadVec4(*(Vector4*)&value, node);
 	property->value.SetColor(value);
 }
 
@@ -488,12 +488,8 @@ void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 	}
 }
 
-void ShaderParser::ReadMat3Property(SyntaxNode* node, Property* property) {
-	property->value.SetMatrix3(glm::mat3(0));
-}
-
 void ShaderParser::ReadMat4Property(SyntaxNode* node, Property* property) {
-	property->value.SetMatrix4(glm::mat4(0));
+	property->value.SetMatrix4(Matrix4(0));
 }
 
 void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
@@ -517,9 +513,6 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	}
 	else if (ns == "Texture2D") {
 		ReadTexture2DProperty(node, property);
-	}
-	else if (ns == "Mat3") {
-		ReadMat3Property(node, property);
 	}
 	else if (ns == "Mat4") {
 		ReadMat4Property(node, property);

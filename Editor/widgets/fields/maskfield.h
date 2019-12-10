@@ -53,7 +53,7 @@ void MaskField::setEnums(T selected) {
 	QStringList list;
 	values_.clear();
 
-	// skip None & Everything.
+	// Skip None & Everything.
 	for (int i = 2; i < T::size(); ++i) {
 		list << T::value(i).to_string();
 		values_.push_back(T::value(i));

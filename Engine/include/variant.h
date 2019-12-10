@@ -1,7 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-
 #include "color.h"
 #include "ranged.h"
 #include "texture.h"
@@ -41,20 +38,19 @@ public:
 	float GetFloat() const;
 	iranged GetRangedInt() const;
 	franged GetRangedFloat() const;
-	glm::mat3 GetMatrix3() const;
-	glm::mat4 GetMatrix4() const;
-	glm::ivec3 GetIVector3() const;
-	glm::vec3 GetVector3() const;
+	Matrix4 GetMatrix4() const;
+	Vector3 GetVector3() const;
+	IVector3 GetIVector3() const;
 	Color GetColor() const;
-	glm::vec4 GetVector4() const;
-	glm::quat GetQuaternion() const;
+	Vector4 GetVector4() const;
+	Quaternion GetQuaternion() const;
 
 	std::string GetString() const;
 	
-	const glm::vec3* GetVector3Array() const;
+	const Vector3* GetVector3Array() const;
 	uint GetVector3ArraySize() const;
 	
-	const glm::mat4* GetMatrix4Array() const;
+	const Matrix4* GetMatrix4Array() const;
 	uint GetMatrix4ArraySize() const;
 	Texture GetTexture() const;
 
@@ -65,16 +61,15 @@ public:
 	void SetFloat(float value);
 	void SetRangedInt(const iranged& value);
 	void SetRangedFloat(const franged& value);
-	void SetMatrix3(const glm::mat3& value);
-	void SetMatrix4(const glm::mat4& value);
-	void SetIVector3(const glm::ivec3& value);
-	void SetVector3(const glm::vec3& value);
+	void SetMatrix4(const Matrix4& value);
+	void SetVector3(const Vector3& value);
+	void SetIVector3(const IVector3& value);
 	void SetColor(const Color& value);
-	void SetVector4(const glm::vec4& value);
-	void SetQuaternion(const glm::quat& value);
+	void SetVector4(const Vector4& value);
+	void SetQuaternion(const Quaternion& value);
 	void SetString(const std::string& value);
-	void SetVector3Array(const glm::vec3* data, uint size);
-	void SetMatrix4Array(const glm::mat4* data, uint size);
+	void SetVector3Array(const Vector3* data, uint size);
+	void SetMatrix4Array(const Matrix4* data, uint size);
 	void SetTexture(Texture value);
 
 	const void* GetData() const;
@@ -95,13 +90,12 @@ private:
 		int intValue;
 		bool boolValue;
 		float floatValue;
-		glm::mat3 mat3Value;
-		glm::mat4 mat4Value;
-		glm::ivec3 ivec3Value;
-		glm::vec2 vec2Value;
-		glm::vec3 vec3Value;
-		glm::vec4 vec4Value;
-		glm::quat quatValue;
+		Matrix4 mat4Value;
+		IVector3 ivec3Value;
+		Vector2 vec2Value;
+		Vector3 vec3Value;
+		Vector4 vec4Value;
+		Quaternion quatValue;
 		Color colorValue;
 		struct {
 			char* ptr;

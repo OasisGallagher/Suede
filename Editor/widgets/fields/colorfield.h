@@ -3,8 +3,6 @@
 #include <QVBoxLayout>
 #include <QProgressBar>
 
-#include <glm/glm.hpp>
-
 #include "color.h"
 
 class ColorField : public QWidget {

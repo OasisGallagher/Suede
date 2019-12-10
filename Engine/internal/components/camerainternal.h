@@ -1,5 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
 #include <ZThread/Mutex.h>
 
 #include "plane.h"
@@ -73,12 +72,12 @@ public:
 	void SetFieldOfView(float value) { return Frustum::SetFieldOfView(value); }
 	float GetFieldOfView() const { return Frustum::GetFieldOfView(); }
 
-	const glm::mat4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
+	const Matrix4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
 	void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
 
-	glm::vec3 WorldToScreenPoint(const glm::vec3& position);
-	glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
+	Vector3 WorldToScreenPoint(const Vector3& position);
+	Vector3 ScreenToWorldPoint(const Vector3& position);
 
 public:
 	void OnScreenSizeChanged(uint width, uint height);

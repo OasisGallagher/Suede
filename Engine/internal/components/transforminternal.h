@@ -23,11 +23,11 @@ public:
 	void SetParent(ITransform* self, Transform value);
 	Transform GetParent() const { return parent_; }
 
-	glm::vec3 TransformPoint(ITransform* self, const glm::vec3& point);
-	glm::vec3 TransformDirection(ITransform* self, const glm::vec3& direction);
+	Vector3 TransformPoint(ITransform* self, const Vector3& point);
+	Vector3 TransformDirection(ITransform* self, const Vector3& direction);
 
-	glm::vec3 InverseTransformPoint(ITransform* self, const glm::vec3& point);
-	glm::vec3 InverseTransformDirection(ITransform* self, const glm::vec3& direction);
+	Vector3 InverseTransformPoint(ITransform* self, const Vector3& point);
+	Vector3 InverseTransformDirection(ITransform* self, const Vector3& direction);
 
 	Transform FindChild(const std::string& path);
 
@@ -35,35 +35,35 @@ public:
 	Transform GetChildAt(int i) { return children_[i]; }
 	ITransform::Enumerable GetChildren() { return ITransform::Enumerable(children_.begin(), children_.end()); }
 
-	void SetScale(const glm::vec3& value);
-	void SetPosition(const glm::vec3& value);
-	void SetRotation(const glm::quat& value);
-	void SetEulerAngles(const glm::vec3& value);
+	void SetScale(const Vector3& value);
+	void SetPosition(const Vector3& value);
+	void SetRotation(const Quaternion& value);
+	void SetEulerAngles(const Vector3& value);
 
-	glm::vec3 GetScale(ITransform* self);
-	glm::vec3 GetPosition(ITransform* self);
-	glm::quat GetRotation(ITransform* self);
-	glm::vec3 GetEulerAngles(ITransform* self);
+	Vector3 GetScale(ITransform* self);
+	Vector3 GetPosition(ITransform* self);
+	Quaternion GetRotation(ITransform* self);
+	Vector3 GetEulerAngles(ITransform* self);
 
-	void SetLocalScale(const glm::vec3& value);
-	void SetLocalPosition(const glm::vec3& value);
-	void SetLocalRotation(const glm::quat& value);
-	void SetLocalEulerAngles(const glm::vec3& value);
+	void SetLocalScale(const Vector3& value);
+	void SetLocalPosition(const Vector3& value);
+	void SetLocalRotation(const Quaternion& value);
+	void SetLocalEulerAngles(const Vector3& value);
 
-	glm::vec3 GetLocalScale(ITransform* self);
-	glm::vec3 GetLocalPosition(ITransform* self);
-	glm::quat GetLocalRotation(ITransform* self);
-	glm::vec3 GetLocalEulerAngles(ITransform* self);
+	Vector3 GetLocalScale(ITransform* self);
+	Vector3 GetLocalPosition(ITransform* self);
+	Quaternion GetLocalRotation(ITransform* self);
+	Vector3 GetLocalEulerAngles(ITransform* self);
 
-	glm::mat4 GetLocalToWorldMatrix(ITransform* self);
-	glm::mat4 GetWorldToLocalMatrix(ITransform* self);
+	Matrix4 GetLocalToWorldMatrix(ITransform* self);
+	Matrix4 GetWorldToLocalMatrix(ITransform* self);
 
-	glm::vec3 GetLocalToWorldPosition(ITransform* self, const glm::vec3& position);
-	glm::vec3 GetWorldToLocalPosition(ITransform* self, const glm::vec3& position);
+	Vector3 GetLocalToWorldPosition(ITransform* self, const Vector3& position);
+	Vector3 GetWorldToLocalPosition(ITransform* self, const Vector3& position);
 
-	glm::vec3 GetUp(ITransform* self);
-	glm::vec3 GetRight(ITransform* self);
-	glm::vec3 GetForward(ITransform* self);
+	Vector3 GetUp(ITransform* self);
+	Vector3 GetRight(ITransform* self);
+	Vector3 GetForward(ITransform* self);
 
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
@@ -105,6 +105,6 @@ private:
 	PRS local_;
 	PRS world_;
 
-	glm::mat4 localToWorldMatrix_;
-	glm::mat4 worldToLocalMatrix_;
+	Matrix4 localToWorldMatrix_;
+	Matrix4 worldToLocalMatrix_;
 };

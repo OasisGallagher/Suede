@@ -1,6 +1,4 @@
 #include <map>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include "variant.h"
 #include "animation.h"
@@ -18,13 +16,13 @@ public:
 	virtual SkeletonBone* GetBone(uint index);
 	virtual SkeletonBone* GetBone(const std::string& name);
 	
-	virtual void SetBoneToRootMatrix(uint index, const glm::mat4& value);
-	virtual glm::mat4* GetBoneToRootMatrices() { return boneToRootMatrices_; }
+	virtual void SetBoneToRootMatrix(uint index, const Matrix4& value);
+	virtual Matrix4* GetBoneToRootMatrices() { return boneToRootMatrices_; }
 
 	virtual int GetBoneIndex(const std::string& name);
 	virtual int GetBoneCount() { return current_; }
 
-	virtual SkeletonNode* CreateNode(const std::string& name, const glm::mat4& matrix, AnimationCurve curve);
+	virtual SkeletonNode* CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve curve);
 	virtual void AddNode(SkeletonNode* parent, SkeletonNode* child);
 	virtual SkeletonNode* GetRootNode() { return root_; }
 
@@ -34,7 +32,7 @@ private:
 private:
 	int current_;
 	SkeletonBone bones_[MAX_BONE_COUNT];
-	glm::mat4 boneToRootMatrices_[MAX_BONE_COUNT];
+	Matrix4 boneToRootMatrices_[MAX_BONE_COUNT];
 
 	SkeletonNode* root_;
 
@@ -61,7 +59,7 @@ public:
 	virtual bool Sample(float time);
 
 private:
-	bool SampleHierarchy(float time, SkeletonNode* node, const glm::mat4& matrix);
+	bool SampleHierarchy(float time, SkeletonNode* node, const Matrix4& matrix);
 
 private:
 	float duration_;
@@ -84,8 +82,8 @@ public:
 
 public:
 	virtual void AddFloat(float time, int id, float value);
-	virtual void AddVector3(float time, int id, const glm::vec3& value);
-	virtual void AddQuaternion(float time, int id, const glm::quat& value);
+	virtual void AddVector3(float time, int id, const Vector3& value);
+	virtual void AddQuaternion(float time, int id, const Quaternion& value);
 
 	virtual void Remove(float time, int id);
 
@@ -128,8 +126,8 @@ public:
 	virtual void AddClip(IAnimation* self, const std::string& name, AnimationClip value);
 	virtual AnimationClip GetClip(const std::string& name);
 
-	virtual void SetRootTransform(const glm::mat4& value) { rootTransform_ = value; }
-	virtual glm::mat4 GetRootTransform() { return rootTransform_; }
+	virtual void SetRootTransform(const Matrix4& value) { rootTransform_ = value; }
+	virtual Matrix4 GetRootTransform() { return rootTransform_; }
 
 	virtual void SetWrapMode(AnimationWrapMode value);
 
@@ -142,7 +140,7 @@ public:
 
 private:
 	Skeleton skeleton_;
-	glm::mat4 rootTransform_;
+	Matrix4 rootTransform_;
 
 	float time_;
 
@@ -165,12 +163,12 @@ public:
 	virtual void Lerp(AnimationFrame result, AnimationFrame other, float factor);
 
 	virtual void SetFloat(int id, float value);
-	virtual void SetVector3(int id, const glm::vec3& value);
-	virtual void SetQuaternion(int id, const glm::quat& value);
+	virtual void SetVector3(int id, const Vector3& value);
+	virtual void SetQuaternion(int id, const Quaternion& value);
 
 	virtual float GetFloat(int id);
-	virtual glm::vec3 GetVector3(int id);
-	virtual glm::quat GetQuaternion(int id);
+	virtual Vector3 GetVector3(int id);
+	virtual Quaternion GetQuaternion(int id);
 
 private:
 	void LerpAttribute(AnimationFrame ans, int id, const Variant& lhs, const Variant& rhs, float factor);

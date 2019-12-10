@@ -11,7 +11,7 @@ from stat import S_IREAD, S_IRGRP, S_IROTH, S_IWRITE;
 
 kFilePostfix = "_wrapper";
 kClassPostfix = "_Wrapper";
-kDestFolder = "F:/GitHub/Suede/Engine/internal/lua/wrappers/";
+kDestFolder = "E:/Repos/Suede/Engine/internal/lua/wrappers/";
 kArray = "[]";
 kPyCStr = "py_cstr";
 kEnumerable = "Enumerable";
@@ -367,7 +367,7 @@ class Wrapper:
 		elif sharedPtr:
 			self._w(
 '''	static int New%s(lua_State* L) {
-		return Lua::fromIntrusive(L, new I%s());
+		return Lua::fromRef(L, make_ref<I%s>());
 	}\n''' % (className, className));
 		else:
 			self._beginOverloadConstructor(className);
@@ -461,7 +461,7 @@ class Wrapper:
 		elif sharedPtr:
 			self._w(
 '''	static int %s(lua_State* L) {
-		%s& _p = *Lua::callerIntrusivePtr<%s>(L);\n''' % (methodName, className, className));
+		%s& _p = *Lua::callerRefPtr<%s>(L);\n''' % (methodName, className, className));
 		else:
 			self._w(
 '''	static int %s(lua_State* L) {
@@ -635,7 +635,7 @@ class Wrapper:
 		if not instance:
 			if sharedPtr:
 				self._w('''
-			{ "__gc", Lua::deleteIntrusivePtr<%s> },''' % className);
+			{ "__gc", Lua::deleteRefPtr<%s> },''' % className);
 			else:
 				self._w('''
 			{ "__gc", Lua::deletePtr<%s> },''' % className);
@@ -690,7 +690,7 @@ class Environment:
 			if enums: self.enums.extend(enums);
 	
 	def _sourceFiles(self):
-		paths = os.listdir("f:/github/suede/engine/include");
+		paths = os.listdir("E:/Repos/Suede/Engine/include/");
 
 		paths = [f for f in paths if f.endswith(".h") and f not in kExcludeFiles];
 		#paths = [ "student.h" ]; # , "class.h", "imageeffect.h", "rect.h" ];

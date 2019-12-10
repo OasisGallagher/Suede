@@ -9,11 +9,11 @@ struct ParticleBurst {
 
 struct Particle {
 	float life;
-	glm::vec3 velocity;
+	Vector3 velocity;
 
 	float size;
-	glm::vec4 color;
-	glm::vec3 position;
+	Vector4 color;
+	Vector3 position;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter)
@@ -36,11 +36,11 @@ public:
 	void SetStartSize(float value);
 	float GetStartSize();
 
-	void SetStartVelocity(const glm::vec3& value);
-	glm::vec3 GetStartVelocity();
+	void SetStartVelocity(const Vector3& value);
+	Vector3 GetStartVelocity();
 
-	void SetStartColor(const glm::vec4& value);
-	glm::vec4 GetStartColor();
+	void SetStartColor(const Vector4& value);
+	Vector4 GetStartColor();
 
 	void AddBurst(const ParticleBurst& value);
 	void SetBurst(int i, const ParticleBurst& value);
@@ -72,11 +72,11 @@ public:
 	IParticleAnimator();
 
 public:
-	void SetForce(const glm::vec3& value);
-	glm::vec3 GetForce();
+	void SetForce(const Vector3& value);
+	Vector3 GetForce();
 
-	void SetRandomForce(const glm::vec3& value);
-	glm::vec3 GetRandomForce();
+	void SetRandomForce(const Vector3& value);
+	Vector3 GetRandomForce();
 
 	void SetGravityScale(float value);
 	float GetGravityScale();

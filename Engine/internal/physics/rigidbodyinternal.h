@@ -24,8 +24,8 @@ public:
 	void SetMass(float value);
 	float GetMass() const { return mass_; }
 
-	void SetVelocity(const glm::vec3& value);
-	glm::vec3 GetVelocity() const;
+	void SetVelocity(const Vector3& value);
+	Vector3 GetVelocity() const;
 
 	const Bounds& GetBounds() const { return bounds_; }
 
@@ -37,7 +37,7 @@ private:
 	void UpdateBounds();
 
 	bool RebuildShape();
-	bool CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale);
+	bool CreateShapeFromMesh(Mesh mesh, const Vector3& scale);
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();

@@ -42,7 +42,7 @@ public:
 	float GetFarClipPlane() const;
 	float GetFieldOfView() const;
 
-	const glm::mat4& GetProjectionMatrix();
+	const Matrix4& GetProjectionMatrix();
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Projector)

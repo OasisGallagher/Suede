@@ -1,6 +1,6 @@
 #include "gui.h"
 #include "debug/debug.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "tools/string.h"
 
 #include "imgui.h"
@@ -59,7 +59,7 @@ void GUI::LabelField(const char* title, const char* text) {
 }
 
 bool GUI::TextField(const char* title, std::string& value) {
-	int len = Math::Min(IM_ARRAYSIZE(buffer) - 1, (int)value.length());
+	int len = Mathf::Min(IM_ARRAYSIZE(buffer) - 1, (int)value.length());
 	strncpy(buffer, value.c_str(), len);
 	buffer[len] = 0;
 
@@ -176,15 +176,15 @@ bool GUI::FloatField(const char* title, float& value, float min, float max) {
 	return ImGui::DragFloat(title, &value, 1.f, min, max);
 }
 
-bool GUI::Float2Field(const char* title, glm::vec2& value) {
+bool GUI::Float2Field(const char* title, Vector2& value) {
 	return ImGui::DragFloat2(title, (float*)&value);
 }
 
-bool GUI::Float3Field(const char* title, glm::vec3& value) {
+bool GUI::Float3Field(const char* title, Vector3& value) {
 	return ImGui::DragFloat3(title, (float*)&value);
 }
 
-bool GUI::Float4Field(const char* title, glm::vec4& value) {
+bool GUI::Float4Field(const char* title, Vector4& value) {
 	return ImGui::DragFloat4(title, (float*)&value);
 }
 

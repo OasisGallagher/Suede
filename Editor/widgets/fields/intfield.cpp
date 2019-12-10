@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 #include <QDoubleValidator>
 
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 IntField::IntField(QWidget* parent)
 	: QLineEdit(parent)
@@ -16,7 +16,7 @@ IntField::IntField(QWidget* parent)
 
 void IntField::setValue(int value) {
 	if (value != value_) {
-		value_ = Math::Clamp(value, min_, max_);
+		value_ = Mathf::Clamp(value, min_, max_);
 
 		blockSignals(true);
 		updateText();
@@ -62,7 +62,7 @@ void IntField::onEditingFinished() {
 	bool ok = false;
 	int f = text().toInt(&ok);
 	if (ok) {
-		value_ = Math::Clamp(f, min_, max_);
+		value_ = Mathf::Clamp(f, min_, max_);
 	}
 
 	updateText();

@@ -1,6 +1,6 @@
 #include "resourcesinternal.h"
 
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "os/filesystem.h"
 #include "memory/memory.h"
 #include "geometryutility.h"
@@ -91,17 +91,17 @@ void ResourcesInternal::GetQuadMeshAttribute(MeshAttribute& attribute, float sca
 	attribute.topology = MeshTopology::TriangleStripe;
 
 	attribute.positions.assign({
-		glm::vec3(-0.5f * scale, -0.5f * scale, 0.f),
-		glm::vec3(0.5f * scale, -0.5f * scale, 0.f),
-		glm::vec3(-0.5f * scale,  0.5f * scale, 0.f),
-		glm::vec3(0.5f * scale,  0.5f * scale, 0.f),
+		Vector3(-0.5f * scale, -0.5f * scale, 0.f),
+		Vector3(0.5f * scale, -0.5f * scale, 0.f),
+		Vector3(-0.5f * scale,  0.5f * scale, 0.f),
+		Vector3(0.5f * scale,  0.5f * scale, 0.f),
 	});
 
 	attribute.texCoords[0].assign({
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 0.f),
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 1.f),
+		Vector2(0.f, 0.f),
+		Vector2(1.f, 0.f),
+		Vector2(0.f, 1.f),
+		Vector2(1.f, 1.f),
 	});
 
 	attribute.indexes.assign({ 0, 1, 2, 3 });
@@ -109,32 +109,32 @@ void ResourcesInternal::GetQuadMeshAttribute(MeshAttribute& attribute, float sca
 
 void ResourcesInternal::GetCubeMeshAttribute(MeshAttribute& attribute, float scale) {
 	attribute.topology = MeshTopology::Triangles;
-	GeometryUtility::GetCuboidCoordinates(attribute.positions, glm::vec3(0), glm::vec3(1), &attribute.indexes);
+	GeometryUtility::GetCuboidCoordinates(attribute.positions, Vector3(0), Vector3(1), &attribute.indexes);
 
 	for (int i = 0; i < attribute.positions.size(); ++i) {
 		attribute.positions[i] *= scale;
 	}
 
 	attribute.normals.assign({
-		glm::vec3(0.333333f, 0.666667f, -0.666667f),
-		glm::vec3(-0.816497f, 0.408248f, -0.408248f),
-		glm::vec3(-0.333333f, 0.666667f, 0.666667f),
-		glm::vec3(0.816497f, 0.408248f, 0.408248f),
-		glm::vec3(0.666667f, -0.666667f, -0.333333f),
-		glm::vec3(-0.408248f, -0.408248f, -0.816497f),
-		glm::vec3(-0.666667f, -0.666667f, 0.333333f),
-		glm::vec3(0.408248f, -0.408248f, 0.816497f)
+		Vector3(0.333333f, 0.666667f, -0.666667f),
+		Vector3(-0.816497f, 0.408248f, -0.408248f),
+		Vector3(-0.333333f, 0.666667f, 0.666667f),
+		Vector3(0.816497f, 0.408248f, 0.408248f),
+		Vector3(0.666667f, -0.666667f, -0.333333f),
+		Vector3(-0.408248f, -0.408248f, -0.816497f),
+		Vector3(-0.666667f, -0.666667f, 0.333333f),
+		Vector3(0.408248f, -0.408248f, 0.816497f)
 	});
 
 	attribute.texCoords[0].assign({
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 1.f),
-		glm::vec2(0.f, 1.f),
-		glm::vec2(1.f, 1.f),
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 0.f),
-		glm::vec2(0.f, 0.f),
-		glm::vec2(1.f, 0.f),
+		Vector2(0.f, 1.f),
+		Vector2(1.f, 1.f),
+		Vector2(0.f, 1.f),
+		Vector2(1.f, 1.f),
+		Vector2(0.f, 0.f),
+		Vector2(1.f, 0.f),
+		Vector2(0.f, 0.f),
+		Vector2(1.f, 0.f),
 	});
 }
 

@@ -3,8 +3,6 @@
 #include <QMouseEvent>
 #include <QColorDialog>
 
-#include <glm/glm.hpp>
-
 #include "color.h"
 
 class ColorPicker : public QColorDialog {

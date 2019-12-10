@@ -1,8 +1,6 @@
 #pragma once
 #include "../api/gl.h"
 
-#include <glm/glm.hpp>
-
 #include "mesh.h"
 #include "rect.h"
 #include "camera.h"
@@ -21,7 +19,7 @@ struct Renderable {
 	Material material;
 	uint pass;
 
-	glm::mat4 localToWorldMatrix;
+	Matrix4 localToWorldMatrix;
 
 	void Clear();
 	bool IsInstance(const Renderable& other) const;
@@ -43,7 +41,7 @@ public:
 	~Pipeline();
 
 public:
-	void Sort(SortMode mode, const glm::mat4& worldToClipMatrix);
+	void Sort(SortMode mode, const Matrix4& worldToClipMatrix);
 
 	void Run();
 	void Clear();
@@ -60,7 +58,7 @@ public:
 		Mesh mesh,
 		Material material,
 		uint pass,
-		const glm::mat4& localToWorldMatrix,
+		const Matrix4& localToWorldMatrix,
 		uint instance = 0
 	);
 
@@ -69,7 +67,7 @@ public:
 		uint subMeshIndex,
 		Material material,
 		uint pass,
-		const glm::mat4& localToWorldMatrix,
+		const Matrix4& localToWorldMatrix,
 		uint instance = 0
 	);
 
@@ -88,7 +86,7 @@ private:
 	std::vector<Renderable> renderables_;
 
 	std::vector<uint> ranges_;
-	std::vector<glm::mat4> matrices_;
+	std::vector<Matrix4> matrices_;
 
 	Rect normalizedRect_;
 	RenderTexture targetTexture_;

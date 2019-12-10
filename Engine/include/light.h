@@ -1,7 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
 #include "color.h"
 #include "component.h"
 #include "tools/enum.h"

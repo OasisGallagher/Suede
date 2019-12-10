@@ -5,11 +5,9 @@
 #include "../types.h"
 #include "../debug/debug.h"
 
-// use full relative path here.
-// as some projects may not set glm as 'Additional Include Directories'.
-#include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
-#include "../3rdparty/glm-0.9.7.1/include/glm/gtc/quaternion.hpp"
-#include "../3rdparty/glm-0.9.7.1/include/glm/gtc/matrix_transform.hpp"
+#include "vector3.h"
+#include "matrix4.h"
+#include "quaternion.h"
 
 #pragma intrinsic(_BitScanForward)
 
@@ -20,7 +18,7 @@ inline char(*__countof_helper(CountofType(&_Array)[sizeOfArray]))[sizeOfArray] {
 
 #define SUEDE_COUNTOF(array) (sizeof(*__countof_helper(array)) + 0)
 
-class Math {
+class SUEDE_API Mathf {
 public:
 	static int MakeDword(int low, int high);
 	static int Loword(int dword);
@@ -33,18 +31,20 @@ public:
 	static T Sign(T x);
 
 	template <class T>
-	static T Degrees(const T& radians);
+	static T Degrees(const T& radians) {
+		return radians * 57.2957795f;
+	}
 
 	template <class T>
-	static T Radians(const T& degrees);
+	static T Radians(const T& degrees) {
+		return degrees * 0.0174533f;
+	}
 
-	static float Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal);
+	static float Angle(const Vector3& a, const Vector3& b, const Vector3& normal);
 
 	static bool IsPowerOfTwo(uint x);
 	static uint NextPowerOfTwo(uint x);
 	static uint RoundUpToPowerOfTwo(uint x, uint target);
-
-	static glm::mat4 TRS(const glm::vec3& t, const glm::quat& r, const glm::vec3& s);
 
 	/**
 	 * @brief log_2_POT.
@@ -75,63 +75,53 @@ public:
 	static T Clamp01(T value);
 
 	static bool Approximately(float x, float y);
-	static bool Approximately(const glm::quat& x, const glm::quat& y);
+	static bool Approximately(const Quaternion& x, const Quaternion& y);
 
-	static void Orthogonalize(glm::vec3& t, const glm::vec3& n);
+	static void Orthogonalize(Vector3& t, const Vector3& n);
 
 private:
-	Math();
+	Mathf();
 };
 
-inline int Math::Loword(int dword) {
+inline int Mathf::Loword(int dword) {
 	return dword & 0xffff;
 }
 
-inline int Math::Highword(int dword) {
+inline int Mathf::Highword(int dword) {
 	return (dword >> 16) & 0xffff;
 }
 
-inline int Math::MakeDword(int low, int high) {
+inline int Mathf::MakeDword(int low, int high) {
 	return (low & 0xffff) | ((high & 0xffff) << 16);
 }
 
-inline float Math::Pi() {
+inline float Mathf::Pi() {
 	return 3.1415926f;
 }
 
-inline float Math::Epsilon() {
+inline float Mathf::Epsilon() {
 	return 0.000001f;
 }
 
 template <class T>
-inline T Math::Sign(T x) {
-	return Math::Approximately(x, 0) ? 0 : (x > 0 ? 1 : -1);
+inline T Mathf::Sign(T x) {
+	return Mathf::Approximately(x, 0) ? 0 : (x > 0 ? 1 : -1);
 }
 
-inline float Math::Angle(const glm::vec3& a, const glm::vec3& b, const glm::vec3& normal) {
-	float r = acosf(glm::dot(a, b));
-	if (glm::dot(normal, glm::cross(a, b)) < 0) {
+inline float Mathf::Angle(const Vector3& a, const Vector3& b, const Vector3& normal) {
+	float r = acosf(Vector3::Dot(a, b));
+	if (Vector3::Dot(normal, Vector3::Cross(a, b)) < 0) {
 		r = -r;
 	}
 
 	return r;
 }
 
-template <class T>
-inline T Math::Degrees(const T& radians) {
-	return glm::degrees(radians);
-}
-
-template <class T>
-inline T Math::Radians(const T& degrees) {
-	return glm::radians(degrees);
-}
-
-inline bool Math::IsPowerOfTwo(uint x) {
+inline bool Mathf::IsPowerOfTwo(uint x) {
 	return (x & (x - 1)) == 0;
 }
 
-inline uint Math::NextPowerOfTwo(uint x) {
+inline uint Mathf::NextPowerOfTwo(uint x) {
 	x--;
 	x |= x >> 1;
 	x |= x >> 2;
@@ -142,7 +132,7 @@ inline uint Math::NextPowerOfTwo(uint x) {
 	return x;
 }
 
-inline uint Math::RoundUpToPowerOfTwo(uint x, uint target) {
+inline uint Mathf::RoundUpToPowerOfTwo(uint x, uint target) {
 	if (!IsPowerOfTwo(target)) {
 		Debug::LogError("target must be power of two.");
 		return x;
@@ -152,11 +142,7 @@ inline uint Math::RoundUpToPowerOfTwo(uint x, uint target) {
 	return (x + target) & (~target);
 }
 
-inline glm::mat4 Math::TRS(const glm::vec3 & t, const glm::quat & r, const glm::vec3 & s) {
-	return glm::translate(glm::mat4(1), t) * glm::scale(glm::mat4_cast(r), s);
-}
-
-inline uint Math::PopulationCount(uint x) {
+inline uint Mathf::PopulationCount(uint x) {
 	uint n;
 
 	n = (x >> 1) & 0x77777777;
@@ -171,27 +157,22 @@ inline uint Math::PopulationCount(uint x) {
 	return x >> 24;
 }
 
-inline uint Math::Log2PowerOfTwo(uint x) {
+inline uint Mathf::Log2PowerOfTwo(uint x) {
 	ulong index;
 	_BitScanForward(&index, x);
 	return index;
 }
 
 template <class T>
-inline T Math::Lerp(const T& from, const T& to, float t) {
+inline T Mathf::Lerp(const T& from, const T& to, float t) {
 	return from + (to - from) * t;
 }
 
-template <>
-inline glm::quat Math::Lerp(const glm::quat& from, const glm::quat& to, float t) {
-	return glm::lerp(from, to, t);
-}
-
-inline float Math::Repeat(float t, float length) {
+inline float Mathf::Repeat(float t, float length) {
 	return fmod(t, length);
 }
 
-inline float Math::PingPong(float t, float length) {
+inline float Mathf::PingPong(float t, float length) {
 	float L = 2 * length;
 	float T = fmod(t, L);
 	if (T >= 0 && T < length) { return T; }
@@ -199,34 +180,34 @@ inline float Math::PingPong(float t, float length) {
 }
 
 template <class T>
-inline T Math::Min(T x, T y) { return x > y ? y : x; }
+inline T Mathf::Min(T x, T y) { return x > y ? y : x; }
 
 template <class T>
-inline T Math::Max(T x, T y) { return x > y ? x : y; }
+inline T Mathf::Max(T x, T y) { return x > y ? x : y; }
 
 template <class T>
-inline T Math::Clamp(T value, T min, T max) {
+inline T Mathf::Clamp(T value, T min, T max) {
 	if (value < min) { value = min; }
 	if (value > max) { value = max; }
 	return value;
 }
 
 template <class T>
-inline T Math::Clamp01(T value) {
+inline T Mathf::Clamp01(T value) {
 	if (value < 0) { value = 0; }
 	if (value > 1) { value = 1; }
 	return value;
 }
 
-inline bool Math::Approximately(float x, float y) {
+inline bool Mathf::Approximately(float x, float y) {
 	return fabs(x - y) < Epsilon();
 }
 
-inline bool Math::Approximately(const glm::quat& x, const glm::quat& y) {
-	return 1.f - fabs(glm::dot(x, y)) < Epsilon();
+inline bool Mathf::Approximately(const Quaternion& x, const Quaternion& y) {
+	return 1.f - fabs(Quaternion::Dot(x, y)) < Epsilon();
 }
 
-inline void Math::Orthogonalize(glm::vec3& t, const glm::vec3& n) {
+inline void Mathf::Orthogonalize(Vector3& t, const Vector3& n) {
 	// Gram-Schmidt orthogonalize
-	t = glm::normalize(t - n * glm::dot(n, t));
+	t = (t - n * Vector3::Dot(n, t)).GetNormalized();
 }

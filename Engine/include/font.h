@@ -1,6 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
-
 #include "object.h"
 #include "material.h"
 
@@ -9,7 +7,7 @@ SUEDE_DEFINE_OBJECT_POINTER(Font)
 struct CharacterInfo {
 	uint width;
 	uint height;
-	glm::vec4 texCoord;
+	Vector4 texCoord;
 };
 
 class FontMaterialRebuiltListener {

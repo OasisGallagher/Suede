@@ -1,6 +1,6 @@
 #include "screen.h"
 #include "debug/debug.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "framebuffer.h"
 #include "memory/memory.h"
 #include "../api/glutils.h"
@@ -9,7 +9,7 @@
 
 FramebufferBase::FramebufferBase() : fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
-	viewport_ = glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
 }
 
 void FramebufferBase::BindRead() {
@@ -36,7 +36,7 @@ void FramebufferBase::ReadBuffer(std::vector<uchar>& data, uint* alignment) {
 void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment) {
 	uint packAlignment = GLUtils::GetGLMode(GLModePackAlignment);
 
-	uint width = Math::RoundUpToPowerOfTwo(viewport_.z, packAlignment);
+	uint width = Mathf::RoundUpToPowerOfTwo(viewport_.z, packAlignment);
 	data.resize(3 * width * viewport_.w);
 
 	GL::ReadPixels(0, 0, viewport_.z, viewport_.w, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
@@ -96,7 +96,7 @@ void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, GLenum
 }
 
 void FramebufferBase::SetViewport(int x, int y, uint width, uint height) {
-	glm::ivec4 value(x, y, width, height);
+	IVector4 value(x, y, width, height);
 	if (viewport_ != value) {
 		viewport_ = value;
 		OnViewportChanged();
@@ -166,13 +166,13 @@ void FramebufferBase::ClearCurrent(FramebufferClearMask clearMask) {
 	if (bitfield != 0) { GL::Clear(bitfield); }
 }
 
-Framebuffer0* Framebuffer0::Get() {
-	static Framebuffer0 fb0;
+FramebufferBase* Framebuffer::GetDefault() {
+	static FramebufferBase fb0;
 	return &fb0;
 }
 
 Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRenderTextureCount_(0) {
-	viewport_ = glm::uvec4(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
 
 	GL::GenFramebuffers(1, &fbo_);
 

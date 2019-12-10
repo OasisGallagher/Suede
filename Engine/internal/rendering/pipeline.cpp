@@ -70,7 +70,7 @@ static RenderableComparer comparers_[] = {
 	MeshComparer, MaterialComparer, MeshMaterialComparer,
 };
 
-void Pipeline::Sort(SortMode mode, const glm::mat4& worldToClipMatrix) {
+void Pipeline::Sort(SortMode mode, const Matrix4& worldToClipMatrix) {
 	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparers_[mode]);
 
 	for (int i = 0; i < nrenderables_; ++i) {
@@ -205,7 +205,7 @@ void Pipeline::RenderInstances(uint first, uint last) {
 	Render(renderables_[first], last - first, first * 8);
 }
 
-void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance) {
+void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const Matrix4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		matrices_.resize(4 * nrenderables_);
 		renderables_.resize(2 * nrenderables_);
@@ -220,7 +220,7 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const glm::mat4& localToWorldMatrix, uint instance /*= 0 */) {
+void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const Matrix4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		AddRenderable(mesh, i, material, 0, localToWorldMatrix, instance);
 	}

@@ -40,18 +40,18 @@ EngineInternal::EngineInternal() : updateRef_(LUA_NOREF) {
 
 }
 
-template <class... Args>
-bool EngineInternal::InvokeCurrentLuaMethod(Args... args) {
-	Lua::push(L, args...);
-	int r = lua_pcall(L, sizeof...(Args), 0, 0);
-	if (r != LUA_OK) {
-		Debug::LogError("invoke function failed(%d): %s.", r, lua_tostring(L, -1));
-		lua_pop(L, 1);
-		return false;
-	}
-
-	return true;
-}
+//template <class... Args>
+//bool EngineInternal::InvokeCurrentLuaMethod(Args... args) {
+//	Lua::push(L, args...);
+//	int r = lua_pcall(L, sizeof...(Args), 0, 0);
+//	if (r != LUA_OK) {
+//		Debug::LogError("invoke function failed(%d): %s.", r, lua_tostring(L, -1));
+//		lua_pop(L, 1);
+//		return false;
+//	}
+//
+//	return true;
+//}
 
 bool EngineInternal::Startup(uint width, uint height) {
 	setlocale(LC_ALL, "");
@@ -73,7 +73,7 @@ bool EngineInternal::Startup(uint width, uint height) {
 	World::Initialize();
 
 	//Physics::SetDebugDrawEnabled(true);
-	Physics::SetGravity(glm::vec3(0, -9.8f, 0));
+	Physics::SetGravity(Vector3(0, -9.8f, 0));
 
 	luaL_Reg lualibs[] = {
 		{ "Suede", Lua::configure },

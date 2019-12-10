@@ -30,8 +30,8 @@ public:
 
 	bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
 
-	void SetGravity(const glm::vec3& value) { world_->setGravity(btConvert(value)); }
-	glm::vec3 GetGravity() const { return btConvert(world_->getGravity()); }
+	void SetGravity(const Vector3& value) { world_->setGravity(btConvert(value)); }
+	Vector3 GetGravity() const { return btConvert(world_->getGravity()); }
 
 	void SetDebugDrawEnabled(bool value) { debugDrawEnabled_ = value; }
 	bool GetDebugDrawEnabled() const { return debugDrawEnabled_; }

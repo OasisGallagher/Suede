@@ -1,6 +1,6 @@
 #pragma once
 #include "vecfield.h"
-#include <glm/glm.hpp>
+#include "math/vector2.h"
 
 class Vec2Field : public VecField {
 	Q_OBJECT
@@ -18,13 +18,13 @@ public:
 	/**
 	 * @brief set value with signal blocked.
 	 */
-	void setValue(const glm::vec2& value) { setFields((float*)&value); }
+	void setValue(const Vector2& value) { setFields((float*)&value); }
 
 signals:
-	void valueChanged(const glm::vec2& value);
+	void valueChanged(const Vector2& value);
 
 protected:
 	virtual void valueChanged(float* values) {
-		emit valueChanged(*((glm::vec2*)values));
+		emit valueChanged(*((Vector2*)values));
 	}
 };

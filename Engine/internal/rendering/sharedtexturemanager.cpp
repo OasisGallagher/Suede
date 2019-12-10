@@ -17,7 +17,7 @@ SharedTextureManager::SharedTextureManager() {
 	ssao_->Create(RenderTextureFormat::RgbF, w, h);
 
 	matrixBuffer_ = new ITextureBuffer();
-	matrixBuffer_->Create(INIT_RENDERABLE_CAPACITY * sizeof(glm::mat4) * 2);
+	matrixBuffer_->Create(INIT_RENDERABLE_CAPACITY * sizeof(Matrix4) * 2);
 }
 
 SharedTextureManager::~SharedTextureManager() {

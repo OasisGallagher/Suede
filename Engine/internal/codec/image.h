@@ -2,7 +2,6 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <glm/glm.hpp>
 
 #include "texture.h"
 
@@ -55,7 +54,7 @@ struct Atlas {
 
 	std::vector<uchar> data;
 
-	typedef std::map<uint, glm::vec4> CoordContainer;
+	typedef std::map<uint, Vector4> CoordContainer;
 	CoordContainer coords;
 };
 

@@ -61,25 +61,25 @@ public:	// Component system.
 	Component AddComponent(Component component);
 
 	template <class T>
-	typename std::enable_if<suede_is_intrusive_ptr<T>::value, T>::type AddComponent();
+	typename std::enable_if<suede_is_ref_ptr<T>::value, T>::type AddComponent();
 
 	template <class T>
-	typename std::enable_if<!suede_is_intrusive_ptr<T>::value, intrusive_ptr<T>>::type AddComponent();
+	typename std::enable_if<!suede_is_ref_ptr<T>::value, ref_ptr<T>>::type AddComponent();
 
 	Component GetComponent(suede_guid guid);
 	Component GetComponent(const char* name);
 
 	template <class T>
-	typename std::enable_if<suede_is_intrusive_ptr<T>::value, T>::type GetComponent();
+	typename std::enable_if<suede_is_ref_ptr<T>::value, T>::type GetComponent();
 
 	template <class T>
-	typename std::enable_if<!suede_is_intrusive_ptr<T>::value, intrusive_ptr<T>>::type GetComponent();
+	typename std::enable_if<!suede_is_ref_ptr<T>::value, ref_ptr<T>>::type GetComponent();
 
 	template <class T>
-	typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type GetComponents();
+	typename std::enable_if<suede_is_ref_ptr<T>::value, std::vector<T>>::type GetComponents();
 
 	template <class T>
-	typename std::enable_if<!suede_is_intrusive_ptr<T>::value, std::vector<intrusive_ptr<T>>>::type GetComponents();
+	typename std::enable_if<!suede_is_ref_ptr<T>::value, std::vector<ref_ptr<T>>>::type GetComponents();
 
 	/**
 	 * @param guid pass 0 to get all components.
@@ -96,27 +96,27 @@ private:
 };
 
 template <class T>
-inline typename std::enable_if<suede_is_intrusive_ptr<T>::value, T>::type IGameObject::AddComponent() {
+inline typename std::enable_if<suede_is_ref_ptr<T>::value, T>::type IGameObject::AddComponent() {
 	return suede_dynamic_cast<T>(AddComponent(T::element_type::GetComponentGUID()));
 }
 
 template <class T>
-inline typename std::enable_if<!suede_is_intrusive_ptr<T>::value, intrusive_ptr<T>>::type IGameObject::AddComponent() {
-	return suede_dynamic_cast<intrusive_ptr<T>>(AddComponent(new T()));
+inline typename std::enable_if<!suede_is_ref_ptr<T>::value, ref_ptr<T>>::type IGameObject::AddComponent() {
+	return suede_dynamic_cast<ref_ptr<T>>(AddComponent(new T()));
 }
 
 template <class T>
-inline typename std::enable_if<suede_is_intrusive_ptr<T>::value, T>::type IGameObject::GetComponent() {
+inline typename std::enable_if<suede_is_ref_ptr<T>::value, T>::type IGameObject::GetComponent() {
 	return suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()));
 }
 
 template <class T>
-inline typename std::enable_if<!suede_is_intrusive_ptr<T>::value, intrusive_ptr<T>>::type IGameObject::GetComponent() {
-	return suede_dynamic_cast<intrusive_ptr<T>>(GetComponent(T::GetComponentGUID()));
+inline typename std::enable_if<!suede_is_ref_ptr<T>::value, ref_ptr<T>>::type IGameObject::GetComponent() {
+	return suede_dynamic_cast<ref_ptr<T>>(GetComponent(T::GetComponentGUID()));
 }
 
 template <class T>
-typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type IGameObject::GetComponents() {
+typename std::enable_if<suede_is_ref_ptr<T>::value, std::vector<T>>::type IGameObject::GetComponents() {
 	std::vector<T> components;
 	for (Component component : GetComponents(T::element_type::GetComponentGUID())) {
 		components.push_back(suede_dynamic_cast<T>(component));
@@ -126,10 +126,10 @@ typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type 
 }
 
 template <class T>
-typename std::enable_if<!suede_is_intrusive_ptr<T>::value, std::vector<intrusive_ptr<T>>>::type IGameObject::GetComponents() {
-	std::vector<intrusive_ptr<T>> components;
+typename std::enable_if<!suede_is_ref_ptr<T>::value, std::vector<ref_ptr<T>>>::type IGameObject::GetComponents() {
+	std::vector<ref_ptr<T>> components;
 	for (Component component : GetComponents(T::GetComponentGUID())) {
-		components.push_back(suede_dynamic_cast<intrusive_ptr<T>>(component));
+		components.push_back(suede_dynamic_cast<ref_ptr<T>>(component));
 	}
 
 	return components;

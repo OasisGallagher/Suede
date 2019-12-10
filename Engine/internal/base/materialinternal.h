@@ -46,12 +46,12 @@ public:
 	void SetBool(const std::string& name, bool value);
 	void SetFloat(const std::string& name, float value);
 	void SetTexture(const std::string& name, Texture value);
-	void SetMatrix4(const std::string& name, const glm::mat4& value);
-	void SetMatrix4Array(const std::string& name, const glm::mat4* ptr, uint count);
-	void SetVector3(const std::string& name, const glm::vec3& value);
-	void SetVector3Array(const std::string& name, const glm::vec3* ptr, uint count);
+	void SetMatrix4(const std::string& name, const Matrix4& value);
+	void SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count);
+	void SetVector3(const std::string& name, const Vector3& value);
+	void SetVector3Array(const std::string& name, const Vector3* ptr, uint count);
 	void SetColor(const std::string& name, const Color& value);
-	void SetVector4(const std::string& name, const glm::vec4& value);
+	void SetVector4(const std::string& name, const Vector4& value);
 	void SetVariant(const std::string& name, const Variant& value);
 
 	int GetInt(const std::string& name);
@@ -60,10 +60,10 @@ public:
 	franged GetRangedFloat(const std::string& name);
 	float GetFloat(const std::string& name);
 	Texture GetTexture(const std::string& name);
-	glm::mat4 GetMatrix4(const std::string& name);
-	glm::vec3 GetVector3(const std::string& name);
+	Matrix4 GetMatrix4(const std::string& name);
+	Vector3 GetVector3(const std::string& name);
 	Color GetColor(const std::string& name);
-	glm::vec4 GetVector4(const std::string& name);
+	Vector4 GetVector4(const std::string& name);
 
 	const std::vector<const Property*>& GetExplicitProperties();
 

@@ -13,9 +13,9 @@ class Rect_Wrapper {
 			return Lua::newObject<Rect>(L);
 		}
 
-		if (Lua::checkArguments<glm::vec2, glm::vec2>(L, 1)) {
-			glm::vec2 size = Lua::get<glm::vec2>(L, 2);
-			glm::vec2 p = Lua::get<glm::vec2>(L, 1);
+		if (Lua::checkArguments<Vector2, Vector2>(L, 1)) {
+			Vector2 size = Lua::get<Vector2>(L, 2);
+			Vector2 p = Lua::get<Vector2>(L, 1);
 		
 			return Lua::newObject<Rect>(L, p, size);
 		}
@@ -58,25 +58,25 @@ class Rect_Wrapper {
 
 		return 1;
 	}
-	// glm::vec2 GetLeftTop()
+	// Vector2 GetLeftTop()
 	static int GetLeftTop(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		return Lua::push(L, _p->GetLeftTop());
 	}
 
-	// glm::vec2 GetLeftBottom()
+	// Vector2 GetLeftBottom()
 	static int GetLeftBottom(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		return Lua::push(L, _p->GetLeftBottom());
 	}
 
-	// glm::vec2 GetRightTop()
+	// Vector2 GetRightTop()
 	static int GetRightTop(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		return Lua::push(L, _p->GetRightTop());
 	}
 
-	// glm::vec2 GetRightBottom()
+	// Vector2 GetRightBottom()
 	static int GetRightBottom(lua_State* L) {
 		Rect* _p = Lua::callerPtr<Rect>(L);
 		return Lua::push(L, _p->GetRightBottom());

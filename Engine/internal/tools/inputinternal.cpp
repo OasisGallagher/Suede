@@ -30,4 +30,4 @@ bool Input::GetMouseButtonUp(int button) { return _suede_dinstance()->GetMouseBu
 bool Input::GetMouseButtonDown(int button) { return _suede_dinstance()->GetMouseButtonDown(button); }
 
 float Input::GetMouseWheelDelta() { return _suede_dinstance()->GetMouseWheelDelta(); }
-glm::ivec2 Input::GetMousePosition() { return _suede_dinstance()->GetMousePosition(); }
+Vector2 Input::GetMousePosition() { return _suede_dinstance()->GetMousePosition(); }

@@ -1,7 +1,7 @@
 #include <sstream>
 
 #include "debug/debug.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "grammarsymbol.h"
 #include "scanner/tokendefine.h"
 

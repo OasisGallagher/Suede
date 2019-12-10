@@ -4,7 +4,7 @@
 
 #include "physics.h"
 #include "main/prefs.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "main/qtviewer.h"
 
 Preferences::Preferences(QWidget* parent) : PopupWidget(parent) {

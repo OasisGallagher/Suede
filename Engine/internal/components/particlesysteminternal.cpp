@@ -2,7 +2,7 @@
 #include "world.h"
 #include "camera.h"
 #include "resources.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "tools/random.h"
 #include "builtinproperties.h"
 #include "particlesysteminternal.h"
@@ -15,10 +15,10 @@ void IParticleEmitter::SetStartDuration(float value) { _suede_dptr()->SetStartDu
 float IParticleEmitter::GetStartDuration() { return _suede_dptr()->GetStartDuration(); }
 void IParticleEmitter::SetStartSize(float value) { _suede_dptr()->SetStartSize(value); }
 float IParticleEmitter::GetStartSize() { return _suede_dptr()->GetStartSize(); }
-void IParticleEmitter::SetStartVelocity(const glm::vec3& value) { _suede_dptr()->SetStartVelocity(value); }
-glm::vec3 IParticleEmitter::GetStartVelocity() { return _suede_dptr()->GetStartVelocity(); }
-void IParticleEmitter::SetStartColor(const glm::vec4& value) { return _suede_dptr()->SetStartColor(value); }
-glm::vec4 IParticleEmitter::GetStartColor() { return _suede_dptr()->GetStartColor(); }
+void IParticleEmitter::SetStartVelocity(const Vector3& value) { _suede_dptr()->SetStartVelocity(value); }
+Vector3 IParticleEmitter::GetStartVelocity() { return _suede_dptr()->GetStartVelocity(); }
+void IParticleEmitter::SetStartColor(const Vector4& value) { return _suede_dptr()->SetStartColor(value); }
+Vector4 IParticleEmitter::GetStartColor() { return _suede_dptr()->GetStartColor(); }
 void IParticleEmitter::AddBurst(const ParticleBurst& value) { _suede_dptr()->AddBurst(value); }
 void IParticleEmitter::SetBurst(int i, const ParticleBurst& value) { _suede_dptr()->SetBurst(i, value); }
 ParticleBurst IParticleEmitter::GetBurst(int i) { return _suede_dptr()->GetBurst(i); }
@@ -30,10 +30,10 @@ void ISphereParticleEmitter::SetRadius(float value) { _suede_dptr()->SetRadius(v
 float ISphereParticleEmitter::GetRadius() { return _suede_dptr()->GetRadius(); }
 
 IParticleAnimator::IParticleAnimator() : IObject(MEMORY_NEW(ParticleAnimatorInternal)) {}
-void IParticleAnimator::SetForce(const glm::vec3& value) { _suede_dptr()->SetForce(value); }
-glm::vec3 IParticleAnimator::GetForce() { return _suede_dptr()->GetForce(); }
-void IParticleAnimator::SetRandomForce(const glm::vec3& value) { _suede_dptr()->SetRandomForce(value); }
-glm::vec3 IParticleAnimator::GetRandomForce() { return _suede_dptr()->GetRandomForce(); }
+void IParticleAnimator::SetForce(const Vector3& value) { _suede_dptr()->SetForce(value); }
+Vector3 IParticleAnimator::GetForce() { return _suede_dptr()->GetForce(); }
+void IParticleAnimator::SetRandomForce(const Vector3& value) { _suede_dptr()->SetRandomForce(value); }
+Vector3 IParticleAnimator::GetRandomForce() { return _suede_dptr()->GetRandomForce(); }
 void IParticleAnimator::SetGravityScale(float value) { _suede_dptr()->SetGravityScale(value); }
 float IParticleAnimator::GetGravityScale() { return _suede_dptr()->GetGravityScale(); }
 void IParticleAnimator::Update(Particle& particle) { _suede_dptr()->Update(particle); }
@@ -56,7 +56,7 @@ ParticleAnimator IParticleSystem::GetParticleAnimator() { return _suede_dptr()->
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(ParticleSystem, Component)
 
-static const glm::vec3 kGravitationalAcceleration(0, -9.8f, 0);
+static const Vector3 kGravitationalAcceleration(0, -9.8f, 0);
 
 #define MAX_PARTICLE_COUNT	1000
 
@@ -109,26 +109,26 @@ void ParticleSystemInternal::SortBuffers() {
 	SortParticlesByDepth(CameraUtility::GetMain()->GetTransform()->GetPosition());
 }
 
-void ParticleSystemInternal::SortParticlesByDepth(const glm::vec3& ref) {
+void ParticleSystemInternal::SortParticlesByDepth(const Vector3& ref) {
 	uint count = particles_.size();
 
 	// insertion sort particles.
 	for (int i = 1; i < count; ++i) {
-		glm::vec4 ck = colors_[i];
-		glm::vec4 pk = geometries_[i];
-		glm::vec3 vk(ref.xyz - pk.xyz);
-		float distSquared = glm::dot(vk, vk);
+		Vector4 ck = colors_[i];
+		Vector4 pk = geometries_[i];
+		Vector3 vk(ref.x - pk.x, ref.y - pk.y, ref.z - pk.z);
+		float distSquared = vk.GetSqrMagnitude();
 
 		int j = i - 1;
 		for (; j >= 0; --j) {
-			const glm::vec4& current = geometries_[j];
-			glm::vec3 vc(ref.xyz - current.xyz);
-			if (glm::dot(vc, vc) >= distSquared) {
+			const Vector4& current = geometries_[j];
+			Vector3 vc(ref.x - current.x, ref.y - current.y, ref.z - current.z);
+			if (vc.GetSqrMagnitude() >= distSquared) {
 				break;
 			}
 		}
 
-		std::vector<glm::vec4>::iterator pc = colors_.begin(), pp = geometries_.begin();
+		std::vector<Vector4>::iterator pc = colors_.begin(), pp = geometries_.begin();
 		std::copy_backward(pc + (j + 1), pc + i, pc + (i + 1));
 		std::copy_backward(pp + (j + 1), pp + i, pp + (i + 1));
 		colors_[j + 1] = ck;
@@ -149,8 +149,8 @@ void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint count = particles_.size();
 	if (count > 0) {
 		Mesh mesh = GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
-		mesh->UpdateInstanceBuffer(0, count * sizeof(glm::vec4), &colors_[0]);
-		mesh->UpdateInstanceBuffer(1, count * sizeof(glm::vec4), &geometries_[0]);
+		mesh->UpdateInstanceBuffer(0, count * sizeof(Vector4), &colors_[0]);
+		mesh->UpdateInstanceBuffer(1, count * sizeof(Vector4), &geometries_[0]);
 	}
 }
 
@@ -171,37 +171,37 @@ void ParticleSystemInternal::UpdateAttributes() {
 
 void ParticleSystemInternal::UpdateBuffers() {
 	uint index = 0;
-	uint count = Math::NextPowerOfTwo(particles_.size());
+	uint count = Mathf::NextPowerOfTwo(particles_.size());
 
 	if (colors_.size() < count) { colors_.resize(count); }
 	if (geometries_.size() < count) { geometries_.resize(count); }
 
 	float maxSize = 0;
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
 		Particle* particle = *ite;
 
 		colors_[index] = particle->color;
-		geometries_[index++] = glm::vec4(particle->position, particle->size);
+		geometries_[index++] = Vector4(particle->position.x, particle->position.y, particle->position.z, particle->size);
 
-		min = glm::min(min, particle->position);
-		max = glm::max(max, particle->position);
-		maxSize = glm::max(maxSize, particle->size);
+		min = Vector3::Min(min, particle->position);
+		max = Vector3::Max(max, particle->position);
+		maxSize = Mathf::Max(maxSize, particle->size);
 	}
 
 	bounds_.SetMinMax(min, max);
-	bounds_.size += maxSize / 2;
+	bounds_.size += Vector3(maxSize / 2);
 }
 
 void ParticleSystemInternal::UpdateEmitter() {
-	uint maxCount = Math::Max(0, int(GetMaxParticles() - GetParticlesCount()));
+	uint maxCount = Mathf::Max(0, int(GetMaxParticles() - GetParticlesCount()));
 	if (maxCount == 0) {
 		return;
 	}
 
 	uint count = 0;
 	emitter_->Emit(nullptr, count);
-	count = Math::Min(count, maxCount);
+	count = Mathf::Min(count, maxCount);
 
 	if (count != 0) {
 		EmitParticles(count);
@@ -209,7 +209,7 @@ void ParticleSystemInternal::UpdateEmitter() {
 }
 
 void ParticleSystemInternal::EmitParticles(uint count) {
-	uint size = Math::NextPowerOfTwo(count);
+	uint size = Mathf::NextPowerOfTwo(count);
 	if (size > buffer_.size()) {
 		buffer_.resize(size);
 	}

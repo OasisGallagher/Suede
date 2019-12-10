@@ -221,6 +221,10 @@ void WorldInternal::FireEvent(WorldEventBasePtr e) {
 }
 
 void WorldInternal::FireEventImmediate(WorldEventBasePtr e) {
+	if (!ZThread::Thread::isMainThread()) {
+		return FireEvent(e);
+	}
+
 	for (WorldEventListener* listener : listeners_) {
 		listener->OnWorldEvent(e);
 	}
@@ -303,8 +307,6 @@ void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
 }
 
 void WorldInternal::AddGameObject(GameObject go) {
-	go->AddComponent<Transform>();
-
 	ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
 	gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 struct SUEDE_API Color {
 	Color();
@@ -54,13 +54,13 @@ inline float Color::GetLuminance() const {
 }
 
 inline bool Color::operator!= (const Color other) const {
-	return !Math::Approximately(r, other.r) || !Math::Approximately(g, other.g)
-		|| !Math::Approximately(b, other.b) || !Math::Approximately(a, other.a);
+	return !Mathf::Approximately(r, other.r) || !Mathf::Approximately(g, other.g)
+		|| !Mathf::Approximately(b, other.b) || !Mathf::Approximately(a, other.a);
 }
 
 inline bool Color::operator== (const Color other) const {
-	return Math::Approximately(r, other.r) && Math::Approximately(g, other.g)
-		&& Math::Approximately(b, other.b) && Math::Approximately(a, other.a);
+	return Mathf::Approximately(r, other.r) && Mathf::Approximately(g, other.g)
+		&& Mathf::Approximately(b, other.b) && Mathf::Approximately(a, other.a);
 }
 
 inline Color Color::operator* (float amount) const {

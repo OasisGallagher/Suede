@@ -1,5 +1,5 @@
 #include "screen.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "memory/memory.h"
 #include "../api/glutils.h"
 #include "builtinproperties.h"

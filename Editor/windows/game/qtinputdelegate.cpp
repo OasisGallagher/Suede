@@ -1,5 +1,5 @@
 #include "qtinputdelegate.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 static QHash<int, KeyCode> keyMap = {
 	{ Qt::Key_A, KeyCode::A },
@@ -100,9 +100,9 @@ float QtInputDelegate::GetMouseWheelDelta() {
 	return wheelDelta_;
 }
 
-glm::ivec2 QtInputDelegate::GetMousePosition() {
+Vector2 QtInputDelegate::GetMousePosition() {
 	QPoint p = view_->mapFromGlobal(QCursor::pos());
-	return glm::ivec2(p.x(), view_->height() - p.y());
+	return Vector2(p.x(), view_->height() - p.y());
 }
 
 bool QtInputDelegate::eventFilter(QObject * watched, QEvent * event) {
@@ -142,9 +142,9 @@ void QtInputDelegate::onMouseWheel(QWheelEvent* e) {
 
 void QtInputDelegate::onMousePress(QMouseEvent* e) {
 	bool pressed[] = { 
-		e->buttons() & Qt::LeftButton,
-		e->buttons() & Qt::MiddleButton,
-		e->buttons() & Qt::RightButton
+		!!(e->buttons() & Qt::LeftButton),
+		!!(e->buttons() & Qt::MiddleButton),
+		!!(e->buttons() & Qt::RightButton)
 	};
 
 	for (int i = 0; i < decltype(mouseStates_)::Size; ++i) {

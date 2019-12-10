@@ -1,6 +1,5 @@
 #pragma once
 #include <random>
-#include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
 
 class Random {
 public:
@@ -17,7 +16,7 @@ public:
 	/**
 	 * @return a random point inside a circle with radius `radius`.
 	 */
-	static glm::vec3 InsideSphere(float radius);
+	static Vector3 InsideSphere(float radius);
 
 private:
 	Random();
@@ -35,12 +34,12 @@ inline float Random::FloatRange(float min, float max) {
 	return distribution(engine);
 }
 
-inline glm::vec3 Random::InsideSphere(float radius) {
+inline Vector3 Random::InsideSphere(float radius) {
 	// https://stackoverflow.com/questions/5408276/sampling-uniformly-distributed-random-points-inside-a-spherical-volume
 	float phi = FloatRange(0.f, 2 * 3.1415926f);
 	float theta = acosf(FloatRange(-1.f, 1.f));
 	float u = FloatRange(0.f, 1.f);
 
 	radius *= powf(u, 1 / 3.f);
-	return radius * glm::vec3(sinf(theta) * cosf(phi), sinf(theta) * sinf(phi), cosf(theta));
+	return radius * Vector3(sinf(theta) * cosf(phi), sinf(theta) * sinf(phi), cosf(theta));
 }

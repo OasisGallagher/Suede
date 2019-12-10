@@ -4,6 +4,8 @@ function SuedeGlobal.Awake()
 end
 
 function SuedeGlobal.Start()
+	local go = Suede.NewGameObject();
+
 	Suede.Graphics.SetAmbientOcclusionEnabled(false);
 
 	Suede.Environment.SetFogColor(Suede.NewColor(0.5, 0.5, 0.5));

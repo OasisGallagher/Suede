@@ -1,7 +1,7 @@
 #include <FreeImage.h>
 
 #include "image.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 
 static ColorStreamFormat BppToColorStreamFormat(uint bpp) {
@@ -97,7 +97,7 @@ bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const TexelMap
 }
 
 void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BPPType bpp, const std::vector<uchar>& data) {
-	uint srcStride = Math::RoundUpToPowerOfTwo(width * bpp / 8, alignment);
+	uint srcStride = Mathf::RoundUpToPowerOfTwo(width * bpp / 8, alignment);
 	uint destStride = FreeImage_GetPitch(dib);
 	const uchar* src = &data[0];
 	uchar* dest = FreeImage_GetBits(dib);
@@ -265,7 +265,7 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	ptr += space * width * 2;
 
 	for (int i = 0; i < texelMaps.size();) {
-		uint count = Math::Min((uint)texelMaps.size() - i, columnCount);
+		uint count = Mathf::Min((uint)texelMaps.size() - i, columnCount);
 		uint rows = 0, offset = space * 2;
 
 		for (int j = i; j < i + count; ++j) {
@@ -276,10 +276,10 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 			float left = offset / ((float)width * 2);
 			float right = left + texelMap->width / (float)width;
 			// order: left, bottom, right, top.
-			atlas.coords[texelMap->id] = glm::vec4(left, bottom / (float)height, right, top);
+			atlas.coords[texelMap->id] = Vector4(left, bottom / (float)height, right, top);
 
 			offset += (texelMap->width + space) * 2;
-			rows = Math::Max(rows, texelMap->height);
+			rows = Mathf::Max(rows, texelMap->height);
 		}
 
 		ptr += (rows + space) * width * 2;
@@ -298,20 +298,20 @@ uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<TexelMap
 	uint maxWidth = 0, maxHeight = 0;
 
 	for (int i = 0; i < texelMaps.size();) {
-		uint count = Math::Min((uint)texelMaps.size() - i, columnCount);
+		uint count = Mathf::Min((uint)texelMaps.size() - i, columnCount);
 		uint w = 0, h = 0;
 		for (int j = i; j < i + count; ++j) {
 			w += texelMaps[j]->width + space;
-			h = Math::Max(h, texelMaps[j]->height);
+			h = Mathf::Max(h, texelMaps[j]->height);
 		}
 
-		maxWidth = Math::Max(maxWidth, w);
+		maxWidth = Mathf::Max(maxWidth, w);
 		maxHeight += h + space;
 		i += count;
 	}
 
-	width = Math::NextPowerOfTwo(maxWidth + space);
-	height = Math::NextPowerOfTwo(maxHeight + space);
+	width = Mathf::NextPowerOfTwo(maxWidth + space);
+	height = Mathf::NextPowerOfTwo(maxHeight + space);
 
 	return columnCount;
 }

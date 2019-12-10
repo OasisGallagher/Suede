@@ -1,12 +1,14 @@
 #include <fstream>
-#include <filesystem>
+
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
 
 #include "filesystem.h"
 #include "../debug/debug.h"
 #include "../tools/string.h"
 #include "../memory/memory.h"
 
-namespace fs = std::experimental::filesystem::v1;
+namespace fs = std::experimental::filesystem;
 
 static char intBuffer[sizeof(int)];
 static char strBuffer[FileSystem::kMaxStringLength];

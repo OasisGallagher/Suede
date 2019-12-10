@@ -87,7 +87,7 @@ class Input_Wrapper {
 		return Lua::push(L, Input::GetMouseWheelDelta());
 	}
 
-	// static glm::ivec2 GetMousePosition()
+	// static Vector2 GetMousePosition()
 	static int GetMousePosition(lua_State* L) {
 		return Lua::push(L, Input::GetMousePosition());
 	}

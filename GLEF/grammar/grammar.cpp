@@ -3,7 +3,7 @@
 
 #include "action.h"
 #include "grammar.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 #include "scanner/scanner.h"
 
@@ -119,8 +119,8 @@ Grammar* GrammarContainer::FindGrammar(const GrammarSymbolPtr& lhs, int* index) 
 }
 
 const Condinate* GrammarContainer::GetTargetCondinate(int cpos, Grammar** grammar) const {
-	int gi = Math::Highword(cpos);
-	int ci = Math::Loword(cpos);
+	int gi = Mathf::Highword(cpos);
+	int ci = Mathf::Loword(cpos);
 	Grammar* g = at(gi);
 
 	if (grammar != nullptr) {

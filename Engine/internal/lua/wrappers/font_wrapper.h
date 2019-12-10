@@ -39,11 +39,11 @@ public:
 
 class Font_Wrapper {
 	static int NewFont(lua_State* L) {
-		return Lua::fromIntrusive(L, new IFont());
+		return Lua::fromRef(L, make_ref<IFont>());
 	}
 
 	static int ToString(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 
 		lua_pushstring(L, String::Format("Font@0x%p", _p.get()).c_str());
 		return 1;
@@ -51,7 +51,7 @@ class Font_Wrapper {
 
 	// bool Load(const std::string& path, int size)
 	static int Load(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		int size = Lua::get<int>(L, 3);
 		std::string path = Lua::get<std::string>(L, 2);
 		
@@ -60,7 +60,7 @@ class Font_Wrapper {
 
 	// bool Require(const std::wstring& str)
 	static int Require(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		std::wstring str = Lua::get<std::wstring>(L, 2);
 		
 		return Lua::push(L, _p->Require(str));
@@ -68,31 +68,31 @@ class Font_Wrapper {
 
 	// uint GetFontSize()
 	static int GetFontSize(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		return Lua::push(L, _p->GetFontSize());
 	}
 
 	// Texture2D GetTexture()
 	static int GetTexture(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		return Lua::push(L, _p->GetTexture());
 	}
 
 	// std::string GetFamilyName()
 	static int GetFamilyName(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		return Lua::push(L, _p->GetFamilyName());
 	}
 
 	// std::string GetStyleName()
 	static int GetStyleName(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		return Lua::push(L, _p->GetStyleName());
 	}
 
 	// Material GetMaterial()
 	static int GetMaterial(lua_State* L) {
-		Font& _p = *Lua::callerIntrusivePtr<Font>(L);
+		Font& _p = *Lua::callerRefPtr<Font>(L);
 		return Lua::push(L, _p->GetMaterial());
 	}
 
@@ -105,7 +105,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewFont", NewFont });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteIntrusivePtr<Font> },
+			{ "__gc", Lua::deleteRefPtr<Font> },
 			{ "__tostring", ToString }, 
 			{ "Load", Load },
 			{ "Require", Require },

@@ -3,7 +3,7 @@
 #include <QMouseEvent>
 #include <QDoubleValidator>
 
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 FloatField::FloatField(QWidget* parent, uint precision)
 	: QLineEdit(parent)
@@ -15,8 +15,8 @@ FloatField::FloatField(QWidget* parent, uint precision)
 }
 
 void FloatField::setValue(float value) {
-	if (!Math::Approximately(value_, value)) {
-		value_ = Math::Clamp(value, min_, max_);
+	if (!Mathf::Approximately(value_, value)) {
+		value_ = Mathf::Clamp(value, min_, max_);
 
 		blockSignals(true);
 		updateText();
@@ -25,7 +25,7 @@ void FloatField::setValue(float value) {
 }
 
 void FloatField::setPrecision(uint value) {
-	if (!Math::Approximately(precision_, value_)) {
+	if (!Mathf::Approximately(precision_, value_)) {
 		precision_ = value;
 		updateText();
 	}
@@ -75,7 +75,7 @@ void FloatField::onEditingFinished() {
 	bool ok = false;
 	float f = text().toFloat(&ok);
 	if (ok) {
-		value_ = Math::Clamp(f, min_, max_);
+		value_ = Mathf::Clamp(f, min_, max_);
 	}
 
 	updateText();

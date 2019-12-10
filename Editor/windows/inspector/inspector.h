@@ -1,8 +1,6 @@
 #pragma once
 #include <QDockWidget>
 
-#include <glm/glm.hpp>
-
 #include "light.h"
 #include "camera.h"
 #include "texture.h"

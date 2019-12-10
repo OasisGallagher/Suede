@@ -4,7 +4,7 @@
 #include <freetype/ftglyph.h>
 
 #include "resources.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "fontinternal.h"
 #include "os/filesystem.h"
 #include "builtinproperties.h"
@@ -147,7 +147,7 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 
 	std::vector<uchar>& data = answer->data;
 	uint size = bitmap.width * bitmap.rows;
-	data.resize(Math::Max(size, 1u));
+	data.resize(Mathf::Max(size, 1u));
 	if (size != 0) {
 		std::copy(bitmap.buffer, bitmap.buffer + size, &data[0]);
 	}
@@ -155,8 +155,8 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 		data[0] = 0;
 	}
 
-	answer->width = Math::Max(1u, bitmap.width);
-	answer->height = Math::Max(1u, bitmap.rows);
+	answer->width = Mathf::Max(1u, bitmap.width);
+	answer->height = Mathf::Max(1u, bitmap.rows);
 	answer->textureFormat = TextureFormat::Rgba;
 	answer->colorStreamFormat = ColorStreamFormat::LuminanceAlpha;
 	answer->alignment = 4;

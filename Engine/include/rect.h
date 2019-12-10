@@ -1,11 +1,13 @@
 #pragma once
-#include <glm/glm.hpp>
+
+#include "math/vector2.h"
+#include "math/vector4.h"
 #include "enginedefines.h"
 
 class SUEDE_API Rect {
 public:
 	Rect() {}
-	Rect(const glm::vec2& p, const glm::vec2& size);
+	Rect(const Vector2& p, const Vector2& size);
 	Rect(float x, float y, float width, float height);
 
 public:
@@ -13,10 +15,10 @@ public:
 	bool operator != (const Rect& other) const;
 
 public:
-	glm::vec2 GetLeftTop() const;
-	glm::vec2 GetLeftBottom() const;
-	glm::vec2 GetRightTop() const;
-	glm::vec2 GetRightBottom() const;
+	Vector2 GetLeftTop() const;
+	Vector2 GetLeftBottom() const;
+	Vector2 GetRightTop() const;
+	Vector2 GetRightBottom() const;
 
 public:
 	void SetWidth(float value);
@@ -35,5 +37,5 @@ public:
 	static Rect NormalizedToRect(const Rect& rect, const Rect& normalized);
 
 private:
-	glm::vec4 data_;
+	Vector4 data_;
 };

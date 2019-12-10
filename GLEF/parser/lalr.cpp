@@ -4,7 +4,7 @@
 #include "lr0.h"
 #include "lalr.h"
 #include "lrtable.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "glefdefines.h"
@@ -221,7 +221,7 @@ void LALR::AddLR1Items(LR1ItemsetPtr &answer, const GrammarSymbolPtr& lhs, const
 				int dpos = 0;
 
 				for (; ite != tc->symbols.end(); ++ite, ++dpos) {
-					LR1ItemPtr newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
+					LR1ItemPtr newItem = FindItem(Mathf::MakeDword(condinateIndex, gi), dpos, itemset);
 					newItem->GetForwards().insert(*fsi);
 					answer->insert(newItem);
 
@@ -231,7 +231,7 @@ void LALR::AddLR1Items(LR1ItemsetPtr &answer, const GrammarSymbolPtr& lhs, const
 				}
 
 				if (ite == tc->symbols.end()) {
-					LR1ItemPtr newItem = FindItem(Math::MakeDword(condinateIndex, gi), dpos, itemset);
+					LR1ItemPtr newItem = FindItem(Mathf::MakeDword(condinateIndex, gi), dpos, itemset);
 					newItem->GetForwards().insert(*fsi);
 					answer->insert(newItem);
 				}

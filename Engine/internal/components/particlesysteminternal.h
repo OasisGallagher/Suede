@@ -19,13 +19,13 @@ public:
 	virtual void SetStartSize(float value) { startSize_ = value; }
 	virtual float GetStartSize() { return startSize_; }
 
-	virtual void SetStartVelocity(const glm::vec3& value) { startVelocity_ = value; }
-	virtual glm::vec3 GetStartVelocity() { return startVelocity_; }
+	virtual void SetStartVelocity(const Vector3& value) { startVelocity_ = value; }
+	virtual Vector3 GetStartVelocity() { return startVelocity_; }
 
 	virtual void Emit(Particle** particles, uint& count);
 
-	virtual void SetStartColor(const glm::vec4& value) { startColor_ = value; }
-	virtual glm::vec4 GetStartColor() { return startColor_; }
+	virtual void SetStartColor(const Vector4& value) { startColor_ = value; }
+	virtual Vector4 GetStartColor() { return startColor_; }
 
 	virtual void AddBurst(const ParticleBurst& value) { bursts_.push_back(value); }
 	virtual void SetBurst(int i, const ParticleBurst& value) { bursts_[i] = value; }
@@ -34,7 +34,7 @@ public:
 	virtual int GetBurstCount() { return bursts_.size(); }
 
 protected:
-	virtual glm::vec3 GetStartPosition() { return glm::vec3(0); }
+	virtual Vector3 GetStartPosition() { return Vector3(0); }
 
 private:
 	uint CalculateNextEmissionParticleCount();
@@ -47,8 +47,8 @@ private:
 	float startLife_;
 	float startSize_;
 	
-	glm::vec4 startColor_;
-	glm::vec3 startVelocity_;
+	Vector4 startColor_;
+	Vector3 startVelocity_;
 	std::vector<ParticleBurst> bursts_;
 };
 
@@ -60,7 +60,7 @@ public:
 	virtual void SetRadius(float value) { radius_ = value; }
 	virtual float GetRadius() { return radius_; }
 
-	virtual glm::vec3 GetStartPosition() { return Random::InsideSphere(radius_); }
+	virtual Vector3 GetStartPosition() { return Random::InsideSphere(radius_); }
 
 private:
 	float radius_;
@@ -71,11 +71,11 @@ public:
 	ParticleAnimatorInternal() : ObjectInternal(ObjectType::ParticleAnimator), gravityScale_(1) {}
 
 public:
-	virtual void SetForce(const glm::vec3& value) { force_ = value; }
-	virtual glm::vec3 GetForce() { return force_; }
+	virtual void SetForce(const Vector3& value) { force_ = value; }
+	virtual Vector3 GetForce() { return force_; }
 
-	virtual void SetRandomForce(const glm::vec3& value) { randomForce_ = value; }
-	virtual glm::vec3 GetRandomForce() { return randomForce_; }
+	virtual void SetRandomForce(const Vector3& value) { randomForce_ = value; }
+	virtual Vector3 GetRandomForce() { return randomForce_; }
 
 	virtual void SetGravityScale(float value) { gravityScale_ = value; }
 	virtual float GetGravityScale() { return gravityScale_; }
@@ -85,8 +85,8 @@ public:
 private:
 	float gravityScale_;
 
-	glm::vec3 force_;
-	glm::vec3 randomForce_;
+	Vector3 force_;
+	Vector3 randomForce_;
 };
 
 class ParticleSystemInternal : public ComponentInternal {
@@ -134,7 +134,7 @@ private:
 
 	void SortBuffers();
 
-	void SortParticlesByDepth(const glm::vec3& ref);
+	void SortParticlesByDepth(const Vector3& ref);
 
 	void UpdateParticles();
 
@@ -158,8 +158,8 @@ private:
 	ParticleEmitter emitter_;
 	ParticleAnimator particleAnimator_;
 
-	std::vector<glm::vec4> colors_;
-	std::vector<glm::vec4> geometries_;
+	std::vector<Vector4> colors_;
+	std::vector<Vector4> geometries_;
 	
 	free_list<Particle> particles_;
 	std::vector<Particle*> buffer_;

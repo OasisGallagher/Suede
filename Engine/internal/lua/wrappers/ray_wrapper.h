@@ -13,9 +13,9 @@ class Ray_Wrapper {
 			return Lua::newObject<Ray>(L);
 		}
 
-		if (Lua::checkArguments<glm::vec3, glm::vec3>(L, 1)) {
-			glm::vec3 direction = Lua::get<glm::vec3>(L, 2);
-			glm::vec3 origin = Lua::get<glm::vec3>(L, 1);
+		if (Lua::checkArguments<Vector3, Vector3>(L, 1)) {
+			Vector3 direction = Lua::get<Vector3>(L, 2);
+			Vector3 origin = Lua::get<Vector3>(L, 1);
 		
 			return Lua::newObject<Ray>(L, origin, direction);
 		}
@@ -31,7 +31,7 @@ class Ray_Wrapper {
 		return 1;
 	}
 
-	// glm::vec3 GetPoint(float distance)
+	// Vector3 GetPoint(float distance)
 	static int GetPoint(lua_State* L) {
 		Ray* _p = Lua::callerPtr<Ray>(L);
 		float distance = Lua::get<float>(L, 2);
@@ -39,19 +39,19 @@ class Ray_Wrapper {
 		return Lua::push(L, _p->GetPoint(distance));
 	}
 
-	// void SetOrigin(const glm::vec3& value)
+	// void SetOrigin(const Vector3& value)
 	static int SetOrigin(lua_State* L) {
 		Ray* _p = Lua::callerPtr<Ray>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetOrigin(value);
 		return 0;
 	}
 
-	// void SetDirection(const glm::vec3& value) { direction_ = glm::normalize(value)
+	// void SetDirection(const Vector3& value) { direction_ = value.GetNormalized()
 	static int SetDirection(lua_State* L) {
 		Ray* _p = Lua::callerPtr<Ray>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetDirection(value);
 		return 0;

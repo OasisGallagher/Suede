@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 
-#include <glm/glm.hpp>
-
 #include "texture.h"
 #include "../api/gl.h"
 
@@ -64,7 +62,7 @@ public:
 
 public:
 	void SetViewport(int x, int y, uint width, uint height);
-	const glm::ivec4& GetViewport() const { return viewport_; }
+	const IVector4& GetViewport() const { return viewport_; }
 
 	void SetClearColor(const Color& value) { clearColor_ = value; }
 	Color GetClearColor() const { return clearColor_; }
@@ -94,7 +92,7 @@ protected:
 
 protected:
 	uint fbo_;
-	glm::ivec4 viewport_;
+	IVector4 viewport_;
 
 	float clearDepth_;
 	int clearStencil_;
@@ -105,18 +103,13 @@ private:
 	GLenum bindTarget_;
 };
 
-class Framebuffer0 : public FramebufferBase {
-public:
-	static Framebuffer0* Get();
-
-private:
-	Framebuffer0() {}
-};
-
 class Framebuffer : public FramebufferBase {
 public:
 	Framebuffer();
 	~Framebuffer();
+
+public:
+	static FramebufferBase* GetDefault();
 
 public:
 	void BindReadAttachment(FramebufferAttachment attachment);

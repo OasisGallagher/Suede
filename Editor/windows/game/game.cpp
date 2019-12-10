@@ -1,6 +1,5 @@
 #include <QWidget>
 #include <QToolBar>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "canvas.h"
 #include "ui_editor.h"
@@ -30,7 +29,7 @@
 #include "particlesystem.h"
 #include "builtinproperties.h"
 
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
@@ -45,9 +44,9 @@
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
@@ -103,8 +102,9 @@ void Game::awake() {
 void Game::tick() {
 	if (Input::GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
-		glm::vec3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
-		glm::vec3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(glm::vec3(Input::GetMousePosition(), 1));
+		Vector3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
+		Vector2 mousePosition = Input::GetMousePosition();
+		Vector3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
 
 		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
 			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject>{ hitInfo.gameObject });
@@ -117,9 +117,9 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 	root->SetName(path);
 
 	if (path == manFbxPath) {
-		root->GetTransform()->SetPosition(glm::vec3(0, 0, -70));
-		root->GetTransform()->SetEulerAngles(glm::vec3(270, 180, 180));
-		root->GetTransform()->SetScale(glm::vec3(0.2f));
+		root->GetTransform()->SetPosition(Vector3(0, 0, -70));
+		root->GetTransform()->SetEulerAngles(Vector3(270, 180, 180));
+		root->GetTransform()->SetScale(Vector3(0.2f));
 		//go->SetParent(camera);
 
 		Animation animation = root->GetComponent<Animation>();
@@ -129,10 +129,10 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		}
 	}
 	else if (path == roomFbxPath) {
-		root->GetTransform()->SetPosition(glm::vec3(0, 25, -65));
-		root->GetTransform()->SetEulerAngles(glm::vec3(30, 0, 0));
+		root->GetTransform()->SetPosition(Vector3(0, 25, -65));
+		root->GetTransform()->SetEulerAngles(Vector3(30, 0, 0));
 		if (path.find("house") != std::string::npos) {
-			root->GetTransform()->SetScale(glm::vec3(0.01f));
+			root->GetTransform()->SetScale(Vector3(0.01f));
 		}
 		else if (path.find("suzanne") != std::string::npos) {
 			Texture2D diffuse = new ITexture2D();
@@ -142,12 +142,12 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 			Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 			material->SetTexture(BuiltinProperties::MainTexture, diffuse);
 
-			root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
-			root->GetTransform()->SetEulerAngles(glm::vec3(0));
+			root->GetTransform()->SetPosition(Vector3(0, 25, -5));
+			root->GetTransform()->SetEulerAngles(Vector3(0));
 		}
 	}
 	else if (path == bumpedFbxPath) {
-		root->GetTransform()->SetPosition(glm::vec3(0, 25, -15));
+		root->GetTransform()->SetPosition(Vector3(0, 25, -15));
 
 		GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
 		Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
@@ -162,8 +162,8 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		material->SetTexture(BuiltinProperties::BumpTexture, normal);
 	}
 	else if (path == normalVisualizerFbxPath) {
-		root->GetTransform()->SetPosition(glm::vec3(0, 25, -5));
-		root->GetTransform()->SetEulerAngles(glm::vec3(0));
+		root->GetTransform()->SetPosition(Vector3(0, 25, -5));
+		root->GetTransform()->SetEulerAngles(Vector3(0));
 
 		GameObject target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
 
@@ -216,14 +216,14 @@ void Game::onShadingModeChanged(const QString& str) {
 }
 
 void Game::onFocusGameObjectBounds(GameObject go) {
-	glm::vec3 center = go->GetBounds().center;
+	Vector3 center = go->GetBounds().center;
 	Transform camera = CameraUtility::GetMain()->GetTransform();
 
 	float distance = calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
-	camera->SetPosition(center + glm::vec3(0, 0, -1) * distance);
+	camera->SetPosition(center + Vector3(0, 0, -1) * distance);
 
-	glm::quat q(glm::lookAt(camera->GetPosition(), center, glm::vec3(0, 1, 0)));
-	camera->SetRotation(glm::conjugate(q));
+	Quaternion q(Matrix4::LookAt(camera->GetPosition(), center, Vector3(0, 1, 0)));
+	camera->SetRotation(q.GetConjugated());
 }
 
 void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
@@ -234,7 +234,7 @@ float Game::calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bound
 	float f = tanf(camera->GetFieldOfView() / 2.f);
 	float dy = 2 * bounds.size.y / f;
 	float dx = 2 * bounds.size.x / (f * camera->GetAspect());
-	return Math::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
+	return Mathf::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
 }
 
 void Game::updateStatContent() {
@@ -276,10 +276,10 @@ void Game::createScene() {
 	projector->SetPerspective(false);
 	projector->SetOrthographicSize(5);
 #else
-	projector->SetFieldOfView(Math::Radians(9.f));
+	projector->SetFieldOfView(Mathf::Radians(9.f));
 #endif
 	projector->GetTransform()->SetParent(World::GetRootTransform());
-	projector->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	projector->GetTransform()->SetPosition(Vector3(0, 25, 0));
 
 	Texture2D texture = new ITexture2D();
 	texture->Load("brick_diffuse.jpg");
@@ -293,7 +293,7 @@ void Game::createScene() {
 #endif
 
 	camera->SetFarClipPlane(10000.f);
-	camera->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	camera->GetTransform()->SetPosition(Vector3(0, 25, 0));
 	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
 
 	Graphics::SetAmbientOcclusionEnabled(true);
@@ -304,17 +304,17 @@ void Game::createScene() {
 	
 	//Camera camera2 = NewCamera();
 	//camera2->SetFarClipPlane(10000.f);
-	//camera2->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	//camera2->GetTransform()->SetPosition(Vector3(0, 25, 0));
 	//camera2->SetDepthTextureMode(DepthTextureModeDepth);
 
 	//camera2->SetRect(Rect(0.5f, 0.5f, 0.5f, 0.5f));
 	////camera2->SetTargetTexture(targetTexture_);
 
-	//camera2->SetClearColor(glm::vec3(0.1f, 0, 0.1f));
+	//camera2->SetClearColor(Vector3(0.1f, 0, 0.1f));
 	//camera2->SetDepth(-1);
 	//camera2->SetName("MultiCameraTest");
 
-	light->GetTransform()->SetPosition(glm::vec3(0, 25, 0));
+	light->GetTransform()->SetPosition(Vector3(0, 25, 0));
 
 #ifdef IMAGE_EFFECTS
 	cameraGameObject->AddComponent<GaussianBlur>();
@@ -358,16 +358,16 @@ void Game::createScene() {
 #ifdef PARTICLE_SYSTEM
 	GameObject go = NewGameObject();
 	ParticleSystem particleSystem = go->AddComponent<ParticleSystem>();
-	go->GetTransform()->SetPosition(glm::vec3(-30, 20, -50));
+	go->GetTransform()->SetPosition(Vector3(-30, 20, -50));
 	go->GetTransform()->SetParent(World::GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
 	emitter->SetRate(200);
-	emitter->SetStartColor(glm::vec4(1, 1, 1, 0.5f));
+	emitter->SetStartColor(Vector4(1, 1, 1, 0.5f));
 	emitter->SetStartDuration(2);
 	emitter->SetStartSize(1);
-	emitter->SetStartVelocity(glm::vec3(0, 1, 0));
+	emitter->SetStartVelocity(Vector3(0, 1, 0));
 	ParticleBurst burst = { 4, 3, 20 };
 	particleSystem->SetEmitter(emitter);
 
@@ -386,12 +386,12 @@ void Game::createScene() {
 
 	GameObject redText = new IGameObject();
 	redText->SetName("RedText");
-	redText->GetTransform()->SetPosition(glm::vec3(-10, 20, -20));
+	redText->GetTransform()->SetPosition(Vector3(-10, 20, -20));
 	redText->GetTransform()->SetParent(World::GetRootTransform());
 
 	GameObject blueText = new IGameObject();
 	blueText->SetName("BlueText");
-	blueText->GetTransform()->SetPosition(glm::vec3(-10, 30, -20));
+	blueText->GetTransform()->SetPosition(Vector3(-10, 30, -20));
 	blueText->GetTransform()->SetParent(World::GetRootTransform());
 
 	TextMesh redMesh = redText->AddComponent<TextMesh>();
@@ -429,8 +429,8 @@ void Game::createScene() {
 #endif
 
 #ifdef BEAR
-	GameObject bear = World::Import("teddy_bear.fbx");
-	bear->GetTransform()->SetPosition(glm::vec3(0, -20, -150));
+	GameObject bear = World::Import("teddy_bear.fbx", this);
+	bear->GetTransform()->SetPosition(Vector3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
 	Shader shader = Resources::FindShader("xray");

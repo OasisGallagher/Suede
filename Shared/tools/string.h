@@ -83,12 +83,14 @@ std::string String::Concat(Iterator first, Iterator last, const ToStringF& tostr
 	return oss.str();
 }
 
-#include "../3rdparty/glm-0.9.7.1/include/glm/glm.hpp"
+#include "../math/vector2.h"
+#include "../math/vector3.h"
+#include "../math/vector4.h"
 
 namespace std {
 	// for completeness.
 	inline std::string to_string(const std::string& value) { return value; }
-	inline std::string to_string(const glm::vec2& value) { return String::Format("(%.2f, %.2f)", value.x, value.y); }
-	inline std::string to_string(const glm::vec3& value) { return String::Format("(%.2f, %.2f, %.2f)", value.x, value.y, value.z); }
-	inline std::string to_string(const glm::vec4& value) { return String::Format("(%.2f, %.2f, %.2f, %.2f)", value.x, value.y, value.z, value.w); }
+	inline std::string to_string(const Vector2& value) { return String::Format("(%.2f, %.2f)", value.x, value.y); }
+	inline std::string to_string(const Vector3& value) { return String::Format("(%.2f, %.2f, %.2f)", value.x, value.y, value.z); }
+	inline std::string to_string(const Vector4& value) { return String::Format("(%.2f, %.2f, %.2f, %.2f)", value.x, value.y, value.z, value.w); }
 }	// namespace std

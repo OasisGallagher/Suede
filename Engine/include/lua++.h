@@ -3,12 +3,14 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <cassert>
 #include <type_traits>
 
-#include <glm/glm.hpp>
-
 #include "tools/enum.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
+#include "math/vector2.h"
+#include "math/vector3.h"
+#include "math/vector4.h"
 
 #include "debug/debug.h"
 #include "tools/typeid.h"
@@ -103,9 +105,9 @@ inline T* _userdataPtr(lua_State* L, int index, const char* metatable) {
 	return *p;
 }
 
-// get caller as intrusive_ptr.
+// get caller as ref_ptr.
 template <class T>
-inline T* _userdataIntrusivePtr(lua_State* L, int index, const char* metatable) {
+inline T* _userdataRefPtr(lua_State* L, int index, const char* metatable) {
 #ifdef _DEBUG
 	if (!checkMetatable(L, index, metatable)) {
 		return nullptr;
@@ -116,13 +118,12 @@ inline T* _userdataIntrusivePtr(lua_State* L, int index, const char* metatable) 
 	return p;
 }
 
-// convert float array as glm type.
 template <class T>
-static T _glmConvert(lua_State* L, int index) {
+static T _mathConvert(lua_State* L, int index) {
 	T ans;
 	float* ptr = (float*)&ans;
 	std::vector<float> values = getList<float>(L, index);
-	for (int i = 0; i < Math::Min(sizeof(T) / sizeof(float), values.size()); ++i) {
+	for (int i = 0; i < Mathf::Min(sizeof(T) / sizeof(float), values.size()); ++i) {
 		*ptr++ = values[i];
 	}
 
@@ -162,16 +163,16 @@ static void initialize(lua_State* L, luaL_Reg* libs, const char* entry) {
 	}
 }
 
-// construct userdata from intrusive_ptr.
+// construct userdata from ref_ptr.
 template <class T>
-inline int fromIntrusive(lua_State* L, T ptr) {
+inline int fromRef(lua_State* L, T ptr) {
 	return copyUserdata(L, ptr);
 }
 
-// unref caller intrusive_ptr.
+// unref caller ref_ptr.
 template <class T>
-inline int deleteIntrusivePtr(lua_State* L) {
-	T* ptr = callerIntrusivePtr<T>(L, 0);
+inline int deleteRefPtr(lua_State* L) {
+	T* ptr = callerRefPtr<T>(L, 0);
 	if (ptr != nullptr) { ptr->reset(); }
 	return 0;
 }
@@ -298,37 +299,27 @@ static bool _checkListElementType(lua_State* L, int index, int count = -1) {
 }
 
 template <>
-inline bool _checkArgumentType<glm::vec2>(lua_State* L, int index) {
+inline bool _checkArgumentType<Vector2>(lua_State* L, int index) {
 	return _checkListElementType<float>(L, index, 2);
 }
 
 template <>
-inline bool _checkArgumentType<glm::vec3>(lua_State* L, int index) {
+inline bool _checkArgumentType<Vector3>(lua_State* L, int index) {
 	return _checkListElementType<float>(L, index, 3);
 }
 
 template <>
-inline bool _checkArgumentType<glm::vec4>(lua_State* L, int index) {
+inline bool _checkArgumentType<Vector4>(lua_State* L, int index) {
 	return _checkListElementType<float>(L, index, 4);
 }
 
 template <>
-inline bool _checkArgumentType<glm::quat>(lua_State* L, int index) {
+inline bool _checkArgumentType<Quaternion>(lua_State* L, int index) {
 	return _checkListElementType<float>(L, index, 4);
 }
 
 template <>
-inline bool _checkArgumentType<glm::mat2>(lua_State* L, int index) {
-	return _checkListElementType<float>(L, index, 4);
-}
-
-template <>
-inline bool _checkArgumentType<glm::mat3>(lua_State* L, int index) {
-	return _checkListElementType<float>(L, index, 9);
-}
-
-template <>
-inline bool _checkArgumentType<glm::mat4>(lua_State* L, int index) {
+inline bool _checkArgumentType<Matrix4>(lua_State* L, int index) {
 	return _checkListElementType<float>(L, index, 16);
 }
 
@@ -431,14 +422,14 @@ inline void initMetatable(lua_State* L, luaL_Reg* lib, const char* baseClass) {
 
 #pragma endregion
 
-// get caller as intrusive_ptr.
+// get caller as ref_ptr.
 template <class T>
-inline T* callerIntrusivePtr(lua_State* L, const char* metatable = nullptr) {
+inline T* callerRefPtr(lua_State* L, const char* metatable = nullptr) {
 	if (metatable == nullptr) {
 		metatable = TypeID<T>::string();
 	}
 
-	return _userdataIntrusivePtr<T>(L, 1, metatable);
+	return _userdataRefPtr<T>(L, 1, metatable);
 }
 
 // get caller as raw pointer.
@@ -587,37 +578,27 @@ static int pushArray(lua_State* L, const float* ptr, int count) {
 }
 
 template <>
-inline int push<glm::vec2>(lua_State* L, const glm::vec2& value) {
+inline int push<Vector2>(lua_State* L, const Vector2& value) {
 	return pushArray(L, (const float*)&value, 2);
 }
 
 template <>
-inline int push<glm::vec3>(lua_State* L, const glm::vec3& value) {
+inline int push<Vector3>(lua_State* L, const Vector3& value) {
 	return pushArray(L, (const float*)&value, 3);
 }
 
 template <>
-inline int push<glm::vec4>(lua_State* L, const glm::vec4& value) {
+inline int push<Vector4>(lua_State* L, const Vector4& value) {
 	return pushArray(L, (const float*)&value, 4);
 }
 
 template <>
-inline int push<glm::quat>(lua_State* L, const glm::quat& value) {
+inline int push<Quaternion>(lua_State* L, const Quaternion& value) {
 	return pushArray(L, (const float*)&value, 4);
 }
 
 template <>
-inline int push<glm::mat2>(lua_State* L, const glm::mat2& value) {
-	return pushArray(L, (const float*)&value, 4);
-}
-
-template <>
-inline int push<glm::mat3>(lua_State* L, const glm::mat3& value) {
-	return pushArray(L, (const float*)&value, 9);
-}
-
-template <>
-inline int push<glm::mat4>(lua_State* L, const glm::mat4& value) {
+inline int push<Matrix4>(lua_State* L, const Matrix4& value) {
 	return pushArray(L, (const float*)&value, 16);
 }
 
@@ -632,11 +613,11 @@ inline int push(lua_State* L, T arg, R... args) {
 
 #pragma region getters
 
-// get std::shared_ptr/intrusive_ptr/raw pointer value.
+// get std::shared_ptr/ref_ptr/raw pointer value.
 template <class T>
 inline typename std::enable_if<suede_is_ptr<T>::value, T>::type
 get(lua_State* L, int index) {
-	T* p = _userdataIntrusivePtr<T>(L, index, TypeID<T>::string());
+	T* p = _userdataRefPtr<T>(L, index, TypeID<T>::string());
 	if (p == nullptr) { return nullptr; }
 	return *p;
 }
@@ -754,38 +735,28 @@ static std::vector<T> getList(lua_State* L, int index) {
 }
 
 template <>
-inline glm::vec2 get<glm::vec2>(lua_State* L, int index) {
-	return _glmConvert<glm::vec2>(L, index);
+inline Vector2 get<Vector2>(lua_State* L, int index) {
+	return _mathConvert<Vector2>(L, index);
 }
 
 template <>
-inline glm::vec3 get<glm::vec3>(lua_State* L, int index) {
-	return _glmConvert<glm::vec3>(L, index);
+inline Vector3 get<Vector3>(lua_State* L, int index) {
+	return _mathConvert<Vector3>(L, index);
 }
 
 template <>
-inline glm::vec4 get<glm::vec4>(lua_State* L, int index) {
-	return _glmConvert<glm::vec4>(L, index);
+inline Vector4 get<Vector4>(lua_State* L, int index) {
+	return _mathConvert<Vector4>(L, index);
 }
 
 template <>
-inline glm::quat get<glm::quat>(lua_State* L, int index) {
-	return _glmConvert<glm::quat>(L, index);
+inline Quaternion get<Quaternion>(lua_State* L, int index) {
+	return _mathConvert<Quaternion>(L, index);
 }
 
 template <>
-inline glm::mat2 get<glm::mat2>(lua_State* L, int index) {
-	return _glmConvert<glm::mat2>(L, index);
-}
-
-template <>
-inline glm::mat3 get<glm::mat3>(lua_State* L, int index) {
-	return _glmConvert<glm::mat3>(L, index);
-}
-
-template <>
-inline glm::mat4 get<glm::mat4>(lua_State* L, int index) {
-	return _glmConvert<glm::mat4>(L, index);
+inline Matrix4 get<Matrix4>(lua_State* L, int index) {
+	return _mathConvert<Matrix4>(L, index);
 }
 
 #pragma endregion

@@ -194,7 +194,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\codec\gameobjectloader.cpp" />
     <ClCompile Include="internal\gameobject\gameobjectinternal.cpp" />
     <ClCompile Include="internal\geometry\bounds.cpp" />
-    <ClCompile Include="internal\geometry\bsptree.cpp" />
     <ClCompile Include="internal\geometry\geometryutility.cpp" />
     <ClCompile Include="internal\geometry\plane.cpp" />
     <ClCompile Include="internal\geometry\polygon.cpp" />
@@ -494,7 +493,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\codec\image.h" />
     <ClInclude Include="internal\codec\shaderparser.h" />
     <ClInclude Include="internal\gameobject\gameobjectinternal.h" />
-    <ClInclude Include="internal\geometry\bsptree.h" />
     <ClInclude Include="internal\gui\imconfig.h" />
     <ClInclude Include="internal\gui\imgui_internal.h" />
     <ClInclude Include="internal\gui\stb_rect_pack.h" />

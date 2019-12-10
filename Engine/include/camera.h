@@ -1,6 +1,4 @@
 #pragma once
-#include <glm/glm.hpp>
-
 #include "rect.h"
 #include "color.h"
 #include "texture.h"
@@ -75,12 +73,12 @@ public:
 	void SetRect(const Rect& value);
 	const Rect& GetRect() const;
 
-	const glm::mat4& GetProjectionMatrix();
+	const Matrix4& GetProjectionMatrix();
 
 	void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
 
-	glm::vec3 WorldToScreenPoint(const glm::vec3& position);
-	glm::vec3 ScreenToWorldPoint(const glm::vec3& position);
+	Vector3 WorldToScreenPoint(const Vector3& position);
+	Vector3 ScreenToWorldPoint(const Vector3& position);
 
 	Texture2D Capture();
 

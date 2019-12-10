@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include "memory/intrusiveptr.h"
+#include "memory/memory.h"
 
 enum GrammarSymbolType {
 	GrammarSymbolTerminal,
@@ -49,7 +49,7 @@ public:
 	virtual GrammarSymbolType SymbolType() const { return GrammarSymbolNonterminal; }
 };
 
-typedef intrusive_ptr<GrammarSymbol> GrammarSymbolPtr;
+typedef ref_ptr<GrammarSymbol> GrammarSymbolPtr;
 
 class SymbolFactory {
 public:

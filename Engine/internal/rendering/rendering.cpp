@@ -103,8 +103,8 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.worldToShadowMatrix = Shadows::instance()->GetWorldToShadowMatrix();
 
 	p.projParams = matrices.projParams;
-	p.cameraPos = glm::vec4(matrices.cameraPos, 1);
-	p.screenParams = glm::vec4(Screen::GetWidth(), Screen::GetHeight(), 0, 0);
+	p.cameraPos = Vector4(matrices.cameraPos.x, matrices.cameraPos.y, matrices.cameraPos.z, 1);
+	p.screenParams = Vector4((float)Screen::GetWidth(), (float)Screen::GetHeight(), 0.f, 0.f);
 	UniformBufferManager::instance()->Update(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
@@ -116,10 +116,13 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 
 	memcpy(&p.ambientColor, &Environment::GetAmbientColor(), sizeof(p.ambientColor));
 	
-	p.lightPos = glm::vec4(light->GetTransform()->GetPosition(), 1);
-	p.lightDir = glm::vec4(light->GetTransform()->GetRotation() * glm::vec3(0, 0, -1), 0);
+	Vector3 pos = light->GetTransform()->GetPosition();
+	p.lightPos = Vector4(pos.x, pos.y, pos.z, 1);
+
+	Vector3 dir = light->GetTransform()->GetRotation() * Vector3(0, 0, -1);
+	p.lightDir = Vector4(dir.x, dir.y, dir.z, 0);
 	Color color = light->GetColor() * light->GetIntensity();
-	p.lightColor = glm::vec4(color.r, color.g, color.b, 1);
+	p.lightColor = Vector4(color.r, color.g, color.b, 1);
 
 	UniformBufferManager::instance()->Update(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
@@ -242,7 +245,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 	matrices_ = matrices;
 	Clear();
 
-	glm::mat4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
+	Matrix4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject go = gameObjects[i];
@@ -342,8 +345,8 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 void RenderableTraits::RenderSkybox(Pipeline* pl) {
 	Material skybox = Environment::GetSkybox();
 	if (skybox) {
-		glm::mat4 matrix = matrices_.worldToCameraMatrix;
-		matrix[3] = glm::vec4(0, 0, 0, 1);
+		Matrix4 matrix = matrices_.worldToCameraMatrix;
+		matrix[3] = Vector4(0, 0, 0, 1);
 		pl->AddRenderable(Resources::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
 	}
 }
@@ -373,20 +376,20 @@ void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObje
 }
 
 void RenderableTraits::InitializeSSAOKernel() {
-	glm::vec3 kernel[SSAO_KERNEL_SIZE];
+	Vector3 kernel[SSAO_KERNEL_SIZE];
 	for (int i = 0; i < SUEDE_COUNTOF(kernel); ++i) {
 		float scale = float(i) / SUEDE_COUNTOF(kernel);
-		scale = Math::Lerp(0.1f, 1.f, scale * scale);
+		scale = Mathf::Lerp(0.1f, 1.f, scale * scale);
 
-		glm::vec3 sample = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), Random::FloatRange(0.f, 1.f));
-		sample = glm::normalize(sample);
+		Vector3 sample = Vector3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), Random::FloatRange(0.f, 1.f));
+		Vector3::Normalize(sample);
 		sample *= Random::FloatRange(0.f, 1.f);
 		kernel[i] = sample * scale;
 	}
 
-	glm::vec3 noise[4 * 4];
+	Vector3 noise[4 * 4];
 	for (int i = 0; i < SUEDE_COUNTOF(noise); ++i) {
-		noise[i] = glm::vec3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
+		noise[i] = Vector3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
 	}
 
 	Texture2D noiseTexture = new ITexture2D();
@@ -440,7 +443,7 @@ void RenderableTraits::RenderDecals(Pipeline* pl) {
 	World::GetDecals(decals);
 
 	for (Decal& d : decals) {
-		pl->AddRenderable(d.mesh, d.material, 0, glm::mat4(1));
+		pl->AddRenderable(d.mesh, d.material, 0, Matrix4(1));
 	}
 }
 

@@ -1,23 +1,23 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "math/vector3.h"
 #include "enginedefines.h"
 
 class SUEDE_API Ray {
 public:
 	Ray();
-	Ray(const glm::vec3& origin, const glm::vec3& direction);
+	Ray(const Vector3& origin, const Vector3& direction);
 
-	glm::vec3 GetPoint(float distance) const { return origin_ + distance * direction_; }
+	Vector3 GetPoint(float distance) const { return origin_ + distance * direction_; }
 
-	const glm::vec3& GetOrigin() const { return origin_; }
-	void SetOrigin(const glm::vec3& value) { origin_ = value; }
+	const Vector3& GetOrigin() const { return origin_; }
+	void SetOrigin(const Vector3& value) { origin_ = value; }
 
-	const glm::vec3& GetDirection() const { return direction_; }
-	void SetDirection(const glm::vec3& value) { direction_ = glm::normalize(value); }
+	const Vector3& GetDirection() const { return direction_; }
+	void SetDirection(const Vector3& value) { direction_ = value.GetNormalized(); }
 
 private:
-	glm::vec3 origin_, direction_;
+	Vector3 origin_, direction_;
 };
 
 inline Ray::Ray() : direction_(0, 0, -1) {}
-inline Ray::Ray(const glm::vec3& origin, const glm::vec3& direction) : origin_(origin), direction_(glm::normalize(direction)) {}
+inline Ray::Ray(const Vector3& origin, const Vector3& direction) : origin_(origin), direction_(direction.GetNormalized()) {}

@@ -27,7 +27,7 @@ subject to the following restrictions:
 
 // static helper method
 static btVector3
-getNormalizedVector(const btVector3& v)
+GetNormalizedVector(const btVector3& v)
 {
 	btVector3 n(0, 0, 0);
 
@@ -614,7 +614,7 @@ const btVector3& walkDirection
 {
 	m_useWalkDirection = true;
 	m_walkDirection = walkDirection;
-	m_normalizedDirection = getNormalizedVector(m_walkDirection);
+	m_normalizedDirection = GetNormalizedVector(m_walkDirection);
 }
 
 
@@ -632,7 +632,7 @@ btScalar timeInterval
 
 	m_useWalkDirection = false;
 	m_walkDirection = velocity;
-	m_normalizedDirection = getNormalizedVector(m_walkDirection);
+	m_normalizedDirection = GetNormalizedVector(m_walkDirection);
 	m_velocityTimeInterval += timeInterval;
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "math/matrix4.h"
 
 class Frustum {
 public:
@@ -23,7 +23,7 @@ public:
 	void SetFieldOfView(float value);
 	float GetFieldOfView() const;
 
-	const glm::mat4& GetProjectionMatrix();
+	const Matrix4& GetProjectionMatrix();
 
 protected:
 	virtual void OnProjectionMatrixChanged() {}
@@ -41,5 +41,5 @@ private:
 	float orthographicSize_;
 
 	bool matrixDirty_;
-	glm::mat4 projection_;
+	Matrix4 projection_;
 };

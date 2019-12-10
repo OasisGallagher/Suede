@@ -1,5 +1,5 @@
 #include "resources.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "internal/base/vertexattrib.h"
@@ -24,7 +24,7 @@ uint IMesh::GetNativePointer() const { return _suede_dptr()->GetNativePointer();
 const uint* IMesh::MapIndexes() { return _suede_dptr()->MapIndexes(); }
 void IMesh::UnmapIndexes() { _suede_dptr()->UnmapIndexes(); }
 uint IMesh::GetIndexCount() { return _suede_dptr()->GetIndexCount(); }
-const glm::vec3* IMesh::MapVertices() { return _suede_dptr()->MapVertices(); }
+const Vector3* IMesh::MapVertices() { return _suede_dptr()->MapVertices(); }
 void IMesh::UnmapVertices() { _suede_dptr()->UnmapVertices(); }
 uint IMesh::GetVertexCount() { return _suede_dptr()->GetVertexCount(); }
 void IMesh::Bind() { _suede_dptr()->Bind(); }
@@ -135,13 +135,13 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	}
 
 	if (attribute.color.count != 0) {
-		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.color.count * sizeof(Vector4), nullptr, GL_STREAM_DRAW);
 		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribInstanceColor, 4, GL_FLOAT, false, 0, 0, attribute.color.divisor);
 		storage_->bufferIndexes[InstanceBuffer0] = vboIndex++;
 	}
 
 	if (attribute.geometry.count != 0) {
-		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.geometry.count * sizeof(glm::vec4), nullptr, GL_STREAM_DRAW);
+		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.geometry.count * sizeof(Vector4), nullptr, GL_STREAM_DRAW);
 		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribInstanceGeometry, 4, GL_FLOAT, false, 0, 0, attribute.geometry.divisor);
 		storage_->bufferIndexes[InstanceBuffer1] = vboIndex++;
 	}
@@ -228,8 +228,8 @@ uint MeshInternal::GetIndexCount() {
 	return storage_->vao.GetBufferSize(storage_->bufferIndexes[IndexBuffer]) / sizeof(uint);
 }
 
-const glm::vec3* MeshInternal::MapVertices() {
-	return (glm::vec3*)storage_->vao.MapBuffer(storage_->bufferIndexes[VertexBuffer]);
+const Vector3* MeshInternal::MapVertices() {
+	return (Vector3*)storage_->vao.MapBuffer(storage_->bufferIndexes[VertexBuffer]);
 }
 
 void MeshInternal::UnmapVertices() {
@@ -237,7 +237,7 @@ void MeshInternal::UnmapVertices() {
 }
 
 uint MeshInternal::GetVertexCount() {
-	return storage_->vao.GetBufferSize(storage_->bufferIndexes[VertexBuffer]) / sizeof(glm::vec3);
+	return storage_->vao.GetBufferSize(storage_->bufferIndexes[VertexBuffer]) / sizeof(Vector3);
 }
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
@@ -351,7 +351,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	attribute.texCoords[0].reserve(cap);
 	attribute.indexes.reserve(cap);
 
-	uint x = 0;
+	float x = 0;
 	for (int i = 0; i < wtext.length(); ++i) {
 		CharacterInfo info;
 		if (!font_->GetCharacterInfo(wtext[i], &info)) {
@@ -359,21 +359,21 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		}
 
 		// lb, rb, lt, rt.
-		attribute.positions.push_back(scale * glm::vec3(x, info.height / -2.f, 0));
-		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / -2.f, 0));
-		attribute.positions.push_back(scale * glm::vec3(x, info.height / 2.f, 0));
+		attribute.positions.push_back(scale * Vector3(x, info.height / -2.f, 0));
+		attribute.positions.push_back(scale * Vector3(x + info.width, info.height / -2.f, 0));
+		attribute.positions.push_back(scale * Vector3(x, info.height / 2.f, 0));
 
-		attribute.positions.push_back(scale * glm::vec3(x, info.height / 2.f, 0));
-		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / -2.f, 0));
-		attribute.positions.push_back(scale * glm::vec3(x + info.width, info.height / 2.f, 0));
+		attribute.positions.push_back(scale * Vector3(x, info.height / 2.f, 0));
+		attribute.positions.push_back(scale * Vector3(x + info.width, info.height / -2.f, 0));
+		attribute.positions.push_back(scale * Vector3(x + info.width, info.height / 2.f, 0));
 
-		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.xy));
-		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.zy));
-		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.xw));
+		attribute.texCoords[0].push_back(Vector2(info.texCoord.x, info.texCoord.y));
+		attribute.texCoords[0].push_back(Vector2(info.texCoord.z, info.texCoord.y));
+		attribute.texCoords[0].push_back(Vector2(info.texCoord.x, info.texCoord.w));
 
-		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.xw));
-		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.zy));
-		attribute.texCoords[0].push_back(glm::vec2(info.texCoord.zw));
+		attribute.texCoords[0].push_back(Vector2(info.texCoord.x, info.texCoord.w));
+		attribute.texCoords[0].push_back(Vector2(info.texCoord.z, info.texCoord.y));
+		attribute.texCoords[0].push_back(Vector2(info.texCoord.z, info.texCoord.w));
 
 		x += info.width;
 		x += space;
@@ -382,10 +382,10 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 		}
 	}
 
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < attribute.positions.size(); ++i) {
-		min = glm::min(min, attribute.positions[i]);
-		max = glm::max(max, attribute.positions[i]);
+		min = Vector3::Min(min, attribute.positions[i]);
+		max = Vector3::Max(max, attribute.positions[i]);
 	}
 }
 

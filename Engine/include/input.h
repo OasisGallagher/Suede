@@ -1,8 +1,8 @@
 #pragma once
-#include <glm/glm.hpp>
-
 #include "tools/enum.h"
 #include "tools/singleton.h"
+
+#include "math/vector2.h"
 #include "frameeventlistener.h"
 
 BETTER_ENUM(KeyCode, int,
@@ -79,7 +79,7 @@ public:
 	virtual bool GetMouseButtonDown(int button) = 0;
 
 	virtual float GetMouseWheelDelta() = 0;
-	virtual glm::ivec2 GetMousePosition() = 0;
+	virtual Vector2 GetMousePosition() = 0;
 };
 
 class SUEDE_API Input : private Singleton2<Input> {
@@ -99,7 +99,7 @@ public:
 	static bool GetMouseButtonDown(int button);
 
 	static float GetMouseWheelDelta();
-	static glm::ivec2 GetMousePosition();
+	static Vector2 GetMousePosition();
 
 private:
 	Input();

@@ -12,30 +12,30 @@
 	}
 
 DEFINE_SHARED_UNIFORM_BUFFER(SharedTimeUniformBuffer,
-	glm::vec4 time;
+	Vector4 time;
 );
 
 DEFINE_SHARED_UNIFORM_BUFFER(SharedLightUniformBuffer,
 	struct {
-		glm::vec3 color;
+		Vector3 color;
 		float density;
 	} fogParams;
 
-	glm::vec4 ambientColor;
+	Vector4 ambientColor;
 
-	glm::vec4 lightPos;
-	glm::vec4 lightDir;
-	glm::vec4 lightColor;
+	Vector4 lightPos;
+	Vector4 lightDir;
+	Vector4 lightColor;
 );
 
 DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
-	glm::mat4 worldToClipMatrix;
-	glm::mat4 worldToCameraMatrix;
-	glm::mat4 cameraToClipMatrix;
-	glm::mat4 worldToShadowMatrix;
-	glm::vec4 cameraPos;
-	glm::vec4 projParams;
-	glm::vec4 screenParams;
+	Matrix4 worldToClipMatrix;
+	Matrix4 worldToCameraMatrix;
+	Matrix4 cameraToClipMatrix;
+	Matrix4 worldToShadowMatrix;
+	Vector4 cameraPos;
+	Vector4 projParams;
+	Vector4 screenParams;
 );
 
 #undef DEFINE_SHARED_UNIFORM_BUFFER

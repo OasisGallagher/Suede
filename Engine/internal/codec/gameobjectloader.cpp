@@ -4,20 +4,18 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-#include <glm/gtx/matrix_decompose.hpp>
-
 #include "world.h"
 #include "resources.h"
 #include "memory/memory.h"
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
-inline glm::vec3 AIConvert(const aiVector3D& vec) {
-	return glm::vec3(vec.x, vec.y, vec.z);
+inline Vector3 AIConvert(const aiVector3D& vec) {
+	return Vector3(vec.x, vec.y, vec.z);
 }
 
-inline glm::mat4& AIConvert(glm::mat4& answer, const aiMatrix4x4& mat) {
-	answer = glm::mat4(
+inline Matrix4& AIConvert(Matrix4& answer, const aiMatrix4x4& mat) {
+	answer = Matrix4(
 		mat.a1, mat.b1, mat.c1, mat.d1,
 		mat.a2, mat.b2, mat.c2, mat.d2,
 		mat.a3, mat.b3, mat.c3, mat.d3,
@@ -27,18 +25,18 @@ inline glm::mat4& AIConvert(glm::mat4& answer, const aiMatrix4x4& mat) {
 	return answer;
 }
 
-inline glm::quat& AIConvert(glm::quat& answer, const aiQuaternion& quaternion) {
-	answer = glm::quat(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
+inline Quaternion& AIConvert(Quaternion& answer, const aiQuaternion& quaternion) {
+	answer = Quaternion(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
 	return answer;
 }
 
-inline void AIConvert(glm::vec3& translation, glm::quat& rotation, glm::vec3& scale, const aiMatrix4x4& mat) {
-	glm::vec3 skew;
-	glm::vec4 perspective;
-	glm::mat4 transformation;
+inline void AIConvert(Vector3& translation, Quaternion& rotation, Vector3& scale, const aiMatrix4x4& mat) {
+	Vector3 skew;
+	Vector4 perspective;
+	Matrix4 transformation;
 	AIConvert(transformation, mat);
-	glm::decompose(transformation, scale, rotation, translation, skew, perspective);
-	rotation = glm::conjugate(rotation);
+	Matrix4::Decompose(transformation, scale, rotation, translation, skew, perspective);
+	rotation = rotation.GetConjugated();
 }
 
 #define UNNAMED_MATERIAL	"New Material"
@@ -134,7 +132,9 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 }
 
 GameObject GameObjectLoader::LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
-	GameObject go = new IGameObject();
+	GameObject go = make_ref<IGameObject>();
+	auto tr = go->GetTransform();
+	auto pr = parent->GetTransform();
 	go->GetTransform()->SetParent(parent->GetTransform());
 
 	LoadNodeTo(go, node, surface, subMeshes);
@@ -147,8 +147,8 @@ void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, Su
 	go->SetName(node->mName.C_Str());
 
 	if (go != root_) {
-		glm::quat rotation;
-		glm::vec3 translation, scale;
+		Quaternion rotation;
+		Vector3 translation, scale;
 		AIConvert(translation, rotation, scale, node->mTransformation);
 
 		go->GetTransform()->SetLocalScale(scale);
@@ -243,10 +243,10 @@ bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubM
 void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
-		glm::vec3 pos = AIConvert(aimesh->mVertices[i]);
-		glm::vec3 normal = AIConvert(aimesh->mNormals[i]);
+		Vector3 pos = AIConvert(aimesh->mVertices[i]);
+		Vector3 normal = AIConvert(aimesh->mNormals[i]);
 
 		for (int j = 0; j < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++j) {
 			if (!aimesh->HasTextureCoords(j)) {
@@ -259,19 +259,19 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) 
 			}
 
 			const aiVector3D& v3 = aimesh->mTextureCoords[j][i];
-			meshAsset.texCoords[j].push_back(glm::vec2(v3.x, v3.y));
+			meshAsset.texCoords[j].push_back(Vector2(v3.x, v3.y));
 		}
 
 		if (aimesh->mTangents != nullptr) {
 			const aiVector3D& v3 = aimesh->mTangents[i];
-			meshAsset.tangents.push_back(glm::vec3(v3.x, v3.y, v3.z));
+			meshAsset.tangents.push_back(Vector3(v3.x, v3.y, v3.z));
 		}
 
 		meshAsset.positions.push_back(pos);
 		meshAsset.normals.push_back(normal);
 
-		min = glm::min(min, pos);
-		max = glm::max(max, pos);
+		min = Vector3::Min(min, pos);
+		max = Vector3::Max(max, pos);
 	}
 
 	for (uint i = 0; i < aimesh->mNumFaces; ++i) {
@@ -306,12 +306,15 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {
-				if (Math::Approximately(meshAsset.blendAttrs[vertexID].weights[k], 0)) {
+				if (Mathf::Approximately(meshAsset.blendAttrs[vertexID].weights[k], 0)) {
 					meshAsset.blendAttrs[vertexID].indexes[k] = index;
 					meshAsset.blendAttrs[vertexID].weights[k] = weight;
 
 					SkeletonBone* bone = skeleton_->GetBone(index);
-					bone->bounds.Encapsulate(glm::vec3(bone->meshToBoneMatrix * glm::vec4(meshAsset.positions[vertexID], 1)));
+
+					Vector4 pos(meshAsset.positions[vertexID].x, meshAsset.positions[vertexID].y, meshAsset.positions[vertexID].z, 1);
+					pos = bone->meshToBoneMatrix * pos;
+					bone->bounds.Encapsulate(Vector3(pos.x, pos.y, pos.z));
 					break;
 				}
 			}
@@ -358,7 +361,7 @@ void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateria
 	}
 
 	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
-		if (Math::Approximately(afloat, 0)) { afloat = 1; }
+		if (Mathf::Approximately(afloat, 0)) { afloat = 1; }
 		materialAsset.mainColor.a = afloat;
 	}
 
@@ -384,7 +387,7 @@ void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateria
 }
 
 void GameObjectLoader::LoadAnimation(Animation animation) {
-	glm::mat4 rootTransform;
+	Matrix4 rootTransform;
 	animation->SetRootTransform(AIConvert(rootTransform, scene_->mRootNode->mTransformation.Inverse()));
 
 	const char* defaultClipName = nullptr;
@@ -429,7 +432,7 @@ void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* 
 
 		for (int i = 0; i < channel->mNumRotationKeys; ++i) {
 			const aiQuatKey& key = channel->mRotationKeys[i];
-			glm::quat rotation;
+			Quaternion rotation;
 			keys->AddQuaternion((float)key.mTime, FrameKeyRotation, AIConvert(rotation, key.mValue));
 		}
 
@@ -445,7 +448,7 @@ void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* 
 		curve->SetKeyframes(keyframes);
 	}
 
-	glm::mat4 matrix;
+	Matrix4 matrix;
 	SkeletonNode* child = skeleton_->CreateNode(paiNode->mName.C_Str(), AIConvert(matrix, paiNode->mTransformation), curve);
 	skeleton_->AddNode(pskNode, child);
 

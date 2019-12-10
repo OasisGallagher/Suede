@@ -184,10 +184,10 @@ public:
 
 public:
 	template <class T>
-	static typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type GetComponents();
+	static typename std::enable_if<suede_is_ref_ptr<T>::value, std::vector<T>>::type GetComponents();
 
 	template <class T>
-	static typename std::enable_if<!suede_is_intrusive_ptr<T>::value, std::vector<intrusive_ptr<T>>>::type GetComponents();
+	static typename std::enable_if<!suede_is_ref_ptr<T>::value, std::vector<ref_ptr<T>>>::type GetComponents();
 
 	static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
 
@@ -196,7 +196,7 @@ private:
 };
 
 template <class T>
-typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type World::GetComponents() {
+typename std::enable_if<suede_is_ref_ptr<T>::value, std::vector<T>>::type World::GetComponents() {
 	std::vector<T> components;
 	for (GameObject go : GetGameObjectsOfComponent(T::element_type::GetComponentGUID())) {
 		components.push_back(go->GetComponent<T>());
@@ -206,8 +206,8 @@ typename std::enable_if<suede_is_intrusive_ptr<T>::value, std::vector<T>>::type 
 }
 
 template <class T>
-typename std::enable_if<!suede_is_intrusive_ptr<T>::value, std::vector<intrusive_ptr<T>>>::type World::GetComponents() {
-	std::vector<intrusive_ptr<T>> components;
+typename std::enable_if<!suede_is_ref_ptr<T>::value, std::vector<ref_ptr<T>>>::type World::GetComponents() {
+	std::vector<ref_ptr<T>> components;
 	for (GameObject go : GetGameObjectsOfComponent(T::GetComponentGUID())) {
 		components.push_back(go->GetComponent<T>());
 	}

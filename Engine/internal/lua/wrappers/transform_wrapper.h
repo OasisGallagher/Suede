@@ -39,11 +39,11 @@ public:
 
 class Transform_Wrapper {
 	static int NewTransform(lua_State* L) {
-		return Lua::fromIntrusive(L, new ITransform());
+		return Lua::fromRef(L, make_ref<ITransform>());
 	}
 
 	static int ToString(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 
 		lua_pushstring(L, String::Format("Transform@0x%p", _p.get()).c_str());
 		return 1;
@@ -51,13 +51,13 @@ class Transform_Wrapper {
 
 	// bool IsAttachedToScene()
 	static int IsAttachedToScene(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->IsAttachedToScene());
 	}
 
 	// void AddChild(Transform child)
 	static int AddChild(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		Transform child = Lua::get<Transform>(L, 2);
 		
 		_p->AddChild(child);
@@ -66,7 +66,7 @@ class Transform_Wrapper {
 
 	// void RemoveChild(Transform child)
 	static int RemoveChild(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		Transform child = Lua::get<Transform>(L, 2);
 		
 		_p->RemoveChild(child);
@@ -75,7 +75,7 @@ class Transform_Wrapper {
 
 	// void RemoveChildAt(uint index)
 	static int RemoveChildAt(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		_p->RemoveChildAt(index);
@@ -84,7 +84,7 @@ class Transform_Wrapper {
 
 	// void SetParent(Transform value)
 	static int SetParent(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		Transform value = Lua::get<Transform>(L, 2);
 		
 		_p->SetParent(value);
@@ -93,45 +93,45 @@ class Transform_Wrapper {
 
 	// Transform GetParent()
 	static int GetParent(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetParent());
 	}
 
-	// glm::vec3 TransformPoint(const glm::vec3& point)
+	// Vector3 TransformPoint(const Vector3& point)
 	static int TransformPoint(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 point = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 point = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->TransformPoint(point));
 	}
 
-	// glm::vec3 TransformDirection(const glm::vec3& direction)
+	// Vector3 TransformDirection(const Vector3& direction)
 	static int TransformDirection(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 direction = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 direction = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->TransformDirection(direction));
 	}
 
-	// glm::vec3 InverseTransformPoint(const glm::vec3& point)
+	// Vector3 InverseTransformPoint(const Vector3& point)
 	static int InverseTransformPoint(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 point = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 point = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->InverseTransformPoint(point));
 	}
 
-	// glm::vec3 InverseTransformDirection(const glm::vec3& direction)
+	// Vector3 InverseTransformDirection(const Vector3& direction)
 	static int InverseTransformDirection(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 direction = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 direction = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->InverseTransformDirection(direction));
 	}
 
 	// Transform FindChild(const std::string& path)
 	static int FindChild(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		std::string path = Lua::get<std::string>(L, 2);
 		
 		return Lua::push(L, _p->FindChild(path));
@@ -139,13 +139,13 @@ class Transform_Wrapper {
 
 	// int GetChildCount()
 	static int GetChildCount(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetChildCount());
 	}
 
 	// Transform GetChildAt(int i)
 	static int GetChildAt(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		int i = Lua::get<int>(L, 2);
 		
 		return Lua::push(L, _p->GetChildAt(i));
@@ -153,174 +153,174 @@ class Transform_Wrapper {
 
 	// Enumerable GetChildren()
 	static int GetChildren(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		ITransform::Enumerable _r = _p->GetChildren();
 		return Lua::pushList(L, std::vector<ITransform::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
-	// void SetScale(const glm::vec3& value)
+	// void SetScale(const Vector3& value)
 	static int SetScale(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetScale(value);
 		return 0;
 	}
 
-	// void SetPosition(const glm::vec3& value)
+	// void SetPosition(const Vector3& value)
 	static int SetPosition(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetPosition(value);
 		return 0;
 	}
 
-	// void SetRotation(const glm::quat& value)
+	// void SetRotation(const Quaternion& value)
 	static int SetRotation(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::quat value = Lua::get<glm::quat>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Quaternion value = Lua::get<Quaternion>(L, 2);
 		
 		_p->SetRotation(value);
 		return 0;
 	}
 
-	// void SetEulerAngles(const glm::vec3& value)
+	// void SetEulerAngles(const Vector3& value)
 	static int SetEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetEulerAngles(value);
 		return 0;
 	}
 
-	// glm::vec3 GetScale()
+	// Vector3 GetScale()
 	static int GetScale(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetScale());
 	}
 
-	// glm::vec3 GetPosition()
+	// Vector3 GetPosition()
 	static int GetPosition(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetPosition());
 	}
 
-	// glm::quat GetRotation()
+	// Quaternion GetRotation()
 	static int GetRotation(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetRotation());
 	}
 
-	// glm::vec3 GetEulerAngles()
+	// Vector3 GetEulerAngles()
 	static int GetEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetEulerAngles());
 	}
 
-	// void SetLocalScale(const glm::vec3& value)
+	// void SetLocalScale(const Vector3& value)
 	static int SetLocalScale(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetLocalScale(value);
 		return 0;
 	}
 
-	// void SetLocalPosition(const glm::vec3& value)
+	// void SetLocalPosition(const Vector3& value)
 	static int SetLocalPosition(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetLocalPosition(value);
 		return 0;
 	}
 
-	// void SetLocalRotation(const glm::quat& value)
+	// void SetLocalRotation(const Quaternion& value)
 	static int SetLocalRotation(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::quat value = Lua::get<glm::quat>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Quaternion value = Lua::get<Quaternion>(L, 2);
 		
 		_p->SetLocalRotation(value);
 		return 0;
 	}
 
-	// void SetLocalEulerAngles(const glm::vec3& value)
+	// void SetLocalEulerAngles(const Vector3& value)
 	static int SetLocalEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 value = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetLocalEulerAngles(value);
 		return 0;
 	}
 
-	// glm::vec3 GetLocalScale()
+	// Vector3 GetLocalScale()
 	static int GetLocalScale(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalScale());
 	}
 
-	// glm::vec3 GetLocalPosition()
+	// Vector3 GetLocalPosition()
 	static int GetLocalPosition(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalPosition());
 	}
 
-	// glm::quat GetLocalRotation()
+	// Quaternion GetLocalRotation()
 	static int GetLocalRotation(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalRotation());
 	}
 
-	// glm::vec3 GetLocalEulerAngles()
+	// Vector3 GetLocalEulerAngles()
 	static int GetLocalEulerAngles(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalEulerAngles());
 	}
 
-	// glm::mat4 GetLocalToWorldMatrix()
+	// Matrix4 GetLocalToWorldMatrix()
 	static int GetLocalToWorldMatrix(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetLocalToWorldMatrix());
 	}
 
-	// glm::mat4 GetWorldToLocalMatrix()
+	// Matrix4 GetWorldToLocalMatrix()
 	static int GetWorldToLocalMatrix(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetWorldToLocalMatrix());
 	}
 
-	// glm::vec3 GetLocalToWorldPosition(const glm::vec3& position)
+	// Vector3 GetLocalToWorldPosition(const Vector3& position)
 	static int GetLocalToWorldPosition(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 position = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 position = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->GetLocalToWorldPosition(position));
 	}
 
-	// glm::vec3 GetWorldToLocalPosition(const glm::vec3& position)
+	// Vector3 GetWorldToLocalPosition(const Vector3& position)
 	static int GetWorldToLocalPosition(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
-		glm::vec3 position = Lua::get<glm::vec3>(L, 2);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
+		Vector3 position = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->GetWorldToLocalPosition(position));
 	}
 
-	// glm::vec3 GetUp()
+	// Vector3 GetUp()
 	static int GetUp(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetUp());
 	}
 
-	// glm::vec3 GetRight()
+	// Vector3 GetRight()
 	static int GetRight(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetRight());
 	}
 
-	// glm::vec3 GetForward()
+	// Vector3 GetForward()
 	static int GetForward(lua_State* L) {
-		Transform& _p = *Lua::callerIntrusivePtr<Transform>(L);
+		Transform& _p = *Lua::callerRefPtr<Transform>(L);
 		return Lua::push(L, _p->GetForward());
 	}
 
@@ -333,7 +333,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewTransform", NewTransform });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteIntrusivePtr<Transform> },
+			{ "__gc", Lua::deleteRefPtr<Transform> },
 			{ "__tostring", ToString }, 
 			{ "IsAttachedToScene", IsAttachedToScene },
 			{ "AddChild", AddChild },

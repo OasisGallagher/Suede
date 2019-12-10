@@ -7,10 +7,10 @@
 Polygon::Polygon() : points(nullptr), npoints(1) {
 }
 
-Polygon::Polygon(const glm::vec3* p, uint n) {
-	points = MEMORY_NEW_ARRAY(glm::vec3, n);
+Polygon::Polygon(const Vector3* p, uint n) {
+	points = MEMORY_NEW_ARRAY(Vector3, n);
 	if (p != nullptr) {
-		memcpy(points, p, sizeof(glm::vec3) * n);
+		memcpy(points, p, sizeof(Vector3) * n);
 	}
 
 	npoints = n;
@@ -25,17 +25,17 @@ Polygon::~Polygon() {
 
 Polygon& Polygon::operator=(const Polygon& other) {
 	MEMORY_DELETE_ARRAY(points);
-	points = MEMORY_NEW_ARRAY(glm::vec3, other.npoints);
-	memcpy(points, other.points, sizeof(glm::vec3) * other.npoints);
+	points = MEMORY_NEW_ARRAY(Vector3, other.npoints);
+	memcpy(points, other.points, sizeof(Vector3) * other.npoints);
 	return *this;
 }
 
-glm::vec3& Polygon::operator[](uint index) {
+Vector3& Polygon::operator[](uint index) {
 	SUEDE_VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
 }
 
-const glm::vec3& Polygon::operator[](uint index) const {
+const Vector3& Polygon::operator[](uint index) const {
 	SUEDE_VERIFY_INDEX(index, npoints, points[0]);
 	return points[index];
 }
@@ -43,5 +43,5 @@ const glm::vec3& Polygon::operator[](uint index) const {
 Triangle::Triangle() : Polygon(nullptr, 3) {
 }
 
-Triangle::Triangle(const glm::vec3* p) : Polygon(p, 3) {
+Triangle::Triangle(const Vector3* p) : Polygon(p, 3) {
 }

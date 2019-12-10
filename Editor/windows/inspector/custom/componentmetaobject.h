@@ -3,7 +3,6 @@
 #include <QVector>
 
 #include <algorithm>
-#include <glm/glm.hpp>
 
 #include "rect.h"
 #include "color.h"
@@ -40,9 +39,9 @@ protected:
 
 #define SUEDE_PROPERTY(type, name)	SUEDE_NAMED_PROPERTY(type, name, name)
 
-Q_DECLARE_METATYPE(glm::vec2)
-Q_DECLARE_METATYPE(glm::vec3)
-Q_DECLARE_METATYPE(glm::vec4)
+Q_DECLARE_METATYPE(Vector2)
+Q_DECLARE_METATYPE(Vector3)
+Q_DECLARE_METATYPE(Vector4)
 
 Q_DECLARE_METATYPE(iranged)
 Q_DECLARE_METATYPE(franged)
@@ -50,7 +49,7 @@ Q_DECLARE_METATYPE(franged)
 Q_DECLARE_METATYPE(Rect)
 Q_DECLARE_METATYPE(Color)
 
-Q_DECLARE_SMART_POINTER_METATYPE(intrusive_ptr)
+Q_DECLARE_SMART_POINTER_METATYPE(ref_ptr)
 Q_DECLARE_SMART_POINTER_METATYPE(std::shared_ptr)
 
 Q_DECLARE_METATYPE(Material)
@@ -62,9 +61,9 @@ Q_DECLARE_METATYPE(GameObject)
 
 class TransformMetaObject : public ComponentMetaObjectT<Transform> {
 	Q_OBJECT
-	SUEDE_NAMED_PROPERTY(glm::vec3, Position, LocalPosition)
-	SUEDE_NAMED_PROPERTY(glm::vec3, Rotation, LocalEulerAngles)
-	SUEDE_NAMED_PROPERTY(glm::vec3, Scale, LocalScale)
+	SUEDE_NAMED_PROPERTY(Vector3, Position, LocalPosition)
+	SUEDE_NAMED_PROPERTY(Vector3, Rotation, LocalEulerAngles)
+	SUEDE_NAMED_PROPERTY(Vector3, Scale, LocalScale)
 };
 
 #include "camera.h"
@@ -97,7 +96,7 @@ class CameraMetaObject : public ComponentMetaObjectT<Camera> {
 class RigidbodyMetaObject : public ComponentMetaObjectT<Rigidbody> {
 	Q_OBJECT
 	SUEDE_PROPERTY(float, Mass)
-	SUEDE_PROPERTY(glm::vec3, Velocity)
+	SUEDE_PROPERTY(Vector3, Velocity)
 };
 
 #include "light.h"

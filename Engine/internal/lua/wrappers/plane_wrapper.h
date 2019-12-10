@@ -13,21 +13,21 @@ class Plane_Wrapper {
 			return Lua::newObject<Plane>(L);
 		}
 
-		if (Lua::checkArguments<glm::vec4>(L, 1)) {
-			glm::vec4 abcd = Lua::get<glm::vec4>(L, 1);
+		if (Lua::checkArguments<Vector4>(L, 1)) {
+			Vector4 abcd = Lua::get<Vector4>(L, 1);
 		
 			return Lua::newObject<Plane>(L, abcd);
 		}
 
-		if (Lua::checkArguments<std::vector<glm::vec3>>(L, 1)) {
-			std::vector<glm::vec3> points = Lua::getList<glm::vec3>(L, 1);
+		if (Lua::checkArguments<std::vector<Vector3>>(L, 1)) {
+			std::vector<Vector3> points = Lua::getList<Vector3>(L, 1);
 		
 			return Lua::newObject<Plane>(L, points.data());
 		}
 
-		if (Lua::checkArguments<glm::vec3, float>(L, 1)) {
+		if (Lua::checkArguments<Vector3, float>(L, 1)) {
 			float d = Lua::get<float>(L, 2);
-			glm::vec3 normal = Lua::get<glm::vec3>(L, 1);
+			Vector3 normal = Lua::get<Vector3>(L, 1);
 		
 			return Lua::newObject<Plane>(L, normal, d);
 		}
@@ -49,7 +49,7 @@ class Plane_Wrapper {
 		return Lua::push(L, _p->GetDistance());
 	}
 
-	// glm::vec3 GetNormal()
+	// Vector3 GetNormal()
 	static int GetNormal(lua_State* L) {
 		Plane* _p = Lua::callerPtr<Plane>(L);
 		return Lua::push(L, _p->GetNormal());

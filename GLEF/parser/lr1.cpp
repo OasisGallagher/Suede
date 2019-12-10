@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "lr1.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "tools/string.h"
 #include "glefdefines.h"
 #include "grammar/grammar.h"
@@ -36,14 +36,14 @@ bool Forwards::insert(const GrammarSymbolPtr& symbol) {
 int LR1Item::Compare(const LR1Item& other) const {
 	int c = cpos_ - other.cpos_;
 	if (c != 0) {
-		return Math::Sign(c);
+		return Mathf::Sign(c);
 	}
 
-	return Math::Sign(dpos_ - other.dpos_);
+	return Mathf::Sign(dpos_ - other.dpos_);
 }
 
 std::string LR1Item::ToRawString() const {
-	return String::Format("(%d, %d, %d)", Math::Highword(cpos_), Math::Loword(cpos_), dpos_);
+	return String::Format("(%d, %d, %d)", Mathf::Highword(cpos_), Mathf::Loword(cpos_), dpos_);
 }
 
 std::string LR1Item::ToString(const GrammarContainer& grammars) const {

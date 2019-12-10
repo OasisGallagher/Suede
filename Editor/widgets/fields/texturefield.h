@@ -3,8 +3,6 @@
 #include <QWidget>
 #include <QVariant>
 
-#include <glm/glm.hpp>
-
 #include "texture.h"
 
 class TextureField : public QWidget {

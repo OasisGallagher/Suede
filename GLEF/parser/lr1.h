@@ -59,7 +59,7 @@ private:
 	Forwards forwards_;
 };
 
-typedef intrusive_ptr<LR1Item> LR1ItemPtr;
+typedef ref_ptr<LR1Item> LR1ItemPtr;
 
 struct LR1ItemComparer {
 	bool operator () (const LR1ItemPtr& lhs, const LR1ItemPtr& rhs)const {
@@ -107,7 +107,7 @@ private:
 	container_type container_;
 };
 
-typedef intrusive_ptr<LR1Itemset> LR1ItemsetPtr;
+typedef ref_ptr<LR1Itemset> LR1ItemsetPtr;
 
 struct LR1ItemsetComparer {
 	bool operator () (const LR1ItemsetPtr& lhs, const LR1ItemsetPtr& rhs)const {

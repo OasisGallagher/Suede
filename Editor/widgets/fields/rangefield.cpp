@@ -4,7 +4,7 @@
 
 #include "rangefield.h"
 #include "floatfield.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 RangeField::RangeField(QWidget* parent) : QWidget(parent), min_(0), max_(1) {
 	QHBoxLayout* layout = new QHBoxLayout(this);
@@ -38,7 +38,7 @@ float RangeField::value() const {
 }
 
 void RangeField::setValue(float value) {
-	value = Math::Clamp(value, min_, max_);
+	value = Mathf::Clamp(value, min_, max_);
 
 	edit_->setValue(value);
 	slider_->setValue((value - min_) * 100);

@@ -2,7 +2,7 @@
 
 #include "lr0.h"
 #include "parser.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 LR0::LR0() {
 }
@@ -64,7 +64,7 @@ void LR0::AddLR1Items(LR1ItemsetPtr& answer, const GrammarSymbolPtr& lhs) {
 		int dpos = 0;
 
 		for (; ite != tc->symbols.end(); ++ite, ++dpos) {
-			LR1ItemPtr newItem = new LR1Item(Math::MakeDword(index, gi), dpos);
+			LR1ItemPtr newItem = new LR1Item(Mathf::MakeDword(index, gi), dpos);
 			answer->insert(newItem);
 
 			if (*ite == NativeSymbols::epsilon || !IsNullable(*ite)) {
@@ -73,7 +73,7 @@ void LR0::AddLR1Items(LR1ItemsetPtr& answer, const GrammarSymbolPtr& lhs) {
 		}
 
 		if (ite == tc->symbols.end()) {
-			LR1ItemPtr newItem = new LR1Item(Math::MakeDword(index, gi), dpos);
+			LR1ItemPtr newItem = new LR1Item(Mathf::MakeDword(index, gi), dpos);
 			answer->insert(newItem);
 		}
 	}

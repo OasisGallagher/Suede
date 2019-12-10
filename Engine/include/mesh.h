@@ -65,10 +65,10 @@ struct MeshAttribute {
 
 	MeshTopology topology;
 
-	std::vector<glm::vec3> positions;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec2> texCoords[TexCoordsCount];
-	std::vector<glm::vec3> tangents;
+	std::vector<Vector3> positions;
+	std::vector<Vector3> normals;
+	std::vector<Vector2> texCoords[TexCoordsCount];
+	std::vector<Vector3> tangents;
 	std::vector<BlendAttribute> blendAttrs;
 	std::vector<uint> indexes;
 	
@@ -112,7 +112,7 @@ public:
 	void UnmapIndexes();
 	uint GetIndexCount();
 
-	const glm::vec3* MapVertices();
+	const Vector3* MapVertices();
 	void UnmapVertices();
 	uint GetVertexCount();
 

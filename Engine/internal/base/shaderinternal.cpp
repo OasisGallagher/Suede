@@ -1,5 +1,5 @@
 #include "glef.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "vertexattrib.h"
 #include "tools/string.h"
 #include "os/filesystem.h"
@@ -370,7 +370,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 			p->value.SetFloat(0);
 			break;
 		case VariantType::Matrix4:
-			p->value.SetMatrix4(glm::mat4(0));
+			p->value.SetMatrix4(Matrix4(0));
 			break;
 		case VariantType::Matrix4Array:
 			p->value.SetMatrix4Array(nullptr, 0);
@@ -384,10 +384,10 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 				p->value.SetColor(Color::black);
 			}
 			else if(type == VariantType::Vector3) {
-				p->value.SetVector3(glm::vec3(0));
+				p->value.SetVector3(Vector3(0));
 			}
 			else {
-				p->value.SetVector4(glm::vec4(0));
+				p->value.SetVector4(Vector4(0));
 			}
 			break;
 		case VariantType::Texture:

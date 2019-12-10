@@ -18,7 +18,10 @@ public: // internal ptr helpers
 
 protected:
 	template <class T>
-	typename T::Internal* _dptr_impl(T*) const { return (T::Internal*)d_; }
+	typename T::Internal* _dptr_impl(T*) const {
+		return (T::Internal*)d_;
+	}
+
 	void _destroy() {
 		destroyer_(d_);
 		d_ = nullptr;

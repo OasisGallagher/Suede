@@ -11,7 +11,7 @@
 
 #include "resources.h"
 #include "tagmanager.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "os/filesystem.h"
 #include "gui/qtimgui/QtImGui.h"
 
@@ -195,13 +195,13 @@ void Inspector::drawBuiltinType(const QMetaProperty& p, QObject* object, const c
 
 void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char* name) {
 	int userType = p.userType();
-	if (userType == QMetaTypeId<glm::vec2>::qt_metatype_id()) {
+	if (userType == QMetaTypeId<Vector2>::qt_metatype_id()) {
 		drawUserVectorType(object, name, GUI::Float2Field);
 	}
-	else if (userType == QMetaTypeId<glm::vec3>::qt_metatype_id()) {
+	else if (userType == QMetaTypeId<Vector3>::qt_metatype_id()) {
 		drawUserVectorType(object, name, GUI::Float3Field);
 	}
-	else if (userType == QMetaTypeId<glm::vec4>::qt_metatype_id()) {
+	else if (userType == QMetaTypeId<Vector4>::qt_metatype_id()) {
 		drawUserVectorType(object, name, GUI::Float4Field);
 	}
 	else if (userType == QMetaTypeId<Color>::qt_metatype_id()) {

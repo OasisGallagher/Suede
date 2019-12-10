@@ -1,11 +1,10 @@
 #include <algorithm>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "time2.h"
 #include "renderer.h"
 #include "rigidbody.h"
 #include "tagmanager.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "tools/string.h"
 #include "particlesystem.h"
 #include "geometryutility.h"
@@ -17,6 +16,8 @@ IGameObject::IGameObject() : IObject(MEMORY_NEW(GameObjectInternal)) {
 	GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
 	e->go = this;
 	World::FireEventImmediate(e);
+
+	AddComponent<Transform>();
 }
 
 IGameObject::~IGameObject() {}
@@ -221,35 +222,36 @@ void GameObjectInternal::CalculateHierarchyMeshBounds() {
 }
 
 void GameObjectInternal::CalculateSelfWorldBounds(const Bounds& bounds) {
-	std::vector<glm::vec3> points;
+	std::vector<Vector3> points;
 	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
 
 	Transform transform = GetTransform();
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < points.size(); ++i) {
-		min = glm::min(min, points[i]);
-		max = glm::max(max, points[i]);
+		min = Vector3::Min(min, points[i]);
+		max = Vector3::Max(max, points[i]);
 	}
 
 	worldBounds_.SetMinMax(min, max);
 }
 
 void GameObjectInternal::CalculateBonesWorldBounds() {
-	std::vector<glm::vec3> points;
-	glm::vec3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+	std::vector<Vector3> points;
+	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 
 	Bounds boneBounds;
 	Skeleton skeleton = GetComponent<Animation>()->GetSkeleton();
-	glm::mat4* matrices = skeleton->GetBoneToRootMatrices();
+	Matrix4* matrices = skeleton->GetBoneToRootMatrices();
 
 	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
 		SkeletonBone* bone = skeleton->GetBone(i);
 		GeometryUtility::GetCuboidCoordinates(points, bone->bounds.center, bone->bounds.size);
 		for (uint j = 0; j < points.size(); ++j) {
-			points[j] = GetTransform()->TransformPoint(glm::vec3(matrices[i] * glm::vec4(points[j], 1)));
+			Vector4 p = matrices[i] * Vector4(points[j].x, points[j].y, points[j].z, 1);
+			points[j] = GetTransform()->TransformPoint(Vector3(p.x, p.y, p.z));
 
-			min = glm::min(min, points[j]);
-			max = glm::max(max, points[j]);
+			min = Vector3::Min(min, points[j]);
+			max = Vector3::Max(max, points[j]);
 		}
 
 		boneBounds.SetMinMax(min, max);

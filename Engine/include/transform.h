@@ -1,16 +1,14 @@
 #pragma once
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 #include "component.h"
 #include "enginedefines.h"
 
 struct PRS {
-	glm::vec3 position;
-	glm::quat rotation;
-	glm::vec3 scale;
-	glm::vec3 eulerAngles;
+	Vector3 position;
+	Quaternion rotation;
+	Vector3 scale;
+	Vector3 eulerAngles;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(GameObject)
@@ -37,11 +35,11 @@ public:
 	void SetParent(Transform value);
 	Transform GetParent() const;
 
-	glm::vec3 TransformPoint(const glm::vec3& point);
-	glm::vec3 TransformDirection(const glm::vec3& direction);
+	Vector3 TransformPoint(const Vector3& point);
+	Vector3 TransformDirection(const Vector3& direction);
 
-	glm::vec3 InverseTransformPoint(const glm::vec3& point);
-	glm::vec3 InverseTransformDirection(const glm::vec3& direction);
+	Vector3 InverseTransformPoint(const Vector3& point);
+	Vector3 InverseTransformDirection(const Vector3& direction);
 
 	Transform FindChild(const std::string& path);
 
@@ -49,33 +47,33 @@ public:
 	Transform GetChildAt(int i);
 	Enumerable GetChildren();
 
-	void SetScale(const glm::vec3& value);
-	void SetPosition(const glm::vec3& value);
-	void SetRotation(const glm::quat& value);
-	void SetEulerAngles(const glm::vec3& value);
+	void SetScale(const Vector3& value);
+	void SetPosition(const Vector3& value);
+	void SetRotation(const Quaternion& value);
+	void SetEulerAngles(const Vector3& value);
 
-	glm::vec3 GetScale();
-	glm::vec3 GetPosition();
-	glm::quat GetRotation();
-	glm::vec3 GetEulerAngles();
+	Vector3 GetScale();
+	Vector3 GetPosition();
+	Quaternion GetRotation();
+	Vector3 GetEulerAngles();
 
-	void SetLocalScale(const glm::vec3& value);
-	void SetLocalPosition(const glm::vec3& value);
-	void SetLocalRotation(const glm::quat& value);
-	void SetLocalEulerAngles(const glm::vec3& value);
+	void SetLocalScale(const Vector3& value);
+	void SetLocalPosition(const Vector3& value);
+	void SetLocalRotation(const Quaternion& value);
+	void SetLocalEulerAngles(const Vector3& value);
 
-	glm::vec3 GetLocalScale();
-	glm::vec3 GetLocalPosition();
-	glm::quat GetLocalRotation();
-	glm::vec3 GetLocalEulerAngles();
+	Vector3 GetLocalScale();
+	Vector3 GetLocalPosition();
+	Quaternion GetLocalRotation();
+	Vector3 GetLocalEulerAngles();
 
-	glm::mat4 GetLocalToWorldMatrix();
-	glm::mat4 GetWorldToLocalMatrix();
+	Matrix4 GetLocalToWorldMatrix();
+	Matrix4 GetWorldToLocalMatrix();
 
-	glm::vec3 GetLocalToWorldPosition(const glm::vec3& position);
-	glm::vec3 GetWorldToLocalPosition(const glm::vec3& position);
+	Vector3 GetLocalToWorldPosition(const Vector3& position);
+	Vector3 GetWorldToLocalPosition(const Vector3& position);
 
-	glm::vec3 GetUp();
-	glm::vec3 GetRight();
-	glm::vec3 GetForward();
+	Vector3 GetUp();
+	Vector3 GetRight();
+	Vector3 GetForward();
 };

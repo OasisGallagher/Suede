@@ -54,7 +54,7 @@ subject to the following restrictions:
 #include "internal/physics/bullet/BulletCollision/BroadphaseCollision/btAxisSweep3.h"
 #include "internal/physics/bullet/BulletCollision/BroadphaseCollision/btDbvtBroadphase.h"
 
-///Math library & Utils
+///Mathf library & Utils
 #include "internal/physics/bullet/LinearMath/btQuaternion.h"
 #include "internal/physics/bullet/LinearMath/btTransform.h"
 #include "internal/physics/bullet/LinearMath/btDefaultMotionState.h"

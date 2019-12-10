@@ -8,8 +8,8 @@ void IRigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionSh
 void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float IRigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
 const Bounds& IRigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
-void IRigidbody::SetVelocity(const glm::vec3& value) { _suede_dptr()->SetVelocity(value); }
-glm::vec3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
+void IRigidbody::SetVelocity(const Vector3& value) { _suede_dptr()->SetVelocity(value); }
+Vector3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
@@ -61,7 +61,7 @@ void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 }
 
 void RigidbodyInternal::SetMass(float value) {
-	if (!Math::Approximately(mass_, value)) {
+	if (!Mathf::Approximately(mass_, value)) {
 		mass_ = value;
 		UpdateBody(false);
 	}
@@ -89,11 +89,11 @@ void RigidbodyInternal::UpdateBounds() {
 	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 }
 
-void RigidbodyInternal::SetVelocity(const glm::vec3& value) {
+void RigidbodyInternal::SetVelocity(const Vector3& value) {
 	body_->setLinearVelocity(btConvert(value));
 }
 
-glm::vec3 RigidbodyInternal::GetVelocity() const {
+Vector3 RigidbodyInternal::GetVelocity() const {
 	return btConvert(body_->getLinearVelocity());
 }
 
@@ -108,7 +108,7 @@ bool RigidbodyInternal::RebuildShape() {
 	return CreateShapeFromMesh(mp->GetMesh(), GetTransform()->GetScale());
 }
 
-bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
+bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const Vector3& scale) {
 	SUEDE_ASSERT(shape_ == nullptr);
 
 	// In case of a convex object, you use btConvexHullShape.
@@ -128,7 +128,7 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 	btTriangleIndexVertexArray* indexedMesh = MEMORY_NEW(btTriangleIndexVertexArray);
 
 	const uint* indexes = mesh->MapIndexes();
-	const glm::vec3* vertices = mesh->MapVertices();
+	const Vector3* vertices = mesh->MapVertices();
 
 	btIndexedMesh indexedSubMesh;
 	for (SubMesh& subMesh : mesh->GetSubMeshes()) {
@@ -139,7 +139,7 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const glm::vec3& scale) {
 
 		indexedSubMesh.m_numVertices = bias.indexCount;
 		indexedSubMesh.m_vertexBase = (const uchar*)(bias.baseVertex + vertices);
-		indexedSubMesh.m_vertexStride = sizeof(glm::vec3);
+		indexedSubMesh.m_vertexStride = sizeof(Vector3);
 
 		indexedMesh->addIndexedMesh(indexedSubMesh);
 	}

@@ -21,8 +21,8 @@ public:
 
 	const Bounds& GetBounds() const;
 
-	void SetVelocity(const glm::vec3& value);
-	glm::vec3 GetVelocity() const;
+	void SetVelocity(const Vector3& value);
+	Vector3 GetVelocity() const;
 };
 
 SUEDE_DEFINE_OBJECT_POINTER(Rigidbody)

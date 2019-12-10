@@ -1,11 +1,5 @@
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
-
 #include "input.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 #include "cameracontroller.h"
 #include "windows/hierarchy/hierarchy.h"
@@ -23,7 +17,7 @@ CameraController::~CameraController() {
 
 void CameraController::Update() {
 	if (Input::GetMouseWheelDelta() != 0) {
-		glm::vec3 fwd = camera_->GetForward();
+		Vector3 fwd = camera_->GetForward();
 		camera_->SetPosition(camera_->GetPosition() + fwd * moveSpeed_.z * (float)Input::GetMouseWheelDelta());
 	}
 
@@ -47,38 +41,38 @@ void CameraController::Update() {
 	}
 }
 
-glm::vec3 CameraController::calculateArcBallVector(const glm::ivec2& pos) {
-	glm::vec3 p = glm::vec3(pos.x * view_->width() - 1.f, pos.y * view_->height() - 1.f, 0);
+Vector3 CameraController::calculateArcBallVector(const Vector2& pos) {
+	Vector3 p = Vector3(pos.x * view_->width() - 1.f, pos.y * view_->height() - 1.f, 0);
 
-	float squared = glm::dot(p, p);
+	float squared = p.GetSqrMagnitude();
 	if (squared <= 1 * 1) {
 		p.z = sqrtf(1 * 1 - squared);
 	}
 	else {
-		p = glm::normalize(p);
+		Vector3::Normalize(p);
 	}
 
 	return p;
 }
 
-void CameraController::rotateCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
-	glm::ivec2 delta = oldPos - mousePos;
+void CameraController::rotateCamera(const Vector2& mousePos, Vector2& oldPos) {
+	Vector2 delta = oldPos - mousePos;
 	oldPos = mousePos;
 
-	glm::vec3 eulerAngles = camera_->GetEulerAngles();
+	Vector3 eulerAngles = camera_->GetEulerAngles();
 	eulerAngles.x += delta.y * orientSpeed_.x;
 	eulerAngles.y += delta.x * orientSpeed_.y;
 	eulerAngles.z = 0;
 	camera_->SetEulerAngles(eulerAngles);
 }
 
-void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
-	glm::ivec2 delta = oldPos - mousePos;
+void CameraController::moveCamera(const Vector2& mousePos, Vector2& oldPos) {
+	Vector2 delta = oldPos - mousePos;
 	delta.x = -delta.x;
 
 	oldPos = mousePos;
-	glm::vec3 up = camera_->GetUp();
-	glm::vec3 right = camera_->GetRight();
+	Vector3 up = camera_->GetUp();
+	Vector3 right = camera_->GetRight();
 
 	up *= moveSpeed_.y * delta.y;
 	right *= moveSpeed_.x * delta.x;
@@ -86,7 +80,7 @@ void CameraController::moveCamera(const glm::ivec2& mousePos, glm::ivec2& oldPos
 	camera_->SetPosition(camera_->GetPosition() + up + right);
 }
 
-void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::ivec2& oldPos) {
+void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& oldPos) {
 	GameObject selected = Hierarchy::instance()->selectedGameObject();
 
 	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
@@ -95,28 +89,34 @@ void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::i
 
 	if (oldPos != mousePos) {
 #ifdef ARC_BALL
-		glm::vec3 va = calculateArcBallVector(oldPos);
-		glm::vec3 vb = calculateArcBallVector(mousePos);
+		Vector3 va = calculateArcBallVector(oldPos);
+		Vector3 vb = calculateArcBallVector(mousePos);
 
-		glm::quat rot = glm::quat(glm::dot(va, vb), glm::cross(va, vb));
-		rot = glm::pow(rot, 1 / 5.f);
+		Quaternion rot(Vector3::Dot(va, vb), Vector3::Cross(va, vb));
+		Quaternion::Pow(rot, 1 / 5.f);
 
-		glm::vec3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
+		Vector3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
 		camera_->SetPosition(selected->GetTransform()->GetPosition() + rot * dir);
 
-		glm::vec3 forward = -normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
-		glm::vec3 up = rot * camera_->GetUp();
-		glm::vec3 right = glm::cross(up, forward);
-		up = glm::cross(forward, right);
+		Vector3 forward = -(selected->GetTransform()->GetPosition() - camera_->GetPosition()).GetNormalized();
+		Vector3 up = rot * camera_->GetUp();
+		Vector3 right = Vector3::Cross(up, forward);
+		up = Vector3::Cross(forward, right);
 
-		glm::mat3 m3(right, up, forward);
-		camera_->SetRotation(glm::normalize(glm::quat(m3)));
+		Matrix4 rotMatrix(
+			Vector4(right.x, right.y, right.z, 0),
+			Vector4(up.x, up.y, up.z, 0),
+			Vector4(forward.x, forward.y, forward.z, 0),
+			Vector4(0, 0, 0, 1)
+		);
+
+		camera_->SetRotation(Quaternion(rotMatrix).GetNormalized());
 #else
-		glm::vec3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
+		Vector3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
 
-		glm::ivec2 delta = mousePos - oldPos;
-		glm::quat qx = glm::angleAxis(rotateSpeed_.x * delta.x, camera_->GetUp());
-		glm::quat qy = glm::angleAxis(rotateSpeed_.y * delta.y, camera_->GetRight());
+		Vector2 delta = mousePos - oldPos;
+		Quaternion qx(rotateSpeed_.x * delta.x, camera_->GetUp());
+		Quaternion qy(rotateSpeed_.y * delta.y, camera_->GetRight());
 
 		qx *= qy;
 		
@@ -124,18 +124,8 @@ void CameraController::rotateAroundGameObject(const glm::ivec2& mousePos, glm::i
 
 		camera_->SetPosition(bp);
 
-		glm::quat q(glm::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), glm::vec3(0, 1, 0)));
-		camera_->SetRotation(glm::conjugate(q));
-
-		/*glm::vec3 forward = -glm::normalize(selected->GetTransform()->GetPosition() - camera_->GetPosition());
-		glm::vec3 right = qx * camera_->GetRight();
-		right.y = 0;
-		Math::Orthogonalize(right, forward);
-
-		glm::vec3 up = glm::cross(forward, right);
-
-		glm::quat q(glm::mat3(right, up, forward));
-		camera_->SetRotation(glm::normalize(q));*/
+		Quaternion q(Matrix4::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), Vector3(0, 1, 0)));
+		camera_->SetRotation(q.getConjugated());
 #endif
 
 		oldPos = mousePos;

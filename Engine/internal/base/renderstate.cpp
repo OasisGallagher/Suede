@@ -1,5 +1,5 @@
 #include <cstdarg>
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 #include "renderstate.h"
 #include "debug/debug.h"

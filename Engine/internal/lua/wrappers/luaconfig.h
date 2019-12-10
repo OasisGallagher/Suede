@@ -19,7 +19,6 @@
 #include "light_wrapper.h"
 #include "material_wrapper.h"
 #include "mesh_wrapper.h"
-#include "object_wrapper.h"
 #include "particlesystem_wrapper.h"
 #include "physics_wrapper.h"
 #include "plane_wrapper.h"
@@ -82,7 +81,6 @@ static int configure(lua_State* L) {
 	MeshProvider_Wrapper::create(L);
 	TextMesh_Wrapper::create(L);
 	MeshFilter_Wrapper::create(L);
-	Object_Wrapper::create(L);
 	ParticleBurst_Wrapper::create(L);
 	Particle_Wrapper::create(L);
 	ParticleEmitter_Wrapper::create(L);
@@ -160,7 +158,6 @@ static int configure(lua_State* L) {
 	MeshProvider_Wrapper::initialize(L, funcs, fields);
 	TextMesh_Wrapper::initialize(L, funcs, fields);
 	MeshFilter_Wrapper::initialize(L, funcs, fields);
-	Object_Wrapper::initialize(L, funcs, fields);
 	ParticleBurst_Wrapper::initialize(L, funcs, fields);
 	Particle_Wrapper::initialize(L, funcs, fields);
 	ParticleEmitter_Wrapper::initialize(L, funcs, fields);

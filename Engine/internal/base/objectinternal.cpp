@@ -1,6 +1,6 @@
 #include "objectinternal.h"
 
-#include "tools/math2.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 
 #include "world.h"
@@ -43,10 +43,10 @@ uint ObjectInternal::GenerateInstanceID(ObjectType type) {
 		return 0;
 	}
 
-	return Math::MakeDword(++objectIDContainer[(int)type], (int)type);
+	return Mathf::MakeDword(++objectIDContainer[(int)type], (int)type);
 }
 
 void ObjectInternal::DecodeInstanceID(uint value, ObjectType* type, uint* id) {
-	if (type != nullptr) { *type = (ObjectType)Math::Highword(value); }
-	if (id != nullptr) { *id = Math::Loword(value); }
+	if (type != nullptr) { *type = (ObjectType)Mathf::Highword(value); }
+	if (id != nullptr) { *id = Mathf::Loword(value); }
 }

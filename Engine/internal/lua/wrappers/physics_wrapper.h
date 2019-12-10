@@ -66,15 +66,15 @@ class Physics_Wrapper {
 
 		return 1;
 	}
-	// static void SetGravity(const glm::vec3& value)
+	// static void SetGravity(const Vector3& value)
 	static int SetGravity(lua_State* L) {
-		glm::vec3 value = Lua::get<glm::vec3>(L, 1);
+		Vector3 value = Lua::get<Vector3>(L, 1);
 		
 		Physics::SetGravity(value);
 		return 0;
 	}
 
-	// static glm::vec3 GetGravity()
+	// static Vector3 GetGravity()
 	static int GetGravity(lua_State* L) {
 		return Lua::push(L, Physics::GetGravity());
 	}

@@ -1,5 +1,6 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "math/vector3.h"
+#include "math/vector4.h"
 #include "enginedefines.h"
 
 /** 
@@ -8,18 +9,18 @@
 class SUEDE_API Plane {
 public:
 	Plane();
-	Plane(const glm::vec4& abcd);
-	Plane(const glm::vec3 points[3]);
-	Plane(const glm::vec3& normal, float d);
+	Plane(const Vector4& abcd);
+	Plane(const Vector3 points[3]);
+	Plane(const Vector3& normal, float d);
 
 public:
 	float GetDistance() const;
-	glm::vec3 GetNormal() const;
+	Vector3 GetNormal() const;
 
 private:
 	void Normalize();
 
 private:
 	float d_;
-	glm::vec3 normal_;
+	Vector3 normal_;
 };

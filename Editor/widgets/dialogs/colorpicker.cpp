@@ -1,5 +1,5 @@
 #include "colorpicker.h"
-#include "tools/math2.h"
+#include "math/mathf.h"
 
 #include "tools/enum.h"
 #include "memory/memory.h"

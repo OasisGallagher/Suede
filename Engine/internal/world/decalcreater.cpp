@@ -4,7 +4,7 @@
 #include "builtinproperties.h"
 
 bool DecalCreater::CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]) {
-	std::vector<glm::vec3> triangles;
+	std::vector<Vector3> triangles;
 	if (!ClampMesh(camera, triangles, go, planes)) {
 		return false;
 	}
@@ -62,7 +62,7 @@ bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<
 }
 
 void DecalCreater::CreateDecal(DecalInfo* info) {
-	glm::mat4 biasMatrix = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0.5f)), glm::vec3(0.5f));
+	Matrix4 biasMatrix = Matrix4::Translate(Vector3(0.5f)) * Matrix4::Scale(Vector3(0.5f));
 	Material decalMaterial = suede_dynamic_cast<Material>(material_->Clone());
 
 	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
@@ -87,23 +87,23 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	info->decal.material = decalMaterial;
 }
 
-bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, GameObject go, Plane planes[6]) {
+bool DecalCreater::ClampMesh(Camera camera, std::vector<Vector3>& triangles, GameObject go, Plane planes[6]) {
 	Mesh mesh = go->GetComponent<MeshFilter>()->GetMesh();
-	glm::vec3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
+	Vector3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
 	const uint* indexes = mesh->MapIndexes();
-	const glm::vec3* vertices = mesh->MapVertices();
+	const Vector3* vertices = mesh->MapVertices();
 
 	for (SubMesh subMesh : mesh->GetSubMeshes()) {
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
 		for (int j = 0; j < bias.indexCount; j += 3) {
-			std::vector<glm::vec3> polygon;
+			std::vector<Vector3> polygon;
 			uint index0 = indexes[bias.baseIndex + j] + bias.baseVertex;
 			uint index1 = indexes[bias.baseIndex + j + 1] + bias.baseVertex;
 			uint index2 = indexes[bias.baseIndex + j + 2] + bias.baseVertex;
 
-			glm::vec3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
+			Vector3 vs[] = { vertices[index0], vertices[index1], vertices[index2] };
 
 			if (!GeometryUtility::IsFrontFace(vs, cameraPosition)) {
 				continue;
@@ -114,7 +114,7 @@ bool DecalCreater::ClampMesh(Camera camera, std::vector<glm::vec3>& triangles, G
 			vs[2] = go->GetTransform()->TransformPoint(vs[2]);
 
 			GeometryUtility::ClampTriangle(polygon, vs, planes, 6);
-			GeometryUtility::Triangulate(triangles, polygon, glm::cross(vs[1] - vs[0], vs[2] - vs[1]));
+			GeometryUtility::Triangulate(triangles, polygon, Vector3::Cross(vs[1] - vs[0], vs[2] - vs[1]));
 		}
 	}
 
