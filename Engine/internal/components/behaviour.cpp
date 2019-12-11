@@ -13,9 +13,9 @@ public:
 	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
 };
 
-IBehaviour::IBehaviour() : IComponent(MEMORY_NEW(BehaviourInternal)) {
+Behaviour::Behaviour() : Component(MEMORY_NEW(BehaviourInternal)) {
 }
 
-void IBehaviour::OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect) {
+void Behaviour::OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect) {
 	Debug::LogError("Behaviour::OnRenderImage not implement");
 }

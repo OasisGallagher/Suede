@@ -114,11 +114,11 @@ public:
 	virtual uint GetParticlesCount() const;
 	virtual const Bounds& GetMaxBounds() { return bounds_; }
 
-	virtual void SetEmitter(ParticleEmitter value) { emitter_ = value; }
-	virtual ParticleEmitter GetEmitter() { return emitter_; }
+	virtual void SetEmitter(ParticleEmitter* value) { emitter_ = value; }
+	virtual ParticleEmitter* GetEmitter() { return emitter_.get(); }
 
-	virtual void SetParticleAnimator(ParticleAnimator value) { particleAnimator_ = value; }
-	virtual ParticleAnimator GetParticleAnimator() { return particleAnimator_; }
+	virtual void SetParticleAnimator(ParticleAnimator* value) { particleAnimator_ = value; }
+	virtual ParticleAnimator* GetParticleAnimator() { return particleAnimator_.get(); }
 
 public:
 	virtual void Update();
@@ -155,8 +155,8 @@ private:
 
 	Bounds bounds_;
 
-	ParticleEmitter emitter_;
-	ParticleAnimator particleAnimator_;
+	ref_ptr<ParticleEmitter> emitter_;
+	ref_ptr<ParticleAnimator> particleAnimator_;
 
 	std::vector<Vector4> colors_;
 	std::vector<Vector4> geometries_;

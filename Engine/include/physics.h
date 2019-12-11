@@ -7,7 +7,7 @@ struct SUEDE_API RaycastHit {
 	Vector3 point;
 	Vector3 normal;
 
-	GameObject gameObject;
+	GameObject* gameObject;
 };
 
 class SUEDE_API Physics : private Singleton2<Physics> {

@@ -15,13 +15,13 @@ BETTER_ENUM(LightType, int,
 	Directional
 )
 
-class SUEDE_API ILight : public IComponent {
+class SUEDE_API Light : public Component {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(Light)
 	SUEDE_DECLARE_IMPLEMENTATION(Light)
 
 public:
-	ILight();
+	Light();
 
 public:
 	void SetType(LightType value);
@@ -38,5 +38,3 @@ public:
 
 	int GetUpdateStrategy();
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Light)

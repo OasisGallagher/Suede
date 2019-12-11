@@ -34,32 +34,32 @@ public: \
 		return Class::GetComponentName(); \
 	}
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject)
-SUEDE_DEFINE_OBJECT_POINTER(Transform)
-
 enum {
 	UpdateStrategyNone,
 	UpdateStrategyCulling = 1,
 	UpdateStrategyRendering = 1 << 1,
 };
 
-class SUEDE_API IComponent : public IObject {
+class Transform;
+class GameObject;
+
+class SUEDE_API Component : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(Component)
 	SUEDE_DECLARE_IMPLEMENTATION(Component)
 
 public:
 	virtual void Awake();
 	virtual void Update();
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
+	virtual void OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect);
 
 public:
 	bool GetEnabled() const;
 	void SetEnabled(bool value);
 
-	void SetGameObject(GameObject value);
-	GameObject GetGameObject();
+	void SetGameObject(GameObject* value);
+	GameObject* GetGameObject();
 
-	Transform GetTransform();
+	Transform* GetTransform();
 	void OnMessage(int messageID, void* parameter);
 
 	void CullingUpdate();
@@ -91,22 +91,20 @@ public:
 	virtual const char* GetComponentInstanceName() const { return GetComponentName(); }
 
 protected:
-	IComponent(void* d);
+	Component(void* d);
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Component)
 
 class SUEDE_API ComponentUtility {
 public:
 	template <class T> static bool Register();
 
 private:
-	static bool Register(suede_guid guid, const std::function<Object()>& creater);
-	static bool Register(const char* name, const std::function<Object()>& creater);
+	static bool Register(suede_guid guid, const std::function<Object*()>& creater);
+	static bool Register(const char* name, const std::function<Object*()>& creater);
 };
 
 template <class T>
 bool ComponentUtility::Register() {
-	std::function<Object()> creater = []() -> Object { return new T(); };
+	std::function<Object*()> creater = []() -> Object* { return new T(); };
 	return Register(T::GetComponentGUID(), creater) && Register(T::GetComponentName(), creater);
 }

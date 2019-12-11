@@ -43,12 +43,12 @@ inline void AIConvert(Vector3& translation, Quaternion& rotation, Vector3& scale
 
 MaterialAsset::MaterialAsset()
 	: twoSided(false), gloss(50), mainColor(Color::white), name(UNNAMED_MATERIAL) {
-	material = new IMaterial();
+	material = new Material();
 	mainTexels = bumpTexels = specularTexels = emissiveTexels = lightmapTexels = nullptr;
 }
 
 void MaterialAsset::ApplyAsset() {
-	Shader shader = Resources::FindShader("builtin/" + shaderName);
+	Shader* shader = Resources::FindShader("builtin/" + shaderName);
 	material->SetShader(shader);
 
 	material->SetFloat(BuiltinProperties::Gloss, gloss);
@@ -60,31 +60,31 @@ void MaterialAsset::ApplyAsset() {
 	material->SetName(name);
 
 	if (mainTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::MainTexture, CreateTexture2D(mainTexels));
+		material->SetTexture(BuiltinProperties::MainTexture, CreateTexture2D(mainTexels).get());
 	}
 	else {
 		material->SetTexture(BuiltinProperties::MainTexture, Resources::GetWhiteTexture());
 	}
 
 	if (bumpTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::BumpTexture, CreateTexture2D(bumpTexels));
+		material->SetTexture(BuiltinProperties::BumpTexture, CreateTexture2D(bumpTexels).get());
 	}
 
 	if (specularTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::SpecularTexture, CreateTexture2D(specularTexels));
+		material->SetTexture(BuiltinProperties::SpecularTexture, CreateTexture2D(specularTexels).get());
 	}
 
 	if (emissiveTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::EmissiveTexture, CreateTexture2D(emissiveTexels));
+		material->SetTexture(BuiltinProperties::EmissiveTexture, CreateTexture2D(emissiveTexels).get());
 	}
 
 	if (lightmapTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::LightmapTexture, CreateTexture2D(lightmapTexels));
+		material->SetTexture(BuiltinProperties::LightmapTexture, CreateTexture2D(lightmapTexels).get());
 	}
 }
 
-Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
-	Texture2D texture = new ITexture2D();
+ref_ptr<Texture2D> MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
+	ref_ptr<Texture2D> texture = new Texture2D();
 	if (!texture->Create(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, 4, false)) {
 		return nullptr;
 	}
@@ -92,7 +92,7 @@ Texture2D MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-GameObjectLoader::GameObjectLoader(const std::string& path, GameObject root, WorkerEventListener* receiver)
+GameObjectLoader::GameObjectLoader(const std::string& path, GameObject* root, WorkerEventListener* receiver)
 	: Worker(receiver), path_(path), root_(root) {
 }
 
@@ -131,19 +131,15 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 	return true;
 }
 
-GameObject GameObjectLoader::LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
-	GameObject go = make_ref<IGameObject>();
-	auto tr = go->GetTransform();
-	auto pr = parent->GetTransform();
+void GameObjectLoader::LoadHierarchy(GameObject* parent, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
+	ref_ptr<GameObject> go = new GameObject();
+
 	go->GetTransform()->SetParent(parent->GetTransform());
-
-	LoadNodeTo(go, node, surface, subMeshes);
-	LoadChildren(go, node, surface, subMeshes);
-
-	return go;
+	LoadNodeTo(go.get(), node, surface, subMeshes);
+	LoadChildren(go.get(), node, surface, subMeshes);
 }
 
-void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
 	go->SetName(node->mName.C_Str());
 
 	if (go != root_) {
@@ -159,27 +155,27 @@ void GameObjectLoader::LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, Su
 	LoadComponents(go, node, surface, subMeshes);
 }
 
-void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
 
-	Renderer renderer = nullptr;
+	ref_ptr<Renderer> renderer;
 	if (!HasAnimation()) {
-		renderer = new IMeshRenderer();
+		renderer = new MeshRenderer();
 	}
 	else {
-		renderer = new ISkinnedMeshRenderer();
-		suede_dynamic_cast<SkinnedMeshRenderer>(renderer)->SetSkeleton(skeleton_);
+		renderer = new SkinnedMeshRenderer();
+		((SkinnedMeshRenderer*)renderer.get())->SetSkeleton(skeleton_.get());
 	}
 
 	asset_.components.push_back(std::make_pair(go, renderer));
 
-	Mesh mesh = new IMesh();
+	ref_ptr<Mesh> mesh = new Mesh();
 	mesh->ShareStorage(surface);
 
-	MeshFilter meshFilter = new IMeshFilter();
-	meshFilter->SetMesh(mesh);
+	ref_ptr<MeshFilter> meshFilter = new MeshFilter();
+	meshFilter->SetMesh(mesh.get());
 	asset_.components.push_back(std::make_pair(go, meshFilter));
 
 	for (int i = 0; i < node->mNumMeshes; ++i) {
@@ -188,12 +184,12 @@ void GameObjectLoader::LoadComponents(GameObject go, aiNode* node, Mesh& surface
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
-			renderer->AddMaterial(asset_.materialAssets[materialIndex].material);
+			renderer->AddMaterial(asset_.materialAssets[materialIndex].material.get());
 		}
 	}
 }
 
-void GameObjectLoader::LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes) {
+void GameObjectLoader::LoadChildren(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
 		LoadHierarchy(go, node->mChildren[i], surface, subMeshes);
 	}
@@ -218,11 +214,11 @@ void GameObjectLoader::ReserveMemory(MeshAsset& meshAsset) {
 	meshAsset.blendAttrs.resize(vertexCount);
 }
 
-bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
+bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh** subMeshes) {
 	ReserveMemory(meshAsset);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
-		subMeshes[i] = new ISubMesh();
+		subMeshes[i] = new SubMesh();
 		TriangleBias bias{
 			scene_->mMeshes[i]->mNumFaces * 3, meshAsset.indexes.size(), meshAsset.positions.size()
 		};
@@ -233,7 +229,7 @@ bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes) {
 	return true;
 }
 
-bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh** subMeshes) {
 	LoadVertexAttribute(meshIndex, meshAsset);
 	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
 
@@ -287,10 +283,10 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) 
 	}
 }
 
-void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes) {
+void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh** subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
-		if (!skeleton_) { skeleton_ = new ISkeleton(); }
+		if (!skeleton_) { skeleton_ = new Skeleton(); }
 		std::string name(aimesh->mBones[i]->mName.data);
 
 		int index = skeleton_->GetBoneIndex(name);
@@ -386,7 +382,7 @@ void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMateria
 	}
 }
 
-void GameObjectLoader::LoadAnimation(Animation animation) {
+void GameObjectLoader::LoadAnimation(Animation* animation) {
 	Matrix4 rootTransform;
 	animation->SetRootTransform(AIConvert(rootTransform, scene_->mRootNode->mTransformation.Inverse()));
 
@@ -395,16 +391,16 @@ void GameObjectLoader::LoadAnimation(Animation animation) {
 		aiAnimation* anim = scene_->mAnimations[i];
 		std::string name = anim->mName.C_Str();
 
-		AnimationClip clip = new IAnimationClip();
+		ref_ptr<AnimationClip> clip = new AnimationClip();
 		if (defaultClipName == nullptr) {
 			defaultClipName = anim->mName.C_Str();
 		}
 
-		LoadAnimationClip(anim, clip);
-		animation->AddClip(name, clip);
+		LoadAnimationClip(anim, clip.get());
+		animation->AddClip(name, clip.get());
 	}
 
-	animation->SetSkeleton(skeleton_);
+	animation->SetSkeleton(skeleton_.get());
 	animation->Play(defaultClipName);
 }
 
@@ -412,7 +408,7 @@ bool GameObjectLoader::HasAnimation() {
 	return skeleton_ && scene_->mNumAnimations != 0;
 }
 
-void GameObjectLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip clip) {
+void GameObjectLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip* clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapMode::Loop);
@@ -422,34 +418,31 @@ void GameObjectLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip 
 void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
 	const aiNodeAnim* channel = FindChannel(anim, paiNode->mName.C_Str());
 
-	AnimationCurve curve;
-	AnimationKeys keys = new IAnimationKeys();
+	AnimationKeys keys;
+	ref_ptr<AnimationCurve> curve;
 	if (channel != nullptr) {
 		for (int i = 0; i < channel->mNumPositionKeys; ++i) {
 			const aiVectorKey& key = channel->mPositionKeys[i];
-			keys->AddVector3((float)key.mTime, FrameKeyPosition, AIConvert(key.mValue));
+			keys.AddVector3((float)key.mTime, FrameKeyPosition, AIConvert(key.mValue));
 		}
 
 		for (int i = 0; i < channel->mNumRotationKeys; ++i) {
 			const aiQuatKey& key = channel->mRotationKeys[i];
 			Quaternion rotation;
-			keys->AddQuaternion((float)key.mTime, FrameKeyRotation, AIConvert(rotation, key.mValue));
+			keys.AddQuaternion((float)key.mTime, FrameKeyRotation, AIConvert(rotation, key.mValue));
 		}
 
 		for (int i = 0; i < channel->mNumScalingKeys; ++i) {
 			const aiVectorKey& key = channel->mScalingKeys[i];
-			keys->AddVector3((float)key.mTime, FrameKeyScale, AIConvert(key.mValue));
+			keys.AddVector3((float)key.mTime, FrameKeyScale, AIConvert(key.mValue));
 		}
 
-		std::vector<AnimationFrame> keyframes;
-		keys->ToKeyframes(keyframes);
-
-		curve = new IAnimationCurve();
-		curve->SetKeyframes(keyframes);
+		curve = new AnimationCurve();
+		curve->SetKeys(&keys);
 	}
 
 	Matrix4 matrix;
-	SkeletonNode* child = skeleton_->CreateNode(paiNode->mName.C_Str(), AIConvert(matrix, paiNode->mTransformation), curve);
+	SkeletonNode* child = skeleton_->CreateNode(paiNode->mName.C_Str(), AIConvert(matrix, paiNode->mTransformation), curve.get());
 	skeleton_->AddNode(pskNode, child);
 
 	for (int i = 0; i < paiNode->mNumChildren; ++i) {
@@ -522,11 +515,11 @@ bool GameObjectLoader::LoadAsset() {
 		return false;
 	}
 
-	SubMesh* subMeshes = nullptr;
+	SubMesh** subMeshes = nullptr;
 	asset_.meshAsset.topology = MeshTopology::Triangles;
 
 	if (scene_->mNumMeshes > 0) {
-		subMeshes = MEMORY_NEW_ARRAY(SubMesh, scene_->mNumMeshes);
+		subMeshes = MEMORY_NEW_ARRAY(SubMesh*, scene_->mNumMeshes);
 		if (!LoadAttribute(asset_.meshAsset, subMeshes)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
@@ -537,48 +530,50 @@ bool GameObjectLoader::LoadAsset() {
 		LoadMaterialAssets();
 	}
 
-	surface_ = new IMesh();
-	surface_->CreateStorage();
+	Mesh* surface = new Mesh();
+	surface->CreateStorage();
 
-	LoadNodeTo(root_, scene_->mRootNode, surface_, subMeshes);
-	LoadChildren(root_, scene_->mRootNode, surface_, subMeshes);
+	LoadNodeTo(root_.get(), scene_->mRootNode, surface, subMeshes);
+	LoadChildren(root_.get(), scene_->mRootNode, surface, subMeshes);
+
+	surface_ = surface;
 
 	MEMORY_DELETE_ARRAY(subMeshes);
 
 	if (HasAnimation()) {
-		Animation animation = new IAnimation();
-		asset_.components.push_back(std::make_pair(root_, animation));
-		LoadAnimation(animation);
+		ref_ptr<Animation> animation = new Animation();
+		asset_.components.push_back(std::make_pair(root_.get(), animation));
+		LoadAnimation(animation.get());
 	}
 
 	return true;
 }
 
-GameObject GameObjectLoaderThreadPool::Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
-	GameObject root = new IGameObject();
-	ImportTo(root, path, callback);
-	return root;
+GameObject* GameObjectLoaderThreadPool::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
+	ref_ptr<GameObject> root = new GameObject();
+	ImportTo(root.get(), path, callback);
+	return root.get();
 }
 
-bool GameObjectLoaderThreadPool::ImportTo(GameObject go, const std::string& path, Lua::Func<void, GameObject, const std::string&> callback) {
+bool GameObjectLoaderThreadPool::ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
 	return Execute(MEMORY_NEW(GameObjectLoaderWithCallback, path, go, this, callback));
 }
 
 void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 	GameObjectLoaderWithCallback* loader = (GameObjectLoaderWithCallback*)schedule.get();
 
-	GameObjectAsset asset = loader->GetGameObjectAsset();
+	GameObjectAsset& asset = loader->GetGameObjectAsset();
 	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
 		asset.materialAssets[i].ApplyAsset();
 	}
 
 	for (uint i = 0; i < asset.components.size(); ++i) {
-		asset.components[i].first->AddComponent(asset.components[i].second);
+		asset.components[i].first->AddComponent(asset.components[i].second.get());
 	}
 
 	loader->GetSurface()->SetAttribute(asset.meshAsset);
 
-	GameObject root = loader->GetGameObject();
+	GameObject* root = loader->GetGameObject();
 	root->GetTransform()->SetParent(World::GetRootTransform());
 
 	if (loader->GetParameter()) {

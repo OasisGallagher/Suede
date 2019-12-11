@@ -23,13 +23,13 @@ public:
 	virtual void tick();
 
 private slots:
-	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
+	void onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected);
 
 private:
 	void onGui();
 	void drawGui();
 
-	QObject* componentMetaObject(Component component, std::string& typeName);
+	QObject* componentMetaObject(Component* component, std::string& typeName);
 	void addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo);
 
 	void drawBasics();
@@ -57,8 +57,8 @@ private:
 	void drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T));
 
 private:
-	GameObject target_;
 	QGLWidget* view_;
+	ref_ptr<GameObject> target_;
 
 	uint blackTextureID_;
 	std::map<ObjectType, std::shared_ptr<ComponentMetaObject>> suedeMetaObjects_;

@@ -27,20 +27,20 @@ void Gizmos::DrawWireSphere(const Vector3& center, float radius) { _suede_dinsta
 void Gizmos::DrawWireCuboid(const Vector3& center, const Vector3& size) { _suede_dinstance()->DrawWireCuboid(center, size); }
 
 GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
-	mesh_ = new IMesh();
+	mesh_ = new Mesh();
 
-	lineMaterial_ = new IMaterial();
+	lineMaterial_ = new Material();
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", Matrix4(1));
 
 	Engine::AddFrameEventListener(this);
 }
 
-bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material material) {
+bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material) {
 	return ref.topology == topology && ref.wireframe == wireframe && ref.color == color_ && ref.material == material;
 }
 
-GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, bool wireframe, Material material) {
+GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, bool wireframe, Material* material) {
 	if (batches_.empty() || !IsBatchable(batches_.back(), topology, wireframe, material)) {
 		Batch b = { topology, wireframe, color_, material };
 		batches_.push_back(b);
@@ -50,19 +50,19 @@ GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, bool wire
 }
 
 void GizmosInternal::DrawLines(const Vector3* points, uint npoints) {
-	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_), points, npoints);
+	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_.get()), points, npoints);
 }
 
 void GizmosInternal::DrawLines(const Vector3* points, uint npoints, const uint* indexes, uint nindexes) {
-	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_), points, npoints, indexes, nindexes);
+	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_.get()), points, npoints, indexes, nindexes);
 }
 
 void GizmosInternal::DrawLineStripe(const Vector3* points, uint npoints) {
-	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), points, npoints);
+	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_.get()), points, npoints);
 }
 
 void GizmosInternal::DrawLineStripe(const Vector3* points, uint npoints, const uint* indexes, uint nindexes) {
-	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_), points, npoints, indexes, nindexes);
+	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_.get()), points, npoints, indexes, nindexes);
 }
 
 void GizmosInternal::DrawSphere(const Vector3& center, float radius) {
@@ -127,7 +127,7 @@ void GizmosInternal::AddSphereBatch(const Vector3& center, float radius, bool wi
 	std::vector<Vector3> points;
 	GeometryUtility::GetSphereCoodrinates(points, indexes, Vector2(15));
 
-	Material material = new IMaterial();
+	Material* material = new Material();
 	material->SetShader(Resources::FindShader("builtin/gizmos"));
 	material->SetMatrix4("localToWorldMatrix", Matrix4::TRS(center, Quaternion(), Vector3(radius)));
 
@@ -139,7 +139,7 @@ void GizmosInternal::AddCuboidBatch(const Vector3& center, const Vector3& size, 
 	std::vector<Vector3> points;
 	GeometryUtility::GetCuboidCoordinates(points, center, size, &indexes);
 
-	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, lineMaterial_), &points[0], points.size(), &indexes[0], indexes.size());
+	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, lineMaterial_.get()), &points[0], points.size(), &indexes[0], indexes.size());
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {
@@ -155,14 +155,14 @@ void GizmosInternal::DrawGizmos(const Batch& b) {
 	mesh_->SetAttribute(attribute);
 
 	if (mesh_->GetSubMeshCount() == 0) {
-		mesh_->AddSubMesh(new ISubMesh());
+		mesh_->AddSubMesh(new SubMesh());
 	}
 
 	TriangleBias bias{ b.indexes.size(), 0, 0 };
 	mesh_->GetSubMesh(0)->SetTriangleBias(bias);
 
 	b.material->SetColor(BuiltinProperties::MainColor, b.color);
-	Graphics::Draw(mesh_, b.material);
+	Graphics::Draw(mesh_.get(), b.material.get());
 
 	Graphics::SetShadingMode(oldShadingMode);
 }

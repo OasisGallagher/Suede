@@ -52,7 +52,7 @@ public:
 	
 	const Matrix4* GetMatrix4Array() const;
 	uint GetMatrix4ArraySize() const;
-	Texture GetTexture() const;
+	Texture* GetTexture() const;
 
 	VariantType GetType() const { return type_; }
 
@@ -70,7 +70,7 @@ public:
 	void SetString(const std::string& value);
 	void SetVector3Array(const Vector3* data, uint size);
 	void SetMatrix4Array(const Matrix4* data, uint size);
-	void SetTexture(Texture value);
+	void SetTexture(Texture* value);
 
 	const void* GetData() const;
 	uint GetDataSize() const;
@@ -104,7 +104,7 @@ private:
 	} data_;
 
 	// non-pod data.
-	Texture texture_;
+	ref_ptr<Texture> texture_;
 
 	VariantType type_;
 };

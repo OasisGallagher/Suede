@@ -6,22 +6,21 @@
 #include "internal/base/renderdefines.h"
 #include "internal/rendering/pipeline.h"
 
-IRenderer::IRenderer(void* d) : IComponent(d) {}
-void IRenderer::AddMaterial(Material material) { _suede_dptr()->AddMaterial(material); }
-Material IRenderer::GetMaterial(uint index) { return _suede_dptr()->GetMaterial(index); }
-IRenderer::Enumerable IRenderer::GetMaterials() { return _suede_dptr()->GetMaterials(); }
-void IRenderer::SetMaterial(uint index, Material value) { _suede_dptr()->SetMaterial(index, value); }
-void IRenderer::RemoveMaterial(Material material) { _suede_dptr()->RemoveMaterial(material); }
-void IRenderer::RemoveMaterialAt(uint index) { _suede_dptr()->RemoveMaterialAt(index); }
-uint IRenderer::GetMaterialCount() { return _suede_dptr()->GetMaterialCount(); }
-void IRenderer::UpdateMaterialProperties() { _suede_dptr()->UpdateMaterialProperties(); }
+Renderer::Renderer(void* d) : Component(d) {}
+void Renderer::AddMaterial(Material* material) { _suede_dptr()->AddMaterial(material); }
+Material* Renderer::GetMaterial(uint index) { return _suede_dptr()->GetMaterial(index); }
+void Renderer::SetMaterial(uint index, Material* value) { _suede_dptr()->SetMaterial(index, value); }
+void Renderer::RemoveMaterial(Material* material) { _suede_dptr()->RemoveMaterial(material); }
+void Renderer::RemoveMaterialAt(uint index) { _suede_dptr()->RemoveMaterialAt(index); }
+uint Renderer::GetMaterialCount() { return _suede_dptr()->GetMaterialCount(); }
+void Renderer::UpdateMaterialProperties() { _suede_dptr()->UpdateMaterialProperties(); }
 
-IMeshRenderer::IMeshRenderer() : IRenderer(MEMORY_NEW(MeshRendererInternal)) {}
+MeshRenderer::MeshRenderer() : Renderer(MEMORY_NEW(MeshRendererInternal)) {}
 
-IParticleRenderer::IParticleRenderer() : IRenderer(MEMORY_NEW(ParticleRendererInternal)) {}
+ParticleRenderer::ParticleRenderer() : Renderer(MEMORY_NEW(ParticleRendererInternal)) {}
 
-ISkinnedMeshRenderer::ISkinnedMeshRenderer() : IRenderer(MEMORY_NEW(SkinnedMeshRendererInternal)) {}
-void ISkinnedMeshRenderer::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
+SkinnedMeshRenderer::SkinnedMeshRenderer() : Renderer(MEMORY_NEW(SkinnedMeshRendererInternal)) {}
+void SkinnedMeshRenderer::SetSkeleton(Skeleton* value) { _suede_dptr()->SetSkeleton(value); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Renderer, Component)
 SUEDE_DEFINE_COMPONENT_INTERNAL(MeshRenderer, Renderer)
@@ -34,9 +33,11 @@ RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
 RendererInternal::~RendererInternal() {
 }
 
-void RendererInternal::RemoveMaterial(Material material) {
-	std::vector<Material>::iterator pos = std::remove(materials_.begin(), materials_.end(), material);
-	materials_.erase(pos, materials_.end());
+void RendererInternal::RemoveMaterial(Material* material) {
+	materials_.erase(
+		std::remove(materials_.begin(), materials_.end(), material),
+		materials_.end()
+	);
 }
 
 void RendererInternal::RemoveMaterialAt(uint index) {
@@ -45,7 +46,8 @@ void RendererInternal::RemoveMaterialAt(uint index) {
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterialProperties() {
-	for (Material material : GetMaterials()) {
+	for (int i = 0; i < GetMaterialCount(); ++i) {
+		Material* material = GetMaterial(i);
 		material->SetMatrix4Array(BuiltinProperties::BoneToRootMatrices, skeleton_->GetBoneToRootMatrices(), MAX_BONE_COUNT);
 	}
 }

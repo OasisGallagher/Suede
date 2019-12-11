@@ -17,7 +17,8 @@
 #include "../tools/tagmanagerinternal.h"
 #include "../tools/statisticsinternal.h"
 
-#include "../lua/wrappers/luaconfig.h"
+// Disable lua supports.
+//#include "../lua/wrappers/luaconfig.h"
 
 Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
 
@@ -36,7 +37,8 @@ static void OnZThreadException(const std::exception& exception) {
 	throw exception;
 }
 
-EngineInternal::EngineInternal() : updateRef_(LUA_NOREF) {
+// Disable lua supports.
+EngineInternal::EngineInternal() /*: updateRef_(LUA_NOREF)*/ {
 
 }
 
@@ -75,42 +77,50 @@ bool EngineInternal::Startup(uint width, uint height) {
 	//Physics::SetDebugDrawEnabled(true);
 	Physics::SetGravity(Vector3(0, -9.8f, 0));
 
-	luaL_Reg lualibs[] = {
-		{ "Suede", Lua::configure },
-		{ nullptr, nullptr }
-	};
+	// Disable lua supports.
+	//luaL_Reg lualibs[] = {
+	//	{ "Suede", Lua::configure },
+	//	{ nullptr, nullptr }
+	//};
 
-	L = luaL_newstate();
-	Lua::initialize(L, lualibs, "resources/lua/main.lua");
-	Lua::invokeGlobalFunction(L, "SuedeGlobal.Awake");
+	//L = luaL_newstate();
+	//Lua::initialize(L, lualibs, "resources/lua/main.lua");
+	//Lua::invokeGlobalFunction(L, "SuedeGlobal.Awake");
 
 	return true;
 }
 
 void EngineInternal::Shutdown() {
 	World::Finalize();
-	lua_close(L);
-	L = nullptr;
+	// Disable lua supports.
+	//lua_close(L);
+	//L = nullptr;
 }
 
 void EngineInternal::Update() {
-	if (updateRef_ == LUA_NOREF) {
-		Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
-		updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
+	// Disable lua supports.
+	//if (updateRef_ == LUA_NOREF) {
+	//	Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
+	//	updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");
+	//}
+
+	// Disable lua supports.
+	//uint64 start = Profiler::GetTimeStamp();
+	//Lua::invokeGlobalFunction(L, updateRef_);
+	//Statistics::SetScriptElapsed(
+	//	Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+	//);
+
+	FrameEventListenerContainer container(listeners_);
+	for (FrameEventListener* listener : container) {
+		listener->OnFrameEnter();
 	}
-
-	uint64 start = Profiler::GetTimeStamp();
-	Lua::invokeGlobalFunction(L, updateRef_);
-	Statistics::SetScriptElapsed(
-		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
-	);
-
-	FrameEventListenerContainer cont(listeners_);
-	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameEnter));
 	
 	World::Update();
 
-	std::for_each(cont.begin(), cont.end(), std::mem_fun(&FrameEventListener::OnFrameLeave));
+	for (FrameEventListener* listener : container) {
+		listener->OnFrameLeave();
+	}
 }
 
 void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {

@@ -6,12 +6,12 @@
 #include "world.h"
 #include "textureinternal.h"
 
-IObject::IObject(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
-std::string IObject::GetName() const { return _suede_dptr()->GetName(); }
-void IObject::SetName(const std::string& value) { _suede_dptr()->SetName(this, value); }
-Object IObject::Clone() { return _suede_dptr()->Clone(); }
-ObjectType IObject::GetObjectType() { return _suede_dptr()->GetObjectType(); }
-uint IObject::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
+Object::Object(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
+std::string Object::GetName() const { return _suede_dptr()->GetName(); }
+void Object::SetName(const std::string& value) { _suede_dptr()->SetName(this, value); }
+ref_ptr<Object> Object::Clone() { return _suede_dptr()->Clone(); }
+ObjectType Object::GetObjectType() { return _suede_dptr()->GetObjectType(); }
+uint Object::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
 
 uint ObjectInternal::objectIDContainer[ObjectType::size()];
 
@@ -20,7 +20,7 @@ ObjectInternal::ObjectInternal(ObjectType type) {
 	type_ = type;
 }
 
-void ObjectInternal::SetName(IObject* self, const std::string& value) {
+void ObjectInternal::SetName(Object* self, const std::string& value) {
 	if (value.empty()) {
 		Debug::LogWarning("empty name.");
 		return;
@@ -32,7 +32,7 @@ void ObjectInternal::SetName(IObject* self, const std::string& value) {
 	}
 }
 
-Object ObjectInternal::Clone() {
+ref_ptr<Object> ObjectInternal::Clone() {
 	Debug::LogError("unable to clone.");
 	return nullptr;
 }

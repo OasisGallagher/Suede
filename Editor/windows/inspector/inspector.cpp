@@ -25,8 +25,8 @@ Inspector::~Inspector() {
 void Inspector::init(Ui::Editor* ui) {
 	WinBase::init(ui);
 
-	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
-		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
+	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
+		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)));
 
 	addSuedeMetaObject(ObjectType::Transform, std::make_shared<TransformMetaObject>());
 
@@ -105,7 +105,7 @@ void Inspector::drawBasics() {
 	drawTags();
 }
 
-void Inspector::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
+void Inspector::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
 	// SUEDE TODO: multi-selection.
 	if (!selected.empty()) {
 		target_ = selected.front();
@@ -121,7 +121,7 @@ void Inspector::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMet
 
 void Inspector::drawComponents() {
 	GUI::Indent();
-	for (Component component : target_->GetComponents("")) {
+	for (Component* component : target_->GetComponents("")) {
 		std::string typeName;
 		QObject* object = componentMetaObject(component, typeName);
 		if (object == nullptr) {
@@ -231,14 +231,14 @@ void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char
 	else if (userType == QMetaTypeId<franged>::qt_metatype_id()) {
 		drawUserRangeType(object, name, GUI::Slider);
 	}
-	else if (userType == QMetaTypeId<Material>::qt_metatype_id()) {
-		MaterialEditor::draw(object->property(name).value<Material>());
+	else if (userType == QMetaTypeId<Material*>::qt_metatype_id()) {
+		MaterialEditor::draw(object->property(name).value<Material*>());
 	}
-	else if (userType == QMetaTypeId<QVector<Material>>::qt_metatype_id()) {
+	else if (userType == QMetaTypeId<QVector<Material*>>::qt_metatype_id()) {
 		drawMaterialVector(object, name);
 	}
-	else if (userType == QMetaTypeId<RenderTexture>::qt_metatype_id()) {
-		RenderTexture texture = object->property(name).value<RenderTexture>();
+	else if (userType == QMetaTypeId<RenderTexture*>::qt_metatype_id()) {
+		RenderTexture* texture = object->property(name).value<RenderTexture*>();
 		GUI::Image(name, texture ? texture->GetNativePointer() : blackTextureID_);
 	}
 	else {
@@ -248,7 +248,7 @@ void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char
 
 void Inspector::drawMaterialVector(QObject* object, const char* name) {
 	int materialIndex = 0;
-	for (Material material : object->property(name).value<QVector<Material>>()) {
+	for (Material* material : object->property(name).value<QVector<Material*>>()) {
 		if (materialIndex != 0) { GUI::Separator(); }
 
 		GUI::BeginScope(materialIndex);
@@ -261,7 +261,7 @@ void Inspector::drawMaterialVector(QObject* object, const char* name) {
 	}
 }
 
-QObject* Inspector::componentMetaObject(Component component, std::string& typeName) {
+QObject* Inspector::componentMetaObject(Component* component, std::string& typeName) {
 	QObject* object = nullptr;
 	ObjectType type = component->GetObjectType();
 	if (type != ObjectType::CustomBehaviour) {
@@ -274,7 +274,7 @@ QObject* Inspector::componentMetaObject(Component component, std::string& typeNa
 		typeName = type.to_string();
 	}
 	else {
-		object = dynamic_cast<QObject*>(component.get());
+		object = dynamic_cast<QObject*>(component);
 		typeName = object->metaObject()->className();
 	}
 

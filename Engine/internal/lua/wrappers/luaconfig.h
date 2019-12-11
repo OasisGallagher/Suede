@@ -57,7 +57,6 @@ static int configure(lua_State* L) {
 	Behaviour_Wrapper::create(L);
 	Bounds_Wrapper::create(L);
 	Camera_Wrapper::create(L);
-	CameraUtility_Wrapper::create(L);
 	Color_Wrapper::create(L);
 	Component_Wrapper::create(L);
 	ComponentUtility_Wrapper::create(L);
@@ -113,7 +112,6 @@ static int configure(lua_State* L) {
 	TextureCube_Wrapper::create(L);
 	TextureBuffer_Wrapper::create(L);
 	RenderTexture_Wrapper::create(L);
-	RenderTextureUtility_Wrapper::create(L);
 	MRTRenderTexture_Wrapper::create(L);
 	Time_Wrapper::create(L);
 	PRS_Wrapper::create(L);
@@ -134,7 +132,6 @@ static int configure(lua_State* L) {
 	Behaviour_Wrapper::initialize(L, funcs, fields);
 	Bounds_Wrapper::initialize(L, funcs, fields);
 	Camera_Wrapper::initialize(L, funcs, fields);
-	CameraUtility_Wrapper::initialize(L, funcs, fields);
 	Color_Wrapper::initialize(L, funcs, fields);
 	Component_Wrapper::initialize(L, funcs, fields);
 	ComponentUtility_Wrapper::initialize(L, funcs, fields);
@@ -190,7 +187,6 @@ static int configure(lua_State* L) {
 	TextureCube_Wrapper::initialize(L, funcs, fields);
 	TextureBuffer_Wrapper::initialize(L, funcs, fields);
 	RenderTexture_Wrapper::initialize(L, funcs, fields);
-	RenderTextureUtility_Wrapper::initialize(L, funcs, fields);
 	MRTRenderTexture_Wrapper::initialize(L, funcs, fields);
 	Time_Wrapper::initialize(L, funcs, fields);
 	PRS_Wrapper::initialize(L, funcs, fields);

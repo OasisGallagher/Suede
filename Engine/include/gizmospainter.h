@@ -2,11 +2,9 @@
 
 #include "behaviour.h"
 
-class SUEDE_API IGizmosPainter : public IBehaviour {
+class SUEDE_API GizmosPainter : public Behaviour {
 	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void OnDrawGizmos() = 0;
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(GizmosPainter)

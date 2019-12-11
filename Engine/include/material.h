@@ -12,15 +12,15 @@ enum class RenderQueue {
 	Overlay = 6000,
 };
 
-class SUEDE_API IMaterial : public IObject {
+class SUEDE_API Material : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(Material)
 	SUEDE_DECLARE_IMPLEMENTATION(Material)
 
 public:
-	IMaterial();
+	Material();
 
 public:
-	Object Clone();
+	ref_ptr<Object> Clone();
 
 	void Bind(uint pass);
 	void Unbind();
@@ -36,8 +36,8 @@ public:
 	uint GetPassCount() const;
 	uint GetPassNativePointer(uint pass) const;
 
-	void SetShader(Shader value);
-	Shader GetShader();
+	void SetShader(Shader* value);
+	Shader* GetShader();
 
 	void SetRenderQueue(int value);
 	int GetRenderQueue() const;
@@ -50,7 +50,7 @@ public:
 	void SetInt(const std::string& name, int value);
 	void SetBool(const std::string& name, bool value);
 	void SetFloat(const std::string& name, float value);
-	void SetTexture(const std::string& name, Texture value);
+	void SetTexture(const std::string& name, Texture* value);
 	void SetMatrix4(const std::string& name, const Matrix4& value);
 	void SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count);
 	void SetVector3(const std::string& name, const Vector3& value);
@@ -64,7 +64,7 @@ public:
 	float GetFloat(const std::string& name);
 	iranged GetRangedInt(const std::string& name);
 	franged GetRangedFloat(const std::string& name);
-	Texture GetTexture(const std::string& name);
+	Texture* GetTexture(const std::string& name);
 	Matrix4 GetMatrix4(const std::string& name);
 	Vector3 GetVector3(const std::string& name);
 	Color GetColor(const std::string& name);
@@ -75,5 +75,3 @@ public:
 	 */
 	const std::vector<const Property*>& GetExplicitProperties();
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Material)

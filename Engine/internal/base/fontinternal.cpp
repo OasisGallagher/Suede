@@ -9,27 +9,27 @@
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
-IFont::IFont() : IObject(MEMORY_NEW(FontInternal)) {}
-bool IFont::Load(const std::string& path, int size) { return _suede_dptr()->Load(path, size); }
-bool IFont::Require(const std::wstring& str) { return _suede_dptr()->Require(str); }
-uint IFont::GetFontSize() const { return _suede_dptr()->GetFontSize(); }
-Texture2D IFont::GetTexture() const { return _suede_dptr()->GetTexture(); }
-std::string IFont::GetFamilyName() const { return _suede_dptr()->GetFamilyName(); }
-std::string IFont::GetStyleName() const { return _suede_dptr()->GetStyleName(); }
-Material IFont::GetMaterial() { return _suede_dptr()->GetMaterial(); }
-bool IFont::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _suede_dptr()->GetCharacterInfo(wch, info); }
-void IFont::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->AddMaterialRebuiltListener(listener); }
-void IFont::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->RemoveMaterialRebuiltListener(listener); }
+Font::Font() : Object(MEMORY_NEW(FontInternal)) {}
+bool Font::Load(const std::string& path, int size) { return _suede_dptr()->Load(path, size); }
+bool Font::Require(const std::wstring& str) { return _suede_dptr()->Require(str); }
+uint Font::GetFontSize() const { return _suede_dptr()->GetFontSize(); }
+Texture2D* Font::GetTexture() const { return _suede_dptr()->GetTexture(); }
+std::string Font::GetFamilyName() const { return _suede_dptr()->GetFamilyName(); }
+std::string Font::GetStyleName() const { return _suede_dptr()->GetStyleName(); }
+Material* Font::GetMaterial() { return _suede_dptr()->GetMaterial(); }
+bool Font::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _suede_dptr()->GetCharacterInfo(wch, info); }
+void Font::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->AddMaterialRebuiltListener(listener); }
+void Font::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->RemoveMaterialRebuiltListener(listener); }
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
-	material_ = new IMaterial();
+	material_ = new Material();
 	material_->SetShader(Resources::FindShader("builtin/unlit_texture"));
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.
 	material_->SetColor(BuiltinProperties::MainColor, Color::white);
-	material_->SetTexture(BuiltinProperties::MainTexture, new ITexture2D());
+	material_->SetTexture(BuiltinProperties::MainTexture, new Texture2D());
 }
 
 FontInternal::~FontInternal() {
@@ -62,8 +62,8 @@ bool FontInternal::Require(const std::wstring& str) {
 	return status;
 }
 
-Texture2D FontInternal::GetTexture() const {
-	return suede_dynamic_cast<Texture2D>(material_->GetTexture(BuiltinProperties::MainTexture));
+Texture2D* FontInternal::GetTexture() const {
+	return (Texture2D*)material_->GetTexture(BuiltinProperties::MainTexture);
 }
 
 std::string FontInternal::GetFamilyName() const {
@@ -170,7 +170,7 @@ void FontInternal::RebuildMaterial() {
 
 	coords_ = atlas.coords;
 
-	Texture2D texture = suede_dynamic_cast<Texture2D>(material_->GetTexture(BuiltinProperties::MainTexture));
+	Texture2D* texture = (Texture2D*)material_->GetTexture(BuiltinProperties::MainTexture);
 	texture->Create(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
 
 	for (uint i = 0; i < listeners_.size(); ++i) {

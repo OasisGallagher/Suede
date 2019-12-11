@@ -29,13 +29,9 @@ class World_Wrapper {
 			{ "Update", Update },
 			{ "CullingUpdate", CullingUpdate },
 			{ "DestroyGameObject", DestroyGameObject },
-			{ "Import", Import },
-			{ "GetRootTransform", GetRootTransform },
-			{ "GetGameObject", GetGameObject },
 			{ "FireEvent", FireEvent },
 			{ "FireEventImmediate", FireEventImmediate },
 			{ "GetDecals", GetDecals },
-			{ "GetGameObjectsOfComponent", GetGameObjectsOfComponent },
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
@@ -69,44 +65,11 @@ class World_Wrapper {
 	}
 
 	// static void DestroyGameObject(uint id)
-	// static void DestroyGameObject(GameObject go)
 	static int DestroyGameObject(lua_State* L) {
-		if (Lua::checkArguments<uint>(L, 2)) {
-			uint id = Lua::get<uint>(L, 1);
-			
-			World::DestroyGameObject(id);
-			return 0;
-		}
-
-		if (Lua::checkArguments<GameObject>(L, 2)) {
-			GameObject go = Lua::get<GameObject>(L, 1);
-			
-			World::DestroyGameObject(go);
-			return 0;
-		}
-
-		Debug::LogError("failed to call \"DestroyGameObject\", invalid arguments.");
-		return 0;
-	}
-
-	// static GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback)
-	static int Import(lua_State* L) {
-		auto callback = lua_isnil(L, -1) ? nullptr : Lua::make_func<void, GameObject, const std::string&>(L);
-		std::string path = Lua::get<std::string>(L, 1);
-		
-		return Lua::push(L, World::Import(path, callback));
-	}
-
-	// static Transform GetRootTransform()
-	static int GetRootTransform(lua_State* L) {
-		return Lua::push(L, World::GetRootTransform());
-	}
-
-	// static GameObject GetGameObject(uint id)
-	static int GetGameObject(lua_State* L) {
 		uint id = Lua::get<uint>(L, 1);
 		
-		return Lua::push(L, World::GetGameObject(id));
+		World::DestroyGameObject(id);
+		return 0;
 	}
 
 	// static void FireEvent(WorldEventBasePtr e)
@@ -131,13 +94,6 @@ class World_Wrapper {
 		
 		World::GetDecals(container);
 		return 0;
-	}
-
-	// static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid)
-	static int GetGameObjectsOfComponent(lua_State* L) {
-		suede_guid guid = Lua::get<suede_guid>(L, 1);
-		
-		return Lua::pushList(L, World::GetGameObjectsOfComponent(guid));
 	}
 
 public:

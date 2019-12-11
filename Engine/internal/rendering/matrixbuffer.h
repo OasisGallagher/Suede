@@ -12,5 +12,5 @@ private:
 	MatrixBuffer();
 
 private:
-	TextureBuffer textureBuffer_;
+	ref_ptr<TextureBuffer> textureBuffer_;
 };

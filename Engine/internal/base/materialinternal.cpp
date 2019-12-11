@@ -8,47 +8,47 @@
 
 #include "internal/rendering/sharedtexturemanager.h"
 
-IMaterial::IMaterial() : IObject(MEMORY_NEW(MaterialInternal)) { }
-Object IMaterial::Clone() { return _suede_dptr()->Clone(); }
-void IMaterial::Bind(uint pass) { _suede_dptr()->Bind(pass); }
-void IMaterial::Unbind() { _suede_dptr()->Unbind(); }
-bool IMaterial::EnablePass(uint pass) { return _suede_dptr()->EnablePass(pass); }
-bool IMaterial::DisablePass(uint pass) { return _suede_dptr()->DisablePass(pass); }
-bool IMaterial::IsPassEnabled(uint pass) const { return _suede_dptr()->IsPassEnabled(pass); }
-int IMaterial::FindPass(const std::string& name) const { return _suede_dptr()->FindPass(name); }
-void IMaterial::SetPass(int pass) { _suede_dptr()->SetPass(pass); }
-int IMaterial::GetPass() const { return _suede_dptr()->GetPass(); }
-uint IMaterial::GetPassCount() const { return _suede_dptr()->GetPassCount(); }
-uint IMaterial::GetPassNativePointer(uint pass) const { return _suede_dptr()->GetPassNativePointer(pass); }
-void IMaterial::SetShader(Shader value) { _suede_dptr()->SetShader(this, value); }
-Shader IMaterial::GetShader() { return _suede_dptr()->GetShader(); }
-void IMaterial::SetRenderQueue(int value) { _suede_dptr()->SetRenderQueue(value); }
-int IMaterial::GetRenderQueue() const { return _suede_dptr()->GetRenderQueue(); }
-void IMaterial::Define(const std::string& name) { _suede_dptr()->Define(name); }
-void IMaterial::Undefine(const std::string& name) { _suede_dptr()->Undefine(name); }
-void IMaterial::SetInt(const std::string& name, int value) { _suede_dptr()->SetInt(name, value); }
-bool IMaterial::HasProperty(const std::string& name) const { return _suede_dptr()->HasProperty(name); }
-void IMaterial::SetBool(const std::string& name, bool value) { _suede_dptr()->SetBool(name, value); }
-void IMaterial::SetFloat(const std::string& name, float value) { _suede_dptr()->SetFloat(name, value); }
-void IMaterial::SetTexture(const std::string& name, Texture value) { _suede_dptr()->SetTexture(name, value); }
-void IMaterial::SetMatrix4(const std::string& name, const Matrix4& value) { _suede_dptr()->SetMatrix4(name, value); }
-void IMaterial::SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count) { _suede_dptr()->SetMatrix4Array(name, ptr, count); }
-void IMaterial::SetVector3(const std::string& name, const Vector3& value) { _suede_dptr()->SetVector3(name, value); }
-void IMaterial::SetVector3Array(const std::string& name, const Vector3* ptr, uint count) { _suede_dptr()->SetVector3Array(name, ptr, count); }
-void IMaterial::SetColor(const std::string& name, const Color& value) { _suede_dptr()->SetColor(name, value); }
-void IMaterial::SetVector4(const std::string& name, const Vector4& value) { _suede_dptr()->SetVector4(name, value); }
-void IMaterial::SetVariant(const std::string& name, const Variant& value) { _suede_dptr()->SetVariant(name, value); }
-int IMaterial::GetInt(const std::string& name) { return _suede_dptr()->GetInt(name); }
-bool IMaterial::GetBool(const std::string& name) { return _suede_dptr()->GetBool(name); }
-float IMaterial::GetFloat(const std::string& name) { return _suede_dptr()->GetFloat(name); }
-iranged IMaterial::GetRangedInt(const std::string& name) { return _suede_dptr()->GetRangedInt(name); }
-franged IMaterial::GetRangedFloat(const std::string& name) { return _suede_dptr()->GetRangedFloat(name); }
-Texture IMaterial::GetTexture(const std::string& name) { return _suede_dptr()->GetTexture(name); }
-Matrix4 IMaterial::GetMatrix4(const std::string& name) { return _suede_dptr()->GetMatrix4(name); }
-Vector3 IMaterial::GetVector3(const std::string& name) { return _suede_dptr()->GetVector3(name); }
-Color IMaterial::GetColor(const std::string& name) { return _suede_dptr()->GetColor(name); }
-Vector4 IMaterial::GetVector4(const std::string& name) { return _suede_dptr()->GetVector4(name); }
-const std::vector<const Property*>& IMaterial::GetExplicitProperties() { return _suede_dptr()->GetExplicitProperties(); }
+Material::Material() : Object(MEMORY_NEW(MaterialInternal)) { }
+ref_ptr<Object> Material::Clone() { return _suede_dptr()->Clone(); }
+void Material::Bind(uint pass) { _suede_dptr()->Bind(pass); }
+void Material::Unbind() { _suede_dptr()->Unbind(); }
+bool Material::EnablePass(uint pass) { return _suede_dptr()->EnablePass(pass); }
+bool Material::DisablePass(uint pass) { return _suede_dptr()->DisablePass(pass); }
+bool Material::IsPassEnabled(uint pass) const { return _suede_dptr()->IsPassEnabled(pass); }
+int Material::FindPass(const std::string& name) const { return _suede_dptr()->FindPass(name); }
+void Material::SetPass(int pass) { _suede_dptr()->SetPass(pass); }
+int Material::GetPass() const { return _suede_dptr()->GetPass(); }
+uint Material::GetPassCount() const { return _suede_dptr()->GetPassCount(); }
+uint Material::GetPassNativePointer(uint pass) const { return _suede_dptr()->GetPassNativePointer(pass); }
+void Material::SetShader(Shader* value) { _suede_dptr()->SetShader(this, value); }
+Shader* Material::GetShader() { return _suede_dptr()->GetShader(); }
+void Material::SetRenderQueue(int value) { _suede_dptr()->SetRenderQueue(value); }
+int Material::GetRenderQueue() const { return _suede_dptr()->GetRenderQueue(); }
+void Material::Define(const std::string& name) { _suede_dptr()->Define(name); }
+void Material::Undefine(const std::string& name) { _suede_dptr()->Undefine(name); }
+void Material::SetInt(const std::string& name, int value) { _suede_dptr()->SetInt(name, value); }
+bool Material::HasProperty(const std::string& name) const { return _suede_dptr()->HasProperty(name); }
+void Material::SetBool(const std::string& name, bool value) { _suede_dptr()->SetBool(name, value); }
+void Material::SetFloat(const std::string& name, float value) { _suede_dptr()->SetFloat(name, value); }
+void Material::SetTexture(const std::string& name, Texture* value) { _suede_dptr()->SetTexture(name, value); }
+void Material::SetMatrix4(const std::string& name, const Matrix4& value) { _suede_dptr()->SetMatrix4(name, value); }
+void Material::SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count) { _suede_dptr()->SetMatrix4Array(name, ptr, count); }
+void Material::SetVector3(const std::string& name, const Vector3& value) { _suede_dptr()->SetVector3(name, value); }
+void Material::SetVector3Array(const std::string& name, const Vector3* ptr, uint count) { _suede_dptr()->SetVector3Array(name, ptr, count); }
+void Material::SetColor(const std::string& name, const Color& value) { _suede_dptr()->SetColor(name, value); }
+void Material::SetVector4(const std::string& name, const Vector4& value) { _suede_dptr()->SetVector4(name, value); }
+void Material::SetVariant(const std::string& name, const Variant& value) { _suede_dptr()->SetVariant(name, value); }
+int Material::GetInt(const std::string& name) { return _suede_dptr()->GetInt(name); }
+bool Material::GetBool(const std::string& name) { return _suede_dptr()->GetBool(name); }
+float Material::GetFloat(const std::string& name) { return _suede_dptr()->GetFloat(name); }
+iranged Material::GetRangedInt(const std::string& name) { return _suede_dptr()->GetRangedInt(name); }
+franged Material::GetRangedFloat(const std::string& name) { return _suede_dptr()->GetRangedFloat(name); }
+Texture* Material::GetTexture(const std::string& name) { return _suede_dptr()->GetTexture(name); }
+Matrix4 Material::GetMatrix4(const std::string& name) { return _suede_dptr()->GetMatrix4(name); }
+Vector3 Material::GetVector3(const std::string& name) { return _suede_dptr()->GetVector3(name); }
+Color Material::GetColor(const std::string& name) { return _suede_dptr()->GetColor(name); }
+Vector4 Material::GetVector4(const std::string& name) { return _suede_dptr()->GetVector4(name); }
+const std::vector<const Property*>& Material::GetExplicitProperties() { return _suede_dptr()->GetExplicitProperties(); }
 
 // SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
@@ -60,15 +60,15 @@ MaterialInternal::MaterialInternal()
 MaterialInternal::~MaterialInternal() {
 }
 
-Object MaterialInternal::Clone() {
-	Material clone = new IMaterial();
+ref_ptr<Object> MaterialInternal::Clone() {
+	Material* clone = new Material();
 	MaterialInternal* clonePtr = _suede_rptr(clone);
 	*clonePtr = *this;
 
 	return clone;
 }
 
-void MaterialInternal::SetShader(IMaterial* self, Shader value) {
+void MaterialInternal::SetShader(Material* self, Shader* value) {
 	shader_ = value;
 	UpdateProperties(self, value);
 	InitializeEnabledState();
@@ -109,7 +109,7 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 	}
 }
 
-void MaterialInternal::SetTexture(const std::string& name, Texture value) {
+void MaterialInternal::SetTexture(const std::string& name, Texture* value) {
 	Variant* var = GetProperty(name, VariantType::Texture);
 	if (var != nullptr && var->GetTexture() != value) {
 		var->SetTexture(value);
@@ -213,7 +213,7 @@ float MaterialInternal::GetFloat(const std::string& name) {
 	return *(float*)var->GetData();
 }
 
-Texture MaterialInternal::GetTexture(const std::string& name) {
+Texture* MaterialInternal::GetTexture(const std::string& name) {
 	Variant* var = VerifyProperty(name, VariantType::Texture);
 	if (var == nullptr) {
 		return nullptr;
@@ -425,12 +425,12 @@ void MaterialInternal::UnbindProperties() {
 	}
 }
 
-void MaterialInternal::UpdateProperties(IMaterial* self, Shader newShader) {
+void MaterialInternal::UpdateProperties(Material* self, Shader* newShader) {
 	CopyProperties(newShader);
 	SharedTextureManager::instance()->Attach(self);
 }
 
-void MaterialInternal::CopyProperties(Shader newShader) {
+void MaterialInternal::CopyProperties(Shader* newShader) {
 	std::vector<ShaderProperty> shaderProperties;
 	newShader->GetProperties(shaderProperties);
 

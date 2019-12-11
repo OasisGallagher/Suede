@@ -20,15 +20,14 @@ BETTER_ENUM(DepthTextureMode, int,
 	Depth = 1
 )
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject)
-
-class SUEDE_API ICamera : public IComponent {
+class SUEDE_API Camera : public Component {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(Camera)
 	SUEDE_DECLARE_IMPLEMENTATION(Camera)
 
 public:
-	ICamera();
+	Camera();
+	~Camera();
 
 public:
 	void SetDepth(int vaue);
@@ -55,8 +54,8 @@ public:
 	void SetClearColor(const Color& value);
 	Color GetClearColor() const;
 
-	void SetTargetTexture(RenderTexture value);
-	RenderTexture GetTargetTexture();
+	void SetTargetTexture(RenderTexture* value);
+	RenderTexture* GetTargetTexture();
 
 	void SetAspect(float value);
 	float GetAspect() const;
@@ -75,22 +74,19 @@ public:
 
 	const Matrix4& GetProjectionMatrix();
 
-	void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
+	void GetVisibleGameObjects(std::vector<GameObject*>& gameObjects);
 
 	Vector3 WorldToScreenPoint(const Vector3& position);
 	Vector3 ScreenToWorldPoint(const Vector3& position);
 
-	Texture2D Capture();
+	ref_ptr<Texture2D> Capture();
 
 	void Render();
 	void OnBeforeWorldDestroyed();
-};
 
-SUEDE_DEFINE_OBJECT_POINTER(Camera)
-
-struct SUEDE_API CameraUtility {
-	static void SetMain(Camera value);
-	static Camera GetMain();
+public:
+	static void SetMain(Camera* value);
+	static Camera* GetMain();
 
 	static void OnPreRender();
 	static void OnPostRender();

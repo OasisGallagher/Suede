@@ -1,7 +1,8 @@
 #include "engine.h"
 #include <vector>
 
-struct lua_State;
+// Disable lua supports.
+//struct lua_State;
 class EngineInternal {
 public:
 	EngineInternal();
@@ -20,8 +21,10 @@ private:
 	typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
 
 private:
-	int updateRef_;
-	lua_State* L;
+	// Disable lua supports.
+	//int updateRef_;
+	// Disable lua supports.
+	//lua_State* L;
 
 	FrameEventListenerContainer listeners_;
 };

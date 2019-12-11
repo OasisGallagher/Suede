@@ -37,7 +37,7 @@ private:
 	void UpdateBounds();
 
 	bool RebuildShape();
-	bool CreateShapeFromMesh(Mesh mesh, const Vector3& scale);
+	bool CreateShapeFromMesh(Mesh* mesh, const Vector3& scale);
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();

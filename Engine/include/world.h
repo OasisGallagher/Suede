@@ -37,12 +37,12 @@ struct WorldEventBase {
 DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
 
 struct GameObjectEvent : public WorldEventBase {
-	GameObject go;
+	ref_ptr<GameObject> go;
 };
 
 template <class T>
 struct ComponentEvent : public WorldEventBase {
-	T component;
+	ref_ptr<T> component;
 };
 
 DEFINE_WORLD_EVENT_PTR(GameObjectEvent);
@@ -111,7 +111,7 @@ struct GameObjectComponentChangedEvent : public GameObjectEvent {
 	virtual WorldEventType GetEventType() const { return WorldEventType::GameObjectComponentChanged; }
 
 	int state;
-	Component component;
+	Component* component;
 };
 
 DEFINE_WORLD_EVENT_PTR(GameObjectComponentChangedEvent);
@@ -146,7 +146,7 @@ enum class WalkCommand {
 
 class WorldGameObjectWalker {
 public:
-	virtual WalkCommand OnWalkGameObject(GameObject go) = 0;
+	virtual WalkCommand OnWalkGameObject(GameObject* go) = 0;
 };
 
 struct Decal;
@@ -163,16 +163,16 @@ public:
 	static void CullingUpdate();
 
 	static void DestroyGameObject(uint id);
-	static void DestroyGameObject(GameObject go);
+	static void DestroyGameObject(GameObject* go);
 
-	static GameObject Import(const std::string& path, GameObjectImportedListener* listener);
-	static GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
+	static GameObject* Import(const std::string& path, GameObjectImportedListener* listener);
+	static GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 
-	static bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
+	static bool ImportTo(GameObject* go, const std::string& path, GameObjectImportedListener* listener);
 
-	static Transform GetRootTransform();
+	static Transform* GetRootTransform();
 
-	static GameObject GetGameObject(uint id);
+	static GameObject* GetGameObject(uint id);
 	static void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
 	static void FireEvent(WorldEventBasePtr e);
@@ -184,31 +184,17 @@ public:
 
 public:
 	template <class T>
-	static typename std::enable_if<suede_is_ref_ptr<T>::value, std::vector<T>>::type GetComponents();
+	static std::vector<T*> GetComponents();
 
-	template <class T>
-	static typename std::enable_if<!suede_is_ref_ptr<T>::value, std::vector<ref_ptr<T>>>::type GetComponents();
-
-	static std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
+	static std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
 
 private:
 	World();
 };
 
-template <class T>
-typename std::enable_if<suede_is_ref_ptr<T>::value, std::vector<T>>::type World::GetComponents() {
-	std::vector<T> components;
-	for (GameObject go : GetGameObjectsOfComponent(T::element_type::GetComponentGUID())) {
-		components.push_back(go->GetComponent<T>());
-	}
-
-	return components;
-}
-
-template <class T>
-typename std::enable_if<!suede_is_ref_ptr<T>::value, std::vector<ref_ptr<T>>>::type World::GetComponents() {
-	std::vector<ref_ptr<T>> components;
-	for (GameObject go : GetGameObjectsOfComponent(T::GetComponentGUID())) {
+template <class T> std::vector<T*> World::GetComponents() {
+	std::vector<T*> components;
+	for (GameObject* go : GetGameObjectsOfComponent(T::GetComponentGUID())) {
 		components.push_back(go->GetComponent<T>());
 	}
 

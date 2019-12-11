@@ -5,5 +5,5 @@
 
 class GameObjectImportedListener {
 public:
-	virtual void OnGameObjectImported(GameObject root, const std::string& path) = 0;
+	virtual void OnGameObjectImported(GameObject* root, const std::string& path) = 0;
 };

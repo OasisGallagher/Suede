@@ -48,7 +48,7 @@ public:
 	uint GetOffsetAlignment() { return offsetAlignment_; }
 
 public:
-	void Attach(Shader shader);
+	void Attach(Shader* shader);
 	bool Update(const std::string& name, const void* data, uint offset, uint size);
 
 private:

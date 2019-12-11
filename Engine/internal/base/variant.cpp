@@ -100,9 +100,9 @@ uint Variant::GetMatrix4ArraySize() const {
 	return data_.podArray.size / sizeof(Matrix4);
 }
 
-Texture Variant::GetTexture() const {
+Texture* Variant::GetTexture() const {
 	CHECK_VARIANT_TYPE(VariantType::Texture, nullptr);
-	return texture_;
+	return texture_.get();
 }
 
 void Variant::SetInt(int value) {
@@ -193,9 +193,14 @@ void Variant::SetPodArray(VariantType type, const void* data, uint size) {
 	data_.podArray.size = size;
 }
 
-void Variant::SetTexture(Texture value) {
+#include "animation.h"
+void Variant::SetTexture(Texture* value) {
 	SetType(VariantType::Texture);
 	texture_ = value;
+
+	if (dynamic_cast<AnimationFrame*>(texture_.get())) {
+		Debug::Break();
+	}
 }
 
 const void* Variant::GetData() const {

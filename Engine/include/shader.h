@@ -15,12 +15,12 @@ struct ShaderProperty {
 	Property* property;
 };
 
-class SUEDE_API IShader : public IObject {
+class SUEDE_API Shader : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(Shader)
 	SUEDE_DECLARE_IMPLEMENTATION(Shader)
 
 public:
-	IShader();
+	Shader();
 
 public:
 	std::string GetName() const;
@@ -48,5 +48,3 @@ public:
 	void GetProperties(std::vector<ShaderProperty>& properties);
 	bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Shader)

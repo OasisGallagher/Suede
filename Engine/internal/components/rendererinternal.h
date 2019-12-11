@@ -16,11 +16,10 @@ public:
 
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
-	void AddMaterial(Material material) { materials_.push_back(material); }
-	Material GetMaterial(uint index) { return materials_[index]; }
-	IRenderer::Enumerable GetMaterials() { return IRenderer::Enumerable(materials_.begin(), materials_.end()); }
-	void SetMaterial(uint index, Material value) { materials_[index] = value; }
-	void RemoveMaterial(Material material);
+	void AddMaterial(Material* material) { materials_.push_back(material); }
+	Material* GetMaterial(uint index) { return materials_[index].get(); }
+	void SetMaterial(uint index, Material* value) { materials_[index] = value; }
+	void RemoveMaterial(Material* material);
 	void RemoveMaterialAt(uint index);
 	uint GetMaterialCount() { return materials_.size(); }
 
@@ -29,7 +28,7 @@ public:
 
 private:
 	uint queue_;
-	std::vector<Material> materials_;
+	std::vector<ref_ptr<Material>> materials_;
 };
 
 class MeshRendererInternal : public RendererInternal {
@@ -45,10 +44,10 @@ public:
 	virtual void UpdateMaterialProperties();
 
 public:
-	void SetSkeleton(Skeleton value) { skeleton_ = value; }
+	void SetSkeleton(Skeleton* value) { skeleton_ = value; }
 
 private:
-	Skeleton skeleton_;
+	ref_ptr<Skeleton> skeleton_;
 };
 
 class ParticleRendererInternal : public RendererInternal {

@@ -9,19 +9,38 @@
 
 class Camera_Wrapper {
 	static int NewCamera(lua_State* L) {
-		return Lua::fromRef(L, make_ref<ICamera>());
+		return Lua::newObject<Camera>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 
-		lua_pushstring(L, String::Format("Camera@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("Camera@0x%p", _p).c_str());
 		return 1;
 	}
 
+	static int ToStringStatic(lua_State* L) {
+		lua_pushstring(L, "static Camera");
+		return 1;
+	}
+
+	static int CameraStatic(lua_State* L) {
+		lua_newtable(L);
+
+		luaL_Reg funcs[] = {
+			{ "OnPreRender", OnPreRender },
+			{ "OnPostRender", OnPostRender },
+			{"__tostring", ToStringStatic },
+			{ nullptr, nullptr }
+		};
+
+		luaL_setfuncs(L, funcs, 0);
+
+		return 1;
+	}
 	// void SetDepth(int vaue)
 	static int SetDepth(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		int vaue = Lua::get<int>(L, 2);
 		
 		_p->SetDepth(vaue);
@@ -30,19 +49,19 @@ class Camera_Wrapper {
 
 	// int GetDepth()
 	static int GetDepth(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetDepth());
 	}
 
 	// bool GetPerspective()
 	static int GetPerspective(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetPerspective());
 	}
 
 	// void SetPerspective(bool value)
 	static int SetPerspective(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		bool value = Lua::get<bool>(L, 2);
 		
 		_p->SetPerspective(value);
@@ -51,13 +70,13 @@ class Camera_Wrapper {
 
 	// float GetOrthographicSize()
 	static int GetOrthographicSize(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetOrthographicSize());
 	}
 
 	// void SetOrthographicSize(float value)
 	static int SetOrthographicSize(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetOrthographicSize(value);
@@ -66,7 +85,7 @@ class Camera_Wrapper {
 
 	// void SetClearType(ClearType value)
 	static int SetClearType(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		ClearType value = Lua::get<ClearType>(L, 2);
 		
 		_p->SetClearType(value);
@@ -75,13 +94,13 @@ class Camera_Wrapper {
 
 	// ClearType GetClearType()
 	static int GetClearType(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetClearType());
 	}
 
 	// void SetRenderPath(RenderPath value)
 	static int SetRenderPath(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		RenderPath value = Lua::get<RenderPath>(L, 2);
 		
 		_p->SetRenderPath(value);
@@ -90,13 +109,13 @@ class Camera_Wrapper {
 
 	// RenderPath GetRenderPath()
 	static int GetRenderPath(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetRenderPath());
 	}
 
 	// void SetDepthTextureMode(DepthTextureMode value)
 	static int SetDepthTextureMode(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		DepthTextureMode value = Lua::get<DepthTextureMode>(L, 2);
 		
 		_p->SetDepthTextureMode(value);
@@ -105,13 +124,13 @@ class Camera_Wrapper {
 
 	// DepthTextureMode GetDepthTextureMode()
 	static int GetDepthTextureMode(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetDepthTextureMode());
 	}
 
 	// void SetClearColor(const Color& value)
 	static int SetClearColor(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		Color value = Lua::get<Color>(L, 2);
 		
 		_p->SetClearColor(value);
@@ -120,28 +139,13 @@ class Camera_Wrapper {
 
 	// Color GetClearColor()
 	static int GetClearColor(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetClearColor());
-	}
-
-	// void SetTargetTexture(RenderTexture value)
-	static int SetTargetTexture(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
-		RenderTexture value = Lua::get<RenderTexture>(L, 2);
-		
-		_p->SetTargetTexture(value);
-		return 0;
-	}
-
-	// RenderTexture GetTargetTexture()
-	static int GetTargetTexture(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
-		return Lua::push(L, _p->GetTargetTexture());
 	}
 
 	// void SetAspect(float value)
 	static int SetAspect(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetAspect(value);
@@ -150,13 +154,13 @@ class Camera_Wrapper {
 
 	// float GetAspect()
 	static int GetAspect(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetAspect());
 	}
 
 	// void SetNearClipPlane(float value)
 	static int SetNearClipPlane(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetNearClipPlane(value);
@@ -165,13 +169,13 @@ class Camera_Wrapper {
 
 	// float GetNearClipPlane()
 	static int GetNearClipPlane(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetNearClipPlane());
 	}
 
 	// void SetFarClipPlane(float value)
 	static int SetFarClipPlane(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetFarClipPlane(value);
@@ -180,13 +184,13 @@ class Camera_Wrapper {
 
 	// float GetFarClipPlane()
 	static int GetFarClipPlane(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetFarClipPlane());
 	}
 
 	// void SetFieldOfView(float value)
 	static int SetFieldOfView(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetFieldOfView(value);
@@ -195,31 +199,22 @@ class Camera_Wrapper {
 
 	// float GetFieldOfView()
 	static int GetFieldOfView(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->GetFieldOfView());
 	}
 
 	// void SetRect(const Rect& value)
 	static int SetRect(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		Rect value = Lua::get<Rect>(L, 2);
 		
 		_p->SetRect(value);
 		return 0;
 	}
 
-	// void GetVisibleGameObjects(std::vector<GameObject>& gameObjects)
-	static int GetVisibleGameObjects(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
-		std::vector<GameObject> gameObjects = Lua::getList<GameObject>(L, 2);
-		
-		_p->GetVisibleGameObjects(gameObjects);
-		return 0;
-	}
-
 	// Vector3 WorldToScreenPoint(const Vector3& position)
 	static int WorldToScreenPoint(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		Vector3 position = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->WorldToScreenPoint(position));
@@ -227,29 +222,41 @@ class Camera_Wrapper {
 
 	// Vector3 ScreenToWorldPoint(const Vector3& position)
 	static int ScreenToWorldPoint(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		Vector3 position = Lua::get<Vector3>(L, 2);
 		
 		return Lua::push(L, _p->ScreenToWorldPoint(position));
 	}
 
-	// Texture2D Capture()
+	// ref_ptr<Texture2D> Capture()
 	static int Capture(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		return Lua::push(L, _p->Capture());
 	}
 
 	// void Render()
 	static int Render(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		_p->Render();
 		return 0;
 	}
 
 	// void OnBeforeWorldDestroyed()
 	static int OnBeforeWorldDestroyed(lua_State* L) {
-		Camera& _p = *Lua::callerRefPtr<Camera>(L);
+		Camera* _p = Lua::callerPtr<Camera>(L);
 		_p->OnBeforeWorldDestroyed();
+		return 0;
+	}
+
+	// static void OnPreRender()
+	static int OnPreRender(lua_State* L) {
+		Camera::OnPreRender();
+		return 0;
+	}
+
+	// static void OnPostRender()
+	static int OnPostRender(lua_State* L) {
+		Camera::OnPostRender();
 		return 0;
 	}
 
@@ -261,8 +268,10 @@ public:
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		funcs.push_back(luaL_Reg { "NewCamera", NewCamera });
 
+		fields.push_back(luaL_Reg{ "Camera", CameraStatic });
+
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<Camera> },
+			{ "__gc", Lua::deletePtr<Camera> },
 			{ "__tostring", ToString }, 
 			{ "SetDepth", SetDepth },
 			{ "GetDepth", GetDepth },
@@ -278,8 +287,6 @@ public:
 			{ "GetDepthTextureMode", GetDepthTextureMode },
 			{ "SetClearColor", SetClearColor },
 			{ "GetClearColor", GetClearColor },
-			{ "SetTargetTexture", SetTargetTexture },
-			{ "GetTargetTexture", GetTargetTexture },
 			{ "SetAspect", SetAspect },
 			{ "GetAspect", GetAspect },
 			{ "SetNearClipPlane", SetNearClipPlane },
@@ -289,7 +296,6 @@ public:
 			{ "SetFieldOfView", SetFieldOfView },
 			{ "GetFieldOfView", GetFieldOfView },
 			{ "SetRect", SetRect },
-			{ "GetVisibleGameObjects", GetVisibleGameObjects },
 			{ "WorldToScreenPoint", WorldToScreenPoint },
 			{ "ScreenToWorldPoint", ScreenToWorldPoint },
 			{ "Capture", Capture },
@@ -299,77 +305,5 @@ public:
 		};
 
 		Lua::initMetatable<Camera>(L, metalib, TypeID<Component>::string());
-	}
-};
-
-class CameraUtility_Wrapper {
-	static int ToString(lua_State* L) {
-		CameraUtility* _p = Lua::callerPtr<CameraUtility>(L);
-
-		lua_pushstring(L, String::Format("CameraUtility@0x%p", _p).c_str());
-		return 1;
-	}
-
-	static int ToStringStatic(lua_State* L) {
-		lua_pushstring(L, "static CameraUtility");
-		return 1;
-	}
-
-	static int CameraUtilityStatic(lua_State* L) {
-		lua_newtable(L);
-
-		luaL_Reg funcs[] = {
-			{ "SetMain", SetMain },
-			{ "GetMain", GetMain },
-			{ "OnPreRender", OnPreRender },
-			{ "OnPostRender", OnPostRender },
-			{"__tostring", ToStringStatic },
-			{ nullptr, nullptr }
-		};
-
-		luaL_setfuncs(L, funcs, 0);
-
-		return 1;
-	}
-	// static void SetMain(Camera value)
-	static int SetMain(lua_State* L) {
-		Camera value = Lua::get<Camera>(L, 1);
-		
-		CameraUtility::SetMain(value);
-		return 0;
-	}
-
-	// static Camera GetMain()
-	static int GetMain(lua_State* L) {
-		return Lua::push(L, CameraUtility::GetMain());
-	}
-
-	// static void OnPreRender()
-	static int OnPreRender(lua_State* L) {
-		CameraUtility::OnPreRender();
-		return 0;
-	}
-
-	// static void OnPostRender()
-	static int OnPostRender(lua_State* L) {
-		CameraUtility::OnPostRender();
-		return 0;
-	}
-
-public:
-	static void create(lua_State* L) {
-		Lua::createMetatable<CameraUtility>(L);
-	}
-	
-	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
-		fields.push_back(luaL_Reg{ "CameraUtility", CameraUtilityStatic });
-
-		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deletePtr<CameraUtility> },
-			{ "__tostring", ToString }, 
-			{ nullptr, nullptr }
-		};
-
-		Lua::initMetatable<CameraUtility>(L, metalib, nullptr);
 	}
 };

@@ -472,7 +472,7 @@ void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 	std::string value;
 	ReadString(value, node);
 
-	Texture2D texture;
+	Texture2D* texture = nullptr;
 	if (value.empty() || value == "white") {
 		texture = Resources::GetWhiteTexture();
 	}
@@ -480,7 +480,7 @@ void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 		texture = Resources::GetBlackTexture();
 	}
 
-	if (texture) {
+	if (texture != nullptr) {
 		property->value.SetTexture(texture);
 	}
 	else {

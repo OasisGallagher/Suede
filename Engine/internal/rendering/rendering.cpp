@@ -29,13 +29,13 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 
-	p_->renderTextures.aux1 = new IRenderTexture();
+	p_->renderTextures.aux1 = new RenderTexture();
 	p_->renderTextures.aux1->Create(RenderTextureFormat::Rgba, w, h);
 
-	p_->renderTextures.aux2 = new IRenderTexture();
+	p_->renderTextures.aux2 = new RenderTexture();
 	p_->renderTextures.aux2->Create(RenderTextureFormat::Rgba, w, h);
 
-	p_->renderTextures.ssaoTraversal = new IMRTRenderTexture();
+	p_->renderTextures.ssaoTraversal = new MRTRenderTexture();
 	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormat::Depth, w, h);
 
 	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
@@ -90,8 +90,8 @@ void Rendering::ClearRenderTextures() {
 	sharedSSAOTexture->Clear(p_->normalizedRect, Color::white, 1);
 	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 
-	RenderTexture target = p_->renderTextures.target;
-	if (!target) { target = RenderTextureUtility::GetDefault(); }
+	ref_ptr<RenderTexture>& target = p_->renderTextures.target;
+	if (!target) { target = RenderTexture::GetDefault(); }
 	target->Clear(p_->normalizedRect, p_->clearColor, 1);
 }
 
@@ -108,7 +108,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	UniformBufferManager::instance()->Update(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
-void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
+void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	static SharedLightUniformBuffer p;
 
 	memcpy(&p.fogParams.color, &Environment::GetFogColor(), sizeof(p.fogParams.color));
@@ -127,9 +127,9 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light light) {
 	UniformBufferManager::instance()->Update(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
-void Rendering::CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue) {
-	Shader shader = Resources::FindShader(shaderPath);
-	material = new IMaterial();
+void Rendering::CreateAuxMaterial(ref_ptr<Material>& material, const std::string& shaderPath, uint renderQueue) {
+	Shader* shader = Resources::FindShader(shaderPath);
+	material = new Material();
 	material->SetShader(shader);
 	material->SetRenderQueue(renderQueue);
 }
@@ -139,13 +139,13 @@ void Rendering::OnPostRender() {
 }
 
 void Rendering::OnImageEffects() {
-	RenderTexture targets[] = { p_->renderTextures.aux1, p_->renderTextures.aux2 };
+	RenderTexture* targets[] = { p_->renderTextures.aux1.get(), p_->renderTextures.aux2.get() };
 
 	int index = 1;
 	auto effects = p_->camera->GetComponents<ImageEffect>();
 	for (int i = 0; i < effects.size(); ++i) {
 		if (i + 1 == effects.size()) {
-			targets[index] = p_->renderTextures.target;
+			targets[index] = p_->renderTextures.target.get();
 		}
 
 		effects[i]->OnRenderImage(targets[1 - index], targets[index], p_->normalizedRect);
@@ -155,15 +155,15 @@ void Rendering::OnImageEffects() {
 
 void Rendering::SSAOPass(RenderingPipelines& pipelines) {
 	ssaoSample->Restart();
-	RenderTexture temp = RenderTextureUtility::GetTemporary(RenderTextureFormat::Rgb, Screen::GetWidth(), Screen::GetHeight());
+	RenderTexture* temp = RenderTexture::GetTemporary(RenderTextureFormat::Rgb, Screen::GetWidth(), Screen::GetHeight());
 
 	p_->materials.ssao->SetPass(0);
-	Graphics::Blit(sharedDepthTexture, temp, p_->materials.ssao, p_->normalizedRect);
+	Graphics::Blit(sharedDepthTexture, temp, p_->materials.ssao.get(), p_->normalizedRect);
 
 	p_->materials.ssao->SetPass(1);
-	Graphics::Blit(temp, sharedSSAOTexture, p_->materials.ssao, p_->normalizedRect);
+	Graphics::Blit(temp, sharedSSAOTexture, p_->materials.ssao.get(), p_->normalizedRect);
 
-	RenderTextureUtility::ReleaseTemporary(temp);
+	RenderTexture::ReleaseTemporary(temp);
 
 	ssaoSample->Stop();
 	OutputSample(ssaoSample);
@@ -194,7 +194,7 @@ void Rendering::UpdateUniformBuffers(const RenderingMatrices& matrices, Renderin
 }
 
 void Rendering::ShadowPass(RenderingPipelines& pipelines) {
-	RenderTexture target = pipelines.rendering->GetTargetTexture();
+	RenderTexture* target = pipelines.rendering->GetTargetTexture();
 	Shadows::instance()->Resize(target->GetWidth(), target->GetHeight());
 	Shadows::instance()->Clear();
 
@@ -216,7 +216,7 @@ RenderableTraits::RenderableTraits(RenderingParameters* p) : p_(p) {
 	pipelines_.depth->SetTargetTexture(sharedDepthTexture, Rect(0, 0, 1, 1));
 
 	pipelines_.ssaoTraversal = MEMORY_NEW(Pipeline);
-	pipelines_.ssaoTraversal->SetTargetTexture(p_->renderTextures.ssaoTraversal, Rect(0, 0, 1, 1));
+	pipelines_.ssaoTraversal->SetTargetTexture(p_->renderTextures.ssaoTraversal.get(), Rect(0, 0, 1, 1));
 
 	pipelines_.rendering = MEMORY_NEW(Pipeline);
 
@@ -241,14 +241,14 @@ RenderableTraits::~RenderableTraits() {
 	Profiler::ReleaseSample(get_renderable_game_objects);
 }
 
-void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices) {
+void RenderableTraits::Traits(std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
 	Clear();
 
 	Matrix4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
 	for (int i = 0; i < gameObjects.size(); ++i) {
-		GameObject go = gameObjects[i];
+		GameObject* go = gameObjects[i];
 		pipelines_.shadow->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
 	}
 
@@ -272,11 +272,11 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 		ForwardDepthPass(pipelines_.depth);
 	}
 
-	Light forwardBase;
-	std::vector<Light> forwardAdd;
+	Light* forwardBase = nullptr;
+	std::vector<Light*> forwardAdd;
 	GetLights(forwardBase, forwardAdd);
 
-	RenderTexture target = GetActiveRenderTarget();
+	RenderTexture* target = GetActiveRenderTarget();
 
 	if (forwardBase) {
 		Shadows::instance()->Update(forwardBase, pipelines_.shadow);
@@ -293,7 +293,7 @@ void RenderableTraits::Traits(std::vector<GameObject>& gameObjects, const Render
 	pipelines_.rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
 }
 
-void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
 	if (p_->clearType == +ClearType::Skybox) {
 		RenderSkybox(pl);
 	}
@@ -310,7 +310,7 @@ void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObje
 	RenderDecals(pl);
 }
 
-void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light forwardBase, const std::vector<Light>& forwardAdd) {
+void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
 	// 	if (gbuffer_ == nullptr) {
 	// 		InitializeDeferredRender();
 	// 	}
@@ -322,16 +322,16 @@ void RenderableTraits::InitializeDeferredRender() {
 	/*gbuffer_ = MEMORY_NEW(GBuffer);
 	gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
-	deferredMaterial_ = new IMaterial();
+	deferredMaterial_ = new Material();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
 	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
 }
 
-void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& gameObjects) {
+void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
 	// 	gbuffer_->Bind(GBuffer::GeometryPass);
 	// 
 	// 	for (int i = 0; i < gameObjects.size(); ++i) {
-	// 		GameObject go = gameObjects[i];
+	// 		GameObject* go = gameObjects[i];
 	// 
 	// 		Texture mainTexture = go->GetRenderer()->GetMaterial(0)->GetTexture(BuiltinProperties::MainTexture);
 	// 		Material material = suede_dynamic_cast<Material>(deferredMaterial_->Clone());
@@ -343,36 +343,36 @@ void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vecto
 }
 
 void RenderableTraits::RenderSkybox(Pipeline* pl) {
-	Material skybox = Environment::GetSkybox();
-	if (skybox) {
+	Material* skybox = Environment::GetSkybox();
+	if (skybox != nullptr) {
 		Matrix4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = Vector4(0, 0, 0, 1);
 		pl->AddRenderable(Resources::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
 	}
 }
 
-RenderTexture RenderableTraits::GetActiveRenderTarget() {
+RenderTexture* RenderableTraits::GetActiveRenderTarget() {
 	if (!p_->camera->GetComponents<ImageEffect>().empty()) {
-		return p_->renderTextures.aux1;
+		return p_->renderTextures.aux1.get();
 	}
 
-	RenderTexture target = p_->renderTextures.target;
+	RenderTexture* target = p_->renderTextures.target.get();
 
 	if (!target) {
-		target = RenderTextureUtility::GetDefault();
+		target = RenderTexture::GetDefault();
 	}
 
 	return target;
 }
 
-void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light light) {
+void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light) {
 	forward_pass->Restart();
 	ForwardPass(pl, gameObjects);
 	forward_pass->Stop();
 	Debug::Output("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
-void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& gameObjects, const std::vector<Light>& lights) {
+void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights) {
 }
 
 void RenderableTraits::InitializeSSAOKernel() {
@@ -392,29 +392,29 @@ void RenderableTraits::InitializeSSAOKernel() {
 		noise[i] = Vector3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
 	}
 
-	Texture2D noiseTexture = new ITexture2D();
+	ref_ptr<Texture2D> noiseTexture = new Texture2D();
 	noiseTexture->Create(TextureFormat::Rgb32F, &noise, ColorStreamFormat::RgbF, 4, 4, 4);
 	noiseTexture->SetWrapModeS(TextureWrapMode::Repeat);
 	noiseTexture->SetWrapModeT(TextureWrapMode::Repeat);
 
 	p_->materials.ssao->SetVector3Array("ssaoKernel", kernel, SSAO_KERNEL_SIZE);
 
-	p_->materials.ssao->SetTexture("noiseTexture", noiseTexture);
+	p_->materials.ssao->SetTexture("noiseTexture", noiseTexture.get());
 	p_->materials.ssao->SetTexture("posTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(0));
 	p_->materials.ssao->SetTexture("normalTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(1));
 }
 
 void RenderableTraits::SSAOPass(Pipeline* pl) {
-	ReplaceMaterials(pl, p_->materials.ssaoTraversal);
+	ReplaceMaterials(pl, p_->materials.ssaoTraversal.get());
 }
 
 void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
-	ReplaceMaterials(pl, p_->materials.depth);
+	ReplaceMaterials(pl, p_->materials.depth.get());
 }
 
-void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& gameObjects) {
+void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
 	for (int i = 0; i < gameObjects.size(); ++i) {
-		GameObject go = gameObjects[i];
+		GameObject* go = gameObjects[i];
 		RenderGameObject(pl, go, go->GetComponent<Renderer>());
 	}
 
@@ -422,19 +422,19 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject>& 
 	push_renderables->Reset();
 }
 
-void RenderableTraits::GetLights(Light& forwardBase, std::vector<Light>& forwardAdd) {
-	std::vector<Light> lights = World::GetComponents<ILight>();
+void RenderableTraits::GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd) {
+	std::vector<Light*> lights = World::GetComponents<Light>();
 	if (lights.empty()) {
 		return;
 	}
 
-	Light first = lights.front();
+	Light* first = lights.front();
 	if (first->GetType() == LightType::Directional) {
 		forwardBase = first;
 	}
 
 	for (int i = 1; i < lights.size(); ++i) {
-		forwardAdd.push_back(suede_dynamic_cast<Light>(lights[i]));
+		forwardAdd.push_back((Light*)(lights[i]));
 	}
 }
 
@@ -443,11 +443,11 @@ void RenderableTraits::RenderDecals(Pipeline* pl) {
 	World::GetDecals(decals);
 
 	for (Decal& d : decals) {
-		pl->AddRenderable(d.mesh, d.material, 0, Matrix4(1));
+		pl->AddRenderable(d.mesh.get(), d.material.get(), 0, Matrix4(1));
 	}
 }
 
-void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material material) {
+void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material* material) {
 	uint nrenderables = pl->GetRenderableCount();
 	for (uint i = 0; i < nrenderables; ++i) {
 		Renderable& renderable = pl->GetRenderable(i);
@@ -456,7 +456,7 @@ void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material material) {
 	}
 }
 
-void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer) {
+void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer) {
 	push_renderables->Start();
 
 	int subMeshCount = go->GetComponent<MeshProvider>()->GetMesh()->GetSubMeshCount();
@@ -470,7 +470,7 @@ void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer re
 	renderer->UpdateMaterialProperties();
 
 	for (int i = 0; i < subMeshCount; ++i) {
-		Material material = renderer->GetMaterial(i);
+		Material* material = renderer->GetMaterial(i);
 		int pass = material->GetPass();
 		if (pass >= 0 && material->IsPassEnabled(pass)) {
 			RenderSubMesh(pl, go, i, material, pass);
@@ -487,8 +487,8 @@ void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject go, Renderer re
 	push_renderables->Stop();
 }
 
-void RenderableTraits::RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass) {
-	ParticleSystem p = go->GetComponent<ParticleSystem>();
+void RenderableTraits::RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass) {
+	ParticleSystem* p = go->GetComponent<ParticleSystem>();
 	uint instance = p ? p->GetParticlesCount() : 0;
 	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

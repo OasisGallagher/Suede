@@ -9,17 +9,17 @@ QVector<MainContextCommand*> MaterialEditor::commands_;
 
 class LoadTextureCommand : public MainContextCommand {
 public:
-	LoadTextureCommand(Texture2D tex, const QString& p) : texture(tex), path(p) {}
+	LoadTextureCommand(Texture2D* tex, const QString& p) : texture(tex), path(p) {}
 
 public:
 	virtual void run() { texture->Load(path.toStdString()); }
 
 private:
 	QString path;
-	Texture2D texture;
+	ref_ptr<Texture2D> texture;
 };
 
-void MaterialEditor::draw(Material material) {
+void MaterialEditor::draw(Material* material) {
 	std::string materialName = material->GetName();
 	if (GUI::CollapsingHeader(materialName.c_str())) {
 		GUI::BeginScope(materialName.c_str());
@@ -33,7 +33,7 @@ void MaterialEditor::draw(Material material) {
 	}
 }
 
-void MaterialEditor::drawShaderSelector(Material material) {
+void MaterialEditor::drawShaderSelector(Material* material) {
 	std::string shaderName = material->GetShader()->GetName();
 	if (GUI::Button(shaderName.c_str())) {
 		ShaderSelector selector(nullptr);
@@ -44,16 +44,16 @@ void MaterialEditor::drawShaderSelector(Material material) {
 	}
 }
 
-void MaterialEditor::replaceShader(Material material, const std::string& fullShaderPath) {
+void MaterialEditor::replaceShader(Material* material, const std::string& fullShaderPath) {
 	std::string shaderName = fullShaderPath.substr(Resources::GetShaderDirectory().length());
 	shaderName = shaderName.substr(0, shaderName.length() - strlen(".shader"));
-	Shader shader = Resources::FindShader(shaderName);
-	if (shader) {
+	Shader* shader = Resources::FindShader(shaderName);
+	if (shader != nullptr) {
 		material->SetShader(shader);
 	}
 }
 
-void MaterialEditor::drawProperties(Material material) {
+void MaterialEditor::drawProperties(Material* material) {
 	for (const Property* p : material->GetExplicitProperties()) {
 		switch (p->value.GetType()) {
 			case VariantType::Bool:
@@ -93,9 +93,9 @@ void MaterialEditor::runMainContextCommands() {
 	commands_.clear();
 }
 
-void MaterialEditor::drawTextureProperty(Material material, const Property* p) {
-	Texture texture = material->GetTexture(p->name);
-	Texture2D texture2D = suede_dynamic_cast<Texture2D>(texture);
+void MaterialEditor::drawTextureProperty(Material* material, const Property* p) {
+	Texture* texture = material->GetTexture(p->name);
+	Texture2D* texture2D = (Texture2D*)texture;
 
 	// editable texture.
 	if (texture2D) {
@@ -106,7 +106,7 @@ void MaterialEditor::drawTextureProperty(Material material, const Property* p) {
 	}
 }
 
-void MaterialEditor::drawTexture2DSelector(const Property* p, Texture2D texture2D) {
+void MaterialEditor::drawTexture2DSelector(const Property* p, Texture2D* texture2D) {
 	if (GUI::ImageButton(p->name.c_str(), texture2D->GetNativePointer())) {
 		QString path = QFileDialog::getOpenFileName(nullptr, "Select Texture", Resources::GetTextureDirectory().c_str(), "*.jpg;;*.png");
 		if (!path.isEmpty()) {
@@ -116,14 +116,14 @@ void MaterialEditor::drawTexture2DSelector(const Property* p, Texture2D texture2
 	}
 }
 
-void MaterialEditor::drawBoolProperty(Material material, const Property* p) {
+void MaterialEditor::drawBoolProperty(Material* material, const Property* p) {
 	bool value = material->GetBool(p->name);
 	if (GUI::Toggle(p->name.c_str(), value)) {
 		material->SetBool(p->name, value);
 	}
 }
 
-void MaterialEditor::drawRangedIntProperty(Material material, const Property* p) {
+void MaterialEditor::drawRangedIntProperty(Material* material, const Property* p) {
 	iranged r = material->GetRangedInt(p->name);
 	int value = r.get_value();
 	if (GUI::IntSlider(p->name.c_str(), value, r.min(), r.max())) {
@@ -131,7 +131,7 @@ void MaterialEditor::drawRangedIntProperty(Material material, const Property* p)
 	}
 }
 
-void MaterialEditor::drawRangedFloatProperty(Material material, const Property* p) {
+void MaterialEditor::drawRangedFloatProperty(Material* material, const Property* p) {
 	franged r = material->GetRangedFloat(p->name);
 	float value = r.get_value();
 	if (GUI::Slider(p->name.c_str(), value, r.min(), r.max())) {
@@ -139,28 +139,28 @@ void MaterialEditor::drawRangedFloatProperty(Material material, const Property* 
 	}
 }
 
-void MaterialEditor::drawColorProperty(Material material, const Property* p) {
+void MaterialEditor::drawColorProperty(Material* material, const Property* p) {
 	Color value = material->GetColor(p->name);
 	if (GUI::ColorField(p->name.c_str(), value)) {
 		material->SetColor(p->name, value);
 	}
 }
 
-void MaterialEditor::drawFloatProperty(Material material, const Property* p) {
+void MaterialEditor::drawFloatProperty(Material* material, const Property* p) {
 	float value = material->GetFloat(p->name);
 	if (GUI::FloatField(p->name.c_str(), value)) {
 		material->SetFloat(p->name, value);
 	}
 }
 
-void MaterialEditor::drawVector3Property(Material material, const Property* p) {
+void MaterialEditor::drawVector3Property(Material* material, const Property* p) {
 	Vector3 value = material->GetVector3(p->name);
 	if (GUI::Float3Field(p->name.c_str(), value)) {
 		material->SetVector3(p->name, value);
 	}
 }
 
-void MaterialEditor::drawVector4Property(Material material, const Property* p) {
+void MaterialEditor::drawVector4Property(Material* material, const Property* p) {
 	Vector4 value = material->GetVector4(p->name);
 	if (GUI::Float4Field(p->name.c_str(), value)) {
 		material->SetVector4(p->name, value);

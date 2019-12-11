@@ -4,7 +4,7 @@
 
 #include <QMouseEvent>
 
-class CameraController : public QObject, public IBehaviour {
+class CameraController : public QObject, public Behaviour {
 	Q_OBJECT
 	Q_PROPERTY(Vector3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
 	Q_PROPERTY(Vector2 OrientSpeed READ orientSpeed WRITE setOrientSpeed)
@@ -39,7 +39,7 @@ private:
 	Vector3 calculateArcBallVector(const Vector2& point);
 
 private:
-	Transform camera_;
+	ref_ptr<Transform> camera_;
 
 	QWidget* view_;
 	Vector2 pos_;

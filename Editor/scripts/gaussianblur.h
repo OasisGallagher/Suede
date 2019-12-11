@@ -9,21 +9,21 @@
 
 class GaussianBlur : public QObject, public ImageEffect {
 	Q_OBJECT
-	Q_PROPERTY(Material Material READ material)
+	Q_PROPERTY(Material* Material READ material)
 	Q_PROPERTY(iranged Amount READ amount WRITE setAmount)
 	SUEDE_DECLARE_COMPONENT()
 
 public:
 	virtual void Awake();
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
+	virtual void OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect);
 
 public:
-	Material material() { return material_; }
+	Material* material() { return material_.get(); }
 
 	void setAmount(const iranged& value) { amount_ = value; }
 	iranged amount() const { return amount_; }
 
 private:
-	Material material_;
 	iranged amount_;
+	ref_ptr<Material> material_;
 };

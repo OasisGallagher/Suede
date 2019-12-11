@@ -1,3 +1,3 @@
 #include "imageeffect.h"
 
-SUEDE_DEFINE_COMPONENT(ImageEffect, IBehaviour)
+SUEDE_DEFINE_COMPONENT(ImageEffect, Behaviour)

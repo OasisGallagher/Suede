@@ -31,7 +31,7 @@ public:
 	virtual void tick();
 
 public:
-	virtual void OnGameObjectImported(GameObject root, const std::string& path);
+	virtual void OnGameObjectImported(GameObject* root, const std::string& path);
 
 private slots:
 	void updateStatContent();
@@ -39,8 +39,8 @@ private slots:
 
 	void onShadingModeChanged(const QString& str);
 
-	void onFocusGameObjectBounds(GameObject go);
-	void onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
+	void onFocusGameObjectBounds(GameObject* go);
+	void onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected);
 
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
@@ -49,13 +49,11 @@ protected:
 
 private:
 	void createScene();
-	float calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bounds);
+	float calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds);
 
 	void updateStatPosition();
 
 private:
-	/*RenderTexture targetTexture_;*/
-
 	QTimer* timer_;
 
 	QtInputDelegate* input_;

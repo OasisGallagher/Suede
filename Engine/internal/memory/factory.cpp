@@ -23,7 +23,7 @@
 
 Factory Factory::instance;
 
-#define FACTORY_METHOD(T)	([]() -> Object { return new I ## T(); })
+#define FACTORY_METHOD(T)	([]() -> Object* { return new T(); })
 
 #define ADD_FACTROY_METHOD(T) \
 	AddFactoryMethod(#T, FACTORY_METHOD(T));  \
@@ -31,7 +31,7 @@ Factory Factory::instance;
 
 #define ADD_COMPONENT_FACTROY_METHOD(T) \
 	AddFactoryMethod(#T, FACTORY_METHOD(T)); \
-	AddFactoryMethod(T::element_type::GetComponentGUID(), FACTORY_METHOD(T))
+	AddFactoryMethod(T::GetComponentGUID(), FACTORY_METHOD(T))
 
 Factory::Factory() {
 	std::fill(methodArray_, methodArray_ + ObjectType::size(), nullptr);

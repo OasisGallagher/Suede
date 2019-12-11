@@ -1,5 +1,6 @@
 #include "culling.h"
 
+#include "mesh.h"
 #include "world.h"
 #include "renderer.h"
 #include "profiler.h"
@@ -8,7 +9,8 @@
 #include "internal/async/async.h"
 #include "internal/base/renderdefines.h"
 
-Culling::Culling(CullingListener* listener) : cond_(mutex_), listener_(listener), working_(false), stopped_(false) {
+Culling::Culling(CullingListener* listener) 
+	: cond_(mutex_), listener_(listener), working_(false), stopped_(false) {
 }
 
 void Culling::run() {
@@ -46,7 +48,7 @@ void Culling::Cull(const Matrix4& worldToClipMatrix) {
 	}
 }
 
-WalkCommand Culling::OnWalkGameObject(GameObject go) {
+WalkCommand Culling::OnWalkGameObject(GameObject* go) {
 	if (!IsVisible(go, worldToClipMatrix_)) {
 		return WalkCommand::Continue;
 	}
@@ -62,7 +64,7 @@ WalkCommand Culling::OnWalkGameObject(GameObject go) {
 	return WalkCommand::Continue;
 }
 
-bool Culling::IsVisible(GameObject go, const Matrix4& worldToClipMatrix) {
+bool Culling::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
 	const Bounds& bounds = go->GetBounds();
 	if (bounds.IsEmpty()) {
 		return false;

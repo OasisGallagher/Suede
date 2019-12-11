@@ -13,10 +13,10 @@
 struct Renderable {
 	uint instance;
 
-	Mesh mesh;
+	ref_ptr<Mesh> mesh;
 	uint subMeshIndex;
 	
-	Material material;
+	ref_ptr<Material> material;
 	uint pass;
 
 	Matrix4 localToWorldMatrix;
@@ -46,8 +46,8 @@ public:
 	void Run();
 	void Clear();
 
-	RenderTexture GetTargetTexture();
-	void SetTargetTexture(RenderTexture value, const Rect& normalizedRect);
+	RenderTexture* GetTargetTexture();
+	void SetTargetTexture(RenderTexture* value, const Rect& normalizedRect);
 
 	Pipeline& operator = (const Pipeline& other);
 
@@ -55,17 +55,17 @@ public:
 	Renderable& GetRenderable(uint i) { return renderables_[i]; }
 
 	void AddRenderable(
-		Mesh mesh,
-		Material material,
+		Mesh* mesh,
+		Material* material,
 		uint pass,
 		const Matrix4& localToWorldMatrix,
 		uint instance = 0
 	);
 
 	void AddRenderable(
-		Mesh mesh,
+		Mesh* mesh,
 		uint subMeshIndex,
-		Material material,
+		Material* material,
 		uint pass,
 		const Matrix4& localToWorldMatrix,
 		uint instance = 0
@@ -89,12 +89,12 @@ private:
 	std::vector<Matrix4> matrices_;
 
 	Rect normalizedRect_;
-	RenderTexture targetTexture_;
+	ref_ptr<RenderTexture> targetTexture_;
 
 	struct States {
 		int pass;
-		Mesh mesh;
-		Material material;
+		ref_ptr<Mesh> mesh;
+		ref_ptr<Material> material;
 
 		void Reset();
 	} oldStates_;

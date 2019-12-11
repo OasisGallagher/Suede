@@ -4,8 +4,6 @@
 #include "types.h"
 #include "memory/memory.h"
 
-#define SUEDE_DEFINE_OBJECT_POINTER(Ty)		typedef ref_ptr<class I ## Ty> Ty;
-
 // is std::shared_ptr.
 template<class T> struct suede_is_shared_ptr : std::false_type {};
 template<class T> struct suede_is_shared_ptr<std::shared_ptr<T>> : std::true_type {};

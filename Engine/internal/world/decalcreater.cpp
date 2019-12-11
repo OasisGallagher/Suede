@@ -3,7 +3,7 @@
 #include "resources.h"
 #include "builtinproperties.h"
 
-bool DecalCreater::CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObject go, Plane planes[6]) {
+bool DecalCreater::CreateGameObjectDecal(Camera* camera, DecalInfo& info, GameObject* go, Plane planes[6]) {
 	std::vector<Vector3> triangles;
 	if (!ClampMesh(camera, triangles, go, planes)) {
 		return false;
@@ -23,7 +23,7 @@ bool DecalCreater::CreateGameObjectDecal(Camera camera, DecalInfo& info, GameObj
 }
 
 DecalCreater::DecalCreater() : decalInfos_(SUEDE_MAX_DECALS) {
-	material_ = new IMaterial();
+	material_ = new Material();
 	material_->SetShader(Resources::FindShader("builtin/decal"));
 	material_->SetRenderQueue((int)RenderQueue::Overlay - 500);
 }
@@ -36,9 +36,9 @@ void DecalCreater::GetDecals(std::vector<Decal>& container) {
 	}
 }
 
-bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<GameObject>& gameObjects, Plane planes[6]) {
-	for (std::vector<GameObject>::iterator ite = gameObjects.begin(); ite != gameObjects.end(); ++ite) {
-		GameObject go = (*ite);
+bool DecalCreater::CreateProjectorDecal(Camera* camera, Projector* p, std::vector<GameObject*>& gameObjects, Plane planes[6]) {
+	for (std::vector<GameObject*>::iterator ite = gameObjects.begin(); ite != gameObjects.end(); ++ite) {
+		GameObject* go = (*ite);
 		if (go == p->GetGameObject()) { continue; }
 
 		DecalInfo* info = decalInfos_.spawn();
@@ -63,12 +63,12 @@ bool DecalCreater::CreateProjectorDecal(Camera camera, Projector p, std::vector<
 
 void DecalCreater::CreateDecal(DecalInfo* info) {
 	Matrix4 biasMatrix = Matrix4::Translate(Vector3(0.5f)) * Matrix4::Scale(Vector3(0.5f));
-	Material decalMaterial = suede_dynamic_cast<Material>(material_->Clone());
+	ref_ptr<Material> decalMaterial = suede_dynamic_cast<ref_ptr<Material>>(material_->Clone());
 
 	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
-	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture);
+	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture.get());
 
-	Mesh mesh = new IMesh();
+	Mesh* mesh = new Mesh();
 
 	MeshAttribute attribute;
 	attribute.topology = info->topology;
@@ -77,7 +77,7 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 
 	mesh->SetAttribute(attribute);
 
-	SubMesh subMesh = new ISubMesh();
+	SubMesh* subMesh = new SubMesh();
 	TriangleBias bias{ info->indexes.size() };
 	subMesh->SetTriangleBias(bias);
 
@@ -87,14 +87,15 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	info->decal.material = decalMaterial;
 }
 
-bool DecalCreater::ClampMesh(Camera camera, std::vector<Vector3>& triangles, GameObject go, Plane planes[6]) {
-	Mesh mesh = go->GetComponent<MeshFilter>()->GetMesh();
+bool DecalCreater::ClampMesh(Camera* camera, std::vector<Vector3>& triangles, GameObject* go, Plane planes[6]) {
+	Mesh* mesh = go->GetComponent<MeshFilter>()->GetMesh();
 	Vector3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
 	const uint* indexes = mesh->MapIndexes();
 	const Vector3* vertices = mesh->MapVertices();
 
-	for (SubMesh subMesh : mesh->GetSubMeshes()) {
+	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh* subMesh = mesh->GetSubMesh(i);
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 
 		for (int j = 0; j < bias.indexCount; j += 3) {

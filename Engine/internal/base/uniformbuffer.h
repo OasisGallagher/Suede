@@ -13,15 +13,15 @@ public:
 public:
 	bool Create(const std::string& name, uint size);
 	
-	void AttachBuffer(Shader shader);
-	void AttachSubBuffer(Shader shader, uint offset, uint size);
+	void AttachBuffer(Shader* shader);
+	void AttachSubBuffer(Shader* shader, uint offset, uint size);
 	void UpdateBuffer(const void* data, uint offset, uint size);
 
 	const std::string& GetName() const { return name_; }
 
 private:
 	void Destroy();
-	void Attach(Shader shader);
+	void Attach(Shader* shader);
 	void AttachProgram(uint program);
 	void Initialize(const std::string& name, uint size);
 

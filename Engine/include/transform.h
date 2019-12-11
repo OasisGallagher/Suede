@@ -11,29 +11,23 @@ struct PRS {
 	Vector3 eulerAngles;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(GameObject)
-SUEDE_DEFINE_OBJECT_POINTER(Transform)
-
-class SUEDE_API ITransform : public IComponent {
+class SUEDE_API Transform : public Component {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(Transform)
 	SUEDE_DECLARE_IMPLEMENTATION(Transform)
 
 public:
-	ITransform();
-
-public:
-	typedef SuedeEnumerable<std::vector<Transform>::iterator> Enumerable;
+	Transform();
 
 public:
 	bool IsAttachedToScene();
 
-	void AddChild(Transform child);
-	void RemoveChild(Transform child);
+	void AddChild(Transform* child);
+	void RemoveChild(Transform* child);
 	void RemoveChildAt(uint index);
 
-	void SetParent(Transform value);
-	Transform GetParent() const;
+	void SetParent(Transform* value);
+	Transform* GetParent() const;
 
 	Vector3 TransformPoint(const Vector3& point);
 	Vector3 TransformDirection(const Vector3& direction);
@@ -41,11 +35,10 @@ public:
 	Vector3 InverseTransformPoint(const Vector3& point);
 	Vector3 InverseTransformDirection(const Vector3& direction);
 
-	Transform FindChild(const std::string& path);
+	Transform* FindChild(const std::string& path);
 
 	int GetChildCount();
-	Transform GetChildAt(int i);
-	Enumerable GetChildren();
+	Transform* GetChildAt(int i);
 
 	void SetScale(const Vector3& value);
 	void SetPosition(const Vector3& value);

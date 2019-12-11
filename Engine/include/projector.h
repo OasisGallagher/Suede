@@ -4,17 +4,17 @@
 #include "material.h"
 
 struct Decal {
-	Mesh mesh;
-	Material material;
+	ref_ptr<Mesh> mesh;
+	ref_ptr<Material> material;
 };
 
-class SUEDE_API IProjector : public IComponent {
+class SUEDE_API Projector : public Component {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(Projector)
 	SUEDE_DECLARE_IMPLEMENTATION(Projector)
 
 public:
-	IProjector();
+	Projector();
 
 public:
 	bool GetPerspective() const;
@@ -26,8 +26,8 @@ public:
 	float GetOrthographicSize() const;
 	void SetOrthographicSize(float value);
 
-	Texture GetTexture() const;
-	void SetTexture(Texture value);
+	Texture* GetTexture() const;
+	void SetTexture(Texture* value);
 
 	void SetDepth(int value);
 	int GetDepth() const;
@@ -44,5 +44,3 @@ public:
 
 	const Matrix4& GetProjectionMatrix();
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(Projector)

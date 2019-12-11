@@ -6,7 +6,7 @@
 
 #define ARC_BALL
 
-SUEDE_DEFINE_COMPONENT(CameraController, IBehaviour)
+SUEDE_DEFINE_COMPONENT(CameraController, Behaviour)
 
 CameraController::CameraController() 
 	: orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
@@ -81,7 +81,7 @@ void CameraController::moveCamera(const Vector2& mousePos, Vector2& oldPos) {
 }
 
 void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& oldPos) {
-	GameObject selected = Hierarchy::instance()->selectedGameObject();
+	GameObject* selected = Hierarchy::instance()->selectedGameObject();
 
 	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
 		return;

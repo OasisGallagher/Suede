@@ -13,21 +13,17 @@ struct TriangleBias {
 	uint baseVertex;
 }; 
 
-SUEDE_DEFINE_OBJECT_POINTER(Mesh)
-
-class ISubMesh : public IObject {
+class SubMesh : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(SubMesh)
 	SUEDE_DECLARE_IMPLEMENTATION(SubMesh)
 
 public:
-	ISubMesh();
+	SubMesh();
 
 public:
 	const TriangleBias& GetTriangleBias() const;
 	void SetTriangleBias(const TriangleBias& value);
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(SubMesh)
 
 struct BlendAttribute {
 	enum {
@@ -76,15 +72,12 @@ struct MeshAttribute {
 	InstanceAttribute geometry;
 };
 
-class SUEDE_API IMesh : public IObject {
+class SUEDE_API Mesh : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(Mesh)
 	SUEDE_DECLARE_IMPLEMENTATION(Mesh)
 
 public:
-	IMesh();
-
-public:
-	typedef SuedeEnumerable<std::vector<SubMesh>::iterator> Enumerable;
+	Mesh();
 
 public:
 	/**
@@ -99,10 +92,9 @@ public:
 	//const Bounds& GetBounds() const;
 	//void SetBounds(const Bounds& value);
 
-	void AddSubMesh(SubMesh subMesh);
+	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount();
-	SubMesh GetSubMesh(uint index);
-	Enumerable GetSubMeshes();
+	SubMesh* GetSubMesh(uint index);
 	void RemoveSubMesh(uint index);
 
 	MeshTopology GetTopology();
@@ -118,56 +110,50 @@ public:
 
 	void Bind();
 	void Unbind();
-	void ShareStorage(Mesh other);
+	void ShareStorage(Mesh* other);
 
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 };
 
-class SUEDE_API IMeshProvider : public IComponent {
+class SUEDE_API MeshProvider : public Component {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(MeshProvider)
 	SUEDE_DECLARE_IMPLEMENTATION(MeshProvider)
 
 public:
-	Mesh GetMesh();
+	Mesh* GetMesh();
 
 public:
-	IMeshProvider(void * d);
+	MeshProvider(void * d);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(MeshProvider)
-
-class SUEDE_API ITextMesh : public IMeshProvider {
+class SUEDE_API TextMesh : public MeshProvider {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(TextMesh)
 	SUEDE_DECLARE_IMPLEMENTATION(TextMesh)
 
 public:
-	ITextMesh();
+	TextMesh();
 
 public:
 	void SetText(const std::string& value);
 	std::string GetText();
 
-	void SetFont(Font value);
-	Font GetFont();
+	void SetFont(Font* value);
+	Font* GetFont();
 	
 	void SetFontSize(uint value);
 	uint GetFontSize();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(TextMesh)
-
-class SUEDE_API IMeshFilter : public IMeshProvider {
+class SUEDE_API MeshFilter : public MeshProvider {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(MeshFilter)
 	SUEDE_DECLARE_IMPLEMENTATION(MeshFilter)
 
 public:
-	IMeshFilter();
+	MeshFilter();
 
 public:
-	void SetMesh(Mesh value);
+	void SetMesh(Mesh* value);
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(MeshFilter)

@@ -51,16 +51,16 @@
 // 	framebuffer_.Create(width, height);
 // 
 // 	for (int i = 0; i < GTextureCount; ++i) {
-// 		textures_[i] = new IRenderTexture();
+// 		textures_[i] = new RenderTexture();
 // 		textures_[i]->Load(RenderTextureFormatRgbHdr, width, height);
 // 		framebuffer_.SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + i), textures_[i]);
 // 	}
 // 
-// 	depthTexture_ = new IRenderTexture();
+// 	depthTexture_ = new RenderTexture();
 // 	depthTexture_->Load(RenderTextureFormatDepthStencil, width, height);
 // 	framebuffer_.SetDepthTexture(depthTexture_);
 // 
-// 	finalTexture_ = new IRenderTexture();
+// 	finalTexture_ = new RenderTexture();
 // 	finalTexture_->Load(RenderTextureFormatRgba, width, height);
 // 	framebuffer_.SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + GTextureCount), finalTexture_);
 // 

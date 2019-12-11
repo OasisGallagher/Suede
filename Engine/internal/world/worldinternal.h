@@ -29,18 +29,18 @@ public:
 
 	void Finalize();
 
-	Transform GetRootTransform() { return root_->GetTransform(); }
+	Transform* GetRootTransform() { return root_->GetTransform(); }
 
 	void DestroyGameObject(uint id);
-	void DestroyGameObject(GameObject go);
+	void DestroyGameObject(GameObject* go);
 
-	GameObject Import(const std::string& path, GameObjectImportedListener* listener);
-	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
-	bool ImportTo(GameObject go, const std::string& path, GameObjectImportedListener* listener);
+	GameObject* Import(const std::string& path, GameObjectImportedListener* listener);
+	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
+	bool ImportTo(GameObject* go, const std::string& path, GameObjectImportedListener* listener);
 
-	GameObject GetGameObject(uint id);
+	GameObject* GetGameObject(uint id);
 
-	std::vector<GameObject> GetGameObjectsOfComponent(suede_guid guid);
+	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
 
 	void WalkGameObjectHierarchy(WorldGameObjectWalker* walker);
 
@@ -58,47 +58,47 @@ public:
 	void OnWorldEvent(WorldEventBasePtr e);
 
 private:
-	void AddGameObject(GameObject go);
+	void AddGameObject(GameObject* go);
 
-	void OnGameObjectParentChanged(GameObject go);
+	void OnGameObjectParentChanged(GameObject* go);
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
 
 	template <class Container>
-	void ManageGameObjectComponents(Container& container, Component component, int state);
+	void ManageGameObjectComponents(Container& container, Component* component, int state);
 
 	void FireEvents();
 	void UpdateDecals();
 	void CullingUpdateGameObjects();
 	void RenderingUpdateGameObjects();
 
-	void RemoveGameObject(GameObject go);
-	void DestroyGameObjectRecursively(Transform root);
+	void RemoveGameObject(GameObject* go);
+	void DestroyGameObjectRecursively(Transform* root);
 
-	bool WalkGameObjectHierarchyRecursively(Transform root, WorldGameObjectWalker* walker);
+	bool WalkGameObjectHierarchyRecursively(Transform* root, WorldGameObjectWalker* walker);
 
 	void UpdateTimeUniformBuffer();
 
-	void RemoveGameObjectFromSequence(GameObject go);
-	void ManageGameObjectUpdateSequence(GameObject go);
+	void RemoveGameObjectFromSequence(GameObject* go);
+	void ManageGameObjectUpdateSequence(GameObject* go);
 
 private:
-	struct LightComparer { bool operator() (const Light& lhs, const Light& rhs) const; };
-	struct CameraComparer { bool operator() (const Camera& lhs, const Camera& rhs) const; };
-	struct ProjectorComparer { bool operator() (const Projector& lhs, const Projector& rhs) const; };
+	struct LightComparer { bool operator() (const ref_ptr<Light>& lhs, const ref_ptr<Light>& rhs) const; };
+	struct CameraComparer { bool operator() (const ref_ptr<Camera>& lhs, const ref_ptr<Camera>& rhs) const; };
+	struct ProjectorComparer { bool operator() (const ref_ptr<Projector>& lhs, const ref_ptr<Projector>& rhs) const; };
 
-	typedef sorted_vector<GizmosPainter> GizmosPainterContainer;
+	typedef sorted_vector<ref_ptr<GizmosPainter>> GizmosPainterContainer;
 
-	typedef sorted_vector<GameObject> GameObjectSequence;
-	typedef std::map<uint, GameObject> GameObjectDictionary;
-	typedef std::set<Light, LightComparer> LightContainer;
-	typedef sorted_vector<Camera, CameraComparer> CameraContainer;
+	typedef sorted_vector<GameObject*> GameObjectSequence;
+	typedef std::map<uint, ref_ptr<GameObject>> GameObjectDictionary;
+	typedef std::set<ref_ptr<Light>, LightComparer> LightContainer;
+	typedef sorted_vector<ref_ptr<Camera>, CameraComparer> CameraContainer;
 	typedef std::vector<WorldEventListener*> EventListenerContainer;
-	typedef std::set<Projector, ProjectorComparer> ProjectorContainer;
+	typedef std::set<ref_ptr<Projector>, ProjectorComparer> ProjectorContainer;
 	typedef std::vector<WorldEventBasePtr> WorldEventCollection;
 	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:
-	GameObject root_;
+	GameObject* root_;
 
 	LightContainer lights_;
 	CameraContainer cameras_;
@@ -123,17 +123,17 @@ private:
 };
 
 template <class Container>
-void WorldInternal::ManageGameObjectComponents(Container& container, Component component, int state) {
-	typedef Container::value_type T;
-	typedef typename T::element_type U;
+void WorldInternal::ManageGameObjectComponents(Container& container, Component* component, int state) {
+	typedef typename Container::value_type V;
+	typedef typename V::element_type T;
 
-	if (component->IsComponentType(U::GetComponentGUID())) {
-		T target = suede_dynamic_cast<T>(component);
+	if (component->IsComponentType(T::GetComponentGUID())) {
+		T* target = (T*)component;
 		if (state == GameObjectComponentChangedEvent::ComponentAdded) {
-			container.insert(container.end(), target);
+			container.insert(container.end(), ref_ptr<T>(target));
 		}
 		else if (state == GameObjectComponentChangedEvent::ComponentRemoved) {
-			container.erase(target);
+			container.erase(ref_ptr<T>(target));
 		}
 	}
 }

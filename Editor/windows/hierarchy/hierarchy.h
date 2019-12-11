@@ -23,13 +23,13 @@ public:
 	virtual void awake();
 
 public:
-	virtual void OnGameObjectImported(GameObject root, const std::string& path);
+	virtual void OnGameObjectImported(GameObject* root, const std::string& path);
 
 public:
-	GameObject selectedGameObject();
-	QList<GameObject> selectedGameObjects();
-	void setSelectedGameObjects(const QList<GameObject>& objects);
-	void updateRecursively(GameObject go, QStandardItem* parent);
+	GameObject* selectedGameObject();
+	QList<GameObject*> selectedGameObjects();
+	void setSelectedGameObjects(const QList<GameObject*>& objects);
+	void updateRecursively(GameObject* go, QStandardItem* parent);
 
 protected:
 	virtual void dropEvent(QDropEvent* event);
@@ -37,8 +37,8 @@ protected:
 	virtual void dragEnterEvent(QDragEnterEvent* event);
 
 signals:
-	void focusGameObject(GameObject go);
-	void selectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected);
+	void focusGameObject(GameObject* go);
+	void selectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected);
 
 private slots:
 	void reload();
@@ -51,23 +51,23 @@ private:
 	virtual void OnWorldEvent(WorldEventBasePtr e);
 
 private:
-	void appendChildItem(GameObject go);
-	QStandardItem* appendItem(GameObject child, QStandardItem* parent);
+	void appendChildItem(GameObject* go);
+	QStandardItem* appendItem(GameObject* child, QStandardItem* parent);
 	void removeItem(QStandardItem* item);
 	void removeItemRecusively(QStandardItem* item);
 
 	bool dropAcceptable(const QMimeData* data);
 
-	void onGameObjectCreated(GameObject go);
-	void onGameObjectDestroyed(GameObject go);
-	void onGameObjectTagChanged(GameObject go);
-	void onGameObjectNameChanged(GameObject go);
-	void onGameObjectParentChanged(GameObject go);
-	void onGameObjectActiveChanged(GameObject go);
+	void onGameObjectCreated(GameObject* go);
+	void onGameObjectDestroyed(GameObject* go);
+	void onGameObjectTagChanged(GameObject* go);
+	void onGameObjectNameChanged(GameObject* go);
+	void onGameObjectParentChanged(GameObject* go);
+	void onGameObjectActiveChanged(GameObject* go);
 
-	void enableGameObjectOutline(GameObject go, bool enable);
-	void enableGameObjectsOutline(const QList<GameObject>& gameObjects, bool enable);
-	void selectionToGameObjects(QList<GameObject>& gameObjects, const QItemSelection& items);
+	void enableGameObjectOutline(GameObject* go, bool enable);
+	void enableGameObjectsOutline(const QList<GameObject*>& gameObjects, bool enable);
+	void selectionToGameObjects(QList<GameObject*>& gameObjects, const QItemSelection& items);
 
 private:
 	QStandardItemModel* model_;

@@ -25,19 +25,11 @@ class Resources_Wrapper {
 
 		luaL_Reg funcs[] = {
 			{ "Import", Import },
-			{ "GetBlackTexture", GetBlackTexture },
-			{ "GetWhiteTexture", GetWhiteTexture },
 			{ "GetRootDirectory", GetRootDirectory },
 			{ "GetModelDirectory", GetModelDirectory },
 			{ "GetShaderDirectory", GetShaderDirectory },
 			{ "GetTextureDirectory", GetTextureDirectory },
-			{ "GetPrimitive", GetPrimitive },
-			{ "CreatePrimitive", CreatePrimitive },
-			{ "CreateInstancedPrimitive", CreateInstancedPrimitive },
 			{ "GetPrimitiveAttribute", GetPrimitiveAttribute },
-			{ "FindShader", FindShader },
-			{ "FindTexture", FindTexture },
-			{ "FindMaterial", FindMaterial },
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
@@ -50,16 +42,6 @@ class Resources_Wrapper {
 	static int Import(lua_State* L) {
 		Resources::Import();
 		return 0;
-	}
-
-	// static Texture2D GetBlackTexture()
-	static int GetBlackTexture(lua_State* L) {
-		return Lua::push(L, Resources::GetBlackTexture());
-	}
-
-	// static Texture2D GetWhiteTexture()
-	static int GetWhiteTexture(lua_State* L) {
-		return Lua::push(L, Resources::GetWhiteTexture());
 	}
 
 	// static std::string GetRootDirectory()
@@ -82,31 +64,6 @@ class Resources_Wrapper {
 		return Lua::push(L, Resources::GetTextureDirectory());
 	}
 
-	// static Mesh GetPrimitive(PrimitiveType type)
-	static int GetPrimitive(lua_State* L) {
-		PrimitiveType type = Lua::get<PrimitiveType>(L, 1);
-		
-		return Lua::push(L, Resources::GetPrimitive(type));
-	}
-
-	// static Mesh CreatePrimitive(PrimitiveType type, float scale)
-	static int CreatePrimitive(lua_State* L) {
-		float scale = Lua::get<float>(L, 2);
-		PrimitiveType type = Lua::get<PrimitiveType>(L, 1);
-		
-		return Lua::push(L, Resources::CreatePrimitive(type, scale));
-	}
-
-	// static Mesh CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry)
-	static int CreateInstancedPrimitive(lua_State* L) {
-		InstanceAttribute geometry = Lua::get<InstanceAttribute>(L, 4);
-		InstanceAttribute color = Lua::get<InstanceAttribute>(L, 3);
-		float scale = Lua::get<float>(L, 2);
-		PrimitiveType type = Lua::get<PrimitiveType>(L, 1);
-		
-		return Lua::push(L, Resources::CreateInstancedPrimitive(type, scale, color, geometry));
-	}
-
 	// static void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale)
 	static int GetPrimitiveAttribute(lua_State* L) {
 		float scale = Lua::get<float>(L, 3);
@@ -115,27 +72,6 @@ class Resources_Wrapper {
 		
 		Resources::GetPrimitiveAttribute(attribute, type, scale);
 		return 0;
-	}
-
-	// static Shader FindShader(const std::string& path)
-	static int FindShader(lua_State* L) {
-		std::string path = Lua::get<std::string>(L, 1);
-		
-		return Lua::push(L, Resources::FindShader(path));
-	}
-
-	// static Texture FindTexture(const std::string& path)
-	static int FindTexture(lua_State* L) {
-		std::string path = Lua::get<std::string>(L, 1);
-		
-		return Lua::push(L, Resources::FindTexture(path));
-	}
-
-	// static Material FindMaterial(const std::string& name)
-	static int FindMaterial(lua_State* L) {
-		std::string name = Lua::get<std::string>(L, 1);
-		
-		return Lua::push(L, Resources::FindMaterial(name));
 	}
 
 public:

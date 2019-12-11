@@ -12,7 +12,7 @@ public:
 	TextureField(QWidget* parent);
 
 public:
-	void setTexture(Texture value);
+	void setTexture(Texture* value);
 
 	void setData(const QVariant& data) { data_ = data; }
 	const QVariant& data() const { return data_; }
@@ -21,7 +21,7 @@ protected:
 	virtual void mousePressEvent(QMouseEvent* event);
 
 signals:
-	void currentTextureChanged(Texture texture);
+	void currentTextureChanged(Texture* texture);
 
 private slots:
 	void showTextureExplorer();

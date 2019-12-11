@@ -39,19 +39,19 @@ public:
 
 class SubMesh_Wrapper {
 	static int NewSubMesh(lua_State* L) {
-		return Lua::fromRef(L, make_ref<ISubMesh>());
+		return Lua::newObject<SubMesh>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		SubMesh& _p = *Lua::callerRefPtr<SubMesh>(L);
+		SubMesh* _p = Lua::callerPtr<SubMesh>(L);
 
-		lua_pushstring(L, String::Format("SubMesh@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("SubMesh@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// void SetTriangleBias(const TriangleBias& value)
 	static int SetTriangleBias(lua_State* L) {
-		SubMesh& _p = *Lua::callerRefPtr<SubMesh>(L);
+		SubMesh* _p = Lua::callerPtr<SubMesh>(L);
 		TriangleBias value = Lua::get<TriangleBias>(L, 2);
 		
 		_p->SetTriangleBias(value);
@@ -67,7 +67,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewSubMesh", NewSubMesh });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<SubMesh> },
+			{ "__gc", Lua::deletePtr<SubMesh> },
 			{ "__tostring", ToString }, 
 			{ "SetTriangleBias", SetTriangleBias },
 			{ nullptr, nullptr }
@@ -169,65 +169,41 @@ public:
 
 class Mesh_Wrapper {
 	static int NewMesh(lua_State* L) {
-		return Lua::fromRef(L, make_ref<IMesh>());
+		return Lua::newObject<Mesh>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 
-		lua_pushstring(L, String::Format("Mesh@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("Mesh@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// void CreateStorage()
 	static int CreateStorage(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		_p->CreateStorage();
 		return 0;
 	}
 
 	// void SetAttribute(const MeshAttribute& value)
 	static int SetAttribute(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		MeshAttribute value = Lua::get<MeshAttribute>(L, 2);
 		
 		_p->SetAttribute(value);
 		return 0;
 	}
 
-	// void AddSubMesh(SubMesh subMesh)
-	static int AddSubMesh(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
-		SubMesh subMesh = Lua::get<SubMesh>(L, 2);
-		
-		_p->AddSubMesh(subMesh);
-		return 0;
-	}
-
 	// uint GetSubMeshCount()
 	static int GetSubMeshCount(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		return Lua::push(L, _p->GetSubMeshCount());
-	}
-
-	// SubMesh GetSubMesh(uint index)
-	static int GetSubMesh(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
-		uint index = Lua::get<uint>(L, 2);
-		
-		return Lua::push(L, _p->GetSubMesh(index));
-	}
-
-	// Enumerable GetSubMeshes()
-	static int GetSubMeshes(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
-		IMesh::Enumerable _r = _p->GetSubMeshes();
-		return Lua::pushList(L, std::vector<IMesh::Enumerable::value_type>(_r.begin(), _r.end()));
 	}
 
 	// void RemoveSubMesh(uint index)
 	static int RemoveSubMesh(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		_p->RemoveSubMesh(index);
@@ -236,62 +212,53 @@ class Mesh_Wrapper {
 
 	// MeshTopology GetTopology()
 	static int GetTopology(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		return Lua::push(L, _p->GetTopology());
 	}
 
 	// uint GetNativePointer()
 	static int GetNativePointer(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		return Lua::push(L, _p->GetNativePointer());
 	}
 
 	// void UnmapIndexes()
 	static int UnmapIndexes(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		_p->UnmapIndexes();
 		return 0;
 	}
 
 	// uint GetIndexCount()
 	static int GetIndexCount(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		return Lua::push(L, _p->GetIndexCount());
 	}
 
 	// void UnmapVertices()
 	static int UnmapVertices(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		_p->UnmapVertices();
 		return 0;
 	}
 
 	// uint GetVertexCount()
 	static int GetVertexCount(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		return Lua::push(L, _p->GetVertexCount());
 	}
 
 	// void Bind()
 	static int Bind(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		_p->Bind();
 		return 0;
 	}
 
 	// void Unbind()
 	static int Unbind(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
+		Mesh* _p = Lua::callerPtr<Mesh>(L);
 		_p->Unbind();
-		return 0;
-	}
-
-	// void ShareStorage(Mesh other)
-	static int ShareStorage(lua_State* L) {
-		Mesh& _p = *Lua::callerRefPtr<Mesh>(L);
-		Mesh other = Lua::get<Mesh>(L, 2);
-		
-		_p->ShareStorage(other);
 		return 0;
 	}
 
@@ -304,14 +271,11 @@ public:
 		funcs.push_back(luaL_Reg { "NewMesh", NewMesh });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<Mesh> },
+			{ "__gc", Lua::deletePtr<Mesh> },
 			{ "__tostring", ToString }, 
 			{ "CreateStorage", CreateStorage },
 			{ "SetAttribute", SetAttribute },
-			{ "AddSubMesh", AddSubMesh },
 			{ "GetSubMeshCount", GetSubMeshCount },
-			{ "GetSubMesh", GetSubMesh },
-			{ "GetSubMeshes", GetSubMeshes },
 			{ "RemoveSubMesh", RemoveSubMesh },
 			{ "GetTopology", GetTopology },
 			{ "GetNativePointer", GetNativePointer },
@@ -321,7 +285,6 @@ public:
 			{ "GetVertexCount", GetVertexCount },
 			{ "Bind", Bind },
 			{ "Unbind", Unbind },
-			{ "ShareStorage", ShareStorage },
 			{ nullptr, nullptr }
 		};
 
@@ -331,16 +294,10 @@ public:
 
 class MeshProvider_Wrapper {
 	static int ToString(lua_State* L) {
-		MeshProvider& _p = *Lua::callerRefPtr<MeshProvider>(L);
+		MeshProvider* _p = Lua::callerPtr<MeshProvider>(L);
 
-		lua_pushstring(L, String::Format("MeshProvider@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("MeshProvider@0x%p", _p).c_str());
 		return 1;
-	}
-
-	// Mesh GetMesh()
-	static int GetMesh(lua_State* L) {
-		MeshProvider& _p = *Lua::callerRefPtr<MeshProvider>(L);
-		return Lua::push(L, _p->GetMesh());
 	}
 
 public:
@@ -350,9 +307,8 @@ public:
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<MeshProvider> },
+			{ "__gc", Lua::deletePtr<MeshProvider> },
 			{ "__tostring", ToString }, 
-			{ "GetMesh", GetMesh },
 			{ nullptr, nullptr }
 		};
 
@@ -362,19 +318,19 @@ public:
 
 class TextMesh_Wrapper {
 	static int NewTextMesh(lua_State* L) {
-		return Lua::fromRef(L, make_ref<ITextMesh>());
+		return Lua::newObject<TextMesh>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
+		TextMesh* _p = Lua::callerPtr<TextMesh>(L);
 
-		lua_pushstring(L, String::Format("TextMesh@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("TextMesh@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// void SetText(const std::string& value)
 	static int SetText(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
+		TextMesh* _p = Lua::callerPtr<TextMesh>(L);
 		std::string value = Lua::get<std::string>(L, 2);
 		
 		_p->SetText(value);
@@ -383,28 +339,13 @@ class TextMesh_Wrapper {
 
 	// std::string GetText()
 	static int GetText(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
+		TextMesh* _p = Lua::callerPtr<TextMesh>(L);
 		return Lua::push(L, _p->GetText());
-	}
-
-	// void SetFont(Font value)
-	static int SetFont(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
-		Font value = Lua::get<Font>(L, 2);
-		
-		_p->SetFont(value);
-		return 0;
-	}
-
-	// Font GetFont()
-	static int GetFont(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
-		return Lua::push(L, _p->GetFont());
 	}
 
 	// void SetFontSize(uint value)
 	static int SetFontSize(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
+		TextMesh* _p = Lua::callerPtr<TextMesh>(L);
 		uint value = Lua::get<uint>(L, 2);
 		
 		_p->SetFontSize(value);
@@ -413,7 +354,7 @@ class TextMesh_Wrapper {
 
 	// uint GetFontSize()
 	static int GetFontSize(lua_State* L) {
-		TextMesh& _p = *Lua::callerRefPtr<TextMesh>(L);
+		TextMesh* _p = Lua::callerPtr<TextMesh>(L);
 		return Lua::push(L, _p->GetFontSize());
 	}
 
@@ -426,12 +367,10 @@ public:
 		funcs.push_back(luaL_Reg { "NewTextMesh", NewTextMesh });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<TextMesh> },
+			{ "__gc", Lua::deletePtr<TextMesh> },
 			{ "__tostring", ToString }, 
 			{ "SetText", SetText },
 			{ "GetText", GetText },
-			{ "SetFont", SetFont },
-			{ "GetFont", GetFont },
 			{ "SetFontSize", SetFontSize },
 			{ "GetFontSize", GetFontSize },
 			{ nullptr, nullptr }
@@ -443,23 +382,14 @@ public:
 
 class MeshFilter_Wrapper {
 	static int NewMeshFilter(lua_State* L) {
-		return Lua::fromRef(L, make_ref<IMeshFilter>());
+		return Lua::newObject<MeshFilter>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		MeshFilter& _p = *Lua::callerRefPtr<MeshFilter>(L);
+		MeshFilter* _p = Lua::callerPtr<MeshFilter>(L);
 
-		lua_pushstring(L, String::Format("MeshFilter@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("MeshFilter@0x%p", _p).c_str());
 		return 1;
-	}
-
-	// void SetMesh(Mesh value)
-	static int SetMesh(lua_State* L) {
-		MeshFilter& _p = *Lua::callerRefPtr<MeshFilter>(L);
-		Mesh value = Lua::get<Mesh>(L, 2);
-		
-		_p->SetMesh(value);
-		return 0;
 	}
 
 public:
@@ -471,9 +401,8 @@ public:
 		funcs.push_back(luaL_Reg { "NewMeshFilter", NewMeshFilter });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<MeshFilter> },
+			{ "__gc", Lua::deletePtr<MeshFilter> },
 			{ "__tostring", ToString }, 
-			{ "SetMesh", SetMesh },
 			{ nullptr, nullptr }
 		};
 

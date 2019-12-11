@@ -2,16 +2,14 @@
 
 #include "gizmos.h"
 
-SUEDE_DEFINE_COMPONENT(SelectionGizmos, IGizmosPainter)
+SUEDE_DEFINE_COMPONENT(SelectionGizmos, GizmosPainter)
 
 void SelectionGizmos::OnDrawGizmos() {
 	if (selection_.empty()) { return; }
 
 	Color oldColor = Gizmos::GetColor();
 
-	for (IGameObject* ptr : selection_) {
-		GameObject go(ptr);
-
+	for (GameObject* go : selection_) {
 		if (!go->GetActive()) {
 			continue;
 		}
@@ -42,11 +40,11 @@ void SelectionGizmos::OnDrawGizmos() {
 	Gizmos::SetColor(oldColor);
 }
 
-void SelectionGizmos::setSelection(const QList<GameObject>& value) {
+void SelectionGizmos::setSelection(const QList<GameObject*>& value) {
 	selection_.clear();
 	selection_.reserve(value.size());
 
-	for (const GameObject& go : value) {
-		selection_.push_back(go.get());
+	for (GameObject* go : value) {
+		selection_.push_back(go);
 	}
 }

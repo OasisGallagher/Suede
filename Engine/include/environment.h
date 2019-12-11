@@ -7,8 +7,8 @@ class SUEDE_API Environment : private Singleton2<Environment> {
 	SUEDE_DECLARE_IMPLEMENTATION(Environment)
 
 public:
-	static void SetSkybox(Material value);
-	static Material GetSkybox();
+	static void SetSkybox(Material* value);
+	static Material* GetSkybox();
 
 	static void SetAmbientColor(const Color& value);
 	static Color GetAmbientColor();

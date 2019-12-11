@@ -22,11 +22,12 @@ namespace Assimp { class Importer; }
 
 struct MaterialAsset {
 	MaterialAsset();
+	~MaterialAsset() {}
 
 	void ApplyAsset();
-	Texture2D CreateTexture2D(const TexelMap* texelMap);
+	ref_ptr<Texture2D> CreateTexture2D(const TexelMap* texelMap);
 
-	Material material;
+	ref_ptr<Material> material;
 
 	std::string name;
 	std::string shaderName;
@@ -50,19 +51,19 @@ typedef MeshAttribute MeshAsset;
 struct GameObjectAsset {
 	MeshAsset meshAsset;
 	std::vector<MaterialAsset> materialAssets;
-	std::vector<std::pair<GameObject, Component>> components;
+	std::vector<std::pair<GameObject*, ref_ptr<Component>>> components;
 };
 
 class GameObjectLoader : public Worker, private NonCopyable {
 public:
-	GameObjectLoader(const std::string& path, GameObject root, WorkerEventListener* receiver);
+	GameObjectLoader(const std::string& path, GameObject* root, WorkerEventListener* receiver);
 	~GameObjectLoader();
 
 public:
-	GameObject GetGameObject() { return root_; }
+	GameObject* GetGameObject() { return root_.get(); }
 	const std::string& GetPath() { return path_; }
 
-	Mesh GetSurface() { return surface_; }
+	Mesh* GetSurface() { return surface_.get(); }
 	GameObjectAsset& GetGameObjectAsset() { return asset_; }
 
 protected:
@@ -72,25 +73,25 @@ private:
 	bool LoadAsset();
 	bool Initialize(Assimp::Importer& importer);
 
-	void LoadNodeTo(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes);
-	void LoadChildren(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes);
-	void LoadComponents(GameObject go, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadNodeTo(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes);
+	void LoadChildren(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes);
+	void LoadComponents(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes);
 
-	GameObject LoadHierarchy(GameObject parent, aiNode* node, Mesh& surface, SubMesh* subMeshes);
+	void LoadHierarchy(GameObject* parent, aiNode* node, Mesh*& surface, SubMesh** subMeshes);
 
 	void ReserveMemory(MeshAsset& meshAsset);
-	bool LoadAttribute(MeshAsset& meshAsset, SubMesh* subMeshes);
-	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh* subMeshes);
+	bool LoadAttribute(MeshAsset& meshAsset, SubMesh** subMeshes);
+	bool LoadAttributeAt(int index, MeshAsset& meshAsset, SubMesh** subMeshes);
 
-	void LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh* subMeshes);
+	void LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh** subMeshes);
 	void LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset);
 
 	void LoadMaterialAssets();
 	void LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material);
 
 	bool HasAnimation();
-	void LoadAnimation(Animation animation);
-	void LoadAnimationClip(const aiAnimation* anim, AnimationClip clip);
+	void LoadAnimation(Animation* animation);
+	void LoadAnimationClip(const aiAnimation* anim, AnimationClip* clip);
 	void LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode);
 	const aiNodeAnim* FindChannel(const aiAnimation* anim, const char* name);
 
@@ -100,14 +101,13 @@ private:
 	bool LoadExternalTexels(TexelMap& texelMap, const std::string& name);
 
 private:
-	Mesh surface_;
+	ref_ptr<Mesh> surface_;
 	GameObjectAsset asset_;
 
-	GameObject root_;
 	std::string path_;
+	ref_ptr<GameObject> root_;
 
-	Skeleton skeleton_;
-	Animation animation_;
+	ref_ptr<Skeleton> skeleton_;
 	const aiScene* scene_;
 
 	typedef std::map<std::string, TexelMap*> TexelMapContainer;
@@ -118,7 +118,7 @@ template <class T>
 class GameObjectLoaderParameterized : public GameObjectLoader {
 public:
 public:
-	GameObjectLoaderParameterized(const std::string& path, GameObject root, WorkerEventListener* receiver, const T& value) 
+	GameObjectLoaderParameterized(const std::string& path, GameObject* root, WorkerEventListener* receiver, const T& value) 
 		: GameObjectLoader(path, root, receiver), parameter_(value) {
 	}
 
@@ -129,7 +129,7 @@ private:
 	T parameter_;
 };
 
-typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject, const std::string&>> GameObjectLoaderWithCallback;
+typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject*, const std::string&>> GameObjectLoaderWithCallback;
 
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
@@ -137,8 +137,8 @@ public:
 	~GameObjectLoaderThreadPool() {}
 
 public:
-	GameObject Import(const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
-	bool ImportTo(GameObject go, const std::string& path, Lua::Func<void, GameObject, const std::string&> callback);
+	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
+	bool ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 
 	void SetImportedListener(GameObjectImportedListener* value) { listener_ = value; }
 

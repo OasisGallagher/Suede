@@ -7,52 +7,52 @@
 #include "builtinproperties.h"
 #include "particlesysteminternal.h"
 
-IParticleEmitter::IParticleEmitter(void* d) : IObject(d) {}
-void IParticleEmitter::Emit(Particle** particles, uint& count) { _suede_dptr()->Emit(particles, count); }
-void IParticleEmitter::SetRate(uint value) { _suede_dptr()->SetRate(value); }
-uint IParticleEmitter::GetRate() { return _suede_dptr()->GetRate(); }
-void IParticleEmitter::SetStartDuration(float value) { _suede_dptr()->SetStartDuration(value); }
-float IParticleEmitter::GetStartDuration() { return _suede_dptr()->GetStartDuration(); }
-void IParticleEmitter::SetStartSize(float value) { _suede_dptr()->SetStartSize(value); }
-float IParticleEmitter::GetStartSize() { return _suede_dptr()->GetStartSize(); }
-void IParticleEmitter::SetStartVelocity(const Vector3& value) { _suede_dptr()->SetStartVelocity(value); }
-Vector3 IParticleEmitter::GetStartVelocity() { return _suede_dptr()->GetStartVelocity(); }
-void IParticleEmitter::SetStartColor(const Vector4& value) { return _suede_dptr()->SetStartColor(value); }
-Vector4 IParticleEmitter::GetStartColor() { return _suede_dptr()->GetStartColor(); }
-void IParticleEmitter::AddBurst(const ParticleBurst& value) { _suede_dptr()->AddBurst(value); }
-void IParticleEmitter::SetBurst(int i, const ParticleBurst& value) { _suede_dptr()->SetBurst(i, value); }
-ParticleBurst IParticleEmitter::GetBurst(int i) { return _suede_dptr()->GetBurst(i); }
-void IParticleEmitter::RemoveBurst(int i) { _suede_dptr()->RemoveBurst(i); }
-int IParticleEmitter::GetBurstCount() { return _suede_dptr()->GetBurstCount(); }
+ParticleEmitter::ParticleEmitter(void* d) : Object(d) {}
+void ParticleEmitter::Emit(Particle** particles, uint& count) { _suede_dptr()->Emit(particles, count); }
+void ParticleEmitter::SetRate(uint value) { _suede_dptr()->SetRate(value); }
+uint ParticleEmitter::GetRate() { return _suede_dptr()->GetRate(); }
+void ParticleEmitter::SetStartDuration(float value) { _suede_dptr()->SetStartDuration(value); }
+float ParticleEmitter::GetStartDuration() { return _suede_dptr()->GetStartDuration(); }
+void ParticleEmitter::SetStartSize(float value) { _suede_dptr()->SetStartSize(value); }
+float ParticleEmitter::GetStartSize() { return _suede_dptr()->GetStartSize(); }
+void ParticleEmitter::SetStartVelocity(const Vector3& value) { _suede_dptr()->SetStartVelocity(value); }
+Vector3 ParticleEmitter::GetStartVelocity() { return _suede_dptr()->GetStartVelocity(); }
+void ParticleEmitter::SetStartColor(const Vector4& value) { return _suede_dptr()->SetStartColor(value); }
+Vector4 ParticleEmitter::GetStartColor() { return _suede_dptr()->GetStartColor(); }
+void ParticleEmitter::AddBurst(const ParticleBurst& value) { _suede_dptr()->AddBurst(value); }
+void ParticleEmitter::SetBurst(int i, const ParticleBurst& value) { _suede_dptr()->SetBurst(i, value); }
+ParticleBurst ParticleEmitter::GetBurst(int i) { return _suede_dptr()->GetBurst(i); }
+void ParticleEmitter::RemoveBurst(int i) { _suede_dptr()->RemoveBurst(i); }
+int ParticleEmitter::GetBurstCount() { return _suede_dptr()->GetBurstCount(); }
 
-ISphereParticleEmitter::ISphereParticleEmitter() : IParticleEmitter(MEMORY_NEW(SphereParticleEmitterInternal)) {}
-void ISphereParticleEmitter::SetRadius(float value) { _suede_dptr()->SetRadius(value); }
-float ISphereParticleEmitter::GetRadius() { return _suede_dptr()->GetRadius(); }
+SphereParticleEmitter::SphereParticleEmitter() : ParticleEmitter(MEMORY_NEW(SphereParticleEmitterInternal)) {}
+void SphereParticleEmitter::SetRadius(float value) { _suede_dptr()->SetRadius(value); }
+float SphereParticleEmitter::GetRadius() { return _suede_dptr()->GetRadius(); }
 
-IParticleAnimator::IParticleAnimator() : IObject(MEMORY_NEW(ParticleAnimatorInternal)) {}
-void IParticleAnimator::SetForce(const Vector3& value) { _suede_dptr()->SetForce(value); }
-Vector3 IParticleAnimator::GetForce() { return _suede_dptr()->GetForce(); }
-void IParticleAnimator::SetRandomForce(const Vector3& value) { _suede_dptr()->SetRandomForce(value); }
-Vector3 IParticleAnimator::GetRandomForce() { return _suede_dptr()->GetRandomForce(); }
-void IParticleAnimator::SetGravityScale(float value) { _suede_dptr()->SetGravityScale(value); }
-float IParticleAnimator::GetGravityScale() { return _suede_dptr()->GetGravityScale(); }
-void IParticleAnimator::Update(Particle& particle) { _suede_dptr()->Update(particle); }
+ParticleAnimator::ParticleAnimator() : Object(MEMORY_NEW(ParticleAnimatorInternal)) {}
+void ParticleAnimator::SetForce(const Vector3& value) { _suede_dptr()->SetForce(value); }
+Vector3 ParticleAnimator::GetForce() { return _suede_dptr()->GetForce(); }
+void ParticleAnimator::SetRandomForce(const Vector3& value) { _suede_dptr()->SetRandomForce(value); }
+Vector3 ParticleAnimator::GetRandomForce() { return _suede_dptr()->GetRandomForce(); }
+void ParticleAnimator::SetGravityScale(float value) { _suede_dptr()->SetGravityScale(value); }
+float ParticleAnimator::GetGravityScale() { return _suede_dptr()->GetGravityScale(); }
+void ParticleAnimator::Update(Particle& particle) { _suede_dptr()->Update(particle); }
 
-IParticleSystem::IParticleSystem() : IComponent(MEMORY_NEW(ParticleSystemInternal)) {}
-void IParticleSystem::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
-float IParticleSystem::GetDuration() { return _suede_dptr()->GetDuration(); }
-void IParticleSystem::SetLooping(bool value) { _suede_dptr()->SetLooping(value); }
-bool IParticleSystem::GetLooping() { return _suede_dptr()->GetLooping(); }
-void IParticleSystem::SetStartDelay(float value) { _suede_dptr()->SetStartDelay(value); }
-float IParticleSystem::GetStartDelay() { return _suede_dptr()->GetStartDelay(); }
-void IParticleSystem::SetMaxParticles(uint value) { _suede_dptr()->SetMaxParticles(value); }
-uint IParticleSystem::GetMaxParticles() { return _suede_dptr()->GetMaxParticles(); }
-uint IParticleSystem::GetParticlesCount() const { return _suede_dptr()->GetParticlesCount(); }
-const Bounds& IParticleSystem::GetMaxBounds() { return _suede_dptr()->GetMaxBounds(); }
-void IParticleSystem::SetEmitter(ParticleEmitter value) { _suede_dptr()->SetEmitter(value); }
-ParticleEmitter IParticleSystem::GetEmitter() { return _suede_dptr()->GetEmitter(); }
-void IParticleSystem::SetParticleAnimator(ParticleAnimator value) { _suede_dptr()->SetParticleAnimator(value); }
-ParticleAnimator IParticleSystem::GetParticleAnimator() { return _suede_dptr()-> GetParticleAnimator(); }
+ParticleSystem::ParticleSystem() : Component(MEMORY_NEW(ParticleSystemInternal)) {}
+void ParticleSystem::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
+float ParticleSystem::GetDuration() { return _suede_dptr()->GetDuration(); }
+void ParticleSystem::SetLooping(bool value) { _suede_dptr()->SetLooping(value); }
+bool ParticleSystem::GetLooping() { return _suede_dptr()->GetLooping(); }
+void ParticleSystem::SetStartDelay(float value) { _suede_dptr()->SetStartDelay(value); }
+float ParticleSystem::GetStartDelay() { return _suede_dptr()->GetStartDelay(); }
+void ParticleSystem::SetMaxParticles(uint value) { _suede_dptr()->SetMaxParticles(value); }
+uint ParticleSystem::GetMaxParticles() { return _suede_dptr()->GetMaxParticles(); }
+uint ParticleSystem::GetParticlesCount() const { return _suede_dptr()->GetParticlesCount(); }
+const Bounds& ParticleSystem::GetMaxBounds() { return _suede_dptr()->GetMaxBounds(); }
+void ParticleSystem::SetEmitter(ParticleEmitter* value) { _suede_dptr()->SetEmitter(value); }
+ParticleEmitter* ParticleSystem::GetEmitter() { return _suede_dptr()->GetEmitter(); }
+void ParticleSystem::SetParticleAnimator(ParticleAnimator* value) { _suede_dptr()->SetParticleAnimator(value); }
+ParticleAnimator* ParticleSystem::GetParticleAnimator() { return _suede_dptr()-> GetParticleAnimator(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(ParticleSystem, Component)
 
@@ -106,7 +106,7 @@ void ParticleSystemInternal::Update() {
 }
 
 void ParticleSystemInternal::SortBuffers() {
-	SortParticlesByDepth(CameraUtility::GetMain()->GetTransform()->GetPosition());
+	SortParticlesByDepth(Camera::GetMain()->GetTransform()->GetPosition());
 }
 
 void ParticleSystemInternal::SortParticlesByDepth(const Vector3& ref) {
@@ -148,7 +148,7 @@ void ParticleSystemInternal::UpdateParticles() {
 void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint count = particles_.size();
 	if (count > 0) {
-		Mesh mesh = GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
+		Mesh* mesh = GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
 		mesh->UpdateInstanceBuffer(0, count * sizeof(Vector4), &colors_[0]);
 		mesh->UpdateInstanceBuffer(1, count * sizeof(Vector4), &geometries_[0]);
 	}
@@ -231,7 +231,7 @@ void ParticleSystemInternal::InitializeMesh() {
 	InstanceAttribute geometry;
 	geometry.count = maxParticles_, geometry.divisor = 1;
 
-	MeshFilter meshFilter = GetGameObject()->GetComponent<MeshFilter>();
+	MeshFilter* meshFilter = GetGameObject()->GetComponent<MeshFilter>();
 	meshFilter->SetMesh(
 		Resources::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)
 	);
@@ -239,13 +239,13 @@ void ParticleSystemInternal::InitializeMesh() {
 }
 
 void ParticleSystemInternal::InitializeRenderer() {
-	ParticleRenderer renderer = GetGameObject()->GetComponent<ParticleRenderer>();
+	ParticleRenderer* renderer = GetGameObject()->GetComponent<ParticleRenderer>();
 
-	Material material = new IMaterial();
-	Shader shader = Resources::FindShader("builtin/particle");
+	Material* material = new Material();
+	Shader* shader = Resources::FindShader("builtin/particle");
 	material->SetShader(shader);
 
-	Texture2D mainTexture = new ITexture2D();
+	Texture2D* mainTexture = new Texture2D();
 	mainTexture->Load("snowflake.png");
 	material->SetTexture(BuiltinProperties::MainTexture, mainTexture);
 

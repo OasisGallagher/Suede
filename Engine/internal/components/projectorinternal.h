@@ -8,8 +8,8 @@ public:
 	ProjectorInternal();
 
 public:
-	virtual Texture GetTexture() const { return texture_; }
-	virtual void SetTexture(Texture value) { texture_ = value; }
+	virtual Texture* GetTexture() const { return texture_.get(); }
+	virtual void SetTexture(Texture* value) { texture_ = value; }
 
 	virtual void SetDepth(int value) { depth_ = value; }
 	virtual int GetDepth() const { return depth_; }
@@ -40,5 +40,5 @@ public:
 
 private:
 	int depth_;
-	Texture texture_;
+	ref_ptr<Texture> texture_;
 };

@@ -11,17 +11,17 @@ class Shadows : public Singleton<Shadows> {
 
 public:
 	void Clear();
-	RenderTexture GetShadowTexture();
+	RenderTexture* GetShadowTexture();
 
 	void Resize(uint width, uint height);
 	const Matrix4& GetWorldToShadowMatrix();
-	void Update(Light light, Pipeline* pipeline);
+	void Update(Light* light, Pipeline* pipeline);
 
 private:
 	Shadows();
 
 private:
 	Matrix4 worldToShadowMatrix_;
-	RenderTexture shadowDepthTexture_;
-	Material directionalLightShadowMaterial_;
+	ref_ptr<RenderTexture> shadowDepthTexture_;
+	ref_ptr<Material> directionalLightShadowMaterial_;
 };

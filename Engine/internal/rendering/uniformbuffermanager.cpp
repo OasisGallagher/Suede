@@ -20,7 +20,7 @@ UniformBufferManager::~UniformBufferManager() {
 	}
 }
 
-void UniformBufferManager::Attach(Shader shader) {
+void UniformBufferManager::Attach(Shader* shader) {
 	for (SharedUniformBufferContainer::iterator ite = sharedUniformBuffers_.begin(); ite != sharedUniformBuffers_.end(); ++ite) {
 		ite->second->AttachBuffer(shader);
 	}

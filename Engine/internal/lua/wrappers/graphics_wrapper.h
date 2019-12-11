@@ -29,8 +29,6 @@ class Graphics_Wrapper {
 			{ "SetAmbientOcclusionEnabled", SetAmbientOcclusionEnabled },
 			{ "GetAmbientOcclusionEnabled", GetAmbientOcclusionEnabled },
 			{ "SetRenderTarget", SetRenderTarget },
-			{ "Draw", Draw },
-			{ "Blit", Blit },
 			{"__tostring", ToStringStatic },
 			{ nullptr, nullptr }
 		};
@@ -71,83 +69,6 @@ class Graphics_Wrapper {
 		std::vector<uint> colorBuffers = Lua::getList<uint>(L, 1);
 		
 		Graphics::SetRenderTarget(colorBuffers, depthBuffer);
-		return 0;
-	}
-
-	// static void Draw(Mesh mesh, Material material)
-	static int Draw(lua_State* L) {
-		Material material = Lua::get<Material>(L, 2);
-		Mesh mesh = Lua::get<Mesh>(L, 1);
-		
-		Graphics::Draw(mesh, material);
-		return 0;
-	}
-
-	// static void Blit(Texture src, RenderTexture dest)
-	// static void Blit(Texture src, RenderTexture dest, const Rect& rect)
-	// static void Blit(Texture src, RenderTexture dest, const Rect& srcRect, const Rect& destRect)
-	// static void Blit(Texture src, RenderTexture dest, Material material)
-	// static void Blit(Texture src, RenderTexture dest, Material material, const Rect& rect)
-	// static void Blit(Texture src, RenderTexture dest, Material material, const Rect& srcRect, const Rect& destRect)
-	static int Blit(lua_State* L) {
-		if (Lua::checkArguments<Texture, RenderTexture>(L, 2)) {
-			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
-			Texture src = Lua::get<Texture>(L, 1);
-			
-			Graphics::Blit(src, dest);
-			return 0;
-		}
-
-		if (Lua::checkArguments<Texture, RenderTexture, Rect>(L, 2)) {
-			Rect rect = Lua::get<Rect>(L, 3);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
-			Texture src = Lua::get<Texture>(L, 1);
-			
-			Graphics::Blit(src, dest, rect);
-			return 0;
-		}
-
-		if (Lua::checkArguments<Texture, RenderTexture, Rect, Rect>(L, 2)) {
-			Rect destRect = Lua::get<Rect>(L, 4);
-			Rect srcRect = Lua::get<Rect>(L, 3);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
-			Texture src = Lua::get<Texture>(L, 1);
-			
-			Graphics::Blit(src, dest, srcRect, destRect);
-			return 0;
-		}
-
-		if (Lua::checkArguments<Texture, RenderTexture, Material>(L, 2)) {
-			Material material = Lua::get<Material>(L, 3);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
-			Texture src = Lua::get<Texture>(L, 1);
-			
-			Graphics::Blit(src, dest, material);
-			return 0;
-		}
-
-		if (Lua::checkArguments<Texture, RenderTexture, Material, Rect>(L, 2)) {
-			Rect rect = Lua::get<Rect>(L, 4);
-			Material material = Lua::get<Material>(L, 3);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
-			Texture src = Lua::get<Texture>(L, 1);
-			
-			Graphics::Blit(src, dest, material, rect);
-			return 0;
-		}
-
-		if (Lua::checkArguments<Texture, RenderTexture, Material, Rect, Rect>(L, 2)) {
-			Rect destRect = Lua::get<Rect>(L, 5);
-			Rect srcRect = Lua::get<Rect>(L, 4);
-			Material material = Lua::get<Material>(L, 3);
-			RenderTexture dest = Lua::get<RenderTexture>(L, 2);
-			Texture src = Lua::get<Texture>(L, 1);
-			
-			Graphics::Blit(src, dest, material, srcRect, destRect);
-			return 0;
-		}
-
-		Debug::LogError("failed to call \"Blit\", invalid arguments.");
 		return 0;
 	}
 

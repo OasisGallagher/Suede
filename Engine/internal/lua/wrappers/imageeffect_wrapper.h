@@ -19,17 +19,6 @@ class ImageEffect_Wrapper {
 		return 1;
 	}
 
-	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
-	static int OnRenderImage(lua_State* L) {
-		ImageEffect* _p = Lua::callerPtr<ImageEffect>(L);
-		Rect normalizedRect = Lua::get<Rect>(L, 4);
-		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-		RenderTexture src = Lua::get<RenderTexture>(L, 2);
-		
-		_p->OnRenderImage(src, dest, normalizedRect);
-		return 0;
-	}
-
 public:
 	static void create(lua_State* L) {
 		Lua::createMetatable<ImageEffect>(L);
@@ -41,7 +30,6 @@ public:
 		luaL_Reg metalib[] = {
 			{ "__gc", Lua::deletePtr<ImageEffect> },
 			{ "__tostring", ToString }, 
-			{ "OnRenderImage", OnRenderImage },
 			{ nullptr, nullptr }
 		};
 

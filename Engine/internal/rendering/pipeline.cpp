@@ -34,7 +34,7 @@ static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
 }
 
 static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
-	const Material& lm = lhs.material, &rm = rhs.material;
+	const ref_ptr<Material>& lm = lhs.material, &rm = rhs.material;
 
 	COMPARE_RETURN(lm->GetRenderQueue(), rm->GetRenderQueue());
 	COMPARE_RETURN(lm, rm);
@@ -205,7 +205,7 @@ void Pipeline::RenderInstances(uint first, uint last) {
 	Render(renderables_[first], last - first, first * 8);
 }
 
-void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, uint pass, const Matrix4& localToWorldMatrix, uint instance) {
+void Pipeline::AddRenderable(Mesh* mesh, uint subMeshIndex, Material* material, uint pass, const Matrix4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		matrices_.resize(4 * nrenderables_);
 		renderables_.resize(2 * nrenderables_);
@@ -220,7 +220,7 @@ void Pipeline::AddRenderable(Mesh mesh, uint subMeshIndex, Material material, ui
 	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::AddRenderable(Mesh mesh, Material material, uint pass, const Matrix4& localToWorldMatrix, uint instance /*= 0 */) {
+void Pipeline::AddRenderable(Mesh* mesh, Material* material, uint pass, const Matrix4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		AddRenderable(mesh, i, material, 0, localToWorldMatrix, instance);
 	}
@@ -295,11 +295,11 @@ void Pipeline::Clear() {
 	nrenderables_ = 0;
 }
 
-RenderTexture Pipeline::GetTargetTexture() {
-	return targetTexture_;
+RenderTexture* Pipeline::GetTargetTexture() {
+	return targetTexture_.get();
 }
 
-void Pipeline::SetTargetTexture(RenderTexture value, const Rect& normalizedRect) {
+void Pipeline::SetTargetTexture(RenderTexture* value, const Rect& normalizedRect) {
 	targetTexture_ = value;
 	normalizedRect_ = normalizedRect;
 }

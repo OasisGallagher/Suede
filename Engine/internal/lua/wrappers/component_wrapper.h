@@ -9,9 +9,9 @@
 
 class Component_Wrapper {
 	static int ToString(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 
-		lua_pushstring(L, String::Format("Component@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("Component@0x%p", _p).c_str());
 		return 1;
 	}
 
@@ -36,100 +36,68 @@ class Component_Wrapper {
 	}
 	// virtual void Awake()
 	static int Awake(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		_p->Awake();
 		return 0;
 	}
 
 	// virtual void Update()
 	static int Update(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		_p->Update();
-		return 0;
-	}
-
-	// virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect)
-	static int OnRenderImage(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
-		Rect normalizedRect = Lua::get<Rect>(L, 4);
-		RenderTexture dest = Lua::get<RenderTexture>(L, 3);
-		RenderTexture src = Lua::get<RenderTexture>(L, 2);
-		
-		_p->OnRenderImage(src, dest, normalizedRect);
 		return 0;
 	}
 
 	// bool GetEnabled()
 	static int GetEnabled(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		return Lua::push(L, _p->GetEnabled());
 	}
 
 	// void SetEnabled(bool value)
 	static int SetEnabled(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		bool value = Lua::get<bool>(L, 2);
 		
 		_p->SetEnabled(value);
 		return 0;
 	}
 
-	// void SetGameObject(GameObject value)
-	static int SetGameObject(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
-		GameObject value = Lua::get<GameObject>(L, 2);
-		
-		_p->SetGameObject(value);
-		return 0;
-	}
-
-	// GameObject GetGameObject()
-	static int GetGameObject(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
-		return Lua::push(L, _p->GetGameObject());
-	}
-
-	// Transform GetTransform()
-	static int GetTransform(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
-		return Lua::push(L, _p->GetTransform());
-	}
-
 	// void CullingUpdate()
 	static int CullingUpdate(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		_p->CullingUpdate();
 		return 0;
 	}
 
 	// int GetUpdateStrategy()
 	static int GetUpdateStrategy(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		return Lua::push(L, _p->GetUpdateStrategy());
 	}
 
 	// static suede_guid GetComponentGUID()
 	static int GetComponentGUID(lua_State* L) {
-		return Lua::push(L, IComponent::GetComponentGUID());
+		return Lua::push(L, Component::GetComponentGUID());
 	}
 
 	// static suede_guid ClassNameToGUID(const char* className)
 	static int ClassNameToGUID(lua_State* L) {
 		std::string className = Lua::get<std::string>(L, 1);
 		
-		return Lua::push(L, IComponent::ClassNameToGUID(className.c_str()));
+		return Lua::push(L, Component::ClassNameToGUID(className.c_str()));
 	}
 
 	// virtual bool AllowMultiple()
 	static int AllowMultiple(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		return Lua::push(L, _p->AllowMultiple());
 	}
 
 	// virtual bool IsComponentType(suede_guid guid) const { return guid == GetComponentGUID()
 	// virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName())
 	static int IsComponentType(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		if (Lua::checkArguments<suede_guid>(L, 2)) {
 			suede_guid guid = Lua::get<suede_guid>(L, 2);
 			
@@ -148,7 +116,7 @@ class Component_Wrapper {
 
 	// virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID()
 	static int GetComponentInstanceGUID(lua_State* L) {
-		Component& _p = *Lua::callerRefPtr<Component>(L);
+		Component* _p = Lua::callerPtr<Component>(L);
 		return Lua::push(L, _p->GetComponentInstanceGUID());
 	}
 
@@ -161,16 +129,12 @@ public:
 		fields.push_back(luaL_Reg{ "Component", ComponentStatic });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<Component> },
+			{ "__gc", Lua::deletePtr<Component> },
 			{ "__tostring", ToString }, 
 			{ "Awake", Awake },
 			{ "Update", Update },
-			{ "OnRenderImage", OnRenderImage },
 			{ "GetEnabled", GetEnabled },
 			{ "SetEnabled", SetEnabled },
-			{ "SetGameObject", SetGameObject },
-			{ "GetGameObject", GetGameObject },
-			{ "GetTransform", GetTransform },
 			{ "CullingUpdate", CullingUpdate },
 			{ "GetUpdateStrategy", GetUpdateStrategy },
 			{ "AllowMultiple", AllowMultiple },

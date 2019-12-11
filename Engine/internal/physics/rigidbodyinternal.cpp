@@ -3,13 +3,13 @@
 #include "mathconvert.h"
 #include "physicsinternal.h"
 
-IRigidbody::IRigidbody() : IComponent(MEMORY_NEW(RigidbodyInternal)) {}
-void IRigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
-void IRigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
-float IRigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
-const Bounds& IRigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
-void IRigidbody::SetVelocity(const Vector3& value) { _suede_dptr()->SetVelocity(value); }
-Vector3 IRigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
+Rigidbody::Rigidbody() : Component(MEMORY_NEW(RigidbodyInternal)) {}
+void Rigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
+void Rigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
+float Rigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
+const Bounds& Rigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
+void Rigidbody::SetVelocity(const Vector3& value) { _suede_dptr()->SetVelocity(value); }
+Vector3 Rigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
@@ -100,7 +100,7 @@ Vector3 RigidbodyInternal::GetVelocity() const {
 bool RigidbodyInternal::RebuildShape() {
 	DestroyShape();
 
-	MeshProvider mp = GetGameObject()->GetComponent<MeshProvider>();
+	MeshProvider* mp = GetGameObject()->GetComponent<MeshProvider>();
 	if (!mp || !mp->GetMesh() || mp->GetMesh()->GetSubMeshCount() == 0) {
 		return false;
 	}
@@ -108,7 +108,7 @@ bool RigidbodyInternal::RebuildShape() {
 	return CreateShapeFromMesh(mp->GetMesh(), GetTransform()->GetScale());
 }
 
-bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const Vector3& scale) {
+bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 	SUEDE_ASSERT(shape_ == nullptr);
 
 	// In case of a convex object, you use btConvexHullShape.
@@ -131,7 +131,8 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh mesh, const Vector3& scale) {
 	const Vector3* vertices = mesh->MapVertices();
 
 	btIndexedMesh indexedSubMesh;
-	for (SubMesh& subMesh : mesh->GetSubMeshes()) {
+	for(int i = 0; i < mesh->GetSubMeshCount(); ++i) {
+		SubMesh* subMesh = mesh->GetSubMesh(i);
 		const TriangleBias& bias = subMesh->GetTriangleBias();
 		indexedSubMesh.m_numTriangles = bias.indexCount / 3;
 		indexedSubMesh.m_triangleIndexBase = (const uchar*)(bias.baseIndex + indexes);

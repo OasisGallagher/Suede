@@ -13,8 +13,8 @@ TextureField::TextureField(QWidget* parent) : QWidget(parent) {
 	setFixedSize(32, 32);
 }
 
-void TextureField::setTexture(Texture value) {
-	Texture2D tex = suede_dynamic_cast<Texture2D>(value);
+void TextureField::setTexture(Texture* value) {
+	Texture2D* tex = (Texture2D*)value;
 	if (!tex) { return; }
 
 	std::vector<uchar> data;
@@ -42,14 +42,14 @@ void TextureField::showTextureExplorer() {
 		disconnect(connection_);
 	}
 
-	QString path = QFileDialog::getOpenFileName(this, "Select Texture", Resources::GetTextureDirectory().c_str(), "*.jpg;;*.png");
+	QString path = QFileDialog::getOpenFileName(this, "Select Texture*", Resources::GetTextureDirectory().c_str(), "*.jpg;;*.png");
 	if (!path.isEmpty()) {
-		Texture2D texture = new ITexture2D();
+		ref_ptr<Texture2D> texture = new Texture2D();
 		path = QDir(Resources::GetTextureDirectory().c_str()).relativeFilePath(path);
 
 		if (texture->Load(path.toStdString())) {
-			setTexture(texture);
-			emit currentTextureChanged(texture);
+			setTexture(texture.get());
+			emit currentTextureChanged(texture.get());
 		}
 	}
 }

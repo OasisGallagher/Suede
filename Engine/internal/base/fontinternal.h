@@ -24,12 +24,12 @@ public:
 	virtual bool Require(const std::wstring& str);
 
 	virtual uint GetFontSize() const { return size_; }
-	virtual Texture2D GetTexture() const;
+	virtual Texture2D* GetTexture() const;
 
 	virtual std::string GetFamilyName() const;
 	virtual std::string GetStyleName() const;
 
-	virtual Material GetMaterial() { return material_; }
+	virtual Material* GetMaterial() { return material_.get(); }
 
 	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
 
@@ -51,7 +51,7 @@ private:
 	void RebuildMaterial();
 
 private:
-	Material material_;
+	ref_ptr<Material> material_;
 
 	GlyphContainer glyphs_;
 	Atlas::CoordContainer coords_;

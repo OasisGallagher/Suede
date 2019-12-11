@@ -9,8 +9,8 @@ class Inversion : public QObject, public ImageEffect {
 
 public:
 	virtual void Awake();
-	virtual void OnRenderImage(RenderTexture src, RenderTexture dest, const Rect& normalizedRect);
+	virtual void OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect);
 
 private:
-	Material material_;
+	ref_ptr<Material> material_;
 };

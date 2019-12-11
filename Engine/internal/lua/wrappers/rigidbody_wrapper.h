@@ -9,19 +9,19 @@
 
 class Rigidbody_Wrapper {
 	static int NewRigidbody(lua_State* L) {
-		return Lua::fromRef(L, make_ref<IRigidbody>());
+		return Lua::newObject<Rigidbody>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		Rigidbody& _p = *Lua::callerRefPtr<Rigidbody>(L);
+		Rigidbody* _p = Lua::callerPtr<Rigidbody>(L);
 
-		lua_pushstring(L, String::Format("Rigidbody@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("Rigidbody@0x%p", _p).c_str());
 		return 1;
 	}
 
 	// void ShowCollisionShape(bool value)
 	static int ShowCollisionShape(lua_State* L) {
-		Rigidbody& _p = *Lua::callerRefPtr<Rigidbody>(L);
+		Rigidbody* _p = Lua::callerPtr<Rigidbody>(L);
 		bool value = Lua::get<bool>(L, 2);
 		
 		_p->ShowCollisionShape(value);
@@ -30,7 +30,7 @@ class Rigidbody_Wrapper {
 
 	// void SetMass(float value)
 	static int SetMass(lua_State* L) {
-		Rigidbody& _p = *Lua::callerRefPtr<Rigidbody>(L);
+		Rigidbody* _p = Lua::callerPtr<Rigidbody>(L);
 		float value = Lua::get<float>(L, 2);
 		
 		_p->SetMass(value);
@@ -39,13 +39,13 @@ class Rigidbody_Wrapper {
 
 	// float GetMass()
 	static int GetMass(lua_State* L) {
-		Rigidbody& _p = *Lua::callerRefPtr<Rigidbody>(L);
+		Rigidbody* _p = Lua::callerPtr<Rigidbody>(L);
 		return Lua::push(L, _p->GetMass());
 	}
 
 	// void SetVelocity(const Vector3& value)
 	static int SetVelocity(lua_State* L) {
-		Rigidbody& _p = *Lua::callerRefPtr<Rigidbody>(L);
+		Rigidbody* _p = Lua::callerPtr<Rigidbody>(L);
 		Vector3 value = Lua::get<Vector3>(L, 2);
 		
 		_p->SetVelocity(value);
@@ -54,7 +54,7 @@ class Rigidbody_Wrapper {
 
 	// Vector3 GetVelocity()
 	static int GetVelocity(lua_State* L) {
-		Rigidbody& _p = *Lua::callerRefPtr<Rigidbody>(L);
+		Rigidbody* _p = Lua::callerPtr<Rigidbody>(L);
 		return Lua::push(L, _p->GetVelocity());
 	}
 
@@ -67,7 +67,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewRigidbody", NewRigidbody });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<Rigidbody> },
+			{ "__gc", Lua::deletePtr<Rigidbody> },
 			{ "__tostring", ToString }, 
 			{ "ShowCollisionShape", ShowCollisionShape },
 			{ "SetMass", SetMass },

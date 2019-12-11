@@ -1,3 +1,5 @@
+#include "textureinternal.h"
+
 #include "rect.h"
 #include "screen.h"
 #include "buffer.h"
@@ -5,54 +7,57 @@
 #include "math/mathf.h"
 #include "os/filesystem.h"
 #include "../api/glutils.h"
-#include "textureinternal.h"
 #include "containers/freelist.h"
 
-ITexture::ITexture(void* d) : IObject(d) {}
-void ITexture::Bind(uint index) { _suede_dptr()->Bind(index); }
-void ITexture::Unbind() { _suede_dptr()->Unbind(); }
-uint ITexture::GetNativePointer() { return _suede_dptr()->GetNativePointer(); }
-void ITexture::SetMinFilterMode(TextureMinFilterMode value) { _suede_dptr()->SetMinFilterMode(value); }
-TextureMinFilterMode ITexture::GetMinFilterMode() const { return _suede_dptr()->GetMinFilterMode(); }
-void ITexture::SetMagFilterMode(TextureMagFilterMode value) { _suede_dptr()->SetMagFilterMode(value); }
-TextureMagFilterMode ITexture::GetMagFilterMode() const { return _suede_dptr()->GetMagFilterMode(); }
-void ITexture::SetWrapModeS(TextureWrapMode value) { _suede_dptr()->SetWrapModeS(value); }
-TextureWrapMode ITexture::GetWrapModeS() const { return _suede_dptr()->GetWrapModeS(); }
-void ITexture::SetWrapModeT(TextureWrapMode value) { _suede_dptr()->SetWrapModeT(value); }
-TextureWrapMode ITexture::GetWrapModeT() const { return _suede_dptr()->GetWrapModeT(); }
-uint ITexture::GetWidth() const { return _suede_dptr()->GetWidth(); }
-uint ITexture::GetHeight() const { return _suede_dptr()->GetHeight(); }
+Texture::Texture(void* d) : Object(d) {}
+void Texture::Bind(uint index) { _suede_dptr()->Bind(index); }
+void Texture::Unbind() { _suede_dptr()->Unbind(); }
+uint Texture::GetNativePointer() { return _suede_dptr()->GetNativePointer(); }
+void Texture::SetMinFilterMode(TextureMinFilterMode value) { _suede_dptr()->SetMinFilterMode(value); }
+TextureMinFilterMode Texture::GetMinFilterMode() const { return _suede_dptr()->GetMinFilterMode(); }
+void Texture::SetMagFilterMode(TextureMagFilterMode value) { _suede_dptr()->SetMagFilterMode(value); }
+TextureMagFilterMode Texture::GetMagFilterMode() const { return _suede_dptr()->GetMagFilterMode(); }
+void Texture::SetWrapModeS(TextureWrapMode value) { _suede_dptr()->SetWrapModeS(value); }
+TextureWrapMode Texture::GetWrapModeS() const { return _suede_dptr()->GetWrapModeS(); }
+void Texture::SetWrapModeT(TextureWrapMode value) { _suede_dptr()->SetWrapModeT(value); }
+TextureWrapMode Texture::GetWrapModeT() const { return _suede_dptr()->GetWrapModeT(); }
+uint Texture::GetWidth() const { return _suede_dptr()->GetWidth(); }
+uint Texture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
-ITexture2D::ITexture2D() : ITexture(MEMORY_NEW(Texture2DInternal)) {}
-bool ITexture2D::Load(const std::string& path) { return _suede_dptr()->Load(path); }
-bool ITexture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
+Texture2D::Texture2D() : Texture(MEMORY_NEW(Texture2DInternal)) {}
+bool Texture2D::Load(const std::string& path) { return _suede_dptr()->Load(path); }
+bool Texture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	return _suede_dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
 }
-TextureFormat ITexture2D::GetFormat() { return _suede_dptr()->GetFormat(); }
-bool ITexture2D::EncodeToPNG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToPNG(data); }
-bool ITexture2D::EncodeToJPG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToJPG(data); }
+TextureFormat Texture2D::GetFormat() { return _suede_dptr()->GetFormat(); }
+bool Texture2D::EncodeToPNG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToPNG(data); }
+bool Texture2D::EncodeToJPG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToJPG(data); }
 
-ITextureCube::ITextureCube() : ITexture(MEMORY_NEW(TextureCubeInternal)) {}
-bool ITextureCube::Load(const std::string textures[6]) { return _suede_dptr()->Load(textures); }
+TextureCube::TextureCube() : Texture(MEMORY_NEW(TextureCubeInternal)) {}
+bool TextureCube::Load(const std::string textures[6]) { return _suede_dptr()->Load(textures); }
 
-ITextureBuffer::ITextureBuffer() : ITexture(MEMORY_NEW(TextureBufferInternal)) {}
-uint ITextureBuffer::GetSize() const { return _suede_dptr()->GetSize(); }
-bool ITextureBuffer::Create(uint size) { return _suede_dptr()->Create(size); }
-void ITextureBuffer::Update(uint offset, uint size, const void* data) { _suede_dptr()->Update(offset, size, data); }
+TextureBuffer::TextureBuffer() : Texture(MEMORY_NEW(TextureBufferInternal)) {}
+uint TextureBuffer::GetSize() const { return _suede_dptr()->GetSize(); }
+bool TextureBuffer::Create(uint size) { return _suede_dptr()->Create(size); }
+void TextureBuffer::Update(uint offset, uint size, const void* data) { _suede_dptr()->Update(offset, size, data); }
 
-IRenderTexture::IRenderTexture() : ITexture(MEMORY_NEW(RenderTextureInternal)) {}
-IRenderTexture::IRenderTexture(void* d) : ITexture(d) {}
-bool IRenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
-void IRenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
-void IRenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth); }
-void IRenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
+RenderTexture::RenderTexture() : Texture(MEMORY_NEW(RenderTextureInternal)) {}
+RenderTexture::RenderTexture(void* d) : Texture(d) {}
+bool RenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
+RenderTextureFormat RenderTexture::GetRenderTextureFormat() { return _suede_dptr()->GetRenderTextureFormat(); }
+void RenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
+void RenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth); }
+void RenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
+RenderTexture* RenderTexture::GetDefault() { return RenderTextureInternal::GetDefault(); }
+RenderTexture* RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) { return RenderTextureInternal::GetTemporary(format, width, height); }
+void RenderTexture::ReleaseTemporary(RenderTexture* texture) { RenderTextureInternal::ReleaseTemporary(texture); }
 
-IMRTRenderTexture::IMRTRenderTexture() : IRenderTexture(MEMORY_NEW(MRTRenderTextureInternal)) {}
-bool IMRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dptr()->AddColorTexture(format); }
-Texture2D IMRTRenderTexture::GetColorTexture(uint index) { return _suede_dptr()->GetColorTexture(index); }
-uint IMRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTextureCount(); }
+MRTRenderTexture::MRTRenderTexture() : RenderTexture(MEMORY_NEW(MRTRenderTextureInternal)) {}
+bool MRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dptr()->AddColorTexture(format); }
+Texture2D* MRTRenderTexture::GetColorTexture(uint index) { return _suede_dptr()->GetColorTexture(index); }
+uint MRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTextureCount(); }
 
-IScreenRenderTexture::IScreenRenderTexture() : IRenderTexture(MEMORY_NEW(ScreenRenderTextureInternal)){}
+ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(MEMORY_NEW(ScreenRenderTextureInternal)){}
 
 TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
 	, texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
@@ -404,46 +409,68 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 	return true;
 }
 
-class TemporaryRenderTextureManager : public Singleton<TemporaryRenderTextureManager> {
-	friend class Singleton<TemporaryRenderTextureManager>;
+RenderTexture* RenderTextureInternal::GetDefault() {
+	static RenderTexture* screen;
 
-public:
-	RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height) {
-		RenderTexture texture = new IRenderTexture();
-		texture->Create(format, width, height);
-		return texture;
-	}
-
-	void ReleaseTemporary(RenderTexture texture) {
-
-	}
-
-private:
-	TemporaryRenderTextureManager() { }
-	~TemporaryRenderTextureManager() { }
-};
-
-RenderTexture RenderTextureUtility::GetDefault() {
-	static RenderTexture screen;
-	
 	if (!screen) {
-		screen = new IScreenRenderTexture();
+		screen = new ScreenRenderTexture();
 		screen->Create(RenderTextureFormat::Rgb, 0, 0);
 	}
 
 	return screen;
 }
 
-RenderTexture RenderTextureUtility::GetTemporary(RenderTextureFormat format, uint width, uint height) {
-	return TemporaryRenderTextureManager::instance()->GetTemporary(format, width, height);
+struct RenderTextureCacheKey {
+	int busy;
+	RenderTextureFormat format;
+	uint width;
+	uint height;
+
+	bool operator<(const RenderTextureCacheKey& other) const {
+		if (busy != other.busy) { return busy < other.busy; }
+		if (format != other.format) { return format < other.format; }
+		if (width != other.width) { return width < other.width; }
+		return height < other.height;
+	}
+};
+
+typedef std::multimap<RenderTextureCacheKey, ref_ptr<RenderTexture>> RenderTextureCacheContainer;
+static RenderTextureCacheContainer renderTextureCache;
+
+static RenderTexture* FindRenderTextureCache(RenderTextureFormat format, uint width, uint height, int busy) {
+	RenderTextureCacheKey key = { busy, format, width,height };
+	RenderTextureCacheContainer::iterator pos = renderTextureCache.find(key);
+	if (pos != renderTextureCache.end()) {
+		ref_ptr<RenderTexture> value = pos->second;
+		renderTextureCache.erase(pos);
+		key.busy = 1 - busy;
+		renderTextureCache.insert(std::make_pair(key, value));
+
+		return value.get();
+	}
+
+	return nullptr;
 }
 
-void RenderTextureUtility::ReleaseTemporary(RenderTexture texture) {
-	TemporaryRenderTextureManager::instance()->ReleaseTemporary(texture);
+RenderTexture* RenderTextureInternal::GetTemporary(RenderTextureFormat format, uint width, uint height) {
+	RenderTexture* cache = FindRenderTextureCache(format, width, height, 0);
+	if (cache != nullptr) {
+		return cache;
+	}
+
+	RenderTexture* texture = new RenderTexture();
+	texture->Create(format, width, height);
+	renderTextureCache.insert(std::make_pair(RenderTextureCacheKey { 1, format, width,height } , texture));
+	return texture;
+}
+
+void RenderTextureInternal::ReleaseTemporary(RenderTexture* texture) {
+	RenderTexture* cache = FindRenderTextureCache(texture->GetRenderTextureFormat(), texture->GetWidth(), texture->GetHeight(), 1);
+	SUEDE_ASSERT(cache != nullptr);
 }
 
 RenderTextureInternal::RenderTextureInternal() 
-	: TextureInternal(ObjectType::RenderTexture), bindStatus_(StatusNone), format_(RenderTextureFormat::Rgba), framebuffer_(nullptr) {
+	: TextureInternal(ObjectType::RenderTexture), bindStatus_(StatusNone), renderTextureFormat_(RenderTextureFormat::Rgba), framebuffer_(nullptr) {
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
@@ -462,7 +489,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	GL::GenTextures(1, &texture_);
 	BindTexture();
 
-	format_ = format;
+	renderTextureFormat_ = format;
 	ResizeStorage(width, height, format);
 
 	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -508,7 +535,7 @@ void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color
 void RenderTextureInternal::Resize(uint width, uint height) {
 	if (width_ != width || height_ != height) {
 		BindTexture();
-		ResizeStorage(width, height, format_);
+		ResizeStorage(width, height, renderTextureFormat_);
 		UnbindTexture();
 	}
 }
@@ -733,7 +760,7 @@ void MRTRenderTextureInternal::Resize(uint width, uint height) {
 	height_ = height;
 
 	for (int i = 0; i < index_; ++i) {
-		Texture2D texture = colorTextures_[i];
+		ref_ptr<Texture2D>& texture = colorTextures_[i];
 		colorTextures_[i]->Create(texture->GetFormat(), nullptr, ColorStreamFormat::Rgba, width, height, 4);
 	}
 }
@@ -752,16 +779,16 @@ bool MRTRenderTextureInternal::AddColorTexture(TextureFormat format) {
 		return false;
 	}
 
-	colorTextures_[index_] = new ITexture2D();
+	colorTextures_[index_] = new Texture2D();
 	colorTextures_[index_]->Create(format, nullptr, ColorStreamFormat::Rgba, width_, height_, 4);
 	framebuffer_->SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + index_), colorTextures_[index_]->GetNativePointer());
 	++index_;
 	return true;
 }
 
-Texture2D MRTRenderTextureInternal::GetColorTexture(uint index) {
+Texture2D* MRTRenderTextureInternal::GetColorTexture(uint index) {
 	SUEDE_VERIFY_INDEX(index, index_, nullptr);
-	return colorTextures_[index];
+	return colorTextures_[index].get();
 }
 
 GLenum MRTRenderTextureInternal::GetGLTextureType() const {

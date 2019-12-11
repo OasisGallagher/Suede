@@ -19,18 +19,18 @@ public:
 	virtual ~ComponentMetaObject() {}
 
 public:
-	virtual void setComponent(Component component) = 0;
+	virtual void setComponent(Component* component) = 0;
 };
 
 template <class T>
 class ComponentMetaObjectT : public ComponentMetaObject {
 public:
-	virtual void setComponent(Component component) {
-		target = suede_dynamic_cast<T>(component);
+	virtual void setComponent(Component* component) {
+		target = (T*)(component);
 	}
 
 protected:
-	T target;
+	ref_ptr<T> target;
 };
 
 #define SUEDE_NAMED_PROPERTY(type, name, property)	Q_PROPERTY(type name READ Get ## property WRITE Set ## property) \
@@ -52,10 +52,10 @@ Q_DECLARE_METATYPE(Color)
 Q_DECLARE_SMART_POINTER_METATYPE(ref_ptr)
 Q_DECLARE_SMART_POINTER_METATYPE(std::shared_ptr)
 
-Q_DECLARE_METATYPE(Material)
-Q_DECLARE_METATYPE(RenderTexture)
+Q_DECLARE_METATYPE(Material*)
+Q_DECLARE_METATYPE(RenderTexture*)
 
-Q_DECLARE_METATYPE(GameObject)
+Q_DECLARE_METATYPE(GameObject*)
 
 #include "transform.h"
 
@@ -68,7 +68,7 @@ class TransformMetaObject : public ComponentMetaObjectT<Transform> {
 
 #include "camera.h"
 
-Q_DECLARE_METATYPE(Camera)
+Q_DECLARE_METATYPE(Camera*)
 Q_DECLARE_METATYPE(ClearType)
 Q_DECLARE_METATYPE(RenderPath)
 Q_DECLARE_METATYPE(DepthTextureMode)
@@ -83,7 +83,7 @@ class CameraMetaObject : public ComponentMetaObjectT<Camera> {
 	SUEDE_PROPERTY(RenderPath, RenderPath)
 	SUEDE_PROPERTY(DepthTextureMode, DepthTextureMode)
 	SUEDE_PROPERTY(Color, ClearColor)
-	SUEDE_PROPERTY(RenderTexture, TargetTexture)
+	//SUEDE_PROPERTY(RenderTexture, TargetTexture)
 	SUEDE_PROPERTY(float, Aspect)
 	SUEDE_PROPERTY(float, NearClipPlane)
 	SUEDE_PROPERTY(float, FarClipPlane)
@@ -117,13 +117,15 @@ class LightMetaObject : public ComponentMetaObjectT<Light> {
 
 class RendererMetaObject : public ComponentMetaObjectT<Renderer> {
 	Q_OBJECT
-	Q_PROPERTY(QVector<Material> Materials READ GetMaterials)
+	Q_PROPERTY(QVector<Material*> Materials READ GetMaterials)
 
 public:
-	QVector<Material> GetMaterials() {
-		QVector<Material> answer;
-		auto materials = target->GetMaterials();
-		std::copy(materials.begin(), materials.end(), std::back_inserter(answer));
+	QVector<Material*> GetMaterials() {
+		QVector<Material*> answer;
+		for (int i = 0; i < target->GetMaterialCount(); ++i) {
+			answer.push_back(target->GetMaterial(i));
+		}
+
 		return answer;
 	}
 };

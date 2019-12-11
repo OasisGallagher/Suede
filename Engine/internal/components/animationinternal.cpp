@@ -6,69 +6,69 @@
 #include "time2.h"
 #include "math/mathf.h"
 
-ISkeleton::ISkeleton() : IObject(MEMORY_NEW(SkeletonInternal)) { }
-bool ISkeleton::AddBone(const SkeletonBone& bone) { return _suede_dptr()->AddBone(bone); }
-SkeletonBone* ISkeleton::GetBone(uint index) { return _suede_dptr()->GetBone(index); }
-SkeletonBone* ISkeleton::GetBone(const std::string& name) { return _suede_dptr()->GetBone(name); }
-SkeletonNode* ISkeleton::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve curve) { return _suede_dptr()->CreateNode(name, matrix, curve); }
-void ISkeleton::AddNode(SkeletonNode* parent, SkeletonNode* child) { return _suede_dptr()->AddNode(parent, child); }
-SkeletonNode* ISkeleton::GetRootNode() { return _suede_dptr()->GetRootNode(); }
-void ISkeleton::SetBoneToRootMatrix(uint index, const Matrix4& value) { return _suede_dptr()->SetBoneToRootMatrix(index, value); }
-Matrix4* ISkeleton::GetBoneToRootMatrices() { return _suede_dptr()->GetBoneToRootMatrices(); }
-int ISkeleton::GetBoneIndex(const std::string& name) { return _suede_dptr()->GetBoneIndex(name); }
-int ISkeleton::GetBoneCount() { return _suede_dptr()->GetBoneCount(); }
+Skeleton::Skeleton() : Object(MEMORY_NEW(SkeletonInternal)) { }
+bool Skeleton::AddBone(const SkeletonBone& bone) { return _suede_dptr()->AddBone(bone); }
+SkeletonBone* Skeleton::GetBone(uint index) { return _suede_dptr()->GetBone(index); }
+SkeletonBone* Skeleton::GetBone(const std::string& name) { return _suede_dptr()->GetBone(name); }
+SkeletonNode* Skeleton::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve* curve) { return _suede_dptr()->CreateNode(name, matrix, curve); }
+void Skeleton::AddNode(SkeletonNode* parent, SkeletonNode* child) { return _suede_dptr()->AddNode(parent, child); }
+SkeletonNode* Skeleton::GetRootNode() { return _suede_dptr()->GetRootNode(); }
+void Skeleton::SetBoneToRootMatrix(uint index, const Matrix4& value) { return _suede_dptr()->SetBoneToRootMatrix(index, value); }
+Matrix4* Skeleton::GetBoneToRootMatrices() { return _suede_dptr()->GetBoneToRootMatrices(); }
+int Skeleton::GetBoneIndex(const std::string& name) { return _suede_dptr()->GetBoneIndex(name); }
+int Skeleton::GetBoneCount() { return _suede_dptr()->GetBoneCount(); }
 
-IAnimationClip::IAnimationClip() :IObject(MEMORY_NEW(AnimationClipInternal)) {}
-void IAnimationClip::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
-AnimationWrapMode IAnimationClip::GetWrapMode() { return _suede_dptr()->GetWrapMode(); }
-void IAnimationClip::SetTicksPerSecond(float value) { _suede_dptr()->SetTicksPerSecond(value); }
-float IAnimationClip::GetTicksPerSecond() { return _suede_dptr()->GetTicksPerSecond(); }
-void IAnimationClip::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
-float IAnimationClip::GetDuration() { return _suede_dptr()->GetDuration(); }
-void IAnimationClip::SetAnimation(Animation value) { _suede_dptr()->SetAnimation(value); }
-Animation IAnimationClip::GetAnimation() { return _suede_dptr()->GetAnimation(); }
-bool IAnimationClip::Sample(float time) { return _suede_dptr()->Sample(time); }
+AnimationClip::AnimationClip() :Object(MEMORY_NEW(AnimationClipInternal)) {}
+void AnimationClip::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
+AnimationWrapMode AnimationClip::GetWrapMode() { return _suede_dptr()->GetWrapMode(); }
+void AnimationClip::SetTicksPerSecond(float value) { _suede_dptr()->SetTicksPerSecond(value); }
+float AnimationClip::GetTicksPerSecond() { return _suede_dptr()->GetTicksPerSecond(); }
+void AnimationClip::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
+float AnimationClip::GetDuration() { return _suede_dptr()->GetDuration(); }
+void AnimationClip::SetAnimation(Animation* value) { _suede_dptr()->SetAnimation(value); }
+Animation* AnimationClip::GetAnimation() { return _suede_dptr()->GetAnimation(); }
+bool AnimationClip::Sample(float time) { return _suede_dptr()->Sample(time); }
 
-IAnimationState::IAnimationState() : IObject(MEMORY_NEW(AnimationStateInternal)) {}
+AnimationState::AnimationState() : Object(MEMORY_NEW(AnimationStateInternal)) {}
 
-IAnimationKeys::IAnimationKeys() : IObject(MEMORY_NEW(AnimationKeysInternal)) {}
-void IAnimationKeys::AddFloat(float time, int id, float value) { _suede_dptr()->AddFloat(time, id, value); }
-void IAnimationKeys::AddVector3(float time, int id, const Vector3& value) { _suede_dptr()->AddVector3(time, id, value); }
-void IAnimationKeys::AddQuaternion(float time, int id, const Quaternion& value) { _suede_dptr()->AddQuaternion(time, id, value); }
-void IAnimationKeys::Remove(float time, int id) { _suede_dptr()->Remove(time, id); }
-void IAnimationKeys::ToKeyframes(std::vector<AnimationFrame>& keyframes) { _suede_dptr()->ToKeyframes(keyframes); }
+AnimationKeys::AnimationKeys() : Object(MEMORY_NEW(AnimationKeysInternal)) {}
+void AnimationKeys::AddFloat(float time, int id, float value) { _suede_dptr()->AddFloat(time, id, value); }
+void AnimationKeys::AddVector3(float time, int id, const Vector3& value) { _suede_dptr()->AddVector3(time, id, value); }
+void AnimationKeys::AddQuaternion(float time, int id, const Quaternion& value) { _suede_dptr()->AddQuaternion(time, id, value); }
+void AnimationKeys::Remove(float time, int id) { _suede_dptr()->Remove(time, id); }
+void AnimationKeys::ToKeyframes(std::vector<ref_ptr<AnimationFrame>>& keyframes) { _suede_dptr()->ToKeyframes(keyframes); }
 
-IAnimationFrame::IAnimationFrame() : IObject(MEMORY_NEW(AnimationFrameInternal)) {}
-void IAnimationFrame::SetTime(float value) { _suede_dptr()->SetTime(value); }
-float IAnimationFrame::GetTime() { return _suede_dptr()->GetTime(); }
-void IAnimationFrame::Assign(AnimationFrame other) { _suede_dptr()->Assign(other); }
-void IAnimationFrame::Lerp(AnimationFrame result, AnimationFrame other, float factor) { _suede_dptr()->Lerp(result, other, factor); }
-void IAnimationFrame::SetFloat(int id, float value) { _suede_dptr()->SetFloat(id, value); }
-void IAnimationFrame::SetVector3(int id, const Vector3& value) { _suede_dptr()->SetVector3(id, value); }
-void IAnimationFrame::SetQuaternion(int id, const Quaternion& value) { _suede_dptr()->SetQuaternion(id, value); }
-float IAnimationFrame::GetFloat(int id) { return _suede_dptr()->GetFloat(id); }
-Vector3 IAnimationFrame::GetVector3(int id) { return _suede_dptr()->GetVector3(id); }
-Quaternion IAnimationFrame::GetQuaternion(int id) { return _suede_dptr()->GetQuaternion(id); }
+AnimationFrame::AnimationFrame() : Object(MEMORY_NEW(AnimationFrameInternal)) {}
+void AnimationFrame::SetTime(float value) { _suede_dptr()->SetTime(value); }
+float AnimationFrame::GetTime() { return _suede_dptr()->GetTime(); }
+void AnimationFrame::Assign(AnimationFrame* other) { _suede_dptr()->Assign(other); }
+void AnimationFrame::Lerp(AnimationFrame* result, AnimationFrame* other, float factor) { _suede_dptr()->Lerp(result, other, factor); }
+void AnimationFrame::SetFloat(int id, float value) { _suede_dptr()->SetFloat(id, value); }
+void AnimationFrame::SetVector3(int id, const Vector3& value) { _suede_dptr()->SetVector3(id, value); }
+void AnimationFrame::SetQuaternion(int id, const Quaternion& value) { _suede_dptr()->SetQuaternion(id, value); }
+float AnimationFrame::GetFloat(int id) { return _suede_dptr()->GetFloat(id); }
+Vector3 AnimationFrame::GetVector3(int id) { return _suede_dptr()->GetVector3(id); }
+Quaternion AnimationFrame::GetQuaternion(int id) { return _suede_dptr()->GetQuaternion(id); }
 
-IAnimationCurve::IAnimationCurve() : IObject(MEMORY_NEW(AnimationCurveInternal)) {}
-void IAnimationCurve::SetKeyframes(const std::vector<AnimationFrame>& value) { _suede_dptr()->SetKeyframes(value); }
-bool IAnimationCurve::Sample(float time, AnimationFrame& frame) { return _suede_dptr()->Sample(time, frame); }
+AnimationCurve::AnimationCurve() : Object(MEMORY_NEW(AnimationCurveInternal)) {}
+void AnimationCurve::SetKeys(AnimationKeys* value) { _suede_dptr()->SetKeys(value); }
+bool AnimationCurve::Sample(float time, AnimationFrame*& frame) { return _suede_dptr()->Sample(time, frame); }
 
-IAnimation::IAnimation() : IComponent(MEMORY_NEW(AnimationInternal)) {}
-void IAnimation::AddClip(const std::string& name, AnimationClip value) { _suede_dptr()->AddClip(this, name, value); }
-AnimationClip IAnimation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
-void IAnimation::SetSkeleton(Skeleton value) { _suede_dptr()->SetSkeleton(value); }
-Skeleton IAnimation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
-void IAnimation::SetRootTransform(const Matrix4& value) { _suede_dptr()->SetRootTransform(value); }
-Matrix4 IAnimation::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
-void IAnimation::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
-bool IAnimation::Play(const std::string& name) { return _suede_dptr()->Play(name); }
+Animation::Animation() : Component(MEMORY_NEW(AnimationInternal)) {}
+void Animation::AddClip(const std::string& name, AnimationClip* value) { _suede_dptr()->AddClip(this, name, value); }
+AnimationClip* Animation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
+void Animation::SetSkeleton(Skeleton* value) { _suede_dptr()->SetSkeleton(value); }
+Skeleton* Animation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
+void Animation::SetRootTransform(const Matrix4& value) { _suede_dptr()->SetRootTransform(value); }
+Matrix4 Animation::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
+void Animation::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
+bool Animation::Play(const std::string& name) { return _suede_dptr()->Play(name); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Animation, Component)
 
 #define DEFAULT_TICKS_PER_SECOND	25
 
-static void SetVariant(AnimationFrame frame, int id, const Variant& value);
+static void SetVariant(AnimationFrame* frame, int id, const Variant& value);
 static void LerpVariant(Variant& variant, const Variant& lhs, const Variant& rhs, float factor);
 
 bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
@@ -117,7 +117,7 @@ int SkeletonInternal::GetBoneIndex(const std::string& name) {
 	return pos->second;
 }
 
-SkeletonNode* SkeletonInternal::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve curve) {
+SkeletonNode* SkeletonInternal::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve* curve) {
 	SkeletonNode* node = MEMORY_NEW(SkeletonNode);
 	node->name = name;
 	node->matrix = matrix;
@@ -149,7 +149,11 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 }
 
 AnimationClipInternal::AnimationClipInternal() : ObjectInternal(ObjectType::AnimationClip), wrapper_(Mathf::Min) {
-	frame_ = new IAnimationFrame();
+	frame_ = new AnimationFrame();
+}
+
+AnimationClipInternal::~AnimationClipInternal() {
+	delete frame_;
 }
 
 void AnimationClipInternal::SetWrapMode(AnimationWrapMode value) {
@@ -178,7 +182,7 @@ void AnimationClipInternal::SetTicksPerSecond(float value) {
 bool AnimationClipInternal::Sample(float time) {
 	time = wrapper_(time * GetTicksPerSecond(), GetDuration());
 
-	Skeleton skeleton = GetAnimation()->GetSkeleton();
+	Skeleton* skeleton = GetAnimation()->GetSkeleton();
 	SkeletonNode* root = skeleton->GetRootNode();
 
 	return SampleHierarchy(time, root, Matrix4(1));
@@ -199,7 +203,7 @@ bool AnimationClipInternal::SampleHierarchy(float time, SkeletonNode* node, cons
 
 	transform = matrix * transform;
 
-	Skeleton skeleton = GetAnimation()->GetSkeleton();
+	Skeleton* skeleton = GetAnimation()->GetSkeleton();
 	int index = skeleton->GetBoneIndex(node->name);
 	if (index >= 0) {
 		Matrix4 boneToRootMatrix = GetAnimation()->GetRootTransform();
@@ -247,18 +251,18 @@ void AnimationKeysInternal::Remove(float time, int id) {
 	RemoveKey(id, time);
 }
 
-void AnimationKeysInternal::ToKeyframes(std::vector<AnimationFrame>& keyframes) {
+void AnimationKeysInternal::ToKeyframes(std::vector<ref_ptr<AnimationFrame>>& keyframes) {
 	int count = SmoothKeys();
 	if (count != 0) {
 		InitializeKeyframes(count, keyframes);
 	}
 }
 
-void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<AnimationFrame>& keyframes) {
+void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<ref_ptr<AnimationFrame>>& keyframes) {
 	keyframes.reserve(count);
 
 	for (int i = 0; i < count; ++i) {
-		AnimationFrame keyframe;
+		AnimationFrame* keyframe = nullptr;
 
 		for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
 			if (*ite == nullptr) { continue; }
@@ -268,8 +272,8 @@ void AnimationKeysInternal::InitializeKeyframes(int count, std::vector<Animation
 
 			const Key& key = p->second;
 
-			if (!keyframe) {
-				keyframe = new IAnimationFrame();
+			if (keyframe == nullptr) {
+				keyframe = new AnimationFrame();
 				keyframe->SetTime(p->first);
 				keyframes.push_back(keyframe);
 			}
@@ -291,9 +295,9 @@ int AnimationKeysInternal::SmoothKeys() {
 
 	for (std::set<float>::iterator ite = times.begin(); ite != times.end(); ++ite) {
 		float time = *ite;
-		for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
-			if (*ite == nullptr) { continue; }
-			SmoothKey(*ite, time);
+		for (KeysContainer::iterator ite2 = container_.begin(); ite2 != container_.end(); ++ite2) {
+			if (*ite2 == nullptr) { continue; }
+			SmoothKey(*ite2, time);
 		}
 	}
 
@@ -361,22 +365,18 @@ void AnimationKeysInternal::SmoothKey(Keys* keys, float time) {
 	keys->insert(std::make_pair(time, key));
 }
 
-bool AnimationKeysInternal::FloatCamparer::operator()(float lhs, float rhs) const {
-	return !Mathf::Approximately(lhs, rhs) && lhs < rhs;
-}
-
-void AnimationInternal::AddClip(IAnimation* self, const std::string& name, AnimationClip value) {
+void AnimationInternal::AddClip(Animation* self, const std::string& name, AnimationClip* value) {
 	clips_.insert(std::make_pair(name, value));
 	value->SetAnimation(self);
 }
 
-AnimationClip AnimationInternal::GetClip(const std::string& name) {
+AnimationClip* AnimationInternal::GetClip(const std::string& name) {
 	ClipContainer::iterator pos = clips_.find(name);
 	if (pos == clips_.end()) {
 		return nullptr;
 	}
 
-	return pos->second;
+	return pos->second.get();
 }
 
 void AnimationInternal::SetWrapMode(AnimationWrapMode value) {
@@ -386,7 +386,7 @@ void AnimationInternal::SetWrapMode(AnimationWrapMode value) {
 }
 
 bool AnimationInternal::Play(const std::string& name) {
-	AnimationClip clip = GetClip(name);
+	AnimationClip* clip = GetClip(name);
 	if (!clip) {
 		Debug::LogWarning("can not find animation clip %s.", name.c_str());
 		return false;
@@ -410,7 +410,12 @@ void AnimationInternal::CullingUpdate() {
 	}
 }
 
-bool AnimationCurveInternal::Sample(float time, AnimationFrame& frame) {
+void AnimationCurveInternal::SetKeys(AnimationKeys* value) {
+	keyframes_.clear();
+	value->ToKeyframes(keyframes_);
+}
+
+bool AnimationCurveInternal::Sample(float time, AnimationFrame*& frame) {
 	int index = FindInterpolateIndex(time);
 	if (index + 1 >= keyframes_.size()) {
 		SampleEndFrame(frame);
@@ -423,7 +428,7 @@ bool AnimationCurveInternal::Sample(float time, AnimationFrame& frame) {
 
 int AnimationCurveInternal::FindInterpolateIndex(float time) {
 	struct Comparerer {
-		bool operator ()(AnimationFrame& lhs, float time) const {
+		bool operator ()(ref_ptr<AnimationFrame>& lhs, float time) const {
 			return lhs->GetTime() < time;
 		}
 	};
@@ -431,23 +436,23 @@ int AnimationCurveInternal::FindInterpolateIndex(float time) {
 	return (int)std::distance(std::lower_bound(keyframes_.begin(), keyframes_.end(), time, Comparerer()), keyframes_.end());
 }
 
-void AnimationCurveInternal::SampleEndFrame(AnimationFrame& frame) {
+void AnimationCurveInternal::SampleEndFrame(AnimationFrame*& frame) {
 	if (!keyframes_.empty()) {
-		frame->Assign(keyframes_.back());
+		frame->Assign(keyframes_.back().get());
 	}
 }
 
-void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame& frame) {
+void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame*& frame) {
 	int next = index + 1;
 
 	float deltaTime = keyframes_[next]->GetTime() - keyframes_[index]->GetTime();
 	float factor = (time - keyframes_[index]->GetTime()) / deltaTime;
 
 	factor = Mathf::Clamp01(factor);
-	keyframes_[index]->Lerp(frame, keyframes_[next], factor);
+	keyframes_[index]->Lerp(frame, keyframes_[next].get(), factor);
 }
 
-void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, float factor) {
+void AnimationFrameInternal::Lerp(AnimationFrame* result, AnimationFrame* other, float factor) {
 	AttributeContainer& otherAttributes = _suede_rptr(other)->attributes_;
 	if (attributes_.size() != otherAttributes.size()) {
 		Debug::LogError("attribute count mismatch");
@@ -472,12 +477,12 @@ void AnimationFrameInternal::Lerp(AnimationFrame result, AnimationFrame other, f
 	}
 }
 
-void AnimationFrameInternal::Assign(AnimationFrame other) {
+void AnimationFrameInternal::Assign(AnimationFrame* other) {
  	time_ = _suede_rptr(other)->time_;
  	attributes_ = _suede_rptr(other)->attributes_;
 }
 
-void AnimationFrameInternal::LerpAttribute(AnimationFrame ans, int id, const Variant& lhs, const Variant& rhs, float factor) {
+void AnimationFrameInternal::LerpAttribute(AnimationFrame* ans, int id, const Variant& lhs, const Variant& rhs, float factor) {
 	VariantType type = lhs.GetType();
 	Variant variant;
 	LerpVariant(variant, lhs, rhs, factor);
@@ -505,7 +510,7 @@ void AnimationFrameInternal::SetQuaternion(int id, const Quaternion& value) {
 float AnimationFrameInternal::GetFloat(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if(pos == attributes_.end()) {
-		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
+		Debug::LogError("Animation* keyframe attribute for id %d does not exist.", id);
 		return 0;
 	}
 
@@ -516,7 +521,7 @@ float AnimationFrameInternal::GetFloat(int id) {
 Vector3 AnimationFrameInternal::GetVector3(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
-		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
+		Debug::LogError("Animation* keyframe attribute for id %d does not exist.", id);
 		return Vector3(0);
 	}
 
@@ -526,14 +531,14 @@ Vector3 AnimationFrameInternal::GetVector3(int id) {
 Quaternion AnimationFrameInternal::GetQuaternion(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
-		Debug::LogError("Animation keyframe attribute for id %d does not exist.", id);
+		Debug::LogError("Animation* keyframe attribute for id %d does not exist.", id);
 		return Quaternion();
 	}
 
 	return pos->second.GetQuaternion();
 }
 
-static void SetVariant(AnimationFrame frame, int id, const Variant& value) {
+static void SetVariant(AnimationFrame* frame, int id, const Variant& value) {
 	VariantType type = value.GetType();
 	switch (type) {
 		case VariantType::Float:

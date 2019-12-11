@@ -42,15 +42,15 @@ private:
 
 		bool wireframe;
 		Color color;
-		Material material;
+		ref_ptr<Material> material;
 
 		std::vector<uint> indexes;
 		std::vector<Vector3> points;
 	};
 
 private:
-	Batch& GetBatch(MeshTopology topology, bool wireframe, Material material);
-	bool IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material material);
+	Batch& GetBatch(MeshTopology topology, bool wireframe, Material* material);
+	bool IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material);
 
 	void FillBatch(Batch& b, const Vector3* points, uint npoints);
 	void FillBatch(Batch& b, const Vector3* points, uint npoints, const uint* indexes, uint nindexes);
@@ -61,9 +61,8 @@ private:
 	void DrawGizmos(const Batch& b);
 
 private:
-	Mesh mesh_;
-
-	Material lineMaterial_;
+	ref_ptr<Mesh> mesh_;
+	ref_ptr<Material> lineMaterial_;
 
 	Color color_;
 	Matrix4 matrix_;

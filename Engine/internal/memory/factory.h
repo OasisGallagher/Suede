@@ -9,14 +9,14 @@
 #include "memory/memory.h"
 
 class Factory {
-	typedef std::function<Object()> FactoryMethod;
+	typedef std::function<Object*()> FactoryMethod;
 	typedef std::map<suede_guid, FactoryMethod> TypeIDMethodDictionary;
 	typedef std::map<std::string, FactoryMethod> NameMethodDictionary;
 
 	Factory();
 
 public:
-	static Object Create(const std::string& name) {
+	static Object* Create(const std::string& name) {
 		NameMethodDictionary::iterator pos = instance.stringMethodDictionary_.find(name);
 		if (pos == instance.stringMethodDictionary_.end()) {
 			Debug::LogError("no factroy method exists for %s", name.c_str());
@@ -26,7 +26,7 @@ public:
 		return pos->second();
 	}
 
-	static Object Create(suede_guid guid) {
+	static Object* Create(suede_guid guid) {
 		TypeIDMethodDictionary::iterator pos = instance.typeIDMethodDictionary_.find(guid);
 		if (pos == instance.typeIDMethodDictionary_.end()) {
 			Debug::LogError("no factroy method exists for type %zu.", guid);
@@ -36,7 +36,7 @@ public:
 		return pos->second();
 	}
 
-	static Object Create(ObjectType type) {
+	static Object* Create(ObjectType type) {
 		if ((int)type < 0 || type >= ObjectType::size()) {
 			Debug::LogError("invalid object type %d.", type);
 			return nullptr;

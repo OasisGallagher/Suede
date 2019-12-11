@@ -9,58 +9,15 @@
 
 class Renderer_Wrapper {
 	static int ToString(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
+		Renderer* _p = Lua::callerPtr<Renderer>(L);
 
-		lua_pushstring(L, String::Format("Renderer@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("Renderer@0x%p", _p).c_str());
 		return 1;
-	}
-
-	// void AddMaterial(Material material)
-	static int AddMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
-		Material material = Lua::get<Material>(L, 2);
-		
-		_p->AddMaterial(material);
-		return 0;
-	}
-
-	// Material GetMaterial(uint index)
-	static int GetMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
-		uint index = Lua::get<uint>(L, 2);
-		
-		return Lua::push(L, _p->GetMaterial(index));
-	}
-
-	// Enumerable GetMaterials()
-	static int GetMaterials(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
-		IRenderer::Enumerable _r = _p->GetMaterials();
-		return Lua::pushList(L, std::vector<IRenderer::Enumerable::value_type>(_r.begin(), _r.end()));
-	}
-
-	// void SetMaterial(uint index, Material value)
-	static int SetMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
-		Material value = Lua::get<Material>(L, 3);
-		uint index = Lua::get<uint>(L, 2);
-		
-		_p->SetMaterial(index, value);
-		return 0;
-	}
-
-	// void RemoveMaterial(Material material)
-	static int RemoveMaterial(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
-		Material material = Lua::get<Material>(L, 2);
-		
-		_p->RemoveMaterial(material);
-		return 0;
 	}
 
 	// void RemoveMaterialAt(uint index)
 	static int RemoveMaterialAt(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
+		Renderer* _p = Lua::callerPtr<Renderer>(L);
 		uint index = Lua::get<uint>(L, 2);
 		
 		_p->RemoveMaterialAt(index);
@@ -69,13 +26,13 @@ class Renderer_Wrapper {
 
 	// uint GetMaterialCount()
 	static int GetMaterialCount(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
+		Renderer* _p = Lua::callerPtr<Renderer>(L);
 		return Lua::push(L, _p->GetMaterialCount());
 	}
 
 	// void UpdateMaterialProperties()
 	static int UpdateMaterialProperties(lua_State* L) {
-		Renderer& _p = *Lua::callerRefPtr<Renderer>(L);
+		Renderer* _p = Lua::callerPtr<Renderer>(L);
 		_p->UpdateMaterialProperties();
 		return 0;
 	}
@@ -87,13 +44,8 @@ public:
 	
 	static void initialize(lua_State* L, std::vector<luaL_Reg>& funcs, std::vector<luaL_Reg>& fields) {
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<Renderer> },
+			{ "__gc", Lua::deletePtr<Renderer> },
 			{ "__tostring", ToString }, 
-			{ "AddMaterial", AddMaterial },
-			{ "GetMaterial", GetMaterial },
-			{ "GetMaterials", GetMaterials },
-			{ "SetMaterial", SetMaterial },
-			{ "RemoveMaterial", RemoveMaterial },
 			{ "RemoveMaterialAt", RemoveMaterialAt },
 			{ "GetMaterialCount", GetMaterialCount },
 			{ "UpdateMaterialProperties", UpdateMaterialProperties },
@@ -106,13 +58,13 @@ public:
 
 class MeshRenderer_Wrapper {
 	static int NewMeshRenderer(lua_State* L) {
-		return Lua::fromRef(L, make_ref<IMeshRenderer>());
+		return Lua::newObject<MeshRenderer>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		MeshRenderer& _p = *Lua::callerRefPtr<MeshRenderer>(L);
+		MeshRenderer* _p = Lua::callerPtr<MeshRenderer>(L);
 
-		lua_pushstring(L, String::Format("MeshRenderer@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("MeshRenderer@0x%p", _p).c_str());
 		return 1;
 	}
 
@@ -125,7 +77,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewMeshRenderer", NewMeshRenderer });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<MeshRenderer> },
+			{ "__gc", Lua::deletePtr<MeshRenderer> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
@@ -136,13 +88,13 @@ public:
 
 class ParticleRenderer_Wrapper {
 	static int NewParticleRenderer(lua_State* L) {
-		return Lua::fromRef(L, make_ref<IParticleRenderer>());
+		return Lua::newObject<ParticleRenderer>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		ParticleRenderer& _p = *Lua::callerRefPtr<ParticleRenderer>(L);
+		ParticleRenderer* _p = Lua::callerPtr<ParticleRenderer>(L);
 
-		lua_pushstring(L, String::Format("ParticleRenderer@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("ParticleRenderer@0x%p", _p).c_str());
 		return 1;
 	}
 
@@ -155,7 +107,7 @@ public:
 		funcs.push_back(luaL_Reg { "NewParticleRenderer", NewParticleRenderer });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<ParticleRenderer> },
+			{ "__gc", Lua::deletePtr<ParticleRenderer> },
 			{ "__tostring", ToString }, 
 			{ nullptr, nullptr }
 		};
@@ -166,23 +118,14 @@ public:
 
 class SkinnedMeshRenderer_Wrapper {
 	static int NewSkinnedMeshRenderer(lua_State* L) {
-		return Lua::fromRef(L, make_ref<ISkinnedMeshRenderer>());
+		return Lua::newObject<SkinnedMeshRenderer>(L);
 	}
 
 	static int ToString(lua_State* L) {
-		SkinnedMeshRenderer& _p = *Lua::callerRefPtr<SkinnedMeshRenderer>(L);
+		SkinnedMeshRenderer* _p = Lua::callerPtr<SkinnedMeshRenderer>(L);
 
-		lua_pushstring(L, String::Format("SkinnedMeshRenderer@0x%p", _p.get()).c_str());
+		lua_pushstring(L, String::Format("SkinnedMeshRenderer@0x%p", _p).c_str());
 		return 1;
-	}
-
-	// void SetSkeleton(Skeleton value)
-	static int SetSkeleton(lua_State* L) {
-		SkinnedMeshRenderer& _p = *Lua::callerRefPtr<SkinnedMeshRenderer>(L);
-		Skeleton value = Lua::get<Skeleton>(L, 2);
-		
-		_p->SetSkeleton(value);
-		return 0;
 	}
 
 public:
@@ -194,9 +137,8 @@ public:
 		funcs.push_back(luaL_Reg { "NewSkinnedMeshRenderer", NewSkinnedMeshRenderer });
 
 		luaL_Reg metalib[] = {
-			{ "__gc", Lua::deleteRefPtr<SkinnedMeshRenderer> },
+			{ "__gc", Lua::deletePtr<SkinnedMeshRenderer> },
 			{ "__tostring", ToString }, 
-			{ "SetSkeleton", SetSkeleton },
 			{ nullptr, nullptr }
 		};
 

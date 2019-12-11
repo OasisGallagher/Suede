@@ -51,18 +51,16 @@ BETTER_ENUM(ObjectType, int,
 	CustomBehaviour
 )
 
-SUEDE_DEFINE_OBJECT_POINTER(Object)
-
 #define SUEDE_DECLARE_PROPERTY	__declspec(property(get = GetTransform, put = SetTransform)) Transform transform;
 
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
 public: \
 	virtual const char* metatableName() const { \
-		return TypeID<ref_ptr<I ## _Name>>::string(); \
+		return TypeID<ref_ptr<_Name>>::string(); \
 	} \
 private:
 
-class SUEDE_API IObject : public intrusive_ref_counter, public PimplIdiom {
+class SUEDE_API Object : public intrusive_ref_counter, public PimplIdiom {
 	SUEDE_DEFINE_METATABLE_NAME(Object)
 	SUEDE_DECLARE_IMPLEMENTATION(Object)
 
@@ -70,10 +68,10 @@ public:
 	std::string GetName() const;
 	void SetName(const std::string& value);
 
-	Object Clone();
+	ref_ptr<Object> Clone();
 	ObjectType GetObjectType();
 	uint GetInstanceID();
 
 protected:
-	IObject(void* d);
+	Object(void* d);
 };

@@ -33,23 +33,23 @@ struct RenderingMatrices {
 };
 
 struct RenderingMaterials {
-	Material ssao;
-	Material ssaoTraversal;
+	ref_ptr<Material> ssao;
+	ref_ptr<Material> ssaoTraversal;
 
-	Material depth;
+	ref_ptr<Material> depth;
 };
 
 struct RenderingRenderTextures {
-	RenderTexture aux1;
-	RenderTexture aux2;
-	RenderTexture target;
-	MRTRenderTexture ssaoTraversal;
+	ref_ptr<RenderTexture> aux1;
+	ref_ptr<RenderTexture> aux2;
+	ref_ptr<RenderTexture> target;
+	ref_ptr<MRTRenderTexture> ssaoTraversal;
 };
 
 struct RenderingParameters {
 	RenderingParameters();
 
-	IGameObject* camera;
+	GameObject* camera;
 	Rect normalizedRect;
 
 	ClearType clearType;
@@ -63,7 +63,7 @@ struct RenderingParameters {
 };
 
 struct RenderingPipelines {
-	Light forwardBaseLight;
+	Light* forwardBaseLight;
 
 	Pipeline* depth;
 	Pipeline* shadow;
@@ -98,14 +98,13 @@ private:
 	void RenderPass(RenderingPipelines& pipelines);
 	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines& pipelines);
 
-	void UpdateForwardBaseLightUniformBuffer(Light light);
+	void UpdateForwardBaseLightUniformBuffer(Light* light);
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
 
-	void CreateAuxMaterial(Material& material, const std::string& shaderPath, uint renderQueue);
+	void CreateAuxMaterial(ref_ptr<Material>& material, const std::string& shaderPath, uint renderQueue);
 
 private:
 	RenderingParameters* p_;
-	std::vector<GameObject> gameObjects_;
 
 	Sample* ssaoSample;
 	Sample* ssaoTraversalSample;
@@ -123,38 +122,38 @@ public:
 
 public:
 	RenderingPipelines& GetPipelines() { return pipelines_; }
-	void Traits(std::vector<GameObject>& gameObjects, const RenderingMatrices& matrices);
+	void Traits(std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices);
 	void Clear();
 
 private:
 	void InitializeSSAOKernel();
 
-	void ForwardRendering(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light forwardBase, const std::vector<Light>& forwardAdd);
-	void DeferredRendering(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light forwardBase, const std::vector<Light>& forwardAdd);
+	void ForwardRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd);
+	void DeferredRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd);
 
 	void InitializeDeferredRender();
-	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject>& gameObjects);
+	void RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects);
 
 	void RenderSkybox(Pipeline* pl);
 
-	RenderTexture GetActiveRenderTarget();
+	RenderTexture* GetActiveRenderTarget();
 
 	void SSAOPass(Pipeline* pl);
 
-	void ForwardPass(Pipeline* pl, const std::vector<GameObject>& gameObjects);
+	void ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects);
 	void ForwardDepthPass(Pipeline* pl);
 
-	void RenderGameObject(Pipeline* pl, GameObject go, Renderer renderer);
-	void RenderSubMesh(Pipeline* pl, GameObject go, int subMeshIndex, Material material, int pass);
+	void RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer);
+	void RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass);
 
-	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject>& gameObjects, const std::vector<Light>& lights);
-	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject>& gameObjects, Light light);
+	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights);
+	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light);
 
 	void RenderDecals(Pipeline* pl);
 
-	void ReplaceMaterials(Pipeline* pl, Material material);
+	void ReplaceMaterials(Pipeline* pl, Material* material);
 
-	void GetLights(Light& forwardBase, std::vector<Light>& forwardAdd);
+	void GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd);
 
 private:
 	RenderingParameters* p_;

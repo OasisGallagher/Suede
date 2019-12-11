@@ -26,7 +26,7 @@ public:
 public:
 	void Awake();
 
-	void SetDepth(ICamera* self, int value);
+	void SetDepth(Camera* self, int value);
 	int GetDepth() const { return depth_;  }
 
 	void SetRect(const Rect& value);
@@ -44,10 +44,10 @@ public:
 	void SetClearColor(const Color& value) { p_.clearColor = value; }
 	Color GetClearColor() const { return p_.clearColor; }
 
-	void SetTargetTexture(RenderTexture value) { p_.renderTextures.target = value; }
-	RenderTexture GetTargetTexture() { return p_.renderTextures.target; }
+	void SetTargetTexture(RenderTexture* value) { p_.renderTextures.target = value; }
+	RenderTexture* GetTargetTexture() { return p_.renderTextures.target.get(); }
 
-	Texture2D Capture();
+	ref_ptr<Texture2D> Capture();
 
 public:
 	void Render();
@@ -74,7 +74,7 @@ public:
 
 	const Matrix4& GetProjectionMatrix() { return Frustum::GetProjectionMatrix(); }
 
-	void GetVisibleGameObjects(std::vector<GameObject>& gameObjects);
+	void GetVisibleGameObjects(std::vector<GameObject*>& gameObjects);
 
 	Vector3 WorldToScreenPoint(const Vector3& position);
 	Vector3 ScreenToWorldPoint(const Vector3& position);
@@ -113,5 +113,5 @@ private:
 	Rendering* rendering_;
 
 	ZThread::Mutex visibleGameObjectsMutex_;
-	std::vector<GameObject> visibleGameObjects_;
+	std::vector<GameObject*> visibleGameObjects_;
 };

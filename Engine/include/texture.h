@@ -26,7 +26,7 @@ BETTER_ENUM(TextureWrapMode, int,
 	Repeat
 )
 
-class SUEDE_API ITexture : public IObject {
+class SUEDE_API Texture : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(Texture)
 	SUEDE_DECLARE_IMPLEMENTATION(Texture)
 
@@ -51,7 +51,7 @@ public:
 	uint GetHeight() const;
 
 protected:
-	ITexture(void* d);
+	Texture(void* d);
 };
 
 enum class TextureFormat {
@@ -76,12 +76,12 @@ enum class ColorStreamFormat {
 	LuminanceAlpha,
 };
 
-class SUEDE_API ITexture2D : public ITexture {
+class SUEDE_API Texture2D : public Texture {
 	SUEDE_DEFINE_METATABLE_NAME(Texture2D)
 	SUEDE_DECLARE_IMPLEMENTATION(Texture2D)
 
 public:
-	ITexture2D();
+	Texture2D();
 
 public:
 	bool Load(const std::string& path);
@@ -93,23 +93,23 @@ public:
 	bool EncodeToJPG(std::vector<uchar>& data);
 };
 
-class SUEDE_API ITextureCube : public ITexture {
+class SUEDE_API TextureCube : public Texture {
 	SUEDE_DEFINE_METATABLE_NAME(TextureCube)
 	SUEDE_DECLARE_IMPLEMENTATION(TextureCube)
 
 public:
-	ITextureCube();
+	TextureCube();
 
 public:
 	bool Load(const std::string textures[6]);
 };
 
-class SUEDE_API ITextureBuffer : public ITexture {
+class SUEDE_API TextureBuffer : public Texture {
 	SUEDE_DEFINE_METATABLE_NAME(TextureBuffer)
 	SUEDE_DECLARE_IMPLEMENTATION(TextureBuffer)
 
 public:
-	ITextureBuffer();
+	TextureBuffer();
 
 public:
 	uint GetSize() const;
@@ -131,50 +131,44 @@ BETTER_ENUM(RenderTextureFormat, int,
 	DepthStencil
 )
 
-class SUEDE_API IRenderTexture : public ITexture {
+class SUEDE_API RenderTexture : public Texture {
 	SUEDE_DEFINE_METATABLE_NAME(RenderTexture)
 	SUEDE_DECLARE_IMPLEMENTATION(RenderTexture)
 
 public:
-	IRenderTexture();
+	RenderTexture();
+	~RenderTexture() {}
 
 public:
 	bool Create(RenderTextureFormat format, uint width, uint height);
+
+	RenderTextureFormat GetRenderTextureFormat();
 
 	void Resize(uint width, uint height);
 	void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 	void BindWrite(const Rect& normalizedRect);
 
+public:
+	static RenderTexture* GetDefault();
+
+	static RenderTexture* GetTemporary(RenderTextureFormat format, uint width, uint height);
+	static void ReleaseTemporary(RenderTexture* texture);
+
 protected:
-	IRenderTexture(void* d);
+	RenderTexture(void* d);
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(RenderTexture)
-
-struct SUEDE_API RenderTextureUtility {
-	static RenderTexture GetDefault();
-
-	static RenderTexture GetTemporary(RenderTextureFormat format, uint width, uint height);
-	static void ReleaseTemporary(RenderTexture texture);
-};
-
-SUEDE_DEFINE_OBJECT_POINTER(Texture)
-SUEDE_DEFINE_OBJECT_POINTER(Texture2D)
-SUEDE_DEFINE_OBJECT_POINTER(TextureCube)
-SUEDE_DEFINE_OBJECT_POINTER(TextureBuffer)
-
-class SUEDE_API IMRTRenderTexture : public IRenderTexture {
+class SUEDE_API MRTRenderTexture : public RenderTexture {
 	SUEDE_DEFINE_METATABLE_NAME(MRTRenderTexture)
 	SUEDE_DECLARE_IMPLEMENTATION(MRTRenderTexture)
 
 public:
-	IMRTRenderTexture();
+	MRTRenderTexture();
 
 public:
 	bool AddColorTexture(TextureFormat format);
-	Texture2D GetColorTexture(uint index);
+	Texture2D* GetColorTexture(uint index);
 	uint GetColorTextureCount();
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(MRTRenderTexture)

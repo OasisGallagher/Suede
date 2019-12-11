@@ -10,7 +10,7 @@ Shadows::Shadows() {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 	shadowDepthTexture_ = SharedTextureManager::instance()->GetShadowDepthTexture();
 
-	directionalLightShadowMaterial_ = new IMaterial();
+	directionalLightShadowMaterial_ = new Material();
 	directionalLightShadowMaterial_->SetShader(Resources::FindShader("builtin/directional_light_depth"));
 	directionalLightShadowMaterial_->SetRenderQueue((int)RenderQueue::Background - 200);
 }
@@ -25,11 +25,11 @@ void Shadows::Clear() {
 	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 }
 
-RenderTexture Shadows::GetShadowTexture() {
-	return shadowDepthTexture_;
+RenderTexture* Shadows::GetShadowTexture() {
+	return shadowDepthTexture_.get();
 }
 
-void Shadows::Update(Light light, Pipeline* pipeline) {
+void Shadows::Update(Light* light, Pipeline* pipeline) {
 	Vector3 lightPosition = light->GetTransform()->GetPosition();
 	Vector3 lightDirection = light->GetTransform()->GetForward();
 	float near = 1.f, far = 90.f;

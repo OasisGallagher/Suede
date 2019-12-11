@@ -140,6 +140,13 @@ public:
 	virtual void BindWrite(const Rect& normalizedRect);
 	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
+	RenderTextureFormat GetRenderTextureFormat() { return renderTextureFormat_; }
+
+public:
+	static RenderTexture* GetDefault();
+	static RenderTexture* GetTemporary(RenderTextureFormat format, uint width, uint height);
+	static void ReleaseTemporary(RenderTexture* texture); 
+
 protected:
 	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
 	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
@@ -155,7 +162,7 @@ protected:
 
 private:
 	bool VerifyBindStatus();
-	bool ContainsDepthInfo() const { return format_ >= RenderTextureFormat::Depth; }
+	bool ContainsDepthInfo() const { return renderTextureFormat_ >= RenderTextureFormat::Depth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
 
 protected:
@@ -168,16 +175,15 @@ private:
 		StatusWrite,
 	} bindStatus_;
 
-	RenderTextureFormat format_;
+	RenderTextureFormat renderTextureFormat_;
 };
 
-class IScreenRenderTexture : public IRenderTexture {
+class ScreenRenderTexture : public RenderTexture {
 	SUEDE_DECLARE_IMPLEMENTATION(ScreenRenderTexture);
-public:
-	IScreenRenderTexture();
-};
 
-SUEDE_DEFINE_OBJECT_POINTER(ScreenRenderTexture)
+public:
+	ScreenRenderTexture();
+};
 
 class ScreenRenderTextureInternal : public RenderTextureInternal {
 public:
@@ -214,7 +220,7 @@ public:
 public:
 	virtual bool AddColorTexture(TextureFormat format);
 	virtual uint GetColorTextureCount() { return index_; }
-	virtual Texture2D GetColorTexture(uint index);
+	virtual Texture2D* GetColorTexture(uint index);
 
 protected:
 	virtual GLenum GetGLTextureType() const;
@@ -225,5 +231,5 @@ private:
 
 private:
 	uint index_;
-	Texture2D colorTextures_[FramebufferAttachmentMax];
+	ref_ptr<Texture2D> colorTextures_[FramebufferAttachmentMax];
 };

@@ -15,10 +15,10 @@ public:
 	~MaterialInternal();
 
 public:
-	Object Clone();
+	ref_ptr<Object> Clone();
 
-	void SetShader(IMaterial* self, Shader value);
-	Shader GetShader() { return shader_; }
+	void SetShader(Material* self, Shader* value);
+	Shader* GetShader() { return shader_; }
 
 	void SetRenderQueue(int value);
 	int GetRenderQueue() const;
@@ -45,7 +45,7 @@ public:
 	void SetInt(const std::string& name, int value);
 	void SetBool(const std::string& name, bool value);
 	void SetFloat(const std::string& name, float value);
-	void SetTexture(const std::string& name, Texture value);
+	void SetTexture(const std::string& name, Texture* value);
 	void SetMatrix4(const std::string& name, const Matrix4& value);
 	void SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count);
 	void SetVector3(const std::string& name, const Vector3& value);
@@ -59,7 +59,7 @@ public:
 	iranged GetRangedInt(const std::string& name);
 	franged GetRangedFloat(const std::string& name);
 	float GetFloat(const std::string& name);
-	Texture GetTexture(const std::string& name);
+	Texture* GetTexture(const std::string& name);
 	Matrix4 GetMatrix4(const std::string& name);
 	Vector3 GetVector3(const std::string& name);
 	Color GetColor(const std::string& name);
@@ -71,8 +71,8 @@ private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void UpdateProperties(IMaterial* self, Shader newShader);
-	void CopyProperties(Shader newShader);
+	void UpdateProperties(Material* self, Shader* newShader);
+	void CopyProperties(Shader* newShader);
 	void DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties);
 
 	void InitializeEnabledState();
@@ -83,7 +83,7 @@ private:
 	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
-	Shader shader_;
+	Shader* shader_;
 	int currentPass_;
 
 	uint passEnabled_;

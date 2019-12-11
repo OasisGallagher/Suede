@@ -41,15 +41,14 @@ public:
 
 	void Bind();
 	void Unbind();
-	void ShareStorage(Mesh other);
+	void ShareStorage(Mesh* other);
 
 	void AddMeshModifiedListener(IMeshModifiedListener* listener);
 	void RemoveMeshModifiedListener(IMeshModifiedListener* listener);
 
-	void AddSubMesh(SubMesh subMesh);
+	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount() { return subMeshes_.size(); }
-	SubMesh GetSubMesh(uint index) { return subMeshes_[index]; }
-	IMesh::Enumerable GetSubMeshes() { return IMesh::Enumerable(subMeshes_.begin(), subMeshes_.end()); }
+	SubMesh* GetSubMesh(uint index) { return subMeshes_[index].get(); }
 	void RemoveSubMesh(uint index);
 
 	MeshTopology GetTopology() { return storage_->topology; }
@@ -93,7 +92,7 @@ private:
 //	Bounds bounds_;
 
 private:
-	std::vector<SubMesh> subMeshes_;
+	std::vector<ref_ptr<SubMesh>> subMeshes_;
 	std::shared_ptr<Storage> storage_;
 };
 
@@ -103,14 +102,14 @@ public:
 	~MeshProviderInternal();
 
 public:
-	Mesh GetMesh() { return mesh_; }
-	void SetMesh(Mesh value);
+	Mesh* GetMesh() { return mesh_.get(); }
+	void SetMesh(Mesh* value);
 
 public:
 	virtual void OnMeshModified();
 
 private:
-	Mesh mesh_;
+	ref_ptr<Mesh> mesh_;
 };
 
 class TextMeshInternal : public MeshProviderInternal, public FontMaterialRebuiltListener {
@@ -127,8 +126,8 @@ public:
 
 	int GetUpdateStrategy() { return UpdateStrategyRendering; }
 
-	void SetFont(Font value);
-	Font GetFont() { return font_; }
+	void SetFont(Font* value);
+	Font* GetFont() { return font_.get(); }
 
 	void SetFontSize(uint value);
 	uint GetFontSize() { return size_; }
@@ -144,7 +143,7 @@ private:
 
 private:
 	uint size_;
-	Font font_;
+	ref_ptr<Font> font_;
 	bool dirty_;
 
 	std::string text_;

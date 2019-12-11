@@ -24,8 +24,6 @@ class Environment_Wrapper {
 		lua_newtable(L);
 
 		luaL_Reg funcs[] = {
-			{ "SetSkybox", SetSkybox },
-			{ "GetSkybox", GetSkybox },
 			{ "SetAmbientColor", SetAmbientColor },
 			{ "GetAmbientColor", GetAmbientColor },
 			{ "SetFogColor", SetFogColor },
@@ -40,19 +38,6 @@ class Environment_Wrapper {
 
 		return 1;
 	}
-	// static void SetSkybox(Material value)
-	static int SetSkybox(lua_State* L) {
-		Material value = Lua::get<Material>(L, 1);
-		
-		Environment::SetSkybox(value);
-		return 0;
-	}
-
-	// static Material GetSkybox()
-	static int GetSkybox(lua_State* L) {
-		return Lua::push(L, Environment::GetSkybox());
-	}
-
 	// static void SetAmbientColor(const Color& value)
 	static int SetAmbientColor(lua_State* L) {
 		Color value = Lua::get<Color>(L, 1);

@@ -28,12 +28,6 @@
     <Filter Include="scripts">
       <UniqueIdentifier>{d9d38ab5-25a0-4526-8735-dbceb209adba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="scripts\include">
-      <UniqueIdentifier>{82c9ccf8-a40a-49f9-bdf3-b19e9dbf76ef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="scripts\src">
-      <UniqueIdentifier>{dfce4a84-8832-4749-b332-0fdd5a01e4e8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resources\shaders">
       <UniqueIdentifier>{cda91b8e-50f4-4c01-a697-db1bad03772d}</UniqueIdentifier>
     </Filter>
@@ -42,12 +36,6 @@
     </Filter>
     <Filter Include="main">
       <UniqueIdentifier>{dc1b67d3-19aa-4507-9fbb-e436e116b57b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="main\include">
-      <UniqueIdentifier>{680e88f9-79c4-4102-9a2d-3127fb544195}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="main\src">
-      <UniqueIdentifier>{317e476b-2a27-4789-807c-7898c43a4ae1}</UniqueIdentifier>
     </Filter>
     <Filter Include="widgets">
       <UniqueIdentifier>{b2387caa-cad8-41c5-b0b7-574d52dbdb14}</UniqueIdentifier>
@@ -61,26 +49,14 @@
     <Filter Include="widgets\status">
       <UniqueIdentifier>{22a8d1da-ebe9-44cd-ae10-0a05e5db13dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="widgets\status\src">
-      <UniqueIdentifier>{19041b3a-78f1-40c6-b11c-9587b781b34d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resources\shaders\builtin">
       <UniqueIdentifier>{43d28d5e-e2af-4923-9408-8a0df599c17a}</UniqueIdentifier>
     </Filter>
     <Filter Include="resources\shaders\builtin\include">
       <UniqueIdentifier>{fe0db015-bb51-460e-b034-52f8394634f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="widgets\status\include">
-      <UniqueIdentifier>{26428fac-05af-48bb-a157-2636ae8eb984}</UniqueIdentifier>
-    </Filter>
     <Filter Include="widgets\dialogs">
       <UniqueIdentifier>{ad330e73-8586-4b92-a3e3-e6d6c14ade07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="widgets\dialogs\include">
-      <UniqueIdentifier>{aa23ee7c-eb05-4e96-99d8-4998576fc90d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="widgets\dialogs\src">
-      <UniqueIdentifier>{81bed16b-bdf3-479c-8b32-1e9003a3cc7a}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows">
       <UniqueIdentifier>{8f6ec8e0-e06c-4a59-be83-a8c2d6c05ccb}</UniqueIdentifier>
@@ -88,50 +64,20 @@
     <Filter Include="windows\game">
       <UniqueIdentifier>{dbc1ae30-795b-4a8a-9865-e0f2ef4b870c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\game\src">
-      <UniqueIdentifier>{ec41d563-7124-49ae-8925-8014870c2958}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows\hierarchy">
       <UniqueIdentifier>{9f57e7fa-f10a-4868-966b-c939b4adc4f7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\hierarchy\include">
-      <UniqueIdentifier>{34fc0604-ab20-4e18-985b-7a4945fd7b56}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\hierarchy\src">
-      <UniqueIdentifier>{fe91196a-ab9e-4462-b0a2-906090bc7da5}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows\inspector">
       <UniqueIdentifier>{2d83e312-8d09-48b3-8eed-83acf55aacdc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\inspector\include">
-      <UniqueIdentifier>{0ceb53db-54ae-490d-bf2c-266cd943da84}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\inspector\src">
-      <UniqueIdentifier>{c4061003-9ac8-47c2-8320-116f689d2ecd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows\inspector\custom">
       <UniqueIdentifier>{43ac319b-e4d5-422d-a1ce-8863a5125c26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\inspector\custom\include">
-      <UniqueIdentifier>{83d42b6f-29f7-4a33-9aeb-e48421309e33}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows\lighting">
       <UniqueIdentifier>{2de45e3f-4435-4576-b064-28bec29f4dda}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\lighting\include">
-      <UniqueIdentifier>{ac70e7a0-9583-46d3-a9f7-13a0cfbeca0a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\lighting\src">
-      <UniqueIdentifier>{651089db-8c81-4dd4-b65b-92f1bb1e88cd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="widgets\fields">
       <UniqueIdentifier>{412ad60b-716b-447f-9863-626339a2f8d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="widgets\fields\include">
-      <UniqueIdentifier>{421b6cb8-6cd9-4b54-97be-b28145c97827}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="widgets\fields\src">
-      <UniqueIdentifier>{20cecae9-657a-4a81-a573-420b259fece2}</UniqueIdentifier>
     </Filter>
     <Filter Include="windows\include">
       <UniqueIdentifier>{18d0d0dc-f708-4b7e-a30d-7f247954fa05}</UniqueIdentifier>
@@ -139,474 +85,249 @@
     <Filter Include="windows\console">
       <UniqueIdentifier>{80990e59-ee1d-4b11-a012-2275e42b75f1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\console\include">
-      <UniqueIdentifier>{22677e80-befb-48b5-a74e-27f92ab1b695}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\console\src">
-      <UniqueIdentifier>{70e04511-4e4c-45ce-bf57-f75df6570e5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\game\include">
-      <UniqueIdentifier>{dd5cf3eb-91ff-4764-8c4b-0d04ecb8853f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="gui">
       <UniqueIdentifier>{0e108cf8-5328-489a-be69-26fdf292facc}</UniqueIdentifier>
     </Filter>
     <Filter Include="gui\qtimgui">
       <UniqueIdentifier>{ea8eaf39-a86b-46c7-b52a-ae58ee72280f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="gui\qtimgui\include">
-      <UniqueIdentifier>{4add24eb-efa4-4a20-a9d3-efad0453bfc6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="gui\qtimgui\src">
-      <UniqueIdentifier>{34f48506-c7f2-42dc-b0e3-a42d2c781bcf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="widgets\statistics">
       <UniqueIdentifier>{1d782889-cc66-4c21-b196-8456198ec7c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="widgets\statistics\include">
-      <UniqueIdentifier>{2e5a3e7e-c13a-4276-91f8-8ebb89be001e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="widgets\statistics\src">
-      <UniqueIdentifier>{9e5c37de-8d62-4636-96d3-a21511a8e5a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\inspector\custom\src">
-      <UniqueIdentifier>{def5eb06-52e6-47c0-a0da-8bf1634d8423}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows\project">
       <UniqueIdentifier>{8463ab07-6347-433c-bde5-c8b486952780}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\project\include">
-      <UniqueIdentifier>{0d9b1cac-de8c-4657-af79-2f6684779d5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="windows\project\src">
-      <UniqueIdentifier>{b406efe5-64a6-4bfe-a1b3-6a5a70f1164e}</UniqueIdentifier>
     </Filter>
     <Filter Include="resources\lua">
       <UniqueIdentifier>{f8b24b1c-aa31-458f-ace8-99ef35976734}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="scripts\cameracontroller.cpp">
-      <Filter>scripts\src</Filter>
+    <ClCompile Include="gui\qtimgui\ImGuiRenderer.cpp">
+      <Filter>gui\qtimgui</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\qtimgui\QtImGui.cpp">
+      <Filter>gui\qtimgui</Filter>
     </ClCompile>
     <ClCompile Include="main\main.cpp">
-      <Filter>main\src</Filter>
+      <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_labeltexture.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="main\prefs.cpp">
+      <Filter>main</Filter>
     </ClCompile>
     <ClCompile Include="main\qtviewer.cpp">
-      <Filter>main\src</Filter>
+      <Filter>main</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_qtviewer.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="scripts\cameracontroller.cpp">
+      <Filter>scripts</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_qtviewer.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="scripts\gaussianblur.cpp">
+      <Filter>scripts</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_maskfield.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="scripts\inversion.cpp">
+      <Filter>scripts</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_maskfield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="scripts\selectiongizmos.cpp">
+      <Filter>scripts</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_filetreefield.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\dialogs\aboutdialog.cpp">
+      <Filter>widgets\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_filetreefield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\dialogs\colorpicker.cpp">
+      <Filter>widgets\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_floatfield.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\dialogs\popupwidget.cpp">
+      <Filter>widgets\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_floatfield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\dialogs\preferences.cpp">
+      <Filter>widgets\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_vecfield.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\dialogs\shaderselector.cpp">
+      <Filter>widgets\dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_vecfield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\fields\colorfield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_vec3field.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\fields\filetreefield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_vec3field.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\fields\floatfield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_vec2field.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\fields\intfield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_vec4field.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\fields\maskfield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_vec4field.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\fields\rangefield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_vec2field.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\fields\texturefield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_rectfield.cpp">
-      <Filter>Generated Files\Debug</Filter>
+    <ClCompile Include="widgets\fields\vecfield.cpp">
+      <Filter>widgets\fields</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_rectfield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="widgets\statistics\statswidget.cpp">
+      <Filter>widgets\statistics</Filter>
+    </ClCompile>
+    <ClCompile Include="widgets\status\statusbar.cpp">
+      <Filter>widgets\status</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\console\console.cpp">
+      <Filter>windows\console</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\game\canvas.cpp">
+      <Filter>windows\game</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\game\game.cpp">
+      <Filter>windows\game</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\game\qtinputdelegate.cpp">
+      <Filter>windows\game</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
+      <Filter>windows\hierarchy</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\hierarchy\hierarchy.cpp">
+      <Filter>windows\hierarchy</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\materialeditor.cpp">
+      <Filter>windows\inspector</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\inspector.cpp">
+      <Filter>windows\inspector</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\lighting\lighting.cpp">
+      <Filter>windows\lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\project\directorytree.cpp">
+      <Filter>windows\project</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\project\project.cpp">
+      <Filter>windows\project</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_aboutdialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_aboutdialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\dialogs\aboutdialog.cpp">
-      <Filter>widgets\dialogs\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\dialogs\colorpicker.cpp">
-      <Filter>widgets\dialogs\src</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_cameracontroller.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_canvas.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_canvas.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\dialogs\popupwidget.cpp">
-      <Filter>widgets\dialogs\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_popupwidget.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_colorfield.cpp">
       <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_popupwidget.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\game\canvas.cpp">
-      <Filter>windows\game\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\game\game.cpp">
-      <Filter>windows\game\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\inspector.cpp">
-      <Filter>windows\inspector\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\lighting\lighting.cpp">
-      <Filter>windows\lighting\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\hierarchy\hierarchy.cpp">
-      <Filter>windows\hierarchy\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\colorfield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\filetreefield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\floatfield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\maskfield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\texturefield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\vecfield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\gaussianblur.cpp">
-      <Filter>scripts\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\console\console.cpp">
-      <Filter>windows\console\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_console.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_console.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_game.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_game.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_hierarchy.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_hierarchy.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_inspector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_inspector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_lighting.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_lighting.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_colorpicker.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_colorpicker.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_colorfield.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_componentmetaobject.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_colorfield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_console.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_directorytree.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_dragdropableitemmodel.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_dragdropableitemmodel.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
-      <Filter>windows\hierarchy\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\dialogs\preferences.cpp">
-      <Filter>widgets\dialogs\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_preferences.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_filetreefield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_preferences.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="main\prefs.cpp">
-      <Filter>main\src</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\fields\intfield.cpp">
-      <Filter>widgets\fields\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_intfield.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_floatfield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_intfield.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_rangefield.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_game.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_rangefield.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gaussianblur.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="widgets\fields\rangefield.cpp">
-      <Filter>widgets\fields\src</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_grayscale.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_hierarchy.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_ImGuiRenderer.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_ImGuiRenderer.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_inspector.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="gui\qtimgui\ImGuiRenderer.cpp">
-      <Filter>gui\qtimgui\src</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_intfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="gui\qtimgui\QtImGui.cpp">
-      <Filter>gui\qtimgui\src</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_inversion.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="widgets\status\statusbar.cpp">
-      <Filter>widgets\status\src</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_lighting.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_maskfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_popupwidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_preferences.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_project.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qtinputdelegate.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_qtviewer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rangefield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rectfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_selectiongizmos.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_shaderselector.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_statusbar.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_statusbar.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="widgets\statistics\statswidget.cpp">
-      <Filter>widgets\statistics\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_editor.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\qrc_editor.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_editor.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="main\editor.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_texturefield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_texturefield.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_componentmetaobject.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_vec2field.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_componentmetaobject.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_cameracontroller.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_vec3field.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_cameracontroller.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\inspector\materialeditor.cpp">
-      <Filter>windows\inspector\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_gaussianblur.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_vec4field.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_gaussianblur.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_grayscale.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_vecfield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_grayscale.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\inversion.cpp">
-      <Filter>scripts\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_inversion.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_editor.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_inversion.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_editor.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="widgets\dialogs\shaderselector.cpp">
-      <Filter>widgets\dialogs\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_shaderselector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_shaderselector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\project\project.cpp">
-      <Filter>windows\project\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_project.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_project.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\project\directorytree.cpp">
-      <Filter>windows\project\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_directorytree.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_directorytree.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_selectiongizmos.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_selectiongizmos.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="scripts\selectiongizmos.cpp">
-      <Filter>scripts\src</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\game\qtinputdelegate.cpp">
-      <Filter>windows\game\src</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_qtinputdelegate.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_qtinputdelegate.cpp">
-      <Filter>Generated Files\Release</Filter>
+    <ClCompile Include="main\editor.cpp">
+      <Filter>main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="main\qtviewer.h">
-      <Filter>main\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\dialogs\aboutdialog.h">
-      <Filter>widgets\dialogs\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\dialogs\colorpicker.h">
-      <Filter>widgets\dialogs\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\dialogs\popupwidget.h">
-      <Filter>widgets\dialogs\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\maskfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\lighting\lighting.h">
-      <Filter>windows\lighting\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\console\console.h">
-      <Filter>windows\console\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\game\game.h">
-      <Filter>windows\game\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\hierarchy\hierarchy.h">
-      <Filter>windows\hierarchy\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\inspector\inspector.h">
-      <Filter>windows\inspector\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\game\canvas.h">
-      <Filter>windows\game\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\colorfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\floatfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\filetreefield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\vec3field.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\vec4field.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\vecfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\rectfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\texturefield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\vec2field.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\hierarchy\dragdropableitemmodel.h">
-      <Filter>windows\hierarchy\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\dialogs\preferences.h">
-      <Filter>widgets\dialogs\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\intfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\fields\rangefield.h">
-      <Filter>widgets\fields\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="gui\qtimgui\ImGuiRenderer.h">
-      <Filter>gui\qtimgui\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\status\statusbar.h">
-      <Filter>widgets\status\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="editor.qrc">
       <Filter>resources</Filter>
-    </CustomBuild>
-    <CustomBuild Include="main\editor.h">
-      <Filter>main\include</Filter>
     </CustomBuild>
     <CustomBuild Include="ui\aboutdialog.ui">
       <Filter>ui</Filter>
@@ -620,76 +341,142 @@
     <CustomBuild Include="ui\statswidget.ui">
       <Filter>ui</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector\custom\componentmetaobject.h">
-      <Filter>windows\inspector\custom\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\cameracontroller.h">
-      <Filter>scripts\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\gaussianblur.h">
-      <Filter>scripts\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\grayscale.h">
-      <Filter>scripts\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\grayscale.cpp">
-      <Filter>scripts\src</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\inversion.h">
-      <Filter>scripts\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="widgets\dialogs\shaderselector.h">
-      <Filter>widgets\dialogs\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\project\project.h">
-      <Filter>windows\project\include</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\project\directorytree.h">
-      <Filter>windows\project\include</Filter>
-    </CustomBuild>
     <CustomBuild Include="ui\shaderselector.ui">
       <Filter>ui</Filter>
     </CustomBuild>
+    <CustomBuild Include="gui\qtimgui\ImGuiRenderer.h">
+      <Filter>gui\qtimgui</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main\qtviewer.h">
+      <Filter>main</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main\editor.h">
+      <Filter>main</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\grayscale.cpp">
+      <Filter>scripts</Filter>
+    </CustomBuild>
     <CustomBuild Include="scripts\selectiongizmos.h">
-      <Filter>scripts\include</Filter>
+      <Filter>scripts</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\inversion.h">
+      <Filter>scripts</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\grayscale.h">
+      <Filter>scripts</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\gaussianblur.h">
+      <Filter>scripts</Filter>
+    </CustomBuild>
+    <CustomBuild Include="scripts\cameracontroller.h">
+      <Filter>scripts</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\preferences.h">
+      <Filter>widgets\dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\popupwidget.h">
+      <Filter>widgets\dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\colorpicker.h">
+      <Filter>widgets\dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\aboutdialog.h">
+      <Filter>widgets\dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\dialogs\shaderselector.h">
+      <Filter>widgets\dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vecfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\colorfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\filetreefield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\floatfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\intfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\rangefield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\maskfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\rectfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\texturefield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vec2field.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vec3field.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\fields\vec4field.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\status\statusbar.h">
+      <Filter>widgets\status</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\console\console.h">
+      <Filter>windows\console</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\game\qtinputdelegate.h">
-      <Filter>windows\game\include</Filter>
+      <Filter>windows\game</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\game\canvas.h">
+      <Filter>windows\game</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\game\game.h">
+      <Filter>windows\game</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\hierarchy\hierarchy.h">
+      <Filter>windows\hierarchy</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\hierarchy\dragdropableitemmodel.h">
+      <Filter>windows\hierarchy</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\custom\componentmetaobject.h">
+      <Filter>windows\inspector\custom</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\inspector.h">
+      <Filter>windows\inspector</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\lighting\lighting.h">
+      <Filter>windows\lighting</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\project\project.h">
+      <Filter>windows\project</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\project\directorytree.h">
+      <Filter>windows\project</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="widgets\fields\enumfield.h">
-      <Filter>widgets\fields\include</Filter>
-    </ClInclude>
     <ClInclude Include="windows\winbase.h">
       <Filter>windows\include</Filter>
     </ClInclude>
-    <ClInclude Include="main\prefs.h">
-      <Filter>main\include</Filter>
-    </ClInclude>
     <ClInclude Include="gui\qtimgui\QtImGui.h">
-      <Filter>gui\qtimgui\include</Filter>
+      <Filter>gui\qtimgui</Filter>
+    </ClInclude>
+    <ClInclude Include="main\prefs.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="widgets\fields\enumfield.h">
+      <Filter>widgets\fields</Filter>
     </ClInclude>
     <ClInclude Include="widgets\statistics\statswidget.h">
-      <Filter>widgets\statistics\include</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_aboutdialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_editor.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_preferences.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_statswidget.h">
-      <Filter>Generated Files</Filter>
+      <Filter>widgets\statistics</Filter>
     </ClInclude>
     <ClInclude Include="windows\inspector\materialeditor.h">
-      <Filter>windows\inspector\include</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_shaderselector.h">
-      <Filter>Generated Files</Filter>
+      <Filter>windows\inspector</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

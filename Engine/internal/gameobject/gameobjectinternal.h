@@ -15,39 +15,39 @@ protected:
 public:
 	bool GetActive() const { return active_; }
 
-	void SetActiveSelf(GameObject self, bool value);
+	void SetActiveSelf(GameObject* self, bool value);
 	bool GetActiveSelf() const { return activeSelf_; }
 
-	int GetUpdateStrategy(GameObject self);
+	int GetUpdateStrategy(GameObject* self);
 	void SendMessage(int messageID, void* parameter);
 
 	const std::string& GetTag() const { return tag_; }
-	bool SetTag(GameObject self, const std::string& value);
+	bool SetTag(GameObject* self, const std::string& value);
 
 	void Update();
 	void CullingUpdate();
 
-	Transform GetTransform();
+	Transform* GetTransform();
 
 	const Bounds& GetBounds();
 	void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
 
-	void RecalculateUpdateStrategy(GameObject self);
+	void RecalculateUpdateStrategy(GameObject* self);
 
 protected:
-	virtual void OnNameChanged(Object self);
+	virtual void OnNameChanged(Object* self);
 
 public:
 	template <class T>
-	Component AddComponent(GameObject self, T key);
+	Component* AddComponent(GameObject* self, T key);
 
 	template <class T>
-	Component GetComponent(T key);
+	Component* GetComponent(T key);
 
-	template <class T> T GetComponent();
+	template <class T> T* GetComponent();
 
 	template <class T>
-	std::vector<Component> GetComponents(T key);
+	std::vector<Component*> GetComponents(T key);
 
 private:
 	void CalculateBonesWorldBounds();
@@ -59,16 +59,16 @@ private:
 	void DirtyParentBounds();
 	void DirtyChildrenBoundses();
 
-	Component ActivateComponent(GameObject self, Component component);
+	Component* ActivateComponent(GameObject* self, Component* component);
 
-	int GetHierarchyUpdateStrategy(GameObject root);
-	bool RecalculateHierarchyUpdateStrategy(GameObject self);
+	int GetHierarchyUpdateStrategy(GameObject* root);
+	bool RecalculateHierarchyUpdateStrategy(GameObject* self);
 
-	void SetActive(GameObject self, bool value);
-	void UpdateChildrenActive(GameObject parent);
+	void SetActive(GameObject* self, bool value);
+	void UpdateChildrenActive(GameObject* parent);
 
 	template <class T>
-	void FireWorldEvent(GameObject self, bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
+	void FireWorldEvent(GameObject* self, bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -79,7 +79,7 @@ private:
 
 	std::string tag_;
 
-	std::vector<Component> components_;
+	std::vector<ref_ptr<Component>> components_;
 
 	uint updateStrategy_;
 	bool updateStrategyDirty_;
@@ -92,7 +92,7 @@ private:
 };
 
 template <class T>
-inline void GameObjectInternal::FireWorldEvent(GameObject self, bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
+inline void GameObjectInternal::FireWorldEvent(GameObject* self, bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
 		T e = NewWorldEvent<T>();
 		e->go = self;
@@ -113,8 +113,8 @@ inline bool GameObjectInternal::CheckComponentDuplicate(T key) {
 }
 
 template <class T>
-inline Component GameObjectInternal::AddComponent(GameObject self, T key) {
-	Component component = suede_dynamic_cast<Component>(Factory::Create(key));
+inline Component* GameObjectInternal::AddComponent(GameObject* self, T key) {
+	Component* component = (Component*)Factory::Create(key);
 	if (component->AllowMultiple() || CheckComponentDuplicate(key)) {
 		return ActivateComponent(self, component);
 	}
@@ -123,7 +123,7 @@ inline Component GameObjectInternal::AddComponent(GameObject self, T key) {
 }
 
 template <>
-inline Component GameObjectInternal::AddComponent(GameObject self, Component key) {
+inline Component* GameObjectInternal::AddComponent(GameObject* self, Component* key) {
 	if (key->AllowMultiple() || CheckComponentDuplicate(key->GetComponentInstanceGUID())) {
 		return ActivateComponent(self, key);
 	}
@@ -132,15 +132,15 @@ inline Component GameObjectInternal::AddComponent(GameObject self, Component key
 }
 
 template <class T>
-inline T GameObjectInternal::GetComponent() {
-	return suede_dynamic_cast<T>(GetComponent(T::element_type::GetComponentGUID()));
+inline T* GameObjectInternal::GetComponent() {
+	return (T*)GetComponent(T::GetComponentGUID());
 }
 
 template <class T>
-Component GameObjectInternal::GetComponent(T key) {
-	for (Component component : components_) {
+Component* GameObjectInternal::GetComponent(T key) {
+	for (ref_ptr<Component>& component : components_) {
 		if (component->IsComponentType(key)) {
-			return component;
+			return component.get();
 		}
 	}
 
@@ -148,11 +148,11 @@ Component GameObjectInternal::GetComponent(T key) {
 }
 
 template <class T>
-std::vector<Component> GameObjectInternal::GetComponents(T key) {
-	std::vector<Component> container;
-	for (Component component : components_) {
+std::vector<Component*> GameObjectInternal::GetComponents(T key) {
+	std::vector<Component*> container;
+	for (ref_ptr<Component>& component : components_) {
 		if (component->IsComponentType(key)) {
-			container.push_back(component);
+			container.push_back(component.get());
 		}
 	}
 

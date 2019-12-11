@@ -3,44 +3,43 @@
 #include "transforminternal.h"
 #include "internal/async/async.h"
 
-ITransform::ITransform() : IComponent(MEMORY_NEW(TransformInternal)) {}
-bool ITransform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
-void ITransform::AddChild(Transform child) { _suede_dptr()->AddChild(this, child); }
-void ITransform::RemoveChild(Transform child) { _suede_dptr()->RemoveChild(child); }
-void ITransform::RemoveChildAt(uint index) { _suede_dptr()->RemoveChildAt(index); }
-void ITransform::SetParent(Transform value) { _suede_dptr()->SetParent(this, value); }
-Transform ITransform::GetParent() const { return _suede_dptr()->GetParent(); }
-Vector3 ITransform::TransformPoint(const Vector3& point) { return _suede_dptr()->TransformPoint(this, point); }
-Vector3 ITransform::TransformDirection(const Vector3& direction) { return _suede_dptr()->TransformDirection(this, direction); }
-Vector3 ITransform::InverseTransformPoint(const Vector3& point) { return _suede_dptr()->InverseTransformPoint(this, point); }
-Vector3 ITransform::InverseTransformDirection(const Vector3& direction) { return _suede_dptr()->InverseTransformDirection(this, direction); }
-Transform ITransform::FindChild(const std::string& path) { return _suede_dptr()->FindChild(path); }
-int ITransform::GetChildCount() { return _suede_dptr()->GetChildCount(); }
-Transform ITransform::GetChildAt(int i) { return _suede_dptr()->GetChildAt(i); }
-ITransform::Enumerable ITransform::GetChildren() { return _suede_dptr()->GetChildren(); }
-void ITransform::SetScale(const Vector3& value) { _suede_dptr()->SetScale(value); }
-void ITransform::SetPosition(const Vector3& value) { _suede_dptr()->SetPosition(value); }
-void ITransform::SetRotation(const Quaternion& value) { _suede_dptr()->SetRotation(value); }
-void ITransform::SetEulerAngles(const Vector3& value) { _suede_dptr()->SetEulerAngles(value); }
-Vector3 ITransform::GetScale() { return _suede_dptr()->GetScale(this); }
-Vector3 ITransform::GetPosition() { return _suede_dptr()->GetPosition(this); }
-Quaternion ITransform::GetRotation() { return _suede_dptr()->GetRotation(this); }
-Vector3 ITransform::GetEulerAngles() { return _suede_dptr()->GetEulerAngles(this); }
-void ITransform::SetLocalScale(const Vector3& value) { _suede_dptr()->SetLocalScale(value); }
-void ITransform::SetLocalPosition(const Vector3& value) { _suede_dptr()->SetLocalPosition(value); }
-void ITransform::SetLocalRotation(const Quaternion& value) { _suede_dptr()->SetLocalRotation(value); }
-void ITransform::SetLocalEulerAngles(const Vector3& value) { _suede_dptr()->SetLocalEulerAngles(value); }
-Vector3 ITransform::GetLocalScale() { return _suede_dptr()->GetLocalScale(this); }
-Vector3 ITransform::GetLocalPosition() { return _suede_dptr()->GetLocalPosition(this); }
-Quaternion ITransform::GetLocalRotation() { return _suede_dptr()->GetLocalRotation(this); }
-Vector3 ITransform::GetLocalEulerAngles() { return _suede_dptr()->GetLocalEulerAngles(this); }
-Matrix4 ITransform::GetLocalToWorldMatrix() { return _suede_dptr()->GetLocalToWorldMatrix(this); }
-Matrix4 ITransform::GetWorldToLocalMatrix() { return _suede_dptr()->GetWorldToLocalMatrix(this); }
-Vector3 ITransform::GetLocalToWorldPosition(const Vector3& position) { return _suede_dptr()->GetLocalToWorldPosition(this, position); }
-Vector3 ITransform::GetWorldToLocalPosition(const Vector3& position) { return _suede_dptr()->GetWorldToLocalPosition(this, position); }
-Vector3 ITransform::GetUp() { return _suede_dptr()->GetUp(this); }
-Vector3 ITransform::GetRight() { return _suede_dptr()->GetRight(this); }
-Vector3 ITransform::GetForward() { return _suede_dptr()->GetForward(this); }
+Transform::Transform() : Component(MEMORY_NEW(TransformInternal)) {}
+bool Transform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
+void Transform::AddChild(Transform* child) { _suede_dptr()->AddChild(this, child); }
+void Transform::RemoveChild(Transform* child) { _suede_dptr()->RemoveChild(child); }
+void Transform::RemoveChildAt(uint index) { _suede_dptr()->RemoveChildAt(index); }
+void Transform::SetParent(Transform* value) { _suede_dptr()->SetParent(this, value); }
+Transform* Transform::GetParent() const { return _suede_dptr()->GetParent(); }
+Vector3 Transform::TransformPoint(const Vector3& point) { return _suede_dptr()->TransformPoint(this, point); }
+Vector3 Transform::TransformDirection(const Vector3& direction) { return _suede_dptr()->TransformDirection(this, direction); }
+Vector3 Transform::InverseTransformPoint(const Vector3& point) { return _suede_dptr()->InverseTransformPoint(this, point); }
+Vector3 Transform::InverseTransformDirection(const Vector3& direction) { return _suede_dptr()->InverseTransformDirection(this, direction); }
+Transform* Transform::FindChild(const std::string& path) { return _suede_dptr()->FindChild(path); }
+int Transform::GetChildCount() { return _suede_dptr()->GetChildCount(); }
+Transform* Transform::GetChildAt(int i) { return _suede_dptr()->GetChildAt(i); }
+void Transform::SetScale(const Vector3& value) { _suede_dptr()->SetScale(value); }
+void Transform::SetPosition(const Vector3& value) { _suede_dptr()->SetPosition(value); }
+void Transform::SetRotation(const Quaternion& value) { _suede_dptr()->SetRotation(value); }
+void Transform::SetEulerAngles(const Vector3& value) { _suede_dptr()->SetEulerAngles(value); }
+Vector3 Transform::GetScale() { return _suede_dptr()->GetScale(this); }
+Vector3 Transform::GetPosition() { return _suede_dptr()->GetPosition(this); }
+Quaternion Transform::GetRotation() { return _suede_dptr()->GetRotation(this); }
+Vector3 Transform::GetEulerAngles() { return _suede_dptr()->GetEulerAngles(this); }
+void Transform::SetLocalScale(const Vector3& value) { _suede_dptr()->SetLocalScale(value); }
+void Transform::SetLocalPosition(const Vector3& value) { _suede_dptr()->SetLocalPosition(value); }
+void Transform::SetLocalRotation(const Quaternion& value) { _suede_dptr()->SetLocalRotation(value); }
+void Transform::SetLocalEulerAngles(const Vector3& value) { _suede_dptr()->SetLocalEulerAngles(value); }
+Vector3 Transform::GetLocalScale() { return _suede_dptr()->GetLocalScale(this); }
+Vector3 Transform::GetLocalPosition() { return _suede_dptr()->GetLocalPosition(this); }
+Quaternion Transform::GetLocalRotation() { return _suede_dptr()->GetLocalRotation(this); }
+Vector3 Transform::GetLocalEulerAngles() { return _suede_dptr()->GetLocalEulerAngles(this); }
+Matrix4 Transform::GetLocalToWorldMatrix() { return _suede_dptr()->GetLocalToWorldMatrix(this); }
+Matrix4 Transform::GetWorldToLocalMatrix() { return _suede_dptr()->GetWorldToLocalMatrix(this); }
+Vector3 Transform::GetLocalToWorldPosition(const Vector3& position) { return _suede_dptr()->GetLocalToWorldPosition(this, position); }
+Vector3 Transform::GetWorldToLocalPosition(const Vector3& position) { return _suede_dptr()->GetWorldToLocalPosition(this, position); }
+Vector3 Transform::GetUp() { return _suede_dptr()->GetUp(this); }
+Vector3 Transform::GetRight() { return _suede_dptr()->GetRight(this); }
+Vector3 Transform::GetForward() { return _suede_dptr()->GetForward(this); }
 
 ZThread::Mutex TransformInternal::hierarchyMutex;
 
@@ -53,20 +52,20 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform
 TransformInternal::~TransformInternal() {
 }
 
-bool TransformInternal::IsAttachedToScene(ITransform* self) {
-	for (; self && self != World::GetRootTransform(); self = self->GetParent().get())
+bool TransformInternal::IsAttachedToScene(Transform* self) {
+	for (; self && self != World::GetRootTransform(); self = self->GetParent())
 		;
 
 	return !!self;
 }
 
-void TransformInternal::AddChild(ITransform* self, Transform child) {
+void TransformInternal::AddChild(Transform* self, Transform* child) {
 	if (std::find(children_.begin(), children_.end(), child) == children_.end()) {
 		child->SetParent(self);
 	}
 }
 
-void TransformInternal::RemoveChild(Transform child) {
+void TransformInternal::RemoveChild(Transform* child) {
 	if (std::find(children_.begin(), children_.end(), child) != children_.end()) {
 		child->SetParent(World::GetRootTransform());
 	}
@@ -74,49 +73,49 @@ void TransformInternal::RemoveChild(Transform child) {
 
 void TransformInternal::RemoveChildAt(uint index) {
 	SUEDE_VERIFY_INDEX(index, children_.size(), SUEDE_NOARG);
-	Transform child = children_[index];
+	Transform* child = children_[index].get();
 	RemoveChild(child);
 }
 
-void TransformInternal::SetParent(ITransform* self, Transform value) {
+void TransformInternal::SetParent(Transform* self, Transform* value) {
 	if (_suede_d_equals(value)) {
 		Debug::LogError("parent can not be itself.");
 		return;
 	}
 
-	ITransform* oldParent = parent_;
+	Transform* oldParent = parent_;
 	if (oldParent != value) {
 		ZTHREAD_LOCK_SCOPE(hierarchyMutex);
 		ChangeParent(self, oldParent, value);
 	}
 }
 
-Vector3 TransformInternal::TransformPoint(ITransform* self, const Vector3& point) {
+Vector3 TransformInternal::TransformPoint(Transform* self, const Vector3& point) {
 	Vector4 p = GetLocalToWorldMatrix(self) * Vector4(point.x, point.y, point.z, 1);
 	return Vector3(p.x, p.y, p.z);
 }
 
-Vector3 TransformInternal::TransformDirection(ITransform* self, const Vector3& direction) {
+Vector3 TransformInternal::TransformDirection(Transform* self, const Vector3& direction) {
 	Vector4 d = GetLocalToWorldMatrix(self) * Vector4(direction.x, direction.y, direction.z, 0);
 	return Vector3(d.x, d.y, d.z);
 }
 
-Vector3 TransformInternal::InverseTransformPoint(ITransform* self, const Vector3& point) {
+Vector3 TransformInternal::InverseTransformPoint(Transform* self, const Vector3& point) {
 	Vector4 p = GetWorldToLocalMatrix(self) * Vector4(point.x, point.y, point.z, 1);
 	return Vector3(p.x, p.y, p.z);
 }
 
-Vector3 TransformInternal::InverseTransformDirection(ITransform* self, const Vector3& direction) {
+Vector3 TransformInternal::InverseTransformDirection(Transform* self, const Vector3& direction) {
 	Vector4 d = GetWorldToLocalMatrix(self) * Vector4(direction.x, direction.y, direction.z, 0);
 	return Vector3(d.x, d.y, d.z);
 }
 
-Transform TransformInternal::FindChild(const std::string& path) {
+Transform* TransformInternal::FindChild(const std::string& path) {
 	const char* back = path.c_str(), *fwd = back;
 
 	TransformInternal* current = this;
 	for (; (fwd = strchr(back, '/')) != nullptr; back = fwd + 1) {
-		Transform child = current->FindDirectChild(std::string(back, fwd));
+		Transform* child = current->FindDirectChild(std::string(back, fwd));
 		if (!child) {
 			return nullptr;
 		}
@@ -196,14 +195,14 @@ void TransformInternal::SetEulerAngles(const Vector3& value) {
 	}
 }
 
-Vector3 TransformInternal::GetScale(ITransform* self) {
+Vector3 TransformInternal::GetScale(Transform* self) {
 	if (IsDirty(WorldScale)) {
 		if (IsDirty(LocalScale)) {
 			Debug::LogError("invalid state");
 		}
 
 		Vector3 scale = GetLocalScale(self);
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			scale *= self->GetScale();
 		}
 
@@ -214,14 +213,14 @@ Vector3 TransformInternal::GetScale(ITransform* self) {
 	return world_.scale;
 }
 
-Vector3 TransformInternal::GetPosition(ITransform* self) {
+Vector3 TransformInternal::GetPosition(Transform* self) {
 	if (IsDirty(WorldPosition)) {
 		if (IsDirty(LocalPosition)) {
 			Debug::LogError("invalid state");
 		}
 
 		Vector3 position = GetLocalPosition(self);
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			position = self->TransformPoint(position);
 		}
 
@@ -232,7 +231,7 @@ Vector3 TransformInternal::GetPosition(ITransform* self) {
 	return world_.position;
 }
 
-Quaternion TransformInternal::GetRotation(ITransform* self) {
+Quaternion TransformInternal::GetRotation(Transform* self) {
 	if (!IsDirty(WorldRotation)) { return world_.rotation; }
 
 	if (!IsDirty(WorldEulerAngles)) {
@@ -256,7 +255,7 @@ Quaternion TransformInternal::GetRotation(ITransform* self) {
 			ClearDirty(LocalRotation);
 		}
 
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			localRotation = self->GetRotation() * localRotation;
 		}
 
@@ -268,7 +267,7 @@ Quaternion TransformInternal::GetRotation(ITransform* self) {
 	return world_.rotation;
 }
 
-Vector3 TransformInternal::GetEulerAngles(ITransform* self) {
+Vector3 TransformInternal::GetEulerAngles(Transform* self) {
 	if (!IsDirty(WorldEulerAngles)) { return world_.eulerAngles; }
 
 	Quaternion worldRotation;
@@ -290,7 +289,7 @@ Vector3 TransformInternal::GetEulerAngles(ITransform* self) {
 			ClearDirty(LocalRotation);
 		}
 
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			localRotation = self->GetRotation() * localRotation;
 		}
 
@@ -368,14 +367,14 @@ void TransformInternal::SetLocalEulerAngles(const Vector3& value) {
 	}
 }
 
-Vector3 TransformInternal::GetLocalScale(ITransform* self) {
+Vector3 TransformInternal::GetLocalScale(Transform* self) {
 	if (IsDirty(LocalScale)) {
 		if (IsDirty(WorldScale)) {
 			Debug::LogError("invalid state");
 		}
 
 		Vector3 scale = GetScale(self);
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			scale /= self->GetScale();
 		}
 
@@ -386,14 +385,14 @@ Vector3 TransformInternal::GetLocalScale(ITransform* self) {
 	return local_.scale;
 }
 
-Vector3 TransformInternal::GetLocalPosition(ITransform* self) {
+Vector3 TransformInternal::GetLocalPosition(Transform* self) {
 	if (IsDirty(LocalPosition)) {
 		if (IsDirty(WorldPosition)) {
 			Debug::LogError("invalid state");
 		}
 
 		Vector3 position = GetPosition(self);
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			position = self->InverseTransformPoint(position);
 		}
 
@@ -404,7 +403,7 @@ Vector3 TransformInternal::GetLocalPosition(ITransform* self) {
 	return local_.position;
 }
 
-Quaternion TransformInternal::GetLocalRotation(ITransform* self) {
+Quaternion TransformInternal::GetLocalRotation(Transform* self) {
 	if (!IsDirty(LocalRotation)) { return local_.rotation; }
 
 	if (!IsDirty(LocalEulerAngles)) {
@@ -424,7 +423,7 @@ Quaternion TransformInternal::GetLocalRotation(ITransform* self) {
 			ClearDirty(WorldRotation);
 		}
 
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			worldRotation = self->GetRotation().GetInversed() * worldRotation;
 		}
 
@@ -436,7 +435,7 @@ Quaternion TransformInternal::GetLocalRotation(ITransform* self) {
 	return local_.rotation;
 }
 
-Vector3 TransformInternal::GetLocalEulerAngles(ITransform* self) {
+Vector3 TransformInternal::GetLocalEulerAngles(Transform* self) {
 	if (!IsDirty(LocalEulerAngles)) { return local_.eulerAngles; }
 
 	Quaternion localRotation;
@@ -458,7 +457,7 @@ Vector3 TransformInternal::GetLocalEulerAngles(ITransform* self) {
 			ClearDirty(WorldRotation);
 		}
 
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			worldRotation = self->GetRotation().GetInversed() * worldRotation;
 		}
 
@@ -474,10 +473,10 @@ Vector3 TransformInternal::GetLocalEulerAngles(ITransform* self) {
 	return local_.eulerAngles;
 }
 
-Matrix4 TransformInternal::GetLocalToWorldMatrix(ITransform* self) {
+Matrix4 TransformInternal::GetLocalToWorldMatrix(Transform* self) {
 	if (IsDirty(LocalToWorldMatrix)) {
 		Matrix4 matrix = Matrix4::TRS(GetLocalPosition(self), GetLocalRotation(self), GetLocalScale(self));
-		if (!IsNullOrRoot(self = self->GetParent().get())) {
+		if (!IsNullOrRoot(self = self->GetParent())) {
 			matrix = self->GetLocalToWorldMatrix() * matrix;
 		}
 
@@ -490,7 +489,7 @@ Matrix4 TransformInternal::GetLocalToWorldMatrix(ITransform* self) {
 	return localToWorldMatrix_;
 }
 
-Matrix4 TransformInternal::GetWorldToLocalMatrix(ITransform* self) {
+Matrix4 TransformInternal::GetWorldToLocalMatrix(Transform* self) {
 	if (IsDirty(WorldToLocalMatrix)) {
 		worldToLocalMatrix_ = GetLocalToWorldMatrix(self).GetInversed();
 		ClearDirty(WorldToLocalMatrix);
@@ -499,25 +498,25 @@ Matrix4 TransformInternal::GetWorldToLocalMatrix(ITransform* self) {
 	return worldToLocalMatrix_;
 }
 
-Vector3 TransformInternal::GetLocalToWorldPosition(ITransform* self, const Vector3& position) {
+Vector3 TransformInternal::GetLocalToWorldPosition(Transform* self, const Vector3& position) {
 	Vector4 p = GetLocalToWorldMatrix(self) * Vector4(position.x, position.y, position.z, 1);
 	return Vector3(p.x, p.y, p.z);
 }
 
-Vector3 TransformInternal::GetWorldToLocalPosition(ITransform* self, const Vector3& position) {
+Vector3 TransformInternal::GetWorldToLocalPosition(Transform* self, const Vector3& position) {
 	Vector4 p = GetWorldToLocalMatrix(self) * Vector4(position.x, position.y, position.z, 1);
 	return Vector3(p.x, p.y, p.z);
 }
 
-Vector3 TransformInternal::GetUp(ITransform* self) {
+Vector3 TransformInternal::GetUp(Transform* self) {
 	return GetRotation(self) * Vector3(0, 1, 0);
 }
 
-Vector3 TransformInternal::GetRight(ITransform* self) {
+Vector3 TransformInternal::GetRight(Transform* self) {
 	return GetRotation(self) * Vector3(1, 0, 0);
 }
 
-Vector3 TransformInternal::GetForward(ITransform* self) {
+Vector3 TransformInternal::GetForward(Transform* self) {
 	return GetRotation(self) * Vector3(0, 0, -1);
 }
 
@@ -538,17 +537,19 @@ void TransformInternal::SetDirty(int bits) {
 }
 
 void TransformInternal::DirtyChildrenScales() {
-	for(Transform transform : GetChildren()) {
+	for (int i = 0; i < GetChildCount(); ++i) {
+		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalScale();
 
-		TransformInternal* child = _suede_rptr(transform);
+		TransformInternal* child = _suede_ref_rptr(transform);
 		child->SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 		child->DirtyChildrenScales();
 	}
 }
 
 void TransformInternal::DirtyChildrenPositions() {
-	for (Transform transform : GetChildren()) {
+	for (int i = 0; i < GetChildCount(); ++i) {
+		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalPosition();
 
 		TransformInternal* child = _suede_rptr(transform);
@@ -558,30 +559,31 @@ void TransformInternal::DirtyChildrenPositions() {
 }
 
 void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
-	for (Transform transform : GetChildren()) {
+	for (int i = 0; i < GetChildCount(); ++i) {
+		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalRotation();
 		transform->GetLocalEulerAngles();
-		TransformInternal* child = _suede_rptr(transform);
+		TransformInternal* child = _suede_ref_rptr(transform);
 		child->SetDirty(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 		child->DirtyChildrenRotationsAndEulerAngles();
 	}
 }
 
-bool TransformInternal::IsNullOrRoot(Transform transform) {
+bool TransformInternal::IsNullOrRoot(Transform* transform) {
 	return !transform || transform == World::GetRootTransform();
 }
 
-Transform TransformInternal::FindDirectChild(const std::string& name) {
+Transform* TransformInternal::FindDirectChild(const std::string& name) {
 	for (int i = 0; i < children_.size(); ++i) {
 		if (name == children_[i]->GetGameObject()->GetName()) {
-			return children_[i];
+			return children_[i].get();
 		}
 	}
 
 	return nullptr;
 }
 
-void TransformInternal::ChangeParent(ITransform* self, Transform oldParent, Transform newParent) {
+void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Transform* newParent) {
 	if (oldParent) { // remove from old parent.
 		TransformInternal* optr = _suede_rptr(oldParent);
 		RemoveChildItem(optr->children_, self);
@@ -600,7 +602,7 @@ void TransformInternal::ChangeParent(ITransform* self, Transform oldParent, Tran
 		newParent->GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 	}
 
-	parent_ = newParent.get();
+	parent_ = newParent;
 
 	// Clear dirty flags.
 	GetScale(self);
@@ -615,7 +617,7 @@ void TransformInternal::ChangeParent(ITransform* self, Transform oldParent, Tran
 	}
 }
 
-bool TransformInternal::AddChildItem(Children & children, Transform child) {
+bool TransformInternal::AddChildItem(Children & children, Transform* child) {
 	if (std::find(children.begin(), children.end(), child) == children.end()) {
 		children.push_back(child);
 		return true;
@@ -624,7 +626,7 @@ bool TransformInternal::AddChildItem(Children & children, Transform child) {
 	return false;
 }
 
-bool TransformInternal::RemoveChildItem(Children& children, Transform child) {
+bool TransformInternal::RemoveChildItem(Children& children, Transform* child) {
 	Children::iterator pos = std::find(children.begin(), children.end(), child);
 	if (pos != children.end()) {
 		children.erase(pos);

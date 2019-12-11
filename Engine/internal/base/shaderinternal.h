@@ -134,7 +134,7 @@ public:
 
 public:
 	std::string GetName() const;
-	bool Load(IShader* self, const std::string& path);
+	bool Load(Shader* self, const std::string& path);
 
 	void Bind(uint ssi, uint pass);
 	void Unbind();

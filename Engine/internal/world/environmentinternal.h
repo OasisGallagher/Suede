@@ -7,8 +7,8 @@ public:
 	EnvironmentInternal() : fogDensity_(0.0001f) {}
 
 public:
-	void SetSkybox(Material value);
-	Material GetSkybox() { return skybox_; }
+	void SetSkybox(Material* value);
+	Material* GetSkybox() { return skybox_.get(); }
 
 	void SetAmbientColor(const Color& value) { ambientColor_ = value; }
 	Color GetAmbientColor() { return ambientColor_; }
@@ -20,8 +20,8 @@ public:
 	float GetFogDensity() { return fogDensity_; }
 
 private:
-	Material skybox_;
 	Color ambientColor_;
+	ref_ptr<Material> skybox_;
 
 	float fogDensity_;
 	Color fogColor_;

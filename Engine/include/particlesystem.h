@@ -16,11 +16,7 @@ struct Particle {
 	Vector3 position;
 };
 
-SUEDE_DEFINE_OBJECT_POINTER(ParticleEmitter)
-SUEDE_DEFINE_OBJECT_POINTER(SphereParticleEmitter)
-SUEDE_DEFINE_OBJECT_POINTER(ParticleAnimator)
-
-class SUEDE_API IParticleEmitter : public IObject {
+class SUEDE_API ParticleEmitter : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(ParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleEmitter)
 
@@ -49,27 +45,27 @@ public:
 	int GetBurstCount();
 
 protected:
-	IParticleEmitter(void* d);
+	ParticleEmitter(void* d);
 };
 
-class SUEDE_API ISphereParticleEmitter : public IParticleEmitter {
+class SUEDE_API SphereParticleEmitter : public ParticleEmitter {
 	SUEDE_DEFINE_METATABLE_NAME(SphereParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(SphereParticleEmitter)
 
 public:
-	ISphereParticleEmitter();
+	SphereParticleEmitter();
 
 public:
 	void SetRadius(float value);
 	float GetRadius();
 };
 
-class SUEDE_API IParticleAnimator : public IObject {
+class SUEDE_API ParticleAnimator : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(ParticleEmitter)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleAnimator)
 
 public:
-	IParticleAnimator();
+	ParticleAnimator();
 
 public:
 	void SetForce(const Vector3& value);
@@ -84,13 +80,13 @@ public:
 	void Update(Particle& particle);
 };
 
-class SUEDE_API IParticleSystem : public IComponent {
+class SUEDE_API ParticleSystem : public Component {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(ParticleSystem)
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleSystem)
 
 public:
-	IParticleSystem();
+	ParticleSystem();
 
 public:
 	void SetDuration(float value);
@@ -108,11 +104,9 @@ public:
 	uint GetParticlesCount() const;
 	const Bounds& GetMaxBounds();
 
-	void SetEmitter(ParticleEmitter value);
-	ParticleEmitter GetEmitter();
+	void SetEmitter(ParticleEmitter* value);
+	ParticleEmitter* GetEmitter();
 
-	void SetParticleAnimator(ParticleAnimator value);
-	ParticleAnimator GetParticleAnimator();
+	void SetParticleAnimator(ParticleAnimator* value);
+	ParticleAnimator* GetParticleAnimator();
 };
-
-SUEDE_DEFINE_OBJECT_POINTER(ParticleSystem)

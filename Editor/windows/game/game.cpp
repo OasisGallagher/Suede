@@ -78,9 +78,9 @@ void Game::init(Ui::Editor* ui) {
 	stat_->setVisible(false);
 
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject)), this, SLOT(onFocusGameObjectBounds(GameObject)));
-	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject>&, const QList<GameObject>&)),
-		this, SLOT(onSelectionChanged(const QList<GameObject>&, const QList<GameObject>&)));
+	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject*)), this, SLOT(onFocusGameObjectBounds(GameObject*)));
+	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
+		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)));
 
 	timer_ = new QTimer(this);
 	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStatContent()));
@@ -102,17 +102,17 @@ void Game::awake() {
 void Game::tick() {
 	if (Input::GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
-		Vector3 src = CameraUtility::GetMain()->GetTransform()->GetPosition();
+		Vector3 src = Camera::GetMain()->GetTransform()->GetPosition();
 		Vector2 mousePosition = Input::GetMousePosition();
-		Vector3 dest = CameraUtility::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
+		Vector3 dest = Camera::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
 
 		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
-			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject>{ hitInfo.gameObject });
+			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject*>{ hitInfo.gameObject });
 		}
 	}
 }
 
-void Game::OnGameObjectImported(GameObject root, const std::string& path) {
+void Game::OnGameObjectImported(GameObject* root, const std::string& path) {
 	//root->GetTransform()->SetParent(World::GetRootTransform());
 	root->SetName(path);
 
@@ -122,7 +122,7 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 		root->GetTransform()->SetScale(Vector3(0.2f));
 		//go->SetParent(camera);
 
-		Animation animation = root->GetComponent<Animation>();
+		Animation* animation = root->GetComponent<Animation>();
 		if (animation) {
 			animation->SetWrapMode(AnimationWrapMode::PingPong);
 			animation->Play("");
@@ -135,12 +135,12 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 			root->GetTransform()->SetScale(Vector3(0.01f));
 		}
 		else if (path.find("suzanne") != std::string::npos) {
-			Texture2D diffuse = new ITexture2D();
+			ref_ptr<Texture2D> diffuse = new Texture2D();
 			diffuse->Load("suzanne/diffuse.dds");
-			GameObject target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
+			GameObject* target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
 
-			Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
-			material->SetTexture(BuiltinProperties::MainTexture, diffuse);
+			Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
+			material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
 
 			root->GetTransform()->SetPosition(Vector3(0, 25, -5));
 			root->GetTransform()->SetEulerAngles(Vector3(0));
@@ -149,25 +149,27 @@ void Game::OnGameObjectImported(GameObject root, const std::string& path) {
 	else if (path == bumpedFbxPath) {
 		root->GetTransform()->SetPosition(Vector3(0, 25, -15));
 
-		GameObject target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
-		Material material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
+		GameObject* target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
+		Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 		material->SetShader(Resources::FindShader("builtin/lit_bumped_texture"));
 
-		Texture2D diffuse = new ITexture2D();
+		ref_ptr<Texture2D> diffuse = new Texture2D();
 		diffuse->Load("bumped/diffuse.jpg");
-		material->SetTexture(BuiltinProperties::MainTexture, diffuse);
+		material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
 
-		Texture2D normal = new ITexture2D();
+		ref_ptr<Texture2D> normal = new Texture2D();
 		normal->Load("bumped/normal.jpg");
-		material->SetTexture(BuiltinProperties::BumpTexture, normal);
+		material->SetTexture(BuiltinProperties::BumpTexture, normal.get());
 	}
 	else if (path == normalVisualizerFbxPath) {
 		root->GetTransform()->SetPosition(Vector3(0, 25, -5));
 		root->GetTransform()->SetEulerAngles(Vector3(0));
 
-		GameObject target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
+		GameObject* target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
 
-		for (Material material : target->GetComponent<MeshRenderer>()->GetMaterials()) {
+		MeshRenderer* renderer = target->GetComponent<MeshRenderer>();
+		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+			Material* material = renderer->GetMaterial(i);
 			//material->SetShader(Resources::FindShader("builtin/normal_visualizer"));
 		}
 	}
@@ -215,22 +217,22 @@ void Game::onShadingModeChanged(const QString& str) {
 	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
-void Game::onFocusGameObjectBounds(GameObject go) {
+void Game::onFocusGameObjectBounds(GameObject* go) {
 	Vector3 center = go->GetBounds().center;
-	Transform camera = CameraUtility::GetMain()->GetTransform();
+	Transform* camera = Camera::GetMain()->GetTransform();
 
-	float distance = calculateCameraDistanceFitsBounds(CameraUtility::GetMain(), go->GetBounds());
+	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), go->GetBounds());
 	camera->SetPosition(center + Vector3(0, 0, -1) * distance);
 
 	Quaternion q(Matrix4::LookAt(camera->GetPosition(), center, Vector3(0, 1, 0)));
 	camera->SetRotation(q.GetConjugated());
 }
 
-void Game::onSelectionChanged(const QList<GameObject>& selected, const QList<GameObject>& deselected) {
+void Game::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
 	gizmos_->setSelection(Hierarchy::instance()->selectedGameObjects());
 }
 
-float Game::calculateCameraDistanceFitsBounds(Camera camera, const Bounds& bounds) {
+float Game::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds) {
 	float f = tanf(camera->GetFieldOfView() / 2.f);
 	float dy = 2 * bounds.size.y / f;
 	float dx = 2 * bounds.size.x / (f * camera->GetAspect());
@@ -244,30 +246,24 @@ void Game::updateStatContent() {
 }
 
 void Game::createScene() {
-	GameObject lightGameObject = new IGameObject();
+	ref_ptr<GameObject> lightGameObject = new GameObject();
 	lightGameObject->SetName("light");
 
-	Light light = lightGameObject->AddComponent<Light>();
+	Light* light = lightGameObject->AddComponent<Light>();
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
 	light->GetTransform()->SetParent(World::GetRootTransform());
 
-	/*World::ImportTo(light, lightModelPath, this);*/
-
-	GameObject cameraGameObject = new IGameObject();
+	ref_ptr<GameObject> cameraGameObject = new GameObject();
 	cameraGameObject->SetName("camera");
 
-	Camera camera = cameraGameObject->AddComponent<Camera>();
-	CameraUtility::SetMain(camera);
+	Camera* camera = cameraGameObject->AddComponent<Camera>();
+	Camera::SetMain(camera);
 	camera->GetTransform()->SetParent(World::GetRootTransform());
 
-	/*RenderTexture targetTexture = new IRenderTexture();
-	targetTexture->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
-	camera->SetTargetTexture(targetTexture);*/
-
-	controller_ = cameraGameObject->AddComponent<CameraController>().get();
+	controller_ = cameraGameObject->AddComponent<CameraController>();
 	controller_->setView(this);
 
-	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>().get();
+	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>();
 
 #ifdef PROJECTOR
 	Projector projector = NewProjector();
@@ -281,7 +277,7 @@ void Game::createScene() {
 	projector->GetTransform()->SetParent(World::GetRootTransform());
 	projector->GetTransform()->SetPosition(Vector3(0, 25, 0));
 
-	Texture2D texture = new ITexture2D();
+	Texture2D texture = new Texture2D();
 	texture->Load("brick_diffuse.jpg");
 	projector->SetTexture(texture);
 #endif // PROJECTOR
@@ -324,10 +320,10 @@ void Game::createScene() {
 
 	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
 
-	Material skybox = new IMaterial();
+	ref_ptr<Material> skybox = new Material();
 	skybox->SetShader(Resources::FindShader("builtin/skybox"));
 
-	TextureCube cube = new ITextureCube();
+	ref_ptr<TextureCube> cube = new TextureCube();
 
 	std::string faces[] = {
 		"lake_skybox/right.jpg",
@@ -339,9 +335,9 @@ void Game::createScene() {
 	};
 
 	cube->Load(faces);
-	skybox->SetTexture(BuiltinProperties::MainTexture, cube);
+	skybox->SetTexture(BuiltinProperties::MainTexture, cube.get());
 	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
-	Environment::SetSkybox(skybox);
+	Environment::SetSkybox(skybox.get());
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
@@ -350,13 +346,13 @@ void Game::createScene() {
 #endif
 	
 #ifdef RENDER_TEXTURE
-	RenderTexture renderTexture = new IRenderTexture();
+	RenderTexture renderTexture = new RenderTexture();
 	renderTexture->Load(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
 	
 #ifdef PARTICLE_SYSTEM
-	GameObject go = NewGameObject();
+	GameObject* go = NewGameObject();
 	ParticleSystem particleSystem = go->AddComponent<ParticleSystem>();
 	go->GetTransform()->SetPosition(Vector3(-30, 20, -50));
 	go->GetTransform()->SetParent(World::GetRootTransform());
@@ -384,12 +380,12 @@ void Game::createScene() {
 	Font font = new IFont();
 	font->Load("fonts/ms_yh.ttf", 12);
 
-	GameObject redText = new IGameObject();
+	GameObject* redText = new GameObject();
 	redText->SetName("RedText");
 	redText->GetTransform()->SetPosition(Vector3(-10, 20, -20));
 	redText->GetTransform()->SetParent(World::GetRootTransform());
 
-	GameObject blueText = new IGameObject();
+	GameObject* blueText = new GameObject();
 	blueText->SetName("BlueText");
 	blueText->GetTransform()->SetPosition(Vector3(-10, 30, -20));
 	blueText->GetTransform()->SetParent(World::GetRootTransform());
@@ -417,19 +413,19 @@ void Game::createScene() {
 #endif
 
 #ifdef ROOM
-	GameObject room = World::Import(roomFbxPath, this);
+	GameObject* room = World::Import(roomFbxPath, this);
 #endif
 
 #ifdef BUMPED
-	GameObject bumped = World::Import(bumpedFbxPath, this);
+	GameObject* bumped = World::Import(bumpedFbxPath, this);
 #endif
 
 #ifdef NORMAL_VISUALIZER
-	GameObject normalVisualizer = World::Import(normalVisualizerFbxPath, this);
+	GameObject* normalVisualizer = World::Import(normalVisualizerFbxPath, this);
 #endif
 
 #ifdef BEAR
-	GameObject bear = World::Import("teddy_bear.fbx", this);
+	GameObject* bear = World::Import("teddy_bear.fbx", this);
 	bear->GetTransform()->SetPosition(Vector3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -440,6 +436,6 @@ void Game::createScene() {
 #endif
 
 #ifdef ANIMATION
-	GameObject man = World::Import(manFbxPath, this);
+	GameObject* man = World::Import(manFbxPath, this);
 #endif
 }
