@@ -6,7 +6,7 @@ Frustum::Frustum() : perspective_(true), matrixDirty_(true) {
 	near_ = 1.f;
 	far_ = 1000.f;
 	aspect_ = 1.3f;
-	fieldOfView_ = Mathf::Pi() / 3.f;
+	fieldOfView_ = Mathf::pi / 3.f;
 	orthographicSize_ = 5;
 	DirtyProjectionMatrix();
 }

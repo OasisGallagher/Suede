@@ -1,16 +1,22 @@
 #pragma once
 
 #include <QDockWidget>
-#include "../winbase.h"
 
-class Lighting : public QDockWidget, public WinSingleton<Lighting> {
+#include "main/childwindow.h"
+
+class LightingWindow : public ChildWindow {
 	Q_OBJECT
 
 public:
-	Lighting(QWidget* parent);
+	enum {
+		WindowType = ChildWindowType::Lighting,
+	};
 
 public:
-	virtual void init(Ui::Editor* ui);
+	LightingWindow(QWidget* parent);
+
+public:
+	virtual void awake();
 
 protected:
 	virtual void showEvent(QShowEvent* event);

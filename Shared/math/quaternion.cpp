@@ -89,7 +89,7 @@ Vector3 Quaternion::GetEulerAngles() const {
 void Quaternion::Pow(Quaternion& q, float x) {
 	//Raising to the power of 0 should yield 1
 	//Needed to prevent a division by 0 error later on
-	if (x > -Mathf::Epsilon() && x < Mathf::Epsilon()) {
+	if (x > -Mathf::epsilon && x < Mathf::epsilon) {
 		q.w = 1;
 		q.x = q.y = q.z = 0;
 	}
@@ -99,7 +99,7 @@ void Quaternion::Pow(Quaternion& q, float x) {
 
 		//Equivalent to raising a real number to a power
 		//Needed to prevent a division by 0 error later on
-		if (fabs(q.w / magnitude) > 1.f - Mathf::Epsilon() && fabs(q.w / magnitude) < 1.f + Mathf::Epsilon()) {
+		if (fabs(q.w / magnitude) > 1.f - Mathf::epsilon && fabs(q.w / magnitude) < 1.f + Mathf::epsilon) {
 			q.w = powf(q.w, x);
 			q.x = q.y = q.z = 0;
 		}
@@ -179,7 +179,7 @@ Quaternion Quaternion::Slerp(const Quaternion& a, const Quaternion& b, float t) 
 	}
 
 	// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
-	if (cosTheta > 1.f - Mathf::Epsilon()) {
+	if (cosTheta > 1.f - Mathf::epsilon) {
 		// Linear interpolation
 		return Quaternion(
 			Mathf::Lerp(a.w, c.w, t),

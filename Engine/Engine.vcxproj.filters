@@ -1525,28 +1525,13 @@
     <ClInclude Include="internal\tools\profilerinternal.h">
       <Filter>internal\tools</Filter>
     </ClInclude>
-    <ClInclude Include="internal\tools\resourcesinternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\tools\screeninternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
     <ClInclude Include="internal\tools\statisticsinternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\tools\tagmanagerinternal.h">
       <Filter>internal\tools</Filter>
     </ClInclude>
     <ClInclude Include="internal\tools\time2internal.h">
       <Filter>internal\tools</Filter>
     </ClInclude>
     <ClInclude Include="internal\world\worldinternal.h">
-      <Filter>internal\world</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\world\environmentinternal.h">
-      <Filter>internal\world</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\world\engineinternal.h">
       <Filter>internal\world</Filter>
     </ClInclude>
     <ClInclude Include="internal\world\decalcreater.h">
@@ -2262,26 +2247,11 @@
     <ClCompile Include="internal\tools\profilerinternal.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
-    <ClCompile Include="internal\tools\resourcesinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\tools\screeninternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
     <ClCompile Include="internal\tools\statisticsinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\tools\tagmanagerinternal.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
     <ClCompile Include="internal\tools\time2internal.cpp">
       <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\world\engineinternal.cpp">
-      <Filter>internal\world</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\world\environmentinternal.cpp">
-      <Filter>internal\world</Filter>
     </ClCompile>
     <ClCompile Include="internal\world\graphicsviewer.cpp">
       <Filter>internal\world</Filter>
@@ -2312,6 +2282,21 @@
     </ClCompile>
     <ClCompile Include="internal\rendering\context.cpp">
       <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\resources.cpp">
+      <Filter>internal\base</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\engine.cpp">
+      <Filter>internal\world</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\environment.cpp">
+      <Filter>internal\world</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\screen.cpp">
+      <Filter>internal\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\tools\tagmanager.cpp">
+      <Filter>internal\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

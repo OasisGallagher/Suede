@@ -120,5 +120,8 @@
     <ClCompile Include="tools\string.cpp">
       <Filter>tools</Filter>
     </ClCompile>
+    <ClCompile Include="math\mathf.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,9 +1,8 @@
+#include "shaderparser.h"
+
 #include "glef.h"
 #include "resources.h"
-#include "math/mathf.h"
-#include "shaderparser.h"
 #include "os/filesystem.h"
-#include "builtinproperties.h"
 #include "internal/base/renderdefines.h"
 
 bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& customDefines) {
@@ -159,7 +158,7 @@ bool GLSLParser::PreprocessInclude(const std::string& parameter) {
 		return false;
 	}
 
-	if (!FileSystem::ReadAllText(Resources::GetShaderDirectory() + target, source)) {
+	if (!FileSystem::ReadAllText(Resources::shaderDirectory + target, source)) {
 		return false;
 	}
 
@@ -355,7 +354,7 @@ ShaderParser::ShaderParser(GLEF* glef) : glef_(glef) {
 
 bool ShaderParser::Parse(Semantics& semantics, const std::string& file, const std::string& customDefines) {
 	SyntaxTree tree;
-	return glef_->Parse((Resources::GetShaderDirectory() + file).c_str(), tree)
+	return glef_->Parse((Resources::shaderDirectory + file).c_str(), tree)
 		&& ParseSemantics(tree, semantics);
 }
 
@@ -477,10 +476,10 @@ void ShaderParser::ReadTexture2DProperty(SyntaxNode* node, Property* property) {
 
 	Texture2D* texture = nullptr;
 	if (value.empty() || value == "white") {
-		texture = Resources::GetWhiteTexture();
+		texture = Texture2D::GetWhiteTexture();
 	}
 	else if (value == "black") {
-		texture = Resources::GetBlackTexture();
+		texture = Texture2D::GetBlackTexture();
 	}
 
 	if (texture != nullptr) {

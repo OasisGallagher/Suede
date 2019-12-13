@@ -56,7 +56,7 @@ void Context::Initialize() {
 	offscreenRT->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
 
 	depthMaterial = new Material();
-	depthMaterial->SetShader(Resources::FindShader("builtin/depth"));
+	depthMaterial->SetShader(Shader::Find("builtin/depth"));
 	depthMaterial->SetRenderQueue((int)RenderQueue::Background - 300);
 
 	ShaderInternal::shaderCreated.subscribe(this, &Context::OnShaderCreated);

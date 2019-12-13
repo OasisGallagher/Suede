@@ -5,23 +5,28 @@
 #include <QItemSelection>
 #include <QAbstractItemDelegate>
 
-#include "../winbase.h"
+#include "main/childwindow.h"
+
 #include "os/filesystem.h"
 
 class FileFinder;
 class QListWidgetItem;
 class QFileSystemModel;
 
-class Project : public QDockWidget, public WinSingleton<Project> {
+class ProjectWindow : public ChildWindow {
 	Q_OBJECT
 
 public:
-	Project(QWidget* parent);
-	~Project();
+	enum {
+		WindowType = ChildWindowType::Project,
+	};
 
 public:
-	virtual void init(Ui::Editor* ui);
-	virtual void awake() {}
+	ProjectWindow(QWidget* parent);
+	~ProjectWindow();
+
+public:
+	virtual void awake();
 
 private slots:
 	void onAddressChanged();

@@ -13,7 +13,7 @@ QMap<QString, QString> QtViewer::skinResources({
 	std::make_pair("Dark",":/qss/style"),
 });
 
-QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv) {
+QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv), editor_(nullptr) {
 // 	QSplashScreen* splash = new QSplashScreen;
 // 	splash->setPixmap(QPixmap(":/images/splash"));
 // 	splash->show();
@@ -43,7 +43,7 @@ QList<QString> QtViewer::builtinSkinNames() {
 }
 
 QString QtViewer::skinName() {
-	return Prefs::instance()->load("skin", defaultSkin).toString();
+	return Prefs::load("skin", defaultSkin).toString();
 }
 
 bool QtViewer::setSkin(const QString& name) {
@@ -62,7 +62,7 @@ bool QtViewer::setSkin(const QString& name) {
 	}
 
 	qApp->setStyleSheet(qss);
-	Prefs::instance()->save("skin", name);
+	Prefs::save("skin", name);
 
 	return true;
 }
@@ -78,10 +78,8 @@ void QtViewer::setupEditor() {
 	editor_ = new Editor();
 	connect(editor_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseEditor()));
 
-	Canvas* c = Game::instance()->canvas();
+	Canvas* c = editor_->childWindow<GameWindow>()->canvas();
 	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
-
-	editor_->init();
 
 	if (SetCanvas(c)) {
 		editor_->awake();

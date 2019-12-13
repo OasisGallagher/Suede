@@ -1,7 +1,9 @@
-#pragma once
 // https://stackoverflow.com/a/35856994/2705388
 
+#pragma once
+
 #include <memory>
+#include <vector>
 #include <algorithm>
 
 // an event holds a vector of subscribers_
@@ -11,7 +13,6 @@ template<class... Args>
 class _SubscriberBase {
 public:
 	virtual int order() = 0;
-	virtual void* callee() = 0;
 	virtual void call(Args... args) = 0;
 	virtual bool instanceof(void* t) = 0;
 	virtual ~_SubscriberBase() {}
@@ -31,7 +32,6 @@ public:
 	_Subscriber(T* _t, void(T::*_f)(Args...), int _order = 0) : t(_t), f(_f), o(_order) {}
 	~_Subscriber() {}
 	int order() { return o; }
-	void* callee() { return t; }
 	void call(Args... args)   final { (t->*f)(args...); }
 	bool instanceof(void* _t) final { return _t == (void*)t; }
 };
@@ -42,6 +42,7 @@ public:
 // We will store pointers to this base-class.
 class _EventBase {
 public:
+	virtual ~_EventBase() {}
 	virtual void unsubscribe(void* t) = 0;
 };
 
@@ -49,31 +50,31 @@ template<class... Args>
 class event : public _EventBase {
 public:
 	using smart_ptr_type = std::shared_ptr<_SubscriberBase<Args...>>;
-	void fire(Args... args) {
-		firing_ = true;
+	void raise(Args... args) {
+		inside_raise_ = true;
 		int size = subscribers_.size();
 		for (int i = 0; i < size; ++i) {
 			subscribers_[i]->call(args...);
 		}
 
-		firing_ = false;
+		inside_raise_ = false;
 
-		for (auto& t : to_remove) {
+		for (auto& t : to_remove_) {
 			erase_subscriber(t);
 		}
 
-		to_remove.clear();
+		to_remove_.clear();
 	}
 
 	template<class T>
 	void subscribe(T* t, void(T::*f)(Args... args)) {
-		auto s = new _Subscriber <T, Args...>(t, f);
-		subscribers_.push_back(smart_ptr_type(s));
+		smart_ptr_type s(new _Subscriber <T, Args...>(t, f));
+		subscribers_.push_back(s);
 	}
 
 	void unsubscribe(void* t) final {
-		if (firing_) {
-			to_remove.push_back(t);
+		if (inside_raise_) {
+			to_remove_.push_back(t);
 		}
 		else {
 			erase_subscriber(t);
@@ -90,8 +91,8 @@ private:
 	}
 
 protected:
-	bool firing_ = false;
-	std::vector<void*> to_remove;
+	bool inside_raise_ = false;
+	std::vector<void*> to_remove_;
 	std::vector<smart_ptr_type> subscribers_;
 };
 
@@ -104,20 +105,20 @@ class sorted_event : public event<Args...> {
 	};
 
 public:
-	void fire(Args... args) {
-		event<Args...>::fire(args...);
-		for (auto& s : to_add) {
+	void raise(Args... args) {
+		event<Args...>::raise(args...);
+		for (auto& s : to_add_) {
 			add_subscriber(s);
 		}
 
-		to_add.clear();
+		to_add_.clear();
 	}
 
 	template <class T>
 	void subscribe(T* t, void(T::*f)(Args... args), int order) {
 		smart_ptr_type s(new _Subscriber <T, Args...>(t, f, order));
-		if (firing_) {
-			to_add.push_back(s);
+		if (inside_raise_) {
+			to_add_.push_back(s);
 		}
 		else {
 			add_subscriber(s);
@@ -130,5 +131,5 @@ private:
 	}
 
 private:
-	std::vector<smart_ptr_type> to_add;
+	std::vector<smart_ptr_type> to_add_;
 };

@@ -7,7 +7,7 @@
 
 ShadowMap::ShadowMap(RenderTexture* target) : shadowDepthTexture_(target){
 	directionalLightShadowMaterial_ = new Material();
-	directionalLightShadowMaterial_->SetShader(Resources::FindShader("builtin/directional_light_depth"));
+	directionalLightShadowMaterial_->SetShader(Shader::Find("builtin/directional_light_depth"));
 	directionalLightShadowMaterial_->SetRenderQueue((int)RenderQueue::Background - 200);
 }
 

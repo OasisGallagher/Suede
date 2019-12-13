@@ -24,7 +24,7 @@ bool DecalCreater::CreateGameObjectDecal(Camera* camera, DecalInfo& info, GameOb
 
 DecalCreater::DecalCreater() : decalInfos_(SUEDE_MAX_DECALS) {
 	material_ = new Material();
-	material_->SetShader(Resources::FindShader("builtin/decal"));
+	material_->SetShader(Shader::Find("builtin/decal"));
 	material_->SetRenderQueue((int)RenderQueue::Overlay - 500);
 }
 

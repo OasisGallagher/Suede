@@ -2,7 +2,7 @@
 #include "math/mathf.h"
 #include "debug/debug.h"
 #include "cameracontroller.h"
-#include "windows/hierarchy/hierarchy.h"
+#include "windows/hierarchy/hierarchywindow.h"
 
 #define ARC_BALL
 
@@ -81,9 +81,7 @@ void CameraController::moveCamera(const Vector2& mousePos, Vector2& oldPos) {
 }
 
 void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& oldPos) {
-	GameObject* selected = Hierarchy::instance()->selectedGameObject();
-
-	if (!selected || selected->GetTransform()->GetPosition() == camera_->GetPosition()) {
+	if (!selection_ || selection_->GetTransform()->GetPosition() == camera_->GetPosition()) {
 		return;
 	}
 
@@ -95,10 +93,10 @@ void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& 
 		Quaternion rot(Vector3::Dot(va, vb), Vector3::Cross(va, vb));
 		Quaternion::Pow(rot, 1 / 5.f);
 
-		Vector3 dir = camera_->GetPosition() - selected->GetTransform()->GetPosition();
-		camera_->SetPosition(selected->GetTransform()->GetPosition() + rot * dir);
+		Vector3 dir = camera_->GetPosition() - selection_->GetTransform()->GetPosition();
+		camera_->SetPosition(selection_->GetTransform()->GetPosition() + rot * dir);
 
-		Vector3 forward = -(selected->GetTransform()->GetPosition() - camera_->GetPosition()).GetNormalized();
+		Vector3 forward = -(selection_->GetTransform()->GetPosition() - camera_->GetPosition()).GetNormalized();
 		Vector3 up = rot * camera_->GetUp();
 		Vector3 right = Vector3::Cross(up, forward);
 		up = Vector3::Cross(forward, right);
@@ -112,19 +110,19 @@ void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& 
 
 		camera_->SetRotation(Quaternion(rotMatrix).GetNormalized());
 #else
-		Vector3 bp(camera_->GetPosition() - selected->GetTransform()->GetPosition());
+		Vector3 bp(camera_->GetPosition() - selection_->GetTransform()->GetPosition());
 
 		Vector2 delta = mousePos - oldPos;
 		Quaternion qx(rotateSpeed_.x * delta.x, camera_->GetUp());
 		Quaternion qy(rotateSpeed_.y * delta.y, camera_->GetRight());
 
 		qx *= qy;
-		
-		bp = qx * bp + selected->GetTransform()->GetPosition();
+
+		bp = qx * bp + selection_->GetTransform()->GetPosition();
 
 		camera_->SetPosition(bp);
 
-		Quaternion q(Matrix4::lookAt(camera_->GetPosition(), selected->GetTransform()->GetPosition(), Vector3(0, 1, 0)));
+		Quaternion q(Matrix4::lookAt(camera_->GetPosition(), selection_->GetTransform()->GetPosition(), Vector3(0, 1, 0)));
 		camera_->SetRotation(q.getConjugated());
 #endif
 

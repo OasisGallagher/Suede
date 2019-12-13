@@ -133,9 +133,6 @@ public:
 	~ShaderInternal();
 
 public:
-	static bool LoadParser(const std::string& path);
-
-public:
 	std::string GetName() const;
 	bool Load(Shader* self, const std::string& path);
 

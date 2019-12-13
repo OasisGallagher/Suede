@@ -14,6 +14,12 @@ typedef uint suede_guid;
 #define SUEDE_API __declspec(dllimport)
 #endif
 
+#ifdef SUEDE_MATH_EXPORT
+#define SUEDE_MATH_API __declspec(dllexport)
+#else
+#define SUEDE_MATH_API __declspec(dllimport)
+#endif
+
 template <class T>
 class SuedeEnumerable {
 public:

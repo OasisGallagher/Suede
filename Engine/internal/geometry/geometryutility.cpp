@@ -184,13 +184,13 @@ PlaneSide GeometryUtility::TestSide(const Plane& plane, const Vector3* points, u
 
 void GeometryUtility::GetSphereCoodrinates(std::vector<Vector3>& points, std::vector<uint>& indexes, const Vector2& resolution) {
 	// step size between U-points on the grid
-	Vector2 step = Vector2(Mathf::Pi() * 2, Mathf::Pi()) / Vector2(resolution);
+	Vector2 step = Vector2(Mathf::pi * 2, Mathf::pi) / Vector2(resolution);
 
 	for (float i = 0; i < resolution.x; ++i) { // U-points
 		for (float j = 0; j < resolution.y; ++j) { // V-points
 			Vector2 uv = Vector2(i, j) * step;
-			float un = ((i + 1) == resolution.x) ? Mathf::Pi() * 2 : (i + 1) * step.x;
-			float vn = ((j + 1) == resolution.y) ? Mathf::Pi() : (j + 1) * step.y;
+			float un = ((i + 1) == resolution.x) ? Mathf::pi * 2 : (i + 1) * step.x;
+			float vn = ((j + 1) == resolution.y) ? Mathf::pi : (j + 1) * step.y;
 
 			// Find the four points of the grid square by evaluating the parametric urface function.
 			Vector3 p[] = {

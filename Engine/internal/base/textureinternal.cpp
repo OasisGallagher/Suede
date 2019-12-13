@@ -26,6 +26,26 @@ uint Texture::GetWidth() const { return _suede_dptr()->GetWidth(); }
 uint Texture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
 Texture2D::Texture2D() : Texture(new Texture2DInternal) {}
+Texture2D* Texture2D::GetWhiteTexture() {
+	static ref_ptr<Texture2D> texture = new Texture2D();
+	if (!texture) {
+		uint color = 0xffffffff;
+		texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
+	}
+
+	return texture.get();
+}
+
+Texture2D*  Texture2D::GetBlackTexture() {
+	static ref_ptr<Texture2D> texture = new Texture2D();
+	if (!texture) {
+		uint color = 0xff000000;
+		texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
+	}
+
+	return texture.get();
+}
+
 bool Texture2D::Load(const std::string& path) { return _suede_dptr()->Load(path); }
 bool Texture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	return _suede_dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
@@ -300,7 +320,7 @@ Texture2DInternal::~Texture2DInternal() {
 
 bool Texture2DInternal::Load(const std::string& path) {
 	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + path)) {
+	if (!ImageCodec::Decode(texelMap, Resources::textureDirectory + path)) {
 		return false;
 	}
 
@@ -385,7 +405,7 @@ TextureCubeInternal::~TextureCubeInternal() {
 bool TextureCubeInternal::Load(const std::string textures[6]) {
 	TexelMap texelMaps[6];
 	for (int i = 0; i < 6; ++i) {
-		if (!ImageCodec::Decode(texelMaps[i], Resources::GetTextureDirectory() + textures[i])) {
+		if (!ImageCodec::Decode(texelMaps[i], Resources::textureDirectory + textures[i])) {
 			return false;
 		}
 	}

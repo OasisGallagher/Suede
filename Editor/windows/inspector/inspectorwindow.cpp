@@ -1,4 +1,4 @@
-#include "inspector.h"
+#include "inspectorwindow.h"
 
 #include <gl/glew.h>
 
@@ -6,7 +6,7 @@
 #include <QMetaProperty>
 
 #include "gui.h"
-#include "ui_editor.h"
+#include "main/editor.h"
 #include "materialeditor.h"
 
 #include "resources.h"
@@ -15,19 +15,7 @@
 #include "os/filesystem.h"
 #include "gui/qtimgui/QtImGui.h"
 
-Inspector::Inspector(QWidget* parent) : QDockWidget(parent) {
-}
-
-Inspector::~Inspector() {
-	QtImGui::destroy(view_);
-}
-
-void Inspector::init(Ui::Editor* ui) {
-	WinBase::init(ui);
-
-	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
-		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)));
-
+InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
 	addSuedeMetaObject(ObjectType::Transform, std::make_shared<TransformMetaObject>());
 
 	addSuedeMetaObject(ObjectType::Light, std::make_shared<LightMetaObject>());
@@ -41,22 +29,31 @@ void Inspector::init(Ui::Editor* ui) {
 	addSuedeMetaObject(ObjectType::SkinnedMeshRenderer, std::make_shared<SkinnedMeshRendererMetaObject>());
 }
 
-void Inspector::awake() {
-	view_ = new QGLWidget(ui_->inspectorView, Game::instance()->canvas());
+InspectorWindow::~InspectorWindow() {
+	QtImGui::destroy(view_);
+}
+
+void InspectorWindow::awake() {
+	connect(editor_->childWindow<HierarchyWindow>(), 
+		SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
+		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&))
+	);
+
+	view_ = new QGLWidget(ui_->inspectorView, editor_->childWindow<GameWindow>()->canvas());
 	ui_->inspectorViewLayout->addWidget(view_);
 
 	QtImGui::create(view_);
 	GUI::LoadFont("resources/fonts/tahoma.ttf");
 
 	view_->setFocusPolicy(Qt::StrongFocus);
-	blackTextureID_ = Resources::GetBlackTexture()->GetNativePointer();
+	blackTextureID_ = Texture2D::GetBlackTexture()->GetNativePointer();
 }
 
-void Inspector::tick() {
+void InspectorWindow::tick() {
 	onGui();
 }
 
-void Inspector::onGui() {
+void InspectorWindow::onGui() {
 	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
 	view_->makeCurrent();
 
@@ -84,12 +81,12 @@ void Inspector::onGui() {
 	MaterialEditor::runMainContextCommands();
 }
 
-void Inspector::drawGui() {
+void InspectorWindow::drawGui() {
 	drawBasics();
 	drawComponents();
 }
 
-void Inspector::drawBasics() {
+void InspectorWindow::drawBasics() {
 	bool active = target_->GetActive();
 	if (GUI::Toggle("Active", active)) {
 		target_->SetActiveSelf(active);
@@ -105,7 +102,7 @@ void Inspector::drawBasics() {
 	drawTags();
 }
 
-void Inspector::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
+void InspectorWindow::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
 	// SUEDE TODO: multi-selection.
 	if (!selected.empty()) {
 		target_ = selected.front();
@@ -115,11 +112,11 @@ void Inspector::onSelectionChanged(const QList<GameObject*>& selected, const QLi
 	}
 }
 
-void Inspector::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo) {
+void InspectorWindow::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo) {
 	suedeMetaObjects_.insert(std::make_pair(type, mo));
 }
 
-void Inspector::drawComponents() {
+void InspectorWindow::drawComponents() {
 	GUI::Indent();
 	for (Component* component : target_->GetComponents("")) {
 		std::string typeName;
@@ -146,8 +143,8 @@ void Inspector::drawComponents() {
 	GUI::Unindent();
 }
 
-void Inspector::drawTags() {
-	const Tags& tags = TagManager::GetAllTags();
+void InspectorWindow::drawTags() {
+	auto& tags = TagManager::GetAllTags();
 	int selected = std::find(tags.begin(), tags.end(), target_->GetTag()) - tags.begin();
 	if (selected >= tags.size()) { selected = -1; }
 
@@ -156,7 +153,7 @@ void Inspector::drawTags() {
 	}
 }
 
-void Inspector::drawMetaObject(QObject* object) {
+void InspectorWindow::drawMetaObject(QObject* object) {
 	const QMetaObject* meta = object->metaObject();
 	for (int i = 0; i < meta->propertyCount(); ++i) {
 		QMetaProperty p = meta->property(i);
@@ -171,7 +168,7 @@ void Inspector::drawMetaObject(QObject* object) {
 	}
 }
 
-void Inspector::drawBuiltinType(const QMetaProperty& p, QObject* object, const char* name) {
+void InspectorWindow::drawBuiltinType(const QMetaProperty& p, QObject* object, const char* name) {
 	QVariant::Type type = p.type();
 	if (type == QMetaType::Bool) {
 		bool b = object->property(name).toBool();
@@ -193,7 +190,7 @@ void Inspector::drawBuiltinType(const QMetaProperty& p, QObject* object, const c
 	}
 }
 
-void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char* name) {
+void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, const char* name) {
 	int userType = p.userType();
 	if (userType == QMetaTypeId<Vector2>::qt_metatype_id()) {
 		drawUserVectorType(object, name, GUI::Float2Field);
@@ -246,7 +243,7 @@ void Inspector::drawUserType(const QMetaProperty& p, QObject* object, const char
 	}
 }
 
-void Inspector::drawMaterialVector(QObject* object, const char* name) {
+void InspectorWindow::drawMaterialVector(QObject* object, const char* name) {
 	int materialIndex = 0;
 	for (Material* material : object->property(name).value<QVector<Material*>>()) {
 		if (materialIndex != 0) { GUI::Separator(); }
@@ -261,7 +258,7 @@ void Inspector::drawMaterialVector(QObject* object, const char* name) {
 	}
 }
 
-QObject* Inspector::componentMetaObject(Component* component, std::string& typeName) {
+QObject* InspectorWindow::componentMetaObject(Component* component, std::string& typeName) {
 	QObject* object = nullptr;
 	ObjectType type = component->GetObjectType();
 	if (type != ObjectType::CustomBehaviour) {

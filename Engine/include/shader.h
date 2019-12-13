@@ -23,11 +23,10 @@ public:
 	Shader();
 
 public:
-	static bool LoadParser(const std::string& path);
+	static Shader* Find(const std::string& path);
 
 public:
 	std::string GetName() const;
-	bool Load(const std::string& path);
 
 	void Bind(uint ssi, uint pass);
 	void Unbind();

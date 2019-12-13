@@ -2,7 +2,6 @@
 #include "engine.h"
 #include "graphicsviewer.h"
 #include "graphicscanvas.h"
-#include "engineinternal.h"
 
 #include "memory/refptr.h"
 

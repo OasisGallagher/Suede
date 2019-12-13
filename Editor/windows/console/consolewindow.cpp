@@ -1,17 +1,17 @@
+#include "consolewindow.h"
+
 #include <QThread>
 #include <QSplitter>
 #include <QMessageBox>
 #include <QHeaderView>
 
-#include "console.h"
-#include "ui_editor.h"
+#include "main/editor.h"
 #include "debug/debug.h"
 
-Console::Console(QWidget* parent) : QDockWidget(parent) {
+ConsoleWindow::ConsoleWindow(QWidget* parent) : ChildWindow(parent) {
 }
 
-void Console::init(Ui::Editor* ui) {
-	WinBase::init(ui);
+void ConsoleWindow::awake() {
 	ui_->table = findChild<QTableWidget*>("table");
 	ui_->table->horizontalHeader()->setStretchLastSection(true);
 	ui_->table->horizontalHeader()->setVisible(false);
@@ -25,28 +25,28 @@ void Console::init(Ui::Editor* ui) {
 	ui_->filter->setEnums(+ConsoleMessageType::Everything);
 }
 
-void Console::tick() {
+void ConsoleWindow::tick() {
 	if (!messagesToShow_.empty()) {
 		flushMessages();
 	}
 }
 
-void Console::onClearMessages() {
+void ConsoleWindow::onClearMessages() {
 	messages_.clear();
 	ui_->table->setRowCount(0);
 }
 
-void Console::onSelectionChanged(int mask) {
+void ConsoleWindow::onSelectionChanged(int mask) {
 	mask_ = mask;
 	filterMessageByType(mask);
 }
 
-void Console::onSearchTextChanged(const QString& text) {
+void ConsoleWindow::onSearchTextChanged(const QString& text) {
 	substr_ = text;
 	filterMessageBySubString(text);
 }
 
-void Console::addMessage(ConsoleMessageType type, const QString& message) {
+void ConsoleWindow::addMessage(ConsoleMessageType type, const QString& message) {
 	QString encodedMessage = (type + '0') + message;
 	if ((type & mask_) != 0 && (substr_.isEmpty() || message.contains(substr_))) {
 		if (QThread::currentThread() != thread()) {
@@ -61,7 +61,7 @@ void Console::addMessage(ConsoleMessageType type, const QString& message) {
 	messages_.push_back(encodedMessage);
 }
 
-void Console::flushMessages() {
+void ConsoleWindow::flushMessages() {
 	QMutexLocker locker(&mutex_);
 	for (QString message : messagesToShow_) {
 		showMessage(message);
@@ -70,7 +70,7 @@ void Console::flushMessages() {
 	messagesToShow_.clear();
 }
 
-void Console::filterMessageByType(int mask) {
+void ConsoleWindow::filterMessageByType(int mask) {
 	ui_->table->setRowCount(0);
 
 	for (QString msg : messages_) {
@@ -81,7 +81,7 @@ void Console::filterMessageByType(int mask) {
 	}
 }
 
-void Console::filterMessageBySubString(const QString& substr) {
+void ConsoleWindow::filterMessageBySubString(const QString& substr) {
 	ui_->table->setRowCount(0);
 
 	for (QString msg : messages_) {
@@ -92,7 +92,7 @@ void Console::filterMessageBySubString(const QString& substr) {
 	}
 }
 
-const char* Console::messageIconPath(ConsoleMessageType type) {
+const char* ConsoleWindow::messageIconPath(ConsoleMessageType type) {
 	const char* path = "";
 	switch (type) {
 		case ConsoleMessageType::Debug:
@@ -109,27 +109,27 @@ const char* Console::messageIconPath(ConsoleMessageType type) {
 	return path;
 }
 
-void Console::showMessage(const QString& encodedMessage) {
+void ConsoleWindow::showMessage(const QString& encodedMessage) {
 	int type = encodedMessage.at(0).toLatin1() - '0';
 	showMessage(ConsoleMessageType(type), encodedMessage.right(encodedMessage.length() - 1));
 }
 
-void Console::showMessage(ConsoleMessageType type, const QString& message) {
+void ConsoleWindow::showMessage(ConsoleMessageType type, const QString& message) {
 	int r = ui_->table->rowCount();
 	ui_->table->insertRow(r);
 	ui_->table->setColumnWidth(0, 24);
 
-	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
-	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
-	ui_->table->setItem(r, 0, icon);
-	ui_->table->setItem(r, 1, text);
+	//QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
+	//QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
+	//ui_->table->setItem(r, 0, icon);
+	//ui_->table->setItem(r, 1, text);
 
 	if (type == ConsoleMessageType::Error) {
 		onErrorMessage(message);
 	}
 }
 
-void Console::onErrorMessage(const QString& message) {
+void ConsoleWindow::onErrorMessage(const QString& message) {
 	switch (QMessageBox::critical(this, "", message, QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore)) {
 		case QMessageBox::Retry:
 			Debug::Break();

@@ -15,11 +15,11 @@ AmbientOcclusion::AmbientOcclusion(RenderTexture* target) : ssaoRT_(target) {
 	ssaoTraversalRT_->AddColorTexture(TextureFormat::Rgb32F);
 
 	ssaoMaterial_ = new Material();
-	ssaoMaterial_->SetShader(Resources::FindShader("builtin/ssao"));
+	ssaoMaterial_->SetShader(Shader::Find("builtin/ssao"));
 	ssaoMaterial_->SetRenderQueue((int)RenderQueue::Background);
 
 	ssaoTraversalMaterial_ = new Material();
-	ssaoTraversalMaterial_->SetShader(Resources::FindShader("builtin/ssao_traversal"));
+	ssaoTraversalMaterial_->SetShader(Shader::Find("builtin/ssao_traversal"));
 	ssaoTraversalMaterial_->SetRenderQueue((int)RenderQueue::Background);
 
 	InitializeKernel();

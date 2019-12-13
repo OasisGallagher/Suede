@@ -74,7 +74,7 @@ void MaterialInternal::SetShader(Material* self, Shader* value) {
 	CopyProperties(value);
 	InitializeEnabledState();
 
-	shaderChanged.fire(self);
+	shaderChanged.raise(self);
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {

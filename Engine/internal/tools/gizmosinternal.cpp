@@ -31,7 +31,7 @@ GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	mesh_ = new Mesh();
 
 	lineMaterial_ = new Material();
-	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
+	lineMaterial_->SetShader(Shader::Find("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", Matrix4(1));
 
 	Engine::frameLeave.subscribe(this, &GizmosInternal::OnFrameLeave, (int)FrameEventQueue::Gizmos);
@@ -129,7 +129,7 @@ void GizmosInternal::AddSphereBatch(const Vector3& center, float radius, bool wi
 	GeometryUtility::GetSphereCoodrinates(points, indexes, Vector2(15));
 
 	Material* material = new Material();
-	material->SetShader(Resources::FindShader("builtin/gizmos"));
+	material->SetShader(Shader::Find("builtin/gizmos"));
 	material->SetMatrix4("localToWorldMatrix", Matrix4::TRS(center, Quaternion(), Vector3(radius)));
 
 	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, material), &points[0], points.size(), &indexes[0], indexes.size());

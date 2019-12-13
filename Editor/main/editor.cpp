@@ -10,10 +10,8 @@
 
 #include "prefs.h"
 
+#include "childwindow.h"
 #include "../widgets/status/statusbar.h"
-
-#include "../windows/project/project.h"
-#include "../windows/lighting/lighting.h"
 
 #include "../widgets/dialogs/aboutdialog.h"
 #include "../widgets/dialogs/colorpicker.h"
@@ -30,8 +28,6 @@ namespace PrefsKeys {
 }
 
 Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr), flush_(false), logFile_(LOG_PATH) {
-	Debug::SetLogReceiver(this);
-
 	logFile_.open(QFile::WriteOnly);
 	logStream_.setDevice(&logFile_);
 
@@ -48,11 +44,10 @@ Editor::~Editor() {
 	logFile_.close();
 	delete[] childWindows_;
 	ColorPicker::destroy();
-	Debug::SetLogReceiver(nullptr);
 }
 
 void Editor::setupUI() {
-	ui.setupUi(this);
+	ui_.setupUi(this);
 
 	QWidget* cw = takeCentralWidget();
 	delete cw;
@@ -61,18 +56,17 @@ void Editor::setupUI() {
 
 	setDockNestingEnabled(true);
 
-	childWindows_ = new QDockWidget*[ChildWindowType::size()];
+	childWindows_ = new ChildWindow*[ChildWindowType::size()];
 
-	childWindows_[ChildWindowType::Game] = Game::instance();
-	childWindows_[ChildWindowType::Console] = Console::instance();
-	childWindows_[ChildWindowType::Project] = Project::instance();
-	childWindows_[ChildWindowType::Inspector] = Inspector::instance();
-	childWindows_[ChildWindowType::Hierarchy] = Hierarchy::instance();
-	childWindows_[ChildWindowType::Lighting] = Lighting::instance();
+	childWindows_[ChildWindowType::Game] = ui_.game;
+	childWindows_[ChildWindowType::Console] = ui_.console;
+	childWindows_[ChildWindowType::Project] = ui_.project;
+	childWindows_[ChildWindowType::Inspector] = ui_.inspector;
+	childWindows_[ChildWindowType::Hierarchy] = ui_.hierarchy;
+	childWindows_[ChildWindowType::Lighting] = ui_.lighting;
 
-	QSettings settings(LAYOUT_PATH, QSettings::IniFormat);
-	QByteArray state = Prefs::instance()->load(PrefsKeys::state).toByteArray();
-	QByteArray geom = Prefs::instance()->load(PrefsKeys::geometry).toByteArray();
+	QByteArray state = Prefs::load(PrefsKeys::state).toByteArray();
+	QByteArray geom = Prefs::load(PrefsKeys::geometry).toByteArray();
 	
 	if (state.isEmpty() || geom.isEmpty()) {
 		initializeLayout();
@@ -83,21 +77,18 @@ void Editor::setupUI() {
 	}
 }
 
-void Editor::init() {
-	for (int i = 0; i < ChildWindowType::size(); ++i) {
-		dynamic_cast<WinBase*>(childWindows_[i])->init(&ui);
-	}
-}
-
 void Editor::awake() {
+	Debug::logReceived.subscribe(this, &Editor::onLogMessage);
+	Debug::logReceived.unsubscribe(this);
+
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
-		dynamic_cast<WinBase*>(childWindows_[i])->awake();
+		childWindows_[i]->awake();
 	}
 }
 
 void Editor::tick() {
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
-		dynamic_cast<WinBase*>(childWindows_[i])->tick();
+		childWindows_[i]->tick();
 	}
 
 	if (flush_) {
@@ -106,19 +97,9 @@ void Editor::tick() {
 	}
 }
 
-void Editor::showChildWindow(ChildWindowType index, bool show) {
-	Q_ASSERT(index >= 0 && index < ChildWindowType::size());
-	childWindows_[index]->setVisible(show);
-}
-
-bool Editor::childWindowVisible(ChildWindowType index) {
-	Q_ASSERT(index >= 0 && index < ChildWindowType::size());
-	return childWindows_[index]->isVisible();
-}
-
 void Editor::closeEvent(QCloseEvent *event) {
-	Prefs::instance()->save(PrefsKeys::state, saveState(PrefsKeys::stateVersion));
-	Prefs::instance()->save(PrefsKeys::geometry, saveGeometry());
+	Prefs::save(PrefsKeys::state, saveState(PrefsKeys::stateVersion));
+	Prefs::save(PrefsKeys::geometry, saveGeometry());
 
 	QMainWindow::closeEvent(event);
 	emit aboutToClose();
@@ -150,7 +131,7 @@ void Editor::onAbout() {
 void Editor::onShowWindowMenu() {
 	QList<QAction*> actions = menuBar()->findChild<QMenu*>("window")->actions();
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
-		actions[i]->setChecked(childWindowVisible((ChildWindowType)i));
+		actions[i]->setChecked(childWindows_[i]->isVisible());
 	}
 }
 
@@ -192,7 +173,7 @@ void Editor::onScreenCapture() {
 	}
 }
 
-void Editor::OnLogMessage(LogLevel level, const char* message) {
+void Editor::onLogMessage(LogLevel level, const char* message) {
 	ConsoleMessageType type;
 	switch (level) {
 		case LogLevel::Debug:
@@ -209,7 +190,7 @@ void Editor::OnLogMessage(LogLevel level, const char* message) {
 	}
 
 	writeLog(type, message);
-	Console::instance()->addMessage(type, message);
+	ui_.console->addMessage(type, message);
 }
 
 void Editor::initializeFileMenu() {
@@ -245,13 +226,13 @@ void Editor::initializeWindowMenu() {
 }
 
 void Editor::initializeLayout() {
-	addDockWidget(Qt::TopDockWidgetArea, Game::instance());
-	splitDockWidget(Hierarchy::instance(), Game::instance(), Qt::Horizontal);
-	splitDockWidget(Game::instance(), Inspector::instance(), Qt::Horizontal);
-	splitDockWidget(Game::instance(), Console::instance(), Qt::Vertical);
-	tabifyDockWidget(Console::instance(), Project::instance());
+	addDockWidget(Qt::TopDockWidgetArea, ui_.game);
+	splitDockWidget(ui_.hierarchy, ui_.game, Qt::Horizontal);
+	splitDockWidget(ui_.game, ui_.inspector, Qt::Horizontal);
+	splitDockWidget(ui_.game, ui_.console, Qt::Vertical);
+	tabifyDockWidget(ui_.console, ui_.project);
 
-	showChildWindow(ChildWindowType::Lighting, false);
+	childWindow<LightingWindow>()->setVisible(false);
 }
 
 void Editor::initializeHelpMenu() {
@@ -264,7 +245,7 @@ void Editor::onToggleWindowVisible() {
 	QList<QAction*> actions = menuBar()->findChild<QMenu*>("window")->actions();
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		if (actions[i] == sender()) {
-			showChildWindow((ChildWindowType)i, !childWindowVisible((ChildWindowType)i));
+			childWindows_[i]->setVisible(!childWindows_[i]->isVisible());
 			break;
 		}
 	}

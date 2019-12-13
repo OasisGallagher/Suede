@@ -3,23 +3,28 @@
 #include <QDockWidget>
 #include <QItemSelection>
 
-#include "../winbase.h"
+#include "main/childwindow.h"
 
 #include "world.h"
 #include "gameobject.h"
+#include "tools/event.h"
 
 class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener {
+class HierarchyWindow : public ChildWindow, public WorldEventListener {
 	Q_OBJECT
 
 public:
-	Hierarchy(QWidget* parent);
+	enum {
+		WindowType = ChildWindowType::Hierarchy,
+	};
 
 public:
-	virtual void init(Ui::Editor* ui);
+	HierarchyWindow(QWidget* parent);
+
+public:
 	virtual void awake();
 
 public:

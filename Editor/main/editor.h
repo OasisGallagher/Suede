@@ -8,18 +8,10 @@
 #include "debug/debug.h"
 #include "tools/enum.h"
 #include "os/filesystem.h"
-
-BETTER_ENUM(ChildWindowType, int,
-	Game,
-	Console,
-	Project,
-	Inspector,
-	Hierarchy,
-	Lighting
-)
+#include "childwindow.h"
 
 class Preferences;
-class Editor : public QMainWindow, public LogReceiver {
+class Editor : public QMainWindow {
 	Q_OBJECT
 
 public:
@@ -27,20 +19,19 @@ public:
 	~Editor();
 
 public:
-	void init();
 	void awake();
 	void tick();
 
+	Ui::Editor* ui() { return &ui_; }
+
 public:
-	bool childWindowVisible(ChildWindowType index);
-	void showChildWindow(ChildWindowType index, bool show);
+	template <class T>
+	T* childWindow() { return dynamic_cast<T*>(childWindows_[T::WindowType]); }
 
 signals:
 	void aboutToClose();
 
 protected:
-	virtual void OnLogMessage(LogLevel level, const char* message);
-
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void keyPressEvent(QKeyEvent *event);
 
@@ -53,6 +44,7 @@ private slots:
 
 private:
 	void setupUI();
+	void onLogMessage(LogLevel level, const char* message);
 	void writeLog(ConsoleMessageType type, const char* message);
 
 	void initializeLayout();
@@ -62,12 +54,12 @@ private:
 	void initializeWindowMenu();
 
 private:
-	Ui::Editor ui;
+	Ui::Editor ui_;
 
 	bool flush_;
 	QFile logFile_;
 	QTextStream logStream_;
 
 	Preferences* preferences_;
-	QDockWidget** childWindows_;
+	ChildWindow** childWindows_;
 };

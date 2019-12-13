@@ -17,6 +17,7 @@ public:
 	~CameraController();
 
 public:
+	void setSelection(GameObject* value) { selection_ = value; }
 	void setView(QWidget* value) { view_ = value; }
 
 	Vector3 moveSpeed() { return moveSpeed_; }
@@ -39,9 +40,10 @@ private:
 	Vector3 calculateArcBallVector(const Vector2& point);
 
 private:
-	ref_ptr<Transform> camera_;
+	Transform* camera_ = nullptr;
+	GameObject* selection_ = nullptr;
 
-	QWidget* view_;
+	QWidget* view_ = nullptr;
 	Vector2 pos_;
 	bool moving_ = false;
 

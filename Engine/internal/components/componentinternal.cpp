@@ -15,13 +15,8 @@ void Component::OnMessage(int messageID, void* parameter) { _suede_dptr()->OnMes
 void Component::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
 int Component::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(); }
 
-bool ComponentUtility::Register(suede_guid guid, const std::function<Object*()>& creater) {
-	return Factory::AddFactoryMethod(guid, creater);
-}
-
-bool ComponentUtility::Register(const char* name, const std::function<Object*()>& creater) {
-	return Factory::AddFactoryMethod(name, creater);
-}
+bool Component::Register(suede_guid guid, const std::function<Object*()>& creater) { return Factory::AddFactoryMethod(guid, creater); }
+bool Component::Register(const char* name, const std::function<Object*()>& creater) { return Factory::AddFactoryMethod(name, creater); }
 
 suede_guid Component::ClassNameToGUID(const char* className) {
 	static suede_guid id = 0;

@@ -2,6 +2,7 @@
 #include "math/mathf.h"
 #include "tools/string.h"
 #include "meshinternal.h"
+#include "geometryutility.h"
 #include "internal/base/gl.h"
 #include "internal/base/vertexattrib.h"
 
@@ -9,7 +10,98 @@ SubMesh::SubMesh() : Object(new SubMeshInternal) {}
 const TriangleBias& SubMesh::GetTriangleBias() const { return _suede_dptr()->GetTriangleBias(); }
 void SubMesh::SetTriangleBias(const TriangleBias& value) { _suede_dptr()->SetTriangleBias(value); }
 
+void MeshAttribute::GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& attribute, float scale) {
+	if (type == PrimitiveType::Quad) {
+		attribute.topology = MeshTopology::TriangleStripe;
+
+		attribute.positions.assign({
+			Vector3(-0.5f * scale, -0.5f * scale, 0.f),
+			Vector3(0.5f * scale, -0.5f * scale, 0.f),
+			Vector3(-0.5f * scale,  0.5f * scale, 0.f),
+			Vector3(0.5f * scale,  0.5f * scale, 0.f),
+		});
+
+		attribute.texCoords[0].assign({
+			Vector2(0.f, 0.f),
+			Vector2(1.f, 0.f),
+			Vector2(0.f, 1.f),
+			Vector2(1.f, 1.f),
+		});
+
+		attribute.indexes.assign({ 0, 1, 2, 3 });
+	}
+	else if (type == PrimitiveType::Quad) {
+		attribute.topology = MeshTopology::Triangles;
+		GeometryUtility::GetCuboidCoordinates(attribute.positions, Vector3(0), Vector3(1), &attribute.indexes);
+
+		for (int i = 0; i < attribute.positions.size(); ++i) {
+			attribute.positions[i] *= scale;
+		}
+
+		attribute.normals.assign({
+			Vector3(0.333333f, 0.666667f, -0.666667f),
+			Vector3(-0.816497f, 0.408248f, -0.408248f),
+			Vector3(-0.333333f, 0.666667f, 0.666667f),
+			Vector3(0.816497f, 0.408248f, 0.408248f),
+			Vector3(0.666667f, -0.666667f, -0.333333f),
+			Vector3(-0.408248f, -0.408248f, -0.816497f),
+			Vector3(-0.666667f, -0.666667f, 0.333333f),
+			Vector3(0.408248f, -0.408248f, 0.816497f)
+		});
+
+		attribute.texCoords[0].assign({
+			Vector2(0.f, 1.f),
+			Vector2(1.f, 1.f),
+			Vector2(0.f, 1.f),
+			Vector2(1.f, 1.f),
+			Vector2(0.f, 0.f),
+			Vector2(1.f, 0.f),
+			Vector2(0.f, 0.f),
+			Vector2(1.f, 0.f),
+		});
+	}
+}
+
 Mesh::Mesh() : Object(new MeshInternal) {}
+ref_ptr<Mesh> Mesh::FromAttribute(const MeshAttribute& attribute) {
+	Mesh* mesh = new Mesh();
+	mesh->SetAttribute(attribute);
+
+	SubMesh* subMesh = new SubMesh();
+	subMesh->SetTriangleBias(TriangleBias{ (uint)attribute.indexes.size() });
+
+	mesh->AddSubMesh(subMesh);
+	return mesh;
+}
+
+Mesh* Mesh::GetPrimitive(PrimitiveType type) {
+	static ref_ptr<Mesh> primitiveCache[PrimitiveType::size()];
+	if (!primitiveCache[0]) {
+		for (int type = PrimitiveType::Quad; type < PrimitiveType::size(); ++type) {
+			primitiveCache[type] = CreatePrimitive((PrimitiveType)type, 1);
+		}
+	}
+
+	SUEDE_ASSERT(type >= 0 && type < PrimitiveType::size());
+	return primitiveCache[type].get();
+}
+
+ref_ptr<Mesh> Mesh::CreatePrimitive(PrimitiveType type, float scale) {
+	MeshAttribute attribute;
+	MeshAttribute::GetPrimitiveAttribute(type, attribute, scale);
+
+	return Mesh::FromAttribute(attribute);
+}
+
+ref_ptr<Mesh> Mesh::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+	MeshAttribute attribute;
+	MeshAttribute::GetPrimitiveAttribute(type, attribute, scale);
+	attribute.color = color;
+	attribute.geometry = geometry;
+
+	return Mesh::FromAttribute(attribute);
+}
+
 void Mesh::CreateStorage() { _suede_dptr()->CreateStorage(); }
 void Mesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(value); }
 //const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
@@ -78,7 +170,7 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	storage_->topology = value.topology;
 	UpdateGLBuffers(value);
 
-	storage_->modified.fire();
+	storage_->modified.raise();
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {

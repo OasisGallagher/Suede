@@ -1,12 +1,14 @@
+#include "gamewindow.h"
+
 #include <QWidget>
 #include <QToolBar>
 
 #include "canvas.h"
 #include "ui_editor.h"
+#include "main/editor.h"
 #include "widgets/status/statusbar.h"
 #include "widgets/statistics/statswidget.h"
 
-#include "game.h"
 #include "font.h"
 #include "mesh.h"
 #include "light.h"
@@ -58,13 +60,12 @@ static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
-Game::Game(QWidget* parent) : QDockWidget(parent), canvas_(nullptr), stat_(nullptr), controller_(nullptr) {
+GameWindow::GameWindow(QWidget* parent) : ChildWindow(parent), canvas_(nullptr), stat_(nullptr), controller_(nullptr) {
+	stat_ = new StatsWidget(this);
+	stat_->setVisible(false);
 }
 
-Game::~Game() {
-}
-
-Canvas* Game::canvas() {
+Canvas* GameWindow::canvas() {
 	if (canvas_ == nullptr) {
 		canvas_ = findChild<Canvas*>("canvas");
 	}
@@ -72,14 +73,12 @@ Canvas* Game::canvas() {
 	return canvas_;
 }
 
-void Game::init(Ui::Editor* ui) {
-	WinBase::init(ui);
-	stat_ = new StatsWidget(this);
-	stat_->setVisible(false);
-
+void GameWindow::awake() {
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-	connect(Hierarchy::instance(), SIGNAL(focusGameObject(GameObject*)), this, SLOT(onFocusGameObjectBounds(GameObject*)));
-	connect(Hierarchy::instance(), SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
+
+	HierarchyWindow* hw = editor_->childWindow<HierarchyWindow>();
+	connect(hw, SIGNAL(focusGameObject(GameObject*)), this, SLOT(onFocusGameObjectBounds(GameObject*)));
+	connect(hw, SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)));
 
 	timer_ = new QTimer(this);
@@ -87,10 +86,8 @@ void Game::init(Ui::Editor* ui) {
 	timer_->start(800);
 
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
-}
 
-void Game::awake() {
-	ComponentUtility::Register<CameraController>();
+	Component::Register<CameraController>();
 
 	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
 	createScene();
@@ -99,7 +96,7 @@ void Game::awake() {
 	Input::SetDelegate(input_);
 }
 
-void Game::tick() {
+void GameWindow::tick() {
 	if (Input::GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
 		Vector3 src = Camera::GetMain()->GetTransform()->GetPosition();
@@ -107,12 +104,12 @@ void Game::tick() {
 		Vector3 dest = Camera::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
 
 		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
-			Hierarchy::instance()->setSelectedGameObjects(QList<GameObject*>{ hitInfo.gameObject });
+			editor_->childWindow<HierarchyWindow>()->setSelectedGameObjects(QList<GameObject*>{ hitInfo.gameObject });
 		}
 	}
 }
 
-void Game::onGameObjectImported(GameObject* root, const std::string& path) {
+void GameWindow::onGameObjectImported(GameObject* root, const std::string& path) {
 	//root->GetTransform()->SetParent(World::GetRootTransform());
 	root->SetName(path);
 
@@ -151,7 +148,7 @@ void Game::onGameObjectImported(GameObject* root, const std::string& path) {
 
 		GameObject* target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
 		Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
-		material->SetShader(Resources::FindShader("builtin/lit_bumped_texture"));
+		material->SetShader(Shader::Find("builtin/lit_bumped_texture"));
 
 		ref_ptr<Texture2D> diffuse = new Texture2D();
 		diffuse->Load("bumped/diffuse.jpg");
@@ -170,7 +167,7 @@ void Game::onGameObjectImported(GameObject* root, const std::string& path) {
 		MeshRenderer* renderer = target->GetComponent<MeshRenderer>();
 		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 			Material* material = renderer->GetMaterial(i);
-			//material->SetShader(Resources::FindShader("builtin/normal_visualizer"));
+			//material->SetShader(Shader::FindShader("builtin/normal_visualizer"));
 		}
 	}
 }
@@ -179,14 +176,14 @@ void Game::onGameObjectImported(GameObject* root, const std::string& path) {
 // //	Graphics::Blit(targetTexture_, nullptr);
 // }
 
-void Game::keyPressEvent(QKeyEvent* event) {
+void GameWindow::keyPressEvent(QKeyEvent* event) {
 	switch (event->key()) {
 		case Qt::Key_Space:
 			break;
 	}
 }
 
-void Game::resizeEvent(QResizeEvent* event) {
+void GameWindow::resizeEvent(QResizeEvent* event) {
 	updateStatPosition();
 
 	// SUEDE TODO: Canvas::resizeGL not called when game window resized.
@@ -194,10 +191,10 @@ void Game::resizeEvent(QResizeEvent* event) {
 	canvas()->sizeChanged(size.width(), size.height());
 }
 
-void Game::timerEvent(QTimerEvent *event) {
+void GameWindow::timerEvent(QTimerEvent *event) {
 }
 
-void Game::onToggleStat(int state) {
+void GameWindow::onToggleStat(int state) {
 	stat_->setVisible(!!state);
 
 	if (stat_->isVisible()) {
@@ -206,18 +203,18 @@ void Game::onToggleStat(int state) {
 	}
 }
 
-void Game::updateStatPosition() {
+void GameWindow::updateStatPosition() {
 	QPoint pos = ui_->stat->parentWidget()->mapTo(this, ui_->stat->pos());
 	pos.setX(pos.x() - stat_->width());
 	pos.setY(pos.y() + ui_->stat->height());
 	stat_->move(pos);
 }
 
-void Game::onShadingModeChanged(const QString& str) {
+void GameWindow::onShadingModeChanged(const QString& str) {
 	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
-void Game::onFocusGameObjectBounds(GameObject* go) {
+void GameWindow::onFocusGameObjectBounds(GameObject* go) {
 	Vector3 center = go->GetBounds().center;
 	Transform* camera = Camera::GetMain()->GetTransform();
 
@@ -228,25 +225,29 @@ void Game::onFocusGameObjectBounds(GameObject* go) {
 	camera->SetRotation(q.GetConjugated());
 }
 
-void Game::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
-	gizmos_->setSelection(Hierarchy::instance()->selectedGameObjects());
+void GameWindow::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
+	controller_->setSelection(selected.empty() ? nullptr : selected.front());
+	gizmos_->setSelection(editor_->childWindow<HierarchyWindow>()->selectedGameObjects());
 }
 
-float Game::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds) {
+float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds) {
 	float f = tanf(camera->GetFieldOfView() / 2.f);
 	float dy = 2 * bounds.size.y / f;
 	float dx = 2 * bounds.size.x / (f * camera->GetAspect());
 	return Mathf::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
 }
 
-void Game::updateStatContent() {
+void GameWindow::updateStatContent() {
  	if (stat_->isVisible()) {
 		stat_->updateContent();
  	}
 }
 
-void Game::createScene() {
-	World::gameObjectImported.subscribe(this, &Game::onGameObjectImported);
+void GameWindow::createScene() {
+	World::gameObjectImported.subscribe(this, &GameWindow::onGameObjectImported);
+
+	Debug::Log("test debug message");
+	Debug::Log("test debug message2");
 
 	ref_ptr<GameObject> lightGameObject = new GameObject();
 	lightGameObject->SetName("light");
@@ -275,7 +276,7 @@ void Game::createScene() {
 	projector->SetPerspective(false);
 	projector->SetOrthographicSize(5);
 #else
-	projector->SetFieldOfView(Mathf::Radians(9.f));
+	projector->SetFieldOfView(Mathf::deg2Rad * 9.f);
 #endif
 	projector->GetTransform()->SetParent(World::GetRootTransform());
 	projector->GetTransform()->SetPosition(Vector3(0, 25, 0));
@@ -324,7 +325,7 @@ void Game::createScene() {
 	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
 
 	ref_ptr<Material> skybox = new Material();
-	skybox->SetShader(Resources::FindShader("builtin/skybox"));
+	skybox->SetShader(Shader::Find("builtin/skybox"));
 
 	ref_ptr<TextureCube> cube = new TextureCube();
 
@@ -432,7 +433,7 @@ void Game::createScene() {
 	bear->GetTransform()->SetPosition(Vector3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
-	Shader shader = Resources::FindShader("xray");
+	Shader shader = Shader::FindShader("xray");
 	materail->SetShader(shader);
 #endif
 

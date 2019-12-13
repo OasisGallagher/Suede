@@ -1,11 +1,7 @@
 #pragma once
 #include "material.h"
-#include "tools/singleton.h"
 
-class SUEDE_API Environment : private Singleton2<Environment> {
-	friend class Singleton<Environment>;
-	SUEDE_DECLARE_IMPLEMENTATION(Environment)
-
+class SUEDE_API Environment {
 public:
 	static void SetSkybox(Material* value);
 	static Material* GetSkybox();
@@ -18,7 +14,4 @@ public:
 
 	static void SetFogDensity(float value);
 	static float GetFogDensity();
-
-private:
-	Environment();
 };

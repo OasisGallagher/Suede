@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 
 #include "world.h"
+#include "renderer.h"
 #include "resources.h"
 #include "memory/refptr.h"
 #include "os/filesystem.h"
@@ -48,7 +49,7 @@ MaterialAsset::MaterialAsset()
 }
 
 void MaterialAsset::ApplyAsset() {
-	Shader* shader = Resources::FindShader("builtin/" + shaderName);
+	Shader* shader = Shader::Find("builtin/" + shaderName);
 	material->SetShader(shader);
 
 	material->SetFloat(BuiltinProperties::Gloss, gloss);
@@ -63,7 +64,7 @@ void MaterialAsset::ApplyAsset() {
 		material->SetTexture(BuiltinProperties::MainTexture, CreateTexture2D(mainTexels).get());
 	}
 	else {
-		material->SetTexture(BuiltinProperties::MainTexture, Resources::GetWhiteTexture());
+		material->SetTexture(BuiltinProperties::MainTexture, Texture2D::GetWhiteTexture());
 	}
 
 	if (bumpTexels != nullptr) {
@@ -118,7 +119,7 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 		importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
 	}
 
-	std::string fpath = Resources::GetModelDirectory() + path_;
+	std::string fpath = Resources::modelDirectory + path_;
 
 	const aiScene* scene = importer.ReadFile(fpath.c_str(), flags);
 	if (scene == nullptr) {
@@ -486,7 +487,7 @@ TexelMap* GameObjectLoader::LoadTexels(const std::string& name) {
 }
 
 bool GameObjectLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
-	return ImageCodec::Decode(texelMap, Resources::GetTextureDirectory() + name);
+	return ImageCodec::Decode(texelMap, Resources::textureDirectory + name);
 }
 
 bool GameObjectLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
@@ -580,5 +581,5 @@ void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 		(*loader->GetParameter())(root, loader->GetPath());
 	}
 
-	imported_.fire(root, loader->GetPath());
+	imported_.raise(root, loader->GetPath());
 }

@@ -12,7 +12,7 @@
 
 void Worker::run() {
 	Run();
-	workFinished.fire(this);
+	workFinished.raise(this);
 }
 
 ThreadPool::ThreadPool(int type) {

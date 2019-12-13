@@ -24,37 +24,26 @@ private:
 };
 
 static StackTracer tracer;
-static LogReceiver* logReceiver;
+event<LogLevel, const char*> Debug::logReceived;
 
 bool Debug::Initialize() {
 	return !!tracer.LoadModules();
 }
 
-void Debug::SetLogReceiver(LogReceiver* value) {
-	logReceiver = value;
-}
-
 void Debug::Log(const char* format, ...) {
 	DEF_VA_ARGS(msg, format);
-	if (logReceiver != nullptr) {
-		logReceiver->OnLogMessage(LogLevel::Debug, msg.c_str());
-	}
+	logReceived.raise(LogLevel::Debug, msg.c_str());
 }
 
 void Debug::LogWarning(const char* format, ...) {
 	DEF_VA_ARGS(msg, format);
-	if (logReceiver != nullptr) {
-		logReceiver->OnLogMessage(LogLevel::Warning, msg.c_str());
-	}
+	logReceived.raise(LogLevel::Warning, msg.c_str());
 }
 
 void Debug::LogError(const char* format, ...) {
 	DEF_VA_ARGS(msg, format);
 	msg += "\n" + tracer.GetStackTrace(1, 7);
-
-	if (logReceiver != nullptr) {
-		logReceiver->OnLogMessage(LogLevel::Error, msg.c_str());
-	}
+	logReceived.raise(LogLevel::Error, msg.c_str());
 }
 
 #define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT

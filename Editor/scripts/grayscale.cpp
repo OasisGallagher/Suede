@@ -7,7 +7,7 @@ SUEDE_DEFINE_COMPONENT(Grayscale, ImageEffect)
 
 void Grayscale::Awake() {
 	material_ = new Material();
-	material_->SetShader(Resources::FindShader("grayscale"));
+	material_->SetShader(Shader::FindShader("grayscale"));
 }
 
 void Grayscale::OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect) {

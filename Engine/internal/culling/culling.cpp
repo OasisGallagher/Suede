@@ -22,7 +22,7 @@ void Culling::run() {
 
 			World::WalkGameObjectHierarchy(this);
 
-			cullingFinished.fire();
+			cullingFinished.raise();
 
 			Statistics::SetCullingElapsed(
 				Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)

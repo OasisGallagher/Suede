@@ -22,7 +22,7 @@ bool Font::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _suede_dp
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
 	material_ = new Material();
-	material_->SetShader(Resources::FindShader("builtin/unlit_texture"));
+	material_->SetShader(Shader::Find("builtin/unlit_texture"));
 	material_->SetRenderQueue((int)RenderQueue::Transparent);
 
 	// default font color.
@@ -161,7 +161,7 @@ void FontInternal::RebuildMaterial(Font* self) {
 	Texture2D* texture = (Texture2D*)material_->GetTexture(BuiltinProperties::MainTexture);
 	texture->Create(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
 
-	self->materialRebuilt.fire();
+	self->materialRebuilt.raise();
 }
 
 void FontInternal::Destroy() {

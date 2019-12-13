@@ -77,7 +77,7 @@ void WorldInternal::Initialize() {
 	context_ = new Context();
 	Context::SetCurrent(context_);
 
-	Resources::FindShader("builtin/lit_texture");
+	Shader::Find("builtin/lit_texture");
 
 	decalCreater_ = new DecalCreater;
 
@@ -344,7 +344,6 @@ void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
 	p.time.x = Time::GetRealTimeSinceStartup();
 	p.time.y = Time::GetDeltaTime();
-	//UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void WorldInternal::RemoveGameObjectFromSequence(GameObject* go) {

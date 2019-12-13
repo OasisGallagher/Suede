@@ -3,28 +3,33 @@
 #include <QDockWidget>
 
 #include "camera.h"
-#include "../winbase.h"
+
 #include "gameobject.h"
 #include "gizmospainter.h"
 #include "qtinputdelegate.h"
+#include "main/childwindow.h"
+
+class Editor;
 
 class Canvas;
 class StatsWidget;
 class SelectionGizmos;
 class CameraController;
 
-class Game : public QDockWidget, public WinSingleton<Game> {
+class GameWindow : public ChildWindow {
 	Q_OBJECT
+public:
+	enum {
+		WindowType = ChildWindowType::Game,
+	};
 
 public:
-	Game(QWidget* parent);
-	~Game();
+	GameWindow(QWidget* parent);
 
 public:
 	Canvas* canvas();
 
 public:
-	virtual void init(Ui::Editor* ui);
 	virtual void awake();
 	virtual void tick();
 

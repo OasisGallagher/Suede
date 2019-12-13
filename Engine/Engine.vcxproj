@@ -172,6 +172,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
+    <ClCompile Include="internal\base\resources.cpp" />
     <ClCompile Include="internal\base\shaderinternal.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\uniformbuffer.cpp" />
@@ -394,15 +395,14 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\tools\graphicsinternal.cpp" />
     <ClCompile Include="internal\tools\inputinternal.cpp" />
     <ClCompile Include="internal\tools\profilerinternal.cpp" />
-    <ClCompile Include="internal\tools\resourcesinternal.cpp" />
-    <ClCompile Include="internal\tools\screeninternal.cpp" />
+    <ClCompile Include="internal\tools\screen.cpp" />
     <ClCompile Include="internal\tools\statisticsinternal.cpp" />
-    <ClCompile Include="internal\tools\tagmanagerinternal.cpp" />
+    <ClCompile Include="internal\tools\tagmanager.cpp" />
     <ClCompile Include="internal\tools\time2internal.cpp" />
     <ClCompile Include="internal\world\decalcreater.cpp" />
     <ClCompile Include="internal\world\opengldriver.cpp" />
-    <ClCompile Include="internal\world\engineinternal.cpp" />
-    <ClCompile Include="internal\world\environmentinternal.cpp" />
+    <ClCompile Include="internal\world\engine.cpp" />
+    <ClCompile Include="internal\world\environment.cpp" />
     <ClCompile Include="internal\world\graphicsviewer.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
   </ItemGroup>
@@ -872,14 +872,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\tools\gizmosinternal.h" />
     <ClInclude Include="internal\tools\graphicsinternal.h" />
     <ClInclude Include="internal\tools\profilerinternal.h" />
-    <ClInclude Include="internal\tools\resourcesinternal.h" />
-    <ClInclude Include="internal\tools\screeninternal.h" />
     <ClInclude Include="internal\tools\statisticsinternal.h" />
-    <ClInclude Include="internal\tools\tagmanagerinternal.h" />
     <ClInclude Include="internal\tools\time2internal.h" />
     <ClInclude Include="internal\world\decalcreater.h" />
-    <ClInclude Include="internal\world\engineinternal.h" />
-    <ClInclude Include="internal\world\environmentinternal.h" />
     <ClInclude Include="internal\world\worldinternal.h" />
   </ItemGroup>
   <ItemGroup>

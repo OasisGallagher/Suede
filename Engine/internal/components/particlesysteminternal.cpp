@@ -1,11 +1,10 @@
+#include "particlesysteminternal.h"
+
+#include "mesh.h"
 #include "time2.h"
 #include "world.h"
-#include "camera.h"
-#include "resources.h"
-#include "math/mathf.h"
-#include "math/random.h"
+#include "renderer.h"
 #include "builtinproperties.h"
-#include "particlesysteminternal.h"
 
 ParticleEmitter::ParticleEmitter(void* d) : Object(d) {}
 void ParticleEmitter::Emit(Particle** particles, uint& count) { _suede_dptr()->Emit(particles, count); }
@@ -233,7 +232,7 @@ void ParticleSystemInternal::InitializeMesh() {
 
 	MeshFilter* meshFilter = GetGameObject()->GetComponent<MeshFilter>();
 	meshFilter->SetMesh(
-		Resources::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry).get()
+		Mesh::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry).get()
 	);
 	meshDirty_ = false;
 }
@@ -242,7 +241,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	ParticleRenderer* renderer = GetGameObject()->GetComponent<ParticleRenderer>();
 
 	Material* material = new Material();
-	Shader* shader = Resources::FindShader("builtin/particle");
+	Shader* shader = Shader::Find("builtin/particle");
 	material->SetShader(shader);
 
 	Texture2D* mainTexture = new Texture2D();

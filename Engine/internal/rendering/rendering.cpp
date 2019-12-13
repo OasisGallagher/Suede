@@ -1,20 +1,15 @@
+#include "rendering.h"
+
 #include "world.h"
-#include "screen.h"
 #include "graphics.h"
 #include "profiler.h"
-#include "resources.h"
-#include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
 #include "particlesystem.h"
-#include "builtinproperties.h"
-
-#include "internal/base/renderdefines.h"
 
 #include "internal/rendering/context.h"
 #include "internal/rendering/shadowmap.h"
 #include "internal/rendering/ambientocclusion.h"
-#include "internal/rendering/shareduniformbuffers.h"
 
 RenderingPipelines::RenderingPipelines(Context* context) {
 	depth = new Pipeline(context);
@@ -299,7 +294,7 @@ void PipelineBuilder::InitializeDeferredRender() {
 
 	deferredMaterial_ = new Material();
 	deferredMaterial_->SetRenderQueue(RenderQueueBackground);
-	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
+	deferredMaterial_->SetShader(Shader::FindShader("builtin/gbuffer"));*/
 }
 
 void PipelineBuilder::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
@@ -311,7 +306,7 @@ void PipelineBuilder::RenderSkybox(Pipeline* pl) {
 		Matrix4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = Vector4(0, 0, 0, 1);
 
-		pl->AddRenderable(Resources::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
+		pl->AddRenderable(Mesh::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
 	}
 }
 

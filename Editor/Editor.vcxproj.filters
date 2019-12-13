@@ -79,9 +79,6 @@
     <Filter Include="widgets\fields">
       <UniqueIdentifier>{412ad60b-716b-447f-9863-626339a2f8d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="windows\include">
-      <UniqueIdentifier>{18d0d0dc-f708-4b7e-a30d-7f247954fa05}</UniqueIdentifier>
-    </Filter>
     <Filter Include="windows\console">
       <UniqueIdentifier>{80990e59-ee1d-4b11-a012-2275e42b75f1}</UniqueIdentifier>
     </Filter>
@@ -174,13 +171,7 @@
     <ClCompile Include="widgets\status\statusbar.cpp">
       <Filter>widgets\status</Filter>
     </ClCompile>
-    <ClCompile Include="windows\console\console.cpp">
-      <Filter>windows\console</Filter>
-    </ClCompile>
     <ClCompile Include="windows\game\canvas.cpp">
-      <Filter>windows\game</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\game\game.cpp">
       <Filter>windows\game</Filter>
     </ClCompile>
     <ClCompile Include="windows\game\qtinputdelegate.cpp">
@@ -189,22 +180,10 @@
     <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
       <Filter>windows\hierarchy</Filter>
     </ClCompile>
-    <ClCompile Include="windows\hierarchy\hierarchy.cpp">
-      <Filter>windows\hierarchy</Filter>
-    </ClCompile>
     <ClCompile Include="windows\inspector\materialeditor.cpp">
       <Filter>windows\inspector</Filter>
     </ClCompile>
-    <ClCompile Include="windows\inspector\inspector.cpp">
-      <Filter>windows\inspector</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\lighting\lighting.cpp">
-      <Filter>windows\lighting</Filter>
-    </ClCompile>
     <ClCompile Include="windows\project\directorytree.cpp">
-      <Filter>windows\project</Filter>
-    </ClCompile>
-    <ClCompile Include="windows\project\project.cpp">
       <Filter>windows\project</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_aboutdialog.cpp">
@@ -225,9 +204,6 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_componentmetaobject.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_console.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_directorytree.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -240,31 +216,19 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_floatfield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_game.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_gaussianblur.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_grayscale.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_hierarchy.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_ImGuiRenderer.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_inspector.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_intfield.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_inversion.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_lighting.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_maskfield.cpp">
@@ -274,9 +238,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_preferences.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_project.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_qtinputdelegate.cpp">
@@ -322,6 +283,63 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="main\editor.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\console\consolewindow.cpp">
+      <Filter>windows\console</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_consolewindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_consolewindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\game\gamewindow.cpp">
+      <Filter>windows\game</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_gamewindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_gamewindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\hierarchy\hierarchywindow.cpp">
+      <Filter>windows\hierarchy</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_hierarchywindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_hierarchywindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\inspector\inspectorwindow.cpp">
+      <Filter>windows\inspector</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_inspectorwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_inspectorwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\lighting\lightingwindow.cpp">
+      <Filter>windows\lighting</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_lightingwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_lightingwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="windows\project\projectwindow.cpp">
+      <Filter>windows\project</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_projectwindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_projectwindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="main\childwindow.cpp">
       <Filter>main</Filter>
     </ClCompile>
   </ItemGroup>
@@ -425,20 +443,11 @@
     <CustomBuild Include="widgets\status\statusbar.h">
       <Filter>widgets\status</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\console\console.h">
-      <Filter>windows\console</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\game\qtinputdelegate.h">
       <Filter>windows\game</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\game\canvas.h">
       <Filter>windows\game</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\game\game.h">
-      <Filter>windows\game</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\hierarchy\hierarchy.h">
-      <Filter>windows\hierarchy</Filter>
     </CustomBuild>
     <CustomBuild Include="windows\hierarchy\dragdropableitemmodel.h">
       <Filter>windows\hierarchy</Filter>
@@ -446,23 +455,29 @@
     <CustomBuild Include="windows\inspector\custom\componentmetaobject.h">
       <Filter>windows\inspector\custom</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\inspector\inspector.h">
-      <Filter>windows\inspector</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\lighting\lighting.h">
-      <Filter>windows\lighting</Filter>
-    </CustomBuild>
-    <CustomBuild Include="windows\project\project.h">
+    <CustomBuild Include="windows\project\directorytree.h">
       <Filter>windows\project</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\project\directorytree.h">
+    <CustomBuild Include="windows\console\consolewindow.h">
+      <Filter>windows\console</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\game\gamewindow.h">
+      <Filter>windows\game</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\hierarchy\hierarchywindow.h">
+      <Filter>windows\hierarchy</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\inspector\inspectorwindow.h">
+      <Filter>windows\inspector</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\lighting\lightingwindow.h">
+      <Filter>windows\lighting</Filter>
+    </CustomBuild>
+    <CustomBuild Include="windows\project\projectwindow.h">
       <Filter>windows\project</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="windows\winbase.h">
-      <Filter>windows\include</Filter>
-    </ClInclude>
     <ClInclude Include="gui\qtimgui\QtImGui.h">
       <Filter>gui\qtimgui</Filter>
     </ClInclude>
@@ -477,6 +492,9 @@
     </ClInclude>
     <ClInclude Include="windows\inspector\materialeditor.h">
       <Filter>windows\inspector</Filter>
+    </ClInclude>
+    <ClInclude Include="main\childwindow.h">
+      <Filter>main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

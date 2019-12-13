@@ -35,7 +35,7 @@
    <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralWidget"/>
-  <widget class="Game" name="game">
+  <widget class="GameWindow" name="game">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -166,7 +166,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="Hierarchy" name="hierarchy">
+  <widget class="HierarchyWindow" name="hierarchy">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
      <horstretch>0</horstretch>
@@ -218,7 +218,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="Console" name="console">
+  <widget class="ConsoleWindow" name="console">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -343,7 +343,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="Inspector" name="inspector">
+  <widget class="InspectorWindow" name="inspector">
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -435,7 +435,7 @@
    <addaction name="window"/>
    <addaction name="help"/>
   </widget>
-  <widget class="Lighting" name="lighting">
+  <widget class="LightingWindow" name="lighting">
    <property name="minimumSize">
     <size>
      <width>317</width>
@@ -564,7 +564,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="Project" name="project">
+  <widget class="ProjectWindow" name="project">
    <property name="windowTitle">
     <string>Project</string>
    </property>
@@ -691,7 +691,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Game</string>
+    <string>&amp;GameWindow</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+1</string>
@@ -702,7 +702,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Inspector</string>
+    <string>&amp;InspectorWindow</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>
@@ -713,7 +713,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Console</string>
+    <string>&amp;ConsoleWindow</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+3</string>
@@ -750,27 +750,27 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Game</class>
+   <class>GameWindow</class>
    <extends>QDockWidget</extends>
-   <header>windows/game/game.h</header>
+   <header>windows/game/gamewindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Console</class>
+   <class>ConsoleWindow</class>
    <extends>QDockWidget</extends>
-   <header>windows/console/console.h</header>
+   <header>windows/console/consolewindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Hierarchy</class>
+   <class>HierarchyWindow</class>
    <extends>QDockWidget</extends>
-   <header>windows/hierarchy/hierarchy.h</header>
+   <header>windows/hierarchy/hierarchywindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Inspector</class>
+   <class>InspectorWindow</class>
    <extends>QDockWidget</extends>
-   <header>windows/inspector/inspector.h</header>
+   <header>windows/inspector/inspectorwindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -779,9 +779,9 @@
    <header>widgets/fields/maskfield.h</header>
   </customwidget>
   <customwidget>
-   <class>Lighting</class>
+   <class>LightingWindow</class>
    <extends>QDockWidget</extends>
-   <header>windows/lighting/lighting.h</header>
+   <header>windows/lighting/lightingwindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -802,9 +802,9 @@
    <header>widgets/fields/enumfield.h</header>
   </customwidget>
   <customwidget>
-   <class>Project</class>
+   <class>ProjectWindow</class>
    <extends>QDockWidget</extends>
-   <header>windows/project/project.h</header>
+   <header>windows/project/projectwindow.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -825,3 +825,4 @@
  </resources>
  <connections/>
 </ui>
+

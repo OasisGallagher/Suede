@@ -84,6 +84,10 @@ public:
 	Texture2D();
 
 public:
+	static Texture2D* GetBlackTexture();
+	static Texture2D* GetWhiteTexture();
+
+public:
 	bool Load(const std::string& path);
 	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
 

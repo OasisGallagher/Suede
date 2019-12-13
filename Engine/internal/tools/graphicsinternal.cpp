@@ -109,14 +109,7 @@ ref_ptr<Mesh> GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 
 	attribute.indexes.assign({ 0, 1, 2, 3 });
 
-	ref_ptr<Mesh> mesh = new Mesh();
-	mesh->SetAttribute(attribute);
-	mesh->AddSubMesh(new SubMesh());
-
-	TriangleBias bias{ attribute.indexes.size() };
-	mesh->GetSubMesh(0)->SetTriangleBias(bias);
-
-	return mesh;
+	return Mesh::FromAttribute(attribute);
 }
 
 void GraphicsInternal::DrawSubMeshes(Mesh* mesh) {
@@ -127,11 +120,8 @@ void GraphicsInternal::DrawSubMeshes(Mesh* mesh) {
 }
 
 ref_ptr<Material> GraphicsInternal::CreateBlitMaterial() {
-	ref_ptr<Shader> shader = new Shader();
-	shader->Load("builtin/blit");
-
 	ref_ptr<Material> material = new Material();
-	material->SetShader(shader.get());
+	material->SetShader(Shader::Find("builtin/blit"));
 
 	return material;
 }

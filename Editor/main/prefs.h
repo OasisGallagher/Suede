@@ -1,17 +1,8 @@
 #pragma once
-#include <QSettings>
-#include "tools/singleton.h"
+#include <QVariant>
 
-class Prefs : public Singleton<Prefs> {
-	friend class Singleton<Prefs>;
-
+class Prefs {
 public:
-	void save(const QString& key, const QVariant& value);
-	QVariant load(const QString& key, const QVariant& defaultValue = QVariant());
-
-private:
-	Prefs();
-
-private:
-	QSettings settings_;
+	static void save(const QString& key, const QVariant& value);
+	static QVariant load(const QString& key, const QVariant& defaultValue = QVariant());
 };

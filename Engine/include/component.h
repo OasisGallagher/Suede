@@ -90,21 +90,19 @@ public:
 	*/
 	virtual const char* GetComponentInstanceName() const { return GetComponentName(); }
 
-protected:
-	Component(void* d);
-};
-
-class SUEDE_API ComponentUtility {
 public:
 	template <class T> static bool Register();
 
 private:
 	static bool Register(suede_guid guid, const std::function<Object*()>& creater);
 	static bool Register(const char* name, const std::function<Object*()>& creater);
+
+protected:
+	Component(void* d);
 };
 
 template <class T>
-bool ComponentUtility::Register() {
+bool Component::Register() {
 	std::function<Object*()> creater = []() -> Object* { return new T(); };
 	return Register(T::GetComponentGUID(), creater) && Register(T::GetComponentName(), creater);
 }

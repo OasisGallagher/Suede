@@ -2,6 +2,8 @@
 #include <string>
 #include <cassert>
 #include "../types.h"
+
+#include "../tools/event.h"
 #include "../tools/singleton.h"
 
 #define SUEDE_NOARG
@@ -16,11 +18,6 @@ enum class LogLevel {
 	Error,
 };
 
-class SUEDE_API LogReceiver {
-public:
-	virtual void OnLogMessage(LogLevel level, const char* message) = 0;
-};
-
 class SUEDE_API Debug {
 public:
 	static void Log(const char* format, ...);
@@ -29,7 +26,8 @@ public:
 
 	static void Break();
 	static void Output(const char* format, ...);
-	static void SetLogReceiver(LogReceiver* value);
+
+	static event<LogLevel, const char*> logReceived;
 
 public:
 	static bool Initialize();

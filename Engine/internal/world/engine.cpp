@@ -2,20 +2,15 @@
 #include "vld/vld.h"
 #endif
 
+#include "engine.h"
+
 #include <ZThread/Thread.h>
 
-#include "glef.h"
+#include "world.h"
+#include "screen.h"
 #include "physics.h"
+#include "profiler.h"
 #include "opengldriver.h"
-#include "engineinternal.h"
-#include "builtinproperties.h"
-
-#include "worldinternal.h"
-#include "../tools/time2internal.h"
-#include "../tools/screeninternal.h"
-#include "../tools/profilerinternal.h"
-#include "../tools/tagmanagerinternal.h"
-#include "../tools/statisticsinternal.h"
 
 // Disable lua supports.
 //#include "../lua/wrappers/luaconfig.h"
@@ -23,11 +18,9 @@
 sorted_event<> Engine::frameEnter;
 sorted_event<> Engine::frameLeave;
 
-Engine::Engine() : Singleton2<Engine>(new EngineInternal, t_delete<EngineInternal>) {}
-
-bool Engine::Startup(uint width, uint height) { return _suede_dinstance()->Startup(width, height); }
-void Engine::Shutdown() { _suede_dinstance()->Shutdown(); }
-void Engine::Update() { _suede_dinstance()->Update(); }
+// Disable lua supports.
+//static lua_State* L;
+//static int updateRef_ = LUA_NOREF;
 
 static void OnTerminate() {
 	Debug::Break();
@@ -38,25 +31,7 @@ static void OnZThreadException(const std::exception& exception) {
 	throw exception;
 }
 
-// Disable lua supports.
-EngineInternal::EngineInternal() /*: updateRef_(LUA_NOREF)*/ {
-
-}
-
-//template <class... Args>
-//bool EngineInternal::InvokeCurrentLuaMethod(Args... args) {
-//	Lua::push(L, args...);
-//	int r = lua_pcall(L, sizeof...(Args), 0, 0);
-//	if (r != LUA_OK) {
-//		Debug::LogError("invoke function failed(%d): %s.", r, lua_tostring(L, -1));
-//		lua_pop(L, 1);
-//		return false;
-//	}
-//
-//	return true;
-//}
-
-bool EngineInternal::Startup(uint width, uint height) {
+bool Engine::Startup(uint width, uint height) {
 	setlocale(LC_ALL, "");
 	std::set_terminate(OnTerminate);
 	ZThread::ztException = OnZThreadException;
@@ -67,10 +42,6 @@ bool EngineInternal::Startup(uint width, uint height) {
 	}
 
 	if (!OpenGLDriver::Initialize()) {
-		return false;
-	}
-
-	if (!Shader::LoadParser("resources/data/GLEF.dat")) {
 		return false;
 	}
 
@@ -96,14 +67,15 @@ bool EngineInternal::Startup(uint width, uint height) {
 	return true;
 }
 
-void EngineInternal::Shutdown() {
+void Engine::Shutdown() {
 	World::Finalize();
+
 	// Disable lua supports.
 	//lua_close(L);
 	//L = nullptr;
 }
 
-void EngineInternal::Update() {
+void Engine::Update() {
 	// Disable lua supports.
 	//if (updateRef_ == LUA_NOREF) {
 	//	Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
@@ -117,8 +89,8 @@ void EngineInternal::Update() {
 	//	Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 	//);
 
-	Engine::frameEnter.fire();
+	Engine::frameEnter.raise();
 	World::Update();
-	Engine::frameLeave.fire();
+	Engine::frameLeave.raise();
 }
 

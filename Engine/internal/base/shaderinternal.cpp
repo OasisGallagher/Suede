@@ -14,7 +14,6 @@
 
 Shader::Shader() : Object(new ShaderInternal()) {}
 std::string Shader::GetName() const { return _suede_dptr()->GetName(); }
-bool Shader::Load(const std::string& path) { return _suede_dptr()->Load(this, path); }
 void Shader::Bind(uint ssi, uint pass) { _suede_dptr()->Bind(ssi, pass); }
 void Shader::Unbind() { _suede_dptr()->Unbind(); }
 void Shader::SetRenderQueue(uint ssi, int value) { return _suede_dptr()->SetRenderQueue(ssi, value); }
@@ -27,9 +26,26 @@ uint Shader::GetSubShaderCount() const { return _suede_dptr()->GetSubShaderCount
 void Shader::GetProperties(std::vector<ShaderProperty>& properties) { return _suede_dptr()->GetProperties(properties); }
 bool Shader::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) { return _suede_dptr()->SetProperty(ssi, pass, name, data); }
 
-bool Shader::LoadParser(const std::string& path) { return ShaderInternal::LoadParser(path); }
-
 static GLEF glef;
+static bool glefInitialized = false;
+static std::map<std::string, ref_ptr<Shader>> shaderCache;
+
+Shader* Shader::Find(const std::string& path) {
+	auto ite = shaderCache.find(path);
+	if (ite != shaderCache.end()) {
+		return ite->second.get();
+	}
+
+	Shader* shader = new Shader();
+	if (!shader->_rptr_impl<ShaderInternal>()->Load(shader, path)) {
+		delete shader;
+		shader = nullptr;
+	}
+
+	shaderCache.insert(std::make_pair(path, shader));
+	return shader;
+}
+
 static std::map<std::string, float> renderQueueVariables({
 	std::make_pair("Background", (float)RenderQueue::Background),
 	std::make_pair("Geometry", (float)RenderQueue::Geometry),
@@ -666,15 +682,16 @@ ShaderInternal::~ShaderInternal() {
 	ReleaseProperties();
 }
 
-bool ShaderInternal::LoadParser(const std::string& path) {
-	return glef.Load(path.c_str());
-}
-
 std::string ShaderInternal::GetName() const {
 	return FileSystem::GetFileNameWithoutExtension(path_);
 }
 
 bool ShaderInternal::Load(Shader* self, const std::string& path) {
+	if (!glefInitialized) {
+		glef.Load("resources/data/GLEF.dat");
+		glefInitialized = true;
+	}
+
 	Semantics semantics;
 	ShaderParser parser(&glef);
 	if (!parser.Parse(semantics, path + GLSL_POSTFIX, "")) {
@@ -688,9 +705,9 @@ bool ShaderInternal::Load(Shader* self, const std::string& path) {
 
 	SetProperties(properties);
 
-	shaderCreated.fire(self);
-
 	path_ = path;
+	shaderCreated.raise(self);
+
 	return true;
 }
 

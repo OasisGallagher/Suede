@@ -76,7 +76,7 @@ bool GpuQuerier::UpdateQuerier(Querier* querier) {
 	if (available) {
 		uint result = 0;
 		GL::GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
-		querierReturned.fire(querier->id, result);
+		querierReturned.raise(querier->id, result);
 
 		return true;
 	}

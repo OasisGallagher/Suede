@@ -54,6 +54,11 @@ enum class MeshTopology {
 	TriangleFan,
 };
 
+BETTER_ENUM(PrimitiveType, int,
+	Quad,
+	Cube
+)
+
 struct MeshAttribute {
 	enum {
 		TexCoordsCount = 4,
@@ -70,6 +75,8 @@ struct MeshAttribute {
 	
 	InstanceAttribute color;
 	InstanceAttribute geometry;
+
+	static void GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& attribute, float scale);
 };
 
 class SUEDE_API Mesh : public Object {
@@ -113,6 +120,11 @@ public:
 	void ShareStorage(Mesh* other);
 
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
+
+	static Mesh* GetPrimitive(PrimitiveType type);
+	static ref_ptr<Mesh> FromAttribute(const MeshAttribute& attribute);
+	static ref_ptr<Mesh> CreatePrimitive(PrimitiveType type, float scale);
+	static ref_ptr<Mesh> CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 };
 
 class SUEDE_API MeshProvider : public Component {

@@ -236,9 +236,9 @@ Quaternion TransformInternal::GetRotation(Transform* self) {
 
 	if (!IsDirty(WorldEulerAngles)) {
 		world_.rotation = Quaternion(Vector3(
-			Mathf::Radians(world_.eulerAngles.x), 
-			Mathf::Radians(world_.eulerAngles.y), 
-			Mathf::Radians(world_.eulerAngles.z))
+			Mathf::deg2Rad * world_.eulerAngles.x,
+			Mathf::deg2Rad * world_.eulerAngles.y,
+			Mathf::deg2Rad * world_.eulerAngles.z)
 		);
 	}
 	else {
@@ -251,7 +251,7 @@ Quaternion TransformInternal::GetRotation(Transform* self) {
 				Debug::LogError("invalid state");
 			}
 
-			localRotation = local_.rotation = Quaternion(Mathf::Radians(local_.eulerAngles));
+			localRotation = local_.rotation = Quaternion(Mathf::deg2Rad * local_.eulerAngles);
 			ClearDirty(LocalRotation);
 		}
 
@@ -285,7 +285,7 @@ Vector3 TransformInternal::GetEulerAngles(Transform* self) {
 				Debug::LogError("invalid state");
 			}
 
-			localRotation = local_.rotation = Quaternion(Mathf::Radians(local_.eulerAngles));
+			localRotation = local_.rotation = Quaternion(Mathf::deg2Rad * local_.eulerAngles);
 			ClearDirty(LocalRotation);
 		}
 
@@ -297,7 +297,7 @@ Vector3 TransformInternal::GetEulerAngles(Transform* self) {
 		ClearDirty(WorldRotation);
 	}
 
-	world_.eulerAngles = Mathf::Degrees(worldRotation.GetEulerAngles());
+	world_.eulerAngles = Mathf::rad2Deg * worldRotation.GetEulerAngles();
 
 	ClearDirty(WorldEulerAngles);
 
@@ -407,7 +407,7 @@ Quaternion TransformInternal::GetLocalRotation(Transform* self) {
 	if (!IsDirty(LocalRotation)) { return local_.rotation; }
 
 	if (!IsDirty(LocalEulerAngles)) {
-		local_.rotation = Quaternion(Mathf::Radians(local_.eulerAngles));
+		local_.rotation = Quaternion(Mathf::deg2Rad * local_.eulerAngles);
 	}
 	else {
 		Quaternion worldRotation;
@@ -419,7 +419,7 @@ Quaternion TransformInternal::GetLocalRotation(Transform* self) {
 				Debug::LogError("invalid state");
 			}
 
-			worldRotation = world_.rotation = Quaternion(Mathf::Radians(world_.eulerAngles));
+			worldRotation = world_.rotation = Quaternion(Mathf::deg2Rad * world_.eulerAngles);
 			ClearDirty(WorldRotation);
 		}
 
@@ -453,7 +453,7 @@ Vector3 TransformInternal::GetLocalEulerAngles(Transform* self) {
 				Debug::LogError("invalid state");
 			}
 
-			worldRotation = world_.rotation = Quaternion(Mathf::Radians(world_.eulerAngles));
+			worldRotation = world_.rotation = Quaternion(Mathf::deg2Rad * world_.eulerAngles);
 			ClearDirty(WorldRotation);
 		}
 
@@ -466,7 +466,7 @@ Vector3 TransformInternal::GetLocalEulerAngles(Transform* self) {
 	}
 
 	Vector3 angles = localRotation.GetEulerAngles();
-	local_.eulerAngles = Mathf::Degrees(angles);
+	local_.eulerAngles = Mathf::rad2Deg * angles;
 
 	ClearDirty(LocalEulerAngles);
 
