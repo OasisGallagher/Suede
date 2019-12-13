@@ -1,8 +1,7 @@
 #pragma once
-#include <map>
 #include "shader.h"
 #include "tools/string.h"
-#include "tools/singleton.h"
+#include "containers/ptrmap.h"
 #include "internal/base/uniformbuffer.h"
 
 #define DEFINE_SHARED_UNIFORM_BUFFER(name, ...) \
@@ -40,37 +39,29 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 
 #undef DEFINE_SHARED_UNIFORM_BUFFER
 
+class Context;
 class UniformBuffer;
-class UniformBufferManager : public Singleton<UniformBufferManager> {
-	friend Singleton<UniformBufferManager>;
-
+class SharedUniformBuffers {
 public:
-	uint GetOffsetAlignment() { return offsetAlignment_; }
+	SharedUniformBuffers();
 
 public:
 	void Attach(Shader* shader);
-	bool Update(const std::string& name, const void* data, uint offset, uint size);
-
-private:
-	UniformBufferManager();
-	~UniformBufferManager();
+	bool UpdateUniformBuffer(const std::string& name, const void* data, uint offset, uint size);
 
 private:
 	template <class T>
 	void CreateBuffer(uint size = 0);
 
 private:
-	typedef std::map<std::string, UniformBuffer*> SharedUniformBufferContainer;
+	typedef ptr_map<std::string, UniformBuffer> Container;
 
 private:
-	uint offsetAlignment_;
-	SharedUniformBufferContainer sharedUniformBuffers_;
+	Container uniformBuffers_;
 };
 
 template  <class T>
-void UniformBufferManager::CreateBuffer(uint size) {
+void SharedUniformBuffers::CreateBuffer(uint size) {
 	if (size == 0) { size = sizeof(T); }
-	UniformBuffer* ptr = MEMORY_NEW(UniformBuffer);
-	ptr->Create(T::GetName(), size);
-	sharedUniformBuffers_.insert(std::make_pair(T::GetName(), ptr));
+	(uniformBuffers_[T::GetName()])->Create(T::GetName(), size);
 }

@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 
+#include "gl.h"
 #include "texture.h"
-#include "../api/gl.h"
 #include "framebuffer.h"
 #include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"

@@ -12,11 +12,14 @@
 #include "gizmospainter.h"
 #include "containers/sortedvector.h"
 
+#include "tools/event.h"
+
 class Sample;
+class Context;
 class DecalCreater;
 class GameObjectLoaderThreadPool;
 
-class WorldInternal : public ScreenSizeChangedListener, public WorldEventListener {
+class WorldInternal : public WorldEventListener {
 public:
 	WorldInternal();
 	~WorldInternal();
@@ -34,9 +37,9 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject* go);
 
-	GameObject* Import(const std::string& path, GameObjectImportedListener* listener);
+	GameObject* Import(const std::string& path);
 	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
-	bool ImportTo(GameObject* go, const std::string& path, GameObjectImportedListener* listener);
+	bool ImportTo(GameObject* go, const std::string& path);
 
 	GameObject* GetGameObject(uint id);
 
@@ -50,9 +53,6 @@ public:
 	void RemoveEventListener(WorldEventListener* listener);
 
 	void GetDecals(std::vector<Decal>& container);
-
-public:
-	void OnScreenSizeChanged(uint width, uint height);
 
 public:
 	void OnWorldEvent(WorldEventBasePtr e);
@@ -98,6 +98,8 @@ private:
 	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:
+	Context* context_;
+
 	GameObject* root_;
 
 	LightContainer lights_;

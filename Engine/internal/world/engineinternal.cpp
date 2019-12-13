@@ -20,13 +20,14 @@
 // Disable lua supports.
 //#include "../lua/wrappers/luaconfig.h"
 
-Engine::Engine() : Singleton2<Engine>(MEMORY_NEW(EngineInternal), Memory::DeleteRaw<EngineInternal>) {}
+sorted_event<> Engine::frameEnter;
+sorted_event<> Engine::frameLeave;
+
+Engine::Engine() : Singleton2<Engine>(new EngineInternal, t_delete<EngineInternal>) {}
 
 bool Engine::Startup(uint width, uint height) { return _suede_dinstance()->Startup(width, height); }
 void Engine::Shutdown() { _suede_dinstance()->Shutdown(); }
 void Engine::Update() { _suede_dinstance()->Update(); }
-void Engine::AddFrameEventListener(FrameEventListener* listener) { _suede_dinstance()->AddFrameEventListener(listener); }
-void Engine::RemoveFrameEventListener(FrameEventListener* listener) { _suede_dinstance()->RemoveFrameEventListener(listener); }
 
 static void OnTerminate() {
 	Debug::Break();
@@ -61,10 +62,15 @@ bool EngineInternal::Startup(uint width, uint height) {
 	ZThread::ztException = OnZThreadException;
 	ZThread::Thread::markMainThread();
 
-	if (!Debug::Initialize()) { return false; }
-	if (!OpenGLDriver::Load()) { return false; }
+	if (!Debug::Initialize()) {
+		return false;
+	}
 
-	if (!GLEF::instance()->Load("resources/data/GLEF.dat")) {
+	if (!OpenGLDriver::Initialize()) {
+		return false;
+	}
+
+	if (!Shader::LoadParser("resources/data/GLEF.dat")) {
 		return false;
 	}
 
@@ -111,32 +117,8 @@ void EngineInternal::Update() {
 	//	Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 	//);
 
-	FrameEventListenerContainer container(listeners_);
-	for (FrameEventListener* listener : container) {
-		listener->OnFrameEnter();
-	}
-	
+	Engine::frameEnter.fire();
 	World::Update();
-
-	for (FrameEventListener* listener : container) {
-		listener->OnFrameLeave();
-	}
+	Engine::frameLeave.fire();
 }
 
-void EngineInternal::AddFrameEventListener(FrameEventListener* listener) {
-	struct FrameEventComparer {
-		bool operator()(FrameEventListener* lhs, FrameEventListener* rhs) const {
-			return lhs->GetFrameEventQueue() < rhs->GetFrameEventQueue();
-		}
-	};
-
-	auto pos = std::upper_bound(listeners_.begin(), listeners_.end(), listener, FrameEventComparer());
-	listeners_.insert(pos, listener);
-}
-
-void EngineInternal::RemoveFrameEventListener(FrameEventListener* listener) {
-	std::vector<FrameEventListener*>::iterator ite = std::find(listeners_.begin(), listeners_.end(), listener);
-	if (ite != listeners_.end()) {
-		listeners_.erase(ite);
-	}
-}

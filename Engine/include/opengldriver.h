@@ -16,7 +16,7 @@ public:
 	/**
 	 * @brief load GL functions on current context.
 	 */
-	static bool Load();
+	static bool Initialize();
 
 private:
 	OpenGLDriver();

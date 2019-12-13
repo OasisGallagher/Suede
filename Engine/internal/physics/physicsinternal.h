@@ -1,6 +1,5 @@
 #include "world.h"
 #include "physics.h"
-#include "frameeventlistener.h"
 
 #include "mathconvert.h"
 #include "bullet/btBulletDynamicsCommon.h"
@@ -17,7 +16,7 @@ public:
 	virtual int getDebugMode() const { return DBG_DrawWireframe | DBG_DrawAabb; }
 };
 
-class PhysicsInternal : public WorldEventListener, public FrameEventListener {
+class PhysicsInternal : public WorldEventListener {
 public:
 	PhysicsInternal();
 	~PhysicsInternal();
@@ -37,13 +36,10 @@ public:
 	bool GetDebugDrawEnabled() const { return debugDrawEnabled_; }
 
 public:
-	// SUEDE TODO: FixedUpdate sould be called every fixed framerate frame.
-	virtual void OnFrameEnter() { FixedUpdate(); }
-	virtual int GetFrameEventQueue() { return FrameEventQueuePhysics; }
-
 	virtual void OnWorldEvent(WorldEventBasePtr e);
 
 private:
+	void OnFrameEnter() { FixedUpdate(); }
 	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
 
 private:

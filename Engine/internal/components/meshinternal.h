@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "mesh.h"
-#include "../api/gl.h"
+#include "tools/event.h"
 #include "componentinternal.h"
 #include "internal/base/vertexarray.h"
 #include "internal/base/objectinternal.h"
@@ -19,11 +19,6 @@ public:
 
 private:
 	TriangleBias bias_;
-};
-
-class IMeshModifiedListener {
-public:
-	virtual void OnMeshModified() = 0;
 };
 
 class MeshInternal : public ObjectInternal {
@@ -43,9 +38,6 @@ public:
 	void Unbind();
 	void ShareStorage(Mesh* other);
 
-	void AddMeshModifiedListener(IMeshModifiedListener* listener);
-	void RemoveMeshModifiedListener(IMeshModifiedListener* listener);
-
 	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount() { return subMeshes_.size(); }
 	SubMesh* GetSubMesh(uint index) { return subMeshes_[index].get(); }
@@ -64,12 +56,7 @@ public:
 
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
-private:
-	void Destroy();
-	void UpdateGLBuffers(const MeshAttribute& attribute);
-	int CalculateVBOCount(const MeshAttribute& attribute);
-
-private:
+public:
 	enum BufferIndex {
 		IndexBuffer,
 		VertexBuffer,
@@ -85,8 +72,15 @@ private:
 		MeshTopology topology;
 		uint bufferIndexes[BufferIndexCount];
 
-		std::set<IMeshModifiedListener*> listeners;
+		event<> modified;
 	};
+
+	Storage* GetStorage() { return storage_.get(); }
+
+private:
+	void Destroy();
+	void UpdateGLBuffers(const MeshAttribute& attribute);
+	int CalculateVBOCount(const MeshAttribute& attribute);
 
 //protected:
 //	Bounds bounds_;
@@ -96,7 +90,7 @@ private:
 	std::shared_ptr<Storage> storage_;
 };
 
-class MeshProviderInternal : public ComponentInternal, public IMeshModifiedListener {
+class MeshProviderInternal : public ComponentInternal {
 public:
 	MeshProviderInternal(ObjectType type);
 	~MeshProviderInternal();
@@ -105,14 +99,14 @@ public:
 	Mesh* GetMesh() { return mesh_.get(); }
 	void SetMesh(Mesh* value);
 
-public:
-	virtual void OnMeshModified();
+private:
+	void OnMeshModified();
 
 private:
 	ref_ptr<Mesh> mesh_;
 };
 
-class TextMeshInternal : public MeshProviderInternal, public FontMaterialRebuiltListener {
+class TextMeshInternal : public MeshProviderInternal {
 public:
 	TextMeshInternal();
 	~TextMeshInternal();

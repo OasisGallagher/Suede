@@ -8,8 +8,9 @@
 #include "transform.h"
 #include "gameobject.h"
 #include "environment.h"
+
+#include "tools/event.h"
 #include "tools/singleton.h"
-#include "gameobjectimportedlistener.h"
 
 BETTER_ENUM(WorldEventType, int,
 	GameObjectCreated,
@@ -165,10 +166,10 @@ public:
 	static void DestroyGameObject(uint id);
 	static void DestroyGameObject(GameObject* go);
 
-	static GameObject* Import(const std::string& path, GameObjectImportedListener* listener);
+	static GameObject* Import(const std::string& path);
 	static GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 
-	static bool ImportTo(GameObject* go, const std::string& path, GameObjectImportedListener* listener);
+	static bool ImportTo(GameObject* go, const std::string& path);
 
 	static Transform* GetRootTransform();
 
@@ -185,8 +186,10 @@ public:
 public:
 	template <class T>
 	static std::vector<T*> GetComponents();
-
 	static std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
+
+public:
+	static event<GameObject*, const std::string&> gameObjectImported;
 
 private:
 	World();

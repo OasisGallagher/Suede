@@ -12,19 +12,10 @@ public:
 	void Shutdown();
 
 	void Update();
-
-	void AddFrameEventListener(FrameEventListener* listener);
-	void RemoveFrameEventListener(FrameEventListener* listener);
-
-private:
-	typedef void (FrameEventListener::*Event)();
-	typedef std::vector<FrameEventListener*> FrameEventListenerContainer;
-
+	
 private:
 	// Disable lua supports.
 	//int updateRef_;
 	// Disable lua supports.
 	//lua_State* L;
-
-	FrameEventListenerContainer listeners_;
 };

@@ -9,12 +9,13 @@
 
 #include "math/mathf.h"
 #include "internal/async/async.h"
+#include "internal/rendering/context.h"
 
 static Camera* main_;
 Camera* Camera::GetMain() { return main_; }
 void Camera::SetMain(Camera* value) { main_ = value; }
 
-Camera::Camera() : Component(MEMORY_NEW(CameraInternal)) {}
+Camera::Camera() : Component(new CameraInternal) {}
 Camera::~Camera() { if (main_ == this) { main_ = nullptr; } }
 
 void Camera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
@@ -73,45 +74,62 @@ void Camera::OnPostRender() {
 }
 
 CameraInternal::CameraInternal()
-	: ComponentInternal(ObjectType::Camera), depth_(0), traitsReady_(false)
+	: ComponentInternal(ObjectType::Camera), depth_(0), pipelineReady_(false), normalizedRect_(0, 0, 1, 1)
+	, clearType_(ClearType::Color), clearColor_(Color::black), depthTextureMode_(DepthTextureMode::None), renderPath_(RenderPath::Forward)
 	 /*, gbuffer_(nullptr) */{
-	culling_ = MEMORY_NEW(Culling, this);
-	cullingThread_ = MEMORY_NEW(ZThread::Thread, culling_);
+	culling_ = new Culling();
+	cullingThread_ = new ZThread::Thread(culling_);
 
-	rendering_ = MEMORY_NEW(Rendering, &p_);// , this);
+	culling_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
 
-	traits0_ = MEMORY_NEW(RenderableTraits, &p_);
-	traits1_ = MEMORY_NEW(RenderableTraits, &p_);
+	context_ = Context::GetCurrent();
+	rendering_ = new Rendering(context_);
 
-	Screen::AddScreenSizeChangedListener(this);
+	pipelineBuilder_ = new PipelineBuilder(context_);
+	frontPipelines_ = new RenderingPipelines(context_);
+	backPipelines_ = new RenderingPipelines(context_);
+
+	Screen::sizeChanged.subscribe(this, &CameraInternal::OnScreenSizeChanged);
 
 	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
 }
 
 CameraInternal::~CameraInternal() {
-	//MEMORY_DELETE(gbuffer_);
 	CancelThreads();
 
-	MEMORY_DELETE(traits0_);
-	MEMORY_DELETE(traits1_);
+	delete pipelineBuilder_;
+	delete frontPipelines_;
+	delete backPipelines_;
 
-	MEMORY_DELETE(rendering_);
-	Screen::RemoveScreenSizeChangedListener(this);
+	delete rendering_;
+	Screen::sizeChanged.unsubscribe(this);
 }
 
 void CameraInternal::Awake() {
-	p_.camera = GetGameObject();
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {
 	CancelThreads();
 }
 
+void CameraInternal::UpdateFrameState() {
+	FrameState* fs = context_->GetFrameState();
+	fs->camera = gameObject_;
+	fs->normalizedRect = normalizedRect_;
+	fs->clearType = clearType_;
+	fs->clearColor = clearColor_;
+	fs->depthTextureMode = depthTextureMode_;
+	fs->renderPath = renderPath_;
+	fs->targetTexture = targetTexture_.get();
+}
+
 void CameraInternal::CancelThreads() {
 	if (cullingThread_ != nullptr) {
+		culling_->cullingFinished.unsubscribe(this);
+
 		culling_->Stop();
 		cullingThread_->wait();
-		MEMORY_DELETE(cullingThread_);
+		delete cullingThread_;
 		cullingThread_ = nullptr;
 	}
 }
@@ -130,35 +148,24 @@ void CameraInternal::Render() {
 		return;
 	}
 
+	UpdateFrameState();
+
 	if (!culling_->IsWorking()) {
-		traits1_->Clear();
 		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	}
 
-	if (traitsReady_) {
+	if (pipelineReady_) {
 		RenderingMatrices matrices;
 		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
 		matrices.cameraPos = GetTransform()->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
-		rendering_->Render(traits0_->GetPipelines(), matrices);
+		
+		rendering_->Render(frontPipelines_, matrices);
 	}
 	else {
 		// Debug::Log("Waiting for first frame...");
 	}
-}
-
-void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
-	rendering_->Resize(width, height);
-
-	float aspect = (float)width / height;
-	if (!Mathf::Approximately(aspect, GetAspect())) {
-		SetAspect(aspect);
-	}
-}
-
-void CameraInternal::OnProjectionMatrixChanged() {
-	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 }
 
 void CameraInternal::OnCullingFinished() {
@@ -172,25 +179,29 @@ void CameraInternal::OnCullingFinished() {
 		visibleGameObjects_ = culling_->GetGameObjects();
 	}
 
-	traits1_->Traits(visibleGameObjects_, matrices);
+	pipelineBuilder_->Build(backPipelines_, visibleGameObjects_, matrices);
 
-	std::swap(traits0_, traits1_);
-	traitsReady_ = true;
+	std::swap(frontPipelines_, backPipelines_);
+	pipelineReady_ = true;
 }
 
-// void CameraInternal::OnRenderingFinished() {
-// }
+void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
+	float aspect = (float)width / height;
+	if (!Mathf::Approximately(aspect, GetAspect())) {
+		SetAspect(aspect);
+	}
+}
+
+void CameraInternal::OnProjectionMatrixChanged() {
+	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+}
 
 bool CameraInternal::IsValidViewportRect() {
-	const Rect& r = p_.normalizedRect;
+	const Rect& r = normalizedRect_;
 	if (r.GetXMin() >= 1 || r.GetYMin() >= 1) { return false; }
 	if (r.GetWidth() <= 0 || r.GetHeight() <= 0) { return false; }
 
 	return true;
-}
-
-void CameraInternal::SetRect(const Rect& value) {
-	p_.normalizedRect = value;
 }
 
 void CameraInternal::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects) {

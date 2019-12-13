@@ -1,7 +1,7 @@
 #include "variant.h"
 #include "debug/debug.h"
 #include "math/mathf.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 #define CHECK_VARIANT_TYPE(T, R)	if (type_ != T) { Debug::LogError("invalid uniform type."); return R; } else (void)0
 
@@ -175,14 +175,14 @@ void Variant::SetMatrix4Array(const Matrix4* data, uint size) {
 void Variant::SetPodArray(VariantType type, const void* data, uint size) {
 	if (!SetType(type)) {
 		if (data_.podArray.size < size) {
-			MEMORY_DELETE_ARRAY(data_.podArray.ptr);
-			data_.podArray.ptr = MEMORY_NEW_ARRAY(char, size);
+			delete[] data_.podArray.ptr;
+			data_.podArray.ptr = new char[size];
 		}
 	}
 	else {
 		data_.podArray.ptr = nullptr;
 		if (size != 0) {
-			data_.podArray.ptr = MEMORY_NEW_ARRAY(char, size);
+			data_.podArray.ptr = new char[size];
 		}
 	}
 	
@@ -244,7 +244,7 @@ Variant& Variant::operator = (const Variant& other) {
 	}
 
 	if (type_ >= VariantType::_POD_ARRAY_BEGIN) {
-		MEMORY_DELETE_ARRAY(data_.podArray.ptr);
+		delete[] data_.podArray.ptr;
 	}
 
 	memcpy(&data_, &other.data_, sizeof(data_));
@@ -269,7 +269,7 @@ bool Variant::SetType(VariantType type) {
 	}
 
 	if (type_ >= VariantType::_POD_ARRAY_BEGIN) {
-		MEMORY_DELETE_ARRAY(data_.podArray.ptr);
+		delete[] data_.podArray.ptr;
 	}
 
 	type_ = type;

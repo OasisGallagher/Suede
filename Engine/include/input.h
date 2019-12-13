@@ -3,7 +3,7 @@
 #include "tools/singleton.h"
 
 #include "math/vector2.h"
-#include "frameeventlistener.h"
+#include "frameeventqueue.h"
 
 BETTER_ENUM(KeyCode, int,
 	A,
@@ -59,13 +59,10 @@ BETTER_ENUM(KeyCode, int,
 	RightArrow
 )
 
-class SUEDE_API InputInternal : public FrameEventListener {
+class SUEDE_API InputInternal {
 public:
 	InputInternal();
 	virtual ~InputInternal();
-
-public:
-	virtual int GetFrameEventQueue() final;
 
 public:
 	virtual void OnFrameLeave() = 0;

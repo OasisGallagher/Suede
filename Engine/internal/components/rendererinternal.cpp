@@ -15,11 +15,11 @@ void Renderer::RemoveMaterialAt(uint index) { _suede_dptr()->RemoveMaterialAt(in
 uint Renderer::GetMaterialCount() { return _suede_dptr()->GetMaterialCount(); }
 void Renderer::UpdateMaterialProperties() { _suede_dptr()->UpdateMaterialProperties(); }
 
-MeshRenderer::MeshRenderer() : Renderer(MEMORY_NEW(MeshRendererInternal)) {}
+MeshRenderer::MeshRenderer() : Renderer(new MeshRendererInternal) {}
 
-ParticleRenderer::ParticleRenderer() : Renderer(MEMORY_NEW(ParticleRendererInternal)) {}
+ParticleRenderer::ParticleRenderer() : Renderer(new ParticleRendererInternal) {}
 
-SkinnedMeshRenderer::SkinnedMeshRenderer() : Renderer(MEMORY_NEW(SkinnedMeshRendererInternal)) {}
+SkinnedMeshRenderer::SkinnedMeshRenderer() : Renderer(new SkinnedMeshRendererInternal) {}
 void SkinnedMeshRenderer::SetSkeleton(Skeleton* value) { _suede_dptr()->SetSkeleton(value); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Renderer, Component)

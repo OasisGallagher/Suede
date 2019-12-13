@@ -1,5 +1,5 @@
 #pragma once
-#include "../api/gl.h"
+#include "gl.h"
 #include "tools/enum.h"
 /**
  * @param Cull: Front, Back, Off.

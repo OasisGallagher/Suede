@@ -1,16 +1,12 @@
 #pragma once
 #include "object.h"
 #include "material.h"
+#include "tools/event.h"
 
 struct CharacterInfo {
 	uint width;
 	uint height;
 	Vector4 texCoord;
-};
-
-class FontMaterialRebuiltListener {
-public:
-	virtual void OnMaterialRebuilt() = 0;
 };
 
 class SUEDE_API Font : public Object {
@@ -33,6 +29,6 @@ public:
 	Material* GetMaterial();
 	bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
 
-	void AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
-	void RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
+public:
+	event<> materialRebuilt;
 };

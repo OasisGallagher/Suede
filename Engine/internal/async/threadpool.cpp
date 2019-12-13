@@ -2,7 +2,8 @@
 #include "engine.h"
 #include "threadpool.h"
 #include "debug/debug.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
+#include "frameeventqueue.h"
 
 #include <ZThread/PoolExecutor.h>
 #include <ZThread/ThreadedExecutor.h>
@@ -11,18 +12,16 @@
 
 void Worker::run() {
 	Run();
-	if (listener_ != nullptr) {
-		listener_->OnWorkFinished(this);
-	}
+	workFinished.fire(this);
 }
 
 ThreadPool::ThreadPool(int type) {
-	Engine::AddFrameEventListener(this);
+	Engine::frameEnter.subscribe(this, &ThreadPool::OnFrameEnter, (int)FrameEventQueue::User);
 	CreateExecutor(type);
 }
 
 ThreadPool::~ThreadPool() {
-	Engine::RemoveFrameEventListener(this);
+	Engine::frameEnter.unsubscribe(this);
 
 	try {
 		executor_->interrupt();
@@ -35,25 +34,25 @@ ThreadPool::~ThreadPool() {
 		Debug::LogError(e.what());
 	}
 
-	MEMORY_DELETE(executor_);
+	delete executor_;
 }
 
 void ThreadPool::CreateExecutor(int type) {
 	if (type == Threaded) {
-		executor_ = MEMORY_NEW(ZThread::ThreadedExecutor);
+		executor_ = new ZThread::ThreadedExecutor;
 	}
 	else if (type == Concurrent) {
-		executor_ = MEMORY_NEW(ZThread::ConcurrentExecutor);
+		executor_ = new ZThread::ConcurrentExecutor;
 	}
 	else if (type == Synchronous) {
-		executor_ = MEMORY_NEW(ZThread::SynchronousExecutor);
+		executor_ = new ZThread::SynchronousExecutor;
 	}
 	else {
 		if (type <= 0) {
 			Debug::LogError("invalid parameter for thread pool");
 		}
 
-		executor_ = MEMORY_NEW(ZThread::PoolExecutor, type);
+		executor_ = new ZThread::PoolExecutor(type);
 	}
 }
 
@@ -93,7 +92,10 @@ void ThreadPool::UpdateSchedules() {
 	}
 }
 
-bool ThreadPool::Execute(ZThread::Task task) {
+bool ThreadPool::Execute(Worker* worker) {
+	worker->workFinished.subscribe(this, &ThreadPool::OnWorkFinished);
+
+	ZThread::Task task(worker);
 	tasks_.push_back(task);
 
 	try {

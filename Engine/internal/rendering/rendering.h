@@ -1,29 +1,19 @@
 #pragma once
+#include <set>
+
 #include "light.h"
 #include "texture.h"
 #include "material.h"
 #include "renderer.h"
 #include "gameobject.h"
-//#include "tools/dirtybits.h"
 #include "internal/rendering/pipeline.h"
 
 class Sample;
+class Context;
 class Pipeline;
-
-enum RenderPassType {
-	RenderPassTypeNone = -1,
-
-	RenderPassTypeShadowDepth,
-
-	RenderPassTypeForwardBackground,
-	RenderPassTypeForwardDepth,
-	RenderPassTypeForwardOpaque,
-	RenderPassTypeForwardTransparent,
-
-	RenderPassTypeDeferredGeometryPass,
-
-	RenderPassTypeCount
-};
+class ShadowMap;
+class AmbientOcclusion;
+class SharedUniformBuffers;
 
 struct RenderingMatrices {
 	Vector3 cameraPos;
@@ -32,38 +22,11 @@ struct RenderingMatrices {
 	Matrix4 worldToCameraMatrix;
 };
 
-struct RenderingMaterials {
-	ref_ptr<Material> ssao;
-	ref_ptr<Material> ssaoTraversal;
-
-	ref_ptr<Material> depth;
-};
-
-struct RenderingRenderTextures {
-	ref_ptr<RenderTexture> aux1;
-	ref_ptr<RenderTexture> aux2;
-	ref_ptr<RenderTexture> target;
-	ref_ptr<MRTRenderTexture> ssaoTraversal;
-};
-
-struct RenderingParameters {
-	RenderingParameters();
-
-	GameObject* camera;
-	Rect normalizedRect;
-
-	ClearType clearType;
-	Color clearColor;
-
-	RenderPath renderPath;
-	DepthTextureMode depthTextureMode;
-
-	RenderingMaterials materials;
-	RenderingRenderTextures renderTextures;
-};
-
 struct RenderingPipelines {
-	Light* forwardBaseLight;
+	RenderingPipelines(Context* context);
+	~RenderingPipelines();
+
+	void Clear();
 
 	Pipeline* depth;
 	Pipeline* shadow;
@@ -72,39 +35,31 @@ struct RenderingPipelines {
 };
 
 class Rendering;
-class RenderingListener {
-public:
-	virtual void OnRenderingFinished() = 0;
-};
+class ImageEffect;
 
 class Rendering {
 public:
-	Rendering(RenderingParameters* p);
+	Rendering(Context* context);
 
 public:
-	void Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices);
-
-	void Resize(uint width, uint height);
-	void ClearRenderTextures();
+	void Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices);
 
 private:
 	void OnPostRender();
-	void OnImageEffects();
+	void OnImageEffects(const std::vector<ImageEffect*>& effects);
 
-	void DepthPass(RenderingPipelines& pipelines);
-	void SSAOPass(RenderingPipelines& pipelines);
-	void SSAOTraversalPass(RenderingPipelines& pipelines);
-	void ShadowPass(RenderingPipelines& pipelines);
-	void RenderPass(RenderingPipelines& pipelines);
-	void UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines& pipelines);
+	void DepthPass(RenderingPipelines* pipelines);
+	void SSAOPass(RenderingPipelines* pipelines);
+	void SSAOTraversalPass(RenderingPipelines* pipelines);
+	void ShadowPass(RenderingPipelines* pipelines);
+	void RenderPass(RenderingPipelines* pipelines);
+	void UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices);
 
 	void UpdateForwardBaseLightUniformBuffer(Light* light);
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
 
-	void CreateAuxMaterial(ref_ptr<Material>& material, const std::string& shaderPath, uint renderQueue);
-
 private:
-	RenderingParameters* p_;
+	Context* context_;
 
 	Sample* ssaoSample;
 	Sample* ssaoTraversalSample;
@@ -114,20 +69,15 @@ private:
 	Sample* renderingSample;
 };
 
-// SUEDE TODO: multi-thread rendering.
-class RenderableTraits/* : public ZThread::Runnable, public DirtyBits*/ {
+class PipelineBuilder {
 public:
-	RenderableTraits(RenderingParameters* p/*RenderingListener* listener*/);
-	~RenderableTraits();
+	PipelineBuilder(Context* context);
+	~PipelineBuilder();
 
 public:
-	RenderingPipelines& GetPipelines() { return pipelines_; }
-	void Traits(std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices);
-	void Clear();
+	void Build(RenderingPipelines* pipelines, std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices);
 
 private:
-	void InitializeSSAOKernel();
-
 	void ForwardRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd);
 	void DeferredRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd);
 
@@ -156,11 +106,8 @@ private:
 	void GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd);
 
 private:
-	RenderingParameters* p_;
+	Context* context_;
 	RenderingMatrices matrices_;
 
-	/*RenderingListener* listener_;*/
-
-	RenderingPipelines pipelines_;
 	Sample *push_renderables, *forward_pass, *get_renderable_game_objects;
 };

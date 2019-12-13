@@ -28,8 +28,8 @@ public:
 	static std::string GetTextureDirectory();
 
 	static Mesh* GetPrimitive(PrimitiveType type);
-	static Mesh* CreatePrimitive(PrimitiveType type, float scale);
-	static Mesh* CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	static ref_ptr<Mesh> CreatePrimitive(PrimitiveType type, float scale);
+	static ref_ptr<Mesh> CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
 	static void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 

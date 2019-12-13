@@ -4,7 +4,7 @@
 #include "graphicscanvas.h"
 #include "engineinternal.h"
 
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 enum {
 	ViewerStatusUninitialized,

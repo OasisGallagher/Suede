@@ -3,9 +3,9 @@
 #include <set>
 #include "debug/debug.h"
 #include "math/mathf.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
-TagManager::TagManager() : Singleton2<TagManager>(MEMORY_NEW(TagManagerInternal), Memory::DeleteRaw<TagManagerInternal>) {}
+TagManager::TagManager() : Singleton2<TagManager>(new TagManagerInternal, t_delete<TagManagerInternal>) {}
 const Tags& TagManager::GetAllTags() { return _suede_dinstance()->GetAllTags(); }
 void TagManager::Register(const std::string& name) { _suede_dinstance()->Register(name); }
 void TagManager::Unregister(const std::string& name) { _suede_dinstance()->Unregister(name); }

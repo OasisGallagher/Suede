@@ -23,6 +23,9 @@ public:
 	Shader();
 
 public:
+	static bool LoadParser(const std::string& path);
+
+public:
 	std::string GetName() const;
 	bool Load(const std::string& path);
 

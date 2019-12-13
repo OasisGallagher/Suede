@@ -1,7 +1,7 @@
 #include "frustum.h"
 #include "projectorinternal.h"
 
-Projector::Projector() : Component(MEMORY_NEW(ProjectorInternal)) {}
+Projector::Projector() : Component(new ProjectorInternal) {}
 bool Projector::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
 void Projector::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
 float Projector::GetOrthographicSize() const { return _suede_dptr()->GetOrthographicSize(); }

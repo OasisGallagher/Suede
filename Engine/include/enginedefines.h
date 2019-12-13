@@ -1,8 +1,9 @@
 #pragma once
 #include <vector>
+#include <memory>
 
 #include "types.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 // is std::shared_ptr.
 template<class T> struct suede_is_shared_ptr : std::false_type {};

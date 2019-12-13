@@ -2,23 +2,22 @@
 #include "light.h"
 #include "material.h"
 #include "gameobject.h"
-#include "tools/singleton.h"
 
 class Pipeline;
 
-class Shadows : public Singleton<Shadows> {
-	friend class Singleton<Shadows>;
+class ShadowMap {
+public:
+	ShadowMap(RenderTexture* target);
 
 public:
 	void Clear();
-	RenderTexture* GetShadowTexture();
 
 	void Resize(uint width, uint height);
 	const Matrix4& GetWorldToShadowMatrix();
-	void Update(Light* light, Pipeline* pipeline);
+	void Update(Light* light);
 
-private:
-	Shadows();
+	Material* GetMaterial() { return directionalLightShadowMaterial_.get(); }
+	RenderTexture* GetTargetTexture() { return shadowDepthTexture_.get(); }
 
 private:
 	Matrix4 worldToShadowMatrix_;

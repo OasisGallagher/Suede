@@ -6,7 +6,7 @@
 
 #include "world.h"
 #include "resources.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
@@ -92,13 +92,13 @@ ref_ptr<Texture2D> MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-GameObjectLoader::GameObjectLoader(const std::string& path, GameObject* root, WorkerEventListener* receiver)
-	: Worker(receiver), path_(path), root_(root) {
+GameObjectLoader::GameObjectLoader(const std::string& path, GameObject* root)
+	: Worker(), path_(path), root_(root) {
 }
 
 GameObjectLoader::~GameObjectLoader() {
 	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
-		MEMORY_DELETE(ite->second);
+		delete ite->second;
 	}
 }
 
@@ -467,7 +467,7 @@ TexelMap* GameObjectLoader::LoadTexels(const std::string& name) {
 	}
 
 	bool status = false;
-	TexelMap* answer = MEMORY_NEW(TexelMap);
+	TexelMap* answer = new TexelMap;
 
 	if (String::StartsWith(name, "*")) {
 		status = LoadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
@@ -477,7 +477,7 @@ TexelMap* GameObjectLoader::LoadTexels(const std::string& name) {
 	}
 
 	if (!status) {
-		MEMORY_DELETE(answer);
+		delete answer;
 		return false;
 	}
 
@@ -519,7 +519,7 @@ bool GameObjectLoader::LoadAsset() {
 	asset_.meshAsset.topology = MeshTopology::Triangles;
 
 	if (scene_->mNumMeshes > 0) {
-		subMeshes = MEMORY_NEW_ARRAY(SubMesh*, scene_->mNumMeshes);
+		subMeshes = new SubMesh*[scene_->mNumMeshes];
 		if (!LoadAttribute(asset_.meshAsset, subMeshes)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
@@ -538,7 +538,7 @@ bool GameObjectLoader::LoadAsset() {
 
 	surface_ = surface;
 
-	MEMORY_DELETE_ARRAY(subMeshes);
+	delete[] subMeshes;
 
 	if (HasAnimation()) {
 		ref_ptr<Animation> animation = new Animation();
@@ -556,7 +556,7 @@ GameObject* GameObjectLoaderThreadPool::Import(const std::string& path, Lua::Fun
 }
 
 bool GameObjectLoaderThreadPool::ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
-	return Execute(MEMORY_NEW(GameObjectLoaderWithCallback, path, go, this, callback));
+	return Execute(new GameObjectLoaderWithCallback(path, go, callback));
 }
 
 void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
@@ -580,7 +580,5 @@ void GameObjectLoaderThreadPool::OnSchedule(ZThread::Task& schedule) {
 		(*loader->GetParameter())(root, loader->GetPath());
 	}
 
-	if (listener_ != nullptr) {
-		listener_->OnGameObjectImported(root, loader->GetPath());
-	}
+	imported_.fire(root, loader->GetPath());
 }

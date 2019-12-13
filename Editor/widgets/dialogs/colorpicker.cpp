@@ -2,7 +2,7 @@
 #include "math/mathf.h"
 
 #include "tools/enum.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 static QMetaObject::Connection connection_;
 

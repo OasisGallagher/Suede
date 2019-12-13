@@ -5,9 +5,8 @@
 
 #include "mesh.h"
 #include "material.h"
-#include "frameeventlistener.h"
 
-class GizmosInternal : public FrameEventListener {
+class GizmosInternal {
 public:
 	GizmosInternal();
 
@@ -32,10 +31,6 @@ public:
 	void DrawWireSphere(const Vector3& center, float radius);
 	void DrawWireCuboid(const Vector3& center, const Vector3& size);
 
-public:
-	void OnFrameLeave() { Flush(); }
-	int GetFrameEventQueue() { return FrameEventQueueGizmos; }
-
 private:
 	struct Batch {
 		MeshTopology topology;
@@ -49,6 +44,8 @@ private:
 	};
 
 private:
+	void OnFrameLeave() { Flush(); }
+
 	Batch& GetBatch(MeshTopology topology, bool wireframe, Material* material);
 	bool IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material);
 

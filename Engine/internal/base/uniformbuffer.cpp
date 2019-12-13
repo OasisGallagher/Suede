@@ -1,7 +1,9 @@
-#include "buffer.h"
-#include "../api/glutils.h"
 #include "uniformbuffer.h"
-#include "memory/memory.h"
+
+#include "buffer.h"
+
+#include "contextlimits.h"
+#include "memory/refptr.h"
 
 uint UniformBuffer::bindingPoint_;
 
@@ -13,7 +15,7 @@ UniformBuffer::~UniformBuffer() {
 }
 
 bool UniformBuffer::Create(const std::string& name, uint size) {
-	if (bindingPoint_ == GLUtils::GetLimits(GLLimitsMaxUniformBufferBindings)) {
+	if (bindingPoint_ == ContextLimits::Get(ContextLimitsType::MaxUniformBufferBindings)) {
 		Debug::LogError("too many uniform buffers");
 		return false;
 	}
@@ -38,8 +40,8 @@ void UniformBuffer::AttachProgram(uint program) {
 	if (pos != nullptr) {
 		newName.assign(ptr, pos);
 	}
-	GLuint index = GL::GetUniformBlockIndex(program, newName.c_str());
 
+	GLuint index = GL::GetUniformBlockIndex(program, newName.c_str());
 	if (index == GL_INVALID_INDEX) {
 		return;
 	}
@@ -54,15 +56,21 @@ void UniformBuffer::AttachProgram(uint program) {
 	GL::UniformBlockBinding(program, index, binding_);
 }
 
-void UniformBuffer::UpdateBuffer(const void* data, uint offset, uint size) {
+bool UniformBuffer::UpdateBuffer(const void* data, uint offset, uint size) {
+	if (size > ContextLimits::Get(ContextLimitsType::MaxUniformBlockSize)) {
+		Debug::LogError("%d exceeds max buffer size.", size);
+		return false;
+	}
+
 	ubo_->Update(offset, size, data);
+	return true;
 }
 
 void UniformBuffer::Initialize(const std::string& name, uint size) {
 	name_ = name;
 	size_ = size;
 
-	ubo_ = MEMORY_NEW(Buffer);
+	ubo_ = new Buffer;
 	ubo_->Create(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
 
 	binding_ = bindingPoint_++;
@@ -70,7 +78,7 @@ void UniformBuffer::Initialize(const std::string& name, uint size) {
 }
 
 void UniformBuffer::Destroy() {
-	MEMORY_DELETE(ubo_);
+	delete ubo_;
 }
 
 void UniformBuffer::Attach(Shader* shader) {

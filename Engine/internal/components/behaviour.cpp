@@ -13,7 +13,7 @@ public:
 	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
 };
 
-Behaviour::Behaviour() : Component(MEMORY_NEW(BehaviourInternal)) {
+Behaviour::Behaviour() : Component(new BehaviourInternal) {
 }
 
 void Behaviour::OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect) {

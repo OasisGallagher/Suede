@@ -1,7 +1,8 @@
 #include "gpuquerier.h"
+#include "frameeventqueue.h"
 
 GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
-	Engine::AddFrameEventListener(this);
+	Engine::frameEnter.subscribe(this, &GpuQuerier::OnFrameEnter, (int)FrameEventQueue::User);
 
 	GL::GenQueries(MaxQueries, ids_);
 
@@ -9,7 +10,6 @@ GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
 	for (QuerierContainer::iterator ite = queriers_.fbegin(); ite != queriers_.fend(); ++ite) {
 		Querier* ptr = *ite;
 		ptr->id = ids_[index++];
-		ptr->listener = nullptr;
 	}
 }
 
@@ -17,14 +17,14 @@ GpuQuerier::~GpuQuerier() {
 	GL::DeleteQueries(MaxQueries, ids_);
 }
 
-uint GpuQuerier::Start(QueryType type, QuerierResultListener* listener) {
+uint GpuQuerier::Start(QueryType type) {
 	Querier* querier = queriers_.spawn();
 	if (querier == nullptr) {
 		return 0;
 	}
 
 	stack_.push(querier);
-	StartQuerier(querier, type, listener);
+	StartQuerier(querier, type);
 	return querier->id;
 }
 
@@ -76,9 +76,7 @@ bool GpuQuerier::UpdateQuerier(Querier* querier) {
 	if (available) {
 		uint result = 0;
 		GL::GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
-		if (querier->listener != nullptr) {
-			querier->listener->OnQuerierResult(querier->id, result);
-		}
+		querierReturned.fire(querier->id, result);
 
 		return true;
 	}
@@ -86,8 +84,7 @@ bool GpuQuerier::UpdateQuerier(Querier* querier) {
 	return false;
 }
 
-void GpuQuerier::StartQuerier(Querier* querier, QueryType type, QuerierResultListener* listener) {
-	querier->listener = listener;
+void GpuQuerier::StartQuerier(Querier* querier, QueryType type) {
 	GLenum glType = QueryTypeToGLenum(type);
 
 	querier->type = glType;
@@ -117,7 +114,6 @@ GpuQuerier::Querier* GpuQuerier::FindQuerier(uint id) {
 
 void GpuQuerier::RecycleQuerier(Querier* querier) {
 	querier->type = 0;
-	querier->listener = nullptr;
 	queriers_.recycle(querier);
 }
 

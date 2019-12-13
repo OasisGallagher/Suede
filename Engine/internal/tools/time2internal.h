@@ -4,7 +4,7 @@
 #include "engine.h"
 #include "enginedefines.h"
 
-class TimeInternal : public FrameEventListener {
+class TimeInternal {
 public:
 	TimeInternal();
 
@@ -18,9 +18,8 @@ public:
 	float GetRealTimeSinceStartup();
 	uint GetFrameCount() { return frameCount_; }
 
-public:
+private:
 	void OnFrameEnter();
-	int GetFrameEventQueue() { return FrameEventQueueTime; }
 
 private:
 	float time_;

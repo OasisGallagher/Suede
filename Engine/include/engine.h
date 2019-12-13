@@ -1,7 +1,8 @@
 #pragma once
 #include "enginedefines.h"
+
+#include "tools/event.h"
 #include "tools/singleton.h"
-#include "frameeventlistener.h"
 
 class SUEDE_API Engine : private Singleton2<Engine> {
 	friend class Singleton<Engine>;
@@ -13,8 +14,8 @@ public:
 
 	static void Update();
 
-	static void AddFrameEventListener(FrameEventListener* listener);
-	static void RemoveFrameEventListener(FrameEventListener* listener);
+	static sorted_event<> frameEnter;
+	static sorted_event<> frameLeave;
 
 private:
 	Engine();

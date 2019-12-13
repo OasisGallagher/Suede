@@ -20,21 +20,18 @@ public:
 	~FontInternal();
 
 public:
-	virtual bool Load(const std::string& path, int size);
-	virtual bool Require(const std::wstring& str);
+	bool Load(const std::string& path, int size);
+	bool Require(Font* self, const std::wstring& str);
 
-	virtual uint GetFontSize() const { return size_; }
-	virtual Texture2D* GetTexture() const;
+	uint GetFontSize() const { return size_; }
+	Texture2D* GetTexture() const;
 
-	virtual std::string GetFamilyName() const;
-	virtual std::string GetStyleName() const;
+	std::string GetFamilyName() const;
+	std::string GetStyleName() const;
 
-	virtual Material* GetMaterial() { return material_.get(); }
+	Material* GetMaterial() { return material_.get(); }
 
-	virtual bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
-
-	virtual void AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
-	virtual void RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener);
+	bool GetCharacterInfo(wchar_t wch, CharacterInfo* info);
 
 private:
 	struct Glyph {
@@ -48,7 +45,7 @@ private:
 	bool Import(const std::string& path, int size);
 	bool GetBitmapBits(wchar_t wch, TexelMap* answer);
 
-	void RebuildMaterial();
+	void RebuildMaterial(Font* self);
 
 private:
 	ref_ptr<Material> material_;
@@ -56,7 +53,6 @@ private:
 	GlyphContainer glyphs_;
 	Atlas::CoordContainer coords_;
 	std::vector<TexelMap*> texelMaps_;
-	std::vector<FontMaterialRebuiltListener*> listeners_;
 
 	int size_;
 	std::string fname_;

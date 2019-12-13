@@ -151,10 +151,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="math\vector2.h" />
     <ClInclude Include="math\vector3.h" />
     <ClInclude Include="math\vector4.h" />
-    <ClInclude Include="memory\memory.h" />
+    <ClInclude Include="memory\refptr.h" />
     <ClInclude Include="os\filesystem.h" />
     <ClInclude Include="tools\dirtybits.h" />
     <ClInclude Include="tools\enum.h" />
+    <ClInclude Include="tools\event.h" />
     <ClInclude Include="tools\pimplidiom.h" />
     <ClInclude Include="tools\noncopyable.h" />
     <ClInclude Include="tools\random.h" />

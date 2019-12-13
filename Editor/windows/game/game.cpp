@@ -112,7 +112,7 @@ void Game::tick() {
 	}
 }
 
-void Game::OnGameObjectImported(GameObject* root, const std::string& path) {
+void Game::onGameObjectImported(GameObject* root, const std::string& path) {
 	//root->GetTransform()->SetParent(World::GetRootTransform());
 	root->SetName(path);
 
@@ -246,6 +246,8 @@ void Game::updateStatContent() {
 }
 
 void Game::createScene() {
+	World::gameObjectImported.subscribe(this, &Game::onGameObjectImported);
+
 	ref_ptr<GameObject> lightGameObject = new GameObject();
 	lightGameObject->SetName("light");
 
@@ -266,7 +268,8 @@ void Game::createScene() {
 	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>();
 
 #ifdef PROJECTOR
-	Projector projector = NewProjector();
+	ref_ptr<GameObject> projectorGameObject = new GameObject();
+	Projector* projector = projectorGameObject->AddComponent<Projector>();
 	
 #ifdef PROJECTOR_ORTHOGRAPHIC
 	projector->SetPerspective(false);
@@ -277,9 +280,9 @@ void Game::createScene() {
 	projector->GetTransform()->SetParent(World::GetRootTransform());
 	projector->GetTransform()->SetPosition(Vector3(0, 25, 0));
 
-	Texture2D texture = new Texture2D();
+	ref_ptr<Texture2D> texture = new Texture2D();
 	texture->Load("brick_diffuse.jpg");
-	projector->SetTexture(texture);
+	projector->SetTexture(texture.get());
 #endif // PROJECTOR
 
 //	light->GetTransform()->SetParent(camera->GetTransform());
@@ -292,7 +295,7 @@ void Game::createScene() {
 	camera->GetTransform()->SetPosition(Vector3(0, 25, 0));
 	//camera->SetDepthTextureMode(DepthTextureMode::Depth);
 
-	Graphics::SetAmbientOcclusionEnabled(true);
+	//Graphics::SetAmbientOcclusionEnabled(true);
 
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
@@ -436,6 +439,6 @@ void Game::createScene() {
 #endif
 
 #ifdef ANIMATION
-	GameObject* man = World::Import(manFbxPath, this);
+	GameObject* man = World::Import(manFbxPath);
 #endif
 }

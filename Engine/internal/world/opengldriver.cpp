@@ -1,6 +1,7 @@
 #include "opengldriver.h"
+
 #include "debug/debug.h"
-#include "../api/gl.h"
+#include "internal/base/gl.h"
 
 #ifndef _STDCALL
 #define _STDCALL __stdcall
@@ -16,7 +17,7 @@ static void _STDCALL GLDebugMessageCallback(
 	const GLvoid* userParam
 );
 
-bool OpenGLDriver::Load() {
+bool OpenGLDriver::Initialize() {
 	glewExperimental = true;
 	GLenum status = glewInit();
 	if (status != GLEW_OK) {

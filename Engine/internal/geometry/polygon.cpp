@@ -1,14 +1,14 @@
 #include "plane.h"
 #include "polygon.h"
 #include "debug/debug.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 #include "geometryutility.h"
 
 Polygon::Polygon() : points(nullptr), npoints(1) {
 }
 
 Polygon::Polygon(const Vector3* p, uint n) {
-	points = MEMORY_NEW_ARRAY(Vector3, n);
+	points = new Vector3[n];
 	if (p != nullptr) {
 		memcpy(points, p, sizeof(Vector3) * n);
 	}
@@ -20,12 +20,12 @@ Polygon::Polygon(const Polygon& other) : Polygon(other.points, other.npoints) {
 }
 
 Polygon::~Polygon() {
-	MEMORY_DELETE_ARRAY(points);
+	delete[] points;
 }
 
 Polygon& Polygon::operator=(const Polygon& other) {
-	MEMORY_DELETE_ARRAY(points);
-	points = MEMORY_NEW_ARRAY(Vector3, other.npoints);
+	delete[] points;
+	points = new Vector3[other.npoints];
 	memcpy(points, other.points, sizeof(Vector3) * other.npoints);
 	return *this;
 }

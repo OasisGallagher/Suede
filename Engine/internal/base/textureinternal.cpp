@@ -6,7 +6,8 @@
 #include "resources.h"
 #include "math/mathf.h"
 #include "os/filesystem.h"
-#include "../api/glutils.h"
+
+#include "internal/base/gl.h"
 #include "containers/freelist.h"
 
 Texture::Texture(void* d) : Object(d) {}
@@ -24,7 +25,7 @@ TextureWrapMode Texture::GetWrapModeT() const { return _suede_dptr()->GetWrapMod
 uint Texture::GetWidth() const { return _suede_dptr()->GetWidth(); }
 uint Texture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
-Texture2D::Texture2D() : Texture(MEMORY_NEW(Texture2DInternal)) {}
+Texture2D::Texture2D() : Texture(new Texture2DInternal) {}
 bool Texture2D::Load(const std::string& path) { return _suede_dptr()->Load(path); }
 bool Texture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
 	return _suede_dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
@@ -33,15 +34,15 @@ TextureFormat Texture2D::GetFormat() { return _suede_dptr()->GetFormat(); }
 bool Texture2D::EncodeToPNG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToPNG(data); }
 bool Texture2D::EncodeToJPG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToJPG(data); }
 
-TextureCube::TextureCube() : Texture(MEMORY_NEW(TextureCubeInternal)) {}
+TextureCube::TextureCube() : Texture(new TextureCubeInternal) {}
 bool TextureCube::Load(const std::string textures[6]) { return _suede_dptr()->Load(textures); }
 
-TextureBuffer::TextureBuffer() : Texture(MEMORY_NEW(TextureBufferInternal)) {}
+TextureBuffer::TextureBuffer() : Texture(new TextureBufferInternal) {}
 uint TextureBuffer::GetSize() const { return _suede_dptr()->GetSize(); }
 bool TextureBuffer::Create(uint size) { return _suede_dptr()->Create(size); }
 void TextureBuffer::Update(uint offset, uint size, const void* data) { _suede_dptr()->Update(offset, size, data); }
 
-RenderTexture::RenderTexture() : Texture(MEMORY_NEW(RenderTextureInternal)) {}
+RenderTexture::RenderTexture() : Texture(new RenderTextureInternal) {}
 RenderTexture::RenderTexture(void* d) : Texture(d) {}
 bool RenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
 RenderTextureFormat RenderTexture::GetRenderTextureFormat() { return _suede_dptr()->GetRenderTextureFormat(); }
@@ -52,12 +53,12 @@ RenderTexture* RenderTexture::GetDefault() { return RenderTextureInternal::GetDe
 RenderTexture* RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) { return RenderTextureInternal::GetTemporary(format, width, height); }
 void RenderTexture::ReleaseTemporary(RenderTexture* texture) { RenderTextureInternal::ReleaseTemporary(texture); }
 
-MRTRenderTexture::MRTRenderTexture() : RenderTexture(MEMORY_NEW(MRTRenderTextureInternal)) {}
+MRTRenderTexture::MRTRenderTexture() : RenderTexture(new MRTRenderTextureInternal) {}
 bool MRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dptr()->AddColorTexture(format); }
 Texture2D* MRTRenderTexture::GetColorTexture(uint index) { return _suede_dptr()->GetColorTexture(index); }
 uint MRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTextureCount(); }
 
-ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(MEMORY_NEW(ScreenRenderTextureInternal)){}
+ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal){}
 
 TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
 	, texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
@@ -322,9 +323,13 @@ bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, Co
 
 	format_ = textureFormat;
 
-	GLUtils::PushGLMode(GLModeUnpackAlignment, alignment);
+	int oldUnpackAlignment = 4;
+	GL::GetIntegerv(GL_UNPACK_ALIGNMENT, &oldUnpackAlignment);
+	GL::PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+
 	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
-	GLUtils::PopGLMode(GLModeUnpackAlignment);
+
+	GL::PixelStorei(GL_UNPACK_ALIGNMENT, oldUnpackAlignment);
 
 	if (mipmap) {
 		GL::GenerateMipmap(GL_TEXTURE_2D);
@@ -484,7 +489,7 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	width_ = width;
 	height_ = height;
 
-	framebuffer_ = MEMORY_NEW(Framebuffer);
+	framebuffer_ = new Framebuffer();
 
 	GL::GenTextures(1, &texture_);
 	BindTexture();
@@ -578,7 +583,7 @@ bool RenderTextureInternal::VerifyBindStatus() {
 }
 
 void RenderTextureInternal::DestroyFramebuffer() {
-	MEMORY_DELETE(framebuffer_);
+	delete framebuffer_;
 }
 
 bool RenderTextureInternal::SetViewport(uint width, uint height, const Rect& normalizedRect) {
@@ -655,7 +660,7 @@ bool TextureBufferInternal::Create(uint size) {
 	DestroyBuffer();
 	DestroyTexture();
 
-	buffer_ = MEMORY_NEW(Buffer);
+	buffer_ = new Buffer;
 	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
 	
 	GL::GenTextures(1, &texture_);
@@ -676,7 +681,7 @@ void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
 
 void TextureBufferInternal::DestroyBuffer() {
 	if (buffer_ != nullptr) {
-		MEMORY_DELETE(buffer_);
+		delete buffer_;
 		buffer_ = nullptr;
 	}
 }
@@ -744,7 +749,7 @@ bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, ui
 	width_ = width;
 	height_ = height;
 
-	framebuffer_ = MEMORY_NEW(Framebuffer);
+	framebuffer_ = new Framebuffer();
 	framebuffer_->SetViewport(0, 0, width, height);
 	framebuffer_->CreateDepthRenderbuffer();
 

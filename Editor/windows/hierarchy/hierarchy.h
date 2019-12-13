@@ -12,7 +12,7 @@ class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener, public GameObjectImportedListener {
+class Hierarchy : public QDockWidget, public WinSingleton<Hierarchy>, public WorldEventListener {
 	Q_OBJECT
 
 public:
@@ -21,9 +21,6 @@ public:
 public:
 	virtual void init(Ui::Editor* ui);
 	virtual void awake();
-
-public:
-	virtual void OnGameObjectImported(GameObject* root, const std::string& path);
 
 public:
 	GameObject* selectedGameObject();
@@ -58,9 +55,7 @@ private:
 
 	bool dropAcceptable(const QMimeData* data);
 
-	void onGameObjectCreated(GameObject* go);
 	void onGameObjectDestroyed(GameObject* go);
-	void onGameObjectTagChanged(GameObject* go);
 	void onGameObjectNameChanged(GameObject* go);
 	void onGameObjectParentChanged(GameObject* go);
 	void onGameObjectActiveChanged(GameObject* go);
@@ -68,6 +63,8 @@ private:
 	void enableGameObjectOutline(GameObject* go, bool enable);
 	void enableGameObjectsOutline(const QList<GameObject*>& gameObjects, bool enable);
 	void selectionToGameObjects(QList<GameObject*>& gameObjects, const QItemSelection& items);
+
+	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
 	QStandardItemModel* model_;

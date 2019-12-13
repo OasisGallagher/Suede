@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 enum GrammarSymbolType {
 	GrammarSymbolTerminal,

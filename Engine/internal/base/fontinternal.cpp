@@ -9,17 +9,15 @@
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
-Font::Font() : Object(MEMORY_NEW(FontInternal)) {}
+Font::Font() : Object(new FontInternal) {}
 bool Font::Load(const std::string& path, int size) { return _suede_dptr()->Load(path, size); }
-bool Font::Require(const std::wstring& str) { return _suede_dptr()->Require(str); }
+bool Font::Require(const std::wstring& str) { return _suede_dptr()->Require(this, str); }
 uint Font::GetFontSize() const { return _suede_dptr()->GetFontSize(); }
 Texture2D* Font::GetTexture() const { return _suede_dptr()->GetTexture(); }
 std::string Font::GetFamilyName() const { return _suede_dptr()->GetFamilyName(); }
 std::string Font::GetStyleName() const { return _suede_dptr()->GetStyleName(); }
 Material* Font::GetMaterial() { return _suede_dptr()->GetMaterial(); }
 bool Font::GetCharacterInfo(wchar_t wch, CharacterInfo* info) { return _suede_dptr()->GetCharacterInfo(wch, info); }
-void Font::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->AddMaterialRebuiltListener(listener); }
-void Font::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) { _suede_dptr()->RemoveMaterialRebuiltListener(listener); }
 
 FontInternal::FontInternal() 
 	: ObjectInternal(ObjectType::Font) ,size_(10), face_(nullptr), library_(nullptr) {
@@ -41,7 +39,7 @@ bool FontInternal::Load(const std::string& path, int size) {
 	return Import("resources/" + path, size);
 }
 
-bool FontInternal::Require(const std::wstring& str) {
+bool FontInternal::Require(Font* self, const std::wstring& str) {
 	bool status = true, updateMaterial = false;
 	for (int i = 0; i < str.length(); ++i) {
 		if (!glyphs_.contains(str[i])) {
@@ -56,7 +54,7 @@ bool FontInternal::Require(const std::wstring& str) {
 	}
 
 	if (updateMaterial) {
-		RebuildMaterial();
+		RebuildMaterial(self);
 	}
 
 	return status;
@@ -90,16 +88,6 @@ bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 	}
 
 	return true;
-}
-
-void FontInternal::AddMaterialRebuiltListener(FontMaterialRebuiltListener* listener) {
-	if (std::find(listeners_.begin(), listeners_.end(), listener) == listeners_.end()) {
-		listeners_.push_back(listener);
-	}
-}
-
-void FontInternal::RemoveMaterialRebuiltListener(FontMaterialRebuiltListener* listener) {
-	listeners_.erase(std::remove(listeners_.begin(), listeners_.end(), listener), listeners_.end());
 }
 
 bool FontInternal::Import(const std::string& path, int size) {
@@ -164,7 +152,7 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 	return true;
 }
 
-void FontInternal::RebuildMaterial() {
+void FontInternal::RebuildMaterial(Font* self) {
 	Atlas atlas;
 	AtlasMaker::Make(atlas, texelMaps_, 4);
 
@@ -173,9 +161,7 @@ void FontInternal::RebuildMaterial() {
 	Texture2D* texture = (Texture2D*)material_->GetTexture(BuiltinProperties::MainTexture);
 	texture->Create(TextureFormat::Rgba, &atlas.data[0], ColorStreamFormat::LuminanceAlpha, atlas.width, atlas.height, 4);
 
-	for (uint i = 0; i < listeners_.size(); ++i) {
-		listeners_[i]->OnMaterialRebuilt();
-	}
+	self->materialRebuilt.fire();
 }
 
 void FontInternal::Destroy() {

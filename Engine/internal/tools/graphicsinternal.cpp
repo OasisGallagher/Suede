@@ -4,12 +4,13 @@
 #include "graphics.h"
 #include "resources.h"
 #include "math/mathf.h"
-#include "../api/glutils.h"
 
-#include "memory/memory.h"
+#include "internal/base/gl.h"
+
+#include "memory/refptr.h"
 #include "builtinproperties.h"
 
-Graphics::Graphics() : Singleton2<Graphics>(MEMORY_NEW(GraphicsInternal), Memory::DeleteRaw<GraphicsInternal>) {}
+Graphics::Graphics() : Singleton2<Graphics>(new GraphicsInternal, t_delete<GraphicsInternal>) {}
 
 void Graphics::SetShadingMode(ShadingMode value) { _suede_dinstance()->SetShadingMode(value); }
 ShadingMode Graphics::GetShadingMode() { return _suede_dinstance()->GetShadingMode(); }
@@ -24,7 +25,7 @@ void Graphics::Blit(Texture* src, RenderTexture* dest, Material* material) { _su
 void Graphics::Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& rect) { _suede_dinstance()->Blit(src, dest, material, rect); }
 void Graphics::Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& srcRect, const Rect& destRect) { _suede_dinstance()->Blit(src, dest, material, srcRect, destRect); }
 
-GraphicsInternal::GraphicsInternal() : mode_(ShadingMode::Shaded) {
+GraphicsInternal::GraphicsInternal() : mode_(ShadingMode::Shaded), ambientOcclusionEnabled_(false) {
 	material_ = CreateBlitMaterial();
 }
 
@@ -121,7 +122,7 @@ ref_ptr<Mesh> GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 void GraphicsInternal::DrawSubMeshes(Mesh* mesh) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh* subMesh = mesh->GetSubMesh(i);
-		GLUtils::DrawElementsBaseVertex(mesh->GetTopology(), subMesh->GetTriangleBias());
+		GL::DrawElementsBaseVertex(mesh->GetTopology(), subMesh->GetTriangleBias());
 	}
 }
 

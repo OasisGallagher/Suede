@@ -8,8 +8,8 @@
 #include "material.h"
 #include "animation.h"
 #include "gameobject.h"
+#include "tools/event.h"
 #include "tools/noncopyable.h"
-#include "gameobjectimportedlistener.h"
 #include "internal/async/threadpool.h"
 
 struct aiNode;
@@ -56,7 +56,7 @@ struct GameObjectAsset {
 
 class GameObjectLoader : public Worker, private NonCopyable {
 public:
-	GameObjectLoader(const std::string& path, GameObject* root, WorkerEventListener* receiver);
+	GameObjectLoader(const std::string& path, GameObject* root);
 	~GameObjectLoader();
 
 public:
@@ -118,8 +118,8 @@ template <class T>
 class GameObjectLoaderParameterized : public GameObjectLoader {
 public:
 public:
-	GameObjectLoaderParameterized(const std::string& path, GameObject* root, WorkerEventListener* receiver, const T& value) 
-		: GameObjectLoader(path, root, receiver), parameter_(value) {
+	GameObjectLoaderParameterized(const std::string& path, GameObject* root, const T& value) 
+		: GameObjectLoader(path, root), parameter_(value) {
 	}
 
 public:
@@ -133,18 +133,16 @@ typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject*, const std::st
 
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
-	GameObjectLoaderThreadPool() : ThreadPool(16), listener_(nullptr) {}
+	GameObjectLoaderThreadPool(event<GameObject*, const std::string&>& imported) : ThreadPool(16), imported_(imported) {}
 	~GameObjectLoaderThreadPool() {}
 
 public:
 	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 	bool ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 
-	void SetImportedListener(GameObjectImportedListener* value) { listener_ = value; }
-
 protected:
 	virtual void OnSchedule(ZThread::Task& schedule);
 
 private:
-	GameObjectImportedListener* listener_;
+	event<GameObject*, const std::string&>& imported_;
 };

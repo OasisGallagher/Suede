@@ -1,6 +1,6 @@
 #include "lightinternal.h"
 
-Light::Light() : Component(MEMORY_NEW(LightInternal)) {}
+Light::Light() : Component(new LightInternal) {}
 void Light::SetType(LightType value) { _suede_dptr()->SetType(value); }
 LightType Light::GetType() { return _suede_dptr()->GetType(); }
 void Light::SetImportance(LightImportance value) { _suede_dptr()->SetImportance(value); }

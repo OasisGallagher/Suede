@@ -7,15 +7,13 @@
 #include "gameobject.h"
 #include "gizmospainter.h"
 #include "qtinputdelegate.h"
-#include "frameeventlistener.h"
-#include "gameobjectimportedlistener.h"
 
 class Canvas;
 class StatsWidget;
 class SelectionGizmos;
 class CameraController;
 
-class Game : public QDockWidget, public WinSingleton<Game>, public GameObjectImportedListener {
+class Game : public QDockWidget, public WinSingleton<Game> {
 	Q_OBJECT
 
 public:
@@ -29,9 +27,6 @@ public:
 	virtual void init(Ui::Editor* ui);
 	virtual void awake();
 	virtual void tick();
-
-public:
-	virtual void OnGameObjectImported(GameObject* root, const std::string& path);
 
 private slots:
 	void updateStatContent();
@@ -52,6 +47,7 @@ private:
 	float calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds);
 
 	void updateStatPosition();
+	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
 	QTimer* timer_;

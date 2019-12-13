@@ -6,7 +6,7 @@
 #include "filesystem.h"
 #include "../debug/debug.h"
 #include "../tools/string.h"
-#include "../memory/memory.h"
+#include "../memory/refptr.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -15,7 +15,7 @@ static char strBuffer[FileSystem::kMaxStringLength];
 
 FileEntry::~FileEntry() {
 	for (uint i = 0; i < children_.size(); ++i) {
-		MEMORY_DELETE(children_[i]);
+		delete children_[i];
 	}
 }
 
@@ -28,17 +28,17 @@ FileTree::FileTree() : root_(nullptr) {
 }
 
 FileTree::~FileTree() {
-	MEMORY_DELETE(root_);
+	delete root_;
 }
 
 bool FileTree::Create(const std::string& directory, const std::string& reg) {
-	MEMORY_DELETE(root_);
+	delete root_;
 
-	root_ = MEMORY_NEW(FileEntry);
+	root_ = new FileEntry;
 	root_->SetPath(directory, true);
 
 	if (CreateRecursively(root_, root_->GetPath(), std::regex(reg))) {
-		MEMORY_DELETE(root_);
+		delete root_;
 		root_ = nullptr;
 		return false;
 	}
@@ -55,7 +55,7 @@ bool FileTree::Reload(const std::string& path, const std::string& reg) {
 	BeforeRemoveChildEntiries(entry);
 
 	for (uint i = 0; i < entry->children_.size(); ++i) {
-		MEMORY_DELETE(entry->children_[i]);
+		delete entry->children_[i];
 	}
 
 	entry->children_.clear();
@@ -117,7 +117,7 @@ bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& path,
 		std::string name = p.path().filename().string();
 		std::string childPath = path + "/" + name;
 		if (fs::is_directory(p)) {
-			entry = MEMORY_NEW(FileEntry);
+			entry = new FileEntry;
 			entry->SetPath(childPath, true);
 
 			if (!CreateRecursively(entry, childPath, r)) {
@@ -125,13 +125,13 @@ bool FileTree::CreateRecursively(FileEntry* parentNode, const std::string& path,
 				parentNode->AddChild(entry);
 			}
 			else {
-				MEMORY_DELETE(entry);
+				delete entry;
 			}
 		}
 		else if (fs::is_regular_file(p) && std::regex_match(name, r)) {
 			empty = false;
 
-			entry = MEMORY_NEW(FileEntry);
+			entry = new FileEntry;
 			entry->SetPath(childPath, false);
 
 			entries_.insert(entry);

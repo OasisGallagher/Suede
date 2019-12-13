@@ -20,8 +20,8 @@ public:
 	std::string GetTextureDirectory() { return GetRootDirectory() + "textures/"; }
 
 	Mesh* GetPrimitive(PrimitiveType type) { return primitives_[(int)type].get(); }
-	Mesh* CreatePrimitive(PrimitiveType type, float scale);
-	Mesh* CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
+	ref_ptr<Mesh> CreatePrimitive(PrimitiveType type, float scale);
+	ref_ptr<Mesh> CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 
 	void GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale);
 

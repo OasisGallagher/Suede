@@ -3,7 +3,7 @@
 #include "camera.h"
 #include "resources.h"
 #include "math/mathf.h"
-#include "tools/random.h"
+#include "math/random.h"
 #include "builtinproperties.h"
 #include "particlesysteminternal.h"
 
@@ -25,11 +25,11 @@ ParticleBurst ParticleEmitter::GetBurst(int i) { return _suede_dptr()->GetBurst(
 void ParticleEmitter::RemoveBurst(int i) { _suede_dptr()->RemoveBurst(i); }
 int ParticleEmitter::GetBurstCount() { return _suede_dptr()->GetBurstCount(); }
 
-SphereParticleEmitter::SphereParticleEmitter() : ParticleEmitter(MEMORY_NEW(SphereParticleEmitterInternal)) {}
+SphereParticleEmitter::SphereParticleEmitter() : ParticleEmitter(new SphereParticleEmitterInternal) {}
 void SphereParticleEmitter::SetRadius(float value) { _suede_dptr()->SetRadius(value); }
 float SphereParticleEmitter::GetRadius() { return _suede_dptr()->GetRadius(); }
 
-ParticleAnimator::ParticleAnimator() : Object(MEMORY_NEW(ParticleAnimatorInternal)) {}
+ParticleAnimator::ParticleAnimator() : Object(new ParticleAnimatorInternal) {}
 void ParticleAnimator::SetForce(const Vector3& value) { _suede_dptr()->SetForce(value); }
 Vector3 ParticleAnimator::GetForce() { return _suede_dptr()->GetForce(); }
 void ParticleAnimator::SetRandomForce(const Vector3& value) { _suede_dptr()->SetRandomForce(value); }
@@ -38,7 +38,7 @@ void ParticleAnimator::SetGravityScale(float value) { _suede_dptr()->SetGravityS
 float ParticleAnimator::GetGravityScale() { return _suede_dptr()->GetGravityScale(); }
 void ParticleAnimator::Update(Particle& particle) { _suede_dptr()->Update(particle); }
 
-ParticleSystem::ParticleSystem() : Component(MEMORY_NEW(ParticleSystemInternal)) {}
+ParticleSystem::ParticleSystem() : Component(new ParticleSystemInternal) {}
 void ParticleSystem::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
 float ParticleSystem::GetDuration() { return _suede_dptr()->GetDuration(); }
 void ParticleSystem::SetLooping(bool value) { _suede_dptr()->SetLooping(value); }
@@ -233,7 +233,7 @@ void ParticleSystemInternal::InitializeMesh() {
 
 	MeshFilter* meshFilter = GetGameObject()->GetComponent<MeshFilter>();
 	meshFilter->SetMesh(
-		Resources::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry)
+		Resources::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry).get()
 	);
 	meshDirty_ = false;
 }

@@ -1,8 +1,9 @@
 #pragma once
 #include <stack>
 
+#include "gl.h"
 #include "engine.h"
-#include "../api/gl.h"
+#include "tools/event.h"
 #include "tools/singleton.h"
 #include "containers/freelist.h"
 
@@ -13,32 +14,29 @@ enum class QueryType {
 	TimeElapsed,
 };
 
-class QuerierResultListener {
-public:
-	virtual void OnQuerierResult(uint id, uint result) = 0;
-};
-
-class GpuQuerier : public FrameEventListener, public Singleton<GpuQuerier> {
+class GpuQuerier : public Singleton<GpuQuerier> {
 	friend class Singleton<GpuQuerier>;
 
 public:
-	uint Start(QueryType type, QuerierResultListener* listener);
+	uint Start(QueryType type);
 	void Stop();
 	uint Wait(uint id);
 	void Cancel(uint id);
+
+public:
+	event<uint, uint> querierReturned;
 
 private:
 	GpuQuerier();
 	~GpuQuerier();
 
 private:
-	virtual void OnFrameEnter();
+	void OnFrameEnter();
 
 private:
 	struct Querier {
 		uint id;
 		GLenum type;
-		QuerierResultListener* listener;
 	};
 
 	enum {
@@ -54,7 +52,7 @@ private:
 	void StopQuerier(Querier* querier);
 	void CancelQuerier(Querier* querier);
 	void RecycleQuerier(Querier* querier);
-	void StartQuerier(Querier* querier, QueryType type, QuerierResultListener* listener);
+	void StartQuerier(Querier* querier, QueryType type);
 
 	GLenum QueryTypeToGLenum(QueryType type);
 

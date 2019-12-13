@@ -3,7 +3,7 @@
 #include "mathconvert.h"
 #include "physicsinternal.h"
 
-Rigidbody::Rigidbody() : Component(MEMORY_NEW(RigidbodyInternal)) {}
+Rigidbody::Rigidbody() : Component(new RigidbodyInternal) {}
 void Rigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void Rigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float Rigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
@@ -115,7 +115,7 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 	// This class allows you to add all points of the object and uses them to automatically create the minimum convex hull for it.
 	//bool convex = false;
 	//if (convex) {
-	//	shape_ = MEMORY_NEW(btConvexHullShape);
+	//	shape_ = new btConvexHullShape;
 	//	for (int i = 0; i < nindices; ++i) {
 	//		((btConvexHullShape*)shape_)->addPoint(MathConvert(vertices[indices[i]]));
 	//	}
@@ -125,7 +125,7 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 		// This class requires the creation of a mesh object consisting of triangles. In this step,
 		// you gather triangles by grouping vertices from the list of vertices. 
 		// Then you create a mesh and create a shape object from this mesh.
-	btTriangleIndexVertexArray* indexedMesh = MEMORY_NEW(btTriangleIndexVertexArray);
+	btTriangleIndexVertexArray* indexedMesh = new btTriangleIndexVertexArray;
 
 	const uint* indexes = mesh->MapIndexes();
 	const Vector3* vertices = mesh->MapVertices();
@@ -149,7 +149,7 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 	mesh->UnmapVertices();
 
 	mesh_ = indexedMesh;
-	shape_ = MEMORY_NEW(btBvhTriangleMeshShape, mesh_, true);
+	shape_ = new btBvhTriangleMeshShape(mesh_, true);
 	shape_->setLocalScaling(btConvert(scale));
 	//}
 	return true;
@@ -157,12 +157,12 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 
 void RigidbodyInternal::DestroyShape() {
 	if (mesh_ != nullptr) {
-		MEMORY_DELETE(mesh_);
+		delete mesh_;
 		mesh_ = nullptr;
 	}
 
 	if (shape_ != nullptr) {
-		MEMORY_DELETE(shape_);
+		delete shape_;
 		shape_ = nullptr;
 	}
 }
@@ -201,7 +201,7 @@ void RigidbodyInternal::CreateBody() {
 	// MotionState is a convenient class that allows you to sync a physical body and with your drawable objects.
 	// You don＊t have to use motion states to set/get the position and rotation of the object, but doing so will
 	// get you several benefits, including interpolation and callbacks.
-	btDefaultMotionState* motionState = MEMORY_NEW(btDefaultMotionState);
+	btDefaultMotionState* motionState = new btDefaultMotionState;
 	btRigidBody::btRigidBodyConstructionInfo bodyCI(mass_, motionState, nullptr);
 
 	// bodyCI.m_restitution sets an object＊s bounciness. Imagine dropping a ball 每 a sphere 每 to the floor:
@@ -217,7 +217,7 @@ void RigidbodyInternal::CreateBody() {
 	// if you launch the ball into a wall at some angle other than 90 degrees.
 	bodyCI.m_friction = 0.5f;
 
-	body_ = MEMORY_NEW(btRigidBody, bodyCI);
+	body_ = new btRigidBody(bodyCI);
 
 	// This is important moment. Sometimes you only have access to a physics body 每 for example, 
 	// when Bullet calls your callback and passes you the body 每 but you want to get the node object that holds this body.
@@ -232,7 +232,7 @@ void RigidbodyInternal::CreateBody() {
 
 void RigidbodyInternal::DestroyBody() {
 	if (body_ != nullptr) {
-		MEMORY_DELETE(body_->getMotionState());
-		MEMORY_DELETE(body_);
+		delete body_->getMotionState();
+		delete body_;
 	}
 }

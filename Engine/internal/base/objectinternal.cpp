@@ -6,7 +6,7 @@
 #include "world.h"
 #include "textureinternal.h"
 
-Object::Object(void* d) : PimplIdiom(d, Memory::DeleteRaw<ObjectInternal>) {}
+Object::Object(void* d) : PimplIdiom(d, t_delete<ObjectInternal>) {}
 std::string Object::GetName() const { return _suede_dptr()->GetName(); }
 void Object::SetName(const std::string& value) { _suede_dptr()->SetName(this, value); }
 ref_ptr<Object> Object::Clone() { return _suede_dptr()->Clone(); }

@@ -2,13 +2,14 @@
 #include "math/mathf.h"
 #include "tools/string.h"
 #include "meshinternal.h"
+#include "internal/base/gl.h"
 #include "internal/base/vertexattrib.h"
 
-SubMesh::SubMesh() : Object(MEMORY_NEW(SubMeshInternal)) {}
+SubMesh::SubMesh() : Object(new SubMeshInternal) {}
 const TriangleBias& SubMesh::GetTriangleBias() const { return _suede_dptr()->GetTriangleBias(); }
 void SubMesh::SetTriangleBias(const TriangleBias& value) { _suede_dptr()->SetTriangleBias(value); }
 
-Mesh::Mesh() : Object(MEMORY_NEW(MeshInternal)) {}
+Mesh::Mesh() : Object(new MeshInternal) {}
 void Mesh::CreateStorage() { _suede_dptr()->CreateStorage(); }
 void Mesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(value); }
 //const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
@@ -33,7 +34,7 @@ void Mesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { _suede_dptr()
 
 MeshProvider::MeshProvider(void* d) : Component(d) {}
 Mesh* MeshProvider::GetMesh() { return _suede_dptr()->GetMesh(); }
-TextMesh::TextMesh() : MeshProvider(MEMORY_NEW(TextMeshInternal)) {}
+TextMesh::TextMesh() : MeshProvider(new TextMeshInternal) {}
 void TextMesh::SetText(const std::string& value) { _suede_dptr()->SetText(value); }
 std::string TextMesh::GetText() { return _suede_dptr()->GetText(); }
 void TextMesh::SetFont(Font* value) { _suede_dptr()->SetFont(value); }
@@ -41,7 +42,7 @@ Font* TextMesh::GetFont() { return _suede_dptr()->GetFont(); }
 void TextMesh::SetFontSize(uint value) { _suede_dptr()->SetFontSize(value); }
 uint TextMesh::GetFontSize() { return _suede_dptr()->GetFontSize(); }
 
-MeshFilter::MeshFilter() : MeshProvider(MEMORY_NEW(MeshFilterInternal)) {}
+MeshFilter::MeshFilter() : MeshProvider(new MeshFilterInternal) {}
 void MeshFilter::SetMesh(Mesh* value) { _suede_dptr()->SetMesh(value); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(MeshProvider, Component)
@@ -67,7 +68,7 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::CreateStorage() {
-	if (!storage_) { storage_.reset(MEMORY_NEW(Storage)); }
+	if (!storage_) { storage_.reset(new Storage); }
 }
 
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
@@ -77,9 +78,7 @@ void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	storage_->topology = value.topology;
 	UpdateGLBuffers(value);
 
-	for (IMeshModifiedListener* listener : storage_->listeners) {
-		listener->OnMeshModified();
-	}
+	storage_->modified.fire();
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -177,21 +176,6 @@ void MeshInternal::ShareStorage(Mesh* other) {
 	}
 }
 
-void MeshInternal::AddMeshModifiedListener(IMeshModifiedListener* listener) {
-	if (storage_) {
-		storage_->listeners.insert(listener);
-	}
-	else {
-		Debug::LogError("failed to add mesh modified listener, empty storage");
-	}
-}
-
-void MeshInternal::RemoveMeshModifiedListener(IMeshModifiedListener* listener) {
-	if (storage_) {
-		storage_->listeners.erase(listener);
-	}
-}
-
 void MeshInternal::AddSubMesh(SubMesh* subMesh) {
 	subMeshes_.push_back(subMesh);
 }
@@ -249,12 +233,17 @@ MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this);
+	GetMeshInternal(mesh_)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
 }
 
 void MeshProviderInternal::SetMesh(Mesh* value) {
-	if (mesh_ != nullptr) { GetMeshInternal(mesh_)->RemoveMeshModifiedListener(this); }
-	if (value != nullptr) { GetMeshInternal(value)->AddMeshModifiedListener(this); }
+	if (mesh_ != nullptr) {
+		GetMeshInternal(mesh_)->GetStorage()->modified.unsubscribe(this);
+	}
+
+	if (value != nullptr) {
+		GetMeshInternal(value)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
+	}
 
 	mesh_ = value;
 }
@@ -273,7 +262,7 @@ TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh
 
 TextMeshInternal::~TextMeshInternal() {
 	if (font_) {
-		font_->RemoveMaterialRebuiltListener(this);
+		font_->materialRebuilt.unsubscribe(this);
 	}
 }
 
@@ -288,11 +277,11 @@ void TextMeshInternal::SetFont(Font* value) {
 	if (font_ == value) { return; }
 
 	if (font_) {
-		font_->RemoveMaterialRebuiltListener(this);
+		font_->materialRebuilt.unsubscribe(this);
 	}
 
 	if (value) {
-		value->AddMaterialRebuiltListener(this);
+		value->materialRebuilt.subscribe(this, &TextMeshInternal::OnMaterialRebuilt);
 	}
 
 	font_ = value;

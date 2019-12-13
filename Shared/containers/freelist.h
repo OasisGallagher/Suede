@@ -1,7 +1,7 @@
 #pragma once
 #include "../debug/debug.h"
 #include "../math/mathf.h"
-#include "../memory/memory.h"
+#include "../memory/refptr.h"
 
 template <class T>
 class free_list {
@@ -65,7 +65,7 @@ public:
 	}
 
 	~free_list() {
-		MEMORY_DELETE_ARRAY(memory_);
+		delete[] memory_;
 	}
 
 	void clear() {
@@ -73,7 +73,7 @@ public:
 	}
 
 	void reallocate(size_t n) {
-		MEMORY_DELETE_ARRAY(memory_);
+		delete[] memory_;
 		size_ = 0;
 		capacity_ = n;
 		allocate(n);
@@ -150,7 +150,7 @@ public:
 
 private:
 	void allocate(size_t size) {
-		memory_ = MEMORY_NEW_ARRAY(Block, size);
+		memory_ = new Block[size];
 		setup();
 	}
 

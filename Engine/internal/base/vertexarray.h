@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "../api/gl.h"
+#include "gl.h"
 #include "enginedefines.h"
 
 class Buffer;

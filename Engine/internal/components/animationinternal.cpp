@@ -6,7 +6,7 @@
 #include "time2.h"
 #include "math/mathf.h"
 
-Skeleton::Skeleton() : Object(MEMORY_NEW(SkeletonInternal)) { }
+Skeleton::Skeleton() : Object(new SkeletonInternal) { }
 bool Skeleton::AddBone(const SkeletonBone& bone) { return _suede_dptr()->AddBone(bone); }
 SkeletonBone* Skeleton::GetBone(uint index) { return _suede_dptr()->GetBone(index); }
 SkeletonBone* Skeleton::GetBone(const std::string& name) { return _suede_dptr()->GetBone(name); }
@@ -18,7 +18,7 @@ Matrix4* Skeleton::GetBoneToRootMatrices() { return _suede_dptr()->GetBoneToRoot
 int Skeleton::GetBoneIndex(const std::string& name) { return _suede_dptr()->GetBoneIndex(name); }
 int Skeleton::GetBoneCount() { return _suede_dptr()->GetBoneCount(); }
 
-AnimationClip::AnimationClip() :Object(MEMORY_NEW(AnimationClipInternal)) {}
+AnimationClip::AnimationClip() :Object(new AnimationClipInternal) {}
 void AnimationClip::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
 AnimationWrapMode AnimationClip::GetWrapMode() { return _suede_dptr()->GetWrapMode(); }
 void AnimationClip::SetTicksPerSecond(float value) { _suede_dptr()->SetTicksPerSecond(value); }
@@ -29,16 +29,16 @@ void AnimationClip::SetAnimation(Animation* value) { _suede_dptr()->SetAnimation
 Animation* AnimationClip::GetAnimation() { return _suede_dptr()->GetAnimation(); }
 bool AnimationClip::Sample(float time) { return _suede_dptr()->Sample(time); }
 
-AnimationState::AnimationState() : Object(MEMORY_NEW(AnimationStateInternal)) {}
+AnimationState::AnimationState() : Object(new AnimationStateInternal) {}
 
-AnimationKeys::AnimationKeys() : Object(MEMORY_NEW(AnimationKeysInternal)) {}
+AnimationKeys::AnimationKeys() : Object(new AnimationKeysInternal) {}
 void AnimationKeys::AddFloat(float time, int id, float value) { _suede_dptr()->AddFloat(time, id, value); }
 void AnimationKeys::AddVector3(float time, int id, const Vector3& value) { _suede_dptr()->AddVector3(time, id, value); }
 void AnimationKeys::AddQuaternion(float time, int id, const Quaternion& value) { _suede_dptr()->AddQuaternion(time, id, value); }
 void AnimationKeys::Remove(float time, int id) { _suede_dptr()->Remove(time, id); }
 void AnimationKeys::ToKeyframes(std::vector<ref_ptr<AnimationFrame>>& keyframes) { _suede_dptr()->ToKeyframes(keyframes); }
 
-AnimationFrame::AnimationFrame() : Object(MEMORY_NEW(AnimationFrameInternal)) {}
+AnimationFrame::AnimationFrame() : Object(new AnimationFrameInternal) {}
 void AnimationFrame::SetTime(float value) { _suede_dptr()->SetTime(value); }
 float AnimationFrame::GetTime() { return _suede_dptr()->GetTime(); }
 void AnimationFrame::Assign(AnimationFrame* other) { _suede_dptr()->Assign(other); }
@@ -50,11 +50,11 @@ float AnimationFrame::GetFloat(int id) { return _suede_dptr()->GetFloat(id); }
 Vector3 AnimationFrame::GetVector3(int id) { return _suede_dptr()->GetVector3(id); }
 Quaternion AnimationFrame::GetQuaternion(int id) { return _suede_dptr()->GetQuaternion(id); }
 
-AnimationCurve::AnimationCurve() : Object(MEMORY_NEW(AnimationCurveInternal)) {}
+AnimationCurve::AnimationCurve() : Object(new AnimationCurveInternal) {}
 void AnimationCurve::SetKeys(AnimationKeys* value) { _suede_dptr()->SetKeys(value); }
 bool AnimationCurve::Sample(float time, AnimationFrame*& frame) { return _suede_dptr()->Sample(time, frame); }
 
-Animation::Animation() : Component(MEMORY_NEW(AnimationInternal)) {}
+Animation::Animation() : Component(new AnimationInternal) {}
 void Animation::AddClip(const std::string& name, AnimationClip* value) { _suede_dptr()->AddClip(this, name, value); }
 AnimationClip* Animation::GetClip(const std::string& name) { return _suede_dptr()->GetClip(name); }
 void Animation::SetSkeleton(Skeleton* value) { _suede_dptr()->SetSkeleton(value); }
@@ -118,7 +118,7 @@ int SkeletonInternal::GetBoneIndex(const std::string& name) {
 }
 
 SkeletonNode* SkeletonInternal::CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve* curve) {
-	SkeletonNode* node = MEMORY_NEW(SkeletonNode);
+	SkeletonNode* node = new SkeletonNode;
 	node->name = name;
 	node->matrix = matrix;
 	node->curve = curve;
@@ -141,10 +141,10 @@ void SkeletonInternal::DestroyNodeHierarchy(SkeletonNode*& node) {
 	if (node == nullptr) { return; }
 	for (int i = 0; i < node->children.size(); ++i) {
 		DestroyNodeHierarchy(node->children[i]);
-		MEMORY_DELETE(node->children[i]);
+		delete node->children[i];
 	}
 
-	MEMORY_DELETE(node);
+	delete node;
 	node = nullptr;
 }
 
@@ -225,7 +225,7 @@ AnimationKeysInternal::AnimationKeysInternal() :ObjectInternal(ObjectType::Anima
 
 AnimationKeysInternal::~AnimationKeysInternal() {
 	for (KeysContainer::iterator ite = container_.begin(); ite != container_.end(); ++ite) {
-		MEMORY_DELETE(*ite);
+		delete *ite;
 	}
 }
 
@@ -313,7 +313,7 @@ void AnimationKeysInternal::InsertKey(float time, const Key& key) {
 	Keys* keys = container_[key.id];
 
 	if (container_[key.id] == nullptr) {
-		container_[key.id] = keys = MEMORY_NEW(Keys);
+		container_[key.id] = keys = new Keys;
 	}
 
 	keys->insert(std::make_pair(time, key));
@@ -327,7 +327,7 @@ void AnimationKeysInternal::RemoveKey(int id, float time) {
 
 	keys->erase(time);
 	if (keys->empty()) {
-		MEMORY_DELETE(keys);
+		delete keys;
 		container_[id] = nullptr;
 	}
 }

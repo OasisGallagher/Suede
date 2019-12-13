@@ -6,7 +6,7 @@
 
 #include "object.h"
 #include "debug/debug.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 class Factory {
 	typedef std::function<Object*()> FactoryMethod;

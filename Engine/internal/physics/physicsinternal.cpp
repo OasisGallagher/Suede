@@ -4,7 +4,8 @@
 #include "gizmos.h"
 #include "engine.h"
 #include "rigidbody.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
+#include "frameeventqueue.h"
 #include "rigidbodyinternal.h"
 
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
@@ -21,7 +22,7 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 	Debug::LogError(warningString);
 }
 
-Physics::Physics() : Singleton2<Physics>(MEMORY_NEW(PhysicsInternal), Memory::DeleteRaw<PhysicsInternal>) {}
+Physics::Physics() : Singleton2<Physics>(new PhysicsInternal, t_delete<PhysicsInternal>) {}
 bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, hitInfo); }
 void Physics::SetGravity(const Vector3& value) { _suede_dinstance()->SetGravity(value); }
 Vector3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
@@ -39,37 +40,37 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	// can collide to the narrow phase, which is much slower, since it checks actual shapes for collision.
 	// Bullet has several built - in implementations of the broad phase.In this tutorial, 
 	// you¡¯re using the dynamic AABB tree implementation ¨C i.e.btDbvtBroadphase.
-	broadphase_ = MEMORY_NEW(btDbvtBroadphase);
+	broadphase_ = new btDbvtBroadphase;
 
 	// collisionConfiguration is responsible for full, not broad, collision detection.
 	// In other words, this is where the more fine - grained and accurate collision detection code runs.
 	// You could create your own implementation, but for now you¡¯re using the built - in configuration again.
-	collisionConfiguration_ = MEMORY_NEW(btDefaultCollisionConfiguration);
-	dispatcher_ = MEMORY_NEW(btCollisionDispatcher, collisionConfiguration_);
+	collisionConfiguration_ = new btDefaultCollisionConfiguration;
+	dispatcher_ = new btCollisionDispatcher(collisionConfiguration_);
 
 	// This is what causes the objects to interact properly, taking into account gravity, game logic supplied forces,
 	// collisions, and hinge constraints. It does a good job as long as you don¡¯t push it to extremes, and is one of 
 	// the bottlenecks in any high performance simulation. There are parallel versions available for some threading models.
-	solver_ = MEMORY_NEW(btSequentialImpulseConstraintSolver);
+	solver_ = new btSequentialImpulseConstraintSolver;
 
-	world_ = MEMORY_NEW(btDiscreteDynamicsWorld, dispatcher_, broadphase_, solver_, collisionConfiguration_);
-	world_->setDebugDrawer(MEMORY_NEW(BulletDebugDrawer));
+	world_ = new btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
+	world_->setDebugDrawer(new BulletDebugDrawer);
 
 	World::AddEventListener(this);
-	Engine::AddFrameEventListener(this);
+	Engine::frameEnter.subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
 }
 
 PhysicsInternal::~PhysicsInternal() {
 	World::RemoveEventListener(this);
-	Engine::RemoveFrameEventListener(this);
+	Engine::frameEnter.unsubscribe(this);
 
-	MEMORY_DELETE(world_->getDebugDrawer());
-	MEMORY_DELETE(world_);
+	delete world_->getDebugDrawer();
+	delete world_;
 
-	MEMORY_DELETE(solver_);
-	MEMORY_DELETE(collisionConfiguration_);
-	MEMORY_DELETE(dispatcher_);
-	MEMORY_DELETE(broadphase_);
+	delete solver_;
+	delete collisionConfiguration_;
+	delete dispatcher_;
+	delete broadphase_;
 }
 
 void PhysicsInternal::OnWorldEvent(WorldEventBasePtr e) {

@@ -4,7 +4,7 @@
 #include "profiler.h"
 #include "statistics.h"
 #include "decalcreater.h"
-#include "../api/glutils.h"
+
 
 #include "rigidbody.h"
 #include "gameobject.h"
@@ -14,14 +14,17 @@
 #include "graphics.h"
 #include "resources.h"
 
+#include "internal/base/gl.h"
 #include "internal/async/async.h"
-#include "internal/rendering/shadows.h"
+#include "internal/rendering/context.h"
+#include "internal/rendering/shadowmap.h"
 #include "internal/codec/gameObjectloader.h"
-#include "internal/rendering/matrixbuffer.h"
 #include "internal/components/transforminternal.h"
-#include "internal/rendering/uniformbuffermanager.h"
+#include "internal/rendering/shareduniformbuffers.h"
 
-World::World() : Singleton2<World>(MEMORY_NEW(WorldInternal), Memory::DeleteRaw<WorldInternal>) {}
+event<GameObject*, const std::string&> World::gameObjectImported;
+
+World::World() : Singleton2<World>(new WorldInternal, t_delete<WorldInternal>) {}
 
 void World::Initialize() { _suede_dinstance()->Initialize(); }
 void World::Finalize() { _suede_dinstance()->Finalize(); }
@@ -29,9 +32,9 @@ void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
 void World::Update() { _suede_dinstance()->Update(); }
 void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(id); }
 void World::DestroyGameObject(GameObject* go) { _suede_dinstance()->DestroyGameObject(go); }
-GameObject* World::Import(const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->Import(path, listener); }
+GameObject* World::Import(const std::string& path) { return _suede_dinstance()->Import(path); }
 GameObject* World::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
-bool World::ImportTo(GameObject* go, const std::string& path, GameObjectImportedListener* listener) { return _suede_dinstance()->ImportTo(go, path,listener); }
+bool World::ImportTo(GameObject* go, const std::string& path) { return _suede_dinstance()->ImportTo(go, path); }
 Transform* World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
 GameObject* World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
 void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
@@ -66,20 +69,17 @@ bool WorldInternal::ProjectorComparer::operator() (const ref_ptr<Projector>& lhs
 }
 
 WorldInternal::WorldInternal()
-	: importer_(MEMORY_NEW(GameObjectLoaderThreadPool)) {
-	Screen::AddScreenSizeChangedListener(this);
+	: importer_(new GameObjectLoaderThreadPool(World::gameObjectImported)) {
 	AddEventListener(this);
 }
 
 void WorldInternal::Initialize() {
-	GLUtils::Initialize();
+	context_ = new Context();
+	Context::SetCurrent(context_);
+
 	Resources::FindShader("builtin/lit_texture");
 
-	UniformBufferManager::instance();
-	Shadows::instance();
-	MatrixBuffer::instance();
-
-	decalCreater_ = MEMORY_NEW(DecalCreater);
+	decalCreater_ = new DecalCreater;
 
 	root_ = new GameObject();
 	root_->SetName("Root");
@@ -95,15 +95,15 @@ void WorldInternal::Finalize() {
 
 	Camera::SetMain(nullptr);
 
-	MEMORY_DELETE(importer_);
-	MEMORY_DELETE(decalCreater_);
+	delete context_;
+	delete importer_;
+	delete decalCreater_;
 
 	RemoveEventListener(this);
-	Screen::RemoveScreenSizeChangedListener(this);
+	Screen::sizeChanged.unsubscribe(this);
 }
 
-GameObject* WorldInternal::Import(const std::string& path, GameObjectImportedListener* listener) {
-	importer_->SetImportedListener(listener);
+GameObject* WorldInternal::Import(const std::string& path) {
 	return importer_->Import(path, nullptr);
 }
 
@@ -111,8 +111,7 @@ GameObject* WorldInternal::Import(const std::string& path, Lua::Func<void, GameO
 	return importer_->Import(path, callback);
 }
 
-bool WorldInternal::ImportTo(GameObject* go, const std::string& path, GameObjectImportedListener* listener) {
-	importer_->SetImportedListener(listener);
+bool WorldInternal::ImportTo(GameObject* go, const std::string& path) {
 	return importer_->ImportTo(go, path, nullptr);
 }
 
@@ -284,9 +283,6 @@ bool WorldInternal::WalkGameObjectHierarchyRecursively(Transform* root, WorldGam
 	return true;
 }
 
-void WorldInternal::OnScreenSizeChanged(uint width, uint height) {
-}
-
 void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
 	switch (e->GetEventType()) {
 		case WorldEventType::GameObjectCreated:
@@ -348,7 +344,7 @@ void WorldInternal::UpdateTimeUniformBuffer() {
 	static SharedTimeUniformBuffer p;
 	p.time.x = Time::GetRealTimeSinceStartup();
 	p.time.y = Time::GetDeltaTime();
-	UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
+	//UniformBufferManager::instance()->Update(SharedTimeUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void WorldInternal::RemoveGameObjectFromSequence(GameObject* go) {

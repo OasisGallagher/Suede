@@ -9,8 +9,8 @@
 #include "internal/async/async.h"
 #include "internal/base/renderdefines.h"
 
-Culling::Culling(CullingListener* listener) 
-	: cond_(mutex_), listener_(listener), working_(false), stopped_(false) {
+Culling::Culling() 
+	: cond_(mutex_), working_(false), stopped_(false) {
 }
 
 void Culling::run() {
@@ -21,7 +21,8 @@ void Culling::run() {
 			World::CullingUpdate();
 
 			World::WalkGameObjectHierarchy(this);
-			listener_->OnCullingFinished();
+
+			cullingFinished.fire();
 
 			Statistics::SetCullingElapsed(
 				Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)

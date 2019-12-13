@@ -1,17 +1,18 @@
+#include "shaderinternal.h"
+
 #include "glef.h"
+
 #include "math/mathf.h"
 #include "vertexattrib.h"
 #include "tools/string.h"
 #include "os/filesystem.h"
-#include "../api/glutils.h"
-#include "shaderinternal.h"
 #include "builtinproperties.h"
 
+#include "internal/base/gl.h"
+#include "internal/base/contextlimits.h"
 #include "internal/base/renderdefines.h"
 
-#include "internal/rendering/uniformbuffermanager.h"
-
-Shader::Shader() : Object(MEMORY_NEW(ShaderInternal)) {}
+Shader::Shader() : Object(new ShaderInternal()) {}
 std::string Shader::GetName() const { return _suede_dptr()->GetName(); }
 bool Shader::Load(const std::string& path) { return _suede_dptr()->Load(this, path); }
 void Shader::Bind(uint ssi, uint pass) { _suede_dptr()->Bind(ssi, pass); }
@@ -26,17 +27,15 @@ uint Shader::GetSubShaderCount() const { return _suede_dptr()->GetSubShaderCount
 void Shader::GetProperties(std::vector<ShaderProperty>& properties) { return _suede_dptr()->GetProperties(properties); }
 bool Shader::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) { return _suede_dptr()->SetProperty(ssi, pass, name, data); }
 
-std::pair<std::string, float> _variables[] = {
+bool Shader::LoadParser(const std::string& path) { return ShaderInternal::LoadParser(path); }
+
+static GLEF glef;
+static std::map<std::string, float> renderQueueVariables({
 	std::make_pair("Background", (float)RenderQueue::Background),
 	std::make_pair("Geometry", (float)RenderQueue::Geometry),
 	std::make_pair("Transparent", (float)RenderQueue::Transparent),
 	std::make_pair("Overlay", (float)RenderQueue::Overlay),
-};
-
-static std::map<std::string, float> renderQueueVariables(_variables, _variables + SUEDE_COUNTOF(_variables));
-
-#define BIND(old, new)	if (old == new) { old = -1; } else
-#define UNBIND(old)		if (old == -1) { } else
+});
 
 Pass::Pass() : program_(0), oldProgram_(0) {
 	program_ = GL::CreateProgram();
@@ -47,7 +46,7 @@ Pass::Pass() : program_(0), oldProgram_(0) {
 
 Pass::~Pass() {
 	for (int i = 0; i < SUEDE_COUNTOF(states_); ++i) {
-		MEMORY_DELETE(states_[i]);
+		delete states_[i];
 	}
 
 	GL::DeleteProgram(program_);
@@ -106,14 +105,18 @@ bool Pass::SetProperty(const std::string& name, const void* data) {
 void Pass::Bind() {
 	BindRenderStates();
 	GL::GetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&oldProgram_);
-	BIND(oldProgram_, program_) {
+
+	if (oldProgram_ != program_) {
 		GL::UseProgram(program_);
+	}
+	else {
+		oldProgram_ = -1;
 	}
 }
 
 void Pass::Unbind() {
 	UnbindRenderStates();
-	UNBIND(oldProgram_) {
+	if(oldProgram_ != -1) {
 		GL::UseProgram(oldProgram_);
 	}
 }
@@ -121,7 +124,7 @@ void Pass::Unbind() {
 void Pass::InitializeRenderStates(const std::vector<Semantics::RenderState>& states) {
 	for (uint i = 0; i < states.size(); ++i) {
 		RenderState* state = CreateRenderState(states[i]);
-		MEMORY_DELETE(states_[state->GetType()]);
+		delete states_[state->GetType()];
 		states_[state->GetType()] = state;
 	}
 }
@@ -192,7 +195,7 @@ RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 }
 
 RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
-#define CASE(name)	if (state.type == #name) return MEMORY_NEW(name ## State)
+#define CASE(name)	if (state.type == #name) return new name ## State
 	CASE(Cull);
 	CASE(ZTest);
 	CASE(Offset);
@@ -325,7 +328,7 @@ void Pass::AddAllUniforms() {
 	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORMS, &count);
 	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
-	char* name = MEMORY_NEW_ARRAY(char, maxLength);
+	char* name = new char[maxLength];
 	for (int i = 0; i < count; ++i) {
 		GL::GetActiveUniform(program_, i, maxLength, &length, &size, &type, name);
 
@@ -343,7 +346,7 @@ void Pass::AddAllUniforms() {
 		AddUniform(name, type, location, size);
 	}
 
-	MEMORY_DELETE_ARRAY(name);
+	delete[] name;
 }
 
 void Pass::AddAllUniformProperties(std::vector<Property*>& properties) {
@@ -360,7 +363,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 		}
 	}
 
-	Property* p = MEMORY_NEW(Property);
+	Property* p = new Property;
 	p->name = name;
 	switch (type) {
 		case VariantType::Int:
@@ -427,7 +430,7 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 		break;
 	default:
 		if (IsSampler(type)) {
-			int limit = GLUtils::GetLimits(GLLimitsMaxCombinedTextureImageUnits);
+			int limit = ContextLimits::Get(ContextLimitsType::MaxCombinedTextureImageUnits);
 			if (textureUnitCount_ >= limit) {
 				Debug::LogError("too many textures. limit is %d.", limit);
 			}
@@ -524,14 +527,14 @@ SubShader::SubShader() : passes_(nullptr), passCount_(0)
 }
 
 SubShader::~SubShader() {
-	MEMORY_DELETE_ARRAY(passes_);
+	delete[] passes_;
 }
 
 bool SubShader::Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path) {
 	InitializeTags(config.tags);
 
 	passCount_ = config.passes.size();
-	passes_ = MEMORY_NEW_ARRAY(Pass, config.passes.size());
+	passes_ = new Pass[config.passes.size()];
 
 	std::vector<Property*> container;
 	for (uint i = 0; i < passCount_; ++i) {
@@ -607,7 +610,7 @@ void SubShader::InitializeTag(const Semantics::Tag& tag, uint i) {
 
 uint SubShader::ParseExpression(TagKey key, const std::string& expression) {
 	if (key == TagKeyRenderQueue) {
-		return (uint)GLEF::instance()->Evaluate(expression.c_str(), &renderQueueVariables);
+		return (uint)glef.Evaluate(expression.c_str(), &renderQueueVariables);
 	}
 
 	Debug::LogError("invalid tag key %d.", key);
@@ -633,7 +636,7 @@ void SubShader::AddShaderProperties(std::vector<ShaderProperty>& properties, con
 				target->mask |= (1 << pass);
 			}
 
-			MEMORY_DELETE(p);
+			delete p;
 		}
 	}
 }
@@ -652,13 +655,19 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 	return false;
 }
 
+event<Shader*> ShaderInternal::shaderCreated;
+
 ShaderInternal::ShaderInternal() : ObjectInternal(ObjectType::Shader)
 	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
-	MEMORY_DELETE_ARRAY(subShaders_);
+	delete[] subShaders_;
 	ReleaseProperties();
+}
+
+bool ShaderInternal::LoadParser(const std::string& path) {
+	return glef.Load(path.c_str());
 }
 
 std::string ShaderInternal::GetName() const {
@@ -667,7 +676,7 @@ std::string ShaderInternal::GetName() const {
 
 bool ShaderInternal::Load(Shader* self, const std::string& path) {
 	Semantics semantics;
-	ShaderParser parser;
+	ShaderParser parser(&glef);
 	if (!parser.Parse(semantics, path + GLSL_POSTFIX, "")) {
 		return false;
 	}
@@ -679,7 +688,7 @@ bool ShaderInternal::Load(Shader* self, const std::string& path) {
 
 	SetProperties(properties);
 
-	UniformBufferManager::instance()->Attach(self);
+	shaderCreated.fire(self);
 
 	path_ = path;
 	return true;
@@ -699,7 +708,7 @@ void ShaderInternal::ParseSemanticProperties(std::vector<ShaderProperty>& proper
 
 void ShaderInternal::ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
 	subShaderCount_ = subShaders.size();
-	subShaders_ = MEMORY_NEW_ARRAY(SubShader, subShaders.size());
+	subShaders_ = new SubShader[subShaders.size()];
 	for (uint i = 0; i < subShaderCount_; ++i) {
 		subShaders_[i].Initialize(properties, subShaders[i], path);
 	}
@@ -707,7 +716,7 @@ void ShaderInternal::ParseSubShader(std::vector<ShaderProperty>& properties, con
 
 void ShaderInternal::ReleaseProperties() {
 	for (ShaderProperty& p : properties_) {
-		MEMORY_DELETE(p.property);
+		delete p.property;
 	}
 
 	properties_.clear();

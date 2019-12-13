@@ -3,7 +3,7 @@
 #include "transforminternal.h"
 #include "internal/async/async.h"
 
-Transform::Transform() : Component(MEMORY_NEW(TransformInternal)) {}
+Transform::Transform() : Component(new TransformInternal) {}
 bool Transform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
 void Transform::AddChild(Transform* child) { _suede_dptr()->AddChild(this, child); }
 void Transform::RemoveChild(Transform* child) { _suede_dptr()->RemoveChild(child); }

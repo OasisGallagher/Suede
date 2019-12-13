@@ -1,9 +1,11 @@
+#include "framebuffer.h"
+
+#include "gl.h"
 #include "screen.h"
 #include "debug/debug.h"
 #include "math/mathf.h"
-#include "framebuffer.h"
-#include "memory/memory.h"
-#include "../api/glutils.h"
+#include "contextlimits.h"
+#include "memory/refptr.h"
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
 
@@ -34,7 +36,8 @@ void FramebufferBase::ReadBuffer(std::vector<uchar>& data, uint* alignment) {
 }
 
 void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment) {
-	uint packAlignment = GLUtils::GetGLMode(GLModePackAlignment);
+	int packAlignment = 4;
+	GL::GetIntegerv(GL_PACK_ALIGNMENT, &packAlignment);
 
 	uint width = Mathf::RoundUpToPowerOfTwo(viewport_.z, packAlignment);
 	data.resize(3 * width * viewport_.w);
@@ -176,15 +179,15 @@ Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRe
 
 	GL::GenFramebuffers(1, &fbo_);
 
-	renderTextures_ = MEMORY_NEW_ARRAY(uint, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
-	std::fill(renderTextures_, renderTextures_ + GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
+	renderTextures_ = new uint[ContextLimits::Get(ContextLimitsType::MaxColorAttachments)];
+	std::fill(renderTextures_, renderTextures_ + ContextLimits::Get(ContextLimitsType::MaxColorAttachments), 0);
 
-	glAttachments_ = MEMORY_NEW_ARRAY(GLenum, GLUtils::GetLimits(GLLimitsMaxColorAttachments));
+	glAttachments_ = new GLenum[ContextLimits::Get(ContextLimitsType::MaxColorAttachments)];
 }
 
 Framebuffer::~Framebuffer() {
-	MEMORY_DELETE_ARRAY(renderTextures_);
-	MEMORY_DELETE_ARRAY(glAttachments_);
+	delete[] renderTextures_;
+	delete[] glAttachments_;
 	
 	if (fbo_ != 0) {
 		GL::DeleteFramebuffers(1, &fbo_);
@@ -261,7 +264,7 @@ uint Framebuffer::ToGLColorAttachments() {
 	}
 
 	uint count = 0;
-	for (int i = 0; i < GLUtils::GetLimits(GLLimitsMaxColorAttachments); ++i) {
+	for (int i = 0; i < ContextLimits::Get(ContextLimitsType::MaxColorAttachments); ++i) {
 		if (renderTextures_[i] != 0) {
 			glAttachments_[count++] = GL_COLOR_ATTACHMENT0 + i;
 		}
@@ -307,7 +310,7 @@ void Framebuffer::ResizeDepthRenderbuffer() {
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	SUEDE_VERIFY_INDEX(attachment, GLUtils::GetLimits(GLLimitsMaxColorAttachments), 0);
+	SUEDE_VERIFY_INDEX(attachment, ContextLimits::Get(ContextLimitsType::MaxColorAttachments), 0);
 	return renderTextures_[attachment];
 }
 

@@ -2,6 +2,11 @@
 #pragma once
 #include "../types.h"
 
+template <class T>
+static void t_delete(void* ptr) {
+	delete ((T*)ptr);
+}
+
 class SUEDE_API PimplIdiom {
 public:
 	PimplIdiom(void* d, void(*destroyer)(void*)) : d_(d), destroyer_(destroyer) {}

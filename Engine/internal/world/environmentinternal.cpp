@@ -1,8 +1,8 @@
 #include "environmentinternal.h"
 
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
-Environment::Environment() : Singleton2<Environment>(MEMORY_NEW(EnvironmentInternal), Memory::DeleteRaw<EnvironmentInternal>) {}
+Environment::Environment() : Singleton2<Environment>(new EnvironmentInternal, t_delete<EnvironmentInternal>) {}
 void Environment::SetSkybox(Material* value) { _suede_dinstance()->SetSkybox(value); }
 Material* Environment::GetSkybox() { return _suede_dinstance()->GetSkybox(); }
 void Environment::SetAmbientColor(const Color& value) { _suede_dinstance()->SetAmbientColor(value); }

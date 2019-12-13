@@ -3,7 +3,7 @@
 
 #include "engine.h"
 
-class StatisticsInternal : public FrameEventListener {
+class StatisticsInternal {
 public:
 	StatisticsInternal();
 
@@ -16,9 +16,6 @@ public:
 	float GetFrameRate();
 
 public:
-	void OnFrameEnter();
-	int GetFrameEventQueue() { return FrameEventQueueStatistics; }
-
 	void SetScriptElapsed(double value);
 	double GetScriptElapsed();
 
@@ -27,6 +24,9 @@ public:
 
 	void SetRenderingElapsed(double value);
 	double GetRenderingElapsed();
+
+private:
+	void OnFrameEnter();
 
 private:
 	float frameRate_;

@@ -15,10 +15,8 @@
 //class GBuffer;
 
 class Sample;
-class CameraInternal : public ComponentInternal, public Frustum
-	, public CullingListener/*, public RenderingListener */
-	, public ScreenSizeChangedListener {
-
+class Context;
+class CameraInternal : public ComponentInternal, public Frustum {
 public:
 	CameraInternal();
 	~CameraInternal();
@@ -29,23 +27,23 @@ public:
 	void SetDepth(Camera* self, int value);
 	int GetDepth() const { return depth_;  }
 
-	void SetRect(const Rect& value);
-	const Rect& GetRect() const { return p_.normalizedRect; }
+	void SetRect(const Rect& value) { normalizedRect_ = value; }
+	const Rect& GetRect() const { return normalizedRect_; }
 
-	void SetClearType(ClearType value) { p_.clearType = value; }
-	ClearType GetClearType() const { return p_.clearType; }
+	void SetClearType(ClearType value) { clearType_ = value; }
+	ClearType GetClearType() const { return clearType_; }
 
-	void SetRenderPath(RenderPath value) { p_.renderPath = value; }
-	RenderPath GetRenderPath() const { return p_.renderPath; }
+	void SetRenderPath(RenderPath value) { renderPath_ = value; }
+	RenderPath GetRenderPath() const { return renderPath_; }
 
-	void SetDepthTextureMode(DepthTextureMode value) { p_.depthTextureMode = value; }
-	DepthTextureMode GetDepthTextureMode() const { return p_.depthTextureMode; }
+	void SetDepthTextureMode(DepthTextureMode value) { depthTextureMode_ = value; }
+	DepthTextureMode GetDepthTextureMode() const { return depthTextureMode_; }
 
-	void SetClearColor(const Color& value) { p_.clearColor = value; }
-	Color GetClearColor() const { return p_.clearColor; }
+	void SetClearColor(const Color& value) { clearColor_ = value; }
+	Color GetClearColor() const { return clearColor_; }
 
-	void SetTargetTexture(RenderTexture* value) { p_.renderTextures.target = value; }
-	RenderTexture* GetTargetTexture() { return p_.renderTextures.target.get(); }
+	void SetTargetTexture(RenderTexture* value) { targetTexture_ = value; }
+	RenderTexture* GetTargetTexture() { return targetTexture_.get(); }
 
 	ref_ptr<Texture2D> Capture();
 
@@ -80,37 +78,44 @@ public:
 	Vector3 ScreenToWorldPoint(const Vector3& position);
 
 public:
-	void OnScreenSizeChanged(uint width, uint height);
-
-public:
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
 protected:
 	void OnProjectionMatrixChanged();
 
-protected:
-	void OnCullingFinished();
-	//void OnRenderingFinished();
-
 private:
 	void CancelThreads();
+	void UpdateFrameState();
+
 	bool IsValidViewportRect();
+
+	void OnCullingFinished();
+	void OnScreenSizeChanged(uint width, uint height);
 
 private:
 	int depth_;
 
-	//GBuffer* gbuffer_;
-
 	Plane planes_[6];
-	RenderingParameters p_;
 
 	Culling* culling_;
 	ZThread::Thread* cullingThread_;
 
-	bool traitsReady_;
-	RenderableTraits* traits0_, *traits1_;
+	bool pipelineReady_;
+	PipelineBuilder* pipelineBuilder_;
+	RenderingPipelines* frontPipelines_, *backPipelines_;
 
+	Context* context_;
 	Rendering* rendering_;
+
+	Rect normalizedRect_;
+
+	ClearType clearType_;
+	Color clearColor_;
+
+	DepthTextureMode depthTextureMode_;
+	RenderPath renderPath_;
+
+	ref_ptr<RenderTexture> targetTexture_;
 
 	ZThread::Mutex visibleGameObjectsMutex_;
 	std::vector<GameObject*> visibleGameObjects_;

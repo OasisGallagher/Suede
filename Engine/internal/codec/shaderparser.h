@@ -3,9 +3,10 @@
 #include <set>
 #include "variant.h"
 #include "renderer.h"
-#include "../api/gl.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
+#include "internal/base/gl.h"
 
+class GLEF;
 class Language;
 class SyntaxTree;
 class SyntaxNode;
@@ -154,6 +155,9 @@ private:
 
 class ShaderParser {
 public:
+	ShaderParser(GLEF* glef);
+
+public:
 	bool Parse(Semantics& semantics, const std::string& path, const std::string& customDefines);
 
 private:
@@ -206,11 +210,14 @@ private:
 
 	template <class T, class Reader>
 	void ReadTreeRef(SyntaxNode* node, const char* plurality, Reader reader, std::vector<T>& cont);
+
+private:
+	GLEF* glef_;
 };
 
 template<class T>
 inline T* ShaderParser::Append(std::vector<T*>& cont) {
-	cont.push_back(MEMORY_NEW(T));
+	cont.push_back(new T);
 	return cont.back();
 }
 

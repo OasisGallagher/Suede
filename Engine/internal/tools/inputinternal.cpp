@@ -1,20 +1,17 @@
 #include "input.h"
 #include "engine.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
+#include "frameeventqueue.h"
 
 InputInternal::InputInternal() {
-	Engine::AddFrameEventListener(this);
+	Engine::frameLeave.subscribe(this, &InputInternal::OnFrameLeave, (int)FrameEventQueue::Inputs);
 }
 
 InputInternal::~InputInternal() {
-	Engine::RemoveFrameEventListener(this);
+	Engine::frameLeave.unsubscribe(this);
 }
 
-int InputInternal::GetFrameEventQueue() {
-	return FrameEventQueueInputs;
-}
-
-Input::Input() : Singleton2<Input>(nullptr, Memory::DeleteRaw<InputInternal>) {}
+Input::Input() : Singleton2<Input>(nullptr, t_delete<InputInternal>) {}
 
 void Input::SetDelegate(InputInternal* delegate) {
 	instance()->_destroy();

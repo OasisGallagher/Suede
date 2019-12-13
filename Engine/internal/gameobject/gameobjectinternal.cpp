@@ -12,7 +12,7 @@
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-GameObject::GameObject() : Object(MEMORY_NEW(GameObjectInternal)) {
+GameObject::GameObject() : Object(new GameObjectInternal) {
 	GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
 	e->go = this;
 	World::FireEventImmediate(e);

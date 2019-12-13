@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
+#include "gl.h"
 #include "texture.h"
-#include "../api/gl.h"
 
 enum FramebufferTarget {
 	FramebufferTargetRead,

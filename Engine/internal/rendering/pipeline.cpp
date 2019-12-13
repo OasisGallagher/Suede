@@ -1,12 +1,17 @@
+#include "pipeline.h"
+
 #include <algorithm>
 
-#include "pipeline.h"
 #include "profiler.h"
 #include "statistics.h"
-#include "matrixbuffer.h"
-#include "../api/glutils.h"
+
+#include "internal/base/gl.h"
+#include "internal/base/contextlimits.h"
+
 #include "internal/base/vertexattrib.h"
 #include "internal/base/renderdefines.h"
+
+#include "internal/rendering/context.h"
 
 #undef DEBUG_SAMPLES
 
@@ -44,10 +49,12 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 	return 0;
 }
 
-Pipeline::Pipeline() 
-	: renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
+Pipeline::Pipeline(Context* context)
+	: context_(context)
+	, renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
 	memset(&counters_, 0, sizeof(counters_));
 	oldStates_.Reset();
+	matrixBuffer_ = context_->GetUniformState()->matrixTextureBuffer.get();
 }
 
 Pipeline::~Pipeline() {
@@ -116,7 +123,7 @@ void Pipeline::Run() {
 	samples_.update_pipeline->Restart();
 
 	samples_.update_tbo->Restart();
-	MatrixBuffer::instance()->Update(nrenderables_, &matrices_[0]);
+	UpdateMatrixBuffer(nrenderables_, &matrices_[0]);
 	samples_.update_tbo->Stop();
 
 	targetTexture_->BindWrite(normalizedRect_);
@@ -238,7 +245,7 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
 	samples_.draw_call->Start();
-	GLUtils::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
+	GL::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
 	samples_.draw_call->Stop();
 
 	++counters_.drawcalls;
@@ -285,6 +292,25 @@ void Pipeline::UpdateState(Renderable& renderable) {
 	}
 }
 
+void Pipeline::UpdateMatrixBuffer(uint size, const void* data) {
+	size *= sizeof(Matrix4) * 2;
+
+	if (size > ContextLimits::Get(ContextLimitsType::MaxTextureBufferSize)) {
+		Debug::LogError("%u exceeds matrix buffer max size %u.", size, ContextLimits::Get(ContextLimitsType::MaxTextureBufferSize));
+		return;
+	}
+
+	uint newSize = matrixBuffer_->GetSize();
+	for (; size > newSize; newSize *= 2)
+		;
+
+	if (newSize > matrixBuffer_->GetSize()) {
+		matrixBuffer_->Create(newSize);
+	}
+
+	matrixBuffer_->Update(0, size, data);
+}
+
 void Pipeline::Clear() {
 	ranges_.clear();
 
@@ -304,13 +330,12 @@ void Pipeline::SetTargetTexture(RenderTexture* value, const Rect& normalizedRect
 	normalizedRect_ = normalizedRect;
 }
 
-Pipeline& Pipeline::operator=(const Pipeline& other) {
-	ranges_ = other.ranges_;
-	matrices_ = other.matrices_;
+void Pipeline::AssignRenderables(const Pipeline* other) {
+	ranges_ = other->ranges_;
+	matrices_ = other->matrices_;
 
-	renderables_ = other.renderables_;
-	nrenderables_ = other.nrenderables_;
-	return *this;
+	renderables_ = other->renderables_;
+	nrenderables_ = other->nrenderables_;
 }
 
 void Pipeline::ResetState() {

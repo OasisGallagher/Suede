@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
+#include "gl.h"
 #include "shader.h"
-#include "../api/gl.h"
 
 class Buffer;
 class UniformBuffer {
@@ -15,7 +15,7 @@ public:
 	
 	void AttachBuffer(Shader* shader);
 	void AttachSubBuffer(Shader* shader, uint offset, uint size);
-	void UpdateBuffer(const void* data, uint offset, uint size);
+	bool UpdateBuffer(const void* data, uint offset, uint size);
 
 	const std::string& GetName() const { return name_; }
 

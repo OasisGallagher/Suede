@@ -350,9 +350,12 @@ void GLSLParser::AddPage(const std::string file, int ln) {
 	pages_[type_].push_back(page);
 }
 
+ShaderParser::ShaderParser(GLEF* glef) : glef_(glef) {
+}
+
 bool ShaderParser::Parse(Semantics& semantics, const std::string& file, const std::string& customDefines) {
 	SyntaxTree tree;
-	return GLEF::instance()->Parse((Resources::GetShaderDirectory() + file).c_str(), tree)
+	return glef_->Parse((Resources::GetShaderDirectory() + file).c_str(), tree)
 		&& ParseSemantics(tree, semantics);
 }
 

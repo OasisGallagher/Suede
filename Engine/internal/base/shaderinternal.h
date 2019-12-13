@@ -2,8 +2,8 @@
 #include <vector>
 
 #include "shader.h"
-#include "../api/gl.h"
 #include "renderstate.h"
+#include "tools/event.h"
 #include "containers/ptrmap.h"
 #include "internal/codec/shaderparser.h"
 #include "internal/base/objectinternal.h"
@@ -133,6 +133,9 @@ public:
 	~ShaderInternal();
 
 public:
+	static bool LoadParser(const std::string& path);
+
+public:
 	std::string GetName() const;
 	bool Load(Shader* self, const std::string& path);
 
@@ -151,6 +154,9 @@ public:
 
 	void GetProperties(std::vector<ShaderProperty>& properties);
 	bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
+
+public:
+	static event<Shader*> shaderCreated;
 
 private:
 	void ReleaseProperties();

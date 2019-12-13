@@ -58,9 +58,6 @@
     <ClInclude Include="math\vector4.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="memory\memory.h">
-      <Filter>memory</Filter>
-    </ClInclude>
     <ClInclude Include="os\filesystem.h">
       <Filter>os</Filter>
     </ClInclude>
@@ -79,13 +76,19 @@
     <ClInclude Include="tools\pimplidiom.h">
       <Filter>tools</Filter>
     </ClInclude>
-    <ClInclude Include="tools\random.h">
-      <Filter>tools</Filter>
-    </ClInclude>
     <ClInclude Include="tools\singleton.h">
       <Filter>tools</Filter>
     </ClInclude>
     <ClInclude Include="tools\string.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\random.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\refptr.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="tools\event.h">
       <Filter>tools</Filter>
     </ClInclude>
   </ItemGroup>

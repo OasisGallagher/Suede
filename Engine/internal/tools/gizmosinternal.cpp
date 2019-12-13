@@ -5,11 +5,12 @@
 #include "resources.h"
 #include "math/mathf.h"
 #include "geometryutility.h"
+#include "frameeventqueue.h"
 #include "builtinproperties.h"
 
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
-Gizmos::Gizmos() : Singleton2<Gizmos>(MEMORY_NEW(GizmosInternal), Memory::DeleteRaw<GizmosInternal>) {}
+Gizmos::Gizmos() : Singleton2<Gizmos>(new GizmosInternal, t_delete<GizmosInternal>) {}
 void Gizmos::Flush() { _suede_dinstance()->Flush(); }
 Matrix4 Gizmos::GetMatrix() { return _suede_dinstance()->GetMatrix(); }
 void Gizmos::SetMatrix(const Matrix4& value) { _suede_dinstance()->SetMatrix(value); }
@@ -33,7 +34,7 @@ GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	lineMaterial_->SetShader(Resources::FindShader("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", Matrix4(1));
 
-	Engine::AddFrameEventListener(this);
+	Engine::frameLeave.subscribe(this, &GizmosInternal::OnFrameLeave, (int)FrameEventQueue::Gizmos);
 }
 
 bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material) {

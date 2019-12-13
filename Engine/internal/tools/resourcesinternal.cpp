@@ -2,10 +2,10 @@
 
 #include "math/mathf.h"
 #include "os/filesystem.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 #include "geometryutility.h"
 
-Resources::Resources() : Singleton2<Resources>(MEMORY_NEW(ResourcesInternal), Memory::DeleteRaw<ResourcesInternal>) {}
+Resources::Resources() : Singleton2<Resources>(new ResourcesInternal, t_delete<ResourcesInternal>) {}
 void Resources::Import() { _suede_dinstance()->Import(); }
 Texture2D* Resources::GetBlackTexture() { return _suede_dinstance()->GetBlackTexture(); }
 Texture2D* Resources::GetWhiteTexture() { return _suede_dinstance()->GetWhiteTexture(); }
@@ -14,8 +14,8 @@ std::string Resources::GetModelDirectory() { return _suede_dinstance()->GetModel
 std::string Resources::GetShaderDirectory() { return _suede_dinstance()->GetShaderDirectory(); }
 std::string Resources::GetTextureDirectory() { return _suede_dinstance()->GetTextureDirectory(); }
 Mesh* Resources::GetPrimitive(PrimitiveType type) { return _suede_dinstance()->GetPrimitive(type); }
-Mesh* Resources::CreatePrimitive(PrimitiveType type, float scale) { return _suede_dinstance()->CreatePrimitive(type, scale); }
-Mesh* Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry)
+ref_ptr<Mesh> Resources::CreatePrimitive(PrimitiveType type, float scale) { return _suede_dinstance()->CreatePrimitive(type, scale); }
+ref_ptr<Mesh> Resources::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry)
 { return _suede_dinstance()->CreateInstancedPrimitive(type, scale, color, geometry); }
 void Resources::GetPrimitiveAttribute(MeshAttribute& attribute, PrimitiveType type, float scale) { _suede_dinstance()->GetPrimitiveAttribute(attribute, type, scale); }
 Shader* Resources::FindShader(const std::string& path) { return _suede_dinstance()->FindShader(path); }
@@ -32,14 +32,14 @@ void ResourcesInternal::Import() {
 	ImportTextureResources();
 }
 
-Mesh* ResourcesInternal::CreatePrimitive(PrimitiveType type, float scale) {
+ref_ptr<Mesh> ResourcesInternal::CreatePrimitive(PrimitiveType type, float scale) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 
 	return InitializeMesh(attribute);
 }
 
-Mesh* ResourcesInternal::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
+ref_ptr<Mesh> ResourcesInternal::CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry) {
 	MeshAttribute attribute;
 	GetPrimitiveAttribute(attribute, type, scale);
 	attribute.color = color;

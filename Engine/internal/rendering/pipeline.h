@@ -1,12 +1,10 @@
 #pragma once
-#include "../api/gl.h"
 
 #include "mesh.h"
 #include "rect.h"
 #include "camera.h"
 #include "texture.h"
 #include "material.h"
-#include "frameeventlistener.h"
 
 #include "internal/base/framebuffer.h"
 
@@ -35,9 +33,12 @@ enum SortMode {
 };
 
 class Sample;
-class Pipeline {
+class Context;
+class SharedUniformBuffers;
+
+class Pipeline : private NonCopyable {
 public:
-	Pipeline();
+	Pipeline(Context* context);
 	~Pipeline();
 
 public:
@@ -47,9 +48,8 @@ public:
 	void Clear();
 
 	RenderTexture* GetTargetTexture();
+	void AssignRenderables(const Pipeline* other);
 	void SetTargetTexture(RenderTexture* value, const Rect& normalizedRect);
-
-	Pipeline& operator = (const Pipeline& other);
 
 	uint GetRenderableCount() const { return nrenderables_; }
 	Renderable& GetRenderable(uint i) { return renderables_[i]; }
@@ -77,11 +77,15 @@ private:
 	void ResetState();
 	void UpdateState(Renderable& renderable);
 
+	void UpdateMatrixBuffer(uint size, const void* data);
+
 	void RenderInstances(uint first, uint last);
 	void GatherInstances(std::vector<uint>& ranges);
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
 private:
+	Context* context_;
+
 	uint nrenderables_;
 	std::vector<Renderable> renderables_;
 
@@ -90,6 +94,8 @@ private:
 
 	Rect normalizedRect_;
 	ref_ptr<RenderTexture> targetTexture_;
+
+	TextureBuffer* matrixBuffer_;
 
 	struct States {
 		int pass;

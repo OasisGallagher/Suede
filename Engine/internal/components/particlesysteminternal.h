@@ -1,7 +1,7 @@
 #include <vector>
 
 #include "shader.h"
-#include "tools/random.h"
+#include "math/random.h"
 #include "particlesystem.h"
 #include "containers/freelist.h"
 #include "internal/components/componentinternal.h"

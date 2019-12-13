@@ -1,12 +1,9 @@
 #pragma once
 #include <vector>
 #include "enginedefines.h"
-#include "tools/singleton.h"
 
-class ScreenSizeChangedListener {
-public:
-	virtual void OnScreenSizeChanged(uint width, uint height) = 0;
-};
+#include "tools/event.h"
+#include "tools/singleton.h"
 
 class SUEDE_API Screen : private Singleton2<Screen> {
 	friend class Singleton<Screen>;
@@ -16,9 +13,10 @@ public:
 	static uint GetWidth();
 	static uint GetHeight();
 
-	static void AddScreenSizeChangedListener(ScreenSizeChangedListener* listener);
-	static void RemoveScreenSizeChangedListener(ScreenSizeChangedListener* listener);
 	static void Resize(uint width, uint height);
+
+public:
+	static event<uint, uint> sizeChanged;
 
 private:
 	Screen();

@@ -6,41 +6,44 @@
 #include "rendering.h"
 #include "projector.h"
 #include "imageeffect.h"
-#include "tools/random.h"
-#include "memory/memory.h"
 #include "particlesystem.h"
-#include "sharedtexturemanager.h"
-#include "internal/rendering/shadows.h"
+#include "builtinproperties.h"
+
 #include "internal/base/renderdefines.h"
-#include "internal/rendering/uniformbuffermanager.h"
 
-#define sharedSSAOTexture	SharedTextureManager::instance()->GetSSAOTexture()
-#define sharedDepthTexture	SharedTextureManager::instance()->GetDepthTexture()
+#include "internal/rendering/context.h"
+#include "internal/rendering/shadowmap.h"
+#include "internal/rendering/ambientocclusion.h"
+#include "internal/rendering/shareduniformbuffers.h"
 
-RenderingParameters::RenderingParameters() : normalizedRect(0, 0, 1, 1), depthTextureMode(DepthTextureMode::None)
-	, clearType(ClearType::Color), renderPath(RenderPath::Forward) {
+RenderingPipelines::RenderingPipelines(Context* context) {
+	depth = new Pipeline(context);
+	depth->SetTargetTexture(context->GetUniformState()->depthTexture.get(), Rect(0, 0, 1, 1));
+
+	rendering = new Pipeline(context);
+
+	shadow = new Pipeline(context);
+	shadow->SetTargetTexture(context->GetShadowMap()->GetTargetTexture(), Rect(0, 0, 1, 1));
+
+	ssaoTraversal = new Pipeline(context);
+	ssaoTraversal->SetTargetTexture(context->GetAmbientOcclusion()->GetTraversalRenderTexture(), Rect(0, 0, 1, 1));
 }
 
-Rendering::Rendering(RenderingParameters* p) :p_(p) {
-	CreateAuxMaterial(p_->materials.ssao, "builtin/ssao", (int)RenderQueue::Background);
-	CreateAuxMaterial(p_->materials.ssaoTraversal, "builtin/ssao_traversal", (int)RenderQueue::Background);
+RenderingPipelines::~RenderingPipelines() {
+	delete depth;
+	delete rendering;
+	delete shadow;
+	delete ssaoTraversal;
+}
 
-	CreateAuxMaterial(p_->materials.depth, "builtin/depth", (int)RenderQueue::Background - 300);
+void RenderingPipelines::Clear() {
+	depth->Clear();
+	shadow->Clear();
+	rendering->Clear();
+	ssaoTraversal->Clear();
+}
 
-	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-
-	p_->renderTextures.aux1 = new RenderTexture();
-	p_->renderTextures.aux1->Create(RenderTextureFormat::Rgba, w, h);
-
-	p_->renderTextures.aux2 = new RenderTexture();
-	p_->renderTextures.aux2->Create(RenderTextureFormat::Rgba, w, h);
-
-	p_->renderTextures.ssaoTraversal = new MRTRenderTexture();
-	p_->renderTextures.ssaoTraversal->Create(RenderTextureFormat::Depth, w, h);
-
-	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
-	p_->renderTextures.ssaoTraversal->AddColorTexture(TextureFormat::Rgb32F);
-
+Rendering::Rendering(Context* context) : context_(context) {
 	ssaoSample = Profiler::CreateSample();
 	ssaoTraversalSample = Profiler::CreateSample();
 
@@ -49,19 +52,11 @@ Rendering::Rendering(RenderingParameters* p) :p_(p) {
 	renderingSample = Profiler::CreateSample();
 }
 
-void Rendering::Resize(uint width, uint height) {
-	p_->renderTextures.aux1->Resize(width, height);
-	p_->renderTextures.aux2->Resize(width, height);
-
-	sharedSSAOTexture->Resize(width, height);
-	sharedDepthTexture->Resize(width, height);
-}
-
 #define OutputSample(sample)	Debug::Output("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
 
-void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& matrices) {
-	ClearRenderTextures();
-	UpdateUniformBuffers(matrices, pipelines);
+void Rendering::Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
+	context_->ClearFrame();
+	UpdateUniformBuffers(pipelines, matrices);
 
 	DepthPass(pipelines);
 
@@ -70,7 +65,8 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 		SSAOPass(pipelines);
 	}
 
-	if (pipelines.forwardBaseLight) {
+	FrameState* frameState = context_->GetFrameState();
+	if (frameState->forwardBaseLight) {
 		ShadowPass(pipelines);
 	}
 
@@ -79,20 +75,9 @@ void Rendering::Render(RenderingPipelines& pipelines, const RenderingMatrices& m
 	OnPostRender();
 
 	//Graphics::Blit(sharedSSAOTexture, nullptr);
-	OnImageEffects();
-}
 
-void Rendering::ClearRenderTextures() {
-	p_->renderTextures.aux1->Clear(p_->normalizedRect, p_->clearColor, 1);
-	p_->renderTextures.aux2->Clear(p_->normalizedRect, Color::black, 1);
-	p_->renderTextures.ssaoTraversal->Clear(p_->normalizedRect, Color::black, 1);
-
-	sharedSSAOTexture->Clear(p_->normalizedRect, Color::white, 1);
-	sharedDepthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
-
-	ref_ptr<RenderTexture>& target = p_->renderTextures.target;
-	if (!target) { target = RenderTexture::GetDefault(); }
-	target->Clear(p_->normalizedRect, p_->clearColor, 1);
+	auto effects = frameState->camera->GetComponents<ImageEffect>();
+	if (!effects.empty()) { OnImageEffects(effects); }
 }
 
 void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
@@ -100,12 +85,13 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	p.worldToCameraMatrix = matrices.worldToCameraMatrix;
 	p.cameraToClipMatrix = matrices.projectionMatrix;
-	p.worldToShadowMatrix = Shadows::instance()->GetWorldToShadowMatrix();
+	p.worldToShadowMatrix = context_->GetShadowMap()->GetWorldToShadowMatrix();
 
 	p.projParams = matrices.projParams;
 	p.cameraPos = Vector4(matrices.cameraPos.x, matrices.cameraPos.y, matrices.cameraPos.z, 1);
 	p.screenParams = Vector4((float)Screen::GetWidth(), (float)Screen::GetHeight(), 0.f, 0.f);
-	UniformBufferManager::instance()->Update(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
+
+	context_->GetSharedUniformBuffers()->UpdateUniformBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
@@ -124,152 +110,139 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	Color color = light->GetColor() * light->GetIntensity();
 	p.lightColor = Vector4(color.r, color.g, color.b, 1);
 
-	UniformBufferManager::instance()->Update(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
-}
-
-void Rendering::CreateAuxMaterial(ref_ptr<Material>& material, const std::string& shaderPath, uint renderQueue) {
-	Shader* shader = Resources::FindShader(shaderPath);
-	material = new Material();
-	material->SetShader(shader);
-	material->SetRenderQueue(renderQueue);
+	context_->GetSharedUniformBuffers()->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::OnPostRender() {
 
 }
 
-void Rendering::OnImageEffects() {
-	RenderTexture* targets[] = { p_->renderTextures.aux1.get(), p_->renderTextures.aux2.get() };
+void Rendering::OnImageEffects(const std::vector<ImageEffect*>& effects) {
+	uint w = Screen::GetWidth(), h = Screen::GetHeight();
+	RenderTexture* targets[] = {
+		context_->GetOffscreenRenderTexture(),
+		RenderTexture::GetTemporary(RenderTextureFormat::Rgba, w, h)
+	};
 
 	int index = 1;
-	auto effects = p_->camera->GetComponents<ImageEffect>();
+	FrameState* frameState = context_->GetFrameState();
 	for (int i = 0; i < effects.size(); ++i) {
 		if (i + 1 == effects.size()) {
-			targets[index] = p_->renderTextures.target.get();
+			targets[index] = frameState->targetTexture.get();
 		}
 
-		effects[i]->OnRenderImage(targets[1 - index], targets[index], p_->normalizedRect);
+		effects[i]->OnRenderImage(targets[1 - index], targets[index], frameState->normalizedRect);
 		index = 1 - index;
 	}
+
+	RenderTexture::ReleaseTemporary(targets[1]);
 }
 
-void Rendering::SSAOPass(RenderingPipelines& pipelines) {
+void Rendering::SSAOPass(RenderingPipelines* pipelines) {
 	ssaoSample->Restart();
-	RenderTexture* temp = RenderTexture::GetTemporary(RenderTextureFormat::Rgb, Screen::GetWidth(), Screen::GetHeight());
 
-	p_->materials.ssao->SetPass(0);
-	Graphics::Blit(sharedDepthTexture, temp, p_->materials.ssao.get(), p_->normalizedRect);
+	FrameState* fs = context_->GetFrameState();
+	AmbientOcclusion* ao = context_->GetAmbientOcclusion();
 
-	p_->materials.ssao->SetPass(1);
-	Graphics::Blit(temp, sharedSSAOTexture, p_->materials.ssao.get(), p_->normalizedRect);
-
-	RenderTexture::ReleaseTemporary(temp);
+	ao->Clear(fs->normalizedRect);
+	ao->Run(context_->GetUniformState()->depthTexture.get(), fs->normalizedRect);
 
 	ssaoSample->Stop();
 	OutputSample(ssaoSample);
 }
 
-void Rendering::SSAOTraversalPass(RenderingPipelines& pipelines) {
+void Rendering::SSAOTraversalPass(RenderingPipelines* pipelines) {
 	ssaoTraversalSample->Restart();
-	pipelines.ssaoTraversal->Run();
+	pipelines->ssaoTraversal->Run();
 	ssaoTraversalSample->Stop();
 	OutputSample(ssaoTraversalSample);
 }
 
-void Rendering::DepthPass(RenderingPipelines& pipelines) {
+void Rendering::DepthPass(RenderingPipelines* pipelines) {
 	depthSample->Restart();
-	if (pipelines.depth->GetRenderableCount() > 0) {
-		pipelines.depth->Run();
+	if (pipelines->depth->GetRenderableCount() > 0) {
+		pipelines->depth->Run();
 	}
 	depthSample->Stop();
 	OutputSample(depthSample);
 }
 
-void Rendering::UpdateUniformBuffers(const RenderingMatrices& matrices, RenderingPipelines& pipelines) {
+void Rendering::UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
 	UpdateTransformsUniformBuffer(matrices);
 
-	if (pipelines.forwardBaseLight) {
-		UpdateForwardBaseLightUniformBuffer(pipelines.forwardBaseLight);
+	FrameState* fs = context_->GetFrameState();
+	if (fs->forwardBaseLight) {
+		UpdateForwardBaseLightUniformBuffer(fs->forwardBaseLight);
 	}
 }
 
-void Rendering::ShadowPass(RenderingPipelines& pipelines) {
-	RenderTexture* target = pipelines.rendering->GetTargetTexture();
-	Shadows::instance()->Resize(target->GetWidth(), target->GetHeight());
-	Shadows::instance()->Clear();
+void Rendering::ShadowPass(RenderingPipelines* pipelines) {
+	RenderTexture* target = pipelines->rendering->GetTargetTexture();
+
+	ShadowMap* shadowMap = context_->GetShadowMap();
+	shadowMap->Resize(target->GetWidth(), target->GetHeight());
+	shadowMap->Clear();
 
 	shadowSample->Restart();
-	pipelines.shadow->Run();
+	pipelines->shadow->Run();
 	shadowSample->Stop();
 	OutputSample(shadowSample);
 }
 
-void Rendering::RenderPass(RenderingPipelines& pipelines) {
+void Rendering::RenderPass(RenderingPipelines* pipelines) {
 	renderingSample->Restart();
-	pipelines.rendering->Run();
+	pipelines->rendering->Run();
 	renderingSample->Stop();
 	OutputSample(renderingSample);
 }
 
-RenderableTraits::RenderableTraits(RenderingParameters* p) : p_(p) {
-	pipelines_.depth = MEMORY_NEW(Pipeline);
-	pipelines_.depth->SetTargetTexture(sharedDepthTexture, Rect(0, 0, 1, 1));
-
-	pipelines_.ssaoTraversal = MEMORY_NEW(Pipeline);
-	pipelines_.ssaoTraversal->SetTargetTexture(p_->renderTextures.ssaoTraversal.get(), Rect(0, 0, 1, 1));
-
-	pipelines_.rendering = MEMORY_NEW(Pipeline);
-
-	pipelines_.shadow = MEMORY_NEW(Pipeline);
-	pipelines_.shadow->SetTargetTexture(Shadows::instance()->GetShadowTexture(), Rect(0, 0, 1, 1));
-
-	InitializeSSAOKernel();
-
+PipelineBuilder::PipelineBuilder(Context* context) : context_(context) {
 	forward_pass = Profiler::CreateSample();
 	push_renderables = Profiler::CreateSample();
 	get_renderable_game_objects = Profiler::CreateSample();
 }
 
-RenderableTraits::~RenderableTraits() {
-	MEMORY_DELETE(pipelines_.depth);
-	MEMORY_DELETE(pipelines_.shadow);
-	MEMORY_DELETE(pipelines_.rendering);
-	MEMORY_DELETE(pipelines_.ssaoTraversal);
-
+PipelineBuilder::~PipelineBuilder() {
 	Profiler::ReleaseSample(forward_pass);
 	Profiler::ReleaseSample(push_renderables);
 	Profiler::ReleaseSample(get_renderable_game_objects);
 }
 
-void RenderableTraits::Traits(std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices) {
+void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
-	Clear();
+	pipelines->Clear();
 
 	Matrix4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
+	ShadowMap* shadowMap = context_->GetShadowMap();
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject* go = gameObjects[i];
-		pipelines_.shadow->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), nullptr, 0, go->GetTransform()->GetLocalToWorldMatrix());
+		Material* material = shadowMap->GetMaterial();
+
+		pipelines->shadow->AddRenderable(
+			go->GetComponent<MeshProvider>()->GetMesh(), material, 0, go->GetTransform()->GetLocalToWorldMatrix()
+		);
 	}
 
-	pipelines_.shadow->Sort(SortModeMesh, worldToClipMatrix);
+	pipelines->shadow->Sort(SortModeMesh, worldToClipMatrix);
 
 	bool depthPass = false;
-	if (p_->renderPath == +RenderPath::Forward) {
-		if ((p_->depthTextureMode & DepthTextureMode::Depth) != 0) {
+	FrameState* fs = context_->GetFrameState();
+	if (fs->renderPath == +RenderPath::Forward) {
+		if ((fs->depthTextureMode & DepthTextureMode::Depth) != 0) {
 			depthPass = true;
 		}
 	}
 
 	if (Graphics::GetAmbientOcclusionEnabled()) {
-		*pipelines_.ssaoTraversal = *pipelines_.shadow;
-		SSAOPass(pipelines_.ssaoTraversal);
+		pipelines->ssaoTraversal->AssignRenderables(pipelines->shadow);
+		SSAOPass(pipelines->ssaoTraversal);
 		depthPass = true;
 	}
 
 	if (depthPass) {
-		*pipelines_.depth = *pipelines_.shadow;
-		ForwardDepthPass(pipelines_.depth);
+		pipelines->depth->AssignRenderables(pipelines->shadow);
+		ForwardDepthPass(pipelines->depth);
 	}
 
 	Light* forwardBase = nullptr;
@@ -279,26 +252,28 @@ void RenderableTraits::Traits(std::vector<GameObject*>& gameObjects, const Rende
 	RenderTexture* target = GetActiveRenderTarget();
 
 	if (forwardBase) {
-		Shadows::instance()->Update(forwardBase, pipelines_.shadow);
+		shadowMap->Update(forwardBase);
 	}
 
-	pipelines_.rendering->SetTargetTexture(target, p_->normalizedRect);
-	if (p_->renderPath == +RenderPath::Forward) {
-		ForwardRendering(pipelines_.rendering, gameObjects, forwardBase, forwardAdd);
+	pipelines->rendering->SetTargetTexture(target, fs->normalizedRect);
+	if (fs->renderPath == +RenderPath::Forward) {
+		ForwardRendering(pipelines->rendering, gameObjects, forwardBase, forwardAdd);
 	}
 	else {
-		DeferredRendering(pipelines_.rendering, gameObjects, forwardBase, forwardAdd);
+		DeferredRendering(pipelines->rendering, gameObjects, forwardBase, forwardAdd);
 	}
 
-	pipelines_.rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
+	pipelines->rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
 }
 
-void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
-	if (p_->clearType == +ClearType::Skybox) {
+void PipelineBuilder::ForwardRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
+	FrameState* fs = context_->GetFrameState();
+
+	if (fs->clearType == +ClearType::Skybox) {
 		RenderSkybox(pl);
 	}
 
-	pipelines_.forwardBaseLight = forwardBase;
+	fs->forwardBaseLight = forwardBase;
 	if (forwardBase) {
 		RenderForwardBase(pl, gameObjects, forwardBase);
 	}
@@ -310,7 +285,7 @@ void RenderableTraits::ForwardRendering(Pipeline* pl, const std::vector<GameObje
 	RenderDecals(pl);
 }
 
-void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
+void PipelineBuilder::DeferredRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
 	// 	if (gbuffer_ == nullptr) {
 	// 		InitializeDeferredRender();
 	// 	}
@@ -318,8 +293,8 @@ void RenderableTraits::DeferredRendering(Pipeline* pl, const std::vector<GameObj
 	// 	RenderDeferredGeometryPass(target, gameObjects);
 }
 
-void RenderableTraits::InitializeDeferredRender() {
-	/*gbuffer_ = MEMORY_NEW(GBuffer);
+void PipelineBuilder::InitializeDeferredRender() {
+	/*gbuffer_ = new GBuffer;
 	gbuffer_->Create(Framebuffer0::Get()->GetViewportWidth(), Framebuffer0::Get()->GetViewportHeight());
 
 	deferredMaterial_ = new Material();
@@ -327,92 +302,52 @@ void RenderableTraits::InitializeDeferredRender() {
 	deferredMaterial_->SetShader(Resources::FindShader("builtin/gbuffer"));*/
 }
 
-void RenderableTraits::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
-	// 	gbuffer_->Bind(GBuffer::GeometryPass);
-	// 
-	// 	for (int i = 0; i < gameObjects.size(); ++i) {
-	// 		GameObject* go = gameObjects[i];
-	// 
-	// 		Texture mainTexture = go->GetRenderer()->GetMaterial(0)->GetTexture(BuiltinProperties::MainTexture);
-	// 		Material material = suede_dynamic_cast<Material>(deferredMaterial_->Clone());
-	// 		material->SetTexture(BuiltinProperties::MainTexture, mainTexture);
-	// 		pipeline_->AddRenderable(go->GetMesh(), deferredMaterial_, 0, target, go->GetTransform()->GetLocalToWorldMatrix());
-	// 	}
-	// 
-	// 	gbuffer_->Unbind();
+void PipelineBuilder::RenderDeferredGeometryPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
 }
 
-void RenderableTraits::RenderSkybox(Pipeline* pl) {
+void PipelineBuilder::RenderSkybox(Pipeline* pl) {
 	Material* skybox = Environment::GetSkybox();
 	if (skybox != nullptr) {
 		Matrix4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = Vector4(0, 0, 0, 1);
+
 		pl->AddRenderable(Resources::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
 	}
 }
 
-RenderTexture* RenderableTraits::GetActiveRenderTarget() {
-	if (!p_->camera->GetComponents<ImageEffect>().empty()) {
-		return p_->renderTextures.aux1.get();
+RenderTexture* PipelineBuilder::GetActiveRenderTarget() {
+	FrameState* fs = context_->GetFrameState();
+	if (!fs->camera->GetComponents<ImageEffect>().empty()) {
+		return context_->GetOffscreenRenderTexture();
 	}
 
-	RenderTexture* target = p_->renderTextures.target.get();
-
-	if (!target) {
+	RenderTexture* target = fs->targetTexture.get();
+	if (target == nullptr) {
 		target = RenderTexture::GetDefault();
 	}
 
 	return target;
 }
 
-void RenderableTraits::RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light) {
+void PipelineBuilder::RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light) {
 	forward_pass->Restart();
 	ForwardPass(pl, gameObjects);
 	forward_pass->Stop();
 	Debug::Output("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
-void RenderableTraits::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights) {
+void PipelineBuilder::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights) {
 }
 
-void RenderableTraits::InitializeSSAOKernel() {
-	Vector3 kernel[SSAO_KERNEL_SIZE];
-	for (int i = 0; i < SUEDE_COUNTOF(kernel); ++i) {
-		float scale = float(i) / SUEDE_COUNTOF(kernel);
-		scale = Mathf::Lerp(0.1f, 1.f, scale * scale);
-
-		Vector3 sample = Vector3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), Random::FloatRange(0.f, 1.f));
-		Vector3::Normalize(sample);
-		sample *= Random::FloatRange(0.f, 1.f);
-		kernel[i] = sample * scale;
-	}
-
-	Vector3 noise[4 * 4];
-	for (int i = 0; i < SUEDE_COUNTOF(noise); ++i) {
-		noise[i] = Vector3(Random::FloatRange(-1.f, 1.f), Random::FloatRange(-1.f, 1.f), 0);
-	}
-
-	ref_ptr<Texture2D> noiseTexture = new Texture2D();
-	noiseTexture->Create(TextureFormat::Rgb32F, &noise, ColorStreamFormat::RgbF, 4, 4, 4);
-	noiseTexture->SetWrapModeS(TextureWrapMode::Repeat);
-	noiseTexture->SetWrapModeT(TextureWrapMode::Repeat);
-
-	p_->materials.ssao->SetVector3Array("ssaoKernel", kernel, SSAO_KERNEL_SIZE);
-
-	p_->materials.ssao->SetTexture("noiseTexture", noiseTexture.get());
-	p_->materials.ssao->SetTexture("posTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(0));
-	p_->materials.ssao->SetTexture("normalTexture", p_->renderTextures.ssaoTraversal->GetColorTexture(1));
+void PipelineBuilder::SSAOPass(Pipeline* pl) {
+	ReplaceMaterials(pl, context_->GetAmbientOcclusion()->GetTraversalMaterial());
 }
 
-void RenderableTraits::SSAOPass(Pipeline* pl) {
-	ReplaceMaterials(pl, p_->materials.ssaoTraversal.get());
+void PipelineBuilder::ForwardDepthPass(Pipeline* pl) {
+	ReplaceMaterials(pl, context_->GetDepthMaterial());
 }
 
-void RenderableTraits::ForwardDepthPass(Pipeline* pl) {
-	ReplaceMaterials(pl, p_->materials.depth.get());
-}
-
-void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
+void PipelineBuilder::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject* go = gameObjects[i];
 		RenderGameObject(pl, go, go->GetComponent<Renderer>());
@@ -422,7 +357,7 @@ void RenderableTraits::ForwardPass(Pipeline* pl, const std::vector<GameObject*>&
 	push_renderables->Reset();
 }
 
-void RenderableTraits::GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd) {
+void PipelineBuilder::GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd) {
 	std::vector<Light*> lights = World::GetComponents<Light>();
 	if (lights.empty()) {
 		return;
@@ -438,7 +373,7 @@ void RenderableTraits::GetLights(Light*& forwardBase, std::vector<Light*>& forwa
 	}
 }
 
-void RenderableTraits::RenderDecals(Pipeline* pl) {
+void PipelineBuilder::RenderDecals(Pipeline* pl) {
 	std::vector<Decal> decals;
 	World::GetDecals(decals);
 
@@ -447,7 +382,7 @@ void RenderableTraits::RenderDecals(Pipeline* pl) {
 	}
 }
 
-void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material* material) {
+void PipelineBuilder::ReplaceMaterials(Pipeline* pl, Material* material) {
 	uint nrenderables = pl->GetRenderableCount();
 	for (uint i = 0; i < nrenderables; ++i) {
 		Renderable& renderable = pl->GetRenderable(i);
@@ -456,7 +391,7 @@ void RenderableTraits::ReplaceMaterials(Pipeline* pl, Material* material) {
 	}
 }
 
-void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer) {
+void PipelineBuilder::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer) {
 	push_renderables->Start();
 
 	int subMeshCount = go->GetComponent<MeshProvider>()->GetMesh()->GetSubMeshCount();
@@ -487,15 +422,9 @@ void RenderableTraits::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* 
 	push_renderables->Stop();
 }
 
-void RenderableTraits::RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass) {
+void PipelineBuilder::RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass) {
 	ParticleSystem* p = go->GetComponent<ParticleSystem>();
 	uint instance = p ? p->GetParticlesCount() : 0;
-	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
-}
 
-void RenderableTraits::Clear() {
-	pipelines_.depth->Clear();
-	pipelines_.shadow->Clear();
-	pipelines_.rendering->Clear();
-	pipelines_.ssaoTraversal->Clear();
+	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

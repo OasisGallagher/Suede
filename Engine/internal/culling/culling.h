@@ -6,15 +6,13 @@
 #include "world.h"
 #include "gameobject.h"
 
+#include "tools/event.h"
+
 class Culling;
-class CullingListener {
-public:
-	virtual void OnCullingFinished() = 0;
-};
 
 class Culling : public ZThread::Runnable, public WorldGameObjectWalker {
 public:
-	Culling(CullingListener* listener);
+	Culling();
 	~Culling() {}
 
 public:
@@ -24,6 +22,9 @@ public:
 	bool IsWorking() { return !stopped_ && working_; }
 
 	void Cull(const Matrix4& worldToClipMatrix);
+
+public:
+	event<> cullingFinished;
 
 public:
 	virtual WalkCommand OnWalkGameObject(GameObject* go);
@@ -40,7 +41,6 @@ private:
 	ZThread::Condition cond_;
 
 	bool working_, stopped_;
-	CullingListener* listener_;
 	Matrix4 worldToClipMatrix_;
 	std::vector<GameObject*> gameObjects_;
 };

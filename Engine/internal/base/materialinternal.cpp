@@ -1,14 +1,13 @@
-#include "math/mathf.h"
+#include "materialinternal.h"
+
 #include "renderstate.h"
+#include "math/mathf.h"
 #include "debug/debug.h"
 #include "tools/string.h"
 #include "renderdefines.h"
-#include "materialinternal.h"
 #include "builtinproperties.h"
 
-#include "internal/rendering/sharedtexturemanager.h"
-
-Material::Material() : Object(MEMORY_NEW(MaterialInternal)) { }
+Material::Material() : Object(new MaterialInternal) { }
 ref_ptr<Object> Material::Clone() { return _suede_dptr()->Clone(); }
 void Material::Bind(uint pass) { _suede_dptr()->Bind(pass); }
 void Material::Unbind() { _suede_dptr()->Unbind(); }
@@ -53,6 +52,8 @@ const std::vector<const Property*>& Material::GetExplicitProperties() { return _
 // SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
 
+event<Material*> MaterialInternal::shaderChanged;
+
 MaterialInternal::MaterialInternal()
 	: ObjectInternal(ObjectType::Material), currentPass_(-1) {
 }
@@ -70,8 +71,10 @@ ref_ptr<Object> MaterialInternal::Clone() {
 
 void MaterialInternal::SetShader(Material* self, Shader* value) {
 	shader_ = value;
-	UpdateProperties(self, value);
+	CopyProperties(value);
 	InitializeEnabledState();
+
+	shaderChanged.fire(self);
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
@@ -423,11 +426,6 @@ void MaterialInternal::UnbindProperties() {
 			var.GetTexture()->Unbind();
 		}
 	}
-}
-
-void MaterialInternal::UpdateProperties(Material* self, Shader* newShader) {
-	CopyProperties(newShader);
-	SharedTextureManager::instance()->Attach(self);
 }
 
 void MaterialInternal::CopyProperties(Shader* newShader) {

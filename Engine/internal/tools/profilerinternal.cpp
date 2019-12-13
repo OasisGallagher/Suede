@@ -3,14 +3,14 @@
 #include <Windows.h>
 #include "debug/debug.h"
 
-Sample::Sample() : PimplIdiom(MEMORY_NEW(SampleInternal), Memory::DeleteRaw<SampleInternal>) {}
+Sample::Sample() : PimplIdiom(new SampleInternal, t_delete<SampleInternal>) {}
 void Sample::Start() { _suede_dptr()->Start(); }
 void Sample::Restart() { _suede_dptr()->Restart(); }
 void Sample::Stop() { _suede_dptr()->Stop(); }
 void Sample::Reset() { _suede_dptr()->Reset(); }
 double Sample::GetElapsedSeconds() const { return _suede_dptr()->GetElapsedSeconds(); }
 
-Profiler::Profiler() : Singleton2<Profiler>(MEMORY_NEW(ProfilerInternal), Memory::DeleteRaw<ProfilerInternal>) {}
+Profiler::Profiler() : Singleton2<Profiler>(new ProfilerInternal, t_delete<ProfilerInternal>) {}
 Sample* Profiler::CreateSample() { return _suede_dinstance()->CreateSample(); }
 void Profiler::ReleaseSample(Sample* value) { _suede_dinstance()->ReleaseSample(value); }
 uint64 Profiler::GetTimeStamp() { return _suede_dinstance()->GetTimeStamp(); }
@@ -26,7 +26,7 @@ ProfilerInternal::ProfilerInternal() : samples_(MaxProfilerSamples) {
 		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
 	}
 
-	Engine::AddFrameEventListener(this);
+	Engine::frameEnter.subscribe(this, &ProfilerInternal::OnFrameEnter, (int)FrameEventQueue::Profiler);
 }
 
 ProfilerInternal::~ProfilerInternal() {

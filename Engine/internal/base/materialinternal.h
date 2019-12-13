@@ -1,6 +1,7 @@
 #pragma once
 
 #include "material.h"
+#include "tools/event.h"
 #include "containers/ptrmap.h"
 #include "internal/base/objectinternal.h"
 
@@ -67,11 +68,13 @@ public:
 
 	const std::vector<const Property*>& GetExplicitProperties();
 
+public:
+	static event<Material*> shaderChanged;
+
 private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
-	void UpdateProperties(Material* self, Shader* newShader);
 	void CopyProperties(Shader* newShader);
 	void DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties);
 

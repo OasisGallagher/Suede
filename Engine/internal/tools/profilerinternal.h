@@ -2,6 +2,7 @@
 #include "profiler.h"
 
 #include "engine.h"
+#include "frameeventqueue.h"
 #include "containers/freelist.h"
 
 class SampleInternal {
@@ -23,7 +24,7 @@ private:
 	uint64 timeStamp_;
 };
 
-class ProfilerInternal : public FrameEventListener {
+class ProfilerInternal {
 public:
 	ProfilerInternal();
 	~ProfilerInternal();
@@ -35,9 +36,8 @@ public:
 	uint64 GetTimeStamp();
 	double TimeStampToSeconds(uint64 timeStamp);
 
-public:
+private:
 	void OnFrameEnter();
-	int GetFrameEventQueue() { return FrameEventQueueProfiler; }
 
 private:
 	enum {

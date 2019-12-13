@@ -26,13 +26,15 @@ void Hierarchy::init(Ui::Editor* ui) {
 	connect(ui_->gameObjectTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
 
 	connect(ui->gameObjectTree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onGameObjectDoubleClicked(const QModelIndex&)));
+
+	World::gameObjectImported.subscribe(this, &Hierarchy::onGameObjectImported);
 }
 
 void Hierarchy::awake() {
 	World::AddEventListener(this);
 }
 
-void Hierarchy::OnGameObjectImported(GameObject* root, const std::string& path) {
+void Hierarchy::onGameObjectImported(GameObject* root, const std::string& path) {
 	root->GetTransform()->SetParent(World::GetRootTransform());
 }
 
@@ -76,14 +78,8 @@ void Hierarchy::setSelectedGameObjects(const QList<GameObject*>& objects) {
 void Hierarchy::OnWorldEvent(WorldEventBasePtr entit) {
 	GameObjectEventPtr eep = std::static_pointer_cast<GameObjectEvent>(entit);
 	switch (entit->GetEventType()) {
-//		case WorldEventType::GameObjectCreated:
-//			onGameObjectCreated(eep->go);
-//			break;
 		case WorldEventType::GameObjectDestroyed:
 			onGameObjectDestroyed(eep->go.get());
-			break;
-		case WorldEventType::GameObjectTagChanged:
-			onGameObjectTagChanged(eep->go.get());
 			break;
 		case WorldEventType::GameObjectNameChanged:
 			onGameObjectNameChanged(eep->go.get());
@@ -95,13 +91,6 @@ void Hierarchy::OnWorldEvent(WorldEventBasePtr entit) {
 			onGameObjectActiveChanged(eep->go.get());
 			break;
 	}
-}
-
-void Hierarchy::onGameObjectCreated(GameObject* go) {
-	QStandardItem* item = new QStandardItem(go->GetName().c_str());
-	item->setData(go->GetInstanceID());
-	model_->appendRow(item);
-	items_[go->GetInstanceID()] = item;
 }
 
 void Hierarchy::onGameObjectDestroyed(GameObject* go) {
@@ -122,9 +111,6 @@ void Hierarchy::onGameObjectDestroyed(GameObject* go) {
 	if (contains) {
 		emit selectionChanged(QList<GameObject*>(), QList<GameObject*>({ go }));
 	}
-}
-
-void Hierarchy::onGameObjectTagChanged(GameObject* go) {
 }
 
 void Hierarchy::onGameObjectNameChanged(GameObject* go) {
@@ -216,7 +202,7 @@ void Hierarchy::dropEvent(QDropEvent* event) {
 	QList<QUrl> urls = event->mimeData()->urls();
 	for (QUrl url : urls) {
 		std::string path = FileSystem::GetFileName(url.toString().toStdString());
-		World::Import(path, this);
+		World::Import(path);
 	}
 }
 

@@ -41,9 +41,6 @@
     <Filter Include="internal\tools">
       <UniqueIdentifier>{7250f762-5349-4e9d-86fa-b0ac0e0f55fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\api">
-      <UniqueIdentifier>{384f19f2-09d5-4a3b-8d2c-338e049f1b82}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\gui">
       <UniqueIdentifier>{c4c6c134-4610-4e69-baac-24b7fb760c99}</UniqueIdentifier>
     </Filter>
@@ -247,9 +244,6 @@
     <ClInclude Include="include\statistics.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\frameeventlistener.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\rect.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -284,9 +278,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\ranged.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\gameobjectimportedlistener.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\lua++.h">
@@ -1384,12 +1375,6 @@
     <ClInclude Include="include\rigidbody.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\api\glutils.h">
-      <Filter>internal\api</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\api\gl.h">
-      <Filter>internal\api</Filter>
-    </ClInclude>
     <ClInclude Include="internal\async\threadpool.h">
       <Filter>internal\async</Filter>
     </ClInclude>
@@ -1525,22 +1510,10 @@
     <ClInclude Include="internal\physics\rigidbodyinternal.h">
       <Filter>internal\physics</Filter>
     </ClInclude>
-    <ClInclude Include="internal\rendering\uniformbuffermanager.h">
-      <Filter>internal\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rendering\sharedtexturemanager.h">
-      <Filter>internal\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rendering\shadows.h">
-      <Filter>internal\rendering</Filter>
-    </ClInclude>
     <ClInclude Include="internal\rendering\pipeline.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
     <ClInclude Include="internal\rendering\rendering.h">
-      <Filter>internal\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rendering\matrixbuffer.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
     <ClInclude Include="internal\tools\gizmosinternal.h">
@@ -1578,6 +1551,30 @@
     </ClInclude>
     <ClInclude Include="internal\world\decalcreater.h">
       <Filter>internal\world</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\shadowmap.h">
+      <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\shareduniformbuffers.h">
+      <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\ambientocclusion.h">
+      <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\_gl.h">
+      <Filter>internal\base</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\gl.h">
+      <Filter>internal\base</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\contextlimits.h">
+      <Filter>internal\base</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\context.h">
+      <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="include\frameeventqueue.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2109,9 +2106,6 @@
     <ClCompile Include="internal\physics\bullet\LinearMath\btVector3.cpp">
       <Filter>internal\physics\bullet\LinearMath</Filter>
     </ClCompile>
-    <ClCompile Include="internal\api\glutils.cpp">
-      <Filter>internal\api</Filter>
-    </ClCompile>
     <ClCompile Include="internal\async\threadpool.cpp">
       <Filter>internal\async</Filter>
     </ClCompile>
@@ -2250,22 +2244,10 @@
     <ClCompile Include="internal\rendering\imageeffect.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
-    <ClCompile Include="internal\rendering\matrixbuffer.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\pipeline.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
     <ClCompile Include="internal\rendering\rendering.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rendering\shadows.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rendering\sharedtexturemanager.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rendering\uniformbuffermanager.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
     <ClCompile Include="internal\tools\gizmosinternal.cpp">
@@ -2312,6 +2294,24 @@
     </ClCompile>
     <ClCompile Include="internal\world\decalcreater.cpp">
       <Filter>internal\world</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\shadowmap.cpp">
+      <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\shareduniformbuffers.cpp">
+      <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\ambientocclusion.cpp">
+      <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\gl.cpp">
+      <Filter>internal\base</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\contextlimits.cpp">
+      <Filter>internal\base</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\context.cpp">
+      <Filter>internal\rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

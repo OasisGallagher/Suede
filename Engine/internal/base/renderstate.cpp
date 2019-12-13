@@ -3,7 +3,7 @@
 #include "debug/debug.h"
 #include "renderstate.h"
 #include "debug/debug.h"
-#include "memory/memory.h"
+#include "memory/refptr.h"
 
 #define CHECK_PARAMETER(name, value, ...)	\
 	if (true) { \
@@ -39,7 +39,7 @@ void CullState::Unbind() {
 }
 
 RenderState* CullState::Clone() {
-	return MEMORY_NEW(CullState, *this);
+	return new CullState(*this);
 }
 
 void ZTestState::Initialize(int parameter0, int, int) {
@@ -76,7 +76,7 @@ void ZTestState::Unbind() {
 }
 
 RenderState* ZTestState::Clone() {
-	return MEMORY_NEW(ZTestState, *this);
+	return new ZTestState(*this);
 }
 
 void ZWriteState::Initialize(int parameter0, int, int) {
@@ -94,7 +94,7 @@ void ZWriteState::Unbind() {
 }
 
 RenderState* ZWriteState::Clone() {
-	return MEMORY_NEW(ZWriteState, *this);
+	return new ZWriteState(*this);
 }
 
 void OffsetState::Initialize(int parameter0, int parameter1, int) {
@@ -122,7 +122,7 @@ void OffsetState::Unbind() {
 }
 
 RenderState* OffsetState::Clone() {
-	return MEMORY_NEW(OffsetState, *this);
+	return new OffsetState(*this);
 }
 
 void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2) {
@@ -168,7 +168,7 @@ void StencilTestState::Unbind() {
 }
 
 RenderState* StencilTestState::Clone() {
-	return MEMORY_NEW(StencilTestState, *this);
+	return new StencilTestState(*this);
 }
 
 void StencilWriteState::Initialize(int parameter0, int, int) {
@@ -190,7 +190,7 @@ void StencilWriteState::Unbind() {
 }
 
 RenderState* StencilWriteState::Clone() {
-	return MEMORY_NEW(StencilWriteState, *this);
+	return new StencilWriteState(*this);
 }
 
 void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) {
@@ -244,7 +244,7 @@ void StencilOpState::Unbind() {
 }
 
 RenderState* StencilOpState::Clone() {
-	return MEMORY_NEW(StencilOpState, *this);
+	return new StencilOpState(*this);
 }
 
 void RasterizerDiscardState::Initialize(int parameter0, int, int) {
@@ -262,7 +262,7 @@ void RasterizerDiscardState::Unbind() {
 }
 
 RenderState* RasterizerDiscardState::Clone() {
-	return MEMORY_NEW(RasterizerDiscardState, *this);
+	return new RasterizerDiscardState(*this);
 }
 
 void BlendState::Initialize(int parameter0, int parameter1, int) {
@@ -313,7 +313,7 @@ void BlendState::Unbind() {
 }
 
 RenderState* BlendState::Clone() {
-	return MEMORY_NEW(BlendState, *this);
+	return new BlendState(*this);
 }
 
 void RenderState::Enable(GLenum cap, GLboolean enable) {
