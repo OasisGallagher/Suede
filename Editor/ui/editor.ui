@@ -691,7 +691,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;GameWindow</string>
+    <string>&amp;Game</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+1</string>
@@ -702,7 +702,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;InspectorWindow</string>
+    <string>&amp;Inspector</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+2</string>
@@ -713,7 +713,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;ConsoleWindow</string>
+    <string>&amp;Console</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+3</string>
@@ -825,4 +825,3 @@
  </resources>
  <connections/>
 </ui>
-

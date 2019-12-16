@@ -288,12 +288,6 @@
     <ClCompile Include="windows\console\consolewindow.cpp">
       <Filter>windows\console</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_consolewindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_consolewindow.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="windows\game\gamewindow.cpp">
       <Filter>windows\game</Filter>
     </ClCompile>
@@ -342,6 +336,21 @@
     <ClCompile Include="main\childwindow.cpp">
       <Filter>main</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_consolewindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_consolewindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_editor.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_statswidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_statswidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.qrc">
@@ -370,9 +379,6 @@
     </CustomBuild>
     <CustomBuild Include="main\editor.h">
       <Filter>main</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\grayscale.cpp">
-      <Filter>scripts</Filter>
     </CustomBuild>
     <CustomBuild Include="scripts\selectiongizmos.h">
       <Filter>scripts</Filter>
@@ -476,6 +482,12 @@
     <CustomBuild Include="windows\project\projectwindow.h">
       <Filter>windows\project</Filter>
     </CustomBuild>
+    <CustomBuild Include="scripts\grayscale.cpp">
+      <Filter>scripts</Filter>
+    </CustomBuild>
+    <CustomBuild Include="widgets\statistics\statswidget.h">
+      <Filter>widgets\statistics</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\qtimgui\QtImGui.h">
@@ -486,9 +498,6 @@
     </ClInclude>
     <ClInclude Include="widgets\fields\enumfield.h">
       <Filter>widgets\fields</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\statistics\statswidget.h">
-      <Filter>widgets\statistics</Filter>
     </ClInclude>
     <ClInclude Include="windows\inspector\materialeditor.h">
       <Filter>windows\inspector</Filter>

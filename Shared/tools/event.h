@@ -2,14 +2,15 @@
 
 #pragma once
 
-#include <memory>
 #include <vector>
+#include <memory>
 #include <algorithm>
 
-// an event holds a vector of subscribers_
-// when it fires, each is called
+/**
+ * An event holds a vector of subscribers when it fires, each is called.
+ */
 
-template<class... Args>
+template <class... Args>
 class _SubscriberBase {
 public:
 	virtual int order() = 0;
@@ -18,7 +19,7 @@ public:
 	virtual ~_SubscriberBase() {}
 };
 
-template<class T, class... Args>
+template <class T, class... Args>
 class _Subscriber : public _SubscriberBase<Args...> {
 public:
 	typedef T callee_type;
@@ -36,17 +37,18 @@ public:
 	bool instanceof(void* _t) final { return _t == (void*)t; }
 };
 
-// our Listener will derive from EventListener<Listener>
-// which holds a list of a events it is subscribed to.
-// As these events will have different sigs, we need a base-class.
-// We will store pointers to this base-class.
+/**
+ * Our Listener will derive from EventListener<Listener> which holds a list of a events it is subscribed to.
+ * As these events will have different sigs, we need a base-class.
+ * We will store pointers to this base-class.
+ */
 class _EventBase {
 public:
 	virtual ~_EventBase() {}
 	virtual void unsubscribe(void* t) = 0;
 };
 
-template<class... Args>
+template <class... Args>
 class event : public _EventBase {
 public:
 	using smart_ptr_type = std::shared_ptr<_SubscriberBase<Args...>>;
@@ -66,7 +68,7 @@ public:
 		to_remove_.clear();
 	}
 
-	template<class T>
+	template <class T>
 	void subscribe(T* t, void(T::*f)(Args... args)) {
 		smart_ptr_type s(new _Subscriber <T, Args...>(t, f));
 		subscribers_.push_back(s);
@@ -96,7 +98,7 @@ protected:
 	std::vector<smart_ptr_type> subscribers_;
 };
 
-template<class... Args>
+template <class... Args>
 class sorted_event : public event<Args...> {
 	struct subscriber_comparer {
 		bool operator()(const smart_ptr_type& lhs, const smart_ptr_type& rhs) const {

@@ -8,7 +8,7 @@ LightingWindow::LightingWindow(QWidget* parent) : ChildWindow(parent) {
 	setFeatures(AllDockWidgetFeatures);
 }
 
-void LightingWindow::awake() {
+void LightingWindow::initUI() {
 	connect(ui_->ambient, SIGNAL(valueChanged(const QColor&)), this, SLOT(onAmbientChanged(const QColor&)));
 	connect(ui_->occlusion, SIGNAL(stateChanged(int)), this, SLOT(onOcclusionChanged(int)));
 	connect(ui_->fogColor, SIGNAL(valueChanged(const QColor&)), this, SLOT(onFogColorChanged(const QColor&)));
@@ -16,15 +16,16 @@ void LightingWindow::awake() {
 }
 
 void LightingWindow::showEvent(QShowEvent* event) {
-	ui_->ambient->setValue(Environment::GetAmbientColor());
+	Environment* env = World::GetEnvironment();
+	ui_->ambient->setValue(env->ambientColor);
 	ui_->occlusion->setChecked(Graphics::GetAmbientOcclusionEnabled());
 
-	ui_->fogColor->setValue(Environment::GetFogColor());
-	ui_->fogDensity->setValue(Environment::GetFogDensity());
+	ui_->fogColor->setValue(env->fogColor);
+	ui_->fogDensity->setValue(env->fogDensity);
 }
 
 void LightingWindow::onAmbientChanged(const QColor& color) {
-	Environment::SetAmbientColor(Color(color.redF(), color.greenF(), color.blueF()));
+	World::GetEnvironment()->ambientColor.Set(color.redF(), color.greenF(), color.blueF());
 }
 
 void LightingWindow::onOcclusionChanged(int state) {
@@ -32,9 +33,9 @@ void LightingWindow::onOcclusionChanged(int state) {
 }
 
 void LightingWindow::onFogColorChanged(const QColor& color) {
-	Environment::SetFogColor(Color(color.redF(), color.greenF(), color.blueF()));
+	World::GetEnvironment()->fogColor.Set(color.redF(), color.greenF(), color.blueF());
 }
 
 void LightingWindow::onFogDensityChanged(float density) {
-	Environment::SetFogDensity(density);
+	World::GetEnvironment()->fogDensity = density;
 }

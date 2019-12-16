@@ -18,6 +18,7 @@ class CameraController;
 
 class GameWindow : public ChildWindow {
 	Q_OBJECT
+
 public:
 	enum {
 		WindowType = ChildWindowType::Game,
@@ -27,14 +28,14 @@ public:
 	GameWindow(QWidget* parent);
 
 public:
-	Canvas* canvas();
+	Canvas* canvas() { return canvas_; }
 
 public:
+	virtual void initUI();
 	virtual void awake();
 	virtual void tick();
 
 private slots:
-	void updateStatContent();
 	void onToggleStat(int state);
 
 	void onShadingModeChanged(const QString& str);
@@ -55,8 +56,6 @@ private:
 	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
-	QTimer* timer_;
-
 	QtInputDelegate* input_;
 	Canvas* canvas_;
 	StatsWidget* stat_;

@@ -46,16 +46,16 @@ public:
 public:
 	void ClearFrame();
 
-	ShadowMap* GetShadowMap() { return shadowMap; }
-	AmbientOcclusion* GetAmbientOcclusion() { return ambientOcclusion; }
+	ShadowMap* GetShadowMap() { return shadowMap_; }
+	AmbientOcclusion* GetAmbientOcclusion() { return ambientOcclusion_; }
 
-	UniformState* GetUniformState() { return uniformState; }
-	FrameState* GetFrameState() { return frameState; }
+	UniformState* GetUniformState() { return uniformState_; }
+	FrameState* GetFrameState() { return frameState_; }
 
-	SharedUniformBuffers* GetSharedUniformBuffers() { return sharedUniformBuffers; }
+	SharedUniformBuffers* GetSharedUniformBuffers() { return sharedUniformBuffers_; }
 
-	Material* GetDepthMaterial() { return depthMaterial.get(); }
-	RenderTexture* GetOffscreenRenderTexture() { return offscreenRT.get(); }
+	Material* GetDepthMaterial() { return depthMaterial_.get(); }
+	RenderTexture* GetOffscreenRenderTexture() { return offscreenRT_.get(); }
 
 private:
 	void Initialize();
@@ -65,17 +65,17 @@ private:
 	void OnScreenSizeChanged(uint width, uint height);
 
 private:
-	bool initialized = false;
+	bool initialized_ = false;
 
-	ShadowMap* shadowMap = nullptr;
-	AmbientOcclusion* ambientOcclusion = nullptr;
+	ShadowMap* shadowMap_ = nullptr;
+	AmbientOcclusion* ambientOcclusion_ = nullptr;
 
-	FrameState* frameState = nullptr;
-	UniformState* uniformState = nullptr;
+	FrameState* frameState_ = nullptr;
+	UniformState* uniformState_ = nullptr;
 
 	// Uniform buffers used by all shaders.
-	SharedUniformBuffers* sharedUniformBuffers = nullptr;
+	SharedUniformBuffers* sharedUniformBuffers_ = nullptr;
 
-	ref_ptr<Material> depthMaterial;
-	ref_ptr<RenderTexture> offscreenRT;
+	ref_ptr<Material> depthMaterial_;
+	ref_ptr<RenderTexture> offscreenRT_;
 };

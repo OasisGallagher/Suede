@@ -40,7 +40,3 @@ void ShadowMap::Update(Light* light) {
 
 	worldToShadowMatrix_ = bias * shadowDepthMatrix;
 }
-
-const Matrix4& ShadowMap::GetWorldToShadowMatrix() {
-	return worldToShadowMatrix_;
-}

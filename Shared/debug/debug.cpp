@@ -1,11 +1,11 @@
 #include "debug.h"
 
-#include <fstream>
-
 #include "stackwalker.h"
 #include "../tools/string.h"
 
-// declare an std::string variable named `_MsgVarName` and format it with message.
+/**
+ * Declare an std::string variable named `_MsgVarName` and format it with message.
+ */
 #define DEF_VA_ARGS(_MsgVarName, _Format) \
 	va_list _Args; va_start(_Args, _Format); \
 	std::string _MsgVarName = String::VFormat(_Format, _Args); \
@@ -24,38 +24,45 @@ private:
 };
 
 static StackTracer tracer;
-event<LogLevel, const char*> Debug::logReceived;
-
-bool Debug::Initialize() {
-	return !!tracer.LoadModules();
-}
+static Debug::Logger* logger;
 
 void Debug::Log(const char* format, ...) {
-	DEF_VA_ARGS(msg, format);
-	logReceived.raise(LogLevel::Debug, msg.c_str());
+	if (logger != nullptr) {
+		DEF_VA_ARGS(msg, format);
+		logger->OnLogMessageReceived(LogLevel::Debug, msg.c_str());
+	}
 }
 
 void Debug::LogWarning(const char* format, ...) {
-	DEF_VA_ARGS(msg, format);
-	logReceived.raise(LogLevel::Warning, msg.c_str());
+	if (logger != nullptr) {
+		DEF_VA_ARGS(msg, format);
+		logger->OnLogMessageReceived(LogLevel::Warning, msg.c_str());
+	}
 }
 
 void Debug::LogError(const char* format, ...) {
-	DEF_VA_ARGS(msg, format);
-	msg += "\n" + tracer.GetStackTrace(1, 7);
-	logReceived.raise(LogLevel::Error, msg.c_str());
+	if (logger != nullptr) {
+		DEF_VA_ARGS(msg, format);
+		msg += "\n" + tracer.GetStackTrace(1, 7);
+		logger->OnLogMessageReceived(LogLevel::Error, msg.c_str());
+	}
 }
 
 #define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
 
-void Debug::Output(const char* format, ...) {
+void Debug::OutputToConsole(const char* format, ...) {
 #ifndef SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
-	va_list args;
-	va_start(args, format);
-	std::string msg = String::VFormat(format, args);
-	msg += "\n";
-	OutputDebugStringA(msg.c_str());
+	DEF_VA_ARGS(msg, format);
+	OutputDebugStringA((msg += "\n").c_str());
 #endif
+}
+
+Debug::Logger* Debug::GetLogger() { return logger; }
+
+void Debug::SetLogger(Logger* value) {
+    if (logger != value && (logger = value) != nullptr) {
+        tracer.LoadModules();
+    }
 }
 
 void Debug::Break() {
@@ -68,12 +75,12 @@ const std::string& StackTracer::GetStackTrace(uint start, uint depth) {
 
 	depth_ = depth;
 
-	// skip this call & OnOutput.
+	// Skip this call & OnOutput.
 	start_ = start + 2;
 
 	ShowCallstack();
 
-	// remove tailing newlines.
+	// Remove tailing newlines.
 	for (; !text_.empty() && text_.back() == '\n'; ) {
 		text_.pop_back();
 	}

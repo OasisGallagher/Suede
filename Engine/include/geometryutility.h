@@ -37,7 +37,6 @@ public:
 	 */
 	static bool PlanesCulling(Plane* planes, uint nplanes, const Vector3* points, uint npoints);
 
-	static float GetDistance(const Plane& plane, const Vector3& p);
 	static bool GetIntersection(Vector3& intersection, const Plane& plane, const Vector3& p0, const Vector3& p1);
 	static void CalculateFrustumPlanes(Plane(&planes)[6], const Matrix4& worldToClipMatrix);
 

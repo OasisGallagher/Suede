@@ -26,22 +26,20 @@ struct SUEDE_API Matrix4 {
 	Matrix4& operator*=(const Matrix4& other);
 
 	static Matrix4 Translate(const Vector3& t);
-
 	static Matrix4 Rotate(const Quaternion& q);
-
 	static Matrix4 Scale(const Vector3& s);
 
 	static Matrix4 Ortho(float left, float right, float bottom, float top, float near, float far);
+	static Matrix4 Perspective(float fov, float aspect, float near, float far);
+
+	static Matrix4 LookAt(Vector3 const & eye, Vector3 const & center, Vector3 const & up);
 
 	static Vector3 Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, Vector4 const& viewport);
 	static Vector3 Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, Vector4 const& viewport);
 
-	static Matrix4 LookAt(Vector3 const & eye, Vector3 const & center, Vector3 const & up);
-
 	static void Inverse(Matrix4& matrix) { matrix = matrix.GetInversed(); }
 	static void Transpose(Matrix4& matrix) { matrix = matrix.GetTransposed(); }
 
-	static Matrix4 Perspective(float fov, float aspect, float near, float far);
 	static Matrix4 TRS(const Vector3& t, const Quaternion& r, const Vector3& s) { return Translate(t) * Rotate(r) * Scale(s); }
 	static bool Decompose(const Matrix4& matrix, Vector3& scale, Quaternion& orientation, Vector3& translation, Vector3& skew, Vector4& perspective);
 };

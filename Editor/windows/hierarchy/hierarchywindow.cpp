@@ -13,7 +13,7 @@ HierarchyWindow::HierarchyWindow(QWidget* parent) : ChildWindow(parent), model_(
 	model_ = new DragDropableItemModel(this);
 }
 
-void HierarchyWindow::awake() {
+void HierarchyWindow::initUI() {
 	ui_->gameObjectTree->setModel(model_);
 	ui_->gameObjectTree->setHeaderHidden(true);
 	ui_->gameObjectTree->setDragDropMode(QAbstractItemView::DragDrop);
@@ -23,7 +23,9 @@ void HierarchyWindow::awake() {
 	connect(ui_->gameObjectTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
 
 	connect(ui_->gameObjectTree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onGameObjectDoubleClicked(const QModelIndex&)));
+}
 
+void HierarchyWindow::awake() {
 	World::gameObjectImported.subscribe(this, &HierarchyWindow::onGameObjectImported);
 
 	World::AddEventListener(this);

@@ -5,9 +5,9 @@
 
 #include "object.h"
 #include "camera.h"
+#include "material.h"
 #include "transform.h"
 #include "gameobject.h"
-#include "environment.h"
 
 #include "tools/event.h"
 #include "tools/singleton.h"
@@ -150,6 +150,14 @@ public:
 	virtual WalkCommand OnWalkGameObject(GameObject* go) = 0;
 };
 
+struct Environment {
+	ref_ptr<Material> skybox;
+	float fogDensity = 0.0001f;
+
+	Color fogColor = Color::white;
+	Color ambientColor = Color::white * 0.02;
+};
+
 struct Decal;
 
 class SUEDE_API World : private Singleton2<World> {
@@ -165,6 +173,8 @@ public:
 
 	static void DestroyGameObject(uint id);
 	static void DestroyGameObject(GameObject* go);
+
+	static Environment* GetEnvironment();
 
 	static GameObject* Import(const std::string& path);
 	static GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);

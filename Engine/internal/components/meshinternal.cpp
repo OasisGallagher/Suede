@@ -3,6 +3,9 @@
 #include "tools/string.h"
 #include "meshinternal.h"
 #include "geometryutility.h"
+
+#include <ZThread/Thread.h>
+
 #include "internal/base/gl.h"
 #include "internal/base/vertexattrib.h"
 
@@ -30,7 +33,7 @@ void MeshAttribute::GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& att
 
 		attribute.indexes.assign({ 0, 1, 2, 3 });
 	}
-	else if (type == PrimitiveType::Quad) {
+	else if (type == PrimitiveType::Cube) {
 		attribute.topology = MeshTopology::Triangles;
 		GeometryUtility::GetCuboidCoordinates(attribute.positions, Vector3(0), Vector3(1), &attribute.indexes);
 
@@ -63,6 +66,7 @@ void MeshAttribute::GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& att
 }
 
 Mesh::Mesh() : Object(new MeshInternal) {}
+
 ref_ptr<Mesh> Mesh::FromAttribute(const MeshAttribute& attribute) {
 	Mesh* mesh = new Mesh();
 	mesh->SetAttribute(attribute);
@@ -76,10 +80,8 @@ ref_ptr<Mesh> Mesh::FromAttribute(const MeshAttribute& attribute) {
 
 Mesh* Mesh::GetPrimitive(PrimitiveType type) {
 	static ref_ptr<Mesh> primitiveCache[PrimitiveType::size()];
-	if (!primitiveCache[0]) {
-		for (int type = PrimitiveType::Quad; type < PrimitiveType::size(); ++type) {
-			primitiveCache[type] = CreatePrimitive((PrimitiveType)type, 1);
-		}
+	if (!primitiveCache[type]) {
+		primitiveCache[type] = CreatePrimitive((PrimitiveType)type, 1);
 	}
 
 	SUEDE_ASSERT(type >= 0 && type < PrimitiveType::size());
@@ -166,11 +168,13 @@ void MeshInternal::CreateStorage() {
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	CreateStorage();
 
-	storage_->vao.Initialize();
-	storage_->topology = value.topology;
-	UpdateGLBuffers(value);
-
-	storage_->modified.raise();
+	if (ZThread::Thread::isMainThread()) {
+		SyncMeshAttribute(value);
+	}
+	else {
+		attribute_ = value;
+		meshDirty_ = true;
+	}
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -184,7 +188,7 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 	storage_->vao.Bind();
 
 	uint vboIndex = 0;
-	
+
 	if (!attribute.positions.empty()) {
 		storage_->vao.SetBuffer(vboIndex, GL_ARRAY_BUFFER, attribute.positions, GL_STATIC_DRAW);
 		storage_->vao.SetVertexDataSource(vboIndex, VertexAttribPosition, 3, GL_FLOAT, false, 0, 0);
@@ -242,7 +246,7 @@ void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
 int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 	int count = 1;	// for VertexAttribMatrixOffset.
 	count += int(!attribute.positions.empty());
-	
+
 	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
 		count += int(!attribute.texCoords[i].empty());
 	}
@@ -261,7 +265,7 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 void MeshInternal::ShareStorage(Mesh* other) {
 	MeshInternal* ptr = _suede_rptr(other);
 	if (ptr->storage_) {
-		storage_ = ptr->storage_; 
+		storage_ = ptr->storage_;
 	}
 	else {
 		Debug::LogError("empty storage");
@@ -273,6 +277,11 @@ void MeshInternal::AddSubMesh(SubMesh* subMesh) {
 }
 
 void MeshInternal::Bind() {
+	if (meshDirty_) {
+		SyncMeshAttribute(attribute_);
+		ClearAttribute(attribute_);
+	}
+
 	if (storage_->vao.GetVBOCount() != 0) {
 		storage_->vao.Bind();
 		storage_->vao.BindBuffer(storage_->bufferIndexes[IndexBuffer]);
@@ -319,6 +328,28 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
+void MeshInternal::SyncMeshAttribute(const MeshAttribute& attribute) {
+	storage_->vao.Initialize();
+	storage_->topology = attribute.topology;
+	UpdateGLBuffers(attribute);
+	meshDirty_ = false;
+
+	storage_->modified.raise();
+}
+
+void MeshInternal::ClearAttribute(MeshAttribute& attribute) {
+	attribute.positions.clear();
+	attribute.normals.clear();
+
+	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+		attribute.texCoords[i].clear();
+	}
+
+	attribute.tangents.clear();
+	attribute.blendAttrs.clear();
+	attribute.indexes.clear();
+}
+
 #define GetMeshInternal(mesh)	((mesh)->_rptr_impl<MeshInternal>())
 
 MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(type) {
@@ -344,7 +375,7 @@ void MeshProviderInternal::OnMeshModified() {
 	GetGameObject()->SendMessage(GameObjectMessageMeshModified, nullptr);
 }
 
-TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), dirty_(false) {
+TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), meshDirty_(false) {
 	Mesh* mesh = new Mesh();
 	mesh->CreateStorage();
 
@@ -361,7 +392,7 @@ TextMeshInternal::~TextMeshInternal() {
 void TextMeshInternal::SetText(const std::string& value) {
 	if (text_ != value) {
 		text_ = value;
-		dirty_ = true;
+		meshDirty_ = true;
 	}
 }
 
@@ -377,24 +408,24 @@ void TextMeshInternal::SetFont(Font* value) {
 	}
 
 	font_ = value;
-	dirty_ = true;
+	meshDirty_ = true;
 }
 
 void TextMeshInternal::SetFontSize(uint value) {
 	if (size_ != value) {
 		size_ = value;
-		dirty_ = true;
+		meshDirty_ = true;
 	}
 }
 
 void TextMeshInternal::Update() {
-	if (dirty_) {
+	if (meshDirty_) {
 		RebuildMesh();
 	}
 }
 
 void TextMeshInternal::OnMaterialRebuilt() {
-	dirty_ = true;
+	meshDirty_ = true;
 }
 
 void TextMeshInternal::RebuildMesh() {
@@ -403,7 +434,7 @@ void TextMeshInternal::RebuildMesh() {
 		RebuildUnicodeTextMesh(wtext);
 	}
 
-	dirty_ = false;
+	meshDirty_ = false;
 }
 
 void TextMeshInternal::RebuildUnicodeTextMesh(std::wstring wtext) {

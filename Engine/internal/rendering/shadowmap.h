@@ -3,8 +3,6 @@
 #include "material.h"
 #include "gameobject.h"
 
-class Pipeline;
-
 class ShadowMap {
 public:
 	ShadowMap(RenderTexture* target);
@@ -13,7 +11,9 @@ public:
 	void Clear();
 
 	void Resize(uint width, uint height);
-	const Matrix4& GetWorldToShadowMatrix();
+
+	const Matrix4& GetWorldToShadowMatrix() const { return worldToShadowMatrix_; }
+
 	void Update(Light* light);
 
 	Material* GetMaterial() { return directionalLightShadowMaterial_.get(); }

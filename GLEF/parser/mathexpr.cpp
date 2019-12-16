@@ -26,7 +26,7 @@ bool MathExpr::ShuntingYard(std::vector<std::string>& tokens, const char* expres
 	bool positive = true;
 	std::vector<ScannerTokenType> operators;
 
-	for (ScannerTokenType type; (type = scanner.GetToken(token, false)) != ScannerTokenEndOfFile;) {
+	for (ScannerTokenType type; (type = scanner.GetToken(token, nullptr)) != ScannerTokenEndOfFile;) {
 		switch (type) {
 			case ScannerTokenSingle:
 			case ScannerTokenInteger:

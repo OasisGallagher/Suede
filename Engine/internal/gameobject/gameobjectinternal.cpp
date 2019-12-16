@@ -50,6 +50,8 @@ GameObjectInternal::GameObjectInternal(ObjectType type)
 	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
 		Debug::LogError("invalid go type %d.", type);
 	}
+
+	name_ = "New GameObject";
 }
 
 GameObjectInternal::~GameObjectInternal() {

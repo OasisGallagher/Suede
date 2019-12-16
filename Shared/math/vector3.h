@@ -62,4 +62,7 @@ struct SUEDE_API IVector3 {
 	IVector3() :x(0), y(0), z(0) {}
 	IVector3(int scalar) :x(scalar), y(scalar), z(scalar) {}
 	IVector3(int x, int y, int z) :x(x), y(y), z(z) {}
+
+	bool operator != (const IVector3& other) const { return x != other.x || y != other.y || z != other.z; }
+	bool operator == (const IVector3& other) const { return x == other.x && y == other.y && z == other.z; }
 };

@@ -23,8 +23,8 @@ InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
 
 	addSuedeMetaObject(ObjectType::Rigidbody, std::make_shared<RigidbodyMetaObject>());
 
-	//addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorInspector>());
-	//addSuedeMetaObject(ObjectType::Mesh, std::make_shared<MeshInspector>());
+	addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorMetaObject>());
+	addSuedeMetaObject(ObjectType::MeshFilter, std::make_shared<MeshFilterMetaObject>());
 	addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<MeshRendererMetaObject>());
 	addSuedeMetaObject(ObjectType::SkinnedMeshRenderer, std::make_shared<SkinnedMeshRendererMetaObject>());
 }
@@ -33,19 +33,21 @@ InspectorWindow::~InspectorWindow() {
 	QtImGui::destroy(view_);
 }
 
-void InspectorWindow::awake() {
-	connect(editor_->childWindow<HierarchyWindow>(), 
+void InspectorWindow::initUI() {
+	connect(editor_->childWindow<HierarchyWindow>(),
 		SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&))
 	);
 
 	view_ = new QGLWidget(ui_->inspectorView, editor_->childWindow<GameWindow>()->canvas());
 	ui_->inspectorViewLayout->addWidget(view_);
+	view_->setFocusPolicy(Qt::StrongFocus);
+}
 
+void InspectorWindow::awake() {
 	QtImGui::create(view_);
 	GUI::LoadFont("resources/fonts/tahoma.ttf");
 
-	view_->setFocusPolicy(Qt::StrongFocus);
 	blackTextureID_ = Texture2D::GetBlackTexture()->GetNativePointer();
 }
 
@@ -122,6 +124,7 @@ void InspectorWindow::drawComponents() {
 		std::string typeName;
 		QObject* object = componentMetaObject(component, typeName);
 		if (object == nullptr) {
+			Debug::LogWarning(("can not find meta object of type " + typeName).c_str());
 			continue;
 		}
 

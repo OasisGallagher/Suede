@@ -3,17 +3,13 @@
 #include "material.h"
 #include "renderer.h"
 #include "tools/enum.h"
-#include "tools/singleton.h"
 
 BETTER_ENUM(ShadingMode, int,
 	Shaded,
 	Wireframe
 )
 
-class SUEDE_API Graphics : private Singleton2<Graphics> {
-	friend class Singleton<Graphics>;
-	SUEDE_DECLARE_IMPLEMENTATION(Graphics)
-
+class SUEDE_API Graphics {
 public:
 	static void SetShadingMode(ShadingMode value);
 	static ShadingMode GetShadingMode();
@@ -32,7 +28,4 @@ public:
 	static void Blit(Texture* src, RenderTexture* dest, Material* material);
 	static void Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& rect);
 	static void Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& srcRect, const Rect& destRect);
-
-private:
-	Graphics();
 };

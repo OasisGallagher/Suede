@@ -68,22 +68,12 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
 	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture.get());
 
-	Mesh* mesh = new Mesh();
-
 	MeshAttribute attribute;
 	attribute.topology = info->topology;
 	attribute.indexes = info->indexes;
 	attribute.positions = info->positions;
 
-	mesh->SetAttribute(attribute);
-
-	SubMesh* subMesh = new SubMesh();
-	TriangleBias bias{ info->indexes.size() };
-	subMesh->SetTriangleBias(bias);
-
-	mesh->AddSubMesh(subMesh);
-
-	info->decal.mesh = mesh;
+	info->decal.mesh = Mesh::FromAttribute(attribute);
 	info->decal.material = decalMaterial;
 }
 

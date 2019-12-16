@@ -27,19 +27,21 @@ uint Texture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
 Texture2D::Texture2D() : Texture(new Texture2DInternal) {}
 Texture2D* Texture2D::GetWhiteTexture() {
-	static ref_ptr<Texture2D> texture = new Texture2D();
+	static ref_ptr<Texture2D> texture;
 	if (!texture) {
 		uint color = 0xffffffff;
+		texture = new Texture2D();
 		texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
 	}
 
 	return texture.get();
 }
 
-Texture2D*  Texture2D::GetBlackTexture() {
-	static ref_ptr<Texture2D> texture = new Texture2D();
+Texture2D* Texture2D::GetBlackTexture() {
+	static ref_ptr<Texture2D> texture;
 	if (!texture) {
 		uint color = 0xff000000;
+		texture = new Texture2D();
 		texture->Create(TextureFormat::Rgba, &color, ColorStreamFormat::Rgba, 1, 1, 4);
 	}
 
@@ -435,14 +437,14 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 }
 
 RenderTexture* RenderTextureInternal::GetDefault() {
-	static RenderTexture* screen;
+	static ref_ptr<RenderTexture> screen;
 
 	if (!screen) {
 		screen = new ScreenRenderTexture();
 		screen->Create(RenderTextureFormat::Rgb, 0, 0);
 	}
 
-	return screen;
+	return screen.get();
 }
 
 struct RenderTextureCacheKey {

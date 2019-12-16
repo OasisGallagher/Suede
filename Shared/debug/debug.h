@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <cassert>
+#include <functional>
+
 #include "../types.h"
 
 #include "../tools/event.h"
@@ -20,17 +22,22 @@ enum class LogLevel {
 
 class SUEDE_API Debug {
 public:
+	class Logger {
+	public:
+		virtual ~Logger() {}
+		virtual void OnLogMessageReceived(LogLevel level, const char* message) = 0;
+	};
+
+public:
 	static void Log(const char* format, ...);
 	static void LogWarning(const char* format, ...);
 	static void LogError(const char* format, ...);
 
 	static void Break();
-	static void Output(const char* format, ...);
+	static void OutputToConsole(const char* format, ...);
 
-	static event<LogLevel, const char*> logReceived;
-
-public:
-	static bool Initialize();
+	static Logger* GetLogger();
+	static void SetLogger(Logger* value);
 
 private:
 	Debug();

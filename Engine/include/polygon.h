@@ -17,7 +17,7 @@ struct SUEDE_API Polygon {
 	Vector3* points;
 };
 
-struct Triangle : Polygon {
+struct SUEDE_API Triangle : Polygon {
 	Triangle();
 	Triangle(const Vector3* p);
 };

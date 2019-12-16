@@ -49,6 +49,20 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 	return 0;
 }
 
+static GLenum TopologyToGLEnum(MeshTopology topology) {
+	switch (topology) {
+	case MeshTopology::Points: return GL_POINTS;
+	case MeshTopology::Lines: return GL_LINES;
+	case MeshTopology::LineStripe: return GL_LINE_STRIP;
+	case MeshTopology::Triangles: return GL_TRIANGLES;
+	case MeshTopology::TriangleStripe: return GL_TRIANGLE_STRIP;
+	case MeshTopology::TriangleFan: return GL_TRIANGLE_FAN;
+	}
+
+	Debug::LogError("unsupported mesh topology  %d.", topology);
+	return 0;
+}
+
 Pipeline::Pipeline(Context* context)
 	: context_(context)
 	, renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
@@ -160,19 +174,19 @@ void Pipeline::Run() {
 	samples_.update_pipeline->Stop();
 
 #ifdef DEBUG_SAMPLES
-	Debug::Output("[Pipeline::Update::renderables]\t%d ms", nrenderables_);
-	Debug::Output("[Pipeline::Update::drawcalls]\t%d ms", counters_.drawcalls);
-	Debug::Output("[Pipeline::Update::meshChanges]\t%d ms", counters_.meshChanges);
-	Debug::Output("[Pipeline::Update::materialChanges]\t%d ms", counters_.materialChanges);
+	Debug::OutputToConsole("[Pipeline::Update::renderables]\t%d ms", nrenderables_);
+	Debug::OutputToConsole("[Pipeline::Update::drawcalls]\t%d ms", counters_.drawcalls);
+	Debug::OutputToConsole("[Pipeline::Update::meshChanges]\t%d ms", counters_.meshChanges);
+	Debug::OutputToConsole("[Pipeline::Update::materialChanges]\t%d ms", counters_.materialChanges);
 
-	Debug::Output("[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_tbo]\t%.2f ms", samples_.update_tbo->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_offset]\t%.2f ms", samples_.update_offset->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::draw_call]\t%.2f ms", samples_.draw_call->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::switch_state]\t%.2f ms", samples_.switch_state->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::stat_and_output]\t%.2f ms", samples_.stat_and_output->GetElapsedSeconds() * 1000);
-	Debug::Output("[Pipeline::Update::update_pipeline]\t%.2f ms", samples_.update_pipeline->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::update_matrices]\t%.2f ms", samples_.update_matrices->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::update_ubo]\t%.2f ms", samples_.update_ubo->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::update_tbo]\t%.2f ms", samples_.update_tbo->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::update_offset]\t%.2f ms", samples_.update_offset->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::draw_call]\t%.2f ms", samples_.draw_call->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::switch_state]\t%.2f ms", samples_.switch_state->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::stat_and_output]\t%.2f ms", samples_.stat_and_output->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::update_pipeline]\t%.2f ms", samples_.update_pipeline->GetElapsedSeconds() * 1000);
 #endif
 
 	samples_.reset_states->Restart();
@@ -180,7 +194,7 @@ void Pipeline::Run() {
 	samples_.reset_states->Stop();
 
 #ifdef DEBUG_SAMPLES
-	Debug::Output("[Pipeline::Update::reset_states]\t%.2f ms", samples_.reset_states->GetElapsedSeconds() * 1000);
+	Debug::OutputToConsole("[Pipeline::Update::reset_states]\t%.2f ms", samples_.reset_states->GetElapsedSeconds() * 1000);
 #endif
 }
 
@@ -245,7 +259,7 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
 	samples_.draw_call->Start();
-	GL::DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
+	DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
 	samples_.draw_call->Stop();
 
 	++counters_.drawcalls;
@@ -257,6 +271,14 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	else if(topology == MeshTopology::TriangleStripe) {
 		counters_.triangles += bias.indexCount - 2;
 	}
+}
+
+void Pipeline::DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias) {
+	GL::DrawElementsBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
+}
+
+void Pipeline::DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance) {
+	GL::DrawElementsInstancedBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), instance, bias.baseVertex);
 }
 
 void Pipeline::UpdateState(Renderable& renderable) {

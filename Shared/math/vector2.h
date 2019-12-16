@@ -48,4 +48,7 @@ struct SUEDE_API IVector2 {
 	IVector2() :x(0), y(0) {}
 	IVector2(int scalar) :x(scalar), y(scalar) {}
 	IVector2(int x, int y) :x(x), y(y) {}
+
+	bool operator != (const IVector2& other) const { return x != other.x || y != other.y; }
+	bool operator == (const IVector2& other) const { return x == other.x && y == other.y; }
 };

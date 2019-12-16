@@ -56,6 +56,7 @@ event<Material*> MaterialInternal::shaderChanged;
 
 MaterialInternal::MaterialInternal()
 	: ObjectInternal(ObjectType::Material), currentPass_(-1) {
+	name_ = "New Material";
 }
 
 MaterialInternal::~MaterialInternal() {

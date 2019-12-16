@@ -20,6 +20,7 @@ public:
 	ChildWindow(QWidget* parent);
 
 public:
+	virtual void initUI() {}
 	virtual void awake() {}
 	virtual void tick() {}
 

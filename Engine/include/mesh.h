@@ -11,7 +11,7 @@ struct TriangleBias {
 	uint indexCount;
 	uint baseIndex;
 	uint baseVertex;
-}; 
+};
 
 class SubMesh : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(SubMesh)

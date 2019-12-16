@@ -99,6 +99,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <Link>
       <AdditionalDependencies>lib\ZThread.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -140,6 +141,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="containers\dynarray.h" />
     <ClInclude Include="containers\freelist.h" />
     <ClInclude Include="containers\ptrmap.h" />
     <ClInclude Include="containers\sortedvector.h" />
@@ -149,6 +151,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="math\mathf.h" />
     <ClInclude Include="math\matrix4.h" />
     <ClInclude Include="math\quaternion.h" />
+    <ClInclude Include="math\random.h" />
     <ClInclude Include="math\vector2.h" />
     <ClInclude Include="math\vector3.h" />
     <ClInclude Include="math\vector4.h" />
@@ -159,7 +162,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="tools\event.h" />
     <ClInclude Include="tools\pimplidiom.h" />
     <ClInclude Include="tools\noncopyable.h" />
-    <ClInclude Include="tools\random.h" />
     <ClInclude Include="tools\singleton.h" />
     <ClInclude Include="tools\string.h" />
     <ClInclude Include="tools\typeid.h" />

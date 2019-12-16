@@ -47,7 +47,7 @@ Rendering::Rendering(Context* context) : context_(context) {
 	renderingSample = Profiler::CreateSample();
 }
 
-#define OutputSample(sample)	Debug::Output("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
+#define OutputSample(sample)	Debug::OutputToConsole("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
 
 void Rendering::Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
 	context_->ClearFrame();
@@ -92,10 +92,11 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	static SharedLightUniformBuffer p;
 
-	memcpy(&p.fogParams.color, &Environment::GetFogColor(), sizeof(p.fogParams.color));
-	p.fogParams.density = Environment::GetFogDensity();
+	Environment* env = World::GetEnvironment();
+	memcpy(&p.fogParams.color, &env->fogColor, sizeof(p.fogParams.color));
+	p.fogParams.density = env->fogDensity;
 
-	memcpy(&p.ambientColor, &Environment::GetAmbientColor(), sizeof(p.ambientColor));
+	memcpy(&p.ambientColor, &env->ambientColor, sizeof(p.ambientColor));
 	
 	Vector3 pos = light->GetTransform()->GetPosition();
 	p.lightPos = Vector4(pos.x, pos.y, pos.z, 1);
@@ -114,23 +115,24 @@ void Rendering::OnPostRender() {
 
 void Rendering::OnImageEffects(const std::vector<ImageEffect*>& effects) {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
-	RenderTexture* targets[] = {
+	RenderTexture* temporary;
+	RenderTexture* targetTextures[] = {
 		context_->GetOffscreenRenderTexture(),
-		RenderTexture::GetTemporary(RenderTextureFormat::Rgba, w, h)
+		temporary = RenderTexture::GetTemporary(RenderTextureFormat::Rgba, w, h)
 	};
 
 	int index = 1;
 	FrameState* frameState = context_->GetFrameState();
 	for (int i = 0; i < effects.size(); ++i) {
 		if (i + 1 == effects.size()) {
-			targets[index] = frameState->targetTexture.get();
+			targetTextures[index] = frameState->targetTexture.get();
 		}
 
-		effects[i]->OnRenderImage(targets[1 - index], targets[index], frameState->normalizedRect);
+		effects[i]->OnRenderImage(targetTextures[1 - index], targetTextures[index], frameState->normalizedRect);
 		index = 1 - index;
 	}
 
-	RenderTexture::ReleaseTemporary(targets[1]);
+	RenderTexture::ReleaseTemporary(temporary);
 }
 
 void Rendering::SSAOPass(RenderingPipelines* pipelines) {
@@ -205,7 +207,6 @@ PipelineBuilder::~PipelineBuilder() {
 
 void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices) {
 	matrices_ = matrices;
-	pipelines->Clear();
 
 	Matrix4 worldToClipMatrix = matrices_.projectionMatrix * matrices_.worldToCameraMatrix;
 
@@ -301,12 +302,12 @@ void PipelineBuilder::RenderDeferredGeometryPass(Pipeline* pl, const std::vector
 }
 
 void PipelineBuilder::RenderSkybox(Pipeline* pl) {
-	Material* skybox = Environment::GetSkybox();
-	if (skybox != nullptr) {
+	Environment* env = World::GetEnvironment();
+	if (env->skybox) {
 		Matrix4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = Vector4(0, 0, 0, 1);
 
-		pl->AddRenderable(Mesh::GetPrimitive(PrimitiveType::Cube), skybox, 0, matrix);
+		pl->AddRenderable(Mesh::GetPrimitive(PrimitiveType::Cube), env->skybox.get(), 0, matrix);
 	}
 }
 
@@ -328,7 +329,7 @@ void PipelineBuilder::RenderForwardBase(Pipeline* pl, const std::vector<GameObje
 	forward_pass->Restart();
 	ForwardPass(pl, gameObjects);
 	forward_pass->Stop();
-	Debug::Output("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
+	Debug::OutputToConsole("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
 }
 
 void PipelineBuilder::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights) {
@@ -348,7 +349,7 @@ void PipelineBuilder::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& 
 		RenderGameObject(pl, go, go->GetComponent<Renderer>());
 	}
 
-	Debug::Output("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
+	Debug::OutputToConsole("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
 	push_renderables->Reset();
 }
 

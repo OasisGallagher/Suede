@@ -151,6 +151,7 @@ void CameraInternal::Render() {
 	UpdateFrameState();
 
 	if (!culling_->IsWorking()) {
+		backPipelines_->Clear();
 		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	}
 

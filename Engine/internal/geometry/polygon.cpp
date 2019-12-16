@@ -24,9 +24,12 @@ Polygon::~Polygon() {
 }
 
 Polygon& Polygon::operator=(const Polygon& other) {
-	delete[] points;
-	points = new Vector3[other.npoints];
-	memcpy(points, other.points, sizeof(Vector3) * other.npoints);
+	if (&other != this) {
+		delete[] points;
+		points = new Vector3[other.npoints];
+		memcpy(points, other.points, sizeof(Vector3) * other.npoints);
+	}
+
 	return *this;
 }
 

@@ -1,11 +1,8 @@
 #pragma once
-
-#include <QTextStream>
 #include <QtWidgets/QMainWindow>
 
 #include "ui_editor.h"
 
-#include "debug/debug.h"
 #include "tools/enum.h"
 #include "os/filesystem.h"
 #include "childwindow.h"
@@ -44,8 +41,6 @@ private slots:
 
 private:
 	void setupUI();
-	void onLogMessage(LogLevel level, const char* message);
-	void writeLog(ConsoleMessageType type, const char* message);
 
 	void initializeLayout();
 	void initializeHelpMenu();
@@ -55,10 +50,6 @@ private:
 
 private:
 	Ui::Editor ui_;
-
-	bool flush_;
-	QFile logFile_;
-	QTextStream logStream_;
 
 	Preferences* preferences_;
 	ChildWindow** childWindows_;

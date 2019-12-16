@@ -6,7 +6,6 @@
 
 #include "object.h"
 #include "debug/debug.h"
-#include "memory/refptr.h"
 
 class Factory {
 	typedef std::function<Object*()> FactoryMethod;
@@ -36,36 +35,12 @@ public:
 		return pos->second();
 	}
 
-	static Object* Create(ObjectType type) {
-		if ((int)type < 0 || type >= ObjectType::size()) {
-			Debug::LogError("invalid object type %d.", type);
-			return nullptr;
-		}
-
-		if (instance.methodArray_[(int)type] == nullptr) {
-			Debug::LogError("no factroy method exists for type %d.", type);
-			return nullptr;
-		}
-
-		return instance.methodArray_[(int)type]();
-	}
-
 	static bool AddFactoryMethod(const std::string& name, const FactoryMethod& method) {
 		if (!instance.stringMethodDictionary_.insert(std::make_pair(name, method)).second) {
 			Debug::LogError("failed to add factroy method for %s", name.c_str());
 			return false;
 		}
 
-		return true;
-	}
-
-	static bool AddFactoryMethod(ObjectType type, const FactoryMethod& method) {
-		if (instance.methodArray_[(int)type] != nullptr) {
-			Debug::LogError("method for type %d already exists.", type);
-			return false;
-		}
-
-		instance.methodArray_[(int)type] = method;
 		return true;
 	}
 
@@ -81,7 +56,6 @@ public:
 private:
 	NameMethodDictionary stringMethodDictionary_;
 	TypeIDMethodDictionary typeIDMethodDictionary_;
-	FactoryMethod methodArray_[ObjectType::size()];
 
 	static Factory instance;
 };

@@ -20,9 +20,6 @@ class SUEDE_API Shader : public Object {
 	SUEDE_DECLARE_IMPLEMENTATION(Shader)
 
 public:
-	Shader();
-
-public:
 	static Shader* Find(const std::string& path);
 
 public:
@@ -49,4 +46,7 @@ public:
 	*/
 	void GetProperties(std::vector<ShaderProperty>& properties);
 	bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
+
+private:
+	Shader();
 };

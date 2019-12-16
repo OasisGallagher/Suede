@@ -82,14 +82,17 @@
     <ClInclude Include="tools\string.h">
       <Filter>tools</Filter>
     </ClInclude>
-    <ClInclude Include="tools\random.h">
-      <Filter>math</Filter>
-    </ClInclude>
     <ClInclude Include="memory\refptr.h">
       <Filter>memory</Filter>
     </ClInclude>
     <ClInclude Include="tools\event.h">
       <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\dynarray.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="math\random.h">
+      <Filter>math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -167,7 +167,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
-    <ClCompile Include="internal\base\gl.cpp" />
     <ClCompile Include="internal\base\gpuquerier.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
@@ -385,14 +384,14 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\physics\rigidbodyinternal.cpp" />
     <ClCompile Include="internal\rendering\ambientocclusion.cpp" />
     <ClCompile Include="internal\rendering\context.cpp" />
+    <ClCompile Include="internal\rendering\gizmosinternal.cpp" />
     <ClCompile Include="internal\rendering\gizmospainter.cpp" />
+    <ClCompile Include="internal\rendering\graphics.cpp" />
     <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\rendering.cpp" />
     <ClCompile Include="internal\rendering\shadowmap.cpp" />
     <ClCompile Include="internal\rendering\shareduniformbuffers.cpp" />
-    <ClCompile Include="internal\tools\gizmosinternal.cpp" />
-    <ClCompile Include="internal\tools\graphicsinternal.cpp" />
     <ClCompile Include="internal\tools\inputinternal.cpp" />
     <ClCompile Include="internal\tools\profilerinternal.cpp" />
     <ClCompile Include="internal\tools\screen.cpp" />
@@ -402,7 +401,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\world\decalcreater.cpp" />
     <ClCompile Include="internal\world\opengldriver.cpp" />
     <ClCompile Include="internal\world\engine.cpp" />
-    <ClCompile Include="internal\world\environment.cpp" />
     <ClCompile Include="internal\world\graphicsviewer.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
   </ItemGroup>
@@ -424,7 +422,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
-    <ClInclude Include="include\environment.h" />
     <ClInclude Include="include\font.h" />
     <ClInclude Include="include\frameeventqueue.h" />
     <ClInclude Include="include\geometryutility.h" />
@@ -478,7 +475,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\base\uniformbuffer.h" />
     <ClInclude Include="internal\base\vertexarray.h" />
     <ClInclude Include="internal\base\vertexattrib.h" />
-    <ClInclude Include="internal\base\_gl.h" />
     <ClInclude Include="internal\codec\gameobjectloader.h" />
     <ClInclude Include="internal\components\animationinternal.h" />
     <ClInclude Include="internal\components\camerainternal.h" />
@@ -865,12 +861,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\physics\rigidbodyinternal.h" />
     <ClInclude Include="internal\rendering\ambientocclusion.h" />
     <ClInclude Include="internal\rendering\context.h" />
+    <ClInclude Include="internal\rendering\gizmosinternal.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />
     <ClInclude Include="internal\rendering\shadowmap.h" />
     <ClInclude Include="internal\rendering\shareduniformbuffers.h" />
-    <ClInclude Include="internal\tools\gizmosinternal.h" />
-    <ClInclude Include="internal\tools\graphicsinternal.h" />
     <ClInclude Include="internal\tools\profilerinternal.h" />
     <ClInclude Include="internal\tools\statisticsinternal.h" />
     <ClInclude Include="internal\tools\time2internal.h" />

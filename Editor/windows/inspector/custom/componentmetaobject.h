@@ -113,6 +113,19 @@ class LightMetaObject : public ComponentMetaObjectT<Light> {
 	SUEDE_PROPERTY(float, Intensity)
 };
 
+#include "mesh.h"
+
+class MeshFilterMetaObject : public ComponentMetaObjectT<MeshFilter> {
+	Q_OBJECT
+};
+
+class TextMeshMetaObject : public ComponentMetaObjectT<TextMesh> {
+	Q_OBJECT
+
+	SUEDE_PROPERTY(std::string, Text)
+	SUEDE_PROPERTY(uint, FontSize)
+};
+
 #include "renderer.h"
 
 class RendererMetaObject : public ComponentMetaObjectT<Renderer> {
@@ -136,4 +149,18 @@ class MeshRendererMetaObject : public RendererMetaObject {
 
 class SkinnedMeshRendererMetaObject : public MeshRendererMetaObject {
 	Q_OBJECT
+};
+
+#include "projector.h"
+
+class ProjectorMetaObject : public ComponentMetaObjectT<Projector> {
+	Q_OBJECT
+
+	SUEDE_PROPERTY(int, Depth)
+	SUEDE_PROPERTY(bool, Perspective)
+	SUEDE_PROPERTY(float, OrthographicSize)
+	SUEDE_PROPERTY(float, Aspect)
+	SUEDE_PROPERTY(float, NearClipPlane)
+	SUEDE_PROPERTY(float, FarClipPlane)
+	SUEDE_PROPERTY(float, FieldOfView)
 };

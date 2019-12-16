@@ -27,7 +27,7 @@ static void OnTerminate() {
 }
 
 static void OnZThreadException(const std::exception& exception) {
-	Debug::Output("!!! Thread Exception %s\n", exception.what());
+	Debug::OutputToConsole("!!! Thread Exception %s\n", exception.what());
 	throw exception;
 }
 
@@ -36,10 +36,6 @@ bool Engine::Startup(uint width, uint height) {
 	std::set_terminate(OnTerminate);
 	ZThread::ztException = OnZThreadException;
 	ZThread::Thread::markMainThread();
-
-	if (!Debug::Initialize()) {
-		return false;
-	}
 
 	if (!OpenGLDriver::Initialize()) {
 		return false;

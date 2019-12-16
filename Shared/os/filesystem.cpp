@@ -157,7 +157,7 @@ bool FileSystem::ListFileTree(FileTree& tree, const std::string& directory, cons
 }
 
 bool FileSystem::ListAllFiles(std::vector<std::string>& paths, const std::string& directory, const std::string& reg) {
-	bool empty;
+	bool empty = true;
 	std::regex r(reg);
 	for (auto& p : fs::recursive_directory_iterator(directory)) {
 		std::string str = p.path().string();

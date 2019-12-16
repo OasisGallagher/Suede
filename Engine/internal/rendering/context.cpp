@@ -31,11 +31,11 @@ UniformState::UniformState() {
 Context::Context() { }
 
 Context::~Context() {
-	delete frameState;
-	delete uniformState;
-	delete shadowMap;
-	delete ambientOcclusion;
-	delete sharedUniformBuffers;
+	delete frameState_;
+	delete uniformState_;
+	delete shadowMap_;
+	delete ambientOcclusion_;
+	delete sharedUniformBuffers_;
 
 	Screen::sizeChanged.unsubscribe(this);
 	ShaderInternal::shaderCreated.unsubscribe(this);
@@ -43,54 +43,54 @@ Context::~Context() {
 }
 
 void Context::Initialize() {
-	if (initialized) { return; }
+	if (initialized_) { return; }
 
-	frameState = new FrameState();
-	uniformState = new UniformState();
-	sharedUniformBuffers = new SharedUniformBuffers();
+	frameState_ = new FrameState();
+	uniformState_ = new UniformState();
+	sharedUniformBuffers_ = new SharedUniformBuffers();
 
-	shadowMap = new ShadowMap(uniformState->shadowDepthTexture.get());
-	ambientOcclusion = new AmbientOcclusion(uniformState->ambientOcclusionTexture.get());
+	shadowMap_ = new ShadowMap(uniformState_->shadowDepthTexture.get());
+	ambientOcclusion_ = new AmbientOcclusion(uniformState_->ambientOcclusionTexture.get());
 
-	offscreenRT = new RenderTexture();
-	offscreenRT->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
+	offscreenRT_ = new RenderTexture();
+	offscreenRT_->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
 
-	depthMaterial = new Material();
-	depthMaterial->SetShader(Shader::Find("builtin/depth"));
-	depthMaterial->SetRenderQueue((int)RenderQueue::Background - 300);
+	depthMaterial_ = new Material();
+	depthMaterial_->SetShader(Shader::Find("builtin/depth"));
+	depthMaterial_->SetRenderQueue((int)RenderQueue::Background - 300);
 
 	ShaderInternal::shaderCreated.subscribe(this, &Context::OnShaderCreated);
 	MaterialInternal::shaderChanged.subscribe(this, &Context::OnMaterialShaderChanged);
 
 	Screen::sizeChanged.subscribe(this, &Context::OnScreenSizeChanged);
-	initialized = true;
+	initialized_ = true;
 }
 
 void Context::OnShaderCreated(Shader* shader) {
-	sharedUniformBuffers->Attach(shader);
+	sharedUniformBuffers_->Attach(shader);
 }
 
 void Context::OnMaterialShaderChanged(Material* material) {
-	material->SetTexture(BuiltinProperties::SSAOTexture, uniformState->ambientOcclusionTexture.get());
-	material->SetTexture(BuiltinProperties::ShadowDepthTexture, uniformState->shadowDepthTexture.get());
-	material->SetTexture(BuiltinProperties::DepthTexture, uniformState->depthTexture.get());
-	material->SetTexture(BuiltinProperties::MatrixTextureBuffer, uniformState->matrixTextureBuffer.get());
+	material->SetTexture(BuiltinProperties::SSAOTexture, uniformState_->ambientOcclusionTexture.get());
+	material->SetTexture(BuiltinProperties::ShadowDepthTexture, uniformState_->shadowDepthTexture.get());
+	material->SetTexture(BuiltinProperties::DepthTexture, uniformState_->depthTexture.get());
+	material->SetTexture(BuiltinProperties::MatrixTextureBuffer, uniformState_->matrixTextureBuffer.get());
 }
 
 void Context::OnScreenSizeChanged(uint width, uint height) {
-	offscreenRT->Resize(width, height);
-	ambientOcclusion->Resize(width, height);
-	uniformState->depthTexture->Resize(width, height);
+	offscreenRT_->Resize(width, height);
+	ambientOcclusion_->Resize(width, height);
+	uniformState_->depthTexture->Resize(width, height);
 }
 
 void Context::ClearFrame() {
-	offscreenRT->Clear(frameState->normalizedRect, frameState->clearColor, 1);
+	offscreenRT_->Clear(frameState_->normalizedRect, frameState_->clearColor, 1);
 
-	uniformState->depthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
+	uniformState_->depthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
 
-	RenderTexture* target = frameState->targetTexture.get();
+	RenderTexture* target = frameState_->targetTexture.get();
 	if (!target) { target = RenderTexture::GetDefault(); }
-	target->Clear(frameState->normalizedRect, frameState->clearColor, 1);
+	target->Clear(frameState_->normalizedRect, frameState_->clearColor, 1);
 }
 
 static Context* current_;

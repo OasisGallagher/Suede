@@ -8,7 +8,6 @@
 
 #include "rigidbody.h"
 #include "gameobject.h"
-#include "environment.h"
 
 #include "gizmos.h"
 #include "graphics.h"
@@ -34,6 +33,7 @@ void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(i
 void World::DestroyGameObject(GameObject* go) { _suede_dinstance()->DestroyGameObject(go); }
 GameObject* World::Import(const std::string& path) { return _suede_dinstance()->Import(path); }
 GameObject* World::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
+Environment* World::GetEnvironment() { return _suede_dinstance()->GetEnvironment(); }
 bool World::ImportTo(GameObject* go, const std::string& path) { return _suede_dinstance()->ImportTo(go, path); }
 Transform* World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
 GameObject* World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
@@ -79,6 +79,7 @@ void WorldInternal::Initialize() {
 
 	Shader::Find("builtin/lit_texture");
 
+	environment_ = new Environment();
 	decalCreater_ = new DecalCreater;
 
 	root_ = new GameObject();
@@ -97,6 +98,7 @@ void WorldInternal::Finalize() {
 
 	delete context_;
 	delete importer_;
+	delete environment_;
 	delete decalCreater_;
 
 	RemoveEventListener(this);

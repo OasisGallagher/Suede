@@ -91,13 +91,9 @@ bool GeometryUtility::IsFrontFace(const Triangle& face, const Vector3& camera) {
 	return Vector3::Dot(normal, face[1] - camera) < 0;
 }
 
-float GeometryUtility::GetDistance(const Plane& plane, const Vector3& p) {
-	return Vector3::Dot(plane.GetNormal(), p) + plane.GetDistance();
-}
-
 bool GeometryUtility::GetIntersection(Vector3& intersection, const Plane& plane, const Vector3& p0, const Vector3& p1) {
-	float d0 = GetDistance(plane, p0);
-	float d1 = GetDistance(plane, p1);
+	float d0 = plane.GetDistanceToPoint(p0);
+	float d1 = plane.GetDistanceToPoint(p1);
 
 	if (IsZero(d0 * d1) || d0 * d1 >= 0) {
 		return false;
@@ -168,7 +164,7 @@ void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const Matrix4& w
 PlaneSide GeometryUtility::TestSide(const Plane& plane, const Vector3* points, uint npoints) {
 	uint npositive = 0, nnegative = 0;
 	for (uint j = 0; j < npoints; ++j) {
-		float f = GeometryUtility::GetDistance(plane, points[j]);
+		float f = plane.GetDistanceToPoint(points[j]);
 		if (f < 0) { ++nnegative; }
 		else if (f > 0) { ++npositive; }
 	}
@@ -282,8 +278,8 @@ bool GetUniqueIntersection(Vector3& intersection, const Plane& plane, const Vect
 
 void RemovePointsBehindPlane(std::list<Vector3>& list, const Plane& plane) {
 	for (std::list<Vector3>::iterator current = list.begin(); current != list.end();) {
-		float f = GeometryUtility::GetDistance(plane, *current);
-		if (!IsZero(f) && f < 0) {
+		float d = plane.GetDistanceToPoint(*current);
+		if (!IsZero(d) && d < 0) {
 			current = list.erase(current);
 		}
 		else {

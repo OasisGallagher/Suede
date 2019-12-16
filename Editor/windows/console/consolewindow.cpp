@@ -5,14 +5,25 @@
 #include <QMessageBox>
 #include <QHeaderView>
 
+#include <QDebug>
 #include "main/editor.h"
 #include "debug/debug.h"
 
-ConsoleWindow::ConsoleWindow(QWidget* parent) : ChildWindow(parent) {
+#include "screen.h"
+
+#define LOG_PATH		"editor.log"
+
+ConsoleWindow::ConsoleWindow(QWidget* parent) : ChildWindow(parent), flush_(false), logFile_(LOG_PATH) {
+	Debug::SetLogger(this);
+	logFile_.open(QFile::WriteOnly);
+	logStream_.setDevice(&logFile_);
 }
 
-void ConsoleWindow::awake() {
-	ui_->table = findChild<QTableWidget*>("table");
+ConsoleWindow::~ConsoleWindow() {
+	Debug::SetLogger(nullptr);
+}
+
+void ConsoleWindow::initUI() {
 	ui_->table->horizontalHeader()->setStretchLastSection(true);
 	ui_->table->horizontalHeader()->setVisible(false);
 	ui_->table->setColumnCount(2);
@@ -29,6 +40,16 @@ void ConsoleWindow::tick() {
 	if (!messagesToShow_.empty()) {
 		flushMessages();
 	}
+
+	if (flush_) {
+		logStream_.flush();
+		flush_ = false;
+	}
+}
+
+void ConsoleWindow::closeEvent(QCloseEvent *event) {
+	Debug::SetLogger(nullptr);
+	ChildWindow::closeEvent(event);
 }
 
 void ConsoleWindow::onClearMessages() {
@@ -47,6 +68,8 @@ void ConsoleWindow::onSearchTextChanged(const QString& text) {
 }
 
 void ConsoleWindow::addMessage(ConsoleMessageType type, const QString& message) {
+	logToFile(type, message);
+
 	QString encodedMessage = (type + '0') + message;
 	if ((type & mask_) != 0 && (substr_.isEmpty() || message.contains(substr_))) {
 		if (QThread::currentThread() != thread()) {
@@ -119,14 +142,34 @@ void ConsoleWindow::showMessage(ConsoleMessageType type, const QString& message)
 	ui_->table->insertRow(r);
 	ui_->table->setColumnWidth(0, 24);
 
-	//QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
-	//QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
-	//ui_->table->setItem(r, 0, icon);
-	//ui_->table->setItem(r, 1, text);
+	QTableWidgetItem* icon = new QTableWidgetItem(QIcon(messageIconPath(type)), "");
+	QTableWidgetItem* text = new QTableWidgetItem(message.left(message.indexOf('\n')));
+	ui_->table->setItem(r, 0, icon);
+	ui_->table->setItem(r, 1, text);
 
 	if (type == ConsoleMessageType::Error) {
 		onErrorMessage(message);
 	}
+}
+
+void ConsoleWindow::OnLogMessageReceived(LogLevel level, const char* message) {
+	ConsoleMessageType type = ConsoleMessageType::Debug;
+	switch (level) {
+	case LogLevel::Warning:
+		type = ConsoleMessageType::Warning;
+		break;
+
+	case LogLevel::Error:
+		type = ConsoleMessageType::Error;
+		break;
+	}
+
+	addMessage(type, message);
+}
+
+void ConsoleWindow::logToFile(ConsoleMessageType type, const QString& message) {
+	logStream_ << QString::asprintf("[%c] %s\n", *type.to_string(), message.toLatin1().data());
+	flush_ = true;
 }
 
 void ConsoleWindow::onErrorMessage(const QString& message) {

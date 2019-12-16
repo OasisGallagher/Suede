@@ -14,6 +14,9 @@ QMap<QString, QString> QtViewer::skinResources({
 });
 
 QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv), editor_(nullptr) {
+	// Resource not working: https://stackoverflow.com/questions/37093783/qt-resource-not-working
+	Q_INIT_RESOURCE(editor);
+
 // 	QSplashScreen* splash = new QSplashScreen;
 // 	splash->setPixmap(QPixmap(":/images/splash"));
 // 	splash->show();

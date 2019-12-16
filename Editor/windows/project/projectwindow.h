@@ -26,7 +26,7 @@ public:
 	~ProjectWindow();
 
 public:
-	virtual void awake();
+	virtual void initUI();
 
 private slots:
 	void onAddressChanged();

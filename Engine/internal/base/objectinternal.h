@@ -22,13 +22,15 @@ protected:
 public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
 
+protected:
+	std::string name_;
+
 private:
 	static uint GenerateInstanceID(ObjectType type);
 
 private:
 	uint id_;
 	ObjectType type_;
-	std::string name_;
 
 	static uint objectIDContainer[ObjectType::size()];
 };

@@ -181,9 +181,6 @@
     <ClInclude Include="include\light.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\environment.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\graphics.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -1516,12 +1513,6 @@
     <ClInclude Include="internal\rendering\rendering.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="internal\tools\gizmosinternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\tools\graphicsinternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
     <ClInclude Include="internal\tools\profilerinternal.h">
       <Filter>internal\tools</Filter>
     </ClInclude>
@@ -1546,9 +1537,6 @@
     <ClInclude Include="internal\rendering\ambientocclusion.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\_gl.h">
-      <Filter>internal\base</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\gl.h">
       <Filter>internal\base</Filter>
     </ClInclude>
@@ -1560,6 +1548,9 @@
     </ClInclude>
     <ClInclude Include="include\frameeventqueue.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\gizmosinternal.h">
+      <Filter>internal\rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2235,12 +2226,6 @@
     <ClCompile Include="internal\rendering\rendering.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
-    <ClCompile Include="internal\tools\gizmosinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\tools\graphicsinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
     <ClCompile Include="internal\tools\inputinternal.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
@@ -2274,9 +2259,6 @@
     <ClCompile Include="internal\rendering\ambientocclusion.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\gl.cpp">
-      <Filter>internal\base</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\contextlimits.cpp">
       <Filter>internal\base</Filter>
     </ClCompile>
@@ -2289,14 +2271,17 @@
     <ClCompile Include="internal\world\engine.cpp">
       <Filter>internal\world</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\environment.cpp">
-      <Filter>internal\world</Filter>
-    </ClCompile>
     <ClCompile Include="internal\tools\screen.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
     <ClCompile Include="internal\tools\tagmanager.cpp">
       <Filter>internal\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\graphics.cpp">
+      <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\gizmosinternal.cpp">
+      <Filter>internal\rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

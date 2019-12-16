@@ -60,7 +60,7 @@ QStringList ProjectWindow::selectedEntries(QWidget* sender) {
 	return entries;
 }
 
-void ProjectWindow::awake() {
+void ProjectWindow::initUI() {
 	tree_.Create(ROOT_PATH, ".*");
 
 	ui_->splitter->setStretchFactor(0, 1);

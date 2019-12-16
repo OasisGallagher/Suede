@@ -17,7 +17,6 @@
 #include "../widgets/dialogs/colorpicker.h"
 #include "../widgets/dialogs/preferences.h"
 
-#define LOG_PATH		"editor.log"
 #define LAYOUT_PATH		"resources/settings/layout.ini"
 
 namespace PrefsKeys {
@@ -27,10 +26,7 @@ namespace PrefsKeys {
 	static int stateVersion = 3350;
 }
 
-Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr), flush_(false), logFile_(LOG_PATH) {
-	logFile_.open(QFile::WriteOnly);
-	logStream_.setDevice(&logFile_);
-
+Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr) {
 	setupUI();
 	setStatusBar(new StatusBar(this));
 
@@ -41,7 +37,6 @@ Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr), fl
 }
 
 Editor::~Editor() {
-	logFile_.close();
 	delete[] childWindows_;
 	ColorPicker::destroy();
 }
@@ -75,12 +70,13 @@ void Editor::setupUI() {
 		restoreGeometry(geom);
 		restoreState(state, PrefsKeys::stateVersion);
 	}
+
+	for (int i = 0; i < ChildWindowType::size(); ++i) {
+		childWindows_[i]->initUI();
+	}
 }
 
 void Editor::awake() {
-	Debug::logReceived.subscribe(this, &Editor::onLogMessage);
-	Debug::logReceived.unsubscribe(this);
-
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		childWindows_[i]->awake();
 	}
@@ -89,11 +85,6 @@ void Editor::awake() {
 void Editor::tick() {
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
 		childWindows_[i]->tick();
-	}
-
-	if (flush_) {
-		logStream_.flush();
-		flush_ = false;
 	}
 }
 
@@ -173,26 +164,6 @@ void Editor::onScreenCapture() {
 	}
 }
 
-void Editor::onLogMessage(LogLevel level, const char* message) {
-	ConsoleMessageType type;
-	switch (level) {
-		case LogLevel::Debug:
-			type = ConsoleMessageType::Debug;
-			break;
-
-		case LogLevel::Warning:
-			type = ConsoleMessageType::Warning;
-			break;
-
-		case LogLevel::Error:
-			type = ConsoleMessageType::Error;
-			break;
-	}
-
-	writeLog(type, message);
-	ui_.console->addMessage(type, message);
-}
-
 void Editor::initializeFileMenu() {
 	QMenu* menu = menuBar()->findChild<QMenu*>("file");
 	QList<QAction*> actions = menu->actions();
@@ -249,9 +220,4 @@ void Editor::onToggleWindowVisible() {
 			break;
 		}
 	}
-}
-
-void Editor::writeLog(ConsoleMessageType type, const char* message) {
-	logStream_ << QString::asprintf("[%c] %s\n", *type.to_string(), message);
-	flush_ = true;
 }

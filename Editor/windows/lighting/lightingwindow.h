@@ -16,7 +16,7 @@ public:
 	LightingWindow(QWidget* parent);
 
 public:
-	virtual void awake();
+	virtual void initUI();
 
 protected:
 	virtual void showEvent(QShowEvent* event);

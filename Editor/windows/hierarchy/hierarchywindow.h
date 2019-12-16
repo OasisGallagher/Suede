@@ -25,6 +25,7 @@ public:
 	HierarchyWindow(QWidget* parent);
 
 public:
+	virtual void initUI();
 	virtual void awake();
 
 public:

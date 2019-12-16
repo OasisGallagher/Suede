@@ -14,14 +14,6 @@ Plane::Plane(const Vector3 points[3])
 Plane::Plane(const Vector3& normal, float d) : normal_(normal), d_(d) {
 }
 
-float Plane::GetDistance() const {
-	return d_;
-}
-
-Vector3 Plane::GetNormal() const {
-	return normal_;
-}
-
 void Plane::Normalize() {
 	float mag = normal_.GetMagnitude();
 	normal_ /= mag;

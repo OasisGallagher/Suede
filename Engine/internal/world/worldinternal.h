@@ -32,6 +32,7 @@ public:
 
 	void Finalize();
 
+	Environment* GetEnvironment() { return environment_; }
 	Transform* GetRootTransform() { return root_->GetTransform(); }
 
 	void DestroyGameObject(uint id);
@@ -101,6 +102,7 @@ private:
 	Context* context_;
 
 	GameObject* root_;
+	Environment* environment_;
 
 	LightContainer lights_;
 	CameraContainer cameras_;

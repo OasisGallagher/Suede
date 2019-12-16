@@ -79,13 +79,18 @@ public:
 
 private:
 	void Destroy();
+	void ClearAttribute(MeshAttribute& attribute);
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
+	void SyncMeshAttribute(const MeshAttribute& attribute);
 
 //protected:
 //	Bounds bounds_;
 
 private:
+	bool meshDirty_ = false;
+	MeshAttribute attribute_;
+
 	std::vector<ref_ptr<SubMesh>> subMeshes_;
 	std::shared_ptr<Storage> storage_;
 };
@@ -138,7 +143,7 @@ private:
 private:
 	uint size_;
 	ref_ptr<Font> font_;
-	bool dirty_;
+	bool meshDirty_;
 
 	std::string text_;
 };

@@ -39,14 +39,14 @@
 #include "scripts/selectiongizmos.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 //#define SKYBOX
-//#define PROJECTOR
+#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-#define ANIMATION
+//#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
@@ -65,15 +65,9 @@ GameWindow::GameWindow(QWidget* parent) : ChildWindow(parent), canvas_(nullptr),
 	stat_->setVisible(false);
 }
 
-Canvas* GameWindow::canvas() {
-	if (canvas_ == nullptr) {
-		canvas_ = findChild<Canvas*>("canvas");
-	}
+void GameWindow::initUI() {
+	canvas_ = findChild<Canvas*>("canvas");
 
-	return canvas_;
-}
-
-void GameWindow::awake() {
 	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
 
 	HierarchyWindow* hw = editor_->childWindow<HierarchyWindow>();
@@ -81,19 +75,18 @@ void GameWindow::awake() {
 	connect(hw, SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
 		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)));
 
-	timer_ = new QTimer(this);
-	connect(timer_, SIGNAL(timeout()), this, SLOT(updateStatContent()));
-	timer_->start(800);
-
 	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
+}
 
+void GameWindow::awake() {
 	Component::Register<CameraController>();
 
 	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
-	createScene();
 
 	input_ = new QtInputDelegate(ui_->canvas);
 	Input::SetDelegate(input_);
+
+	createScene();
 }
 
 void GameWindow::tick() {
@@ -198,7 +191,6 @@ void GameWindow::onToggleStat(int state) {
 	stat_->setVisible(!!state);
 
 	if (stat_->isVisible()) {
-		updateStatContent();
 		updateStatPosition();
 	}
 }
@@ -237,19 +229,13 @@ float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds
 	return Mathf::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
 }
 
-void GameWindow::updateStatContent() {
- 	if (stat_->isVisible()) {
-		stat_->updateContent();
- 	}
-}
-
 void GameWindow::createScene() {
 	World::gameObjectImported.subscribe(this, &GameWindow::onGameObjectImported);
 
 	Debug::Log("test debug message");
 	Debug::Log("test debug message2");
 
-	ref_ptr<GameObject> lightGameObject = new GameObject();
+	ref_ptr<GameObject> lightGameObject = new GameObject(); 
 	lightGameObject->SetName("light");
 
 	Light* light = lightGameObject->AddComponent<Light>();
@@ -341,7 +327,7 @@ void GameWindow::createScene() {
 	cube->Load(faces);
 	skybox->SetTexture(BuiltinProperties::MainTexture, cube.get());
 	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
-	Environment::SetSkybox(skybox.get());
+	World::GetEnvironment()->skybox = skybox;
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
@@ -417,11 +403,11 @@ void GameWindow::createScene() {
 #endif
 
 #ifdef ROOM
-	GameObject* room = World::Import(roomFbxPath, this);
+	GameObject* room = World::Import(roomFbxPath);
 #endif
 
 #ifdef BUMPED
-	GameObject* bumped = World::Import(bumpedFbxPath, this);
+	GameObject* bumped = World::Import(bumpedFbxPath);
 #endif
 
 #ifdef NORMAL_VISUALIZER

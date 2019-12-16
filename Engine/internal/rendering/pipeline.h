@@ -71,6 +71,10 @@ public:
 		uint instance = 0
 	);
 
+public:
+	static void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
+	static void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias& bias, uint instance);
+
 private:
 	void Render(Renderable& renderable, uint instance, uint matrixOffset);
 
