@@ -400,13 +400,13 @@ bool AnimationInternal::Play(const std::string& name) {
 }
 
 void AnimationInternal::CullingUpdate() {
-	if (!playing_ || !current_) { return; }
+	if (playing_ && current_) {
+		time_ += Time::GetDeltaTime();
 
-	time_ += Time::GetDeltaTime();
-
-	if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
-		current_->Sample(0);
-		playing_ = false;
+		if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
+			current_->Sample(0);
+			playing_ = false;
+		}
 	}
 }
 

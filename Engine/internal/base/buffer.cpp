@@ -15,6 +15,11 @@ void Buffer::Create(GLenum target, size_t size, const void* data, GLenum usage) 
 	attribute_.target = target;
 	attribute_.usage = usage;
 
+	attribute_.data = new char[size];
+	if (data != nullptr) {
+		memcpy(attribute_.data, data, size);
+	}
+
 	Bind();
 	GL::BufferData(target, size, data, usage);
 	Unbind();
@@ -26,6 +31,7 @@ void Buffer::Destroy() {
 		buffer_ = 0;
 	}
 
+	delete[] attribute_.data;
 	memset(&attribute_, 0, sizeof(Attribute));
 }
 
@@ -41,22 +47,24 @@ void Buffer::Unbind() {
 }
 
 void* Buffer::Map() {
-	Bind();
-	void* ptr = GL::MapBuffer(attribute_.target, GL_READ_ONLY);
-	Unbind();
-	return ptr;
+	return attribute_.data;
+	//Bind();
+	//void* ptr = GL::MapBuffer(attribute_.target, GL_READ_ONLY);
+	//Unbind();
+	//return ptr;
 }
 
 void Buffer::Unmap() {
-	Bind();
-	GL::UnmapBuffer(attribute_.target);
-	Unbind();
+	//Bind();
+	//GL::UnmapBuffer(attribute_.target);
+	//Unbind();
 }
 
 void Buffer::Update(int offset, size_t size, const void* data) {
 	Bind();
 	GL::BufferData(attribute_.target, attribute_.size, nullptr, attribute_.usage);
 	GL::BufferSubData(attribute_.target, offset, size, data);
+	memcpy(attribute_.data + offset, data, size);
 	Unbind();
 }
 

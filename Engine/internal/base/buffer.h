@@ -22,6 +22,7 @@ public:
 
 private:
 	struct Attribute {
+		char* data;
 		size_t size;
 		GLenum target;
 		GLenum usage;

@@ -2283,6 +2283,9 @@
     <ClCompile Include="internal\rendering\gizmosinternal.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
+    <ClCompile Include="internal\base\gl.cpp">
+      <Filter>internal\base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\tagmanager.h">

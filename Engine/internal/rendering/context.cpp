@@ -96,3 +96,11 @@ void Context::ClearFrame() {
 static Context* current_;
 Context* Context::GetCurrent() { return current_; }
 void Context::SetCurrent(Context* value) { (current_ = value)->Initialize(); }
+
+void Context::Update() {
+
+}
+
+void Context::CullingUpdate() {
+
+}

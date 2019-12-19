@@ -46,7 +46,7 @@
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED

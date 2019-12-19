@@ -167,6 +167,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
+    <ClCompile Include="internal\base\gl.cpp" />
     <ClCompile Include="internal\base\gpuquerier.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />

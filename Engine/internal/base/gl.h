@@ -3,8 +3,12 @@
 
 #include "debug/debug.h"
 #include "tools/string.h"
+#include "internal/async/async.h"
 
 class GL {
+public:
+	static void Update();
+
 public:
 	static void ActiveTexture(GLenum texture);
 	static void AttachShader(GLuint program, GLuint shader);
@@ -118,8 +122,8 @@ private:
 };
 
 #ifdef _DEBUG
-#define GL_CALL(expression)		expression; Verify(__func__)
-#define GL_CALL_R(expression)	return VerifyR(__func__, expression)
+#define GL_CALL(expression)		ZTHREAD_ASSERT_MAIN(); expression; Verify(__func__)
+#define GL_CALL_R(expression)	return ZTHREAD_ASSERT_MAIN(), VerifyR(__func__, expression)
 #else
 #define GL_CALL(expression)		expression
 #define GL_CALL_R(expression)	return expression
@@ -248,38 +252,6 @@ inline void GL::CullFace(GLenum mode) {
 
 inline void GL::DebugMessageCallback(GLDEBUGPROC callback, const void* userParam) {
 	GL_CALL(glDebugMessageCallback(callback, userParam));
-}
-
-inline void GL::DeleteBuffers(GLsizei n, const GLuint* buffers) {
-	GL_CALL(glDeleteBuffers(n, buffers));
-}
-
-inline void GL::DeleteFramebuffers(GLsizei n, GLuint* framebuffers) {
-	GL_CALL(glDeleteFramebuffers(n, framebuffers));
-}
-
-inline void GL::DeleteProgram(GLuint program) {
-	GL_CALL(glDeleteProgram(program));
-}
-
-inline void GL::DeleteQueries(GLsizei n, GLuint* ids) {
-	GL_CALL(glDeleteQueries(n, ids));
-}
-
-inline void GL::DeleteRenderbuffers(GLsizei n, const GLuint* renderbuffers) {
-	GL_CALL(glDeleteRenderbuffers(n, renderbuffers));
-}
-
-inline void GL::DeleteShader(GLuint shader) {
-	GL_CALL(glDeleteShader(shader));
-}
-
-inline void GL::DeleteTextures(GLsizei n, const GLuint* textures) {
-	GL_CALL(glDeleteTextures(n, textures));
-}
-
-inline void GL::DeleteVertexArrays(GLsizei n, const GLuint* arrays) {
-	GL_CALL(glDeleteVertexArrays(n, arrays));
 }
 
 inline void GL::DepthFunc(GLenum func) {
@@ -565,6 +537,3 @@ inline void GL::VertexAttribPointer(GLuint index, GLint size, GLenum type, GLboo
 inline void GL::Viewport(GLint x, GLint y, GLsizei width, GLsizei height) {
 	GL_CALL(glViewport(x, y, width, height));
 }
-
-#undef GL_CALL
-#undef GL_CALL_R

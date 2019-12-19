@@ -4,8 +4,8 @@
 
 StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 	ui.setupUi(this);
-	//setWindowFlags(Qt::FramelessWindowHint);
-	setStyleSheet("#" + objectName() + "{ border: 1px solid black }");
+	setAttribute(Qt::WA_StyledBackground, true);
+	setStyleSheet("#" + objectName() + "{ border: 1px solid gray }");
 
 	timer_ = new QTimer(this);
 	connect(timer_, &QTimer::timeout, this, &StatsWidget::updateContent);

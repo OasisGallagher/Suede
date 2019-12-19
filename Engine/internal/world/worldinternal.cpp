@@ -375,16 +375,18 @@ void WorldInternal::ManageGameObjectUpdateSequence(GameObject* go) {
 }
 
 void WorldInternal::CullingUpdate() {
+	context_->CullingUpdate();
 	CullingUpdateGameObjects();
+	UpdateDecals();
 }
 
 void WorldInternal::Update() {
-	uint64 start = Profiler::GetTimeStamp();
+	uint64 begin = Profiler::GetTimeStamp();
+	uint64 start = begin;
 
+	GL::Update();
+	context_->Update();
 	FireEvents();
-
-	// SUEDE TODO: update decals in rendering thread ?
-	UpdateDecals();
 
 	RenderingUpdateGameObjects();
 
@@ -392,7 +394,7 @@ void WorldInternal::Update() {
 
 	Camera::OnPreRender();
 
-	float seconds = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
+	float seconds0 = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
 	start = Profiler::GetTimeStamp();
 
 	for (ref_ptr<Camera>& camera : cameras_) {
@@ -401,14 +403,14 @@ void WorldInternal::Update() {
 		}
 	}
 
-	seconds = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
+	float seconds1 = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
 	start = Profiler::GetTimeStamp();
 
 	Camera::OnPostRender();
 
-	seconds = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
+	float seconds2 = (float)Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start);
 
 	Statistics::SetRenderingElapsed(
-		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+		Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - begin)
 	);
 }

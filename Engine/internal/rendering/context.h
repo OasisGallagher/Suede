@@ -44,6 +44,9 @@ public:
 	static void SetCurrent(Context* value);
 
 public:
+	void Update();
+	void CullingUpdate();
+
 	void ClearFrame();
 
 	ShadowMap* GetShadowMap() { return shadowMap_; }

@@ -43,7 +43,7 @@ void Debug::LogWarning(const char* format, ...) {
 void Debug::LogError(const char* format, ...) {
 	if (logger != nullptr) {
 		DEF_VA_ARGS(msg, format);
-		msg += "\n" + tracer.GetStackTrace(1, 7);
+		msg += "\n" + tracer.GetStackTrace(1, 30);
 		logger->OnLogMessageReceived(LogLevel::Error, msg.c_str());
 	}
 }
