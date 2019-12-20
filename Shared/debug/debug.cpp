@@ -23,29 +23,31 @@ private:
 	uint ln_, depth_, start_;
 };
 
+struct DefaultLogger : public Debug::Logger {
+public:
+	virtual void OnLogMessageReceived(LogLevel level, const char* message) {
+		OutputDebugStringA(message);
+	}
+
+} static defaultLogger;
+
 static StackTracer tracer;
-static Debug::Logger* logger;
+static Debug::Logger* logger = &defaultLogger;
 
 void Debug::Log(const char* format, ...) {
-	if (logger != nullptr) {
-		DEF_VA_ARGS(msg, format);
-		logger->OnLogMessageReceived(LogLevel::Debug, msg.c_str());
-	}
+	DEF_VA_ARGS(msg, format);
+	logger->OnLogMessageReceived(LogLevel::Debug, msg.c_str());
 }
 
 void Debug::LogWarning(const char* format, ...) {
-	if (logger != nullptr) {
-		DEF_VA_ARGS(msg, format);
-		logger->OnLogMessageReceived(LogLevel::Warning, msg.c_str());
-	}
+	DEF_VA_ARGS(msg, format);
+	logger->OnLogMessageReceived(LogLevel::Warning, msg.c_str());
 }
 
 void Debug::LogError(const char* format, ...) {
-	if (logger != nullptr) {
-		DEF_VA_ARGS(msg, format);
-		msg += "\n" + tracer.GetStackTrace(1, 30);
-		logger->OnLogMessageReceived(LogLevel::Error, msg.c_str());
-	}
+	DEF_VA_ARGS(msg, format);
+	msg += "\n" + tracer.GetStackTrace(1, 30);
+	logger->OnLogMessageReceived(LogLevel::Error, msg.c_str());
 }
 
 #define SUEDE_DISABLE_VISUAL_STUDIO_OUTPUT
@@ -60,9 +62,13 @@ void Debug::OutputToConsole(const char* format, ...) {
 Debug::Logger* Debug::GetLogger() { return logger; }
 
 void Debug::SetLogger(Logger* value) {
-    if (logger != value && (logger = value) != nullptr) {
-        tracer.LoadModules();
-    }
+	if (logger != value) {
+		if (value != nullptr) {
+			tracer.LoadModules();
+		}
+
+		logger = (value != nullptr) ? value : &defaultLogger;
+	}
 }
 
 void Debug::Break() {
