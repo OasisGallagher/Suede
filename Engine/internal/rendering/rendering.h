@@ -9,7 +9,7 @@
 #include "internal/rendering/pipeline.h"
 
 class Sample;
-class Context;
+class RenderingContext;
 class Pipeline;
 class ShadowMap;
 class AmbientOcclusion;
@@ -23,7 +23,7 @@ struct RenderingMatrices {
 };
 
 struct RenderingPipelines {
-	RenderingPipelines(Context* context);
+	RenderingPipelines(RenderingContext* context);
 	~RenderingPipelines();
 
 	void Clear();
@@ -39,7 +39,7 @@ class ImageEffect;
 
 class Rendering {
 public:
-	Rendering(Context* context);
+	Rendering(RenderingContext* context);
 
 public:
 	void Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices);
@@ -59,7 +59,7 @@ private:
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
 
 private:
-	Context* context_;
+	RenderingContext* context_;
 
 	Sample* ssaoSample;
 	Sample* ssaoTraversalSample;
@@ -71,7 +71,7 @@ private:
 
 class PipelineBuilder {
 public:
-	PipelineBuilder(Context* context);
+	PipelineBuilder(RenderingContext* context);
 	~PipelineBuilder();
 
 public:
@@ -106,7 +106,7 @@ private:
 	void GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd);
 
 private:
-	Context* context_;
+	RenderingContext* context_;
 	RenderingMatrices matrices_;
 
 	Sample *push_renderables, *forward_pass, *get_renderable_game_objects;

@@ -1,13 +1,13 @@
 #pragma once
 #include <vector>
 
-#include "gl.h"
 #include "shader.h"
 
 class Buffer;
+class Context;
 class UniformBuffer {
 public:
-	UniformBuffer();
+	UniformBuffer(Context* context);
 	~UniformBuffer();
 
 public:
@@ -26,11 +26,13 @@ private:
 	void Initialize(const std::string& name, uint size);
 
 private:
+	Context* context_;
+
 	uint size_;
 
 	Buffer* ubo_;
 
-	GLuint binding_;
+	uint binding_;
 	std::string name_;
 
 private:

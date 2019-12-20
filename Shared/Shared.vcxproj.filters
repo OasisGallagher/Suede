@@ -88,11 +88,11 @@
     <ClInclude Include="tools\event.h">
       <Filter>tools</Filter>
     </ClInclude>
-    <ClInclude Include="containers\dynarray.h">
-      <Filter>containers</Filter>
-    </ClInclude>
     <ClInclude Include="math\random.h">
       <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\dynamicarray.h">
+      <Filter>containers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

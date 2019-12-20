@@ -23,8 +23,7 @@ private:
 
 class MeshInternal : public ObjectInternal {
 public:
-	MeshInternal();
-	MeshInternal(ObjectType type);
+	MeshInternal(Context* context);
 	~MeshInternal();
 
 public:
@@ -66,7 +65,7 @@ public:
 	};
 
 	struct Storage {
-		Storage();
+		Storage(Context* context);
 
 		VertexArray vao;
 		MeshTopology topology;
@@ -88,6 +87,8 @@ private:
 //	Bounds bounds_;
 
 private:
+	Context* context_;
+
 	bool meshDirty_ = false;
 	MeshAttribute attribute_;
 

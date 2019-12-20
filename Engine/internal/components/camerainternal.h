@@ -15,7 +15,7 @@
 //class GBuffer;
 
 class Sample;
-class Context;
+class RenderingContext;
 class CameraInternal : public ComponentInternal, public Frustum {
 public:
 	CameraInternal();
@@ -104,7 +104,6 @@ private:
 	PipelineBuilder* pipelineBuilder_;
 	RenderingPipelines* frontPipelines_, *backPipelines_;
 
-	Context* context_;
 	Rendering* rendering_;
 
 	Rect normalizedRect_;

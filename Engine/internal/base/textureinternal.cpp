@@ -3,11 +3,11 @@
 #include "rect.h"
 #include "screen.h"
 #include "buffer.h"
+#include "context.h"
 #include "resources.h"
 #include "math/mathf.h"
 #include "os/filesystem.h"
 
-#include "internal/base/gl.h"
 #include "containers/freelist.h"
 
 Texture::Texture(void* d) : Object(d) {}
@@ -25,7 +25,7 @@ TextureWrapMode Texture::GetWrapModeT() const { return _suede_dptr()->GetWrapMod
 uint Texture::GetWidth() const { return _suede_dptr()->GetWidth(); }
 uint Texture::GetHeight() const { return _suede_dptr()->GetHeight(); }
 
-Texture2D::Texture2D() : Texture(new Texture2DInternal) {}
+Texture2D::Texture2D() : Texture(new Texture2DInternal(Context::GetCurrent())) {}
 Texture2D* Texture2D::GetWhiteTexture() {
 	static ref_ptr<Texture2D> texture;
 	if (!texture) {
@@ -56,15 +56,15 @@ TextureFormat Texture2D::GetFormat() { return _suede_dptr()->GetFormat(); }
 bool Texture2D::EncodeToPNG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToPNG(data); }
 bool Texture2D::EncodeToJPG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToJPG(data); }
 
-TextureCube::TextureCube() : Texture(new TextureCubeInternal) {}
+TextureCube::TextureCube() : Texture(new TextureCubeInternal(Context::GetCurrent())) {}
 bool TextureCube::Load(const std::string textures[6]) { return _suede_dptr()->Load(textures); }
 
-TextureBuffer::TextureBuffer() : Texture(new TextureBufferInternal) {}
+TextureBuffer::TextureBuffer() : Texture(new TextureBufferInternal(Context::GetCurrent())) {}
 uint TextureBuffer::GetSize() const { return _suede_dptr()->GetSize(); }
 bool TextureBuffer::Create(uint size) { return _suede_dptr()->Create(size); }
 void TextureBuffer::Update(uint offset, uint size, const void* data) { _suede_dptr()->Update(offset, size, data); }
 
-RenderTexture::RenderTexture() : Texture(new RenderTextureInternal) {}
+RenderTexture::RenderTexture() : Texture(new RenderTextureInternal(Context::GetCurrent())) {}
 RenderTexture::RenderTexture(void* d) : Texture(d) {}
 bool RenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
 RenderTextureFormat RenderTexture::GetRenderTextureFormat() { return _suede_dptr()->GetRenderTextureFormat(); }
@@ -75,15 +75,15 @@ RenderTexture* RenderTexture::GetDefault() { return RenderTextureInternal::GetDe
 RenderTexture* RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) { return RenderTextureInternal::GetTemporary(format, width, height); }
 void RenderTexture::ReleaseTemporary(RenderTexture* texture) { RenderTextureInternal::ReleaseTemporary(texture); }
 
-MRTRenderTexture::MRTRenderTexture() : RenderTexture(new MRTRenderTextureInternal) {}
+MRTRenderTexture::MRTRenderTexture() : RenderTexture(new MRTRenderTextureInternal(Context::GetCurrent())) {}
 bool MRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dptr()->AddColorTexture(format); }
 Texture2D* MRTRenderTexture::GetColorTexture(uint index) { return _suede_dptr()->GetColorTexture(index); }
 uint MRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTextureCount(); }
 
-ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal){}
+ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal(Context::GetCurrent())){}
 
-TextureInternal::TextureInternal(ObjectType type) :ObjectInternal(type)
-	, texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
+TextureInternal::TextureInternal(ObjectType type, Context* context) :ObjectInternal(type)
+	, context_(context), texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
 }
 
 TextureInternal::~TextureInternal() {
@@ -91,19 +91,19 @@ TextureInternal::~TextureInternal() {
 }
 
 void TextureInternal::Bind(uint index) {
-	if (!GL::IsTexture(texture_)) {
+	if (!context_->IsTexture(texture_)) {
 		Debug::LogError("invalid texture");
 		return;
 	}
 
 	location_ = index + GL_TEXTURE0;
-	GL::ActiveTexture(location_);
+	context_->ActiveTexture(location_);
 	BindTexture();
 }
 
 void TextureInternal::Unbind() {
 	if (location_ != 0) {
-		//GL::ActiveTexture(location_);
+		//context_->ActiveTexture(location_);
 		UnbindTexture();
 		location_ = 0;
 	}
@@ -111,78 +111,78 @@ void TextureInternal::Unbind() {
 
 void TextureInternal::SetMinFilterMode(TextureMinFilterMode value) {
 	BindTexture();
-	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, TextureMinFilterModeToGLenum(value));
+	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, TextureMinFilterModeToGLenum(value));
 	UnbindTexture();
 }
 
 TextureMinFilterMode TextureInternal::GetMinFilterMode() const {
 	BindTexture();
-	GLint parameter = 0;
-	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, &parameter);
+	int parameter = 0;
+	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, &parameter);
 	UnbindTexture();
 	return GLenumToTextureMinFilterMode(parameter);
 }
 
 void TextureInternal::SetMagFilterMode(TextureMagFilterMode value) {
 	BindTexture();
-	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, TextureMagFilterModeToGLenum(value));
+	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, TextureMagFilterModeToGLenum(value));
 	UnbindTexture();
 }
 
 TextureMagFilterMode TextureInternal::GetMagFilterMode() const {
 	BindTexture();
-	GLint parameter = 0;
-	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, &parameter);
+	int parameter = 0;
+	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, &parameter);
 	UnbindTexture();
 	return GLenumToTextureMagFilterMode(parameter);
 }
 
 void TextureInternal::SetWrapModeS(TextureWrapMode value) {
 	BindTexture();
-	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_S, TextureWrapModeToGLenum(value));
+	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_S, TextureWrapModeToGLenum(value));
 	UnbindTexture();
 }
 
 TextureWrapMode TextureInternal::GetWrapModeS() const {
 	BindTexture();
-	GLint parameter = 0;
-	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_S, &parameter);
+	int parameter = 0;
+	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_S, &parameter);
 	UnbindTexture();
 	return GLenumToTextureWrapMode(parameter);
 }
 
 void TextureInternal::SetWrapModeT(TextureWrapMode value) {
 	BindTexture();
-	GL::TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_T, TextureWrapModeToGLenum(value));
+	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_T, TextureWrapModeToGLenum(value));
 	UnbindTexture();
 }
 
 TextureWrapMode TextureInternal::GetWrapModeT() const {
 	BindTexture();
-	GLint parameter = 0;
-	GL::GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_T, &parameter);
+	int parameter = 0;
+	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_T, &parameter);
 	UnbindTexture();
 	return GLenumToTextureWrapMode(parameter);
 }
 
 void TextureInternal::BindTexture() const {
-	GL::GetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
-	GL::BindTexture(GetGLTextureType(), texture_);
+	context_->GetIntegerv(GetGLTextureBindingName(), &oldBindingTexture_);
+	context_->BindTexture(GetGLTextureType(), texture_);
 }
 
 void TextureInternal::UnbindTexture() const {
-	GL::BindTexture(GetGLTextureType(), oldBindingTexture_);
+	context_->BindTexture(GetGLTextureType(), oldBindingTexture_);
 	oldBindingTexture_ = 0;
 }
 
 void TextureInternal::DestroyTexture() {
 	if (texture_ != 0) {
-		GL::DeleteTextures(1, &texture_);
+		context_->DeleteTextures(1, &texture_);
 		texture_ = 0;
 	}
 }
 
-BPPType TextureInternal::GLenumToBpp(GLenum format) const {
+BPPType TextureInternal::GLenumToBpp(uint format) const {
 	switch (format) {
 		case GL_RGB: return BPPType24;
 		case GL_RGBA: return BPPType32;
@@ -192,7 +192,7 @@ BPPType TextureInternal::GLenumToBpp(GLenum format) const {
 	return BPPType24;
 }
 
-GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
+uint TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
 	switch (textureFormat) {
 		case TextureFormat::Rgb: return GL_RGB;
 		case TextureFormat::Rgb16F: return GL_RGB16F;
@@ -208,8 +208,8 @@ GLenum TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const
 	return GL_RGB;
 }
 
-void TextureInternal::ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const {
-	GLenum glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
+void TextureInternal::ColorStreamFormatToGLenum(uint(&parameters)[2], ColorStreamFormat format) const {
+	uint glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
 	switch (format) {
 		case ColorStreamFormat::Rgb:
 			glFormat = GL_RGB;
@@ -244,7 +244,7 @@ void TextureInternal::ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStr
 	parameters[1] = glType;
 }
 
-GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const {
+uint TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const {
 	switch (mode) {
 		case TextureMinFilterMode::Nearest:  return GL_NEAREST;
 		case TextureMinFilterMode::Linear: return GL_LINEAR;
@@ -258,7 +258,7 @@ GLenum TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) 
 	return GL_LINEAR;
 }
 
-GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const {
+uint TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const {
 	switch (mode) {
 		case TextureMagFilterMode::Nearest: return GL_NEAREST;
 		case TextureMagFilterMode::Linear: return GL_LINEAR;
@@ -268,7 +268,7 @@ GLenum TextureInternal::TextureMagFilterModeToGLenum(TextureMagFilterMode mode) 
 	return GL_LINEAR;
 }
 
-GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
+uint TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
 	switch (mode) {
 		case TextureWrapMode::ClampToEdge: return GL_CLAMP_TO_EDGE;
 		case TextureWrapMode::MirroredRepeat: return GL_MIRRORED_REPEAT;
@@ -279,7 +279,7 @@ GLenum TextureInternal::TextureWrapModeToGLenum(TextureWrapMode mode) const {
 	return GL_REPEAT;
 }
 
-TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(GLenum value) const {
+TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(uint value) const {
 	switch (value) {
 		case GL_NEAREST: return TextureMinFilterMode::Nearest;
 		case GL_LINEAR: return TextureMinFilterMode::Linear;
@@ -289,32 +289,32 @@ TextureMinFilterMode TextureInternal::GLenumToTextureMinFilterMode(GLenum value)
 		case GL_LINEAR_MIPMAP_LINEAR: return TextureMinFilterMode::LinearMipmapLinear;
 	}
 
-	Debug::LogError("invalid GLenum %d.", value);
+	Debug::LogError("invalid uint %d.", value);
 	return TextureMinFilterMode::Linear;
 }
 
-TextureMagFilterMode TextureInternal::GLenumToTextureMagFilterMode(GLenum value) const {
+TextureMagFilterMode TextureInternal::GLenumToTextureMagFilterMode(uint value) const {
 	switch (value) {
 		case GL_NEAREST: return TextureMagFilterMode::Nearest;
 		case GL_LINEAR: return TextureMagFilterMode::Linear;
 	}
 
-	Debug::LogError("invalid GLenum %d.", value);
+	Debug::LogError("invalid uint %d.", value);
 	return TextureMagFilterMode::Linear;
 }
 
-TextureWrapMode TextureInternal::GLenumToTextureWrapMode(GLenum value) const {
+TextureWrapMode TextureInternal::GLenumToTextureWrapMode(uint value) const {
 	switch (value) {
 		case GL_CLAMP_TO_EDGE: return TextureWrapMode::ClampToEdge;
 		case GL_MIRRORED_REPEAT: return TextureWrapMode::MirroredRepeat;
 		case GL_REPEAT: return TextureWrapMode::Repeat;
 	}
 
-	Debug::LogError("invalid GLenum %d.", value);
+	Debug::LogError("invalid uint %d.", value);
 	return TextureWrapMode::Repeat;
 }
 
-Texture2DInternal::Texture2DInternal() : TextureInternal(ObjectType::Texture2D) {
+Texture2DInternal::Texture2DInternal(Context* context) : TextureInternal(ObjectType::Texture2D, context) {
 }
 
 Texture2DInternal::~Texture2DInternal() {
@@ -335,26 +335,26 @@ bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, Co
 	width_ = width;
 	height_ = height;
 
-	GL::GenTextures(1, &texture_);
+	context_->GenTextures(1, &texture_);
 
 	BindTexture();
 
-	GLenum glFormat[2];
+	uint glFormat[2];
 	ColorStreamFormatToGLenum(glFormat, format);
-	GLenum internalFormat = TextureFormatToGLenum(textureFormat);
+	uint internalFormat = TextureFormatToGLenum(textureFormat);
 
 	format_ = textureFormat;
 
 	int oldUnpackAlignment = 4;
-	GL::GetIntegerv(GL_UNPACK_ALIGNMENT, &oldUnpackAlignment);
-	GL::PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+	context_->GetIntegerv(GL_UNPACK_ALIGNMENT, &oldUnpackAlignment);
+	context_->PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 
-	GL::TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
+	context_->TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
 
-	GL::PixelStorei(GL_UNPACK_ALIGNMENT, oldUnpackAlignment);
+	context_->PixelStorei(GL_UNPACK_ALIGNMENT, oldUnpackAlignment);
 
 	if (mipmap) {
-		GL::GenerateMipmap(GL_TEXTURE_2D);
+		context_->GenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
 		SetMinFilterMode(TextureMinFilterMode::Nearest);
@@ -383,13 +383,13 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	texelMap.height = GetHeight();
 	
 	uint alignment = 4;
-	GL::GetIntegerv(GL_UNPACK_ALIGNMENT, (GLint*)&alignment);
+	context_->GetIntegerv(GL_UNPACK_ALIGNMENT, (int*)&alignment);
 
 	texelMap.alignment = alignment;
 	BPPType bpp = GLenumToBpp(internalFormat_);
 
 	texelMap.data.resize((bpp / 8) * Mathf::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight());
-	GL::GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
+	context_->GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
 	UnbindTexture();
 
 	texelMap.textureFormat = (bpp == BPPType24) ? TextureFormat::Rgb : TextureFormat::Rgba;
@@ -398,7 +398,7 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	return ImageCodec::Encode(data, type, texelMap);
 }
 
-TextureCubeInternal::TextureCubeInternal() : TextureInternal(ObjectType::TextureCube) {
+TextureCubeInternal::TextureCubeInternal(Context* context) : TextureInternal(ObjectType::TextureCube, context) {
 }
 
 TextureCubeInternal::~TextureCubeInternal() {
@@ -414,22 +414,22 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 
 	DestroyTexture();
 
-	GL::GenTextures(1, &texture_);
+	context_->GenTextures(1, &texture_);
 	BindTexture();
 
 	for(int i = 0; i < 6; ++i) {
-		GLenum glFormat[2];
+		uint glFormat[2];
 		ColorStreamFormatToGLenum(glFormat, texelMaps[i].colorStreamFormat);
-		GLenum internalFormat = TextureFormatToGLenum(texelMaps[i].textureFormat);
-		GL::TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMaps[i].width, texelMaps[i].height, 0, glFormat[0], glFormat[1], &texelMaps[i].data[0]);
+		uint internalFormat = TextureFormatToGLenum(texelMaps[i].textureFormat);
+		context_->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMaps[i].width, texelMaps[i].height, 0, glFormat[0], glFormat[1], &texelMaps[i].data[0]);
 
 		internalFormat_ = internalFormat;
 		
-		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		GL::TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 
 	UnbindTexture();
@@ -496,8 +496,8 @@ void RenderTextureInternal::ReleaseTemporary(RenderTexture* texture) {
 	SUEDE_ASSERT(cache != nullptr);
 }
 
-RenderTextureInternal::RenderTextureInternal() 
-	: TextureInternal(ObjectType::RenderTexture), bindStatus_(StatusNone), renderTextureFormat_(RenderTextureFormat::Rgba), framebuffer_(nullptr) {
+RenderTextureInternal::RenderTextureInternal(Context* context)
+	: TextureInternal(ObjectType::RenderTexture, context), bindStatus_(StatusNone), renderTextureFormat_(RenderTextureFormat::Rgba), framebuffer_(nullptr) {
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
@@ -511,22 +511,22 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	width_ = width;
 	height_ = height;
 
-	framebuffer_ = new Framebuffer();
+	framebuffer_ = new Framebuffer(context_);
 
-	GL::GenTextures(1, &texture_);
+	context_->GenTextures(1, &texture_);
 	BindTexture();
 
 	renderTextureFormat_ = format;
 	ResizeStorage(width, height, format);
 
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	if (format == RenderTextureFormat::Shadow) {
-		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		GL::TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 	}
 
 	UnbindTexture();
@@ -615,18 +615,18 @@ bool RenderTextureInternal::SetViewport(uint width, uint height, const Rect& nor
 }
 
 void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat format) {
-	GLenum glFormat[3];
+	uint glFormat[3];
 	RenderTextureFormatToGLenum(format, glFormat);
-	GL::TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], w, h, 0, glFormat[1], glFormat[2], nullptr);
+	context_->TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], w, h, 0, glFormat[1], glFormat[2], nullptr);
 	width_ = w;
 	height_ = h;
 	internalFormat_ = glFormat[0];
 }
 
-void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]) {
-	GLenum internalFormat = GL_RGBA;
-	GLenum format = GL_RGBA;
-	GLenum type = GL_UNSIGNED_BYTE;
+void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat input, uint(&parameters)[3]) {
+	uint internalFormat = GL_RGBA;
+	uint format = GL_RGBA;
+	uint type = GL_UNSIGNED_BYTE;
 
 	switch (input) {
 		case RenderTextureFormat::Rgb:
@@ -671,7 +671,7 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	parameters[2] = type;
 }
 
-TextureBufferInternal::TextureBufferInternal() : TextureInternal(ObjectType::TextureBuffer), buffer_(nullptr) {
+TextureBufferInternal::TextureBufferInternal(Context* context) : TextureInternal(ObjectType::TextureBuffer, context), buffer_(nullptr) {
 }
 
 TextureBufferInternal::~TextureBufferInternal() {
@@ -682,12 +682,12 @@ bool TextureBufferInternal::Create(uint size) {
 	DestroyBuffer();
 	DestroyTexture();
 
-	buffer_ = new Buffer;
+	buffer_ = new Buffer(context_);
 	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
 	
-	GL::GenTextures(1, &texture_);
+	context_->GenTextures(1, &texture_);
 	BindTexture();
-	GL::TexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffer_->GetNativePointer());
+	context_->TexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffer_->GetNativePointer());
 	UnbindTexture();
 
 	return true;
@@ -708,7 +708,7 @@ void TextureBufferInternal::DestroyBuffer() {
 	}
 }
 
-ScreenRenderTextureInternal::ScreenRenderTextureInternal() {
+ScreenRenderTextureInternal::ScreenRenderTextureInternal(Context* context) : RenderTextureInternal(context) {
 }
 
 ScreenRenderTextureInternal::~ScreenRenderTextureInternal() {
@@ -749,12 +749,12 @@ void ScreenRenderTextureInternal::Resize(uint width, uint height) {
 	Debug::LogError("screen render texture is not resizable.");
 }
 
-GLenum ScreenRenderTextureInternal::GetGLTextureType() const {
+uint ScreenRenderTextureInternal::GetGLTextureType() const {
 	Debug::LogError("unsupported operation for screen render texture.");
 	return 0;
 }
 
-GLenum ScreenRenderTextureInternal::GetGLTextureBindingName() const {
+uint ScreenRenderTextureInternal::GetGLTextureBindingName() const {
 	Debug::LogError("unsupported operation for screen render texture.");
 	return 0;
 }
@@ -771,7 +771,7 @@ bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, ui
 	width_ = width;
 	height_ = height;
 
-	framebuffer_ = new Framebuffer();
+	framebuffer_ = new Framebuffer(context_);
 	framebuffer_->SetViewport(0, 0, width, height);
 	framebuffer_->CreateDepthRenderbuffer();
 
@@ -818,12 +818,12 @@ Texture2D* MRTRenderTextureInternal::GetColorTexture(uint index) {
 	return colorTextures_[index].get();
 }
 
-GLenum MRTRenderTextureInternal::GetGLTextureType() const {
+uint MRTRenderTextureInternal::GetGLTextureType() const {
 	Debug::LogError("unsupported operation for MRT render texture.");
 	return 0;
 }
 
-GLenum MRTRenderTextureInternal::GetGLTextureBindingName() const {
+uint MRTRenderTextureInternal::GetGLTextureBindingName() const {
 	Debug::LogError("unsupported operation for MRT render texture.");
 	return 0;
 }

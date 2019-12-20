@@ -1,15 +1,15 @@
 #include "framebuffer.h"
 
-#include "gl.h"
 #include "screen.h"
+
 #include "debug/debug.h"
 #include "math/mathf.h"
-#include "contextlimits.h"
 #include "memory/refptr.h"
+#include "internal/base/context.h"
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
 
-FramebufferBase::FramebufferBase() : fbo_(0), oldFramebuffer_(0)
+FramebufferBase::FramebufferBase(Context* context) : context_(context), fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
 	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
 }
@@ -37,12 +37,12 @@ void FramebufferBase::ReadBuffer(std::vector<uchar>& data, uint* alignment) {
 
 void FramebufferBase::ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment) {
 	int packAlignment = 4;
-	GL::GetIntegerv(GL_PACK_ALIGNMENT, &packAlignment);
+	context_->GetIntegerv(GL_PACK_ALIGNMENT, &packAlignment);
 
 	uint width = Mathf::RoundUpToPowerOfTwo(viewport_.z, packAlignment);
 	data.resize(3 * width * viewport_.w);
 
-	GL::ReadPixels(0, 0, viewport_.z, viewport_.w, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
+	context_->ReadPixels(0, 0, viewport_.z, viewport_.w, GL_RGB, GL_UNSIGNED_BYTE, &data[0]);
 
 	if (alignment != nullptr) {
 		*alignment = packAlignment;
@@ -55,29 +55,29 @@ void FramebufferBase::BindFramebuffer(FramebufferTarget target) {
 		return;
 	}
 
-	GLenum query, bind;
+	uint query, bind;
 	FramebufferTargetToGLenum(target, &query, &bind);
 
-	GL::GetIntegerv(query, &oldFramebuffer_);
-	GL::BindFramebuffer(bind, fbo_);
+	context_->GetIntegerv(query, &oldFramebuffer_);
+	context_->BindFramebuffer(bind, fbo_);
 
 	bindTarget_ = bind;
 }
 
 void FramebufferBase::UnbindFramebuffer() {
-	GL::BindFramebuffer(bindTarget_, oldFramebuffer_);
+	context_->BindFramebuffer(bindTarget_, oldFramebuffer_);
 	bindTarget_ = oldFramebuffer_ = 0;
 }
 
 void FramebufferBase::BindViewport() {
-	GL::Viewport(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
+	context_->Viewport(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
 }
 
 void FramebufferBase::UnbindViewport() {
 }
 
-void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, GLenum* query, GLenum* bind) {
-	GLenum glQuery = GL_FRAMEBUFFER_BINDING, glBind = GL_FRAMEBUFFER;
+void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, uint* query, uint* bind) {
+	uint glQuery = GL_FRAMEBUFFER_BINDING, glBind = GL_FRAMEBUFFER;
 	switch (target) {
 		case FramebufferTargetRead:
 			glQuery = GL_READ_FRAMEBUFFER_BINDING;
@@ -109,10 +109,10 @@ void FramebufferBase::SetViewport(int x, int y, uint width, uint height) {
 void FramebufferBase::Clear(FramebufferClearMask clearMask) {
 	BindWrite();
 
-	GL::Enable(GL_SCISSOR_TEST);
-	GL::Scissor(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
+	context_->Enable(GL_SCISSOR_TEST);
+	context_->Scissor(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
 	ClearCurrent(clearMask);
-	GL::Disable(GL_SCISSOR_TEST);
+	context_->Disable(GL_SCISSOR_TEST);
 
 	Unbind();
 }
@@ -150,39 +150,39 @@ void FramebufferBase::SetRenderTexture(FramebufferAttachment attachment, uint te
 }
 
 void FramebufferBase::ClearCurrent(FramebufferClearMask clearMask) {
-	GLbitfield bitfield = 0;
+	uint bitfield = 0;
 	if ((clearMask & FramebufferClearMaskColor) != 0) {
-		GL::ClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1);
+		context_->ClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1);
 		bitfield |= GL_COLOR_BUFFER_BIT;
 	}
 
 	if ((clearMask & FramebufferClearMaskDepth) != 0) {
-		GL::ClearDepth(clearDepth_);
+		context_->ClearDepth(clearDepth_);
 		bitfield |= GL_DEPTH_BUFFER_BIT;
 	}
 
 	if ((clearMask & FramebufferClearMaskStencil) != 0) {
-		GL::ClearStencil(clearStencil_);
+		context_->ClearStencil(clearStencil_);
 		bitfield |= GL_STENCIL_BUFFER_BIT;
 	}
 
-	if (bitfield != 0) { GL::Clear(bitfield); }
+	if (bitfield != 0) { context_->Clear(bitfield); }
 }
 
 FramebufferBase* Framebuffer::GetDefault() {
-	static FramebufferBase fb0;
+	static FramebufferBase fb0(Context::GetCurrent());
 	return &fb0;
 }
 
-Framebuffer::Framebuffer() : depthRenderbuffer_(0), depthTexture_(0), attachedRenderTextureCount_(0) {
+Framebuffer::Framebuffer(Context* context) : FramebufferBase(context), depthRenderbuffer_(0), depthTexture_(0), attachedRenderTextureCount_(0) {
 	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
 
-	GL::GenFramebuffers(1, &fbo_);
+	context_->GenFramebuffers(1, &fbo_);
 
-	renderTextures_ = new uint[ContextLimits::Get(ContextLimitsType::MaxColorAttachments)];
-	std::fill(renderTextures_, renderTextures_ + ContextLimits::Get(ContextLimitsType::MaxColorAttachments), 0);
+	renderTextures_ = new uint[context_->GetLimit(ContextLimitType::MaxColorAttachments)];
+	std::fill(renderTextures_, renderTextures_ + context_->GetLimit(ContextLimitType::MaxColorAttachments), 0);
 
-	glAttachments_ = new GLenum[ContextLimits::Get(ContextLimitsType::MaxColorAttachments)];
+	glAttachments_ = new uint[context_->GetLimit(ContextLimitType::MaxColorAttachments)];
 }
 
 Framebuffer::~Framebuffer() {
@@ -190,11 +190,11 @@ Framebuffer::~Framebuffer() {
 	delete[] glAttachments_;
 	
 	if (fbo_ != 0) {
-		GL::DeleteFramebuffers(1, &fbo_);
+		context_->DeleteFramebuffers(1, &fbo_);
 	}
 
 	if (depthRenderbuffer_ != 0) {
-		GL::DeleteRenderbuffers(1, &depthRenderbuffer_);
+		context_->DeleteRenderbuffers(1, &depthRenderbuffer_);
 		depthRenderbuffer_ = 0;
 	}
 }
@@ -203,7 +203,7 @@ void Framebuffer::BindWrite() {
 	FramebufferBase::BindWrite();
 
 	uint count = ToGLColorAttachments();
-	GL::DrawBuffers(count, glAttachments_);
+	context_->DrawBuffers(count, glAttachments_);
 }
 
 void Framebuffer::ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAttachment attachment, uint* alignment) {
@@ -214,7 +214,7 @@ void Framebuffer::ReadAttachmentBuffer(std::vector<uchar>& data, FramebufferAtta
 
 void Framebuffer::BindReadAttachment(FramebufferAttachment attachment) {
 	FramebufferBase::BindFramebuffer(FramebufferTargetRead);
-	GL::ReadBuffer(FramebufferAttachmentToGLenum(attachment));
+	context_->ReadBuffer(FramebufferAttachmentToGLenum(attachment));
 	BindViewport();
 }
 
@@ -223,7 +223,7 @@ void Framebuffer::BindWriteAttachments(FramebufferAttachment* attachments, uint 
 	ClearCurrent(FramebufferClearMaskColorDepthStencil);
 
 	uint count = ToGLColorAttachments(attachments, n);
-	GL::DrawBuffers(count, glAttachments_);
+	context_->DrawBuffers(count, glAttachments_);
 
 	BindViewport();
 }
@@ -242,17 +242,17 @@ void Framebuffer::ClearAttachments(FramebufferClearMask clearMask, FramebufferAt
 
 void Framebuffer::ClearCurrent(FramebufferClearMask clearMask) {
 	uint count = ToGLColorAttachments();
-	GL::DrawBuffers(count, glAttachments_);
+	context_->DrawBuffers(count, glAttachments_);
 	FramebufferBase::ClearCurrent(clearMask);
 }
 
 void Framebuffer::ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n) {
 	n = ToGLColorAttachments(attachments, n);
-	GL::DrawBuffers(n, glAttachments_);
+	context_->DrawBuffers(n, glAttachments_);
 	FramebufferBase::ClearCurrent(clearMask);
 }
 
-GLenum Framebuffer::FramebufferAttachmentToGLenum(FramebufferAttachment attachment) {
+uint Framebuffer::FramebufferAttachmentToGLenum(FramebufferAttachment attachment) {
 	if (attachment == FramebufferAttachmentNone) { return GL_NONE; }
 	return attachment - FramebufferAttachment0 + GL_COLOR_ATTACHMENT0;
 }
@@ -264,7 +264,7 @@ uint Framebuffer::ToGLColorAttachments() {
 	}
 
 	uint count = 0;
-	for (int i = 0; i < ContextLimits::Get(ContextLimitsType::MaxColorAttachments); ++i) {
+	for (int i = 0; i < context_->GetLimit(ContextLimitType::MaxColorAttachments); ++i) {
 		if (renderTextures_[i] != 0) {
 			glAttachments_[count++] = GL_COLOR_ATTACHMENT0 + i;
 		}
@@ -289,28 +289,28 @@ void Framebuffer::CreateDepthRenderbuffer() {
 	}
 
 	BindFramebuffer(FramebufferTargetWrite);
-	GL::GenRenderbuffers(1, &depthRenderbuffer_);
+	context_->GenRenderbuffers(1, &depthRenderbuffer_);
 	ResizeDepthRenderbuffer();
-	GL::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
+	context_->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
 	UnbindFramebuffer();
 }
 
 void Framebuffer::ResizeDepthRenderbuffer() {
-	GLint size[2] = { 0 };
-	GL::BindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer_);
+	int size[2] = { 0 };
+	context_->BindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer_);
 
-	GL::GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, size);
-	GL::GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, size + 1);
+	context_->GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, size);
+	context_->GetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, size + 1);
 
 	if (size[0] != viewport_.x + viewport_.z || size[1] != viewport_.y + viewport_.w) {
-		GL::RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, viewport_.x + viewport_.z, viewport_.y + viewport_.w);
+		context_->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, viewport_.x + viewport_.z, viewport_.y + viewport_.w);
 	}
 
-	GL::BindRenderbuffer(GL_RENDERBUFFER, 0);
+	context_->BindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	SUEDE_VERIFY_INDEX(attachment, ContextLimits::Get(ContextLimitsType::MaxColorAttachments), 0);
+	SUEDE_VERIFY_INDEX(attachment, context_->GetLimit(ContextLimitType::MaxColorAttachments), 0);
 	return renderTextures_[attachment];
 }
 
@@ -326,7 +326,7 @@ void Framebuffer::SetRenderTexture(FramebufferAttachment attachment, uint textur
 
 	renderTextures_[attachment] = texture;
 
-	GL::FramebufferTexture(GL_FRAMEBUFFER, FramebufferAttachmentToGLenum(attachment), texture, 0);
+	context_->FramebufferTexture(GL_FRAMEBUFFER, FramebufferAttachmentToGLenum(attachment), texture, 0);
 
 	UnbindFramebuffer();
 }
@@ -334,13 +334,13 @@ void Framebuffer::SetRenderTexture(FramebufferAttachment attachment, uint textur
 void Framebuffer::SetDepthTexture(uint texture) {
 	BindFramebuffer(FramebufferTargetWrite);
 	depthTexture_ = texture;
-	GL::FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture, 0);
+	context_->FramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture, 0);
 
 	if (texture == 0 && depthRenderbuffer_ != 0) {
-		GL::FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
+		context_->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer_);
 	}
 
-	GLenum status = GL::CheckFramebufferStatus(GL_FRAMEBUFFER);
+	uint status = context_->CheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE && status != GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
 		Debug::LogError("failed to bind depth texture(0x%x)", status);
 	}

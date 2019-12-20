@@ -1,7 +1,7 @@
 #include "graphics.h"
 #include "builtinproperties.h"
 
-#include "internal/base/gl.h"
+#include "internal/base/context.h"
 #include "internal/rendering/pipeline.h"
 
 struct Details {
@@ -44,14 +44,13 @@ static ref_ptr<Mesh> CreateBlitMesh(const Rect& rect) {
 
 static void DrawSubMeshes(Mesh* mesh) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		SubMesh* subMesh = mesh->GetSubMesh(i);
-		Pipeline::DrawElementsBaseVertex(mesh->GetTopology(), subMesh->GetTriangleBias());
+		Context::GetCurrent()->DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
 	}
 }
 
 void Graphics::SetShadingMode(ShadingMode value) {
 	if (d().shadingMode != value) {
-		GL::PolygonMode(GL_FRONT_AND_BACK, value == ShadingMode::Shaded ? GL_FILL : GL_LINE);
+		Context::GetCurrent()->PolygonMode(GL_FRONT_AND_BACK, value == ShadingMode::Shaded ? GL_FILL : GL_LINE);
 		d().shadingMode = value;
 	}
 }

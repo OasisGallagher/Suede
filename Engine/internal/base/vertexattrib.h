@@ -5,7 +5,7 @@ enum VertexAttrib {
 	/**
 	 * @warning VertexAttribMatrixTextureBufferOffset must be 0, or we must set the
 	 *		   location of _MatrixTextureBufferOffset defined in suede.inc explicitly 
-	 *		   for GL::VertexAttribI1i() usage.
+	 *		   for glVertexAttribI1i() usage.
 	 * @see https://stackoverflow.com/questions/28818997/how-to-use-glvertexattrib
 	 */
 	VertexAttribMatrixTextureBufferOffset,

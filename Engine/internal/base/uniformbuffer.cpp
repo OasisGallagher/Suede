@@ -1,13 +1,13 @@
 #include "uniformbuffer.h"
 
 #include "buffer.h"
+#include "context.h"
 
-#include "contextlimits.h"
 #include "memory/refptr.h"
 
 uint UniformBuffer::bindingPoint_;
 
-UniformBuffer::UniformBuffer() : ubo_(nullptr) {
+UniformBuffer::UniformBuffer(Context* context) : context_(context), ubo_(nullptr) {
 }
 
 UniformBuffer::~UniformBuffer() {
@@ -15,7 +15,7 @@ UniformBuffer::~UniformBuffer() {
 }
 
 bool UniformBuffer::Create(const std::string& name, uint size) {
-	if (bindingPoint_ == ContextLimits::Get(ContextLimitsType::MaxUniformBufferBindings)) {
+	if (bindingPoint_ == context_->GetLimit(ContextLimitType::MaxUniformBufferBindings)) {
 		Debug::LogError("too many uniform buffers");
 		return false;
 	}
@@ -29,7 +29,7 @@ void UniformBuffer::AttachBuffer(Shader* shader) {
 }
 
 void UniformBuffer::AttachSubBuffer(Shader* shader, uint offset, uint size) {
-	GL::BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer(), offset, size);
+	context_->BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer(), offset, size);
 	Attach(shader);
 }
 
@@ -41,23 +41,23 @@ void UniformBuffer::AttachProgram(uint program) {
 		newName.assign(ptr, pos);
 	}
 
-	GLuint index = GL::GetUniformBlockIndex(program, newName.c_str());
+	uint index = context_->GetUniformBlockIndex(program, newName.c_str());
 	if (index == GL_INVALID_INDEX) {
 		return;
 	}
 
 	int dataSize = 0;
-	GL::GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
+	context_->GetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
 	if (dataSize != size_) {
 		Debug::LogError("uniform buffer size mismatch");
 		return;
 	}
 	
-	GL::UniformBlockBinding(program, index, binding_);
+	context_->UniformBlockBinding(program, index, binding_);
 }
 
 bool UniformBuffer::UpdateBuffer(const void* data, uint offset, uint size) {
-	if (size > ContextLimits::Get(ContextLimitsType::MaxUniformBlockSize)) {
+	if (size > context_->GetLimit(ContextLimitType::MaxUniformBlockSize)) {
 		Debug::LogError("%d exceeds max buffer size.", size);
 		return false;
 	}
@@ -70,11 +70,11 @@ void UniformBuffer::Initialize(const std::string& name, uint size) {
 	name_ = name;
 	size_ = size;
 
-	ubo_ = new Buffer;
+	ubo_ = new Buffer(context_);
 	ubo_->Create(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
 
 	binding_ = bindingPoint_++;
-	GL::BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer());
+	context_->BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer());
 }
 
 void UniformBuffer::Destroy() {

@@ -5,12 +5,14 @@
 #include "renderstate.h"
 #include "tools/event.h"
 #include "containers/ptrmap.h"
+#include "containers/dynamicarray.h"
 #include "internal/codec/shaderparser.h"
 #include "internal/base/objectinternal.h"
 
+class Context;
 class Pass {
 public:
-	Pass();
+	Pass(Context* context);
 	~Pass();
 
 public:
@@ -26,8 +28,8 @@ public:
 private:
 	struct Uniform {
 		VariantType type;
-		GLuint size;
-		GLuint location;
+		uint size;
+		uint location;
 	};
 
 	typedef ptr_map<std::string, Uniform> UniformContainer;
@@ -41,7 +43,7 @@ private:
 
 	bool Link();
 	std::string LoadSource(ShaderStage stage, const char* source);
-	bool GetErrorMessage(GLuint shaderObj, std::string& answer);
+	bool GetErrorMessage(uint shaderObj, std::string& answer);
 	void ClearIntermediateShaders();
 
 	void BindRenderStates();
@@ -55,16 +57,18 @@ private:
 	void AddAllUniforms();
 	void AddAllUniformProperties(std::vector<Property*>& properties);
 
-	void AddUniform(const char* name, GLenum type, GLuint location, GLint size);
+	void AddUniform(const char* name, uint type, uint location, int size);
 	void AddUniformProperty(std::vector<Property*>& properties, const std::string& name, VariantType type);
 
 	void SetUniform(Uniform* uniform, const void* data);
-	void SetUniform(GLuint location, VariantType type, uint size, const void* data);
+	void SetUniform(uint location, VariantType type, uint size, const void* data);
 
 private:
-	GLuint program_;
-	GLuint oldProgram_;
-	GLuint shaderObjs_[ShaderStageCount];
+	Context* context_;
+
+	uint program_;
+	uint oldProgram_;
+	uint shaderObjs_[ShaderStageCount];
 
 	std::string name_;
 	std::string path_;
@@ -87,7 +91,7 @@ public:
 	};
 
 public:
-	SubShader();
+	SubShader(Context* context);
 	~SubShader();
 
 public:
@@ -119,7 +123,9 @@ private:
 	void AddShaderProperties(std::vector<ShaderProperty>& properties, const std::vector<Property*> container, uint pass);
 
 private:
-	Pass* passes_;
+	Context* context_;
+	dynamic_array<Pass> passes_;
+
 	uint passCount_;
 	uint passEnabled_;
 	uint currentPass_;
@@ -129,7 +135,7 @@ private:
 
 class ShaderInternal : public ObjectInternal {
 public:
-	ShaderInternal();
+	ShaderInternal(Context* context);
 	~ShaderInternal();
 
 public:
@@ -162,10 +168,12 @@ private:
 	void ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:
+	Context* context_;
+
 	std::string path_;
 	std::vector<ShaderProperty> properties_;
 
-	SubShader* subShaders_;
+	dynamic_array<SubShader> subShaders_;
 	uint subShaderCount_;
 	uint currentSubShader_;
 };

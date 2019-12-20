@@ -4,6 +4,8 @@
 typedef unsigned int uint;
 typedef unsigned char uchar;
 typedef unsigned long ulong;
+
+typedef long long int64;
 typedef unsigned long long uint64;
 
 typedef uint suede_guid;

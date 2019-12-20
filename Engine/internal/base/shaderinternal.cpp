@@ -8,11 +8,10 @@
 #include "os/filesystem.h"
 #include "builtinproperties.h"
 
-#include "internal/base/gl.h"
-#include "internal/base/contextlimits.h"
+#include "internal/base/context.h"
 #include "internal/base/renderdefines.h"
 
-Shader::Shader() : Object(new ShaderInternal()) {}
+Shader::Shader() : Object(new ShaderInternal(Context::GetCurrent())) {}
 std::string Shader::GetName() const { return _suede_dptr()->GetName(); }
 void Shader::Bind(uint ssi, uint pass) { _suede_dptr()->Bind(ssi, pass); }
 void Shader::Unbind() { _suede_dptr()->Unbind(); }
@@ -53,8 +52,8 @@ static std::map<std::string, float> renderQueueVariables({
 	std::make_pair("Overlay", (float)RenderQueue::Overlay),
 });
 
-Pass::Pass() : program_(0), oldProgram_(0) {
-	program_ = GL::CreateProgram();
+Pass::Pass(Context* context) : context_(context), program_(0), oldProgram_(0) {
+	program_ = context_->CreateProgram();
 
 	std::fill(states_, states_ + SUEDE_COUNTOF(states_), nullptr);
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
@@ -65,7 +64,7 @@ Pass::~Pass() {
 		delete states_[i];
 	}
 
-	GL::DeleteProgram(program_);
+	context_->DeleteProgram(program_);
 	ClearIntermediateShaders();
 }
 
@@ -120,10 +119,10 @@ bool Pass::SetProperty(const std::string& name, const void* data) {
 
 void Pass::Bind() {
 	BindRenderStates();
-	GL::GetIntegerv(GL_CURRENT_PROGRAM, (GLint*)&oldProgram_);
+	context_->GetIntegerv(GL_CURRENT_PROGRAM, (int*)&oldProgram_);
 
 	if (oldProgram_ != program_) {
-		GL::UseProgram(program_);
+		context_->UseProgram(program_);
 	}
 	else {
 		oldProgram_ = -1;
@@ -133,7 +132,7 @@ void Pass::Bind() {
 void Pass::Unbind() {
 	UnbindRenderStates();
 	if(oldProgram_ != -1) {
-		GL::UseProgram(oldProgram_);
+		context_->UseProgram(oldProgram_);
 	}
 }
 
@@ -161,12 +160,12 @@ void Pass::UnbindRenderStates() {
 	}
 }
 
-bool Pass::GetErrorMessage(GLuint shaderObj, std::string& answer) {
-	GLint length = 0, writen = 0;
-	GL::GetShaderiv(shaderObj, GL_INFO_LOG_LENGTH, &length);
+bool Pass::GetErrorMessage(uint shaderObj, std::string& answer) {
+	int length = 0, writen = 0;
+	context_->GetShaderiv(shaderObj, GL_INFO_LOG_LENGTH, &length);
 	if (length > 1) {
 		answer.resize(length);
-		GL::GetShaderInfoLog(shaderObj, length, &writen, &answer[0]);
+		context_->GetShaderInfoLog(shaderObj, length, &writen, &answer[0]);
 		answer.resize(writen);
 		return true;
 	}
@@ -175,18 +174,18 @@ bool Pass::GetErrorMessage(GLuint shaderObj, std::string& answer) {
 }
 
 bool Pass::Link() {
-	GL::LinkProgram(program_);
+	context_->LinkProgram(program_);
 
-	GLint status = GL_FALSE;
-	GL::GetProgramiv(program_, GL_LINK_STATUS, &status);
+	int status = GL_FALSE;
+	context_->GetProgramiv(program_, GL_LINK_STATUS, &status);
 
 	if (status != GL_TRUE) {
 		Debug::LogError("failed to link shader %s.", path_.c_str());
 		return false;
 	}
 
-	GL::ValidateProgram(program_);
-	GL::GetProgramiv(program_, GL_VALIDATE_STATUS, &status);
+	context_->ValidateProgram(program_);
+	context_->GetProgramiv(program_, GL_VALIDATE_STATUS, &status);
 	if (status != GL_TRUE) {
 		// harmless.
 		//Debug::LogWarning("failed to validate shader %s.", path_.c_str());
@@ -211,7 +210,7 @@ RenderState* Pass::CreateRenderState(const Semantics::RenderState& state) {
 }
 
 RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
-#define CASE(name)	if (state.type == #name) return new name ## State
+#define CASE(name)	if (state.type == #name) return new name ## State(context_)
 	CASE(Cull);
 	CASE(ZTest);
 	CASE(Offset);
@@ -288,24 +287,24 @@ bool Pass::RenderStateParameterToInteger(const std::string& parameter, int& answ
 void Pass::ClearIntermediateShaders() {
 	for (int i = 0; i < ShaderStageCount; ++i) {
 		if (shaderObjs_[i] != 0) {
-			GL::DeleteShader(shaderObjs_[i]);
+			context_->DeleteShader(shaderObjs_[i]);
 			shaderObjs_[i] = 0;
 		}
 	}
 }
 
 std::string Pass::LoadSource(ShaderStage stage, const char* source) {
-	GLuint shaderObj = GL::CreateShader(GetShaderDescription(stage).glShaderStage);
+	uint shaderObj = context_->CreateShader(StageInfo::At(stage).glShaderStage);
 
-	GL::ShaderSource(shaderObj, 1, &source, nullptr);
-	GL::CompileShader(shaderObj);
+	context_->ShaderSource(shaderObj, 1, &source, nullptr);
+	context_->CompileShader(shaderObj);
 
-	GL::AttachShader(program_, shaderObj);
+	context_->AttachShader(program_, shaderObj);
 
 	std::string message;
 	if (!GetErrorMessage(shaderObj, message)) {
 		if (shaderObjs_[stage] != 0) {
-			GL::DeleteShader(shaderObjs_[stage]);
+			context_->DeleteShader(shaderObjs_[stage]);
 		}
 
 		shaderObjs_[stage] = shaderObj;
@@ -315,19 +314,19 @@ std::string Pass::LoadSource(ShaderStage stage, const char* source) {
 }
 
 void Pass::UpdateVertexAttributes() {
-	GL::BindAttribLocation(program_, VertexAttribPosition, "_Pos");
+	context_->BindAttribLocation(program_, VertexAttribPosition, "_Pos");
 
 	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
-		GL::BindAttribLocation(program_, VertexAttribTexCoord0 + i, ("_TexCoord" + std::to_string(i)).c_str());
+		context_->BindAttribLocation(program_, VertexAttribTexCoord0 + i, ("_TexCoord" + std::to_string(i)).c_str());
 	}
 
-	GL::BindAttribLocation(program_, VertexAttribNormal, "_Normal");
-	GL::BindAttribLocation(program_, VertexAttribTangent, "_Tangent");
-	GL::BindAttribLocation(program_, VertexAttribBoneIndexes, "_BoneIndexes");
-	GL::BindAttribLocation(program_, VertexAttribBoneWeights, "_BoneWeights");
+	context_->BindAttribLocation(program_, VertexAttribNormal, "_Normal");
+	context_->BindAttribLocation(program_, VertexAttribTangent, "_Tangent");
+	context_->BindAttribLocation(program_, VertexAttribBoneIndexes, "_BoneIndexes");
+	context_->BindAttribLocation(program_, VertexAttribBoneWeights, "_BoneWeights");
 
-	GL::BindAttribLocation(program_, VertexAttribInstanceColor, "_InstanceColor");
-	GL::BindAttribLocation(program_, VertexAttribInstanceGeometry, "_InstanceGeometry");
+	context_->BindAttribLocation(program_, VertexAttribInstanceColor, "_InstanceColor");
+	context_->BindAttribLocation(program_, VertexAttribInstanceGeometry, "_InstanceGeometry");
 }
 
 void Pass::UpdateFragmentAttributes() {
@@ -337,18 +336,18 @@ void Pass::AddAllUniforms() {
 	uniforms_.clear();
 	textureUnitCount_ = 0;
 
-	GLenum type;
-	GLuint location = 0;
-	GLint size, count, maxLength, length;
+	uint type;
+	uint location = 0;
+	int size, count, maxLength, length;
 
-	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORMS, &count);
-	GL::GetProgramiv(program_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+	context_->GetProgramiv(program_, GL_ACTIVE_UNIFORMS, &count);
+	context_->GetProgramiv(program_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
 	char* name = new char[maxLength];
 	for (int i = 0; i < count; ++i) {
-		GL::GetActiveUniform(program_, i, maxLength, &length, &size, &type, name);
+		context_->GetActiveUniform(program_, i, maxLength, &length, &size, &type, name);
 
-		location = GL::GetUniformLocation(program_, name);
+		location = context_->GetUniformLocation(program_, name);
 
 		// -1 indicates that is not an active uniform, although it may be present in a
 		// uniform block.
@@ -420,7 +419,7 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 	properties.push_back(p);
 }
 
-void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size) {
+void Pass::AddUniform(const char* name, uint type, uint location, int size) {
 	Uniform* uniform = uniforms_[name];
 	uniform->size = size;
 	uniform->location = location;
@@ -446,7 +445,7 @@ void Pass::AddUniform(const char* name, GLenum type, GLuint location, GLint size
 		break;
 	default:
 		if (IsSampler(type)) {
-			int limit = ContextLimits::Get(ContextLimitsType::MaxCombinedTextureImageUnits);
+			int limit = context_->GetLimit(ContextLimitType::MaxCombinedTextureImageUnits);
 			if (textureUnitCount_ >= limit) {
 				Debug::LogError("too many textures. limit is %d.", limit);
 			}
@@ -467,25 +466,25 @@ void Pass::SetUniform(Uniform* uniform, const void* data) {
 	SetUniform(uniform->location, uniform->type, uniform->size, data);
 }
 
-void Pass::SetUniform(GLuint location, VariantType type, uint size, const void* data) {
+void Pass::SetUniform(uint location, VariantType type, uint size, const void* data) {
 	switch (type) {
 	case VariantType::Int:
 	case VariantType::Bool:
 	case VariantType::Texture:
-		GL::ProgramUniform1iv(program_, location, size, (const GLint*)data);
+		context_->ProgramUniform1iv(program_, location, size, (const int*)data);
 		break;
 	case VariantType::Float:
-		GL::ProgramUniform1fv(program_, location, size, (const GLfloat*)data);
+		context_->ProgramUniform1fv(program_, location, size, (const float*)data);
 		break;
 	case VariantType::Matrix4:
 	case VariantType::Matrix4Array:
-		GL::ProgramUniformMatrix4fv(program_, location, size, false, (const GLfloat*)data);
+		context_->ProgramUniformMatrix4fv(program_, location, size, false, (const float*)data);
 		break;
 	case VariantType::Vector3:
-		GL::ProgramUniform3fv(program_, location, size, (const GLfloat*)data);
+		context_->ProgramUniform3fv(program_, location, size, (const float*)data);
 		break;
 	case VariantType::Vector4:
-		GL::ProgramUniform4fv(program_, location, size, (const GLfloat*)data);
+		context_->ProgramUniform4fv(program_, location, size, (const float*)data);
 		break;
 	default:
 		Debug::LogError("unable to set uniform (type %s).", type.to_string());
@@ -537,20 +536,20 @@ bool Pass::IsSampler(int type) {
 	return false;
 }
 
-SubShader::SubShader() : passes_(nullptr), passCount_(0)
+SubShader::SubShader(Context* context) : context_(context), passCount_(0)
 	, currentPass_(UINT_MAX), passEnabled_(UINT_MAX) {
 	tags_[TagKeyRenderQueue] = (int)RenderQueue::Geometry;
 }
 
 SubShader::~SubShader() {
-	delete[] passes_;
+	
 }
 
 bool SubShader::Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path) {
 	InitializeTags(config.tags);
 
 	passCount_ = config.passes.size();
-	passes_ = new Pass[config.passes.size()];
+	passes_.resize(config.passes.size(), context_);
 
 	std::vector<Property*> container;
 	for (uint i = 0; i < passCount_; ++i) {
@@ -594,13 +593,11 @@ int SubShader::GetPassIndex(const std::string& name) const {
 }
 
 Pass* SubShader::GetPass(uint pass) {
-	SUEDE_VERIFY_INDEX(pass, passCount_, nullptr);
-	return passes_ + pass;
+	return &passes_[pass];
 }
 
 const Pass* SubShader::GetPass(uint pass) const {
-	SUEDE_VERIFY_INDEX(pass, passCount_, nullptr);
-	return passes_ + pass;
+	return &passes_[pass];
 }
 
 uint SubShader::GetNativePointer(uint pass) const {
@@ -673,12 +670,11 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 
 event<Shader*> ShaderInternal::shaderCreated;
 
-ShaderInternal::ShaderInternal() : ObjectInternal(ObjectType::Shader)
-	, subShaderCount_(0), subShaders_(nullptr), currentSubShader_(UINT_MAX) {
+ShaderInternal::ShaderInternal(Context* context) : ObjectInternal(ObjectType::Shader)
+	, context_(context), subShaderCount_(0), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
-	delete[] subShaders_;
 	ReleaseProperties();
 }
 
@@ -725,7 +721,7 @@ void ShaderInternal::ParseSemanticProperties(std::vector<ShaderProperty>& proper
 
 void ShaderInternal::ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
 	subShaderCount_ = subShaders.size();
-	subShaders_ = new SubShader[subShaders.size()];
+	subShaders_.resize(subShaderCount_, context_);
 	for (uint i = 0; i < subShaderCount_; ++i) {
 		subShaders_[i].Initialize(properties, subShaders[i], path);
 	}

@@ -1,15 +1,15 @@
 #pragma once
 #include <string>
 
-#include "gl.h"
 #include "texture.h"
+#include "glenums.h"
 #include "framebuffer.h"
 #include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"
 
 class TextureInternal : public ObjectInternal {
 public:
-	TextureInternal(ObjectType type);
+	TextureInternal(ObjectType type, Context* context);
 	~TextureInternal();
 
 public:
@@ -38,36 +38,38 @@ protected:
 	void DestroyTexture();
 
 protected:
-	virtual GLenum GetGLTextureType() const = 0;
-	virtual GLenum GetGLTextureBindingName() const = 0;
+	virtual uint GetGLTextureType() const = 0;
+	virtual uint GetGLTextureBindingName() const = 0;
 
 	void BindTexture() const;
 	void UnbindTexture() const;
-	BPPType GLenumToBpp(GLenum format) const;
-	GLenum TextureFormatToGLenum(TextureFormat textureFormat) const;
-	void ColorStreamFormatToGLenum(GLenum(&parameters)[2], ColorStreamFormat format) const;
+	BPPType GLenumToBpp(uint format) const;
+	uint TextureFormatToGLenum(TextureFormat textureFormat) const;
+	void ColorStreamFormatToGLenum(uint(&parameters)[2], ColorStreamFormat format) const;
 
 private:
-	GLenum TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const;
-	GLenum TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const;
-	GLenum TextureWrapModeToGLenum(TextureWrapMode mode) const;
+	uint TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const;
+	uint TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const;
+	uint TextureWrapModeToGLenum(TextureWrapMode mode) const;
 
-	TextureMinFilterMode GLenumToTextureMinFilterMode(GLenum value) const;
-	TextureMagFilterMode GLenumToTextureMagFilterMode(GLenum value) const;
-	TextureWrapMode GLenumToTextureWrapMode(GLenum value) const;
+	TextureMinFilterMode GLenumToTextureMinFilterMode(uint value) const;
+	TextureMagFilterMode GLenumToTextureMagFilterMode(uint value) const;
+	TextureWrapMode GLenumToTextureWrapMode(uint value) const;
 
 protected:
-	int width_, height_;
-	mutable GLint oldBindingTexture_;
+	Context* context_;
 
-	GLuint texture_;
-	GLenum location_;
-	GLenum internalFormat_;
+	int width_, height_;
+	mutable int oldBindingTexture_;
+
+	uint texture_;
+	uint location_;
+	uint internalFormat_;
 };
 
 class Texture2DInternal : public TextureInternal {
 public:
-	Texture2DInternal();
+	Texture2DInternal(Context* context);
 	~Texture2DInternal();
 
 public:
@@ -80,8 +82,8 @@ public:
 	bool EncodeToJPG(std::vector<uchar>& data);
 
 protected:
-	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
-	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
+	virtual uint GetGLTextureType() const { return GL_TEXTURE_2D; }
+	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
 private:
 	bool EncodeTo(std::vector<uchar>& data, ImageType type);
@@ -92,21 +94,21 @@ private:
 
 class TextureCubeInternal : public TextureInternal {
 public:
-	TextureCubeInternal();
+	TextureCubeInternal(Context* context);
 	~TextureCubeInternal();
 
 public:
 	bool Load(const std::string textures[6]);
 
 protected:
-	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_CUBE_MAP; }
-	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_CUBE_MAP; }
+	virtual uint GetGLTextureType() const { return GL_TEXTURE_CUBE_MAP; }
+	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_CUBE_MAP; }
 };
 
 class Buffer;
 class TextureBufferInternal : public TextureInternal {
 public:
-	TextureBufferInternal();
+	TextureBufferInternal(Context* context);
 	~TextureBufferInternal();
 
 public:
@@ -115,8 +117,8 @@ public:
 	void Update(uint offset, uint size, const void* data);
 
 protected:
-	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
-	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
+	virtual uint GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
+	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
 
 private:
 	void DestroyBuffer();
@@ -127,7 +129,7 @@ private:
 
 class RenderTextureInternal : public TextureInternal {
 public:
-	RenderTextureInternal();
+	RenderTextureInternal(Context* context);
 	virtual ~RenderTextureInternal();
 
 public:
@@ -148,8 +150,8 @@ public:
 	static void ReleaseTemporary(RenderTexture* texture); 
 
 protected:
-	virtual GLenum GetGLTextureType() const { return GL_TEXTURE_2D; }
-	virtual GLenum GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
+	virtual uint GetGLTextureType() const { return GL_TEXTURE_2D; }
+	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
 protected:
 	virtual void ResizeStorage(uint w, uint h, RenderTextureFormat format);
@@ -163,7 +165,7 @@ protected:
 private:
 	bool VerifyBindStatus();
 	bool ContainsDepthInfo() const { return renderTextureFormat_ >= RenderTextureFormat::Depth; }
-	void RenderTextureFormatToGLenum(RenderTextureFormat input, GLenum(&parameters)[3]);
+	void RenderTextureFormatToGLenum(RenderTextureFormat input, uint(&parameters)[3]);
 
 protected:
 	FramebufferBase* framebuffer_;
@@ -187,7 +189,7 @@ public:
 
 class ScreenRenderTextureInternal : public RenderTextureInternal {
 public:
-	ScreenRenderTextureInternal();
+	ScreenRenderTextureInternal(Context* context);
 	virtual ~ScreenRenderTextureInternal();
 
 public:
@@ -202,13 +204,13 @@ public:
 
 protected:
 	virtual void Resize(uint width, uint height);
-	virtual GLenum GetGLTextureType() const;
-	virtual GLenum GetGLTextureBindingName() const;
+	virtual uint GetGLTextureType() const;
+	virtual uint GetGLTextureBindingName() const;
 };
 
 class MRTRenderTextureInternal : public RenderTextureInternal {
 public:
-	MRTRenderTextureInternal() : index_(0) {}
+	MRTRenderTextureInternal(Context* context) : RenderTextureInternal(context), index_(0) {}
 
 public:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
@@ -223,8 +225,8 @@ public:
 	virtual Texture2D* GetColorTexture(uint index);
 
 protected:
-	virtual GLenum GetGLTextureType() const;
-	virtual GLenum GetGLTextureBindingName() const;
+	virtual uint GetGLTextureType() const;
+	virtual uint GetGLTextureBindingName() const;
 
 private:
 	void DestroyColorTextures();

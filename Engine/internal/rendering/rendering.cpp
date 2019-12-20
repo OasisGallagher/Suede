@@ -7,11 +7,12 @@
 #include "imageeffect.h"
 #include "particlesystem.h"
 
-#include "internal/rendering/context.h"
 #include "internal/rendering/shadowmap.h"
 #include "internal/rendering/ambientocclusion.h"
+#include "internal/rendering/renderingcontext.h"
+#include "internal/rendering/shareduniformbuffers.h"
 
-RenderingPipelines::RenderingPipelines(Context* context) {
+RenderingPipelines::RenderingPipelines(RenderingContext* context) {
 	depth = new Pipeline(context);
 	depth->SetTargetTexture(context->GetUniformState()->depthTexture.get(), Rect(0, 0, 1, 1));
 
@@ -38,7 +39,7 @@ void RenderingPipelines::Clear() {
 	ssaoTraversal->Clear();
 }
 
-Rendering::Rendering(Context* context) : context_(context) {
+Rendering::Rendering(RenderingContext* context) : context_(context) {
 	ssaoSample = Profiler::CreateSample();
 	ssaoTraversalSample = Profiler::CreateSample();
 
@@ -86,7 +87,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	p.cameraPos = Vector4(matrices.cameraPos.x, matrices.cameraPos.y, matrices.cameraPos.z, 1);
 	p.screenParams = Vector4((float)Screen::GetWidth(), (float)Screen::GetHeight(), 0.f, 0.f);
 
-	context_->GetSharedUniformBuffers()->UpdateUniformBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
+	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
@@ -106,7 +107,7 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	Color color = light->GetColor() * light->GetIntensity();
 	p.lightColor = Vector4(color.r, color.g, color.b, 1);
 
-	context_->GetSharedUniformBuffers()->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
+	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
 void Rendering::OnPostRender() {
@@ -193,7 +194,7 @@ void Rendering::RenderPass(RenderingPipelines* pipelines) {
 	OutputSample(renderingSample);
 }
 
-PipelineBuilder::PipelineBuilder(Context* context) : context_(context) {
+PipelineBuilder::PipelineBuilder(RenderingContext* context) : context_(context) {
 	forward_pass = Profiler::CreateSample();
 	push_renderables = Profiler::CreateSample();
 	get_renderable_game_objects = Profiler::CreateSample();

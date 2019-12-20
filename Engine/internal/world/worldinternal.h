@@ -15,7 +15,7 @@
 #include "tools/event.h"
 
 class Sample;
-class Context;
+class RenderingContext;
 class DecalCreater;
 class GameObjectLoaderThreadPool;
 
@@ -99,7 +99,7 @@ private:
 	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:
-	Context* context_;
+	RenderingContext* context_;
 
 	GameObject* root_;
 	Environment* environment_;

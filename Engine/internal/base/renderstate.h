@@ -1,6 +1,7 @@
 #pragma once
-#include "gl.h"
+#include "types.h"
 #include "tools/enum.h"
+
 /**
  * @param Cull: Front, Back, Off.
  * @param ZTest: Never, Less, LEqual, Equal, Greater, NotEqual, GEqual, Always, Off.
@@ -67,9 +68,13 @@ BETTER_ENUM(RenderStateParameter, int,
 	Invert
 )
 
+class Context;
 class RenderState {
 public:
+	RenderState(Context* context) : context_(context) {}
 	virtual ~RenderState() {}
+
+public:
 	virtual void Initialize(int parameter0, int parameter1, int parameter2) = 0;
 	virtual void Bind() = 0;
 	virtual void Unbind() = 0;
@@ -77,12 +82,18 @@ public:
 	virtual RenderStateType GetType() const = 0;
 
 protected:
-	void Enable(GLenum cap, GLboolean enable);
-	GLenum RenderParamterToGLEnum(int parameter);
+	void Enable(uint cap, bool enable);
+	uint RenderParamterToGLEnum(int parameter);
 	bool IsValidParameter(int value, const RenderStateParameter* buffer, int count);
+
+protected:
+	Context* context_;
 };
 
 class CullState : public RenderState {
+public:
+	CullState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
@@ -91,11 +102,14 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::Cull; }
 private:
 	int oldMode_;
-	GLboolean oldEnabled_;
+	bool oldEnabled_;
 	int parameter_;
 };
 
 class ZTestState : public RenderState {
+public:
+	ZTestState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
@@ -104,12 +118,15 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::ZTest; }
 
 private:
-	GLenum oldMode_;
-	GLboolean oldEnabled_;
+	uint oldMode_;
+	bool oldEnabled_;
 	int parameter_;
 };
 
 class ZWriteState : public RenderState {
+public:
+	ZWriteState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
@@ -118,11 +135,14 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::ZWrite; }
 
 private:
-	GLint oldMask_;
+	int oldMask_;
 	int parameter_;
 };
 
 class OffsetState : public RenderState {
+public:
+	OffsetState(Context* context) : RenderState(context) {}
+
 public:
 	enum {
 		Scale = 100,
@@ -136,15 +156,18 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::Offset; }
 
 private:
-	GLfloat oldUnits_;
-	GLfloat oldFactor_;
-	GLboolean oldEnabled_;
+	float oldUnits_;
+	float oldFactor_;
+	bool oldEnabled_;
 
 	int parameter0_;
 	int parameter1_;
 };
 
 class StencilTestState : public RenderState {
+public:
+	StencilTestState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int parameter1, int);
 	virtual void Bind();
@@ -153,17 +176,20 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::StencilTest; }
 
 private:
-	GLint oldRef_;
-	GLenum oldFunc_;
-	GLuint oldMask_;
+	int oldRef_;
+	uint oldFunc_;
+	uint oldMask_;
 
-	GLboolean oldEnabled_;
+	bool oldEnabled_;
 
 	int parameter0_;
 	int parameter1_;
 };
 
 class StencilWriteState : public RenderState {
+public:
+	StencilWriteState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
@@ -172,14 +198,17 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::StencilWrite; }
 
 private:
-	GLuint oldBackMask_;
-	GLuint oldFrontMask_;
+	uint oldBackMask_;
+	uint oldFrontMask_;
 
 	int parameter0_;
 	int parameter1_;
 };
 
 class StencilOpState : public RenderState {
+public:
+	StencilOpState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int parameter1, int parameter2);
 	virtual void Bind();
@@ -188,9 +217,9 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::StencilOp; }
 
 private:
-	GLenum oldSfail_;
-	GLenum oldDpfail_;
-	GLenum oldDppass_;
+	uint oldSfail_;
+	uint oldDpfail_;
+	uint oldDppass_;
 
 	int parameter0_;
 	int parameter1_;
@@ -199,6 +228,9 @@ private:
 
 class RasterizerDiscardState : public RenderState {
 public:
+	RasterizerDiscardState(Context* context) : RenderState(context) {}
+
+public:
 	virtual void Initialize(int parameter0, int, int);
 	virtual void Bind();
 	virtual void Unbind();
@@ -206,11 +238,14 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::RasterizerDiscard; }
 
 private:
-	GLboolean oldEnabled_;
+	bool oldEnabled_;
 	int parameter_;
 };
 
 class BlendState : public RenderState {
+public:
+	BlendState(Context* context) : RenderState(context) {}
+
 public:
 	virtual void Initialize(int parameter0, int parameter1, int);
 	virtual void Bind();
@@ -219,7 +254,7 @@ public:
 	virtual RenderStateType GetType() const { return RenderStateType::Blend; }
 
 private:
-	GLboolean oldEnabled_;
+	bool oldEnabled_;
 	int oldSrc_, oldDest_;
 	int src_, dest_;
 };

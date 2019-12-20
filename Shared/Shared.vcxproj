@@ -141,7 +141,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="tools\string.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="containers\dynarray.h" />
+    <ClInclude Include="containers\dynamicarray.h" />
     <ClInclude Include="containers\freelist.h" />
     <ClInclude Include="containers\ptrmap.h" />
     <ClInclude Include="containers\sortedvector.h" />

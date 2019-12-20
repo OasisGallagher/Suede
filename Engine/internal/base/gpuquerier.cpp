@@ -1,10 +1,12 @@
 #include "gpuquerier.h"
+
+#include "context.h"
 #include "frameeventqueue.h"
 
-GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
+GpuQuerier::GpuQuerier(Context* context) : context_(context), queriers_(MaxQueries) {
 	Engine::frameEnter.subscribe(this, &GpuQuerier::OnFrameEnter, (int)FrameEventQueue::User);
 
-	GL::GenQueries(MaxQueries, ids_);
+	context_->GenQueries(MaxQueries, ids_);
 
 	int index = 0;
 	for (QuerierContainer::iterator ite = queriers_.fbegin(); ite != queriers_.fend(); ++ite) {
@@ -14,7 +16,7 @@ GpuQuerier::GpuQuerier() : queriers_(MaxQueries) {
 }
 
 GpuQuerier::~GpuQuerier() {
-	GL::DeleteQueries(MaxQueries, ids_);
+	context_->DeleteQueries(MaxQueries, ids_);
 }
 
 uint GpuQuerier::Start(QueryType type) {
@@ -42,7 +44,7 @@ uint GpuQuerier::Wait(uint id) {
 	Querier* querier = FindQuerier(id);
 	if (querier != nullptr) {
 		uint result = 0;
-		GL::GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
+		context_->GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
 		RecycleQuerier(querier);
 		return result;
 	}
@@ -71,11 +73,11 @@ void GpuQuerier::OnFrameEnter() {
 
 bool GpuQuerier::UpdateQuerier(Querier* querier) {
 	int available = 0;
-	GL::GetQueryObjectiv(querier->id, GL_QUERY_RESULT_AVAILABLE, &available);
+	context_->GetQueryObjectiv(querier->id, GL_QUERY_RESULT_AVAILABLE, &available);
 
 	if (available) {
 		uint result = 0;
-		GL::GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
+		context_->GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
 		querierReturned.raise(querier->id, result);
 
 		return true;
@@ -85,14 +87,14 @@ bool GpuQuerier::UpdateQuerier(Querier* querier) {
 }
 
 void GpuQuerier::StartQuerier(Querier* querier, QueryType type) {
-	GLenum glType = QueryTypeToGLenum(type);
+	uint glType = QueryTypeToGLenum(type);
 
 	querier->type = glType;
-	GL::BeginQuery(glType, querier->id);
+	context_->BeginQuery(glType, querier->id);
 }
 
 void GpuQuerier::StopQuerier(Querier* querier) {
-	GL::EndQuery(querier->type);
+	context_->EndQuery(querier->type);
 }
 
 void GpuQuerier::CancelQuerier(Querier* querier) {
@@ -117,7 +119,7 @@ void GpuQuerier::RecycleQuerier(Querier* querier) {
 	queriers_.recycle(querier);
 }
 
-GLenum GpuQuerier::QueryTypeToGLenum(QueryType type) {
+uint GpuQuerier::QueryTypeToGLenum(QueryType type) {
 	switch (type) {
 		case QueryType::SamplesPassed: return GL_SAMPLES_PASSED;
 		case QueryType::AnySamplesPassed: return GL_ANY_SAMPLES_PASSED;

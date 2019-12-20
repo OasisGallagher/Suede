@@ -9,7 +9,7 @@
 
 #include "math/mathf.h"
 #include "internal/async/async.h"
-#include "internal/rendering/context.h"
+#include "internal/rendering/renderingcontext.h"
 
 static Camera* main_;
 Camera* Camera::GetMain() { return main_; }
@@ -82,7 +82,6 @@ CameraInternal::CameraInternal()
 
 	culling_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
 
-	context_ = Context::GetCurrent();
 	rendering_ = new Rendering(context_);
 
 	pipelineBuilder_ = new PipelineBuilder(context_);
@@ -212,13 +211,13 @@ void CameraInternal::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects
 
 Vector3 CameraInternal::WorldToScreenPoint(const Vector3& position) {
 	Vector4 viewport;
-	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
+	context_->GetIntegerv(GL_VIEWPORT, (int*)&viewport);
 	return Matrix4::Project(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 Vector3 CameraInternal::ScreenToWorldPoint(const Vector3& position) {
 	Vector4 viewport;
-	GL::GetIntegerv(GL_VIEWPORT, (GLint*)&viewport);
+	context_->GetIntegerv(GL_VIEWPORT, (int*)&viewport);
 	return Matrix4::Unproject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 

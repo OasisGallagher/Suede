@@ -1,7 +1,7 @@
 #pragma once
+#include <map>
 #include "shader.h"
 #include "tools/string.h"
-#include "containers/ptrmap.h"
 #include "internal/base/uniformbuffer.h"
 
 #define DEFINE_SHARED_UNIFORM_BUFFER(name, ...) \
@@ -39,11 +39,12 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 
 #undef DEFINE_SHARED_UNIFORM_BUFFER
 
-class Context;
+class RenderingContext;
 class UniformBuffer;
 class SharedUniformBuffers {
 public:
-	SharedUniformBuffers();
+	SharedUniformBuffers(Context* context);
+	~SharedUniformBuffers();
 
 public:
 	void Attach(Shader* shader);
@@ -51,17 +52,18 @@ public:
 
 private:
 	template <class T>
-	void CreateBuffer(uint size = 0);
+	void CreateBuffer(Context* context, uint size = 0);
 
 private:
-	typedef ptr_map<std::string, UniformBuffer> Container;
+	typedef std::map<std::string, UniformBuffer*> Container;
 
 private:
 	Container uniformBuffers_;
 };
 
 template  <class T>
-void SharedUniformBuffers::CreateBuffer(uint size) {
+void SharedUniformBuffers::CreateBuffer(Context* context, uint size) {
 	if (size == 0) { size = sizeof(T); }
-	(uniformBuffers_[T::GetName()])->Create(T::GetName(), size);
+	UniformBuffer* buffer = uniformBuffers_[T::GetName()] = new UniformBuffer(context);
+	buffer->Create(T::GetName(), size);
 }

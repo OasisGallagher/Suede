@@ -1,13 +1,14 @@
 #pragma once
-#include "gl.h"
+#include "types.h"
 
+class Context;
 class Buffer {
 public:
-	Buffer();
+	Buffer(Context* context);
 	~Buffer();
 
 public:
-	void Create(GLenum target, size_t size, const void* data, GLenum usage);
+	void Create(uint target, size_t size, const void* data, uint usage);
 	void Destroy();
 
 	void Bind();
@@ -24,14 +25,15 @@ private:
 	struct Attribute {
 		char* data;
 		size_t size;
-		GLenum target;
-		GLenum usage;
+		uint target;
+		uint usage;
 	};
 
 private:
-	GLenum GetBindingName(GLenum target);
+	uint GetBindingName(uint target);
 
 private:
-	GLuint old_, buffer_;
+	Context* context_;
+	uint old_, buffer_;
 	Attribute attribute_;
 };

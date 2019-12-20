@@ -6,7 +6,6 @@
 
 #include "editor.h"
 #include "camera.h"
-#include "opengldriver.h"
 
 #include "prefs.h"
 
@@ -112,10 +111,10 @@ void Editor::onAbout() {
 	AboutDialog aboutDialog(this);
 	aboutDialog.setWindowTitle("Suede");
 	aboutDialog.addInformation("Qt", QT_VERSION_STR);
-	aboutDialog.addInformation("Vendor", OpenGLDriver::GetVendor());
-	aboutDialog.addInformation("Renderer", OpenGLDriver::GetRenderer());
-	aboutDialog.addInformation("OpenGL", OpenGLDriver::GetOpenGLVersion());
-	aboutDialog.addInformation("GLSL", OpenGLDriver::GetGLSLVersion());
+	//aboutDialog.addInformation("Vendor", OpenGLDriver::GetVendor());
+	//aboutDialog.addInformation("Renderer", OpenGLDriver::GetRenderer());
+	//aboutDialog.addInformation("OpenGL", OpenGLDriver::GetOpenGLVersion());
+	//aboutDialog.addInformation("GLSL", OpenGLDriver::GetGLSLVersion());
 	aboutDialog.exec();
 }
 

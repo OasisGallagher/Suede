@@ -5,7 +5,6 @@
 #include "statistics.h"
 #include "decalcreater.h"
 
-
 #include "rigidbody.h"
 #include "gameobject.h"
 
@@ -13,11 +12,10 @@
 #include "graphics.h"
 #include "resources.h"
 
-#include "internal/base/gl.h"
 #include "internal/async/async.h"
-#include "internal/rendering/context.h"
 #include "internal/rendering/shadowmap.h"
 #include "internal/codec/gameObjectloader.h"
+#include "internal/rendering/renderingcontext.h"
 #include "internal/components/transforminternal.h"
 #include "internal/rendering/shareduniformbuffers.h"
 
@@ -74,8 +72,8 @@ WorldInternal::WorldInternal()
 }
 
 void WorldInternal::Initialize() {
-	context_ = new Context();
-	Context::SetCurrent(context_);
+	context_ = new RenderingContext();
+	RenderingContext::SetCurrent(context_);
 
 	Shader::Find("builtin/lit_texture");
 
@@ -384,7 +382,6 @@ void WorldInternal::Update() {
 	uint64 begin = Profiler::GetTimeStamp();
 	uint64 start = begin;
 
-	GL::Update();
 	context_->Update();
 	FireEvents();
 

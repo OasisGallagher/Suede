@@ -1,9 +1,15 @@
 #include "shareduniformbuffers.h"
 
-SharedUniformBuffers::SharedUniformBuffers() {
-	CreateBuffer<SharedTimeUniformBuffer>();
-	CreateBuffer<SharedLightUniformBuffer>();
-	CreateBuffer<SharedTransformsUniformBuffer>();
+SharedUniformBuffers::SharedUniformBuffers(Context* context) {
+	CreateBuffer<SharedTimeUniformBuffer>(context);
+	CreateBuffer<SharedLightUniformBuffer>(context);
+	CreateBuffer<SharedTransformsUniformBuffer>(context);
+}
+
+SharedUniformBuffers::~SharedUniformBuffers() {
+	for (auto ite = uniformBuffers_.begin(); ite != uniformBuffers_.end(); ++ite) {
+		delete ite->second;
+	}
 }
 
 void SharedUniformBuffers::Attach(Shader* shader) {
@@ -13,11 +19,11 @@ void SharedUniformBuffers::Attach(Shader* shader) {
 }
 
 bool SharedUniformBuffers::UpdateUniformBuffer(const std::string& name, const void* data, uint offset, uint size) {
-	UniformBuffer* ub = nullptr;
-	if (!uniformBuffers_.get(name, ub)) {
+	auto pos = uniformBuffers_.find(name);
+	if (pos == uniformBuffers_.end()) {
 		Debug::LogError("invalid shared uniform buffer name %s.", name.c_str());
 		return false;
 	}
 
-	return ub->UpdateBuffer(data, offset, size);
+	return pos->second->UpdateBuffer(data, offset, size);
 }

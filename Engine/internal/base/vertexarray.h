@@ -1,13 +1,14 @@
 #pragma once
 #include <vector>
 
-#include "gl.h"
 #include "enginedefines.h"
+#include "containers/dynamicarray.h"
 
 class Buffer;
+class Context;
 class VertexArray {
 public:
-	VertexArray();
+	VertexArray(Context* context);
 	~VertexArray();
 
 public:
@@ -16,16 +17,16 @@ public:
 	void CreateVertexBuffers(size_t n);
 	void DestroyVertexBuffers();
 
-	size_t GetVBOCount() { return vboCount_; }
+	size_t GetVBOCount() { return vbos_.size(); }
 
-	void SetBuffer(uint index, GLenum target, size_t size, const void* data, GLenum usage);
+	void SetBuffer(uint index, uint target, size_t size, const void* data, uint usage);
 
 	template <class Container>
-	void SetBuffer(uint index, GLenum target, const Container& cont, GLenum usage) {
+	void SetBuffer(uint index, uint target, const Container& cont, uint usage) {
 		SetBuffer(index, target, cont.size() * sizeof(Container::value_type), &cont[0], usage);
 	}
 	
-	void SetVertexDataSource(int index, int location, int size, GLenum type, bool normalized, int stride, uint offset, int divisor = 0);
+	void SetVertexDataSource(int index, int location, int size, uint type, bool normalized, int stride, uint offset, int divisor = 0);
 
 	void* MapBuffer(int index);
 	void UnmapBuffer(int index);
@@ -42,12 +43,12 @@ public:
 	void UnbindBuffer(uint index);
 
 private:
-	bool IsIPointer(GLenum type);
+	bool IsIPointer(uint type);
 
 private:
-	GLuint vao_;
-	GLuint oldVao_;
+	Context* context_;
+	uint vao_;
+	uint oldVao_;
 
-	Buffer* vbos_;
-	int vboCount_;
+	dynamic_array<Buffer> vbos_;
 };

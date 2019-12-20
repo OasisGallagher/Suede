@@ -6,7 +6,7 @@
 
 #include <ZThread/Thread.h>
 
-#include "internal/base/gl.h"
+#include "internal/base/context.h"
 #include "internal/base/vertexattrib.h"
 
 SubMesh::SubMesh() : Object(new SubMeshInternal) {}
@@ -65,7 +65,7 @@ void MeshAttribute::GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& att
 	}
 }
 
-Mesh::Mesh() : Object(new MeshInternal) {}
+Mesh::Mesh() : Object(new MeshInternal(Context::GetCurrent())) {}
 
 ref_ptr<Mesh> Mesh::FromAttribute(const MeshAttribute& attribute) {
 	Mesh* mesh = new Mesh();
@@ -146,11 +146,8 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(MeshFilter, MeshProvider)
 SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 }
 
-MeshInternal::MeshInternal() : MeshInternal(ObjectType::Mesh) {
-}
-
-MeshInternal::MeshInternal(ObjectType type)
-	: ObjectInternal(type) {
+MeshInternal::MeshInternal(Context* context)
+	: ObjectInternal(ObjectType::Mesh), context_(context) {
 }
 
 MeshInternal::~MeshInternal() {
@@ -162,7 +159,7 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::CreateStorage() {
-	if (!storage_) { storage_.reset(new Storage); }
+	if (!storage_) { storage_.reset(new Storage(context_)); }
 }
 
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
@@ -499,7 +496,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	}
 }
 
-MeshInternal::Storage::Storage() : topology(MeshTopology::Triangles) {
+MeshInternal::Storage::Storage(Context* context) : topology(MeshTopology::Triangles), vao(context) {
 	memset(bufferIndexes, 0, sizeof(bufferIndexes));
 }
 

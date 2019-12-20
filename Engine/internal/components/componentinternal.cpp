@@ -1,5 +1,7 @@
 #include "componentinternal.h"
 
+#include "internal/base/context.h"
+
 Component::Component(void* d) : Object(d) {}
 
 void Component::Awake() { _suede_dptr()->Awake(); }
@@ -21,6 +23,10 @@ bool Component::Register(const char* name, const std::function<Object*()>& creat
 suede_guid Component::ClassNameToGUID(const char* className) {
 	static suede_guid id = 0;
 	return ++id;
+}
+
+ComponentInternal::ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {
+	context_ = (RenderingContext*)Context::GetCurrent();
 }
 
 void ComponentInternal::SetGameObject(GameObject* go) {

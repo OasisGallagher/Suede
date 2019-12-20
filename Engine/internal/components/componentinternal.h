@@ -26,9 +26,10 @@
 		return Class::GetComponentName(); \
 	}
 
+class RenderingContext;
 class ComponentInternal : public ObjectInternal {
 public:
-	ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {}
+	ComponentInternal(ObjectType type);
 
 public:
 	virtual bool GetEnabled() const { return enabled_; }
@@ -48,6 +49,7 @@ public:
 
 protected:
 	GameObject* gameObject_;
+	RenderingContext* context_;
 
 private:
 	bool enabled_;

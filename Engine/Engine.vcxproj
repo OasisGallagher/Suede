@@ -163,11 +163,10 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\buffer.cpp" />
     <ClCompile Include="internal\base\color.cpp" />
-    <ClCompile Include="internal\base\contextlimits.cpp" />
+    <ClCompile Include="internal\base\context.cpp" />
     <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
-    <ClCompile Include="internal\base\gl.cpp" />
     <ClCompile Include="internal\base\gpuquerier.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
@@ -384,7 +383,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\physics\physicsinternal.cpp" />
     <ClCompile Include="internal\physics\rigidbodyinternal.cpp" />
     <ClCompile Include="internal\rendering\ambientocclusion.cpp" />
-    <ClCompile Include="internal\rendering\context.cpp" />
+    <ClCompile Include="internal\rendering\renderingcontext.cpp" />
     <ClCompile Include="internal\rendering\gizmosinternal.cpp" />
     <ClCompile Include="internal\rendering\gizmospainter.cpp" />
     <ClCompile Include="internal\rendering\graphics.cpp" />
@@ -400,7 +399,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\tools\tagmanager.cpp" />
     <ClCompile Include="internal\tools\time2internal.cpp" />
     <ClCompile Include="internal\world\decalcreater.cpp" />
-    <ClCompile Include="internal\world\opengldriver.cpp" />
     <ClCompile Include="internal\world\engine.cpp" />
     <ClCompile Include="internal\world\graphicsviewer.cpp" />
     <ClCompile Include="internal\world\worldinternal.cpp" />
@@ -420,7 +418,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\input.h" />
     <ClInclude Include="include\lua++.h" />
-    <ClInclude Include="include\opengldriver.h" />
     <ClInclude Include="include\enginedefines.h" />
     <ClInclude Include="include\engine.h" />
     <ClInclude Include="include\font.h" />
@@ -461,11 +458,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\async\async.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\buffer.h" />
-    <ClInclude Include="internal\base\contextlimits.h" />
+    <ClInclude Include="internal\base\context.h" />
     <ClInclude Include="internal\base\fontinternal.h" />
     <ClInclude Include="internal\base\framebuffer.h" />
     <ClInclude Include="internal\base\gbuffer.h" />
-    <ClInclude Include="internal\base\gl.h" />
+    <ClInclude Include="internal\base\glenums.h" />
     <ClInclude Include="internal\base\gpuquerier.h" />
     <ClInclude Include="internal\base\renderdefines.h" />
     <ClInclude Include="internal\base\materialinternal.h" />
@@ -861,7 +858,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\physics\physicsinternal.h" />
     <ClInclude Include="internal\physics\rigidbodyinternal.h" />
     <ClInclude Include="internal\rendering\ambientocclusion.h" />
-    <ClInclude Include="internal\rendering\context.h" />
+    <ClInclude Include="internal\rendering\renderingcontext.h" />
     <ClInclude Include="internal\rendering\gizmosinternal.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />

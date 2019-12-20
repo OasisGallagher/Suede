@@ -10,7 +10,6 @@
 #include "screen.h"
 #include "physics.h"
 #include "profiler.h"
-#include "opengldriver.h"
 
 // Disable lua supports.
 //#include "../lua/wrappers/luaconfig.h"
@@ -36,10 +35,6 @@ bool Engine::Startup(uint width, uint height) {
 	std::set_terminate(OnTerminate);
 	ZThread::ztException = OnZThreadException;
 	ZThread::Thread::markMainThread();
-
-	if (!OpenGLDriver::Initialize()) {
-		return false;
-	}
 
 	// create profiler first to ensure it's destroyed last.
 	Profiler::TimeStampToSeconds(0);

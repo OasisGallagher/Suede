@@ -4,7 +4,6 @@
 #include "variant.h"
 #include "renderer.h"
 #include "memory/refptr.h"
-#include "internal/base/gl.h"
 
 class GLEF;
 class Language;
@@ -20,24 +19,14 @@ enum ShaderStage {
 	ShaderStageCount,
 };
 
-struct ShaderDescription {
-	GLenum glShaderStage;
+struct StageInfo {
+	uint glShaderStage;
 	const char* name;
 	const char* tag;
 	const char* shaderNameDefine;
+
+	static const StageInfo& At(ShaderStage stage);
 };
-
-inline const ShaderDescription& GetShaderDescription(ShaderStage stage) {
-	static ShaderDescription descriptions[] = {
-		GL_VERTEX_SHADER, "VertexShader", "vertex", "_VERTEX_SHADER",
-		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control", "_TESS_CONTROL_SHADER",
-		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation", "_TESS_EVALUATION_SHADER",
-		GL_GEOMETRY_SHADER, "GeometryShader", "geometry", "_GEOMETRY_SHADER",
-		GL_FRAGMENT_SHADER, "FragmentShader", "fragment", "_FRAGMENT_SHADER",
-	};
-
-	return descriptions[stage];
-}
 
 struct Semantics {
 	struct Tag {

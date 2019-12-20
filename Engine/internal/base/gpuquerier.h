@@ -1,7 +1,6 @@
 #pragma once
 #include <stack>
 
-#include "gl.h"
 #include "engine.h"
 #include "tools/event.h"
 #include "tools/singleton.h"
@@ -14,6 +13,7 @@ enum class QueryType {
 	TimeElapsed,
 };
 
+class Context;
 class GpuQuerier : public Singleton<GpuQuerier> {
 	friend class Singleton<GpuQuerier>;
 
@@ -27,7 +27,7 @@ public:
 	event<uint, uint> querierReturned;
 
 private:
-	GpuQuerier();
+	GpuQuerier(Context* context);
 	~GpuQuerier();
 
 private:
@@ -36,7 +36,7 @@ private:
 private:
 	struct Querier {
 		uint id;
-		GLenum type;
+		uint type;
 	};
 
 	enum {
@@ -54,9 +54,11 @@ private:
 	void RecycleQuerier(Querier* querier);
 	void StartQuerier(Querier* querier, QueryType type);
 
-	GLenum QueryTypeToGLenum(QueryType type);
+	uint QueryTypeToGLenum(QueryType type);
 
 private:
+	Context* context_;
+
 	uint ids_[MaxQueries];
 
 	QuerierContainer queriers_;

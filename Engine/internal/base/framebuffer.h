@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 
-#include "gl.h"
 #include "texture.h"
 
 enum FramebufferTarget {
@@ -34,9 +33,10 @@ enum FramebufferAttachment {
 	FramebufferAttachmentMax = FramebufferAttachment8,
 };
 
+class Context;
 class FramebufferBase {
 public:
-	FramebufferBase();
+	FramebufferBase(Context* context);
 	virtual ~FramebufferBase() {}
 
 public:
@@ -88,9 +88,11 @@ protected:
 	void UnbindViewport();
 
 	void ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment);
-	void FramebufferTargetToGLenum(FramebufferTarget target, GLenum* query, GLenum* bind);
+	void FramebufferTargetToGLenum(FramebufferTarget target, uint* query, uint* bind);
 
 protected:
+	Context* context_;
+
 	uint fbo_;
 	IVector4 viewport_;
 
@@ -99,13 +101,13 @@ protected:
 	Color clearColor_;
 
 private:
-	GLint oldFramebuffer_;
-	GLenum bindTarget_;
+	int oldFramebuffer_;
+	uint bindTarget_;
 };
 
 class Framebuffer : public FramebufferBase {
 public:
-	Framebuffer();
+	Framebuffer(Context* context);
 	~Framebuffer();
 
 public:
@@ -148,7 +150,7 @@ protected:
 private:
 	uint ToGLColorAttachments();
 	uint ToGLColorAttachments(FramebufferAttachment* attachments, uint n);
-	GLenum FramebufferAttachmentToGLenum(FramebufferAttachment attachment);
+	uint FramebufferAttachmentToGLenum(FramebufferAttachment attachment);
 
 	void ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n);
 
@@ -157,6 +159,6 @@ private:
 	uint* renderTextures_;
 	int attachedRenderTextureCount_;
 
-	GLenum* glAttachments_;
+	uint* glAttachments_;
 	uint depthRenderbuffer_;
 };

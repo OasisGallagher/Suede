@@ -3,6 +3,7 @@
 #include "glef.h"
 #include "resources.h"
 #include "os/filesystem.h"
+#include "internal/base/glenums.h"
 #include "internal/base/renderdefines.h"
 
 bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& customDefines) {
@@ -128,7 +129,7 @@ bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
 
 	if (newType != type_ && type_ != ShaderStageCount) {
 		if (!answer_[type_].empty()) {
-			Debug::LogError("%s(%d): %s already exists.", file_.c_str(), ln_.original, GetShaderDescription(type_).name);
+			Debug::LogError("%s(%d): %s already exists.", file_.c_str(), ln_.original, StageInfo::At(type_).name);
 			return false;
 		}
 
@@ -225,7 +226,7 @@ void GLSLParser::CalculateDefinesPermutations(std::vector<std::string>& anwser) 
 
 ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 	for (size_t i = 0; i < ShaderStageCount; ++i) {
-		if (tag == GetShaderDescription((ShaderStage)i).tag) {
+		if (tag == StageInfo::At((ShaderStage)i).tag) {
 			return (ShaderStage)i;
 		}
 	}
@@ -236,7 +237,7 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 
 void GLSLParser::SetCurrentShaderStageCode() {
 	answer_[type_] =
-		String::Format(defines_.c_str(), GetShaderDescription(type_).shaderNameDefine)
+		String::Format(defines_.c_str(), StageInfo::At(type_).shaderNameDefine)
 		+ source_;		// GLSL source code.
 
 	source_.clear();
@@ -594,4 +595,16 @@ void ShaderParser::ReadSubShaderBlock(SyntaxNode* node, Semantics::SubShader& su
 	}
 
 	ReadPasses(node->GetChildAt(1), subShader.passes);
+}
+
+const StageInfo& StageInfo::At(ShaderStage stage) {
+	static StageInfo infos[] = {
+		GL_VERTEX_SHADER, "VertexShader", "vertex", "_VERTEX_SHADER",
+		GL_TESS_CONTROL_SHADER, "TessellationControlShader", "tess_control", "_TESS_CONTROL_SHADER",
+		GL_TESS_EVALUATION_SHADER, "TessellationEvaluationShader", "tess_evaluation", "_TESS_EVALUATION_SHADER",
+		GL_GEOMETRY_SHADER, "GeometryShader", "geometry", "_GEOMETRY_SHADER",
+		GL_FRAGMENT_SHADER, "FragmentShader", "fragment", "_FRAGMENT_SHADER",
+	};
+
+	return infos[stage];
 }

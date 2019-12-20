@@ -4,14 +4,12 @@
 
 #include "profiler.h"
 #include "statistics.h"
-
-#include "internal/base/gl.h"
-#include "internal/base/contextlimits.h"
+#include "renderingcontext.h"
 
 #include "internal/base/vertexattrib.h"
 #include "internal/base/renderdefines.h"
 
-#include "internal/rendering/context.h"
+#include "internal/rendering/renderingcontext.h"
 
 #undef DEBUG_SAMPLES
 
@@ -49,21 +47,7 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 	return 0;
 }
 
-static GLenum TopologyToGLEnum(MeshTopology topology) {
-	switch (topology) {
-	case MeshTopology::Points: return GL_POINTS;
-	case MeshTopology::Lines: return GL_LINES;
-	case MeshTopology::LineStripe: return GL_LINE_STRIP;
-	case MeshTopology::Triangles: return GL_TRIANGLES;
-	case MeshTopology::TriangleStripe: return GL_TRIANGLE_STRIP;
-	case MeshTopology::TriangleFan: return GL_TRIANGLE_FAN;
-	}
-
-	Debug::LogError("unsupported mesh topology  %d.", topology);
-	return 0;
-}
-
-Pipeline::Pipeline(Context* context)
+Pipeline::Pipeline(RenderingContext* context)
 	: context_(context)
 	, renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
 	memset(&counters_, 0, sizeof(counters_));
@@ -253,13 +237,13 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	samples_.switch_state->Stop();
 
 	samples_.update_offset->Start();
-	GL::VertexAttribI1i(VertexAttribMatrixTextureBufferOffset, matrixOffset);
+	context_->VertexAttribI1i(VertexAttribMatrixTextureBufferOffset, matrixOffset);
 	samples_.update_offset->Stop();
 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
 	samples_.draw_call->Start();
-	DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
+	context_->DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
 	samples_.draw_call->Stop();
 
 	++counters_.drawcalls;
@@ -271,14 +255,6 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset) 
 	else if(topology == MeshTopology::TriangleStripe) {
 		counters_.triangles += bias.indexCount - 2;
 	}
-}
-
-void Pipeline::DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias) {
-	GL::DrawElementsBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), bias.baseVertex);
-}
-
-void Pipeline::DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance) {
-	GL::DrawElementsInstancedBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), instance, bias.baseVertex);
 }
 
 void Pipeline::UpdateState(Renderable& renderable) {
@@ -317,8 +293,8 @@ void Pipeline::UpdateState(Renderable& renderable) {
 void Pipeline::UpdateMatrixBuffer(uint size, const void* data) {
 	size *= sizeof(Matrix4) * 2;
 
-	if (size > ContextLimits::Get(ContextLimitsType::MaxTextureBufferSize)) {
-		Debug::LogError("%u exceeds matrix buffer max size %u.", size, ContextLimits::Get(ContextLimitsType::MaxTextureBufferSize));
+	if (size > context_->GetLimit(ContextLimitType::MaxTextureBufferSize)) {
+		Debug::LogError("%u exceeds matrix buffer max size %u.", size, context_->GetLimit(ContextLimitType::MaxTextureBufferSize));
 		return;
 	}
 

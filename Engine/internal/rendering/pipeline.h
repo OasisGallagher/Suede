@@ -33,12 +33,12 @@ enum SortMode {
 };
 
 class Sample;
-class Context;
+class RenderingContext;
 class SharedUniformBuffers;
 
 class Pipeline : private NonCopyable {
 public:
-	Pipeline(Context* context);
+	Pipeline(RenderingContext* context);
 	~Pipeline();
 
 public:
@@ -71,10 +71,6 @@ public:
 		uint instance = 0
 	);
 
-public:
-	static void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
-	static void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias& bias, uint instance);
-
 private:
 	void Render(Renderable& renderable, uint instance, uint matrixOffset);
 
@@ -88,7 +84,7 @@ private:
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
 private:
-	Context* context_;
+	RenderingContext* context_;
 
 	uint nrenderables_;
 	std::vector<Renderable> renderables_;

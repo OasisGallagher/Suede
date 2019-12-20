@@ -1,7 +1,10 @@
+#include "renderstate.h"
+
 #include <cstdarg>
+
+#include "context.h"
 #include "math/mathf.h"
 #include "debug/debug.h"
-#include "renderstate.h"
 #include "debug/debug.h"
 #include "memory/refptr.h"
 
@@ -24,18 +27,18 @@ void CullState::Initialize(int parameter0, int, int) {
 }
 
 void CullState::Bind() {
-	oldEnabled_ = GL::IsEnabled(GL_CULL_FACE);
-	GL::GetIntegerv(GL_CULL_FACE_MODE, &oldMode_);
+	oldEnabled_ = context_->IsEnabled(GL_CULL_FACE);
+	context_->GetIntegerv(GL_CULL_FACE_MODE, &oldMode_);
 
 	Enable(GL_CULL_FACE, parameter_ != RenderStateParameter::Off);
 	if (parameter_ != RenderStateParameter::Off) {
-		GL::CullFace(RenderParamterToGLEnum(parameter_));
+		context_->CullFace(RenderParamterToGLEnum(parameter_));
 	}
 }
 
 void CullState::Unbind() {
 	Enable(GL_CULL_FACE, oldEnabled_);
-	GL::CullFace(oldMode_);
+	context_->CullFace(oldMode_);
 }
 
 RenderState* CullState::Clone() {
@@ -59,19 +62,19 @@ void ZTestState::Initialize(int parameter0, int, int) {
 }
 
 void ZTestState::Bind() {
-	oldEnabled_ = GL::IsEnabled(GL_DEPTH_TEST);
+	oldEnabled_ = context_->IsEnabled(GL_DEPTH_TEST);
 
 	Enable(GL_DEPTH_TEST, parameter_ != RenderStateParameter::Off);
 	if (parameter_ != RenderStateParameter::Off) {
-		GL::GetIntegerv(GL_DEPTH_FUNC, (GLint*)&oldMode_);
-		GL::DepthFunc(RenderParamterToGLEnum(parameter_));
+		context_->GetIntegerv(GL_DEPTH_FUNC, (int*)&oldMode_);
+		context_->DepthFunc(RenderParamterToGLEnum(parameter_));
 	}
 }
 
 void ZTestState::Unbind() {
 	Enable(GL_DEPTH_TEST, oldEnabled_);
 	if (parameter_ != RenderStateParameter::Off) {
-		GL::DepthFunc(oldMode_);
+		context_->DepthFunc(oldMode_);
 	}
 }
 
@@ -85,12 +88,12 @@ void ZWriteState::Initialize(int parameter0, int, int) {
 }
 
 void ZWriteState::Bind() {
-	GL::GetIntegerv(GL_DEPTH_WRITEMASK, &oldMask_);
-	GL::DepthMask(parameter_ == RenderStateParameter::On);
+	context_->GetIntegerv(GL_DEPTH_WRITEMASK, &oldMask_);
+	context_->DepthMask(parameter_ == RenderStateParameter::On);
 }
 
 void ZWriteState::Unbind() {
-	GL::DepthMask(oldMask_);
+	context_->DepthMask(!!oldMask_);
 }
 
 RenderState* ZWriteState::Clone() {
@@ -104,19 +107,19 @@ void OffsetState::Initialize(int parameter0, int parameter1, int) {
 
 void OffsetState::Bind() {
 	if (parameter0_ != 0 || parameter1_ != 0) {
-		oldEnabled_ = GL::IsEnabled(GL_POLYGON_OFFSET_FILL);
+		oldEnabled_ = context_->IsEnabled(GL_POLYGON_OFFSET_FILL);
 
-		GL::GetFloatv(GL_POLYGON_OFFSET_UNITS, &oldUnits_);
-		GL::GetFloatv(GL_POLYGON_OFFSET_FACTOR, &oldFactor_);
+		context_->GetFloatv(GL_POLYGON_OFFSET_UNITS, &oldUnits_);
+		context_->GetFloatv(GL_POLYGON_OFFSET_FACTOR, &oldFactor_);
 
-		GL::Enable(GL_POLYGON_OFFSET_FILL);
-		GL::PolygonOffset(float(parameter0_) / Scale, float(parameter1_) / Scale);
+		context_->Enable(GL_POLYGON_OFFSET_FILL);
+		context_->PolygonOffset(float(parameter0_) / Scale, float(parameter1_) / Scale);
 	}
 }
 
 void OffsetState::Unbind() {
 	if (parameter0_ != 0 || parameter1_ != 0) {
-		GL::PolygonOffset(oldFactor_, oldUnits_);
+		context_->PolygonOffset(oldFactor_, oldUnits_);
 		Enable(GL_POLYGON_OFFSET_FILL, oldEnabled_);
 	}
 }
@@ -148,22 +151,22 @@ void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2
 }
 
 void StencilTestState::Bind() {
-	oldEnabled_ = GL::IsEnabled(GL_STENCIL_TEST);
+	oldEnabled_ = context_->IsEnabled(GL_STENCIL_TEST);
 
 	Enable(GL_STENCIL_TEST, parameter0_ != RenderStateParameter::Off);
 	if (parameter0_ != RenderStateParameter::Off) {
-		GL::GetIntegerv(GL_STENCIL_REF, (GLint*)&oldRef_);
-		GL::GetIntegerv(GL_STENCIL_FUNC, (GLint*)&oldFunc_);
-		GL::GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint*)&oldMask_);
+		context_->GetIntegerv(GL_STENCIL_REF, (int*)&oldRef_);
+		context_->GetIntegerv(GL_STENCIL_FUNC, (int*)&oldFunc_);
+		context_->GetIntegerv(GL_STENCIL_VALUE_MASK, (int*)&oldMask_);
 
-		GL::StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, 0xFF);
+		context_->StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, 0xFF);
 	}
 }
 
 void StencilTestState::Unbind() {
 	Enable(GL_STENCIL_TEST, oldEnabled_);
 	if (parameter0_ != RenderStateParameter::Off) {
-		GL::StencilFunc(oldFunc_, oldRef_, oldMask_);
+		context_->StencilFunc(oldFunc_, oldRef_, oldMask_);
 	}
 }
 
@@ -178,15 +181,15 @@ void StencilWriteState::Initialize(int parameter0, int, int) {
 }
 
 void StencilWriteState::Bind() {
-	GL::GetIntegerv(GL_STENCIL_WRITEMASK, (GLint*)&oldFrontMask_);
-	GL::GetIntegerv(GL_STENCIL_BACK_WRITEMASK, (GLint*)&oldBackMask_);
+	context_->GetIntegerv(GL_STENCIL_WRITEMASK, (int*)&oldFrontMask_);
+	context_->GetIntegerv(GL_STENCIL_BACK_WRITEMASK, (int*)&oldBackMask_);
 
-	GL::StencilMask(parameter0_ == RenderStateParameter::On ? 0xFF : 0);
+	context_->StencilMask(parameter0_ == RenderStateParameter::On ? 0xFF : 0);
 }
 
 void StencilWriteState::Unbind() {
-	GL::StencilMaskSeparate(GL_FRONT, oldFrontMask_);
-	GL::StencilMaskSeparate(GL_BACK, oldBackMask_);
+	context_->StencilMaskSeparate(GL_FRONT, oldFrontMask_);
+	context_->StencilMaskSeparate(GL_BACK, oldBackMask_);
 }
 
 RenderState* StencilWriteState::Clone() {
@@ -232,15 +235,15 @@ void StencilOpState::Initialize(int parameter0, int parameter1, int parameter2) 
 }
 
 void StencilOpState::Bind() {
-	GL::GetIntegerv(GL_STENCIL_FAIL, (GLint*)&oldSfail_);
-	GL::GetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, (GLint*)&oldDpfail_);
-	GL::GetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, (GLint*)&oldDppass_);
+	context_->GetIntegerv(GL_STENCIL_FAIL, (int*)&oldSfail_);
+	context_->GetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, (int*)&oldDpfail_);
+	context_->GetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, (int*)&oldDppass_);
 
-	GL::StencilOp(RenderParamterToGLEnum(parameter0_), RenderParamterToGLEnum(parameter1_), RenderParamterToGLEnum(parameter2_));
+	context_->StencilOp(RenderParamterToGLEnum(parameter0_), RenderParamterToGLEnum(parameter1_), RenderParamterToGLEnum(parameter2_));
 }
 
 void StencilOpState::Unbind() {
-	GL::StencilOp(oldSfail_, oldDpfail_, oldDppass_);
+	context_->StencilOp(oldSfail_, oldDpfail_, oldDppass_);
 }
 
 RenderState* StencilOpState::Clone() {
@@ -253,7 +256,7 @@ void RasterizerDiscardState::Initialize(int parameter0, int, int) {
 }
 
 void RasterizerDiscardState::Bind() {
-	oldEnabled_ = GL::IsEnabled(GL_RASTERIZER_DISCARD);
+	oldEnabled_ = context_->IsEnabled(GL_RASTERIZER_DISCARD);
 	Enable(GL_RASTERIZER_DISCARD, parameter_ == RenderStateParameter::On);
 }
 
@@ -297,28 +300,28 @@ void BlendState::Initialize(int parameter0, int parameter1, int) {
 }
 
 void BlendState::Bind() {
-	oldEnabled_ = GL::IsEnabled(GL_BLEND);
-	GL::GetIntegerv(GL_BLEND_SRC, &oldSrc_);
-	GL::GetIntegerv(GL_BLEND_DST, &oldDest_);
+	oldEnabled_ = context_->IsEnabled(GL_BLEND);
+	context_->GetIntegerv(GL_BLEND_SRC, &oldSrc_);
+	context_->GetIntegerv(GL_BLEND_DST, &oldDest_);
 
 	Enable(GL_BLEND, src_ != RenderStateParameter::Off);
 	if (src_ != RenderStateParameter::Off) {
-		GL::BlendFunc(RenderParamterToGLEnum(src_), RenderParamterToGLEnum(dest_));
+		context_->BlendFunc(RenderParamterToGLEnum(src_), RenderParamterToGLEnum(dest_));
 	}
 }
 
 void BlendState::Unbind() {
 	Enable(GL_BLEND, oldEnabled_);
-	GL::BlendFunc(oldSrc_, oldDest_);
+	context_->BlendFunc(oldSrc_, oldDest_);
 }
 
 RenderState* BlendState::Clone() {
 	return new BlendState(*this);
 }
 
-void RenderState::Enable(GLenum cap, GLboolean enable) {
-	if (enable) { GL::Enable(cap); }
-	else { GL::Disable(cap); }
+void RenderState::Enable(uint cap, bool enable) {
+	if (enable) { context_->Enable(cap); }
+	else { context_->Disable(cap); }
 }
 
 bool RenderState::IsValidParameter(int value, const RenderStateParameter* buffer, int count) {
@@ -332,8 +335,8 @@ bool RenderState::IsValidParameter(int value, const RenderStateParameter* buffer
 	return (i < count);
 }
 
-GLenum RenderState::RenderParamterToGLEnum(int parameter0) {
-	GLenum value = 0;
+uint RenderState::RenderParamterToGLEnum(int parameter0) {
+	uint value = 0;
 	switch (parameter0) {
 		case RenderStateParameter::Front:
 			value = GL_FRONT;
