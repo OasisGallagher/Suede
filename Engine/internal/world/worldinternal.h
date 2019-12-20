@@ -1,6 +1,7 @@
 #pragma once
 #include <set>
 #include <map>
+#include <thread>
 #include <ZThread/Mutex.h>
 
 #include "world.h"
@@ -99,6 +100,7 @@ private:
 	typedef WorldEventCollection WorldEventContainer[WorldEventType::size()];
 
 private:
+	std::thread::id threadId_;
 	RenderingContext* context_;
 
 	GameObject* root_;

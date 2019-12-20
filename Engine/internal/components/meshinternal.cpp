@@ -165,7 +165,7 @@ void MeshInternal::CreateStorage() {
 void MeshInternal::SetAttribute(const MeshAttribute& value) {
 	CreateStorage();
 
-	if (ZThread::Thread::isMainThread()) {
+	if (context_->InThisThread()) {
 		SyncMeshAttribute(value);
 	}
 	else {

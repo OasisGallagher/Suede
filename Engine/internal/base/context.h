@@ -1,4 +1,6 @@
 #pragma once
+#include <thread>
+
 #include "mesh.h"
 #include "glenums.h"
 
@@ -42,6 +44,18 @@ public:
 public:
 	static Context* GetCurrent();
 	static bool SetCurrent(Context* value);
+
+public:
+	virtual void Update();
+	virtual void CullingUpdate();
+
+public:
+	int GetLimit(ContextLimitType type);
+	bool IsSupported(const char* feature);
+	bool InThisThread() const { return threadId_ == std::this_thread::get_id(); }
+
+	void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
+	void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance);
 
 public:
 	void ActiveTexture(uint texture);
@@ -149,17 +163,35 @@ public:
 	void VertexAttribPointer(uint index, int size, uint type, bool normalized, int stride, const void* pointer);
 	void Viewport(int x, int y, int width, int height);
 
-public:
-	int GetLimit(ContextLimitType type);
-	bool IsSupported(const char* feature);
-	void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
-	void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance);
-
 protected:
 	virtual void OnActive(bool active) {}
 	virtual bool Initialize();
 
 private:
-	bool initialized_ = false;
+	class Command {
+	public:
+		typedef std::function<void(int, const uint*)> action_type;
+
+	public:
+		Command(int nParameters, const uint* parameters, const action_type& f);
+		~Command() { delete[] parameters_; }
+		Command(Command&& other);
+
+		Command(const Command& other) = delete;
+		Command& operator=(const Command&) = delete;
+
+	public:
+		void operator()() { action_(nParameters_, parameters_); }
+
+	private:
+		int nParameters_;
+		uint* parameters_;
+		action_type action_;
+	};
+
+private:
+	std::thread::id threadId_;
+
 	int oglLimits_[(int)ContextLimitType::_Count] = { INT_MIN };
+	std::vector<Command> commands_;
 };

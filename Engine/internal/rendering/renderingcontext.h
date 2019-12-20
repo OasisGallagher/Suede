@@ -52,9 +52,10 @@ public:
 	~RenderingContext();
 
 public:
-	void Update();
-	void CullingUpdate();
+	virtual void Update();
+	virtual void CullingUpdate();
 
+public:
 	void ClearFrame();
 
 	ShadowMap* GetShadowMap() { return shadowMap_; }

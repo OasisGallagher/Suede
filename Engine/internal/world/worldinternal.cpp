@@ -73,7 +73,8 @@ WorldInternal::WorldInternal()
 
 void WorldInternal::Initialize() {
 	context_ = new RenderingContext();
-	RenderingContext::SetCurrent(context_);
+	threadId_ = std::this_thread::get_id();
+	Context::SetCurrent(context_);
 
 	Shader::Find("builtin/lit_texture");
 
@@ -94,10 +95,13 @@ void WorldInternal::Finalize() {
 
 	Camera::SetMain(nullptr);
 
-	delete context_;
 	delete importer_;
 	delete environment_;
 	delete decalCreater_;
+
+	delete context_;
+
+	threadId_ = std::thread::id();
 
 	RemoveEventListener(this);
 	Screen::sizeChanged.unsubscribe(this);
@@ -220,7 +224,7 @@ void WorldInternal::FireEvent(WorldEventBasePtr e) {
 }
 
 void WorldInternal::FireEventImmediate(WorldEventBasePtr e) {
-	if (!ZThread::Thread::isMainThread()) {
+	if (threadId_ != std::this_thread::get_id()) {
 		return FireEvent(e);
 	}
 
