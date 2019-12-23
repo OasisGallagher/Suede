@@ -1,5 +1,5 @@
+#include <mutex>
 #include <vector>
-#include <ZThread/Mutex.h>
 
 #include "transform.h"
 #include "tools/dirtybits.h"
@@ -7,7 +7,7 @@
 
 class TransformInternal : public ComponentInternal, public DirtyBits {
 public:
-	static ZThread::Mutex hierarchyMutex;
+	static std::mutex hierarchyMutex;
 
 public:
 	TransformInternal();

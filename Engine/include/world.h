@@ -179,7 +179,7 @@ public:
 	static GameObject* Import(const std::string& path);
 	static GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 
-	static bool ImportTo(GameObject* go, const std::string& path);
+	static void ImportTo(GameObject* go, const std::string& path);
 
 	static Transform* GetRootTransform();
 

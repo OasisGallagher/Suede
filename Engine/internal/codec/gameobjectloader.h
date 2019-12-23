@@ -54,7 +54,7 @@ struct GameObjectAsset {
 	std::vector<std::pair<GameObject*, ref_ptr<Component>>> components;
 };
 
-class GameObjectLoader : public Worker, private NonCopyable {
+class GameObjectLoader : public Task, private NonCopyable {
 public:
 	GameObjectLoader(const std::string& path, GameObject* root);
 	~GameObjectLoader();
@@ -66,7 +66,7 @@ public:
 	Mesh* GetSurface() { return surface_.get(); }
 	GameObjectAsset& GetGameObjectAsset() { return asset_; }
 
-protected:
+public:
 	virtual void Run();
 
 private:
@@ -133,15 +133,15 @@ typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject*, const std::st
 
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
-	GameObjectLoaderThreadPool(event<GameObject*, const std::string&>& imported) : ThreadPool(16), imported_(imported) {}
+	GameObjectLoaderThreadPool(event<GameObject*, const std::string&>& imported) : ThreadPool(std::thread::hardware_concurrency()), imported_(imported) {}
 	~GameObjectLoaderThreadPool() {}
 
 public:
-	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
-	bool ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
+	ref_ptr<GameObject> Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
+	void ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
 
 protected:
-	virtual void OnSchedule(ZThread::Task& schedule);
+	virtual void OnSchedule(Task* task);
 
 private:
 	event<GameObject*, const std::string&>& imported_;

@@ -1,12 +1,11 @@
 #pragma once
-#include <ZThread/Mutex.h>
+#include <mutex>
 
 #include "plane.h"
 #include "screen.h"
 #include "camera.h"
 #include "frustum.h"
 
-#include <ZThread/ThreadedExecutor.h>
 #include "internal/culling/culling.h"
 #include "internal/rendering/rendering.h"
 
@@ -84,7 +83,6 @@ protected:
 	void OnProjectionMatrixChanged();
 
 private:
-	void CancelThreads();
 	void UpdateFrameState();
 
 	bool IsValidViewportRect();
@@ -98,7 +96,6 @@ private:
 	Plane planes_[6];
 
 	Culling* culling_;
-	ZThread::Thread* cullingThread_;
 
 	bool pipelineReady_;
 	PipelineBuilder* pipelineBuilder_;
@@ -116,6 +113,6 @@ private:
 
 	ref_ptr<RenderTexture> targetTexture_;
 
-	ZThread::Mutex visibleGameObjectsMutex_;
+	std::mutex visibleGameObjectsMutex_;
 	std::vector<GameObject*> visibleGameObjects_;
 };

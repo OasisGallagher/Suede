@@ -4,7 +4,6 @@
 
 #include "debug/debug.h"
 #include "tools/string.h"
-#include "internal/async/async.h"
 
 static Context* current_;
 static void __stdcall GLDebugMessageCallback(uint source, uint type, uint id, uint severity, int length, const char* message, const void* userParam);
@@ -35,7 +34,32 @@ bool Context::Initialize() {
 
 	DepthMask(GL_TRUE);
 
+	InitializeLimits();
+
+
 	return true;
+}
+
+void Context::InitializeLimits() {
+#define GL_INTEGER(lim, name)	if (int value = 1) { GetIntegerv(name, &value); oglLimits_[(int)lim] = value; } else (void)0
+
+	GL_INTEGER(ContextLimitType::MaxColorAttachments, GL_MAX_COLOR_ATTACHMENTS);
+	GL_INTEGER(ContextLimitType::MaxTextureUnits, GL_MAX_TEXTURE_UNITS);
+	GL_INTEGER(ContextLimitType::MaxCombinedTextureImageUnits, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+	GL_INTEGER(ContextLimitType::MaxUniformBufferBindings, GL_MAX_UNIFORM_BUFFER_BINDINGS);
+	GL_INTEGER(ContextLimitType::MaxVertexAttribs, GL_MAX_VERTEX_ATTRIBS);
+	GL_INTEGER(ContextLimitType::MaxUniformBlockSize, GL_MAX_UNIFORM_BLOCK_SIZE);
+	GL_INTEGER(ContextLimitType::RedBits, GL_RED_BITS);
+	GL_INTEGER(ContextLimitType::GreenBits, GL_GREEN_BITS);
+	GL_INTEGER(ContextLimitType::BlueBits, GL_BLUE_BITS);
+	GL_INTEGER(ContextLimitType::AlphaBits, GL_ALPHA_BITS);
+	GL_INTEGER(ContextLimitType::DepthBits, GL_DEPTH_BITS);
+	GL_INTEGER(ContextLimitType::StencilBits, GL_STENCIL_BITS);
+	GL_INTEGER(ContextLimitType::MaxClipPlanes, GL_MAX_CLIP_PLANES);
+	GL_INTEGER(ContextLimitType::MaxTextureSize, GL_MAX_TEXTURE_SIZE);
+	GL_INTEGER(ContextLimitType::MaxTextureBufferSize, GL_MAX_TEXTURE_BUFFER_SIZE);
+
+#undef GL_INTEGER
 }
 
 Context* Context::GetCurrent() { return current_; }
@@ -503,31 +527,6 @@ void Context::VertexAttribPointer(uint index, int size, uint type, bool normaliz
 
 void Context::Viewport(int x, int y, int width, int height) {
 	GL_CALL(glViewport(x, y, width, height));
-}
-
-int Context::GetLimit(ContextLimitType type) {
-#define GL_INTEGER(lim, name)	if (int value = 1) { GetIntegerv(name, &value); oglLimits_[(int)lim] = value; } else (void)0
-	if (oglLimits_[0] == INT_MIN) {
-		GL_INTEGER(ContextLimitType::MaxColorAttachments, GL_MAX_COLOR_ATTACHMENTS);
-		GL_INTEGER(ContextLimitType::MaxTextureUnits, GL_MAX_TEXTURE_UNITS);
-		GL_INTEGER(ContextLimitType::MaxCombinedTextureImageUnits, GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-		GL_INTEGER(ContextLimitType::MaxUniformBufferBindings, GL_MAX_UNIFORM_BUFFER_BINDINGS);
-		GL_INTEGER(ContextLimitType::MaxVertexAttribs, GL_MAX_VERTEX_ATTRIBS);
-		GL_INTEGER(ContextLimitType::MaxUniformBlockSize, GL_MAX_UNIFORM_BLOCK_SIZE);
-		GL_INTEGER(ContextLimitType::RedBits, GL_RED_BITS);
-		GL_INTEGER(ContextLimitType::GreenBits, GL_GREEN_BITS);
-		GL_INTEGER(ContextLimitType::BlueBits, GL_BLUE_BITS);
-		GL_INTEGER(ContextLimitType::AlphaBits, GL_ALPHA_BITS);
-		GL_INTEGER(ContextLimitType::DepthBits, GL_DEPTH_BITS);
-		GL_INTEGER(ContextLimitType::StencilBits, GL_STENCIL_BITS);
-		GL_INTEGER(ContextLimitType::MaxClipPlanes, GL_MAX_CLIP_PLANES);
-		GL_INTEGER(ContextLimitType::MaxTextureSize, GL_MAX_TEXTURE_SIZE);
-		GL_INTEGER(ContextLimitType::MaxTextureBufferSize, GL_MAX_TEXTURE_BUFFER_SIZE);
-	}
-#undef GL_INTEGER
-
-	SUEDE_VERIFY_INDEX((int)type, (int)ContextLimitType::_Count, 0);
-	return oglLimits_[(int)type];
 }
 
 bool Context::IsSupported(const char* feature) {

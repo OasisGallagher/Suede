@@ -4,8 +4,6 @@
 #include "meshinternal.h"
 #include "geometryutility.h"
 
-#include <ZThread/Thread.h>
-
 #include "internal/base/context.h"
 #include "internal/base/vertexattrib.h"
 

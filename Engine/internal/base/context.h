@@ -50,8 +50,8 @@ public:
 	virtual void CullingUpdate();
 
 public:
-	int GetLimit(ContextLimitType type);
 	bool IsSupported(const char* feature);
+	int GetLimit(ContextLimitType type) { return oglLimits_[(int)type]; }
 	bool InThisThread() const { return threadId_ == std::this_thread::get_id(); }
 
 	void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
@@ -168,6 +168,9 @@ protected:
 	virtual bool Initialize();
 
 private:
+	void InitializeLimits();
+
+private:
 	class Command {
 	public:
 		typedef std::function<void(int, const uint*)> action_type;
@@ -192,6 +195,6 @@ private:
 private:
 	std::thread::id threadId_;
 
-	int oglLimits_[(int)ContextLimitType::_Count] = { INT_MIN };
+	int oglLimits_[(int)ContextLimitType::_Count] = { 0 };
 	std::vector<Command> commands_;
 };

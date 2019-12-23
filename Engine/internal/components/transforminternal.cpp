@@ -1,7 +1,6 @@
 #include "world.h"
 #include "math/mathf.h"
 #include "transforminternal.h"
-#include "internal/async/async.h"
 
 Transform::Transform() : Component(new TransformInternal) {}
 bool Transform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
@@ -41,7 +40,7 @@ Vector3 Transform::GetUp() { return _suede_dptr()->GetUp(this); }
 Vector3 Transform::GetRight() { return _suede_dptr()->GetRight(this); }
 Vector3 Transform::GetForward() { return _suede_dptr()->GetForward(this); }
 
-ZThread::Mutex TransformInternal::hierarchyMutex;
+std::mutex TransformInternal::hierarchyMutex;
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Transform, Component)
 
@@ -85,7 +84,7 @@ void TransformInternal::SetParent(Transform* self, Transform* value) {
 
 	Transform* oldParent = parent_;
 	if (oldParent != value) {
-		ZTHREAD_LOCK_SCOPE(hierarchyMutex);
+		std::lock_guard<std::mutex> lock(hierarchyMutex);
 		ChangeParent(self, oldParent, value);
 	}
 }

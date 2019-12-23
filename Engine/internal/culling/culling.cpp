@@ -6,14 +6,19 @@
 #include "profiler.h"
 #include "statistics.h"
 #include "geometryutility.h"
-#include "internal/async/async.h"
 #include "internal/base/renderdefines.h"
 
-Culling::Culling() 
-	: cond_(mutex_), working_(false), stopped_(false) {
+Culling::Culling() : working_(false), stopped_(false) {
+	thread_ = std::thread(std::bind(&Culling::Run, this));
 }
 
-void Culling::run() {
+Culling::~Culling() {
+	stopped_ = true;
+	cond_.notify_all();
+	thread_.join();
+}
+
+void Culling::Run() {
 	for (; !stopped_;) {
 		if (working_) {
 			gameObjects_.clear();
@@ -31,21 +36,23 @@ void Culling::run() {
 			working_ = false;
 		}
 
-		ZTHREAD_LOCK_SCOPE(mutex_);
-		cond_.wait();
+		std::unique_lock<std::mutex> lock(mutex_);
+		cond_.wait(lock);
 	}
 }
 
 void Culling::Stop() {
-	stopped_ = true;
-	cond_.broadcast();
+	if (!stopped_) {
+		stopped_ = true;
+		cond_.notify_all();
+	}
 }
 
 void Culling::Cull(const Matrix4& worldToClipMatrix) {
 	if (!working_) {
 		worldToClipMatrix_ = worldToClipMatrix;
 		working_ = true;
-		cond_.signal();
+		cond_.notify_one();
 	}
 }
 

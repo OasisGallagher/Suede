@@ -1,59 +1,51 @@
 #pragma once
+
 #include <queue>
+#include <deque>
+#include <vector>
+#include <thread>
+#include <functional>
 
-#include <ZThread/Mutex.h>
-#include <ZThread/Executor.h>
-#include <ZThread/LockedQueue.h>
+#include <mutex>
+//#include <atomic>
+#include <condition_variable>
 
-#include "tools/event.h"
+#include "memory/refptr.h"
+#include "containers/dynamicarray.h"
 
-class Worker;
-
-class Worker : public ZThread::Runnable {
+// https://stackoverflow.com/a/23899225/2705388
+class Task : public intrusive_ref_counter {
 public:
-	Worker() {}
-
-public:
-	// override Run instead.
-	virtual void run();
-
-public:
-	event<Worker*> workFinished;
-
-protected:
 	virtual void Run() = 0;
 };
 
 class ThreadPool {
 public:
-	enum {
-		Threaded = -2,
-		Concurrent = -1,
-		Synchronous = 0,
-		// Pool >= 1
-	};
-
-public:
-	ThreadPool(int type);
+	ThreadPool(unsigned n);
 	~ThreadPool();
 
-protected:
-	virtual void OnSchedule(ZThread::Task& schedule) = 0;
+	void WaitFinished();
+	void AddTask(Task* task);
 
 protected:
-	bool Execute(Worker* woker);
+	virtual void OnSchedule(Task* task) {}
 
 private:
+	void ThreadProc();
 	void OnFrameEnter();
 
-	void UpdateSchedules();
-	void CreateExecutor(int type);
-	void OnWorkFinished(Worker* runnable);
-
 private:
-	ZThread::Executor* executor_;
+	std::mutex tasks_mutex;
+	std::deque<ref_ptr<Task>> tasks;
 
-	std::vector<ZThread::Task> tasks_;
-	std::queue<ZThread::Task> schedules_;
-	ZThread::Mutex scheduleContainerMutex_;
+	std::mutex schedules_mutex;
+	std::queue<ref_ptr<Task>> schedules;
+
+	std::condition_variable cv_task;
+	std::condition_variable cv_finished;
+
+	bool stopped;
+	unsigned busy;
+
+	dynamic_array<std::thread> workers;
 };

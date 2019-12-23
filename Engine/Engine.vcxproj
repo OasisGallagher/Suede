@@ -455,7 +455,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\graphicsviewer.h" />
     <ClInclude Include="include\world.h" />
-    <ClInclude Include="internal\async\async.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\buffer.h" />
     <ClInclude Include="internal\base\context.h" />

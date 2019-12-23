@@ -101,27 +101,27 @@ public:
 	}
 
 	iterator begin() {
-		return m_data.get();
+		return m_data;
 	}
 
 	const_iterator begin() const {
-		return m_data.get();
+		return m_data;
 	}
 
 	const_iterator cbegin() const {
-		return m_data.get();
+		return m_data;
 	}
 
 	iterator end() {
-		return m_data.get() + size();
+		return m_data + size();
 	}
 
 	const_iterator end() const {
-		return m_data.get() + size();
+		return m_data + size();
 	}
 
 	const_iterator cend() const {
-		return m_data.get() + size();
+		return m_data + size();
 	}
 
 	reverse_iterator rbegin() {

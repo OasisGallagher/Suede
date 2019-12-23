@@ -4,8 +4,6 @@
 
 #include "engine.h"
 
-#include <ZThread/Thread.h>
-
 #include "world.h"
 #include "screen.h"
 #include "physics.h"
@@ -25,16 +23,9 @@ static void OnTerminate() {
 	Debug::Break();
 }
 
-static void OnZThreadException(const std::exception& exception) {
-	Debug::OutputToConsole("!!! Thread Exception %s\n", exception.what());
-	throw exception;
-}
-
 bool Engine::Startup(uint width, uint height) {
 	setlocale(LC_ALL, "");
 	std::set_terminate(OnTerminate);
-	ZThread::ztException = OnZThreadException;
-	ZThread::Thread::markMainThread();
 
 	// create profiler first to ensure it's destroyed last.
 	Profiler::TimeStampToSeconds(0);
@@ -84,4 +75,3 @@ void Engine::Update() {
 	World::Update();
 	Engine::frameLeave.raise();
 }
-

@@ -1372,9 +1372,6 @@
     <ClInclude Include="internal\async\threadpool.h">
       <Filter>internal\async</Filter>
     </ClInclude>
-    <ClInclude Include="internal\async\async.h">
-      <Filter>internal\async</Filter>
-    </ClInclude>
     <ClInclude Include="internal\base\vertexattrib.h">
       <Filter>internal\base</Filter>
     </ClInclude>

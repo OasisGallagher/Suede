@@ -1,114 +1,81 @@
-#include "async.h"
-#include "engine.h"
 #include "threadpool.h"
+
+#include "engine.h"
 #include "debug/debug.h"
-#include "memory/refptr.h"
 #include "frameeventqueue.h"
 
-#include <ZThread/PoolExecutor.h>
-#include <ZThread/ThreadedExecutor.h>
-#include <ZThread/ConcurrentExecutor.h>
-#include <ZThread/SynchronousExecutor.h>
-
-void Worker::run() {
-	Run();
-	workFinished.raise(this);
-}
-
-ThreadPool::ThreadPool(int type) {
+ThreadPool::ThreadPool(unsigned n)
+	: busy(0U), stopped(false), workers(n, std::bind(&ThreadPool::ThreadProc, this)) {
 	Engine::frameEnter.subscribe(this, &ThreadPool::OnFrameEnter, (int)FrameEventQueue::User);
-	CreateExecutor(type);
 }
 
 ThreadPool::~ThreadPool() {
 	Engine::frameEnter.unsubscribe(this);
 
-	try {
-		executor_->interrupt();
-		executor_->wait();
-	}
-	catch (const ZThread::Synchronization_Exception& e) {
-		Debug::LogError(e.what());
-	}
-	catch (const std::exception& e) {
-		Debug::LogError(e.what());
-	}
+	// set stop-condition
+	std::unique_lock<std::mutex> lock(tasks_mutex);
+	stopped = true;
+	cv_task.notify_all();
+	lock.unlock();
 
-	delete executor_;
-}
-
-void ThreadPool::CreateExecutor(int type) {
-	if (type == Threaded) {
-		executor_ = new ZThread::ThreadedExecutor;
-	}
-	else if (type == Concurrent) {
-		executor_ = new ZThread::ConcurrentExecutor;
-	}
-	else if (type == Synchronous) {
-		executor_ = new ZThread::SynchronousExecutor;
-	}
-	else {
-		if (type <= 0) {
-			Debug::LogError("invalid parameter for thread pool");
-		}
-
-		executor_ = new ZThread::PoolExecutor(type);
+	// all threads terminate, then we're done.
+	for (auto& worker : workers) {
+		worker.join();
 	}
 }
 
-void ThreadPool::OnWorkFinished(Worker* runnable) {
-	ZTHREAD_LOCK_SCOPE(scheduleContainerMutex_);
+void ThreadPool::ThreadProc() {
+	while (true) {
+		std::unique_lock<std::mutex> lock(this->tasks_mutex);
+		cv_task.wait(lock, [this]() { return this->stopped || !this->tasks.empty(); });
 
-	for (std::vector<ZThread::Task>::iterator ite = tasks_.begin(); ite != tasks_.end(); ++ite) {
-		ZThread::Task task = *ite;
-		if (runnable == task.get()) {
-			tasks_.erase(ite);
-			schedules_.push(task);
-			break;
+		if (this->stopped && this->tasks.empty()) {
+			return;
 		}
+
+		// got work. set busy.
+		++busy;
+
+		// pull from queue
+		auto task = tasks.front();
+		tasks.pop_front();
+
+		// release lock. run async
+		lock.unlock();
+
+		// run function outside context
+		task->Run();
+
+		{
+			std::lock_guard<std::mutex> _lock(schedules_mutex);
+			schedules.push(task);
+		}
+
+		lock.lock();
+		--busy;
+		cv_finished.notify_one();
 	}
 }
 
 void ThreadPool::OnFrameEnter() {
-	try {
-		UpdateSchedules();
-	}
-	catch (const ZThread::Synchronization_Exception& e) {
-		Debug::LogError(e.what());
-	}
-	catch (const std::exception& e) {
-		Debug::LogError(e.what());
-	}
-}
+	std::lock_guard<std::mutex> lock(schedules_mutex);
 
-void ThreadPool::UpdateSchedules() {
-	ZTHREAD_LOCK_SCOPE(scheduleContainerMutex_);
+	for (; !schedules.empty();) {
+		ref_ptr<Task> task = schedules.front();
+		schedules.pop();
 
-	for (; !schedules_.empty();) {
-		ZThread::Task schedule = schedules_.front();
-		schedules_.pop();
-
-		OnSchedule(schedule);
+		OnSchedule(task.get());
 	}
 }
 
-bool ThreadPool::Execute(Worker* worker) {
-	worker->workFinished.subscribe(this, &ThreadPool::OnWorkFinished);
+void ThreadPool::AddTask(Task* task) {
+	std::unique_lock<std::mutex> lock(tasks_mutex);
+	tasks.emplace_back(task);
+	cv_task.notify_one();
+}
 
-	ZThread::Task task(worker);
-	tasks_.push_back(task);
-
-	try {
-		executor_->execute(task);
-	}
-	catch (const ZThread::Synchronization_Exception& e) {
-		Debug::LogError(e.what());
-		return false;
-	}
-	catch (const std::exception& e) {
-		Debug::LogError(e.what());
-		return false;
-	}
-
-	return true;
+// waits until the queue is empty.
+void ThreadPool::WaitFinished() {
+	std::unique_lock<std::mutex> lock(tasks_mutex);
+	cv_finished.wait(lock, [this]() { return tasks.empty() && (busy == 0); });
 }

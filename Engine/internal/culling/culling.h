@@ -1,7 +1,5 @@
 #pragma once
-#include <ZThread/Mutex.h>
-#include <ZThread/Runnable.h>
-#include <ZThread/Condition.h>
+#include <mutex>
 
 #include "world.h"
 #include "gameobject.h"
@@ -10,10 +8,10 @@
 
 class Culling;
 
-class Culling : public ZThread::Runnable, public WorldGameObjectWalker {
+class Culling : public WorldGameObjectWalker {
 public:
 	Culling();
-	~Culling() {}
+	~Culling();
 
 public:
 	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
@@ -27,18 +25,17 @@ public:
 	event<> cullingFinished;
 
 public:
+	virtual void Run();
 	virtual WalkCommand OnWalkGameObject(GameObject* go);
-
-protected:
-	virtual void run();
 
 private:
 	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);
 	bool FrustumCulling(const Bounds & bounds, const Matrix4& worldToClipMatrix);
 
 private:
-	ZThread::Mutex mutex_;
-	ZThread::Condition cond_;
+	std::mutex mutex_;
+	std::thread thread_;
+	std::condition_variable cond_;
 
 	bool working_, stopped_;
 	Matrix4 worldToClipMatrix_;

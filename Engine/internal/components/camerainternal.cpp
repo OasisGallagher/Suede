@@ -8,7 +8,6 @@
 #include "geometryutility.h"
 
 #include "math/mathf.h"
-#include "internal/async/async.h"
 #include "internal/rendering/renderingcontext.h"
 
 static Camera* main_;
@@ -78,7 +77,6 @@ CameraInternal::CameraInternal()
 	, clearType_(ClearType::Color), clearColor_(Color::black), depthTextureMode_(DepthTextureMode::None), renderPath_(RenderPath::Forward)
 	 /*, gbuffer_(nullptr) */{
 	culling_ = new Culling();
-	cullingThread_ = new ZThread::Thread(culling_);
 
 	culling_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
 
@@ -94,7 +92,7 @@ CameraInternal::CameraInternal()
 }
 
 CameraInternal::~CameraInternal() {
-	CancelThreads();
+	culling_->Stop();
 
 	delete pipelineBuilder_;
 	delete frontPipelines_;
@@ -108,7 +106,7 @@ void CameraInternal::Awake() {
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {
-	CancelThreads();
+	culling_->Stop();
 }
 
 void CameraInternal::UpdateFrameState() {
@@ -120,17 +118,6 @@ void CameraInternal::UpdateFrameState() {
 	fs->depthTextureMode = depthTextureMode_;
 	fs->renderPath = renderPath_;
 	fs->targetTexture = targetTexture_.get();
-}
-
-void CameraInternal::CancelThreads() {
-	if (cullingThread_ != nullptr) {
-		culling_->cullingFinished.unsubscribe(this);
-
-		culling_->Stop();
-		cullingThread_->wait();
-		delete cullingThread_;
-		cullingThread_ = nullptr;
-	}
 }
 
 void CameraInternal::SetDepth(Camera* self, int value) {
@@ -175,7 +162,7 @@ void CameraInternal::OnCullingFinished() {
 	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
 
 	{
-		ZTHREAD_LOCK_SCOPE(visibleGameObjectsMutex_);
+		std::lock_guard<std::mutex> lock(visibleGameObjectsMutex_);
 		visibleGameObjects_ = culling_->GetGameObjects();
 	}
 
@@ -205,7 +192,7 @@ bool CameraInternal::IsValidViewportRect() {
 }
 
 void CameraInternal::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects) {
-	ZTHREAD_LOCK_SCOPE(visibleGameObjectsMutex_);
+	std::lock_guard<std::mutex> lock(visibleGameObjectsMutex_);
 	gameObjects = visibleGameObjects_;
 }
 

@@ -12,7 +12,6 @@
 #include "graphics.h"
 #include "resources.h"
 
-#include "internal/async/async.h"
 #include "internal/rendering/shadowmap.h"
 #include "internal/codec/gameObjectloader.h"
 #include "internal/rendering/renderingcontext.h"
@@ -32,7 +31,7 @@ void World::DestroyGameObject(GameObject* go) { _suede_dinstance()->DestroyGameO
 GameObject* World::Import(const std::string& path) { return _suede_dinstance()->Import(path); }
 GameObject* World::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
 Environment* World::GetEnvironment() { return _suede_dinstance()->GetEnvironment(); }
-bool World::ImportTo(GameObject* go, const std::string& path) { return _suede_dinstance()->ImportTo(go, path); }
+void World::ImportTo(GameObject* go, const std::string& path) { _suede_dinstance()->ImportTo(go, path); }
 Transform* World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
 GameObject* World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
 void World::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
@@ -108,14 +107,14 @@ void WorldInternal::Finalize() {
 }
 
 GameObject* WorldInternal::Import(const std::string& path) {
-	return importer_->Import(path, nullptr);
+	return importer_->Import(path, nullptr).get();
 }
 
 GameObject* WorldInternal::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
-	return importer_->Import(path, callback);
+	return importer_->Import(path, callback).get();
 }
 
-bool WorldInternal::ImportTo(GameObject* go, const std::string& path) {
+void WorldInternal::ImportTo(GameObject* go, const std::string& path) {
 	return importer_->ImportTo(go, path, nullptr);
 }
 
@@ -198,7 +197,7 @@ std::vector<GameObject*> WorldInternal::GetGameObjectsOfComponent(suede_guid gui
 }
 
 void WorldInternal::WalkGameObjectHierarchy(WorldGameObjectWalker* walker) {
-	ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
+	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
 }
 
@@ -219,7 +218,7 @@ void WorldInternal::FireEvent(WorldEventBasePtr e) {
 	WorldEventType type = e->GetEventType();
 	WorldEventCollection& collection = events_[type];
 
-	ZTHREAD_LOCK_SCOPE(eventsMutex_);
+	std::lock_guard<std::mutex> lock(eventsMutex_);
 	collection.push_back(e);
 }
 
@@ -308,7 +307,7 @@ void WorldInternal::OnWorldEvent(WorldEventBasePtr e) {
 }
 
 void WorldInternal::AddGameObject(GameObject* go) {
-	ZTHREAD_LOCK_SCOPE(TransformInternal::hierarchyMutex);
+	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 }
 
@@ -331,7 +330,7 @@ void WorldInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEvent
 }
 
 void WorldInternal::FireEvents() {
-	ZTHREAD_LOCK_SCOPE(eventsMutex_);
+	std::lock_guard<std::mutex> lock(eventsMutex_);
 
 	for (WorldEventCollection& collection : events_) {
 		for (WorldEventBasePtr pointer : collection) {

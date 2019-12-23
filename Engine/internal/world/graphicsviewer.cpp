@@ -3,8 +3,6 @@
 #include "graphicsviewer.h"
 #include "graphicscanvas.h"
 
-#include "memory/refptr.h"
-
 enum {
 	ViewerStatusUninitialized,
 	ViewerStatusRunning,

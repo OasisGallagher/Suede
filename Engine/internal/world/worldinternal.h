@@ -1,8 +1,8 @@
 #pragma once
 #include <set>
 #include <map>
+#include <mutex>
 #include <thread>
-#include <ZThread/Mutex.h>
 
 #include "world.h"
 #include "light.h"
@@ -41,7 +41,8 @@ public:
 
 	GameObject* Import(const std::string& path);
 	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
-	bool ImportTo(GameObject* go, const std::string& path);
+
+	void ImportTo(GameObject* go, const std::string& path);
 
 	GameObject* GetGameObject(uint id);
 
@@ -121,11 +122,11 @@ private:
 	GameObjectDictionary gameObjects_;
 	EventListenerContainer listeners_;
 
-	ZThread::Mutex eventsMutex_;
+	std::mutex eventsMutex_;
 	WorldEventContainer events_;
 
-	ZThread::Mutex hierarchyMutex_;
-	ZThread::Mutex eventContainerMutex_;
+	std::mutex hierarchyMutex_;
+	std::mutex eventContainerMutex_;
 };
 
 template <class Container>
