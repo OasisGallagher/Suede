@@ -39,12 +39,12 @@
 
 #define ROOM
 //#define SKYBOX
-#define PROJECTOR
+//#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-#define ANIMATION
+//#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
@@ -224,8 +224,6 @@ float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds
 }
 
 void GameWindow::createScene() {
-	World::gameObjectImported.subscribe(this, &GameWindow::onGameObjectImported);
-
 	Debug::Log("test debug message");
 	Debug::Log("test debug message2");
 
@@ -396,20 +394,24 @@ void GameWindow::createScene() {
 
 #endif
 
+	auto gameObjectImported = [this](GameObject* go, const std::string& path) {
+		onGameObjectImported(go, path);
+	};
+
 #ifdef ROOM
-	GameObject* room = World::Import(roomFbxPath);
+	GameObject* room = World::Import(roomFbxPath, gameObjectImported);
 #endif
 
 #ifdef BUMPED
-	GameObject* bumped = World::Import(bumpedFbxPath);
+	GameObject* bumped = World::Import(bumpedFbxPath, gameObjectImported);
 #endif
 
 #ifdef NORMAL_VISUALIZER
-	GameObject* normalVisualizer = World::Import(normalVisualizerFbxPath, this);
+	GameObject* normalVisualizer = World::Import(normalVisualizerFbxPath, gameObjectImported);
 #endif
 
 #ifdef BEAR
-	GameObject* bear = World::Import("teddy_bear.fbx", this);
+	GameObject* bear = World::Import("teddy_bear.fbx", gameObjectImported);
 	bear->GetTransform()->SetPosition(Vector3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -420,6 +422,6 @@ void GameWindow::createScene() {
 #endif
 
 #ifdef ANIMATION
-	GameObject* man = World::Import(manFbxPath);
+	GameObject* man = World::Import(manFbxPath, gameObjectImported);
 #endif
 }

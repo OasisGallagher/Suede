@@ -192,12 +192,12 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 	return gameObjects;
 }
 
-void SceneInternal::WalkGameObjectHierarchy(GameObjectWalker* walker) {
+void SceneInternal::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) {
 	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
 }
 
-bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, GameObjectWalker* walker) {
+bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::function<WalkCommand(GameObject*)> walker) {
 	for (int i = 0; i < root->GetChildCount(); ++i) {
 		Transform* transform = root->GetChildAt(i);
 		GameObject* child = transform->GetGameObject();
@@ -205,7 +205,7 @@ bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, GameObje
 			continue;
 		}
 
-		WalkCommand command = walker->OnWalkGameObject(child);
+		WalkCommand command = walker(child);
 
 		// next sibling.
 		if (command == WalkCommand::Next) {

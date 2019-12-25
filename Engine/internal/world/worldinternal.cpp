@@ -20,7 +20,6 @@
 
 sorted_event<>& World::frameEnter() { static sorted_event<> e; return e; }
 sorted_event<>& World::frameLeave() { static sorted_event<> e; return e; }
-event<GameObject*, const std::string&> World::gameObjectImported;
 
 World::World() : Singleton2<World>(new WorldInternal, t_delete<WorldInternal>) {}
 
@@ -30,19 +29,17 @@ void World::CullingUpdate() { _suede_dinstance()->CullingUpdate(); }
 void World::Update() { _suede_dinstance()->Update(); }
 void World::DestroyGameObject(uint id) { _suede_dinstance()->DestroyGameObject(id); }
 void World::DestroyGameObject(GameObject* go) { _suede_dinstance()->DestroyGameObject(go); }
-GameObject* World::Import(const std::string& path) { return _suede_dinstance()->Import(path); }
-GameObject* World::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) { return _suede_dinstance()->Import(path, callback); }
+GameObject* World::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) { return _suede_dinstance()->Import(path, callback); }
 Environment* World::GetEnvironment() { return _suede_dinstance()->GetEnvironment(); }
 const FrameStatistics* World::GetFrameStatistics() { return _suede_dinstance()->GetFrameStatistics(); }
-void World::ImportTo(GameObject* go, const std::string& path) { _suede_dinstance()->ImportTo(go, path); }
 Transform* World::GetRootTransform() { return _suede_dinstance()->GetRootTransform(); }
 GameObject* World::GetGameObject(uint id) { return _suede_dinstance()->GetGameObject(id); }
-void World::WalkGameObjectHierarchy(GameObjectWalker* walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
+void World::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) { _suede_dinstance()->WalkGameObjectHierarchy(walker); }
 void World::GetDecals(std::vector<Decal>& container) { _suede_dinstance()->GetDecals(container); }
 std::vector<GameObject*> World::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dinstance()->GetGameObjectsOfComponent(guid); }
 
 WorldInternal::WorldInternal() {
-	importer_ = new GameObjectLoaderThreadPool(World::gameObjectImported);
+	importer_ = new GameObjectLoaderThreadPool();
 }
 
 void WorldInternal::Initialize() {
@@ -78,16 +75,8 @@ Transform* WorldInternal::GetRootTransform() {
 	return scene_->GetRootTransform();
 }
 
-GameObject* WorldInternal::Import(const std::string& path) {
-	return importer_->Import(path, nullptr).get();
-}
-
-GameObject* WorldInternal::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
+GameObject* WorldInternal::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
 	return importer_->Import(path, callback).get();
-}
-
-void WorldInternal::ImportTo(GameObject* go, const std::string& path) {
-	return importer_->ImportTo(go, path, nullptr);
 }
 
 GameObject* WorldInternal::GetGameObject(uint id) {
@@ -106,7 +95,7 @@ std::vector<GameObject*> WorldInternal::GetGameObjectsOfComponent(suede_guid gui
 	return scene_->GetGameObjectsOfComponent(guid);
 }
 
-void WorldInternal::WalkGameObjectHierarchy(GameObjectWalker* walker) {
+void WorldInternal::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) {
 	scene_->WalkGameObjectHierarchy(walker);
 }
 

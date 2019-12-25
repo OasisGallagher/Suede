@@ -26,8 +26,6 @@ void HierarchyWindow::initUI() {
 }
 
 void HierarchyWindow::awake() {
-	World::gameObjectImported.subscribe(this, &HierarchyWindow::onGameObjectImported);
-
 	GameObject::destroyed.subscribe(this, &HierarchyWindow::onGameObjectDestroyed);
 	GameObject::nameChanged.subscribe(this, &HierarchyWindow::onGameObjectNameChanged);
 	GameObject::parentChanged.subscribe(this, &HierarchyWindow::onGameObjectParentChanged);
@@ -184,7 +182,7 @@ void HierarchyWindow::dropEvent(QDropEvent* event) {
 	QList<QUrl> urls = event->mimeData()->urls();
 	for (QUrl url : urls) {
 		std::string path = FileSystem::GetFileName(url.toString().toStdString());
-		World::Import(path);
+		World::Import(path, nullptr);
 	}
 }
 

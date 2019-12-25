@@ -93,7 +93,7 @@ ref_ptr<Texture2D> MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
 	return texture;
 }
 
-GameObjectLoader::GameObjectLoader(const std::string& path, GameObject* root) : path_(path), root_(root) {
+GameObjectLoader::GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback) : path_(path), root_(root), callback_(callback) {
 }
 
 GameObjectLoader::~GameObjectLoader() {
@@ -549,18 +549,14 @@ bool GameObjectLoader::LoadAsset() {
 	return true;
 }
 
-ref_ptr<GameObject> GameObjectLoaderThreadPool::Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
+ref_ptr<GameObject> GameObjectLoaderThreadPool::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
 	ref_ptr<GameObject> root = new GameObject();
-	ImportTo(root.get(), path, callback);
+	AddTask(new GameObjectLoader(root.get(), path, callback));
 	return root;
 }
 
-void GameObjectLoaderThreadPool::ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback) {
-	AddTask(new GameObjectLoaderWithCallback(path, go, callback));
-}
-
 void GameObjectLoaderThreadPool::OnSchedule(Task* task) {
-	GameObjectLoaderWithCallback* loader = (GameObjectLoaderWithCallback*)task;
+	GameObjectLoader* loader = (GameObjectLoader*)task;
 
 	GameObjectAsset& asset = loader->GetGameObjectAsset();
 	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
@@ -576,9 +572,5 @@ void GameObjectLoaderThreadPool::OnSchedule(Task* task) {
 	GameObject* root = loader->GetGameObject();
 	root->GetTransform()->SetParent(World::GetRootTransform());
 
-	if (loader->GetParameter()) {
-		(*loader->GetParameter())(root, loader->GetPath());
-	}
-
-	imported_.raise(root, loader->GetPath());
+	loader->InvokeCallback();
 }

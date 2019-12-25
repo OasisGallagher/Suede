@@ -19,13 +19,14 @@ Culling::~Culling() {
 }
 
 void Culling::Run() {
+	auto walker = [this](GameObject* go) { return OnWalkGameObject(go); };
 	for (; !stopped_;) {
 		if (working_) {
 			gameObjects_.clear();
 			uint64 start = Profiler::GetTimeStamp();
 			World::CullingUpdate();
 
-			World::WalkGameObjectHierarchy(this);
+			World::WalkGameObjectHierarchy(walker);
 
 			cullingFinished.raise();
 

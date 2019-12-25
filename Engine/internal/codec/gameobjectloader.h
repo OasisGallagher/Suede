@@ -55,7 +55,7 @@ struct GameObjectAsset {
 
 class GameObjectLoader : public Task, private NonCopyable {
 public:
-	GameObjectLoader(const std::string& path, GameObject* root);
+	GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 	~GameObjectLoader();
 
 public:
@@ -64,6 +64,8 @@ public:
 
 	Mesh* GetSurface() { return surface_.get(); }
 	GameObjectAsset& GetGameObjectAsset() { return asset_; }
+
+	void InvokeCallback() { if (callback_) { callback_(root_.get(), path_); } }
 
 public:
 	virtual void Run();
@@ -111,37 +113,18 @@ private:
 
 	typedef std::map<std::string, TexelMap*> TexelMapContainer;
 	TexelMapContainer texelMapContainer_;
+
+	std::function<void(GameObject*, const std::string&)> callback_;
 };
-
-template <class T>
-class GameObjectLoaderParameterized : public GameObjectLoader {
-public:
-public:
-	GameObjectLoaderParameterized(const std::string& path, GameObject* root, const T& value) 
-		: GameObjectLoader(path, root), parameter_(value) {
-	}
-
-public:
-	T& GetParameter() { return parameter_; }
-
-private:
-	T parameter_;
-};
-
-typedef GameObjectLoaderParameterized<Lua::Func<void, GameObject*, const std::string&>> GameObjectLoaderWithCallback;
 
 class GameObjectLoaderThreadPool : public ThreadPool {
 public:
-	GameObjectLoaderThreadPool(event<GameObject*, const std::string&>& imported) : ThreadPool(std::thread::hardware_concurrency()), imported_(imported) {}
+	GameObjectLoaderThreadPool() : ThreadPool(std::thread::hardware_concurrency()) {}
 	~GameObjectLoaderThreadPool() {}
 
 public:
-	ref_ptr<GameObject> Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
-	void ImportTo(GameObject* go, const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
+	ref_ptr<GameObject> Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 
 protected:
 	virtual void OnSchedule(Task* task);
-
-private:
-	event<GameObject*, const std::string&>& imported_;
 };

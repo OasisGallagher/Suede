@@ -232,6 +232,7 @@ void RigidbodyInternal::CreateBody() {
 
 void RigidbodyInternal::DestroyBody() {
 	if (body_ != nullptr) {
+		btWorld()->removeRigidBody(body_);
 		delete body_->getMotionState();
 		delete body_;
 	}

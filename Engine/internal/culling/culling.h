@@ -8,7 +8,7 @@
 
 class RenderingContext;
 
-class Culling : public GameObjectWalker {
+class Culling {
 public:
 	Culling(RenderingContext* context);
 	~Culling();
@@ -26,11 +26,11 @@ public:
 
 public:
 	virtual void Run();
-	virtual WalkCommand OnWalkGameObject(GameObject* go);
 
 private:
 	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);
 	bool FrustumCulling(const Bounds & bounds, const Matrix4& worldToClipMatrix);
+	WalkCommand OnWalkGameObject(GameObject* go);
 
 private:
 	std::mutex mutex_;

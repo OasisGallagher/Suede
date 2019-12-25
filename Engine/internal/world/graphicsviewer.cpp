@@ -23,32 +23,32 @@ GraphicsViewer::GraphicsViewer(int argc, char * argv[])
 	std::set_terminate(OnTerminate);
 }
 
-GraphicsViewer::~GraphicsViewer() {
-	World::Finalize();
-}
-
 void GraphicsViewer::Run() {
 	for (; status_ != ViewerStatusClosed;) {
-		if (canvas_ != nullptr) {
-			canvas_->MakeCurrent();
-
-			Update();
-			World::Update();
-
- 			canvas_->SwapBuffers();
- 			canvas_->DoneCurrent();
+		if (canvas_ == nullptr) {
+			continue;
 		}
+
+		canvas_->MakeCurrent();
+
+		Update();
+
+		if (status_ != ViewerStatusClosed) {
+			World::Update();
+		}
+
+		canvas_->SwapBuffers();
+		canvas_->DoneCurrent();
 	}
 }
 
 bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 	canvas_ = value;
 
-	if (status_ == ViewerStatusUninitialized) {
+	if (canvas_ != nullptr && status_ == ViewerStatusUninitialized) {
 		Screen::Resize(value->GetWidth(), value->GetHeight());
-		World::Initialize();
 
-		//Physics::SetDebugDrawEnabled(true);
+		World::Initialize();
 		Physics::SetGravity(Vector3(0, -9.8f, 0));
 
 		status_ = ViewerStatusRunning;
@@ -58,6 +58,7 @@ bool GraphicsViewer::SetCanvas(GraphicsCanvas* value) {
 }
 
 void GraphicsViewer::Close() {
+	World::Finalize();
 	status_ = ViewerStatusClosed;
 }
 

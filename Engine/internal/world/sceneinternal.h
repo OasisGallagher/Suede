@@ -25,7 +25,7 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject* go);
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
-	void WalkGameObjectHierarchy(GameObjectWalker* walker);
+	void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
 	Transform* GetRootTransform() { return root_->GetTransform(); }
 
 private:
@@ -38,7 +38,7 @@ private:
 	void RemoveGameObjectFromSequence(GameObject* go);
 	void ManageGameObjectUpdateSequence(GameObject* go);
 	void DestroyGameObjectRecursively(Transform* root);
-	bool WalkGameObjectHierarchyRecursively(Transform* root, GameObjectWalker* walker);
+	bool WalkGameObjectHierarchyRecursively(Transform* root, std::function<WalkCommand(GameObject*)> walker);
 
 	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component);
 

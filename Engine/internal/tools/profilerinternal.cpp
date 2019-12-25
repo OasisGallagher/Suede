@@ -1,12 +1,9 @@
 #include "profilerinternal.h"
 
 #include <Windows.h>
-#undef min
-#undef max
-
-#include "world.h"
 
 #include "debug/debug.h"
+#include "containers/freelist.h"
 
 Sample::Sample() : PimplIdiom(new SampleInternal, t_delete<SampleInternal>) {}
 void Sample::Start() { _suede_dptr()->Start(); }
@@ -14,58 +11,6 @@ void Sample::Restart() { _suede_dptr()->Restart(); }
 void Sample::Stop() { _suede_dptr()->Stop(); }
 void Sample::Reset() { _suede_dptr()->Reset(); }
 double Sample::GetElapsedSeconds() const { return _suede_dptr()->GetElapsedSeconds(); }
-
-Profiler::Profiler() : Singleton2<Profiler>(new ProfilerInternal, t_delete<ProfilerInternal>) {}
-Sample* Profiler::CreateSample() { return _suede_dinstance()->CreateSample(); }
-void Profiler::ReleaseSample(Sample* value) { _suede_dinstance()->ReleaseSample(value); }
-uint64 Profiler::GetTimeStamp() { return _suede_dinstance()->GetTimeStamp(); }
-double Profiler::TimeStampToSeconds(uint64 timeStamp) { return _suede_dinstance()->TimeStampToSeconds(timeStamp); }
-
-ProfilerInternal::ProfilerInternal() : samples_(MaxProfilerSamples) {
-	LARGE_INTEGER frequency;
-	if (QueryPerformanceFrequency(&frequency)) {
-		timeStampToSeconds_ = 1.0 / frequency.QuadPart;
-	}
-	else {
-		timeStampToSeconds_ = 1.0;
-		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
-	}
-
-	World::frameEnter().subscribe(this, &ProfilerInternal::OnFrameEnter, (int)FrameEventQueue::Profiler);
-}
-
-ProfilerInternal::~ProfilerInternal() {
-	World::frameEnter().unsubscribe(this);
-}
-
-void ProfilerInternal::OnFrameEnter() {
-	//for (SampleContainer::iterator ite = samples_.begin(); ite != samples_.end(); ++ite) {
-	//	(*ite)->Reset();
-	//}
-}
-
-Sample* ProfilerInternal::CreateSample() {
-	return samples_.spawn();
-}
-
-void ProfilerInternal::ReleaseSample(Sample* sample) {
-	sample->Reset();
-	samples_.recycle(sample);
-}
-
-double ProfilerInternal::TimeStampToSeconds(uint64 timeStamp) {
-	return timeStamp * timeStampToSeconds_;
-}
-
-uint64 ProfilerInternal::GetTimeStamp() {
-	LARGE_INTEGER qpc;
-	if (QueryPerformanceCounter(&qpc)) {
-		return qpc.QuadPart;
-	}
-
-	Debug::LogError("GetTimeStamp failed: %d.", GetLastError());
-	return 0;
-}
 
 void SampleInternal::Start() {
 	started_ = true;
@@ -94,4 +39,43 @@ double SampleInternal::GetElapsedSeconds() const {
 	}
 
 	return Profiler::TimeStampToSeconds(elapsed_);
+}
+
+static std::mutex mutex_;
+static free_list<Sample> samples_(1024);
+
+Sample* Profiler::CreateSample() {
+	std::lock_guard<std::mutex> lock(mutex_);
+	return samples_.spawn();
+}
+
+void Profiler::ReleaseSample(Sample* sample) {
+	sample->Reset();
+
+	std::lock_guard<std::mutex> lock(mutex_);
+	samples_.recycle(sample);
+}
+
+double Profiler::TimeStampToSeconds(uint64 timeStamp) {
+	static double timeStampToSeconds = []() {
+		LARGE_INTEGER frequency;
+		if (QueryPerformanceFrequency(&frequency)) {
+			return 1.0 / frequency.QuadPart;
+		}
+
+		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
+		return 1.0;
+	}();
+
+	return timeStamp * timeStampToSeconds;
+}
+
+uint64 Profiler::GetTimeStamp() {
+	LARGE_INTEGER qpc;
+	if (QueryPerformanceCounter(&qpc)) {
+		return qpc.QuadPart;
+	}
+
+	Debug::LogError("GetTimeStamp failed: %d.", GetLastError());
+	return 0;
 }

@@ -33,6 +33,7 @@ QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(a
 }
 
 QtViewer::~QtViewer() {
+	SetCanvas(nullptr);
 	delete editor_;
 }
 

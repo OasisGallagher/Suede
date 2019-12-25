@@ -179,6 +179,8 @@ public:
 		for (auto& argument : raise_arguments_) {
 			Unpacker::apply(this, &event<Args...>::raise, argument);
 		}
+
+		raise_arguments_.clear();
 	}
 
 private:

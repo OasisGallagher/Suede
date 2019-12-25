@@ -29,7 +29,6 @@ void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDraw
 bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEnabled(); }
 
 btDiscreteDynamicsWorld* PhysicsInternal::world_;
-
 PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	// You instantiate the broad phase algorithm implementation.
 	// Collision detection is done in two phases : broad and narrow.
@@ -55,13 +54,12 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	world_ = new btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
 	world_->setDebugDrawer(new BulletDebugDrawer);
 
-	World::frameEnter().subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
-	GameObject::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
+	//World::frameEnter().subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
+	//GameObject::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
 }
 
 PhysicsInternal::~PhysicsInternal() {
-	World::frameEnter().unsubscribe(this);
-
+	//World::frameEnter().unsubscribe(this);
 	delete world_->getDebugDrawer();
 	delete world_;
 

@@ -5,7 +5,7 @@ class GraphicsCanvas;
 class SUEDE_API GraphicsViewer {
 public:
 	GraphicsViewer(int argc, char *argv[]);
-	virtual ~GraphicsViewer();
+	virtual ~GraphicsViewer() {}
 
 public:
 	void Run();

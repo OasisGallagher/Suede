@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
 
-#include "lua++.h"
-
 #include "object.h"
 #include "camera.h"
 #include "material.h"
@@ -17,11 +15,6 @@ enum class WalkCommand {
 	Next,
 	Break,
 	Continue,
-};
-
-class GameObjectWalker {
-public:
-	virtual WalkCommand OnWalkGameObject(GameObject* go) = 0;
 };
 
 struct Environment {
@@ -45,23 +38,6 @@ struct FrameStatistics {
 };
 
 struct Decal;
-
-struct Foo {
-	class {
-		int value;
-	public:
-		int & operator = (const int &i) { return value = i; }
-		operator int() const { return value; }
-	} alpha;
-
-	class {
-		float value;
-	public:
-		float & operator = (const float &f) { return value = f; }
-		operator float() const { return value; }
-	} bravo;
-};
-
 class SUEDE_API World : private Singleton2<World> {
 	friend class Singleton<World>;
 	SUEDE_DECLARE_IMPLEMENTATION(World)
@@ -73,23 +49,19 @@ public:
 	static void Update();
 	static void CullingUpdate();
 
-	static void DestroyGameObject(uint id);
-	static void DestroyGameObject(GameObject* go);
-
 	static Environment* GetEnvironment();
 	static const FrameStatistics* GetFrameStatistics();
 
-	static GameObject* Import(const std::string& path);
-	static GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
+	static GameObject* GetGameObject(uint id);
+	static GameObject* Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 
-	static void ImportTo(GameObject* go, const std::string& path);
+	static void DestroyGameObject(uint id);
+	static void DestroyGameObject(GameObject* go);
 
 	static Transform* GetRootTransform();
-
-	static GameObject* GetGameObject(uint id);
-	static void WalkGameObjectHierarchy(GameObjectWalker* walker);
-
 	static void GetDecals(std::vector<Decal>& container);
+
+	static void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
 
 	static Subsystem* GetSubsystem(SubsystemType type);
 	template <class T> static T* GetSubsystem();
@@ -102,8 +74,6 @@ public:
 public:
 	static sorted_event<>& frameEnter();
 	static sorted_event<>& frameLeave();
-	// TODO:
-	static event<GameObject*, const std::string&> gameObjectImported;
 
 private:
 	World();

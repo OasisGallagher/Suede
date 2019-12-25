@@ -41,15 +41,12 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject* go);
 
-	GameObject* Import(const std::string& path);
-	GameObject* Import(const std::string& path, Lua::Func<void, GameObject*, const std::string&> callback);
-
-	void ImportTo(GameObject* go, const std::string& path);
+	GameObject* Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 
 	GameObject* GetGameObject(uint id);
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
 
-	void WalkGameObjectHierarchy(GameObjectWalker* walker);
+	void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
 	void GetDecals(std::vector<Decal>& container);
 
 private:
