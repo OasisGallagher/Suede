@@ -1,6 +1,6 @@
 #include "gizmosinternal.h"
 
-#include "engine.h"
+#include "world.h"
 #include "graphics.h"
 #include "resources.h"
 #include "math/mathf.h"
@@ -34,7 +34,11 @@ GizmosInternal::GizmosInternal() : color_(0, 1, 0, 1), matrix_(1) {
 	lineMaterial_->SetShader(Shader::Find("builtin/gizmos"));
 	lineMaterial_->SetMatrix4("localToWorldMatrix", Matrix4(1));
 
-	Engine::frameLeave.subscribe(this, &GizmosInternal::OnFrameLeave, (int)FrameEventQueue::Gizmos);
+	World::frameLeave().subscribe(this, &GizmosInternal::OnFrameLeave, (int)FrameEventQueue::Gizmos);
+}
+
+GizmosInternal::~GizmosInternal() {
+	World::frameLeave().unsubscribe(this);
 }
 
 bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material) {

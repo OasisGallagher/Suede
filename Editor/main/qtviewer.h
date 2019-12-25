@@ -27,7 +27,6 @@ private:
 
 private slots:
 	void onAboutToCloseEditor() { Close(); }
-	void canvasSizeChanged(uint w, uint h) { OnCanvasSizeChanged(w, h); }
 
 private:
 	Editor* editor_;

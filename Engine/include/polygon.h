@@ -1,5 +1,5 @@
 #pragma once
-#include "enginedefines.h"
+#include "defines.h"
 
 struct SUEDE_API Polygon {
 	Polygon();

@@ -2,7 +2,6 @@
 
 #include "time2.h"
 #include "statusbar.h"
-#include "statistics.h"
 #include "debug/debug.h"
 
 StatusBar::StatusBar(QWidget* parent) :QStatusBar(parent) {

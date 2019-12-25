@@ -9,9 +9,6 @@ public:
 	Canvas(QWidget *parent = NULL);
 	~Canvas() {}
 
-signals:
-	void sizeChanged(uint w, uint h);
-
 protected:
 	virtual void paintGL() {}
 	virtual void resizeGL(int w, int h);

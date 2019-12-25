@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "enginedefines.h"
+#include "defines.h"
 #include "containers/dynamicarray.h"
 
 class Buffer;
@@ -44,6 +44,7 @@ public:
 
 private:
 	bool IsIPointer(uint type);
+	void Destroy();
 
 private:
 	Context* context_;

@@ -1,6 +1,11 @@
 #include "profilerinternal.h"
 
 #include <Windows.h>
+#undef min
+#undef max
+
+#include "world.h"
+
 #include "debug/debug.h"
 
 Sample::Sample() : PimplIdiom(new SampleInternal, t_delete<SampleInternal>) {}
@@ -26,10 +31,11 @@ ProfilerInternal::ProfilerInternal() : samples_(MaxProfilerSamples) {
 		Debug::LogError("failed to initialize Profiler: %d.", GetLastError());
 	}
 
-	Engine::frameEnter.subscribe(this, &ProfilerInternal::OnFrameEnter, (int)FrameEventQueue::Profiler);
+	World::frameEnter().subscribe(this, &ProfilerInternal::OnFrameEnter, (int)FrameEventQueue::Profiler);
 }
 
 ProfilerInternal::~ProfilerInternal() {
+	World::frameEnter().unsubscribe(this);
 }
 
 void ProfilerInternal::OnFrameEnter() {

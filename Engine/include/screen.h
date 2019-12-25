@@ -1,6 +1,6 @@
 #pragma once
+#include "defines.h"
 #include "tools/event.h"
-#include "enginedefines.h"
 
 class SUEDE_API Screen {
 public:

@@ -15,9 +15,10 @@ uint Object::GetInstanceID() { return _suede_dptr()->GetInstanceID(); }
 
 uint ObjectInternal::objectIDContainer[ObjectType::size()];
 
-ObjectInternal::ObjectInternal(ObjectType type) {
+ObjectInternal::ObjectInternal(ObjectType type, const char* name) {
 	id_ = GenerateInstanceID(type);
 	type_ = type;
+	name_ = name;
 }
 
 void ObjectInternal::SetName(Object* self, const std::string& value) {

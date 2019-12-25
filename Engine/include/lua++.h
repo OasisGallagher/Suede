@@ -15,7 +15,7 @@
 #include "debug/debug.h"
 #include "tools/typeid.h"
 
-#include "enginedefines.h"
+#include "defines.h"
 
 extern "C" {
 #include "lua/lua.h"

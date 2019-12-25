@@ -1,8 +1,10 @@
 #pragma once
+#include <set>
 #include <thread>
 
 #include "mesh.h"
 #include "glenums.h"
+#include "statistics.h"
 
 enum class ContextLimitType {
 	MaxColorAttachments,
@@ -39,11 +41,14 @@ enum class ContextLimitType {
 
 class Context {
 public:
-	virtual ~Context() {}
+	virtual ~Context();
 
 public:
 	static Context* GetCurrent();
 	static bool SetCurrent(Context* value);
+
+public:
+	event<> destroyed;
 
 public:
 	virtual void Update();
@@ -53,6 +58,7 @@ public:
 	bool IsSupported(const char* feature);
 	int GetLimit(ContextLimitType type) { return oglLimits_[(int)type]; }
 	bool InThisThread() const { return threadId_ == std::this_thread::get_id(); }
+	Statistics* GetStatistics() { return statistics_; }
 
 	void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
 	void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance);
@@ -194,6 +200,7 @@ private:
 
 private:
 	std::thread::id threadId_;
+	Statistics* statistics_ = nullptr;
 
 	int oglLimits_[(int)ContextLimitType::_Count] = { 0 };
 	std::vector<Command> commands_;

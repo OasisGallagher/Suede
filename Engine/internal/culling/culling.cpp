@@ -4,11 +4,11 @@
 #include "world.h"
 #include "renderer.h"
 #include "profiler.h"
-#include "statistics.h"
 #include "geometryutility.h"
 #include "internal/base/renderdefines.h"
+#include "internal/rendering/renderingcontext.h"
 
-Culling::Culling() : working_(false), stopped_(false) {
+Culling::Culling(RenderingContext* context) : context_(context), working_(false), stopped_(false) {
 	thread_ = std::thread(std::bind(&Culling::Run, this));
 }
 
@@ -29,7 +29,7 @@ void Culling::Run() {
 
 			cullingFinished.raise();
 
-			Statistics::SetCullingElapsed(
+			context_->GetStatistics()->SetCullingElapsed(
 				Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
 			);
 

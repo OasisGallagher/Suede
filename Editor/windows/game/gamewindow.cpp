@@ -19,14 +19,12 @@
 #include "screen.h"
 #include "camera.h"
 #include "shader.h"
-#include "engine.h"
 #include "gizmos.h"
 #include "texture.h"
 #include "physics.h"
 #include "resources.h"
 #include "projector.h"
 #include "behaviour.h"
-#include "statistics.h"
 #include "tagmanager.h"
 #include "particlesystem.h"
 #include "builtinproperties.h"
@@ -178,10 +176,6 @@ void GameWindow::keyPressEvent(QKeyEvent* event) {
 
 void GameWindow::resizeEvent(QResizeEvent* event) {
 	updateStatPosition();
-
-	// SUEDE TODO: Canvas::resizeGL not called when game window resized.
-	const QSize& size = event->size();
-	canvas()->sizeChanged(size.width(), size.height());
 }
 
 void GameWindow::timerEvent(QTimerEvent *event) {
@@ -235,7 +229,7 @@ void GameWindow::createScene() {
 	Debug::Log("test debug message");
 	Debug::Log("test debug message2");
 
-	ref_ptr<GameObject> lightGameObject = new GameObject(); 
+	ref_ptr<GameObject> lightGameObject = new GameObject();
 	lightGameObject->SetName("light");
 
 	Light* light = lightGameObject->AddComponent<Light>();

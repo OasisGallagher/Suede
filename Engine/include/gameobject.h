@@ -2,6 +2,7 @@
 #include "object.h"
 #include "bounds.h"
 #include "transform.h"
+#include "mainmtevent.h"
 
 enum {
 	RecalculateBoundsFlagsSelf = 1,
@@ -17,13 +18,32 @@ enum {
 	GameObjectMessageUser = 1024,
 };
 
+enum class ComponentEventType {
+	Added,
+	Removed,
+	Modified,
+};
+
+#define DEFAULT_GAME_OBJECT_NAME "New GameObject"
+
 class SUEDE_API GameObject : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(GameObject)
 	SUEDE_DECLARE_IMPLEMENTATION(GameObject)
 
 public:
-	GameObject();
+	GameObject(const char* name = DEFAULT_GAME_OBJECT_NAME);
 	~GameObject() {}
+
+public:
+	static main_mt_event<ref_ptr<GameObject>> created;
+	static main_mt_event<ref_ptr<GameObject>> destroyed;
+	static main_mt_event<ref_ptr<GameObject>> tagChanged;
+	static main_mt_event<ref_ptr<GameObject>> nameChanged;
+	static main_mt_event<ref_ptr<GameObject>> parentChanged;
+	static main_mt_event<ref_ptr<GameObject>> activeChanged;
+	static main_mt_event<ref_ptr<GameObject>> updateStrategyChanged;
+	static main_mt_event<ref_ptr<GameObject>, int> transformChanged;
+	static main_mt_event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> componentChanged;
 
 public:
 	bool GetActive() const;

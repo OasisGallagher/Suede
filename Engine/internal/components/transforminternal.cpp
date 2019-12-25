@@ -136,10 +136,7 @@ void TransformInternal::SetScale(const Vector3& value) {
 		DirtyChildrenScales();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(2, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(2, 0));
 	}
 }
 
@@ -152,10 +149,7 @@ void TransformInternal::SetPosition(const Vector3& value) {
 		DirtyChildrenPositions();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(0, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(0, 0));
 	}
 }
 
@@ -170,10 +164,7 @@ void TransformInternal::SetRotation(const Quaternion& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(1, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(1, 0));
 	}
 }
 
@@ -187,10 +178,7 @@ void TransformInternal::SetEulerAngles(const Vector3& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(1, 0);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(1, 0));
 	}
 }
 
@@ -312,10 +300,7 @@ void TransformInternal::SetLocalScale(const Vector3& value) {
 		DirtyChildrenScales();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(2, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(2, 1));
 	}
 }
 
@@ -327,10 +312,7 @@ void TransformInternal::SetLocalPosition(const Vector3& value) {
 		DirtyChildrenPositions();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(0, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(0, 1));
 	}
 }
 
@@ -343,10 +325,7 @@ void TransformInternal::SetLocalRotation(const Quaternion& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(1, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(1, 1));
 	}
 }
 
@@ -359,10 +338,7 @@ void TransformInternal::SetLocalEulerAngles(const Vector3& value) {
 		DirtyChildrenRotationsAndEulerAngles();
 		gameObject_->RecalculateBounds();
 
-		GameObjectTransformChangedEventPtr e = NewWorldEvent<GameObjectTransformChangedEventPtr>();
-		e->prs = Mathf::MakeDword(1, 1);
-		e->go = gameObject_;
-		World::FireEvent(e);
+		GameObject::transformChanged.delay_raise(gameObject_, Mathf::MakeDword(1, 1));
 	}
 }
 
@@ -610,9 +586,7 @@ void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Tran
 	SetDirty(LocalScale | LocalRotation | LocalPosition | LocalEulerAngles);
 
 	if (IsAttachedToScene(self)) {
-		GameObjectParentChangedEventPtr e = NewWorldEvent<GameObjectParentChangedEventPtr>();
-		e->go = self->GetGameObject();
-		World::FireEvent(e);
+		GameObject::parentChanged.delay_raise(self->GetGameObject());
 	}
 }
 

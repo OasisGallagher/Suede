@@ -11,13 +11,12 @@ public:
 	void Run();
 	bool SetCanvas(GraphicsCanvas* value);
 	GraphicsCanvas* GetCanvas() { return canvas_; }
-	void OnCanvasSizeChanged(uint width, uint height);
 
 protected:
 	void Close();
 
 protected:
-	virtual void Update() = 0;
+	virtual void Update();
 
 private:
 	int status_;

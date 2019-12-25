@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
+#include "defines.h"
 #include "component.h"
-#include "enginedefines.h"
 
 struct PRS {
 	Vector3 position;

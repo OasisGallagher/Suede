@@ -72,14 +72,23 @@ public:
 	);
 
 private:
-	void Render(Renderable& renderable, uint instance, uint matrixOffset);
+	struct RenderSamples {
+		RenderSamples();
+		~RenderSamples();
+
+		Sample* switchState;
+		Sample* updateOffset;
+		Sample* drawCall;
+	};
+
+	void Render(Renderable& renderable, uint instance, uint matrixOffset, RenderSamples& samples);
 
 	void ResetState();
 	void UpdateState(Renderable& renderable);
 
 	void UpdateMatrixBuffer(uint size, const void* data);
 
-	void RenderInstances(uint first, uint last);
+	void RenderInstances(uint first, uint last, RenderSamples& samples);
 	void GatherInstances(std::vector<uint>& ranges);
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 
@@ -112,23 +121,4 @@ private:
 		uint meshChanges;
 		uint materialChanges;
 	} counters_;
-
-	// profiler samples.
-	struct Samples {
-		Samples();
-		~Samples();
-
-		Sample* switch_state;
-		Sample*	update_ubo;
-		Sample* update_offset;
-		Sample* update_matrices;
-		Sample* update_tbo;
-		Sample* draw_call;
-		Sample* gather_instances;
-		Sample* update_pipeline;
-		Sample* stat_and_output;
-		Sample* reset_states;
-
-		void Reset();
-	} samples_;
 };

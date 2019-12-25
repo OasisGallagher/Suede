@@ -10,9 +10,10 @@ struct MaterialProperty {
 	Property property;
 };
 
+class Context;
 class MaterialInternal : public ObjectInternal {
 public:
-	MaterialInternal();
+	MaterialInternal(Context* context);
 	~MaterialInternal();
 
 public:
@@ -72,6 +73,8 @@ public:
 	static event<Material*> shaderChanged;
 
 private:
+	void OnContextDestroyed();
+
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
@@ -86,6 +89,8 @@ private:
 	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
+	Context* context_;
+
 	Shader* shader_;
 	int currentPass_;
 

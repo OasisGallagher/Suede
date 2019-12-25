@@ -40,12 +40,6 @@ void RenderingPipelines::Clear() {
 }
 
 Rendering::Rendering(RenderingContext* context) : context_(context) {
-	ssaoSample = Profiler::CreateSample();
-	ssaoTraversalSample = Profiler::CreateSample();
-
-	depthSample = Profiler::CreateSample();
-	shadowSample = Profiler::CreateSample();
-	renderingSample = Profiler::CreateSample();
 }
 
 #define OutputSample(sample)	Debug::OutputToConsole("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
@@ -137,32 +131,37 @@ void Rendering::OnImageEffects(const std::vector<ImageEffect*>& effects) {
 }
 
 void Rendering::SSAOPass(RenderingPipelines* pipelines) {
-	ssaoSample->Restart();
-
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	FrameState* fs = context_->GetFrameState();
 	AmbientOcclusion* ao = context_->GetAmbientOcclusion();
 
 	ao->Clear(fs->normalizedRect);
 	ao->Run(context_->GetUniformState()->depthTexture.get(), fs->normalizedRect);
 
-	ssaoSample->Stop();
-	OutputSample(ssaoSample);
+	sample->Stop();
+	OutputSample(sample);
+	Profiler::ReleaseSample(sample);
 }
 
 void Rendering::SSAOTraversalPass(RenderingPipelines* pipelines) {
-	ssaoTraversalSample->Restart();
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	pipelines->ssaoTraversal->Run();
-	ssaoTraversalSample->Stop();
-	OutputSample(ssaoTraversalSample);
+	sample->Stop();
+	OutputSample(sample);
+	Profiler::ReleaseSample(sample);
 }
 
 void Rendering::DepthPass(RenderingPipelines* pipelines) {
-	depthSample->Restart();
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	if (pipelines->depth->GetRenderableCount() > 0) {
 		pipelines->depth->Run();
 	}
-	depthSample->Stop();
-	OutputSample(depthSample);
+	sample->Stop();
+	OutputSample(sample);
+	Profiler::ReleaseSample(sample);
 }
 
 void Rendering::UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
@@ -181,29 +180,24 @@ void Rendering::ShadowPass(RenderingPipelines* pipelines) {
 	shadowMap->Resize(target->GetWidth(), target->GetHeight());
 	shadowMap->Clear();
 
-	shadowSample->Restart();
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	pipelines->shadow->Run();
-	shadowSample->Stop();
-	OutputSample(shadowSample);
+	sample->Stop();
+	OutputSample(sample);
+	Profiler::ReleaseSample(sample);
 }
 
 void Rendering::RenderPass(RenderingPipelines* pipelines) {
-	renderingSample->Restart();
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	pipelines->rendering->Run();
-	renderingSample->Stop();
-	OutputSample(renderingSample);
+	sample->Stop();
+	OutputSample(sample);
+	Profiler::ReleaseSample(sample);
 }
 
 PipelineBuilder::PipelineBuilder(RenderingContext* context) : context_(context) {
-	forward_pass = Profiler::CreateSample();
-	push_renderables = Profiler::CreateSample();
-	get_renderable_game_objects = Profiler::CreateSample();
-}
-
-PipelineBuilder::~PipelineBuilder() {
-	Profiler::ReleaseSample(forward_pass);
-	Profiler::ReleaseSample(push_renderables);
-	Profiler::ReleaseSample(get_renderable_game_objects);
 }
 
 void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices) {
@@ -327,10 +321,12 @@ RenderTexture* PipelineBuilder::GetActiveRenderTarget() {
 }
 
 void PipelineBuilder::RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light) {
-	forward_pass->Restart();
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	ForwardPass(pl, gameObjects);
-	forward_pass->Stop();
-	Debug::OutputToConsole("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", forward_pass->GetElapsedSeconds());
+	sample->Stop();
+	Debug::OutputToConsole("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", sample->GetElapsedSeconds());
+	Profiler::ReleaseSample(sample);
 }
 
 void PipelineBuilder::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights) {
@@ -345,13 +341,16 @@ void PipelineBuilder::ForwardDepthPass(Pipeline* pl) {
 }
 
 void PipelineBuilder::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
+	Sample* sample = Profiler::CreateSample();
+	sample->Start();
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject* go = gameObjects[i];
 		RenderGameObject(pl, go, go->GetComponent<Renderer>());
 	}
 
-	Debug::OutputToConsole("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", push_renderables->GetElapsedSeconds());
-	push_renderables->Reset();
+	sample->Stop();
+	Debug::OutputToConsole("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", sample->GetElapsedSeconds());
+	Profiler::ReleaseSample(sample);
 }
 
 void PipelineBuilder::GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd) {
@@ -389,8 +388,6 @@ void PipelineBuilder::ReplaceMaterials(Pipeline* pl, Material* material) {
 }
 
 void PipelineBuilder::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer) {
-	push_renderables->Start();
-
 	int subMeshCount = go->GetComponent<MeshProvider>()->GetMesh()->GetSubMeshCount();
 	int materialCount = renderer->GetMaterialCount();
 
@@ -415,8 +412,6 @@ void PipelineBuilder::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* r
 			}
 		}
 	}
-
-	push_renderables->Stop();
 }
 
 void PipelineBuilder::RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass) {

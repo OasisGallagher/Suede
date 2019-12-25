@@ -23,21 +23,6 @@ template <class T> struct suede_is_vector : public std::false_type {};
 template <class T, class A> struct suede_is_vector<std::vector<T, A>> : public std::true_type {};
 //
 
-/**
- * @brief static ref_ptr cast.
- */
-template <class T, class Ptr>
-inline T suede_static_cast(const Ptr& p) {
-	return static_cast<T::element_type*>(p.get());
-}
-
-/**
- * @brief dynamic ref_ptr cast.
- */
-template<class T, class Ptr> T suede_dynamic_cast(const Ptr& p) {
-	return dynamic_cast<T::element_type*>(p.get());
-}
-
 #define SUEDE_USE_NAMESPACE
 
 #ifdef  SUEDE_USE_NAMESPACE

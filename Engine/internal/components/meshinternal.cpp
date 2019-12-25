@@ -146,14 +146,24 @@ SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 
 MeshInternal::MeshInternal(Context* context)
 	: ObjectInternal(ObjectType::Mesh), context_(context) {
+	context_->destroyed.subscribe(this, &MeshInternal::OnContextDestroyed);
 }
 
 MeshInternal::~MeshInternal() {
 	Destroy();
+	if (context_ != nullptr) {
+		context_->destroyed.unsubscribe(this);
+	}
 }
 
 void MeshInternal::Destroy() {
 	subMeshes_.clear();
+	storage_.reset();
+}
+
+void MeshInternal::OnContextDestroyed() {
+	Destroy();
+	context_ = nullptr;
 }
 
 void MeshInternal::CreateStorage() {
@@ -351,7 +361,10 @@ MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	GetMeshInternal(mesh_)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
+	auto storage = GetMeshInternal(mesh_)->GetStorage();
+	if (storage != nullptr) {
+		storage->modified.unsubscribe(this);
+	}
 }
 
 void MeshProviderInternal::SetMesh(Mesh* value) {

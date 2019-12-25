@@ -1,6 +1,6 @@
 #pragma once
+#include "defines.h"
 #include "math/vector3.h"
-#include "enginedefines.h"
 
 class SUEDE_API Ray {
 public:

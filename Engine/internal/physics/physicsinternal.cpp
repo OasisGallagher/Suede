@@ -2,7 +2,6 @@
 
 #include "time2.h"
 #include "gizmos.h"
-#include "engine.h"
 #include "rigidbody.h"
 #include "memory/refptr.h"
 #include "frameeventqueue.h"
@@ -56,13 +55,12 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	world_ = new btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
 	world_->setDebugDrawer(new BulletDebugDrawer);
 
-	World::AddEventListener(this);
-	Engine::frameEnter.subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
+	World::frameEnter().subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
+	GameObject::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
 }
 
 PhysicsInternal::~PhysicsInternal() {
-	World::RemoveEventListener(this);
-	Engine::frameEnter.unsubscribe(this);
+	World::frameEnter().unsubscribe(this);
 
 	delete world_->getDebugDrawer();
 	delete world_;
@@ -71,14 +69,6 @@ PhysicsInternal::~PhysicsInternal() {
 	delete collisionConfiguration_;
 	delete dispatcher_;
 	delete broadphase_;
-}
-
-void PhysicsInternal::OnWorldEvent(WorldEventBasePtr e) {
-	switch (e->GetEventType()) {
-		case WorldEventType::GameObjectComponentChanged:
-			OnGameObjectComponentChanged(std::static_pointer_cast<GameObjectComponentChangedEvent>(e));
-			break;
-	}
 }
 
 void PhysicsInternal::FixedUpdate() {
@@ -126,5 +116,5 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hit
 	return true;
 }
 
-void PhysicsInternal::OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e) {
+void PhysicsInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component) {
 }

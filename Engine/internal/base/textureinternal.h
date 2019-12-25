@@ -7,6 +7,14 @@
 #include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"
 
+struct Sampler {
+	TextureWrapMode wrapS = TextureWrapMode::ClampToEdge;
+	TextureWrapMode wrapT = TextureWrapMode::ClampToEdge;
+
+	TextureMinFilterMode minFilter = TextureMinFilterMode::Linear;
+	TextureMagFilterMode magFilter = TextureMagFilterMode::Linear;
+};
+
 class TextureInternal : public ObjectInternal {
 public:
 	TextureInternal(ObjectType type, Context* context);
@@ -23,16 +31,16 @@ public:
 	uint GetNativePointer() { return texture_; }
 
 	void SetMinFilterMode(TextureMinFilterMode value);
-	TextureMinFilterMode GetMinFilterMode() const;
+	TextureMinFilterMode GetMinFilterMode() const { return sampler_.minFilter; }
 	
 	void SetMagFilterMode(TextureMagFilterMode value);
-	TextureMagFilterMode GetMagFilterMode() const;
+	TextureMagFilterMode GetMagFilterMode() const { return sampler_.magFilter; }
 
 	void SetWrapModeS(TextureWrapMode value);
-	TextureWrapMode GetWrapModeS() const;
+	TextureWrapMode GetWrapModeS() const { return sampler_.wrapS; }
 
 	void SetWrapModeT(TextureWrapMode value);
-	TextureWrapMode GetWrapModeT() const;
+	TextureWrapMode GetWrapModeT() const { return sampler_.wrapT; }
 
 protected:
 	void DestroyTexture();
@@ -40,6 +48,8 @@ protected:
 protected:
 	virtual uint GetGLTextureType() const = 0;
 	virtual uint GetGLTextureBindingName() const = 0;
+	virtual bool SupportsSampler() const { return true; }
+	virtual void OnContextDestroyed();
 
 	void BindTexture() const;
 	void UnbindTexture() const;
@@ -48,6 +58,8 @@ protected:
 	void ColorStreamFormatToGLenum(uint(&parameters)[2], ColorStreamFormat format) const;
 
 private:
+	void ApplySampler();
+
 	uint TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const;
 	uint TextureMagFilterModeToGLenum(TextureMagFilterMode mode) const;
 	uint TextureWrapModeToGLenum(TextureWrapMode mode) const;
@@ -58,6 +70,9 @@ private:
 
 protected:
 	Context* context_;
+
+	Sampler sampler_;
+	bool samplerDirty_;
 
 	int width_, height_;
 	mutable int oldBindingTexture_;
@@ -117,8 +132,10 @@ public:
 	void Update(uint offset, uint size, const void* data);
 
 protected:
+	virtual void OnContextDestroyed();
 	virtual uint GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
 	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
+	virtual bool SupportsSampler() const { return false; }
 
 private:
 	void DestroyBuffer();

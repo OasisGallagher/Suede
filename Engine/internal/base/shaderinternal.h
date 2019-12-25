@@ -34,6 +34,8 @@ private:
 
 	typedef ptr_map<std::string, Uniform> UniformContainer;
 
+	void Destroy();
+
 	void InitializeRenderStates(const std::vector<Semantics::RenderState>& states);
 	RenderState* CreateRenderState(const Semantics::RenderState& state);
 	RenderState* AllocateRenderState(const Semantics::RenderState &state);
@@ -163,6 +165,7 @@ public:
 
 private:
 	void ReleaseProperties();
+	void OnContextDestroyed();
 	void SetProperties(const std::vector<ShaderProperty>& properties);
 	void ParseSemanticProperties(std::vector<ShaderProperty>& properties, const Semantics& semantics);
 	void ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path);

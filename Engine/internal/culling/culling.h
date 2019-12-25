@@ -6,11 +6,11 @@
 
 #include "tools/event.h"
 
-class Culling;
+class RenderingContext;
 
-class Culling : public WorldGameObjectWalker {
+class Culling : public GameObjectWalker {
 public:
-	Culling();
+	Culling(RenderingContext* context);
 	~Culling();
 
 public:
@@ -36,6 +36,8 @@ private:
 	std::mutex mutex_;
 	std::thread thread_;
 	std::condition_variable cond_;
+
+	RenderingContext* context_;
 
 	bool working_, stopped_;
 	Matrix4 worldToClipMatrix_;

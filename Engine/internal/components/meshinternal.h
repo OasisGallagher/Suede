@@ -78,6 +78,7 @@ public:
 
 private:
 	void Destroy();
+	void OnContextDestroyed();
 	void ClearAttribute(MeshAttribute& attribute);
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);

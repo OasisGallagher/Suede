@@ -1,7 +1,6 @@
 #pragma once
 #include <stack>
 
-#include "engine.h"
 #include "tools/event.h"
 #include "tools/singleton.h"
 #include "containers/freelist.h"

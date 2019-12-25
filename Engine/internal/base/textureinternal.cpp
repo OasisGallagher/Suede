@@ -82,11 +82,16 @@ uint MRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTe
 
 ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal(Context::GetCurrent())){}
 
-TextureInternal::TextureInternal(ObjectType type, Context* context) :ObjectInternal(type)
-	, context_(context), texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
+TextureInternal::TextureInternal(ObjectType type, Context* context) : ObjectInternal(type)
+	, context_(context), samplerDirty_(true), texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
+	context_->destroyed.subscribe(this, &TextureInternal::OnContextDestroyed);
 }
 
 TextureInternal::~TextureInternal() {
+	if (context_ != nullptr) {
+		context_->destroyed.unsubscribe(this);
+	}
+
 	DestroyTexture();
 }
 
@@ -99,6 +104,10 @@ void TextureInternal::Bind(uint index) {
 	location_ = index + GL_TEXTURE0;
 	context_->ActiveTexture(location_);
 	BindTexture();
+
+	if (SupportsSampler() && samplerDirty_) {
+		ApplySampler();
+	}
 }
 
 void TextureInternal::Unbind() {
@@ -110,59 +119,31 @@ void TextureInternal::Unbind() {
 }
 
 void TextureInternal::SetMinFilterMode(TextureMinFilterMode value) {
-	BindTexture();
-	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, TextureMinFilterModeToGLenum(value));
-	UnbindTexture();
-}
-
-TextureMinFilterMode TextureInternal::GetMinFilterMode() const {
-	BindTexture();
-	int parameter = 0;
-	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MIN_FILTER, &parameter);
-	UnbindTexture();
-	return GLenumToTextureMinFilterMode(parameter);
+	if (sampler_.minFilter != value) {
+		sampler_.minFilter = value;
+		samplerDirty_ = true;
+	}
 }
 
 void TextureInternal::SetMagFilterMode(TextureMagFilterMode value) {
-	BindTexture();
-	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, TextureMagFilterModeToGLenum(value));
-	UnbindTexture();
-}
-
-TextureMagFilterMode TextureInternal::GetMagFilterMode() const {
-	BindTexture();
-	int parameter = 0;
-	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_MAG_FILTER, &parameter);
-	UnbindTexture();
-	return GLenumToTextureMagFilterMode(parameter);
+	if (sampler_.magFilter != value) {
+		sampler_.magFilter = value;
+		samplerDirty_ = true;
+	}
 }
 
 void TextureInternal::SetWrapModeS(TextureWrapMode value) {
-	BindTexture();
-	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_S, TextureWrapModeToGLenum(value));
-	UnbindTexture();
-}
-
-TextureWrapMode TextureInternal::GetWrapModeS() const {
-	BindTexture();
-	int parameter = 0;
-	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_S, &parameter);
-	UnbindTexture();
-	return GLenumToTextureWrapMode(parameter);
+	if (sampler_.wrapS != value) {
+		sampler_.wrapS = value;
+		samplerDirty_ = true;
+	}
 }
 
 void TextureInternal::SetWrapModeT(TextureWrapMode value) {
-	BindTexture();
-	context_->TexParameteri(GetGLTextureType(), GL_TEXTURE_WRAP_T, TextureWrapModeToGLenum(value));
-	UnbindTexture();
-}
-
-TextureWrapMode TextureInternal::GetWrapModeT() const {
-	BindTexture();
-	int parameter = 0;
-	context_->GetTexParameteriv(GetGLTextureType(), GL_TEXTURE_WRAP_T, &parameter);
-	UnbindTexture();
-	return GLenumToTextureWrapMode(parameter);
+	if (sampler_.wrapT != value) {
+		sampler_.wrapT = value;
+		samplerDirty_ = true;
+	}
 }
 
 void TextureInternal::BindTexture() const {
@@ -180,6 +161,21 @@ void TextureInternal::DestroyTexture() {
 		context_->DeleteTextures(1, &texture_);
 		texture_ = 0;
 	}
+}
+
+void TextureInternal::ApplySampler() {
+	uint type = GetGLTextureType();
+	context_->TexParameteri(type, GL_TEXTURE_MIN_FILTER, TextureMinFilterModeToGLenum(sampler_.minFilter));
+	context_->TexParameteri(type, GL_TEXTURE_MAG_FILTER, TextureMagFilterModeToGLenum(sampler_.magFilter));
+	context_->TexParameteri(type, GL_TEXTURE_WRAP_S, TextureWrapModeToGLenum(sampler_.wrapS));
+	context_->TexParameteri(type, GL_TEXTURE_WRAP_T, TextureWrapModeToGLenum(sampler_.wrapT));
+
+	samplerDirty_ = false;
+}
+
+void TextureInternal::OnContextDestroyed() {
+	DestroyTexture();
+	context_ = nullptr;
 }
 
 BPPType TextureInternal::GLenumToBpp(uint format) const {
@@ -699,6 +695,11 @@ uint TextureBufferInternal::GetSize() const {
 
 void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
 	buffer_->Update(offset, size, data);
+}
+
+void TextureBufferInternal::OnContextDestroyed() {
+	DestroyBuffer();
+	TextureInternal::OnContextDestroyed();
 }
 
 void TextureBufferInternal::DestroyBuffer() {

@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 
+#include "defines.h"
 #include "math/vector3.h"
-#include "enginedefines.h"
 
 /**
  * @brief axis-aligned bounding box.

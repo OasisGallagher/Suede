@@ -28,7 +28,10 @@ void HierarchyWindow::initUI() {
 void HierarchyWindow::awake() {
 	World::gameObjectImported.subscribe(this, &HierarchyWindow::onGameObjectImported);
 
-	World::AddEventListener(this);
+	GameObject::destroyed.subscribe(this, &HierarchyWindow::onGameObjectDestroyed);
+	GameObject::nameChanged.subscribe(this, &HierarchyWindow::onGameObjectNameChanged);
+	GameObject::parentChanged.subscribe(this, &HierarchyWindow::onGameObjectParentChanged);
+	GameObject::activeChanged.subscribe(this, &HierarchyWindow::onGameObjectActiveChanged);
 }
 
 void HierarchyWindow::onGameObjectImported(GameObject* root, const std::string& path) {
@@ -72,25 +75,7 @@ void HierarchyWindow::setSelectedGameObjects(const QList<GameObject*>& objects) 
 	}
 }
 
-void HierarchyWindow::OnWorldEvent(WorldEventBasePtr entit) {
-	GameObjectEventPtr eep = std::static_pointer_cast<GameObjectEvent>(entit);
-	switch (entit->GetEventType()) {
-		case WorldEventType::GameObjectDestroyed:
-			onGameObjectDestroyed(eep->go.get());
-			break;
-		case WorldEventType::GameObjectNameChanged:
-			onGameObjectNameChanged(eep->go.get());
-			break;
-		case WorldEventType::GameObjectParentChanged:
-			onGameObjectParentChanged(eep->go.get());
-			break;
-		case WorldEventType::GameObjectActiveChanged:
-			onGameObjectActiveChanged(eep->go.get());
-			break;
-	}
-}
-
-void HierarchyWindow::onGameObjectDestroyed(GameObject* go) {
+void HierarchyWindow::onGameObjectDestroyed(ref_ptr<GameObject> go) {
 	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
 		removeItem(item);
@@ -106,22 +91,22 @@ void HierarchyWindow::onGameObjectDestroyed(GameObject* go) {
 	}
 
 	if (contains) {
-		emit selectionChanged(QList<GameObject*>(), QList<GameObject*>({ go }));
+		emit selectionChanged(QList<GameObject*>(), QList<GameObject*>({ go.get() }));
 	}
 }
 
-void HierarchyWindow::onGameObjectNameChanged(GameObject* go) {
+void HierarchyWindow::onGameObjectNameChanged(ref_ptr<GameObject> go) {
 	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
 		item->setText(go->GetName().c_str());
 	}
 }
 
-void HierarchyWindow::onGameObjectParentChanged(GameObject* go) {
-	appendChildItem(go);
+void HierarchyWindow::onGameObjectParentChanged(ref_ptr<GameObject> go) {
+	appendChildItem(go.get());
 }
 
-void HierarchyWindow::onGameObjectActiveChanged(GameObject* go) {
+void HierarchyWindow::onGameObjectActiveChanged(ref_ptr<GameObject> go) {
 	QStandardItem* item = items_.value(go->GetInstanceID());
 	if (item != nullptr) {
 		static QBrush activeNameBrush(QColor(0xFFFFFF));

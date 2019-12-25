@@ -16,7 +16,7 @@ public:
 	virtual int getDebugMode() const { return DBG_DrawWireframe | DBG_DrawAabb; }
 };
 
-class PhysicsInternal : public WorldEventListener {
+class PhysicsInternal {
 public:
 	PhysicsInternal();
 	~PhysicsInternal();
@@ -35,12 +35,9 @@ public:
 	void SetDebugDrawEnabled(bool value) { debugDrawEnabled_ = value; }
 	bool GetDebugDrawEnabled() const { return debugDrawEnabled_; }
 
-public:
-	virtual void OnWorldEvent(WorldEventBasePtr e);
-
 private:
 	void OnFrameEnter() { FixedUpdate(); }
-	void OnGameObjectComponentChanged(GameObjectComponentChangedEventPtr e);
+	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component);
 
 private:
 	bool debugDrawEnabled_;

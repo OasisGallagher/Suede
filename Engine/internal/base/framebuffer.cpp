@@ -12,6 +12,13 @@
 FramebufferBase::FramebufferBase(Context* context) : context_(context), fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
 	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	context_->destroyed.subscribe(this, &FramebufferBase::OnContextDestroyed);
+}
+
+FramebufferBase::~FramebufferBase() {
+	if (context_ != nullptr) {
+		context_->destroyed.unsubscribe(this);
+	}
 }
 
 void FramebufferBase::BindRead() {
@@ -186,11 +193,19 @@ Framebuffer::Framebuffer(Context* context) : FramebufferBase(context), depthRend
 }
 
 Framebuffer::~Framebuffer() {
+	Destroy();
+}
+
+void Framebuffer::Destroy() {
 	delete[] renderTextures_;
+	renderTextures_ = nullptr;
+
 	delete[] glAttachments_;
-	
+	glAttachments_ = nullptr;
+
 	if (fbo_ != 0) {
 		context_->DeleteFramebuffers(1, &fbo_);
+		fbo_ = 0;
 	}
 
 	if (depthRenderbuffer_ != 0) {
@@ -244,6 +259,11 @@ void Framebuffer::ClearCurrent(FramebufferClearMask clearMask) {
 	uint count = ToGLColorAttachments();
 	context_->DrawBuffers(count, glAttachments_);
 	FramebufferBase::ClearCurrent(clearMask);
+}
+
+void Framebuffer::OnContextDestroyed() {
+	Destroy();
+	FramebufferBase::OnContextDestroyed();
 }
 
 void Framebuffer::ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n) {

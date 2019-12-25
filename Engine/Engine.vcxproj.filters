@@ -175,9 +175,6 @@
     <ClInclude Include="include\world.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\engine.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\light.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -203,9 +200,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\resources.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\enginedefines.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\variant.h">
@@ -236,9 +230,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\component.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\statistics.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\rect.h">
@@ -1510,9 +1501,6 @@
     <ClInclude Include="internal\tools\profilerinternal.h">
       <Filter>internal\tools</Filter>
     </ClInclude>
-    <ClInclude Include="internal\tools\statisticsinternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
     <ClInclude Include="internal\tools\time2internal.h">
       <Filter>internal\tools</Filter>
     </ClInclude>
@@ -1545,6 +1533,30 @@
     </ClInclude>
     <ClInclude Include="internal\base\glenums.h">
       <Filter>internal\base</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\base\statistics.h">
+      <Filter>internal\base</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\luabridge.h">
+      <Filter>internal\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\defines.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\subsystem.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\world\sceneinternal.h">
+      <Filter>internal\world</Filter>
+    </ClInclude>
+    <ClInclude Include="include\scene.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\worldevents.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mainmtevent.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2226,9 +2238,6 @@
     <ClCompile Include="internal\tools\profilerinternal.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
-    <ClCompile Include="internal\tools\statisticsinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
     <ClCompile Include="internal\tools\time2internal.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
@@ -2253,9 +2262,6 @@
     <ClCompile Include="internal\base\resources.cpp">
       <Filter>internal\base</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\engine.cpp">
-      <Filter>internal\world</Filter>
-    </ClCompile>
     <ClCompile Include="internal\tools\screen.cpp">
       <Filter>internal\tools</Filter>
     </ClCompile>
@@ -2273,6 +2279,18 @@
     </ClCompile>
     <ClCompile Include="internal\base\context.cpp">
       <Filter>internal\base</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\statistics.cpp">
+      <Filter>internal\base</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\luabridge.cpp">
+      <Filter>internal\world</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\world\sceneinternal.cpp">
+      <Filter>internal\world</Filter>
+    </ClCompile>
+    <ClCompile Include="include\worldevents.cpp">
+      <Filter>include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

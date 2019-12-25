@@ -1,7 +1,6 @@
 #include "camerainternal.h"
 
 #include "world.h"
-#include "engine.h"
 #include "gizmos.h"
 #include "profiler.h"
 #include "gizmospainter.h"
@@ -16,6 +15,8 @@ void Camera::SetMain(Camera* value) { main_ = value; }
 
 Camera::Camera() : Component(new CameraInternal) {}
 Camera::~Camera() { if (main_ == this) { main_ = nullptr; } }
+
+mt_event<ref_ptr<Camera>> Camera::depthChanged;
 
 void Camera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
 int Camera::GetDepth() const { return _suede_dptr()->GetDepth(); }
@@ -76,7 +77,7 @@ CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), pipelineReady_(false), normalizedRect_(0, 0, 1, 1)
 	, clearType_(ClearType::Color), clearColor_(Color::black), depthTextureMode_(DepthTextureMode::None), renderPath_(RenderPath::Forward)
 	 /*, gbuffer_(nullptr) */{
-	culling_ = new Culling();
+	culling_ = new Culling(context_);
 
 	culling_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
 
@@ -94,6 +95,7 @@ CameraInternal::CameraInternal()
 CameraInternal::~CameraInternal() {
 	culling_->Stop();
 
+	delete culling_;
 	delete pipelineBuilder_;
 	delete frontPipelines_;
 	delete backPipelines_;
@@ -123,9 +125,7 @@ void CameraInternal::UpdateFrameState() {
 void CameraInternal::SetDepth(Camera* self, int value) {
 	if (depth_ != value) {
 		depth_ = value;
-		CameraDepthChangedEventPtr e = NewWorldEvent<CameraDepthChangedEventPtr>();
-		e->component = self;
-		World::FireEvent(e);
+		Camera::depthChanged.delay_raise(self);
 	}
 }
 

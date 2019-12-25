@@ -16,6 +16,7 @@ bool Context::Initialize() {
 		return false;
 	}
 
+	statistics_ = new Statistics();
 	threadId_ = std::this_thread::get_id();
 
 	if (GLEW_ARB_debug_output) {
@@ -35,7 +36,6 @@ bool Context::Initialize() {
 	DepthMask(GL_TRUE);
 
 	InitializeLimits();
-
 
 	return true;
 }
@@ -60,6 +60,11 @@ void Context::InitializeLimits() {
 	GL_INTEGER(ContextLimitType::MaxTextureBufferSize, GL_MAX_TEXTURE_BUFFER_SIZE);
 
 #undef GL_INTEGER
+}
+
+Context::~Context() {
+	destroyed.raise();
+	delete statistics_;
 }
 
 Context* Context::GetCurrent() { return current_; }

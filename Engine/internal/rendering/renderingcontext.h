@@ -44,6 +44,7 @@ struct FrameState {
 };
 
 class ShadowMap;
+class Statistics;
 class AmbientOcclusion;
 
 class RenderingContext : public Context {

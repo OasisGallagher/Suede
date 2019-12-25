@@ -1,6 +1,6 @@
 #include "statswidget.h"
 
-#include "statistics.h"
+#include "world.h"
 
 StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 	ui.setupUi(this);
@@ -14,14 +14,15 @@ StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 
 void StatsWidget::updateContent() {
 	if (isVisible()) {
-		ui.fps->setText(QString::number(Statistics::GetFrameRate(), 'f', 2));
+		const FrameStatistics* stats = World::GetFrameStatistics();
+		ui.fps->setText(QString::number(stats->frameRate, 'f', 2));
 
-		ui.script->setText(QString::asprintf("%.2f ms", Statistics::GetScriptElapsed() * 1000));
-		ui.culling->setText(QString::asprintf("%.2f ms", Statistics::GetCullingElapsed() * 1000));
-		ui.rendering->setText(QString::asprintf("%.2f ms", Statistics::GetRenderingElapsed() * 1000));
+		ui.script->setText(QString::asprintf("%.2f ms", stats->scriptElapsed * 1000));
+		ui.culling->setText(QString::asprintf("%.2f ms", stats->cullingElapsed * 1000));
+		ui.rendering->setText(QString::asprintf("%.2f ms", stats->renderingElapsed * 1000));
 
-		ui.drawcalls->setText(QString::number(Statistics::GetDrawcalls()));
-		ui.triangles->setText(QString::number(Statistics::GetTriangles()));
+		ui.drawcalls->setText(QString::number(stats->ndrawcalls));
+		ui.triangles->setText(QString::number(stats->ntriangles));
 	}
 }
 

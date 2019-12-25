@@ -162,12 +162,17 @@ template<class T> T * get_pointer(ref_ptr<T> const & p) {
 class SUEDE_API intrusive_ref_counter {
 	std::atomic<int> refs_ = 0;
 
+	friend int ref_ptr_load(intrusive_ref_counter* counter);
 	friend void ref_ptr_add(intrusive_ref_counter* counter);
 	friend void ref_ptr_release(intrusive_ref_counter* counter);
 
 public:
 	virtual ~intrusive_ref_counter() {}
 };
+
+inline int ref_ptr_load(intrusive_ref_counter* counter) {
+	return counter->refs_;
+}
 
 inline void ref_ptr_add(intrusive_ref_counter* counter) {
 	++counter->refs_;
@@ -181,5 +186,13 @@ inline void ref_ptr_release(intrusive_ref_counter* counter) {
 
 template <class T, class... Args>
 inline ref_ptr<T> make_ref(Args... args) {
-	return MEMORY_NEW(T, args...);
+	return new T(args...);
+}
+
+template<class T, class U> ref_ptr<T> static_ref_ptr_cast(ref_ptr<U> const & p) {
+	return static_cast<T *>(p.get());
+}
+
+template<class T, class U> ref_ptr<T> dynamic_ref_ptr_cast(ref_ptr<U> const & p) {
+	return dynamic_cast<T *>(p.get());
 }

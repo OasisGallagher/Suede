@@ -19,7 +19,6 @@
 #include "particlesystem.h"
 
 #include <memory>
-#include "enginedefines.h"
 
 Factory Factory::instance;
 

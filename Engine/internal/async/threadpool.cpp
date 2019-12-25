@@ -1,16 +1,16 @@
 #include "threadpool.h"
 
-#include "engine.h"
+#include "world.h"
 #include "debug/debug.h"
 #include "frameeventqueue.h"
 
-ThreadPool::ThreadPool(unsigned n)
-	: busy(0U), stopped(false), workers(n, std::bind(&ThreadPool::ThreadProc, this)) {
-	Engine::frameEnter.subscribe(this, &ThreadPool::OnFrameEnter, (int)FrameEventQueue::User);
+ThreadPool::ThreadPool(unsigned n) : busy(0U), stopped(false) {
+	workers.resize(n, std::bind(&ThreadPool::ThreadProc, this));
+	World::frameEnter().subscribe(this, &ThreadPool::OnFrameEnter, (int)FrameEventQueue::User);
 }
 
 ThreadPool::~ThreadPool() {
-	Engine::frameEnter.unsubscribe(this);
+	World::frameEnter().unsubscribe(this);
 
 	// set stop-condition
 	std::unique_lock<std::mutex> lock(tasks_mutex);

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <set>
 #include <vector>
 #include <memory>
 #include <algorithm>
@@ -14,6 +15,7 @@ template <class... Args>
 class _SubscriberBase {
 public:
 	virtual int order() = 0;
+	virtual void* caller() = 0;
 	virtual void call(Args... args) = 0;
 	virtual bool instanceof(void* t) = 0;
 	virtual ~_SubscriberBase() {}
@@ -33,6 +35,7 @@ public:
 	_Subscriber(T* _t, void(T::*_f)(Args...), int _order = 0) : t(_t), f(_f), o(_order) {}
 	~_Subscriber() {}
 	int order() { return o; }
+	void* caller() { return t; }
 	void call(Args... args)   final { (t->*f)(args...); }
 	bool instanceof(void* _t) final { return _t == (void*)t; }
 };
@@ -51,12 +54,19 @@ public:
 template <class... Args>
 class event : public _EventBase {
 public:
+	event() {}
+	event(const event& other) = delete;
+	event& operator=(const event&) = delete;
+
+public:
 	using smart_ptr_type = std::shared_ptr<_SubscriberBase<Args...>>;
 	void raise(Args... args) {
 		inside_raise_ = true;
 		int size = subscribers_.size();
 		for (int i = 0; i < size; ++i) {
-			subscribers_[i]->call(args...);
+			if (to_remove_.find(subscribers_[i]->caller()) == to_remove_.end()) {
+				subscribers_[i]->call(args...);
+			}
 		}
 
 		inside_raise_ = false;
@@ -76,7 +86,7 @@ public:
 
 	void unsubscribe(void* t) final {
 		if (inside_raise_) {
-			to_remove_.push_back(t);
+			to_remove_.insert(t);
 		}
 		else {
 			erase_subscriber(t);
@@ -94,7 +104,7 @@ private:
 
 protected:
 	bool inside_raise_ = false;
-	std::vector<void*> to_remove_;
+	std::set<void*> to_remove_;
 	std::vector<smart_ptr_type> subscribers_;
 };
 
@@ -134,4 +144,45 @@ private:
 
 private:
 	std::vector<smart_ptr_type> to_add_;
+};
+
+#include <mutex>
+#include <thread>
+#include "unpacker.h"
+
+template <class... Args>
+class mt_event : public event<Args...> {
+public:
+	mt_event() {
+		thread_id_ = std::this_thread::get_id();
+	}
+
+public:
+	void raise(Args... args) {
+		if (thread_id_ != std::this_thread::get_id()) {
+			delay_raise(args...);
+		}
+		else {
+			event<Args...>::raise(args...);
+		}
+	}
+
+	void delay_raise(Args... args) {
+		std::lock_guard<std::mutex> lock(mutex_);
+		raise_arguments_.emplace_back(args...);
+	}
+
+	void update() {
+		assert(thread_id_ == std::this_thread::get_id());
+
+		std::lock_guard<std::mutex> lock(mutex_);
+		for (auto& argument : raise_arguments_) {
+			Unpacker::apply(this, &event<Args...>::raise, argument);
+		}
+	}
+
+private:
+	std::mutex mutex_;
+	std::thread::id thread_id_;
+	std::vector<std::tuple<Args...>> raise_arguments_;
 };

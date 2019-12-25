@@ -165,6 +165,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="tools\singleton.h" />
     <ClInclude Include="tools\string.h" />
     <ClInclude Include="tools\typeid.h" />
+    <ClInclude Include="tools\unpacker.h" />
     <ClInclude Include="types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,6 +9,7 @@
 class GizmosInternal {
 public:
 	GizmosInternal();
+	~GizmosInternal();
 
 public:
 	void Flush();

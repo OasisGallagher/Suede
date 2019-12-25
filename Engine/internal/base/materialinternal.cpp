@@ -1,5 +1,6 @@
 #include "materialinternal.h"
 
+#include "context.h"
 #include "renderstate.h"
 #include "math/mathf.h"
 #include "debug/debug.h"
@@ -7,7 +8,7 @@
 #include "renderdefines.h"
 #include "builtinproperties.h"
 
-Material::Material() : Object(new MaterialInternal) { }
+Material::Material() : Object(new MaterialInternal(Context::GetCurrent())) { }
 ref_ptr<Object> Material::Clone() { return _suede_dptr()->Clone(); }
 void Material::Bind(uint pass) { _suede_dptr()->Bind(pass); }
 void Material::Unbind() { _suede_dptr()->Unbind(); }
@@ -54,12 +55,16 @@ const std::vector<const Property*>& Material::GetExplicitProperties() { return _
 
 event<Material*> MaterialInternal::shaderChanged;
 
-MaterialInternal::MaterialInternal()
-	: ObjectInternal(ObjectType::Material), currentPass_(-1) {
+MaterialInternal::MaterialInternal(Context* context)
+	: ObjectInternal(ObjectType::Material), context_(context), currentPass_(-1) {
 	name_ = "New Material";
+	context_->destroyed.subscribe(this, &MaterialInternal::OnContextDestroyed);
 }
 
 MaterialInternal::~MaterialInternal() {
+	if (context_ != nullptr) {
+		context_->destroyed.unsubscribe(this);
+	}
 }
 
 ref_ptr<Object> MaterialInternal::Clone() {
@@ -390,6 +395,13 @@ Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType t
 	}
 
 	return var;
+}
+
+void MaterialInternal::OnContextDestroyed() {
+	properties_.clear();
+	explicitProperties_.clear();
+
+	context_ = nullptr;
 }
 
 void MaterialInternal::BindProperties(uint pass) {

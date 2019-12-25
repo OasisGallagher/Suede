@@ -5,6 +5,7 @@ enum class FrameEventQueue {
 	Profiler,
 	Statistics,
 	Physics,
+	MainThreadEvents,
 
 	User = 0,
 

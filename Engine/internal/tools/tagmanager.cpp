@@ -3,7 +3,7 @@
 
 static std::vector<std::string> tags{ "DefaultTag0", "DefaultTag1", "DefaultTag2" };
 
-const std::vector<std::string>& TagManager::GetAllTags() {
+const std::vector<std::string>& TagManager::GetAllRegisteredTags() {
 	return tags;
 }
 

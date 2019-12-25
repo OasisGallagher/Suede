@@ -9,7 +9,7 @@ struct SUEDE_API Vector2 {
 	Vector2(float x, float y) :x(x), y(y) {}
 	Vector2(const Vector2& other) : x(other.x), y(other.y) {}
 
-	float GetMagnitude() const { return sqrtf(x *x + y * y); }
+	float GetMagnitude() const;
 	float GetSqrMagnitude() const { return (x * x + y * y); }
 
 	Vector2 GetNormalized() const;

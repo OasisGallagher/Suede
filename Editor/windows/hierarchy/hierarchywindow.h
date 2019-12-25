@@ -13,7 +13,7 @@ class QTreeView;
 class QStandardItem;
 class QStandardItemModel;
 
-class HierarchyWindow : public ChildWindow, public WorldEventListener {
+class HierarchyWindow : public ChildWindow {
 	Q_OBJECT
 
 public:
@@ -51,9 +51,6 @@ private slots:
 	void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
-	virtual void OnWorldEvent(WorldEventBasePtr e);
-
-private:
 	void appendChildItem(GameObject* go);
 	QStandardItem* appendItem(GameObject* child, QStandardItem* parent);
 	void removeItem(QStandardItem* item);
@@ -61,10 +58,10 @@ private:
 
 	bool dropAcceptable(const QMimeData* data);
 
-	void onGameObjectDestroyed(GameObject* go);
-	void onGameObjectNameChanged(GameObject* go);
-	void onGameObjectParentChanged(GameObject* go);
-	void onGameObjectActiveChanged(GameObject* go);
+	void onGameObjectDestroyed(ref_ptr<GameObject> go);
+	void onGameObjectNameChanged(ref_ptr<GameObject> go);
+	void onGameObjectParentChanged(ref_ptr<GameObject> go);
+	void onGameObjectActiveChanged(ref_ptr<GameObject> go);
 
 	void enableGameObjectOutline(GameObject* go, bool enable);
 	void enableGameObjectsOutline(const QList<GameObject*>& gameObjects, bool enable);

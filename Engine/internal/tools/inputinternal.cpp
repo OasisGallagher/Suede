@@ -1,14 +1,14 @@
 #include "input.h"
-#include "engine.h"
+#include "world.h"
 #include "memory/refptr.h"
 #include "frameeventqueue.h"
 
 InputInternal::InputInternal() {
-	Engine::frameLeave.subscribe(this, &InputInternal::OnFrameLeave, (int)FrameEventQueue::Inputs);
+	World::frameLeave().subscribe(this, &InputInternal::OnFrameLeave, (int)FrameEventQueue::Inputs);
 }
 
 InputInternal::~InputInternal() {
-	Engine::frameLeave.unsubscribe(this);
+	World::frameLeave().unsubscribe(this);
 }
 
 Input::Input() : Singleton2<Input>(nullptr, t_delete<InputInternal>) {}

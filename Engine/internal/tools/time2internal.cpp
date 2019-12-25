@@ -1,5 +1,6 @@
 #include "time2internal.h"
 
+#include "world.h"
 #include "profiler.h"
 #include "debug/debug.h"
 #include "memory/refptr.h"
@@ -13,7 +14,7 @@ float Time::GetRealTimeSinceStartup() { return _suede_dinstance()->GetRealTimeSi
 uint Time::GetFrameCount() { return _suede_dinstance()->GetFrameCount(); }
 
 TimeInternal::TimeInternal() : deltaTime_(0), frameCount_(0), lastFrameTimeStamp_(0) {
-	Engine::frameEnter.subscribe(this, &TimeInternal::OnFrameEnter, (int)FrameEventQueue::Time);
+	World::frameEnter().subscribe(this, &TimeInternal::OnFrameEnter, (int)FrameEventQueue::Time);
 }
 
 void TimeInternal::OnFrameEnter() {

@@ -6,11 +6,8 @@
 
 class GameObjectInternal : public ObjectInternal {
 public:
-	GameObjectInternal();
+	GameObjectInternal(const char* name = "");
 	~GameObjectInternal();
-
-protected:
-	GameObjectInternal(ObjectType type);
 
 public:
 	bool GetActive() const { return active_; }
@@ -67,8 +64,8 @@ private:
 	void SetActive(GameObject* self, bool value);
 	void UpdateChildrenActive(GameObject* parent);
 
-	template <class T>
-	void FireWorldEvent(GameObject* self, bool attachedToSceneOnly, bool immediate = false, std::function<void(T& event)> f = nullptr);
+	template <class Event, class... Args>
+	void RaiseGameObjectEvent(Event& e, bool attachedToSceneOnly, Args... args);
 
 	template <class T>
 	bool CheckComponentDuplicate(T key);
@@ -91,14 +88,10 @@ private:
 	bool boundsDirty_;
 };
 
-template <class T>
-inline void GameObjectInternal::FireWorldEvent(GameObject* self, bool attachedToSceneOnly, bool immediate, std::function<void(T& event)> f) {
+template <class Event, class... Args>
+inline void GameObjectInternal::RaiseGameObjectEvent(Event& e, bool attachedToSceneOnly, Args... args) {
 	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
-		T e = NewWorldEvent<T>();
-		e->go = self;
-		if (f) { f(e); }
-		if (immediate) { World::FireEventImmediate(e); }
-		else { World::FireEvent(e); }
+		e.delay_raise(args...);
 	}
 }
 

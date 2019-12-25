@@ -5,7 +5,7 @@
 
 class ObjectInternal {
 public:
-	ObjectInternal(ObjectType type);
+	ObjectInternal(ObjectType type, const char* name = "");
 	virtual ~ObjectInternal() {}
 
 public:

@@ -64,8 +64,7 @@ Pass::~Pass() {
 		delete states_[i];
 	}
 
-	context_->DeleteProgram(program_);
-	ClearIntermediateShaders();
+	Destroy();
 }
 
 bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass& pass, const std::string& path) {
@@ -134,6 +133,11 @@ void Pass::Unbind() {
 	if(oldProgram_ != -1) {
 		context_->UseProgram(oldProgram_);
 	}
+}
+
+void Pass::Destroy() {
+	context_->DeleteProgram(program_);
+	ClearIntermediateShaders();
 }
 
 void Pass::InitializeRenderStates(const std::vector<Semantics::RenderState>& states) {
@@ -672,10 +676,14 @@ event<Shader*> ShaderInternal::shaderCreated;
 
 ShaderInternal::ShaderInternal(Context* context) : ObjectInternal(ObjectType::Shader)
 	, context_(context), subShaderCount_(0), currentSubShader_(UINT_MAX) {
+	context_->destroyed.subscribe(this, &ShaderInternal::OnContextDestroyed);
 }
 
 ShaderInternal::~ShaderInternal() {
 	ReleaseProperties();
+	if (context_ != nullptr) {
+		context_->destroyed.unsubscribe(this);
+	}
 }
 
 std::string ShaderInternal::GetName() const {
@@ -733,6 +741,11 @@ void ShaderInternal::ReleaseProperties() {
 	}
 
 	properties_.clear();
+}
+
+void ShaderInternal::OnContextDestroyed() {
+	subShaders_.clear();
+	context_ = nullptr;
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {

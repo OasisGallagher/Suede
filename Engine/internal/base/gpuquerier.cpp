@@ -1,10 +1,11 @@
 #include "gpuquerier.h"
 
+#include "world.h"
 #include "context.h"
 #include "frameeventqueue.h"
 
 GpuQuerier::GpuQuerier(Context* context) : context_(context), queriers_(MaxQueries) {
-	Engine::frameEnter.subscribe(this, &GpuQuerier::OnFrameEnter, (int)FrameEventQueue::User);
+	World::frameEnter().subscribe(this, &GpuQuerier::OnFrameEnter, (int)FrameEventQueue::User);
 
 	context_->GenQueries(MaxQueries, ids_);
 
@@ -17,6 +18,7 @@ GpuQuerier::GpuQuerier(Context* context) : context_(context), queriers_(MaxQueri
 
 GpuQuerier::~GpuQuerier() {
 	context_->DeleteQueries(MaxQueries, ids_);
+	World::frameEnter().unsubscribe(this);
 }
 
 uint GpuQuerier::Start(QueryType type) {

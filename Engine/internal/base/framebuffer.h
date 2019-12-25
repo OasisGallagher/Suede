@@ -37,7 +37,7 @@ class Context;
 class FramebufferBase {
 public:
 	FramebufferBase(Context* context);
-	virtual ~FramebufferBase() {}
+	virtual ~FramebufferBase();
 
 public:
 	void BindRead();
@@ -78,6 +78,7 @@ public:
 protected:
 	virtual void OnViewportChanged() {}
 	virtual void ClearCurrent(FramebufferClearMask clearMask);
+	virtual void OnContextDestroyed() { context_ = nullptr; }
 
 protected:
 	bool IsFramebufferBound() const { return bindTarget_ != 0; }
@@ -89,6 +90,8 @@ protected:
 
 	void ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment);
 	void FramebufferTargetToGLenum(FramebufferTarget target, uint* query, uint* bind);
+
+private:
 
 protected:
 	Context* context_;
@@ -147,7 +150,10 @@ protected:
 	 */
 	virtual void ClearCurrent(FramebufferClearMask clearMask);
 
+	virtual void OnContextDestroyed();
+
 private:
+	void Destroy();
 	uint ToGLColorAttachments();
 	uint ToGLColorAttachments(FramebufferAttachment* attachments, uint n);
 	uint FramebufferAttachmentToGLenum(FramebufferAttachment attachment);

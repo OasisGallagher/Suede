@@ -37,6 +37,8 @@ QtViewer::~QtViewer() {
 }
 
 void QtViewer::Update() {
+	GraphicsViewer::Update();
+
 	app_.processEvents();
 	editor_->tick();
 }
@@ -82,8 +84,6 @@ void QtViewer::setupEditor() {
 	connect(editor_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseEditor()));
 
 	Canvas* c = editor_->childWindow<GameWindow>()->canvas();
-	connect(c, SIGNAL(sizeChanged(uint, uint)), this, SLOT(canvasSizeChanged(uint, uint)));
-
 	if (SetCanvas(c)) {
 		editor_->awake();
 	}

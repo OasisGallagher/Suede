@@ -1,9 +1,6 @@
 #pragma once
 #include "time2.h"
 
-#include "engine.h"
-#include "enginedefines.h"
-
 class TimeInternal {
 public:
 	TimeInternal();

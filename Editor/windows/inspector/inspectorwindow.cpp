@@ -147,7 +147,7 @@ void InspectorWindow::drawComponents() {
 }
 
 void InspectorWindow::drawTags() {
-	auto& tags = TagManager::GetAllTags();
+	auto& tags = TagManager::GetAllRegisteredTags();
 	int selected = std::find(tags.begin(), tags.end(), target_->GetTag()) - tags.begin();
 	if (selected >= tags.size()) { selected = -1; }
 

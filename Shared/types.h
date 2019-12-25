@@ -1,5 +1,4 @@
 #pragma once
-#include <iterator>
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
@@ -21,21 +20,3 @@ typedef uint suede_guid;
 #else
 #define SUEDE_MATH_API __declspec(dllimport)
 #endif
-
-template <class T>
-class SuedeEnumerable {
-public:
-	typedef T iterator;
-	typedef typename std::iterator_traits<T>::value_type value_type;
-
-public:
-	SuedeEnumerable(iterator first, iterator last)
-		: first_(first), last_(last) {}
-
-public:
-	iterator begin() { return first_; }
-	iterator end() { return last_; }
-
-private:
-	iterator first_, last_;
-};

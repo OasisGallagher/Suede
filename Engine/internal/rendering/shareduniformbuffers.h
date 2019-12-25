@@ -39,8 +39,8 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 
 #undef DEFINE_SHARED_UNIFORM_BUFFER
 
-class RenderingContext;
 class UniformBuffer;
+class RenderingContext;
 class SharedUniformBuffers {
 public:
 	SharedUniformBuffers(Context* context);
@@ -54,10 +54,14 @@ private:
 	template <class T>
 	void CreateBuffer(Context* context, uint size = 0);
 
+	void Destroy();
+	void OnContextDestroyed();
+
 private:
 	typedef std::map<std::string, UniformBuffer*> Container;
 
 private:
+	Context* context_;
 	Container uniformBuffers_;
 };
 

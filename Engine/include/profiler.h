@@ -1,5 +1,5 @@
 #pragma once
-#include "enginedefines.h"
+#include "defines.h"
 #include "tools/singleton.h"
 
 class SUEDE_API Sample : public PimplIdiom {

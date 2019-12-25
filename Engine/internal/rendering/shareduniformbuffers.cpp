@@ -1,15 +1,20 @@
 #include "shareduniformbuffers.h"
 
-SharedUniformBuffers::SharedUniformBuffers(Context* context) {
+#include "internal/base/context.h"
+
+SharedUniformBuffers::SharedUniformBuffers(Context* context) : context_(context) {
 	CreateBuffer<SharedTimeUniformBuffer>(context);
 	CreateBuffer<SharedLightUniformBuffer>(context);
 	CreateBuffer<SharedTransformsUniformBuffer>(context);
+	context->destroyed.subscribe(this, &SharedUniformBuffers::OnContextDestroyed);
 }
 
 SharedUniformBuffers::~SharedUniformBuffers() {
-	for (auto ite = uniformBuffers_.begin(); ite != uniformBuffers_.end(); ++ite) {
-		delete ite->second;
+	if (context_ != nullptr) {
+		context_->destroyed.unsubscribe(this);
 	}
+
+	Destroy();
 }
 
 void SharedUniformBuffers::Attach(Shader* shader) {
@@ -26,4 +31,17 @@ bool SharedUniformBuffers::UpdateUniformBuffer(const std::string& name, const vo
 	}
 
 	return pos->second->UpdateBuffer(data, offset, size);
+}
+
+void SharedUniformBuffers::Destroy() {
+	for (auto ite = uniformBuffers_.begin(); ite != uniformBuffers_.end(); ++ite) {
+		delete ite->second;
+	}
+
+	uniformBuffers_.clear();
+}
+
+void SharedUniformBuffers::OnContextDestroyed() {
+	Destroy();
+	context_ = nullptr;
 }

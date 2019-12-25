@@ -1,8 +1,8 @@
 #pragma once
 
+#include "defines.h"
 #include "math/vector2.h"
 #include "math/vector4.h"
-#include "enginedefines.h"
 
 class SUEDE_API Rect {
 public:

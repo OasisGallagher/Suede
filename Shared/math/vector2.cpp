@@ -2,6 +2,10 @@
 
 #include "mathf.h"
 
+float Vector2::GetMagnitude() const {
+	return sqrtf(x *x + y * y);
+}
+
 Vector2 Vector2::GetNormalized() const {
 	float len = GetMagnitude();
 	return Vector2(x / len, y / len);

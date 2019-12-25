@@ -8,14 +8,18 @@ VertexArray::VertexArray(Context* context) : context_(context), vao_(0), oldVao_
 }
 
 VertexArray::~VertexArray() {
-	DestroyVertexBuffers();
-	context_->DeleteVertexArrays(1, &vao_);
+	Destroy();
 }
 
 void VertexArray::Initialize() {
 	if (vao_ == 0) {
 		context_->GenVertexArrays(1, &vao_);
 	}
+}
+
+void VertexArray::Destroy() {
+	DestroyVertexBuffers();
+	context_->DeleteVertexArrays(1, &vao_);
 }
 
 void VertexArray::CreateVertexBuffers(size_t n) {

@@ -3,9 +3,10 @@
 
 #include <string>
 
+#include "defines.h"
+
 #include "tools/typeid.h"
 #include "tools/string.h"
-#include "enginedefines.h"
 #include "tools/pimplidiom.h"
 
 BETTER_ENUM(ObjectType, int,
@@ -50,8 +51,6 @@ BETTER_ENUM(ObjectType, int,
 	// 
 	CustomBehaviour
 )
-
-#define SUEDE_DECLARE_PROPERTY	__declspec(property(get = GetTransform, put = SetTransform)) Transform transform;
 
 #define SUEDE_DEFINE_METATABLE_NAME(_Name)	\
 public: \

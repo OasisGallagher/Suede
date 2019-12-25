@@ -94,6 +94,9 @@
     <ClInclude Include="containers\dynamicarray.h">
       <Filter>containers</Filter>
     </ClInclude>
+    <ClInclude Include="tools\unpacker.h">
+      <Filter>tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="debug\debug.cpp">

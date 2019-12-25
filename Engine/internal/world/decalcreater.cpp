@@ -63,7 +63,7 @@ bool DecalCreater::CreateProjectorDecal(Camera* camera, Projector* p, std::vecto
 
 void DecalCreater::CreateDecal(DecalInfo* info) {
 	Matrix4 biasMatrix = Matrix4::Translate(Vector3(0.5f)) * Matrix4::Scale(Vector3(0.5f));
-	ref_ptr<Material> decalMaterial = suede_dynamic_cast<ref_ptr<Material>>(material_->Clone());
+	ref_ptr<Material> decalMaterial = dynamic_ref_ptr_cast<Material>(material_->Clone());
 
 	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
 	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture.get());

@@ -35,6 +35,8 @@ private:
 	void OnFrameEnter();
 
 private:
+	dynamic_array<std::thread> workers;
+
 	std::mutex tasks_mutex;
 	std::deque<ref_ptr<Task>> tasks;
 
@@ -46,6 +48,4 @@ private:
 
 	bool stopped;
 	unsigned busy;
-
-	dynamic_array<std::thread> workers;
 };

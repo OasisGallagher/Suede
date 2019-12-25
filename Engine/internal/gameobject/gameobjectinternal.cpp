@@ -12,13 +12,20 @@
 #include "internal/world/worldinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-GameObject::GameObject() : Object(new GameObjectInternal) {
-	GameObjectCreatedEventPtr e = NewWorldEvent<GameObjectCreatedEventPtr>();
-	e->go = this;
-	World::FireEventImmediate(e);
-
+GameObject::GameObject(const char* name) : Object(new GameObjectInternal(name)) {
+	created.raise(this);
 	AddComponent<Transform>();
 }
+
+main_mt_event<ref_ptr<GameObject>> GameObject::created;
+main_mt_event<ref_ptr<GameObject>> GameObject::destroyed;
+main_mt_event<ref_ptr<GameObject>> GameObject::tagChanged;
+main_mt_event<ref_ptr<GameObject>> GameObject::nameChanged;
+main_mt_event<ref_ptr<GameObject>> GameObject::parentChanged;
+main_mt_event<ref_ptr<GameObject>> GameObject::activeChanged;
+main_mt_event<ref_ptr<GameObject>, int> GameObject::transformChanged;
+main_mt_event<ref_ptr<GameObject>> GameObject::updateStrategyChanged;
+main_mt_event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObject::componentChanged;
 
 bool GameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 void GameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(this, value); }
@@ -41,17 +48,9 @@ Component* GameObject::GetComponent(const char* name) { return _suede_dptr()->Ge
 std::vector<Component*> GameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
 std::vector<Component*> GameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
-GameObjectInternal::GameObjectInternal() : GameObjectInternal(ObjectType::GameObject) {
-}
-
-GameObjectInternal::GameObjectInternal(ObjectType type)
-	: ObjectInternal(type), active_(true), activeSelf_(true), boundsDirty_(true)
+GameObjectInternal::GameObjectInternal(const char* name)
+	: ObjectInternal(ObjectType::GameObject, name), active_(true), activeSelf_(true), boundsDirty_(true)
 	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
-	if (type < ObjectType::GameObject || type >= ObjectType::size()) {
-		Debug::LogError("invalid go type %d.", type);
-	}
-
-	name_ = "New GameObject";
 }
 
 GameObjectInternal::~GameObjectInternal() {
@@ -77,7 +76,7 @@ bool GameObjectInternal::SetTag(GameObject* self, const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		FireWorldEvent<GameObjectTagChangedEventPtr>(self, true);
+		RaiseGameObjectEvent(GameObject::tagChanged, true, self);
 	}
 
 	return true;
@@ -101,10 +100,7 @@ Component* GameObjectInternal::ActivateComponent(GameObject* self, Component* co
 		RecalculateBounds();
 	}
 
-	FireWorldEvent<GameObjectComponentChangedEventPtr>(self, false, false, [=](GameObjectComponentChangedEventPtr& event) {
-		event->state = GameObjectComponentChangedEvent::ComponentAdded;
-		event->component = component;
-	});
+	RaiseGameObjectEvent(GameObject::componentChanged, false, self, ComponentEventType::Added, component);
 
 	RecalculateUpdateStrategy(self);
 
@@ -161,13 +157,13 @@ void GameObjectInternal::RecalculateUpdateStrategy(GameObject* self) {
 }
 
 void GameObjectInternal::OnNameChanged(Object* self) {
-	FireWorldEvent<GameObjectNameChangedEventPtr>((GameObject*)self, true);
+	RaiseGameObjectEvent(GameObject::nameChanged, true, (GameObject*)self);
 }
 
 void GameObjectInternal::SetActive(GameObject* self, bool value) {
 	if (active_ != value) {
 		active_ = value;
-		FireWorldEvent<GameObjectActiveChangedEventPtr>(self, true);
+		RaiseGameObjectEvent(GameObject::activeChanged, true, (GameObject*)self);
 	}
 }
 
@@ -295,16 +291,16 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject* self) {
 	int newStrategy = GetUpdateStrategy(self);
 
 	if (oldStrategy != newStrategy) {
-// 		Transform* parent, current = GetTransform();
-// 		for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
-// 			if (!_suede_ref_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
-// 				break;
-// 			}
-// 
-// 			current = parent;
-// 		}
+		// 		Transform* parent, current = GetTransform();
+		// 		for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
+		// 			if (!_suede_ref_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
+		// 				break;
+		// 			}
+		// 
+		// 			current = parent;
+		// 		}
 
-		FireWorldEvent<GameObjectUpdateStrategyChangedEventPtr>(self, false);
+		RaiseGameObjectEvent(GameObject::updateStrategyChanged, false, self);
 
 		return true;
 	}

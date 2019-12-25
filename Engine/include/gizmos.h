@@ -1,7 +1,7 @@
 #pragma once
 #include "types.h"
 #include "color.h"
-#include "enginedefines.h"
+#include "defines.h"
 #include "tools/singleton.h"
 
 class SUEDE_API Gizmos : private Singleton2<Gizmos> {

@@ -60,19 +60,12 @@ private:
 
 private:
 	RenderingContext* context_;
-
-	Sample* ssaoSample;
-	Sample* ssaoTraversalSample;
-
-	Sample* depthSample;
-	Sample* shadowSample;
-	Sample* renderingSample;
 };
 
 class PipelineBuilder {
 public:
 	PipelineBuilder(RenderingContext* context);
-	~PipelineBuilder();
+	~PipelineBuilder() {}
 
 public:
 	void Build(RenderingPipelines* pipelines, std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices);
@@ -108,6 +101,4 @@ private:
 private:
 	RenderingContext* context_;
 	RenderingMatrices matrices_;
-
-	Sample *push_renderables, *forward_pass, *get_renderable_game_objects;
 };

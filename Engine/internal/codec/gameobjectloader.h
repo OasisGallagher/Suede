@@ -4,7 +4,6 @@
 
 #include "mesh.h"
 #include "image.h"
-#include "engine.h"
 #include "material.h"
 #include "animation.h"
 #include "gameobject.h"
