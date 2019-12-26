@@ -124,7 +124,7 @@ public:
 	AnimationInternal() : ComponentInternal(ObjectType::Animation), time_(0), playing_(false) {}
 
 public:
-	virtual void CullingUpdate();
+	virtual void CullingUpdate(float deltaTime);
 
 public:
 	virtual void AddClip(Animation* self, const std::string& name, AnimationClip* value);

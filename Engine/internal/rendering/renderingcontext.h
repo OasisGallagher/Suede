@@ -43,8 +43,10 @@ struct FrameState {
 	ref_ptr<RenderTexture> targetTexture;
 };
 
+class Time;
+class Profiler;
+class Graphics;
 class ShadowMap;
-class Statistics;
 class AmbientOcclusion;
 
 class RenderingContext : public Context {
@@ -53,11 +55,19 @@ public:
 	~RenderingContext();
 
 public:
-	virtual void Update();
-	virtual void CullingUpdate();
-
-public:
 	void ClearFrame();
+
+	void SetTime(Time* value) { time_ = value; }
+	Time* GetTime() { return time_; }
+
+	void SetScene(Scene* value) { scene_ = value; }
+	Scene* GetScene() { return scene_; }
+
+	void SetProfiler(Profiler* value) { profiler_ = value; }
+	Profiler* GetProfiler() { return profiler_ ; }
+
+	void SetGraphics(Graphics* value) { graphics_ = value; }
+	Graphics* GetGraphics() { return graphics_; }
 
 	ShadowMap* GetShadowMap() { return shadowMap_; }
 	AmbientOcclusion* GetAmbientOcclusion() { return ambientOcclusion_; }
@@ -77,6 +87,11 @@ private:
 	void OnScreenSizeChanged(uint width, uint height);
 
 private:
+	Time* time_ = nullptr;
+	Scene* scene_ = nullptr;
+	Profiler* profiler_ = nullptr;
+	Graphics* graphics_ = nullptr;
+
 	ShadowMap* shadowMap_ = nullptr;
 	AmbientOcclusion* ambientOcclusion_ = nullptr;
 

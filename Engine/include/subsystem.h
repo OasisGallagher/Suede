@@ -1,15 +1,30 @@
 #pragma once
-#include "object.h"
+#include "tools/pimplidiom.h"
 
 enum class SubsystemType {
+	Time,
+	Profiler,
+	FrameEvents,
+
+	Physics,
 	Scene,
-	Events,
+
+	Gizmos,
+	Input,
+
+	Tags,
+	Graphics,
+
+	_Count,
 };
 
-class Subsystem : public Object {
+class SUEDE_API Subsystem : public PimplIdiom {
+public:
+	~Subsystem() {}
+
+	virtual void Awake() {}
+	virtual void Update(float deltaTime) {}
+
 protected:
-	virtual void Awake() = 0;
-	virtual void Update() = 0;
-	virtual void CullingUpdate() = 0;
-	virtual void OnWorldEvent(void* e) = 0;
+	Subsystem(void* d);
 };

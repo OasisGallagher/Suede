@@ -1,9 +1,8 @@
 #pragma once
-#include "tools/enum.h"
-#include "tools/singleton.h"
+#include "subsystem.h"
 
+#include "tools/enum.h"
 #include "math/vector2.h"
-#include "frameeventqueue.h"
 
 BETTER_ENUM(KeyCode, int,
 	A,
@@ -59,45 +58,47 @@ BETTER_ENUM(KeyCode, int,
 	RightArrow
 )
 
-class SUEDE_API InputInternal {
-public:
-	InputInternal();
-	virtual ~InputInternal();
+class SUEDE_API InputDelegate {
+	friend class Input;
 
 public:
-	virtual void OnFrameLeave() = 0;
-
-	virtual bool GetKey(KeyCode key) = 0;
-	virtual bool GetKeyUp(KeyCode key) = 0;
-	virtual bool GetKeyDown(KeyCode key) = 0;
-
-	virtual bool GetMouseButton(int button) = 0;
-	virtual bool GetMouseButtonUp(int button) = 0;
-	virtual bool GetMouseButtonDown(int button) = 0;
-
-	virtual float GetMouseWheelDelta() = 0;
 	virtual Vector2 GetMousePosition() = 0;
+
+public:
+	void OnMousePress(bool pressed[3]);
+	void OnMouseWheel(float delta);
+
+	void OnKeyPress(KeyCode key, bool pressed);
+
+private:
+	void* target;
 };
 
-class SUEDE_API Input : private Singleton2<Input> {
-	friend class Singleton<Input>;
+class SUEDE_API Input : public Subsystem {
 	SUEDE_DECLARE_IMPLEMENTATION(Input)
 
 public:
-	static void SetDelegate(InputInternal* impl);
+	enum {
+		SystemType = SubsystemType::Input,
+	};
 
 public:
-	static bool GetKey(KeyCode key);
-	static bool GetKeyUp(KeyCode key);
-	static bool GetKeyDown(KeyCode key);
-
-	static bool GetMouseButton(int button);
-	static bool GetMouseButtonUp(int button);
-	static bool GetMouseButtonDown(int button);
-
-	static float GetMouseWheelDelta();
-	static Vector2 GetMousePosition();
-
-private:
 	Input();
+
+public:
+	void SetDelegate(InputDelegate* value);
+
+	bool GetKey(KeyCode key);
+	bool GetKeyUp(KeyCode key);
+	bool GetKeyDown(KeyCode key);
+
+	bool GetMouseButton(int button);
+	bool GetMouseButtonUp(int button);
+	bool GetMouseButtonDown(int button);
+
+	float GetMouseWheelDelta();
+	Vector2 GetMousePosition();
+
+public:
+	virtual void Update();
 };

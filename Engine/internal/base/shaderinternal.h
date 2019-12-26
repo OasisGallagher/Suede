@@ -118,7 +118,7 @@ public:
 	uint GetNativePointer(uint pass) const;
 
 private:
-	void InitializeTags(const std::vector<Semantics::Tag>& tags);
+	void InitializeTags(const std::vector<Semantics::Tag>& tags_);
 	void InitializeTag(const Semantics::Tag& tag, uint i);
 	uint ParseExpression(TagKey key, const std::string& expression);
 	bool CheckPropertyCompatible(ShaderProperty* target, Property* p);

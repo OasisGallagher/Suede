@@ -4,6 +4,7 @@
 
 #include <QMouseEvent>
 
+class Input;
 class CameraController : public QObject, public Behaviour {
 	Q_OBJECT
 	Q_PROPERTY(Vector3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
@@ -31,7 +32,7 @@ public:
 
 public:
 	void Awake() { camera_ = GetTransform(); }
-	void Update();
+	void Update(float deltaTime);
 
 private:
 	void moveCamera(const Vector2& mousePos, Vector2& oldPos);
@@ -40,6 +41,8 @@ private:
 	Vector3 calculateArcBallVector(const Vector2& point);
 
 private:
+	Input* input_ = nullptr;
+
 	Transform* camera_ = nullptr;
 	GameObject* selection_ = nullptr;
 

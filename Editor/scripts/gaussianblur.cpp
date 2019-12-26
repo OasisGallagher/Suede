@@ -4,6 +4,8 @@
 SUEDE_DEFINE_COMPONENT(GaussianBlur, ImageEffect)
 
 void GaussianBlur::Awake() {
+	graphics_ = Engine::GetSubsystem<Graphics>();
+
 	amount_.reset(5, 1, 10);
 	material_ = new Material();
 	material_->SetName("Gaussian Blur");
@@ -22,13 +24,13 @@ void GaussianBlur::OnRenderImage(RenderTexture* src, RenderTexture* dest, const 
 
 	for (int i = 0; i < amount_.get_value(); ++i) {
 		material_->SetBool("horizontal", horizontal != 0);
-		Graphics::Blit(src, buffers[horizontal], material_.get(), normalizedRect);
+		graphics_->Blit(src, buffers[horizontal], material_.get(), normalizedRect);
 
 		src = buffers[horizontal];
 		horizontal = 1 - horizontal;
 	}
 
-	Graphics::Blit(buffers[1 - horizontal], dest, normalizedRect);
+	graphics_->Blit(buffers[1 - horizontal], dest, normalizedRect);
 
 	RenderTexture::ReleaseTemporary(buffers[0]);
 	RenderTexture::ReleaseTemporary(buffers[1]);

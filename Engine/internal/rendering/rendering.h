@@ -9,10 +9,11 @@
 #include "internal/rendering/pipeline.h"
 
 class Sample;
-class RenderingContext;
 class Pipeline;
+class Graphics;
 class ShadowMap;
 class AmbientOcclusion;
+class RenderingContext;
 class SharedUniformBuffers;
 
 struct RenderingMatrices {
@@ -59,6 +60,8 @@ private:
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
 
 private:
+	Profiler* profiler_;
+	Graphics* graphics_;
 	RenderingContext* context_;
 };
 
@@ -99,6 +102,8 @@ private:
 	void GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd);
 
 private:
+	Profiler* profiler_;
+	Graphics* graphics_;
 	RenderingContext* context_;
 	RenderingMatrices matrices_;
 };

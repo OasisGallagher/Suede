@@ -6,8 +6,8 @@
 #include "camera.h"
 #include "frustum.h"
 
-#include "internal/culling/culling.h"
 #include "internal/rendering/rendering.h"
+#include "internal/rendering/cullingthread.h"
 
 #include "internal/components/componentinternal.h"
 
@@ -95,7 +95,7 @@ private:
 
 	Plane planes_[6];
 
-	Culling* culling_;
+	CullingThread* cullingThread_;
 
 	bool pipelineReady_;
 	PipelineBuilder* pipelineBuilder_;

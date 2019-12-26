@@ -53,7 +53,7 @@ struct Semantics {
 	};
 
 	struct SubShader {
-		std::vector<Tag> tags;
+		std::vector<Tag> tags_;
 		std::vector<Pass> passes;
 	};
 
@@ -174,8 +174,8 @@ private:
 	int ReadFloats(SyntaxNode* node, float* ptr, int count);
 
 	void ReadTag(SyntaxNode* node, Semantics::Tag& tag);
-	void ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags);
-	void ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags);
+	void ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags_);
+	void ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags_);
 
 	void ReadRenderState(SyntaxNode* node, Semantics::RenderState& state);
 	void ReadRenderStates(SyntaxNode* node, std::vector<Semantics::RenderState>& states);

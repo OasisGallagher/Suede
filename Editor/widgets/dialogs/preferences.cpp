@@ -20,7 +20,7 @@ void Preferences::onSkinChanged(const QString& name) {
 }
 
 void Preferences::onPhysicsDebugDrawEnabledChanged(int state) {
-	Physics::SetDebugDrawEnabled(!!state);
+	Engine::GetSubsystem<Physics>()->SetDebugDrawEnabled(!!state);
 }
 
 void Preferences::updateUI() {
@@ -30,5 +30,5 @@ void Preferences::updateUI() {
 	}
 
 	ui_.skins->setCurrentText(QtViewer::skinName());
-	ui_.physicsDebugDrawEnabled->setChecked(Physics::GetDebugDrawEnabled());
+	ui_.physicsDebugDrawEnabled->setChecked(Engine::GetSubsystem<Physics>()->GetDebugDrawEnabled());
 }

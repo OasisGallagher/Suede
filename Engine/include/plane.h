@@ -18,7 +18,7 @@ public:
 	/**
 	 * Distance from the origin to the plane.
 	 */
-	float GetDistance() const { return d_; }
+	float GetDistance() const { return distance_; }
 
 	/**
 	* Normal vector of the plane.
@@ -30,12 +30,12 @@ public:
 	 * The value returned is positive if the point is on the side of the plane into which 
 	 * the plane's normal is facing, and negative otherwise.
 	 */
-	float GetDistanceToPoint(const Vector3& p) const { return Vector3::Dot(normal_, p) + d_; }
+	float GetDistanceToPoint(const Vector3& p) const { return Vector3::Dot(normal_, p) + distance_; }
 
 private:
 	void Normalize();
 
 private:
-	float d_;
+	float distance_;
 	Vector3 normal_;
 };

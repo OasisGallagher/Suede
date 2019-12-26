@@ -1,10 +1,11 @@
-#include "gameobjectloader.h"
+#include "gameobjectimporter.h"
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
-#include "world.h"
+#include "scene.h"
+#include "engine.h"
 #include "renderer.h"
 #include "resources.h"
 #include "memory/refptr.h"
@@ -549,13 +550,13 @@ bool GameObjectLoader::LoadAsset() {
 	return true;
 }
 
-ref_ptr<GameObject> GameObjectLoaderThreadPool::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
+ref_ptr<GameObject> GameObjectImporter::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
 	ref_ptr<GameObject> root = new GameObject();
 	AddTask(new GameObjectLoader(root.get(), path, callback));
 	return root;
 }
 
-void GameObjectLoaderThreadPool::OnSchedule(Task* task) {
+void GameObjectImporter::OnSchedule(Task* task) {
 	GameObjectLoader* loader = (GameObjectLoader*)task;
 
 	GameObjectAsset& asset = loader->GetGameObjectAsset();
@@ -570,7 +571,7 @@ void GameObjectLoaderThreadPool::OnSchedule(Task* task) {
 	loader->GetSurface()->SetAttribute(asset.meshAsset);
 
 	GameObject* root = loader->GetGameObject();
-	root->GetTransform()->SetParent(World::GetRootTransform());
+	root->GetTransform()->SetParent(root->GetScene()->GetRootTransform());
 
 	loader->InvokeCallback();
 }

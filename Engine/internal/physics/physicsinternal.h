@@ -1,10 +1,14 @@
-#include "world.h"
+#include "engine.h"
 #include "physics.h"
 
 #include "mathconvert.h"
 #include "bullet/btBulletDynamicsCommon.h"
+#include "internal/engine/subsysteminternal.h"
 
 class BulletDebugDrawer : public btIDebugDraw {
+public:
+	BulletDebugDrawer(Gizmos* gizmos) : gizmos_(gizmos) {}
+
 public:
 	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
 	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color);
@@ -14,18 +18,21 @@ public:
 	virtual void setDebugMode(int debugMode) {}
 	virtual void draw3dText(const btVector3& location, const char* textString) {}
 	virtual int getDebugMode() const { return DBG_DrawWireframe | DBG_DrawAabb; }
+
+private:
+	Gizmos* gizmos_;
 };
 
-class PhysicsInternal {
+class PhysicsInternal : public SubsystemInternal {
 public:
-	PhysicsInternal();
+	PhysicsInternal(Gizmos* gizmos);
 	~PhysicsInternal();
 
 public:
 	static btDiscreteDynamicsWorld* btWorld() { return world_; }
 
 public:
-	void FixedUpdate();
+	void FixedUpdate(float deltaTime);
 
 	bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
 
@@ -36,10 +43,11 @@ public:
 	bool GetDebugDrawEnabled() const { return debugDrawEnabled_; }
 
 private:
-	void OnFrameEnter() { FixedUpdate(); }
 	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component);
 
 private:
+	Gizmos* gizmos_;
+
 	bool debugDrawEnabled_;
 
 	btBroadphaseInterface* broadphase_;

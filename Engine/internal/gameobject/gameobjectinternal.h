@@ -6,10 +6,11 @@
 
 class GameObjectInternal : public ObjectInternal {
 public:
-	GameObjectInternal(const char* name = "");
+	GameObjectInternal(Scene* scene, Tags* tags, const char* name = "");
 	~GameObjectInternal();
 
 public:
+	Scene* GetScene() { return scene_; }
 	bool GetActive() const { return active_; }
 
 	void SetActiveSelf(GameObject* self, bool value);
@@ -21,8 +22,8 @@ public:
 	const std::string& GetTag() const { return tag_; }
 	bool SetTag(GameObject* self, const std::string& value);
 
-	void Update();
-	void CullingUpdate();
+	void Update(float deltaTime);
+	void CullingUpdate(float deltaTime);
 
 	Transform* GetTransform();
 
@@ -71,6 +72,9 @@ private:
 	bool CheckComponentDuplicate(T key);
 
 private:
+	Tags* tags_;
+	Scene* scene_;
+
 	bool active_;
 	bool activeSelf_;
 
@@ -80,9 +84,6 @@ private:
 
 	uint updateStrategy_;
 	bool updateStrategyDirty_;
-
-	// ensure CullingUpdate to be called once per frame.
-	uint frameCullingUpdate_;
 
 	Bounds worldBounds_;
 	bool boundsDirty_;

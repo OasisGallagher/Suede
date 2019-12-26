@@ -36,8 +36,8 @@ public:
 	~_Subscriber() {}
 	int order() { return o; }
 	void* caller() { return t; }
-	void call(Args... args)   final { (t->*f)(args...); }
-	bool instanceof(void* _t) final { return _t == (void*)t; }
+	void call(Args... args) { (t->*f)(args...); }
+	bool instanceof(void* _t) { return _t == (void*)t; }
 };
 
 /**
@@ -84,7 +84,7 @@ public:
 		subscribers_.push_back(s);
 	}
 
-	void unsubscribe(void* t) final {
+	void unsubscribe(void* t) {
 		if (inside_raise_) {
 			to_remove_.insert(t);
 		}
@@ -110,6 +110,7 @@ protected:
 
 template <class... Args>
 class sorted_event : public event<Args...> {
+	typedef event<Args...> super;
 	struct subscriber_comparer {
 		bool operator()(const smart_ptr_type& lhs, const smart_ptr_type& rhs) const {
 			return lhs->order() < rhs->order();
@@ -118,7 +119,7 @@ class sorted_event : public event<Args...> {
 
 public:
 	void raise(Args... args) {
-		event<Args...>::raise(args...);
+		super::raise(args...);
 		for (auto& s : to_add_) {
 			add_subscriber(s);
 		}
@@ -152,18 +153,31 @@ private:
 
 template <class... Args>
 class mt_event : public event<Args...> {
+	typedef event<Args...> super;
 public:
 	mt_event() {
 		thread_id_ = std::this_thread::get_id();
 	}
 
 public:
+	template <class T>
+	void subscribe(T* t, void(T::*f)(Args... args)) {
+		std::lock_guard<std::mutex> lock(mutex_);
+		super::subscribe(t, f);
+	}
+
+	void unsubscribe(void* t) {
+		std::lock_guard<std::mutex> lock(mutex_);
+		super::unsubscribe(t);
+	}
+
 	void raise(Args... args) {
 		if (thread_id_ != std::this_thread::get_id()) {
 			delay_raise(args...);
 		}
 		else {
-			event<Args...>::raise(args...);
+			std::lock_guard<std::mutex> lock(mutex_);
+			super::raise(args...);
 		}
 	}
 
@@ -177,7 +191,7 @@ public:
 
 		std::lock_guard<std::mutex> lock(mutex_);
 		for (auto& argument : raise_arguments_) {
-			Unpacker::apply(this, &event<Args...>::raise, argument);
+			Unpacker::apply(this, &super::raise, argument);
 		}
 
 		raise_arguments_.clear();

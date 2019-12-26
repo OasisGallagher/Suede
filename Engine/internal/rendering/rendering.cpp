@@ -1,6 +1,7 @@
 #include "rendering.h"
 
-#include "world.h"
+#include "engine.h"
+#include "scene.h"
 #include "graphics.h"
 #include "profiler.h"
 #include "projector.h"
@@ -40,6 +41,8 @@ void RenderingPipelines::Clear() {
 }
 
 Rendering::Rendering(RenderingContext* context) : context_(context) {
+	profiler_ = context_->GetProfiler();
+	graphics_ = context_->GetGraphics();
 }
 
 #define OutputSample(sample)	Debug::OutputToConsole("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
@@ -50,7 +53,7 @@ void Rendering::Render(RenderingPipelines* pipelines, const RenderingMatrices& m
 
 	DepthPass(pipelines);
 
-	if (Graphics::GetAmbientOcclusionEnabled()) {
+	if (graphics_->GetAmbientOcclusionEnabled()) {
 		SSAOTraversalPass(pipelines);
 		SSAOPass(pipelines);
 	}
@@ -87,7 +90,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	static SharedLightUniformBuffer p;
 
-	Environment* env = World::GetEnvironment();
+	Environment* env = context_->GetScene()->GetEnvironment();
 	memcpy(&p.fogParams.color, &env->fogColor, sizeof(p.fogParams.color));
 	p.fogParams.density = env->fogDensity;
 
@@ -131,7 +134,7 @@ void Rendering::OnImageEffects(const std::vector<ImageEffect*>& effects) {
 }
 
 void Rendering::SSAOPass(RenderingPipelines* pipelines) {
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	FrameState* fs = context_->GetFrameState();
 	AmbientOcclusion* ao = context_->GetAmbientOcclusion();
@@ -141,27 +144,27 @@ void Rendering::SSAOPass(RenderingPipelines* pipelines) {
 
 	sample->Stop();
 	OutputSample(sample);
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 void Rendering::SSAOTraversalPass(RenderingPipelines* pipelines) {
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	pipelines->ssaoTraversal->Run();
 	sample->Stop();
 	OutputSample(sample);
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 void Rendering::DepthPass(RenderingPipelines* pipelines) {
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	if (pipelines->depth->GetRenderableCount() > 0) {
 		pipelines->depth->Run();
 	}
 	sample->Stop();
 	OutputSample(sample);
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 void Rendering::UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
@@ -180,24 +183,26 @@ void Rendering::ShadowPass(RenderingPipelines* pipelines) {
 	shadowMap->Resize(target->GetWidth(), target->GetHeight());
 	shadowMap->Clear();
 
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	pipelines->shadow->Run();
 	sample->Stop();
 	OutputSample(sample);
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 void Rendering::RenderPass(RenderingPipelines* pipelines) {
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	pipelines->rendering->Run();
 	sample->Stop();
 	OutputSample(sample);
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 PipelineBuilder::PipelineBuilder(RenderingContext* context) : context_(context) {
+	profiler_ = context_->GetProfiler();
+	graphics_ = context_->GetGraphics();
 }
 
 void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObject*>& gameObjects, const RenderingMatrices& matrices) {
@@ -225,7 +230,7 @@ void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObjec
 		}
 	}
 
-	if (Graphics::GetAmbientOcclusionEnabled()) {
+	if (graphics_->GetAmbientOcclusionEnabled()) {
 		pipelines->ssaoTraversal->AssignRenderables(pipelines->shadow);
 		SSAOPass(pipelines->ssaoTraversal);
 		depthPass = true;
@@ -297,7 +302,7 @@ void PipelineBuilder::RenderDeferredGeometryPass(Pipeline* pl, const std::vector
 }
 
 void PipelineBuilder::RenderSkybox(Pipeline* pl) {
-	Environment* env = World::GetEnvironment();
+	Environment* env = context_->GetScene()->GetEnvironment();
 	if (env->skybox) {
 		Matrix4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = Vector4(0, 0, 0, 1);
@@ -321,12 +326,12 @@ RenderTexture* PipelineBuilder::GetActiveRenderTarget() {
 }
 
 void PipelineBuilder::RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light) {
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	ForwardPass(pl, gameObjects);
 	sample->Stop();
 	Debug::OutputToConsole("[RenderableTraits::RenderForwardBase::forward_pass]\t%.2f", sample->GetElapsedSeconds());
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 void PipelineBuilder::RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights) {
@@ -341,7 +346,7 @@ void PipelineBuilder::ForwardDepthPass(Pipeline* pl) {
 }
 
 void PipelineBuilder::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {
-	Sample* sample = Profiler::CreateSample();
+	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	for (int i = 0; i < gameObjects.size(); ++i) {
 		GameObject* go = gameObjects[i];
@@ -350,11 +355,11 @@ void PipelineBuilder::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& 
 
 	sample->Stop();
 	Debug::OutputToConsole("[RenderableTraits::ForwardPass::push_renderables]\t%.2f", sample->GetElapsedSeconds());
-	Profiler::ReleaseSample(sample);
+	profiler_->ReleaseSample(sample);
 }
 
 void PipelineBuilder::GetLights(Light*& forwardBase, std::vector<Light*>& forwardAdd) {
-	std::vector<Light*> lights = World::GetComponents<Light>();
+	std::vector<Light*> lights = context_->GetScene()->GetComponents<Light>();
 	if (lights.empty()) {
 		return;
 	}
@@ -371,7 +376,7 @@ void PipelineBuilder::GetLights(Light*& forwardBase, std::vector<Light*>& forwar
 
 void PipelineBuilder::RenderDecals(Pipeline* pl) {
 	std::vector<Decal> decals;
-	World::GetDecals(decals);
+	context_->GetScene()->GetDecals(decals);
 
 	for (Decal& d : decals) {
 		pl->AddRenderable(d.mesh.get(), d.material.get(), 0, Matrix4(1));

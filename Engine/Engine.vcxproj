@@ -160,7 +160,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="include\worldevents.cpp" />
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\buffer.cpp" />
     <ClCompile Include="internal\base\color.cpp" />
@@ -168,13 +167,11 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
-    <ClCompile Include="internal\base\gpuquerier.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
     <ClCompile Include="internal\base\resources.cpp" />
     <ClCompile Include="internal\base\shaderinternal.cpp" />
-    <ClCompile Include="internal\base\statistics.cpp" />
     <ClCompile Include="internal\base\textureinternal.cpp" />
     <ClCompile Include="internal\base\uniformbuffer.cpp" />
     <ClCompile Include="internal\base\builtinproperties.cpp" />
@@ -191,10 +188,9 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\components\projectorinternal.cpp" />
     <ClCompile Include="internal\components\rendererinternal.cpp" />
     <ClCompile Include="internal\components\transforminternal.cpp" />
-    <ClCompile Include="internal\culling\culling.cpp" />
     <ClCompile Include="internal\codec\image.cpp" />
     <ClCompile Include="internal\codec\shaderparser.cpp" />
-    <ClCompile Include="internal\codec\gameobjectloader.cpp" />
+    <ClCompile Include="internal\codec\gameobjectimporter.cpp" />
     <ClCompile Include="internal\gameobject\gameobjectinternal.cpp" />
     <ClCompile Include="internal\geometry\bounds.cpp" />
     <ClCompile Include="internal\geometry\geometryutility.cpp" />
@@ -385,27 +381,29 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\physics\physicsinternal.cpp" />
     <ClCompile Include="internal\physics\rigidbodyinternal.cpp" />
     <ClCompile Include="internal\rendering\ambientocclusion.cpp" />
-    <ClCompile Include="internal\rendering\renderingcontext.cpp" />
+    <ClCompile Include="internal\rendering\cullingthread.cpp" />
     <ClCompile Include="internal\rendering\gizmosinternal.cpp" />
+    <ClCompile Include="internal\rendering\graphicsinternal.cpp" />
+    <ClCompile Include="internal\rendering\renderingcontext.cpp" />
     <ClCompile Include="internal\rendering\gizmospainter.cpp" />
-    <ClCompile Include="internal\rendering\graphics.cpp" />
     <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
     <ClCompile Include="internal\rendering\rendering.cpp" />
     <ClCompile Include="internal\rendering\shadowmap.cpp" />
     <ClCompile Include="internal\rendering\shareduniformbuffers.cpp" />
-    <ClCompile Include="internal\tools\inputinternal.cpp" />
-    <ClCompile Include="internal\tools\profilerinternal.cpp" />
-    <ClCompile Include="internal\tools\screen.cpp" />
-    <ClCompile Include="internal\tools\tagmanager.cpp" />
-    <ClCompile Include="internal\tools\time2internal.cpp" />
-    <ClCompile Include="internal\world\decalcreater.cpp" />
-    <ClCompile Include="internal\world\graphicsviewer.cpp" />
-    <ClCompile Include="internal\world\luabridge.cpp">
+    <ClCompile Include="internal\engine\inputinternal.cpp" />
+    <ClCompile Include="internal\engine\profilerinternal.cpp" />
+    <ClCompile Include="internal\engine\screen.cpp" />
+    <ClCompile Include="internal\engine\tagsinternal.cpp" />
+    <ClCompile Include="internal\engine\time2internal.cpp" />
+    <ClCompile Include="internal\engine\decalcreater.cpp" />
+    <ClCompile Include="internal\engine\viewer.cpp" />
+    <ClCompile Include="internal\engine\luabridge.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="internal\world\sceneinternal.cpp" />
-    <ClCompile Include="internal\world\worldinternal.cpp" />
+    <ClCompile Include="internal\engine\sceneinternal.cpp" />
+    <ClCompile Include="internal\engine\subsysteminternal.cpp" />
+    <ClCompile Include="internal\engine\engineinternal.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\containers\arraylist.h" />
@@ -419,17 +417,17 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\camera.h" />
     <ClInclude Include="include\color.h" />
     <ClInclude Include="include\component.h" />
+    <ClInclude Include="include\frameevents.h" />
     <ClInclude Include="include\imageeffect.h" />
     <ClInclude Include="include\input.h" />
     <ClInclude Include="include\lua++.h" />
     <ClInclude Include="include\defines.h" />
     <ClInclude Include="include\font.h" />
-    <ClInclude Include="include\frameeventqueue.h" />
     <ClInclude Include="include\geometryutility.h" />
     <ClInclude Include="include\gizmos.h" />
     <ClInclude Include="include\gizmospainter.h" />
     <ClInclude Include="include\graphics.h" />
-    <ClInclude Include="include\graphicscanvas.h" />
+    <ClInclude Include="include\glcanvas.h" />
     <ClInclude Include="include\gui.h" />
     <ClInclude Include="include\light.h" />
     <ClInclude Include="include\mainmtevent.h" />
@@ -458,9 +456,8 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\transform.h" />
     <ClInclude Include="include\builtinproperties.h" />
     <ClInclude Include="include\variant.h" />
-    <ClInclude Include="include\graphicsviewer.h" />
-    <ClInclude Include="include\world.h" />
-    <ClInclude Include="include\worldevents.h" />
+    <ClInclude Include="include\viewer.h" />
+    <ClInclude Include="include\engine.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\buffer.h" />
     <ClInclude Include="internal\base\context.h" />
@@ -468,18 +465,16 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\base\framebuffer.h" />
     <ClInclude Include="internal\base\gbuffer.h" />
     <ClInclude Include="internal\base\glenums.h" />
-    <ClInclude Include="internal\base\gpuquerier.h" />
     <ClInclude Include="internal\base\renderdefines.h" />
     <ClInclude Include="internal\base\materialinternal.h" />
     <ClInclude Include="internal\base\objectinternal.h" />
     <ClInclude Include="internal\base\renderstate.h" />
     <ClInclude Include="internal\base\shaderinternal.h" />
-    <ClInclude Include="internal\base\statistics.h" />
     <ClInclude Include="internal\base\textureinternal.h" />
     <ClInclude Include="internal\base\uniformbuffer.h" />
     <ClInclude Include="internal\base\vertexarray.h" />
     <ClInclude Include="internal\base\vertexattrib.h" />
-    <ClInclude Include="internal\codec\gameobjectloader.h" />
+    <ClInclude Include="internal\codec\gameobjectimporter.h" />
     <ClInclude Include="internal\components\animationinternal.h" />
     <ClInclude Include="internal\components\camerainternal.h" />
     <ClInclude Include="internal\components\componentinternal.h" />
@@ -490,7 +485,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\components\projectorinternal.h" />
     <ClInclude Include="internal\components\rendererinternal.h" />
     <ClInclude Include="internal\components\transforminternal.h" />
-    <ClInclude Include="internal\culling\culling.h" />
     <ClInclude Include="internal\codec\image.h" />
     <ClInclude Include="internal\codec\shaderparser.h" />
     <ClInclude Include="internal\gameobject\gameobjectinternal.h" />
@@ -499,42 +493,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\gui\stb_rect_pack.h" />
     <ClInclude Include="internal\gui\stb_textedit.h" />
     <ClInclude Include="internal\gui\stb_truetype.h" />
-    <ClInclude Include="internal\lua\wrappers\animation_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\bounds_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\camera_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\color_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\component_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\engine_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\environment_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\font_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\input_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\light_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\luaconfig.h" />
-    <ClInclude Include="internal\lua\wrappers\material_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\mesh_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\particlesystem_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\physics_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\plane_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\polygon_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\projector_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\ray_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\rect_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\renderer_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\resources_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\rigidbody_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\screen_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\shader_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\statistics_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\tagmanager_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\texture_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\time2_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\transform_wrapper.h" />
-    <ClInclude Include="internal\lua\wrappers\world_wrapper.h" />
     <ClInclude Include="internal\memory\factory.h" />
     <ClInclude Include="internal\physics\bullet\btBulletCollisionCommon.h" />
     <ClInclude Include="internal\physics\bullet\btBulletDynamicsCommon.h" />
@@ -864,23 +822,28 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\physics\physicsinternal.h" />
     <ClInclude Include="internal\physics\rigidbodyinternal.h" />
     <ClInclude Include="internal\rendering\ambientocclusion.h" />
-    <ClInclude Include="internal\rendering\renderingcontext.h" />
+    <ClInclude Include="internal\rendering\cullingthread.h" />
     <ClInclude Include="internal\rendering\gizmosinternal.h" />
+    <ClInclude Include="internal\rendering\graphicsinternal.h" />
+    <ClInclude Include="internal\rendering\renderingcontext.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
     <ClInclude Include="internal\rendering\rendering.h" />
     <ClInclude Include="internal\rendering\shadowmap.h" />
     <ClInclude Include="internal\rendering\shareduniformbuffers.h" />
-    <ClInclude Include="internal\tools\profilerinternal.h" />
-    <ClInclude Include="internal\tools\time2internal.h" />
-    <ClInclude Include="internal\world\decalcreater.h" />
-    <ClInclude Include="internal\world\luabridge.h">
+    <ClInclude Include="internal\engine\inputinternal.h" />
+    <ClInclude Include="internal\engine\profilerinternal.h" />
+    <ClInclude Include="internal\engine\tagsinternal.h" />
+    <ClInclude Include="internal\engine\time2internal.h" />
+    <ClInclude Include="internal\engine\decalcreater.h" />
+    <ClInclude Include="internal\engine\luabridge.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="internal\world\sceneinternal.h" />
-    <ClInclude Include="internal\world\worldinternal.h" />
+    <ClInclude Include="internal\engine\sceneinternal.h" />
+    <ClInclude Include="internal\engine\subsysteminternal.h" />
+    <ClInclude Include="internal\engine\engineinternal.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="include\tagmanager.h" />
+    <Text Include="include\tags.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

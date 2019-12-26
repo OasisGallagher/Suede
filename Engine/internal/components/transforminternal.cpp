@@ -1,4 +1,4 @@
-#include "world.h"
+#include "scene.h"
 #include "math/mathf.h"
 #include "transforminternal.h"
 
@@ -52,7 +52,7 @@ TransformInternal::~TransformInternal() {
 }
 
 bool TransformInternal::IsAttachedToScene(Transform* self) {
-	for (; self && self != World::GetRootTransform(); self = self->GetParent())
+	for (; self && self != gameObject_->GetScene()->GetRootTransform(); self = self->GetParent())
 		;
 
 	return !!self;
@@ -66,7 +66,7 @@ void TransformInternal::AddChild(Transform* self, Transform* child) {
 
 void TransformInternal::RemoveChild(Transform* child) {
 	if (std::find(children_.begin(), children_.end(), child) != children_.end()) {
-		child->SetParent(World::GetRootTransform());
+		child->SetParent(gameObject_->GetScene()->GetRootTransform());
 	}
 }
 
@@ -77,7 +77,7 @@ void TransformInternal::RemoveChildAt(uint index) {
 }
 
 void TransformInternal::SetParent(Transform* self, Transform* value) {
-	if (_suede_d_equals(value)) {
+	if (self == value) {
 		Debug::LogError("parent can not be itself.");
 		return;
 	}
@@ -118,7 +118,7 @@ Transform* TransformInternal::FindChild(const std::string& path) {
 		if (!child) {
 			return nullptr;
 		}
-
+		
 		current = _suede_rptr(child);
 	}
 
@@ -516,7 +516,7 @@ void TransformInternal::DirtyChildrenScales() {
 		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalScale();
 
-		TransformInternal* child = _suede_ref_rptr(transform);
+		TransformInternal* child = _suede_rptr(transform.get());
 		child->SetDirty(WorldScale | LocalToWorldMatrix | WorldToLocalMatrix);
 		child->DirtyChildrenScales();
 	}
@@ -538,14 +538,14 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalRotation();
 		transform->GetLocalEulerAngles();
-		TransformInternal* child = _suede_ref_rptr(transform);
+		TransformInternal* child = _suede_rptr(transform.get());
 		child->SetDirty(WorldRotation | WorldEulerAngles | LocalToWorldMatrix | WorldToLocalMatrix);
 		child->DirtyChildrenRotationsAndEulerAngles();
 	}
 }
 
 bool TransformInternal::IsNullOrRoot(Transform* transform) {
-	return !transform || transform == World::GetRootTransform();
+	return !transform || transform == gameObject_->GetScene()->GetRootTransform();
 }
 
 Transform* TransformInternal::FindDirectChild(const std::string& name) {

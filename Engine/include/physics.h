@@ -1,7 +1,7 @@
 #pragma once
 #include "ray.h"
+#include "subsystem.h"
 #include "gameobject.h"
-#include "tools/singleton.h"
 
 struct SUEDE_API RaycastHit {
 	Vector3 point;
@@ -10,19 +10,26 @@ struct SUEDE_API RaycastHit {
 	GameObject* gameObject;
 };
 
-class SUEDE_API Physics : private Singleton2<Physics> {
-	friend class Singleton<Physics>;
+class Gizmos;
+class SUEDE_API Physics : public Subsystem {
 	SUEDE_DECLARE_IMPLEMENTATION(Physics)
+public:
+	enum {
+		SystemType = SubsystemType::Physics,
+	};
 
 public:
-	static bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
+	Physics(Gizmos* gizmos);
 
-	static void SetGravity(const Vector3& value);
-	static Vector3 GetGravity();
+public:
+	bool Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo);
 
-	static void SetDebugDrawEnabled(bool value);
-	static bool GetDebugDrawEnabled();
+	void SetGravity(const Vector3& value);
+	Vector3 GetGravity();
 
-private:
-	Physics();
+	void SetDebugDrawEnabled(bool value);
+	bool GetDebugDrawEnabled();
+
+public:
+	virtual void Update(float deltaTime);
 };

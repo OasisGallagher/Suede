@@ -10,34 +10,35 @@ SUEDE_DEFINE_COMPONENT(CameraController, Behaviour)
 
 CameraController::CameraController() 
 	: orientSpeed_(0.3f, 0.3f), rotateSpeed_(0.05f, 0.05f), moveSpeed_(-0.05f, 0.05f, 0.05f) {
+	input_ = Engine::GetSubsystem<Input>();
 }
 
 CameraController::~CameraController() {
 }
 
-void CameraController::Update() {
-	if (Input::GetMouseWheelDelta() != 0) {
+void CameraController::Update(float deltaTime) {
+	if (input_->GetMouseWheelDelta() != 0) {
 		Vector3 fwd = camera_->GetForward();
-		camera_->SetPosition(camera_->GetPosition() + fwd * moveSpeed_.z * (float)Input::GetMouseWheelDelta());
+		camera_->SetPosition(camera_->GetPosition() + fwd * moveSpeed_.z * (float)input_->GetMouseWheelDelta());
 	}
 
-	if (moving_ != Input::GetMouseButton(1)) {
+	if (moving_ != input_->GetMouseButton(1)) {
 		moving_ = !moving_;
 		view_->setCursor(moving_ ? Qt::ClosedHandCursor : Qt::ArrowCursor);
 	}
 
-	if (Input::GetMouseButtonDown(0) || Input::GetMouseButtonDown(1) || Input::GetMouseButtonDown(2)) {
-		pos_ = Input::GetMousePosition();
+	if (input_->GetMouseButtonDown(0) || input_->GetMouseButtonDown(1) || input_->GetMouseButtonDown(2)) {
+		pos_ = input_->GetMousePosition();
 	}
 
-	if (Input::GetMouseButton(0)) {
-		rotateAroundGameObject(Input::GetMousePosition(), pos_);
+	if (input_->GetMouseButton(0)) {
+		rotateAroundGameObject(input_->GetMousePosition(), pos_);
 	}
-	else if (Input::GetMouseButton(1)) {
-		moveCamera(Input::GetMousePosition(), pos_);
+	else if (input_->GetMouseButton(1)) {
+		moveCamera(input_->GetMousePosition(), pos_);
 	}
-	else if (Input::GetMouseButton(2)) {
-		rotateCamera(Input::GetMousePosition(), pos_);
+	else if (input_->GetMouseButton(2)) {
+		rotateCamera(input_->GetMousePosition(), pos_);
 	}
 }
 

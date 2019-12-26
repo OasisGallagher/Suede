@@ -51,6 +51,7 @@ Pipeline::Pipeline(RenderingContext* context)
 	, renderables_(INIT_RENDERABLE_CAPACITY), matrices_(INIT_RENDERABLE_CAPACITY * 2), nrenderables_(0) {
 	memset(&counters_, 0, sizeof(counters_));
 	oldStates_.Reset();
+	profiler_ = context->GetProfiler();
 	matrixBuffer_ = context_->GetUniformState()->matrixTextureBuffer.get();
 }
 
@@ -117,10 +118,10 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 }
 
 void Pipeline::Run() {
-	Sample* updatePipelineSample = Profiler::CreateSample();
+	Sample* updatePipelineSample = profiler_->CreateSample();
 	updatePipelineSample->Start();
 
-	Sample* updateTBOSample = Profiler::CreateSample();
+	Sample* updateTBOSample = profiler_->CreateSample();
 	updateTBOSample->Start();
 	UpdateMatrixBuffer(nrenderables_, &matrices_[0]);
 	updateTBOSample->Stop();
@@ -129,7 +130,11 @@ void Pipeline::Run() {
 
 	uint from = 0;
 
-	RenderSamples renderSamples;
+	RenderSamples renderSamples = {
+		profiler_->CreateSample(),
+		profiler_->CreateSample(),
+		profiler_->CreateSample(),
+	};
 
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		Renderable& first = renderables_[from];
@@ -149,11 +154,10 @@ void Pipeline::Run() {
 
 	updatePipelineSample->Stop();
 
-	Sample* statAndOutput = Profiler::CreateSample();
+	Sample* statAndOutput = profiler_->CreateSample();
 	statAndOutput->Start();
-	Statistics* statistics = context_->GetStatistics();
-	statistics->AddTriangles(counters_.triangles);
-	statistics->AddDrawcalls(counters_.drawcalls);
+	profiler_->AddTriangles(counters_.triangles);
+	profiler_->AddDrawcalls(counters_.drawcalls);
 	
 
 #ifdef DEBUG_SAMPLES
@@ -175,7 +179,7 @@ void Pipeline::Run() {
 	Debug::OutputToConsole("[Pipeline::Update::stat_and_output]\t%.2f ms", statAndOutput->GetElapsedSeconds() * 1000);
 #endif
 
-	Sample* resetStateSample = Profiler::CreateSample();
+	Sample* resetStateSample = profiler_->CreateSample();
 	resetStateSample->Start();
 	ResetState();
 	resetStateSample->Stop();
@@ -184,10 +188,13 @@ void Pipeline::Run() {
 	Debug::OutputToConsole("[Pipeline::Update::reset_states]\t%.2f ms", resetStateSample->GetElapsedSeconds() * 1000);
 #endif
 
-	Profiler::ReleaseSample(updateTBOSample);
-	Profiler::ReleaseSample(updatePipelineSample);
-	Profiler::ReleaseSample(statAndOutput);
-	Profiler::ReleaseSample(resetStateSample);
+	profiler_->ReleaseSample(updateTBOSample);
+	profiler_->ReleaseSample(updatePipelineSample);
+	profiler_->ReleaseSample(statAndOutput);
+	profiler_->ReleaseSample(resetStateSample);
+	profiler_->ReleaseSample(renderSamples.drawCall);
+	profiler_->ReleaseSample(renderSamples.switchState);
+	profiler_->ReleaseSample(renderSamples.updateOffset);
 }
 
 void Pipeline::GatherInstances(std::vector<uint>& ranges) {
@@ -387,16 +394,4 @@ void Pipeline::States::Reset() {
 	}
 
 	pass = -1;
-}
-
-Pipeline::RenderSamples::RenderSamples() {
-	switchState = Profiler::CreateSample();
-	updateOffset = Profiler::CreateSample();
-	drawCall = Profiler::CreateSample();
-}
-
-Pipeline::RenderSamples::~RenderSamples() {
-	Profiler::ReleaseSample(switchState);
-	Profiler::ReleaseSample(updateOffset);
-	Profiler::ReleaseSample(drawCall);
 }

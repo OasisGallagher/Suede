@@ -1,40 +1,52 @@
-#include "culling.h"
+#include "cullingthread.h"
 
 #include "mesh.h"
-#include "world.h"
+#include "time2.h"
 #include "renderer.h"
 #include "profiler.h"
 #include "geometryutility.h"
 #include "internal/base/renderdefines.h"
+#include "internal/engine/sceneinternal.h"
 #include "internal/rendering/renderingcontext.h"
 
-Culling::Culling(RenderingContext* context) : context_(context), working_(false), stopped_(false) {
-	thread_ = std::thread(std::bind(&Culling::Run, this));
+CullingThread::CullingThread(RenderingContext* context) : context_(context), working_(false), stopped_(false) {
+	thread_ = std::thread(std::bind(&CullingThread::Run, this));
 }
 
-Culling::~Culling() {
-	stopped_ = true;
-	cond_.notify_all();
+CullingThread::~CullingThread() {
+	Stop();
 	thread_.join();
 }
 
-void Culling::Run() {
+void CullingThread::Run() {
 	auto walker = [this](GameObject* go) { return OnWalkGameObject(go); };
+	Time* time = context_->GetTime();
+	Profiler* profiler = context_->GetProfiler();
+	SceneInternal* scene = ((SceneInternal*)context_->GetScene()->d_);
+
+	int cullingUpdateFrame = -1;
+	uint64 lastTimeStamp = Time::GetTimeStamp();
+
 	for (; !stopped_;) {
 		if (working_) {
 			gameObjects_.clear();
-			uint64 start = Profiler::GetTimeStamp();
-			World::CullingUpdate();
+			uint64 start = Time::GetTimeStamp();
 
-			World::WalkGameObjectHierarchy(walker);
+			if (time->GetFrameCount() != cullingUpdateFrame) {
+				scene->CullingUpdate((float)Time::TimeStampToSeconds(start - lastTimeStamp));
+				cullingUpdateFrame = time->GetFrameCount();
+			}
+
+			scene->WalkGameObjectHierarchy(walker);
 
 			cullingFinished.raise();
 
-			context_->GetStatistics()->SetCullingElapsed(
-				Profiler::TimeStampToSeconds(Profiler::GetTimeStamp() - start)
+			profiler->SetCullingElapsed(
+				Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
 			);
 
 			working_ = false;
+			lastTimeStamp = start;
 		}
 
 		std::unique_lock<std::mutex> lock(mutex_);
@@ -42,14 +54,14 @@ void Culling::Run() {
 	}
 }
 
-void Culling::Stop() {
+void CullingThread::Stop() {
 	if (!stopped_) {
 		stopped_ = true;
 		cond_.notify_all();
 	}
 }
 
-void Culling::Cull(const Matrix4& worldToClipMatrix) {
+void CullingThread::Cull(const Matrix4& worldToClipMatrix) {
 	if (!working_) {
 		worldToClipMatrix_ = worldToClipMatrix;
 		working_ = true;
@@ -57,7 +69,7 @@ void Culling::Cull(const Matrix4& worldToClipMatrix) {
 	}
 }
 
-WalkCommand Culling::OnWalkGameObject(GameObject* go) {
+WalkCommand CullingThread::OnWalkGameObject(GameObject* go) {
 	if (!IsVisible(go, worldToClipMatrix_)) {
 		return WalkCommand::Continue;
 	}
@@ -73,7 +85,7 @@ WalkCommand Culling::OnWalkGameObject(GameObject* go) {
 	return WalkCommand::Continue;
 }
 
-bool Culling::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
+bool CullingThread::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
 	const Bounds& bounds = go->GetBounds();
 	if (bounds.IsEmpty()) {
 		return false;
@@ -82,7 +94,7 @@ bool Culling::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
 	return FrustumCulling(bounds, worldToClipMatrix);
 }
 
-bool Culling::FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix) {
+bool CullingThread::FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix) {
 	Vector2 outx, outy, outz;
 
 	std::vector<Vector3> points;

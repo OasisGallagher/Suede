@@ -1,6 +1,7 @@
 #include "statswidget.h"
 
-#include "world.h"
+#include "engine.h"
+#include "profiler.h"
 
 StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 	ui.setupUi(this);
@@ -14,7 +15,7 @@ StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 
 void StatsWidget::updateContent() {
 	if (isVisible()) {
-		const FrameStatistics* stats = World::GetFrameStatistics();
+		const StatisticInfo* stats = Engine::GetSubsystem<Profiler>()->GetStatisticInfo();
 		ui.fps->setText(QString::number(stats->frameRate, 'f', 2));
 
 		ui.script->setText(QString::asprintf("%.2f ms", stats->scriptElapsed * 1000));

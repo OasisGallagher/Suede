@@ -2,7 +2,7 @@
 #include <QMimeData>
 #include <QStandardItemModel>
 
-#include "world.h"
+#include "engine.h"
 #include "gameobject.h"
 
 class DragDropableItemModel : public QStandardItemModel {

@@ -1,10 +1,8 @@
 #pragma once
 #include "time2.h"
+#include "subsysteminternal.h"
 
-class TimeInternal {
-public:
-	TimeInternal();
-
+class TimeInternal : public SubsystemInternal {
 public:
 	float GetTime() { return time_; }
 	float GetDeltaTime() { return deltaTime_; }
@@ -15,13 +13,13 @@ public:
 	float GetRealTimeSinceStartup();
 	uint GetFrameCount() { return frameCount_; }
 
-private:
-	void OnFrameEnter();
+	void Update(float deltaTime);
 
 private:
-	float time_;
-	float deltaTime_;
+	float time_ = 0;
+	float deltaTime_ = 0;
+	double timeStampToSeconds_ = 1.0;
 
-	uint frameCount_;
-	uint64 lastFrameTimeStamp_;
+	uint frameCount_ = 0;
+	uint64 lastFrameTimeStamp_ = 0;
 };

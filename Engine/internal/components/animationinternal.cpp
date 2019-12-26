@@ -399,9 +399,9 @@ bool AnimationInternal::Play(const std::string& name) {
 	return true;
 }
 
-void AnimationInternal::CullingUpdate() {
+void AnimationInternal::CullingUpdate(float deltaTime) {
 	if (playing_ && current_) {
-		time_ += Time::GetDeltaTime();
+		time_ += deltaTime;
 
 		if (current_->Sample(time_) && current_->GetWrapMode() == +AnimationWrapMode::Once) {
 			current_->Sample(0);

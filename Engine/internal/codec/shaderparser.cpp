@@ -373,8 +373,8 @@ void ShaderParser::ReadProperties(SyntaxNode* node, std::vector<Property*>& prop
 	ReadTree(node, "Properties", &ShaderParser::ReadProperty, properties);
 }
 
-void ShaderParser::ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags) {
-	ReadTreeRef(node, "Tags", &ShaderParser::ReadTag, tags);
+void ShaderParser::ReadTags(SyntaxNode* node, std::vector<Semantics::Tag>& tags_) {
+	ReadTreeRef(node, "Tags", &ShaderParser::ReadTag, tags_);
 }
 
 void ShaderParser::ReadSubShaderBlocks(SyntaxNode* node, std::vector<Semantics::SubShader>& subShaders) {
@@ -545,10 +545,10 @@ void ShaderParser::ReadTag(SyntaxNode* node, Semantics::Tag& tag) {
 	tag.value = node->GetChildAt(0)->ToString();
 }
 
-void ShaderParser::ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags) {
+void ShaderParser::ReadTagBlock(SyntaxNode* node, std::vector<Semantics::Tag>& tags_) {
 	SyntaxNode* c = node->GetChildAt(0);
 	if (c != nullptr) {
-		ReadTags(c, tags);
+		ReadTags(c, tags_);
 	}
 }
 
@@ -591,7 +591,7 @@ void ShaderParser::ReadPass(SyntaxNode* node, Semantics::Pass& pass) {
 
 void ShaderParser::ReadSubShaderBlock(SyntaxNode* node, Semantics::SubShader& subShader) {
 	if (node->GetChildAt(0) != nullptr) {
-		ReadTagBlock(node->GetChildAt(0), subShader.tags);
+		ReadTagBlock(node->GetChildAt(0), subShader.tags_);
 	}
 
 	ReadPasses(node->GetChildAt(1), subShader.passes);

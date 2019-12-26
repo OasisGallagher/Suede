@@ -3,7 +3,7 @@
 #include "math/mathf.h"
 #include "debug/debug.h"
 
-#include "world.h"
+#include "engine.h"
 #include "textureinternal.h"
 
 Object::Object(void* d) : PimplIdiom(d, t_delete<ObjectInternal>) {}

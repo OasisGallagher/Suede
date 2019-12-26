@@ -355,13 +355,13 @@ void MeshInternal::ClearAttribute(MeshAttribute& attribute) {
 	attribute.indexes.clear();
 }
 
-#define GetMeshInternal(mesh)	((mesh)->_rptr_impl<MeshInternal>())
+#define Impl(mesh)	((MeshInternal*)mesh->d_)
 
 MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(type) {
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	auto storage = GetMeshInternal(mesh_)->GetStorage();
+	auto storage = Impl(mesh_)->GetStorage();
 	if (storage != nullptr) {
 		storage->modified.unsubscribe(this);
 	}
@@ -369,11 +369,11 @@ MeshProviderInternal::~MeshProviderInternal() {
 
 void MeshProviderInternal::SetMesh(Mesh* value) {
 	if (mesh_ != nullptr) {
-		GetMeshInternal(mesh_)->GetStorage()->modified.unsubscribe(this);
+		Impl(mesh_)->GetStorage()->modified.unsubscribe(this);
 	}
 
 	if (value != nullptr) {
-		GetMeshInternal(value)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
+		Impl(value)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
 	}
 
 	mesh_ = value;
@@ -426,7 +426,7 @@ void TextMeshInternal::SetFontSize(uint value) {
 	}
 }
 
-void TextMeshInternal::Update() {
+void TextMeshInternal::Update(float deltaTime) {
 	if (meshDirty_) {
 		RebuildMesh();
 	}

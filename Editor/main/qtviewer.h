@@ -2,11 +2,11 @@
 #include <QObject>
 #include <QtWidgets/QApplication>
 
-#include "graphicsviewer.h"
+#include "viewer.h"
 
 class Editor;
 
-class QtViewer : public QObject, public GraphicsViewer {
+class QtViewer : public QObject, public Viewer {
 	Q_OBJECT
 
 public:

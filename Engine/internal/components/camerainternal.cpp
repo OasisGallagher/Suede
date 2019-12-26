@@ -1,6 +1,7 @@
 #include "camerainternal.h"
 
-#include "world.h"
+#include "engine.h"
+#include "scene.h"
 #include "gizmos.h"
 #include "profiler.h"
 #include "gizmospainter.h"
@@ -63,10 +64,11 @@ void Camera::OnPreRender() {
 }
 
 void Camera::OnPostRender() {
+	Camera* main = GetMain();
 	RenderTexture* target = RenderTexture::GetDefault();
-	target->BindWrite(GetMain()->GetRect());
+	target->BindWrite(main->GetRect());
 
-	for (GizmosPainter* painter : World::GetComponents<GizmosPainter>()) {
+	for (GizmosPainter* painter : main->GetGameObject()->GetScene()->GetComponents<GizmosPainter>()) {
 		painter->OnDrawGizmos();
 	}
 
@@ -77,9 +79,9 @@ CameraInternal::CameraInternal()
 	: ComponentInternal(ObjectType::Camera), depth_(0), pipelineReady_(false), normalizedRect_(0, 0, 1, 1)
 	, clearType_(ClearType::Color), clearColor_(Color::black), depthTextureMode_(DepthTextureMode::None), renderPath_(RenderPath::Forward)
 	 /*, gbuffer_(nullptr) */{
-	culling_ = new Culling(context_);
-
-	culling_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
+	// SUEDE TODO Culling thread...
+	cullingThread_ = new CullingThread(context_);
+	cullingThread_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
 
 	rendering_ = new Rendering(context_);
 
@@ -93,9 +95,9 @@ CameraInternal::CameraInternal()
 }
 
 CameraInternal::~CameraInternal() {
-	culling_->Stop();
+	cullingThread_->Stop();
+	delete cullingThread_;
 
-	delete culling_;
 	delete pipelineBuilder_;
 	delete frontPipelines_;
 	delete backPipelines_;
@@ -108,7 +110,7 @@ void CameraInternal::Awake() {
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {
-	culling_->Stop();
+	cullingThread_->Stop();
 }
 
 void CameraInternal::UpdateFrameState() {
@@ -136,9 +138,9 @@ void CameraInternal::Render() {
 
 	UpdateFrameState();
 
-	if (!culling_->IsWorking()) {
+	if (!cullingThread_->IsWorking()) {
 		backPipelines_->Clear();
-		culling_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+		cullingThread_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
 	}
 
 	if (pipelineReady_) {
@@ -163,7 +165,7 @@ void CameraInternal::OnCullingFinished() {
 
 	{
 		std::lock_guard<std::mutex> lock(visibleGameObjectsMutex_);
-		visibleGameObjects_ = culling_->GetGameObjects();
+		visibleGameObjects_ = cullingThread_->GetGameObjects();
 	}
 
 	pipelineBuilder_->Build(backPipelines_, visibleGameObjects_, matrices);

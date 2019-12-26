@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "tagmanager.h"
+#include "tags.h"
 
 #include "lua++.h"
 #include "tools/string.h"

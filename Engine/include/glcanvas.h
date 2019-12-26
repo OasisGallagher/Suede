@@ -1,7 +1,7 @@
 #pragma once
 #include "types.h"
 
-class SUEDE_API GraphicsCanvas {
+class SUEDE_API GLCanvas {
 public:
 	virtual void MakeCurrent() = 0;
 	virtual void DoneCurrent() = 0;

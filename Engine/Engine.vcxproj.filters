@@ -8,9 +8,6 @@
     <Filter Include="internal\base">
       <UniqueIdentifier>{a5ee88c7-9643-440a-be06-26cdb17cb76a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\world">
-      <UniqueIdentifier>{4ee632eb-cd89-478a-8f7d-9bcbe89b17e0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{619209de-ca24-4479-bfa3-b62bea17bc96}</UniqueIdentifier>
     </Filter>
@@ -26,9 +23,6 @@
     <Filter Include="internal\rendering">
       <UniqueIdentifier>{04231575-3207-44df-a7a9-fe50c3dbb05c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\culling">
-      <UniqueIdentifier>{5a133204-f746-4f89-affe-24b00d2605a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\components">
       <UniqueIdentifier>{dca0170e-fd60-4d7a-82d7-620ad2a1b774}</UniqueIdentifier>
     </Filter>
@@ -38,20 +32,11 @@
     <Filter Include="internal\codec">
       <UniqueIdentifier>{3ea0054a-968f-468a-b53d-118a628758ce}</UniqueIdentifier>
     </Filter>
-    <Filter Include="internal\tools">
-      <UniqueIdentifier>{7250f762-5349-4e9d-86fa-b0ac0e0f55fb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="internal\gui">
       <UniqueIdentifier>{c4c6c134-4610-4e69-baac-24b7fb760c99}</UniqueIdentifier>
     </Filter>
     <Filter Include="internal\gameobject">
       <UniqueIdentifier>{4d538f95-b8fe-4e72-a8b3-49cb0475678b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\lua">
-      <UniqueIdentifier>{37dfc3b5-6f16-4e4e-87a8-365131c2d6c6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="internal\lua\wrappers">
-      <UniqueIdentifier>{b9958a7d-a2c5-4800-bb74-6dcc3a7403ac}</UniqueIdentifier>
     </Filter>
     <Filter Include="internal\physics">
       <UniqueIdentifier>{715031a3-40a0-41a2-9987-2e98a0efb0b7}</UniqueIdentifier>
@@ -152,6 +137,9 @@
     <Filter Include="internal\physics\bullet\LinearMath">
       <UniqueIdentifier>{629c1717-29a9-4193-83f4-a5a1543a23fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internal\engine">
+      <UniqueIdentifier>{4ee632eb-cd89-478a-8f7d-9bcbe89b17e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\camera.h">
@@ -170,9 +158,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\texture.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\world.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\light.h">
@@ -233,12 +218,6 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\rect.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\graphicsviewer.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\graphicscanvas.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\profiler.h">
@@ -1246,116 +1225,8 @@
     <ClInclude Include="include\physics.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\animation_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\behaviour_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\bounds_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\camera_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\color_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\component_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\engine_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\environment_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\font_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\gameobject_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\gizmos_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\graphics_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\imageeffect_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\input_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\light_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\luaconfig.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\material_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\mesh_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\particlesystem_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\physics_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\plane_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\polygon_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\projector_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\rect_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\renderer_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\resources_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\rigidbody_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\screen_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\shader_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\statistics_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\tagmanager_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\texture_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\time2_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\transform_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\world_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="include\ray.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\lua\wrappers\ray_wrapper.h">
-      <Filter>internal\lua\wrappers</Filter>
     </ClInclude>
     <ClInclude Include="include\rigidbody.h">
       <Filter>include</Filter>
@@ -1376,9 +1247,6 @@
       <Filter>internal\base</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\gbuffer.h">
-      <Filter>internal\base</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\base\gpuquerier.h">
       <Filter>internal\base</Filter>
     </ClInclude>
     <ClInclude Include="internal\base\materialinternal.h">
@@ -1409,9 +1277,6 @@
       <Filter>internal\codec</Filter>
     </ClInclude>
     <ClInclude Include="internal\codec\image.h">
-      <Filter>internal\codec</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\codec\gameobjectloader.h">
       <Filter>internal\codec</Filter>
     </ClInclude>
     <ClInclude Include="internal\components\animationinternal.h">
@@ -1459,9 +1324,6 @@
     <ClInclude Include="..\Shared\containers\table.h">
       <Filter>internal\containers</Filter>
     </ClInclude>
-    <ClInclude Include="internal\culling\culling.h">
-      <Filter>internal\culling</Filter>
-    </ClInclude>
     <ClInclude Include="internal\gameobject\gameobjectinternal.h">
       <Filter>internal\gameobject</Filter>
     </ClInclude>
@@ -1498,17 +1360,8 @@
     <ClInclude Include="internal\rendering\rendering.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="internal\tools\profilerinternal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\tools\time2internal.h">
-      <Filter>internal\tools</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\world\worldinternal.h">
-      <Filter>internal\world</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\world\decalcreater.h">
-      <Filter>internal\world</Filter>
+    <ClInclude Include="internal\engine\decalcreater.h">
+      <Filter>internal\engine</Filter>
     </ClInclude>
     <ClInclude Include="internal\rendering\shadowmap.h">
       <Filter>internal\rendering</Filter>
@@ -1517,12 +1370,6 @@
       <Filter>internal\rendering</Filter>
     </ClInclude>
     <ClInclude Include="internal\rendering\ambientocclusion.h">
-      <Filter>internal\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include="include\frameeventqueue.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\rendering\gizmosinternal.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
     <ClInclude Include="internal\rendering\renderingcontext.h">
@@ -1534,11 +1381,8 @@
     <ClInclude Include="internal\base\glenums.h">
       <Filter>internal\base</Filter>
     </ClInclude>
-    <ClInclude Include="internal\base\statistics.h">
-      <Filter>internal\base</Filter>
-    </ClInclude>
-    <ClInclude Include="internal\world\luabridge.h">
-      <Filter>internal\world</Filter>
+    <ClInclude Include="internal\engine\luabridge.h">
+      <Filter>internal\engine</Filter>
     </ClInclude>
     <ClInclude Include="include\defines.h">
       <Filter>include</Filter>
@@ -1546,17 +1390,56 @@
     <ClInclude Include="include\subsystem.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="internal\world\sceneinternal.h">
-      <Filter>internal\world</Filter>
+    <ClInclude Include="internal\engine\sceneinternal.h">
+      <Filter>internal\engine</Filter>
     </ClInclude>
     <ClInclude Include="include\scene.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\worldevents.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\mainmtevent.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\frameevents.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\subsysteminternal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\codec\gameobjectimporter.h">
+      <Filter>internal\codec</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\gizmosinternal.h">
+      <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\engineinternal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\engine.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\viewer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\glcanvas.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\inputinternal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\profilerinternal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\tagsinternal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\time2internal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\graphicsinternal.h">
+      <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\cullingthread.h">
+      <Filter>internal\rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2109,9 +1992,6 @@
     <ClCompile Include="internal\base\gbuffer.cpp">
       <Filter>internal\base</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\gpuquerier.cpp">
-      <Filter>internal\base</Filter>
-    </ClCompile>
     <ClCompile Include="internal\base\materialinternal.cpp">
       <Filter>internal\base</Filter>
     </ClCompile>
@@ -2135,9 +2015,6 @@
     </ClCompile>
     <ClCompile Include="internal\base\vertexarray.cpp">
       <Filter>internal\base</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\codec\gameobjectloader.cpp">
-      <Filter>internal\codec</Filter>
     </ClCompile>
     <ClCompile Include="internal\codec\image.cpp">
       <Filter>internal\codec</Filter>
@@ -2177,9 +2054,6 @@
     </ClCompile>
     <ClCompile Include="internal\components\transforminternal.cpp">
       <Filter>internal\components</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\culling\culling.cpp">
-      <Filter>internal\culling</Filter>
     </ClCompile>
     <ClCompile Include="internal\gameobject\gameobjectinternal.cpp">
       <Filter>internal\gameobject</Filter>
@@ -2232,23 +2106,8 @@
     <ClCompile Include="internal\rendering\rendering.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
-    <ClCompile Include="internal\tools\inputinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\tools\profilerinternal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\tools\time2internal.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\world\graphicsviewer.cpp">
-      <Filter>internal\world</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\world\worldinternal.cpp">
-      <Filter>internal\world</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\world\decalcreater.cpp">
-      <Filter>internal\world</Filter>
+    <ClCompile Include="internal\engine\decalcreater.cpp">
+      <Filter>internal\engine</Filter>
     </ClCompile>
     <ClCompile Include="internal\rendering\shadowmap.cpp">
       <Filter>internal\rendering</Filter>
@@ -2262,39 +2121,57 @@
     <ClCompile Include="internal\base\resources.cpp">
       <Filter>internal\base</Filter>
     </ClCompile>
-    <ClCompile Include="internal\tools\screen.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\tools\tagmanager.cpp">
-      <Filter>internal\tools</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rendering\graphics.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
-    <ClCompile Include="internal\rendering\gizmosinternal.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
     <ClCompile Include="internal\rendering\renderingcontext.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
     <ClCompile Include="internal\base\context.cpp">
       <Filter>internal\base</Filter>
     </ClCompile>
-    <ClCompile Include="internal\base\statistics.cpp">
-      <Filter>internal\base</Filter>
+    <ClCompile Include="internal\engine\luabridge.cpp">
+      <Filter>internal\engine</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\luabridge.cpp">
-      <Filter>internal\world</Filter>
+    <ClCompile Include="internal\engine\sceneinternal.cpp">
+      <Filter>internal\engine</Filter>
     </ClCompile>
-    <ClCompile Include="internal\world\sceneinternal.cpp">
-      <Filter>internal\world</Filter>
+    <ClCompile Include="internal\engine\subsysteminternal.cpp">
+      <Filter>internal\engine</Filter>
     </ClCompile>
-    <ClCompile Include="include\worldevents.cpp">
-      <Filter>include</Filter>
+    <ClCompile Include="internal\codec\gameobjectimporter.cpp">
+      <Filter>internal\codec</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\gizmosinternal.cpp">
+      <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\engineinternal.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\viewer.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\inputinternal.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\profilerinternal.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\screen.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\tagsinternal.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\time2internal.cpp">
+      <Filter>internal\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\graphicsinternal.cpp">
+      <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\cullingthread.cpp">
+      <Filter>internal\rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="include\tagmanager.h">
+    <Text Include="include\tags.h">
       <Filter>include</Filter>
     </Text>
   </ItemGroup>

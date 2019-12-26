@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "world.h"
+#include "engine.h"
 
 #include "lua++.h"
 #include "tools/string.h"
@@ -112,7 +112,7 @@ class World_Wrapper {
 		return 0;
 	}
 
-	// static void CullingUpdate()
+	// static void CullingUpdate(float deltaTime)
 	static int CullingUpdate(lua_State* L) {
 		World::CullingUpdate();
 		return 0;

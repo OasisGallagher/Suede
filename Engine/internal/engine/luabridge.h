@@ -6,7 +6,7 @@ public:
 	LuaBridge(Context* context);
 	~LuaBridge();
 
-	void Update();
+	void Update(float deltaTime);
 
 public:
 	Context* context_ = nullptr;

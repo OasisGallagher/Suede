@@ -26,6 +26,7 @@ enum class ComponentEventType {
 
 #define DEFAULT_GAME_OBJECT_NAME "New GameObject"
 
+class Scene;
 class SUEDE_API GameObject : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(GameObject)
 	SUEDE_DECLARE_IMPLEMENTATION(GameObject)
@@ -46,6 +47,8 @@ public:
 	static main_mt_event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> componentChanged;
 
 public:
+	Scene* GetScene();
+
 	bool GetActive() const;
 
 	void SetActiveSelf(bool value);
@@ -58,8 +61,8 @@ public:
 	const std::string& GetTag() const;
 	bool SetTag(const std::string& value);
 
-	void Update();
-	void CullingUpdate();
+	void Update(float deltaTime);
+	void CullingUpdate(float deltaTime);
 
 	/**
 	 * @brief shortcut for GetComponent<Transform>().

@@ -9,12 +9,14 @@
 #include "widgets/status/statusbar.h"
 #include "widgets/statistics/statswidget.h"
 
+#include "tags.h"
 #include "font.h"
 #include "mesh.h"
+#include "scene.h"
 #include "light.h"
 #include "input.h"
 #include "time2.h"
-#include "world.h"
+#include "engine.h"
 #include "input.h"
 #include "screen.h"
 #include "camera.h"
@@ -25,7 +27,6 @@
 #include "resources.h"
 #include "projector.h"
 #include "behaviour.h"
-#include "tagmanager.h"
 #include "particlesystem.h"
 #include "builtinproperties.h"
 
@@ -39,12 +40,12 @@
 
 #define ROOM
 //#define SKYBOX
-//#define PROJECTOR
+#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
@@ -58,9 +59,15 @@ static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 static const char* manFbxPath = "boblampclean.md5mesh";
 static const char* lightModelPath = "builtin/sphere.fbx";
 
-GameWindow::GameWindow(QWidget* parent) : ChildWindow(parent), canvas_(nullptr), stat_(nullptr), controller_(nullptr) {
+GameWindow::GameWindow(QWidget* parent)
+	: ChildWindow(parent)
+	, canvas_(nullptr), stat_(nullptr), controller_(nullptr), inputDelegate_(nullptr) {
 	stat_ = new StatsWidget(this);
 	stat_->setVisible(false);
+}
+
+GameWindow::~GameWindow() {
+	delete inputDelegate_;
 }
 
 void GameWindow::initUI() {
@@ -79,29 +86,31 @@ void GameWindow::initUI() {
 void GameWindow::awake() {
 	Component::Register<CameraController>();
 
-	ui_->shadingMode->setEnums(+Graphics::GetShadingMode());
+	ui_->shadingMode->setEnums(+Engine::GetSubsystem<Graphics>()->GetShadingMode());
 
-	input_ = new QtInputDelegate(ui_->canvas);
-	Input::SetDelegate(input_);
+	input_ = Engine::GetSubsystem<Input>();
 
-	createScene();
+	inputDelegate_ = new QtInputDelegate(ui_->canvas);
+	input_->SetDelegate(inputDelegate_);
+
+	setupScene();
 }
 
 void GameWindow::tick() {
-	if (Input::GetMouseButtonUp(0)) {
+	if (input_->GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
 		Vector3 src = Camera::GetMain()->GetTransform()->GetPosition();
-		Vector2 mousePosition = Input::GetMousePosition();
+		Vector2 mousePosition = input_->GetMousePosition();
 		Vector3 dest = Camera::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
 
-		if (Physics::Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
+		if (Engine::GetSubsystem<Physics>()->Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
 			editor_->childWindow<HierarchyWindow>()->setSelectedGameObjects(QList<GameObject*>{ hitInfo.gameObject });
 		}
 	}
 }
 
 void GameWindow::onGameObjectImported(GameObject* root, const std::string& path) {
-	//root->GetTransform()->SetParent(World::GetRootTransform());
+	//root->GetTransform()->SetParent(Engine::GetRootTransform());
 	root->SetName(path);
 
 	if (path == manFbxPath) {
@@ -197,7 +206,7 @@ void GameWindow::updateStatPosition() {
 }
 
 void GameWindow::onShadingModeChanged(const QString& str) {
-	Graphics::SetShadingMode(ShadingMode::from_string(str.toLatin1()));
+	Engine::GetSubsystem<Graphics>()->SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
 void GameWindow::onFocusGameObjectBounds(GameObject* go) {
@@ -223,23 +232,25 @@ float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds
 	return Mathf::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
 }
 
-void GameWindow::createScene() {
+void GameWindow::setupScene() {
 	Debug::Log("test debug message");
 	Debug::Log("test debug message2");
+
+	Scene* scene = Engine::GetSubsystem<Scene>();
 
 	ref_ptr<GameObject> lightGameObject = new GameObject();
 	lightGameObject->SetName("light");
 
 	Light* light = lightGameObject->AddComponent<Light>();
 	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
-	light->GetTransform()->SetParent(World::GetRootTransform());
+	light->GetTransform()->SetParent(scene->GetRootTransform());
 
 	ref_ptr<GameObject> cameraGameObject = new GameObject();
 	cameraGameObject->SetName("camera");
 
 	Camera* camera = cameraGameObject->AddComponent<Camera>();
 	Camera::SetMain(camera);
-	camera->GetTransform()->SetParent(World::GetRootTransform());
+	camera->GetTransform()->SetParent(scene->GetRootTransform());
 
 	controller_ = cameraGameObject->AddComponent<CameraController>();
 	controller_->setView(this);
@@ -256,7 +267,7 @@ void GameWindow::createScene() {
 #else
 	projector->SetFieldOfView(Mathf::deg2Rad * 9.f);
 #endif
-	projector->GetTransform()->SetParent(World::GetRootTransform());
+	projector->GetTransform()->SetParent(scene->GetRootTransform());
 	projector->GetTransform()->SetPosition(Vector3(0, 25, 0));
 
 	ref_ptr<Texture2D> texture = new Texture2D();
@@ -319,7 +330,7 @@ void GameWindow::createScene() {
 	cube->Load(faces);
 	skybox->SetTexture(BuiltinProperties::MainTexture, cube.get());
 	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
-	World::GetEnvironment()->skybox = skybox;
+	scene->GetEnvironment()->skybox = skybox;
 
 #ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
@@ -337,7 +348,7 @@ void GameWindow::createScene() {
 	GameObject* go = NewGameObject();
 	ParticleSystem particleSystem = go->AddComponent<ParticleSystem>();
 	go->GetTransform()->SetPosition(Vector3(-30, 20, -50));
-	go->GetTransform()->SetParent(World::GetRootTransform());
+	go->GetTransform()->SetParent(Engine::GetRootTransform());
 
 	SphereParticleEmitter emitter = NewSphereParticleEmitter();
 	emitter->SetRadius(5);
@@ -365,12 +376,12 @@ void GameWindow::createScene() {
 	GameObject* redText = new GameObject();
 	redText->SetName("RedText");
 	redText->GetTransform()->SetPosition(Vector3(-10, 20, -20));
-	redText->GetTransform()->SetParent(World::GetRootTransform());
+	redText->GetTransform()->SetParent(Engine::GetRootTransform());
 
 	GameObject* blueText = new GameObject();
 	blueText->SetName("BlueText");
 	blueText->GetTransform()->SetPosition(Vector3(-10, 30, -20));
-	blueText->GetTransform()->SetParent(World::GetRootTransform());
+	blueText->GetTransform()->SetParent(Engine::GetRootTransform());
 
 	TextMesh redMesh = redText->AddComponent<TextMesh>();
 	redMesh->SetFont(font);
@@ -399,19 +410,19 @@ void GameWindow::createScene() {
 	};
 
 #ifdef ROOM
-	GameObject* room = World::Import(roomFbxPath, gameObjectImported);
+	GameObject* room = scene->Import(roomFbxPath, gameObjectImported);
 #endif
 
 #ifdef BUMPED
-	GameObject* bumped = World::Import(bumpedFbxPath, gameObjectImported);
+	GameObject* bumped = scene->Import(bumpedFbxPath, gameObjectImported);
 #endif
 
 #ifdef NORMAL_VISUALIZER
-	GameObject* normalVisualizer = World::Import(normalVisualizerFbxPath, gameObjectImported);
+	GameObject* normalVisualizer = scene->Import(normalVisualizerFbxPath, gameObjectImported);
 #endif
 
 #ifdef BEAR
-	GameObject* bear = World::Import("teddy_bear.fbx", gameObjectImported);
+	GameObject* bear = scene->Import("teddy_bear.fbx", gameObjectImported);
 	bear->GetTransform()->SetPosition(Vector3(0, -20, -150));
 #ifdef BEAR_X_RAY
 	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
@@ -422,6 +433,6 @@ void GameWindow::createScene() {
 #endif
 
 #ifdef ANIMATION
-	GameObject* man = World::Import(manFbxPath, gameObjectImported);
+	GameObject* man = scene->Import(manFbxPath, gameObjectImported);
 #endif
 }

@@ -1,9 +1,24 @@
 #include "sceneinternal.h"
 
 #include <mutex>
-#include "world.h"
+#include "engine.h"
 #include "decalcreater.h"
+#include "internal/codec/gameobjectimporter.h"
 #include "internal/components/transforminternal.h"
+
+Scene::Scene() : Subsystem(new SceneInternal()) {}
+void Scene::GetDecals(std::vector<Decal>& container) { _suede_dptr()->GetDecals(container); }
+Environment* Scene::GetEnvironment() { return _suede_dptr()->GetEnvironment(); }
+GameObject* Scene::GetGameObject(uint id) { return _suede_dptr()->GetGameObject(id); }
+void Scene::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
+void Scene::DestroyGameObject(GameObject* go) { _suede_dptr()->DestroyGameObject(go); }
+std::vector<GameObject*> Scene::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dptr()->GetGameObjectsOfComponent(guid); }
+void Scene::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) { _suede_dptr()->WalkGameObjectHierarchy(walker); }
+Transform* Scene::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
+GameObject* Scene::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) { return _suede_dptr()->Import(path, callback); }
+void Scene::Awake() { _suede_dptr()->Awake(); }
+void Scene::Update(float deltaTime) { _suede_dptr()->Update(deltaTime); }
+void Scene::CullingUpdate(float deltaTime) { _suede_dptr()->CullingUpdate(deltaTime); }
 
 bool SceneInternal::LightComparer::operator()(const ref_ptr<Light>& lhs, const ref_ptr<Light>& rhs) const {
 	// Directional light > Importance > Luminance.
@@ -31,8 +46,12 @@ bool SceneInternal::ProjectorComparer::operator() (const ref_ptr<Projector>& lhs
 SceneInternal::SceneInternal() {
 	GameObject::created.subscribe(this, &SceneInternal::AddGameObject);
 	GameObject::componentChanged.subscribe(this, &SceneInternal::OnGameObjectComponentChanged);
+}
 
+void SceneInternal::Awake() {
 	root_ = new GameObject("Root");
+
+	importer_ = new GameObjectImporter();
 	decalCreater_ = new DecalCreater();
 }
 
@@ -45,11 +64,13 @@ SceneInternal::~SceneInternal() {
 	}
 
 	Camera::SetMain(nullptr);
+
+	delete importer_;
 	delete decalCreater_;
 }
 
-void SceneInternal::Update() {
-	RenderingUpdateGameObjects();
+void SceneInternal::Update(float deltaTime) {
+	RenderingUpdateGameObjects(deltaTime);
 
 	Camera::OnPreRender();
 
@@ -62,8 +83,8 @@ void SceneInternal::Update() {
 	Camera::OnPostRender();
 }
 
-void SceneInternal::CullingUpdate() {
-	CullingUpdateGameObjects();
+void SceneInternal::CullingUpdate(float deltaTime) {
+	CullingUpdateGameObjects(deltaTime);
 	UpdateDecals();
 }
 
@@ -100,18 +121,18 @@ void SceneInternal::UpdateDecals() {
 	}
 }
 
-void SceneInternal::CullingUpdateGameObjects() {
+void SceneInternal::CullingUpdateGameObjects(float deltaTime) {
 	for (GameObject* go : cullingUpdateSequence_) {
 		if (go->GetActive()) {
-			go->CullingUpdate();
+			go->CullingUpdate(deltaTime);
 		}
 	}
 }
 
-void SceneInternal::RenderingUpdateGameObjects() {
+void SceneInternal::RenderingUpdateGameObjects(float deltaTime) {
 	for (GameObject* go : renderingUpdateSequence_) {
 		if (go->GetActive()) {
-			go->Update();
+			go->Update(deltaTime);
 		}
 	}
 }
@@ -195,6 +216,10 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 void SceneInternal::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) {
 	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
+}
+
+GameObject* SceneInternal::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
+	return importer_->Import(path, callback).get();
 }
 
 bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::function<WalkCommand(GameObject*)> walker) {

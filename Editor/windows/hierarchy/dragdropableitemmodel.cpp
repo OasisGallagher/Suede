@@ -1,5 +1,7 @@
 #include "dragdropableitemmodel.h"
 
+#include "scene.h"
+
 DragDropableItemModel::DragDropableItemModel(QObject* parent) : QStandardItemModel(parent) {
 
 }
@@ -25,16 +27,17 @@ QMimeData* DragDropableItemModel::mimeData(const QModelIndexList& indexes) const
 
 bool DragDropableItemModel::dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) {
 	QStandardItem* item = itemFromIndex(parent);
+	Scene* scene = Engine::GetSubsystem<Scene>();
 	GameObject* parentGameObject = nullptr;
 	if (item != nullptr) {
-		parentGameObject = World::GetGameObject(item->data().toUInt());
+		parentGameObject = scene->GetGameObject(item->data().toUInt());
 	}
 	else {
-		parentGameObject = World::GetRootTransform()->GetGameObject();
+		parentGameObject = scene->GetRootTransform()->GetGameObject();
 	}
 
 	for (const QString& target : QString(data->data("targets")).split('|')) {
-		GameObject* go = World::GetGameObject(target.toUInt());
+		GameObject* go = scene->GetGameObject(target.toUInt());
 		go->GetTransform()->SetParent(parentGameObject->GetTransform());
 	}
 

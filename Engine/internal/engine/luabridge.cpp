@@ -19,7 +19,7 @@ LuaBridge::~LuaBridge() {
 	lua_close(L);
 }
 
-void LuaBridge::Update() {
+void LuaBridge::Update(float deltaTime) {
 	if (updateRef_ == LUA_NOREF) {
 		Lua::invokeGlobalFunction(L, "SuedeGlobal.Start");
 		updateRef_ = Lua::getGlobalFunctionRef(L, "SuedeGlobal.Update");

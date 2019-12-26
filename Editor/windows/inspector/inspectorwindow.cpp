@@ -9,8 +9,8 @@
 #include "main/editor.h"
 #include "materialeditor.h"
 
+#include "tags.h"
 #include "resources.h"
-#include "tagmanager.h"
 #include "math/mathf.h"
 #include "os/filesystem.h"
 #include "gui/qtimgui/QtImGui.h"
@@ -147,12 +147,12 @@ void InspectorWindow::drawComponents() {
 }
 
 void InspectorWindow::drawTags() {
-	auto& tags = TagManager::GetAllRegisteredTags();
-	int selected = std::find(tags.begin(), tags.end(), target_->GetTag()) - tags.begin();
-	if (selected >= tags.size()) { selected = -1; }
+	auto& tags_ = Engine::GetSubsystem<Tags>()->GetAllRegisteredTags();
+	int selected = std::find(tags_.begin(), tags_.end(), target_->GetTag()) - tags_.begin();
+	if (selected >= tags_.size()) { selected = -1; }
 
-	if (GUI::Popup("Tag", &selected, tags.begin(), tags.end())) {
-		target_->SetTag(tags[selected]);
+	if (GUI::Popup("Tag", &selected, tags_.begin(), tags_.end())) {
+		target_->SetTag(tags_[selected]);
 	}
 }
 

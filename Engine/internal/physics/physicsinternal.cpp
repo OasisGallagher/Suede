@@ -4,14 +4,13 @@
 #include "gizmos.h"
 #include "rigidbody.h"
 #include "memory/refptr.h"
-#include "frameeventqueue.h"
 #include "rigidbodyinternal.h"
 
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
-	Color oldColor = Gizmos::GetColor();
-	Gizmos::SetColor(Color(color.x(), color.y(), color.z()));
-	Gizmos::DrawLines({ btConvert(from), btConvert(to) });
-	Gizmos::SetColor(oldColor);
+	Color oldColor = gizmos_->GetColor();
+	gizmos_->SetColor(Color(color.x(), color.y(), color.z()));
+	gizmos_->DrawLines({ btConvert(from), btConvert(to) });
+	gizmos_->SetColor(oldColor);
 }
 
 void BulletDebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
@@ -21,15 +20,16 @@ void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
 	Debug::LogError(warningString);
 }
 
-Physics::Physics() : Singleton2<Physics>(new PhysicsInternal, t_delete<PhysicsInternal>) {}
-bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dinstance()->Raycast(ray, maxDistance, hitInfo); }
-void Physics::SetGravity(const Vector3& value) { _suede_dinstance()->SetGravity(value); }
-Vector3 Physics::GetGravity() { return _suede_dinstance()->GetGravity(); }
-void Physics::SetDebugDrawEnabled(bool value) { _suede_dinstance()->SetDebugDrawEnabled(value); }
-bool Physics::GetDebugDrawEnabled() { return _suede_dinstance()->GetDebugDrawEnabled(); }
+Physics::Physics(Gizmos* gizmos) : Subsystem(new PhysicsInternal(gizmos)) {}
+bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dptr()->Raycast(ray, maxDistance, hitInfo); }
+void Physics::SetGravity(const Vector3& value) { _suede_dptr()->SetGravity(value); }
+void Physics::Update(float deltaTime) { _suede_dptr()->FixedUpdate(deltaTime); }
+Vector3 Physics::GetGravity() { return _suede_dptr()->GetGravity(); }
+void Physics::SetDebugDrawEnabled(bool value) { _suede_dptr()->SetDebugDrawEnabled(value); }
+bool Physics::GetDebugDrawEnabled() { return _suede_dptr()->GetDebugDrawEnabled(); }
 
 btDiscreteDynamicsWorld* PhysicsInternal::world_;
-PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
+PhysicsInternal::PhysicsInternal(Gizmos* gizmos) : gizmos_(gizmos), debugDrawEnabled_(false) {
 	// You instantiate the broad phase algorithm implementation.
 	// Collision detection is done in two phases : broad and narrow.
 	// In the broad phase, the physics engine quickly eliminates objects that cannot collide.
@@ -52,7 +52,7 @@ PhysicsInternal::PhysicsInternal() : debugDrawEnabled_(false) {
 	solver_ = new btSequentialImpulseConstraintSolver;
 
 	world_ = new btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-	world_->setDebugDrawer(new BulletDebugDrawer);
+	world_->setDebugDrawer(new BulletDebugDrawer(gizmos_));
 
 	//World::frameEnter().subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
 	//GameObject::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
@@ -69,8 +69,8 @@ PhysicsInternal::~PhysicsInternal() {
 	delete broadphase_;
 }
 
-void PhysicsInternal::FixedUpdate() {
-	world_->stepSimulation(Time::GetFixedDeltaTime());
+void PhysicsInternal::FixedUpdate(float deltaTime) {
+	world_->stepSimulation(deltaTime);
 
 	// The best way to determine if collisions happened between existing objects in the world
 	// is to iterate over all contact manifolds.

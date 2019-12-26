@@ -119,7 +119,7 @@ public:
 	~TextMeshInternal();
 
 public:
-	virtual void Update();
+	virtual void Update(float deltaTime);
 
 public:
 	void SetText(const std::string& value);

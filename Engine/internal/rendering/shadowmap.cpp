@@ -3,7 +3,7 @@
 #include "pipeline.h"
 #include "resources.h"
 #include "builtinproperties.h"
-#include "internal/world/worldinternal.h"
+#include "internal/engine/engineinternal.h"
 
 ShadowMap::ShadowMap(RenderTexture* target) : shadowDepthTexture_(target){
 	directionalLightShadowMaterial_ = new Material();

@@ -13,7 +13,7 @@ QMap<QString, QString> QtViewer::skinResources({
 	std::make_pair("Dark",":/qss/style"),
 });
 
-QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(argc, argv), editor_(nullptr) {
+QtViewer::QtViewer(int argc, char * argv[]) : Viewer(argc, argv), app_(argc, argv), editor_(nullptr) {
 	// Resource not working: https://stackoverflow.com/questions/37093783/qt-resource-not-working
 	Q_INIT_RESOURCE(editor);
 
@@ -33,15 +33,17 @@ QtViewer::QtViewer(int argc, char * argv[]) : GraphicsViewer(argc, argv), app_(a
 }
 
 QtViewer::~QtViewer() {
-	SetCanvas(nullptr);
 	delete editor_;
 }
 
 void QtViewer::Update() {
-	GraphicsViewer::Update();
+	Viewer::Update();
 
 	app_.processEvents();
-	editor_->tick();
+
+	if (!IsClosed()) {
+		editor_->tick();
+	}
 }
 
 QList<QString> QtViewer::builtinSkinNames() {
@@ -85,7 +87,7 @@ void QtViewer::setupEditor() {
 	connect(editor_, SIGNAL(aboutToClose()), this, SLOT(onAboutToCloseEditor()));
 
 	Canvas* c = editor_->childWindow<GameWindow>()->canvas();
-	if (SetCanvas(c)) {
+	if (StartupEngine(c)) {
 		editor_->awake();
 	}
 

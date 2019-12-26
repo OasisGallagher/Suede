@@ -5,13 +5,16 @@
 
 #include "mesh.h"
 #include "material.h"
+#include "internal/engine/subsysteminternal.h"
 
-class GizmosInternal {
+class Graphics;
+class GizmosInternal : public SubsystemInternal {
 public:
-	GizmosInternal();
+	GizmosInternal(Graphics* graphics);
 	~GizmosInternal();
 
 public:
+	void Awake();
 	void Flush();
 
 	Matrix4 GetMatrix() { return matrix_; }
@@ -45,7 +48,7 @@ private:
 	};
 
 private:
-	void OnFrameLeave() { Flush(); }
+	void Update(float deltaTime) { Flush(); }
 
 	Batch& GetBatch(MeshTopology topology, bool wireframe, Material* material);
 	bool IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material);
@@ -59,6 +62,8 @@ private:
 	void DrawGizmos(const Batch& b);
 
 private:
+	Graphics* graphics_;
+
 	ref_ptr<Mesh> mesh_;
 	ref_ptr<Material> lineMaterial_;
 

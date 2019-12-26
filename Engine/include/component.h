@@ -49,7 +49,7 @@ class SUEDE_API Component : public Object {
 
 public:
 	virtual void Awake();
-	virtual void Update();
+	virtual void Update(float deltaTime);
 	virtual void OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rect& normalizedRect);
 
 public:
@@ -62,7 +62,7 @@ public:
 	Transform* GetTransform();
 	void OnMessage(int messageID, void* parameter);
 
-	void CullingUpdate();
+	void CullingUpdate(float deltaTime);
 
 	int GetUpdateStrategy();
 

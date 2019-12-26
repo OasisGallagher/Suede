@@ -1,7 +1,7 @@
 #pragma once
-#include "world.h"
+#include "engine.h"
 #include "tools/event.h"
-#include "frameeventqueue.h"
+#include "frameevents.h"
 
 /**
  * An event system constructed and updated in main thread.
@@ -12,10 +12,10 @@ class main_mt_event : public mt_event<Args...> {
 
 public:
 	main_mt_event() {
-		World::frameEnter().subscribe<super>(this, &super::update, (int)FrameEventQueue::MainThreadEvents);
+		Engine::GetSubsystem<FrameEvents>()->frameEnter.subscribe<super>(this, &super::update, (int)FrameEventQueue::MainThreadEvents);
 	}
 
 	~main_mt_event() {
-		World::frameEnter().unsubscribe(this);
+		Engine::GetSubsystem<FrameEvents>()->frameEnter.unsubscribe(this);
 	}
 };

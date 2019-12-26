@@ -7,6 +7,7 @@
 
 #include "../windows/inspector/custom/componentmetaobject.h"
 
+class Graphics;
 class GaussianBlur : public QObject, public ImageEffect {
 	Q_OBJECT
 	Q_PROPERTY(Material* Material READ material)
@@ -26,4 +27,6 @@ public:
 private:
 	iranged amount_;
 	ref_ptr<Material> material_;
+
+	Graphics* graphics_;
 };

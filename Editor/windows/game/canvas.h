@@ -1,8 +1,8 @@
 #pragma once
 #include <QtOpenGL/QGLWidget>
-#include "graphicscanvas.h"
+#include "glcanvas.h"
 
-class Canvas : public QGLWidget, public GraphicsCanvas {
+class Canvas : public QGLWidget, public GLCanvas {
 	Q_OBJECT
 
 public:

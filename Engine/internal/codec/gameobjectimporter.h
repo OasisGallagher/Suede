@@ -117,10 +117,10 @@ private:
 	std::function<void(GameObject*, const std::string&)> callback_;
 };
 
-class GameObjectLoaderThreadPool : public ThreadPool {
+class GameObjectImporter : public ThreadPool {
 public:
-	GameObjectLoaderThreadPool() : ThreadPool(std::thread::hardware_concurrency()) {}
-	~GameObjectLoaderThreadPool() {}
+	GameObjectImporter() : ThreadPool(std::thread::hardware_concurrency()) {}
+	~GameObjectImporter() {}
 
 public:
 	ref_ptr<GameObject> Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);

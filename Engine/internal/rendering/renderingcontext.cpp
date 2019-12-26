@@ -7,9 +7,9 @@
 #include "internal/base/shaderinternal.h"
 #include "internal/base/materialinternal.h"
 
-#include "internal/rendering/shadowmap.h"
-#include "internal/rendering/ambientocclusion.h"
-#include "internal/rendering/shareduniformbuffers.h"
+#include "shadowmap.h"
+#include "ambientocclusion.h"
+#include "shareduniformbuffers.h"
 
 UniformState::UniformState(Context* context) {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
@@ -33,7 +33,8 @@ UniformState::~UniformState() {
 	delete uniformBuffers;
 }
 
-RenderingContext::RenderingContext() { }
+RenderingContext::RenderingContext() { 
+}
 
 RenderingContext::~RenderingContext() {
 	delete frameState_;
@@ -53,7 +54,7 @@ bool RenderingContext::Initialize() {
 	uniformState_ = new UniformState(this);
 
 	shadowMap_ = new ShadowMap(uniformState_->shadowDepthTexture.get());
-	ambientOcclusion_ = new AmbientOcclusion(uniformState_->ambientOcclusionTexture.get());
+	ambientOcclusion_ = new AmbientOcclusion(graphics_, uniformState_->ambientOcclusionTexture.get());
 
 	offscreenRT_ = new RenderTexture();
 	offscreenRT_->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
@@ -94,12 +95,4 @@ void RenderingContext::ClearFrame() {
 	RenderTexture* target = frameState_->targetTexture.get();
 	if (!target) { target = RenderTexture::GetDefault(); }
 	target->Clear(frameState_->normalizedRect, frameState_->clearColor, 1);
-}
-
-void RenderingContext::Update() {
-
-}
-
-void RenderingContext::CullingUpdate() {
-
 }

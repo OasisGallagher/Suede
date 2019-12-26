@@ -1,18 +1,20 @@
 #include <algorithm>
 
 #include "time2.h"
+#include "scene.h"
 #include "renderer.h"
 #include "rigidbody.h"
-#include "tagmanager.h"
+#include "tags.h"
 #include "math/mathf.h"
 #include "tools/string.h"
 #include "particlesystem.h"
 #include "geometryutility.h"
 #include "internal/memory/factory.h"
-#include "internal/world/worldinternal.h"
+#include "internal/engine/engineinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-GameObject::GameObject(const char* name) : Object(new GameObjectInternal(name)) {
+GameObject::GameObject(const char* name)
+	: Object(new GameObjectInternal(Engine::GetSubsystem<Scene>(), Engine::GetSubsystem<Tags>(), name)) {
 	created.raise(this);
 	AddComponent<Transform>();
 }
@@ -28,14 +30,15 @@ main_mt_event<ref_ptr<GameObject>> GameObject::updateStrategyChanged;
 main_mt_event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObject::componentChanged;
 
 bool GameObject::GetActive() const { return _suede_dptr()->GetActive(); }
+Scene* GameObject::GetScene() { return _suede_dptr()->GetScene(); }
 void GameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(this, value); }
 bool GameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
 int GameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(this); }
 void GameObject::SendMessage(int messageID, void* parameter) { _suede_dptr()->SendMessage(messageID, parameter); }
 const std::string& GameObject::GetTag() const { return _suede_dptr()->GetTag(); }
 bool GameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag(this, value); }
-void GameObject::Update() { _suede_dptr()->Update(); }
-void GameObject::CullingUpdate() { _suede_dptr()->CullingUpdate(); }
+void GameObject::Update(float deltaTime) { _suede_dptr()->Update(deltaTime); }
+void GameObject::CullingUpdate(float deltaTime) { _suede_dptr()->CullingUpdate(deltaTime); }
 Transform* GameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
 const Bounds& GameObject::GetBounds() { return _suede_dptr()->GetBounds(); }
 void GameObject::RecalculateBounds(int flags) { return _suede_dptr()->RecalculateBounds(); }
@@ -48,9 +51,9 @@ Component* GameObject::GetComponent(const char* name) { return _suede_dptr()->Ge
 std::vector<Component*> GameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
 std::vector<Component*> GameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
-GameObjectInternal::GameObjectInternal(const char* name)
-	: ObjectInternal(ObjectType::GameObject, name), active_(true), activeSelf_(true), boundsDirty_(true)
-	, frameCullingUpdate_(0), updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
+GameObjectInternal::GameObjectInternal(Scene* scene, Tags* tags, const char* name)
+	: ObjectInternal(ObjectType::GameObject, name), scene_(scene), active_(true), activeSelf_(true), boundsDirty_(true)
+	, updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
 }
 
 GameObjectInternal::~GameObjectInternal() {
@@ -69,7 +72,7 @@ void GameObjectInternal::SetActiveSelf(GameObject* self, bool value) {
 }
 
 bool GameObjectInternal::SetTag(GameObject* self, const std::string& value) {
-	if (!TagManager::IsRegistered(value)) {
+	if (!tags_->IsRegistered(value)) {
 		Debug::LogError("invalid tag \"%s\". please register it first.", value.c_str());
 		return false;
 	}
@@ -117,20 +120,15 @@ void GameObjectInternal::SendMessage(int messageID, void* parameter) {
 	}
 }
 
-void GameObjectInternal::CullingUpdate() {
-	uint frame = Time::GetFrameCount();
-	if (frameCullingUpdate_ < frame) {
-		frameCullingUpdate_ = frame;
-
-		for (ref_ptr<Component>& component : components_) {
-			component->CullingUpdate();
-		}
+void GameObjectInternal::CullingUpdate(float deltaTime) {
+	for (ref_ptr<Component>& component : components_) {
+		component->CullingUpdate(deltaTime);
 	}
 }
 
-void GameObjectInternal::Update() {
+void GameObjectInternal::Update(float deltaTime) {
 	for (ref_ptr<Component>& component : components_) {
-		component->Update();
+		component->Update(deltaTime);
 	}
 }
 
@@ -260,8 +258,8 @@ void GameObjectInternal::CalculateBonesWorldBounds() {
 }
 
 void GameObjectInternal::DirtyParentBounds() {
-	Transform* parent, *current = GetTransform();
-	for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
+	Transform* parent, *current = GetTransform(), *root = scene_->GetRootTransform();
+	for (; (parent = current->GetParent()) && parent != root;) {
 		_suede_rptr(parent->GetGameObject())->boundsDirty_ = true;
 		current = parent;
 	}
@@ -292,8 +290,8 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject* self) {
 
 	if (oldStrategy != newStrategy) {
 		// 		Transform* parent, current = GetTransform();
-		// 		for (; (parent = current->GetParent()) && parent != World::GetRootTransform();) {
-		// 			if (!_suede_ref_rptr(parent->GetGameObject())->RecalculateHierarchyUpdateStrategy(self)) {
+		// 		for (; (parent = current->GetParent()) && parent != Engine::GetRootTransform();) {
+		// 			if (!_suede_rptr(parent->GetGameObject().get())->RecalculateHierarchyUpdateStrategy(self)) {
 		// 				break;
 		// 			}
 		// 

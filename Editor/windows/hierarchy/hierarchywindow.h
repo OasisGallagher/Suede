@@ -5,7 +5,7 @@
 
 #include "main/childwindow.h"
 
-#include "world.h"
+#include "engine.h"
 #include "gameobject.h"
 #include "tools/event.h"
 

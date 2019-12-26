@@ -61,7 +61,7 @@ class GameObject_Wrapper {
 		return 0;
 	}
 
-	// void CullingUpdate()
+	// void CullingUpdate(float deltaTime)
 	static int CullingUpdate(lua_State* L) {
 		GameObject* _p = Lua::callerPtr<GameObject>(L);
 		_p->CullingUpdate();

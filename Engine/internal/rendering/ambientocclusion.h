@@ -2,9 +2,10 @@
 #include "texture.h"
 #include "material.h"
 
+class Graphics;
 class AmbientOcclusion {
 public:
-	AmbientOcclusion(RenderTexture* target);
+	AmbientOcclusion(Graphics* graphics, RenderTexture* target);
 
 public:
 	void Run(RenderTexture* depthTexture, const Rect& normalizedRect);
@@ -21,6 +22,7 @@ private:
 	void InitializeKernel();
 
 private:
+	Graphics* graphics_;
 	ref_ptr<Material> ssaoMaterial_;
 	ref_ptr<Material> ssaoTraversalMaterial_;
 

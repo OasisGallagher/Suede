@@ -3,24 +3,14 @@
 #include <QWidget>
 #include <QMouseEvent>
 
-class QtInputDelegate : public QObject, public InputInternal {
+class QtInputDelegate : public QObject, public InputDelegate {
 	Q_OBJECT
 
 public:
 	QtInputDelegate(QWidget* view);
+	~QtInputDelegate() {}
 
 public:
-	virtual void OnFrameLeave();
-
-	virtual bool GetKey(KeyCode key);
-	virtual bool GetKeyUp(KeyCode key);
-	virtual bool GetKeyDown(KeyCode key);
-
-	virtual bool GetMouseButton(int button);
-	virtual bool GetMouseButtonUp(int button);
-	virtual bool GetMouseButtonDown(int button);
-
-	virtual float GetMouseWheelDelta();
 	virtual Vector2 GetMousePosition();
 
 protected:
@@ -32,16 +22,5 @@ private:
 	void onMouseWheel(QWheelEvent* e);
 
 private:
-	template <int N>
-	struct States {
-		enum { Size = N };
-		bool pressed[Size] = { false };
-		bool up[Size] = { false }, down[Size] = { false };
-	};
-
 	QWidget* view_;
-
-	float wheelDelta_ = 0;
-	States<3> mouseStates_;
-	States<KeyCode::size()> keyStates_;
 };

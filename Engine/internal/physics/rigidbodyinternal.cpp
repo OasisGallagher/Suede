@@ -30,7 +30,7 @@ void RigidbodyInternal::Awake() {
 }
 
 // SUEDE TODO: FixedUpdate.
-void RigidbodyInternal::Update() {
+void RigidbodyInternal::Update(float deltaTime) {
 	if (shapeState_ != Normal) {
 		if (shapeState_ != InvalidShape || RebuildShape()) {
 			UpdateBody(true);

@@ -55,49 +55,8 @@ static QHash<int, KeyCode> keyMap = {
 	{ Qt::Key_Right, KeyCode::RightArrow },
 };
 
-template <class T>
-inline void ResetUpDown(T& state) {
-	std::fill(state.up, state.up + T::Size, false);
-	std::fill(state.down, state.down + T::Size, false);
-}
-
 QtInputDelegate::QtInputDelegate(QWidget* view) : view_(view) {
 	view_->installEventFilter(this);
-}
-
-void QtInputDelegate::OnFrameLeave() {
-	wheelDelta_ = 0;
-
-	ResetUpDown(keyStates_);
-	ResetUpDown(mouseStates_);
-}
-
-bool QtInputDelegate::GetKey(KeyCode key) {
-	return keyStates_.pressed[key];
-}
-
-bool QtInputDelegate::GetKeyUp(KeyCode key) {
-	return keyStates_.up[key];
-}
-
-bool QtInputDelegate::GetKeyDown(KeyCode key) {
-	return keyStates_.down[key];
-}
-
-bool QtInputDelegate::GetMouseButton(int button) {
-	return mouseStates_.pressed[button];
-}
-
-bool QtInputDelegate::GetMouseButtonUp(int button) {
-	return mouseStates_.up[button];
-}
-
-bool QtInputDelegate::GetMouseButtonDown(int button) {
-	return mouseStates_.down[button];
-}
-
-float QtInputDelegate::GetMouseWheelDelta() {
-	return wheelDelta_;
 }
 
 Vector2 QtInputDelegate::GetMousePosition() {
@@ -130,14 +89,11 @@ void QtInputDelegate::onKeyPress(QKeyEvent* event) {
 	if (ite == keyMap.end()) { return; }
 
 	bool pressed = (event->type() == QEvent::KeyPress);
-	if (pressed != keyStates_.pressed[ite.value()]) {
-		keyStates_.pressed[ite.value()] = pressed;
-		pressed ? (keyStates_.down[ite.value()] = true) : (keyStates_.up[ite.value()] = true);
-	}
+	InputDelegate::OnKeyPress(ite.value(), pressed);
 }
 
 void QtInputDelegate::onMouseWheel(QWheelEvent* e) {
-	wheelDelta_ = e->delta();
+	InputDelegate::OnMouseWheel(e->delta());
 }
 
 void QtInputDelegate::onMousePress(QMouseEvent* e) {
@@ -147,10 +103,5 @@ void QtInputDelegate::onMousePress(QMouseEvent* e) {
 		!!(e->buttons() & Qt::RightButton)
 	};
 
-	for (int i = 0; i < decltype(mouseStates_)::Size; ++i) {
-		if (mouseStates_.pressed[i] != pressed[i]) {
-			mouseStates_.pressed[i] = pressed[i];
-			pressed[i] ? (mouseStates_.down[i] = true) : (mouseStates_.up[i] = true);
-		}
-	}
+	InputDelegate::OnMousePress(pressed);
 }

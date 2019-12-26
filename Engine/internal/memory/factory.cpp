@@ -5,7 +5,7 @@
 #include "texture.h"
 #include "material.h"
 
-#include "world.h"
+#include "engine.h"
 #include "gameobject.h"
 
 #include "mesh.h"

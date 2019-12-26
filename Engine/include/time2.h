@@ -1,37 +1,48 @@
 #pragma once
 #include "defines.h"
-#include "tools/singleton.h"
+#include "subsystem.h"
 
-class SUEDE_API Time : private Singleton2<Time> {
-	friend class Singleton<Time>;
+class SUEDE_API Time : public Subsystem {
 	SUEDE_DECLARE_IMPLEMENTATION(Time)
+
+public:
+	enum {
+		SystemType = SubsystemType::Time,
+	};
+
+public:
+	Time();
+
+public:
+	static uint64 GetTimeStamp();
+	static double TimeStampToSeconds(uint64 timeStamp);
 
 public:
 	/**
 	 * @brief the time in seconds at the beginning of this frame.
 	 */
-	static float GetTime();
+	float GetTime();
 
 	/**
 	 * @brief the time in seconds it took to complete the last frame.
 	 */
-	static float GetDeltaTime();
+	float GetDeltaTime();
 
 	/**
 	 * @brief the interval in seconds at which physics and other fixed frame rate updates are performed.
 	 */
-	static float GetFixedDeltaTime();
+	float GetFixedDeltaTime();
 
 	/**
 	 * @brief the real time in seconds since the engine started.
 	 */
-	static float GetRealTimeSinceStartup();
+	float GetRealTimeSinceStartup();
 
 	/**
 	 * @brief the total number of frames that have passed.
 	 */
-	static uint GetFrameCount();
+	uint GetFrameCount();
 
-private:
-	Time();
+public:
+	virtual void Update(float deltaTime);
 };

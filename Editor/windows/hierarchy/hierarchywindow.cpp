@@ -3,6 +3,7 @@
 
 #include "main/editor.h"
 
+#include "scene.h"
 #include "hierarchywindow.h"
 #include "os/filesystem.h"
 #include "dragdropableitemmodel.h"
@@ -33,7 +34,7 @@ void HierarchyWindow::awake() {
 }
 
 void HierarchyWindow::onGameObjectImported(GameObject* root, const std::string& path) {
-	root->GetTransform()->SetParent(World::GetRootTransform());
+	root->GetTransform()->SetParent(Engine::GetSubsystem<Scene>()->GetRootTransform());
 }
 
 GameObject* HierarchyWindow::selectedGameObject() {
@@ -41,7 +42,7 @@ GameObject* HierarchyWindow::selectedGameObject() {
 	if (!index.isValid()) { return nullptr; }
 
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return World::GetGameObject(id);
+	return Engine::GetSubsystem<Scene>()->GetGameObject(id);
 }
 
 QList<GameObject*> HierarchyWindow::selectedGameObjects() {
@@ -50,9 +51,10 @@ QList<GameObject*> HierarchyWindow::selectedGameObjects() {
 	QList<GameObject*> gameObjects;
 	gameObjects.reserve(indexes.size());
 
+	Scene* scene = Engine::GetSubsystem<Scene>();
 	for (QModelIndex index : indexes) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		gameObjects.push_back(World::GetGameObject(id));
+		gameObjects.push_back(scene->GetGameObject(id));
 	}
 
 	return gameObjects;
@@ -117,12 +119,12 @@ void HierarchyWindow::reload() {
 	items_.clear();
 	model_->setRowCount(0);
 
-	updateRecursively(World::GetRootTransform()->GetGameObject(), nullptr);
+	updateRecursively(Engine::GetSubsystem<Scene>()->GetRootTransform()->GetGameObject(), nullptr);
 }
 
 void HierarchyWindow::onGameObjectDoubleClicked(const QModelIndex& index) {
 	uint id = model_->itemFromIndex(index)->data().toUInt();
-	GameObject* go = World::GetGameObject(id);
+	GameObject* go = Engine::GetSubsystem<Scene>()->GetGameObject(id);
 
 	emit focusGameObject(go);
 }
@@ -143,8 +145,9 @@ void HierarchyWindow::onTreeCustomContextMenu() {
 
 void HierarchyWindow::onDeleteSelected() {
 	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
+	Scene* scene = Engine::GetSubsystem<Scene>();
 	for (QModelIndex index : indexes) {
-		World::DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
+		scene->DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
 	}
 }
 
@@ -180,9 +183,10 @@ void HierarchyWindow::keyReleaseEvent(QKeyEvent* event) {
 void HierarchyWindow::dropEvent(QDropEvent* event) {
 	QDockWidget::dropEvent(event);
 	QList<QUrl> urls = event->mimeData()->urls();
+	Scene* scene = Engine::GetSubsystem<Scene>();
 	for (QUrl url : urls) {
 		std::string path = FileSystem::GetFileName(url.toString().toStdString());
-		World::Import(path, nullptr);
+		scene->Import(path, nullptr);
 	}
 }
 
@@ -247,7 +251,7 @@ void HierarchyWindow::appendChildItem(GameObject* go) {
 	QStandardItem* item = nullptr;
 
 	// append child node.
-	if (parent == World::GetRootTransform() || (item = items_.value(parent->GetGameObject()->GetInstanceID())) != nullptr) {
+	if (parent == Engine::GetSubsystem<Scene>()->GetRootTransform() || (item = items_.value(parent->GetGameObject()->GetInstanceID())) != nullptr) {
 		QStandardItem* pi = appendItem(go, item);
 		updateRecursively(go, pi);
 	}
@@ -282,9 +286,10 @@ void HierarchyWindow::enableGameObjectOutline(GameObject* go, bool enable) {
 }
 
 void HierarchyWindow::selectionToGameObjects(QList<GameObject*>& gameObjects, const QItemSelection& items) {
+	Scene* scene = Engine::GetSubsystem<Scene>();
 	for (QModelIndex index : items.indexes()) {
 		uint id = model_->itemFromIndex(index)->data().toUInt();
-		GameObject* go = World::GetGameObject(id);
+		GameObject* go = scene->GetGameObject(id);
 		if (go) {
 			gameObjects.push_back(go);
 		}

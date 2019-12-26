@@ -4,7 +4,7 @@
 #include "tools/string.h"
 
 #include "imgui.h"
-#include "graphicscanvas.h"
+#include "glcanvas.h"
 
 static ImFont* imfont;
 static char buffer[256];

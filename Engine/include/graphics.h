@@ -2,6 +2,8 @@
 #include "mesh.h"
 #include "material.h"
 #include "renderer.h"
+#include "subsystem.h"
+
 #include "tools/enum.h"
 
 BETTER_ENUM(ShadingMode, int,
@@ -9,23 +11,36 @@ BETTER_ENUM(ShadingMode, int,
 	Wireframe
 )
 
-class SUEDE_API Graphics {
+class SUEDE_API Graphics : public Subsystem {
+	SUEDE_DECLARE_IMPLEMENTATION(Graphics)
+
 public:
-	static void SetShadingMode(ShadingMode value);
-	static ShadingMode GetShadingMode();
+	enum {
+		SystemType = SubsystemType::Graphics,
+	};
 
-	static void SetAmbientOcclusionEnabled(bool value);
-	static bool GetAmbientOcclusionEnabled();
+public:
+	Graphics();
 
-	static void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
+public:
+	void SetShadingMode(ShadingMode value);
+	ShadingMode GetShadingMode();
 
-	static void Draw(Mesh* mesh, Material* material);
+	void SetAmbientOcclusionEnabled(bool value);
+	bool GetAmbientOcclusionEnabled();
 
-	static void Blit(Texture* src, RenderTexture* dest);
-	static void Blit(Texture* src, RenderTexture* dest, const Rect& rect);
-	static void Blit(Texture* src, RenderTexture* dest, const Rect& srcRect, const Rect& destRect);
+	void SetRenderTarget(std::vector<uint>& colorBuffers, uint depthBuffer);
 
-	static void Blit(Texture* src, RenderTexture* dest, Material* material);
-	static void Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& rect);
-	static void Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& srcRect, const Rect& destRect);
+	void Draw(Mesh* mesh, Material* material);
+
+	void Blit(Texture* src, RenderTexture* dest);
+	void Blit(Texture* src, RenderTexture* dest, const Rect& rect);
+	void Blit(Texture* src, RenderTexture* dest, const Rect& srcRect, const Rect& destRect);
+
+	void Blit(Texture* src, RenderTexture* dest, Material* material);
+	void Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& rect);
+	void Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& srcRect, const Rect& destRect);
+
+public:
+	virtual void Awake();
 };

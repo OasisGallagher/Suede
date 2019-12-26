@@ -6,7 +6,7 @@
 #include "math/random.h"
 #include "internal/base/renderdefines.h"
 
-AmbientOcclusion::AmbientOcclusion(RenderTexture* target) : ssaoRT_(target) {
+AmbientOcclusion::AmbientOcclusion(Graphics* graphics, RenderTexture* target) : graphics_(graphics), ssaoRT_(target) {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 	ssaoTraversalRT_ = new MRTRenderTexture();
 	ssaoTraversalRT_->Create(RenderTextureFormat::Depth, w, h);
@@ -29,10 +29,10 @@ void AmbientOcclusion::Run(RenderTexture* depthTexture, const Rect& normalizedRe
 	RenderTexture* temp = RenderTexture::GetTemporary(RenderTextureFormat::Rgb, Screen::GetWidth(), Screen::GetHeight());
 
 	ssaoMaterial_->SetPass(0);
-	Graphics::Blit(depthTexture, temp, ssaoMaterial_.get(), normalizedRect);
+	graphics_->Blit(depthTexture, temp, ssaoMaterial_.get(), normalizedRect);
 
 	ssaoMaterial_->SetPass(1);
-	Graphics::Blit(temp, ssaoRT_, ssaoMaterial_.get(), normalizedRect);
+	graphics_->Blit(temp, ssaoRT_, ssaoMaterial_.get(), normalizedRect);
 
 	RenderTexture::ReleaseTemporary(temp);
 }

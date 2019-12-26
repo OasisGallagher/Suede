@@ -36,7 +36,7 @@ Shader* Shader::Find(const std::string& path) {
 	}
 
 	Shader* shader = new Shader();
-	if (!shader->_rptr_impl<ShaderInternal>()->Load(shader, path)) {
+	if (!_suede_doptr(shader)->Load(shader, path)) {
 		delete shader;
 		shader = nullptr;
 	}
@@ -550,7 +550,7 @@ SubShader::~SubShader() {
 }
 
 bool SubShader::Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path) {
-	InitializeTags(config.tags);
+	InitializeTags(config.tags_);
 
 	passCount_ = config.passes.size();
 	passes_.resize(config.passes.size(), context_);
@@ -610,9 +610,9 @@ uint SubShader::GetNativePointer(uint pass) const {
 	return p->GetNativePointer();
 }
 
-void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags) {
-	for (uint i = 0; i < tags.size(); ++i) {
-		InitializeTag(tags[i], i);
+void SubShader::InitializeTags(const std::vector<Semantics::Tag>& tags_) {
+	for (uint i = 0; i < tags_.size(); ++i) {
+		InitializeTag(tags_[i], i);
 	}
 }
 

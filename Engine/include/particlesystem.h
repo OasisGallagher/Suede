@@ -22,7 +22,7 @@ class SUEDE_API ParticleEmitter : public Object {
 	SUEDE_DECLARE_IMPLEMENTATION(ParticleEmitter)
 
 public:
-	void Emit(Particle** particles, uint& count);
+	void Emit(float deltaTime, Particle** particles, uint& count);
 
 	void SetRate(uint value);
 	uint GetRate();
@@ -78,7 +78,7 @@ public:
 	void SetGravityScale(float value);
 	float GetGravityScale();
 
-	void Update(Particle& particle);
+	void Update(float deltaTime, Particle& particle);
 };
 
 class SUEDE_API ParticleSystem : public Component {

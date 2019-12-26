@@ -1,37 +1,45 @@
 #pragma once
 #include <map>
 
-#include "world.h"
+#include "scene.h"
+#include "engine.h"
 #include "light.h"
 #include "camera.h"
 #include "projector.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
+#include "subsysteminternal.h"
 #include "containers/sortedvector.h"
 
 class DecalCreater;
+class GameObjectImporter;
 
-class SceneInternal {
+class SceneInternal : public SubsystemInternal {
 public:
 	SceneInternal();
 	~SceneInternal();
 
 public:
-	void Update();
-	void CullingUpdate();
-
 	void GetDecals(std::vector<Decal>& container);
+	Environment* GetEnvironment() { return &environment_; }
+
 	GameObject* GetGameObject(uint id);
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject* go);
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
 	void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
 	Transform* GetRootTransform() { return root_->GetTransform(); }
+	GameObject* Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
+
+public:
+	void Awake();
+	void Update(float deltaTime);
+	void CullingUpdate(float deltaTime);
 
 private:
 	void UpdateDecals();
-	void CullingUpdateGameObjects();
-	void RenderingUpdateGameObjects();
+	void CullingUpdateGameObjects(float deltaTime);
+	void RenderingUpdateGameObjects(float deltaTime);
 	void AddGameObject(ref_ptr<GameObject> go);
 	void RemoveGameObject(GameObject* go);
 	void OnGameObjectParentChanged(GameObject* go);
@@ -68,7 +76,10 @@ private:
 	GameObjectSequence cullingUpdateSequence_;
 	GameObjectSequence renderingUpdateSequence_;
 
+	Environment environment_;
+
 	ref_ptr<GameObject> root_;
+	GameObjectImporter* importer_;
 };
 
 template <class Container>

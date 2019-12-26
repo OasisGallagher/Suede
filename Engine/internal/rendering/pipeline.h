@@ -33,6 +33,7 @@ enum SortMode {
 };
 
 class Sample;
+class Profiler;
 class RenderingContext;
 class SharedUniformBuffers;
 
@@ -73,9 +74,6 @@ public:
 
 private:
 	struct RenderSamples {
-		RenderSamples();
-		~RenderSamples();
-
 		Sample* switchState;
 		Sample* updateOffset;
 		Sample* drawCall;
@@ -104,6 +102,7 @@ private:
 	Rect normalizedRect_;
 	ref_ptr<RenderTexture> targetTexture_;
 
+	Profiler* profiler_;
 	TextureBuffer* matrixBuffer_;
 
 	struct States {

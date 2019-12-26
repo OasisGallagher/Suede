@@ -26,6 +26,7 @@ public:
 
 public:
 	GameWindow(QWidget* parent);
+	~GameWindow();
 
 public:
 	Canvas* canvas() { return canvas_; }
@@ -49,14 +50,16 @@ protected:
 	virtual void timerEvent(QTimerEvent *event);
 
 private:
-	void createScene();
+	void setupScene();
 	float calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds);
 
 	void updateStatPosition();
 	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
-	QtInputDelegate* input_;
+	Input* input_;
+	QtInputDelegate* inputDelegate_;
+
 	Canvas* canvas_;
 	StatsWidget* stat_;
 

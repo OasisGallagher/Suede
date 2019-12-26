@@ -11,7 +11,7 @@ public:
 
 public:
 	virtual void Awake();
-	virtual void Update();
+	virtual void Update(float deltaTime);
 
 	virtual int GetUpdateStrategy() { return UpdateStrategyRendering; }
 	virtual void OnMessage(int messageID, void* parameter);

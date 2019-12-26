@@ -22,7 +22,7 @@ public:
 	virtual void SetStartVelocity(const Vector3& value) { startVelocity_ = value; }
 	virtual Vector3 GetStartVelocity() { return startVelocity_; }
 
-	virtual void Emit(Particle** particles, uint& count);
+	virtual void Emit(float deltaTime, Particle** particles, uint& count);
 
 	virtual void SetStartColor(const Vector4& value) { startColor_ = value; }
 	virtual Vector4 GetStartColor() { return startColor_; }
@@ -37,7 +37,7 @@ protected:
 	virtual Vector3 GetStartPosition() { return Vector3(0); }
 
 private:
-	uint CalculateNextEmissionParticleCount();
+	uint CalculateNextEmissionParticleCount(float deltaTime);
 	void EmitParticles(Particle** particles, uint count);
 
 private:
@@ -80,7 +80,7 @@ public:
 	virtual void SetGravityScale(float value) { gravityScale_ = value; }
 	virtual float GetGravityScale() { return gravityScale_; }
 
-	virtual void Update(Particle& particle);
+	virtual void Update(float deltaTime, Particle& particle);
 
 private:
 	float gravityScale_;
@@ -121,26 +121,26 @@ public:
 	virtual ParticleAnimator* GetParticleAnimator() { return particleAnimator_.get(); }
 
 public:
-	virtual void Update();
-	virtual void CullingUpdate();
+	virtual void Update(float deltaTime);
+	virtual void CullingUpdate(float deltaTime);
 
 private:
 	void InitializeMesh();
 	void InitializeRenderer();
 
-	void UpdateEmitter();
+	void UpdateEmitter(float deltaTime);
 
-	void EmitParticles(uint count);
+	void EmitParticles(float deltaTime, uint count);
 
 	void SortBuffers();
 
 	void SortParticlesByDepth(const Vector3& ref);
 
-	void UpdateParticles();
+	void UpdateParticles(float deltaTime);
 
 	void UpdateInstanceBuffers();
 
-	void UpdateAttributes();
+	void UpdateAttributes(float deltaTime);
 	void UpdateBuffers();
 
 private:

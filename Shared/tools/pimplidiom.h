@@ -10,30 +10,12 @@ static void t_delete(void* ptr) {
 class SUEDE_API PimplIdiom {
 public:
 	PimplIdiom(void* d, void(*destroyer)(void*)) : d_(d), destroyer_(destroyer) {}
-	virtual ~PimplIdiom() { _destroy(); }
+	virtual ~PimplIdiom() { destroyer_(d_); }
 
-public: // internal ptr helpers
-	template <class T>
-	T* _rptr_impl() const { return (T*)d_; }
+public:
+	void* const d_;
 
-	template <class T>
-	T* _rptr_impl(T*) const { return (T*)d_; }
-
-	bool _d_equals_impl(void* d) { return d_ == d; }
-
-protected:
-	template <class T>
-	typename T::Internal* _dptr_impl(T*) const {
-		return (T::Internal*)(d_);
-	}
-
-	void _destroy() {
-		destroyer_(d_);
-		d_ = nullptr;
-	}
-
-protected:
-	void* d_;
+private:
 	void(*destroyer_)(void*);
 };
 
@@ -41,16 +23,18 @@ protected:
 	typedef class name ## Internal Internal; \
 	private:
 
-/** internal macro helpers */
-// internal implementation ptr of this.
-#define _suede_dptr()		_dptr_impl(this)
+/** Internal macro helpers */
 
-// implementation ptr of o.
-#define _suede_rptr(o)			(o)->_rptr_impl(this)
-#define _suede_ref_rptr(o)		(o).get()->_rptr_impl(this)
+#define __suede_dptr_impl(x)	((Internal*)x->d_)
 
-// internal implementation ptr of instance.
-#define _suede_dinstance()	instance()->_dptr_impl(instance())
+// Get internal implementation ptr of wrapper.
+#define _suede_dptr()			__suede_dptr_impl(this)
+#define _suede_doptr(ptr)		__suede_dptr_impl(ptr)
 
-// implementation equals.
-#define _suede_d_equals(o)	(((o) != nullptr) && (o)->_d_equals_impl(this))
+// Get internal implementation ptr of instance.
+#define _suede_dinstance()		__suede_dptr_impl(instance())
+
+// Cast base internal implementation ptr to sub type.
+#define _suede_rptr(o)			((std::remove_pointer<decltype(this)>::type*)(o)->d_)
+
+//

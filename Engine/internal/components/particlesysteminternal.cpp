@@ -2,12 +2,13 @@
 
 #include "mesh.h"
 #include "time2.h"
-#include "world.h"
+#include "engine.h"
+#include "camera.h"
 #include "renderer.h"
 #include "builtinproperties.h"
 
 ParticleEmitter::ParticleEmitter(void* d) : Object(d) {}
-void ParticleEmitter::Emit(Particle** particles, uint& count) { _suede_dptr()->Emit(particles, count); }
+void ParticleEmitter::Emit(float deltaTime, Particle** particles, uint& count) { _suede_dptr()->Emit(deltaTime, particles, count); }
 void ParticleEmitter::SetRate(uint value) { _suede_dptr()->SetRate(value); }
 uint ParticleEmitter::GetRate() { return _suede_dptr()->GetRate(); }
 void ParticleEmitter::SetStartDuration(float value) { _suede_dptr()->SetStartDuration(value); }
@@ -35,7 +36,7 @@ void ParticleAnimator::SetRandomForce(const Vector3& value) { _suede_dptr()->Set
 Vector3 ParticleAnimator::GetRandomForce() { return _suede_dptr()->GetRandomForce(); }
 void ParticleAnimator::SetGravityScale(float value) { _suede_dptr()->SetGravityScale(value); }
 float ParticleAnimator::GetGravityScale() { return _suede_dptr()->GetGravityScale(); }
-void ParticleAnimator::Update(Particle& particle) { _suede_dptr()->Update(particle); }
+void ParticleAnimator::Update(float deltaTime, Particle& particle) { _suede_dptr()->Update(deltaTime, particle); }
 
 ParticleSystem::ParticleSystem() : Component(new ParticleSystemInternal) {}
 void ParticleSystem::SetDuration(float value) { _suede_dptr()->SetDuration(value); }
@@ -81,18 +82,18 @@ void ParticleSystemInternal::SetMaxParticles(uint value) {
 	}
 }
 
-void ParticleSystemInternal::CullingUpdate() {
+void ParticleSystemInternal::CullingUpdate(float deltaTime) {
 	if (!meshDirty_ && !rendererDirty_) {
 		if (emitter_ && time_ >= startDelay_) {
-			UpdateEmitter();
+			UpdateEmitter(deltaTime);
 		}
 
-		UpdateParticles();
-		time_ += Time::GetDeltaTime();
+		UpdateParticles(deltaTime);
+		time_ += deltaTime;
 	}
 }
 
-void ParticleSystemInternal::Update() {
+void ParticleSystemInternal::Update(float deltaTime) {
 	if (meshDirty_) {
 		InitializeMesh();
 	}
@@ -135,10 +136,10 @@ void ParticleSystemInternal::SortParticlesByDepth(const Vector3& ref) {
 	}
 }
 
-void ParticleSystemInternal::UpdateParticles() {
+void ParticleSystemInternal::UpdateParticles(float deltaTime) {
 	size_t count = particles_.size();
 	if (count != 0) {
-		UpdateAttributes();
+		UpdateAttributes(deltaTime);
 		UpdateBuffers();
 		SortBuffers();
 	}
@@ -153,9 +154,7 @@ void ParticleSystemInternal::UpdateInstanceBuffers() {
 	}
 }
 
-void ParticleSystemInternal::UpdateAttributes() {
-	float deltaTime = Time::GetDeltaTime();
-
+void ParticleSystemInternal::UpdateAttributes(float deltaTime) {
 	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ) {
 		Particle* particle = *ite++;
 
@@ -163,7 +162,7 @@ void ParticleSystemInternal::UpdateAttributes() {
 			particles_.recycle(particle);
 		}
 		else if (particleAnimator_) {
-			particleAnimator_->Update(*particle);
+			particleAnimator_->Update(deltaTime, *particle);
 		}
 	}
 }
@@ -192,22 +191,22 @@ void ParticleSystemInternal::UpdateBuffers() {
 	bounds_.size += Vector3(maxSize / 2);
 }
 
-void ParticleSystemInternal::UpdateEmitter() {
+void ParticleSystemInternal::UpdateEmitter(float deltaTime) {
 	uint maxCount = Mathf::Max(0, int(GetMaxParticles() - GetParticlesCount()));
 	if (maxCount == 0) {
 		return;
 	}
 
 	uint count = 0;
-	emitter_->Emit(nullptr, count);
+	emitter_->Emit(deltaTime, nullptr, count);
 	count = Mathf::Min(count, maxCount);
 
 	if (count != 0) {
-		EmitParticles(count);
+		EmitParticles(deltaTime, count);
 	}
 }
 
-void ParticleSystemInternal::EmitParticles(uint count) {
+void ParticleSystemInternal::EmitParticles(float deltaTime, uint count) {
 	uint size = Mathf::NextPowerOfTwo(count);
 	if (size > buffer_.size()) {
 		buffer_.resize(size);
@@ -217,7 +216,7 @@ void ParticleSystemInternal::EmitParticles(uint count) {
 		buffer_[i] = particles_.spawn();
 	}
 
-	emitter_->Emit(&buffer_[0], count);
+	emitter_->Emit(deltaTime, &buffer_[0], count);
 	for (int i = 0; i < count; ++i) {
 		buffer_[i]->position += GetTransform()->GetPosition();
 	}
@@ -261,9 +260,9 @@ ParticleEmitterInternal::ParticleEmitterInternal(ObjectType type) : ObjectIntern
 	, rate_(1), time_(-1), remainder_(0) {
 }
 
-void ParticleEmitterInternal::Emit(Particle** particles, uint& count) {
+void ParticleEmitterInternal::Emit(float deltaTime, Particle** particles, uint& count) {
 	if (particles == nullptr) {
-		count = CalculateNextEmissionParticleCount();
+		count = CalculateNextEmissionParticleCount(deltaTime);
 		return;
 	}
 
@@ -284,23 +283,22 @@ void ParticleEmitterInternal::EmitParticles(Particle** particles, uint count) {
 	}
 }
 
-uint ParticleEmitterInternal::CalculateNextEmissionParticleCount() {
+uint ParticleEmitterInternal::CalculateNextEmissionParticleCount(float deltaTime) {
 	uint ans = rate_;
-	float nextTime = time_ + Time::GetDeltaTime();
+	float nextTime = time_ + deltaTime;
 	for (int i = 0; i < bursts_.size(); ++i) {
 		if (bursts_[i].time > time_ && bursts_[i].time <= nextTime) {
 			ans = Random::IntRange(bursts_[i].min, bursts_[i].max);
 		}
 	}
 
-	remainder_ += ans * Time::GetDeltaTime();
+	remainder_ += ans * deltaTime;
 	ans = (uint)remainder_;
 	remainder_ -= ans;
 	return ans;
 }
 
-void ParticleAnimatorInternal::Update(Particle& particle) {
-	float deltaTime = Time::GetDeltaTime();
+void ParticleAnimatorInternal::Update(float deltaTime, Particle& particle) {
 	particle.position += particle.velocity * deltaTime;
 	particle.velocity += kGravitationalAcceleration * gravityScale_ * deltaTime;
 }

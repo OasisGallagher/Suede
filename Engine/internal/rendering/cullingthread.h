@@ -1,17 +1,17 @@
 #pragma once
 #include <mutex>
 
-#include "world.h"
+#include "scene.h"
 #include "gameobject.h"
 
 #include "tools/event.h"
 
 class RenderingContext;
 
-class Culling {
+class CullingThread {
 public:
-	Culling(RenderingContext* context);
-	~Culling();
+	CullingThread(RenderingContext* context);
+	~CullingThread();
 
 public:
 	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }

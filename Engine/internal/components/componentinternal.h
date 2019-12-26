@@ -42,8 +42,8 @@ public:
 	virtual Transform* GetTransform() { return GetGameObject()->GetComponent<Transform>(); }
 
 	virtual void Awake() {}
-	virtual void Update() {}
-	virtual void CullingUpdate() {}
+	virtual void Update(float deltaTime) {}
+	virtual void CullingUpdate(float deltaTime) {}
 
 	virtual int GetUpdateStrategy() { return 0; }
 

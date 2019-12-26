@@ -16,7 +16,6 @@ bool Context::Initialize() {
 		return false;
 	}
 
-	statistics_ = new Statistics();
 	threadId_ = std::this_thread::get_id();
 
 	if (GLEW_ARB_debug_output) {
@@ -64,7 +63,6 @@ void Context::InitializeLimits() {
 
 Context::~Context() {
 	destroyed.raise();
-	delete statistics_;
 }
 
 Context* Context::GetCurrent() { return current_; }
@@ -564,16 +562,14 @@ void Context::DrawElementsInstancedBaseVertex(MeshTopology topology, const Trian
 	DrawElementsInstancedBaseVertex(TopologyToGLEnum(topology), bias.indexCount, GL_UNSIGNED_INT, (void*)(sizeof(uint)* bias.baseIndex), instance, bias.baseVertex);
 }
 
-void Context::Update() {
+void Context::Update(float deltaTime) {
+	destroyed.update();
+
 	for (auto& command : commands_) {
 		command();
 	}
 
 	commands_.clear();
-}
-
-void Context::CullingUpdate() {
-
 }
 
 void Context::DeleteBuffers(int n, const uint* buffers) {
