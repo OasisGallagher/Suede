@@ -87,10 +87,6 @@ public:
 	Mesh();
 
 public:
-	/**
-	 * @brief: create an empty storage for sharing.
-	 */
-	void CreateStorage();
 	void SetAttribute(const MeshAttribute& value);
 
 	/**

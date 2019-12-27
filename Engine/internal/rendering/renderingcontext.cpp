@@ -1,6 +1,7 @@
 #include "renderingcontext.h"
 
 #include "resources.h"
+#include "renderingthread.h"
 #include "builtinproperties.h"
 
 #include "internal/base/renderdefines.h"
@@ -42,6 +43,9 @@ RenderingContext::~RenderingContext() {
 	delete shadowMap_;
 	delete ambientOcclusion_;
 
+	renderingThread_->Stop();
+	delete renderingThread_;
+
 	Screen::sizeChanged.unsubscribe(this);
 	ShaderInternal::shaderCreated.unsubscribe(this);
 	MaterialInternal::shaderChanged.unsubscribe(this);
@@ -49,6 +53,8 @@ RenderingContext::~RenderingContext() {
 
 bool RenderingContext::Initialize() {
 	if (!Context::Initialize()) { return false; }
+
+	renderingThread_ = new RenderingThread(this);
 
 	frameState_ = new FrameState();
 	uniformState_ = new UniformState(this);
@@ -70,11 +76,11 @@ bool RenderingContext::Initialize() {
 	return true;
 }
 
-void RenderingContext::OnShaderCreated(Shader* shader) {
+void RenderingContext::OnShaderCreated(ShaderInternal* shader) {
 	uniformState_->uniformBuffers->Attach(shader);
 }
 
-void RenderingContext::OnMaterialShaderChanged(Material* material) {
+void RenderingContext::OnMaterialShaderChanged(MaterialInternal* material) {
 	material->SetTexture(BuiltinProperties::SSAOTexture, uniformState_->ambientOcclusionTexture.get());
 	material->SetTexture(BuiltinProperties::ShadowDepthTexture, uniformState_->shadowDepthTexture.get());
 	material->SetTexture(BuiltinProperties::DepthTexture, uniformState_->depthTexture.get());

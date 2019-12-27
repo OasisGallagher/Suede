@@ -43,64 +43,10 @@ inline void AIConvert(Vector3& translation, Quaternion& rotation, Vector3& scale
 
 #define UNNAMED_MATERIAL	"New Material"
 
-MaterialAsset::MaterialAsset()
-	: twoSided(false), gloss(50), mainColor(Color::white), name(UNNAMED_MATERIAL) {
-	material = new Material();
-	mainTexels = bumpTexels = specularTexels = emissiveTexels = lightmapTexels = nullptr;
-}
-
-void MaterialAsset::ApplyAsset() {
-	Shader* shader = Shader::Find("builtin/" + shaderName);
-	material->SetShader(shader);
-
-	material->SetFloat(BuiltinProperties::Gloss, gloss);
-
-	material->SetColor(BuiltinProperties::MainColor, mainColor);
-	material->SetColor(BuiltinProperties::SpecularColor, specularColor);
-	material->SetColor(BuiltinProperties::EmissiveColor, emissiveColor);
-
-	material->SetName(name);
-
-	if (mainTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::MainTexture, CreateTexture2D(mainTexels).get());
-	}
-	else {
-		material->SetTexture(BuiltinProperties::MainTexture, Texture2D::GetWhiteTexture());
-	}
-
-	if (bumpTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::BumpTexture, CreateTexture2D(bumpTexels).get());
-	}
-
-	if (specularTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::SpecularTexture, CreateTexture2D(specularTexels).get());
-	}
-
-	if (emissiveTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::EmissiveTexture, CreateTexture2D(emissiveTexels).get());
-	}
-
-	if (lightmapTexels != nullptr) {
-		material->SetTexture(BuiltinProperties::LightmapTexture, CreateTexture2D(lightmapTexels).get());
-	}
-}
-
-ref_ptr<Texture2D> MaterialAsset::CreateTexture2D(const TexelMap* texelMap) {
-	ref_ptr<Texture2D> texture = new Texture2D();
-	if (!texture->Create(texelMap->textureFormat, &texelMap->data[0], texelMap->colorStreamFormat, texelMap->width, texelMap->height, 4, false)) {
-		return nullptr;
-	}
-
-	return texture;
-}
-
 GameObjectLoader::GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback) : path_(path), root_(root), callback_(callback) {
 }
 
 GameObjectLoader::~GameObjectLoader() {
-	for (TexelMapContainer::iterator ite = texelMapContainer_.begin(); ite != texelMapContainer_.end(); ++ite) {
-		delete ite->second;
-	}
 }
 
 void GameObjectLoader::Run() {
@@ -132,15 +78,15 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 	return true;
 }
 
-void GameObjectLoader::LoadHierarchy(GameObject* parent, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadHierarchy(GameObject* parent, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh*& surface, SubMesh** subMeshes) {
 	ref_ptr<GameObject> go = new GameObject();
 
 	go->GetTransform()->SetParent(parent->GetTransform());
-	LoadNodeTo(go.get(), node, surface, subMeshes);
-	LoadChildren(go.get(), node, surface, subMeshes);
+	LoadNodeTo(go.get(), node, materials, surface, subMeshes);
+	LoadChildren(go.get(), node, materials, surface, subMeshes);
 }
 
-void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh*& surface, SubMesh** subMeshes) {
 	go->SetName(node->mName.C_Str());
 
 	if (go != root_) {
@@ -153,10 +99,10 @@ void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, Mesh*& surface, 
 		go->GetTransform()->SetLocalPosition(translation);
 	}
 
-	LoadComponents(go, node, surface, subMeshes);
+	LoadComponents(go, node, materials, surface, subMeshes);
 }
 
-void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh*& surface, SubMesh** subMeshes) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
@@ -185,59 +131,59 @@ void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, Mesh*& surfa
 
 		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < scene_->mNumMaterials) {
-			renderer->AddMaterial(asset_.materialAssets[materialIndex].material.get());
+			renderer->AddMaterial(materials[materialIndex].get());
 		}
 	}
 }
 
-void GameObjectLoader::LoadChildren(GameObject* go, aiNode* node, Mesh*& surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadChildren(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh*& surface, SubMesh** subMeshes) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		LoadHierarchy(go, node->mChildren[i], surface, subMeshes);
+		LoadHierarchy(go, node->mChildren[i], materials, surface, subMeshes);
 	}
 }
 
-void GameObjectLoader::ReserveMemory(MeshAsset& meshAsset) {
+void GameObjectLoader::ReserveMemory(MeshAttribute& attribute) {
 	uint indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
 		vertexCount += scene_->mMeshes[i]->mNumVertices;
 	}
 
-	meshAsset.positions.reserve(vertexCount);
-	meshAsset.normals.reserve(vertexCount);
+	attribute.positions.reserve(vertexCount);
+	attribute.normals.reserve(vertexCount);
 
 	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
-		meshAsset.texCoords[i].reserve(vertexCount);
+		attribute.texCoords[i].reserve(vertexCount);
 	}
 
-	meshAsset.tangents.reserve(vertexCount);
-	meshAsset.indexes.reserve(indexCount);
-	meshAsset.blendAttrs.resize(vertexCount);
+	attribute.tangents.reserve(vertexCount);
+	attribute.indexes.reserve(indexCount);
+	attribute.blendAttrs.resize(vertexCount);
 }
 
-bool GameObjectLoader::LoadAttribute(MeshAsset& meshAsset, SubMesh** subMeshes) {
-	ReserveMemory(meshAsset);
+bool GameObjectLoader::LoadAttribute(MeshAttribute& attribute, SubMesh** subMeshes) {
+	ReserveMemory(attribute);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		subMeshes[i] = new SubMesh();
 		TriangleBias bias{
-			scene_->mMeshes[i]->mNumFaces * 3, meshAsset.indexes.size(), meshAsset.positions.size()
+			scene_->mMeshes[i]->mNumFaces * 3, attribute.indexes.size(), attribute.positions.size()
 		};
 		subMeshes[i]->SetTriangleBias(bias);
-		LoadAttributeAt(i, meshAsset, subMeshes);
+		LoadAttributeAt(i, attribute, subMeshes);
 	}
 
 	return true;
 }
 
-bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAsset& meshAsset, SubMesh** subMeshes) {
-	LoadVertexAttribute(meshIndex, meshAsset);
-	LoadBoneAttribute(meshIndex, meshAsset, subMeshes);
+bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAttribute& attribute, SubMesh** subMeshes) {
+	LoadVertexAttribute(meshIndex, attribute);
+	LoadBoneAttribute(meshIndex, attribute, subMeshes);
 
 	return true;
 }
 
-void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) {
+void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -256,16 +202,16 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) 
 			}
 
 			const aiVector3D& v3 = aimesh->mTextureCoords[j][i];
-			meshAsset.texCoords[j].push_back(Vector2(v3.x, v3.y));
+			attribute.texCoords[j].push_back(Vector2(v3.x, v3.y));
 		}
 
 		if (aimesh->mTangents != nullptr) {
 			const aiVector3D& v3 = aimesh->mTangents[i];
-			meshAsset.tangents.push_back(Vector3(v3.x, v3.y, v3.z));
+			attribute.tangents.push_back(Vector3(v3.x, v3.y, v3.z));
 		}
 
-		meshAsset.positions.push_back(pos);
-		meshAsset.normals.push_back(normal);
+		attribute.positions.push_back(pos);
+		attribute.normals.push_back(normal);
 
 		min = Vector3::Min(min, pos);
 		max = Vector3::Max(max, pos);
@@ -278,13 +224,13 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAsset& meshAsset) 
 			continue;
 		}
 
-		meshAsset.indexes.push_back(face.mIndices[0]);
-		meshAsset.indexes.push_back(face.mIndices[1]);
-		meshAsset.indexes.push_back(face.mIndices[2]);
+		attribute.indexes.push_back(face.mIndices[0]);
+		attribute.indexes.push_back(face.mIndices[1]);
+		attribute.indexes.push_back(face.mIndices[2]);
 	}
 }
 
-void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, SubMesh** subMeshes) {
+void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAttribute& attribute, SubMesh** subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = new Skeleton(); }
@@ -303,13 +249,13 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 
 			float weight = aimesh->mBones[i]->mWeights[j].mWeight;
 			for (int k = 0; k < BlendAttribute::Quality; ++k) {
-				if (Mathf::Approximately(meshAsset.blendAttrs[vertexID].weights[k], 0)) {
-					meshAsset.blendAttrs[vertexID].indexes[k] = index;
-					meshAsset.blendAttrs[vertexID].weights[k] = weight;
+				if (Mathf::Approximately(attribute.blendAttrs[vertexID].weights[k], 0)) {
+					attribute.blendAttrs[vertexID].indexes[k] = index;
+					attribute.blendAttrs[vertexID].weights[k] = weight;
 
 					SkeletonBone* bone = skeleton_->GetBone(index);
 
-					Vector4 pos(meshAsset.positions[vertexID].x, meshAsset.positions[vertexID].y, meshAsset.positions[vertexID].z, 1);
+					Vector4 pos(attribute.positions[vertexID].x, attribute.positions[vertexID].y, attribute.positions[vertexID].z, 1);
 					pos = bone->meshToBoneMatrix * pos;
 					bone->bounds.Encapsulate(Vector3(pos.x, pos.y, pos.z));
 					break;
@@ -319,67 +265,90 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAsset& meshAsset, Su
 	}
 }
 
-void GameObjectLoader::LoadMaterialAssets() {
+void GameObjectLoader::LoadMaterials(std::vector<ref_ptr<Material>>& materials) {
 	for (int i = 0; i < scene_->mNumMaterials; ++i) {
-		LoadMaterialAsset(asset_.materialAssets[i], scene_->mMaterials[i]);
+		LoadMaterial(materials[i].get(), scene_->mMaterials[i]);
 	}
 }
 
-void GameObjectLoader::LoadMaterialAsset(MaterialAsset& materialAsset, aiMaterial* material) {
+void GameObjectLoader::LoadMaterial(Material* material, aiMaterial* resource) {
 	int aint;
 	float afloat;
 	aiString astring;
 	aiColor3D acolor;
 
-	materialAsset.shaderName = HasAnimation() ? "lit_animated_texture" : "lit_texture";
+	material->SetShader(Shader::Find(HasAnimation() ? "builtin/lit_animated_texture" : "builtin/lit_texture"));
 
-	if (material->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
-		materialAsset.name = FileSystem::GetFileName(astring.C_Str());
+	if (resource->Get(AI_MATKEY_NAME, astring) == AI_SUCCESS) {
+		material->SetName(FileSystem::GetFileName(astring.C_Str()));
+	}
+	else {
+		material->SetName(UNNAMED_MATERIAL);
 	}
 
-	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
-		materialAsset.mainTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
+	if (resource->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE, 0), astring) == AI_SUCCESS) {
+		material->SetTexture(BuiltinProperties::MainTexture, LoadTexture(FileSystem::GetFileName(astring.C_Str())));
+	}
+	else {
+		material->SetTexture(BuiltinProperties::MainTexture, Texture2D::GetWhiteTexture());
 	}
 
-	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
-		materialAsset.bumpTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
+	if (resource->Get(AI_MATKEY_TEXTURE(aiTextureType_NORMALS, 0), astring) == AI_SUCCESS) {
+		material->SetTexture(BuiltinProperties::BumpTexture, LoadTexture(FileSystem::GetFileName(astring.C_Str())));
 	}
 
-	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
-		materialAsset.specularTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
+	if (resource->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR, 0), astring) == AI_SUCCESS) {
+		material->SetTexture(BuiltinProperties::SpecularTexture, LoadTexture(FileSystem::GetFileName(astring.C_Str())));
 	}
 
-	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
-		materialAsset.lightmapTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
+	if (resource->Get(AI_MATKEY_TEXTURE(aiTextureType_LIGHTMAP, 0), astring) == AI_SUCCESS) {
+		material->SetTexture(BuiltinProperties::LightmapTexture, LoadTexture(FileSystem::GetFileName(astring.C_Str())));
 	}
 
-	if (material->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
-		materialAsset.emissiveTexels = LoadTexels(FileSystem::GetFileName(astring.C_Str()));
+	if (resource->Get(AI_MATKEY_TEXTURE(aiTextureType_EMISSIVE, 0), astring) == AI_SUCCESS) {
+		material->SetTexture(BuiltinProperties::EmissiveTexture, LoadTexture(FileSystem::GetFileName(astring.C_Str())));
 	}
 
-	if (material->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
+	Color color = Color::white;
+	if (resource->Get(AI_MATKEY_OPACITY, afloat) == AI_SUCCESS) {
 		if (Mathf::Approximately(afloat, 0)) { afloat = 1; }
-		materialAsset.mainColor.a = afloat;
+		color.a = afloat;
 	}
 
-	if (material->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) == AI_SUCCESS) {
-		materialAsset.mainColor = Color(acolor.r, acolor.g, acolor.b, materialAsset.mainColor.a);
+	if (resource->Get(AI_MATKEY_COLOR_DIFFUSE, acolor) == AI_SUCCESS) {
+		color = Color(acolor.r, acolor.g, acolor.b, color.a);
 	}
 
-	if (material->Get(AI_MATKEY_COLOR_SPECULAR, acolor) == AI_SUCCESS) {
-		materialAsset.specularColor = Color(acolor.r, acolor.g, acolor.b, 1);
+	material->SetColor(BuiltinProperties::MainColor, color);
+
+	if (resource->Get(AI_MATKEY_COLOR_SPECULAR, acolor) == AI_SUCCESS) {
+		color = Color(acolor.r, acolor.g, acolor.b, 1);
+	}
+	else {
+		color = Color::white;
 	}
 
-	if (material->Get(AI_MATKEY_COLOR_EMISSIVE, acolor) == AI_SUCCESS) {
-		materialAsset.emissiveColor = Color(acolor.r, acolor.g, acolor.b, 1);
+	material->SetColor(BuiltinProperties::SpecularColor, color);
+
+	if (resource->Get(AI_MATKEY_COLOR_EMISSIVE, acolor) == AI_SUCCESS) {
+		color = Color(acolor.r, acolor.g, acolor.b, 1);
+	}
+	else {
+		color = Color::black;
 	}
 
-	if (material->Get(AI_MATKEY_SHININESS, afloat) == AI_SUCCESS) {
-		materialAsset.gloss = afloat;
+	material->SetColor(BuiltinProperties::EmissiveColor, color);
+
+	float gloss = 50;
+	if (resource->Get(AI_MATKEY_SHININESS, afloat) == AI_SUCCESS) {
+		gloss = afloat;
 	}
 
-	if (material->Get(AI_MATKEY_TWOSIDED, aint) == AI_SUCCESS) {
-		materialAsset.twoSided = !!aint;
+	material->SetFloat(BuiltinProperties::Gloss, gloss);
+
+	bool twoSided = false;
+	if (resource->Get(AI_MATKEY_TWOSIDED, aint) == AI_SUCCESS) {
+		twoSided = !!aint;
 	}
 }
 
@@ -461,50 +430,51 @@ const aiNodeAnim* GameObjectLoader::FindChannel(const aiAnimation* anim, const c
 	return nullptr;
 }
 
-TexelMap* GameObjectLoader::LoadTexels(const std::string& name) {
-	TexelMapContainer::iterator pos = texelMapContainer_.find(name);
-	if (pos != texelMapContainer_.end()) {
-		return pos->second;
+Texture2D* GameObjectLoader::LoadTexture(const std::string& name) {
+	auto pos = rawImages_.find(name);
+	if (pos != rawImages_.end()) {
+		return pos->second.get();
 	}
 
-	bool status = false;
-	TexelMap* answer = new TexelMap;
+	RawImage texels;
 
 	if (String::StartsWith(name, "*")) {
-		status = LoadEmbeddedTexels(*answer, String::ToInteger(name.substr(1)));
+		if (!LoadEmbeddedTexels(texels, String::ToInteger(name.substr(1)))) {
+			return false;
+		}
 	}
-	else {
-		status = LoadExternalTexels(*answer, FileSystem::GetFileNameWithoutExtension(path_) + "/" + name);
-	}
-
-	if (!status) {
-		delete answer;
+	else if (!LoadExternalTexels(texels, FileSystem::GetFileNameWithoutExtension(path_) + "/" + name)) {
 		return false;
 	}
 
-	texelMapContainer_.insert(std::make_pair(name, answer));
-	return answer;
+	ref_ptr<Texture2D> texture = new Texture2D();
+	if (!texture->Create(texels.textureFormat, texels.pixels.data(), texels.colorStreamFormat, texels.width, texels.height, 4, false)) {
+		texture = nullptr;
+	}
+
+	rawImages_.insert(std::make_pair(name, texture));
+	return texture.get();
 }
 
-bool GameObjectLoader::LoadExternalTexels(TexelMap& texelMap, const std::string& name) {
-	return ImageCodec::Decode(texelMap, Resources::textureDirectory + name);
+bool GameObjectLoader::LoadExternalTexels(RawImage& rawImage, const std::string& name) {
+	return ImageCodec::Decode(rawImage, Resources::textureDirectory + name);
 }
 
-bool GameObjectLoader::LoadEmbeddedTexels(TexelMap& texelMap, uint index) {
+bool GameObjectLoader::LoadEmbeddedTexels(RawImage& rawImage, uint index) {
 	SUEDE_VERIFY_INDEX(index, scene_->mNumTextures, false);
 
 	aiTexture* aitex = scene_->mTextures[index];
 	if (aitex->mHeight == 0) {
-		if (!ImageCodec::Decode(texelMap, aitex->pcData, aitex->mWidth)) {
+		if (!ImageCodec::Decode(rawImage, aitex->pcData, aitex->mWidth)) {
 			return false;
 		}
 	}
 	else {
-		texelMap.textureFormat = TextureFormat::Rgba;
-		texelMap.data.assign((uchar*)aitex->pcData, (uchar*)aitex->pcData + aitex->mWidth * aitex->mHeight * sizeof(aiTexel));
-		texelMap.colorStreamFormat = ColorStreamFormat::Argb;
-		texelMap.width = aitex->mWidth;
-		texelMap.height = aitex->mHeight;
+		rawImage.textureFormat = TextureFormat::Rgba;
+		rawImage.pixels.assign((uchar*)aitex->pcData, (uchar*)aitex->pcData + aitex->mWidth * aitex->mHeight * sizeof(aiTexel));
+		rawImage.colorStreamFormat = ColorStreamFormat::Argb;
+		rawImage.width = aitex->mWidth;
+		rawImage.height = aitex->mHeight;
 	}
 
 	return true;
@@ -516,26 +486,31 @@ bool GameObjectLoader::LoadAsset() {
 		return false;
 	}
 
+	MeshAttribute attribute;
 	SubMesh** subMeshes = nullptr;
-	asset_.meshAsset.topology = MeshTopology::Triangles;
+	attribute.topology = MeshTopology::Triangles;
 
 	if (scene_->mNumMeshes > 0) {
 		subMeshes = new SubMesh*[scene_->mNumMeshes];
-		if (!LoadAttribute(asset_.meshAsset, subMeshes)) {
+		if (!LoadAttribute(attribute, subMeshes)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
 		}
 	}
 
+	std::vector<ref_ptr<Material>> materials(scene_->mNumMaterials);
 	if (scene_->mNumMaterials > 0) {
-		asset_.materialAssets.resize(scene_->mNumMaterials);
-		LoadMaterialAssets();
+		for (int i = 0; i < scene_->mNumMaterials; ++i) {
+			materials[i] = new Material();
+		}
+
+		LoadMaterials(materials);
 	}
 
 	Mesh* surface = new Mesh();
-	surface->CreateStorage();
+	surface->SetAttribute(attribute);
 
-	LoadNodeTo(root_.get(), scene_->mRootNode, surface, subMeshes);
-	LoadChildren(root_.get(), scene_->mRootNode, surface, subMeshes);
+	LoadNodeTo(root_.get(), scene_->mRootNode, materials, surface, subMeshes);
+	LoadChildren(root_.get(), scene_->mRootNode, materials, surface, subMeshes);
 
 	surface_ = surface;
 
@@ -559,16 +534,7 @@ ref_ptr<GameObject> GameObjectImporter::Import(const std::string& path, std::fun
 void GameObjectImporter::OnSchedule(Task* task) {
 	GameObjectLoader* loader = (GameObjectLoader*)task;
 
-	GameObjectAsset& asset = loader->GetGameObjectAsset();
-	for (uint i = 0; i < asset.materialAssets.size(); ++i) {
-		asset.materialAssets[i].ApplyAsset();
-	}
-
-	for (uint i = 0; i < asset.components.size(); ++i) {
-		asset.components[i].first->AddComponent(asset.components[i].second.get());
-	}
-
-	loader->GetSurface()->SetAttribute(asset.meshAsset);
+	loader->GetGameObjectAsset().Apply();
 
 	GameObject* root = loader->GetGameObject();
 	root->GetTransform()->SetParent(root->GetScene()->GetRootTransform());

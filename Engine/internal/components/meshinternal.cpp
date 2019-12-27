@@ -102,8 +102,7 @@ ref_ptr<Mesh> Mesh::CreateInstancedPrimitive(PrimitiveType type, float scale, co
 	return Mesh::FromAttribute(attribute);
 }
 
-void Mesh::CreateStorage() { _suede_dptr()->CreateStorage(); }
-void Mesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(value); }
+void Mesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(this, value); }
 //const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
 //void IMesh::SetBounds(const Bounds& value) { _suede_dptr()->SetBounds(value); }
 
@@ -166,16 +165,19 @@ void MeshInternal::CreateStorage() {
 	if (!storage_) { storage_.reset(new Storage(context_)); }
 }
 
-void MeshInternal::SetAttribute(const MeshAttribute& value) {
+void MeshInternal::SetAttribute(Mesh* self, const MeshAttribute& value) {
 	CreateStorage();
+	
+	attribute_ = value;
+	meshDirty_ = true;
 
-	if (context_->InThisThread()) {
-		SyncMeshAttribute(value);
-	}
-	else {
-		attribute_ = value;
-		meshDirty_ = true;
-	}
+	ref_ptr<Mesh> ref(self);
+	context_->AddCommand([ref, this]() {
+		if (meshDirty_) {
+			ApplyAttribute(attribute_);
+			ClearAttribute(attribute_);
+		}
+	});
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -279,7 +281,7 @@ void MeshInternal::AddSubMesh(SubMesh* subMesh) {
 
 void MeshInternal::Bind() {
 	if (meshDirty_) {
-		SyncMeshAttribute(attribute_);
+		ApplyAttribute(attribute_);
 		ClearAttribute(attribute_);
 	}
 
@@ -329,7 +331,7 @@ void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
 	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
 }
 
-void MeshInternal::SyncMeshAttribute(const MeshAttribute& attribute) {
+void MeshInternal::ApplyAttribute(const MeshAttribute& attribute) {
 	storage_->vao.Initialize();
 	storage_->topology = attribute.topology;
 	UpdateGLBuffers(attribute);
@@ -340,15 +342,24 @@ void MeshInternal::SyncMeshAttribute(const MeshAttribute& attribute) {
 
 void MeshInternal::ClearAttribute(MeshAttribute& attribute) {
 	attribute.positions.clear();
+	attribute.positions.shrink_to_fit();
+
 	attribute.normals.clear();
+	attribute.normals.shrink_to_fit();
 
 	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
 		attribute.texCoords[i].clear();
+		attribute.texCoords[i].shrink_to_fit();
 	}
 
 	attribute.tangents.clear();
+	attribute.tangents.shrink_to_fit();
+
 	attribute.blendAttrs.clear();
+	attribute.blendAttrs.shrink_to_fit();
+
 	attribute.indexes.clear();
+	attribute.indexes.shrink_to_fit();
 }
 
 #define Impl(mesh)	((MeshInternal*)mesh->d_)
@@ -381,7 +392,7 @@ void MeshProviderInternal::OnMeshModified() {
 
 TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), meshDirty_(false) {
 	Mesh* mesh = new Mesh();
-	mesh->CreateStorage();
+	Impl(mesh)->CreateStorage();
 
 	SetMesh(mesh);
 	GetMesh()->AddSubMesh(new SubMesh());

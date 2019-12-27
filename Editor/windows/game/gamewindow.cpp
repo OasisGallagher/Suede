@@ -40,7 +40,7 @@
 
 #define ROOM
 //#define SKYBOX
-#define PROJECTOR
+//#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
@@ -311,7 +311,7 @@ void GameWindow::setupScene() {
 	//camera->AddComponent<Inversion>();
 #endif
 
-	camera->SetClearColor(Color(0, 0.1f, 0.1f, 1));
+	camera->SetClearColor(Color(0, 0.3f, 0.5f, 1));
 
 	ref_ptr<Material> skybox = new Material();
 	skybox->SetShader(Shader::Find("builtin/skybox"));

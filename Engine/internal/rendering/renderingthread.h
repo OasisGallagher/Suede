@@ -35,17 +35,21 @@ struct RenderingPipelines {
 	Pipeline* ssaoTraversal;
 };
 
-class Rendering;
 class ImageEffect;
+class RenderingThread;
 
-class Rendering {
+class RenderingThread {
 public:
-	Rendering(RenderingContext* context);
+	RenderingThread(RenderingContext* context);
+	~RenderingThread();
 
 public:
 	void Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices);
+	void Stop();
+	std::thread::id GetThreadID() { return threadID_; }
 
 private:
+	void ThreadProc();
 	void OnPostRender();
 	void OnImageEffects(const std::vector<ImageEffect*>& effects);
 
@@ -60,8 +64,15 @@ private:
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
 
 private:
+	bool stopped_ = false;
+
+	std::mutex mutex_;
+	std::thread thread_;
+	std::condition_variable cond_;
+
 	Profiler* profiler_;
 	Graphics* graphics_;
+	std::thread::id threadID_;
 	RenderingContext* context_;
 };
 

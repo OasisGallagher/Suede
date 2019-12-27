@@ -24,11 +24,11 @@ bool UniformBuffer::Create(const std::string& name, uint size) {
 	return true;
 }
 
-void UniformBuffer::AttachBuffer(Shader* shader) {
+void UniformBuffer::AttachBuffer(ShaderInternal* shader) {
 	Attach(shader);
 }
 
-void UniformBuffer::AttachSubBuffer(Shader* shader, uint offset, uint size) {
+void UniformBuffer::AttachSubBuffer(ShaderInternal* shader, uint offset, uint size) {
 	context_->BindBufferRange(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer(), offset, size);
 	Attach(shader);
 }
@@ -81,7 +81,7 @@ void UniformBuffer::Destroy() {
 	delete ubo_;
 }
 
-void UniformBuffer::Attach(Shader* shader) {
+void UniformBuffer::Attach(ShaderInternal* shader) {
 	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
 		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
 			uint program = shader->GetNativePointer(i, j);

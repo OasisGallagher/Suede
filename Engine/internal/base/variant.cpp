@@ -16,6 +16,21 @@ Variant::Variant(const Variant& other) : Variant() {
 	}
 }
 
+Variant::Variant(Variant&& other) {
+	if (other.type_ >= VariantType::_POD_ARRAY_BEGIN) {
+		data_.podArray = other.data_.podArray;
+		other.data_.podArray.ptr = nullptr;
+		other.data_.podArray.size = 0;
+	}
+	else {
+		memcpy(&data_, &other.data_, sizeof(data_));
+		texture_ = other.texture_;
+		type_ = other.type_;
+	}
+
+	other.type_ = VariantType::None;
+}
+
 Variant::~Variant() {
 	SetType(VariantType::None);
 }

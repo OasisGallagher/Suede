@@ -29,6 +29,23 @@ BETTER_ENUM(VariantType, int,
 class SUEDE_API Variant {
 public:
 	Variant() : type_(VariantType::None) { }
+	Variant(int value) { SetInt(value); }
+	Variant(bool value) { SetBool(value); }
+	Variant(float value) { SetFloat(value); }
+	Variant(const iranged& value) { SetRangedInt(value); }
+	Variant(const franged& value) { SetRangedFloat(value); }
+	Variant(const Matrix4& value) { SetMatrix4(value); }
+	Variant(const Vector3& value) { SetVector3(value); }
+	Variant(const IVector3& value) { SetIVector3(value); }
+	Variant(const Color& value) { SetColor(value); }
+	Variant(const Vector4& value) { SetVector4(value); }
+	Variant(const Quaternion& value) { SetQuaternion(value); }
+	Variant(const std::string& value) { SetString(value); }
+	Variant(const Vector3* data, uint size) { SetVector3Array(data, size); }
+	Variant(const Matrix4* data, uint size) { SetMatrix4Array(data, size); }
+	Variant(Texture* value) { SetTexture(value); }
+
+	Variant(Variant&& other);
 	Variant(const Variant& other);
 	~Variant();
 

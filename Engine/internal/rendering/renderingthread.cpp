@@ -1,4 +1,4 @@
-#include "rendering.h"
+#include "renderingthread.h"
 
 #include "engine.h"
 #include "scene.h"
@@ -8,10 +8,10 @@
 #include "imageeffect.h"
 #include "particlesystem.h"
 
-#include "internal/rendering/shadowmap.h"
-#include "internal/rendering/ambientocclusion.h"
-#include "internal/rendering/renderingcontext.h"
-#include "internal/rendering/shareduniformbuffers.h"
+#include "shadowmap.h"
+#include "ambientocclusion.h"
+#include "renderingcontext.h"
+#include "shareduniformbuffers.h"
 
 RenderingPipelines::RenderingPipelines(RenderingContext* context) {
 	depth = new Pipeline(context);
@@ -40,14 +40,28 @@ void RenderingPipelines::Clear() {
 	ssaoTraversal->Clear();
 }
 
-Rendering::Rendering(RenderingContext* context) : context_(context) {
+RenderingThread::RenderingThread(RenderingContext* context) : context_(context) {
 	profiler_ = context_->GetProfiler();
 	graphics_ = context_->GetGraphics();
+	thread_ = std::thread(std::bind(&RenderingThread::ThreadProc, this));
+	threadID_ = thread_.get_id();
+}
+
+RenderingThread::~RenderingThread() {
+	Stop();
+	thread_.join();
+}
+
+void RenderingThread::ThreadProc() {
+	for (; !stopped_;) {
+		std::unique_lock<std::mutex> lock(mutex_);
+		cond_.wait(lock);
+	}
 }
 
 #define OutputSample(sample)	Debug::OutputToConsole("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
 
-void Rendering::Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
+void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
 	context_->ClearFrame();
 	UpdateUniformBuffers(pipelines, matrices);
 
@@ -73,7 +87,14 @@ void Rendering::Render(RenderingPipelines* pipelines, const RenderingMatrices& m
 	if (!effects.empty()) { OnImageEffects(effects); }
 }
 
-void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
+void RenderingThread::Stop() {
+	if (!stopped_) {
+		stopped_ = true;
+		cond_.notify_all();
+	}
+}
+
+void RenderingThread::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
 	static SharedTransformsUniformBuffer p;
 	p.worldToClipMatrix = matrices.projectionMatrix * matrices.worldToCameraMatrix;
 	p.worldToCameraMatrix = matrices.worldToCameraMatrix;
@@ -87,7 +108,7 @@ void Rendering::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices)
 	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
-void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
+void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	static SharedLightUniformBuffer p;
 
 	Environment* env = context_->GetScene()->GetEnvironment();
@@ -107,11 +128,11 @@ void Rendering::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
 }
 
-void Rendering::OnPostRender() {
+void RenderingThread::OnPostRender() {
 
 }
 
-void Rendering::OnImageEffects(const std::vector<ImageEffect*>& effects) {
+void RenderingThread::OnImageEffects(const std::vector<ImageEffect*>& effects) {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 	RenderTexture* temporary;
 	RenderTexture* targetTextures[] = {
@@ -133,7 +154,7 @@ void Rendering::OnImageEffects(const std::vector<ImageEffect*>& effects) {
 	RenderTexture::ReleaseTemporary(temporary);
 }
 
-void Rendering::SSAOPass(RenderingPipelines* pipelines) {
+void RenderingThread::SSAOPass(RenderingPipelines* pipelines) {
 	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	FrameState* fs = context_->GetFrameState();
@@ -147,7 +168,7 @@ void Rendering::SSAOPass(RenderingPipelines* pipelines) {
 	profiler_->ReleaseSample(sample);
 }
 
-void Rendering::SSAOTraversalPass(RenderingPipelines* pipelines) {
+void RenderingThread::SSAOTraversalPass(RenderingPipelines* pipelines) {
 	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	pipelines->ssaoTraversal->Run();
@@ -156,7 +177,7 @@ void Rendering::SSAOTraversalPass(RenderingPipelines* pipelines) {
 	profiler_->ReleaseSample(sample);
 }
 
-void Rendering::DepthPass(RenderingPipelines* pipelines) {
+void RenderingThread::DepthPass(RenderingPipelines* pipelines) {
 	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	if (pipelines->depth->GetRenderableCount() > 0) {
@@ -167,7 +188,7 @@ void Rendering::DepthPass(RenderingPipelines* pipelines) {
 	profiler_->ReleaseSample(sample);
 }
 
-void Rendering::UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
+void RenderingThread::UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
 	UpdateTransformsUniformBuffer(matrices);
 
 	FrameState* fs = context_->GetFrameState();
@@ -176,7 +197,7 @@ void Rendering::UpdateUniformBuffers(RenderingPipelines* pipelines, const Render
 	}
 }
 
-void Rendering::ShadowPass(RenderingPipelines* pipelines) {
+void RenderingThread::ShadowPass(RenderingPipelines* pipelines) {
 	RenderTexture* target = pipelines->rendering->GetTargetTexture();
 
 	ShadowMap* shadowMap = context_->GetShadowMap();
@@ -191,7 +212,7 @@ void Rendering::ShadowPass(RenderingPipelines* pipelines) {
 	profiler_->ReleaseSample(sample);
 }
 
-void Rendering::RenderPass(RenderingPipelines* pipelines) {
+void RenderingThread::RenderPass(RenderingPipelines* pipelines) {
 	Sample* sample = profiler_->CreateSample();
 	sample->Start();
 	pipelines->rendering->Run();

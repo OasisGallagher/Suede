@@ -7,7 +7,7 @@
 #include "internal/base/objectinternal.h"
 
 struct MaterialProperty {
-	int i, mask;
+	int mask;
 	Property property;
 };
 
@@ -71,16 +71,19 @@ public:
 	const std::vector<const Property*>& GetExplicitProperties();
 
 public:
-	static event<Material*> shaderChanged;
+	static event<MaterialInternal*> shaderChanged;
 
 protected:
 	virtual void OnContextDestroyed();
 
 private:
+	void ApplyShader();
+
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
 	void CopyProperties(Shader* newShader);
+	void AddRedundantProperty(const std::string& name, const Variant& value);
 	void DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties);
 
 	void InitializeEnabledState();
@@ -92,6 +95,8 @@ private:
 
 private:
 	Shader* shader_;
+	bool shaderDirty_ = false;
+
 	int currentPass_;
 
 	uint passEnabled_;

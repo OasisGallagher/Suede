@@ -47,6 +47,7 @@ class Time;
 class Profiler;
 class Graphics;
 class ShadowMap;
+class RenderingThread;
 class AmbientOcclusion;
 
 class RenderingContext : public Context {
@@ -69,6 +70,8 @@ public:
 	void SetGraphics(Graphics* value) { graphics_ = value; }
 	Graphics* GetGraphics() { return graphics_; }
 
+	RenderingThread* GetRenderingThread() { return renderingThread_; }
+
 	ShadowMap* GetShadowMap() { return shadowMap_; }
 	AmbientOcclusion* GetAmbientOcclusion() { return ambientOcclusion_; }
 
@@ -82,8 +85,8 @@ protected:
 	virtual bool Initialize();
 
 private:
-	void OnShaderCreated(Shader* shader);
-	void OnMaterialShaderChanged(Material* material);
+	void OnShaderCreated(ShaderInternal* shader);
+	void OnMaterialShaderChanged(MaterialInternal* material);
 	void OnScreenSizeChanged(uint width, uint height);
 
 private:
@@ -91,6 +94,8 @@ private:
 	Scene* scene_ = nullptr;
 	Profiler* profiler_ = nullptr;
 	Graphics* graphics_ = nullptr;
+
+	RenderingThread* renderingThread_;
 
 	ShadowMap* shadowMap_ = nullptr;
 	AmbientOcclusion* ambientOcclusion_ = nullptr;

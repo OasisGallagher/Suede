@@ -29,7 +29,7 @@ public:
 
 public:
 	void CreateStorage();
-	void SetAttribute(const MeshAttribute& value);
+	void SetAttribute(Mesh* self, const MeshAttribute& value);
 
 	//void SetBounds(const Bounds& value) { bounds_ = value; }
 	//const Bounds& GetBounds() const { return bounds_; }
@@ -85,7 +85,7 @@ private:
 	void ClearAttribute(MeshAttribute& attribute);
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
-	void SyncMeshAttribute(const MeshAttribute& attribute);
+	void ApplyAttribute(const MeshAttribute& attribute);
 
 //protected:
 //	Bounds bounds_;

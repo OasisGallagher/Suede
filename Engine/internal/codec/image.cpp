@@ -4,57 +4,47 @@
 #include "math/mathf.h"
 #include "debug/debug.h"
 
-static ColorStreamFormat BppToColorStreamFormat(uint bpp) {
-	switch (bpp) {
-	case 8:
-	case 24:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		return ColorStreamFormat::Bgr;
-#else
-		return ColorStreamFormat::Rgb;
-#endif
-	case 32:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		return ColorStreamFormat::Bgra;
-#else
-		return ColorStreamFormatRgba;
-#endif
-	}
+void RawImage::GetPixelBilinear(uchar* pixel, float x, float y) const {
+	int px = (int)x;
+	int py = (int)y;
+	const int nbytes = ColorStreamBytes(colorStreamFormat);
+	const uchar* p0 = pixels.data() + (px + py * width) * nbytes;
 
-	Debug::LogError("invalid bbp number %d.", bpp);
-	return ColorStreamFormat::Bgr;
+	const uchar* p1 = p0 + (0 + 0 * width) * nbytes;
+	const uchar* p2 = ((px + 1 < width) ? p0 + (1 + 0 * width) * nbytes : p1);
+	const uchar* p3 = ((py + 1 < height) ? p0 + (0 + 1 * width) * nbytes : p1);
+	const uchar* p4 = ((px + 1 < width && py + 1 < height) ? p0 + (1 + 1 * width) * nbytes : p1);
+
+	// Calculate the weights for each pixel
+	float fx = x - px;
+	float fy = y - py;
+	float fx1 = 1.0f - fx;
+	float fy1 = 1.0f - fy;
+
+	float w1 = fx1 * fy1;
+	float w2 = fx  * fy1;
+	float w3 = fx1 * fy;
+	float w4 = fx  * fy;
+
+	// Calculate the weighted sum of pixels (for each color channel)
+	for (int i = 0; i < nbytes; ++i) {
+		pixel[i] = uchar(*(p1 + i) * w1 + *(p2 + i) * w2 + *(p3 + i) * w3 + *(p4 + i) * w4);
+	}
 }
 
-static uint ColorStreamFormatToBpp(ColorStreamFormat format) {
-	switch (format) {
-	case ColorStreamFormat::Rgb:
-	case ColorStreamFormat::Bgr:
-		return 3 * 8;
-
-	case ColorStreamFormat::Rgba:
-	case ColorStreamFormat::Argb:
-	case ColorStreamFormat::Bgra:
-		return 4 * 8;
-
-	case ColorStreamFormat::LuminanceAlpha:
-		return 2 * 8;
-
-	default:
-		Debug::LogError("invalid color format %d.", format);
-		break;
-	}
-
-	return 8;
+void RawImage::GetPixel(uchar* pixel, int x, int y) const {
+	int nbytes = ColorStreamBytes(colorStreamFormat);
+	memcpy(pixel, pixels.data() + (y * width + x) * nbytes, nbytes);
 }
 
-bool ImageCodec::Decode(TexelMap& texelMap, const void* compressedData, uint length) {
-	FIMEMORY* stream = FreeImage_OpenMemory((BYTE*)compressedData, length);
+bool ImageCodec::Decode(RawImage& rawImage, const void* compressedData, uint length) {
+	FIMEMORY* stream = FreeImage_OpenMemory((uchar*)compressedData, length);
 	FIBITMAP* dib = LoadDibFromMemory(stream);
 	bool status = false;
 
 	if (dib != nullptr) {
 		FreeImage_FlipVertical(dib);
-		status = CopyTexelsTo(texelMap, dib);
+		status = CopyTexelsTo(rawImage, dib);
 		FreeImage_Unload(dib);
 	}
 
@@ -62,7 +52,7 @@ bool ImageCodec::Decode(TexelMap& texelMap, const void* compressedData, uint len
 	return status;
 }
 
-bool ImageCodec::Decode(TexelMap& texelMap, const std::string& path) {
+bool ImageCodec::Decode(RawImage& rawImage, const std::string& path) {
 	FIBITMAP* dib = LoadDibFromPath(path);
 	bool status = false;
 	if (dib != nullptr) {
@@ -81,22 +71,22 @@ bool ImageCodec::Decode(TexelMap& texelMap, const std::string& path) {
 		*/
 
 		FreeImage_FlipVertical(dib);
-		status = CopyTexelsTo(texelMap, dib);
+		status = CopyTexelsTo(rawImage, dib);
 		FreeImage_Unload(dib);
 	}
 
 	return status;
 }
 
-bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const TexelMap& texelMap) {
-	FIBITMAP* dib = LoadDibFromTexelMap(texelMap);
+bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const RawImage& rawImage) {
+	FIBITMAP* dib = LoadDibFromRawImage(rawImage);
 	bool status = EncodeDibTo(data, type, dib);
 	FreeImage_Unload(dib);
 
 	return status;
 }
 
-void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, BPPType bpp, const std::vector<uchar>& data) {
+void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, int bpp, const std::vector<uchar>& data) {
 	uint srcStride = Mathf::RoundUpToPowerOfTwo(width * bpp / 8, alignment);
 	uint destStride = FreeImage_GetPitch(dib);
 	const uchar* src = &data[0];
@@ -126,7 +116,7 @@ bool ImageCodec::SwapRedBlue(FIBITMAP* dib) {
 	
 	uchar* line = FreeImage_GetBits(dib);
 	for(int y = 0; y < height; ++y, line += pitch) {
-		for(BYTE* pixel = line; pixel < line + lineSize ; pixel += bpp) {
+		for(uchar* pixel = line; pixel < line + lineSize ; pixel += bpp) {
 			pixel[0] ^= pixel[2];
 			pixel[2] ^= pixel[0];
 			pixel[0] ^= pixel[2];
@@ -136,7 +126,7 @@ bool ImageCodec::SwapRedBlue(FIBITMAP* dib) {
 	return true;
 }
 
-bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
+bool ImageCodec::CopyTexelsTo(RawImage& rawImage, FIBITMAP* dib) {
 	uint width = FreeImage_GetWidth(dib);
 	uint height = FreeImage_GetHeight(dib);
 	uint pitch = FreeImage_GetPitch(dib);
@@ -144,11 +134,11 @@ bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 
 	uint count = pitch * height;
 
-	texelMap.data.resize(count);
+	rawImage.pixels.resize(count);
 
 	uchar* data = FreeImage_GetBits(dib);
 	if (bpp != 8) {
-		std::copy(data, data + count, &texelMap.data[0]);
+		std::copy(data, data + count, rawImage.pixels.data());
 	}
 	else {
 		RGBQUAD* palette = FreeImage_GetPalette(dib);
@@ -161,16 +151,36 @@ bool ImageCodec::CopyTexelsTo(TexelMap& texelMap, FIBITMAP* dib) {
 		for (int i = 0; i < height; ++i ) {  
             for (int j = 0; j < lineSize; ++j ) {  
                 int k = data[i * pitch + j];  
-				memcpy(&texelMap.data[(i * pitch + j) * 3], palette + k, 3 * sizeof(uchar));
+				memcpy(&rawImage.pixels[(i * pitch + j) * 3], palette + k, 3 * sizeof(uchar));
             }
         }
 	}
 
-	texelMap.width = width;
-	texelMap.height = height;
-	texelMap.textureFormat = (bpp >= 32) ? TextureFormat::Rgba : TextureFormat::Rgb;
-	texelMap.colorStreamFormat = BppToColorStreamFormat(bpp);
-	texelMap.alignment = 4;
+	ColorStreamFormat colorStreamFormat = ColorStreamFormat::Rgba;
+	switch (bpp) {
+	case 8:
+	case 24:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+		colorStreamFormat = ColorStreamFormat::Bgr;
+#else
+		colorStreamFormat = ColorStreamFormat::Rgb;
+#endif
+		break;
+
+	case 32:
+#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
+		colorStreamFormat = ColorStreamFormat::Bgra;
+#else
+		colorStreamFormat = ColorStreamFormat::Rgba;
+#endif
+		break;
+	}
+
+	rawImage.width = width;
+	rawImage.height = height;
+	rawImage.textureFormat = (bpp >= 32) ? TextureFormat::Rgba : TextureFormat::Rgb;
+	rawImage.colorStreamFormat = colorStreamFormat;
+	rawImage.alignment = 4;
 
 	return true;
 }
@@ -212,16 +222,15 @@ FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
 	return dib;
 }
 
-FIBITMAP* ImageCodec::LoadDibFromTexelMap(const TexelMap& texelMap) {
-	if (texelMap.colorStreamFormat != ColorStreamFormat::Rgb && texelMap.colorStreamFormat != ColorStreamFormat::Rgba) {
-		Debug::LogError("invalid format %d.", texelMap.colorStreamFormat);
+FIBITMAP* ImageCodec::LoadDibFromRawImage(const RawImage& rawImage) {
+	if (rawImage.colorStreamFormat != ColorStreamFormat::Rgb && rawImage.colorStreamFormat != ColorStreamFormat::Rgba) {
+		Debug::LogError("invalid format %d.", rawImage.colorStreamFormat);
 		return nullptr;
 	}
 
-	// SUEDE TODO: 32 bbp jpg.
-	BPPType bpp = texelMap.colorStreamFormat == ColorStreamFormat::Rgb ? BPPType24 : BPPType32;
-	FIBITMAP* dib = FreeImage_Allocate(texelMap.width, texelMap.height, bpp);
-	CopyBitsFrom(dib, texelMap.width, texelMap.height, texelMap.alignment, bpp, texelMap.data);
+	int bpp = ColorStreamBytes(rawImage.colorStreamFormat) * 8;
+	FIBITMAP* dib = FreeImage_Allocate(rawImage.width, rawImage.height, bpp);
+	CopyBitsFrom(dib, rawImage.width, rawImage.height, rawImage.alignment, bpp, rawImage.pixels);
 
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
 	SwapRedBlue(dib);
@@ -234,7 +243,7 @@ bool ImageCodec::EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP*
 	FIMEMORY* stream = FreeImage_OpenMemory();
 
 	bool status = false;
-	if (FreeImage_SaveToMemory(type == ImageTypeJPG ? FIF_JPEG : FIF_PNG, dib, stream)) {
+	if (FreeImage_SaveToMemory(type == ImageType::JPG ? FIF_JPEG : FIF_PNG, dib, stream)) {
 		ulong bytes = 0;
 		uchar *buffer = nullptr;
 		FreeImage_AcquireMemory(stream, &buffer, &bytes);
@@ -249,37 +258,37 @@ bool ImageCodec::EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP*
 	return status;
 }
 
-bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uint space) {
-	if (texelMaps.empty()) {
+bool AtlasMaker::Make(Atlas& atlas, const std::vector<RawImage*>& rawImages, uint space) {
+	if (rawImages.empty()) {
 		Debug::LogWarning("container is empty.");
 		return false;
 	}
 
 	uint width, height;
-	uint columnCount = Calculate(width, height, texelMaps, space);
+	uint columnCount = Calculate(width, height, rawImages, space);
 
-	uint bpp = ColorStreamFormatToBpp(texelMaps.front()->colorStreamFormat);
+	uint bpp = ColorStreamBytes(rawImages.front()->colorStreamFormat) * 8;
 	atlas.data.resize(width * height * (bpp / 8));
-	uchar* ptr = &atlas.data[0];
+	uchar* ptr = atlas.data.data();
 	int bottom = space;
 	ptr += space * width * 2;
 
-	for (int i = 0; i < texelMaps.size();) {
-		uint count = Mathf::Min((uint)texelMaps.size() - i, columnCount);
+	for (int i = 0; i < rawImages.size();) {
+		uint count = Mathf::Min((uint)rawImages.size() - i, columnCount);
 		uint rows = 0, offset = space * 2;
 
 		for (int j = i; j < i + count; ++j) {
-			const TexelMap* texelMap = texelMaps[j];
-			float top = (bottom + texelMap->height) / (float)height;
+			const RawImage* rawImage = rawImages[j];
+			float top = (bottom + rawImage->height) / (float)height;
 
-			PasteTexels(ptr + offset, texelMap, width);
+			PasteTexels(ptr + offset, rawImage, width);
 			float left = offset / ((float)width * 2);
-			float right = left + texelMap->width / (float)width;
+			float right = left + rawImage->width / (float)width;
 			// order: left, bottom, right, top.
-			atlas.coords[texelMap->id] = Vector4(left, bottom / (float)height, right, top);
+			atlas.coords[rawImage->id] = Vector4(left, bottom / (float)height, right, top);
 
-			offset += (texelMap->width + space) * 2;
-			rows = Mathf::Max(rows, texelMap->height);
+			offset += (rawImage->width + space) * 2;
+			rows = Mathf::Max(rows, rawImage->height);
 		}
 
 		ptr += (rows + space) * width * 2;
@@ -293,16 +302,16 @@ bool AtlasMaker::Make(Atlas& atlas, const std::vector<TexelMap*>& texelMaps, uin
 	return true;
 }
 
-uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<TexelMap*>& texelMaps, uint space) {
+uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<RawImage*>& rawImages, uint space) {
 	uint columnCount = 16;
 	uint maxWidth = 0, maxHeight = 0;
 
-	for (int i = 0; i < texelMaps.size();) {
-		uint count = Mathf::Min((uint)texelMaps.size() - i, columnCount);
+	for (int i = 0; i < rawImages.size();) {
+		uint count = Mathf::Min((uint)rawImages.size() - i, columnCount);
 		uint w = 0, h = 0;
 		for (int j = i; j < i + count; ++j) {
-			w += texelMaps[j]->width + space;
-			h = Mathf::Max(h, texelMaps[j]->height);
+			w += rawImages[j]->width + space;
+			h = Mathf::Max(h, rawImages[j]->height);
 		}
 
 		maxWidth = Mathf::Max(maxWidth, w);
@@ -316,12 +325,12 @@ uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<TexelMap
 	return columnCount;
 }
 
-void AtlasMaker::PasteTexels(uchar* ptr, const TexelMap* texelMap, int stride) {
-	for (int r = 0; r < texelMap->height; ++r) {
-		for (int c = 0; c < texelMap->width; ++c) {
-			uchar uch = texelMap->data[c + r * texelMap->width];
+void AtlasMaker::PasteTexels(uchar* ptr, const RawImage* rawImage, int stride) {
+	for (int r = 0; r < rawImage->height; ++r) {
+		for (int c = 0; c < rawImage->width; ++c) {
+			uchar uch = rawImage->pixels[c + r * rawImage->width];
 			// from left bottom.
-			int r2 = texelMap->height - r - 1;
+			int r2 = rawImage->height - r - 1;
 			ptr[2 * (c + r2 * stride)] = ptr[2 * (c + r2 * stride) + 1] = uch;
 		}
 	}

@@ -75,15 +75,12 @@ void Camera::OnPostRender() {
 	target->Unbind();
 }
 
-CameraInternal::CameraInternal()
-	: ComponentInternal(ObjectType::Camera), depth_(0), pipelineReady_(false), normalizedRect_(0, 0, 1, 1)
-	, clearType_(ClearType::Color), clearColor_(Color::black), depthTextureMode_(DepthTextureMode::None), renderPath_(RenderPath::Forward)
-	 /*, gbuffer_(nullptr) */{
+CameraInternal::CameraInternal() : ComponentInternal(ObjectType::Camera) {
 	// SUEDE TODO Culling thread...
 	cullingThread_ = new CullingThread(context_);
 	cullingThread_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
 
-	rendering_ = new Rendering(context_);
+	rendering_ = new RenderingThread(context_);
 
 	pipelineBuilder_ = new PipelineBuilder(context_);
 	frontPipelines_ = new RenderingPipelines(context_);

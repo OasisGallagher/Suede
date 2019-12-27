@@ -49,8 +49,8 @@ Texture2D* Texture2D::GetBlackTexture() {
 }
 
 bool Texture2D::Load(const std::string& path) { return _suede_dptr()->Load(path); }
-bool Texture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
-	return _suede_dptr()->Create(textureFormat, data, format, width, height, alignment, mipmap);
+bool Texture2D::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat colorStreamFormat, uint width, uint height, uint alignment, bool mipmap) {
+	return _suede_dptr()->Create(textureFormat, data, colorStreamFormat, width, height, alignment, mipmap);
 }
 TextureFormat Texture2D::GetFormat() { return _suede_dptr()->GetFormat(); }
 bool Texture2D::EncodeToPNG(std::vector<uchar>& data) { return _suede_dptr()->EncodeToPNG(data); }
@@ -172,16 +172,6 @@ void TextureInternal::OnContextDestroyed() {
 	GLObjectMaintainer::OnContextDestroyed();
 }
 
-BPPType TextureInternal::GLenumToBpp(uint format) const {
-	switch (format) {
-		case GL_RGB: return BPPType24;
-		case GL_RGBA: return BPPType32;
-	}
-
-	Debug::LogError("unknown internal format 0x%x.", format);
-	return BPPType24;
-}
-
 uint TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
 	switch (textureFormat) {
 		case TextureFormat::Rgb: return GL_RGB;
@@ -198,8 +188,10 @@ uint TextureInternal::TextureFormatToGLenum(TextureFormat textureFormat) const {
 	return GL_RGB;
 }
 
-void TextureInternal::ColorStreamFormatToGLenum(uint(&parameters)[2], ColorStreamFormat format) const {
-	uint glFormat = GL_RGBA, glType = GL_UNSIGNED_BYTE;
+void TextureInternal::ColorStreamFormatToGLenum(uint& glFormat, uint& glType, ColorStreamFormat format) const {
+	glFormat = GL_RGBA;
+	glType = GL_UNSIGNED_BYTE;
+
 	switch (format) {
 		case ColorStreamFormat::Rgb:
 			glFormat = GL_RGB;
@@ -229,9 +221,6 @@ void TextureInternal::ColorStreamFormatToGLenum(uint(&parameters)[2], ColorStrea
 			glFormat = GL_LUMINANCE_ALPHA;
 			break;
 	}
-
-	parameters[0] = glFormat;
-	parameters[1] = glType;
 }
 
 uint TextureInternal::TextureMinFilterModeToGLenum(TextureMinFilterMode mode) const {
@@ -311,39 +300,88 @@ Texture2DInternal::~Texture2DInternal() {
 }
 
 bool Texture2DInternal::Load(const std::string& path) {
-	TexelMap texelMap;
-	if (!ImageCodec::Decode(texelMap, Resources::textureDirectory + path)) {
+	RawImage rawImage;
+	if (!ImageCodec::Decode(rawImage, Resources::textureDirectory + path)) {
 		return false;
 	}
 
-	return Create(texelMap.textureFormat, &texelMap.data[0], texelMap.colorStreamFormat, texelMap.width, texelMap.height, texelMap.alignment);
+	return Create(rawImage.textureFormat, rawImage.pixels.data(), rawImage.colorStreamFormat, rawImage.width, rawImage.height, rawImage.alignment);
 }
 
-bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap) {
-	DestroyTexture();
-
+bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, ColorStreamFormat colorStreamFormat, uint width, uint height, uint alignment, bool mipmap) {
 	width_ = width;
 	height_ = height;
 
-	context_->GenTextures(1, &texture_);
+	ColorStreamFormatToGLenum(glFormat_, glType_, colorStreamFormat);
+
+	mipmap_ = mipmap;
+	internalFormat_ = TextureFormatToGLenum(textureFormat);
+
+	alignment_ = alignment;
+	textureFormat_ = textureFormat;
+	colorStreamFormat_ = colorStreamFormat;
+	
+	dataSize_ = ColorStreamBytes(colorStreamFormat_) * Mathf::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight();
+
+	if (data != nullptr) {
+		data_.reset(new uchar[dataSize_]);
+		memcpy(data_.get(), data, dataSize_);
+	}
+	else {
+		data_ = nullptr;
+	}
+
+	dataDirty_ = true;
+
+	return true;
+}
+
+bool Texture2DInternal::EncodeToPNG(std::vector<uchar>& data) {
+	return EncodeTo(data, ImageType::PNG);
+}
+
+bool Texture2DInternal::EncodeToJPG(std::vector<uchar>& data) {
+	return EncodeTo(data, ImageType::JPG);
+}
+
+void Texture2DInternal::Bind(uint index) {
+	if (dataDirty_) {
+		ApplyData();
+	}
+
+	TextureInternal::Bind(index);
+}
+
+bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
+	BindTexture();
+
+	RawImage rawImage;
+	rawImage.width = width_;
+	rawImage.height = height_;
+	rawImage.alignment = alignment_;
+	rawImage.textureFormat = textureFormat_;
+	rawImage.colorStreamFormat = colorStreamFormat_;
+	rawImage.pixels.assign(data_.get(), data_.get() + dataSize_);
+
+	return ImageCodec::Encode(data, type, rawImage);
+}
+
+void Texture2DInternal::ApplyData() {
+	if (texture_ == 0) {
+		context_->GenTextures(1, &texture_);
+	}
 
 	BindTexture();
 
-	uint glFormat[2];
-	ColorStreamFormatToGLenum(glFormat, format);
-	uint internalFormat = TextureFormatToGLenum(textureFormat);
-
-	format_ = textureFormat;
-
 	int oldUnpackAlignment = 4;
 	context_->GetIntegerv(GL_UNPACK_ALIGNMENT, &oldUnpackAlignment);
-	context_->PixelStorei(GL_UNPACK_ALIGNMENT, alignment);
+	context_->PixelStorei(GL_UNPACK_ALIGNMENT, alignment_);
 
-	context_->TexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, glFormat[0], glFormat[1], data);
+	context_->TexImage2D(GL_TEXTURE_2D, 0, internalFormat_, width_, height_, 0, glFormat_, glType_, data_.get());
 
 	context_->PixelStorei(GL_UNPACK_ALIGNMENT, oldUnpackAlignment);
 
-	if (mipmap) {
+	if (mipmap_) {
 		context_->GenerateMipmap(GL_TEXTURE_2D);
 	}
 	else {
@@ -351,41 +389,7 @@ bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, Co
 	}
 
 	UnbindTexture();
-
-	internalFormat_ = internalFormat;
-
-	return true;
-}
-
-bool Texture2DInternal::EncodeToPNG(std::vector<uchar>& data) {
-	return EncodeTo(data, ImageTypePNG);
-}
-
-bool Texture2DInternal::EncodeToJPG(std::vector<uchar>& data) {
-	return EncodeTo(data, ImageTypeJPG);
-}
-
-bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
-	BindTexture();
-
-	TexelMap texelMap;
-	texelMap.width = GetWidth();
-	texelMap.height = GetHeight();
-	
-	uint alignment = 4;
-	context_->GetIntegerv(GL_UNPACK_ALIGNMENT, (int*)&alignment);
-
-	texelMap.alignment = alignment;
-	BPPType bpp = GLenumToBpp(internalFormat_);
-
-	texelMap.data.resize((bpp / 8) * Mathf::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight());
-	context_->GetTexImage(GL_TEXTURE_2D, 0, internalFormat_, GL_UNSIGNED_BYTE, &texelMap.data[0]);
-	UnbindTexture();
-
-	texelMap.textureFormat = (bpp == BPPType24) ? TextureFormat::Rgb : TextureFormat::Rgba;
-	texelMap.colorStreamFormat = (bpp == BPPType24) ? ColorStreamFormat::Rgb : ColorStreamFormat::Rgba;
-
-	return ImageCodec::Encode(data, type, texelMap);
+	dataDirty_ = false;
 }
 
 TextureCubeInternal::TextureCubeInternal(Context* context) : TextureInternal(ObjectType::TextureCube, context) {
@@ -395,9 +399,9 @@ TextureCubeInternal::~TextureCubeInternal() {
 }
 
 bool TextureCubeInternal::Load(const std::string textures[6]) {
-	TexelMap texelMaps[6];
+	RawImage rawImages[6];
 	for (int i = 0; i < 6; ++i) {
-		if (!ImageCodec::Decode(texelMaps[i], Resources::textureDirectory + textures[i])) {
+		if (!ImageCodec::Decode(rawImages[i], Resources::textureDirectory + textures[i])) {
 			return false;
 		}
 	}
@@ -408,10 +412,10 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 	BindTexture();
 
 	for(int i = 0; i < 6; ++i) {
-		uint glFormat[2];
-		ColorStreamFormatToGLenum(glFormat, texelMaps[i].colorStreamFormat);
-		uint internalFormat = TextureFormatToGLenum(texelMaps[i].textureFormat);
-		context_->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, texelMaps[i].width, texelMaps[i].height, 0, glFormat[0], glFormat[1], &texelMaps[i].data[0]);
+		uint glFormat, glType;
+		ColorStreamFormatToGLenum(glFormat, glType, rawImages[i].colorStreamFormat);
+		uint internalFormat = TextureFormatToGLenum(rawImages[i].textureFormat);
+		context_->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, rawImages[i].width, rawImages[i].height, 0, glFormat, glType, rawImages[i].pixels.data());
 
 		internalFormat_ = internalFormat;
 		

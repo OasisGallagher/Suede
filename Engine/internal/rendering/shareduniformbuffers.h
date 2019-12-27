@@ -1,8 +1,8 @@
 #pragma once
 #include <map>
-#include "shader.h"
 #include "tools/string.h"
 #include "internal/base/uniformbuffer.h"
+#include "internal/base/shaderinternal.h"
 #include "internal/base/globjectmaintainer.h"
 
 #define DEFINE_SHARED_UNIFORM_BUFFER(name, ...) \
@@ -48,7 +48,7 @@ public:
 	~SharedUniformBuffers();
 
 public:
-	void Attach(Shader* shader);
+	void Attach(ShaderInternal* shader);
 	bool UpdateUniformBuffer(const std::string& name, const void* data, uint offset, uint size);
 
 private:

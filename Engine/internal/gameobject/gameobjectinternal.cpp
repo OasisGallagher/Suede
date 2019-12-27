@@ -52,7 +52,7 @@ std::vector<Component*> GameObject::GetComponents(suede_guid guid) { return _sue
 std::vector<Component*> GameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
 GameObjectInternal::GameObjectInternal(Scene* scene, Tags* tags, const char* name)
-	: ObjectInternal(ObjectType::GameObject, name), scene_(scene), active_(true), activeSelf_(true), boundsDirty_(true)
+	: ObjectInternal(ObjectType::GameObject, name), scene_(scene), tags_(tags), active_(true), activeSelf_(true), boundsDirty_(true)
 	, updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
 }
 
@@ -95,7 +95,7 @@ Component* GameObjectInternal::ActivateComponent(GameObject* self, Component* co
 		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
 
 		if (!GetComponent(Rigidbody::GetComponentGUID())) {
-			AddComponent(self, Rigidbody::GetComponentGUID());
+			ActivateComponent(self, (Component*)Factory::Create(Rigidbody::GetComponentGUID()));
 		}
 	}
 

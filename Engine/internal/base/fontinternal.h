@@ -35,7 +35,7 @@ public:
 
 private:
 	struct Glyph {
-		TexelMap texelMap;
+		RawImage rawImage;
 	};
 
 	typedef ptr_map<uint, Glyph> GlyphContainer;
@@ -43,7 +43,7 @@ private:
 private:
 	void Destroy();
 	bool Import(const std::string& path, int size);
-	bool GetBitmapBits(wchar_t wch, TexelMap* answer);
+	bool GetBitmapBits(wchar_t wch, RawImage* answer);
 
 	void RebuildMaterial(Font* self);
 
@@ -52,7 +52,7 @@ private:
 
 	GlyphContainer glyphs_;
 	Atlas::CoordContainer coords_;
-	std::vector<TexelMap*> texelMaps_;
+	std::vector<RawImage*> rawImages_;
 
 	int size_;
 	std::string fname_;

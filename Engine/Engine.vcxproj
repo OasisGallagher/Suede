@@ -389,7 +389,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\rendering\gizmospainter.cpp" />
     <ClCompile Include="internal\rendering\imageeffect.cpp" />
     <ClCompile Include="internal\rendering\pipeline.cpp" />
-    <ClCompile Include="internal\rendering\rendering.cpp" />
+    <ClCompile Include="internal\rendering\renderingthread.cpp" />
     <ClCompile Include="internal\rendering\shadowmap.cpp" />
     <ClCompile Include="internal\rendering\shareduniformbuffers.cpp" />
     <ClCompile Include="internal\engine\inputinternal.cpp" />
@@ -829,7 +829,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\rendering\graphicsinternal.h" />
     <ClInclude Include="internal\rendering\renderingcontext.h" />
     <ClInclude Include="internal\rendering\pipeline.h" />
-    <ClInclude Include="internal\rendering\rendering.h" />
+    <ClInclude Include="internal\rendering\renderingthread.h" />
     <ClInclude Include="internal\rendering\shadowmap.h" />
     <ClInclude Include="internal\rendering\shareduniformbuffers.h" />
     <ClInclude Include="internal\engine\inputinternal.h" />

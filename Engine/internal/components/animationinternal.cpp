@@ -230,21 +230,15 @@ AnimationKeysInternal::~AnimationKeysInternal() {
 }
 
 void AnimationKeysInternal::AddFloat(float time, int id, float value) {
-	Key key{ id };
-	key.value.SetFloat(value);
-	InsertKey(time, key);
+	InsertKey(time, Key{ id, value });
 }
 
 void AnimationKeysInternal::AddVector3(float time, int id, const Vector3& value) {
-	Key key{ id };
-	key.value.SetVector3(value);
-	InsertKey(time, key);
+	InsertKey(time, Key{ id, value });
 }
 
 void AnimationKeysInternal::AddQuaternion(float time, int id, const Quaternion& value) {
-	Key key{ id };
-	key.value.SetQuaternion(value);
-	InsertKey(time, key);
+	InsertKey(time, Key{ id, value });
 }
 
 void AnimationKeysInternal::Remove(float time, int id) {

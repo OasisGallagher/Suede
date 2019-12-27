@@ -1357,9 +1357,6 @@
     <ClInclude Include="internal\rendering\pipeline.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="internal\rendering\rendering.h">
-      <Filter>internal\rendering</Filter>
-    </ClInclude>
     <ClInclude Include="internal\engine\decalcreater.h">
       <Filter>internal\engine</Filter>
     </ClInclude>
@@ -1443,6 +1440,9 @@
     </ClInclude>
     <ClInclude Include="internal\base\globjectmaintainer.h">
       <Filter>internal\base</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\rendering\renderingthread.h">
+      <Filter>internal\rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -2106,9 +2106,6 @@
     <ClCompile Include="internal\rendering\pipeline.cpp">
       <Filter>internal\rendering</Filter>
     </ClCompile>
-    <ClCompile Include="internal\rendering\rendering.cpp">
-      <Filter>internal\rendering</Filter>
-    </ClCompile>
     <ClCompile Include="internal\engine\decalcreater.cpp">
       <Filter>internal\engine</Filter>
     </ClCompile>
@@ -2174,6 +2171,9 @@
     </ClCompile>
     <ClCompile Include="internal\base\globjectmaintainer.cpp">
       <Filter>internal\base</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\rendering\renderingthread.cpp">
+      <Filter>internal\rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

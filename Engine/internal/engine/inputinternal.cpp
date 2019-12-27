@@ -7,7 +7,7 @@ void InputDelegate::OnMouseWheel(float delta) { ((InputInternal*)target)->OnMous
 void InputDelegate::OnKeyPress(KeyCode key, bool pressed) { ((InputInternal*)target)->OnKeyPress(key, pressed); }
 
 Input::Input() : Subsystem(new InputInternal()) {}
-void Input::SetDelegate(InputDelegate* value) { _suede_dptr()->SetDelegate(value); value->target = this; }
+void Input::SetDelegate(InputDelegate* value) { _suede_dptr()->SetDelegate(value);  value->target = d_; }
 bool Input::GetKey(KeyCode key) { return _suede_dptr()->GetKey(key); }
 bool Input::GetKeyUp(KeyCode key) { return _suede_dptr()->GetKeyUp(key); }
 bool Input::GetKeyDown(KeyCode key) { return _suede_dptr()->GetKeyDown(key); }
@@ -16,7 +16,7 @@ bool Input::GetMouseButtonUp(int button) { return _suede_dptr()->GetMouseButtonU
 bool Input::GetMouseButtonDown(int button) { return _suede_dptr()->GetMouseButtonDown(button); }
 float Input::GetMouseWheelDelta() { return _suede_dptr()->GetMouseWheelDelta(); }
 Vector2 Input::GetMousePosition() { return _suede_dptr()->GetMousePosition(); }
-void Input::Update() { return _suede_dptr()->Update(); }
+void Input::Update(float deltaTime) { return _suede_dptr()->Update(deltaTime); }
 
 template <class T>
 inline void ResetUpDown(T& state) {
@@ -24,7 +24,7 @@ inline void ResetUpDown(T& state) {
 	std::fill(state.down, state.down + T::Size, false);
 }
 
-void InputInternal::Update() {
+void InputInternal::Update(float deltaTime) {
 	wheelDelta_ = 0;
 
 	ResetUpDown(keyStates_);
@@ -41,6 +41,7 @@ void InputInternal::OnMousePress(bool pressed[3]) {
 }
 
 void InputInternal::OnKeyPress(KeyCode key, bool pressed) {
+	SUEDE_ASSERT(key >= 0 && key < KeyCode::size());
 	if (pressed != keyStates_.pressed[key]) {
 		keyStates_.pressed[key] = pressed;
 		(pressed ? keyStates_.down : keyStates_.up)[key] = true;
@@ -48,14 +49,17 @@ void InputInternal::OnKeyPress(KeyCode key, bool pressed) {
 }
 
 bool InputInternal::GetKey(KeyCode key) {
+	SUEDE_ASSERT(key >= 0 && key < KeyCode::size());
 	return keyStates_.pressed[key];
 }
 
 bool InputInternal::GetKeyUp(KeyCode key) {
+	SUEDE_ASSERT(key >= 0 && key < KeyCode::size());
 	return keyStates_.up[key];
 }
 
 bool InputInternal::GetKeyDown(KeyCode key) {
+	SUEDE_ASSERT(key >= 0 && key < KeyCode::size());
 	return keyStates_.down[key];
 }
 

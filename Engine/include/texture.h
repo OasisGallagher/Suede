@@ -76,6 +76,30 @@ enum class ColorStreamFormat {
 	LuminanceAlpha,
 };
 
+static int ColorStreamChannels(ColorStreamFormat format) {
+	switch (format) {
+	case ColorStreamFormat::Rgb: return 3;
+	case ColorStreamFormat::RgbF: return 3;
+	case ColorStreamFormat::Bgr: return 3;
+	case ColorStreamFormat::Rgba: return 4;
+	case ColorStreamFormat::RgbaF: return 4;
+	case ColorStreamFormat::Argb: return 4;
+	case ColorStreamFormat::Bgra: return 4;
+	case ColorStreamFormat::LuminanceAlpha: return 2;
+	}
+
+	return 0;
+}
+
+static int ColorStreamBytes(ColorStreamFormat format) {
+	switch (format) {
+	case ColorStreamFormat::RgbF: return 3 * sizeof(float);
+	case ColorStreamFormat::RgbaF: return 4 * sizeof(float);
+	}
+
+	return ColorStreamChannels(format);
+}
+
 class SUEDE_API Texture2D : public Texture {
 	SUEDE_DEFINE_METATABLE_NAME(Texture2D)
 	SUEDE_DECLARE_IMPLEMENTATION(Texture2D)
@@ -89,7 +113,7 @@ public:
 
 public:
 	bool Load(const std::string& path);
-	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat colorStreamFormat, uint width, uint height, uint alignment, bool mipmap = false);
 
 	TextureFormat GetFormat();
 

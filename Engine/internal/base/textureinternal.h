@@ -54,9 +54,8 @@ protected:
 
 	void BindTexture() const;
 	void UnbindTexture() const;
-	BPPType GLenumToBpp(uint format) const;
 	uint TextureFormatToGLenum(TextureFormat textureFormat) const;
-	void ColorStreamFormatToGLenum(uint(&parameters)[2], ColorStreamFormat format) const;
+	void ColorStreamFormatToGLenum(uint& glFormat, uint& glType, ColorStreamFormat format) const;
 
 private:
 	void ApplySampler();
@@ -79,6 +78,8 @@ protected:
 	bool mipmap_ = false;
 	uint texture_ = 0;
 	uint location_ = 0;
+
+	uint glType_ = 0, glFormat_ = 0;
 	uint internalFormat_ = 0;
 };
 
@@ -89,22 +90,31 @@ public:
 
 public:
 	bool Load(const std::string& path);
-	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat format, uint width, uint height, uint alignment, bool mipmap = false);
+	bool Create(TextureFormat textureFormat, const void* data, ColorStreamFormat colorStreamFormat, uint width, uint height, uint alignment, bool mipmap = false);
 
-	TextureFormat GetFormat() { return format_; }
+	TextureFormat GetFormat() { return textureFormat_; }
 
 	bool EncodeToPNG(std::vector<uchar>& data);
 	bool EncodeToJPG(std::vector<uchar>& data);
 
 protected:
+	virtual void Bind(uint index);
 	virtual uint GetGLTextureType() const { return GL_TEXTURE_2D; }
 	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
 private:
+	void ApplyData();
 	bool EncodeTo(std::vector<uchar>& data, ImageType type);
 
 private:
-	TextureFormat format_;
+	bool dataDirty_ = false;
+
+	uint dataSize_;
+	std::unique_ptr<uchar[]> data_;
+
+	int alignment_ = 4;
+	TextureFormat textureFormat_ = TextureFormat::Rgba;
+	ColorStreamFormat colorStreamFormat_ = ColorStreamFormat::Rgba;
 };
 
 class TextureCubeInternal : public TextureInternal {

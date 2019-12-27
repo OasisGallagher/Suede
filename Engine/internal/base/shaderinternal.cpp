@@ -52,9 +52,7 @@ static std::map<std::string, float> renderQueueVariables({
 	std::make_pair("Overlay", (float)RenderQueue::Overlay),
 });
 
-Pass::Pass(Context* context) : context_(context), program_(0), oldProgram_(0) {
-	program_ = context_->CreateProgram();
-
+Pass::Pass(Context* context, const std::string& path) : context_(context), path_(path), program_(0), oldProgram_(0) {
 	std::fill(states_, states_ + SUEDE_COUNTOF(states_), nullptr);
 	std::fill(shaderObjs_, shaderObjs_ + ShaderStageCount, 0);
 }
@@ -67,15 +65,16 @@ Pass::~Pass() {
 	Destroy();
 }
 
-bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass& pass, const std::string& path) {
+bool Pass::Apply(std::vector<Property*>& properties, const Semantics::Pass& pass) {
 	name_ = pass.name;
+	if (program_ == 0) { program_ = context_->CreateProgram(); }
 
 	InitializeRenderStates(pass.renderStates);
 	
 	std::string sources[ShaderStageCount];
 
 	GLSLParser parser;
-	if (!parser.Parse(sources, path, pass.source, pass.lineno, "")) {
+	if (!parser.Parse(sources, path_, pass.source, pass.lineno, "")) {
 		return false;
 	}
 
@@ -90,7 +89,6 @@ bool Pass::Initialize(std::vector<Property*>& properties, const Semantics::Pass&
 		}
 	}
 
-	path_ = path;
 	ClearIntermediateShaders();
 
 	UpdateVertexAttributes();
@@ -540,27 +538,29 @@ bool Pass::IsSampler(int type) {
 	return false;
 }
 
-SubShader::SubShader(Context* context) : context_(context), passCount_(0)
+SubShader::SubShader(Context* context, const Semantics::SubShader& config, const std::string& path) : context_(context), passCount_(0)
 	, currentPass_(UINT_MAX), passEnabled_(UINT_MAX) {
 	tags_[TagKeyRenderQueue] = (int)RenderQueue::Geometry;
+	InitializeTags(config.tags_);
+
+	passCount_ = config.passes.size();
+	passes_.resize(config.passes.size(), context_, path);
+
+	for (uint i = 0; i < passCount_; ++i) {
+		if (!config.passes[i].enabled) {
+			passEnabled_ &= ~(1 << i);
+		}
+	}
 }
 
 SubShader::~SubShader() {
 	
 }
 
-bool SubShader::Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path) {
-	InitializeTags(config.tags_);
-
-	passCount_ = config.passes.size();
-	passes_.resize(config.passes.size(), context_);
-
+bool SubShader::Apply(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config) {
 	std::vector<Property*> container;
 	for (uint i = 0; i < passCount_; ++i) {
-		passes_[i].Initialize(container, config.passes[i], path);
-		if (!config.passes[i].enabled) {
-			passEnabled_ &= ~(1 << i);
-		}
+		passes_[i].Apply(container, config.passes[i]);
 
 		AddShaderProperties(properties, container, i);
 		container.clear();
@@ -672,14 +672,15 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 	return false;
 }
 
-event<Shader*> ShaderInternal::shaderCreated;
+event<ShaderInternal*> ShaderInternal::shaderCreated;
 
 ShaderInternal::ShaderInternal(Context* context) : ObjectInternal(ObjectType::Shader)
-	, GLObjectMaintainer(context), subShaderCount_(0), currentSubShader_(UINT_MAX) {
+	, GLObjectMaintainer(context), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
 	ReleaseProperties();
+	ReleaseSubShaders();
 }
 
 std::string ShaderInternal::GetName() const {
@@ -692,22 +693,20 @@ bool ShaderInternal::Load(Shader* self, const std::string& path) {
 		glefInitialized = true;
 	}
 
-	Semantics semantics;
+	semantics_.reset(new Semantics());
 	ShaderParser parser(&glef);
-	if (!parser.Parse(semantics, path + GLSL_POSTFIX, "")) {
+	if (!parser.Parse(*semantics_, path + GLSL_POSTFIX, "")) {
 		return false;
 	}
 
 	std::vector<ShaderProperty> properties;
 
-	ParseSemanticProperties(properties, semantics);
-	ParseSubShader(properties, semantics.subShaders, path);
+	ParseSemanticProperties(properties, *semantics_);
+	ParseSubShader(properties, semantics_->subShaders, path);
 
 	SetProperties(properties);
 
 	path_ = path;
-	shaderCreated.raise(self);
-
 	return true;
 }
 
@@ -724,11 +723,18 @@ void ShaderInternal::ParseSemanticProperties(std::vector<ShaderProperty>& proper
 }
 
 void ShaderInternal::ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path) {
-	subShaderCount_ = subShaders.size();
-	subShaders_.resize(subShaderCount_, context_);
-	for (uint i = 0; i < subShaderCount_; ++i) {
-		subShaders_[i].Initialize(properties, subShaders[i], path);
+	subShaders_.resize(subShaders.size());
+	for (uint i = 0; i < subShaders_.size(); ++i) {
+		subShaders_[i] = new SubShader(context_, subShaders[i], path);
 	}
+}
+
+void ShaderInternal::ReleaseSubShaders() {
+	for (SubShader* p : subShaders_) {
+		delete p;
+	}
+
+	subShaders_.clear();
 }
 
 void ShaderInternal::ReleaseProperties() {
@@ -745,40 +751,42 @@ void ShaderInternal::OnContextDestroyed() {
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, SUEDE_NOARG);
-	subShaders_[ssi].Bind(pass);
+	if (semantics_) {
+		for (int i = 0; i < subShaders_.size(); ++i) {
+			subShaders_[i]->Apply(properties_, semantics_->subShaders[i]);
+		}
+
+		semantics_ = nullptr;
+		shaderCreated.raise(this);
+	}
+
+	subShaders_[ssi]->Bind(pass);
 	currentSubShader_ = ssi;
 }
 
 void ShaderInternal::Unbind() {
-	SUEDE_VERIFY_INDEX(currentSubShader_, subShaderCount_, SUEDE_NOARG);
-	subShaders_[currentSubShader_].Unbind();
+	subShaders_[currentSubShader_]->Unbind();
 	currentSubShader_ = UINT_MAX;
 }
 
 void ShaderInternal::SetRenderQueue(uint ssi, int value) {
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, SUEDE_NOARG);
-	return subShaders_[ssi].SetRenderQueue(value);
+	return subShaders_[ssi]->SetRenderQueue(value);
 }
 
 int ShaderInternal::GetRenderQueue(uint ssi) const {
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, 0);
-	return subShaders_[ssi].GetRenderQueue();
+	return subShaders_[ssi]->GetRenderQueue();
 }
 
 bool ShaderInternal::IsPassEnabled(uint ssi, uint pass) const {
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, false);
-	return subShaders_[ssi].IsPassEnabled(pass);
+	return subShaders_[ssi]->IsPassEnabled(pass);
 }
 
 uint ShaderInternal::GetNativePointer(uint ssi, uint pass) const {
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, 0);
-	return subShaders_[ssi].GetNativePointer(pass);
+	return subShaders_[ssi]->GetNativePointer(pass);
 }
 
 int ShaderInternal::GetPassIndex(uint ssi, const std::string & name) const {
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, -1);
-	return subShaders_[ssi].GetPassIndex(name);
+	return subShaders_[ssi]->GetPassIndex(name);
 }
 
 void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
@@ -788,6 +796,5 @@ void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {
 	if (data == nullptr) { return false; }
 
-	SUEDE_VERIFY_INDEX(ssi, subShaderCount_, false);
-	return subShaders_[ssi].GetPass(pass)->SetProperty(name, data);
+	return subShaders_[ssi]->GetPass(pass)->SetProperty(name, data);
 }

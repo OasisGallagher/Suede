@@ -13,11 +13,11 @@
 class Context;
 class Pass {
 public:
-	Pass(Context* context);
+	Pass(Context* context, const std::string& path);
 	~Pass();
 
 public:
-	bool Initialize(std::vector<Property*>& properties, const Semantics::Pass& pass, const std::string& directory);
+	bool Apply(std::vector<Property*>& properties, const Semantics::Pass& pass);
 	bool SetProperty(const std::string& name, const void* data);
 
 	const std::string& GetName() const { return name_; }
@@ -94,11 +94,11 @@ public:
 	};
 
 public:
-	SubShader(Context* context);
+	SubShader(Context* context, const Semantics::SubShader& config, const std::string& path);
 	~SubShader();
 
 public:
-	bool Initialize(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config, const std::string& path);
+	bool Apply(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config);
 
 	void Bind(uint pass);
 	void Unbind();
@@ -155,29 +155,31 @@ public:
 	int GetPassIndex(uint ssi, const std::string& name) const;
 	uint GetNativePointer(uint ssi, uint pass) const;
 
-	uint GetPassCount(uint ssi) const { return subShaders_[ssi].GetPassCount(); }
-	uint GetSubShaderCount() const { return subShaderCount_; }
+	uint GetPassCount(uint ssi) const { return subShaders_[ssi]->GetPassCount(); }
+	uint GetSubShaderCount() const { return subShaders_.size(); }
 
 	void GetProperties(std::vector<ShaderProperty>& properties);
 	bool SetProperty(uint ssi, uint pass, const std::string& name, const void* data);
 
 public:
-	static event<Shader*> shaderCreated;
+	static event<ShaderInternal*> shaderCreated;
 
 protected:
 	virtual void OnContextDestroyed();
 
 private:
+	void ReleaseSubShaders();
 	void ReleaseProperties();
 	void SetProperties(const std::vector<ShaderProperty>& properties);
 	void ParseSemanticProperties(std::vector<ShaderProperty>& properties, const Semantics& semantics);
 	void ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:
+	std::unique_ptr<Semantics> semantics_;
+
 	std::string path_;
 	std::vector<ShaderProperty> properties_;
 
-	dynamic_array<SubShader> subShaders_;
-	uint subShaderCount_;
+	std::vector<SubShader*> subShaders_;
 	uint currentSubShader_;
 };

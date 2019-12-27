@@ -25,7 +25,7 @@ public:
 	event<> cullingFinished;
 
 public:
-	virtual void Run();
+	void ThreadProc();
 
 private:
 	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);

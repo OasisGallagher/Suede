@@ -53,7 +53,7 @@ const std::vector<const Property*>& Material::GetExplicitProperties() { return _
 // SUEDE TODO: sub shader index.
 #define SUB_SHADER_INDEX	0
 
-event<Material*> MaterialInternal::shaderChanged;
+event<MaterialInternal*> MaterialInternal::shaderChanged;
 
 MaterialInternal::MaterialInternal(Context* context)
 	: ObjectInternal(ObjectType::Material), GLObjectMaintainer(context), currentPass_(-1) {
@@ -73,10 +73,15 @@ ref_ptr<Object> MaterialInternal::Clone() {
 
 void MaterialInternal::SetShader(Material* self, Shader* value) {
 	shader_ = value;
-	CopyProperties(value);
 	InitializeEnabledState();
 
-	shaderChanged.raise(self);
+	shaderDirty_ = true;
+}
+
+void MaterialInternal::ApplyShader() {
+	CopyProperties(shader_);
+	shaderChanged.raise(this);
+	shaderDirty_ = false;
 }
 
 void MaterialInternal::SetInt(const std::string& name, int value) {
@@ -91,12 +96,18 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 			var->SetRangedInt(r);
 		}
 	}
+	else {
+		AddRedundantProperty(name, value);
+	}
 }
 
 void MaterialInternal::SetBool(const std::string& name, bool value) {
 	Variant* var = GetProperty(name, VariantType::Bool);
 	if (var != nullptr && var->GetBool() != value) {
 		var->SetBool(value);
+	}
+	else {
+		AddRedundantProperty(name, value);
 	}
 }
 
@@ -112,12 +123,18 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 			var->SetRangedFloat(r);
 		}
 	}
+	else {
+		AddRedundantProperty(name, value);
+	}
 }
 
 void MaterialInternal::SetTexture(const std::string& name, Texture* value) {
 	Variant* var = GetProperty(name, VariantType::Texture);
 	if (var != nullptr && var->GetTexture() != value) {
 		var->SetTexture(value);
+	}
+	else {
+		AddRedundantProperty(name, value);
 	}
 }
 
@@ -126,12 +143,18 @@ void MaterialInternal::SetVector3(const std::string& name, const Vector3& value)
 	if (var != nullptr && var->GetVector3() != value) {
 		var->SetVector3(value);
 	}
+	else {
+		AddRedundantProperty(name, value);
+	}
 }
 
 void MaterialInternal::SetVector3Array(const std::string& name, const Vector3* ptr, uint count) {
 	Variant* var = GetProperty(name, VariantType::Vector3Array);
 	if (var != nullptr) {
 		var->SetVector3Array(ptr, count);
+	}
+	else {
+		AddRedundantProperty(name, Variant(ptr, count));
 	}
 }
 
@@ -140,12 +163,18 @@ void MaterialInternal::SetColor(const std::string& name, const Color& value) {
 	if (var != nullptr && var->GetColor() != value) {
 		var->SetColor(value);
 	}
+	else {
+		AddRedundantProperty(name, value);
+	}
 }
 
 void MaterialInternal::SetVector4(const std::string& name, const Vector4& value) {
 	Variant* var = GetProperty(name, VariantType::Vector4);
 	if (var != nullptr && var->GetVector4() != value) {
 		var->SetVector4(value);
+	}
+	else {
+		AddRedundantProperty(name, value);
 	}
 }
 
@@ -154,12 +183,18 @@ void MaterialInternal::SetMatrix4(const std::string& name, const Matrix4& value)
 	if (var != nullptr /*&& var->GetMatrix4() != value*/) {
 		var->SetMatrix4(value);
 	}
+	else {
+		AddRedundantProperty(name, value);
+	}
 }
 
 void MaterialInternal::SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count) {
 	Variant* var = GetProperty(name, VariantType::Matrix4Array);
 	if (var != nullptr) {
 		var->SetMatrix4Array(ptr, count);
+	}
+	else {
+		AddRedundantProperty(name, Variant(ptr, count));
 	}
 }
 
@@ -291,8 +326,13 @@ void MaterialInternal::Bind(uint pass) {
 		return;
 	}
 
-	BindProperties(pass);
 	shader_->Bind(SUB_SHADER_INDEX, pass);
+
+	if (shaderDirty_) {
+		ApplyShader();
+	}
+
+	BindProperties(pass);
 	currentPass_ = pass;
 }
 
@@ -451,13 +491,11 @@ void MaterialInternal::CopyProperties(Shader* newShader) {
 		if (materialProperty == nullptr) {
 			materialProperty = properties_[name];
 
-			materialProperty->i = i;
 			materialProperty->mask = shaderProperty.mask;
 			materialProperty->property = *shaderProperty.property;
 		}
 		else {
 			// copy masks and keep properties.
-			materialProperty->i = i;
 			materialProperty->mask = shaderProperty.mask;
 		}
 
@@ -467,6 +505,13 @@ void MaterialInternal::CopyProperties(Shader* newShader) {
 	}
 
 	DeactiveRedundantProperties(shaderProperties);
+}
+
+void MaterialInternal::AddRedundantProperty(const std::string& name, const Variant& value) {
+	MaterialProperty* p = properties_[name];
+	p->mask = 0;
+	p->property.name = name;
+	p->property.value = value;
 }
 
 void MaterialInternal::DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties) {

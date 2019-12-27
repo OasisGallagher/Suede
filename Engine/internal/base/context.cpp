@@ -16,7 +16,7 @@ bool Context::Initialize() {
 		return false;
 	}
 
-	threadId_ = std::this_thread::get_id();
+	threadID_ = std::this_thread::get_id();
 
 	if (GLEW_ARB_debug_output) {
 		DebugMessageCallback(GLDebugMessageCallback, nullptr);
@@ -72,7 +72,7 @@ bool Context::SetCurrent(Context* value) {
 	if (current_ != nullptr) { current_->OnActive(false); }
 
 	Context* old = current_;
-	if ((current_ = value)->threadId_ == std::thread::id() && !current_->Initialize()) {
+	if ((current_ = value)->threadID_ == std::thread::id() && !current_->Initialize()) {
 		current_ = old;
 		return false;
 	}
@@ -120,9 +120,9 @@ static void __stdcall GLDebugMessageCallback(uint source, uint type, uint id, ui
 }
 
 #ifdef _DEBUG
-#define GL_CALL(expression)		assert(InThisThread() && "thread id mismatch"); \
+#define GL_CALL(expression)		assert(InCreationThread() && "thread id mismatch"); \
 								expression; Verify(__func__)
-#define GL_CALL_R(expression)	return assert(InThisThread() && "thread id mismatch"), VerifyR(__func__, expression)
+#define GL_CALL_R(expression)	return assert(InCreationThread() && "thread id mismatch"), VerifyR(__func__, expression)
 #else
 #define GL_CALL(expression)		expression
 #define GL_CALL_R(expression)	return expression
@@ -569,108 +569,104 @@ void Context::Update(float deltaTime) {
 		command();
 	}
 
-	commands_.clear();
+	commands_.resize(0);
+}
+
+void Context::AddCommand(std::function<void()> command) {
+	commands_.push_back(command);
 }
 
 void Context::DeleteBuffers(int n, const uint* buffers) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteBuffers(n, buffers));
 	}
 	else {
-		commands_.push_back(Command(n, buffers, [](int n, const uint* buffers) {
-			glDeleteBuffers(n, buffers);
-		}));
+		ref_ptr<BufferCommand> bufferCmd = new BufferCommand(buffers, n);
+		commands_.push_back([=]() {
+			glDeleteBuffers(bufferCmd->size, bufferCmd->pointer);
+		});
 	}
 }
 
 void Context::DeleteFramebuffers(int n, uint* framebuffers) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteFramebuffers(n, framebuffers));
 	}
 	else {
-		commands_.push_back(Command(n, framebuffers, [](int n, const uint* buffers) {
-			glDeleteFramebuffers(n, buffers);
-		}));
+		ref_ptr<BufferCommand> bufferCmd = new BufferCommand(framebuffers, n);
+		commands_.push_back([=]() {
+			glDeleteFramebuffers(bufferCmd->size, bufferCmd->pointer);
+		});
 	}
 }
 
 void Context::DeleteProgram(uint program) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteProgram(program));
 	}
 	else {
-		commands_.push_back(Command(1, &program, [](int n, const uint* buffers) {
-			glDeleteProgram(*buffers);
-		}));
+		commands_.push_back([=]() {
+			glDeleteProgram(program);
+		});
 	}
 }
 
 void Context::DeleteQueries(int n, uint* ids) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteQueries(n, ids));
 	}
 	else {
-		commands_.push_back(Command(n, ids, [](int n, const uint* buffers) {
-			glDeleteQueries(n, buffers);
-		}));
+		ref_ptr<BufferCommand> bufferCmd = new BufferCommand(ids, n);
+		commands_.push_back([=]() {
+			glDeleteQueries(bufferCmd->size, bufferCmd->pointer);
+		});
 	}
 }
 
 void Context::DeleteRenderbuffers(int n, const uint* renderbuffers) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteRenderbuffers(n, renderbuffers));
 	}
 	else {
-		commands_.push_back(Command(n, renderbuffers, [](int n, const uint* buffers) {
-			glDeleteRenderbuffers(n, buffers);
-		}));
+		ref_ptr<BufferCommand> bufferCmd = new BufferCommand(renderbuffers, n);
+		commands_.push_back([=]() {
+			glDeleteRenderbuffers(bufferCmd->size, bufferCmd->pointer);
+		});
 	}
 }
 
 void Context::DeleteShader(uint shader) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteShader(shader));
 	}
 	else {
-		commands_.push_back(Command(1, &shader, [](int n, const uint* buffers) {
-			glDeleteShader(*buffers);
-		}));
+		commands_.push_back([=]() {
+			glDeleteShader(shader);
+		});
 	}
 }
 
 void Context::DeleteTextures(int n, const uint* textures) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteTextures(n, textures));
 	}
 	else {
-		commands_.push_back(Command(n, textures, [](int n, const uint* buffers) {
-			glDeleteTextures(n, buffers);
-		}));
+		ref_ptr<BufferCommand> bufferCmd = new BufferCommand(textures, n);
+		commands_.push_back([=]() {
+			glDeleteTextures(bufferCmd->size, bufferCmd->pointer);
+		});
 	}
 }
 
 void Context::DeleteVertexArrays(int n, const uint* arrays) {
-	if (InThisThread()) {
+	if (InCreationThread()) {
 		GL_CALL(glDeleteVertexArrays(n, arrays));
 	}
 	else {
-		commands_.push_back(Command(n, arrays, [](int n, const uint* buffers) {
-			glDeleteVertexArrays(n, buffers);
-		}));
+		ref_ptr<BufferCommand> bufferCmd = new BufferCommand(arrays, n);
+		commands_.push_back([=]() {
+			glDeleteVertexArrays(bufferCmd->size, bufferCmd->pointer);
+		});
 	}
 }
 
-Context::Command::Command(int nParameters, const uint* parameters, const action_type& f) : nParameters_(nParameters), action_(f) {
-	parameters_ = new uint[nParameters];
-	memcpy(parameters_, parameters, nParameters * sizeof(uint));
-}
-
-Context::Command::Command(Command&& other) {
-	action_ = other.action_;
-	parameters_ = other.parameters_;
-	nParameters_ = other.nParameters_;
-
-	other.nParameters_ = 0;
-	other.parameters_ = nullptr;
-	other.action_ = action_type();
-}

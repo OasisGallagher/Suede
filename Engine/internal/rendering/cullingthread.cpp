@@ -10,7 +10,7 @@
 #include "internal/rendering/renderingcontext.h"
 
 CullingThread::CullingThread(RenderingContext* context) : context_(context), working_(false), stopped_(false) {
-	thread_ = std::thread(std::bind(&CullingThread::Run, this));
+	thread_ = std::thread(std::bind(&CullingThread::ThreadProc, this));
 }
 
 CullingThread::~CullingThread() {
@@ -18,7 +18,7 @@ CullingThread::~CullingThread() {
 	thread_.join();
 }
 
-void CullingThread::Run() {
+void CullingThread::ThreadProc() {
 	auto walker = [this](GameObject* go) { return OnWalkGameObject(go); };
 	Time* time = context_->GetTime();
 	Profiler* profiler = context_->GetProfiler();

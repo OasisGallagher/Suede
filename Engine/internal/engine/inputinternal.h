@@ -15,7 +15,7 @@ public:
 	float GetMouseWheelDelta();
 	Vector2 GetMousePosition();
 
-	void Update();
+	void Update(float deltaTime);
 
 public:
 	void OnMousePress(bool pressed[3]);

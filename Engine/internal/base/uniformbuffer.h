@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "shader.h"
+#include "shaderinternal.h"
 
 class Buffer;
 class Context;
@@ -13,15 +13,15 @@ public:
 public:
 	bool Create(const std::string& name, uint size);
 	
-	void AttachBuffer(Shader* shader);
-	void AttachSubBuffer(Shader* shader, uint offset, uint size);
+	void AttachBuffer(ShaderInternal* shader);
+	void AttachSubBuffer(ShaderInternal* shader, uint offset, uint size);
 	bool UpdateBuffer(const void* data, uint offset, uint size);
 
 	const std::string& GetName() const { return name_; }
 
 private:
 	void Destroy();
-	void Attach(Shader* shader);
+	void Attach(ShaderInternal* shader);
 	void AttachProgram(uint program);
 	void Initialize(const std::string& name, uint size);
 

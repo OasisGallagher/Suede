@@ -6,8 +6,8 @@
 #include "camera.h"
 #include "frustum.h"
 
-#include "internal/rendering/rendering.h"
 #include "internal/rendering/cullingthread.h"
+#include "internal/rendering/renderingthread.h"
 
 #include "internal/components/componentinternal.h"
 
@@ -91,25 +91,25 @@ private:
 	void OnScreenSizeChanged(uint width, uint height);
 
 private:
-	int depth_;
+	int depth_ = 0;
 
 	Plane planes_[6];
 
 	CullingThread* cullingThread_;
 
-	bool pipelineReady_;
+	bool pipelineReady_ = false;
 	PipelineBuilder* pipelineBuilder_;
 	RenderingPipelines* frontPipelines_, *backPipelines_;
 
-	Rendering* rendering_;
+	RenderingThread* rendering_;
 
-	Rect normalizedRect_;
+	Rect normalizedRect_ = Rect(0, 0, 1, 1);
 
-	ClearType clearType_;
-	Color clearColor_;
+	ClearType clearType_ = ClearType::Color;
+	Color clearColor_ = Color::black;
 
-	DepthTextureMode depthTextureMode_;
-	RenderPath renderPath_;
+	DepthTextureMode depthTextureMode_ = DepthTextureMode::None;
+	RenderPath renderPath_ = RenderPath::Forward;
 
 	ref_ptr<RenderTexture> targetTexture_;
 

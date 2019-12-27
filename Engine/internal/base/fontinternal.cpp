@@ -43,11 +43,11 @@ bool FontInternal::Require(Font* self, const std::wstring& str) {
 	bool status = true, updateMaterial = false;
 	for (int i = 0; i < str.length(); ++i) {
 		if (!glyphs_.contains(str[i])) {
-			TexelMap* texelMap = &glyphs_[str[i]]->texelMap;
-			texelMap->id = str[i];
+			RawImage* rawImage = &glyphs_[str[i]]->rawImage;
+			rawImage->id = str[i];
 
-			status = GetBitmapBits(str[i], texelMap) && status;
-			texelMaps_.push_back(texelMap);
+			status = GetBitmapBits(str[i], rawImage) && status;
+			rawImages_.push_back(rawImage);
 			
 			updateMaterial = true;
 		}
@@ -81,8 +81,8 @@ bool FontInternal::GetCharacterInfo(wchar_t wch, CharacterInfo* info) {
 	}
 
 	if (info != nullptr) {
-		info->width = g->texelMap.width;
-		info->height = g->texelMap.height;
+		info->width = g->rawImage.width;
+		info->height = g->rawImage.height;
 
 		info->texCoord = pos->second;
 	}
@@ -111,7 +111,7 @@ bool FontInternal::Import(const std::string& path, int size) {
 	return true;
 }
 
-bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
+bool FontInternal::GetBitmapBits(wchar_t wch, RawImage* answer) {
 	int err = 0;
 
 	if ((err = FT_Load_Glyph(face_, FT_Get_Char_Index(face_, wch), FT_LOAD_DEFAULT) != 0)) {
@@ -133,14 +133,10 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 	FT_BitmapGlyph bitmapGlyph = (FT_BitmapGlyph)glyph;
 	const FT_Bitmap& bitmap = bitmapGlyph->bitmap;
 
-	std::vector<uchar>& data = answer->data;
 	uint size = bitmap.width * bitmap.rows;
-	data.resize(Mathf::Max(size, 1u));
+	answer->pixels.resize(Mathf::Max(size, 1u));
 	if (size != 0) {
-		std::copy(bitmap.buffer, bitmap.buffer + size, &data[0]);
-	}
-	else {
-		data[0] = 0;
+		std::copy(bitmap.buffer, bitmap.buffer + size, answer->pixels.data());
 	}
 
 	answer->width = Mathf::Max(1u, bitmap.width);
@@ -154,7 +150,7 @@ bool FontInternal::GetBitmapBits(wchar_t wch, TexelMap* answer) {
 
 void FontInternal::RebuildMaterial(Font* self) {
 	Atlas atlas;
-	AtlasMaker::Make(atlas, texelMaps_, 4);
+	AtlasMaker::Make(atlas, rawImages_, 4);
 
 	coords_ = atlas.coords;
 

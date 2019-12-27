@@ -46,7 +46,13 @@ void Debug::LogWarning(const char* format, ...) {
 
 void Debug::LogError(const char* format, ...) {
 	DEF_VA_ARGS(msg, format);
-	msg += "\n" + tracer.GetStackTrace(1, 30);
+	OutputDebugStringA(
+		( "**************** ERROR ****************\n"
+		+ msg + "\n" 
+		+ tracer.GetStackTrace(1, 30) + "\n"
+		+ "***************************************\n"
+		).c_str()
+	);
 	logger->OnLogMessageReceived(LogLevel::Error, msg.c_str());
 }
 

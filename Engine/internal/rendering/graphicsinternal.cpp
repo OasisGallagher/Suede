@@ -19,6 +19,9 @@ void Graphics::Blit(Texture* src, RenderTexture* dest, Material* material) { _su
 void Graphics::Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& rect) { _suede_dptr()->Blit(src, dest, material, rect); }
 void Graphics::Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& srcRect, const Rect& destRect) { _suede_dptr()->Blit(src, dest, material, srcRect, destRect); }
 
+// Invoke Graphics methods in current context.
+#define currentContext	Context::GetCurrent()
+
 void GraphicsInternal::Awake() {
 	blitMaterial_ = new Material();
 	blitMaterial_->SetShader(Shader::Find("builtin/blit"));
@@ -26,7 +29,10 @@ void GraphicsInternal::Awake() {
 
 void GraphicsInternal::SetShadingMode(ShadingMode value) {
 	if (shadingMode_ != value) {
-		Context::GetCurrent()->PolygonMode(GL_FRONT_AND_BACK, value == ShadingMode::Shaded ? GL_FILL : GL_LINE);
+		currentContext->AddCommand([this]() {
+			currentContext->PolygonMode(GL_FRONT_AND_BACK, shadingMode_ == ShadingMode::Shaded ? GL_FILL : GL_LINE);
+		});
+
 		shadingMode_ = value;
 	}
 }

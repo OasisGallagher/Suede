@@ -38,6 +38,17 @@ enum class ContextLimitType {
 	_Count
 };
 
+struct BufferCommand : public intrusive_ref_counter{
+	BufferCommand(const uint* ptr, uint size) : size(size){
+		pointer = new uint[size];
+		memcpy(pointer, ptr, size * sizeof(uint));
+	}
+
+	~BufferCommand() { delete[] pointer; }
+	
+	uint* pointer, size;
+};
+
 class Context {
 public:
 	virtual ~Context();
@@ -53,9 +64,10 @@ public:
 	virtual void Update(float deltaTime);
 
 public:
+	void AddCommand(std::function<void()> command);
 	bool IsSupported(const char* feature);
 	int GetLimit(ContextLimitType type) { return oglLimits_[(int)type]; }
-	bool InThisThread() const { return threadId_ == std::this_thread::get_id(); }
+	bool InCreationThread() const { return threadID_ == std::this_thread::get_id(); }
 
 	void DrawElementsBaseVertex(MeshTopology topology, const TriangleBias& bias);
 	void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance);
@@ -174,30 +186,8 @@ private:
 	void InitializeLimits();
 
 private:
-	class Command {
-	public:
-		typedef std::function<void(int, const uint*)> action_type;
-
-	public:
-		Command(int nParameters, const uint* parameters, const action_type& f);
-		~Command() { delete[] parameters_; }
-		Command(Command&& other);
-
-		Command(const Command& other) = delete;
-		Command& operator=(const Command&) = delete;
-
-	public:
-		void operator()() { action_(nParameters_, parameters_); }
-
-	private:
-		int nParameters_;
-		uint* parameters_;
-		action_type action_;
-	};
-
-private:
-	std::thread::id threadId_;
+	std::thread::id threadID_;
 
 	int oglLimits_[(int)ContextLimitType::_Count] = { 0 };
-	std::vector<Command> commands_;
+	std::vector<std::function<void()>> commands_;
 };

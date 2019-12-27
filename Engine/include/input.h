@@ -100,5 +100,5 @@ public:
 	Vector2 GetMousePosition();
 
 public:
-	virtual void Update();
+	virtual void Update(float deltaTime);
 };

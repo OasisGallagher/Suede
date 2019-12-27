@@ -12,7 +12,7 @@ SharedUniformBuffers::~SharedUniformBuffers() {
 	Destroy();
 }
 
-void SharedUniformBuffers::Attach(Shader* shader) {
+void SharedUniformBuffers::Attach(ShaderInternal* shader) {
 	for (Container::iterator ite = uniformBuffers_.begin(); ite != uniformBuffers_.end(); ++ite) {
 		ite->second->AttachBuffer(shader);
 	}

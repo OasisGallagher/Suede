@@ -40,32 +40,23 @@ EngineInternal::EngineInternal() {
 	subsystems_[(int)SubsystemType::FrameEvents] = &eventSystem;
 }
 
+#define REGISTER_SUBSYSTEM(T, ...)	(T*)(subsystems_[(int)SubsystemType::T] = new T(__VA_ARGS__))
+
 void EngineInternal::Startup(GLCanvas* canvas) {
 	canvas_ = canvas;
 	Screen::Resize(canvas->GetWidth(), canvas->GetHeight());
 	threadId_ = std::this_thread::get_id();
 
-	Time* time = new Time();
-	subsystems_[(int)SubsystemType::Time] = time;
+	Time* time = REGISTER_SUBSYSTEM(Time);
+	Profiler* profiler = REGISTER_SUBSYSTEM(Profiler);
+	Scene* scene = REGISTER_SUBSYSTEM(Scene);
+	Graphics* graphics = REGISTER_SUBSYSTEM(Graphics);
+	Gizmos* gizmos = REGISTER_SUBSYSTEM(Gizmos, graphics);
+	Physics* physics = REGISTER_SUBSYSTEM(Physics, gizmos);
+	Input* input = REGISTER_SUBSYSTEM(Input);
+	Tags* tags = REGISTER_SUBSYSTEM(Tags);
 
-	Profiler* profiler = new Profiler();
-	subsystems_[(int)SubsystemType::Profiler] = profiler;
-
-	Scene* scene = new Scene();
-	subsystems_[(int)SubsystemType::Scene] = scene;
-
-	Graphics* graphics = new Graphics();
-	subsystems_[(int)SubsystemType::Graphics] = graphics;
-
-	Gizmos* gizmos = new Gizmos(graphics);
-	subsystems_[(int)SubsystemType::Gizmos] = gizmos;
-
-	Physics* physics = new Physics(gizmos);
-	subsystems_[(int)SubsystemType::Physics] = physics;
 	physics->SetGravity(Vector3(0, -9.8f, 0));
-
-	subsystems_[(int)SubsystemType::Input] = new Input();
-	subsystems_[(int)SubsystemType::Tags] = new Tags();
 
 	context_ = new RenderingContext();
 	context_->SetTime(time);
@@ -125,10 +116,11 @@ void EngineInternal::Update() {
 
 	UpdateTimeUniformBuffer();
 
-	context_->Update(time->GetDeltaTime());
+	float deltaTime = time->GetDeltaTime();
+	context_->Update(deltaTime);
 
 	for (int type = 0; type < (int)SubsystemType::_Count; ++type) {
-		subsystems_[type]->Update(time->GetDeltaTime());
+		subsystems_[type]->Update(deltaTime);
 	}
 
 	frameLeaveEvent_->raise();
