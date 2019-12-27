@@ -675,15 +675,11 @@ bool SubShader::CheckPropertyCompatible(ShaderProperty* target, Property* p) {
 event<Shader*> ShaderInternal::shaderCreated;
 
 ShaderInternal::ShaderInternal(Context* context) : ObjectInternal(ObjectType::Shader)
-	, context_(context), subShaderCount_(0), currentSubShader_(UINT_MAX) {
-	context_->destroyed.subscribe(this, &ShaderInternal::OnContextDestroyed);
+	, GLObjectMaintainer(context), subShaderCount_(0), currentSubShader_(UINT_MAX) {
 }
 
 ShaderInternal::~ShaderInternal() {
 	ReleaseProperties();
-	if (context_ != nullptr) {
-		context_->destroyed.unsubscribe(this);
-	}
 }
 
 std::string ShaderInternal::GetName() const {
@@ -745,7 +741,7 @@ void ShaderInternal::ReleaseProperties() {
 
 void ShaderInternal::OnContextDestroyed() {
 	subShaders_.clear();
-	context_ = nullptr;
+	GLObjectMaintainer::OnContextDestroyed();
 }
 
 void ShaderInternal::Bind(uint ssi, uint pass) {

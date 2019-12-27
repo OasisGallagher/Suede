@@ -167,6 +167,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="internal\base\fontinternal.cpp" />
     <ClCompile Include="internal\base\framebuffer.cpp" />
     <ClCompile Include="internal\base\gbuffer.cpp" />
+    <ClCompile Include="internal\base\globjectmaintainer.cpp" />
     <ClCompile Include="internal\base\materialinternal.cpp" />
     <ClCompile Include="internal\base\objectinternal.cpp" />
     <ClCompile Include="internal\base\renderstate.cpp" />
@@ -465,6 +466,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\base\framebuffer.h" />
     <ClInclude Include="internal\base\gbuffer.h" />
     <ClInclude Include="internal\base\glenums.h" />
+    <ClInclude Include="internal\base\globjectmaintainer.h" />
     <ClInclude Include="internal\base\renderdefines.h" />
     <ClInclude Include="internal\base\materialinternal.h" />
     <ClInclude Include="internal\base\objectinternal.h" />

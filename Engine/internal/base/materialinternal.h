@@ -2,6 +2,7 @@
 
 #include "material.h"
 #include "tools/event.h"
+#include "globjectmaintainer.h"
 #include "containers/ptrmap.h"
 #include "internal/base/objectinternal.h"
 
@@ -11,7 +12,7 @@ struct MaterialProperty {
 };
 
 class Context;
-class MaterialInternal : public ObjectInternal {
+class MaterialInternal : public ObjectInternal, public GLObjectMaintainer {
 public:
 	MaterialInternal(Context* context);
 	~MaterialInternal();
@@ -72,9 +73,10 @@ public:
 public:
 	static event<Material*> shaderChanged;
 
-private:
-	void OnContextDestroyed();
+protected:
+	virtual void OnContextDestroyed();
 
+private:
 	void BindProperties(uint pass);
 	void UnbindProperties();
 
@@ -89,8 +91,6 @@ private:
 	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
-	Context* context_;
-
 	Shader* shader_;
 	int currentPass_;
 

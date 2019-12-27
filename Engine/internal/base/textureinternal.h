@@ -4,6 +4,7 @@
 #include "texture.h"
 #include "glenums.h"
 #include "framebuffer.h"
+#include "globjectmaintainer.h"
 #include "internal/codec/image.h"
 #include "internal/base/objectinternal.h"
 
@@ -15,7 +16,7 @@ struct Sampler {
 	TextureMagFilterMode magFilter = TextureMagFilterMode::Linear;
 };
 
-class TextureInternal : public ObjectInternal {
+class TextureInternal : public ObjectInternal, public GLObjectMaintainer {
 public:
 	TextureInternal(ObjectType type, Context* context);
 	~TextureInternal();
@@ -32,7 +33,7 @@ public:
 
 	void SetMinFilterMode(TextureMinFilterMode value);
 	TextureMinFilterMode GetMinFilterMode() const { return sampler_.minFilter; }
-	
+
 	void SetMagFilterMode(TextureMagFilterMode value);
 	TextureMagFilterMode GetMagFilterMode() const { return sampler_.magFilter; }
 
@@ -69,17 +70,16 @@ private:
 	TextureWrapMode GLenumToTextureWrapMode(uint value) const;
 
 protected:
-	Context* context_;
-
 	Sampler sampler_;
-	bool samplerDirty_;
+	bool samplerDirty_ = true;
 
-	int width_, height_;
-	mutable int oldBindingTexture_;
+	int width_ = 0, height_ = 0;
+	mutable int oldBindingTexture_ = 0;
 
-	uint texture_;
-	uint location_;
-	uint internalFormat_;
+	bool mipmap_ = false;
+	uint texture_ = 0;
+	uint location_ = 0;
+	uint internalFormat_ = 0;
 };
 
 class Texture2DInternal : public TextureInternal {

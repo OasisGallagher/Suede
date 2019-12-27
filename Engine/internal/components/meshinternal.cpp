@@ -145,15 +145,11 @@ SubMeshInternal::SubMeshInternal() :ObjectInternal(ObjectType::SubMesh) {
 }
 
 MeshInternal::MeshInternal(Context* context)
-	: ObjectInternal(ObjectType::Mesh), context_(context) {
-	context_->destroyed.subscribe(this, &MeshInternal::OnContextDestroyed);
+	: ObjectInternal(ObjectType::Mesh), GLObjectMaintainer(context) {
 }
 
 MeshInternal::~MeshInternal() {
 	Destroy();
-	if (context_ != nullptr) {
-		context_->destroyed.unsubscribe(this);
-	}
 }
 
 void MeshInternal::Destroy() {
@@ -163,7 +159,7 @@ void MeshInternal::Destroy() {
 
 void MeshInternal::OnContextDestroyed() {
 	Destroy();
-	context_ = nullptr;
+	GLObjectMaintainer::OnContextDestroyed();
 }
 
 void MeshInternal::CreateStorage() {

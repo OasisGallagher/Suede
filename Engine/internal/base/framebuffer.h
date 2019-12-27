@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "texture.h"
+#include "globjectmaintainer.h"
 
 enum FramebufferTarget {
 	FramebufferTargetRead,
@@ -34,7 +35,7 @@ enum FramebufferAttachment {
 };
 
 class Context;
-class FramebufferBase {
+class FramebufferBase : public GLObjectMaintainer {
 public:
 	FramebufferBase(Context* context);
 	virtual ~FramebufferBase();
@@ -78,7 +79,6 @@ public:
 protected:
 	virtual void OnViewportChanged() {}
 	virtual void ClearCurrent(FramebufferClearMask clearMask);
-	virtual void OnContextDestroyed() { context_ = nullptr; }
 
 protected:
 	bool IsFramebufferBound() const { return bindTarget_ != 0; }
@@ -91,11 +91,7 @@ protected:
 	void ReadCurrentBuffer(std::vector<uchar> &data, uint* alignment);
 	void FramebufferTargetToGLenum(FramebufferTarget target, uint* query, uint* bind);
 
-private:
-
 protected:
-	Context* context_;
-
 	uint fbo_;
 	IVector4 viewport_;
 

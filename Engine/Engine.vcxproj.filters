@@ -1441,6 +1441,9 @@
     <ClInclude Include="internal\rendering\cullingthread.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
+    <ClInclude Include="internal\base\globjectmaintainer.h">
+      <Filter>internal\base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\physics\bullet\Bullet3Collision\BroadPhaseCollision\b3DynamicBvh.cpp">
@@ -2168,6 +2171,9 @@
     </ClCompile>
     <ClCompile Include="internal\rendering\cullingthread.cpp">
       <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\base\globjectmaintainer.cpp">
+      <Filter>internal\base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,16 +9,12 @@
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
 
-FramebufferBase::FramebufferBase(Context* context) : context_(context), fbo_(0), oldFramebuffer_(0)
+FramebufferBase::FramebufferBase(Context* context) : GLObjectMaintainer(context), fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
 	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
-	context_->destroyed.subscribe(this, &FramebufferBase::OnContextDestroyed);
 }
 
 FramebufferBase::~FramebufferBase() {
-	if (context_ != nullptr) {
-		context_->destroyed.unsubscribe(this);
-	}
 }
 
 void FramebufferBase::BindRead() {

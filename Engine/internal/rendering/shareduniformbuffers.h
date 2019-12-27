@@ -3,6 +3,7 @@
 #include "shader.h"
 #include "tools/string.h"
 #include "internal/base/uniformbuffer.h"
+#include "internal/base/globjectmaintainer.h"
 
 #define DEFINE_SHARED_UNIFORM_BUFFER(name, ...) \
 	struct name { \
@@ -41,7 +42,7 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 
 class UniformBuffer;
 class RenderingContext;
-class SharedUniformBuffers {
+class SharedUniformBuffers : public GLObjectMaintainer {
 public:
 	SharedUniformBuffers(Context* context);
 	~SharedUniformBuffers();
@@ -61,7 +62,6 @@ private:
 	typedef std::map<std::string, UniformBuffer*> Container;
 
 private:
-	Context* context_;
 	Container uniformBuffers_;
 };
 

@@ -82,16 +82,10 @@ uint MRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTe
 
 ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal(Context::GetCurrent())){}
 
-TextureInternal::TextureInternal(ObjectType type, Context* context) : ObjectInternal(type)
-	, context_(context), samplerDirty_(true), texture_(0), width_(0), height_(0), location_(0), internalFormat_(0) {
-	context_->destroyed.subscribe(this, &TextureInternal::OnContextDestroyed);
+TextureInternal::TextureInternal(ObjectType type, Context* context) : ObjectInternal(type), GLObjectMaintainer(context) {
 }
 
 TextureInternal::~TextureInternal() {
-	if (context_ != nullptr) {
-		context_->destroyed.unsubscribe(this);
-	}
-
 	DestroyTexture();
 }
 
@@ -175,7 +169,7 @@ void TextureInternal::ApplySampler() {
 
 void TextureInternal::OnContextDestroyed() {
 	DestroyTexture();
-	context_ = nullptr;
+	GLObjectMaintainer::OnContextDestroyed();
 }
 
 BPPType TextureInternal::GLenumToBpp(uint format) const {

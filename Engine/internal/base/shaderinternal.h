@@ -5,6 +5,7 @@
 #include "renderstate.h"
 #include "tools/event.h"
 #include "containers/ptrmap.h"
+#include "globjectmaintainer.h"
 #include "containers/dynamicarray.h"
 #include "internal/codec/shaderparser.h"
 #include "internal/base/objectinternal.h"
@@ -135,7 +136,7 @@ private:
 	int tags_[TagKeyCount];
 };
 
-class ShaderInternal : public ObjectInternal {
+class ShaderInternal : public ObjectInternal, public GLObjectMaintainer {
 public:
 	ShaderInternal(Context* context);
 	~ShaderInternal();
@@ -163,16 +164,16 @@ public:
 public:
 	static event<Shader*> shaderCreated;
 
+protected:
+	virtual void OnContextDestroyed();
+
 private:
 	void ReleaseProperties();
-	void OnContextDestroyed();
 	void SetProperties(const std::vector<ShaderProperty>& properties);
 	void ParseSemanticProperties(std::vector<ShaderProperty>& properties, const Semantics& semantics);
 	void ParseSubShader(std::vector<ShaderProperty>& properties, const std::vector<Semantics::SubShader>& subShaders, const std::string& path);
 
 private:
-	Context* context_;
-
 	std::string path_;
 	std::vector<ShaderProperty> properties_;
 

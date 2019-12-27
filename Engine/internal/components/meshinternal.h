@@ -8,6 +8,7 @@
 #include "componentinternal.h"
 #include "internal/base/vertexarray.h"
 #include "internal/base/objectinternal.h"
+#include "internal/base/globjectmaintainer.h"
 
 class SubMeshInternal : public ObjectInternal {
 public:
@@ -21,7 +22,7 @@ private:
 	TriangleBias bias_;
 };
 
-class MeshInternal : public ObjectInternal {
+class MeshInternal : public ObjectInternal, public GLObjectMaintainer {
 public:
 	MeshInternal(Context* context);
 	~MeshInternal();
@@ -76,9 +77,11 @@ public:
 
 	Storage* GetStorage() { return storage_.get(); }
 
+protected:
+	virtual void OnContextDestroyed();
+
 private:
 	void Destroy();
-	void OnContextDestroyed();
 	void ClearAttribute(MeshAttribute& attribute);
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
@@ -88,8 +91,6 @@ private:
 //	Bounds bounds_;
 
 private:
-	Context* context_;
-
 	bool meshDirty_ = false;
 	MeshAttribute attribute_;
 

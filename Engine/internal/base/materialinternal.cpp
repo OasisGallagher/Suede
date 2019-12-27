@@ -56,15 +56,11 @@ const std::vector<const Property*>& Material::GetExplicitProperties() { return _
 event<Material*> MaterialInternal::shaderChanged;
 
 MaterialInternal::MaterialInternal(Context* context)
-	: ObjectInternal(ObjectType::Material), context_(context), currentPass_(-1) {
+	: ObjectInternal(ObjectType::Material), GLObjectMaintainer(context), currentPass_(-1) {
 	name_ = "New Material";
-	context_->destroyed.subscribe(this, &MaterialInternal::OnContextDestroyed);
 }
 
 MaterialInternal::~MaterialInternal() {
-	if (context_ != nullptr) {
-		context_->destroyed.unsubscribe(this);
-	}
 }
 
 ref_ptr<Object> MaterialInternal::Clone() {
@@ -401,7 +397,7 @@ void MaterialInternal::OnContextDestroyed() {
 	properties_.clear();
 	explicitProperties_.clear();
 
-	context_ = nullptr;
+	GLObjectMaintainer::OnContextDestroyed();
 }
 
 void MaterialInternal::BindProperties(uint pass) {

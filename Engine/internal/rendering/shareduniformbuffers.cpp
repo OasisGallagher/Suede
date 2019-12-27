@@ -2,18 +2,13 @@
 
 #include "internal/base/context.h"
 
-SharedUniformBuffers::SharedUniformBuffers(Context* context) : context_(context) {
+SharedUniformBuffers::SharedUniformBuffers(Context* context) : GLObjectMaintainer(context) {
 	CreateBuffer<SharedTimeUniformBuffer>(context);
 	CreateBuffer<SharedLightUniformBuffer>(context);
 	CreateBuffer<SharedTransformsUniformBuffer>(context);
-	context->destroyed.subscribe(this, &SharedUniformBuffers::OnContextDestroyed);
 }
 
 SharedUniformBuffers::~SharedUniformBuffers() {
-	if (context_ != nullptr) {
-		context_->destroyed.unsubscribe(this);
-	}
-
 	Destroy();
 }
 
@@ -43,5 +38,5 @@ void SharedUniformBuffers::Destroy() {
 
 void SharedUniformBuffers::OnContextDestroyed() {
 	Destroy();
-	context_ = nullptr;
+	GLObjectMaintainer::OnContextDestroyed();
 }
