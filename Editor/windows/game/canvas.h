@@ -10,10 +10,6 @@ public:
 	~Canvas() {}
 
 protected:
-	virtual void paintGL() {}
-	virtual void resizeGL(int w, int h);
-
-protected:
 	virtual void MakeCurrent() { makeCurrent(); }
 	virtual void DoneCurrent() { doneCurrent(); }
 	virtual void SwapBuffers() { swapBuffers(); }

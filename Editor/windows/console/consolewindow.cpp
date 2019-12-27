@@ -173,7 +173,13 @@ void ConsoleWindow::logToFile(ConsoleMessageType type, const QString& message) {
 }
 
 void ConsoleWindow::onErrorMessage(const QString& message) {
-	switch (QMessageBox::critical(this, "", message, QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore)) {
+	QMessageBox msg;
+	msg.setWindowTitle("Error");
+	msg.setText(message);
+	msg.setIcon(QMessageBox::Critical);
+	msg.setStandardButtons(QMessageBox::Abort | QMessageBox::Retry | QMessageBox::Ignore);
+	msg.setStyleSheet("QLabel{min-width:100 px;} QPushButton{ width:60px; }");
+	switch (msg.exec()) {
 		case QMessageBox::Retry:
 			Debug::Break();
 			break;
