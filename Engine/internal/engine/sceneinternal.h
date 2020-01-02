@@ -16,10 +16,6 @@ class GameObjectImporter;
 
 class SceneInternal : public SubsystemInternal {
 public:
-	SceneInternal();
-	~SceneInternal();
-
-public:
 	void GetDecals(std::vector<Decal>& container);
 	Environment* GetEnvironment() { return &environment_; }
 
@@ -35,6 +31,7 @@ public:
 	void Awake();
 	void Update(float deltaTime);
 	void CullingUpdate(float deltaTime);
+	void OnDestroy();
 
 private:
 	void UpdateDecals();

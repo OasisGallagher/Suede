@@ -31,12 +31,9 @@ public:
 	void CreateStorage();
 	void SetAttribute(Mesh* self, const MeshAttribute& value);
 
-	//void SetBounds(const Bounds& value) { bounds_ = value; }
-	//const Bounds& GetBounds() const { return bounds_; }
-
 	void Bind();
 	void Unbind();
-	void ShareStorage(Mesh* other);
+	void ShareBuffers(Mesh* other);
 
 	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount() { return subMeshes_.size(); }
@@ -56,6 +53,8 @@ public:
 
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 
+	const Bounds& GetBounds() { return storage_->bounds; }
+
 public:
 	enum BufferIndex {
 		IndexBuffer,
@@ -67,11 +66,19 @@ public:
 
 	struct Storage {
 		Storage(Context* context);
+		Bounds bounds;
+		bool meshDirty = false;
+		MeshAttribute attribute;
+		MeshTopology topology;
+
+		struct {
+			bool dirty = false;
+			uint size = 0;
+			std::unique_ptr<uchar[]> data;
+		} instanceBuffers[BufferIndexCount - InstanceBuffer0];
 
 		VertexArray vao;
-		MeshTopology topology;
 		uint bufferIndexes[BufferIndexCount];
-
 		event<> modified;
 	};
 
@@ -82,18 +89,12 @@ protected:
 
 private:
 	void Destroy();
+	void ApplyAttribute();
 	void ClearAttribute(MeshAttribute& attribute);
 	void UpdateGLBuffers(const MeshAttribute& attribute);
 	int CalculateVBOCount(const MeshAttribute& attribute);
-	void ApplyAttribute(const MeshAttribute& attribute);
-
-//protected:
-//	Bounds bounds_;
 
 private:
-	bool meshDirty_ = false;
-	MeshAttribute attribute_;
-
 	std::vector<ref_ptr<SubMesh>> subMeshes_;
 	std::shared_ptr<Storage> storage_;
 };
@@ -139,7 +140,7 @@ public:
 
 private:
 	void RebuildMesh();
-	void RebuildUnicodeTextMesh(std::wstring wtext);
+	void RebuildUnicodeTextMesh(const std::wstring& wtext);
 
 	void InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext);
 

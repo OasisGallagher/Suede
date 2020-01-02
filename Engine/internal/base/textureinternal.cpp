@@ -353,8 +353,6 @@ void Texture2DInternal::Bind(uint index) {
 }
 
 bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
-	BindTexture();
-
 	RawImage rawImage;
 	rawImage.width = width_;
 	rawImage.height = height_;
@@ -399,26 +397,40 @@ TextureCubeInternal::~TextureCubeInternal() {
 }
 
 bool TextureCubeInternal::Load(const std::string textures[6]) {
-	RawImage rawImages[6];
+	std::unique_ptr<RawImage[]> images(new RawImage[6]);
 	for (int i = 0; i < 6; ++i) {
-		if (!ImageCodec::Decode(rawImages[i], Resources::textureDirectory + textures[i])) {
+		if (!ImageCodec::Decode(images[i], Resources::textureDirectory + textures[i])) {
 			return false;
 		}
 	}
 
+	rawImages_ = std::move(images);
+
+	return true;
+}
+
+void TextureCubeInternal::Bind(uint index) {
+	if (rawImages_) {
+		ApplyContent();
+	}
+
+	TextureInternal::Bind(index);
+}
+
+void TextureCubeInternal::ApplyContent() {
 	DestroyTexture();
 
 	context_->GenTextures(1, &texture_);
 	BindTexture();
 
-	for(int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 6; ++i) {
 		uint glFormat, glType;
-		ColorStreamFormatToGLenum(glFormat, glType, rawImages[i].colorStreamFormat);
-		uint internalFormat = TextureFormatToGLenum(rawImages[i].textureFormat);
-		context_->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, rawImages[i].width, rawImages[i].height, 0, glFormat, glType, rawImages[i].pixels.data());
+		ColorStreamFormatToGLenum(glFormat, glType, rawImages_[i].colorStreamFormat);
+		uint internalFormat = TextureFormatToGLenum(rawImages_[i].textureFormat);
+		context_->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internalFormat, rawImages_[i].width, rawImages_[i].height, 0, glFormat, glType, rawImages_[i].pixels.data());
 
 		internalFormat_ = internalFormat;
-		
+
 		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		context_->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -427,7 +439,8 @@ bool TextureCubeInternal::Load(const std::string textures[6]) {
 	}
 
 	UnbindTexture();
-	return true;
+
+	rawImages_ = nullptr;
 }
 
 RenderTexture* RenderTextureInternal::GetDefault() {
@@ -458,13 +471,13 @@ struct RenderTextureCacheKey {
 typedef std::multimap<RenderTextureCacheKey, ref_ptr<RenderTexture>> RenderTextureCacheContainer;
 static RenderTextureCacheContainer renderTextureCache;
 
-static RenderTexture* FindRenderTextureCache(RenderTextureFormat format, uint width, uint height, int busy) {
-	RenderTextureCacheKey key = { busy, format, width,height };
+static RenderTexture* ToggleRenderTextureBusyState(RenderTextureFormat format, uint width, uint height, int busy) {
+	RenderTextureCacheKey key = { busy, format, width, height };
 	RenderTextureCacheContainer::iterator pos = renderTextureCache.find(key);
 	if (pos != renderTextureCache.end()) {
 		ref_ptr<RenderTexture> value = pos->second;
 		renderTextureCache.erase(pos);
-		key.busy = 1 - busy;
+		key.busy = !busy;
 		renderTextureCache.insert(std::make_pair(key, value));
 
 		return value.get();
@@ -474,7 +487,7 @@ static RenderTexture* FindRenderTextureCache(RenderTextureFormat format, uint wi
 }
 
 RenderTexture* RenderTextureInternal::GetTemporary(RenderTextureFormat format, uint width, uint height) {
-	RenderTexture* cache = FindRenderTextureCache(format, width, height, 0);
+	RenderTexture* cache = ToggleRenderTextureBusyState(format, width, height, 0);
 	if (cache != nullptr) {
 		return cache;
 	}
@@ -486,12 +499,11 @@ RenderTexture* RenderTextureInternal::GetTemporary(RenderTextureFormat format, u
 }
 
 void RenderTextureInternal::ReleaseTemporary(RenderTexture* texture) {
-	RenderTexture* cache = FindRenderTextureCache(texture->GetRenderTextureFormat(), texture->GetWidth(), texture->GetHeight(), 1);
+	RenderTexture* cache = ToggleRenderTextureBusyState(texture->GetRenderTextureFormat(), texture->GetWidth(), texture->GetHeight(), 1);
 	SUEDE_ASSERT(cache != nullptr);
 }
 
-RenderTextureInternal::RenderTextureInternal(Context* context)
-	: TextureInternal(ObjectType::RenderTexture, context), bindStatus_(StatusNone), renderTextureFormat_(RenderTextureFormat::Rgba), framebuffer_(nullptr) {
+RenderTextureInternal::RenderTextureInternal(Context* context) : TextureInternal(ObjectType::RenderTexture, context) {
 }
 
 RenderTextureInternal::~RenderTextureInternal() {
@@ -499,81 +511,55 @@ RenderTextureInternal::~RenderTextureInternal() {
 }
 
 bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	DestroyTexture();
-	DestroyFramebuffer();
-
 	width_ = width;
 	height_ = height;
-
-	framebuffer_ = new Framebuffer(context_);
-
-	context_->GenTextures(1, &texture_);
-	BindTexture();
-
 	renderTextureFormat_ = format;
-	ResizeStorage(width, height, format);
-
-	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	if (format == RenderTextureFormat::Shadow) {
-		context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-	}
-
-	UnbindTexture();
-
-	if (!ContainsDepthInfo()) {
-		framebuffer_->SetViewport(0, 0, width, height);
-		framebuffer_->CreateDepthRenderbuffer();
-		framebuffer_->SetRenderTexture(FramebufferAttachment0, texture_);
-	}
-	else {
-		framebuffer_->SetDepthTexture(texture_);
-	}
+	configDirty_ = true;
 
 	return true;
 }
 
 void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
-	if (!SetViewport(width_, height_, normalizedRect)) {
-		return;
-	}
-
-	if (ContainsDepthInfo()) {
-		framebuffer_->SetClearDepth(depth);
-		framebuffer_->Clear(FramebufferClearMaskDepth);
-	}
-	else {
-		framebuffer_->SetClearDepth(depth);
-		framebuffer_->SetClearColor(color);
-		framebuffer_->Clear(FramebufferClearMaskColorDepth);
-	}
+	clearContentArgument_.normalizedRect = normalizedRect;
+	clearContentArgument_.color = color;
+	clearContentArgument_.depth = depth;
+	contentDirty_ = true;
 }
 
 void RenderTextureInternal::Resize(uint width, uint height) {
 	if (width_ != width || height_ != height) {
-		BindTexture();
-		ResizeStorage(width, height, renderTextureFormat_);
-		UnbindTexture();
+		width_ = width;
+		height_ = height;
+
+		sizeDirty_ = true;
 	}
 }
 
 void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	if (!VerifyBindStatus()) { return; }
-	
-	bindStatus_ = StatusWrite;
-	SetViewport(width_, height_, normalizedRect);
-	framebuffer_->BindWrite();
+	if (VerifyBindStatus()) {
+		if (configDirty_) { ApplyConfig(); }
+		else {
+			if (sizeDirty_) { ApplySize(); }
+			if (contentDirty_) { ApplyClearContent(); }
+		}
+
+		bindStatus_ = StatusWrite;
+		SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), normalizedRect));
+		framebuffer_->BindWrite();
+	}
 }
 
 void RenderTextureInternal::Bind(uint index) {
-	if (!VerifyBindStatus()) { return; }
+	if (VerifyBindStatus()) {
+		bindStatus_ = StatusRead;
+		if (configDirty_) { ApplyConfig(); }
+		else {
+			if (sizeDirty_) { ApplySize(); }
+			if (contentDirty_) { ApplyClearContent(); }
+		}
 
-	bindStatus_ = StatusRead;
-	TextureInternal::Bind(index);
+		TextureInternal::Bind(index);
+	}
 }
 
 void RenderTextureInternal::Unbind() {
@@ -589,6 +575,63 @@ void RenderTextureInternal::Unbind() {
 	bindStatus_ = StatusNone;
 }
 
+void RenderTextureInternal::ApplySize() {
+	BindTexture();
+	ResizeStorage(width_, height_, renderTextureFormat_);
+	UnbindTexture();
+}
+
+void RenderTextureInternal::ApplyConfig() {
+	DestroyTexture();
+	DestroyFramebuffer();
+
+	framebuffer_ = new Framebuffer(context_);
+
+	context_->GenTextures(1, &texture_);
+	BindTexture();
+
+	ResizeStorage(width_, height_, renderTextureFormat_);
+
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	if (renderTextureFormat_ == RenderTextureFormat::Shadow) {
+		context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+		context_->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+	}
+
+	UnbindTexture();
+
+	if (!ContainsDepthInfo()) {
+		framebuffer_->SetViewport(0, 0, width_, height_);
+		framebuffer_->CreateDepthRenderbuffer();
+		framebuffer_->SetRenderTexture(FramebufferAttachment0, texture_);
+	}
+	else {
+		framebuffer_->SetDepthTexture(texture_);
+	}
+
+	configDirty_ = false;
+}
+
+void RenderTextureInternal::ApplyClearContent() {
+	if (SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), clearContentArgument_.normalizedRect))) {
+		if (ContainsDepthInfo()) {
+			framebuffer_->SetClearDepth(clearContentArgument_.depth);
+			framebuffer_->Clear(FramebufferClearMaskDepth);
+		}
+		else {
+			framebuffer_->SetClearDepth(clearContentArgument_.depth);
+			framebuffer_->SetClearColor(clearContentArgument_.color);
+			framebuffer_->Clear(FramebufferClearMaskColorDepth);
+		}
+	}
+
+	contentDirty_ = false;
+}
+
 bool RenderTextureInternal::VerifyBindStatus() {
 	if (bindStatus_ != StatusNone) {
 		Debug::LogError("bind status error");
@@ -600,20 +643,23 @@ bool RenderTextureInternal::VerifyBindStatus() {
 
 void RenderTextureInternal::DestroyFramebuffer() {
 	delete framebuffer_;
+	framebuffer_ = nullptr;
 }
 
-bool RenderTextureInternal::SetViewport(uint width, uint height, const Rect& normalizedRect) {
-	Rect viewport = Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width, (float)height), normalizedRect);
+bool RenderTextureInternal::SetViewport(const Rect& viewport) {
 	framebuffer_->SetViewport((int)viewport.GetXMin(), (int)viewport.GetYMin(), (uint)Mathf::Max(0.f, viewport.GetWidth()), (uint)Mathf::Max(0.f, viewport.GetHeight()));
 	return viewport.GetWidth() > 0 && viewport.GetHeight() > 0;
+}
+
+void RenderTextureInternal::OnContextDestroyed() {
+	DestroyFramebuffer();
+	TextureInternal::OnContextDestroyed();
 }
 
 void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat format) {
 	uint glFormat[3];
 	RenderTextureFormatToGLenum(format, glFormat);
 	context_->TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], w, h, 0, glFormat[1], glFormat[2], nullptr);
-	width_ = w;
-	height_ = h;
 	internalFormat_ = glFormat[0];
 }
 
@@ -665,7 +711,7 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 	parameters[2] = type;
 }
 
-TextureBufferInternal::TextureBufferInternal(Context* context) : TextureInternal(ObjectType::TextureBuffer, context), buffer_(nullptr) {
+TextureBufferInternal::TextureBufferInternal(Context* context) : TextureInternal(ObjectType::TextureBuffer, context) {
 }
 
 TextureBufferInternal::~TextureBufferInternal() {
@@ -673,31 +719,56 @@ TextureBufferInternal::~TextureBufferInternal() {
 }
 
 bool TextureBufferInternal::Create(uint size) {
-	DestroyBuffer();
-	DestroyTexture();
-
-	buffer_ = new Buffer(context_);
-	buffer_->Create(GL_TEXTURE_BUFFER, size, nullptr, GL_STREAM_DRAW);
-	
-	context_->GenTextures(1, &texture_);
-	BindTexture();
-	context_->TexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffer_->GetNativePointer());
-	UnbindTexture();
+	if (size_ != size) {
+		size_ = size;
+		sizeDirty_ = true;
+	}
 
 	return true;
 }
 
-uint TextureBufferInternal::GetSize() const {
-	return buffer_->GetSize();
+void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
+	newContentArgument_.offset = offset;
+	newContentArgument_.size = size;
+	newContentArgument_.data.reset(new uchar[size]);
+	memcpy(newContentArgument_.data.get(), data, size);
 }
 
-void TextureBufferInternal::Update(uint offset, uint size, const void* data) {
-	buffer_->Update(offset, size, data);
+void TextureBufferInternal::Bind(uint index) {
+	if (sizeDirty_) {
+		ApplySize();
+	}
+
+	if (newContentArgument_.data) {
+		ApplyContent();
+	}
+
+	TextureInternal::Bind(index);
+}
+
+void TextureBufferInternal::ApplyContent() {
+	buffer_->Update(newContentArgument_.offset, newContentArgument_.size, newContentArgument_.data.get());
+	newContentArgument_.data = nullptr;
 }
 
 void TextureBufferInternal::OnContextDestroyed() {
 	DestroyBuffer();
 	TextureInternal::OnContextDestroyed();
+}
+
+void TextureBufferInternal::ApplySize() {
+	DestroyBuffer();
+	DestroyTexture();
+
+	buffer_ = new Buffer(context_);
+	buffer_->Create(GL_TEXTURE_BUFFER, size_, nullptr, GL_STREAM_DRAW);
+
+	context_->GenTextures(1, &texture_);
+	BindTexture();
+	context_->TexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, buffer_->GetNativePointer());
+	UnbindTexture();
+
+	sizeDirty_ = false;
 }
 
 void TextureBufferInternal::DestroyBuffer() {
@@ -720,7 +791,7 @@ bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width,
 }
 
 void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
-	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+	SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect));
 
 	framebuffer_->SetClearDepth(depth);
 	framebuffer_->SetClearColor(color);
@@ -736,12 +807,17 @@ uint ScreenRenderTextureInternal::GetHeight() const {
 }
 
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
-	SetViewport(Screen::GetWidth(), Screen::GetHeight(), normalizedRect);
+	SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect));
 	framebuffer_->BindWrite();
 }
 
 void ScreenRenderTextureInternal::Unbind() {
 	framebuffer_->Unbind();
+}
+
+void ScreenRenderTextureInternal::OnContextDestroyed() {
+	framebuffer_ = nullptr;
+	RenderTextureInternal::OnContextDestroyed();
 }
 
 void ScreenRenderTextureInternal::Resize(uint width, uint height) {
@@ -759,20 +835,15 @@ uint ScreenRenderTextureInternal::GetGLTextureBindingName() const {
 }
 
 bool MRTRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	if (format != +RenderTextureFormat::Depth) {
+	if (format != RenderTextureFormat::Depth) {
 		Debug::LogError("only RenderTextureFormatDepth is supported for MRTRenderTexture.");
 		return false;
 	}
 
-	DestroyFramebuffer();
-	DestroyColorTextures();
-
 	width_ = width;
 	height_ = height;
-
-	framebuffer_ = new Framebuffer(context_);
-	framebuffer_->SetViewport(0, 0, width, height);
-	framebuffer_->CreateDepthRenderbuffer();
+	renderTextureFormat_ = format;
+	configDirty_ = true;
 
 	return true;
 }
@@ -784,11 +855,7 @@ void MRTRenderTextureInternal::Resize(uint width, uint height) {
 
 	width_ = width;
 	height_ = height;
-
-	for (int i = 0; i < index_; ++i) {
-		ref_ptr<Texture2D>& texture = colorTextures_[i];
-		colorTextures_[i]->Create(texture->GetFormat(), nullptr, ColorStreamFormat::Rgba, width, height, 4);
-	}
+	sizeDirty_ = true;
 }
 
 void MRTRenderTextureInternal::Bind(uint index) {
@@ -796,25 +863,48 @@ void MRTRenderTextureInternal::Bind(uint index) {
 }
 
 void MRTRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
+	for (; newColorTextureFrom_ < currentIndex_; ++newColorTextureFrom_) {
+		framebuffer_->SetRenderTexture(
+			FramebufferAttachment(FramebufferAttachment0 + newColorTextureFrom_),
+			colorTextures_[newColorTextureFrom_]->GetNativePointer()
+		);
+	}
+
 	RenderTextureInternal::BindWrite(normalizedRect);
 }
 
 bool MRTRenderTextureInternal::AddColorTexture(TextureFormat format) {
-	if (index_ >= FramebufferAttachmentMax) {
+	if (currentIndex_ >= FramebufferAttachmentMax) {
 		Debug::LogError("only %d color textures are supported.", FramebufferAttachmentMax);
 		return false;
 	}
 
-	colorTextures_[index_] = new Texture2D();
-	colorTextures_[index_]->Create(format, nullptr, ColorStreamFormat::Rgba, width_, height_, 4);
-	framebuffer_->SetRenderTexture(FramebufferAttachment(FramebufferAttachment0 + index_), colorTextures_[index_]->GetNativePointer());
-	++index_;
+	colorTextures_[currentIndex_] = new Texture2D();
+	colorTextures_[currentIndex_]->Create(format, nullptr, ColorStreamFormat::Rgba, width_, height_, 4);
+	
+	++currentIndex_;
 	return true;
 }
 
 Texture2D* MRTRenderTextureInternal::GetColorTexture(uint index) {
-	SUEDE_VERIFY_INDEX(index, index_, nullptr);
+	SUEDE_ASSERT(index < currentIndex_);
 	return colorTextures_[index].get();
+}
+
+void MRTRenderTextureInternal::ApplySize() {
+	for (int i = 0; i < currentIndex_; ++i) {
+		ref_ptr<Texture2D>& texture = colorTextures_[i];
+		colorTextures_[i]->Create(texture->GetFormat(), nullptr, ColorStreamFormat::Rgba, width_, height_, 4);
+	}
+}
+
+void MRTRenderTextureInternal::ApplyConfig() {
+	DestroyFramebuffer();
+	DestroyColorTextures();
+	framebuffer_ = new Framebuffer(context_);
+	framebuffer_->SetViewport(0, 0, width_, height_);
+	framebuffer_->CreateDepthRenderbuffer();
+	configDirty_ = false;
 }
 
 uint MRTRenderTextureInternal::GetGLTextureType() const {
@@ -828,7 +918,7 @@ uint MRTRenderTextureInternal::GetGLTextureBindingName() const {
 }
 
 void MRTRenderTextureInternal::DestroyColorTextures() {
-	for (int i = 0; i < index_; ++i) {
+	for (int i = 0; i < currentIndex_; ++i) {
 		colorTextures_[i] = nullptr;
 	}
 }

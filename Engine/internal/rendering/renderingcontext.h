@@ -5,7 +5,10 @@
 #include "material.h"
 #include "gameobject.h"
 
+#include "cullingthread.h"
 #include "internal/base/context.h"
+#include "containers/dynamicarray.h"
+#include "containers/concurrentqueue.h"
 
 class SharedUniformBuffers;
 
@@ -50,6 +53,9 @@ class ShadowMap;
 class RenderingThread;
 class AmbientOcclusion;
 
+class ShaderInternal;
+class MaterialInternal;
+
 class RenderingContext : public Context {
 public:
 	RenderingContext();
@@ -81,6 +87,9 @@ public:
 	Material* GetDepthMaterial() { return depthMaterial_.get(); }
 	RenderTexture* GetOffscreenRenderTexture() { return offscreenRT_.get(); }
 
+	CullingThread* GetCullingThread() { return cullingThreadQueue_.pop(); }
+	void ReleaseCullingThread(CullingThread* thread) { cullingThreadQueue_.push(thread); }
+
 protected:
 	virtual bool Initialize();
 
@@ -96,6 +105,8 @@ private:
 	Graphics* graphics_ = nullptr;
 
 	RenderingThread* renderingThread_;
+	dynamic_array<CullingThread> cullingThreads_;
+	concurrent_queue<CullingThread*> cullingThreadQueue_;
 
 	ShadowMap* shadowMap_ = nullptr;
 	AmbientOcclusion* ambientOcclusion_ = nullptr;

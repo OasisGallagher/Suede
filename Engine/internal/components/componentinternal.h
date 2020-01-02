@@ -48,9 +48,9 @@ public:
 	virtual int GetUpdateStrategy() { return 0; }
 
 protected:
-	GameObject* gameObject_;
-	RenderingContext* context_;
+	GameObject* gameObject_ = nullptr;
+	RenderingContext* context_ = nullptr;
 
 private:
-	bool enabled_;
+	bool enabled_ = true;
 };

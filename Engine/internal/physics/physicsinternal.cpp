@@ -5,6 +5,7 @@
 #include "rigidbody.h"
 #include "memory/refptr.h"
 #include "rigidbodyinternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 
 void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
 	Color oldColor = gizmos_->GetColor();
@@ -54,12 +55,11 @@ PhysicsInternal::PhysicsInternal(Gizmos* gizmos) : gizmos_(gizmos), debugDrawEna
 	world_ = new btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
 	world_->setDebugDrawer(new BulletDebugDrawer(gizmos_));
 
-	//World::frameEnter().subscribe(this, &PhysicsInternal::OnFrameEnter, (int)FrameEventQueue::Physics);
-	//GameObject::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
+	//GameObjectInternal::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
 }
 
 PhysicsInternal::~PhysicsInternal() {
-	//World::frameEnter().unsubscribe(this);
+	//GameObjectInternal::componentChanged.unsubscribe(this);
 	delete world_->getDebugDrawer();
 	delete world_;
 

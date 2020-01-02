@@ -2,13 +2,14 @@
 #include <mutex>
 
 #include "scene.h"
+#include "bounds.h"
 #include "gameobject.h"
 
 #include "tools/event.h"
 
 class RenderingContext;
 
-class CullingThread {
+class CullingThread : public intrusive_ref_counter {
 public:
 	CullingThread(RenderingContext* context);
 	~CullingThread();
@@ -29,7 +30,7 @@ public:
 
 private:
 	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);
-	bool FrustumCulling(const Bounds & bounds, const Matrix4& worldToClipMatrix);
+	bool FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix);
 	WalkCommand OnWalkGameObject(GameObject* go);
 
 private:

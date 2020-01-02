@@ -46,6 +46,7 @@ public:
 public:
 	void Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices);
 	void Stop();
+
 	std::thread::id GetThreadID() { return threadID_; }
 
 private:

@@ -72,6 +72,8 @@ ref_ptr<Object> MaterialInternal::Clone() {
 }
 
 void MaterialInternal::SetShader(Material* self, Shader* value) {
+	SUEDE_ASSERT(value != nullptr);
+
 	shader_ = value;
 	InitializeEnabledState();
 

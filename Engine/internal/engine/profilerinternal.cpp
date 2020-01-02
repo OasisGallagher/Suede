@@ -99,7 +99,7 @@ void ProfilerInternal::ReleaseSample(Sample* sample) {
 
 void ProfilerInternal::Update(float deltaTime) {
 	lastFrameStats = thisFrameStats;
-	memset(&thisFrameStats, 0, sizeof(thisFrameStats));
+	thisFrameStats.ndrawcalls = thisFrameStats.ntriangles = thisFrameStats.nvertices = 0;
 
 	if (timeCounter_ < FPS_REFRESH_TIME) {
 		timeCounter_ += deltaTime;

@@ -176,11 +176,11 @@ void ParticleSystemInternal::UpdateBuffers() {
 
 	float maxSize = 0;
 	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite) {
+	for (free_list<Particle>::iterator ite = particles_.begin(); ite != particles_.end(); ++ite, ++index) {
 		Particle* particle = *ite;
 
 		colors_[index] = particle->color;
-		geometries_[index++] = Vector4(particle->position.x, particle->position.y, particle->position.z, particle->size);
+		geometries_[index] = Vector4(particle->position.x, particle->position.y, particle->position.z, particle->size);
 
 		min = Vector3::Min(min, particle->position);
 		max = Vector3::Max(max, particle->position);

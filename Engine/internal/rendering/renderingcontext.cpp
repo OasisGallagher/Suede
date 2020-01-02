@@ -46,6 +46,10 @@ RenderingContext::~RenderingContext() {
 	renderingThread_->Stop();
 	delete renderingThread_;
 
+	for (auto& thread : cullingThreads_) {
+		thread.Stop();
+	}
+
 	Screen::sizeChanged.unsubscribe(this);
 	ShaderInternal::shaderCreated.unsubscribe(this);
 	MaterialInternal::shaderChanged.unsubscribe(this);
@@ -55,6 +59,10 @@ bool RenderingContext::Initialize() {
 	if (!Context::Initialize()) { return false; }
 
 	renderingThread_ = new RenderingThread(this);
+	cullingThreads_.resize(2, this);
+	for (int i = 0; i < cullingThreads_.size(); ++i) {
+		cullingThreadQueue_.push(&cullingThreads_[i]);
+	}
 
 	frameState_ = new FrameState();
 	uniformState_ = new UniformState(this);

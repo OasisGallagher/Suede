@@ -2,8 +2,8 @@
 
 #include <QDockWidget>
 
+#include "bounds.h"
 #include "camera.h"
-
 #include "gameobject.h"
 #include "gizmospainter.h"
 #include "qtinputdelegate.h"

@@ -25,6 +25,14 @@ public:
 	uint GetRenderQueue() { return queue_; }
 	void SetRenderQueue(uint value) { queue_ = value; }
 
+	virtual const Bounds& GetBounds() { UpdateBounds(); return bounds_; }
+
+protected:
+	virtual void UpdateBounds() = 0;
+
+protected:
+	Bounds bounds_;
+
 private:
 	uint queue_;
 	std::vector<ref_ptr<Material>> materials_;
@@ -33,6 +41,9 @@ private:
 class MeshRendererInternal : public RendererInternal {
 public:
 	MeshRendererInternal() : RendererInternal(ObjectType::MeshRenderer) {}
+
+protected:
+	virtual void UpdateBounds();
 };
 
 class SkinnedMeshRendererInternal :public RendererInternal {
@@ -45,6 +56,9 @@ public:
 public:
 	void SetSkeleton(Skeleton* value) { skeleton_ = value; }
 
+protected:
+	virtual void UpdateBounds();
+
 private:
 	ref_ptr<Skeleton> skeleton_;
 };
@@ -52,4 +66,7 @@ private:
 class ParticleRendererInternal : public RendererInternal {
 public:
 	ParticleRendererInternal();
+
+protected:
+	virtual void UpdateBounds();
 };

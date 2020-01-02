@@ -56,11 +56,12 @@ void Camera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed();
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
 void Camera::OnPreRender() {
-	Framebuffer::GetDefault()->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
-	Framebuffer::GetDefault()->SetClearDepth(1);
-	Framebuffer::GetDefault()->SetClearStencil(1);
-	Framebuffer::GetDefault()->SetClearColor(Color::black);
-	Framebuffer::GetDefault()->Clear(FramebufferClearMaskColorDepthStencil);
+	FramebufferBase* framebuffer = Framebuffer::GetDefault();
+	framebuffer->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
+	framebuffer->SetClearDepth(1);
+	framebuffer->SetClearStencil(1);
+	framebuffer->SetClearColor(Color::black);
+	framebuffer->Clear(FramebufferClearMaskColorDepthStencil);
 }
 
 void Camera::OnPostRender() {
@@ -76,11 +77,7 @@ void Camera::OnPostRender() {
 }
 
 CameraInternal::CameraInternal() : ComponentInternal(ObjectType::Camera) {
-	// SUEDE TODO Culling thread...
-	cullingThread_ = new CullingThread(context_);
-	cullingThread_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
-
-	rendering_ = new RenderingThread(context_);
+	renderingThread_ = context_->GetRenderingThread();
 
 	pipelineBuilder_ = new PipelineBuilder(context_);
 	frontPipelines_ = new RenderingPipelines(context_);
@@ -92,22 +89,18 @@ CameraInternal::CameraInternal() : ComponentInternal(ObjectType::Camera) {
 }
 
 CameraInternal::~CameraInternal() {
-	cullingThread_->Stop();
-	delete cullingThread_;
-
 	delete pipelineBuilder_;
 	delete frontPipelines_;
 	delete backPipelines_;
 
-	delete rendering_;
 	Screen::sizeChanged.unsubscribe(this);
 }
 
 void CameraInternal::Awake() {
+	transform_ = GetTransform();
 }
 
 void CameraInternal::OnBeforeWorldDestroyed() {
-	cullingThread_->Stop();
 }
 
 void CameraInternal::UpdateFrameState() {
@@ -135,19 +128,22 @@ void CameraInternal::Render() {
 
 	UpdateFrameState();
 
-	if (!cullingThread_->IsWorking()) {
+	if (cullingThread_ == nullptr) {
+		cullingThread_ = context_->GetCullingThread();
+		cullingThread_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
+
 		backPipelines_->Clear();
-		cullingThread_->Cull(GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+		cullingThread_->Cull(GetProjectionMatrix() * transform_->GetWorldToLocalMatrix());
 	}
 
 	if (pipelineReady_) {
 		RenderingMatrices matrices;
 		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
-		matrices.cameraPos = GetTransform()->GetPosition();
+		matrices.cameraPos = transform_->GetPosition();
 		matrices.projectionMatrix = GetProjectionMatrix();
-		matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+		matrices.worldToCameraMatrix = transform_->GetWorldToLocalMatrix();
 		
-		rendering_->Render(frontPipelines_, matrices);
+		renderingThread_->Render(frontPipelines_, matrices);
 	}
 	else {
 		// Debug::Log("Waiting for first frame...");
@@ -156,9 +152,9 @@ void CameraInternal::Render() {
 
 void CameraInternal::OnCullingFinished() {
 	RenderingMatrices matrices;
-	matrices.cameraPos = GetTransform()->GetPosition();
+	matrices.cameraPos = transform_->GetPosition();
 	matrices.projectionMatrix = GetProjectionMatrix();
-	matrices.worldToCameraMatrix = GetTransform()->GetWorldToLocalMatrix();
+	matrices.worldToCameraMatrix = transform_->GetWorldToLocalMatrix();
 
 	{
 		std::lock_guard<std::mutex> lock(visibleGameObjectsMutex_);
@@ -169,6 +165,10 @@ void CameraInternal::OnCullingFinished() {
 
 	std::swap(frontPipelines_, backPipelines_);
 	pipelineReady_ = true;
+
+	cullingThread_->cullingFinished.unsubscribe(this);
+	context_->ReleaseCullingThread(cullingThread_);
+	cullingThread_ = nullptr;
 }
 
 void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
@@ -179,7 +179,7 @@ void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
 }
 
 void CameraInternal::OnProjectionMatrixChanged() {
-	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * GetTransform()->GetWorldToLocalMatrix());
+	GeometryUtility::CalculateFrustumPlanes(planes_, GetProjectionMatrix() * transform_->GetWorldToLocalMatrix());
 }
 
 bool CameraInternal::IsValidViewportRect() {
@@ -198,13 +198,13 @@ void CameraInternal::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects
 Vector3 CameraInternal::WorldToScreenPoint(const Vector3& position) {
 	Vector4 viewport;
 	context_->GetIntegerv(GL_VIEWPORT, (int*)&viewport);
-	return Matrix4::Project(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+	return Matrix4::Project(position, transform_->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 Vector3 CameraInternal::ScreenToWorldPoint(const Vector3& position) {
 	Vector4 viewport;
 	context_->GetIntegerv(GL_VIEWPORT, (int*)&viewport);
-	return Matrix4::Unproject(position, GetTransform()->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
+	return Matrix4::Unproject(position, transform_->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 ref_ptr<Texture2D> CameraInternal::Capture() {

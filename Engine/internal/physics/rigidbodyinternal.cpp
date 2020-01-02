@@ -7,7 +7,6 @@ Rigidbody::Rigidbody() : Component(new RigidbodyInternal) {}
 void Rigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void Rigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float Rigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
-const Bounds& Rigidbody::GetBounds() const { return _suede_dptr()->GetBounds(); }
 void Rigidbody::SetVelocity(const Vector3& value) { _suede_dptr()->SetVelocity(value); }
 Vector3 Rigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
 
@@ -31,11 +30,12 @@ void RigidbodyInternal::Awake() {
 
 // SUEDE TODO: FixedUpdate.
 void RigidbodyInternal::Update(float deltaTime) {
+	return;
 	if (shapeState_ != Normal) {
 		if (shapeState_ != InvalidShape || RebuildShape()) {
 			UpdateBody(true);
 			ApplyGameObjectTransform();
-			UpdateBounds();
+			//UpdateBounds();
 		}
 
 		shapeState_ = Normal;
@@ -67,27 +67,27 @@ void RigidbodyInternal::SetMass(float value) {
 	}
 }
 
-void RigidbodyInternal::UpdateBounds() {
-	btVector3 minAabb, maxAabb;
-	shape_->getAabb(body_->getWorldTransform(), minAabb, maxAabb);
-	btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
-	minAabb -= contactThreshold;
-	maxAabb += contactThreshold;
-	
-	if (btWorld()->getDispatchInfo().m_useContinuous && body_->getInternalType() == btCollisionObject::CO_RIGID_BODY && !body_->isStaticOrKinematicObject()) {
-		btVector3 minAabb2, maxAabb2;
-		shape_->getAabb(body_->getInterpolationWorldTransform(), minAabb2, maxAabb2);
-
-		minAabb2 -= contactThreshold;
-		maxAabb2 += contactThreshold;
-
-		minAabb.setMin(minAabb2);
-		maxAabb.setMax(maxAabb2);
-	}
-
-	bounds_.SetMinMax(btConvert(minAabb), btConvert(maxAabb));
-	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
-}
+//void RigidbodyInternal::UpdateBounds() {
+//	btVector3 minAabb, maxAabb;
+//	shape_->getAabb(body_->getWorldTransform(), minAabb, maxAabb);
+//	btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
+//	minAabb -= contactThreshold;
+//	maxAabb += contactThreshold;
+//	
+//	if (btWorld()->getDispatchInfo().m_useContinuous && body_->getInternalType() == btCollisionObject::CO_RIGID_BODY && !body_->isStaticOrKinematicObject()) {
+//		btVector3 minAabb2, maxAabb2;
+//		shape_->getAabb(body_->getInterpolationWorldTransform(), minAabb2, maxAabb2);
+//
+//		minAabb2 -= contactThreshold;
+//		maxAabb2 += contactThreshold;
+//
+//		minAabb.setMin(minAabb2);
+//		maxAabb.setMax(maxAabb2);
+//	}
+//
+//	bounds_.SetMinMax(btConvert(minAabb), btConvert(maxAabb));
+//	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
+//}
 
 void RigidbodyInternal::SetVelocity(const Vector3& value) {
 	body_->setLinearVelocity(btConvert(value));

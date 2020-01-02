@@ -181,6 +181,7 @@ public:
 	Matrix4 GetRootTransform();
 
 	void SetWrapMode(AnimationWrapMode value);
+	AnimationWrapMode GetWrapMode();
 
 	bool Play(const std::string& name);
 };

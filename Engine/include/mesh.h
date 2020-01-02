@@ -89,12 +89,6 @@ public:
 public:
 	void SetAttribute(const MeshAttribute& value);
 
-	/**
-	 * @returns bounds measured in the world space.
-	 */
-	//const Bounds& GetBounds() const;
-	//void SetBounds(const Bounds& value);
-
 	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount();
 	SubMesh* GetSubMesh(uint index);
@@ -113,7 +107,9 @@ public:
 
 	void Bind();
 	void Unbind();
-	void ShareStorage(Mesh* other);
+	void ShareBuffers(Mesh* other);
+
+	const Bounds& GetBounds();
 
 	void UpdateInstanceBuffer(uint i, size_t size, void* data);
 

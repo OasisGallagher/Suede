@@ -95,13 +95,14 @@ private:
 
 	Plane planes_[6];
 
-	CullingThread* cullingThread_;
+	Transform* transform_ = nullptr;
+
+	RenderingThread* renderingThread_ = nullptr;
+	CullingThread* cullingThread_ = nullptr;
 
 	bool pipelineReady_ = false;
 	PipelineBuilder* pipelineBuilder_;
 	RenderingPipelines* frontPipelines_, *backPipelines_;
-
-	RenderingThread* rendering_;
 
 	Rect normalizedRect_ = Rect(0, 0, 1, 1);
 

@@ -12,19 +12,19 @@ public:
 	~SkeletonInternal() { DestroyNodeHierarchy(root_); }
 
 public:
-	virtual bool AddBone(const SkeletonBone& bone);
-	virtual SkeletonBone* GetBone(uint index);
-	virtual SkeletonBone* GetBone(const std::string& name);
+	bool AddBone(const SkeletonBone& bone);
+	SkeletonBone* GetBone(uint index);
+	SkeletonBone* GetBone(const std::string& name);
 	
-	virtual void SetBoneToRootMatrix(uint index, const Matrix4& value);
-	virtual Matrix4* GetBoneToRootMatrices() { return boneToRootMatrices_; }
+	void SetBoneToRootMatrix(uint index, const Matrix4& value);
+	Matrix4* GetBoneToRootMatrices() { return boneToRootMatrices_; }
 
-	virtual int GetBoneIndex(const std::string& name);
-	virtual int GetBoneCount() { return current_; }
+	int GetBoneIndex(const std::string& name);
+	int GetBoneCount() { return current_; }
 
-	virtual SkeletonNode* CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve* curve);
-	virtual void AddNode(SkeletonNode* parent, SkeletonNode* child);
-	virtual SkeletonNode* GetRootNode() { return root_; }
+	SkeletonNode* CreateNode(const std::string& name, const Matrix4& matrix, AnimationCurve* curve);
+	void AddNode(SkeletonNode* parent, SkeletonNode* child);
+	SkeletonNode* GetRootNode() { return root_; }
 
 private:
 	void DestroyNodeHierarchy(SkeletonNode*& node);
@@ -45,19 +45,19 @@ public:
 	~AnimationClipInternal();
 
 public:
-	virtual void SetWrapMode(AnimationWrapMode value);
-	virtual AnimationWrapMode GetWrapMode() { return wrapMode_; }
+	void SetWrapMode(AnimationWrapMode value);
+	AnimationWrapMode GetWrapMode() { return wrapMode_; }
 
-	virtual void SetTicksPerSecond(float value);
-	virtual float GetTicksPerSecond() { return ticksInSecond_; }
+	void SetTicksPerSecond(float value);
+	float GetTicksPerSecond() { return ticksInSecond_; }
 
-	virtual void SetDuration(float value) { duration_ = value; }
-	virtual float GetDuration() { return duration_; }
+	void SetDuration(float value) { duration_ = value; }
+	float GetDuration() { return duration_; }
 
-	virtual void SetAnimation(Animation* value) { animation_ = value; }
-	virtual Animation* GetAnimation() { return animation_; }
+	void SetAnimation(Animation* value) { animation_ = value; }
+	Animation* GetAnimation() { return animation_; }
 
-	virtual bool Sample(float time);
+	bool Sample(float time);
 
 private:
 	bool SampleHierarchy(float time, SkeletonNode* node, const Matrix4& matrix);
@@ -66,7 +66,7 @@ private:
 	float duration_;
 	float ticksInSecond_;
 	float(*wrapper_)(float, float);
-	AnimationWrapMode wrapMode_;
+	AnimationWrapMode wrapMode_ = AnimationWrapMode::Loop;
 
 	AnimationFrame* frame_;
 	Animation* animation_;
@@ -83,13 +83,13 @@ public:
 	~AnimationKeysInternal();
 
 public:
-	virtual void AddFloat(float time, int id, float value);
-	virtual void AddVector3(float time, int id, const Vector3& value);
-	virtual void AddQuaternion(float time, int id, const Quaternion& value);
+	void AddFloat(float time, int id, float value);
+	void AddVector3(float time, int id, const Vector3& value);
+	void AddQuaternion(float time, int id, const Quaternion& value);
 
-	virtual void Remove(float time, int id);
+	void Remove(float time, int id);
 
-	virtual void ToKeyframes(std::vector<ref_ptr<AnimationFrame>>& keyframes);
+	void ToKeyframes(std::vector<ref_ptr<AnimationFrame>>& keyframes);
 
 private:
 	struct ApproximatelyFloatComparer {
@@ -121,34 +121,36 @@ private:
 
 class AnimationInternal : public ComponentInternal {
 public:
-	AnimationInternal() : ComponentInternal(ObjectType::Animation), time_(0), playing_(false) {}
+	AnimationInternal() : ComponentInternal(ObjectType::Animation) {}
 
 public:
 	virtual void CullingUpdate(float deltaTime);
 
 public:
-	virtual void AddClip(Animation* self, const std::string& name, AnimationClip* value);
-	virtual AnimationClip* GetClip(const std::string& name);
+	void AddClip(Animation* self, const std::string& name, AnimationClip* value);
+	AnimationClip* GetClip(const std::string& name);
 
-	virtual void SetRootTransform(const Matrix4& value) { rootTransform_ = value; }
-	virtual Matrix4 GetRootTransform() { return rootTransform_; }
+	void SetRootTransform(const Matrix4& value) { rootTransform_ = value; }
+	Matrix4 GetRootTransform() { return rootTransform_; }
 
-	virtual void SetWrapMode(AnimationWrapMode value);
+	void SetWrapMode(AnimationWrapMode value);
+	AnimationWrapMode GetWrapMode() { return wrapMode_; }
 
-	virtual bool Play(const std::string& name);
+	bool Play(const std::string& name);
 
-	virtual void SetSkeleton(Skeleton* value) { skeleton_ = value; }
-	virtual Skeleton* GetSkeleton() { return skeleton_.get(); }
+	void SetSkeleton(Skeleton* value) { skeleton_ = value; }
+	Skeleton* GetSkeleton() { return skeleton_.get(); }
 
-	virtual int GetUpdateStrategy() { return UpdateStrategyCulling; }
+	int GetUpdateStrategy() { return UpdateStrategyCulling; }
 
 private:
 	ref_ptr<Skeleton> skeleton_;
 	Matrix4 rootTransform_;
 
-	float time_;
+	float time_ = 0;
+	AnimationWrapMode wrapMode_ = AnimationWrapMode::Loop;
 
-	bool playing_;
+	bool playing_ = false;;
 	ref_ptr<AnimationClip> current_;
 
 	typedef std::map<std::string, ref_ptr<AnimationClip>> ClipContainer;
@@ -160,19 +162,19 @@ public:
 	AnimationFrameInternal() :ObjectInternal(ObjectType::AnimationFrame), time_(0) {}
 
 public:
-	virtual void SetTime(float value) { time_ = value; }
-	virtual float GetTime() { return time_; }
+	void SetTime(float value) { time_ = value; }
+	float GetTime() { return time_; }
 
-	virtual void Assign(AnimationFrame* other);
-	virtual void Lerp(AnimationFrame* result, AnimationFrame* other, float factor);
+	void Assign(AnimationFrame* other);
+	void Lerp(AnimationFrame* result, AnimationFrame* other, float factor);
 
-	virtual void SetFloat(int id, float value);
-	virtual void SetVector3(int id, const Vector3& value);
-	virtual void SetQuaternion(int id, const Quaternion& value);
+	void SetFloat(int id, float value) { attributes_[id] = Variant(value); }
+	void SetVector3(int id, const Vector3& value) { attributes_[id] = Variant(value); }
+	void SetQuaternion(int id, const Quaternion& value) { attributes_[id] = Variant(value); }
 
-	virtual float GetFloat(int id);
-	virtual Vector3 GetVector3(int id);
-	virtual Quaternion GetQuaternion(int id);
+	float GetFloat(int id);
+	Vector3 GetVector3(int id);
+	Quaternion GetQuaternion(int id);
 
 private:
 	void LerpAttribute(AnimationFrame* ans, int id, const Variant& lhs, const Variant& rhs, float factor);
@@ -190,8 +192,8 @@ public:
 	~AnimationCurveInternal() {}
 
 public:
-	virtual void SetKeys(AnimationKeys* value);
-	virtual bool Sample(float time, AnimationFrame*& frame);
+	void SetKeys(AnimationKeys* value);
+	bool Sample(float time, AnimationFrame*& frame);
 
 private:
 	int FindInterpolateIndex(float time);

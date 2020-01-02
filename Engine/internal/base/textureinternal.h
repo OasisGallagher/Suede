@@ -126,8 +126,15 @@ public:
 	bool Load(const std::string textures[6]);
 
 protected:
+	virtual void Bind(uint index);
 	virtual uint GetGLTextureType() const { return GL_TEXTURE_CUBE_MAP; }
 	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_CUBE_MAP; }
+
+private:
+	void ApplyContent();
+
+private:
+	std::unique_ptr<RawImage[]> rawImages_;
 };
 
 class Buffer;
@@ -138,20 +145,32 @@ public:
 
 public:
 	bool Create(uint size);
-	uint GetSize() const;
+
+	uint GetSize() const { return size_; }
 	void Update(uint offset, uint size, const void* data);
 
 protected:
+	virtual void Bind(uint index);
 	virtual void OnContextDestroyed();
 	virtual uint GetGLTextureType() const { return GL_TEXTURE_BUFFER; }
 	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_BUFFER; }
 	virtual bool SupportsSampler() const { return false; }
 
 private:
+	void ApplySize();
+	void ApplyContent();
 	void DestroyBuffer();
 
 private:
-	Buffer* buffer_;
+	uint size_ = 0;
+	bool sizeDirty_ = false;
+
+	struct {
+		uint offset, size;
+		std::unique_ptr<uchar[]> data;
+	} newContentArgument_;
+
+	Buffer* buffer_ = nullptr;
 };
 
 class RenderTextureInternal : public TextureInternal {
@@ -177,38 +196,52 @@ public:
 	static void ReleaseTemporary(RenderTexture* texture); 
 
 protected:
+	virtual void OnContextDestroyed();
 	virtual uint GetGLTextureType() const { return GL_TEXTURE_2D; }
 	virtual uint GetGLTextureBindingName() const { return GL_TEXTURE_BINDING_2D; }
 
 protected:
+	virtual void ApplySize();
+	virtual void ApplyConfig();
 	virtual void ResizeStorage(uint w, uint h, RenderTextureFormat format);
 
 protected:
 	void DestroyFramebuffer();
 
 protected:
-	bool SetViewport(uint width, uint height, const Rect& normalizedRect);
+	bool SetViewport(const Rect& viewport);
 
 private:
+	void ApplyClearContent();
+
 	bool VerifyBindStatus();
 	bool ContainsDepthInfo() const { return renderTextureFormat_ >= RenderTextureFormat::Depth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, uint(&parameters)[3]);
 
 protected:
-	FramebufferBase* framebuffer_;
+	FramebufferBase* framebuffer_ = nullptr;
 
-private:
 	enum {
 		StatusNone,
 		StatusRead,
 		StatusWrite,
-	} bindStatus_;
+	} bindStatus_ = StatusNone;
 
-	RenderTextureFormat renderTextureFormat_;
+	bool sizeDirty_ = false;
+	bool configDirty_ = false;
+
+	bool contentDirty_ = false;
+	struct {
+		Rect normalizedRect;
+		Color color;
+		float depth;
+	} clearContentArgument_;
+
+	RenderTextureFormat renderTextureFormat_ = RenderTextureFormat::Rgba;
 };
 
 class ScreenRenderTexture : public RenderTexture {
-	SUEDE_DECLARE_IMPLEMENTATION(ScreenRenderTexture);
+	SUEDE_DECLARE_IMPLEMENTATION(ScreenRenderTexture)
 
 public:
 	ScreenRenderTexture();
@@ -230,6 +263,7 @@ public:
 	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 protected:
+	virtual void OnContextDestroyed();
 	virtual void Resize(uint width, uint height);
 	virtual uint GetGLTextureType() const;
 	virtual uint GetGLTextureBindingName() const;
@@ -237,7 +271,7 @@ protected:
 
 class MRTRenderTextureInternal : public RenderTextureInternal {
 public:
-	MRTRenderTextureInternal(Context* context) : RenderTextureInternal(context), index_(0) {}
+	MRTRenderTextureInternal(Context* context) : RenderTextureInternal(context) {}
 
 public:
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
@@ -248,10 +282,12 @@ public:
 
 public:
 	virtual bool AddColorTexture(TextureFormat format);
-	virtual uint GetColorTextureCount() { return index_; }
+	virtual uint GetColorTextureCount() { return currentIndex_; }
 	virtual Texture2D* GetColorTexture(uint index);
 
 protected:
+	virtual void ApplySize();
+	virtual void ApplyConfig();
 	virtual uint GetGLTextureType() const;
 	virtual uint GetGLTextureBindingName() const;
 
@@ -259,6 +295,7 @@ private:
 	void DestroyColorTextures();
 
 private:
-	uint index_;
+	uint currentIndex_ = 0;
+	uint newColorTextureFrom_ = 0;
 	ref_ptr<Texture2D> colorTextures_[FramebufferAttachmentMax];
 };

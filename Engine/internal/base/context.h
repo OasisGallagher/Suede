@@ -38,7 +38,7 @@ enum class ContextLimitType {
 	_Count
 };
 
-struct BufferCommand : public intrusive_ref_counter{
+struct BufferCommand : public intrusive_ref_counter {
 	BufferCommand(const uint* ptr, uint size) : size(size){
 		pointer = new uint[size];
 		memcpy(pointer, ptr, size * sizeof(uint));

@@ -34,12 +34,12 @@ Polygon& Polygon::operator=(const Polygon& other) {
 }
 
 Vector3& Polygon::operator[](uint index) {
-	SUEDE_VERIFY_INDEX(index, npoints, points[0]);
+	SUEDE_ASSERT(index < npoints);
 	return points[index];
 }
 
 const Vector3& Polygon::operator[](uint index) const {
-	SUEDE_VERIFY_INDEX(index, npoints, points[0]);
+	SUEDE_ASSERT(index < npoints);
 	return points[index];
 }
 

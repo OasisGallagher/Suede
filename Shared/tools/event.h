@@ -80,8 +80,7 @@ public:
 
 	template <class T>
 	void subscribe(T* t, void(T::*f)(Args... args)) {
-		smart_ptr_type s(new _Subscriber <T, Args...>(t, f));
-		subscribers_.push_back(s);
+		subscribers_.push_back(new _Subscriber <T, Args...>(t, f));
 	}
 
 	void unsubscribe(void* t) {

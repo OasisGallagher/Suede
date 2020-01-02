@@ -4,9 +4,11 @@
 #include "gameobject.h"
 #include "internal/base/objectinternal.h"
 
+class Tags;
+class Context;
 class GameObjectInternal : public ObjectInternal {
 public:
-	GameObjectInternal(Scene* scene, Tags* tags, const char* name = "");
+	GameObjectInternal(Context* context, Scene* scene, Tags* tags, const char* name = "");
 	~GameObjectInternal();
 
 public:
@@ -27,10 +29,10 @@ public:
 
 	Transform* GetTransform();
 
-	const Bounds& GetBounds();
-	void RecalculateBounds(int flags = RecalculateBoundsFlagsAll);
-
 	void RecalculateUpdateStrategy(GameObject* self);
+
+public:
+	static event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> componentChanged;
 
 protected:
 	virtual void OnNameChanged(Object* self);
@@ -42,21 +44,15 @@ public:
 	template <class T>
 	Component* GetComponent(T key);
 
+	template <class T>
+	std::vector<Component*> GetComponentsInChildren(T key);
+
 	template <class T> T* GetComponent();
 
 	template <class T>
 	std::vector<Component*> GetComponents(T key);
 
 private:
-	void CalculateBonesWorldBounds();
-	void CalculateSelfWorldBounds(const Bounds& bounds);
-
-	void CalculateHierarchyBounds();
-	void CalculateHierarchyMeshBounds();
-
-	void DirtyParentBounds();
-	void DirtyChildrenBoundses();
-
 	Component* ActivateComponent(GameObject* self, Component* component);
 
 	int GetHierarchyUpdateStrategy(GameObject* root);
@@ -65,36 +61,24 @@ private:
 	void SetActive(GameObject* self, bool value);
 	void UpdateChildrenActive(GameObject* parent);
 
-	template <class Event, class... Args>
-	void RaiseGameObjectEvent(Event& e, bool attachedToSceneOnly, Args... args);
-
 	template <class T>
 	bool CheckComponentDuplicate(T key);
 
 private:
 	Tags* tags_;
 	Scene* scene_;
+	Context* context_;
 
-	bool active_;
-	bool activeSelf_;
+	bool active_ = true;
+	bool activeSelf_ = true;
 
 	std::string tag_;
 
 	std::vector<ref_ptr<Component>> components_;
 
-	uint updateStrategy_;
-	bool updateStrategyDirty_;
-
-	Bounds worldBounds_;
-	bool boundsDirty_;
+	uint updateStrategy_ = UpdateStrategyNone;
+	bool updateStrategyDirty_ = true;
 };
-
-template <class Event, class... Args>
-inline void GameObjectInternal::RaiseGameObjectEvent(Event& e, bool attachedToSceneOnly, Args... args) {
-	if (!attachedToSceneOnly || GetTransform()->IsAttachedToScene()) {
-		e.delay_raise(args...);
-	}
-}
 
 template <class T>
 inline bool GameObjectInternal::CheckComponentDuplicate(T key) {
@@ -148,6 +132,19 @@ std::vector<Component*> GameObjectInternal::GetComponents(T key) {
 		if (component->IsComponentType(key)) {
 			container.push_back(component.get());
 		}
+	}
+
+	return container;
+}
+
+template <class T>
+std::vector<Component*> GameObjectInternal::GetComponentsInChildren(T key) {
+	std::vector<Component*> container = GetComponents(key);
+	Transform* transform = GetTransform();
+	for (int i = 0; i < transform->GetChildCount(); ++i) {
+		GameObject* child = transform->GetChildAt(i)->GetGameObject();
+		std::vector<Component*> components = child->GetComponentsInChildren(key);
+		container.insert(container.end(), components.begin(), components.end());
 	}
 
 	return container;

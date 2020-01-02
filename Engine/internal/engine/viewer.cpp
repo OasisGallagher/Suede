@@ -7,13 +7,8 @@
 
 #include "debug/debug.h"
 
-static void OnTerminate() {
-	Debug::Break();
-}
-
 Viewer::Viewer(int argc, char * argv[]) : status_(Uninitialized) {
 	setlocale(LC_ALL, "");
-	std::set_terminate(OnTerminate);
 }
 
 void Viewer::Run() {

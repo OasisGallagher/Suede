@@ -72,6 +72,10 @@ void EngineInternal::Startup(GLCanvas* canvas) {
 }
 
 void EngineInternal::Shutdown() {
+	for (int type = 0; type < (int)SubsystemType::_Count; ++type) {
+		subsystems_[type]->OnDestroy();
+	}
+
 	for (int type = (int)SubsystemType::_Count - 1; type >= 0; --type) {
 		if (type != (int)SubsystemType::FrameEvents) {
 			delete subsystems_[type];

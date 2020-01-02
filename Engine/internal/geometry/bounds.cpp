@@ -7,7 +7,7 @@ const Bounds Bounds::empty;
 Bounds::Bounds() : Bounds(Vector3(0), Vector3(0)) {
 }
 
-Bounds::Bounds(const Vector3& center, const Vector3& size) :center(center), size(size) {
+Bounds::Bounds(const Vector3& center, const Vector3& size) : center(center), size(size) {
 }
 
 bool Bounds::IsEmpty() const {
@@ -53,12 +53,15 @@ void Bounds::Encapsulate(const Bounds& other) {
 	}
 }
 
-void Bounds::Encapsulate(const Vector3& point) {
-	if (IsEmpty()) {
-		center = point;
-		size = Vector3(std::numeric_limits<float>::min());
+void Bounds::Encapsulate(const Vector3* points, int npoints) {
+	SUEDE_ASSERT(points != nullptr && npoints >= 1);
+	Vector3 min(std::numeric_limits<float>::max());
+	Vector3 max(std::numeric_limits<float>::lowest());
+
+	for (int i = 0; i < npoints; ++i) {
+		min = Vector3::Min(min, points[i]);
+		max = Vector3::Max(max, points[i]);
 	}
-	else {
-		SetMinMax(Vector3::Min(GetMin(), point), Vector3::Max(GetMax(), point));
-	}
+
+	Encapsulate(Bounds((min + max) / 2.f, max - min));
 }

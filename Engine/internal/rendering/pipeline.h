@@ -5,7 +5,7 @@
 #include "camera.h"
 #include "texture.h"
 #include "material.h"
-
+#include "tools/noncopyable.h"
 #include "internal/base/framebuffer.h"
 
 struct Renderable {

@@ -25,7 +25,7 @@ suede_guid Component::ClassNameToGUID(const char* className) {
 	return ++id;
 }
 
-ComponentInternal::ComponentInternal(ObjectType type) : ObjectInternal(type), enabled_(true) {
+ComponentInternal::ComponentInternal(ObjectType type) : ObjectInternal(type) {
 	context_ = (RenderingContext*)Context::GetCurrent();
 }
 

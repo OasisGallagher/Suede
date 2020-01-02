@@ -46,7 +46,7 @@
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
 #define ANIMATION
-//#define PARTICLE_SYSTEM
+#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
@@ -110,7 +110,8 @@ void GameWindow::tick() {
 }
 
 void GameWindow::onGameObjectImported(GameObject* root, const std::string& path) {
-	//root->GetTransform()->SetParent(Engine::GetRootTransform());
+	Debug::Log("\"%s\" loaded", path.c_str());
+
 	root->SetName(path);
 
 	if (path == manFbxPath) {
@@ -167,7 +168,7 @@ void GameWindow::onGameObjectImported(GameObject* root, const std::string& path)
 		MeshRenderer* renderer = target->GetComponent<MeshRenderer>();
 		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
 			Material* material = renderer->GetMaterial(i);
-			//material->SetShader(Shader::FindShader("builtin/normal_visualizer"));
+			material->SetShader(Shader::Find("builtin/normal_visualizer"));
 		}
 	}
 }
@@ -210,14 +211,14 @@ void GameWindow::onShadingModeChanged(const QString& str) {
 }
 
 void GameWindow::onFocusGameObjectBounds(GameObject* go) {
-	Vector3 center = go->GetBounds().center;
+	/*Vector3 center = go->GetBounds().center;
 	Transform* camera = Camera::GetMain()->GetTransform();
 
 	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), go->GetBounds());
 	camera->SetPosition(center + Vector3(0, 0, -1) * distance);
 
 	Quaternion q(Matrix4::LookAt(camera->GetPosition(), center, Vector3(0, 1, 0)));
-	camera->SetRotation(q.GetConjugated());
+	camera->SetRotation(q.GetConjugated());*/
 }
 
 void GameWindow::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
@@ -345,12 +346,12 @@ void GameWindow::setupScene() {
 #endif
 	
 #ifdef PARTICLE_SYSTEM
-	GameObject* go = NewGameObject();
-	ParticleSystem particleSystem = go->AddComponent<ParticleSystem>();
+	ref_ptr<GameObject> go = new GameObject();
+	ParticleSystem* particleSystem = go->AddComponent<ParticleSystem>();
 	go->GetTransform()->SetPosition(Vector3(-30, 20, -50));
-	go->GetTransform()->SetParent(Engine::GetRootTransform());
+	go->GetTransform()->SetParent(scene->GetRootTransform());
 
-	SphereParticleEmitter emitter = NewSphereParticleEmitter();
+	ref_ptr<SphereParticleEmitter> emitter = new SphereParticleEmitter();
 	emitter->SetRadius(5);
 	emitter->SetRate(200);
 	emitter->SetStartColor(Vector4(1, 1, 1, 0.5f));
@@ -358,11 +359,11 @@ void GameWindow::setupScene() {
 	emitter->SetStartSize(1);
 	emitter->SetStartVelocity(Vector3(0, 1, 0));
 	ParticleBurst burst = { 4, 3, 20 };
-	particleSystem->SetEmitter(emitter);
+	particleSystem->SetEmitter(emitter.get());
 
-	ParticleAnimator animator = NewParticleAnimator();
+	ref_ptr<ParticleAnimator> animator = new ParticleAnimator();
 	animator->SetGravityScale(0.2f);
-	particleSystem->SetParticleAnimator(animator);
+	particleSystem->SetParticleAnimator(animator.get());
 
 	particleSystem->SetMaxParticles(1000);
 	particleSystem->SetDuration(5);

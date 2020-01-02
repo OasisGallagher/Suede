@@ -215,14 +215,14 @@ bool Language::LoadSyntaxer(const char* savePath) {
 		return false;
 	}
 
-	env_->Load(file);
+	if (!env_->Load(file)) {
+		return false;
+	}
+
 	SyntaxerSetupParameter p = { env_ };
 	syntaxer_->Setup(p);
 
-	bool ans = syntaxer_->Load(file);
-	file.close();
-
-	return ans;
+	return syntaxer_->Load(file);
 }
 
 bool Language::SaveSyntaxer(const char* savePath) {

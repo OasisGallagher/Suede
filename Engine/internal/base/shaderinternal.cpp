@@ -27,6 +27,7 @@ bool Shader::SetProperty(uint ssi, uint pass, const std::string& name, const voi
 
 static GLEF glef;
 static bool glefInitialized = false;
+static std::mutex shaderMutex;
 static std::map<std::string, ref_ptr<Shader>> shaderCache;
 
 Shader* Shader::Find(const std::string& path) {
@@ -36,6 +37,8 @@ Shader* Shader::Find(const std::string& path) {
 	}
 
 	Shader* shader = new Shader();
+
+	std::lock_guard<std::mutex> lock(shaderMutex);
 	if (!_suede_doptr(shader)->Load(shader, path)) {
 		delete shader;
 		shader = nullptr;
@@ -570,19 +573,19 @@ bool SubShader::Apply(std::vector<ShaderProperty>& properties, const Semantics::
 }
 
 void SubShader::Bind(uint pass) {
-	SUEDE_VERIFY_INDEX(pass, passCount_, SUEDE_NOARG);
+	SUEDE_ASSERT(pass < passCount_);
 	passes_[pass].Bind();
 	currentPass_ = pass;
 }
 
 void SubShader::Unbind() {
-	SUEDE_VERIFY_INDEX(currentPass_, passCount_, SUEDE_NOARG);
+	SUEDE_ASSERT(currentPass_ < passCount_);
 	passes_[currentPass_].Unbind();
 	currentPass_ = UINT_MAX;
 }
 
 bool SubShader::IsPassEnabled(uint pass) const {
-	SUEDE_VERIFY_INDEX(pass, passCount_, false);
+	SUEDE_ASSERT(pass < passCount_);
 	return (passEnabled_ & (1 << pass)) != 0;
 }
 

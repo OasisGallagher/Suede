@@ -2,10 +2,9 @@
 #include <vector>
 
 #include "transform.h"
-#include "tools/dirtybits.h"
 #include "internal/components/componentinternal.h"
 
-class TransformInternal : public ComponentInternal, public DirtyBits {
+class TransformInternal : public ComponentInternal {
 public:
 	static std::mutex hierarchyMutex;
 
@@ -66,9 +65,6 @@ public:
 
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
-protected:
-	void SetDirty(int bits);
-
 private:
 	void DirtyChildrenScales();
 	void DirtyChildrenPositions();
@@ -85,19 +81,23 @@ private:
 
 private:
 	enum {
-		LocalScale = 1,
-		WorldScale = 1 << 1,
-		LocalRotation = 1 << 2,
-		WorldRotation = 1 << 3,
-		LocalPosition = 1 << 4,
-		WorldPosition = 1 << 5,
-		LocalEulerAngles = 1 << 6,
-		WorldEulerAngles = 1 << 7,
-		LocalToWorldMatrix = 1 << 8,
-		WorldToLocalMatrix = 1 << 9,
+		LocalScaleMask = 1,
+		WorldScaleMask = 1 << 1,
+		LocalRotationMask = 1 << 2,
+		WorldRotationMask = 1 << 3,
+		LocalPositionMask = 1 << 4,
+		WorldPositionMask = 1 << 5,
+		LocalEulerAnglesMask = 1 << 6,
+		WorldEulerAnglesMask = 1 << 7,
+		LocalToWorldMatrixMask = 1 << 8,
+		WorldToLocalMatrixMask = 1 << 9,
 	};
 
+	void SetDirty(uint bits, bool value);
+	bool IsDirty(uint bits) const { return (dirtyBits_ & bits) != 0; }
+
 private:
+	uint dirtyBits_ = 0;
 	Children children_;
 	Transform* parent_;
 

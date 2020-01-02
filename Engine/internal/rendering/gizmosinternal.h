@@ -39,7 +39,6 @@ private:
 	struct Batch {
 		MeshTopology topology;
 
-		bool wireframe;
 		Color color;
 		ref_ptr<Material> material;
 
@@ -50,8 +49,8 @@ private:
 private:
 	void Update(float deltaTime) { Flush(); }
 
-	Batch& GetBatch(MeshTopology topology, bool wireframe, Material* material);
-	bool IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material);
+	Batch& GetBatch(MeshTopology topology, Material* material);
+	bool IsBatchable(const Batch& ref, MeshTopology topology, Material* material);
 
 	void FillBatch(Batch& b, const Vector3* points, uint npoints);
 	void FillBatch(Batch& b, const Vector3* points, uint npoints, const uint* indexes, uint nindexes);

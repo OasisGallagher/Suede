@@ -14,6 +14,8 @@ public:
 	void RemoveMaterial(Material* material);
 	void RemoveMaterialAt(uint index);
 	uint GetMaterialCount();
+
+	const Bounds& GetBounds();
 	
 	/**
 	 * @brief update renderer properties to materials.

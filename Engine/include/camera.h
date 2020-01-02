@@ -4,6 +4,7 @@
 #include "texture.h"
 #include "component.h"
 #include "tools/enum.h"
+#include "tools/event.h"
 
 BETTER_ENUM(ClearType, int,
 	Color,

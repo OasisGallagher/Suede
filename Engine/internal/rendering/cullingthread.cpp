@@ -15,17 +15,16 @@ CullingThread::CullingThread(RenderingContext* context) : context_(context), wor
 
 CullingThread::~CullingThread() {
 	Stop();
-	thread_.join();
 }
 
 void CullingThread::ThreadProc() {
-	auto walker = [this](GameObject* go) { return OnWalkGameObject(go); };
 	Time* time = context_->GetTime();
 	Profiler* profiler = context_->GetProfiler();
 	SceneInternal* scene = ((SceneInternal*)context_->GetScene()->d_);
 
 	int cullingUpdateFrame = -1;
 	uint64 lastTimeStamp = Time::GetTimeStamp();
+	auto walker = [this](GameObject* go) { return OnWalkGameObject(go); };
 
 	for (; !stopped_;) {
 		if (working_) {
@@ -58,6 +57,7 @@ void CullingThread::Stop() {
 	if (!stopped_) {
 		stopped_ = true;
 		cond_.notify_all();
+		thread_.join();
 	}
 }
 
@@ -70,12 +70,12 @@ void CullingThread::Cull(const Matrix4& worldToClipMatrix) {
 }
 
 WalkCommand CullingThread::OnWalkGameObject(GameObject* go) {
-	if (!IsVisible(go, worldToClipMatrix_)) {
-		return WalkCommand::Continue;
-	}
-
 	if (!go->GetActive()) {
 		return WalkCommand::Next;
+	}
+
+	if (!IsVisible(go, worldToClipMatrix_)) {
+		return WalkCommand::Continue;
 	}
 
 	if (go->GetComponent<Renderer>() && go->GetComponent<MeshProvider>()) {
@@ -86,10 +86,11 @@ WalkCommand CullingThread::OnWalkGameObject(GameObject* go) {
 }
 
 bool CullingThread::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
-	const Bounds& bounds = go->GetBounds();
-	if (bounds.IsEmpty()) {
-		return false;
-	}
+	Renderer* renderer = go->GetComponent<Renderer>();
+	if (renderer == nullptr) { return false; }
+
+	const Bounds& bounds = renderer->GetBounds();
+	if (bounds.IsEmpty()) { return false; }
 
 	return FrustumCulling(bounds, worldToClipMatrix);
 }

@@ -120,8 +120,9 @@ void Mesh::UnmapVertices() { _suede_dptr()->UnmapVertices(); }
 uint Mesh::GetVertexCount() { return _suede_dptr()->GetVertexCount(); }
 void Mesh::Bind() { _suede_dptr()->Bind(); }
 void Mesh::Unbind() { _suede_dptr()->Unbind(); }
-void Mesh::ShareStorage(Mesh* other) { _suede_dptr()->ShareStorage(other); }
+void Mesh::ShareBuffers(Mesh* other) { _suede_dptr()->ShareBuffers(other); }
 void Mesh::UpdateInstanceBuffer(uint i, size_t size, void* data) { _suede_dptr()->UpdateInstanceBuffer(i, size, data); }
+const Bounds& Mesh::GetBounds() { return _suede_dptr()->GetBounds(); }
 
 MeshProvider::MeshProvider(void* d) : Component(d) {}
 Mesh* MeshProvider::GetMesh() { return _suede_dptr()->GetMesh(); }
@@ -167,17 +168,12 @@ void MeshInternal::CreateStorage() {
 
 void MeshInternal::SetAttribute(Mesh* self, const MeshAttribute& value) {
 	CreateStorage();
-	
-	attribute_ = value;
-	meshDirty_ = true;
 
-	ref_ptr<Mesh> ref(self);
-	context_->AddCommand([ref, this]() {
-		if (meshDirty_) {
-			ApplyAttribute(attribute_);
-			ClearAttribute(attribute_);
-		}
-	});
+	storage_->attribute = value;
+	storage_->meshDirty = true;
+
+	storage_->bounds.Clear();
+	storage_->bounds.Encapsulate(value.positions.data(), value.positions.size());
 }
 
 void MeshInternal::UpdateGLBuffers(const MeshAttribute& attribute) {
@@ -265,8 +261,10 @@ int MeshInternal::CalculateVBOCount(const MeshAttribute& attribute) {
 	return count;
 }
 
-void MeshInternal::ShareStorage(Mesh* other) {
+void MeshInternal::ShareBuffers(Mesh* other) {
 	MeshInternal* ptr = _suede_rptr(other);
+	SUEDE_ASSERT(ptr->storage_);
+
 	if (ptr->storage_) {
 		storage_ = ptr->storage_;
 	}
@@ -280,14 +278,24 @@ void MeshInternal::AddSubMesh(SubMesh* subMesh) {
 }
 
 void MeshInternal::Bind() {
-	if (meshDirty_) {
-		ApplyAttribute(attribute_);
-		ClearAttribute(attribute_);
+	if (storage_->meshDirty) {
+		ApplyAttribute();
+		ClearAttribute(storage_->attribute);
 	}
 
 	if (storage_->vao.GetVBOCount() != 0) {
 		storage_->vao.Bind();
 		storage_->vao.BindBuffer(storage_->bufferIndexes[IndexBuffer]);
+	}
+
+	for (int i = 0; i < SUEDE_COUNTOF(storage_->instanceBuffers); ++i) {
+		auto& ib = storage_->instanceBuffers[i];
+		if (ib.dirty) {
+			storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, ib.size, ib.data.get());
+			ib.data = nullptr;
+			ib.size = 0;
+			ib.dirty = false;
+		}
 	}
 }
 
@@ -327,15 +335,19 @@ uint MeshInternal::GetVertexCount() {
 }
 
 void MeshInternal::UpdateInstanceBuffer(uint i, size_t size, void* data) {
-	SUEDE_VERIFY_INDEX(i, BufferIndexCount - InstanceBuffer0, SUEDE_NOARG);
-	storage_->vao.UpdateBuffer(storage_->bufferIndexes[InstanceBuffer0 + i], 0, size, data);
+	SUEDE_ASSERT(i < BufferIndexCount - InstanceBuffer0);
+	auto& ib = storage_->instanceBuffers[i];
+	ib.data.reset(new uchar[size]);
+	memcpy(ib.data.get(), data, size);
+	ib.size = size;
+	ib.dirty = true;
 }
 
-void MeshInternal::ApplyAttribute(const MeshAttribute& attribute) {
+void MeshInternal::ApplyAttribute() {
 	storage_->vao.Initialize();
-	storage_->topology = attribute.topology;
-	UpdateGLBuffers(attribute);
-	meshDirty_ = false;
+	UpdateGLBuffers(storage_->attribute);
+	storage_->topology = storage_->attribute.topology;
+	storage_->meshDirty = false;
 
 	storage_->modified.raise();
 }
@@ -362,13 +374,11 @@ void MeshInternal::ClearAttribute(MeshAttribute& attribute) {
 	attribute.indexes.shrink_to_fit();
 }
 
-#define Impl(mesh)	((MeshInternal*)mesh->d_)
-
 MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(type) {
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	auto storage = Impl(mesh_)->GetStorage();
+	auto storage = _suede_rptr(mesh_.get())->GetStorage();
 	if (storage != nullptr) {
 		storage->modified.unsubscribe(this);
 	}
@@ -376,11 +386,11 @@ MeshProviderInternal::~MeshProviderInternal() {
 
 void MeshProviderInternal::SetMesh(Mesh* value) {
 	if (mesh_ != nullptr) {
-		Impl(mesh_)->GetStorage()->modified.unsubscribe(this);
+		_suede_rptr(mesh_.get())->GetStorage()->modified.unsubscribe(this);
 	}
 
 	if (value != nullptr) {
-		Impl(value)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
+		_suede_rptr(value)->GetStorage()->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
 	}
 
 	mesh_ = value;
@@ -392,7 +402,7 @@ void MeshProviderInternal::OnMeshModified() {
 
 TextMeshInternal::TextMeshInternal() : MeshProviderInternal(ObjectType::TextMesh), meshDirty_(false) {
 	Mesh* mesh = new Mesh();
-	Impl(mesh)->CreateStorage();
+	_suede_rptr(mesh)->CreateStorage();
 
 	SetMesh(mesh);
 	GetMesh()->AddSubMesh(new SubMesh());
@@ -452,7 +462,7 @@ void TextMeshInternal::RebuildMesh() {
 	meshDirty_ = false;
 }
 
-void TextMeshInternal::RebuildUnicodeTextMesh(std::wstring wtext) {
+void TextMeshInternal::RebuildUnicodeTextMesh(const std::wstring& wtext) {
 	font_->Require(wtext);
 
 	MeshAttribute attribute;
@@ -514,7 +524,7 @@ void TextMeshInternal::InitializeMeshAttribute(MeshAttribute& attribute, const s
 	}
 }
 
-MeshInternal::Storage::Storage(Context* context) : topology(MeshTopology::Triangles), vao(context) {
+MeshInternal::Storage::Storage(Context* context) : vao(context) {
 	memset(bufferIndexes, 0, sizeof(bufferIndexes));
 }
 

@@ -5,6 +5,7 @@
 #include "decalcreater.h"
 #include "internal/codec/gameobjectimporter.h"
 #include "internal/components/transforminternal.h"
+#include "internal/gameobject/gameobjectinternal.h"
 
 Scene::Scene() : Subsystem(new SceneInternal()) {}
 void Scene::GetDecals(std::vector<Decal>& container) { _suede_dptr()->GetDecals(container); }
@@ -43,21 +44,19 @@ bool SceneInternal::ProjectorComparer::operator() (const ref_ptr<Projector>& lhs
 	return lhs->GetDepth() < rhs->GetDepth();
 }
 
-SceneInternal::SceneInternal() {
-	GameObject::created.subscribe(this, &SceneInternal::AddGameObject);
-	GameObject::componentChanged.subscribe(this, &SceneInternal::OnGameObjectComponentChanged);
-}
-
 void SceneInternal::Awake() {
+	GameObject::created.subscribe(this, &SceneInternal::AddGameObject);
+	GameObjectInternal::componentChanged.subscribe(this, &SceneInternal::OnGameObjectComponentChanged);
+
 	root_ = new GameObject("Root");
 
 	importer_ = new GameObjectImporter();
 	decalCreater_ = new DecalCreater();
 }
 
-SceneInternal::~SceneInternal() {
+void SceneInternal::OnDestroy() {
 	GameObject::created.unsubscribe(this);
-	GameObject::componentChanged.unsubscribe(this);
+	GameObjectInternal::componentChanged.unsubscribe(this);
 
 	for (ref_ptr<Camera>& camera : cameras_) {
 		camera->OnBeforeWorldDestroyed();

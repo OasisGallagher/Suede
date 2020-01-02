@@ -64,9 +64,6 @@
     <ClInclude Include="tools\typeid.h">
       <Filter>tools</Filter>
     </ClInclude>
-    <ClInclude Include="tools\dirtybits.h">
-      <Filter>tools</Filter>
-    </ClInclude>
     <ClInclude Include="tools\enum.h">
       <Filter>tools</Filter>
     </ClInclude>
@@ -96,6 +93,12 @@
     </ClInclude>
     <ClInclude Include="tools\unpacker.h">
       <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\dynamicbitset.h">
+      <Filter>containers</Filter>
+    </ClInclude>
+    <ClInclude Include="containers\concurrentqueue.h">
+      <Filter>containers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

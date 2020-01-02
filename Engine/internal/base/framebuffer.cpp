@@ -326,7 +326,7 @@ void Framebuffer::ResizeDepthRenderbuffer() {
 }
 
 uint Framebuffer::GetRenderTexture(FramebufferAttachment attachment) {
-	SUEDE_VERIFY_INDEX(attachment, context_->GetLimit(ContextLimitType::MaxColorAttachments), 0);
+	SUEDE_ASSERT(attachment >= 0 && attachment < context_->GetLimit(ContextLimitType::MaxColorAttachments));
 	return renderTextures_[attachment];
 }
 

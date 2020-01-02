@@ -26,14 +26,12 @@ public:
 	void SetVelocity(const Vector3& value);
 	Vector3 GetVelocity() const;
 
-	const Bounds& GetBounds() const { return bounds_; }
-
 private:
 	void CreateBody();
 	void DestroyBody();
 	void UpdateBody(bool updateWorldRigidbody);
 
-	void UpdateBounds();
+	//void UpdateBounds();
 
 	bool RebuildShape();
 	bool CreateShapeFromMesh(Mesh* mesh, const Vector3& scale);
@@ -60,8 +58,6 @@ private:
 		InvalidBody,
 		InvalidShape,
 	} shapeState_;
-
-	Bounds bounds_;
 
 	// The reference to a rigid body.
 	// Using this property, you’ll allow the game scene to work with the physics body of the node.

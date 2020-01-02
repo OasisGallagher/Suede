@@ -1,4 +1,6 @@
 #pragma once
+#include <cmath>
+
 #include "../types.h"
 #include "../debug/debug.h"
 

@@ -42,13 +42,13 @@ void GizmosInternal::Awake() {
 }
 
 
-bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, bool wireframe, Material* material) {
-	return ref.topology == topology && ref.wireframe == wireframe && ref.color == color_ && ref.material == material;
+bool GizmosInternal::IsBatchable(const Batch& ref, MeshTopology topology, Material* material) {
+	return ref.topology == topology && ref.color == color_ && ref.material == material;
 }
 
-GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, bool wireframe, Material* material) {
-	if (batches_.empty() || !IsBatchable(batches_.back(), topology, wireframe, material)) {
-		Batch b = { topology, wireframe, color_, material };
+GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, Material* material) {
+	if (batches_.empty() || !IsBatchable(batches_.back(), topology, material)) {
+		Batch b = { topology, color_, material };
 		batches_.push_back(b);
 	}
 
@@ -56,19 +56,19 @@ GizmosInternal::Batch& GizmosInternal::GetBatch(MeshTopology topology, bool wire
 }
 
 void GizmosInternal::DrawLines(const Vector3* points, uint npoints) {
-	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_.get()), points, npoints);
+	FillBatch(GetBatch(MeshTopology::Lines, lineMaterial_.get()), points, npoints);
 }
 
 void GizmosInternal::DrawLines(const Vector3* points, uint npoints, const uint* indexes, uint nindexes) {
-	FillBatch(GetBatch(MeshTopology::Lines, true, lineMaterial_.get()), points, npoints, indexes, nindexes);
+	FillBatch(GetBatch(MeshTopology::Lines, lineMaterial_.get()), points, npoints, indexes, nindexes);
 }
 
 void GizmosInternal::DrawLineStripe(const Vector3* points, uint npoints) {
-	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_.get()), points, npoints);
+	FillBatch(GetBatch(MeshTopology::LineStripe, lineMaterial_.get()), points, npoints);
 }
 
 void GizmosInternal::DrawLineStripe(const Vector3* points, uint npoints, const uint* indexes, uint nindexes) {
-	FillBatch(GetBatch(MeshTopology::LineStripe, true, lineMaterial_.get()), points, npoints, indexes, nindexes);
+	FillBatch(GetBatch(MeshTopology::LineStripe, lineMaterial_.get()), points, npoints, indexes, nindexes);
 }
 
 void GizmosInternal::DrawSphere(const Vector3& center, float radius) {
@@ -133,11 +133,22 @@ void GizmosInternal::AddSphereBatch(const Vector3& center, float radius, bool wi
 	std::vector<Vector3> points;
 	GeometryUtility::GetSphereCoodrinates(points, indexes, Vector2(15));
 
-	Material* material = new Material();
+	ref_ptr<Material> material = new Material();
 	material->SetShader(Shader::Find("builtin/gizmos"));
 	material->SetMatrix4("localToWorldMatrix", Matrix4::TRS(center, Quaternion(), Vector3(radius)));
 
-	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, material), &points[0], points.size(), &indexes[0], indexes.size());
+	MeshTopology topology = MeshTopology::Triangles;
+	if (wireframe) {
+		topology = MeshTopology::Lines;
+		indexes.clear();
+		for (uint i = 0; i < points.size(); i += 4) {
+			indexes.insert(indexes.end(), {
+				i, i + 1, i + 1, i + 2, i + 2, i + 3,i + 3, i
+			});
+		}
+	}
+
+	FillBatch(GetBatch(topology, material.get()), &points[0], points.size(), &indexes[0], indexes.size());
 }
 
 void GizmosInternal::AddCuboidBatch(const Vector3& center, const Vector3& size, bool wireframe) {
@@ -145,13 +156,20 @@ void GizmosInternal::AddCuboidBatch(const Vector3& center, const Vector3& size, 
 	std::vector<Vector3> points;
 	GeometryUtility::GetCuboidCoordinates(points, center, size, &indexes);
 
-	FillBatch(GetBatch(MeshTopology::Triangles, wireframe, lineMaterial_.get()), &points[0], points.size(), &indexes[0], indexes.size());
+	MeshTopology topology = MeshTopology::Triangles;
+	if (wireframe) {
+		topology = MeshTopology::Lines;
+		indexes.assign({
+			0, 1, 1, 2, 2, 3, 3, 0,
+			4, 5, 5, 6, 6, 7, 7, 4,
+			0, 4, 1, 5, 2, 6, 3, 7
+		});
+	}
+
+	FillBatch(GetBatch(topology, lineMaterial_.get()), &points[0], points.size(), &indexes[0], indexes.size());
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {
-	ShadingMode oldShadingMode = graphics_->GetShadingMode();
-	graphics_->SetShadingMode(b.wireframe ? ShadingMode::Wireframe : ShadingMode::Shaded);
-
 	MeshAttribute attribute;
 	attribute.topology = b.topology;
 
@@ -169,6 +187,4 @@ void GizmosInternal::DrawGizmos(const Batch& b) {
 
 	b.material->SetColor(BuiltinProperties::MainColor, b.color);
 	graphics_->Draw(mesh_.get(), b.material.get());
-
-	graphics_->SetShadingMode(oldShadingMode);
 }

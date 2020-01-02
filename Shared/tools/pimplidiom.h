@@ -35,6 +35,6 @@ private:
 #define _suede_dinstance()		__suede_dptr_impl(instance())
 
 // Cast base internal implementation ptr to sub type.
-#define _suede_rptr(o)			((std::remove_pointer<decltype(this)>::type*)(o)->d_)
+#define _suede_rptr(o)			((std::remove_pointer<decltype(o)>::type::Internal*)(o)->d_)
 
 //

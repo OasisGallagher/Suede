@@ -29,10 +29,7 @@ void GraphicsInternal::Awake() {
 
 void GraphicsInternal::SetShadingMode(ShadingMode value) {
 	if (shadingMode_ != value) {
-		currentContext->AddCommand([this]() {
-			currentContext->PolygonMode(GL_FRONT_AND_BACK, shadingMode_ == ShadingMode::Shaded ? GL_FILL : GL_LINE);
-		});
-
+		currentContext->PolygonMode(GL_FRONT_AND_BACK, shadingMode_ == ShadingMode::Shaded ? GL_FILL : GL_LINE);
 		shadingMode_ = value;
 	}
 }

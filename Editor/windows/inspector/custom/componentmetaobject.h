@@ -99,6 +99,15 @@ class RigidbodyMetaObject : public ComponentMetaObjectT<Rigidbody> {
 	SUEDE_PROPERTY(Vector3, Velocity)
 };
 
+#include "animation.h"
+
+Q_DECLARE_METATYPE(AnimationWrapMode)
+
+class AnimationMetaObject : public ComponentMetaObjectT<Animation> {
+	Q_OBJECT
+	SUEDE_PROPERTY(AnimationWrapMode, WrapMode)
+};
+
 #include "light.h"
 
 Q_DECLARE_METATYPE(LightType)
@@ -151,6 +160,10 @@ class SkinnedMeshRendererMetaObject : public MeshRendererMetaObject {
 	Q_OBJECT
 };
 
+class ParticleRendererMetaObject : public MeshRendererMetaObject {
+	Q_OBJECT
+};
+
 #include "projector.h"
 
 class ProjectorMetaObject : public ComponentMetaObjectT<Projector> {
@@ -163,4 +176,15 @@ class ProjectorMetaObject : public ComponentMetaObjectT<Projector> {
 	SUEDE_PROPERTY(float, NearClipPlane)
 	SUEDE_PROPERTY(float, FarClipPlane)
 	SUEDE_PROPERTY(float, FieldOfView)
+};
+
+#include "particlesystem.h"
+
+class ParticleSystemMetaObject : public ComponentMetaObjectT<ParticleSystem> {
+	Q_OBJECT
+
+	SUEDE_PROPERTY(float, Duration)
+	SUEDE_PROPERTY(bool, Looping)
+	SUEDE_PROPERTY(float, StartDelay)
+	SUEDE_PROPERTY(uint, MaxParticles)
 };

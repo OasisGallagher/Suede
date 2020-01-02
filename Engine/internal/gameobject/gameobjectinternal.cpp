@@ -9,25 +9,25 @@
 #include "tools/string.h"
 #include "particlesystem.h"
 #include "geometryutility.h"
+#include "internal/base/context.h"
 #include "internal/memory/factory.h"
 #include "internal/engine/engineinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
 GameObject::GameObject(const char* name)
-	: Object(new GameObjectInternal(Engine::GetSubsystem<Scene>(), Engine::GetSubsystem<Tags>(), name)) {
+	: Object(new GameObjectInternal(Context::GetCurrent(), Engine::GetSubsystem<Scene>(), Engine::GetSubsystem<Tags>(), name)) {
 	created.raise(this);
 	AddComponent<Transform>();
 }
 
+// TODO main thread event...
 main_mt_event<ref_ptr<GameObject>> GameObject::created;
 main_mt_event<ref_ptr<GameObject>> GameObject::destroyed;
-main_mt_event<ref_ptr<GameObject>> GameObject::tagChanged;
 main_mt_event<ref_ptr<GameObject>> GameObject::nameChanged;
 main_mt_event<ref_ptr<GameObject>> GameObject::parentChanged;
 main_mt_event<ref_ptr<GameObject>> GameObject::activeChanged;
-main_mt_event<ref_ptr<GameObject>, int> GameObject::transformChanged;
-main_mt_event<ref_ptr<GameObject>> GameObject::updateStrategyChanged;
-main_mt_event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObject::componentChanged;
+
+event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObjectInternal::componentChanged;
 
 bool GameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 Scene* GameObject::GetScene() { return _suede_dptr()->GetScene(); }
@@ -40,20 +40,19 @@ bool GameObject::SetTag(const std::string& value) { return _suede_dptr()->SetTag
 void GameObject::Update(float deltaTime) { _suede_dptr()->Update(deltaTime); }
 void GameObject::CullingUpdate(float deltaTime) { _suede_dptr()->CullingUpdate(deltaTime); }
 Transform* GameObject::GetTransform() { return _suede_dptr()->GetTransform(); }
-const Bounds& GameObject::GetBounds() { return _suede_dptr()->GetBounds(); }
-void GameObject::RecalculateBounds(int flags) { return _suede_dptr()->RecalculateBounds(); }
 void GameObject::RecalculateUpdateStrategy() { _suede_dptr()->RecalculateUpdateStrategy(this); }
 Component* GameObject::AddComponent(suede_guid guid) { return _suede_dptr()->AddComponent(this, guid); }
 Component* GameObject::AddComponent(const char* name) { return _suede_dptr()->AddComponent(this, name); }
 Component* GameObject::AddComponent(Component* component) { return _suede_dptr()->AddComponent(this, component); }
 Component* GameObject::GetComponent(suede_guid guid) { return _suede_dptr()->GetComponent(guid); }
 Component* GameObject::GetComponent(const char* name) { return _suede_dptr()->GetComponent(name); }
+std::vector<Component*> GameObject::GetComponentsInChildren(suede_guid guid) { return _suede_dptr()->GetComponentsInChildren(guid); }
+std::vector<Component*> GameObject::GetComponentsInChildren(const char* name) { return _suede_dptr()->GetComponentsInChildren(name); }
 std::vector<Component*> GameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
 std::vector<Component*> GameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
 
-GameObjectInternal::GameObjectInternal(Scene* scene, Tags* tags, const char* name)
-	: ObjectInternal(ObjectType::GameObject, name), scene_(scene), tags_(tags), active_(true), activeSelf_(true), boundsDirty_(true)
-	, updateStrategy_(UpdateStrategyNone), updateStrategyDirty_(true) {
+GameObjectInternal::GameObjectInternal(Context* context, Scene* scene, Tags* tags, const char* name)
+	: ObjectInternal(ObjectType::GameObject, name), context_(context), scene_(scene), tags_(tags) {
 }
 
 GameObjectInternal::~GameObjectInternal() {
@@ -64,10 +63,6 @@ void GameObjectInternal::SetActiveSelf(GameObject* self, bool value) {
 		activeSelf_ = value;
 		SetActive(self, activeSelf_ && GetTransform()->GetParent()->GetGameObject()->GetActive());
 		UpdateChildrenActive(self);
-
-		if (!GetBounds().IsEmpty()) {
-			DirtyParentBounds();
-		}
 	}
 }
 
@@ -79,7 +74,6 @@ bool GameObjectInternal::SetTag(GameObject* self, const std::string& value) {
 
 	if (tag_ != value) {
 		tag_ = value;
-		RaiseGameObjectEvent(GameObject::tagChanged, true, self);
 	}
 
 	return true;
@@ -92,20 +86,13 @@ Component* GameObjectInternal::ActivateComponent(GameObject* self, Component* co
 	component->Awake();
 
 	if (component->IsComponentType(MeshProvider::GetComponentGUID())) {
-		RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
-
 		if (!GetComponent(Rigidbody::GetComponentGUID())) {
-			ActivateComponent(self, (Component*)Factory::Create(Rigidbody::GetComponentGUID()));
+			ActivateComponent(self, new Rigidbody());
 		}
 	}
 
-	if (component->IsComponentType(Renderer::GetComponentGUID())) {
-		RecalculateBounds();
-	}
-
-	RaiseGameObjectEvent(GameObject::componentChanged, false, self, ComponentEventType::Added, component);
-
 	RecalculateUpdateStrategy(self);
+	GameObjectInternal::componentChanged.raise(self, ComponentEventType::Added, component);
 
 	return component;
 }
@@ -136,32 +123,18 @@ Transform* GameObjectInternal::GetTransform() {
 	return GetComponent<Transform>();
 }
 
-void GameObjectInternal::RecalculateBounds(int flags) {
-	if ((flags & RecalculateBoundsFlagsSelf) != 0) {
-		boundsDirty_ = true;
-	}
-
-	if ((flags & RecalculateBoundsFlagsParent) != 0) {
-		DirtyParentBounds();
-	}
-
-	if ((flags & RecalculateBoundsFlagsChildren) != 0) {
-		DirtyChildrenBoundses();
-	}
-}
-
 void GameObjectInternal::RecalculateUpdateStrategy(GameObject* self) {
 	RecalculateHierarchyUpdateStrategy(self);
 }
 
 void GameObjectInternal::OnNameChanged(Object* self) {
-	RaiseGameObjectEvent(GameObject::nameChanged, true, (GameObject*)self);
+	GameObject::nameChanged.raise((GameObject*)self);
 }
 
 void GameObjectInternal::SetActive(GameObject* self, bool value) {
 	if (active_ != value) {
 		active_ = value;
-		RaiseGameObjectEvent(GameObject::activeChanged, true, (GameObject*)self);
+		GameObject::activeChanged.raise((GameObject*)self);
 	}
 }
 
@@ -176,99 +149,11 @@ void GameObjectInternal::UpdateChildrenActive(GameObject* parent) {
 	}
 }
 
-const Bounds& GameObjectInternal::GetBounds() {
-	if (boundsDirty_) {
-		worldBounds_.Clear();
-		CalculateHierarchyBounds();
-	}
-
-	return worldBounds_;
-}
-
-void GameObjectInternal::CalculateHierarchyBounds() {
-	if (GetComponent<Animation>() != nullptr) {
-		CalculateBonesWorldBounds();
-	}
-	else {
-		CalculateHierarchyMeshBounds();
-		boundsDirty_ = false;
-	}
-
-	ParticleSystem* ps = GetComponent<ParticleSystem>();
-	if (ps) {
-		worldBounds_.Encapsulate(ps->GetMaxBounds());
-		boundsDirty_ = true;
-	}
-}
-
-void GameObjectInternal::CalculateHierarchyMeshBounds() {
-	Renderer* renderer = GetComponent<Renderer>();
-	Rigidbody* rigidbody = GetComponent<Rigidbody>();
-
-	if (renderer && rigidbody && !rigidbody->GetBounds().IsEmpty()) {
-		CalculateSelfWorldBounds(rigidbody->GetBounds());
-	}
-
-	Transform* tr = GetTransform();
-	for (int i = 0; i < tr->GetChildCount(); ++i) {
-		GameObject* child = tr->GetChildAt(i)->GetGameObject();
-		if (child->GetActive()) {
-			const Bounds& b = child->GetBounds();
-			worldBounds_.Encapsulate(b);
-		}
-	}
-}
-
-void GameObjectInternal::CalculateSelfWorldBounds(const Bounds& bounds) {
-	std::vector<Vector3> points;
-	GeometryUtility::GetCuboidCoordinates(points, bounds.center, bounds.size);
-
-	Transform* transform = GetTransform();
-	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-	for (uint i = 0; i < points.size(); ++i) {
-		min = Vector3::Min(min, points[i]);
-		max = Vector3::Max(max, points[i]);
-	}
-
-	worldBounds_.SetMinMax(min, max);
-}
-
-void GameObjectInternal::CalculateBonesWorldBounds() {
-	std::vector<Vector3> points;
-	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-
-	Bounds boneBounds;
-	Skeleton* skeleton = GetComponent<Animation>()->GetSkeleton();
-	Matrix4* matrices = skeleton->GetBoneToRootMatrices();
-
-	for (uint i = 0; i < skeleton->GetBoneCount(); ++i) {
-		SkeletonBone* bone = skeleton->GetBone(i);
-		GeometryUtility::GetCuboidCoordinates(points, bone->bounds.center, bone->bounds.size);
-		for (uint j = 0; j < points.size(); ++j) {
-			Vector4 p = matrices[i] * Vector4(points[j].x, points[j].y, points[j].z, 1);
-			points[j] = GetTransform()->TransformPoint(Vector3(p.x, p.y, p.z));
-
-			min = Vector3::Min(min, points[j]);
-			max = Vector3::Max(max, points[j]);
-		}
-
-		boneBounds.SetMinMax(min, max);
-		worldBounds_.Encapsulate(boneBounds);
-	}
-}
-
-void GameObjectInternal::DirtyParentBounds() {
-	Transform* parent, *current = GetTransform(), *root = scene_->GetRootTransform();
-	for (; (parent = current->GetParent()) && parent != root;) {
-		_suede_rptr(parent->GetGameObject())->boundsDirty_ = true;
-		current = parent;
-	}
-}
-
 int GameObjectInternal::GetHierarchyUpdateStrategy(GameObject* root) {
 	if (!updateStrategyDirty_) { return updateStrategy_; }
 
 	int strategy = 0;
+
 	for (ref_ptr<Component>& component : components_) {
 		strategy |= component->GetUpdateStrategy();
 	}
@@ -289,28 +174,17 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject* self) {
 	int newStrategy = GetUpdateStrategy(self);
 
 	if (oldStrategy != newStrategy) {
-		// 		Transform* parent, current = GetTransform();
-		// 		for (; (parent = current->GetParent()) && parent != Engine::GetRootTransform();) {
-		// 			if (!_suede_rptr(parent->GetGameObject().get())->RecalculateHierarchyUpdateStrategy(self)) {
-		// 				break;
-		// 			}
-		// 
-		// 			current = parent;
-		// 		}
+		//Transform* parent, current = GetTransform();
+		//for (; (parent = current->GetParent()) && parent != Engine::GetRootTransform();) {
+		//	if (!_suede_rptr(parent->GetGameObject().get())->RecalculateHierarchyUpdateStrategy(self)) {
+		//		break;
+		//	}
 
-		RaiseGameObjectEvent(GameObject::updateStrategyChanged, false, self);
+		//	current = parent;
+		//}
 
 		return true;
 	}
 
 	return false;
-}
-
-void GameObjectInternal::DirtyChildrenBoundses() {
-	Transform* tr = GetTransform();
-	for (int i = 0; i < tr->GetChildCount(); ++i) {
-		GameObjectInternal* child = _suede_rptr(tr->GetChildAt(i)->GetGameObject());
-		child->DirtyChildrenBoundses();
-		child->boundsDirty_ = true;
-	}
 }

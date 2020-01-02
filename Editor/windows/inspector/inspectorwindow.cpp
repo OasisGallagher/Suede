@@ -23,10 +23,14 @@ InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
 
 	addSuedeMetaObject(ObjectType::Rigidbody, std::make_shared<RigidbodyMetaObject>());
 
+	addSuedeMetaObject(ObjectType::Animation, std::make_shared<AnimationMetaObject>());
+	addSuedeMetaObject(ObjectType::ParticleSystem, std::make_shared<ParticleSystemMetaObject>());
+
 	addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorMetaObject>());
 	addSuedeMetaObject(ObjectType::MeshFilter, std::make_shared<MeshFilterMetaObject>());
 	addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<MeshRendererMetaObject>());
 	addSuedeMetaObject(ObjectType::SkinnedMeshRenderer, std::make_shared<SkinnedMeshRendererMetaObject>());
+	addSuedeMetaObject(ObjectType::ParticleRenderer, std::make_shared<ParticleRendererMetaObject>());
 }
 
 InspectorWindow::~InspectorWindow() {
@@ -224,6 +228,9 @@ void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, cons
 	}
 	else if (userType == QMetaTypeId<LightImportance>::qt_metatype_id()) {
 		drawUserEnumType<LightImportance>(object, name);
+	}
+	else if (userType == QMetaTypeId<AnimationWrapMode>::qt_metatype_id()) {
+		drawUserEnumType<AnimationWrapMode>(object, name);
 	}
 	else if (userType == QMetaTypeId<iranged>::qt_metatype_id()) {
 		drawUserRangeType(object, name, GUI::IntSlider);

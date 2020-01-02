@@ -142,8 +142,10 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="containers\dynamicarray.h" />
+    <ClInclude Include="containers\dynamicbitset.h" />
     <ClInclude Include="containers\freelist.h" />
     <ClInclude Include="containers\ptrmap.h" />
+    <ClInclude Include="containers\concurrentqueue.h" />
     <ClInclude Include="containers\sortedvector.h" />
     <ClInclude Include="containers\table.h" />
     <ClInclude Include="debug\debug.h" />
@@ -157,7 +159,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="math\vector4.h" />
     <ClInclude Include="memory\refptr.h" />
     <ClInclude Include="os\filesystem.h" />
-    <ClInclude Include="tools\dirtybits.h" />
     <ClInclude Include="tools\enum.h" />
     <ClInclude Include="tools\event.h" />
     <ClInclude Include="tools\pimplidiom.h" />

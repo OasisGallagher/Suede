@@ -49,11 +49,11 @@ RenderingThread::RenderingThread(RenderingContext* context) : context_(context) 
 
 RenderingThread::~RenderingThread() {
 	Stop();
-	thread_.join();
 }
 
 void RenderingThread::ThreadProc() {
 	for (; !stopped_;) {
+		// TODO: Move rendering operations to here.
 		std::unique_lock<std::mutex> lock(mutex_);
 		cond_.wait(lock);
 	}
@@ -91,6 +91,7 @@ void RenderingThread::Stop() {
 	if (!stopped_) {
 		stopped_ = true;
 		cond_.notify_all();
+		thread_.join();
 	}
 }
 

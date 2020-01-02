@@ -21,17 +21,17 @@ protected:
 private:
 	std::string text_;
 	uint ln_, depth_, start_;
-};
+} static tracer;
 
 struct DefaultLogger : public Debug::Logger {
-public:
+	DefaultLogger() { tracer.LoadModules(); }
+
 	virtual void OnLogMessageReceived(LogLevel level, const char* message) {
 		OutputDebugStringA(message);
 	}
 
 } static defaultLogger;
 
-static StackTracer tracer;
 static Debug::Logger* logger = &defaultLogger;
 
 void Debug::Log(const char* format, ...) {
@@ -69,10 +69,6 @@ Debug::Logger* Debug::GetLogger() { return logger; }
 
 void Debug::SetLogger(Logger* value) {
 	if (logger != value) {
-		if (value != nullptr) {
-			tracer.LoadModules();
-		}
-
 		logger = (value != nullptr) ? value : &defaultLogger;
 	}
 }

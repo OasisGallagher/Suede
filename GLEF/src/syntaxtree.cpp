@@ -47,7 +47,7 @@ SyntaxNode* SyntaxNode::GetChildAt(uint index) {
 		return nullptr;
 	}
 
-	SUEDE_VERIFY_INDEX(index, GetChildCount(), nullptr);
+	SUEDE_ASSERT(index < GetChildCount());
 	return value_.children.ptr[index];
 }
 
@@ -56,7 +56,7 @@ const SyntaxNode* SyntaxNode::GetChildAt(uint index) const {
 		return nullptr;
 	}
 
-	SUEDE_VERIFY_INDEX(index, GetChildCount(), nullptr);
+	SUEDE_ASSERT(index < GetChildCount());
 	return value_.children.ptr[index];
 }
 

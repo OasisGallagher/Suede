@@ -24,6 +24,7 @@ public:
 
 	virtual void Awake() {}
 	virtual void Update(float deltaTime) {}
+	virtual void OnDestroy() {}
 
 protected:
 	Subsystem(void* d);

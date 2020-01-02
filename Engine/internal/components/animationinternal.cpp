@@ -62,6 +62,7 @@ Skeleton* Animation::GetSkeleton() { return _suede_dptr()->GetSkeleton(); }
 void Animation::SetRootTransform(const Matrix4& value) { _suede_dptr()->SetRootTransform(value); }
 Matrix4 Animation::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
 void Animation::SetWrapMode(AnimationWrapMode value) { _suede_dptr()->SetWrapMode(value); }
+AnimationWrapMode Animation::GetWrapMode() { return _suede_dptr()->GetWrapMode(); }
 bool Animation::Play(const std::string& name) { return _suede_dptr()->Play(name); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Animation, Component)
@@ -90,7 +91,7 @@ bool SkeletonInternal::AddBone(const SkeletonBone& bone) {
 }
 
 SkeletonBone* SkeletonInternal::GetBone(uint index) {
-	SUEDE_VERIFY_INDEX(index, current_, nullptr);
+	SUEDE_ASSERT(index < current_);
 	return bones_ + index;
 }
 
@@ -104,7 +105,7 @@ SkeletonBone* SkeletonInternal::GetBone(const std::string& name) {
 }
 
 void SkeletonInternal::SetBoneToRootMatrix(uint index, const Matrix4& value) {
-	SUEDE_VERIFY_INDEX(index, current_, SUEDE_NOARG);
+	SUEDE_ASSERT(index < current_);
 	boneToRootMatrices_[index] = value;
 }
 
@@ -374,6 +375,7 @@ AnimationClip* AnimationInternal::GetClip(const std::string& name) {
 }
 
 void AnimationInternal::SetWrapMode(AnimationWrapMode value) {
+	wrapMode_ = value;
 	for (ClipContainer::iterator ite = clips_.begin(); ite != clips_.end(); ++ite) {
 		ite->second->SetWrapMode(value);
 	}
@@ -483,28 +485,10 @@ void AnimationFrameInternal::LerpAttribute(AnimationFrame* ans, int id, const Va
 	SetVariant(ans, id, variant);
 }
 
-void AnimationFrameInternal::SetFloat(int id, float value) {
-	Variant variant;
-	variant.SetFloat(value);
-	attributes_[id] = variant;
-}
-
-void AnimationFrameInternal::SetVector3(int id, const Vector3& value) {
-	Variant variant;
-	variant.SetVector3(value);
-	attributes_[id] = variant;
-}
-
-void AnimationFrameInternal::SetQuaternion(int id, const Quaternion& value) {
-	Variant variant;
-	variant.SetQuaternion(value);
-	attributes_[id] = variant;
-}
-
 float AnimationFrameInternal::GetFloat(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if(pos == attributes_.end()) {
-		Debug::LogError("Animation* keyframe attribute for id %d does not exist.", id);
+		Debug::LogError("keyframe attribute for id %d does not exist.", id);
 		return 0;
 	}
 
@@ -515,7 +499,7 @@ float AnimationFrameInternal::GetFloat(int id) {
 Vector3 AnimationFrameInternal::GetVector3(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
-		Debug::LogError("Animation* keyframe attribute for id %d does not exist.", id);
+		Debug::LogError("keyframe attribute for id %d does not exist.", id);
 		return Vector3(0);
 	}
 
@@ -525,7 +509,7 @@ Vector3 AnimationFrameInternal::GetVector3(int id) {
 Quaternion AnimationFrameInternal::GetQuaternion(int id) {
 	AttributeContainer::iterator pos = attributes_.find(id);
 	if (pos == attributes_.end()) {
-		Debug::LogError("Animation* keyframe attribute for id %d does not exist.", id);
+		Debug::LogError("keyframe attribute for id %d does not exist.", id);
 		return Quaternion();
 	}
 

@@ -15,7 +15,7 @@ struct SUEDE_API Bounds {
 
 	void Clear();
 	void Encapsulate(const Bounds& other);
-	void Encapsulate(const Vector3& point);
+	void Encapsulate(const Vector3* points, int npoints);
 	void SetMinMax(const Vector3& min, const Vector3& max);
 
 	void Expand(const Vector3& amount);

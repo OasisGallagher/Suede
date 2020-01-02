@@ -2,6 +2,7 @@
 
 #include "engine.h"
 #include "gizmos.h"
+#include "renderer.h"
 
 SUEDE_DEFINE_COMPONENT(SelectionGizmos, GizmosPainter)
 
@@ -18,7 +19,11 @@ void SelectionGizmos::OnDrawGizmos() {
 
 		gizmos->SetColor(Color::yellow);
 
-		const Bounds& bounds = go->GetBounds();
+		Bounds bounds;
+		for (Renderer* renderer : go->GetComponentsInChildren<Renderer>()) {
+			bounds.Encapsulate(renderer->GetBounds());
+		}
+
 		if (!bounds.IsEmpty()) {
 			//body->ShowCollisionShape(true);
 			gizmos->DrawWireCuboid(bounds.center, bounds.size);
@@ -30,13 +35,13 @@ void SelectionGizmos::OnDrawGizmos() {
 		Vector3 pos = go->GetTransform()->GetPosition();
 
 		gizmos->SetColor(Color::red);
-		gizmos->DrawLines({pos, pos + go->GetTransform()->GetRight() * 5.f});
+		gizmos->DrawLines({pos, pos + go->GetTransform()->GetRight() * bounds.size.x});
 
 		gizmos->SetColor(Color::green);
-		gizmos->DrawLines({ pos, pos + go->GetTransform()->GetUp() * 5.f });
+		gizmos->DrawLines({ pos, pos + go->GetTransform()->GetUp() * bounds.size.y });
 
 		gizmos->SetColor(Color::blue);
-		gizmos->DrawLines({ pos, pos + go->GetTransform()->GetForward() * 5.f });
+		gizmos->DrawLines({ pos, pos + go->GetTransform()->GetForward() * bounds.size.z });
 	}
 
 	gizmos->SetColor(oldColor);

@@ -21,8 +21,6 @@ public:
 	void SetMass(float value);
 	float GetMass() const;
 
-	const Bounds& GetBounds() const;
-
 	void SetVelocity(const Vector3& value);
 	Vector3 GetVelocity() const;
 };
