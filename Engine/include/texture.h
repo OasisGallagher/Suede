@@ -173,7 +173,7 @@ public:
 	RenderTextureFormat GetRenderTextureFormat();
 
 	void Resize(uint width, uint height);
-	void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 	void BindWrite(const Rect& normalizedRect);
 

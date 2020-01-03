@@ -4,13 +4,13 @@
 #include "renderingthread.h"
 #include "builtinproperties.h"
 
-#include "internal/base/renderdefines.h"
-#include "internal/base/shaderinternal.h"
-#include "internal/base/materialinternal.h"
-
 #include "shadowmap.h"
 #include "ambientocclusion.h"
 #include "shareduniformbuffers.h"
+
+#include "internal/base/renderdefines.h"
+#include "internal/base/shaderinternal.h"
+#include "internal/base/materialinternal.h"
 
 UniformState::UniformState(Context* context) {
 	uint w = Screen::GetWidth(), h = Screen::GetHeight();
@@ -102,11 +102,11 @@ void RenderingContext::OnScreenSizeChanged(uint width, uint height) {
 }
 
 void RenderingContext::ClearFrame() {
-	offscreenRT_->Clear(frameState_->normalizedRect, frameState_->clearColor, 1);
+	offscreenRT_->Clear(frameState_->normalizedRect, frameState_->clearColor, 1, -1);
 
-	uniformState_->depthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1);
+	uniformState_->depthTexture->Clear(Rect(0, 0, 1, 1), Color::black, 1, -1);
 
 	RenderTexture* target = frameState_->targetTexture.get();
 	if (!target) { target = RenderTexture::GetDefault(); }
-	target->Clear(frameState_->normalizedRect, frameState_->clearColor, 1);
+	target->Clear(frameState_->normalizedRect, frameState_->clearColor, 1, -1);
 }

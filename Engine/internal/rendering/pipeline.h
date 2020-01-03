@@ -73,20 +73,20 @@ public:
 	);
 
 private:
-	struct RenderSamples {
+	struct RenderingSamples {
 		Sample* switchState;
 		Sample* updateOffset;
 		Sample* drawCall;
 	};
 
-	void Render(Renderable& renderable, uint instance, uint matrixOffset, RenderSamples& samples);
+	void Render(Renderable& renderable, uint instance, uint matrixOffset, RenderingSamples& samples);
 
 	void ResetState();
 	void UpdateState(Renderable& renderable);
 
 	void UpdateMatrixBuffer(uint size, const void* data);
 
-	void RenderInstances(uint first, uint last, RenderSamples& samples);
+	void RenderInstances(uint first, uint last, RenderingSamples& samples);
 	void GatherInstances(std::vector<uint>& ranges);
 	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
 

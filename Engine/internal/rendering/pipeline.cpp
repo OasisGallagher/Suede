@@ -130,7 +130,7 @@ void Pipeline::Run() {
 
 	uint from = 0;
 
-	RenderSamples renderSamples = {
+	RenderingSamples renderSamples = {
 		profiler_->CreateSample(),
 		profiler_->CreateSample(),
 		profiler_->CreateSample(),
@@ -221,7 +221,7 @@ void Pipeline::GatherInstances(std::vector<uint>& ranges) {
 	}
 }
 
-void Pipeline::RenderInstances(uint first, uint last, RenderSamples& samples) {
+void Pipeline::RenderInstances(uint first, uint last, RenderingSamples& samples) {
 	Render(renderables_[first], last - first, first * 8, samples);
 }
 
@@ -246,7 +246,7 @@ void Pipeline::AddRenderable(Mesh* mesh, Material* material, uint pass, const Ma
 	}
 }
 
-void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset, RenderSamples& samples) {
+void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset, RenderingSamples& samples) {
 	samples.switchState->Start();
 	UpdateState(renderable);
 	samples.switchState->Stop();

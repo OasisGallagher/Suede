@@ -54,12 +54,7 @@ void Camera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed();
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
 void Camera::OnPreRender() {
-	FramebufferBase* framebuffer = Framebuffer::GetDefault();
-	framebuffer->SetViewport(0, 0, Screen::GetWidth(), Screen::GetHeight());
-	framebuffer->SetClearDepth(1);
-	framebuffer->SetClearStencil(1);
-	framebuffer->SetClearColor(Color::black);
-	framebuffer->Clear(FramebufferClearMaskColorDepthStencil);
+	RenderTexture::GetDefault()->Clear(Rect(0, 0, 1, 1), Color::black, 1, 1);
 }
 
 void Camera::OnPostRender() {

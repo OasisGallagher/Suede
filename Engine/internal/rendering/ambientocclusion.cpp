@@ -38,8 +38,8 @@ void AmbientOcclusion::Run(RenderTexture* depthTexture, const Rect& normalizedRe
 }
 
 void AmbientOcclusion::Clear(const Rect& normalizedRect) {
-	ssaoRT_->Clear(normalizedRect, Color::white, 1);
-	ssaoTraversalRT_->Clear(normalizedRect, Color::black, 1);
+	ssaoRT_->Clear(normalizedRect, Color::white, 1, -1);
+	ssaoTraversalRT_->Clear(normalizedRect, Color::black, 1, -1);
 }
 
 void AmbientOcclusion::InitializeKernel() {

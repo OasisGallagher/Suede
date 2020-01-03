@@ -2,7 +2,6 @@
 #include <vector>
 
 #include "texture.h"
-#include "globjectmaintainer.h"
 
 enum FramebufferTarget {
 	FramebufferTargetRead,
@@ -16,8 +15,7 @@ enum FramebufferClearMask {
 	FramebufferClearMaskDepth = 2,
 	FramebufferClearMaskStencil = 4,
 
-	FramebufferClearMaskColorDepth = FramebufferClearMaskColor | FramebufferClearMaskDepth,
-	FramebufferClearMaskColorDepthStencil = FramebufferClearMaskColorDepth | FramebufferClearMaskStencil,
+	FramebufferClearMaskAll = 7
 };
 
 enum FramebufferAttachment {
@@ -35,7 +33,7 @@ enum FramebufferAttachment {
 };
 
 class Context;
-class FramebufferBase : public GLObjectMaintainer {
+class FramebufferBase {
 public:
 	FramebufferBase(Context* context);
 	virtual ~FramebufferBase();
@@ -92,6 +90,8 @@ protected:
 	void FramebufferTargetToGLenum(FramebufferTarget target, uint* query, uint* bind);
 
 protected:
+	Context* context_;
+
 	uint fbo_;
 	IVector4 viewport_;
 
@@ -145,8 +145,6 @@ protected:
 	 * @brief clear all color attachments.
 	 */
 	virtual void ClearCurrent(FramebufferClearMask clearMask);
-
-	virtual void OnContextDestroyed();
 
 private:
 	void Destroy();

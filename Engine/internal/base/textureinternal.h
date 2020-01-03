@@ -186,7 +186,7 @@ public:
 	virtual void Resize(uint width, uint height);
 
 	virtual void BindWrite(const Rect& normalizedRect);
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
+	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 	RenderTextureFormat GetRenderTextureFormat() { return renderTextureFormat_; }
 
@@ -207,13 +207,12 @@ protected:
 
 protected:
 	void DestroyFramebuffer();
+	void ApplyClearContent();
 
 protected:
 	bool SetViewport(const Rect& viewport);
 
 private:
-	void ApplyClearContent();
-
 	bool VerifyBindStatus();
 	bool ContainsDepthInfo() const { return renderTextureFormat_ >= RenderTextureFormat::Depth; }
 	void RenderTextureFormatToGLenum(RenderTextureFormat input, uint(&parameters)[3]);
@@ -230,12 +229,14 @@ protected:
 	bool sizeDirty_ = false;
 	bool configDirty_ = false;
 
-	bool contentDirty_ = false;
 	struct {
+		bool dirty = false;
+
 		Rect normalizedRect;
 		Color color;
-		float depth;
-	} clearContentArgument_;
+		float depth = -1;
+		int stencil = -1;
+	} clearArgument_;
 
 	RenderTextureFormat renderTextureFormat_ = RenderTextureFormat::Rgba;
 };
@@ -256,11 +257,11 @@ public:
 	virtual uint GetWidth() const;
 	virtual uint GetHeight() const;
 
+	virtual void Bind(uint index);
 	virtual void BindWrite(const Rect& normalizedRect);
 	virtual void Unbind();
 
 	virtual bool Create(RenderTextureFormat format, uint width, uint height);
-	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth);
 
 protected:
 	virtual void OnContextDestroyed();

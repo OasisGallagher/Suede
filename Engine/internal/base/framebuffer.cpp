@@ -9,7 +9,7 @@
 
 #define LogUnsupportedFramebufferOperation()	Debug::LogError("unsupported framebuffer operation %s.", __func__);
 
-FramebufferBase::FramebufferBase(Context* context) : GLObjectMaintainer(context), fbo_(0), oldFramebuffer_(0)
+FramebufferBase::FramebufferBase(Context* context) : context_(context), fbo_(0), oldFramebuffer_(0)
 	, bindTarget_(0), clearDepth_(1), clearStencil_(0) {
 	viewport_ = IVector4(0, 0, Screen::GetWidth(), Screen::GetHeight());
 }
@@ -231,7 +231,7 @@ void Framebuffer::BindReadAttachment(FramebufferAttachment attachment) {
 
 void Framebuffer::BindWriteAttachments(FramebufferAttachment* attachments, uint n) {
 	FramebufferBase::BindFramebuffer(FramebufferTargetWrite);
-	ClearCurrent(FramebufferClearMaskColorDepthStencil);
+	ClearCurrent(FramebufferClearMaskAll);
 
 	uint count = ToGLColorAttachments(attachments, n);
 	context_->DrawBuffers(count, glAttachments_);
@@ -255,11 +255,6 @@ void Framebuffer::ClearCurrent(FramebufferClearMask clearMask) {
 	uint count = ToGLColorAttachments();
 	context_->DrawBuffers(count, glAttachments_);
 	FramebufferBase::ClearCurrent(clearMask);
-}
-
-void Framebuffer::OnContextDestroyed() {
-	Destroy();
-	FramebufferBase::OnContextDestroyed();
 }
 
 void Framebuffer::ClearCurrentAttachments(FramebufferClearMask clearMask, FramebufferAttachment* attachments, uint n) {

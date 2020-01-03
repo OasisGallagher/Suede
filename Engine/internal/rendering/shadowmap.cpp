@@ -18,7 +18,7 @@ void ShadowMap::Resize(uint width, uint height) {
 }
 
 void ShadowMap::Clear() {
-	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), Color::black, 1);
+	shadowDepthTexture_->Clear(Rect(0, 0, 1, 1), Color::black, 1, -1);
 }
 
 void ShadowMap::Update(Light* light) {

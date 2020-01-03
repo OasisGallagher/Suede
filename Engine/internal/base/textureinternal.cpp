@@ -69,7 +69,7 @@ RenderTexture::RenderTexture(void* d) : Texture(d) {}
 bool RenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
 RenderTextureFormat RenderTexture::GetRenderTextureFormat() { return _suede_dptr()->GetRenderTextureFormat(); }
 void RenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
-void RenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth) { _suede_dptr()->Clear(normalizedRect, color, depth); }
+void RenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) { _suede_dptr()->Clear(normalizedRect, color, depth, stencil); }
 void RenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
 RenderTexture* RenderTexture::GetDefault() { return RenderTextureInternal::GetDefault(); }
 RenderTexture* RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) { return RenderTextureInternal::GetTemporary(format, width, height); }
@@ -80,7 +80,7 @@ bool MRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dpt
 Texture2D* MRTRenderTexture::GetColorTexture(uint index) { return _suede_dptr()->GetColorTexture(index); }
 uint MRTRenderTexture::GetColorTextureCount() { return _suede_dptr()->GetColorTextureCount(); }
 
-ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal(Context::GetCurrent())){}
+ScreenRenderTexture::ScreenRenderTexture() : RenderTexture(new ScreenRenderTextureInternal(Context::GetCurrent())) {}
 
 TextureInternal::TextureInternal(ObjectType type, Context* context) : ObjectInternal(type), GLObjectMaintainer(context) {
 }
@@ -106,7 +106,6 @@ void TextureInternal::Bind(uint index) {
 
 void TextureInternal::Unbind() {
 	if (location_ != 0) {
-		//context_->ActiveTexture(location_);
 		UnbindTexture();
 		location_ = 0;
 	}
@@ -519,11 +518,12 @@ bool RenderTextureInternal::Create(RenderTextureFormat format, uint width, uint 
 	return true;
 }
 
-void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
-	clearContentArgument_.normalizedRect = normalizedRect;
-	clearContentArgument_.color = color;
-	clearContentArgument_.depth = depth;
-	contentDirty_ = true;
+void RenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) {
+	clearArgument_.normalizedRect = normalizedRect;
+	clearArgument_.color = color;
+	clearArgument_.depth = depth;
+	clearArgument_.stencil = stencil;
+	clearArgument_.dirty = true;
 }
 
 void RenderTextureInternal::Resize(uint width, uint height) {
@@ -540,7 +540,7 @@ void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 		if (configDirty_) { ApplyConfig(); }
 		else {
 			if (sizeDirty_) { ApplySize(); }
-			if (contentDirty_) { ApplyClearContent(); }
+			if (clearArgument_.dirty) { ApplyClearContent(); }
 		}
 
 		bindStatus_ = StatusWrite;
@@ -555,7 +555,7 @@ void RenderTextureInternal::Bind(uint index) {
 		if (configDirty_) { ApplyConfig(); }
 		else {
 			if (sizeDirty_) { ApplySize(); }
-			if (contentDirty_) { ApplyClearContent(); }
+			if (clearArgument_.dirty) { ApplyClearContent(); }
 		}
 
 		TextureInternal::Bind(index);
@@ -617,19 +617,27 @@ void RenderTextureInternal::ApplyConfig() {
 }
 
 void RenderTextureInternal::ApplyClearContent() {
-	if (SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)width_, (float)height_), clearContentArgument_.normalizedRect))) {
-		if (ContainsDepthInfo()) {
-			framebuffer_->SetClearDepth(clearContentArgument_.depth);
-			framebuffer_->Clear(FramebufferClearMaskDepth);
+	if (SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)GetWidth(), (float)GetHeight()), clearArgument_.normalizedRect))) {
+		int flags = FramebufferClearMaskColor;
+		if (clearArgument_.depth >= 0) {
+			flags |= FramebufferClearMaskDepth;
+			framebuffer_->SetClearDepth(clearArgument_.depth);
 		}
-		else {
-			framebuffer_->SetClearDepth(clearContentArgument_.depth);
-			framebuffer_->SetClearColor(clearContentArgument_.color);
-			framebuffer_->Clear(FramebufferClearMaskColorDepth);
+
+		if (clearArgument_.stencil >= 0) {
+			flags |= FramebufferClearMaskStencil;
+			framebuffer_->SetClearStencil(clearArgument_.stencil);
 		}
+
+		if (!ContainsDepthInfo()) {
+			flags |= FramebufferClearMaskColor;
+			framebuffer_->SetClearColor(clearArgument_.color);
+		}
+
+		framebuffer_->Clear((FramebufferClearMask)flags);
 	}
 
-	contentDirty_ = false;
+	clearArgument_.dirty = false;
 }
 
 bool RenderTextureInternal::VerifyBindStatus() {
@@ -786,16 +794,7 @@ ScreenRenderTextureInternal::~ScreenRenderTextureInternal() {
 }
 
 bool ScreenRenderTextureInternal::Create(RenderTextureFormat format, uint width, uint height) {
-	framebuffer_ = Framebuffer::GetDefault();
 	return true;
-}
-
-void ScreenRenderTextureInternal::Clear(const Rect& normalizedRect, const Color& color, float depth) {
-	SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect));
-
-	framebuffer_->SetClearDepth(depth);
-	framebuffer_->SetClearColor(color);
-	framebuffer_->Clear(FramebufferClearMaskColorDepth);
 }
 
 uint ScreenRenderTextureInternal::GetWidth() const {
@@ -806,7 +805,21 @@ uint ScreenRenderTextureInternal::GetHeight() const {
 	return Screen::GetHeight();
 }
 
+void ScreenRenderTextureInternal::Bind(uint index) {
+	if (framebuffer_ == nullptr) {
+		framebuffer_ = Framebuffer::GetDefault();
+	}
+
+	RenderTextureInternal::Bind(index);
+}
+
 void ScreenRenderTextureInternal::BindWrite(const Rect& normalizedRect) {
+	if (framebuffer_ == nullptr) {
+		framebuffer_ = Framebuffer::GetDefault();
+	}
+
+	if (clearArgument_.dirty) { ApplyClearContent(); }
+
 	SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)Screen::GetWidth(), (float)Screen::GetHeight()), normalizedRect));
 	framebuffer_->BindWrite();
 }
