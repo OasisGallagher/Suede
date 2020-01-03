@@ -6,24 +6,28 @@
 #include "imgui.h"
 #include "glcanvas.h"
 
-static ImFont* imfont;
-static char buffer[256];
+struct Globes {
+	char buffer[256] = { 0 };
 
-#define FromGLMColor
+	Color color = Color::white;
+	int nSetColorCall = 0;
+
+	ImFont* font = nullptr;
+} static g;
 
 void GUI::LoadFont(const char* file) {
-	imfont = ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15, nullptr, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
+	ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15, nullptr, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
 }
 
 void GUI::Begin(uint w, uint h, const Color& foregroundColor, const Color& backgroundColor) {
-	if (imfont != nullptr) {
-		ImGui::PushFont(imfont);
+	auto& container = ImGui::GetIO().Fonts->Fonts;
+	if (!container.empty()) {
+		ImGui::PushFont(g.font = container.back());
 	}
 
 	const int flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar;
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1));
 	ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(backgroundColor.r, backgroundColor.g, backgroundColor.b, 1));
-	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(foregroundColor.r, foregroundColor.g, foregroundColor.b, 1));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
@@ -35,19 +39,37 @@ void GUI::Begin(uint w, uint h, const Color& foregroundColor, const Color& backg
 	ImGui::SetNextWindowSizeConstraints(size, size);
 
 	ImGui::Begin("", nullptr, flags);
+	SetColor(foregroundColor);
 }
 
 void GUI::End() {
+	ImGui::PopStyleColor(g.nSetColorCall);
 	ImGui::End();
 
-	ImGui::PopStyleColor(3);
+	ImGui::PopStyleColor(2);
 	ImGui::PopStyleVar(2);
 
-	if (imfont != nullptr) {
+	g.color = Color::white;
+	g.nSetColorCall = 0;
+
+	if (g.font != nullptr) {
 		ImGui::PopFont();
+		g.font = nullptr;
 	}
 
 	ImGui::Render();
+}
+
+Color GUI::GetColor() {
+	return g.color;
+}
+
+void GUI::SetColor(const Color& value) {
+	if (g.color != value) {
+		g.color = value;
+		++g.nSetColorCall;
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(value.r, value.g, value.b, 1));
+	}
 }
 
 void GUI::LabelField(const char* text) {
@@ -59,12 +81,12 @@ void GUI::LabelField(const char* title, const char* text) {
 }
 
 bool GUI::TextField(const char* title, std::string& value) {
-	int len = Mathf::Min(IM_ARRAYSIZE(buffer) - 1, (int)value.length());
-	strncpy(buffer, value.c_str(), len);
-	buffer[len] = 0;
+	int len = Mathf::Min(IM_ARRAYSIZE(g.buffer) - 1, (int)value.length());
+	strncpy(g.buffer, value.c_str(), len);
+	g.buffer[len] = 0;
 
-	if (ImGui::InputText(title, buffer, IM_ARRAYSIZE(buffer))) {
-		value = buffer;
+	if (ImGui::InputText(title, g.buffer, IM_ARRAYSIZE(g.buffer))) {
+		value = g.buffer;
 		return true;
 	}
 
@@ -86,6 +108,33 @@ bool GUI::ImageButton(const char* title, uint texture) {
 	ImGui::SameLine();
 	ImGui::Text(title);
 	return clicked;
+}
+
+bool GUI::BeginTreeNode(void* id, const char* title, bool selected, bool leaf, int* clickCount) {
+	int nodeFlags = 0;
+	if (selected) {
+		nodeFlags |= ImGuiTreeNodeFlags_Selected;
+	}
+
+	if (leaf) {
+		nodeFlags |= ImGuiTreeNodeFlags_Leaf;
+	}
+	else {
+		nodeFlags |= ImGuiTreeNodeFlags_OpenOnArrow;
+	}
+
+	bool open = ImGui::TreeNodeEx(id, nodeFlags, title);
+	if (clickCount != nullptr) {
+		*clickCount = 0;
+		if (ImGui::IsItemClicked()) { *clickCount = 1; }
+		if (ImGui::__IsItemDoubleClicked()) { *clickCount = 2; }
+	}
+
+	return open;
+}
+
+void GUI::EndTreeNode() {
+	ImGui::TreePop();
 }
 
 bool GUI::Toggle(const char* title, bool& value) {

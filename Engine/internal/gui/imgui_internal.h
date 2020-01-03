@@ -1075,7 +1075,7 @@ namespace ImGui
     IMGUI_API void                  MarkIniSettingsDirty();
     IMGUI_API void                  MarkIniSettingsDirty(ImGuiWindow* window);
     IMGUI_API ImGuiSettingsHandler* FindSettingsHandler(const char* type_name);
-    IMGUI_API ImGuiWindowSettings*  FindWindowSettings(ImGuiID id);
+    IMGUI_API ImGuiWindowSettings*  FindWindowSettings(ImGuiContext* ctx, ImGuiID id);
 
     inline ImGuiID          GetItemID()     { ImGuiContext& g = *GImGui; return g.CurrentWindow->DC.LastItemId; }
     inline ImGuiID          GetActiveID()   { ImGuiContext& g = *GImGui; return g.ActiveId; }

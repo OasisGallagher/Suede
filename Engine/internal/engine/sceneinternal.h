@@ -30,11 +30,13 @@ public:
 public:
 	void Awake();
 	void Update(float deltaTime);
+
 	void CullingUpdate(float deltaTime);
 	void OnDestroy();
 
 private:
 	void UpdateDecals();
+	void SortComponents();
 	void CullingUpdateGameObjects(float deltaTime);
 	void RenderingUpdateGameObjects(float deltaTime);
 	void AddGameObject(ref_ptr<GameObject> go);
@@ -51,17 +53,13 @@ private:
 	void ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state);
 
 private:
-	struct LightComparer { bool operator() (const ref_ptr<Light>& lhs, const ref_ptr<Light>& rhs) const; };
-	struct CameraComparer { bool operator() (const ref_ptr<Camera>& lhs, const ref_ptr<Camera>& rhs) const; };
-	struct ProjectorComparer { bool operator() (const ref_ptr<Projector>& lhs, const ref_ptr<Projector>& rhs) const; };
+	typedef std::vector<Light*> LightContainer;
+	typedef std::vector<Camera*> CameraContainer;
+	typedef std::vector<Projector*> ProjectorContainer;
+	typedef std::vector<GameObject*> GameObjectSequence;
+	typedef std::vector<GizmosPainter*> GizmosPainterContainer;
 
-	typedef sorted_vector<ref_ptr<GizmosPainter>> GizmosPainterContainer;
-
-	typedef sorted_vector<GameObject*> GameObjectSequence;
 	typedef std::map<uint, ref_ptr<GameObject>> GameObjectDictionary;
-	typedef std::set<ref_ptr<Light>, LightComparer> LightContainer;
-	typedef sorted_vector<ref_ptr<Camera>, CameraComparer> CameraContainer;
-	typedef std::set<ref_ptr<Projector>, ProjectorComparer> ProjectorContainer;
 
 private:
 	LightContainer lights_;
@@ -78,19 +76,3 @@ private:
 	ref_ptr<GameObject> root_;
 	GameObjectImporter* importer_;
 };
-
-template <class Container>
-void SceneInternal::ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state) {
-	typedef typename Container::value_type V;
-	typedef typename V::element_type T;
-
-	if (component->IsComponentType(T::GetComponentGUID())) {
-		T* target = (T*)component;
-		if (state == ComponentEventType::Added) {
-			container.insert(container.end(), ref_ptr<T>(target));
-		}
-		else if (state == ComponentEventType::Removed) {
-			container.erase(ref_ptr<T>(target));
-		}
-	}
-}

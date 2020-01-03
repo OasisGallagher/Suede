@@ -31,9 +31,6 @@ public:
 	~Camera();
 
 public:
-	static mt_event<ref_ptr<Camera>> depthChanged;
-
-public:
 	void SetDepth(int vaue);
 	int GetDepth() const;
 

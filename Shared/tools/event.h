@@ -80,7 +80,7 @@ public:
 
 	template <class T>
 	void subscribe(T* t, void(T::*f)(Args... args)) {
-		subscribers_.push_back(new _Subscriber <T, Args...>(t, f));
+		subscribers_.emplace_back(new _Subscriber <T, Args...>(t, f));
 	}
 
 	void unsubscribe(void* t) {
@@ -161,12 +161,12 @@ public:
 public:
 	template <class T>
 	void subscribe(T* t, void(T::*f)(Args... args)) {
-		std::lock_guard<std::mutex> lock(mutex_);
+		std::lock_guard<std::recursive_mutex> lock(mutex_);
 		super::subscribe(t, f);
 	}
 
 	void unsubscribe(void* t) {
-		std::lock_guard<std::mutex> lock(mutex_);
+		std::lock_guard<std::recursive_mutex> lock(mutex_);
 		super::unsubscribe(t);
 	}
 
@@ -175,20 +175,20 @@ public:
 			delay_raise(args...);
 		}
 		else {
-			std::lock_guard<std::mutex> lock(mutex_);
+			std::lock_guard<std::recursive_mutex> lock(mutex_);
 			super::raise(args...);
 		}
 	}
 
 	void delay_raise(Args... args) {
-		std::lock_guard<std::mutex> lock(mutex_);
+		std::lock_guard<std::recursive_mutex> lock(mutex_);
 		raise_arguments_.emplace_back(args...);
 	}
 
 	void update() {
 		assert(thread_id_ == std::this_thread::get_id());
 
-		std::lock_guard<std::mutex> lock(mutex_);
+		std::lock_guard<std::recursive_mutex> lock(mutex_);
 		for (auto& argument : raise_arguments_) {
 			Unpacker::apply(this, &super::raise, argument);
 		}
@@ -197,7 +197,7 @@ public:
 	}
 
 private:
-	std::mutex mutex_;
 	std::thread::id thread_id_;
+	std::recursive_mutex mutex_;
 	std::vector<std::tuple<Args...>> raise_arguments_;
 };

@@ -40,6 +40,7 @@ void ImGuiRenderer::initialize(WindowWrapper *window) {
     m_window.reset(window);
 
     m_context = ImGui::CreateContext();
+	ImGui::SetCurrentContext(m_context);
 
     ImGuiIO &io = ImGui::GetIO();
     for (ImGuiKey key : keyMap.values()) {
@@ -272,10 +273,10 @@ void ImGuiRenderer::destroy() {
 
 void ImGuiRenderer::newFrame()
 {
-    if (!g_FontTexture)
-        createDeviceObjects();
-
 	ImGui::SetCurrentContext(m_context);
+
+	if (!g_FontTexture)
+        createDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
 

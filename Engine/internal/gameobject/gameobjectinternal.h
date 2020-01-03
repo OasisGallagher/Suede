@@ -32,10 +32,8 @@ public:
 	void RecalculateUpdateStrategy(GameObject* self);
 
 public:
+	static event<ref_ptr<GameObject>> created;
 	static event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> componentChanged;
-
-protected:
-	virtual void OnNameChanged(Object* self);
 
 public:
 	template <class T>

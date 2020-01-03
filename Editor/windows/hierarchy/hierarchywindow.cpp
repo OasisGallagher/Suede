@@ -1,311 +1,133 @@
+#include <QDateTime>
 #include <QTreeView>
 #include <QKeyEvent>
 
+#include "engine.h"
 #include "main/editor.h"
 
+#include "gui.h"
 #include "scene.h"
 #include "hierarchywindow.h"
 #include "os/filesystem.h"
-#include "dragdropableitemmodel.h"
+#include "main/imguiwidget.h"
 
-HierarchyWindow::HierarchyWindow(QWidget* parent) : ChildWindow(parent), model_(nullptr) {
-	setAcceptDrops(true);
+HierarchyWindow::HierarchyWindow(QWidget* parent) : ChildWindow(parent) {
+}
 
-	model_ = new DragDropableItemModel(this);
+HierarchyWindow::~HierarchyWindow() {
 }
 
 void HierarchyWindow::initUI() {
-	ui_->gameObjectTree->setModel(model_);
-	ui_->gameObjectTree->setHeaderHidden(true);
-	ui_->gameObjectTree->setDragDropMode(QAbstractItemView::DragDrop);
+	view_ = new IMGUIWidget(ui_->hierarchyView);
+	ui_->hierarchyViewLayout->addWidget(view_);
 
-	connect(ui_->gameObjectTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
-		this, SLOT(onSelectionChanged(const QItemSelection&, const QItemSelection&)));
-	connect(ui_->gameObjectTree, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTreeCustomContextMenu()));
-
-	connect(ui_->gameObjectTree, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(onGameObjectDoubleClicked(const QModelIndex&)));
+	view_->setForegroundColor(palette().color(foregroundRole()));
+	view_->setBackgroundColor(palette().color(backgroundRole()));
 }
 
 void HierarchyWindow::awake() {
-	GameObject::destroyed.subscribe(this, &HierarchyWindow::onGameObjectDestroyed);
-	GameObject::nameChanged.subscribe(this, &HierarchyWindow::onGameObjectNameChanged);
-	GameObject::parentChanged.subscribe(this, &HierarchyWindow::onGameObjectParentChanged);
-	GameObject::activeChanged.subscribe(this, &HierarchyWindow::onGameObjectActiveChanged);
+	input_ = Engine::GetSubsystem<Input>();
+	root_ = Engine::GetSubsystem<Scene>()->GetRootTransform();
 }
 
-void HierarchyWindow::onGameObjectImported(GameObject* root, const std::string& path) {
-	root->GetTransform()->SetParent(Engine::GetSubsystem<Scene>()->GetRootTransform());
+void HierarchyWindow::tick() {
+	onGui();
 }
 
 GameObject* HierarchyWindow::selectedGameObject() {
-	QModelIndex index = ui_->gameObjectTree->selectionModel()->currentIndex();
-	if (!index.isValid()) { return nullptr; }
+	struct TimeComparer {
+		bool operator()(const Selection& lhs, const Selection& rhs) const {
+			return lhs.time < rhs.time;
+		}
+	} static timeComparer;
 
-	uint id = model_->itemFromIndex(index)->data().toUInt();
-	return Engine::GetSubsystem<Scene>()->GetGameObject(id);
+	auto pos = std::min_element(selection_.begin(), selection_.end(), timeComparer);
+	return pos != selection_.end() ? pos->go : nullptr;
 }
 
 QList<GameObject*> HierarchyWindow::selectedGameObjects() {
-	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
-
-	QList<GameObject*> gameObjects;
-	gameObjects.reserve(indexes.size());
-
-	Scene* scene = Engine::GetSubsystem<Scene>();
-	for (QModelIndex index : indexes) {
-		uint id = model_->itemFromIndex(index)->data().toUInt();
-		gameObjects.push_back(scene->GetGameObject(id));
+	QList<GameObject*> list;
+	for (auto& item : selection_) {
+		list.push_back(item.go);
 	}
 
-	return gameObjects;
+	return list;
 }
 
 void HierarchyWindow::setSelectedGameObjects(const QList<GameObject*>& objects) {
-	ui_->gameObjectTree->clearSelection();
-
-	QStandardItem* item = nullptr;
+	selection_.clear();
+	int time = 0;
 	for (GameObject* go : objects) {
-		if ((item = items_.value(go->GetInstanceID())) != nullptr) {
-			ui_->gameObjectTree->selectionModel()->select(item->index(), QItemSelectionModel::Select);
+		selection_.insert(Selection{ go, time++ });
+	}
+}
+
+void HierarchyWindow::onGui() {
+	view_->bind();
+	drawHierarchy();
+	view_->unbind();
+}
+
+void HierarchyWindow::drawHierarchy() {
+	std::vector<std::pair<Transform*, int>> queue;
+	for (int i = 0; i < root_->GetChildCount(); ++i) {
+		queue.push_back(std::make_pair(root_->GetChildAt(i), 0));
+	}
+
+	for (; !queue.empty();) {
+		auto current = queue.back();
+		queue.pop_back();
+		GameObject* go = current.first->GetGameObject();
+
+		GUI::Indent(current.second * 10);
+		int childCount = current.first->GetChildCount();
+
+		int clickCount = 0;
+		Color oldColor = GUI::GetColor();
+		if (!go->GetActiveSelf()) {
+			GUI::SetColor(Color(0.6f, 0.6f, 0.6f));
+		}
+		
+		if (GUI::BeginTreeNode((void*)(uintptr_t)go->GetInstanceID(),
+			go->GetName().c_str(),
+			selection_.find(Selection{ go }) != selection_.end(),
+			childCount == 0, &clickCount)) {
+			for (int i = 0; i < childCount; ++i) {
+				queue.push_back(std::make_pair(current.first->GetChildAt(i), current.second + 1));
+			}
+
+			GUI::EndTreeNode();
+		}
+
+		GUI::Unindent(current.second * 10);
+		
+		GUI::SetColor(oldColor);
+
+		if (clickCount == 2) {
+			emit focusGameObject(go);
+		}
+		else if (clickCount == 1) {
+			updateSelection(go);
 		}
 	}
-
-	if (!objects.empty() && (item = items_.value(objects.front()->GetInstanceID())) != nullptr) {
-		ui_->gameObjectTree->scrollTo(item->index());
-	}
 }
 
-void HierarchyWindow::onGameObjectDestroyed(ref_ptr<GameObject> go) {
-	QStandardItem* item = items_.value(go->GetInstanceID());
-	if (item != nullptr) {
-		removeItem(item);
+void HierarchyWindow::updateSelection(GameObject* go) {
+	Selection item{ go, QDateTime::currentMSecsSinceEpoch() };
+
+	if (input_->GetKey(KeyCode::Shift)) {
+		selection_.insert(item);
 	}
-
-	bool contains = false;
-	for (QModelIndex index : ui_->gameObjectTree->selectionModel()->selectedIndexes()) {
-		uint id = model_->itemFromIndex(index)->data().toUInt();
-		if (id == go->GetInstanceID()) {
-			contains = true;
-			break;
-		}
-	}
-
-	if (contains) {
-		emit selectionChanged(QList<GameObject*>(), QList<GameObject*>({ go.get() }));
-	}
-}
-
-void HierarchyWindow::onGameObjectNameChanged(ref_ptr<GameObject> go) {
-	QStandardItem* item = items_.value(go->GetInstanceID());
-	if (item != nullptr) {
-		item->setText(go->GetName().c_str());
-	}
-}
-
-void HierarchyWindow::onGameObjectParentChanged(ref_ptr<GameObject> go) {
-	appendChildItem(go.get());
-}
-
-void HierarchyWindow::onGameObjectActiveChanged(ref_ptr<GameObject> go) {
-	QStandardItem* item = items_.value(go->GetInstanceID());
-	if (item != nullptr) {
-		static QBrush activeNameBrush(QColor(0xFFFFFF));
-		static QBrush inactiveNameBrush(QColor(0x666666));
-		item->setForeground(go->GetActive() ? activeNameBrush : inactiveNameBrush);
-	}
-}
-
-void HierarchyWindow::reload() {
-	items_.clear();
-	model_->setRowCount(0);
-
-	updateRecursively(Engine::GetSubsystem<Scene>()->GetRootTransform()->GetGameObject(), nullptr);
-}
-
-void HierarchyWindow::onGameObjectDoubleClicked(const QModelIndex& index) {
-	uint id = model_->itemFromIndex(index)->data().toUInt();
-	GameObject* go = Engine::GetSubsystem<Scene>()->GetGameObject(id);
-
-	emit focusGameObject(go);
-}
-
-void HierarchyWindow::onTreeCustomContextMenu() {
-	QMenu menu;
-	QAction* del = new QAction("Delete", &menu);
-	connect(del, SIGNAL(triggered()), this, SLOT(onDeleteSelected()));
-
-	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
-	if (indexes.empty()) {
-		del->setEnabled(false);
-	}
-
-	menu.addAction(del);
-	menu.exec(QCursor::pos());
-}
-
-void HierarchyWindow::onDeleteSelected() {
-	QModelIndexList indexes = ui_->gameObjectTree->selectionModel()->selectedIndexes();
-	Scene* scene = Engine::GetSubsystem<Scene>();
-	for (QModelIndex index : indexes) {
-		scene->DestroyGameObject(model_->itemFromIndex(index)->data().toUInt());
-	}
-}
-
-void HierarchyWindow::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected) {
-	QList<GameObject*> ss;
-	selectionToGameObjects(ss, selected);
-	enableGameObjectsOutline(ss, true);
-
-	QList<GameObject*> ds;
-	selectionToGameObjects(ds, deselected);
-	enableGameObjectsOutline(ds, false);
-
-	emit selectionChanged(ss, ds);
-}
-
-void HierarchyWindow::updateRecursively(GameObject* go, QStandardItem* parent) {
-	Transform* tr = go->GetTransform();
-	for (int i = 0; i <tr->GetChildCount(); ++i) {
-		GameObject* child = tr->GetChildAt(i)->GetGameObject();
-		QStandardItem* item = appendItem(child, parent);
-		updateRecursively(child, item);
-	}
-}
-
-void HierarchyWindow::keyReleaseEvent(QKeyEvent* event) {
-	switch (event->key()) {
-		case Qt::Key_Delete:
-			onDeleteSelected();
-			break;
-	}
-}
-
-void HierarchyWindow::dropEvent(QDropEvent* event) {
-	QDockWidget::dropEvent(event);
-	QList<QUrl> urls = event->mimeData()->urls();
-	Scene* scene = Engine::GetSubsystem<Scene>();
-	for (QUrl url : urls) {
-		std::string path = FileSystem::GetFileName(url.toString().toStdString());
-		scene->Import(path, nullptr);
-	}
-}
-
-void HierarchyWindow::dragEnterEvent(QDragEnterEvent* event) {
-	QDockWidget::dragEnterEvent(event);
-	if (dropAcceptable(event->mimeData())) {
-		event->acceptProposedAction();
-	}
-}
-
-QStandardItem* HierarchyWindow::appendItem(GameObject* go, QStandardItem* parent) {
-	QStandardItem* item = items_.value(go->GetInstanceID());
-	if (item != nullptr) {
-		removeItem(item);
-		//QStandardItem* p = item->parent();
-		//items_.remove(go->GetInstanceID());
-		//model_->removeRow(item->row(), p != nullptr ? p->index() : QModelIndex());
-	}
-
-	item = new QStandardItem(go->GetName().c_str());
-	item->setData(go->GetInstanceID());
-	
-	if (parent != nullptr) {
-		parent->appendRow(item);
-	}
-	else {
-		model_->appendRow(item);
-	}
-
-	items_[go->GetInstanceID()] = item;
-	return item;
-}
-
-void HierarchyWindow::removeItem(QStandardItem* item) {
-	removeItemRecusively(item);
-
-	QModelIndex p;
-	if (item->parent() != nullptr) { p = item->parent()->index(); }
-	model_->removeRow(item->row(), p);
-}
-
-bool HierarchyWindow::dropAcceptable(const QMimeData* data) {
-	if(data->hasFormat("targets")) {
-		return true;
-	}
-
-	if (!data->hasUrls()) { return false; }
-
-	for (QUrl url : data->urls()) {
-		if (!url.toString().endsWith(".fbx") && !url.toString().endsWith(".obj")) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-void HierarchyWindow::appendChildItem(GameObject* go) {
-	Transform* parent = go->GetTransform()->GetParent();
-	if (parent == nullptr) { return; }
-
-	QStandardItem* item = nullptr;
-
-	// append child node.
-	if (parent == Engine::GetSubsystem<Scene>()->GetRootTransform() || (item = items_.value(parent->GetGameObject()->GetInstanceID())) != nullptr) {
-		QStandardItem* pi = appendItem(go, item);
-		updateRecursively(go, pi);
-	}
-	// remove orphan node.
-	else if (item == nullptr && (item = items_.value(go->GetInstanceID())) != nullptr) {
-		removeItem(item);
-	}
-	//else {
-	// parent node does not exist. 
-	//	Debug::Break();
-	//}
-}
-
-void HierarchyWindow::enableGameObjectOutline(GameObject* go, bool enable) {
-	if (!go) { return; }
-
-	MeshRenderer* renderer = go->GetComponent<MeshRenderer>();
-	if (!renderer) { return; }
-
-	for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-		Material* material = renderer->GetMaterial(i);
-		int outline = material->FindPass("Outline");
-		if (outline < 0) { continue; }
-
-		if (enable) {
-			material->EnablePass(outline);
+	else if (input_->GetKey(KeyCode::Ctrl)) {
+		if (selection_.find(item) != selection_.end()) {
+			selection_.erase(item);
 		}
 		else {
-			material->DisablePass(outline);
+			selection_.insert(item);
 		}
 	}
-}
-
-void HierarchyWindow::selectionToGameObjects(QList<GameObject*>& gameObjects, const QItemSelection& items) {
-	Scene* scene = Engine::GetSubsystem<Scene>();
-	for (QModelIndex index : items.indexes()) {
-		uint id = model_->itemFromIndex(index)->data().toUInt();
-		GameObject* go = scene->GetGameObject(id);
-		if (go) {
-			gameObjects.push_back(go);
-		}
+	else {
+		selection_.clear();
+		selection_.insert(item);
 	}
-}
-
-void HierarchyWindow::enableGameObjectsOutline(const QList<GameObject*>& gameObjects, bool enable) {
-	for (GameObject* go : gameObjects) {
-		enableGameObjectOutline(go, enable);
-	}
-}
-
-void HierarchyWindow::removeItemRecusively(QStandardItem* item) {
-	for (int i = 0; i < item->rowCount(); ++i) {
-		removeItemRecusively(item->child(i));
-	}
-
-	items_.remove(item->data().toUInt());
 }

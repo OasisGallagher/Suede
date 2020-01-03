@@ -17,8 +17,6 @@ void Camera::SetMain(Camera* value) { main_ = value; }
 Camera::Camera() : Component(new CameraInternal) {}
 Camera::~Camera() { if (main_ == this) { main_ = nullptr; } }
 
-mt_event<ref_ptr<Camera>> Camera::depthChanged;
-
 void Camera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
 int Camera::GetDepth() const { return _suede_dptr()->GetDepth(); }
 bool Camera::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
@@ -117,7 +115,6 @@ void CameraInternal::UpdateFrameState() {
 void CameraInternal::SetDepth(Camera* self, int value) {
 	if (depth_ != value) {
 		depth_ = value;
-		Camera::depthChanged.delay_raise(self);
 	}
 }
 

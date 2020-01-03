@@ -103,9 +103,6 @@ ref_ptr<Mesh> Mesh::CreateInstancedPrimitive(PrimitiveType type, float scale, co
 }
 
 void Mesh::SetAttribute(const MeshAttribute& value) { _suede_dptr()->SetAttribute(this, value); }
-//const Bounds& IMesh::GetBounds() const { return _suede_dptr()->GetBounds(); }
-//void IMesh::SetBounds(const Bounds& value) { _suede_dptr()->SetBounds(value); }
-
 void Mesh::AddSubMesh(SubMesh* subMesh) { _suede_dptr()->AddSubMesh(subMesh); }
 uint Mesh::GetSubMeshCount() { return _suede_dptr()->GetSubMeshCount(); }
 SubMesh* Mesh::GetSubMesh(uint index) { return _suede_dptr()->GetSubMesh(index); }

@@ -563,8 +563,6 @@ void Context::DrawElementsInstancedBaseVertex(MeshTopology topology, const Trian
 }
 
 void Context::Update(float deltaTime) {
-	destroyed.update();
-
 	for (auto& command : commands_) {
 		command();
 	}

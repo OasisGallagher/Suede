@@ -47,6 +47,9 @@ BETTER_ENUM(KeyCode, int,
 
 	KeypadEnter,
 
+	Ctrl,
+	Shift,
+
 	Space,
 	Return,
 	Backspace,

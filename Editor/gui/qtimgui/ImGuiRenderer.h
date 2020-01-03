@@ -34,6 +34,7 @@ public:
 	void destroy();
 
     void newFrame();
+	ImGuiContext* context() { return m_context; }
 
 	bool eventFilter(QObject *watched, QEvent *event);
 

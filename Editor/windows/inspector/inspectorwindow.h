@@ -10,6 +10,7 @@
 
 #include "custom/componentmetaobject.h"
 
+class IMGUIWidget;
 class InspectorWindow : public ChildWindow {
 	Q_OBJECT
 
@@ -27,19 +28,16 @@ public:
 	virtual void awake();
 	virtual void tick();
 
-private slots:
-	void onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected);
-
 private:
 	void onGui();
-	void drawGui();
+	void drawGui(GameObject* go);
 
 	QObject* componentMetaObject(Component* component, std::string& typeName);
 	void addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo);
 
-	void drawBasics();
-	void drawTags();
-	void drawComponents();
+	void drawBasics(GameObject* go);
+	void drawTags(GameObject* go);
+	void drawComponents(GameObject* go);
 
 	void drawMetaObject(QObject* object);
 
@@ -62,8 +60,7 @@ private:
 	void drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T));
 
 private:
-	QGLWidget* view_;
-	ref_ptr<GameObject> target_;
+	IMGUIWidget* view_;
 
 	uint blackTextureID_;
 	std::map<ObjectType, std::shared_ptr<ComponentMetaObject>> suedeMetaObjects_;

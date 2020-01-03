@@ -29,7 +29,6 @@ void ObjectInternal::SetName(Object* self, const std::string& value) {
 
 	if (name_ != value) {
 		name_ = value;
-		OnNameChanged(self);
 	}
 }
 

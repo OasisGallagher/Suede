@@ -32,20 +32,22 @@ public:
 	ComponentInternal(ObjectType type);
 
 public:
-	virtual bool GetEnabled() const { return enabled_; }
-	virtual void SetEnabled(bool value) { enabled_ = value; }
+	bool GetEnabled() const { return enabled_; }
+	void SetEnabled(bool value) { enabled_ = value; }
 
-	virtual void SetGameObject(GameObject* go);
-	virtual GameObject* GetGameObject() { return gameObject_; }
+	bool GetActiveAndEnabled() const { return gameObject_->GetActive() && enabled_; }
 
-	virtual void OnMessage(int messageID, void* parameter) {}
-	virtual Transform* GetTransform() { return GetGameObject()->GetComponent<Transform>(); }
+	void SetGameObject(GameObject* go);
+	GameObject* GetGameObject() { return gameObject_; }
+
+	Transform* GetTransform() { return GetGameObject()->GetComponent<Transform>(); }
 
 	virtual void Awake() {}
 	virtual void Update(float deltaTime) {}
 	virtual void CullingUpdate(float deltaTime) {}
 
 	virtual int GetUpdateStrategy() { return 0; }
+	virtual void OnMessage(int messageID, void* parameter) {}
 
 protected:
 	GameObject* gameObject_ = nullptr;

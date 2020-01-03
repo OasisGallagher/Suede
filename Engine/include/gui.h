@@ -14,6 +14,9 @@ public:
 	static void Begin(uint w, uint h, const Color& foregroundColor, const Color& backgroundColor);
 	static void End();
 
+	static Color GetColor();
+	static void SetColor(const Color& value);
+
 	static void LabelField(const char* text);
 	static void LabelField(const char* title, const char* text);
 
@@ -23,6 +26,9 @@ public:
 
 	static void Image(const char* title, uint texture);
 	static bool ImageButton(const char* title, uint texture);
+
+	static bool BeginTreeNode(void* id, const char* title, bool selected, bool leaf, int* clickCount = nullptr);
+	static void EndTreeNode();
 
 	static void Sameline();
 	static void Separator();

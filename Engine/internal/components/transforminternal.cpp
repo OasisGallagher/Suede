@@ -553,10 +553,6 @@ void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Tran
 	GetRotation(self);
 	GetPosition(self);
 	SetDirty(LocalScaleMask | LocalRotationMask | LocalPositionMask | LocalEulerAnglesMask, true);
-
-	if (IsAttachedToScene(self)) {
-		GameObject::parentChanged.delay_raise(self->GetGameObject());
-	}
 }
 
 bool TransformInternal::AddChildItem(Children & children, Transform* child) {

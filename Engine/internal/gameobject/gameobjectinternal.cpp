@@ -14,20 +14,11 @@
 #include "internal/engine/engineinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-GameObject::GameObject(const char* name)
+GameObject::GameObject(const char* name) 
 	: Object(new GameObjectInternal(Context::GetCurrent(), Engine::GetSubsystem<Scene>(), Engine::GetSubsystem<Tags>(), name)) {
-	created.raise(this);
+	GameObjectInternal::created.raise(this);
 	AddComponent<Transform>();
 }
-
-// TODO main thread event...
-main_mt_event<ref_ptr<GameObject>> GameObject::created;
-main_mt_event<ref_ptr<GameObject>> GameObject::destroyed;
-main_mt_event<ref_ptr<GameObject>> GameObject::nameChanged;
-main_mt_event<ref_ptr<GameObject>> GameObject::parentChanged;
-main_mt_event<ref_ptr<GameObject>> GameObject::activeChanged;
-
-event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObjectInternal::componentChanged;
 
 bool GameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 Scene* GameObject::GetScene() { return _suede_dptr()->GetScene(); }
@@ -50,6 +41,9 @@ std::vector<Component*> GameObject::GetComponentsInChildren(suede_guid guid) { r
 std::vector<Component*> GameObject::GetComponentsInChildren(const char* name) { return _suede_dptr()->GetComponentsInChildren(name); }
 std::vector<Component*> GameObject::GetComponents(suede_guid guid) { return _suede_dptr()->GetComponents(guid); }
 std::vector<Component*> GameObject::GetComponents(const char* name) { return _suede_dptr()->GetComponents(name); }
+
+event<ref_ptr<GameObject>> GameObjectInternal::created;
+event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObjectInternal::componentChanged;
 
 GameObjectInternal::GameObjectInternal(Context* context, Scene* scene, Tags* tags, const char* name)
 	: ObjectInternal(ObjectType::GameObject, name), context_(context), scene_(scene), tags_(tags) {
@@ -127,14 +121,9 @@ void GameObjectInternal::RecalculateUpdateStrategy(GameObject* self) {
 	RecalculateHierarchyUpdateStrategy(self);
 }
 
-void GameObjectInternal::OnNameChanged(Object* self) {
-	GameObject::nameChanged.raise((GameObject*)self);
-}
-
 void GameObjectInternal::SetActive(GameObject* self, bool value) {
 	if (active_ != value) {
 		active_ = value;
-		GameObject::activeChanged.raise((GameObject*)self);
 	}
 }
 

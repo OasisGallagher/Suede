@@ -10,6 +10,7 @@ void Component::OnRenderImage(RenderTexture* src, RenderTexture* dest, const Rec
 
 bool Component::GetEnabled() const { return _suede_dptr()->GetEnabled(); }
 void Component::SetEnabled(bool value) { _suede_dptr()->SetEnabled(value); }
+bool Component::GetActiveAndEnabled() const { return _suede_dptr()->GetActiveAndEnabled(); }
 void Component::SetGameObject(GameObject* go) { _suede_dptr()->SetGameObject(go); }
 GameObject* Component::GetGameObject() { return _suede_dptr()->GetGameObject(); }
 Transform* Component::GetTransform() { return _suede_dptr()->GetTransform(); }

@@ -44,6 +44,9 @@ static QHash<int, KeyCode> keyMap = {
 
 	{ Qt::Key_Enter, KeyCode::KeypadEnter },
 
+	{ Qt::Key_Control, KeyCode::Ctrl },
+	{ Qt::Key_Shift, KeyCode::Shift },
+
 	{ Qt::Key_Space, KeyCode::Space },
 	{ Qt::Key_Return, KeyCode::Return },
 	{ Qt::Key_Backspace, KeyCode::Backspace },

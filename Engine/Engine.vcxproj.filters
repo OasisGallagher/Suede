@@ -1393,9 +1393,6 @@
     <ClInclude Include="include\scene.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\mainmtevent.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\frameevents.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -1443,6 +1440,9 @@
     </ClInclude>
     <ClInclude Include="internal\rendering\renderingthread.h">
       <Filter>internal\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\gui\imgui.h">
+      <Filter>internal\gui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

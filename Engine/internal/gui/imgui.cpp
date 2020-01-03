@@ -3690,7 +3690,7 @@ void ImGui::NewFrame()
         if (g.SettingsDirtyTimer <= 0.0f)
         {
             if (g.IO.IniFilename != NULL)
-                SaveIniSettingsToDisk(g.IO.IniFilename);
+                SaveIniSettingsToDisk(g.IO.IniFilename, GImGui);
             else
                 g.IO.WantSaveIniSettings = true;  // Let user know they can call SaveIniSettingsToMemory(). user will need to clear io.WantSaveIniSettings themselves.
             g.SettingsDirtyTimer = 0.0f;
@@ -3851,9 +3851,9 @@ void ImGui::NewFrame()
     Begin("Debug##Default");
 }
 
-static void* SettingsHandlerWindow_ReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name)
+static void* SettingsHandlerWindow_ReadOpen(ImGuiContext* ctx, ImGuiSettingsHandler*, const char* name)
 {
-    ImGuiWindowSettings* settings = ImGui::FindWindowSettings(ImHash(name, 0));
+    ImGuiWindowSettings* settings = ImGui::FindWindowSettings(ctx, ImHash(name, 0));
     if (!settings)
         settings = AddWindowSettings(name);
     return (void*)settings;
@@ -3878,7 +3878,7 @@ static void SettingsHandlerWindow_WriteAll(ImGuiContext* imgui_ctx, ImGuiSetting
         ImGuiWindow* window = g.Windows[i];
         if (window->Flags & ImGuiWindowFlags_NoSavedSettings)
             continue;
-        ImGuiWindowSettings* settings = ImGui::FindWindowSettings(window->ID);
+        ImGuiWindowSettings* settings = ImGui::FindWindowSettings(imgui_ctx, window->ID);
         if (!settings)
             settings = AddWindowSettings(window->Name);
         settings->Pos = window->Pos;
@@ -3937,7 +3937,7 @@ void ImGui::Shutdown(ImGuiContext* context)
 
     // Save settings (unless we haven't attempted to load them: CreateContext/DestroyContext without a call to NewFrame shouldn't save an empty file)
     if (g.SettingsLoaded && g.IO.IniFilename != NULL)
-        SaveIniSettingsToDisk(g.IO.IniFilename);
+        SaveIniSettingsToDisk(g.IO.IniFilename, context);
 
     // Clear everything else
     for (int i = 0; i < g.Windows.Size; i++)
@@ -3979,9 +3979,9 @@ void ImGui::Shutdown(ImGuiContext* context)
     g.Initialized = false;
 }
 
-ImGuiWindowSettings* ImGui::FindWindowSettings(ImGuiID id)
+ImGuiWindowSettings* ImGui::FindWindowSettings(ImGuiContext* ctx, ImGuiID id)
 {
-    ImGuiContext& g = *GImGui;
+    ImGuiContext& g = *ctx;
     for (int i = 0; i != g.SettingsWindows.Size; i++)
         if (g.SettingsWindows[i].Id == id)
             return &g.SettingsWindows[i];
@@ -4079,15 +4079,15 @@ void ImGui::LoadIniSettingsFromMemory(const char* ini_data, size_t ini_size)
     g.SettingsLoaded = true;
 }
 
-void ImGui::SaveIniSettingsToDisk(const char* ini_filename)
+void ImGui::SaveIniSettingsToDisk(const char* ini_filename, ImGuiContext* ctx)
 {
-    ImGuiContext& g = *GImGui;
+    ImGuiContext& g = *ctx;
     g.SettingsDirtyTimer = 0.0f;
     if (!ini_filename)
         return;
 
     size_t ini_data_size = 0;
-    const char* ini_data = SaveIniSettingsToMemory(&ini_data_size);
+    const char* ini_data = SaveIniSettingsToMemory(&ini_data_size, ctx);
     FILE* f = ImFileOpen(ini_filename, "wt");
     if (!f)
         return;
@@ -4096,9 +4096,9 @@ void ImGui::SaveIniSettingsToDisk(const char* ini_filename)
 }
 
 // Call registered handlers (e.g. SettingsHandlerWindow_WriteAll() + custom handlers) to write their stuff into a text buffer
-const char* ImGui::SaveIniSettingsToMemory(size_t* out_size)
+const char* ImGui::SaveIniSettingsToMemory(size_t* out_size, ImGuiContext* ctx)
 {
-    ImGuiContext& g = *GImGui;
+    ImGuiContext& g = *ctx;
     g.SettingsDirtyTimer = 0.0f;
     g.SettingsIniData.Buf.resize(0);
     g.SettingsIniData.Buf.push_back(0);
@@ -5012,6 +5012,10 @@ bool ImGui::IsItemClicked(int mouse_button)
     return IsMouseClicked(mouse_button) && IsItemHovered(ImGuiHoveredFlags_None);
 }
 
+bool ImGui::__IsItemDoubleClicked(int mouse_button) {
+	return IsMouseDoubleClicked(mouse_button) && IsItemHovered(ImGuiHoveredFlags_None);
+}
+
 bool ImGui::IsAnyItemHovered()
 {
     ImGuiContext& g = *GImGui;
@@ -5695,7 +5699,7 @@ static ImGuiWindow* CreateNewWindow(const char* name, ImVec2 size, ImGuiWindowFl
     if (!(flags & ImGuiWindowFlags_NoSavedSettings))
     {
         // Retrieve settings from .ini file
-        if (ImGuiWindowSettings* settings = ImGui::FindWindowSettings(window->ID))
+        if (ImGuiWindowSettings* settings = ImGui::FindWindowSettings(GImGui, window->ID))
         {
             SetWindowConditionAllowFlags(window, ImGuiCond_FirstUseEver, false);
             window->Pos = ImFloor(settings->Pos);
@@ -13278,7 +13282,7 @@ void ImGui::Indent(float indent_w)
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = GetCurrentWindow();
-    window->DC.IndentX += (indent_w != 0.0f) ? indent_w : g.Style.IndentSpacing;
+    window->DC.IndentX += (indent_w >= 0.0f) ? indent_w : g.Style.IndentSpacing;
     window->DC.CursorPos.x = window->Pos.x + window->DC.IndentX + window->DC.ColumnsOffsetX;
 }
 
@@ -13286,7 +13290,7 @@ void ImGui::Unindent(float indent_w)
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = GetCurrentWindow();
-    window->DC.IndentX -= (indent_w != 0.0f) ? indent_w : g.Style.IndentSpacing;
+    window->DC.IndentX -= (indent_w >= 0.0f) ? indent_w : g.Style.IndentSpacing;
     window->DC.CursorPos.x = window->Pos.x + window->DC.IndentX + window->DC.ColumnsOffsetX;
 }
 

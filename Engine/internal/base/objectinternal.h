@@ -16,9 +16,6 @@ public:
 	ObjectType GetObjectType() { return type_; }
 	uint GetInstanceID() { return id_; }
 
-protected:
-	virtual void OnNameChanged(Object* self) {}
-
 public:
 	static void DecodeInstanceID(uint value, ObjectType* type, uint* id);
 

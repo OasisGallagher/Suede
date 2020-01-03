@@ -431,7 +431,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\glcanvas.h" />
     <ClInclude Include="include\gui.h" />
     <ClInclude Include="include\light.h" />
-    <ClInclude Include="include\mainmtevent.h" />
     <ClInclude Include="include\material.h" />
     <ClInclude Include="include\object.h" />
     <ClInclude Include="include\particlesystem.h" />
@@ -491,6 +490,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\codec\shaderparser.h" />
     <ClInclude Include="internal\gameobject\gameobjectinternal.h" />
     <ClInclude Include="internal\gui\imconfig.h" />
+    <ClInclude Include="internal\gui\imgui.h" />
     <ClInclude Include="internal\gui\imgui_internal.h" />
     <ClInclude Include="internal\gui\stb_rect_pack.h" />
     <ClInclude Include="internal\gui\stb_textedit.h" />

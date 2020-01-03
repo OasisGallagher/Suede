@@ -56,6 +56,8 @@ public:
 	bool GetEnabled() const;
 	void SetEnabled(bool value);
 
+	bool GetActiveAndEnabled() const;
+
 	void SetGameObject(GameObject* value);
 	GameObject* GetGameObject();
 

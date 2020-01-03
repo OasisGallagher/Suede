@@ -1,5 +1,7 @@
-#include "resources.h"
 #include "gaussianblur.h"
+
+#include "engine.h"
+#include "resources.h"
 
 SUEDE_DEFINE_COMPONENT(GaussianBlur, ImageEffect)
 

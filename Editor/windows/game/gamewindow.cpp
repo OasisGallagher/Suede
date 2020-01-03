@@ -97,6 +97,10 @@ void GameWindow::awake() {
 }
 
 void GameWindow::tick() {
+	HierarchyWindow* hw = editor_->childWindow<HierarchyWindow>();
+	controller_->setSelection(hw->selectedGameObject());
+	gizmos_->setSelection(hw->selectedGameObjects());
+
 	if (input_->GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
 		Vector3 src = Camera::GetMain()->GetTransform()->GetPosition();
@@ -219,11 +223,6 @@ void GameWindow::onFocusGameObjectBounds(GameObject* go) {
 
 	Quaternion q(Matrix4::LookAt(camera->GetPosition(), center, Vector3(0, 1, 0)));
 	camera->SetRotation(q.GetConjugated());*/
-}
-
-void GameWindow::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
-	controller_->setSelection(selected.empty() ? nullptr : selected.front());
-	gizmos_->setSelection(editor_->childWindow<HierarchyWindow>()->selectedGameObjects());
 }
 
 float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds) {

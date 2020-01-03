@@ -6,8 +6,10 @@
 #include <QMetaProperty>
 
 #include "gui.h"
+#include "engine.h"
 #include "main/editor.h"
 #include "materialeditor.h"
+#include "main/imguiwidget.h"
 
 #include "tags.h"
 #include "resources.h"
@@ -34,24 +36,17 @@ InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
 }
 
 InspectorWindow::~InspectorWindow() {
-	QtImGui::destroy(view_);
 }
 
 void InspectorWindow::initUI() {
-	connect(editor_->childWindow<HierarchyWindow>(),
-		SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
-		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&))
-	);
-
-	view_ = new QGLWidget(ui_->inspectorView, editor_->childWindow<GameWindow>()->canvas());
+	view_ = new IMGUIWidget(ui_->inspectorView);
 	ui_->inspectorViewLayout->addWidget(view_);
-	view_->setFocusPolicy(Qt::StrongFocus);
+
+	view_->setForegroundColor(palette().color(foregroundRole()));
+	view_->setBackgroundColor(palette().color(backgroundRole()));
 }
 
 void InspectorWindow::awake() {
-	QtImGui::create(view_);
-	GUI::LoadFont("resources/fonts/tahoma.ttf");
-
 	blackTextureID_ = Texture2D::GetBlackTexture()->GetNativePointer();
 }
 
@@ -60,71 +55,44 @@ void InspectorWindow::tick() {
 }
 
 void InspectorWindow::onGui() {
-	QGLContext* oldContext = (QGLContext*)QGLContext::currentContext();
-	view_->makeCurrent();
+	view_->bind();
 
-	QtImGui::newFrame(view_);
+	GameObject* selection = editor_->childWindow<HierarchyWindow>()->selectedGameObject();
+	if (selection != nullptr) { drawGui(selection); }
 
-	QColor foregrouldColor = palette().color(foregroundRole());
-	QColor backgroundColor = palette().color(backgroundRole());
-
-	GUI::Begin(view_->width(), view_->height(), 
-		Color(foregrouldColor.redF(), foregrouldColor.greenF(), foregrouldColor.blueF()),
-		Color(backgroundColor.redF(), backgroundColor.greenF(), backgroundColor.blueF())
-	);
-
-	if (target_) { drawGui(); }
-
-	GUI::End();
-
-	view_->swapBuffers();
-	view_->doneCurrent();
-
-	if (oldContext != nullptr) {
-		oldContext->makeCurrent();
-	}
+	view_->unbind();
 
 	MaterialEditor::runMainContextCommands();
 }
 
-void InspectorWindow::drawGui() {
-	drawBasics();
-	drawComponents();
+void InspectorWindow::drawGui(GameObject* go) {
+	drawBasics(go);
+	drawComponents(go);
 }
 
-void InspectorWindow::drawBasics() {
-	bool active = target_->GetActive();
+void InspectorWindow::drawBasics(GameObject* go) {
+	bool active = go->GetActive();
 	if (GUI::Toggle("Active", active)) {
-		target_->SetActiveSelf(active);
+		go->SetActiveSelf(active);
 	}
 
 	GUI::Sameline();
 
-	std::string name = target_->GetName();
+	std::string name = go->GetName();
 	if (GUI::TextField("Name", name)) {
-		target_->SetName(name);
+		go->SetName(name);
 	}
 
-	drawTags();
-}
-
-void InspectorWindow::onSelectionChanged(const QList<GameObject*>& selected, const QList<GameObject*>& deselected) {
-	// SUEDE TODO: multi-selection.
-	if (!selected.empty()) {
-		target_ = selected.front();
-	}
-	else {
-		target_ = nullptr;
-	}
+	drawTags(go);
 }
 
 void InspectorWindow::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo) {
 	suedeMetaObjects_.insert(std::make_pair(type, mo));
 }
 
-void InspectorWindow::drawComponents() {
+void InspectorWindow::drawComponents(GameObject* go) {
 	GUI::Indent();
-	for (Component* component : target_->GetComponents("")) {
+	for (Component* component : go->GetComponents("")) {
 		std::string typeName;
 		QObject* object = componentMetaObject(component, typeName);
 		if (object == nullptr) {
@@ -150,13 +118,13 @@ void InspectorWindow::drawComponents() {
 	GUI::Unindent();
 }
 
-void InspectorWindow::drawTags() {
+void InspectorWindow::drawTags(GameObject* go) {
 	auto& tags_ = Engine::GetSubsystem<Tags>()->GetAllRegisteredTags();
-	int selected = std::find(tags_.begin(), tags_.end(), target_->GetTag()) - tags_.begin();
+	int selected = std::find(tags_.begin(), tags_.end(), go->GetTag()) - tags_.begin();
 	if (selected >= tags_.size()) { selected = -1; }
 
 	if (GUI::Popup("Tag", &selected, tags_.begin(), tags_.end())) {
-		target_->SetTag(tags_[selected]);
+		go->SetTag(tags_[selected]);
 	}
 }
 

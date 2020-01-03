@@ -21,31 +21,18 @@ void Scene::Awake() { _suede_dptr()->Awake(); }
 void Scene::Update(float deltaTime) { _suede_dptr()->Update(deltaTime); }
 void Scene::CullingUpdate(float deltaTime) { _suede_dptr()->CullingUpdate(deltaTime); }
 
-bool SceneInternal::LightComparer::operator()(const ref_ptr<Light>& lhs, const ref_ptr<Light>& rhs) const {
-	// Directional light > Importance > Luminance.
-	LightType lt = lhs->GetType(), rt = rhs->GetType();
-	if (lt != rt && (lt == LightType::Directional || rt == LightType::Directional)) {
-		return lt == LightType::Directional;
-	}
-
-	LightImportance lli = lhs->GetImportance(), rli = rhs->GetImportance();
-	if (lli != rli) {
-		return lli > rli;
-	}
-
-	return lhs->GetColor().GetLuminance() > rhs->GetColor().GetLuminance();
+template <class Container>
+inline void EraseByValue(Container& cont, const typename Container::value_type& value) {
+	cont.erase(std::remove(cont.begin(), cont.end(), value), cont.end());
 }
 
-bool SceneInternal::CameraComparer::operator() (const ref_ptr<Camera>& lhs, const ref_ptr<Camera>& rhs) const {
-	return lhs->GetDepth() < rhs->GetDepth();
-}
-
-bool SceneInternal::ProjectorComparer::operator() (const ref_ptr<Projector>& lhs, const ref_ptr<Projector>& rhs) const {
-	return lhs->GetDepth() < rhs->GetDepth();
+template <class Container>
+inline void InsertUnique(Container& cont, const typename Container::value_type& value) {
+	if (std::find(cont.begin(), cont.end(), value) == cont.end()) { cont.push_back(value); }
 }
 
 void SceneInternal::Awake() {
-	GameObject::created.subscribe(this, &SceneInternal::AddGameObject);
+	GameObjectInternal::created.subscribe(this, &SceneInternal::AddGameObject);
 	GameObjectInternal::componentChanged.subscribe(this, &SceneInternal::OnGameObjectComponentChanged);
 
 	root_ = new GameObject("Root");
@@ -55,10 +42,10 @@ void SceneInternal::Awake() {
 }
 
 void SceneInternal::OnDestroy() {
-	GameObject::created.unsubscribe(this);
+	GameObjectInternal::created.unsubscribe(this);
 	GameObjectInternal::componentChanged.unsubscribe(this);
 
-	for (ref_ptr<Camera>& camera : cameras_) {
+	for (Camera* camera : cameras_) {
 		camera->OnBeforeWorldDestroyed();
 	}
 
@@ -69,12 +56,14 @@ void SceneInternal::OnDestroy() {
 }
 
 void SceneInternal::Update(float deltaTime) {
+	SortComponents();
+
 	RenderingUpdateGameObjects(deltaTime);
 
 	Camera::OnPreRender();
 
-	for (ref_ptr<Camera>& camera : cameras_) {
-		if (camera->GetEnabled()) {
+	for (Camera* camera : cameras_) {
+		if (camera->GetActiveAndEnabled()) {
 			camera->Render();
 		}
 	}
@@ -120,6 +109,40 @@ void SceneInternal::UpdateDecals() {
 	}
 }
 
+void SceneInternal::SortComponents() {
+	struct CameraComparer {
+		bool operator()(Camera* lhs, Camera* rhs) const {
+			return lhs->GetDepth() < rhs->GetDepth();
+		}
+	} static cameraComparer;
+	std::stable_sort(cameras_.begin(), cameras_.end(), cameraComparer);
+
+	struct ProjectorComparer {
+		bool operator()(Projector* lhs, Projector* rhs) const {
+			return lhs->GetDepth() < rhs->GetDepth();
+		}
+	} static projectorComparer;
+	std::stable_sort(projectors_.begin(), projectors_.end(), projectorComparer);
+
+	struct LightComparerer {
+		bool operator()(Light* lhs, Light* rhs) const {
+			// Directional light > Importance > Luminance.
+			LightType lt = lhs->GetType(), rt = rhs->GetType();
+			if (lt != rt && (lt == LightType::Directional || rt == LightType::Directional)) {
+				return lt == LightType::Directional;
+			}
+
+			LightImportance lli = lhs->GetImportance(), rli = rhs->GetImportance();
+			if (lli != rli) {
+				return lli > rli;
+			}
+
+			return lhs->GetColor().GetLuminance() > rhs->GetColor().GetLuminance();
+		}
+	} static lightComparer;
+	std::stable_sort(lights_.begin(), lights_.end(), lightComparer);
+}
+
 void SceneInternal::CullingUpdateGameObjects(float deltaTime) {
 	for (GameObject* go : cullingUpdateSequence_) {
 		if (go->GetActive()) {
@@ -157,8 +180,6 @@ void SceneInternal::DestroyGameObjectRecursively(Transform* root) {
 	GameObject* go = root->GetGameObject();
 	RemoveGameObject(go);
 
-	GameObject::destroyed.delay_raise(go);
-
 	for (int i = 0; i < root->GetChildCount(); ++i) {
 		DestroyGameObjectRecursively(root->GetChildAt(i));
 	}
@@ -166,13 +187,13 @@ void SceneInternal::DestroyGameObjectRecursively(Transform* root) {
 
 void SceneInternal::RemoveGameObject(GameObject* go) {
 	Camera* camera = go->GetComponent<Camera>();
-	if (camera) { cameras_.erase(camera); }
+	if (camera) { EraseByValue(cameras_, camera); }
 
 	Light* light = go->GetComponent<Light>();
-	if (light) { lights_.erase(light); }
+	if (light != nullptr) { EraseByValue(lights_, light); }
 
 	Projector* projector = go->GetComponent<Projector>();
-	if (projector) { projectors_.erase(projector); }
+	if (projector) { EraseByValue(projectors_, projector); }
 
 	RemoveGameObjectFromSequence(go);
 	gameObjects_.erase(go->GetInstanceID());
@@ -182,7 +203,7 @@ void SceneInternal::RemoveGameObject(GameObject* go) {
 std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid guid) {
 	std::vector<GameObject*> gameObjects;
 	if (guid == Camera::GetComponentGUID()) {
-		for (ref_ptr<Camera>& camera : cameras_) {
+		for (Camera* camera : cameras_) {
 			gameObjects.push_back(camera->GetGameObject());
 		}
 	}
@@ -250,27 +271,39 @@ bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::fun
 }
 
 void SceneInternal::RemoveGameObjectFromSequence(GameObject* go) {
-	cullingUpdateSequence_.erase(go);
-	renderingUpdateSequence_.erase(go);
+	EraseByValue(cullingUpdateSequence_, go);
+	EraseByValue(renderingUpdateSequence_, go);
 }
 
 void SceneInternal::ManageGameObjectUpdateSequence(GameObject* go) {
 	int strategy = go->GetUpdateStrategy();
 	if ((strategy & UpdateStrategyCulling) != 0) {
-		if (!cullingUpdateSequence_.contains(go)) {
-			cullingUpdateSequence_.insert(go);
-		}
+		InsertUnique(cullingUpdateSequence_, go);
 	}
 	else {
-		cullingUpdateSequence_.erase(go);
+		EraseByValue(cullingUpdateSequence_, go);
 	}
 
 	if ((strategy & UpdateStrategyRendering) != 0) {
-		if (!renderingUpdateSequence_.contains(go)) {
-			renderingUpdateSequence_.insert(go);
-		}
+		InsertUnique(renderingUpdateSequence_, go);
 	}
 	else {
-		renderingUpdateSequence_.erase(go);
+		EraseByValue(renderingUpdateSequence_, go);
+	}
+}
+
+template <class Container>
+void SceneInternal::ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state) {
+	typedef typename Container::value_type V;
+	typedef typename std::remove_pointer<V>::type T;
+
+	if (component->IsComponentType(T::GetComponentGUID())) {
+		T* target = (T*)component;
+		if (state == ComponentEventType::Added) {
+			container.insert(container.end(), target);
+		}
+		else if (state == ComponentEventType::Removed) {
+			EraseByValue(container, target);
+		}
 	}
 }

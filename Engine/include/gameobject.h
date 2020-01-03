@@ -1,7 +1,6 @@
 #pragma once
 #include "object.h"
 #include "transform.h"
-#include "mainmtevent.h"
 
 enum {
 	GameObjectMessageMeshModified,
@@ -16,23 +15,14 @@ enum class ComponentEventType {
 	Modified,
 };
 
-#define DEFAULT_GAME_OBJECT_NAME "New GameObject"
-
 class Scene;
 class SUEDE_API GameObject : public Object {
 	SUEDE_DEFINE_METATABLE_NAME(GameObject)
 	SUEDE_DECLARE_IMPLEMENTATION(GameObject)
 
 public:
-	GameObject(const char* name = DEFAULT_GAME_OBJECT_NAME);
+	GameObject(const char* name = "New GameObject");
 	~GameObject() {}
-
-public:
-	static main_mt_event<ref_ptr<GameObject>> created;
-	static main_mt_event<ref_ptr<GameObject>> destroyed;
-	static main_mt_event<ref_ptr<GameObject>> nameChanged;
-	static main_mt_event<ref_ptr<GameObject>> parentChanged;
-	static main_mt_event<ref_ptr<GameObject>> activeChanged;
 
 public:
 	Scene* GetScene();

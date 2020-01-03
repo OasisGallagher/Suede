@@ -177,9 +177,6 @@
     <ClCompile Include="windows\game\qtinputdelegate.cpp">
       <Filter>windows\game</Filter>
     </ClCompile>
-    <ClCompile Include="windows\hierarchy\dragdropableitemmodel.cpp">
-      <Filter>windows\hierarchy</Filter>
-    </ClCompile>
     <ClCompile Include="windows\inspector\materialeditor.cpp">
       <Filter>windows\inspector</Filter>
     </ClCompile>
@@ -205,9 +202,6 @@
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_directorytree.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_dragdropableitemmodel.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_filetreefield.cpp">
@@ -351,6 +345,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_statswidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="main\imguiwidget.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_imguiwidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_imguiwidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.qrc">
@@ -455,9 +458,6 @@
     <CustomBuild Include="windows\game\canvas.h">
       <Filter>windows\game</Filter>
     </CustomBuild>
-    <CustomBuild Include="windows\hierarchy\dragdropableitemmodel.h">
-      <Filter>windows\hierarchy</Filter>
-    </CustomBuild>
     <CustomBuild Include="windows\inspector\custom\componentmetaobject.h">
       <Filter>windows\inspector\custom</Filter>
     </CustomBuild>
@@ -487,6 +487,9 @@
     </CustomBuild>
     <CustomBuild Include="widgets\statistics\statswidget.h">
       <Filter>widgets\statistics</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main\imguiwidget.h">
+      <Filter>main</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

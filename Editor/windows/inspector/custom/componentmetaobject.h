@@ -30,7 +30,7 @@ public:
 	}
 
 protected:
-	ref_ptr<T> target;
+	T* target = nullptr;
 };
 
 #define SUEDE_NAMED_PROPERTY(type, name, property)	Q_PROPERTY(type name READ Get ## property WRITE Set ## property) \
