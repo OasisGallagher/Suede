@@ -49,7 +49,6 @@ Vector3 Camera::WorldToScreenPoint(const Vector3& position) { return _suede_dptr
 Vector3 Camera::ScreenToWorldPoint(const Vector3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
 ref_ptr<Texture2D> Camera::Capture() { return _suede_dptr()->Capture(); }
 void Camera::Render() { _suede_dptr()->Render(); }
-void Camera::OnBeforeWorldDestroyed() { _suede_dptr()->OnBeforeWorldDestroyed(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
@@ -91,9 +90,6 @@ CameraInternal::~CameraInternal() {
 
 void CameraInternal::Awake() {
 	transform_ = GetTransform();
-}
-
-void CameraInternal::OnBeforeWorldDestroyed() {
 }
 
 void CameraInternal::UpdateFrameState() {

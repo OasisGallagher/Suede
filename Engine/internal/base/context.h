@@ -62,6 +62,7 @@ public:
 
 public:
 	virtual void Update(float deltaTime);
+	virtual void OnDestroy() {}
 
 public:
 	void AddCommand(std::function<void()> command);

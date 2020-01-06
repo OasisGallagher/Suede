@@ -160,6 +160,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="internal\async\worker.cpp" />
     <ClCompile Include="internal\async\threadpool.cpp" />
     <ClCompile Include="internal\base\buffer.cpp" />
     <ClCompile Include="internal\base\color.cpp" />
@@ -458,6 +459,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\variant.h" />
     <ClInclude Include="include\viewer.h" />
     <ClInclude Include="include\engine.h" />
+    <ClInclude Include="internal\async\worker.h" />
     <ClInclude Include="internal\async\threadpool.h" />
     <ClInclude Include="internal\base\buffer.h" />
     <ClInclude Include="internal\base\context.h" />

@@ -6,7 +6,7 @@ class IMGUIWidget : public QGLWidget{
 	Q_OBJECT
 
 public:
-	IMGUIWidget(QWidget* parent);
+	IMGUIWidget(QWidget* parent, QGLWidget* shareWidget);
 	~IMGUIWidget();
 
 public:

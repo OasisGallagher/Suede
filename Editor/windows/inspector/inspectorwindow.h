@@ -62,7 +62,6 @@ private:
 private:
 	IMGUIWidget* view_;
 
-	uint blackTextureID_;
 	std::map<ObjectType, std::shared_ptr<ComponentMetaObject>> suedeMetaObjects_;
 };
 

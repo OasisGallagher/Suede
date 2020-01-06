@@ -125,7 +125,6 @@ bool GUI::BeginTreeNode(void* id, const char* title, bool selected, bool leaf, i
 
 	bool open = ImGui::TreeNodeEx(id, nodeFlags, title);
 	if (clickCount != nullptr) {
-		*clickCount = 0;
 		if (ImGui::IsItemClicked()) { *clickCount = 1; }
 		if (ImGui::__IsItemDoubleClicked()) { *clickCount = 2; }
 	}

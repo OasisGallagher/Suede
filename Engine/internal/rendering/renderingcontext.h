@@ -62,6 +62,10 @@ public:
 	~RenderingContext();
 
 public:
+	// SUEDE TODO Cancel threads...
+	virtual void OnDestroy();
+
+public:
 	void ClearFrame();
 
 	void SetTime(Time* value) { time_ = value; }

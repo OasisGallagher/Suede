@@ -45,10 +45,6 @@ void SceneInternal::OnDestroy() {
 	GameObjectInternal::created.unsubscribe(this);
 	GameObjectInternal::componentChanged.unsubscribe(this);
 
-	for (Camera* camera : cameras_) {
-		camera->OnBeforeWorldDestroyed();
-	}
-
 	Camera::SetMain(nullptr);
 
 	delete importer_;
@@ -79,15 +75,6 @@ void SceneInternal::CullingUpdate(float deltaTime) {
 void SceneInternal::AddGameObject(ref_ptr<GameObject> go) {
 	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
-}
-
-void SceneInternal::OnGameObjectParentChanged(GameObject* go) {
-	if (go->GetTransform()->GetParent()) {
-		gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
-	}
-	else {
-		gameObjects_.erase(go->GetInstanceID());
-	}
 }
 
 void SceneInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component) {
@@ -161,13 +148,12 @@ void SceneInternal::RenderingUpdateGameObjects(float deltaTime) {
 
 GameObject* SceneInternal::GetGameObject(uint id) {
 	GameObjectDictionary::iterator ite = gameObjects_.find(id);
-	if (ite == gameObjects_.end()) { return nullptr; }
-	return ite->second.get();
+	return (ite != gameObjects_.end()) ? ite->second.get() : nullptr;
 }
 
 void SceneInternal::DestroyGameObject(uint id) {
 	GameObject* go = GetGameObject(id);
-	if (go) {
+	if (go != nullptr) {
 		DestroyGameObject(go);
 	}
 }

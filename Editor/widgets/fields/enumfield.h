@@ -2,6 +2,8 @@
 #include <QComboBox>
 
 class EnumField : public QComboBox {
+	Q_OBJECT
+
 public:
 	EnumField(QWidget* parent) : QComboBox(parent) {}
 

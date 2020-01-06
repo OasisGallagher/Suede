@@ -48,7 +48,6 @@ public:
 
 public:
 	void Render();
-	void OnBeforeWorldDestroyed();
 
 public:
 	bool GetPerspective() const { return Frustum::GetPerspective(); }

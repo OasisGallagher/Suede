@@ -76,6 +76,8 @@ void EngineInternal::Shutdown() {
 		subsystems_[type]->OnDestroy();
 	}
 
+	context_->OnDestroy();
+
 	for (int type = (int)SubsystemType::_Count - 1; type >= 0; --type) {
 		if (type != (int)SubsystemType::FrameEvents) {
 			delete subsystems_[type];

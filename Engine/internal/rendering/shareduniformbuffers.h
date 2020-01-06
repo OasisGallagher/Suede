@@ -4,17 +4,12 @@
 #include "internal/base/uniformbuffer.h"
 #include "internal/base/shaderinternal.h"
 
-#define DEFINE_SHARED_UNIFORM_BUFFER(name, ...) \
-	struct name { \
-		__VA_ARGS__ \
-		static const char* GetName() { return #name; } \
-	}
-
-DEFINE_SHARED_UNIFORM_BUFFER(SharedTimeUniformBuffer,
+struct SharedTimeUniformBuffer {
 	Vector4 time;
-);
+	static const char* GetName() { return "SharedTimeUniformBuffer"; }
+};
 
-DEFINE_SHARED_UNIFORM_BUFFER(SharedLightUniformBuffer,
+struct SharedLightUniformBuffer {
 	struct {
 		Vector3 color;
 		float density;
@@ -25,9 +20,11 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedLightUniformBuffer,
 	Vector4 lightPos;
 	Vector4 lightDir;
 	Vector4 lightColor;
-);
 
-DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
+	static const char* GetName() { return "SharedLightUniformBuffer"; }
+};
+
+struct SharedTransformsUniformBuffer {
 	Matrix4 worldToClipMatrix;
 	Matrix4 worldToCameraMatrix;
 	Matrix4 cameraToClipMatrix;
@@ -35,9 +32,8 @@ DEFINE_SHARED_UNIFORM_BUFFER(SharedTransformsUniformBuffer,
 	Vector4 cameraPos;
 	Vector4 projParams;
 	Vector4 screenParams;
-);
-
-#undef DEFINE_SHARED_UNIFORM_BUFFER
+	static const char* GetName() { return "SharedTransformsUniformBuffer"; }
+};
 
 class Context;
 class UniformBuffer;

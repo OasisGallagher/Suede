@@ -41,7 +41,6 @@ private:
 	void RenderingUpdateGameObjects(float deltaTime);
 	void AddGameObject(ref_ptr<GameObject> go);
 	void RemoveGameObject(GameObject* go);
-	void OnGameObjectParentChanged(GameObject* go);
 	void RemoveGameObjectFromSequence(GameObject* go);
 	void ManageGameObjectUpdateSequence(GameObject* go);
 	void DestroyGameObjectRecursively(Transform* root);

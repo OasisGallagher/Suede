@@ -354,6 +354,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_imguiwidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_enumfield.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_enumfield.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.qrc">
@@ -491,6 +497,9 @@
     <CustomBuild Include="main\imguiwidget.h">
       <Filter>main</Filter>
     </CustomBuild>
+    <CustomBuild Include="widgets\fields\enumfield.h">
+      <Filter>widgets\fields</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\qtimgui\QtImGui.h">
@@ -498,9 +507,6 @@
     </ClInclude>
     <ClInclude Include="main\prefs.h">
       <Filter>main</Filter>
-    </ClInclude>
-    <ClInclude Include="widgets\fields\enumfield.h">
-      <Filter>widgets\fields</Filter>
     </ClInclude>
     <ClInclude Include="windows\inspector\materialeditor.h">
       <Filter>windows\inspector</Filter>

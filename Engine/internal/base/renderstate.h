@@ -100,6 +100,7 @@ public:
 	virtual void Unbind();
 	virtual RenderState* Clone();
 	virtual RenderStateType GetType() const { return RenderStateType::Cull; }
+
 private:
 	int oldMode_;
 	bool oldEnabled_;

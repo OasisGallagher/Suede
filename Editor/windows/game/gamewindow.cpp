@@ -73,24 +73,21 @@ GameWindow::~GameWindow() {
 void GameWindow::initUI() {
 	canvas_ = findChild<Canvas*>("canvas");
 
-	connect(ui_->stat, SIGNAL(stateChanged(int)), this, SLOT(onToggleStat(int)));
-
-	HierarchyWindow* hw = editor_->childWindow<HierarchyWindow>();
-	connect(hw, SIGNAL(focusGameObject(GameObject*)), this, SLOT(onFocusGameObjectBounds(GameObject*)));
-	connect(hw, SIGNAL(selectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)),
-		this, SLOT(onSelectionChanged(const QList<GameObject*>&, const QList<GameObject*>&)));
-
-	connect(ui_->shadingMode, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(onShadingModeChanged(const QString&)));
+	connect(ui_->stat, &QCheckBox::stateChanged, this, &GameWindow::onToggleStat);
+	connect(editor_->childWindow<HierarchyWindow>(), &HierarchyWindow::focusGameObject, this, &GameWindow::onFocusGameObjectBounds);
+	
+	typedef void (EnumField::*fptr)(const QString&);
+	connect(ui_->shadingMode, (fptr)&EnumField::currentIndexChanged, this, &GameWindow::onShadingModeChanged);
 }
 
 void GameWindow::awake() {
 	Component::Register<CameraController>();
 
-	ui_->shadingMode->setEnums(+Engine::GetSubsystem<Graphics>()->GetShadingMode());
+	ui_->shadingMode->setEnums(Engine::GetSubsystem<Graphics>()->GetShadingMode());
 
 	input_ = Engine::GetSubsystem<Input>();
 
-	inputDelegate_ = new QtInputDelegate(ui_->canvas);
+	inputDelegate_ = new QtInputDelegate(editor_);
 	input_->SetDelegate(inputDelegate_);
 
 	setupScene();

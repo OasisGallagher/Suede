@@ -38,21 +38,30 @@ RenderingContext::RenderingContext() {
 }
 
 RenderingContext::~RenderingContext() {
+	OnDestroy();
+
 	delete frameState_;
 	delete uniformState_;
 	delete shadowMap_;
 	delete ambientOcclusion_;
 
-	renderingThread_->Stop();
-	delete renderingThread_;
+	Screen::sizeChanged.unsubscribe(this);
+	ShaderInternal::shaderCreated.unsubscribe(this);
+	MaterialInternal::shaderChanged.unsubscribe(this);
+}
+
+void RenderingContext::OnDestroy() {
+	if (renderingThread_ != nullptr) {
+		renderingThread_->Stop();
+		delete renderingThread_;
+		renderingThread_ = nullptr;
+	}
 
 	for (auto& thread : cullingThreads_) {
 		thread.Stop();
 	}
 
-	Screen::sizeChanged.unsubscribe(this);
-	ShaderInternal::shaderCreated.unsubscribe(this);
-	MaterialInternal::shaderChanged.unsubscribe(this);
+	cullingThreads_.clear();
 }
 
 bool RenderingContext::Initialize() {

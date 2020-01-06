@@ -1444,6 +1444,9 @@
     <ClInclude Include="internal\gui\imgui.h">
       <Filter>internal\gui</Filter>
     </ClInclude>
+    <ClInclude Include="internal\async\worker.h">
+      <Filter>internal\async</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\physics\bullet\Bullet3Collision\BroadPhaseCollision\b3DynamicBvh.cpp">
@@ -2174,6 +2177,9 @@
     </ClCompile>
     <ClCompile Include="internal\rendering\renderingthread.cpp">
       <Filter>internal\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\async\worker.cpp">
+      <Filter>internal\async</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -53,7 +53,7 @@ RenderingThread::~RenderingThread() {
 
 void RenderingThread::ThreadProc() {
 	for (; !stopped_;) {
-		// TODO: Move rendering operations to here.
+		// SUEDE TODO: Move rendering operations to here.
 		std::unique_lock<std::mutex> lock(mutex_);
 		cond_.wait(lock);
 	}
@@ -126,7 +126,7 @@ void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	Color color = light->GetColor() * light->GetIntensity();
 	p.lightColor = Vector4(color.r, color.g, color.b, 1);
 
-	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(),& p, 0, sizeof(p));
+	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void RenderingThread::OnPostRender() {

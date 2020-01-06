@@ -58,7 +58,7 @@ void GameObjectLoader::ApplyNewComponents() {
 }
 
 void GameObjectLoader::Run() {
-	if (!LoadAsset()) {
+	if (!Load()) {
 		Debug::LogError("failed to load \"%s\"", path_.c_str());
 	}
 }
@@ -333,20 +333,16 @@ void GameObjectLoader::LoadMaterial(Material* material, aiMaterial* resource) {
 
 	material->SetColor(BuiltinProperties::MainColor, color);
 
+	color = Color::black;
 	if (resource->Get(AI_MATKEY_COLOR_SPECULAR, acolor) == AI_SUCCESS) {
 		color = Color(acolor.r, acolor.g, acolor.b, 1);
-	}
-	else {
-		color = Color::white;
 	}
 
 	material->SetColor(BuiltinProperties::SpecularColor, color);
 
+	color = Color::black;
 	if (resource->Get(AI_MATKEY_COLOR_EMISSIVE, acolor) == AI_SUCCESS) {
 		color = Color(acolor.r, acolor.g, acolor.b, 1);
-	}
-	else {
-		color = Color::black;
 	}
 
 	material->SetColor(BuiltinProperties::EmissiveColor, color);
@@ -492,7 +488,7 @@ bool GameObjectLoader::LoadEmbeddedTexels(RawImage& rawImage, uint index) {
 	return true;
 }
 
-bool GameObjectLoader::LoadAsset() {
+bool GameObjectLoader::Load() {
 	Assimp::Importer importer;
 	if (!Initialize(importer)) {
 		return false;

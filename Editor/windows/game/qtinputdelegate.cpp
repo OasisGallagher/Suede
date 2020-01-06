@@ -60,6 +60,7 @@ static QHash<int, KeyCode> keyMap = {
 
 QtInputDelegate::QtInputDelegate(QWidget* view) : view_(view) {
 	view_->installEventFilter(this);
+	view->setFocusPolicy(Qt::StrongFocus);
 }
 
 Vector2 QtInputDelegate::GetMousePosition() {
@@ -73,26 +74,27 @@ bool QtInputDelegate::eventFilter(QObject * watched, QEvent * event) {
 		case QEvent::MouseButtonRelease:
 			onMousePress((QMouseEvent*)event);
 			break;
+
 		case QEvent::Wheel:
 			onMouseWheel((QWheelEvent*)event);
 			break;
+
 		case QEvent::KeyPress:
 		case QEvent::KeyRelease:
 			onKeyPress((QKeyEvent*)event);
 			break;
 	}
 
-	return true;
+	return QObject::eventFilter(watched, event);
 }
 
 void QtInputDelegate::onKeyPress(QKeyEvent* event) {
 	if (event->isAutoRepeat()) { return; }
 
 	auto ite = keyMap.find(event->key());
-	if (ite == keyMap.end()) { return; }
-
-	bool pressed = (event->type() == QEvent::KeyPress);
-	InputDelegate::OnKeyPress(ite.value(), pressed);
+	if (ite != keyMap.end()) {
+		InputDelegate::OnKeyPress(ite.value(), (event->type() == QEvent::KeyPress));
+	}
 }
 
 void QtInputDelegate::onMouseWheel(QWheelEvent* e) {

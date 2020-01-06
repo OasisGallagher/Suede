@@ -50,15 +50,15 @@ private:
 	ImGuiContext* m_context;
 	std::unique_ptr<WindowWrapper> m_window;
 
-    double       g_Time = 0.0f;
-    bool         g_MousePressed[3] = { false, false, false };
-    float        g_MouseWheel;
-    float        g_MouseWheelH;
-    GLuint       g_FontTexture = 0;
-    int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
-    int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
-    int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
-    unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+    double       m_Time = 0.0f;
+    bool         m_MousePressed[3] = { false, false, false };
+    float        m_MouseWheel;
+    float        m_MouseWheelH;
+    GLuint       m_FontTexture = 0;
+    int          m_ShaderHandle = 0, m_VertHandle = 0, m_FragHandle = 0;
+    int          m_AttribLocationTex = 0, m_AttribLocationProjMtx = 0;
+    int          m_AttribLocationPosition = 0, m_AttribLocationUV = 0, m_AttribLocationColor = 0;
+    unsigned int m_VboHandle = 0, m_VaoHandle = 0, m_ElementsHandle = 0;
 };
 
 }

@@ -38,7 +38,7 @@ public:
 	virtual void Run();
 
 private:
-	bool LoadAsset();
+	bool Load();
 	bool Initialize(Assimp::Importer& importer);
 
 	void LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes);

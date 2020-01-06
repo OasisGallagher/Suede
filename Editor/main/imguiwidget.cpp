@@ -6,7 +6,7 @@
 #include "gui.h"
 #include "gui/qtimgui/QtImGui.h"
 
-IMGUIWidget::IMGUIWidget(QWidget* parent) : QGLWidget(parent) {
+IMGUIWidget::IMGUIWidget(QWidget* parent, QGLWidget* shareWidget) : QGLWidget(parent, shareWidget) {
 	QtImGui::create(this);
 	GUI::LoadFont("resources/fonts/tahoma.ttf");
 }

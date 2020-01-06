@@ -9,67 +9,45 @@
 #include "internal/engine/sceneinternal.h"
 #include "internal/rendering/renderingcontext.h"
 
-CullingThread::CullingThread(RenderingContext* context) : context_(context), working_(false), stopped_(false) {
-	thread_ = std::thread(std::bind(&CullingThread::ThreadProc, this));
+CullingThread::CullingThread(RenderingContext* context) : context_(context) {
+	time_ = context_->GetTime();
+	scene_ = context_->GetScene();
+	profiler_ = context_->GetProfiler();
+
+	lastTimeStamp_ = Time::GetTimeStamp();
 }
 
-CullingThread::~CullingThread() {
-	Stop();
-}
+bool CullingThread::OnWork() {
+	gameObjects_.clear();
+	uint64 start = Time::GetTimeStamp();
 
-void CullingThread::ThreadProc() {
-	Time* time = context_->GetTime();
-	Profiler* profiler = context_->GetProfiler();
-	SceneInternal* scene = ((SceneInternal*)context_->GetScene()->d_);
-
-	int cullingUpdateFrame = -1;
-	uint64 lastTimeStamp = Time::GetTimeStamp();
-	auto walker = [this](GameObject* go) { return OnWalkGameObject(go); };
-
-	for (; !stopped_;) {
-		if (working_) {
-			gameObjects_.clear();
-			uint64 start = Time::GetTimeStamp();
-
-			if (time->GetFrameCount() != cullingUpdateFrame) {
-				scene->CullingUpdate((float)Time::TimeStampToSeconds(start - lastTimeStamp));
-				cullingUpdateFrame = time->GetFrameCount();
-			}
-
-			scene->WalkGameObjectHierarchy(walker);
-
-			cullingFinished.raise();
-
-			profiler->SetCullingElapsed(
-				Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
-			);
-
-			working_ = false;
-			lastTimeStamp = start;
-		}
-
-		std::unique_lock<std::mutex> lock(mutex_);
-		cond_.wait(lock);
+	if (time_->GetFrameCount() != cullingUpdateFrame_) {
+		_suede_rptr(scene_)->CullingUpdate((float)Time::TimeStampToSeconds(start - lastTimeStamp_));
+		cullingUpdateFrame_ = time_->GetFrameCount();
 	}
-}
 
-void CullingThread::Stop() {
-	if (!stopped_) {
-		stopped_ = true;
-		cond_.notify_all();
-		thread_.join();
-	}
+	scene_->WalkGameObjectHierarchy([this](GameObject* go) { return OnWalkGameObject(go); });
+
+	cullingFinished.raise();
+
+	profiler_->SetCullingElapsed(
+		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
+	);
+
+	lastTimeStamp_ = start;
+	return true;
 }
 
 void CullingThread::Cull(const Matrix4& worldToClipMatrix) {
-	if (!working_) {
+	if (!IsStopped() && !IsWorking()) {
 		worldToClipMatrix_ = worldToClipMatrix;
-		working_ = true;
-		cond_.notify_one();
+		SetWorking(true);
 	}
 }
 
 WalkCommand CullingThread::OnWalkGameObject(GameObject* go) {
+	if (IsStopped()) { return WalkCommand::Break; }
+
 	if (!go->GetActive()) {
 		return WalkCommand::Next;
 	}

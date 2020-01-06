@@ -39,7 +39,7 @@ InspectorWindow::~InspectorWindow() {
 }
 
 void InspectorWindow::initUI() {
-	view_ = new IMGUIWidget(ui_->inspectorView);
+	view_ = new IMGUIWidget(ui_->inspectorView, editor_->childWindow<GameWindow>()->canvas());
 	ui_->inspectorViewLayout->addWidget(view_);
 
 	view_->setForegroundColor(palette().color(foregroundRole()));
@@ -47,7 +47,6 @@ void InspectorWindow::initUI() {
 }
 
 void InspectorWindow::awake() {
-	blackTextureID_ = Texture2D::GetBlackTexture()->GetNativePointer();
 }
 
 void InspectorWindow::tick() {
@@ -214,7 +213,7 @@ void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, cons
 	}
 	else if (userType == QMetaTypeId<RenderTexture*>::qt_metatype_id()) {
 		RenderTexture* texture = object->property(name).value<RenderTexture*>();
-		GUI::Image(name, texture ? texture->GetNativePointer() : blackTextureID_);
+		GUI::Image(name, texture ? texture->GetNativePointer() : Texture2D::GetBlackTexture()->GetNativePointer());
 	}
 	else {
 		Debug::LogError("unable to draw user type %s(%d).", p.typeName(), userType);

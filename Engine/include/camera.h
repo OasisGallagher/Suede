@@ -83,7 +83,6 @@ public:
 	ref_ptr<Texture2D> Capture();
 
 	void Render();
-	void OnBeforeWorldDestroyed();
 
 public:
 	static void SetMain(Camera* value);

@@ -18,7 +18,7 @@ HierarchyWindow::~HierarchyWindow() {
 }
 
 void HierarchyWindow::initUI() {
-	view_ = new IMGUIWidget(ui_->hierarchyView);
+	view_ = new IMGUIWidget(ui_->hierarchyView, nullptr);
 	ui_->hierarchyViewLayout->addWidget(view_);
 
 	view_->setForegroundColor(palette().color(foregroundRole()));

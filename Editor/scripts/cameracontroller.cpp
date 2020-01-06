@@ -18,6 +18,8 @@ CameraController::~CameraController() {
 }
 
 void CameraController::Update(float deltaTime) {
+	if (!view_->hasFocus()) { return; }
+
 	if (input_->GetMouseWheelDelta() != 0) {
 		Vector3 fwd = camera_->GetForward();
 		camera_->SetPosition(camera_->GetPosition() + fwd * moveSpeed_.z * (float)input_->GetMouseWheelDelta());

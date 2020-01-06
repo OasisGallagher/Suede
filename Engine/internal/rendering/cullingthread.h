@@ -1,32 +1,29 @@
 #pragma once
-#include <mutex>
-
 #include "scene.h"
 #include "bounds.h"
 #include "gameobject.h"
 
 #include "tools/event.h"
+#include "internal/async/worker.h"
 
+class Time;
+class Scene;
+class Profiler;
 class RenderingContext;
 
-class CullingThread : public intrusive_ref_counter {
+class CullingThread : public intrusive_ref_counter, public Worker {
 public:
 	CullingThread(RenderingContext* context);
-	~CullingThread();
 
 public:
-	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
-
-	void Stop();
-	bool IsWorking() { return !stopped_ && working_; }
-
 	void Cull(const Matrix4& worldToClipMatrix);
+	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
 
 public:
 	event<> cullingFinished;
 
 public:
-	void ThreadProc();
+	virtual bool OnWork();
 
 private:
 	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);
@@ -34,13 +31,15 @@ private:
 	WalkCommand OnWalkGameObject(GameObject* go);
 
 private:
-	std::mutex mutex_;
-	std::thread thread_;
-	std::condition_variable cond_;
+	int cullingUpdateFrame_ = -1;
+	uint64 lastTimeStamp_ = 0;
 
 	RenderingContext* context_;
 
-	bool working_, stopped_;
+	Time* time_;
+	Scene* scene_;
+	Profiler* profiler_;
+	
 	Matrix4 worldToClipMatrix_;
 	std::vector<GameObject*> gameObjects_;
 };
