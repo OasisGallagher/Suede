@@ -87,15 +87,15 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 	return true;
 }
 
-void GameObjectLoader::LoadHierarchy(GameObject* parent, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadHierarchy(GameObject* parent, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes) {
 	ref_ptr<GameObject> go = new GameObject();
 
 	go->GetTransform()->SetParent(parent->GetTransform());
-	LoadNodeTo(go.get(), node, materials, surface, subMeshes);
-	LoadChildren(go.get(), node, materials, surface, subMeshes);
+	LoadNodeTo(go.get(), node, materials, geometry, subMeshes);
+	LoadChildren(go.get(), node, materials, geometry, subMeshes);
 }
 
-void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes) {
 	go->SetName(node->mName.C_Str());
 
 	if (go != root_) {
@@ -108,10 +108,10 @@ void GameObjectLoader::LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_
 		go->GetTransform()->SetLocalPosition(translation);
 	}
 
-	LoadComponents(go, node, materials, surface, subMeshes);
+	LoadComponents(go, node, materials, geometry, subMeshes);
 }
 
-void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes) {
 	if (node->mNumMeshes == 0) {
 		return;
 	}
@@ -128,7 +128,7 @@ void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<
 	componentsMap_[go].push_back(renderer);
 
 	ref_ptr<Mesh> mesh = new Mesh();
-	mesh->ShareBuffers(surface);
+	mesh->SetGeometry(geometry);
 
 	ref_ptr<MeshFilter> meshFilter = new MeshFilter();
 	meshFilter->SetMesh(mesh.get());
@@ -145,23 +145,23 @@ void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<
 	}
 }
 
-void GameObjectLoader::LoadChildren(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes) {
+void GameObjectLoader::LoadChildren(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes) {
 	for (int i = 0; i < node->mNumChildren; ++i) {
-		LoadHierarchy(go, node->mChildren[i], materials, surface, subMeshes);
+		LoadHierarchy(go, node->mChildren[i], materials, geometry, subMeshes);
 	}
 }
 
-void GameObjectLoader::ReserveMemory(MeshAttribute& attribute) {
+void GameObjectLoader::ReserveMemory(GeometryAttribute& attribute) {
 	uint indexCount = 0, vertexCount = 0;
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
 		vertexCount += scene_->mMeshes[i]->mNumVertices;
 	}
 
-	attribute.positions.reserve(vertexCount);
+	attribute.vertices.reserve(vertexCount);
 	attribute.normals.reserve(vertexCount);
 
-	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+	for (int i = 0; i < Geometry::TexCoordsCount; ++i) {
 		attribute.texCoords[i].reserve(vertexCount);
 	}
 
@@ -170,13 +170,13 @@ void GameObjectLoader::ReserveMemory(MeshAttribute& attribute) {
 	attribute.blendAttrs.resize(vertexCount);
 }
 
-bool GameObjectLoader::LoadAttribute(MeshAttribute& attribute, SubMesh** subMeshes) {
+bool GameObjectLoader::LoadGeometryAttribute(GeometryAttribute& attribute, SubMesh** subMeshes) {
 	ReserveMemory(attribute);
 
 	for (int i = 0; i < scene_->mNumMeshes; ++i) {
 		subMeshes[i] = new SubMesh();
 		TriangleBias bias{
-			scene_->mMeshes[i]->mNumFaces * 3, attribute.indexes.size(), attribute.positions.size()
+			scene_->mMeshes[i]->mNumFaces * 3, attribute.indexes.size(), attribute.vertices.size()
 		};
 		subMeshes[i]->SetTriangleBias(bias);
 		LoadAttributeAt(i, attribute, subMeshes);
@@ -185,14 +185,14 @@ bool GameObjectLoader::LoadAttribute(MeshAttribute& attribute, SubMesh** subMesh
 	return true;
 }
 
-bool GameObjectLoader::LoadAttributeAt(int meshIndex, MeshAttribute& attribute, SubMesh** subMeshes) {
+bool GameObjectLoader::LoadAttributeAt(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes) {
 	LoadVertexAttribute(meshIndex, attribute);
 	LoadBoneAttribute(meshIndex, attribute, subMeshes);
 
 	return true;
 }
 
-void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAttribute& attribute) {
+void GameObjectLoader::LoadVertexAttribute(int meshIndex, GeometryAttribute& attribute) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 
 	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -205,8 +205,8 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAttribute& attribu
 				continue;
 			}
 
-			if (j > MeshAttribute::TexCoordsCount) {
-				Debug::LogWarning("only %d texture coordinates are supported.", MeshAttribute::TexCoordsCount);
+			if (j > Geometry::TexCoordsCount) {
+				Debug::LogWarning("only %d texture coordinates are supported.", Geometry::TexCoordsCount);
 				break;
 			}
 
@@ -219,7 +219,7 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAttribute& attribu
 			attribute.tangents.push_back(Vector3(v3.x, v3.y, v3.z));
 		}
 
-		attribute.positions.push_back(pos);
+		attribute.vertices.push_back(pos);
 		attribute.normals.push_back(normal);
 
 		min = Vector3::Min(min, pos);
@@ -239,7 +239,7 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, MeshAttribute& attribu
 	}
 }
 
-void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAttribute& attribute, SubMesh** subMeshes) {
+void GameObjectLoader::LoadBoneAttribute(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes) {
 	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = new Skeleton(); }
@@ -264,7 +264,7 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, MeshAttribute& attribute
 					attribute.blendAttrs[vertexID].indexes[k] = index;
 					attribute.blendAttrs[vertexID].weights[k] = weight;
 
-					Vector4 pos(attribute.positions[vertexID].x, attribute.positions[vertexID].y, attribute.positions[vertexID].z, 1);
+					Vector4 pos(attribute.vertices[vertexID].x, attribute.vertices[vertexID].y, attribute.vertices[vertexID].z, 1);
 					pos = bone->meshToBoneMatrix * pos;
 					aabbMin = Vector3::Min(Vector3(pos.x, pos.y, pos.z), aabbMin);
 					aabbMax = Vector3::Max(Vector3(pos.x, pos.y, pos.z), aabbMin);
@@ -494,14 +494,43 @@ bool GameObjectLoader::Load() {
 		return false;
 	}
 
-	MeshAttribute attribute;
 	SubMesh** subMeshes = nullptr;
-	attribute.topology = MeshTopology::Triangles;
+	GeometryAttribute attribute;
+
+	ref_ptr<Geometry> geometry = new Geometry();
+	geometry->SetTopology(MeshTopology::Triangles);
 
 	if (scene_->mNumMeshes > 0) {
 		subMeshes = new SubMesh*[scene_->mNumMeshes];
-		if (!LoadAttribute(attribute, subMeshes)) {
+		if (!LoadGeometryAttribute(attribute, subMeshes)) {
 			Debug::LogError("failed to load meshes for %s.", path_.c_str());
+			return false;
+		}
+
+		if (!attribute.vertices.empty()) {
+			geometry->SetVertices(attribute.vertices.data(), attribute.vertices.size());
+		}
+
+		if (!attribute.normals.empty()) {
+			geometry->SetNormals(attribute.normals.data(), attribute.normals.size());
+		}
+
+		for (int i = 0; i < Geometry::TexCoordsCount; ++i) {
+			if (!attribute.texCoords[i].empty()) {
+				geometry->SetTexCoords(i, attribute.texCoords[i].data(), attribute.texCoords[i].size());
+			}
+		}
+
+		if (!attribute.tangents.empty()) {
+			geometry->SetTangents(attribute.tangents.data(), attribute.tangents.size());
+		}
+
+		if (!attribute.blendAttrs.empty()) {
+			geometry->SetBlendAttributes(attribute.blendAttrs.data(), attribute.blendAttrs.size());
+		}
+
+		if (!attribute.indexes.empty()) {
+			geometry->SetIndexes(attribute.indexes.data(), attribute.indexes.size());
 		}
 	}
 
@@ -514,11 +543,8 @@ bool GameObjectLoader::Load() {
 		LoadMaterials(materials);
 	}
 
-	Mesh surface;
-	surface.SetAttribute(attribute);
-
-	LoadNodeTo(root_.get(), scene_->mRootNode, materials, &surface, subMeshes);
-	LoadChildren(root_.get(), scene_->mRootNode, materials, &surface, subMeshes);
+	LoadNodeTo(root_.get(), scene_->mRootNode, materials, geometry.get(), subMeshes);
+	LoadChildren(root_.get(), scene_->mRootNode, materials, geometry.get(), subMeshes);
 
 	delete[] subMeshes;
 

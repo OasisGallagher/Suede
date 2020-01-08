@@ -361,13 +361,13 @@ struct	btDbvt
 
 	DBVT_PREFIX
 		static void		collideKDOP(const btDbvtNode* root,
-		const btVector3* normals,
+		const btVector3* normals_,
 		const btScalar* offsets,
 		int count,
 		DBVT_IPOLICY);
 	DBVT_PREFIX
 		static void		collideOCL(	const btDbvtNode* root,
-		const btVector3* normals,
+		const btVector3* normals_,
 		const btScalar* offsets,
 		const btVector3& sortaxis,
 		int count,								
@@ -1132,7 +1132,7 @@ inline void		btDbvt::rayTest(	const btDbvtNode* root,
 //
 DBVT_PREFIX
 inline void		btDbvt::collideKDOP(const btDbvtNode* root,
-									const btVector3* normals,
+									const btVector3* normals_,
 									const btScalar* offsets,
 									int count,
 									DBVT_IPOLICY)
@@ -1146,9 +1146,9 @@ inline void		btDbvt::collideKDOP(const btDbvtNode* root,
 			btAssert(count<int (sizeof(signs)/sizeof(signs[0])));
 			for(int i=0;i<count;++i)
 			{
-				signs[i]=	((normals[i].x()>=0)?1:0)+
-					((normals[i].y()>=0)?2:0)+
-					((normals[i].z()>=0)?4:0);
+				signs[i]=	((normals_[i].x()>=0)?1:0)+
+					((normals_[i].y()>=0)?2:0)+
+					((normals_[i].z()>=0)?4:0);
 			}
 			stack.reserve(SIMPLE_STACKSIZE);
 			stack.push_back(sStkNP(root,0));
@@ -1160,7 +1160,7 @@ inline void		btDbvt::collideKDOP(const btDbvtNode* root,
 				{
 					if(0==(se.mask&j))
 					{
-						const int	side=se.node->volume.Classify(normals[i],offsets[i],signs[i]);
+						const int	side=se.node->volume.Classify(normals_[i],offsets[i],signs[i]);
 						switch(side)
 						{
 						case	-1:	out=true;break;
@@ -1187,7 +1187,7 @@ inline void		btDbvt::collideKDOP(const btDbvtNode* root,
 //
 DBVT_PREFIX
 inline void		btDbvt::collideOCL(	const btDbvtNode* root,
-								   const btVector3* normals,
+								   const btVector3* normals_,
 								   const btScalar* offsets,
 								   const btVector3& sortaxis,
 								   int count,
@@ -1208,9 +1208,9 @@ inline void		btDbvt::collideOCL(	const btDbvtNode* root,
 			btAssert(count<int (sizeof(signs)/sizeof(signs[0])));
 			for(int i=0;i<count;++i)
 			{
-				signs[i]=	((normals[i].x()>=0)?1:0)+
-					((normals[i].y()>=0)?2:0)+
-					((normals[i].z()>=0)?4:0);
+				signs[i]=	((normals_[i].x()>=0)?1:0)+
+					((normals_[i].y()>=0)?2:0)+
+					((normals_[i].z()>=0)?4:0);
 			}
 			stock.reserve(SIMPLE_STACKSIZE);
 			stack.reserve(SIMPLE_STACKSIZE);
@@ -1227,7 +1227,7 @@ inline void		btDbvt::collideOCL(	const btDbvtNode* root,
 					{
 						if(0==(se.mask&j))
 						{
-							const int	side=se.node->volume.Classify(normals[i],offsets[i],signs[i]);
+							const int	side=se.node->volume.Classify(normals_[i],offsets[i],signs[i]);
 							switch(side)
 							{
 							case	-1:	out=true;break;

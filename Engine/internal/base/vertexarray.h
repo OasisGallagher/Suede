@@ -12,8 +12,6 @@ public:
 	~VertexArray();
 
 public:
-	void Initialize();
-
 	void CreateVertexBuffers(size_t n);
 	void DestroyVertexBuffers();
 
@@ -32,7 +30,7 @@ public:
 	void UnmapBuffer(int index);
 	size_t GetBufferSize(int index);
 
-	uint GetNativePointer() const { return vao_; }
+	uint GetNativePointer() const;
 	uint GetBufferNativePointer(uint index) const;
 	void UpdateBuffer(uint index, int offset, size_t size, const void* ptr);
 

@@ -7,8 +7,12 @@ public:
 	Worker();
 	~Worker();
 
+
 public:
 	virtual void Stop();
+	std::thread::id GetThreadID() const { return thread_.get_id(); }
+
+protected:
 	virtual bool OnWork() = 0;
 
 protected:

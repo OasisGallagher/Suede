@@ -7,6 +7,7 @@
 #include "os/filesystem.h"
 #include "childwindow.h"
 
+class Selection;
 class Preferences;
 class Editor : public QMainWindow {
 	Q_OBJECT
@@ -24,6 +25,8 @@ public:
 public:
 	template <class T>
 	T* childWindow() { return dynamic_cast<T*>(childWindows_[T::WindowType]); }
+
+	Selection* selection() { return selection_; }
 
 signals:
 	void aboutToClose();
@@ -50,6 +53,7 @@ private:
 
 private:
 	Ui::Editor ui_;
+	Selection* selection_;
 
 	Preferences* preferences_;
 	ChildWindow** childWindows_;

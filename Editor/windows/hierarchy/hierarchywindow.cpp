@@ -6,12 +6,15 @@
 #include "main/editor.h"
 
 #include "gui.h"
+#include "imgui.h"
 #include "scene.h"
 #include "hierarchywindow.h"
 #include "os/filesystem.h"
+#include "main/selection.h"
 #include "main/imguiwidget.h"
 
 HierarchyWindow::HierarchyWindow(QWidget* parent) : ChildWindow(parent) {
+	selection_ = editor_->selection();
 }
 
 HierarchyWindow::~HierarchyWindow() {
@@ -32,34 +35,6 @@ void HierarchyWindow::awake() {
 
 void HierarchyWindow::tick() {
 	onGui();
-}
-
-GameObject* HierarchyWindow::selectedGameObject() {
-	struct TimeComparer {
-		bool operator()(const Selection& lhs, const Selection& rhs) const {
-			return lhs.time < rhs.time;
-		}
-	} static timeComparer;
-
-	auto pos = std::min_element(selection_.begin(), selection_.end(), timeComparer);
-	return pos != selection_.end() ? pos->go : nullptr;
-}
-
-QList<GameObject*> HierarchyWindow::selectedGameObjects() {
-	QList<GameObject*> list;
-	for (auto& item : selection_) {
-		list.push_back(item.go);
-	}
-
-	return list;
-}
-
-void HierarchyWindow::setSelectedGameObjects(const QList<GameObject*>& objects) {
-	selection_.clear();
-	int time = 0;
-	for (GameObject* go : objects) {
-		selection_.insert(Selection{ go, time++ });
-	}
 }
 
 void HierarchyWindow::onGui() {
@@ -90,10 +65,23 @@ void HierarchyWindow::drawHierarchy() {
 		
 		if (GUI::BeginTreeNode((void*)(uintptr_t)go->GetInstanceID(),
 			go->GetName().c_str(),
-			selection_.find(Selection{ go }) != selection_.end(),
+			selection_->contains(go),
 			childCount == 0, &clickCount)) {
 			for (int i = 0; i < childCount; ++i) {
 				queue.push_back(std::make_pair(current.first->GetChildAt(i), current.second + 1));
+			}
+
+			if (GUI::BeginContextMenu(nullptr)) {
+				if (GUI::ContextMenuItem("Focus")) {
+					emit focusGameObject(go);
+				}
+
+				if (GUI::ContextMenuItem("Delete")) {
+					Engine::GetSubsystem<Scene>()->DestroyGameObject(go);
+					selection_->remove(go);
+				}
+
+				GUI::EndContextMenu();
 			}
 
 			GUI::EndTreeNode();
@@ -113,21 +101,19 @@ void HierarchyWindow::drawHierarchy() {
 }
 
 void HierarchyWindow::updateSelection(GameObject* go) {
-	Selection item{ go, QDateTime::currentMSecsSinceEpoch() };
-
 	if (input_->GetKey(KeyCode::Shift)) {
-		selection_.insert(item);
+		selection_->add(go);
 	}
 	else if (input_->GetKey(KeyCode::Ctrl)) {
-		if (selection_.find(item) != selection_.end()) {
-			selection_.erase(item);
+		if (selection_->contains(go)) {
+			selection_->remove(go);
 		}
 		else {
-			selection_.insert(item);
+			selection_->add(go);
 		}
 	}
 	else {
-		selection_.clear();
-		selection_.insert(item);
+		selection_->clear();
+		selection_->add(go);
 	}
 }

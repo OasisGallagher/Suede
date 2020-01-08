@@ -2,6 +2,7 @@
 #include "engine.h"
 #include "math/mathf.h"
 #include "debug/debug.h"
+#include "main/selection.h"
 #include "cameracontroller.h"
 #include "windows/hierarchy/hierarchywindow.h"
 
@@ -85,7 +86,8 @@ void CameraController::moveCamera(const Vector2& mousePos, Vector2& oldPos) {
 }
 
 void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& oldPos) {
-	if (!selection_ || selection_->GetTransform()->GetPosition() == camera_->GetPosition()) {
+	GameObject* go = selection_->gameObject();
+	if (go == nullptr || go->GetTransform()->GetPosition() == camera_->GetPosition()) {
 		return;
 	}
 
@@ -97,10 +99,10 @@ void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& 
 		Quaternion rot(Vector3::Dot(va, vb), Vector3::Cross(va, vb));
 		Quaternion::Pow(rot, 1 / 5.f);
 
-		Vector3 dir = camera_->GetPosition() - selection_->GetTransform()->GetPosition();
-		camera_->SetPosition(selection_->GetTransform()->GetPosition() + rot * dir);
+		Vector3 dir = camera_->GetPosition() - go->GetTransform()->GetPosition();
+		camera_->SetPosition(go->GetTransform()->GetPosition() + rot * dir);
 
-		Vector3 forward = -(selection_->GetTransform()->GetPosition() - camera_->GetPosition()).GetNormalized();
+		Vector3 forward = -(go->GetTransform()->GetPosition() - camera_->GetPosition()).GetNormalized();
 		Vector3 up = rot * camera_->GetUp();
 		Vector3 right = Vector3::Cross(up, forward);
 		up = Vector3::Cross(forward, right);

@@ -32,9 +32,8 @@ public:
 	int FindPass(const std::string& name) const;
 
 	void SetPass(int pass);
-	int GetPass() const;
+	int GetActivatedPass() const;
 	uint GetPassCount() const;
-	uint GetPassNativePointer(uint pass) const;
 
 	void SetShader(Shader* value);
 	Shader* GetShader();

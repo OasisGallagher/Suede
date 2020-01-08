@@ -57,21 +57,15 @@ void RenderingContext::OnDestroy() {
 		renderingThread_ = nullptr;
 	}
 
-	for (auto& thread : cullingThreads_) {
-		thread.Stop();
-	}
-
-	cullingThreads_.clear();
+	delete cullingThread_;
+	cullingThread_ = nullptr;
 }
 
 bool RenderingContext::Initialize() {
 	if (!Context::Initialize()) { return false; }
 
+	cullingThread_ = new CullingThread(this);
 	renderingThread_ = new RenderingThread(this);
-	cullingThreads_.resize(2, this);
-	for (int i = 0; i < cullingThreads_.size(); ++i) {
-		cullingThreadQueue_.push(&cullingThreads_[i]);
-	}
 
 	frameState_ = new FrameState();
 	uniformState_ = new UniformState(this);

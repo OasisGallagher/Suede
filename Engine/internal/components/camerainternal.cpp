@@ -47,8 +47,8 @@ const Matrix4& Camera::GetProjectionMatrix() { return _suede_dptr()->GetProjecti
 void Camera::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects) { return _suede_dptr()->GetVisibleGameObjects(gameObjects); }
 Vector3 Camera::WorldToScreenPoint(const Vector3& position) { return _suede_dptr()->WorldToScreenPoint(position); }
 Vector3 Camera::ScreenToWorldPoint(const Vector3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
-ref_ptr<Texture2D> Camera::Capture() { return _suede_dptr()->Capture(); }
 void Camera::Render() { _suede_dptr()->Render(); }
+ref_ptr<Texture2D> Camera::Capture() { return _suede_dptr()->Capture(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
@@ -76,6 +76,9 @@ CameraInternal::CameraInternal() : ComponentInternal(ObjectType::Camera) {
 	backPipelines_ = new RenderingPipelines(context_);
 
 	Screen::sizeChanged.subscribe(this, &CameraInternal::OnScreenSizeChanged);
+	
+	cullingTask_ = new CullingTask(context_);
+	cullingTask_->finished.subscribe(this, &CameraInternal::OnCullingFinished);
 
 	SetAspect((float)Screen::GetWidth() / Screen::GetHeight());
 }
@@ -90,6 +93,28 @@ CameraInternal::~CameraInternal() {
 
 void CameraInternal::Awake() {
 	transform_ = GetTransform();
+}
+
+void CameraInternal::RenderFrame() {
+	UpdateFrameState();
+
+	cullingTask_->SetWorldToClipMatrix(GetProjectionMatrix() * transform_->GetWorldToLocalMatrix());
+
+	backPipelines_->Clear();
+	context_->GetCullingThread()->AddTask(cullingTask_.get());
+
+	if (pipelineReady_) {
+		RenderingMatrices matrices;
+		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
+		matrices.cameraPos = transform_->GetPosition();
+		matrices.projectionMatrix = GetProjectionMatrix();
+		matrices.worldToCameraMatrix = transform_->GetWorldToLocalMatrix();
+
+		renderingThread_->Render(frontPipelines_, matrices);
+	}
+	else {
+		// Debug::Log("Waiting for first frame...");
+	}
 }
 
 void CameraInternal::UpdateFrameState() {
@@ -110,31 +135,8 @@ void CameraInternal::SetDepth(Camera* self, int value) {
 }
 
 void CameraInternal::Render() {
-	if (!IsValidViewportRect()) {
-		return;
-	}
-
-	UpdateFrameState();
-
-	if (cullingThread_ == nullptr) {
-		cullingThread_ = context_->GetCullingThread();
-		cullingThread_->cullingFinished.subscribe(this, &CameraInternal::OnCullingFinished);
-
-		backPipelines_->Clear();
-		cullingThread_->Cull(GetProjectionMatrix() * transform_->GetWorldToLocalMatrix());
-	}
-
-	if (pipelineReady_) {
-		RenderingMatrices matrices;
-		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
-		matrices.cameraPos = transform_->GetPosition();
-		matrices.projectionMatrix = GetProjectionMatrix();
-		matrices.worldToCameraMatrix = transform_->GetWorldToLocalMatrix();
-		
-		renderingThread_->Render(frontPipelines_, matrices);
-	}
-	else {
-		// Debug::Log("Waiting for first frame...");
+	if (IsValidViewportRect()) {
+		RenderFrame();
 	}
 }
 
@@ -146,17 +148,13 @@ void CameraInternal::OnCullingFinished() {
 
 	{
 		std::lock_guard<std::mutex> lock(visibleGameObjectsMutex_);
-		visibleGameObjects_ = cullingThread_->GetGameObjects();
+		visibleGameObjects_ = cullingTask_->GetGameObjects();
 	}
 
 	pipelineBuilder_->Build(backPipelines_, visibleGameObjects_, matrices);
 
 	std::swap(frontPipelines_, backPipelines_);
 	pipelineReady_ = true;
-
-	cullingThread_->cullingFinished.unsubscribe(this);
-	context_->ReleaseCullingThread(cullingThread_);
-	cullingThread_ = nullptr;
 }
 
 void CameraInternal::OnScreenSizeChanged(uint width, uint height) {

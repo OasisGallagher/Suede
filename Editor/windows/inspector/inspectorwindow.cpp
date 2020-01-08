@@ -8,6 +8,7 @@
 #include "gui.h"
 #include "engine.h"
 #include "main/editor.h"
+#include "main/selection.h"
 #include "materialeditor.h"
 #include "main/imguiwidget.h"
 
@@ -56,12 +57,10 @@ void InspectorWindow::tick() {
 void InspectorWindow::onGui() {
 	view_->bind();
 
-	GameObject* selection = editor_->childWindow<HierarchyWindow>()->selectedGameObject();
+	GameObject* selection = editor_->selection()->gameObject();
 	if (selection != nullptr) { drawGui(selection); }
 
 	view_->unbind();
-
-	MaterialEditor::runMainContextCommands();
 }
 
 void InspectorWindow::drawGui(GameObject* go) {

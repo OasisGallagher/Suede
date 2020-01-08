@@ -67,6 +67,8 @@ private:
 	ProjectorContainer projectors_;
 	GameObjectDictionary gameObjects_;
 	GizmosPainterContainer gizmosPainters_;
+
+	std::mutex cullingMutex_;
 	GameObjectSequence cullingUpdateSequence_;
 	GameObjectSequence renderingUpdateSequence_;
 

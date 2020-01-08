@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+
 #include "types.h"
 
 class Context;
@@ -18,22 +20,19 @@ public:
 	void Unmap();
 	void Update(int offset, size_t size, const void* data);
 
-	size_t GetSize() const { return attribute_.size; }
-	uint GetNativePointer() const { return buffer_; }
-
-private:
-	struct Attribute {
-		char* data;
-		size_t size;
-		uint target;
-		uint usage;
-	};
+	size_t GetSize() const { return shadowDataSize_; }
+	uint GetNativePointer() const;
 
 private:
 	uint GetBindingName(uint target);
 
 private:
 	Context* context_;
-	uint old_, buffer_;
-	Attribute attribute_;
+	uint old_ = 0, buffer_ = 0;
+
+	uint usage_ = 0;
+	uint target_ = 0;
+
+	std::unique_ptr<uchar[]> shadowData_;
+	size_t shadowDataSize_ = 0;
 };

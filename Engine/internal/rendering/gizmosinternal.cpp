@@ -170,13 +170,12 @@ void GizmosInternal::AddCuboidBatch(const Vector3& center, const Vector3& size, 
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {
-	MeshAttribute attribute;
-	attribute.topology = b.topology;
+	ref_ptr<Geometry> geometry = new Geometry();
+	geometry->SetTopology(b.topology);
+	geometry->SetVertices(b.points.data(), b.points.size());
+	geometry->SetIndexes(b.indexes.data(), b.indexes.size());
 
-	attribute.positions = b.points;
-	attribute.indexes = b.indexes;
-
-	mesh_->SetAttribute(attribute);
+	mesh_->SetGeometry(geometry.get());
 
 	if (mesh_->GetSubMeshCount() == 0) {
 		mesh_->AddSubMesh(new SubMesh());

@@ -132,16 +132,14 @@ private:
 
 	void EmitParticles(float deltaTime, uint count);
 
-	void SortBuffers();
-
 	void SortParticlesByDepth(const Vector3& ref);
 
 	void UpdateParticles(float deltaTime);
 
-	void UpdateInstanceBuffers();
+	void UploadInstanceBuffers();
 
 	void UpdateAttributes(float deltaTime);
-	void UpdateBuffers();
+	void UpdateInstanceBuffers();
 
 private:
 	bool looping_;

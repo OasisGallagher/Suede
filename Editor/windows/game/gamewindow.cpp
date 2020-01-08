@@ -32,6 +32,7 @@
 
 #include "math/mathf.h"
 
+#include "main/selection.h"
 #include "scripts/grayscale.h"
 #include "scripts/inversion.h"
 #include "scripts/gaussianblur.h"
@@ -94,10 +95,6 @@ void GameWindow::awake() {
 }
 
 void GameWindow::tick() {
-	HierarchyWindow* hw = editor_->childWindow<HierarchyWindow>();
-	controller_->setSelection(hw->selectedGameObject());
-	gizmos_->setSelection(hw->selectedGameObjects());
-
 	if (input_->GetMouseButtonUp(0)) {
 		RaycastHit hitInfo;
 		Vector3 src = Camera::GetMain()->GetTransform()->GetPosition();
@@ -105,7 +102,8 @@ void GameWindow::tick() {
 		Vector3 dest = Camera::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
 
 		if (Engine::GetSubsystem<Physics>()->Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
-			editor_->childWindow<HierarchyWindow>()->setSelectedGameObjects(QList<GameObject*>{ hitInfo.gameObject });
+			editor_->selection()->clear();
+			editor_->selection()->add(hitInfo.gameObject);
 		}
 	}
 }
@@ -251,8 +249,10 @@ void GameWindow::setupScene() {
 
 	controller_ = cameraGameObject->AddComponent<CameraController>();
 	controller_->setView(this);
+	controller_->setSelection(editor_->selection());
 
 	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>();
+	gizmos_->setSelection(editor_->selection());
 
 #ifdef PROJECTOR
 	ref_ptr<GameObject> projectorGameObject = new GameObject();

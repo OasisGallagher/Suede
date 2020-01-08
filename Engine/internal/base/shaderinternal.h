@@ -24,7 +24,7 @@ public:
 
 	void Bind();
 	void Unbind();
-	uint GetNativePointer() const { return program_; }
+	uint GetNativePointer() const;
 
 private:
 	struct Uniform {

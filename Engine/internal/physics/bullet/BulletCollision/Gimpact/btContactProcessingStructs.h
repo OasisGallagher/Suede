@@ -88,12 +88,12 @@ public:
 		return _hash;
     }
 
-    SIMD_FORCE_INLINE void interpolate_normals( btVector3 * normals,int normal_count)
+    SIMD_FORCE_INLINE void interpolate_normals( btVector3 * normals_,int normal_count)
     {
     	btVector3 vec_sum(m_normal);
 		for(int i=0;i<normal_count;i++)
 		{
-			vec_sum += normals[i];
+			vec_sum += normals_[i];
 		}
 
 		btScalar vec_sum_len = vec_sum.length2();

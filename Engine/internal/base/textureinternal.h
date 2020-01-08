@@ -29,7 +29,7 @@ public:
 	virtual uint GetHeight() const { return height_; }
 
 public:
-	uint GetNativePointer() { return texture_; }
+	uint GetNativePointer();
 
 	void SetMinFilterMode(TextureMinFilterMode value);
 	TextureMinFilterMode GetMinFilterMode() const { return sampler_.minFilter; }
@@ -109,8 +109,8 @@ private:
 private:
 	bool dataDirty_ = false;
 
-	uint dataSize_;
-	std::unique_ptr<uchar[]> data_;
+	uint shadowDataSize_;
+	std::unique_ptr<uchar[]> shadowData_;
 
 	int alignment_ = 4;
 	TextureFormat textureFormat_ = TextureFormat::Rgba;

@@ -38,21 +38,32 @@ public:
 	virtual void Run();
 
 private:
+	struct GeometryAttribute {
+		MeshTopology topology;
+
+		std::vector<Vector3> vertices;
+		std::vector<Vector3> normals;
+		std::vector<Vector2> texCoords[Geometry::TexCoordsCount];
+		std::vector<Vector3> tangents;
+		std::vector<BlendAttribute> blendAttrs;
+		std::vector<uint> indexes;
+	};
+
 	bool Load();
 	bool Initialize(Assimp::Importer& importer);
 
-	void LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes);
-	void LoadChildren(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes);
-	void LoadComponents(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes);
+	void LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes);
+	void LoadChildren(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes);
+	void LoadComponents(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes);
 
-	void LoadHierarchy(GameObject* parent, aiNode* node, std::vector<ref_ptr<Material>>& materials, Mesh* surface, SubMesh** subMeshes);
+	void LoadHierarchy(GameObject* parent, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes);
 
-	void ReserveMemory(MeshAttribute& attribute);
-	bool LoadAttribute(MeshAttribute& attribute, SubMesh** subMeshes);
-	bool LoadAttributeAt(int index, MeshAttribute& attribute, SubMesh** subMeshes);
+	void ReserveMemory(GeometryAttribute& attribute);
+	bool LoadGeometryAttribute(GeometryAttribute& attribute, SubMesh** subMeshes);
+	bool LoadAttributeAt(int index, GeometryAttribute& attribute, SubMesh** subMeshes);
 
-	void LoadBoneAttribute(int meshIndex, MeshAttribute& attribute, SubMesh** subMeshes);
-	void LoadVertexAttribute(int meshIndex, MeshAttribute& attribute);
+	void LoadBoneAttribute(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes);
+	void LoadVertexAttribute(int meshIndex, GeometryAttribute& attribute);
 
 	void LoadMaterials(std::vector<ref_ptr<Material>>& materials);
 	void LoadMaterial(Material* material, aiMaterial* resource);
@@ -82,9 +93,9 @@ private:
 	std::function<void(GameObject*, const std::string&)> callback_;
 };
 
-class GameObjectImporter : public ThreadPool {
+class GameObjectImporter : public ScheduledThreadPool {
 public:
-	GameObjectImporter() : ThreadPool(std::thread::hardware_concurrency()) {}
+	GameObjectImporter() : ScheduledThreadPool(std::thread::hardware_concurrency()) {}
 	~GameObjectImporter() {}
 
 public:

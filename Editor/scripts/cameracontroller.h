@@ -5,6 +5,7 @@
 #include <QMouseEvent>
 
 class Input;
+class Selection;
 class CameraController : public QObject, public Behaviour {
 	Q_OBJECT
 	Q_PROPERTY(Vector3 MoveSpeed READ moveSpeed WRITE setMoveSpeed)
@@ -18,7 +19,7 @@ public:
 	~CameraController();
 
 public:
-	void setSelection(GameObject* value) { selection_ = value; }
+	void setSelection(Selection* value) { selection_ = value; }
 	void setView(QWidget* value) { view_ = value; }
 
 	Vector3 moveSpeed() { return moveSpeed_; }
@@ -44,7 +45,7 @@ private:
 	Input* input_ = nullptr;
 
 	Transform* camera_ = nullptr;
-	GameObject* selection_ = nullptr;
+	Selection* selection_ = nullptr;
 
 	QWidget* view_ = nullptr;
 	Vector2 pos_;

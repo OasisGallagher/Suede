@@ -74,30 +74,34 @@ void GraphicsInternal::Blit(Texture* src, RenderTexture* dest, Material* materia
 }
 
 ref_ptr<Mesh> GraphicsInternal::CreateBlitMesh(const Rect& rect) {
-	MeshAttribute attribute = { MeshTopology::TriangleStripe };
+	ref_ptr<Geometry> geometry = new Geometry();
+	geometry->SetTopology(MeshTopology::TriangleStripe);
 
-	attribute.positions.assign({
+	auto vertices = {
 		Vector3(-1.f, -1.f, 0.f),
 		Vector3(1.f, -1.f, 0.f),
 		Vector3(-1.f, 1.f, 0.f),
 		Vector3(1.f, 1.f, 0.f),
-	});
+	};
+	geometry->SetVertices(vertices.begin(), vertices.size());
 
-	attribute.texCoords[0].assign({
+	auto texCoords = {
 		rect.GetLeftBottom(),
 		rect.GetRightBottom(),
 		rect.GetLeftTop(),
 		rect.GetRightTop(),
-	});
+	};
+	geometry->SetTexCoords(0, texCoords.begin(), texCoords.size());
 
-	attribute.indexes.assign({ 0, 1, 2, 3 });
+	uint indexes[] = { 0, 1, 2, 3 };
+	geometry->SetIndexes(indexes, SUEDE_COUNTOF(indexes));
 
-	return Mesh::FromAttribute(attribute);
+	return Mesh::FromGeometry(geometry.get());
 }
 
 void GraphicsInternal::DrawSubMeshes(Mesh* mesh) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		Context::GetCurrent()->DrawElementsBaseVertex(mesh->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
+		Context::GetCurrent()->DrawElementsBaseVertex(mesh->GetGeometry()->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
 	}
 }
 
@@ -106,17 +110,19 @@ void GraphicsInternal::SetRenderTarget(std::vector<uint>& colorBuffers, uint dep
 
 void GraphicsInternal::Draw(Mesh* mesh, Material* material) {
 	mesh->Bind();
-	int pass = material->GetPass();
-	if (pass >= 0) {
+	int pass = material->GetActivatedPass();
+	if (pass >= 0 && material->IsPassEnabled(pass)) {
 		material->Bind(pass);
 		DrawSubMeshes(mesh);
 		material->Unbind();
 	}
 	else {
 		for (pass = 0; pass < material->GetPassCount(); ++pass) {
-			material->Bind(pass);
-			DrawSubMeshes(mesh);
-			material->Unbind();
+			if (material->IsPassEnabled(pass)) {
+				material->Bind(pass);
+				DrawSubMeshes(mesh);
+				material->Unbind();
+			}
 		}
 	}
 

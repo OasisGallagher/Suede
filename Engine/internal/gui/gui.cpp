@@ -5,6 +5,7 @@
 
 #include "imgui.h"
 #include "glcanvas.h"
+#include "math/mathf.h"
 
 struct Globes {
 	char buffer[256] = { 0 };
@@ -134,6 +135,20 @@ bool GUI::BeginTreeNode(void* id, const char* title, bool selected, bool leaf, i
 
 void GUI::EndTreeNode() {
 	ImGui::TreePop();
+}
+
+bool GUI::BeginContextMenu(const char* id) {
+	return ImGui::BeginPopupContextItem(id);
+}
+
+bool GUI::ContextMenuItem(const char* title, float minWidth) {
+	ImVec2 size = ImGui::CalcTextSize(title, NULL, true);
+	size.x = Mathf::Max(size.x, minWidth);
+	return ImGui::Selectable(title, false, 0, size);
+}
+
+void GUI::EndContextMenu() {
+	ImGui::EndPopup();
 }
 
 bool GUI::Toggle(const char* title, bool& value) {

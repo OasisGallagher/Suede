@@ -80,9 +80,8 @@ public:
 	Vector3 WorldToScreenPoint(const Vector3& position);
 	Vector3 ScreenToWorldPoint(const Vector3& position);
 
-	ref_ptr<Texture2D> Capture();
-
 	void Render();
+	ref_ptr<Texture2D> Capture();
 
 public:
 	static void SetMain(Camera* value);

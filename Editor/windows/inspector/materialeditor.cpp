@@ -5,20 +5,6 @@
 #include "resources.h"
 #include "../widgets/dialogs/shaderselector.h"
 
-QVector<MainContextCommand*> MaterialEditor::commands_;
-
-class LoadTextureCommand : public MainContextCommand {
-public:
-	LoadTextureCommand(Texture2D* tex, const QString& p) : texture(tex), path(p) {}
-
-public:
-	virtual void run() { texture->Load(path.toStdString()); }
-
-private:
-	QString path;
-	ref_ptr<Texture2D> texture;
-};
-
 void MaterialEditor::draw(Material* material) {
 	std::string materialName = material->GetName();
 	if (GUI::CollapsingHeader(materialName.c_str())) {
@@ -84,15 +70,6 @@ void MaterialEditor::drawProperties(Material* material) {
 	}
 }
 
-void MaterialEditor::runMainContextCommands() {
-	for (MainContextCommand* cmd : commands_) {
-		cmd->run();
-		delete cmd;
-	}
-
-	commands_.clear();
-}
-
 void MaterialEditor::drawTextureProperty(Material* material, const Property* p) {
 	Texture* texture = material->GetTexture(p->name);
 	Texture2D* texture2D = (Texture2D*)texture;
@@ -108,10 +85,10 @@ void MaterialEditor::drawTextureProperty(Material* material, const Property* p) 
 
 void MaterialEditor::drawTexture2DSelector(const Property* p, Texture2D* texture2D) {
 	if (GUI::ImageButton(p->name.c_str(), texture2D->GetNativePointer())) {
-		QString path = QFileDialog::getOpenFileName(nullptr, "Select Texture", Resources::textureDirectory, "*.jpg;;*.png");
+		QString path = QFileDialog::getOpenFileName(nullptr, "Select Texture", Resources::textureDirectory, "*.jpg;*.png");
 		if (!path.isEmpty()) {
 			path = QDir(Resources::textureDirectory).relativeFilePath(path);
-			commands_.push_back(new LoadTextureCommand(texture2D, path));
+			texture2D->Load(path.toStdString());
 		}
 	}
 }

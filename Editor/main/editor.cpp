@@ -9,6 +9,7 @@
 
 #include "prefs.h"
 
+#include "selection.h"
 #include "childwindow.h"
 #include "../widgets/status/statusbar.h"
 
@@ -25,7 +26,7 @@ namespace PrefsKeys {
 	static int stateVersion = 3350;
 }
 
-Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr) {
+Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr), selection_(new Selection()) {
 	setupUI();
 	setStatusBar(new StatusBar(this));
 
@@ -36,6 +37,7 @@ Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr) {
 }
 
 Editor::~Editor() {
+	delete selection_;
 	delete[] childWindows_;
 	ColorPicker::destroy();
 }

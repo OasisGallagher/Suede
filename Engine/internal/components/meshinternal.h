@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <bitset>
 #include <vector>
 
 #include "mesh.h"
@@ -9,6 +10,89 @@
 #include "internal/base/vertexarray.h"
 #include "internal/base/objectinternal.h"
 #include "internal/base/globjectmaintainer.h"
+
+class GeometryInternal : public ObjectInternal {
+public:
+	GeometryInternal(Context* context);
+	~GeometryInternal();
+
+public:
+	event<> modified;
+
+	void SetTopology(MeshTopology value) { topology_ = value; }
+	MeshTopology GetTopology() const { return topology_; }
+
+	void UpdateInstanceBuffer(int index, size_t size, void* data);
+
+	void SetVertices(const Vector3* values, int count);
+	const Vector3* GetVertices() const { return vertices_.data(); }
+	uint GetVertexCount() const { return vertices_.size(); }
+
+	void SetNormals(const Vector3* values, int count);
+	const Vector3* GetNormals() const { return normals_.data(); }
+	uint GetNormalCount() const { return normals_.size(); }
+
+	void SetTangents(const Vector3* values, int count);
+	const Vector3* GetTangents() const { return tangents_.data(); }
+	uint GetTangentCount() const { return tangents_.size(); }
+
+	void SetTexCoords(int index, const Vector2* values, int count);
+	const Vector2* GetTexCoords(int index) const;
+	uint GetTexCoordCount(int index) const;
+
+	void SetBlendAttributes(const BlendAttribute* values, int count);
+	const BlendAttribute* GetBlendAttributes() const { return blendAttrs_.data(); }
+	uint GetBlendAttributeCount() const { return blendAttrs_.size(); }
+
+	void SetIndexes(const uint* values, int count);
+	const uint* GetIndexes() const { return indexes_.data(); }
+	uint GetIndexCount() const { return indexes_.size(); }
+
+	void SetColorInstanceAttribute(const InstanceAttribute& value);
+	void SetGeometryInstanceAttribute(const InstanceAttribute& value);
+
+	void Bind();
+	void Unbind();
+
+private:
+	void Apply();
+	void ApplyInstanceBuffers();
+
+private:
+	enum BufferNames {
+		Vertices,
+		Normals,
+		TexCoords,
+		Tangents = TexCoords + Geometry::TexCoordsCount,
+		BlendAttributes,
+		Indexes,
+		_InstanceBufferBegin,
+		ColorInstances = _InstanceBufferBegin,
+		GeometryInstances,
+		_BufferCount,
+	};
+
+	std::bitset<_BufferCount> dirtyFlags_;
+	MeshTopology topology_ = MeshTopology::Triangles;
+
+	std::vector<Vector3> vertices_;
+	std::vector<Vector3> normals_;
+	std::vector<Vector2> texCoords_[Geometry::TexCoordsCount];
+	std::vector<Vector3> tangents_;
+	std::vector<BlendAttribute> blendAttrs_;
+	std::vector<uint> indexes_;
+
+	InstanceAttribute colorInstances_;
+	InstanceAttribute geometryInstances_;
+
+	struct {
+		uint size = 0;
+		std::unique_ptr<uchar[]> data;
+	} instanceBuffers_[_BufferCount - _InstanceBufferBegin];
+
+	Context* context_;
+	VertexArray* vao_ = nullptr;
+};
 
 class SubMeshInternal : public ObjectInternal {
 public:
@@ -28,75 +112,32 @@ public:
 	~MeshInternal();
 
 public:
-	void CreateStorage();
-	void SetAttribute(Mesh* self, const MeshAttribute& value);
+	void SetGeometry(Geometry* value);
+	Geometry* GetGeometry() { return geometry_.get(); }
 
 	void Bind();
 	void Unbind();
-	void ShareBuffers(Mesh* other);
 
 	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount() { return subMeshes_.size(); }
 	SubMesh* GetSubMesh(uint index) { return subMeshes_[index].get(); }
 	void RemoveSubMesh(uint index);
 
-	MeshTopology GetTopology() { return storage_->topology; }
-	uint GetNativePointer() const { return storage_->vao.GetNativePointer(); }
-
-	const uint* MapIndexes();
-	void UnmapIndexes();
-	uint GetIndexCount();
-
-	const Vector3* MapVertices();
-	void UnmapVertices();
-	uint GetVertexCount();
-
-	void UpdateInstanceBuffer(uint i, size_t size, void* data);
-
-	const Bounds& GetBounds() { return storage_->bounds; }
-
-public:
-	enum BufferIndex {
-		IndexBuffer,
-		VertexBuffer,
-		InstanceBuffer0,
-		InstanceBuffer1,
-		BufferIndexCount,
-	};
-
-	struct Storage {
-		Storage(Context* context);
-		Bounds bounds;
-		bool meshDirty = false;
-		MeshAttribute attribute;
-		MeshTopology topology;
-
-		struct {
-			bool dirty = false;
-			uint size = 0;
-			std::unique_ptr<uchar[]> data;
-		} instanceBuffers[BufferIndexCount - InstanceBuffer0];
-
-		VertexArray vao;
-		uint bufferIndexes[BufferIndexCount];
-		event<> modified;
-	};
-
-	Storage* GetStorage() { return storage_.get(); }
+	const Bounds& GetBounds();
 
 protected:
 	virtual void OnContextDestroyed();
 
 private:
 	void Destroy();
-	void ApplyAttribute();
-	void ClearAttribute(MeshAttribute& attribute);
-	void UpdateGLBuffers(const MeshAttribute& attribute);
-	int CalculateVBOCount(const MeshAttribute& attribute);
+	void RecalculateBounds();
 
 private:
+	bool boundsDirty_ = false;
+	Bounds bounds_;
+
+	ref_ptr<Geometry> geometry_;
 	std::vector<ref_ptr<SubMesh>> subMeshes_;
-	std::shared_ptr<Storage> storage_;
 };
 
 class MeshProviderInternal : public ComponentInternal {
@@ -142,7 +183,7 @@ private:
 	void RebuildMesh();
 	void RebuildUnicodeTextMesh(const std::wstring& wtext);
 
-	void InitializeMeshAttribute(MeshAttribute& attribute, const std::wstring& wtext);
+	void InitializeGeometry(Geometry* geometry, const std::wstring& wtext);
 
 private:
 	uint size_;

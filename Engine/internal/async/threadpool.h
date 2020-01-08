@@ -15,37 +15,50 @@
 
 // https://stackoverflow.com/a/23899225/2705388
 class Task : public intrusive_ref_counter {
-public:
+	friend class ThreadPool;
 	virtual void Run() = 0;
 };
 
 class ThreadPool {
 public:
-	ThreadPool(unsigned n);
+	ThreadPool(uint n);
 	~ThreadPool();
 
 	void WaitFinished();
 	void AddTask(Task* task);
 
 protected:
-	virtual void OnSchedule(Task* task) {}
+	virtual void OnTaskFinished(Task* task) {}
 
 private:
 	void ThreadProc();
+
+private:
+	dynamic_array<std::thread> workers_;
+
+	std::mutex tasks_mutex_;
+	std::deque<ref_ptr<Task>> tasks_;
+
+	std::condition_variable cv_task_;
+	std::condition_variable cv_finished_;
+
+	uint busy_;
+	bool stopped_;
+};
+
+class ScheduledThreadPool : public ThreadPool {
+public:
+	ScheduledThreadPool(uint n);
+	~ScheduledThreadPool();
+
+protected:
+	virtual void OnSchedule(Task* task) = 0;
+	virtual void OnTaskFinished(Task* task) final;
+
+private:
 	void OnFrameEnter();
 
 private:
-	dynamic_array<std::thread> workers;
-
-	std::mutex tasks_mutex;
-	std::deque<ref_ptr<Task>> tasks;
-
 	std::mutex schedules_mutex;
 	std::queue<ref_ptr<Task>> schedules;
-
-	std::condition_variable cv_task;
-	std::condition_variable cv_finished;
-
-	bool stopped;
-	unsigned busy;
 };

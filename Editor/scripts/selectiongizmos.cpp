@@ -3,6 +3,7 @@
 #include "gizmos.h"
 #include "engine.h"
 #include "renderer.h"
+#include "main/selection.h"
 
 SUEDE_DEFINE_COMPONENT(SelectionGizmos, GizmosPainter)
 
@@ -11,11 +12,9 @@ void SelectionGizmos::Awake() {
 }
 
 void SelectionGizmos::OnDrawGizmos() {
-	if (selection_.empty()) { return; }
-	
 	Color oldColor = gizmos_->GetColor();
 
-	for (GameObject* go : selection_) {
+	for (GameObject* go : selection_->gameObjects()) {
 		if (!go->GetActive()) {
 			continue;
 		}
@@ -48,12 +47,4 @@ void SelectionGizmos::OnDrawGizmos() {
 	}
 
 	gizmos_->SetColor(oldColor);
-}
-
-void SelectionGizmos::setSelection(const QList<GameObject*>& value) {
-	selection_.clear();
-
-	for (GameObject* go : value) {
-		selection_.push_back(go);
-	}
 }

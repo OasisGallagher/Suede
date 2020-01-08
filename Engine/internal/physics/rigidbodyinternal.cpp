@@ -127,8 +127,8 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 		// Then you create a mesh and create a shape object from this mesh.
 	btTriangleIndexVertexArray* indexedMesh = new btTriangleIndexVertexArray;
 
-	const uint* indexes = mesh->MapIndexes();
-	const Vector3* vertices = mesh->MapVertices();
+	const uint* indexes = mesh->GetGeometry()->GetIndexes();
+	const Vector3* vertices = mesh->GetGeometry()->GetVertices();
 
 	btIndexedMesh indexedSubMesh;
 	for(int i = 0; i < mesh->GetSubMeshCount(); ++i) {
@@ -144,9 +144,6 @@ bool RigidbodyInternal::CreateShapeFromMesh(Mesh* mesh, const Vector3& scale) {
 
 		indexedMesh->addIndexedMesh(indexedSubMesh);
 	}
-
-	mesh->UnmapIndexes();
-	mesh->UnmapVertices();
 
 	mesh_ = indexedMesh;
 	shape_ = new btBvhTriangleMeshShape(mesh_, true);

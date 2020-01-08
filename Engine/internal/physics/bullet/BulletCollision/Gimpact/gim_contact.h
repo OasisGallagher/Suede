@@ -110,12 +110,12 @@ public:
 		return _hash;
     }
 
-    SIMD_FORCE_INLINE void interpolate_normals( btVector3 * normals,GUINT normal_count)
+    SIMD_FORCE_INLINE void interpolate_normals( btVector3 * normals_,GUINT normal_count)
     {
     	btVector3 vec_sum(m_normal);
 		for(GUINT i=0;i<normal_count;i++)
 		{
-			vec_sum += normals[i];
+			vec_sum += normals_[i];
 		}
 
 		GREAL vec_sum_len = vec_sum.length2();

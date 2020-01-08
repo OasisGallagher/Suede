@@ -12,7 +12,7 @@ enum VertexAttrib {
 
 	VertexAttribPosition,
 	VertexAttribTexCoord0,
-	VertexAttribNormal = VertexAttribTexCoord0 + MeshAttribute::TexCoordsCount,
+	VertexAttribNormal = VertexAttribTexCoord0 + Geometry::TexCoordsCount,
 	VertexAttribTangent,
 	VertexAttribBoneIndexes,
 	VertexAttribBoneWeights,

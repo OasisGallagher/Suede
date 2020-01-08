@@ -102,11 +102,7 @@ void ParticleSystemInternal::Update(float deltaTime) {
 		InitializeRenderer();
 	}
 
-	UpdateInstanceBuffers();
-}
-
-void ParticleSystemInternal::SortBuffers() {
-	SortParticlesByDepth(Camera::GetMain()->GetTransform()->GetPosition());
+	UploadInstanceBuffers();
 }
 
 void ParticleSystemInternal::SortParticlesByDepth(const Vector3& ref) {
@@ -140,17 +136,17 @@ void ParticleSystemInternal::UpdateParticles(float deltaTime) {
 	size_t count = particles_.size();
 	if (count != 0) {
 		UpdateAttributes(deltaTime);
-		UpdateBuffers();
-		SortBuffers();
+		UpdateInstanceBuffers();
+		SortParticlesByDepth(Camera::GetMain()->GetTransform()->GetPosition());
 	}
 }
 
-void ParticleSystemInternal::UpdateInstanceBuffers() {
+void ParticleSystemInternal::UploadInstanceBuffers() {
 	uint count = particles_.size();
 	if (count > 0) {
-		Mesh* mesh = GetGameObject()->GetComponent<MeshFilter>()->GetMesh();
-		mesh->UpdateInstanceBuffer(0, count * sizeof(Vector4), &colors_[0]);
-		mesh->UpdateInstanceBuffer(1, count * sizeof(Vector4), &geometries_[0]);
+		Geometry* geometry = GetGameObject()->GetComponent<MeshFilter>()->GetMesh()->GetGeometry();
+		geometry->UpdateInstanceBuffer(0, count * sizeof(Vector4), &colors_[0]);
+		geometry->UpdateInstanceBuffer(1, count * sizeof(Vector4), &geometries_[0]);
 	}
 }
 
@@ -167,12 +163,9 @@ void ParticleSystemInternal::UpdateAttributes(float deltaTime) {
 	}
 }
 
-void ParticleSystemInternal::UpdateBuffers() {
+void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint index = 0;
 	uint count = Mathf::NextPowerOfTwo(particles_.size());
-
-	if (colors_.size() < count) { colors_.resize(count); }
-	if (geometries_.size() < count) { geometries_.resize(count); }
 
 	float maxSize = 0;
 	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -207,9 +200,10 @@ void ParticleSystemInternal::UpdateEmitter(float deltaTime) {
 }
 
 void ParticleSystemInternal::EmitParticles(float deltaTime, uint count) {
-	uint size = Mathf::NextPowerOfTwo(count);
-	if (size > buffer_.size()) {
-		buffer_.resize(size);
+	if (count > buffer_.size()) {
+		buffer_.resize(count);
+		colors_.resize(count);
+		geometries_.resize(count);
 	}
 
 	for (int i = 0; i < count; ++i) {
@@ -223,16 +217,22 @@ void ParticleSystemInternal::EmitParticles(float deltaTime, uint count) {
 }
 
 void ParticleSystemInternal::InitializeMesh() {
-	InstanceAttribute color; 
-	color.count = maxParticles_, color.divisor = 1;
+	InstanceAttribute colorAttr;
+	colorAttr.count = maxParticles_, colorAttr.divisor = 1;
 
-	InstanceAttribute geometry;
-	geometry.count = maxParticles_, geometry.divisor = 1;
+	InstanceAttribute geometryAttr;
+	geometryAttr.count = maxParticles_, geometryAttr.divisor = 1;
 
 	MeshFilter* meshFilter = GetGameObject()->GetComponent<MeshFilter>();
+
+	ref_ptr<Geometry> geometry = Geometry::CreatePrimitive(PrimitiveType::Quad, 1);
+	geometry->SetColorInstanceAttribute(colorAttr);
+	geometry->SetGeometryInstanceAttribute(geometryAttr);
+
 	meshFilter->SetMesh(
-		Mesh::CreateInstancedPrimitive(PrimitiveType::Quad, 1, color, geometry).get()
+		Mesh::FromGeometry(geometry.get()).get()
 	);
+
 	meshDirty_ = false;
 }
 

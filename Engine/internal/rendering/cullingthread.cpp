@@ -1,15 +1,15 @@
 #include "cullingthread.h"
 
-#include "mesh.h"
 #include "time2.h"
 #include "renderer.h"
 #include "profiler.h"
+#include "frameevents.h"
 #include "geometryutility.h"
 #include "internal/base/renderdefines.h"
 #include "internal/engine/sceneinternal.h"
 #include "internal/rendering/renderingcontext.h"
 
-CullingThread::CullingThread(RenderingContext* context) : context_(context) {
+CullingTask::CullingTask(RenderingContext* context) : context_(context) {
 	time_ = context_->GetTime();
 	scene_ = context_->GetScene();
 	profiler_ = context_->GetProfiler();
@@ -17,37 +17,13 @@ CullingThread::CullingThread(RenderingContext* context) : context_(context) {
 	lastTimeStamp_ = Time::GetTimeStamp();
 }
 
-bool CullingThread::OnWork() {
+void CullingTask::Run() {
 	gameObjects_.clear();
-	uint64 start = Time::GetTimeStamp();
-
-	if (time_->GetFrameCount() != cullingUpdateFrame_) {
-		_suede_rptr(scene_)->CullingUpdate((float)Time::TimeStampToSeconds(start - lastTimeStamp_));
-		cullingUpdateFrame_ = time_->GetFrameCount();
-	}
-
 	scene_->WalkGameObjectHierarchy([this](GameObject* go) { return OnWalkGameObject(go); });
-
-	cullingFinished.raise();
-
-	profiler_->SetCullingElapsed(
-		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
-	);
-
-	lastTimeStamp_ = start;
-	return true;
+	finished.raise();
 }
 
-void CullingThread::Cull(const Matrix4& worldToClipMatrix) {
-	if (!IsStopped() && !IsWorking()) {
-		worldToClipMatrix_ = worldToClipMatrix;
-		SetWorking(true);
-	}
-}
-
-WalkCommand CullingThread::OnWalkGameObject(GameObject* go) {
-	if (IsStopped()) { return WalkCommand::Break; }
-
+WalkCommand CullingTask::OnWalkGameObject(GameObject* go) {
 	if (!go->GetActive()) {
 		return WalkCommand::Next;
 	}
@@ -63,7 +39,7 @@ WalkCommand CullingThread::OnWalkGameObject(GameObject* go) {
 	return WalkCommand::Continue;
 }
 
-bool CullingThread::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
+bool CullingTask::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) {
 	Renderer* renderer = go->GetComponent<Renderer>();
 	if (renderer == nullptr) { return false; }
 
@@ -73,7 +49,7 @@ bool CullingThread::IsVisible(GameObject* go, const Matrix4& worldToClipMatrix) 
 	return FrustumCulling(bounds, worldToClipMatrix);
 }
 
-bool CullingThread::FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix) {
+bool CullingTask::FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix) {
 	Vector2 outx, outy, outz;
 
 	std::vector<Vector3> points;
@@ -108,4 +84,37 @@ bool CullingThread::FrustumCulling(const Bounds& bounds, const Matrix4& worldToC
 
 	Vector2 size(max - min);
 	return size.GetSqrMagnitude() > MIN_NDC_RADIUS_SQUARED;
+}
+
+CullingThread::CullingThread(RenderingContext* context) : ThreadPool(4), context_(context) {
+	cullingUpdateTask_ = new UpdateTask();
+	Engine::GetSubsystem<FrameEvents>()->frameEnter.subscribe(this, &CullingThread::OnFrameEnter, (int)FrameEventQueue::CullingThread);
+	Engine::GetSubsystem<FrameEvents>()->frameLeave.subscribe(this, &CullingThread::OnFrameLeave, (int)FrameEventQueue::CullingThread);
+}
+
+CullingThread::~CullingThread() {
+	Engine::GetSubsystem<FrameEvents>()->frameEnter.unsubscribe(this);
+	Engine::GetSubsystem<FrameEvents>()->frameLeave.unsubscribe(this);
+}
+
+void CullingThread::OnFrameEnter() {
+	AddTask(cullingUpdateTask_.get());
+}
+
+void CullingThread::OnFrameLeave() {
+	WaitFinished();
+}
+
+CullingThread::UpdateTask::UpdateTask() {
+	time_ = Engine::GetSubsystem<Time>();
+	scene_ = Engine::GetSubsystem<Scene>();
+	profiler_ = Engine::GetSubsystem<Profiler>();
+}
+
+void CullingThread::UpdateTask::Run() {
+	uint64 start = Time::GetTimeStamp();
+	_suede_rptr(scene_)->CullingUpdate(time_->GetDeltaTime());
+	profiler_->SetCullingElapsed(
+		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
+	);
 }

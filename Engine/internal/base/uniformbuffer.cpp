@@ -20,7 +20,15 @@ bool UniformBuffer::Create(const std::string& name, uint size) {
 		return false;
 	}
 
-	Initialize(name, size);
+	name_ = name;
+	size_ = size;
+
+	ubo_ = new Buffer(context_);
+	ubo_->Create(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
+
+	binding_ = bindingPoint_++;
+	context_->BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer());
+
 	return true;
 }
 
@@ -66,26 +74,15 @@ bool UniformBuffer::UpdateBuffer(const void* data, uint offset, uint size) {
 	return true;
 }
 
-void UniformBuffer::Initialize(const std::string& name, uint size) {
-	name_ = name;
-	size_ = size;
-
-	ubo_ = new Buffer(context_);
-	ubo_->Create(GL_UNIFORM_BUFFER, size, nullptr, GL_STREAM_DRAW);
-
-	binding_ = bindingPoint_++;
-	context_->BindBufferBase(GL_UNIFORM_BUFFER, binding_, ubo_->GetNativePointer());
-}
-
 void UniformBuffer::Destroy() {
 	delete ubo_;
+	ubo_ = nullptr;
 }
 
 void UniformBuffer::Attach(ShaderInternal* shader) {
 	for (uint i = 0; i < shader->GetSubShaderCount(); ++i) {
 		for (uint j = 0; j < shader->GetPassCount(i); ++j) {
-			uint program = shader->GetNativePointer(i, j);
-			AttachProgram(program);
+			AttachProgram(shader->GetNativePointer(i, j));
 		}
 	}
 }

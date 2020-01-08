@@ -23,7 +23,7 @@ typedef bool(*RenderableComparer)(const Renderable& lhs, const Renderable& rhs);
 #define COMPARE_RETURN(lhs, rhs)	{ int n = Compare(lhs, rhs); if (n != 0) { return n; } }
 
 static int MeshPredicate(const Renderable& lhs, const Renderable &rhs) {
-	COMPARE_RETURN(lhs.mesh->GetNativePointer(), rhs.mesh->GetNativePointer());
+	COMPARE_RETURN(lhs.mesh->GetGeometry(), rhs.mesh->GetGeometry());
 	COMPARE_RETURN(lhs.subMeshIndex, rhs.subMeshIndex);
 
 	const TriangleBias& bias = lhs.mesh->GetSubMesh(lhs.subMeshIndex)->GetTriangleBias();
@@ -40,8 +40,6 @@ static int MaterialPredicate(const Renderable& lhs, const Renderable& rhs) {
 
 	COMPARE_RETURN(lm->GetRenderQueue(), rm->GetRenderQueue());
 	COMPARE_RETURN(lm, rm);
-	COMPARE_RETURN(lhs.pass, rhs.pass);
-	COMPARE_RETURN(lm->GetPassNativePointer(lhs.pass), rm->GetPassNativePointer(rhs.pass));
 
 	return 0;
 }
@@ -76,7 +74,7 @@ static RenderableComparer comparers_[] = {
 };
 
 void Pipeline::Sort(SortMode mode, const Matrix4& worldToClipMatrix) {
-	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparers_[mode]);
+	std::sort(renderables_.begin(), renderables_.begin() + nrenderables_, comparers_[(int)mode]);
 
 	for (int i = 0; i < nrenderables_; ++i) {
 		Renderable& renderable = renderables_[i];
@@ -84,11 +82,11 @@ void Pipeline::Sort(SortMode mode, const Matrix4& worldToClipMatrix) {
 		matrices_[i * 2 + 1] = worldToClipMatrix * renderable.localToWorldMatrix;
 	}
 
-	GatherInstances(ranges_);
+	GatherInstances();
 }
 
 #include <fstream>
-void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
+void Pipeline::debugDumpPipelineAndRanges() {
 	static bool dumped = false;
 	if (nrenderables_ > 50 && !dumped) {
 		std::ofstream ofs("pipeline_dump.txt");
@@ -96,19 +94,17 @@ void Pipeline::debugDumpPipelineAndRanges(std::vector<uint>& ranges) {
 		uint j = 0;
 		for (uint i = 0; i < nrenderables_; ++i) {
 			Renderable& r = renderables_[i];
-			ofs << ((i + 1 == ranges[j]) ? std::to_string(ranges[j]) : "")
+			ofs << ((i + 1 == ranges_[j]) ? std::to_string(ranges_[j]) : "")
 				<< "\t" << r.material->GetRenderQueue()
 				<< "\t" << r.material.get()
-				<< "\t" << r.pass
-				<< "\t" << r.material->GetPassNativePointer(r.pass)
-				<< "\t" << r.mesh->GetNativePointer()
+				<< "\t" << r.mesh->GetGeometry()
 				<< "\t" << r.subMeshIndex
 				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().indexCount
 				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().baseIndex
 				<< "\t" << r.mesh->GetSubMesh(r.subMeshIndex)->GetTriangleBias().baseVertex
 				<< std::endl;
 
-			if (i + 1 == ranges[j]) { ++j; }
+			if (i + 1 == ranges_[j]) { ++j; }
 		}
 
 		ofs.close();
@@ -137,13 +133,14 @@ void Pipeline::Run() {
 	};
 
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
-		Renderable& first = renderables_[from];
-		if (first.material->IsPassEnabled(first.pass)) {
-			if (renderables_[from].instance != 0) {
-				Render(renderables_[from], renderables_[from].instance, 0, renderSamples);
-			}
-			else {
-				RenderInstances(from, *ite, renderSamples);
+		int pass = renderables_[from].material->GetActivatedPass();
+		if (pass >= 0) {
+			RenderRange(from, *ite, pass, renderSamples);
+		}
+		else {
+			int passCount = renderables_[from].material->GetPassCount();
+			for (pass = 0; pass < passCount; ++pass) {
+				RenderRange(from, *ite, pass, renderSamples);
 			}
 		}
 
@@ -197,35 +194,33 @@ void Pipeline::Run() {
 	profiler_->ReleaseSample(renderSamples.updateOffset);
 }
 
-void Pipeline::GatherInstances(std::vector<uint>& ranges) {
+void Pipeline::GatherInstances() {
 	uint base = 0;
 	for (uint i = 0; i < nrenderables_; ++i) {
 		// particle system.
 		if (renderables_[i].instance != 0) {
 			// render instanced renderables.
 			if (i > base) {
-				ranges.push_back(i);
+				ranges_.push_back(i);
 			}
 
-			ranges.push_back(i + 1);
+			ranges_.push_back(i + 1);
 			base = i + 1;
 		}
 		else if (i != base && !renderables_[base].IsInstance(renderables_[i])) {
-			ranges.push_back(i);
+			ranges_.push_back(i);
 			base = i;
 		}
 	}
 
 	if (base != nrenderables_) {
-		ranges.push_back(nrenderables_);
+		ranges_.push_back(nrenderables_);
 	}
+
+	SUEDE_ASSERT(std::is_sorted(ranges_.begin(), ranges_.end()));
 }
 
-void Pipeline::RenderInstances(uint first, uint last, RenderingSamples& samples) {
-	Render(renderables_[first], last - first, first * 8, samples);
-}
-
-void Pipeline::AddRenderable(Mesh* mesh, uint subMeshIndex, Material* material, uint pass, const Matrix4& localToWorldMatrix, uint instance) {
+void Pipeline::AddRenderable(Mesh* mesh, uint subMeshIndex, Material* material, const Matrix4& localToWorldMatrix, uint instance) {
 	if (nrenderables_ == renderables_.size()) {
 		matrices_.resize(4 * nrenderables_);
 		renderables_.resize(2 * nrenderables_);
@@ -236,19 +231,30 @@ void Pipeline::AddRenderable(Mesh* mesh, uint subMeshIndex, Material* material, 
 	renderable.mesh = mesh;
 	renderable.subMeshIndex = subMeshIndex;
 	renderable.material = material;
-	renderable.pass = pass;
 	renderable.localToWorldMatrix = localToWorldMatrix;
 }
 
-void Pipeline::AddRenderable(Mesh* mesh, Material* material, uint pass, const Matrix4& localToWorldMatrix, uint instance /*= 0 */) {
+void Pipeline::AddRenderable(Mesh* mesh, Material* material, const Matrix4& localToWorldMatrix, uint instance /*= 0 */) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		AddRenderable(mesh, i, material, 0, localToWorldMatrix, instance);
+		AddRenderable(mesh, i, material, localToWorldMatrix, instance);
 	}
 }
 
-void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset, RenderingSamples& samples) {
+void Pipeline::RenderRange(uint from, uint to, int pass, RenderingSamples& renderSamples) {
+	Renderable& renderable = renderables_[from];
+	if (renderable.material->IsPassEnabled(pass)) {
+		if (renderable.instance != 0) {
+			RenderInstanced(renderable, renderable.instance, 0, pass, renderSamples);
+		}
+		else {
+			RenderInstanced(renderable, to - from, from * 8, pass, renderSamples);
+		}
+	}
+}
+
+void Pipeline::RenderInstanced(Renderable& renderable, uint instance, uint matrixOffset, int pass, RenderingSamples& samples) {
 	samples.switchState->Start();
-	UpdateState(renderable);
+	UpdateState(renderable, pass);
 	samples.switchState->Stop();
 
 	samples.updateOffset->Start();
@@ -258,12 +264,12 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset, 
 	const TriangleBias& bias = renderable.mesh->GetSubMesh(renderable.subMeshIndex)->GetTriangleBias();
 
 	samples.drawCall->Start();
-	context_->DrawElementsInstancedBaseVertex(renderable.mesh->GetTopology(), bias, instance);
+	context_->DrawElementsInstancedBaseVertex(renderable.mesh->GetGeometry()->GetTopology(), bias, instance);
 	samples.drawCall->Stop();
 
 	++counters_.drawcalls;
 
-	MeshTopology topology = renderable.mesh->GetTopology();
+	MeshTopology topology = renderable.mesh->GetGeometry()->GetTopology();
 	if (topology == MeshTopology::Triangles) {
 		counters_.triangles += bias.indexCount / 3;
 	}
@@ -272,28 +278,19 @@ void Pipeline::Render(Renderable& renderable, uint instance, uint matrixOffset, 
 	}
 }
 
-void Pipeline::UpdateState(Renderable& renderable) {
+void Pipeline::UpdateState(Renderable& renderable, int pass) {
 	if (renderable.material != oldStates_.material) {
 		if (oldStates_.material) {
 			oldStates_.material->Unbind();
 		}
 
-		oldStates_.pass = renderable.pass;
 		oldStates_.material = renderable.material;
 
-		renderable.material->Bind(renderable.pass);
-		++counters_.materialChanges;
-	}
-	else if (oldStates_.pass != renderable.pass) {
-		oldStates_.material->Unbind();
-		oldStates_.pass = renderable.pass;
-
-		renderable.material->Bind(renderable.pass);
-
+		renderable.material->Bind(pass);
 		++counters_.materialChanges;
 	}
 
-	if (!oldStates_.mesh || renderable.mesh->GetNativePointer() != oldStates_.mesh->GetNativePointer()) {
+	if (!oldStates_.mesh || renderable.mesh->GetGeometry() != oldStates_.mesh->GetGeometry()) {
 		if (oldStates_.mesh) {
 			oldStates_.mesh->Unbind();
 		}
@@ -367,7 +364,7 @@ void Renderable::Clear() {
 }
 
 bool Renderable::IsMeshInstanced(const Renderable& other) const {
-	if (mesh->GetNativePointer() != other.mesh->GetNativePointer()
+	if (mesh->GetGeometry() != other.mesh->GetGeometry()
 		|| subMeshIndex != other.subMeshIndex) {
 		return false;
 	}
@@ -379,7 +376,7 @@ bool Renderable::IsMeshInstanced(const Renderable& other) const {
 }
 
 bool Renderable::IsMaterialInstanced(const Renderable& other) const {
-	return material == other.material && pass == other.pass;
+	return material == other.material;
 }
 
 void Pipeline::States::Reset() {
@@ -392,6 +389,4 @@ void Pipeline::States::Reset() {
 		mesh->Unbind();
 		mesh.reset();
 	}
-
-	pass = -1;
 }

@@ -2,7 +2,6 @@
 #include "context.h"
 
 Buffer::Buffer(Context* context) : context_(context), old_(0), buffer_(0) {
-	memset(&attribute_, 0, sizeof(attribute_));
 }
 
 Buffer::~Buffer() {
@@ -12,13 +11,17 @@ Buffer::~Buffer() {
 void Buffer::Create(uint target, size_t size, const void* data, uint usage) {
 	Destroy();
 	context_->GenBuffers(1, &buffer_);
-	attribute_.size = size;
-	attribute_.target = target;
-	attribute_.usage = usage;
 
-	attribute_.data = new char[size];
+	usage_ = usage;
+	target_ = target;
+
+	shadowDataSize_ = size;
+	shadowData_.reset(new uchar[size]);
 	if (data != nullptr) {
-		memcpy(attribute_.data, data, size);
+		memcpy(shadowData_.get(), data, size);
+	}
+	else {
+		memset(shadowData_.get(), 0, shadowDataSize_);
 	}
 
 	Bind();
@@ -32,41 +35,52 @@ void Buffer::Destroy() {
 		buffer_ = 0;
 	}
 
-	delete[] attribute_.data;
-	memset(&attribute_, 0, sizeof(Attribute));
+	shadowData_ = nullptr;
+	shadowDataSize_ = 0;
+	usage_ = target_ = 0;
 }
 
 void Buffer::Bind() {
-	uint pname = GetBindingName(attribute_.target);
+	uint pname = GetBindingName(target_);
 	context_->GetIntegerv(pname, (int*)&old_);
-	context_->BindBuffer(attribute_.target, buffer_);
+	context_->BindBuffer(target_, buffer_);
 }
 
 void Buffer::Unbind() {
-	context_->BindBuffer(attribute_.target, old_);
+	context_->BindBuffer(target_, old_);
 	old_ = 0;
 }
 
 void* Buffer::Map() {
-	return attribute_.data;
-	//Bind();
-	//void* ptr = context_->MapBuffer(attribute_.target, GL_READ_ONLY);
-	//Unbind();
-	//return ptr;
+	Bind();
+	void* ptr = context_->MapBuffer(target_, GL_READ_WRITE);
+	Unbind();
+	return ptr;
 }
 
 void Buffer::Unmap() {
-	//Bind();
-	//context_->UnmapBuffer(attribute_.target);
-	//Unbind();
+	Bind();
+	context_->UnmapBuffer(target_);
+	Unbind();
 }
 
 void Buffer::Update(int offset, size_t size, const void* data) {
+	SUEDE_ASSERT(offset >= 0);
+	SUEDE_ASSERT(offset + size <= shadowDataSize_);
+
 	Bind();
-	context_->BufferData(attribute_.target, attribute_.size, nullptr, attribute_.usage);
-	context_->BufferSubData(attribute_.target, offset, size, data);
-	memcpy(attribute_.data + offset, data, size);
+	if (offset == 0 && shadowDataSize_ == size) {
+		context_->BufferData(target_, shadowDataSize_, nullptr, usage_);
+	}
+
+	context_->BufferSubData(target_, offset, size, data);
+	memcpy(shadowData_.get() + offset, data, size);
 	Unbind();
+}
+
+uint Buffer::GetNativePointer() const {
+	SUEDE_ASSERT(buffer_ != 0);
+	return buffer_;
 }
 
 uint Buffer::GetBindingName(uint target) {

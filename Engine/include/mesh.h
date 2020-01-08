@@ -59,24 +59,52 @@ BETTER_ENUM(PrimitiveType, int,
 	Cube
 )
 
-struct MeshAttribute {
+class SUEDE_API Geometry : public Object {
+	SUEDE_DECLARE_IMPLEMENTATION(Geometry)
+
+public:
 	enum {
 		TexCoordsCount = 4,
 	};
 
-	MeshTopology topology;
+	Geometry();
 
-	std::vector<Vector3> positions;
-	std::vector<Vector3> normals;
-	std::vector<Vector2> texCoords[TexCoordsCount];
-	std::vector<Vector3> tangents;
-	std::vector<BlendAttribute> blendAttrs;
-	std::vector<uint> indexes;
-	
-	InstanceAttribute color;
-	InstanceAttribute geometry;
+public:
+	static Geometry* GetPrimitive(PrimitiveType type);
+	static ref_ptr<Geometry> CreatePrimitive(PrimitiveType type, float scale);
 
-	static void GetPrimitiveAttribute(PrimitiveType type, MeshAttribute& attribute, float scale);
+public:
+	void SetVertices(const Vector3* values, int count);
+	const Vector3* GetVertices() const;
+	uint GetVertexCount() const;
+
+	void SetNormals(const Vector3* values, int count);
+	const Vector3* GetNormals() const;
+	uint GetNormalCount() const;
+
+	void SetTangents(const Vector3* values, int count);
+	const Vector3* GetTangents() const;
+	uint GetTangentCount() const;
+
+	void SetTexCoords(int index, const Vector2* values, int count);
+	const Vector2* GetTexCoords(int index) const;
+	uint GetTexCoordCount(int index) const;
+
+	void SetBlendAttributes(const BlendAttribute* values, int count);
+	const BlendAttribute* GetBlendAttributes() const;
+	uint GetBlendAttributeCount() const;
+
+	void SetIndexes(const uint* values, int count);
+	const uint* GetIndexes() const;
+	uint GetIndexCount() const;
+
+	void SetColorInstanceAttribute(const InstanceAttribute& value);
+	void SetGeometryInstanceAttribute(const InstanceAttribute& value);
+
+	void UpdateInstanceBuffer(int index, size_t size, void* data);
+
+	void SetTopology(MeshTopology value);
+	MeshTopology GetTopology() const;
 };
 
 class SUEDE_API Mesh : public Object {
@@ -87,36 +115,21 @@ public:
 	Mesh();
 
 public:
-	void SetAttribute(const MeshAttribute& value);
+	static ref_ptr<Mesh> FromGeometry(Geometry* geometry);
+
+public:
+	void SetGeometry(Geometry* value);
+	Geometry* GetGeometry();
 
 	void AddSubMesh(SubMesh* subMesh);
 	uint GetSubMeshCount();
 	SubMesh* GetSubMesh(uint index);
 	void RemoveSubMesh(uint index);
-
-	MeshTopology GetTopology();
-	uint GetNativePointer() const;
-
-	const uint* MapIndexes();
-	void UnmapIndexes();
-	uint GetIndexCount();
-
-	const Vector3* MapVertices();
-	void UnmapVertices();
-	uint GetVertexCount();
-
+	
 	void Bind();
 	void Unbind();
-	void ShareBuffers(Mesh* other);
 
 	const Bounds& GetBounds();
-
-	void UpdateInstanceBuffer(uint i, size_t size, void* data);
-
-	static Mesh* GetPrimitive(PrimitiveType type);
-	static ref_ptr<Mesh> FromAttribute(const MeshAttribute& attribute);
-	static ref_ptr<Mesh> CreatePrimitive(PrimitiveType type, float scale);
-	static ref_ptr<Mesh> CreateInstancedPrimitive(PrimitiveType type, float scale, const InstanceAttribute& color, const InstanceAttribute& geometry);
 };
 
 class SUEDE_API MeshProvider : public Component {

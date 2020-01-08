@@ -4,26 +4,26 @@
 #include "gameobject.h"
 
 #include "tools/event.h"
-#include "internal/async/worker.h"
+#include "internal/async/threadpool.h"
 
 class Time;
 class Scene;
 class Profiler;
 class RenderingContext;
 
-class CullingThread : public intrusive_ref_counter, public Worker {
+class CullingTask : public Task {
 public:
-	CullingThread(RenderingContext* context);
+	CullingTask(RenderingContext* context);
 
 public:
-	void Cull(const Matrix4& worldToClipMatrix);
+	void SetWorldToClipMatrix(const Matrix4& value) { worldToClipMatrix_ = value; }
 	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
 
 public:
-	event<> cullingFinished;
+	event<> finished;
 
-public:
-	virtual bool OnWork();
+private:
+	virtual void Run() override;
 
 private:
 	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);
@@ -31,7 +31,6 @@ private:
 	WalkCommand OnWalkGameObject(GameObject* go);
 
 private:
-	int cullingUpdateFrame_ = -1;
 	uint64 lastTimeStamp_ = 0;
 
 	RenderingContext* context_;
@@ -39,7 +38,34 @@ private:
 	Time* time_;
 	Scene* scene_;
 	Profiler* profiler_;
-	
+
 	Matrix4 worldToClipMatrix_;
 	std::vector<GameObject*> gameObjects_;
+};
+
+class CullingThread : public ThreadPool {
+public:
+	CullingThread(RenderingContext* context);
+	~CullingThread();
+
+private:
+	void OnFrameEnter();
+	void OnFrameLeave();
+
+private:
+	class UpdateTask : public Task {
+	public:
+		UpdateTask();
+
+	private:
+		virtual void Run() override;
+
+		Time* time_;
+		Scene* scene_;
+		Profiler* profiler_;
+	};
+
+	ref_ptr<UpdateTask> cullingUpdateTask_;
+
+	RenderingContext* context_;
 };

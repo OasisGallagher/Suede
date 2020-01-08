@@ -62,7 +62,6 @@ public:
 	~RenderingContext();
 
 public:
-	// SUEDE TODO Cancel threads...
 	virtual void OnDestroy();
 
 public:
@@ -91,8 +90,7 @@ public:
 	Material* GetDepthMaterial() { return depthMaterial_.get(); }
 	RenderTexture* GetOffscreenRenderTexture() { return offscreenRT_.get(); }
 
-	CullingThread* GetCullingThread() { return cullingThreadQueue_.pop(); }
-	void ReleaseCullingThread(CullingThread* thread) { cullingThreadQueue_.push(thread); }
+	CullingThread* GetCullingThread() { return cullingThread_; }
 
 protected:
 	virtual bool Initialize();
@@ -108,9 +106,8 @@ private:
 	Profiler* profiler_ = nullptr;
 	Graphics* graphics_ = nullptr;
 
+	CullingThread* cullingThread_;
 	RenderingThread* renderingThread_;
-	dynamic_array<CullingThread> cullingThreads_;
-	concurrent_queue<CullingThread*> cullingThreadQueue_;
 
 	ShadowMap* shadowMap_ = nullptr;
 	AmbientOcclusion* ambientOcclusion_ = nullptr;

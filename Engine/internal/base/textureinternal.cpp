@@ -111,6 +111,11 @@ void TextureInternal::Unbind() {
 	}
 }
 
+uint TextureInternal::GetNativePointer() {
+	SUEDE_ASSERT(texture_ != 0);
+	return texture_;
+}
+
 void TextureInternal::SetMinFilterMode(TextureMinFilterMode value) {
 	if (sampler_.minFilter != value) {
 		sampler_.minFilter = value;
@@ -320,14 +325,14 @@ bool Texture2DInternal::Create(TextureFormat textureFormat, const void* data, Co
 	textureFormat_ = textureFormat;
 	colorStreamFormat_ = colorStreamFormat;
 	
-	dataSize_ = ColorStreamBytes(colorStreamFormat_) * Mathf::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight();
+	shadowDataSize_ = ColorStreamBytes(colorStreamFormat_) * Mathf::RoundUpToPowerOfTwo(GetWidth(), alignment) * GetHeight();
 
 	if (data != nullptr) {
-		data_.reset(new uchar[dataSize_]);
-		memcpy(data_.get(), data, dataSize_);
+		shadowData_.reset(new uchar[shadowDataSize_]);
+		memcpy(shadowData_.get(), data, shadowDataSize_);
 	}
 	else {
-		data_ = nullptr;
+		shadowData_ = nullptr;
 	}
 
 	dataDirty_ = true;
@@ -358,7 +363,7 @@ bool Texture2DInternal::EncodeTo(std::vector<uchar>& data, ImageType type) {
 	rawImage.alignment = alignment_;
 	rawImage.textureFormat = textureFormat_;
 	rawImage.colorStreamFormat = colorStreamFormat_;
-	rawImage.pixels.assign(data_.get(), data_.get() + dataSize_);
+	rawImage.pixels.assign(shadowData_.get(), shadowData_.get() + shadowDataSize_);
 
 	return ImageCodec::Encode(data, type, rawImage);
 }
@@ -374,7 +379,7 @@ void Texture2DInternal::ApplyData() {
 	context_->GetIntegerv(GL_UNPACK_ALIGNMENT, &oldUnpackAlignment);
 	context_->PixelStorei(GL_UNPACK_ALIGNMENT, alignment_);
 
-	context_->TexImage2D(GL_TEXTURE_2D, 0, internalFormat_, width_, height_, 0, glFormat_, glType_, data_.get());
+	context_->TexImage2D(GL_TEXTURE_2D, 0, internalFormat_, width_, height_, 0, glFormat_, glType_, shadowData_.get());
 
 	context_->PixelStorei(GL_UNPACK_ALIGNMENT, oldUnpackAlignment);
 
@@ -454,13 +459,13 @@ RenderTexture* RenderTextureInternal::GetDefault() {
 }
 
 struct RenderTextureCacheKey {
-	int busy;
+	int busy_;
 	RenderTextureFormat format;
 	uint width;
 	uint height;
 
 	bool operator<(const RenderTextureCacheKey& other) const {
-		if (busy != other.busy) { return busy < other.busy; }
+		if (busy_ != other.busy_) { return busy_ < other.busy_; }
 		if (format != other.format) { return format < other.format; }
 		if (width != other.width) { return width < other.width; }
 		return height < other.height;
@@ -470,13 +475,13 @@ struct RenderTextureCacheKey {
 typedef std::multimap<RenderTextureCacheKey, ref_ptr<RenderTexture>> RenderTextureCacheContainer;
 static RenderTextureCacheContainer renderTextureCache;
 
-static RenderTexture* ToggleRenderTextureBusyState(RenderTextureFormat format, uint width, uint height, int busy) {
-	RenderTextureCacheKey key = { busy, format, width, height };
+static RenderTexture* ToggleRenderTextureBusyState(RenderTextureFormat format, uint width, uint height, int busy_) {
+	RenderTextureCacheKey key = { busy_, format, width, height };
 	RenderTextureCacheContainer::iterator pos = renderTextureCache.find(key);
 	if (pos != renderTextureCache.end()) {
 		ref_ptr<RenderTexture> value = pos->second;
 		renderTextureCache.erase(pos);
-		key.busy = !busy;
+		key.busy_ = !busy_;
 		renderTextureCache.insert(std::make_pair(key, value));
 
 		return value.get();

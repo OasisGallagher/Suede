@@ -109,6 +109,11 @@ void FramebufferBase::SetViewport(int x, int y, uint width, uint height) {
 	}
 }
 
+uint FramebufferBase::GetNativePointer() {
+	SUEDE_ASSERT(fbo_ != 0);
+	return fbo_;
+}
+
 void FramebufferBase::Clear(FramebufferClearMask clearMask) {
 	BindWrite();
 

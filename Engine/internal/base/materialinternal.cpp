@@ -17,9 +17,8 @@ bool Material::DisablePass(uint pass) { return _suede_dptr()->DisablePass(pass);
 bool Material::IsPassEnabled(uint pass) const { return _suede_dptr()->IsPassEnabled(pass); }
 int Material::FindPass(const std::string& name) const { return _suede_dptr()->FindPass(name); }
 void Material::SetPass(int pass) { _suede_dptr()->SetPass(pass); }
-int Material::GetPass() const { return _suede_dptr()->GetPass(); }
+int Material::GetActivatedPass() const { return _suede_dptr()->GetActivatedPass(); }
 uint Material::GetPassCount() const { return _suede_dptr()->GetPassCount(); }
-uint Material::GetPassNativePointer(uint pass) const { return _suede_dptr()->GetPassNativePointer(pass); }
 void Material::SetShader(Shader* value) { _suede_dptr()->SetShader(this, value); }
 Shader* Material::GetShader() { return _suede_dptr()->GetShader(); }
 void Material::SetRenderQueue(int value) { _suede_dptr()->SetRenderQueue(value); }
@@ -56,7 +55,7 @@ const std::vector<const Property*>& Material::GetExplicitProperties() { return _
 event<MaterialInternal*> MaterialInternal::shaderChanged;
 
 MaterialInternal::MaterialInternal(Context* context)
-	: ObjectInternal(ObjectType::Material), GLObjectMaintainer(context), currentPass_(-1) {
+	: ObjectInternal(ObjectType::Material), GLObjectMaintainer(context) {
 	name_ = "New Material";
 }
 
@@ -311,15 +310,6 @@ uint MaterialInternal::GetPassCount() const {
 	}
 
 	return shader_->GetPassCount(SUB_SHADER_INDEX);
-}
-
-uint MaterialInternal::GetPassNativePointer(uint pass) const {
-	if (!shader_) {
-		Debug::LogError("invalid shader");
-		return 0;
-	}
-
-	return shader_->GetNativePointer(SUB_SHADER_INDEX, pass);
 }
 
 void MaterialInternal::Bind(uint pass) {

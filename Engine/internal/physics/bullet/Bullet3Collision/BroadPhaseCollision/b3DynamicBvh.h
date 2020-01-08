@@ -347,13 +347,13 @@ struct	b3DynamicBvh
 
 	B3_DBVT_PREFIX
 		static void		collideKDOP(const b3DbvtNode* root,
-		const b3Vector3* normals,
+		const b3Vector3* normals_,
 		const b3Scalar* offsets,
 		int count,
 		B3_DBVT_IPOLICY);
 	B3_DBVT_PREFIX
 		static void		collideOCL(	const b3DbvtNode* root,
-		const b3Vector3* normals,
+		const b3Vector3* normals_,
 		const b3Scalar* offsets,
 		const b3Vector3& sortaxis,
 		int count,								
@@ -1073,7 +1073,7 @@ inline void		b3DynamicBvh::rayTest(	const b3DbvtNode* root,
 //
 B3_DBVT_PREFIX
 inline void		b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
-									const b3Vector3* normals,
+									const b3Vector3* normals_,
 									const b3Scalar* offsets,
 									int count,
 									B3_DBVT_IPOLICY)
@@ -1087,9 +1087,9 @@ inline void		b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
 			b3Assert(count<int (sizeof(signs)/sizeof(signs[0])));
 			for(int i=0;i<count;++i)
 			{
-				signs[i]=	((normals[i].x>=0)?1:0)+
-					((normals[i].y>=0)?2:0)+
-					((normals[i].z>=0)?4:0);
+				signs[i]=	((normals_[i].x>=0)?1:0)+
+					((normals_[i].y>=0)?2:0)+
+					((normals_[i].z>=0)?4:0);
 			}
 			stack.reserve(B3_SIMPLE_STACKSIZE);
 			stack.push_back(sStkNP(root,0));
@@ -1101,7 +1101,7 @@ inline void		b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
 				{
 					if(0==(se.mask&j))
 					{
-						const int	side=se.node->volume.Classify(normals[i],offsets[i],signs[i]);
+						const int	side=se.node->volume.Classify(normals_[i],offsets[i],signs[i]);
 						switch(side)
 						{
 						case	-1:	out=true;break;
@@ -1128,7 +1128,7 @@ inline void		b3DynamicBvh::collideKDOP(const b3DbvtNode* root,
 //
 B3_DBVT_PREFIX
 inline void		b3DynamicBvh::collideOCL(	const b3DbvtNode* root,
-								   const b3Vector3* normals,
+								   const b3Vector3* normals_,
 								   const b3Scalar* offsets,
 								   const b3Vector3& sortaxis,
 								   int count,
@@ -1149,9 +1149,9 @@ inline void		b3DynamicBvh::collideOCL(	const b3DbvtNode* root,
 			b3Assert(count<int (sizeof(signs)/sizeof(signs[0])));
 			for(int i=0;i<count;++i)
 			{
-				signs[i]=	((normals[i].x>=0)?1:0)+
-					((normals[i].y>=0)?2:0)+
-					((normals[i].z>=0)?4:0);
+				signs[i]=	((normals_[i].x>=0)?1:0)+
+					((normals_[i].y>=0)?2:0)+
+					((normals_[i].z>=0)?4:0);
 			}
 			stock.reserve(B3_SIMPLE_STACKSIZE);
 			stack.reserve(B3_SIMPLE_STACKSIZE);
@@ -1168,7 +1168,7 @@ inline void		b3DynamicBvh::collideOCL(	const b3DbvtNode* root,
 					{
 						if(0==(se.mask&j))
 						{
-							const int	side=se.node->volume.Classify(normals[i],offsets[i],signs[i]);
+							const int	side=se.node->volume.Classify(normals_[i],offsets[i],signs[i]);
 							switch(side)
 							{
 							case	-1:	out=true;break;

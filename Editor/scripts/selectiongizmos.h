@@ -5,6 +5,7 @@
 #include "gizmospainter.h"
 
 class Gizmos;
+class Selection;
 class SelectionGizmos : public QObject, public GizmosPainter {
 	Q_OBJECT
 	SUEDE_DECLARE_COMPONENT()
@@ -13,7 +14,7 @@ public:
 	~SelectionGizmos() {}
 
 public:
-	void setSelection(const QList<GameObject*>& value);
+	void setSelection(Selection* value) { selection_ = value; }
 
 public:
 	virtual void Awake();
@@ -21,5 +22,5 @@ public:
 
 private:
 	Gizmos* gizmos_;
-	QList<GameObject*> selection_;
+	Selection* selection_;
 };

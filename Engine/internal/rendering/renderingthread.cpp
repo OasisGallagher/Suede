@@ -43,20 +43,14 @@ void RenderingPipelines::Clear() {
 RenderingThread::RenderingThread(RenderingContext* context) : context_(context) {
 	profiler_ = context_->GetProfiler();
 	graphics_ = context_->GetGraphics();
-	thread_ = std::thread(std::bind(&RenderingThread::ThreadProc, this));
-	threadID_ = thread_.get_id();
 }
 
 RenderingThread::~RenderingThread() {
 	Stop();
 }
 
-void RenderingThread::ThreadProc() {
-	for (; !stopped_;) {
-		// SUEDE TODO: Move rendering operations to here.
-		std::unique_lock<std::mutex> lock(mutex_);
-		cond_.wait(lock);
-	}
+bool RenderingThread::OnWork() {
+	return true;
 }
 
 #define OutputSample(sample)	Debug::OutputToConsole("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
@@ -79,20 +73,10 @@ void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatri
 
 	RenderPass(pipelines);
 
-	OnPostRender();
-
 	//Graphics::Blit(sharedSSAOTexture, nullptr);
 
 	auto effects = frameState->camera->GetComponents<ImageEffect>();
 	if (!effects.empty()) { OnImageEffects(effects); }
-}
-
-void RenderingThread::Stop() {
-	if (!stopped_) {
-		stopped_ = true;
-		cond_.notify_all();
-		thread_.join();
-	}
 }
 
 void RenderingThread::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
@@ -127,10 +111,6 @@ void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	p.lightColor = Vector4(color.r, color.g, color.b, 1);
 
 	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedLightUniformBuffer::GetName(), &p, 0, sizeof(p));
-}
-
-void RenderingThread::OnPostRender() {
-
 }
 
 void RenderingThread::OnImageEffects(const std::vector<ImageEffect*>& effects) {
@@ -238,15 +218,15 @@ void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObjec
 		Material* material = shadowMap->GetMaterial();
 
 		pipelines->shadow->AddRenderable(
-			go->GetComponent<MeshProvider>()->GetMesh(), material, 0, go->GetTransform()->GetLocalToWorldMatrix()
+			go->GetComponent<MeshProvider>()->GetMesh(), material, go->GetTransform()->GetLocalToWorldMatrix()
 		);
 	}
 
-	pipelines->shadow->Sort(SortModeMesh, worldToClipMatrix);
+	pipelines->shadow->Sort(SortMode::ByMesh, worldToClipMatrix);
 
 	bool depthPass = false;
 	FrameState* fs = context_->GetFrameState();
-	if (fs->renderPath == +RenderPath::Forward) {
+	if (fs->renderPath == RenderPath::Forward) {
 		if ((fs->depthTextureMode & DepthTextureMode::Depth) != 0) {
 			depthPass = true;
 		}
@@ -281,7 +261,7 @@ void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObjec
 		DeferredRendering(pipelines->rendering, gameObjects, forwardBase, forwardAdd);
 	}
 
-	pipelines->rendering->Sort(SortModeMeshMaterial, worldToClipMatrix);
+	pipelines->rendering->Sort(SortMode::ByMaterialAndMesh, worldToClipMatrix);
 }
 
 void PipelineBuilder::ForwardRendering(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* forwardBase, const std::vector<Light*>& forwardAdd) {
@@ -329,7 +309,8 @@ void PipelineBuilder::RenderSkybox(Pipeline* pl) {
 		Matrix4 matrix = matrices_.worldToCameraMatrix;
 		matrix[3] = Vector4(0, 0, 0, 1);
 
-		pl->AddRenderable(Mesh::GetPrimitive(PrimitiveType::Cube), env->skybox.get(), 0, matrix);
+		ref_ptr<Mesh> mesh = Mesh::FromGeometry(Geometry::GetPrimitive(PrimitiveType::Cube));
+		pl->AddRenderable(mesh.get(), env->skybox.get(), matrix);
 	}
 }
 
@@ -401,7 +382,7 @@ void PipelineBuilder::RenderDecals(Pipeline* pl) {
 	context_->GetScene()->GetDecals(decals);
 
 	for (Decal& d : decals) {
-		pl->AddRenderable(d.mesh.get(), d.material.get(), 0, Matrix4(1));
+		pl->AddRenderable(d.mesh.get(), d.material.get(), Matrix4(1));
 	}
 }
 
@@ -426,24 +407,13 @@ void PipelineBuilder::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* r
 	renderer->UpdateMaterialProperties();
 
 	for (int i = 0; i < subMeshCount; ++i) {
-		Material* material = renderer->GetMaterial(i);
-		int pass = material->GetPass();
-		if (pass >= 0 && material->IsPassEnabled(pass)) {
-			RenderSubMesh(pl, go, i, material, pass);
-		}
-		else {
-			for (pass = 0; pass < material->GetPassCount(); ++pass) {
-				if (material->IsPassEnabled(pass)) {
-					RenderSubMesh(pl, go, i, material, pass);
-				}
-			}
-		}
+		RenderSubMesh(pl, go, i, renderer->GetMaterial(i));
 	}
 }
 
-void PipelineBuilder::RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass) {
+void PipelineBuilder::RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material) {
 	ParticleSystem* p = go->GetComponent<ParticleSystem>();
 	uint instance = p ? p->GetParticlesCount() : 0;
 
-	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, pass, go->GetTransform()->GetLocalToWorldMatrix(), instance);
+	pl->AddRenderable(go->GetComponent<MeshProvider>()->GetMesh(), subMeshIndex, material, go->GetTransform()->GetLocalToWorldMatrix(), instance);
 }

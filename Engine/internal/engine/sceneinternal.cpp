@@ -131,6 +131,7 @@ void SceneInternal::SortComponents() {
 }
 
 void SceneInternal::CullingUpdateGameObjects(float deltaTime) {
+	std::lock_guard<std::mutex> lock(cullingMutex_);
 	for (GameObject* go : cullingUpdateSequence_) {
 		if (go->GetActive()) {
 			go->CullingUpdate(deltaTime);
@@ -163,12 +164,11 @@ void SceneInternal::DestroyGameObject(GameObject* go) {
 }
 
 void SceneInternal::DestroyGameObjectRecursively(Transform* root) {
-	GameObject* go = root->GetGameObject();
-	RemoveGameObject(go);
-
 	for (int i = 0; i < root->GetChildCount(); ++i) {
 		DestroyGameObjectRecursively(root->GetChildAt(i));
 	}
+
+	RemoveGameObject(root->GetGameObject());
 }
 
 void SceneInternal::RemoveGameObject(GameObject* go) {
@@ -182,8 +182,8 @@ void SceneInternal::RemoveGameObject(GameObject* go) {
 	if (projector) { EraseByValue(projectors_, projector); }
 
 	RemoveGameObjectFromSequence(go);
-	gameObjects_.erase(go->GetInstanceID());
 	go->GetTransform()->SetParent(nullptr);
+	gameObjects_.erase(go->GetInstanceID());
 }
 
 std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid guid) {
@@ -257,16 +257,22 @@ bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::fun
 }
 
 void SceneInternal::RemoveGameObjectFromSequence(GameObject* go) {
-	EraseByValue(cullingUpdateSequence_, go);
+	{
+		std::lock_guard<std::mutex> lock(cullingMutex_);
+		EraseByValue(cullingUpdateSequence_, go);
+	}
+
 	EraseByValue(renderingUpdateSequence_, go);
 }
 
 void SceneInternal::ManageGameObjectUpdateSequence(GameObject* go) {
 	int strategy = go->GetUpdateStrategy();
 	if ((strategy & UpdateStrategyCulling) != 0) {
+		std::lock_guard<std::mutex> lock(cullingMutex_);
 		InsertUnique(cullingUpdateSequence_, go);
 	}
 	else {
+		std::lock_guard<std::mutex> lock(cullingMutex_);
 		EraseByValue(cullingUpdateSequence_, go);
 	}
 

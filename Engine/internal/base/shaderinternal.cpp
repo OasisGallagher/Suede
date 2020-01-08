@@ -136,6 +136,11 @@ void Pass::Unbind() {
 	}
 }
 
+uint Pass::GetNativePointer() const {
+	SUEDE_ASSERT(program_ != 0);
+	return program_;
+}
+
 void Pass::Destroy() {
 	context_->DeleteProgram(program_);
 	ClearIntermediateShaders();
@@ -321,7 +326,7 @@ std::string Pass::LoadSource(ShaderStage stage, const char* source) {
 void Pass::UpdateVertexAttributes() {
 	context_->BindAttribLocation(program_, VertexAttribPosition, "_Pos");
 
-	for (int i = 0; i < MeshAttribute::TexCoordsCount; ++i) {
+	for (int i = 0; i < Geometry::TexCoordsCount; ++i) {
 		context_->BindAttribLocation(program_, VertexAttribTexCoord0 + i, ("_TexCoord" + std::to_string(i)).c_str());
 	}
 

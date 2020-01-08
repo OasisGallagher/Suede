@@ -4,41 +4,38 @@
 #include "frameevents.h"
 #include "debug/debug.h"
 
-ThreadPool::ThreadPool(unsigned n) : busy(0U), stopped(false) {
-	workers.resize(n, std::bind(&ThreadPool::ThreadProc, this));
-	Engine::GetSubsystem<FrameEvents>()->frameEnter.subscribe(this, &ThreadPool::OnFrameEnter, (int)FrameEventQueue::User);
+ThreadPool::ThreadPool(uint n) : busy_(0U), stopped_(false) {
+	workers_.resize(n, std::bind(&ThreadPool::ThreadProc, this));
 }
 
 ThreadPool::~ThreadPool() {
-	Engine::GetSubsystem<FrameEvents>()->frameEnter.unsubscribe(this);
-
 	// set stop-condition
-	std::unique_lock<std::mutex> lock(tasks_mutex);
-	stopped = true;
-	cv_task.notify_all();
+	std::unique_lock<std::mutex> lock(tasks_mutex_);
+	stopped_ = true;
+	cv_task_.notify_all();
 	lock.unlock();
 
 	// all threads terminate, then we're done.
-	for (auto& worker : workers) {
+	for (auto& worker : workers_) {
 		worker.join();
 	}
 }
 
 void ThreadPool::ThreadProc() {
 	while (true) {
-		std::unique_lock<std::mutex> lock(this->tasks_mutex);
-		cv_task.wait(lock, [this]() { return this->stopped || !this->tasks.empty(); });
+		std::unique_lock<std::mutex> lock(this->tasks_mutex_);
+		cv_task_.wait(lock, [this]() { return this->stopped_ || !this->tasks_.empty(); });
 
-		if (this->stopped && this->tasks.empty()) {
+		if (this->stopped_ && this->tasks_.empty()) {
 			return;
 		}
 
 		// got work. set busy.
-		++busy;
+		++busy_;
 
 		// pull from queue
-		auto task = tasks.front();
-		tasks.pop_front();
+		auto task = tasks_.front();
+		tasks_.pop_front();
 
 		// release lock. run async
 		lock.unlock();
@@ -46,18 +43,42 @@ void ThreadPool::ThreadProc() {
 		// run function outside context
 		task->Run();
 
-		{
-			std::lock_guard<std::mutex> _lock(schedules_mutex);
-			schedules.push(task);
-		}
+		OnTaskFinished(task.get());
 
 		lock.lock();
-		--busy;
-		cv_finished.notify_one();
+		--busy_;
+		cv_finished_.notify_one();
 	}
 }
 
-void ThreadPool::OnFrameEnter() {
+void ThreadPool::AddTask(Task* task) {
+	std::unique_lock<std::mutex> lock(tasks_mutex_);
+	tasks_.emplace_back(task);
+	cv_task_.notify_one();
+}
+
+// waits until the queue is empty.
+void ThreadPool::WaitFinished() {
+	std::unique_lock<std::mutex> lock(tasks_mutex_);
+	cv_finished_.wait(lock, [this]() { return tasks_.empty() && (busy_ == 0); });
+}
+
+ScheduledThreadPool::ScheduledThreadPool(uint n) : ThreadPool(n) {
+	Engine::GetSubsystem<FrameEvents>()->frameEnter.subscribe(this, &ScheduledThreadPool::OnFrameEnter, (int)FrameEventQueue::User);
+}
+
+ScheduledThreadPool::~ScheduledThreadPool() {
+	Engine::GetSubsystem<FrameEvents>()->frameEnter.unsubscribe(this);
+}
+
+void ScheduledThreadPool::OnTaskFinished(Task* task) {
+	ThreadPool::OnTaskFinished(task);
+
+	std::lock_guard<std::mutex> _lock(schedules_mutex);
+	schedules.push(task);
+}
+
+void ScheduledThreadPool::OnFrameEnter() {
 	std::lock_guard<std::mutex> lock(schedules_mutex);
 
 	for (; !schedules.empty();) {
@@ -66,16 +87,4 @@ void ThreadPool::OnFrameEnter() {
 
 		OnSchedule(task.get());
 	}
-}
-
-void ThreadPool::AddTask(Task* task) {
-	std::unique_lock<std::mutex> lock(tasks_mutex);
-	tasks.emplace_back(task);
-	cv_task.notify_one();
-}
-
-// waits until the queue is empty.
-void ThreadPool::WaitFinished() {
-	std::unique_lock<std::mutex> lock(tasks_mutex);
-	cv_finished.wait(lock, [this]() { return tasks.empty() && (busy == 0); });
 }

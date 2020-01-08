@@ -6,6 +6,7 @@
 #include "material.h"
 #include "renderer.h"
 #include "gameobject.h"
+#include "internal/async/worker.h"
 #include "internal/rendering/pipeline.h"
 
 class Sample;
@@ -38,20 +39,18 @@ struct RenderingPipelines {
 class ImageEffect;
 class RenderingThread;
 
-class RenderingThread {
+class RenderingThread : public Worker {
 public:
 	RenderingThread(RenderingContext* context);
 	~RenderingThread();
 
 public:
 	void Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices);
-	void Stop();
 
-	std::thread::id GetThreadID() { return threadID_; }
+protected:
+	virtual bool OnWork() override;
 
 private:
-	void ThreadProc();
-	void OnPostRender();
 	void OnImageEffects(const std::vector<ImageEffect*>& effects);
 
 	void DepthPass(RenderingPipelines* pipelines);
@@ -65,15 +64,8 @@ private:
 	void UpdateTransformsUniformBuffer(const RenderingMatrices& matrices);
 
 private:
-	bool stopped_ = false;
-
-	std::mutex mutex_;
-	std::thread thread_;
-	std::condition_variable cond_;
-
 	Profiler* profiler_;
 	Graphics* graphics_;
-	std::thread::id threadID_;
 	RenderingContext* context_;
 };
 
@@ -102,7 +94,7 @@ private:
 	void ForwardDepthPass(Pipeline* pl);
 
 	void RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer);
-	void RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material, int pass);
+	void RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material);
 
 	void RenderForwardAdd(Pipeline* pl, const std::vector<GameObject*>& gameObjects, const std::vector<Light*>& lights);
 	void RenderForwardBase(Pipeline* pl, const std::vector<GameObject*>& gameObjects, Light* light);

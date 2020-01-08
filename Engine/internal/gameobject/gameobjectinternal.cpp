@@ -1,18 +1,12 @@
+#include "gameobjectinternal.h"
+
 #include <algorithm>
 
-#include "time2.h"
-#include "scene.h"
-#include "renderer.h"
-#include "rigidbody.h"
 #include "tags.h"
-#include "math/mathf.h"
-#include "tools/string.h"
-#include "particlesystem.h"
-#include "geometryutility.h"
+#include "scene.h"
+#include "rigidbody.h"
 #include "internal/base/context.h"
-#include "internal/memory/factory.h"
 #include "internal/engine/engineinternal.h"
-#include "internal/gameobject/gameobjectinternal.h"
 
 GameObject::GameObject(const char* name) 
 	: Object(new GameObjectInternal(Context::GetCurrent(), Engine::GetSubsystem<Scene>(), Engine::GetSubsystem<Tags>(), name)) {

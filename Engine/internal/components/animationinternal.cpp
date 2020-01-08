@@ -183,9 +183,7 @@ void AnimationClipInternal::SetTicksPerSecond(float value) {
 bool AnimationClipInternal::Sample(float time) {
 	time = wrapper_(time * GetTicksPerSecond(), GetDuration());
 
-	Skeleton* skeleton = GetAnimation()->GetSkeleton();
-	SkeletonNode* root = skeleton->GetRootNode();
-
+	SkeletonNode* root = GetAnimation()->GetSkeleton()->GetRootNode();
 	return SampleHierarchy(time, root, Matrix4(1));
 }
 

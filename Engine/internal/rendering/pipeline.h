@@ -15,7 +15,6 @@ struct Renderable {
 	uint subMeshIndex;
 	
 	ref_ptr<Material> material;
-	uint pass;
 
 	Matrix4 localToWorldMatrix;
 
@@ -26,10 +25,10 @@ struct Renderable {
 	bool IsMaterialInstanced(const Renderable& other) const;
 };
 
-enum SortMode {
-	SortModeMesh,
-	SortModeMaterial,
-	SortModeMeshMaterial,
+enum class SortMode {
+	ByMesh,
+	BysMaterial,
+	ByMaterialAndMesh,
 };
 
 class Sample;
@@ -58,7 +57,6 @@ public:
 	void AddRenderable(
 		Mesh* mesh,
 		Material* material,
-		uint pass,
 		const Matrix4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -67,7 +65,6 @@ public:
 		Mesh* mesh,
 		uint subMeshIndex,
 		Material* material,
-		uint pass,
 		const Matrix4& localToWorldMatrix,
 		uint instance = 0
 	);
@@ -79,16 +76,16 @@ private:
 		Sample* drawCall;
 	};
 
-	void Render(Renderable& renderable, uint instance, uint matrixOffset, RenderingSamples& samples);
+	void RenderRange(uint from, uint to, int pass, RenderingSamples& renderSamples);
+	void RenderInstanced(Renderable& renderable, uint instance, uint matrixOffset, int pass, RenderingSamples& samples);
 
 	void ResetState();
-	void UpdateState(Renderable& renderable);
+	void UpdateState(Renderable& renderable, int pass);
 
 	void UpdateMatrixBuffer(uint size, const void* data);
 
-	void RenderInstances(uint first, uint last, RenderingSamples& samples);
-	void GatherInstances(std::vector<uint>& ranges);
-	void debugDumpPipelineAndRanges(std::vector<uint>& ranges);
+	void GatherInstances();
+	void debugDumpPipelineAndRanges();
 
 private:
 	RenderingContext* context_;
@@ -106,7 +103,6 @@ private:
 	TextureBuffer* matrixBuffer_;
 
 	struct States {
-		int pass;
 		ref_ptr<Mesh> mesh;
 		ref_ptr<Material> material;
 

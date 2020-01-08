@@ -68,12 +68,12 @@ void DecalCreater::CreateDecal(DecalInfo* info) {
 	decalMaterial->SetMatrix4(BuiltinProperties::DecalMatrix, biasMatrix * info->matrix);
 	decalMaterial->SetTexture(BuiltinProperties::MainTexture, info->texture.get());
 
-	MeshAttribute attribute;
-	attribute.topology = info->topology;
-	attribute.indexes = info->indexes;
-	attribute.positions = info->positions;
+	ref_ptr<Geometry> geometry = new Geometry();
+	geometry->SetTopology(info->topology);
+	geometry->SetVertices(info->positions.data(), info->positions.size());
+	geometry->SetIndexes(info->indexes.data(), info->indexes.size());
 
-	info->decal.mesh = Mesh::FromAttribute(attribute);
+	info->decal.mesh = Mesh::FromGeometry(geometry.get());
 	info->decal.material = decalMaterial;
 }
 
@@ -81,8 +81,8 @@ bool DecalCreater::ClampMesh(Camera* camera, std::vector<Vector3>& triangles, Ga
 	Mesh* mesh = go->GetComponent<MeshFilter>()->GetMesh();
 	Vector3 cameraPosition = go->GetTransform()->InverseTransformPoint(camera->GetTransform()->GetPosition());
 
-	const uint* indexes = mesh->MapIndexes();
-	const Vector3* vertices = mesh->MapVertices();
+	const uint* indexes = mesh->GetGeometry()->GetIndexes();
+	const Vector3* vertices = mesh->GetGeometry()->GetVertices();
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
 		SubMesh* subMesh = mesh->GetSubMesh(i);
@@ -108,9 +108,6 @@ bool DecalCreater::ClampMesh(Camera* camera, std::vector<Vector3>& triangles, Ga
 			GeometryUtility::Triangulate(triangles, polygon, Vector3::Cross(vs[1] - vs[0], vs[2] - vs[1]));
 		}
 	}
-
-	mesh->UnmapIndexes();
-	mesh->UnmapVertices();
 
 	return triangles.size() >= 3;
 }

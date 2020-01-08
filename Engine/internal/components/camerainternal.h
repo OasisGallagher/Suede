@@ -82,6 +82,7 @@ protected:
 	void OnProjectionMatrixChanged();
 
 private:
+	void RenderFrame();
 	void UpdateFrameState();
 
 	bool IsValidViewportRect();
@@ -97,7 +98,6 @@ private:
 	Transform* transform_ = nullptr;
 
 	RenderingThread* renderingThread_ = nullptr;
-	CullingThread* cullingThread_ = nullptr;
 
 	bool pipelineReady_ = false;
 	PipelineBuilder* pipelineBuilder_;
@@ -111,6 +111,7 @@ private:
 	DepthTextureMode depthTextureMode_ = DepthTextureMode::None;
 	RenderPath renderPath_ = RenderPath::Forward;
 
+	ref_ptr<CullingTask> cullingTask_;
 	ref_ptr<RenderTexture> targetTexture_;
 
 	std::mutex visibleGameObjectsMutex_;

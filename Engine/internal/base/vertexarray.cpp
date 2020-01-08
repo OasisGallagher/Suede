@@ -5,21 +5,17 @@
 #include "memory/refptr.h"
 
 VertexArray::VertexArray(Context* context) : context_(context), vao_(0), oldVao_(0) {
+	context_->GenVertexArrays(1, &vao_);
 }
 
 VertexArray::~VertexArray() {
 	Destroy();
 }
 
-void VertexArray::Initialize() {
-	if (vao_ == 0) {
-		context_->GenVertexArrays(1, &vao_);
-	}
-}
-
 void VertexArray::Destroy() {
 	DestroyVertexBuffers();
 	context_->DeleteVertexArrays(1, &vao_);
+	vao_ = 0;
 }
 
 void VertexArray::CreateVertexBuffers(size_t n) {
@@ -62,6 +58,11 @@ void VertexArray::UnmapBuffer(int index) {
 
 size_t VertexArray::GetBufferSize(int index) {
 	return vbos_[index].GetSize();
+}
+
+uint VertexArray::GetNativePointer() const {
+	SUEDE_ASSERT(vao_ != 0);
+	return vao_;
 }
 
 uint VertexArray::GetBufferNativePointer(uint index) const {

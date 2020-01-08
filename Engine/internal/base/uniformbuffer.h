@@ -23,7 +23,6 @@ private:
 	void Destroy();
 	void Attach(ShaderInternal* shader);
 	void AttachProgram(uint program);
-	void Initialize(const std::string& name, uint size);
 
 private:
 	Context* context_;

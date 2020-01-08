@@ -27,9 +27,8 @@ public:
 	int GetRenderQueue() const;
 
 	void SetPass(int value) { currentPass_ = value; }
-	int GetPass() const { return currentPass_; }
+	int GetActivatedPass() const { return activatedPass_; }
 	uint GetPassCount() const;
-	uint GetPassNativePointer(uint pass) const;
 
 	void Bind(uint pass);
 	void Unbind();
@@ -94,12 +93,13 @@ private:
 	Variant* VerifyProperty(const std::string& name, VariantType type);
 
 private:
-	Shader* shader_;
+	Shader* shader_ = nullptr;
 	bool shaderDirty_ = false;
 
-	int currentPass_;
+	int currentPass_ = -1;
+	int activatedPass_ = -1;
 
-	uint passEnabled_;
+	uint passEnabled_ = 0;
 
 	typedef ptr_map<std::string, MaterialProperty> PropertyContainer;
 	PropertyContainer properties_;

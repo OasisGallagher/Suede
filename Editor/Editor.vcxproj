@@ -311,6 +311,7 @@
     <ClCompile Include="main\main.cpp" />
     <ClCompile Include="main\prefs.cpp" />
     <ClCompile Include="main\qtviewer.cpp" />
+    <ClCompile Include="main\selection.cpp" />
     <ClCompile Include="scripts\cameracontroller.cpp" />
     <ClCompile Include="scripts\gaussianblur.cpp" />
     <ClCompile Include="scripts\selectiongizmos.cpp" />
@@ -645,6 +646,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_WINEXTRAS_LIB -D%(PreprocessorDefinitions)  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtWinExtras"</Command>
     </CustomBuild>
+    <ClInclude Include="main\selection.h" />
     <ClInclude Include="windows\inspector\materialeditor.h" />
     <CustomBuild Include="windows\project\projectwindow.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath);$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

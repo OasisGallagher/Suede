@@ -360,6 +360,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_enumfield.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="main\selection.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.qrc">
@@ -512,6 +515,9 @@
       <Filter>windows\inspector</Filter>
     </ClInclude>
     <ClInclude Include="main\childwindow.h">
+      <Filter>main</Filter>
+    </ClInclude>
+    <ClInclude Include="main\selection.h">
       <Filter>main</Filter>
     </ClInclude>
   </ItemGroup>

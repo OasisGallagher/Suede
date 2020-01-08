@@ -72,7 +72,7 @@ public:
 	void SetClearStencil(int value) { clearStencil_ = value; }
 	int GetClearStencil() const { return clearStencil_; }
 
-	uint GetNativePointer() { return fbo_; }
+	uint GetNativePointer();
 
 protected:
 	virtual void OnViewportChanged() {}
