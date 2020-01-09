@@ -45,11 +45,11 @@
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-//#define IMAGE_EFFECTS
+#define IMAGE_EFFECTS
 #define ANIMATION
 #define PARTICLE_SYSTEM
 //#define FONT
-//#define BUMPED
+#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
@@ -75,6 +75,7 @@ void GameWindow::initUI() {
 	canvas_ = findChild<Canvas*>("canvas");
 
 	connect(ui_->stat, &QCheckBox::stateChanged, this, &GameWindow::onToggleStat);
+	connect(ui_->play, &QPushButton::clicked, this, &GameWindow::onTogglePlay);
 	connect(editor_->childWindow<HierarchyWindow>(), &HierarchyWindow::focusGameObject, this, &GameWindow::onFocusGameObjectBounds);
 	
 	typedef void (EnumField::*fptr)(const QString&);
@@ -190,6 +191,11 @@ void GameWindow::resizeEvent(QResizeEvent* event) {
 void GameWindow::timerEvent(QTimerEvent *event) {
 }
 
+void GameWindow::onTogglePlay() {
+	playing_ = !playing_;
+	ui_->play->setStyleSheet(QString("border-image:url(:/images/%1)").arg(playing_ ? "pause" : "play"));
+}
+
 void GameWindow::onToggleStat(int state) {
 	stat_->setVisible(!!state);
 
@@ -210,14 +216,18 @@ void GameWindow::onShadingModeChanged(const QString& str) {
 }
 
 void GameWindow::onFocusGameObjectBounds(GameObject* go) {
-	/*Vector3 center = go->GetBounds().center;
+	Bounds bounds;
+	for (Renderer* renderer : go->GetComponentsInChildren<Renderer>()) {
+		bounds.Encapsulate(renderer->GetBounds());
+	}
+
 	Transform* camera = Camera::GetMain()->GetTransform();
 
-	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), go->GetBounds());
-	camera->SetPosition(center + Vector3(0, 0, -1) * distance);
+	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), bounds);
+	camera->SetPosition(bounds.center + Vector3(0, 0, -1) * distance);
 
-	Quaternion q(Matrix4::LookAt(camera->GetPosition(), center, Vector3(0, 1, 0)));
-	camera->SetRotation(q.GetConjugated());*/
+	Quaternion q(Matrix4::LookAt(camera->GetPosition(), bounds.center, Vector3(0, 1, 0)));
+	camera->SetRotation(q.GetConjugated());
 }
 
 float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds) {
@@ -342,7 +352,7 @@ void GameWindow::setupScene() {
 #endif
 	
 #ifdef PARTICLE_SYSTEM
-	ref_ptr<GameObject> go = new GameObject();
+	ref_ptr<GameObject> go = new GameObject("ParticleSystem");
 	ParticleSystem* particleSystem = go->AddComponent<ParticleSystem>();
 	go->GetTransform()->SetPosition(Vector3(-30, 20, -50));
 	go->GetTransform()->SetParent(scene->GetRootTransform());
@@ -367,38 +377,38 @@ void GameWindow::setupScene() {
 #endif
 
 #if defined(FONT)
-	Font font = new IFont();
+	ref_ptr<Font> font = new Font();
 	font->Load("fonts/ms_yh.ttf", 12);
 
-	GameObject* redText = new GameObject();
+	ref_ptr<GameObject> redText = new GameObject();
 	redText->SetName("RedText");
 	redText->GetTransform()->SetPosition(Vector3(-10, 20, -20));
-	redText->GetTransform()->SetParent(Engine::GetRootTransform());
+	redText->GetTransform()->SetParent(scene->GetRootTransform());
 
-	GameObject* blueText = new GameObject();
+	ref_ptr<GameObject> blueText = new GameObject();
 	blueText->SetName("BlueText");
 	blueText->GetTransform()->SetPosition(Vector3(-10, 30, -20));
-	blueText->GetTransform()->SetParent(Engine::GetRootTransform());
+	blueText->GetTransform()->SetParent(scene->GetRootTransform());
 
-	TextMesh redMesh = redText->AddComponent<TextMesh>();
-	redMesh->SetFont(font);
+	ref_ptr<TextMesh> redMesh = redText->AddComponent<TextMesh>();
+	redMesh->SetFont(font.get());
 	redMesh->SetText("落霞与孤鹜齐飞");
 	redMesh->SetFontSize(12);
 
-	TextMesh blueMesh = blueText->AddComponent<TextMesh>();
-	blueMesh->SetFont(font);
+	ref_ptr<TextMesh> blueMesh = blueText->AddComponent<TextMesh>();
+	blueMesh->SetFont(font.get());
 	blueMesh->SetText("秋水共长天一色");
 	blueMesh->SetFontSize(12);
 
-	Renderer redRenderer = redText->AddComponent<MeshRenderer>();
-	Material redMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
+	ref_ptr<Renderer> redRenderer = redText->AddComponent<MeshRenderer>();
+	ref_ptr<Material> redMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
 	redMaterial->SetColor(BuiltinProperties::MainColor, Color(1, 0, 0, 1));
-	redRenderer->AddMaterial(redMaterial);
+	redRenderer->AddMaterial(redMaterial.get());
 
-	Renderer blueRenderer = blueText->AddComponent<MeshRenderer>();
-	Material blueMaterial = suede_dynamic_cast<Material>(font->GetMaterial()->Clone());
+	ref_ptr<Renderer> blueRenderer = blueText->AddComponent<MeshRenderer>();
+	ref_ptr<Material> blueMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
 	blueMaterial->SetColor(BuiltinProperties::MainColor, Color(0, 0, 1, 1));
-	blueRenderer->AddMaterial(blueMaterial);
+	blueRenderer->AddMaterial(blueMaterial.get());
 
 #endif
 

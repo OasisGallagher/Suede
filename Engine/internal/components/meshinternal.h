@@ -113,15 +113,15 @@ public:
 
 public:
 	void SetGeometry(Geometry* value);
-	Geometry* GetGeometry() { return geometry_.get(); }
+	Geometry* GetGeometry();
 
 	void Bind();
 	void Unbind();
 
 	void AddSubMesh(SubMesh* subMesh);
-	uint GetSubMeshCount() { return subMeshes_.size(); }
-	SubMesh* GetSubMesh(uint index) { return subMeshes_[index].get(); }
 	void RemoveSubMesh(uint index);
+	SubMesh* GetSubMesh(uint index) { return subMeshes_[index].get(); }
+	uint GetSubMeshCount() { return subMeshes_.size(); }
 
 	const Bounds& GetBounds();
 

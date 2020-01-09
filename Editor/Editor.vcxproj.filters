@@ -363,6 +363,9 @@
     <ClCompile Include="main\selection.cpp">
       <Filter>main</Filter>
     </ClCompile>
+    <ClCompile Include="scripts\grayscale.cpp">
+      <Filter>scripts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.qrc">
@@ -490,9 +493,6 @@
     </CustomBuild>
     <CustomBuild Include="windows\project\projectwindow.h">
       <Filter>windows\project</Filter>
-    </CustomBuild>
-    <CustomBuild Include="scripts\grayscale.cpp">
-      <Filter>scripts</Filter>
     </CustomBuild>
     <CustomBuild Include="widgets\statistics\statswidget.h">
       <Filter>widgets\statistics</Filter>

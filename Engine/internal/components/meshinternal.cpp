@@ -172,6 +172,7 @@ void MeshInternal::Destroy() {
 }
 
 void MeshInternal::RecalculateBounds() {
+	SUEDE_ASSERT(geometry_);
 	const Vector3* vertices = geometry_->GetVertices();
 	const uint* indexes = geometry_->GetIndexes();
 
@@ -212,22 +213,29 @@ void MeshInternal::SetGeometry(Geometry* value) {
 	boundsDirty_ = true;
 }
 
+Geometry* MeshInternal::GetGeometry() {
+	if (!geometry_) { geometry_ = new Geometry(); }
+	return geometry_.get();
+}
+
 void MeshInternal::AddSubMesh(SubMesh* subMesh) {
 	subMeshes_.push_back(subMesh);
 	boundsDirty_ = true;
 }
 
-void MeshInternal::Bind() {
-	_suede_rptr(geometry_.get())->Bind();
-}
-
-void MeshInternal::Unbind() {
-	_suede_rptr(geometry_.get())->Unbind();
-}
-
 void MeshInternal::RemoveSubMesh(uint index) {
 	subMeshes_.erase(subMeshes_.begin() + index);
 	boundsDirty_ = true;
+}
+
+void MeshInternal::Bind() {
+	SUEDE_ASSERT(geometry_);
+	_suede_drptr(geometry_.get())->Bind();
+}
+
+void MeshInternal::Unbind() {
+	SUEDE_ASSERT(geometry_);
+	_suede_drptr(geometry_.get())->Unbind();
 }
 
 const Bounds& MeshInternal::GetBounds() {
@@ -239,7 +247,7 @@ MeshProviderInternal::MeshProviderInternal(ObjectType type) : ComponentInternal(
 }
 
 MeshProviderInternal::~MeshProviderInternal() {
-	auto geometry = _suede_rptr(mesh_->GetGeometry());
+	auto geometry = _suede_drptr(mesh_->GetGeometry());
 	if (geometry != nullptr) {
 		geometry->modified.unsubscribe(this);
 	}
@@ -247,11 +255,11 @@ MeshProviderInternal::~MeshProviderInternal() {
 
 void MeshProviderInternal::SetMesh(Mesh* value) {
 	if (mesh_ != nullptr) {
-		_suede_rptr(mesh_->GetGeometry())->modified.unsubscribe(this);
+		_suede_drptr(mesh_->GetGeometry())->modified.unsubscribe(this);
 	}
 
 	if (value != nullptr) {
-		_suede_rptr(value->GetGeometry())->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
+		_suede_drptr(value->GetGeometry())->modified.subscribe(this, &MeshProviderInternal::OnMeshModified);
 	}
 
 	mesh_ = value;

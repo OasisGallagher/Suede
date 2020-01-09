@@ -52,6 +52,8 @@ void SceneInternal::OnDestroy() {
 }
 
 void SceneInternal::Update(float deltaTime) {
+	destroyed_.clear();
+
 	SortComponents();
 
 	RenderingUpdateGameObjects(deltaTime);
@@ -83,6 +85,7 @@ void SceneInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, Compone
 	ManageGameObjectComponents(lights_, component.get(), state);
 	ManageGameObjectComponents(cameras_, component.get(), state);
 	ManageGameObjectComponents(projectors_, component.get(), state);
+	ManageGameObjectComponents(renderers_, component.get(), state);
 	ManageGameObjectComponents(gizmosPainters_, component.get(), state);
 }
 
@@ -148,7 +151,7 @@ void SceneInternal::RenderingUpdateGameObjects(float deltaTime) {
 }
 
 GameObject* SceneInternal::GetGameObject(uint id) {
-	GameObjectDictionary::iterator ite = gameObjects_.find(id);
+	auto ite = gameObjects_.find(id);
 	return (ite != gameObjects_.end()) ? ite->second.get() : nullptr;
 }
 
@@ -181,14 +184,24 @@ void SceneInternal::RemoveGameObject(GameObject* go) {
 	Projector* projector = go->GetComponent<Projector>();
 	if (projector) { EraseByValue(projectors_, projector); }
 
+	Renderer* renderer = go->GetComponent<Renderer>();
+	if (renderer) { EraseByValue(renderers_, renderer); }
+
 	RemoveGameObjectFromSequence(go);
 	go->GetTransform()->SetParent(nullptr);
+
+	destroyed_.insert(go);
 	gameObjects_.erase(go->GetInstanceID());
 }
 
 std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid guid) {
 	std::vector<GameObject*> gameObjects;
-	if (guid == Camera::GetComponentGUID()) {
+	if (guid == Renderer::GetComponentGUID()) {
+		for (const ref_ptr<Renderer>& renderer : renderers_) {
+			gameObjects.push_back(renderer->GetGameObject());
+		}
+	}
+	else if (guid == Camera::GetComponentGUID()) {
 		for (Camera* camera : cameras_) {
 			gameObjects.push_back(camera->GetGameObject());
 		}
@@ -209,7 +222,7 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 		}
 	}
 	else {
-		for (GameObjectDictionary::iterator ite = gameObjects_.begin(); ite != gameObjects_.end(); ++ite) {
+		for (auto ite = gameObjects_.begin(); ite != gameObjects_.end(); ++ite) {
 			if (ite->second->GetComponent(guid)) {
 				gameObjects.push_back(ite->second.get());
 			}

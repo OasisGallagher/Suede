@@ -49,6 +49,7 @@ Vector3 Camera::WorldToScreenPoint(const Vector3& position) { return _suede_dptr
 Vector3 Camera::ScreenToWorldPoint(const Vector3& position) { return _suede_dptr()->ScreenToWorldPoint(position); }
 void Camera::Render() { _suede_dptr()->Render(); }
 ref_ptr<Texture2D> Camera::Capture() { return _suede_dptr()->Capture(); }
+const Plane* Camera::GetFrustumPlanes() { return _suede_dptr()->GetFrustumPlanes(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
@@ -98,7 +99,7 @@ void CameraInternal::Awake() {
 void CameraInternal::RenderFrame() {
 	UpdateFrameState();
 
-	cullingTask_->SetWorldToClipMatrix(GetProjectionMatrix() * transform_->GetWorldToLocalMatrix());
+	cullingTask_->SetFrustumPlanes(planes_);
 
 	backPipelines_->Clear();
 	context_->GetCullingThread()->AddTask(cullingTask_.get());

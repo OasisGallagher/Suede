@@ -247,6 +247,23 @@ bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const Vector3* 
 	return false;
 }
 
+bool GeometryUtility::FrustumIntersectsAABB(const Plane* frustum, const Bounds& bounds) {
+	Vector3 edge = bounds.center - bounds.GetMin();
+
+	for (unsigned i = 0; i < 6; ++i) {
+		const Plane& plane = frustum[i];
+		float dist = plane.GetDistanceToPoint(bounds.center);
+		Vector3 absNormal = plane.GetNormal();
+		absNormal.x = fabs(absNormal.x);
+		absNormal.y = fabs(absNormal.y);
+		absNormal.z = fabs(absNormal.z);
+
+		if (dist < -Vector3::Dot(absNormal, edge)) { return false; }
+	}
+
+	return true;
+}
+
 uint CountPointsNotBehindPlanes(const Plane* planes, uint nplanes, const Vector3* points, uint npoints) {
 	uint count = 0;
 	for (uint i = 0; i < npoints; ++i) {

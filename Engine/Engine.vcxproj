@@ -421,6 +421,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="include\component.h" />
     <ClInclude Include="include\frameevents.h" />
     <ClInclude Include="include\imageeffect.h" />
+    <ClInclude Include="include\imgui.h" />
     <ClInclude Include="include\input.h" />
     <ClInclude Include="include\lua++.h" />
     <ClInclude Include="include\defines.h" />

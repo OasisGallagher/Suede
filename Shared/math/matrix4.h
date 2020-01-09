@@ -24,6 +24,8 @@ struct SUEDE_API Matrix4 {
 
 	Matrix4 operator*(const Matrix4& other) const;
 	Matrix4& operator*=(const Matrix4& other);
+	bool operator==(const Matrix4& other) const;
+	bool operator!=(const Matrix4& other) const;
 
 	static Matrix4 Translate(const Vector3& t);
 	static Matrix4 Rotate(const Quaternion& q);

@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "plane.h"
+#include "bounds.h"
 #include "polygon.h"
 
 #include "math/vector2.h"
@@ -36,6 +37,11 @@ public:
 	 * @returns true if one or more points are inside the plane array.
 	 */
 	static bool PlanesCulling(Plane* planes, uint nplanes, const Vector3* points, uint npoints);
+
+	/**
+	 * Test if a bounding box is (partially) inside or outside frustum.
+	 */
+	static bool FrustumIntersectsAABB(const Plane* frustum, const Bounds& bounds);
 
 	static bool GetIntersection(Vector3& intersection, const Plane& plane, const Vector3& p0, const Vector3& p1);
 	static void CalculateFrustumPlanes(Plane(&planes)[6], const Matrix4& worldToClipMatrix);

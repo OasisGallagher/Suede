@@ -126,7 +126,7 @@ void GameObjectInternal::UpdateChildrenActive(GameObject* parent) {
 	for (int i = 0; i < pr->GetChildCount(); ++i) {
 		Transform* transform = pr->GetChildAt(i);
 		GameObject* child = transform->GetGameObject();
-		GameObjectInternal* childPtr = _suede_rptr(child);
+		GameObjectInternal* childPtr = _suede_drptr(child);
 		childPtr->SetActive(child, childPtr->activeSelf_ && parent->GetActive());
 		UpdateChildrenActive(child);
 	}
@@ -159,7 +159,7 @@ bool GameObjectInternal::RecalculateHierarchyUpdateStrategy(GameObject* self) {
 	if (oldStrategy != newStrategy) {
 		//Transform* parent, current = GetTransform();
 		//for (; (parent = current->GetParent()) && parent != Engine::GetRootTransform();) {
-		//	if (!_suede_rptr(parent->GetGameObject().get())->RecalculateHierarchyUpdateStrategy(self)) {
+		//	if (!_suede_drptr(parent->GetGameObject().get())->RecalculateHierarchyUpdateStrategy(self)) {
 		//		break;
 		//	}
 

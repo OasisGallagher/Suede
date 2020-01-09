@@ -5,6 +5,7 @@
 #include "engine.h"
 #include "light.h"
 #include "camera.h"
+#include "renderer.h"
 #include "projector.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
@@ -52,27 +53,20 @@ private:
 	void ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state);
 
 private:
-	typedef std::vector<Light*> LightContainer;
-	typedef std::vector<Camera*> CameraContainer;
-	typedef std::vector<Projector*> ProjectorContainer;
-	typedef std::vector<GameObject*> GameObjectSequence;
-	typedef std::vector<GizmosPainter*> GizmosPainterContainer;
-
-	typedef std::map<uint, ref_ptr<GameObject>> GameObjectDictionary;
-
-private:
-	LightContainer lights_;
-	CameraContainer cameras_;
-	DecalCreater* decalCreater_;
-	ProjectorContainer projectors_;
-	GameObjectDictionary gameObjects_;
-	GizmosPainterContainer gizmosPainters_;
+	std::vector<Light*> lights_;
+	std::vector<Camera*> cameras_;
+	std::vector<Renderer*> renderers_;
+	std::vector<Projector*> projectors_;
+	std::map<uint, ref_ptr<GameObject>> gameObjects_;
+	std::vector<GizmosPainter*> gizmosPainters_;
 
 	std::mutex cullingMutex_;
-	GameObjectSequence cullingUpdateSequence_;
-	GameObjectSequence renderingUpdateSequence_;
+	std::vector<GameObject*> cullingUpdateSequence_;
+	std::vector<GameObject*> renderingUpdateSequence_;
 
 	Environment environment_;
+	DecalCreater* decalCreater_;
+	std::set<ref_ptr<GameObject>> destroyed_;
 
 	ref_ptr<GameObject> root_;
 	GameObjectImporter* importer_;

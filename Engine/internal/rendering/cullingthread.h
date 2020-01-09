@@ -8,7 +8,9 @@
 
 class Time;
 class Scene;
+class Plane;
 class Profiler;
+class Renderer;
 class RenderingContext;
 
 class CullingTask : public Task {
@@ -16,7 +18,7 @@ public:
 	CullingTask(RenderingContext* context);
 
 public:
-	void SetWorldToClipMatrix(const Matrix4& value) { worldToClipMatrix_ = value; }
+	void SetFrustumPlanes(const Plane* value) { frustum_ = value; }
 	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
 
 public:
@@ -26,9 +28,7 @@ private:
 	virtual void Run() override;
 
 private:
-	bool IsVisible(GameObject* go, const Matrix4& worldToClipMatrix);
-	bool FrustumCulling(const Bounds& bounds, const Matrix4& worldToClipMatrix);
-	WalkCommand OnWalkGameObject(GameObject* go);
+	bool IsVisible(Renderer* renderer);
 
 private:
 	uint64 lastTimeStamp_ = 0;
@@ -39,7 +39,7 @@ private:
 	Scene* scene_;
 	Profiler* profiler_;
 
-	Matrix4 worldToClipMatrix_;
+	const Plane* frustum_;
 	std::vector<GameObject*> gameObjects_;
 };
 

@@ -208,14 +208,9 @@ void Variant::SetPodArray(VariantType type, const void* data, uint size) {
 	data_.podArray.size = size;
 }
 
-#include "animation.h"
 void Variant::SetTexture(Texture* value) {
 	SetType(VariantType::Texture);
 	texture_ = value;
-
-	if (dynamic_cast<AnimationFrame*>(texture_.get())) {
-		Debug::Break();
-	}
 }
 
 const void* Variant::GetData() const {

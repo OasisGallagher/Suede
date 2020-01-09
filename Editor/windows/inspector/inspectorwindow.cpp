@@ -107,9 +107,9 @@ void InspectorWindow::drawComponents(GameObject* go) {
 		GUI::Sameline();
 
 		if (GUI::CollapsingHeader(typeName.c_str())) {
-			GUI::Indent();
+			GUI::Indent(8);
 			drawMetaObject(object);
-			GUI::Unindent();
+			GUI::Unindent(8);
 		}
 	}
 

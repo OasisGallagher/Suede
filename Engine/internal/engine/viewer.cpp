@@ -1,11 +1,8 @@
 #include "screen.h"
+#include "viewer.h"
+
 #include "engine.h"
 #include "physics.h"
-#include "profiler.h"
-#include "viewer.h"
-#include "glcanvas.h"
-
-#include "debug/debug.h"
 
 Viewer::Viewer(int argc, char * argv[]) : status_(Uninitialized) {
 	setlocale(LC_ALL, "");

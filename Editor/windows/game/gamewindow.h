@@ -37,6 +37,7 @@ public:
 	virtual void tick();
 
 private slots:
+	void onTogglePlay();
 	void onToggleStat(int state);
 
 	void onShadingModeChanged(const QString& str);
@@ -56,6 +57,8 @@ private:
 	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
+	bool playing_ = true;
+
 	Input* input_;
 	QtInputDelegate* inputDelegate_;
 

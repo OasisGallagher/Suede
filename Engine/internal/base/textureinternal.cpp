@@ -493,6 +493,7 @@ static RenderTexture* ToggleRenderTextureBusyState(RenderTextureFormat format, u
 RenderTexture* RenderTextureInternal::GetTemporary(RenderTextureFormat format, uint width, uint height) {
 	RenderTexture* cache = ToggleRenderTextureBusyState(format, width, height, 0);
 	if (cache != nullptr) {
+		cache->Clear(Rect(0, 0, 1, 1), Color::black, 1, 1);
 		return cache;
 	}
 

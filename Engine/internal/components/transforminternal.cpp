@@ -119,7 +119,7 @@ Transform* TransformInternal::FindChild(const std::string& path) {
 			return nullptr;
 		}
 		
-		current = _suede_rptr(child);
+		current = _suede_drptr(child);
 	}
 
 	return current->FindDirectChild(back);
@@ -493,7 +493,7 @@ void TransformInternal::DirtyChildrenScales() {
 		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalScale();
 
-		TransformInternal* child = _suede_rptr(transform.get());
+		TransformInternal* child = _suede_drptr(transform.get());
 		child->SetDirty(WorldScaleMask | LocalToWorldMatrixMask | WorldToLocalMatrixMask, true);
 		child->DirtyChildrenScales();
 	}
@@ -504,7 +504,7 @@ void TransformInternal::DirtyChildrenPositions() {
 		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalPosition();
 
-		TransformInternal* child = _suede_rptr(transform.get());
+		TransformInternal* child = _suede_drptr(transform.get());
 		child->SetDirty(WorldPositionMask | LocalToWorldMatrixMask | WorldToLocalMatrixMask, true);
 		child->DirtyChildrenPositions();
 	}
@@ -515,7 +515,7 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 		ref_ptr<Transform>& transform = children_[i];
 		transform->GetLocalRotation();
 		transform->GetLocalEulerAngles();
-		TransformInternal* child = _suede_rptr(transform.get());
+		TransformInternal* child = _suede_drptr(transform.get());
 		child->SetDirty(WorldRotationMask | WorldEulerAnglesMask | LocalToWorldMatrixMask | WorldToLocalMatrixMask, true);
 		child->DirtyChildrenRotationsAndEulerAngles();
 	}
@@ -537,12 +537,12 @@ Transform* TransformInternal::FindDirectChild(const std::string& name) {
 
 void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Transform* newParent) {
 	if (oldParent) { // remove from old parent.
-		TransformInternal* optr = _suede_rptr(oldParent);
+		TransformInternal* optr = _suede_drptr(oldParent);
 		RemoveChildItem(optr->children_, self);
 	}
 
 	if (newParent) {
-		TransformInternal* nptr = _suede_rptr(newParent);
+		TransformInternal* nptr = _suede_drptr(newParent);
 		AddChildItem(nptr->children_, self);
 	}
 

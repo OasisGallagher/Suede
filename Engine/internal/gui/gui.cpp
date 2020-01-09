@@ -276,7 +276,7 @@ void GUI::EndMenu() {
 }
 
 bool GUI::CollapsingHeader(const char* title) {
-	return ImGui::CollapsingHeader(title, ImGuiTreeNodeFlags_DefaultOpen);
+	return ImGui::CollapsingHeader(title, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Bullet);
 }
 
 void GUI::BeginScope(int id) {

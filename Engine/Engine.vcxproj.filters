@@ -1447,6 +1447,9 @@
     <ClInclude Include="internal\async\worker.h">
       <Filter>internal\async</Filter>
     </ClInclude>
+    <ClInclude Include="include\imgui.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\physics\bullet\Bullet3Collision\BroadPhaseCollision\b3DynamicBvh.cpp">

@@ -46,7 +46,7 @@ public:
 
 	T min() const { return min_; }
 	T max() const { return max_; }
-	T get_value() const { return value_; }
+	T value() const { return value_; }
 
 private:
 	// do NOT change the order.

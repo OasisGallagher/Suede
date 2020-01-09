@@ -131,8 +131,8 @@ private:
 
 	uint passCount_;
 	uint passEnabled_;
-	uint currentPass_;
 
+	int currentPass_;
 	int tags_[TagKeyCount];
 };
 

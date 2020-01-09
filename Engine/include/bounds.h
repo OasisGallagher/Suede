@@ -5,7 +5,7 @@
 #include "math/vector3.h"
 
 /**
- * @brief axis-aligned bounding box.
+ * @brief Axis-aligned bounding box.
  */
 struct SUEDE_API Bounds {
 	Bounds();

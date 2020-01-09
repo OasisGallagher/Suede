@@ -9,7 +9,7 @@ public:
 
 	void add(GameObject* go);
 	void remove(GameObject* go);
-	void clear() { gameObjects_.clear(); }
+	void clear() { gameObjects_.clear(); timeStamps_.clear(); }
 	bool contains(GameObject* go) const { return gameObjects_.contains(go); }
 
 private:

@@ -76,6 +76,15 @@ void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatri
 	//Graphics::Blit(sharedSSAOTexture, nullptr);
 
 	auto effects = frameState->camera->GetComponents<ImageEffect>();
+	for (auto ite = effects.begin(); ite != effects.end();) {
+		if ((*ite)->GetActiveAndEnabled()) {
+			++ite;
+		}
+		else {
+			ite = effects.erase(ite);
+		}
+	}
+
 	if (!effects.empty()) { OnImageEffects(effects); }
 }
 
@@ -114,11 +123,10 @@ void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light* light) {
 }
 
 void RenderingThread::OnImageEffects(const std::vector<ImageEffect*>& effects) {
-	uint w = Screen::GetWidth(), h = Screen::GetHeight();
 	RenderTexture* temporary;
 	RenderTexture* targetTextures[] = {
 		context_->GetOffscreenRenderTexture(),
-		temporary = RenderTexture::GetTemporary(RenderTextureFormat::Rgba, w, h)
+		temporary = RenderTexture::GetTemporary(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight())
 	};
 
 	int index = 1;
@@ -316,8 +324,10 @@ void PipelineBuilder::RenderSkybox(Pipeline* pl) {
 
 RenderTexture* PipelineBuilder::GetActiveRenderTarget() {
 	FrameState* fs = context_->GetFrameState();
-	if (!fs->camera->GetComponents<ImageEffect>().empty()) {
-		return context_->GetOffscreenRenderTexture();
+	for (ImageEffect* effect : fs->camera->GetComponents<ImageEffect>()) {
+		if (effect->GetActiveAndEnabled()) {
+			return context_->GetOffscreenRenderTexture();
+		}
 	}
 
 	RenderTexture* target = fs->targetTexture.get();

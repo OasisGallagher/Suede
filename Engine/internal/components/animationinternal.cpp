@@ -447,7 +447,7 @@ void AnimationCurveInternal::Lerp(int index, float time, AnimationFrame*& frame)
 }
 
 void AnimationFrameInternal::Lerp(AnimationFrame* result, AnimationFrame* other, float factor) {
-	AttributeContainer& otherAttributes = _suede_rptr(other)->attributes_;
+	AttributeContainer& otherAttributes = _suede_drptr(other)->attributes_;
 	if (attributes_.size() != otherAttributes.size()) {
 		Debug::LogError("attribute count mismatch");
 		return;
@@ -472,8 +472,8 @@ void AnimationFrameInternal::Lerp(AnimationFrame* result, AnimationFrame* other,
 }
 
 void AnimationFrameInternal::Assign(AnimationFrame* other) {
- 	time_ = _suede_rptr(other)->time_;
- 	attributes_ = _suede_rptr(other)->attributes_;
+ 	time_ = _suede_drptr(other)->time_;
+ 	attributes_ = _suede_drptr(other)->attributes_;
 }
 
 void AnimationFrameInternal::LerpAttribute(AnimationFrame* ans, int id, const Variant& lhs, const Variant& rhs, float factor) {

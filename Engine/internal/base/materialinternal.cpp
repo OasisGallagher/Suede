@@ -64,7 +64,7 @@ MaterialInternal::~MaterialInternal() {
 
 ref_ptr<Object> MaterialInternal::Clone() {
 	Material* clone = new Material();
-	MaterialInternal* clonePtr = _suede_rptr(clone);
+	MaterialInternal* clonePtr = _suede_drptr(clone);
 	*clonePtr = *this;
 
 	return clone;
@@ -92,7 +92,7 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 	}
 	else if ((var = GetProperty(name, VariantType::RangedInt)) != nullptr) {
 		iranged r = var->GetRangedInt();
-		if (r.get_value() != value) {
+		if (r.value() != value) {
 			r = value;
 			var->SetRangedInt(r);
 		}
@@ -104,11 +104,11 @@ void MaterialInternal::SetInt(const std::string& name, int value) {
 
 void MaterialInternal::SetBool(const std::string& name, bool value) {
 	Variant* var = GetProperty(name, VariantType::Bool);
-	if (var != nullptr && var->GetBool() != value) {
-		var->SetBool(value);
-	}
-	else {
+	if (var == nullptr) {
 		AddRedundantProperty(name, value);
+	}
+	else if (var->GetBool() != value) {
+		var->SetBool(value);
 	}
 }
 
@@ -119,7 +119,7 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 	}
 	else if ((var = GetProperty(name, VariantType::RangedFloat)) != nullptr) {
 		franged r = var->GetRangedFloat();
-		if (r.get_value() != value) {
+		if (r.value() != value) {
 			r = value;
 			var->SetRangedFloat(r);
 		}
@@ -131,71 +131,71 @@ void MaterialInternal::SetFloat(const std::string& name, float value) {
 
 void MaterialInternal::SetTexture(const std::string& name, Texture* value) {
 	Variant* var = GetProperty(name, VariantType::Texture);
-	if (var != nullptr && var->GetTexture() != value) {
-		var->SetTexture(value);
-	}
-	else {
+	if (var == nullptr) {
 		AddRedundantProperty(name, value);
+	}
+	else if (var->GetTexture() != value) {
+		var->SetTexture(value);
 	}
 }
 
 void MaterialInternal::SetVector3(const std::string& name, const Vector3& value) {
 	Variant* var = GetProperty(name, VariantType::Vector3);
-	if (var != nullptr && var->GetVector3() != value) {
-		var->SetVector3(value);
-	}
-	else {
+	if (var == nullptr) {
 		AddRedundantProperty(name, value);
+	}
+	else if (var->GetVector3() != value) {
+		var->SetVector3(value);
 	}
 }
 
 void MaterialInternal::SetVector3Array(const std::string& name, const Vector3* ptr, uint count) {
 	Variant* var = GetProperty(name, VariantType::Vector3Array);
-	if (var != nullptr) {
-		var->SetVector3Array(ptr, count);
+	if (var == nullptr) {
+		AddRedundantProperty(name, Variant(ptr, count));
 	}
 	else {
-		AddRedundantProperty(name, Variant(ptr, count));
+		var->SetVector3Array(ptr, count);
 	}
 }
 
 void MaterialInternal::SetColor(const std::string& name, const Color& value) {
 	Variant* var = GetProperty(name, VariantType::Color);
-	if (var != nullptr && var->GetColor() != value) {
-		var->SetColor(value);
-	}
-	else {
+	if (var == nullptr) {
 		AddRedundantProperty(name, value);
+	}
+	else if (var->GetColor() != value) {
+		var->SetColor(value);
 	}
 }
 
 void MaterialInternal::SetVector4(const std::string& name, const Vector4& value) {
 	Variant* var = GetProperty(name, VariantType::Vector4);
-	if (var != nullptr && var->GetVector4() != value) {
-		var->SetVector4(value);
-	}
-	else {
+	if (var == nullptr) {
 		AddRedundantProperty(name, value);
+	}
+	else if (var->GetVector4() != value) {
+		var->SetVector4(value);
 	}
 }
 
 void MaterialInternal::SetMatrix4(const std::string& name, const Matrix4& value) {
 	Variant* var = GetProperty(name, VariantType::Matrix4);
-	if (var != nullptr /*&& var->GetMatrix4() != value*/) {
-		var->SetMatrix4(value);
-	}
-	else {
+	if (var == nullptr) {
 		AddRedundantProperty(name, value);
+	}
+	else if(var->GetMatrix4() != value) {
+		var->SetMatrix4(value);
 	}
 }
 
 void MaterialInternal::SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count) {
 	Variant* var = GetProperty(name, VariantType::Matrix4Array);
-	if (var != nullptr) {
-		var->SetMatrix4Array(ptr, count);
+	if (var == nullptr) {
+		AddRedundantProperty(name, Variant(ptr, count));
 	}
 	else {
-		AddRedundantProperty(name, Variant(ptr, count));
+		var->SetMatrix4Array(ptr, count);
 	}
 }
 

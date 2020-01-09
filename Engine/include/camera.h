@@ -1,5 +1,6 @@
 #pragma once
 #include "rect.h"
+#include "plane.h"
 #include "color.h"
 #include "texture.h"
 #include "component.h"
@@ -82,6 +83,7 @@ public:
 
 	void Render();
 	ref_ptr<Texture2D> Capture();
+	const Plane* GetFrustumPlanes();
 
 public:
 	static void SetMain(Camera* value);

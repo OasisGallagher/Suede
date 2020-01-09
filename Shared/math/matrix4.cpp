@@ -314,6 +314,18 @@ Matrix4& Matrix4::operator*=(const Matrix4& other) {
 	return *this;
 }
 
+/**
+ * Given that most matrices will be transformation matrices, the elements
+ * are tested in order such that the test is likely to fail as early as possible.
+ */
+bool Matrix4::operator==(const Matrix4& other) const {
+	return m[3] == other.m[3] && m[2] == other.m[2] && m[1] == other.m[1] && m[0] == other.m[0];
+}
+
+bool Matrix4::operator!=(const Matrix4& other) const {
+	return m[3] != other.m[3] || m[2] != other.m[2] || m[1] != other.m[1] || m[0] != other.m[0];
+}
+
 Matrix4 Matrix4::Translate(const Vector3& t) {
 	Matrix4 Result(1);
 	Result[3] = Vector4(t.x, t.y, t.z, 1);
