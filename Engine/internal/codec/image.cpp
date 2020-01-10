@@ -1,7 +1,12 @@
-#include <FreeImage.h>
-
 #include "image.h"
 #include "math/mathf.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
 #include "debug/debug.h"
 
 void RawImage::GetPixelBilinear(uchar* pixel, float x, float y) const {
@@ -38,300 +43,220 @@ void RawImage::GetPixel(uchar* pixel, int x, int y) const {
 }
 
 bool ImageCodec::Decode(RawImage& rawImage, const void* compressedData, uint length) {
-	FIMEMORY* stream = FreeImage_OpenMemory((uchar*)compressedData, length);
-	FIBITMAP* dib = LoadDibFromMemory(stream);
-	bool status = false;
-
-	if (dib != nullptr) {
-		FreeImage_FlipVertical(dib);
-		status = CopyTexelsTo(rawImage, dib);
-		FreeImage_Unload(dib);
+	int width = 0, height = 0, channels = 0;
+	stbi_uc* data = stbi_load_from_memory((const stbi_uc*)compressedData, length, &width, &height, &channels, 0);
+	if (data == nullptr) {
+		Debug::LogError("failed to load image: %s", stbi_failure_reason());
+		return false;
 	}
 
-	FreeImage_CloseMemory(stream);
-	return status;
+	LoadRawImage(rawImage, width, height, channels, data);
+	STBIW_FREE(data);
+	return true;
 }
 
 bool ImageCodec::Decode(RawImage& rawImage, const std::string& path) {
-	FIBITMAP* dib = LoadDibFromPath(path);
-	bool status = false;
-	if (dib != nullptr) {
-		uint bpp = FreeImage_GetBPP(dib);
-		if (bpp != 24 && bpp != 32) {
-			Debug::Break();
-		}
-
-		/**	https://msdn.microsoft.com/en-us/library/widgets/desktop/bb206357(v=vs.85).aspx
-		int pitch = FreeImage_GetPitch(dib);
-		int w = FreeImage_GetPitch(dib) / bpp * 8;
-		int width = FreeImage_GetWidth(dib);
-		if (w != width) {
-			Debug::Break();
-		}
-		*/
-
-		FreeImage_FlipVertical(dib);
-		status = CopyTexelsTo(rawImage, dib);
-		FreeImage_Unload(dib);
+	int width = 0, height = 0, channels = 0;
+	stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+	if (data == nullptr) {
+		Debug::LogError("failed to load \"%s\": %s", path.c_str(), stbi_failure_reason());
+		return false;
 	}
 
-	return status;
+	if (channels != 3 && channels != 4) {
+		Debug::LogError("failed to load \"%s\", invalid channals %d", path.c_str(), channels);
+		channels = -1;
+	}
+	else {
+		LoadRawImage(rawImage, width, height, channels, data);
+	}
+
+	STBIW_FREE(data);
+	return channels > 0;
+}
+
+void ImageCodec::LoadRawImage(RawImage &rawImage, int width, int height, int channels, const void* data) {
+	rawImage.alignment = 4;
+	rawImage.textureFormat = (channels == 3) ? TextureFormat::Rgb : TextureFormat::Rgba;
+	rawImage.colorStreamFormat = (channels == 3) ? ColorStreamFormat::Rgb : ColorStreamFormat::Rgba;
+	rawImage.width = width;
+	rawImage.height = height;
+
+	// The value in the Pitch member describes the surface's memory pitch, also called stride. 
+	// Pitch is the distance, in bytes, between two memory addresses that represent the beginning 
+	// of one bitmap line and the beginning of the next bitmap line.
+	int pitch = Mathf::RoundUpToPowerOfTwo(width, 4) * channels;
+	rawImage.pixels.resize(pitch * height);
+
+	uchar* dest = rawImage.pixels.data();
+	int widthInBytes = width * channels;
+
+	for (int i = 0; i < height; ++i) {
+		memcpy(dest, (const stbi_uc*)data + (widthInBytes * i), widthInBytes);
+		dest += pitch;
+	}
 }
 
 bool ImageCodec::Encode(std::vector<uchar>& data, ImageType type, const RawImage& rawImage) {
-	FIBITMAP* dib = LoadDibFromRawImage(rawImage);
-	bool status = EncodeDibTo(data, type, dib);
-	FreeImage_Unload(dib);
+	int length = 0;
+	int channels = ColorStreamChannels(rawImage.colorStreamFormat);
+	stbi_uc* memory = stbi_write_png_to_mem(
+		rawImage.pixels.data(), 
+		Mathf::RoundUpToPowerOfTwo(rawImage.width, rawImage.alignment) * channels,
+		rawImage.width, rawImage.height, ColorStreamChannels(rawImage.colorStreamFormat), &length
+	);
 
-	return status;
-}
-
-void ImageCodec::CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, int bpp, const std::vector<uchar>& data) {
-	uint srcStride = Mathf::RoundUpToPowerOfTwo(width * bpp / 8, alignment);
-	uint destStride = FreeImage_GetPitch(dib);
-	const uchar* src = &data[0];
-	uchar* dest = FreeImage_GetBits(dib);
-	if (srcStride == destStride) {
-		memcpy(dest, src, srcStride * height);
-	}
-	else {
-		for (int i = 0; i < height; i++) {
-			memcpy(dest, src, srcStride);
-			src += srcStride;
-			dest += destStride;
-		}
-	}
-}
-
-bool ImageCodec::SwapRedBlue(FIBITMAP* dib) {
-	const unsigned bpp = FreeImage_GetBPP(dib) / 8;
-	if(bpp > 4 || bpp < 3) {
-		Debug::LogError("failed to swap red blue, invalid bpp.");
+	if (memory == nullptr) {
+		Debug::LogError("failed to write image");
 		return false;
 	}
-	
-	uint height = FreeImage_GetHeight(dib);
-	uint pitch = FreeImage_GetPitch(dib);
-	uint lineSize = FreeImage_GetLine(dib);
-	
-	uchar* line = FreeImage_GetBits(dib);
-	for(int y = 0; y < height; ++y, line += pitch) {
-		for(uchar* pixel = line; pixel < line + lineSize ; pixel += bpp) {
-			pixel[0] ^= pixel[2];
-			pixel[2] ^= pixel[0];
-			pixel[0] ^= pixel[2];
-		}
-	}
-	
-	return true;
-}
 
-bool ImageCodec::CopyTexelsTo(RawImage& rawImage, FIBITMAP* dib) {
-	uint width = FreeImage_GetWidth(dib);
-	uint height = FreeImage_GetHeight(dib);
-	uint pitch = FreeImage_GetPitch(dib);
-	uint bpp = FreeImage_GetBPP(dib);
-
-	uint count = pitch * height;
-
-	rawImage.pixels.resize(count);
-
-	uchar* data = FreeImage_GetBits(dib);
-	if (bpp != 8) {
-		std::copy(data, data + count, rawImage.pixels.data());
-	}
-	else {
-		RGBQUAD* palette = FreeImage_GetPalette(dib);
-		if (palette == nullptr) {
-			Debug::LogError("failed to get palette.");
-			return false;
-		}
-
-		uint lineSize = FreeImage_GetLine(dib);
-		for (int i = 0; i < height; ++i ) {  
-            for (int j = 0; j < lineSize; ++j ) {  
-                int k = data[i * pitch + j];  
-				memcpy(&rawImage.pixels[(i * pitch + j) * 3], palette + k, 3 * sizeof(uchar));
-            }
-        }
-	}
-
-	ColorStreamFormat colorStreamFormat = ColorStreamFormat::Rgba;
-	switch (bpp) {
-	case 8:
-	case 24:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		colorStreamFormat = ColorStreamFormat::Bgr;
-#else
-		colorStreamFormat = ColorStreamFormat::Rgb;
-#endif
-		break;
-
-	case 32:
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-		colorStreamFormat = ColorStreamFormat::Bgra;
-#else
-		colorStreamFormat = ColorStreamFormat::Rgba;
-#endif
-		break;
-	}
-
-	rawImage.width = width;
-	rawImage.height = height;
-	rawImage.textureFormat = (bpp >= 32) ? TextureFormat::Rgba : TextureFormat::Rgb;
-	rawImage.colorStreamFormat = colorStreamFormat;
-	rawImage.alignment = 4;
+	data.assign(memory, memory + length);
+	STBIW_FREE(memory);
 
 	return true;
 }
 
-FIBITMAP* ImageCodec::LoadDibFromMemory(FIMEMORY* stream) {
-	FREE_IMAGE_FORMAT fif = FreeImage_GetFileTypeFromMemory(stream);
-	if (!FreeImage_FIFSupportsReading(fif)) {
-		Debug::LogError("unsupported image format.");
-		return nullptr;
+int AtlasMaker::Make(Atlas& atlas, const std::vector<RawImage*>& images, int space) {
+	if (images.empty()) {
+		Debug::LogError("atlas container is empty");
+		return InvalidParameter;
 	}
 
+	atlas.colorFormat = images.front()->colorStreamFormat;
+	int channels = ColorStreamChannels(atlas.colorFormat);
 
-	FIBITMAP* dib = FreeImage_LoadFromMemory(fif, stream, 0);
-	if (dib == nullptr) {
-		Debug::LogError("failed to load image.");
-		return nullptr;
+	int oldWidth = atlas.width, oldHeight = atlas.height;
+	int width, height;
+	std::vector<int> oldCacheArr = cache_.columnArr;
+	std::vector<int> columnArr;
+
+	if (!CalculateSize(columnArr, width, height, images, space)) {
+		return AtlasSizeOutOfRange;
 	}
 
-	return dib;
-}
+	width = Mathf::RoundUpToPowerOfTwo(width, 4);
+	height = Mathf::RoundUpToPowerOfTwo(height, 4);
 
-FIBITMAP* ImageCodec::LoadDibFromPath(const std::string &path) {
-	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(path.c_str());
-	if (fif == FIF_UNKNOWN) {
-		fif = FreeImage_GetFIFFromFilename(path.c_str());
+	int status = OK;
+
+	if (width > oldWidth || height > oldHeight) {
+		// clear cache£¬rebuild atlas
+		cache_.imgCount = 0;
+		oldCacheArr.resize(0);
+		atlas = Atlas();
+		atlas.pixels.resize(width * height * channels);
+		status = RebuiltOK;
 	}
 
-	if (fif == FIF_UNKNOWN || !FreeImage_FIFSupportsReading(fif)) {
-		Debug::LogError("unsupported image format \"%s\".", path.c_str());
-		return nullptr;
-	}
-
-	FIBITMAP* dib = FreeImage_Load(fif, path.c_str());
-	if (dib == nullptr) {
-		Debug::LogWarning("failed to load image \"%s\".", path.c_str());
-		return nullptr;
-	}
-
-	return dib;
-}
-
-FIBITMAP* ImageCodec::LoadDibFromRawImage(const RawImage& rawImage) {
-	if (rawImage.colorStreamFormat != ColorStreamFormat::Rgb && rawImage.colorStreamFormat != ColorStreamFormat::Rgba) {
-		Debug::LogError("invalid format %d.", rawImage.colorStreamFormat);
-		return nullptr;
-	}
-
-	int bpp = ColorStreamBytes(rawImage.colorStreamFormat) * 8;
-	FIBITMAP* dib = FreeImage_Allocate(rawImage.width, rawImage.height, bpp);
-	CopyBitsFrom(dib, rawImage.width, rawImage.height, rawImage.alignment, bpp, rawImage.pixels);
-
-#if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_BGR
-	SwapRedBlue(dib);
-#endif
-
-	return dib;
-}
-
-bool ImageCodec::EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP* dib) {
-	FIMEMORY* stream = FreeImage_OpenMemory();
-
-	bool status = false;
-	if (FreeImage_SaveToMemory(type == ImageType::JPG ? FIF_JPEG : FIF_PNG, dib, stream)) {
-		ulong bytes = 0;
-		uchar *buffer = nullptr;
-		FreeImage_AcquireMemory(stream, &buffer, &bytes);
-		data.assign(buffer, buffer + bytes);
-		status = true;
+	int top = 0;
+	uchar* ptr = nullptr;
+	if (cache_.imgCount < 1) {
+		ptr = &atlas.pixels[0];
+		ptr += space * width * channels;
+		top = space;
 	}
 	else {
-		Debug::LogError("failed to encode image.");
+		ptr = cache_.ptr;
+		top = cache_.top;
 	}
 
-	FreeImage_CloseMemory(stream);
-	return status;
-}
+	int rowIndex = Mathf::Max(0, (int)oldCacheArr.size() - 1);
+	for (int i = cache_.imgCount; i < images.size();) {
+		bool atCacheRestRow = cache_.imgCount > 0 && rowIndex == oldCacheArr.size() - 1;
+		uint rowHeight = atCacheRestRow ? cache_.rowHeight : 0;
+		int offset = atCacheRestRow ? cache_.offset : space * channels;
 
-bool AtlasMaker::Make(Atlas& atlas, const std::vector<RawImage*>& rawImages, uint space) {
-	if (rawImages.empty()) {
-		Debug::LogWarning("container is empty.");
-		return false;
-	}
+		int restColumn = atCacheRestRow ? oldCacheArr.at(rowIndex) : 0;
+		int delCount = columnArr.at(rowIndex) - restColumn;
 
-	uint width, height;
-	uint columnCount = Calculate(width, height, rawImages, space);
+		for (int j = i; j < i + delCount; ++j) {
+			const RawImage* image = images[j];
+			float bottom = (top + image->height) / (float)height;
 
-	uint bpp = ColorStreamBytes(rawImages.front()->colorStreamFormat) * 8;
-	atlas.data.resize(width * height * (bpp / 8));
-	uchar* ptr = atlas.data.data();
-	int bottom = space;
-	ptr += space * width * 2;
+			CopyPixels(ptr + offset, image, width, channels);
+			float left = offset / ((float)width * channels);
+			float right = left + image->width / (float)width;
 
-	for (int i = 0; i < rawImages.size();) {
-		uint count = Mathf::Min((uint)rawImages.size() - i, columnCount);
-		uint rows = 0, offset = space * 2;
-
-		for (int j = i; j < i + count; ++j) {
-			const RawImage* rawImage = rawImages[j];
-			float top = (bottom + rawImage->height) / (float)height;
-
-			PasteTexels(ptr + offset, rawImage, width);
-			float left = offset / ((float)width * 2);
-			float right = left + rawImage->width / (float)width;
 			// order: left, bottom, right, top.
-			atlas.coords[rawImage->id] = Vector4(left, bottom / (float)height, right, top);
+			atlas.coords[image->id] = Vector4(left, bottom, right, top / (float)height);
 
-			offset += (rawImage->width + space) * 2;
-			rows = Mathf::Max(rows, rawImage->height);
+			offset += (image->width + space) * channels;
+			rowHeight = Mathf::Max(rowHeight, image->height);
+
+			cache_.top = top;
+			cache_.ptr = ptr;
 		}
+		ptr += (rowHeight + space) * width * channels;
+		top += (rowHeight + space);
+		rowIndex++;
+		i += delCount;
 
-		ptr += (rows + space) * width * 2;
-		bottom += (rows + space);
-		i += count;
+		cache_.offset = offset;
+		cache_.rowHeight = rowHeight;
 	}
-
+	cache_.imgCount = images.size();
 	atlas.width = width;
 	atlas.height = height;
 
+	atlas.alignment = 4;
+
+	return status;
+}
+
+bool AtlasMaker::CalculateSize(std::vector<int>& columnArr, int& width, int& height, const std::vector<RawImage*>& images, int space) {
+	columnArr = cache_.columnArr;
+	if (columnArr.size() > 0) {
+		columnArr.pop_back();
+	}
+
+	uint calWidth = cache_.calWidth, calHeight = cache_.calHeight;
+	uint totalWidth = cache_.totalWidth, totalHeight = cache_.totalHeight - calHeight;
+	int column = cache_.column;
+	for (int j = cache_.imgCount; j < images.size(); j++) {
+		if (calWidth + images[j]->width + space > MaxAtlasWidth) {
+			totalHeight += calHeight;
+			calHeight = 0;
+			calWidth = 0;
+
+			columnArr.push_back(column);
+			column = 0;
+		}
+
+		calWidth += images[j]->width + space;
+		calHeight = Mathf::Max(calHeight, images[j]->height + space);
+
+		totalWidth = Mathf::Max(calWidth, totalWidth);
+		column++;
+	}
+
+	totalHeight += calHeight;
+	columnArr.push_back(column);
+
+	if (totalHeight > MaxAtlasHeight) {
+		return false;
+	}
+
+	cache_.totalWidth = totalWidth;
+	cache_.totalHeight = totalHeight;
+	cache_.calWidth = calWidth;
+	cache_.calHeight = calHeight;
+	cache_.column = column;
+	cache_.columnArr = columnArr;
+
+	width = totalWidth;
+	height = totalHeight;
+
 	return true;
 }
 
-uint AtlasMaker::Calculate(uint& width, uint& height, const std::vector<RawImage*>& rawImages, uint space) {
-	uint columnCount = 16;
-	uint maxWidth = 0, maxHeight = 0;
-
-	for (int i = 0; i < rawImages.size();) {
-		uint count = Mathf::Min((uint)rawImages.size() - i, columnCount);
-		uint w = 0, h = 0;
-		for (int j = i; j < i + count; ++j) {
-			w += rawImages[j]->width + space;
-			h = Mathf::Max(h, rawImages[j]->height);
-		}
-
-		maxWidth = Mathf::Max(maxWidth, w);
-		maxHeight += h + space;
-		i += count;
-	}
-
-	width = Mathf::NextPowerOfTwo(maxWidth + space);
-	height = Mathf::NextPowerOfTwo(maxHeight + space);
-
-	return columnCount;
-}
-
-void AtlasMaker::PasteTexels(uchar* ptr, const RawImage* rawImage, int stride) {
-	for (int r = 0; r < rawImage->height; ++r) {
-		for (int c = 0; c < rawImage->width; ++c) {
-			uchar uch = rawImage->pixels[c + r * rawImage->width];
-			// from left bottom.
-			int r2 = rawImage->height - r - 1;
-			ptr[2 * (c + r2 * stride)] = ptr[2 * (c + r2 * stride) + 1] = uch;
+void AtlasMaker::CopyPixels(uchar* ptr, const RawImage* image, int stride, int channels) {
+	for (int r = 0; r < image->height; ++r) {
+		for (int c = 0; c < image->width; ++c) {
+			memcpy(ptr + channels * (c + r * stride),
+				image->pixels.data() + channels * (c + r * image->width),
+				channels
+			);
 		}
 	}
 }

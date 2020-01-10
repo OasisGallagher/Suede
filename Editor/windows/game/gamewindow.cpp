@@ -39,17 +39,17 @@
 #include "scripts/selectiongizmos.h"
 #include "scripts/cameracontroller.h"
 
-#define ROOM
+//#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
 //#define BEAR
 //#define BEAR_X_RAY
-#define IMAGE_EFFECTS
-#define ANIMATION
-#define PARTICLE_SYSTEM
-//#define FONT
-#define BUMPED
+//#define IMAGE_EFFECTS
+//#define ANIMATION
+//#define PARTICLE_SYSTEM
+#define FONT
+//#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
@@ -320,6 +320,7 @@ void GameWindow::setupScene() {
 
 	camera->SetClearColor(Color(0, 0.3f, 0.5f, 1));
 
+#ifdef SKYBOX
 	ref_ptr<Material> skybox = new Material();
 	skybox->SetShader(Shader::Find("builtin/skybox"));
 
@@ -339,7 +340,6 @@ void GameWindow::setupScene() {
 	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
 	scene->GetEnvironment()->skybox = skybox;
 
-#ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
 #else
 	camera->SetClearType(ClearType::Color);
@@ -378,37 +378,37 @@ void GameWindow::setupScene() {
 
 #if defined(FONT)
 	ref_ptr<Font> font = new Font();
-	font->Load("fonts/ms_yh.ttf", 12);
+	font->Load("fonts/ms_yh.ttf");
 
 	ref_ptr<GameObject> redText = new GameObject();
 	redText->SetName("RedText");
-	redText->GetTransform()->SetPosition(Vector3(-10, 20, -20));
+	redText->GetTransform()->SetPosition(Vector3(-10, 20, -200));
 	redText->GetTransform()->SetParent(scene->GetRootTransform());
 
-	ref_ptr<GameObject> blueText = new GameObject();
-	blueText->SetName("BlueText");
-	blueText->GetTransform()->SetPosition(Vector3(-10, 30, -20));
-	blueText->GetTransform()->SetParent(scene->GetRootTransform());
+	ref_ptr<GameObject> yellowText = new GameObject();
+	yellowText->SetName("BlueText");
+	yellowText->GetTransform()->SetPosition(Vector3(-10, 40, -200));
+	yellowText->GetTransform()->SetParent(scene->GetRootTransform());
 
 	ref_ptr<TextMesh> redMesh = redText->AddComponent<TextMesh>();
 	redMesh->SetFont(font.get());
-	redMesh->SetText("落霞与孤鹜齐飞");
+	redMesh->SetText(L"落霞与孤鹜齐飞abcdefgW");
 	redMesh->SetFontSize(12);
 
-	ref_ptr<TextMesh> blueMesh = blueText->AddComponent<TextMesh>();
-	blueMesh->SetFont(font.get());
-	blueMesh->SetText("秋水共长天一色");
-	blueMesh->SetFontSize(12);
+	ref_ptr<TextMesh> yellowMesh = yellowText->AddComponent<TextMesh>();
+	yellowMesh->SetFont(font.get());
+	yellowMesh->SetText(L"秋水共长天一色hijklmnQ");
+	yellowMesh->SetFontSize(12);
 
 	ref_ptr<Renderer> redRenderer = redText->AddComponent<MeshRenderer>();
 	ref_ptr<Material> redMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
-	redMaterial->SetColor(BuiltinProperties::MainColor, Color(1, 0, 0, 1));
+	redMaterial->SetColor(BuiltinProperties::MainColor, Color::red);
 	redRenderer->AddMaterial(redMaterial.get());
 
-	ref_ptr<Renderer> blueRenderer = blueText->AddComponent<MeshRenderer>();
-	ref_ptr<Material> blueMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
-	blueMaterial->SetColor(BuiltinProperties::MainColor, Color(0, 0, 1, 1));
-	blueRenderer->AddMaterial(blueMaterial.get());
+	ref_ptr<Renderer> yellowRenderer = yellowText->AddComponent<MeshRenderer>();
+	ref_ptr<Material> yellowMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
+	yellowMaterial->SetColor(BuiltinProperties::MainColor, Color::yellow);
+	yellowRenderer->AddMaterial(yellowMaterial.get());
 
 #endif
 
@@ -417,11 +417,11 @@ void GameWindow::setupScene() {
 	};
 
 #ifdef ROOM
-	GameObject* room = scene->Import(roomFbxPath, gameObjectImported);
+	scene->Import(roomFbxPath, gameObjectImported);
 #endif
 
 #ifdef BUMPED
-	GameObject* bumped = scene->Import(bumpedFbxPath, gameObjectImported);
+	scene->Import(bumpedFbxPath, gameObjectImported);
 #endif
 
 #ifdef NORMAL_VISUALIZER
@@ -440,6 +440,6 @@ void GameWindow::setupScene() {
 #endif
 
 #ifdef ANIMATION
-	GameObject* man = scene->Import(manFbxPath, gameObjectImported);
+	scene->Import(manFbxPath, gameObjectImported);
 #endif
 }

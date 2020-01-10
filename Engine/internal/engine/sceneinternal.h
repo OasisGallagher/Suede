@@ -26,7 +26,7 @@ public:
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
 	void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
 	Transform* GetRootTransform() { return root_->GetTransform(); }
-	GameObject* Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
+	void Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 
 public:
 	void Awake();

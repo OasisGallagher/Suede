@@ -141,6 +141,8 @@ private:
 	void UpdateAttributes(float deltaTime);
 	void UpdateInstanceBuffers();
 
+	void GuaranteeInstanceBufferSize(int size);
+
 private:
 	bool looping_;
 	uint maxParticles_;

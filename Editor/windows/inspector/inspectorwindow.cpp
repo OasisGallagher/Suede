@@ -22,15 +22,20 @@ InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
 	addSuedeMetaObject(ObjectType::Transform, std::make_shared<TransformMetaObject>());
 
 	addSuedeMetaObject(ObjectType::Light, std::make_shared<LightMetaObject>());
+
 	addSuedeMetaObject(ObjectType::Camera, std::make_shared<CameraMetaObject>());
 
 	addSuedeMetaObject(ObjectType::Rigidbody, std::make_shared<RigidbodyMetaObject>());
 
 	addSuedeMetaObject(ObjectType::Animation, std::make_shared<AnimationMetaObject>());
+
 	addSuedeMetaObject(ObjectType::ParticleSystem, std::make_shared<ParticleSystemMetaObject>());
 
 	addSuedeMetaObject(ObjectType::Projector, std::make_shared<ProjectorMetaObject>());
+
+	addSuedeMetaObject(ObjectType::TextMesh, std::make_shared<TextMeshMetaObject>());
 	addSuedeMetaObject(ObjectType::MeshFilter, std::make_shared<MeshFilterMetaObject>());
+
 	addSuedeMetaObject(ObjectType::MeshRenderer, std::make_shared<MeshRendererMetaObject>());
 	addSuedeMetaObject(ObjectType::SkinnedMeshRenderer, std::make_shared<SkinnedMeshRendererMetaObject>());
 	addSuedeMetaObject(ObjectType::ParticleRenderer, std::make_shared<ParticleRendererMetaObject>());
@@ -163,6 +168,13 @@ void InspectorWindow::drawBuiltinType(const QMetaProperty& p, QObject* object, c
 	}
 }
 
+void InspectorWindow::drawUserWStringType(QObject* object, const char* name) {
+	std::wstring value = object->property(name).value<std::wstring>();
+	std::unique_ptr<char[]> str(new char[value.length() * 2 + 1]);
+	str[wcstombs(str.get(), value.c_str(), value.length() * 2)] = 0;
+	//GUI::TextField()
+}
+
 void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, const char* name) {
 	int userType = p.userType();
 	if (userType == QMetaTypeId<Vector2>::qt_metatype_id()) {
@@ -213,6 +225,9 @@ void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, cons
 	else if (userType == QMetaTypeId<RenderTexture*>::qt_metatype_id()) {
 		RenderTexture* texture = object->property(name).value<RenderTexture*>();
 		GUI::Image(name, texture ? texture->GetNativePointer() : Texture2D::GetBlackTexture()->GetNativePointer());
+	}
+	else if (userType == QMetaTypeId<std::wstring>::qt_metatype_id()) {
+		drawUserWStringType(object, name);
 	}
 	else {
 		Debug::LogError("unable to draw user type %s(%d).", p.typeName(), userType);

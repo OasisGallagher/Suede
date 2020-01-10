@@ -53,6 +53,8 @@ private:
 	template <class T>
 	void drawUserEnumType(QObject* object, const char* name);
 
+	void drawUserWStringType(QObject* object, const char* name);
+
 	template <class T>
 	void drawUserVectorType(QObject* object, const char* name, bool(*draw)(const char*, T&));
 

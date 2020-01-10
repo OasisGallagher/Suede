@@ -46,6 +46,8 @@ Q_DECLARE_METATYPE(Vector4)
 Q_DECLARE_METATYPE(iranged)
 Q_DECLARE_METATYPE(franged)
 
+Q_DECLARE_METATYPE(std::wstring)
+
 Q_DECLARE_METATYPE(Rect)
 Q_DECLARE_METATYPE(Color)
 
@@ -131,8 +133,8 @@ class MeshFilterMetaObject : public ComponentMetaObjectT<MeshFilter> {
 class TextMeshMetaObject : public ComponentMetaObjectT<TextMesh> {
 	Q_OBJECT
 
-	SUEDE_PROPERTY(std::string, Text)
-	SUEDE_PROPERTY(uint, FontSize)
+	SUEDE_PROPERTY(std::wstring, Text)
+	SUEDE_PROPERTY(float, FontSize)
 };
 
 #include "renderer.h"

@@ -165,7 +165,7 @@ void ParticleSystemInternal::UpdateAttributes(float deltaTime) {
 
 void ParticleSystemInternal::UpdateInstanceBuffers() {
 	uint index = 0;
-	uint count = Mathf::NextPowerOfTwo(particles_.size());
+	GuaranteeInstanceBufferSize(particles_.size());
 
 	float maxSize = 0;
 	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
@@ -182,6 +182,16 @@ void ParticleSystemInternal::UpdateInstanceBuffers() {
 
 	bounds_.SetMinMax(min, max);
 	bounds_.size += Vector3(maxSize / 2);
+}
+
+void ParticleSystemInternal::GuaranteeInstanceBufferSize(int size) {
+	if (colors_.size() < size) {
+		colors_.resize(size);
+	}
+
+	if (geometries_.size() < size) {
+		geometries_.resize(size);
+	}
 }
 
 void ParticleSystemInternal::UpdateEmitter(float deltaTime) {
@@ -202,8 +212,7 @@ void ParticleSystemInternal::UpdateEmitter(float deltaTime) {
 void ParticleSystemInternal::EmitParticles(float deltaTime, uint count) {
 	if (count > buffer_.size()) {
 		buffer_.resize(count);
-		colors_.resize(count);
-		geometries_.resize(count);
+		GuaranteeInstanceBufferSize(count);
 	}
 
 	for (int i = 0; i < count; ++i) {

@@ -28,46 +28,67 @@ enum class ImageType {
 	PNG,
 };
 
-struct FIBITMAP;
-struct FIMEMORY;
-
 class ImageCodec {
 public:
 	static bool Decode(RawImage& bits, const std::string& path);
 	static bool Decode(RawImage& bits, const void* compressedData, uint length);
+
 	static bool Encode(std::vector<uchar>& data, ImageType type, const RawImage& rawImage);
 
 private:
-	static bool SwapRedBlue(struct FIBITMAP* dib);
-
-	static FIBITMAP* LoadDibFromMemory(FIMEMORY* stream);
-	static FIBITMAP* LoadDibFromPath(const std::string &path);
-	static FIBITMAP* LoadDibFromRawImage(const RawImage& rawImage);
-
-	static bool EncodeDibTo(std::vector<uchar> &data, ImageType type, FIBITMAP* dib);
-
-	static bool CopyTexelsTo(RawImage& bits, FIBITMAP* dib);
-	static void CopyBitsFrom(FIBITMAP* dib, uint width, uint height, uint alignment, int bpp, const std::vector<uchar>& data);
+	static void LoadRawImage(RawImage& rawImage, int width, int height, int channels, const void* data);
 };
 
 struct Atlas {
-	int width;
-	int height;
+	uint width = 0;
+	uint height = 0;
+	uint alignment = 4;
 
-	std::vector<uchar> data;
+	ColorStreamFormat colorFormat = ColorStreamFormat::Rgba;
 
-	typedef std::map<uint, Vector4> CoordContainer;
-	CoordContainer coords;
+	std::vector<uchar> pixels;
+	std::map<int, Vector4> coords;
 };
 
 class AtlasMaker {
 public:
-	/**
-	 * @warning: RGBA format. alignment = 4.
-	 */
-	static bool Make(Atlas& atlas, const std::vector<RawImage*>& rawImages, uint space);
+	enum {
+		MaxAtlasWidth = 4096,
+		MaxAtlasHeight = 4096
+	};
+
+	enum {
+		OK,
+		RebuiltOK,
+
+		InvalidParameter,
+		AtlasSizeOutOfRange,
+	};
+
+	int Make(Atlas& atlas, const std::vector<RawImage*>& images, int space);
+	void Reset() { cache_.Clear(); }
 
 private:
-	static uint Calculate(uint& width, uint& height, const std::vector<RawImage*>& rawImages, uint space);
-	static void PasteTexels(uchar* ptr, const RawImage* rawImage, int stride);
+	bool CalculateSize(std::vector<int>& columnArr, int& width, int& height, const std::vector<RawImage*>& images, int space);
+	void CopyPixels(uchar* ptr, const RawImage* image, int stride, int channels);
+
+private:
+	struct {
+		int imgCount = 0;
+
+		int rowHeight = 0;
+		int calWidth = 0, calHeight = 0;
+		int totalWidth = 0, totalHeight = 0;
+
+		std::vector<int> columnArr;
+
+		uchar* ptr = nullptr;
+		int top = 0, offset = 0, column = 0;
+
+		void Clear() {
+			columnArr.clear();
+			ptr = nullptr;
+			imgCount = totalWidth = totalHeight = calWidth = calHeight = column = top = rowHeight = offset = 0;
+		}
+	} cache_;
 };

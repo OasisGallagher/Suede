@@ -29,9 +29,10 @@ signals:
 
 private:
 	void onGui();
-	void drawHierarchy();
+	void drawHierarchy(Transform* root, int depth);
 
 	void updateSelection(GameObject* go);
+	void importGameObject();
 
 private:
 	IMGUIWidget* view_;

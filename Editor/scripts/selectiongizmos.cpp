@@ -35,15 +35,17 @@ void SelectionGizmos::OnDrawGizmos() {
 		}
 
 		Vector3 pos = go->GetTransform()->GetPosition();
+		float length = Mathf::Max(bounds.size.x, bounds.size.y);
+		length = Mathf::Max(length, bounds.size.z);
 
 		gizmos_->SetColor(Color::red);
-		gizmos_->DrawLines({pos, pos + go->GetTransform()->GetRight() * bounds.size.x});
+		gizmos_->DrawLines({pos, pos + go->GetTransform()->GetRight() * length });
 
 		gizmos_->SetColor(Color::green);
-		gizmos_->DrawLines({ pos, pos + go->GetTransform()->GetUp() * bounds.size.y });
+		gizmos_->DrawLines({ pos, pos + go->GetTransform()->GetUp() * length });
 
 		gizmos_->SetColor(Color::blue);
-		gizmos_->DrawLines({ pos, pos + go->GetTransform()->GetForward() * bounds.size.z });
+		gizmos_->DrawLines({ pos, pos + go->GetTransform()->GetForward() * length });
 	}
 
 	gizmos_->SetColor(oldColor);

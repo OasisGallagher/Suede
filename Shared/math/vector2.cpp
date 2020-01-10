@@ -31,6 +31,11 @@ Vector2& Vector2::operator*=(const Vector2& other) {
 	return *this;
 }
 
+Vector2& Vector2::operator*=(float scalar) {
+	x *= scalar; y *= scalar;
+	return *this;
+}
+
 bool Vector2::operator != (const Vector2& other) const {
 	return !Mathf::Approximately(x, other.x)
 		|| !Mathf::Approximately(y, other.y);

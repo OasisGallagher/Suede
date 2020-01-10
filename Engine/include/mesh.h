@@ -144,6 +144,37 @@ public:
 	MeshProvider(void * d);
 };
 
+struct LayoutInfo {
+	std::vector<int> texts;
+
+	// 文字排版信息, 形如:
+	// (0, 3), (3, 6)...
+	// 标识第一行为索引为0, 1, 2的字符; 第二行为索引为3, 4, 5的字符.
+	std::vector<int> indexs;
+
+	const std::vector<int>& getTexts() const { return texts; }
+	const std::vector<int>& getIndexs() const { return indexs; }
+};
+
+struct LayoutParameters {
+	float letterSpacing = 0.0f;
+	float lineSpacing = 0.0f;
+
+	float hPadding = 0.0f;
+	float vPadding = 0.0f;
+
+	float minVPadding = 0.0f;
+
+	float minLineHeight = 32.0f;
+
+	float minBgWidth = 192.0f;
+	float maxBgWidth = 256.0f;
+	float minBgHeight = 96.0f;
+	float maxBgHeight = 256.0f;
+
+	int maxLines = 7;
+};
+
 class SUEDE_API TextMesh : public MeshProvider {
 	SUEDE_DECLARE_COMPONENT()
 	SUEDE_DEFINE_METATABLE_NAME(TextMesh)
@@ -153,8 +184,11 @@ public:
 	TextMesh();
 
 public:
-	void SetText(const std::string& value);
-	std::string GetText();
+	void SetText(const std::wstring& value);
+	std::wstring GetText();
+
+	void SetCodepoints(const std::vector<int>& value);
+	const std::vector<int>& GetCodepoints();
 
 	void SetFont(Font* value);
 	Font* GetFont();

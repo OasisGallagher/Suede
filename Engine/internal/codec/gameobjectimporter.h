@@ -25,16 +25,9 @@ public:
 	~GameObjectLoader();
 
 public:
-	typedef std::map<GameObject*, std::vector<ref_ptr<Component>>> ComponentMap;
+	void Apply();
 
-	GameObject* GetGameObject() { return root_.get(); }
-	const std::string& GetPath() { return path_; }
-
-	void ApplyNewComponents();
-
-	void InvokeCallback() { if (callback_) { callback_(root_.get(), path_); } }
-
-public:
+private:
 	virtual void Run();
 
 private:
@@ -49,7 +42,6 @@ private:
 		std::vector<uint> indexes;
 	};
 
-	bool Load();
 	bool Initialize(Assimp::Importer& importer);
 
 	void LoadNodeTo(GameObject* go, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes);
@@ -59,8 +51,8 @@ private:
 	void LoadHierarchy(GameObject* parent, aiNode* node, std::vector<ref_ptr<Material>>& materials, Geometry* geometry, SubMesh** subMeshes);
 
 	void ReserveMemory(GeometryAttribute& attribute);
-	bool LoadGeometryAttribute(GeometryAttribute& attribute, SubMesh** subMeshes);
-	bool LoadAttributeAt(int index, GeometryAttribute& attribute, SubMesh** subMeshes);
+	void LoadGeometryAttribute(GeometryAttribute& attribute, SubMesh** subMeshes);
+	void LoadAttributeAt(int index, GeometryAttribute& attribute, SubMesh** subMeshes);
 
 	void LoadBoneAttribute(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes);
 	void LoadVertexAttribute(int meshIndex, GeometryAttribute& attribute);
@@ -80,13 +72,15 @@ private:
 	bool LoadExternalTexels(RawImage& rawImage, const std::string& name);
 
 private:
-	ComponentMap componentsMap_;
+	std::map<GameObject*, std::vector<ref_ptr<Component>>> componentsMap_;
+
+	bool loaded_ = false;
 
 	std::string path_;
-	ref_ptr<GameObject> root_;
+	GameObject* root_;
 
 	ref_ptr<Skeleton> skeleton_;
-	const aiScene* scene_;
+	const aiScene* aiScene_;
 
 	std::map<std::string, ref_ptr<Texture2D>> rawImages_;
 

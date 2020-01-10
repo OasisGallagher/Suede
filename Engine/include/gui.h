@@ -30,9 +30,13 @@ public:
 	static bool BeginTreeNode(void* id, const char* title, bool selected, bool leaf, int* clickCount = nullptr);
 	static void EndTreeNode();
 
-	static bool BeginContextMenu(const char* id = nullptr);
-	static bool ContextMenuItem(const char* title, float minWidth = 120.f);
-	static void EndContextMenu();
+	static bool BeginContextMenuSubWindow(const char* id = nullptr);
+	static bool ContextMenuSubWindowItem(const char* title, float minWidth = 120.f);
+	static void EndContextMenuSubWindow();
+
+	static bool BeginContextMenuWindow(const char* id);
+	static bool ContextMenuWindowItem(const char* title);
+	static void EndContextMenuWindowItem();
 
 	static void Sameline();
 	static void Separator();

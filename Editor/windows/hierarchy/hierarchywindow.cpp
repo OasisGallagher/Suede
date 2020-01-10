@@ -1,8 +1,10 @@
 #include <QDateTime>
 #include <QTreeView>
 #include <QKeyEvent>
+#include <QFileDialog>
 
 #include "engine.h"
+#include "resources.h"
 #include "main/editor.h"
 
 #include "gui.h"
@@ -39,65 +41,79 @@ void HierarchyWindow::tick() {
 
 void HierarchyWindow::onGui() {
 	view_->bind();
-	drawHierarchy();
+
+	if (GUI::BeginContextMenuWindow("Context Menu")) {
+		if (GUI::ContextMenuWindowItem("Create Empty")) {
+			ref_ptr<GameObject> empty = new GameObject();
+		}
+
+		if (GUI::ContextMenuWindowItem("Import...")) {
+			importGameObject();
+		}
+
+		GUI::EndContextMenuWindowItem();
+	}
+
+	drawHierarchy(root_, 0);
 	view_->unbind();
 }
 
-void HierarchyWindow::drawHierarchy() {
-	std::vector<std::pair<Transform*, int>> queue;
-	for (int i = 0; i < root_->GetChildCount(); ++i) {
-		queue.push_back(std::make_pair(root_->GetChildAt(i), 0));
-	}
+void HierarchyWindow::drawHierarchy(Transform* root, int depth) {
+	const float kIndent = 1.f;
+	for (int i = 0; i < root->GetChildCount(); ++i) {
+		Transform* child = root->GetChildAt(i);
+		GameObject* childGameObject = child->GetGameObject();
 
-	for (; !queue.empty();) {
-		auto current = queue.back();
-		queue.pop_back();
-		GameObject* go = current.first->GetGameObject();
-
-		GUI::Indent(current.second * 10);
-		int childCount = current.first->GetChildCount();
-
-		int clickCount = 0;
 		Color oldColor = GUI::GetColor();
-		if (!go->GetActiveSelf()) {
+		if (!childGameObject->GetActiveSelf()) {
 			GUI::SetColor(Color(0.6f, 0.6f, 0.6f));
 		}
-		
-		if (GUI::BeginTreeNode((void*)(uintptr_t)go->GetInstanceID(),
-			go->GetName().c_str(),
-			selection_->contains(go),
-			childCount == 0, &clickCount)) {
-			for (int i = 0; i < childCount; ++i) {
-				queue.push_back(std::make_pair(current.first->GetChildAt(i), current.second + 1));
+
+		int clickCount = 0;
+
+		bool open = GUI::BeginTreeNode(childGameObject,
+			childGameObject->GetName().c_str(),
+			selection_->contains(childGameObject),
+			child->GetChildCount() == 0, &clickCount);
+
+		if (GUI::BeginContextMenuSubWindow(childGameObject->GetName().c_str())) {
+			if (GUI::ContextMenuSubWindowItem("Focus")) {
+				emit focusGameObject(childGameObject);
 			}
 
-			if (GUI::BeginContextMenu(nullptr)) {
-				if (GUI::ContextMenuItem("Focus")) {
-					emit focusGameObject(go);
-				}
+			if (GUI::ContextMenuSubWindowItem("Delete")) {
+				Engine::GetSubsystem<Scene>()->DestroyGameObject(childGameObject);
+				selection_->remove(childGameObject);
+			}
 
-				if (GUI::ContextMenuItem("Delete")) {
-					Engine::GetSubsystem<Scene>()->DestroyGameObject(go);
-					selection_->remove(go);
-				}
+			GUI::EndContextMenuSubWindow();
+		}
 
-				GUI::EndContextMenu();
+		if (open) {
+			if (child->GetChildCount() != 0) {
+				drawHierarchy(child, depth + 1);
 			}
 
 			GUI::EndTreeNode();
 		}
 
-		GUI::Unindent(current.second * 10);
-		
 		GUI::SetColor(oldColor);
 
 		if (clickCount == 2) {
-			emit focusGameObject(go);
+			emit focusGameObject(childGameObject);
 		}
 		else if (clickCount == 1) {
-			updateSelection(go);
+			updateSelection(childGameObject);
 		}
 	}
+
+	/*for (; !queue.empty();) {
+		auto current = queue.back();
+		queue.pop_back();
+		GameObject* go = current.first->GetGameObject();
+
+
+	}*/
 }
 
 void HierarchyWindow::updateSelection(GameObject* go) {
@@ -115,5 +131,14 @@ void HierarchyWindow::updateSelection(GameObject* go) {
 	else {
 		selection_->clear();
 		selection_->add(go);
+	}
+}
+
+void HierarchyWindow::importGameObject() {
+	QString path = QFileDialog::getOpenFileName(this, "Open", Resources::modelDirectory, "*.fbx");
+	if (!path.isEmpty() && !(path = QDir(Resources::modelDirectory).relativeFilePath(path)).isEmpty()) {
+		Engine::GetSubsystem<Scene>()->Import(path.toStdString(), [](GameObject* go, const std::string& path) {
+			if (go != nullptr) { go->SetName(path); }
+		});
 	}
 }

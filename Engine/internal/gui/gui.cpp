@@ -137,17 +137,29 @@ void GUI::EndTreeNode() {
 	ImGui::TreePop();
 }
 
-bool GUI::BeginContextMenu(const char* id) {
+bool GUI::BeginContextMenuSubWindow(const char* id) {
 	return ImGui::BeginPopupContextItem(id);
 }
 
-bool GUI::ContextMenuItem(const char* title, float minWidth) {
+bool GUI::ContextMenuSubWindowItem(const char* title, float minWidth) {
 	ImVec2 size = ImGui::CalcTextSize(title, NULL, true);
 	size.x = Mathf::Max(size.x, minWidth);
 	return ImGui::Selectable(title, false, 0, size);
 }
 
-void GUI::EndContextMenu() {
+void GUI::EndContextMenuSubWindow() {
+	ImGui::EndPopup();
+}
+
+bool GUI::BeginContextMenuWindow(const char* id) {
+	return ImGui::BeginPopupContextWindow(id);
+}
+
+bool GUI::ContextMenuWindowItem(const char* title) {
+	return ImGui::MenuItem(title);
+}
+
+void GUI::EndContextMenuWindowItem() {
 	ImGui::EndPopup();
 }
 

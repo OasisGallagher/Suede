@@ -141,8 +141,10 @@ ref_ptr<Mesh> Mesh::FromGeometry(Geometry* geometry) {
 MeshProvider::MeshProvider(void* d) : Component(d) {}
 Mesh* MeshProvider::GetMesh() { return _suede_dptr()->GetMesh(); }
 TextMesh::TextMesh() : MeshProvider(new TextMeshInternal) {}
-void TextMesh::SetText(const std::string& value) { _suede_dptr()->SetText(value); }
-std::string TextMesh::GetText() { return _suede_dptr()->GetText(); }
+void TextMesh::SetCodepoints(const std::vector<int>& value) { _suede_dptr()->SetCodepoints(value); }
+const std::vector<int>& TextMesh::GetCodepoints() { return _suede_dptr()->GetCodepoints(); }
+void TextMesh::SetText(const std::wstring& value) { _suede_dptr()->SetText(value); }
+std::wstring TextMesh::GetText() { return _suede_dptr()->GetText(); }
 void TextMesh::SetFont(Font* value) { _suede_dptr()->SetFont(value); }
 Font* TextMesh::GetFont() { return _suede_dptr()->GetFont(); }
 void TextMesh::SetFontSize(uint value) { _suede_dptr()->SetFontSize(value); }
@@ -197,6 +199,8 @@ void MeshInternal::RecalculateBounds() {
 			max = Vector3::Max(max, vertices[index2]);
 		}
 	}
+
+	max = Vector3::Max(max, Vector3(1.f));
 
 	bounds_.SetMinMax(min, max);
 	boundsDirty_ = false;
@@ -282,9 +286,9 @@ TextMeshInternal::~TextMeshInternal() {
 	}
 }
 
-void TextMeshInternal::SetText(const std::string& value) {
-	if (text_ != value) {
-		text_ = value;
+void TextMeshInternal::SetCodepoints(const std::vector<int>& value) {
+	if (codepoints_ != value) {
+		codepoints_ = value;
 		meshDirty_ = true;
 	}
 }
@@ -322,77 +326,58 @@ void TextMeshInternal::OnMaterialRebuilt() {
 }
 
 void TextMeshInternal::RebuildMesh() {
-	if (!text_.empty()) {
-		std::wstring wtext = String::MultiBytesToWideString(text_);
-		RebuildUnicodeTextMesh(wtext);
-	}
-
-	meshDirty_ = false;
-}
-
-void TextMeshInternal::RebuildUnicodeTextMesh(const std::wstring& wtext) {
-	font_->Require(wtext);
+	font_->RequestCharactersInTexture(codepoints_);
 
 	ref_ptr<Geometry> geometry = new Geometry();
-	InitializeGeometry(geometry.get(), wtext);
+	InitializeGeometry(geometry.get());
 
 	SubMesh* subMesh = GetMesh()->GetSubMesh(0);
 	TriangleBias bias{ geometry->GetIndexCount() };
 	subMesh->SetTriangleBias(bias);
 
 	GetMesh()->SetGeometry(geometry.get());
+
+	meshDirty_ = false;
 }
 
-void TextMeshInternal::InitializeGeometry(Geometry* geometry, const std::wstring& wtext) {
-	const uint space = 2;
-	const float scale = 0.08f;
-
+void TextMeshInternal::InitializeGeometry(Geometry* geometry) {
 	geometry->SetTopology(MeshTopology::Triangles);
 
-	uint cap = 6 * wtext.length();
-	float x = 0;
+	int charQuadIndexes[] = {
+		0, 1, 2, 0, 2, 3
+	};
+
+	float xpos = 0;
 	std::vector<uint> indexes;
 	std::vector<Vector3> vertices;
 	std::vector<Vector2> texCoords;
-	for (int i = 0; i < wtext.length(); ++i) {
-		CharacterInfo info;
-		if (!font_->GetCharacterInfo(wtext[i], &info)) {
+
+	for (int i = 0; i < codepoints_.size(); ++i) {
+		CharacterInfo characterInfo;
+		if (!font_->GetCharacterInfo(codepoints_[i], &characterInfo)) {
 			continue;
 		}
 
-		// lb, rb, lt, rt.
-		vertices.push_back(scale * Vector3(x, info.height / -2.f, 0));
-		vertices.push_back(scale * Vector3(x + info.width, info.height / -2.f, 0));
-		vertices.push_back(scale * Vector3(x, info.height / 2.f, 0));
+		vertices.push_back(Vector3(xpos + characterInfo.minX, characterInfo.maxY, 0));
+		vertices.push_back(Vector3(xpos + characterInfo.minX, characterInfo.minY, 0));
+		vertices.push_back(Vector3(xpos + characterInfo.maxX, characterInfo.minY, 0));
+		vertices.push_back(Vector3(xpos + characterInfo.maxX, characterInfo.maxY, 0));
+		
+		texCoords.push_back(characterInfo.uvLeftTop);
+		texCoords.push_back(characterInfo.uvLeftBottom);
+		texCoords.push_back(characterInfo.uvRightBottom);
+		texCoords.push_back(characterInfo.uvRightTop);
 
-		vertices.push_back(scale * Vector3(x, info.height / 2.f, 0));
-		vertices.push_back(scale * Vector3(x + info.width, info.height / -2.f, 0));
-		vertices.push_back(scale * Vector3(x + info.width, info.height / 2.f, 0));
-
-		texCoords.push_back(Vector2(info.texCoord.x, info.texCoord.y));
-		texCoords.push_back(Vector2(info.texCoord.z, info.texCoord.y));
-		texCoords.push_back(Vector2(info.texCoord.x, info.texCoord.w));
-
-		texCoords.push_back(Vector2(info.texCoord.x, info.texCoord.w));
-		texCoords.push_back(Vector2(info.texCoord.z, info.texCoord.y));
-		texCoords.push_back(Vector2(info.texCoord.z, info.texCoord.w));
-
-		x += info.width;
-		x += space;
-		for (int j = 0; j < 6; ++j) {
-			indexes.push_back(6 * i + j);
+		for (int j = 0; j < SUEDE_COUNTOF(charQuadIndexes); ++j) {
+			indexes.push_back(charQuadIndexes[j] + i * 4);
 		}
+
+		xpos += characterInfo.advance;
 	}
 
 	geometry->SetVertices(vertices.data(), vertices.size());
 	geometry->SetTexCoords(0, texCoords.data(), texCoords.size());
 	geometry->SetIndexes(indexes.data(), indexes.size());
-
-	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
-	for (uint i = 0; i < vertices.size(); ++i) {
-		min = Vector3::Min(min, vertices[i]);
-		max = Vector3::Max(max, vertices[i]);
-	}
 }
 
 MeshFilterInternal::MeshFilterInternal() : MeshProviderInternal(ObjectType::MeshFilter) {

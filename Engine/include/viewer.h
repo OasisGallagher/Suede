@@ -15,7 +15,7 @@ public:
 
 public:
 	void Run();
-	bool IsClosed() { return status_ == Closed; }
+	bool IsClosed() { return loaded_ == Closed; }
 	bool StartupEngine(GLCanvas* value);
 
 protected:
@@ -25,5 +25,5 @@ protected:
 	virtual void Update() {}
 
 private:
-	int status_;
+	int loaded_;
 };

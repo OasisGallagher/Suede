@@ -1441,9 +1441,6 @@
     <ClInclude Include="internal\rendering\renderingthread.h">
       <Filter>internal\rendering</Filter>
     </ClInclude>
-    <ClInclude Include="internal\gui\imgui.h">
-      <Filter>internal\gui</Filter>
-    </ClInclude>
     <ClInclude Include="internal\async\worker.h">
       <Filter>internal\async</Filter>
     </ClInclude>

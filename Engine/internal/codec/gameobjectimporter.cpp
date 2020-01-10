@@ -43,24 +43,96 @@ inline void AIConvert(Vector3& translation, Quaternion& rotation, Vector3& scale
 
 #define UNNAMED_MATERIAL	"New Material"
 
-GameObjectLoader::GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback) : path_(path), root_(root), callback_(callback) {
+GameObjectLoader::GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback)
+	: path_(path), root_(root), callback_(callback) {
 }
 
 GameObjectLoader::~GameObjectLoader() {
 }
 
-void GameObjectLoader::ApplyNewComponents() {
-	for (auto& p : componentsMap_) {
-		for (auto& component : p.second) {
-			p.first->AddComponent(component.get());
-		}
+void GameObjectLoader::Apply() {
+	if (!loaded_) {
+		root_->GetScene()->DestroyGameObject(root_);
+		root_ = nullptr;
 	}
+	else {
+		for (auto& p : componentsMap_) {
+			for (auto& component : p.second) {
+				p.first->AddComponent(component.get());
+			}
+		}
+
+		root_->GetTransform()->SetParent(root_->GetScene()->GetRootTransform());
+	}
+
+	if (callback_) { callback_(root_, path_); }
 }
 
+
 void GameObjectLoader::Run() {
-	if (!Load()) {
-		Debug::LogError("failed to load \"%s\"", path_.c_str());
+	Assimp::Importer importer;
+	if (!Initialize(importer)) {
+		return;
 	}
+
+	SubMesh** subMeshes = nullptr;
+	GeometryAttribute attribute;
+
+	ref_ptr<Geometry> geometry = new Geometry();
+	geometry->SetTopology(MeshTopology::Triangles);
+
+	if (aiScene_->mNumMeshes > 0) {
+		subMeshes = new SubMesh*[aiScene_->mNumMeshes];
+		LoadGeometryAttribute(attribute, subMeshes);
+
+		if (!attribute.vertices.empty()) {
+			geometry->SetVertices(attribute.vertices.data(), attribute.vertices.size());
+		}
+
+		if (!attribute.normals.empty()) {
+			geometry->SetNormals(attribute.normals.data(), attribute.normals.size());
+		}
+
+		for (int i = 0; i < Geometry::TexCoordsCount; ++i) {
+			if (!attribute.texCoords[i].empty()) {
+				geometry->SetTexCoords(i, attribute.texCoords[i].data(), attribute.texCoords[i].size());
+			}
+		}
+
+		if (!attribute.tangents.empty()) {
+			geometry->SetTangents(attribute.tangents.data(), attribute.tangents.size());
+		}
+
+		if (!attribute.blendAttrs.empty()) {
+			geometry->SetBlendAttributes(attribute.blendAttrs.data(), attribute.blendAttrs.size());
+		}
+
+		if (!attribute.indexes.empty()) {
+			geometry->SetIndexes(attribute.indexes.data(), attribute.indexes.size());
+		}
+	}
+
+	std::vector<ref_ptr<Material>> materials(aiScene_->mNumMaterials);
+	if (aiScene_->mNumMaterials > 0) {
+		for (int i = 0; i < aiScene_->mNumMaterials; ++i) {
+			materials[i] = new Material();
+		}
+
+		LoadMaterials(materials);
+	}
+
+	LoadNodeTo(root_, aiScene_->mRootNode, materials, geometry.get(), subMeshes);
+	LoadChildren(root_, aiScene_->mRootNode, materials, geometry.get(), subMeshes);
+
+	delete[] subMeshes;
+
+	if (HasAnimation()) {
+		ref_ptr<Animation> animation = new Animation();
+		componentsMap_[root_].push_back(animation);
+		LoadAnimation(animation.get());
+	}
+
+	loaded_ = true;
 }
 
 bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
@@ -82,7 +154,7 @@ bool GameObjectLoader::Initialize(Assimp::Importer& importer) {
 		return false;
 	}
 
-	scene_ = scene;
+	aiScene_ = scene;
 
 	return true;
 }
@@ -138,8 +210,8 @@ void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<
 		uint meshIndex = node->mMeshes[i];
 		mesh->AddSubMesh(subMeshes[meshIndex]);
 
-		uint materialIndex = scene_->mMeshes[meshIndex]->mMaterialIndex;
-		if (materialIndex < scene_->mNumMaterials) {
+		uint materialIndex = aiScene_->mMeshes[meshIndex]->mMaterialIndex;
+		if (materialIndex < aiScene_->mNumMaterials) {
 			renderer->AddMaterial(materials[materialIndex].get());
 		}
 	}
@@ -153,9 +225,9 @@ void GameObjectLoader::LoadChildren(GameObject* go, aiNode* node, std::vector<re
 
 void GameObjectLoader::ReserveMemory(GeometryAttribute& attribute) {
 	uint indexCount = 0, vertexCount = 0;
-	for (int i = 0; i < scene_->mNumMeshes; ++i) {
-		indexCount += scene_->mMeshes[i]->mNumFaces * 3;
-		vertexCount += scene_->mMeshes[i]->mNumVertices;
+	for (int i = 0; i < aiScene_->mNumMeshes; ++i) {
+		indexCount += aiScene_->mMeshes[i]->mNumFaces * 3;
+		vertexCount += aiScene_->mMeshes[i]->mNumVertices;
 	}
 
 	attribute.vertices.reserve(vertexCount);
@@ -170,30 +242,26 @@ void GameObjectLoader::ReserveMemory(GeometryAttribute& attribute) {
 	attribute.blendAttrs.resize(vertexCount);
 }
 
-bool GameObjectLoader::LoadGeometryAttribute(GeometryAttribute& attribute, SubMesh** subMeshes) {
+void GameObjectLoader::LoadGeometryAttribute(GeometryAttribute& attribute, SubMesh** subMeshes) {
 	ReserveMemory(attribute);
 
-	for (int i = 0; i < scene_->mNumMeshes; ++i) {
+	for (int i = 0; i < aiScene_->mNumMeshes; ++i) {
 		subMeshes[i] = new SubMesh();
 		TriangleBias bias{
-			scene_->mMeshes[i]->mNumFaces * 3, attribute.indexes.size(), attribute.vertices.size()
+			aiScene_->mMeshes[i]->mNumFaces * 3, attribute.indexes.size(), attribute.vertices.size()
 		};
 		subMeshes[i]->SetTriangleBias(bias);
 		LoadAttributeAt(i, attribute, subMeshes);
 	}
-
-	return true;
 }
 
-bool GameObjectLoader::LoadAttributeAt(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes) {
+void GameObjectLoader::LoadAttributeAt(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes) {
 	LoadVertexAttribute(meshIndex, attribute);
 	LoadBoneAttribute(meshIndex, attribute, subMeshes);
-
-	return true;
 }
 
 void GameObjectLoader::LoadVertexAttribute(int meshIndex, GeometryAttribute& attribute) {
-	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
+	const aiMesh* aimesh = aiScene_->mMeshes[meshIndex];
 
 	Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
 	for (uint i = 0; i < aimesh->mNumVertices; ++i) {
@@ -240,7 +308,7 @@ void GameObjectLoader::LoadVertexAttribute(int meshIndex, GeometryAttribute& att
 }
 
 void GameObjectLoader::LoadBoneAttribute(int meshIndex, GeometryAttribute& attribute, SubMesh** subMeshes) {
-	const aiMesh* aimesh = scene_->mMeshes[meshIndex];
+	const aiMesh* aimesh = aiScene_->mMeshes[meshIndex];
 	for (int i = 0; i < aimesh->mNumBones; ++i) {
 		if (!skeleton_) { skeleton_ = new Skeleton(); }
 		std::string name(aimesh->mBones[i]->mName.data);
@@ -278,8 +346,8 @@ void GameObjectLoader::LoadBoneAttribute(int meshIndex, GeometryAttribute& attri
 }
 
 void GameObjectLoader::LoadMaterials(std::vector<ref_ptr<Material>>& materials) {
-	for (int i = 0; i < scene_->mNumMaterials; ++i) {
-		LoadMaterial(materials[i].get(), scene_->mMaterials[i]);
+	for (int i = 0; i < aiScene_->mNumMaterials; ++i) {
+		LoadMaterial(materials[i].get(), aiScene_->mMaterials[i]);
 	}
 }
 
@@ -362,11 +430,11 @@ void GameObjectLoader::LoadMaterial(Material* material, aiMaterial* resource) {
 
 void GameObjectLoader::LoadAnimation(Animation* animation) {
 	Matrix4 rootTransform;
-	animation->SetRootTransform(AIConvert(rootTransform, scene_->mRootNode->mTransformation.Inverse()));
+	animation->SetRootTransform(AIConvert(rootTransform, aiScene_->mRootNode->mTransformation.Inverse()));
 
 	const char* defaultClipName = nullptr;
-	for (int i = 0; i < scene_->mNumAnimations; ++i) {
-		aiAnimation* anim = scene_->mAnimations[i];
+	for (int i = 0; i < aiScene_->mNumAnimations; ++i) {
+		aiAnimation* anim = aiScene_->mAnimations[i];
 		std::string name = anim->mName.C_Str();
 
 		ref_ptr<AnimationClip> clip = new AnimationClip();
@@ -383,14 +451,14 @@ void GameObjectLoader::LoadAnimation(Animation* animation) {
 }
 
 bool GameObjectLoader::HasAnimation() {
-	return skeleton_ && scene_->mNumAnimations != 0;
+	return skeleton_ && aiScene_->mNumAnimations != 0;
 }
 
 void GameObjectLoader::LoadAnimationClip(const aiAnimation* anim, AnimationClip* clip) {
 	clip->SetTicksPerSecond((float)anim->mTicksPerSecond);
 	clip->SetDuration((float)anim->mDuration);
 	clip->SetWrapMode(AnimationWrapMode::Loop);
-	LoadAnimationNode(anim, scene_->mRootNode, nullptr);
+	LoadAnimationNode(anim, aiScene_->mRootNode, nullptr);
 }
 
 void GameObjectLoader::LoadAnimationNode(const aiAnimation* anim, const aiNode* paiNode, SkeletonNode* pskNode) {
@@ -469,9 +537,9 @@ bool GameObjectLoader::LoadExternalTexels(RawImage& rawImage, const std::string&
 }
 
 bool GameObjectLoader::LoadEmbeddedTexels(RawImage& rawImage, uint index) {
-	SUEDE_ASSERT(index < scene_->mNumTextures);
+	SUEDE_ASSERT(index < aiScene_->mNumTextures);
 
-	aiTexture* aitex = scene_->mTextures[index];
+	aiTexture* aitex = aiScene_->mTextures[index];
 	if (aitex->mHeight == 0) {
 		if (!ImageCodec::Decode(rawImage, aitex->pcData, aitex->mWidth)) {
 			return false;
@@ -488,75 +556,6 @@ bool GameObjectLoader::LoadEmbeddedTexels(RawImage& rawImage, uint index) {
 	return true;
 }
 
-bool GameObjectLoader::Load() {
-	Assimp::Importer importer;
-	if (!Initialize(importer)) {
-		return false;
-	}
-
-	SubMesh** subMeshes = nullptr;
-	GeometryAttribute attribute;
-
-	ref_ptr<Geometry> geometry = new Geometry();
-	geometry->SetTopology(MeshTopology::Triangles);
-
-	if (scene_->mNumMeshes > 0) {
-		subMeshes = new SubMesh*[scene_->mNumMeshes];
-		if (!LoadGeometryAttribute(attribute, subMeshes)) {
-			Debug::LogError("failed to load meshes for %s.", path_.c_str());
-			return false;
-		}
-
-		if (!attribute.vertices.empty()) {
-			geometry->SetVertices(attribute.vertices.data(), attribute.vertices.size());
-		}
-
-		if (!attribute.normals.empty()) {
-			geometry->SetNormals(attribute.normals.data(), attribute.normals.size());
-		}
-
-		for (int i = 0; i < Geometry::TexCoordsCount; ++i) {
-			if (!attribute.texCoords[i].empty()) {
-				geometry->SetTexCoords(i, attribute.texCoords[i].data(), attribute.texCoords[i].size());
-			}
-		}
-
-		if (!attribute.tangents.empty()) {
-			geometry->SetTangents(attribute.tangents.data(), attribute.tangents.size());
-		}
-
-		if (!attribute.blendAttrs.empty()) {
-			geometry->SetBlendAttributes(attribute.blendAttrs.data(), attribute.blendAttrs.size());
-		}
-
-		if (!attribute.indexes.empty()) {
-			geometry->SetIndexes(attribute.indexes.data(), attribute.indexes.size());
-		}
-	}
-
-	std::vector<ref_ptr<Material>> materials(scene_->mNumMaterials);
-	if (scene_->mNumMaterials > 0) {
-		for (int i = 0; i < scene_->mNumMaterials; ++i) {
-			materials[i] = new Material();
-		}
-
-		LoadMaterials(materials);
-	}
-
-	LoadNodeTo(root_.get(), scene_->mRootNode, materials, geometry.get(), subMeshes);
-	LoadChildren(root_.get(), scene_->mRootNode, materials, geometry.get(), subMeshes);
-
-	delete[] subMeshes;
-
-	if (HasAnimation()) {
-		ref_ptr<Animation> animation = new Animation();
-		componentsMap_[root_.get()].push_back(animation);
-		LoadAnimation(animation.get());
-	}
-
-	return true;
-}
-
 ref_ptr<GameObject> GameObjectImporter::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
 	ref_ptr<GameObject> root = new GameObject();
 	AddTask(new GameObjectLoader(root.get(), path, callback));
@@ -564,12 +563,5 @@ ref_ptr<GameObject> GameObjectImporter::Import(const std::string& path, std::fun
 }
 
 void GameObjectImporter::OnSchedule(Task* task) {
-	GameObjectLoader* loader = (GameObjectLoader*)task;
-
-	loader->ApplyNewComponents();
-
-	GameObject* root = loader->GetGameObject();
-	root->GetTransform()->SetParent(root->GetScene()->GetRootTransform());
-
-	loader->InvokeCallback();
+	((GameObjectLoader*)task)->Apply();
 }

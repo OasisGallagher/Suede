@@ -35,6 +35,7 @@ void CullingTask::Run() {
 }
 
 bool CullingTask::IsVisible(Renderer* renderer) {
+	return true;
 	const Bounds& bounds = renderer->GetBounds();
 	if (bounds.IsEmpty()) { return false; }
 

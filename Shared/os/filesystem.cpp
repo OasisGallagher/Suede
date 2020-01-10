@@ -208,6 +208,23 @@ bool FileSystem::ReadAllText(const std::string& file, std::string& text) {
 	return true;
 }
 
+bool FileSystem::ReadAllBytes(const std::string& file, std::vector<uchar>& bytes) {
+	std::ifstream is(file, std::ifstream::binary);
+	if (!is) {
+		Debug::LogError("failed to read from %s: %s", file.c_str(), strerror(errno));
+		return false;
+	}
+
+	is.seekg(0, is.end);
+	uint length = (uint)is.tellg();
+	is.seekg(0, is.beg);
+
+	bytes.resize(length);
+	is.read((char*)bytes.data(), length);
+
+	return true;
+}
+
 bool FileSystem::ReadAllLines(const std::string& file, std::vector<std::string>& lines) {
 	std::ifstream ifs(file, std::ios::in);
 	if (!ifs) {

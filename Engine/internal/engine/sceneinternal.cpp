@@ -16,7 +16,7 @@ void Scene::DestroyGameObject(GameObject* go) { _suede_dptr()->DestroyGameObject
 std::vector<GameObject*> Scene::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dptr()->GetGameObjectsOfComponent(guid); }
 void Scene::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) { _suede_dptr()->WalkGameObjectHierarchy(walker); }
 Transform* Scene::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
-GameObject* Scene::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) { return _suede_dptr()->Import(path, callback); }
+void Scene::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) { _suede_dptr()->Import(path, callback); }
 void Scene::Awake() { _suede_dptr()->Awake(); }
 void Scene::Update(float deltaTime) { _suede_dptr()->Update(deltaTime); }
 void Scene::CullingUpdate(float deltaTime) { _suede_dptr()->CullingUpdate(deltaTime); }
@@ -237,8 +237,8 @@ void SceneInternal::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject
 	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
 }
 
-GameObject* SceneInternal::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
-	return importer_->Import(path, callback).get();
+void SceneInternal::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
+	importer_->Import(path, callback);
 }
 
 bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::function<WalkCommand(GameObject*)> walker) {

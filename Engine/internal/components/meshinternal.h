@@ -165,8 +165,11 @@ public:
 	virtual void Update(float deltaTime);
 
 public:
-	void SetText(const std::string& value);
-	std::string GetText() { return text_; }
+	void SetText(const std::wstring& value) { codepoints_.assign(value.begin(), value.end()); }
+	std::wstring GetText() { return std::wstring(codepoints_.begin(), codepoints_.end()); }
+
+	void SetCodepoints(const std::vector<int>& value);
+	const std::vector<int>& GetCodepoints() { return codepoints_; }
 
 	int GetUpdateStrategy() { return UpdateStrategyRendering; }
 
@@ -181,16 +184,15 @@ public:
 
 private:
 	void RebuildMesh();
-	void RebuildUnicodeTextMesh(const std::wstring& wtext);
 
-	void InitializeGeometry(Geometry* geometry, const std::wstring& wtext);
+	void InitializeGeometry(Geometry* geometry);
 
 private:
 	uint size_;
 	ref_ptr<Font> font_;
 	bool meshDirty_;
 
-	std::string text_;
+	std::vector<int> codepoints_;
 };
 
 class MeshFilterInternal : public MeshProviderInternal {

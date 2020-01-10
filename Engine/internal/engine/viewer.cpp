@@ -4,12 +4,12 @@
 #include "engine.h"
 #include "physics.h"
 
-Viewer::Viewer(int argc, char * argv[]) : status_(Uninitialized) {
+Viewer::Viewer(int argc, char * argv[]) : loaded_(Uninitialized) {
 	setlocale(LC_ALL, "");
 }
 
 void Viewer::Run() {
-	for (; status_ == Running;) {
+	for (; loaded_ == Running;) {
 		Engine::BeginFrame();
 
 		Update();
@@ -24,15 +24,15 @@ void Viewer::Run() {
 
 bool Viewer::StartupEngine(GLCanvas* value) {
 	SUEDE_ASSERT(value != nullptr);
-	SUEDE_ASSERT(status_ == Uninitialized);
+	SUEDE_ASSERT(loaded_ == Uninitialized);
 
 	Engine::Startup(value);
-	status_ = Running;
+	loaded_ = Running;
 
 	return true;
 }
 
 void Viewer::Close() {
 	Engine::Shutdown();
-	status_ = Closed;
+	loaded_ = Closed;
 }

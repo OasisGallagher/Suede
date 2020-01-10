@@ -258,7 +258,9 @@ bool GeometryUtility::FrustumIntersectsAABB(const Plane* frustum, const Bounds& 
 		absNormal.y = fabs(absNormal.y);
 		absNormal.z = fabs(absNormal.z);
 
-		if (dist < -Vector3::Dot(absNormal, edge)) { return false; }
+		if (dist < -Vector3::Dot(absNormal, edge)) {
+			return false;
+		}
 	}
 
 	return true;

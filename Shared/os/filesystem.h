@@ -73,6 +73,7 @@ public:
 	//static std::string GetRelativePath(const std::string& directory, const std::string& path);
 
 	static bool ReadAllText(const std::string& file, std::string& text);
+	static bool ReadAllBytes(const std::string& file, std::vector<uchar>& bytes);
 	static bool ReadAllLines(const std::string& file, std::vector<std::string>& lines);
 
 public:

@@ -41,7 +41,7 @@ public:
 	Transform* GetRootTransform();
 	template <class T> std::vector<T*> GetComponents();
 
-	GameObject* Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
+	void Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 
 protected:
 	virtual void Awake();
