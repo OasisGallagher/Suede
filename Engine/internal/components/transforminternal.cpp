@@ -16,6 +16,7 @@ Vector3 Transform::InverseTransformDirection(const Vector3& direction) { return 
 Transform* Transform::FindChild(const std::string& path) { return _suede_dptr()->FindChild(path); }
 int Transform::GetChildCount() { return _suede_dptr()->GetChildCount(); }
 Transform* Transform::GetChildAt(int i) { return _suede_dptr()->GetChildAt(i); }
+void Transform::LookAt(const Vector3& target, const Vector3& up) { _suede_dptr()->LookAt(this, target, up); }
 void Transform::SetScale(const Vector3& value) { _suede_dptr()->SetScale(value); }
 void Transform::SetPosition(const Vector3& value) { _suede_dptr()->SetPosition(value); }
 void Transform::SetRotation(const Quaternion& value) { _suede_dptr()->SetRotation(value); }
@@ -126,6 +127,28 @@ Transform* TransformInternal::FindChild(const std::string& path) {
 }
 
 
+void TransformInternal::LookAt(Transform* self, const Vector3& target, const Vector3& up) {
+	Matrix4 mat = Matrix4::Translate(world_.position) * Matrix4::LookAt(GetPosition(self), target, up);
+	Vector3 skew, scale, translation;
+	Vector4 perspective;
+	Quaternion orientation;
+	if (Matrix4::Decompose(mat, scale, orientation, translation, skew, perspective)) {
+		worldToLocalMatrix_ = mat;
+		localToWorldMatrix_ = mat.GetInversed();
+
+		world_.position = translation;
+		world_.scale = scale;
+		world_.rotation = orientation;
+		world_.eulerAngles = orientation.GetEulerAngles();
+
+		SetDirty(WorldScaleMask | WorldRotationMask | WorldEulerAnglesMask | WorldPositionMask, false);
+		SetDirty(LocalScaleMask | LocalRotationMask | LocalEulerAnglesMask | LocalPositionMask, true);
+	}
+	else {
+		Debug::LogError("failed to decompose look at matrix, invalid parameters");
+	}
+}
+
 void TransformInternal::SetScale(const Vector3& value) {
 	SetDirty(WorldScaleMask ,false);
 
@@ -150,7 +173,7 @@ void TransformInternal::SetPosition(const Vector3& value) {
 void TransformInternal::SetRotation(const Quaternion& value) {
 	SetDirty(WorldRotationMask, false);
 
-	if (!Mathf::Approximately(world_.rotation, value)) {
+	if (world_.rotation != value) {
 		world_.rotation = value;
 
 		SetDirty(LocalRotationMask | LocalEulerAnglesMask | WorldEulerAnglesMask | LocalToWorldMatrixMask | WorldToLocalMatrixMask, true);
@@ -460,15 +483,15 @@ Vector3 TransformInternal::GetWorldToLocalPosition(Transform* self, const Vector
 }
 
 Vector3 TransformInternal::GetUp(Transform* self) {
-	return GetRotation(self) * Vector3(0, 1, 0);
+	return GetRotation(self) * Vector3::up;
 }
 
 Vector3 TransformInternal::GetRight(Transform* self) {
-	return GetRotation(self) * Vector3(1, 0, 0);
+	return GetRotation(self) * Vector3::right;
 }
 
 Vector3 TransformInternal::GetForward(Transform* self) {
-	return GetRotation(self) * Vector3(0, 0, -1);
+	return GetRotation(self) * Vector3::forward;
 }
 
 void TransformInternal::SetDirty(uint bits, bool value) {

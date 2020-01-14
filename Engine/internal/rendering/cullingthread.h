@@ -16,9 +16,10 @@ class RenderingContext;
 class CullingTask : public Task {
 public:
 	CullingTask(RenderingContext* context);
+	~CullingTask();
 
 public:
-	void SetFrustumPlanes(const Plane* value) { frustum_ = value; }
+	void SetWorldToClipMatrix(const Matrix4& value);
 	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
 
 public:
@@ -39,7 +40,7 @@ private:
 	Scene* scene_;
 	Profiler* profiler_;
 
-	const Plane* frustum_;
+	Plane* frustumPlanes_;
 	std::vector<GameObject*> gameObjects_;
 };
 

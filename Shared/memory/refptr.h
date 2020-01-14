@@ -1,6 +1,6 @@
 #pragma once
 
-template<class T> class ref_ptr {
+template <class T> class ref_ptr {
 	typedef ref_ptr this_type;
 
 public:
@@ -13,7 +13,7 @@ public:
 		if (px != 0 && add_ref) ref_ptr_add(px);
 	}
 
-	template<class U>
+	template <class U>
 	ref_ptr(ref_ptr<U> const & rhs)
 		: px(rhs.get()) {
 		if (px != 0) ref_ptr_add(px);
@@ -27,7 +27,7 @@ public:
 		if (px != 0) ref_ptr_release(px);
 	}
 
-	template<class U> ref_ptr & operator=(ref_ptr<U> const & rhs) {
+	template <class U> ref_ptr & operator=(ref_ptr<U> const & rhs) {
 		this_type(rhs).swap(*this);
 		return *this;
 	}
@@ -42,15 +42,15 @@ public:
 		return *this;
 	}
 
-	template<class U> friend class ref_ptr;
+	template <class U> friend class ref_ptr;
 
-	template<class U>
+	template <class U>
 	ref_ptr(ref_ptr<U> && rhs)
 		: px(rhs.px) {
 		rhs.px = 0;
 	}
 
-	template<class U>
+	template <class U>
 	ref_ptr & operator=(ref_ptr<U> && rhs) {
 		this_type(static_cast<ref_ptr<U> &&>(rhs)).swap(*this);
 		return *this;
@@ -110,49 +110,49 @@ private:
 	T * px;
 };
 
-template<class T> inline bool operator==(ref_ptr<T> const & a, std::nullptr_t b) {
+template <class T> inline bool operator==(ref_ptr<T> const & a, std::nullptr_t b) {
 	return a.get() == 0;
 }
 
-template<class T> inline bool operator!=(ref_ptr<T> const & a, std::nullptr_t b) {
+template <class T> inline bool operator!=(ref_ptr<T> const & a, std::nullptr_t b) {
 	return a.get() != 0;
 }
 
-template<class T, class U> inline bool operator==(ref_ptr<T> const & a, ref_ptr<U> const & b) {
+template <class T, class U> inline bool operator==(ref_ptr<T> const & a, ref_ptr<U> const & b) {
 	return a.get() == b.get();
 }
 
-template<class T, class U> inline bool operator!=(ref_ptr<T> const & a, ref_ptr<U> const & b) {
+template <class T, class U> inline bool operator!=(ref_ptr<T> const & a, ref_ptr<U> const & b) {
 	return a.get() != b.get();
 }
 
-template<class T, class U> inline bool operator==(ref_ptr<T> const & a, U * b) {
+template <class T, class U> inline bool operator==(ref_ptr<T> const & a, U * b) {
 	return a.get() == b;
 }
 
-template<class T, class U> inline bool operator!=(ref_ptr<T> const & a, U * b) {
+template <class T, class U> inline bool operator!=(ref_ptr<T> const & a, U * b) {
 	return a.get() != b;
 }
 
-template<class T, class U> inline bool operator==(T * a, ref_ptr<U> const & b) {
+template <class T, class U> inline bool operator==(T * a, ref_ptr<U> const & b) {
 	return a == b.get();
 }
 
-template<class T, class U> inline bool operator!=(T * a, ref_ptr<U> const & b) {
+template <class T, class U> inline bool operator!=(T * a, ref_ptr<U> const & b) {
 	return a != b.get();
 }
 
-template<class T> inline bool operator<(ref_ptr<T> const & a, ref_ptr<T> const & b) {
+template <class T> inline bool operator<(ref_ptr<T> const & a, ref_ptr<T> const & b) {
 	return std::less<T *>()(a.get(), b.get());
 }
 
-template<class T> void swap(ref_ptr<T> & lhs, ref_ptr<T> & rhs) {
+template <class T> void swap(ref_ptr<T> & lhs, ref_ptr<T> & rhs) {
 	lhs.swap(rhs);
 }
 
 // mem_fn support
 
-template<class T> T * get_pointer(ref_ptr<T> const & p) {
+template <class T> T * get_pointer(ref_ptr<T> const & p) {
 	return p.get();
 }
 
@@ -189,10 +189,10 @@ inline ref_ptr<T> make_ref(Args... args) {
 	return new T(args...);
 }
 
-template<class T, class U> ref_ptr<T> static_ref_ptr_cast(ref_ptr<U> const & p) {
+template <class T, class U> ref_ptr<T> static_ref_ptr_cast(ref_ptr<U> const & p) {
 	return static_cast<T *>(p.get());
 }
 
-template<class T, class U> ref_ptr<T> dynamic_ref_ptr_cast(ref_ptr<U> const & p) {
+template <class T, class U> ref_ptr<T> dynamic_ref_ptr_cast(ref_ptr<U> const & p) {
 	return dynamic_cast<T *>(p.get());
 }

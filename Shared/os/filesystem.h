@@ -80,7 +80,7 @@ public:
 	static bool ReadInteger(std::ifstream& file, int* x);
 	static bool WriteInteger(std::ofstream& file, int x);
 
-	static const uint kMaxStringLength = 256;
+	enum { MaxStringLength = 256 };
 	static bool ReadString(std::ifstream& file, std::string* str);
 	static bool WriteString(std::ofstream& file, const std::string& str);
 

@@ -35,6 +35,8 @@ public:
 	void DrawWireSphere(const Vector3& center, float radius);
 	void DrawWireCuboid(const Vector3& center, const Vector3& size);
 
+	void DrawArrow(const Vector3& from, const Vector3& to);
+
 private:
 	struct Batch {
 		MeshTopology topology;
@@ -57,6 +59,9 @@ private:
 
 	void AddSphereBatch(const Vector3& center, float radius, bool wireframe);
 	void AddCuboidBatch(const Vector3& center, const Vector3& size, bool wireframe);
+
+	Vector3 GetPerpendicular(const Vector3 &v);
+	void AddConeBatch(const Vector3 &direction, const Vector3 &apex, float coneHeight, float coneRadius, uint slices);
 
 	void DrawGizmos(const Batch& b);
 

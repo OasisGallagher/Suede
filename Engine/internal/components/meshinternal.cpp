@@ -200,7 +200,7 @@ void MeshInternal::RecalculateBounds() {
 		}
 	}
 
-	max = Vector3::Max(max, Vector3(1.f));
+	max = Vector3::Max(max, Vector3(0.1f));
 
 	bounds_.SetMinMax(min, max);
 	boundsDirty_ = false;

@@ -1,6 +1,7 @@
 #include "quaternion.h"
 
 #include "mathf.h"
+#include "matrix4.h"
 
 Quaternion::Quaternion(const Vector3& eulerAngle) {
 	Vector3 c(eulerAngle * 0.5f);
@@ -39,31 +40,30 @@ Quaternion::Quaternion(const Matrix4& m) {
 	float biggestVal = sqrt(fourBiggestSquaredMinus1 + float(1)) * float(0.5);
 	float mult = static_cast<float>(0.25) / biggestVal;
 
-	Quaternion Result;
 	switch (biggestIndex) {
 	case 0:
-		Result.w = biggestVal;
-		Result.x = (m.m[1][2] - m.m[2][1]) * mult;
-		Result.y = (m.m[2][0] - m.m[0][2]) * mult;
-		Result.z = (m.m[0][1] - m.m[1][0]) * mult;
+		w = biggestVal;
+		x = (m.m[1][2] - m.m[2][1]) * mult;
+		y = (m.m[2][0] - m.m[0][2]) * mult;
+		z = (m.m[0][1] - m.m[1][0]) * mult;
 		break;
 	case 1:
-		Result.w = (m.m[1][2] - m.m[2][1]) * mult;
-		Result.x = biggestVal;
-		Result.y = (m.m[0][1] + m.m[1][0]) * mult;
-		Result.z = (m.m[2][0] + m.m[0][2]) * mult;
+		w = (m.m[1][2] - m.m[2][1]) * mult;
+		x = biggestVal;
+		y = (m.m[0][1] + m.m[1][0]) * mult;
+		z = (m.m[2][0] + m.m[0][2]) * mult;
 		break;
 	case 2:
-		Result.w = (m.m[2][0] - m.m[0][2]) * mult;
-		Result.x = (m.m[0][1] + m.m[1][0]) * mult;
-		Result.y = biggestVal;
-		Result.z = (m.m[1][2] + m.m[2][1]) * mult;
+		w = (m.m[2][0] - m.m[0][2]) * mult;
+		x = (m.m[0][1] + m.m[1][0]) * mult;
+		y = biggestVal;
+		z = (m.m[1][2] + m.m[2][1]) * mult;
 		break;
 	case 3:
-		Result.w = (m.m[0][1] - m.m[1][0]) * mult;
-		Result.x = (m.m[2][0] + m.m[0][2]) * mult;
-		Result.y = (m.m[1][2] + m.m[2][1]) * mult;
-		Result.z = biggestVal;
+		w = (m.m[0][1] - m.m[1][0]) * mult;
+		x = (m.m[2][0] + m.m[0][2]) * mult;
+		y = (m.m[1][2] + m.m[2][1]) * mult;
+		z = biggestVal;
 		break;
 	}
 }
@@ -160,6 +160,14 @@ Vector3 Quaternion::operator*(const Vector3& dir) const {
 	Vector3 const uuv(Vector3::Cross(QuatVector, uv));
 
 	return dir + ((uv * w) + uuv) * 2.f;
+}
+
+bool Quaternion::operator ==(const Quaternion& other) const {
+	return 1.f - fabs(Quaternion::Dot(*this, other)) < Mathf::epsilon;
+}
+
+bool Quaternion::operator !=(const Quaternion& other) const {
+	return 1.f - fabs(Quaternion::Dot(*this, other)) >= Mathf::epsilon;
 }
 
 Quaternion Quaternion::Lerp(const Quaternion& a, const Quaternion& b, float t) {

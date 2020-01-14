@@ -64,9 +64,7 @@ MaterialInternal::~MaterialInternal() {
 
 ref_ptr<Object> MaterialInternal::Clone() {
 	Material* clone = new Material();
-	MaterialInternal* clonePtr = _suede_drptr(clone);
-	*clonePtr = *this;
-
+	*_suede_drptr(clone) = *this;
 	return clone;
 }
 

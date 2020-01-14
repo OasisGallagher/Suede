@@ -40,6 +40,7 @@ static std::map<QGLWidget*, ImGuiRenderer*> renderers_;
 
 void create(QGLWidget *widget) {
 	if (renderers_.find(widget) == renderers_.end()) {
+		widget->setFocusPolicy(Qt::StrongFocus);
 		ImGuiRenderer* renderer = renderers_[widget] = new ImGuiRenderer;
 		renderer->initialize(new QWidgetWindowWrapper(widget));
 	}

@@ -3,6 +3,7 @@
 
 #include "defines.h"
 #include "component.h"
+#include "math/matrix4.h"
 
 struct PRS {
 	Vector3 position;
@@ -39,6 +40,8 @@ public:
 
 	int GetChildCount();
 	Transform* GetChildAt(int i);
+
+	void LookAt(const Vector3& target, const Vector3& up);
 
 	void SetScale(const Vector3& value);
 	void SetPosition(const Vector3& value);

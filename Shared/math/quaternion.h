@@ -3,7 +3,7 @@
 #include "vector3.h"
 
 struct Matrix4;
-struct SUEDE_API Quaternion {
+struct SUEDE_MATH_API Quaternion {
 	float x, y, z, w;
 
 	Quaternion() :x(0), y(0), z(0), w(1) {}
@@ -27,6 +27,9 @@ struct SUEDE_API Quaternion {
 
 	Quaternion operator*(float scalar) const { return Quaternion(*this) *= scalar; }
 	Quaternion operator*=(float scalar);
+
+	bool operator ==(const Quaternion& other) const;
+	bool operator !=(const Quaternion& other) const;
 
 	static void Pow(Quaternion& q, float x);
 	static float Dot(const Quaternion& a, const Quaternion& b) { return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w; }

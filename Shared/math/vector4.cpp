@@ -2,6 +2,9 @@
 
 #include "mathf.h"
 
+Vector4 Vector4::one(1);
+Vector4 Vector4::zero(0);
+
 float Vector4::GetMagnitude() const {
 	return sqrtf(x * x + y * y + z * z + w * w);
 }

@@ -754,7 +754,7 @@ void ShaderInternal::ReleaseProperties() {
 }
 
 void ShaderInternal::OnContextDestroyed() {
-	subShaders_.clear();
+	ReleaseSubShaders();
 	GLObjectMaintainer::OnContextDestroyed();
 }
 

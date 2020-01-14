@@ -5,7 +5,7 @@
 #include "vector4.h"
 #include "quaternion.h"
 
-struct SUEDE_API Matrix4 {
+struct SUEDE_MATH_API Matrix4 {
 	Vector4 m[4];
 
 	Matrix4() { m[0].x = m[1].y = m[2].z = m[3].w = 1; }

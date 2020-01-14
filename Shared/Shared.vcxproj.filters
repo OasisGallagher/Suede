@@ -132,5 +132,8 @@
     <ClCompile Include="math\mathf.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="math\random.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

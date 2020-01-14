@@ -48,7 +48,10 @@ void SceneInternal::OnDestroy() {
 	Camera::SetMain(nullptr);
 
 	delete importer_;
+	importer_ = nullptr;
+
 	delete decalCreater_;
+	decalCreater_ = nullptr;
 }
 
 void SceneInternal::Update(float deltaTime) {
@@ -87,6 +90,10 @@ void SceneInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, Compone
 	ManageGameObjectComponents(projectors_, component.get(), state);
 	ManageGameObjectComponents(renderers_, component.get(), state);
 	ManageGameObjectComponents(gizmosPainters_, component.get(), state);
+}
+
+SceneInternal::~SceneInternal() {
+	OnDestroy();
 }
 
 void SceneInternal::GetDecals(std::vector<Decal>& container) {
@@ -167,7 +174,7 @@ void SceneInternal::DestroyGameObject(GameObject* go) {
 }
 
 void SceneInternal::DestroyGameObjectRecursively(Transform* root) {
-	for (int i = 0; i < root->GetChildCount(); ++i) {
+	for (int i = root->GetChildCount(); i--;) {
 		DestroyGameObjectRecursively(root->GetChildAt(i));
 	}
 
@@ -299,13 +306,12 @@ void SceneInternal::ManageGameObjectUpdateSequence(GameObject* go) {
 
 template <class Container>
 void SceneInternal::ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state) {
-	typedef typename Container::value_type V;
-	typedef typename std::remove_pointer<V>::type T;
+	typedef std::remove_pointer<Container::value_type>::type T;
 
 	if (component->IsComponentType(T::GetComponentGUID())) {
 		T* target = (T*)component;
 		if (state == ComponentEventType::Added) {
-			container.insert(container.end(), target);
+			container.push_back(target);
 		}
 		else if (state == ComponentEventType::Removed) {
 			EraseByValue(container, target);

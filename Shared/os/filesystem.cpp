@@ -11,7 +11,7 @@
 namespace fs = std::experimental::filesystem;
 
 static char intBuffer[sizeof(int)];
-static char strBuffer[FileSystem::kMaxStringLength];
+static char strBuffer[FileSystem::MaxStringLength];
 
 FileEntry::~FileEntry() {
 	for (uint i = 0; i < children_.size(); ++i) {
@@ -245,7 +245,7 @@ bool FileSystem::WriteInteger(std::ofstream& file, int x) {
 }
 
 bool FileSystem::WriteString(std::ofstream& file, const std::string& str) {
-	if (str.length() >= kMaxStringLength) {
+	if (str.length() >= MaxStringLength) {
 		Debug::LogError("string length exceed.");
 		return false;
 	}
@@ -272,7 +272,7 @@ bool FileSystem::ReadString(std::ifstream& file, std::string* str) {
 		return false;
 	}
 
-	if (length >= kMaxStringLength) {
+	if (length >= MaxStringLength) {
 		Debug::LogError("token length exceed.");
 		return false;
 	}

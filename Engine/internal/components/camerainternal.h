@@ -45,7 +45,6 @@ public:
 	RenderTexture* GetTargetTexture() { return targetTexture_.get(); }
 
 	ref_ptr<Texture2D> Capture();
-	const Plane* GetFrustumPlanes() { return planes_; }
 
 public:
 	void Render();
@@ -93,8 +92,6 @@ private:
 
 private:
 	int depth_ = 0;
-
-	Plane planes_[6];
 
 	Transform* transform_ = nullptr;
 

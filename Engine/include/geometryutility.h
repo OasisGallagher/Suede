@@ -44,7 +44,7 @@ public:
 	static bool FrustumIntersectsAABB(const Plane* frustum, const Bounds& bounds);
 
 	static bool GetIntersection(Vector3& intersection, const Plane& plane, const Vector3& p0, const Vector3& p1);
-	static void CalculateFrustumPlanes(Plane(&planes)[6], const Matrix4& worldToClipMatrix);
+	static void CalculateFrustumPlanes(Plane* planes, const Matrix4& worldToClipMatrix);
 
 private:
 	GeometryUtility();

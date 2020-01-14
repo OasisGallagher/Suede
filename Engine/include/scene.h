@@ -20,6 +20,7 @@ enum class WalkCommand {
 struct Decal;
 class SUEDE_API Scene : public Subsystem {
 	SUEDE_DECLARE_IMPLEMENTATION(Scene)
+
 public:
 	enum {
 		SystemType = SubsystemType::Scene,

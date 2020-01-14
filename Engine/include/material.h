@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "variant.h"
 #include "texture.h"
+#include "math/matrix4.h"
 
 enum class RenderQueue {
 	Background = 1000,

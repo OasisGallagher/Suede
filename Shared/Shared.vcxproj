@@ -134,6 +134,7 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClCompile Include="math\mathf.cpp" />
     <ClCompile Include="math\matrix4.cpp" />
     <ClCompile Include="math\quaternion.cpp" />
+    <ClCompile Include="math\random.cpp" />
     <ClCompile Include="math\vector2.cpp" />
     <ClCompile Include="math\vector3.cpp" />
     <ClCompile Include="math\vector4.cpp" />

@@ -2,6 +2,7 @@
 #include "color.h"
 #include "ranged.h"
 #include "texture.h"
+#include "math/matrix4.h"
 
 BETTER_ENUM(VariantType, int,
 	None,

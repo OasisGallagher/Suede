@@ -3,6 +3,7 @@
 #include "color.h"
 #include "defines.h"
 #include "subsystem.h"
+#include "math/matrix4.h"
 
 class Graphics;
 class SUEDE_API Gizmos : public Subsystem {
@@ -34,11 +35,10 @@ public:
 	void DrawSphere(const Vector3& center, float radius);
 	void DrawCuboid(const Vector3& center, const Vector3& size);
 
-	// http://www.freemancw.com/2012/06/opengl-cone-function/
-	void DrawCone() {}
-
 	void DrawWireSphere(const Vector3& center, float radius);
 	void DrawWireCuboid(const Vector3& center, const Vector3& size);
+
+	void DrawArrow(const Vector3& from, const Vector3& to);
 
 public:
 	virtual void Awake();

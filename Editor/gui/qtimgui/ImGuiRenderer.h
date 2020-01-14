@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QTimer>
 #include <memory>
 #include <GL/glew.h>
 
@@ -40,6 +41,7 @@ public:
 
 private:
     void onMousePressedChange(QMouseEvent *event);
+	void onMouseDoubleClickEvent(QMouseEvent* event);
     void onWheel(QWheelEvent *event);
     void onKeyPressRelease(QKeyEvent *event);
 
@@ -50,8 +52,9 @@ private:
 	ImGuiContext* m_context;
 	std::unique_ptr<WindowWrapper> m_window;
 
-    double       m_Time = 0.0f;
+    double       m_LastTime = 0.0f;
     bool         m_MousePressed[3] = { false, false, false };
+	bool		 m_MouseDoubleClicked[3] = { false, false, false };
     float        m_MouseWheel;
     float        m_MouseWheelH;
     GLuint       m_FontTexture = 0;

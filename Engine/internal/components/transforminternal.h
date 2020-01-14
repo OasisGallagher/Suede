@@ -33,6 +33,8 @@ public:
 	int GetChildCount() { return (int)children_.size(); }
 	Transform* GetChildAt(int i) { return children_[i].get(); }
 
+	void LookAt(Transform* self, const Vector3& target, const Vector3& up);
+
 	void SetScale(const Vector3& value);
 	void SetPosition(const Vector3& value);
 	void SetRotation(const Quaternion& value);
@@ -99,7 +101,7 @@ private:
 private:
 	uint dirtyBits_ = 0;
 	Children children_;
-	Transform* parent_;
+	Transform* parent_ = nullptr;
 
 	PRS local_;
 	PRS world_;

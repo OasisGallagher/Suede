@@ -513,19 +513,22 @@ Texture2D* GameObjectLoader::LoadTexture(const std::string& name) {
 	}
 
 	RawImage texels;
-
+	ref_ptr<Texture2D> texture;
 	if (String::StartsWith(name, "*")) {
-		if (!LoadEmbeddedTexels(texels, String::ToInteger(name.substr(1)))) {
-			return false;
+		if (LoadEmbeddedTexels(texels, String::ToInteger(name.substr(1)))) {
+			texture = new Texture2D();
 		}
 	}
-	else if (!LoadExternalTexels(texels, FileSystem::GetFileNameWithoutExtension(path_) + "/" + name)) {
-		return false;
+	else if (LoadExternalTexels(texels, FileSystem::GetFileNameWithoutExtension(path_) + "/" + name)) {
+		texture = new Texture2D();
 	}
 
-	ref_ptr<Texture2D> texture = new Texture2D();
-	if (!texture->Create(texels.textureFormat, texels.pixels.data(), texels.colorStreamFormat, texels.width, texels.height, 4, false)) {
+	if (texture && !texture->Create(texels.textureFormat, texels.pixels.data(), texels.colorStreamFormat, texels.width, texels.height, 4, false)) {
 		texture = nullptr;
+	}
+	
+	if (!texture) {
+		texture = Texture2D::GetWhiteTexture();
 	}
 
 	rawImages_.insert(std::make_pair(name, texture));

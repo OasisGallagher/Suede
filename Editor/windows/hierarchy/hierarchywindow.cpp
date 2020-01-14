@@ -44,7 +44,7 @@ void HierarchyWindow::onGui() {
 
 	if (GUI::BeginContextMenuWindow("Context Menu")) {
 		if (GUI::ContextMenuWindowItem("Create Empty")) {
-			ref_ptr<GameObject> empty = new GameObject();
+			(new GameObject())->GetTransform()->SetParent(Engine::GetSubsystem<Scene>()->GetRootTransform());
 		}
 
 		if (GUI::ContextMenuWindowItem("Import...")) {
@@ -137,8 +137,11 @@ void HierarchyWindow::updateSelection(GameObject* go) {
 void HierarchyWindow::importGameObject() {
 	QString path = QFileDialog::getOpenFileName(this, "Open", Resources::modelDirectory, "*.fbx");
 	if (!path.isEmpty() && !(path = QDir(Resources::modelDirectory).relativeFilePath(path)).isEmpty()) {
-		Engine::GetSubsystem<Scene>()->Import(path.toStdString(), [](GameObject* go, const std::string& path) {
-			if (go != nullptr) { go->SetName(path); }
+		Engine::GetSubsystem<Scene>()->Import(path.toStdString(), [this](GameObject* go, const std::string& path) {
+			if (go != nullptr) {
+				go->SetName(path);
+				emit focusGameObject(go);
+			}
 		});
 	}
 }

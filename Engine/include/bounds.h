@@ -19,7 +19,6 @@ struct SUEDE_API Bounds {
 	void SetMinMax(const Vector3& min, const Vector3& max);
 
 	void Expand(const Vector3& amount);
-	void Translate(const Vector3& amount);
 
 	Vector3 GetMin() const;
 	Vector3 GetMax() const;

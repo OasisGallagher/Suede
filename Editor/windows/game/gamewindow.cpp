@@ -39,7 +39,7 @@
 #include "scripts/selectiongizmos.h"
 #include "scripts/cameracontroller.h"
 
-//#define ROOM
+#define ROOM
 //#define SKYBOX
 //#define PROJECTOR
 //#define PROJECTOR_ORTHOGRAPHIC
@@ -48,12 +48,12 @@
 //#define IMAGE_EFFECTS
 //#define ANIMATION
 //#define PARTICLE_SYSTEM
-#define FONT
+//#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "room.fbx";
+static const char* roomFbxPath = "jeep.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
@@ -221,26 +221,23 @@ void GameWindow::onFocusGameObjectBounds(GameObject* go) {
 		bounds.Encapsulate(renderer->GetBounds());
 	}
 
+	Transform* target = go->GetTransform();
 	Transform* camera = Camera::GetMain()->GetTransform();
-
 	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), bounds);
-	camera->SetPosition(bounds.center + Vector3(0, 0, -1) * distance);
+	camera->SetPosition(bounds.center + target->GetForward() * distance);
 
 	Quaternion q(Matrix4::LookAt(camera->GetPosition(), bounds.center, Vector3(0, 1, 0)));
-	camera->SetRotation(q.GetConjugated());
+	camera->SetRotation(q.GetInversed());
 }
 
 float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds) {
 	float f = tanf(camera->GetFieldOfView() / 2.f);
-	float dy = 2 * bounds.size.y / f;
-	float dx = 2 * bounds.size.x / (f * camera->GetAspect());
-	return Mathf::Clamp(qMax(dx, dy), camera->GetNearClipPlane() + bounds.size.z * 2, camera->GetFarClipPlane() - bounds.size.z * 2);
+	float dy = bounds.size.y / f;
+	float dx = bounds.size.x / (f * camera->GetAspect());
+	return Mathf::Clamp(Mathf::Min(dx, dy), camera->GetNearClipPlane() + 0.01f, camera->GetFarClipPlane() - 0.01f) + Mathf::Max(bounds.size.x, bounds.size.y) / 2.f;
 }
 
 void GameWindow::setupScene() {
-	Debug::Log("test debug message");
-	Debug::Log("test debug message2");
-
 	Scene* scene = Engine::GetSubsystem<Scene>();
 
 	ref_ptr<GameObject> lightGameObject = new GameObject();
@@ -267,7 +264,7 @@ void GameWindow::setupScene() {
 #ifdef PROJECTOR
 	ref_ptr<GameObject> projectorGameObject = new GameObject();
 	Projector* projector = projectorGameObject->AddComponent<Projector>();
-	
+
 #ifdef PROJECTOR_ORTHOGRAPHIC
 	projector->SetPerspective(false);
 	projector->SetOrthographicSize(5);
@@ -282,7 +279,7 @@ void GameWindow::setupScene() {
 	projector->SetTexture(texture.get());
 #endif // PROJECTOR
 
-//	light->GetTransform()->SetParent(camera->GetTransform());
+	//	light->GetTransform()->SetParent(camera->GetTransform());
 
 #ifdef DEFERRED_RENDERING
 	camera->SetRenderPath(RenderPathDeferred);
@@ -297,7 +294,7 @@ void GameWindow::setupScene() {
 	/*camera->SetRect(Rect(0.f, 0.f, 0.5f, 0.5f));*/
 	//camera->SetActiveSelf(false);
 	//camera->SetTargetTexture(targetTexture_);
-	
+
 	//Camera camera2 = NewCamera();
 	//camera2->SetFarClipPlane(10000.f);
 	//camera2->GetTransform()->SetPosition(Vector3(0, 25, 0));
@@ -320,7 +317,6 @@ void GameWindow::setupScene() {
 
 	camera->SetClearColor(Color(0, 0.3f, 0.5f, 1));
 
-#ifdef SKYBOX
 	ref_ptr<Material> skybox = new Material();
 	skybox->SetShader(Shader::Find("builtin/skybox"));
 
@@ -340,17 +336,18 @@ void GameWindow::setupScene() {
 	skybox->SetColor(BuiltinProperties::MainColor, Color::white);
 	scene->GetEnvironment()->skybox = skybox;
 
+#ifdef SKYBOX
 	camera->SetClearType(ClearType::Skybox);
 #else
 	camera->SetClearType(ClearType::Color);
 #endif
-	
+
 #ifdef RENDER_TEXTURE
 	RenderTexture renderTexture = new RenderTexture();
 	renderTexture->Load(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
-	
+
 #ifdef PARTICLE_SYSTEM
 	ref_ptr<GameObject> go = new GameObject("ParticleSystem");
 	ParticleSystem* particleSystem = go->AddComponent<ParticleSystem>();
@@ -428,14 +425,15 @@ void GameWindow::setupScene() {
 	GameObject* normalVisualizer = scene->Import(normalVisualizerFbxPath, gameObjectImported);
 #endif
 
-#ifdef BEAR
-	GameObject* bear = scene->Import("teddy_bear.fbx", gameObjectImported);
-	bear->GetTransform()->SetPosition(Vector3(0, -20, -150));
+#if defined(BEAR) || defined(BEAR_X_RAY)
+	scene->Import("nanosuit.fbx", [this](GameObject* go, const std::string&) {
+		if (!go) { return; }
+		go->GetTransform()->SetPosition(Vector3(0, -20, -150));
 #ifdef BEAR_X_RAY
-	Material materail = bear->FindChild("Teddy_Bear")->GetRenderer()->GetMaterial(0);
-	Shader shader = Shader::FindShader("xray");
-	materail->SetShader(shader);
+		/*ref_ptr<Material> materail = go->GetTransform()->FindChild("Teddy_Bear")->GetGameObject()->GetComponent<Renderer>()->GetMaterial(0);
+		materail->SetShader(Shader::Find("xray"));*/
 #endif
+});
 
 #endif
 

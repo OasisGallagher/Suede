@@ -63,6 +63,7 @@ Vector3 CameraController::calculateArcBallVector(const Vector2& pos) {
 void CameraController::rotateCamera(const Vector2& mousePos, Vector2& oldPos) {
 	Vector2 delta = oldPos - mousePos;
 	oldPos = mousePos;
+	delta.x = -delta.x;
 
 	Vector3 eulerAngles = camera_->GetEulerAngles();
 	eulerAngles.x += delta.y * orientSpeed_.x;

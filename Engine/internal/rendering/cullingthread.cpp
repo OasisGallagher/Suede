@@ -14,7 +14,16 @@ CullingTask::CullingTask(RenderingContext* context) : context_(context) {
 	scene_ = context_->GetScene();
 	profiler_ = context_->GetProfiler();
 
+	frustumPlanes_ = new Plane[6];
 	lastTimeStamp_ = Time::GetTimeStamp();
+}
+
+CullingTask::~CullingTask() {
+	delete[] frustumPlanes_;
+}
+
+void CullingTask::SetWorldToClipMatrix(const Matrix4& value) {
+	GeometryUtility::CalculateFrustumPlanes(frustumPlanes_, value);
 }
 
 void CullingTask::Run() {
@@ -35,11 +44,10 @@ void CullingTask::Run() {
 }
 
 bool CullingTask::IsVisible(Renderer* renderer) {
-	return true;
 	const Bounds& bounds = renderer->GetBounds();
 	if (bounds.IsEmpty()) { return false; }
 
-	if (!GeometryUtility::FrustumIntersectsAABB(frustum_, bounds)) {
+	if (!GeometryUtility::FrustumIntersectsAABB(frustumPlanes_, bounds)) {
 		return false;
 	}
 

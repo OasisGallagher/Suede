@@ -1,7 +1,7 @@
 #pragma once
 #include "../types.h"
 
-struct SUEDE_API Vector3 {
+struct SUEDE_MATH_API Vector3 {
 	float x, y, z;
 
 	Vector3() :x(0), y(0), z(0) {}
@@ -32,8 +32,6 @@ struct SUEDE_API Vector3 {
 	Vector3 operator*(float scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
 	Vector3& operator*=(float scalar);
 
-	friend Vector3 operator*(float a, const Vector3& b);
-
 	Vector3 operator/(const Vector3& other) const { return Vector3(x / other.x, y / other.y, z / other.z); }
 	Vector3& operator/=(const Vector3& other);
 
@@ -41,6 +39,13 @@ struct SUEDE_API Vector3 {
 	Vector3& operator/=(float scalar);
 
 	Vector3 operator-() const { return Vector3(-x, -y, -z); }
+
+	static Vector3 one;
+	static Vector3 zero;
+
+	static Vector3 up;
+	static Vector3 right;
+	static Vector3 forward;
 
 	static Vector3 Min(const Vector3& a, const Vector3& b);
 	static Vector3 Max(const Vector3& a, const Vector3& b);
@@ -51,6 +56,12 @@ struct SUEDE_API Vector3 {
 	static Vector3 Cross(const Vector3& a, const Vector3& b) { return Vector3(a.y * b.z - b.y * a.z, a.z * b.x - b.z * a.x, a.x * b.y - b.x * a.y); }
 
 	static void Normalize(Vector3& a);
+	static float Distance(const Vector3& a, const Vector3& b) { return (a - b).GetMagnitude(); }
+	static float SqrDistance(const Vector3& a, const Vector3& b) { return (a - b).GetSqrMagnitude(); }
+
+	static Vector3 Orthogonalize(const Vector3& t, const Vector3& n);
+
+	static float Angle(const Vector3& a, const Vector3& b, const Vector3& normal);
 };
 
 inline Vector3 operator*(float a, const Vector3& b) {

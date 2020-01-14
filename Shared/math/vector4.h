@@ -1,7 +1,7 @@
 #pragma once
 #include "../types.h"
 
-struct SUEDE_API Vector4 {
+struct SUEDE_MATH_API Vector4 {
 	float x, y, z, w;
 	
 	Vector4() :x(0), y(0), z(0), w(0) {}
@@ -40,9 +40,14 @@ struct SUEDE_API Vector4 {
 
 	Vector4 operator-() const { return Vector4(-x, -y, -z, -w); }
 
+	static Vector4 one;
+	static Vector4 zero;
+
 	static float Dot(const Vector4& a, const Vector4& b) { return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w; }
 
 	static void Normalize(Vector4& a);
+	static float Distance(const Vector4& a, const Vector4& b) { return (a - b).GetMagnitude(); }
+	static float SqrDistance(const Vector4& a, const Vector4& b) { return (a - b).GetSqrMagnitude(); }
 };
 
 struct SUEDE_API IVector4 {

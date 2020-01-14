@@ -5,6 +5,7 @@
 #include "gizmospainter.h"
 
 class Gizmos;
+class Camera;
 class Selection;
 class SelectionGizmos : public QObject, public GizmosPainter {
 	Q_OBJECT
@@ -22,5 +23,7 @@ public:
 
 private:
 	Gizmos* gizmos_;
+	Camera* camera_;
+
 	Selection* selection_;
 };

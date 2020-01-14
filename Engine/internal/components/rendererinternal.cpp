@@ -92,10 +92,20 @@ void ParticleRendererInternal::UpdateBounds() {
 
 void MeshRendererInternal::UpdateBounds() {
 	MeshProvider* meshProvider = gameObject_->GetComponent<MeshProvider>();
-	Mesh* mesh = nullptr;
-	if (meshProvider != nullptr) { mesh = meshProvider->GetMesh(); }
-	if (mesh == nullptr) { return; }
+	Mesh* mesh = (meshProvider != nullptr) ? meshProvider->GetMesh() : nullptr;
+	if (mesh != nullptr) {
+		bounds_ = mesh->GetBounds();
 
-	bounds_ = mesh->GetBounds();
-	bounds_.Translate(GetTransform()->GetPosition());
+		std::vector<Vector3> points;
+		GeometryUtility::GetCuboidCoordinates(points, bounds_.center, bounds_.size);
+
+		Vector3 min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::lowest());
+		for (Vector3& p : points) {
+			p = GetTransform()->TransformPoint(p);
+			min = Vector3::Min(p, min);
+			max = Vector3::Max(p, max);
+		}
+
+		bounds_.SetMinMax(min, max);
+	}
 }

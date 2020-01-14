@@ -17,6 +17,9 @@ class GameObjectImporter;
 
 class SceneInternal : public SubsystemInternal {
 public:
+	~SceneInternal();
+
+public:
 	void GetDecals(std::vector<Decal>& container);
 	Environment* GetEnvironment() { return &environment_; }
 

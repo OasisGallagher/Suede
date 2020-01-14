@@ -26,6 +26,7 @@ void Gizmos::DrawSphere(const Vector3& center, float radius) { _suede_dptr()->Dr
 void Gizmos::DrawCuboid(const Vector3& center, const Vector3& size) { _suede_dptr()->DrawCuboid(center, size); }
 void Gizmos::DrawWireSphere(const Vector3& center, float radius) { _suede_dptr()->DrawWireSphere(center, radius); }
 void Gizmos::DrawWireCuboid(const Vector3& center, const Vector3& size) { _suede_dptr()->DrawWireCuboid(center, size); }
+void Gizmos::DrawArrow(const Vector3& from, const Vector3& to) { _suede_dptr()->DrawArrow(from, to); }
 
 GizmosInternal::GizmosInternal(Graphics* graphics) : graphics_(graphics), color_(0, 1, 0, 1), matrix_(1) {
 }
@@ -35,6 +36,7 @@ GizmosInternal::~GizmosInternal() {
 
 void GizmosInternal::Awake() {
 	mesh_ = new Mesh();
+	mesh_->SetGeometry(new Geometry);
 
 	lineMaterial_ = new Material();
 	lineMaterial_->SetShader(Shader::Find("builtin/gizmos"));
@@ -85,6 +87,76 @@ void GizmosInternal::DrawWireSphere(const Vector3& center, float radius) {
 
 void GizmosInternal::DrawWireCuboid(const Vector3& center, const Vector3& size) {
 	AddCuboidBatch(center, size, true);
+}
+
+void GizmosInternal::DrawArrow(const Vector3& from, const Vector3& to) {
+	uint kConeSlices = 16;
+	float kConeHeight = 5, kConeRadius = 1, kMinmumLineLength = 10;
+
+	Vector3 dest = to;
+	Vector3 direction(to - from);
+	if (direction.GetMagnitude() < kConeHeight) {
+		dest = direction.GetNormalized() * (kConeHeight + kMinmumLineLength) + from;
+		direction = dest - from;
+	}
+
+	AddConeBatch(direction.GetNormalized(), dest, kConeHeight, kConeRadius, kConeSlices);
+
+	Vector3 segment[] = { from, from + direction.GetNormalized() * (direction.GetMagnitude() - kConeHeight) };
+	FillBatch(GetBatch(MeshTopology::Lines, lineMaterial_.get()), segment, SUEDE_COUNTOF(segment));
+}
+
+Vector3 GizmosInternal::GetPerpendicular(const Vector3 &v) {
+	float min = fabs(v.x);
+	Vector3 cardinalAxis(1, 0, 0);
+
+	if (fabs(v.y) < min) {
+		min = fabs(v.y);
+		cardinalAxis = Vector3(0, 1, 0);
+	}
+
+	if (fabs(v.z) < min) {
+		cardinalAxis = Vector3(0, 0, 1);
+	}
+
+	return Vector3::Cross(v, cardinalAxis);
+}
+
+// http://www.freemancw.com/2012/06/opengl-cone-function/
+void GizmosInternal::AddConeBatch(const Vector3 &direction, const Vector3 &apex, float coneHeight, float coneRadius, uint slices) {
+	Vector3 c = apex + (-direction * coneHeight);
+
+	std::vector<uint> indexes;
+	std::vector<Vector3> points{ apex };
+
+	// calculate points around directrix
+	Vector3 e0 = GetPerpendicular(direction);
+	Vector3 e1 = Vector3::Cross(e0, direction);
+	float angInc = 360.f / slices * Mathf::deg2Rad;
+
+	for (int i = 0; i < slices; ++i) {
+		float rad = angInc * i;
+		Vector3 p = c + (((e0 * cosf(rad)) + (e1 * sinf(rad))) * coneRadius);
+		points.push_back(p);
+	}
+
+	// draw cone top
+	for (uint i = 2; i < slices + 1; ++i) {
+		indexes.insert(indexes.end(), { 0, i - 1,i });
+	}
+
+	indexes.insert(indexes.end(), { 0, slices, 1 });
+
+	// draw cone bottom
+	points.push_back(c);
+
+	for (uint i = 2; i < slices + 1; ++i) {
+		indexes.insert(indexes.end(), { slices + 1, i - 1, i });
+	}
+
+	indexes.insert(indexes.end(), { slices + 1, slices, 1 });
+
+	FillBatch(GetBatch(MeshTopology::Triangles, lineMaterial_.get()), &points[0], points.size(), &indexes[0], indexes.size());
 }
 
 void GizmosInternal::Flush() {
@@ -170,12 +242,10 @@ void GizmosInternal::AddCuboidBatch(const Vector3& center, const Vector3& size, 
 }
 
 void GizmosInternal::DrawGizmos(const Batch& b) {
-	ref_ptr<Geometry> geometry = new Geometry();
+	Geometry* geometry = mesh_->GetGeometry();
 	geometry->SetTopology(b.topology);
 	geometry->SetVertices(b.points.data(), b.points.size());
 	geometry->SetIndexes(b.indexes.data(), b.indexes.size());
-
-	mesh_->SetGeometry(geometry.get());
 
 	if (mesh_->GetSubMeshCount() == 0) {
 		mesh_->AddSubMesh(new SubMesh());

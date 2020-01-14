@@ -1,3 +1,7 @@
+#ifdef _DEBUG
+#include "vld/vld.h"
+#endif
+
 #include "engineinternal.h"
 
 #include "time2.h"

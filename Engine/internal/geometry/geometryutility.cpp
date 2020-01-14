@@ -49,7 +49,7 @@ bool GeometryUtility::AARectContains(const Vector3& point, const Vector3& tl, co
 bool GeometryUtility::PolygonContains(const Vector3* vertices, uint nvertices, const Vector3& point, const Vector3& normal, bool onEdge) {
 	for (uint i = 1; i <= nvertices; ++i) {
 		const Vector3& currentPosition = i < nvertices ? vertices[i] : vertices[0];
-		float cr = Mathf::Angle((currentPosition - vertices[i - 1]).GetNormalized(), (point - vertices[i - 1]).GetNormalized(), normal);
+		float cr = Vector3::Angle((currentPosition - vertices[i - 1]).GetNormalized(), (point - vertices[i - 1]).GetNormalized(), normal);
 		if (IsZero(cr) && AARectContains(point, currentPosition, vertices[i - 1])) {
 			return onEdge;
 		}
@@ -104,21 +104,33 @@ bool GeometryUtility::GetIntersection(Vector3& intersection, const Plane& plane,
 	return true;
 }
 
-void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], const Matrix4& worldToClipMatrix) {
-#define EXTRACT_PLANE(index, sign, row)	\
-	planes[index] = Plane(Vector4(worldToClipMatrix[0][3] sign worldToClipMatrix[0][row], \
+void extract_planes_from_projmat(Plane* planes,
+	const Matrix4& mat) {
+	float left[4], right[4], bottom[4], top[4], near[4], far[4];
+	for (int i = 4; i--; ) left[i] = mat[i][3] + mat[i][0];
+	for (int i = 4; i--; ) right[i] = mat[i][3] - mat[i][0];
+	for (int i = 4; i--; ) bottom[i] = mat[i][3] + mat[i][1];
+	for (int i = 4; i--; ) top[i] = mat[i][3] - mat[i][1];
+	for (int i = 4; i--; ) near[i] = mat[i][3] + mat[i][2];
+	for (int i = 4; i--; ) far[i] = mat[i][3] - mat[i][2];
+}
+
+void GeometryUtility::CalculateFrustumPlanes(Plane* planes, const Matrix4& worldToClipMatrix) {
+#define EXTRACT_PLANE_IMPL(index, sign, row)	\
+	planes[index] = Plane(Vector4( \
+		worldToClipMatrix[0][3] sign worldToClipMatrix[0][row], \
 		worldToClipMatrix[1][3] sign worldToClipMatrix[1][row], \
 		worldToClipMatrix[2][3] sign worldToClipMatrix[2][row], \
 		worldToClipMatrix[3][3] sign worldToClipMatrix[3][row]))
 
-	EXTRACT_PLANE(0, +, 0);
-	EXTRACT_PLANE(1, -, 0);
-	EXTRACT_PLANE(2, +, 1);
-	EXTRACT_PLANE(3, -, 1);
-	EXTRACT_PLANE(4, +, 2);
-	EXTRACT_PLANE(5, -, 2);
+	EXTRACT_PLANE_IMPL(0, +, 0);
+	EXTRACT_PLANE_IMPL(1, -, 0);
+	EXTRACT_PLANE_IMPL(2, +, 1);
+	EXTRACT_PLANE_IMPL(3, -, 1);
+	EXTRACT_PLANE_IMPL(4, +, 2);
+	EXTRACT_PLANE_IMPL(5, -, 2);
 
-#undef EXTRACT_PLANE
+#undef EXTRACT_PLANE_IMPL
 }
 
 //void GeometryUtility::CalculateFrustumPlanes(Plane(&planes)[6], Camera camera) {
@@ -247,18 +259,20 @@ bool GeometryUtility::PlanesCulling(Plane* planes, uint nplanes, const Vector3* 
 	return false;
 }
 
+// https://www.braynzarsoft.net/viewtutorial/q16390-34-aabb-cpu-side-frustum-culling
 bool GeometryUtility::FrustumIntersectsAABB(const Plane* frustum, const Bounds& bounds) {
-	Vector3 edge = bounds.center - bounds.GetMin();
-
-	for (unsigned i = 0; i < 6; ++i) {
+	Vector3 min = bounds.GetMin(), max = bounds.GetMax();
+	for (int i = 0; i < 6; i++) {
 		const Plane& plane = frustum[i];
-		float dist = plane.GetDistanceToPoint(bounds.center);
-		Vector3 absNormal = plane.GetNormal();
-		absNormal.x = fabs(absNormal.x);
-		absNormal.y = fabs(absNormal.y);
-		absNormal.z = fabs(absNormal.z);
+		const Vector3& normal = plane.GetNormal();
 
-		if (dist < -Vector3::Dot(absNormal, edge)) {
+		Vector3 point(
+			normal.x > 0 ? max.x : min.x,
+			normal.y > 0 ? max.y : min.y,
+			normal.z > 0 ? max.z : min.z
+		);
+
+		if (plane.GetDistanceToPoint(point) < 0) {
 			return false;
 		}
 	}
@@ -386,7 +400,7 @@ bool IsReflex(array_list<EarVertex>& vertices, int index, const Vector3& normal)
 	Vector3 current = vertices[index].position;
 	Vector3 prev = vertices.prev_value(index).position;
 	Vector3 next = vertices.next_value(index).position;
-	return Mathf::Angle((next - current).GetNormalized(), (prev - current).GetNormalized(), normal) < 0;
+	return Vector3::Angle((next - current).GetNormalized(), (prev - current).GetNormalized(), normal) < 0;
 }
 
 void EarClipping(std::vector<Vector3>& triangles, array_list<EarVertex>& vertices, array_list<int>& earTips, const Vector3& normal) {

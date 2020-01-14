@@ -3,6 +3,9 @@
 #include "color.h"
 
 #include <string>
+#include "math/vector2.h"
+#include "math/vector3.h"
+#include "math/vector4.h"
 
 /**
  * @brief immediate mode GUI.

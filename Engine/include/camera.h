@@ -6,6 +6,7 @@
 #include "component.h"
 #include "tools/enum.h"
 #include "tools/event.h"
+#include "math/matrix4.h"
 
 BETTER_ENUM(ClearType, int,
 	Color,
@@ -83,7 +84,6 @@ public:
 
 	void Render();
 	ref_ptr<Texture2D> Capture();
-	const Plane* GetFrustumPlanes();
 
 public:
 	static void SetMain(Camera* value);

@@ -32,7 +32,7 @@ QHash<int, ImGuiKey> keyMap = {
     { Qt::Key_Z, ImGuiKey_Z },
 };
 
-QByteArray g_currentClipboardText;
+static QByteArray g_currentClipboardText;
 
 }
 
@@ -293,8 +293,8 @@ void ImGuiRenderer::newFrame()
 
     // Setup time step
     double current_time =  QDateTime::currentMSecsSinceEpoch() / double(1000);
-    io.DeltaTime = m_Time > 0.0 ? (float)(current_time - m_Time) : (float)(1.0f/60.0f);
-    m_Time = current_time;
+    io.DeltaTime = m_LastTime > 0.0 ? (float)(current_time - m_LastTime) : (float)(1.0f/60.0f);
+    m_LastTime = current_time;
 
     // Setup inputs
     // (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
@@ -313,6 +313,11 @@ void ImGuiRenderer::newFrame()
         io.MouseDown[i] = m_MousePressed[i];
     }
 
+	for (int i = 0; i < 3; i++) {
+		io.MouseDoubleClicked[i] = m_MouseDoubleClicked[i];
+		m_MouseDoubleClicked[i] = false;
+	}
+
     io.MouseWheelH = m_MouseWheelH;
     io.MouseWheel = m_MouseWheel;
     m_MouseWheelH = 0;
@@ -327,9 +332,16 @@ void ImGuiRenderer::newFrame()
 
 void ImGuiRenderer::onMousePressedChange(QMouseEvent *event)
 {
+	int type = event->type();
     m_MousePressed[0] = event->buttons() & Qt::LeftButton;
     m_MousePressed[1] = event->buttons() & Qt::RightButton;
     m_MousePressed[2] = event->buttons() & Qt::MiddleButton;
+}
+
+void ImGuiRenderer::onMouseDoubleClickEvent(QMouseEvent* event) {
+	m_MouseDoubleClicked[0] = event->buttons() & Qt::LeftButton;
+	m_MouseDoubleClicked[1] = event->buttons() & Qt::RightButton;
+	m_MouseDoubleClicked[2] = event->buttons() & Qt::MiddleButton;
 }
 
 void ImGuiRenderer::onWheel(QWheelEvent *event)
@@ -342,6 +354,7 @@ void ImGuiRenderer::onWheel(QWheelEvent *event)
 void ImGuiRenderer::onKeyPressRelease(QKeyEvent *event)
 {
     ImGuiIO& io = ImGui::GetIO();
+
     if (keyMap.contains(event->key())) {
         io.KeysDown[keyMap[event->key()]] = event->type() == QEvent::KeyPress;
     }
@@ -372,13 +385,20 @@ bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
     switch (event->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
+		ImGui::SetCurrentContext(m_context);
         this->onMousePressedChange(static_cast<QMouseEvent *>(event));
         break;
+	case QEvent::MouseButtonDblClick:
+		ImGui::SetCurrentContext(m_context);
+		this->onMouseDoubleClickEvent(static_cast<QMouseEvent*>(event));
+		break;
     case QEvent::Wheel:
+		ImGui::SetCurrentContext(m_context);
         this->onWheel(static_cast<QWheelEvent *>(event));
         break;
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
+		ImGui::SetCurrentContext(m_context);
         this->onKeyPressRelease(static_cast<QKeyEvent *>(event));
         break;
     default:

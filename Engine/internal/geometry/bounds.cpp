@@ -27,10 +27,6 @@ void Bounds::Expand(const Vector3& amount) {
 	size *= amount;
 }
 
-void Bounds::Translate(const Vector3& amount) {
-	center += amount;
-}
-
 Vector3 Bounds::GetMin() const {
 	return center - size / 2.f;
 }
