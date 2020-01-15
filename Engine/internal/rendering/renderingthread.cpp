@@ -73,8 +73,6 @@ void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatri
 
 	RenderPass(pipelines);
 
-	//Graphics::Blit(sharedSSAOTexture, nullptr);
-
 	auto effects = frameState->camera->GetComponents<ImageEffect>();
 	for (auto ite = effects.begin(); ite != effects.end();) {
 		if ((*ite)->GetActiveAndEnabled()) {
@@ -86,6 +84,8 @@ void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatri
 	}
 
 	if (!effects.empty()) { OnImageEffects(effects); }
+
+	//graphics_->Blit(context_->GetUniformState()->depthTexture.get(), nullptr);
 }
 
 void RenderingThread::UpdateTransformsUniformBuffer(const RenderingMatrices& matrices) {
@@ -110,11 +110,11 @@ void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light* light) {
 	p.fogParams.density = env->fogDensity;
 
 	memcpy(&p.ambientColor, &env->ambientColor, sizeof(p.ambientColor));
-	
+
 	Vector3 pos = light->GetTransform()->GetPosition();
 	p.lightPos = Vector4(pos.x, pos.y, pos.z, 1);
 
-	Vector3 dir = light->GetTransform()->GetRotation() * Vector3(0, 0, -1);
+	Vector3 dir = light->GetTransform()->GetRotation() * Vector3::forward;
 	p.lightDir = Vector4(dir.x, dir.y, dir.z, 0);
 	Color color = light->GetColor() * light->GetIntensity();
 	p.lightColor = Vector4(color.r, color.g, color.b, 1);

@@ -32,10 +32,10 @@ struct SUEDE_MATH_API Quaternion {
 	bool operator !=(const Quaternion& other) const;
 
 	static void Pow(Quaternion& q, float x);
-	static float Dot(const Quaternion& a, const Quaternion& b) { return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w; }
 	static void Inverse(Quaternion& q) { q = q.GetInversed(); }
 	static void Normalize(Quaternion& q) { q = q.GetNormalized(); }
 	static void Conjugate(Quaternion& q) { q.x = -q.x; q.y = -q.y; q.z = -q.z; }
+	static float Dot(const Quaternion& a, const Quaternion& b) { return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w; }
 
 	static Quaternion Lerp(const Quaternion& a, const Quaternion& b, float t);
 	static Quaternion Slerp(const Quaternion& a, const Quaternion& b, float t);

@@ -146,6 +146,7 @@ time_t FileSystem::GetFileLastWriteTime(const std::string& fileName, time_t defa
 	std::error_code err;
 	fs::file_time_type time = fs::last_write_time(fileName, err);
 	if (err) {
+		Debug::LogError("failed to get file(%s) last write time: %s", fileName.c_str(), err.message().c_str());
 		return defaultValue;
 	}
 

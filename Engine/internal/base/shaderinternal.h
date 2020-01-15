@@ -95,7 +95,6 @@ public:
 
 public:
 	SubShader(Context* context, const Semantics::SubShader& config, const std::string& path);
-	~SubShader();
 
 public:
 	bool Apply(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config);

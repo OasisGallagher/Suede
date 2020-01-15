@@ -53,7 +53,7 @@
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "jeep.fbx";
+static const char* roomFbxPath = "room.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
@@ -89,7 +89,7 @@ void GameWindow::awake() {
 
 	input_ = Engine::GetSubsystem<Input>();
 
-	inputDelegate_ = new QtInputDelegate(editor_);
+	inputDelegate_ = new QtInputDelegate(canvas_);
 	input_->SetDelegate(inputDelegate_);
 
 	setupScene();
@@ -102,8 +102,9 @@ void GameWindow::tick() {
 		Vector2 mousePosition = input_->GetMousePosition();
 		Vector3 dest = Camera::GetMain()->ScreenToWorldPoint(Vector3(mousePosition.x, mousePosition.y, 1));
 
+		editor_->selection()->clear();
+
 		if (Engine::GetSubsystem<Physics>()->Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
-			editor_->selection()->clear();
 			editor_->selection()->add(hitInfo.gameObject);
 		}
 	}
@@ -226,7 +227,7 @@ void GameWindow::onFocusGameObjectBounds(GameObject* go) {
 	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), bounds);
 	camera->SetPosition(bounds.center + target->GetForward() * distance);
 
-	Quaternion q(Matrix4::LookAt(camera->GetPosition(), bounds.center, Vector3(0, 1, 0)));
+	Quaternion q(Matrix4::LookAt(camera->GetPosition(), bounds.center, Vector3::up));
 	camera->SetRotation(q.GetInversed());
 }
 
@@ -244,7 +245,7 @@ void GameWindow::setupScene() {
 	lightGameObject->SetName("light");
 
 	Light* light = lightGameObject->AddComponent<Light>();
-	light->SetColor(Color(0.7f, 0.7f, 0.7f, 1));
+	light->SetColor(Color::white);
 	light->GetTransform()->SetParent(scene->GetRootTransform());
 
 	ref_ptr<GameObject> cameraGameObject = new GameObject();
@@ -252,6 +253,7 @@ void GameWindow::setupScene() {
 
 	Camera* camera = cameraGameObject->AddComponent<Camera>();
 	Camera::SetMain(camera);
+	camera->SetDepthTextureMode(DepthTextureMode::Depth);
 	camera->GetTransform()->SetParent(scene->GetRootTransform());
 
 	controller_ = cameraGameObject->AddComponent<CameraController>();
@@ -360,7 +362,7 @@ void GameWindow::setupScene() {
 	emitter->SetStartColor(Vector4(1, 1, 1, 0.5f));
 	emitter->SetStartDuration(2);
 	emitter->SetStartSize(1);
-	emitter->SetStartVelocity(Vector3(0, 1, 0));
+	emitter->SetStartVelocity(Vector3::up);
 	ParticleBurst burst = { 4, 3, 20 };
 	particleSystem->SetEmitter(emitter.get());
 

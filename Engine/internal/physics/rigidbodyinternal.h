@@ -50,24 +50,21 @@ private:
 	//   the ball is a dynamic object.You’ll set its direction and velocity and let the physics engine do the work.
 	//   When the ball hits a border or a brick, it will bounce back, but it can never affect the positions of the border, 
 	//   brick or paddle since they are immovable.
-	float mass_;
-	bool showCollisionShape_;
+	float mass_ = 0.f;
+	bool showCollisionShape_ = false;
 
-	enum {
-		Normal,
-		InvalidBody,
-		InvalidShape,
-	} shapeState_;
+	bool bodyDirty_ = false;
+	bool shapeDirty_ = false;
 
 	// The reference to a rigid body.
 	// Using this property, you’ll allow the game scene to work with the physics body of the node.
-	btRigidBody* body_;
+	btRigidBody* body_ = nullptr;
 
 	// The shape of the physics body. 
 	// btCollisionShape is an abstract class, and there are several different implementations of collision shapes. 
 	// For example, you can describe the shape of an object as a sphere using btSphereShape or you can create 
 	// complicated shapes with btBvhTriangleMeshShape, specifying vertices of triangles just like you do when rendering 
 	// complex objects in OpenGL.
-	btCollisionShape* shape_;
-	btStridingMeshInterface* mesh_;
+	btCollisionShape* shape_ = nullptr;
+	btStridingMeshInterface* mesh_ = nullptr;
 };

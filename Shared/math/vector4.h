@@ -56,6 +56,9 @@ struct SUEDE_API IVector4 {
 	IVector4(int scalar) :x(scalar), y(scalar), z(scalar), w(scalar) {}
 	IVector4(int x, int y, int z, int w) :x(x), y(y), z(z), w(w) {}
 
+	int& operator[](int i) { return *(&x + i); }
+	const int& operator[](int i) const { return *(&x + i); }
+
 	bool operator != (const IVector4& other) const { return x != other.x || y != other.y || z != other.z || w != other.w; }
 	bool operator == (const IVector4& other) const { return x == other.x && y == other.y && z == other.z && w == other.w; }
 };

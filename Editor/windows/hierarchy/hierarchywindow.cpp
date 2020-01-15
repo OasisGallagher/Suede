@@ -31,7 +31,6 @@ void HierarchyWindow::initUI() {
 }
 
 void HierarchyWindow::awake() {
-	input_ = Engine::GetSubsystem<Input>();
 	root_ = Engine::GetSubsystem<Scene>()->GetRootTransform();
 }
 
@@ -117,20 +116,29 @@ void HierarchyWindow::drawHierarchy(Transform* root, int depth) {
 }
 
 void HierarchyWindow::updateSelection(GameObject* go) {
-	if (input_->GetKey(KeyCode::Shift)) {
+	if (ImGui::GetIO().KeyShift) {
 		selection_->add(go);
+		enableGameObjectOutline(go, true);
 	}
-	else if (input_->GetKey(KeyCode::Ctrl)) {
+	else if (ImGui::GetIO().KeyCtrl) {
 		if (selection_->contains(go)) {
 			selection_->remove(go);
+			enableGameObjectOutline(go, false);
 		}
 		else {
 			selection_->add(go);
+			enableGameObjectOutline(go, true);
 		}
 	}
 	else {
+		for (GameObject* item : selection_->gameObjects()) {
+			enableGameObjectOutline(item, false);
+		}
+
 		selection_->clear();
+
 		selection_->add(go);
+		enableGameObjectOutline(go, true);
 	}
 }
 
@@ -143,5 +151,22 @@ void HierarchyWindow::importGameObject() {
 				emit focusGameObject(go);
 			}
 		});
+	}
+}
+
+void HierarchyWindow::enableGameObjectOutline(GameObject* go, bool enable) {
+	for (MeshRenderer* renderer : go->GetComponentsInChildren<MeshRenderer>()) {
+		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+			Material* material = renderer->GetMaterial(i);
+			int outline = material->FindPass("Outline");
+			if (outline < 0) { continue; }
+
+			if (enable) {
+				material->EnablePass(outline);
+			}
+			else {
+				material->DisablePass(outline);
+			}
+		}
 	}
 }

@@ -124,14 +124,13 @@ void Pipeline::Run() {
 
 	targetTexture_->BindWrite(normalizedRect_);
 
-	uint from = 0;
-
 	RenderingSamples renderSamples = {
 		profiler_->CreateSample(),
 		profiler_->CreateSample(),
 		profiler_->CreateSample(),
 	};
 
+	uint from = 0;
 	for (std::vector<uint>::iterator ite = ranges_.begin(); ite != ranges_.end(); ++ite) {
 		int pass = renderables_[from].material->GetActivatedPass();
 		if (pass >= 0) {
@@ -279,7 +278,7 @@ void Pipeline::RenderInstanced(Renderable& renderable, uint instance, uint matri
 }
 
 void Pipeline::UpdateState(Renderable& renderable, int pass) {
-	if (renderable.material != oldStates_.material) {
+	if (renderable.material != oldStates_.material || pass != oldStates_.pass) {
 		if (oldStates_.material) {
 			oldStates_.material->Unbind();
 		}
@@ -287,6 +286,8 @@ void Pipeline::UpdateState(Renderable& renderable, int pass) {
 		oldStates_.material = renderable.material;
 
 		renderable.material->Bind(pass);
+		oldStates_.pass = pass;
+
 		++counters_.materialChanges;
 	}
 
@@ -372,7 +373,8 @@ bool Renderable::IsMeshInstanced(const Renderable& other) const {
 	const TriangleBias& bias = mesh->GetSubMesh(subMeshIndex)->GetTriangleBias();
 	const TriangleBias& otherBias = other.mesh->GetSubMesh(subMeshIndex)->GetTriangleBias();
 	return bias.indexCount == otherBias.indexCount
-		&& bias.baseVertex == otherBias.baseVertex && bias.baseIndex == otherBias.baseIndex;
+		&& bias.baseVertex == otherBias.baseVertex
+		&& bias.baseIndex == otherBias.baseIndex;
 }
 
 bool Renderable::IsMaterialInstanced(const Renderable& other) const {
@@ -380,6 +382,8 @@ bool Renderable::IsMaterialInstanced(const Renderable& other) const {
 }
 
 void Pipeline::States::Reset() {
+	pass = -1;
+
 	if (material) {
 		material->Unbind();
 		material.reset();

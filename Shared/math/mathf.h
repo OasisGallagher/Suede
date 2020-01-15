@@ -32,17 +32,14 @@ public:
 	static float Repeat(float t, float length) { return fmod(t, length); }
 	static float PingPong(float t, float length);
 
-	template <class T> static T Sign(T x) { return Mathf::Approximately(x, 0) ? 0.f : (x > 0 ? 1.f : -1.f); }
 	template <class T> static T Min(T x, T y) { return x > y ? y : x; }
 	template <class T> static T Max(T x, T y) { { return x > y ? x : y; } }
+	template <class T> static T Sign(T x) { return Mathf::Approximately(x, 0) ? 0.f : (x > 0 ? 1.f : -1.f); }
 
 	static float Clamp01(float value);
 	template <class T> static T Clamp(T value, T min, T max);
 
 	static bool Approximately(float x, float y) { return fabs(x - y) < epsilon; }
-
-private:
-	Mathf();
 };
 
 template <class T>

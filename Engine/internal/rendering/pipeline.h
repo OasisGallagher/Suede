@@ -104,6 +104,8 @@ private:
 
 	struct States {
 		ref_ptr<Mesh> mesh;
+
+		int pass = -1;
 		ref_ptr<Material> material;
 
 		void Reset();

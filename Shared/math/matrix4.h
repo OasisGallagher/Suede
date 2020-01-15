@@ -36,8 +36,8 @@ struct SUEDE_MATH_API Matrix4 {
 
 	static Matrix4 LookAt(Vector3 const & eye, Vector3 const & center, Vector3 const & up);
 
-	static Vector3 Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, Vector4 const& viewport);
-	static Vector3 Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, Vector4 const& viewport);
+	static Vector3 Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport);
+	static Vector3 Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport);
 
 	static void Inverse(Matrix4& matrix) { matrix = matrix.GetInversed(); }
 	static void Transpose(Matrix4& matrix) { matrix = matrix.GetTransposed(); }

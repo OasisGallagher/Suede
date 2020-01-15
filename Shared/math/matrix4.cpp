@@ -380,7 +380,7 @@ Matrix4 Matrix4::Ortho(float left, float right, float bottom, float top, float n
 	return Result;
 }
 
-Vector3 Matrix4::Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, Vector4 const& viewport)
+Vector3 Matrix4::Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport)
 {
 	Vector4 tmp = Vector4(obj.x, obj.y, obj.z, 1);
 	tmp = model * tmp;
@@ -394,7 +394,7 @@ Vector3 Matrix4::Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const
 	return Vector3(tmp.x, tmp.y, tmp.z);
 }
 
-Vector3 Matrix4::Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, Vector4 const& viewport)
+Vector3 Matrix4::Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport)
 {
 	Matrix4 Inverse = (proj * model).GetInversed();
 

@@ -15,8 +15,7 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 #define btWorld()	PhysicsInternal::btWorld()
 
 RigidbodyInternal::RigidbodyInternal()
-	: ComponentInternal(ObjectType::Rigidbody)
-	, mass_(0), shapeState_(Normal), body_(nullptr), mesh_(nullptr), shape_(nullptr), showCollisionShape_(false) {
+	: ComponentInternal(ObjectType::Rigidbody) {
 	CreateBody();
 }
 
@@ -30,15 +29,13 @@ void RigidbodyInternal::Awake() {
 
 // SUEDE TODO: FixedUpdate.
 void RigidbodyInternal::Update(float deltaTime) {
-	return;
-	if (shapeState_ != Normal) {
-		if (shapeState_ != InvalidShape || RebuildShape()) {
-			UpdateBody(true);
-			ApplyGameObjectTransform();
-			//UpdateBounds();
-		}
+	if (shapeDirty_) {
+		RebuildShape();
+	}
 
-		shapeState_ = Normal;
+	if (bodyDirty_ && shape_ != nullptr) {
+		UpdateBody(true);
+		ApplyGameObjectTransform();
 	}
 
 	// SUEDE TODO: empty body.
@@ -46,17 +43,17 @@ void RigidbodyInternal::Update(float deltaTime) {
 		ApplyPhysicsTransform();
 	}
 
-	if (showCollisionShape_) {
+	if (showCollisionShape_ && shape_ != nullptr) {
 		btWorld()->debugDrawObject(body_->getWorldTransform(), shape_, btVector3(1, 0, 0));
 	}
 }
 
 void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 	if (messageID == GameObjectMessageMeshModified) {
-		shapeState_ = InvalidShape;
+		shapeDirty_ = true;
 	}
 	else if( messageID == GameObjectMessageLocalToWorldMatrixModified) {
-		shapeState_ = InvalidBody;
+		bodyDirty_ = true;
 	}
 }
 
@@ -100,6 +97,7 @@ Vector3 RigidbodyInternal::GetVelocity() const {
 bool RigidbodyInternal::RebuildShape() {
 	DestroyShape();
 
+	shapeDirty_ = false;
 	MeshProvider* mp = GetGameObject()->GetComponent<MeshProvider>();
 	if (!mp || !mp->GetMesh() || mp->GetMesh()->GetSubMeshCount() == 0) {
 		return false;

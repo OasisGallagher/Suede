@@ -183,13 +183,13 @@ void CameraInternal::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects
 }
 
 Vector3 CameraInternal::WorldToScreenPoint(const Vector3& position) {
-	Vector4 viewport;
+	IVector4 viewport;
 	context_->GetIntegerv(GL_VIEWPORT, (int*)&viewport);
 	return Matrix4::Project(position, transform_->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }
 
 Vector3 CameraInternal::ScreenToWorldPoint(const Vector3& position) {
-	Vector4 viewport;
+	IVector4 viewport;
 	context_->GetIntegerv(GL_VIEWPORT, (int*)&viewport);
 	return Matrix4::Unproject(position, transform_->GetWorldToLocalMatrix(), GetProjectionMatrix(), viewport);
 }

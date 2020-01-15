@@ -170,7 +170,7 @@ public:
 	StencilTestState(Context* context) : RenderState(context) {}
 
 public:
-	virtual void Initialize(int parameter0, int parameter1, int);
+	virtual void Initialize(int parameter0, int parameter1, int parameter2);
 	virtual void Bind();
 	virtual void Unbind();
 	virtual RenderState* Clone();
@@ -185,6 +185,7 @@ private:
 
 	int parameter0_;
 	int parameter1_;
+	int parameter2_;
 };
 
 class StencilWriteState : public RenderState {

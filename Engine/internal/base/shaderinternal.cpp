@@ -238,7 +238,7 @@ RenderState* Pass::AllocateRenderState(const Semantics::RenderState &state) {
 
 bool Pass::ParseRenderStateParameters(int* answer, const std::string* parameters) {
 	for (uint i = 0; i < Semantics::RenderState::ParameterCount; ++i, ++answer) {
-		if (!RenderStateParameterToInteger(parameters[i],*answer)) {
+		if (!RenderStateParameterToInteger(parameters[i], *answer)) {
 			return false;
 		}
 	}
@@ -561,10 +561,6 @@ SubShader::SubShader(Context* context, const Semantics::SubShader& config, const
 	}
 }
 
-SubShader::~SubShader() {
-	
-}
-
 bool SubShader::Apply(std::vector<ShaderProperty>& properties, const Semantics::SubShader& config) {
 	std::vector<Property*> container;
 	for (uint i = 0; i < passCount_; ++i) {
@@ -584,9 +580,8 @@ void SubShader::Bind(uint pass) {
 }
 
 void SubShader::Unbind() {
-	SUEDE_ASSERT(currentPass_ < passCount_);
 	passes_[currentPass_].Unbind();
-	currentPass_ = UINT_MAX;
+	currentPass_ = -1;
 }
 
 bool SubShader::IsPassEnabled(uint pass) const {
@@ -802,7 +797,6 @@ void ShaderInternal::GetProperties(std::vector<ShaderProperty>& properties) {
 }
 
 bool ShaderInternal::SetProperty(uint ssi, uint pass, const std::string& name, const void* data) {
-	if (data == nullptr) { return false; }
-
+	SUEDE_ASSERT(data != nullptr);
 	return subShaders_[ssi]->GetPass(pass)->SetProperty(name, data);
 }

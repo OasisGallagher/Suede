@@ -141,13 +141,21 @@ void StencilTestState::Initialize(int parameter0, int parameter1, int parameter2
 		RenderStateParameter::Off
 	);
 
-	if (parameter0 != RenderStateParameter::Off && (parameter1 > 0xFF || parameter1 < 0x00)) {
-		Debug::LogError("invalid parameter1 for 'StencilTest'.");
-		return;
+	if (parameter0 != RenderStateParameter::Off) {
+		if (parameter1 < 0 || parameter1 > 0xFF) {
+			Debug::LogError("invalid reference value for 'StencilTest'.");
+			return;
+		}
+
+		if (parameter2 < 0 || parameter2 > 0xFF) {
+			Debug::LogError("invalid mask for 'StencilTest'.");
+			return;
+		}
 	}
 
 	parameter0_ = parameter0;
 	parameter1_ = parameter1;
+	parameter2_ = parameter2;
 }
 
 void StencilTestState::Bind() {
@@ -159,7 +167,7 @@ void StencilTestState::Bind() {
 		context_->GetIntegerv(GL_STENCIL_FUNC, (int*)&oldFunc_);
 		context_->GetIntegerv(GL_STENCIL_VALUE_MASK, (int*)&oldMask_);
 
-		context_->StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, 0xFF);
+		context_->StencilFunc(RenderParamterToGLEnum(parameter0_), parameter1_, parameter2_);
 	}
 }
 

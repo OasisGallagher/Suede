@@ -6,11 +6,12 @@
 #include "internal/base/glenums.h"
 #include "internal/base/renderdefines.h"
 
-bool GLSLParser::Parse(std::string sources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& customDefines) {
+bool GLSLParser::Parse(std::string stageSources[ShaderStageCount], const std::string& path, const std::string& source, uint ln, const std::string& customDefines) {
 	Clear();
 	FormatDefines(customDefines);
 
-	answer_ = sources;
+	stageSources_ = stageSources;
+
 	file_ = currentFile_ = path + ".shader";
 	return CompileShaderSource(source, ln, customDefines);
 }
@@ -41,7 +42,7 @@ void GLSLParser::Clear() {
 	defines_.clear();
 	includes_.clear();
 
-	answer_ = nullptr;
+	stageSources_ = nullptr;
 }
 
 bool GLSLParser::CompileShaderSource(const std::string& source, uint ln, const std::string& customDefines) {
@@ -128,7 +129,7 @@ bool GLSLParser::PreprocessShaderStage(const std::string& parameter) {
 	ShaderStage newType = ParseShaderStage(parameter);
 
 	if (newType != type_ && type_ != ShaderStageCount) {
-		if (!answer_[type_].empty()) {
+		if (!stageSources_[type_].empty()) {
 			Debug::LogError("%s(%d): %s already exists.", file_.c_str(), ln_.original, StageInfo::At(type_).name);
 			return false;
 		}
@@ -236,7 +237,7 @@ ShaderStage GLSLParser::ParseShaderStage(const std::string& tag) {
 }
 
 void GLSLParser::SetCurrentShaderStageCode() {
-	answer_[type_] =
+	stageSources_[type_] =
 		String::Format(defines_.c_str(), StageInfo::At(type_).shaderNameDefine)
 		+ source_;		// GLSL source code.
 

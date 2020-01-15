@@ -9,51 +9,14 @@ SubShader {
 	Tags { 
 		Queue = "Transparent";
 	}
-
-	Pass "Outline" false {
-		Cull Front;
-		ZWrite Off;
-		Offset 100 100;
-
-		//StencilTest NotEqual 1 0xFF;
-		//StencilWrite Off;
-
-		GLSLPROGRAM
-
-		#stage vertex
-		#include "builtin/include/suede.inc"
-
-		in vec3 _Pos;
-		in vec3 _Normal;
-
-		uniform float _RimFactor;
-		void main() {
-			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
-
-			vec3 normal = transpose(inverse(mat3(_WorldToCameraMatrix * _LocalToWorldMatrix))) * _Normal;
-			vec2 offset = mat2(_CameraToClipMatrix) * normal.xy;
-			gl_Position.xy += offset * _RimFactor;
-		}
-
-		#stage fragment
-		out vec4 fragColor;
-		
-		uniform vec3 _RimColor;
-		void main() {
-			fragColor = vec4(_RimColor, 1);
-		}
-
-		ENDGLSL
-	}
 	
 	Pass {
-		//ZWrite On;
 		ZTest LEqual;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
-		//StencilTest Always 1 0xFF;
-		//StencilOp Keep Keep Replace;
-		//StencilWrite On;
+		StencilTest Always 1 0xFF;
+		StencilOp Keep Keep Replace;
+		StencilWrite On;
 
 		GLSLPROGRAM
 
@@ -99,6 +62,40 @@ SubShader {
 			float visibility = _CalcShadowVisibility(worldPos);
 			fragColor = vec4(_CalcDirectionalLight(albedo.xyz, worldPos, normalize(normal), visibility), albedo.a);
 			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
+		}
+
+		ENDGLSL
+	}
+
+	Pass {
+		ZWrite Off;
+		ZTest Off;
+		StencilTest NotEqual 1 0xFF;
+		StencilWrite Off;
+		Blend SrcAlpha OneMinusSrcAlpha;
+
+		GLSLPROGRAM
+
+		#stage vertex
+		#include "builtin/include/suede.inc"
+
+		in vec3 _Pos;
+		in vec3 _Normal;
+
+		uniform float _RimFactor;
+		void main() {
+			vec3 normal = transpose(inverse(mat3(_LocalToWorldMatrix))) * _Normal;
+			normal.xy = mat2(_WorldToClipMatrix) * normal.xy;
+			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
+			gl_Position.xy += normal.xy * 0.5;
+		}
+
+		#stage fragment
+		out vec4 fragColor;
+
+		uniform vec3 _RimColor;
+		void main() {
+			fragColor = vec4(_RimColor, 1);
 		}
 
 		ENDGLSL

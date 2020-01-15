@@ -366,17 +366,19 @@ void ImGuiRenderer::onKeyPressRelease(QKeyEvent *event)
         }
     }
 
-#ifdef Q_OS_MAC
-    io.KeyCtrl = event->modifiers() & Qt::MetaModifier;
-    io.KeyShift = event->modifiers() & Qt::ShiftModifier;
-    io.KeyAlt = event->modifiers() & Qt::AltModifier;
-    io.KeySuper = event->modifiers() & Qt::ControlModifier; // Comamnd key
-#else
-    io.KeyCtrl = event->modifiers() & Qt::ControlModifier;
-    io.KeyShift = event->modifiers() & Qt::ShiftModifier;
-    io.KeyAlt = event->modifiers() & Qt::AltModifier;
-    io.KeySuper = event->modifiers() & Qt::MetaModifier;
-#endif
+	bool pressed = event->type() == QEvent::KeyPress;
+
+	if (event->key() == Qt::Key_Alt) {
+		io.KeyAlt = pressed;
+	}
+
+	if (event->key() == Qt::Key_Control) {
+		io.KeyCtrl = pressed;
+	}
+
+	if (event->key() == Qt::Key_Shift) {
+		io.KeyShift = pressed;
+	}
 }
 
 bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)

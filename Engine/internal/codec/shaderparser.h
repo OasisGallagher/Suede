@@ -132,7 +132,7 @@ private:
 	std::string file_;
 	std::string currentFile_;
 
-	std::string* answer_;
+	std::string* stageSources_;
 	
 	int ndefines_;
 	std::string defines_;

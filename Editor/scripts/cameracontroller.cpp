@@ -19,8 +19,6 @@ CameraController::~CameraController() {
 }
 
 void CameraController::Update(float deltaTime) {
-	if (!view_->hasFocus()) { return; }
-
 	if (input_->GetMouseWheelDelta() != 0) {
 		Vector3 fwd = camera_->GetForward();
 		camera_->SetPosition(camera_->GetPosition() + fwd * moveSpeed_.z * (float)input_->GetMouseWheelDelta());
@@ -129,7 +127,7 @@ void CameraController::rotateAroundGameObject(const Vector2& mousePos, Vector2& 
 
 		camera_->SetPosition(bp);
 
-		Quaternion q(Matrix4::lookAt(camera_->GetPosition(), selection_->GetTransform()->GetPosition(), Vector3(0, 1, 0)));
+		Quaternion q(Matrix4::lookAt(camera_->GetPosition(), selection_->GetTransform()->GetPosition(), Vector3::up));
 		camera_->SetRotation(q.getConjugated());
 #endif
 
