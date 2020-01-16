@@ -14,12 +14,9 @@
 #include "containers/sortedvector.h"
 
 #include "tools/event.h"
+#include "internal/async/threadpool.h"
 
-class SceneInternal;
-class Sample;
 class RenderingContext;
-class DecalCreater;
-
 class EngineInternal {
 public:
 	EngineInternal();
@@ -44,10 +41,11 @@ private:
 
 	std::thread::id threadId_;
 	RenderingContext* context_;
+	ref_ptr<Task> cullingUpdateTask_;
 
 	std::mutex hierarchyMutex_;
 
 	Subsystem* subsystems_[(int)SubsystemType::_Count];
 
-	sorted_event<>* frameEnterEvent_, *frameLeaveEvent_;
+	priority_event<>* frameEnterEvent_, *frameLeaveEvent_;
 };

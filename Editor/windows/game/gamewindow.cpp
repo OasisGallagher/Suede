@@ -53,7 +53,7 @@
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "room.fbx";
+static const char* roomFbxPath = "house.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
@@ -73,9 +73,10 @@ GameWindow::~GameWindow() {
 
 void GameWindow::initUI() {
 	canvas_ = findChild<Canvas*>("canvas");
-
-	connect(ui_->stat, &QCheckBox::stateChanged, this, &GameWindow::onToggleStat);
-	connect(ui_->play, &QPushButton::clicked, this, &GameWindow::onTogglePlay);
+	
+	connect(ui_->showGizmos, &QPushButton::clicked, this, &GameWindow::onToggleGizmos);
+	connect(ui_->drawPhysics, &QPushButton::clicked, this, &GameWindow::onToggleDrawPhysics);
+	connect(ui_->showStatistics, &QPushButton::clicked, this, &GameWindow::onToggleStatistics);
 	connect(editor_->childWindow<HierarchyWindow>(), &HierarchyWindow::focusGameObject, this, &GameWindow::onFocusGameObjectBounds);
 	
 	typedef void (EnumField::*fptr)(const QString&);
@@ -85,7 +86,9 @@ void GameWindow::initUI() {
 void GameWindow::awake() {
 	Component::Register<CameraController>();
 
+	ui_->showGizmos->setChecked(true);
 	ui_->shadingMode->setEnums(Engine::GetSubsystem<Graphics>()->GetShadingMode());
+	ui_->drawPhysics->setChecked(Engine::GetSubsystem<Physics>()->GetDebugDrawEnabled());
 
 	input_ = Engine::GetSubsystem<Input>();
 
@@ -189,26 +192,26 @@ void GameWindow::resizeEvent(QResizeEvent* event) {
 	updateStatPosition();
 }
 
-void GameWindow::timerEvent(QTimerEvent *event) {
+void GameWindow::onToggleGizmos(bool checked) {
+	selectionGizmos_->SetEnabled(checked);
 }
 
-void GameWindow::onTogglePlay() {
-	playing_ = !playing_;
-	ui_->play->setStyleSheet(QString("border-image:url(:/images/%1)").arg(playing_ ? "pause" : "play"));
-}
-
-void GameWindow::onToggleStat(int state) {
-	stat_->setVisible(!!state);
+void GameWindow::onToggleStatistics(bool checked) {
+	stat_->setVisible(checked);
 
 	if (stat_->isVisible()) {
 		updateStatPosition();
 	}
 }
 
+void GameWindow::onToggleDrawPhysics(bool checked) {
+	Engine::GetSubsystem<Physics>()->SetDebugDrawEnabled(checked);
+}
+
 void GameWindow::updateStatPosition() {
-	QPoint pos = ui_->stat->parentWidget()->mapTo(this, ui_->stat->pos());
+	QPoint pos = ui_->showStatistics->parentWidget()->mapTo(this, ui_->showStatistics->pos());
 	pos.setX(pos.x() - stat_->width());
-	pos.setY(pos.y() + ui_->stat->height());
+	pos.setY(pos.y() + ui_->showStatistics->height() + 2);
 	stat_->move(pos);
 }
 
@@ -260,8 +263,8 @@ void GameWindow::setupScene() {
 	controller_->setView(this);
 	controller_->setSelection(editor_->selection());
 
-	gizmos_ = cameraGameObject->AddComponent<SelectionGizmos>();
-	gizmos_->setSelection(editor_->selection());
+	selectionGizmos_ = cameraGameObject->AddComponent<SelectionGizmos>();
+	selectionGizmos_->setSelection(editor_->selection());
 
 #ifdef PROJECTOR
 	ref_ptr<GameObject> projectorGameObject = new GameObject();

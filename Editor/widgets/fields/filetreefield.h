@@ -22,6 +22,7 @@ signals:
 protected:
 	virtual void showPopup();
 	virtual void hidePopup();
+	virtual bool eventFilter(QObject *watched, QEvent *event);
 
 private slots:
 	void onHideMenu();

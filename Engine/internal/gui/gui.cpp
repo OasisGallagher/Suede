@@ -4,6 +4,8 @@
 #include "tools/string.h"
 
 #include "imgui.h"
+#include "imgui_internal.h"
+
 #include "glcanvas.h"
 #include "math/mathf.h"
 
@@ -161,6 +163,16 @@ bool GUI::ContextMenuWindowItem(const char* title) {
 
 void GUI::EndContextMenuWindowItem() {
 	ImGui::EndPopup();
+}
+
+void GUI::BeginDisabled() {
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+	ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.4f);
+}
+
+void GUI::EndDisabled() {
+	ImGui::PopItemFlag();
+	ImGui::PopStyleVar();
 }
 
 bool GUI::Toggle(const char* title, bool& value) {

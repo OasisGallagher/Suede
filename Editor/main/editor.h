@@ -14,6 +14,8 @@ class Editor : public QMainWindow {
 
 public:
 	Editor(QWidget *parent = 0);
+
+
 	~Editor();
 
 public:
@@ -37,6 +39,7 @@ protected:
 
 private slots:
 	void onAbout();
+	void onTogglePlay();
 	void onPreferences();
 	void onScreenCapture();
 	void onShowWindowMenu();
@@ -46,6 +49,7 @@ private:
 	void setupUI();
 
 	void initializeLayout();
+	void initializeToolBar();
 	void initializeHelpMenu();
 	void initializeFileMenu();
 	void initializeEditMenu();
@@ -53,6 +57,9 @@ private:
 
 private:
 	Ui::Editor ui_;
+	bool playing_ = true;
+	QAction* playAction_ = nullptr;
+
 	Selection* selection_;
 
 	Preferences* preferences_;

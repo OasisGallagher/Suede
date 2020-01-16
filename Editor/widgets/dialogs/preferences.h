@@ -10,7 +10,6 @@ public:
 
 private slots:
 	void onSkinChanged(const QString& name);
-	void onPhysicsDebugDrawEnabledChanged(int state);
 
 private:
 	void updateUI();

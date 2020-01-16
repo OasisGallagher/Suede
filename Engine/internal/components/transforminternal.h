@@ -1,16 +1,16 @@
-#include <mutex>
 #include <vector>
 
 #include "transform.h"
+#include "tools/event.h"
 #include "internal/components/componentinternal.h"
 
 class TransformInternal : public ComponentInternal {
 public:
-	static std::mutex hierarchyMutex;
-
-public:
 	TransformInternal();
 	~TransformInternal();
+
+public:
+	static event<Transform*, bool> attached;
 
 public:
 	bool IsAttachedToScene(Transform* transform);

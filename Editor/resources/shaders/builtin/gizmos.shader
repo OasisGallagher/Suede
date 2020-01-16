@@ -25,7 +25,7 @@ SubShader {
 		uniform vec4 _MainColor;
 
 		void main() {
-			fragColor = vec4(_MainColor.xyz, 0.45);
+			fragColor = vec4(_MainColor.xyz, 0.35);
 		}
 
 		ENDGLSL

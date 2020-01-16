@@ -58,7 +58,7 @@ void ThreadPool::AddTask(Task* task) {
 }
 
 // waits until the queue is empty.
-void ThreadPool::WaitFinished() {
+void ThreadPool::Join() {
 	std::unique_lock<std::mutex> lock(tasks_mutex_);
 	cv_finished_.wait(lock, [this]() { return tasks_.empty() && (busy_ == 0); });
 }

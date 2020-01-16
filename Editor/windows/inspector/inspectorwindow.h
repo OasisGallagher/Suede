@@ -11,6 +11,7 @@
 #include "custom/componentmetaobject.h"
 
 class IMGUIWidget;
+class MaterialEditor;
 class InspectorWindow : public ChildWindow {
 	Q_OBJECT
 
@@ -63,6 +64,7 @@ private:
 
 private:
 	IMGUIWidget* view_;
+	MaterialEditor* materialEditor_;
 
 	std::map<ObjectType, std::shared_ptr<ComponentMetaObject>> suedeMetaObjects_;
 };

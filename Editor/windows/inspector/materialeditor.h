@@ -1,25 +1,27 @@
 #pragma once
+#include <QWidget>
+
 #include "gui.h"
 #include "material.h"
 #include "os/filesystem.h"
 
 class MaterialEditor {
 public:
-	static void draw(Material* material);
+	void draw(Material* material, QWidget* parent);
 
 private:
-	static void drawShaderSelector(Material* material);
-	static void replaceShader(Material* material, const std::string& fullShaderPath);
+	void drawShaderSelector(Material* material, QWidget* parent);
+	void replaceShader(Material* material, const std::string& fullShaderPath);
 
-	static void drawProperties(Material* material);
-	static void drawBoolProperty(Material* material, const Property* p);
-	static void drawRangedIntProperty(Material* material, const Property* p);
-	static void drawRangedFloatProperty(Material* material, const Property* p);
-	static void drawTextureProperty(Material* material, const Property* p);
-	static void drawColorProperty(Material* material, const Property* p);
-	static void drawFloatProperty(Material* material, const Property* p);
-	static void drawVector3Property(Material* material, const Property* p);
-	static void drawVector4Property(Material* material, const Property* p);
+	void drawProperties(Material* material);
+	void drawBoolProperty(Material* material, const Property* p);
+	void drawRangedIntProperty(Material* material, const Property* p);
+	void drawRangedFloatProperty(Material* material, const Property* p);
+	void drawTextureProperty(Material* material, const Property* p);
+	void drawColorProperty(Material* material, const Property* p);
+	void drawFloatProperty(Material* material, const Property* p);
+	void drawVector3Property(Material* material, const Property* p);
+	void drawVector4Property(Material* material, const Property* p);
 
-	static void drawTexture2DSelector(const Property* p, Texture2D* texture2D);
+	void drawTexture2DSelector(const Property* p, Texture2D* texture2D);
 };

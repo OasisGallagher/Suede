@@ -22,7 +22,7 @@ public:
 
 	Color GetColor() { return color_; }
 	void SetColor(const Color& value) { color_ = value; }
-	
+
 	void DrawLines(const Vector3* points, uint npoints);
 	void DrawLines(const Vector3* points, uint npoints, const uint* indexes, uint nindexes);
 

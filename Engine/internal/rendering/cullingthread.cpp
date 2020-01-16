@@ -27,6 +27,8 @@ void CullingTask::SetWorldToClipMatrix(const Matrix4& value) {
 }
 
 void CullingTask::Run() {
+	uint64 start = Time::GetTimeStamp();
+
 	gameObjects_.clear();
 
 	for (GameObject* go : scene_->GetGameObjectsOfComponent(Renderer::GetComponentGUID())) {
@@ -41,6 +43,10 @@ void CullingTask::Run() {
 	}
 
 	finished.raise();
+
+	profiler_->SetCullingElapsed(
+		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
+	);
 }
 
 bool CullingTask::IsVisible(Renderer* renderer) {
@@ -90,36 +96,3 @@ bool CullingTask::IsVisible(Renderer* renderer) {
 //	Vector2 size(max - min);
 //	return size.GetSqrMagnitude() > MIN_NDC_RADIUS_SQUARED;
 //}
-
-CullingThread::CullingThread(RenderingContext* context) : ThreadPool(4), context_(context) {
-	cullingUpdateTask_ = new UpdateTask();
-	Engine::GetSubsystem<FrameEvents>()->frameEnter.subscribe(this, &CullingThread::OnFrameEnter, (int)FrameEventQueue::CullingThread);
-	Engine::GetSubsystem<FrameEvents>()->frameLeave.subscribe(this, &CullingThread::OnFrameLeave, (int)FrameEventQueue::CullingThread);
-}
-
-CullingThread::~CullingThread() {
-	Engine::GetSubsystem<FrameEvents>()->frameEnter.unsubscribe(this);
-	Engine::GetSubsystem<FrameEvents>()->frameLeave.unsubscribe(this);
-}
-
-void CullingThread::OnFrameEnter() {
-	AddTask(cullingUpdateTask_.get());
-}
-
-void CullingThread::OnFrameLeave() {
-	WaitFinished();
-}
-
-CullingThread::UpdateTask::UpdateTask() {
-	time_ = Engine::GetSubsystem<Time>();
-	scene_ = Engine::GetSubsystem<Scene>();
-	profiler_ = Engine::GetSubsystem<Profiler>();
-}
-
-void CullingThread::UpdateTask::Run() {
-	uint64 start = Time::GetTimeStamp();
-	_suede_drptr(scene_)->CullingUpdate(time_->GetDeltaTime());
-	profiler_->SetCullingElapsed(
-		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
-	);
-}

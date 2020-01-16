@@ -46,27 +46,5 @@ private:
 
 class CullingThread : public ThreadPool {
 public:
-	CullingThread(RenderingContext* context);
-	~CullingThread();
-
-private:
-	void OnFrameEnter();
-	void OnFrameLeave();
-
-private:
-	class UpdateTask : public Task {
-	public:
-		UpdateTask();
-
-	private:
-		virtual void Run() override;
-
-		Time* time_;
-		Scene* scene_;
-		Profiler* profiler_;
-	};
-
-	ref_ptr<UpdateTask> cullingUpdateTask_;
-
-	RenderingContext* context_;
+	CullingThread(RenderingContext* context) : ThreadPool(4) {}
 };

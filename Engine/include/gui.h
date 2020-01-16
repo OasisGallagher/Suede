@@ -41,6 +41,9 @@ public:
 	static bool ContextMenuWindowItem(const char* title);
 	static void EndContextMenuWindowItem();
 
+	static void BeginDisabled();
+	static void EndDisabled();
+
 	static void Sameline();
 	static void Separator();
 

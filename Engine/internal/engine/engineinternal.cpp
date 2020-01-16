@@ -36,6 +36,27 @@ void Engine::Shutdown() { _suede_dinstance()->Shutdown(); }
 void Engine::Update() { _suede_dinstance()->Update(); }
 Subsystem* Engine::GetSubsystem(SubsystemType type) { return _suede_dinstance()->GetSubsystem(type); }
 
+class CullingUpdateTask : public Task {
+public:
+	CullingUpdateTask() {
+		time_ = Engine::GetSubsystem<Time>();
+		scene_ = Engine::GetSubsystem<Scene>();
+		profiler_ = Engine::GetSubsystem<Profiler>();
+	}
+
+	void Run() {
+		uint64 start = Time::GetTimeStamp();
+		_suede_drptr(scene_)->CullingUpdate(time_->GetDeltaTime());
+		profiler_->SetCullingUpdateElapsed(
+			Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
+		);
+	}
+
+	Time* time_;
+	Scene* scene_;
+	Profiler* profiler_;
+};
+
 EngineInternal::EngineInternal() {
 	static FrameEvents eventSystem;
 	frameEnterEvent_ = &eventSystem.frameEnter;
@@ -69,6 +90,7 @@ void EngineInternal::Startup(GLCanvas* canvas) {
 	context_->SetGraphics(graphics);
 
 	Context::SetCurrent(context_);
+	cullingUpdateTask_ = new CullingUpdateTask();
 
 	for (int type = 0; type < (int)SubsystemType::_Count; ++type) {
 		subsystems_[type]->Awake();
@@ -116,6 +138,8 @@ void EngineInternal::UpdateTimeUniformBuffer() {
 }
 
 void EngineInternal::Update() {
+	context_->GetCullingThread()->AddTask(cullingUpdateTask_.get());
+
 	Time* time = (Time*)GetSubsystem(SubsystemType::Time);
 	Profiler* profiler = (Profiler*)GetSubsystem(SubsystemType::Profiler);
 	uint64 start = Time::GetTimeStamp();
@@ -138,4 +162,6 @@ void EngineInternal::Update() {
 	profiler->SetRenderingElapsed(
 		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
 	);
+
+	context_->GetCullingThread()->Join();
 }

@@ -7,7 +7,7 @@
 
 class BulletDebugDrawer : public btIDebugDraw {
 public:
-	BulletDebugDrawer(Gizmos* gizmos) : gizmos_(gizmos) {}
+	BulletDebugDrawer(Gizmos* gizmos) : selectionGizmos_(gizmos) {}
 
 public:
 	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
@@ -20,7 +20,7 @@ public:
 	virtual int getDebugMode() const { return DBG_DrawWireframe | DBG_DrawAabb; }
 
 private:
-	Gizmos* gizmos_;
+	Gizmos* selectionGizmos_;
 };
 
 class PhysicsInternal : public SubsystemInternal {
@@ -46,7 +46,7 @@ private:
 	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component);
 
 private:
-	Gizmos* gizmos_;
+	Gizmos* selectionGizmos_;
 
 	bool debugDrawEnabled_;
 

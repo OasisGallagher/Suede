@@ -198,8 +198,8 @@ void GizmosInternal::FillBatch(Batch &b, const Vector3* points, uint npoints) {
 }
 
 /**
- * @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
- */
+* @see https://stackoverflow.com/questions/7687148/drawing-sphere-in-opengl-without-using-glusphere
+*/
 void GizmosInternal::AddSphereBatch(const Vector3& center, float radius, bool wireframe) {
 	std::vector<uint> indexes;
 	std::vector<Vector3> points;

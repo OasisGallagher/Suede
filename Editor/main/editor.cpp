@@ -1,4 +1,5 @@
 #include <QMenuBar>
+#include <QToolBar>
 #include <QKeyEvent>
 #include <QStatusBar>
 #include <QFileDialog>
@@ -29,6 +30,8 @@ namespace PrefsKeys {
 Editor::Editor(QWidget *parent) : QMainWindow(parent), preferences_(nullptr), selection_(new Selection()) {
 	setupUI();
 	setStatusBar(new StatusBar(this));
+	
+	initializeToolBar();
 
 	initializeFileMenu();
 	initializeEditMenu();
@@ -120,6 +123,11 @@ void Editor::onAbout() {
 	aboutDialog.exec();
 }
 
+void Editor::onTogglePlay() {
+	playing_ = !playing_;
+	playAction_->setIcon(QIcon(QString(":/images/") + (playing_ ? "pause" : "play")));
+}
+
 void Editor::onShowWindowMenu() {
 	QList<QAction*> actions = menuBar()->findChild<QMenu*>("window")->actions();
 	for (int i = 0; i < ChildWindowType::size(); ++i) {
@@ -205,6 +213,27 @@ void Editor::initializeLayout() {
 	tabifyDockWidget(ui_.console, ui_.project);
 
 	childWindow<LightingWindow>()->setVisible(false);
+}
+
+void Editor::initializeToolBar() {
+	QWidget* dummy1 = new QWidget(this);
+	dummy1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	QWidget* dummy2 = new QWidget(this);
+	dummy2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	QToolBar* tb = new QToolBar();
+	tb->setMovable(false);
+	tb->setFloatable(false);
+
+	tb->setMaximumHeight(22);
+
+	tb->addWidget(dummy1);
+	playAction_ = new QAction(QIcon(":/images/pause"), "", tb);
+	connect(playAction_, &QAction::triggered, this, &Editor::onTogglePlay);
+	tb->addAction(playAction_);
+	tb->addWidget(dummy2);
+
+	addToolBar(Qt::TopToolBarArea, tb);
 }
 
 void Editor::initializeHelpMenu() {

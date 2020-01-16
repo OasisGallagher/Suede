@@ -20,6 +20,7 @@ public:
 
 public:
 	virtual void setComponent(Component* component) = 0;
+	virtual bool enabledMutable() const { return true; }
 };
 
 template <class T>
@@ -66,6 +67,8 @@ class TransformMetaObject : public ComponentMetaObjectT<Transform> {
 	SUEDE_NAMED_PROPERTY(Vector3, Position, LocalPosition)
 	SUEDE_NAMED_PROPERTY(Vector3, Rotation, LocalEulerAngles)
 	SUEDE_NAMED_PROPERTY(Vector3, Scale, LocalScale)
+
+	virtual bool enabledMutable() const override { return false; }
 };
 
 #include "camera.h"

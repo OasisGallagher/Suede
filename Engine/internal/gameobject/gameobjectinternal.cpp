@@ -43,9 +43,6 @@ GameObjectInternal::GameObjectInternal(Context* context, Scene* scene, Tags* tag
 	: ObjectInternal(ObjectType::GameObject, name), context_(context), scene_(scene), tags_(tags) {
 }
 
-GameObjectInternal::~GameObjectInternal() {
-}
-
 void GameObjectInternal::SetActiveSelf(GameObject* self, bool value) {
 	if (activeSelf_ != value) {
 		activeSelf_ = value;
@@ -80,7 +77,10 @@ Component* GameObjectInternal::ActivateComponent(GameObject* self, Component* co
 	}
 
 	RecalculateUpdateStrategy(self);
-	GameObjectInternal::componentChanged.raise(self, ComponentEventType::Added, component);
+
+	if (self->GetTransform()->IsAttachedToScene()) {
+		GameObjectInternal::componentChanged.raise(self, ComponentEventType::Added, component);
+	}
 
 	return component;
 }

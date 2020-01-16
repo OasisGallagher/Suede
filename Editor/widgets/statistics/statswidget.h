@@ -2,6 +2,7 @@
 
 #include <QTimer>
 #include <QWidget>
+#include <QLabel>
 
 #include "ui_statswidget.h"
 
@@ -19,6 +20,11 @@ protected:
 	virtual void showEvent(QShowEvent *event);
 
 private:
+	QLabel* addRecord(const QString& label);
+
+private:
 	QTimer* timer_;
 	Ui::StatsWidget ui;
+
+	QLabel* fps_, *script_, *culling_, *cullingUpdate_, *rendering_, *drawcalls_, *triangles_;
 };

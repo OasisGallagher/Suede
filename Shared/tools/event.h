@@ -14,7 +14,7 @@
 template <class... Args>
 class _SubscriberBase {
 public:
-	virtual int order() = 0;
+	virtual int priority() = 0;
 	virtual void* caller() = 0;
 	virtual void call(Args... args) = 0;
 	virtual bool instanceof(void* t) = 0;
@@ -34,7 +34,7 @@ private:
 public:
 	_Subscriber(T* _t, void(T::*_f)(Args...), int _order = 0) : t(_t), f(_f), o(_order) {}
 	~_Subscriber() {}
-	int order() { return o; }
+	int priority() { return o; }
 	void* caller() { return t; }
 	void call(Args... args) { (t->*f)(args...); }
 	bool instanceof(void* _t) { return _t == (void*)t; }
@@ -108,11 +108,11 @@ protected:
 };
 
 template <class... Args>
-class sorted_event : public event<Args...> {
+class priority_event : public event<Args...> {
 	typedef event<Args...> super;
 	struct subscriber_comparer {
 		bool operator()(const smart_ptr_type& lhs, const smart_ptr_type& rhs) const {
-			return lhs->order() < rhs->order();
+			return lhs->priority() < rhs->priority();
 		}
 	};
 
@@ -127,8 +127,8 @@ public:
 	}
 
 	template <class T>
-	void subscribe(T* t, void(T::*f)(Args... args), int order) {
-		smart_ptr_type s(new _Subscriber <T, Args...>(t, f, order));
+	void subscribe(T* t, void(T::*f)(Args... args), int priority) {
+		smart_ptr_type s(new _Subscriber <T, Args...>(t, f, priority));
 		if (inside_raise_) {
 			to_add_.push_back(s);
 		}

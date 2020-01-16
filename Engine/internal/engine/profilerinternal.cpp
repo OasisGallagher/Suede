@@ -29,6 +29,7 @@ void Profiler::AddTriangles(uint n) { _suede_dptr()->AddTriangles(n); }
 void Profiler::AddDrawcalls(uint n) { _suede_dptr()->AddDrawcalls(n); }
 void Profiler::SetScriptElapsed(double value) { _suede_dptr()->SetScriptElapsed(value); }
 void Profiler::SetCullingElapsed(double value) { _suede_dptr()->SetCullingElapsed(value); }
+void Profiler::SetCullingUpdateElapsed(double value) { _suede_dptr()->SetCullingUpdateElapsed(value); }
 void Profiler::SetRenderingElapsed(double value) { _suede_dptr()->SetRenderingElapsed(value); }
 const StatisticInfo* Profiler::GetStatisticInfo() { return _suede_dptr()->GetStatisticInfo(); }
 void Profiler::Awake() { _suede_dptr()->Awake(); }
@@ -118,6 +119,10 @@ void ProfilerInternal::SetScriptElapsed(double value) {
 
 void ProfilerInternal::SetCullingElapsed(double value) {
 	thisFrameStats.cullingElapsed = value;
+}
+
+void ProfilerInternal::SetCullingUpdateElapsed(double value) {
+	thisFrameStats.cullingUpdateElapsed = value;
 }
 
 void ProfilerInternal::SetRenderingElapsed(double value) {

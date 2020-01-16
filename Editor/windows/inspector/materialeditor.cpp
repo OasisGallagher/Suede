@@ -5,13 +5,13 @@
 #include "resources.h"
 #include "../widgets/dialogs/shaderselector.h"
 
-void MaterialEditor::draw(Material* material) {
+void MaterialEditor::draw(Material* material, QWidget* parent) {
 	std::string materialName = material->GetName();
 	if (GUI::CollapsingHeader(materialName.c_str())) {
 		GUI::BeginScope(materialName.c_str());
 
 		GUI::Indent();
-		drawShaderSelector(material);
+		drawShaderSelector(material, parent);
 		drawProperties(material);
 		GUI::Unindent();
 
@@ -19,10 +19,10 @@ void MaterialEditor::draw(Material* material) {
 	}
 }
 
-void MaterialEditor::drawShaderSelector(Material* material) {
+void MaterialEditor::drawShaderSelector(Material* material, QWidget* parent) {
 	std::string shaderName = material->GetShader()->GetName();
 	if (GUI::Button(shaderName.c_str())) {
-		ShaderSelector selector(nullptr);
+		ShaderSelector selector(parent);
 		std::string fullShaderPath = selector.select(shaderName.c_str()).toStdString();
 		if (!fullShaderPath.empty()) {
 			replaceShader(material, fullShaderPath);

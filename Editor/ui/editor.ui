@@ -47,7 +47,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>236</width>
+     <width>350</width>
      <height>100</height>
     </size>
    </property>
@@ -138,62 +138,53 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="play">
-          <property name="minimumSize">
-           <size>
-            <width>16</width>
-            <height>16</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>18</width>
-            <height>18</height>
-           </size>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">border-image:url(:/images/pause);</string>
+         <widget class="QPushButton" name="showGizmos">
+          <property name="toolTip">
+           <string>Show/Hide Gizmos</string>
           </property>
           <property name="text">
            <string/>
           </property>
-          <property name="iconSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
+          <property name="icon">
+           <iconset resource="../editor.qrc">
+            <normaloff>:/images/gizmos</normaloff>:/images/gizmos</iconset>
           </property>
           <property name="checkable">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="stat">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <widget class="QPushButton" name="drawPhysics">
+          <property name="toolTip">
+           <string>Show/Hide Physics World</string>
           </property>
           <property name="text">
-           <string>Stat</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../editor.qrc">
+            <normaloff>:/images/physics</normaloff>:/images/physics</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="showStatistics">
+          <property name="toolTip">
+           <string>Show/Hide Statistics</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../editor.qrc">
+            <normaloff>:/images/statistics</normaloff>:/images/statistics</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

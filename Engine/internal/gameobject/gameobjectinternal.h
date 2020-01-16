@@ -9,7 +9,6 @@ class Context;
 class GameObjectInternal : public ObjectInternal {
 public:
 	GameObjectInternal(Context* context, Scene* scene, Tags* tags, const char* name = "");
-	~GameObjectInternal();
 
 public:
 	Scene* GetScene() { return scene_; }

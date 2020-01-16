@@ -1,15 +1,11 @@
 #pragma once
 
-#include <QDockWidget>
-
 #include "bounds.h"
 #include "camera.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
 #include "qtinputdelegate.h"
 #include "main/childwindow.h"
-
-class Editor;
 
 class Canvas;
 class StatsWidget;
@@ -36,18 +32,17 @@ public:
 	virtual void awake();
 	virtual void tick();
 
-private slots:
-	void onTogglePlay();
-	void onToggleStat(int state);
+private:
+	void onToggleGizmos(bool checked);
+	void onToggleStatistics(bool checked);
+	void onToggleDrawPhysics(bool checked);
 
 	void onShadingModeChanged(const QString& str);
-
 	void onFocusGameObjectBounds(GameObject* go);
 
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
 	virtual void keyPressEvent(QKeyEvent* event);
-	virtual void timerEvent(QTimerEvent *event);
 
 private:
 	void setupScene();
@@ -57,14 +52,12 @@ private:
 	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
-	bool playing_ = true;
-
 	Input* input_;
 	QtInputDelegate* inputDelegate_;
 
 	Canvas* canvas_;
 	StatsWidget* stat_;
 
-	SelectionGizmos* gizmos_;
+	SelectionGizmos* selectionGizmos_;
 	CameraController* controller_;
 };

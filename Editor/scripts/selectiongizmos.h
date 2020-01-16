@@ -22,7 +22,7 @@ public:
 	virtual void OnDrawGizmos();
 
 private:
-	Gizmos* gizmos_;
+	Gizmos* selectionGizmos_;
 	Camera* camera_;
 
 	Selection* selection_;

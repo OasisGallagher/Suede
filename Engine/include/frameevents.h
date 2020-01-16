@@ -24,6 +24,6 @@ struct SUEDE_API FrameEvents : public Subsystem {
 
 	FrameEvents() : Subsystem(nullptr) {}
 
-	sorted_event<> frameEnter;
-	sorted_event<> frameLeave;
+	priority_event<> frameEnter;
+	priority_event<> frameLeave;
 };

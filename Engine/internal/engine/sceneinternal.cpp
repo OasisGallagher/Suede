@@ -32,16 +32,19 @@ inline void InsertUnique(Container& cont, const typename Container::value_type& 
 }
 
 void SceneInternal::Awake() {
+	TransformInternal::attached.subscribe(this, &SceneInternal::OnTransformAttached);
+
 	GameObjectInternal::created.subscribe(this, &SceneInternal::AddGameObject);
 	GameObjectInternal::componentChanged.subscribe(this, &SceneInternal::OnGameObjectComponentChanged);
 
-	root_ = new GameObject("Root");
+	root_ = new Transform();
 
 	importer_ = new GameObjectImporter();
 	decalCreater_ = new DecalCreater();
 }
 
 void SceneInternal::OnDestroy() {
+	TransformInternal::attached.unsubscribe(this);
 	GameObjectInternal::created.unsubscribe(this);
 	GameObjectInternal::componentChanged.unsubscribe(this);
 
@@ -55,7 +58,7 @@ void SceneInternal::OnDestroy() {
 }
 
 void SceneInternal::Update(float deltaTime) {
-	destroyed_.clear();
+	UpdateDestroyedGameObjects();
 
 	SortComponents();
 
@@ -78,7 +81,6 @@ void SceneInternal::CullingUpdate(float deltaTime) {
 }
 
 void SceneInternal::AddGameObject(ref_ptr<GameObject> go) {
-	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 }
 
@@ -140,6 +142,17 @@ void SceneInternal::SortComponents() {
 	std::stable_sort(lights_.begin(), lights_.end(), lightComparer);
 }
 
+void SceneInternal::UpdateDestroyedGameObjects() {
+	for (auto ite = destroyed_.begin(); ite != destroyed_.end(); ) {
+		if (--ite->second <= 0) {
+			ite = destroyed_.erase(ite);
+		}
+		else {
+			++ite;
+		}
+	}
+}
+
 void SceneInternal::CullingUpdateGameObjects(float deltaTime) {
 	std::lock_guard<std::mutex> lock(cullingMutex_);
 	for (GameObject* go : cullingUpdateSequence_) {
@@ -170,7 +183,9 @@ void SceneInternal::DestroyGameObject(uint id) {
 }
 
 void SceneInternal::DestroyGameObject(GameObject* go) {
-	DestroyGameObjectRecursively(go->GetTransform());
+	if (gameObjects_.find(go->GetInstanceID()) != gameObjects_.end()) {
+		DestroyGameObjectRecursively(go->GetTransform());
+	}
 }
 
 void SceneInternal::DestroyGameObjectRecursively(Transform* root) {
@@ -197,14 +212,14 @@ void SceneInternal::RemoveGameObject(GameObject* go) {
 	RemoveGameObjectFromSequence(go);
 	go->GetTransform()->SetParent(nullptr);
 
-	destroyed_.insert(go);
+	destroyed_.emplace_back(go, FramesDestroyedGameObjectAlive);
 	gameObjects_.erase(go->GetInstanceID());
 }
 
 std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid guid) {
 	std::vector<GameObject*> gameObjects;
 	if (guid == Renderer::GetComponentGUID()) {
-		for (const ref_ptr<Renderer>& renderer : renderers_) {
+		for (Renderer* renderer : renderers_) {
 			gameObjects.push_back(renderer->GetGameObject());
 		}
 	}
@@ -214,17 +229,17 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 		}
 	}
 	else if (guid == Projector::GetComponentGUID()) {
-		for (const ref_ptr<Projector>& projector : projectors_) {
+		for (Projector* projector : projectors_) {
 			gameObjects.push_back(projector->GetGameObject());
 		}
 	}
 	else if (guid == Light::GetComponentGUID()) {
-		for (const ref_ptr<Light>& light : lights_) {
+		for (Light* light : lights_) {
 			gameObjects.push_back(light->GetGameObject());
 		}
 	}
 	else if (guid == GizmosPainter::GetComponentGUID()) {
-		for (const ref_ptr<GizmosPainter>& painter : gizmosPainters_) {
+		for (GizmosPainter* painter : gizmosPainters_) {
 			gameObjects.push_back(painter->GetGameObject());
 		}
 	}
@@ -240,7 +255,6 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 }
 
 void SceneInternal::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) {
-	std::lock_guard<std::mutex> lock(TransformInternal::hierarchyMutex);
 	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
 }
 
@@ -274,6 +288,31 @@ bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::fun
 	}
 
 	return true;
+}
+
+void SceneInternal::OnTransformAttached(Transform* transform, bool attached) {
+	ComponentEventType type = attached ? ComponentEventType::Added : ComponentEventType::Removed;
+	for (Component* component : transform->GetGameObject()->GetComponentsInChildren("")) {
+		if (component->IsComponentType(Light::GetComponentGUID())) {
+			ManageGameObjectComponents(lights_, component, type);
+		}
+
+		if (component->IsComponentType(Camera::GetComponentGUID())) {
+			ManageGameObjectComponents(cameras_, component, type);
+		}
+
+		if (component->IsComponentType(Projector::GetComponentGUID())) {
+			ManageGameObjectComponents(projectors_, component, type);
+		}
+
+		if (component->IsComponentType(Renderer::GetComponentGUID())) {
+			ManageGameObjectComponents(renderers_, component, type);
+		}
+
+		if (component->IsComponentType(GizmosPainter::GetComponentGUID())) {
+			ManageGameObjectComponents(gizmosPainters_, component, type);
+		}
+	}
 }
 
 void SceneInternal::RemoveGameObjectFromSequence(GameObject* go) {
@@ -311,7 +350,9 @@ void SceneInternal::ManageGameObjectComponents(Container& container, Component* 
 	if (component->IsComponentType(T::GetComponentGUID())) {
 		T* target = (T*)component;
 		if (state == ComponentEventType::Added) {
-			container.push_back(target);
+			if (std::find(container.begin(), container.end(), component) == container.end()) {
+				container.push_back(target);
+			}
 		}
 		else if (state == ComponentEventType::Removed) {
 			EraseByValue(container, target);

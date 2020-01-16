@@ -41,7 +41,7 @@ Vector3 Transform::GetUp() { return _suede_dptr()->GetUp(this); }
 Vector3 Transform::GetRight() { return _suede_dptr()->GetRight(this); }
 Vector3 Transform::GetForward() { return _suede_dptr()->GetForward(this); }
 
-std::mutex TransformInternal::hierarchyMutex;
+event<Transform*, bool> TransformInternal::attached;
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Transform, Component)
 
@@ -83,10 +83,8 @@ void TransformInternal::SetParent(Transform* self, Transform* value) {
 		return;
 	}
 
-	Transform* oldParent = parent_;
-	if (oldParent != value) {
-		std::lock_guard<std::mutex> lock(hierarchyMutex);
-		ChangeParent(self, oldParent, value);
+	if (parent_ != value) {
+		ChangeParent(self, parent_, value);
 	}
 }
 
@@ -559,6 +557,8 @@ Transform* TransformInternal::FindDirectChild(const std::string& name) {
 }
 
 void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Transform* newParent) {
+	Transform* root = gameObject_->GetScene()->GetRootTransform();
+
 	if (oldParent) { // remove from old parent.
 		TransformInternal* optr = _suede_drptr(oldParent);
 		RemoveChildItem(optr->children_, self);
@@ -576,6 +576,10 @@ void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Tran
 	GetRotation(self);
 	GetPosition(self);
 	SetDirty(LocalScaleMask | LocalRotationMask | LocalPositionMask | LocalEulerAnglesMask, true);
+
+	if (oldParent == root || newParent == root) {
+		attached.raise(self, newParent == root);
+	}
 }
 
 bool TransformInternal::AddChildItem(Children & children, Transform* child) {

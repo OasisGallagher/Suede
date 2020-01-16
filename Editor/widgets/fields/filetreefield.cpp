@@ -1,4 +1,5 @@
 #include <QLineEdit>
+#include <QMouseEvent>
 
 #include "os/filesystem.h"
 #include "filetreefield.h"
@@ -7,6 +8,7 @@ FileTreeField::FileTreeField(QWidget* parent) :QComboBox(parent), menu_(nullptr)
 	setEditable(true);
 	lineEdit()->setReadOnly(true);
 	lineEdit()->setAlignment(Qt::AlignLeft);
+	lineEdit()->installEventFilter(this);
 }
 
 FileTreeField::~FileTreeField() {
@@ -45,6 +47,14 @@ void FileTreeField::createMenu(FileTree &tree) {
 
 void FileTreeField::hidePopup() {
 	QComboBox::hidePopup();
+}
+
+bool FileTreeField::eventFilter(QObject *watched, QEvent *event) {
+	if (lineEdit() == watched && event->type() == QEvent::MouseButtonPress && ((QMouseEvent*)event)->buttons() & Qt::LeftButton) {
+		showPopup();
+	}
+	
+	return QComboBox::eventFilter(watched, event);
 }
 
 void FileTreeField::onHideMenu() {

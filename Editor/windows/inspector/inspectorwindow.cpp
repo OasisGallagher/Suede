@@ -19,6 +19,8 @@
 #include "gui/qtimgui/QtImGui.h"
 
 InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
+	materialEditor_ = new MaterialEditor();
+
 	addSuedeMetaObject(ObjectType::Transform, std::make_shared<TransformMetaObject>());
 
 	addSuedeMetaObject(ObjectType::Light, std::make_shared<LightMetaObject>());
@@ -42,6 +44,7 @@ InspectorWindow::InspectorWindow(QWidget* parent) : ChildWindow(parent) {
 }
 
 InspectorWindow::~InspectorWindow() {
+	delete materialEditor_;
 }
 
 void InspectorWindow::initUI() {
@@ -103,10 +106,22 @@ void InspectorWindow::drawComponents(GameObject* go) {
 			continue;
 		}
 
-		bool enabled = component->GetEnabled();
+		bool enabledMutable = true;
+		if (component->GetObjectType() != ObjectType::CustomBehaviour) {
+			enabledMutable = ((ComponentMetaObject*)object)->enabledMutable();
+		}
 
+		if (!enabledMutable) {
+			GUI::BeginDisabled();
+		}
+
+		bool enabled = component->GetEnabled();
 		if (GUI::Toggle(("##" + typeName).c_str(), enabled)) {
 			component->SetEnabled(enabled);
+		}
+
+		if (!enabledMutable) {
+			GUI::EndDisabled();
 		}
 
 		GUI::Sameline();
@@ -217,7 +232,7 @@ void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, cons
 		drawUserRangeType(object, name, GUI::Slider);
 	}
 	else if (userType == QMetaTypeId<Material*>::qt_metatype_id()) {
-		MaterialEditor::draw(object->property(name).value<Material*>());
+		materialEditor_->draw(object->property(name).value<Material*>(), this);
 	}
 	else if (userType == QMetaTypeId<QVector<Material*>>::qt_metatype_id()) {
 		drawMaterialVector(object, name);
@@ -241,7 +256,7 @@ void InspectorWindow::drawMaterialVector(QObject* object, const char* name) {
 
 		GUI::BeginScope(materialIndex);
 
-		MaterialEditor::draw(material);
+		materialEditor_->draw(material, this);
 
 		GUI::EndScope();
 

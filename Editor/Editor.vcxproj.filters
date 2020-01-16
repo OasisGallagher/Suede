@@ -503,6 +503,9 @@
     <CustomBuild Include="widgets\fields\enumfield.h">
       <Filter>widgets\fields</Filter>
     </CustomBuild>
+    <CustomBuild Include="windows\inspector\materialeditor.h">
+      <Filter>windows\inspector</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\qtimgui\QtImGui.h">
@@ -510,9 +513,6 @@
     </ClInclude>
     <ClInclude Include="main\prefs.h">
       <Filter>main</Filter>
-    </ClInclude>
-    <ClInclude Include="windows\inspector\materialeditor.h">
-      <Filter>windows\inspector</Filter>
     </ClInclude>
     <ClInclude Include="main\childwindow.h">
       <Filter>main</Filter>

@@ -24,7 +24,7 @@ public:
 	ThreadPool(uint n);
 	~ThreadPool();
 
-	void WaitFinished();
+	void Join();
 	void AddTask(Task* task);
 
 protected:

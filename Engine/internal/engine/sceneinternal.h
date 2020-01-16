@@ -28,7 +28,7 @@ public:
 	void DestroyGameObject(GameObject* go);
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
 	void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
-	Transform* GetRootTransform() { return root_->GetTransform(); }
+	Transform* GetRootTransform() { return root_.get(); }
 	void Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
 
 public:
@@ -41,6 +41,7 @@ public:
 private:
 	void UpdateDecals();
 	void SortComponents();
+	void UpdateDestroyedGameObjects();
 	void CullingUpdateGameObjects(float deltaTime);
 	void RenderingUpdateGameObjects(float deltaTime);
 	void AddGameObject(ref_ptr<GameObject> go);
@@ -50,6 +51,7 @@ private:
 	void DestroyGameObjectRecursively(Transform* root);
 	bool WalkGameObjectHierarchyRecursively(Transform* root, std::function<WalkCommand(GameObject*)> walker);
 
+	void OnTransformAttached(Transform* transform, bool attached);
 	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component);
 
 	template <class Container>
@@ -69,8 +71,10 @@ private:
 
 	Environment environment_;
 	DecalCreater* decalCreater_;
-	std::set<ref_ptr<GameObject>> destroyed_;
 
-	ref_ptr<GameObject> root_;
+	enum : char { FramesDestroyedGameObjectAlive = 2 };
+	std::vector<std::pair<ref_ptr<GameObject>, char>> destroyed_;
+
+	ref_ptr<Transform> root_;
 	GameObjectImporter* importer_;
 };

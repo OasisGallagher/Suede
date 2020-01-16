@@ -39,6 +39,7 @@ public:
 
 	void SetScriptElapsed(double value);
 	void SetCullingElapsed(double value);
+	void SetCullingUpdateElapsed(double value);
 	void SetRenderingElapsed(double value);
 
 	const StatisticInfo* GetStatisticInfo();
