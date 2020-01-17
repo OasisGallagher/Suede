@@ -18,10 +18,6 @@ struct Globes {
 	ImFont* font = nullptr;
 } static g;
 
-void GUI::LoadFont(const char* file) {
-	ImGui::GetIO().Fonts->AddFontFromFileTTF(file, 15, nullptr, ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
-}
-
 void GUI::Begin(uint w, uint h, const Color& foregroundColor, const Color& backgroundColor) {
 	auto& container = ImGui::GetIO().Fonts->Fonts;
 	if (!container.empty()) {

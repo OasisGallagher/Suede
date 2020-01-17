@@ -91,7 +91,7 @@ void GizmosInternal::DrawWireCuboid(const Vector3& center, const Vector3& size) 
 
 void GizmosInternal::DrawArrow(const Vector3& from, const Vector3& to) {
 	uint kConeSlices = 16;
-	float kConeHeight = 5, kConeRadius = 1, kMinmumLineLength = 10;
+	float kConeHeight = 9, kConeRadius = 2.5f, kMinmumLineLength = 10;
 
 	Vector3 dest = to;
 	Vector3 direction(to - from);

@@ -2,11 +2,7 @@
 #include "ImGuiRenderer.h"
 #include <QtOpenGL/QGLWidget>
 
-namespace QtImGui {
-
-namespace {
-
-class QWidgetWindowWrapper : public WindowWrapper {
+class QWidgetWindowWrapper : public ImGuiWindowWrapper {
 public:
     QWidgetWindowWrapper(QGLWidget *w) : w(w) {}
 
@@ -34,31 +30,36 @@ private:
 	QGLWidget *w;
 };
 
+QtImGui::QtImGui(const char* fontFile, int fontSize) {
+	fontAtlas_ = new ImFontAtlas();
+	fontAtlas_->AddFontFromFileTTF(fontFile, fontSize, nullptr, fontAtlas_->GetGlyphRangesChineseFull());
 }
 
-static std::map<QGLWidget*, ImGuiRenderer*> renderers_;
+QtImGui::~QtImGui() {
+	delete fontAtlas_;
+}
 
-void create(QGLWidget *widget) {
+void QtImGui::registe(QGLWidget *widget) {
 	if (renderers_.find(widget) == renderers_.end()) {
 		widget->setFocusPolicy(Qt::StrongFocus);
 		ImGuiRenderer* renderer = renderers_[widget] = new ImGuiRenderer;
-		renderer->initialize(new QWidgetWindowWrapper(widget));
+		renderer->initialize(new QWidgetWindowWrapper(widget), fontAtlas_);
 	}
 }
 
-void newFrame(QGLWidget* widget) {
+void QtImGui::newFrame(QGLWidget* widget) {
 	IM_ASSERT(renderers_.find(widget) != renderers_.end());
     renderers_[widget]->newFrame();
 }
 
-void destroy(QGLWidget* widget) {
+void QtImGui::unregister(QGLWidget* widget) {
 	renderers_[widget]->destroy();
 
 	delete renderers_[widget];
 	renderers_.erase(widget);
 }
 
-void destroyAll() {
+void QtImGui::unregisterAll() {
 	for (auto p : renderers_) {
 		p.second->destroy();
 		delete p.second;
@@ -66,5 +67,3 @@ void destroyAll() {
 
 	renderers_.clear();
 }
-
-} // namespace QtImGui

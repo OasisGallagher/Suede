@@ -6,8 +6,6 @@
 #include <QCursor>
 #include <functional>
 
-namespace QtImGui {
-
 namespace {
 
 QHash<int, ImGuiKey> keyMap = {
@@ -36,10 +34,10 @@ static QByteArray g_currentClipboardText;
 
 }
 
-void ImGuiRenderer::initialize(WindowWrapper *window) {
+void ImGuiRenderer::initialize(ImGuiWindowWrapper *window, ImFontAtlas* fontAtlas) {
     m_window.reset(window);
 
-    m_context = ImGui::CreateContext();
+    m_context = ImGui::CreateContext(fontAtlas);
 	ImGui::SetCurrentContext(m_context);
 
     ImGuiIO &io = ImGui::GetIO();
@@ -409,6 +407,4 @@ bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
 
 	return true;
     //return QObject::eventFilter(watched, event);
-}
-
 }

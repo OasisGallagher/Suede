@@ -1,11 +1,19 @@
 #pragma once
+#include <map>
+
 class QGLWidget;
+class QtImGui {
+public:
+	QtImGui(const char* fontFile, int fontSize);
+	~QtImGui();
 
-namespace QtImGui {
+public:
+	void registe(QGLWidget *window);
+	void newFrame(QGLWidget* widget);
+	void unregister(QGLWidget* widget);
+	void unregisterAll();
 
-void create(QGLWidget *window);
-void newFrame(QGLWidget* widget);
-void destroy(QGLWidget* widget);
-void destroyAll();
-
-}
+private:
+	class ImFontAtlas* fontAtlas_;
+	std::map<QGLWidget*, class ImGuiRenderer*> renderers_;
+};

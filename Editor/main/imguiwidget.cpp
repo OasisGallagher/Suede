@@ -6,20 +6,21 @@
 #include "gui.h"
 #include "gui/qtimgui/QtImGui.h"
 
+static QtImGui qtImGui("resources/fonts/tahoma.ttf", 15);
+
 IMGUIWidget::IMGUIWidget(QWidget* parent, QGLWidget* shareWidget) : QGLWidget(parent, shareWidget) {
-	QtImGui::create(this);
-	GUI::LoadFont("resources/fonts/tahoma.ttf");
+	qtImGui.registe(this);
 }
 
 IMGUIWidget::~IMGUIWidget() {
-	QtImGui::destroy(this);
+	qtImGui.unregister(this);
 }
 
 void IMGUIWidget::bind() {
 	oldContext_ = (QGLContext*)QGLContext::currentContext();
 	makeCurrent();
 
-	QtImGui::newFrame(this);
+	qtImGui.newFrame(this);
 
 	GUI::Begin(width(), height(), foreground_, background_);
 }

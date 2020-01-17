@@ -12,16 +12,14 @@ class QMouseEvent;
 class QWheelEvent;
 class QKeyEvent;
 
-namespace QtImGui {
-
-class WindowWrapper {
+class ImGuiWindowWrapper {
 public:
-    virtual ~WindowWrapper() {}
-    virtual void installEventFilter(QObject *object) = 0;
-    virtual QSize size() const = 0;
-    virtual qreal devicePixelRatio() const = 0;
-    virtual bool isActive() const = 0;
-    virtual QPoint mapFromGlobal(const QPoint &p) const = 0;
+	virtual ~ImGuiWindowWrapper() {}
+	virtual void installEventFilter(QObject *object) = 0;
+	virtual QSize size() const = 0;
+	virtual qreal devicePixelRatio() const = 0;
+	virtual bool isActive() const = 0;
+	virtual QPoint mapFromGlobal(const QPoint &p) const = 0;
 };
 
 class ImGuiRenderer : public QObject {
@@ -31,7 +29,7 @@ public:
 	ImGuiRenderer() {}
 
 public:
-    void initialize(WindowWrapper *window);
+    void initialize(ImGuiWindowWrapper *window, ImFontAtlas* fontAtlas);
 	void destroy();
 
     void newFrame();
@@ -50,7 +48,7 @@ private:
     bool createDeviceObjects();
 
 	ImGuiContext* m_context;
-	std::unique_ptr<WindowWrapper> m_window;
+	std::unique_ptr<ImGuiWindowWrapper> m_window;
 
     double       m_LastTime = 0.0f;
     bool         m_MousePressed[3] = { false, false, false };
@@ -63,5 +61,3 @@ private:
     int          m_AttribLocationPosition = 0, m_AttribLocationUV = 0, m_AttribLocationColor = 0;
     unsigned int m_VboHandle = 0, m_VaoHandle = 0, m_ElementsHandle = 0;
 };
-
-}

@@ -11,12 +11,6 @@ struct Environment {
 	Color ambientColor = Color::white * 0.02;
 };
 
-enum class WalkCommand {
-	Next,
-	Break,
-	Continue,
-};
-
 struct Decal;
 class SUEDE_API Scene : public Subsystem {
 	SUEDE_DECLARE_IMPLEMENTATION(Scene)
@@ -34,7 +28,6 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject* go);
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
-	void WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker);
 
 	Environment* GetEnvironment();
 	void GetDecals(std::vector<Decal>& container);

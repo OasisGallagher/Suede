@@ -14,7 +14,6 @@ GameObject* Scene::GetGameObject(uint id) { return _suede_dptr()->GetGameObject(
 void Scene::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
 void Scene::DestroyGameObject(GameObject* go) { _suede_dptr()->DestroyGameObject(go); }
 std::vector<GameObject*> Scene::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dptr()->GetGameObjectsOfComponent(guid); }
-void Scene::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) { _suede_dptr()->WalkGameObjectHierarchy(walker); }
 Transform* Scene::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
 void Scene::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) { _suede_dptr()->Import(path, callback); }
 void Scene::Awake() { _suede_dptr()->Awake(); }
@@ -85,6 +84,8 @@ void SceneInternal::AddGameObject(ref_ptr<GameObject> go) {
 }
 
 void SceneInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component) {
+	SUEDE_ASSERT(go->GetTransform()->IsAttachedToScene());
+
 	ManageGameObjectUpdateSequence(go.get());
 
 	ManageGameObjectComponents(lights_, component.get(), state);
@@ -254,43 +255,16 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 	return gameObjects;
 }
 
-void SceneInternal::WalkGameObjectHierarchy(std::function<WalkCommand(GameObject*)> walker) {
-	WalkGameObjectHierarchyRecursively(GetRootTransform(), walker);
-}
-
 void SceneInternal::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
 	importer_->Import(path, callback);
 }
 
-bool SceneInternal::WalkGameObjectHierarchyRecursively(Transform* root, std::function<WalkCommand(GameObject*)> walker) {
-	for (int i = 0; i < root->GetChildCount(); ++i) {
-		Transform* transform = root->GetChildAt(i);
-		GameObject* child = transform->GetGameObject();
-		if (child == nullptr) {
-			continue;
-		}
-
-		WalkCommand command = walker(child);
-
-		// next sibling.
-		if (command == WalkCommand::Next) {
-			continue;
-		}
-
-		// 
-		if (command == WalkCommand::Break) {
-			return false;
-		}
-
-		if (!WalkGameObjectHierarchyRecursively(child->GetTransform(), walker)) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 void SceneInternal::OnTransformAttached(Transform* transform, bool attached) {
+	transform->TravsalHierarchy([this](Transform* current) {
+		ManageGameObjectUpdateSequence(current->GetGameObject());
+		return TraversalCommand::Continue;
+	});
+
 	ComponentEventType type = attached ? ComponentEventType::Added : ComponentEventType::Removed;
 	for (Component* component : transform->GetGameObject()->GetComponentsInChildren("")) {
 		if (component->IsComponentType(Light::GetComponentGUID())) {

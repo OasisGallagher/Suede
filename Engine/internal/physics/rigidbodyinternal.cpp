@@ -31,10 +31,10 @@ void RigidbodyInternal::Awake() {
 void RigidbodyInternal::Update(float deltaTime) {
 	if (shapeDirty_) {
 		RebuildShape();
+		UpdateBody(true);
 	}
 
 	if (bodyDirty_ && shape_ != nullptr) {
-		UpdateBody(true);
 		ApplyGameObjectTransform();
 	}
 
@@ -170,9 +170,9 @@ void RigidbodyInternal::ApplyPhysicsTransform() {
 
 void RigidbodyInternal::ApplyGameObjectTransform() {
 	btTransform& transform = body_->getWorldTransform();
-	transform.setOrigin(btConvert(GetTransform()->GetPosition()));
-	transform.setRotation(btConvert(GetTransform()->GetRotation()));
-	//transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
+	//transform.setOrigin(btConvert(GetTransform()->GetPosition()));
+	//transform.setRotation(btConvert(GetTransform()->GetRotation()));
+	transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
 }
 
 void RigidbodyInternal::UpdateBody(bool updateWorldRigidbody) {

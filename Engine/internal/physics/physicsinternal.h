@@ -17,7 +17,7 @@ public:
 
 	virtual void setDebugMode(int debugMode) {}
 	virtual void draw3dText(const btVector3& location, const char* textString) {}
-	virtual int getDebugMode() const { return DBG_DrawWireframe | DBG_DrawAabb; }
+	virtual int getDebugMode() const { return DBG_DrawAabb; }
 
 private:
 	Gizmos* selectionGizmos_;

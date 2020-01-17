@@ -10,7 +10,7 @@ QString QtViewer::defaultSkin("Default");
 
 QMap<QString, QString> QtViewer::skinResources({
 	std::make_pair(defaultSkin, ""),
-	std::make_pair("Dark",":/qss/style"),
+	std::make_pair("Dark", ":/qss/style"),
 });
 
 QtViewer::QtViewer(int argc, char * argv[]) : Viewer(argc, argv), app_(argc, argv), editor_(nullptr) {

@@ -1,9 +1,16 @@
 #pragma once
 #include <vector>
+#include <functional>
 
 #include "defines.h"
 #include "component.h"
 #include "math/matrix4.h"
+
+enum class TraversalCommand {
+	Break,
+	Continue,
+	NextSibling,
+};
 
 struct PRS {
 	Vector3 position;
@@ -22,6 +29,7 @@ public:
 
 public:
 	bool IsAttachedToScene();
+	void TravsalHierarchy(std::function<TraversalCommand(Transform*)> func);
 
 	void AddChild(Transform* child);
 	void RemoveChild(Transform* child);

@@ -4,6 +4,7 @@
 
 Transform::Transform() : Component(new TransformInternal) {}
 bool Transform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
+void Transform::TravsalHierarchy(std::function<TraversalCommand(Transform*)> func) { _suede_dptr()->TravsalHierarchy(this, func); }
 void Transform::AddChild(Transform* child) { _suede_dptr()->AddChild(this, child); }
 void Transform::RemoveChild(Transform* child) { _suede_dptr()->RemoveChild(child); }
 void Transform::RemoveChildAt(uint index) { _suede_dptr()->RemoveChildAt(index); }
@@ -50,6 +51,30 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform
 }
 
 TransformInternal::~TransformInternal() {
+}
+
+void TransformInternal::TravsalHierarchy(Transform* self, std::function<TraversalCommand(Transform*)> func) {
+	if (self != gameObject_->GetScene()->GetRootTransform()) {
+		return (void)DFSRecursively(self, func);
+	}
+
+	if (func(self) == TraversalCommand::Continue) {
+		for (int i = 0; i < GetChildCount(); ++i) {
+			Transform* child = GetChildAt(i);
+			TraversalCommand command = func(child);
+			if (command == TraversalCommand::Break) {
+				break;
+			}
+
+			if (command == TraversalCommand::NextSibling) {
+				continue;
+			}
+
+			if (!DFSRecursively(child, func)) {
+				break;
+			}
+		}
+	}
 }
 
 bool TransformInternal::IsAttachedToScene(Transform* self) {
@@ -540,6 +565,31 @@ void TransformInternal::DirtyChildrenRotationsAndEulerAngles() {
 		child->SetDirty(WorldRotationMask | WorldEulerAnglesMask | LocalToWorldMatrixMask | WorldToLocalMatrixMask, true);
 		child->DirtyChildrenRotationsAndEulerAngles();
 	}
+}
+
+bool TransformInternal::DFSRecursively(Transform* root, std::function<TraversalCommand(Transform*)> func) {
+	for (int i = 0; i < root->GetChildCount(); ++i) {
+		Transform* child = root->GetChildAt(i);
+		if (child == nullptr) {
+			continue;
+		}
+
+		TraversalCommand command = func(child);
+
+		if (command == TraversalCommand::NextSibling) {
+			continue;
+		}
+
+		if (command == TraversalCommand::Break) {
+			return false;
+		}
+
+		if (!DFSRecursively(child->GetTransform(), func)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 bool TransformInternal::IsNullOrRoot(Transform* transform) {

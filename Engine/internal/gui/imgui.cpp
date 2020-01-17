@@ -8767,10 +8767,14 @@ static inline int DataTypeFormatString(char* buf, int buf_size, ImGuiDataType da
         return ImFormatString(buf, buf_size, format, *(const ImU32*)data_ptr);
     if (data_type == ImGuiDataType_S64 || data_type == ImGuiDataType_U64)   // Signedness doesn't matter when pushing the argument
         return ImFormatString(buf, buf_size, format, *(const ImU64*)data_ptr);
-    if (data_type == ImGuiDataType_Float)
-        return ImFormatString(buf, buf_size, format, *(const float*)data_ptr);
-    if (data_type == ImGuiDataType_Double)
-        return ImFormatString(buf, buf_size, format, *(const double*)data_ptr);
+	if (data_type == ImGuiDataType_Float) {
+		float f = *(const float*)data_ptr;
+		return ImFormatString(buf, buf_size, format, fabs(f) < 0.001f ? 0.f : f);
+	}
+	if (data_type == ImGuiDataType_Double) {
+		double d = *(const double*)data_ptr;
+		return ImFormatString(buf, buf_size, format, fabs(d) < 0.0010 ? 0.0 : d);
+	}
     IM_ASSERT(0);
     return 0;
 }

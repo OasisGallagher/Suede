@@ -48,17 +48,16 @@ void SelectionGizmos::OnDrawGizmos() {
 		Matrix4 oldMatrix = selectionGizmos_->GetMatrix();
 
 		float distance = Vector3::Distance(cameraPosition, pos);
-		selectionGizmos_->SetMatrix(Matrix4::Translate(pos) * Matrix4::Scale(Vector3(distance / 120.f)));
-		pos = Vector3::zero;
+		selectionGizmos_->SetMatrix(Matrix4::Translate(pos) * Matrix4::Scale(Vector3::one));// (distance / 120.f)));
 
 		selectionGizmos_->SetColor(Color::red);
-		selectionGizmos_->DrawArrow(pos, pos + go->GetTransform()->GetRight() * length);
+		selectionGizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetRight() * length);
 
 		selectionGizmos_->SetColor(Color::green);
-		selectionGizmos_->DrawArrow(pos, pos + go->GetTransform()->GetUp() * length);
+		selectionGizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetUp() * length);
 
 		selectionGizmos_->SetColor(Color::blue);
-		selectionGizmos_->DrawArrow(pos, pos + go->GetTransform()->GetForward() * length);
+		selectionGizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetForward() * length);
 
 		selectionGizmos_->SetMatrix(oldMatrix);
 	}

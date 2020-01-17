@@ -12,8 +12,6 @@
  */
 class SUEDE_API GUI {
 public:
-	static void LoadFont(const char* file);
-
 	static void Begin(uint w, uint h, const Color& foregroundColor, const Color& backgroundColor);
 	static void End();
 

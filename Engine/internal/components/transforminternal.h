@@ -14,6 +14,7 @@ public:
 
 public:
 	bool IsAttachedToScene(Transform* transform);
+	void TravsalHierarchy(Transform* self, std::function<TraversalCommand(Transform*)> walker);
 
 	void AddChild(Transform* self, Transform* child);
 	void RemoveChild(Transform* child);
@@ -71,6 +72,8 @@ private:
 	void DirtyChildrenScales();
 	void DirtyChildrenPositions();
 	void DirtyChildrenRotationsAndEulerAngles();
+
+	bool DFSRecursively(Transform* root, std::function<TraversalCommand(Transform*)> func);
 
 	bool IsNullOrRoot(Transform* transform);
 	Transform* FindDirectChild(const std::string& name);
