@@ -77,7 +77,7 @@ void GameWindow::initUI() {
 	connect(ui_->showGizmos, &QPushButton::clicked, this, &GameWindow::onToggleGizmos);
 	connect(ui_->drawPhysics, &QPushButton::clicked, this, &GameWindow::onToggleDrawPhysics);
 	connect(ui_->showStatistics, &QPushButton::clicked, this, &GameWindow::onToggleStatistics);
-	connect(editor_->childWindow<HierarchyWindow>(), &HierarchyWindow::focusGameObject, this, &GameWindow::onFocusGameObjectBounds);
+	connect(editor_->childWindow<HierarchyWindow>(), &HierarchyWindow::focusGameObjectRequested, this, &GameWindow::onFocusGameObjectBounds);
 	
 	typedef void (EnumField::*fptr)(const QString&);
 	connect(ui_->shadingMode, (fptr)&EnumField::currentIndexChanged, this, &GameWindow::onShadingModeChanged);
@@ -109,70 +109,6 @@ void GameWindow::tick() {
 
 		if (Engine::GetSubsystem<Physics>()->Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
 			editor_->selection()->add(hitInfo.gameObject);
-		}
-	}
-}
-
-void GameWindow::onGameObjectImported(GameObject* root, const std::string& path) {
-	Debug::Log("\"%s\" loaded", path.c_str());
-
-	root->SetName(path);
-
-	if (path == manFbxPath) {
-		root->GetTransform()->SetPosition(Vector3(0, 0, -70));
-		root->GetTransform()->SetEulerAngles(Vector3(270, 180, 180));
-		root->GetTransform()->SetScale(Vector3(0.2f));
-		//go->SetParent(camera);
-
-		Animation* animation = root->GetComponent<Animation>();
-		if (animation) {
-			animation->SetWrapMode(AnimationWrapMode::PingPong);
-			animation->Play("");
-		}
-	}
-	else if (path == roomFbxPath) {
-		root->GetTransform()->SetPosition(Vector3(0, 25, -65));
-		root->GetTransform()->SetEulerAngles(Vector3(30, 0, 0));
-		if (path.find("house") != std::string::npos) {
-			root->GetTransform()->SetScale(Vector3(0.01f));
-		}
-		else if (path.find("suzanne") != std::string::npos) {
-			ref_ptr<Texture2D> diffuse = new Texture2D();
-			diffuse->Load("suzanne/diffuse.dds");
-			GameObject* target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
-
-			Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
-			material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
-
-			root->GetTransform()->SetPosition(Vector3(0, 25, -5));
-			root->GetTransform()->SetEulerAngles(Vector3(0));
-		}
-	}
-	else if (path == bumpedFbxPath) {
-		root->GetTransform()->SetPosition(Vector3(0, 25, -15));
-
-		GameObject* target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
-		Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
-		material->SetShader(Shader::Find("builtin/lit_bumped_texture"));
-
-		ref_ptr<Texture2D> diffuse = new Texture2D();
-		diffuse->Load("bumped/diffuse.jpg");
-		material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
-
-		ref_ptr<Texture2D> normal = new Texture2D();
-		normal->Load("bumped/normal.jpg");
-		material->SetTexture(BuiltinProperties::BumpTexture, normal.get());
-	}
-	else if (path == normalVisualizerFbxPath) {
-		root->GetTransform()->SetPosition(Vector3(0, 25, -5));
-		root->GetTransform()->SetEulerAngles(Vector3(0));
-
-		GameObject* target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
-
-		MeshRenderer* renderer = target->GetComponent<MeshRenderer>();
-		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-			Material* material = renderer->GetMaterial(i);
-			material->SetShader(Shader::Find("builtin/normal_visualizer"));
 		}
 	}
 }
@@ -249,6 +185,7 @@ void GameWindow::setupScene() {
 
 	Light* light = lightGameObject->AddComponent<Light>();
 	light->SetColor(Color::white);
+	light->GetTransform()->SetLocalEulerAngles(Vector3(0, 120, 0));
 	light->GetTransform()->SetParent(scene->GetRootTransform());
 
 	ref_ptr<GameObject> cameraGameObject = new GameObject();
@@ -403,31 +340,72 @@ void GameWindow::setupScene() {
 	yellowMesh->SetFontSize(12);
 
 	ref_ptr<Renderer> redRenderer = redText->AddComponent<MeshRenderer>();
-	ref_ptr<Material> redMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
+	ref_ptr<Material> redMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial());
 	redMaterial->SetColor(BuiltinProperties::MainColor, Color::red);
 	redRenderer->AddMaterial(redMaterial.get());
 
 	ref_ptr<Renderer> yellowRenderer = yellowText->AddComponent<MeshRenderer>();
-	ref_ptr<Material> yellowMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial()->Clone());
+	ref_ptr<Material> yellowMaterial = dynamic_ref_ptr_cast<Material>(font->GetMaterial());
 	yellowMaterial->SetColor(BuiltinProperties::MainColor, Color::yellow);
 	yellowRenderer->AddMaterial(yellowMaterial.get());
 
 #endif
 
-	auto gameObjectImported = [this](GameObject* go, const std::string& path) {
-		onGameObjectImported(go, path);
-	};
-
 #ifdef ROOM
-	scene->Import(roomFbxPath, gameObjectImported);
+	scene->Import(roomFbxPath, [this](GameObject* root) {
+		if (root == nullptr) { return; }
+		root->GetTransform()->SetPosition(Vector3(0, 25, -65));
+		root->GetTransform()->SetEulerAngles(Vector3(30, 0, 0));
+		if (strstr(roomFbxPath, "house") != nullptr) {
+			root->GetTransform()->SetScale(Vector3(0.01f));
+		}
+		else if (strstr(roomFbxPath, "suzanne") != nullptr) {
+			ref_ptr<Texture2D> diffuse = new Texture2D();
+			diffuse->Load("suzanne/diffuse.dds");
+			GameObject* target = root->GetTransform()->FindChild("suzanne_root/default")->GetGameObject();
+
+			Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
+			material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
+
+			root->GetTransform()->SetPosition(Vector3(0, 25, -5));
+			root->GetTransform()->SetEulerAngles(Vector3(0));
+		}
+
+		onFocusGameObjectBounds(root);
+	});
 #endif
 
 #ifdef BUMPED
-	scene->Import(bumpedFbxPath, gameObjectImported);
+	scene->Import(bumpedFbxPath, [this](GameObject* root) {
+		root->GetTransform()->SetPosition(Vector3(0, 25, -15));
+
+		GameObject* target = root->GetTransform()->FindChild("Sphere01")->GetGameObject();
+		Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
+		material->SetShader(Shader::Find("builtin/lit_bumped_texture"));
+
+		ref_ptr<Texture2D> diffuse = new Texture2D();
+		diffuse->Load("bumped/diffuse.jpg");
+		material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
+
+		ref_ptr<Texture2D> normal = new Texture2D();
+		normal->Load("bumped/normal.jpg");
+		material->SetTexture(BuiltinProperties::BumpTexture, normal.get());
+	});
 #endif
 
 #ifdef NORMAL_VISUALIZER
-	GameObject* normalVisualizer = scene->Import(normalVisualizerFbxPath, gameObjectImported);
+	scene->Import(normalVisualizerFbxPath, [this](GameObject* root) {
+		root->GetTransform()->SetPosition(Vector3(0, 25, -5));
+		root->GetTransform()->SetEulerAngles(Vector3(0));
+
+		GameObject* target = root->GetTransform()->FindChild("nanosuit_root/default")->GetGameObject();
+
+		MeshRenderer* renderer = target->GetComponent<MeshRenderer>();
+		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
+			Material* material = renderer->GetMaterial(i);
+			material->SetShader(Shader::Find("builtin/normal_visualizer"));
+		}
+	});
 #endif
 
 #if defined(BEAR) || defined(BEAR_X_RAY)
@@ -443,6 +421,17 @@ void GameWindow::setupScene() {
 #endif
 
 #ifdef ANIMATION
-	scene->Import(manFbxPath, gameObjectImported);
+	scene->Import(manFbxPath, [this](GameObject* root) {
+		root->GetTransform()->SetPosition(Vector3(0, 0, -70));
+		root->GetTransform()->SetEulerAngles(Vector3(270, 180, 180));
+		root->GetTransform()->SetScale(Vector3(0.2f));
+		//go->SetParent(camera);
+
+		Animation* animation = root->GetComponent<Animation>();
+		if (animation) {
+			animation->SetWrapMode(AnimationWrapMode::PingPong);
+			animation->Play("");
+		}
+	});
 #endif
 }

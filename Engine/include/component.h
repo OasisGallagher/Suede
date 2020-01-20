@@ -69,13 +69,13 @@ public:
 	int GetUpdateStrategy();
 
 public:
-	static suede_guid GetComponentGUID() { return 0; }
+	static suede_guid GetComponentGUID() { return suede_guid(); }
 	static const char* GetComponentName() { return ""; }
 	static suede_guid ClassNameToGUID(const char* className);
 
 public:
 	/**
-	 * @brief whether components of same type (or subtype) could be added more than once to a GameObject.
+	 * @brief Whether components of same type (or subtype) could be added more than once to a GameObject.
 	 */
 	virtual bool AllowMultiple() const { return false; }
 
@@ -83,13 +83,13 @@ public:
 	virtual bool IsComponentType(const char* name) const { return strcmp(name, GetComponentName()) == 0; }
 
 	/**
-	 * @brief polymorphism version to get component GUID.
+	 * @brief Polymorphism version to get component GUID.
 	 */
 	virtual suede_guid GetComponentInstanceGUID() const { return GetComponentGUID(); }
 
 	/**
-	* @brief polymorphism version to get component name.
-	*/
+	 * @brief Polymorphism version to get component name.
+	 */
 	virtual const char* GetComponentInstanceName() const { return GetComponentName(); }
 
 public:

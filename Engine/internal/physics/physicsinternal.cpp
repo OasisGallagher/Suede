@@ -7,19 +7,30 @@
 #include "rigidbodyinternal.h"
 #include "internal/gameobject/gameobjectinternal.h"
 
-void BulletDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
-	Color oldColor = selectionGizmos_->GetColor();
-	selectionGizmos_->SetColor(Color(color.x(), color.y(), color.z()));
-	selectionGizmos_->DrawLines({ btConvert(from), btConvert(to) });
-	selectionGizmos_->SetColor(oldColor);
-}
+class BulletDebugDrawer : public btIDebugDraw {
+public:
+	BulletDebugDrawer(Gizmos* gizmos) : gizmos_(gizmos) {}
 
-void BulletDebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
-}
+public:
+	virtual void drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
+		Color oldColor = gizmos_->GetColor();
+		gizmos_->SetColor(Color(color.x(), color.y(), color.z()));
+		gizmos_->DrawLines({ btConvert(from), btConvert(to) });
+		gizmos_->SetColor(oldColor);
+	}
 
-void BulletDebugDrawer::reportErrorWarning(const char* warningString) {
-	Debug::LogError(warningString);
-}
+	virtual void reportErrorWarning(const char* warningString) {
+		Debug::LogError(warningString);
+	}
+
+	virtual void setDebugMode(int debugMode) {}
+	virtual void draw3dText(const btVector3& location, const char* textString) {}
+	virtual int getDebugMode() const { return DBG_DrawAabb; }
+	virtual void drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {}
+
+private:
+	Gizmos* gizmos_;
+};
 
 Physics::Physics(Gizmos* gizmos) : Subsystem(new PhysicsInternal(gizmos)) {}
 bool Physics::Raycast(const Ray& ray, float maxDistance, RaycastHit* hitInfo) { return _suede_dptr()->Raycast(ray, maxDistance, hitInfo); }
@@ -29,8 +40,7 @@ Vector3 Physics::GetGravity() { return _suede_dptr()->GetGravity(); }
 void Physics::SetDebugDrawEnabled(bool value) { _suede_dptr()->SetDebugDrawEnabled(value); }
 bool Physics::GetDebugDrawEnabled() { return _suede_dptr()->GetDebugDrawEnabled(); }
 
-btDiscreteDynamicsWorld* PhysicsInternal::world_;
-PhysicsInternal::PhysicsInternal(Gizmos* gizmos) : selectionGizmos_(gizmos), debugDrawEnabled_(false) {
+PhysicsInternal::PhysicsInternal(Gizmos* gizmos) {
 	// You instantiate the broad phase algorithm implementation.
 	// Collision detection is done in two phases : broad and narrow.
 	// In the broad phase, the physics engine quickly eliminates objects that cannot collide.
@@ -53,13 +63,10 @@ PhysicsInternal::PhysicsInternal(Gizmos* gizmos) : selectionGizmos_(gizmos), deb
 	solver_ = new btSequentialImpulseConstraintSolver;
 
 	world_ = new btDiscreteDynamicsWorld(dispatcher_, broadphase_, solver_, collisionConfiguration_);
-	world_->setDebugDrawer(new BulletDebugDrawer(selectionGizmos_));
-
-	//GameObjectInternal::componentChanged.subscribe(this, &PhysicsInternal::OnGameObjectComponentChanged);
+	world_->setDebugDrawer(new BulletDebugDrawer(gizmos));
 }
 
 PhysicsInternal::~PhysicsInternal() {
-	//GameObjectInternal::componentChanged.unsubscribe(this);
 	delete world_->getDebugDrawer();
 	delete world_;
 
@@ -112,7 +119,4 @@ bool PhysicsInternal::Raycast(const Ray& ray, float maxDistance, RaycastHit* hit
 	}
 
 	return true;
-}
-
-void PhysicsInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component) {
 }

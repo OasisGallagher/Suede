@@ -111,5 +111,5 @@ void RenderingContext::ClearFrame() {
 
 	RenderTexture* target = frameState_->targetTexture.get();
 	if (!target) { target = RenderTexture::GetDefault(); }
-	target->Clear(frameState_->normalizedRect, frameState_->clearColor, 1, -1);
+	target->Clear(frameState_->normalizedRect, frameState_->clearColor, 1, 0);
 }

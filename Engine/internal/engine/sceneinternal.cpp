@@ -15,7 +15,7 @@ void Scene::DestroyGameObject(uint id) { _suede_dptr()->DestroyGameObject(id); }
 void Scene::DestroyGameObject(GameObject* go) { _suede_dptr()->DestroyGameObject(go); }
 std::vector<GameObject*> Scene::GetGameObjectsOfComponent(suede_guid guid) { return _suede_dptr()->GetGameObjectsOfComponent(guid); }
 Transform* Scene::GetRootTransform() { return _suede_dptr()->GetRootTransform(); }
-void Scene::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) { _suede_dptr()->Import(path, callback); }
+void Scene::Import(const std::string& path, std::function<void(GameObject*)> callback) { _suede_dptr()->Import(path, callback); }
 void Scene::Awake() { _suede_dptr()->Awake(); }
 void Scene::Update(float deltaTime) { _suede_dptr()->Update(deltaTime); }
 void Scene::CullingUpdate(float deltaTime) { _suede_dptr()->CullingUpdate(deltaTime); }
@@ -36,7 +36,7 @@ void SceneInternal::Awake() {
 	GameObjectInternal::created.subscribe(this, &SceneInternal::AddGameObject);
 	GameObjectInternal::componentChanged.subscribe(this, &SceneInternal::OnGameObjectComponentChanged);
 
-	root_ = new Transform();
+	root_ = new GameObject("SuedeRoot");
 
 	importer_ = new GameObjectImporter();
 	decalCreater_ = new DecalCreater();
@@ -83,16 +83,16 @@ void SceneInternal::AddGameObject(ref_ptr<GameObject> go) {
 	gameObjects_.insert(std::make_pair(go->GetInstanceID(), go));
 }
 
-void SceneInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component) {
+void SceneInternal::OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType type, ref_ptr<Component> component) {
 	SUEDE_ASSERT(go->GetTransform()->IsAttachedToScene());
 
-	ManageGameObjectUpdateSequence(go.get());
+	ManageGameObjectUpdateSequence(go.get(), type);
 
-	ManageGameObjectComponents(lights_, component.get(), state);
-	ManageGameObjectComponents(cameras_, component.get(), state);
-	ManageGameObjectComponents(projectors_, component.get(), state);
-	ManageGameObjectComponents(renderers_, component.get(), state);
-	ManageGameObjectComponents(gizmosPainters_, component.get(), state);
+	ManageGameObjectComponents(lights_, component.get(), type);
+	ManageGameObjectComponents(cameras_, component.get(), type);
+	ManageGameObjectComponents(projectors_, component.get(), type);
+	ManageGameObjectComponents(renderers_, component.get(), type);
+	ManageGameObjectComponents(gizmosPainters_, component.get(), type);
 }
 
 SceneInternal::~SceneInternal() {
@@ -199,16 +199,16 @@ void SceneInternal::DestroyGameObjectRecursively(Transform* root) {
 
 void SceneInternal::RemoveGameObject(GameObject* go) {
 	Camera* camera = go->GetComponent<Camera>();
-	if (camera) { EraseByValue(cameras_, camera); }
+	if (camera != nullptr) { EraseByValue(cameras_, camera); }
 
 	Light* light = go->GetComponent<Light>();
 	if (light != nullptr) { EraseByValue(lights_, light); }
 
 	Projector* projector = go->GetComponent<Projector>();
-	if (projector) { EraseByValue(projectors_, projector); }
+	if (projector != nullptr) { EraseByValue(projectors_, projector); }
 
 	Renderer* renderer = go->GetComponent<Renderer>();
-	if (renderer) { EraseByValue(renderers_, renderer); }
+	if (renderer != nullptr) { EraseByValue(renderers_, renderer); }
 
 	RemoveGameObjectFromSequence(go);
 	go->GetTransform()->SetParent(nullptr);
@@ -255,17 +255,17 @@ std::vector<GameObject*> SceneInternal::GetGameObjectsOfComponent(suede_guid gui
 	return gameObjects;
 }
 
-void SceneInternal::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
+void SceneInternal::Import(const std::string& path, std::function<void(GameObject*)> callback) {
 	importer_->Import(path, callback);
 }
 
 void SceneInternal::OnTransformAttached(Transform* transform, bool attached) {
-	transform->TravsalHierarchy([this](Transform* current) {
-		ManageGameObjectUpdateSequence(current->GetGameObject());
+	ComponentEventType type = attached ? ComponentEventType::Added : ComponentEventType::Removed;
+	transform->TraversalHierarchy([=](Transform* current) {
+		ManageGameObjectUpdateSequence(current->GetGameObject(), type);
 		return TraversalCommand::Continue;
 	});
 
-	ComponentEventType type = attached ? ComponentEventType::Added : ComponentEventType::Removed;
 	for (Component* component : transform->GetGameObject()->GetComponentsInChildren("")) {
 		if (component->IsComponentType(Light::GetComponentGUID())) {
 			ManageGameObjectComponents(lights_, component, type);
@@ -298,37 +298,41 @@ void SceneInternal::RemoveGameObjectFromSequence(GameObject* go) {
 	EraseByValue(renderingUpdateSequence_, go);
 }
 
-void SceneInternal::ManageGameObjectUpdateSequence(GameObject* go) {
+void SceneInternal::ManageGameObjectUpdateSequence(GameObject* go, ComponentEventType type) {
 	int strategy = go->GetUpdateStrategy();
-	if ((strategy & UpdateStrategyCulling) != 0) {
-		std::lock_guard<std::mutex> lock(cullingMutex_);
-		InsertUnique(cullingUpdateSequence_, go);
-	}
-	else {
+	switch (type) {
+	case ComponentEventType::Added:
+		if ((strategy & UpdateStrategyCulling) != 0) {
+			std::lock_guard<std::mutex> lock(cullingMutex_);
+			InsertUnique(cullingUpdateSequence_, go);
+		}
+
+		if ((strategy & UpdateStrategyRendering) != 0) {
+			InsertUnique(renderingUpdateSequence_, go);
+		}
+		break;
+
+	case ComponentEventType::Removed:
+		EraseByValue(renderingUpdateSequence_, go);
+
 		std::lock_guard<std::mutex> lock(cullingMutex_);
 		EraseByValue(cullingUpdateSequence_, go);
-	}
-
-	if ((strategy & UpdateStrategyRendering) != 0) {
-		InsertUnique(renderingUpdateSequence_, go);
-	}
-	else {
-		EraseByValue(renderingUpdateSequence_, go);
+		break;
 	}
 }
 
 template <class Container>
-void SceneInternal::ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state) {
+void SceneInternal::ManageGameObjectComponents(Container& container, Component* component, ComponentEventType type) {
 	typedef std::remove_pointer<Container::value_type>::type T;
 
 	if (component->IsComponentType(T::GetComponentGUID())) {
 		T* target = (T*)component;
-		if (state == ComponentEventType::Added) {
+		if (type == ComponentEventType::Added) {
 			if (std::find(container.begin(), container.end(), component) == container.end()) {
 				container.push_back(target);
 			}
 		}
-		else if (state == ComponentEventType::Removed) {
+		else if (type == ComponentEventType::Removed) {
 			EraseByValue(container, target);
 		}
 	}

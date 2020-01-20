@@ -29,24 +29,24 @@ void CullingTask::SetWorldToClipMatrix(const Matrix4& value) {
 void CullingTask::Run() {
 	uint64 start = Time::GetTimeStamp();
 
-	gameObjects_.clear();
+	visibleGameObjects_.clear();
 
-	for (GameObject* go : scene_->GetGameObjectsOfComponent(Renderer::GetComponentGUID())) {
+	std::vector<GameObject*> allRenderers = scene_->GetGameObjectsOfComponent(Renderer::GetComponentGUID());
+	for (GameObject* go : allRenderers) {
 		Renderer* renderer = go->GetComponent<Renderer>();
 		if (!renderer->GetActiveAndEnabled() || !IsVisible(renderer)) {
 			continue;
 		}
 
 		if (go->GetComponent<MeshProvider>()) {
-			gameObjects_.push_back(go);
+			visibleGameObjects_.push_back(go);
 		}
 	}
 
 	finished.raise();
 
-	profiler_->SetCullingElapsed(
-		Time::TimeStampToSeconds(Time::GetTimeStamp() - start)
-	);
+	profiler_->SetVisibleGameObjects(visibleGameObjects_.size(), allRenderers.size());
+	profiler_->SetCullingElapsed(Time::TimeStampToSeconds(Time::GetTimeStamp() - start));
 }
 
 bool CullingTask::IsVisible(Renderer* renderer) {

@@ -52,7 +52,6 @@ private:
 
     double       m_LastTime = 0.0f;
     bool         m_MousePressed[3] = { false, false, false };
-	bool		 m_MouseDoubleClicked[3] = { false, false, false };
     float        m_MouseWheel;
     float        m_MouseWheelH;
     GLuint       m_FontTexture = 0;

@@ -55,9 +55,6 @@ void InspectorWindow::initUI() {
 	view_->setBackgroundColor(palette().color(backgroundRole()));
 }
 
-void InspectorWindow::awake() {
-}
-
 void InspectorWindow::tick() {
 	onGui();
 }
@@ -186,7 +183,8 @@ void InspectorWindow::drawBuiltinType(const QMetaProperty& p, QObject* object, c
 void InspectorWindow::drawUserWStringType(QObject* object, const char* name) {
 	std::wstring value = object->property(name).value<std::wstring>();
 	std::unique_ptr<char[]> str(new char[value.length() * 2 + 1]);
-	str[wcstombs(str.get(), value.c_str(), value.length() * 2)] = 0;
+	size_t length = wcstombs(str.get(), value.c_str(), value.length() * 2);
+	str[length] = 0;
 	//GUI::TextField()
 }
 

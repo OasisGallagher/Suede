@@ -14,7 +14,7 @@ public:
 
 public:
 	bool IsAttachedToScene(Transform* transform);
-	void TravsalHierarchy(Transform* self, std::function<TraversalCommand(Transform*)> walker);
+	void TraversalHierarchy(Transform* self, std::function<TraversalCommand(Transform*)> walker);
 
 	void AddChild(Transform* self, Transform* child);
 	void RemoveChild(Transform* child);

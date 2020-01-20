@@ -1345,9 +1345,6 @@
     <ClInclude Include="internal\memory\factory.h">
       <Filter>internal\memory</Filter>
     </ClInclude>
-    <ClInclude Include="internal\physics\mathconvert.h">
-      <Filter>internal\physics</Filter>
-    </ClInclude>
     <ClInclude Include="internal\physics\physicsinternal.h">
       <Filter>internal\physics</Filter>
     </ClInclude>

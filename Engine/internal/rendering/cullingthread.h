@@ -20,7 +20,7 @@ public:
 
 public:
 	void SetWorldToClipMatrix(const Matrix4& value);
-	std::vector<GameObject*>& GetGameObjects() { return gameObjects_; }
+	std::vector<GameObject*>& GetGameObjects() { return visibleGameObjects_; }
 
 public:
 	event<> finished;
@@ -41,7 +41,7 @@ private:
 	Profiler* profiler_;
 
 	Plane* frustumPlanes_;
-	std::vector<GameObject*> gameObjects_;
+	std::vector<GameObject*> visibleGameObjects_;
 };
 
 class CullingThread : public ThreadPool {

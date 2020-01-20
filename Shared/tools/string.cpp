@@ -32,7 +32,7 @@ BoyerMoor::BoyerMoor(const char* needle, size_t length) {
 	}
 }
 
-size_t BoyerMoor::Search(const char* haystack, size_t length) {
+size_t BoyerMoor::Search(const char* haystack, size_t length) const {
 	if (needle_.length() > length) { return length; }
 	if (needle_.length() == 1) {
 		const char* result = (const char*)memchr(haystack, *needle_.c_str(), length);

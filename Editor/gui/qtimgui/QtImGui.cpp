@@ -39,7 +39,7 @@ QtImGui::~QtImGui() {
 	delete fontAtlas_;
 }
 
-void QtImGui::registe(QGLWidget *widget) {
+void QtImGui::attach(QGLWidget *widget) {
 	if (renderers_.find(widget) == renderers_.end()) {
 		widget->setFocusPolicy(Qt::StrongFocus);
 		ImGuiRenderer* renderer = renderers_[widget] = new ImGuiRenderer;
@@ -52,14 +52,14 @@ void QtImGui::newFrame(QGLWidget* widget) {
     renderers_[widget]->newFrame();
 }
 
-void QtImGui::unregister(QGLWidget* widget) {
+void QtImGui::detach(QGLWidget* widget) {
 	renderers_[widget]->destroy();
 
 	delete renderers_[widget];
 	renderers_.erase(widget);
 }
 
-void QtImGui::unregisterAll() {
+void QtImGui::detachAll() {
 	for (auto p : renderers_) {
 		p.second->destroy();
 		delete p.second;

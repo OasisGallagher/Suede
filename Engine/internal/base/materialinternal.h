@@ -18,7 +18,7 @@ public:
 	~MaterialInternal();
 
 public:
-	ref_ptr<Object> Clone();
+	ref_ptr<Material> Clone();
 
 	void SetShader(Material* self, Shader* value);
 	Shader* GetShader() { return shader_; }
@@ -101,7 +101,6 @@ private:
 
 	uint passEnabled_ = 0;
 
-	typedef ptr_map<std::string, MaterialProperty> PropertyContainer;
-	PropertyContainer properties_;
+	ptr_map<std::string, MaterialProperty> properties_;
 	std::vector<const Property*> explicitProperties_;
 };

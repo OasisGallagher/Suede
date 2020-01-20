@@ -256,7 +256,7 @@ void ParticleSystemInternal::InitializeRenderer() {
 	mainTexture->Load("snowflake.png");
 	material->SetTexture(BuiltinProperties::MainTexture, mainTexture);
 
-	renderer->AddMaterial(material);
+	renderer->AddSharedMaterial(material);
 
 	rendererDirty_ = false;
 }

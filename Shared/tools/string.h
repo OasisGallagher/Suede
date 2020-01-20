@@ -6,12 +6,15 @@
 
 #include "../types.h"
 
+/**
+ * Boyer¨CMoore string-search algorithm.
+ */
 class SUEDE_API BoyerMoor {
 public:
 	BoyerMoor(const char* needle, size_t length);
 
 public:
-	size_t Search(const char* haystack, size_t length);
+	size_t Search(const char* haystack, size_t length) const;
 
 private:
 	std::string needle_;

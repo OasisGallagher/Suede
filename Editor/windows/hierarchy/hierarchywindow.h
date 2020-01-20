@@ -25,7 +25,7 @@ public:
 	virtual void tick();
 
 signals:
-	void focusGameObject(GameObject* go);
+	void focusGameObjectRequested(GameObject* go);
 
 private:
 	void onGui();

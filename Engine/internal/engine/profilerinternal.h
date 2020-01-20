@@ -27,7 +27,7 @@ private:
 class Context;
 class ProfilerInternal : public SubsystemInternal {
 public:
-	ProfilerInternal(event<uint, uint>* querierReturnedEvent);
+	ProfilerInternal(event<uint, uint>& querierReturnedEvent);
 	~ProfilerInternal();
 
 public:
@@ -38,6 +38,7 @@ public:
 	void AddDrawcalls(uint n);
 
 	void SetScriptElapsed(double value);
+	void SetVisibleGameObjects(uint visible, uint total);
 	void SetCullingElapsed(double value);
 	void SetCullingUpdateElapsed(double value);
 	void SetRenderingElapsed(double value);
@@ -77,7 +78,7 @@ private:
 
 private:
 	Context* context_;
-	event<uint, uint>* querierReturnedEvent_;
+	event<uint, uint>& querierReturnedEvent_;
 
 	uint gpuQuerierIDs_[MaxGPUQueriers];
 

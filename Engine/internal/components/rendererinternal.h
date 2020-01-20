@@ -8,24 +8,26 @@ class RenderState;
 class RendererInternal : public ComponentInternal {
 public:
 	RendererInternal(ObjectType type);
-	~RendererInternal();
 
 public:
 	virtual void UpdateMaterialProperties() {}
 
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
-	void AddMaterial(Material* material) { materials_.push_back(material); }
-	Material* GetMaterial(uint index) { return materials_[index].get(); }
-	void SetMaterial(uint index, Material* value) { materials_[index] = value; }
-	void RemoveMaterial(Material* material);
+	void AddSharedMaterial(Material* material) { materials_.push_back({ nullptr, material }); }
+
+	Material* GetMaterial(uint index);
+	Material* GetSharedMaterial(uint index) { return materials_[index].sharedMaterial.get(); }
+
+	bool IsMaterialInstantiated(uint index) { return !!materials_[index].material; }
+	void SetMaterial(uint index, Material* value) { materials_[index] = { nullptr, value }; }
 	void RemoveMaterialAt(uint index);
 	uint GetMaterialCount() { return materials_.size(); }
 
 	uint GetRenderQueue() { return queue_; }
 	void SetRenderQueue(uint value) { queue_ = value; }
 
-	virtual const Bounds& GetBounds() { UpdateBounds(); return bounds_; }
+	virtual const Bounds& GetBounds();
 
 protected:
 	virtual void UpdateBounds() = 0;
@@ -35,7 +37,13 @@ protected:
 
 private:
 	uint queue_;
-	std::vector<ref_ptr<Material>> materials_;
+
+	struct Pair {
+		ref_ptr<Material> material;
+		ref_ptr<Material> sharedMaterial;
+	};
+
+	std::vector<Pair> materials_;
 };
 
 class MeshRendererInternal : public RendererInternal {

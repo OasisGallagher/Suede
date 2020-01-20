@@ -23,7 +23,9 @@ private:
 	typedef class name ## Internal Internal; \
 	private:
 
-/** Internal macro helpers */
+/**
+ * Internal macro helpers
+ */
 
 #define __suede_dptr_impl(x)	((Internal*)x->d_)
 

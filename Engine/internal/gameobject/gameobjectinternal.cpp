@@ -78,7 +78,7 @@ Component* GameObjectInternal::ActivateComponent(GameObject* self, Component* co
 
 	RecalculateUpdateStrategy(self);
 
-	if (self->GetTransform()->IsAttachedToScene()) {
+	if (!component->IsComponentType(Transform::GetComponentGUID()) && self->GetTransform()->IsAttachedToScene()) {
 		GameObjectInternal::componentChanged.raise(self, ComponentEventType::Added, component);
 	}
 

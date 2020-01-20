@@ -12,6 +12,7 @@ SubShader {
 	
 	Pass {
 		ZTest LEqual;
+		ZWrite On;
 		Blend SrcAlpha OneMinusSrcAlpha;
 
 		StencilTest Always 1 0xFF;
@@ -67,12 +68,13 @@ SubShader {
 		ENDGLSL
 	}
 
-	Pass {
-		ZWrite Off;
+	Pass "Outline" false {
 		ZTest Off;
+		ZWrite Off;
+		Blend SrcAlpha OneMinusSrcAlpha;
+
 		StencilTest NotEqual 1 0xFF;
 		StencilWrite Off;
-		Blend SrcAlpha OneMinusSrcAlpha;
 
 		GLSLPROGRAM
 
@@ -84,10 +86,7 @@ SubShader {
 
 		uniform float _RimFactor;
 		void main() {
-			vec3 normal = transpose(inverse(mat3(_LocalToWorldMatrix))) * _Normal;
-			normal.xy = mat2(_WorldToClipMatrix) * normal.xy;
-			gl_Position = _LocalToClipMatrix * vec4(_Pos, 1);
-			gl_Position.xy += normal.xy * 0.5;
+			gl_Position = _LocalToClipMatrix * vec4(_Pos * 1.02, 1);
 		}
 
 		#stage fragment

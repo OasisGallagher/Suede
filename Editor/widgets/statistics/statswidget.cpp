@@ -11,7 +11,8 @@ StatsWidget::StatsWidget(QWidget* parent) : QWidget(parent) {
 	fps_ = addRecord("FPS:");
 	script_ = addRecord("Script:");
 	culling_ = addRecord("Culling:");
-	cullingUpdate_ = addRecord("CullingUpdate:");
+	cullingUpdate_ = addRecord("Culling Update:");
+	visibleGameObject_ = addRecord("Visible:");
 	rendering_ = addRecord("Rendering:");
 	drawcalls_ = addRecord("Drawcalls:");
 	triangles_ = addRecord("Traingles:");
@@ -31,6 +32,7 @@ void StatsWidget::updateContent() {
 		script_->setText(QString::asprintf("%.2f ms", stats->scriptElapsed * 1000));
 		culling_->setText(QString::asprintf("%.2f ms", stats->cullingElapsed * 1000));
 		cullingUpdate_->setText(QString::asprintf("%.2f ms", stats->cullingUpdateElapsed * 1000));
+		visibleGameObject_->setText(QString::asprintf("%u/%u", stats->visibleGameObject, stats->totalGameObject));
 
 		rendering_->setText(QString::asprintf("%.2f ms", stats->renderingElapsed * 1000));
 

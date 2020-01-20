@@ -26,5 +26,5 @@ private:
 	QTimer* timer_;
 	Ui::StatsWidget ui;
 
-	QLabel* fps_, *script_, *culling_, *cullingUpdate_, *rendering_, *drawcalls_, *triangles_;
+	QLabel* fps_, *script_, *culling_, *cullingUpdate_, *visibleGameObject_, *rendering_, *drawcalls_, *triangles_;
 };

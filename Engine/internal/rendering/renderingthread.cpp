@@ -417,7 +417,7 @@ void PipelineBuilder::RenderGameObject(Pipeline* pl, GameObject* go, Renderer* r
 	renderer->UpdateMaterialProperties();
 
 	for (int i = 0; i < subMeshCount; ++i) {
-		RenderSubMesh(pl, go, i, renderer->GetMaterial(i));
+		RenderSubMesh(pl, go, i, renderer->IsMaterialInstantiated(i) ? renderer->GetMaterial(i) : renderer->GetSharedMaterial(i));
 	}
 }
 

@@ -43,7 +43,7 @@ inline void AIConvert(Vector3& translation, Quaternion& rotation, Vector3& scale
 
 #define UNNAMED_MATERIAL	"New Material"
 
-GameObjectLoader::GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback)
+GameObjectLoader::GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*)> callback)
 	: path_(path), root_(root), callback_(callback) {
 }
 
@@ -62,10 +62,11 @@ void GameObjectLoader::Apply() {
 			}
 		}
 
+		root_->SetName(FileSystem::GetFileName(path_));
 		root_->GetTransform()->SetParent(root_->GetScene()->GetRootTransform());
 	}
 
-	if (callback_) { callback_(root_, path_); }
+	if (callback_) { callback_(root_); }
 }
 
 
@@ -212,7 +213,7 @@ void GameObjectLoader::LoadComponents(GameObject* go, aiNode* node, std::vector<
 
 		uint materialIndex = aiScene_->mMeshes[meshIndex]->mMaterialIndex;
 		if (materialIndex < aiScene_->mNumMaterials) {
-			renderer->AddMaterial(materials[materialIndex].get());
+			renderer->AddSharedMaterial(materials[materialIndex].get());
 		}
 	}
 }
@@ -559,7 +560,7 @@ bool GameObjectLoader::LoadEmbeddedTexels(RawImage& rawImage, uint index) {
 	return true;
 }
 
-ref_ptr<GameObject> GameObjectImporter::Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback) {
+ref_ptr<GameObject> GameObjectImporter::Import(const std::string& path, std::function<void(GameObject*)> callback) {
 	ref_ptr<GameObject> root = new GameObject();
 	AddTask(new GameObjectLoader(root.get(), path, callback));
 	return root;

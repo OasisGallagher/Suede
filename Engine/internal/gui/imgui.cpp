@@ -5012,7 +5012,7 @@ bool ImGui::IsItemClicked(int mouse_button)
     return IsMouseClicked(mouse_button) && IsItemHovered(ImGuiHoveredFlags_None);
 }
 
-bool ImGui::__IsItemDoubleClicked(int mouse_button) {
+bool ImGui::IsItemDoubleClicked(int mouse_button) {
 	return IsMouseDoubleClicked(mouse_button) && IsItemHovered(ImGuiHoveredFlags_None);
 }
 

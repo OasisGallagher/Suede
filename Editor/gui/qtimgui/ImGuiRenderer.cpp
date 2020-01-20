@@ -311,11 +311,6 @@ void ImGuiRenderer::newFrame()
         io.MouseDown[i] = m_MousePressed[i];
     }
 
-	for (int i = 0; i < 3; i++) {
-		io.MouseDoubleClicked[i] = m_MouseDoubleClicked[i];
-		m_MouseDoubleClicked[i] = false;
-	}
-
     io.MouseWheelH = m_MouseWheelH;
     io.MouseWheel = m_MouseWheel;
     m_MouseWheelH = 0;
@@ -330,7 +325,6 @@ void ImGuiRenderer::newFrame()
 
 void ImGuiRenderer::onMousePressedChange(QMouseEvent *event)
 {
-	int type = event->type();
     m_MousePressed[0] = event->buttons() & Qt::LeftButton;
     m_MousePressed[1] = event->buttons() & Qt::RightButton;
     m_MousePressed[2] = event->buttons() & Qt::MiddleButton;
@@ -381,30 +375,28 @@ void ImGuiRenderer::onKeyPressRelease(QKeyEvent *event)
 
 bool ImGuiRenderer::eventFilter(QObject *watched, QEvent *event)
 {
-	Q_UNUSED(watched);
     switch (event->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
-		ImGui::SetCurrentContext(m_context);
-        this->onMousePressedChange(static_cast<QMouseEvent *>(event));
-        break;
 	case QEvent::MouseButtonDblClick:
+		// The second MouseButtonPress when double clicking will not be sent:
+		// The preceding statement excludes MouseButtonPress events which caused
+		// creation of a MouseButtonDblClick event. QTBUG-25831
 		ImGui::SetCurrentContext(m_context);
-		this->onMouseDoubleClickEvent(static_cast<QMouseEvent*>(event));
+		this->onMousePressedChange(static_cast<QMouseEvent *>(event));
 		break;
     case QEvent::Wheel:
 		ImGui::SetCurrentContext(m_context);
         this->onWheel(static_cast<QWheelEvent *>(event));
-        break;
+		break;
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
 		ImGui::SetCurrentContext(m_context);
         this->onKeyPressRelease(static_cast<QKeyEvent *>(event));
-        break;
+		break;
     default:
         break;
     }
 
 	return true;
-    //return QObject::eventFilter(watched, event);
 }

@@ -21,7 +21,7 @@ namespace Assimp { class Importer; }
 
 class GameObjectLoader : public Task, private NonCopyable {
 public:
-	GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
+	GameObjectLoader(GameObject* root, const std::string& path, std::function<void(GameObject*)> callback);
 	~GameObjectLoader();
 
 public:
@@ -84,7 +84,7 @@ private:
 
 	std::map<std::string, ref_ptr<Texture2D>> rawImages_;
 
-	std::function<void(GameObject*, const std::string&)> callback_;
+	std::function<void(GameObject*)> callback_;
 };
 
 class GameObjectImporter : public ScheduledThreadPool {
@@ -93,7 +93,7 @@ public:
 	~GameObjectImporter() {}
 
 public:
-	ref_ptr<GameObject> Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
+	ref_ptr<GameObject> Import(const std::string& path, std::function<void(GameObject*)> callback);
 
 protected:
 	virtual void OnSchedule(Task* task);

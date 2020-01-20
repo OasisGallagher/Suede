@@ -15,6 +15,9 @@ struct StatisticInfo {
 	uint nvertices;
 	uint ntriangles;
 
+	uint visibleGameObject;
+	uint totalGameObject;
+
 	float frameRate;
 
 	double scriptElapsed;
@@ -63,6 +66,7 @@ public:
 
 	void SetScriptElapsed(double value);
 	void SetCullingElapsed(double value);
+	void SetVisibleGameObjects(uint visible, uint total);
 	void SetCullingUpdateElapsed(double value);
 	void SetRenderingElapsed(double value);
 

@@ -9,11 +9,11 @@
 static QtImGui qtImGui("resources/fonts/tahoma.ttf", 15);
 
 IMGUIWidget::IMGUIWidget(QWidget* parent, QGLWidget* shareWidget) : QGLWidget(parent, shareWidget) {
-	qtImGui.registe(this);
+	qtImGui.attach(this);
 }
 
 IMGUIWidget::~IMGUIWidget() {
-	qtImGui.unregister(this);
+	qtImGui.detach(this);
 }
 
 void IMGUIWidget::bind() {

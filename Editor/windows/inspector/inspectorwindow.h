@@ -26,7 +26,6 @@ public:
 
 public:
 	virtual void initUI();
-	virtual void awake();
 	virtual void tick();
 
 private:
@@ -96,7 +95,7 @@ inline void InspectorWindow::drawUserEnumType(QObject* object, const char* name)
 
 template <class T>
 inline void InspectorWindow::drawUserRangeType(QObject* object, const char* name, bool(*draw)(const char*, T&, T, T)) {
-	ranged<T> r = object->property(name).value <ranged<T>>();
+	ranged<T> r = object->property(name).value<ranged<T>>();
 	T value = r.value();
 	if (draw(name, value, r.min(), r.max())) {
 		object->setProperty(name, QVariant::fromValue(r = value));

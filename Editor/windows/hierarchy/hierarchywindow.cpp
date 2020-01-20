@@ -77,7 +77,7 @@ void HierarchyWindow::drawHierarchy(Transform* root, int depth) {
 
 		if (GUI::BeginContextMenuSubWindow(childGameObject->GetName().c_str())) {
 			if (GUI::ContextMenuSubWindowItem("Focus")) {
-				emit focusGameObject(childGameObject);
+				emit focusGameObjectRequested(childGameObject);
 			}
 
 			if (GUI::ContextMenuSubWindowItem("Delete")) {
@@ -99,7 +99,7 @@ void HierarchyWindow::drawHierarchy(Transform* root, int depth) {
 		GUI::SetColor(oldColor);
 
 		if (clickCount == 2) {
-			emit focusGameObject(childGameObject);
+			emit focusGameObjectRequested(childGameObject);
 		}
 		else if (clickCount == 1) {
 			updateSelection(childGameObject);
@@ -145,10 +145,9 @@ void HierarchyWindow::updateSelection(GameObject* go) {
 void HierarchyWindow::importGameObject() {
 	QString path = QFileDialog::getOpenFileName(this, "Open", Resources::modelDirectory, "*.fbx");
 	if (!path.isEmpty() && !(path = QDir(Resources::modelDirectory).relativeFilePath(path)).isEmpty()) {
-		Engine::GetSubsystem<Scene>()->Import(path.toStdString(), [this](GameObject* go, const std::string& path) {
+		Engine::GetSubsystem<Scene>()->Import(path.toStdString(), [=](GameObject* go) {
 			if (go != nullptr) {
-				go->SetName(path);
-				emit focusGameObject(go);
+				emit focusGameObjectRequested(go);
 			}
 		});
 	}
@@ -157,15 +156,16 @@ void HierarchyWindow::importGameObject() {
 void HierarchyWindow::enableGameObjectOutline(GameObject* go, bool enable) {
 	for (MeshRenderer* renderer : go->GetComponentsInChildren<MeshRenderer>()) {
 		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-			Material* material = renderer->GetMaterial(i);
+			Material* material = renderer->GetSharedMaterial(i);
 			int outline = material->FindPass("Outline");
 			if (outline < 0) { continue; }
 
-			if (enable) {
-				material->EnablePass(outline);
+			bool alreadyEnabled = material->IsPassEnabled(outline);
+			if (enable && !alreadyEnabled) {
+				renderer->GetMaterial(i)->EnablePass(outline);
 			}
-			else {
-				material->DisablePass(outline);
+			else if (alreadyEnabled) {
+				renderer->GetMaterial(i)->DisablePass(outline);
 			}
 		}
 	}

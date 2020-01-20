@@ -4,7 +4,9 @@
 #include "gameobject.h"
 #include "internal/base/objectinternal.h"
 
-// helper macro to define builtin suede components.
+/**
+ * Helper macro to define builtin suede components.
+ */
 #define SUEDE_DEFINE_COMPONENT_INTERNAL(Class, ParentClass) \
 	suede_guid Class::GetComponentGUID() { \
 		static suede_guid guid = ClassNameToGUID(#Class); \

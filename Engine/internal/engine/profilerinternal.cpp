@@ -18,7 +18,7 @@ double Sample::GetElapsedSeconds() const { return _suede_dptr()->GetElapsedSecon
 #define thisFrameStats	stats_[1]
 #define FPS_REFRESH_TIME	0.2f
 
-Profiler::Profiler() : Subsystem(new ProfilerInternal(&querierReturned)){}
+Profiler::Profiler() : Subsystem(new ProfilerInternal(querierReturned)){}
 Sample* Profiler::CreateSample() { return _suede_dptr()->CreateSample(); }
 void Profiler::ReleaseSample(Sample* value) { _suede_dptr()->ReleaseSample(value); }
 uint Profiler::StartGPUQuery(GPUQueryType type) { return _suede_dptr()->StartGPUQuery(type); }
@@ -29,6 +29,7 @@ void Profiler::AddTriangles(uint n) { _suede_dptr()->AddTriangles(n); }
 void Profiler::AddDrawcalls(uint n) { _suede_dptr()->AddDrawcalls(n); }
 void Profiler::SetScriptElapsed(double value) { _suede_dptr()->SetScriptElapsed(value); }
 void Profiler::SetCullingElapsed(double value) { _suede_dptr()->SetCullingElapsed(value); }
+void Profiler::SetVisibleGameObjects(uint visible, uint total) { _suede_dptr()->SetVisibleGameObjects(visible, total); }
 void Profiler::SetCullingUpdateElapsed(double value) { _suede_dptr()->SetCullingUpdateElapsed(value); }
 void Profiler::SetRenderingElapsed(double value) { _suede_dptr()->SetRenderingElapsed(value); }
 const StatisticInfo* Profiler::GetStatisticInfo() { return _suede_dptr()->GetStatisticInfo(); }
@@ -64,7 +65,7 @@ double SampleInternal::GetElapsedSeconds() const {
 	return Time::TimeStampToSeconds(elapsed_);
 }
 
-ProfilerInternal::ProfilerInternal(event<uint, uint>* querierReturnedEvent) 
+ProfilerInternal::ProfilerInternal(event<uint, uint>& querierReturnedEvent) 
 	: samples_(1024), gpuQueriers_(MaxGPUQueriers), querierReturnedEvent_(querierReturnedEvent){
 	memset(stats_, 0, sizeof(StatisticInfo) * SUEDE_COUNTOF(stats_));
 	Engine::GetSubsystem<FrameEvents>()->frameEnter.subscribe(this, &ProfilerInternal::OnFrameEnter, (int)FrameEventQueue::User);
@@ -115,6 +116,11 @@ void ProfilerInternal::Update(float deltaTime) {
 
 void ProfilerInternal::SetScriptElapsed(double value) {
 	thisFrameStats.scriptElapsed = value;
+}
+
+void ProfilerInternal::SetVisibleGameObjects(uint visible, uint total) {
+	thisFrameStats.visibleGameObject = visible;
+	thisFrameStats.totalGameObject = total;
 }
 
 void ProfilerInternal::SetCullingElapsed(double value) {
@@ -201,7 +207,7 @@ bool ProfilerInternal::UpdateGPUQuerier(GPUQuerier* querier) {
 	if (available) {
 		uint result = 0;
 		context_->GetQueryObjectuiv(querier->id, GL_QUERY_RESULT, &result);
-		querierReturnedEvent_->raise(querier->id, result);
+		querierReturnedEvent_.raise(querier->id, result);
 
 		return true;
 	}
@@ -253,4 +259,3 @@ uint ProfilerInternal::GPUQueryTypeToGLenum(GPUQueryType type) {
 	Debug::LogError("invalid query type.");
 	return 0;
 }
-

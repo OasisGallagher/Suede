@@ -9,7 +9,7 @@
 #include "builtinproperties.h"
 
 Material::Material() : Object(new MaterialInternal(Context::GetCurrent())) { }
-ref_ptr<Object> Material::Clone() { return _suede_dptr()->Clone(); }
+ref_ptr<Material> Material::Clone() { return _suede_dptr()->Clone(); }
 void Material::Bind(uint pass) { _suede_dptr()->Bind(pass); }
 void Material::Unbind() { _suede_dptr()->Unbind(); }
 bool Material::EnablePass(uint pass) { return _suede_dptr()->EnablePass(pass); }
@@ -62,7 +62,7 @@ MaterialInternal::MaterialInternal(Context* context)
 MaterialInternal::~MaterialInternal() {
 }
 
-ref_ptr<Object> MaterialInternal::Clone() {
+ref_ptr<Material> MaterialInternal::Clone() {
 	Material* clone = new Material();
 	*_suede_drptr(clone) = *this;
 	return clone;
@@ -432,7 +432,7 @@ void MaterialInternal::OnContextDestroyed() {
 
 void MaterialInternal::BindProperties(uint pass) {
 	int textureIndex = 0;
-	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
+	for (auto ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		if ((ite->second->mask & (1 << pass)) == 0) {
 			continue;
 		}
@@ -452,7 +452,7 @@ void MaterialInternal::BindProperties(uint pass) {
 void MaterialInternal::UnbindProperties() {
 	static float zero[sizeof(Matrix4)  * MAX_BONE_COUNT];
 
-	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
+	for (auto ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		if ((ite->second->mask & (1 << currentPass_)) == 0) {
 			continue;
 		}
@@ -505,7 +505,7 @@ void MaterialInternal::AddRedundantProperty(const std::string& name, const Varia
 }
 
 void MaterialInternal::DeactiveRedundantProperties(const std::vector<ShaderProperty>& shaderProperties) {
-	for (PropertyContainer::iterator ite = properties_.begin(); ite != properties_.end(); ++ite) {
+	for (auto ite = properties_.begin(); ite != properties_.end(); ++ite) {
 		bool active = false;
 		for (const ShaderProperty& shaderProperty : shaderProperties) {
 			Property* lp = shaderProperty.property;

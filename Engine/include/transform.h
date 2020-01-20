@@ -29,7 +29,7 @@ public:
 
 public:
 	bool IsAttachedToScene();
-	void TravsalHierarchy(std::function<TraversalCommand(Transform*)> func);
+	void TraversalHierarchy(std::function<TraversalCommand(Transform*)> func);
 
 	void AddChild(Transform* child);
 	void RemoveChild(Transform* child);

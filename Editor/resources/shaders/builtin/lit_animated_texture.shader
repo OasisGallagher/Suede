@@ -1,5 +1,6 @@
 Properties { 
 	color _MainColor;
+	texture2D _MainTexture = "white";
 }
 
 SubShader {

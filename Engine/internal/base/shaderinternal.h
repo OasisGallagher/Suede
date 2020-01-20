@@ -128,10 +128,10 @@ private:
 	Context* context_;
 	dynamic_array<Pass> passes_;
 
-	uint passCount_;
-	uint passEnabled_;
+	uint passCount_ = 0;
+	uint passEnabled_ = UINT_MAX;
 
-	int currentPass_;
+	int currentPass_ = -1;
 	int tags_[TagKeyCount];
 };
 

@@ -49,7 +49,6 @@ private:
 	float calculateCameraDistanceFitsBounds(Camera* camera, const Bounds& bounds);
 
 	void updateStatPosition();
-	void onGameObjectImported(GameObject* root, const std::string& path);
 
 private:
 	Input* input_;

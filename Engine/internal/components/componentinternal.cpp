@@ -22,7 +22,7 @@ bool Component::Register(suede_guid guid, const std::function<Object*()>& create
 bool Component::Register(const char* name, const std::function<Object*()>& creater) { return Factory::AddFactoryMethod(name, creater); }
 
 suede_guid Component::ClassNameToGUID(const char* className) {
-	static suede_guid id = 0;
+	static suede_guid id;
 	return ++id;
 }
 

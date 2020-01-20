@@ -822,7 +822,6 @@ copy $(TargetDir)$(TargetName).dll $(SolutionDir)Editor\bin</Command>
     <ClInclude Include="internal\physics\bullet\LinearMath\btTransform.h" />
     <ClInclude Include="internal\physics\bullet\LinearMath\btTransformUtil.h" />
     <ClInclude Include="internal\physics\bullet\LinearMath\btVector3.h" />
-    <ClInclude Include="internal\physics\mathconvert.h" />
     <ClInclude Include="internal\physics\physicsinternal.h" />
     <ClInclude Include="internal\physics\rigidbodyinternal.h" />
     <ClInclude Include="internal\rendering\ambientocclusion.h" />

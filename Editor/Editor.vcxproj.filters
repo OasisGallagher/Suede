@@ -31,9 +31,6 @@
     <Filter Include="resources\shaders">
       <UniqueIdentifier>{cda91b8e-50f4-4c01-a697-db1bad03772d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="resources\shaders\include">
-      <UniqueIdentifier>{293ae9ed-e6bb-4edb-878e-204ffb3e8ba9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="main">
       <UniqueIdentifier>{dc1b67d3-19aa-4507-9fbb-e436e116b57b}</UniqueIdentifier>
     </Filter>

@@ -150,7 +150,7 @@ public:
 	QVector<Material*> GetMaterials() {
 		QVector<Material*> answer;
 		for (int i = 0; i < target->GetMaterialCount(); ++i) {
-			answer.push_back(target->GetMaterial(i));
+			answer.push_back(target->GetSharedMaterial(i));
 		}
 
 		return answer;

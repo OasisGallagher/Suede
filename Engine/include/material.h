@@ -21,7 +21,7 @@ public:
 	Material();
 
 public:
-	ref_ptr<Object> Clone();
+	ref_ptr<Material> Clone();
 
 	void Bind(uint pass);
 	void Unbind();

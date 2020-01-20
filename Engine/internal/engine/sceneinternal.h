@@ -27,8 +27,8 @@ public:
 	void DestroyGameObject(uint id);
 	void DestroyGameObject(GameObject* go);
 	std::vector<GameObject*> GetGameObjectsOfComponent(suede_guid guid);
-	Transform* GetRootTransform() { return root_.get(); }
-	void Import(const std::string& path, std::function<void(GameObject*, const std::string&)> callback);
+	Transform* GetRootTransform() { return root_->GetTransform(); }
+	void Import(const std::string& path, std::function<void(GameObject*)> callback);
 
 public:
 	void Awake();
@@ -46,14 +46,14 @@ private:
 	void AddGameObject(ref_ptr<GameObject> go);
 	void RemoveGameObject(GameObject* go);
 	void RemoveGameObjectFromSequence(GameObject* go);
-	void ManageGameObjectUpdateSequence(GameObject* go);
+	void ManageGameObjectUpdateSequence(GameObject* go, ComponentEventType type);
 	void DestroyGameObjectRecursively(Transform* root);
 
 	void OnTransformAttached(Transform* transform, bool attached);
-	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType state, ref_ptr<Component> component);
+	void OnGameObjectComponentChanged(ref_ptr<GameObject> go, ComponentEventType type, ref_ptr<Component> component);
 
 	template <class Container>
-	void ManageGameObjectComponents(Container& container, Component* component, ComponentEventType state);
+	void ManageGameObjectComponents(Container& container, Component* component, ComponentEventType type);
 
 private:
 	std::vector<Light*> lights_;
@@ -73,6 +73,6 @@ private:
 	enum : char { FramesDestroyedGameObjectAlive = 2 };
 	std::vector<std::pair<ref_ptr<GameObject>, char>> destroyed_;
 
-	ref_ptr<Transform> root_;
+	ref_ptr<GameObject> root_;
 	GameObjectImporter* importer_;
 };

@@ -4,7 +4,7 @@
 
 Transform::Transform() : Component(new TransformInternal) {}
 bool Transform::IsAttachedToScene() { return _suede_dptr()->IsAttachedToScene(this); }
-void Transform::TravsalHierarchy(std::function<TraversalCommand(Transform*)> func) { _suede_dptr()->TravsalHierarchy(this, func); }
+void Transform::TraversalHierarchy(std::function<TraversalCommand(Transform*)> func) { _suede_dptr()->TraversalHierarchy(this, func); }
 void Transform::AddChild(Transform* child) { _suede_dptr()->AddChild(this, child); }
 void Transform::RemoveChild(Transform* child) { _suede_dptr()->RemoveChild(child); }
 void Transform::RemoveChildAt(uint index) { _suede_dptr()->RemoveChildAt(index); }
@@ -53,27 +53,12 @@ TransformInternal::TransformInternal() : ComponentInternal(ObjectType::Transform
 TransformInternal::~TransformInternal() {
 }
 
-void TransformInternal::TravsalHierarchy(Transform* self, std::function<TraversalCommand(Transform*)> func) {
-	if (self != gameObject_->GetScene()->GetRootTransform()) {
-		return (void)DFSRecursively(self, func);
+void TransformInternal::TraversalHierarchy(Transform* self, std::function<TraversalCommand(Transform*)> func) {
+	if (self == gameObject_->GetScene()->GetRootTransform()) {
+		DFSRecursively(self, func);
 	}
-
-	if (func(self) == TraversalCommand::Continue) {
-		for (int i = 0; i < GetChildCount(); ++i) {
-			Transform* child = GetChildAt(i);
-			TraversalCommand command = func(child);
-			if (command == TraversalCommand::Break) {
-				break;
-			}
-
-			if (command == TraversalCommand::NextSibling) {
-				continue;
-			}
-
-			if (!DFSRecursively(child, func)) {
-				break;
-			}
-		}
+	else if (func(self) == TraversalCommand::Continue) {
+		DFSRecursively(self, func);
 	}
 }
 
@@ -446,9 +431,7 @@ Vector3 TransformInternal::GetLocalEulerAngles(Transform* self) {
 			worldRotation = GetRotation(self);
 		}
 		else {
-			if (IsDirty(WorldEulerAnglesMask)) {
-				Debug::LogError("invalid state");
-			}
+			SUEDE_ASSERT(!IsDirty(WorldEulerAnglesMask));
 
 			worldRotation = world_.rotation = Quaternion(Mathf::deg2Rad * world_.eulerAngles);
 			SetDirty(WorldRotationMask, false);
@@ -479,8 +462,6 @@ Matrix4 TransformInternal::GetLocalToWorldMatrix(Transform* self) {
 
 		localToWorldMatrix_ = matrix;
 		SetDirty(LocalToWorldMatrixMask, false);
-
-		GetGameObject()->SendMessage(GameObjectMessageLocalToWorldMatrixModified, nullptr);
 	}
 
 	return localToWorldMatrix_;
@@ -521,17 +502,9 @@ void TransformInternal::SetDirty(uint bits, bool value) {
 	if (value) { dirtyBits_ |= bits; }
 	else { dirtyBits_ &= ~bits; }
 
-	if (IsDirty(LocalScaleMask) && IsDirty(WorldScaleMask)) {
-		Debug::LogError("invalid state");
-	}
-
-	if (IsDirty(LocalPositionMask) && IsDirty(WorldPositionMask)) {
-		Debug::LogError("invalid state");
-	}
-
-	if (IsDirty(LocalRotationMask) && IsDirty(WorldRotationMask) && IsDirty(LocalEulerAnglesMask) && IsDirty(WorldEulerAnglesMask)) {
-		Debug::LogError("invalid state");
-	}
+	SUEDE_ASSERT(!IsDirty(LocalScaleMask) || !IsDirty(WorldScaleMask));
+	SUEDE_ASSERT(!IsDirty(LocalPositionMask) || !IsDirty(WorldPositionMask));
+	SUEDE_ASSERT(!IsDirty(LocalRotationMask) || !IsDirty(WorldRotationMask) || !IsDirty(LocalEulerAnglesMask) || !IsDirty(WorldEulerAnglesMask));
 }
 
 void TransformInternal::DirtyChildrenScales() {

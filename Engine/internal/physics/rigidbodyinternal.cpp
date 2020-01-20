@@ -1,9 +1,8 @@
 #include "rigidbodyinternal.h"
 
-#include "mathconvert.h"
 #include "physicsinternal.h"
 
-Rigidbody::Rigidbody() : Component(new RigidbodyInternal) {}
+Rigidbody::Rigidbody() : Component(new RigidbodyInternal(Engine::GetSubsystem<Physics>())) {}
 void Rigidbody::ShowCollisionShape(bool value) { _suede_dptr()->ShowCollisionShape(value); }
 void Rigidbody::SetMass(float value) { _suede_dptr()->SetMass(value); }
 float Rigidbody::GetMass() const { return _suede_dptr()->GetMass(); }
@@ -12,10 +11,8 @@ Vector3 Rigidbody::GetVelocity() const { return _suede_dptr()->GetVelocity(); }
 
 SUEDE_DEFINE_COMPONENT_INTERNAL(Rigidbody, Component)
 
-#define btWorld()	PhysicsInternal::btWorld()
-
-RigidbodyInternal::RigidbodyInternal()
-	: ComponentInternal(ObjectType::Rigidbody) {
+RigidbodyInternal::RigidbodyInternal(Physics* physics)
+	: ComponentInternal(ObjectType::Rigidbody), physicsWorld_(_suede_drptr(physics)->GetPhysicsWorld()) {
 	CreateBody();
 }
 
@@ -34,8 +31,11 @@ void RigidbodyInternal::Update(float deltaTime) {
 		UpdateBody(true);
 	}
 
-	if (bodyDirty_ && shape_ != nullptr) {
-		ApplyGameObjectTransform();
+	if (shape_ != nullptr) {
+		btTransform& transform = body_->getWorldTransform();
+		//transform.setOrigin(btConvert(GetTransform()->GetPosition()));
+		//transform.setRotation(btConvert(GetTransform()->GetRotation()));
+		transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
 	}
 
 	// SUEDE TODO: empty body.
@@ -44,16 +44,13 @@ void RigidbodyInternal::Update(float deltaTime) {
 	}
 
 	if (showCollisionShape_ && shape_ != nullptr) {
-		btWorld()->debugDrawObject(body_->getWorldTransform(), shape_, btVector3(1, 0, 0));
+		physicsWorld_->debugDrawObject(body_->getWorldTransform(), shape_, btVector3(1, 0, 0));
 	}
 }
 
 void RigidbodyInternal::OnMessage(int messageID, void* parameter) {
 	if (messageID == GameObjectMessageMeshModified) {
 		shapeDirty_ = true;
-	}
-	else if( messageID == GameObjectMessageLocalToWorldMatrixModified) {
-		bodyDirty_ = true;
 	}
 }
 
@@ -63,28 +60,6 @@ void RigidbodyInternal::SetMass(float value) {
 		UpdateBody(false);
 	}
 }
-
-//void RigidbodyInternal::UpdateBounds() {
-//	btVector3 minAabb, maxAabb;
-//	shape_->getAabb(body_->getWorldTransform(), minAabb, maxAabb);
-//	btVector3 contactThreshold(gContactBreakingThreshold, gContactBreakingThreshold, gContactBreakingThreshold);
-//	minAabb -= contactThreshold;
-//	maxAabb += contactThreshold;
-//	
-//	if (btWorld()->getDispatchInfo().m_useContinuous && body_->getInternalType() == btCollisionObject::CO_RIGID_BODY && !body_->isStaticOrKinematicObject()) {
-//		btVector3 minAabb2, maxAabb2;
-//		shape_->getAabb(body_->getInterpolationWorldTransform(), minAabb2, maxAabb2);
-//
-//		minAabb2 -= contactThreshold;
-//		maxAabb2 += contactThreshold;
-//
-//		minAabb.setMin(minAabb2);
-//		maxAabb.setMax(maxAabb2);
-//	}
-//
-//	bounds_.SetMinMax(btConvert(minAabb), btConvert(maxAabb));
-//	GetGameObject()->RecalculateBounds(RecalculateBoundsFlagsSelf | RecalculateBoundsFlagsParent);
-//}
 
 void RigidbodyInternal::SetVelocity(const Vector3& value) {
 	body_->setLinearVelocity(btConvert(value));
@@ -168,13 +143,6 @@ void RigidbodyInternal::ApplyPhysicsTransform() {
 	GetTransform()->SetRotation(btConvert(transform.getRotation()));
 }
 
-void RigidbodyInternal::ApplyGameObjectTransform() {
-	btTransform& transform = body_->getWorldTransform();
-	//transform.setOrigin(btConvert(GetTransform()->GetPosition()));
-	//transform.setRotation(btConvert(GetTransform()->GetRotation()));
-	transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
-}
-
 void RigidbodyInternal::UpdateBody(bool updateWorldRigidbody) {
 	// You set the mass and inertia values for the shape. You don¡¯t have to calculate inertia for your shape manually.
 	// Instead you are using a utility function that takes a reference, btVector3, and sets the correct inertia value using the shape¡¯s data.
@@ -185,8 +153,8 @@ void RigidbodyInternal::UpdateBody(bool updateWorldRigidbody) {
 	body_->setMassProps(mass_, intertia);
 
 	if (updateWorldRigidbody) {
-		btWorld()->removeRigidBody(body_);
-		btWorld()->addRigidBody(body_);
+		physicsWorld_->removeRigidBody(body_);
+		physicsWorld_->addRigidBody(body_);
 	}
 }
 
@@ -227,7 +195,7 @@ void RigidbodyInternal::CreateBody() {
 
 void RigidbodyInternal::DestroyBody() {
 	if (body_ != nullptr) {
-		btWorld()->removeRigidBody(body_);
+		physicsWorld_->removeRigidBody(body_);
 		delete body_->getMotionState();
 		delete body_;
 	}

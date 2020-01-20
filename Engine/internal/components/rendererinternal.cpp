@@ -5,13 +5,16 @@
 #include "geometryutility.h"
 #include "builtinproperties.h"
 #include "internal/base/renderdefines.h"
+#include "internal/base/materialinternal.h"
+
 #include "internal/rendering/pipeline.h"
 
 Renderer::Renderer(void* d) : Component(d) {}
-void Renderer::AddMaterial(Material* material) { _suede_dptr()->AddMaterial(material); }
+void Renderer::AddSharedMaterial(Material* material) { _suede_dptr()->AddSharedMaterial(material); }
 Material* Renderer::GetMaterial(uint index) { return _suede_dptr()->GetMaterial(index); }
+Material* Renderer::GetSharedMaterial(uint index) { return _suede_dptr()->GetSharedMaterial(index); }
+bool Renderer::IsMaterialInstantiated(uint index) { return _suede_dptr()->IsMaterialInstantiated(index); }
 void Renderer::SetMaterial(uint index, Material* value) { _suede_dptr()->SetMaterial(index, value); }
-void Renderer::RemoveMaterial(Material* material) { _suede_dptr()->RemoveMaterial(material); }
 void Renderer::RemoveMaterialAt(uint index) { _suede_dptr()->RemoveMaterialAt(index); }
 uint Renderer::GetMaterialCount() { return _suede_dptr()->GetMaterialCount(); }
 void Renderer::UpdateMaterialProperties() { _suede_dptr()->UpdateMaterialProperties(); }
@@ -32,19 +35,20 @@ SUEDE_DEFINE_COMPONENT_INTERNAL(SkinnedMeshRenderer, Renderer)
 RendererInternal::RendererInternal(ObjectType type) : ComponentInternal(type) {
 }
 
-RendererInternal::~RendererInternal() {
-}
-
-void RendererInternal::RemoveMaterial(Material* material) {
-	materials_.erase(
-		std::remove(materials_.begin(), materials_.end(), material),
-		materials_.end()
-	);
+Material* RendererInternal::GetMaterial(uint index) {
+	auto& p = materials_[index];
+	if (!p.material) { p.material = p.sharedMaterial->Clone(); }
+	return p.material.get();
 }
 
 void RendererInternal::RemoveMaterialAt(uint index) {
 	SUEDE_ASSERT(index < materials_.size());
 	materials_.erase(materials_.begin() + index);
+}
+
+const Bounds& RendererInternal::GetBounds() {
+	UpdateBounds();
+	return bounds_;
 }
 
 void SkinnedMeshRendererInternal::UpdateMaterialProperties() {

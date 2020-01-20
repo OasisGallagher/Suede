@@ -8,10 +8,11 @@ public:
 	~QtImGui();
 
 public:
-	void registe(QGLWidget *window);
+	void attach(QGLWidget *widget);
+	void detach(QGLWidget* widget);
+	void detachAll();
+
 	void newFrame(QGLWidget* widget);
-	void unregister(QGLWidget* widget);
-	void unregisterAll();
 
 private:
 	class ImFontAtlas* fontAtlas_;

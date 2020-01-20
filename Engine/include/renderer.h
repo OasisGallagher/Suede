@@ -8,17 +8,30 @@ class SUEDE_API Renderer : public Component {
 	SUEDE_DECLARE_IMPLEMENTATION(Renderer)
 
 public:
-	void AddMaterial(Material* material);
+	void AddSharedMaterial(Material* material);
+
+	/**
+	 * Returns the instantiated Material assigned to the renderer.
+     * Modifying material will change the material for this object only.
+     * If the material is used by any other renderers, this will clone the shared material and start using it from now on.
+	 */
 	Material* GetMaterial(uint index);
+
+	/**
+	 * Returns the shared material of this object.
+     * Modifying shared material will change the appearance of all objects using this material.
+	 */
+	Material* GetSharedMaterial(uint index);
+
+	bool IsMaterialInstantiated(uint index);
 	void SetMaterial(uint index, Material* value);
-	void RemoveMaterial(Material* material);
 	void RemoveMaterialAt(uint index);
 	uint GetMaterialCount();
 
 	const Bounds& GetBounds();
 	
 	/**
-	 * @brief update renderer properties to materials.
+	 * Update renderer properties to materials.
 	 */
 	void UpdateMaterialProperties();
 

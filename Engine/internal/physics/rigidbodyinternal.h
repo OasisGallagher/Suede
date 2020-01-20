@@ -4,9 +4,10 @@
 #include "bullet/btBulletDynamicsCommon.h"
 #include "internal/components/componentinternal.h"
 
+class Physics;
 class RigidbodyInternal : public ComponentInternal {
 public:
-	RigidbodyInternal();
+	RigidbodyInternal(Physics* physics);
 	~RigidbodyInternal();
 
 public:
@@ -31,14 +32,11 @@ private:
 	void DestroyBody();
 	void UpdateBody(bool updateWorldRigidbody);
 
-	//void UpdateBounds();
-
 	bool RebuildShape();
 	bool CreateShapeFromMesh(Mesh* mesh, const Vector3& scale);
 	void DestroyShape();
 
 	void ApplyPhysicsTransform();
-	void ApplyGameObjectTransform();
 
 private:
 	// mass is pretty obviously the mass of the object, but it has another not-so-obvious significance. 
@@ -53,8 +51,9 @@ private:
 	float mass_ = 0.f;
 	bool showCollisionShape_ = false;
 
-	bool bodyDirty_ = false;
 	bool shapeDirty_ = false;
+
+	btDynamicsWorld* physicsWorld_;
 
 	// The reference to a rigid body.
 	// Using this property, you’ll allow the game scene to work with the physics body of the node.

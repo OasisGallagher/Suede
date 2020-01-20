@@ -546,8 +546,7 @@ bool Pass::IsSampler(int type) {
 	return false;
 }
 
-SubShader::SubShader(Context* context, const Semantics::SubShader& config, const std::string& path) : context_(context), passCount_(0)
-	, currentPass_(-1), passEnabled_(UINT_MAX) {
+SubShader::SubShader(Context* context, const Semantics::SubShader& config, const std::string& path) : context_(context) {
 	tags_[TagKeyRenderQueue] = (int)RenderQueue::Geometry;
 	InitializeTags(config.tags_);
 

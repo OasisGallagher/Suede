@@ -4,7 +4,6 @@
 
 enum {
 	GameObjectMessageMeshModified,
-	GameObjectMessageLocalToWorldMatrixModified,
 
 	GameObjectMessageUser = 1024,
 };
