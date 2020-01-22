@@ -156,6 +156,14 @@ T VerifyR(const char* func, T ans) {
 	return Verify(func), ans;
 }
 
+void Context::Flush() {
+	GL_CALL(glFlush());
+}
+
+void Context::Finish() {
+	GL_CALL(glFinish());
+}
+
 void Context::ActiveTexture(uint texture) {
 	GL_CALL(glActiveTexture(texture));
 }
@@ -430,6 +438,10 @@ void Context::ProgramUniform1fv(uint program, int location, int count, const flo
 
 void Context::ProgramUniform1iv(uint program, int location, int count, const int* value) {
 	GL_CALL(glProgramUniform1iv(program, location, count, value));
+}
+
+void Context::ProgramUniform2fv(uint program, int location, int count, const float* value) {
+	GL_CALL(glProgramUniform2fv(program, location, count, value));
 }
 
 void Context::ProgramUniform3fv(uint program, int location, int count, const float* value) {

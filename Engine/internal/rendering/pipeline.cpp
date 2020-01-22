@@ -215,8 +215,6 @@ void Pipeline::GatherInstances() {
 	if (base != nrenderables_) {
 		ranges_.push_back(nrenderables_);
 	}
-
-	SUEDE_ASSERT(std::is_sorted(ranges_.begin(), ranges_.end()));
 }
 
 void Pipeline::AddRenderable(Mesh* mesh, uint subMeshIndex, Material* material, const Matrix4& localToWorldMatrix, uint instance) {

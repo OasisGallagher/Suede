@@ -157,6 +157,7 @@ private:
 	void ReadPropertyBlock(SyntaxNode* node, std::vector<Property*>& properties);
 
 	void ReadIntProperty(SyntaxNode* node, Property* property);
+	void ReadVec2Property(SyntaxNode* node, Property* property);
 	void ReadVec3Property(SyntaxNode* node, Property* property);
 	void ReadVec4Property(SyntaxNode* node, Property* property);
 	void ReadColorProperty(SyntaxNode* node, Property* property);

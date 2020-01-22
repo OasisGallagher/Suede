@@ -50,6 +50,7 @@ public:
 	void SetTexture(const std::string& name, Texture* value);
 	void SetMatrix4(const std::string& name, const Matrix4& value);
 	void SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count);
+	void SetVector2(const std::string& name, const Vector2& value);
 	void SetVector3(const std::string& name, const Vector3& value);
 	void SetVector3Array(const std::string& name, const Vector3* ptr, uint count);
 	void SetColor(const std::string& name, const Color& value);
@@ -63,6 +64,7 @@ public:
 	float GetFloat(const std::string& name);
 	Texture* GetTexture(const std::string& name);
 	Matrix4 GetMatrix4(const std::string& name);
+	Vector2 GetVector2(const std::string& name);
 	Vector3 GetVector3(const std::string& name);
 	Color GetColor(const std::string& name);
 	Vector4 GetVector4(const std::string& name);

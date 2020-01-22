@@ -82,6 +82,7 @@ class CameraMetaObject : public ComponentMetaObjectT<Camera> {
 	Q_OBJECT
 
 	SUEDE_PROPERTY(int, Depth)
+	SUEDE_PROPERTY(int, CullingMask)
 	SUEDE_PROPERTY(bool, Perspective)
 	SUEDE_PROPERTY(float, OrthographicSize)
 	SUEDE_PROPERTY(ClearType, ClearType)
@@ -142,18 +143,26 @@ class TextMeshMetaObject : public ComponentMetaObjectT<TextMesh> {
 
 #include "renderer.h"
 
+struct RendererMaterials {
+	Renderer* renderer;
+	QVector<Material*> materials;
+};
+
+Q_DECLARE_METATYPE(RendererMaterials)
+
 class RendererMetaObject : public ComponentMetaObjectT<Renderer> {
 	Q_OBJECT
-	Q_PROPERTY(QVector<Material*> Materials READ GetMaterials)
+	Q_PROPERTY(RendererMaterials Materials READ GetMaterials)
 
 public:
-	QVector<Material*> GetMaterials() {
-		QVector<Material*> answer;
+	RendererMaterials GetMaterials() {
+		QVector<Material*> materials;
+		materials.reserve(target->GetMaterialCount());
 		for (int i = 0; i < target->GetMaterialCount(); ++i) {
-			answer.push_back(target->GetSharedMaterial(i));
+			materials.push_back(target->IsMaterialInstantiated(i) ? target->GetMaterial(i) : target->GetSharedMaterial(i));
 		}
 
-		return answer;
+		return{ target, materials };
 	}
 };
 

@@ -73,10 +73,12 @@ void FramebufferBase::UnbindFramebuffer() {
 }
 
 void FramebufferBase::BindViewport() {
+	context_->GetIntegerv(GL_VIEWPORT, (int*)&oldViewport_);
 	context_->Viewport(viewport_.x, viewport_.y, viewport_.z, viewport_.w);
 }
 
 void FramebufferBase::UnbindViewport() {
+	context_->Viewport(oldViewport_.x, oldViewport_.y, oldViewport_.z, oldViewport_.w);
 }
 
 void FramebufferBase::FramebufferTargetToGLenum(FramebufferTarget target, uint* query, uint* bind) {
@@ -160,7 +162,7 @@ void FramebufferBase::SetRenderTexture(FramebufferAttachment attachment, uint te
 void FramebufferBase::ClearCurrent(FramebufferClearMask clearMask) {
 	uint bitfield = 0;
 	if ((clearMask & FramebufferClearMaskColor) != 0) {
-		context_->ClearColor(clearColor_.r, clearColor_.g, clearColor_.b, 1);
+		context_->ClearColor(clearColor_.r, clearColor_.g, clearColor_.b, clearColor_.a);
 		bitfield |= GL_COLOR_BUFFER_BIT;
 	}
 

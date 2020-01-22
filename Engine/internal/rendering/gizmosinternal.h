@@ -49,8 +49,6 @@ private:
 	};
 
 private:
-	void Update(float deltaTime) { Flush(); }
-
 	Batch& GetBatch(MeshTopology topology, Material* material);
 	bool IsBatchable(const Batch& ref, MeshTopology topology, Material* material);
 
@@ -60,8 +58,11 @@ private:
 	void AddSphereBatch(const Vector3& center, float radius, bool wireframe);
 	void AddCuboidBatch(const Vector3& center, const Vector3& size, bool wireframe);
 
+	/**
+	 * Returns a vector lying somewhere within the plane perpendicular to v.
+	 */
 	Vector3 GetPerpendicular(const Vector3 &v);
-	void AddConeBatch(const Vector3 &direction, const Vector3 &apex, float coneHeight, float coneRadius, uint slices);
+	void AddConeBatch(const Vector3 &center, const Vector3 &apex, float coneRadius, uint slices);
 
 	void DrawGizmos(const Batch& b);
 

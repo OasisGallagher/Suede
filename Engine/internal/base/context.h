@@ -74,6 +74,8 @@ public:
 	void DrawElementsInstancedBaseVertex(MeshTopology topology, const TriangleBias & bias, uint instance);
 
 public:
+	void Flush();
+	void Finish();
 	void ActiveTexture(uint texture);
 	void AttachShader(uint program, uint shader);
 	void BeginQuery(uint target, uint id);
@@ -153,6 +155,7 @@ public:
 	void PolygonOffset(float factor, float units);
 	void ProgramUniform1fv(uint program, int location, int count, const float* value);
 	void ProgramUniform1iv(uint program, int location, int count, const int* value);
+	void ProgramUniform2fv(uint program, int location, int count, const float* value);
 	void ProgramUniform3fv(uint program, int location, int count, const float* value);
 	void ProgramUniform4fv(uint program, int location, int count, const float* value);
 	void ProgramUniformMatrix4fv(uint program, int location, int count, bool transpose, const float* value);

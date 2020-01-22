@@ -1,8 +1,9 @@
 #include "rect.h"
 #include "math/mathf.h"
 
-Rect::Rect(const Vector2& p, const Vector2& size) : Rect(p.x, p.y, size.x, size.y) {
+Rect Rect::unit(0, 0, 1, 1);
 
+Rect::Rect(const Vector2& p, const Vector2& size) : Rect(p.x, p.y, size.x, size.y) {
 }
 
 Rect::Rect(float x, float y, float width, float height) {
@@ -31,6 +32,10 @@ Vector2 Rect::GetRightTop() const {
 
 Vector2 Rect::GetRightBottom() const {
 	return Vector2(data_.x + data_.z, data_.y);
+}
+
+Vector2 Rect::GetSize() {
+	return Vector2(data_.z, data_.w);
 }
 
 void Rect::SetWidth(float value) {

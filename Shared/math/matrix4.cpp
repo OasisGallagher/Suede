@@ -100,8 +100,7 @@ Matrix4 Matrix4::GetTransposed() const {
 	);
 }
 
-float Matrix4::GetDeterminant() const
-{
+float Matrix4::GetDeterminant() const {
 	float SubFactor00 = m[2][2] * m[3][3] - m[3][2] * m[2][3];
 	float SubFactor01 = m[2][1] * m[3][3] - m[3][1] * m[2][3];
 	float SubFactor02 = m[2][1] * m[3][2] - m[3][1] * m[2][2];
@@ -380,8 +379,7 @@ Matrix4 Matrix4::Ortho(float left, float right, float bottom, float top, float n
 	return Result;
 }
 
-Vector3 Matrix4::Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport)
-{
+Vector3 Matrix4::Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport) {
 	Vector4 tmp = Vector4(obj.x, obj.y, obj.z, 1);
 	tmp = model * tmp;
 	tmp = proj * tmp;
@@ -394,8 +392,7 @@ Vector3 Matrix4::Project(Vector3 const& obj, Matrix4 const& model, Matrix4 const
 	return Vector3(tmp.x, tmp.y, tmp.z);
 }
 
-Vector3 Matrix4::Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport)
-{
+Vector3 Matrix4::Unproject(Vector3 const& win, Matrix4 const& model, Matrix4 const& proj, IVector4 const& viewport) {
 	Matrix4 Inverse = (proj * model).GetInversed();
 
 	Vector4 tmp = Vector4(win.x, win.y, win.z, (1));

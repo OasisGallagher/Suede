@@ -48,11 +48,6 @@ void DirectoryTree::setRootPath(const QString& path) {
 
 bool DirectoryTree::selectDirectory(const QString& path) {
 	QList<QStandardItem*> list = findItemsAlongPath(path);
-	/*
-	for (QStandardItem* item : list) {
-		expand(item->index());
-	}
-	*/
 	if (!list.empty()) {
 		scrollTo(list.back()->index());
 		selectionModel()->select(list.back()->index(), QItemSelectionModel::ClearAndSelect);
@@ -105,6 +100,7 @@ QList<QStandardItem*> DirectoryTree::findItemsAlongPath(const QString& path) {
 
 	QStandardItem* item = nullptr;
 	for (const QString& p : path.split("/")) {
+		if (p.isEmpty()) { continue; }
 		if (item != nullptr) {
 			item = findDirectChildItem(item, p);
 			list.push_back(item);

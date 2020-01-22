@@ -454,6 +454,12 @@ void ShaderParser::ReadIntProperty(SyntaxNode* node, Property* property) {
 	property->value.SetInt(String::ToInteger(node->GetChildAt(1)->ToString()));
 }
 
+void ShaderParser::ReadVec2Property(SyntaxNode* node, Property* property) {
+	Vector2 value;
+	ReadVec2(value, node);
+	property->value.SetVector2(value);
+}
+
 void ShaderParser::ReadVec3Property(SyntaxNode* node, Property* property) {
 	Vector3 value;
 	ReadVec3(value, node);
@@ -505,6 +511,9 @@ void ShaderParser::ReadProperty(SyntaxNode* node, Property* property) {
 	}
 	else if (ns == "Single") {
 		ReadFloatProperty(node, property);
+	}
+	else if (ns == "Vec2") {
+		ReadVec2Property(node, property);
 	}
 	else if (ns == "Vec3") {
 		ReadVec3Property(node, property);

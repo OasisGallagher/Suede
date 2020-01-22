@@ -13,6 +13,7 @@
 #include "main/imguiwidget.h"
 
 #include "tags.h"
+#include "layermask.h"
 #include "resources.h"
 #include "math/mathf.h"
 #include "os/filesystem.h"
@@ -87,6 +88,7 @@ void InspectorWindow::drawBasics(GameObject* go) {
 	}
 
 	drawTags(go);
+	drawLayer(go);
 }
 
 void InspectorWindow::addSuedeMetaObject(ObjectType type, std::shared_ptr<ComponentMetaObject> mo) {
@@ -140,6 +142,25 @@ void InspectorWindow::drawTags(GameObject* go) {
 
 	if (GUI::Popup("Tag", &selected, tags_.begin(), tags_.end())) {
 		go->SetTag(tags_[selected]);
+	}
+}
+
+void InspectorWindow::drawLayer(GameObject* go) {
+	LayerMask* layerMask = Engine::GetSubsystem<LayerMask>();
+	int allLayers = layerMask->GetAllLayers();
+
+	std::vector<std::string> layerNames;
+	layerNames.reserve(32);
+
+	int selected = go->GetLayer();
+	for (int i = 0; i < 32; ++i) {
+		if ((allLayers & (1 << i)) != 0) {
+			layerNames.push_back(layerMask->LayerToName(i));
+		}
+	}
+
+	if (GUI::Popup("Layer", &selected, layerNames.begin(), layerNames.end())) {
+		go->SetLayer(selected);
 	}
 }
 
@@ -232,7 +253,7 @@ void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, cons
 	else if (userType == QMetaTypeId<Material*>::qt_metatype_id()) {
 		materialEditor_->draw(object->property(name).value<Material*>(), this);
 	}
-	else if (userType == QMetaTypeId<QVector<Material*>>::qt_metatype_id()) {
+	else if (userType == QMetaTypeId<RendererMaterials>::qt_metatype_id()) {
 		drawMaterialVector(object, name);
 	}
 	else if (userType == QMetaTypeId<RenderTexture*>::qt_metatype_id()) {
@@ -249,12 +270,16 @@ void InspectorWindow::drawUserType(const QMetaProperty& p, QObject* object, cons
 
 void InspectorWindow::drawMaterialVector(QObject* object, const char* name) {
 	int materialIndex = 0;
-	for (Material* material : object->property(name).value<QVector<Material*>>()) {
+	RendererMaterials rendererMaterials = object->property(name).value<RendererMaterials>();
+	for (Material* material : rendererMaterials.materials) {
 		if (materialIndex != 0) { GUI::Separator(); }
 
 		GUI::BeginScope(materialIndex);
 
-		materialEditor_->draw(material, this);
+		auto modification = materialEditor_->constantDraw(material, this);
+		if (!modification.empty()) {
+			modification.apply(rendererMaterials.renderer->GetMaterial(materialIndex));
+		}
 
 		GUI::EndScope();
 

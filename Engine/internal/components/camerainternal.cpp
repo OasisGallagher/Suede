@@ -17,8 +17,10 @@ void Camera::SetMain(Camera* value) { main_ = value; }
 Camera::Camera() : Component(new CameraInternal) {}
 Camera::~Camera() { if (main_ == this) { main_ = nullptr; } }
 
-void Camera::SetDepth(int value) { _suede_dptr()->SetDepth(this, value); }
+void Camera::SetDepth(int value) { _suede_dptr()->SetDepth(value); }
 int Camera::GetDepth() const { return _suede_dptr()->GetDepth(); }
+void Camera::SetCullingMask(int value) { _suede_dptr()->SetCullingMask(value); }
+int Camera::GetCullingMask() const { return _suede_dptr()->GetCullingMask(); }
 bool Camera::GetPerspective() const { return _suede_dptr()->GetPerspective(); }
 void Camera::SetPerspective(bool value) { _suede_dptr()->SetPerspective(value); }
 float Camera::GetOrthographicSize() const { return _suede_dptr()->GetOrthographicSize(); }
@@ -53,21 +55,24 @@ ref_ptr<Texture2D> Camera::Capture() { return _suede_dptr()->Capture(); }
 SUEDE_DEFINE_COMPONENT_INTERNAL(Camera, Component)
 
 void Camera::OnPreRender() {
-	RenderTexture::GetDefault()->Clear(Rect(0, 0, 1, 1), Color::black, 1, 1);
+	RenderTexture::GetDefault()->Clear(Rect::unit, Color::black, 1, 1);
 }
 
 void Camera::OnPostRender() {
-	Camera* main = GetMain();
-	RenderTexture* target = RenderTexture::GetDefault();
-	target->BindWrite(main->GetRect());
-
-	for (GizmosPainter* painter : main->GetGameObject()->GetScene()->GetComponents<GizmosPainter>()) {
-		if (painter->GetActiveAndEnabled()) {
-			painter->OnDrawGizmos();
+	bool needUnbind = false;
+	for (GizmosPainter* painter : GetMain()->GetGameObject()->GetScene()->GetComponents<GizmosPainter>()) {
+		if (!painter->GetActiveAndEnabled()) { continue; }
+		if (!needUnbind) {
+			needUnbind = true;
+			RenderTexture::GetDefault()->BindWrite(GetMain()->GetRect());
 		}
+
+		painter->OnDrawGizmos();
 	}
 
-	target->Unbind();
+	if (needUnbind) {
+		RenderTexture::GetDefault()->Unbind();
+	}
 }
 
 CameraInternal::CameraInternal() : ComponentInternal(ObjectType::Camera) {
@@ -100,6 +105,7 @@ void CameraInternal::Awake() {
 void CameraInternal::RenderFrame() {
 	UpdateFrameState();
 
+	cullingTask_->SetCullingMask(cullingMask_);
 	cullingTask_->SetWorldToClipMatrix(GetProjectionMatrix() * transform_->GetWorldToLocalMatrix());
 
 	backPipelines_->Clear();
@@ -107,15 +113,15 @@ void CameraInternal::RenderFrame() {
 
 	if (pipelineReady_) {
 		RenderingMatrices matrices;
-		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
 		matrices.cameraPos = transform_->GetPosition();
+		matrices.projParams = Vector4(GetNearClipPlane(), GetFarClipPlane(), GetAspect(), tanf(GetFieldOfView() / 2));
 		matrices.projectionMatrix = GetProjectionMatrix();
 		matrices.worldToCameraMatrix = transform_->GetWorldToLocalMatrix();
 
 		renderingThread_->Render(frontPipelines_, matrices);
 	}
 	else {
-		// Debug::Log("Waiting for first frame...");
+		Debug::Log("Waiting for first frame...");
 	}
 }
 
@@ -128,12 +134,6 @@ void CameraInternal::UpdateFrameState() {
 	fs->depthTextureMode = depthTextureMode_;
 	fs->renderPath = renderPath_;
 	fs->targetTexture = targetTexture_.get();
-}
-
-void CameraInternal::SetDepth(Camera* self, int value) {
-	if (depth_ != value) {
-		depth_ = value;
-	}
 }
 
 void CameraInternal::Render() {
@@ -166,15 +166,9 @@ void CameraInternal::OnScreenSizeChanged(uint width, uint height) {
 	}
 }
 
-void CameraInternal::OnProjectionMatrixChanged() {
-}
-
 bool CameraInternal::IsValidViewportRect() {
-	const Rect& r = normalizedRect_;
-	if (r.GetXMin() >= 1 || r.GetYMin() >= 1) { return false; }
-	if (r.GetWidth() <= 0 || r.GetHeight() <= 0) { return false; }
-
-	return true;
+	return normalizedRect_.GetXMin() < 1 && normalizedRect_.GetYMin() < 1
+		&& normalizedRect_.GetWidth() > 0 && normalizedRect_.GetHeight() > 0;
 }
 
 void CameraInternal::GetVisibleGameObjects(std::vector<GameObject*>& gameObjects) {

@@ -1,13 +1,8 @@
 #include "gizmosinternal.h"
 
-#include "engine.h"
 #include "graphics.h"
-#include "resources.h"
-#include "math/mathf.h"
 #include "geometryutility.h"
 #include "builtinproperties.h"
-
-#include "memory/refptr.h"
 
 Gizmos::Gizmos(Graphics* graphics) : Subsystem(new GizmosInternal(graphics)) {}
 void Gizmos::Awake() { _suede_dptr()->Awake(); }
@@ -91,18 +86,18 @@ void GizmosInternal::DrawWireCuboid(const Vector3& center, const Vector3& size) 
 
 void GizmosInternal::DrawArrow(const Vector3& from, const Vector3& to) {
 	uint kConeSlices = 16;
-	float kConeHeight = 9, kConeRadius = 2.5f, kMinmumLineLength = 10;
+	float kConeHeight = 6, kConeRadius = 2.5f, kMinmumLineLength = 10;
 
-	Vector3 dest = to;
+	Vector3 apex = to;
 	Vector3 direction(to - from);
 	if (direction.GetMagnitude() < kConeHeight) {
-		dest = direction.GetNormalized() * (kConeHeight + kMinmumLineLength) + from;
-		direction = dest - from;
+		apex = direction.GetNormalized() * (kConeHeight + kMinmumLineLength) + from;
+		direction = apex - from;
 	}
 
-	AddConeBatch(direction.GetNormalized(), dest, kConeHeight, kConeRadius, kConeSlices);
-
 	Vector3 segment[] = { from, from + direction.GetNormalized() * (direction.GetMagnitude() - kConeHeight) };
+	AddConeBatch(segment[1], apex, kConeRadius, kConeSlices);
+
 	FillBatch(GetBatch(MeshTopology::Lines, lineMaterial_.get()), segment, SUEDE_COUNTOF(segment));
 }
 
@@ -123,8 +118,10 @@ Vector3 GizmosInternal::GetPerpendicular(const Vector3 &v) {
 }
 
 // http://www.freemancw.com/2012/06/opengl-cone-function/
-void GizmosInternal::AddConeBatch(const Vector3 &direction, const Vector3 &apex, float coneHeight, float coneRadius, uint slices) {
-	Vector3 c = apex + (-direction * coneHeight);
+void GizmosInternal::AddConeBatch(const Vector3 &center, const Vector3 &apex, float coneRadius, uint slices) {
+	Vector3 direction = (apex - center);
+	float coneHeight = direction.GetMagnitude();
+	Vector3::Normalize(direction);
 
 	std::vector<uint> indexes;
 	std::vector<Vector3> points{ apex };
@@ -136,7 +133,7 @@ void GizmosInternal::AddConeBatch(const Vector3 &direction, const Vector3 &apex,
 
 	for (int i = 0; i < slices; ++i) {
 		float rad = angInc * i;
-		Vector3 p = c + (((e0 * cosf(rad)) + (e1 * sinf(rad))) * coneRadius);
+		Vector3 p = center + (((e0 * cosf(rad)) + (e1 * sinf(rad))) * coneRadius);
 		points.push_back(p);
 	}
 
@@ -148,7 +145,7 @@ void GizmosInternal::AddConeBatch(const Vector3 &direction, const Vector3 &apex,
 	indexes.insert(indexes.end(), { 0, slices, 1 });
 
 	// draw cone bottom
-	points.push_back(c);
+	points.push_back(center);
 
 	for (uint i = 2; i < slices + 1; ++i) {
 		indexes.insert(indexes.end(), { slices + 1, i - 1, i });

@@ -3,10 +3,10 @@ Properties { }
 SubShader {
 	Pass {
 		Cull Off;
-		Blend Off;
 		ZWrite Off;
 		ZTest Off;
-	
+		Blend SrcAlpha OneMinusSrcAlpha;
+
 		GLSLPROGRAM
 
 		#stage vertex

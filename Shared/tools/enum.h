@@ -552,7 +552,7 @@ class Enum : public BetterEnumBase {                                           \
     ToStringConstexpr const char* to_string() const;                          \
 	const Enum* operator->() const { return this; }						\
 	const char* __tmpMetatableName() const { return ""; }	\
-    BETTER_ENUMS_IF_EXCEPTIONS(                                                \
+    BETTER_ENUMS_IF_EXCEPTIONS(                                                 \
     static Enum from_string(const char *name);        \
     )                                                                          \
     static _optional                                   \

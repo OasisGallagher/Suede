@@ -9,8 +9,11 @@ public:
 
 	void add(GameObject* go);
 	void remove(GameObject* go);
-	void clear() { gameObjects_.clear(); timeStamps_.clear(); }
+	void clear();
 	bool contains(GameObject* go) const { return gameObjects_.contains(go); }
+
+private:
+	void enableOutline(GameObject* go, bool enable);
 
 private:
 	QList<quint64> timeStamps_;

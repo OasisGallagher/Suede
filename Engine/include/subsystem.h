@@ -13,6 +13,7 @@ enum class SubsystemType {
 	Input,
 
 	Tags,
+	LayerMask,
 	Graphics,
 
 	_Count,

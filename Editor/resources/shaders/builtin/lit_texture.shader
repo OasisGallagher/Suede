@@ -1,6 +1,4 @@
 Properties {
-	franged _RimFactor = { 0.1, 0.01, 0.5 };
-	color _RimColor = { 0.98, 0.51, 0.04 };
 	color _MainColor = { 1, 1, 1, 1 };
 	texture2D _MainTexture = "white";
 }
@@ -54,6 +52,7 @@ SubShader {
 
 		uniform vec4 _MainColor;
 		uniform sampler2D _MainTexture;
+		uniform sampler2D _CameraDepthTexture;
 
 		#include "builtin/include/suede.inc"
 		#include "builtin/include/lit_fragment.inc"
@@ -63,38 +62,6 @@ SubShader {
 			float visibility = _CalcShadowVisibility(worldPos);
 			fragColor = vec4(_CalcDirectionalLight(albedo.xyz, worldPos, normalize(normal), visibility), albedo.a);
 			fragColor.xyz = _ApplyFogColor(fragColor.xyz);
-		}
-
-		ENDGLSL
-	}
-
-	Pass "Outline" false {
-		ZTest Off;
-		ZWrite Off;
-		Blend SrcAlpha OneMinusSrcAlpha;
-
-		StencilTest NotEqual 1 0xFF;
-		StencilWrite Off;
-
-		GLSLPROGRAM
-
-		#stage vertex
-		#include "builtin/include/suede.inc"
-
-		in vec3 _Pos;
-		in vec3 _Normal;
-
-		uniform float _RimFactor;
-		void main() {
-			gl_Position = _LocalToClipMatrix * vec4(_Pos * 1.02, 1);
-		}
-
-		#stage fragment
-		out vec4 fragColor;
-
-		uniform vec3 _RimColor;
-		void main() {
-			fragColor = vec4(_RimColor, 1);
 		}
 
 		ENDGLSL

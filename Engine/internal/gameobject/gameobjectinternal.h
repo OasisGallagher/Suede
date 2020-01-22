@@ -14,6 +14,9 @@ public:
 	Scene* GetScene() { return scene_; }
 	bool GetActive() const { return active_; }
 
+	void SetLayer(int value, bool recursivly);
+	int GetLayer() const { return layer_; }
+
 	void SetActiveSelf(GameObject* self, bool value);
 	bool GetActiveSelf() const { return activeSelf_; }
 
@@ -65,6 +68,8 @@ private:
 	Tags* tags_;
 	Scene* scene_;
 	Context* context_;
+
+	int layer_ = 0;
 
 	bool active_ = true;
 	bool activeSelf_ = true;

@@ -14,6 +14,7 @@ BETTER_ENUM(VariantType, int,
 	Matrix3,
 	Matrix4,
 	IVector3,
+	Vector2,
 	Vector3,
 	Color,
 	Vector4,
@@ -36,6 +37,7 @@ public:
 	Variant(const iranged& value) { SetRangedInt(value); }
 	Variant(const franged& value) { SetRangedFloat(value); }
 	Variant(const Matrix4& value) { SetMatrix4(value); }
+	Variant(const Vector2& value) { SetVector2(value); }
 	Variant(const Vector3& value) { SetVector3(value); }
 	Variant(const IVector3& value) { SetIVector3(value); }
 	Variant(const Color& value) { SetColor(value); }
@@ -57,6 +59,7 @@ public:
 	iranged GetRangedInt() const;
 	franged GetRangedFloat() const;
 	Matrix4 GetMatrix4() const;
+	Vector2 GetVector2() const;
 	Vector3 GetVector3() const;
 	IVector3 GetIVector3() const;
 	Color GetColor() const;
@@ -80,6 +83,7 @@ public:
 	void SetRangedInt(const iranged& value);
 	void SetRangedFloat(const franged& value);
 	void SetMatrix4(const Matrix4& value);
+	void SetVector2(const Vector2& value);
 	void SetVector3(const Vector3& value);
 	void SetIVector3(const IVector3& value);
 	void SetColor(const Color& value);

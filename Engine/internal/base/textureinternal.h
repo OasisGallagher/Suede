@@ -188,12 +188,9 @@ public:
 	virtual void BindWrite(const Rect& normalizedRect);
 	virtual void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
-	RenderTextureFormat GetRenderTextureFormat() { return renderTextureFormat_; }
+	void __tmpApplyClear() { if (clearArgument_.dirty) { ApplyClearContent(); } }
 
-public:
-	static RenderTexture* GetDefault();
-	static RenderTexture* GetTemporary(RenderTextureFormat format, uint width, uint height);
-	static void ReleaseTemporary(RenderTexture* texture); 
+	RenderTextureFormat GetRenderTextureFormat() { return renderTextureFormat_; }
 
 protected:
 	virtual void OnContextDestroyed();
@@ -203,7 +200,7 @@ protected:
 protected:
 	virtual void ApplySize();
 	virtual void ApplyConfig();
-	virtual void ResizeStorage(uint w, uint h, RenderTextureFormat format);
+	virtual void ResizeStorage(uint w, uint h, RenderTextureFormat renderTextureFormat);
 
 protected:
 	void DestroyFramebuffer();
@@ -214,8 +211,8 @@ protected:
 
 private:
 	bool VerifyBindStatus();
-	bool ContainsDepthInfo() const { return renderTextureFormat_ >= RenderTextureFormat::Depth; }
-	void RenderTextureFormatToGLenum(RenderTextureFormat input, uint(&parameters)[3]);
+	bool IsDepthOrStencilTexture() const { return renderTextureFormat_ >= RenderTextureFormat::Depth; }
+	void RenderTextureFormatToGLenum(RenderTextureFormat input, uint& internalFormat, uint& format, uint& type);
 
 protected:
 	FramebufferBase* framebuffer_ = nullptr;

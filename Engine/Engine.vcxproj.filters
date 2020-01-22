@@ -1444,6 +1444,12 @@
     <ClInclude Include="include\imgui.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="include\layermask.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="internal\engine\layermaskinternal.h">
+      <Filter>internal\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="internal\physics\bullet\Bullet3Collision\BroadPhaseCollision\b3DynamicBvh.cpp">
@@ -2177,6 +2183,9 @@
     </ClCompile>
     <ClCompile Include="internal\async\worker.cpp">
       <Filter>internal\async</Filter>
+    </ClCompile>
+    <ClCompile Include="internal\engine\layermaskinternal.cpp">
+      <Filter>internal\engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

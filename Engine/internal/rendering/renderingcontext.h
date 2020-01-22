@@ -20,6 +20,7 @@ struct UniformState {
 	~UniformState();
 
 	ref_ptr<RenderTexture> depthTexture;
+	ref_ptr<RenderTexture> depthNormalsTexture;
 	ref_ptr<RenderTexture> shadowDepthTexture;
 	ref_ptr<TextureBuffer> matrixTextureBuffer;
 	ref_ptr<RenderTexture> ambientOcclusionTexture;
@@ -35,7 +36,7 @@ struct FrameState {
 	GameObject* camera = nullptr;
 	Light* forwardBaseLight = nullptr;
 
-	Rect normalizedRect = Rect(0, 0, 1, 1);
+	Rect normalizedRect = Rect::unit;
 
 	ClearType clearType = ClearType::Color;
 	Color clearColor = Color::black;
@@ -88,6 +89,7 @@ public:
 	FrameState* GetFrameState() { return frameState_; }
 
 	Material* GetDepthMaterial() { return depthMaterial_.get(); }
+	Material* GetDepthNormalsMaterial() { return depthNormalsMaterial_.get(); }
 	RenderTexture* GetOffscreenRenderTexture() { return offscreenRT_.get(); }
 
 	CullingThread* GetCullingThread() { return cullingThread_; }
@@ -116,5 +118,7 @@ private:
 	UniformState* uniformState_ = nullptr;
 
 	ref_ptr<Material> depthMaterial_;
+	ref_ptr<Material> depthNormalsMaterial_;
+
 	ref_ptr<RenderTexture> offscreenRT_;
 };

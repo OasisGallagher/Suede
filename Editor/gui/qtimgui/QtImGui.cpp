@@ -26,6 +26,8 @@ public:
         return w->mapFromGlobal(p);
     }
 
+	QWidget* widget() { return w; }
+
 private:
 	QGLWidget *w;
 };

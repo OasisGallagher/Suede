@@ -19,6 +19,7 @@ public:
 	~CullingTask();
 
 public:
+	void SetCullingMask(int value) { cullingMask_ = value; }
 	void SetWorldToClipMatrix(const Matrix4& value);
 	std::vector<GameObject*>& GetGameObjects() { return visibleGameObjects_; }
 
@@ -32,6 +33,7 @@ private:
 	bool IsVisible(Renderer* renderer);
 
 private:
+	int cullingMask_ = -1;
 	uint64 lastTimeStamp_ = 0;
 
 	RenderingContext* context_;

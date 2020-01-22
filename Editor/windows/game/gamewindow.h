@@ -2,10 +2,15 @@
 
 #include "bounds.h"
 #include "camera.h"
+#include "material.h"
 #include "gameobject.h"
 #include "gizmospainter.h"
 #include "qtinputdelegate.h"
 #include "main/childwindow.h"
+
+class Input;
+class Physics;
+class Graphics;
 
 class Canvas;
 class StatsWidget;
@@ -50,12 +55,21 @@ private:
 
 	void updateStatPosition();
 
+	void onFrameLeave();
+	void onEngineScreenSizeChanged(uint w, uint h);
+
 private:
 	Input* input_;
 	QtInputDelegate* inputDelegate_;
 
+	Physics* physics_;
+	Graphics* graphics_;
+
 	Canvas* canvas_;
 	StatsWidget* stat_;
+
+	ref_ptr<Material> outlineMaterial_;
+	ref_ptr<RenderTexture> selectCameraTargetTexture_;
 
 	SelectionGizmos* selectionGizmos_;
 	CameraController* controller_;

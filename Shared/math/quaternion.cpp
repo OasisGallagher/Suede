@@ -3,6 +3,8 @@
 #include "mathf.h"
 #include "matrix4.h"
 
+Quaternion Quaternion::identity(1, 0, 0, 0);
+
 Quaternion::Quaternion(const Vector3& eulerAngle) {
 	Vector3 c(eulerAngle * 0.5f);
 	Vector3 s(eulerAngle * 0.5f);

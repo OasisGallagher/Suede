@@ -15,19 +15,23 @@
 
 RenderingPipelines::RenderingPipelines(RenderingContext* context) {
 	depth = new Pipeline(context);
-	depth->SetTargetTexture(context->GetUniformState()->depthTexture.get(), Rect(0, 0, 1, 1));
+	depth->SetTargetTexture(context->GetUniformState()->depthTexture.get(), Rect::unit);
+
+	depthNormals = new Pipeline(context);
+	depthNormals->SetTargetTexture(context->GetUniformState()->depthNormalsTexture.get(), Rect::unit);
 
 	rendering = new Pipeline(context);
 
 	shadow = new Pipeline(context);
-	shadow->SetTargetTexture(context->GetShadowMap()->GetTargetTexture(), Rect(0, 0, 1, 1));
+	shadow->SetTargetTexture(context->GetShadowMap()->GetTargetTexture(), Rect::unit);
 
 	ssaoTraversal = new Pipeline(context);
-	ssaoTraversal->SetTargetTexture(context->GetAmbientOcclusion()->GetTraversalRenderTexture(), Rect(0, 0, 1, 1));
+	ssaoTraversal->SetTargetTexture(context->GetAmbientOcclusion()->GetTraversalRenderTexture(), Rect::unit);
 }
 
 RenderingPipelines::~RenderingPipelines() {
 	delete depth;
+	delete depthNormals;
 	delete rendering;
 	delete shadow;
 	delete ssaoTraversal;
@@ -35,6 +39,7 @@ RenderingPipelines::~RenderingPipelines() {
 
 void RenderingPipelines::Clear() {
 	depth->Clear();
+	depthNormals->Clear();
 	shadow->Clear();
 	rendering->Clear();
 	ssaoTraversal->Clear();
@@ -55,11 +60,16 @@ bool RenderingThread::OnWork() {
 
 #define OutputSample(sample)	Debug::OutputToConsole("%s costs %.2f ms", #sample, sample->GetElapsedSeconds() * 1000)
 
+// SUEDE TODO Remove me.
+#include "internal/base/textureinternal.h"
+
 void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
 	context_->ClearFrame();
 	UpdateUniformBuffers(pipelines, matrices);
 
+	// SUEDE TODO Check renderable count first...
 	DepthPass(pipelines);
+	DepthNormalsPass(pipelines);
 
 	if (graphics_->GetAmbientOcclusionEnabled()) {
 		SSAOTraversalPass(pipelines);
@@ -84,7 +94,7 @@ void RenderingThread::Render(RenderingPipelines* pipelines, const RenderingMatri
 	}
 
 	if (!effects.empty()) { OnImageEffects(effects); }
-
+	
 	//graphics_->Blit(context_->GetUniformState()->depthTexture.get(), nullptr);
 }
 
@@ -99,7 +109,7 @@ void RenderingThread::UpdateTransformsUniformBuffer(const RenderingMatrices& mat
 	p.cameraPos = Vector4(matrices.cameraPos.x, matrices.cameraPos.y, matrices.cameraPos.z, 1);
 	p.screenParams = Vector4((float)Screen::GetWidth(), (float)Screen::GetHeight(), 0.f, 0.f);
 
-	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedTransformsUniformBuffer::GetName(),& p, 0, sizeof(p));
+	context_->GetUniformState()->uniformBuffers->UpdateUniformBuffer(SharedTransformsUniformBuffer::GetName(), &p, 0, sizeof(p));
 }
 
 void RenderingThread::UpdateForwardBaseLightUniformBuffer(Light* light) {
@@ -167,14 +177,25 @@ void RenderingThread::SSAOTraversalPass(RenderingPipelines* pipelines) {
 }
 
 void RenderingThread::DepthPass(RenderingPipelines* pipelines) {
-	Sample* sample = profiler_->CreateSample();
-	sample->Start();
+	Sample* depthSample = profiler_->CreateSample();
+	depthSample->Start();
 	if (pipelines->depth->GetRenderableCount() > 0) {
 		pipelines->depth->Run();
 	}
-	sample->Stop();
-	OutputSample(sample);
-	profiler_->ReleaseSample(sample);
+	depthSample->Stop();
+	OutputSample(depthSample);
+	profiler_->ReleaseSample(depthSample);
+}
+
+void RenderingThread::DepthNormalsPass(RenderingPipelines* pipelines) {
+	Sample* depthNormalsSample = profiler_->CreateSample();
+	depthNormalsSample->Start();
+	if (pipelines->depthNormals->GetRenderableCount() > 0) {
+		pipelines->depthNormals->Run();
+	}
+	depthNormalsSample->Stop();
+	OutputSample(depthNormalsSample);
+	profiler_->ReleaseSample(depthNormalsSample);
 }
 
 void RenderingThread::UpdateUniformBuffers(RenderingPipelines* pipelines, const RenderingMatrices& matrices) {
@@ -195,7 +216,11 @@ void RenderingThread::ShadowPass(RenderingPipelines* pipelines) {
 
 	Sample* sample = profiler_->CreateSample();
 	sample->Start();
-	pipelines->shadow->Run();
+
+	if (pipelines->shadow->GetRenderableCount() > 0) {
+		pipelines->shadow->Run();
+	}
+
 	sample->Stop();
 	OutputSample(sample);
 	profiler_->ReleaseSample(sample);
@@ -204,7 +229,10 @@ void RenderingThread::ShadowPass(RenderingPipelines* pipelines) {
 void RenderingThread::RenderPass(RenderingPipelines* pipelines) {
 	Sample* sample = profiler_->CreateSample();
 	sample->Start();
-	pipelines->rendering->Run();
+	if (pipelines->rendering->GetRenderableCount() > 0) {
+		pipelines->rendering->Run();
+	}
+
 	sample->Stop();
 	OutputSample(sample);
 	profiler_->ReleaseSample(sample);
@@ -232,23 +260,28 @@ void PipelineBuilder::Build(RenderingPipelines* pipelines, std::vector<GameObjec
 
 	pipelines->shadow->Sort(SortMode::ByMesh, worldToClipMatrix);
 
-	bool depthPass = false;
+	int depthMode = DepthTextureMode::None;
 	FrameState* fs = context_->GetFrameState();
 	if (fs->renderPath == RenderPath::Forward) {
-		if ((fs->depthTextureMode & DepthTextureMode::Depth) != 0) {
-			depthPass = true;
-		}
+		depthMode = fs->depthTextureMode;
 	}
 
 	if (graphics_->GetAmbientOcclusionEnabled()) {
 		pipelines->ssaoTraversal->AssignRenderables(pipelines->shadow);
 		SSAOPass(pipelines->ssaoTraversal);
-		depthPass = true;
+		if ((depthMode & DepthTextureMode::DepthNormals) == 0) {
+			depthMode |= DepthTextureMode::Depth;
+		}
 	}
 
-	if (depthPass) {
+	if (depthMode & DepthTextureMode::Depth) {
 		pipelines->depth->AssignRenderables(pipelines->shadow);
 		ForwardDepthPass(pipelines->depth);
+	}
+
+	if (depthMode & DepthTextureMode::DepthNormals) {
+		pipelines->depthNormals->AssignRenderables(pipelines->shadow);
+		ForwardDepthNormalsPass(pipelines->depthNormals);
 	}
 
 	Light* forwardBase = nullptr;
@@ -356,6 +389,10 @@ void PipelineBuilder::SSAOPass(Pipeline* pl) {
 
 void PipelineBuilder::ForwardDepthPass(Pipeline* pl) {
 	ReplaceMaterials(pl, context_->GetDepthMaterial());
+}
+
+void PipelineBuilder::ForwardDepthNormalsPass(Pipeline* pl) {
+	ReplaceMaterials(pl, context_->GetDepthNormalsMaterial());
 }
 
 void PipelineBuilder::ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects) {

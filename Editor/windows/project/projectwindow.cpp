@@ -85,7 +85,7 @@ void ProjectWindow::initUI() {
 	connect(ui_->directoryTree, SIGNAL(selectionChanged(const QStringList&)), this, SLOT(onSelectedDirectoriesChanged(const QStringList&)));
 	connect(ui_->directoryTree, SIGNAL(requestContextMenuOnItems(const QStringList&)), this, SLOT(onCustomContextMenu()));
 
-	ui_->directoryTree->selectDirectory("resources");
+	ui_->directoryTree->selectDirectory(ROOT_PATH);
 }
 
 void ProjectWindow::onAddressChanged() {

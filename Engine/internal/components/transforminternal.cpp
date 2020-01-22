@@ -580,16 +580,12 @@ Transform* TransformInternal::FindDirectChild(const std::string& name) {
 }
 
 void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Transform* newParent) {
-	Transform* root = gameObject_->GetScene()->GetRootTransform();
-
-	if (oldParent) { // remove from old parent.
-		TransformInternal* optr = _suede_drptr(oldParent);
-		RemoveChildItem(optr->children_, self);
+	if (oldParent != nullptr) { // Remove from old parent.
+		RemoveChildItem(_suede_drptr(oldParent)->children_, self);
 	}
 
-	if (newParent) {
-		TransformInternal* nptr = _suede_drptr(newParent);
-		AddChildItem(nptr->children_, self);
+	if (newParent != nullptr) {
+		AddChildItem(_suede_drptr(newParent)->children_, self);
 	}
 
 	parent_ = newParent;
@@ -600,8 +596,10 @@ void TransformInternal::ChangeParent(Transform* self, Transform* oldParent, Tran
 	GetPosition(self);
 	SetDirty(LocalScaleMask | LocalRotationMask | LocalPositionMask | LocalEulerAnglesMask, true);
 
-	if (oldParent == root || newParent == root) {
-		attached.raise(self, newParent == root);
+	bool oldAttached = (oldParent != nullptr && oldParent->IsAttachedToScene());
+	bool newAttached = (newParent != nullptr && newParent->IsAttachedToScene());
+	if (oldAttached != newAttached) {
+		attached.raise(self, newAttached);
 	}
 }
 

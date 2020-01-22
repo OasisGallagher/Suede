@@ -65,6 +65,11 @@ Matrix4 Variant::GetMatrix4() const {
 	return data_.mat4Value;
 }
 
+Vector2 Variant::GetVector2() const {
+	CHECK_VARIANT_TYPE(VariantType::Vector2, Vector2(0));
+	return data_.vec2Value;
+}
+
 Vector3 Variant::GetVector3() const {
 	CHECK_VARIANT_TYPE(VariantType::Vector3, Vector3(0));
 	return data_.vec3Value;
@@ -148,6 +153,11 @@ void Variant::SetRangedFloat(const franged& value) {
 void Variant::SetMatrix4(const Matrix4& value) {
 	SetType(VariantType::Matrix4);
 	data_.mat4Value = value;
+}
+
+void Variant::SetVector2(const Vector2& value) {
+	SetType(VariantType::Vector2);
+	data_.vec2Value = value;
 }
 
 void Variant::SetVector3(const Vector3& value) {

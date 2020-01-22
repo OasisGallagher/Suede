@@ -16,6 +16,8 @@ GameObject::GameObject(const char* name)
 
 bool GameObject::GetActive() const { return _suede_dptr()->GetActive(); }
 Scene* GameObject::GetScene() { return _suede_dptr()->GetScene(); }
+void GameObject::SetLayer(int value, bool recursivly) { _suede_dptr()->SetLayer(value, recursivly); }
+int GameObject::GetLayer() const { return _suede_dptr()->GetLayer(); }
 void GameObject::SetActiveSelf(bool value) { _suede_dptr()->SetActiveSelf(this, value); }
 bool GameObject::GetActiveSelf() const { return _suede_dptr()->GetActiveSelf(); }
 int GameObject::GetUpdateStrategy() { return _suede_dptr()->GetUpdateStrategy(this); }
@@ -41,6 +43,14 @@ event<ref_ptr<GameObject>, ComponentEventType, ref_ptr<Component>> GameObjectInt
 
 GameObjectInternal::GameObjectInternal(Context* context, Scene* scene, Tags* tags, const char* name)
 	: ObjectInternal(ObjectType::GameObject, name), context_(context), scene_(scene), tags_(tags) {
+}
+
+void GameObjectInternal::SetLayer(int value, bool recursivly) {
+	GetTransform()->TraversalHierarchy([=](Transform* current) {
+		auto that = _suede_drptr(current->GetGameObject());
+		that->layer_ = value;
+		return recursivly ? TraversalCommand::Continue : TraversalCommand::Break;
+	});
 }
 
 void GameObjectInternal::SetActiveSelf(GameObject* self, bool value) {

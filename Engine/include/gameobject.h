@@ -28,6 +28,12 @@ public:
 
 	bool GetActive() const;
 
+	/**
+	 * The layer index the game object is in.
+	 */
+	void SetLayer(int value, bool recursivly = true);
+	int GetLayer() const;
+
 	void SetActiveSelf(bool value);
 	bool GetActiveSelf() const;
 

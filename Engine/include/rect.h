@@ -20,6 +20,8 @@ public:
 	Vector2 GetRightTop() const;
 	Vector2 GetRightBottom() const;
 
+	Vector2 GetSize();
+
 public:
 	void SetWidth(float value);
 	float GetWidth() const;
@@ -34,6 +36,10 @@ public:
 	float GetYMin() const;
 
 public:
+	/**
+	 * Shorthand for writing Rect(0, 0, 1, 1).
+	 */
+	static Rect unit;
 	static Rect NormalizedToRect(const Rect& rect, const Rect& normalized);
 
 private:

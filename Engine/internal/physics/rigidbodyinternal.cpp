@@ -38,8 +38,7 @@ void RigidbodyInternal::Update(float deltaTime) {
 		transform.setFromOpenGLMatrix((btScalar*)&GetTransform()->GetLocalToWorldMatrix());
 	}
 
-	// SUEDE TODO: empty body.
-	if (body_ != nullptr && (body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) == 0) {
+	if ((body_->getCollisionFlags() & btCollisionObject::CF_STATIC_OBJECT) == 0) {
 		ApplyPhysicsTransform();
 	}
 

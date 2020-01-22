@@ -4,13 +4,12 @@
 #include "engine.h"
 #include "camera.h"
 #include "renderer.h"
-#include "math/matrix4.h"
 #include "main/selection.h"
 
 SUEDE_DEFINE_COMPONENT(SelectionGizmos, GizmosPainter)
 
 void SelectionGizmos::Awake() {
-	selectionGizmos_ = Engine::GetSubsystem<Gizmos>();
+	gizmos_ = Engine::GetSubsystem<Gizmos>();
 	camera_ = GetGameObject()->GetComponent<Camera>();
 	if (camera_ == nullptr) {
 		SetEnabled(false);
@@ -19,7 +18,7 @@ void SelectionGizmos::Awake() {
 }
 
 void SelectionGizmos::OnDrawGizmos() {
-	Color oldColor = selectionGizmos_->GetColor();
+	Color oldColor = gizmos_->GetColor();
 	Vector3 cameraPosition = GetTransform()->GetPosition();
 
 	for (GameObject* go : selection_->gameObjects()) {
@@ -37,30 +36,30 @@ void SelectionGizmos::OnDrawGizmos() {
 		}
 
 		if (!bounds.IsEmpty()) {
-			selectionGizmos_->SetColor(Color::yellow);
-			selectionGizmos_->DrawWireCuboid(bounds.center, bounds.size);
+			gizmos_->SetColor(Color::yellow);
+			gizmos_->DrawWireCuboid(bounds.center, bounds.size);
 		}
 
-		Vector3 pos = go->GetTransform()->GetPosition();
+		Vector3 pos = bounds.center;// go->GetTransform()->GetPosition();
 		float length = Mathf::Max(bounds.size.z, Mathf::Max(bounds.size.x, bounds.size.y));
 		length = Mathf::Max(1.f, length);
 
-		Matrix4 oldMatrix = selectionGizmos_->GetMatrix();
+		Matrix4 oldMatrix = gizmos_->GetMatrix();
 
 		float distance = Vector3::Distance(cameraPosition, pos);
-		selectionGizmos_->SetMatrix(Matrix4::Translate(pos) * Matrix4::Scale(Vector3::one));// (distance / 120.f)));
+		gizmos_->SetMatrix(Matrix4::Translate(pos) * Matrix4::Scale(Vector3(distance / length)));
 
-		selectionGizmos_->SetColor(Color::red);
-		selectionGizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetRight() * length);
+		gizmos_->SetColor(Color::red);
+		gizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetRight() * length);
 
-		selectionGizmos_->SetColor(Color::green);
-		selectionGizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetUp() * length);
+		gizmos_->SetColor(Color::green);
+		gizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetUp() * length);
 
-		selectionGizmos_->SetColor(Color::blue);
-		selectionGizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetForward() * length);
+		gizmos_->SetColor(Color::blue);
+		gizmos_->DrawArrow(Vector3::zero, go->GetTransform()->GetForward() * length);
 
-		selectionGizmos_->SetMatrix(oldMatrix);
+		gizmos_->SetMatrix(oldMatrix);
 	}
 
-	selectionGizmos_->SetColor(oldColor);
+	gizmos_->SetColor(oldColor);
 }

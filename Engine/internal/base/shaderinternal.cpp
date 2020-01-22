@@ -406,16 +406,19 @@ void Pass::AddUniformProperty(std::vector<Property*>& properties, const std::str
 		case VariantType::Bool:
 			p->value.SetBool(false);
 			break;
+		case VariantType::Vector2:
+			p->value.SetVector2(Vector2::zero);
+			break;
 		case VariantType::Vector3:
 		case VariantType::Vector4:
 			if (BuiltinProperties::IsBuiltinColorProperty(name.c_str())) {
 				p->value.SetColor(Color::black);
 			}
 			else if(type == VariantType::Vector3) {
-				p->value.SetVector3(Vector3(0));
+				p->value.SetVector3(Vector3::zero);
 			}
 			else {
-				p->value.SetVector4(Vector4(0));
+				p->value.SetVector4(Vector4::zero);
 			}
 			break;
 		case VariantType::Texture:
@@ -446,6 +449,9 @@ void Pass::AddUniform(const char* name, uint type, uint location, int size) {
 		break;
 	case GL_BOOL:
 		uniform->type = VariantType::Bool;
+		break;
+	case GL_FLOAT_VEC2:
+		uniform->type = VariantType::Vector2;
 		break;
 	case GL_FLOAT_VEC3:
 		uniform->type = VariantType::Vector3;
@@ -489,6 +495,9 @@ void Pass::SetUniform(uint location, VariantType type, uint size, const void* da
 	case VariantType::Matrix4:
 	case VariantType::Matrix4Array:
 		context_->ProgramUniformMatrix4fv(program_, location, size, false, (const float*)data);
+		break;
+	case VariantType::Vector2:
+		context_->ProgramUniform2fv(program_, location, size, (const float*)data);
 		break;
 	case VariantType::Vector3:
 		context_->ProgramUniform3fv(program_, location, size, (const float*)data);

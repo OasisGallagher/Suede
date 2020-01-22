@@ -67,13 +67,66 @@ void TextureBuffer::Update(uint offset, uint size, const void* data) { _suede_dp
 RenderTexture::RenderTexture() : Texture(new RenderTextureInternal(Context::GetCurrent())) {}
 RenderTexture::RenderTexture(void* d) : Texture(d) {}
 bool RenderTexture::Create(RenderTextureFormat format, uint width, uint height) { return _suede_dptr()->Create(format, width, height); }
+void RenderTexture::__tmpApplyClear() { _suede_dptr()->__tmpApplyClear(); }
 RenderTextureFormat RenderTexture::GetRenderTextureFormat() { return _suede_dptr()->GetRenderTextureFormat(); }
 void RenderTexture::Resize(uint width, uint height) { _suede_dptr()->Resize(width, height); }
 void RenderTexture::Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil) { _suede_dptr()->Clear(normalizedRect, color, depth, stencil); }
 void RenderTexture::BindWrite(const Rect& normalizedRect) { _suede_dptr()->BindWrite(normalizedRect); }
-RenderTexture* RenderTexture::GetDefault() { return RenderTextureInternal::GetDefault(); }
-RenderTexture* RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) { return RenderTextureInternal::GetTemporary(format, width, height); }
-void RenderTexture::ReleaseTemporary(RenderTexture* texture) { RenderTextureInternal::ReleaseTemporary(texture); }
+RenderTexture* RenderTexture::GetDefault() {
+	static ref_ptr<RenderTexture> screen;
+
+	if (!screen) {
+		screen = new ScreenRenderTexture();
+		screen->Create(RenderTextureFormat::Rgb, 0, 0);
+	}
+
+	return screen.get();
+}
+
+struct RenderTextureCacheKey {
+	int busy_;
+	RenderTextureFormat format;
+	uint width;
+	uint height;
+
+	bool operator<(const RenderTextureCacheKey& other) const {
+		if (busy_ != other.busy_) { return busy_ < other.busy_; }
+		if (format != other.format) { return format < other.format; }
+		if (width != other.width) { return width < other.width; }
+		return height < other.height;
+	}
+};
+
+typedef std::multimap<RenderTextureCacheKey, ref_ptr<RenderTexture>> RenderTextureCacheContainer;
+static RenderTextureCacheContainer renderTextureCache;
+
+static RenderTexture* ToggleRenderTextureBusyState(RenderTextureFormat format, uint width, uint height, int busy_) {
+	RenderTextureCacheKey key = { busy_, format, width, height };
+	RenderTextureCacheContainer::iterator pos = renderTextureCache.find(key);
+	if (pos != renderTextureCache.end()) {
+		ref_ptr<RenderTexture> value = pos->second;
+		renderTextureCache.erase(pos);
+		key.busy_ = !busy_;
+		renderTextureCache.insert(std::make_pair(key, value));
+
+		return value.get();
+	}
+
+	return nullptr;
+}
+
+RenderTexture* RenderTexture::GetTemporary(RenderTextureFormat format, uint width, uint height) {
+	RenderTexture* cache = ToggleRenderTextureBusyState(format, width, height, 0);
+	if (cache != nullptr) {
+		cache->Clear(Rect::unit, Color::black, 1, 1);
+		return cache;
+	}
+
+	RenderTexture* texture = new RenderTexture();
+	texture->Create(format, width, height);
+	renderTextureCache.insert(std::make_pair(RenderTextureCacheKey{ 1, format, width,height }, texture));
+	return texture;
+}
 
 MRTRenderTexture::MRTRenderTexture() : RenderTexture(new MRTRenderTextureInternal(Context::GetCurrent())) {}
 bool MRTRenderTexture::AddColorTexture(TextureFormat format) { return _suede_dptr()->AddColorTexture(format); }
@@ -112,7 +165,10 @@ void TextureInternal::Unbind() {
 }
 
 uint TextureInternal::GetNativePointer() {
-	SUEDE_ASSERT(texture_ != 0);
+	if (texture_ == 0) {
+		Debug::LogWarning("Texture does not initialized");
+	}
+
 	return texture_;
 }
 
@@ -447,63 +503,7 @@ void TextureCubeInternal::ApplyContent() {
 	rawImages_ = nullptr;
 }
 
-RenderTexture* RenderTextureInternal::GetDefault() {
-	static ref_ptr<RenderTexture> screen;
-
-	if (!screen) {
-		screen = new ScreenRenderTexture();
-		screen->Create(RenderTextureFormat::Rgb, 0, 0);
-	}
-
-	return screen.get();
-}
-
-struct RenderTextureCacheKey {
-	int busy_;
-	RenderTextureFormat format;
-	uint width;
-	uint height;
-
-	bool operator<(const RenderTextureCacheKey& other) const {
-		if (busy_ != other.busy_) { return busy_ < other.busy_; }
-		if (format != other.format) { return format < other.format; }
-		if (width != other.width) { return width < other.width; }
-		return height < other.height;
-	}
-};
-
-typedef std::multimap<RenderTextureCacheKey, ref_ptr<RenderTexture>> RenderTextureCacheContainer;
-static RenderTextureCacheContainer renderTextureCache;
-
-static RenderTexture* ToggleRenderTextureBusyState(RenderTextureFormat format, uint width, uint height, int busy_) {
-	RenderTextureCacheKey key = { busy_, format, width, height };
-	RenderTextureCacheContainer::iterator pos = renderTextureCache.find(key);
-	if (pos != renderTextureCache.end()) {
-		ref_ptr<RenderTexture> value = pos->second;
-		renderTextureCache.erase(pos);
-		key.busy_ = !busy_;
-		renderTextureCache.insert(std::make_pair(key, value));
-
-		return value.get();
-	}
-
-	return nullptr;
-}
-
-RenderTexture* RenderTextureInternal::GetTemporary(RenderTextureFormat format, uint width, uint height) {
-	RenderTexture* cache = ToggleRenderTextureBusyState(format, width, height, 0);
-	if (cache != nullptr) {
-		cache->Clear(Rect(0, 0, 1, 1), Color::black, 1, 1);
-		return cache;
-	}
-
-	RenderTexture* texture = new RenderTexture();
-	texture->Create(format, width, height);
-	renderTextureCache.insert(std::make_pair(RenderTextureCacheKey { 1, format, width,height } , texture));
-	return texture;
-}
-
-void RenderTextureInternal::ReleaseTemporary(RenderTexture* texture) {
+void RenderTexture::ReleaseTemporary(RenderTexture* texture) {
 	RenderTexture* cache = ToggleRenderTextureBusyState(texture->GetRenderTextureFormat(), texture->GetWidth(), texture->GetHeight(), 1);
 	SUEDE_ASSERT(cache != nullptr);
 }
@@ -557,13 +557,13 @@ void RenderTextureInternal::BindWrite(const Rect& normalizedRect) {
 
 void RenderTextureInternal::Bind(uint index) {
 	if (VerifyBindStatus()) {
-		bindStatus_ = StatusRead;
 		if (configDirty_) { ApplyConfig(); }
 		else {
 			if (sizeDirty_) { ApplySize(); }
 			if (clearArgument_.dirty) { ApplyClearContent(); }
 		}
 
+		bindStatus_ = StatusRead;
 		TextureInternal::Bind(index);
 	}
 }
@@ -585,6 +585,8 @@ void RenderTextureInternal::ApplySize() {
 	BindTexture();
 	ResizeStorage(width_, height_, renderTextureFormat_);
 	UnbindTexture();
+
+	sizeDirty_ = false;
 }
 
 void RenderTextureInternal::ApplyConfig() {
@@ -610,7 +612,7 @@ void RenderTextureInternal::ApplyConfig() {
 
 	UnbindTexture();
 
-	if (!ContainsDepthInfo()) {
+	if (!IsDepthOrStencilTexture()) {
 		framebuffer_->SetViewport(0, 0, width_, height_);
 		framebuffer_->CreateDepthRenderbuffer();
 		framebuffer_->SetRenderTexture(FramebufferAttachment0, texture_);
@@ -624,20 +626,20 @@ void RenderTextureInternal::ApplyConfig() {
 
 void RenderTextureInternal::ApplyClearContent() {
 	if (SetViewport(Rect::NormalizedToRect(Rect(0.f, 0.f, (float)GetWidth(), (float)GetHeight()), clearArgument_.normalizedRect))) {
-		int flags = FramebufferClearMaskColor;
+		int flags = 0;
 		if (clearArgument_.depth >= 0) {
 			flags |= FramebufferClearMaskDepth;
 			framebuffer_->SetClearDepth(clearArgument_.depth);
 		}
 
-		if (clearArgument_.stencil >= 0) {
-			flags |= FramebufferClearMaskStencil;
-			framebuffer_->SetClearStencil(clearArgument_.stencil);
-		}
-
-		if (!ContainsDepthInfo()) {
+		if (!IsDepthOrStencilTexture()) {
 			flags |= FramebufferClearMaskColor;
 			framebuffer_->SetClearColor(clearArgument_.color);
+		}
+
+		if (renderTextureFormat_ == RenderTextureFormat::DepthStencil && clearArgument_.stencil >= 0) {
+			flags |= FramebufferClearMaskStencil;
+			framebuffer_->SetClearStencil(clearArgument_.stencil);
 		}
 
 		framebuffer_->Clear((FramebufferClearMask)flags);
@@ -670,17 +672,17 @@ void RenderTextureInternal::OnContextDestroyed() {
 	TextureInternal::OnContextDestroyed();
 }
 
-void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat format) {
-	uint glFormat[3];
-	RenderTextureFormatToGLenum(format, glFormat);
-	context_->TexImage2D(GL_TEXTURE_2D, 0, glFormat[0], w, h, 0, glFormat[1], glFormat[2], nullptr);
-	internalFormat_ = glFormat[0];
+void RenderTextureInternal::ResizeStorage(uint w, uint h, RenderTextureFormat renderTextureFormat) {
+	uint internalFormat, format, type;
+	RenderTextureFormatToGLenum(renderTextureFormat, internalFormat, format, type);
+	context_->TexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, type, nullptr);
+	internalFormat_ = internalFormat;
 }
 
-void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat input, uint(&parameters)[3]) {
-	uint internalFormat = GL_RGBA;
-	uint format = GL_RGBA;
-	uint type = GL_UNSIGNED_BYTE;
+void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat input, uint& internalFormat, uint& format, uint& type) {
+	internalFormat = GL_RGBA;
+	format = GL_RGBA;
+	type = GL_UNSIGNED_BYTE;
 
 	switch (input) {
 		case RenderTextureFormat::Rgb:
@@ -706,7 +708,7 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 			break;
 		case RenderTextureFormat::Depth:
 		case RenderTextureFormat::Shadow:
-			internalFormat = GL_DEPTH_COMPONENT16;
+			internalFormat = GL_DEPTH_COMPONENT24;
 			format = GL_DEPTH_COMPONENT;
 			type = GL_FLOAT;
 			break;
@@ -719,10 +721,6 @@ void RenderTextureInternal::RenderTextureFormatToGLenum(RenderTextureFormat inpu
 			Debug::LogError("invalid render texture format: %d.", input);
 			break;
 	}
-
-	parameters[0] = internalFormat;
-	parameters[1] = format;
-	parameters[2] = type;
 }
 
 TextureBufferInternal::TextureBufferInternal(Context* context) : TextureInternal(ObjectType::TextureBuffer, context) {

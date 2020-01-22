@@ -17,6 +17,7 @@
 #include "gizmos.h"
 #include "physics.h"
 #include "graphics.h"
+#include "layermask.h"
 #include "resources.h"
 
 #include "frameevents.h"
@@ -80,6 +81,7 @@ void EngineInternal::Startup(GLCanvas* canvas) {
 	Physics* physics = REGISTER_SUBSYSTEM(Physics, gizmos);
 	Input* input = REGISTER_SUBSYSTEM(Input);
 	Tags* tags = REGISTER_SUBSYSTEM(Tags);
+	LayerMask* layerMask = REGISTER_SUBSYSTEM(LayerMask);
 
 	physics->SetGravity(Vector3(0, -9.8f, 0));
 

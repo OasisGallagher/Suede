@@ -31,6 +31,8 @@ struct RenderingPipelines {
 	void Clear();
 
 	Pipeline* depth;
+	Pipeline* depthNormals;
+
 	Pipeline* shadow;
 	Pipeline* rendering;
 	Pipeline* ssaoTraversal;
@@ -54,6 +56,7 @@ private:
 	void OnImageEffects(const std::vector<ImageEffect*>& effects);
 
 	void DepthPass(RenderingPipelines* pipelines);
+	void DepthNormalsPass(RenderingPipelines* pipelines);
 	void SSAOPass(RenderingPipelines* pipelines);
 	void SSAOTraversalPass(RenderingPipelines* pipelines);
 	void ShadowPass(RenderingPipelines* pipelines);
@@ -92,6 +95,7 @@ private:
 
 	void ForwardPass(Pipeline* pl, const std::vector<GameObject*>& gameObjects);
 	void ForwardDepthPass(Pipeline* pl);
+	void ForwardDepthNormalsPass(Pipeline* pl);
 
 	void RenderGameObject(Pipeline* pl, GameObject* go, Renderer* renderer);
 	void RenderSubMesh(Pipeline* pl, GameObject* go, int subMeshIndex, Material* material);

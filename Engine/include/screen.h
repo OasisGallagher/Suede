@@ -1,5 +1,5 @@
 #pragma once
-#include "defines.h"
+#include "types.h"
 #include "tools/event.h"
 
 class SUEDE_API Screen {

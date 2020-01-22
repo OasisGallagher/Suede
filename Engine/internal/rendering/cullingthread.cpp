@@ -33,6 +33,10 @@ void CullingTask::Run() {
 
 	std::vector<GameObject*> allRenderers = scene_->GetGameObjectsOfComponent(Renderer::GetComponentGUID());
 	for (GameObject* go : allRenderers) {
+		if ((cullingMask_ & (1 << go->GetLayer())) == 0) {
+			continue;
+		}
+
 		Renderer* renderer = go->GetComponent<Renderer>();
 		if (!renderer->GetActiveAndEnabled() || !IsVisible(renderer)) {
 			continue;

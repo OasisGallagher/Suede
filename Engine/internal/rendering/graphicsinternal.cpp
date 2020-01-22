@@ -42,7 +42,7 @@ void GraphicsInternal::SetAmbientOcclusionEnabled(bool value) { ambientOcclusion
 bool GraphicsInternal::GetAmbientOcclusionEnabled() { return ambientOcclusionEnabled_; }
 
 void GraphicsInternal::Blit(Texture* src, RenderTexture* dest) {
-	Blit(src, dest, blitMaterial_.get(), Rect(0, 0, 1, 1), Rect(0, 0, 1, 1));
+	Blit(src, dest, blitMaterial_.get(), Rect::unit, Rect::unit);
 }
 
 void GraphicsInternal::Blit(Texture* src, RenderTexture* dest, const Rect& rect) {
@@ -54,7 +54,7 @@ void GraphicsInternal::Blit(Texture* src, RenderTexture* dest, const Rect& srcRe
 }
 
 void GraphicsInternal::Blit(Texture* src, RenderTexture* dest, Material* material) {
-	Blit(src, dest, material, Rect(0, 0, 1, 1), Rect(0, 0, 1, 1));
+	Blit(src, dest, material, Rect::unit, Rect::unit);
 }
 
 void GraphicsInternal::Blit(Texture* src, RenderTexture* dest, Material* material, const Rect& rect) {
@@ -65,6 +65,7 @@ void GraphicsInternal::Blit(Texture* src, RenderTexture* dest, Material* materia
 	if (!dest) { dest = RenderTexture::GetDefault(); }
 
 	dest->BindWrite(destRect);
+
 	material->SetTexture(BuiltinProperties::MainTexture, src);
 
 	ref_ptr<Mesh> mesh = CreateBlitMesh(srcRect);
@@ -101,7 +102,7 @@ ref_ptr<Mesh> GraphicsInternal::CreateBlitMesh(const Rect& rect) {
 
 void GraphicsInternal::DrawSubMeshes(Mesh* mesh) {
 	for (int i = 0; i < mesh->GetSubMeshCount(); ++i) {
-		Context::GetCurrent()->DrawElementsBaseVertex(mesh->GetGeometry()->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
+		currentContext->DrawElementsBaseVertex(mesh->GetGeometry()->GetTopology(), mesh->GetSubMesh(i)->GetTriangleBias());
 	}
 }
 
@@ -120,6 +121,7 @@ void GraphicsInternal::Draw(Mesh* mesh, Material* material) {
 		for (pass = 0; pass < material->GetPassCount(); ++pass) {
 			if (material->IsPassEnabled(pass)) {
 				material->Bind(pass);
+				
 				DrawSubMeshes(mesh);
 				material->Unbind();
 			}

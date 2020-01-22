@@ -3,6 +3,7 @@
 #include "color.h"
 #include "defines.h"
 #include "subsystem.h"
+#include "gameobject.h"
 #include "math/matrix4.h"
 
 class Graphics;

@@ -31,6 +31,8 @@ struct SUEDE_MATH_API Quaternion {
 	bool operator ==(const Quaternion& other) const;
 	bool operator !=(const Quaternion& other) const;
 
+	static Quaternion identity;
+
 	static void Pow(Quaternion& q, float x);
 	static void Inverse(Quaternion& q) { q = q.GetInversed(); }
 	static void Normalize(Quaternion& q) { q = q.GetNormalized(); }

@@ -37,6 +37,7 @@ private:
 
 	void drawBasics(GameObject* go);
 	void drawTags(GameObject* go);
+	void drawLayer(GameObject* go);
 	void drawComponents(GameObject* go);
 
 	void drawMetaObject(QObject* object);

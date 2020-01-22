@@ -24,9 +24,11 @@
 #include "gizmos.h"
 #include "texture.h"
 #include "physics.h"
+#include "layermask.h"
 #include "resources.h"
 #include "projector.h"
 #include "behaviour.h"
+#include "frameevents.h"
 #include "particlesystem.h"
 #include "builtinproperties.h"
 
@@ -46,14 +48,14 @@
 //#define BEAR
 //#define BEAR_X_RAY
 //#define IMAGE_EFFECTS
-//#define ANIMATION
+#define ANIMATION
 //#define PARTICLE_SYSTEM
 //#define FONT
 //#define BUMPED
 //#define NORMAL_VISUALIZER
 //#define DEFERRED_RENDERING
 
-static const char* roomFbxPath = "geom.fbx";
+static const char* roomFbxPath = "teddy_bear.fbx";
 static const char* bumpedFbxPath = "builtin/sphere.fbx";
 static const char* normalVisualizerFbxPath = "nanosuit.fbx";
 
@@ -86,16 +88,22 @@ void GameWindow::initUI() {
 void GameWindow::awake() {
 	Component::Register<CameraController>();
 
-	ui_->showGizmos->setChecked(true);
-	ui_->shadingMode->setEnums(Engine::GetSubsystem<Graphics>()->GetShadingMode());
-	ui_->drawPhysics->setChecked(Engine::GetSubsystem<Physics>()->GetDebugDrawEnabled());
-
 	input_ = Engine::GetSubsystem<Input>();
+	physics_ = Engine::GetSubsystem<Physics>();
+	graphics_ = Engine::GetSubsystem<Graphics>();
 
-	inputDelegate_ = new QtInputDelegate(canvas_);
-	input_->SetDelegate(inputDelegate_);
+	ui_->showGizmos->setChecked(false);
+	ui_->shadingMode->setEnums(graphics_->GetShadingMode());
+	ui_->drawPhysics->setChecked(physics_->GetDebugDrawEnabled());
+
+	input_->SetDelegate(inputDelegate_ = new QtInputDelegate(canvas_));
+
+	Screen::sizeChanged.subscribe(this, &GameWindow::onEngineScreenSizeChanged);
+	Engine::GetSubsystem<FrameEvents>()->frameLeave.subscribe(this, &GameWindow::onFrameLeave, (int)FrameEventQueue::User + 1);
 
 	setupScene();
+
+	onToggleGizmos(false);
 }
 
 void GameWindow::tick() {
@@ -107,15 +115,11 @@ void GameWindow::tick() {
 
 		editor_->selection()->clear();
 
-		if (Engine::GetSubsystem<Physics>()->Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
+		if (physics_->Raycast(Ray(src, dest - src), 1000, &hitInfo)) {
 			editor_->selection()->add(hitInfo.gameObject);
 		}
 	}
 }
-
-// void Game::OnFrameLeave() {
-// //	Graphics::Blit(targetTexture_, nullptr);
-// }
 
 void GameWindow::keyPressEvent(QKeyEvent* event) {
 	switch (event->key()) {
@@ -141,7 +145,7 @@ void GameWindow::onToggleStatistics(bool checked) {
 }
 
 void GameWindow::onToggleDrawPhysics(bool checked) {
-	Engine::GetSubsystem<Physics>()->SetDebugDrawEnabled(checked);
+	physics_->SetDebugDrawEnabled(checked);
 }
 
 void GameWindow::updateStatPosition() {
@@ -152,7 +156,7 @@ void GameWindow::updateStatPosition() {
 }
 
 void GameWindow::onShadingModeChanged(const QString& str) {
-	Engine::GetSubsystem<Graphics>()->SetShadingMode(ShadingMode::from_string(str.toLatin1()));
+	graphics_->SetShadingMode(ShadingMode::from_string(str.toLatin1()));
 }
 
 void GameWindow::onFocusGameObjectBounds(GameObject* go) {
@@ -164,9 +168,9 @@ void GameWindow::onFocusGameObjectBounds(GameObject* go) {
 	Transform* target = go->GetTransform();
 	Transform* camera = Camera::GetMain()->GetTransform();
 	float distance = calculateCameraDistanceFitsBounds(Camera::GetMain(), bounds);
-	camera->SetPosition(bounds.center + target->GetForward() * distance);
+	camera->SetPosition(bounds.center - target->GetForward() * distance);
 
-	Quaternion q(Matrix4::LookAt(camera->GetPosition(), bounds.center, Vector3::up));
+	Quaternion q(Matrix4::LookAt(camera->GetPosition(), bounds.center, target->GetUp()));
 	camera->SetRotation(q.GetInversed());
 }
 
@@ -177,6 +181,14 @@ float GameWindow::calculateCameraDistanceFitsBounds(Camera* camera, const Bounds
 	return Mathf::Clamp(Mathf::Min(dx, dy), camera->GetNearClipPlane() + 0.01f, camera->GetFarClipPlane() - 0.01f) + Mathf::Max(bounds.size.x, bounds.size.y) / 2.f;
 }
 
+void GameWindow::onFrameLeave() {
+	graphics_->Blit(selectCameraTargetTexture_.get(), nullptr, outlineMaterial_.get(), Rect::unit, Rect(0, 0, 0.2f, 0.2f));
+}
+
+void GameWindow::onEngineScreenSizeChanged(uint w, uint h) {
+	selectCameraTargetTexture_->Resize(w, h);
+}
+
 void GameWindow::setupScene() {
 	Scene* scene = Engine::GetSubsystem<Scene>();
 
@@ -185,7 +197,7 @@ void GameWindow::setupScene() {
 
 	Light* light = lightGameObject->AddComponent<Light>();
 	light->SetColor(Color::white);
-	light->GetTransform()->SetLocalEulerAngles(Vector3(0, 120, 0));
+	light->GetTransform()->SetLocalEulerAngles(Vector3(180, 200, 180));
 	light->GetTransform()->SetParent(scene->GetRootTransform());
 
 	ref_ptr<GameObject> cameraGameObject = new GameObject();
@@ -202,6 +214,28 @@ void GameWindow::setupScene() {
 
 	selectionGizmos_ = cameraGameObject->AddComponent<SelectionGizmos>();
 	selectionGizmos_->setSelection(editor_->selection());
+
+	ref_ptr<GameObject> selectCameraGameObject = new GameObject();
+	selectCameraGameObject->SetName("select camera");
+	//selectCameraGameObject->AddComponent<Inversion>();
+
+	Camera* selectCamera = selectCameraGameObject->AddComponent<Camera>();
+	selectCameraGameObject->GetTransform()->SetParent(cameraGameObject->GetTransform());
+	selectCameraGameObject->GetTransform()->SetLocalPosition(Vector3::zero);
+	selectCameraGameObject->GetTransform()->SetLocalRotation(Quaternion::identity);
+	selectCamera->SetDepth(1);
+	selectCamera->SetCullingMask(1 << Engine::GetSubsystem<LayerMask>()->NameToLayer("Selected"));
+	selectCamera->SetClearColor(Color::clear);
+	selectCamera->SetDepthTextureMode(DepthTextureMode::Depth);
+
+	outlineMaterial_ = new Material();
+	outlineMaterial_->SetShader(Shader::Find("builtin/outline"));
+	
+	selectCameraTargetTexture_ = new RenderTexture();
+	auto w = Screen::GetWidth(), h = Screen::GetHeight();
+	auto w2 = canvas_->width();
+	selectCameraTargetTexture_->Create(RenderTextureFormat::Rgba, Screen::GetWidth(), Screen::GetHeight());
+	selectCamera->SetTargetTexture(selectCameraTargetTexture_.get());
 
 #ifdef PROJECTOR
 	ref_ptr<GameObject> projectorGameObject = new GameObject();
@@ -286,7 +320,7 @@ void GameWindow::setupScene() {
 
 #ifdef RENDER_TEXTURE
 	RenderTexture renderTexture = new RenderTexture();
-	renderTexture->Load(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
+	renderTexture->Create(RenderTextureFormatRgba, ui_->canvas->width(), ui_->canvas->height());
 	camera->SetRenderTexture(renderTexture);
 #endif
 
@@ -366,9 +400,6 @@ void GameWindow::setupScene() {
 
 			Material* material = target->GetComponent<MeshRenderer>()->GetMaterial(0);
 			material->SetTexture(BuiltinProperties::MainTexture, diffuse.get());
-
-			root->GetTransform()->SetPosition(Vector3(0, 25, -5));
-			root->GetTransform()->SetEulerAngles(Vector3(0));
 		}
 
 		onFocusGameObjectBounds(root);

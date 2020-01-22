@@ -168,11 +168,20 @@ public:
 	~RenderTexture() {}
 
 public:
+	void __tmpApplyClear();
 	bool Create(RenderTextureFormat format, uint width, uint height);
 
 	RenderTextureFormat GetRenderTextureFormat();
 
 	void Resize(uint width, uint height);
+
+	/**
+	 * Clear RenderTexture.
+	 * @param normalizedRect Rectangle area to clear.
+	 * @param color Value used to clear color buffer.
+	 * @param depth Value used to clear depth buffer, clamped to the range [0, 1]. If value equals to -1, depth buffer will not be cleared.
+	 * @param stencil Value used to clear stencil buffer, clamped to the range [0, 255]. If value equals to -1, stencil buffer will not be cleared.
+	 */
 	void Clear(const Rect& normalizedRect, const Color& color, float depth, int stencil);
 
 	void BindWrite(const Rect& normalizedRect);

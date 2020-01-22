@@ -19,6 +19,7 @@ public:
 	virtual QSize size() const = 0;
 	virtual qreal devicePixelRatio() const = 0;
 	virtual bool isActive() const = 0;
+	virtual QWidget* widget() = 0;
 	virtual QPoint mapFromGlobal(const QPoint &p) const = 0;
 };
 
@@ -37,11 +38,11 @@ public:
 
 	bool eventFilter(QObject *watched, QEvent *event);
 
+
 private:
-    void onMousePressedChange(QMouseEvent *event);
-	void onMouseDoubleClickEvent(QMouseEvent* event);
-    void onWheel(QWheelEvent *event);
-    void onKeyPressRelease(QKeyEvent *event);
+    void onKeyEvent(QKeyEvent *event);
+	void onMouseEvent(QMouseEvent *event);
+	void onWheelEvent(QWheelEvent *event);
 
     void renderDrawList(ImDrawData *draw_data);
     bool createFontsTexture();

@@ -18,9 +18,10 @@ BETTER_ENUM(RenderPath, int,
 	Deferred
 )
 
-BETTER_ENUM(DepthTextureMode, int,
-	None,
-	Depth = 1
+BETTER_ENUM_MASK(DepthTextureMode, int,
+	Depth = 1,
+	DepthNormals = 2,
+	MotionVector = 4
 )
 
 class SUEDE_API Camera : public Component {
@@ -35,6 +36,9 @@ public:
 public:
 	void SetDepth(int vaue);
 	int GetDepth() const;
+
+	void SetCullingMask(int value);
+	int GetCullingMask() const;
 
 	bool GetPerspective() const;
 	void SetPerspective(bool value);

@@ -34,8 +34,6 @@ private:
 	void updateSelection(GameObject* go);
 	void importGameObject();
 
-	void enableGameObjectOutline(GameObject* go, bool enable);
-
 private:
 	IMGUIWidget* view_;
 

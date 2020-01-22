@@ -32,6 +32,7 @@ void Material::SetFloat(const std::string& name, float value) { _suede_dptr()->S
 void Material::SetTexture(const std::string& name, Texture* value) { _suede_dptr()->SetTexture(name, value); }
 void Material::SetMatrix4(const std::string& name, const Matrix4& value) { _suede_dptr()->SetMatrix4(name, value); }
 void Material::SetMatrix4Array(const std::string& name, const Matrix4* ptr, uint count) { _suede_dptr()->SetMatrix4Array(name, ptr, count); }
+void Material::SetVector2(const std::string& name, const Vector2& value) { _suede_dptr()->SetVector2(name, value); }
 void Material::SetVector3(const std::string& name, const Vector3& value) { _suede_dptr()->SetVector3(name, value); }
 void Material::SetVector3Array(const std::string& name, const Vector3* ptr, uint count) { _suede_dptr()->SetVector3Array(name, ptr, count); }
 void Material::SetColor(const std::string& name, const Color& value) { _suede_dptr()->SetColor(name, value); }
@@ -44,6 +45,7 @@ iranged Material::GetRangedInt(const std::string& name) { return _suede_dptr()->
 franged Material::GetRangedFloat(const std::string& name) { return _suede_dptr()->GetRangedFloat(name); }
 Texture* Material::GetTexture(const std::string& name) { return _suede_dptr()->GetTexture(name); }
 Matrix4 Material::GetMatrix4(const std::string& name) { return _suede_dptr()->GetMatrix4(name); }
+Vector2 Material::GetVector2(const std::string& name) { return _suede_dptr()->GetVector2(name); }
 Vector3 Material::GetVector3(const std::string& name) { return _suede_dptr()->GetVector3(name); }
 Color Material::GetColor(const std::string& name) { return _suede_dptr()->GetColor(name); }
 Vector4 Material::GetVector4(const std::string& name) { return _suede_dptr()->GetVector4(name); }
@@ -134,6 +136,16 @@ void MaterialInternal::SetTexture(const std::string& name, Texture* value) {
 	}
 	else if (var->GetTexture() != value) {
 		var->SetTexture(value);
+	}
+}
+
+void MaterialInternal::SetVector2(const std::string& name, const Vector2& value) {
+	Variant* var = GetProperty(name, VariantType::Vector2);
+	if (var == nullptr) {
+		AddRedundantProperty(name, value);
+	}
+	else if (var->GetVector2() != value) {
+		var->SetVector2(value);
 	}
 }
 
@@ -270,6 +282,15 @@ Matrix4 MaterialInternal::GetMatrix4(const std::string& name) {
 	return var->GetMatrix4();
 }
 
+Vector2 MaterialInternal::GetVector2(const std::string& name) {
+	Variant* var = VerifyProperty(name, VariantType::Vector2);
+	if (var == nullptr) {
+		return Vector2(0);
+	}
+
+	return var->GetVector2();
+}
+
 Vector3 MaterialInternal::GetVector3(const std::string& name) {
 	Variant* var = VerifyProperty(name, VariantType::Vector3);
 	if (var == nullptr) {
@@ -316,7 +337,17 @@ void MaterialInternal::Bind(uint pass) {
 		return;
 	}
 
+	auto depth = dynamic_cast<RenderTexture*>(GetTexture("_CameraDepthTexture"));
+	if (depth) {
+		depth->__tmpApplyClear();
+	}
+
 	shader_->Bind(SUB_SHADER_INDEX, pass);
+
+	/*auto depth = dynamic_cast<RenderTexture*>(GetTexture("_CameraDepthTexture"));
+	if (depth) {
+		depth->__tmpApplyClear();
+	}*/
 
 	if (shaderDirty_) {
 		ApplyShader();
@@ -417,7 +448,8 @@ MaterialProperty* MaterialInternal::GetMaterialProperty(const std::string& name,
 Variant* MaterialInternal::VerifyProperty(const std::string& name, VariantType type) {
 	Variant* var = GetProperty(name, type);
 	if (var == nullptr) {
-		Debug::LogError("no %s property named %s.", type.to_string(), name.c_str());
+		// SUEDE TODO modify to LogError
+		Debug::LogWarning("no %s property named %s.", type.to_string(), name.c_str());
 	}
 
 	return var;
@@ -442,6 +474,10 @@ void MaterialInternal::BindProperties(uint pass) {
 			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, var.GetData());
 		}
 		else if (var.GetTexture()) {
+			if (ite->first == BuiltinProperties::CameraDepthTexture) {
+				dynamic_cast<RenderTexture*>(var.GetTexture())->__tmpApplyClear();
+			}
+
 			var.GetTexture()->Bind(textureIndex);
 			shader_->SetProperty(SUB_SHADER_INDEX, pass, ite->first, &textureIndex);
 			textureIndex++;
@@ -536,6 +572,9 @@ void MaterialInternal::SetVariant(const std::string& name, const Variant& value)
 		case VariantType::Int:
 			SetInt(name, value.GetInt());
 			break;
+		case VariantType::Bool:
+			SetBool(name, value.GetBool());
+			break;
 		case VariantType::Float:
 			SetFloat(name, value.GetFloat());
 			break;
@@ -544,6 +583,9 @@ void MaterialInternal::SetVariant(const std::string& name, const Variant& value)
 			break;
 		case VariantType::Matrix4:
 			SetMatrix4(name, value.GetMatrix4());
+			break;
+		case VariantType::Vector2:
+			SetVector2(name, value.GetVector2());
 			break;
 		case VariantType::Vector3:
 			SetVector3(name, value.GetVector3());

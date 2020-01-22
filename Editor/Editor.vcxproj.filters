@@ -600,6 +600,12 @@
     <None Include="resources\shaders\builtin\lit_parallactic_texture.shader">
       <Filter>resources\shaders\builtin</Filter>
     </None>
+    <None Include="resources\shaders\builtin\outline.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
+    <None Include="resources\shaders\builtin\depth_normals.shader">
+      <Filter>resources\shaders\builtin</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\winrc\res.rc">

@@ -118,27 +118,18 @@ void HierarchyWindow::drawHierarchy(Transform* root, int depth) {
 void HierarchyWindow::updateSelection(GameObject* go) {
 	if (ImGui::GetIO().KeyShift) {
 		selection_->add(go);
-		enableGameObjectOutline(go, true);
 	}
 	else if (ImGui::GetIO().KeyCtrl) {
 		if (selection_->contains(go)) {
 			selection_->remove(go);
-			enableGameObjectOutline(go, false);
 		}
 		else {
 			selection_->add(go);
-			enableGameObjectOutline(go, true);
 		}
 	}
 	else {
-		for (GameObject* item : selection_->gameObjects()) {
-			enableGameObjectOutline(item, false);
-		}
-
 		selection_->clear();
-
 		selection_->add(go);
-		enableGameObjectOutline(go, true);
 	}
 }
 
@@ -150,23 +141,5 @@ void HierarchyWindow::importGameObject() {
 				emit focusGameObjectRequested(go);
 			}
 		});
-	}
-}
-
-void HierarchyWindow::enableGameObjectOutline(GameObject* go, bool enable) {
-	for (MeshRenderer* renderer : go->GetComponentsInChildren<MeshRenderer>()) {
-		for (int i = 0; i < renderer->GetMaterialCount(); ++i) {
-			Material* material = renderer->GetSharedMaterial(i);
-			int outline = material->FindPass("Outline");
-			if (outline < 0) { continue; }
-
-			bool alreadyEnabled = material->IsPassEnabled(outline);
-			if (enable && !alreadyEnabled) {
-				renderer->GetMaterial(i)->EnablePass(outline);
-			}
-			else if (alreadyEnabled) {
-				renderer->GetMaterial(i)->DisablePass(outline);
-			}
-		}
 	}
 }

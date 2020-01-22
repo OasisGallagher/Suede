@@ -94,6 +94,7 @@ protected:
 
 	uint fbo_;
 	IVector4 viewport_;
+	IVector4 oldViewport_;
 
 	float clearDepth_;
 	int clearStencil_;

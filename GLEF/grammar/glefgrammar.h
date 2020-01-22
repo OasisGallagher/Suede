@@ -26,6 +26,7 @@ const char* const GLEFGrammar =
 "	| color $Identifier $Vec4Initializer ;			$$ = make(\"Color\", $3, $2)\n"
 "	| iranged $Identifier $IVec3Initializer ;		$$ = make(\"RangedInt\", $3, $2)\n"
 "	| franged $Identifier $Vec3Initializer ;		$$ = make(\"RangedFloat\", $3, $2)\n"
+"	| vec2 $Identifier $Vec2Initializer ;			$$ = make(\"Vec2\", $3, $2)\n"
 "	| vec3 $Identifier $Vec3Initializer ;			$$ = make(\"Vec3\", $3, $2)\n"
 "	| vec4 $Identifier $Vec4Initializer ;			$$ = make(\"Vec4\", $3, $2)\n"
 "	| texture2D $Identifier $StringInitializer ;	$$ = make(\"Texture2D\", $3, $2)\n"

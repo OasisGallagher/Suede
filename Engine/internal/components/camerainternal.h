@@ -23,8 +23,11 @@ public:
 public:
 	void Awake();
 
-	void SetDepth(Camera* self, int value);
+	void SetDepth(int value) { depth_ = value; }
 	int GetDepth() const { return depth_;  }
+
+	void SetCullingMask(int value) { cullingMask_ = value; }
+	int GetCullingMask() const { return cullingMask_; }
 
 	void SetRect(const Rect& value) { normalizedRect_ = value; }
 	const Rect& GetRect() const { return normalizedRect_; }
@@ -78,9 +81,6 @@ public:
 public:
 	int GetUpdateStrategy() { return UpdateStrategyNone; }
 
-protected:
-	void OnProjectionMatrixChanged();
-
 private:
 	void RenderFrame();
 	void UpdateFrameState();
@@ -92,6 +92,7 @@ private:
 
 private:
 	int depth_ = 0;
+	int cullingMask_ = -1;
 
 	Transform* transform_ = nullptr;
 
@@ -101,7 +102,7 @@ private:
 	PipelineBuilder* pipelineBuilder_;
 	RenderingPipelines* frontPipelines_, *backPipelines_;
 
-	Rect normalizedRect_ = Rect(0, 0, 1, 1);
+	Rect normalizedRect_ = Rect::unit;
 
 	ClearType clearType_ = ClearType::Color;
 	Color clearColor_ = Color::black;

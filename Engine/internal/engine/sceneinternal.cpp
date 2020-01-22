@@ -56,6 +56,10 @@ void SceneInternal::OnDestroy() {
 	decalCreater_ = nullptr;
 }
 
+// SUEDE TODO Remove me.
+#include "internal/base/textureinternal.h"
+#include "internal/rendering/renderingcontext.h"
+
 void SceneInternal::Update(float deltaTime) {
 	UpdateDestroyedGameObjects();
 

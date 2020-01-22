@@ -25,7 +25,8 @@ namespace BuiltinProperties {
 	DEFINE_BUILTIN_PROPERTY(MatrixTextureBufferOffset);
 
 	DEFINE_BUILTIN_PROPERTY(SSAOTexture);
-	DEFINE_BUILTIN_PROPERTY(DepthTexture);
+	DEFINE_BUILTIN_PROPERTY(CameraDepthTexture);
+	DEFINE_BUILTIN_PROPERTY(CameraDepthNormalsTexture);
 	DEFINE_BUILTIN_PROPERTY(ShadowDepthTexture);
 
 	DEFINE_BUILTIN_PROPERTY(Gloss);
